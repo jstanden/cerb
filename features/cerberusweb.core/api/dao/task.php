@@ -226,33 +226,33 @@ class DAO_Task extends C4_ORMHelper {
 		$db->Execute(sprintf("DELETE QUICK FROM task WHERE id IN (%s)", $ids_list));
 
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.delete',
-                array(
-                	'context' => CerberusContexts::CONTEXT_TASK,
-                	'context_ids' => $ids
-                )
-            )
-	    );
-		
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => CerberusContexts::CONTEXT_TASK,
+					'context_ids' => $ids
+				)
+			)
+		);
+
 		return true;
 	}
 	
 	public static function maint() {
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.maint',
-                array(
-                	'context' => CerberusContexts::CONTEXT_TASK,
-                	'context_table' => 'task',
-                	'context_key' => 'id',
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.maint',
+				array(
+					'context' => CerberusContexts::CONTEXT_TASK,
+					'context_table' => 'task',
+					'context_key' => 'id',
+				)
+			)
+		);
 	}
 	
 	public static function random() {
@@ -266,7 +266,7 @@ class DAO_Task extends C4_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
 			$sortBy=null;
 		
-        list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"t.id as %s, ".
@@ -275,14 +275,14 @@ class DAO_Task extends C4_ORMHelper {
 			"t.is_completed as %s, ".
 			"t.completed_date as %s, ".
 			"t.title as %s ",
-			    SearchFields_Task::ID,
-			    SearchFields_Task::UPDATED_DATE,
-			    SearchFields_Task::DUE_DATE,
-			    SearchFields_Task::IS_COMPLETED,
-			    SearchFields_Task::COMPLETED_DATE,
-			    SearchFields_Task::TITLE
-			 );
-		
+				SearchFields_Task::ID,
+				SearchFields_Task::UPDATED_DATE,
+				SearchFields_Task::DUE_DATE,
+				SearchFields_Task::IS_COMPLETED,
+				SearchFields_Task::COMPLETED_DATE,
+				SearchFields_Task::TITLE
+		);
+
 		$join_sql = 
 			"FROM task t ".
 
@@ -412,7 +412,7 @@ class DAO_Task extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-    }	
+	}	
 	
 };
 
