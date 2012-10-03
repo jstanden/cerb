@@ -531,7 +531,29 @@ abstract class Extension_RestController extends DevblocksExtension {
 			if(null === ($field = $this->translateToken($filter[0], 'search')))
 				$this->error(self::ERRNO_SEARCH_FILTERS_INVALID, sprintf("'%s' is not a valid search token.", $filter[0]));
 			
-			$params[$field] = new DevblocksSearchCriteria($field, $filter[1], $filter[2]);
+			$oper = $filter[1];
+			$value = $filter[2];
+			
+			// Translate OPER_IN from JSON arrays to PHP primitives
+			switch($oper) {
+				case DevblocksSearchCriteria::OPER_IN:
+				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+				case DevblocksSearchCriteria::OPER_NIN:
+				case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+					if(!is_array($value) && preg_match('#^\[.*\]$#', $value)) {
+						$value = json_decode($value, true);
+						
+					} elseif(is_array($value)) {
+						$value;
+						
+					} else {
+						$value = array($value);
+						
+					}
+					break;
+			}
+			
+			$params[$field] = new DevblocksSearchCriteria($field, $oper, $value);
 		}
 		
 		return $params;
