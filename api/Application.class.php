@@ -1690,6 +1690,9 @@ class C4_ORMHelper extends DevblocksORMHelper {
 	}
 	
 	static function _searchComponentsVirtualWatchers(&$param, $from_context, $from_index, &$join_sql, &$where_sql) {
+		if(!is_array($param->value))
+			$param->value = array($param->value);
+		
 		$param->value = DevblocksPlatform::sanitizeArray($param->value, 'integer', array('nonzero','unique'));
 		
 		// Join and return anything

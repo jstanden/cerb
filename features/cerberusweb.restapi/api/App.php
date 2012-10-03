@@ -53,13 +53,26 @@ class Plugin_RestAPI {
 			return false;
 		
 		if('json' == $format) {
+			// Fix numeric keys
+			if(isset($array['results'])) {
+				$filtered_results = array();
+				
+				foreach($array['results'] as $k => $v) {
+					$filtered_results[] = $v;
+				}
+				
+				$array['results'] = $filtered_results;
+			}
+			
 			header("Content-type: text/javascript; charset=utf-8");
 			echo json_encode($array);
+			
 		} elseif ('xml' == $format) {
 			header("Content-type: text/xml; charset=utf-8");
 			$xml = new SimpleXMLElement("<response/>");
 			self::xml_encode($array, $xml);
 			echo $xml->asXML();
+			
 		} else {
 			header("Content-type: text/plain; charset=utf-8");
 			echo "'" . $format . "' is not implemented.";
@@ -72,11 +85,12 @@ class Plugin_RestAPI {
 		if(is_array($object))
 		foreach($object as $k => $v) {
 			if(is_array($v)) {
-				$e =& $xml->addChild("array", '');
+				$e = $xml->addChild("array", '');
 				$e->addAttribute("key", $k);
 				self::xml_encode($v, $e);
+				
 			} else {
-				$e =& $xml->addChild("string", htmlspecialchars($v, ENT_QUOTES, LANG_CHARSET_CODE));
+				$e = $xml->addChild("string", htmlspecialchars($v, ENT_QUOTES, LANG_CHARSET_CODE));
 				$e->addAttribute("key", (string)$k);
 			}
 		}
@@ -401,7 +415,35 @@ abstract class Extension_RestController extends DevblocksExtension {
 	protected function success($array) {
 		if(!is_array($array))
 			return false;
-			
+
+		@$expand = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['expand'],'string',null));
+
+		// Do we need to lazy load some fields to be helpful?
+		if(is_array($expand) && !empty($expand)) {
+			if(isset($array['_context'])) {
+				$dict = new DevblocksDictionaryDelegate($array);
+				
+				foreach($expand as $expand_field)
+					$dict->$expand_field;
+				
+				$array = $dict->getDictionary();
+				
+			} elseif(isset($array['results'])) {
+				foreach($array['results'] as $k => $v) {
+					if(!isset($array['results'][$k]['_context']))
+						continue;
+					
+					$dict = new DevblocksDictionaryDelegate($array['results'][$k]);
+					
+					foreach($expand as $expand_field)
+						$dict->$expand_field;
+					
+					$array['results'][$k] = $dict->getDictionary();
+				}
+				
+			}
+		}
+		
 		$out = array(
 			'__status' => 'success',
 			'__version' => APP_VERSION,
@@ -531,7 +573,29 @@ abstract class Extension_RestController extends DevblocksExtension {
 			if(null === ($field = $this->translateToken($filter[0], 'search')))
 				$this->error(self::ERRNO_SEARCH_FILTERS_INVALID, sprintf("'%s' is not a valid search token.", $filter[0]));
 			
-			$params[$field] = new DevblocksSearchCriteria($field, $filter[1], $filter[2]);
+			$oper = $filter[1];
+			$value = $filter[2];
+			
+			// Translate OPER_IN from JSON arrays to PHP primitives
+			switch($oper) {
+				case DevblocksSearchCriteria::OPER_IN:
+				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+				case DevblocksSearchCriteria::OPER_NIN:
+				case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+					if(!is_array($value) && preg_match('#^\[.*\]$#', $value)) {
+						$value = json_decode($value, true);
+						
+					} elseif(is_array($value)) {
+						$value;
+						
+					} else {
+						$value = array($value);
+						
+					}
+					break;
+			}
+			
+			$params[$field] = new DevblocksSearchCriteria($field, $oper, $value);
 		}
 		
 		return $params;
