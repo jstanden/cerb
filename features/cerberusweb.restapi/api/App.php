@@ -53,6 +53,17 @@ class Plugin_RestAPI {
 			return false;
 		
 		if('json' == $format) {
+			// Fix numeric keys
+			if(isset($array['results'])) {
+				$filtered_results = array();
+				
+				foreach($array['results'] as $k => $v) {
+					$filtered_results[] = $v;
+				}
+				
+				$array['results'] = $filtered_results;
+			}
+			
 			header("Content-type: text/javascript; charset=utf-8");
 			echo json_encode($array);
 		} elseif ('xml' == $format) {
