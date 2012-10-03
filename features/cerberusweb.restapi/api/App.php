@@ -66,11 +66,13 @@ class Plugin_RestAPI {
 			
 			header("Content-type: text/javascript; charset=utf-8");
 			echo json_encode($array);
+			
 		} elseif ('xml' == $format) {
 			header("Content-type: text/xml; charset=utf-8");
 			$xml = new SimpleXMLElement("<response/>");
 			self::xml_encode($array, $xml);
 			echo $xml->asXML();
+			
 		} else {
 			header("Content-type: text/plain; charset=utf-8");
 			echo "'" . $format . "' is not implemented.";
@@ -412,7 +414,35 @@ abstract class Extension_RestController extends DevblocksExtension {
 	protected function success($array) {
 		if(!is_array($array))
 			return false;
-			
+
+		@$expand = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['expand'],'string',null));
+
+		// Do we need to lazy load some fields to be helpful?
+		if(is_array($expand) && !empty($expand)) {
+			if(isset($array['_context'])) {
+				$dict = new DevblocksDictionaryDelegate($array);
+				
+				foreach($expand as $expand_field)
+					$dict->$expand_field;
+				
+				$array = $dict->getDictionary();
+				
+			} elseif(isset($array['results'])) {
+				foreach($array['results'] as $k => $v) {
+					if(!isset($array['results'][$k]['_context']))
+						continue;
+					
+					$dict = new DevblocksDictionaryDelegate($array['results'][$k]);
+					
+					foreach($expand as $expand_field)
+						$dict->$expand_field;
+					
+					$array['results'][$k] = $dict->getDictionary();
+				}
+				
+			}
+		}
+		
 		$out = array(
 			'__status' => 'success',
 			'__version' => APP_VERSION,
