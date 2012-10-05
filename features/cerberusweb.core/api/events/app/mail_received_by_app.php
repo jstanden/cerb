@@ -390,6 +390,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				'replace_content' => array('label' =>'Replace text in message content'),
 				'reject' => array('label' =>'Reject delivery of message'),
 				'redirect_email' => array('label' =>'Redirect delivery to another email address'),
+				'send_email' => array('label' => 'Send email'),
 				'send_email_sender' => array('label' => 'Reply to sender'),
 				'set_header' => array('label' => 'Set message header'),
 			)
@@ -424,6 +425,10 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				
 			case 'redirect_email':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_app/action_redirect_email.tpl');
+				break;
+
+			case 'send_email':
+				DevblocksEventHelper::renderActionSendEmail($trigger);
 				break;
 
 			case 'send_email_sender':
@@ -525,6 +530,10 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 					);
 			
 				return $out;
+				break;
+
+			case 'send_email':
+				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
 				
 			case 'send_email_sender':
@@ -637,6 +646,10 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
   				CerberusMail::reflect($parser_model, $to);
 				break;
 				
+			case 'send_email':
+				return DevblocksEventHelper::runActionSendEmail($params, $dict);
+				break;
+
 			case 'send_email_sender':
 				// Translate message tokens
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
