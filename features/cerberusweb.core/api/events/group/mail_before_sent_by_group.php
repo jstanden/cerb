@@ -113,7 +113,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 		$prefix = 'Sent message ';
 		
 		$labels['content'] = $prefix.'content';
-		$dict->content =& $properties['content'];
+		$values['content'] =& $properties['content'];
 		
 		$labels['to'] = $prefix.'to';
 		$values['to'] =& $properties['to'];
