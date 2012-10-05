@@ -526,8 +526,14 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 						case Model_CustomField::TYPE_WORKER:
 							$value = $params['worker_id'];
 							break;
-						default:
+						case Model_CustomField::TYPE_DROPDOWN:
+						case Model_CustomField::TYPE_CHECKBOX:
+						case Model_CustomField::TYPE_DATE:
 							$value = $params['value'];
+							break;
+						default:
+							$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+							$value = $tpl_builder->build($params['value'], $dict);
 							break;
 					}
 					
@@ -657,8 +663,14 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 						case Model_CustomField::TYPE_WORKER:
 							$value = $params['worker_id'];
 							break;
-						default:
+						case Model_CustomField::TYPE_DROPDOWN:
+						case Model_CustomField::TYPE_CHECKBOX:
+						case Model_CustomField::TYPE_DATE:
 							$value = $params['value'];
+							break;
+						default:
+							$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+							$value = $tpl_builder->build($params['value'], $dict);
 							break;
 					}
 					
