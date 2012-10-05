@@ -1083,12 +1083,20 @@ class CerberusParser {
 					if($status_code >= 500 && $status_code < 600) {
 						$logger->info(sprintf("[Parser] This is a permanent failure delivery-status (%d)", $status_code));
 						
+						$matches = array();
+						
 						if(preg_match('#Original-Recipient:\s*(.*)#i', $message_content, $matches)) {
+							// Use the original address if provided
+						} elseif (preg_match('#Final-Recipient:\s*(.*)#i', $message_content, $matches)) {
+							// Otherwise, try to fall back to the final recipient
+						}
+						
+						if(is_array($matches) && isset($matches[1])) {
 							$entry = explode(';', trim($matches[1]));
 							
 							if(2 == count($entry)) {
 								// Set this sender to defunct
-								if(false != ($bouncer = DAO_Address::lookupAddress($entry[1], true))) {
+								if(false != ($bouncer = DAO_Address::lookupAddress(trim($entry[1]), true))) {
 									DAO_Address::update($bouncer->id, array(
 										DAO_Address::IS_DEFUNCT => 1,
 									));
