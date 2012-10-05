@@ -843,21 +843,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 
 			case 'relay_email':
-				/*
-				DevblocksEventHelper::simulateActionRelayEmail(
-					$params,
-					$dict,
-					CerberusContexts::CONTEXT_TICKET,
-					$ticket_id,
-					$dict->ticket_group_id,
-					@intval($dict->ticket_bucket_id),
-					$dict->ticket_latest_message_id,
-					@intval($dict->ticket_owner_id),
-					$dict->ticket_latest_message_sender_address,
-					$dict->ticket_latest_message_sender_full_name,
-					$dict->ticket_subject
-				);
-				*/
+				return DevblocksEventHelper::simulateActionRelayEmail($params, $dict);
 				break;
 				
 			case 'schedule_behavior':
@@ -873,19 +859,11 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 				
 			case 'send_email_recipients':
-				// Translate message tokens
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$content = $tpl_builder->build($params['content'], $dict);
-
-				$out = sprintf(">>> Sending email to receipients\n".
-					"%s\n",
-					$content
-				);
-				
-				return $out;
+				return DevblocksEventHelper::simulateActionSendEmailRecipients($params, $dict);
 				break;
 				
 			case 'set_owner':
+				return DevblocksEventHelper::simulateActionSetTicketOwner($params, $dict);
 				break;
 				
 			case 'set_reopen_date':
@@ -895,12 +873,15 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_status':
+				return DevblocksEventHelper::simulateActionSetTicketStatus($params, $dict);
 				break;
 				
 			case 'set_subject':
+				return DevblocksEventHelper::simulateActionSetSubject($params, $dict);
 				break;
 				
 			case 'move_to':
+				return DevblocksEventHelper::simulateActionMoveTo($params, $dict);
 				break;	
 			
 			case 'set_initial_sender_links':
@@ -1091,6 +1072,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_subject':
+				// Translate message tokens
 				@$value = $params['value'];
 				
 				$builder = DevblocksPlatform::getTemplateBuilder();
