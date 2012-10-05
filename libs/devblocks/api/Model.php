@@ -222,6 +222,8 @@ class DevblocksSearchCriteria {
 					$vals[$idx] = $db->qstr((string)$val);
 				}
 				
+				$where_in = '';
+				
 				if(empty($vals)) {
 					$where_in = '';
 					
