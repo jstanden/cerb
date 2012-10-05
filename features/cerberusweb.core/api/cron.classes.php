@@ -1068,9 +1068,10 @@ class Pop3Cron extends CerberusCronPageExtension {
 			return;
 		}
 
+		if(is_array($accounts))
 		foreach ($accounts as $account) { /* @var $account Model_Pop3Account */
 			if(!$account->enabled)
-			continue;
+				continue;
 
 			$logger->info('[POP3] Account being parsed is '. $account->nickname);
 			 
@@ -1153,7 +1154,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 			$check = imap_check($mailbox);
 			 
 			// [TODO] Make this an account setting?
-			$total = min($max_downloads,$check->Nmsgs);
+			$total = min($max_downloads, $check->Nmsgs);
 			 
 			$logger->info('[POP3] Init time: '.number_format((microtime(true)-$runtime)*1000,2)," ms");
 
