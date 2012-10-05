@@ -3312,6 +3312,18 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		return $values;
 	}	
 	
+	// Overload the search view for this context
+	function getSearchView($view_id=null) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(null != ($view = parent::getSearchView($view_id))) {
+			$view->addParamsRequired(array(
+				SearchFields_Ticket::TICKET_GROUP_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID,'in',array_keys($active_worker->getMemberships())),
+			), true);
+		}
+		return $view;
+	}	
+	
 	function getChooserView($view_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		

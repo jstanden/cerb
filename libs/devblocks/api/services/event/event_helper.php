@@ -192,8 +192,8 @@ class DevblocksEventHelper {
 				break;
 				
 			default:
-				//$this->runActionExtension($token, $trigger, $params, $dict);
-				//$this->simulateActionExtension($token, $trigger, $params, $dict);
+				//self::runActionExtension($token, $trigger, $params, $dict);
+				//self::simulateActionExtension($token, $trigger, $params, $dict);
 				break;
 		}
 		
@@ -398,7 +398,7 @@ class DevblocksEventHelper {
 				break;
 				
 			default:
-				$this->runActionExtension($token, $trigger, $params, $dict);
+				self::runActionExtension($token, $trigger, $params, $dict);
 				break;	
 		}		
 	}
@@ -1732,7 +1732,7 @@ class DevblocksEventHelper {
 	 * Action: Send Email
 	 */
 	
-	function renderActionSendEmail($trigger) {
+	static function renderActionSendEmail($trigger) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$event = $trigger->getEvent();
@@ -1742,7 +1742,7 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_send_email.tpl');
 	}
 	
-	function simulateActionSendEmail($params, DevblocksDictionaryDelegate $dict) {
+	static function simulateActionSendEmail($params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 
 		@$trigger = $dict->_trigger;
@@ -1807,7 +1807,7 @@ class DevblocksEventHelper {
 		return $out;
 	}
 	
-	function runActionSendEmail($params, DevblocksDictionaryDelegate $dict) {
+	static function runActionSendEmail($params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		
 		@$trigger = $dict->_trigger;
@@ -1861,7 +1861,7 @@ class DevblocksEventHelper {
 	
 	// [TODO] Move this to an event parent so we can presume values
 	
-	function renderActionRelayEmail($filter_to_worker_ids=array(), $show=array('owner','watchers','workers'), $content_token='content') {
+	static function renderActionRelayEmail($filter_to_worker_ids=array(), $show=array('owner','watchers','workers'), $content_token='content') {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$translate = DevblocksPlatform::getTranslationService();
 		
@@ -1888,7 +1888,7 @@ class DevblocksEventHelper {
 	
 	// [TODO] Move this to an event parent so we can presume values
 	
-	function runActionRelayEmail($params, DevblocksDictionaryDelegate $dict, $context, $context_id, $group_id, $bucket_id, $message_id, $owner_id, $sender_email, $sender_name, $subject) {
+	static function runActionRelayEmail($params, DevblocksDictionaryDelegate $dict, $context, $context_id, $group_id, $bucket_id, $message_id, $owner_id, $sender_email, $sender_name, $subject) {
 		$logger = DevblocksPlatform::getConsoleLog('Attendant');
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$mail_service = DevblocksPlatform::getMailService();
