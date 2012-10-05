@@ -966,10 +966,15 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 	 * @return Model_AttachmentLink
 	 */
 	static function getByGUID($guid) {
-		return array_shift(self::getWhere(sprintf("%s = %s",
+		$links = self::getWhere(sprintf("%s = %s",
 			self::GUID,
 			self::qstr($guid)
-		)));
+		));
+		
+		if(!empty($links))
+			return array_shift($links);
+		
+		return array();
 	}
 	
 	static function create($attachment_id, $context, $context_id) {
