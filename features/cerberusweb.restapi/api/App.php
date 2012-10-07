@@ -221,7 +221,11 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		
 		// **** BEGIN AUTH
 		@$verb = $_SERVER['REQUEST_METHOD'];
-		@$header_date = $_SERVER['HTTP_DATE'];
+		@$header_date = $_SERVER['HTTP_X_DATE'];
+		
+		// If the custom X-Date: header isn't provided, fall back to Date:
+		if(empty($header_date))
+			@$header_date = $_SERVER['HTTP_DATE'];
 		
 		@$header_signature = null;
 		
