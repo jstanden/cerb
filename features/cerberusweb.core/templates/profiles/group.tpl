@@ -7,7 +7,7 @@
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 	<tr>
 		<td width="1%" nowrap="nowrap" rowspan="2" valign="top" style="padding-left:10px;">
-			<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$reply_to->email|trim|lower|md5}?s=64&d={devblocks_url full=true}c=resource&p=cerberusweb.core&f=images/wgm/gravatar_nouser.jpg{/devblocks_url}" height="64" width="64" border="0" style="margin:0px 5px 5px 0px;">
+			<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$reply_to->email|trim|lower|md5}?s=64&d=http://cerbweb.com/gravatar/gravatar_nouser.jpg" height="64" width="64" border="0" style="margin:0px 5px 5px 0px;">
 		</td>
 		<td width="98%" valign="top">
 			<h1 style="color:rgb(0,120,0);font-weight:bold;font-size:150%;margin:0px;">{$group->name}</h1>
@@ -113,7 +113,7 @@
 			{$worker = $workers.{$member->id}}
 			<fieldset>
 				<div style="float:left;">
-					<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$worker->email|trim|lower|md5}?s=64&d={devblocks_url full=true}c=resource&p=cerberusweb.core&f=images/wgm/gravatar_nouser.jpg{/devblocks_url}" height="64" width="64" border="0" style="margin:0px 5px 5px 0px;">
+					<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$worker->email|trim|lower|md5}?s=64&d=http://cerbweb.com/gravatar/gravatar_nouser.jpg" height="64" width="64" border="0" style="margin:0px 5px 5px 0px;">
 				</div>
 				<div style="float:left;">
 					<a href="{devblocks_url}c=profiles&k=worker&id={$worker->id}-{$worker->getName()|devblocks_permalink}{/devblocks_url}" style="color:rgb(0,120,0);font-weight:bold;font-size:150%;margin:0px;">{$worker->getName()}</a><br>
