@@ -12,6 +12,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 				case 'list':
 					$this->getList();
 					break;
+					
 				default:
 					break;
 			}
@@ -106,6 +107,8 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 
 		@$page = DevblocksPlatform::importGPC($_REQUEST['page'],'integer',1);
 		@$unread = DevblocksPlatform::importGPC($_REQUEST['unread'],'string','');
+		@$sortAsc = DevblocksPlatform::importGPC($_REQUEST['sortAsc'],'integer',0);
+		@$sortBy = DevblocksPlatform::importGPC($_REQUEST['sortBy'],'string','');
 		
 		$filters = array(
 			array('worker_id', '=', $worker->id),
@@ -117,8 +120,8 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		
 		$container = $this->search(
 			$filters,
-			null,
-			null,
+			$sortBy,
+			$sortAsc,
 			$page,
 			10
 		);
