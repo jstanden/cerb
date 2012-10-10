@@ -150,6 +150,8 @@ class DevblocksSearchCriteria {
 				foreach($values as $idx=>$val) {
 					$vals[$idx] = $db->qstr((string)$val);
 				}
+
+				$where_in = '';
 				
 				if(empty($vals)) {
 					$where_in = '';
@@ -220,6 +222,8 @@ class DevblocksSearchCriteria {
 					$vals[$idx] = $db->qstr((string)$val);
 				}
 				
+				$where_in = '';
+				
 				if(empty($vals)) {
 					$where_in = '';
 					
@@ -239,15 +243,30 @@ class DevblocksSearchCriteria {
 			case DevblocksSearchCriteria::OPER_FULLTEXT: // 'fulltext'
 				$search = DevblocksPlatform::getSearchService();
 
+				$values = array();
 				$value = null;
 				$scope = null;
+
+				if(!is_array($this->value) && !is_string($this->value))
+					break;
 				
-				if(!is_array($this->value)) {
-					$value = $this->value;
+				if(!is_array($this->value) && preg_match('#^\[.*\]$#', $this->value)) {
+					$values = json_decode($this->value, true);
+					
+				} elseif(is_array($this->value)) {
+					$values = $this->value;
+					
+				} else {
+					$values = $this->value;
+					
+				}
+				
+				if(!is_array($values)) {
+					$value = $values;
 					$scope = 'expert'; 
 				} else {
-					$value = $this->value[0];
-					$scope = $this->value[1]; 
+					$value = $values[0];
+					$scope = $values[1]; 
 				}
 				
 				switch($scope) {
@@ -263,7 +282,8 @@ class DevblocksSearchCriteria {
 						break;
 					default:
 					case 'expert':
-						$value = $search->prepareText($value);
+						$value = DevblocksPlatform::strUnidecode($value);
+						// We don't want to strip punctuation in expert mode
 						break;
 				}
 				

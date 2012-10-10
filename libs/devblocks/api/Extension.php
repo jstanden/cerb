@@ -169,7 +169,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	abstract function getRandom();
     abstract function getMeta($context_id);
     abstract function getContext($object, &$token_labels, &$token_values, $prefix=null);
-    function getSearchView($view_id=null) {
+    public function getSearchView($view_id=null) {
     	if(empty($view_id)) {
 	    	$view_id = sprintf("search_%s",
     			str_replace('.','_',DevblocksPlatform::strToPermalink($this->id))
@@ -198,8 +198,11 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
     protected function _lazyLoadCustomFields($context, $context_id) {
 		$fields = DAO_CustomField::getByContext($context);
 		$token_values['custom'] = array();
+		$field_values = array();
 
-		$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $context_id));
+		$results = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
+		if(is_array($results))
+			$field_values = array_shift($results);
 		
 		foreach(array_keys($fields) as $cf_id) {
 			$token_values['custom'][$cf_id] = '';
@@ -423,7 +426,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			default:
 				if(null != (@$condition = $conditions[$token])) {
 					// Automatic types
-					switch($condition['type']) {
+					switch(@$condition['type']) {
 						case Model_CustomField::TYPE_CHECKBOX:
 							return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_bool.tpl');
 							break;
@@ -448,7 +451,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_worker.tpl');
 							break;
 						default:
-							if(substr($condition['type'],0,4) == 'ctx_') {
+							if(@substr($condition['type'],0,4) == 'ctx_') {
 								return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
 							
 							} else {
@@ -543,7 +546,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					}
 					
 					// Automatic types
-					switch($condition['type']) {
+					switch(@$condition['type']) {
 						case Model_CustomField::TYPE_CHECKBOX:
 							$bool = intval($params['bool']);
 							$pass = !empty($value) == $bool;
@@ -741,7 +744,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							break;
 
 						default:
-							if(substr($condition['type'],0,4) == 'ctx_') {
+							if(@substr($condition['type'],0,4) == 'ctx_') {
 								$count = (isset($dict->$token) && is_array($dict->$token)) ? count($dict->$token) : 0;
 								
 								$not = (substr($params['oper'],0,1) == '!');

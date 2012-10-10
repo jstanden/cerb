@@ -11,7 +11,7 @@
 </ul>
 
 <b>{'message.header.subject'|devblocks_translate|capitalize}:</b>
-<input type="text" name="{$namePrefix}[subject]" value="{$params.subject}" size="45" style="width:100%;"><br>
+<input type="text" name="{$namePrefix}[subject]" value="{$params.subject}" size="45" style="width:100%;" class="placeholders"><br>
 <br>
 
 <b>{'common.content'|devblocks_translate|capitalize}:</b>

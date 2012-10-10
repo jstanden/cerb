@@ -46,8 +46,8 @@
  * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 2012091401);
-define("APP_VERSION", '6.1.2');
+define("APP_BUILD", 2012100901);
+define("APP_VERSION", '6.1.3');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
@@ -1690,6 +1690,9 @@ class C4_ORMHelper extends DevblocksORMHelper {
 	}
 	
 	static function _searchComponentsVirtualWatchers(&$param, $from_context, $from_index, &$join_sql, &$where_sql) {
+		if(!is_array($param->value))
+			$param->value = array($param->value);
+		
 		$param->value = DevblocksPlatform::sanitizeArray($param->value, 'integer', array('nonzero','unique'));
 		
 		// Join and return anything

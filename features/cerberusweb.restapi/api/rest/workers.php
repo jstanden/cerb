@@ -9,6 +9,10 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			
 		} else { // actions
 			switch($action) {
+				case 'me':
+					$worker = $this->getActiveWorker();
+					$this->getId($worker->id);
+					break;
 			}
 		}
 		

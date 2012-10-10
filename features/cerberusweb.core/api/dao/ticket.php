@@ -124,10 +124,9 @@ class DAO_Ticket extends C4_ORMHelper {
 	static function getTicketByMessageId($message_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT t.id AS ticket_id, mh.message_id AS message_id ".
+		$sql = sprintf("SELECT m.ticket_id AS ticket_id, mh.message_id AS message_id ".
 			"FROM message_header mh ".
 			"INNER JOIN message m ON (m.id=mh.message_id) ".
-			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
 			"WHERE mh.header_name = 'message-id' AND mh.header_value = %s",
 			$db->qstr($message_id)
 		);
@@ -1784,7 +1783,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_SUBJECT:
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_Ticket', $column);
 				break;
-				
 			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
 				$label_map = array(
 					'' => 'Not trained',
@@ -1795,11 +1793,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Ticket::TICKET_OWNER_ID:
-				$label_map = array();
+				$label_map = array(
+					'0' => '(nobody)',
+				);
 				$workers = DAO_Worker::getAll();
 				foreach($workers as $k => $v)
 					$label_map[$k] = $v->getName();
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_Ticket', $column, $label_map, 'in', 'worker_id[]');
+				$counts = $this->_getSubtotalCountForNumberColumn('DAO_Ticket', $column, $label_map, 'in', 'worker_id[]');
 				break;
 				
 			case SearchFields_Ticket::TICKET_GROUP_ID:
@@ -3310,6 +3310,18 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		}
 		
 		return $values;
+	}	
+	
+	// Overload the search view for this context
+	function getSearchView($view_id=null) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(null != ($view = parent::getSearchView($view_id))) {
+			$view->addParamsRequired(array(
+				SearchFields_Ticket::TICKET_GROUP_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID,'in',array_keys($active_worker->getMemberships())),
+			), true);
+		}
+		return $view;
 	}	
 	
 	function getChooserView($view_id=null) {
