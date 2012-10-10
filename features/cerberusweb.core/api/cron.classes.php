@@ -1208,9 +1208,12 @@ class Pop3Cron extends CerberusCronPageExtension {
 				imap_delete($mailbox, $msgno);
 			}
 			
-			DAO_Pop3Account::updatePop3Account($account->id, array(
-				DAO_Pop3Account::NUM_FAILS => 0,
-			));
+			// Clear the fail count if we had past fails
+			if($account->num_fails) {
+				DAO_Pop3Account::updatePop3Account($account->id, array(
+					DAO_Pop3Account::NUM_FAILS => 0,
+				));
+			}
 			
 			imap_expunge($mailbox);
 			imap_close($mailbox);
