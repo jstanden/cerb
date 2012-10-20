@@ -765,363 +765,372 @@ class WorkspaceWidget_Counter extends Extension_WorkspaceWidget {
 	}
 };
 
+class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDatasource {
+	function renderConfig(Model_WorkspaceWidget $widget, $params=array(), $series_idx=null) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('widget', $widget);
+		$tpl->assign('params', $params);
+		$tpl->assign('series_idx', $series_idx);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/datasources/config_series_worklist.tpl');
+	}
+	
+	function getData(Model_WorkspaceWidget $widget, array $params=array()) {
+		if(null == ($view_model = Extension_WorkspaceWidget::getParamsViewModel($widget, $params)))
+			return;
+			
+		if(null == ($context_ext = Extension_DevblocksContext::get($params['view_context'])))
+			return;
+
+		if(null == ($dao_class = @$context_ext->manifest->params['dao_class']))
+			continue;
+			
+		// Force reload parameters (we can't trust the session)
+		if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
+			return;
+		
+		$data = array();
+		
+		C4_AbstractViewLoader::setView($view->id, $view);
+			
+		$view->renderPage = 0;
+		$view->renderLimit = 30;
+			
+		$query_parts = $dao_class::getSearchQueryComponents(
+			$view->view_columns,
+			$view->getParams(),
+			$view->renderSortBy,
+			$view->renderSortAsc
+		);
+			
+		$db = DevblocksPlatform::getDatabaseService();
+			
+		// We need to know what date fields we have
+		$fields = $view->getFields();
+		$xaxis_field = null;
+		$xaxis_field_type = null;
+			
+		switch($params['xaxis_field']) {
+			case '_id':
+				$xaxis_field = new DevblocksSearchField('_id', $query_parts['primary_table'], 'id', null, Model_CustomField::TYPE_NUMBER);
+				break;
+					
+			default:
+				@$xaxis_field = $fields[$params['xaxis_field']];
+				break;
+		}
+			
+		if(!empty($xaxis_field))
+			switch($xaxis_field->type) {
+				case Model_CustomField::TYPE_DATE:
+					// X-axis tick
+					@$xaxis_tick = $params['xaxis_tick'];
+						
+					if(empty($xaxis_tick))
+						$xaxis_tick = 'day';
+						
+					switch($xaxis_tick) {
+						case 'hour':
+							$date_format = '%Y-%m-%d %H:00';
+							$date_label = $date_format;
+							break;
+								
+						default:
+						case 'day':
+							$date_format = '%Y-%m-%d';
+							$date_label = $date_format;
+							break;
+								
+						case 'week':
+							$date_format = '%YW%U';
+							$date_label = $date_format;
+							break;
+								
+						case 'month':
+							$date_format = '%Y-%m';
+							$date_label = '%b %Y';
+							break;
+								
+						case 'year':
+							$date_format = '%Y-01-01';
+							$date_label = '%Y';
+							break;
+					}
+						
+					@$yaxis_func = $params['yaxis_func'];
+					@$yaxis_field = $fields[$params['yaxis_field']];
+						
+					if(empty($yaxis_field))
+						$yaxis_func = 'count';
+						
+					switch($yaxis_func) {
+						case 'sum':
+							$select_func = sprintf("SUM(%s.%s)",
+							$yaxis_field->db_table,
+							$yaxis_field->db_column
+							);
+							break;
+								
+						case 'avg':
+							$select_func = sprintf("AVG(%s.%s)",
+							$yaxis_field->db_table,
+							$yaxis_field->db_column
+							);
+							break;
+								
+						case 'min':
+							$select_func = sprintf("MIN(%s.%s)",
+							$yaxis_field->db_table,
+							$yaxis_field->db_column
+							);
+							break;
+								
+						case 'max':
+							$select_func = sprintf("MAX(%s.%s)",
+							$yaxis_field->db_table,
+							$yaxis_field->db_column
+							);
+							break;
+								
+						default:
+						case 'count':
+							$select_func = 'COUNT(*)';
+							break;
+					}
+						
+					$sql = sprintf("SELECT %s AS hits, DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%s') AS histo ",
+							$select_func,
+							$xaxis_field->db_table,
+							$xaxis_field->db_column,
+							$date_format
+					).
+					str_replace('%','%%',$query_parts['join']).
+					str_replace('%','%%',$query_parts['where']).
+					sprintf("GROUP BY DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%s') ",
+							$xaxis_field->db_table,
+							$xaxis_field->db_column,
+							$date_format
+					).
+					'ORDER BY histo ASC'
+					;
+					
+					$results = $db->GetArray($sql);
+					
+					// Find the first and last date
+					@$xaxis_param = array_shift(C4_AbstractView::findParam($xaxis_field->token, $view->getParams()));
+
+					$current_tick = null;
+					$last_tick = null;
+					
+					if(!empty($xaxis_param)) {
+						if(2 == count($xaxis_param->value)) {
+							$current_tick = strtotime($xaxis_param->value[0]);
+							$last_tick = strtotime($xaxis_param->value[1]);
+						}
+					}
+					
+					$first_result = null;
+					$last_result = null;
+					
+					if(empty($current_tick) && empty($last_tick)) {
+						$last_result = end($results);
+						$first_result = reset($results);
+						$current_tick = strtotime($first_result['histo']);
+						$last_tick = strtotime($last_result['histo']);
+					}
+						
+					// Fill in time gaps from no data
+						
+					// var_dump($current_tick, $last_tick, $xaxis_tick);
+					// var_dump($results);
+
+					$array = array();
+					
+					foreach($results as $k => $v) {
+						$array[$v['histo']] = $v['hits'];
+					}
+					
+					$results = $array;
+					unset($array);
+					
+					// Set the first histogram bucket to the beginning of its increment
+					//   e.g. 2012-July-09 10:20 -> 2012-July-09 00:00
+					switch($xaxis_tick) {
+						case 'hour':
+						case 'day':
+						case 'month':
+						case 'year':
+							$current_tick = strtotime(strftime($date_format, $current_tick));
+							break;
+							
+						case 'week':
+							$current_tick = strtotime('Sunday', $current_tick);
+							break;
+					}
+						
+					do {
+						$histo = strftime($date_format, $current_tick);
+						// var_dump($histo);
+
+						$value = (isset($results[$histo])) ? $results[$histo] : 0;
+
+						$data[] = array(
+							'x' => $histo,
+							'y' => (float)$value,
+							'x_label' => strftime($date_label, $current_tick),
+							'y_label' => ((int) $value != $value) ? sprintf("%0.2f", $value) : sprintf("%d", $value),
+						);
+
+						$current_tick = strtotime(sprintf('+1 %s', $xaxis_tick), $current_tick);
+
+					} while($current_tick <= $last_tick);
+						
+					unset($results);
+					break;
+
+				case Model_CustomField::TYPE_NUMBER:
+					@$yaxis_func = $params['yaxis_func'];
+					@$yaxis_field = $fields[$params['yaxis_field']];
+						
+					if(empty($yaxis_func))
+						$yaxis_func = 'count';
+						
+					switch($xaxis_field->token) {
+						case '_id':
+							$order_by = null;
+							$group_by = sprintf("GROUP BY %s.id ", str_replace('%','%%',$query_parts['primary_table']));
+								
+							if(isset($fields[$view->renderSortBy])) {
+								$order_by = sprintf("ORDER BY %s.%s %s",
+									$fields[$view->renderSortBy]->db_table,
+									$fields[$view->renderSortBy]->db_column,
+									($view->renderSortAsc) ? 'ASC' : 'DESC'
+								);
+							}
+								
+							if(empty($order_by))
+								$order_by = sprintf("ORDER BY %s.id ", str_replace('%','%%',$query_parts['primary_table']));
+							
+							break;
+
+						default:
+							$group_by = sprintf("GROUP BY %s.%s",
+							$xaxis_field->db_table,
+							$xaxis_field->db_column
+							);
+							
+							$order_by = 'ORDER BY xaxis ASC';
+							break;
+					}
+						
+						
+					switch($yaxis_func) {
+						case 'sum':
+							$select_func = sprintf("SUM(%s.%s)",
+								$yaxis_field->db_table,
+								$yaxis_field->db_column
+							);
+							break;
+								
+						case 'avg':
+							$select_func = sprintf("AVG(%s.%s)",
+								$yaxis_field->db_table,
+								$yaxis_field->db_column
+							);
+							break;
+								
+						case 'min':
+							$select_func = sprintf("MIN(%s.%s)",
+								$yaxis_field->db_table,
+								$yaxis_field->db_column
+							);
+							break;
+								
+						case 'max':
+							$select_func = sprintf("MAX(%s.%s)",
+								$yaxis_field->db_table,
+								$yaxis_field->db_column
+							);
+							break;
+								
+						case 'value':
+							$select_func = sprintf("DISTINCT %s.%s",
+								$yaxis_field->db_table,
+								$yaxis_field->db_column
+							);
+							break;
+								
+						default:
+						case 'count':
+							$select_func = 'COUNT(*)';
+							break;
+					}
+						
+					// Scatterplots ignore histograms
+					switch($widget->params['chart_type']) {
+						case 'scatterplot':
+							$group_by = null;
+							break;
+					}
+						
+					$sql = sprintf("SELECT %s AS yaxis, %s.%s AS xaxis " .
+						str_replace('%','%%',$query_parts['join']).
+						str_replace('%','%%',$query_parts['where']).
+						"%s ".
+						"%s ",
+						$select_func,
+						$xaxis_field->db_table,
+						$xaxis_field->db_column,
+						$group_by,
+						$order_by
+					);
+
+					$results = $db->GetArray($sql);
+					$data = array();
+
+					// echo $sql,"<br>\n";
+						
+					$counter = 0;
+						
+					foreach($results as $result) {
+						$x = ($params['xaxis_field'] == '_id') ? $counter++ : (float)$result['xaxis'];
+
+						$data[] = array(
+							'x' => $x,
+							'y' => (float)$result['yaxis'],
+							'x_label' => (float)$result['xaxis'],
+							'y_label' => (float)$result['yaxis'],
+						);
+					}
+
+					unset($results);
+					break;
+		}
+		
+		return $data;
+	}
+};
+
 class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::getTemplateService();
 
-		switch(@$widget->params['datasource']) {
-			case 'worklist':
-				foreach($widget->params['series'] as $series_idx => $series) {
-					if(null == ($view_model = self::getParamsViewModel($widget, $series)))
-						continue;
-					
-					if(null == ($context_ext = Extension_DevblocksContext::get($series['view_context'])))
-						continue;
-	
-					if(null == ($dao_class = @$context_ext->manifest->params['dao_class']))
-						continue;
-					
-					// Force reload parameters (we can't trust the session)
-					if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
-						continue;
-					
-					C4_AbstractViewLoader::setView($view->id, $view);
-					
-					$view->renderPage = 0;
-					$view->renderLimit = 30;
-					
-					//list($results, $count) = $view->getData();
-					
-					$query_parts = $dao_class::getSearchQueryComponents(
-						$view->view_columns,
-						$view->getParams(),
-						$view->renderSortBy,
-						$view->renderSortAsc
-					);
-					
-					$db = DevblocksPlatform::getDatabaseService();
-					
-					// We need to know what date fields we have
-					$fields = $view->getFields();
-					$xaxis_field = null;
-					$xaxis_field_type = null;
-					
-					switch($series['xaxis_field']) {
-						case '_id':
-							$xaxis_field = new DevblocksSearchField('_id', $query_parts['primary_table'], 'id', null, Model_CustomField::TYPE_NUMBER);
-							break;
-							
-						default:
-							@$xaxis_field = $fields[$series['xaxis_field']];
-							break;
-					}
-					
-					if(!empty($xaxis_field))
-					switch($xaxis_field->type) {
-						case Model_CustomField::TYPE_DATE:
-							// X-axis tick
-							@$xaxis_tick = $series['xaxis_tick'];
-							
-							if(empty($xaxis_tick))
-								$xaxis_tick = 'day';
-							
-							switch($xaxis_tick) {
-								case 'hour':
-									$date_format = '%Y-%m-%d %H:00';
-									$date_label = $date_format;
-									break;
-									
-								default:
-								case 'day':
-									$date_format = '%Y-%m-%d';
-									$date_label = $date_format;
-									break;
-									
-								case 'week':
-									$date_format = '%YW%U';
-									$date_label = $date_format;
-									break;
-									
-								case 'month':
-									$date_format = '%Y-%m';
-									$date_label = '%b %Y';
-									break;
-									
-								case 'year':
-									$date_format = '%Y-01-01';
-									$date_label = '%Y';
-									break;
-							}
-							
-							@$yaxis_func = $series['yaxis_func'];
-							@$yaxis_field = $fields[$series['yaxis_field']];
-							
-							if(empty($yaxis_field))
-								$yaxis_func = 'count';
-							
-							switch($yaxis_func) {
-								case 'sum':
-									$select_func = sprintf("SUM(%s.%s)",
-										$yaxis_field->db_table,
-										$yaxis_field->db_column
-									);
-									break;
-									
-								case 'avg':
-									$select_func = sprintf("AVG(%s.%s)",
-										$yaxis_field->db_table,
-										$yaxis_field->db_column
-									);
-									break;
-									
-								case 'min':
-									$select_func = sprintf("MIN(%s.%s)",
-										$yaxis_field->db_table,
-										$yaxis_field->db_column
-									);
-									break;
-									
-								case 'max':
-									$select_func = sprintf("MAX(%s.%s)",
-										$yaxis_field->db_table,
-										$yaxis_field->db_column
-									);
-									break;
-									
-								default:
-								case 'count':
-									$select_func = 'COUNT(*)';
-									break;
-							}
-							
-							$sql = sprintf("SELECT %s AS hits, DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%s') AS histo ", 
-									$select_func,
-									$xaxis_field->db_table,
-									$xaxis_field->db_column,
-									$date_format
-								).
-								str_replace('%','%%',$query_parts['join']).
-								str_replace('%','%%',$query_parts['where']).
-								sprintf("GROUP BY DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%s') ",
-									$xaxis_field->db_table,
-									$xaxis_field->db_column,
-									$date_format
-								).
-								'ORDER BY histo ASC'
-							;
-							
-							$results = $db->GetArray($sql);
-							$data = array();
+		// Per series datasources
+		if(is_array($widget->params['series']))
+		foreach($widget->params['series'] as $series_idx => $series) {
+			//var_dump($series);
+
+			@$datasource_extid = $series['datasource'];
 			
-							// Find the first and last date
-							@$xaxis_param = array_shift(C4_AbstractView::findParam($xaxis_field->token, $view->getParams()));
-
-							$current_tick = null;
-							$last_tick = null;
-							
-							if(!empty($xaxis_param)) {
-								if(2 == count($xaxis_param->value)) {
-									$current_tick = strtotime($xaxis_param->value[0]);
-									$last_tick = strtotime($xaxis_param->value[1]);
-								}
-							}
-							
-							$first_result = null;
-							$last_result = null;
-							
-							if(empty($current_tick) && empty($last_tick)) {
-								$last_result = end($results);
-								$first_result = reset($results);
-								$current_tick = strtotime($first_result['histo']);
-								$last_tick = strtotime($last_result['histo']);
-							}
-							
-							// Fill in time gaps from no data
-							
-// 							var_dump($current_tick, $last_tick, $xaxis_tick);
-// 							var_dump($results);
-
-							$array = array();
-							
-							foreach($results as $k => $v) {
-								$array[$v['histo']] = $v['hits'];
-							}
-							
-							$results = $array;
-							unset($array);
-							
-							// Set the first histogram bucket to the beginning of its increment
-							//   e.g. 2012-July-09 10:20 -> 2012-July-09 00:00
-							switch($xaxis_tick) {
-								case 'hour':
-								case 'day':
-								case 'month':
-								case 'year':
-									$current_tick = strtotime(strftime($date_format, $current_tick));
-									break;
-									
-								case 'week':
-									$current_tick = strtotime('Sunday', $current_tick);
-									break;
-							}
-							
-							do {
-								$histo = strftime($date_format, $current_tick);
-// 								var_dump($histo);
-								
-								$value = (isset($results[$histo])) ? $results[$histo] : 0; 
-								
-								$data[] = array(
-									'x' => $histo,
-									'y' => (float)$value,
-									'x_label' => strftime($date_label, $current_tick),
-									'y_label' => ((int) $value != $value) ? sprintf("%0.2f", $value) : sprintf("%d", $value),
-								);
-								
-								$current_tick = strtotime(sprintf('+1 %s', $xaxis_tick), $current_tick);
-								
-							} while($current_tick <= $last_tick);
-							
-							unset($results);
-							
-// 							var_dump($data);
-							
-							$widget->params['series'][$series_idx]['data'] = $data;
-							
-							unset($data);
-							
-							//$tpl->assign('data', $data);
-							
-							break;
-						
-						case Model_CustomField::TYPE_NUMBER:
-							@$yaxis_func = $series['yaxis_func'];
-							@$yaxis_field = $fields[$series['yaxis_field']];
-							
-							if(empty($yaxis_func))
-								$yaxis_func = 'count';
-							
-							switch($xaxis_field->token) {
-								case '_id':
-									$order_by = null;
-									$group_by = sprintf("GROUP BY %s.id ", str_replace('%','%%',$query_parts['primary_table']));
-									
-									if(isset($fields[$view->renderSortBy])) {
-										$order_by = sprintf("ORDER BY %s.%s %s",
-											$fields[$view->renderSortBy]->db_table,
-											$fields[$view->renderSortBy]->db_column,
-											($view->renderSortAsc) ? 'ASC' : 'DESC'
-										);
-									}
-									
-									if(empty($order_by))
-										$order_by = sprintf("ORDER BY %s.id ", str_replace('%','%%',$query_parts['primary_table']));
-									
-									break;
-								
-								default:
-									$group_by = sprintf("GROUP BY %s.%s",
-										$xaxis_field->db_table,
-										$xaxis_field->db_column
-									);
-									
-									$order_by = 'ORDER BY xaxis ASC';
-									break;
-							}
-							
-							
-							switch($yaxis_func) {
-								case 'sum':
-									$select_func = sprintf("SUM(%s.%s)",
-										$yaxis_field->db_table,
-										$yaxis_field->db_column
-									);
-									break;
-									
-								case 'avg':
-									$select_func = sprintf("AVG(%s.%s)",
-										$yaxis_field->db_table,
-										$yaxis_field->db_column
-									);
-									break;
-									
-								case 'min':
-									$select_func = sprintf("MIN(%s.%s)",
-										$yaxis_field->db_table,
-										$yaxis_field->db_column
-									);
-									break;
-									
-								case 'max':
-									$select_func = sprintf("MAX(%s.%s)",
-										$yaxis_field->db_table,
-										$yaxis_field->db_column
-									);
-									break;
-									
-								case 'value':
-									$select_func = sprintf("DISTINCT %s.%s",
-										$yaxis_field->db_table,
-										$yaxis_field->db_column
-									);
-									break;
-									
-								default:
-								case 'count':
-									$select_func = 'COUNT(*)';
-									break;
-							}							
-							
-							// Scatterplots ignore histograms
-							switch($widget->params['chart_type']) {
-								case 'scatterplot':
-									$group_by = null;
-									break;
-							}
-							
-							$sql = sprintf("SELECT %s AS yaxis, %s.%s AS xaxis " .
-								str_replace('%','%%',$query_parts['join']).
-								str_replace('%','%%',$query_parts['where']).
-								"%s ".
-								"%s ",
-									$select_func,
-									$xaxis_field->db_table,
-									$xaxis_field->db_column,
-									$group_by,
-									$order_by
-								);
-								
-							$results = $db->GetArray($sql);
-							$data = array();
-
-// 							echo $sql,"<br>\n";
-							
-							$counter = 0;
-							
-							foreach($results as $result) {
-								$x = ($series['xaxis_field'] == '_id') ? $counter++ : (float)$result['xaxis'];
-								
-								$data[] = array(
-									'x' => $x,
-									'y' => (float)$result['yaxis'],
-									'x_label' => (float)$result['xaxis'],
-									'y_label' => (float)$result['yaxis'],
-								);
-							}
-
-							unset($results);
-
-							$widget->params['series'][$series_idx]['data'] = $data;
-
-							unset($data);
-							
-							break;
-					}
-				}
-				break;
-				
-			default:
-				break;
+			if(empty($datasource_extid))
+				$datasource_extid = 'core.workspace.widget.datasource.worklist';
+			
+			if(null == ($datasource_ext = Extension_WorkspaceWidgetDatasource::get($datasource_extid)))
+				continue;
+			
+			$data = $datasource_ext->getData($widget, $series);
+			$widget->params['series'][$series_idx]['data'] = $data;
 		}
 		
 		$tpl->assign('widget', $widget);
@@ -1154,6 +1163,12 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 		
 		$tpl->assign('widget', $widget);
 		
+		// Datasource Extensions
+		
+		// [TODO] Limit to charts/etc.
+		$datasource_mfts = Extension_WorkspaceWidgetDatasource::getAll(false);
+		$tpl->assign('datasource_mfts', $datasource_mfts);
+		
 		// Worklists
 		
 		$context_mfts = Extension_DevblocksContext::getAll(false, 'workspace');
@@ -1165,17 +1180,13 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());		
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
 		
 		foreach($params['series'] as $idx => $series) {
-			if(isset($series['view_context']) && isset($series['view_model'])) {
-				if(isset($series['line_color'])) {
-					if(false != ($rgb = $this->_hex2RGB($series['line_color']))) {
-						$params['series'][$idx]['fill_color'] = sprintf("rgba(%d,%d,%d,0.15)", $rgb['r'], $rgb['g'], $rgb['b']);
-					}
+			if(isset($series['line_color'])) {
+				if(false != ($rgb = $this->_hex2RGB($series['line_color']))) {
+					$params['series'][$idx]['fill_color'] = sprintf("rgba(%d,%d,%d,0.15)", $rgb['r'], $rgb['g'], $rgb['b']);
 				}
-			} else {
-				unset($params['series'][$idx]);
 			}
 		}
 		

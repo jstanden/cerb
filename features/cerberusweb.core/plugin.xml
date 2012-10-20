@@ -47,6 +47,7 @@
 		
 		<patch version="6.0.0"  revision="989" file="patches/6.x/6.0.0.php" />
 		<patch version="6.1.0" revision="1005" file="patches/6.x/6.1.0.php" />
+		<patch version="6.2.0" revision="1010" file="patches/6.x/6.2.0.php" />
 	</patches>
 
 	<!-- Controller Routing -->
@@ -2278,6 +2279,19 @@
 			</params>
 		</extension>
 	
+		<!-- Workspace Widget Datasources -->
+		
+		<extension point="cerberusweb.ui.workspace.widget.datasource">
+			<id>core.workspace.widget.datasource.worklist</id>
+			<name>Worklist</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidgetDatasource_Worklist</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
 		<!--  Login Extensions -->
 
 		<extension point="cerberusweb.login">

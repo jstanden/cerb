@@ -333,6 +333,38 @@ abstract class Extension_WorkspaceTab extends DevblocksExtension {
 	abstract function renderTab(Model_WorkspacePage $page, Model_WorkspaceTab $tab);
 };
 
+abstract class Extension_WorkspaceWidgetDatasource extends DevblocksExtension {
+	static $_registry = array();
+	
+	static function getAll($as_instances=false) {
+		$extensions = DevblocksPlatform::getExtensions('cerberusweb.ui.workspace.widget.datasource', $as_instances);
+		
+		if($as_instances)
+			DevblocksPlatform::sortObjects($extensions, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($extensions, 'name');
+		
+		return $extensions;
+	}
+
+	static function get($extension_id) {
+		if(isset(self::$_registry[$extension_id]))
+			return self::$_registry[$extension_id];
+		
+		if(null != ($extension = DevblocksPlatform::getExtension($extension_id, true))
+			&& $extension instanceof Extension_WorkspaceWidgetDatasource) {
+
+			self::$_registry[$extension->id] = $extension;
+			return $extension;
+		}
+		
+		return null;
+	}
+	
+	abstract function renderConfig(Model_WorkspaceWidget $widget, $params=array(), $series_idx=null);
+	abstract function getData(Model_WorkspaceWidget $widget, array $params=array());
+};
+
 abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 	static $_registry = array();
 	
@@ -361,11 +393,12 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 		return null;
 	}
 	
-	abstract function render(Model_WorkspaceWidget $widget); 
-	abstract function renderConfig(Model_WorkspaceWidget $widget); 
+	abstract function render(Model_WorkspaceWidget $widget);
+	abstract function renderConfig(Model_WorkspaceWidget $widget);
 	abstract function saveConfig(Model_WorkspaceWidget $widget);
 
-	protected static function getParamsViewModel($widget, $params) {
+	// [TODO] This probably has a better home
+	public static function getParamsViewModel($widget, $params) {
 		$view_model = null;
 		
 		if(isset($params['view_model'])) {
