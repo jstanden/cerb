@@ -4,6 +4,7 @@ class _DevblocksDatabaseManager {
 	static $instance = null;
 	
 	private function __construct(){
+		// [TODO] Implement proper pconnect abstraction for mysqli
 		$persistent = (defined('APP_DB_PCONNECT') && APP_DB_PCONNECT) ? true : false;
 		$this->Connect(APP_DB_HOST, APP_DB_USER, APP_DB_PASS, APP_DB_DATABASE, $persistent);
 	}
@@ -21,13 +22,8 @@ class _DevblocksDatabaseManager {
 	}
 	
 	function Connect($host, $user, $pass, $database, $persistent=false) {
-		if($persistent) {
-			if(false === (@$this->_db = mysql_pconnect($host, $user, $pass)))
-				return false;
-		} else {
-			if(false === (@$this->_db = mysql_connect($host, $user, $pass, true)))
-				return false;
-		}
+		if(false === (@$this->_db = mysql_pconnect($host, $user, $pass, !$persistent)))
+			return false;
 
 		if(false === mysql_select_db($database, $this->_db)) {
 			return false;

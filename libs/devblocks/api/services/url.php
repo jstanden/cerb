@@ -178,6 +178,8 @@ class _DevblocksUrlManager {
 			return true;
 		} elseif (@$_SERVER['SERVER_PORT'] == 443) {
 			return true;
+		} elseif (0 == @substr($_SERVER['X_FORWARDED_PROTO'], 'https')) {
+			return true;
 		} else {
 			return false;
 		}
