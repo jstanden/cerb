@@ -1383,7 +1383,8 @@ class CerberusLicense {
 	
 	public static function getReleaseDate($version) {
 		$latest_licensed = 0;
-		$version = array_shift(explode("-",$version,2));
+		$version_parts = explode("-",$version,2);
+		$version = array_shift($version_parts);
 		foreach(self::getReleases() as $release => $release_date) {
 			if(version_compare($release, $version) <= 0)
 				$latest_licensed = $release_date;

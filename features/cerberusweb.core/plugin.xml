@@ -49,14 +49,6 @@
 		<patch version="6.1.0" revision="1005" file="patches/6.x/6.1.0.php" />
 	</patches>
 
-	<!-- Declared Extension Points -->
-
-	<!-- 
-	<extension_points>
-		<point id=""></point>
-	</extension_points>
-	-->
-
 	<!-- Controller Routing -->
 
 	<uri_routing>
@@ -2414,7 +2406,7 @@
 			</class>
 			<params>
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rss.source">
 			<id>core.rss.source.task</id>
@@ -2425,7 +2417,7 @@
 			</class>
 			<params>
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rss.source">
 			<id>core.rss.source.ticket</id>
@@ -2436,7 +2428,7 @@
 			</class>
 			<params>
 			</params>
-		</extension>		
+		</extension>
 		
 	</extensions>
 </plugin>
