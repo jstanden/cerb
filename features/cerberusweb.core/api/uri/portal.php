@@ -76,6 +76,7 @@ class Controller_Portal extends DevblocksControllerExtension {
 
 class ChPortalHelper {
 	static private $_code = null; 
+	static private $_fingerprint = null;
 	
 	public static function getCode() {
 		return self::$_code;
@@ -90,17 +91,35 @@ class ChPortalHelper {
 	 */
 	public static function getSession() {
 		$fingerprint = self::getFingerprint();
-		
 		$session_id = md5($fingerprint['ip'] . self::getCode() . $fingerprint['local_sessid']);
 		return DAO_CommunitySession::get($session_id);
 	}
 	
 	public static function getFingerprint() {
-		$sFingerPrint = DevblocksPlatform::importGPC($_COOKIE['GroupLoginPassport'],'string','');
-		$fingerprint = null;
-		if(!empty($sFingerPrint)) {
-			$fingerprint = unserialize($sFingerPrint);
+		if(empty(self::$_fingerprint)) {
+			@$sFingerPrint = DevblocksPlatform::importGPC($_COOKIE['GroupLoginPassport'],'string','');
+			
+			if(!empty($sFingerPrint)) {
+				self::$_fingerprint = unserialize($sFingerPrint);
+				
+			} else {
+				// [TODO] We don't need to be storing this in the cookie
+				self::$_fingerprint = array(
+					'browser' => $_SERVER['HTTP_USER_AGENT'],
+					'ip' => $_SERVER['REMOTE_ADDR'],
+					'local_sessid' => session_id(),
+					'started' => time()
+				);
+				
+				setcookie(
+					'GroupLoginPassport',
+					serialize(self::$_fingerprint),
+					0,
+					'/'
+				);
+			}
 		}
-		return $fingerprint;
+
+		return self::$_fingerprint;
 	}
 };
