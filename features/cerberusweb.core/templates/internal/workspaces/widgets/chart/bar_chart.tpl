@@ -132,9 +132,9 @@ try {
 			context.beginPath();
 			context.fillStyle = 'rgba(255,255,255,0.4)';
 			context.moveTo(closest.plot.chart_x, chart_height + chart_top);
-			context.lineTo(closest.plot.chart_x, chart_top);
+			context.lineTo(closest.plot.chart_x, 0);
 			chart_x = Math.floor(closest.plot.chart_x+xtick_width-1);
-			context.lineTo(chart_x, chart_top);
+			context.lineTo(chart_x, 0);
 			context.lineTo(chart_x, chart_height + chart_top);
 			context.fill();
 			

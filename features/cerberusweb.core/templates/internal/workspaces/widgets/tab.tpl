@@ -231,6 +231,7 @@ function drawChart($canvas, params) {
 	max_value = 0;
 
 	// Find the max y-value across every series
+	// [TODO] Find the range instead
 
 	for(series_idx in params.series) {
 		for(idx in params.series[series_idx].data) {
@@ -251,11 +252,10 @@ function drawChart($canvas, params) {
 		if(null == series.options.line_color)
 			params.series[series_idx].options.line_color = 'rgba(5,141,199,1)';
 		
-		if(null == series.options.fill_color)
-			params.series[series_idx].options.fill_color = 'rgba(5,141,199,0.1)';
+		//if(null == series.options.fill_color)
+		//	params.series[series_idx].options.fill_color = 'rgba(5,141,199,0.1)';
 		
 		context.beginPath();
-		context.fillStyle = series.options.fill_color;
 
 		x = 0;
 		y = 0;
@@ -279,13 +279,15 @@ function drawChart($canvas, params) {
 		
 		context.lineTo(x, canvas.height);
 		
-		context.fill();
+		if(null != series.options.fill_color) {
+			context.fillStyle = series.options.fill_color;
+			context.fill();
+		}
 
 		// Stroke
 
 		context.beginPath();
 		context.strokeStyle = series.options.line_color;
-		//context.lineWidth = (0 == series_idx) ? 3 : 2;
 		context.lineWidth = 3;
 		
 		tick = 0;
@@ -304,90 +306,129 @@ function drawChart($canvas, params) {
 }
 
 function drawBarGraph($canvas, options) {
-	canvas = $canvas.get(0);
-	context = canvas.getContext('2d');
+	try {
+		canvas = $canvas.get(0);
+		context = canvas.getContext('2d');
+		
+		default_colors = ['#455460','#6BA81E','#F9BE28','#D23E2E','#DDDDDD','#F67A3A','#D9E14B','#BBBBBB','#5896C3','#55C022','#8FB933'];
+		
+		if(null == options.series[0].data)
+			return;
+		
+		// [TODO] This should make sure all series are the same length
+		count = options.series[0].data.length;
 	
-	default_colors = ['#455460','#6BA81E','#F9BE28','#D23E2E','#DDDDDD','#F67A3A','#D9E14B','#BBBBBB','#5896C3','#55C022','#8FB933'];
-	
-	if(null == options.series[0].data)
-		return;
-	
-	// [TODO] This should make sure all series are the same length
-	count = options.series[0].data.length;
+		chart_top = 15;
+		chart_width = canvas.width;
+		chart_height = canvas.height - chart_top;
+		
+		stack_data = [];
+		
+		highest_stack = 0;
+		lowest_stack = 0;
 
-	chart_top = 15;
-	chart_width = canvas.width;
-	chart_height = canvas.height - chart_top;
+		// Build the series metadata
+		for(idx=0; idx < count; idx++) {
+			stack_data[idx] = { total: 0, pos: 0, neg: 0, pos_drawn: 0, neg_drawn: 0 };
+			
+			for(series_idx in options.series) {
+				series = options.series[series_idx];
+				
+				if(null == series.data || 0 == series.data.length)
+					continue;
+				
+				val = series.data[idx].y;
+				
+				stack_data[idx].total += val;
+				
+				if(val >= 0)
+					stack_data[idx].pos += val;
+				else
+					stack_data[idx].neg += val;
+			}
+			
+			// Find max height across all series
+			highest_stack = Math.max(stack_data[idx].total, highest_stack);
+			lowest_stack = Math.min(stack_data[idx].total, lowest_stack);
+		}
+		
+		xtick_width = Math.floor(chart_width / count);
+		yrange = (highest_stack-lowest_stack);
+		ytick_height = chart_height / yrange;
 	
-	series_heights = [];
-	stack_heights = [];
-	max_value = 0;
-	
-	// Find the highest y-value of each series
-	for(idx=0; idx < count; idx++) {
-		stack_heights[idx] = 0;
-		series_heights[idx] = 0;
+		// Find the zero y-position by using a proportion of highest stack to range
+		zero_ypos = Math.floor(chart_height * (highest_stack/yrange));
+		
+		context.lineWidth = 1;
+		
+		context.beginPath();
+		context.moveTo(0, zero_ypos);
+		context.lineTo(0, zero_ypos+1);
+		context.lineTo(chart_width, zero_ypos+1);
+		context.lineTo(chart_width, zero_ypos);
+		context.fillStyle = '#BBBBBB';
+		context.fill();
 		
 		for(series_idx in options.series) {
 			series = options.series[series_idx];
-			
+	
 			if(null == series.data || 0 == series.data.length)
 				continue;
 			
-			series_heights[idx] += series.data[idx].y;
-		}
-		
-		// Find max height across all series
-		if(series_heights[idx] > max_value)
-			max_value = series_heights[idx];
-	}
+			if(null != series.options.color)
+				color = series.options.color;
+			else if(null != default_colors[series_idx])
+				color = default_colors[series_idx];
+			else
+				color = '#455460';
 	
-	xtick_width = Math.floor(chart_width / count);
-	ytick_height = chart_height / max_value;
-
-	context.lineWidth = 1;
-	
-	for(series_idx in options.series) {
-		series = options.series[series_idx];
-
-		if(null == series.data || 0 == series.data.length)
-			continue;
-		
-		if(null != series.options.color)
-			color = series.options.color;
-		else if(null != default_colors[series_idx])
-			color = default_colors[series_idx];
-		else
-			color = '#455460';
-
-		x = 0;
-		
-		for(idx in series.data) {
-			context.fillStyle = color;
+			x = 0;
 			
-			value = series.data[idx].y;
-
-			if(0 == value) {
-				x = Math.floor(x + xtick_width);
-				continue;
+			for(idx in series.data) {
+				try {
+					context.fillStyle = color;
+					
+					value = series.data[idx].y;
+		
+					if(0 == value) {
+						x = Math.floor(x + xtick_width);
+						continue;
+					}
+					
+					stack_yheight = Math.floor(ytick_height * Math.abs(value));
+					
+					// Always draw at least one pixel of height
+					stack_yheight = Math.max(stack_yheight, 1);
+					
+					// Above the zero line
+					if(value >= 0) {
+						y = zero_ypos - stack_data[idx].pos_drawn - stack_yheight; // chart_top
+						stack_data[idx].pos_drawn += stack_yheight;
+						
+					// Below the zero line
+					} else {
+						y = zero_ypos + 1 + stack_data[idx].neg_drawn; // chart_top // - (ytick_height * value)
+						stack_data[idx].neg_drawn += stack_yheight;
+						
+					}
+					
+					context.beginPath();
+					context.moveTo(x, y); //chart_height + chart_top - bar_floor
+					context.lineTo(x, y + stack_yheight);
+					
+					x = Math.floor(x + xtick_width);
+					
+					context.lineTo(x-1, y + stack_yheight); //chart_height + chart_top - bar_floor
+					context.lineTo(x-1, y);
+					context.fill();
+					
+				} catch(e) {
+					//console.log(e);
+				}
 			}
-			
-			bar_floor = Math.floor(ytick_height * stack_heights[idx]);
-			
-			y = Math.floor(chart_height - (ytick_height * value) + chart_top - bar_floor);
-			
-			context.beginPath();
-			context.moveTo(x, chart_height + chart_top - bar_floor);
-			context.lineTo(x, y);
-			
-			x = Math.floor(x + xtick_width);
-			
-			context.lineTo(x-1, y);
-			context.lineTo(x-1, chart_height + chart_top - bar_floor);
-			context.fill();
-			
-			stack_heights[idx] += value;
 		}
+	} catch(e) {
+		//console.log(e);
 	}
 }
 
