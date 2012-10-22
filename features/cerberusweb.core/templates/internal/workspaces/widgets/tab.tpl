@@ -313,10 +313,10 @@ function drawChart($canvas, params) {
 			value_yheight = Math.floor(ytick_height * Math.abs(value));
 			
 			if(value >= 0) {
-				y = zero_ypos - value_yheight; // - chart_top; // - (context.lineWidth/2);
+				y = zero_ypos - value_yheight;
 				
 			} else {
-				y = zero_ypos + value_yheight; // + chart_top; // - (context.lineWidth/2);
+				y = zero_ypos + value_yheight;
 				
 			}
 			
@@ -342,9 +342,8 @@ function drawBarGraph($canvas, options) {
 		// [TODO] This should make sure all series are the same length
 		count = options.series[0].data.length;
 	
-		chart_top = 15;
 		chart_width = canvas.width;
-		chart_height = canvas.height - chart_top;
+		chart_height = canvas.height - 1;
 		
 		stack_data = [];
 		
@@ -426,23 +425,23 @@ function drawBarGraph($canvas, options) {
 					
 					// Above the zero line
 					if(value >= 0) {
-						y = zero_ypos - stack_data[idx].pos_drawn - stack_yheight; // chart_top
+						y = zero_ypos - stack_data[idx].pos_drawn - stack_yheight;
 						stack_data[idx].pos_drawn += stack_yheight;
 						
 					// Below the zero line
 					} else {
-						y = zero_ypos + 1 + stack_data[idx].neg_drawn; // chart_top // - (ytick_height * value)
+						y = zero_ypos + 1 + stack_data[idx].neg_drawn;
 						stack_data[idx].neg_drawn += stack_yheight;
 						
 					}
 					
 					context.beginPath();
-					context.moveTo(x, y); //chart_height + chart_top - bar_floor
+					context.moveTo(x, y);
 					context.lineTo(x, y + stack_yheight);
 					
 					x = Math.floor(x + xtick_width);
 					
-					context.lineTo(x-1, y + stack_yheight); //chart_height + chart_top - bar_floor
+					context.lineTo(x-1, y + stack_yheight);
 					context.lineTo(x-1, y);
 					context.fill();
 					

@@ -1,3 +1,5 @@
+<div class="chart-tooltip" style="margin-top:2px;">&nbsp;</div>
+
 <canvas id="widget{$widget->id}_axes_canvas" width="325" height="125" style="position:absolute;cursor:crosshair;display:none;" class="overlay">
 	Your browser does not support HTML5 Canvas.
 </canvas>
@@ -100,8 +102,6 @@ try {
 						
 					}
 					
-					//chart_y = chart_height - (ytick_height * point.y) + chart_top - (context.lineWidth/2 + 1.25);
-					
 					len = plots[series_idx].length;
 					
 					plots[series_idx][len] = {
@@ -175,22 +175,15 @@ try {
 			context.arc(closest.chart_x, closest.chart_y, 5, 0, 2 * Math.PI, false);
 			context.fill();
 
-			text = closest.data.x_label + ': ' + closest.data.y_label;
-			bounds = context.measureText(text);
-			padding = 2;
+			$label = $('<span style="padding:2px;font-weight:bold;background-color:rgb(240,240,240);">'+closest.data.x_label+': <span style="color:'+series.options.line_color+'">'+closest.data.y_label+'</span></span>');
 			
-			context.beginPath();
-			context.fillStyle = '#FFF';
-			context.fillRect(0,0,bounds.width+2*padding,10+2*padding);
-			context.fillStyle = series.options.fill_color;
-			context.moveTo(0,0);
-			context.fillRect(0,0,bounds.width+2*padding,10+2*padding);
+			$tooltip = $(this).siblings('DIV.chart-tooltip');
+			$tooltip.html('').append($label);
 			
-			context.beginPath();
-			context.fillStyle = series.options.line_color;
-			context.font = "12px Verdana";
-			context.fillText(text, padding, 10+padding);
-			context.stroke();
+		})
+		.mouseout(function(e) {
+			$tooltip = $(this).siblings('DIV.chart-tooltip');
+			$tooltip.html('&nbsp;');
 		})
 		;
 	

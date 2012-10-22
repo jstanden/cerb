@@ -1,3 +1,5 @@
+<div class="chart-tooltip" style="margin-top:2px;">&nbsp;</div>
+
 <canvas id="widget{$widget->id}_axes_canvas" width="325" height="125" style="position:absolute;cursor:crosshair;display:none;" class="overlay">
 	Your browser does not support HTML5 Canvas.
 </canvas>
@@ -8,7 +10,7 @@
 
 <div style="margin-top:5px;">
 {foreach from=$widget->params.series item=series key=series_idx name=series}
-{if !empty($series.view_context)}
+{if !empty($series.datasource) && !empty($series.label)}
 <div style="display:inline-block;white-space:nowrap;">
 	<span style="width:10px;height:10px;display:inline-block;background-color:{$series.line_color};margin:2px;vertical-align:middle;border-radius:10px;-moz-border-radius:10px;-webkit-border-radius:10px;-o-border-radius:10px;"></span>
 	<b style="vertical-align:middle;">{if !empty($series.label)}{$series.label}{else}Series #{$smarty.foreach.series.iteration}{/if}</b>
@@ -49,7 +51,6 @@ try {
 			
 			// Cache
 			
-			//chart_top = 15;
 			margin = 5;
 			chart_width = canvas.width - (2 * margin);
 			chart_height = canvas.height - (2 * margin);
@@ -83,8 +84,8 @@ try {
 			 * [TODO] This could support different scales per series
 			 * [TODO] This could also support sets where min != 0 by calculating max-min and subtracting min from all values
 			 */
-			xaxis_tick = chart_width / x_max; 
-			yaxis_tick = chart_height / y_max; 			
+			xaxis_tick = chart_width / x_max;
+			yaxis_tick = chart_height / y_max;
 			
 			// Cache: Plots chart coords
 			
@@ -177,19 +178,14 @@ try {
 			context.arc(closest.chart_x, closest.chart_y, 5, 0, 2 * Math.PI, false);
 			context.fill();
 
-			text = closest.data.x_label + ', ' + closest.data.y_label;
-			bounds = context.measureText(text);
-			padding = 2;
-			
-			context.beginPath();
-			context.fillStyle = '#FFF';
-			context.fillRect(0,0,bounds.width+2*padding,10+2*padding);
-			
-			context.beginPath();
-			context.fillStyle = series.options.color;
-			context.font = "12px Verdana";
-			context.fillText(text, padding, 10+padding);
-			context.stroke();			
+			$label = $('<span style="padding:2px;font-weight:bold;background-color:rgb(240,240,240);">' +closest.data.x_label +': <span style="color:'+series.options.color+'">'+closest.data.y_label+'</span>');
+
+			$tooltip = $(this).siblings('DIV.chart-tooltip');
+			$tooltip.html('').append($label);
+		})
+		.mouseout(function(e) {
+			$tooltip = $(this).siblings('DIV.chart-tooltip');
+			$tooltip.html('&nbsp;');
 		})
 		;
 } catch(e) {
