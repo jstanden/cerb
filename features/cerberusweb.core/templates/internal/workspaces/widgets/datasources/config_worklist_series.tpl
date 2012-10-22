@@ -1,4 +1,4 @@
-{$series_ctx_id = $widget->params.series[{$series_idx}].view_context}
+{$series_ctx_id = $params.view_context}
 
 {$series_ctx = null}
 {$series_ctx_view = null}
@@ -14,7 +14,7 @@
 
 <b>Load </b>
 
-<select name="params[series][{$series_idx}][view_context]" class="context">
+<select name="params{$params_prefix}[view_context]" class="context">
 	<option value=""> - {'common.choose'|devblocks_translate|lower} - </option>
 	{foreach from=$context_mfts item=context_mft key=context_id}
 	<option value="{$context_id}" {if $series_ctx_id==$context_id}selected="selected"{/if}>{$context_mft->name}</option>
@@ -25,18 +25,18 @@
 
 <div id="popup{$div_popup_worklist}" class="badge badge-lightgray" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;display:inline;"><span class="name">Worklist</span> &#x25be;</div>
 
-<input type="hidden" name="params[series][{$series_idx}][view_id]" value="widget{$widget->id}_worklist{$series_idx}">
-<input type="hidden" name="params[series][{$series_idx}][view_model]" value="{$widget->params.series[{$series_idx}].view_model}" class="model">
+<input type="hidden" name="params{$params_prefix}[view_id]" value="widget{$widget->id}_worklist{$series_idx}">
+<input type="hidden" name="params{$params_prefix}[view_model]" value="{$params.view_model}" class="model">
 
 <br>
 
 <abbr title="horizontal axis" style="font-weight:bold;">X-axis</abbr> is   
 
-{$xaxis_field = $widget->params.series[{$series_idx}].xaxis_field}
-{$xaxis_tick = $widget->params.series[{$series_idx}].xaxis_tick}
+{$xaxis_field = $params.xaxis_field}
+{$xaxis_tick = $params.xaxis_tick}
 {$xaxis_field_type = $series_ctx_fields.{$xaxis_field}->type}
 
-<select name="params[series][{$series_idx}][xaxis_field]" class="xaxis_field">
+<select name="params{$params_prefix}[xaxis_field]" class="xaxis_field">
 	<option value="_id" {if $xaxis_field=='_id'}selected="selected"{/if}>(each record)</option>
 	{if !empty($series_ctx_fields)}
 	{foreach from=$series_ctx_fields item=field}
@@ -51,7 +51,7 @@
 
 {$xaxis_ticks = [hour,day,week,month,year]}
 
-<select name="params[series][{$series_idx}][xaxis_tick]" class="xaxis_tick" style="display:{if $xaxis_field_type=='E'}inline{else}none{/if};">
+<select name="params{$params_prefix}[xaxis_tick]" class="xaxis_tick" style="display:{if $xaxis_field_type=='E'}inline{else}none{/if};">
 	{foreach from=$xaxis_ticks item=v}
 	<option value="{$v}" {if $xaxis_tick==$v}selected="selected"{/if}>by {$v}</option>
 	{/foreach}
@@ -61,19 +61,19 @@
 
 <abbr title="vertical axis" style="font-weight:bold;">Y-axis</abbr> is 
  
-{$yaxis_func = $widget->params.series[{$series_idx}].yaxis_func}
-{$yaxis_field = $widget->params.series[{$series_idx}].yaxis_field}
+{$yaxis_func = $params.yaxis_func}
+{$yaxis_field = $params.yaxis_field}
 
-<select name="params[series][{$series_idx}][yaxis_func]" class="yaxis_func">
-	<option value="count" {if 'count'==$widget->params.series[{$series_idx}].yaxis_func}selected="selected"{/if}>count</option>
-	<option value="value" {if 'value'==$widget->params.series[{$series_idx}].yaxis_func}selected="selected"{/if}>value</option>
-	<option value="avg" class="number" {if 'avg'==$widget->params.series[{$series_idx}].yaxis_func}selected="selected"{/if}>average</option>
-	<option value="sum" class="number" {if 'sum'==$widget->params.series[{$series_idx}].yaxis_func}selected="selected"{/if}>sum</option>
-	<option value="min" class="number" {if 'min'==$widget->params.series[{$series_idx}].yaxis_func}selected="selected"{/if}>min</option>
-	<option value="max" class="number" {if 'max'==$widget->params.series[{$series_idx}].yaxis_func}selected="selected"{/if}>max</option>
+<select name="params{$params_prefix}[yaxis_func]" class="yaxis_func">
+	<option value="count" {if 'count'==$params.yaxis_func}selected="selected"{/if}>count</option>
+	<option value="value" {if 'value'==$params.yaxis_func}selected="selected"{/if}>value</option>
+	<option value="avg" class="number" {if 'avg'==$params.yaxis_func}selected="selected"{/if}>average</option>
+	<option value="sum" class="number" {if 'sum'==$params.yaxis_func}selected="selected"{/if}>sum</option>
+	<option value="min" class="number" {if 'min'==$params.yaxis_func}selected="selected"{/if}>min</option>
+	<option value="max" class="number" {if 'max'==$params.yaxis_func}selected="selected"{/if}>max</option>
 </select>
 
-<select name="params[series][{$series_idx}][yaxis_field]" class="yaxis_field" style="display:{if empty($series_ctx_fields) || 'count'==$yaxis_func}none{else}inline{/if};">
+<select name="params{$params_prefix}[yaxis_field]" class="yaxis_field" style="display:{if empty($series_ctx_fields) || 'count'==$yaxis_func}none{else}inline{/if};">
 	{if !empty($series_ctx_fields)}
 	{foreach from=$series_ctx_fields item=field}
 		{if !empty($field->db_label)}

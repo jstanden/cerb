@@ -4,7 +4,6 @@
 	</ul>
 	
     <div id="widget{$widget->id}ConfigTabDatasource">
-    	<input type="hidden" name="params[datasource]" value="worklist">
     	
     	<fieldset id="widget{$widget->id}Datasource" class="peek">
     		{$div_popup_worklist = uniqid()}

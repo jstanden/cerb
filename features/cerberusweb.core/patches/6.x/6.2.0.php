@@ -57,6 +57,170 @@ while($row = mysql_fetch_assoc($rs)) {
 				}
 			}
 			break;
+			
+		// On counters, we want to migrate the built-in datasources to extensions
+		case 'core.workspace.widget.counter':
+			switch(@$params['datasource']) {
+				// Remove pointless params
+				case '':
+					unset($params['counter_func']);
+					unset($params['counter_field']);
+					unset($params['sensor_id']);
+					unset($params['url']);
+					unset($params['url_cache_mins']);
+					unset($params['view_context']);
+					unset($params['view_model']);
+					$changes++;
+					break;
+					
+				case 'sensor':
+					unset($params['counter_func']);
+					unset($params['counter_field']);
+					unset($params['metric_value']);
+					unset($params['url']);
+					unset($params['url_cache_mins']);
+					unset($params['view_context']);
+					unset($params['view_model']);
+					$changes++;
+					break;
+					
+				case 'worklist':
+					if(isset($params['counter_func']))
+						$params['metric_func'] = $params['counter_func'];
+					
+					if(isset($params['counter_field']))
+						$params['metric_field'] = $params['counter_field'];
+					
+					unset($params['counter_func']);
+					unset($params['counter_field']);
+					unset($params['metric_value']);
+					unset($params['sensor_id']);
+					unset($params['url']);
+					unset($params['url_cache_mins']);
+					$changes++;
+					break;
+					
+				case 'url':
+					unset($params['counter_func']);
+					unset($params['counter_field']);
+					unset($params['metric_value']);
+					unset($params['sensor_id']);
+					unset($params['view_context']);
+					unset($params['view_model']);
+					$changes++;
+					break;
+				
+			}
+			
+			switch(@$params['datasource']) {
+				case '':
+					$params['datasource'] = 'core.workspace.widget.datasource.manual';
+					$changes++;
+					break;
+					
+				case 'worklist':
+					$params['datasource'] = 'core.workspace.widget.datasource.worklist';
+					$changes++;
+					break;
+					
+				case 'sensor':
+					$params['datasource'] = 'cerberusweb.datacenter.sensor.widget.datasource';
+					$changes++;
+					break;
+					
+				case 'url':
+					$params['datasource'] = 'core.workspace.widget.datasource.url';
+					$changes++;
+					break;
+			}
+			break;
+			
+		// On gauges, we want to migrate the built-in datasources to extensions
+		case 'core.workspace.widget.gauge':
+			switch(@$params['datasource']) {
+				// Remove pointless params
+				case '':
+					unset($params['counter_func']);
+					unset($params['needle_format']);
+					unset($params['needle_func']);
+					unset($params['needle_field']);
+					unset($params['sensor_id']);
+					unset($params['url']);
+					unset($params['url_cache_mins']);
+					unset($params['view_context']);
+					unset($params['view_model']);
+					$changes++;
+					break;
+					
+				case 'sensor':
+					unset($params['counter_func']);
+					unset($params['metric_value']);
+					unset($params['needle_format']);
+					unset($params['needle_func']);
+					unset($params['needle_field']);
+					unset($params['url']);
+					unset($params['url_cache_mins']);
+					unset($params['view_context']);
+					unset($params['view_model']);
+					$changes++;
+					break;
+					
+				case 'worklist':
+					if(isset($params['needle_format']))
+						$params['metric_type'] = $params['needle_format'];
+					
+					if(isset($params['needle_func']))
+						$params['metric_func'] = $params['needle_func'];
+					
+					if(isset($params['needle_field']))
+						$params['metric_field'] = $params['needle_field'];
+					
+					unset($params['metric_value']);
+					unset($params['needle_format']);
+					unset($params['needle_func']);
+					unset($params['needle_field']);
+					unset($params['sensor_id']);
+					unset($params['url']);
+					unset($params['url_cache_mins']);
+					$changes++;
+					break;
+					
+				case 'url':
+					unset($params['counter_func']);
+					unset($params['metric_value']);
+					unset($params['needle_format']);
+					unset($params['needle_func']);
+					unset($params['needle_field']);
+					unset($params['sensor_id']);
+					unset($params['view_context']);
+					unset($params['view_model']);
+					$changes++;
+					break;
+				
+			}
+			
+			switch(@$params['datasource']) {
+				case '':
+					$params['datasource'] = 'core.workspace.widget.datasource.manual';
+					$changes++;
+					break;
+					
+				case 'worklist':
+					$params['datasource'] = 'core.workspace.widget.datasource.worklist';
+					$changes++;
+					break;
+					
+				case 'sensor':
+					$params['datasource'] = 'cerberusweb.datacenter.sensor.widget.datasource';
+					$changes++;
+					break;
+					
+				case 'url':
+					$params['datasource'] = 'core.workspace.widget.datasource.url';
+					$changes++;
+					break;
+			}
+			break;
 	}
 	
 	if($changes) {

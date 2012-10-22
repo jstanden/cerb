@@ -336,8 +336,20 @@ abstract class Extension_WorkspaceTab extends DevblocksExtension {
 abstract class Extension_WorkspaceWidgetDatasource extends DevblocksExtension {
 	static $_registry = array();
 	
-	static function getAll($as_instances=false) {
-		$extensions = DevblocksPlatform::getExtensions('cerberusweb.ui.workspace.widget.datasource', $as_instances);
+	static function getAll($as_instances=false, $only_for_widget=null) {
+		$extensions = DevblocksPlatform::getExtensions('cerberusweb.ui.workspace.widget.datasource', false);
+		
+		if(!empty($only_for_widget)) {
+			$results = array();
+			
+			foreach($extensions as $id => $ext) {
+				if(in_array($only_for_widget, array_keys($ext->params['widgets'][0])))
+					$results[$id] = ($as_instances) ? $ext->createInstance() : $ext;
+			}
+			
+			$extensions = $results;
+			unset($results);
+		}
 		
 		if($as_instances)
 			DevblocksPlatform::sortObjects($extensions, 'manifest->name');
@@ -361,7 +373,7 @@ abstract class Extension_WorkspaceWidgetDatasource extends DevblocksExtension {
 		return null;
 	}
 	
-	abstract function renderConfig(Model_WorkspaceWidget $widget, $params=array(), $series_idx=null);
+	abstract function renderConfig(Model_WorkspaceWidget $widget, $params=array(), $params_prefix=null);
 	abstract function getData(Model_WorkspaceWidget $widget, array $params=array());
 };
 
