@@ -220,29 +220,35 @@ function drawPieChart($canvas, options) {
 }
 
 function drawChart($canvas, params) {
-	canvas = $canvas.get(0);
-	context = canvas.getContext('2d');
+	var canvas = $canvas.get(0);
+	var context = canvas.getContext('2d');
 	
-	chart_top = 15;
-	
-	chart_width = canvas.width;
-	chart_height = canvas.height - chart_top;
+	var chart_width = canvas.width;
+	var chart_height = canvas.height;
 
-	max_value = 0;
+	var max_value = 0;
+	var min_value = 0;
 
 	// Find the max y-value across every series
-	// [TODO] Find the range instead
 
 	for(series_idx in params.series) {
 		for(idx in params.series[series_idx].data) {
 			value = params.series[series_idx].data[idx].y;
-			if(value > max_value)
-				max_value = value;
+			
+			max_value = Math.max(value, max_value);
+			min_value = Math.min(value, min_value);
 		}
 	}
 
-	// Loop through multiple series
+	var range = Math.abs(max_value - min_value);
 	
+	// Find the y-zero line (it may not be the bottom if we have negative values)
+	
+	var zero_ypos = Math.floor(chart_height * (max_value/range));
+	
+	context.lineWidth = 1;
+	
+	// Loop through multiple series
 	for(series_idx in params.series) {
 		series = params.series[series_idx];
 		
@@ -252,34 +258,42 @@ function drawChart($canvas, params) {
 		if(null == series.options.line_color)
 			params.series[series_idx].options.line_color = 'rgba(5,141,199,1)';
 		
-		//if(null == series.options.fill_color)
-		//	params.series[series_idx].options.fill_color = 'rgba(5,141,199,0.1)';
-		
 		context.beginPath();
 
 		x = 0;
 		y = 0;
 		tick = 0;
-		
-		context.moveTo(0, canvas.height);
-		
+
 		count = series.data.length;
 		xtick_width = chart_width / (count-1);
-		ytick_height = chart_height / max_value;
-	
+		ytick_height = chart_height / range;
+		
 		// Fill
 		
-		for(idx in series.data) {
-			value = series.data[idx].y;
-			x = tick;
-			y = chart_height - (ytick_height * value) + chart_top;
-			context.lineTo(x, y);
-			tick += xtick_width;
-		}
-		
-		context.lineTo(x, canvas.height);
-		
 		if(null != series.options.fill_color) {
+			context.moveTo(0, zero_ypos);
+			
+			for(idx in series.data) {
+				value = series.data[idx].y;
+				
+				x = tick;
+				value_yheight = Math.floor(ytick_height * Math.abs(value));
+				
+				if(value >= 0) {
+					y = zero_ypos - value_yheight;
+					
+				} else {
+					y = zero_ypos + value_yheight;
+					
+				}
+				
+				context.lineTo(x, y);
+				
+				tick += xtick_width;
+			}
+		
+			context.lineTo(x, zero_ypos);
+			
 			context.fillStyle = series.options.fill_color;
 			context.fill();
 		}
@@ -294,9 +308,19 @@ function drawChart($canvas, params) {
 		
 		for(idx in series.data) {
 			value = series.data[idx].y;
+			
 			x = tick;
-			y = chart_height - (ytick_height * value) + chart_top - (context.lineWidth/2);
-			context.lineTo(tick, y);
+			value_yheight = Math.floor(ytick_height * Math.abs(value));
+			
+			if(value >= 0) {
+				y = zero_ypos - value_yheight; // - chart_top; // - (context.lineWidth/2);
+				
+			} else {
+				y = zero_ypos + value_yheight; // + chart_top; // - (context.lineWidth/2);
+				
+			}
+			
+			context.lineTo(x, y);
 			tick += xtick_width;
 		}
 

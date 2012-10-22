@@ -48,25 +48,27 @@ try {
 
 			options = $(this).data('model');
 			
-			chart_top = 15;
-			
-			chart_width = canvas.width;
-			chart_height = canvas.height - chart_top;
+			var chart_width = canvas.width;
+			var chart_height = canvas.height;
 
-			max_value = 0;
+			var max_value = 0;
+			var min_value = 0;
 		
 			// Cache: Find the max y-value across every series
 		
 			for(series_idx in options.series) {
 				for(idx in options.series[series_idx].data) {
 					value = options.series[series_idx].data[idx].y;
-					if(value > max_value)
-						max_value = value;
+					
+					max_value = Math.max(value, max_value);
+					min_value = Math.min(value, min_value);
 				}
 			}
+
+			var range = Math.abs(max_value - min_value);
 			
-			$(this).data('max_value', max_value);
-			
+			var zero_ypos = Math.floor(chart_height * (max_value/range));
+
 			// Cache: Plots chart coords
 			
 			plots = [];
@@ -81,13 +83,24 @@ try {
 				
 				count = series.data.length;
 				xtick_width = chart_width / (count-1);
-				ytick_height = chart_height / max_value;
+				ytick_height = chart_height / range;
 				
 				for(idx in series.data) {
 					point = series.data[idx];
 					
 					chart_x = idx * xtick_width;
-					chart_y = chart_height - (ytick_height * point.y) + chart_top - (context.lineWidth/2 + 1.25);
+					
+					value_yheight = Math.floor(ytick_height * Math.abs(point.y));
+					
+					if(point.y >= 0) {
+						chart_y = zero_ypos - value_yheight;
+						
+					} else {
+						chart_y = zero_ypos + value_yheight;
+						
+					}
+					
+					//chart_y = chart_height - (ytick_height * point.y) + chart_top - (context.lineWidth/2 + 1.25);
 					
 					len = plots[series_idx].length;
 					
@@ -107,7 +120,6 @@ try {
 			
 			options = $(this).data('model');
 			plots = $(this).data('plots');
-			max_value = $(this).data('max_value');
 
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			
