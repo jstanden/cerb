@@ -7,8 +7,6 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		$tpl->assign('params', $params);
 		$tpl->assign('params_prefix', $params_prefix);
 		
-		var_dump($params);
-		
 		// [TODO] This is a hack. We shouldn't have to access series_idx
 		if(!empty($params_prefix)) {
 			if(preg_match("#\[series\]\[(\d+)\]#", $params_prefix, $matches) && count($matches) == 2) {
