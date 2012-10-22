@@ -8,7 +8,7 @@
 
 <div style="margin-top:5px;">
 {foreach from=$widget->params.series item=series key=series_idx name=series}
-{if !empty($series.view_context)}
+{if !empty($series.datasource) && !empty($series.label)}
 <div style="display:inline-block;white-space:nowrap;">
 	<span style="width:10px;height:10px;display:inline-block;background-color:{$series.line_color};margin:2px;vertical-align:middle;border-radius:10px;-moz-border-radius:10px;-webkit-border-radius:10px;-o-border-radius:10px;"></span>
 	<b style="vertical-align:middle;">{if !empty($series.label)}{$series.label}{else}Series #{$smarty.foreach.series.iteration}{/if}</b>
