@@ -25,6 +25,15 @@ while($row = mysql_fetch_assoc($rs)) {
 		// On charts, we want to default the datasource for each series 
 		//  to 'worklist' if there is data
 		case 'core.workspace.widget.chart':
+			if(isset($params['chart_type']) && $params['chart_type'] == 'scatterplot') {
+				// Move scatterplots out of charts and into their own extension
+				$db->Execute(sprintf("UPDATE workspace_widget SET extension_id = %s WHERE id = %d",
+					$db->qstr('core.workspace.widget.scatterplot'),
+					$row['id']
+				));
+				$row['extension_id'] = 'core.workspace.widget.scatterplot';
+			}
+			
 			if(isset($params['datasource'])) {
 				unset($params['datasource']);
 				$changes++;

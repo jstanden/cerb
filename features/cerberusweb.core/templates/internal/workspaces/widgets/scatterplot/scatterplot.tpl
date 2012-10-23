@@ -80,12 +80,14 @@ try {
 				}		
 			}
 		
+			var x_range = Math.abs(x_max - x_min);
+			var y_range = Math.abs(y_max - y_min);
+			
 			/*
 			 * [TODO] This could support different scales per series
-			 * [TODO] This could also support sets where min != 0 by calculating max-min and subtracting min from all values
 			 */
-			xaxis_tick = chart_width / x_max;
-			yaxis_tick = chart_height / y_max;
+			xaxis_tick = chart_width / x_range;
+			yaxis_tick = chart_height / y_range;
 			
 			// Cache: Plots chart coords
 			
@@ -101,8 +103,8 @@ try {
 				
 				for(idx in series.data) {
 					data = series.data[idx];
-					x = data.x;
-					y = data.y;
+					x = data.x - x_min;
+					y = data.y - y_min;
 					
 					chart_x = (xaxis_tick * x) + margin;
 					chart_y = chart_height - (yaxis_tick * y) + margin;
@@ -115,7 +117,7 @@ try {
 				}
 			}
 			
-			$(this).data('plots', plots);			
+			$(this).data('plots', plots);
 		})
 		.mousemove(function(e) {
 			canvas = $(this).get(0);

@@ -30,6 +30,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		
 		switch($widget->extension_id) {
 			case 'core.workspace.widget.chart':
+			case 'core.workspace.widget.scatterplot':
 				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/datasources/config_worklist_series.tpl');
 				break;
 				
@@ -43,6 +44,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 	function getData(Model_WorkspaceWidget $widget, array $params=array()) {
 		switch($widget->extension_id) {
 			case 'core.workspace.widget.chart':
+			case 'core.workspace.widget.scatterplot':
 				return $this->_getDataSeries($widget, $params);
 				break;
 				

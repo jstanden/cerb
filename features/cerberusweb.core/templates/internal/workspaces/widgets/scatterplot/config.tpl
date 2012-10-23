@@ -1,7 +1,3 @@
-<b>Type: </b>
-<label><input type="radio" name="params[chart_type]" value="line" {if empty($widget->params.chart_type) || $widget->params.chart_type == 'line'}checked="checked"{/if}> Line Chart</label>
-<label><input type="radio" name="params[chart_type]" value="bar" {if $widget->params.chart_type == 'bar'}checked="checked"{/if}> Bar Chart</label>
-
 <div id="widget{$widget->id}ConfigTabs">
 	<ul style="display:none;">
 		<li><a href="#widget{$widget->id}ConfigTabDatasource">Data Sources</a></li>
@@ -13,7 +9,7 @@
 		{$series_prefix = "[series][{$series_idx}]"}	
 		
 		<fieldset id="widget{$widget->id}Datasource{$series_idx}" class="peek">
-			<legend>Series #{$smarty.section.series.iteration}</legend>
+			<legend>Source #{$smarty.section.series.iteration}</legend>
 		
 			<b>Data</b> from
 			{$source = $widget->params.series[{$series_idx}].datasource}
@@ -45,9 +41,7 @@
 			</div>
 				
 		</fieldset>
-
 		{/section}
-
 	</div>
 	
 </div>

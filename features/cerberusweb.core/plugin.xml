@@ -47,7 +47,7 @@
 		
 		<patch version="6.0.0"  revision="989" file="patches/6.x/6.0.0.php" />
 		<patch version="6.1.0" revision="1005" file="patches/6.x/6.1.0.php" />
-		<patch version="6.2.0" revision="1010" file="patches/6.x/6.2.0.php" />
+		<patch version="6.2.0" revision="1011" file="patches/6.x/6.2.0.php" />
 	</patches>
 
 	<!-- Controller Routing -->
@@ -2237,7 +2237,7 @@
 	
 		<extension point="cerberusweb.ui.workspace.widget">
 			<id>core.workspace.widget.chart</id>
-			<name>Chart</name>
+			<name>Line/Bar Chart</name>
 			<class>
 				<file>api/uri/internal/dashboards.php</file>
 				<name>WorkspaceWidget_Chart</name>
@@ -2252,6 +2252,17 @@
 			<class>
 				<file>api/uri/internal/dashboards.php</file>
 				<name>WorkspaceWidget_Counter</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
+		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.scatterplot</id>
+			<name>Scatterplot</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_Scatterplot</name>
 			</class>
 			<params>
 			</params>
@@ -2328,6 +2339,7 @@
 						<data key="core.workspace.widget.chart" />
 						<data key="core.workspace.widget.counter" />
 						<data key="core.workspace.widget.gauge" />
+						<data key="core.workspace.widget.scatterplot" />
 					</value>
 				</param>
 			</params>

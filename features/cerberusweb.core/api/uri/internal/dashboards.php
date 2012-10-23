@@ -397,10 +397,6 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/bar_chart.tpl');
 				break;
 				
-			case 'scatterplot':
-				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/scatterplot.tpl');
-				break;
-				
 			default:
 			case 'line':
 				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/line_chart.tpl');
@@ -664,5 +660,72 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
+	}
+};
+
+class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget {
+	function render(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		@$series = $widget->params['series'];
+		
+		if(empty($series)) {
+			echo "This scatterplot doesn't have any data sources. Configure it and select one.";
+			return;
+		}
+
+		// Multiple datasources
+		foreach($series as $series_idx => $series_params) {
+			@$datasource_extid = $series_params['datasource'];
+
+			if(empty($datasource_extid))
+				continue;
+			
+			if(null == ($datasource_ext = Extension_WorkspaceWidgetDatasource::get($datasource_extid)))
+				continue;
+			
+			$data = $datasource_ext->getData($widget, $series_params);
+
+			if(!empty($data))
+				$widget->params['series'][$series_idx] = $data;
+		}
+		
+		$tpl->assign('widget', $widget);
+
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/scatterplot/scatterplot.tpl');
+	}
+	
+	// Config
+	
+	function renderConfig(Model_WorkspaceWidget $widget) {
+		if(empty($widget))
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		// Widget
+		
+		$tpl->assign('widget', $widget);
+		
+		// Limit to widget
+		
+		$datasource_mfts = Extension_WorkspaceWidgetDatasource::getAll(false, $this->manifest->id);
+		$tpl->assign('datasource_mfts', $datasource_mfts);
+		
+		// Template
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/scatterplot/config.tpl');
+	}
+	
+	function saveConfig(Model_WorkspaceWidget $widget) {
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
+		
+		DAO_WorkspaceWidget::update($widget->id, array(
+			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
+		));
+
+		// Clear caches
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(sprintf("widget%d_datasource", $widget->id));
 	}
 };
