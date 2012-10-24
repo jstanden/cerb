@@ -1,22 +1,43 @@
-<canvas id="widget{$widget->id}_axes_canvas" width="325" height="220" style="position:absolute;cursor:crosshair;display:none;" class="overlay">
+<canvas id="widget{$widget->id}_axes_canvas" width="325" height="210" style="position:absolute;cursor:crosshair;display:none;" class="overlay">
 	Your browser does not support HTML5 Canvas.
 </canvas>
 
-<canvas id="widget{$widget->id}_canvas" width="325" height="220">
+<canvas id="widget{$widget->id}_canvas" width="325" height="210">
 	Your browser does not support HTML5 Canvas.
 </canvas>
 
-<div class="subtotals" style="margin-top:5px;">
+<div class="subtotals" style="margin-top:5px;min-height:16px;">
+{$show_legend = $widget->params['show_legend']}
+
 {foreach from=$widget->params['wedge_labels'] item=label key=idx name=labels}
 {if !empty($label)}
-<div class="subtotal" style="display:inline-block;">
+
+{$metric_value = $widget->params['wedge_values'][$idx]}
+
+{if $widget->params.metric_type == 'decimal'}{$decimals=2}{else}{$decimals=0}{/if}
+{if $widget->params.metric_type == 'percent'}{$metric_value = floatval($metric_value)}{/if}
+
+{$metric_label = $metric_value}
+
+{if $widget->params.metric_type == 'number' || $widget->params.metric_type == 'decimal'}
+	{$metric_value = floatval($metric_value)}
+	{$metric_label = $metric_value|number_format:$decimals}
+{elseif $widget->params.metric_type == 'seconds'}
+	{$metric_value = intval($metric_value)}
+	{$metric_label = DevblocksPlatform::strSecsToString($metric_value,2)}
+{elseif $widget->params.metric_type == 'bytes'}
+	{$metric_label = DevblocksPlatform::strPrettyBytes($metric_value, 2)}
+{/if}
+
+<div class="subtotal" style="display:{if !$show_legend}none{else}inline-block{/if};">
 	{$color = $widget->params['wedge_colors'][$idx]}
 	{if empty($color)}{$color = end($widget->params['wedge_colors'])}{/if}
 	<span style="width:10px;height:10px;display:inline-block;background-color:{$color};margin:2px;vertical-align:middle;border-radius:10px;-moz-border-radius:10px;-webkit-border-radius:10px;-o-border-radius:10px;"></span>
-	<span class="label" style="font-weight:bold;vertical-align:middle;">{$label}</span> <small>({$widget->params['wedge_values'][$idx]|number_format:0})</small>
+	<span class="label" style="font-weight:bold;vertical-align:middle;">{$label}</span> <small>({$widget->params.metric_prefix}{$metric_label}{if $widget->params.metric_type=='percent'}%{/if}{$widget->params.metric_suffix})</small>
 </div>
 {/if}
 {/foreach}
+<b>&nbsp;</b>
 </div>
 
 <script type="text/javascript">
@@ -41,8 +62,7 @@ try {
 			
 			options = $(this).data('model');
 			
-			chart_top = 15;
-			chart_height = canvas.height - chart_top;
+			chart_height = canvas.height;
 			chart_width = canvas.width;
 			
 			arclen = 2 * Math.PI;
@@ -92,8 +112,7 @@ try {
 			
 			$widget = $('#widget{$widget->id}');
 			
-			chart_top = 15;
-			chart_height = canvas.height - chart_top;
+			chart_height = canvas.height;
 			chart_width = canvas.width;
 			
 			options = $(this).data('model');
@@ -227,21 +246,29 @@ try {
 			context.arc(piecenter_x, piecenter_y, radius + 8, closest_wedge.start, closest_wedge.length, false);
 			context.stroke();
 			
-			$labels = $widget.find('div.subtotals > div.subtotal > span.label');
+			$subtotals = $widget.find('div.subtotals > div.subtotal');
+			
+			$labels = $subtotals.find('> span.label');
 			$labels
 				.css('background-color', '')
 				;
+			{if !$show_legend}$subtotals.css('display', 'none');{/if}
 			$labels.filter(':nth(' + closest_wedge.index + ')')
-				.css('background-color', 'rgb(255,235,128)')
+				{if $show_legend}.css('background-color', 'rgb(255,235,128)'){/if}
+				{if !$show_legend}.closest('div.subtotal').css('display', 'inline-block'){/if}
 				;
 		})
 		.mouseout(function() {
 			$widget = $('#widget{$widget->id}');
 			
-			$labels = $widget.find('div.subtotals > div.subtotal > span.label');
+			$subtotals = $widget.find('div.subtotals > div.subtotal');
+			
+			$labels = $subtotals.find('> span.label');
 			$labels
 				.css('background-color', '')
 				;
+			
+			{if !$show_legend}$subtotals.css('display', 'none');{/if}
 		})
 		;		
 	

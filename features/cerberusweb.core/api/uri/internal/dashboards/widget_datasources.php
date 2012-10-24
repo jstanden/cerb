@@ -36,6 +36,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 				
 			case 'core.workspace.widget.counter':
 			case 'core.workspace.widget.gauge':
+			case 'core.workspace.widget.pie_chart':
 				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/datasources/config_worklist_metric.tpl');
 				break;
 		}
@@ -50,6 +51,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 				
 			case 'core.workspace.widget.counter':
 			case 'core.workspace.widget.gauge':
+			case 'core.workspace.widget.pie_chart':
 				return $this->_getDataSingle($widget, $params);
 				break;
 		}

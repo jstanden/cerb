@@ -543,9 +543,12 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget {
 				$widget->params['wedge_labels'] = $wedge_labels;
 				$widget->params['wedge_values'] = $wedge_values;
 				
+				$widget->params['show_legend'] = true;
+				$widget->params['metric_type'] = 'number';
+				
 				$tpl->assign('widget', $widget);
 				
-				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/pie_chart.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/pie_chart/pie_chart.tpl');
 				break;
 				
 			default:
@@ -660,6 +663,92 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
+	}
+};
+
+class WorkspaceWidget_PieChart extends Extension_WorkspaceWidget {
+	function render(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		// Per series datasources
+		@$datasource_extid = $widget->params['datasource'];
+
+		if(empty($datasource_extid)) {
+			echo "This pie chart doesn't have a data source. Configure it and select one.";
+			return;
+		}
+		
+		if(null == ($datasource_ext = Extension_WorkspaceWidgetDatasource::get($datasource_extid)))
+			return;
+		
+		$data = $datasource_ext->getData($widget, $widget->params);
+
+		if(!empty($data))
+			$widget->params = $data;
+		
+		$wedge_colors = array(
+			'#57970A',
+			'#007CBD',
+			'#7047BA',
+			'#8B0F98',
+			'#CF2C1D',
+			'#E97514',
+			'#FFA100',
+			'#3E6D07',
+			'#345C05',
+			'#005988',
+			'#004B73',
+			'#503386',
+			'#442B71',
+			'#640A6D',
+			'#55085C',
+			'#951F14',
+			'#7E1A11',
+			'#A8540E',
+			'#8E470B',
+			'#B87400',
+			'#9C6200',
+			'#CCCCCC',
+		);
+		$widget->params['wedge_colors'] = $wedge_colors;
+
+		$tpl->assign('widget', $widget);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/pie_chart/pie_chart.tpl');
+	}
+	
+	// Config
+	
+	function renderConfig(Model_WorkspaceWidget $widget) {
+		if(empty($widget))
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		// Widget
+		
+		$tpl->assign('widget', $widget);
+		
+		// Limit to widget
+		
+		$datasource_mfts = Extension_WorkspaceWidgetDatasource::getAll(false, $this->manifest->id);
+		$tpl->assign('datasource_mfts', $datasource_mfts);
+		
+		// Template
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/pie_chart/config.tpl');
+	}
+	
+	function saveConfig(Model_WorkspaceWidget $widget) {
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
+		
+		DAO_WorkspaceWidget::update($widget->id, array(
+			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
+		));
+
+		// Clear caches
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(sprintf("widget%d_datasource", $widget->id));
 	}
 };
 

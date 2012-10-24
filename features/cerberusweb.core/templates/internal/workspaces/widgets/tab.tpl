@@ -154,10 +154,8 @@ function drawPieChart($canvas, options) {
 	canvas = $canvas.get(0);
 	context = canvas.getContext('2d');
 	
-	chart_top = 15;
-	
 	chart_width = canvas.width;
-	chart_height = canvas.height - chart_top;
+	chart_height = canvas.height;
 
 	if(null == options.wedge_colors)
 		options.wedge_colors = [
