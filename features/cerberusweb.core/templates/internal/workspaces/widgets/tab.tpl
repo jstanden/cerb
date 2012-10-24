@@ -221,9 +221,10 @@ function drawChart($canvas, params) {
 	var canvas = $canvas.get(0);
 	var context = canvas.getContext('2d');
 	
+	var margin = 5;
 	var chart_width = canvas.width;
-	var chart_height = canvas.height;
-
+	var chart_height = canvas.height - (2 * margin);
+	
 	var max_value = 0;
 	var min_value = 0;
 
@@ -242,7 +243,7 @@ function drawChart($canvas, params) {
 	
 	// Find the y-zero line (it may not be the bottom if we have negative values)
 	
-	var zero_ypos = Math.floor(chart_height * (max_value/range));
+	var zero_ypos = Math.floor(chart_height * (max_value/range)) + margin - (0 == margin % 2 ? 0 : 0.5);
 	
 	context.lineWidth = 1;
 	

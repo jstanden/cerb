@@ -50,9 +50,10 @@ try {
 
 			options = $(this).data('model');
 			
+			var margin = 5;
 			var chart_width = canvas.width;
-			var chart_height = canvas.height;
-
+			var chart_height = canvas.height - (2 * margin);
+			
 			var max_value = 0;
 			var min_value = 0;
 		
@@ -69,7 +70,7 @@ try {
 
 			var range = Math.abs(max_value - min_value);
 			
-			var zero_ypos = Math.floor(chart_height * (max_value/range));
+			var zero_ypos = Math.floor(chart_height * (max_value/range)) + margin - (0 == margin % 2 ? 0 : 0.5);
 
 			// Cache: Plots chart coords
 			
