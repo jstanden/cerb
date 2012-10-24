@@ -1199,8 +1199,8 @@ class _DevblocksSortHelper {
 		}
 		
 		if(is_numeric($a_test) && is_numeric($b_test)) {
-			settype($a_test, 'integer');
-			settype($b_test, 'integer');
+			settype($a_test, 'float');
+			settype($b_test, 'float');
 			
 			if($a_test==$b_test)
 				return 0;
