@@ -53,7 +53,7 @@ class DevblocksPlatform extends DevblocksEngine {
     	if(empty($plugin_id))
     		return false;
     	
-		DevblocksPlatform::readPlugins();
+		DevblocksPlatform::readPlugins(false);
 		DevblocksPlatform::clearCache();
 		return true;
     }
@@ -95,12 +95,10 @@ class DevblocksPlatform extends DevblocksEngine {
     }
     
     static function uninstallPlugin($plugin_id) {
-		// [TODO] Verify the plugin from registry
-		// [TODO] Only uninstall from storage/plugins/
-		
-		$plugin = DevblocksPlatform::getPlugin($plugin_id);
-		$plugin->uninstall();
-		DevblocksPlatform::readPlugins();
+		if(null !== ($plugin = DevblocksPlatform::getPlugin($plugin_id))) {
+			$plugin->uninstall();
+			DevblocksPlatform::readPlugins(false);
+		}
     }
 
 	/**
@@ -1298,16 +1296,11 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @static 
 	 * @return DevblocksPluginManifest[]
 	 */
-	static function readPlugins() {
-		$scan_dirs = array(
-			'features',
-			'storage/plugins',
-		);
-		
+	static function readPlugins($is_update=true, $scan_dirs = array('features', 'storage/plugins')) {
 	    $plugins = array();
 
 	    // Devblocks
-	    if(null !== ($manifest = self::_readPluginManifest('libs/devblocks')))
+	    if(null !== ($manifest = self::_readPluginManifest('libs/devblocks', $is_update)))
 	    	$plugin[] = $manifest;
 	    	
 	    // Application
@@ -1324,7 +1317,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		                $rel_path = $scan_dir . '/' . $file;
 		                
 		                if(is_dir($plugin_path) && file_exists($plugin_path.'/plugin.xml')) {
-		                    $manifest = self::_readPluginManifest($rel_path); /* @var $manifest DevblocksPluginManifest */
+		                    $manifest = self::_readPluginManifest($rel_path, $is_update); /* @var $manifest DevblocksPluginManifest */
 	
 		                    if(null != $manifest) {
 		                        $plugins[$manifest->id] = $manifest;

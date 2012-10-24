@@ -41,8 +41,9 @@ abstract class DevblocksEngine {
 	 * @param string $dir
 	 * @return DevblocksPluginManifest
 	 */
-	static protected function _readPluginManifest($rel_dir, $persist=true) {
-		$manifest_file = APP_PATH . '/' . $rel_dir . '/plugin.xml'; 
+	static protected function _readPluginManifest($rel_dir, $is_update=true) {
+		$manifest_file = APP_PATH . '/' . $rel_dir . '/plugin.xml';
+		$persist = true; 
 		
 		if(!file_exists($manifest_file))
 			return NULL;
@@ -58,6 +59,12 @@ abstract class DevblocksEngine {
 		$manifest->version = (integer) DevblocksPlatform::strVersionToInt($plugin->version);
 		$manifest->link = (string) $plugin->link;
 		$manifest->name = (string) $plugin->name;
+		
+		// Only re-persist the plugins when the version changes
+		if(!$is_update && null != ($current_plugin = DevblocksPlatform::getPlugin($manifest->id)) 
+				&& ($current_plugin->version == $manifest->version)) {
+			$persist = false;
+		}
 		
 		// Requirements
 		if(isset($plugin->requires)) {
