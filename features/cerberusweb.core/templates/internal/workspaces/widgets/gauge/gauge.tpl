@@ -32,6 +32,8 @@ try {
 		{$metric_label = $metric_value|number_format:$decimals}
 	{elseif $widget->params.metric_type == 'seconds'}
 		{$metric_label = DevblocksPlatform::strSecsToString($metric_value,2)}
+	{elseif $widget->params.metric_type == 'bytes'}
+		{$metric_label = DevblocksPlatform::strPrettyBytes($metric_value, 2)}
 	{/if}
 	
 	drawGauge($('#widget{$widget->id}_canvas'), {

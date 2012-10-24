@@ -36,7 +36,7 @@
 			</tr>
 			<tr>
 				<td>
-					{$types = [['number','number'], ['decimal','decimal'], ['percent','percentage'], ['seconds','time elapsed']]}
+					{$types = [['number','number'], ['decimal','decimal'], ['percent','percentage'], ['bytes','bytes'], ['seconds','time elapsed']]}
 					<select name="params[metric_type]">
 						{foreach from=$types item=type}
 						<option value="{$type[0]}" {if $widget->params.metric_type==$type[0]}selected="selected"{/if}>{$type[1]}</option>
