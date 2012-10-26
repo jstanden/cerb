@@ -711,7 +711,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		$precision = floatval($precision);
 		$out = '';
 		
-		if($bytes >= 1000000000) {
+		if($bytes >= 1000000000000) {
+			$out = number_format($bytes/1000000000000,$precision) . ' TB';
+		} elseif($bytes >= 1000000000) {
 			$out = number_format($bytes/1000000000,$precision) . ' GB';
 		} elseif ($bytes >= 1000000) {
 			$out = number_format($bytes/1000000,$precision) . ' MB';
