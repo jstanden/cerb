@@ -561,9 +561,32 @@ function drawScatterplot($canvas, options) {
 			chart_x = (xaxis_tick * x) + margin;
 			chart_y = chart_height - (yaxis_tick * y) + margin;
 			
+			if(series_idx == 1) {
+				label = '+';
+				
+			} else if(series_idx == 2) {
+				label = 'x';
+				
+			} else if(series_idx == 3) {
+				label = '*';
+				
+			} else {
+				label = 'o';
+				
+			}
+			
+			context.font = '12px Courier';
+			measure = context.measureText(label);
+			
+			context.beginPath();
+			context.fillText(label, chart_x-measure.width/2, chart_y+measure.width/2);
+			context.fill();
+			
+			/*
 			context.beginPath();
 			context.arc(chart_x, chart_y, 2.5, 0, 2 * Math.PI, false);
 			context.stroke();
+			*/
 		}
 	}
 }
