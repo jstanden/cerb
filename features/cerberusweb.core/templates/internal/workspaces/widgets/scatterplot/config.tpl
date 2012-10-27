@@ -1,3 +1,7 @@
+<b>Series Axes:</b>
+<label><input type="radio" name="params[axes_independent]" value="1" {if $widget->params.axes_independent}checked="checked"{/if}> Independent</label>
+<label><input type="radio" name="params[axes_independent]" value="0" {if empty($widget->params.axes_independent)}checked="checked"{/if}> Shared</label>
+
 <div id="widget{$widget->id}ConfigTabs">
 	<ul style="display:none;">
 		<li><a href="#widget{$widget->id}ConfigTabDatasource">Data Sources</a></li>

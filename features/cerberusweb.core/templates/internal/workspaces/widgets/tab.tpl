@@ -462,48 +462,101 @@ function drawScatterplot($canvas, options) {
 	chart_width = canvas.width - (2 * margin);
 	chart_height = canvas.height - (2 * margin);
 
-	// Find the min/max values for each axis
+	// Stats for the entire dataset
 	
-	x_min = Number.MAX_VALUE;
-	x_max = Number.MIN_VALUE;
-	y_min = Number.MAX_VALUE;
-	y_max = Number.MIN_VALUE;
+	stats = {
+		x_min: Number.MAX_VALUE,
+		x_max: Number.MIN_VALUE,
+		y_min: Number.MAX_VALUE,
+		y_max: Number.MIN_VALUE,
+		x_range: 0,
+		y_range: 0
+	}
 	
 	for(series_idx in options.series) {
 		series = options.series[series_idx];
+		
+		if(null == series.data)
+			continue;
 		
 		for(idx in series.data) {
 			data = series.data[idx];
 			x = data.x;
 			y = data.y;
 			
-			x_min = Math.min(x_min,x);
-			x_max = Math.max(x_max,x);
-			y_min = Math.min(y_min,y);
-			y_max = Math.max(y_max,y);
+			stats.x_min = Math.min(stats.x_min,x);
+			stats.x_max = Math.max(stats.x_max,x);
+			stats.y_min = Math.min(stats.y_min,y);
+			stats.y_max = Math.max(stats.y_max,y);
 		}		
 	}
 
-	var x_range = Math.abs(x_max - x_min);
-	var y_range = Math.abs(y_max - y_min);
+	stats.x_range = Math.abs(stats.x_max - stats.x_min);
+	stats.y_range = Math.abs(stats.y_max - stats.y_min);
 	
-	/*
-	 * [TODO] This could support different scales per series
-	 */
-	xaxis_tick = chart_width / x_range; 
-	yaxis_tick = chart_height / y_range; 
+	// Stats for each series
+	
+	var series_stats = [];
+	
+	for(series_idx in options.series) {
+		series = options.series[series_idx];
+		
+		if(null == series.data)
+			continue;
+		
+		minmax = {
+			x_min: Number.MAX_VALUE,
+			x_max: Number.MIN_VALUE,
+			y_min: Number.MAX_VALUE,
+			y_max: Number.MIN_VALUE,
+			x_range: 0,
+			y_range: 0
+		}
+		
+		for(idx in series.data) {
+			data = series.data[idx];
+			x = data.x;
+			y = data.y;
+
+			minmax.x_min = Math.min(minmax.x_min, x);
+			minmax.x_max = Math.max(minmax.x_max, x);
+			minmax.y_min = Math.min(minmax.y_min, y);
+			minmax.y_max = Math.max(minmax.y_max, y);
+		}
+		
+		minmax.x_range = Math.abs(minmax.x_max - minmax.x_min);
+		minmax.y_range = Math.abs(minmax.y_max - minmax.y_min);
+		
+		series_stats[series_idx] = minmax;
+	}
+	
+	// [TODO] If we're not using independent axes, find the biggest/smallest values
+	//		among all the series
 	
 	// Plot
 	
 	for(series_idx in options.series) {
 		series = options.series[series_idx];
+
+		if(series.data == null)
+			continue;
+		
+		if(options.axes_independent) {
+			stat = series_stats[series_idx];
+		} else {
+			stat = stats;
+		}
+		
+		xaxis_tick = chart_width / stat.x_range;
+		yaxis_tick = chart_height / stat.y_range;
+		
 		context.fillStyle = series.options.color;
 		context.strokeStyle = series.options.color;
 		
 		for(idx in series.data) {
 			data = series.data[idx];
-			x = data.x - x_min;
-			y = data.y - y_min;
+			x = data.x - stat.x_min;
+			y = data.y - stat.y_min;
 			
 			chart_x = (xaxis_tick * x) + margin;
 			chart_y = chart_height - (yaxis_tick * y) + margin;
