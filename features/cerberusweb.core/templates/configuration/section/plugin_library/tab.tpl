@@ -19,7 +19,7 @@ $('#btnPluginLibrarySync').click(function() {
 	genericAjaxGet('','c=config&a=handleSectionAction&section=plugin_library&action=sync', function(json) {
 		if(json.status == true) {
 			$out.html("Success! Synchronized " + json.count + " plugins.");
-			genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');			
+			genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');
 			setTimeout(function() {
 				$('#divPluginLibrarySync').fadeOut();
 				$btn.fadeIn();

@@ -1,4 +1,6 @@
 <?php
+// [TODO] This could split up into two worklist datasources (metric, series).
+//		This would allow reuse without having to know about the caller at all.
 class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDatasource {
 	function renderConfig(Model_WorkspaceWidget $widget, $params=array(), $params_prefix=null) {
 		$tpl = DevblocksPlatform::getTemplateService();

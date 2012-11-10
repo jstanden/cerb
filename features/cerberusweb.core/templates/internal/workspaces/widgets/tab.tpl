@@ -417,7 +417,9 @@ function drawBarGraph($canvas, options) {
 						continue;
 					}
 					
-					stack_yheight = Math.floor(ytick_height * Math.abs(value));
+					// [TODO] This gives a rounding error in bar heights w/ diff stacks of same total
+					//		We need to level the bars before getting to this point
+					stack_yheight = Math.round(ytick_height * Math.abs(value));
 					
 					// Always draw at least one pixel of height
 					stack_yheight = Math.max(stack_yheight, 1);
