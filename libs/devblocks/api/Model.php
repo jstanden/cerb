@@ -156,7 +156,7 @@ class DevblocksSearchCriteria {
 				if(empty($vals)) {
 					$where_in = '';
 					
-				} elseif(is_string($this->value)) {
+				} else {
 					$where_in = sprintf("%s IN (%s) OR ",
 						$db_field_name,
 						implode(",",$vals)
