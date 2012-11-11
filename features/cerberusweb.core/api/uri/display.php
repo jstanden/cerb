@@ -355,6 +355,11 @@ class ChDisplayPage extends CerberusPageExtension {
 			if(false == ($json = json_decode($row['c_entry_json'], true)))
 				continue;
 			
+			// Skip any events from the current worker
+			if($row[SearchFields_ContextActivityLog::ACTOR_CONTEXT] == CerberusContexts::CONTEXT_WORKER
+					&& $row[SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID] == $active_worker->id)
+						continue;
+			
 			$activities[] = array(
 				'message' => CerberusContexts::formatActivityLogEntry($json, array(), array('target')),
 				'timestamp' => intval($row['c_created']),
