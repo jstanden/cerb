@@ -1472,12 +1472,12 @@ UL.ui-autocomplete.ui-menu {
 	border:1px solid rgb(152,162,200);
 }
 
-UL.ui-autocomplete.ui-menu .ui-menu-item a {
+UL.ui-autocomplete.ui-menu li.ui-menu-item a {
 	color:rgb(74,110,158);
 	font-weight:bold;
 }
 
-UL.ui-autocomplete.ui-menu .ui-menu-item a.ui-state-hover {
+UL.ui-autocomplete.ui-menu li.ui-menu-item a.ui-state-focus {
 	background-color:rgb(105,140,221);
 	color:rgb(255,255,255);
 }
@@ -1516,6 +1516,7 @@ UL.ui-autocomplete.ui-menu .ui-menu-item a.ui-state-hover {
 .ui-tabs .ui-tabs-nav li.ui-state-hover {
 	background:rgb(255,255,255) none;
 	border:1px solid rgb(150,150,150);
+	border-bottom:none;
 }
 .ui-tabs .ui-tabs-nav li.ui-state-default a {
 	color: rgb(100,100,100);
@@ -1523,7 +1524,7 @@ UL.ui-autocomplete.ui-menu .ui-menu-item a.ui-state-hover {
 .ui-tabs .ui-tabs-nav li.ui-state-hover a {
 	color: rgb(74,110,158);
 }
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected {
+.ui-tabs .ui-tabs-nav li.ui-tabs-active {
 	padding-bottom: 0px;
 	background: rgb(255,255,255) none;
 	background: linear-gradient(top, rgb(239,249,255), rgb(255,255,255));
@@ -1534,7 +1535,7 @@ UL.ui-autocomplete.ui-menu .ui-menu-item a.ui-state-hover {
 	border-color:rgb(121,183,231);
 	border-bottom:none;
 }
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected a { 
+.ui-tabs .ui-tabs-nav li.ui-tabs-active a { 
 	color: rgb(74,110,158);
 	font-weight:bold;
 	border-bottom:1px solid rgb(255,255,255);
