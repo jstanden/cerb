@@ -1856,6 +1856,22 @@ class DevblocksEventHelper {
 	}
 	
 	/*
+	 * Action: Send Email to Recipients
+	 */
+
+	static function simulateActionSendEmailRecipients($params, DevblocksDictionaryDelegate $dict) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$content = $tpl_builder->build($params['content'], $dict);
+
+		$out = sprintf(">>> Sending email to recipients\n".
+			"%s\n",
+			$content
+		);
+
+		return $out;
+	}
+
+	/*
 	 * Action: Relay Email
 	 */
 	
