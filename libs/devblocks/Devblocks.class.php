@@ -314,11 +314,84 @@ class DevblocksPlatform extends DevblocksEngine {
 				$out .= self::_strUnidecodeLookup($v);
 			}
 			
-			unset($unpack);			
+			unset($unpack);
 		}
 
 		return $out;
 	}
+	
+	static function strBase32Encode($str) {
+		// RFC-4648
+		$alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+		$binary = '';
+		$output = '';
+		$quantum = 0;
+		
+		// Read each ASCII character as binary octets
+		foreach(str_split($str, 1) as $letter) {
+			$binary .= sprintf("%08b", ord($letter));
+		}
+		
+		// Rechunk the octets to 5-bit
+		foreach(str_split($binary, 5) as $bits) {
+			$quantum += strlen($bits);
+			$bits = str_pad($bits, 5, '0');
+			$output .= $alphabet[bindec($bits)];
+		}
+		
+		// If our last quantum is less than 40 bits, pad
+		// [TODO] There's likely a more logical way to do this
+		switch($quantum % 40) {
+			case 8:
+				$output .= '======';
+				break;
+			case 16:
+				$output .= '====';
+				break;
+			case 24:
+				$output .= '===';
+				break;
+			case 32:
+				$output .= '=';
+				break;
+		}
+		
+		return $output;
+	}
+	
+	static function strBase32Decode($str) {
+		// RFC-4648
+		$alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+		$binary = '';
+		$output = '';
+		$pads = 0;
+		
+		// Iterate each letter of base32
+		foreach(str_split(strtoupper($str), 1) as $idx => $letter) {
+			// If padding, skip
+			if($letter == '=') {
+				$pads++;
+				continue;
+			}
+	
+			// Append the letter's position (0-31) as 5 bits (2^5) in binary
+			$binary .= sprintf("%05b", strpos($alphabet, $letter));
+		}
+	
+		// Split the new binary string into 8-bit octets
+		foreach(str_split($binary, 8) as $idx => $byte) {
+			// Skip empty octets
+			if($byte == '00000000') {
+				$output .= "\0";
+				continue;
+			}
+			
+			// Concat the corresponding ASCII char for each octet
+			$output .= chr(bindec($byte));
+		}
+		
+		return $output;
+	}	
 	
 	static function stripHTML($str) {
 		$str = preg_replace_callback(
