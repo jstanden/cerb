@@ -3233,8 +3233,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		$calendar_weeks = array_chunk($calendar_cells, 7, true);
 
 		// Events
-		$range_from = array_shift(array_slice($calendar_cells, 0, 1, false));
-		$range_to = array_shift(array_slice($calendar_cells, -1, 1, false));
+		$first_cell = array_slice($calendar_cells, 0, 1, false);
+		$last_cell = array_slice($calendar_cells, -1, 1, false);
+		$range_from = array_shift($first_cell);
+		$range_to = array_shift($last_cell);
 		
 		unset($days);
 		unset($calendar_cells);
