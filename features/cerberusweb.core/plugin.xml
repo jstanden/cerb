@@ -47,7 +47,7 @@
 		
 		<patch version="6.0.0"  revision="989" file="patches/6.x/6.0.0.php" />
 		<patch version="6.1.0" revision="1005" file="patches/6.x/6.1.0.php" />
-		<patch version="6.2.0" revision="1011" file="patches/6.x/6.2.0.php" />
+		<patch version="6.2.0" revision="1012" file="patches/6.x/6.2.0.php" />
 	</patches>
 
 	<!-- Controller Routing -->
@@ -2360,15 +2360,14 @@
 		<!--  Login Extensions -->
 
 		<extension point="cerberusweb.login">
-			<id>login.default</id>
-			<name>Default Login</name>
+			<id>login.password</id>
+			<name>Password</name>
 			<class>
 				<file>api/login.classes.php</file>
 				<name>DefaultLoginModule</name>
 			</class>
 			<params>
-				<param key="switcher_icon" value="images/plugin/mail.png" />
-				<param key="switcher_label" value="Log in with email and password" />
+				<param key="uri" value="password" />
 			</params>
 		</extension>
 

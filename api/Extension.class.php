@@ -451,24 +451,57 @@ abstract class Extension_RssSource extends DevblocksExtension {
 };
 
 abstract class Extension_LoginAuthenticator extends DevblocksExtension {
-	/**
-	 * draws html form for adding necessary settings (host, port, etc) to be stored in the db
-	 */
-	function renderConfigForm() {
+
+	static function getAll($as_instances=false) {
+		$extensions = DevblocksPlatform::getExtensions('cerberusweb.login', $as_instances);
+		
+		// [TODO] Alphabetize
+		
+		return $extensions;
 	}
 	
-	/**
-	 * Receives posted config form, saves to manifest
-	 */
-	function saveConfiguration() {
-//		$field_value = DevblocksPlatform::importGPC($_POST['field_value']);
-//		$this->params['field_name'] = $field_value;
+	static function get($extension_id, $as_instance=false) {
+		$extensions = self::getAll(false);
+		
+		if(!isset($extensions[$extension_id]))
+			return NULL;
+		
+		$ext = $extensions[$extension_id];
+		
+		if($as_instance) {
+			return $ext->createInstance();
+			
+		} else {
+			return $ext;
+			
+		}
+	}
+	
+	static function getByUri($uri, $as_instance=false) {
+		$extensions = self::getAll(false);
+		
+		foreach($extensions as $manifest) { /* @var $manifest DevblocksExtensionManifest */
+			if($manifest->params['uri'] == $uri) {
+				return $as_instance ? $manifest->createInstance() : $manifest;
+			}
+		}
+
+		return NULL;
 	}
 	
 	/**
 	 * draws HTML form of controls needed for login information
 	 */
-	function renderLoginForm() {
+	function render() {
+	}
+	
+	function renderWorkerPrefs($worker) {
+	}
+	
+	function saveWorkerPrefs($worker) {
+	}
+	
+	function resetCredentials($worker) {
 	}
 	
 	/**

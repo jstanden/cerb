@@ -240,4 +240,19 @@ while($row = mysql_fetch_assoc($rs)) {
 	}
 }
 
+// ===========================================================================
+// Add auth_extension_id to worker records
+
+if(!isset($tables['worker'])) {
+	$logger->error("The 'worker' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('worker');
+
+if(!isset($columns['auth_extension_id'])) {
+	$db->Execute("ALTER TABLE worker ADD COLUMN auth_extension_id VARCHAR(255) NOT NULL DEFAULT ''");
+	$db->Execute("UPDATE worker SET auth_extension_id='login.password'");
+}
+
 return TRUE;

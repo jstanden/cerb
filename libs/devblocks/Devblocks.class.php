@@ -1852,6 +1852,9 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 };
 
+class DevblocksException extends Exception {
+};
+
 function devblocks_autoload($className) {
 	$classloader = _DevblocksClassLoadManager::getInstance();
 	return $classloader->loadClass($className);

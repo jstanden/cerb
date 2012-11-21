@@ -31,6 +31,7 @@ class DAO_Worker extends C4_ORMHelper {
 	const LAST_ACTIVITY = 'last_activity';
 	const LAST_ACTIVITY_DATE = 'last_activity_date';
 	const LAST_ACTIVITY_IP = 'last_activity_ip';
+	const AUTH_EXTENSION_ID = 'auth_extension_id';
 	
 	static function create($fields) {
 		if(empty($fields[DAO_Worker::EMAIL]) || empty($fields[DAO_Worker::PASSWORD]))
@@ -144,7 +145,7 @@ class DAO_Worker extends C4_ORMHelper {
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
-		$sql = "SELECT id, first_name, last_name, email, pass, title, is_superuser, is_disabled, last_activity_date, last_activity, last_activity_ip ".
+		$sql = "SELECT id, first_name, last_name, email, pass, title, is_superuser, is_disabled, last_activity_date, last_activity, last_activity_ip, auth_extension_id ".
 			"FROM worker ".
 			$where_sql.
 			$sort_sql.
@@ -174,6 +175,7 @@ class DAO_Worker extends C4_ORMHelper {
 			$object->is_superuser = intval($row['is_superuser']);
 			$object->is_disabled = intval($row['is_disabled']);
 			$object->last_activity_date = intval($row['last_activity_date']);
+			$object->auth_extension_id = $row['auth_extension_id'];
 			
 			if(!empty($row['last_activity']))
 			    $object->last_activity = unserialize($row['last_activity']);
@@ -427,6 +429,7 @@ class DAO_Worker extends C4_ORMHelper {
 			"w.email as %s, ".
 			"w.is_superuser as %s, ".
 			"w.last_activity_date as %s, ".
+			"w.auth_extension_id as %s, ".
 			"w.is_disabled as %s ",
 			    SearchFields_Worker::ID,
 			    SearchFields_Worker::FIRST_NAME,
@@ -435,6 +438,7 @@ class DAO_Worker extends C4_ORMHelper {
 			    SearchFields_Worker::EMAIL,
 			    SearchFields_Worker::IS_SUPERUSER,
 			    SearchFields_Worker::LAST_ACTIVITY_DATE,
+			    SearchFields_Worker::AUTH_EXTENSION_ID,
 			    SearchFields_Worker::IS_DISABLED
 			);
 			
@@ -639,6 +643,7 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 	const IS_SUPERUSER = 'w_is_superuser';
 	const LAST_ACTIVITY = 'w_last_activity';
 	const LAST_ACTIVITY_DATE = 'w_last_activity_date';
+	const AUTH_EXTENSION_ID = 'w_auth_extension_id';
 	const IS_DISABLED = 'w_is_disabled';
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -663,6 +668,7 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 			self::IS_SUPERUSER => new DevblocksSearchField(self::IS_SUPERUSER, 'w', 'is_superuser', $translate->_('worker.is_superuser'), Model_CustomField::TYPE_CHECKBOX),
 			self::LAST_ACTIVITY => new DevblocksSearchField(self::LAST_ACTIVITY, 'w', 'last_activity', $translate->_('worker.last_activity')),
 			self::LAST_ACTIVITY_DATE => new DevblocksSearchField(self::LAST_ACTIVITY_DATE, 'w', 'last_activity_date', $translate->_('worker.last_activity_date'), Model_CustomField::TYPE_DATE),
+			self::AUTH_EXTENSION_ID => new DevblocksSearchField(self::AUTH_EXTENSION_ID, 'w', 'auth_extension_id', 'Login Auth'), Model_CustomField::TYPE_SINGLE_LINE,
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'w', 'is_disabled', ucwords($translate->_('common.disabled')), Model_CustomField::TYPE_CHECKBOX),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
@@ -701,6 +707,7 @@ class Model_Worker {
 	public $last_activity;
 	public $last_activity_date;
 	public $last_activity_ip;
+	public $auth_extension_id;
 
 	/**
 	 * @return Model_GroupMember[]
@@ -817,6 +824,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Worker::TITLE,
 			SearchFields_Worker::EMAIL,
 			SearchFields_Worker::LAST_ACTIVITY_DATE,
+			SearchFields_Worker::AUTH_EXTENSION_ID,
 			SearchFields_Worker::IS_SUPERUSER,
 		);
 		
@@ -937,8 +945,15 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
+		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);
 		$tpl->assign('custom_fields', $custom_fields);
+		
+		// Login auth
+		$auth_extensions = Extension_LoginAuthenticator::getAll(false);
+		$tpl->assign('auth_extensions', $auth_extensions);
+		
+		// Template
 
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':

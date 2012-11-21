@@ -620,6 +620,9 @@ class CerberusApplication extends DevblocksApplication {
 	}
 };
 
+class CerbException extends DevblocksException {
+};
+
 interface IContextToken {
 	static function getValue($context, $context_values);
 };

@@ -589,6 +589,28 @@ TABLE.toggle_grid TR TD INPUT[type=checkbox] {
 	visibility:hidden;
 }
 
+/* Error Handling */
+
+DIV.error-box {
+	background-color: rgb(255,235,235);
+	border:1px solid rgb(180,0,0);
+	color: rgb(180, 0, 0);
+	margin-bottom:10px;
+	padding: 10px;
+	
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+DIV.error-box H1 {
+	color:rgb(150,0,0);
+}
+
+DIV.error-box P {
+	margin:0px 0px 5px 5px;
+}
+
 /* Tour */
 
 DIV.help-box {
@@ -599,6 +621,7 @@ DIV.help-box {
 	background: -o-linear-gradient(top, rgb(251,236,136), rgb(255,255,200));
 	background: -ms-linear-gradient(top, rgb(251,236,136), rgb(255,255,200));
 	border:1px solid rgb(215,115,15);
+	padding: 10px;
 	margin-bottom:10px;
 	
 	-moz-border-radius: 5px;
@@ -608,6 +631,7 @@ DIV.help-box {
 
 DIV.help-box H1 {
 	color:rgb(215,115,15);
+	margin-bottom: 5px;
 }
 
 DIV.help-box P {
