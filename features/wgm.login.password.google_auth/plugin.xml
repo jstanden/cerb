@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>wgm.login.password.google_auth</id>
+	<name>Google Authenticator</name>
+	<description>Enable two-factor worker logins with passwords and the Google Authenticator app on iOS, Android, or Blackberry.</description>
+	<author>WebGroup Media, LLC.</author>
+	<version>0.0.1</version>
+	<link>http://www.cerbweb.com/</link>
+	<image>plugin.png</image>
+
+	<!-- Requirements -->
+
+	<requires>
+		<app_version min="6.2" max="6.2.99" />
+		<!--<php_extension name="curl" />-->
+	</requires>
+
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="6.2.0" />
+	</dependencies>
+
+	<!-- Extensions -->
+
+	<extensions>
+
+		<!--  Login Extensions -->
+
+		<extension point="cerberusweb.login">
+			<id>login.password.google_auth</id>
+			<name>Password + Google Authenticator</name>
+			<class>
+				<file>api/App.php</file>
+				<name>Login_PasswordAndGoogleAuth</name>
+			</class>
+			<params>
+				<param key="uri" value="password-gauth" />
+			</params>
+		</extension>
+
+	</extensions> 
+</plugin>
