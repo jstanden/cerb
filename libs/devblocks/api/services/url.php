@@ -178,7 +178,7 @@ class _DevblocksUrlManager {
 			return true;
 		} elseif (@$_SERVER['SERVER_PORT'] == 443) {
 			return true;
-		} elseif (isset($_SERVER['X_FORWARDED_PROTO']) && 0 == strcasecmp($_SERVER['X_FORWARDED_PROTO'], 'https')) {
+		} elseif (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && 0 == strcasecmp($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https')) {
 			return true;
 		} else {
 			return false;
