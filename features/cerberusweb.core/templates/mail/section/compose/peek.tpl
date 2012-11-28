@@ -18,19 +18,19 @@
 				<input type="hidden" name="group_id" value="{$defaults.group_id}">
 				<input type="hidden" name="bucket_id" value="{$defaults.bucket_id}">
 				<select name="group_or_bucket_id" id="group_or_bucket_id" class="required" style="border:1px solid rgb(180,180,180);padding:2px;">
-		      		{foreach from=$groups item=group key=groupId}
+					{foreach from=$groups item=group key=groupId}
 						{if !empty($active_worker_memberships.$groupId)}
-		      			<option value="{$group->id}_0" {if $defaults.group_id==$group->id && empty($defaults.bucket_id)}selected="selected"{/if}>{$group->name}</option>
-			      		{foreach from=$group_buckets.$groupId item=bucket key=bucket_id}
-		    				<option value="{$group->id}_{$bucket->id}" {if $defaults.group_id==$group->id && $defaults.bucket_id==$bucket->id}selected="selected"{/if}>{$group->name}: {$bucket->name}</option>
-			     		{/foreach}
+							<option value="{$group->id}_0" {if $defaults.group_id==$group->id && empty($defaults.bucket_id)}selected="selected"{/if}>{$group->name}</option>
+							{foreach from=$group_buckets.$groupId item=bucket key=bucket_id}
+								<option value="{$group->id}_{$bucket->id}" {if $defaults.group_id==$group->id && $defaults.bucket_id==$bucket->id}selected="selected"{/if}>{$group->name}: {$bucket->name}</option>
+							{/foreach}
 						{/if}
-		     		{/foreach}
+					{/foreach}
 				</select>
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'contact_org.name'|devblocks_translate}:</b>&nbsp;</td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right">{'contact_org.name'|devblocks_translate}:&nbsp;</td>
 			<td width="100%">
 				<input type="text" name="org_name" value="{$draft->params.org_name}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
 				<div class="instructions" style="display:none;">
@@ -41,7 +41,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'message.header.to'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 			<td width="100%">
-				<input type="text" name="to" id="emailinput" value="{if !empty($to)}{$to}{else}{$draft->params.to}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
+				<input type="text" name="to" id="emailinput" value="{if !empty($to)}{$to}{else}{$draft->params.to}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="e.g. recipient@example.com, customer@example.com" required>
 				<div class="instructions" style="display:none;">
 					These recipients will automatically be included in all future correspondence
 				</div>
@@ -74,7 +74,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'message.header.subject'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 			<td width="100%">
-				<input type="text" name="subject" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->subject}" autocomplete="off">
+				<input type="text" name="subject" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->subject}" autocomplete="off" required>
 			</td>
 		</tr>
 		<tr>
@@ -180,7 +180,7 @@
 	</ul>
 </fieldset>
 
-<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmComposePeek','{$view_id}',false,'compose_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
+<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
 </form>
 
 <script type="text/javascript">
@@ -308,6 +308,17 @@
 		});		
 		
 		$frm.find(':input:text:first').focus().select();
+		
+		$frm.find('button.submit').click(function() {
+			$frm = $(this).closest('form');
+			$input = $frm.find('input#emailinput');
+			
+			if($frm.validate().form()) {
+				genericAjaxPopupPostCloseReloadView(null,'frmComposePeek','{$view_id}',false,'compose_save');
+			} else {
+			}
+			
+		});
 		
 		//setInterval("$('#btnSaveDraft').click();", 30000);
 	});

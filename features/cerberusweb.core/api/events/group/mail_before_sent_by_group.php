@@ -503,12 +503,32 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 		switch($token) {
 			case 'append_to_content':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$dict->content .= "\r\n" . $tpl_builder->build($params['content'], $dict);
+				$content = $tpl_builder->build($params['content'], $dict);
+				$dict->content .= "\r\n" . $content;
+				
+				$out = sprintf(">>> Appending text to message content\n".
+					"Text:\n%s\n".
+					"Message:\n%s\n",
+					$content,
+					$dict->content
+				);
+				
+				return $out;
 				break;
 				
 			case 'prepend_to_content':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$dict->content = $tpl_builder->build($params['content'], $dict) . "\r\n" . $dict->content;
+				$content = $tpl_builder->build($params['content'], $dict);
+				$dict->content = $content . "\r\n" . $dict->content;
+				
+				$out = sprintf(">>> Prepending text to message content\n".
+					"Text:\n%s\n".
+					"Message:\n%s\n",
+					$content,
+					$dict->content
+				);
+				
+				return $out;
 				break;
 				
 			case 'replace_content':
@@ -522,9 +542,20 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 					$value = str_replace($replace, $with, $dict->content);
 				}
 				
+				$before = $dict->body;
+				
 				if(!empty($value)) {
 					$dict->content = trim($value,"\r\n");
 				}
+				
+				$out = sprintf(">>> Replacing content\n".
+					"Before:\n%s\n".
+					"After:\n%s\n",
+					$before,
+					$dict->body
+				);
+				
+				return $out;
 				break;
 		}
 

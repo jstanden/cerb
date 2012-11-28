@@ -390,6 +390,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				'replace_content' => array('label' =>'Replace text in message content'),
 				'reject' => array('label' =>'Reject delivery of message'),
 				'redirect_email' => array('label' =>'Redirect delivery to another email address'),
+				'send_email' => array('label' => 'Send email'),
 				'send_email_sender' => array('label' => 'Reply to sender'),
 				'set_header' => array('label' => 'Set message header'),
 			)
@@ -426,6 +427,10 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_app/action_redirect_email.tpl');
 				break;
 
+			case 'send_email':
+				DevblocksEventHelper::renderActionSendEmail($trigger);
+				break;
+
 			case 'send_email_sender':
 				//$tpl->assign('workers', DAO_Worker::getAll());
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_app/action_send_email_sender.tpl');
@@ -454,12 +459,32 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		switch($token) {
 			case 'append_to_content':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$dict->body .= "\r\n" . $tpl_builder->build($params['content'], $dict);
+				$content = $tpl_builder->build($params['content'], $dict);
+				$dict->body = $dict->body . "\r\n" . $content;
+				
+				$out = sprintf(">>> Prepending text to message content\n".
+					"Text:\n%s\n".
+					"Message:\n%s\n",
+					$content,
+					$dict->body
+				);
+				
+				return $out;
 				break;
 				
 			case 'prepend_to_content':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$dict->body = $tpl_builder->build($params['content'], $dict) . "\r\n" . $dict->body;
+				$content = $tpl_builder->build($params['content'], $dict);
+				$dict->body = $content . "\r\n" . $dict->body;
+				
+				$out = sprintf(">>> Prepending text to message content\n".
+					"Text:\n%s\n".
+					"Message:\n%s\n",
+					$content,
+					$dict->body
+				);
+				
+				return $out;
 				break;
 				
 			case 'replace_content':
@@ -473,46 +498,72 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 					$value = str_replace($replace, $with, $dict->body);
 				}
 				
+				$before = $dict->body;
+				
 				if(!empty($value)) {
 					$dict->body = trim($value,"\r\n");
 				}
+				
+				$out = sprintf(">>> Replacing content\n".
+					"Before:\n%s\n".
+					"After:\n%s\n",
+					$before,
+					$dict->body
+				);
+				
+				return $out;
 				break;
 				
 			case 'reject':
 				$dict->pre_actions['reject'] = true;
+				$out = ">>> Rejecting message\n";
+				
+				return $out;
 				break;
 			
 			case 'redirect_email':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$to = $tpl_builder->build($params['to'], $dict);
+			
+				$out = sprintf(">>> Redirecting message to:\n%s",
+					$to
+					);
+			
+				return $out;
+				break;
+
+			case 'send_email':
+				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
 				
 			case 'send_email_sender':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$subject = $tpl_builder->build($params['subject'], $dict);
+				$content = $tpl_builder->build($params['content'], $dict);
+				
+				$out = sprintf(">>> Sending message to sender\n".
+					"Subject: %s\n".
+					"Content: \n%s\n",
+					$subject,
+					$content
+				);
+				
+				return $out;
 				break;
 				
 			case 'set_header':
-				@$header = strtolower($params['header']);
+				$out = sprintf(">>> Setting header\n".
+					"Header: %s\n".
+					"Value: %s\n",
+					$header,
+					$value
+				);
 				
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$value = $tpl_builder->build($params['value'], $dict);
-				
-   				@$parser_model = $dict->_parser_model;
-   				if(empty($parser_model) || !is_a($parser_model,'CerberusParserModel'))
-   					break;
-				
-   				$headers =& $parser_model->getHeaders();
-
-   				if(empty($value)) {
-   					if(isset($headers[$header]))
-   						unset($headers[$header]);
-   					
-   				} else {
-	   				$headers[$header] = $value;
-   				}
-   					
+				return $out;
 				break;
 				
 			default:
 				if('set_cf_' == substr($token,0,7)) {
-					@$parser_model = $dict->_parser_model;
 					
 					$field_id = substr($token,7);
 					$custom_field = DAO_CustomField::get($field_id);
@@ -526,13 +577,27 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 						case Model_CustomField::TYPE_WORKER:
 							$value = $params['worker_id'];
 							break;
-						default:
+						case Model_CustomField::TYPE_DROPDOWN:
+						case Model_CustomField::TYPE_CHECKBOX:
+						case Model_CustomField::TYPE_DATE:
 							$value = $params['value'];
+							break;
+						default:
+							$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+							$value = $tpl_builder->build($params['value'], $dict);
 							break;
 					}
 					
 					if(!empty($parser_model))
-						$parser_model->getMessage()->custom_fields[$field_id] = $value; 
+						$parser_model->getMessage()->custom_fields[$field_id] = $value;
+						
+					$out = sprintf(">>> Setting custom field\n".
+						"Custom Field: %s\n".
+						"Value: %s\n",
+						$custom_field->name,
+						$value
+					);
+					return $out;
 				}
 				break;				
 		}
@@ -581,6 +646,10 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
   				CerberusMail::reflect($parser_model, $to);
 				break;
 				
+			case 'send_email':
+				return DevblocksEventHelper::runActionSendEmail($params, $dict);
+				break;
+
 			case 'send_email_sender':
 				// Translate message tokens
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
@@ -657,8 +726,14 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 						case Model_CustomField::TYPE_WORKER:
 							$value = $params['worker_id'];
 							break;
-						default:
+						case Model_CustomField::TYPE_DROPDOWN:
+						case Model_CustomField::TYPE_CHECKBOX:
+						case Model_CustomField::TYPE_DATE:
 							$value = $params['value'];
+							break;
+						default:
+							$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+							$value = $tpl_builder->build($params['value'], $dict);
 							break;
 					}
 					

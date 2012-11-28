@@ -605,8 +605,31 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function strToHyperlinks($string) {
-		$regex = '@(https?://(.*?))(([>"\.\?,\)]{0,1}(\s|$))|(&(quot|gt);))@i';
-		return preg_replace($regex,'<a href="$1" target="_blank">$1</a>$3',$string);
+		return preg_replace_callback('@([^\s]+){0,1}(https?://(.*?))((?:[>"\.\?,\)]{0,1}(\s|$))|(&(?:quot|gt);))@i', function($matches) {
+			$prefix = $matches[1];
+			$url = $matches[2];
+			$suffix = $matches[4];
+			
+			// Fix unbalanced terminators
+			switch($suffix) {
+				case ')':
+					if($prefix != '(') {
+						$url .= $suffix;
+						$suffix = '';
+					}
+					break;
+			}
+			
+			return sprintf('%s<a href="%s" target="_blank">%s</a>%s',
+				$prefix,
+				$url,
+				$url,
+				$suffix
+			);
+		}, $string);
+		
+		//$regex = '@(https?://(.*?))(([>"\.\?,\)]{0,1}(\s|$))|(&(quot|gt);))@i';
+		//return preg_replace($regex,'<a href="$1" target="_blank">$1</a>$3',$string);
 	}
 	
 	static function strSecsToString($string, $length=0) {
