@@ -93,7 +93,7 @@ class DAO_KbArticle extends C4_ORMHelper {
 	static function update($ids, $fields) {
 		parent::_update($ids, 'kb_article', $fields);
 		
-	    // Log the context update
+		// Log the context update
    		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_KB_ARTICLE, $ids);
 	}
 	
@@ -117,31 +117,31 @@ class DAO_KbArticle extends C4_ORMHelper {
 		$db->Execute(sprintf("DELETE QUICK FROM fulltext_kb_article WHERE id IN (%s)", $id_string));
 		
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.delete',
-                array(
-                	'context' => CerberusContexts::CONTEXT_KB_ARTICLE,
-                	'context_ids' => $ids
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => CerberusContexts::CONTEXT_KB_ARTICLE,
+					'context_ids' => $ids
+				)
+			)
+		);
 	}
 	
 	static function maint() {
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.maint',
-                array(
-                	'context' => CerberusContexts::CONTEXT_KB_ARTICLE,
-                	'context_table' => 'kb_article',
-                	'context_key' => 'id',
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.maint',
+				array(
+					'context' => CerberusContexts::CONTEXT_KB_ARTICLE,
+					'context_table' => 'kb_article',
+					'context_key' => 'id',
+				)
+			)
+		);
 	}
 
 	static function getCategoriesByArticleId($article_id) {
@@ -237,7 +237,7 @@ class DAO_KbArticle extends C4_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"kb.id as %s, ".
@@ -246,12 +246,12 @@ class DAO_KbArticle extends C4_ORMHelper {
 			"kb.views as %s, ".
 			"kb.format as %s, ".
 			"kb.content as %s ",
-			    SearchFields_KbArticle::ID,
-			    SearchFields_KbArticle::TITLE,
-			    SearchFields_KbArticle::UPDATED,
-			    SearchFields_KbArticle::VIEWS,
-			    SearchFields_KbArticle::FORMAT,
-			    SearchFields_KbArticle::CONTENT
+				SearchFields_KbArticle::ID,
+				SearchFields_KbArticle::TITLE,
+				SearchFields_KbArticle::UPDATED,
+				SearchFields_KbArticle::VIEWS,
+				SearchFields_KbArticle::FORMAT,
+				SearchFields_KbArticle::CONTENT
 			);
 			
 		$join_sql = "FROM kb_article kb ";
@@ -335,7 +335,7 @@ class DAO_KbArticle extends C4_ORMHelper {
 		}
 	}
 	
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
@@ -380,7 +380,7 @@ class DAO_KbArticle extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-    }
+	}
 };
 
 class SearchFields_KbArticle implements IDevblocksSearchFields {

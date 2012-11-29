@@ -146,16 +146,16 @@ class DAO_ContactPerson extends C4_ORMHelper {
 		$db->Execute(sprintf("DELETE FROM contact_person WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.delete',
-                array(
-                	'context' => CerberusContexts::CONTEXT_CONTACT_PERSON,
-                	'context_ids' => $ids
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => CerberusContexts::CONTEXT_CONTACT_PERSON,
+					'context_ids' => $ids
+				)
+			)
+		);
 		
 		return true;
 	}
@@ -171,7 +171,7 @@ class DAO_ContactPerson extends C4_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"contact_person.id as %s, ".
@@ -261,19 +261,19 @@ class DAO_ContactPerson extends C4_ORMHelper {
 		}
 	}
 	
-    /**
-     * Enter description here...
-     *
-     * @param array $columns
-     * @param DevblocksSearchCriteria[] $params
-     * @param integer $limit
-     * @param integer $page
-     * @param string $sortBy
-     * @param boolean $sortAsc
-     * @param boolean $withCounts
-     * @return array
-     */
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	/**
+	 * Enter description here...
+	 *
+	 * @param array $columns
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		// Build search queries
@@ -293,10 +293,10 @@ class DAO_ContactPerson extends C4_ORMHelper {
 			$sort_sql;
 			
 		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		} else {
-		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-            $total = mysql_num_rows($rs);
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$total = mysql_num_rows($rs);
 		}
 		
 		$results = array();
@@ -337,17 +337,17 @@ class DAO_ContactPerson extends C4_ORMHelper {
 		$db->Execute($sql);
 
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.maint',
-                array(
-                	'context' => CerberusContexts::CONTEXT_CONTACT_PERSON,
-                	'context_table' => 'contact_person',
-                	'context_key' => 'id',
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.maint',
+				array(
+					'context' => CerberusContexts::CONTEXT_CONTACT_PERSON,
+					'context_table' => 'contact_person',
+					'context_key' => 'id',
+				)
+			)
+		);
 	}
 
 };
@@ -800,38 +800,38 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 };
 
 class Context_ContactPerson extends Extension_DevblocksContext implements IDevblocksContextProfile {
-    static function searchInboundLinks($from_context, $from_context_id) {
-    	list($results, $null) = DAO_ContactPerson::search(
-    		array(
-    			SearchFields_ContactPerson::ID,
-    		),
-    		array(
+	static function searchInboundLinks($from_context, $from_context_id) {
+		list($results, $null) = DAO_ContactPerson::search(
+			array(
+				SearchFields_ContactPerson::ID,
+			),
+			array(
 				new DevblocksSearchCriteria(SearchFields_ContactPerson::CONTEXT_LINK,'=',$from_context),
 				new DevblocksSearchCriteria(SearchFields_ContactPerson::CONTEXT_LINK_ID,'=',$from_context_id),
-    		),
-    		-1,
-    		0,
-    		SearchFields_ContactPerson::LAST_LOGIN,
-    		false,
-    		false
-    	);
-    	
-    	return $results;
-    }
-    
-    function getRandom() {
-    	return DAO_ContactPerson::random();
-    }
-    
-    function profileGetUrl($context_id) {
-    	if(empty($context_id))
-    		return '';
-    
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	$url = $url_writer->writeNoProxy('c=profiles&type=contact_person&id='.$context_id, true);
-    	return $url;
-    }
-    
+			),
+			-1,
+			0,
+			SearchFields_ContactPerson::LAST_LOGIN,
+			false,
+			false
+		);
+		
+		return $results;
+	}
+	
+	function getRandom() {
+		return DAO_ContactPerson::random();
+	}
+	
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::getUrlService();
+		$url = $url_writer->writeNoProxy('c=profiles&type=contact_person&id='.$context_id, true);
+		return $url;
+	}
+	
 	function getMeta($context_id) {
 		$contact = DAO_ContactPerson::get($context_id);
 
@@ -856,7 +856,7 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 			'permalink' => $url,
 		);
 	}
-    
+	
 	function getContext($person, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Person:';

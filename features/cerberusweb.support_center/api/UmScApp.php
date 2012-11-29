@@ -48,16 +48,16 @@
  */
 
 class UmScEventListener extends DevblocksEventListenerExtension {
-    /**
-     * @param Model_DevblocksEvent $event
-     */
-    function handleEvent(Model_DevblocksEvent $event) {
-        switch($event->id) {
-            case 'cron.maint':
-            	DAO_SupportCenterAddressShare::maint();
-            	break;
-        }
-    }
+	/**
+	 * @param Model_DevblocksEvent $event
+	 */
+	function handleEvent(Model_DevblocksEvent $event) {
+		switch($event->id) {
+			case 'cron.maint':
+				DAO_SupportCenterAddressShare::maint();
+				break;
+		}
+	}
 };
 
 class UmScApp extends Extension_UsermeetTool {
@@ -68,14 +68,14 @@ class UmScApp extends Extension_UsermeetTool {
 	
 	const SESSION_CAPTCHA = 'write_captcha';
 	
-    private function _getModules() {
-    	static $modules = null;
+	private function _getModules() {
+		static $modules = null;
 		
-    	// Lazy load
-    	if(null == $modules) {
-	    	$umsession = ChPortalHelper::getSession();
+		// Lazy load
+		if(null == $modules) {
+			$umsession = ChPortalHelper::getSession();
 			@$active_contact = $umsession->getProperty('sc_login',null);
-    		
+			
 			@$visible_modules = unserialize(DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
 			
 			if(is_array($visible_modules))
@@ -98,21 +98,21 @@ class UmScApp extends Extension_UsermeetTool {
 				if($module->isVisible())
 					$modules[$module_uri] = $module;
 			}
-    	}
+		}
 		
-    	return $modules;
-    }
-    
-    public static function getLoginExtensions() {
+		return $modules;
+	}
+	
+	public static function getLoginExtensions() {
 		$login_extensions = DevblocksPlatform::getExtensions('usermeet.login.authenticator');
 		DevblocksPlatform::sortObjects($login_extensions, 'name');
 		return $login_extensions;
-    }
-    
-    public static function getLoginExtensionsEnabled($instance_id) {
-    	$login_extensions = self::getLoginExtensions();
-    	
-    	$enabled = array();
+	}
+	
+	public static function getLoginExtensionsEnabled($instance_id) {
+		$login_extensions = self::getLoginExtensions();
+		
+		$enabled = array();
 
 		if(null != ($str = DAO_CommunityToolProperty::get($instance_id, self::PARAM_LOGIN_EXTENSIONS, ''))) {
 			$ids = explode(',', $str);
@@ -123,42 +123,42 @@ class UmScApp extends Extension_UsermeetTool {
 		}
 		
 		return $enabled;
-    }
-    
-    public static function getLoginExtensionActive($instance_id, $as_instance=true) {
-    	$umsession = ChPortalHelper::getSession();
-    	$enabled = self::getLoginExtensionsEnabled($instance_id);
-    	
-    	$login_method = $umsession->getProperty('login_method', '');
-    	$manifest = null;
+	}
+	
+	public static function getLoginExtensionActive($instance_id, $as_instance=true) {
+		$umsession = ChPortalHelper::getSession();
+		$enabled = self::getLoginExtensionsEnabled($instance_id);
+		
+		$login_method = $umsession->getProperty('login_method', '');
+		$manifest = null;
 
-    	// If we have a preference cookied, return it
-    	if(isset($enabled[$login_method]))
-    		$manifest = $enabled[$login_method];
+		// If we have a preference cookied, return it
+		if(isset($enabled[$login_method]))
+			$manifest = $enabled[$login_method];
 
-    	// Otherwise try to default to email+pass
-    	if(empty($manifest) && isset($enabled['sc.login.auth.default']))
-    		$manifest = $enabled['sc.login.auth.default'];
-    		
-    	// If all else fails, return the first enabled login handler
-    	if(empty($manifest))
-    		$manifest = array_shift($enabled);
+		// Otherwise try to default to email+pass
+		if(empty($manifest) && isset($enabled['sc.login.auth.default']))
+			$manifest = $enabled['sc.login.auth.default'];
+			
+		// If all else fails, return the first enabled login handler
+		if(empty($manifest))
+			$manifest = array_shift($enabled);
 
-    	if(empty($manifest))
-    		return NULL;
-    		
-    	if($as_instance)
-    		return $manifest->createInstance();
-    	else
-    		return $manifest;
-    }
-    
-    public function handleRequest(DevblocksHttpRequest $request) {
-    	$stack = $request->path;
-        $module_uri = array_shift($stack);
-        
+		if(empty($manifest))
+			return NULL;
+			
+		if($as_instance)
+			return $manifest->createInstance();
+		else
+			return $manifest;
+	}
+	
+	public function handleRequest(DevblocksHttpRequest $request) {
+		$stack = $request->path;
+		$module_uri = array_shift($stack);
+		
 		// Set locale in scope
-        $default_locale = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_DEFAULT_LOCALE, 'en_US');
+		$default_locale = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_DEFAULT_LOCALE, 'en_US');
 		DevblocksPlatform::setLocale($default_locale);
 		
 		switch($module_uri) {
@@ -169,24 +169,24 @@ class UmScApp extends Extension_UsermeetTool {
 				break;
 			
 			default:
-		        $modules = $this->_getModules();
+				$modules = $this->_getModules();
 				$controller = null;
 				
-		        if(isset($modules[$module_uri])) {
-		        	$controller = $modules[$module_uri];
-		        }
-		        
-		        array_unshift($stack, $module_uri);
+				if(isset($modules[$module_uri])) {
+					$controller = $modules[$module_uri];
+				}
+				
+				array_unshift($stack, $module_uri);
 		
 				if(!is_null($controller))
 					$controller->handleRequest(new DevblocksHttpRequest($stack));
 					
 				break;
 		}
-    }
-    
+	}
+	
 	public function writeResponse(DevblocksHttpResponse $response) {
-        $umsession = ChPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$stack = $response->path;
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -195,22 +195,22 @@ class UmScApp extends Extension_UsermeetTool {
 		$page_title = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_PAGE_TITLE, 'Support Center');
 		$tpl->assign('page_title', $page_title);
 
-       	@$visible_modules = unserialize(DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
+	   	@$visible_modules = unserialize(DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
 		$tpl->assign('visible_modules', $visible_modules);
 		
-        @$active_contact = $umsession->getProperty('sc_login',null);
-        $tpl->assign('active_contact', $active_contact);
+		@$active_contact = $umsession->getProperty('sc_login',null);
+		$tpl->assign('active_contact', $active_contact);
 
-        $login_extensions_enabled = UmScApp::getLoginExtensionsEnabled(ChPortalHelper::getCode());
-        $tpl->assign('login_extensions_enabled', $login_extensions_enabled);
-        
+		$login_extensions_enabled = UmScApp::getLoginExtensionsEnabled(ChPortalHelper::getCode());
+		$tpl->assign('login_extensions_enabled', $login_extensions_enabled);
+		
 		// Usermeet Session
 		if(null == ($fingerprint = ChPortalHelper::getFingerprint())) {
 			die("A problem occurred.");
 		}
-        $tpl->assign('fingerprint', $fingerprint);
+		$tpl->assign('fingerprint', $fingerprint);
 
-        $module_uri = array_shift($stack);
+		$module_uri = array_shift($stack);
 		
 		switch($module_uri) {
 			case 'rss':
@@ -229,14 +229,14 @@ class UmScApp extends Extension_UsermeetTool {
 				if(3 != count($bgcolor))
 					$color = array(240,240,240);
 				
-                header('Cache-control: max-age=0', true); // 1 wk // , must-revalidate
-                header('Expires: ' . gmdate('D, d M Y H:i:s',time()-604800) . ' GMT'); // 1 wk
+				header('Cache-control: max-age=0', true); // 1 wk // , must-revalidate
+				header('Expires: ' . gmdate('D, d M Y H:i:s',time()-604800) . ' GMT'); // 1 wk
 				header('Content-type: image/jpeg');
 
-		        // Get CAPTCHA secret passphrase
+				// Get CAPTCHA secret passphrase
 				$phrase = CerberusApplication::generatePassword(4);
-		        $umsession->setProperty(UmScApp::SESSION_CAPTCHA, $phrase);
-                
+				$umsession->setProperty(UmScApp::SESSION_CAPTCHA, $phrase);
+				
 				$im = @imagecreate(150, 70) or die("Cannot Initialize new GD image stream");
 				$background_color = imagecolorallocate($im, $bgcolor[0], $bgcolor[1], $bgcolor[2]);
 				$text_color = imagecolorallocate($im, $color[0], $color[1], $color[2]);
@@ -261,10 +261,10 @@ class UmScApp extends Extension_UsermeetTool {
 				
 				break;
 			
-	    	default:
+			default:
 				// Build the menu
 				$modules = $this->_getModules();
-		        $menu_modules = array();
+				$menu_modules = array();
 				if(is_array($modules))
 				foreach($modules as $uri => $module) {
 					// Must be menu renderable
@@ -272,34 +272,34 @@ class UmScApp extends Extension_UsermeetTool {
 						$menu_modules[$uri] = $module;
 					}
 				}
-		        $tpl->assign('menu', $menu_modules);
+				$tpl->assign('menu', $menu_modules);
 
 				// Modules
-		        if(isset($modules[$module_uri])) {
+				if(isset($modules[$module_uri])) {
 					$controller = $modules[$module_uri];
-		        } else {
-		        	// First menu item
+				} else {
+					// First menu item
 					$controller = reset($menu_modules);
-		        }
+				}
 
 				array_unshift($stack, $module_uri);
 				$tpl->assign('module', $controller);
 				$tpl->assign('module_response', new DevblocksHttpResponse($stack));
 				
    				$tpl->display('devblocks:cerberusweb.support_center:portal_'.ChPortalHelper::getCode() . ":support_center/index.tpl");
-		    	break;
+				break;
 		}
 	}
 	
 	/**
 	 * @param $instance Model_CommunityTool 
 	 */
-    public function configure(Model_CommunityTool $instance) {
-        $tpl = DevblocksPlatform::getTemplateService();
-        
+	public function configure(Model_CommunityTool $instance) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
 		// Locales
 		
-        $default_locale = DAO_CommunityToolProperty::get($instance->code, self::PARAM_DEFAULT_LOCALE, 'en_US');
+		$default_locale = DAO_CommunityToolProperty::get($instance->code, self::PARAM_DEFAULT_LOCALE, 'en_US');
 		$tpl->assign('default_locale', $default_locale);
 		
 		$locales = DAO_Translation::getDefinedLangCodes();
@@ -307,12 +307,12 @@ class UmScApp extends Extension_UsermeetTool {
 
 		// Personalization
 
-        $page_title = DAO_CommunityToolProperty::get($instance->code, self::PARAM_PAGE_TITLE, 'Support Center');
+		$page_title = DAO_CommunityToolProperty::get($instance->code, self::PARAM_PAGE_TITLE, 'Support Center');
 		$tpl->assign('page_title', $page_title);
 
 		// Modules
 
-        @$visible_modules = unserialize(DAO_CommunityToolProperty::get($instance->code, self::PARAM_VISIBLE_MODULES, ''));
+		@$visible_modules = unserialize(DAO_CommunityToolProperty::get($instance->code, self::PARAM_VISIBLE_MODULES, ''));
 		$tpl->assign('visible_modules', $visible_modules);
 		
 		$all_modules = DevblocksPlatform::getExtensions('usermeet.sc.controller', true, true);
@@ -337,13 +337,13 @@ class UmScApp extends Extension_UsermeetTool {
 		
 		$tpl->assign('modules', $modules);
 		
-        $tpl->display("devblocks:cerberusweb.support_center::portal/sc/config/index.tpl");
-    }
-    
-    public function saveConfiguration(Model_CommunityTool $instance) {
-        @$aVisibleModules = DevblocksPlatform::importGPC($_POST['visible_modules'],'array',array());
-        @$aIdxModules = DevblocksPlatform::importGPC($_POST['idx_modules'],'array',array());
-        @$sPageTitle = DevblocksPlatform::importGPC($_POST['page_title'],'string','Contact Us');
+		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/config/index.tpl");
+	}
+	
+	public function saveConfiguration(Model_CommunityTool $instance) {
+		@$aVisibleModules = DevblocksPlatform::importGPC($_POST['visible_modules'],'array',array());
+		@$aIdxModules = DevblocksPlatform::importGPC($_POST['idx_modules'],'array',array());
+		@$sPageTitle = DevblocksPlatform::importGPC($_POST['page_title'],'string','Contact Us');
 
 		// Modules (toggle + sort)
 		$aEnabledModules = array();
@@ -353,11 +353,11 @@ class UmScApp extends Extension_UsermeetTool {
 				$aEnabledModules[$aIdxModules[$idx]] = $aVisibleModules[$idx];
 		}
 			
-        DAO_CommunityToolProperty::set($instance->code, self::PARAM_VISIBLE_MODULES, serialize($aEnabledModules));
-        DAO_CommunityToolProperty::set($instance->code, self::PARAM_PAGE_TITLE, $sPageTitle);
+		DAO_CommunityToolProperty::set($instance->code, self::PARAM_VISIBLE_MODULES, serialize($aEnabledModules));
+		DAO_CommunityToolProperty::set($instance->code, self::PARAM_PAGE_TITLE, $sPageTitle);
 
 		// Default Locale
-        @$sDefaultLocale = DevblocksPlatform::importGPC($_POST['default_locale'],'string','en_US');
+		@$sDefaultLocale = DevblocksPlatform::importGPC($_POST['default_locale'],'string','en_US');
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_DEFAULT_LOCALE, $sDefaultLocale);
 
 		// Allow modules to save their own config
@@ -370,7 +370,7 @@ class UmScApp extends Extension_UsermeetTool {
 			$module->saveConfiguration($instance);
 		}
 
-    }
+	}
 };
 
 class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {

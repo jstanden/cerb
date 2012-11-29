@@ -188,7 +188,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 			case 'sample':
@@ -413,21 +413,21 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		if(null != ($tool = DAO_CommunityTool::get($tool_id)))
 			$tpl->assign('tool', $tool);
 			
-        // Install
-        $url_writer = DevblocksPlatform::getUrlService();
-        $url = $url_writer->writeNoProxy('c=portal&a='.$tool->code,true);
-        $url_parts = parse_url($url);
-        
-        $host = $url_parts['host'];
-        @$port = $_SERVER['SERVER_PORT']; 
+		// Install
+		$url_writer = DevblocksPlatform::getUrlService();
+		$url = $url_writer->writeNoProxy('c=portal&a='.$tool->code,true);
+		$url_parts = parse_url($url);
+		
+		$host = $url_parts['host'];
+		@$port = $_SERVER['SERVER_PORT']; 
 		$base = substr(DEVBLOCKS_WEBPATH,0,-1); // consume trailing
-        $path = substr($url_parts['path'],strlen(DEVBLOCKS_WEBPATH)-1); // consume trailing slash
+		$path = substr($url_parts['path'],strlen(DEVBLOCKS_WEBPATH)-1); // consume trailing slash
 
-        @$parts = explode('/', $path);
-        if($parts[1]=='index.php') // 0 is null from /part1/part2 paths.
-        	unset($parts[1]);
-        $path = implode('/', $parts);
-        
+		@$parts = explode('/', $path);
+		if($parts[1]=='index.php') // 0 is null from /part1/part2 paths.
+			unset($parts[1]);
+		$path = implode('/', $parts);
+		
 		$tpl->assign('host', $host);
 		$tpl->assign('is_ssl', ($url_writer->isSSL() ? 1 : 0));
 		$tpl->assign('port', $port);

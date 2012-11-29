@@ -39,20 +39,20 @@ class DAO_Task extends C4_ORMHelper {
 		}
 		
 		// New task
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'task.create',
-                array(
-                    'task_id' => $id,
-                	'fields' => $fields,
-                	'custom_fields' => $custom_fields,
-                )
-            )
-	    );
-	    
-	    // Virtual Attendant events
-	    Event_TaskCreatedByWorker::trigger($id, null);
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'task.create',
+				array(
+					'task_id' => $id,
+					'fields' => $fields,
+					'custom_fields' => $custom_fields,
+				)
+			)
+		);
+		
+		// Virtual Attendant events
+		Event_TaskCreatedByWorker::trigger($id, null);
 		
 		return $id;
 	}
@@ -64,73 +64,73 @@ class DAO_Task extends C4_ORMHelper {
 		/*
 		 * Make a diff for the requested objects in batches
 		 */
-        
-    	$chunks = array_chunk($ids, 25, true);
-    	while($batch_ids = array_shift($chunks)) {
-	    	$objects = DAO_Task::getWhere(sprintf("id IN (%s)", implode(',', $batch_ids)));
-	    	$object_changes = array();
-	    	
-	    	foreach($objects as $object_id => $object) {
-	    		$pre_fields = get_object_vars($object);
-	    		$changes = array();
-	    		
-	    		foreach($fields as $field_key => $field_val) {
-	    			// Make sure the value of the field actually changed
-	    			if($pre_fields[$field_key] != $field_val) {
-	    				$changes[$field_key] = array('from' => $pre_fields[$field_key], 'to' => $field_val);
-	    			}
-	    		}
-	    		
-	    		// If we had changes
-	    		if(!empty($changes)) {
-	    			$object_changes[$object_id] = array(
-	    				'model' => array_merge($pre_fields, $fields),
-	    				'changes' => $changes,
-	    			);
-	    		}
-	    	}
-	    	
-	    	parent::_update($ids, 'task', $fields);
-	    	
-	    	if(!empty($object_changes)) {
-		    	// Local events
-		    	self::_processUpdateEvents($object_changes);
-	    		
-		        /*
-		         * Trigger an event about the changes
-		         */
-			    $eventMgr = DevblocksPlatform::getEventService();
-			    $eventMgr->trigger(
-			        new Model_DevblocksEvent(
-			            'dao.task.update',
-		                array(
-		                    'objects' => $object_changes,
-		                )
-		            )
-			    );
-			    
-			    // Log the context update
-	    		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TASK, $ids);
-	    	}
-	    	
-    	} // batch loop
+		
+		$chunks = array_chunk($ids, 25, true);
+		while($batch_ids = array_shift($chunks)) {
+			$objects = DAO_Task::getWhere(sprintf("id IN (%s)", implode(',', $batch_ids)));
+			$object_changes = array();
+			
+			foreach($objects as $object_id => $object) {
+				$pre_fields = get_object_vars($object);
+				$changes = array();
+				
+				foreach($fields as $field_key => $field_val) {
+					// Make sure the value of the field actually changed
+					if($pre_fields[$field_key] != $field_val) {
+						$changes[$field_key] = array('from' => $pre_fields[$field_key], 'to' => $field_val);
+					}
+				}
+				
+				// If we had changes
+				if(!empty($changes)) {
+					$object_changes[$object_id] = array(
+						'model' => array_merge($pre_fields, $fields),
+						'changes' => $changes,
+					);
+				}
+			}
+			
+			parent::_update($ids, 'task', $fields);
+			
+			if(!empty($object_changes)) {
+				// Local events
+				self::_processUpdateEvents($object_changes);
+				
+				/*
+				 * Trigger an event about the changes
+				 */
+				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr->trigger(
+					new Model_DevblocksEvent(
+						'dao.task.update',
+						array(
+							'objects' => $object_changes,
+						)
+					)
+				);
+				
+				// Log the context update
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TASK, $ids);
+			}
+			
+		} // batch loop
 	}
 	
 	static function _processUpdateEvents($objects) {
-    	if(is_array($objects))
-    	foreach($objects as $object_id => $object) {
-    		@$model = $object['model'];
-    		@$changes = $object['changes'];
-    		
-    		if(empty($model) || empty($changes))
-    			continue;
-    		
-    		/*
-    		 * Task completed
-    		 */
-    		@$is_completed = $changes[DAO_Task::IS_COMPLETED];
-    		
-    		if(!empty($is_completed) && !empty($model[DAO_Task::IS_COMPLETED])) {
+		if(is_array($objects))
+		foreach($objects as $object_id => $object) {
+			@$model = $object['model'];
+			@$changes = $object['changes'];
+			
+			if(empty($model) || empty($changes))
+				continue;
+			
+			/*
+			 * Task completed
+			 */
+			@$is_completed = $changes[DAO_Task::IS_COMPLETED];
+			
+			if(!empty($is_completed) && !empty($model[DAO_Task::IS_COMPLETED])) {
 				/*
 				 * Log activity (task.status.*)
 				 */
@@ -145,9 +145,9 @@ class DAO_Task extends C4_ORMHelper {
 						)
 				);
 				CerberusContexts::logActivity('task.status.completed', CerberusContexts::CONTEXT_TASK, $object_id, $entry);
-    		}
-    		
-    	} // foreach		
+			}
+			
+		} // foreach		
 	}
 	
 	static function updateWhere($fields, $where) {
@@ -355,18 +355,18 @@ class DAO_Task extends C4_ORMHelper {
 		}
 	}
 	
-    /**
-     * Enter description here...
-     *
-     * @param DevblocksSearchCriteria[] $params
-     * @param integer $limit
-     * @param integer $page
-     * @param string $sortBy
-     * @param boolean $sortAsc
-     * @param boolean $withCounts
-     * @return array
-     */
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	/**
+	 * Enter description here...
+	 *
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries

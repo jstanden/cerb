@@ -28,20 +28,20 @@ class ChInternalController extends DevblocksControllerExtension {
 		$stack = $request->path;
 		array_shift($stack); // internal
 
-	    @$action = array_shift($stack) . 'Action';
+		@$action = array_shift($stack) . 'Action';
 
-	    switch($action) {
-	        case NULL:
-	            // [TODO] Index/page render
-	            break;
+		switch($action) {
+			case NULL:
+				// [TODO] Index/page render
+				break;
 
-	        default:
-			    // Default action, call arg as a method suffixed with Action
+			default:
+				// Default action, call arg as a method suffixed with Action
 				if(method_exists($this,$action)) {
 					call_user_func(array(&$this, $action));
 				}
-	            break;
-	    }
+				break;
+		}
 	}
 
 	function handleSectionActionAction() {
@@ -663,9 +663,9 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		// Save the file
 		if(null !== ($fp = fopen($file['tmp_name'], 'rb'))) {
-            Storage_Attachments::put($file_id, $fp);
+			Storage_Attachments::put($file_id, $fp);
 			fclose($fp);
-            unlink($file['tmp_name']);
+			unlink($file['tmp_name']);
 		}
 
 		// [TODO] Unlinked records should expire
@@ -1362,20 +1362,20 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
-	    if(!empty($ids)) {
-	        $id_list = DevblocksPlatform::parseCsvString($ids);
-	        $tpl->assign('ids', implode(',', $id_list));
-	    }
+		if(!empty($ids)) {
+			$id_list = DevblocksPlatform::parseCsvString($ids);
+			$tpl->assign('ids', implode(',', $id_list));
+		}
 		
-	    $workers = DAO_Worker::getAllActive();
-	    $tpl->assign('workers', $workers);
-	    
-	    $roles = DAO_WorkerRole::getAll();
-	    $tpl->assign('roles', $roles);
-	    
-	    $groups = DAO_Group::getAll();
-	    $tpl->assign('groups', $groups);
-	    
+		$workers = DAO_Worker::getAllActive();
+		$tpl->assign('workers', $workers);
+		
+		$roles = DAO_WorkerRole::getAll();
+		$tpl->assign('roles', $roles);
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SNIPPET);
 		$tpl->assign('custom_fields', $custom_fields);
@@ -1385,10 +1385,10 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	function doSnippetBulkUpdateAction() {
 		// Filter: whole list or check
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 		$ids = array();
-	    
-	    // View
+		
+		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
@@ -1408,7 +1408,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 			case 'sample':
@@ -1684,26 +1684,26 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 
 	function viewShowCopyAction() {
-        @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::getTemplateService();
 
-        if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
-        	return;
+		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
+			return;
 
-        $tpl->assign('view_id', $view_id);
+		$tpl->assign('view_id', $view_id);
 		$tpl->assign('view', $view);
 
-        $tpl->display('devblocks:cerberusweb.core::internal/views/copy.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/copy.tpl');
 	}
 
 	function viewDoCopyAction() {
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
 
-	    @$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-	    
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
 			return;
 

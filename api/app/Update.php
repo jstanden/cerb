@@ -51,109 +51,109 @@ class ChUpdateController extends DevblocksControllerExtension {
 	 * Request Overload
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
-	    @set_time_limit(1200); // 20m
+		@set_time_limit(1200); // 20m
 
-	    $translate = DevblocksPlatform::getTranslationService();
-	    
-	    $stack = $request->path;
-	    array_shift($stack); // update
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$stack = $request->path;
+		array_shift($stack); // update
 
-	    $cache = DevblocksPlatform::getCacheService(); /* @var $cache _DevblocksCacheManager */
-    	$url = DevblocksPlatform::getUrlService();
-	    
-	    switch(array_shift($stack)) {
-	    	case 'unlicense':
-	    		DevblocksPlatform::setPluginSetting('cerberusweb.core',CerberusSettings::LICENSE, '');
-	    		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('update')));
-	    		break;
-	    		
-	    	case 'locked':
-	    		if(!DevblocksPlatform::versionConsistencyCheck()) {
-	    			echo sprintf("<h1>Cerb %s</h1>", APP_VERSION);
-	    			echo "The application is currently waiting for an administrator to finish upgrading. ".
-	    				"Please wait a few minutes and then ". 
-		    			sprintf("<a href='%s'>try again</a>.<br><br>",
+		$cache = DevblocksPlatform::getCacheService(); /* @var $cache _DevblocksCacheManager */
+		$url = DevblocksPlatform::getUrlService();
+		
+		switch(array_shift($stack)) {
+			case 'unlicense':
+				DevblocksPlatform::setPluginSetting('cerberusweb.core',CerberusSettings::LICENSE, '');
+				DevblocksPlatform::redirect(new DevblocksHttpResponse(array('update')));
+				break;
+				
+			case 'locked':
+				if(!DevblocksPlatform::versionConsistencyCheck()) {
+					echo sprintf("<h1>Cerb %s</h1>", APP_VERSION);
+					echo "The application is currently waiting for an administrator to finish upgrading. ".
+						"Please wait a few minutes and then ". 
+						sprintf("<a href='%s'>try again</a>.<br><br>",
 							$url->write('c=update&a=locked')
-		    			);
-	    			echo sprintf("If you're an admin you may <a href='%s'>finish the upgrade</a>.",
-	    				$url->write('c=update')
-	    			);
-	    		} else {
-	    			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
-	    		}
-	    		break;
-	    		
-	    	default:
-			    $path = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
-				$file = $path . 'c4update_lock';	    		
+						);
+					echo sprintf("If you're an admin you may <a href='%s'>finish the upgrade</a>.",
+						$url->write('c=update')
+					);
+				} else {
+					DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
+				}
+				break;
+				
+			default:
+				$path = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
+				$file = $path . 'c4update_lock';				
 				
 				$settings = DevblocksPlatform::getPluginSettingsService();
 				
-			    $authorized_ips_str = $settings->get('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS,CerberusSettingsDefaults::AUTHORIZED_IPS);
-			    $authorized_ips = DevblocksPlatform::parseCrlfString($authorized_ips_str);
-			    
-		   	    $authorized_ip_defaults = DevblocksPlatform::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
-			    $authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
-			    
-			    // Is this IP authorized?
-			    $pass = false;
+				$authorized_ips_str = $settings->get('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS,CerberusSettingsDefaults::AUTHORIZED_IPS);
+				$authorized_ips = DevblocksPlatform::parseCrlfString($authorized_ips_str);
+				
+				$authorized_ip_defaults = DevblocksPlatform::parseCsvString(AUTHORIZED_IPS_DEFAULTS);
+				$authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
+				
+				// Is this IP authorized?
+				$pass = false;
 				foreach ($authorized_ips as $ip)
 				{
 					if(substr($ip,0,strlen($ip)) == substr($_SERVER['REMOTE_ADDR'],0,strlen($ip)))
 				 	{ $pass=true; break; }
 				}
-			    if(!$pass) {
-				    echo vsprintf($translate->_('update.ip_unauthorized'), $_SERVER['REMOTE_ADDR']);
-				    return;
-			    }
+				if(!$pass) {
+					echo vsprintf($translate->_('update.ip_unauthorized'), $_SERVER['REMOTE_ADDR']);
+					return;
+				}
 				
-			    // Potential errors
-			    $errors = array();
+				// Potential errors
+				$errors = array();
 
-			    /*
-			     * This well-designed software is the result of over 8 years of R&D.
-			     * We're sharing every resulting byte of that hard work with you.
-			     * You're free to make changes for your own use, but we ask that you 
-			     * please respect our licensing and help support commerical open source.
-			     */
-			    $remuneration = CerberusLicense::getInstance();
+				/*
+				 * This well-designed software is the result of over 8 years of R&D.
+				 * We're sharing every resulting byte of that hard work with you.
+				 * You're free to make changes for your own use, but we ask that you 
+				 * please respect our licensing and help support commerical open source.
+				 */
+				$remuneration = CerberusLicense::getInstance();
 				@$u = $remuneration->upgrades;
 				
-			    if(!is_null($u) && $u < CerberusLicense::getReleaseDate(APP_VERSION)) {
-			    	$errors[] = sprintf("Your Cerb6 license coverage for major software updates expired on %s, and %s is not included.  Please <a href='%s' target='_blank'>renew your license</a>%s, <a href='%s'>remove your license</a> and enter Evaluation Mode (1 simultaneous worker), or <a href='%s' target='_blank'>download</a> an earlier version.",
-			    		gmdate("F d, Y",$u),
-			    		APP_VERSION,
-			    		'http://www.cerberusweb.com/buy',
-			    		!is_null($remuneration->key) ? sprintf(" (%s)",$remuneration->key) : '',
-			    		$url->write('c=update&a=unlicense'),
-			    		'http://www.cerberusweb.com/download/archives'
-			    	);
-			    }
-			    
-			    // Check requirements
-			    $errors += CerberusApplication::checkRequirements();
-			    
-			    if(!empty($errors)) {
-				    echo "
-				    <style>
-				    a { color: red; font-weight:bold; }
-				    ul { color:red; }
-				    </style>
-				    ";
-			    	
-				    echo sprintf("<h1>Cerb %s</h1>", APP_VERSION);
-				    
-			    	echo $translate->_('update.correct_errors');
-			    	echo "<ul>";
-			    	foreach($errors as $error) {
-			    		echo "<li>".$error."</li>";
-			    	}
-			    	echo "</ul>";
-			    	exit;
-			    }
-			    
-			    try {
-				    // If authorized, lock and attempt update
+				if(!is_null($u) && $u < CerberusLicense::getReleaseDate(APP_VERSION)) {
+					$errors[] = sprintf("Your Cerb6 license coverage for major software updates expired on %s, and %s is not included.  Please <a href='%s' target='_blank'>renew your license</a>%s, <a href='%s'>remove your license</a> and enter Evaluation Mode (1 simultaneous worker), or <a href='%s' target='_blank'>download</a> an earlier version.",
+						gmdate("F d, Y",$u),
+						APP_VERSION,
+						'http://www.cerberusweb.com/buy',
+						!is_null($remuneration->key) ? sprintf(" (%s)",$remuneration->key) : '',
+						$url->write('c=update&a=unlicense'),
+						'http://www.cerberusweb.com/download/archives'
+					);
+				}
+				
+				// Check requirements
+				$errors += CerberusApplication::checkRequirements();
+				
+				if(!empty($errors)) {
+					echo "
+					<style>
+					a { color: red; font-weight:bold; }
+					ul { color:red; }
+					</style>
+					";
+					
+					echo sprintf("<h1>Cerb %s</h1>", APP_VERSION);
+					
+					echo $translate->_('update.correct_errors');
+					echo "<ul>";
+					foreach($errors as $error) {
+						echo "<li>".$error."</li>";
+					}
+					echo "</ul>";
+					exit;
+				}
+				
+				try {
+					// If authorized, lock and attempt update
 					if(!file_exists($file) || @filectime($file)+600 < time()) { // 10 min lock
 						// Log everybody out since we're touching the database
 						$session = DevblocksPlatform::getSessionService();
@@ -184,18 +184,18 @@ class ChUpdateController extends DevblocksControllerExtension {
 						file_put_contents(APP_STORAGE_PATH . '/_version', APP_BUILD);
 						
 						// Redirect
-				    	DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
+						DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
 	
 					} else {
 						echo $translate->_('update.locked_another');
 					}
 					
-	    	} catch(Exception $e) {
-	    		unlink($file);
-	    		die($e->getMessage());
-	    	}
-	    }
-	    
+			} catch(Exception $e) {
+				unlink($file);
+				die($e->getMessage());
+			}
+		}
+		
 		exit;
 	}
 }

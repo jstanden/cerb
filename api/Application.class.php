@@ -106,13 +106,13 @@ class CerberusApplication extends DevblocksApplication {
 	 * @return DevblocksExtensionManifest or NULL
 	 */
 	static function getPageManifestByUri($uri) {
-        $pages = DevblocksPlatform::getExtensions('cerberusweb.page', false);
-        foreach($pages as $manifest) { /* @var $manifest DevblocksExtensionManifest */
-            if(0 == strcasecmp($uri,$manifest->params['uri'])) {
-                return $manifest;
-            }
-        }
-        return NULL;
+		$pages = DevblocksPlatform::getExtensions('cerberusweb.page', false);
+		foreach($pages as $manifest) { /* @var $manifest DevblocksExtensionManifest */
+			if(0 == strcasecmp($uri,$manifest->params['uri'])) {
+				return $manifest;
+			}
+		}
+		return NULL;
 	}
 	
 	static function processRequest(DevblocksHttpRequest $request, $is_ajax=false) {
@@ -551,32 +551,32 @@ class CerberusApplication extends DevblocksApplication {
 	 * @todo [JAS]: Move this to a global cache/hash registry
 	 */
 	static public function hashLookupAddress($email, $create=false) {
-	    static $hash_address_to_id = array();
-	    static $hash_hits = array();
-	    static $hash_size = 0;
-	    
-	    if(isset($hash_address_to_id[$email])) {
-	    	$return = $hash_address_to_id[$email];
-	    	
-	        @$hash_hits[$email] = intval($hash_hits[$email]) + 1;
-	        $hash_size++;
-	        
-	        // [JAS]: if our hash grows past our limit, crop hits array + intersect keys
-	        if($hash_size > 250) {
-	            arsort($hash_hits);
-	            $hash_hits = array_slice($hash_hits,0,100,true);
-	            $hash_address_to_id = array_intersect_key($hash_address_to_id,$hash_hits);
-	            $hash_size = count($hash_address_to_id);
-	        }
-	        
-	        return $return;
-	    }
-	    
-	    $address = DAO_Address::lookupAddress($email, $create);
-	    if(!empty($address)) {
-	        $hash_address_to_id[$email] = $address;
-	    }
-	    return $address;
+		static $hash_address_to_id = array();
+		static $hash_hits = array();
+		static $hash_size = 0;
+		
+		if(isset($hash_address_to_id[$email])) {
+			$return = $hash_address_to_id[$email];
+			
+			@$hash_hits[$email] = intval($hash_hits[$email]) + 1;
+			$hash_size++;
+			
+			// [JAS]: if our hash grows past our limit, crop hits array + intersect keys
+			if($hash_size > 250) {
+				arsort($hash_hits);
+				$hash_hits = array_slice($hash_hits,0,100,true);
+				$hash_address_to_id = array_intersect_key($hash_address_to_id,$hash_hits);
+				$hash_size = count($hash_address_to_id);
+			}
+			
+			return $return;
+		}
+		
+		$address = DAO_Address::lookupAddress($email, $create);
+		if(!empty($address)) {
+			$hash_address_to_id[$email] = $address;
+		}
+		return $address;
 	}
 
 	/**
@@ -591,32 +591,32 @@ class CerberusApplication extends DevblocksApplication {
 	 * @todo [JAS]: Move this to a global cache/hash registry 
 	 */
 	static public function hashLookupTicketIdByMask($mask) {
-	    static $hash_mask_to_id = array();
-	    static $hash_hits = array();
-	    static $hash_size = 0;
-	    
-	    if(isset($hash_mask_to_id[$mask])) {
-	    	$return = $hash_mask_to_id[$mask];
-	    	
-	        @$hash_hits[$mask] = intval($hash_hits[$mask]) + 1;
-	        $hash_size++;
+		static $hash_mask_to_id = array();
+		static $hash_hits = array();
+		static $hash_size = 0;
+		
+		if(isset($hash_mask_to_id[$mask])) {
+			$return = $hash_mask_to_id[$mask];
+			
+			@$hash_hits[$mask] = intval($hash_hits[$mask]) + 1;
+			$hash_size++;
 
-	        // [JAS]: if our hash grows past our limit, crop hits array + intersect keys
-	        if($hash_size > 250) {
-	            arsort($hash_hits);
-	            $hash_hits = array_slice($hash_hits,0,100,true);
-	            $hash_mask_to_id = array_intersect_key($hash_mask_to_id,$hash_hits);
-	            $hash_size = count($hash_mask_to_id);
-	        }
-	        
-	        return $return;
-	    }
-	    
-	    $ticket_id = DAO_Ticket::getTicketIdByMask($mask);
-	    if(!empty($ticket_id)) {
-	        $hash_mask_to_id[$mask] = $ticket_id;
-	    }
-	    return $ticket_id;
+			// [JAS]: if our hash grows past our limit, crop hits array + intersect keys
+			if($hash_size > 250) {
+				arsort($hash_hits);
+				$hash_hits = array_slice($hash_hits,0,100,true);
+				$hash_mask_to_id = array_intersect_key($hash_mask_to_id,$hash_hits);
+				$hash_size = count($hash_mask_to_id);
+			}
+			
+			return $return;
+		}
+		
+		$ticket_id = DAO_Ticket::getTicketIdByMask($mask);
+		if(!empty($ticket_id)) {
+			$hash_mask_to_id[$mask] = $ticket_id;
+		}
+		return $ticket_id;
 	}
 };
 
@@ -1357,7 +1357,7 @@ class CerberusLicense {
 			? array(
 				'company' => $company,
 				'email' => $email,
-				'key'     => (list($k,$v)=explode(":",$lines[1]))?trim($v):null,
+				'key' => (list($k,$v)=explode(":",$lines[1]))?trim($v):null,
 				'created' => (list($k,$v)=explode(":",$lines[2]))?trim($v):null,
 				'updated' => (list($k,$v)=explode(":",$lines[3]))?trim($v):null,
 				'upgrades' => (list($k,$v)=explode(":",$lines[4]))?trim($v):null,
@@ -1367,7 +1367,7 @@ class CerberusLicense {
 	}
 	
 	public static function getReleases() {
-		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000,'5.6.0'=>1317686400,'5.7.0'=>1326067200,'6.0.0'=>1338163200,'6.1.0'=>1346025600);/*
+		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000,'5.6.0'=>1317686400,'5.7.0'=>1326067200,'6.0.0'=>1338163200,'6.1.0'=>1346025600,'6.2.0'=>1353888000);/*
 		 * Major versions by release date in GMT
 		 */
 		return array(
@@ -1381,6 +1381,7 @@ class CerberusLicense {
 			'5.7.0' => gmmktime(0,0,0,1,9,2012),
 			'6.0.0' => gmmktime(0,0,0,5,28,2012),
 			'6.1.0' => gmmktime(0,0,0,8,27,2012),
+			'6.2.0' => gmmktime(0,0,0,11,26,2012),
 		);
 	}
 	

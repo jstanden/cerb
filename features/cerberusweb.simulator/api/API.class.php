@@ -136,7 +136,7 @@ class SimulatorDataset {
 class CerberusSimulatorGenerator {
 	private $surnames = array();
 	private $names = array();
-    
+	
 	function __construct() {
 		/*
 		 * [TODO] Move these into an American dataset for names? Allows for other name datasets 
@@ -246,8 +246,8 @@ class CerberusSimulatorGenerator {
 		$this->names[] = "Sarah";
 		$this->names[] = "Kimberly";
 		$this->names[] = "Deborah";
-    }
-    
+	}
+	
 	private function generatePerson() {
 		$firstname = $this->names[mt_rand(0,sizeof($this->names)-1)];
 		$lastname = $this->surnames[mt_rand(0,sizeof($this->surnames)-1)];
@@ -265,15 +265,15 @@ class CerberusSimulatorGenerator {
 		
 		return $emailaddress;
 	}
-    
+	
 	public function generateSender($email) {
 
-	    if(empty($email['sender'])) {
-            $email['sender'] = $this->generatePerson();
-	    }
+		if(empty($email['sender'])) {
+			$email['sender'] = $this->generatePerson();
+		}
 
 //		$emailaddress = sprintf("\"%s %s\" <%s.%s@cerberusdemo.com>",
-	    return $email;
+		return $email;
 	}
 };
 

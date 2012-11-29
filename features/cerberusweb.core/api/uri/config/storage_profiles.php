@@ -110,8 +110,8 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 				throw new Exception('Your storage profile is not configured properly.');
 			}
 			
-		    echo json_encode(array('status'=>true,'message'=>'Your storage profile is configured properly.'));
-		    return;
+			echo json_encode(array('status'=>true,'message'=>'Your storage profile is configured properly.'));
+			return;
 			
 		} catch(Exception $e) {
 			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
@@ -149,9 +149,9 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 			}
 			
 		} else {
-		    $fields = array(
-		    	DAO_DevblocksStorageProfile::NAME => $name,
-		    );
+			$fields = array(
+				DAO_DevblocksStorageProfile::NAME => $name,
+			);
 
 			if(empty($id)) {
 				$fields[DAO_DevblocksStorageProfile::EXTENSION_ID] = $extension_id;

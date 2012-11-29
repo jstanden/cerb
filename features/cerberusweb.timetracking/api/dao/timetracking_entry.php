@@ -164,7 +164,7 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 	static function update($ids, $fields) {
 		parent::_update($ids, 'timetracking_entry', $fields);
 		
-	    // Log the context update
+		// Log the context update
    		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TIMETRACKING, $ids);
 	}
 	
@@ -372,18 +372,18 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 		}
 	}
 	
-    /**
-     * Enter description here...
-     *
-     * @param DevblocksSearchCriteria[] $params
-     * @param integer $limit
-     * @param integer $page
-     * @param string $sortBy
-     * @param boolean $sortAsc
-     * @param boolean $withCounts
-     * @return array
-     */
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	/**
+	 * Enter description here...
+	 *
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
@@ -428,7 +428,7 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-    }
+	}
 };
 
 class Model_TimeTrackingEntry {
@@ -1011,7 +1011,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		);
 	}
 	
-    function getContext($timeentry, &$token_labels, &$token_values, $prefix=null) {
+	function getContext($timeentry, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Time Entry:';
 		
@@ -1089,9 +1089,9 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 				$token_values
 			);		
 		
-		return true;    
-    }
-    
+		return true;	
+	}
+	
 	function lazyLoadContextValues($token, $dictionary) {
 		if(!isset($dictionary['id']))
 			return;
@@ -1124,8 +1124,8 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		}
 		
 		return $values;
-	}    
-    
+	}	
+	
 	function getChooserView($view_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
 

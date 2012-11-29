@@ -117,8 +117,8 @@ class GovDataset extends SimulatorDataset {
 class HostingDataset extends SimulatorDataset {
 	
 	public function __construct() {
-	    $domain_extensions = array('com'=>'com','net'=>'net','org'=>'org');
-	    
+		$domain_extensions = array('com'=>'com','net'=>'net','org'=>'org');
+		
 		$this->addEmailTemplate('##site## down','I can\'t ##access## my ##site##?');
 		$this->addEmailTemplate('How do I ##login## with ##product##?','I just finished ##signup_present## for ##product##.  How do I ##login## to my account?');
 		$this->addEmailTemplate('##lost## ##password##','I ##lost## my ##password##, how do I get it back?');
@@ -155,12 +155,12 @@ class HostingDataset extends SimulatorDataset {
 		$this->addToken('##using_tool##',array('PHP','Java','Ruby on Rails','Perl','Coldfusion','ASP.NET'));
 		$this->addToken('##hosting_plan##',array('Platinum','Gold','Silver','Copper'));
 		$this->addToken('##hosting_domain##',array(
-		    'business.'.array_rand($domain_extensions),
-		    'shopping.'.array_rand($domain_extensions),
-		    'fitness.'.array_rand($domain_extensions),
-		    'finance.'.array_rand($domain_extensions),
-		    'coffee.'.array_rand($domain_extensions)
-		    ));
+			'business.'.array_rand($domain_extensions),
+			'shopping.'.array_rand($domain_extensions),
+			'fitness.'.array_rand($domain_extensions),
+			'finance.'.array_rand($domain_extensions),
+			'coffee.'.array_rand($domain_extensions)
+			));
 		$this->addToken('##hosting_mopay##',array('$25-$30','$5-$10','$1.25-$2.50'));
 	}
 	

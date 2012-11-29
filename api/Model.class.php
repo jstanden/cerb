@@ -67,13 +67,13 @@ class Model_Activity {
 		array_unshift($params, sprintf("<b>%s</b>%s",
 			$worker->getName(),
 			(!empty($worker->title) 
-				? (' (' . $worker->title . ')') 
+				? (' (' . $worker->title . ')')
 				: ''
 			)
 		));
 		
 		return vsprintf(
-			$translate->_($this->translation_code), 
+			$translate->_($this->translation_code),
 			$params
 		);
 	}

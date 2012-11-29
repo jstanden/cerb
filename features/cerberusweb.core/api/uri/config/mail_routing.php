@@ -51,30 +51,30 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 			return;
 		}
 		
-	    @$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array',array());
-	    @$sticky_ids = DevblocksPlatform::importGPC($_REQUEST['sticky_ids'],'array',array());
-	    @$sticky_order = DevblocksPlatform::importGPC($_REQUEST['sticky_order'],'array',array());
-	    
-	    @$active_worker = CerberusApplication::getActiveWorker();
-	    if(!$active_worker->is_superuser)
-	    	return;
-	    
-	    // Deletes
-	    if(!empty($deletes)) {
-	    	DAO_MailToGroupRule::delete($deletes);
-	    }
-	    
-	    // Reordering
-	    if(is_array($sticky_ids) && is_array($sticky_order))
-	    foreach($sticky_ids as $idx => $id) {
-	    	@$order = intval($sticky_order[$idx]);
+		@$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array',array());
+		@$sticky_ids = DevblocksPlatform::importGPC($_REQUEST['sticky_ids'],'array',array());
+		@$sticky_order = DevblocksPlatform::importGPC($_REQUEST['sticky_order'],'array',array());
+		
+		@$active_worker = CerberusApplication::getActiveWorker();
+		if(!$active_worker->is_superuser)
+			return;
+		
+		// Deletes
+		if(!empty($deletes)) {
+			DAO_MailToGroupRule::delete($deletes);
+		}
+		
+		// Reordering
+		if(is_array($sticky_ids) && is_array($sticky_order))
+		foreach($sticky_ids as $idx => $id) {
+			@$order = intval($sticky_order[$idx]);
 			DAO_MailToGroupRule::update($id, array (
-	    		DAO_MailToGroupRule::STICKY_ORDER => $order
-	    	));
-	    }
+				DAO_MailToGroupRule::STICKY_ORDER => $order
+			));
+		}
 		
 		// Default group
-	    @$default_group_id = DevblocksPlatform::importGPC($_REQUEST['default_group_id'],'integer','0');
+		@$default_group_id = DevblocksPlatform::importGPC($_REQUEST['default_group_id'],'integer','0');
 		DAO_Group::setDefaultGroup($default_group_id);
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail_routing')));
@@ -124,11 +124,11 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
    		
    		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
    		
-	    @$active_worker = CerberusApplication::getActiveWorker();
-	    if(!$active_worker->is_superuser)
-	    	return;
+		@$active_worker = CerberusApplication::getActiveWorker();
+		if(!$active_worker->is_superuser)
+			return;
 
-	    /*****************************/
+		/*****************************/
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
 		@$is_sticky = DevblocksPlatform::importGPC($_POST['is_sticky'],'integer',0);
 //		@$is_stackable = DevblocksPlatform::importGPC($_POST['is_stackable'],'integer',0);

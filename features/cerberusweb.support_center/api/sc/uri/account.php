@@ -658,18 +658,18 @@ class UmScAccountController extends Extension_UmScController {
 	}
 	
 	function saveConfiguration(Model_CommunityTool $instance) {
-        @$aFields = DevblocksPlatform::importGPC($_POST['fields'],'array',array());
-        @$aFieldsVisible = DevblocksPlatform::importGPC($_POST['fields_visible'],'array',array());
+		@$aFields = DevblocksPlatform::importGPC($_POST['fields'],'array',array());
+		@$aFieldsVisible = DevblocksPlatform::importGPC($_POST['fields_visible'],'array',array());
 
-        $fields = array();
-        
-        if(is_array($aFields))
-        foreach($aFields as $idx => $field) {
-        	$mode = $aFieldsVisible[$idx];
-        	if(!is_null($mode))
-        		$fields[$field] = intval($mode);
-        }
-        
-        DAO_CommunityToolProperty::set($instance->code, 'account.fields', json_encode($fields));
+		$fields = array();
+		
+		if(is_array($aFields))
+		foreach($aFields as $idx => $field) {
+			$mode = $aFieldsVisible[$idx];
+			if(!is_null($mode))
+				$fields[$field] = intval($mode);
+		}
+		
+		DAO_CommunityToolProperty::set($instance->code, 'account.fields', json_encode($fields));
 	}	
 };

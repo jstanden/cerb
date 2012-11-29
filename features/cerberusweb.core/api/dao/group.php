@@ -16,16 +16,16 @@
 ***********************************************************************/
 
 class DAO_Group extends C4_ORMHelper {
-    const CACHE_ALL = 'cerberus_cache_groups_all';
+	const CACHE_ALL = 'cerberus_cache_groups_all';
 	const CACHE_ROSTERS = 'ch_group_rosters';
-    
-    const ID = 'id';
-    const NAME = 'name';
-    const REPLY_ADDRESS_ID = 'reply_address_id';
-    const REPLY_PERSONAL = 'reply_personal';
-    const REPLY_SIGNATURE = 'reply_signature';
-    const IS_DEFAULT = 'is_default';
-    
+	
+	const ID = 'id';
+	const NAME = 'name';
+	const REPLY_ADDRESS_ID = 'reply_address_id';
+	const REPLY_PERSONAL = 'reply_personal';
+	const REPLY_SIGNATURE = 'reply_signature';
+	const IS_DEFAULT = 'is_default';
+	
 	// Groups
 	
 	/**
@@ -92,13 +92,13 @@ class DAO_Group extends C4_ORMHelper {
 	}
 	
 	static function getAll($nocache=false) {
-	    $cache = DevblocksPlatform::getCacheService();
-	    if($nocache || null === ($groups = $cache->load(self::CACHE_ALL))) {
-    	    $groups = DAO_Group::getGroups();
-    	    $cache->save($groups, self::CACHE_ALL);
-	    }
-	    
-	    return $groups;
+		$cache = DevblocksPlatform::getCacheService();
+		if($nocache || null === ($groups = $cache->load(self::CACHE_ALL))) {
+			$groups = DAO_Group::getGroups();
+			$cache->save($groups, self::CACHE_ALL);
+		}
+		
+		return $groups;
 	}
 	
 	/**
@@ -197,15 +197,15 @@ class DAO_Group extends C4_ORMHelper {
 		/*
 		 * Notify anything that wants to know when groups delete.
 		 */
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'group.delete',
-                array(
-                    'group_ids' => array($id),
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'group.delete',
+				array(
+					'group_ids' => array($id),
+				)
+			)
+		);
 		
 		$sql = sprintf("DELETE QUICK FROM worker_group WHERE id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
@@ -220,16 +220,16 @@ class DAO_Group extends C4_ORMHelper {
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.delete',
-                array(
-                	'context' => CerberusContexts::CONTEXT_GROUP,
-                	'context_ids' => array($id)
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => CerberusContexts::CONTEXT_GROUP,
+					'context_ids' => array($id)
+				)
+			)
+		);
 		
 		self::clearCache();
 		DAO_Bucket::clearCache();
@@ -252,44 +252,44 @@ class DAO_Group extends C4_ORMHelper {
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' custom_field records.');
 		
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.maint',
-                array(
-                	'context' => CerberusContexts::CONTEXT_GROUP,
-                	'context_table' => 'worker_group',
-                	'context_key' => 'id',
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.maint',
+				array(
+					'context' => CerberusContexts::CONTEXT_GROUP,
+					'context_table' => 'worker_group',
+					'context_key' => 'id',
+				)
+			)
+		);
 	}
 	
 	static function setGroupMember($group_id, $worker_id, $is_manager=false) {
-        if(empty($worker_id) || empty($group_id))
-            return FALSE;
+		if(empty($worker_id) || empty($group_id))
+			return FALSE;
 		
-        $db = DevblocksPlatform::getDatabaseService();
-        
-        $db->Execute(sprintf("REPLACE INTO worker_to_group (worker_id, group_id, is_manager) ".
-        	"VALUES (%d, %d, %d)",
-        	$worker_id,
-        	$group_id,
-        	($is_manager?1:0)
-       	));
-        
-        self::clearCache();
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$db->Execute(sprintf("REPLACE INTO worker_to_group (worker_id, group_id, is_manager) ".
+			"VALUES (%d, %d, %d)",
+			$worker_id,
+			$group_id,
+			($is_manager?1:0)
+	   	));
+		
+		self::clearCache();
 	}
 	
 	static function unsetGroupMember($group_id, $worker_id) {
-        if(empty($worker_id) || empty($group_id))
-            return FALSE;
-            
-        $db = DevblocksPlatform::getDatabaseService();
-        
+		if(empty($worker_id) || empty($group_id))
+			return FALSE;
+			
+		$db = DevblocksPlatform::getDatabaseService();
+		
 		$sql = sprintf("DELETE QUICK FROM worker_to_group WHERE group_id = %d AND worker_id IN (%d)",
-		    $group_id,
-		    $worker_id
+			$group_id,
+			$worker_id
 		);
 		$db->Execute($sql);
 
@@ -360,13 +360,13 @@ class DAO_Group extends C4_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"g.id as %s, ".
 			"g.name as %s ",
-			    SearchFields_Group::ID,
-			    SearchFields_Group::NAME
+				SearchFields_Group::ID,
+				SearchFields_Group::NAME
 			);
 			
 		$join_sql = "FROM worker_group g ".
@@ -431,7 +431,7 @@ class DAO_Group extends C4_ORMHelper {
 		}
 	}	
 	
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
@@ -451,10 +451,10 @@ class DAO_Group extends C4_ORMHelper {
 			$sort_sql;
 			
 		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		} else {
-		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-            $total = mysql_num_rows($rs);
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$total = mysql_num_rows($rs);
 		}
 		
 		$results = array();
@@ -481,7 +481,7 @@ class DAO_Group extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-    }	
+	}	
 };
 
 class SearchFields_Group implements IDevblocksSearchFields {
@@ -691,9 +691,9 @@ class Model_Group {
 class DAO_GroupSettings {
 	const CACHE_ALL = 'ch_group_settings';
 	
-    const SETTING_SUBJECT_HAS_MASK = 'subject_has_mask';
-    const SETTING_SUBJECT_PREFIX = 'subject_prefix';
-    
+	const SETTING_SUBJECT_HAS_MASK = 'subject_has_mask';
+	const SETTING_SUBJECT_PREFIX = 'subject_prefix';
+	
 	static function set($group_id, $key, $value) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -716,15 +716,15 @@ class DAO_GroupSettings {
 		}
 		
 		if(null == $value && !is_null($default)) {
-		    return $default;
+			return $default;
 		}
 		
 		return $value;
 	}
 	
 	static function getSettings($group_id=0) {
-	    $cache = DevblocksPlatform::getCacheService();
-	    if(null === ($groups = $cache->load(self::CACHE_ALL))) {
+		$cache = DevblocksPlatform::getCacheService();
+		if(null === ($groups = $cache->load(self::CACHE_ALL))) {
 			$db = DevblocksPlatform::getDatabaseService();
 	
 			$groups = array();
@@ -733,33 +733,33 @@ class DAO_GroupSettings {
 			$rs = $db->Execute($sql) or die(__CLASS__ . ':' . $db->ErrorMsg()); 
 			
 			while($row = mysql_fetch_assoc($rs)) {
-			    $gid = intval($row['group_id']);
-			    
-			    if(!isset($groups[$gid]))
-			        $groups[$gid] = array();
-			    
-			    $groups[$gid][$row['setting']] = $row['value'];
+				$gid = intval($row['group_id']);
+				
+				if(!isset($groups[$gid]))
+					$groups[$gid] = array();
+				
+				$groups[$gid][$row['setting']] = $row['value'];
 			}
 			
 			mysql_free_result($rs);
 			
 			$cache->save($groups, self::CACHE_ALL);
-	    }
+		}
 
-	    // Empty
-	    if(empty($groups))
-	    	return null;
-	    
-	    // Specific group
-	    if(!empty($group_id)) {
-		    // Requested group id exists
-	    	if(isset($groups[$group_id]))
-	    		return $groups[$group_id];
-	    	else // doesn't
-	    		return null;
-	    }
-	    
-	    // All groups
+		// Empty
+		if(empty($groups))
+			return null;
+		
+		// Specific group
+		if(!empty($group_id)) {
+			// Requested group id exists
+			if(isset($groups[$group_id]))
+				return $groups[$group_id];
+			else // doesn't
+				return null;
+		}
+		
+		// All groups
 		return $groups;
 	}
 };

@@ -16,17 +16,17 @@
 ***********************************************************************/
 
 class DAO_Attachment extends DevblocksORMHelper {
-    const ID = 'id';
-    const DISPLAY_NAME = 'display_name';
-    const MIME_TYPE = 'mime_type';
-    const STORAGE_EXTENSION = 'storage_extension';
-    const STORAGE_KEY = 'storage_key';
-    const STORAGE_SIZE = 'storage_size';
-    const STORAGE_PROFILE_ID = 'storage_profile_id';
-    const UPDATED = 'updated';
-    
+	const ID = 'id';
+	const DISPLAY_NAME = 'display_name';
+	const MIME_TYPE = 'mime_type';
+	const STORAGE_EXTENSION = 'storage_extension';
+	const STORAGE_KEY = 'storage_key';
+	const STORAGE_SIZE = 'storage_size';
+	const STORAGE_PROFILE_ID = 'storage_profile_id';
+	const UPDATED = 'updated';
+	
 	public static function create($fields) {
-	    $db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = "INSERT INTO attachment () VALUES ()";
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
@@ -38,10 +38,10 @@ class DAO_Attachment extends DevblocksORMHelper {
 	}
 	
 	public static function update($id, $fields) {
-	    if(!isset($fields[self::UPDATED]))
-	    	$fields[self::UPDATED] = time();
+		if(!isset($fields[self::UPDATED]))
+			$fields[self::UPDATED] = time();
 		
-        self::_update($id, 'attachment', $fields);
+		self::_update($id, 'attachment', $fields);
 	}
 	
 	/**
@@ -57,8 +57,8 @@ class DAO_Attachment extends DevblocksORMHelper {
 		));
 		
 		if(isset($items[$id]))
-		    return $items[$id];
-		    
+			return $items[$id];
+			
 		return NULL;
 	}
 	
@@ -81,16 +81,16 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$objects = array();
 		
 		while($row = mysql_fetch_assoc($rs)) {
-		    $object = new Model_Attachment();
-		    $object->id = intval($row['id']);
-		    $object->display_name = $row['display_name'];
-		    $object->mime_type = $row['mime_type'];
-		    $object->storage_size = intval($row['storage_size']);
-		    $object->storage_extension = $row['storage_extension'];
-		    $object->storage_key = $row['storage_key'];
-		    $object->storage_profile_id = $row['storage_profile_id'];
-		    $object->updated = intval($row['updated']);
-		    $objects[$object->id] = $object;
+			$object = new Model_Attachment();
+			$object->id = intval($row['id']);
+			$object->display_name = $row['display_name'];
+			$object->mime_type = $row['mime_type'];
+			$object->storage_size = intval($row['storage_size']);
+			$object->storage_extension = $row['storage_extension'];
+			$object->storage_key = $row['storage_key'];
+			$object->storage_profile_id = $row['storage_profile_id'];
+			$object->updated = intval($row['updated']);
+			$objects[$object->id] = $object;
 		}
 		
 		mysql_free_result($rs);
@@ -172,7 +172,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"a.id as %s, ".
@@ -184,14 +184,14 @@ class DAO_Attachment extends DevblocksORMHelper {
 			"a.storage_profile_id as %s, ".
 			"a.updated as %s ".
 			"",
-			    SearchFields_Attachment::ID,
-			    SearchFields_Attachment::DISPLAY_NAME,
-			    SearchFields_Attachment::MIME_TYPE,
-			    SearchFields_Attachment::STORAGE_SIZE,
-			    SearchFields_Attachment::STORAGE_EXTENSION,
-			    SearchFields_Attachment::STORAGE_KEY,
-			    SearchFields_Attachment::STORAGE_PROFILE_ID,
-			    SearchFields_Attachment::UPDATED
+				SearchFields_Attachment::ID,
+				SearchFields_Attachment::DISPLAY_NAME,
+				SearchFields_Attachment::MIME_TYPE,
+				SearchFields_Attachment::STORAGE_SIZE,
+				SearchFields_Attachment::STORAGE_EXTENSION,
+				SearchFields_Attachment::STORAGE_KEY,
+				SearchFields_Attachment::STORAGE_PROFILE_ID,
+				SearchFields_Attachment::UPDATED
 		);
 		
 		$join_sql = "FROM attachment a ".
@@ -215,18 +215,18 @@ class DAO_Attachment extends DevblocksORMHelper {
 		return $result;
 	}	
 	
-    /**
-     * Enter description here...
-     *
-     * @param DevblocksSearchCriteria[] $params
-     * @param integer $limit
-     * @param integer $page
-     * @param string $sortBy
-     * @param boolean $sortAsc
-     * @param boolean $withCounts
-     * @return array
-     */
-    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	/**
+	 * Enter description here...
+	 *
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
@@ -269,22 +269,22 @@ class DAO_Attachment extends DevblocksORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-    }
+	}
 };
 
 class SearchFields_Attachment implements IDevblocksSearchFields {
-    const ID = 'a_id';
-    const DISPLAY_NAME = 'a_display_name';
-    const MIME_TYPE = 'a_mime_type';
-    const STORAGE_SIZE = 'a_storage_size';
-    const STORAGE_EXTENSION = 'a_storage_extension';
-    const STORAGE_KEY = 'a_storage_key';
-    const STORAGE_PROFILE_ID = 'a_storage_profile_id';
-    const UPDATED = 'a_updated';
+	const ID = 'a_id';
+	const DISPLAY_NAME = 'a_display_name';
+	const MIME_TYPE = 'a_mime_type';
+	const STORAGE_SIZE = 'a_storage_size';
+	const STORAGE_EXTENSION = 'a_storage_extension';
+	const STORAGE_KEY = 'a_storage_key';
+	const STORAGE_PROFILE_ID = 'a_storage_profile_id';
+	const UPDATED = 'a_updated';
 	
-    const LINK_CONTEXT = 'al_context';
-    const LINK_CONTEXT_ID = 'al_context_id';
-    
+	const LINK_CONTEXT = 'al_context';
+	const LINK_CONTEXT_ID = 'al_context_id';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -421,16 +421,16 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 			$storage_size = strlen($contents);
 			unset($contents);
 		}
-	    
+		
 		// Update storage key
-	    DAO_Attachment::update($id, array(
-	        DAO_Attachment::STORAGE_EXTENSION => $storage->manifest->id,
-	        DAO_Attachment::STORAGE_PROFILE_ID => $profile_id,
-	        DAO_Attachment::STORAGE_KEY => $storage_key,
-        	DAO_Attachment::STORAGE_SIZE => $storage_size,
-	    ));
-	    
-	    return $storage_key;
+		DAO_Attachment::update($id, array(
+			DAO_Attachment::STORAGE_EXTENSION => $storage->manifest->id,
+			DAO_Attachment::STORAGE_PROFILE_ID => $profile_id,
+			DAO_Attachment::STORAGE_KEY => $storage_key,
+			DAO_Attachment::STORAGE_SIZE => $storage_size,
+		));
+		
+		return $storage_key;
 	}
 	
 	public static function delete($ids) {
@@ -1148,12 +1148,12 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 		$objects = array();
 		
 		while($row = mysql_fetch_assoc($rs)) {
-		    $object = new Model_AttachmentLink();
-		    $object->guid = $row['guid'];
-		    $object->attachment_id = intval($row['attachment_id']);
-		    $object->context = $row['context'];
-		    $object->context_id = intval($row['context_id']);
-		    $objects[$object->guid] = $object;
+			$object = new Model_AttachmentLink();
+			$object->guid = $row['guid'];
+			$object->attachment_id = intval($row['attachment_id']);
+			$object->context = $row['context'];
+			$object->context_id = intval($row['context_id']);
+			$objects[$object->guid] = $object;
 		}
 		
 		mysql_free_result($rs);
@@ -1168,7 +1168,7 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy])) // || !in_array($sortBy,$columns)
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"al.attachment_id as %s, ".
@@ -1183,17 +1183,17 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 			"a.storage_profile_id as %s, ".
 			"a.updated as %s ".
 			"",
-			    SearchFields_AttachmentLink::ID,
-			    SearchFields_AttachmentLink::LINK_CONTEXT,
-			    SearchFields_AttachmentLink::LINK_CONTEXT_ID,
-			    SearchFields_AttachmentLink::GUID,
-			    SearchFields_AttachmentLink::ATTACHMENT_DISPLAY_NAME,
-			    SearchFields_AttachmentLink::ATTACHMENT_MIME_TYPE,
-			    SearchFields_AttachmentLink::ATTACHMENT_STORAGE_SIZE,
-			    SearchFields_AttachmentLink::ATTACHMENT_STORAGE_EXTENSION,
-			    SearchFields_AttachmentLink::ATTACHMENT_STORAGE_KEY,
-			    SearchFields_AttachmentLink::ATTACHMENT_STORAGE_PROFILE_ID,
-			    SearchFields_AttachmentLink::ATTACHMENT_UPDATED
+				SearchFields_AttachmentLink::ID,
+				SearchFields_AttachmentLink::LINK_CONTEXT,
+				SearchFields_AttachmentLink::LINK_CONTEXT_ID,
+				SearchFields_AttachmentLink::GUID,
+				SearchFields_AttachmentLink::ATTACHMENT_DISPLAY_NAME,
+				SearchFields_AttachmentLink::ATTACHMENT_MIME_TYPE,
+				SearchFields_AttachmentLink::ATTACHMENT_STORAGE_SIZE,
+				SearchFields_AttachmentLink::ATTACHMENT_STORAGE_EXTENSION,
+				SearchFields_AttachmentLink::ATTACHMENT_STORAGE_KEY,
+				SearchFields_AttachmentLink::ATTACHMENT_STORAGE_PROFILE_ID,
+				SearchFields_AttachmentLink::ATTACHMENT_UPDATED
 		);
 		
 		$join_sql = "FROM attachment_link al ".
@@ -1218,18 +1218,18 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 		return $result;
 	}	
 	
-    /**
-     * Enter description here...
-     *
-     * @param DevblocksSearchCriteria[] $params
-     * @param integer $limit
-     * @param integer $page
-     * @param string $sortBy
-     * @param boolean $sortAsc
-     * @param boolean $withCounts
-     * @return array
-     */
-    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	/**
+	 * Enter description here...
+	 *
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
@@ -1272,23 +1272,23 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-    }
-    	
+	}
+		
 };
 
 class SearchFields_AttachmentLink implements IDevblocksSearchFields {
-    const ID = 'al_attachment_id';
-    const LINK_CONTEXT = 'al_context';
-    const LINK_CONTEXT_ID = 'al_context_id';
-    const GUID = 'al_guid';
-    const ATTACHMENT_DISPLAY_NAME = 'a_display_name';
-    const ATTACHMENT_MIME_TYPE = 'a_mime_type';
-    const ATTACHMENT_STORAGE_SIZE = 'a_storage_size';
-    const ATTACHMENT_STORAGE_EXTENSION = 'a_storage_extension';
-    const ATTACHMENT_STORAGE_KEY = 'a_storage_key';
-    const ATTACHMENT_STORAGE_PROFILE_ID = 'a_storage_profile_id';
-    const ATTACHMENT_UPDATED = 'a_updated';
-    
+	const ID = 'al_attachment_id';
+	const LINK_CONTEXT = 'al_context';
+	const LINK_CONTEXT_ID = 'al_context_id';
+	const GUID = 'al_guid';
+	const ATTACHMENT_DISPLAY_NAME = 'a_display_name';
+	const ATTACHMENT_MIME_TYPE = 'a_mime_type';
+	const ATTACHMENT_STORAGE_SIZE = 'a_storage_size';
+	const ATTACHMENT_STORAGE_EXTENSION = 'a_storage_extension';
+	const ATTACHMENT_STORAGE_KEY = 'a_storage_key';
+	const ATTACHMENT_STORAGE_PROFILE_ID = 'a_storage_profile_id';
+	const ATTACHMENT_UPDATED = 'a_updated';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */

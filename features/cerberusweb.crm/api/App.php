@@ -159,15 +159,15 @@ class CrmPage extends CerberusPageExtension {
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('view_id', $view_id);
 
-	    if(!empty($ids)) {
-	        $id_list = DevblocksPlatform::parseCsvString($ids);
-	        $tpl->assign('opp_ids', implode(',', $id_list));
-	    }
+		if(!empty($ids)) {
+			$id_list = DevblocksPlatform::parseCsvString($ids);
+			$tpl->assign('opp_ids', implode(',', $id_list));
+		}
 		
-	    // Workers
-	    $workers = DAO_Worker::getAllActive();
-	    $tpl->assign('workers', $workers);
-	    
+		// Workers
+		$workers = DAO_Worker::getAllActive();
+		$tpl->assign('workers', $workers);
+		
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY);
 		$tpl->assign('custom_fields', $custom_fields);
@@ -191,10 +191,10 @@ class CrmPage extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// Filter: whole list or check
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-	    $ids = array();
-	    
-	    // View
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		$ids = array();
+		
+		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id); /* @var $view View_CrmOpportunity */
 		
@@ -266,8 +266,8 @@ class CrmPage extends CerberusPageExtension {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-			    @$opp_ids_str = DevblocksPlatform::importGPC($_REQUEST['opp_ids'],'string');
-		        $ids = DevblocksPlatform::parseCsvString($opp_ids_str);
+				@$opp_ids_str = DevblocksPlatform::importGPC($_REQUEST['opp_ids'],'string');
+				$ids = DevblocksPlatform::parseCsvString($opp_ids_str);
 				break;
 			case 'sample':
 				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
@@ -419,16 +419,16 @@ class CrmPage extends CerberusPageExtension {
 };
 
 class CrmEventListener extends DevblocksEventListenerExtension {
-    /**
-     * @param Model_DevblocksEvent $event
-     */
-    function handleEvent(Model_DevblocksEvent $event) {
-        switch($event->id) {
-            case 'cron.maint':
-            	DAO_CrmOpportunity::maint();
-            	break;
-        }
-    }
+	/**
+	 * @param Model_DevblocksEvent $event
+	 */
+	function handleEvent(Model_DevblocksEvent $event) {
+		switch($event->id) {
+			case 'cron.maint':
+				DAO_CrmOpportunity::maint();
+				break;
+		}
+	}
 };
 
 if (class_exists('Extension_ContextProfileTab')):

@@ -114,25 +114,25 @@ class PageSection_SetupSimulator extends Extension_PageSection {
 			$emails = $simulator->generateEmails($dataset,$how_many);
 		
 			foreach($emails as $template) {
-			    if(preg_match("/\"(.*?)\" \<(.*?)\>/", $template['sender'], $matches)) {
-			        $personal = $matches[1];
-			        $from = $matches[1];
-			    } // [TODO] error checking
-			    
-		            $message = new CerberusParserMessage();
-		            $message->headers['from'] = $template['sender'];
-		            $message->headers['to'] = $address;
-		            $message->headers['subject'] = $template['subject'];
-		            $message->headers['message-id'] = CerberusApplication::generateMessageId();
-		            
-		            $message->body = sprintf(
+				if(preg_match("/\"(.*?)\" \<(.*?)\>/", $template['sender'], $matches)) {
+					$personal = $matches[1];
+					$from = $matches[1];
+				} // [TODO] error checking
+				
+					$message = new CerberusParserMessage();
+					$message->headers['from'] = $template['sender'];
+					$message->headers['to'] = $address;
+					$message->headers['subject'] = $template['subject'];
+					$message->headers['message-id'] = CerberusApplication::generateMessageId();
+					
+					$message->body = sprintf(
 					"%s\r\n".
 					"\r\n".
 					"--\r\n%s\r\n",
 					$template['body'],
 					$personal
 				);
-			    
+				
 				CerberusParser::parseMessage($message,array('no_autoreply'=>true));
 			}
 			

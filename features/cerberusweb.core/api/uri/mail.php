@@ -27,8 +27,8 @@ class Page_Mail extends CerberusPageExtension {
 	function getActivity() {
 		// [TODO] Rename to activity.mail
 		return new Model_Activity('activity.tickets',array(
-	    	""
-	    ));
+			""
+		));
 	}
 	
 	function handleSectionActionAction() {

@@ -73,14 +73,14 @@ class ChPreferencesPage extends CerberusPageExtension {
 				$tpl->display('devblocks:cerberusweb.core::preferences/index.tpl');
 				break;
 
-		    default:
+			default:
 				// Remember the last tab/URL
 				if(null == ($selected_tab = @$response->path[1])) {
 					$selected_tab = $visit->get(Extension_PreferenceTab::POINT, '');
 				}
 				$tpl->assign('selected_tab', $selected_tab);
 
-		    	$tpl->assign('tab', $section);
+				$tpl->assign('tab', $section);
 				$tpl->display('devblocks:cerberusweb.core::preferences/index.tpl');
 				break;
 		}
@@ -214,10 +214,10 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
-	    if(!empty($ids)) {
-	        $id_list = DevblocksPlatform::parseCsvString($ids);
-	        $tpl->assign('ids', implode(',', $id_list));
-	    }
+		if(!empty($ids)) {
+			$id_list = DevblocksPlatform::parseCsvString($ids);
+			$tpl->assign('ids', implode(',', $id_list));
+		}
 
 		// Custom Fields
 		//$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
@@ -228,10 +228,10 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 	function doNotificationsBulkUpdateAction() {
 		// Filter: whole list or check
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 		$ids = array();
 
-	    // View
+		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 
@@ -250,7 +250,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 			case 'sample':

@@ -43,20 +43,20 @@ class ChExplorerController extends DevblocksControllerExtension {
 		$stack = $request->path;
 		array_shift($stack); // explorer
 		
-	    @$action = array_shift($stack) . 'Action';
+		@$action = array_shift($stack) . 'Action';
 
-	    switch($action) {
-	        case NULL:
-	            // [TODO] Index/page render
-	            break;
-	            
-	        default:
-			    // Default action, call arg as a method suffixed with Action
+		switch($action) {
+			case NULL:
+				// [TODO] Index/page render
+				break;
+				
+			default:
+				// Default action, call arg as a method suffixed with Action
 				if(method_exists($this,$action)) {
 					call_user_func(array(&$this, $action));
 				}
-	            break;
-	    }
+				break;
+		}
 	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {

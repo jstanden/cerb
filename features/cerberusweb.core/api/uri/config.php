@@ -28,7 +28,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	function getActivity() {
-	    return new Model_Activity('activity.config');
+		return new Model_Activity('activity.config');
 	}
 	
 	function render() {

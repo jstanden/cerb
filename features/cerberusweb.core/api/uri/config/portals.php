@@ -22,7 +22,7 @@ class PageSection_SetupPortals extends Extension_PageSection {
 		
 		$visit->set(ChConfigurationPage::ID, 'portals');
 		
-	    // View
+		// View
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = 'portals_cfg';
@@ -30,7 +30,7 @@ class PageSection_SetupPortals extends Extension_PageSection {
 		
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
 		$tpl->assign('view', $view);
-	    
+		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/portals/index.tpl');		
 	}
 	

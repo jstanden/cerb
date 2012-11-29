@@ -18,15 +18,15 @@
 class DAO_Bucket extends DevblocksORMHelper {
 	const CACHE_ALL = 'cerberus_cache_buckets_all';
 	
-    const ID = 'id';
-    const POS = 'pos';
-    const NAME = 'name';
-    const GROUP_ID = 'group_id';
-    const REPLY_ADDRESS_ID = 'reply_address_id';
-    const REPLY_PERSONAL = 'reply_personal';
-    const REPLY_SIGNATURE = 'reply_signature';
-    const IS_ASSIGNABLE = 'is_assignable';
-    
+	const ID = 'id';
+	const POS = 'pos';
+	const NAME = 'name';
+	const GROUP_ID = 'group_id';
+	const REPLY_ADDRESS_ID = 'reply_address_id';
+	const REPLY_PERSONAL = 'reply_personal';
+	const REPLY_SIGNATURE = 'reply_signature';
+	const IS_ASSIGNABLE = 'is_assignable';
+	
 	static function getGroups() {
 		$buckets = self::getAll();
 		$group_buckets = array();
@@ -44,13 +44,13 @@ class DAO_Bucket extends DevblocksORMHelper {
 	 * @return Model_Bucket[]
 	 */
 	static function getAll($nocache=false) {
-	    $cache = DevblocksPlatform::getCacheService();
-	    if($nocache || null === ($buckets = $cache->load(self::CACHE_ALL))) {
-    	    $buckets = self::getList();
-    	    $cache->save($buckets, self::CACHE_ALL);
-	    }
-	    
-	    return $buckets;
+		$cache = DevblocksPlatform::getCacheService();
+		if($nocache || null === ($buckets = $cache->load(self::CACHE_ALL))) {
+			$buckets = self::getList();
+			$cache->save($buckets, self::CACHE_ALL);
+		}
+		
+		return $buckets;
 	}
 	
 	/**
@@ -179,7 +179,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 	}
 	
 	static function delete($ids) {
-	    if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(empty($ids))
@@ -188,15 +188,15 @@ class DAO_Bucket extends DevblocksORMHelper {
 		/*
 		 * Notify anything that wants to know when buckets delete.
 		 */
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'bucket.delete',
-                array(
-                    'bucket_ids' => $ids,
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'bucket.delete',
+				array(
+					'bucket_ids' => $ids,
+				)
+			)
+		);
 		
 		$sql = sprintf("DELETE QUICK FROM bucket WHERE id IN (%s)", implode(',',$ids));
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
@@ -210,17 +210,17 @@ class DAO_Bucket extends DevblocksORMHelper {
 	
 	static public function maint() {
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.maint',
-                array(
-                	'context' => CerberusContexts::CONTEXT_BUCKET,
-                	'context_table' => 'bucket',
-                	'context_key' => 'id',
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.maint',
+				array(
+					'context' => CerberusContexts::CONTEXT_BUCKET,
+					'context_table' => 'bucket',
+					'context_key' => 'id',
+				)
+			)
+		);
 	}
 	
 	static public function clearCache() {

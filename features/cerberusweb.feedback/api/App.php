@@ -73,7 +73,7 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 	static function update($ids, $fields) {
 		parent::_update($ids, 'feedback_entry', $fields);
 		
-	    // Log the context update
+		// Log the context update
    		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_FEEDBACK, $ids);
 	}
 	
@@ -147,16 +147,16 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 		$db->Execute(sprintf("DELETE FROM feedback_entry WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.delete',
-                array(
-                	'context' => CerberusContexts::CONTEXT_FEEDBACK,
-                	'context_ids' => $ids
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => CerberusContexts::CONTEXT_FEEDBACK,
+					'context_ids' => $ids
+				)
+			)
+		);
 		
 		return true;
 	}
@@ -172,7 +172,7 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns,$fields,$sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns,$fields,$sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"f.id as %s, ".
@@ -183,14 +183,14 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 			"f.quote_address_id as %s, ".
 			"f.source_url as %s, ".
 			"a.email as %s ",
-			    SearchFields_FeedbackEntry::ID,
-			    SearchFields_FeedbackEntry::LOG_DATE,
-			    SearchFields_FeedbackEntry::WORKER_ID,
-			    SearchFields_FeedbackEntry::QUOTE_TEXT,
-			    SearchFields_FeedbackEntry::QUOTE_MOOD,
-			    SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID,
-			    SearchFields_FeedbackEntry::SOURCE_URL,
-			    SearchFields_FeedbackEntry::ADDRESS_EMAIL
+				SearchFields_FeedbackEntry::ID,
+				SearchFields_FeedbackEntry::LOG_DATE,
+				SearchFields_FeedbackEntry::WORKER_ID,
+				SearchFields_FeedbackEntry::QUOTE_TEXT,
+				SearchFields_FeedbackEntry::QUOTE_MOOD,
+				SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID,
+				SearchFields_FeedbackEntry::SOURCE_URL,
+				SearchFields_FeedbackEntry::ADDRESS_EMAIL
 			 );
 		
 		$join_sql = 
@@ -245,18 +245,18 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 		return $result;
 	}	
 	
-    /**
-     * Enter description here...
-     *
-     * @param DevblocksSearchCriteria[] $params
-     * @param integer $limit
-     * @param integer $page
-     * @param string $sortBy
-     * @param boolean $sortAsc
-     * @param boolean $withCounts
-     * @return array
-     */
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	/**
+	 * Enter description here...
+	 *
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
@@ -301,7 +301,7 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-    }
+	}
 };
 
 class Model_FeedbackEntry {
@@ -741,20 +741,20 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		$stack = $request->path;
 		array_shift($stack); // internal
 		
-	    @$action = array_shift($stack) . 'Action';
+		@$action = array_shift($stack) . 'Action';
 
-	    switch($action) {
-	        case NULL:
-	            // [TODO] Index/page render
-	            break;
-	            
-	        default:
-			    // Default action, call arg as a method suffixed with Action
+		switch($action) {
+			case NULL:
+				// [TODO] Index/page render
+				break;
+				
+			default:
+				// Default action, call arg as a method suffixed with Action
 				if(method_exists($this,$action)) {
 					call_user_func(array(&$this, $action));
 				}
-	            break;
-	    }
+				break;
+		}
 	}
 	
 	function saveEntryAction() {
@@ -862,10 +862,10 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
-	    if(!empty($id_csv)) {
-	        $ids = DevblocksPlatform::parseCsvString($id_csv);
-	        $tpl->assign('ids', implode(',', $ids));
-	    }
+		if(!empty($id_csv)) {
+			$ids = DevblocksPlatform::parseCsvString($id_csv);
+			$tpl->assign('ids', implode(',', $ids));
+		}
 		
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
@@ -878,10 +878,10 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		@set_time_limit(600); // 10m
 		
 		// Filter: whole list or check
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-	    $ids = array();
-	    
-	    // View
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		$ids = array();
+		
+		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
@@ -900,7 +900,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 			case 'sample':
@@ -933,29 +933,29 @@ if (class_exists('Extension_MessageToolbarItem',true)):
 endif;
 
 class Context_Feedback extends Extension_DevblocksContext implements IDevblocksContextPeek {
-    static function searchInboundLinks($from_context, $from_context_id) {
-    	list($results, $null) = DAO_FeedbackEntry::search(
-    		array(
-    			SearchFields_FeedbackEntry::ID,
-    		),
-    		array(
+	static function searchInboundLinks($from_context, $from_context_id) {
+		list($results, $null) = DAO_FeedbackEntry::search(
+			array(
+				SearchFields_FeedbackEntry::ID,
+			),
+			array(
 				new DevblocksSearchCriteria(SearchFields_FeedbackEntry::CONTEXT_LINK,'=',$from_context),
 				new DevblocksSearchCriteria(SearchFields_FeedbackEntry::CONTEXT_LINK_ID,'=',$from_context_id),
-    		),
-    		-1,
-    		0,
-    		SearchFields_FeedbackEntry::LOG_DATE,
-    		true,
-    		false
-    	);
-    	
-    	return $results;
-    }
-    
+			),
+			-1,
+			0,
+			SearchFields_FeedbackEntry::LOG_DATE,
+			true,
+			false
+		);
+		
+		return $results;
+	}
+	
 	function getRandom() {
 		return DAO_FeedbackEntry::random();
 	}
-    
+	
 	function getMeta($context_id) {
 		$feedback = DAO_FeedbackEntry::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
@@ -966,7 +966,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 			'permalink' => '', //$url_writer->writeNoProxy('c=tasks&action=display&id='.$task->id, true),
 		);
 	}
-    
+	
 	function getContext($feedback, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Feedback:';

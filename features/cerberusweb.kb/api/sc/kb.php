@@ -22,8 +22,8 @@ class UmScKbController extends Extension_UmScController {
 	function isVisible() {
 		// Disable the KB if no categories were selected
 		$sKbRoots = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_KB_ROOTS, '');
-        $kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
-        return !empty($kb_roots);
+		$kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
+		return !empty($kb_roots);
 	}
 	
 	function renderSidebar(DevblocksHttpResponse $response) {
@@ -45,7 +45,7 @@ class UmScKbController extends Extension_UmScController {
 		
 		// KB Roots
 		$sKbRoots = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_KB_ROOTS, '');
-        $kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
+		$kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
 		
 		$kb_roots_str = '0';
 		if(!empty($kb_roots))
@@ -66,24 +66,24 @@ class UmScKbController extends Extension_UmScController {
 				$view->name = "";
 				$params = array();
 				
-		        switch($scope) {
-		        	default:
-		            case "all":
+				switch($scope) {
+					default:
+					case "all":
 						$params[SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT] = new DevblocksSearchCriteria(SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($q,'all'));
-		                break;
-		            case "any":
+						break;
+					case "any":
 						$params[SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT] = new DevblocksSearchCriteria(SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($q,'any'));
-		                break;
-		            case "phrase":
+						break;
+					case "phrase":
 						$params[SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT] = new DevblocksSearchCriteria(SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($q,'phrase'));
-		                break;
-		        }
+						break;
+				}
 
-		        $params[SearchFields_KbArticle::TOP_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots));
-		        
-		        $view->addParams($params, true);
-		        $view->renderPage = 0;
-		        
+				$params[SearchFields_KbArticle::TOP_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots));
+				
+				$view->addParams($params, true);
+				$view->renderPage = 0;
+				
 				UmScAbstractViewLoader::setView($view->id, $view);
 				$tpl->assign('view', $view);
 				
@@ -234,7 +234,7 @@ class UmScKbController extends Extension_UmScController {
 				$tpl->assign('view', $view);
 				
 				$tpl->display("devblocks:cerberusweb.kb:portal_".ChPortalHelper::getCode() . ":support_center/kb/index.tpl");
-	    	break;
+			break;
 		}
 		
 	}
@@ -253,16 +253,16 @@ class UmScKbController extends Extension_UmScController {
 		$tpl->assign('categories', $categories);
 		
 		$sKbRoots = DAO_CommunityToolProperty::get($instance->code,self::PARAM_KB_ROOTS, '');
-        $kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
-        $tpl->assign('kb_roots', $kb_roots);
+		$kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
+		$tpl->assign('kb_roots', $kb_roots);
 
 		$tpl->display("devblocks:cerberusweb.kb::portal/sc/config/kb.tpl");
 	}
 	
 	function saveConfiguration(Model_CommunityTool $instance) {
-        // KB
-        @$aKbRoots = DevblocksPlatform::importGPC($_POST['category_ids'],'array',array());
-        $aKbRoots = array_flip($aKbRoots);
+		// KB
+		@$aKbRoots = DevblocksPlatform::importGPC($_POST['category_ids'],'array',array());
+		$aKbRoots = array_flip($aKbRoots);
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_KB_ROOTS, serialize($aKbRoots));
 	}
 };

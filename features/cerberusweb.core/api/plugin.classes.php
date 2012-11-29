@@ -16,8 +16,8 @@
 ***********************************************************************/
 
 class ChPageController extends DevblocksControllerExtension {
-    const ID = 'core.controller.page';
-    
+	const ID = 'core.controller.page';
+	
 	// [TODO] We probably need a CerberusApplication scope for getting content that has ACL applied
 	private function _getAllowedPages() {
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -40,38 +40,38 @@ class ChPageController extends DevblocksControllerExtension {
 	}
 	
 	public function handleRequest(DevblocksHttpRequest $request) {
-	    $path = $request->path;
+		$path = $request->path;
 		$controller = array_shift($path);
 
 		$page = null;
-        if(null != ($page_manifest = CerberusApplication::getPageManifestByUri($controller))) {
+		if(null != ($page_manifest = CerberusApplication::getPageManifestByUri($controller))) {
 			$page = $page_manifest->createInstance(); /* @var $page CerberusPageExtension */
-        }
+		}
 
-        if(empty($page)) {
-	        switch($controller) {
-	        	case "portal":
-				    header("Status: 404");
-	        		die(); // 404
-	        		break;
-	        		
-	        	default:
-	        		return; // default page
-	        		break;
-	        }
-        }
+		if(empty($page)) {
+			switch($controller) {
+				case "portal":
+					header("Status: 404");
+					die(); // 404
+					break;
+					
+				default:
+					return; // default page
+					break;
+			}
+		}
 
-	    @$action = DevblocksPlatform::strAlphaNum(array_shift($path), '\_') . 'Action';
+		@$action = DevblocksPlatform::strAlphaNum(array_shift($path), '\_') . 'Action';
 
-	    switch($action) {
-	        case NULL:
-	            // [TODO] Index/page render
-	            break;
-	            
-	        default:
-			    // Default action, call arg as a method suffixed with Action
-			    
-			    if($page->isVisible()) {
+		switch($action) {
+			case NULL:
+				// [TODO] Index/page render
+				break;
+				
+			default:
+				// Default action, call arg as a method suffixed with Action
+				
+				if($page->isVisible()) {
 					if(method_exists($page,$action)) {
 						call_user_func(array($page, $action)); // [TODO] Pass HttpRequest as arg?
 					}
@@ -80,18 +80,18 @@ class ChPageController extends DevblocksControllerExtension {
 					// die("Access denied.  Session expired?");
 				}
 
-	            break;
-	    }
+				break;
+		}
 	}
 	
 	public function writeResponse(DevblocksHttpResponse $response) {
-	    $path = $response->path;
+		$path = $response->path;
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$session = DevblocksPlatform::getSessionService();
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		$translate = DevblocksPlatform::getTranslationService();
-	    $active_worker = CerberusApplication::getActiveWorker();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$visit = $session->getVisit();
 		$page_manifests = $this->_getAllowedPages();
@@ -121,7 +121,7 @@ class ChPageController extends DevblocksControllerExtension {
 			}
 		}
 		
-	    // [JAS]: Require us to always be logged in for Cerberus pages
+		// [JAS]: Require us to always be logged in for Cerberus pages
 		if(empty($visit) && 0 != strcasecmp($controller,'login')) {
 			$query = array();
 			// Must be a valid page controller
@@ -133,11 +133,11 @@ class ChPageController extends DevblocksControllerExtension {
 		}
 		
 		$page = null;
-	    if(null != ($page_manifest = CerberusApplication::getPageManifestByUri($controller))) {
+		if(null != ($page_manifest = CerberusApplication::getPageManifestByUri($controller))) {
 			@$page = $page_manifest->createInstance(); /* @var $page CerberusPageExtension */
-	    }
-        
-        if(empty($page)) {
+		}
+		
+		if(empty($page)) {
 			//header("HTTP/1.1 404 Not Found");
 			//header("Status: 404 Not Found");
 			//DevblocksPlatform::redirect(new DevblocksHttpResponse(''));
@@ -146,39 +146,39 @@ class ChPageController extends DevblocksControllerExtension {
 			$tpl->assign('translate', $translate);
 			$tpl->assign('visit', $visit);
 			$tpl->display('devblocks:cerberusweb.core::404.tpl');
-        	return;
+			return;
 		}
-	    
+		
 		// [JAS]: Listeners (Step-by-step guided tour, etc.)
-	    $listenerManifests = DevblocksPlatform::getExtensions('devblocks.listener.http');
-	    foreach($listenerManifests as $listenerManifest) { /* @var $listenerManifest DevblocksExtensionManifest */
-	         $inst = $listenerManifest->createInstance(); /* @var $inst DevblocksHttpRequestListenerExtension */
-	         $inst->run($response, $tpl);
-	    }
+		$listenerManifests = DevblocksPlatform::getExtensions('devblocks.listener.http');
+		foreach($listenerManifests as $listenerManifest) { /* @var $listenerManifest DevblocksExtensionManifest */
+			 $inst = $listenerManifest->createInstance(); /* @var $inst DevblocksHttpRequestListenerExtension */
+			 $inst->run($response, $tpl);
+		}
 
-	    $tpl->assign('active_worker', $active_worker);
-        $tour_enabled = false;
+		$tpl->assign('active_worker', $active_worker);
+		$tour_enabled = false;
 		
 		if(!empty($visit) && !is_null($active_worker)) {
 			$tour_enabled = intval(DAO_WorkerPref::get($active_worker->id, 'assist_mode', 1));
 
 			$keyboard_shortcuts = intval(DAO_WorkerPref::get($active_worker->id,'keyboard_shortcuts',1));
-			$tpl->assign('pref_keyboard_shortcuts', $keyboard_shortcuts);			
+			$tpl->assign('pref_keyboard_shortcuts', $keyboard_shortcuts);
 			
-	    	$active_worker_memberships = $active_worker->getMemberships();
-	    	$tpl->assign('active_worker_memberships', $active_worker_memberships);
+			$active_worker_memberships = $active_worker->getMemberships();
+			$tpl->assign('active_worker_memberships', $active_worker_memberships);
 			
 			DAO_Worker::logActivity($page->getActivity());
 		}
 		$tpl->assign('tour_enabled', $tour_enabled);
 		
-        // [JAS]: Variables provided to all page templates
+		// [JAS]: Variables provided to all page templates
 		$tpl->assign('settings', $settings);
 		$tpl->assign('session', $_SESSION);
 		$tpl->assign('translate', $translate);
 		$tpl->assign('visit', $visit);
 		
-		$tpl->assign('page_manifests',$page_manifests);		
+		$tpl->assign('page_manifests',$page_manifests);
 		$tpl->assign('page',$page);
 
 		$tpl->assign('response_path', $response->path);
@@ -223,56 +223,56 @@ class ChRssSource_Notification extends Extension_RssSource {
 	}
 	
 	function getFeedAsRss($feed) {
-        $xmlstr = <<<XML
+		$xmlstr = <<<XML
 		<rss version='2.0' xmlns:atom='http://www.w3.org/2005/Atom'>
 		</rss>
 XML;
 
-        $xml = new SimpleXMLElement($xmlstr);
-        $translate = DevblocksPlatform::getTranslationService();
+		$xml = new SimpleXMLElement($xmlstr);
+		$translate = DevblocksPlatform::getTranslationService();
 		$url = DevblocksPlatform::getUrlService();
 
-        // Channel
-        $channel = $xml->addChild('channel');
-        $channel->addChild('title', $feed->title);
-        $channel->addChild('link', $url->write('',true));
-        $channel->addChild('description', '');
-        
-        // View
-        $view = new View_Notification();
-        $view->name = $feed->title;
-        $view->addParams($feed->params['params'], true);
-        $view->renderLimit = 100;
-        $view->renderSortBy = $feed->params['sort_by'];
-        $view->renderSortAsc = $feed->params['sort_asc'];
+		// Channel
+		$channel = $xml->addChild('channel');
+		$channel->addChild('title', $feed->title);
+		$channel->addChild('link', $url->write('',true));
+		$channel->addChild('description', '');
+		
+		// View
+		$view = new View_Notification();
+		$view->name = $feed->title;
+		$view->addParams($feed->params['params'], true);
+		$view->renderLimit = 100;
+		$view->renderSortBy = $feed->params['sort_by'];
+		$view->renderSortAsc = $feed->params['sort_asc'];
 
-        // Results
-        list($results, $count) = $view->getData();
+		// Results
+		list($results, $count) = $view->getData();
 
-        foreach($results as $event) {
-        	$created = intval($event[SearchFields_Notification::CREATED_DATE]);
-            if(empty($created)) $created = time();
+		foreach($results as $event) {
+			$created = intval($event[SearchFields_Notification::CREATED_DATE]);
+			if(empty($created)) $created = time();
 
-            $eItem = $channel->addChild('item');
-            
+			$eItem = $channel->addChild('item');
+			
 
-            if(isset($event[SearchFields_Notification::URL])) {
-	            $link = $url->write('c=preferences&a=redirectRead&id='.$event[SearchFields_Notification::ID], true);
-            } else {
-	            $link = $url->write('c=profiles&type=worker&who=me', true);
-            }
-            
-            $escapedSubject = htmlspecialchars($event[SearchFields_Notification::MESSAGE],null,LANG_CHARSET_CODE);
-            $eTitle = $eItem->addChild('title', $escapedSubject);
-            $eDesc = $eItem->addChild('description', '');
-            $eLink = $eItem->addChild('link', $link);
+			if(isset($event[SearchFields_Notification::URL])) {
+				$link = $url->write('c=preferences&a=redirectRead&id='.$event[SearchFields_Notification::ID], true);
+			} else {
+				$link = $url->write('c=profiles&type=worker&who=me', true);
+			}
+			
+			$escapedSubject = htmlspecialchars($event[SearchFields_Notification::MESSAGE],null,LANG_CHARSET_CODE);
+			$eTitle = $eItem->addChild('title', $escapedSubject);
+			$eDesc = $eItem->addChild('description', '');
+			$eLink = $eItem->addChild('link', $link);
 
-            $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
-            $eGuid = $eItem->addChild('guid', md5($escapedSubject . $link . $created));
-            $eGuid->addAttribute('isPermaLink', "false");
-        }
+			$eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
+			$eGuid = $eItem->addChild('guid', md5($escapedSubject . $link . $created));
+			$eGuid->addAttribute('isPermaLink', "false");
+		}
 
-        return $xml->asXML();
+		return $xml->asXML();
 	}
 };
 
@@ -282,53 +282,53 @@ class ChRssSource_Ticket extends Extension_RssSource {
 	}
 	
 	function getFeedAsRss($feed) {
-        $xmlstr = <<<XML
+		$xmlstr = <<<XML
 		<rss version='2.0' xmlns:atom='http://www.w3.org/2005/Atom'>
 		</rss>
 XML;
 
-        $xml = new SimpleXMLElement($xmlstr);
-        $translate = DevblocksPlatform::getTranslationService();
+		$xml = new SimpleXMLElement($xmlstr);
+		$translate = DevblocksPlatform::getTranslationService();
 		$url = DevblocksPlatform::getUrlService();
 
-        // Channel
-        $channel = $xml->addChild('channel');
-        $channel->addChild('title', $feed->title);
-        $channel->addChild('link', $url->write('',true));
-        $channel->addChild('description', '');
-        
-        // View
-        $view = new View_Ticket();
-        $view->name = $feed->title;
-        $view->addParams($feed->params['params'], true);
-        $view->renderLimit = 100;
-        $view->renderSortBy = $feed->params['sort_by'];
-        $view->renderSortAsc = $feed->params['sort_asc'];
+		// Channel
+		$channel = $xml->addChild('channel');
+		$channel->addChild('title', $feed->title);
+		$channel->addChild('link', $url->write('',true));
+		$channel->addChild('description', '');
+		
+		// View
+		$view = new View_Ticket();
+		$view->name = $feed->title;
+		$view->addParams($feed->params['params'], true);
+		$view->renderLimit = 100;
+		$view->renderSortBy = $feed->params['sort_by'];
+		$view->renderSortAsc = $feed->params['sort_asc'];
 
-        // Results
-        list($tickets, $count) = $view->getData();
-        
-        foreach($tickets as $ticket) {
-        	$created = intval($ticket[SearchFields_Ticket::TICKET_UPDATED_DATE]);
-            if(empty($created)) $created = time();
+		// Results
+		list($tickets, $count) = $view->getData();
+		
+		foreach($tickets as $ticket) {
+			$created = intval($ticket[SearchFields_Ticket::TICKET_UPDATED_DATE]);
+			if(empty($created)) $created = time();
 
-            $eItem = $channel->addChild('item');
-            
-            $escapedSubject = htmlspecialchars($ticket[SearchFields_Ticket::TICKET_SUBJECT],null,LANG_CHARSET_CODE);
-            $eTitle = $eItem->addChild('title', $escapedSubject);
+			$eItem = $channel->addChild('item');
+			
+			$escapedSubject = htmlspecialchars($ticket[SearchFields_Ticket::TICKET_SUBJECT],null,LANG_CHARSET_CODE);
+			$eTitle = $eItem->addChild('title', $escapedSubject);
 
-            $eDesc = $eItem->addChild('description', $this->_getTicketLastAction($ticket));
-            
-            $link = $url->write('c=profiles&type=ticket&id='.$ticket[SearchFields_Ticket::TICKET_MASK], true);
-            $eLink = $eItem->addChild('link', $link);
-            	
-            $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
-            
-            $eGuid = $eItem->addChild('guid', md5($escapedSubject . $link . $created));
-            $eGuid->addAttribute('isPermaLink', "false");
-        }
+			$eDesc = $eItem->addChild('description', $this->_getTicketLastAction($ticket));
+			
+			$link = $url->write('c=profiles&type=ticket&id='.$ticket[SearchFields_Ticket::TICKET_MASK], true);
+			$eLink = $eItem->addChild('link', $link);
+				
+			$eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
+			
+			$eGuid = $eItem->addChild('guid', md5($escapedSubject . $link . $created));
+			$eGuid->addAttribute('isPermaLink', "false");
+		}
 
-        return $xml->asXML();
+		return $xml->asXML();
 	}
 	
 	private function _getTicketLastAction($ticket) {
@@ -365,55 +365,55 @@ class ChRssSource_Task extends Extension_RssSource {
 	}
 	
 	function getFeedAsRss($feed) {
-        $xmlstr = <<<XML
+		$xmlstr = <<<XML
 		<rss version='2.0' xmlns:atom='http://www.w3.org/2005/Atom'>
 		</rss>
 XML;
 
-        $xml = new SimpleXMLElement($xmlstr);
-        $translate = DevblocksPlatform::getTranslationService();
+		$xml = new SimpleXMLElement($xmlstr);
+		$translate = DevblocksPlatform::getTranslationService();
 		$url = DevblocksPlatform::getUrlService();
 
-        // Channel
-        $channel = $xml->addChild('channel');
-        $channel->addChild('title', $feed->title);
-        $channel->addChild('link', $url->write('',true));
-        $channel->addChild('description', '');
-        
-        // View
-        $view = new View_Task();
-        $view->name = $feed->title;
-        $view->addParams($feed->params['params'], true);
-        $view->renderLimit = 100;
-        $view->renderSortBy = $feed->params['sort_by'];
-        $view->renderSortAsc = $feed->params['sort_asc'];
+		// Channel
+		$channel = $xml->addChild('channel');
+		$channel->addChild('title', $feed->title);
+		$channel->addChild('link', $url->write('',true));
+		$channel->addChild('description', '');
+		
+		// View
+		$view = new View_Task();
+		$view->name = $feed->title;
+		$view->addParams($feed->params['params'], true);
+		$view->renderLimit = 100;
+		$view->renderSortBy = $feed->params['sort_by'];
+		$view->renderSortAsc = $feed->params['sort_asc'];
 
-        // Results
-        list($results, $count) = $view->getData();
+		// Results
+		list($results, $count) = $view->getData();
 
-        $task_sources = DevblocksPlatform::getExtensions('cerberusweb.task.source',true);
-        
-        foreach($results as $task) {
-        	$created = intval($task[SearchFields_Task::UPDATED_DATE]);
-            if(empty($created)) $created = time();
+		$task_sources = DevblocksPlatform::getExtensions('cerberusweb.task.source',true);
+		
+		foreach($results as $task) {
+			$created = intval($task[SearchFields_Task::UPDATED_DATE]);
+			if(empty($created)) $created = time();
 
-            $eItem = $channel->addChild('item');
-            
-            $escapedSubject = htmlspecialchars($task[SearchFields_Task::TITLE],null,LANG_CHARSET_CODE);
-            $escapedSubject = mb_convert_encoding($escapedSubject, 'utf-8', LANG_CHARSET_CODE);
-            $eTitle = $eItem->addChild('title', $escapedSubject);
+			$eItem = $channel->addChild('item');
+			
+			$escapedSubject = htmlspecialchars($task[SearchFields_Task::TITLE],null,LANG_CHARSET_CODE);
+			$escapedSubject = mb_convert_encoding($escapedSubject, 'utf-8', LANG_CHARSET_CODE);
+			$eTitle = $eItem->addChild('title', $escapedSubject);
 
-            $eDesc = $eItem->addChild('description', '');
+			$eDesc = $eItem->addChild('description', '');
 
-            $link = $url->write('c=profiles&type=task&id='.$task[SearchFields_Task::ID], true);
-            $eLink = $eItem->addChild('link', $link);
-            	
-            $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
-            
-            $eGuid = $eItem->addChild('guid', md5($escapedSubject . $link . $created));
-            $eGuid->addAttribute('isPermaLink', "false");
-        }
+			$link = $url->write('c=profiles&type=task&id='.$task[SearchFields_Task::ID], true);
+			$eLink = $eItem->addChild('link', $link);
+				
+			$eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
+			
+			$eGuid = $eItem->addChild('guid', md5($escapedSubject . $link . $created));
+			$eGuid->addAttribute('isPermaLink', "false");
+		}
 
-        return $xml->asXML();
+		return $xml->asXML();
 	}
 };

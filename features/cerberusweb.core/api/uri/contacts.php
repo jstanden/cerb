@@ -38,15 +38,15 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 				$tpl->assign('view_id', $view_id);
 
-	    if(!empty($ids)) {
-	        $ids = DevblocksPlatform::parseCsvString($ids);
-	        $tpl->assign('ids', $ids);
-	    }
+		if(!empty($ids)) {
+			$ids = DevblocksPlatform::parseCsvString($ids);
+			$tpl->assign('ids', $ids);
+		}
 		
-	    // Custom fields
-	    $custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT_PERSON);
-	    $tpl->assign('custom_fields', $custom_fields);
-	    
+		// Custom fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT_PERSON);
+		$tpl->assign('custom_fields', $custom_fields);
+		
 		// Groups
 		//$groups = DAO_Group::getAll();
 		//$tpl->assign('groups', $groups);
@@ -54,16 +54,16 @@ class ChContactsPage extends CerberusPageExtension {
 		// Broadcast
 		//CerberusContexts::getContext(CerberusContexts::CONTEXT_CONTACT_PERSON, null, $token_labels, $token_values);
 		//$tpl->assign('token_labels', $token_labels);
-	    
+		
 		$tpl->display('devblocks:cerberusweb.core::contacts/people/bulk.tpl');
 	}
 	
 	function doPeopleBulkUpdateAction() {
 		// Filter: whole list or check
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 		$ids = array();
-	    
-	    // View
+		
+		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
@@ -82,7 +82,7 @@ class ChContactsPage extends CerberusPageExtension {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 			case 'sample':
@@ -555,15 +555,15 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
-	    if(!empty($ids)) {
-	        $address_ids = DevblocksPlatform::parseCsvString($ids);
-	        $tpl->assign('address_ids', $address_ids);
-	    }
+		if(!empty($ids)) {
+			$address_ids = DevblocksPlatform::parseCsvString($ids);
+			$tpl->assign('address_ids', $address_ids);
+		}
 		
-	    // Custom fields
-	    $custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
-	    $tpl->assign('custom_fields', $custom_fields);
-	    
+		// Custom fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
+		$tpl->assign('custom_fields', $custom_fields);
+		
 		// Groups
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
@@ -571,7 +571,7 @@ class ChContactsPage extends CerberusPageExtension {
 		// Broadcast
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $token_labels, $token_values);
 		$tpl->assign('token_labels', $token_labels);
-	    
+		
 		// Macros
 		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.address');
 		$tpl->assign('macros', $macros);
@@ -588,10 +588,10 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
-	    if(!empty($ids)) {
-	        $org_ids = DevblocksPlatform::parseCsvString($ids);
-	        $tpl->assign('org_ids', implode(',', $org_ids));
-	    }
+		if(!empty($ids)) {
+			$org_ids = DevblocksPlatform::parseCsvString($ids);
+			$tpl->assign('org_ids', implode(',', $org_ids));
+		}
 		
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
@@ -933,25 +933,25 @@ class ChContactsPage extends CerberusPageExtension {
 		}
 		
 		// Fire a merge event for plugins
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'org.merge',
-                array(
-                    'merge_to_id' => $merge_to_id,
-                    'merge_from_ids' => $org_ids,
-                )
-            )
-	    );
-	    
-	    // Nuke the source orgs
-	    DAO_ContactOrg::delete($org_ids);
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'org.merge',
+				array(
+					'merge_to_id' => $merge_to_id,
+					'merge_from_ids' => $org_ids,
+				)
+			)
+		);
 		
-	    if(!empty($view_id)) {
-	    	if(null != ($view = C4_AbstractViewLoader::getView($view_id)))
-	    		$view->render();	
-	    }
-	    
-	    exit;
+		// Nuke the source orgs
+		DAO_ContactOrg::delete($org_ids);
+		
+		if(!empty($view_id)) {
+			if(null != ($view = C4_AbstractViewLoader::getView($view_id)))
+				$view->render();	
+		}
+		
+		exit;
 	}
 	
 	function saveAddressAction() {
@@ -1015,16 +1015,16 @@ class ChContactsPage extends CerberusPageExtension {
 			/*
 			 * Notify anything that wants to know when Address Peek saves.
 			 */
-		    $eventMgr = DevblocksPlatform::getEventService();
-		    $eventMgr->trigger(
-		        new Model_DevblocksEvent(
-		            'address.peek.saved',
-	                array(
-	                    'address_id' => $id,
-	                    'changed_fields' => $fields,
-	                )
-	            )
-		    );
+			$eventMgr = DevblocksPlatform::getEventService();
+			$eventMgr->trigger(
+				new Model_DevblocksEvent(
+					'address.peek.saved',
+					array(
+						'address_id' => $id,
+						'changed_fields' => $fields,
+					)
+				)
+			);
 		}
 	}
 	
@@ -1109,9 +1109,9 @@ class ChContactsPage extends CerberusPageExtension {
 	function doAddressBatchUpdateAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-	    $ids = array();
-	    
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		$ids = array();
+		
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 
@@ -1260,10 +1260,10 @@ class ChContactsPage extends CerberusPageExtension {
 	
 	function doOrgBulkUpdateAction() {
 		// Filter: whole list or check
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-	    $ids = array();
-	    
-	    // View
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		$ids = array();
+		
+		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
@@ -1310,7 +1310,7 @@ class ChContactsPage extends CerberusPageExtension {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-			    @$org_ids_str = DevblocksPlatform::importGPC($_REQUEST['org_ids'],'string');
+				@$org_ids_str = DevblocksPlatform::importGPC($_REQUEST['org_ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($org_ids_str);
 				break;
 			case 'sample':
@@ -1338,10 +1338,10 @@ class ChContactsPage extends CerberusPageExtension {
 				new DevblocksSearchCriteria(SearchFields_ContactOrg::NAME,DevblocksSearchCriteria::OPER_LIKE, $starts_with. '*'), 
 			),
 			25,
-		    0,
-		    SearchFields_ContactOrg::NAME,
-		    true,
-		    false
+			0,
+			SearchFields_ContactOrg::NAME,
+			true,
+			false
 		);
 		
 		$list = array();

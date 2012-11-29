@@ -26,8 +26,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function getActivity() {
 		return new Model_Activity('activity.tickets',array(
-	    	""
-	    ));
+			""
+		));
 	}
 	
 	function render() {
@@ -176,20 +176,20 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	// Ajax
 	function reportSpamAction() {
-	    @$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['viewId'],'string');
-	    if(empty($id)) return;
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['viewId'],'string');
+		if(empty($id)) return;
 
 		$fields = array(
 				DAO_Ticket::IS_CLOSED => 1,
 				DAO_Ticket::IS_DELETED => 1,
 		);
-	    
-	    
-        //====================================
-	    // Undo functionality
-        $last_action = new Model_TicketViewLastAction();
-        $last_action->action = Model_TicketViewLastAction::ACTION_SPAM;
+		
+		
+		//====================================
+		// Undo functionality
+		$last_action = new Model_TicketViewLastAction();
+		$last_action->action = Model_TicketViewLastAction::ACTION_SPAM;
 
 		$last_action->ticket_ids[$id] = array(
 				DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
@@ -198,23 +198,23 @@ class ChTicketsPage extends CerberusPageExtension {
 				DAO_Ticket::IS_DELETED => 0
 		);
 
-        $last_action->action_params = $fields;
-        
-        View_Ticket::setLastAction($view_id,$last_action);
-        //====================================	    
-	    
-	    CerberusBayes::markTicketAsSpam($id);
-	    
-	    // [TODO] Move buckets (according to config)
-	    $fields = array(
-	        DAO_Ticket::IS_DELETED => 1,
-	        DAO_Ticket::IS_CLOSED => CerberusTicketStatus::CLOSED
-	    );
-	    DAO_Ticket::update($id, $fields);
-	    
-	    $tpl = DevblocksPlatform::getTemplateService();
+		$last_action->action_params = $fields;
+		
+		View_Ticket::setLastAction($view_id,$last_action);
+		//====================================		
+		
+		CerberusBayes::markTicketAsSpam($id);
+		
+		// [TODO] Move buckets (according to config)
+		$fields = array(
+			DAO_Ticket::IS_DELETED => 1,
+			DAO_Ticket::IS_CLOSED => CerberusTicketStatus::CLOSED
+		);
+		DAO_Ticket::update($id, $fields);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
 
-	    $visit = CerberusApplication::getVisit();
+		$visit = CerberusApplication::getVisit();
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$tpl->assign('view', $view);
 		
@@ -308,8 +308,8 @@ class ChTicketsPage extends CerberusPageExtension {
 			list($group_id, $bucket_id) = CerberusApplication::translateGroupBucketCode($bucket);
 
 			if(!empty($group_id)) {
-			    $fields[DAO_Ticket::GROUP_ID] = $group_id;
-			    $fields[DAO_Ticket::BUCKET_ID] = $bucket_id;
+				$fields[DAO_Ticket::GROUP_ID] = $group_id;
+				$fields[DAO_Ticket::BUCKET_ID] = $bucket_id;
 			}
 		}
 		
@@ -505,23 +505,23 @@ class ChTicketsPage extends CerberusPageExtension {
 	}	
 	
 	function showViewAutoAssistAction() {
-        @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-        @$mode = DevblocksPlatform::importGPC($_REQUEST['mode'],'string','senders');
-        @$mode_param = DevblocksPlatform::importGPC($_REQUEST['mode_param'],'string','');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$mode = DevblocksPlatform::importGPC($_REQUEST['mode'],'string','senders');
+		@$mode_param = DevblocksPlatform::importGPC($_REQUEST['mode_param'],'string','');
 
 		$tpl = DevblocksPlatform::getTemplateService();
-        
-        $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+		
+		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 
-        $view = C4_AbstractViewLoader::getView($view_id);
-        
-        $tpl->assign('view_id', $view_id);
-        $tpl->assign('mode', $mode);
+		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		$tpl->assign('view_id', $view_id);
+		$tpl->assign('mode', $mode);
 
-        if($mode == "headers" && empty($mode_param)) {
-	        $tpl->display('devblocks:cerberusweb.core::tickets/rpc/ticket_view_assist_headers.tpl');
-	        
-        } else {
+		if($mode == "headers" && empty($mode_param)) {
+			$tpl->display('devblocks:cerberusweb.core::tickets/rpc/ticket_view_assist_headers.tpl');
+			
+		} else {
 			$groups = DAO_Group::getAll();
 			$tpl->assign('groups', $groups);
 			
@@ -538,87 +538,87 @@ class ChTicketsPage extends CerberusPageExtension {
 			$params = $view->getParams();
 			$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID, 'in', array_keys($memberships)); 
 			
-	        // [JAS]: Calculate statistics about the current view (top unique senders/subjects/domains)
-	        
-		    $biggest = DAO_Ticket::analyze($params, 15, $mode, $mode_param);
-		    $tpl->assign('biggest', $biggest);
-	        
-	        $tpl->display('devblocks:cerberusweb.core::tickets/rpc/ticket_view_assist.tpl');
-        }
+			// [JAS]: Calculate statistics about the current view (top unique senders/subjects/domains)
+			
+			$biggest = DAO_Ticket::analyze($params, 15, $mode, $mode_param);
+			$tpl->assign('biggest', $biggest);
+			
+			$tpl->display('devblocks:cerberusweb.core::tickets/rpc/ticket_view_assist.tpl');
+		}
 	}
 	
 	function viewAutoAssistAction() {
-	    @$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 
-        $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 		$view = C4_AbstractViewLoader::getView($view_id);
 
 		$buckets = DAO_Bucket::getAll();
 		
-	    @$piles_always = DevblocksPlatform::importGPC($_POST['piles_always'],'array', array());
-	    @$piles_hash = DevblocksPlatform::importGPC($_POST['piles_hash'],'array', array());
-	    @$piles_moveto = DevblocksPlatform::importGPC($_POST['piles_moveto'],'array', array());
-	    @$piles_type = DevblocksPlatform::importGPC($_POST['piles_type'],'array', array());
-	    @$piles_type_param = DevblocksPlatform::importGPC($_POST['piles_type_param'],'array', array());
-	    @$piles_value = DevblocksPlatform::importGPC($_POST['piles_value'],'array', array());
-	    
-	    $piles_always = array_flip($piles_always); // Flip hash
+		@$piles_always = DevblocksPlatform::importGPC($_POST['piles_always'],'array', array());
+		@$piles_hash = DevblocksPlatform::importGPC($_POST['piles_hash'],'array', array());
+		@$piles_moveto = DevblocksPlatform::importGPC($_POST['piles_moveto'],'array', array());
+		@$piles_type = DevblocksPlatform::importGPC($_POST['piles_type'],'array', array());
+		@$piles_type_param = DevblocksPlatform::importGPC($_POST['piles_type_param'],'array', array());
+		@$piles_value = DevblocksPlatform::importGPC($_POST['piles_value'],'array', array());
+		
+		$piles_always = array_flip($piles_always); // Flip hash
 
-	    // Enforce worker memberships
+		// Enforce worker memberships
 		$active_worker = CerberusApplication::getActiveWorker();
 		$memberships = $active_worker->getMemberships();
 		$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID, 'in', array_keys($memberships)), 'tmpMemberships'); 
-	    
-	    foreach($piles_hash as $idx => $hash) {
-	        @$moveto = $piles_moveto[$idx];
-	        @$type = $piles_type[$idx];
-	        @$type_param = $piles_type_param[$idx];
-	        @$val = $piles_value[$idx];
-	        
-	        /*
-	         * [TODO] [JAS]: Somewhere here we should be ignoring these values for a bit
-	         * so other options have a chance to bubble up
-	         */
-	        if(empty($hash) || empty($moveto) || empty($type) || empty($val))
-	            continue;
-	        
-	        switch(strtolower(substr($moveto,0,1))) {
-	            // Group/Bucket Move
-	            case 't':
-	            	$g_id = intval(substr($moveto,1));
-	            	$doActions = array(
-	            		'move' => array(
-	            			'group_id' => $g_id,
-	            			'bucket_id' => 0,
-	            		)
-	            	);
-	            	break;
-	            	
-	            case 'c':
-            		$b_id = intval(substr($moveto,1));
-            		@$g_id = intval($buckets[$b_id]->group_id);
-            		
-            		if(!empty($g_id))
-	            	$doActions = array(
-	            		'move' => array(
-	            			'group_id' => $g_id,
-	            			'bucket_id' => $b_id,
-	            		)
-	            	);
-	                break;
-	                
-	            // Action
-	            case 'a':
-	                switch(strtolower(substr($moveto,1))) {
-	                    case 'c': // close
+		
+		foreach($piles_hash as $idx => $hash) {
+			@$moveto = $piles_moveto[$idx];
+			@$type = $piles_type[$idx];
+			@$type_param = $piles_type_param[$idx];
+			@$val = $piles_value[$idx];
+			
+			/*
+			 * [TODO] [JAS]: Somewhere here we should be ignoring these values for a bit
+			 * so other options have a chance to bubble up
+			 */
+			if(empty($hash) || empty($moveto) || empty($type) || empty($val))
+				continue;
+			
+			switch(strtolower(substr($moveto,0,1))) {
+				// Group/Bucket Move
+				case 't':
+					$g_id = intval(substr($moveto,1));
+					$doActions = array(
+						'move' => array(
+							'group_id' => $g_id,
+							'bucket_id' => 0,
+						)
+					);
+					break;
+					
+				case 'c':
+					$b_id = intval(substr($moveto,1));
+					@$g_id = intval($buckets[$b_id]->group_id);
+					
+					if(!empty($g_id))
+					$doActions = array(
+						'move' => array(
+							'group_id' => $g_id,
+							'bucket_id' => $b_id,
+						)
+					);
+					break;
+					
+				// Action
+				case 'a':
+					switch(strtolower(substr($moveto,1))) {
+						case 'c': // close
 							$doActions = array(
 								'status' => array(
 									'is_closed' => 1,
 									'is_deleted' => 0,
 								)
 							);
-	                    	break;
-	                    case 's': // spam
+							break;
+						case 's': // spam
 							$doActions = array(
 								'status' => array(
 									'is_closed' => 1,
@@ -629,393 +629,393 @@ class ChTicketsPage extends CerberusPageExtension {
 								)
 							);
 							break;
-	                    case 'd': // delete
+						case 'd': // delete
 							$doActions = array(
 								'status' => array(
 									'is_closed' => 1,
 									'is_deleted' => 1,
 								)
 							);
-	                    	break;
-	                }
-	                break;
-	                
+							break;
+					}
+					break;
+					
 				// Owners
-	            case 'o':
-            		$w_id = intval(substr($moveto,1));
-            		
-            		if(!empty($w_id))
-	            	$doActions = array(
-	            		'owner' => array(
-	            			'worker_id' => $w_id,
-	            		),
-	            	);
-	                break;
-	                
+				case 'o':
+					$w_id = intval(substr($moveto,1));
+					
+					if(!empty($w_id))
+					$doActions = array(
+						'owner' => array(
+							'worker_id' => $w_id,
+						),
+					);
+					break;
+					
 				// Watchers
-	            case 'w':
-            		$w_id = intval(substr($moveto,1));
-            		
-            		if(!empty($w_id))
-	            	$doActions = array(
-	            		'watchers' => array(
-	            			'add' => array($w_id),
-	            		)
-	            	);
-	                break;
-	                
-	            default:
-	                $doActions = array();
-	                break;
-	        }
-	        
-            $doTypeParam = $type_param;
-            
-            // Domains, senders are both sender batch actions
-	        switch($type) {
-	            default:
-	            case 'sender':
-	                $doType = 'sender';
-	                break;
-	                
-	            case 'subject':
-	                $doType = 'subject';
-	                break;
-	                
-	            case 'header':
-	                $doType = 'header';
-	                break;
-	        }
+				case 'w':
+					$w_id = intval(substr($moveto,1));
+					
+					if(!empty($w_id))
+					$doActions = array(
+						'watchers' => array(
+							'add' => array($w_id),
+						)
+					);
+					break;
+					
+				default:
+					$doActions = array();
+					break;
+			}
+			
+			$doTypeParam = $type_param;
+			
+			// Domains, senders are both sender batch actions
+			switch($type) {
+				default:
+				case 'sender':
+					$doType = 'sender';
+					break;
+					
+				case 'subject':
+					$doType = 'subject';
+					break;
+					
+				case 'header':
+					$doType = 'header';
+					break;
+			}
 
-            // Make wildcards
-            $doData = array();
-            if($type=="domain") {
-                $doData = array('*'.$val);
-            } else {
-                $doData = array($val);
-            }
-            
-            $view->doBulkUpdate($doType, $doTypeParam, $doData, $doActions, array());
-	    }
+			// Make wildcards
+			$doData = array();
+			if($type=="domain") {
+				$doData = array('*'.$val);
+			} else {
+				$doData = array($val);
+			}
+			
+			$view->doBulkUpdate($doType, $doTypeParam, $doData, $doActions, array());
+		}
 
-	    $view->renderPage = 0; // Reset the paging since we may have reduced our list size
-	    $view->removeParam('tmpMemberships'); // Remove our filter
-	    C4_AbstractViewLoader::setView($view_id,$view);
+		$view->renderPage = 0; // Reset the paging since we may have reduced our list size
+		$view->removeParam('tmpMemberships'); // Remove our filter
+		C4_AbstractViewLoader::setView($view_id,$view);
 
-	    $view->render();
+		$view->render();
 	}
 
 	function viewMoveTicketsAction() {
-	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
-	    @$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
-	    @$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
-	    
-	    if(empty($ticket_ids)) {
-		    $view = C4_AbstractViewLoader::getView($view_id);
-		    $view->render();
-		    return;
-	    }
-	    
-        $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
+		
+		if(empty($ticket_ids)) {
+			$view = C4_AbstractViewLoader::getView($view_id);
+			$view->render();
+			return;
+		}
+		
+		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 
-        $fields = array(
-            DAO_Ticket::GROUP_ID => $group_id,
-            DAO_Ticket::BUCKET_ID => $bucket_id,
-        );
-	    
-        //====================================
-	    // Undo functionality
-        $orig_tickets = DAO_Ticket::getTickets($ticket_ids);
-        
-        $last_action = new Model_TicketViewLastAction();
-        $last_action->action = Model_TicketViewLastAction::ACTION_MOVE;
-        $last_action->action_params = $fields;
+		$fields = array(
+			DAO_Ticket::GROUP_ID => $group_id,
+			DAO_Ticket::BUCKET_ID => $bucket_id,
+		);
+		
+		//====================================
+		// Undo functionality
+		$orig_tickets = DAO_Ticket::getTickets($ticket_ids);
+		
+		$last_action = new Model_TicketViewLastAction();
+		$last_action->action = Model_TicketViewLastAction::ACTION_MOVE;
+		$last_action->action_params = $fields;
 
-        if(is_array($orig_tickets))
-        foreach($orig_tickets as $orig_ticket_idx => $orig_ticket) { /* @var $orig_ticket Model_Ticket */
-            $last_action->ticket_ids[$orig_ticket_idx] = array(
-                DAO_Ticket::GROUP_ID => $orig_ticket->group_id,
-                DAO_Ticket::BUCKET_ID => $orig_ticket->bucket_id
-            );
-            $orig_ticket->group_id = $group_id;
-            $orig_ticket->bucket_id = $bucket_id;
-            $orig_tickets[$orig_ticket_idx] = $orig_ticket;
-        }
-        
-        View_Ticket::setLastAction($view_id,$last_action);
-	    
-	    // Make our changes to the entire list of tickets
-	    if(!empty($ticket_ids) && !empty($group_id)) {
-	        DAO_Ticket::update($ticket_ids, $fields);
-	    }
-	    
-	    $view = C4_AbstractViewLoader::getView($view_id);
-	    $view->render();
-	    return;
+		if(is_array($orig_tickets))
+		foreach($orig_tickets as $orig_ticket_idx => $orig_ticket) { /* @var $orig_ticket Model_Ticket */
+			$last_action->ticket_ids[$orig_ticket_idx] = array(
+				DAO_Ticket::GROUP_ID => $orig_ticket->group_id,
+				DAO_Ticket::BUCKET_ID => $orig_ticket->bucket_id
+			);
+			$orig_ticket->group_id = $group_id;
+			$orig_ticket->bucket_id = $bucket_id;
+			$orig_tickets[$orig_ticket_idx] = $orig_ticket;
+		}
+		
+		View_Ticket::setLastAction($view_id,$last_action);
+		
+		// Make our changes to the entire list of tickets
+		if(!empty($ticket_ids) && !empty($group_id)) {
+			DAO_Ticket::update($ticket_ids, $fields);
+		}
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->render();
+		return;
 	}
 
 	function viewMergeTicketsAction() {
-	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
 
-        View_Ticket::setLastAction($view_id,null);
-        //====================================
+		View_Ticket::setLastAction($view_id,null);
+		//====================================
 
-	    if(!empty($ticket_ids)) {
-	    	$oldest_id = DAO_Ticket::merge($ticket_ids);
-	    }
-	    
-	    $view = C4_AbstractViewLoader::getView($view_id);
-	    $view->render();
-	    return;
+		if(!empty($ticket_ids)) {
+			$oldest_id = DAO_Ticket::merge($ticket_ids);
+		}
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->render();
+		return;
 	}
 	
 	function viewCloseTicketsAction() {
-	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
-	    
-        $fields = array(
-            DAO_Ticket::IS_CLOSED => CerberusTicketStatus::CLOSED,
-        );
-	    
-        //====================================
-	    // Undo functionality
-        $last_action = new Model_TicketViewLastAction();
-        $last_action->action = Model_TicketViewLastAction::ACTION_CLOSE;
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+		
+		$fields = array(
+			DAO_Ticket::IS_CLOSED => CerberusTicketStatus::CLOSED,
+		);
+		
+		//====================================
+		// Undo functionality
+		$last_action = new Model_TicketViewLastAction();
+		$last_action->action = Model_TicketViewLastAction::ACTION_CLOSE;
 
-        if(is_array($ticket_ids))
-        foreach($ticket_ids as $ticket_id) {
-            $last_action->ticket_ids[$ticket_id] = array(
-                DAO_Ticket::IS_CLOSED => CerberusTicketStatus::OPEN
-            );
-        }
+		if(is_array($ticket_ids))
+		foreach($ticket_ids as $ticket_id) {
+			$last_action->ticket_ids[$ticket_id] = array(
+				DAO_Ticket::IS_CLOSED => CerberusTicketStatus::OPEN
+			);
+		}
 
-        $last_action->action_params = $fields;
-        
-        View_Ticket::setLastAction($view_id,$last_action);
-        //====================================
-	    
-        DAO_Ticket::update($ticket_ids, $fields);
-	    
-	    $view = C4_AbstractViewLoader::getView($view_id);
-	    $view->render();
-	    return;
+		$last_action->action_params = $fields;
+		
+		View_Ticket::setLastAction($view_id,$last_action);
+		//====================================
+		
+		DAO_Ticket::update($ticket_ids, $fields);
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->render();
+		return;
 	}
 	
 	function viewWaitingTicketsAction() {
-	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
 
-        $fields = array(
-            DAO_Ticket::IS_WAITING => 1,
-        );
-	    
-        //====================================
-	    // Undo functionality
-        $last_action = new Model_TicketViewLastAction();
-        $last_action->action = Model_TicketViewLastAction::ACTION_WAITING;
+		$fields = array(
+			DAO_Ticket::IS_WAITING => 1,
+		);
+		
+		//====================================
+		// Undo functionality
+		$last_action = new Model_TicketViewLastAction();
+		$last_action->action = Model_TicketViewLastAction::ACTION_WAITING;
 
-        if(is_array($ticket_ids))
-        foreach($ticket_ids as $ticket_id) {
-            $last_action->ticket_ids[$ticket_id] = array(
-                DAO_Ticket::IS_WAITING => 0,
-            );
-        }
+		if(is_array($ticket_ids))
+		foreach($ticket_ids as $ticket_id) {
+			$last_action->ticket_ids[$ticket_id] = array(
+				DAO_Ticket::IS_WAITING => 0,
+			);
+		}
 
-        $last_action->action_params = $fields;
-        
-        View_Ticket::setLastAction($view_id,$last_action);
-        //====================================
+		$last_action->action_params = $fields;
+		
+		View_Ticket::setLastAction($view_id,$last_action);
+		//====================================
 
-        DAO_Ticket::update($ticket_ids, $fields);
-	    
-	    $view = C4_AbstractViewLoader::getView($view_id);
-	    $view->render();
-	    return;
+		DAO_Ticket::update($ticket_ids, $fields);
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->render();
+		return;
 	}
 	
 	function viewNotWaitingTicketsAction() {
-	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
 
-        $fields = array(
-            DAO_Ticket::IS_WAITING => 0,
-        );
-	    
-        //====================================
-	    // Undo functionality
-        $last_action = new Model_TicketViewLastAction();
-        $last_action->action = Model_TicketViewLastAction::ACTION_NOT_WAITING;
+		$fields = array(
+			DAO_Ticket::IS_WAITING => 0,
+		);
+		
+		//====================================
+		// Undo functionality
+		$last_action = new Model_TicketViewLastAction();
+		$last_action->action = Model_TicketViewLastAction::ACTION_NOT_WAITING;
 
-        if(is_array($ticket_ids))
-        foreach($ticket_ids as $ticket_id) {
-            $last_action->ticket_ids[$ticket_id] = array(
-                DAO_Ticket::IS_WAITING => 1,
-            );
-        }
+		if(is_array($ticket_ids))
+		foreach($ticket_ids as $ticket_id) {
+			$last_action->ticket_ids[$ticket_id] = array(
+				DAO_Ticket::IS_WAITING => 1,
+			);
+		}
 
-        $last_action->action_params = $fields;
-        
-        View_Ticket::setLastAction($view_id,$last_action);
-        //====================================
+		$last_action->action_params = $fields;
+		
+		View_Ticket::setLastAction($view_id,$last_action);
+		//====================================
 
-        DAO_Ticket::update($ticket_ids, $fields);
-	    
-	    $view = C4_AbstractViewLoader::getView($view_id);
-	    $view->render();
-	    return;
+		DAO_Ticket::update($ticket_ids, $fields);
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->render();
+		return;
 	}
 	
 	function viewNotSpamTicketsAction() {
-	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
 
-        $fields = array(
-            DAO_Ticket::IS_CLOSED => 0,
-            DAO_Ticket::IS_DELETED => 0,
-        );
-	    
-        //====================================
-	    // Undo functionality
-        $last_action = new Model_TicketViewLastAction();
-        $last_action->action = Model_TicketViewLastAction::ACTION_NOT_SPAM;
+		$fields = array(
+			DAO_Ticket::IS_CLOSED => 0,
+			DAO_Ticket::IS_DELETED => 0,
+		);
+		
+		//====================================
+		// Undo functionality
+		$last_action = new Model_TicketViewLastAction();
+		$last_action->action = Model_TicketViewLastAction::ACTION_NOT_SPAM;
 
-        if(is_array($ticket_ids))
-        foreach($ticket_ids as $ticket_id) {
-//            CerberusBayes::calculateTicketSpamProbability($ticket_id); // [TODO] Ugly (optimize -- use the 'interesting_words' to do a word bayes spam score?
-            
-            $last_action->ticket_ids[$ticket_id] = array(
-                DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
-                DAO_Ticket::SPAM_SCORE => 0.0001, // [TODO] Fix
-                DAO_Ticket::IS_CLOSED => 0,
-                DAO_Ticket::IS_DELETED => 0
-            );
-        }
+		if(is_array($ticket_ids))
+		foreach($ticket_ids as $ticket_id) {
+//			CerberusBayes::calculateTicketSpamProbability($ticket_id); // [TODO] Ugly (optimize -- use the 'interesting_words' to do a word bayes spam score?
+			
+			$last_action->ticket_ids[$ticket_id] = array(
+				DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
+				DAO_Ticket::SPAM_SCORE => 0.0001, // [TODO] Fix
+				DAO_Ticket::IS_CLOSED => 0,
+				DAO_Ticket::IS_DELETED => 0
+			);
+		}
 
-        $last_action->action_params = $fields;
-        
-        View_Ticket::setLastAction($view_id,$last_action);
-        //====================================
+		$last_action->action_params = $fields;
+		
+		View_Ticket::setLastAction($view_id,$last_action);
+		//====================================
 
-        // [TODO] Bayes should really be smart enough to allow training of batches of IDs
-	    if(!empty($ticket_ids))
-	    foreach($ticket_ids as $id) {
-	        CerberusBayes::markTicketAsNotSpam($id);
-	    }
-	    
-        DAO_Ticket::update($ticket_ids, $fields);
-	    
-	    $view = C4_AbstractViewLoader::getView($view_id);
-	    $view->render();
-	    return;
+		// [TODO] Bayes should really be smart enough to allow training of batches of IDs
+		if(!empty($ticket_ids))
+		foreach($ticket_ids as $id) {
+			CerberusBayes::markTicketAsNotSpam($id);
+		}
+		
+		DAO_Ticket::update($ticket_ids, $fields);
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->render();
+		return;
 	}
 	
 	function viewSpamTicketsAction() {
-	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
 
-        $fields = array(
-            DAO_Ticket::IS_CLOSED => 1,
-            DAO_Ticket::IS_DELETED => 1,
-        );
-	    
-        //====================================
-	    // Undo functionality
-        $last_action = new Model_TicketViewLastAction();
-        $last_action->action = Model_TicketViewLastAction::ACTION_SPAM;
+		$fields = array(
+			DAO_Ticket::IS_CLOSED => 1,
+			DAO_Ticket::IS_DELETED => 1,
+		);
+		
+		//====================================
+		// Undo functionality
+		$last_action = new Model_TicketViewLastAction();
+		$last_action->action = Model_TicketViewLastAction::ACTION_SPAM;
 
-        if(is_array($ticket_ids))
-        foreach($ticket_ids as $ticket_id) {
-//            CerberusBayes::calculateTicketSpamProbability($ticket_id); // [TODO] Ugly (optimize -- use the 'interesting_words' to do a word bayes spam score?
-            
-            $last_action->ticket_ids[$ticket_id] = array(
-                DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
-                DAO_Ticket::SPAM_SCORE => 0.5000, // [TODO] Fix
-                DAO_Ticket::IS_CLOSED => 0,
-                DAO_Ticket::IS_DELETED => 0
-            );
-        }
+		if(is_array($ticket_ids))
+		foreach($ticket_ids as $ticket_id) {
+//			CerberusBayes::calculateTicketSpamProbability($ticket_id); // [TODO] Ugly (optimize -- use the 'interesting_words' to do a word bayes spam score?
+			
+			$last_action->ticket_ids[$ticket_id] = array(
+				DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
+				DAO_Ticket::SPAM_SCORE => 0.5000, // [TODO] Fix
+				DAO_Ticket::IS_CLOSED => 0,
+				DAO_Ticket::IS_DELETED => 0
+			);
+		}
 
-        $last_action->action_params = $fields;
-        
-        View_Ticket::setLastAction($view_id,$last_action);
-        //====================================
-	    
-        // {TODO] Batch
-	    if(!empty($ticket_ids))
-	    foreach($ticket_ids as $id) {
-	        CerberusBayes::markTicketAsSpam($id);
-	    }
-	    
-        DAO_Ticket::update($ticket_ids, $fields);
-	    
-	    $view = C4_AbstractViewLoader::getView($view_id);
-	    $view->render();
-	    return;
+		$last_action->action_params = $fields;
+		
+		View_Ticket::setLastAction($view_id,$last_action);
+		//====================================
+		
+		// {TODO] Batch
+		if(!empty($ticket_ids))
+		foreach($ticket_ids as $id) {
+			CerberusBayes::markTicketAsSpam($id);
+		}
+		
+		DAO_Ticket::update($ticket_ids, $fields);
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->render();
+		return;
 	}
 	
 	function viewDeleteTicketsAction() {
-	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
 
-        $fields = array(
-            DAO_Ticket::IS_CLOSED => 1,
-            DAO_Ticket::IS_DELETED => 1,
-        );
-	    
-        //====================================
-	    // Undo functionality
-        $last_action = new Model_TicketViewLastAction();
-        $last_action->action = Model_TicketViewLastAction::ACTION_DELETE;
+		$fields = array(
+			DAO_Ticket::IS_CLOSED => 1,
+			DAO_Ticket::IS_DELETED => 1,
+		);
+		
+		//====================================
+		// Undo functionality
+		$last_action = new Model_TicketViewLastAction();
+		$last_action->action = Model_TicketViewLastAction::ACTION_DELETE;
 
-        if(is_array($ticket_ids))
-        foreach($ticket_ids as $ticket_id) {
-            $last_action->ticket_ids[$ticket_id] = array(
-                DAO_Ticket::IS_CLOSED => 0,
-                DAO_Ticket::IS_DELETED => 0
-            );
-        }
+		if(is_array($ticket_ids))
+		foreach($ticket_ids as $ticket_id) {
+			$last_action->ticket_ids[$ticket_id] = array(
+				DAO_Ticket::IS_CLOSED => 0,
+				DAO_Ticket::IS_DELETED => 0
+			);
+		}
 
-        $last_action->action_params = $fields;
-        
-        View_Ticket::setLastAction($view_id,$last_action);
-        //====================================
-	    
-        DAO_Ticket::update($ticket_ids, $fields);
-	    
-	    $view = C4_AbstractViewLoader::getView($view_id);
-	    $view->render();
-	    return;
+		$last_action->action_params = $fields;
+		
+		View_Ticket::setLastAction($view_id,$last_action);
+		//====================================
+		
+		DAO_Ticket::update($ticket_ids, $fields);
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->render();
+		return;
 	}
 	
 	function viewUndoAction() {
-	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-	    @$clear = DevblocksPlatform::importGPC($_REQUEST['clear'],'integer',0);
-	    $last_action = View_Ticket::getLastAction($view_id);
-	    
-	    if($clear || empty($last_action)) {
-            View_Ticket::setLastAction($view_id,null);
-		    $view = C4_AbstractViewLoader::getView($view_id);
-		    $view->render();
-	        return;
-	    }
-	    
-	    /*
-	     * [TODO] This could be optimized by only doing the row-level updates for the 
-	     * MOVE action, all the rest can just be a single DAO_Ticket::update($ids, ...)
-	     */
-	    if(is_array($last_action->ticket_ids) && !empty($last_action->ticket_ids))
-	    foreach($last_action->ticket_ids as $ticket_id => $fields) {
-	        DAO_Ticket::update($ticket_id, $fields);
-	    }
-	    
-	    $visit = CerberusApplication::getVisit();
-	    $visit->set(CerberusVisit::KEY_VIEW_LAST_ACTION,null);
-	    
-	    $view = C4_AbstractViewLoader::getView($view_id);
-	    $view->render();
-	    return;
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$clear = DevblocksPlatform::importGPC($_REQUEST['clear'],'integer',0);
+		$last_action = View_Ticket::getLastAction($view_id);
+		
+		if($clear || empty($last_action)) {
+			View_Ticket::setLastAction($view_id,null);
+			$view = C4_AbstractViewLoader::getView($view_id);
+			$view->render();
+			return;
+		}
+		
+		/*
+		 * [TODO] This could be optimized by only doing the row-level updates for the 
+		 * MOVE action, all the rest can just be a single DAO_Ticket::update($ids, ...)
+		 */
+		if(is_array($last_action->ticket_ids) && !empty($last_action->ticket_ids))
+		foreach($last_action->ticket_ids as $ticket_id => $fields) {
+			DAO_Ticket::update($ticket_id, $fields);
+		}
+		
+		$visit = CerberusApplication::getVisit();
+		$visit->set(CerberusVisit::KEY_VIEW_LAST_ACTION,null);
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->render();
+		return;
 	}
 
 	function showBatchPanelAction() {
@@ -1027,46 +1027,46 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
-	    $unique_sender_ids = array();
-	    $unique_subjects = array();
-	    
-	    if(!empty($ids)) {
-	        $ticket_ids = DevblocksPlatform::parseCsvString($ids);
-	        
-	        if(empty($ticket_ids))
-	        	break;
-	        
-	        $tickets = DAO_Ticket::getTickets($ticket_ids);
-	        if(is_array($tickets))
-		    foreach($tickets as $ticket) { /* @var $ticket Model_Ticket */
-	            $ptr =& $unique_sender_ids[$ticket->first_wrote_address_id]; 
-		        $ptr = intval($ptr) + 1;
-		        $ptr =& $unique_subjects[$ticket->subject];
-		        $ptr = intval($ptr) + 1;
-		    }
+		$unique_sender_ids = array();
+		$unique_subjects = array();
+		
+		if(!empty($ids)) {
+			$ticket_ids = DevblocksPlatform::parseCsvString($ids);
+			
+			if(empty($ticket_ids))
+				break;
+			
+			$tickets = DAO_Ticket::getTickets($ticket_ids);
+			if(is_array($tickets))
+			foreach($tickets as $ticket) { /* @var $ticket Model_Ticket */
+				$ptr =& $unique_sender_ids[$ticket->first_wrote_address_id]; 
+				$ptr = intval($ptr) + 1;
+				$ptr =& $unique_subjects[$ticket->subject];
+				$ptr = intval($ptr) + 1;
+			}
 	
-		    arsort($unique_subjects); // sort by occurrences
-		    
-		    $senders = DAO_Address::getWhere(
-		    	sprintf("%s IN (%s)",
-		    		DAO_Address::ID,
-		    		implode(',',array_keys($unique_sender_ids))
-		    ));
-		    
-		    foreach($senders as $sender) {
-		        $ptr =& $unique_senders[$sender->email];
-		        $ptr = intval($ptr) + 1;
-		    }
-		    
-		    arsort($unique_senders);
-		    
-		    unset($senders);
-		    unset($unique_sender_ids);
-		    
-	        @$tpl->assign('ticket_ids', $ticket_ids);
-	        @$tpl->assign('unique_senders', $unique_senders);
-	        @$tpl->assign('unique_subjects', $unique_subjects);
-	    }
+			arsort($unique_subjects); // sort by occurrences
+			
+			$senders = DAO_Address::getWhere(
+				sprintf("%s IN (%s)",
+					DAO_Address::ID,
+					implode(',',array_keys($unique_sender_ids))
+			));
+			
+			foreach($senders as $sender) {
+				$ptr =& $unique_senders[$sender->email];
+				$ptr = intval($ptr) + 1;
+			}
+			
+			arsort($unique_senders);
+			
+			unset($senders);
+			unset($unique_sender_ids);
+			
+			@$tpl->assign('ticket_ids', $ticket_ids);
+			@$tpl->assign('unique_senders', $unique_senders);
+			@$tpl->assign('unique_subjects', $unique_subjects);
+		}
 		
 		// Groups
 		$groups = DAO_Group::getAll();
@@ -1105,23 +1105,23 @@ class ChTicketsPage extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		@$ticket_id_str = DevblocksPlatform::importGPC($_REQUEST['ticket_ids'],'string');
-	    @$shortcut_name = DevblocksPlatform::importGPC($_REQUEST['shortcut_name'],'string','');
+		@$shortcut_name = DevblocksPlatform::importGPC($_REQUEST['shortcut_name'],'string','');
 
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-	    @$senders = DevblocksPlatform::importGPC($_REQUEST['senders'],'string','');
-	    @$subjects = DevblocksPlatform::importGPC($_REQUEST['subjects'],'string','');
-	    
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		@$senders = DevblocksPlatform::importGPC($_REQUEST['senders'],'string','');
+		@$subjects = DevblocksPlatform::importGPC($_REQUEST['subjects'],'string','');
+		
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 
-        $subjects = DevblocksPlatform::parseCrlfString($subjects);
-        $senders = DevblocksPlatform::parseCrlfString($senders);
+		$subjects = DevblocksPlatform::parseCrlfString($subjects);
+		$senders = DevblocksPlatform::parseCrlfString($senders);
 		
 		// Scheduled behavior
 		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
 		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
 		@$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'],'array',array());
-        
+		
 		$do = array();
 		
 		// Move to Group/Bucket
@@ -1224,20 +1224,20 @@ class ChTicketsPage extends CerberusPageExtension {
 			}
 		}
 		
-	    $data = array();
-	    $ids = array();
-	    
-	    switch($filter) {
-	    	case 'sender':
-		        $data = $senders;
-	    		break;
-	    	case 'subject':
-		        $data = $subjects;
-	    		break;
-	    	case 'checks':
-		    	$filter = ''; // bulk update just looks for $ids == !null
-		        $ids = DevblocksPlatform::parseCsvString($ticket_id_str);
-	    		break;
+		$data = array();
+		$ids = array();
+		
+		switch($filter) {
+			case 'sender':
+				$data = $senders;
+				break;
+			case 'subject':
+				$data = $subjects;
+				break;
+			case 'checks':
+				$filter = ''; // bulk update just looks for $ids == !null
+				$ids = DevblocksPlatform::parseCsvString($ticket_id_str);
+				break;
 			case 'sample':
 				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
 				$filter = '';
@@ -1245,12 +1245,12 @@ class ChTicketsPage extends CerberusPageExtension {
 				break;
 			default:
 				break;
-	    }
+		}
 		
-	    // Restrict to current worker groups
+		// Restrict to current worker groups
 		$memberships = $active_worker->getMemberships();
 		$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID, 'in', array_keys($memberships)), 'tmp'); 
-	    
+		
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 		
@@ -1350,7 +1350,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$hash = md5($title.$view_id.$active_worker->id.time());
 		
-	    // Restrict to current worker groups
+		// Restrict to current worker groups
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$params = array(

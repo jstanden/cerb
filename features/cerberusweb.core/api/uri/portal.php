@@ -16,8 +16,8 @@
 ***********************************************************************/
 
 class Controller_Portal extends DevblocksControllerExtension {
-    const ID = 'core.controller.portal';
-    
+	const ID = 'core.controller.portal';
+	
 	/**
 	 * @param DevblocksHttpRequest $request 
 	 * @return DevblocksHttpResponse $response 
@@ -36,15 +36,15 @@ class Controller_Portal extends DevblocksControllerExtension {
 
 		ChPortalHelper::setCode($code);
 
-        if(null != (@$tool = DAO_CommunityTool::getByCode($code))) {
-	        // [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
-	        $manifest = DevblocksPlatform::getExtension($tool->extension_id,false,true);
-            if(null != (@$tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
-	        	return $tool->handleRequest(new DevblocksHttpRequest($stack));
-            }
-        } else {
-            die("Tool not found.");
-        }
+		if(null != (@$tool = DAO_CommunityTool::getByCode($code))) {
+			// [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
+			$manifest = DevblocksPlatform::getExtension($tool->extension_id,false,true);
+			if(null != (@$tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
+				return $tool->handleRequest(new DevblocksHttpRequest($stack));
+			}
+		} else {
+			die("Tool not found.");
+		}
 	}
 	
 	/**
@@ -62,15 +62,15 @@ class Controller_Portal extends DevblocksControllerExtension {
 		array_shift($stack); // portal
 		$code = array_shift($stack); // xxxxxxxx
 
-        if(null != ($tool = DAO_CommunityTool::getByCode($code))) {
-	        // [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
-	        $manifest = DevblocksPlatform::getExtension($tool->extension_id,false,true);
-            if(null != ($tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
-		        $tool->writeResponse(new DevblocksHttpResponse($stack));
-            }
-        } else {
-            die("Tool not found.");
-        }
+		if(null != ($tool = DAO_CommunityTool::getByCode($code))) {
+			// [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
+			$manifest = DevblocksPlatform::getExtension($tool->extension_id,false,true);
+			if(null != ($tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
+				$tool->writeResponse(new DevblocksHttpResponse($stack));
+			}
+		} else {
+			die("Tool not found.");
+		}
 	}
 };
 

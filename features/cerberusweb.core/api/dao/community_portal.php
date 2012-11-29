@@ -16,19 +16,19 @@
 ***********************************************************************/
 
 class DAO_CommunityTool extends C4_ORMHelper {
-    const ID = 'id';
-    const NAME = 'name';
-    const CODE = 'code';
-    const EXTENSION_ID = 'extension_id';
-    
+	const ID = 'id';
+	const NAME = 'name';
+	const CODE = 'code';
+	const EXTENSION_ID = 'extension_id';
+	
 	public static function create($fields) {
-	    $db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(!isset($fields[self::CODE]))
 			$fields[self::CODE] = self::generateUniqueCode();
 		
 		$sql = sprintf("INSERT INTO community_tool () ".
-		    "VALUES ()"
+			"VALUES ()"
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		$id = $db->LastInsertId(); 
@@ -40,20 +40,20 @@ class DAO_CommunityTool extends C4_ORMHelper {
 
 	// [TODO] APIize?
 	public static function generateUniqueCode($length=8) {
-	    $db = DevblocksPlatform::getDatabaseService();
-	    
-	    // [JAS]: [TODO] Inf loop check
-	    do {
-	        $code = substr(md5(mt_rand(0,1000) * microtime()),0,$length);
-	        $exists = $db->GetOne(sprintf("SELECT id FROM community_tool WHERE code = %s",$db->qstr($code)));
-	        
-	    } while(!empty($exists));
-	    
-	    return $code;
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// [JAS]: [TODO] Inf loop check
+		do {
+			$code = substr(md5(mt_rand(0,1000) * microtime()),0,$length);
+			$exists = $db->GetOne(sprintf("SELECT id FROM community_tool WHERE code = %s",$db->qstr($code)));
+			
+		} while(!empty($exists));
+		
+		return $code;
 	}
 	
 	public static function update($id, $fields) {
-        self::_update($id, 'community_tool', $fields);
+		self::_update($id, 'community_tool', $fields);
 	}
 	
 	/**
@@ -66,8 +66,8 @@ class DAO_CommunityTool extends C4_ORMHelper {
 		$items = self::getList(array($id));
 		
 		if(isset($items[$id]))
-		    return $items[$id];
-		    
+			return $items[$id];
+			
 		return NULL;
 	}
 	
@@ -100,13 +100,13 @@ class DAO_CommunityTool extends C4_ORMHelper {
 	 * @return Model_CommunityTool[]
 	 */
 	public static function getList($ids=array()) {
-	    if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = "SELECT id,name,code,extension_id ".
-		    "FROM community_tool ".
-		    (!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
-		    "ORDER BY name"
+			"FROM community_tool ".
+			(!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
+			"ORDER BY name"
 		;
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
@@ -130,12 +130,12 @@ class DAO_CommunityTool extends C4_ORMHelper {
 		$objects = array();
 		
 		while($row = mysql_fetch_assoc($rs)) {
-		    $object = new Model_CommunityTool();
-		    $object->id = intval($row['id']);
-		    $object->name = $row['name'];
-		    $object->code = $row['code'];
-		    $object->extension_id = $row['extension_id'];
-		    $objects[$object->id] = $object;
+			$object = new Model_CommunityTool();
+			$object->id = intval($row['id']);
+			$object->name = $row['name'];
+			$object->code = $row['code'];
+			$object->extension_id = $row['extension_id'];
+			$objects[$object->id] = $object;
 		}
 		
 		mysql_free_result($rs);
@@ -144,28 +144,28 @@ class DAO_CommunityTool extends C4_ORMHelper {
 	}
 	
 	public static function delete($ids) {
-	    if(!is_array($ids)) $ids = array($ids);
-	    $db = DevblocksPlatform::getDatabaseService();
-	    
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
 		foreach($ids as $id) {
 			@$tool = DAO_CommunityTool::get($id);
 			if(empty($tool)) continue;
 
-		    /**
-		     * [TODO] [JAS] Deleting a community tool needs to run a hook first so the 
-		     * tool has a chance to clean up its own DB tables abstractly.
-		     * 
-		     * e.g. Knowledgebase instances which store data outside the tool property table
-		     * 
-		     * After this is done, a future DB patch for those plugins should clean up any 
-		     * orphaned data.
-		     */
+			/**
+			 * [TODO] [JAS] Deleting a community tool needs to run a hook first so the 
+			 * tool has a chance to clean up its own DB tables abstractly.
+			 * 
+			 * e.g. Knowledgebase instances which store data outside the tool property table
+			 * 
+			 * After this is done, a future DB patch for those plugins should clean up any 
+			 * orphaned data.
+			 */
 			
-		    $sql = sprintf("DELETE QUICK FROM community_tool WHERE id = %d", $id);
-		    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$sql = sprintf("DELETE QUICK FROM community_tool WHERE id = %d", $id);
+			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 			
-		    $sql = sprintf("DELETE QUICK FROM community_tool_property WHERE tool_code = '%s'", $tool->code);
-		    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$sql = sprintf("DELETE QUICK FROM community_tool_property WHERE tool_code = '%s'", $tool->code);
+			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		}
 	}
 
@@ -176,17 +176,17 @@ class DAO_CommunityTool extends C4_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 					
 		$select_sql = sprintf("SELECT ".
 			"ct.id as %s, ".
 			"ct.name as %s, ".
 			"ct.code as %s, ".
 			"ct.extension_id as %s ",
-			    SearchFields_CommunityTool::ID,
-			    SearchFields_CommunityTool::NAME,
-			    SearchFields_CommunityTool::CODE,
-			    SearchFields_CommunityTool::EXTENSION_ID
+				SearchFields_CommunityTool::ID,
+				SearchFields_CommunityTool::NAME,
+				SearchFields_CommunityTool::CODE,
+				SearchFields_CommunityTool::EXTENSION_ID
 			);
 		
 		$join_sql = "FROM community_tool ct ";
@@ -218,18 +218,18 @@ class DAO_CommunityTool extends C4_ORMHelper {
 		return $result;
 	}	
 	
-    /**
-     * Enter description here...
-     *
-     * @param DevblocksSearchCriteria[] $params
-     * @param integer $limit
-     * @param integer $page
-     * @param string $sortBy
-     * @param boolean $sortAsc
-     * @param boolean $withCounts
-     * @return array
-     */
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	/**
+	 * Enter description here...
+	 *
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 	
 		// Build search queries
@@ -250,10 +250,10 @@ class DAO_CommunityTool extends C4_ORMHelper {
 			
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		} else {
-		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-            $total = mysql_num_rows($rs);
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$total = mysql_num_rows($rs);
 		}
 		
 		$results = array();
@@ -472,10 +472,10 @@ class DAO_CommunitySession {
 };
 
 class Model_CommunityTool {
-    public $id = 0;
-    public $name = '';
-    public $code = '';
-    public $extension_id = '';
+	public $id = 0;
+	public $name = '';
+	public $code = '';
+	public $extension_id = '';
 };
 
 class Model_CommunitySession {
@@ -583,10 +583,10 @@ class View_CommunityPortal extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-	    // Tool Manifests
-	    $tools = DevblocksPlatform::getExtensions('usermeet.tool', false, true);
-	    $tpl->assign('tool_extensions', $tools);
-	    
+		// Tool Manifests
+		$tools = DevblocksPlatform::getExtensions('usermeet.tool', false, true);
+		$tpl->assign('tool_extensions', $tools);
+		
 		// Pull the results so we can do some row introspection
 		$results = $this->getData();
 		$tpl->assign('results', $results);

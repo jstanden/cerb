@@ -120,10 +120,10 @@ class ChDisplayPage extends CerberusPageExtension {
 			
 		// Anti-Spam
 		if(!empty($spam)) {
-		    CerberusBayes::markTicketAsSpam($id);
-		    // [mdf] if the spam button was clicked override the default params for deleted/closed
-		    $closed=1;
-		    $deleted=1;
+			CerberusBayes::markTicketAsSpam($id);
+			// [mdf] if the spam button was clicked override the default params for deleted/closed
+			$closed=1;
+			$deleted=1;
 		}
 
 		// Properties
@@ -495,10 +495,10 @@ class ChDisplayPage extends CerberusPageExtension {
 	}
 	
 	function sendReplyAction() {
-	    @$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
-	    @$ticket_mask = DevblocksPlatform::importGPC($_REQUEST['ticket_mask'],'string');
-	    @$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer');
-	    @$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+		@$ticket_mask = DevblocksPlatform::importGPC($_REQUEST['ticket_mask'],'string');
+		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer');
+		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
 		@$reply_mode = DevblocksPlatform::importGPC($_REQUEST['reply_mode'],'string','');
 
 		@$to = DevblocksPlatform::importGPC(@$_REQUEST['to']);
@@ -507,23 +507,23 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$file_ids = DevblocksPlatform::importGPC($_POST['file_ids'],'array',array());
 		$file_ids = DevblocksPlatform::sanitizeArray($file_ids, 'integer', array('unique', 'nonzero'));
 		
-	    $worker = CerberusApplication::getActiveWorker();
-	    
+		$worker = CerberusApplication::getActiveWorker();
+		
 		$properties = array(
-		    'draft_id' => $draft_id,
-		    'message_id' => DevblocksPlatform::importGPC(@$_REQUEST['id']),
-		    'ticket_id' => $ticket_id,
-		    'is_forward' => $is_forward,
-		    'to' => $to,
-		    'cc' => DevblocksPlatform::importGPC(@$_REQUEST['cc']),
-		    'bcc' => DevblocksPlatform::importGPC(@$_REQUEST['bcc']),
-		    'subject' => DevblocksPlatform::importGPC(@$_REQUEST['subject'],'string'),
-		    'content' => DevblocksPlatform::importGPC(@$_REQUEST['content']),
-		    'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
-		    'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
-		    'owner_id' => DevblocksPlatform::importGPC(@$_REQUEST['owner_id'],'integer',0),
-		    'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
-		    'worker_id' => @$worker->id,
+			'draft_id' => $draft_id,
+			'message_id' => DevblocksPlatform::importGPC(@$_REQUEST['id']),
+			'ticket_id' => $ticket_id,
+			'is_forward' => $is_forward,
+			'to' => $to,
+			'cc' => DevblocksPlatform::importGPC(@$_REQUEST['cc']),
+			'bcc' => DevblocksPlatform::importGPC(@$_REQUEST['bcc']),
+			'subject' => DevblocksPlatform::importGPC(@$_REQUEST['subject'],'string'),
+			'content' => DevblocksPlatform::importGPC(@$_REQUEST['content']),
+			'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
+			'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
+			'owner_id' => DevblocksPlatform::importGPC(@$_REQUEST['owner_id'],'integer',0),
+			'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
+			'worker_id' => @$worker->id,
 			'forward_files' => $file_ids,
 			'link_forward_files' => true,
 		);
@@ -560,7 +560,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$ticket_uri = !empty($ticket_mask) ? $ticket_mask : $ticket_id;
 		
-        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket_uri)));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket_uri)));
 	}
 	
 	function saveDraftReplyAction() {

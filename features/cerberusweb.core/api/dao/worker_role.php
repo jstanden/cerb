@@ -41,7 +41,7 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 	static function update($ids, $fields) {
 		parent::_update($ids, 'worker_role', $fields);
 		
-	    // Log the context update
+		// Log the context update
    		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_ROLE, $ids);
 		
 		// Clear cache
@@ -113,13 +113,13 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 	}
 	
 	static function getAll($nocache=false) {
-	    $cache = DevblocksPlatform::getCacheService();
-	    if($nocache || null === ($roles = $cache->load(self::_CACHE_ROLES_ALL))) {
-    	    $roles = DAO_WorkerRole::getWhere();
-    	    $cache->save($roles, self::_CACHE_ROLES_ALL);
-	    }
-	    
-	    return $roles;
+		$cache = DevblocksPlatform::getCacheService();
+		if($nocache || null === ($roles = $cache->load(self::_CACHE_ROLES_ALL))) {
+			$roles = DAO_WorkerRole::getWhere();
+			$cache->save($roles, self::_CACHE_ROLES_ALL);
+		}
+		
+		return $roles;
 	}
 	
 	/**
@@ -188,16 +188,16 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 		self::clearWorkerCache();
 		
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.delete',
-                array(
-                	'context' => CerberusContexts::CONTEXT_ROLE,
-                	'context_ids' => $ids
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => CerberusContexts::CONTEXT_ROLE,
+					'context_ids' => $ids
+				)
+			)
+		);
 		
 		return true;
 	}

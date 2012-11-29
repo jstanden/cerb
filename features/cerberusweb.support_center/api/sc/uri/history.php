@@ -213,17 +213,17 @@ class UmScHistoryController extends Extension_UmScController {
 			// field[]
 			if(is_array($files['name'])) {
 				foreach($files['name'] as $idx => $name) {
-			        $attach = new ParserFile();
-			        $attach->setTempFile($files['tmp_name'][$idx],'application/octet-stream');
-			        $attach->file_size = filesize($files['tmp_name'][$idx]);
-			        $message->files[$name] = $attach;
+					$attach = new ParserFile();
+					$attach->setTempFile($files['tmp_name'][$idx],'application/octet-stream');
+					$attach->file_size = filesize($files['tmp_name'][$idx]);
+					$message->files[$name] = $attach;
 				}
 				
 			} else {
-		        $attach = new ParserFile();
-		        $attach->setTempFile($files['tmp_name'],'application/octet-stream');
-		        $attach->file_size = filesize($files['tmp_name']);
-		        $message->files[$files['name']] = $attach;
+				$attach = new ParserFile();
+				$attach->setTempFile($files['tmp_name'],'application/octet-stream');
+				$attach->file_size = filesize($files['tmp_name']);
+				$message->files[$files['name']] = $attach;
 			}
 		}	
 		

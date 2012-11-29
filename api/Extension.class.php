@@ -63,7 +63,7 @@ abstract class CerberusPageExtension extends DevblocksExtension {
 	 * @return Model_Activity
 	 */
 	public function getActivity() {
-        return new Model_Activity('activity.default');
+		return new Model_Activity('activity.default');
 	}
 };
 
@@ -521,39 +521,39 @@ abstract class Extension_LoginAuthenticator extends DevblocksExtension {
 };
 
 abstract class CerberusCronPageExtension extends DevblocksExtension {
-    const PARAM_ENABLED = 'enabled';
-    const PARAM_LOCKED = 'locked';
-    const PARAM_DURATION = 'duration';
-    const PARAM_TERM = 'term';
-    const PARAM_LASTRUN = 'lastrun';
-    
+	const PARAM_ENABLED = 'enabled';
+	const PARAM_LOCKED = 'locked';
+	const PARAM_DURATION = 'duration';
+	const PARAM_TERM = 'term';
+	const PARAM_LASTRUN = 'lastrun';
+	
 	/**
 	 * runs scheduled task
 	 *
 	 */
 	function run() {
-	    // Overloaded by child
+		// Overloaded by child
 	}
 	
 	function _run() {
 		$this->setParam(self::PARAM_LOCKED,time());
-	    $this->run();
-	    
+		$this->run();
+		
 		$duration = $this->getParam(self::PARAM_DURATION, 5);
 		$term = $this->getParam(self::PARAM_TERM, 'm');
-	    $lastrun = $this->getParam(self::PARAM_LASTRUN, time());
+		$lastrun = $this->getParam(self::PARAM_LASTRUN, time());
 
-	    $secs = self::getIntervalAsSeconds($duration, $term);
-	    $ran_at = time();
-	    
-	    if(!empty($secs)) {
-		    $gap = time() - $lastrun; // how long since we last ran
-		    $extra = $gap % $secs; // we waited too long to run by this many secs
-		    $ran_at = time() - $extra; // go back in time and lie
-	    }
-	    
-	    $this->setParam(self::PARAM_LASTRUN,$ran_at);
-	    $this->setParam(self::PARAM_LOCKED,0);
+		$secs = self::getIntervalAsSeconds($duration, $term);
+		$ran_at = time();
+		
+		if(!empty($secs)) {
+			$gap = time() - $lastrun; // how long since we last ran
+			$extra = $gap % $secs; // we waited too long to run by this many secs
+			$ran_at = time() - $extra; // go back in time and lie
+		}
+		
+		$this->setParam(self::PARAM_LASTRUN,$ran_at);
+		$this->setParam(self::PARAM_LOCKED,0);
 	}
 	
 	/**
@@ -568,32 +568,32 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 		$lastrun = $this->getParam(self::PARAM_LASTRUN, 0);
 		
 		// If we've been locked too long then unlock
-	    if($locked && $locked < (time() - 10 * 60)) {
-	        $locked = 0;
-	    }
+		if($locked && $locked < (time() - 10 * 60)) {
+			$locked = 0;
+		}
 
-	    // Make sure enough time has elapsed.
-	    $checkpoint = ($is_ignoring_wait)
-	    	? (0) // if we're ignoring wait times, be ready now
-	    	: ($lastrun + self::getIntervalAsSeconds($duration, $term)) // otherwise test
-	    	;
+		// Make sure enough time has elapsed.
+		$checkpoint = ($is_ignoring_wait)
+			? (0) // if we're ignoring wait times, be ready now
+			: ($lastrun + self::getIntervalAsSeconds($duration, $term)) // otherwise test
+			;
 
-	    // Ready?
-	    return (!$locked && $enabled && time() >= $checkpoint) ? true : false;
+		// Ready?
+		return (!$locked && $enabled && time() >= $checkpoint) ? true : false;
 	}
 	
 	static public function getIntervalAsSeconds($duration, $term) {
-	    $seconds = 0;
-	    
-	    if($term=='d') {
-	        $seconds = $duration * 24 * 60 * 60; // x hours * mins * secs
-	    } elseif($term=='h') {
-	        $seconds = $duration * 60 * 60; // x * mins * secs
-	    } else {
-	        $seconds = $duration * 60; // x * secs
-	    }
-	    
-	    return $seconds;
+		$seconds = 0;
+		
+		if($term=='d') {
+			$seconds = $duration * 24 * 60 * 60; // x hours * mins * secs
+		} elseif($term=='h') {
+			$seconds = $duration * 60 * 60; // x * mins * secs
+		} else {
+			$seconds = $duration * 60; // x * secs
+		}
+		
+		return $seconds;
 	}
 	
 	public function configure($instance) {}
@@ -604,39 +604,39 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 abstract class Extension_UsermeetTool extends DevblocksExtension implements DevblocksHttpRequestHandler {
 	private $portal = '';
 	
-    /*
-     * Site Key
-     * Site Name
-     * Site URL
-     */
-    
+	/*
+	 * Site Key
+	 * Site Name
+	 * Site URL
+	 */
+	
 	/**
 	 * @param DevblocksHttpRequest
 	 * @return DevblocksHttpResponse
 	 */
 	public function handleRequest(DevblocksHttpRequest $request) {
-	    $path = $request->path;
+		$path = $request->path;
 
 		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string');
-	    
+		
 		if(empty($a)) {
-    	    @$action = array_shift($path) . 'Action';
+			@$action = array_shift($path) . 'Action';
 		} else {
-	    	@$action = $a . 'Action';
+			@$action = $a . 'Action';
 		}
 
-	    switch($action) {
-	        case NULL:
-	            // [TODO] Index/page render
-	            break;
-//	            
-	        default:
-			    // Default action, call arg as a method suffixed with Action
+		switch($action) {
+			case NULL:
+				// [TODO] Index/page render
+				break;
+//				
+			default:
+				// Default action, call arg as a method suffixed with Action
 				if(method_exists($this,$action)) {
 					call_user_func(array(&$this, $action)); // [TODO] Pass HttpRequest as arg?
 				}
-	            break;
-	    }
+				break;
+		}
 	}
 	
 	public function writeResponse(DevblocksHttpResponse $response) {
@@ -650,5 +650,5 @@ abstract class Extension_UsermeetTool extends DevblocksExtension implements Devb
 	
 	public function saveConfiguration(Model_CommunityTool $instance) {
 	}
-    
+	
 };

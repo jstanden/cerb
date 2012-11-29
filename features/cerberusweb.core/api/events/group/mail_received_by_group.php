@@ -26,16 +26,16 @@ class Event_MailReceivedByGroup extends AbstractEvent_Message {
 	static function trigger($message_id, $group_id) {
 		$events = DevblocksPlatform::getEventService();
 		$events->trigger(
-	        new Model_DevblocksEvent(
-	            self::ID,
-                array(
-                    'message_id' => $message_id,
-                    'group_id' => $group_id,
-                	'_whisper' => array(
-                		CerberusContexts::CONTEXT_GROUP => array($group_id),
-                	),
-                )
-            )
+			new Model_DevblocksEvent(
+				self::ID,
+				array(
+					'message_id' => $message_id,
+					'group_id' => $group_id,
+					'_whisper' => array(
+						CerberusContexts::CONTEXT_GROUP => array($group_id),
+					),
+				)
+			)
 		);
 	}
 };

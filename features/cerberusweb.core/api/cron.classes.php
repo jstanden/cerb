@@ -131,12 +131,12 @@ class ParseCron extends CerberusCronPageExtension {
 		$time = microtime(true) - $time;
 		$logger->info("Decoded! (".sprintf("%d",($time*1000))." ms)");
 
-		//	    echo "<b>Plaintext:</b> ", $message->body,"<BR>";
-		//	    echo "<BR>";
-		//	    echo "<b>HTML:</b> ", htmlspecialchars($message->htmlbody), "<BR>";
-		//	    echo "<BR>";
-		//	    echo "<b>Files:</b> "; print_r($message->files); echo "<BR>";
-		//	    echo "<HR>";
+		//		echo "<b>Plaintext:</b> ", $message->body,"<BR>";
+		//		echo "<BR>";
+		//		echo "<b>HTML:</b> ", htmlspecialchars($message->htmlbody), "<BR>";
+		//		echo "<BR>";
+		//		echo "<b>Files:</b> "; print_r($message->files); echo "<BR>";
+		//		echo "<HR>";
 
 		$time = microtime(true);
 		$ticket_id = CerberusParser::parseMessage($message);
@@ -206,13 +206,13 @@ class MaintCron extends CerberusCronPageExtension {
 		$logger->info("[Maint] Purged " . $db->Affected_Rows() . " ticket records.");
 
 		// Give plugins a chance to run maintenance (nuke NULL rows, etc.)
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'cron.maint',
-                array()
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'cron.maint',
+				array()
+			)
+		);
 		
 		// Nuke orphaned words from the Bayes index
 		// [TODO] Make this configurable from job
@@ -274,7 +274,7 @@ class HeartbeatCron extends CerberusCronPageExtension {
 		$eventMgr = DevblocksPlatform::getEventService();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
-	            'cron.heartbeat',
+				'cron.heartbeat',
 				array(
 				)
 			)
@@ -715,13 +715,13 @@ class ImportCron extends CerberusCronPageExtension {
 				@$msgWorkerId = intval($email_to_worker_id[strtolower($msgFromInst->email)]);
 	//			$logger->info('Checking if '.$msgFromInst->email.' is a worker');
 				
-		        $fields = array(
-		            DAO_Message::TICKET_ID => $ticket_id,
-		            DAO_Message::CREATED_DATE => strtotime($sMsgDate),
-		            DAO_Message::ADDRESS_ID => $msgFromInst->id,
-		            DAO_Message::IS_OUTGOING => !empty($msgWorkerId) ? 1 : 0,
-		            DAO_Message::WORKER_ID => !empty($msgWorkerId) ? $msgWorkerId : 0,
-		        );
+				$fields = array(
+					DAO_Message::TICKET_ID => $ticket_id,
+					DAO_Message::CREATED_DATE => strtotime($sMsgDate),
+					DAO_Message::ADDRESS_ID => $msgFromInst->id,
+					DAO_Message::IS_OUTGOING => !empty($msgWorkerId) ? 1 : 0,
+					DAO_Message::WORKER_ID => !empty($msgWorkerId) ? $msgWorkerId : 0,
+				);
 				$email_id = DAO_Message::create($fields);
 				
 				// First thread
@@ -785,7 +785,7 @@ class ImportCron extends CerberusCronPageExtension {
 	
 				// Headers
 				foreach($eHeaders->children() as $eHeader) { /* @var $eHeader SimpleXMLElement */
-				    DAO_MessageHeader::create($email_id, $eHeader->getName(), (string) $eHeader);
+					DAO_MessageHeader::create($email_id, $eHeader->getName(), (string) $eHeader);
 				}
 				
 				$seek_messages++;

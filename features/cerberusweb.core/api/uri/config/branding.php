@@ -32,20 +32,20 @@ class PageSection_SetupBranding extends Extension_PageSection {
 			if(!$worker || !$worker->is_superuser)
 				throw new Exception("You are not a superuser.");
 			
-		    @$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
-		    @$logo = DevblocksPlatform::importGPC($_POST['logo'],'string');
+			@$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
+			@$logo = DevblocksPlatform::importGPC($_POST['logo'],'string');
 	
-		    // [TODO] New branding
-		    if(empty($title))
-		    	$title = 'Cerberus Helpdesk :: Group-based Email Management';
-		    	
-		    $settings = DevblocksPlatform::getPluginSettingsService();
-		    $settings->set('cerberusweb.core',CerberusSettings::HELPDESK_TITLE, $title);
-		    $settings->set('cerberusweb.core',CerberusSettings::HELPDESK_LOGO_URL, $logo); // [TODO] Enforce some kind of max resolution?
-		    
+			// [TODO] New branding
+			if(empty($title))
+				$title = 'Cerberus Helpdesk :: Group-based Email Management';
+				
+			$settings = DevblocksPlatform::getPluginSettingsService();
+			$settings->set('cerberusweb.core',CerberusSettings::HELPDESK_TITLE, $title);
+			$settings->set('cerberusweb.core',CerberusSettings::HELPDESK_LOGO_URL, $logo); // [TODO] Enforce some kind of max resolution?
+			
 			echo json_encode(array('status'=>true));
 			return;
-		    	
+				
 		} catch(Exception $e) {
 			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
 			return;

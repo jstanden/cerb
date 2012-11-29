@@ -37,10 +37,10 @@
 			{/if}
 			
 			<br clear="all" style="clear:all;">
-    </div>
+	</div>
 	{/if}
 	
-    <div id="ticketPeekProps" style="display:none;">
+	<div id="ticketPeekProps" style="display:none;">
 		<fieldset class="peek">
 			<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 			
@@ -97,8 +97,8 @@
 							{/if}
 							{/foreach}
 						</select>
-				      	<button type="button" onclick="$(this).prev('select[name=owner_id]').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
-				      	<button type="button" onclick="$(this).prevAll('select[name=owner_id]').first().val('');">{'common.nobody'|devblocks_translate|lower}</button>
+						<button type="button" onclick="$(this).prev('select[name=owner_id]').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
+						<button type="button" onclick="$(this).prevAll('select[name=owner_id]').first().val('');">{'common.nobody'|devblocks_translate|lower}</button>
 					</td>
 				</tr>
 				
@@ -230,7 +230,7 @@
 		</fieldset>
 		
 		<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmTicketPeek','{$view_id}',false,'ticket_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
-    </div><!--tab2-->		
+    </div><!--tab2-->
 </div> 
 <br>
 
@@ -244,6 +244,7 @@
 		$("#peekTabs").tabs();
 		$("#ticketPeekContent").css('width','100%');
 		$("#ticketPeekProps").show();
+		
 		ajax.orgAutoComplete('#ticketPeekProps input:text[name=org_name]');
 		$(this).find('textarea[name=comment]')
 			.elastic()

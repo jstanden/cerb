@@ -788,11 +788,11 @@ abstract class C4_AbstractView {
 					$needs_save = true;
 				}
 			}
-    	}
-    	
-    	if($needs_save) {
-    		C4_AbstractViewLoader::setView($this->id, $this);
-    	}
+		}
+		
+		if($needs_save) {
+			C4_AbstractViewLoader::setView($this->id, $this);
+		}
 	}
 	
 	function renderCriteriaParam($param) {

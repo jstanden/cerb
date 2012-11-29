@@ -172,31 +172,31 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.delete',
-                array(
-                	'context' => CerberusContexts::CONTEXT_ORG,
-                	'context_ids' => $ids
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => CerberusContexts::CONTEXT_ORG,
+					'context_ids' => $ids
+				)
+			)
+		);
 	}
 	
 	static function maint() {
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.maint',
-                array(
-                	'context' => CerberusContexts::CONTEXT_ORG,
-                	'context_table' => 'contact_org',
-                	'context_key' => 'id',
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.maint',
+				array(
+					'context' => CerberusContexts::CONTEXT_ORG,
+					'context_table' => 'contact_org',
+					'context_key' => 'id',
+				)
+			)
+		);
 	}
 	
 	/**
@@ -306,7 +306,7 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		)
 			$sortBy=null;
 		
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields,$sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields,$sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"c.id as %s, ".
@@ -319,16 +319,16 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			"c.phone as %s, ".
 			"c.website as %s, ".
 			"c.created as %s ",
-			    SearchFields_ContactOrg::ID,
-			    SearchFields_ContactOrg::NAME,
-			    SearchFields_ContactOrg::STREET,
-			    SearchFields_ContactOrg::CITY,
-			    SearchFields_ContactOrg::PROVINCE,
-			    SearchFields_ContactOrg::POSTAL,
-			    SearchFields_ContactOrg::COUNTRY,
-			    SearchFields_ContactOrg::PHONE,
-			    SearchFields_ContactOrg::WEBSITE,
-			    SearchFields_ContactOrg::CREATED
+				SearchFields_ContactOrg::ID,
+				SearchFields_ContactOrg::NAME,
+				SearchFields_ContactOrg::STREET,
+				SearchFields_ContactOrg::CITY,
+				SearchFields_ContactOrg::PROVINCE,
+				SearchFields_ContactOrg::POSTAL,
+				SearchFields_ContactOrg::COUNTRY,
+				SearchFields_ContactOrg::PHONE,
+				SearchFields_ContactOrg::WEBSITE,
+				SearchFields_ContactOrg::CREATED
 			);
 
 		$join_sql = 
@@ -403,18 +403,18 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		}
 	}
 	
-    /**
-     * Enter description here...
-     *
-     * @param DevblocksSearchCriteria[] $params
-     * @param integer $limit
-     * @param integer $page
-     * @param string $sortBy
-     * @param boolean $sortAsc
-     * @param boolean $withCounts
-     * @return array
-     */
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	/**
+	 * Enter description here...
+	 *
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
@@ -434,10 +434,10 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			$sort_sql;
 			
 		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		} else {
-		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-            $total = mysql_num_rows($rs);
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$total = mysql_num_rows($rs);
 		}
 		
 		$results = array();
@@ -464,7 +464,7 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-    }	
+	}	
 };
 
 class SearchFields_ContactOrg {

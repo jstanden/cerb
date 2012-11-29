@@ -21,18 +21,18 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 	static function trigger(&$properties, $message_id=null, $ticket_id=null, $group_id=null) {
 		$events = DevblocksPlatform::getEventService();
 		$events->trigger(
-	        new Model_DevblocksEvent(
-	            self::ID,
-                array(
-                    'properties' => &$properties,
-                    'message_id' => $message_id,
-                    'ticket_id' => $ticket_id,
-                    'group_id' => $group_id,
-                	'_whisper' => array(
-                		CerberusContexts::CONTEXT_GROUP => array($group_id),
-                	),
-                )
-            )
+			new Model_DevblocksEvent(
+				self::ID,
+				array(
+					'properties' => &$properties,
+					'message_id' => $message_id,
+					'ticket_id' => $ticket_id,
+					'group_id' => $group_id,
+					'_whisper' => array(
+						CerberusContexts::CONTEXT_GROUP => array($group_id),
+					),
+				)
+			)
 		);
 	} 
 	

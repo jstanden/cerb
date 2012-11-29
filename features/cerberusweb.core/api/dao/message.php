@@ -117,7 +117,7 @@ class DAO_Message extends C4_ORMHelper {
 		
 		return $objects;
 	}
-    
+	
 	/**
 	 * @return Model_Message[]
 	 */

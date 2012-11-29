@@ -26,16 +26,16 @@ class Event_TaskCreatedByWorker extends AbstractEvent_Task {
 	static function trigger($task_id, $worker_id) {
 		$events = DevblocksPlatform::getEventService();
 		$events->trigger(
-	        new Model_DevblocksEvent(
-	            self::ID,
-                array(
-                    'task_id' => $task_id,
-                    'worker_id' => $worker_id,
-//                 	'_whisper' => array(
-//                 		CerberusContexts::CONTEXT_GROUP => array($group_id),
-//                 	),
-                )
-            )
+			new Model_DevblocksEvent(
+				self::ID,
+				array(
+					'task_id' => $task_id,
+					'worker_id' => $worker_id,
+//				 	'_whisper' => array(
+//				 		CerberusContexts::CONTEXT_GROUP => array($group_id),
+//				 	),
+				)
+			)
 		);
 	}
 };

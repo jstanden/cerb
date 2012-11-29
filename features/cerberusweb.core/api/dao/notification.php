@@ -55,7 +55,7 @@ class DAO_Notification extends DevblocksORMHelper {
 		parent::_update($ids, 'notification', $fields);
 		
 		// Log the context update
-	    DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_NOTIFICATION, $ids);
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_NOTIFICATION, $ids);
 	}
 	
 	static function updateWhere($fields, $where) {
@@ -129,7 +129,7 @@ class DAO_Notification extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$cache = DevblocksPlatform::getCacheService();
 		
-	    if(null === ($count = $cache->load(self::CACHE_COUNT_PREFIX.$worker_id))) {
+		if(null === ($count = $cache->load(self::CACHE_COUNT_PREFIX.$worker_id))) {
 			$sql = sprintf("SELECT count(*) ".
 				"FROM notification ".
 				"WHERE worker_id = %d ".
@@ -139,7 +139,7 @@ class DAO_Notification extends DevblocksORMHelper {
 			
 			$count = intval($db->GetOne($sql));
 			$cache->save($count, self::CACHE_COUNT_PREFIX.$worker_id);
-	    }
+		}
 		
 		return intval($count);
 	}
@@ -181,16 +181,16 @@ class DAO_Notification extends DevblocksORMHelper {
 		$db->Execute(sprintf("DELETE FROM notification WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.delete',
-                array(
-                	'context' => CerberusContexts::CONTEXT_NOTIFICATION,
-                	'context_ids' => $ids
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => CerberusContexts::CONTEXT_NOTIFICATION,
+					'context_ids' => $ids
+				)
+			)
+		);
 		
 		return true;
 	}
@@ -220,17 +220,17 @@ class DAO_Notification extends DevblocksORMHelper {
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' notification records.');
 		
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.maint',
-                array(
-                	'context' => CerberusContexts::CONTEXT_NOTIFICATION,
-                	'context_table' => 'notification',
-                	'context_key' => 'id',
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.maint',
+				array(
+					'context' => CerberusContexts::CONTEXT_NOTIFICATION,
+					'context_table' => 'notification',
+					'context_key' => 'id',
+				)
+			)
+		);
 	}
 	
 	static function clearCountCache($worker_id) {
@@ -249,7 +249,7 @@ class DAO_Notification extends DevblocksORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy])) // || !in_array($sortBy,$columns))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"we.id as %s, ".
@@ -260,14 +260,14 @@ class DAO_Notification extends DevblocksORMHelper {
 			"we.message as %s, ".
 			"we.is_read as %s, ".
 			"we.url as %s ",
-			    SearchFields_Notification::ID,
-			    SearchFields_Notification::CONTEXT,
-			    SearchFields_Notification::CONTEXT_ID,
-			    SearchFields_Notification::CREATED_DATE,
-			    SearchFields_Notification::WORKER_ID,
-			    SearchFields_Notification::MESSAGE,
-			    SearchFields_Notification::IS_READ,
-			    SearchFields_Notification::URL
+				SearchFields_Notification::ID,
+				SearchFields_Notification::CONTEXT,
+				SearchFields_Notification::CONTEXT_ID,
+				SearchFields_Notification::CREATED_DATE,
+				SearchFields_Notification::WORKER_ID,
+				SearchFields_Notification::MESSAGE,
+				SearchFields_Notification::IS_READ,
+				SearchFields_Notification::URL
 		);
 			
 		$join_sql = "FROM notification we ";
@@ -289,18 +289,18 @@ class DAO_Notification extends DevblocksORMHelper {
 		return $result;
 	}	
 	
-    /**
-     * Enter description here...
-     *
-     * @param DevblocksSearchCriteria[] $params
-     * @param integer $limit
-     * @param integer $page
-     * @param string $sortBy
-     * @param boolean $sortAsc
-     * @param boolean $withCounts
-     * @return array
-     */
-    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	/**
+	 * Enter description here...
+	 *
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
@@ -321,10 +321,10 @@ class DAO_Notification extends DevblocksORMHelper {
 		
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		} else {
-		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-            $total = mysql_num_rows($rs);
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$total = mysql_num_rows($rs);
 		}
 		
 		$results = array();
@@ -351,7 +351,7 @@ class DAO_Notification extends DevblocksORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-    }
+	}
 	
 };
 

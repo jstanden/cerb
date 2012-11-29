@@ -76,11 +76,11 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		// Reload
 		$cache = DevblocksPlatform::getCacheService();
 		
-	    $langs = DAO_Translation::getDefinedLangCodes();
-	    if(is_array($langs) && !empty($langs))
-	    foreach($langs as $lang_code => $lang_name) {
-	    	$cache->remove(DevblocksPlatform::CACHE_TAG_TRANSLATIONS . '_' . $lang_code);
-	    }
+		$langs = DAO_Translation::getDefinedLangCodes();
+		if(is_array($langs) && !empty($langs))
+		foreach($langs as $lang_code => $lang_name) {
+			$cache->remove(DevblocksPlatform::CACHE_TAG_TRANSLATIONS . '_' . $lang_code);
+		}
 	}
 
 	function showFindStringsPanelAction($model=null) {

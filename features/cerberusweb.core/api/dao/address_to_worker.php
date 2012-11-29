@@ -66,7 +66,8 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 	}
 	
 	static function update($addresses, $fields) {
-	    if(!is_array($addresses)) $addresses = array($addresses);
+		if(!is_array($addresses)) $addresses = array($addresses);
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		$sets = array();
 		
@@ -74,11 +75,11 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 			return;
 		
 		foreach($fields as $k => $v) {
-		    if(is_null($v))
-		        $value = 'NULL';
-		    else
-		        $value = $db->qstr($v);
-		    
+			if(is_null($v))
+				$value = 'NULL';
+			else
+				$value = $db->qstr($v);
+			
 			$sets[] = sprintf("%s = %s",
 				$k,
 				$value

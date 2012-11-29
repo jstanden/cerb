@@ -85,24 +85,24 @@ if (class_exists('Extension_ReplyToolbarItem',true)):
 endif;
 
 class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
-    /**
-     * @param Model_DevblocksEvent $event
-     */
-    function handleEvent(Model_DevblocksEvent $event) {
-        switch($event->id) {
-            case 'cron.maint':
-				//DAO_TimeTrackingActivity::maint();            	
-				DAO_TimeTrackingEntry::maint();            	
-            	break;
-            	
-            case 'ticket.action.merge':
-            	$new_ticket_id = $event->params['new_ticket_id'];
-            	$old_ticket_ids = $event->params['old_ticket_ids'];
-            	
-            	// [TODO]
-            	break;
-        }
-    }
+	/**
+	 * @param Model_DevblocksEvent $event
+	 */
+	function handleEvent(Model_DevblocksEvent $event) {
+		switch($event->id) {
+			case 'cron.maint':
+				//DAO_TimeTrackingActivity::maint();				
+				DAO_TimeTrackingEntry::maint();				
+				break;
+				
+			case 'ticket.action.merge':
+				$new_ticket_id = $event->params['new_ticket_id'];
+				$old_ticket_ids = $event->params['old_ticket_ids'];
+				
+				// [TODO]
+				break;
+		}
+	}
 };
 
 class ChTimeTrackingPage extends CerberusPageExtension {
@@ -120,7 +120,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 	 * @return Model_Activity
 	 */
 	public function getActivity() {
-        return new Model_Activity('activity.default');
+		return new Model_Activity('activity.default');
 	}
 	
 	private function _startTimer() {
@@ -469,15 +469,15 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
-	    if(!empty($id_csv)) {
-	        $ids = DevblocksPlatform::parseCsvString($id_csv);
-	        $tpl->assign('ids', implode(',', $ids));
-	    }
+		if(!empty($id_csv)) {
+			$ids = DevblocksPlatform::parseCsvString($id_csv);
+			$tpl->assign('ids', implode(',', $ids));
+		}
 		
-	    // Activities
-	    $activities = DAO_TimeTrackingActivity::getWhere();
-	    $tpl->assign('activities', $activities);
-	    
+		// Activities
+		$activities = DAO_TimeTrackingActivity::getWhere();
+		$tpl->assign('activities', $activities);
+		
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TIMETRACKING);
 		$tpl->assign('custom_fields', $custom_fields);
@@ -493,10 +493,10 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		@set_time_limit(600); // 10m
 		
 		// Filter: whole list or check
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-	    $ids = array();
-	    
-	    // View
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		$ids = array();
+		
+		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
@@ -546,7 +546,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 			case 'sample':

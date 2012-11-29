@@ -21,15 +21,15 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 	static function trigger($notification_id, $worker_id) {
 		$events = DevblocksPlatform::getEventService();
 		$events->trigger(
-	        new Model_DevblocksEvent(
-	            self::ID,
-                array(
-                    'notification_id' => $notification_id,
-                	'_whisper' => array(
-                		CerberusContexts::CONTEXT_WORKER => array($worker_id),
-                	),
-                )
-            )
+			new Model_DevblocksEvent(
+				self::ID,
+				array(
+					'notification_id' => $notification_id,
+					'_whisper' => array(
+						CerberusContexts::CONTEXT_WORKER => array($worker_id),
+					),
+				)
+			)
 		);
 	} 
 	

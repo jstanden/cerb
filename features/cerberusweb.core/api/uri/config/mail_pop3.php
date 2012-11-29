@@ -72,24 +72,24 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 				
 			// Defaults
 			if(empty($port)) {
-			    switch($protocol) {
-			        case 'pop3':
-			            $port = 110; 
-			            break;
-			        case 'pop3-ssl':
-			            $port = 995;
-			            break;
-			        case 'imap':
-			            $port = 143;
-			            break;
-			        case 'imap-ssl':
-			            $port = 993;
-			            break;
-			    }
+				switch($protocol) {
+					case 'pop3':
+						$port = 110; 
+						break;
+					case 'pop3-ssl':
+						$port = 995;
+						break;
+					case 'imap':
+						$port = 143;
+						break;
+					case 'imap-ssl':
+						$port = 993;
+						break;
+				}
 			}
 	
 			$fields = array(
-			    DAO_Pop3Account::ENABLED => $enabled,
+				DAO_Pop3Account::ENABLED => $enabled,
 				DAO_Pop3Account::NICKNAME => $nickname,
 				DAO_Pop3Account::PROTOCOL => $protocol,
 				DAO_Pop3Account::HOST => $host,
@@ -106,13 +106,13 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 				DAO_Pop3Account::updatePop3Account($id, $fields);
 				
 			} else {
-	            if(!empty($host) && !empty($username)) {
-				    $id = DAO_Pop3Account::createPop3Account($fields);
-	            }
+				if(!empty($host) && !empty($username)) {
+					$id = DAO_Pop3Account::createPop3Account($fields);
+				}
 			}
 			
-		    echo json_encode(array('status'=>true));
-		    return;
+			echo json_encode(array('status'=>true));
+			return;
 			
 		} catch(Exception $e) {
 			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
@@ -135,20 +135,20 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 			
 			// Defaults
 			if(empty($port)) {
-			    switch($protocol) {
-			        case 'pop3':
-			            $port = 110; 
-			            break;
-			        case 'pop3-ssl':
-			            $port = 995;
-			            break;
-			        case 'imap':
-			            $port = 143;
-			            break;
-			        case 'imap-ssl':
-			            $port = 993;
-			            break;
-			    }
+				switch($protocol) {
+					case 'pop3':
+						$port = 110; 
+						break;
+					case 'pop3-ssl':
+						$port = 995;
+						break;
+					case 'imap':
+						$port = 143;
+						break;
+					case 'imap-ssl':
+						$port = 993;
+						break;
+				}
 			}
 			
 			// Test the provided POP settings and give form feedback
@@ -163,8 +163,8 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 				
 			}			
 			
-		    echo json_encode(array('status'=>true));
-		    return;
+			echo json_encode(array('status'=>true));
+			return;
 			
 		} catch(Exception $e) {
 			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));

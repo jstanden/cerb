@@ -237,23 +237,23 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		if(!$this->isVisible())
 			return;
 		
-	    $path = $request->path;
+		$path = $request->path;
 		$controller = array_shift($path); // timetracking
 
-	    @$action = DevblocksPlatform::strAlphaNum(array_shift($path), '\_') . 'Action';
+		@$action = DevblocksPlatform::strAlphaNum(array_shift($path), '\_') . 'Action';
 
-	    switch($action) {
-	        case NULL:
-	            // [TODO] Index/page render
-	            break;
-	            
-	        default:
-			    // Default action, call arg as a method suffixed with Action
+		switch($action) {
+			case NULL:
+				// [TODO] Index/page render
+				break;
+				
+			default:
+				// Default action, call arg as a method suffixed with Action
 				if(method_exists($this,$action)) {
 					call_user_func(array(&$this, $action));
 				}
-	            break;
-	    }
+				break;
+		}
 	}
 	
 	function showArticleEditPanelAction() {
@@ -450,10 +450,10 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
-	    if(!empty($id_csv)) {
-	        $ids = DevblocksPlatform::parseCsvString($id_csv);
-	        $tpl->assign('ids', implode(',', $ids));
-	    }
+		if(!empty($id_csv)) {
+			$ids = DevblocksPlatform::parseCsvString($id_csv);
+			$tpl->assign('ids', implode(',', $ids));
+		}
 		
 		// Categories
 		$categories = DAO_KbCategory::getAll();
@@ -475,10 +475,10 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	
 	function doArticlesBulkUpdateAction() {
 		// Filter: whole list or check
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-	    $ids = array();
-	    
-	    // View
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		$ids = array();
+		
+		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
@@ -524,7 +524,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 			case 'sample':
@@ -631,13 +631,13 @@ class DAO_KbCategory extends C4_ORMHelper {
 	 * @return Model_KbCategory[]
 	 */
 	static function getAll($nocache=false) {
-	    $cache = DevblocksPlatform::getCacheService();
-	    if($nocache || null === ($categories = $cache->load(self::CACHE_ALL))) {
-    	    $categories = self::getWhere();
-    	    $cache->save($categories, self::CACHE_ALL);
-	    }
-	    
-	    return $categories;
+		$cache = DevblocksPlatform::getCacheService();
+		if($nocache || null === ($categories = $cache->load(self::CACHE_ALL))) {
+			$categories = self::getWhere();
+			$cache->save($categories, self::CACHE_ALL);
+		}
+		
+		return $categories;
 	}
 	
 	static function getTree($root=0) {
@@ -749,15 +749,15 @@ class DAO_KbCategory extends C4_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"kbc.id as %s, ".
 			"kbc.name as %s, ".
 			"kbc.parent_id as %s ",
-			    SearchFields_KbCategory::ID,
-			    SearchFields_KbCategory::NAME,
-			    SearchFields_KbCategory::PARENT_ID
+				SearchFields_KbCategory::ID,
+				SearchFields_KbCategory::NAME,
+				SearchFields_KbCategory::PARENT_ID
 			);
 			
 		$join_sql = "FROM kb_category kbc ";
@@ -792,7 +792,7 @@ class DAO_KbCategory extends C4_ORMHelper {
 		return $result;
 	}	
 	
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
@@ -837,7 +837,7 @@ class DAO_KbCategory extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-    }	
+	}	
 	
 	static public function clearCache() {
 		$cache = DevblocksPlatform::getCacheService();

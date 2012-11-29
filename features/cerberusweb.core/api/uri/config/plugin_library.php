@@ -177,7 +177,7 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 	
 			DevblocksPlatform::clearCache();
 			
-	        // Reload plugin translations
+			// Reload plugin translations
 			if(null != ($plugin_manifest = DevblocksPlatform::getPlugin($plugin->id))) {
 				$strings_xml = APP_PATH . '/' . $plugin_manifest->dir . '/strings.xml';
 				if(file_exists($strings_xml)) {

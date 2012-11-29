@@ -188,17 +188,17 @@ class DAO_Ticket extends C4_ORMHelper {
 		$logger->info('[Maint] Fixed ' . $db->Affected_Rows() . ' tickets in missing buckets.');
 		
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.maint',
-                array(
-                	'context' => CerberusContexts::CONTEXT_TICKET,
-                	'context_table' => 'ticket',
-                	'context_key' => 'id',
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.maint',
+				array(
+					'context' => CerberusContexts::CONTEXT_TICKET,
+					'context_table' => 'ticket',
+					'context_key' => 'id',
+				)
+			)
+		);
 	}
 	
 	static function merge($ids=array()) {
@@ -388,16 +388,16 @@ class DAO_Ticket extends C4_ORMHelper {
 			/*
 			 * Notify anything that wants to know when tickets merge.
 			 */
-		    $eventMgr = DevblocksPlatform::getEventService();
-		    $eventMgr->trigger(
-		        new Model_DevblocksEvent(
-		            'ticket.action.merge',
-	                array(
-	                    'new_ticket_id' => $oldest_id,
-	                    'old_ticket_ids' => $merge_ticket_ids,
-	                )
-	            )
-		    );
+			$eventMgr = DevblocksPlatform::getEventService();
+			$eventMgr->trigger(
+				new Model_DevblocksEvent(
+					'ticket.action.merge',
+					array(
+						'new_ticket_id' => $oldest_id,
+						'old_ticket_ids' => $merge_ticket_ids,
+					)
+				)
+			);
 			
 			return $oldest_id;
 		}
@@ -570,81 +570,81 @@ class DAO_Ticket extends C4_ORMHelper {
 		/*
 		 * Make a diff for the requested objects in batches
 		 */
-    	$chunks = array_chunk($ids, 25, true);
-    	while($batch_ids = array_shift($chunks)) {
-	    	$objects = DAO_Ticket::getTickets($batch_ids);
-	    	$object_changes = array();
-	    	
-	    	foreach($objects as $object_id => $object) {
-	    		$pre_fields = get_object_vars($object);
-	    		$changes = array();
-	    		
-	    		foreach($fields as $field_key => $field_val) {
-	    			// Make sure the value of the field actually changed
-	    			if($pre_fields[$field_key] != $field_val) {
-	    				$changes[$field_key] = array('from' => $pre_fields[$field_key], 'to' => $field_val);
-	    			}
-	    		}
-	    		
-	    		// If we had changes
-	    		if(!empty($changes)) {
-	    			$object_changes[$object_id] = array(
-	    				'model' => array_merge($pre_fields, $fields),
-	    				'changes' => $changes,
-	    			);
-	    		}
-	    	}
-	    	
-	    	parent::_update($batch_ids, 'ticket', $fields);
-	    	
-	    	if(!empty($object_changes)) {
-		    	// Local events
-		    	self::_processUpdateEvents($object_changes);
-		    	
-		        /*
-		         * Trigger an event about the changes
-		         */
-			    $eventMgr = DevblocksPlatform::getEventService();
-			    $eventMgr->trigger(
-			        new Model_DevblocksEvent(
-			            'dao.ticket.update',
-		                array(
-		                    'objects' => $object_changes,
-		                )
-		            )
-			    );
-			    
-			    // Log the context update
-	    		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TICKET, $ids);
-	    	}
-    	}
-    	
+		$chunks = array_chunk($ids, 25, true);
+		while($batch_ids = array_shift($chunks)) {
+			$objects = DAO_Ticket::getTickets($batch_ids);
+			$object_changes = array();
+			
+			foreach($objects as $object_id => $object) {
+				$pre_fields = get_object_vars($object);
+				$changes = array();
+				
+				foreach($fields as $field_key => $field_val) {
+					// Make sure the value of the field actually changed
+					if($pre_fields[$field_key] != $field_val) {
+						$changes[$field_key] = array('from' => $pre_fields[$field_key], 'to' => $field_val);
+					}
+				}
+				
+				// If we had changes
+				if(!empty($changes)) {
+					$object_changes[$object_id] = array(
+						'model' => array_merge($pre_fields, $fields),
+						'changes' => $changes,
+					);
+				}
+			}
+			
+			parent::_update($batch_ids, 'ticket', $fields);
+			
+			if(!empty($object_changes)) {
+				// Local events
+				self::_processUpdateEvents($object_changes);
+				
+				/*
+				 * Trigger an event about the changes
+				 */
+				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr->trigger(
+					new Model_DevblocksEvent(
+						'dao.ticket.update',
+						array(
+							'objects' => $object_changes,
+						)
+					)
+				);
+				
+				// Log the context update
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TICKET, $ids);
+			}
+		}
+		
 	}
 	
 	static function _processUpdateEvents($objects) {
-    	if(is_array($objects))
-    	foreach($objects as $object_id => $object) {
-    		@$model = $object['model'];
-    		@$changes = $object['changes'];
-    		
-    		if(empty($model) || empty($changes))
-    			continue;
-    		
-    		/*
-    		 * Owner changed
-    		 */
-    		if(isset($changes[DAO_Ticket::OWNER_ID])) {
-	    		@$owner_id = $changes[DAO_Ticket::OWNER_ID];
-	    		
-	    		/*
-	    		* Mail assigned in group
-	    		*/
-	    		Event_MailAssignedInGroup::trigger($object_id, $model[DAO_Ticket::GROUP_ID]);
-	    		
+		if(is_array($objects))
+		foreach($objects as $object_id => $object) {
+			@$model = $object['model'];
+			@$changes = $object['changes'];
+			
+			if(empty($model) || empty($changes))
+				continue;
+			
+			/*
+			 * Owner changed
+			 */
+			if(isset($changes[DAO_Ticket::OWNER_ID])) {
+				@$owner_id = $changes[DAO_Ticket::OWNER_ID];
+				
+				/*
+				* Mail assigned in group
+				*/
+				Event_MailAssignedInGroup::trigger($object_id, $model[DAO_Ticket::GROUP_ID]);
+				
 				/*
 				 * Log activity (ticket.unassigned)
 				 */
-	    		if(empty($owner_id['to'])) {
+				if(empty($owner_id['to'])) {
 					$activity_point = 'ticket.owner.unassigned';
 					
 					$entry = array(
@@ -658,12 +658,12 @@ class DAO_Ticket extends C4_ORMHelper {
 							)
 					);
 					CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_TICKET, $object_id, $entry);
-	    		}
-	    		
+				}
+				
 				/*
 				 * Log activity (ticket.assigned)
 				 */
-	    		if(!empty($owner_id['to'])) {
+				if(!empty($owner_id['to'])) {
 					$activity_point = 'ticket.owner.assigned';
 					$target_worker = DAO_Worker::get($changes[DAO_Ticket::OWNER_ID]['to']);
 
@@ -679,10 +679,10 @@ class DAO_Ticket extends C4_ORMHelper {
 							)
 					);
 					CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_TICKET, $object_id, $entry);
-	    			
-	    		}
-    		}
-    		
+					
+				}
+			}
+			
 			/*
 			 * Ticket moved
 			 */
@@ -767,7 +767,7 @@ class DAO_Ticket extends C4_ORMHelper {
 				}
 				
 			} //foreach
-    	}		
+		}		
 	}
 	
 	static function updateMessageCount($id) {
@@ -911,16 +911,16 @@ class DAO_Ticket extends C4_ORMHelper {
 	}
 	
 	static function deleteRequester($id, $address_id) {
-	    if(empty($id) || empty($address_id))
-	        return;
-	        
-        $db = DevblocksPlatform::getDatabaseService();
+		if(empty($id) || empty($address_id))
+			return;
+			
+		$db = DevblocksPlatform::getDatabaseService();
 
-        $sql = sprintf("DELETE QUICK FROM requester WHERE ticket_id = %d AND address_id = %d",
-            $id,
-            $address_id
-        );
-        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$sql = sprintf("DELETE QUICK FROM requester WHERE ticket_id = %d AND address_id = %d",
+			$id,
+			$address_id
+		);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	}
 	
 	static function analyze($params, $limit=15, $mode="senders", $mode_param=null) { // or "subjects"
@@ -946,48 +946,48 @@ class DAO_Ticket extends C4_ORMHelper {
 			$sql = "SELECT COUNT(*) AS hits, SUBSTRING(a1.email FROM POSITION('@' IN a1.email)) AS domain ".
 				$join_sql.
 				$where_sql.
-		        "GROUP BY domain HAVING count(*) > 1 ".
-		        "ORDER BY hits DESC ";
-		    $rs = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-		    
+				"GROUP BY domain HAVING count(*) > 1 ".
+				"ORDER BY hits DESC ";
+			$rs = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			
 			$domains = array(); // [TODO] Temporary
 			while($row = mysql_fetch_assoc($rs)) {
-		        $hash = md5('domain'.$row['domain']);
-		        $domains[] = $row['domain']; // [TODO] Temporary
-		        $tops[$hash] = array('domain',$row['domain'],$row['hits']);
-		    }
-		    
-		    mysql_free_result($rs);
-		    
+				$hash = md5('domain'.$row['domain']);
+				$domains[] = $row['domain']; // [TODO] Temporary
+				$tops[$hash] = array('domain',$row['domain'],$row['hits']);
+			}
+			
+			mysql_free_result($rs);
+			
 			// [JAS]: Most common senders in work pile
 			$sql = "SELECT count(*) AS hits, a1.email ".
 				$join_sql.
 				$where_sql . 
 					sprintf(" AND SUBSTRING(a1.email FROM POSITION('@' IN a1.email)) IN ('%s')",
-		        		implode("','", $domains)
-		    		).
+						implode("','", $domains)
+					).
 				"GROUP BY a1.email HAVING count(*) > 1 ".
 				"ORDER BY hits DESC ";
-		    $rs = $db->SelectLimit($sql, $limit*2, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-		    
-		    while($row = mysql_fetch_assoc($rs)) {
-		        $hash = md5('sender'.$row['email']);
-		        $senders[$hash] = array('sender',$row['email'],$row['hits']);
-		    }
-		    
-		    mysql_free_result($rs);
-		    
-		    uasort($senders, array('DAO_Ticket','sortByCount'));
-	        
-		    // Thread senders into domains
-		    foreach($senders as $hash => $sender) {
-	            $domain = substr($sender[1],strpos($sender[1],'@'));
-	            $domain_hash = md5('domain' . $domain);
-	            if(!isset($tops[$domain_hash])) {
-		            continue; // [TODO] Temporary
-	            }
-	            $tops[$domain_hash][3][$hash] = $sender;
-	        }
+			$rs = $db->SelectLimit($sql, $limit*2, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			
+			while($row = mysql_fetch_assoc($rs)) {
+				$hash = md5('sender'.$row['email']);
+				$senders[$hash] = array('sender',$row['email'],$row['hits']);
+			}
+			
+			mysql_free_result($rs);
+			
+			uasort($senders, array('DAO_Ticket','sortByCount'));
+			
+			// Thread senders into domains
+			foreach($senders as $hash => $sender) {
+				$domain = substr($sender[1],strpos($sender[1],'@'));
+				$domain_hash = md5('domain' . $domain);
+				if(!isset($tops[$domain_hash])) {
+					continue; // [TODO] Temporary
+				}
+				$tops[$domain_hash][3][$hash] = $sender;
+			}
 		 
 		} elseif ($mode=="subjects") {
 			$query_parts = DAO_Ticket::getSearchQueryComponents(
@@ -1006,58 +1006,58 @@ class DAO_Ticket extends C4_ORMHelper {
 			$sql = "SELECT COUNT(*) AS hits, SUBSTRING(t.subject FROM 1 FOR 8) AS prefix ".
 				$join_sql.
 				$where_sql.
-		        "GROUP BY SUBSTRING(t.subject FROM 1 FOR 8) HAVING hits > 1 ".
-		        "ORDER BY hits DESC ";
-		    $rs = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-		    
+				"GROUP BY SUBSTRING(t.subject FROM 1 FOR 8) HAVING hits > 1 ".
+				"ORDER BY hits DESC ";
+			$rs = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			
 			$prefixes = array(); // [TODO] Temporary
 
 			while($row = mysql_fetch_assoc($rs)) {
-		        $prefixes[] = $row['prefix'];
-		    }
-		    
-		    mysql_free_result($rs);
+				$prefixes[] = $row['prefix'];
+			}
+			
+			mysql_free_result($rs);
 
-		    foreach($prefixes as $prefix_idx => $prefix) {
+			foreach($prefixes as $prefix_idx => $prefix) {
 				// [JAS]: Most common subjects in work pile
 				$sql = "SELECT COUNT(t.id) AS hits, t.subject ".
 					$join_sql.
 					$where_sql.
 						sprintf(" AND t.subject LIKE %s ",
-			        		$db->qstr($prefix.'%')
-			    		).
-			        "GROUP BY t.subject HAVING hits > 1 ".
-			        "ORDER BY hits DESC ";
-		    	
-			    $rs = $db->SelectLimit($sql, 15, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-			    $num_rows = mysql_num_rows($rs);
+							$db->qstr($prefix.'%')
+						).
+					"GROUP BY t.subject HAVING hits > 1 ".
+					"ORDER BY hits DESC ";
+				
+				$rs = $db->SelectLimit($sql, 15, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+				$num_rows = mysql_num_rows($rs);
 
-			    $lines = array();
-			    while($row = mysql_fetch_assoc($rs)) {
-			    	$lines[$row['subject']] = $row['hits'];
-			    }
-			    
-			    $prefix = self::findLongestCommonPrefix($lines);
-			    
-			    if(strlen(key($prefix)) < 8)
-			    	continue;
+				$lines = array();
+				while($row = mysql_fetch_assoc($rs)) {
+					$lines[$row['subject']] = $row['hits'];
+				}
+				
+				$prefix = self::findLongestCommonPrefix($lines);
+				
+				if(strlen(key($prefix)) < 8)
+					continue;
 
-		        if(count($lines) > 1) {
-        	        $tophash = md5('subject'.key($prefix).'*');
-			        $tops[$tophash] = array('subject',key($prefix).'*',current($prefix));
-		        	
-			        foreach($lines as $line => $hits) {
-			        	$hash = md5('subject'.$line);
-			        	$tops[$tophash][3][$hash] = array('subject',$line,$hits);
-			        }
-			        
-		        } else {
-			        $tophash = md5('subject'.key($prefix));
-			        $tops[$tophash] = array('subject',key($prefix),current($prefix));
-		        }
-		        
+				if(count($lines) > 1) {
+					$tophash = md5('subject'.key($prefix).'*');
+					$tops[$tophash] = array('subject',key($prefix).'*',current($prefix));
+					
+					foreach($lines as $line => $hits) {
+						$hash = md5('subject'.$line);
+						$tops[$tophash][3][$hash] = array('subject',$line,$hits);
+					}
+					
+				} else {
+					$tophash = md5('subject'.key($prefix));
+					$tops[$tophash] = array('subject',key($prefix),current($prefix));
+				}
+				
 				mysql_free_result($rs);
-		    }
+			}
 
 		} elseif ($mode=="headers") {
 			$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER,'=',$mode_param);
@@ -1079,27 +1079,27 @@ class DAO_Ticket extends C4_ORMHelper {
 				"GROUP BY mh.header_value HAVING mh.header_value != '' ".
 				"ORDER BY hits DESC ";
 			
-		    $rs = $db->SelectLimit($sql, 25, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$rs = $db->SelectLimit($sql, 25, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
-		    while($row = mysql_fetch_assoc($rs)) {
+			while($row = mysql_fetch_assoc($rs)) {
 				$hash = md5('header'.$row['header_value']);
 				$tops[$hash] = array('header',$row['header_value'],$row['hits'],array(),$mode_param);
-		    }
-		    
-		    mysql_free_result($rs);
-	    }
+			}
+			
+			mysql_free_result($rs);
+		}
 
-	    uasort($tops, array('DAO_Ticket','sortByCount'));
-        
-	    return $tops;
+		uasort($tops, array('DAO_Ticket','sortByCount'));
+		
+		return $tops;
 	}
 	
-    private function sortByCount($a,$b) {
-	    if ($a[2] == $b[2]) {
-	        return 0;
-	    }
-        return ($a[2] > $b[2]) ? -1 : 1;        
-    }
+	private function sortByCount($a,$b) {
+		if ($a[2] == $b[2]) {
+			return 0;
+		}
+		return ($a[2] > $b[2]) ? -1 : 1;		
+	}
 
 	private function findLongestCommonPrefix($list) {
 		// Find the longest subject line
@@ -1159,7 +1159,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
 			$sortBy=null;
 		
-        list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"t.id as %s, ".
@@ -1192,36 +1192,36 @@ class DAO_Ticket extends C4_ORMHelper {
 			"t.group_id as %s, ".
 			"t.bucket_id as %s, ".
 			"t.org_id as %s ",
-			    SearchFields_Ticket::TICKET_ID,
-			    SearchFields_Ticket::TICKET_MASK,
-			    SearchFields_Ticket::TICKET_SUBJECT,
-			    SearchFields_Ticket::TICKET_WAITING,
-			    SearchFields_Ticket::TICKET_CLOSED,
-			    SearchFields_Ticket::TICKET_DELETED,
-			    SearchFields_Ticket::TICKET_FIRST_WROTE_ID,
-			    SearchFields_Ticket::TICKET_LAST_WROTE_ID,
-			    SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID,
-			    SearchFields_Ticket::TICKET_FIRST_OUTGOING_MESSAGE_ID,
-			    SearchFields_Ticket::TICKET_LAST_MESSAGE_ID,
-			    SearchFields_Ticket::TICKET_FIRST_WROTE,
-			    SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM,
-			    SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM,
-			    SearchFields_Ticket::TICKET_LAST_WROTE,
-			    SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,
-			    SearchFields_Ticket::TICKET_CREATED_DATE,
-			    SearchFields_Ticket::TICKET_UPDATED_DATE,
-			    SearchFields_Ticket::TICKET_CLOSED_AT,
-			    SearchFields_Ticket::TICKET_REOPEN_AT,
-			    SearchFields_Ticket::TICKET_SPAM_TRAINING,
-			    SearchFields_Ticket::TICKET_SPAM_SCORE,
-			    SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
-			    SearchFields_Ticket::TICKET_NUM_MESSAGES,
-			    SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST,
-			    SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST,
-			    SearchFields_Ticket::TICKET_OWNER_ID,
-			    SearchFields_Ticket::TICKET_GROUP_ID,
-			    SearchFields_Ticket::TICKET_BUCKET_ID,
-			    SearchFields_Ticket::TICKET_ORG_ID
+				SearchFields_Ticket::TICKET_ID,
+				SearchFields_Ticket::TICKET_MASK,
+				SearchFields_Ticket::TICKET_SUBJECT,
+				SearchFields_Ticket::TICKET_WAITING,
+				SearchFields_Ticket::TICKET_CLOSED,
+				SearchFields_Ticket::TICKET_DELETED,
+				SearchFields_Ticket::TICKET_FIRST_WROTE_ID,
+				SearchFields_Ticket::TICKET_LAST_WROTE_ID,
+				SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID,
+				SearchFields_Ticket::TICKET_FIRST_OUTGOING_MESSAGE_ID,
+				SearchFields_Ticket::TICKET_LAST_MESSAGE_ID,
+				SearchFields_Ticket::TICKET_FIRST_WROTE,
+				SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM,
+				SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM,
+				SearchFields_Ticket::TICKET_LAST_WROTE,
+				SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,
+				SearchFields_Ticket::TICKET_CREATED_DATE,
+				SearchFields_Ticket::TICKET_UPDATED_DATE,
+				SearchFields_Ticket::TICKET_CLOSED_AT,
+				SearchFields_Ticket::TICKET_REOPEN_AT,
+				SearchFields_Ticket::TICKET_SPAM_TRAINING,
+				SearchFields_Ticket::TICKET_SPAM_SCORE,
+				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+				SearchFields_Ticket::TICKET_NUM_MESSAGES,
+				SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST,
+				SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST,
+				SearchFields_Ticket::TICKET_OWNER_ID,
+				SearchFields_Ticket::TICKET_GROUP_ID,
+				SearchFields_Ticket::TICKET_BUCKET_ID,
+				SearchFields_Ticket::TICKET_ORG_ID
 		);
 
 		$join_sql = 
@@ -1381,9 +1381,9 @@ class DAO_Ticket extends C4_ORMHelper {
 		}		
 	}
 	
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
-    	
+		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
 
@@ -1426,7 +1426,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results, $total);
-    }	
+	}	
 	
 };
 
@@ -2688,7 +2688,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		foreach($data as $v) {
 			$new_params = array();
 			$do_header = null;
-    
+	
 			switch($filter) {
 				case 'subject':
 					$new_params = array(
@@ -3192,7 +3192,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		return true;
 	}
-    
+	
 	function lazyLoadContextValues($token, $dictionary) {
 		if(!isset($dictionary['id']))
 			return;
@@ -3400,7 +3400,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	function _renderPeekComposePopup($view_id) {
 		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
-	    
+		
 		$visit = CerberusApplication::getVisit();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -3470,9 +3470,9 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	}
 	
 	function _renderPeekTicketPopup($context_id, $view_id) {
-	    @$msgid = DevblocksPlatform::importGPC($_REQUEST['msgid'],'integer',0);
-	    @$edit_mode = DevblocksPlatform::importGPC($_REQUEST['edit'],'integer',0);
-	    
+		@$msgid = DevblocksPlatform::importGPC($_REQUEST['msgid'],'integer',0);
+		@$edit_mode = DevblocksPlatform::importGPC($_REQUEST['edit'],'integer',0);
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		$tpl->assign('view_id', $view_id);
@@ -3482,8 +3482,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		if(null != ($ticket = DAO_Ticket::get($context_id))) {
 			/* @var $ticket Model_Ticket */
-		    $tpl->assign('ticket', $ticket);
-		    
+			$tpl->assign('ticket', $ticket);
+			
 			$messages = $ticket->getMessages();
 		}
 		
@@ -3527,7 +3527,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		$group_buckets = DAO_Bucket::getGroups();
 		$tpl->assign('group_buckets', $group_buckets);
-	    
+		
 		// Watchers
 		$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($ticket->id), CerberusContexts::CONTEXT_WORKER);
 		$tpl->assign('object_watchers', $object_watchers);
