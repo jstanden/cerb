@@ -128,7 +128,8 @@ class ChSignInPage extends CerberusPageExtension {
 				if(null != ($ext = Extension_LoginAuthenticator::get($worker->auth_extension_id, true))) {
 					/* @var $ext Extension_LoginAuthenticator */
 					
-					if($ext->authenticate()) {
+					if(false != ($worker = $ext->authenticate())) {
+						$_SESSION['login_authenticated_worker'] = $worker;
 						DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login','authenticated')));
 						
 					} else {
@@ -147,7 +148,13 @@ class ChSignInPage extends CerberusPageExtension {
 				break;
 				
 			case 'authenticated':
-				$this->_processAuthenticated();
+				@$worker = $_SESSION['login_authenticated_worker'];
+				unset($_SESSION['login_authenticated_worker']);
+				
+				if(empty($worker))
+					DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login')));
+					
+				$this->_processAuthenticated($worker);
 				break;
 			
 			case 'reset':
@@ -186,10 +193,6 @@ class ChSignInPage extends CerberusPageExtension {
 				$tpl->assign('email', $email);
 				
 				switch($section) {
-					case 'too_many':
-						@$secs = array_shift($stack);
-						$tpl->assign('error', sprintf("The maximum number of simultaneous workers are currently signed on.  The next session expires in %s.", ltrim(_DevblocksTemplateManager::modifier_devblocks_prettytime($secs,true),'+')));
-						break;
 					case 'failed':
 						$tpl->assign('error', 'Login failed.');
 						break;
@@ -223,8 +226,6 @@ class ChSignInPage extends CerberusPageExtension {
 		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
 		@$remember_me = DevblocksPlatform::importGPC($_POST['remember_me'],'integer', 0);
 		
-		$url_service = DevblocksPlatform::getUrlService();
-
 		if(null == ($worker_id = DAO_Worker::getByEmail($email))) {
 			sleep(2); // nag brute force attempts
 			// Deceptively send invalid logins to the password page anyway, if shaped like an email
@@ -264,11 +265,44 @@ class ChSignInPage extends CerberusPageExtension {
 		}
 	}
 	
-	private function _processAuthenticated() {
-		$url_service = DevblocksPlatform::getUrlService();
+	// Please be honest
+	private function _checkSeats($worker) {
 		$honesty = CerberusLicense::getInstance();
 		$session = DevblocksPlatform::getSessionService();
-		$worker = CerberusApplication::getActiveWorker();
+		
+		$online_workers = DAO_Worker::getAllOnline(86400, 100);
+		$max = intval(max($honesty->w, 1));
+		
+		if(!isset($online_workers[$worker->id]) && $max <= count($online_workers) && 100 > $max) {
+			$online_workers = DAO_Worker::getAllOnline(600, 1);
+
+			if($max <= count($online_workers)) {
+				$most_idle_worker = end($online_workers);
+				$session->clear();
+				$time = 600 - max(0,time()-$most_idle_worker->last_activity_date);
+				
+				$query = array(
+					'email' => $worker->email,
+					'error' => sprintf("The maximum number of simultaneous workers are currently signed on.  The next session expires in %s.", ltrim(_DevblocksTemplateManager::modifier_devblocks_prettytime($time,true),'+')),
+				);
+				
+				if(null == ($ext = Extension_LoginAuthenticator::get($worker->auth_extension_id, false)))
+					return;
+				
+				DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login',$ext->params['uri']), $query));
+			}
+		}
+	}
+	
+	private function _processAuthenticated($worker) {
+		$this->_checkSeats($worker);
+
+		$session = DevblocksPlatform::getSessionService();
+
+		$visit = new CerberusVisit();
+		$visit->setWorker($worker);
+
+		$session->setVisit($visit);
 		
 		if(isset($_SESSION['login_post_url'])) {
 			$redirect_path = explode('/', $_SESSION['login_post_url']);
@@ -283,19 +317,6 @@ class ChSignInPage extends CerberusPageExtension {
 		}
 		
 		$devblocks_response = new DevblocksHttpResponse($redirect_path);
-		
-		// Please be honest
-		$online_workers = DAO_Worker::getAllOnline(86400, 100);
-		if(!isset($online_workers[$worker->id]) && $honesty->w <= count($online_workers) && 100 > $honesty->w) {
-			$online_workers = DAO_Worker::getAllOnline(600, 1);
-			if($honesty->w <= count($online_workers)) {
-				$most_idle_worker =  end($online_workers);
-				$session->clear();
-				$time = 600 - max(0,time()-$most_idle_worker->last_activity_date);
-				DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login','failed','too_many',$time)));
-				exit;
-			}
-		}
 		
 		// Timezone
 		if(null != ($timezone = DAO_WorkerPref::get($worker->id,'timezone'))) {

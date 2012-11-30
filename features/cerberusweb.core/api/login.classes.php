@@ -203,13 +203,7 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 		$worker = DAO_Worker::login($email, $password);
 		
 		if(!is_null($worker)) {
-			$visit = new CerberusVisit();
-			$visit->setWorker($worker);
-				
-			$session = DevblocksPlatform::getSessionService();
-			$session->setVisit($visit);
-			
-			return true;
+			return $worker;
 			
 		} else {
 			return false;

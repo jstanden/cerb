@@ -265,13 +265,7 @@ class Login_PasswordAndGoogleAuth extends Extension_LoginAuthenticator {
 		$worker = DAO_Worker::login($email, $password);
 		
 		if(!is_null($worker)) {
-			$session = DevblocksPlatform::getSessionService();
-			$visit = new CerberusVisit();
-			$visit->setWorker($worker);
-				
-			$session->setVisit($visit);
-			
-			return true;
+			return $worker;
 			
 		} else {
 			return false;
