@@ -40,6 +40,9 @@ class PageSection_SetupSecurity extends Extension_PageSection {
 				DevblocksPlatform::setPluginSetting('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS, $authorized_ips);
 			}
 			
+			@$session_lifespan = DevblocksPlatform::importGPC($_POST['session_lifespan'],'integer',0);
+			DevblocksPlatform::setPluginSetting('cerberusweb.core',CerberusSettings::SESSION_LIFESPAN, $session_lifespan);
+			
 			echo json_encode(array('status'=>true));
 			return;
 			

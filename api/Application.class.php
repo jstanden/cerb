@@ -1416,6 +1416,7 @@ class CerberusSettings {
 	const AUTHORIZED_IPS = 'authorized_ips';
 	const LICENSE = 'license_json';
 	const RELAY_DISABLE_AUTH = 'relay_disable_auth';
+	const SESSION_LIFESPAN = 'session_lifespan';
 };
 
 class CerberusSettingsDefaults {
@@ -1435,6 +1436,7 @@ class CerberusSettingsDefaults {
 	const TICKET_MASK_FORMAT = 'LLL-NNNNN-NNN';
 	const AUTHORIZED_IPS = "127.0.0.1\n::1\n";
 	const RELAY_DISABLE_AUTH = 0;
+	const SESSION_LIFESPAN = 0;
 };
 
 class C4_DevblocksExtensionDelegate implements DevblocksExtensionDelegate {

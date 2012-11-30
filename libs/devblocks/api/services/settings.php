@@ -24,10 +24,10 @@ class _DevblocksPluginSettingsManager {
 	 */
 	public static function getInstance() {
 		if(self::$_instance==null) {
-			self::$_instance = new _DevblocksPluginSettingsManager();	
+			self::$_instance = new _DevblocksPluginSettingsManager();
 		}
 		
-		return self::$_instance;		
+		return self::$_instance;
 	}
 	
 	public function set($plugin_id,$key,$value) {

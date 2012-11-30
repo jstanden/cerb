@@ -347,9 +347,6 @@ class ChSignInPage extends CerberusPageExtension {
 	
 	function signoutAction() {
 		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		// [TODO] This also needs to invoke a signout on the login auth extension
 		
 		DAO_Worker::logActivity(new Model_Activity(null));
 		

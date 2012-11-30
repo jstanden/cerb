@@ -46,7 +46,7 @@ var DevblocksClass = function() {
 	}
 	
 	this.showError = function(target, message, animate) {
-		$html = $('<div class="ui-widget"><div class="ui-state-error ui-corner-all" style="padding:0 0.5em;margin:0.5em;display:inline-block;"><p><span class="ui-icon ui-icon-alert" style="margin-right:.3em;float:left;"></span>'+message+'</p></div></div>');
+		$html = $('<div class="ui-widget"><div class="ui-state-error ui-corner-all" style="padding:0 0.5em;margin:0.5em;"><p><span class="ui-icon ui-icon-alert" style="margin-right:.3em;float:left;"></span>'+message+'</p></div></div>');
 		$status = $(target).html($html).show();
 		
 		animate = (null == animate || false != animate) ? true: false;
@@ -57,7 +57,7 @@ var DevblocksClass = function() {
 	}
 	
 	this.showSuccess = function(target, message, autohide, animate) {
-		$html = $('<div class="ui-widget"><div class="ui-state-highlight ui-corner-all" style="padding:0 0.5em;margin:0.5em;display:inline-block;"><p><span class="ui-icon ui-icon-info" style="margin-right:.3em;float:left;"></span>'+message+'</p></div></div>');
+		$html = $('<div class="ui-widget"><div class="ui-state-highlight ui-corner-all" style="padding:0 0.5em;margin:0.5em;"><p><span class="ui-icon ui-icon-info" style="margin-right:.3em;float:left;"></span>'+message+'</p></div></div>');
 		$status = $(target).html($html).show();
 		
 		animate = (null == animate || false != animate) ? true: false; 

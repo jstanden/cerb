@@ -43,9 +43,11 @@ class _DevblocksSessionManager {
 				array($handler, 'destroy'),
 				array($handler, 'gc')
 			);
-			
+
+			$session_lifespan = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
+
 			session_name(APP_SESSION_NAME);
-			session_set_cookie_params(0, '/', NULL, $url_writer->isSSL(), true);
+			session_set_cookie_params($session_lifespan, '/', NULL, $url_writer->isSSL(), true);
 			session_start();
 			
 			$instance = new _DevblocksSessionManager();
