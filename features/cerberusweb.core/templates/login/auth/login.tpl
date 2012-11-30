@@ -11,7 +11,7 @@
 <fieldset>
 	<legend>{$translate->_('header.signon')|capitalize}</legend>
 	
-	<table cellpadding="0" cellspacing="2">
+	<table cellpadding="0" cellspacing="5">
 	<tr>
 		<td align="right" valign="middle">{'common.email'|devblocks_translate|capitalize}:</td>
 		<td>
@@ -22,12 +22,18 @@
 			<input type="text" name="email" size="45" class="input_email" value="{$email}">
 			{/if}
 		</td>
+		<td>
+			{if !empty($email)}
+			<a href="{devblocks_url}c=login&a=reset{/devblocks_url}" tabindex="-1">use a different email</a>
+			{/if}
+		</td>
 	</tr>
 	<tr>
 		<td align="right" valign="middle">{'common.password'|devblocks_translate|capitalize}:</td>
 		<td nowrap="nowrap">
 			<input type="password" name="password" size="16">
-			 &nbsp; 
+		</td>
+		<td>
 			<a href="{devblocks_url}c=login&a=recover{/devblocks_url}?email={$email}">forgot your password?</a> 
 		</td>
 	</tr>

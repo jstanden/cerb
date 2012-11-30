@@ -13,7 +13,10 @@
 	<br>
 	
 	<input type="text" name="email" size="45" value="{$email}">
-	<br>
+
+	<div style="margin-left: 10px;">
+		<label><input type="checkbox" name="remember_me" value="1" {if !empty($remember_me)}checked="checked"{/if}> Remember me for two weeks</label>
+	</div>
 	
 	<p>
 		<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.continue')|capitalize}</button>

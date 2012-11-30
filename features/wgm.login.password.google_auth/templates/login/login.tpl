@@ -11,7 +11,7 @@
 <fieldset>
 	<legend>{$translate->_('header.signon')|capitalize}</legend>
 	
-	<table cellpadding="0" cellspacing="2">
+	<table cellpadding="2" cellspacing="0">
 	<tr>
 		<td align="right" valign="middle">{'common.email'|devblocks_translate|capitalize}:</td>
 		{if empty($worker)}
@@ -22,12 +22,18 @@
 			<input type="hidden" name="email" value="{$worker->email}">
 		</td>
 		{/if}
+		<td>
+			{if !empty($worker)}
+			<a href="{devblocks_url}c=login&a=reset{/devblocks_url}" tabindex="-1">use a different email</a>
+			{/if}
+		</td>
 	</tr>
 	<tr>
 		<td align="right" valign="middle">{'common.password'|devblocks_translate|capitalize}:</td>
 		<td nowrap="nowrap">
 			<input type="password" name="password" size="16">
-			 &nbsp; 
+		</td>
+		<td>
 			<a href="{devblocks_url}c=login&a=recover{/devblocks_url}?email={$worker->email}" tabindex="-1">can't log in?</a>
 		</td>
 	</tr>
@@ -35,6 +41,8 @@
 		<td align="right" valign="middle">Access Code:</td>
 		<td nowrap="nowrap">
 			<input type="text" name="access_code" size="8" maxlength="6" autocomplete="off">
+		</td>
+		<td>
 			(from your Google Authenticator mobile app)
 		</td>
 	</tr>

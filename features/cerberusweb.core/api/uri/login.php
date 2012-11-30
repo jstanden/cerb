@@ -22,9 +22,14 @@ class ChSignInPage extends CerberusPageExtension {
 	
 	function render() {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'], 'string', '');
+		@$remember_email = DevblocksPlatform::importGPC($_COOKIE['cerb_login_email'], 'string', '');
+		
+		if(empty($email) && !empty($remember_email))
+			$email = $remember_email;
 		
 		if(!empty($email))
 			$worker_id = DAO_Worker::getByEmail($email);
+		
 		if(!empty($worker_id))
 			$worker = DAO_Worker::get($worker_id);
 		
@@ -144,15 +149,40 @@ class ChSignInPage extends CerberusPageExtension {
 			case 'authenticated':
 				$this->_processAuthenticated();
 				break;
+			
+			case 'reset':
+				unset($_COOKIE['cerb_login_email']);
+				setcookie('cerb_login_email', null);
+				DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login')));
+				break;
 				
 			case 'failed':
 			case NULL:
 				@$url = DevblocksPlatform::importGPC($_REQUEST['url'], 'string', '');
 				
+				// If we have a cookie remembering the worker, redirect to login form
+				if(empty($section) && empty($stack) && !empty($remember_email)
+						&& !empty($worker)
+						&& null != ($ext = Extension_LoginAuthenticator::get($worker->auth_extension_id, false))
+					) {
+					$query = array(
+						'email' => $remember_email,
+					);
+					
+					$devblocks_response = new DevblocksHttpResponse(array('login', $ext->params['uri']), $query);
+					DevblocksPlatform::redirect($devblocks_response);
+				}
+				
+				$tpl = DevblocksPlatform::getTemplateService();
+				
 				if(!empty($url))
 					$_SESSION['login_post_url'] = $url;
 				
-				$tpl = DevblocksPlatform::getTemplateService();
+				$tpl->assign('remember_me', $remember_email);
+				
+				if(empty($email) && !empty($remember_email))
+					$email = $remember_email;
+				
 				$tpl->assign('email', $email);
 				
 				switch($section) {
@@ -190,7 +220,8 @@ class ChSignInPage extends CerberusPageExtension {
 	}
 	
 	function routerAction() {
-		@$email = DevblocksPlatform::importGPC($_POST['email']);
+		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
+		@$remember_me = DevblocksPlatform::importGPC($_POST['remember_me'],'integer', 0);
 		
 		$url_service = DevblocksPlatform::getUrlService();
 
@@ -219,6 +250,10 @@ class ChSignInPage extends CerberusPageExtension {
 			if(null == ($auth_ext = Extension_LoginAuthenticator::get($worker->auth_extension_id)) || !isset($auth_ext->params['uri'])) {
 				$query = array('error' => 'Invalid authentication method.');
 				DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login'), $query));
+			}
+			
+			if($remember_me) {
+				setcookie('cerb_login_email', $email, time()+14*86400);
 			}
 			
 			$query = array(
