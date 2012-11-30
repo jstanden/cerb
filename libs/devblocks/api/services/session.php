@@ -104,7 +104,8 @@ class _DevblocksSessionManager {
 	function clear($key=null) {
 		if(is_null($key)) {
 			$this->visit = null;
-			unset($_SESSION['db_visit']);
+			setcookie('Devblocks', null, 0, '/', null);
+			session_unset();
 			session_destroy();
 		} else {
 			_DevblocksSessionDatabaseDriver::destroy($key);
