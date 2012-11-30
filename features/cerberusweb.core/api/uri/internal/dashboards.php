@@ -666,6 +666,45 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
 	}
 };
 
+class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
+	function render(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		$tpl->assign('widget', $widget);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/custom_html/html.tpl');
+	}
+	
+	// Config
+	
+	function renderConfig(Model_WorkspaceWidget $widget) {
+		if(empty($widget))
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		// Widget
+		
+		$tpl->assign('widget', $widget);
+		
+		// Template
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/custom_html/config.tpl');
+	}
+	
+	function saveConfig(Model_WorkspaceWidget $widget) {
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
+		
+		DAO_WorkspaceWidget::update($widget->id, array(
+			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
+		));
+
+		// Clear caches
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(sprintf("widget%d_datasource", $widget->id));
+	}
+};
+
 class WorkspaceWidget_PieChart extends Extension_WorkspaceWidget {
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::getTemplateService();

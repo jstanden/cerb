@@ -2258,6 +2258,17 @@
 		</extension>
 	
 		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.custom_html</id>
+			<name>Custom HTML</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_CustomHtml</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.workspace.widget">
 			<id>core.workspace.widget.pie_chart</id>
 			<name>Pie Chart</name>
 			<class>
