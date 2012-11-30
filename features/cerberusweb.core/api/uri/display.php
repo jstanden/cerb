@@ -930,7 +930,6 @@ class ChDisplayPage extends CerberusPageExtension {
 	
 	function showContactHistoryAction() {
 		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-		$translate = DevblocksPlatform::getTranslationService();
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
@@ -938,100 +937,22 @@ class ChDisplayPage extends CerberusPageExtension {
 				
 		if(!empty($point))
 			$visit->set($point, 'history');
-		
-		// Ticket
-		$ticket = DAO_Ticket::get($ticket_id);
-		$tpl->assign('ticket', $ticket);
-		
-		$requesters = $ticket->getRequesters();
-		
-		// Addy
-		$contact = DAO_Address::get($ticket->first_wrote_address_id);
-		$tpl->assign('contact', $contact);
 
 		// Scope
 		$scope = $visit->get('display.history.scope', '');
 		
-		// [TODO] Sanitize scope preference
-		
-		// Defaults
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_Ticket';
-		$defaults->id = 'contact_history';
-		$defaults->name = $translate->_('addy_book.history.view.title');
-		$defaults->view_columns = array(
-			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
-			SearchFields_Ticket::TICKET_CREATED_DATE,
-			SearchFields_Ticket::TICKET_GROUP_ID,
-			SearchFields_Ticket::TICKET_BUCKET_ID,
-		);
-		$defaults->renderLimit = 10;
-		$defaults->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
-		$defaults->renderSortAsc = false;
-		
-		// View
-		$view = C4_AbstractViewLoader::getView('contact_history', $defaults);
-		
-		// Sanitize scope options
-		if('org'==$scope) {
-			if(empty($contact->contact_org_id))
-				$scope = '';
-				
-			if(null == ($contact_org = DAO_ContactOrg::get($contact->contact_org_id)))
-				$scope = '';
-		}
-		if('domain'==$scope) {
-			$email_parts = explode('@', $contact->email);
-			if(!is_array($email_parts) || 2 != count($email_parts))
-				$scope = '';
-		}
+		// Ticket
+		$ticket = DAO_Ticket::get($ticket_id);
+		$tpl->assign('ticket', $ticket);
 
-		switch($scope) {
-			case 'org':
-				$view->addParamsRequired(array(
-					SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,'=',$contact->contact_org_id),
-					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-				), true);
-				$view->name = ucwords($translate->_('contact_org.name')) . ": " . $contact_org->name;
-				break;
-				
-			case 'domain':
-				$view->addParamsRequired(array(
-					SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ADDRESS,'like','*@'.$email_parts[1]),
-					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-				), true);
-				$view->name = ucwords($translate->_('common.email')) . ": *@" . $email_parts[1];
-				break;
-				
-			default:
-			case 'email':
-				$scope = 'email';
-				$view->addParamsRequired(array(
-					SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($requesters)),
-					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-				), true);
-				$view->name = sprintf("History: %d recipient(s)", count($requesters));
-				break;
-		}
+		// Scope
+		$tpl->assign('scope', $scope);
 
-		$tpl->assign('scope', $scope);		
-
+		$view = DAO_Ticket::getViewForRequesterHistory('contact_history', $ticket, $scope);
 		$view->renderPage = 0;
 		$tpl->assign('view', $view);
 		
 		C4_AbstractViewLoader::setView($view->id,$view);
-		
-		$workers = DAO_Worker::getAll();
-		$tpl->assign('workers', $workers);
-		
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
-		
-		$buckets = DAO_Bucket::getAll();
-		$tpl->assign('buckets', $buckets);
-		
-		$group_buckets = DAO_Bucket::getGroups();
-		$tpl->assign('group_buckets', $group_buckets);
 		
 		$tpl->display('devblocks:cerberusweb.core::display/modules/history/index.tpl');
 	}

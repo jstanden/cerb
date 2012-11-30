@@ -147,6 +147,80 @@ class DAO_Ticket extends C4_ORMHelper {
 		return null;
 	}
 	
+	static function getViewCountForRequesterHistory($view_id, $ticket, $scope=null) {
+		$view = self::getViewForRequesterHistory($view_id, $ticket, $scope);
+		list($results, $count) = $view->getData();
+		return $count;
+	}
+	
+	static function getViewForRequesterHistory($view_id, $ticket, $scope=null) {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		// Defaults
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'View_Ticket';
+		$defaults->id = $view_id;
+		$defaults->name = $translate->_('addy_book.history.view.title');
+		$defaults->view_columns = array(
+			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+			SearchFields_Ticket::TICKET_CREATED_DATE,
+			SearchFields_Ticket::TICKET_GROUP_ID,
+			SearchFields_Ticket::TICKET_BUCKET_ID,
+		);
+		$defaults->renderLimit = 10;
+		$defaults->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
+		$defaults->renderSortAsc = false;
+		
+		// View
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		
+		// Sanitize scope options
+		if('org'==$scope) {
+			if(empty($ticket->org_id))
+				$scope = '';
+		}
+		
+		if('domain'==$scope) {
+			$contact = DAO_Address::get($ticket->first_wrote_address_id);
+			
+			$email_parts = explode('@', $contact->email);
+			if(!is_array($email_parts) || 2 != count($email_parts))
+				$scope = '';
+		}
+
+		switch($scope) {
+			case 'org':
+				$view->addParamsRequired(array(
+					SearchFields_Ticket::TICKET_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ORG_ID,'=',$ticket->org_id),
+					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
+				), true);
+				$view->name = ucwords($translate->_('contact_org.name'));
+				break;
+				
+			case 'domain':
+				$view->addParamsRequired(array(
+					SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ADDRESS,'like','*@'.$email_parts[1]),
+					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
+				), true);
+				$view->name = ucwords($translate->_('common.email')) . ": *@" . $email_parts[1];
+				break;
+				
+			default:
+			case 'email':
+				$scope = 'email';
+				$requesters = $ticket->getRequesters();
+				
+				$view->addParamsRequired(array(
+					SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($requesters)),
+					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
+				), true);
+				$view->name = sprintf("History: %d recipient(s)", count($requesters));
+				break;
+		}
+		
+		return $view;
+	}
+	
 	/**
 	 * creates a new ticket object in the database
 	 *
