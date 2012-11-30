@@ -134,7 +134,7 @@ var cAjaxCalls = function() {
 			}
 		}
 		
-		frm.ticket_ids.value = ids.join(',');		
+		frm.ticket_ids.value = ids.join(',');
 
 		showLoadingPanel();
 
@@ -201,7 +201,7 @@ var cAjaxCalls = function() {
 			}
 		}
 		
-		frm.address_ids.value = ids.join(',');		
+		frm.address_ids.value = ids.join(',');
 
 		genericAjaxPost('formBatchUpdate', '', 'c=contacts&a=doAddressBatchUpdate', function(html) {
 			$('#'+divName).html(html);
@@ -226,39 +226,43 @@ var cAjaxCalls = function() {
 		);
 	}
 
-	this.viewTicketsAction = function(view_id,action) {
+	this.viewTicketsAction = function(view_id, action) {
 		var divName = 'view'+view_id;
 		var formName = 'viewForm'+view_id;
 
-		showLoadingPanel();
-
 		switch(action) {
+			case 'merge_popup':
+				$popup=genericAjaxPopup('merge','c=tickets&a=viewMergeTicketsPopup&view_id=' + view_id,null,true,'550');
+				break;
 			case 'merge':
+				showLoadingPanel();
 				genericAjaxPost(formName, '', 'c=tickets&a=viewMergeTickets&view_id='+view_id, function(html) {
 					$('#'+divName).html(html).trigger('view_refresh');
 					hideLoadingPanel();
 				});
 				break;
 			case 'not_spam':
+				showLoadingPanel();
 				genericAjaxPost(formName, '', 'c=tickets&a=viewNotSpamTickets&view_id='+view_id, function(html) {
 					$('#'+divName).html(html).trigger('view_refresh');
 					hideLoadingPanel();
 				});
 				break;
 			case 'waiting':
+				showLoadingPanel();
 				genericAjaxPost(formName, '', 'c=tickets&a=viewWaitingTickets&view_id='+view_id, function(html) {
 					$('#'+divName).html(html).trigger('view_refresh');
 					hideLoadingPanel();
 				});
 				break;
 			case 'not_waiting':
+				showLoadingPanel();
 				genericAjaxPost(formName, '', 'c=tickets&a=viewNotWaitingTickets&view_id='+view_id, function(html) {
 					$('#'+divName).html(html).trigger('view_refresh');
 					hideLoadingPanel();
 				});
 				break;
 			default:
-				hideLoadingPanel();
 				break;
 		}
 	}

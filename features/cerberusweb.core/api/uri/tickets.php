@@ -755,10 +755,18 @@ class ChTicketsPage extends CerberusPageExtension {
 		return;
 	}
 
+	function viewMergeTicketsPopupAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view_id);
+		$tpl->display('devblocks:cerberusweb.core::tickets/ajax/merge_confirm.tpl');
+	}
+	
 	function viewMergeTicketsAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
-
+		
 		View_Ticket::setLastAction($view_id,null);
 		//====================================
 
