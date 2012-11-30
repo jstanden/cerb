@@ -91,7 +91,7 @@ function chooserOpen(ref) {
 			if(json.links_count) {
 				$connections = $('#divConnections');
 				$tabs = $connections.closest('div.ui-tabs');
-				$tab = $tabs.find('> ul.ui-tabs-nav > li.ui-tabs-selected');
+				$tab = $tabs.find('> ul.ui-tabs-nav > li.ui-tabs-active');
 				$tab.find('> a > div.tab-badge').html(json.links_count);
 			}
 		};
@@ -142,7 +142,7 @@ function removeSelectedContextLinks(ref) {
 		if(json.links_count) {
 			$connections = $('#divConnections');
 			$tabs = $connections.closest('div.ui-tabs');
-			$tab = $tabs.find('> ul.ui-tabs-nav > li.ui-tabs-selected');
+			$tab = $tabs.find('> ul.ui-tabs-nav > li.ui-tabs-active');
 			$tab.find('> a > div.tab-badge').html(json.links_count);
 		}
 	};

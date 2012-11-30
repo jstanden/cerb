@@ -1578,7 +1578,7 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item a.ui-state-focus {
 	color:rgb(255,255,255);
 }
 
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected a div.tab-badge {
+.ui-tabs .ui-tabs-nav li.ui-tabs-active a div.tab-badge {
 	background-color:rgb(71,133,210);
 	color:rgb(255,255,255);	
 }

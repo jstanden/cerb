@@ -228,7 +228,7 @@
 			// Edit tab
 			$workspace.find('button.edit-tab').click(function(e) {
 				$tabs = $("#pageTabs");
-				$selected_tab = $tabs.find('li.ui-tabs-selected').first();
+				$selected_tab = $tabs.find('li.ui-tabs-active').first();
 				
 				if(0 == $selected_tab.length)
 					return;
@@ -247,7 +247,7 @@
 						$tabs.tabs('load', selected_idx);
 						
 						if(null != json.name) {
-							$selected_tab = $tabs.find('> ul > li.ui-tabs-selected');
+							$selected_tab = $tabs.find('> ul > li.ui-tabs-active');
 							$selected_tab.find('a').html(json.name);
 						}
 					}
