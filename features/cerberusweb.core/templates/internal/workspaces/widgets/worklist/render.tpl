@@ -7,15 +7,23 @@ var on_refresh = function() {
 	$worklist = $('#view{$view->id}').find('TABLE.worklist');
 	$worklist.hide();
 	
-	$header = $worklist.find('> tbody > tr:first > td:first > span.title');
-	$header.css('font-size', '14px');
+	$widget = $worklist.closest('div.dashboard-widget');
+	
+	var $worklist_links = $('<div style="margin-bottom:5px;float:right;visibility:hidden;"></div>');
+
+	$('#view{$view_id}').on('mouseover mouseout', function(e) {
+		if(e.type=='mouseover') {
+			$worklist_links.css('visibility','visible');
+		} else {
+			$worklist_links.css('visibility', 'hidden');
+		}
+	});
 	
 	$header_links = $worklist.find('> tbody > tr:first td:nth(1)');
 	$header_links.children().each(function(e) {
-		if(!$(this).is('a.minimal'))
-			$(this).remove();
+		if($(this).is('a.minimal') && 0 != $(this).find('span.sprite-plus-circle-frame').length) //, span.sprite-gear
+			$(this).css('margin-right','5px').appendTo($worklist_links);
 	});
-	$header_links.find('a').css('font-size','11px');
 
 	$worklist_body = $('#view{$view->id}').find('TABLE.worklistBody');
 
@@ -38,11 +46,20 @@ var on_refresh = function() {
 	$worklist_body.find('th, td')
 		.css('display', 'block')
 		.css('min-width', '')
+		.css('font-weight', 'normal')
 		.removeAttr('align', '')
 		.each(function(e) {
 			if(0==$.trim($(this).text()).length)
 				$(this).hide();
 		})
+		;
+
+	$worklist_body.find('a.subject')
+		.addClass('no-underline')
+		;
+	
+	$worklist_body.find('button.peek')
+		.css('position', 'absolute')
 		;
 	
 	$worklist_body.find('tbody')
@@ -78,6 +95,7 @@ var on_refresh = function() {
 	});
 	
 	$sort_links.insertBefore($worklist_body);
+	$worklist_links.insertBefore($sort_links);
 	
 	$actions = $('#{$view->id}_actions');
 	$actions.find('.action-always-show').hide();
