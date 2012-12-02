@@ -652,7 +652,20 @@ function drawScatterplot($canvas, options) {
 	
 	var dragTimer = null;
 	
-	$dashboard = $('table#dashboard{$workspace_tab->id}');
+	var $dashboard = $('#dashboard{$workspace_tab->id}');
+	
+	// Reusable hover events
+	$dashboard.on('mouseover mouseout', 'div.dashboard-widget', 
+		function(e) {
+			if(e.type=='mouseover') {
+				$(this).find('div.dashboard-widget-title > div.toolbar, canvas.overlay').show();
+				$(this).trigger('widget-hover');
+			} else {
+				$(this).find('div.dashboard-widget-title > div.toolbar, canvas.overlay').hide();
+				$(this).trigger('widget-unhover');
+			}
+		}
+	);
 	
 	$dashboard.bind('reorder', function(e) {
 		$dashboard = $(this);
