@@ -1,5 +1,3 @@
-{*include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl"*}
-
 <div id="view{$view_id}">
 {$view->render()}
 </div>
@@ -90,5 +88,6 @@ on_refresh();
 $view = $('#view{$view_id}');
 $widget = $view.closest('div.dashboard-widget');
 
-$widget.undelegate().delegate('DIV[id^=view]','view_refresh', on_refresh);
+$widget.undelegate('DIV[id^=view]','view_refresh');
+$widget.delegate('DIV[id^=view]','view_refresh', on_refresh);
 </script>

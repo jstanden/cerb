@@ -680,8 +680,4 @@ function drawScatterplot($canvas, options) {
 			$('table#dashboard{$workspace_tab->id}').trigger('reorder');
 		}
 	});
-
-	$('canvas').click(function(e) {
-		//console.log(e.offsetX + ',' + e.offsetY);
-	});
 </script>
