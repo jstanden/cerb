@@ -84,6 +84,9 @@
 		<tu tuid='activities.watcher.unfollow'>
 			<tuv xml:lang="en_US"><seg>{{actor}} stopped watching {{target_object}} {{target}}</seg></tuv>
 		</tu>
+		<tu tuid='activities.worker.impersonated'>
+			<tuv xml:lang="en_US"><seg>{{actor}} impersonated {{target}} from {{ip}}</seg></tuv>
+		</tu>
 		<tu tuid='activities.worker.logged_in'>
 			<tuv xml:lang="en_US"><seg>{{actor}} logged in from {{ip}} using {{user_agent}}</seg></tuv>
 		</tu>

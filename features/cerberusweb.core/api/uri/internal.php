@@ -78,6 +78,24 @@ class ChInternalController extends DevblocksControllerExtension {
 			return;
 		
 		if(null != ($switch_worker = DAO_Worker::get($worker_id))) {
+			/*
+			 * Log activity (worker.impersonated)
+			 */
+			$ip_address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'an unknown IP';
+			
+			$entry = array(
+				//{{actor}} impersonated {{target}} from {{ip}}
+				'message' => 'activities.worker.impersonated',
+				'variables' => array(
+					'target' => $switch_worker->getName(),
+					'ip' => $ip_address,
+					),
+				'urls' => array(
+					'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_WORKER, $switch_worker->id),
+					)
+			);
+			CerberusContexts::logActivity('worker.impersonated', CerberusContexts::CONTEXT_WORKER, $worker_id, $entry);
+			
 			// Imposter
 			if($visit->isImposter() && $imposter = $visit->getImposter()) {
 				if($worker_id == $imposter->id) {
