@@ -302,10 +302,8 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 	const DEFAULT_ID = 'context_activity_log';
 
 	function __construct() {
-		$translate = DevblocksPlatform::getTranslationService();
-	
 		$this->id = self::DEFAULT_ID;
-		$this->name = 'Activity Log'; //$translate->_('ContextActivityLog');
+		$this->name = 'Activity Log';
 		$this->renderLimit = 10;
 		$this->renderSortBy = SearchFields_ContextActivityLog::CREATED;
 		$this->renderSortAsc = false;
@@ -315,7 +313,6 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		);
 		$this->addColumnsHidden(array(
 			SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID,
-			SearchFields_ContextActivityLog::TARGET_CONTEXT,
 			SearchFields_ContextActivityLog::TARGET_CONTEXT_ID,
 			SearchFields_ContextActivityLog::ID,
 		));
@@ -598,6 +595,131 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		}
 
 		unset($ids);
-	}			
+	}
 };
 
+class Context_ContextActivityLog extends Extension_DevblocksContext {
+	function getRandom() {
+		return null;
+	}
+	
+	function getMeta($context_id) {
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $address->id,
+			'name' => $addy_name,
+			'permalink' => $url,
+		);
+	}
+	
+	function getContext($entry, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Activity:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		// Polymorph
+		if(is_numeric($entry)) {
+			$entry = DAO_ContextActivityLog::get($entry);
+		} elseif($entry instanceof Model_ContextActivityLog) {
+			// It's what we want already.
+		} else {
+			$entry = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+			//'address' => $prefix.$translate->_('address.address'),
+		);
+		
+		// Token values
+		$token_values = array();
+		
+		$token_values['_context'] = CerberusContexts::CONTEXT_ACTIVITY_LOG;
+
+		// Address token values
+		if(null != $entry) {
+			$token_values['_loaded'] = true;
+			$token_values['_label'] = '';
+			$token_values['id'] = $entry->id;
+		}
+		
+		return true;
+	}
+	
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_ACTIVITY_LOG;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values);
+		}
+		
+		switch($token) {
+		}
+		
+		return $values;
+	}
+
+	function getChooserView($view_id=null) {
+		if(empty($view_id))
+			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		
+		// View
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = $this->getViewClass();
+		
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Activity Log';
+		
+		$view->addParamsDefault(array(
+			//SearchFields_ContextActivityLog::IS_BANNED => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::IS_BANNED,'=',0),
+			//SearchFields_ContextActivityLog::IS_DEFUNCT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::IS_DEFUNCT,'=',0),
+		), true);
+		$view->addParams($view->getParamsDefault(), true);
+		
+		$view->renderSortBy = SearchFields_ContextActivityLog::CREATED;
+		$view->renderSortAsc = true;
+		$view->renderLimit = 10;
+		$view->renderFilters = false;
+		$view->renderTemplate = 'contextlinks_chooser';
+		
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+	
+	function getView($context=null, $context_id=null, $options=array()) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Activity Log';
+		
+		$params_req = array();
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params_req = array(
+// 				new DevblocksSearchCriteria(SearchFields_ContextActivityLog::CONTEXT_LINK,'=',$context),
+// 				new DevblocksSearchCriteria(SearchFields_ContextActivityLog::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
+		
+		$view->addParamsRequired($params_req, true);
+		
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+};

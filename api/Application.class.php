@@ -632,6 +632,7 @@ class CerberusContexts {
 	private static $_default_actor_context_id = null;
 	
 	const CONTEXT_APPLICATION = 'cerberusweb.contexts.app';
+	const CONTEXT_ACTIVITY_LOG = 'cerberusweb.contexts.activity_log';
 	const CONTEXT_ADDRESS = 'cerberusweb.contexts.address';
 	const CONTEXT_ATTACHMENT = 'cerberusweb.contexts.attachment';
 	const CONTEXT_BUCKET = 'cerberusweb.contexts.bucket';

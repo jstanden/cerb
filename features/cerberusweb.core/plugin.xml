@@ -180,6 +180,7 @@
 		</file>
 		
 		<file path="api/dao/context_activity_log.php">
+			<class name="Context_ContextActivityLog" />
 			<class name="DAO_ContextActivityLog" />
 			<class name="Model_ContextActivityLog" />
 			<class name="SearchFields_ContextActivityLog" />
@@ -789,6 +790,27 @@
 					</value>
 				</param>
 				-->
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.activity_log</id>
+			<name>Activity Log</name>
+			<class>
+				<file>api/dao/context_activity_log.php</file>
+				<name>Context_ContextActivityLog</name>
+			</class>
+			<params>
+				<param key="alias" value="activity_log" />
+				<param key="dao_class" value="DAO_ContextActivityLog" />
+				<param key="view_class" value="View_ContextActivityLog" />
+				<param key="options">
+					<value>
+						<data key="find" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
