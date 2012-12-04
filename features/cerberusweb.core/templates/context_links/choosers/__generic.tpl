@@ -55,7 +55,7 @@
 		
 		on_refresh();
 
-		$(this).delegate('DIV[id^=view]','view_refresh', on_refresh);		
+		$(this).delegate('DIV[id^=view]','view_refresh', on_refresh);
 		
 		$('#view{$view->id}').delegate(' TABLE.worklistBody input:checkbox', 'check', function(event) {
 			checked = $(this).is(':checked');
@@ -90,8 +90,8 @@
 			$values = [];
 			
 			$buffer.each(function() {
-				$labels.push($(this).attr('title')); 
-				$values.push($(this).val()); 
+				$labels.push($(this).attr('title'));
+				$values.push($(this).val());
 			});
 		
 			// Trigger event

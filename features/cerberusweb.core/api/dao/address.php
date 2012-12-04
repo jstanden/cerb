@@ -1322,7 +1322,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		// Display
 		$tpl->assign('id', $context_id);
 		$tpl->assign('view_id', $view_id);
-		$tpl->display('devblocks:cerberusweb.core::contacts/addresses/peek.tpl');		
+		$tpl->display('devblocks:cerberusweb.core::contacts/addresses/peek.tpl');
 	}
 	
 	function importGetKeys() {

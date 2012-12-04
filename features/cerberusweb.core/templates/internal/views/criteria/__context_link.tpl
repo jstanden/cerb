@@ -1,3 +1,7 @@
+{if empty($contexts)}
+{$contexts = Extension_DevblocksContext::getAll(false)}
+{/if}
+
 {$random = time()|cat:'_'|cat:mt_rand(1000,9999)}
 <div id="container_{$random}">
 

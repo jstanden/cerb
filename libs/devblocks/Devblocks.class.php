@@ -1134,7 +1134,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 
 	static function getActivityPointRegistry() {
-	    $cache = self::getCacheService();
+		$cache = self::getCacheService();
 		$plugins = DevblocksPlatform::getPluginRegistry();
 		
 		if(empty($plugins))
