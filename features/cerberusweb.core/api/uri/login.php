@@ -341,11 +341,50 @@ class ChSignInPage extends CerberusPageExtension {
 			$next_page = ($tour_enabled) ?  array('welcome') : array('profiles','worker','me');
 			$devblocks_response = new DevblocksHttpResponse($next_page);
 		}
-			
+		
+		/*
+		 * Log activity (worker.logged_in)
+		 */
+		$ip_address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'an unknown IP';
+		$user_agent = UserAgentParser::parse();
+		$user_agent_string = sprintf("%s%s%s",
+			$user_agent['browser'],
+			!empty($user_agent['version']) ? (' ' . $user_agent['version'] . ' ') : '',
+			!empty($user_agent['platform']) ? (' for ' . $user_agent['platform']) : ''
+		);
+		
+		$entry = array(
+			//{{actor}} logged in from {{ip}} using {{user_agent}}
+			'message' => 'activities.worker.logged_in',
+			'variables' => array(
+				'ip' => $ip_address,
+				'user_agent' => $user_agent_string,
+				),
+			'urls' => array(
+				)
+		);
+		CerberusContexts::logActivity('worker.logged_in', null, null, $entry);
+		
 		DevblocksPlatform::redirect($devblocks_response);
 	}
 	
 	function signoutAction() {
+		/*
+		 * Log activity (worker.logged_out)
+		 */
+		$ip_address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'an unknown IP';
+		
+		$entry = array(
+			//{{actor}} logged out from {{ip}}
+			'message' => 'activities.worker.logged_out',
+			'variables' => array(
+				'ip' => $ip_address,
+				),
+			'urls' => array(
+				)
+		);
+		CerberusContexts::logActivity('worker.logged_out', null, null, $entry);
+		
 		$session = DevblocksPlatform::getSessionService();
 		
 		DAO_Worker::logActivity(new Model_Activity(null));

@@ -529,6 +529,12 @@
 		<activity point="watcher.unfollow">
 			<param key="label_key" value="Watcher Unfollowed" />
 		</activity>
+		<activity point="worker.logged_in">
+			<param key="label_key" value="Worker Logged In" />
+		</activity>
+		<activity point="worker.logged_out">
+			<param key="label_key" value="Worker Logged Out" />
+		</activity>
 	</activity_points>
 	
 	<!-- Event Points -->
