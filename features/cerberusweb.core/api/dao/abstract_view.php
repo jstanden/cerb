@@ -461,9 +461,7 @@ abstract class C4_AbstractView {
 		echo sprintf("%s", $list_of_strings);
 	}	
 	
-	protected function _renderVirtualContextLinks($param) {
-		$label_singular = 'Link';
-		$label_plural = 'Links';
+	protected function _renderVirtualContextLinks($param, $label_singular='Link', $label_plural='Links') {
 		$strings = array();
 		
 		foreach($param->value as $context_data) {
@@ -519,7 +517,7 @@ abstract class C4_AbstractView {
 				);
 				break;
 			case DevblocksSearchCriteria::OPER_IN:
-				echo sprintf("Linked to %s", $list_of_strings);
+				echo sprintf("%s is %s", $label_singular, $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
 				echo sprintf("%s is blank or %s", $label_singular, $list_of_strings);

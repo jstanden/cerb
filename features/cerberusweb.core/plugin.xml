@@ -1005,7 +1005,7 @@
 				<param key="options">
 					<value>
 						<!--<data key="create" />-->
-						<!--<data key="find" />-->
+						<data key="find" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
