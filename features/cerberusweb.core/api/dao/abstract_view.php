@@ -337,15 +337,21 @@ abstract class C4_AbstractView {
 				if(!isset($meta['name']) || !isset($meta['permalink']))
 					return;
 				
-				if(empty($meta['permalink']))
-					$meta['permalink'] = '#';
-				
-				$string = sprintf("New %s created: <a href='%s'><b>%s</b></a>",
-					strtolower($ctx->manifest->name),
-					htmlspecialchars($meta['permalink'], ENT_QUOTES, LANG_CHARSET_CODE),
-					htmlspecialchars($meta['name'], ENT_QUOTES, LANG_CHARSET_CODE)
-				);
+				if(!empty($meta['permalink'])) {
+					$string = sprintf("New %s created: <a href='%s'><b>%s</b></a>",
+						strtolower($ctx->manifest->name),
+						htmlspecialchars($meta['permalink'], ENT_QUOTES, LANG_CHARSET_CODE),
+						htmlspecialchars($meta['name'], ENT_QUOTES, LANG_CHARSET_CODE)
+					);
+					
+				} else {
+					$string = sprintf("New %s created: <b>%s</b>",
+						strtolower($ctx->manifest->name),
+						htmlspecialchars($meta['name'], ENT_QUOTES, LANG_CHARSET_CODE)
+					);
+				}
 			}
+			
 		}
 		
 		if(empty($string))

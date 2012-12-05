@@ -1105,7 +1105,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		C4_AbstractViewLoader::setView($view->id,$view);
 		$tpl->assign('view', $view);
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/snippets/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}	
 	
 	function showSnippetsPeekAction() {
@@ -1256,6 +1256,11 @@ class ChInternalController extends DevblocksControllerExtension {
 					// Custom field saves
 					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
 					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_SNIPPET, $id, $field_ids);
+					
+					// View marquee
+					if(!empty($id) && !empty($view_id)) {
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_SNIPPET, $id);
+					}
 				} 
 				
 			} else {
