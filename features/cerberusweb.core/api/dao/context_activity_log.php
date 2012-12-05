@@ -467,13 +467,13 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 					$label_map[$k] = $mft->name;
 				}
 				
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_ContextActivityLog', $column, $label_map);
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_ContextActivityLog', $column, $label_map, 'in', 'contexts[]');
 				break;
 
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_Task', $column, 't.id');
+					$counts = $this->_getSubtotalCountForCustomColumn('DAO_ContextActivityLog', $column, 'context_activity_log.id');
 				}
 				
 				break;
