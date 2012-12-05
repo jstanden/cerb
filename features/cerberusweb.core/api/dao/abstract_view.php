@@ -1370,8 +1370,8 @@ abstract class C4_AbstractView {
 				if(null == ($ext = Extension_DevblocksContext::get($from_context)))
 					continue;
 				
-				// [TODO] This could be loaded more efficiently (one pass)
-				$meta = $ext->getMeta($from_context_id);
+				if(false == ($meta = $ext->getMeta($from_context_id)) || empty($meta['name']))
+					continue;
 				
 				$label = $meta['name'];
 				$field_key = '*_context_link';
@@ -1516,11 +1516,12 @@ abstract class C4_AbstractView {
 				if(null == ($ext = Extension_DevblocksContext::get($from_context)))
 					continue;
 				
-				if(false != ($meta = $ext->getMeta($from_context_id))) {
-					$label = $meta['name'];
-					$oper = DevblocksSearchCriteria::OPER_IN;
-					$values = array($filter_field => $from_context . ':' . $from_context_id);
-				}
+				if(false == ($meta = $ext->getMeta($from_context_id)) || empty($meta['name']))
+					continue;
+
+				$label = $meta['name'];
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				$values = array($filter_field => $from_context . ':' . $from_context_id);
 				
 			} elseif(isset($result['context_field'])) {
 				$from_context = $result['context_field'];
