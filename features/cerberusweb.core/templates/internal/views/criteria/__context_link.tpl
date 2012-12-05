@@ -2,7 +2,7 @@
 {$contexts = Extension_DevblocksContext::getAll(false)}
 {/if}
 
-{$random = time()|cat:'_'|cat:mt_rand(1000,9999)}
+{$random = uniqid()}
 <div id="container_{$random}">
 
 <select class="chooser">
@@ -34,12 +34,12 @@
 </div>
 
 <script type="text/javascript">
-$('#container_{$random}').find('select.chooser').change(function(e) {
+$("#container_{$random}").find('select.chooser').change(function(e) {
 	$this = $(this);
 	$val = $this.val();
 	
 	if($val.length > 0) {
-		$popup = genericAjaxPopup('chooser','c=internal&a=chooserOpen&context='+encodeURIComponent($val),null,true,'750');
+		$popup = genericAjaxPopup("chooser{$random}",'c=internal&a=chooserOpen&context='+encodeURIComponent($val),null,true,'750');
 		$popup.one('popup_close',function(event) {
 			event.stopPropagation();
 			$container = $('#container_{$random}');
@@ -49,7 +49,7 @@ $('#container_{$random}').find('select.chooser').change(function(e) {
 		$popup.one('chooser_save',function(event) {
 			event.stopPropagation();
 			
-			$container = $('#container_{$random}');
+			$container = $("#container_{$random}");
 			$chooser = $container.find('select.chooser');
 			$ul = $container.find('ul.chooser-container');
 			$context_name = $chooser.find(':selected').text();

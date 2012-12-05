@@ -63,7 +63,7 @@ function chooserOpen(ref) {
 		
 	$context = $select.val();
 	
-	$popup = genericAjaxPopup('chooser','c=internal&a=chooserOpen&context='+encodeURIComponent($context),null,true,'750');
+	$popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context='+encodeURIComponent($context),null,true,'750');
 	$popup.one('chooser_save', function(event) {
 		event.stopPropagation();
 		$id = $context.replace(/\./g,'_');

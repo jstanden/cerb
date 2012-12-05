@@ -105,7 +105,7 @@ $div.find('select.metric_func').change(function(e) {
 
 $('#popup{$div_popup_worklist}').click(function(e) {
 	context = $(this).siblings('select.context').val();
-	$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist"}',null,true,'750');
+	$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist"}',null,true,'750');
 	$chooser.bind('chooser_save',function(event) {
 		if(null != event.view_model) {
 			//$('#popup{$div_popup_worklist}').find('span.name').html(event.view_name);

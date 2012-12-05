@@ -16,7 +16,7 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFind('#chooser{$view->id}');
+	$popup = genericAjaxPopupFetch('{$layer}');
 	
 	$popup.find('UL.buffer').sortable({ placeholder: 'ui-state-highlight' });
 	

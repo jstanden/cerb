@@ -3,7 +3,7 @@
 
 <script type="text/javascript">
 $('#btn{$uniq_id}').click(function(e) {
-	$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context={CerberusContexts::CONTEXT_KB_ARTICLE}',null,false,'750');
+	$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context={CerberusContexts::CONTEXT_KB_ARTICLE}',null,false,'750');
 	$chooser.one('chooser_save', function(event) {
 		// ...
 	});

@@ -32,7 +32,7 @@
 	$div = $('#popup{$uniq_id}');
 	
 	$div.click(function(e) {
-		$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenParams&context={$context}&view_id={$view->id}&trigger_id={$trigger->id}',null,true,'750');
+		$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context={$context}&view_id={$view->id}&trigger_id={$trigger->id}',null,true,'750');
 		$chooser.bind('chooser_save',function(event) {
 			if(null != event.view_model) {
 				$('#popup{$uniq_id}').find('span.name').html(event.view_name);
