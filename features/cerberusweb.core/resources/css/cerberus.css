@@ -1545,6 +1545,7 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item a.ui-state-focus {
 }
 .ui-tabs .ui-tabs-nav li a {
 	padding:6px 8px;
+	outline:none;
 }
 .ui-tabs .ui-tabs-nav li.ui-state-hover {
 	background: rgb(255,255,255) none;
