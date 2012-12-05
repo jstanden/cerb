@@ -480,9 +480,9 @@ abstract class C4_AbstractView {
 			
 			if(!empty($context_id)) {
 				$meta = $context_ext->getMeta($context_id);
-				$strings[] = sprintf("<b>%s</b> (%s)", $meta['name'], $context_ext->manifest->name);
+				$strings[] = sprintf("<b>%s</b> (%s)", htmlentities($meta['name'], ENT_QUOTES, LANG_CHARSET_CODE), htmlentities($context_ext->manifest->name, ENT_QUOTES, LANG_CHARSET_CODE));
 			} else {
-				$strings[] = sprintf("(<b>%s</b>)", $context_ext->manifest->name);
+				$strings[] = sprintf("(<b>%s</b>)", htmlentities($context_ext->manifest->name, ENT_QUOTES, LANG_CHARSET_CODE));
 			}
 		}
 		
@@ -1205,7 +1205,7 @@ abstract class C4_AbstractView {
 		);
 		
 		$join_sql = $query_parts['join'];
-		$where_sql = $query_parts['where'];				
+		$where_sql = $query_parts['where'];
 		
 		$sql = "SELECT context_watcher.to_context_id as watcher_id, count(*) as hits ". //SQL_CALC_FOUND_ROWS
 			$join_sql.
@@ -1465,7 +1465,7 @@ abstract class C4_AbstractView {
 		);
 		
 		$join_sql = $query_parts['join'];
-		$where_sql = $query_parts['where'];				
+		$where_sql = $query_parts['where'];
 			
 		switch($cfield->type) {
 			

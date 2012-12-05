@@ -1046,8 +1046,10 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function getMeta($context_id) {
-		$address = DAO_Address::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
+
+		if(null == ($address = DAO_Address::get($context_id)))
+			return array();
 		
 		$addy_name = $address->getName();
 		if(!empty($addy_name)) {
