@@ -130,6 +130,10 @@ class _DevblocksDatabaseManager {
 			return $this->Execute($sql);
 	}
 	
+	function escape($string) {
+		return mysql_real_escape_string($string, $this->_db);
+	}
+	
 	function qstr($string) {
 		return "'".mysql_real_escape_string($string, $this->_db)."'";
 	}
