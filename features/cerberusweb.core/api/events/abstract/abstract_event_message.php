@@ -795,7 +795,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		
 		$tpl->clearAssign('params');
 		$tpl->clearAssign('namePrefix');
-		$tpl->clearAssign('token_labels');		
+		$tpl->clearAssign('token_labels');
 	}
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
@@ -870,7 +870,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			
 			case 'move_to':
 				return DevblocksEventHelper::simulateActionMoveTo($params, $dict);
-				break;	
+				break;
 
 			case 'set_sender_links':
 			case 'set_sender_org_links':
@@ -899,7 +899,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 					if(!empty($context) && !empty($context_id))
 						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'ticket_custom', $params, $dict, $context, $context_id);
 				}
-				break;				
+				break;
 		}
 	}
 	
@@ -1138,7 +1138,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 					);
 				}
 				*/
-				break;	
+				break;
 
 			case 'set_sender_links':
 			case 'set_sender_org_links':
@@ -1176,7 +1176,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 						continue;
 					
 					DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $to_context_id);
-				}				
+				}
 				break;
 				
 			case 'unschedule_behavior':
@@ -1201,7 +1201,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 					if(!empty($context) && !empty($context_id))
 						DevblocksEventHelper::runActionSetCustomField($custom_field, 'ticket_custom', $params, $dict, $context, $context_id);
 				}
-				break;				
+				break;
 		}
 	}
 };	
