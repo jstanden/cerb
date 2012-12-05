@@ -1409,6 +1409,149 @@ abstract class C4_AbstractView {
 		}
 		
 		return $counts;
+	}
+		
+	protected function _getSubtotalDataForContextAndIdColumns($dao_class, $context, $field_key, $context_field, $context_id_field) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$fields = $this->getFields();
+		$columns = $this->view_columns;
+
+		$params = $this->getParams();
+		$param_results = C4_AbstractView::findParam($field_key, $params);
+		
+		$has_context_already = false;
+		
+		if(!empty($param_results)) {
+			// Did the worker add this filter?
+			$param_results = C4_AbstractView::findParam($field_key, $this->getEditableParams());
+			
+			if(count($param_results) > 0) {
+				$param_result = array_shift($param_results);
+				
+				if($param_result->operator == DevblocksSearchCriteria::OPER_IN)
+				if(is_array($param_result->value)) {
+					$context_pair = current($param_result->value);
+					@$context_data = explode(':', $context_pair);
+	
+					if(1 == count($context_data)) {
+						$has_context_already = $context_data[0];
+						
+					} elseif(2 == count($context_data)) {
+						$has_context_already = $context_data[0];
+	
+						$new_params = array(
+							$field_key => new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_IN, array($has_context_already))
+						);
+						
+						$params = array_merge($params, $new_params);
+					}
+				}
+			}
+			
+		} else {
+			$new_params = array(
+				$field_key => new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE),
+			);
+			
+			$params = array_merge($params, $new_params);
+		}
+		
+		if(!method_exists($dao_class, 'getSearchQueryComponents'))
+			return array();
+		
+		$query_parts = call_user_func_array(
+			array($dao_class,'getSearchQueryComponents'),
+			array(
+				$columns,
+				$params,
+				$this->renderSortBy,
+				$this->renderSortAsc
+			)
+		);
+		
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+
+		if(empty($has_context_already)) {
+			// This intentionally isn't constrained with a LIMIT
+			$sql = sprintf("SELECT %s AS context_field, count(*) AS hits %s %s GROUP BY context_field ORDER BY hits DESC ",
+				$db->escape($context_field),
+				$join_sql,
+				$where_sql
+			);
+			
+		} else {
+			$sql = sprintf("SELECT %s AS context_field, %s AS context_id_field, count(*) AS hits %s %s GROUP BY context_id_field ORDER BY hits DESC ",
+				$db->escape($context_field),
+				$db->escape($context_id_field),
+				$join_sql,
+				$where_sql
+			);
+		}
+
+		$results = $db->GetArray($sql);
+
+		return $results;
+	}	
+	
+	protected function _getSubtotalCountForContextAndIdColumns($dao_class, $context, $field_key, $context_field, $context_id_field) {
+		$contexts = Extension_DevblocksContext::getAll(false);
+		$counts = array();
+		
+		$results = $this->_getSubtotalDataForContextAndIdColumns($dao_class, $context, $field_key, $context_field, $context_id_field);
+		
+		if(is_array($results))
+		foreach($results as $result) {
+			$hits = $result['hits'];
+			$label = '';
+			
+			if(isset($result['context_id_field'])) {
+				$from_context = $result['context_field'];
+				$from_context_id = $result['context_id_field'];
+	
+				if(!isset($contexts[$from_context]))
+					continue;
+				
+				if(null == ($ext = Extension_DevblocksContext::get($from_context)))
+					continue;
+				
+				if(false != ($meta = $ext->getMeta($from_context_id))) {
+					$label = $meta['name'];
+					$oper = DevblocksSearchCriteria::OPER_IN;
+					$values = array('context_link[]' => $from_context . ':' . $from_context_id);
+				}
+				
+			} elseif(isset($result['context_field'])) {
+				$from_context = $result['context_field'];
+	
+				if(!isset($contexts[$from_context]))
+					continue;
+				
+				$label = $contexts[$from_context]->name;
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				$values = array('context_link[]' => $from_context);
+				
+			} else {
+				continue;
+				
+			}
+			
+			if(!isset($counts[$label]))
+				$counts[$label] = array(
+					'hits' => $hits,
+					'label' => $label,
+					'filter' => 
+						array(
+							'field' => $field_key,
+							'oper' => $oper,
+							'values' => $values,
+						),
+					'children' => array()
+				);
+		}
+		
+		return $counts;
 	}	
 	
 	protected function _getSubtotalCountForCustomColumn($dao_class, $field_key, $primary_key) {
