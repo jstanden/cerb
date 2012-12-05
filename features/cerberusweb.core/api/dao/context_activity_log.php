@@ -465,7 +465,7 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 						$label_map[$k] = $translate->_($string_id);
 					}
 				}
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_ContextActivityLog', $column, $label_map);
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_ContextActivityLog', $column, $label_map, 'in', 'options[]');
 				break;
 				
 			case SearchFields_ContextActivityLog::VIRTUAL_ACTOR:
