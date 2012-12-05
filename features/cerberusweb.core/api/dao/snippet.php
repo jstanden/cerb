@@ -278,10 +278,18 @@ class DAO_Snippet extends C4_ORMHelper {
 					if(empty($context))
 						continue;
 					
-					$wheres[] = sprintf("(snippet.owner_context = %s AND snippet.owner_context_id = %d)",
-						C4_ORMHelper::qstr($context),
-						$context_id
-					);
+					if(!empty($context_id)) {
+						$wheres[] = sprintf("(snippet.owner_context = %s AND snippet.owner_context_id = %d)",
+							C4_ORMHelper::qstr($context),
+							$context_id
+						);
+						
+					} else {
+						$wheres[] = sprintf("(snippet.owner_context = %s)",
+							C4_ORMHelper::qstr($context)
+						);
+					}
+					
 				}
 				
 				if(!empty($wheres))
@@ -567,6 +575,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 					break;
 					
 				case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
+				case SearchFields_Snippet::VIRTUAL_OWNER:
 					$pass = true;
 					break;
 				
@@ -607,6 +616,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				}
 				
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_Snippet', $column, $label_map, 'in', 'contexts[]');
+				break;
+			
+			case SearchFields_Snippet::VIRTUAL_OWNER:
+				$counts = $this->_getSubtotalCountForContextAndIdColumns('DAO_Snippet', CerberusContexts::CONTEXT_SNIPPET, $column, DAO_Snippet::OWNER_CONTEXT, DAO_Snippet::OWNER_CONTEXT_ID, 'owner_context[]');
 				break;
 			
 			default:
@@ -711,36 +724,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 			
 			case SearchFields_Snippet::VIRTUAL_OWNER:
-				echo sprintf("%s %s ", 
-					mb_convert_case($translate->_('common.owner'), MB_CASE_TITLE),
-					$param->operator
-				);
-				
-				$objects = array();
-				
-				if(is_array($param->value))
-				foreach($param->value as $v) {
-					@list($context, $context_id) = explode(':', $v);
-					
-					if(empty($context) || empty($context_id))
-						continue;
-					
-					if(null == ($ext = Extension_DevblocksContext::get($context)))
-						return;
-					
-					$meta = $ext->getMeta($context_id);
-					
-					if(empty($meta))
-						return;
-					
-					$objects[] = sprintf("<b>%s (%s)</b>",
-						$meta['name'],
-						$ext->manifest->name
-					);
-				}
-				
-				echo implode('; ', $objects);
-				
+				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners');
 				break;
 		}
 	}	

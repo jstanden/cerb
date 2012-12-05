@@ -1495,7 +1495,7 @@ abstract class C4_AbstractView {
 		return $results;
 	}	
 	
-	protected function _getSubtotalCountForContextAndIdColumns($dao_class, $context, $field_key, $context_field, $context_id_field) {
+	protected function _getSubtotalCountForContextAndIdColumns($dao_class, $context, $field_key, $context_field, $context_id_field, $filter_field='context_link[]') {
 		$contexts = Extension_DevblocksContext::getAll(false);
 		$counts = array();
 		
@@ -1519,7 +1519,7 @@ abstract class C4_AbstractView {
 				if(false != ($meta = $ext->getMeta($from_context_id))) {
 					$label = $meta['name'];
 					$oper = DevblocksSearchCriteria::OPER_IN;
-					$values = array('context_link[]' => $from_context . ':' . $from_context_id);
+					$values = array($filter_field => $from_context . ':' . $from_context_id);
 				}
 				
 			} elseif(isset($result['context_field'])) {
@@ -1530,7 +1530,7 @@ abstract class C4_AbstractView {
 				
 				$label = $contexts[$from_context]->name;
 				$oper = DevblocksSearchCriteria::OPER_IN;
-				$values = array('context_link[]' => $from_context);
+				$values = array($filter_field => $from_context);
 				
 			} else {
 				continue;
