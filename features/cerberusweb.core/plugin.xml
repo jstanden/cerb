@@ -499,6 +499,9 @@
 		<activity point="ticket.message.outbound">
 			<param key="label_key" value="Ticket Message Outbound" />
 		</activity>
+		<activity point="ticket.moved">
+			<param key="label_key" value="Ticket Moved" />
+		</activity>
 		<activity point="ticket.owner.assigned">
 			<param key="label_key" value="Ticket Assigned" />
 		</activity>

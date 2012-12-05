@@ -764,7 +764,40 @@ class DAO_Ticket extends C4_ORMHelper {
 			@$bucket_id = $changes[DAO_Ticket::BUCKET_ID];
 			
 			if(!empty($group_id) || !empty($bucket_id)) {
+				// VAs
+				
 				Event_MailMovedToGroup::trigger($object_id, $model[DAO_Ticket::GROUP_ID]);
+
+				// Activity log
+				
+				@$from_group = DAO_Group::get($group_id['from']);
+				@$to_group = DAO_Group::get($group_id['to']);
+				
+				@$from_bucket = DAO_Bucket::get($bucket_id['from']);
+				@$to_bucket = DAO_Bucket::get($bucket_id['to']);
+				
+				if(empty($from_group))
+					$from_group = DAO_Group::get($model[DAO_Ticket::GROUP_ID]);
+				if(empty($to_group))
+					$to_group = DAO_Group::get($model[DAO_Ticket::GROUP_ID]);
+				
+				$entry = array(
+					//{{actor}} moved ticket {{target}} from {{from_group}} {{from_bucket}} to {{group}} {{bucket}}
+					'message' => 'activities.ticket.moved',
+					'variables' => array(
+						'target' => sprintf("[%s] %s", $model[DAO_Ticket::MASK], $model[DAO_Ticket::SUBJECT]),
+						'from_group' => $from_group->name,
+						'from_bucket' => (empty($from_bucket) ? 'Inbox' : $from_bucket->name),
+						'group' => $to_group->name,
+						'bucket' => (empty($to_bucket) ? 'Inbox' : $to_bucket->name),
+						),
+					'urls' => array(
+						'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_TICKET, $object_id, $model[DAO_Ticket::MASK]),
+						'from_group' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_GROUP, $from_group->id, $from_group->name),
+						'group' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_GROUP, $to_group->id, $to_group->name),
+						)
+				);
+				CerberusContexts::logActivity('ticket.moved', CerberusContexts::CONTEXT_TICKET, $object_id, $entry);
 			}
 			
 			/*
