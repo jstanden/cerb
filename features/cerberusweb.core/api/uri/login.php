@@ -349,7 +349,7 @@ class ChSignInPage extends CerberusPageExtension {
 		$user_agent = UserAgentParser::parse();
 		$user_agent_string = sprintf("%s%s%s",
 			$user_agent['browser'],
-			!empty($user_agent['version']) ? (' ' . $user_agent['version'] . ' ') : '',
+			!empty($user_agent['version']) ? (' ' . $user_agent['version']) : '',
 			!empty($user_agent['platform']) ? (' for ' . $user_agent['platform']) : ''
 		);
 		
