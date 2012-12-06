@@ -407,6 +407,10 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		return $objects;
 	}
 	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_ContextActivityLog', $ids);
+	}
+	
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_ContextActivityLog', $size);
 	}
@@ -720,10 +724,12 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 	function getMeta($context_id) {
 		$url_writer = DevblocksPlatform::getUrlService();
 		
+		$entry = DAO_ContextActivityLog::get($context_id);
+		
 		return array(
-			'id' => $address->id,
-			'name' => $addy_name,
-			'permalink' => $url,
+			'id' => $entry->id,
+			'name' => CerberusContexts::formatActivityLogEntry(json_decode($entry,true), 'text'),
+			'permalink' => null,
 		);
 	}
 	
@@ -744,7 +750,8 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
-			//'address' => $prefix.$translate->_('address.address'),
+			'id' => $prefix.$translate->_('common.id'),
+			'created|date' => $prefix.$translate->_('common.created'),
 		);
 		
 		// Token values
@@ -755,8 +762,9 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 		// Address token values
 		if(null != $entry) {
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = '';
+			$token_values['_label'] = CerberusContexts::formatActivityLogEntry(json_decode($entry->entry_json,true),'text');
 			$token_values['id'] = $entry->id;
+			$token_values['created'] = $entry->created;
 		}
 		
 		return true;

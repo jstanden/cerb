@@ -57,7 +57,7 @@
 
 		$(this).delegate('DIV[id^=view]','view_refresh', on_refresh);
 		
-		$('#view{$view->id}').delegate(' TABLE.worklistBody input:checkbox', 'check', function(event) {
+		$('#view{$view->id}').delegate('TABLE.worklistBody input:checkbox', 'check', function(event) {
 			checked = $(this).is(':checked');
 
 			$view = $('#viewForm{$view->id}');
@@ -101,8 +101,9 @@
 			$popup.trigger(event);
 			
 			genericAjaxPopupDestroy('{$layer}');
-		});		
+		});
 	});
+	
 	$popup.one('diagogclose', function(event) {
 		event.stopPropagation();
 		genericAjaxPopupDestroy('{$layer}');
