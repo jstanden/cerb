@@ -996,8 +996,11 @@ class CerberusContexts {
 			$actor_url = null;
 			
 			// See if we're inside of an attendant's running decision tree
+			
+			$stack = EventListener_Triggers::getTriggerStack();
+			
 			if(EventListener_Triggers::getDepth() > 0
-				&& null != ($trigger_id = end(EventListener_Triggers::getTriggerStack())) 
+				&& null != ($trigger_id = end($stack)) 
 				&& !empty($trigger_id)
 				&& null != ($trigger = DAO_TriggerEvent::get($trigger_id))
 			) {

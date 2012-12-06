@@ -12,7 +12,6 @@
 
 <script type="text/javascript">
 	$popup = genericAjaxPopupFind('#chooser{$view->id}');
-	
 	$popup.one('popup_open',function(event,ui) {
 		event.stopPropagation();
 		$(this).dialog('option','title','{$context->manifest->name} Worklist');
@@ -59,8 +58,9 @@
 				
 				genericAjaxPopupDestroy('{$layer}');
 			});
-		});		
+		});
 	});
+	
 	$popup.one('diagogclose', function(event) {
 		event.stopPropagation();
 		genericAjaxPopupDestroy('{$layer}');
