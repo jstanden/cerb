@@ -390,6 +390,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				'replace_content' => array('label' =>'Replace text in message content'),
 				'reject' => array('label' =>'Reject delivery of message'),
 				'redirect_email' => array('label' =>'Redirect delivery to another email address'),
+				'remove_attachments' => array('label' => 'Remove attachments by filename'),
 				'send_email' => array('label' => 'Send email'),
 				'send_email_sender' => array('label' => 'Reply to sender'),
 				'set_header' => array('label' => 'Set message header'),
@@ -426,7 +427,11 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			case 'redirect_email':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_app/action_redirect_email.tpl');
 				break;
-
+			
+			case 'remove_attachments':
+				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_app/action_remove_attachments.tpl');
+				break;
+			
 			case 'send_email':
 				DevblocksEventHelper::renderActionSendEmail($trigger);
 				break;
@@ -527,11 +532,22 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			
 				$out = sprintf(">>> Redirecting message to:\n%s",
 					$to
-					);
+				);
 			
 				return $out;
 				break;
-
+			
+			case 'remove_attachments':
+				@$oper = $params['match_oper'];
+				@$value = $params['match_value'];
+				
+				$out = sprintf(">>> Removing attachments where filename %s %s\n",
+					$oper,
+					$value
+				);
+				return $out;
+				break;
+				
 			case 'send_email':
 				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
@@ -637,13 +653,27 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			
 			case 'redirect_email':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-   				@$to = $tpl_builder->build($params['to'], $dict);
-
-   				@$parser_model = $dict->_parser_model;
-   				if(empty($parser_model) || !is_a($parser_model,'CerberusParserModel'))
-   					break;
-   					
-  				CerberusMail::reflect($parser_model, $to);
+				@$to = $tpl_builder->build($params['to'], $dict);
+				
+				@$parser_model = $dict->_parser_model;
+				if(empty($parser_model) || !is_a($parser_model,'CerberusParserModel'))
+					break;
+				
+				CerberusMail::reflect($parser_model, $to);
+				break;
+				
+			case 'remove_attachments':
+				@$oper = $params['match_oper'];
+				@$value = $params['match_value'];
+				
+				if(empty($oper) || empty($value))
+					break;
+				
+				if(!isset($dict->pre_actions['attachment_filters'])) {
+					$dict->pre_actions['attachment_filters'] = array();
+				}
+				
+				$dict->pre_actions['attachment_filters'][] = array('oper' => $oper, 'value' => $value);
 				break;
 				
 			case 'send_email':

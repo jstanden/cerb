@@ -795,8 +795,59 @@ class CerberusParser {
 		
 		// Reject?
 		if(isset($pre_actions['reject'])) {
-			$logger->info('Rejecting based on Virtual Attendant behavioral action.');
+			$logger->info('Rejecting based on Virtual Attendant filtering.');
 			return NULL;
+		}
+		
+		// Filter attachments?
+		// [TODO] Encapsulate this somewhere
+		if(isset($pre_actions['attachment_filters']) && !empty($message->files)) {
+			foreach($message->files as $filename => $file) {
+				$matched = false;
+				
+				foreach($pre_actions['attachment_filters'] as $filter) {
+					if($matched)
+						continue;
+					
+					if(!isset($filter['oper']) || !isset($filter['value']))
+						continue;
+					
+					$not = false;
+					
+					if(substr($filter['oper'],0,1)=='!') {
+						$not = true;
+						$filter['oper'] = substr($filter['oper'],1);
+					}
+					
+					switch($filter['oper']) {
+						case 'is':
+							$matched = (0 == strcasecmp($filename, $filter['value']));
+							break;
+							
+						case 'like':
+						case 'regexp':
+							if($filter['oper'] == 'like')
+								$pattern = DevblocksPlatform::strToRegExp($filter['value']);
+							else
+								$pattern = $filter['value'];
+							
+							$matched = (@preg_match($pattern, $filename));
+							break;
+					}
+					
+					// Did we want a negative match?
+					if(!$matched && $not)
+						$matched = true;
+					
+					// Remove a matched attachment
+					if($matched) {
+						$logger->info(sprintf("Removing attachment '%s' based on Virtual Attendant filtering.", $filename));
+						@unlink($file->tmpname);
+						unset($message->files[$filename]);
+						continue;
+					}
+				}
+			}
 		}
 		
 		// Overloadable
