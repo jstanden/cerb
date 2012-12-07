@@ -625,6 +625,14 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals 
 				$this->_renderCriteriaParamBoolean($param);
 				break;
 			
+			case SearchFields_MailQueue::TYPE:
+				$label_map = array(
+					'mail.compose' => 'Compose',
+					'ticket.reply' => 'Reply',
+				);
+				$this->_renderCriteriaParamString($param, $label_map);
+				break;
+				
 			case SearchFields_MailQueue::WORKER_ID:
 				$this->_renderCriteriaParamWorker($param);
 				break;
