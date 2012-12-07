@@ -418,6 +418,22 @@ abstract class C4_AbstractView {
 		}
 	}
 	
+	protected function _renderCriteriaParamString($param, $label_map) {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$strings = array();
+		
+		$values = is_array($param->value) ? $param->value : array($param->value);
+		
+		foreach($values as $v) {
+			$strings[] = sprintf("<b>%s</b>",
+				(isset($label_map[$v]) ? $label_map[$v] : $v) 
+			);
+		}
+		
+		echo implode(' or ', $strings);
+	}
+	
 	protected function _renderCriteriaParamBoolean($param) {
 		$translate = DevblocksPlatform::getTranslationService();
 		
