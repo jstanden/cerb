@@ -2282,7 +2282,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$dates = array();
 		
 		foreach($conditions as $k => $cond) {
-			if($cond['type'] == Model_CustomField::TYPE_DATE)
+			if(isset($cond['type']) && $cond['type'] == Model_CustomField::TYPE_DATE)
 				$dates[$k] = $cond;
 		}
 		
