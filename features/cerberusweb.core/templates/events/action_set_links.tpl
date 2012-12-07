@@ -14,9 +14,15 @@
 </div>
 {/if}
 
-<b>Link:</b>
+<b>Do:</b>
 <div style="margin-left:10px;">
-	<ul class="chooser-container bubbles" style="display:block;">
+	<label><input type="radio" name="{$namePrefix}[is_remove]" value="0" {if !$params.is_remove}checked="checked"{/if}> {'common.add'|devblocks_translate|capitalize}</label>
+	<label><input type="radio" name="{$namePrefix}[is_remove]" value="1" {if $params.is_remove}checked="checked"{/if}> {'common.remove'|devblocks_translate|capitalize}</label>
+</div>
+
+<b>These links:</b>
+<div style="margin-left:10px;">
+	<ul class="chooser-container bubbles" style="display:inline-block;">
 	{foreach from=$params.context_objects item=context_data}
 		{if is_string($context_data) && isset($values_to_contexts.$context_data)}
 			<li>

@@ -710,7 +710,11 @@ class DevblocksEventHelper {
 	static function simulateActionSetLinks($trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$to_contexts = array();
 		
-		$out = ">>> Setting links:\n";
+		$is_remove = (isset($params['is_remove']) && !empty($params['is_remove'])) ? true : false;
+		
+		$out = sprintf(">>> %s links:\n",
+			((!$is_remove) ? 'Adding' : 'Removing')
+		);
 
 		$event = $trigger->getEvent();
 		$values_to_contexts = $event->getValuesContexts($trigger);
@@ -788,6 +792,8 @@ class DevblocksEventHelper {
 	static function runActionSetLinks($trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$to_contexts = array();
 		
+		$is_remove = (isset($params['is_remove']) && !empty($params['is_remove'])) ? true : false;
+		
 		$event = $trigger->getEvent();
 		$values_to_contexts = $event->getValuesContexts($trigger);
 		
@@ -843,7 +849,10 @@ class DevblocksEventHelper {
 					if($from_context == $to_context && $from_context_id == $to_context_id)
 						continue;
 					
-					DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $to_context_id);
+					if(!$is_remove)
+						DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $to_context_id);
+					else
+						DAO_ContextLink::deleteLink($from_context, $from_context_id, $to_context, $to_context_id);
 				}
 			}
 		}
@@ -1342,7 +1351,7 @@ class DevblocksEventHelper {
 		$out = ">>> Adding watchers:\n";
 		
 		if(!is_array($worker_ids) || empty($worker_ids)) {
-			$out .= " * [ERROR] No watchers are being set. Skipping...";
+			$out .= " * No watchers are being set. Skipping...";
 			return $out;
 		}
 			
@@ -2199,10 +2208,15 @@ class DevblocksEventHelper {
 
 				if(empty($on_value))
 					continue;
-				
+
 				if(preg_match("#(.*)_watchers#", $on)) {
-					if(is_array($on_value))
-						$vals = $on_value;
+					if(is_array($on_value)) {
+						if($load_objects) {
+							$vals = $on_value;
+						} else {
+							$vals = array_keys($on_value);
+						}
+					}
 					
 				} else {
 					if(!is_null($on))
