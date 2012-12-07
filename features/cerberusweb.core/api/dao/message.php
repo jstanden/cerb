@@ -1186,7 +1186,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$label_map = array();
 				foreach($workers as $worker_id => $worker)
 					$label_map[$worker_id] = $worker->getName();
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_Message', $column, $label_map, 'in', 'worker_id[]');
+				$counts = $this->_getSubtotalCountForNumberColumn('DAO_Message', $column, $label_map, 'in', 'worker_id[]');
 				break;
 
 			case SearchFields_Message::IS_BROADCAST:

@@ -894,7 +894,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 		switch($column) {
 			case SearchFields_KbArticle::TOP_CATEGORY_ID:
 				$topics = DAO_KbCategory::getAll();
-				$label_map = array('0' => '(none)');
+				$label_map = array();
 				foreach($topics as $topic_id => $topic) {
 					if(!empty($topic->parent_id))
 						continue;
@@ -1041,7 +1041,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 
 				foreach($values as $val) {
 					if(0==$val) {
-						$strings[] = "None";
+						$strings[] = "(none)";
 					} else {
 						if(!isset($topics[$val]))
 						continue;
