@@ -221,7 +221,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				'send_email' => array('label' => 'Send email'),
 				'set_due_date' => array('label' => 'Set due date'),
 				'set_status' => array('label' => 'Set status'),
-				'set_task_links' => array('label' => 'Set links on task'),
+				'set_links' => array('label' => 'Set links'),
 				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
 			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_TASK)
@@ -289,10 +289,8 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::events/model/task/action_set_status.tpl');
 				break;
 				
-			case 'set_task_links':
-				$contexts = Extension_DevblocksContext::getAll(false);
-				$tpl->assign('contexts', $contexts);
-				$tpl->display('devblocks:cerberusweb.core::events/action_set_links.tpl');
+			case 'set_links':
+				DevblocksEventHelper::renderActionSetLinks($trigger);
 				break;
 				
 			default:
@@ -306,7 +304,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 		
 		$tpl->clearAssign('params');
 		$tpl->clearAssign('namePrefix');
-		$tpl->clearAssign('token_labels');		
+		$tpl->clearAssign('token_labels');
 	}
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
@@ -343,6 +341,10 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 			case 'send_email':
 				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
+			
+			case 'set_links':
+				return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
+				break;
 				
 			case 'unschedule_behavior':
 				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
@@ -366,7 +368,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 					if(!empty($context) && !empty($context_id))
 						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'task_custom', $params, $dict, $context, $context_id);
 				}
-				break;				
+				break;
 		}
 	}
 	
@@ -449,33 +451,8 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				}
 				break;
 				
-			case 'set_task_links':
-				@$to_context_strings = $params['context_objects'];
-
-				if(!is_array($to_context_strings) || empty($to_context_strings))
-					break;
-
-				$from_context = null;
-				$from_context_id = null;
-				
-				switch($token) {
-					case 'set_task_links':
-						$from_context = CerberusContexts::CONTEXT_TASK;
-						@$from_context_id = $dict->task_id;
-						break;
-				}
-				
-				if(empty($from_context) || empty($from_context_id))
-					break;
-				
-				foreach($to_context_strings as $to_context_string) {
-					@list($to_context, $to_context_id) = explode(':', $to_context_string);
-					
-					if(empty($to_context) || empty($to_context_id))
-						continue;
-					
-					DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $to_context_id);
-				}				
+			case 'set_links':
+				DevblocksEventHelper::runActionSetLinks($trigger, $params, $dict);
 				break;
 				
 			default:
@@ -496,7 +473,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 					if(!empty($context) && !empty($context_id))
 						DevblocksEventHelper::runActionSetCustomField($custom_field, 'task_custom', $params, $dict, $context, $context_id);
 				}
-				break;	
+				break;
 		}
 	}
 	

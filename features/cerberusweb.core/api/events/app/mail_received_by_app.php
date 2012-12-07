@@ -131,7 +131,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		 */
 
 		$this->setLabels($labels);
-		$this->setValues($values);		
+		$this->setValues($values);
 	}
 	
 	function getValuesContexts($trigger) {
@@ -193,7 +193,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
-		return $conditions;		
+		return $conditions;
 	}
 	
 	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -305,7 +305,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 					}
 				}
 				
-				$pass = ($not) ? !$found : $found;				
+				$pass = ($not) ? !$found : $found;
 				break;
 				
 			case 'recipients':
@@ -372,7 +372,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				}
 				
 				$pass = ($not) ? !$pass : $pass;
-				break;				
+				break;
 				
 			default:
 				$pass = false;
@@ -452,7 +452,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		
 		$tpl->clearAssign('params');
 		$tpl->clearAssign('namePrefix');
-		$tpl->clearAssign('token_labels');		
+		$tpl->clearAssign('token_labels');
 	}
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
@@ -599,7 +599,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 					);
 					return $out;
 				}
-				break;				
+				break;
 		}
 	}
 	
@@ -739,7 +739,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 					
 					$parser_model->getMessage()->custom_fields[$field_id] = $value; 
 				}
-				break;				
+				break;
 		}
 	}
 };
