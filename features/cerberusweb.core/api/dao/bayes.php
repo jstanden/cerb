@@ -41,7 +41,7 @@ class DAO_Bayes {
 		$sql = sprintf("SELECT id,word,spam,nonspam FROM bayes_words WHERE word IN ('%s')",
 			implode("','", $tmp)
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		// [JAS]: Keep a list of words we can check off as we index them with IDs
 		$tmp = array_flip($words); // words are now keys
@@ -68,7 +68,7 @@ class DAO_Bayes {
 				$db->qstr($new_word)
 			);
 			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-			$id = $db->LastInsertId(); 
+			$id = $db->LastInsertId();
 			
 			$w = new Model_BayesWord();
 			$w->id = $id;
@@ -87,7 +87,7 @@ class DAO_Bayes {
 		
 		// [JAS]: [TODO] Change this into a 'replace' index?
 		$sql = "SELECT spam, nonspam FROM bayes_stats";
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		if($row = mysql_fetch_assoc($rs)) {
 			$spam = intval($row['spam']);
@@ -105,13 +105,13 @@ class DAO_Bayes {
 	static function addOneToSpamTotal() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = "UPDATE bayes_stats SET spam = spam + 1";
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
 	static function addOneToNonSpamTotal() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = "UPDATE bayes_stats SET nonspam = nonspam + 1";
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
 	static function addOneToSpamWord($word_ids=array()) {
@@ -119,7 +119,7 @@ class DAO_Bayes {
 		if(empty($word_ids)) return;
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("UPDATE bayes_words SET spam = spam + 1 WHERE id IN(%s)", implode(',',$word_ids));
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
 	static function addOneToNonSpamWord($word_ids=array()) {
@@ -127,7 +127,7 @@ class DAO_Bayes {
 		if(empty($word_ids)) return;
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("UPDATE bayes_words SET nonspam = nonspam + 1 WHERE id IN(%s)", implode(',',$word_ids));
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 };
 
@@ -212,7 +212,7 @@ class CerberusBayes {
 			
 			// Sort unique words w/ condensed spaces
 			$words = array_flip(explode(' ', preg_replace("/\\s+/", ' ', trim($text))));
-		}		
+		}
 
 		// Toss words that are too common
 		$words = self::_removeCommonWords($words);
@@ -789,7 +789,7 @@ class CerberusBayes {
 		$words = self::parseUniqueWords($text);
 		$words = self::_lookupWordIds($words);
 		$words = self::_analyze($words);
-		return $words; 
+		return $words;
 	}
 	
 	static function markTicketAsSpam($ticket_id) {
@@ -813,7 +813,7 @@ class CerberusBayes {
 		// [TODO] This is a performance killer
 		$first_message = DAO_Message::get($ticket->first_message_id);
 
-		if(empty($first_message)) 
+		if(empty($first_message))
 			return FALSE;
 		
 		// Pass text to analyze() to get back interesting words
@@ -841,7 +841,7 @@ class CerberusBayes {
 		// [TODO] This is a performance killer (could be done in batches)
 		if($spam) {
 			DAO_Bayes::addOneToSpamTotal();
-			DAO_Address::addOneToSpamTotal($ticket->first_wrote_address_id); 
+			DAO_Address::addOneToSpamTotal($ticket->first_wrote_address_id);
 		} else {
 			DAO_Bayes::addOneToNonSpamTotal();
 			DAO_Address::addOneToNonSpamTotal($ticket->first_wrote_address_id);
@@ -871,8 +871,8 @@ class CerberusBayes {
 		}
 			
 		if($spam) {
-			DAO_Bayes::addOneToSpamWord($ids); 
-		} else { 
+			DAO_Bayes::addOneToSpamWord($ids);
+		} else {
 			DAO_Bayes::addOneToNonSpamWord($ids);
 		}
 		
@@ -880,12 +880,12 @@ class CerberusBayes {
 	}
 	
 	/**
-	 * @param array $words An array indexed with words to look up 
+	 * @param array $words An array indexed with words to look up
 	 */
 	static private function _lookupWordIds($words) {
 		$pos = 0;
 		$batch_size = 100; //[TODO] Tune this
-		$outwords = array(); // 
+		$outwords = array(); //
 				
 		while(array() != ($batch = array_slice($words,$pos,$batch_size,true))) {
 			$batch = array_keys($batch); // words are now values
@@ -968,9 +968,9 @@ class CerberusBayes {
 		} else {
 			$prob = max(self::PROBABILITY_FLOOR,
 				min(self::PROBABILITY_CEILING,
-					floatval( 
-						min(1,($b/$nbad))	
-						/ 
+					floatval(
+						min(1,($b/$nbad))
+						/
 						( $g/$ngood + $b/$nbad )
 					)
 				)
@@ -999,7 +999,7 @@ class CerberusBayes {
 		$probabilities = array();
 		
 		// Sort words by interest descending
-		$interesting_words = $words; 
+		$interesting_words = $words;
 		usort($interesting_words,array('CerberusBayes','_sortByInterest'));
 		$interesting_words = array_slice($interesting_words,-1 * self::MAX_INTERESTING_WORDS);
 
@@ -1018,7 +1018,7 @@ class CerberusBayes {
 		$first_message = array_shift($messages);
 		$ticket = DAO_Ticket::get($ticket_id);
 		
-		if(empty($ticket) || empty($first_message) || !($first_message instanceOf Model_Message)) 
+		if(empty($ticket) || empty($first_message) || !($first_message instanceOf Model_Message))
 			return FALSE;
 		
 		// Pass text to analyze() to get back interesting words

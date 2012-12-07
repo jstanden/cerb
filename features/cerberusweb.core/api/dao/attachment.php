@@ -213,7 +213,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		);
 		
 		return $result;
-	}	
+	}
 	
 	/**
 	 * Enter description here...
@@ -238,13 +238,13 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY a.id ' : '').
 			$sort_sql;
-		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$results = array();
 		$total = -1;
@@ -259,7 +259,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		}
 
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				"SELECT COUNT(a.id) ".
 				$join_sql.
 				$where_sql;
@@ -308,7 +308,7 @@ class SearchFields_Attachment implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 
@@ -342,7 +342,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		$tpl->assign('archive_after_days', $this->getParam('archive_after_days', 7));
 		
 		$tpl->display("devblocks:cerberusweb.core::configuration/section/storage_profiles/schemas/attachments/render.tpl");
-	}	
+	}
 	
 	function renderConfig() {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -368,7 +368,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		$this->setParam('archive_after_days', $archive_after_days);
 		
 		return true;
-	}	
+	}
 	
 	/**
 	 * @param Model_Attachment | $attachment_id
@@ -533,7 +533,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		$src_profile->id = $row['storage_profile_id'];
 		$src_profile->extension_id = $row['storage_extension'];
 		
-		if(empty($src_key) || empty($src_id)  
+		if(empty($src_key) || empty($src_id)
 			|| !$src_profile instanceof Model_DevblocksStorageProfile
 			|| !$dst_profile instanceof Model_DevblocksStorageProfile
 			)
@@ -551,7 +551,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		));
 
 		// Do as quicker strings if under 1MB?
-		$is_small = ($src_size < 1000000) ? true : false;  
+		$is_small = ($src_size < 1000000) ? true : false;
 		
 		// Allocate a temporary file for retrieving content
 		if($is_small) {
@@ -744,7 +744,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 		}
 		
 		return $counts;
-	}	
+	}
 	
 	function render() {
 		$this->_sanitize();
@@ -847,7 +847,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 			case SearchFields_AttachmentLink::ATTACHMENT_MIME_TYPE:
 			case SearchFields_AttachmentLink::ATTACHMENT_STORAGE_EXTENSION:
 			case SearchFields_AttachmentLink::ATTACHMENT_STORAGE_KEY:
-				$criteria = $this->_doSetCriteriaString($field, $oper, $value);				
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case SearchFields_AttachmentLink::ATTACHMENT_STORAGE_SIZE:
@@ -923,7 +923,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 		for($x=0;$x<=$batch_total;$x+=100) {
 			$batch_ids = array_slice($ids,$x,100);
 			
-			if(!$deleted) { 
+			if(!$deleted) {
 				//DAO_AttachmentLink::update($batch_ids, $change_fields);
 			} else {
 				foreach($batch_ids as $batch_id) {
@@ -935,7 +935,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 		}
 
 		unset($ids);
-	}			
+	}
 };
 
 class DAO_AttachmentLink extends C4_ORMHelper {
@@ -961,7 +961,7 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 	
 	/**
 	 * ...
-	 * 
+	 *
 	 * @param string $guid
 	 * @return Model_AttachmentLink
 	 */
@@ -989,7 +989,7 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 	
 	/**
 	 * ...
-	 * 
+	 *
 	 * @param unknown_type $context
 	 * @param unknown_type $context_id
 	 * @param unknown_type $attachment_ids
@@ -1103,7 +1103,7 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 			if(!isset($results[$row['attachment_id']][$row['context']]))
 				$results[$row['attachment_id']][$row['context']] = array();
 			
-			$results[$row['attachment_id']][$row['context']][$row['context_id']] = $row['attachment_id']; 
+			$results[$row['attachment_id']][$row['context']][$row['context_id']] = $row['attachment_id'];
 		}
 		
 		return $results;
@@ -1111,7 +1111,7 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 	
 	static function removeAllByAttachment($attachment_id) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute(sprintf("DELETE FROM attachment_link WHERE attachment_id = %d", 
+		$db->Execute(sprintf("DELETE FROM attachment_link WHERE attachment_id = %d",
 			$attachment_id
 		));
 	}
@@ -1216,7 +1216,7 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 		);
 		
 		return $result;
-	}	
+	}
 	
 	/**
 	 * Enter description here...
@@ -1241,13 +1241,13 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY al.attachment_id ' : '').
 			$sort_sql;
-		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		$results = array();
 		$total = -1;
@@ -1262,7 +1262,7 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 		}
 
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				"SELECT COUNT(al.attachment_id) ".
 				$join_sql.
 				$where_sql;
@@ -1312,7 +1312,7 @@ class SearchFields_AttachmentLink implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 

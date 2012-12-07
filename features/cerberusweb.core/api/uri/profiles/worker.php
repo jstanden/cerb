@@ -30,7 +30,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$visit = CerberusApplication::getVisit();
 		$request = DevblocksPlatform::getHttpRequest();
 		
-		$active_worker = CerberusApplication::getActiveWorker();		
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$stack = $request->path;
 		
@@ -104,7 +104,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 			);
 		}
 		
-		$tpl->assign('properties', $properties);				
+		$tpl->assign('properties', $properties);
 		
 		// Macros
 		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.worker');
@@ -119,6 +119,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$tpl->assign('is_ssl', $url_writer->isSSL());
 		
 		// Template
-		$tpl->display('devblocks:cerberusweb.core::profiles/worker.tpl');		
+		$tpl->display('devblocks:cerberusweb.core::profiles/worker.tpl');
 	}
 };

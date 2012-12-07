@@ -48,7 +48,7 @@ class PageSection_SetupSecurity extends Extension_PageSection {
 			
 		} catch(Exception $e) {
 			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
-			return;	
+			return;
 		}
 	}
 };

@@ -19,7 +19,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	const ID = 'event.mail.received.app';
 	
 	/**
-	 * 
+	 *
 	 * Enter description here ...
 	 * @param CerberusParserModel $parser_model
 	 */
@@ -39,7 +39,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param CerberusParserModel $parser_model
 	 * @return Model_DevblocksEvent
 	 */
@@ -383,7 +383,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions() {
-		$actions = 
+		$actions =
 			array(
 				'append_to_content' => array('label' =>'Append text to message content'),
 				'prepend_to_content' => array('label' =>'Prepend text to message content'),
@@ -737,7 +737,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 							break;
 					}
 					
-					$parser_model->getMessage()->custom_fields[$field_id] = $value; 
+					$parser_model->getMessage()->custom_fields[$field_id] = $value;
 				}
 				break;
 		}

@@ -124,7 +124,7 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 	}
 	
 	static function deleteByContext($context, $context_ids) {
-		if(!is_array($context_ids)) 
+		if(!is_array($context_ids))
 			$context_ids = array($context_ids);
 		
 		if(empty($context_ids))
@@ -132,7 +132,7 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 			
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute(sprintf("DELETE FROM context_activity_log WHERE target_context = %s AND target_context_id IN (%s) ", 
+		$db->Execute(sprintf("DELETE FROM context_activity_log WHERE target_context = %s AND target_context_id IN (%s) ",
 			$db->qstr($context),
 			implode(',', $context_ids)
 		));
@@ -273,7 +273,7 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -301,7 +301,7 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT context_activity_log.id) " : "SELECT COUNT(context_activity_log.id) ").
 				$join_sql.
 				$where_sql;
@@ -490,7 +490,7 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		}
 		
 		return $counts;
-	}	
+	}
 	
 	function render() {
 		$this->_sanitize();
@@ -824,7 +824,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Activity Log';

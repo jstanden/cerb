@@ -29,10 +29,10 @@ class PageSection_SetupMailSmtp extends Extension_PageSection {
 		
 		if ($smtp_auth_enabled) {
 			$smtp_auth_user = $settings->get('cerberusweb.core',CerberusSettings::SMTP_AUTH_USER,CerberusSettingsDefaults::SMTP_AUTH_USER);
-			$smtp_auth_pass = $settings->get('cerberusweb.core',CerberusSettings::SMTP_AUTH_PASS,CerberusSettingsDefaults::SMTP_AUTH_PASS); 
+			$smtp_auth_pass = $settings->get('cerberusweb.core',CerberusSettings::SMTP_AUTH_PASS,CerberusSettingsDefaults::SMTP_AUTH_PASS);
 		} else {
 			$smtp_auth_user = '';
-			$smtp_auth_pass = ''; 
+			$smtp_auth_pass = '';
 		}
 		
 		$smtp_enc = $settings->get('cerberusweb.core',CerberusSettings::SMTP_ENCRYPTION_TYPE,CerberusSettingsDefaults::SMTP_ENCRYPTION_TYPE);
@@ -113,5 +113,5 @@ class PageSection_SetupMailSmtp extends Extension_PageSection {
 			return false;
 			
 		}
-	}	
+	}
 }

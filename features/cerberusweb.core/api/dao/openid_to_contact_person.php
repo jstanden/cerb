@@ -71,7 +71,7 @@ class DAO_OpenIdToContactPerson {
 		$rs = $db->GetArray($sql);
 		
 		foreach($rs as $row) {
-			$results[$row['openid_claimed_id']] = $row['openid_claimed_id']; 
+			$results[$row['openid_claimed_id']] = $row['openid_claimed_id'];
 		}
 		
 		return $results;

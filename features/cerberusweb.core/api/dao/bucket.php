@@ -39,7 +39,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param bool $nocache
 	 * @return Model_Bucket[]
 	 */
@@ -54,7 +54,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param integer $id
 	 * @return Model_Bucket
 	 */
@@ -87,7 +87,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 			(!empty($ids) ? sprintf("WHERE bucket.id IN (%s) ", implode(',', $ids)) : "").
 			"ORDER BY worker_group.name ASC, bucket.pos ASC "
 		;
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$buckets = array();
 		
@@ -125,7 +125,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 	}
 	
 	static function getAssignableBuckets($group_ids=null) {
-		if(!is_null($group_ids) && !is_array($group_ids)) 
+		if(!is_null($group_ids) && !is_array($group_ids))
 			$group_ids = array($group_ids);
 		
 		if(empty($group_ids)) {
@@ -165,7 +165,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 			$group_id
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-		$id = $db->LastInsertId(); 
+		$id = $db->LastInsertId();
 
 		self::clearCache();
 		
@@ -199,11 +199,11 @@ class DAO_Bucket extends DevblocksORMHelper {
 		);
 		
 		$sql = sprintf("DELETE QUICK FROM bucket WHERE id IN (%s)", implode(',',$ids));
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		// Reset any tickets using this bucket
 		$sql = sprintf("UPDATE ticket SET bucket_id = 0 WHERE bucket_id IN (%s)", implode(',',$ids));
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		self::clearCache();
 	}
@@ -241,7 +241,7 @@ class Model_Bucket {
 	public $reply_signature;
 	
 	/**
-	 * 
+	 *
 	 * @param integer $bucket_id
 	 * @return Model_AddressOutgoing
 	 */
@@ -376,7 +376,7 @@ class Model_Bucket {
 		}
 		
 		return $signature;
-	}	
+	}
 };
 
 class Context_Bucket extends Extension_DevblocksContext {
@@ -414,7 +414,7 @@ class Context_Bucket extends Extension_DevblocksContext {
 				'permalink' => '',
 			);
 			
-		$url = '';		
+		$url = '';
 		
 		if(null == ($bucket = DAO_Bucket::get($context_id)))
 			return false;
@@ -477,7 +477,7 @@ class Context_Bucket extends Extension_DevblocksContext {
 			//$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=group&id=%d-%s",$group->id, DevblocksPlatform::strToPermalink($group->name)), true);
 		}
 		
-		return true;		
+		return true;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {
@@ -512,7 +512,7 @@ class Context_Bucket extends Extension_DevblocksContext {
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		if(empty($view_id))
@@ -545,7 +545,7 @@ class Context_Bucket extends Extension_DevblocksContext {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Buckets';

@@ -50,7 +50,7 @@ class DAO_Comment extends C4_ORMHelper {
 				'target' => sprintf("ctx://%s:%d", $fields[self::CONTEXT], $fields[self::CONTEXT_ID]),
 				)
 		);
-		CerberusContexts::logActivity('comment.create', $fields[self::CONTEXT], $fields[self::CONTEXT_ID], $entry, null, null, $also_notify_worker_ids);		
+		CerberusContexts::logActivity('comment.create', $fields[self::CONTEXT], $fields[self::CONTEXT_ID], $entry, null, null, $also_notify_worker_ids);
 		
 		/*
 		 * Send a new comment event
@@ -65,7 +65,7 @@ class DAO_Comment extends C4_ORMHelper {
 					'fields' => $fields,
 				)
 			)
-		);		
+		);
 		
 		return $id;
 	}
@@ -165,7 +165,7 @@ class DAO_Comment extends C4_ORMHelper {
 	}
 	
 	static function deleteByContext($context, $context_ids) {
-		if(!is_array($context_ids)) 
+		if(!is_array($context_ids))
 			$context_ids = array($context_ids);
 		
 		if(empty($context_ids))
@@ -173,7 +173,7 @@ class DAO_Comment extends C4_ORMHelper {
 			
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute(sprintf("DELETE FROM comment WHERE context = %s AND context_id IN (%s) ", 
+		$db->Execute(sprintf("DELETE FROM comment WHERE context = %s AND context_id IN (%s) ",
 			$db->qstr($context),
 			implode(',', $context_ids)
 		));
@@ -265,7 +265,7 @@ class DAO_Comment extends C4_ORMHelper {
 		);
 		
 		return $result;
-	}	
+	}
 	
 	
 	/**
@@ -292,7 +292,7 @@ class DAO_Comment extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -320,7 +320,7 @@ class DAO_Comment extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT comment.id) " : "SELECT COUNT(comment.id) ").
 				$join_sql.
 				$where_sql;
@@ -433,7 +433,7 @@ class Search_CommentContent {
 			foreach($comments as $comment) { /* @var $comment Model_Comment */
 				$id = $comment->id;
 				
-				$logger->info(sprintf("[Search] Indexing %s %d...", 
+				$logger->info(sprintf("[Search] Indexing %s %d...",
 					$ns,
 					$id
 				));
@@ -689,7 +689,7 @@ class View_Comment extends C4_AbstractView {
 		}
 
 		unset($ids);
-	}			
+	}
 };
 
 class Context_Comment extends Extension_DevblocksContext {
@@ -771,7 +771,7 @@ class Context_Comment extends Extension_DevblocksContext {
 			$token_values['context_id'] = $comment->context_id;
 			$token_values['created'] = $comment->created;
 			$token_values['address_id'] = $comment->address_id;
-			$token_values['comment'] = $comment->comment;			
+			$token_values['comment'] = $comment->comment;
 		}
 		
 		return true;
@@ -802,7 +802,7 @@ class Context_Comment extends Extension_DevblocksContext {
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		if(empty($view_id))
@@ -829,14 +829,14 @@ class Context_Comment extends Extension_DevblocksContext {
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
 		C4_AbstractViewLoader::setView($view_id, $view);
-		return $view;		
+		return $view;
 	}
 	
 	function getView($context=null, $context_id=null, $options=array()) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Comments';

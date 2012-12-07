@@ -263,5 +263,5 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		
 		$view->render();
 		return;
-	}	
+	}
 }

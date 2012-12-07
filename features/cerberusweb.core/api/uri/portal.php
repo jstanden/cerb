@@ -19,8 +19,8 @@ class Controller_Portal extends DevblocksControllerExtension {
 	const ID = 'core.controller.portal';
 	
 	/**
-	 * @param DevblocksHttpRequest $request 
-	 * @return DevblocksHttpResponse $response 
+	 * @param DevblocksHttpRequest $request
+	 * @return DevblocksHttpResponse $response
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
 		$stack = $request->path;
@@ -75,12 +75,12 @@ class Controller_Portal extends DevblocksControllerExtension {
 };
 
 class ChPortalHelper {
-	static private $_code = null; 
+	static private $_code = null;
 	static private $_fingerprint = null;
 	
 	public static function getCode() {
 		return self::$_code;
-	}	
+	}
 	
 	public static function setCode($code) {
 		self::$_code = $code;

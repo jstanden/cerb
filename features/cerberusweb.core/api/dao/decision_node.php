@@ -30,7 +30,7 @@ class DAO_DecisionNode extends C4_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		// Automatically append to parent
-		if(!isset($fields[self::POS]) 
+		if(!isset($fields[self::POS])
 			&& isset($fields[self::PARENT_ID])
 			&& isset($fields[self::TRIGGER_ID])
 			) {
@@ -61,7 +61,7 @@ class DAO_DecisionNode extends C4_ORMHelper {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param bool $nocache
 	 * @return Model_DecisionNode[]
 	 */
@@ -302,7 +302,7 @@ class DAO_DecisionNode extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -330,7 +330,7 @@ class DAO_DecisionNode extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT decision_node.id) " : "SELECT COUNT(decision_node.id) ").
 				$join_sql.
 				$where_sql;
@@ -385,7 +385,7 @@ class SearchFields_DecisionNode implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 
@@ -629,6 +629,6 @@ class View_DecisionNode extends C4_AbstractView {
 		}
 
 		unset($ids);
-	}			
+	}
 };
 

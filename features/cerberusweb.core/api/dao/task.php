@@ -147,7 +147,7 @@ class DAO_Task extends C4_ORMHelper {
 				CerberusContexts::logActivity('task.status.completed', CerberusContexts::CONTEXT_TASK, $object_id, $entry);
 			}
 			
-		} // foreach		
+		} // foreach
 	}
 	
 	static function updateWhere($fields, $where) {
@@ -283,7 +283,7 @@ class DAO_Task extends C4_ORMHelper {
 				SearchFields_Task::TITLE
 		);
 
-		$join_sql = 
+		$join_sql =
 			"FROM task t ".
 
 			// [JAS]: Dynamic table joins
@@ -330,7 +330,7 @@ class DAO_Task extends C4_ORMHelper {
 		);
 		
 		return $result;
-	}	
+	}
 
 	private static function _translateVirtualParameters($param, $key, &$args) {
 		if(!is_a($param, 'DevblocksSearchCriteria'))
@@ -379,14 +379,14 @@ class DAO_Task extends C4_ORMHelper {
 		$sort_sql = $query_parts['sort'];
 		
 		// Build it
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY t.id ' : '').
 			$sort_sql;
 		
-		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$results = array();
 		
@@ -402,7 +402,7 @@ class DAO_Task extends C4_ORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT t.id) " : "SELECT COUNT(t.id) ").
 				$join_sql.
 				$where_sql;
@@ -412,7 +412,7 @@ class DAO_Task extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-	}	
+	}
 	
 };
 
@@ -873,13 +873,13 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 							CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TASK, $batch_id, $watcher_params['remove']);
 					}
 				}
-			}		
+			}
 			
 			unset($batch_ids);
 		}
 
 		unset($ids);
-	}	
+	}
 };
 
 class Context_Task extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
@@ -1008,7 +1008,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -1036,14 +1036,14 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		C4_AbstractViewLoader::setView($view_id, $view);
-		return $view;		
+		return $view;
 	}
 	
 	function getView($context=null, $context_id=null, $options=array()) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Tasks';
@@ -1073,7 +1073,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		}
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK); 
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
 		$tpl->assign('custom_fields', $custom_fields);
 
 		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TASK, $context_id);
@@ -1092,7 +1092,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		// View
 		$tpl->assign('id', $context_id);
 		$tpl->assign('view_id', $view_id);
-		$tpl->display('devblocks:cerberusweb.core::tasks/rpc/peek.tpl');		
+		$tpl->display('devblocks:cerberusweb.core::tasks/rpc/peek.tpl');
 	}
 	
 	function importGetKeys() {

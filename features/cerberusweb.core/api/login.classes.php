@@ -124,7 +124,7 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 			
 			// [TODO] Email or SMS it through the new recovery platform service
 			CerberusMail::quickSend($worker->email, 'Your confirmation code', $recovery_code);
-		}		
+		}
 		$tpl->display('devblocks:cerberusweb.core::login/auth/setup.tpl');
 	}
 	

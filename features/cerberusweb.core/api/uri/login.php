@@ -45,7 +45,7 @@ class ChSignInPage extends CerberusPageExtension {
 				$tpl = DevblocksPlatform::getTemplateService();
 				$tpl->assign('email', $email);
 
-				if(!empty($email) 
+				if(!empty($email)
 						&& null != $worker_id
 						&& null != $worker
 						&& !$worker->is_disabled) {

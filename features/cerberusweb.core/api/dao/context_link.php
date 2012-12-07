@@ -159,7 +159,7 @@ class DAO_ContextLink {
 					'link' => sprintf("ctx://%s:%d/%s", $src_context, $src_context_id, DevblocksPlatform::strToPermalink($meta_src_context['name'])),
 					)
 			);
-			CerberusContexts::logActivity('connection.link', $dst_context, $dst_context_id, $entry);			
+			CerberusContexts::logActivity('connection.link', $dst_context, $dst_context_id, $entry);
 			
 		}
 		
@@ -230,7 +230,7 @@ class DAO_ContextLink {
 		foreach($to_context_ids as $to_context_id) {
 			DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $to_context_id);
 		}
-	}	
+	}
 	
 	static public function getAllContextLinks($from_context, $from_context_id) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -322,7 +322,7 @@ class DAO_ContextLink {
 			return array();
 		
 		/*
-		 * Performance optimization. Use one of two strategies: (1) source context 
+		 * Performance optimization. Use one of two strategies: (1) source context
 		 * has lots of links; (2) source context has few links
 		 */
 		$link_count = DAO_ContextLink::count($from_context, $from_context_id);
@@ -513,7 +513,7 @@ class DAO_ContextLink {
 					'link' => sprintf("ctx://%s:%d", $dst_context, $dst_context_id),
 					)
 			);
-			CerberusContexts::logActivity('connection.unlink', $src_context, $src_context_id, $entry);		
+			CerberusContexts::logActivity('connection.unlink', $src_context, $src_context_id, $entry);
 			
 			$entry = array(
 				//{{actor}} disconnected {{target_object}} {{target}} from {{link_object}} {{link}}
@@ -530,7 +530,7 @@ class DAO_ContextLink {
 					)
 			);
 			CerberusContexts::logActivity('connection.unlink', $dst_context, $dst_context_id, $entry);
-		}		
+		}
 		
 		return true;
 	}

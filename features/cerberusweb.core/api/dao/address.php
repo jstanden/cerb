@@ -52,11 +52,11 @@ class DAO_Address extends C4_ORMHelper {
 	 *
 	 * @param array $fields An array of fields=>values
 	 * @return integer The new address ID
-	 * 
+	 *
 	 * DAO_Address::create(array(
 	 *   DAO_Address::EMAIL => 'user@domain'
 	 * ));
-	 * 
+	 *
 	 */
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -84,7 +84,7 @@ class DAO_Address extends C4_ORMHelper {
 				$db->qstr($full_address)
 			);
 			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-			$id = $db->LastInsertId(); 
+			$id = $db->LastInsertId();
 
 		} else { // update
 			$id = $check->id;
@@ -142,7 +142,7 @@ class DAO_Address extends C4_ORMHelper {
 		
 		// Addresses
 		$sql = sprintf("DELETE QUICK FROM address WHERE id IN (%s)", $address_ids);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -202,7 +202,7 @@ class DAO_Address extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return $objects;
-	}	
+	}
 	
 	/**
 	 * @return Model_Address|null
@@ -285,13 +285,13 @@ class DAO_Address extends C4_ORMHelper {
 	static function addOneToSpamTotal($address_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("UPDATE address SET num_spam = num_spam + 1 WHERE id = %d",$address_id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
 	static function addOneToNonSpamTotal($address_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("UPDATE address SET num_nonspam = num_nonspam + 1 WHERE id = %d",$address_id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
 	public static function random() {
@@ -302,7 +302,7 @@ class DAO_Address extends C4_ORMHelper {
 		$fields = SearchFields_Address::getFields();
 		
 		// Sanitize
-		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) 
+		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy])
 			|| (SearchFields_Address::EMAIL != $sortBy && !in_array($sortBy, $columns))
 		)
 			$sortBy=null;
@@ -334,7 +334,7 @@ class DAO_Address extends C4_ORMHelper {
 				SearchFields_Address::IS_DEFUNCT
 			);
 		
-		$join_sql = 
+		$join_sql =
 			"FROM address a ".
 			"LEFT JOIN contact_org o ON (o.id=a.contact_org_id) ".
 		
@@ -435,14 +435,14 @@ class DAO_Address extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY a.id ' : '').
 			$sort_sql;
 			
-		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$results = array();
 		
@@ -458,7 +458,7 @@ class DAO_Address extends C4_ORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT a.id) " : "SELECT COUNT(*) ").
 				$join_sql.
 				$where_sql;
@@ -530,8 +530,8 @@ class SearchFields_Address implements IDevblocksSearchFields {
 		}
 		
 		// Custom Fields: addy + org
-		$fields = 
-			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS) + 
+		$fields =
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS) +
 			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG)
 		;
 		
@@ -709,7 +709,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 		}
 		
 		return $counts;
-	}	
+	}
 	
 	function render() {
 		$this->_sanitize();
@@ -719,10 +719,10 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 		
 		$tpl->assign('view', $this);
 
-		$custom_fields = 
-			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS) + 
+		$custom_fields =
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS) +
 			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG)
-			; 
+			;
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		switch($this->renderTemplate) {
@@ -796,7 +796,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 				$this->_renderVirtualWatchers($param);
 				break;
 		}
-	}	
+	}
 	
 	function renderCriteriaParam($param) {
 		$field = $param->field;
@@ -927,17 +927,17 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 			
 			$params = $do['broadcast'];
 			if(
-				!isset($params['worker_id']) 
+				!isset($params['worker_id'])
 				|| empty($params['worker_id'])
-				|| !isset($params['subject']) 
+				|| !isset($params['subject'])
 				|| empty($params['subject'])
-				|| !isset($params['message']) 
+				|| !isset($params['message'])
 				|| empty($params['message'])
 				)
 				break;
 
-			$is_queued = (isset($params['is_queued']) && $params['is_queued']) ? true : false; 
-			$next_is_closed = (isset($params['next_is_closed'])) ? intval($params['next_is_closed']) : 0; 
+			$is_queued = (isset($params['is_queued']) && $params['is_queued']) ? true : false;
+			$next_is_closed = (isset($params['next_is_closed'])) ? intval($params['next_is_closed']) : 0;
 						
 			if(is_array($ids))
 			foreach($ids as $addy_id) {
@@ -977,7 +977,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 					// [TODO] ...
 				}
 			}
-		}		
+		}
 		
 		$batch_total = count($ids);
 		for($x=0;$x<=$batch_total;$x+=100) {
@@ -1150,9 +1150,9 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			$merge_token_values,
 			$token_labels,
 			$token_values
-		);		
+		);
 		
-		return true;		
+		return true;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {
@@ -1221,14 +1221,14 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		C4_AbstractViewLoader::setView($view_id, $view);
-		return $view;		
+		return $view;
 	}
 	
 	function getView($context=null, $context_id=null, $options=array()) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'E-mail Addresses';
@@ -1417,5 +1417,5 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		if(!empty($custom_fields) && !empty($meta['object_id'])) {
 			DAO_CustomFieldValue::formatAndSetFieldValues($this->manifest->id, $meta['object_id'], $custom_fields, false, true, true); //$is_blank_unset (4th)
 		}
-	}	
+	}
 };

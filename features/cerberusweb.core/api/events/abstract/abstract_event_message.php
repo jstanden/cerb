@@ -19,7 +19,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 	protected $_event_id = null; // override
 	
 	/**
-	 * 
+	 *
 	 * @param integer $message_id
 	 * @param integer $group_id
 	 * @return Model_DevblocksEvent
@@ -73,7 +73,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		 * Ticket
 		 */
 		
-		@$ticket_id = $values['ticket_id']; 
+		@$ticket_id = $values['ticket_id'];
 		$ticket_labels = array();
 		$ticket_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $ticket_labels, $ticket_values, null, true);
@@ -581,7 +581,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 					
 				} else {
 					$pass = false;
-				}				
+				}
 				
 				$pass = ($not) ? !$pass : $pass;
 				break;
@@ -633,7 +633,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions() {
-		$actions = 
+		$actions =
 			array(
 				'add_watchers' => array('label' =>'Add watchers'),
 				'create_comment' => array('label' =>'Create a comment'),
@@ -1162,4 +1162,4 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				break;
 		}
 	}
-};	
+};

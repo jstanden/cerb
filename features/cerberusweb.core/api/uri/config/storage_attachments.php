@@ -96,5 +96,5 @@ class PageSection_SetupStorageAttachments extends Extension_PageSection {
 		
 		$view->render();
 		return;
-	}	
+	}
 }

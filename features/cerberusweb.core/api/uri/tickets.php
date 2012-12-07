@@ -40,7 +40,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$url_writer = DevblocksPlatform::getUrlService();
 		
 		// Generate hash
-		$hash = md5($view_id.$active_worker->id.time()); 
+		$hash = md5($view_id.$active_worker->id.time());
 		
 		// Loop through view and get IDs
 		$view = C4_AbstractViewLoader::getView($view_id);
@@ -73,7 +73,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					'total' => $total,
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=tickets', true),
 				);
-				$models[] = $model; 
+				$models[] = $model;
 				
 				$view->renderTotal = false; // speed up subsequent pages
 			}
@@ -92,7 +92,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					'id' => $row[SearchFields_Ticket::TICKET_ID],
 					'url' => $url,
 				);
-				$models[] = $model; 
+				$models[] = $model;
 			}
 			
 			DAO_ExplorerSet::createFromModels($models);
@@ -111,7 +111,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$url_writer = DevblocksPlatform::getUrlService();
 		
 		// Generate hash
-		$hash = md5($view_id.$active_worker->id.time()); 
+		$hash = md5($view_id.$active_worker->id.time());
 		
 		// Loop through view and get IDs
 		$view = C4_AbstractViewLoader::getView($view_id);
@@ -145,7 +145,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=tickets&tab=messages', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
-				$models[] = $model; 
+				$models[] = $model;
 				
 				$view->renderTotal = false; // speed up subsequent pages
 			}
@@ -162,7 +162,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					'id' => $id,
 					'url' => $url_writer->writeNoProxy(sprintf("c=profiles&type=ticket&id=%s", $row[SearchFields_Message::TICKET_MASK]), true),
 				);
-				$models[] = $model; 
+				$models[] = $model;
 			}
 			
 			DAO_ExplorerSet::createFromModels($models);
@@ -172,7 +172,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		} while(!empty($results));
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
-	}	
+	}
 	
 	// Ajax
 	function reportSpamAction() {
@@ -201,7 +201,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$last_action->action_params = $fields;
 		
 		View_Ticket::setLastAction($view_id,$last_action);
-		//====================================		
+		//====================================
 		
 		CerberusBayes::markTicketAsSpam($id);
 		
@@ -224,7 +224,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$tpl->assign('last_action', $last_action);
 		$tpl->display('devblocks:cerberusweb.core::tickets/rpc/ticket_view_output.tpl');
-	} 
+	}
 	
 	// [TODO] Refactor for group-based signatures
 	function getLogTicketSignatureAction() {
@@ -348,7 +348,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
 			);
 			$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
-		}		
+		}
 		exit;
 	}
 		
@@ -502,7 +502,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		} else {
 			echo $group->getReplySignature($bucket_id, $active_worker);
 		}
-	}	
+	}
 	
 	function showViewAutoAssistAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
@@ -536,7 +536,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			$memberships = $active_worker->getMemberships();
 			
 			$params = $view->getParams();
-			$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID, 'in', array_keys($memberships)); 
+			$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID, 'in', array_keys($memberships));
 			
 			// [JAS]: Calculate statistics about the current view (top unique senders/subjects/domains)
 			
@@ -567,7 +567,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Enforce worker memberships
 		$active_worker = CerberusApplication::getActiveWorker();
 		$memberships = $active_worker->getMemberships();
-		$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID, 'in', array_keys($memberships)), 'tmpMemberships'); 
+		$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID, 'in', array_keys($memberships)), 'tmpMemberships');
 		
 		foreach($piles_hash as $idx => $hash) {
 			@$moveto = $piles_moveto[$idx];
@@ -1010,7 +1010,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 		/*
-		 * [TODO] This could be optimized by only doing the row-level updates for the 
+		 * [TODO] This could be optimized by only doing the row-level updates for the
 		 * MOVE action, all the rest can just be a single DAO_Ticket::update($ids, ...)
 		 */
 		if(is_array($last_action->ticket_ids) && !empty($last_action->ticket_ids))
@@ -1047,7 +1047,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			$tickets = DAO_Ticket::getTickets($ticket_ids);
 			if(is_array($tickets))
 			foreach($tickets as $ticket) { /* @var $ticket Model_Ticket */
-				$ptr =& $unique_sender_ids[$ticket->first_wrote_address_id]; 
+				$ptr =& $unique_sender_ids[$ticket->first_wrote_address_id];
 				$ptr = intval($ptr) + 1;
 				$ptr =& $unique_subjects[$ticket->subject];
 				$ptr = intval($ptr) + 1;
@@ -1257,7 +1257,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		// Restrict to current worker groups
 		$memberships = $active_worker->getMemberships();
-		$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID, 'in', array_keys($memberships)), 'tmp'); 
+		$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID, 'in', array_keys($memberships)), 'tmp');
 		
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
@@ -1368,11 +1368,11 @@ class ChTicketsPage extends CerberusPageExtension {
 		);
 		
 		$fields = array(
-			DAO_ViewRss::TITLE => $title, 
-			DAO_ViewRss::HASH => $hash, 
+			DAO_ViewRss::TITLE => $title,
+			DAO_ViewRss::HASH => $hash,
 			DAO_ViewRss::CREATED => time(),
 			DAO_ViewRss::WORKER_ID => $active_worker->id,
-			DAO_ViewRss::SOURCE_EXTENSION => $source, 
+			DAO_ViewRss::SOURCE_EXTENSION => $source,
 			DAO_ViewRss::PARAMS => serialize($params),
 		);
 		$feed_id = DAO_ViewRss::create($fields);

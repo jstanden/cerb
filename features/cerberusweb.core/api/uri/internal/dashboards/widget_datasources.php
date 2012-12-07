@@ -128,7 +128,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 			case 'count':
 				$select_func = 'COUNT(*)';
 				break;
-		}						
+		}
 			
 		$sql = sprintf("SELECT %s AS counter_value " .
 			str_replace('%','%%',$query_parts['join']).
@@ -540,7 +540,7 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 			);
 			
 			DAO_WorkspaceWidget::update($widget->id, array(
-				DAO_WorkspaceWidget::UPDATED_AT => time(), 
+				DAO_WorkspaceWidget::UPDATED_AT => time(),
 			));
 			
 			$cache->save($data, $cache_key, array(), $cache_mins*60);

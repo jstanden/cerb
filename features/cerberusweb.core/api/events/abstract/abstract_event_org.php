@@ -19,7 +19,7 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 	protected $_event_id = null; // override
 
 	/**
-	 * 
+	 *
 	 * @param integer $org_id
 	 * @return Model_DevblocksEvent
 	 */
@@ -52,7 +52,7 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 				'org_id' => $org_id,
 			)
 		);
-	}	
+	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null) {
 		$labels = array();
@@ -62,7 +62,7 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 		 * Org
 		 */
 		
-		@$org_id = $event_model->params['org_id']; 
+		@$org_id = $event_model->params['org_id'];
 		$merge_labels = array();
 		$merge_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, $org_id, $merge_labels, $merge_values, null, true);
@@ -82,7 +82,7 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 		 */
 
 		$this->setLabels($labels);
-		$this->setValues($values);		
+		$this->setValues($values);
 	}
 	
 	function getValuesContexts($trigger) {
@@ -130,7 +130,7 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
-		return $conditions;		
+		return $conditions;
 	}
 	
 	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -233,7 +233,7 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions() {
-		$actions = 
+		$actions =
 			array(
 				'add_watchers' => array('label' =>'Add watchers'),
 				'create_comment' => array('label' =>'Create a comment'),
@@ -312,7 +312,7 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 		
 		$tpl->clearAssign('params');
 		$tpl->clearAssign('namePrefix');
-		$tpl->clearAssign('token_labels');		
+		$tpl->clearAssign('token_labels');
 	}
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
@@ -372,7 +372,7 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 					if(!empty($context) && !empty($context_id))
 						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'org_custom', $params, $dict, $context, $context_id);
 				}
-				break;	
+				break;
 		}
 	}
 	
@@ -433,7 +433,7 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 					if(!empty($context) && !empty($context_id))
 						DevblocksEventHelper::runActionSetCustomField($custom_field, 'org_custom', $params, $dict, $context, $context_id);
 				}
-				break;	
+				break;
 		}
 	}
 	

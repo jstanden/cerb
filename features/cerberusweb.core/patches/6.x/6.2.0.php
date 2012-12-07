@@ -22,7 +22,7 @@ while($row = mysql_fetch_assoc($rs)) {
 	
 	switch($row['extension_id']) {
 		
-		// On charts, we want to default the datasource for each series 
+		// On charts, we want to default the datasource for each series
 		//  to 'worklist' if there is data
 		case 'core.workspace.widget.chart':
 			if(isset($params['chart_type']) && $params['chart_type'] == 'scatterplot') {

@@ -301,7 +301,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set('cerberusweb.groups.tab', 'fields');		
+		$visit->set('cerberusweb.groups.tab', 'fields');
 		
 		if(!$active_worker->isGroupManager($group_id) && !$active_worker->is_superuser) {
 			return;
@@ -310,7 +310,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 			$tpl->assign('group', $group);
 		}
 		
-		$group_fields = DAO_CustomField::getByContextAndGroupId(CerberusContexts::CONTEXT_TICKET, $group_id); 
+		$group_fields = DAO_CustomField::getByContextAndGroupId(CerberusContexts::CONTEXT_TICKET, $group_id);
 		$tpl->assign('group_fields', $group_fields);
 					
 		$types = Model_CustomField::getTypes();
@@ -346,7 +346,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 				
 			} else {
 				$fields = array(
-					DAO_CustomField::NAME => $name, 
+					DAO_CustomField::NAME => $name,
 					DAO_CustomField::POS => $order,
 					DAO_CustomField::OPTIONS => !is_null($option) ? $option : '',
 				);
@@ -380,7 +380,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 
 		$fields = array(
-			DAO_Group::NAME => $name			
+			DAO_Group::NAME => $name
 		);
 		
 		if(empty($group_id)) { // new

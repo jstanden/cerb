@@ -79,7 +79,7 @@ class ChExplorerController extends DevblocksControllerExtension {
 		$items = DAO_ExplorerSet::get($hashset, array(0, $p));
 		$total = 0;
 		
-		$tpl->assign('hashset', $hashset);		
+		$tpl->assign('hashset', $hashset);
 		
 		if(isset($items['0'])) {
 			$meta = $items['0'];

@@ -19,7 +19,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 	protected $_event_id = null; // override
 	
 	/**
-	 * 
+	 *
 	 * @param integer $ticket_id
 	 * @param integer $group_id
 	 * @return Model_DevblocksEvent
@@ -52,14 +52,14 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				'ticket_id' => $ticket_id,
 			)
 		);
-	}	
+	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null) {
 		$labels = array();
 		$values = array();
 		$blank = array();
 
-		@$ticket_id = $event_model->params['ticket_id']; 
+		@$ticket_id = $event_model->params['ticket_id'];
 		
 		/**
 		 * Ticket
@@ -113,7 +113,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		 */
 
 		$this->setLabels($labels);
-		$this->setValues($values);		
+		$this->setValues($values);
 	}
 	
 	function getValuesContexts($trigger) {
@@ -306,7 +306,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		);
 		
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
-		return $conditions;		
+		return $conditions;
 	}
 	
 	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -644,7 +644,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions() {
-		$actions = 
+		$actions =
 			array(
 				'add_watchers' => array('label' =>'Add watchers'),
 				'create_comment' => array('label' =>'Create a comment'),
@@ -872,7 +872,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				
 			case 'move_to':
 				return DevblocksEventHelper::simulateActionMoveTo($params, $dict);
-				break;	
+				break;
 			
 			case 'set_links':
 				return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);

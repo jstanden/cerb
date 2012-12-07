@@ -57,7 +57,7 @@ class PageSection_SetupGroups extends Extension_PageSection {
 		
 		// Custom fields
 		
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_GROUP); 
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_GROUP);
 		$tpl->assign('custom_fields', $custom_fields);
 
 		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_GROUP, $id);
@@ -73,7 +73,7 @@ class PageSection_SetupGroups extends Extension_PageSection {
 		$tpl->assign('workers', $workers);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/groups/edit_group.tpl');
-	}	
+	}
 	
 	function saveGroupAction() {
 		$translate = DevblocksPlatform::getTranslationService();
@@ -147,5 +147,5 @@ class PageSection_SetupGroups extends Extension_PageSection {
 		DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_GROUP, $id, $field_ids);
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','groups')));
-	}	
+	}
 }

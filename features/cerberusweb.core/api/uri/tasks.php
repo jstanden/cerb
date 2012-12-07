@@ -63,7 +63,7 @@ class ChTasksPage extends CerberusPageExtension {
 			
 			// Due Date
 			@$due_date = DevblocksPlatform::importGPC($_REQUEST['due_date'],'string','');
-			@$fields[DAO_Task::DUE_DATE] = empty($due_date) ? 0 : intval(strtotime($due_date));		
+			@$fields[DAO_Task::DUE_DATE] = empty($due_date) ? 0 : intval(strtotime($due_date));
 	
 			// Comment
 			@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
@@ -97,7 +97,7 @@ class ChTasksPage extends CerberusPageExtension {
 				}
 			}
 
-			// Comments				
+			// Comments
 			if(!empty($comment) && !empty($id)) {
 				@$also_notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
 				
@@ -260,7 +260,7 @@ class ChTasksPage extends CerberusPageExtension {
 		$url_writer = DevblocksPlatform::getUrlService();
 		
 		// Generate hash
-		$hash = md5($view_id.$active_worker->id.time()); 
+		$hash = md5($view_id.$active_worker->id.time());
 		
 		// Loop through view and get IDs
 		$view = C4_AbstractViewLoader::getView($view_id);
@@ -294,7 +294,7 @@ class ChTasksPage extends CerberusPageExtension {
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=task', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
-				$models[] = $model; 
+				$models[] = $model;
 				
 				$view->renderTotal = false; // speed up subsequent pages
 			}
@@ -311,7 +311,7 @@ class ChTasksPage extends CerberusPageExtension {
 					'id' => $row[SearchFields_Task::ID],
 					'url' => $url_writer->writeNoProxy(sprintf("c=profiles&type=task&id=%d", $row[SearchFields_Task::ID]), true),
 				);
-				$models[] = $model; 
+				$models[] = $model;
 			}
 			
 			DAO_ExplorerSet::createFromModels($models);

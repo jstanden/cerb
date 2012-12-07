@@ -35,8 +35,8 @@ class ChDebugController extends DevblocksControllerExtension  {
 		// Is this IP authorized?
 		$pass = false;
 		foreach ($authorized_ips as $ip) {
-			if(substr($ip,0,strlen($ip)) == substr($_SERVER['REMOTE_ADDR'],0,strlen($ip))) { 
-				$pass = true; 
+			if(substr($ip,0,strlen($ip)) == substr($_SERVER['REMOTE_ADDR'],0,strlen($ip))) {
+				$pass = true;
 				break;
 			}
 		}
@@ -58,7 +58,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 						<title></title>
 						<style>
 							BODY {font-family: Arial, Helvetica, sans-serif; font-size: 12px;}
-							FORM {margin:0px; } 
+							FORM {margin:0px; }
 							H1 { margin:0px; }
 							.fail {color:red;font-weight:bold;}
 							.pass {color:green;font-weight:bold;}
@@ -210,7 +210,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 						<title></title>
 						<style>
 							BODY {font-family: Arial, Helvetica, sans-serif; font-size: 12px;}
-							FORM {margin:0px; } 
+							FORM {margin:0px; }
 							H1 { margin:0px; }
 							.fail {color:red;font-weight:bold;}
 							.pass {color:green;font-weight:bold;}
@@ -220,7 +220,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 						<form>
 							<h1>Cerberus Helpdesk - Debug Report:</h1>
 							<textarea rows='25' cols='100'>%s</textarea>
-						</form>	
+						</form>
 					</body>
 					</html>
 					",
@@ -457,7 +457,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 						<title></title>
 						<style>
 							BODY {font-family: Arial, Helvetica, sans-serif; font-size: 12px;}
-							FORM {margin:0px; } 
+							FORM {margin:0px; }
 							H1 { margin:0px; }
 						</style>
 					</head>
@@ -470,7 +470,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 								<li><a href='%s'>phpinfo()</a></li>
 								<li><a href='%s'>Export Virtual Attendants</a></li>
 							</ul>
-						</form>	
+						</form>
 					</body>
 					</html>
 					"

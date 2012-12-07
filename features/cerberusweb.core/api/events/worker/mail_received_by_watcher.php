@@ -32,10 +32,10 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				)
 			)
 		);
-	} 
+	}
 
 	/**
-	 * 
+	 *
 	 * @param integer $message_id
 	 * @param integer $worker_id
 	 * @return Model_DevblocksEvent
@@ -72,10 +72,10 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				'worker_id' => $worker_id,
 			)
 		);
-	}	
+	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null) {
-		@$message_id = $event_model->params['message_id']; 
+		@$message_id = $event_model->params['message_id'];
 		@$worker_id = $event_model->params['worker_id'];
 		 
 		$labels = array();
@@ -88,7 +88,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 		/**
 		 * Ticket
 		 */
-		@$ticket_id = $values['ticket_id']; 
+		@$ticket_id = $values['ticket_id'];
 		$ticket_labels = array();
 		$ticket_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $ticket_labels, $ticket_values, null, true);
@@ -446,7 +446,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 		}
 		
 		return $pass;
-	}	
+	}
 	
 	function getActionExtensions() {
 		$actions = array(

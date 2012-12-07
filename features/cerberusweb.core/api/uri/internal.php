@@ -332,7 +332,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			return;
 		
 		if(!($context_ext instanceof IDevblocksContextImport))
-			return;		
+			return;
 
 		$view_class = $context_ext->getViewClass();
 		$view = new $view_class; /* @var $view C4_AbstractView */
@@ -504,7 +504,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				$value = $context_ext->importKeyValue($key, $value);
 				
 				if($is_preview) {
-					echo sprintf("%s => %s<br>", 
+					echo sprintf("%s => %s<br>",
 						$keys[$key]['label'],
 						$value
 					);
@@ -516,7 +516,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					if(is_null($cf_id)) {
 						$fields[$key] = $value;
 					} else {
-						$custom_fields[$cf_id] = $value;						
+						$custom_fields[$cf_id] = $value;
 					}
 				}
 				
@@ -708,7 +708,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_ContextLink::setLink($context, $context_id, $from_context, $from_context_id);
 
 		echo json_encode(array(
-			'links_count' => DAO_ContextLink::count($from_context, $from_context_id), 
+			'links_count' => DAO_ContextLink::count($from_context, $from_context_id),
 		));
 	}
 
@@ -725,7 +725,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_ContextLink::deleteLink($context, $context_id, $from_context, $from_context_id);
 		
 		echo json_encode(array(
-			'links_count' => DAO_ContextLink::count($from_context, $from_context_id), 
+			'links_count' => DAO_ContextLink::count($from_context, $from_context_id),
 		));
 	}
 
@@ -915,7 +915,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				$context_list[] = ''; // plaintext
 				
 				// Filter contexts
-				$params[SearchFields_Snippet::CONTEXT] = 
+				$params[SearchFields_Snippet::CONTEXT] =
 					new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT,DevblocksSearchCriteria::OPER_IN,$context_list)
 					;
 				
@@ -1063,7 +1063,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl->clearAssign('context');
 		$tpl->clearAssign('context_id');
-		$tpl->clearAssign('object_watchers');		
+		$tpl->clearAssign('object_watchers');
 	}
 	
 	// Snippets
@@ -1106,7 +1106,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
-	}	
+	}
 	
 	function showSnippetsPeekAction() {
 		@$snippet_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
@@ -1134,7 +1134,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('contexts', $contexts);
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SNIPPET); 
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SNIPPET);
 		$tpl->assign('custom_fields', $custom_fields);
 
 		if(!empty($custom_fields)) {
@@ -1261,7 +1261,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					if(!empty($id) && !empty($view_id)) {
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_SNIPPET, $id);
 					}
-				} 
+				}
 				
 			} else {
 				if(null != ($snippet = DAO_Snippet::get($id))) { /* @var $snippet Model_Snippet */
@@ -1280,7 +1280,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null !== ($view = C4_AbstractViewLoader::getView($view_id))) {
 			$view->render();
 		}
-	}	
+	}
 	
 	function snippetPasteAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
@@ -1447,7 +1447,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$view->render();
 		return;
-	}	
+	}
 	
 	// Views
 
@@ -2129,7 +2129,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			}
 
 			// Relative scheduling
-			// [TODO] This is almost wholly redundant with saveMacroSchedulerPopup() 
+			// [TODO] This is almost wholly redundant with saveMacroSchedulerPopup()
 			
 			$event = $macro->getEvent();
 			$event_model = $event->generateSampleEventModel($context_id);
@@ -2143,14 +2143,14 @@ class ChInternalController extends DevblocksControllerExtension {
 				$run_relative_timestamp = time();
 			
 			// Recurring events
-			// [TODO] This is almost wholly redundant with saveMacroSchedulerPopup() 
+			// [TODO] This is almost wholly redundant with saveMacroSchedulerPopup()
 			@$repeat_freq = DevblocksPlatform::importGPC($_REQUEST['repeat_freq'],'string', '');
 			@$repeat_end = DevblocksPlatform::importGPC($_REQUEST['repeat_end'],'string', '');
 			
 			$repeat_params = array();
 			
 			if(!empty($repeat_freq)) {
-				@$repeat_options = DevblocksPlatform::importGPC($_REQUEST['repeat_options'][$repeat_freq], 'array', array());			
+				@$repeat_options = DevblocksPlatform::importGPC($_REQUEST['repeat_options'][$repeat_freq], 'array', array());
 				@$repeat_ends = DevblocksPlatform::importGPC($_REQUEST['repeat_ends'][$repeat_end], 'array', array());
 	
 				switch($repeat_end) {
@@ -2178,7 +2178,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			@$var_keys = DevblocksPlatform::importGPC($_REQUEST['var_keys'],'array',array());
 			@$var_vals = DevblocksPlatform::importGPC($_REQUEST['var_vals'],'array',array());
 
-			$vars = DAO_ContextScheduledBehavior::buildVariables($var_keys, $var_vals, $macro);			
+			$vars = DAO_ContextScheduledBehavior::buildVariables($var_keys, $var_vals, $macro);
 
 			// Create
 			$behavior_id = DAO_ContextScheduledBehavior::create(array(
@@ -2336,7 +2336,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			$repeat_params = array();
 			
 			if(!empty($repeat_freq)) {
-				@$repeat_options = DevblocksPlatform::importGPC($_REQUEST['repeat_options'][$repeat_freq], 'array', array());			
+				@$repeat_options = DevblocksPlatform::importGPC($_REQUEST['repeat_options'][$repeat_freq], 'array', array());
 				@$repeat_ends = DevblocksPlatform::importGPC($_REQUEST['repeat_ends'][$repeat_end], 'array', array());
 	
 				switch($repeat_end) {
@@ -2363,14 +2363,14 @@ class ChInternalController extends DevblocksControllerExtension {
 			@$var_keys = DevblocksPlatform::importGPC($_REQUEST['var_keys'],'array',array());
 			@$var_vals = DevblocksPlatform::importGPC($_REQUEST['var_vals'],'array',array());
 			
-			$vars = DAO_ContextScheduledBehavior::buildVariables($var_keys, $var_vals, $trigger);			
+			$vars = DAO_ContextScheduledBehavior::buildVariables($var_keys, $var_vals, $trigger);
 			
 			DAO_ContextScheduledBehavior::update($job->id, array(
 				DAO_ContextScheduledBehavior::RUN_DATE => $run_timestamp,
 				DAO_ContextScheduledBehavior::RUN_RELATIVE => $run_relative,
 				DAO_ContextScheduledBehavior::RUN_LITERAL => $run_date,
-				DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($vars), 
-				DAO_ContextScheduledBehavior::REPEAT_JSON => json_encode($repeat_params), 
+				DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($vars),
+				DAO_ContextScheduledBehavior::REPEAT_JSON => json_encode($repeat_params),
 			));
 		}
 		
@@ -2554,7 +2554,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				}
 				
 				DAO_DecisionNode::delete($ids_to_delete);
-			} 
+			}
 			
 		} elseif(isset($_REQUEST['trigger_id'])) {
 			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
@@ -2785,7 +2785,7 @@ class ChInternalController extends DevblocksControllerExtension {
  				|| $k == '_current_time'
  			)
  				$values[$k] = strtotime($v);
- 		} 		
+ 		}
  		
  		// Dictionary
  		
@@ -3045,7 +3045,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				}
 				
 				DAO_DecisionNode::update($id, array(
-					DAO_DecisionNode::PARAMS_JSON => json_encode(array('groups'=>$groups)), 
+					DAO_DecisionNode::PARAMS_JSON => json_encode(array('groups'=>$groups)),
 				));
 				break;
 				
@@ -3054,7 +3054,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				$params = array();
 				$params['actions'] = $this->_parseActions($action_ids, $_POST);
 				DAO_DecisionNode::update($id, array(
-					DAO_DecisionNode::PARAMS_JSON => json_encode($params), 
+					DAO_DecisionNode::PARAMS_JSON => json_encode($params),
 				));
 				break;
 				
@@ -3159,7 +3159,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	function showScheduledBehaviorTabAction() {
 		Subcontroller_Internal_VirtualAttendants::showScheduledBehaviorAction();
-	}	
+	}
 	
 	// Calendars
 	
@@ -3404,14 +3404,14 @@ class ChInternalController extends DevblocksControllerExtension {
 			echo json_encode(array(
 				'event_id' => intval($event_id),
 				'action' => 'delete',
-			));			
+			));
 			return;
 		}
 		
 		// Recurring
 		
 		if(!empty($repeat_freq)) {
-			@$repeat_options = DevblocksPlatform::importGPC($_REQUEST['repeat_options'][$repeat_freq], 'array', array());			
+			@$repeat_options = DevblocksPlatform::importGPC($_REQUEST['repeat_options'][$repeat_freq], 'array', array());
 			@$repeat_ends = DevblocksPlatform::importGPC($_REQUEST['repeat_ends'][$repeat_end], 'array', array());
 
 			switch($repeat_end) {
@@ -3431,8 +3431,8 @@ class ChInternalController extends DevblocksControllerExtension {
 				),
 			);
 			
-		 	/* 
-		 	 * Create recurring profile if this is a new event, otherwise modify the 
+		 	/*
+		 	 * Create recurring profile if this is a new event, otherwise modify the
 		 	 * existing one and all associated events.
 		 	 */
 			
@@ -3492,7 +3492,7 @@ class ChInternalController extends DevblocksControllerExtension {
 						$fields = array(
 							DAO_CalendarRecurringProfile::PARAMS_JSON => json_encode($options),
 						);
-						DAO_CalendarRecurringProfile::update($recurring_id, $fields);						
+						DAO_CalendarRecurringProfile::update($recurring_id, $fields);
 						
 						// Create the new recurring profile
 						$fields = array(

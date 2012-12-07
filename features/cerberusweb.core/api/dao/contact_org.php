@@ -59,7 +59,7 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			time()
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-		$id = $db->LastInsertId(); 
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		return $id;
@@ -163,13 +163,13 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		$sql = sprintf("DELETE QUICK FROM contact_org WHERE id IN (%s)",
 			$id_list
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		// Clear any associated addresses
 		$sql = sprintf("UPDATE address SET contact_org_id = 0 WHERE contact_org_id IN (%s)",
 			$id_list
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -263,7 +263,7 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			return $objects[$id];
 			
 		return null;
-	}	
+	}
 
 	/**
 	 * Enter description here...
@@ -331,14 +331,14 @@ class DAO_ContactOrg extends C4_ORMHelper {
 				SearchFields_ContactOrg::CREATED
 			);
 
-		$join_sql = 
+		$join_sql =
 			"FROM contact_org c ".
 			
 			// [JAS]: Dynamic table joins
 			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.org' AND context_link.to_context_id = c.id) " : " ").
 			(isset($tables['ftcc']) ? "INNER JOIN comment ON (comment.context = 'cerberusweb.contexts.org' AND comment.context_id = c.id) " : " ").
 			(isset($tables['ftcc']) ? "INNER JOIN fulltext_comment_content ftcc ON (ftcc.id=comment.id) " : " ")
-			;		
+			;
 		
 		// Custom field joins
 		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
@@ -426,7 +426,7 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -434,9 +434,9 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			$sort_sql;
 			
 		if($limit > 0) {
-			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		} else {
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			$total = mysql_num_rows($rs);
 		}
 		
@@ -454,7 +454,7 @@ class DAO_ContactOrg extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT c.id) " : "SELECT COUNT(c.id) ").
 				$join_sql.
 				$where_sql;
@@ -464,7 +464,7 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-	}	
+	}
 };
 
 class SearchFields_ContactOrg {
@@ -675,7 +675,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 		}
 		
 		return $counts;
-	}	
+	}
 	
 	function render() {
 		$this->_sanitize();
@@ -760,7 +760,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 				$this->_renderVirtualWatchers($param);
 				break;
 		}
-	}	
+	}
 	
 	function renderCriteriaParam($param) {
 		$field = $param->field;
@@ -945,7 +945,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 	}
 	
 	function getRandom() {
-		return DAO_ContactOrg::random();		
+		return DAO_ContactOrg::random();
 	}
 	
 	function getContext($org, &$token_labels, &$token_values, $prefix=null) {
@@ -1008,7 +1008,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=org&id=%d-%s",$org->id, DevblocksPlatform::strToPermalink($org->name)), true);
 		}
 
-		return true;		
+		return true;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {
@@ -1054,7 +1054,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 
 		// View
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
@@ -1073,14 +1073,14 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		C4_AbstractViewLoader::setView($view_id, $view);
-		return $view;		
+		return $view;
 	}
 	
 	function getView($context=null, $context_id=null, $options=array()) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Organizations';
@@ -1235,5 +1235,5 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		if(!empty($custom_fields) && !empty($meta['object_id'])) {
 			DAO_CustomFieldValue::formatAndSetFieldValues($this->manifest->id, $meta['object_id'], $custom_fields, false, true, true); //$is_blank_unset (4th)
 		}
-	}	
+	}
 };

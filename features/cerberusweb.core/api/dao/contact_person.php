@@ -75,7 +75,8 @@ class DAO_ContactPerson extends C4_ORMHelper {
 
 	/**
 	 * @param integer $id
-	 * @return Model_ContactPerson	 */
+	 * @return Model_ContactPerson
+	 */
 	static function get($id) {
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
@@ -285,7 +286,7 @@ class DAO_ContactPerson extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -313,7 +314,7 @@ class DAO_ContactPerson extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT contact_person.id) " : "SELECT COUNT(contact_person.id) ").
 				$join_sql.
 				$where_sql;
@@ -407,7 +408,7 @@ class SearchFields_ContactPerson implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 
@@ -572,7 +573,7 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 		}
 		
 		return $counts;
-	}	
+	}
 
 	function render() {
 		$this->_sanitize();
@@ -653,10 +654,10 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 				break;
 
 			case SearchFields_ContactPerson::VIRTUAL_WATCHERS:
-				$this->_renderVirtualWatchers($param);				
+				$this->_renderVirtualWatchers($param);
 				break;
 		}
-	}	
+	}
 	
 	function renderCriteriaParam($param) {
 		$field = $param->field;
@@ -796,7 +797,7 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 		}
 
 		unset($ids);
-	}			
+	}
 };
 
 class Context_ContactPerson extends Extension_DevblocksContext implements IDevblocksContextProfile {
@@ -922,9 +923,9 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 			$merge_token_values,
 			$token_labels,
 			$token_values
-		);		
+		);
 
-		return true;		
+		return true;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {
@@ -959,7 +960,7 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		$translate = DevblocksPlatform::getTranslationService();
@@ -989,7 +990,7 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		C4_AbstractViewLoader::setView($view_id, $view);
-		return $view;		
+		return $view;
 	}
 	
 	function getView($context=null, $context_id=null, $options=array()) {
@@ -998,7 +999,7 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = $translate->_('addy_book.tab.people');

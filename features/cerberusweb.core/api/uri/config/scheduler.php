@@ -92,7 +92,7 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 			return;
 			
 		} catch(Exception $e) {
-			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));			
+			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
 			return;
 			
 		}

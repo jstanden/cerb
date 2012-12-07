@@ -345,5 +345,5 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
    		}
    		
    		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','mail_routing')));
-   	}	
+   	}
 }

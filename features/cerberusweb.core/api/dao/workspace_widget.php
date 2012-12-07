@@ -1,5 +1,5 @@
 <?php
-/***********************************************************************
+/************************************************************************
  | Cerb(tm) developed by WebGroup Media, LLC.
  |-----------------------------------------------------------------------
  | All source code & content (c) Copyright 2012, WebGroup Media LLC
@@ -151,7 +151,7 @@ class DAO_WorkspaceWidget extends C4_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM workspace_widget WHERE workspace_tab_id IN (%s)", $ids_list));		
+		$db->Execute(sprintf("DELETE FROM workspace_widget WHERE workspace_tab_id IN (%s)", $ids_list));
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
@@ -253,7 +253,7 @@ class DAO_WorkspaceWidget extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -281,7 +281,7 @@ class DAO_WorkspaceWidget extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT workspace_widget.id) " : "SELECT COUNT(workspace_widget.id) ").
 				$join_sql.
 				$where_sql;
@@ -323,7 +323,7 @@ class SearchFields_WorkspaceWidget implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 

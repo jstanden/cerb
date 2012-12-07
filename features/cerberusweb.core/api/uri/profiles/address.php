@@ -111,6 +111,6 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		$tpl->assign('tab_manifests', $tab_manifests);
 
 		// Template
-		$tpl->display('devblocks:cerberusweb.core::profiles/address.tpl');		
+		$tpl->display('devblocks:cerberusweb.core::profiles/address.tpl');
 	}
 };

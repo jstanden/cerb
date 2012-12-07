@@ -52,8 +52,8 @@ class PageSection_SetupMailQueue extends Extension_PageSection {
 			C4_AbstractViewLoader::setView($view->id, $view);
 			
 			$tpl->assign('view', $view);
-		} 
+		}
 		
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_queue/index.tpl');		
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_queue/index.tpl');
 	}
 }

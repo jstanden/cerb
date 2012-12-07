@@ -16,8 +16,8 @@
 ***********************************************************************/
 
 class DAO_ExplorerSet {
-	const HASH = 'hash';	
-	const POS = 'pos';	
+	const HASH = 'hash';
+	const POS = 'pos';
 	const PARAMS_JSON = 'params_json';
 	
 	static function createFromModels($models) {
@@ -50,7 +50,7 @@ class DAO_ExplorerSet {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param string $hash
 	 * @param integer $pos
 	 * @return Model_ExplorerSet
@@ -100,7 +100,7 @@ class DAO_ExplorerSet {
 		}
 		
 		return $objects;
-	} 
+	}
 	
 	static function update($hash, $params) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -120,12 +120,12 @@ class DAO_ExplorerSet {
 		if(false !== $rs)
 		while($row = mysql_fetch_assoc($rs)) {
 			if(false !== ($params = @json_decode($row['params_json'], true))) {
-				if(!isset($params['last_accessed']) || $params['last_accessed'] < time()-86400) { // idle for 24 hours 
+				if(!isset($params['last_accessed']) || $params['last_accessed'] < time()-86400) { // idle for 24 hours
 					$db->Execute(sprintf("DELETE FROM explorer_set WHERE hash = %s",
 						$db->qstr($row['hash'])
 					));
 				}
-			} 
+			}
 		}
 		
 		$logger->info('[Maint] Cleaned up explorer items.');

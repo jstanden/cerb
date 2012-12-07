@@ -58,12 +58,12 @@ class ChPrintController extends DevblocksControllerExtension {
 				@$ticket = is_numeric($id) ? DAO_Ticket::get($id) : DAO_Ticket::getTicketByMask($id);
 
 				$convo_timeline = array();
-				$messages = $ticket->getMessages();		
+				$messages = $ticket->getMessages();
 				foreach($messages as $message_id => $message) { /* @var $message Model_Message */
 					$key = $message->created_date . '_m' . $message_id;
 					// build a chrono index of messages
 					$convo_timeline[$key] = array('m',$message_id);
-				}				
+				}
 				
 				$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $ticket->id);
 				arsort($comments);
@@ -88,7 +88,7 @@ class ChPrintController extends DevblocksControllerExtension {
 						$comment_addresses[$address_id] = $address;
 					}
 				}
-				$tpl->assign('comment_addresses', $comment_addresses);				
+				$tpl->assign('comment_addresses', $comment_addresses);
 				
 				// Message Notes
 				$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $ticket->id);
@@ -139,7 +139,7 @@ class ChPrintController extends DevblocksControllerExtension {
 						$message_notes[$note->context_id] = array();
 					$message_notes[$note->context_id][$note->id] = $note;
 				}
-				$tpl->assign('message_notes', $message_notes);				
+				$tpl->assign('message_notes', $message_notes);
 				
 				// Watchers
 				$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket->id);

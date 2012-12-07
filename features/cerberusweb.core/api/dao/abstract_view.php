@@ -102,7 +102,7 @@ abstract class C4_AbstractView {
 			)
 		);
 		
-		$select_sql = sprintf("SELECT %s.%s ", 
+		$select_sql = sprintf("SELECT %s.%s ",
 			$query_parts['primary_table'],
 			$id_col
 		);
@@ -111,7 +111,7 @@ abstract class C4_AbstractView {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = sprintf("ORDER BY RAND() LIMIT %d ", $size);
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -123,9 +123,9 @@ abstract class C4_AbstractView {
 		$objects = array();
 		while($row = mysql_fetch_row($rs)) {
 			$objects[] = $row[0];
-		}		
+		}
 		
-		return $objects;		
+		return $objects;
 	}
 
 	function getColumnsAvailable() {
@@ -207,8 +207,8 @@ abstract class C4_AbstractView {
 		if(is_array($params))
 		foreach($params as $key => $param) {
 			$key = (!is_string($key) && is_object($param)) ? $param->field : $key;
-			$this->addParam($param, $key);	
-		}	
+			$this->addParam($param, $key);
+		}
 	}
 	
 	function removeParam($key) {
@@ -270,7 +270,7 @@ abstract class C4_AbstractView {
 
 			if($v->field == $field_key) {
 				$results[] = $v;
-			} 
+			}
 			
 		}, $field_key);
 		
@@ -323,9 +323,9 @@ abstract class C4_AbstractView {
 				if(false !== ($value = $tpl_builder->build($v, $args['placeholder_values']))) {
 					$param->value[$k] = $value;
 				}
-			}			
+			}
 		}
-	}		
+	}
 	
 	// Marquee
 	
@@ -367,7 +367,7 @@ abstract class C4_AbstractView {
 	
 	static function unsetMarquee($view_id) {
 		$visit = CerberusApplication::getVisit();
-		$visit->remove($view_id . '_marquee');		
+		$visit->remove($view_id . '_marquee');
 	}
 	
 	static function getMarquee($view_id, $pop=true) {
@@ -427,7 +427,7 @@ abstract class C4_AbstractView {
 		
 		foreach($values as $v) {
 			$strings[] = sprintf("<b>%s</b>",
-				(isset($label_map[$v]) ? $label_map[$v] : $v) 
+				(isset($label_map[$v]) ? $label_map[$v] : $v)
 			);
 		}
 		
@@ -443,7 +443,7 @@ abstract class C4_AbstractView {
 		
 		foreach($values as $v) {
 			$strings[] = sprintf("<b>%s</b>",
-				(!empty($v) ? $translate->_('common.yes') : $translate->_('common.no')) 
+				(!empty($v) ? $translate->_('common.yes') : $translate->_('common.no'))
 			);
 		}
 		
@@ -481,7 +481,7 @@ abstract class C4_AbstractView {
 		}
 		
 		echo sprintf("%s", $list_of_strings);
-	}	
+	}
 	
 	protected function _renderVirtualContextLinks($param, $label_singular='Link', $label_plural='Links') {
 		$strings = array();
@@ -618,7 +618,7 @@ abstract class C4_AbstractView {
 			case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
 				echo sprintf("%s is blank or not %s", $label_singular, $list_of_strings);
 				break;
-		}		
+		}
 	}
 	
 	/**
@@ -752,7 +752,7 @@ abstract class C4_AbstractView {
 	}
 	
 	/**
-	 * This method automatically fixes any cached strange options, like 
+	 * This method automatically fixes any cached strange options, like
 	 * deleted custom fields.
 	 *
 	 */
@@ -837,7 +837,7 @@ abstract class C4_AbstractView {
 			$field_id = intval(substr($field,3));
 			$custom_fields = DAO_CustomField::getAll();
 			
-			$translate = DevblocksPlatform::getTranslationService(); 
+			$translate = DevblocksPlatform::getTranslationService();
 			
 			switch($custom_fields[$field_id]->type) {
 				case Model_CustomField::TYPE_CHECKBOX:
@@ -1033,7 +1033,7 @@ abstract class C4_AbstractView {
 				$fields[$field_key]->db_column
 			).
 			$join_sql.
-			$where_sql. 
+			$where_sql.
 			"GROUP BY label ".
 			"ORDER BY hits DESC ".
 			"LIMIT 0,20 "
@@ -1064,7 +1064,7 @@ abstract class C4_AbstractView {
 					$counts[$label] = array(
 						'hits' => $hits,
 						'label' => $label,
-						'filter' => 
+						'filter' =>
 							array(
 								'field' => $field_key,
 								'oper' => DevblocksSearchCriteria::OPER_IN_OR_NULL,
@@ -1079,7 +1079,7 @@ abstract class C4_AbstractView {
 					$counts[$label] = array(
 						'hits' => $hits,
 						'label' => $label,
-						'filter' => 
+						'filter' =>
 							array(
 								'field' => $field_key,
 								'oper' => $value_oper,
@@ -1113,7 +1113,7 @@ abstract class C4_AbstractView {
 					$counts[$label] = array(
 						'hits' => $hits,
 						'label' => $label,
-						'filter' => 
+						'filter' =>
 							array(
 								'field' => $field_key,
 								'oper' => DevblocksSearchCriteria::OPER_IN,
@@ -1128,7 +1128,7 @@ abstract class C4_AbstractView {
 					$counts[$label] = array(
 						'hits' => $hits,
 						'label' => $label,
-						'filter' => 
+						'filter' =>
 							array(
 								'field' => $field_key,
 								'oper' => $value_oper,
@@ -1166,7 +1166,7 @@ abstract class C4_AbstractView {
 				$counts[$label] = array(
 					'hits' => $hits,
 					'label' => $label,
-					'filter' => 
+					'filter' =>
 						array(
 							'field' => $field_key,
 							'oper' => '=',
@@ -1223,7 +1223,7 @@ abstract class C4_AbstractView {
 		
 		$sql = "SELECT context_watcher.to_context_id as watcher_id, count(*) as hits ". //SQL_CALC_FOUND_ROWS
 			$join_sql.
-			$where_sql. 
+			$where_sql.
 			"GROUP BY watcher_id ".
 			"ORDER BY hits DESC ".
 			"LIMIT 0,20 "
@@ -1232,7 +1232,7 @@ abstract class C4_AbstractView {
 		$results = $db->GetArray($sql);
 
 		return $results;
-	}	
+	}
 	
 	protected function _getSubtotalCountForWatcherColumn($dao_class, $field_key) {
 		$workers = DAO_Worker::getAll();
@@ -1259,7 +1259,7 @@ abstract class C4_AbstractView {
 				$counts[$label] = array(
 					'hits' => $hits,
 					'label' => $label,
-					'filter' => 
+					'filter' =>
 						array(
 							'field' => $field_key,
 							'oper' => $oper,
@@ -1361,7 +1361,7 @@ abstract class C4_AbstractView {
 		$results = $db->GetArray($sql);
 
 		return $results;
-	}	
+	}
 	
 	protected function _getSubtotalCountForContextLinkColumn($dao_class, $context, $field_key) {
 		$contexts = Extension_DevblocksContext::getAll(false);
@@ -1412,7 +1412,7 @@ abstract class C4_AbstractView {
 				$counts[$label] = array(
 					'hits' => $hits,
 					'label' => $label,
-					'filter' => 
+					'filter' =>
 						array(
 							'field' => $field_key,
 							'oper' => $oper,
@@ -1507,7 +1507,7 @@ abstract class C4_AbstractView {
 		$results = $db->GetArray($sql);
 
 		return $results;
-	}	
+	}
 	
 	protected function _getSubtotalCountForContextAndIdColumns($dao_class, $context, $field_key, $context_field, $context_id_field, $filter_field='context_link[]') {
 		$contexts = Extension_DevblocksContext::getAll(false);
@@ -1556,7 +1556,7 @@ abstract class C4_AbstractView {
 				$counts[$label] = array(
 					'hits' => $hits,
 					'label' => $label,
-					'filter' => 
+					'filter' =>
 						array(
 							'field' => $field_key,
 							'oper' => $oper,
@@ -1567,7 +1567,7 @@ abstract class C4_AbstractView {
 		}
 		
 		return $counts;
-	}	
+	}
 	
 	protected function _getSubtotalCountForCustomColumn($dao_class, $field_key, $primary_key) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -1593,7 +1593,7 @@ abstract class C4_AbstractView {
 			$add_param = array(
 				$field_key => new DevblocksSearchCriteria($field_key,DevblocksSearchCriteria::OPER_TRUE),
 			);
-			$params = array_merge($params, $add_param); 
+			$params = array_merge($params, $add_param);
 		} else {
 			switch($params[$field_key]->operator) {
 				case DevblocksSearchCriteria::OPER_EQ:
@@ -1636,7 +1636,7 @@ abstract class C4_AbstractView {
 				);
 				
 				$sql =
-					$select. 
+					$select.
 					$join_sql.
 					$where_sql.
 					sprintf(
@@ -1692,7 +1692,7 @@ abstract class C4_AbstractView {
 					$field_key
 				);
 				
-				$sql = 
+				$sql =
 					$select.
 					$join_sql.
 					$where_sql.
@@ -1744,13 +1744,13 @@ abstract class C4_AbstractView {
 								'values' => $values,
 							),
 					);
-				}				
+				}
 				break;
 				
 			case Model_CustomField::TYPE_WORKER:
 				$workers = DAO_Worker::getAll();
 				
-				$sql = 
+				$sql =
 					sprintf(
 						"SELECT COUNT(*) AS hits, (SELECT field_value FROM custom_field_numbervalue WHERE %s=context_id AND field_id=%d LIMIT 1) AS %s ", //SQL_CALC_FOUND_ROWS
 						$primary_key,
@@ -1801,7 +1801,7 @@ abstract class C4_AbstractView {
 								'values' => $values,
 							),
 					);
-				}				
+				}
 				break;
 				
 		}
@@ -1920,7 +1920,7 @@ class C4_AbstractViewLoader {
 		$worker_id = 0;
 		
 		if(null !== ($active_worker = CerberusApplication::getActiveWorker()))
-			$worker_id = $active_worker->id; 
+			$worker_id = $active_worker->id;
 
 		// Check if we've ever persisted this view
 		if(false !== ($model = DAO_WorkerViewModel::getView($worker_id, $view_id))) {
@@ -1948,7 +1948,7 @@ class C4_AbstractViewLoader {
 		$worker_id = 0;
 		
 		if(null !== ($active_worker = CerberusApplication::getActiveWorker()))
-			$worker_id = $active_worker->id; 
+			$worker_id = $active_worker->id;
 
 		$model = self::serializeAbstractView($view);
 		DAO_WorkerViewModel::setView($worker_id, $view_id, $model);
@@ -1958,7 +1958,7 @@ class C4_AbstractViewLoader {
 		$worker_id = 0;
 		
 		if(null !== ($active_worker = CerberusApplication::getActiveWorker()))
-			$worker_id = $active_worker->id; 
+			$worker_id = $active_worker->id;
 
 		DAO_WorkerViewModel::deleteView($worker_id, $view_id);
 	}
@@ -2063,7 +2063,7 @@ class C4_AbstractViewLoader {
 
 class DAO_WorkerViewModel {
 	/**
-	 * 
+	 *
 	 * @param string $where
 	 * @return C4_AbstractViewModel[]
 	 */
@@ -2140,7 +2140,7 @@ class DAO_WorkerViewModel {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param integer $worker_id
 	 * @param string $view_id
 	 * @return C4_AbstractViewModel|false
@@ -2172,7 +2172,7 @@ class DAO_WorkerViewModel {
 			if(is_numeric(key($data))) {
 				$params[$key] = self::_recurseParam($data);
 			} else {
-				$params[$key] = new DevblocksSearchCriteria($data['field'], $data['operator'], $data['value']); 
+				$params[$key] = new DevblocksSearchCriteria($data['field'], $data['operator'], $data['value']);
 			}
 		}
 		
@@ -2242,9 +2242,9 @@ class DAO_WorkerViewModel {
 	}
 	
 	/**
-	 * Prepares for a new session by removing ephemeral views and 
+	 * Prepares for a new session by removing ephemeral views and
 	 * resetting all page cursors to the first page of the list.
-	 * 
+	 *
 	 * @param integer$worker_id
 	 */
 	static public function flush($worker_id) {

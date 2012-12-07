@@ -213,7 +213,7 @@ class DAO_CalendarRecurringProfile extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -241,7 +241,7 @@ class DAO_CalendarRecurringProfile extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT calendar_recurring_profile.id) " : "SELECT COUNT(calendar_recurring_profile.id) ").
 				$join_sql.
 				$where_sql;
@@ -285,7 +285,7 @@ class SearchFields_CalendarRecurringProfile implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 
@@ -328,17 +328,17 @@ class Model_CalendarRecurringProfile {
 		
 		switch(@$params['freq']) {
 			case 'daily':
-				$on_dates = DevblocksCalendarHelper::getDailyDates($date_start, $every_n, $until, $after_n); 
+				$on_dates = DevblocksCalendarHelper::getDailyDates($date_start, $every_n, $until, $after_n);
 				break;
 			case 'weekly':
-				$on_dates = DevblocksCalendarHelper::getWeeklyDates($date_start, $params['options']['day'], $until, $after_n); 
-				break;	
+				$on_dates = DevblocksCalendarHelper::getWeeklyDates($date_start, $params['options']['day'], $until, $after_n);
+				break;
 			case 'monthly':
-				$on_dates = DevblocksCalendarHelper::getMonthlyDates($date_start, $params['options']['day'], $until, $after_n); 
-				break;	
+				$on_dates = DevblocksCalendarHelper::getMonthlyDates($date_start, $params['options']['day'], $until, $after_n);
+				break;
 			case 'yearly':
-				$on_dates = DevblocksCalendarHelper::getYearlyDates($date_start, $params['options']['month'], $until, $after_n); 
-				break;	
+				$on_dates = DevblocksCalendarHelper::getYearlyDates($date_start, $params['options']['month'], $until, $after_n);
+				break;
 		}
 
 		$time_start = date('H:i', $this->date_start);
@@ -362,7 +362,7 @@ class Model_CalendarRecurringProfile {
 					continue;
 				}
 				
-				$date_end = strtotime($time_end, strtotime($event_interval->format('%R%a days'), $date_start));					
+				$date_end = strtotime($time_end, strtotime($event_interval->format('%R%a days'), $date_start));
 				
 				if($date_end < $date_start)
 					$date_end = strtotime("+1 day", $date_end);
@@ -392,5 +392,5 @@ class Model_CalendarRecurringProfile {
 		}
 		
 		return true;
-	}	
+	}
 };

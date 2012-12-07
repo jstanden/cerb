@@ -16,31 +16,31 @@
 ***********************************************************************/
 /*
  * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
- * 
- * Sure, it would be so easy to just cheat and edit this file to use the 
- * software without paying for it.  But we trust you anyway.  In fact, we're 
- * writing this software for you! 
- * 
- * Quality software backed by a dedicated team takes money to develop.  We 
- * don't want to be out of the office bagging groceries when you call up 
- * needing a helping hand.  We'd rather spend our free time coding your 
- * feature requests than mowing the neighbors' lawns for rent money. 
- * 
- * We've never believed in hiding our source code out of paranoia over not 
- * getting paid.  We want you to have the full source code and be able to 
- * make the tweaks your organization requires to get more done -- despite 
- * having less of everything than you might need (time, people, money, 
+ *
+ * Sure, it would be so easy to just cheat and edit this file to use the
+ * software without paying for it.  But we trust you anyway.  In fact, we're
+ * writing this software for you!
+ *
+ * Quality software backed by a dedicated team takes money to develop.  We
+ * don't want to be out of the office bagging groceries when you call up
+ * needing a helping hand.  We'd rather spend our free time coding your
+ * feature requests than mowing the neighbors' lawns for rent money.
+ *
+ * We've never believed in hiding our source code out of paranoia over not
+ * getting paid.  We want you to have the full source code and be able to
+ * make the tweaks your organization requires to get more done -- despite
+ * having less of everything than you might need (time, people, money,
  * energy).  We shouldn't be your bottleneck.
- * 
- * We've been building our expertise with this project since January 2002.  We 
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to 
- * let us take over your shared e-mail headache is a worthwhile investment.  
- * It will give you a sense of control over your inbox that you probably 
- * haven't had since spammers found you in a game of 'E-mail Battleship'. 
+ *
+ * We've been building our expertise with this project since January 2002.  We
+ * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to
+ * let us take over your shared e-mail headache is a worthwhile investment.
+ * It will give you a sense of control over your inbox that you probably
+ * haven't had since spammers found you in a game of 'E-mail Battleship'.
  * Miss. Miss. You sunk my inbox!
- * 
- * A legitimate license entitles you to support from the developers,  
- * and the warm fuzzy feeling of feeding a couple of obsessed developers 
+ *
+ * A legitimate license entitles you to support from the developers,
+ * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
  * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
@@ -103,7 +103,7 @@ class CerberusParserModel {
 	
 	/**
 	 * @return Model_Address|null
-	 */	
+	 */
 	private function _parseHeadersFrom() {
 		try {
 			$this->_sender_address_model = null;
@@ -149,7 +149,7 @@ class CerberusParserModel {
 			return false;
 			
 		}
-	} 
+	}
 	
 	/**
 	 * @return string $subject
@@ -188,8 +188,8 @@ class CerberusParserModel {
 	}
 	
 	/**
-	 * First we check the references and in-reply-to headers to find a 
-	 * historical match in the database. If those don't match we check 
+	 * First we check the references and in-reply-to headers to find a
+	 * historical match in the database. If those don't match we check
 	 * the subject line for a mask (if one exists). If none of those
 	 * options match we return null.
 	 */
@@ -290,10 +290,10 @@ class CerberusParserModel {
 			$sources = array_merge($sources, is_array($headers['to']) ? $headers['to'] : array($headers['to']));
 
 		if(isset($headers['cc']))
-			$sources = array_merge($sources, is_array($headers['cc']) ? $headers['cc'] : array($headers['cc'])); 
+			$sources = array_merge($sources, is_array($headers['cc']) ? $headers['cc'] : array($headers['cc']));
 		
 		if(isset($headers['envelope-to']))
-			$sources = array_merge($sources, is_array($headers['envelope-to']) ? $headers['envelope-to'] : array($headers['envelope-to'])); 
+			$sources = array_merge($sources, is_array($headers['envelope-to']) ? $headers['envelope-to'] : array($headers['envelope-to']));
 		
 		if(isset($headers['x-envelope-to']))
 			$sources = array_merge($sources, is_array($headers['x-envelope-to']) ? $headers['x-envelope-to'] : array($headers['x-envelope-to']));
@@ -318,7 +318,7 @@ class CerberusParserModel {
 		@imap_errors(); // Prevent errors from spilling out into STDOUT
 
 		return $addresses;
-	} 		
+	}
 	
 	// Getters/Setters
 	
@@ -524,7 +524,7 @@ class CerberusParser {
 		foreach($message->headers as $header_name => $header_val) {
 			if(is_array($header_val)) {
 				foreach($header_val as $idx => $val) {
-					$message->headers[$header_name][$idx] = self::fixQuotePrintableString($val, $message->body_encoding);	
+					$message->headers[$header_name][$idx] = self::fixQuotePrintableString($val, $message->body_encoding);
 				}
 			} else {
 				$message->headers[$header_name] = self::fixQuotePrintableString($header_val, $message->body_encoding);
@@ -759,12 +759,12 @@ class CerberusParser {
 		$headers =& $message->headers;
 
 		/*
-		 * [mdf] Check attached files before creating the ticket because we may need to 
-		 * overwrite the message-id also store any contents of rfc822 files so we can 
+		 * [mdf] Check attached files before creating the ticket because we may need to
+		 * overwrite the message-id also store any contents of rfc822 files so we can
 		 * include them after the body
 		 */
 		// [TODO] Refactor
-		if(is_array($message->files))		
+		if(is_array($message->files))
 		foreach ($message->files as $filename => $file) { /* @var $file ParserFile */
 			switch($file->mime_type) {
 				case 'message/rfc822':
@@ -782,7 +782,7 @@ class CerberusParser {
 		}
 
 		// Parse headers into $model
-		$model = new CerberusParserModel($message);		
+		$model = new CerberusParserModel($message);
 		
 		if(false == ($validated = $model->validate()))
 			return $validated; // false or null
@@ -804,9 +804,9 @@ class CerberusParser {
 
 		// Is it a worker reply from an external client?  If so, proxy
 		
-		if(null != ($proxy_ticket = $model->getTicketModel()) 
-			&& $model->isSenderWorker() 
-			&& null != ($proxy_worker = $model->getSenderWorkerModel())) { /* @var $proxy_worker Model_Worker */	
+		if(null != ($proxy_ticket = $model->getTicketModel())
+			&& $model->isSenderWorker()
+			&& null != ($proxy_worker = $model->getSenderWorkerModel())) { /* @var $proxy_worker Model_Worker */
 			
 			$logger->info("[Worker Relay] Handling an external worker relay for " . $model->getSenderAddressModel()->email);
 
@@ -1143,7 +1143,7 @@ class CerberusParser {
 			} else {
 				@unlink($file->tmpname); // remove our temp file
 				
-			}				
+			}
 		}
 		
 		// Pre-load custom fields

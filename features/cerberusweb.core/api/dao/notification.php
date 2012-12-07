@@ -94,7 +94,7 @@ class DAO_Notification extends DevblocksORMHelper {
 	}
 	
 	static function getUnreadByContextAndWorker($context, $context_id, $worker_id=0, $mark_read=false) {
-		$count = self::getUnreadCountByWorker($worker_id);		
+		$count = self::getUnreadCountByWorker($worker_id);
 		
 		if(empty($count))
 			return array();
@@ -196,7 +196,7 @@ class DAO_Notification extends DevblocksORMHelper {
 	}
 	
 	static function deleteByContext($context, $context_ids) {
-		if(!is_array($context_ids)) 
+		if(!is_array($context_ids))
 			$context_ids = array($context_ids);
 		
 		if(empty($context_ids))
@@ -204,7 +204,7 @@ class DAO_Notification extends DevblocksORMHelper {
 			
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute(sprintf("DELETE FROM notification WHERE context = %s AND context_id IN (%s) ", 
+		$db->Execute(sprintf("DELETE FROM notification WHERE context = %s AND context_id IN (%s) ",
 			$db->qstr($context),
 			implode(',', $context_ids)
 		));
@@ -287,7 +287,7 @@ class DAO_Notification extends DevblocksORMHelper {
 		);
 		
 		return $result;
-	}	
+	}
 	
 	/**
 	 * Enter description here...
@@ -312,7 +312,7 @@ class DAO_Notification extends DevblocksORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -321,9 +321,9 @@ class DAO_Notification extends DevblocksORMHelper {
 		
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
-			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		} else {
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			$total = mysql_num_rows($rs);
 		}
 		
@@ -341,7 +341,7 @@ class DAO_Notification extends DevblocksORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT we.id) " : "SELECT COUNT(we.id) ").
 				$join_sql.
 				$where_sql;
@@ -386,7 +386,7 @@ class SearchFields_Notification implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 
@@ -544,7 +544,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		}
 		
 		return $counts;
-	}	
+	}
 	
 	function render() {
 		$this->_sanitize();
@@ -824,7 +824,7 @@ class Context_Notification extends Extension_DevblocksContext {
 			$merge_token_values,
 			$token_labels,
 			$token_values
-		);			
+		);
 		
 		return true;
 	}
@@ -861,7 +861,7 @@ class Context_Notification extends Extension_DevblocksContext {
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -895,14 +895,14 @@ class Context_Notification extends Extension_DevblocksContext {
 		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		C4_AbstractViewLoader::setView($view_id, $view);
-		return $view;		
+		return $view;
 	}
 	
 	function getView($context=null, $context_id=null, $options=array()) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Notifications';

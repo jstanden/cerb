@@ -50,7 +50,7 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param bool $nocache
 	 * @return Model_TriggerEvent[]
 	 */
@@ -91,7 +91,7 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param string $context
 	 * @param integer $context_id
 	 * @param string $event_point
@@ -338,7 +338,7 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -366,7 +366,7 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT trigger_event.id) " : "SELECT COUNT(trigger_event.id) ").
 				$join_sql.
 				$where_sql;
@@ -455,7 +455,7 @@ class SearchFields_TriggerEvent implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 
@@ -883,6 +883,6 @@ class View_TriggerEvent extends C4_AbstractView {
 		}
 
 		unset($ids);
-	}			
+	}
 };
 

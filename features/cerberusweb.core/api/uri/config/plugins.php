@@ -22,7 +22,7 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		$response = DevblocksPlatform::getHttpResponse();
 		$path = $response->path;
 
-		// When someone loads the plugin page, check for new or updated 
+		// When someone loads the plugin page, check for new or updated
 		//	 user-installed plugins on disk
 		if(DEVELOPMENT_MODE) {
 			DevblocksPlatform::readPlugins();
@@ -128,7 +128,7 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 				break;
 		}
 		
-		try {		
+		try {
 			$plugin = DevblocksPlatform::getPlugin($plugin_id);
 			
 			if($uninstall) {

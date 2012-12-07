@@ -31,10 +31,10 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 				)
 			)
 		);
-	} 
+	}
 	
 	/**
-	 * 
+	 *
 	 * @param integer $notification_id
 	 * @param integer $worker_id
 	 * @return Model_DevblocksEvent
@@ -72,10 +72,10 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 				'worker_id' => $worker_id,
 			)
 		);
-	}	
+	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null) {
-		@$notification_id = $event_model->params['notification_id']; 
+		@$notification_id = $event_model->params['notification_id'];
 		
 		$labels = array();
 		$values = array();
@@ -143,7 +143,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
-		return $conditions;		
+		return $conditions;
 	}
 	
 	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {

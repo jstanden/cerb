@@ -185,7 +185,7 @@ class DAO_CalendarEvent extends C4_ORMHelper {
 			
 		$join_sql = "FROM calendar_event ".
 			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.calendar_event' AND context_link.to_context_id = calendar_event.id) " : " ")
-			;		
+			;
 		
 		// Custom field joins
 		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
@@ -269,7 +269,7 @@ class DAO_CalendarEvent extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -297,7 +297,7 @@ class DAO_CalendarEvent extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT calendar_event.id) " : "SELECT COUNT(calendar_event.id) ").
 				$join_sql.
 				$where_sql;
@@ -363,7 +363,7 @@ class SearchFields_CalendarEvent implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 
@@ -547,7 +547,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		);
 		
 		$join_sql = $query_parts['join'];
-		$where_sql = $query_parts['where'];				
+		$where_sql = $query_parts['where'];
 		
 		$sql = "SELECT COUNT(*) AS hits, calendar_event.owner_context, calendar_event.owner_context_id ".
 			$join_sql.
@@ -560,7 +560,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		$results = $db->GetArray($sql);
 
 		return $results;
-	}	
+	}
 	
 	protected function _getSubtotalCountForOwner() {
 		$workers = DAO_Worker::getAll();
@@ -594,7 +594,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 				$counts[$label] = array(
 					'hits' => $hits,
 					'label' => $label,
-					'filter' => 
+					'filter' =>
 						array(
 							'field' => SearchFields_CalendarEvent::VIRTUAL_OWNER,
 							'oper' => $oper,
@@ -605,7 +605,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		}
 		
 		return $counts;
-	}		
+	}
 
 	function render() {
 		$this->_sanitize();
@@ -699,7 +699,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 				$this->_renderVirtualWorkers($param, 'Owner', 'Owners');
 				break;
 		}
-	}	
+	}
 	
 	function getFields() {
 		return SearchFields_CalendarEvent::getFields();
@@ -814,7 +814,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		}
 
 		unset($ids);
-	}			
+	}
 };
 
 class Context_CalendarEvent extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
@@ -930,7 +930,7 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		if(empty($view_id))
@@ -957,7 +957,7 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		
 		$required_params = array();
 
-		// [TODO] This should still filter out on VAs 
+		// [TODO] This should still filter out on VAs
 		
 		$view->addParamsRequired($required_params, true);
 		$view->renderSortBy = SearchFields_CalendarEvent::DATE_START;
@@ -966,14 +966,14 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		C4_AbstractViewLoader::setView($view_id, $view);
-		return $view;		
+		return $view;
 	}
 	
 	function getView($context=null, $context_id=null, $options=array()) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Calendar Events';

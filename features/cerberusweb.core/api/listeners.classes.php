@@ -59,7 +59,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 			case 'pages':
 				$tour = array(
 					'title' => 'Workspace Pages',
-					'body' => 
+					'body' =>
 <<< EOF
 Pages give you the freedom to build a completely personalized interface based on how you use the software. You can add as many new pages as you want, and your favorites can be added to the navigation menu for quick access.
 EOF
@@ -317,7 +317,7 @@ EOF
 					case 'ticket':
 						$tour = array(
 							'title' => 'Ticket Profile',
-							'body' => 
+							'body' =>
 <<< EOF
 This is a detailed profile page for an email conversation.
 EOF
@@ -387,7 +387,7 @@ EOF
 									10
 									),
 							)
-						);						
+						);
 						break;
 						
 					case 'worker':
@@ -528,10 +528,10 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		}
 		
 		// [TODO] This could be cached in a runtime registry too
-		if(null == ($mft = DevblocksPlatform::getExtension($event->id, false))) 
+		if(null == ($mft = DevblocksPlatform::getExtension($event->id, false)))
 			return;
 		
-		if(null == ($event_ext = $mft->createInstance()) 
+		if(null == ($event_ext = $mft->createInstance())
 			|| !$event_ext instanceof Extension_DevblocksEvent)  /* @var $event_ext Extension_DevblocksEvent */
 				return;
 		
@@ -548,7 +548,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			foreach($event->params['_variables'] as $var_key => $var_val) {
 				$dict->$var_key = $var_val;
 			}
-		}	
+		}
 		
 		// Registry (trigger variables, etc)
 		$registry = DevblocksPlatform::getRegistryService();
@@ -560,11 +560,11 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 					$trigger->title
 				));
 				continue;
-			}			
+			}
 			
 			/*
-			 * If a top level trigger already ran as a consequence of the 
-			 * event chain, don't run it again. 
+			 * If a top level trigger already ran as a consequence of the
+			 * event chain, don't run it again.
 			 */
 			if(self::getDepth() == 0 && self::triggerHasSprung($trigger->id)) {
 				$logger->info(sprintf("Skipping trigger %d (%s) because it has already run this event chain.",
@@ -572,7 +572,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 					$trigger->title
 				));
 				continue;
-			}			
+			}
 			
 			self::increaseDepth($trigger->id);
 			
@@ -592,7 +592,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		}
 
 		/*
-		 * Clear our event chain when we finish all triggers and we're 
+		 * Clear our event chain when we finish all triggers and we're
 		 * no longer nested.
 		 */
 		if(0 == self::getDepth()) {
@@ -620,7 +620,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			curl_close($ch);
 			echo($response);
 		}
-		*/	
+		*/
 	}
 };
 
@@ -697,7 +697,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		$db->Execute(sprintf("DELETE QUICK ctx ".
 			"FROM comment AS ctx ".
 			"LEFT JOIN %s ON ctx.context_id=%s ".
-			"WHERE ctx.context = %s ". 
+			"WHERE ctx.context = %s ".
 			"AND %s IS NULL",
 			$context_table,
 			$context_index,
@@ -713,7 +713,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		$db->Execute(sprintf("DELETE QUICK ctx ".
 			"FROM context_activity_log AS ctx ".
 			"LEFT JOIN %s ON ctx.target_context_id=%s ".
-			"WHERE ctx.target_context = %s ". 
+			"WHERE ctx.target_context = %s ".
 			"AND %s IS NULL",
 			$context_table,
 			$context_index,
@@ -729,7 +729,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		$db->Execute(sprintf("DELETE QUICK ctx ".
 			"FROM context_link AS ctx ".
 			"LEFT JOIN %s ON ctx.from_context_id=%s ".
-			"WHERE ctx.from_context = %s ". 
+			"WHERE ctx.from_context = %s ".
 			"AND %s IS NULL",
 			$context_table,
 			$context_index,
@@ -800,7 +800,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		$db->Execute(sprintf("DELETE QUICK ctx ".
 			"FROM notification AS ctx ".
 			"LEFT JOIN %s ON ctx.context_id=%s ".
-			"WHERE ctx.context = %s ". 
+			"WHERE ctx.context = %s ".
 			"AND %s IS NULL",
 			$context_table,
 			$context_index,
@@ -816,7 +816,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		$rs = $db->Execute(sprintf("SELECT ctx.id ".
 			"FROM trigger_event AS ctx ".
 			"LEFT JOIN %s ON ctx.owner_context_id=%s ".
-			"WHERE ctx.owner_context = %s ". 
+			"WHERE ctx.owner_context = %s ".
 			"AND %s IS NULL",
 			$context_table,
 			$context_index,

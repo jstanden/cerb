@@ -31,7 +31,7 @@ class DAO_CommunityTool extends C4_ORMHelper {
 			"VALUES ()"
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-		$id = $db->LastInsertId(); 
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		
@@ -108,7 +108,7 @@ class DAO_CommunityTool extends C4_ORMHelper {
 			(!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
 			"ORDER BY name"
 		;
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		return self::_createObjectsFromResultSet($rs);
 	}
@@ -152,20 +152,20 @@ class DAO_CommunityTool extends C4_ORMHelper {
 			if(empty($tool)) continue;
 
 			/**
-			 * [TODO] [JAS] Deleting a community tool needs to run a hook first so the 
+			 * [TODO] [JAS] Deleting a community tool needs to run a hook first so the
 			 * tool has a chance to clean up its own DB tables abstractly.
-			 * 
+			 *
 			 * e.g. Knowledgebase instances which store data outside the tool property table
-			 * 
-			 * After this is done, a future DB patch for those plugins should clean up any 
+			 *
+			 * After this is done, a future DB patch for those plugins should clean up any
 			 * orphaned data.
 			 */
 			
 			$sql = sprintf("DELETE QUICK FROM community_tool WHERE id = %d", $id);
-			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			
 			$sql = sprintf("DELETE QUICK FROM community_tool_property WHERE tool_code = '%s'", $tool->code);
-			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		}
 	}
 
@@ -216,7 +216,7 @@ class DAO_CommunityTool extends C4_ORMHelper {
 		);
 		
 		return $result;
-	}	
+	}
 	
 	/**
 	 * Enter description here...
@@ -241,7 +241,7 @@ class DAO_CommunityTool extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -250,9 +250,9 @@ class DAO_CommunityTool extends C4_ORMHelper {
 			
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
-			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		} else {
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			$total = mysql_num_rows($rs);
 		}
 		
@@ -270,7 +270,7 @@ class DAO_CommunityTool extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT ct.id) " : "SELECT COUNT(ct.id) ").
 				$join_sql.
 				$where_sql;
@@ -315,9 +315,9 @@ class SearchFields_CommunityTool implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
-};	
+};
 
 class DAO_CommunityToolProperty {
 	const TOOL_CODE = 'tool_code';
@@ -352,7 +352,7 @@ class DAO_CommunityToolProperty {
 			mysql_free_result($rs);
 			
 			$cache->save($props, self::_CACHE_PREFIX.$tool_code);
-		}		
+		}
 		
 		return $props;
 	}
@@ -511,7 +511,7 @@ class Model_CommunitySession {
 	
 	function setProperty($key, $value) {
 		if(null==$value) {
-			unset($this->_properties[$key]);	
+			unset($this->_properties[$key]);
 		} else {
 			$this->_properties[$key] = $value;
 		}
@@ -752,5 +752,5 @@ class View_CommunityPortal extends C4_AbstractView {
 		}
 
 		unset($ids);
-	}	
+	}
 };

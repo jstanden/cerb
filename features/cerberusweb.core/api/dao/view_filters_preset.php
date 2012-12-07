@@ -103,9 +103,9 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 			if(!empty($row['sort_json'])) {
 				$sort_json = json_decode($row['sort_json'], true);
 				if(isset($sort_json['by']))
-					$object->sort_by = $sort_json['by']; 
+					$object->sort_by = $sort_json['by'];
 				if(isset($sort_json['asc']))
-					$object->sort_asc = $sort_json['asc']; 
+					$object->sort_asc = $sort_json['asc'];
 			}
 			
 			$objects[$object->id] = $object;
@@ -176,7 +176,7 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 		);
 		
 		return $result;
-	}	
+	}
 	
 	/**
 	 * Enter description here...
@@ -202,7 +202,7 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -231,7 +231,7 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT view_filters_preset.id) " : "SELECT COUNT(view_filters_preset.id) ").
 				$join_sql.
 				$where_sql;
@@ -286,6 +286,6 @@ class SearchFields_ViewFiltersPreset implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };

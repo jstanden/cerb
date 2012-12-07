@@ -33,7 +33,7 @@ class ParseCron extends CerberusCronPageExtension {
 		
 		$logger->info("[Parser] Starting Parser Task");
 		
-		if (!extension_loaded("imap")) { 
+		if (!extension_loaded("imap")) {
 			$logger->err("[Parser] The 'IMAP' extension is not loaded.  Aborting!");
 			return false;
 		}
@@ -308,7 +308,7 @@ class ImportCron extends CerberusCronPageExtension {
 			return;
 		}
 
-		if (!extension_loaded("imap")) { 
+		if (!extension_loaded("imap")) {
 			$logger->err("[Parser] The 'IMAP' extension is not loaded.  Aborting!");
 			return false;
 		}
@@ -347,7 +347,7 @@ class ImportCron extends CerberusCronPageExtension {
 
 				$dest_file = $move_to_dir . basename($file);
 				@rename($file, $dest_file);
-				$file = $dest_file;				
+				$file = $dest_file;
 				
 				// Parse the XML
 				if(!@$xml_root = simplexml_load_file($file)) { /* @var $xml_root SimpleXMLElement */
@@ -466,7 +466,7 @@ class ImportCron extends CerberusCronPageExtension {
 					if(!isset($categoryMap[$pid]))
 						$categoryMap[$pid] = array();
 						
-					$categoryMap[$pid][$categoryId] = 0; 
+					$categoryMap[$pid][$categoryId] = 0;
 					$categoryMap[$categoryId] = array();
 					$categoryIds[] = $categoryId;
 					
@@ -568,7 +568,7 @@ class ImportCron extends CerberusCronPageExtension {
 			
 		} elseif(null == ($iDestGroupId = @$group_name_to_id[strtolower($sGroup)])) {
 			$iDestGroupId = DAO_Group::create(array(
-				DAO_Group::NAME => $sGroup,				
+				DAO_Group::NAME => $sGroup,
 			));
 			
 			// Give all superusers manager access to this new group
@@ -653,9 +653,9 @@ class ImportCron extends CerberusCronPageExtension {
 			$uniqueness = 1;
 			$origMask = $sMask;
 			
-			// Append new uniqueness to the ticket mask:  LLL-NNNNN-NNN-1, LLL-NNNNN-NNN-2, ... 
+			// Append new uniqueness to the ticket mask:  LLL-NNNNN-NNN-1, LLL-NNNNN-NNN-2, ...
 			do {
-				$sMask = $origMask . '-' . ++$uniqueness;				
+				$sMask = $origMask . '-' . ++$uniqueness;
 			} while(null != DAO_Ticket::getTicketIdByMask($sMask));
 			
 			$logger->info("[Importer] The unique mask for '".$origMask."' is now '" . $sMask . "'");
@@ -777,7 +777,7 @@ class ImportCron extends CerberusCronPageExtension {
 						// Force to plaintext part
 						$sMessageContent = DevblocksPlatform::stripHTML($sMessageContent);
 					}
-				}				
+				}
 				unset($sMessageContentB64);
 				
 				Storage_MessageContent::put($email_id, $sMessageContent);
@@ -1041,7 +1041,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 		
 		$logger->info("[POP3] Starting POP3 Task");
 		
-		if (!extension_loaded("imap")) { 
+		if (!extension_loaded("imap")) {
 			$logger->err("[Parser] The 'IMAP' extension is not loaded.  Aborting!");
 			return false;
 		}
@@ -1276,7 +1276,7 @@ class StorageCron extends CerberusCronPageExtension {
 //		$this->setParam('max_messages', $max_messages);
 
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','jobs')));
-	}	
+	}
 };
 
 class MailQueueCron extends CerberusCronPageExtension {
@@ -1284,8 +1284,8 @@ class MailQueueCron extends CerberusCronPageExtension {
 		$logger = DevblocksPlatform::getConsoleLog();
 		$runtime = microtime(true);
 
-		$stop_time = time() + 30; // [TODO] Make configurable	
-		$last_id = 0;	
+		$stop_time = time() + 30; // [TODO] Make configurable
+		$last_id = 0;
 		
 		$logger->info("[Mail Queue] Starting...");
 		

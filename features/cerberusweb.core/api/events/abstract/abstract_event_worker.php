@@ -19,7 +19,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 	protected $_event_id = null; // override
 
 	/**
-	 * 
+	 *
 	 * @param integer $worker_id
 	 * @return Model_DevblocksEvent
 	 */
@@ -52,7 +52,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 				'worker_id' => $worker_id,
 			)
 		);
-	}	
+	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null) {
 		$labels = array();
@@ -62,7 +62,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 		 * Worker
 		 */
 		
-		@$worker_id = $event_model->params['worker_id']; 
+		@$worker_id = $event_model->params['worker_id'];
 		$merge_labels = array();
 		$merge_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $merge_labels, $merge_values, null, true);
@@ -82,7 +82,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 		 */
 
 		$this->setLabels($labels);
-		$this->setValues($values);		
+		$this->setValues($values);
 	}
 	
 	function getValuesContexts($trigger) {
@@ -193,7 +193,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions() {
-		$actions = 
+		$actions =
 			array(
 				'add_watchers' => array('label' =>'Add watchers'),
 				'create_comment' => array('label' =>'Create a comment'),

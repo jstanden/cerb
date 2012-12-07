@@ -86,7 +86,7 @@ class DAO_Group extends C4_ORMHelper {
 			((is_array($ids) && !empty($ids)) ? sprintf("WHERE id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY name ASC"
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		return self::_getObjectsFromResultSet($rs);
 	}
@@ -125,7 +125,7 @@ class DAO_Group extends C4_ORMHelper {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @return Model_Group|null
 	 */
 	static function getDefaultGroup() {
@@ -160,7 +160,7 @@ class DAO_Group extends C4_ORMHelper {
 		
 		$sql = "INSERT INTO worker_group () VALUES ()";
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-		$id = $db->LastInsertId(); 
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 
@@ -208,16 +208,16 @@ class DAO_Group extends C4_ORMHelper {
 		);
 		
 		$sql = sprintf("DELETE QUICK FROM worker_group WHERE id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		$sql = sprintf("DELETE QUICK FROM bucket WHERE group_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$sql = sprintf("DELETE QUICK FROM group_setting WHERE group_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$sql = sprintf("DELETE QUICK FROM worker_to_group WHERE group_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -307,13 +307,13 @@ class DAO_Group extends C4_ORMHelper {
 				"INNER JOIN worker w ON (w.id=wt.worker_id) ".
 				"ORDER BY g.name ASC, w.first_name ASC "
 			);
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			
 			$objects = array();
 			
 			while($row = mysql_fetch_assoc($rs)) {
-				$worker_id = intval($row['worker_id']); 
-				$group_id = intval($row['group_id']); 
+				$worker_id = intval($row['worker_id']);
+				$group_id = intval($row['group_id']);
 				$is_manager = intval($row['is_manager']);
 				
 				if(!isset($objects[$group_id]))
@@ -429,7 +429,7 @@ class DAO_Group extends C4_ORMHelper {
 				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
 		}
-	}	
+	}
 	
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -443,7 +443,7 @@ class DAO_Group extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -451,9 +451,9 @@ class DAO_Group extends C4_ORMHelper {
 			$sort_sql;
 			
 		if($limit > 0) {
-			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		} else {
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			$total = mysql_num_rows($rs);
 		}
 		
@@ -471,7 +471,7 @@ class DAO_Group extends C4_ORMHelper {
 		
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT g.id) " : "SELECT COUNT(g.id) ").
 				$join_sql.
 				$where_sql;
@@ -481,7 +481,7 @@ class DAO_Group extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-	}	
+	}
 };
 
 class SearchFields_Group implements IDevblocksSearchFields {
@@ -522,7 +522,7 @@ class SearchFields_Group implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 
@@ -540,7 +540,7 @@ class Model_Group {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param integer $bucket_id
 	 * @return Model_AddressOutgoing
 	 */
@@ -730,7 +730,7 @@ class DAO_GroupSettings {
 			$groups = array();
 			
 			$sql = "SELECT group_id, setting, value FROM group_setting";
-			$rs = $db->Execute($sql) or die(__CLASS__ . ':' . $db->ErrorMsg()); 
+			$rs = $db->Execute($sql) or die(__CLASS__ . ':' . $db->ErrorMsg());
 			
 			while($row = mysql_fetch_assoc($rs)) {
 				$gid = intval($row['group_id']);
@@ -860,7 +860,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 		}
 		
 		return $counts;
-	}	
+	}
 	
 	function render() {
 		$this->_sanitize();
@@ -925,7 +925,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 				$this->_renderVirtualContextLinks($param);
 				break;
 		}
-	}	
+	}
 	
 	function renderCriteriaParam($param) {
 		$field = $param->field;
@@ -1138,7 +1138,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=group&id=%d-%s",$group->id, DevblocksPlatform::strToPermalink($group->name)), true);
 		}
 		
-		return true;		
+		return true;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {
@@ -1173,7 +1173,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		if(empty($view_id))
@@ -1208,7 +1208,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Groups';

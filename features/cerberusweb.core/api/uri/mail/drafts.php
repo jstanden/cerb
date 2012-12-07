@@ -21,10 +21,10 @@ class PageSection_MailDrafts extends Extension_PageSection {
 	
 	function saveDraftAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
-		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0); 
+		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
 
-		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string',''); 
-		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string',''); 
+		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 
 		$params = array();
@@ -157,7 +157,7 @@ class PageSection_MailDrafts extends Extension_PageSection {
 			$tpl->assign('ids', implode(',', $ids));
 		}
 		
-		$tpl->display('devblocks:cerberusweb.core::mail/queue/bulk.tpl');		
+		$tpl->display('devblocks:cerberusweb.core::mail/queue/bulk.tpl');
 	}
 	
 	function doDraftsBulkUpdateAction() {
@@ -196,6 +196,6 @@ class PageSection_MailDrafts extends Extension_PageSection {
 		$view->doBulkUpdate($filter, $do, $ids);
 		
 		$view->render();
-		return;		
+		return;
 	}
 };

@@ -26,7 +26,7 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 		$pop3_accounts = DAO_Pop3Account::getPop3Accounts();
 		$tpl->assign('pop3_accounts', $pop3_accounts);
 		
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_pop3/index.tpl');		
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_pop3/index.tpl');
 	}
 	
 	function getMailboxAction() {
@@ -74,7 +74,7 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 			if(empty($port)) {
 				switch($protocol) {
 					case 'pop3':
-						$port = 110; 
+						$port = 110;
 						break;
 					case 'pop3-ssl':
 						$port = 995;
@@ -123,7 +123,7 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 
 	function testMailboxJsonAction() {
 		try {
-			$error_reporting = error_reporting(E_ERROR & ~E_NOTICE);			
+			$error_reporting = error_reporting(E_ERROR & ~E_NOTICE);
 			
 			$translate = DevblocksPlatform::getTranslationService();
 			
@@ -137,7 +137,7 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 			if(empty($port)) {
 				switch($protocol) {
 					case 'pop3':
-						$port = 110; 
+						$port = 110;
 						break;
 					case 'pop3-ssl':
 						$port = 995;
@@ -161,7 +161,7 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 			} else {
 				throw new Exception($translate->_('config.mail.pop3.error_hostname'));
 				
-			}			
+			}
 			
 			echo json_encode(array('status'=>true));
 			return;
@@ -171,5 +171,5 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 			return;
 			
 		}
-	}	
+	}
 }

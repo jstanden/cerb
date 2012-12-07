@@ -129,7 +129,7 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 	}
 
 	/**
-	 * 
+	 *
 	 * Enter description here ...
 	 * @param unknown_type $context
 	 * @param unknown_type $context_id
@@ -391,7 +391,7 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 				if(!empty($var_mft)) {
 					switch($var_mft['type']) {
 						case Model_CustomField::TYPE_DATE:
-							@$val = strtotime($val);				
+							@$val = strtotime($val);
 							break;
 					}
 				}
@@ -484,7 +484,7 @@ class Model_ContextScheduledBehavior {
 		}
 		
 		// Are we going to be rescheduling this behavior?
-		$reschedule_date = $this->getNextOccurrence(); 
+		$reschedule_date = $this->getNextOccurrence();
 	
 		if(!empty($reschedule_date)) {
 			DAO_ContextScheduledBehavior::update($this->id, array(

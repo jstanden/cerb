@@ -352,7 +352,7 @@ class DAO_WorkspacePage extends C4_ORMHelper {
 				
 				break;
 		}
-	}	
+	}
 	
 	public static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -527,7 +527,7 @@ class DAO_WorkspaceTab extends C4_ORMHelper {
 		foreach($rows as $row)
 			self::delete($row['id']);
 		
-		return true;		
+		return true;
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
@@ -593,7 +593,7 @@ class DAO_WorkspaceTab extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -621,7 +621,7 @@ class DAO_WorkspaceTab extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT workspace_tab.id) " : "SELECT COUNT(workspace_tab.id) ").
 				$join_sql.
 				$where_sql;
@@ -677,7 +677,7 @@ class SearchFields_WorkspacePage implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 
@@ -705,7 +705,7 @@ class SearchFields_WorkspaceTab implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 
@@ -814,7 +814,7 @@ class Model_WorkspacePage {
 		}
 	
 		return false;
-	}	
+	}
 };
 
 class Model_WorkspaceTab {
@@ -887,7 +887,7 @@ class DAO_WorkspaceList extends DevblocksORMHelper {
 			"FROM workspace_list ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : " ").
 			"ORDER BY list_pos ASC";
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		$objects = array();
 		
@@ -1058,7 +1058,7 @@ class View_WorkspacePage extends C4_AbstractView {
 		
 		switch($key) {
 			case SearchFields_WorkspacePage::VIRTUAL_OWNER:
-				echo sprintf("%s %s ", 
+				echo sprintf("%s %s ",
 					mb_convert_case($translate->_('common.owner'), MB_CASE_TITLE),
 					$param->operator
 				);
@@ -1089,7 +1089,7 @@ class View_WorkspacePage extends C4_AbstractView {
 				echo implode('; ', $objects);
 				break;
 		}
-	}	
+	}
 	
 	function renderCriteriaParam($param) {
 		$field = $param->field;

@@ -100,7 +100,7 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string','');
 
 		try {
-			if(empty($extension_id) 
+			if(empty($extension_id)
 				|| null == ($ext = $ext = DevblocksPlatform::getExtension($extension_id, true)))
 				throw new Exception("Can't load extension.");
 				
@@ -180,6 +180,6 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		if(!empty($view_id)) {
 			$view = C4_AbstractViewLoader::getView($view_id);
 			$view->render();
-		}		
-	}	
+		}
+	}
 }

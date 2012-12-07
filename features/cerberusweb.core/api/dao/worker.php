@@ -43,7 +43,7 @@ class DAO_Worker extends C4_ORMHelper {
 			"VALUES ()"
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-		$id = $db->LastInsertId(); 
+		$id = $db->LastInsertId();
 
 		self::update($id, $fields);
 		
@@ -189,7 +189,7 @@ class DAO_Worker extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return $objects;
-	}	
+	}
 	
 	static function getList($ids=array()) {
 		if(!is_array($ids)) $ids = array($ids);
@@ -237,11 +237,11 @@ class DAO_Worker extends C4_ORMHelper {
 		if(null != ($id = $db->GetOne($sql)))
 			return $id;
 		
-		return null;		
+		return null;
 	}
 	
 	static function update($ids, $fields, $option_bits=0) {
-		parent::_update($ids, 'worker', $fields);		
+		parent::_update($ids, 'worker', $fields);
 
 		// Log the context update
 		if(0 == ($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_EVENTS)) {
@@ -309,16 +309,16 @@ class DAO_Worker extends C4_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("DELETE QUICK FROM worker WHERE id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$sql = sprintf("DELETE QUICK FROM address_to_worker WHERE worker_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$sql = sprintf("DELETE QUICK FROM worker_to_group WHERE worker_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		$sql = sprintf("DELETE QUICK FROM view_rss WHERE worker_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -350,7 +350,7 @@ class DAO_Worker extends C4_ORMHelper {
 				$db->qstr($email),
 				$db->qstr($password)
 		);
-		$worker_id = $db->GetOne($sql); // or die(__CLASS__ . ':' . $db->ErrorMsg()); 
+		$worker_id = $db->GetOne($sql); // or die(__CLASS__ . ':' . $db->ErrorMsg());
 
 		if(!empty($worker_id)) {
 			return self::get($worker_id);
@@ -372,7 +372,7 @@ class DAO_Worker extends C4_ORMHelper {
 		if(is_array($rosters))
 		foreach($rosters as $group_id => $members) {
 			if(isset($members[$worker_id])) {
-				$memberships[$group_id] = $members[$worker_id]; 
+				$memberships[$group_id] = $members[$worker_id];
 			}
 		}
 		
@@ -381,7 +381,7 @@ class DAO_Worker extends C4_ORMHelper {
 	
 	/**
 	 * Store the workers last activity (provided by the page extension).
-	 * 
+	 *
 	 * @param integer $worker_id
 	 * @param Model_Activity $activity
 	 */
@@ -529,7 +529,7 @@ class DAO_Worker extends C4_ORMHelper {
 				);
 				break;
 		}
-	}	
+	}
 	
 	static function autocomplete($term) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -546,8 +546,8 @@ class DAO_Worker extends C4_ORMHelper {
 			")",
 			$db->qstr($term.'%'),
 			$db->qstr($term.'%'),
-			(false != strpos($term,' ') 
-				? sprintf("OR concat(first_name,' ',last_name) LIKE %s ", $db->qstr($term.'%')) 
+			(false != strpos($term,' ')
+				? sprintf("OR concat(first_name,' ',last_name) LIKE %s ", $db->qstr($term.'%'))
 				: '')
 		));
 		
@@ -587,7 +587,7 @@ class DAO_Worker extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -595,9 +595,9 @@ class DAO_Worker extends C4_ORMHelper {
 			$sort_sql;
 			
 		if($limit > 0) {
-			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		} else {
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			$total = mysql_num_rows($rs);
 		}
 		
@@ -615,7 +615,7 @@ class DAO_Worker extends C4_ORMHelper {
 		
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT w.id) " : "SELECT COUNT(w.id) ").
 				$join_sql.
 				$where_sql;
@@ -625,13 +625,13 @@ class DAO_Worker extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-	}			
+	}
 		
 };
 
 /**
  * ...
- * 
+ *
  */
 class SearchFields_Worker implements IDevblocksSearchFields {
 	// Worker
@@ -713,7 +713,7 @@ class Model_Worker {
 	 * @return Model_GroupMember[]
 	 */
 	function getMemberships() {
-		return DAO_Worker::getWorkerGroups($this->id); 
+		return DAO_Worker::getWorkerGroups($this->id);
 	}
 
 	function getRoles() {
@@ -936,7 +936,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 		}
 		
 		return $counts;
-	}	
+	}
 	
 	function render() {
 		$this->_sanitize();
@@ -1000,7 +1000,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 				);
 				break;
 		}
-	}	
+	}
 	
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1233,7 +1233,7 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 		if(null === ($objects = $cache->load(self::CACHE_PREFIX.$worker_id))) {
 			$db = DevblocksPlatform::getDatabaseService();
 			$sql = sprintf("SELECT setting, value FROM worker_pref WHERE worker_id = %d", $worker_id);
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			
 			$objects = array();
 			
@@ -1261,7 +1261,7 @@ class Context_Worker extends Extension_DevblocksContext {
 				return TRUE;
 				
 			if($context_id == $worker->id)
-				return TRUE;			
+				return TRUE;
 				
 		} catch (Exception $e) {
 			// Fail
@@ -1285,7 +1285,7 @@ class Context_Worker extends Extension_DevblocksContext {
 		$who = sprintf("%d-%s",
 			$worker->id,
 			DevblocksPlatform::strToPermalink($worker_name)
-		); 
+		);
 		
 		return array(
 			'id' => $worker->id,
@@ -1316,7 +1316,7 @@ class Context_Worker extends Extension_DevblocksContext {
 			'full_name' => $prefix.$translate->_('worker.full_name'),
 			'last_name' => $prefix.$translate->_('worker.last_name'),
 			'title' => $prefix.$translate->_('worker.title'),
-			'record_url' => $prefix.$translate->_('common.url.record'),			
+			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		if(is_array($fields))
@@ -1369,7 +1369,7 @@ class Context_Worker extends Extension_DevblocksContext {
 			$token_values
 		);
 		
-		return true;		
+		return true;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {
@@ -1397,7 +1397,7 @@ class Context_Worker extends Extension_DevblocksContext {
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		if(empty($view_id))
@@ -1430,7 +1430,7 @@ class Context_Worker extends Extension_DevblocksContext {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Workers';

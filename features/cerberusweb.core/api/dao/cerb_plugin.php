@@ -186,7 +186,7 @@ class DAO_CerbPlugin extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -214,7 +214,7 @@ class DAO_CerbPlugin extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT cerb_plugin.id) " : "SELECT COUNT(cerb_plugin.id) ").
 				$join_sql.
 				$where_sql;
@@ -260,7 +260,7 @@ class SearchFields_CerbPlugin implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 
@@ -533,6 +533,6 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 		}
 
 		unset($ids);
-	}			
+	}
 };
 

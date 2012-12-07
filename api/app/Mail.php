@@ -16,31 +16,31 @@
 ***********************************************************************/
 /*
  * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
- * 
- * Sure, it would be so easy to just cheat and edit this file to use the 
- * software without paying for it.  But we trust you anyway.  In fact, we're 
- * writing this software for you! 
- * 
- * Quality software backed by a dedicated team takes money to develop.  We 
- * don't want to be out of the office bagging groceries when you call up 
- * needing a helping hand.  We'd rather spend our free time coding your 
- * feature requests than mowing the neighbors' lawns for rent money. 
- * 
- * We've never believed in hiding our source code out of paranoia over not 
- * getting paid.  We want you to have the full source code and be able to 
- * make the tweaks your organization requires to get more done -- despite 
- * having less of everything than you might need (time, people, money, 
+ *
+ * Sure, it would be so easy to just cheat and edit this file to use the
+ * software without paying for it.  But we trust you anyway.  In fact, we're
+ * writing this software for you!
+ *
+ * Quality software backed by a dedicated team takes money to develop.  We
+ * don't want to be out of the office bagging groceries when you call up
+ * needing a helping hand.  We'd rather spend our free time coding your
+ * feature requests than mowing the neighbors' lawns for rent money.
+ *
+ * We've never believed in hiding our source code out of paranoia over not
+ * getting paid.  We want you to have the full source code and be able to
+ * make the tweaks your organization requires to get more done -- despite
+ * having less of everything than you might need (time, people, money,
  * energy).  We shouldn't be your bottleneck.
- * 
- * We've been building our expertise with this project since January 2002.  We 
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to 
- * let us take over your shared e-mail headache is a worthwhile investment.  
- * It will give you a sense of control over your inbox that you probably 
- * haven't had since spammers found you in a game of 'E-mail Battleship'. 
+ *
+ * We've been building our expertise with this project since January 2002.  We
+ * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to
+ * let us take over your shared e-mail headache is a worthwhile investment.
+ * It will give you a sense of control over your inbox that you probably
+ * haven't had since spammers found you in a game of 'E-mail Battleship'.
  * Miss. Miss. You sunk my inbox!
- * 
- * A legitimate license entitles you to support from the developers,  
- * and the warm fuzzy feeling of feeding a couple of obsessed developers 
+ *
+ * A legitimate license entitles you to support from the developers,
+ * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
  * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
@@ -440,7 +440,7 @@ class CerberusMail {
 		// Events
 		if(!empty($message_id) && !empty($group_id)) {
 			// After message sent in group
-			Event_MailAfterSentByGroup::trigger($message_id, $group_id);			
+			Event_MailAfterSentByGroup::trigger($message_id, $group_id);
 
 			// Mail received by group
 			Event_MailReceivedByGroup::trigger($message_id, $group_id);
@@ -513,15 +513,15 @@ class CerberusMail {
 			$from_personal = $group->getReplyPersonal($ticket->bucket_id, $worker_id);
 			
 			/*
-			 * If this ticket isn't spam trained 
-			 * and our outgoing message isn't an autoreply 
+			 * If this ticket isn't spam trained
+			 * and our outgoing message isn't an autoreply
 			 * and a worker sent this
 			 */
 			if($ticket->spam_training == CerberusTicketSpamTraining::BLANK
 				&& empty($is_autoreply)
 				&& !empty($worker_id)) {
 				CerberusBayes::markTicketAsNotSpam($ticket_id);
-			} 
+			}
 				
 			// Headers
 			if(!empty($from_personal)) {
@@ -594,7 +594,7 @@ class CerberusMail {
 							continue;
 	
 						// Bulk mail?
-						if(isset($message_headers['precedence']) && 
+						if(isset($message_headers['precedence']) &&
 							($message_headers['precedence'] == 'list' || $message_headers['precedence'] == 'junk' || $message_headers['precedence'] == 'bulk'))
 							continue;
 					}
@@ -717,7 +717,7 @@ class CerberusMail {
 				if(empty($to)) {
 					$hint_to = '(requesters)';
 				} else {
-					$hint_to = implode(', ', array_keys($mail->getTo()));					
+					$hint_to = implode(', ', array_keys($mail->getTo()));
 				}
 				
 				$fields = array(
@@ -891,7 +891,7 @@ class CerberusMail {
 		// Events
 		if(!empty($message_id) && empty($no_events)) {
 			// After message sent in group
-			Event_MailAfterSentByGroup::trigger($message_id, $group->id);			
+			Event_MailAfterSentByGroup::trigger($message_id, $group->id);
 			
 			// New message for group
 			Event_MailReceivedByGroup::trigger($message_id, $group->id);
@@ -917,7 +917,7 @@ class CerberusMail {
 				'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $ticket->mask),
 				)
 		);
-		CerberusContexts::logActivity('ticket.message.outbound', CerberusContexts::CONTEXT_TICKET, $ticket_id, $entry);		
+		CerberusContexts::logActivity('ticket.message.outbound', CerberusContexts::CONTEXT_TICKET, $ticket_id, $entry);
 		
 		return true;
 	}

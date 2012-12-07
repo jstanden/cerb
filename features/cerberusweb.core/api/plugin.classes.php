@@ -102,7 +102,7 @@ class ChPageController extends DevblocksControllerExtension {
 		if(empty($controller)) {
 			if(is_a($active_worker, 'Model_Worker')) {
 				$controller = 'pages';
-				$path = array('pages');				
+				$path = array('pages');
 				
 				// Find the worker's first page
 				

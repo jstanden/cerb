@@ -1,5 +1,5 @@
 <?php
-/***********************************************************************
+/************************************************************************
  | Cerb(tm) developed by WebGroup Media, LLC.
  |-----------------------------------------------------------------------
  | All source code & content (c) Copyright 2012, WebGroup Media LLC
@@ -66,12 +66,12 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 						'groups' == $role->params['who'] &&
 						($in_groups = array_intersect(array_keys($memberships), $role->params['who_list'])) &&
 						!empty($in_groups)
-					) || 
+					) ||
 					(
 						// ... or this worker is on the list
 						'workers' == $role->params['who'] &&
 						in_array($worker_id, $role->params['who_list'])
-					) 
+					)
 				) {
 					$roles[$role_id] = $role;
 				}
@@ -306,7 +306,7 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 		$who = sprintf("%d-%s",
 			$worker_role->id,
 			DevblocksPlatform::strToPermalink($worker_role->name)
-		); 
+		);
 		
 		return array(
 			'id' => $worker_role->id,
@@ -334,7 +334,7 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 		// Token labels
 		$token_labels = array(
 			'name' => $prefix.$translate->_('common.name'),
-			//'record_url' => $prefix.$translate->_('common.url.record'),			
+			//'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		if(is_array($fields))
@@ -359,7 +359,7 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 // 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=worker&id=%d-%s",$worker->id, DevblocksPlatform::strToPermalink($worker->getName())), true);
 		}
 		
-		return true;		
+		return true;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {
@@ -387,7 +387,7 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		if(empty($view_id))
@@ -417,7 +417,7 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Roles';

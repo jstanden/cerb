@@ -122,7 +122,7 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 
 		$view_class = $context_ext->getViewClass();
 		
-		if(null == ($view = new $view_class())) { /* @var $view C4_AbstractView */ 
+		if(null == ($view = new $view_class())) { /* @var $view C4_AbstractView */
 			echo json_encode(false);
 			return;
 		}
@@ -357,7 +357,7 @@ class WorkspaceWidget_Counter extends Extension_WorkspaceWidget {
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());		
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
@@ -577,11 +577,11 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget {
 		
 		// Template
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/subtotals/config.tpl');	
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/subtotals/config.tpl');
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());		
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
 		
 		// Save the widget
 		
@@ -630,7 +630,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
 		
 		if(
 			null != ($view_model = Extension_WorkspaceWidget::getParamsViewModel($widget, $widget->params))
-			&& false != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)) 
+			&& false != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model))
 			) {
 			
 			// Mirror the worklist to the config worklist
@@ -642,15 +642,15 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
 		
 		// Template
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/worklist/config.tpl');	
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/worklist/config.tpl');
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());		
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
 		
 		if(
 			null != ($view_model = self::getParamsViewModel($widget, $params))
-			&& false != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)) 
+			&& false != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model))
 		) {
 			// Set the usable worklist
 			$view->id = sprintf("widget%d_worklist", $widget->id);

@@ -28,8 +28,8 @@ class ChDisplayPage extends CerberusPageExtension {
 	}
 	
 	/*
-	 * [TODO] Proxy any func requests to be handled by the tab directly, 
-	 * instead of forcing tabs to implement controllers.  This should check 
+	 * [TODO] Proxy any func requests to be handled by the tab directly,
+	 * instead of forcing tabs to implement controllers.  This should check
 	 * for the *Action() functions just as a handleRequest would
 	 */
 	/*
@@ -133,10 +133,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		);
 
 		// Undeleting?
-		if(empty($spam) && empty($closed) && empty($deleted) 
+		if(empty($spam) && empty($closed) && empty($deleted)
 			&& $ticket->spam_training == CerberusTicketSpamTraining::SPAM && $ticket->is_closed) {
 				$score = CerberusBayes::calculateTicketSpamProbability($id);
-				$properties[DAO_Ticket::SPAM_SCORE] = $score['probability']; 
+				$properties[DAO_Ticket::SPAM_SCORE] = $score['probability'];
 				$properties[DAO_Ticket::SPAM_TRAINING] = CerberusTicketSpamTraining::BLANK;
 		}
 		
@@ -193,7 +193,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$dst_tickets = DAO_Ticket::getTickets($dst_ticket_ids);
 		foreach($dst_tickets as $dst_ticket_id => $dst_ticket) {
-			if($active_worker->is_superuser 
+			if($active_worker->is_superuser
 				|| (isset($active_worker_memberships[$dst_ticket->group_id]))) {
 					// Permission
 			} else {
@@ -486,7 +486,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			}
 
 			$tpl->assign('signature_pos', DAO_WorkerPref::get($active_worker->id, 'mail_signature_pos', 2));
-			$tpl->assign('mail_status_reply', DAO_WorkerPref::get($active_worker->id,'mail_status_reply','waiting'));			
+			$tpl->assign('mail_status_reply', DAO_WorkerPref::get($active_worker->id,'mail_status_reply','waiting'));
 		}
 		
 		$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
@@ -533,7 +533,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$field_values = DAO_CustomFieldValue::parseFormPost(CerberusContexts::CONTEXT_TICKET, $field_ids);
 		if(!empty($field_values)) {
 			$properties['custom_fields'] = $field_values;
-		}		
+		}
 		
 		// Options
 		if('save' == $reply_mode)
@@ -567,19 +567,19 @@ class ChDisplayPage extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		@$is_ajax = DevblocksPlatform::importGPC($_REQUEST['is_ajax'],'integer',0);
 		 
-		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0); 
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
 		@$msg_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
 		 
-		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0); 
+		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
 
-		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string',''); 
-		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string',''); 
-		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string',''); 
+		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
+		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 		
 		// Validate
-		if(empty($msg_id) 
-			|| empty($ticket_id) 
+		if(empty($msg_id)
+			|| empty($ticket_id)
 			|| null == ($ticket = DAO_Ticket::get($ticket_id)))
 			return;
 		
@@ -648,7 +648,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			
 		// Fields
 		$fields = array(
-			DAO_MailQueue::TYPE => empty($is_forward) ? Model_MailQueue::TYPE_TICKET_REPLY : Model_MailQueue::TYPE_TICKET_FORWARD, 
+			DAO_MailQueue::TYPE => empty($is_forward) ? Model_MailQueue::TYPE_TICKET_REPLY : Model_MailQueue::TYPE_TICKET_FORWARD,
 			DAO_MailQueue::TICKET_ID => $ticket_id,
 			DAO_MailQueue::WORKER_ID => $active_worker->id,
 			DAO_MailQueue::UPDATED => time(),
@@ -762,7 +762,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			// If we haven't cached this sender address yet
 			if(!isset($message_senders[$message->address_id])) {
 				if(null != ($sender_addy = DAO_Address::get($message->address_id))) {
-					$message_senders[$sender_addy->id] = $sender_addy;	
+					$message_senders[$sender_addy->id] = $sender_addy;
 
 					// If we haven't cached this sender org yet
 					if(!isset($message_sender_orgs[$sender_addy->contact_org_id])) {

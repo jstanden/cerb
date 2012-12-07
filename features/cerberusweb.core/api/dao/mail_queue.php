@@ -185,7 +185,7 @@ class DAO_MailQueue extends DevblocksORMHelper {
 		);
 		
 		return $result;
-	}	
+	}
 	
 	/**
 	 * Enter description here...
@@ -211,7 +211,7 @@ class DAO_MailQueue extends DevblocksORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -240,7 +240,7 @@ class DAO_MailQueue extends DevblocksORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT mail_queue.id) " : "SELECT COUNT(mail_queue.id) ").
 				$join_sql.
 				$where_sql;
@@ -371,7 +371,7 @@ class Model_MailQueue {
 		$properties['content'] = $this->body;
 
 		// Next action
-		$properties['closed'] = isset($this->params['next_is_closed']) ? intval($this->params['next_is_closed']) : 0; 
+		$properties['closed'] = isset($this->params['next_is_closed']) ? intval($this->params['next_is_closed']) : 0;
 
 		// Org
 		if(isset($this->params['org_id'])) {
@@ -570,7 +570,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals 
 		}
 		
 		return $counts;
-	}	
+	}
 	
 	function render() {
 		$this->_sanitize();
@@ -745,7 +745,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals 
 		for($x=0;$x<=$batch_total;$x+=100) {
 			$batch_ids = array_slice($ids,$x,100);
 			
-			if(!$deleted) { 
+			if(!$deleted) {
 				DAO_MailQueue::update($batch_ids, $change_fields);
 			} else {
 				DAO_MailQueue::delete($batch_ids);
@@ -755,7 +755,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals 
 		}
 
 		unset($ids);
-	}			
+	}
 };
 
 class Context_Draft extends Extension_DevblocksContext {
@@ -842,7 +842,7 @@ class Context_Draft extends Extension_DevblocksContext {
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -894,7 +894,7 @@ class Context_Draft extends Extension_DevblocksContext {
 		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		C4_AbstractViewLoader::setView($view_id, $view);
-		return $view;		
+		return $view;
 	}
 	
 	function getView($context=null, $context_id=null, $options=array()) {
@@ -904,7 +904,7 @@ class Context_Draft extends Extension_DevblocksContext {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Drafts';

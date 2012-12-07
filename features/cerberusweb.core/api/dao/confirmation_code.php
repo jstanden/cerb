@@ -85,7 +85,7 @@ class DAO_ConfirmationCode extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param unknown_type $namespace_key
 	 * @param unknown_type $code
 	 * @return Model_ConfirmationCode
@@ -225,7 +225,7 @@ class DAO_ConfirmationCode extends DevblocksORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -253,7 +253,7 @@ class DAO_ConfirmationCode extends DevblocksORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT confirmation_code.id) " : "SELECT COUNT(confirmation_code.id) ").
 				$join_sql.
 				$where_sql;
@@ -299,7 +299,7 @@ class SearchFields_ConfirmationCode implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 

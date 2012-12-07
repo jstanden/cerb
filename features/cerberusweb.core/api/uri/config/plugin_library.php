@@ -195,5 +195,5 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 				'message' => $e->getMessage()
 			));
 		}
-	}	
+	}
 };

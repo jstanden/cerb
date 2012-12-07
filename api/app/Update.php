@@ -16,31 +16,31 @@
 ***********************************************************************/
 /*
  * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
- * 
- * Sure, it would be so easy to just cheat and edit this file to use the 
- * software without paying for it.  But we trust you anyway.  In fact, we're 
- * writing this software for you! 
- * 
- * Quality software backed by a dedicated team takes money to develop.  We 
- * don't want to be out of the office bagging groceries when you call up 
- * needing a helping hand.  We'd rather spend our free time coding your 
- * feature requests than mowing the neighbors' lawns for rent money. 
- * 
- * We've never believed in hiding our source code out of paranoia over not 
- * getting paid.  We want you to have the full source code and be able to 
- * make the tweaks your organization requires to get more done -- despite 
- * having less of everything than you might need (time, people, money, 
+ *
+ * Sure, it would be so easy to just cheat and edit this file to use the
+ * software without paying for it.  But we trust you anyway.  In fact, we're
+ * writing this software for you!
+ *
+ * Quality software backed by a dedicated team takes money to develop.  We
+ * don't want to be out of the office bagging groceries when you call up
+ * needing a helping hand.  We'd rather spend our free time coding your
+ * feature requests than mowing the neighbors' lawns for rent money.
+ *
+ * We've never believed in hiding our source code out of paranoia over not
+ * getting paid.  We want you to have the full source code and be able to
+ * make the tweaks your organization requires to get more done -- despite
+ * having less of everything than you might need (time, people, money,
  * energy).  We shouldn't be your bottleneck.
- * 
- * We've been building our expertise with this project since January 2002.  We 
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to 
- * let us take over your shared e-mail headache is a worthwhile investment.  
- * It will give you a sense of control over your inbox that you probably 
- * haven't had since spammers found you in a game of 'E-mail Battleship'. 
+ *
+ * We've been building our expertise with this project since January 2002.  We
+ * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to
+ * let us take over your shared e-mail headache is a worthwhile investment.
+ * It will give you a sense of control over your inbox that you probably
+ * haven't had since spammers found you in a game of 'E-mail Battleship'.
  * Miss. Miss. You sunk my inbox!
- * 
- * A legitimate license entitles you to support from the developers,  
- * and the warm fuzzy feeling of feeding a couple of obsessed developers 
+ *
+ * A legitimate license entitles you to support from the developers,
+ * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
  * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
@@ -71,7 +71,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 				if(!DevblocksPlatform::versionConsistencyCheck()) {
 					echo sprintf("<h1>Cerb %s</h1>", APP_VERSION);
 					echo "The application is currently waiting for an administrator to finish upgrading. ".
-						"Please wait a few minutes and then ". 
+						"Please wait a few minutes and then ".
 						sprintf("<a href='%s'>try again</a>.<br><br>",
 							$url->write('c=update&a=locked')
 						);
@@ -85,7 +85,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 				
 			default:
 				$path = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
-				$file = $path . 'c4update_lock';				
+				$file = $path . 'c4update_lock';
 				
 				$settings = DevblocksPlatform::getPluginSettingsService();
 				
@@ -113,7 +113,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 				/*
 				 * This well-designed software is the result of over 8 years of R&D.
 				 * We're sharing every resulting byte of that hard work with you.
-				 * You're free to make changes for your own use, but we ask that you 
+				 * You're free to make changes for your own use, but we ask that you
 				 * please respect our licensing and help support commerical open source.
 				 */
 				$remuneration = CerberusLicense::getInstance();

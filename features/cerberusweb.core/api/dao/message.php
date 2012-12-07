@@ -34,7 +34,7 @@ class DAO_Message extends C4_ORMHelper {
 		
 		$sql = "INSERT INTO message () VALUES ()";
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-		$id = $db->LastInsertId(); 
+		$id = $db->LastInsertId();
 
 		self::update($id, $fields);
 		
@@ -202,7 +202,7 @@ class DAO_Message extends C4_ORMHelper {
 				$ids_buffer = array();
 				$count = 0;
 			}
-		}	
+		}
 		mysql_free_result($rs);
 
 		// Any remainder
@@ -212,7 +212,7 @@ class DAO_Message extends C4_ORMHelper {
 			unset($count);
 		}
 
-		// Purge messages without linked tickets  
+		// Purge messages without linked tickets
 		$sql = "DELETE QUICK message FROM message LEFT JOIN ticket ON message.ticket_id = ticket.id WHERE ticket.id IS NULL";
 		$db->Execute($sql);
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message records.');
@@ -388,8 +388,8 @@ class DAO_Message extends C4_ORMHelper {
 				
 				$args['where_sql'] .= 'AND (' . implode(' OR ', $status_sql) . ') ';
 				break;
-		}		
-	}	
+		}
+	}
 	
 	/**
 	 * Enter description here...
@@ -414,14 +414,14 @@ class DAO_Message extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY m.id ' : '').
 			$sort_sql;
 		
-		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$results = array();
 		
@@ -437,7 +437,7 @@ class DAO_Message extends C4_ORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT m.id) " : "SELECT COUNT(m.id) ").
 				$join_sql.
 				$where_sql;
@@ -522,7 +522,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	
 		$tables = DevblocksPlatform::getDatabaseTables();
 		if(isset($tables['fulltext_message_content'])) {
-			$columns[SearchFields_Message::MESSAGE_CONTENT] = new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('common.content'), 'FT'); 
+			$columns[SearchFields_Message::MESSAGE_CONTENT] = new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('common.content'), 'FT');
 		}
 		
 		// Sort by label (translation-conscious)
@@ -562,7 +562,7 @@ class Model_Message {
 	}
 
 	/**
-	 * 
+	 *
 	 * Enter description here ...
 	 * @return Model_Address
 	 */
@@ -619,7 +619,7 @@ class Search_MessageContent {
 			foreach($messages as $message) { /* @var $message Model_Message */
 				$id = $message->id;
 				
-				$logger->info(sprintf("[Search] Indexing %s %d...", 
+				$logger->info(sprintf("[Search] Indexing %s %d...",
 					$ns,
 					$id
 				));
@@ -676,7 +676,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		$tpl->assign('archive_after_days', $this->getParam('archive_after_days'));
 		
 		$tpl->display("devblocks:cerberusweb.core::configuration/section/storage_profiles/schemas/message_content/render.tpl");
-	}	
+	}
 	
 	function renderConfig() {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -783,7 +783,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT storage_extension, storage_key, storage_profile_id FROM message WHERE id IN (%s)", implode(',',$ids));
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		// Delete the physical files
 		
@@ -795,7 +795,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		
 		mysql_free_result($rs);
 		
-		return true; 
+		return true;
 	}
 	
 	public function getStats() {
@@ -863,7 +863,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 			
 			if(time() > $stop_time)
 				return;
-		}	
+		}
 	}
 	
 	private static function _migrate($dst_profile, $row, $is_unarchive=false) {
@@ -879,7 +879,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		$src_profile->id = $row['storage_profile_id'];
 		$src_profile->extension_id = $row['storage_extension'];
 		
-		if(empty($src_key) || empty($src_id)  
+		if(empty($src_key) || empty($src_id)
 			|| !$src_profile instanceof Model_DevblocksStorageProfile
 			|| !$dst_profile instanceof Model_DevblocksStorageProfile
 			)
@@ -897,7 +897,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		));
 
 		// Do as quicker strings if under 1MB?
-		$is_small = ($src_size < (1024 * 1000)) ? true : false;  
+		$is_small = ($src_size < (1024 * 1000)) ? true : false;
 		
 		// Allocate a temporary file for retrieving content
 		if($is_small) {
@@ -978,7 +978,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		));
 		
 		$logger->info(''); // blank
-	}	
+	}
 };
 
 class DAO_MessageHeader {
@@ -1244,7 +1244,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		
 		$sql = "SELECT COUNT(IF(t.is_closed=0 AND t.is_waiting=0 AND t.is_deleted=0,1,NULL)) AS open_hits, COUNT(IF(t.is_waiting=1 AND t.is_closed=0 AND t.is_deleted=0,1,NULL)) AS waiting_hits, COUNT(IF(t.is_closed=1 AND t.is_deleted=0,1,NULL)) AS closed_hits, COUNT(IF(t.is_deleted=1,1,NULL)) AS deleted_hits ".
 			$join_sql.
-			$where_sql 
+			$where_sql
 		;
 		
 		$results = $db->GetArray($sql);
@@ -1292,7 +1292,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$counts[$label] = array(
 					'hits' => $hits,
 					'label' => $label,
-					'filter' => 
+					'filter' =>
 						array(
 							'field' => SearchFields_Message::VIRTUAL_TICKET_STATUS,
 							'oper' => $oper,
@@ -1303,7 +1303,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		}
 		
 		return $counts;
-	}		
+	}
 	
 	function isQuickSearchField($token) {
 		switch($token) {
@@ -1403,7 +1403,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		}
 		
 		return false;
-	}	
+	}
 	
 	function render() {
 		$this->_sanitize();
@@ -1468,7 +1468,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				echo sprintf("Status %s %s", $oper, implode(' or ', $strings));
 				break;
 		}
-	}	
+	}
 	
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1757,7 +1757,7 @@ class Context_Message extends Extension_DevblocksContext {
 
 		// Polymorph
 		if(is_numeric($message)) {
-			$message = DAO_Message::get($message); 
+			$message = DAO_Message::get($message);
 		} elseif($message instanceof Model_Message) {
 			// It's what we want already.
 		} else {
@@ -1841,7 +1841,7 @@ class Context_Message extends Extension_DevblocksContext {
 		}
 		
 		return $values;
-	}	
+	}
 
 	function getChooserView($view_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -1868,14 +1868,14 @@ class Context_Message extends Extension_DevblocksContext {
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
 		C4_AbstractViewLoader::setView($view_id, $view);
-		return $view;		
+		return $view;
 	}
 	
 	function getView($context=null, $context_id=null, $options=array()) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Messages';

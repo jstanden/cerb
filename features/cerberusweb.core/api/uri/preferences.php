@@ -302,7 +302,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$view->render();
 		
 		exit;
-	}	
+	}
 	
 	function viewNotificationsExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
@@ -374,7 +374,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 				}
 				
 				if(empty($url))
-					continue;				
+					continue;
 				
 				if(!empty($context) && !empty($context_id)) {
 					// Is this a dupe?
@@ -468,8 +468,8 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 		// [TODO] WorkerPrefs_*?
 		$prefs = array();
-		$prefs['assist_mode'] = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1)); 
-		$prefs['keyboard_shortcuts'] = intval(DAO_WorkerPref::get($worker->id, 'keyboard_shortcuts', 1)); 
+		$prefs['assist_mode'] = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
+		$prefs['keyboard_shortcuts'] = intval(DAO_WorkerPref::get($worker->id, 'keyboard_shortcuts', 1));
 		$prefs['mail_always_show_all'] = DAO_WorkerPref::get($worker->id,'mail_always_show_all',0);
 		$prefs['mail_reply_button'] = DAO_WorkerPref::get($worker->id,'mail_reply_button',0);
 		$prefs['mail_status_compose'] = DAO_WorkerPref::get($worker->id,'compose.status','waiting');

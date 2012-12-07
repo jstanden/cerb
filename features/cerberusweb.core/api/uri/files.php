@@ -30,7 +30,7 @@ class ChFilesController extends DevblocksControllerExtension {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$stack = $request->path;				// URLS like: /files/10000/plaintext.txt
-		array_shift($stack);					// files	
+		array_shift($stack);					// files
 		$file_guid = array_shift($stack); 		// GUID
 		$file_name = array_shift($stack); 		// plaintext.txt
 
