@@ -1494,6 +1494,8 @@ span.plugin_icon_overlay_disabled {
 
 /* Autocomplete */
 
+SPAN.ui-helper-hidden-accessible { display: none; }
+
 UL.ui-autocomplete.ui-menu {
 	background-color:rgb(232,242,254);
 	background: linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
