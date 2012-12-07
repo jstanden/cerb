@@ -61,7 +61,7 @@
 			<tuv xml:lang="en_US"><seg>{{actor}} merged ticket {{source}} with ticket {{target}}</seg></tuv>
 		</tu>
 		<tu tuid='activities.ticket.message.inbound'>
-			<tuv xml:lang="en_US"><seg>{{actor}} replied to ticket {{target}}</seg></tuv>
+			<tuv xml:lang="en_US"><seg>{{actor}} wrote on ticket {{target}}</seg></tuv>
 		</tu>
 		<tu tuid='activities.ticket.message.outbound'>
 			<tuv xml:lang="en_US"><seg>{{actor}} responded to ticket {{target}}</seg></tuv>
