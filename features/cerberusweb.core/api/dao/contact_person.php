@@ -800,7 +800,7 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 	}
 };
 
-class Context_ContactPerson extends Extension_DevblocksContext implements IDevblocksContextProfile {
+class Context_ContactPerson extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	static function searchInboundLinks($from_context, $from_context_id) {
 		list($results, $null) = DAO_ContactPerson::search(
 			array(
@@ -1013,10 +1013,39 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 			);
 		}
 
-		$view->addParamsRequired($params_req, true);		
+		$view->addParamsRequired($params_req, true);
 		
 		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
+	}
+	
+	function renderPeekPopup($context_id=0, $view_id='') {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$contact = DAO_ContactPerson::get($context_id);
+		$tpl->assign('contact', $contact);
+
+		// Custom fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT_PERSON);
+		$tpl->assign('custom_fields', $custom_fields);
+
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CONTACT_PERSON, $context_id);
+		if(isset($custom_field_values[$context_id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+		
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('types', $types);
+		
+		// Comments
+		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_CONTACT_PERSON, $context_id);
+		$last_comment = array_shift($comments);
+		unset($comments);
+		$tpl->assign('last_comment', $last_comment);
+		
+		// View
+		$tpl->assign('view_id', $view_id);
+		
+		$tpl->display('devblocks:cerberusweb.core::contacts/people/peek.tpl');
 	}
 };

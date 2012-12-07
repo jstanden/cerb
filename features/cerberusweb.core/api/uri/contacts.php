@@ -1470,43 +1470,12 @@ class ChContactsPage extends CerberusPageExtension {
 		exit;
 	}
 	
-	function showContactPeekAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer','');
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-				
-		$contact = DAO_ContactPerson::get($id);
-		$tpl->assign('contact', $contact);
-
-		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT_PERSON);
-		$tpl->assign('custom_fields', $custom_fields);
-
-		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CONTACT_PERSON, $id);
-		if(isset($custom_field_values[$id]))
-			$tpl->assign('custom_field_values', $custom_field_values[$id]);
-		
-		$types = Model_CustomField::getTypes();
-		$tpl->assign('types', $types);
-				
-		// Comments
-		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_CONTACT_PERSON, $id);
-		$last_comment = array_shift($comments);
-		unset($comments);
-		$tpl->assign('last_comment', $last_comment);
-		
-		// View
-		$tpl->assign('view_id', $view_id);
-		
-		$tpl->display('devblocks:cerberusweb.core::contacts/people/peek.tpl');
-	}
-
 	function saveContactPeekAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		@$password = DevblocksPlatform::importGPC($_REQUEST['password'],'string','');
-		//@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
+		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
 		@$delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -1527,8 +1496,29 @@ class ChContactsPage extends CerberusPageExtension {
 					$fields[DAO_ContactPerson::AUTH_PASSWORD] = $auth_pass;
 				}
 				
-				if($id==0) {
+				if(empty($id)) {
+					if(false == ($address = DAO_Address::lookupAddress($email, true)))
+						return;
+					
+					// See if the contact person already exists
+					// [TODO] Report this as an error in the peek/view
+					$results = DAO_ContactPerson::getWhere(sprintf("%s = %d",
+						DAO_ContactPerson::EMAIL_ID,
+						$address->id
+					));
+					
+					if(!empty($results))
+						return;
+					
+					$fields[DAO_ContactPerson::EMAIL_ID] = $address->id;
+					$fields[DAO_ContactPerson::CREATED] = time();
+					
 					$id = DAO_ContactPerson::create($fields);
+					
+					// Link address to contact person
+					DAO_Address::update($address->id, array(
+						DAO_Address::CONTACT_PERSON_ID => $id,
+					));
 					
 					// Watchers
 					@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
