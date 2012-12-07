@@ -989,11 +989,8 @@ abstract class C4_AbstractView {
 					$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
 					break;
 				case DevblocksSearchCriteria::OPER_IN:
-					if(is_array($params[$field_key]->value) && count($params[$field_key]->value) < 2)
-						$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
-					break;
 				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-					if(!is_array($params[$field_key]->value))
+					if(is_array($params[$field_key]->value) && count($params[$field_key]->value) < 2)
 						$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
 					break;
 			}
@@ -1013,7 +1010,7 @@ abstract class C4_AbstractView {
 		);
 		
 		$join_sql = $query_parts['join'];
-		$where_sql = $query_parts['where'];				
+		$where_sql = $query_parts['where'];
 		
 		$sql = sprintf("SELECT %s.%s as label, count(*) as hits ", //SQL_CALC_FOUND_ROWS
 				$fields[$field_key]->db_table,
@@ -1103,8 +1100,8 @@ abstract class C4_AbstractView {
 						'filter' => 
 							array(
 								'field' => $field_key,
-								'oper' => DevblocksSearchCriteria::OPER_EQ,
-								'values' => array($value_key => ''),
+								'oper' => DevblocksSearchCriteria::OPER_IN,
+								'values' => array($value_key => 0),
 							),
 						'children' => array()
 					);
@@ -1185,6 +1182,7 @@ abstract class C4_AbstractView {
 					$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
 					break;
 				case DevblocksSearchCriteria::OPER_IN:
+				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
 					if(is_array($params[$field_key]->value) && count($params[$field_key]->value) < 2)
 						$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
 					break;
@@ -1587,6 +1585,7 @@ abstract class C4_AbstractView {
 					$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
 					break;
 				case DevblocksSearchCriteria::OPER_IN:
+				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
 					if(is_array($params[$field_key]->value) && count($params[$field_key]->value) < 2)
 						$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
 					break;
