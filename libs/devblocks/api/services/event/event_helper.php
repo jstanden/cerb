@@ -90,8 +90,8 @@ class DevblocksEventHelper {
 				$tpl->assign('workers', $workers);
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_worker.tpl');
 				break;
-		}		
-	}	
+		}
+	}
 	
 	static function simulateActionSetAbstractField($field_name, $field_type, $value_key, $params, DevblocksDictionaryDelegate $dict) {
 		$field_types = Model_CustomField::getTypes();
@@ -399,8 +399,8 @@ class DevblocksEventHelper {
 				
 			default:
 				self::runActionExtension($token, $trigger, $params, $dict);
-				break;	
-		}		
+				break;
+		}
 	}
 	
 	/*
@@ -485,7 +485,7 @@ class DevblocksEventHelper {
 				
 				$out .= sprintf(" [%d] %s\n",
 					++$counter,
-					$label ? $label : '(object)' 
+					$label ? $label : '(object)'
 				);
 			}
 
@@ -618,7 +618,7 @@ class DevblocksEventHelper {
 					}
 				}
 		
-				// We require at least one worker 
+				// We require at least one worker
 				if(empty($possible_workers)) {
 					$var_key = $var['key'];
 					$dict->$var_key = 0;
@@ -935,11 +935,11 @@ class DevblocksEventHelper {
 				
 				foreach($on_objects as $on_object) {
 					$on_object_context = Extension_DevblocksContext::get($on_object->_context);
-					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";  
+					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";
 				}
 				$out .= "\n";
 			}
-		}		
+		}
 		
 		return $out;
 	}
@@ -1090,11 +1090,11 @@ class DevblocksEventHelper {
 				
 				foreach($on_objects as $on_object) {
 					$on_object_context = Extension_DevblocksContext::get($on_object->_context);
-					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";  
+					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";
 				}
 				$out .= "\n";
 			}
-		}		
+		}
 		
 		return $out;
 	}
@@ -1121,7 +1121,7 @@ class DevblocksEventHelper {
 					DAO_ContextScheduledBehavior::deleteByBehavior($behavior_id, $on_object->_context, $on_object->id);
 				}
 			}
-		}		
+		}
 	}
 	
 	/*
@@ -1175,7 +1175,7 @@ class DevblocksEventHelper {
 			
 			foreach($on_objects as $on_object) {
 				$on_object_context = Extension_DevblocksContext::get($on_object->_context);
-				$out .= ' * (' . $on_object_context->manifest->name . ') ' . @$on_object->_label . "\n";  
+				$out .= ' * (' . $on_object_context->manifest->name . ') ' . @$on_object->_label . "\n";
 			}
 			$out .= "\n";
 		}
@@ -1448,7 +1448,7 @@ class DevblocksEventHelper {
 				
 				foreach($on_objects as $on_object) {
 					$on_object_context = Extension_DevblocksContext::get($on_object->_context);
-					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";  
+					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";
 				}
 			}
 			
@@ -1474,7 +1474,7 @@ class DevblocksEventHelper {
 			}
 		}
 		
-		return $out;		
+		return $out;
 	}
 	
 	static function runActionCreateNotification($params, DevblocksDictionaryDelegate $dict, $default_on) {
@@ -1606,11 +1606,11 @@ class DevblocksEventHelper {
 				
 				foreach($on_objects as $on_object) {
 					$on_object_context = Extension_DevblocksContext::get($on_object->_context);;
-					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";  
+					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";
 				}
 				$out .= "\n";
 			}
-		}		
+		}
 		
 		// Watchers
 		if(is_array($watcher_worker_ids) && !empty($watcher_worker_ids)) {
@@ -1814,7 +1814,7 @@ class DevblocksEventHelper {
 		$content = $tpl_builder->build($params['content'], $dict);
 				
 		$message = new CerberusParserMessage();
-		$message->headers['date'] = date('r'); 
+		$message->headers['date'] = date('r');
 		$message->headers['to'] = $group_replyto->email;
 		$message->headers['subject'] = $subject;
 		$message->headers['message-id'] = CerberusApplication::generateMessageId();
@@ -1850,11 +1850,11 @@ class DevblocksEventHelper {
 		
 		// Worker reply
 		$properties = array(
-		    'message_id' => $ticket->first_message_id,
-		    'ticket_id' => $ticket_id,
-		    'subject' => $subject,
-		    'content' => $content,
-		    'worker_id' => 0, //$active_worker->id,
+			'message_id' => $ticket->first_message_id,
+			'ticket_id' => $ticket_id,
+			'subject' => $subject,
+			'content' => $content,
+			'worker_id' => 0, //$active_worker->id,
 		);
 		
 		// Watchers
@@ -2000,7 +2000,7 @@ class DevblocksEventHelper {
 			}
 		}
 
-		// Properties 
+		// Properties
 		
 		$subject = $tpl_builder->build($params['subject'], $dict);
 		$content = $tpl_builder->build($params['content'], $dict);
@@ -2177,7 +2177,7 @@ class DevblocksEventHelper {
 				
 				if(!$result) {
 					return false;
-				}			
+				}
 				
 			} catch (Exception $e) {
 				
@@ -2328,7 +2328,7 @@ class DevblocksEventHelper {
 
 		// Are we reducing the list?
 		if(isset($params['limit']) && !empty($params['limit'])) {
-			@$limit_to = intval($params['limit_count']); 
+			@$limit_to = intval($params['limit_count']);
 			
 			switch(@$params['limit']) {
 				case 'first':

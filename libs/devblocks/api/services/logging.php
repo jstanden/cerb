@@ -3,17 +3,17 @@ class _DevblocksLogManager {
 	static $_instance = null;
 	private $_prefix = '';
 	
-    // Used the ZF classifications
+	// Used the ZF classifications
 	private static $_log_levels = array(
 		'emerg' => 0,		// Emergency: system is unusable
-		'emergency' => 0,	
+		'emergency' => 0,
 		'alert' => 1,		// Alert: action must be taken immediately
 		'crit' => 2,		// Critical: critical conditions
-		'critical' => 2,	
+		'critical' => 2,
 		'err' => 3,			// Error: error conditions
-		'error' => 3,		
+		'error' => 3,
 		'warn' => 4,		// Warning: warning conditions
-		'warning' => 4,		
+		'warning' => 4,
 		'notice' => 5,		// Notice: normal but significant condition
 		'info' => 6,		// Informational: informational messages
 		'debug' => 7,		// Debug: debug messages
@@ -56,8 +56,8 @@ class _DevblocksLogManager {
 	}
 	
 	public function __destruct() {
-		@fclose($this->_fp);	
-	}	
+		@fclose($this->_fp);
+	}
 	
 	public function __call($name, $args) {
 		if(empty($args))

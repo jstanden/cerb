@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Smarty Template Manager Singleton
  *
@@ -7,14 +7,14 @@
 class _DevblocksTemplateManager {
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @private
 	 */
 	private function _DevblocksTemplateManager() {}
 	/**
 	 * Returns an instance of the Smarty Template Engine
-	 * 
-	 * @static 
+	 *
+	 * @static
 	 * @return Smarty
 	 */
 	static function getInstance() {
@@ -82,11 +82,11 @@ class _DevblocksTemplateManager {
 		
 		$contents = $url->write($content, !empty($params['full']) ? true : false);
 		
-	    if (!empty($params['assign'])) {
-	        $smarty->assign($params['assign'], $contents);
-	    } else {
-	        return $contents;
-	    }
+		if (!empty($params['assign'])) {
+			$smarty->assign($params['assign'], $contents);
+		} else {
+			return $contents;
+		}
 	}
 	
 	static function modifier_devblocks_date($string, $format=null, $gmt=false) {
@@ -107,7 +107,7 @@ class _DevblocksTemplateManager {
 		
 	static function modifier_devblocks_prettysecs($string, $length=0) {
 		return DevblocksPlatform::strSecsToString($string, $length);
-	}	
+	}
 
 	static function modifier_devblocks_prettybytes($string, $precision='0') {
 		return DevblocksPlatform::strPrettyBytes($string, $precision);
@@ -197,7 +197,7 @@ class _DevblocksSmartyTemplateResource {
 			return false;
 		
 		$tpl_source = file_get_contents($path);
-		return true;			
+		return true;
 	}
 	
 	static function get_timestamp($tpl_name, &$tpl_timestamp, $smarty_obj) { /* @var $smarty_obj Smarty */
@@ -227,7 +227,7 @@ class _DevblocksSmartyTemplateResource {
 						$match = array_shift($matches); /* @var $match Model_DevblocksTemplate */
 						//echo time(),"==(DB)",$match->last_updated,"<BR>";
 						$tpl_timestamp = $match->last_updated;
-						return true; 
+						return true;
 					}
 				}
 			}

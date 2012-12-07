@@ -19,7 +19,7 @@ class _DevblocksTemplateBuilder {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @return _DevblocksTemplateBuilder
 	 */
 	static function getInstance() {
@@ -75,7 +75,7 @@ class _DevblocksTemplateBuilder {
 			}
 		}
 		
-		$tokens = array_unique($tokens); 
+		$tokens = array_unique($tokens);
 		
 		return $tokens;
 	}
@@ -92,7 +92,7 @@ class _DevblocksTemplateBuilder {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param string $template
 	 * @param array $vars
 	 * @return string
@@ -117,7 +117,7 @@ class _DevblocksTemplateBuilder {
 			return false;
 		
 		return $out;
-	} 
+	}
 };
 
 class DevblocksDictionaryDelegate {
@@ -288,19 +288,19 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		
 		if(is_array($matches) && isset($matches[$group])) {
 			$string = $matches[$group];
-		}		
+		}
 		
 		return $string;
-	}	
+	}
 	
 	/**
 	 * https://github.com/fabpot/Twig-extensions/blob/master/lib/Twig/Extensions/Extension/Text.php
-	 *  
+	 *
 	 * @param string $value
 	 * @param integer $length
 	 * @param boolean $preserve
 	 * @param string $separator
-	 * 
+	 *
 	 */
 	function filter_truncate($value, $length = 30, $preserve = false, $separator = '...') {
 		if (mb_strlen($value, LANG_CHARSET_CODE) > $length) {
@@ -312,6 +312,6 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			return mb_substr($value, 0, $length, LANG_CHARSET_CODE) . $separator;
 		}
 		return $value;
-	}	
+	}
 };
 endif;

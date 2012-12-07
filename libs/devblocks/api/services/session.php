@@ -2,7 +2,7 @@
 /**
  * Session Management Singleton
  *
- * @static 
+ * @static
  * @ingroup services
  */
 class _DevblocksSessionManager {
@@ -22,10 +22,10 @@ class _DevblocksSessionManager {
 	static function getInstance() {
 		static $instance = null;
 		if(null == $instance) {
-		    $db = DevblocksPlatform::getDatabaseService();
-		    $url_writer = DevblocksPlatform::getUrlService();
-		    
-			if(is_null($db) || !$db->isConnected()) { 
+			$db = DevblocksPlatform::getDatabaseService();
+			$url_writer = DevblocksPlatform::getUrlService();
+			
+			if(is_null($db) || !$db->isConnected()) {
 				return null;
 			}
 			
@@ -73,12 +73,12 @@ class _DevblocksSessionManager {
 			$scope[$key] = $value;
 		}
 		
-		return $scope; 		
+		return $scope;
 	}
 	
 	/**
 	 * Returns the current session or NULL if no session exists.
-	 * 
+	 *
 	 * @return DevblocksVisit
 	 */
 	function getVisit() {

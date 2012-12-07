@@ -2,14 +2,14 @@
 /**
  * Email Management Singleton
  *
- * @static 
+ * @static
  * @ingroup services
  */
 class _DevblocksEmailManager {
-    private static $instance = null;
-    
-    private $mailers = array();
-    
+	private static $instance = null;
+	
+	private $mailers = array();
+	
 	/**
 	 * @private
 	 */
@@ -44,17 +44,17 @@ class _DevblocksEmailManager {
 	function getMailer($options) {
 
 		// Options
-		$smtp_host = isset($options['host']) ? $options['host'] : '127.0.0.1'; 
-		$smtp_port = isset($options['port']) ? $options['port'] : '25'; 
-		$smtp_user = isset($options['auth_user']) ? $options['auth_user'] : null; 
-		$smtp_pass = isset($options['auth_pass']) ? $options['auth_pass'] : null; 
-		$smtp_enc = isset($options['enc']) ? $options['enc'] : 'None'; 
-		$smtp_max_sends = isset($options['max_sends']) ? intval($options['max_sends']) : 20; 
-		$smtp_timeout = isset($options['timeout']) ? intval($options['timeout']) : 30; 
+		$smtp_host = isset($options['host']) ? $options['host'] : '127.0.0.1';
+		$smtp_port = isset($options['port']) ? $options['port'] : '25';
+		$smtp_user = isset($options['auth_user']) ? $options['auth_user'] : null;
+		$smtp_pass = isset($options['auth_pass']) ? $options['auth_pass'] : null;
+		$smtp_enc = isset($options['enc']) ? $options['enc'] : 'None';
+		$smtp_max_sends = isset($options['max_sends']) ? intval($options['max_sends']) : 20;
+		$smtp_timeout = isset($options['timeout']) ? intval($options['timeout']) : 30;
 		
 		/*
-		 * [JAS]: We'll cache connection info hashed by params and hold a persistent 
-		 * connection for the request cycle.  If we ask for the same params again 
+		 * [JAS]: We'll cache connection info hashed by params and hold a persistent
+		 * connection for the request cycle.  If we ask for the same params again
 		 * we'll get the existing connection if it exists.
 		 */
 		$hash = md5(sprintf("%s %s %s %s %s %d %d",
@@ -101,44 +101,44 @@ class _DevblocksEmailManager {
 	}
 	
 	function testImap($server, $port, $service, $username, $password) {
-		if (!extension_loaded("imap")) 
+		if (!extension_loaded("imap"))
 			throw new Exception("PHP 'imap' extension is not loaded!");
 		
 		// Clear error stack
-		imap_errors();	
+		imap_errors();
 			
-        switch($service) {
-            default:
-            case 'pop3': // 110
-                $connect = sprintf("{%s:%d/pop3/notls}INBOX",
-                $server,
-                $port
-                );
-                break;
-                 
-            case 'pop3-ssl': // 995
-                $connect = sprintf("{%s:%d/pop3/ssl/novalidate-cert}INBOX",
-                $server,
-                $port
-                );
-                break;
-                 
-            case 'imap': // 143
-                $connect = sprintf("{%s:%d/notls}INBOX",
-                $server,
-                $port
-                );
-                break;
-                
-            case 'imap-ssl': // 993
-                $connect = sprintf("{%s:%d/imap/ssl/novalidate-cert}INBOX",
-                $server,
-                $port
-                );
-                break;
-        }
+		switch($service) {
+			default:
+			case 'pop3': // 110
+				$connect = sprintf("{%s:%d/pop3/notls}INBOX",
+				$server,
+				$port
+				);
+				break;
+				 
+			case 'pop3-ssl': // 995
+				$connect = sprintf("{%s:%d/pop3/ssl/novalidate-cert}INBOX",
+				$server,
+				$port
+				);
+				break;
+				 
+			case 'imap': // 143
+				$connect = sprintf("{%s:%d/notls}INBOX",
+				$server,
+				$port
+				);
+				break;
+				
+			case 'imap-ssl': // 993
+				$connect = sprintf("{%s:%d/imap/ssl/novalidate-cert}INBOX",
+				$server,
+				$port
+				);
+				break;
+		}
 		
-        try {
+		try {
 			$mailbox = @imap_open(
 				$connect,
 				!empty($username)?$username:"superuser",
@@ -150,9 +150,9 @@ class _DevblocksEmailManager {
 			
 			@imap_close($mailbox);
 			
-        } catch(Exception $e) {
-        	throw new Exception($e->getMessage());
-        }
+		} catch(Exception $e) {
+			throw new Exception($e->getMessage());
+		}
 			
 		return TRUE;
 	}

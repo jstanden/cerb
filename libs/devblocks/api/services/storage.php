@@ -3,7 +3,7 @@ class _DevblocksStorageManager {
 	static $_connections = array();
 	
 	/**
-	 * 
+	 *
 	 * @param string $extension_id
 	 * @param array $options
 	 * @return Extension_DevblocksStorageEngine
@@ -27,7 +27,7 @@ class _DevblocksStorageManager {
 };
 
 class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
-	const ID = 'devblocks.storage.engine.disk'; 
+	const ID = 'devblocks.storage.engine.disk';
 	
 	public function setOptions($options=array()) {
 		parent::setOptions($options);
@@ -172,7 +172,7 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 			return @unlink($path);
 		
 		return true;
-	}	
+	}
 };
 
 class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
@@ -202,7 +202,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 		}
 		
 		return true;
-	}	
+	}
 
 	function testConfig() {
 		@$host = DevblocksPlatform::importGPC($_POST['host'],'string','');
@@ -426,7 +426,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 		), $this->_db);
 		
 		return $result ? true : false;
-	}	
+	}
 };
 
 class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
@@ -452,7 +452,7 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 				return false;
 			}
 		}
-	}	
+	}
 	
 	function testConfig() {
 		// Test S3 connection info
@@ -463,7 +463,7 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		try {
 			$s3 = new S3($access_key, $secret_key, true, $host);
 			if(@!$s3->listBuckets())
-				return false;	
+				return false;
 		} catch(Exception $e) {
 			return false;
 		}
@@ -553,5 +553,5 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		@$bucket = $this->_options['bucket'];
 
 		return $this->_s3->deleteObject($bucket, $key);
-	}	
+	}
 };

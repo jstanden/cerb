@@ -83,8 +83,8 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// [TODO] Check status
 		//$info = curl_getinfo($ch);
-		//var_dump($info); 
-		//$status = curl_getinfo($ch, CURLINFO_HTTP_CODE); 
+		//var_dump($info);
+		//$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		
 		// Write
 		fwrite($fp, $data, strlen($data));
@@ -134,10 +134,10 @@ class DevblocksPlatform extends DevblocksEngine {
 			case 'timestamp':
 				if(!is_numeric($value)) {
 					try {
-						$value = strtotime($value);	
+						$value = strtotime($value);
 					} catch(Exception $e) {}
 				} else {
-					$value = abs(intval($value));	
+					$value = abs(intval($value));
 				}
 				break;
 			default:
@@ -145,8 +145,8 @@ class DevblocksPlatform extends DevblocksEngine {
 				break;
 		}
 		
-		return $value;		
-	}    
+		return $value;
+	}
     
 	/**
 	 * @param mixed $var
@@ -181,7 +181,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
-	 * Returns a string as a regexp. 
+	 * Returns a string as a regexp.
 	 * "*bob" returns "/(.*?)bob/".
 	 */
 	static function parseStringAsRegExp($string) {
@@ -192,29 +192,29 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	/**
 	 * Returns a formatted string as a number of bytes (e.g. 200M = 209715200)
-	 * 
+	 *
 	 * @param string $string
 	 * @return integer|FALSE
 	 */
 	static function parseBytesString($string) {
-	    if(is_numeric($string)) { 
+	    if(is_numeric($string)) {
 	        return intval($string);
 	        
-	    } else { 
-	        $value = intval($string); 
-	        $unit = strtolower(substr($string, -1)); 
+	    } else {
+	        $value = intval($string);
+	        $unit = strtolower(substr($string, -1));
 	         
-	        switch($unit) { 
-	            default: 
-	            case 'm': 
+	        switch($unit) {
+	            default:
+	            case 'm':
 	                return $value * 1048576; // 1024^2
-	                break; 
-	            case 'g': 
-	                return $value * 1073741824; // 1024^3 
 	                break;
-	            case 'k': 
+	            case 'g':
+	                return $value * 1073741824; // 1024^3
+	                break;
+	            case 'k':
 	                return $value * 1024; // 1024^1
-	                break; 
+	                break;
 	        }
 	    }
 	    
@@ -228,7 +228,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		// Remove any empty tokens
 		foreach($parts as $idx => $part) {
 			$parts[$idx] = trim($part);
-			if(!$keep_blanks && 0 == strlen($parts[$idx])) 
+			if(!$keep_blanks && 0 == strlen($parts[$idx]))
 				unset($parts[$idx]);
 		}
 		
@@ -267,7 +267,7 @@ class DevblocksPlatform extends DevblocksEngine {
     }
 	
 	/**
-	 * Return a string as a regular expression, parsing * into a non-greedy 
+	 * Return a string as a regular expression, parsing * into a non-greedy
 	 * wildcard, etc.
 	 *
 	 * @param string $arg
@@ -303,7 +303,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		$string = (is_null($from_encoding))
             ? mb_convert_encoding($string, "UCS-4BE")
             : mb_convert_encoding($string, "UCS-4BE", $from_encoding)
-            ;		
+            ;
 		
 		while(false !== ($part = mb_substr($string, 0, 25000)) && 0 !== mb_strlen($part)) {
 			$string = mb_substr($string, mb_strlen($part));
@@ -391,7 +391,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		}
 		
 		return $output;
-	}	
+	}
 	
 	static function stripHTML($str) {
 		$str = preg_replace_callback(
@@ -400,7 +400,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				return str_replace("\n","<br>",@$matches[0]);
 			},
 			$str
-		);		
+		);
 			
 		// Strip all CRLF and tabs, spacify </TD>
 		$str = str_ireplace(
@@ -447,15 +447,15 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Strip non-content tags
 		$search = array(
-            '@<head[^>]*?>.*?</head>@siu', 
-            '@<style[^>]*?>.*?</style>@siu', 
-            '@<script[^>]*?.*?</script>@siu', 
-            '@<object[^>]*?.*?</object>@siu', 
-            '@<embed[^>]*?.*?</embed>@siu', 
-            '@<applet[^>]*?.*?</applet>@siu', 
-            '@<noframes[^>]*?.*?</noframes>@siu', 
-            '@<noscript[^>]*?.*?</noscript>@siu', 
-            '@<noembed[^>]*?.*?</noembed>@siu', 				
+            '@<head[^>]*?>.*?</head>@siu',
+            '@<style[^>]*?>.*?</style>@siu',
+            '@<script[^>]*?.*?</script>@siu',
+            '@<object[^>]*?.*?</object>@siu',
+            '@<embed[^>]*?.*?</embed>@siu',
+            '@<applet[^>]*?.*?</applet>@siu',
+            '@<noframes[^>]*?.*?</noframes>@siu',
+            '@<noscript[^>]*?.*?</noscript>@siu',
+            '@<noembed[^>]*?.*?</noembed>@siu',
 		);
 		$str = preg_replace($search, '', $str);
 		
@@ -491,7 +491,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		$str = mb_convert_encoding($str, LANG_CHARSET_CODE, LANG_CHARSET_CODE);
 		
 		return $str;
-	}	
+	}
 	
 	static function parseMarkdown($text) {
 		static $parser = null;
@@ -521,7 +521,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			$user_agent = 'Cerberus Helpdesk ' . APP_VERSION . ' (Build ' . APP_BUILD . ')';
 			curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
 			
-			$is_safemode = !(ini_get('open_basedir') == '' && ini_get('safe_mode' == 'Off'));	
+			$is_safemode = !(ini_get('open_basedir') == '' && ini_get('safe_mode' == 'Off'));
 	
 			// We can't use option this w/ safemode enabled
 			if(!$is_safemode)
@@ -603,7 +603,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 			foreach($xml->item as $item) {
 				$date = (string) $item->pubDate;
-				$link = (string) $item->link; 
+				$link = (string) $item->link;
 				$title = (string) $item->title;
 				$content = (string) $item->description;
 				
@@ -629,7 +629,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 			foreach($xml->channel->item as $item) {
 				$date = (string) $item->pubDate;
-				$link = (string) $item->link; 
+				$link = (string) $item->link;
 				$title = (string) $item->title;
 				$content = (string) $item->description;
 
@@ -652,8 +652,8 @@ class DevblocksPlatform extends DevblocksEngine {
 
 	/**
 	 * Returns a string as alphanumerics delimited by underscores.
-	 * For example: "Devs: 1000 Ways to Improve Sales" becomes 
-	 * "devs_1000_ways_to_improve_sales", which is suitable for 
+	 * For example: "Devs: 1000 Ways to Improve Sales" becomes
+	 * "devs_1000_ways_to_improve_sales", which is suitable for
 	 * displaying in a URL of a blog, faq, etc.
 	 *
 	 * @param string $str
@@ -796,7 +796,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		if($diffsecs > 0 && !$is_delta)
 			$whole .= ' ago';
 		
-		return $whole;		
+		return $whole;
 	}
 	
 	static function strPrettyBytes($string, $precision='0') {
@@ -819,13 +819,13 @@ class DevblocksPlatform extends DevblocksEngine {
 			$out = $bytes . ' bytes';
 		}
 		
-		return $out;		
+		return $out;
 	}
 	
 	/**
 	 * Takes a comma-separated value string and returns an array of tokens.
 	 * [TODO] Move to a FormHelper service?
-	 * 
+	 *
 	 * @param string $string
 	 * @return array
 	 */
@@ -854,7 +854,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	/**
 	 * Clears any platform-level plugin caches.
-	 * 
+	 *
 	 */
 	static function clearCache($one_cache=null) {
 	    $cache = self::getCacheService(); /* @var $cache _DevblocksCacheManager */
@@ -939,7 +939,7 @@ class DevblocksPlatform extends DevblocksEngine {
 
 	/**
 	 * Checks whether the active database has any tables.
-	 * 
+	 *
 	 * @return boolean
 	 */
 	static function isDatabaseEmpty() {
@@ -1057,7 +1057,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	/**
 	 * Returns an array of all contributed extension manifests.
 	 *
-	 * @static 
+	 * @static
 	 * @return DevblocksExtensionManifest[]
 	 */
 	static function getExtensionRegistry($ignore_acl=false, $nocache=false, $with_disabled=false) {
@@ -1088,7 +1088,7 @@ class DevblocksPlatform extends DevblocksEngine {
 					$prefix,
 					($with_disabled ? '' : 'AND p.enabled = 1')
 				);
-			$results = $db->GetArray($sql); 
+			$results = $db->GetArray($sql);
 				
 			foreach($results as $row) {
 			    $extension = new DevblocksExtensionManifest();
@@ -1203,7 +1203,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			$prefix,
 			$prefix
 		);
-		$results = $db->GetArray($sql); 
+		$results = $db->GetArray($sql);
 		
 		foreach($results as $row) {
 			$priv = new DevblocksAclPrivilege();
@@ -1239,7 +1239,7 @@ class DevblocksPlatform extends DevblocksEngine {
             
             if(is_array($evts))
             foreach(array_keys($evts) as $evt) {
-                $events[$evt][] = $extension->id; 
+                $events[$evt][] = $extension->id;
             }
 		}
     	
@@ -1271,7 +1271,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			"ORDER BY p.enabled DESC, p.name ASC ",
 			$prefix
 		);
-		$results = $db->GetArray($sql); 
+		$results = $db->GetArray($sql);
 
 		foreach($results as $row) {
 		    $plugin = new DevblocksPluginManifest();
@@ -1298,7 +1298,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		    "FROM %sevent_point p ",
 		    $prefix
 		);
-		$results = $db->GetArray($sql); 
+		$results = $db->GetArray($sql);
 
 		foreach($results as $row) {
 		    $point = new DevblocksEventPoint();
@@ -1371,7 +1371,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		}
 		
 		return true;
-	}	
+	}
 	
 	/**
 	 * Enter description here...
@@ -1391,7 +1391,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	/**
 	 * Reads and caches manifests from the features + plugins directories.
 	 *
-	 * @static 
+	 * @static
 	 * @return DevblocksPluginManifest[]
 	 */
 	static function readPlugins($is_update=true, $scan_dirs = array('features', 'storage/plugins')) {
@@ -1522,7 +1522,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
-	 * @return _DevblocksOpenIDManager 
+	 * @return _DevblocksOpenIDManager
 	 */
 	static function getOpenIDService() {
 		return _DevblocksOpenIDManager::getInstance();
@@ -1607,7 +1607,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param string $set
 	 * @return DevblocksTemplate[]
 	 */
@@ -1695,7 +1695,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				
 				// If we didn't hit, load the English default
 				if(empty($string))
-				@$string = 
+				@$string =
 					(!empty($obj_string_en->string_override))
 					? $obj_string_en->string_override
 					: $obj_string_en->string_default;
@@ -1757,7 +1757,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	/**
 	 * Initializes the plugin platform (paths, etc).
 	 *
-	 * @static 
+	 * @static
 	 * @return void
 	 */
 	static function init() {
@@ -1866,7 +1866,7 @@ spl_autoload_register('devblocks_autoload');
 /*
  * Twig Extensions
  * This must come after devblocks_autoload
- */ 
+ */
 if(class_exists('Twig_Autoloader', true) && method_exists('Twig_Autoloader','register')) {
 	Twig_Autoloader::register();
 }

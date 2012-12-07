@@ -137,7 +137,7 @@ class _DevblocksOpenIDManager {
 			}
 
 			return $server;
-		}		
+		}
 	}
 	
 	public function getAuthUrl($openid_identifier, $return_to) {

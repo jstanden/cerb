@@ -2,10 +2,10 @@
 class _DevblocksClassLoadManager {
 	const CACHE_CLASS_MAP = 'devblocks_classloader_map';
 	
-    private static $instance = null;
+	private static $instance = null;
 	private $classMap = array();
 	
-    private function __construct() {
+	private function __construct() {
 		$cache = _DevblocksCacheManager::getInstance();
 		if(null !== ($map = $cache->load(self::CACHE_CLASS_MAP))) {
 			$this->classMap = $map;
@@ -16,7 +16,7 @@ class _DevblocksClassLoadManager {
 			$cache->save($this->classMap, self::CACHE_CLASS_MAP);
 		}
 	}
-    
+	
 	/**
 	 * @return _DevblocksClassLoadManager
 	 */
@@ -138,7 +138,7 @@ class _DevblocksClassLoadManager {
 	}
 	
 	private function _initPlugins() {
-		// Load all the exported classes defined by plugin manifests		
+		// Load all the exported classes defined by plugin manifests
 		$class_map = DAO_Platform::getClassLoaderMap();
 		if(is_array($class_map) && !empty($class_map))
 		foreach($class_map as $path => $classes) {

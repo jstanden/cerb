@@ -68,7 +68,7 @@ class _DevblocksSearchEngineMysqlFulltext {
 	}
 	
 	private function _getStopWords() {
-	    // English
+		// English
 		$words = array(
 			'' => true,
 			'a' => true,
@@ -157,7 +157,7 @@ class _DevblocksSearchEngineMysqlFulltext {
 			'your' => true,
 			'you\'re' => true,
 		);
-	    return $words;
+		return $words;
 	}
 	
 	public function truncateOnWhitespace($content, $length) {
@@ -174,7 +174,7 @@ class _DevblocksSearchEngineMysqlFulltext {
 			if(false === ($next_ws = mb_strpos($content, ' ', $end)))
 				if(false === ($next_ws = mb_strpos($content, "\n", $end)))
 					$next_ws = $end;
-		}							
+		}
 			
 		return mb_substr($content, $start, $next_ws-$start);
 	}
@@ -188,7 +188,7 @@ class _DevblocksSearchEngineMysqlFulltext {
 			$text = mb_ereg_replace("[^[:alnum:]]", ' ', mb_convert_case($text, MB_CASE_LOWER));
 		} else {
 			$text = preg_replace("/[^[:alnum:]]/u", ' ', mb_convert_case($text, MB_CASE_LOWER));
-		}		
+		}
 		
 		$words = explode(' ', $text);
 		unset($text);

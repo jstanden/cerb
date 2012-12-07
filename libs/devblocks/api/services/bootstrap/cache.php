@@ -1,46 +1,46 @@
 <?php
 class _DevblocksCacheManager {
-    private static $instance = null;
-    private static $_cacher = null;
+	private static $instance = null;
+	private static $_cacher = null;
 	private $_registry = array();
 	private $_statistics = array();
 	private $_io_reads_long = 0;
 	private $_io_reads_short = 0;
 	private $_io_writes = 0;
-    
-    private function __construct() {}
 
-    /**
-     * @return _DevblocksCacheManager
-     */
-    public static function getInstance() {
+	private function __construct() {}
+
+	/**
+	* @return _DevblocksCacheManager
+	*/
+	public static function getInstance() {
 		if(null == self::$instance) {
 			self::$instance = new _DevblocksCacheManager();
 			
 			$options = array(
-				'key_prefix' => ((defined('DEVBLOCKS_CACHE_PREFIX') && DEVBLOCKS_CACHE_PREFIX) ? DEVBLOCKS_CACHE_PREFIX : null), 
+				'key_prefix' => ((defined('DEVBLOCKS_CACHE_PREFIX') && DEVBLOCKS_CACHE_PREFIX) ? DEVBLOCKS_CACHE_PREFIX : null),
 			);
 			
 			// Shared-memory cache
-		    if((extension_loaded('memcache') || extension_loaded('memcached')) 
-		    	&& defined('DEVBLOCKS_MEMCACHED_SERVERS') && DEVBLOCKS_MEMCACHED_SERVERS) {
-		    	$pairs = DevblocksPlatform::parseCsvString(DEVBLOCKS_MEMCACHED_SERVERS);
-		    	$servers = array();
-		    	
-		    	if(is_array($pairs) && !empty($pairs))
-		    	foreach($pairs as $server) {
-		    		list($host,$port) = explode(':',$server);
-		    		
-		    		if(empty($host) || empty($port))
-		    			continue;
-		    			
-		    		$servers[] = array(
-		    			'host'=>$host,
-		    			'port'=>$port,
-//		    			'persistent'=>true
-		    		);
-		    	}
-		    	
+			if((extension_loaded('memcache') || extension_loaded('memcached'))
+				&& defined('DEVBLOCKS_MEMCACHED_SERVERS') && DEVBLOCKS_MEMCACHED_SERVERS) {
+				$pairs = DevblocksPlatform::parseCsvString(DEVBLOCKS_MEMCACHED_SERVERS);
+				$servers = array();
+				
+				if(is_array($pairs) && !empty($pairs))
+				foreach($pairs as $server) {
+					list($host,$port) = explode(':',$server);
+					
+					if(empty($host) || empty($port))
+						continue;
+						
+					$servers[] = array(
+						'host'=>$host,
+						'port'=>$port,
+//						'persistent'=>true
+					);
+				}
+				
 				$options['servers'] = $servers;
 				
 				self::$_cacher = new _DevblocksCacheManagerMemcached($options);
@@ -49,19 +49,19 @@ class _DevblocksCacheManager {
 				if(false == (self::$_cacher->test())) {
 					self::$_cacher = null;
 				}
-		    }
+			}
 
-		    // Disk-based cache (default)
-		    if(null == self::$_cacher) {
-		    	$options['cache_dir'] = APP_TEMP_PATH; 
+			// Disk-based cache (default)
+			if(null == self::$_cacher) {
+				$options['cache_dir'] = APP_TEMP_PATH;
 				
 				self::$_cacher = new _DevblocksCacheManagerDisk($options);
-		    }
+			}
 		}
 		
 		return self::$instance;
-    }
-    
+	}
+	
 	public function save($data, $key, $tags=array(), $lifetime=0) {
 		// Monitor short-term cache memory usage
 		@$this->_statistics[$key] = intval($this->_statistics[$key]);
@@ -285,5 +285,5 @@ class _DevblocksCacheManagerDisk extends _DevblocksCacheManagerAbstract {
 			}
 		}
 		
-	}	
+	}
 };

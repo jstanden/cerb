@@ -8,42 +8,42 @@ interface DevblocksExtensionDelegate {
 };
 
 abstract class DevblocksEngine {
-    const CACHE_ACL = 'devblocks_acl';
-    const CACHE_ACTIVITY_POINTS = 'devblocks_activity_points';
-    const CACHE_EVENT_POINTS = 'devblocks_event_points';
-    const CACHE_EVENTS = 'devblocks_events';
-    const CACHE_EXTENSIONS = 'devblocks_extensions';
-    const CACHE_PLUGINS = 'devblocks_plugins';
-    const CACHE_POINTS = 'devblocks_points';
-    const CACHE_SETTINGS = 'devblocks_settings';
-    const CACHE_STORAGE_PROFILES = 'devblocks_storage_profiles';
-    const CACHE_TABLES = 'devblocks_tables';
-    const CACHE_TAG_TRANSLATIONS = 'devblocks_translations';
-    
-    static protected $extensionDelegate = null;
-    
-    static protected $start_time = 0;
-    static protected $start_memory = 0;
-    static protected $start_peak_memory = 0;
-    
-    static protected $locale = 'en_US';
-    
-    static protected $_tmp_files = array();
+	const CACHE_ACL = 'devblocks_acl';
+	const CACHE_ACTIVITY_POINTS = 'devblocks_activity_points';
+	const CACHE_EVENT_POINTS = 'devblocks_event_points';
+	const CACHE_EVENTS = 'devblocks_events';
+	const CACHE_EXTENSIONS = 'devblocks_extensions';
+	const CACHE_PLUGINS = 'devblocks_plugins';
+	const CACHE_POINTS = 'devblocks_points';
+	const CACHE_SETTINGS = 'devblocks_settings';
+	const CACHE_STORAGE_PROFILES = 'devblocks_storage_profiles';
+	const CACHE_TABLES = 'devblocks_tables';
+	const CACHE_TAG_TRANSLATIONS = 'devblocks_translations';
+	
+	static protected $extensionDelegate = null;
+	
+	static protected $start_time = 0;
+	static protected $start_memory = 0;
+	static protected $start_peak_memory = 0;
+	
+	static protected $locale = 'en_US';
+	
+	static protected $_tmp_files = array();
 	
 	protected static $request = null;
 	protected static $response = null;
 	
 	/**
 	 * Reads and caches a single manifest from a given plugin directory.
-	 * 
-	 * @static 
+	 *
+	 * @static
 	 * @private
 	 * @param string $dir
 	 * @return DevblocksPluginManifest
 	 */
 	static protected function _readPluginManifest($rel_dir, $is_update=true) {
 		$manifest_file = APP_PATH . '/' . $rel_dir . '/plugin.xml';
-		$persist = true; 
+		$persist = true;
 		
 		if(!file_exists($manifest_file))
 			return NULL;
@@ -61,7 +61,7 @@ abstract class DevblocksEngine {
 		$manifest->name = (string) $plugin->name;
 		
 		// Only re-persist the plugins when the version changes
-		if(!$is_update && null != ($current_plugin = DevblocksPlatform::getPlugin($manifest->id)) 
+		if(!$is_update && null != ($current_plugin = DevblocksPlatform::getPlugin($manifest->id))
 				&& ($current_plugin->version == $manifest->version)) {
 			$persist = false;
 		}
@@ -152,7 +152,7 @@ abstract class DevblocksEngine {
 			return $manifest;
 		
 		$db = DevblocksPlatform::getDatabaseService();
-		if(is_null($db)) 
+		if(is_null($db))
 			return;
 			
 		// Persist manifest
@@ -232,56 +232,56 @@ abstract class DevblocksEngine {
 		
 		// Event points
 		if(isset($plugin->event_points->event)) {
-		    foreach($plugin->event_points->event as $eEvent) {
-		        $sId = (string) $eEvent['id'];
-		        $sName = (string) $eEvent->name;
-		        
-		        if(empty($sId) || empty($sName))
-		            continue;
-		        
-		        $point = new DevblocksEventPoint();
-		        $point->id = $sId;
-		        $point->plugin_id = $plugin->id;
-		        $point->name = $sName;
-		        $point->params = array();
-		        
-		        if(isset($eEvent->param)) {
-		            foreach($eEvent->param as $eParam) {
-		                $key = (string) $eParam['key']; 
-		                $val = (string) $eParam['value']; 
-		                $point->param[$key] = $val;
-		            }
-		        }
-		        
-		        $manifest->event_points[] = $point;
-		    }
+			foreach($plugin->event_points->event as $eEvent) {
+				$sId = (string) $eEvent['id'];
+				$sName = (string) $eEvent->name;
+				
+				if(empty($sId) || empty($sName))
+					continue;
+				
+				$point = new DevblocksEventPoint();
+				$point->id = $sId;
+				$point->plugin_id = $plugin->id;
+				$point->name = $sName;
+				$point->params = array();
+				
+				if(isset($eEvent->param)) {
+					foreach($eEvent->param as $eParam) {
+						$key = (string) $eParam['key'];
+						$val = (string) $eParam['value'];
+						$point->param[$key] = $val;
+					}
+				}
+				
+				$manifest->event_points[] = $point;
+			}
 		}
 		
 		// Extensions
 		if(isset($plugin->extensions->extension))
-	    foreach($plugin->extensions->extension as $eExtension) {
-	        $sId = (string) $eExtension->id;
-	        $sName = (string) $eExtension->name;
-	        
-	        if(empty($sId) || empty($sName))
-	            continue;
-	        
-	        $extension = new DevblocksExtensionManifest();
-	        
-	        $extension->id = $sId;
-	        $extension->plugin_id = $manifest->id;
-	        $extension->point = (string) $eExtension['point'];
-	        $extension->name = $sName;
-	        $extension->file = (string) $eExtension->class->file;
-	        $extension->class = (string) $eExtension->class->name;
-	        
-	        if(isset($eExtension->params->param))
-            foreach($eExtension->params->param as $eParam) {
+		foreach($plugin->extensions->extension as $eExtension) {
+			$sId = (string) $eExtension->id;
+			$sName = (string) $eExtension->name;
+			
+			if(empty($sId) || empty($sName))
+				continue;
+			
+			$extension = new DevblocksExtensionManifest();
+			
+			$extension->id = $sId;
+			$extension->plugin_id = $manifest->id;
+			$extension->point = (string) $eExtension['point'];
+			$extension->name = $sName;
+			$extension->file = (string) $eExtension->class->file;
+			$extension->class = (string) $eExtension->class->name;
+			
+			if(isset($eExtension->params->param))
+			foreach($eExtension->params->param as $eParam) {
 				$key = (string) $eParam['key'];
-                
-                if(isset($eParam->value)) {
-					// [JSJ]: If there is a child of the param tag named value, then this 
-					//        param has multiple values and thus we need to grab them all.
+				
+				if(isset($eParam->value)) {
+					// [JSJ]: If there is a child of the param tag named value, then this
+					//		param has multiple values and thus we need to grab them all.
 					foreach($eParam->value as $eValue) {
 						// [JSJ]: If there is a child named data, then this is a complex structure
 						if(isset($eValue->data)) {
@@ -311,10 +311,10 @@ abstract class DevblocksEngine {
 					// [JSJ]: Otherwise, we grab the single value from the params value attribute.
 					$extension->params[$key] = (string) $eParam['value'];
 				}
-            }
-	        
-	        $manifest->extensions[] = $extension;
-	    }
+			}
+			
+			$manifest->extensions[] = $extension;
+		}
 
 		// [JAS]: Extension caching
 		$new_extensions = array();
@@ -337,7 +337,7 @@ abstract class DevblocksEngine {
 		}
 		
 		/*
-		 * Compare our loaded XML manifest to the DB manifest cache and invalidate 
+		 * Compare our loaded XML manifest to the DB manifest cache and invalidate
 		 * the cache for extensions that are no longer in the XML.
 		 */
 		$sql = sprintf("SELECT id FROM %sextension WHERE plugin_id = %s",
@@ -363,8 +363,8 @@ abstract class DevblocksEngine {
 				"VALUES (%s,%s,%s)",
 				$db->qstr($class),
 				$db->qstr($manifest->id),
-				$db->qstr($file_path)	
-			));			
+				$db->qstr($file_path)
+			));
 		}
 		
 		// URI routing cache
@@ -376,8 +376,8 @@ abstract class DevblocksEngine {
 				"VALUES (%s,%s,%s)",
 				$db->qstr($uri),
 				$db->qstr($manifest->id),
-				$db->qstr($controller_id)	
-			));			
+				$db->qstr($controller_id)
+			));
 		}
 
 		// ACL caching
@@ -390,10 +390,10 @@ abstract class DevblocksEngine {
 				$db->qstr($priv->id),
 				$db->qstr($priv->plugin_id),
 				$db->qstr($priv->label)
-			));			
+			));
 		}
 		
-        // [JAS]: Event point caching
+		// [JAS]: Event point caching
 		if(is_array($manifest->event_points))
 		foreach($manifest->event_points as $event) { /* @var $event DevblocksEventPoint */
 			$db->Execute(sprintf(
@@ -402,7 +402,7 @@ abstract class DevblocksEngine {
 				$db->qstr($event->id),
 				$db->qstr($event->plugin_id),
 				$db->qstr($event->name),
-				$db->qstr(serialize($event->params))	
+				$db->qstr(serialize($event->params))
 			));
 		}
 		
@@ -428,7 +428,7 @@ abstract class DevblocksEngine {
 	
 	/**
 	 * Reads the HTTP Request object.
-	 * 
+	 *
 	 * @return DevblocksHttpRequest
 	 */
 	static function readRequest() {
@@ -468,78 +468,78 @@ abstract class DevblocksEngine {
 		}
 
 		// Resource / Proxy
-	    /*
-	     * [TODO] Run this code through another audit.  Is it worth a tiny hit per resource 
-	     * to verify the plugin matches exactly in the DB?  If so, make sure we cache the 
-	     * resulting file.
-	     * 
-	     * [TODO] Make this a controller
-	     */
-	    $path = $parts;
+		/*
+		 * [TODO] Run this code through another audit.  Is it worth a tiny hit per resource
+		 * to verify the plugin matches exactly in the DB?  If so, make sure we cache the
+		 * resulting file.
+		 *
+		 * [TODO] Make this a controller
+		 */
+		$path = $parts;
 		switch(array_shift($path)) {
-		    case "resource":
-			    $plugin_id = array_shift($path);
-			    if(null == ($plugin = DevblocksPlatform::getPlugin($plugin_id)))
-			    	break;
-			    
-			    $file = implode(DIRECTORY_SEPARATOR, $path); // combine path
-		        $dir = APP_PATH . '/' . $plugin->dir . '/' . 'resources';
-		        if(!is_dir($dir)) die(""); // basedir Security
-		        $resource = $dir . '/' . $file;
-		        if(0 != strstr($dir,$resource)) die("");
-		        $ext = @array_pop(explode('.', $resource));
-		        if(!is_file($resource) || 'php' == $ext) die(""); // extension security
+			case "resource":
+				$plugin_id = array_shift($path);
+				if(null == ($plugin = DevblocksPlatform::getPlugin($plugin_id)))
+					break;
+				
+				$file = implode(DIRECTORY_SEPARATOR, $path); // combine path
+				$dir = APP_PATH . '/' . $plugin->dir . '/' . 'resources';
+				if(!is_dir($dir)) die(""); // basedir Security
+				$resource = $dir . '/' . $file;
+				if(0 != strstr($dir,$resource)) die("");
+				$ext = @array_pop(explode('.', $resource));
+				if(!is_file($resource) || 'php' == $ext) die(""); // extension security
 
-                // Caching
-                switch($ext) {
-                	case 'css':
-                	case 'gif':
-                	case 'jpg':
-                	case 'js':
-                	case 'png':
-		                header('Cache-control: max-age=604800', true); // 1 wk // , must-revalidate
-		                header('Expires: ' . gmdate('D, d M Y H:i:s',time()+604800) . ' GMT'); // 1 wk
-                		break;
-                }
-                
-	            switch($ext) {
-	            	case 'css':
-	            		header('Content-type: text/css;');
-	            		break;
-	            	case 'gif':
-	            		header('Content-type: image/gif;');
-	            		break;
-	            	case 'jpeg':
-	            	case 'jpg':
-	            		header('Content-type: image/jpeg;');
-	            		break;
-	            	case 'js':
-	            		header('Content-type: text/javascript;');
-	            		break;
-	            	case 'pdf':
-	            		header('Content-type: application/pdf;');
-	            		break;
-	            	case 'png':
-	            		header('Content-type: image/png;');
-	            		break;
-	            	case 'xml':
-	            		header('Content-type: text/xml;');
-	            		break;
-	            }
-	            
-		        $out = file_get_contents($resource, false);
-		        
-                // Pass through
-                if($out) {
-                	header('Content-Length: '. strlen($out));
-                	echo $out;
-                }
-		        
+				// Caching
+				switch($ext) {
+					case 'css':
+					case 'gif':
+					case 'jpg':
+					case 'js':
+					case 'png':
+						header('Cache-control: max-age=604800', true); // 1 wk // , must-revalidate
+						header('Expires: ' . gmdate('D, d M Y H:i:s',time()+604800) . ' GMT'); // 1 wk
+						break;
+				}
+				
+				switch($ext) {
+					case 'css':
+						header('Content-type: text/css;');
+						break;
+					case 'gif':
+						header('Content-type: image/gif;');
+						break;
+					case 'jpeg':
+					case 'jpg':
+						header('Content-type: image/jpeg;');
+						break;
+					case 'js':
+						header('Content-type: text/javascript;');
+						break;
+					case 'pdf':
+						header('Content-type: application/pdf;');
+						break;
+					case 'png':
+						header('Content-type: image/png;');
+						break;
+					case 'xml':
+						header('Content-type: text/xml;');
+						break;
+				}
+				
+				$out = file_get_contents($resource, false);
+				
+				// Pass through
+				if($out) {
+					header('Content-Length: '. strlen($out));
+					echo $out;
+				}
+				
 				exit;
-    	        break;
-		        
-		    default:
-		        break;
+				break;
+				
+			default:
+				break;
 		}
 
 		$request = new DevblocksHttpRequest($parts,$queryArgs);
@@ -550,7 +550,7 @@ abstract class DevblocksEngine {
 	
 	/**
 	 * Processes the HTTP request.
-	 * 
+	 *
 	 * @param DevblocksHttpRequest $request
 	 * @param boolean $is_ajax
 	 */
@@ -565,7 +565,7 @@ abstract class DevblocksEngine {
 			// [JAS]: Plugin-supplied URIs
 			default:
 				$routing = array();
-	            $controllers = DevblocksPlatform::getExtensions('devblocks.controller', false);
+				$controllers = DevblocksPlatform::getExtensions('devblocks.controller', false);
 				
 				// Add any controllers which have definitive routing
 				if(is_array($controllers))
@@ -602,8 +602,8 @@ abstract class DevblocksEngine {
 					}
 					
 				} else {
-				    header("Status: 404");
-                    die();
+					header("Status: 404");
+					die();
 				}
 					
 				break;
