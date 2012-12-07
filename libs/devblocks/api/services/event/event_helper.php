@@ -2159,7 +2159,7 @@ class DevblocksEventHelper {
 				$sign = substr(md5($context.$context_id.$worker->pass),8,8);
 				
 				$headers->removeAll('message-id');
-				$headers->addTextHeader('Message-Id', sprintf("<%s_%d_%d_%s@cerb5>", $context, $context_id, time(), $sign));
+				$headers->addTextHeader('Message-Id', sprintf("<%s_%d_%d_%s@cerb>", $context, $context_id, time(), $sign));
 				$headers->addTextHeader('X-CerberusRedirect','1');
 	
 				$content = $tpl_builder->build($params['content'], $dict);

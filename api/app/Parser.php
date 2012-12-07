@@ -200,6 +200,8 @@ class CerberusParserModel {
 		@$sReferences = trim($this->_message->headers['references']);
 		@$sThreadTopic = trim($this->_message->headers['thread-topic']);
 
+		@$senderWorker = $this->getSenderWorkerModel();
+		
 		$aReferences = array();
 		
 		// Add all References
@@ -233,7 +235,11 @@ class CerberusParserModel {
 				if(empty($ref))
 					continue;
 				
-				if(preg_match('#\<(.*)\_(\d*)\_(\d*)\_([a-f0-9]{8})\@cerb5\>#', $ref, $hits)) {
+				// Only consider the watcher auth header to be a reply if it validates
+				if($senderWorker instanceof Model_Worker
+						&& @preg_match('#\<(.*)\_(\d*)\_(\d*)\_([a-f0-9]{8})\@cerb\d{0,1}\>#', $ref, $hits)
+						&& $this->isValidAuthHeader($ref, $senderWorker)) {
+				
 					$ticket_id = $hits[2];
 					
 					if(null != ($ticket = DAO_Ticket::get($ticket_id))) {
@@ -318,6 +324,25 @@ class CerberusParserModel {
 		@imap_errors(); // Prevent errors from spilling out into STDOUT
 
 		return $addresses;
+	}
+	
+	public function isValidAuthHeader($in_reply_to, $worker) {
+		if(empty($worker) || !($worker instanceof Model_Worker))
+			return false;
+		
+		if(@preg_match('#\<(.*)\_(\d*)\_(\d*)\_([a-f0-9]{8})\@cerb\d{0,1}\>#', $in_reply_to, $hits)) {
+			$proxy_context = $hits[1];
+			$proxy_context_id = $hits[2];
+			$signed = $hits[4];
+			
+			$signed_compare = substr(md5($proxy_context.$proxy_context_id.$worker->pass),8,8);
+			
+			$is_authenticated = ($signed_compare == $signed);
+			
+			return $is_authenticated;
+		}
+		
+		return false;
 	}
 	
 	// Getters/Setters
@@ -870,24 +895,8 @@ class CerberusParser {
 				$is_authenticated = true;
 				
 			} else {
-				@$in_reply_to = $message->headers['in-reply-to'];
-				
-				if(preg_match('#\<(.*)\_(\d*)\_(\d*)\_([a-f0-9]{8})\@cerb5\>#', $in_reply_to, $hits)) {
-					$proxy_context = $hits[1];
-					$proxy_context_id = $hits[2];
-					$signed = $hits[4];
-					
-					$signed_compare = substr(md5($proxy_context.$proxy_context_id.$proxy_worker->pass),8,8);
-					
-					$is_authenticated = ($signed_compare == $signed);
-					
-					unset($hits);
-					unset($proxy_context);
-					unset($proxy_context_id);
-					unset($signed);
-					unset($signed_compare);
-					unset($in_reply_to);
-				}
+				if(isset($message->headers['in-reply-to']) && $proxy_worker instanceof Model_Worker)
+					$is_authenticated = $model->isValidAuthHeader($message->headers['in-reply-to'], $proxy_worker);
 			}
 
 			// Compare worker signature, then auth
