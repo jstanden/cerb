@@ -264,8 +264,6 @@ class SearchFields_MailQueue implements IDevblocksSearchFields {
 	const IS_QUEUED = 'm_is_queued';
 	const QUEUE_DELIVERY_DATE = 'm_queue_delivery_date';
 	const QUEUE_FAILS = 'm_queue_fails';
-//	const BODY = 'm_body';
-//	const PARAMS_JSON = 'm_params_json';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -284,14 +282,12 @@ class SearchFields_MailQueue implements IDevblocksSearchFields {
 			self::IS_QUEUED => new DevblocksSearchField(self::IS_QUEUED, 'mail_queue', 'is_queued', $translate->_('mail_queue.is_queued')),
 			self::QUEUE_DELIVERY_DATE => new DevblocksSearchField(self::QUEUE_DELIVERY_DATE, 'mail_queue', 'queue_delivery_date', $translate->_('mail_queue.queue_delivery_date')),
 			self::QUEUE_FAILS => new DevblocksSearchField(self::QUEUE_FAILS, 'mail_queue', 'queue_fails', $translate->_('mail_queue.queue_fails')),
-//			self::BODY => new DevblocksSearchField(self::BODY, 'mail_queue', 'body', $translate->_('common.content')),
-//			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'mail_queue', 'params_json', $translate->_('mail_queue.params_json')),
 		);
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 
