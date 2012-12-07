@@ -1,4 +1,5 @@
 <?php
+ini_set('pcre.backtrack_limit', 1000000);
 
 /**
  * markdown
