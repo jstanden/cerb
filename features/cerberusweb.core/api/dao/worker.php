@@ -34,7 +34,7 @@ class DAO_Worker extends C4_ORMHelper {
 	const AUTH_EXTENSION_ID = 'auth_extension_id';
 	
 	static function create($fields) {
-		if(empty($fields[DAO_Worker::EMAIL]) || empty($fields[DAO_Worker::PASSWORD]))
+		if(empty($fields[DAO_Worker::EMAIL]))
 			return NULL;
 			
 		$db = DevblocksPlatform::getDatabaseService();
