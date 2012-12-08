@@ -167,6 +167,9 @@ class ChSignInPage extends CerberusPageExtension {
 			case NULL:
 				@$url = DevblocksPlatform::importGPC($_REQUEST['url'], 'string', '');
 				
+				if(!empty($url))
+					$_SESSION['login_post_url'] = $url;
+				
 				// If we have a cookie remembering the worker, redirect to login form
 				if(empty($section) && empty($stack) && !empty($remember_email)
 						&& !empty($worker)
@@ -181,9 +184,6 @@ class ChSignInPage extends CerberusPageExtension {
 				}
 				
 				$tpl = DevblocksPlatform::getTemplateService();
-				
-				if(!empty($url))
-					$_SESSION['login_post_url'] = $url;
 				
 				$tpl->assign('remember_me', $remember_email);
 				
