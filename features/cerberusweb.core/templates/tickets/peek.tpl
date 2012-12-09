@@ -13,7 +13,7 @@
 		{if !empty($headers.to)}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$headers.to}<br>{/if}
 		{if !empty($headers.from)}<b>{'message.header.from'|devblocks_translate|capitalize}:</b> {$headers.from}<br>{/if}
 		{if !empty($headers.date)}<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$headers.date}<br>{/if}
-		<div id="ticketPeekContent" style="width:400;height:200px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);" ondblclick="genericAjaxPopupClose('peek');">
+		<div id="ticketPeekContent" style="width:400;height:200px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);">
 			<pre class="emailbody">{$content|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</pre>
 		</div>
 		
