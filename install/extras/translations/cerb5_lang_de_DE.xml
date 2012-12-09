@@ -4487,21 +4487,6 @@ login</seg>
         <seg>%s erfasste %s in %s</seg>
       </tuv>
     </tu>
-    <tu tuid="timetracking.ui.trial.limit_exceeded">
-      <tuv xml:lang="de_DE">
-        <seg>Test-Zeit überschritten</seg>
-      </tuv>
-    </tu>
-    <tu tuid="timetracking.ui.trial.limit_exceeded.desc">
-      <tuv xml:lang="de_DE">
-        <seg>Sie können das Zeiterfassungs-PlugIn mit der freien Version von Cerberus Helpdesk 4.0 testen und bis zu 10 Einträge anlegen.</seg>
-      </tuv>
-    </tu>
-    <tu tuid="timetracking.ui.trial.purchase">
-      <tuv xml:lang="de_DE">
-        <seg>Um dieses PlugIn weiter zu verwenden, unterstützen Sie bitte das Projekt durch den Kauf einer Lizenz.</seg>
-      </tuv>
-    </tu>
     <tu tuid="timetracking.ui.worker">
       <tuv xml:lang="de_DE">
         <seg>Mitarbeiter:</seg>

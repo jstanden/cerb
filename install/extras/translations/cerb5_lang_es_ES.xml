@@ -3612,21 +3612,6 @@ Por ejemplo: *recibo*</seg>
         <seg>%s controlados %s de %s</seg>
       </tuv>
     </tu>
-    <tu tuid="timetracking.ui.trial.limit_exceeded">
-      <tuv xml:lang="es_ES">
-        <seg>Tiempo de Prueba Excedido</seg>
-      </tuv>
-    </tu>
-    <tu tuid="timetracking.ui.trial.limit_exceeded.desc">
-      <tuv xml:lang="es_ES">
-        <seg>Puede evaluar el plugin de Control Horario creando hasta 10 entradas con la versión gratuita de Cerberus Helpdesk 4.0.</seg>
-      </tuv>
-    </tu>
-    <tu tuid="timetracking.ui.trial.purchase">
-      <tuv xml:lang="es_ES">
-        <seg>Para continuar usando este plugin por favor contribuya con el proyecto y compre una licencia.</seg>
-      </tuv>
-    </tu>
     <tu tuid="timetracking.ui.worker">
       <tuv xml:lang="es_ES">
         <seg>Usuario:</seg>

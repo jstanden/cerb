@@ -3627,21 +3627,6 @@
         <seg>%s heeft %s bijgehouden op %s</seg>
       </tuv>
     </tu>
-    <tu tuid="timetracking.ui.trial.limit_exceeded">
-      <tuv xml:lang="nl_NL">
-        <seg>Proefperiode verlopen</seg>
-      </tuv>
-    </tu>
-    <tu tuid="timetracking.ui.trial.limit_exceeded.desc">
-      <tuv xml:lang="nl_NL">
-        <seg>U kunt ter evaluatie van deze gratis versie van Cerberus Helpdesk tot 10 objecten toevoegen binnen de Time Tracking plugin.</seg>
-      </tuv>
-    </tu>
-    <tu tuid="timetracking.ui.trial.purchase">
-      <tuv xml:lang="nl_NL">
-        <seg>Om deze plugin te kunnen blijven gebruiken en om het project te steunen, stellen we het op prijs wanneer u een licentie aanschaft.</seg>
-      </tuv>
-    </tu>
     <tu tuid="timetracking.ui.worker">
       <tuv xml:lang="nl_NL">
         <seg>Werknemer:</seg>
