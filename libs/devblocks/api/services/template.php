@@ -70,7 +70,10 @@ class _DevblocksTemplateManager {
 		array_shift($args); // pop off $string
 		
 		$translated = $translate->_($string);
-		$translated = @vsprintf($translated,$args);
+		
+		if(!empty($args))
+			@$translated = vsprintf($translated, $args);
+		
 		return $translated;
 	}
 	

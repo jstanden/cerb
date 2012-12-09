@@ -418,7 +418,7 @@
     </tu>
     <tu tuid="addy_book.org.tabs.people">
       <tuv xml:lang="nl_NL">
-        <seg>Mensen (%s)</seg>
+        <seg>Mensen</seg>
       </tuv>
     </tu>
     <tu tuid="addy_book.peek.compose">

@@ -72,7 +72,7 @@
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context=cerberusweb.contexts.org&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize} <div class="tab-badge">{DAO_Comment::count($page_context, $page_context_id)|default:0}</div></a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&point={$point}&context=cerberusweb.contexts.org&id={$page_context_id}{/devblocks_url}">{$translate->_('common.links')} <div class="tab-badge">{DAO_ContextLink::count($page_context, $page_context_id)|default:0}</div></a></li>
 		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabMailHistory&point={$point}&org_id={$page_context_id}{/devblocks_url}">{$translate->_('addy_book.org.tabs.mail_history')}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeople&point={$point}&org={$page_context_id}{/devblocks_url}">{'addy_book.org.tabs.people'|devblocks_translate:$people_total}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeople&point={$point}&org={$page_context_id}{/devblocks_url}">{'addy_book.org.tabs.people'|devblocks_translate} <div class="tab-badge">{$people_total}</div></a></li>
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}

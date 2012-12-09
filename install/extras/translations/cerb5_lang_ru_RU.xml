@@ -378,7 +378,7 @@
     </tu>
     <tu tuid="addy_book.org.tabs.people">
       <tuv xml:lang="ru_RU">
-        <seg>Люди (%s)</seg>
+        <seg>Люди</seg>
       </tuv>
     </tu>
     <tu tuid="addy_book.org.tabs.properties">
