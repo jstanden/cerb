@@ -8,8 +8,8 @@
 	<span class="cerb-sprite2 sprite-plus-circle"></span>
 	{/if}
 	{if $full}
-		{if $is_current_worker}Stop watching{else}Start watching{/if} 
-		({$num_watchers})
+		{if $is_current_worker}Stop watching{else}Start watching{/if}
+		<div class="badge-count">{$num_watchers}</div>
 	{else}
 		{$num_watchers}
 	{/if}

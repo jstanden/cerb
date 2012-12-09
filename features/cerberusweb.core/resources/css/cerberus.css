@@ -224,6 +224,32 @@ button:hover {
 	cursor:pointer;
 }
 
+button div.badge-count {
+	font-family: Courier;
+	font-size: 12px;
+	
+	padding:1px 5px;
+	font-weight:bold;
+	display:inline;
+	
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	
+	background-color:rgb(160,160,160);
+	color:rgb(255,255,255);
+}
+
+button.green div.badge-count {
+	background-color:rgb(163,203,135);
+	color:rgb(255,255,255);
+}
+
+button:hover div.badge-count {
+	background-color:rgb(71,133,210);
+	color:rgb(255,255,255);	
+}
+
 button.toolbar-item {
 	background:none;
 	background-color:rgb(235,235,235);
