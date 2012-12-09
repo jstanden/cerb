@@ -225,18 +225,18 @@ button:hover {
 }
 
 button div.badge-count {
-	font-family: Courier;
-	font-size: 12px;
+	font-family: Verdana, Helvetica, Arial;
+	font-size: 11px;
 	
-	padding:1px 5px;
-	font-weight:bold;
+	padding:1px 5px 2px 5px;
+	font-weight:500;
 	display:inline;
 	
 	border-radius: 10px;
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
 	
-	background-color:rgb(160,160,160);
+	background-color:rgb(110,110,110);
 	color:rgb(255,255,255);
 }
 
@@ -1610,11 +1610,11 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item a.ui-state-focus {
 }
 
 .ui-tabs .ui-tabs-nav li a div.tab-badge {
-	font-family: Courier;
-	font-size: 12px;
+	font-family: Verdana, Helvetica, Arial;
+	font-size: 11px;
 	
-	padding:1px 5px;
-	font-weight:bold;
+	padding:1px 5px 2px 5px;
+	font-weight:500;
 	display:inline;
 	
 	border-radius: 10px;	
