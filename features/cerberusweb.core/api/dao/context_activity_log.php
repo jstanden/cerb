@@ -811,7 +811,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 		$view->addParams($view->getParamsDefault(), true);
 		
 		$view->renderSortBy = SearchFields_ContextActivityLog::CREATED;
-		$view->renderSortAsc = true;
+		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
 		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
