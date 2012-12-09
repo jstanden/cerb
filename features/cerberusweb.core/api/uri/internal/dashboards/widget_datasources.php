@@ -497,6 +497,9 @@ class WorkspaceWidgetDatasource_Manual extends Extension_WorkspaceWidgetDatasour
 	}
 	
 	function getData(Model_WorkspaceWidget $widget, array $params=array()) {
+		$metric_value = $params['metric_value'];
+		$metric_value = floatval(str_replace(',','', $metric_value));
+		$params['metric_value'] = $metric_value;
 		return $params;
 	}
 };

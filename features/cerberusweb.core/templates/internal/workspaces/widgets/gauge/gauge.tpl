@@ -38,7 +38,6 @@ try {
 	
 	drawGauge($('#widget{$widget->id}_canvas'), {
 		{if !empty($widget->params.threshold_values)}'threshold_values': {json_encode($widget->params.threshold_values) nofilter},{/if}
-		/*{if !empty($widget->params.threshold_labels)}'threshold_labels': {json_encode($widget->params.threshold_labels) nofilter},{/if}*/
 		{if !empty($widget->params.threshold_colors)}'threshold_colors': {json_encode($widget->params.threshold_colors) nofilter},{/if}
 		{if !empty($metric_value)}'metric': {floatval($metric_value)},{/if}
 		'metric_label': "{$widget->params.metric_prefix}{$metric_label}{if $widget->params.metric_type=='percent'}%{/if}{$widget->params.metric_suffix}",
