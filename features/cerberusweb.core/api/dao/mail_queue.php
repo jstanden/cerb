@@ -580,6 +580,12 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals 
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
+		$label_map_type = array(
+			'mail.compose' => 'Compose',
+			'ticket.reply' => 'Reply',
+		);
+		$tpl->assign('label_map_type', $label_map_type);
+		
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::mail/queue/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
