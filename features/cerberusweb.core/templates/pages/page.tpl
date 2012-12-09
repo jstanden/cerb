@@ -167,9 +167,9 @@
 										e = jQuery.Event('select_all');
 										e.view_id = view_id;
 										e.checked = !$(this).is(':checked')
-										$('div#view' + view_id).trigger(e);
+										$('#view' + view_id).trigger(e);
 									});
-								} catch(e) { } 
+								} catch(e) { }
 								break;
 								
 							case 126: // (~) show subtotals
@@ -184,7 +184,7 @@
 						if(hotkey_activated) {
 							event.preventDefault();
 							return;
-						}						
+						}
 						
 						if($view.length > 0) {
 							// Trigger event

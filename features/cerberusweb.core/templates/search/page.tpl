@@ -88,15 +88,18 @@ $(function() {
 						
 					case 97:  // (a) select all
 						try {
-							$('#view' + view_id + ' TABLE.worklist input:checkbox').data('view_id',view_id).each(function(e) {
-								view_id = $(this).data('view_id');
-								// Trigger event
-								e = jQuery.Event('select_all');
-								e.view_id = view_id;
-								e.checked = is_checked;
-								$('div#view' + view_id).trigger(e);
-							});
-						} catch(e) { } 
+							$('#view' + view_id + ' TABLE.worklist input:checkbox.select-all')
+								.data('view_id',view_id)
+								.each(function(e) {
+									view_id = $(this).data('view_id');
+									// Trigger event
+									e = jQuery.Event('select_all');
+									e.view_id = view_id;
+									e.checked = !$(this).is(':checked');
+									$('#view' + view_id).trigger(e);
+								}
+							);
+						} catch(e) { }
 						break;
 						
 					case 126: // (~) show subtotals
@@ -111,7 +114,7 @@ $(function() {
 				if(hotkey_activated) {
 					event.preventDefault();
 					return;
-				}						
+				}
 				
 				if($view.length > 0) {
 					// Trigger event
