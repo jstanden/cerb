@@ -1584,7 +1584,10 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item a.ui-state-focus {
 }
 
 .ui-tabs .ui-tabs-nav li a div.tab-badge {
-	padding:0px 5px;
+	font-family: Courier;
+	font-size: 12px;
+	
+	padding:1px 5px;
 	font-weight:bold;
 	display:inline;
 	
