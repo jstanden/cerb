@@ -733,6 +733,9 @@
 		<tu tuid='acl.core.mail.send'>
 			<tuv xml:lang="en_US"><seg>[Mail] Can compose new messages</seg></tuv>
 		</tu>
+		<tu tuid='acl.core.mail.draft.delete_all'>
+			<tuv xml:lang="en_US"><seg>[Mail] Can delete drafts owned by other workers</seg></tuv>
+		</tu>
 
 			<!-- RSS -->
 		<tu tuid='acl.core.rss'>

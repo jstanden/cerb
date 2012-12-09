@@ -123,8 +123,12 @@ class PageSection_MailDrafts extends Extension_PageSection {
 		
 		if(!empty($draft_id)
 			&& null != ($draft = DAO_MailQueue::get($draft_id))
-			&& ($active_worker->id == $draft->worker_id || $active_worker->is_superuser)) {
-			
+			&& 
+				(
+					$active_worker->id == $draft->worker_id
+					|| $active_worker->hasPriv('core.mail.draft.delete_all')
+				)
+			) {
 			DAO_MailQueue::delete($draft_id);
 		}
 	}

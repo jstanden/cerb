@@ -633,6 +633,7 @@
 		<!-- Mail page -->
 		<priv id="core.mail" label="acl.core.mail" />
 		<priv id="core.mail.send" label="acl.core.mail.send" />
+		<priv id="core.mail.draft.delete_all" label="acl.core.mail.draft.delete_all" />
 
 		<!-- RSS -->
 		<priv id="core.rss" label="acl.core.rss" />
