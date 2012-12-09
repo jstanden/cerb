@@ -75,7 +75,7 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 			return $tokens[$token];
 		
 		return NULL;
-	}	
+	}
 	
 	function getContext($id) {
 		$labels = array();
@@ -119,7 +119,7 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 			'results' => $objects,
 		);
 		
-		return $container;		
+		return $container;
 	}
 	
 	function postSearch() {

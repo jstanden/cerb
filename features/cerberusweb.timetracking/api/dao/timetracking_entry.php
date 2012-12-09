@@ -16,31 +16,31 @@
  ***********************************************************************/
 /*
  * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
- * 
- * Sure, it would be so easy to just cheat and edit this file to use the 
- * software without paying for it.  But we trust you anyway.  In fact, we're 
- * writing this software for you! 
- * 
- * Quality software backed by a dedicated team takes money to develop.  We 
- * don't want to be out of the office bagging groceries when you call up 
- * needing a helping hand.  We'd rather spend our free time coding your 
- * feature requests than mowing the neighbors' lawns for rent money. 
- * 
- * We've never believed in hiding our source code out of paranoia over not 
- * getting paid.  We want you to have the full source code and be able to 
- * make the tweaks your organization requires to get more done -- despite 
- * having less of everything than you might need (time, people, money, 
+ *
+ * Sure, it would be so easy to just cheat and edit this file to use the
+ * software without paying for it.  But we trust you anyway.  In fact, we're
+ * writing this software for you!
+ *
+ * Quality software backed by a dedicated team takes money to develop.  We
+ * don't want to be out of the office bagging groceries when you call up
+ * needing a helping hand.  We'd rather spend our free time coding your
+ * feature requests than mowing the neighbors' lawns for rent money.
+ *
+ * We've never believed in hiding our source code out of paranoia over not
+ * getting paid.  We want you to have the full source code and be able to
+ * make the tweaks your organization requires to get more done -- despite
+ * having less of everything than you might need (time, people, money,
  * energy).  We shouldn't be your bottleneck.
- * 
- * We've been building our expertise with this project since January 2002.  We 
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to 
- * let us take over your shared e-mail headache is a worthwhile investment.  
- * It will give you a sense of control over your inbox that you probably 
- * haven't had since spammers found you in a game of 'E-mail Battleship'. 
+ *
+ * We've been building our expertise with this project since January 2002.  We
+ * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to
+ * let us take over your shared e-mail headache is a worthwhile investment.
+ * It will give you a sense of control over your inbox that you probably
+ * haven't had since spammers found you in a game of 'E-mail Battleship'.
  * Miss. Miss. You sunk my inbox!
- * 
- * A legitimate license entitles you to support from the developers,  
- * and the warm fuzzy feeling of feeding a couple of obsessed developers 
+ *
+ * A legitimate license entitles you to support from the developers,
+ * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
  * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
@@ -301,7 +301,7 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 			SearchFields_TimeTrackingEntry::IS_CLOSED
 		);
 		
-		$join_sql = 
+		$join_sql =
 			"FROM timetracking_entry tt ".
 		
 			// [JAS]: Dynamic table joins
@@ -348,7 +348,7 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 		);
 		
 		return $result;
-	}	
+	}
 	
 	private static function _translateVirtualParameters($param, $key, &$args) {
 		if(!is_a($param, 'DevblocksSearchCriteria'))
@@ -395,14 +395,14 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY tt.id ' : '').
 			$sort_sql;
 		
-		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$results = array();
 		
@@ -418,7 +418,7 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT tt.id) " : "SELECT COUNT(tt.id) ").
 				$join_sql.
 				$where_sql;
@@ -687,7 +687,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		}
 		
 		return $counts;
-	}	
+	}
 	
 	function render() {
 		$this->_sanitize();
@@ -727,7 +727,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				$this->_renderVirtualWatchers($param);
 				break;
 		}
-	}	
+	}
 	
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -976,7 +976,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		}
 
 		unset($ids);
-	}	
+	}
 };
 
 class Context_TimeTracking extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
@@ -1087,9 +1087,9 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 				$merge_token_values,
 				$token_labels,
 				$token_values
-			);		
+			);
 		
-		return true;	
+		return true;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {
@@ -1124,7 +1124,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -1159,7 +1159,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Time Tracking';
@@ -1190,7 +1190,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		/*
 		 * This treats procedurally created model objects
 		 * the same as existing objects
-		 */ 
+		 */
 		if(!empty($id)) { // Were we given a model ID to load?
 			if(null != ($model = DAO_TimeTrackingEntry::get($id)))
 				$tpl->assign('model', $model);
@@ -1209,9 +1209,9 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			@$link_context = strtolower($_SESSION['timetracking_context']);
 			@$link_context_id = intval($_SESSION['timetracking_context_id']);
 			
-			/* If the session was empty, don't set these since they may have been 
+			/* If the session was empty, don't set these since they may have been
 			 * previously set by the abstract context peek code.
-			 */ 
+			 */
 			
 			if(!empty($link_context)) {
 				$tpl->assign('link_context', $link_context);
@@ -1237,7 +1237,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		$tpl->assign('last_comment', $last_comment);
 		
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TIMETRACKING); 
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TIMETRACKING);
 		$tpl->assign('custom_fields', $custom_fields);
 
 		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TIMETRACKING, $id);

@@ -3,7 +3,7 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 	protected $_event_id = null; // override
 
 	/**
-	 * 
+	 *
 	 * @param integer $time_id
 	 * @return Model_DevblocksEvent
 	 */
@@ -36,7 +36,7 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 				'time_id' => $time_id,
 			)
 		);
-	}	
+	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null) {
 		$labels = array();
@@ -46,7 +46,7 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 		 * Time Tracking Entry
 		 */
 		
-		@$time_id = $event_model->params['time_id']; 
+		@$time_id = $event_model->params['time_id'];
 		$merge_labels = array();
 		$merge_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TIMETRACKING, $time_id, $merge_labels, $merge_values, null, true);
@@ -66,7 +66,7 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 		 */
 
 		$this->setLabels($labels);
-		$this->setValues($values);		
+		$this->setValues($values);
 	}
 	
 	function getValuesContexts($trigger) {
@@ -106,7 +106,7 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
-		return $conditions;		
+		return $conditions;
 	}
 	
 	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -208,7 +208,7 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions() {
-		$actions = 
+		$actions =
 			array(
 				'add_watchers' => array('label' =>'Add watchers'),
 				'create_comment' => array('label' =>'Create a comment'),
@@ -347,7 +347,7 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 					if(!empty($context) && !empty($context_id))
 						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'time_custom', $params, $dict, $context, $context_id);
 				}
-				break;	
+				break;
 		}
 	}
 	
