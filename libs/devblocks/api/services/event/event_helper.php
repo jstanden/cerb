@@ -36,6 +36,19 @@ class DevblocksEventHelper {
 	/*
 	 * Action: Custom Fields
 	 */
+	private static function _getCustomFieldValuesFromParams($params) {
+		$custom_field_values = array();
+		
+		foreach($params as $key => $val) {
+			if(substr($key,0,6) == 'field_') {
+				$cf_id = substr($key, 6);
+				$custom_field_values[$cf_id] = $val;
+			}
+		}
+		
+		return $custom_field_values;
+	}
+	
 	static function getActionCustomFields($context) {
 		$actions = array();
 		
