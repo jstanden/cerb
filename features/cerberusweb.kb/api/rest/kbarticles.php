@@ -114,6 +114,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 				'id' => SearchFields_KbArticle::ID,
 				'format' => SearchFields_KbArticle::FORMAT,
 				'title' => SearchFields_KbArticle::TITLE,
+				'topic_id' => SearchFields_KbArticle::TOP_CATEGORY_ID,
 				'updated' => SearchFields_KbArticle::UPDATED,
 				'views' => SearchFields_KbArticle::VIEWS,
 			);
