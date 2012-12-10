@@ -1585,6 +1585,15 @@ class DevblocksEventHelper {
 		$values_to_contexts = $event->getValuesContexts($trigger);
 		$tpl->assign('values_to_contexts', $values_to_contexts);
 		
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
+		$tpl->assign('custom_fields', $custom_fields);
+
+		if(false != ($params = $tpl->getVariable('params'))) {
+			$params = $params->value;
+			$custom_field_values = self::_getCustomFieldValuesFromParams($params);
+			$tpl->assign('custom_field_values', $custom_field_values);
+		}
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_task.tpl');
 	}
 	
@@ -1602,15 +1611,30 @@ class DevblocksEventHelper {
 		$due_date = intval(@strtotime($tpl_builder->build($params['due_date'], $dict)));
 		$comment = $tpl_builder->build($params['comment'], $dict);
 
+		$custom_fields = DAO_CustomField::getAll();
+		
 		$out = sprintf(">>> Creating task\n".
 			"Title: %s\n".
 			"Due Date: %s (%s)\n".
-			"\n".
 			"",
 			$title,
 			(!empty($due_date) ? date("Y-m-d h:ia", $due_date) : 'none'),
 			$params['due_date']
 		);
+
+		$custom_field_values = self::_getCustomFieldValuesFromParams($params);
+		
+		foreach($custom_field_values as $cf_id => $val) {
+			if(!isset($custom_fields[$cf_id]))
+				continue;
+			
+			if(0 == strlen($val))
+				continue;
+			
+			$out .= $custom_fields[$cf_id]->name . ': ' . $val . "\n";
+		}
+		
+		$out .= "\n";
 		
 		// On
 
@@ -1709,7 +1733,18 @@ class DevblocksEventHelper {
 						DAO_Task::DUE_DATE => $due_date,
 					);
 					$task_id = DAO_Task::create($fields);
-			
+					
+					// Custom fields
+					$custom_field_values = self::_getCustomFieldValuesFromParams($params);
+					
+					if(is_array($custom_field_values))
+					foreach($custom_field_values as $cf_id => $val) {
+						if(is_string($val))
+							$val = $tpl_builder->build($val, $dict);
+					
+						DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TASK, $task_id, array($cf_id => $val));
+					}
+					
 					// Watchers
 					if(is_array($watcher_worker_ids) && !empty($watcher_worker_ids)) {
 						CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TASK, $task_id, $watcher_worker_ids);
