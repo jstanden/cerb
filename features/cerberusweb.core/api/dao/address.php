@@ -26,6 +26,7 @@ class DAO_Address extends C4_ORMHelper {
 	const NUM_NONSPAM = 'num_nonspam';
 	const IS_BANNED = 'is_banned';
 	const IS_DEFUNCT = 'is_defunct';
+	const UPDATED = 'updated';
 	
 	private function __construct() {}
 	
@@ -43,6 +44,7 @@ class DAO_Address extends C4_ORMHelper {
 			'num_nonspam' => $translate->_('address.num_nonspam'),
 			'is_banned' => $translate->_('address.is_banned'),
 			'is_defunct' => $translate->_('address.is_defunct'),
+			'updated' => mb_convert_case($translate->_('common.updated'), MB_CASE_TITLE),
 		);
 	}
 	
@@ -78,8 +80,8 @@ class DAO_Address extends C4_ORMHelper {
 			
 		// Make sure the address doesn't exist already
 		if(null == ($check = self::getByEmail($full_address))) {
-			$sql = sprintf("INSERT INTO address (email,first_name,last_name,contact_person_id,contact_org_id,num_spam,num_nonspam,is_banned,is_defunct) ".
-				"VALUES (%s,'','',0,0,0,0,0,0)",
+			$sql = sprintf("INSERT INTO address (email,first_name,last_name,contact_person_id,contact_org_id,num_spam,num_nonspam,is_banned,is_defunct,updated) ".
+				"VALUES (%s,'','',0,0,0,0,0,0,0)",
 				$db->qstr($full_address)
 			);
 			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
@@ -99,6 +101,9 @@ class DAO_Address extends C4_ORMHelper {
 	static function update($ids, $fields) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		if(!isset($fields[DAO_Address::UPDATED]))
+			$fields[DAO_Address::UPDATED] = time();
 		
 		// Make a diff for the requested objects in batches
 		
@@ -197,7 +202,7 @@ class DAO_Address extends C4_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, email, first_name, last_name, contact_person_id, contact_org_id, num_spam, num_nonspam, is_banned, is_defunct ".
+		$sql = "SELECT id, email, first_name, last_name, contact_person_id, contact_org_id, num_spam, num_nonspam, is_banned, is_defunct, updated ".
 			"FROM address ".
 			$where_sql.
 			$sort_sql.
@@ -229,6 +234,7 @@ class DAO_Address extends C4_ORMHelper {
 			$object->num_nonspam = intval($row['num_nonspam']);
 			$object->is_banned = intval($row['is_banned']);
 			$object->is_defunct = intval($row['is_defunct']);
+			$object->updated = intval($row['updated']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -353,7 +359,8 @@ class DAO_Address extends C4_ORMHelper {
 			"a.num_spam as %s, ".
 			"a.num_nonspam as %s, ".
 			"a.is_banned as %s, ".
-			"a.is_defunct as %s ",
+			"a.is_defunct as %s, ".
+			"a.updated as %s ",
 				SearchFields_Address::ID,
 				SearchFields_Address::EMAIL,
 				SearchFields_Address::FIRST_NAME,
@@ -364,7 +371,8 @@ class DAO_Address extends C4_ORMHelper {
 				SearchFields_Address::NUM_SPAM,
 				SearchFields_Address::NUM_NONSPAM,
 				SearchFields_Address::IS_BANNED,
-				SearchFields_Address::IS_DEFUNCT
+				SearchFields_Address::IS_DEFUNCT,
+				SearchFields_Address::UPDATED
 			);
 		
 		$join_sql =
@@ -516,6 +524,7 @@ class SearchFields_Address implements IDevblocksSearchFields {
 	const NUM_NONSPAM = 'a_num_nonspam';
 	const IS_BANNED = 'a_is_banned';
 	const IS_DEFUNCT = 'a_is_defunct';
+	const UPDATED = 'a_updated';
 	
 	const ORG_NAME = 'o_name';
 
@@ -546,6 +555,7 @@ class SearchFields_Address implements IDevblocksSearchFields {
 			self::NUM_NONSPAM => new DevblocksSearchField(self::NUM_NONSPAM, 'a', 'num_nonspam', $translate->_('address.num_nonspam'), Model_CustomField::TYPE_NUMBER),
 			self::IS_BANNED => new DevblocksSearchField(self::IS_BANNED, 'a', 'is_banned', $translate->_('address.is_banned'), Model_CustomField::TYPE_CHECKBOX),
 			self::IS_DEFUNCT => new DevblocksSearchField(self::IS_DEFUNCT, 'a', 'is_defunct', $translate->_('address.is_defunct'), Model_CustomField::TYPE_CHECKBOX),
+			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'a', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 			
 			self::CONTACT_ORG_ID => new DevblocksSearchField(self::CONTACT_ORG_ID, 'a', 'contact_org_id', $translate->_('address.contact_org_id'), null),
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', $translate->_('contact_org.name'), Model_CustomField::TYPE_SINGLE_LINE),
@@ -592,6 +602,7 @@ class Model_Address {
 	public $num_nonspam = 0;
 	public $is_banned = 0;
 	public $is_defunct = 0;
+	public $updated = 0;
 
 	function Model_Address() {}
 	
@@ -791,6 +802,10 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
+			case SearchFields_Address::UPDATED:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
+				break;
+				
 			case SearchFields_Address::VIRTUAL_CONTEXT_LINK:
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
@@ -869,6 +884,10 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Address::IS_BANNED:
 			case SearchFields_Address::IS_DEFUNCT:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_Address::UPDATED:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
@@ -1131,6 +1150,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'num_nonspam' => $prefix.$translate->_('address.num_nonspam'),
 			'is_banned' => $prefix.$translate->_('address.is_banned'),
 			'is_defunct' => $prefix.$translate->_('address.is_defunct'),
+			'updated' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
@@ -1160,6 +1180,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['num_nonspam'] = $address->num_nonspam;
 			$token_values['is_banned'] = $address->is_banned;
 			$token_values['is_defunct'] = $address->is_defunct;
+			$token_values['updated'] = $address->updated;
 
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
@@ -1404,6 +1425,11 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 				'label' => '# Spam',
 				'type' => Model_CustomField::TYPE_NUMBER,
 				'param' => SearchFields_Address::NUM_SPAM,
+			),
+			'updated' => array(
+				'label' => 'Updated',
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_Address::UPDATED,
 			),
 		);
 	

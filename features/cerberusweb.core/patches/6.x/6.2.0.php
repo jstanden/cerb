@@ -520,6 +520,12 @@ $change_columns = array();
 if(isset($columns['last_autoreply']))
 	$change_columns[] = 'DROP COLUMN last_autoreply';
 
+if(!isset($columns['last_autoreply']))
+	$change_columns[] = 'ADD COLUMN updated INT UNSIGNED DEFAULT 0 NOT NULL';
+
+if(!isset($indexes['updated']))
+	$change_columns[] = 'ADD INDEX updated (updated)';
+
 // Alter the table
 if(!empty($change_columns))
 	$db->Execute("ALTER TABLE address " . implode(', ', $change_columns));
