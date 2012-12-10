@@ -386,6 +386,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$actions =
 			array(
 				'append_to_content' => array('label' =>'Append text to message content'),
+				'create_notification' => array('label' =>'Create a notification'),
 				'prepend_to_content' => array('label' =>'Prepend text to message content'),
 				'replace_content' => array('label' =>'Replace text in message content'),
 				'reject' => array('label' =>'Reject delivery of message'),
@@ -415,6 +416,11 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			case 'append_to_content':
 			case 'prepend_to_content':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_before_sent_by_group/action_add_content.tpl');
+				break;
+				
+			case 'create_notification':
+				$translate = DevblocksPlatform::getTranslationService();
+				DevblocksEventHelper::renderActionCreateNotification($trigger);
 				break;
 				
 			case 'replace_content':
@@ -475,6 +481,10 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				);
 				
 				return $out;
+				break;
+				
+			case 'create_notification':
+				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict);
 				break;
 				
 			case 'prepend_to_content':
@@ -624,6 +634,10 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			case 'append_to_content':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 				$dict->body .= "\r\n" . $tpl_builder->build($params['content'], $dict);
+				break;
+				
+			case 'create_notification':
+				DevblocksEventHelper::runActionCreateNotification($params, $dict);
 				break;
 				
 			case 'prepend_to_content':
