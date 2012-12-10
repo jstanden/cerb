@@ -17,7 +17,7 @@
 
 class UmScKbController extends Extension_UmScController {
 	const PARAM_KB_ROOTS = 'kb.roots';
-	const SESSION_ARTICLE_LIST = 'kb_article_list';	
+	const SESSION_ARTICLE_LIST = 'kb_article_list';
 	
 	function isVisible() {
 		// Disable the KB if no categories were selected
@@ -49,7 +49,7 @@ class UmScKbController extends Extension_UmScController {
 		
 		$kb_roots_str = '0';
 		if(!empty($kb_roots))
-			$kb_roots_str = implode(',', array_keys($kb_roots)); 
+			$kb_roots_str = implode(',', array_keys($kb_roots));
 		
 		switch(array_shift($stack)) {
 			case 'search':

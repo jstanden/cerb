@@ -119,9 +119,9 @@ XML;
 			
 			$eGuid = $eItem->addChild('guid', md5($escapedSubject . $link . $created));
 			$eGuid->addAttribute('isPermaLink', "false");
-		}		
+		}
 
-		echo $xml->asXML();		
+		echo $xml->asXML();
 	}
 	
 	private function _renderRecentChangesRss($portal) {
@@ -204,7 +204,7 @@ XML;
 			$eGuid->addAttribute('isPermaLink', "false");
 		}
 		
-		echo $xml->asXML();		
+		echo $xml->asXML();
 	}
 	
 	private function _renderNewArticlesRss($portal) {
@@ -287,7 +287,7 @@ XML;
 			$eGuid->addAttribute('isPermaLink', "false");
 		}
 
-		echo $xml->asXML();		
+		echo $xml->asXML();
 	}
 	
 	

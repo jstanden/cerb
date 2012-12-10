@@ -187,7 +187,7 @@ class DAO_KbArticle extends C4_ORMHelper {
 		
 		$categories = array();
 		
-		$rs = $db->Execute(sprintf("SELECT kb_category_id ". 
+		$rs = $db->Execute(sprintf("SELECT kb_category_id ".
 			"FROM kb_article_to_category ".
 			"WHERE kb_article_id = %d",
 			$article_id
@@ -304,7 +304,7 @@ class DAO_KbArticle extends C4_ORMHelper {
 		}
 		
 		// [JAS]: Dynamic table joins
-		if(isset($tables['context_link'])) 
+		if(isset($tables['context_link']))
 			$join_sql .= "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.kb_article' AND context_link.to_context_id = kb.id) ";
 		
 		// Custom field joins
@@ -345,7 +345,7 @@ class DAO_KbArticle extends C4_ORMHelper {
 		);
 		
 		return $result;
-	}	
+	}
 	
 	private static function _translateVirtualParameters($param, $key, &$args) {
 		if(!is_a($param, 'DevblocksSearchCriteria'))
@@ -382,14 +382,14 @@ class DAO_KbArticle extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY kb.id ' : '').
 			$sort_sql;
 		
-		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$results = array();
 		
@@ -405,7 +405,7 @@ class DAO_KbArticle extends C4_ORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT kb.id) " : "SELECT COUNT(kb.id) ").
 				$join_sql.
 				$where_sql;
@@ -479,7 +479,7 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 
@@ -501,7 +501,7 @@ class Search_KbArticle {
 		$done = false;
 
 		while(!$done && time() < $stop_time) {
-			$where = sprintf("%s >= %d AND %s > %d", 
+			$where = sprintf("%s >= %d AND %s > %d",
 				DAO_KbArticle::UPDATED,
 				$ptr_time,
 				DAO_KbArticle::ID,
@@ -523,7 +523,7 @@ class Search_KbArticle {
 				// If we're not inside a block of the same timestamp, reset the seek pointer
 				$ptr_id = ($last_time == $ptr_time) ? $id : 0;
 
-				$logger->info(sprintf("[Search] Indexing %s %d...", 
+				$logger->info(sprintf("[Search] Indexing %s %d...",
 					$ns,
 					$id
 				));
@@ -761,7 +761,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -798,7 +798,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		
@@ -965,7 +965,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 		}
 		
 		return $counts;
-	}	
+	}
 	
 	function render() {
 		$this->_sanitize();
@@ -1060,7 +1060,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 				$this->_renderVirtualWatchers($param);
 				break;
 		}
-	}	
+	}
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;

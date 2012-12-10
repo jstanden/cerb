@@ -19,7 +19,7 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 	protected $_event_id = null; // override
 
 	/**
-	 * 
+	 *
 	 * @param integer $article_id
 	 * @return Model_DevblocksEvent
 	 */
@@ -52,7 +52,7 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 				'article_id' => $article_id,
 			)
 		);
-	}	
+	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null) {
 		$labels = array();
@@ -62,7 +62,7 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 		 * KB Article
 		 */
 		
-		@$article_id = $event_model->params['article_id']; 
+		@$article_id = $event_model->params['article_id'];
 		$merge_labels = array();
 		$merge_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_KB_ARTICLE, $article_id, $merge_labels, $merge_values, null, true);
@@ -226,7 +226,7 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions() {
-		$actions = 
+		$actions =
 			array(
 				'add_watchers' => array('label' =>'Add watchers'),
 				'create_comment' => array('label' =>'Create a comment'),
