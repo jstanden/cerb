@@ -241,11 +241,46 @@ class DAO_Worker extends C4_ORMHelper {
 	}
 	
 	static function update($ids, $fields, $option_bits=0) {
-		parent::_update($ids, 'worker', $fields);
+		if(!is_array($ids))
+			$ids = array($ids);
+		
+		// Make a diff for the requested objects in batches
+		
+		$chunks = array_chunk($ids, 100, true);
+		while($batch_ids = array_shift($chunks)) {
+			if(empty($batch_ids))
+				continue;
+			
+			// Get state before changes
+			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
 
-		// Log the context update
-		if(0 == ($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_EVENTS)) {
-   			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_WORKER, $ids);
+			if(empty($object_changes))
+				continue;
+			
+			// Make changes
+			parent::_update($batch_ids, 'worker', $fields);
+			
+			// Send events
+			if(0 == ($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_EVENTS)) {
+				if(!empty($object_changes)) {
+					// Local events
+					//self::_processUpdateEvents($object_changes);
+					
+					// Trigger an event about the changes
+					$eventMgr = DevblocksPlatform::getEventService();
+					$eventMgr->trigger(
+						new Model_DevblocksEvent(
+							'dao.worker.update',
+							array(
+								'objects' => $object_changes,
+							)
+						)
+					);
+					
+					// Log the context update
+					DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_WORKER, $batch_ids);
+				}
+			}
 		}
 		
 		// Flush cache
