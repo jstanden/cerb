@@ -57,7 +57,7 @@ class ChReportClosedTickets extends Extension_Report {
 		} else {
 			$start_time = strtotime($start);
 			$end_time = strtotime($end);
-		}		
+		}
 		
 		$tpl->assign('start', $start);
 		$tpl->assign('end', $end);
@@ -94,7 +94,7 @@ class ChReportClosedTickets extends Extension_Report {
 			case 'hour':
 				$date_group='%Y-%m-%d %H';
 				$date_increment = 'hour';
-				break;				
+				break;
 		}
 		
 		// Fallback to automatic grouping
@@ -157,7 +157,7 @@ class ChReportClosedTickets extends Extension_Report {
 			C4_AbstractViewLoader::setView($view->id, $view);
 			
 			$tpl->assign('view', $view);
-		}		
+		}
 		
 		// Chart
 		
@@ -194,7 +194,7 @@ class ChReportClosedTickets extends Extension_Report {
 		$tpl->assign('xaxis_ticks', array_keys($ticks));
 		$tpl->assign('data', $data);
 		
-		mysql_free_result($rs);		
+		mysql_free_result($rs);
 
 		// Template
 		

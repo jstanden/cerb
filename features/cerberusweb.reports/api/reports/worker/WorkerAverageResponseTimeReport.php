@@ -115,7 +115,7 @@ class ChReportAverageResponseTime extends Extension_Report {
 			);
 		}
 		$tpl->assign('group_responses', $group_responses);
-		$tpl->assign('worker_responses', $worker_responses);		
+		$tpl->assign('worker_responses', $worker_responses);
 
 		mysql_free_result($rs);
 		
