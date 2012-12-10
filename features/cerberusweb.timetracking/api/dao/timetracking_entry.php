@@ -461,10 +461,9 @@ class Model_TimeTrackingEntry {
 			));
 			
 		} else {
-			$out = vsprintf("%s tracked %s min%s", array(
+			$out = vsprintf("%s tracked %s", array(
 				$who,
-				$time_increment,
-				($this->time_actual_mins != 1) ? 's' : ''
+				$time_increment
 			));
 			
 		}

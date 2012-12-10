@@ -500,4 +500,12 @@ foreach($results as $result) {
 
 unset($results);
 
+// ===========================================================================
+// Fix redundant '{actor} tracked 5 mins mins' strings in time tracking entries
+
+$db->Execute("UPDATE context_activity_log set entry_json=replace(entry_json,'mins mins','mins') where (actor_context='cerberusweb.contexts.timetracking' OR target_context='cerberusweb.contexts.timetracking')");
+
+// ===========================================================================
+// Finish
+
 return TRUE;
