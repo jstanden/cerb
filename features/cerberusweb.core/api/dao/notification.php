@@ -456,6 +456,11 @@ class Model_Notification {
 			}
 		}
 		
+		if(empty($url)) {
+			$url_writer = DevblocksPlatform::getUrlService();
+			$url = $url_writer->write('c=profiles&obj=worker&who=me&what=notifications', true);
+		}
+		
 		return $url;
 	}
 };

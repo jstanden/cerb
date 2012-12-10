@@ -1486,7 +1486,7 @@ class DevblocksEventHelper {
 		return $out;
 	}
 	
-	static function runActionCreateNotification($params, DevblocksDictionaryDelegate $dict, $default_on) {
+	static function runActionCreateNotification($params, DevblocksDictionaryDelegate $dict, $default_on=null) {
 		$trigger = $dict->_trigger;
 		$event = $trigger->getEvent();
 		
@@ -1542,7 +1542,7 @@ class DevblocksEventHelper {
 					$notification_id = DAO_Notification::create($fields);
 				}
 				
-			} elseif(!empty($url)) {
+			} else {
 				$fields = array(
 					DAO_Notification::CONTEXT => null,
 					DAO_Notification::CONTEXT_ID => null,

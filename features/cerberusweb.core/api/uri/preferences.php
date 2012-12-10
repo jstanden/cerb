@@ -442,11 +442,13 @@ class ChPreferencesPage extends CerberusPageExtension {
 				case '':
 				case CerberusContexts::CONTEXT_MESSAGE:
 					// Mark as read before we redirect
-					DAO_Notification::update($id, array(
-						DAO_Notification::IS_READ => 1
-					));
+					if(empty($notification->is_read)) {
+						DAO_Notification::update($id, array(
+							DAO_Notification::IS_READ => 1
+						));
 					
-					DAO_Notification::clearCountCache($worker->id);
+						DAO_Notification::clearCountCache($worker->id);
+					}
 					break;
 			}
 
