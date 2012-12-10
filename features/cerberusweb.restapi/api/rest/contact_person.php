@@ -60,7 +60,7 @@ class ChRest_ContactPerson extends Extension_RestController implements IExtensio
 		DAO_ContactPerson::delete($id);
 
 		$result = array('id' => $id);
-		$this->success($result);		
+		$this->success($result);
 	}
 	
 	private function getId($id) {
@@ -106,7 +106,7 @@ class ChRest_ContactPerson extends Extension_RestController implements IExtensio
 			return $tokens[$token];
 		
 		return NULL;
-	}	
+	}
 	
 	function getContext($id) {
 		$labels = array();
@@ -152,7 +152,7 @@ class ChRest_ContactPerson extends Extension_RestController implements IExtensio
 			'results' => $objects,
 		);
 		
-		return $container;		
+		return $container;
 	}
 	
 	function putId($id) {

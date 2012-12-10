@@ -43,7 +43,7 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 //
 //		DAO_Group::delete($id);
 //		$result = array('id' => $id);
-//		$this->success($result);		
+//		$this->success($result);
 	}
 	
 	private function getId($id) {
@@ -57,7 +57,7 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 			if(!in_array($id, array_keys($memberships))) {
 				$this->error(self::ERRNO_CUSTOM, sprintf("Permission denied for group id '%d'", $id));
 			} else {
-				$this->success($container['results'][$id]);	
+				$this->success($container['results'][$id]);
 			}
 		}
 		
@@ -83,7 +83,7 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 			return $tokens[$token];
 		
 		return NULL;
-	}	
+	}
 	
 	function getContext($id) {
 		$labels = array();
@@ -137,10 +137,10 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 			'results' => $objects,
 		);
 		
-		return $container;		
+		return $container;
 	}
 	
-	function postSearch() {		
+	function postSearch() {
 		$container = $this->_handlePostSearch();
 		
 		$this->success($container);

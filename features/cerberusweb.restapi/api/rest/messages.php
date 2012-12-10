@@ -44,7 +44,7 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 
 		DAO_Message::delete($id);
 		$result = array('id' => $id);
-		$this->success($result);		
+		$this->success($result);
 	}
 	
 	private function getId($id) {
@@ -82,7 +82,7 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 			return $tokens[$token];
 		
 		return NULL;
-	}	
+	}
 	
 	function getContext($id) {
 		$labels = array();
@@ -136,7 +136,7 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 			'results' => $objects,
 		);
 		
-		return $container;		
+		return $container;
 	}
 	
 	function postSearch() {

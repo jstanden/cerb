@@ -77,7 +77,7 @@ class DAO_WebApiCredentials extends C4_ORMHelper {
 		}
 		
 		return $credentials;
-	}	
+	}
 	
 	static function getByAccessKey($access_key) {
 		$credentials = self::getAll();
@@ -229,7 +229,7 @@ class DAO_WebApiCredentials extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -257,7 +257,7 @@ class DAO_WebApiCredentials extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT webapi_credentials.id) " : "SELECT COUNT(webapi_credentials.id) ").
 				$join_sql.
 				$where_sql;
@@ -301,7 +301,7 @@ class SearchFields_WebApiCredentials implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 
@@ -518,5 +518,5 @@ class View_WebApiCredentials extends C4_AbstractView {
 		}
 
 		unset($ids);
-	}			
+	}
 };

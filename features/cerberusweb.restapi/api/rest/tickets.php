@@ -249,7 +249,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		}
 		
 		$this->getId($id);
-	}	
+	}
 	
 	function translateToken($token, $type='dao') {
 		$tokens = array();
@@ -270,9 +270,9 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 				'id' => SearchFields_Ticket::TICKET_ID,
 				'is_closed' => SearchFields_Ticket::TICKET_CLOSED,
 				'is_deleted' => SearchFields_Ticket::TICKET_DELETED,
-				'last_wrote' => SearchFields_Ticket::TICKET_LAST_WROTE,			
+				'last_wrote' => SearchFields_Ticket::TICKET_LAST_WROTE,
 				'mask' => SearchFields_Ticket::TICKET_MASK,
-				'requester' => SearchFields_Ticket::REQUESTER_ADDRESS,			
+				'requester' => SearchFields_Ticket::REQUESTER_ADDRESS,
 				'subject' => SearchFields_Ticket::TICKET_SUBJECT,
 				'updated' => SearchFields_Ticket::TICKET_UPDATED_DATE,
 				'group' => SearchFields_Ticket::TICKET_GROUP_ID,

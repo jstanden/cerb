@@ -43,7 +43,7 @@ class ChRest_Parser extends Extension_RestController { //implements IExtensionRe
 		}
 		
 		if(null == ($mime = mailparse_msg_parse_file($file))) {
-			@unlink($file);			
+			@unlink($file);
 			$this->error(self::ERRNO_CUSTOM, "Your message mime could not be decoded (it's probably malformed).");
 		}
 			
@@ -71,5 +71,5 @@ class ChRest_Parser extends Extension_RestController { //implements IExtensionRe
 		@unlink($file);
 		
 		$this->success($container);
-	} 
+	}
 };

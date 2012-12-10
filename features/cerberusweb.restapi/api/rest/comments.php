@@ -36,7 +36,7 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 		$id = array_shift($stack);
 		
 		$container = $this->search(array(
-			array('id', '=', $id),			
+			array('id', '=', $id),
 		));
 		
 		if(is_array($container) && isset($container['results']) && isset($container['results'][$id])) {
@@ -84,7 +84,7 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 			return $tokens[$token];
 		
 		return NULL;
-	}	
+	}
 	
 	function getContext($id) {
 		$labels = array();
@@ -128,7 +128,7 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 			'results' => $objects,
 		);
 		
-		return $container;		
+		return $container;
 	}
 	
 	function postCreate() {

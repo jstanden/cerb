@@ -66,7 +66,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 		DAO_Task::delete($id);
 
 		$result = array('id' => $id);
-		$this->success($result);		
+		$this->success($result);
 	}
 
 	function translateToken($token, $type='dao') {
@@ -159,8 +159,8 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			'results' => $objects,
 		);
 		
-		return $container;		
-	}	
+		return $container;
+	}
 	
 	function postSearch() {
 		$worker = $this->getActiveWorker();
@@ -186,7 +186,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			$this->error(self::ERRNO_ACL);
 			
 		$putfields = array(
-			'assignee_id' => 'integer',		
+			'assignee_id' => 'integer',
 			'completed' => 'timestamp',
 			'due' => 'timestamp',
 			'is_completed' => 'bit',
@@ -281,7 +281,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 		
 		// Check required fields
 		$reqfields = array(
-			DAO_Task::TITLE, 
+			DAO_Task::TITLE,
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
 		
@@ -324,5 +324,5 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			'task_id' => $task->id,
 			'note_id' => $note_id,
 		));
-	}	
+	}
 };

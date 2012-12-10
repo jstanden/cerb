@@ -63,7 +63,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 //		DAO_Address::delete($id);
 //
 //		$result = array('id' => $id);
-//		$this->success($result);		
+//		$this->success($result);
 	}
 	
 	private function getId($id) {
@@ -115,7 +115,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 			return $tokens[$token];
 		
 		return NULL;
-	}	
+	}
 	
 	function getContext($id) {
 		$labels = array();
@@ -131,16 +131,6 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_ADDRESS);
 		$params = $this->_handleSearchBuildParams($filters);
 		$params = array_merge($params, $custom_field_params);
-		
-		// (ACL) Add worker group privs
-		if(!$worker->is_superuser) {
-			$memberships = $worker->getMemberships();
-			$params['tmp_worker_memberships'] = new DevblocksSearchCriteria(
-				SearchFields_Ticket::TICKET_GROUP_ID,
-				'in',
-				(!empty($memberships) ? array_keys($memberships) : array(0))
-			);
-		}
 		
 		// Sort
 		$sortBy = $this->translateToken($sortToken, 'search');
@@ -171,7 +161,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 			'results' => $objects,
 		);
 		
-		return $container;		
+		return $container;
 	}
 	
 	function putId($id) {
