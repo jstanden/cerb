@@ -162,10 +162,108 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 	}
 	
 	static function update($ids, $fields) {
-		parent::_update($ids, 'timetracking_entry', $fields);
+		if(!is_array($ids))
+			$ids = array($ids);
 		
-		// Log the context update
-   		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TIMETRACKING, $ids);
+		// Make a diff for the requested objects in batches
+		
+		$chunks = array_chunk($ids, 100, true);
+		while($batch_ids = array_shift($chunks)) {
+			if(empty($batch_ids))
+				continue;
+			
+			// Get state before changes
+			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
+
+			if(empty($object_changes))
+				continue;
+			
+			// Make changes
+			parent::_update($batch_ids, 'timetracking_entry', $fields);
+			
+			// Send events
+			if(!empty($object_changes)) {
+				// Local events
+				self::_processUpdateEvents($object_changes);
+				
+				// Trigger an event about the changes
+				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr->trigger(
+					new Model_DevblocksEvent(
+						'dao.timetracking.update',
+						array(
+							'objects' => $object_changes,
+						)
+					)
+				);
+				
+				// Log the context update
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TIMETRACKING, $batch_ids);
+			}
+		}
+	}
+	
+	static function _processUpdateEvents($objects) {
+		if(is_array($objects))
+		foreach($objects as $object_id => $object) {
+			@$model = $object['model'];
+			@$changes = $object['changes'];
+			
+			if(empty($model) || empty($changes))
+				continue;
+			
+			/*
+			 * Time tracking status change
+			 */
+			if(
+				isset($changes[DAO_TimeTrackingEntry::IS_CLOSED])
+			) {
+				@$closed = $changes[DAO_TimeTrackingEntry::IS_CLOSED];
+
+				/*
+				 * Log activity
+				 */
+				
+				$status_to = null;
+				$activity_point = null;
+				
+				if(!empty($model[DAO_TimeTrackingEntry::IS_CLOSED])) {
+					$status_to = 'closed';
+					$activity_point = 'timetracking.status.closed';
+					
+					// [TODO] VA Behavior when a time tracking entry is closed
+					
+				} else {
+					$status_to = 'open';
+					$activity_point = 'timetracking.status.open';
+					
+				}
+				
+				if(!empty($status_to) && !empty($activity_point)) {
+					$model_object = new Model_TimeTrackingEntry();
+					$model_object->activity_id = $model[DAO_TimeTrackingEntry::ACTIVITY_ID];
+					$model_object->time_actual_mins = $model[DAO_TimeTrackingEntry::TIME_ACTUAL_MINS];
+					$model_object->worker_id = $model[DAO_TimeTrackingEntry::WORKER_ID];
+					
+					/*
+					 * Log activity (timetracking.status.*)
+					 */
+					$entry = array(
+						//{{actor}} changed time tracking {{target}} to status {{status}}
+						'message' => 'activities.timetracking.status',
+						'variables' => array(
+							'target' => sprintf("%s", $model_object->getSummary()),
+							'status' => $status_to,
+							),
+						'urls' => array(
+							'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_TIMETRACKING, $object_id, $model_object->getSummary()),
+							)
+					);
+					CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_TIMETRACKING, $object_id, $entry);
+				}
+				
+			} //foreach
+		}
 	}
 	
 	static function updateWhere($fields, $where) {

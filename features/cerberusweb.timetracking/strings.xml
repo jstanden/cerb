@@ -14,6 +14,12 @@
 			<tuv xml:lang="en_US"><seg>Track Time</seg></tuv>
 		</tu>
 		
+		<!-- Activity points -->
+		
+		<tu tuid='activities.timetracking.status'>
+			<tuv xml:lang="en_US"><seg>{{actor}} changed timetracking entry {{target}} to status {{status}}</seg></tuv>
+		</tu>
+		
 		<!-- ACL -->
 		
 		<tu tuid='acl.timetracking.actions.create'>

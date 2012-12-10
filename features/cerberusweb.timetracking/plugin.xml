@@ -47,6 +47,17 @@
 		</file>
 	</class_loader>
 	
+	<!-- Activity Points -->
+	
+	<activity_points>
+		<activity point="ticket.status.closed">
+			<param key="label_key" value="Time Tracking Entry Closed" />
+		</activity>
+		<activity point="ticket.status.open">
+			<param key="label_key" value="Time Tracking Entry Opened" />
+		</activity>
+	</activity_points>
+	
 	<acl>
 		<priv id="timetracking.actions.create" label="acl.timetracking.actions.create" />
 		<priv id="timetracking.actions.update_all" label="acl.timetracking.actions.update_all" />
