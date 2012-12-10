@@ -504,26 +504,26 @@ abstract class DevblocksEngine {
 				
 				switch($ext) {
 					case 'css':
-						header('Content-type: text/css;');
+						header('Content-type: text/css');
 						break;
 					case 'gif':
-						header('Content-type: image/gif;');
+						header('Content-type: image/gif');
 						break;
 					case 'jpeg':
 					case 'jpg':
-						header('Content-type: image/jpeg;');
+						header('Content-type: image/jpeg');
 						break;
 					case 'js':
-						header('Content-type: text/javascript;');
+						header('Content-type: text/javascript');
 						break;
 					case 'pdf':
-						header('Content-type: application/pdf;');
+						header('Content-type: application/pdf');
 						break;
 					case 'png':
-						header('Content-type: image/png;');
+						header('Content-type: image/png');
 						break;
 					case 'xml':
-						header('Content-type: text/xml;');
+						header('Content-type: text/xml');
 						break;
 				}
 				
