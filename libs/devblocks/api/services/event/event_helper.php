@@ -37,15 +37,28 @@ class DevblocksEventHelper {
 	 * Action: Custom Fields
 	 */
 	private static function _getCustomFieldValuesFromParams($params) {
+		$custom_fields = DAO_CustomField::getAll();
 		$custom_field_values = array();
 		
 		foreach($params as $key => $val) {
 			if(substr($key,0,6) == 'field_') {
 				$cf_id = substr($key, 6);
-				$custom_field_values[$cf_id] = $val;
+				
+				if(!isset($custom_fields[$cf_id]))
+					continue;
+				
+				switch($custom_fields[$cf_id]->type) {
+					case Model_CustomField::TYPE_MULTI_CHECKBOX:
+						$custom_field_values[$cf_id] = array_combine($val, $val);
+						break;
+						
+					default:
+						$custom_field_values[$cf_id] = $val;
+						break;
+				}
 			}
 		}
-		
+
 		return $custom_field_values;
 	}
 	
@@ -1611,8 +1624,6 @@ class DevblocksEventHelper {
 		$due_date = intval(@strtotime($tpl_builder->build($params['due_date'], $dict)));
 		$comment = $tpl_builder->build($params['comment'], $dict);
 
-		$custom_fields = DAO_CustomField::getAll();
-		
 		$out = sprintf(">>> Creating task\n".
 			"Title: %s\n".
 			"Due Date: %s (%s)\n".
@@ -1622,14 +1633,18 @@ class DevblocksEventHelper {
 			$params['due_date']
 		);
 
+		$custom_fields = DAO_CustomField::getAll();
 		$custom_field_values = self::_getCustomFieldValuesFromParams($params);
 		
 		foreach($custom_field_values as $cf_id => $val) {
 			if(!isset($custom_fields[$cf_id]))
 				continue;
 			
-			if(0 == strlen($val))
+			if(is_null($val))
 				continue;
+			
+			if(is_array($val))
+				$val = implode('; ', $val);
 			
 			$out .= $custom_fields[$cf_id]->name . ': ' . $val . "\n";
 		}
@@ -1784,6 +1799,15 @@ class DevblocksEventHelper {
 		$values_to_contexts = $event->getValuesContexts($trigger);
 		$tpl->assign('values_to_contexts', $values_to_contexts);
 		
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
+		$tpl->assign('custom_fields', $custom_fields);
+
+		if(false != ($params = $tpl->getVariable('params'))) {
+			$params = $params->value;
+			$custom_field_values = self::_getCustomFieldValuesFromParams($params);
+			$tpl->assign('custom_field_values', $custom_field_values);
+		}
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_ticket.tpl');
 	}
 	
@@ -1807,14 +1831,37 @@ class DevblocksEventHelper {
 			"Group: %s <%s>\n".
 			"Requesters: %s\n".
 			"Subject: %s\n".
-			"\n".
-			"%s\n".
-			"\n".
 			"",
 			$group->name,
 			$group_replyto->email,
 			$requesters,
-			$subject,
+			$subject
+		);
+
+		// Custom fields
+		
+		$custom_fields = DAO_CustomField::getAll();
+		$custom_field_values = self::_getCustomFieldValuesFromParams($params);
+		
+		foreach($custom_field_values as $cf_id => $val) {
+			if(!isset($custom_fields[$cf_id]))
+				continue;
+			
+			if(is_null($val))
+				continue;
+			
+			if(is_array($val))
+				$val = implode('; ', $val);
+			
+			$out .= $custom_fields[$cf_id]->name . ': ' . $val . "\n";
+		}
+		
+		// Content
+		$out .= sprintf(
+			"\n".
+			">>> Message:\n".
+			"%s\n".
+			"\n",
 			$content
 		);
 		
@@ -1920,6 +1967,17 @@ class DevblocksEventHelper {
 		}
 		
 		CerberusMail::sendTicketMessage($properties);
+		
+		// Custom fields
+		$custom_field_values = self::_getCustomFieldValuesFromParams($params);
+		
+		if(is_array($custom_field_values))
+		foreach($custom_field_values as $cf_id => $val) {
+			if(is_string($val))
+				$val = $tpl_builder->build($val, $dict);
+		
+			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TICKET, $ticket_id, array($cf_id => $val));
+		}
 		
 		// Connection
 		

@@ -22,6 +22,13 @@
 	<textarea name="{$namePrefix}[content]" rows="3" cols="45" style="width:100%;" class="placeholders">{$params.content}</textarea>
 </div>
 
+{if !empty($custom_fields)}
+<b>{'common.custom_fields'|devblocks_translate|capitalize}:</b>
+<div style="margin-left:10px;margin-bottom:0.5em;">
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false field_wrapper="{$namePrefix}"}
+</div>
+{/if}
+
 <b>{'common.watchers'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_var_worker_picker.tpl" param_name="worker_id" values_to_contexts=$values_to_contexts}
