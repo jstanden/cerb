@@ -96,6 +96,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 //				'num_nonspam' => DAO_Address::NUM_NONSPAM,
 //				'num_spam' => DAO_Address::NUM_SPAM,
 				'org_id' => DAO_Address::CONTACT_ORG_ID,
+				'updated' => DAO_Address::UPDATED,
 			);
 		} else {
 			$tokens = array(
@@ -108,6 +109,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 				'num_spam' => SearchFields_Address::NUM_SPAM,
 				'org_id' => SearchFields_Address::CONTACT_ORG_ID,
 				'org_name' => SearchFields_Address::ORG_NAME,
+				'updated' => SearchFields_Address::UPDATED,
 			);
 		}
 		
@@ -180,6 +182,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 			'is_banned' => 'bit',
 			'last_name' => 'string',
 			'org_id' => 'integer',
+			'updated' => 'integer',
 		);
 
 		$fields = array();
@@ -231,6 +234,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 			'is_banned' => 'bit',
 			'last_name' => 'string',
 			'org_id' => 'integer',
+			'updated' => 'integer',
 		);
 
 		$fields = array();

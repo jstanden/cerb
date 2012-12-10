@@ -597,6 +597,12 @@ abstract class Extension_RestController extends DevblocksExtension {
 						
 					}
 					break;
+				
+				case DevblocksSearchCriteria::OPER_BETWEEN:
+					if(!is_array($value) && preg_match('#^\[.*\]$#', $value)) {
+						$value = json_decode($value, true);
+					}
+					break;
 			}
 			
 			$params[$field] = new DevblocksSearchCriteria($field, $oper, $value);
