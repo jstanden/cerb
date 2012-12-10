@@ -845,7 +845,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 				
 			case 'send_email':
-				//return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
+				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
 				
 			case 'send_email_recipients':
