@@ -3,7 +3,7 @@ $db = DevblocksPlatform::getDatabaseService();
 $tables = $db->metaTables();
 
 // ===========================================================================
-// Migrate templates to the new plugin 
+// Migrate templates to the new plugin
 
 if(!isset($tables['devblocks_template']))
 	return FALSE;
@@ -11,7 +11,7 @@ if(!isset($tables['devblocks_template']))
 $db->Execute("UPDATE devblocks_template SET plugin_id = 'cerberusweb.support_center' WHERE plugin_id = 'usermeet.core'");
 
 // ===========================================================================
-// Migrate login handlers to multiple login extensions 
+// Migrate login handlers to multiple login extensions
 
 if(!isset($tables['community_tool_property']))
 	return FALSE;

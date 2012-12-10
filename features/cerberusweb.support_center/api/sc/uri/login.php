@@ -31,7 +31,7 @@ class UmScLoginController extends Extension_UmScController {
 		@array_shift($stack); // provider
 		@$extension_id = array_shift($stack);
 		
-		if(!empty($extension_id) && null != ($ext = DevblocksPlatform::getExtension($extension_id, true, true)) 
+		if(!empty($extension_id) && null != ($ext = DevblocksPlatform::getExtension($extension_id, true, true))
 			&& $ext instanceof Extension_ScLoginAuthenticator) {
 				$umsession->setProperty('login_method', $ext->manifest->id);
 		} else {
@@ -57,7 +57,7 @@ class UmScLoginController extends Extension_UmScController {
 
 		// Login extension
 		// Try the extension subcontroller first (overload)
-		if(null != ($login_extension = UmScApp::getLoginExtensionActive(ChPortalHelper::getCode())) 
+		if(null != ($login_extension = UmScApp::getLoginExtensionActive(ChPortalHelper::getCode()))
 			&& method_exists($login_extension, $action)) {
 				call_user_func(array($login_extension, $action));
 		
@@ -112,5 +112,5 @@ class UmScLoginController extends Extension_UmScController {
 		}
 
 		DAO_CommunityToolProperty::set($instance->code, UmScApp::PARAM_LOGIN_EXTENSIONS, implode(',', $login_extensions_enabled));
-	}	
+	}
 };

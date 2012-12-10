@@ -70,7 +70,7 @@ class UmScHistoryController extends Extension_UmScController {
 			if(0 == strcasecmp($ticket[SearchFields_Ticket::TICKET_MASK],$mask)) {
 				$messages = DAO_Message::getMessagesByTicket($ticket[SearchFields_Ticket::TICKET_ID]);
 				$messages = array_reverse($messages, true);
-				$attachments = array();						
+				$attachments = array();
 				
 				// Attachments
 				if(is_array($messages) && !empty($messages)) {
@@ -78,7 +78,7 @@ class UmScHistoryController extends Extension_UmScController {
 					foreach($messages as $message_id => $message) {
 						$map = $message->getLinksAndAttachments();
 						
-						if(!isset($map['links']) || empty($map['links']) 
+						if(!isset($map['links']) || empty($map['links'])
 							|| !isset($map['attachments']) || empty($map['attachments']))
 							continue;
 						
@@ -148,7 +148,7 @@ class UmScHistoryController extends Extension_UmScController {
 		);
 		DAO_Ticket::update($ticket_id,$fields);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'history',$ticket[SearchFields_Ticket::TICKET_MASK])));		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'history',$ticket[SearchFields_Ticket::TICKET_MASK])));
 	}
 	
 	function doReplyAction() {
@@ -165,7 +165,7 @@ class UmScHistoryController extends Extension_UmScController {
 			$shared_address_ids = array(-1);
 		
 		// Validate FROM address
-		if(null == ($from_address = DAO_Address::lookupAddress($from, false)) 
+		if(null == ($from_address = DAO_Address::lookupAddress($from, false))
 			|| $from_address->contact_person_id != $active_contact->id)
 			return FALSE;
 			
@@ -225,7 +225,7 @@ class UmScHistoryController extends Extension_UmScController {
 				$attach->file_size = filesize($files['tmp_name']);
 				$message->files[$files['name']] = $attach;
 			}
-		}	
+		}
 		
 		CerberusParser::parseMessage($message,array('no_autoreply'=>true));
 		
@@ -346,7 +346,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 //					echo ' ';
 //				}
 //				break;
-		}		
+		}
 	}
 	
 	function renderCriteriaParam($param) {
@@ -393,7 +393,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 			default:
 				parent::renderCriteriaParam($param);
 				break;
-		}		
+		}
 	}
 	
 	function doSetCriteria($field, $oper, $value) {

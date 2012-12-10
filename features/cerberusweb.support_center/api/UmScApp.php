@@ -16,31 +16,31 @@
 ***********************************************************************/
 /*
  * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
- * 
- * Sure, it would be so easy to just cheat and edit this file to use the 
- * software without paying for it.  But we trust you anyway.  In fact, we're 
- * writing this software for you! 
- * 
- * Quality software backed by a dedicated team takes money to develop.  We 
- * don't want to be out of the office bagging groceries when you call up 
- * needing a helping hand.  We'd rather spend our free time coding your 
- * feature requests than mowing the neighbors' lawns for rent money. 
- * 
- * We've never believed in hiding our source code out of paranoia over not 
- * getting paid.  We want you to have the full source code and be able to 
- * make the tweaks your organization requires to get more done -- despite 
- * having less of everything than you might need (time, people, money, 
+ *
+ * Sure, it would be so easy to just cheat and edit this file to use the
+ * software without paying for it.  But we trust you anyway.  In fact, we're
+ * writing this software for you!
+ *
+ * Quality software backed by a dedicated team takes money to develop.  We
+ * don't want to be out of the office bagging groceries when you call up
+ * needing a helping hand.  We'd rather spend our free time coding your
+ * feature requests than mowing the neighbors' lawns for rent money.
+ *
+ * We've never believed in hiding our source code out of paranoia over not
+ * getting paid.  We want you to have the full source code and be able to
+ * make the tweaks your organization requires to get more done -- despite
+ * having less of everything than you might need (time, people, money,
  * energy).  We shouldn't be your bottleneck.
- * 
- * We've been building our expertise with this project since January 2002.  We 
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to 
- * let us take over your shared e-mail headache is a worthwhile investment.  
- * It will give you a sense of control over your inbox that you probably 
- * haven't had since spammers found you in a game of 'E-mail Battleship'. 
+ *
+ * We've been building our expertise with this project since January 2002.  We
+ * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to
+ * let us take over your shared e-mail headache is a worthwhile investment.
+ * It will give you a sense of control over your inbox that you probably
+ * haven't had since spammers found you in a game of 'E-mail Battleship'.
  * Miss. Miss. You sunk my inbox!
- * 
- * A legitimate license entitles you to support from the developers,  
- * and the warm fuzzy feeling of feeding a couple of obsessed developers 
+ *
+ * A legitimate license entitles you to support from the developers,
+ * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
  * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
@@ -292,7 +292,7 @@ class UmScApp extends Extension_UsermeetTool {
 	}
 	
 	/**
-	 * @param $instance Model_CommunityTool 
+	 * @param $instance Model_CommunityTool
 	 */
 	public function configure(Model_CommunityTool $instance) {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -401,7 +401,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			default:
 				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/login/default/login.tpl");
 				break;
-		}		
+		}
 	}
 	
 	function doRegisterAction() {
@@ -620,11 +620,11 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login','forgot','confirm')));
-	}	
+	}
 	
 	/**
 	 * pull auth info out of $_POST, check it, return user_id or false
-	 * 
+	 *
 	 * @return boolean whether login succeeded
 	 */
 	function authenticateAction() {
@@ -649,7 +649,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			
 			// Compare salt
 			if(0 != strcmp(md5($contact->auth_salt.md5($pass)),$contact->auth_password))
-				throw new Exception("Login failed.");	
+				throw new Exception("Login failed.");
 			
 			$umsession->login($contact);
 			header("Location: " . $url_writer->write('', true));
@@ -693,7 +693,7 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/login/openid/login.tpl");
 				break;
 		}
-	}	
+	}
 	
 	function discoverAction() {
 		@$openid_url = DevblocksPlatform::importGPC($_REQUEST['openid_url']);
@@ -929,7 +929,7 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	
 	/**
 	 * pull auth info out of $_POST, check it, return user_id or false
-	 * 
+	 *
 	 * @return boolean whether login succeeded
 	 */
 	function authenticateAction() {
@@ -975,7 +975,7 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 							$umsession->setProperty('register.email', $attribs['email']);
 							
 						if(isset($attribs['full_name'])) {
-							$nameParts = explode(' ', $attribs['full_name']); 
+							$nameParts = explode(' ', $attribs['full_name']);
 							$umsession->setProperty('register.last_name', array_pop($nameParts));
 							$umsession->setProperty('register.first_name', implode(' ',$nameParts));
 						}

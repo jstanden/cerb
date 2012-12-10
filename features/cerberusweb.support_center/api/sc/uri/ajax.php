@@ -141,7 +141,7 @@ class UmScAjaxController extends Extension_UmScController {
 		}
 		
 		exit;
-	}	
+	}
 	
 	function downloadFileAction(DevblocksHttpRequest $request) {
 		$umsession = ChPortalHelper::getSession();
@@ -176,7 +176,7 @@ class UmScAjaxController extends Extension_UmScController {
 				if(null == ($message = DAO_Message::get($link->context_id)))
 					return;
 		
-				// Requesters		
+				// Requesters
 				if(null == ($requesters = DAO_Ticket::getRequestersByTicket($message->ticket_id)))
 					return;
 		

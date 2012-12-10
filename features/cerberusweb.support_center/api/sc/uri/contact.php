@@ -179,9 +179,9 @@ class UmScContactController extends Extension_UmScController {
 				if(empty($followup))
 					continue; // skip blanks
 					
-				$part['followups'][$followup] = 
-					(is_array($followup_fields) && isset($followup_fields[$followup_idx])) 
-					? $followup_fields[$followup_idx] 
+				$part['followups'][$followup] =
+					(is_array($followup_fields) && isset($followup_fields[$followup_idx]))
+					? $followup_fields[$followup_idx]
 					: array()
 					;
 			}
@@ -347,7 +347,7 @@ class UmScContactController extends Extension_UmScController {
 		$community_portal = DAO_CommunityTool::getByCode(ChPortalHelper::getCode());
 		
 		$message = new CerberusParserMessage();
-		$message->headers['date'] = date('r'); 
+		$message->headers['date'] = date('r');
 		$message->headers['to'] = $to;
 		$message->headers['subject'] = $subject;
 		$message->headers['message-id'] = CerberusApplication::generateMessageId();
@@ -359,7 +359,7 @@ class UmScContactController extends Extension_UmScController {
 			return; // abort with message
 		}
 		$from = array_shift($fromList);
-		$message->headers['from'] = $from->mailbox . '@' . $from->host; 
+		$message->headers['from'] = $from->mailbox . '@' . $from->host;
 
 		$message->body = 'IP: ' . $fingerprint['ip'] . "\r\n\r\n" . $sContent . $fieldContent;
 
@@ -384,7 +384,7 @@ class UmScContactController extends Extension_UmScController {
 				$attach->file_size = filesize($files['tmp_name']);
 				$message->files[$files['name']] = $attach;
 			}
-		}	
+		}
 		
 		// Custom Fields
 		
@@ -429,7 +429,7 @@ class UmScContactController extends Extension_UmScController {
 						break;
 				}
 				
-				if((is_array($value) && !empty($value)) 
+				if((is_array($value) && !empty($value))
 					|| (!is_array($value) && 0 != strlen($value)))
 						$message->custom_fields[$iFieldId] = $value;
 			}
@@ -440,9 +440,9 @@ class UmScContactController extends Extension_UmScController {
 		
 		// It's possible for the parser to reject the message using pre-filters
 		if(!empty($ticket_id) && null != ($ticket = DAO_Ticket::get($ticket_id))) {
-			$umsession->setProperty('support.write.last_opened',$ticket->mask);			
+			$umsession->setProperty('support.write.last_opened',$ticket->mask);
 		} else {
-			$umsession->setProperty('support.write.last_opened',null);			
+			$umsession->setProperty('support.write.last_opened',null);
 		}
 		
 		// Clear any errors
@@ -452,6 +452,6 @@ class UmScContactController extends Extension_UmScController {
 		$umsession->setProperty('support.write.last_error',null);
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'contact','confirm')));
-	}	
+	}
 	
 };

@@ -48,7 +48,7 @@ if(isset($tables['community_tool'])) {
 		$name = '';
 		$props = array();
 
-		// Create a hash of properties		
+		// Create a hash of properties
 		while($row2 = mysql_fetch_assoc($rs2)) {
 			$k = $row2['property_key'];
 			$v = $row2['property_value'];
@@ -89,7 +89,7 @@ if(isset($tables['community_tool'])) {
 		}
 		
 		// Update extension_id to 'sc.tool' in old community_tool
-		$db->Execute(sprintf("UPDATE community_tool SET name = %s, extension_id = 'sc.tool' WHERE code = %s", 
+		$db->Execute(sprintf("UPDATE community_tool SET name = %s, extension_id = 'sc.tool' WHERE code = %s",
 			$db->qstr($name),
 			$db->qstr($code)
 		));

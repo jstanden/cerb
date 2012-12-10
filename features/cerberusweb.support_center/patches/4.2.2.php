@@ -33,7 +33,7 @@ if(isset($tables['community_tool_property'])) {
 		}
 
 		// Drop logo prop
-		$db->Execute(sprintf("DELETE FROM community_tool_property WHERE property_key = 'common.logo_url' AND tool_code='%s'", 
+		$db->Execute(sprintf("DELETE FROM community_tool_property WHERE property_key = 'common.logo_url' AND tool_code='%s'",
 			$tool_code
 		));
 	}
