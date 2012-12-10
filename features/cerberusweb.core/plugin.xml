@@ -47,7 +47,7 @@
 		
 		<patch version="6.0.0"  revision="989" file="patches/6.x/6.0.0.php" />
 		<patch version="6.1.0" revision="1005" file="patches/6.x/6.1.0.php" />
-		<patch version="6.2.0" revision="1014" file="patches/6.x/6.2.0.php" />
+		<patch version="6.2.0" revision="1015" file="patches/6.x/6.2.0.php" />
 	</patches>
 
 	<!-- Controller Routing -->

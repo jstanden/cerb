@@ -26,7 +26,6 @@ class DAO_Address extends C4_ORMHelper {
 	const NUM_NONSPAM = 'num_nonspam';
 	const IS_BANNED = 'is_banned';
 	const IS_DEFUNCT = 'is_defunct';
-	const LAST_AUTOREPLY = 'last_autoreply';
 	
 	private function __construct() {}
 	
@@ -198,7 +197,7 @@ class DAO_Address extends C4_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, email, first_name, last_name, contact_person_id, contact_org_id, num_spam, num_nonspam, is_banned, is_defunct, last_autoreply ".
+		$sql = "SELECT id, email, first_name, last_name, contact_person_id, contact_org_id, num_spam, num_nonspam, is_banned, is_defunct ".
 			"FROM address ".
 			$where_sql.
 			$sort_sql.
@@ -230,7 +229,6 @@ class DAO_Address extends C4_ORMHelper {
 			$object->num_nonspam = intval($row['num_nonspam']);
 			$object->is_banned = intval($row['is_banned']);
 			$object->is_defunct = intval($row['is_defunct']);
-			$object->last_autoreply = intval($row['last_autoreply']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -594,7 +592,6 @@ class Model_Address {
 	public $num_nonspam = 0;
 	public $is_banned = 0;
 	public $is_defunct = 0;
-	public $last_autoreply;
 
 	function Model_Address() {}
 	

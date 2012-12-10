@@ -506,6 +506,25 @@ unset($results);
 $db->Execute("UPDATE context_activity_log set entry_json=replace(entry_json,'mins mins','mins') where (actor_context='cerberusweb.contexts.timetracking' OR target_context='cerberusweb.contexts.timetracking')");
 
 // ===========================================================================
+// Remove address.last_autoreply
+
+if(!isset($tables['address'])) {
+	$logger->error("The 'address' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('address');
+
+$change_columns = array();
+
+if(isset($columns['last_autoreply']))
+	$change_columns[] = 'DROP COLUMN last_autoreply';
+
+// Alter the table
+if(!empty($change_columns))
+	$db->Execute("ALTER TABLE address " . implode(', ', $change_columns));
+
+// ===========================================================================
 // Finish
 
 return TRUE;
