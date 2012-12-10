@@ -1314,10 +1314,12 @@ class DAO_Ticket extends C4_ORMHelper {
 			// [JAS]: Dynamic table joins
 			((isset($tables['r']) || isset($tables['ra'])) ? "INNER JOIN requester r ON (r.ticket_id=t.id) " : " ").
 			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
-			(isset($tables['msg']) || isset($tables['ftmc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
+			(isset($tables['msg']) || isset($tables['ftmc']) || isset($tables['ftnc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 			(isset($tables['ftcc']) ? "INNER JOIN comment ON (comment.context = 'cerberusweb.contexts.ticket' AND comment.context_id = t.id) " : " ").
 			(isset($tables['ftcc']) ? "INNER JOIN fulltext_comment_content ftcc ON (ftcc.id=comment.id) " : " ").
 			(isset($tables['ftmc']) ? "INNER JOIN fulltext_message_content ftmc ON (ftmc.id=msg.id) " : " ").
+			(isset($tables['ftnc']) ? "INNER JOIN comment AS note ON (note.context = 'cerberusweb.contexts.message' AND note.context_id = msg.id) " : " ").
+			(isset($tables['ftnc']) ? "INNER JOIN fulltext_comment_content AS ftnc ON (ftnc.id=note.id) " : " ").
 			(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
 			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.ticket' AND context_link.to_context_id = t.id) " : " ")
 			;
@@ -1566,6 +1568,9 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	// Message Content
 	const FULLTEXT_MESSAGE_CONTENT = 'ftmc_content';
 	
+	// Note Content
+	const FULLTEXT_NOTE_CONTENT = 'ftnc_content';
+	
 	// Context Links
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
@@ -1646,6 +1651,9 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 		}
 		if(isset($tables['fulltext_message_content'])) {
 			$columns[self::FULLTEXT_MESSAGE_CONTENT] = new DevblocksSearchField(self::FULLTEXT_MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('message.content'), 'FT');
+		}
+		if(isset($tables['fulltext_comment_content'])) {
+			$columns[self::FULLTEXT_NOTE_CONTENT] = new DevblocksSearchField(self::FULLTEXT_NOTE_CONTENT, 'ftnc', 'content', $translate->_('message.note.content'), 'FT');
 		}
 		
 		// Custom Fields: ticket + org
@@ -1758,6 +1766,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::CONTEXT_LINK_ID,
 			SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT,
+			SearchFields_Ticket::FULLTEXT_NOTE_CONTENT,
 			SearchFields_Ticket::REQUESTER_ADDRESS,
 			SearchFields_Ticket::REQUESTER_ID,
 			SearchFields_Ticket::TICKET_CLOSED,
@@ -2370,6 +2379,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT:
 			case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
+			case SearchFields_Ticket::FULLTEXT_NOTE_CONTENT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
 				break;
 				
@@ -2668,6 +2678,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT:
 			case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
+			case SearchFields_Ticket::FULLTEXT_NOTE_CONTENT:
 				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;

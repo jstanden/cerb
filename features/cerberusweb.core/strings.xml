@@ -1517,6 +1517,10 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 			<tuv xml:lang="en_US"><seg>Response Time</seg></tuv>
 		</tu>
 
+		<tu tuid='message.note.content'>
+			<tuv xml:lang="en_US"><seg>Note Content</seg></tuv>
+		</tu>
+
 		<!-- Preferences -->
 
 		<tu tuid='prefs.address.exists'>
