@@ -100,6 +100,37 @@ abstract class DevblocksORMHelper {
 		$db->Execute($sql);
 	}
 	
+	static protected function _getUpdateDeltas($ids, $fields, $dao_class) {
+		if(!method_exists($dao_class, 'getWhere'))
+			return false;
+		
+		$objects = $dao_class::getWhere(sprintf("%s IN (%s)", $dao_class::ID, implode(',', $ids)));
+		$object_changes = array();
+		
+		if(is_array($objects))
+		foreach($objects as $object_id => $object) {
+			$pre_fields = get_object_vars($object);
+			$changes = array();
+			
+			foreach($fields as $field_key => $field_val) {
+				// Make sure the value of the field actually changed
+				if($pre_fields[$field_key] != $field_val) {
+					$changes[$field_key] = array('from' => $pre_fields[$field_key], 'to' => $field_val);
+				}
+			}
+			
+			// If we had changes
+			if(!empty($changes)) {
+				$object_changes[$object_id] = array(
+					'model' => array_merge($pre_fields, $fields),
+					'changes' => $changes,
+				);
+			}
+		}
+		
+		return $object_changes;
+	}
+	
 	static protected function _parseSearchParams($params,$columns=array(),$fields,$sortBy='') {
 		$db = DevblocksPlatform::getDatabaseService();
 		
