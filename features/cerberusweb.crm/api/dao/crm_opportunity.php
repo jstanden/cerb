@@ -968,6 +968,9 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 						'group_id' => $params['group_id'],
 						'next_is_closed' => $next_is_closed,
 						'is_broadcast' => 1,
+						'context_links' => array(
+							array(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id),
+						),
 					);
 					
 					$fields = array(
