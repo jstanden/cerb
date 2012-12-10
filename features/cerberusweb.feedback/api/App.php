@@ -16,31 +16,31 @@
 ***********************************************************************/
 /*
  * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
- * 
- * Sure, it would be so easy to just cheat and edit this file to use the 
- * software without paying for it.  But we trust you anyway.  In fact, we're 
- * writing this software for you! 
- * 
- * Quality software backed by a dedicated team takes money to develop.  We 
- * don't want to be out of the office bagging groceries when you call up 
- * needing a helping hand.  We'd rather spend our free time coding your 
- * feature requests than mowing the neighbors' lawns for rent money. 
- * 
- * We've never believed in hiding our source code out of paranoia over not 
- * getting paid.  We want you to have the full source code and be able to 
- * make the tweaks your organization requires to get more done -- despite 
- * having less of everything than you might need (time, people, money, 
+ *
+ * Sure, it would be so easy to just cheat and edit this file to use the
+ * software without paying for it.  But we trust you anyway.  In fact, we're
+ * writing this software for you!
+ *
+ * Quality software backed by a dedicated team takes money to develop.  We
+ * don't want to be out of the office bagging groceries when you call up
+ * needing a helping hand.  We'd rather spend our free time coding your
+ * feature requests than mowing the neighbors' lawns for rent money.
+ *
+ * We've never believed in hiding our source code out of paranoia over not
+ * getting paid.  We want you to have the full source code and be able to
+ * make the tweaks your organization requires to get more done -- despite
+ * having less of everything than you might need (time, people, money,
  * energy).  We shouldn't be your bottleneck.
- * 
- * We've been building our expertise with this project since January 2002.  We 
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to 
- * let us take over your shared e-mail headache is a worthwhile investment.  
- * It will give you a sense of control over your inbox that you probably 
- * haven't had since spammers found you in a game of 'E-mail Battleship'. 
+ *
+ * We've been building our expertise with this project since January 2002.  We
+ * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to
+ * let us take over your shared e-mail headache is a worthwhile investment.
+ * It will give you a sense of control over your inbox that you probably
+ * haven't had since spammers found you in a game of 'E-mail Battleship'.
  * Miss. Miss. You sunk my inbox!
- * 
- * A legitimate license entitles you to support from the developers,  
- * and the warm fuzzy feeling of feeding a couple of obsessed developers 
+ *
+ * A legitimate license entitles you to support from the developers,
+ * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
  * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
@@ -228,7 +228,7 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 				SearchFields_FeedbackEntry::ADDRESS_EMAIL
 			 );
 		
-		$join_sql = 
+		$join_sql =
 			"FROM feedback_entry f ".
 			"LEFT JOIN address a ON (f.quote_address_id=a.id) ".
 		
@@ -278,7 +278,7 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 		);
 		
 		return $result;
-	}	
+	}
 	
 	/**
 	 * Enter description here...
@@ -303,14 +303,14 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY f.id ' : '').
 			$sort_sql;
 		
-		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$results = array();
 		
@@ -326,7 +326,7 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT f.id) " : "SELECT COUNT(f.id) ").
 				$join_sql.
 				$where_sql;
@@ -617,7 +617,7 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 				$this->_renderVirtualWatchers($param);
 				break;
 		}
-	}	
+	}
 	
 	function renderCriteriaParam($param) {
 		$field = $param->field;
@@ -758,7 +758,7 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 		}
 
 		unset($ids);
-	}	
+	}
 };
 
 class ChFeedbackController extends DevblocksControllerExtension {
@@ -957,7 +957,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 
 if (class_exists('Extension_MessageToolbarItem',true)):
 	class ChFeedbackMessageToolbarFeedback extends Extension_MessageToolbarItem {
-		function render(Model_Message $message) { 
+		function render(Model_Message $message) {
 			$tpl = DevblocksPlatform::getTemplateService();
 			
 			$tpl->assign('message', $message); /* @var $message Model_Message */
@@ -1070,7 +1070,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 			$merge_token_values,
 			$token_labels,
 			$token_values
-		);			
+		);
 		
 		// Created by (Worker)
 		$merge_token_labels = array();
@@ -1084,9 +1084,9 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 			$merge_token_values,
 			$token_labels,
 			$token_values
-		);			
+		);
 		
-		return true;		
+		return true;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {
@@ -1121,7 +1121,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		if(empty($view_id))
@@ -1153,14 +1153,14 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		C4_AbstractViewLoader::setView($view_id, $view);
-		return $view;		
+		return $view;
 	}
 	
 	function getView($context=null, $context_id=null, $options=array()) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Feedback';
@@ -1184,7 +1184,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 	function renderPeekPopup($context_id=0, $view_id='') {
 		$id = $context_id; // [TODO] Rename below and remove
 		
-		@$active_worker = CerberusApplication::getActiveWorker(); 
+		@$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
@@ -1199,7 +1199,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		/*
 		 * This treats procedurally created model objects
 		 * the same as existing objects
-		 */ 
+		 */
 		if(empty($id)) {
 			$model = new Model_FeedbackEntry();
 			
@@ -1237,7 +1237,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		}
 		
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK); 
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
 		$tpl->assign('custom_fields', $custom_fields);
 
 		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_FEEDBACK, $id);
@@ -1249,6 +1249,6 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		
 		$tpl->assign('model', $model);
 		
-		$tpl->display('devblocks:cerberusweb.feedback::feedback/ajax/peek.tpl');		
+		$tpl->display('devblocks:cerberusweb.feedback::feedback/ajax/peek.tpl');
 	}
 };
