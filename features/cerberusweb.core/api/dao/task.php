@@ -61,44 +61,28 @@ class DAO_Task extends C4_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
-		/*
-		 * Make a diff for the requested objects in batches
-		 */
+		// Make a diff for the requested objects in batches
 		
-		$chunks = array_chunk($ids, 25, true);
+		$chunks = array_chunk($ids, 100, true);
 		while($batch_ids = array_shift($chunks)) {
-			$objects = DAO_Task::getWhere(sprintf("id IN (%s)", implode(',', $batch_ids)));
-			$object_changes = array();
+			if(empty($batch_ids))
+				continue;
 			
-			foreach($objects as $object_id => $object) {
-				$pre_fields = get_object_vars($object);
-				$changes = array();
-				
-				foreach($fields as $field_key => $field_val) {
-					// Make sure the value of the field actually changed
-					if($pre_fields[$field_key] != $field_val) {
-						$changes[$field_key] = array('from' => $pre_fields[$field_key], 'to' => $field_val);
-					}
-				}
-				
-				// If we had changes
-				if(!empty($changes)) {
-					$object_changes[$object_id] = array(
-						'model' => array_merge($pre_fields, $fields),
-						'changes' => $changes,
-					);
-				}
-			}
+			// Get state before changes
+			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
+
+			if(empty($object_changes))
+				continue;
 			
-			parent::_update($ids, 'task', $fields);
+			// Make changes
+			parent::_update($batch_ids, 'task', $fields);
 			
+			// Send events
 			if(!empty($object_changes)) {
 				// Local events
 				self::_processUpdateEvents($object_changes);
 				
-				/*
-				 * Trigger an event about the changes
-				 */
+				// Trigger an event about the changes
 				$eventMgr = DevblocksPlatform::getEventService();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
@@ -110,10 +94,9 @@ class DAO_Task extends C4_ORMHelper {
 				);
 				
 				// Log the context update
-				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TASK, $ids);
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TASK, $batch_ids);
 			}
-			
-		} // batch loop
+		}
 	}
 	
 	static function _processUpdateEvents($objects) {

@@ -113,6 +113,9 @@ abstract class DevblocksORMHelper {
 			$changes = array();
 			
 			foreach($fields as $field_key => $field_val) {
+				if(!isset($pre_fields[$field_key]))
+					continue;
+				
 				// Make sure the value of the field actually changed
 				if($pre_fields[$field_key] != $field_val) {
 					$changes[$field_key] = array('from' => $pre_fields[$field_key], 'to' => $field_val);
