@@ -176,12 +176,47 @@ class DAO_Group extends C4_ORMHelper {
 	 * @param array $fields
 	 */
 	static function update($ids, $fields) {
-		parent::_update($ids, 'worker_group', $fields);
+		if(!is_array($ids))
+			$ids = array($ids);
+		
+		// Make a diff for the requested objects in batches
+		
+		$chunks = array_chunk($ids, 100, true);
+		while($batch_ids = array_shift($chunks)) {
+			if(empty($batch_ids))
+				continue;
+			
+			// Get state before changes
+			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
 
-		// Log the context update
-		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_GROUP, $ids);
-
-   		// Clear cache
+			if(empty($object_changes))
+				continue;
+			
+			// Make changes
+			parent::_update($batch_ids, 'worker_group', $fields);
+			
+			// Send events
+			if(!empty($object_changes)) {
+				// Local events
+				//self::_processUpdateEvents($object_changes);
+				
+				// Trigger an event about the changes
+				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr->trigger(
+					new Model_DevblocksEvent(
+						'dao.group.update',
+						array(
+							'objects' => $object_changes,
+						)
+					)
+				);
+				
+				// Log the context update
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_GROUP, $batch_ids);
+			}
+		}
+		
+		// Clear cache
 		self::clearCache();
 	}
 	
