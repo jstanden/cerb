@@ -103,7 +103,7 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 			if(empty($model) || empty($changes))
 				continue;
 				
-			if(!empty($changes[DAO_CrmOpportunity::IS_CLOSED]) 
+			if(!empty($changes[DAO_CrmOpportunity::IS_CLOSED])
 				|| !empty($changes[DAO_CrmOpportunity::IS_WON])) {
 				
 				// We only care about things that are closed.
@@ -295,7 +295,7 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 				SearchFields_CrmOpportunity::IS_WON
 			);
 			
-		$join_sql = 
+		$join_sql =
 			"FROM crm_opportunity o ".
 			"INNER JOIN address a ON (a.id = o.primary_email_id) ".
 			"LEFT JOIN contact_org org ON (org.id = a.contact_org_id) ".
@@ -350,7 +350,7 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 		);
 		
 		return $result;
-	}	
+	}
 	
 	private static function _translateVirtualParameters($param, $key, &$args) {
 		if(!is_a($param, 'DevblocksSearchCriteria'))
@@ -398,14 +398,14 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY o.id ' : '').
 			$sort_sql;
 		
-		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$results = array();
 		
@@ -421,7 +421,7 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT o.id) " : "SELECT COUNT(o.id) ").
 				$join_sql.
 				$where_sql;
@@ -508,9 +508,9 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 		}
 		
 		// Custom Fields: opp + addy + org
-		$fields = 
-			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY) + 
-			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS) + 
+		$fields =
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY) +
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS) +
 			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG)
 		;
 		
@@ -525,7 +525,7 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 		
 		return $columns;
 	}
-};	
+};
 
 class Model_CrmOpportunity {
 	public $id;
@@ -693,11 +693,11 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$custom_fields = 
-			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY) + 
-			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS) + 
+		$custom_fields =
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY) +
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS) +
 			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG)
-			; 
+			;
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		switch($this->renderTemplate) {
@@ -721,7 +721,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				$this->_renderVirtualWatchers($param);
 				break;
 		}
-	}	
+	}
 	
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -941,17 +941,17 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			
 			$params = $do['broadcast'];
 			if(
-				!isset($params['worker_id']) 
+				!isset($params['worker_id'])
 				|| empty($params['worker_id'])
-				|| !isset($params['subject']) 
+				|| !isset($params['subject'])
 				|| empty($params['subject'])
-				|| !isset($params['message']) 
+				|| !isset($params['message'])
 				|| empty($params['message'])
 				)
 				break;
 
-			$is_queued = (isset($params['is_queued']) && $params['is_queued']) ? true : false; 
-			$next_is_closed = (isset($params['next_is_closed'])) ? intval($params['next_is_closed']) : 0; 
+			$is_queued = (isset($params['is_queued']) && $params['is_queued']) ? true : false;
+			$next_is_closed = (isset($params['next_is_closed'])) ? intval($params['next_is_closed']) : 0;
 			
 			if(is_array($ids))
 			foreach($ids as $opp_id) {
@@ -994,7 +994,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 					// [TODO] ...
 				}
 			}
-		}		
+		}
 		
 		$batch_total = count($ids);
 		for($x=0;$x<=$batch_total;$x+=100) {
@@ -1043,7 +1043,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		}
 
 		unset($ids);
-	}	
+	}
 };
 
 class Context_Opportunity extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
@@ -1193,7 +1193,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -1230,7 +1230,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Opportunities';
@@ -1338,7 +1338,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			$keys['cf_' . $cfield_id] = array(
 				'label' => $cfield->name,
 				'type' => $cfield->type,
-				'param' => 'cf_' . $cfield_id, 
+				'param' => 'cf_' . $cfield_id,
 			);
 		}
 		

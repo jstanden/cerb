@@ -36,7 +36,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param integer $opp_id
 	 * @return Model_DevblocksEvent
 	 */
@@ -69,7 +69,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				'opp_id' => $opp_id,
 			)
 		);
-	}	
+	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null) {
 		$labels = array();
@@ -79,7 +79,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 		 * Opportunity
 		 */
 		
-		@$opp_id = $event_model->params['opp_id']; 
+		@$opp_id = $event_model->params['opp_id'];
 		$opp_labels = array();
 		$opp_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $opp_labels, $opp_values, null, true);
@@ -99,7 +99,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 		 */
 
 		$this->setLabels($labels);
-		$this->setValues($values);		
+		$this->setValues($values);
 	}
 	
 	function getValuesContexts($trigger) {
@@ -185,7 +185,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
-		return $conditions;		
+		return $conditions;
 	}
 	
 	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -315,7 +315,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions() {
-		$actions = 
+		$actions =
 			array(
 				'add_watchers' => array('label' =>'Add watchers'),
 				'create_comment' => array('label' =>'Create a comment'),
@@ -572,5 +572,5 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				}
 				break;
 		}
-	}	
+	}
 };
