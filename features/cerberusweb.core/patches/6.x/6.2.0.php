@@ -520,7 +520,7 @@ $change_columns = array();
 if(isset($columns['last_autoreply']))
 	$change_columns[] = 'DROP COLUMN last_autoreply';
 
-if(!isset($columns['last_autoreply']))
+if(!isset($columns['updated']))
 	$change_columns[] = 'ADD COLUMN updated INT UNSIGNED DEFAULT 0 NOT NULL';
 
 if(!isset($indexes['updated']))
