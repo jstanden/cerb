@@ -50,10 +50,10 @@
 	<!-- Activity Points -->
 	
 	<activity_points>
-		<activity point="ticket.status.closed">
+		<activity point="timetracking.status.closed">
 			<param key="label_key" value="Time Tracking Entry Closed" />
 		</activity>
-		<activity point="ticket.status.open">
+		<activity point="timetracking.status.open">
 			<param key="label_key" value="Time Tracking Entry Opened" />
 		</activity>
 	</activity_points>
