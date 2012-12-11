@@ -30,8 +30,6 @@ class PageSection_SetupAttendants extends Extension_PageSection {
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
 		
-		// [TODO] Persist selected owner
-		
 		// Roles/Groups/Workers
 		
 		$groups = DAO_Group::getAll();

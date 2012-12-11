@@ -3,7 +3,7 @@
 <form action="javascript:;" onsubmit="return false;">
 
 <div>
-	<b>{'common.owner'|devblocks_translate|capitalize}:</b> 
+	<b>{'common.owner'|devblocks_translate|capitalize}:</b>
 	<input id="inputSetupVaOwner" type="text" size="32" class="input_search filter">
 	<ul id="divSetupVaOwnerBubbles" class="bubbles"></ul>
 </div>
@@ -53,21 +53,12 @@
 </div> 
 <br>
 
-{$selected_tab_idx=0}
-{foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$selected_tab}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
-{/foreach}
-
 <script type="text/javascript">
 $(function() {
 	$tabs = $("#setupAttendantTabs");
 	var tabs = $tabs.tabs({ 
-		selected:{$selected_tab_idx},
-		select:function(e) {
-			$menu = $('#menuSetupVaOwnerPicker');
-			$menu.hide();
-		},
-		{literal}tabTemplate: "<li><a href='#{href}'>#{label}</a></li>"{/literal}
+		selected:0,
+		select:function(e) {}
 	});
 });
 	
@@ -135,8 +126,13 @@ $menu.find('> li > div.item a').click(function() {
 	//if($bubbles.find('li input:hidden[value="'+context_pair+'"]').length > 0)
 	//	return;
 	
-	url = "{devblocks_url}ajax.php?c=internal&a=showAttendantTab&point={$point}{/devblocks_url}";
+	url = "{devblocks_url full=true}ajax.php?c=internal&a=showAttendantTab&point={$point}{/devblocks_url}" + "&context=" + context + "&context_id=" + context_id;
 	
-	$tabs.tabs( "add", url + "&context=" + context + "&context_id=" + context_id, label );
-});		
+	$li = {literal}$("<li><a href='"+url+"'>"+label+"</a></li>");{/literal}
+	
+	$tabs.find('ul.ui-tabs-nav').append($li);
+	$tabs.tabs('refresh');
+	
+	$tabs.tabs('select', $tabs.tabs('length')-1);
+});
 </script>
