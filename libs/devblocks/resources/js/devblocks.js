@@ -475,6 +475,24 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 }
 
 function devblocksAjaxDateChooser(field, div, options) {
+	if(typeof field == 'object') {
+		if(field.selector)
+			var $sel_field = field;
+		else
+			var $sel_field = $(field);
+	} else {
+		var $sel_field = $(field);
+	}
+	
+	if(typeof div == 'object') {
+		if(div.selector)
+			var $sel_div = div;
+		else
+			var $sel_div = $(div);
+	} else {
+		var $sel_div = $(div);
+	}
+	
 	if(null == options)
 		options = { 
 			changeMonth: true,
@@ -484,15 +502,15 @@ function devblocksAjaxDateChooser(field, div, options) {
 	if(null == options.dateFormat)
 		options.dateFormat = 'DD, d MM yy';
 			
-	if(null == div) {
-		var chooser = $(field).datepicker(options);
+	if(null == $sel_div) {
+		var chooser = $sel_field.datepicker(options);
 		
 	} else {
 		if(null == options.onSelect)
 			options.onSelect = function(dateText, inst) {
-				$(field).val(dateText);
-				chooser.datepicker('destroy');					
+				$sel_field.val(dateText);
+				chooser.datepicker('destroy');
 			};
-		var chooser = $(div).datepicker(options);
+		var chooser = $sel_div.datepicker(options);
 	}
 }

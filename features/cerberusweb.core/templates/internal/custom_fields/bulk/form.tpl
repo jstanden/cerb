@@ -70,8 +70,9 @@
 				{elseif $f->type=='F'}
 					<input type="file" name="{$field_name}" size="45" maxlength="255" value="{$custom_field_values.$f_id}">
 				{elseif $f->type=='E'}
-					<div id="dateCustom{$f_id}"></div>
-					<input type="text" id="{$field_name}" name="{$field_name}" class="input_date" size="30" maxlength="255" value="{if !empty($custom_field_values.$f_id)}{if is_numeric($custom_field_values.$f_id)}{$custom_field_values.$f_id|devblocks_date}{else}{$custom_field_values.$f_id}{/if}{/if}"><button type="button" onclick="devblocksAjaxDateChooser('#{$field_name}','#dateCustom{$f_id}');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
+					<div id="#dateCustom{$f_id}" class="div-calendar"></div>
+					<input type="text" id="{$field_name}" name="{$field_name}" class="input_date" size="30" maxlength="255" value="{if !empty($custom_field_values.$f_id)}{if is_numeric($custom_field_values.$f_id)}{$custom_field_values.$f_id|devblocks_date}{else}{$custom_field_values.$f_id}{/if}{/if}"><!--
+					--><button type="button" onclick="devblocksAjaxDateChooser($(this).prev('input.input_date'),$(this).prev().prev('div.div-calendar'));">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
 				{/if}
 				</div>
 			</td>
