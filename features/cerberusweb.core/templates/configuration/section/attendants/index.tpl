@@ -54,17 +54,16 @@
 
 <script type="text/javascript">
 $(function() {
-	$tabs = $("#setupAttendantTabs");
-	
-	var tabs = $tabs.tabs({ 
-		selected:0,
-		select:function(e) {}
-	});
+	var $tabs = $("#setupAttendantTabs");
+	var tabs = $tabs.tabs();
 	
 	$tabs.find('> ul').sortable({
 		items:'> li',
-		distance: 20,
-		forcePlaceholderWidth:true
+		distance: 10,
+		cursor: 'pointer',
+		cursorAt: { left: -10, top: -10 },
+		tolerance: 'pointer',
+		forcePlaceholderSize: true
 	});
 });
 	
