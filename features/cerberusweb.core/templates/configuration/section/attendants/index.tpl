@@ -8,7 +8,7 @@
 	<ul id="divSetupVaOwnerBubbles" class="bubbles"></ul>
 </div>
 
-<ul class="cerb-popupmenu" id="menuSetupVaOwnerPicker" style="display:block;margin-bottom:5px;max-height:200px;overflow-x:hidden;overflow-y:auto;">
+<ul class="cerb-popupmenu" id="menuSetupVaOwnerPicker" style="display:block;margin-bottom:5px;max-height:200px;overflow-x:hidden;overflow-y:auto;box-shadow:none;border:1px solid rgb(200,200,200);">
 	<li context="cerberusweb.contexts.app" context_id="0" label="Application (Global)">
 		<div class="item">
 			<a href="javascript:;">Application</a><br>
@@ -56,9 +56,16 @@
 <script type="text/javascript">
 $(function() {
 	$tabs = $("#setupAttendantTabs");
+	
 	var tabs = $tabs.tabs({ 
 		selected:0,
 		select:function(e) {}
+	});
+	
+	$tabs.find('> ul').sortable({
+		items:'> li',
+		distance: 20,
+		forcePlaceholderWidth:true
 	});
 });
 	
@@ -108,31 +115,27 @@ $menu.find('> li').click(function(e) {
 });
 
 $menu.find('> li > div.item a').click(function() {
-	$li = $(this).closest('li');
-	$frm = $(this).closest('form');
+	var $li = $(this).closest('li');
+	var $frm = $(this).closest('form');
 	
-	$ul = $li.closest('ul');
-	$menu = $('#menuSetupVaOwnerPicker');
-	$bubbles = $('#divSetupVaOwnerBubbles');
-	$tabs = $("#setupAttendantTabs");
+	var $ul = $li.closest('ul');
+	var $menu = $('#menuSetupVaOwnerPicker');
+	var $bubbles = $('#divSetupVaOwnerBubbles');
+	var $tabs = $("#setupAttendantTabs");
 	
-	context = $li.attr('context');
-	context_id = $li.attr('context_id');
-	label = $li.attr('label');
+	var context = $li.attr('context');
+	var context_id = $li.attr('context_id');
+	var label = $li.attr('label');
 	
-	context_pair = context+':'+context_id;
-
-	// [TODO] Check for dupe context pair
-	//if($bubbles.find('li input:hidden[value="'+context_pair+'"]').length > 0)
-	//	return;
+	var url = "{devblocks_url full=true}ajax.php?c=internal&a=showAttendantTab&point={$point}{/devblocks_url}" + "&context=" + context + "&context_id=" + context_id;
 	
-	url = "{devblocks_url full=true}ajax.php?c=internal&a=showAttendantTab&point={$point}{/devblocks_url}" + "&context=" + context + "&context_id=" + context_id;
+	var $tab = $("<li><a href='"+url+"'>"+label+"</a></li>");
 	
-	$li = {literal}$("<li><a href='"+url+"'>"+label+"</a></li>");{/literal}
-	
-	$tabs.find('ul.ui-tabs-nav').append($li);
+	$tabs.find('ul.ui-tabs-nav').append($tab);
 	$tabs.tabs('refresh');
 	
 	$tabs.tabs('select', $tabs.tabs('length')-1);
+	
+	$li.remove();
 });
 </script>
