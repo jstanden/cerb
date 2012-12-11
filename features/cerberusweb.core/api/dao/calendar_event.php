@@ -51,9 +51,6 @@ class DAO_CalendarEvent extends C4_ORMHelper {
 			// Get state before changes
 			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
 
-			if(empty($object_changes))
-				continue;
-			
 			// Make changes
 			parent::_update($batch_ids, 'calendar_event', $fields);
 			
