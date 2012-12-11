@@ -2,7 +2,7 @@
 /**
  * Devblocks DAO
  * @author Jeff Standen, WebGroup Media LLC <jeff@webgroupmedia.com>
- * @version 2012-06-20 
+ * @version 2012-06-20
  */
 
 $tables = array();
@@ -34,12 +34,12 @@ foreach($tables as $table_name => $field_strs) {
 <b>api/dao/<?php echo $table_name; ?>.php</b><br>
 <textarea style="width:98%;height:200px;">
 class DAO_<?php echo $class_name; ?> extends C4_ORMHelper {
-<?php 
+<?php
 foreach($fields as $field_name => $field_type) {
 	printf("\tconst %s = '%s';\n",
 		strtoupper($field_name),
 		$field_name
-	); 
+	);
 }
 ?>
 
@@ -147,12 +147,12 @@ foreach($fields as $field_name => $field_type) {
 		
 		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_<?php echo $class_name; ?>();
-<?php 
+<?php
 foreach($fields as $field_name => $field_type) {
 	printf("\t\t\t\$object->%s = \$row['%s'];\n",
 		$field_name,
 		$field_name
-	);	
+	);
 }
 ?>
 			$objects[$object->id] = $object;
@@ -202,7 +202,7 @@ foreach($fields as $field_name => $field_type) {
 		
 		$select_sql = sprintf("SELECT ".
 <?php
-$num_fields = 0; 
+$num_fields = 0;
 foreach($fields as $field_name => $field_type) {
 	$num_fields++;
 	printf("\t\t\t\"%s.%s as %%s%s",
@@ -211,7 +211,7 @@ foreach($fields as $field_name => $field_type) {
 		(($num_fields==count($fields)) ? " \",\n" : ", \".\n") // ending
 	);
 }
-$num_fields = 0; 
+$num_fields = 0;
 foreach($fields as $field_name => $field_type) {
 	$num_fields++;
 	printf("\t\t\t\tSearchFields_%s::%s%s",
@@ -308,7 +308,7 @@ foreach($fields as $field_name => $field_type) {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -336,7 +336,7 @@ foreach($fields as $field_name => $field_type) {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT <?php echo $table_name; ?>.id) " : "SELECT COUNT(<?php echo $table_name; ?>.id) ").
 				$join_sql.
 				$where_sql;
@@ -396,7 +396,7 @@ foreach($fields as $field_name => $field_type) {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 </textarea>
@@ -538,7 +538,7 @@ foreach($fields as $field_name => $field_type) {
 		}
 		
 		return $counts;
-	}	
+	}
 	
 	function render() {
 		$this->_sanitize();
@@ -733,7 +733,7 @@ foreach($fields as $field_name => $field_type) {
 		}
 
 		unset($ids);
-	}			
+	}
 };
 </textarea>
 

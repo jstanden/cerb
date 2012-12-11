@@ -47,7 +47,7 @@ class ExReport extends Extension_Report {
 			'open' => $num_open,
 			'waiting' => $num_waiting,
 			'closed' => $num_closed,
-		));		
+		));
 		
 		$tpl->display('devblocks:example.report::reports/example.tpl');
 	}

@@ -1,8 +1,6 @@
 <?php
-
-
 class ExReplyToolbarButton extends Extension_ReplyToolbarItem {
-		function render() { 
+		function render() {
 			$tpl = DevblocksPlatform::getTemplateService();
 			$translate = DevblocksPlatform::getTranslationService();
 			
