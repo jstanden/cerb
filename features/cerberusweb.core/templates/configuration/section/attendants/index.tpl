@@ -5,7 +5,6 @@
 <div>
 	<b>{'common.owner'|devblocks_translate|capitalize}:</b>
 	<input id="inputSetupVaOwner" type="text" size="32" class="input_search filter">
-	<ul id="divSetupVaOwnerBubbles" class="bubbles"></ul>
 </div>
 
 <ul class="cerb-popupmenu" id="menuSetupVaOwnerPicker" style="display:block;margin-bottom:5px;max-height:200px;overflow-x:hidden;overflow-y:auto;box-shadow:none;border:1px solid rgb(200,200,200);">
@@ -120,7 +119,6 @@ $menu.find('> li > div.item a').click(function() {
 	
 	var $ul = $li.closest('ul');
 	var $menu = $('#menuSetupVaOwnerPicker');
-	var $bubbles = $('#divSetupVaOwnerBubbles');
 	var $tabs = $("#setupAttendantTabs");
 	
 	var context = $li.attr('context');
@@ -137,5 +135,8 @@ $menu.find('> li > div.item a').click(function() {
 	$tabs.tabs('select', $tabs.tabs('length')-1);
 	
 	$li.remove();
+	
+	if($ul.find('> li').length == 0)
+		$frm.remove();
 });
 </script>
