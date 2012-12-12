@@ -32,19 +32,13 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{'contact_org.name'|devblocks_translate}:&nbsp;</td>
 			<td width="100%">
-				<input type="text" name="org_name" value="{$draft->params.org_name}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
-				<div class="instructions" style="display:none;">
-				(optional) Link this ticket to an organization for suggested recipients
-				</div>
+				<input type="text" name="org_name" value="{$draft->params.org_name}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="(optional) Link this ticket to an organization for suggested recipients">
 			</td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'message.header.to'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 			<td width="100%">
-				<input type="text" name="to" id="emailinput" value="{if !empty($to)}{$to}{else}{$draft->params.to}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="e.g. recipient@example.com, customer@example.com" required>
-				<div class="instructions" style="display:none;">
-					These recipients will automatically be included in all future correspondence
-				</div>
+				<input type="text" name="to" id="emailinput" value="{if !empty($to)}{$to}{else}{$draft->params.to}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence" required>
 				
 				<div id="compose_suggested" style="display:none;">
 					<a href="javascript:;" onclick="$(this).closest('div').hide();">x</a>
@@ -56,19 +50,13 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{'message.header.cc'|devblocks_translate|capitalize}:&nbsp;</td>
 			<td width="100%">
-				<input type="text" name="cc" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->params.cc}" autocomplete="off">
-				<div class="instructions" style="display:none;">
-					These recipients will publicly receive a copy of this message	
-				</div>
+				<input type="text" name="cc" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->params.cc}" placeholder="These recipients will publicly receive a copy of this message" autocomplete="off">
 			</td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{'message.header.bcc'|devblocks_translate|capitalize}:&nbsp;</td>
 			<td width="100%">
-				<input type="text" name="bcc" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->params.bcc}" autocomplete="off">
-				<div class="instructions" style="display:none;">
-					These recipients will secretly receive a copy of this message			
-				</div>
+				<input type="text" name="bcc" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->params.bcc}" placeholder="These recipients will secretly receive a copy of this message" autocomplete="off">
 			</td>
 		</tr>
 		<tr>
@@ -209,14 +197,6 @@
 		});
 		
 		$frm.validate();
-		
-		$frm.find('input:text').focus(function(event) {
-			$(this).nextAll('div.instructions').fadeIn();
-		});
-		
-		$frm.find('input:text').blur(function(event) {
-			$(this).nextAll('div.instructions').fadeOut();
-		});
 		
 		$frm.find('select[name=group_or_bucket_id]').change(function(e) {
 			$div = $('#compose_cfields');
