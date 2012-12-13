@@ -1152,12 +1152,14 @@ class ChInternalController extends DevblocksControllerExtension {
 	function showSnippetsPeekAction() {
 		@$snippet_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer']);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$tpl->assign('view_id', $view_id);
+		$tpl->assign('layer', $layer);
 		
 		if(empty($snippet_id) || null == ($snippet = DAO_Snippet::get($snippet_id))) {
 			@$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'string','');

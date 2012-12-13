@@ -103,14 +103,14 @@
 <fieldset class="delete" style="display:none;">
 	<legend>Delete this snippet?</legend>
 	<p>Are you sure you want to permanently delete this snippet?</p>
-	<button type="button" class="green" onclick="$(this).closest('form').find('input:hidden[name=do_delete]').val('1');genericAjaxPopupClose('peek');genericAjaxPost('formSnippetsPeek', 'view{$view_id}')"> {'common.yes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="green" onclick="$(this).closest('form').find('input:hidden[name=do_delete]').val('1');genericAjaxPopupClose('{$layer}');genericAjaxPost('formSnippetsPeek', 'view{$view_id}')"> {'common.yes'|devblocks_translate|capitalize}</button>
 	<button type="button" class="red" onclick="$(this).closest('fieldset').hide().next('div.buttons').show();"> {'common.no'|devblocks_translate|capitalize}</button>
 </fieldset>
 {/if}
 
 <div class="buttons">
 {if $active_worker->hasPriv('core.snippets.actions.create')}
-	<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formSnippetsPeek', 'view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
+	<button type="button" onclick="genericAjaxPopupClose('{$layer}');genericAjaxPost('formSnippetsPeek', 'view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
 {else}
 	<fieldset class="delete" style="font-weight:bold;">
 		{'error.core.no_acl.edit'|devblocks_translate}
@@ -126,8 +126,10 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+	var $popup = genericAjaxPopupFetch('{$layer}');
 	$popup.one('popup_open',function(event,ui) {
+		var $popup = genericAjaxPopupFetch('{$layer}');
+		
 		{if empty($snippet->id)}
 		$(this).dialog('option','title', 'Create Snippet');
 		{else}
@@ -136,13 +138,13 @@
 
 		// Change
 		
-		$change_dropdown = $popup.find("form select[name=context]");
+		var $change_dropdown = $popup.find("form select[name=context]");
 		$change_dropdown.change(function(e) {
 			ctx = $(this).val();
 			genericAjaxGet($popup.find('DIV.toolbar'), 'c=internal&a=showSnippetsPeekToolbar&context=' + ctx);
 		});
 		
-		// [TODO] If editing and a target context is known
+		// If editing and a target context is known
 		genericAjaxGet($popup.find('DIV.toolbar'), 'c=internal&a=showSnippetsPeekToolbar&context={$snippet->context}');
 		
 		$(this).find('input:text:first').focus().select();

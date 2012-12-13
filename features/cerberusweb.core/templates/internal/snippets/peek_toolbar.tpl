@@ -16,8 +16,8 @@
 	</ul>
 
 <script type="text/javascript">
-$popup = genericAjaxPopupFetch('peek');
-var $menu = $popup.find('ul.cerb-popupmenu'); 
+$popup = genericAjaxPopupFind('#peekTemplateTest');
+var $menu = $popup.find('ul.cerb-popupmenu');
 
 // Quick insert token menu
 

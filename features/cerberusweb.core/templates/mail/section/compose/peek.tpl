@@ -67,13 +67,26 @@
 		</tr>
 		<tr>
 			<td width="100%" colspan="2">
-				<div style="padding:2px;">
-					<button id="btnSaveDraft" class="toolbar-item" type="button" onclick="genericAjaxPost('frmComposePeek',null,'c=mail&a=handleSectionAction&section=drafts&action=saveDraft&type=compose',function(json) { var obj = $.parseJSON(json); if(!obj || !obj.html || !obj.draft_id) return; $('#divDraftStatus').html(obj.html); $('#frmComposePeek input[name=draft_id]').val(obj.draft_id); } );"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
-					<button class="toolbar-item" type="button" onclick="ajax.chooserSnippet('snippets',$('#divComposeContent'), { '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });"><span class="cerb-sprite sprite-view"></span> {'common.snippets'|devblocks_translate|capitalize}</button>
-					<button class="toolbar-item" type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+$(this.form.group_id).val()+'&bucket_id='+$(this.form.bucket_id).val(),function(text) { insertAtCursor(document.getElementById('divComposeContent'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
-				</div>
-			
 				<div id="divDraftStatus"></div>
+				
+				<div>
+					<fieldset style="display:inline-block;">
+						<legend>Actions</legend>
+						
+						<button id="btnComposeSaveDraft" class="toolbar-item" type="button" onclick="genericAjaxPost('frmComposePeek',null,'c=mail&a=handleSectionAction&section=drafts&action=saveDraft&type=compose',function(json) { var obj = $.parseJSON(json); if(!obj || !obj.html || !obj.draft_id) return; $('#divDraftStatus').html(obj.html); $('#frmComposePeek input[name=draft_id]').val(obj.draft_id); } );"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
+						<button id="btnComposeInsertSig" class="toolbar-item" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if} onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+$(this.form.group_id).val()+'&bucket_id='+$(this.form.bucket_id).val(),function(text) { insertAtCursor(document.getElementById('divComposeContent'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
+					</fieldset>
+				
+					<fieldset style="display:inline-block;">
+						<legend>{'common.snippets'|devblocks_translate|capitalize}</legend>
+						<div>
+							Insert: 
+							<input type="text" size="25" class="context-snippet autocomplete" {if $pref_keyboard_shortcuts}placeholder="(Ctrl+Shift+I)"{/if}>
+							<button type="button" onclick="ajax.chooserSnippet('snippets',$('#divComposeContent'), { '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });"><span class="cerb-sprite sprite-view"></span></button>
+							<button type="button" onclick="genericAjaxPopup('add_snippet','c=internal&a=showSnippetsPeek&id=0&owner_context={CerberusContexts::CONTEXT_WORKER}&owner_context_id={$active_worker->id}&context=',null,false,'550');"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+						</div>
+					</fieldset>
+				</div>
 				
 				<textarea id="divComposeContent" name="content" style="width:98%;height:150px;border:1px solid rgb(180,180,180);padding:2px;">{$draft->body}</textarea>
 			</td>
@@ -287,7 +300,88 @@
 				
 				$sug.show();
 			});
-		});		
+		});
+		
+		// Snippet chooser shortcut
+		
+		$frm.find('input:text.context-snippet').autocomplete({
+			source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=cerberusweb.contexts.snippet&contexts[]=cerberusweb.contexts.worker',
+			minLength: 1,
+			focus:function(event, ui) {
+				return false;
+			},
+			autoFocus:true,
+			select:function(event, ui) {
+				$this = $(this);
+				$textarea = $('#divComposeContent');
+				
+				$label = ui.item.label.replace("<","&lt;").replace(">","&gt;");
+				$value = ui.item.value;
+				
+				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
+				url = 'c=internal&a=snippetPaste&id=' + $value;
+
+				// Context-dependent arguments
+				if ('cerberusweb.contexts.worker'==ui.item.context) {
+					url += "&context_id={$active_worker->id}";
+				}
+
+				genericAjaxGet('',url,function(txt) {
+					// If the content has placeholders, use that popup instead
+					if(txt.match(/\(__(.*?)__\)/)) {
+						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&text=' + encodeURIComponent(txt),null,false,'600');
+					
+						$popup_paste.bind('snippet_paste', function(event) {
+							if(null == event.text)
+								return;
+						
+							$textarea.insertAtCursor(event.text).focus();
+						});
+						
+					} else {
+						$textarea.insertAtCursor(txt).focus();
+					}
+					
+				}, { async: false });
+
+				$this.val('');
+				return false;
+			}
+		});
+		
+		// Shortcuts
+		
+		{if $pref_keyboard_shortcuts}
+		
+		// Reply textbox
+		$('#divComposeContent').keypress(function(event) {
+			if(!$(this).is(':focus'))
+				return;
+			
+			if(!event.ctrlKey) //!event.altKey && !event.ctrlKey && !event.metaKey
+				return;
+
+			if(event.ctrlKey && event.shiftKey) {
+				switch(event.which) {
+					case 7:  
+					case 71: // (G) Insert Signature
+						try {
+							event.preventDefault();
+							$('#btnComposeInsertSig').click();
+						} catch(ex) { } 
+						break;
+					case 9:  
+					case 73: // (I) Insert Snippet
+						try {
+							event.preventDefault();
+							$('#frmComposePeek').find('INPUT:text.context-snippet').focus();
+						} catch(ex) { } 
+						break;
+				}
+			}
+		});
+		
+		{/if}
 		
 		$frm.find(':input:text:first').focus().select();
 		
@@ -302,6 +396,6 @@
 			
 		});
 		
-		//setInterval("$('#btnSaveDraft').click();", 30000);
+		//setInterval("$('#btnComposeSaveDraft').click();", 30000);
 	});
 </script>
