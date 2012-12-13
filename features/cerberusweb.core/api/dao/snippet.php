@@ -676,6 +676,16 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 		$contexts = Extension_DevblocksContext::getAll(false);
 		$tpl->assign('contexts', $contexts);
 		
+		$placeholder_values = $this->getPlaceholderValues();
+		
+		// Are we translating snippet previews for certain contexts?
+		if(isset($placeholder_values['dicts'])) {
+			$tpl->assign('dicts', $placeholder_values['dicts']);
+
+			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			$tpl->assign('tpl_builder', $tpl_builder);
+		}
+		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
 			default:
@@ -1055,15 +1065,6 @@ class Context_Snippet extends Extension_DevblocksContext {
 			),
 		);
 		$params_required['_ownership'] = $param_ownership;
-		
-		// If we're being given contexts to filter down to
-		if(isset($_REQUEST['contexts'])) {
-			$contexts = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['contexts'],'string',''));
-			$contexts[] = '';
-			if(is_array($contexts) && !empty($contexts)) {
-				$params_required[SearchFields_Snippet::CONTEXT] = new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, $contexts);
-			}
-		}
 		
 		$view->addParamsRequired($params_required, true);
 		

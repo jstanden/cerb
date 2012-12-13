@@ -538,24 +538,24 @@ var cAjaxCalls = function() {
 	this.chooserSnippet = function(layer, $textarea, contexts) {
 		ctx = [];
 		for(x in contexts)
-			ctx.push(x);
+			ctx.push(x + ":" + contexts[x]);
 		
-		$chooser=genericAjaxPopup(layer,'c=internal&a=chooserOpenSnippet&context=cerberusweb.contexts.snippet&contexts=' + ctx.join(','),null,false,'650');
+		$chooser=genericAjaxPopup(layer,'c=internal&a=chooserOpenSnippet&context=cerberusweb.contexts.snippet&contexts=' + ctx.join(','),null,false,'600');
 		$chooser.bind('snippet_select', function(event) {
 			event.stopPropagation();
 			
 			snippet_id = event.snippet_id;
 			context = event.context;
-
+			
 			if(null == snippet_id || null == context)
 				return;
 			
 			// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
-			url = 'c=internal&a=snippetPaste&id='+snippet_id;
+			url = 'c=internal&a=snippetPaste&id='+encodeURIComponent(snippet_id);
 			
 			// Context-dependent arguments
 			if(null != contexts[context])
-				url += "&context_id=" + contexts[context];
+				url += "&context_id=" + encodeURIComponent(contexts[context]);
 			
 			// Ajax the content (synchronously)
 			genericAjaxGet('',url,function(txt) {

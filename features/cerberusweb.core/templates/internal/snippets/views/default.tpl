@@ -60,7 +60,7 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-		<td align="center"><input type="checkbox" name="row_id[]" value="{$result.s_id}" style="display:none;"></td>
+		<td rowspan="2" align="center" valign="top"><input type="checkbox" name="row_id[]" value="{$result.s_id}" style="display:none;"></td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
@@ -95,6 +95,20 @@
 			<td>{$result.$column}</td>
 			{/if}
 		{/foreach}
+		</tr>
+		<tr class="{$tableRowClass}">
+			<td colspan="{count($view->view_columns) + 1}">
+				{$snippet_content = $result.s_content|regex_replace:'#({{.*?}})#':'[ph]\1[/ph]'}
+				
+				{if isset($dicts.{$result.s_context}) && isset($tpl_builder)}
+					{$dict = $dicts.{$result.s_context}}
+					{$snippet_content = $tpl_builder->build($snippet_content, $dict)}
+				{/if}
+				
+				{$snippet_content = $snippet_content|escape:'htmlall'}
+				
+				<div class="emailbody" style="max-height:100px;overflow-y:auto;border-left:2px solid rgb(220,220,220);font-size:12px;margin-left:15px;color:rgb(75,75,75);padding:5px 10px;">{$snippet_content nofilter}</div>
+			</td>
 		</tr>
 	</tbody>
 	{/foreach}
