@@ -342,6 +342,7 @@
 				$frm = $(this).closest('form');
 				$frm.find('input:hidden[name=reply_mode]').val('');
 				$(this).closest('td').hide();
+				showLoadingPanel();
 				$frm.submit();
 			}
 		});
@@ -356,6 +357,7 @@
 				$frm = $(this).closest('form');
 				$frm.find('input:hidden[name=reply_mode]').val('save');
 				$(this).closest('td').hide();
+				showLoadingPanel();
 				$frm.submit();
 			}
 		});
@@ -370,6 +372,7 @@
 				$frm = $(this).closest('form');
 				$frm.find('input:hidden[name=a]').val('saveDraftReply');
 				$(this).closest('td').hide();
+				showLoadingPanel();
 				$frm.submit();
 			}
 		});

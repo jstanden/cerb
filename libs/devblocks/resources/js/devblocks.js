@@ -180,7 +180,6 @@ function appendTextboxAsCsv(formName, field, oLink) {
 	txt.value = txt.value + sAppend;
 }
 
-// [TODO] Merge this into genericAjaxPopup
 var loadingPanel;
 function showLoadingPanel() {
 	if(null != loadingPanel) {
@@ -195,7 +194,7 @@ function showLoadingPanel() {
 		resizable : false,
 		modal : true,
 		width : '300px',
-		title : 'Running...'
+		title : 'Please wait...'
 	};
 
 	if(0 == $("#loadingPanel").length) {
@@ -203,7 +202,7 @@ function showLoadingPanel() {
 	}
 
 	// Set the content
-	$("#loadingPanel").html("This may take a few moments.  Please wait!");
+	$("#loadingPanel").html("This action may take a few moments.");
 	
 	// Render
 	loadingPanel = $("#loadingPanel").dialog(options);
