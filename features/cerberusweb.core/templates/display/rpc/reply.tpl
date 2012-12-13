@@ -339,7 +339,7 @@
 					draftAutoSaveInterval = null;
 				}
 				
-				$frm = $(this).closest('form');
+				var $frm = $(this).closest('form');
 				$frm.find('input:hidden[name=reply_mode]').val('');
 				$(this).closest('td').hide();
 				showLoadingPanel();
@@ -354,7 +354,7 @@
 					draftAutoSaveInterval = null;
 				}
 				
-				$frm = $(this).closest('form');
+				var $frm = $(this).closest('form');
 				$frm.find('input:hidden[name=reply_mode]').val('save');
 				$(this).closest('td').hide();
 				showLoadingPanel();
@@ -369,7 +369,7 @@
 					draftAutoSaveInterval = null;
 				}
 				
-				$frm = $(this).closest('form');
+				var $frm = $(this).closest('form');
 				$frm.find('input:hidden[name=a]').val('saveDraftReply');
 				$(this).closest('td').hide();
 				showLoadingPanel();

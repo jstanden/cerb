@@ -17,9 +17,10 @@
 
 // [TODO] This could just be a sub-controller
 class PageSection_MailDrafts extends Extension_PageSection {
-	function render() {}
+	function render() {
+	}
 	
-	function saveDraftAction() {
+	function saveDraft() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
 
@@ -33,11 +34,10 @@ class PageSection_MailDrafts extends Extension_PageSection {
 		$type = null;
 			
 		if(empty($to) && empty($subject) && empty($content)) {
-			echo json_encode(array());
-			return;
+			return false;
 		}
 		
-		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string','');
+		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string','compose');
 
 		switch($type) {
 			case 'compose':
@@ -73,8 +73,8 @@ class PageSection_MailDrafts extends Extension_PageSection {
 				break;
 				
 			default:
-				echo json_encode(array());
-				return;
+				return false;
+				break;
 		}
 		
 		$fields = array(
@@ -109,6 +109,15 @@ class PageSection_MailDrafts extends Extension_PageSection {
 			DAO_MailQueue::update($draft_id, $fields);
 		}
 		
+		return $draft_id;
+	}
+	
+	function saveDraftAction() {
+		if(false == ($draft_id = $this->saveDraft())) {
+			echo json_encode(array());
+			return;
+		}
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('timestamp', time());
 		$html = $tpl->fetch('devblocks:cerberusweb.core::mail/queue/saved.tpl');
@@ -123,7 +132,7 @@ class PageSection_MailDrafts extends Extension_PageSection {
 		
 		if(!empty($draft_id)
 			&& null != ($draft = DAO_MailQueue::get($draft_id))
-			&& 
+			&&
 				(
 					$active_worker->id == $draft->worker_id
 					|| $active_worker->hasPriv('core.mail.draft.delete_all')

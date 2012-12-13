@@ -361,6 +361,16 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 
+		if(!empty($draft_id)) {
+			// [TODO] This could probably be done better
+			$drafts_ext = DevblocksPlatform::getExtension('core.page.mail.drafts', true, true);
+			/* @var $drafts_ext PageSection_MailDrafts */
+			if(false === $drafts_ext->saveDraft()) {
+				DAO_MailQueue::delete($draft_id);
+				$draft_id = null;
+			}
+		}
+		
 		// Destination
 		
 		@$group_or_bucket_id = DevblocksPlatform::importGPC($_POST['group_or_bucket_id'],'string', '');

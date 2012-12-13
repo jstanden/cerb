@@ -535,6 +535,14 @@ class ChDisplayPage extends CerberusPageExtension {
 			$properties['custom_fields'] = $field_values;
 		}
 		
+		// Save the draft one last time
+		if(!empty($draft_id)) {
+			if(false === $this->_saveDraft()) {
+				DAO_MailQueue::delete($draft_id);
+				$draft_id = null;
+			}
+		}
+		
 		// Options
 		if('save' == $reply_mode)
 			$properties['dont_send'] = true;
@@ -563,10 +571,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket_uri)));
 	}
 	
-	function saveDraftReplyAction() {
+	private function _saveDraft() {
 		$active_worker = CerberusApplication::getActiveWorker();
-		@$is_ajax = DevblocksPlatform::importGPC($_REQUEST['is_ajax'],'integer',0);
-		 
+		
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
 		@$msg_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
@@ -581,7 +588,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(empty($msg_id)
 			|| empty($ticket_id)
 			|| null == ($ticket = DAO_Ticket::get($ticket_id)))
-			return;
+			return false;
 		
 		// Params
 		$params = array();
@@ -679,6 +686,21 @@ class ChDisplayPage extends CerberusPageExtension {
 		} else {
 			DAO_MailQueue::update($draft_id, $fields);
 		}
+		
+		return array(
+			'draft_id' => $draft_id,
+			'ticket' => $ticket,
+		);
+	}
+	
+	function saveDraftReplyAction() {
+		@$is_ajax = DevblocksPlatform::importGPC($_REQUEST['is_ajax'],'integer',0);
+		
+		if(false === ($results = $this->_saveDraft()))
+			return;
+		
+		$draft_id = $results['draft_id'];
+		$ticket = $results['ticket'];
 		
 		if($is_ajax) {
 			// Template
