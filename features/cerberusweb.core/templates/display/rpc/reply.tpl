@@ -360,7 +360,21 @@
 				}
 
 				genericAjaxGet('',url,function(txt) {
-					$textarea.insertAtCursor(txt);
+					// If the content has placeholders, use that popup instead
+					if(txt.match(/\(__(.*?)__\)/)) {
+						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&text=' + encodeURIComponent(txt),null,true,'600');
+					
+						$popup_paste.bind('snippet_paste', function(event) {
+							if(null == event.text)
+								return;
+						
+							$textarea.insertAtCursor(event.text).focus();
+						});
+						
+					} else {
+						$textarea.insertAtCursor(txt).focus();
+					}
+					
 				}, { async: false });
 
 				$this.val('');

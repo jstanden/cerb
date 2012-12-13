@@ -559,7 +559,20 @@ var cAjaxCalls = function() {
 			
 			// Ajax the content (synchronously)
 			genericAjaxGet('',url,function(txt) {
-				$textarea.insertAtCursor(txt);
+				if(txt.match(/\(__(.*?)__\)/)) {
+					var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&text=' + encodeURIComponent(txt),null,false,'600');
+					
+					$popup_paste.bind('snippet_paste', function(event) {
+						if(null == event.text)
+							return;
+						
+						$textarea.insertAtCursor(event.text).focus();
+					});
+					
+				} else {
+					$textarea.insertAtCursor(txt).focus();
+				}
+				
 			}, { async: false });
 		});
 	}

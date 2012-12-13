@@ -143,9 +143,7 @@
 		});
 		
 		// [TODO] If editing and a target context is known
-		{if !empty($snippet->context)}
 		genericAjaxGet($popup.find('DIV.toolbar'), 'c=internal&a=showSnippetsPeekToolbar&context={$snippet->context}');
-		{/if}
 		
 		$(this).find('input:text:first').focus().select();
 	} );

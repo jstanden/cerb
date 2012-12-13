@@ -106,6 +106,10 @@
 				{/if}
 				
 				{$snippet_content = $snippet_content|escape:'htmlall'}
+				{$snippet_content = $snippet_content|regex_replace:'#(\(\((_+)\[ph\](.*?)\[/ph\]_+\)\))#':'((\2\3\2))'}
+				{$snippet_content = $snippet_content|regex_replace:'#(\[ph\](.*?)\[/ph\])#':'<div class="bubble">\2</div>'}
+				
+				{$snippet_content = $snippet_content|regex_replace:'#(\(\(_+(.*?)_+\)\))#':'<span class="placeholder placeholder-input">(\2)</span>'}
 				
 				<div class="emailbody" style="max-height:100px;overflow-y:auto;border-left:2px solid rgb(220,220,220);font-size:12px;margin-left:15px;color:rgb(75,75,75);padding:5px 10px;">{$snippet_content nofilter}</div>
 			</td>

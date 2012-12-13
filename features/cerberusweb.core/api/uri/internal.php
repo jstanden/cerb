@@ -1355,6 +1355,16 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(!empty($output))
 			echo rtrim($output,"\r\n"),"\n";
 	}
+	
+	function snippetPlaceholdersAction() {
+		@$text = DevblocksPlatform::importGPC($_REQUEST['text'],'string','');
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('text', $text);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/snippets/paste_placeholders.tpl');
+	}
 
 	function snippetTestAction() {
 		@$snippet_context = DevblocksPlatform::importGPC($_REQUEST['snippet_context'],'string','');
