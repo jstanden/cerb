@@ -799,11 +799,11 @@ DIV.bubble {
 	-webkit-border-radius: 5px;
 	
 	background:rgb(255,255,255) none;
-	background: linear-gradient(top, rgb(255,255,255),  rgb(232,242,254));
+	background: linear-gradient(top, rgb(255,255,255), rgb(232,242,254));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(255,255,255)), to(rgb(232,242,254)));
 	background: -moz-linear-gradient(top, rgb(255,255,255), rgb(232,242,254));
-	background: -o-linear-gradient(top, rgb(255,255,255),  rgb(232,242,254));
-	background: -ms-linear-gradient(top, rgb(255,255,255),  rgb(232,242,254));
+	background: -o-linear-gradient(top, rgb(255,255,255), rgb(232,242,254));
+	background: -ms-linear-gradient(top, rgb(255,255,255), rgb(232,242,254));
 }
 
 DIV.bubble A {
@@ -837,14 +837,14 @@ UL.bubbles LI {
 	-webkit-border-radius: 5px;
 	
 	background:rgb(255,255,255) none;
-	background: linear-gradient(top, rgb(255,255,255),  rgb(232,242,254));
+	background: linear-gradient(top, rgb(255,255,255), rgb(232,242,254));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(255,255,255)), to(rgb(232,242,254)));
 	background: -moz-linear-gradient(top, rgb(255,255,255), rgb(232,242,254));
-	background: -o-linear-gradient(top, rgb(255,255,255),  rgb(232,242,254));
-	background: -ms-linear-gradient(top, rgb(255,255,255),  rgb(232,242,254));
+	background: -o-linear-gradient(top, rgb(255,255,255), rgb(232,242,254));
+	background: -ms-linear-gradient(top, rgb(255,255,255), rgb(232,242,254));
 }
 
-UL.bubbles LI  A {
+UL.bubbles LI A {
 	color:rgb(49,116,165);
 	text-decoration:none;
 }
@@ -1013,11 +1013,11 @@ DIV.cerb-popupmenu {
 	padding:5px;
 	display:none;
 	background-color:rgb(232,242,254);
-	background: linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
+	background: linear-gradient(top, rgb(232,242,254), rgb(255,255,255));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(232,242,254)), to(rgb(255,255,255)));
 	background: -moz-linear-gradient(top, rgb(232,242,254), rgb(255,255,255));
-	background: -o-linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
-	background: -ms-linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
+	background: -o-linear-gradient(top, rgb(232,242,254), rgb(255,255,255));
+	background: -ms-linear-gradient(top, rgb(232,242,254), rgb(255,255,255));
 	border:1px solid rgb(100,135,225);
 }
 
@@ -1028,11 +1028,11 @@ UL.cerb-popupmenu {
 	padding:5px;
 	display:none;
 	background-color:rgb(232,242,254);
-	background: linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
+	background: linear-gradient(top, rgb(232,242,254), rgb(255,255,255));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(232,242,254)), to(rgb(255,255,255)));
 	background: -moz-linear-gradient(top, rgb(232,242,254), rgb(255,255,255));
-	background: -o-linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
-	background: -ms-linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
+	background: -o-linear-gradient(top, rgb(232,242,254), rgb(255,255,255));
+	background: -ms-linear-gradient(top, rgb(232,242,254), rgb(255,255,255));
 	border:1px solid rgb(100,135,225);
 	-moz-box-shadow: 0 5px 15px 0px rgb(175,175,175);
 	-webkit-box-shadow: 0 5px 15px 0px rgb(175,175,175);
@@ -1123,8 +1123,8 @@ FORM.quick-search DIV.hints UL.bubbles LI {
 
 #kbArticleContent { 
 	color: rgb(50,50,50);
-    font-size: 100%;
-    line-height: 140%;
+	font-size: 100%;
+	line-height: 140%;
 }
 
 #kbArticleContent h1, #kbArticleContent h2, #kbArticleContent h3, #kbArticleContent h4, #kbArticleContent h5, #kbArticleContent h6 { 
@@ -1178,9 +1178,9 @@ FORM.quick-search DIV.hints UL.bubbles LI {
 	border-right: 1px solid rgb(200,200,200);
 	border-left: 3px solid rgb(150,150,150);
 	border-bottom: 3px solid rgb(150,150,150);
-    background-color: rgb(240,240,240);
-    color: #1111111;
-    padding: 0.5em;
+	background-color: rgb(240,240,240);
+	color: #1111111;
+	padding: 0.5em;
 }
 
 #kbArticleContent code {
@@ -1354,11 +1354,11 @@ span.plugin_icon_overlay_disabled {
 	color:#000;
 	text-decoration:none;
 }
-.markItUp  {
+.markItUp {
 	width:98%;
 	margin:5px 0 5px 0;
 }
-.markItUpContainer  {
+.markItUpContainer {
 	/*font:11px Verdana, Arial, Helvetica, sans-serif;*/
 }
 .markItUpEditor {
@@ -1370,7 +1370,7 @@ span.plugin_icon_overlay_disabled {
 	line-height:18px;
 	overflow:auto;
 }
-.markItUpPreviewFrame	{
+.markItUpPreviewFrame {
 	overflow:auto;
 	background-color:#FFF;
 	width:99.9%;
@@ -1456,7 +1456,7 @@ span.plugin_icon_overlay_disabled {
 	padding:5px 5px 5px 25px;
 	background-position:2px 50%;
 }
-.markItUpHeader ul ul a:hover  {
+.markItUpHeader ul ul a:hover {
 	color:#FFF;
 	background-color:#000;
 }
@@ -1547,11 +1547,11 @@ SPAN.ui-helper-hidden-accessible { display: none; }
 
 UL.ui-autocomplete.ui-menu {
 	background-color:rgb(232,242,254);
-	background: linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
+	background: linear-gradient(top, rgb(232,242,254), rgb(255,255,255));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(232,242,254)), to(rgb(255,255,255)));
 	background: -moz-linear-gradient(top, rgb(232,242,254), rgb(255,255,255));
-	background: -o-linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
-	background: -ms-linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
+	background: -o-linear-gradient(top, rgb(232,242,254), rgb(255,255,255));
+	background: -ms-linear-gradient(top, rgb(232,242,254), rgb(255,255,255));
 	border:1px solid rgb(152,162,200);
 }
 

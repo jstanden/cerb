@@ -67,20 +67,20 @@
 					<legend>Actions</legend>
 					{assign var=headers value=$message->getHeaders()}
 					<button name="saveDraft" type="button" onclick="if($(this).attr('disabled'))return;$(this).attr('disabled','disabled');genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json, ui) { var obj = $.parseJSON(json); $('#divDraftStatus{$message->id}').html(obj.html); $('#reply{$message->id}_part2 input[name=draft_id]').val(obj.draft_id); $('#reply{$message->id}_part1 button[name=saveDraft]').removeAttr('disabled'); } );"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
-					<button id="btnInsertReplySig{$message->id}" type="button" title="(Ctrl+Shift+G)" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->group_id}&bucket_id={$ticket->bucket_id}',function(txt) { $('#reply_{$message->id}').insertAtCursor(txt); } );"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('display.reply.insert_sig')|capitalize}</button>
+					<button id="btnInsertReplySig{$message->id}" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if} onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->group_id}&bucket_id={$ticket->bucket_id}',function(txt) { $('#reply_{$message->id}').insertAtCursor(txt); } );"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('display.reply.insert_sig')|capitalize}</button>
 					{* Plugin Toolbar *}
 					{if !empty($reply_toolbaritems)}
 						{foreach from=$reply_toolbaritems item=renderer}
 							{if !empty($renderer)}{$renderer->render($message)}{/if}
 						{/foreach}
 					{/if}
-				</fieldset>		
+				</fieldset>
 				
 				<fieldset style="display:inline-block;">
 					<legend>{'common.snippets'|devblocks_translate|capitalize}</legend>
 					<div>
 						Insert: 
-						<input type="text" size="25" class="context-snippet autocomplete" placeholder="(Ctrl+Shift+I)">
+						<input type="text" size="25" class="context-snippet autocomplete" {if $pref_keyboard_shortcuts}placeholder="(Ctrl+Shift+I)"{/if}>
 						<button type="button" onclick="ajax.chooserSnippet('chooser{$message->id}',$('#reply_{$message->id}'), { '{CerberusContexts::CONTEXT_TICKET}':'{$ticket->id}', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });"><span class="cerb-sprite sprite-view"></span></button>
 						<button type="button" onclick="genericAjaxPopup('peek','c=internal&a=showSnippetsPeek&id=0&owner_context={CerberusContexts::CONTEXT_WORKER}&owner_context_id={$active_worker->id}&context={CerberusContexts::CONTEXT_TICKET}&context_id={$ticket->id}',null,false,'550');"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
 					</div>
@@ -195,47 +195,47 @@
 							<br>
 							<br>
 							
-					      	<div id="replyClosed{$message->id}" style="display:{if (empty($draft) && 'open'==$mail_status_reply) || (!empty($draft) && $draft->params.closed==0)}none{else}block{/if};margin-left:10px;margin-bottom:10px;">
-					      	<b>{$translate->_('display.reply.next.resume')}</b> {$translate->_('display.reply.next.resume_eg')}<br> 
-					      	<input type="text" name="ticket_reopen" size="55" value="{if !empty($draft)}{$draft->params.ticket_reopen}{elseif !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}"><br>
-					      	{$translate->_('display.reply.next.resume_blank')}<br>
-					      	</div>
+							<div id="replyClosed{$message->id}" style="display:{if (empty($draft) && 'open'==$mail_status_reply) || (!empty($draft) && $draft->params.closed==0)}none{else}block{/if};margin-left:10px;margin-bottom:10px;">
+							<b>{$translate->_('display.reply.next.resume')}</b> {$translate->_('display.reply.next.resume_eg')}<br> 
+							<input type="text" name="ticket_reopen" size="55" value="{if !empty($draft)}{$draft->params.ticket_reopen}{elseif !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}"><br>
+							{$translate->_('display.reply.next.resume_blank')}<br>
+							</div>
 	
 							{if $active_worker->hasPriv('core.ticket.actions.move')}
 							<b>{$translate->_('display.reply.next.move')}</b><br>  
-					      	<select name="bucket_id">
-					      		<option value="">-- {$translate->_('display.reply.next.move.no_thanks')|lower} --</option>
-					      		{if empty($ticket->bucket_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
-					      		<optgroup label="{$translate->_('common.inboxes')|capitalize}">
-					      		{foreach from=$groups item=group}
-					      			<option value="t{$group->id}" {if $draft->params.bucket_id=="t{$group->id}"}selected="selected"{/if}>{$group->name}{if $t_or_c=='t' && $ticket->group_id==$group->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
-					      		{/foreach}
-					      		</optgroup>
-					      		{foreach from=$group_buckets item=buckets key=groupId}
-					      			{assign var=group value=$groups.$groupId}
-					      			{if !empty($active_worker_memberships.$groupId)}
-						      			<optgroup label="-- {$group->name} --">
-						      			{foreach from=$buckets item=bucket}
-						    				<option value="c{$bucket->id}" {if $draft->params.bucket_id=="c{$bucket->id}"}selected="selected"{/if}>{$bucket->name}{if $t_or_c=='c' && $ticket->bucket_id==$bucket->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
-						    			{/foreach}
-						    			</optgroup>
-						    		{/if}
-					     		{/foreach}
-					      	</select><br>
-					      	<br>
-					      	{/if}
-					      	
-					      	<b>{'display.reply.next.owner'|devblocks_translate}</b><br>
-					      	<select name="owner_id">
-					      		<option value="">-- {'common.nobody'|devblocks_translate|lower} --</option>
-					      		{foreach from=$workers item=owner key=owner_id}
-					      		<option value="{$owner_id}" {if !empty($draft) && $draft->params.owner_id==$owner_id}selected="selected"{elseif $ticket->owner_id==$owner_id}selected="selected"{/if}>{$owner->getName()}</option>
-					      		{/foreach}
-					      	</select>
-					      	<button type="button" onclick="$(this).prev('select[name=owner_id]').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
-					      	<button type="button" onclick="$(this).prevAll('select[name=owner_id]').first().val('');">{'common.nobody'|devblocks_translate|lower}</button>
-					      	<br>
-					      	<br>
+							<select name="bucket_id">
+								<option value="">-- {$translate->_('display.reply.next.move.no_thanks')|lower} --</option>
+								{if empty($ticket->bucket_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
+								<optgroup label="{$translate->_('common.inboxes')|capitalize}">
+								{foreach from=$groups item=group}
+									<option value="t{$group->id}" {if $draft->params.bucket_id=="t{$group->id}"}selected="selected"{/if}>{$group->name}{if $t_or_c=='t' && $ticket->group_id==$group->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
+								{/foreach}
+								</optgroup>
+								{foreach from=$group_buckets item=buckets key=groupId}
+									{assign var=group value=$groups.$groupId}
+									{if !empty($active_worker_memberships.$groupId)}
+										<optgroup label="-- {$group->name} --">
+										{foreach from=$buckets item=bucket}
+											<option value="c{$bucket->id}" {if $draft->params.bucket_id=="c{$bucket->id}"}selected="selected"{/if}>{$bucket->name}{if $t_or_c=='c' && $ticket->bucket_id==$bucket->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
+										{/foreach}
+										</optgroup>
+									{/if}
+								{/foreach}
+							</select><br>
+							<br>
+							{/if}
+							
+							<b>{'display.reply.next.owner'|devblocks_translate}</b><br>
+							<select name="owner_id">
+								<option value="">-- {'common.nobody'|devblocks_translate|lower} --</option>
+								{foreach from=$workers item=owner key=owner_id}
+								<option value="{$owner_id}" {if !empty($draft) && $draft->params.owner_id==$owner_id}selected="selected"{elseif $ticket->owner_id==$owner_id}selected="selected"{/if}>{$owner->getName()}</option>
+								{/foreach}
+							</select>
+							<button type="button" onclick="$(this).prev('select[name=owner_id]').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
+							<button type="button" onclick="$(this).prevAll('select[name=owner_id]').first().val('');">{'common.nobody'|devblocks_translate|lower}</button>
+							<br>
+							<br>
 						</td>
 					</tr>
 				</table>
@@ -264,12 +264,12 @@
 	<tr>
 		<td>
 			<button type="button" class="send split-left" onclick="$(this).closest('td').find('ul li:first a').click();"><span class="cerb-sprite2 sprite-tick-circle"></span> {if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.send_message')}{/if}</button><!--
-      		--><button type="button" class="split-right" onclick="$(this).next('ul').toggle();"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
-      		<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
-      			<li><a href="javascript:;" class="send" onclick="if($('#reply{$message->id}_part1').validate().form()) { if(null != draftAutoSaveInterval) { clearTimeout(draftAutoSaveInterval); draftAutoSaveInterval = null; } $frm = $(this).closest('form'); $frm.find('input:hidden[name=reply_mode]').val(''); $(this).closest('td').hide(); $frm.submit(); }">{if $is_forward}{$translate->_('display.ui.forward')}{else}{$translate->_('display.ui.send_message')}{/if}</a></li>
-      			<li><a href="javascript:;" class="save" onclick="if($('#reply{$message->id}_part1').validate().form()) { if(null != draftAutoSaveInterval) { clearTimeout(draftAutoSaveInterval); draftAutoSaveInterval = null; } $frm = $(this).closest('form'); $frm.find('input:hidden[name=reply_mode]').val('save'); $(this).closest('td').hide(); $frm.submit(); }">{'display.ui.save_nosend'|devblocks_translate}</a></li>
-      			<li><a href="javascript:;" class="draft" onclick="if($('#reply{$message->id}_part1').validate().form()) { if(null != draftAutoSaveInterval) { clearTimeout(draftAutoSaveInterval); draftAutoSaveInterval = null; } $frm = $(this).closest('form'); $frm.find('input:hidden[name=a]').val('saveDraftReply'); $(this).closest('td').hide(); $frm.submit(); } ">{$translate->_('display.ui.continue_later')}</a></li>
-      		</ul>
+			--><button type="button" class="split-right" onclick="$(this).next('ul').toggle();"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
+			<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
+				<li><a href="javascript:;" class="send" onclick="if($('#reply{$message->id}_part1').validate().form()) { if(null != draftAutoSaveInterval) { clearTimeout(draftAutoSaveInterval); draftAutoSaveInterval = null; } $frm = $(this).closest('form'); $frm.find('input:hidden[name=reply_mode]').val(''); $(this).closest('td').hide(); $frm.submit(); }">{if $is_forward}{$translate->_('display.ui.forward')}{else}{$translate->_('display.ui.send_message')}{/if}</a></li>
+				<li><a href="javascript:;" class="save" onclick="if($('#reply{$message->id}_part1').validate().form()) { if(null != draftAutoSaveInterval) { clearTimeout(draftAutoSaveInterval); draftAutoSaveInterval = null; } $frm = $(this).closest('form'); $frm.find('input:hidden[name=reply_mode]').val('save'); $(this).closest('td').hide(); $frm.submit(); }">{'display.ui.save_nosend'|devblocks_translate}</a></li>
+				<li><a href="javascript:;" class="draft" onclick="if($('#reply{$message->id}_part1').validate().form()) { if(null != draftAutoSaveInterval) { clearTimeout(draftAutoSaveInterval); draftAutoSaveInterval = null; } $frm = $(this).closest('form'); $frm.find('input:hidden[name=a]').val('saveDraftReply'); $(this).closest('td').hide(); $frm.submit(); } ">{$translate->_('display.ui.continue_later')}</a></li>
+			</ul>
 			<button type="button" class="discard" onclick="window.onbeforeunload=null;if(confirm('Are you sure you want to discard this reply?')) { if(null != draftAutoSaveInterval) { clearTimeout(draftAutoSaveInterval); draftAutoSaveInterval = null; } $frm = $(this).closest('form'); genericAjaxGet('', 'c=mail&a=handleSectionAction&section=drafts&action=deleteDraft&draft_id='+escape($frm.find('input:hidden[name=draft_id]').val()), function(o) { $frm = $('#reply{$message->id}_part2'); $('#draft'+escape($frm.find('input:hidden[name=draft_id]').val())).remove(); $('#reply{$message->id}').html('');  } ); }"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('display.ui.discard')|capitalize}</button>
 		</td>
 	</tr>
@@ -364,7 +364,7 @@
 				genericAjaxGet('',url,function(txt) {
 					// If the content has placeholders, use that popup instead
 					if(txt.match(/\(__(.*?)__\)/)) {
-						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&text=' + encodeURIComponent(txt),null,true,'600');
+						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&text=' + encodeURIComponent(txt),null,false,'600');
 					
 						$popup_paste.bind('snippet_paste', function(event) {
 							if(null == event.text)
