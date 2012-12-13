@@ -73,7 +73,7 @@
 					<fieldset style="display:inline-block;">
 						<legend>Actions</legend>
 						
-						<button id="btnComposeSaveDraft" class="toolbar-item" type="button" onclick="genericAjaxPost('frmComposePeek',null,'c=mail&a=handleSectionAction&section=drafts&action=saveDraft&type=compose',function(json) { var obj = $.parseJSON(json); if(!obj || !obj.html || !obj.draft_id) return; $('#divDraftStatus').html(obj.html); $('#frmComposePeek input[name=draft_id]').val(obj.draft_id); } );"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
+						<button id="btnComposeSaveDraft" class="toolbar-item" type="button"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
 						<button id="btnComposeInsertSig" class="toolbar-item" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if} onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+$(this.form.group_id).val()+'&bucket_id='+$(this.form.bucket_id).val(),function(text) { insertAtCursor(document.getElementById('divComposeContent'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
 					</fieldset>
 				
@@ -185,6 +185,9 @@
 </form>
 
 <script type="text/javascript">
+	if(draftComposeAutoSaveInterval == undefined)
+		var draftComposeAutoSaveInterval = null;
+
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
 		$(this).dialog('option','title','{'mail.send_mail'|devblocks_translate|capitalize}');
@@ -302,6 +305,48 @@
 			});
 		});
 		
+		// Drafts
+		
+		$('#btnComposeSaveDraft').click(function(e) {
+			var $this = $(this);
+			
+			if(!$this.is(':visible')) {
+				clearTimeout(draftComposeAutoSaveInterval);
+				draftComposeAutoSaveInterval = null;
+				return;
+			}
+			
+			if($this.attr('disabled'))
+				return;
+			
+			$this.attr('disabled','disabled');
+			
+			genericAjaxPost(
+				'frmComposePeek',
+				null,
+				'c=mail&a=handleSectionAction&section=drafts&action=saveDraft&type=compose',
+				function(json) { 
+					var obj = $.parseJSON(json);
+					
+					if(!obj || !obj.html || !obj.draft_id)
+						return;
+				
+					$('#divDraftStatus').html(obj.html);
+					
+					$('#frmComposePeek input[name=draft_id]').val(obj.draft_id);
+					
+					$('#btnComposeSaveDraft').removeAttr('disabled');
+				}
+			);
+		});
+		
+		if(null != draftComposeAutoSaveInterval) {
+			clearTimeout(draftComposeAutoSaveInterval);
+			draftComposeAutoSaveInterval = null;
+		}
+		
+		draftComposeAutoSaveInterval = setInterval("$('#btnComposeSaveDraft').click();", 30000); // and every 30 sec
+		
 		// Snippet chooser shortcut
 		
 		$frm.find('input:text.context-snippet').autocomplete({
@@ -390,12 +435,13 @@
 			$input = $frm.find('input#emailinput');
 			
 			if($frm.validate().form()) {
+				if(null != draftComposeAutoSaveInterval) { 
+					clearTimeout(draftComposeAutoSaveInterval);
+					draftComposeAutoSaveInterval = null;
+				}
+				
 				genericAjaxPopupPostCloseReloadView(null,'frmComposePeek','{$view_id}',false,'compose_save');
-			} else {
 			}
-			
 		});
-		
-		//setInterval("$('#btnComposeSaveDraft').click();", 30000);
 	});
 </script>
