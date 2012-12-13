@@ -196,6 +196,8 @@
 			ajax.chooserFile(this,'file_ids');
 		});
 		
+		$frm.find('textarea').elastic();
+		
 		$frm.validate();
 		
 		$frm.find('select[name=group_or_bucket_id]').change(function(e) {

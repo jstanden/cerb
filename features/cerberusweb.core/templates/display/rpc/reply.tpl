@@ -10,7 +10,7 @@
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
 				{if isset($groups.{$ticket->group_id})}
 				<tr>
-					<td width="1%" nowrap="nowrap" valign="top">{$translate->_('message.header.from')|capitalize}: </td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{$translate->_('message.header.from')|capitalize}:</b>&nbsp;</td>
 					<td width="99%" align="left">
 						{$groups.{$ticket->group_id}->name}
 					</td>
@@ -18,7 +18,7 @@
 				{/if}
 				
 				<tr>
-					<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('message.header.to')|capitalize}:</b> </td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{$translate->_('message.header.to')|capitalize}:</b>&nbsp;</td>
 					<td width="99%" align="left">
 						<input type="text" size="45" name="to" value="{if !empty($draft)}{$draft->params.to}{else}{if $is_forward}{else}{foreach from=$requesters item=req_addy name=reqs}{$fullname=$req_addy->getName()}{if !empty($fullname)}{$fullname} &lt;{$req_addy->email}&gt;{else}{$req_addy->email}{/if}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}" placeholder="{if $is_forward}These recipients will receive this forwarded message{else}These recipients will automatically be included in all future correspondence{/if}" class="required" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
 						{if !$is_forward}
@@ -38,21 +38,21 @@
 				</tr>
 				
 				<tr>
-					<td width="1%" nowrap="nowrap" valign="top">{$translate->_('message.header.cc')|capitalize}: </td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle">{$translate->_('message.header.cc')|capitalize}:&nbsp;</td>
 					<td width="99%" align="left">
 						<input type="text" size="45" name="cc" value="{$draft->params.cc}" placeholder="These recipients will publicly receive a one-time copy of this message" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
 					</td>
 				</tr>
 
 				<tr>
-					<td width="1%" nowrap="nowrap" valign="top">{$translate->_('message.header.bcc')|capitalize}: </td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle">{$translate->_('message.header.bcc')|capitalize}:&nbsp;</td>
 					<td width="99%" align="left">
 						<input type="text" size="45" name="bcc" value="{$draft->params.bcc}" placeholder="These recipients will secretly receive a one-time copy of this message" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">					
 					</td>
 				</tr>
 				
 				<tr>
-					<td width="1%" nowrap="nowrap" valign="top">{$translate->_('message.header.subject')|capitalize}: </td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{$translate->_('message.header.subject')|capitalize}:</b>&nbsp;</td>
 					<td width="99%" align="left">
 						<input type="text" size="45" name="subject" value="{if !empty($draft)}{$draft->params.subject}{else}{if $is_forward}Fwd: {/if}{$ticket->subject}{/if}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;" class="required">					
 					</td>
@@ -299,6 +299,8 @@
 		$frm.find('input:text[name=to], input:text[name=cc], input:text[name=bcc]').focus(function(event) {
 			$('#reply{$message->id}_suggested').appendTo($(this).closest('td'));
 		});
+		
+		$('#reply_{$message->id}').elastic();
 		
 		// Insert suggested on click
 		$('#reply{$message->id}_suggested').find('a.suggested').click(function(e) {
