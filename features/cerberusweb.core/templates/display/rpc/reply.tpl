@@ -114,6 +114,8 @@
 <input type="hidden" name="bcc" value="{$draft->params.bcc}">
 <input type="hidden" name="subject" value="{if !empty($draft)}{$draft->params.subject}{else}{if $is_forward}Fwd: {/if}{$ticket->subject}{/if}">
 
+{$message_content = $message->getContent()}
+
 {if $is_forward}
 <textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
 {if !empty($draft)}{$draft->body}{else}
@@ -129,7 +131,7 @@
 {if isset($headers.date)}{$translate->_('message.header.date')|capitalize}: {$headers.date|cat:"\n"}{/if}
 {if isset($headers.to)}{$translate->_('message.header.to')|capitalize}: {$headers.to|cat:"\n"}{/if}
 
-{$message->getContent()|trim}
+{$message_content|trim}
 {/if}
 </textarea>
 {else}
@@ -143,7 +145,7 @@
 
 {/if}
 {/if}{if $is_quoted}{$quote_sender=$message->getSender()}{$quote_sender_personal=$quote_sender->getName()}{if !empty($quote_sender_personal)}{$reply_personal=$quote_sender_personal}{else}{$reply_personal=$quote_sender->email}{/if}{$reply_date=$message->created_date|devblocks_date:'D, d M Y'}{'display.reply.reply_banner'|devblocks_translate:$reply_date:$reply_personal}
-{/if}{if $is_quoted}{$message->getContent()|trim|indent:1:'> '}
+{/if}{if $is_quoted}{$message_content|trim|indent:1:'> '|devblocks_email_quote}
 {/if}{if !empty($signature) && 2==$signature_pos}
 
 
@@ -300,7 +302,7 @@
 			$('#reply{$message->id}_suggested').appendTo($(this).closest('td'));
 		});
 		
-		$('#reply_{$message->id}').elastic();
+		var $content = $('#reply_{$message->id}').elastic();
 		
 		// Insert suggested on click
 		$('#reply{$message->id}_suggested').find('a.suggested').click(function(e) {
@@ -475,15 +477,15 @@
 			.find('> li')
 			.click(function(e) {
 				$(this).closest('ul.cerb-popupmenu').hide();
-
+				
 				e.stopPropagation();
 				if(!$(e.target).is('li'))
 				return;
-
+				
 				$(this).find('a').trigger('click');
 			})
 		;
-
+		
 		// Shortcuts
 		
 		{if $pref_keyboard_shortcuts}
@@ -517,5 +519,6 @@
 		});
 		
 		{/if}
+		
 	});
 </script>
