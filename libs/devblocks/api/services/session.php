@@ -2,7 +2,7 @@
 /**
  * Session Management Singleton
  *
- * @static 
+ * @static
  * @ingroup services
  */
 class _DevblocksSessionManager {
@@ -22,10 +22,10 @@ class _DevblocksSessionManager {
 	static function getInstance() {
 		static $instance = null;
 		if(null == $instance) {
-		    $db = DevblocksPlatform::getDatabaseService();
-		    $url_writer = DevblocksPlatform::getUrlService();
-		    
-			if(is_null($db) || !$db->isConnected()) { 
+			$db = DevblocksPlatform::getDatabaseService();
+			$url_writer = DevblocksPlatform::getUrlService();
+			
+			if(is_null($db) || !$db->isConnected()) {
 				return null;
 			}
 			
@@ -43,9 +43,11 @@ class _DevblocksSessionManager {
 				array($handler, 'destroy'),
 				array($handler, 'gc')
 			);
-			
+
+			$session_lifespan = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
+
 			session_name(APP_SESSION_NAME);
-			session_set_cookie_params(0, '/', NULL, $url_writer->isSSL(), true);
+			session_set_cookie_params($session_lifespan, '/', NULL, $url_writer->isSSL(), true);
 			session_start();
 			
 			$instance = new _DevblocksSessionManager();
@@ -71,12 +73,12 @@ class _DevblocksSessionManager {
 			$scope[$key] = $value;
 		}
 		
-		return $scope; 		
+		return $scope;
 	}
 	
 	/**
 	 * Returns the current session or NULL if no session exists.
-	 * 
+	 *
 	 * @return DevblocksVisit
 	 */
 	function getVisit() {
@@ -102,7 +104,8 @@ class _DevblocksSessionManager {
 	function clear($key=null) {
 		if(is_null($key)) {
 			$this->visit = null;
-			unset($_SESSION['db_visit']);
+			setcookie('Devblocks', null, 0, '/', null);
+			session_unset();
 			session_destroy();
 		} else {
 			_DevblocksSessionDatabaseDriver::destroy($key);

@@ -61,7 +61,7 @@ class PageSection_SetupLicense extends Extension_PageSection {
 				
 				/*
 				 * [IMPORTANT -- Yes, this is simply a line in the sand.]
-				 * You're welcome to modify the code to meet your needs, but please respect 
+				 * You're welcome to modify the code to meet your needs, but please respect
 				 * our licensing.  Buy a legitimate copy to help support the project!
 				 * http://www.cerberusweb.com/
 				 */

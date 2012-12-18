@@ -3,7 +3,7 @@
 <ul>
 	<li><a href="#orgPeekProps">{'common.properties'|devblocks_translate|capitalize}</a></li>
 	{if !empty($contact)}
-		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeople&org={$contact->id}{/devblocks_url}">{'addy_book.org.tabs.people'|devblocks_translate:$counts.people}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeople&org={$contact->id}{/devblocks_url}">{'addy_book.org.tabs.people'|devblocks_translate} <div class="tab-badge">{$counts.people}</div></a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={CerberusContexts::CONTEXT_ORG}&id={$contact->id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
 	{/if}
 </ul>

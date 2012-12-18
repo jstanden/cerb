@@ -95,7 +95,7 @@ class UmScAccountController extends Extension_UmScController {
 							$tpl->assign('org_custom_field_values', array_shift($org_field_values));
 					}
 					
-					// Show fields		
+					// Show fields
 					if(null != ($show_fields = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'account.fields', null))) {
 						$tpl->assign('show_fields', @json_decode($show_fields, true));
 					}
@@ -219,7 +219,7 @@ class UmScAccountController extends Extension_UmScController {
 							// Orgs
 							case 'org_name':
 								if(!empty($val))
-									$org_fields[DAO_ContactOrg::NAME] = $val; 
+									$org_fields[DAO_ContactOrg::NAME] = $val;
 								break;
 							case 'org_street':
 								$org_fields[DAO_ContactOrg::STREET] = $val;
@@ -340,7 +340,7 @@ class UmScAccountController extends Extension_UmScController {
 						DAO_SupportCenterAddressShare::setSharedWith($share_id, $share_with_ids);
 						
 					// Delete omitted rows
-					DAO_SupportCenterAddressShare::deleteWhereNotIn($share_id, $share_with_ids);					
+					DAO_SupportCenterAddressShare::deleteWhereNotIn($share_id, $share_with_ids);
 				}
 			}
 
@@ -509,8 +509,8 @@ class UmScAccountController extends Extension_UmScController {
 				throw new Exception("Your confirmation code is invalid.");
 				
 			// Compare email addy
-			if(!isset($code->meta['email'])  
-				|| null == ($address = DAO_Address::lookupAddress($code->meta['email'], true)) 
+			if(!isset($code->meta['email'])
+				|| null == ($address = DAO_Address::lookupAddress($code->meta['email'], true))
 				|| 0 != strcasecmp($code->meta['email'],$email)
 				|| 0 != strcasecmp($address->email,$email)
 				)
@@ -658,18 +658,18 @@ class UmScAccountController extends Extension_UmScController {
 	}
 	
 	function saveConfiguration(Model_CommunityTool $instance) {
-        @$aFields = DevblocksPlatform::importGPC($_POST['fields'],'array',array());
-        @$aFieldsVisible = DevblocksPlatform::importGPC($_POST['fields_visible'],'array',array());
+		@$aFields = DevblocksPlatform::importGPC($_POST['fields'],'array',array());
+		@$aFieldsVisible = DevblocksPlatform::importGPC($_POST['fields_visible'],'array',array());
 
-        $fields = array();
-        
-        if(is_array($aFields))
-        foreach($aFields as $idx => $field) {
-        	$mode = $aFieldsVisible[$idx];
-        	if(!is_null($mode))
-        		$fields[$field] = intval($mode);
-        }
-        
-        DAO_CommunityToolProperty::set($instance->code, 'account.fields', json_encode($fields));
-	}	
+		$fields = array();
+		
+		if(is_array($aFields))
+		foreach($aFields as $idx => $field) {
+			$mode = $aFieldsVisible[$idx];
+			if(!is_null($mode))
+				$fields[$field] = intval($mode);
+		}
+		
+		DAO_CommunityToolProperty::set($instance->code, 'account.fields', json_encode($fields));
+	}
 };

@@ -41,7 +41,7 @@ $('#container_{$random}').find('select.chooser').change(function(e) {
 	$val = $this.val();
 	
 	if($val.length > 0) {
-		$popup = genericAjaxPopup('chooser','c=internal&a=chooserOpen&context='+encodeURIComponent($val),null,true,'750');
+		$popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context='+encodeURIComponent($val),null,true,'750');
 		$popup.one('popup_close',function(event) {
 			event.stopPropagation();
 			$container = $('#container_{$random}');

@@ -46,7 +46,7 @@ var DevblocksClass = function() {
 	}
 	
 	this.showError = function(target, message, animate) {
-		$html = $('<div class="ui-widget"><div class="ui-state-error ui-corner-all" style="padding:0 0.5em;margin:0.5em;display:inline-block;"><p><span class="ui-icon ui-icon-alert" style="margin-right:.3em;float:left;"></span>'+message+'</p></div></div>');
+		$html = $('<div class="ui-widget"><div class="ui-state-error ui-corner-all" style="padding:0 0.5em;margin:0.5em;"><p><span class="ui-icon ui-icon-alert" style="margin-right:.3em;float:left;"></span>'+message+'</p></div></div>');
 		$status = $(target).html($html).show();
 		
 		animate = (null == animate || false != animate) ? true: false;
@@ -57,7 +57,7 @@ var DevblocksClass = function() {
 	}
 	
 	this.showSuccess = function(target, message, autohide, animate) {
-		$html = $('<div class="ui-widget"><div class="ui-state-highlight ui-corner-all" style="padding:0 0.5em;margin:0.5em;display:inline-block;"><p><span class="ui-icon ui-icon-info" style="margin-right:.3em;float:left;"></span>'+message+'</p></div></div>');
+		$html = $('<div class="ui-widget"><div class="ui-state-highlight ui-corner-all" style="padding:0 0.5em;margin:0.5em;"><p><span class="ui-icon ui-icon-info" style="margin-right:.3em;float:left;"></span>'+message+'</p></div></div>');
 		$status = $(target).html($html).show();
 		
 		animate = (null == animate || false != animate) ? true: false; 
@@ -180,7 +180,6 @@ function appendTextboxAsCsv(formName, field, oLink) {
 	txt.value = txt.value + sAppend;
 }
 
-// [TODO] Merge this into genericAjaxPopup
 var loadingPanel;
 function showLoadingPanel() {
 	if(null != loadingPanel) {
@@ -195,7 +194,7 @@ function showLoadingPanel() {
 		resizable : false,
 		modal : true,
 		width : '300px',
-		title : 'Running...'
+		title : 'Please wait...'
 	};
 
 	if(0 == $("#loadingPanel").length) {
@@ -203,7 +202,7 @@ function showLoadingPanel() {
 	}
 
 	// Set the content
-	$("#loadingPanel").html("This may take a few moments.  Please wait!");
+	$("#loadingPanel").html("This action may take a few moments.");
 	
 	// Render
 	loadingPanel = $("#loadingPanel").dialog(options);
@@ -475,6 +474,24 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 }
 
 function devblocksAjaxDateChooser(field, div, options) {
+	if(typeof field == 'object') {
+		if(field.selector)
+			var $sel_field = field;
+		else
+			var $sel_field = $(field);
+	} else {
+		var $sel_field = $(field);
+	}
+	
+	if(typeof div == 'object') {
+		if(div.selector)
+			var $sel_div = div;
+		else
+			var $sel_div = $(div);
+	} else {
+		var $sel_div = $(div);
+	}
+	
 	if(null == options)
 		options = { 
 			changeMonth: true,
@@ -484,15 +501,15 @@ function devblocksAjaxDateChooser(field, div, options) {
 	if(null == options.dateFormat)
 		options.dateFormat = 'DD, d MM yy';
 			
-	if(null == div) {
-		var chooser = $(field).datepicker(options);
+	if(null == $sel_div) {
+		var chooser = $sel_field.datepicker(options);
 		
 	} else {
 		if(null == options.onSelect)
 			options.onSelect = function(dateText, inst) {
-				$(field).val(dateText);
-				chooser.datepicker('destroy');					
+				$sel_field.val(dateText);
+				chooser.datepicker('destroy');
 			};
-		var chooser = $(div).datepicker(options);
+		var chooser = $sel_div.datepicker(options);
 	}
 }

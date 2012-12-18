@@ -21,23 +21,23 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 	static function trigger(&$properties, $message_id=null, $ticket_id=null, $group_id=null) {
 		$events = DevblocksPlatform::getEventService();
 		$events->trigger(
-	        new Model_DevblocksEvent(
-	            self::ID,
-                array(
-                    'properties' => &$properties,
-                    'message_id' => $message_id,
-                    'ticket_id' => $ticket_id,
-                    'group_id' => $group_id,
-                	'_whisper' => array(
-                		CerberusContexts::CONTEXT_GROUP => array($group_id),
-                	),
-                )
-            )
+			new Model_DevblocksEvent(
+				self::ID,
+				array(
+					'properties' => &$properties,
+					'message_id' => $message_id,
+					'ticket_id' => $ticket_id,
+					'group_id' => $group_id,
+					'_whisper' => array(
+						CerberusContexts::CONTEXT_GROUP => array($group_id),
+					),
+				)
+			)
 		);
-	} 
+	}
 	
 	/**
-	 * 
+	 *
 	 * @param array $properties
 	 * @param Model_Message $message
 	 * @param Model_Ticket $ticket
@@ -233,7 +233,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 		 */
 
 		$this->setLabels($labels);
-		$this->setValues($values);		
+		$this->setValues($values);
 	}
 	
 	function getValuesContexts($trigger) {
@@ -328,7 +328,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
-		return $conditions;		
+		return $conditions;
 	}
 	
 	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -446,7 +446,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions() {
-		$actions = 
+		$actions =
 			array(
 				'append_to_content' => array('label' =>'Append text to message content'),
 				'prepend_to_content' => array('label' =>'Prepend text to message content'),
@@ -494,7 +494,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 		
 		$tpl->clearAssign('params');
 		$tpl->clearAssign('namePrefix');
-		$tpl->clearAssign('token_labels');		
+		$tpl->clearAssign('token_labels');
 	}
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
@@ -585,7 +585,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 					if(!empty($context) && !empty($context_id))
 						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'ticket_custom', $params, $dict, $context, $context_id);
 				}
-				break;				
+				break;
 		}
 	}
 	
@@ -646,7 +646,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 					if(!empty($context) && !empty($context_id))
 						DevblocksEventHelper::runActionSetCustomField($custom_field, 'ticket_custom', $params, $dict, $context, $context_id);
 				}
-				break;				
+				break;
 		}
 	}
 };

@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" onsubmit="pwsMatch=(this.change_pass.value==this.change_pass_verify.value);if(!pwsMatch)document.getElementById('preferences_error').innerHTML='The passwords entered do not match.  Try again.';return pwsMatch;" method="post">
+<form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="preferences">
 <input type="hidden" name="a" value="saveDefaults">
 
@@ -100,23 +100,6 @@
 			</div>
 		</li>
 	</ul>
-</fieldset>
-
-<fieldset class="peek">
-	<legend>{$translate->_('preferences.account.password.change')|capitalize}</legend>
-
-	<table cellspacing="1" cellpadding="0" border="0">
-		<tr>
-			<td>{$translate->_('preferences.account.password.new')|capitalize}</td>
-			<td><input type="password" name="change_pass" value=""></td>
-		</tr>
-		<tr>
-			<td>{$translate->_('preferences.account.password.verify')|capitalize}</td>
-			<td><input type="password" name="change_pass_verify"=""></td>
-		</tr>
-	</table>
-
-	<div id="preferences_error" style="color:red;font-weight:bold;"></div>
 </fieldset>
 
 <button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>

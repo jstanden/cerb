@@ -70,7 +70,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 		DAO_ContactOrg::delete($id);
 
 		$result = array('id' => $id);
-		$this->success($result);		
+		$this->success($result);
 	}
 	
 	function getId($id) {
@@ -88,7 +88,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 			$this->success($container['results'][$id]);
 
 		// Error
-		$this->error(self::ERRNO_CUSTOM, sprintf("Invalid org id '%d'", $id));		
+		$this->error(self::ERRNO_CUSTOM, sprintf("Invalid org id '%d'", $id));
 	}
 	
 	function translateToken($token, $type='dao') {
@@ -117,7 +117,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 				'country' => SearchFields_ContactOrg::COUNTRY,
 				'phone' => SearchFields_ContactOrg::PHONE,
 				'website' => SearchFields_ContactOrg::WEBSITE,
-				'created' => SearchFields_ContactOrg::CREATED,			
+				'created' => SearchFields_ContactOrg::CREATED,
 			);
 		}
 		
@@ -125,7 +125,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 			return $tokens[$token];
 		
 		return NULL;
-	}	
+	}
 	
 	function getContext($id) {
 		$labels = array();
@@ -169,8 +169,8 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 			'results' => $objects,
 		);
 		
-		return $container;		
-	}	
+		return $container;
+	}
 	
 	function postSearch() {
 		$worker = $this->getActiveWorker();
@@ -292,7 +292,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 		
 		// Check required fields
 		$reqfields = array(
-			DAO_ContactOrg::NAME, 
+			DAO_ContactOrg::NAME,
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
 		
@@ -305,7 +305,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 			
 			$this->getId($id);
 		}
-	}	
+	}
 
 	private function postNote($id) {
 		$worker = $this->getActiveWorker();
@@ -337,5 +337,5 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 			'org_id' => $org->id,
 			'note_id' => $note_id,
 		));
-	}	
+	}
 };

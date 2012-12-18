@@ -74,7 +74,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 		DAO_KbArticle::delete($id);
 
 		$result = array('id' => $id);
-		$this->success($result);		
+		$this->success($result);
 	}
 	
 	private function getId($id) {
@@ -114,6 +114,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 				'id' => SearchFields_KbArticle::ID,
 				'format' => SearchFields_KbArticle::FORMAT,
 				'title' => SearchFields_KbArticle::TITLE,
+				'topic_id' => SearchFields_KbArticle::TOP_CATEGORY_ID,
 				'updated' => SearchFields_KbArticle::UPDATED,
 				'views' => SearchFields_KbArticle::VIEWS,
 			);
@@ -123,7 +124,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 			return $tokens[$token];
 		
 		return NULL;
-	}	
+	}
 	
 	function getContext($id) {
 		$labels = array();
@@ -169,7 +170,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 			'results' => $objects,
 		);
 		
-		return $container;		
+		return $container;
 	}
 	
 	function postSearch() {
@@ -217,12 +218,6 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 			
 			// Sanitize
 			$value = DevblocksPlatform::importVar($value, $type);
-						
-//			switch($field) {
-//				case DAO_Worker::PASSWORD:
-//					$value = md5($value);
-//					break;
-//			}
 			
 			$fields[$field] = $value;
 		}
@@ -235,10 +230,6 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 		if(is_array($customfields))
 			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_KB_ARTICLE, $id, $customfields, true, true, true);
 		
-		// Check required fields
-//		$reqfields = array(DAO_Address::EMAIL);
-//		$this->_handleRequiredFields($reqfields, $fields);
-
 		// Update
 		DAO_KbArticle::update($id, $fields);
 		
@@ -281,12 +272,6 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 			// Sanitize
 			$value = DevblocksPlatform::importVar($value, $type);
 			
-//			switch($field) {
-//				case DAO_Worker::PASSWORD:
-//					$value = md5($value);
-//					break;
-//			}
-			
 			$fields[$field] = $value;
 		}
 
@@ -298,8 +283,8 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 			
 		// Check required fields
 		$reqfields = array(
-			DAO_KbArticle::TITLE, 
-			DAO_KbArticle::CONTENT, 
+			DAO_KbArticle::TITLE,
+			DAO_KbArticle::CONTENT,
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
 		
@@ -318,5 +303,5 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 				
 			$this->getId($id);
 		}
-	}	
+	}
 };

@@ -16,31 +16,31 @@
 ***********************************************************************/
 /*
  * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
- * 
- * Sure, it would be so easy to just cheat and edit this file to use the 
- * software without paying for it.  But we trust you anyway.  In fact, we're 
- * writing this software for you! 
- * 
- * Quality software backed by a dedicated team takes money to develop.  We 
- * don't want to be out of the office bagging groceries when you call up 
- * needing a helping hand.  We'd rather spend our free time coding your 
- * feature requests than mowing the neighbors' lawns for rent money. 
- * 
- * We've never believed in hiding our source code out of paranoia over not 
- * getting paid.  We want you to have the full source code and be able to 
- * make the tweaks your organization requires to get more done -- despite 
- * having less of everything than you might need (time, people, money, 
+ *
+ * Sure, it would be so easy to just cheat and edit this file to use the
+ * software without paying for it.  But we trust you anyway.  In fact, we're
+ * writing this software for you!
+ *
+ * Quality software backed by a dedicated team takes money to develop.  We
+ * don't want to be out of the office bagging groceries when you call up
+ * needing a helping hand.  We'd rather spend our free time coding your
+ * feature requests than mowing the neighbors' lawns for rent money.
+ *
+ * We've never believed in hiding our source code out of paranoia over not
+ * getting paid.  We want you to have the full source code and be able to
+ * make the tweaks your organization requires to get more done -- despite
+ * having less of everything than you might need (time, people, money,
  * energy).  We shouldn't be your bottleneck.
- * 
- * We've been building our expertise with this project since January 2002.  We 
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to 
- * let us take over your shared e-mail headache is a worthwhile investment.  
- * It will give you a sense of control over your inbox that you probably 
- * haven't had since spammers found you in a game of 'E-mail Battleship'. 
+ *
+ * We've been building our expertise with this project since January 2002.  We
+ * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to
+ * let us take over your shared e-mail headache is a worthwhile investment.
+ * It will give you a sense of control over your inbox that you probably
+ * haven't had since spammers found you in a game of 'E-mail Battleship'.
  * Miss. Miss. You sunk my inbox!
- * 
- * A legitimate license entitles you to support from the developers,  
- * and the warm fuzzy feeling of feeding a couple of obsessed developers 
+ *
+ * A legitimate license entitles you to support from the developers,
+ * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
  * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
@@ -74,7 +74,7 @@ endif;
 
 if (class_exists('Extension_ReplyToolbarItem',true)):
 	class ChTimeTrackingReplyToolbarTimer extends Extension_ReplyToolbarItem {
-		function render(Model_Message $message) { 
+		function render(Model_Message $message) {
 			$tpl = DevblocksPlatform::getTemplateService();
 			
 			$tpl->assign('message', $message); /* @var $message Model_Message */
@@ -85,24 +85,24 @@ if (class_exists('Extension_ReplyToolbarItem',true)):
 endif;
 
 class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
-    /**
-     * @param Model_DevblocksEvent $event
-     */
-    function handleEvent(Model_DevblocksEvent $event) {
-        switch($event->id) {
-            case 'cron.maint':
-				//DAO_TimeTrackingActivity::maint();            	
-				DAO_TimeTrackingEntry::maint();            	
-            	break;
-            	
-            case 'ticket.action.merge':
-            	$new_ticket_id = $event->params['new_ticket_id'];
-            	$old_ticket_ids = $event->params['old_ticket_ids'];
-            	
-            	// [TODO]
-            	break;
-        }
-    }
+	/**
+	 * @param Model_DevblocksEvent $event
+	 */
+	function handleEvent(Model_DevblocksEvent $event) {
+		switch($event->id) {
+			case 'cron.maint':
+				//DAO_TimeTrackingActivity::maint();
+				DAO_TimeTrackingEntry::maint();
+				break;
+				
+			case 'ticket.action.merge':
+				$new_ticket_id = $event->params['new_ticket_id'];
+				$old_ticket_ids = $event->params['old_ticket_ids'];
+				
+				// [TODO]
+				break;
+		}
+	}
 };
 
 class ChTimeTrackingPage extends CerberusPageExtension {
@@ -114,18 +114,18 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 	}
 	
 	function render() {
-	}	
+	}
 	
 	/**
 	 * @return Model_Activity
 	 */
 	public function getActivity() {
-        return new Model_Activity('activity.default');
+		return new Model_Activity('activity.default');
 	}
 	
 	private function _startTimer() {
 		if(!isset($_SESSION['timetracking_started'])) {
-			$_SESSION['timetracking_started'] = time();	
+			$_SESSION['timetracking_started'] = time();
 		}
 	}
 	
@@ -356,7 +356,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TIMETRACKING,
 				DAO_Comment::CONTEXT_ID => $id,
 				DAO_Comment::CREATED => time(),
-			);		
+			);
 			$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
 		}
 	}
@@ -383,7 +383,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->render();
 		
-		exit;		
+		exit;
 	}
 	
 	function viewTimeExploreAction() {
@@ -393,7 +393,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		$url_writer = DevblocksPlatform::getUrlService();
 		
 		// Generate hash
-		$hash = md5($view_id.$active_worker->id.time()); 
+		$hash = md5($view_id.$active_worker->id.time());
 		
 		// Loop through view and get IDs
 		$view = C4_AbstractViewLoader::getView($view_id);
@@ -427,7 +427,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=time_entry', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
-				$models[] = $model; 
+				$models[] = $model;
 				
 				$view->renderTotal = false; // speed up subsequent pages
 			}
@@ -444,7 +444,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 					'id' => $row[SearchFields_TimeTrackingEntry::ID],
 					'url' => $url_writer->writeNoProxy(sprintf("c=profiles&type=time_tracking&id=%d", $row[SearchFields_TimeTrackingEntry::ID]), true),
 				);
-				$models[] = $model; 
+				$models[] = $model;
 			}
 			
 			DAO_ExplorerSet::createFromModels($models);
@@ -454,7 +454,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		} while(!empty($results));
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
-	} 
+	}
 	
 	function clearEntryAction() {
 		$this->_destroyTimer();
@@ -469,15 +469,15 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
-	    if(!empty($id_csv)) {
-	        $ids = DevblocksPlatform::parseCsvString($id_csv);
-	        $tpl->assign('ids', implode(',', $ids));
-	    }
+		if(!empty($id_csv)) {
+			$ids = DevblocksPlatform::parseCsvString($id_csv);
+			$tpl->assign('ids', implode(',', $ids));
+		}
 		
-	    // Activities
-	    $activities = DAO_TimeTrackingActivity::getWhere();
-	    $tpl->assign('activities', $activities);
-	    
+		// Activities
+		$activities = DAO_TimeTrackingActivity::getWhere();
+		$tpl->assign('activities', $activities);
+		
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TIMETRACKING);
 		$tpl->assign('custom_fields', $custom_fields);
@@ -493,10 +493,10 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		@set_time_limit(600); // 10m
 		
 		// Filter: whole list or check
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-	    $ids = array();
-	    
-	    // View
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		$ids = array();
+		
+		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
@@ -546,7 +546,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 			case 'sample':
@@ -612,7 +612,7 @@ class ChTimeTracking_SetupPageSection extends Extension_PageSection {
 		}
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','timetracking')));
-		exit;		
+		exit;
 	}
 	
 	function getActivityAction() {

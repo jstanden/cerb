@@ -29,7 +29,7 @@ class ChRest_CustomFields extends Extension_RestController implements IExtension
 			default:
 				if(null != ($contexts = DevblocksPlatform::getExtensions('devblocks.context'))) {
 					if(!isset($contexts[$context])) {
-						$this->error(self::ERRNO_CUSTOM, sprintf('%s is not a valid custom field object!', $context));		
+						$this->error(self::ERRNO_CUSTOM, sprintf('%s is not a valid custom field object!', $context));
 					}
 					
 				}
@@ -77,7 +77,7 @@ class ChRest_CustomFields extends Extension_RestController implements IExtension
 	function postAction($stack) {
 		// [TODO] Expose the ability to create custom fields
 //		@$action = array_shift($stack);
-//		
+//
 //		switch($action) {
 //			case 'create':
 //				$this->postCreate();
@@ -96,7 +96,7 @@ class ChRest_CustomFields extends Extension_RestController implements IExtension
 	function translateToken($token, $type='dao') {
 		// [TODO]
 //		$tokens = array();
-//		
+//
 //		if('dao'==$type) {
 //			$tokens = array(
 //			);
@@ -104,12 +104,12 @@ class ChRest_CustomFields extends Extension_RestController implements IExtension
 //			$tokens = array(
 //			);
 //		}
-//		
+//
 //		if(isset($tokens[$token]))
 //			return $tokens[$token];
-//		
+//
 		return NULL;
-	}	
+	}
 	
 	function getContext($id) {
 		return NULL;

@@ -1,5 +1,5 @@
 <?php
-/***********************************************************************
+/************************************************************************
  | Cerb(tm) developed by WebGroup Media, LLC.
  |-----------------------------------------------------------------------
  | All source code & content (c) Copyright 2012, WebGroup Media LLC
@@ -39,10 +39,42 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 	}
 	
 	static function update($ids, $fields) {
-		parent::_update($ids, 'worker_role', $fields);
+		if(!is_array($ids))
+			$ids = array($ids);
 		
-	    // Log the context update
-   		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_ROLE, $ids);
+		// Make a diff for the requested objects in batches
+		
+		$chunks = array_chunk($ids, 100, true);
+		while($batch_ids = array_shift($chunks)) {
+			if(empty($batch_ids))
+				continue;
+			
+			// Get state before changes
+			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
+
+			// Make changes
+			parent::_update($batch_ids, 'worker_role', $fields);
+			
+			// Send events
+			if(!empty($object_changes)) {
+				// Local events
+				//self::_processUpdateEvents($object_changes);
+				
+				// Trigger an event about the changes
+				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr->trigger(
+					new Model_DevblocksEvent(
+						'dao.role.update',
+						array(
+							'objects' => $object_changes,
+						)
+					)
+				);
+				
+				// Log the context update
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_ROLE, $batch_ids);
+			}
+		}
 		
 		// Clear cache
 		self::clearCache();
@@ -66,12 +98,12 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 						'groups' == $role->params['who'] &&
 						($in_groups = array_intersect(array_keys($memberships), $role->params['who_list'])) &&
 						!empty($in_groups)
-					) || 
+					) ||
 					(
 						// ... or this worker is on the list
 						'workers' == $role->params['who'] &&
 						in_array($worker_id, $role->params['who_list'])
-					) 
+					)
 				) {
 					$roles[$role_id] = $role;
 				}
@@ -113,13 +145,13 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 	}
 	
 	static function getAll($nocache=false) {
-	    $cache = DevblocksPlatform::getCacheService();
-	    if($nocache || null === ($roles = $cache->load(self::_CACHE_ROLES_ALL))) {
-    	    $roles = DAO_WorkerRole::getWhere();
-    	    $cache->save($roles, self::_CACHE_ROLES_ALL);
-	    }
-	    
-	    return $roles;
+		$cache = DevblocksPlatform::getCacheService();
+		if($nocache || null === ($roles = $cache->load(self::_CACHE_ROLES_ALL))) {
+			$roles = DAO_WorkerRole::getWhere();
+			$cache->save($roles, self::_CACHE_ROLES_ALL);
+		}
+		
+		return $roles;
 	}
 	
 	/**
@@ -188,16 +220,16 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 		self::clearWorkerCache();
 		
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.delete',
-                array(
-                	'context' => CerberusContexts::CONTEXT_ROLE,
-                	'context_ids' => $ids
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => CerberusContexts::CONTEXT_ROLE,
+					'context_ids' => $ids
+				)
+			)
+		);
 		
 		return true;
 	}
@@ -306,7 +338,7 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 		$who = sprintf("%d-%s",
 			$worker_role->id,
 			DevblocksPlatform::strToPermalink($worker_role->name)
-		); 
+		);
 		
 		return array(
 			'id' => $worker_role->id,
@@ -334,7 +366,7 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 		// Token labels
 		$token_labels = array(
 			'name' => $prefix.$translate->_('common.name'),
-			//'record_url' => $prefix.$translate->_('common.url.record'),			
+			//'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		if(is_array($fields))
@@ -359,7 +391,7 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 // 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=worker&id=%d-%s",$worker->id, DevblocksPlatform::strToPermalink($worker->getName())), true);
 		}
 		
-		return true;		
+		return true;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {
@@ -387,7 +419,7 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		if(empty($view_id))
@@ -417,7 +449,7 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Roles';

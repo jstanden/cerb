@@ -22,11 +22,15 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		$response = DevblocksPlatform::getHttpResponse();
 		$path = $response->path;
 
-		// Auto synchronize when viewing Config->Extensions
-        DevblocksPlatform::readPlugins();
-
-        if(DEVELOPMENT_MODE)
-        	DAO_Platform::cleanupPluginTables();
+		// When someone loads the plugin page, check for new or updated
+		//	 user-installed plugins on disk
+		if(DEVELOPMENT_MODE) {
+			DevblocksPlatform::readPlugins();
+			DAO_Platform::cleanupPluginTables();
+			
+		} else {
+			DevblocksPlatform::readPlugins(false, array('storage/plugins'));
+		}
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
@@ -124,7 +128,7 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 				break;
 		}
 		
-		try {		
+		try {
 			$plugin = DevblocksPlatform::getPlugin($plugin_id);
 			
 			if($uninstall) {
@@ -176,7 +180,7 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 							}
 						}
 							
-				        // Reload plugin translations
+						// Reload plugin translations
 						$strings_xml = APP_PATH . '/' . $plugin->dir . '/strings.xml';
 						if(file_exists($strings_xml)) {
 							DAO_Translation::importTmxFile($strings_xml);

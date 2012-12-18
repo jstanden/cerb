@@ -134,6 +134,6 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		$tpl->assign('macros', $macros);
 
 		// Template
-		$tpl->display('devblocks:cerberusweb.core::profiles/organization.tpl');		
+		$tpl->display('devblocks:cerberusweb.core::profiles/organization.tpl');
 	}
 };

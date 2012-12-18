@@ -136,17 +136,17 @@ class DAO_PluginLibrary extends C4_ORMHelper {
 		
 		// Fire event
 		/*
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.delete',
-                array(
-                	'context' => 'cerberusweb.contexts.',
-                	'context_ids' => $ids
-                )
-            )
-	    );
-	    */
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => 'cerberusweb.contexts.',
+					'context_ids' => $ids
+				)
+			)
+		);
+		*/
 		
 		return true;
 	}
@@ -158,7 +158,7 @@ class DAO_PluginLibrary extends C4_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"plugin_library.id as %s, ".
@@ -202,19 +202,19 @@ class DAO_PluginLibrary extends C4_ORMHelper {
 		);
 	}
 	
-    /**
-     * Enter description here...
-     *
-     * @param array $columns
-     * @param DevblocksSearchCriteria[] $params
-     * @param integer $limit
-     * @param integer $page
-     * @param string $sortBy
-     * @param boolean $sortAsc
-     * @param boolean $withCounts
-     * @return array
-     */
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	/**
+	 * Enter description here...
+	 *
+	 * @param array $columns
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		// Build search queries
@@ -226,7 +226,7 @@ class DAO_PluginLibrary extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -234,10 +234,10 @@ class DAO_PluginLibrary extends C4_ORMHelper {
 			$sort_sql;
 			
 		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		} else {
-		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-            $total = mysql_num_rows($rs);
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$total = mysql_num_rows($rs);
 		}
 		
 		$results = array();
@@ -254,7 +254,7 @@ class DAO_PluginLibrary extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT plugin_library.id) " : "SELECT COUNT(plugin_library.id) ").
 				$join_sql.
 				$where_sql;
@@ -302,7 +302,7 @@ class SearchFields_PluginLibrary implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 
@@ -344,7 +344,7 @@ class Model_PluginLibrary {
 		}
 		
 		// Check PHP extensions
-		if(isset($requirements['php_extensions'])) 
+		if(isset($requirements['php_extensions']))
 		foreach($requirements['php_extensions'] as $php_extension) {
 			if(!extension_loaded($php_extension))
 				$requirements_errors[] = sprintf("The '%s' PHP extension is required", $php_extension);
@@ -357,7 +357,7 @@ class Model_PluginLibrary {
 				if(!isset($plugins[$dependency])) {
 					$requirements_errors[] = sprintf("The '%s' plugin is required", $dependency);
 				} else if(!$plugins[$dependency]->enabled) {
-					$dependency_name = isset($plugins[$dependency]) ? $plugins[$dependency]->name : $dependency; 
+					$dependency_name = isset($plugins[$dependency]) ? $plugins[$dependency]->name : $dependency;
 					$requirements_errors[] = sprintf("The '%s' (%s) plugin must be enabled first", $dependency_name, $dependency);
 				}
 			}
@@ -366,7 +366,7 @@ class Model_PluginLibrary {
 		// Status
 		
 		return $requirements_errors;
-	}	
+	}
 };
 
 class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtotals {
@@ -456,7 +456,7 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 		}
 		
 		return $counts;
-	}	
+	}
 	
 	function render() {
 		$this->_sanitize();
@@ -466,7 +466,7 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 		$tpl->assign('view', $this);
 
 		$plugins = DevblocksPlatform::getPluginRegistry();
-		$tpl->assign('plugins', $plugins);		
+		$tpl->assign('plugins', $plugins);
 		
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::configuration/section/plugin_library/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -609,5 +609,5 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 		}
 
 		unset($ids);
-	}			
+	}
 };

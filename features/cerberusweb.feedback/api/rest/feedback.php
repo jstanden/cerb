@@ -106,7 +106,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 			return $tokens[$token];
 		
 		return NULL;
-	}		
+	}
 	
 	function getContext($id) {
 		$labels = array();
@@ -192,8 +192,8 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 			'results' => $objects,
 		);
 		
-		return $container;		
-	}	
+		return $container;
+	}
 	
 	function postSearch() {
 		$worker = $this->getActiveWorker();
@@ -205,7 +205,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 		$container = $this->_handlePostSearch();
 		
 		$this->success($container);
-	}	
+	}
 	
 	function putId($id) {
 		$worker = $this->getActiveWorker();
@@ -350,7 +350,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 							$value = 2;
 							break;
 					}
-					break;					
+					break;
 			}
 			
 			if(null == ($field = self::translateToken($postfield, 'dao'))) {
@@ -372,8 +372,8 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 		
 		// Check required fields
 		$reqfields = array(
-			DAO_FeedbackEntry::QUOTE_TEXT, 
-			DAO_FeedbackEntry::QUOTE_ADDRESS_ID, 
+			DAO_FeedbackEntry::QUOTE_TEXT,
+			DAO_FeedbackEntry::QUOTE_ADDRESS_ID,
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
 		
@@ -386,5 +386,5 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 			
 			$this->getId($id);
 		}
-	}	
+	}
 };

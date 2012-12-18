@@ -122,7 +122,7 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 
 		$view_class = $context_ext->getViewClass();
 		
-		if(null == ($view = new $view_class())) { /* @var $view C4_AbstractView */ 
+		if(null == ($view = new $view_class())) { /* @var $view C4_AbstractView */
 			echo json_encode(false);
 			return;
 		}
@@ -161,6 +161,20 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 			
 			// [TODO] Kill cache on dashboard
 		}
+	}
+	
+	function getWidgetDatasourceConfigAction() {
+		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'], 'string', '');
+		@$params_prefix = DevblocksPlatform::importGPC($_REQUEST['params_prefix'], 'string', null);
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'], 'string', '');
+
+		if(null == ($widget = DAO_WorkspaceWidget::get($widget_id)))
+			return;
+		
+		if(null == ($datasource_ext = Extension_WorkspaceWidgetDatasource::get($ext_id)))
+			return;
+		
+		$datasource_ext->renderConfig($widget, $widget->params, $params_prefix);
 	}
 }
 endif;
@@ -217,218 +231,21 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget {
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::getTemplateService();
 
-		switch(@$widget->params['datasource']) {
-			case 'worklist':
-				if(null == ($view_model = self::getParamsViewModel($widget, $widget->params)))
-					return;
-				
-				if(null == ($context_ext = Extension_DevblocksContext::get($widget->params['view_context'])))
-					return;
-	
-				if(null == ($dao_class = @$context_ext->manifest->params['dao_class']))
-					return;
-				
-				// Force reload parameters (we can't trust the session)
-				if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
-					return;
-				
-				C4_AbstractViewLoader::setView($view->id, $view);
-				
-				$view->renderPage = 0;
-				$view->renderLimit = 1;
-				
-				$query_parts = $dao_class::getSearchQueryComponents(
-					$view->view_columns,
-					$view->getParams(),
-					$view->renderSortBy,
-					$view->renderSortAsc
-				);
-				
-				$db = DevblocksPlatform::getDatabaseService();
-				
-				// We need to know what date fields we have
-				$fields = $view->getFields();
-				@$needle_func = $widget->params['needle_func'];
-				@$needle_field = $fields[$widget->params['needle_field']];
-						
-				if(empty($needle_func))
-					$needle_func = 'count';
-				
-				switch($needle_func) {
-					case 'sum':
-						$select_func = sprintf("SUM(%s.%s)",
-							$needle_field->db_table,
-							$needle_field->db_column
-						);
-						break;
-						
-					case 'avg':
-						$select_func = sprintf("AVG(%s.%s)",
-							$needle_field->db_table,
-							$needle_field->db_column
-						);
-						break;
-						
-					case 'min':
-						$select_func = sprintf("MIN(%s.%s)",
-							$needle_field->db_table,
-							$needle_field->db_column
-						);
-						break;
-						
-					case 'max':
-						$select_func = sprintf("MAX(%s.%s)",
-							$needle_field->db_table,
-							$needle_field->db_column
-						);
-						break;
-						
-					default:
-					case 'count':
-						$select_func = 'COUNT(*)';
-						break;
-				}						
-					
-				$sql = sprintf("SELECT %s AS needle_value " .
-					str_replace('%','%%',$query_parts['join']).
-					str_replace('%','%%',$query_parts['where']),
-					$select_func
-				);
-				
-				$needle_value = $db->GetOne($sql);
-				
-				$needle_format = 'number';
+		// Per series datasources
+		@$datasource_extid = $widget->params['datasource'];
 
-				if(isset($widget->params['needle_format']))
-					$needle_format = $widget->params['needle_format'];
-				
-				$widget->params['metric_value'] = $needle_value;
-				$widget->params['metric_type'] = $needle_format;
-				break;
-				
-			case 'sensor':
-				if(class_exists('DAO_DatacenterSensor', true)
-					&& null != ($sensor_id = @$widget->params['sensor_id'])
-					&& null != ($sensor = DAO_DatacenterSensor::get($sensor_id))
-					) {
-						switch($sensor->metric_type) {
-							case 'decimal':
-								$widget->params['metric_value'] = floatval($sensor->metric);
-								$widget->params['metric_type'] = $sensor->metric_type;
-								break;
-							case 'percent':
-								$widget->params['metric_value'] = intval($sensor->metric);
-								$widget->params['metric_type'] = $sensor->metric_type;
-								break;
-						}
-					}
-				break;
-				
-			case 'manual':
-				break;
-				
-			case 'url':
-				$cache = DevblocksPlatform::getCacheService();
-
-				@$url = $widget->params['url'];
-
-				@$cache_mins = $widget->params['url_cache_mins'];
-				$cache_mins = max(1, intval($cache_mins));
-				
-				$cache_key = sprintf("widget%d_datasource", $widget->id);
-				
-				if(null === ($data = $cache->load($cache_key))) {
-					$ch = curl_init($url);
-					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-					curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-					$raw_data = curl_exec($ch);
-					$info = curl_getinfo($ch);
-					
-					//@$status = $info['http_code'];
-					@$content_type = strtolower($info['content_type']);					
-					
-					$data = array(
-						'raw_data' => $raw_data,
-						'info' => $info,
-					);
-					
-					DAO_WorkspaceWidget::update($widget->id, array(
-						DAO_WorkspaceWidget::UPDATED_AT => time(), 
-					));
-					
-					$cache->save($data, $cache_key, array(), $cache_mins*60);
-					
-				}
-
-				$content_type = $data['info']['content_type'];
-				$raw_data = $data['raw_data'];
-				
-				if(empty($raw_data) || empty($content_type)) {
-					// [TODO] Die...
-				}
-				
-				$url_format = '';
-				
-				switch($content_type) {
-					case 'application/json':
-					case 'text/json':
-						$url_format = 'json';
-						break;
-						
-					case 'text/xml':
-						$url_format = 'xml';
-						break;
-						
-					default:
-					case 'text/plain':
-						$url_format = 'text';
-						break;
-				}
-
-				switch($url_format) {
-					case 'json':
-						if(false != (@$json = json_decode($raw_data, true))) {
-							if(isset($json['value']))
-								$widget->params['metric_value'] = floatval($json['value']);
-
-							if((isset($widget->params['metric_type']) && !empty($widget->params['metric_type'])) && isset($json['type']))
-								$widget->params['metric_type'] = $json['type'];
-
-							if((isset($widget->params['metric_prefix']) && !empty($widget->params['metric_prefix'])) && isset($json['prefix']))
-								$widget->params['metric_prefix'] = $json['prefix'];
-							
-							if((isset($widget->params['metric_suffix']) && !empty($widget->params['metric_suffix'])) && isset($json['suffix']))
-								$widget->params['metric_suffix'] = $json['suffix'];
-						}
-						break;
-						
-					case 'xml':
-						if(null != ($xml = simplexml_load_string($raw_data))) {
-							if(isset($xml->value))
-								$widget->params['metric_value'] = (float)$xml->value;
-
-							if((isset($widget->params['metric_type']) && !empty($widget->params['metric_type'])) && isset($xml->type))
-								$widget->params['metric_type'] = (string) $xml->type;
-
-							if((isset($widget->params['metric_prefix']) && !empty($widget->params['metric_prefix'])) && isset($xml->prefix))
-								$widget->params['metric_prefix'] = (string) $xml->prefix;
-							
-							if((isset($widget->params['metric_suffix']) && !empty($widget->params['metric_suffix'])) && isset($xml->suffix))
-								$widget->params['metric_suffix'] = (string) $xml->suffix;
-						}
-						break;
-						
-					default:
-					case 'text':
-						$widget->params['metric_value'] = floatval($raw_data);
-						break;
-				}
-				
-				break;
-				
-			default:
-				break;
+		if(empty($datasource_extid)) {
+			echo "This gauge doesn't have a data source. Configure it and select one.";
+			return;
 		}
+		
+		if(null == ($datasource_ext = Extension_WorkspaceWidgetDatasource::get($datasource_extid)))
+			return;
+		
+		$data = $datasource_ext->getData($widget, $widget->params);
+		
+		if(!empty($data))
+			$widget->params = $data;
 		
 		$tpl->assign('widget', $widget);
 		
@@ -447,21 +264,10 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget {
 		
 		$tpl->assign('widget', $widget);
 		
-		// Worklists
+		// Limit to widget
 		
-		$context_mfts = Extension_DevblocksContext::getAll(false, 'workspace');
-		$tpl->assign('context_mfts', $context_mfts);
-		
-		// Sensors
-		
-		if(class_exists('DAO_DatacenterSensor', true)) {
-			$sensors = DAO_DatacenterSensor::getWhere();
-			foreach($sensors as $sensor_id => $sensor) {
-				if(!in_array($sensor->metric_type, array('decimal','percent')))
-					unset($sensors[$sensor_id]);
-			}
-			$tpl->assign('sensors', $sensors);
-		}
+		$datasource_mfts = Extension_WorkspaceWidgetDatasource::getAll(false, $this->manifest->id);
+		$tpl->assign('datasource_mfts', $datasource_mfts);
 		
 		// Template
 		
@@ -469,7 +275,7 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget {
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());		
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
 		
 		if(isset($params['threshold_values']))
 		foreach($params['threshold_values'] as $idx => $val) {
@@ -507,212 +313,21 @@ class WorkspaceWidget_Counter extends Extension_WorkspaceWidget {
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::getTemplateService();
 
-		switch(@$widget->params['datasource']) {
-			case 'worklist':
-				if(null == ($view_model = self::getParamsViewModel($widget, $widget->params)))
-					return;
-				
-				if(null == ($context_ext = Extension_DevblocksContext::get($widget->params['view_context'])))
-					return;
-	
-				if(null == ($dao_class = @$context_ext->manifest->params['dao_class']))
-					return;
-				
-				// Force reload parameters (we can't trust the session)
-				if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
-					return;
-				
-				C4_AbstractViewLoader::setView($view->id, $view);
-				
-				$view->renderPage = 0;
-				$view->renderLimit = 1;
-				
-				$query_parts = $dao_class::getSearchQueryComponents(
-					$view->view_columns,
-					$view->getParams(),
-					$view->renderSortBy,
-					$view->renderSortAsc
-				);
-				
-				$db = DevblocksPlatform::getDatabaseService();
-				
-				// We need to know what date fields we have
-				$fields = $view->getFields();
-				@$counter_func = $widget->params['counter_func'];
-				@$counter_field = $fields[$widget->params['counter_field']];
-						
-				if(empty($counter_func))
-					$counter_func = 'count';
-				
-				switch($counter_func) {
-					case 'sum':
-						$select_func = sprintf("SUM(%s.%s)",
-							$counter_field->db_table,
-							$counter_field->db_column
-						);
-						break;
-						
-					case 'avg':
-						$select_func = sprintf("AVG(%s.%s)",
-							$counter_field->db_table,
-							$counter_field->db_column
-						);
-						break;
-						
-					case 'min':
-						$select_func = sprintf("MIN(%s.%s)",
-							$counter_field->db_table,
-							$counter_field->db_column
-						);
-						break;
-						
-					case 'max':
-						$select_func = sprintf("MAX(%s.%s)",
-							$counter_field->db_table,
-							$counter_field->db_column
-						);
-						break;
-						
-					default:
-					case 'count':
-						$select_func = 'COUNT(*)';
-						break;
-				}						
-					
-				$sql = sprintf("SELECT %s AS counter_value " .
-					str_replace('%','%%',$query_parts['join']).
-					str_replace('%','%%',$query_parts['where']),
-					$select_func
-				);
-				
-				$counter_value = $db->GetOne($sql);
-				
-				$widget->params['metric_value'] = $counter_value;
-				break;
-				
-			case 'sensor':
-				if(class_exists('DAO_DatacenterSensor', true)
-					&& null != ($sensor_id = @$widget->params['sensor_id'])
-					&& null != ($sensor = DAO_DatacenterSensor::get($sensor_id))
-					) {
-						switch($sensor->metric_type) {
-							case 'decimal':
-								$widget->params['metric_value'] = floatval($sensor->metric);
-								//$widget->params['metric_type'] = $sensor->metric_type;
-								break;
-							case 'percent':
-								$widget->params['metric_value'] = intval($sensor->metric);
-								//$widget->params['metric_type'] = $sensor->metric_type;
-								break;
-						}
-					}
-				break;
-				
-			case 'manual':
-				break;
-				
-			case 'url':
-				$cache = DevblocksPlatform::getCacheService();
+		// Per series datasources
+		@$datasource_extid = $widget->params['datasource'];
 
-				@$url = $widget->params['url'];
-
-				@$cache_mins = $widget->params['url_cache_mins'];
-				$cache_mins = max(1, intval($cache_mins));
-				
-				$cache_key = sprintf("widget%d_datasource", $widget->id);
-				
-				if(null === ($data = $cache->load($cache_key))) {
-					$ch = curl_init($url);
-					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-					curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-					$raw_data = curl_exec($ch);
-					$info = curl_getinfo($ch);
-					
-					//@$status = $info['http_code'];
-					@$content_type = strtolower($info['content_type']);					
-					
-					$data = array(
-						'raw_data' => $raw_data,
-						'info' => $info,
-					);
-					
-					DAO_WorkspaceWidget::update($widget->id, array(
-						DAO_WorkspaceWidget::UPDATED_AT => time(), 
-					));
-					
-					$cache->save($data, $cache_key, array(), $cache_mins*60);
-					
-				}
-
-				$content_type = $data['info']['content_type'];
-				$raw_data = $data['raw_data'];
-				
-				if(empty($raw_data) || empty($content_type)) {
-					// [TODO] Die...
-				}
-				
-				$url_format = '';
-				
-				switch($content_type) {
-					case 'application/json':
-					case 'text/json':
-						$url_format = 'json';
-						break;
-						
-					case 'text/xml':
-						$url_format = 'xml';
-						break;
-						
-					default:
-					case 'text/plain':
-						$url_format = 'text';
-						break;
-				}
-
-				switch($url_format) {
-					case 'json':
-						if(false != (@$json = json_decode($raw_data, true))) {
-							if(isset($json['value']))
-								$widget->params['metric_value'] = floatval($json['value']);
-
-							if((isset($widget->params['metric_type']) && !empty($widget->params['metric_type'])) && isset($json['type']))
-								$widget->params['metric_type'] = $json['type'];
-
-							if((isset($widget->params['metric_prefix']) && !empty($widget->params['metric_prefix'])) && isset($json['prefix']))
-								$widget->params['metric_prefix'] = $json['prefix'];
-							
-							if((isset($widget->params['metric_suffix']) && !empty($widget->params['metric_suffix'])) && isset($json['suffix']))
-								$widget->params['metric_suffix'] = $json['suffix'];
-						}
-						break;
-						
-					case 'xml':
-						if(null != ($xml = simplexml_load_string($raw_data))) {
-							if(isset($xml->value))
-								$widget->params['metric_value'] = (float)$xml->value;
-
-							if((isset($widget->params['metric_type']) && !empty($widget->params['metric_type'])) && isset($xml->type))
-								$widget->params['metric_type'] = (string) $xml->type;
-
-							if((isset($widget->params['metric_prefix']) && !empty($widget->params['metric_prefix'])) && isset($xml->prefix))
-								$widget->params['metric_prefix'] = (string) $xml->prefix;
-							
-							if((isset($widget->params['metric_suffix']) && !empty($widget->params['metric_suffix'])) && isset($xml->suffix))
-								$widget->params['metric_suffix'] = (string) $xml->suffix;
-						}
-						break;
-						
-					default:
-					case 'text':
-						$widget->params['metric_value'] = floatval($raw_data);
-						break;
-				}
-				
-				break;
-				
-			default:
-				break;
+		if(empty($datasource_extid)) {
+			echo "This counter doesn't have a data source. Configure it and select one.";
+			return;
 		}
+		
+		if(null == ($datasource_ext = Extension_WorkspaceWidgetDatasource::get($datasource_extid)))
+			return;
+		
+		$data = $datasource_ext->getData($widget, $widget->params);
+
+		if(!empty($data))
+			$widget->params = $data;
 		
 		$tpl->assign('widget', $widget);
 		
@@ -731,21 +346,10 @@ class WorkspaceWidget_Counter extends Extension_WorkspaceWidget {
 		
 		$tpl->assign('widget', $widget);
 		
-		// Worklists
+		// Limit to widget
 		
-		$context_mfts = Extension_DevblocksContext::getAll(false, 'workspace');
-		$tpl->assign('context_mfts', $context_mfts);
-		
-		// Sensors
-		
-		if(class_exists('DAO_DatacenterSensor', true)) {
-			$sensors = DAO_DatacenterSensor::getWhere();
-			foreach($sensors as $sensor_id => $sensor) {
-				if(!in_array($sensor->metric_type, array('decimal','percent')))
-					unset($sensors[$sensor_id]);
-			}
-			$tpl->assign('sensors', $sensors);
-		}
+		$datasource_mfts = Extension_WorkspaceWidgetDatasource::getAll(false, $this->manifest->id);
+		$tpl->assign('datasource_mfts', $datasource_mfts);
 		
 		// Template
 		
@@ -753,7 +357,7 @@ class WorkspaceWidget_Counter extends Extension_WorkspaceWidget {
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());		
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
@@ -769,359 +373,21 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::getTemplateService();
 
-		switch(@$widget->params['datasource']) {
-			case 'worklist':
-				foreach($widget->params['series'] as $series_idx => $series) {
-					if(null == ($view_model = self::getParamsViewModel($widget, $series)))
-						continue;
-					
-					if(null == ($context_ext = Extension_DevblocksContext::get($series['view_context'])))
-						continue;
-	
-					if(null == ($dao_class = @$context_ext->manifest->params['dao_class']))
-						continue;
-					
-					// Force reload parameters (we can't trust the session)
-					if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
-						continue;
-					
-					C4_AbstractViewLoader::setView($view->id, $view);
-					
-					$view->renderPage = 0;
-					$view->renderLimit = 30;
-					
-					//list($results, $count) = $view->getData();
-					
-					$query_parts = $dao_class::getSearchQueryComponents(
-						$view->view_columns,
-						$view->getParams(),
-						$view->renderSortBy,
-						$view->renderSortAsc
-					);
-					
-					$db = DevblocksPlatform::getDatabaseService();
-					
-					// We need to know what date fields we have
-					$fields = $view->getFields();
-					$xaxis_field = null;
-					$xaxis_field_type = null;
-					
-					switch($series['xaxis_field']) {
-						case '_id':
-							$xaxis_field = new DevblocksSearchField('_id', $query_parts['primary_table'], 'id', null, Model_CustomField::TYPE_NUMBER);
-							break;
-							
-						default:
-							@$xaxis_field = $fields[$series['xaxis_field']];
-							break;
-					}
-					
-					if(!empty($xaxis_field))
-					switch($xaxis_field->type) {
-						case Model_CustomField::TYPE_DATE:
-							// X-axis tick
-							@$xaxis_tick = $series['xaxis_tick'];
-							
-							if(empty($xaxis_tick))
-								$xaxis_tick = 'day';
-							
-							switch($xaxis_tick) {
-								case 'hour':
-									$date_format = '%Y-%m-%d %H:00';
-									$date_label = $date_format;
-									break;
-									
-								default:
-								case 'day':
-									$date_format = '%Y-%m-%d';
-									$date_label = $date_format;
-									break;
-									
-								case 'week':
-									$date_format = '%YW%U';
-									$date_label = $date_format;
-									break;
-									
-								case 'month':
-									$date_format = '%Y-%m';
-									$date_label = '%b %Y';
-									break;
-									
-								case 'year':
-									$date_format = '%Y-01-01';
-									$date_label = '%Y';
-									break;
-							}
-							
-							@$yaxis_func = $series['yaxis_func'];
-							@$yaxis_field = $fields[$series['yaxis_field']];
-							
-							if(empty($yaxis_field))
-								$yaxis_func = 'count';
-							
-							switch($yaxis_func) {
-								case 'sum':
-									$select_func = sprintf("SUM(%s.%s)",
-										$yaxis_field->db_table,
-										$yaxis_field->db_column
-									);
-									break;
-									
-								case 'avg':
-									$select_func = sprintf("AVG(%s.%s)",
-										$yaxis_field->db_table,
-										$yaxis_field->db_column
-									);
-									break;
-									
-								case 'min':
-									$select_func = sprintf("MIN(%s.%s)",
-										$yaxis_field->db_table,
-										$yaxis_field->db_column
-									);
-									break;
-									
-								case 'max':
-									$select_func = sprintf("MAX(%s.%s)",
-										$yaxis_field->db_table,
-										$yaxis_field->db_column
-									);
-									break;
-									
-								default:
-								case 'count':
-									$select_func = 'COUNT(*)';
-									break;
-							}
-							
-							$sql = sprintf("SELECT %s AS hits, DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%s') AS histo ", 
-									$select_func,
-									$xaxis_field->db_table,
-									$xaxis_field->db_column,
-									$date_format
-								).
-								str_replace('%','%%',$query_parts['join']).
-								str_replace('%','%%',$query_parts['where']).
-								sprintf("GROUP BY DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%s') ",
-									$xaxis_field->db_table,
-									$xaxis_field->db_column,
-									$date_format
-								).
-								'ORDER BY histo ASC'
-							;
-							
-							$results = $db->GetArray($sql);
-							$data = array();
+		// Per series datasources
+		if(is_array($widget->params['series']))
+		foreach($widget->params['series'] as $series_idx => $series) {
+			@$datasource_extid = $series['datasource'];
+
+			if(empty($datasource_extid))
+				continue;
 			
-							// Find the first and last date
-							@$xaxis_param = array_shift(C4_AbstractView::findParam($xaxis_field->token, $view->getParams()));
-
-							$current_tick = null;
-							$last_tick = null;
-							
-							if(!empty($xaxis_param)) {
-								if(2 == count($xaxis_param->value)) {
-									$current_tick = strtotime($xaxis_param->value[0]);
-									$last_tick = strtotime($xaxis_param->value[1]);
-								}
-							}
-							
-							$first_result = null;
-							$last_result = null;
-							
-							if(empty($current_tick) && empty($last_tick)) {
-								$last_result = end($results);
-								$first_result = reset($results);
-								$current_tick = strtotime($first_result['histo']);
-								$last_tick = strtotime($last_result['histo']);
-							}
-							
-							// Fill in time gaps from no data
-							
-// 							var_dump($current_tick, $last_tick, $xaxis_tick);
-// 							var_dump($results);
-
-							$array = array();
-							
-							foreach($results as $k => $v) {
-								$array[$v['histo']] = $v['hits'];
-							}
-							
-							$results = $array;
-							unset($array);
-							
-							// Set the first histogram bucket to the beginning of its increment
-							//   e.g. 2012-July-09 10:20 -> 2012-July-09 00:00
-							switch($xaxis_tick) {
-								case 'hour':
-								case 'day':
-								case 'month':
-								case 'year':
-									$current_tick = strtotime(strftime($date_format, $current_tick));
-									break;
-									
-								case 'week':
-									$current_tick = strtotime('Sunday', $current_tick);
-									break;
-							}
-							
-							do {
-								$histo = strftime($date_format, $current_tick);
-// 								var_dump($histo);
-								
-								$value = (isset($results[$histo])) ? $results[$histo] : 0; 
-								
-								$data[] = array(
-									'x' => $histo,
-									'y' => (float)$value,
-									'x_label' => strftime($date_label, $current_tick),
-									'y_label' => ((int) $value != $value) ? sprintf("%0.2f", $value) : sprintf("%d", $value),
-								);
-								
-								$current_tick = strtotime(sprintf('+1 %s', $xaxis_tick), $current_tick);
-								
-							} while($current_tick <= $last_tick);
-							
-							unset($results);
-							
-// 							var_dump($data);
-							
-							$widget->params['series'][$series_idx]['data'] = $data;
-							
-							unset($data);
-							
-							//$tpl->assign('data', $data);
-							
-							break;
-						
-						case Model_CustomField::TYPE_NUMBER:
-							@$yaxis_func = $series['yaxis_func'];
-							@$yaxis_field = $fields[$series['yaxis_field']];
-							
-							if(empty($yaxis_func))
-								$yaxis_func = 'count';
-							
-							switch($xaxis_field->token) {
-								case '_id':
-									$order_by = null;
-									$group_by = sprintf("GROUP BY %s.id ", str_replace('%','%%',$query_parts['primary_table']));
-									
-									if(isset($fields[$view->renderSortBy])) {
-										$order_by = sprintf("ORDER BY %s.%s %s",
-											$fields[$view->renderSortBy]->db_table,
-											$fields[$view->renderSortBy]->db_column,
-											($view->renderSortAsc) ? 'ASC' : 'DESC'
-										);
-									}
-									
-									if(empty($order_by))
-										$order_by = sprintf("ORDER BY %s.id ", str_replace('%','%%',$query_parts['primary_table']));
-									
-									break;
-								
-								default:
-									$group_by = sprintf("GROUP BY %s.%s",
-										$xaxis_field->db_table,
-										$xaxis_field->db_column
-									);
-									
-									$order_by = 'ORDER BY xaxis ASC';
-									break;
-							}
-							
-							
-							switch($yaxis_func) {
-								case 'sum':
-									$select_func = sprintf("SUM(%s.%s)",
-										$yaxis_field->db_table,
-										$yaxis_field->db_column
-									);
-									break;
-									
-								case 'avg':
-									$select_func = sprintf("AVG(%s.%s)",
-										$yaxis_field->db_table,
-										$yaxis_field->db_column
-									);
-									break;
-									
-								case 'min':
-									$select_func = sprintf("MIN(%s.%s)",
-										$yaxis_field->db_table,
-										$yaxis_field->db_column
-									);
-									break;
-									
-								case 'max':
-									$select_func = sprintf("MAX(%s.%s)",
-										$yaxis_field->db_table,
-										$yaxis_field->db_column
-									);
-									break;
-									
-								case 'value':
-									$select_func = sprintf("DISTINCT %s.%s",
-										$yaxis_field->db_table,
-										$yaxis_field->db_column
-									);
-									break;
-									
-								default:
-								case 'count':
-									$select_func = 'COUNT(*)';
-									break;
-							}							
-							
-							// Scatterplots ignore histograms
-							switch($widget->params['chart_type']) {
-								case 'scatterplot':
-									$group_by = null;
-									break;
-							}
-							
-							$sql = sprintf("SELECT %s AS yaxis, %s.%s AS xaxis " .
-								str_replace('%','%%',$query_parts['join']).
-								str_replace('%','%%',$query_parts['where']).
-								"%s ".
-								"%s ",
-									$select_func,
-									$xaxis_field->db_table,
-									$xaxis_field->db_column,
-									$group_by,
-									$order_by
-								);
-								
-							$results = $db->GetArray($sql);
-							$data = array();
-
-// 							echo $sql,"<br>\n";
-							
-							$counter = 0;
-							
-							foreach($results as $result) {
-								$x = ($series['xaxis_field'] == '_id') ? $counter++ : (float)$result['xaxis'];
-								
-								$data[] = array(
-									'x' => $x,
-									'y' => (float)$result['yaxis'],
-									'x_label' => (float)$result['xaxis'],
-									'y_label' => (float)$result['yaxis'],
-								);
-							}
-
-							unset($results);
-
-							$widget->params['series'][$series_idx]['data'] = $data;
-
-							unset($data);
-							
-							break;
-					}
-				}
-				break;
-				
-			default:
-				break;
+			if(null == ($datasource_ext = Extension_WorkspaceWidgetDatasource::get($datasource_extid)))
+				continue;
+			
+			$data = $datasource_ext->getData($widget, $series);
+			
+			if(!empty($data))
+				$widget->params['series'][$series_idx] = $data;
 		}
 		
 		$tpl->assign('widget', $widget);
@@ -1129,10 +395,6 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 		switch($widget->params['chart_type']) {
 			case 'bar':
 				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/bar_chart.tpl');
-				break;
-				
-			case 'scatterplot':
-				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/scatterplot.tpl');
 				break;
 				
 			default:
@@ -1154,10 +416,10 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 		
 		$tpl->assign('widget', $widget);
 		
-		// Worklists
+		// Datasource Extensions
 		
-		$context_mfts = Extension_DevblocksContext::getAll(false, 'workspace');
-		$tpl->assign('context_mfts', $context_mfts);
+		$datasource_mfts = Extension_WorkspaceWidgetDatasource::getAll(false, $this->manifest->id);
+		$tpl->assign('datasource_mfts', $datasource_mfts);
 		
 		// Template
 		
@@ -1165,17 +427,13 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());		
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
 		
 		foreach($params['series'] as $idx => $series) {
-			if(isset($series['view_context']) && isset($series['view_model'])) {
-				if(isset($series['line_color'])) {
-					if(false != ($rgb = $this->_hex2RGB($series['line_color']))) {
-						$params['series'][$idx]['fill_color'] = sprintf("rgba(%d,%d,%d,0.15)", $rgb['r'], $rgb['g'], $rgb['b']);
-					}
+			if(isset($series['line_color'])) {
+				if(false != ($rgb = $this->_hex2RGB($series['line_color']))) {
+					$params['series'][$idx]['fill_color'] = sprintf("rgba(%d,%d,%d,0.15)", $rgb['r'], $rgb['g'], $rgb['b']);
 				}
-			} else {
-				unset($params['series'][$idx]);
 			}
 		}
 		
@@ -1239,9 +497,67 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget {
 		}
 		
 		$counts = $view->getSubtotalCounts($view->renderSubtotals);
-		$tpl->assign('subtotal_counts', $counts);
 
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/subtotals/subtotals.tpl');
+		if(null != ($limit_to = $widget->params['limit_to'])) {
+			$counts = array_slice($counts, 0, $limit_to, true);
+		}
+		
+		switch(@$widget->params['style']) {
+			case 'pie':
+				$wedge_colors = array(
+					'#57970A',
+					'#007CBD',
+					'#7047BA',
+					'#8B0F98',
+					'#CF2C1D',
+					'#E97514',
+					'#FFA100',
+					'#3E6D07',
+					'#345C05',
+					'#005988',
+					'#004B73',
+					'#503386',
+					'#442B71',
+					'#640A6D',
+					'#55085C',
+					'#951F14',
+					'#7E1A11',
+					'#A8540E',
+					'#8E470B',
+					'#B87400',
+					'#9C6200',
+					'#CCCCCC',
+				);
+				$widget->params['wedge_colors'] = $wedge_colors;
+
+				$wedge_labels = array();
+				$wedge_values = array();
+				
+				DevblocksPlatform::sortObjects($counts, '[hits]', false);
+				
+				foreach($counts as $data) {
+					$wedge_labels[] = $data['label'];
+					$wedge_values[] = intval($data['hits']);
+				}
+
+				$widget->params['wedge_labels'] = $wedge_labels;
+				$widget->params['wedge_values'] = $wedge_values;
+				
+				$widget->params['show_legend'] = true;
+				$widget->params['metric_type'] = 'number';
+				
+				$tpl->assign('widget', $widget);
+				
+				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/pie_chart/pie_chart.tpl');
+				break;
+				
+			default:
+			case 'list':
+				$tpl->assign('subtotal_counts', $counts);
+				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/subtotals/subtotals.tpl');
+				break;
+		}
+		
 	}
 	
 	function renderConfig(Model_WorkspaceWidget $widget) {
@@ -1259,26 +575,13 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget {
 		$context_mfts = Extension_DevblocksContext::getAll(false, 'workspace');
 		$tpl->assign('context_mfts', $context_mfts);
 		
-		// Worklist
-		
-		if(
-			null != ($view_model = self::getParamsViewModel($widget, $widget->params))
-			&& false != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)) 
-		) {
-			// Mirror the worklist to the config worklist
-			$view->id = sprintf("widget%d_worklist", $widget->id);
-			$view->is_ephemeral = false;
-			
-			C4_AbstractViewLoader::setView($view->id, $view);
-		}		
-		
 		// Template
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/subtotals/config.tpl');	
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/subtotals/config.tpl');
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());		
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
 		
 		// Save the widget
 		
@@ -1290,7 +593,7 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget {
 
 class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
 	function render(Model_WorkspaceWidget $widget) {
-		if(null == ($view_model = self::getParamsViewModel($widget, $widget->params)))
+		if(null == ($view_model = Extension_WorkspaceWidget::getParamsViewModel($widget, $widget->params)))
 			return;
 		
 		// Force reload parameters (we can't trust the session)
@@ -1323,12 +626,13 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
 		$context_mfts = Extension_DevblocksContext::getAll(false, 'workspace');
 		$tpl->assign('context_mfts', $context_mfts);
 		
-		// Worklist
+		// Mirrored worklist for config (two worklists can render at once)
 		
 		if(
-			null != ($view_model = self::getParamsViewModel($widget, $widget->params))
-			&& false != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)) 
-		) {
+			null != ($view_model = Extension_WorkspaceWidget::getParamsViewModel($widget, $widget->params))
+			&& false != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model))
+			) {
+			
 			// Mirror the worklist to the config worklist
 			$view->id = sprintf("widget%d_worklist_config", $widget->id);
 			$view->is_ephemeral = true;
@@ -1338,15 +642,15 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
 		
 		// Template
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/worklist/config.tpl');	
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/worklist/config.tpl');
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());		
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
 		
 		if(
 			null != ($view_model = self::getParamsViewModel($widget, $params))
-			&& false != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)) 
+			&& false != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model))
 		) {
 			// Set the usable worklist
 			$view->id = sprintf("widget%d_worklist", $widget->id);
@@ -1359,5 +663,197 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
+	}
+};
+
+class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
+	function render(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		$tpl->assign('widget', $widget);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/custom_html/html.tpl');
+	}
+	
+	// Config
+	
+	function renderConfig(Model_WorkspaceWidget $widget) {
+		if(empty($widget))
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		// Widget
+		
+		$tpl->assign('widget', $widget);
+		
+		// Template
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/custom_html/config.tpl');
+	}
+	
+	function saveConfig(Model_WorkspaceWidget $widget) {
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
+		
+		DAO_WorkspaceWidget::update($widget->id, array(
+			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
+		));
+
+		// Clear caches
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(sprintf("widget%d_datasource", $widget->id));
+	}
+};
+
+class WorkspaceWidget_PieChart extends Extension_WorkspaceWidget {
+	function render(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		// Per series datasources
+		@$datasource_extid = $widget->params['datasource'];
+
+		if(empty($datasource_extid)) {
+			echo "This pie chart doesn't have a data source. Configure it and select one.";
+			return;
+		}
+		
+		if(null == ($datasource_ext = Extension_WorkspaceWidgetDatasource::get($datasource_extid)))
+			return;
+		
+		$data = $datasource_ext->getData($widget, $widget->params);
+
+		if(!empty($data))
+			$widget->params = $data;
+		
+		$wedge_colors = array(
+			'#57970A',
+			'#007CBD',
+			'#7047BA',
+			'#8B0F98',
+			'#CF2C1D',
+			'#E97514',
+			'#FFA100',
+			'#3E6D07',
+			'#345C05',
+			'#005988',
+			'#004B73',
+			'#503386',
+			'#442B71',
+			'#640A6D',
+			'#55085C',
+			'#951F14',
+			'#7E1A11',
+			'#A8540E',
+			'#8E470B',
+			'#B87400',
+			'#9C6200',
+			'#CCCCCC',
+		);
+		$widget->params['wedge_colors'] = $wedge_colors;
+
+		$tpl->assign('widget', $widget);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/pie_chart/pie_chart.tpl');
+	}
+	
+	// Config
+	
+	function renderConfig(Model_WorkspaceWidget $widget) {
+		if(empty($widget))
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		// Widget
+		
+		$tpl->assign('widget', $widget);
+		
+		// Limit to widget
+		
+		$datasource_mfts = Extension_WorkspaceWidgetDatasource::getAll(false, $this->manifest->id);
+		$tpl->assign('datasource_mfts', $datasource_mfts);
+		
+		// Template
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/pie_chart/config.tpl');
+	}
+	
+	function saveConfig(Model_WorkspaceWidget $widget) {
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
+		
+		DAO_WorkspaceWidget::update($widget->id, array(
+			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
+		));
+
+		// Clear caches
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(sprintf("widget%d_datasource", $widget->id));
+	}
+};
+
+class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget {
+	function render(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		@$series = $widget->params['series'];
+		
+		if(empty($series)) {
+			echo "This scatterplot doesn't have any data sources. Configure it and select one.";
+			return;
+		}
+
+		// Multiple datasources
+		foreach($series as $series_idx => $series_params) {
+			@$datasource_extid = $series_params['datasource'];
+
+			if(empty($datasource_extid))
+				continue;
+			
+			if(null == ($datasource_ext = Extension_WorkspaceWidgetDatasource::get($datasource_extid)))
+				continue;
+			
+			$data = $datasource_ext->getData($widget, $series_params);
+
+			if(!empty($data))
+				$widget->params['series'][$series_idx] = $data;
+		}
+		
+		$tpl->assign('widget', $widget);
+
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/scatterplot/scatterplot.tpl');
+	}
+	
+	// Config
+	
+	function renderConfig(Model_WorkspaceWidget $widget) {
+		if(empty($widget))
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		// Widget
+		
+		$tpl->assign('widget', $widget);
+		
+		// Limit to widget
+		
+		$datasource_mfts = Extension_WorkspaceWidgetDatasource::getAll(false, $this->manifest->id);
+		$tpl->assign('datasource_mfts', $datasource_mfts);
+		
+		// Template
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/scatterplot/config.tpl');
+	}
+	
+	function saveConfig(Model_WorkspaceWidget $widget) {
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
+		
+		DAO_WorkspaceWidget::update($widget->id, array(
+			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
+		));
+
+		// Clear caches
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(sprintf("widget%d_datasource", $widget->id));
 	}
 };

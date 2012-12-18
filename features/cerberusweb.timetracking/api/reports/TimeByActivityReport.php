@@ -107,7 +107,7 @@ class ChReportTimeSpentActivity extends Extension_Report {
 			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
 			if($time <= $end_time)
 				$ticks[strftime($date_group, $time)] = 0;
-		}		
+		}
 
 		// Table
 		
@@ -181,7 +181,7 @@ class ChReportTimeSpentActivity extends Extension_Report {
 		$tpl->assign('activities', $activities);
 		$tpl->assign('data', $data);
 		
-		mysql_free_result($rs);		
+		mysql_free_result($rs);
 		
 		// Template
 		

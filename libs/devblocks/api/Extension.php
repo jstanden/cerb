@@ -6,7 +6,7 @@ abstract class DevblocksApplication {
 /**
  * The superclass of instanced extensions.
  *
- * @abstract 
+ * @abstract
  * @ingroup plugin
  */
 class DevblocksExtension {
@@ -22,9 +22,9 @@ class DevblocksExtension {
 	 */
 	
 	function __construct($manifest=null) {
-        if(empty($manifest))	
-        	return;
-        
+		if(empty($manifest))
+			return;
+		
 		$this->manifest = $manifest;
 		$this->id = $manifest->id;
 	}
@@ -43,13 +43,13 @@ class DevblocksExtension {
 };
 
 interface IDevblocksContextPeek {
-    function renderPeekPopup($context_id=0, $view_id='');
+	function renderPeekPopup($context_id=0, $view_id='');
 }
 
 interface IDevblocksContextImport {
-    function importGetKeys();
-    function importKeyValue($key, $value);
-    function importSaveObject(array $fields, array $custom_fields, array $meta);
+	function importGetKeys();
+	function importKeyValue($key, $value);
+	function importSaveObject(array $fields, array $custom_fields, array $meta);
 }
 
 interface IDevblocksContextProfile {
@@ -70,19 +70,19 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	}
 	
 	static function shutdownTriggerChangedContextsEvents() {
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    
+		$eventMgr = DevblocksPlatform::getEventService();
+		
 		if(is_array(self::$_changed_contexts))
 		foreach(self::$_changed_contexts as $context => $context_ids) {
-		    $eventMgr->trigger(
-		        new Model_DevblocksEvent(
-		            'context.update',
-	                array(
-	                	'context' => $context,
-	                    'context_ids' => $context_ids,
-	                )
-	            )
-		    );
+			$eventMgr->trigger(
+				new Model_DevblocksEvent(
+					'context.update',
+					array(
+						'context' => $context,
+						'context_ids' => $context_ids,
+					)
+				)
+			);
 		}
 		
 		self::$_changed_contexts = array();
@@ -165,37 +165,37 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
    	function authorize($context_id, Model_Worker $worker) {
 		return true;
 	}
-    
+	
 	abstract function getRandom();
-    abstract function getMeta($context_id);
-    abstract function getContext($object, &$token_labels, &$token_values, $prefix=null);
-    public function getSearchView($view_id=null) {
-    	if(empty($view_id)) {
-	    	$view_id = sprintf("search_%s",
-    			str_replace('.','_',DevblocksPlatform::strToPermalink($this->id))
-	    	);
-    	}
-    	
-    	if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
-    		$view = $this->getChooserView($view_id); /* @var $view C4_AbstractViewModel */
-    	}
-    	
-    	$view->name = 'Search Results';
-    	$view->renderFilters = false;
-    	$view->is_ephemeral = false;
-    	
-    	C4_AbstractViewLoader::setView($view_id, $view);
-    	
-    	return $view;
-    }
-    abstract function getChooserView($view_id=null);
-    function getViewClass() {
-    	return @$this->manifest->params['view_class'];
-    }
-    abstract function getView($context=null, $context_id=null, $options=array());
-    function lazyLoadContextValues($token, $dictionary) { return array(); }
-    
-    protected function _lazyLoadCustomFields($context, $context_id) {
+	abstract function getMeta($context_id);
+	abstract function getContext($object, &$token_labels, &$token_values, $prefix=null);
+	public function getSearchView($view_id=null) {
+		if(empty($view_id)) {
+			$view_id = sprintf("search_%s",
+				str_replace('.','_',DevblocksPlatform::strToPermalink($this->id))
+			);
+		}
+		
+		if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
+			$view = $this->getChooserView($view_id); /* @var $view C4_AbstractViewModel */
+		}
+		
+		$view->name = 'Search Results';
+		$view->renderFilters = false;
+		$view->is_ephemeral = false;
+		
+		C4_AbstractViewLoader::setView($view_id, $view);
+		
+		return $view;
+	}
+	abstract function getChooserView($view_id=null);
+	function getViewClass() {
+		return @$this->manifest->params['view_class'];
+	}
+	abstract function getView($context=null, $context_id=null, $options=array());
+	function lazyLoadContextValues($token, $dictionary) { return array(); }
+	
+	protected function _lazyLoadCustomFields($context, $context_id) {
 		$fields = DAO_CustomField::getByContext($context);
 		$token_values['custom'] = array();
 		$field_values = array();
@@ -222,11 +222,11 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		}
 		
 		return $token_values;
-    } 
+	}
 };
 
 abstract class Extension_DevblocksEvent extends DevblocksExtension {
-	const POINT = 'devblocks.event'; 
+	const POINT = 'devblocks.event';
 	
 	private $_labels = array();
 	private $_values = array();
@@ -362,7 +362,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		// behavior vars
 		$vars = DevblocksEventHelper::getVarValueToContextMap($trigger);
 		
-		return array_merge($cfields, $vars);		
+		return array_merge($cfields, $vars);
 	}
 	
 	// [TODO] Cache results for this request
@@ -462,7 +462,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 								} else {
 									// Plugins
 									if(null != ($ext = DevblocksPlatform::getExtension($token, true))
-										&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */ 
+										&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */
 										return $ext->render($this, $trigger, $params, $seq);
 									}
 								}
@@ -621,7 +621,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						case Model_CustomField::TYPE_NUMBER:
 							$not = (substr($params['oper'],0,1) == '!');
 							$oper = ltrim($params['oper'],'!');
-							@$desired_value = intval($params['value']); 
+							@$desired_value = intval($params['value']);
 							
 							$logger->info(sprintf("Number: %d %s%s %d",
 								$value,
@@ -676,8 +676,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							
 							if(preg_match("#(.*?_custom)_(\d+)#", $token, $matches) && 3 == count($matches)) {
 								$value_token = $matches[1];
-								$value_field = $dict->$value_token; 
-								@$value = $value_field[$matches[2]]; 
+								$value_field = $dict->$value_token;
+								@$value = $value_field[$matches[2]];
 							}
 							
 							if(!is_array($value) || !isset($params['values']) || !is_array($params['values'])) {
@@ -775,15 +775,15 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 									$pass = $this->runConditionExtension($token, $trigger, $params, $dict);
 								} else {
 									if(null != ($ext = DevblocksPlatform::getExtension($token, true))
-										&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */ 
+										&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */
 										$pass = $ext->run($token, $trigger, $params, $dict);
 									}
 								}
-							}	
+							}
 							break;
 					}
 			}
-			break;			
+			break;
 		}
 		
 		// Inverse operator?
@@ -878,13 +878,13 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					} else {
 						// Plugins
 						if(null != ($ext = DevblocksPlatform::getExtension($token, true))
-							&& $ext instanceof Extension_DevblocksEventAction) { /* @var $ext Extension_DevblocksEventAction */ 
+							&& $ext instanceof Extension_DevblocksEventAction) { /* @var $ext Extension_DevblocksEventAction */
 							$ext->render($this, $trigger, $params, $seq);
 						}
 					}
 					break;
 			}
-		}		
+		}
 	}
 	
 	// Are we doing a dry run?
@@ -905,13 +905,13 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					} else {
 						// Plugins
 						if(null != ($ext = DevblocksPlatform::getExtension($token, true))
-							&& $ext instanceof Extension_DevblocksEventAction) { /* @var $ext Extension_DevblocksEventAction */ 
+							&& $ext instanceof Extension_DevblocksEventAction) { /* @var $ext Extension_DevblocksEventAction */
 							//return $ext->simulate($token, $trigger, $params, $dict);
 						}
 					}
 					break;
 			}
-		}		
+		}
 	}
 	
 	function runAction($token, $trigger, $params, DevblocksDictionaryDelegate $dict, $dry_run=false) {
@@ -1116,10 +1116,10 @@ abstract class DevblocksControllerExtension extends DevblocksExtension implement
 };
 
 abstract class DevblocksEventListenerExtension extends DevblocksExtension {
-    /**
-     * @param Model_DevblocksEvent $event
-     */
-    function handleEvent(Model_DevblocksEvent $event) {}
+	/**
+	 * @param Model_DevblocksEvent $event
+	 */
+	function handleEvent(Model_DevblocksEvent $event) {}
 };
 
 interface DevblocksHttpRequestHandler {
@@ -1165,7 +1165,7 @@ abstract class DevblocksHttpIO {
 };
 
 class _DevblocksSortHelper {
-	private static $_sortOn = ''; 
+	private static $_sortOn = '';
 	
 	static function sortByNestedMember($a, $b) {
 		$props = explode('->', self::$_sortOn);
@@ -1199,8 +1199,8 @@ class _DevblocksSortHelper {
 		}
 		
 		if(is_numeric($a_test) && is_numeric($b_test)) {
-			settype($a_test, 'integer');
-			settype($b_test, 'integer');
+			settype($a_test, 'float');
+			settype($b_test, 'float');
 			
 			if($a_test==$b_test)
 				return 0;
@@ -1225,5 +1225,5 @@ class _DevblocksSortHelper {
 		
 		if(!$ascending)
 			$array = array_reverse($array, true);
-	}	
+	}
 };

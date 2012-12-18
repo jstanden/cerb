@@ -134,7 +134,7 @@ class ChReportGroupReplies extends Extension_Report {
 			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
 			if($time <= $end_time)
 				$ticks[strftime($date_group, $time)] = 0;
-		}		
+		}
 		
 		// Table
 		
@@ -171,7 +171,7 @@ class ChReportGroupReplies extends Extension_Report {
 			C4_AbstractViewLoader::setView($view->id, $view);
 			
 			$tpl->assign('view', $view);
-		}		
+		}
 		
 		// Chart
 		$sql = sprintf("SELECT t.group_id as group_id, DATE_FORMAT(FROM_UNIXTIME(m.created_date),'%s') as date_plot, ".
@@ -182,7 +182,7 @@ class ChReportGroupReplies extends Extension_Report {
 			"%s ".
 			"AND m.worker_id != 0 ".
 			"AND m.is_outgoing = 1 ".
-			"AND t.group_id != 0 " .			
+			"AND t.group_id != 0 " .
 			"GROUP BY group_id, date_plot ",
 			$date_group,
 			$start_time,
@@ -208,7 +208,7 @@ class ChReportGroupReplies extends Extension_Report {
 		$tpl->assign('xaxis_ticks', array_keys($ticks));
 		$tpl->assign('data', $data);
 		
-		mysql_free_result($rs);		
+		mysql_free_result($rs);
 		
 		$tpl->display('devblocks:cerberusweb.reports::reports/group/group_replies/index.tpl');
 	}

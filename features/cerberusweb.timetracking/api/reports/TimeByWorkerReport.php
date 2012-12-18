@@ -102,7 +102,7 @@ class ChReportTimeSpentWorker extends Extension_Report {
 			}
 		}
 		
-		$tpl->assign('report_date_grouping', $date_increment);	
+		$tpl->assign('report_date_grouping', $date_increment);
 				
 		// Find unique values
 		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
@@ -180,7 +180,7 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		$tpl->assign('xaxis_ticks', array_keys($ticks));
 		$tpl->assign('data', $data);
 		
-		mysql_free_result($rs);		
+		mysql_free_result($rs);
 		
 		// Template
 		

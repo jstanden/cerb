@@ -16,38 +16,38 @@
 ***********************************************************************/
 /*
  * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
- * 
- * Sure, it would be so easy to just cheat and edit this file to use the 
- * software without paying for it.  But we trust you anyway.  In fact, we're 
- * writing this software for you! 
- * 
- * Quality software backed by a dedicated team takes money to develop.  We 
- * don't want to be out of the office bagging groceries when you call up 
- * needing a helping hand.  We'd rather spend our free time coding your 
- * feature requests than mowing the neighbors' lawns for rent money. 
- * 
- * We've never believed in hiding our source code out of paranoia over not 
- * getting paid.  We want you to have the full source code and be able to 
- * make the tweaks your organization requires to get more done -- despite 
- * having less of everything than you might need (time, people, money, 
+ *
+ * Sure, it would be so easy to just cheat and edit this file to use the
+ * software without paying for it.  But we trust you anyway.  In fact, we're
+ * writing this software for you!
+ *
+ * Quality software backed by a dedicated team takes money to develop.  We
+ * don't want to be out of the office bagging groceries when you call up
+ * needing a helping hand.  We'd rather spend our free time coding your
+ * feature requests than mowing the neighbors' lawns for rent money.
+ *
+ * We've never believed in hiding our source code out of paranoia over not
+ * getting paid.  We want you to have the full source code and be able to
+ * make the tweaks your organization requires to get more done -- despite
+ * having less of everything than you might need (time, people, money,
  * energy).  We shouldn't be your bottleneck.
- * 
- * We've been building our expertise with this project since January 2002.  We 
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to 
- * let us take over your shared e-mail headache is a worthwhile investment.  
- * It will give you a sense of control over your inbox that you probably 
- * haven't had since spammers found you in a game of 'E-mail Battleship'. 
+ *
+ * We've been building our expertise with this project since January 2002.  We
+ * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to
+ * let us take over your shared e-mail headache is a worthwhile investment.
+ * It will give you a sense of control over your inbox that you probably
+ * haven't had since spammers found you in a game of 'E-mail Battleship'.
  * Miss. Miss. You sunk my inbox!
- * 
- * A legitimate license entitles you to support from the developers,  
- * and the warm fuzzy feeling of feeding a couple of obsessed developers 
+ *
+ * A legitimate license entitles you to support from the developers,
+ * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
  * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 2012112101);
-define("APP_VERSION", '6.1.4');
+define("APP_BUILD", 2012121701);
+define("APP_VERSION", '6.2.0');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
@@ -94,30 +94,30 @@ class CerberusApplication extends DevblocksApplication {
 	 */
 	static function getActiveWorker() {
 		$visit = self::getVisit();
-		return (null != $visit) 
+		return (null != $visit)
 			? $visit->getWorker()
 			: null
 			;
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param string $uri
 	 * @return DevblocksExtensionManifest or NULL
 	 */
 	static function getPageManifestByUri($uri) {
-        $pages = DevblocksPlatform::getExtensions('cerberusweb.page', false);
-        foreach($pages as $manifest) { /* @var $manifest DevblocksExtensionManifest */
-            if(0 == strcasecmp($uri,$manifest->params['uri'])) {
-                return $manifest;
-            }
-        }
-        return NULL;
+		$pages = DevblocksPlatform::getExtensions('cerberusweb.page', false);
+		foreach($pages as $manifest) { /* @var $manifest DevblocksExtensionManifest */
+			if(0 == strcasecmp($uri,$manifest->params['uri'])) {
+				return $manifest;
+			}
+		}
+		return NULL;
 	}
 	
 	static function processRequest(DevblocksHttpRequest $request, $is_ajax=false) {
 		/**
-		 * Override the 'update' URI since we can't count on the database 
+		 * Override the 'update' URI since we can't count on the database
 		 * being populated from XML beforehand when /update loads it.
 		 */
 		if(!$is_ajax && isset($request->path[0]) && 0 == strcasecmp($request->path[0],'update')) {
@@ -183,7 +183,7 @@ class CerberusApplication extends DevblocksApplication {
 		} else {
 			$errors[] = sprintf("Cerb %s requires PHP 5.3 or later. Your server PHP version is %s",
 				APP_VERSION,
-				PHP_VERSION 
+				PHP_VERSION
 			);
 		}
 		
@@ -193,14 +193,6 @@ class CerberusApplication extends DevblocksApplication {
 		} else {
 			$errors[] = 'file_uploads is disabled in your php.ini file. Please enable it.';
 		}
-		
-		// File Upload Temporary Directory
-		// [TODO] This isn't fatal
-//		$ini_upload_tmp_dir = ini_get("upload_tmp_dir");
-//		if(!empty($ini_upload_tmp_dir)) {
-//		} else {
-//			$errors[] = 'upload_tmp_dir is empty in your php.ini file.	Please set it.';
-//		}
 		
 		// Memory Limit
 		$memory_limit = ini_get("memory_limit");
@@ -370,7 +362,7 @@ class CerberusApplication extends DevblocksApplication {
 		}
 		
 		return TRUE;
-	}	
+	}
 	
 	static function generatePassword($length=8) {
 		$chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789';
@@ -382,24 +374,22 @@ class CerberusApplication extends DevblocksApplication {
 			$password .= substr($chars,mt_rand(0,$len),1);
 		}
 		
-		return $password;		
+		return $password;
 	}
 	
 	/**
-	 * Enter description here...
-	 *
 	 * @return a unique ticket mask as a string
 	 */
 	static function generateTicketMask($pattern = null) {
 		if(empty($pattern))
 			$pattern = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::TICKET_MASK_FORMAT);
 		if(empty($pattern))
-			$pattern = CerberusSettingsDefaults::TICKET_MASK_FORMAT; 
+			$pattern = CerberusSettingsDefaults::TICKET_MASK_FORMAT;
 
 		$letters = "ABCDEFGHIJKLMNPQRSTUVWXYZ";
 		$numbers = "123456789";
 
-		do {		
+		do {
 			$mask = "";
 			$bytes = preg_split('//', $pattern, -1, PREG_SPLIT_NO_EMPTY);
 			$literal = false;
@@ -425,9 +415,9 @@ class CerberusApplication extends DevblocksApplication {
 						break;
 					case 'C': // L or N
 						if(mt_rand(0,100) >= 50) { // L
-							$append .= substr($letters,mt_rand(0,strlen($letters)-1),1);	
+							$append .= substr($letters,mt_rand(0,strlen($letters)-1),1);
 						} else { // N
-							$append .= substr($numbers,mt_rand(0,strlen($numbers)-1),1);	
+							$append .= substr($numbers,mt_rand(0,strlen($numbers)-1),1);
 						}
 						break;
 					case 'Y':
@@ -454,8 +444,6 @@ class CerberusApplication extends DevblocksApplication {
 			}
 		} while(null != DAO_Ticket::getTicketIdByMask($mask));
 		
-//		echo "Generated unique mask: ",$mask,"<BR>";
-		
 		return $mask;
 	}
 	
@@ -463,7 +451,7 @@ class CerberusApplication extends DevblocksApplication {
 		if(empty($pattern))
 			$pattern = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::TICKET_MASK_FORMAT);
 		if(empty($pattern))
-			$pattern = CerberusSettingsDefaults::TICKET_MASK_FORMAT; 
+			$pattern = CerberusSettingsDefaults::TICKET_MASK_FORMAT;
 		
 		$combinations = 1;
 		$bytes = preg_split('//', $pattern, -1, PREG_SPLIT_NO_EMPTY);
@@ -517,9 +505,9 @@ class CerberusApplication extends DevblocksApplication {
 	}
 	
 	/**
-	 * Translates the string version of a group/bucket combo into their 
+	 * Translates the string version of a group/bucket combo into their
 	 * respective IDs.
-	 * 
+	 *
 	 * @todo This needs a better name and home
 	 */
 	static function translateGroupBucketCode($code) {
@@ -529,7 +517,7 @@ class CerberusApplication extends DevblocksApplication {
 		if($t_or_c=='c') {
 			$buckets = DAO_Bucket::getAll();
 			$group_id = $buckets[$t_or_c_id]->group_id;
-			$bucket_id = $t_or_c_id; 
+			$bucket_id = $t_or_c_id;
 		} else {
 			$group_id = $t_or_c_id;
 			$bucket_id = 0;
@@ -539,85 +527,88 @@ class CerberusApplication extends DevblocksApplication {
 	}
 	
 	/**
-	 * Looks up an e-mail address using a revolving cache.  This is helpful 
-	 * in situations where you may look up the same e-mail address multiple 
-	 * times (reports, audit log, views) and you don't want to waste code 
+	 * Looks up an e-mail address using a revolving cache.  This is helpful
+	 * in situations where you may look up the same e-mail address multiple
+	 * times (reports, audit log, views) and you don't want to waste code
 	 * filtering out dupes.
-	 * 
+	 *
 	 * @param string $address The e-mail address to look up
 	 * @param bool $create Should the address be created if not found?
-	 * @return Model_Address The address object or NULL 
-	 * 
+	 * @return Model_Address The address object or NULL
+	 *
 	 * @todo [JAS]: Move this to a global cache/hash registry
 	 */
 	static public function hashLookupAddress($email, $create=false) {
-	    static $hash_address_to_id = array();
-	    static $hash_hits = array();
-	    static $hash_size = 0;
-	    
-	    if(isset($hash_address_to_id[$email])) {
-	    	$return = $hash_address_to_id[$email];
-	    	
-	        @$hash_hits[$email] = intval($hash_hits[$email]) + 1;
-	        $hash_size++;
-	        
-	        // [JAS]: if our hash grows past our limit, crop hits array + intersect keys
-	        if($hash_size > 250) {
-	            arsort($hash_hits);
-	            $hash_hits = array_slice($hash_hits,0,100,true);
-	            $hash_address_to_id = array_intersect_key($hash_address_to_id,$hash_hits);
-	            $hash_size = count($hash_address_to_id);
-	        }
-	        
-	        return $return;
-	    }
-	    
-	    $address = DAO_Address::lookupAddress($email, $create);
-	    if(!empty($address)) {
-	        $hash_address_to_id[$email] = $address;
-	    }
-	    return $address;
+		static $hash_address_to_id = array();
+		static $hash_hits = array();
+		static $hash_size = 0;
+		
+		if(isset($hash_address_to_id[$email])) {
+			$return = $hash_address_to_id[$email];
+			
+			@$hash_hits[$email] = intval($hash_hits[$email]) + 1;
+			$hash_size++;
+			
+			// [JAS]: if our hash grows past our limit, crop hits array + intersect keys
+			if($hash_size > 250) {
+				arsort($hash_hits);
+				$hash_hits = array_slice($hash_hits,0,100,true);
+				$hash_address_to_id = array_intersect_key($hash_address_to_id,$hash_hits);
+				$hash_size = count($hash_address_to_id);
+			}
+			
+			return $return;
+		}
+		
+		$address = DAO_Address::lookupAddress($email, $create);
+		if(!empty($address)) {
+			$hash_address_to_id[$email] = $address;
+		}
+		return $address;
 	}
 
 	/**
 	 * Looks up a ticket ID by the provided mask using a revolving cache.
-	 * This is useful if you need to translate several ticket masks into 
-	 * IDs where there may be a lot of redundancy (batches in the e-mail 
+	 * This is useful if you need to translate several ticket masks into
+	 * IDs where there may be a lot of redundancy (batches in the e-mail
 	 * parser, etc.)
-	 * 
+	 *
 	 * @param string $mask The ticket mask to look up
 	 * @return integer The ticket id, or NULL if not found
-	 *  
-	 * @todo [JAS]: Move this to a global cache/hash registry 
+	 *
+	 * @todo [JAS]: Move this to a global cache/hash registry
 	 */
 	static public function hashLookupTicketIdByMask($mask) {
-	    static $hash_mask_to_id = array();
-	    static $hash_hits = array();
-	    static $hash_size = 0;
-	    
-	    if(isset($hash_mask_to_id[$mask])) {
-	    	$return = $hash_mask_to_id[$mask];
-	    	
-	        @$hash_hits[$mask] = intval($hash_hits[$mask]) + 1;
-	        $hash_size++;
+		static $hash_mask_to_id = array();
+		static $hash_hits = array();
+		static $hash_size = 0;
+		
+		if(isset($hash_mask_to_id[$mask])) {
+			$return = $hash_mask_to_id[$mask];
+			
+			@$hash_hits[$mask] = intval($hash_hits[$mask]) + 1;
+			$hash_size++;
 
-	        // [JAS]: if our hash grows past our limit, crop hits array + intersect keys
-	        if($hash_size > 250) {
-	            arsort($hash_hits);
-	            $hash_hits = array_slice($hash_hits,0,100,true);
-	            $hash_mask_to_id = array_intersect_key($hash_mask_to_id,$hash_hits);
-	            $hash_size = count($hash_mask_to_id);
-	        }
-	        
-	        return $return;
-	    }
-	    
-	    $ticket_id = DAO_Ticket::getTicketIdByMask($mask);
-	    if(!empty($ticket_id)) {
-	        $hash_mask_to_id[$mask] = $ticket_id;
-	    }
-	    return $ticket_id;
+			// [JAS]: if our hash grows past our limit, crop hits array + intersect keys
+			if($hash_size > 250) {
+				arsort($hash_hits);
+				$hash_hits = array_slice($hash_hits,0,100,true);
+				$hash_mask_to_id = array_intersect_key($hash_mask_to_id,$hash_hits);
+				$hash_size = count($hash_mask_to_id);
+			}
+			
+			return $return;
+		}
+		
+		$ticket_id = DAO_Ticket::getTicketIdByMask($mask);
+		if(!empty($ticket_id)) {
+			$hash_mask_to_id[$mask] = $ticket_id;
+		}
+		return $ticket_id;
 	}
+};
+
+class CerbException extends DevblocksException {
 };
 
 interface IContextToken {
@@ -629,6 +620,7 @@ class CerberusContexts {
 	private static $_default_actor_context_id = null;
 	
 	const CONTEXT_APPLICATION = 'cerberusweb.contexts.app';
+	const CONTEXT_ACTIVITY_LOG = 'cerberusweb.contexts.activity_log';
 	const CONTEXT_ADDRESS = 'cerberusweb.contexts.address';
 	const CONTEXT_ATTACHMENT = 'cerberusweb.contexts.attachment';
 	const CONTEXT_BUCKET = 'cerberusweb.contexts.bucket';
@@ -638,6 +630,8 @@ class CerberusContexts {
 	const CONTEXT_CONTACT_PERSON = 'cerberusweb.contexts.contact_person';
 	const CONTEXT_DOMAIN = 'cerberusweb.contexts.datacenter.domain';
 	const CONTEXT_DRAFT = 'cerberusweb.contexts.mail.draft';
+	const CONTEXT_FEED = 'cerberusweb.contexts.feed';
+	const CONTEXT_FEED_ITEM = 'cerberusweb.contexts.feed.item';
 	const CONTEXT_FEEDBACK = 'cerberusweb.contexts.feedback';
 	const CONTEXT_GROUP = 'cerberusweb.contexts.group';
 	const CONTEXT_KB_ARTICLE = 'cerberusweb.contexts.kb_article';
@@ -649,6 +643,7 @@ class CerberusContexts {
 	const CONTEXT_PORTAL = 'cerberusweb.contexts.portal';
 	const CONTEXT_PROJECT = 'cerberusweb.contexts.project';
 	const CONTEXT_ROLE = 'cerberusweb.contexts.role';
+	const CONTEXT_SENSOR = 'cerberusweb.contexts.datacenter.sensor';
 	const CONTEXT_SERVER = 'cerberusweb.contexts.datacenter.server';
 	const CONTEXT_SNIPPET = 'cerberusweb.contexts.snippet';
 	const CONTEXT_TASK = 'cerberusweb.contexts.task';
@@ -663,7 +658,7 @@ class CerberusContexts {
 				break;
 			default:
 				// Migrated
-				if(null != ($ctx = DevblocksPlatform::getExtension($context, true)) 
+				if(null != ($ctx = DevblocksPlatform::getExtension($context, true))
 					&& $ctx instanceof Extension_DevblocksContext) {
 						$ctx->getContext($context_object, $labels, $values, $prefix);
 				}
@@ -760,7 +755,7 @@ class CerberusContexts {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param string $token_prefix
 	 * @param array $label_replace
 	 * @param array $src_labels
@@ -771,7 +766,7 @@ class CerberusContexts {
 	 */
 	public static function merge($token_prefix, $label_prefix, $src_labels, $src_values, &$dst_labels, &$dst_values) {
 		foreach($src_labels as $token => $label) {
-			$dst_labels[$token_prefix.$token] = $label_prefix.$label; 
+			$dst_labels[$token_prefix.$token] = $label_prefix.$label;
 		}
 		
 		foreach($src_values as $token => $value) {
@@ -865,7 +860,7 @@ class CerberusContexts {
 		
 		// Variables
 		
-		$vars = $entry['variables']; 
+		$vars = $entry['variables'];
 		
 		switch($format) {
 			case 'html':
@@ -912,7 +907,7 @@ class CerberusContexts {
 					$url = $url_writer->writeNoProxy($url, true);
 				}
 					
-				$entry['message'] .= ' <' . $url . '>'; 
+				$entry['message'] .= ' <' . $url . '>';
 				break;
 				
 			default:
@@ -992,8 +987,11 @@ class CerberusContexts {
 			$actor_url = null;
 			
 			// See if we're inside of an attendant's running decision tree
+			
+			$stack = EventListener_Triggers::getTriggerStack();
+			
 			if(EventListener_Triggers::getDepth() > 0
-				&& null != ($trigger_id = end(EventListener_Triggers::getTriggerStack())) 
+				&& null != ($trigger_id = end($stack))
 				&& !empty($trigger_id)
 				&& null != ($trigger = DAO_TriggerEvent::get($trigger_id))
 			) {
@@ -1031,15 +1029,15 @@ class CerberusContexts {
 					}
 				}
 
-				// Try using current session 
+				// Try using current session
 				if(empty($actor_context) && null != ($active_worker = CerberusApplication::getActiveWorker())) {
 					$actor_name = $active_worker->getName();
 					$actor_context = CerberusContexts::CONTEXT_WORKER;
 					$actor_context_id = $active_worker->id;
 					$actor_url = sprintf("ctx://%s:%d", $actor_context, $actor_context_id);
-				}				
+				}
 				
-			} 
+			}
 		}
 		
 		if(empty($actor_context)) {
@@ -1107,7 +1105,7 @@ class CerberusContexts {
 		// Fire off notifications
 		if(is_array($watcher_ids)) {
 			$message = CerberusContexts::formatActivityLogEntry($entry_array, 'plaintext');
-			@$url = reset($entry_array['urls']); 
+			@$url = reset($entry_array['urls']);
 			
 			if(0 == strcasecmp('ctx://',substr($url,0,6))) {
 				$url = self::parseContextUrl($url);
@@ -1133,7 +1131,7 @@ class CerberusContexts {
 				if(in_array($activity_point, $dont_notify_on_activities))
 					continue;
 					
-				// If yes, send it						
+				// If yes, send it
 				DAO_Notification::create(array(
 					DAO_Notification::CONTEXT => $target_context,
 					DAO_Notification::CONTEXT_ID => $target_context_id,
@@ -1217,7 +1215,7 @@ class Context_Application extends Extension_DevblocksContext {
 		$who = sprintf("%d-%s",
 			$worker_role->id,
 			DevblocksPlatform::strToPermalink($worker_role->name)
-		); 
+		);
 		
 		return array(
 			'id' => $worker_role->id,
@@ -1245,7 +1243,7 @@ class Context_Application extends Extension_DevblocksContext {
 		// Token labels
 		$token_labels = array(
 			//'name' => $prefix.$translate->_('common.name'),
-			//'record_url' => $prefix.$translate->_('common.url.record'),			
+			//'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		if(is_array($fields))
@@ -1270,7 +1268,7 @@ class Context_Application extends Extension_DevblocksContext {
 // 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=worker&id=%d-%s",$worker->id, DevblocksPlatform::strToPermalink($worker->getName())), true);
 		}
 		
-		return true;		
+		return true;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {
@@ -1298,7 +1296,7 @@ class Context_Application extends Extension_DevblocksContext {
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		return null;
@@ -1306,7 +1304,7 @@ class Context_Application extends Extension_DevblocksContext {
 	
 	function getView($context=null, $context_id=null, $options=array()) {
 		return null;
-	}	
+	}
 };
 
 class CerberusLicense {
@@ -1350,11 +1348,11 @@ class CerberusLicense {
 		 * Remember that our cache can return stale data here. Be sure to
 		 * clear caches.  The config area does already.
 		 */
-		return (!empty($key) && !empty($lines)) 
+		return (!empty($key) && !empty($lines))
 			? array(
 				'company' => $company,
 				'email' => $email,
-				'key'     => (list($k,$v)=explode(":",$lines[1]))?trim($v):null,
+				'key' => (list($k,$v)=explode(":",$lines[1]))?trim($v):null,
 				'created' => (list($k,$v)=explode(":",$lines[2]))?trim($v):null,
 				'updated' => (list($k,$v)=explode(":",$lines[3]))?trim($v):null,
 				'upgrades' => (list($k,$v)=explode(":",$lines[4]))?trim($v):null,
@@ -1364,7 +1362,7 @@ class CerberusLicense {
 	}
 	
 	public static function getReleases() {
-		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000,'5.6.0'=>1317686400,'5.7.0'=>1326067200,'6.0.0'=>1338163200,'6.1.0'=>1346025600);/*
+		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000,'5.6.0'=>1317686400,'5.7.0'=>1326067200,'6.0.0'=>1338163200,'6.1.0'=>1346025600,'6.2.0'=>1353888000);/*
 		 * Major versions by release date in GMT
 		 */
 		return array(
@@ -1378,12 +1376,14 @@ class CerberusLicense {
 			'5.7.0' => gmmktime(0,0,0,1,9,2012),
 			'6.0.0' => gmmktime(0,0,0,5,28,2012),
 			'6.1.0' => gmmktime(0,0,0,8,27,2012),
+			'6.2.0' => gmmktime(0,0,0,11,26,2012),
 		);
 	}
 	
 	public static function getReleaseDate($version) {
 		$latest_licensed = 0;
-		$version = array_shift(explode("-",$version,2));
+		$version_parts = explode("-",$version,2);
+		$version = array_shift($version_parts);
 		foreach(self::getReleases() as $release => $release_date) {
 			if(version_compare($release, $version) <= 0)
 				$latest_licensed = $release_date;
@@ -1393,43 +1393,45 @@ class CerberusLicense {
 };
 
 class CerberusSettings {
-	const HELPDESK_TITLE = 'helpdesk_title'; 
-	const HELPDESK_LOGO_URL = 'helpdesk_logo_url'; 
-	const SMTP_HOST = 'smtp_host'; 
-	const SMTP_AUTH_ENABLED = 'smtp_auth_enabled'; 
-	const SMTP_AUTH_USER = 'smtp_auth_user'; 
-	const SMTP_AUTH_PASS = 'smtp_auth_pass'; 
-	const SMTP_PORT = 'smtp_port'; 
+	const HELPDESK_TITLE = 'helpdesk_title';
+	const HELPDESK_LOGO_URL = 'helpdesk_logo_url';
+	const SMTP_HOST = 'smtp_host';
+	const SMTP_AUTH_ENABLED = 'smtp_auth_enabled';
+	const SMTP_AUTH_USER = 'smtp_auth_user';
+	const SMTP_AUTH_PASS = 'smtp_auth_pass';
+	const SMTP_PORT = 'smtp_port';
 	const SMTP_ENCRYPTION_TYPE = 'smtp_enc';
 	const SMTP_MAX_SENDS = 'smtp_max_sends';
 	const SMTP_TIMEOUT = 'smtp_timeout';
-	const ATTACHMENTS_ENABLED = 'attachments_enabled'; 
-	const ATTACHMENTS_MAX_SIZE = 'attachments_max_size'; 
-	const PARSER_AUTO_REQ = 'parser_autoreq'; 
-	const PARSER_AUTO_REQ_EXCLUDE = 'parser_autoreq_exclude'; 
+	const ATTACHMENTS_ENABLED = 'attachments_enabled';
+	const ATTACHMENTS_MAX_SIZE = 'attachments_max_size';
+	const PARSER_AUTO_REQ = 'parser_autoreq';
+	const PARSER_AUTO_REQ_EXCLUDE = 'parser_autoreq_exclude';
 	const TICKET_MASK_FORMAT = 'ticket_mask_format';
 	const AUTHORIZED_IPS = 'authorized_ips';
 	const LICENSE = 'license_json';
 	const RELAY_DISABLE_AUTH = 'relay_disable_auth';
+	const SESSION_LIFESPAN = 'session_lifespan';
 };
 
 class CerberusSettingsDefaults {
-	const HELPDESK_TITLE = 'Cerb6 - a fast and flexible web-based platform for business collaboration and automation.'; 
-	const SMTP_HOST = 'localhost'; 
-	const SMTP_AUTH_ENABLED = 0; 
-	const SMTP_AUTH_USER = ''; 
-	const SMTP_AUTH_PASS = ''; 
-	const SMTP_PORT = 25; 
+	const HELPDESK_TITLE = 'Cerb6 - a fast and flexible web-based platform for business collaboration and automation.';
+	const SMTP_HOST = 'localhost';
+	const SMTP_AUTH_ENABLED = 0;
+	const SMTP_AUTH_USER = '';
+	const SMTP_AUTH_PASS = '';
+	const SMTP_PORT = 25;
 	const SMTP_ENCRYPTION_TYPE = 'None';
 	const SMTP_MAX_SENDS = 20;
 	const SMTP_TIMEOUT = 30;
-	const ATTACHMENTS_ENABLED = 1; 
-	const ATTACHMENTS_MAX_SIZE = 10; 
-	const PARSER_AUTO_REQ = 0; 
-	const PARSER_AUTO_REQ_EXCLUDE = ''; 
+	const ATTACHMENTS_ENABLED = 1;
+	const ATTACHMENTS_MAX_SIZE = 10;
+	const PARSER_AUTO_REQ = 0;
+	const PARSER_AUTO_REQ_EXCLUDE = '';
 	const TICKET_MASK_FORMAT = 'LLL-NNNNN-NNN';
 	const AUTHORIZED_IPS = "127.0.0.1\n::1\n";
 	const RELAY_DISABLE_AUTH = 0;
+	const SESSION_LIFESPAN = 0;
 };
 
 class C4_DevblocksExtensionDelegate implements DevblocksExtensionDelegate {
@@ -1524,7 +1526,7 @@ class CerberusVisit extends DevblocksVisit {
 class C4_ORMHelper extends DevblocksORMHelper {
 	static public function qstr($str) {
 		$db = DevblocksPlatform::getDatabaseService();
-		return $db->qstr($str);	
+		return $db->qstr($str);
 	}
 	
 	static protected function paramExistsInSet($key, $params) {
@@ -1554,13 +1556,13 @@ class C4_ORMHelper extends DevblocksORMHelper {
 		if(is_array($tables))
 		foreach($tables as $tbl_name => $null) {
 			// Filter and sanitize
-			if(substr($tbl_name,0,3) != "cf_" // not a custom field 
+			if(substr($tbl_name,0,3) != "cf_" // not a custom field
 				|| 0 == ($field_id = intval(substr($tbl_name,3)))) // not a field_id
 				continue;
 
 			// Make sure the field exists for this context
 			if(!isset($custom_fields[$field_id]))
-				continue; 
+				continue;
 
 			$field_table = sprintf("cf_%d", $field_id);
 			$value_table = '';

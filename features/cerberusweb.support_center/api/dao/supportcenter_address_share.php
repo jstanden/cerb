@@ -147,8 +147,8 @@ class DAO_SupportCenterAddressShare extends DevblocksORMHelper {
 		
 		// Clear orphaned address share rows
 		$sql = "DELETE supportcenter_address_share ".
-			"FROM supportcenter_address_share ". 
-			"LEFT JOIN address AS a1 ON (supportcenter_address_share.share_address_id = a1.id) ". 
+			"FROM supportcenter_address_share ".
+			"LEFT JOIN address AS a1 ON (supportcenter_address_share.share_address_id = a1.id) ".
 			"LEFT JOIN address AS a2 ON (supportcenter_address_share.with_address_id = a2.id) ".
 			"LEFT JOIN contact_person AS cp1 ON (a1.contact_person_id = cp1.id) ".
 			"LEFT JOIN contact_person AS cp2 ON (a2.contact_person_id = cp2.id) ".

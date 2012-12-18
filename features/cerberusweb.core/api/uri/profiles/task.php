@@ -105,6 +105,6 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Template
-		$tpl->display('devblocks:cerberusweb.core::profiles/task.tpl');		
+		$tpl->display('devblocks:cerberusweb.core::profiles/task.tpl');
 	}
 };

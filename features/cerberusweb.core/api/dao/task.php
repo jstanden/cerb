@@ -39,20 +39,20 @@ class DAO_Task extends C4_ORMHelper {
 		}
 		
 		// New task
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'task.create',
-                array(
-                    'task_id' => $id,
-                	'fields' => $fields,
-                	'custom_fields' => $custom_fields,
-                )
-            )
-	    );
-	    
-	    // Virtual Attendant events
-	    Event_TaskCreatedByWorker::trigger($id, null);
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'task.create',
+				array(
+					'task_id' => $id,
+					'fields' => $fields,
+					'custom_fields' => $custom_fields,
+				)
+			)
+		);
+		
+		// Virtual Attendant events
+		Event_TaskCreatedByWorker::trigger($id, null);
 		
 		return $id;
 	}
@@ -61,76 +61,56 @@ class DAO_Task extends C4_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
-		/*
-		 * Make a diff for the requested objects in batches
-		 */
-        
-    	$chunks = array_chunk($ids, 25, true);
-    	while($batch_ids = array_shift($chunks)) {
-	    	$objects = DAO_Task::getWhere(sprintf("id IN (%s)", implode(',', $batch_ids)));
-	    	$object_changes = array();
-	    	
-	    	foreach($objects as $object_id => $object) {
-	    		$pre_fields = get_object_vars($object);
-	    		$changes = array();
-	    		
-	    		foreach($fields as $field_key => $field_val) {
-	    			// Make sure the value of the field actually changed
-	    			if($pre_fields[$field_key] != $field_val) {
-	    				$changes[$field_key] = array('from' => $pre_fields[$field_key], 'to' => $field_val);
-	    			}
-	    		}
-	    		
-	    		// If we had changes
-	    		if(!empty($changes)) {
-	    			$object_changes[$object_id] = array(
-	    				'model' => array_merge($pre_fields, $fields),
-	    				'changes' => $changes,
-	    			);
-	    		}
-	    	}
-	    	
-	    	parent::_update($ids, 'task', $fields);
-	    	
-	    	if(!empty($object_changes)) {
-		    	// Local events
-		    	self::_processUpdateEvents($object_changes);
-	    		
-		        /*
-		         * Trigger an event about the changes
-		         */
-			    $eventMgr = DevblocksPlatform::getEventService();
-			    $eventMgr->trigger(
-			        new Model_DevblocksEvent(
-			            'dao.task.update',
-		                array(
-		                    'objects' => $object_changes,
-		                )
-		            )
-			    );
-			    
-			    // Log the context update
-	    		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TASK, $ids);
-	    	}
-	    	
-    	} // batch loop
+		// Make a diff for the requested objects in batches
+		
+		$chunks = array_chunk($ids, 100, true);
+		while($batch_ids = array_shift($chunks)) {
+			if(empty($batch_ids))
+				continue;
+			
+			// Get state before changes
+			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
+
+			// Make changes
+			parent::_update($batch_ids, 'task', $fields);
+			
+			// Send events
+			if(!empty($object_changes)) {
+				// Local events
+				self::_processUpdateEvents($object_changes);
+				
+				// Trigger an event about the changes
+				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr->trigger(
+					new Model_DevblocksEvent(
+						'dao.task.update',
+						array(
+							'objects' => $object_changes,
+						)
+					)
+				);
+				
+				// Log the context update
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TASK, $batch_ids);
+			}
+		}
 	}
 	
 	static function _processUpdateEvents($objects) {
-    	if(is_array($objects))
-    	foreach($objects as $object_id => $object) {
-    		@$model = $object['model'];
-    		@$changes = $object['changes'];
-    		
-    		if(empty($model) || empty($changes))
-    			continue;
-    		
-    		/*
-    		 * Task completed
-    		 */
-    		@$is_completed = $changes[DAO_Task::IS_COMPLETED];
-    		
-    		if(!empty($is_completed) && !empty($model[DAO_Task::IS_COMPLETED])) {
+		if(is_array($objects))
+		foreach($objects as $object_id => $object) {
+			@$model = $object['model'];
+			@$changes = $object['changes'];
+			
+			if(empty($model) || empty($changes))
+				continue;
+			
+			/*
+			 * Task completed
+			 */
+			@$is_completed = $changes[DAO_Task::IS_COMPLETED];
+			
+			if(!empty($is_completed) && !empty($model[DAO_Task::IS_COMPLETED])) {
 				/*
 				 * Log activity (task.status.*)
 				 */
@@ -145,9 +125,9 @@ class DAO_Task extends C4_ORMHelper {
 						)
 				);
 				CerberusContexts::logActivity('task.status.completed', CerberusContexts::CONTEXT_TASK, $object_id, $entry);
-    		}
-    		
-    	} // foreach		
+			}
+			
+		} // foreach
 	}
 	
 	static function updateWhere($fields, $where) {
@@ -283,7 +263,7 @@ class DAO_Task extends C4_ORMHelper {
 				SearchFields_Task::TITLE
 		);
 
-		$join_sql = 
+		$join_sql =
 			"FROM task t ".
 
 			// [JAS]: Dynamic table joins
@@ -330,7 +310,7 @@ class DAO_Task extends C4_ORMHelper {
 		);
 		
 		return $result;
-	}	
+	}
 
 	private static function _translateVirtualParameters($param, $key, &$args) {
 		if(!is_a($param, 'DevblocksSearchCriteria'))
@@ -355,18 +335,18 @@ class DAO_Task extends C4_ORMHelper {
 		}
 	}
 	
-    /**
-     * Enter description here...
-     *
-     * @param DevblocksSearchCriteria[] $params
-     * @param integer $limit
-     * @param integer $page
-     * @param string $sortBy
-     * @param boolean $sortAsc
-     * @param boolean $withCounts
-     * @return array
-     */
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	/**
+	 * Enter description here...
+	 *
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
@@ -379,14 +359,14 @@ class DAO_Task extends C4_ORMHelper {
 		$sort_sql = $query_parts['sort'];
 		
 		// Build it
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY t.id ' : '').
 			$sort_sql;
 		
-		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$results = array();
 		
@@ -402,7 +382,7 @@ class DAO_Task extends C4_ORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT t.id) " : "SELECT COUNT(t.id) ").
 				$join_sql.
 				$where_sql;
@@ -412,7 +392,7 @@ class DAO_Task extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-	}	
+	}
 	
 };
 
@@ -873,13 +853,13 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 							CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TASK, $batch_id, $watcher_params['remove']);
 					}
 				}
-			}		
+			}
 			
 			unset($batch_ids);
 		}
 
 		unset($ids);
-	}	
+	}
 };
 
 class Context_Task extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
@@ -1008,7 +988,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -1036,14 +1016,14 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		C4_AbstractViewLoader::setView($view_id, $view);
-		return $view;		
+		return $view;
 	}
 	
 	function getView($context=null, $context_id=null, $options=array()) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Tasks';
@@ -1073,7 +1053,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		}
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK); 
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
 		$tpl->assign('custom_fields', $custom_fields);
 
 		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TASK, $context_id);
@@ -1092,7 +1072,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		// View
 		$tpl->assign('id', $context_id);
 		$tpl->assign('view_id', $view_id);
-		$tpl->display('devblocks:cerberusweb.core::tasks/rpc/peek.tpl');		
+		$tpl->display('devblocks:cerberusweb.core::tasks/rpc/peek.tpl');
 	}
 	
 	function importGetKeys() {

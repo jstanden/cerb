@@ -103,9 +103,9 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 			if(!empty($row['sort_json'])) {
 				$sort_json = json_decode($row['sort_json'], true);
 				if(isset($sort_json['by']))
-					$object->sort_by = $sort_json['by']; 
+					$object->sort_by = $sort_json['by'];
 				if(isset($sort_json['asc']))
-					$object->sort_asc = $sort_json['asc']; 
+					$object->sort_asc = $sort_json['asc'];
 			}
 			
 			$objects[$object->id] = $object;
@@ -137,7 +137,7 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"view_filters_preset.id as %s, ".
@@ -176,21 +176,21 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 		);
 		
 		return $result;
-	}	
+	}
 	
-    /**
-     * Enter description here...
-     *
-     * @param array $columns
-     * @param DevblocksSearchCriteria[] $params
-     * @param integer $limit
-     * @param integer $page
-     * @param string $sortBy
-     * @param boolean $sortAsc
-     * @param boolean $withCounts
-     * @return array
-     */
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	/**
+	 * Enter description here...
+	 *
+	 * @param array $columns
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
@@ -202,7 +202,7 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -211,10 +211,10 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 			
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		} else {
-		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-            $total = mysql_num_rows($rs);
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$total = mysql_num_rows($rs);
 		}
 		
 		$results = array();
@@ -231,7 +231,7 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT view_filters_preset.id) " : "SELECT COUNT(view_filters_preset.id) ").
 				$join_sql.
 				$where_sql;
@@ -286,6 +286,6 @@ class SearchFields_ViewFiltersPreset implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };

@@ -378,7 +378,7 @@
     </tu>
     <tu tuid="addy_book.org.tabs.people">
       <tuv xml:lang="ru_RU">
-        <seg>Люди (%s)</seg>
+        <seg>Люди</seg>
       </tuv>
     </tu>
     <tu tuid="addy_book.org.tabs.properties">
@@ -3606,21 +3606,6 @@ login &lt;ftp&#13;
     <tu tuid="timetracking.ui.tracked_desc">
       <tuv xml:lang="ru_RU">
         <seg>%s tracked %s on %s</seg>
-      </tuv>
-    </tu>
-    <tu tuid="timetracking.ui.trial.limit_exceeded">
-      <tuv xml:lang="ru_RU">
-        <seg>Достигнут лимит пробной копии</seg>
-      </tuv>
-    </tu>
-    <tu tuid="timetracking.ui.trial.limit_exceeded.desc">
-      <tuv xml:lang="ru_RU">
-        <seg>You're able to evaluate the Time Tracking plugin by creating up to 10 entries with the free version of Cerberus Helpdesk 4.0.</seg>
-      </tuv>
-    </tu>
-    <tu tuid="timetracking.ui.trial.purchase">
-      <tuv xml:lang="ru_RU">
-        <seg>Для продолжения использования этого плагина поддержите проект и купите лицензию.</seg>
       </tuv>
     </tu>
     <tu tuid="timetracking.ui.worker">

@@ -58,7 +58,7 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 		
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id']);
 		$this->_getRecordType($ext_id);
-	}	
+	}
 	
 	function saveRecordTypeAction() {
 		$translate = DevblocksPlatform::getTranslationService();
@@ -91,9 +91,9 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 				
 			} else {
 				$fields = array(
-					DAO_CustomField::NAME => $name, 
-					DAO_CustomField::POS => $order, 
-					DAO_CustomField::OPTIONS => !is_null($option) ? $option : '', 
+					DAO_CustomField::NAME => $name,
+					DAO_CustomField::POS => $order,
+					DAO_CustomField::OPTIONS => !is_null($option) ? $option : '',
 				);
 				DAO_CustomField::update($id, $fields);
 			}
@@ -116,6 +116,6 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 		}
 
 		// Redraw the form
-		$this->_getRecordType($ext_id);		
+		$this->_getRecordType($ext_id);
 	}
 };

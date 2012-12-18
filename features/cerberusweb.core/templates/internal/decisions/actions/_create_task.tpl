@@ -19,6 +19,13 @@
 	<input type="text" name="{$namePrefix}[due_date]" size="45" value="{$params.due_date}" class="input_date placeholders">
 </div>
 
+{if !empty($custom_fields)}
+<b>{'common.custom_fields'|devblocks_translate|capitalize}:</b>
+<div style="margin-left:10px;margin-bottom:0.5em;">
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false field_wrapper="{$namePrefix}"}
+</div>
+{/if}
+
 <b>{'common.comment'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<textarea name="{$namePrefix}[comment]" cols="45" rows="5" style="width:100%;" class="placeholders">{$params.comment}</textarea>

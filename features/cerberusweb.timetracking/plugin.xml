@@ -4,14 +4,14 @@
 	<name>Time Tracking</name>
 	<description>Track time spent on various helpdesk activities (replying to tickets, etc).  This adds a Track Time button to Display Ticket and Organizations, and a Time Tracking tab to the Activity page.</description>
 	<author>WebGroup Media, LLC.</author>
-	<version>6.1.0</version>
+	<version>6.2.0</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Time_Tracking</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="6.1" max="6.1.99" />
+		<app_version min="6.2" max="6.2.99" />
 	</requires>
 	
 	<!-- Plugin Dependencies -->
@@ -46,6 +46,17 @@
 			<class name="Event_TimeTrackingMacro" />
 		</file>
 	</class_loader>
+	
+	<!-- Activity Points -->
+	
+	<activity_points>
+		<activity point="timetracking.status.closed">
+			<param key="label_key" value="Time Tracking Entry Closed" />
+		</activity>
+		<activity point="timetracking.status.open">
+			<param key="label_key" value="Time Tracking Entry Opened" />
+		</activity>
+	</activity_points>
 	
 	<acl>
 		<priv id="timetracking.actions.create" label="acl.timetracking.actions.create" />

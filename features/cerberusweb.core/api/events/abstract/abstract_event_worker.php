@@ -19,7 +19,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 	protected $_event_id = null; // override
 
 	/**
-	 * 
+	 *
 	 * @param integer $worker_id
 	 * @return Model_DevblocksEvent
 	 */
@@ -52,7 +52,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 				'worker_id' => $worker_id,
 			)
 		);
-	}	
+	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null) {
 		$labels = array();
@@ -62,7 +62,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 		 * Worker
 		 */
 		
-		@$worker_id = $event_model->params['worker_id']; 
+		@$worker_id = $event_model->params['worker_id'];
 		$merge_labels = array();
 		$merge_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $merge_labels, $merge_values, null, true);
@@ -82,7 +82,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 		 */
 
 		$this->setLabels($labels);
-		$this->setValues($values);		
+		$this->setValues($values);
 	}
 	
 	function getValuesContexts($trigger) {
@@ -140,7 +140,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 
-		return $conditions;		
+		return $conditions;
 	}
 	
 	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -193,7 +193,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions() {
-		$actions = 
+		$actions =
 			array(
 				'add_watchers' => array('label' =>'Add watchers'),
 				'create_comment' => array('label' =>'Create a comment'),
@@ -202,8 +202,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'schedule_behavior' => array('label' => 'Schedule behavior'),
 				'send_email' => array('label' => 'Send email'),
-				'set_email_links' => array('label' => 'Set links on email'),
-				'set_email_org_links' => array('label' => 'Set links on organization'),
+				'set_links' => array('label' => 'Set links'),
 				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
 			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_WORKER)
@@ -247,8 +246,8 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 				$dates = array();
 				$conditions = $this->getConditions($trigger);
 				foreach($conditions as $key => $data) {
-					if($data['type'] == Model_CustomField::TYPE_DATE)
-					$dates[$key] = $data['label'];
+					if(isset($data['type']) && $data['type'] == Model_CustomField::TYPE_DATE)
+						$dates[$key] = $data['label'];
 				}
 				$tpl->assign('dates', $dates);
 			
@@ -257,6 +256,10 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 
 			case 'send_email':
 				DevblocksEventHelper::renderActionSendEmail($trigger);
+				break;
+
+			case 'set_links':
+				DevblocksEventHelper::renderActionSetLinks($trigger);
 				break;
 
 			case 'unschedule_behavior':
@@ -274,7 +277,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 		
 		$tpl->clearAssign('params');
 		$tpl->clearAssign('namePrefix');
-		$tpl->clearAssign('token_labels');		
+		$tpl->clearAssign('token_labels');
 	}
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
@@ -304,6 +307,9 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 				break;
 			case 'send_email':
 				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
+				break;
+			case 'set_links':
+				return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
 				break;
 			case 'unschedule_behavior':
 				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
@@ -365,6 +371,10 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 				DevblocksEventHelper::runActionSendEmail($params, $dict);
 				break;
 				
+			case 'set_links':
+				DevblocksEventHelper::runActionSetLinks($trigger, $params, $dict);
+				break;
+				
 			case 'unschedule_behavior':
 				DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 				break;
@@ -387,7 +397,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 					if(!empty($context) && !empty($context_id))
 						DevblocksEventHelper::runActionSetCustomField($custom_field, 'worker_custom', $params, $dict, $context, $context_id);
 				}
-				break;	
+				break;
 		}
 	}
 	

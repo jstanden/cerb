@@ -3,7 +3,7 @@ class _DevblocksDateManager {
 	private function __construct() {}
 	
 	/**
-	 * 
+	 *
 	 * @return _DevblocksDateManager
 	 */
 	static function getInstance() {
@@ -413,14 +413,14 @@ class DevblocksCalendarHelper {
 		
 		while(!$done && ++$num_loops < 1096) { // Runaway protection capped at 3 years worth of days
 			if($date >= $start)
-				$dates[] = $date; 
+				$dates[] = $date;
 			
 			$date = strtotime(sprintf("+%d days", $every_n), $date);
 			
 			// Stop if we have no end in sight
 			if(!$done && empty($max_iter) && empty($until))
 				$done = true;
-			// Stop if we hit the 32-bit Unix armageddon 
+			// Stop if we hit the 32-bit Unix armageddon
 			if(!$done && $last_date >= $date)
 				$done = true;
 			// Stop if we have a result cap and we passed it
@@ -433,7 +433,7 @@ class DevblocksCalendarHelper {
 			$last_date = $date;
 		}
 
-		return $dates;		
+		return $dates;
 	}
 	
 	// Sun = 0
@@ -444,7 +444,7 @@ class DevblocksCalendarHelper {
 		// [TODO] This should be handled better globally
 		foreach($weekdays as $idx => $day) {
 			if(0 == $day) {
-				$weekdays[$idx] = 6;	
+				$weekdays[$idx] = 6;
 			} else {
 				$weekdays[$idx]--;
 			}
@@ -454,7 +454,7 @@ class DevblocksCalendarHelper {
 		
 		// If we're asked to make things starting at a date beyond the end date, stop.
 		if(!is_null($until) && $start > $until)
-			return $dates;		
+			return $dates;
 
 		$name_weekdays = array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
 		$num_weekdays = count($weekdays);
@@ -481,14 +481,14 @@ class DevblocksCalendarHelper {
 		
 		while(!$done && ++$num_loops < 1096) { // Runaway protection capped at 3 years worth of days
 			if($date >= $start)
-				$dates[] = $date; 
+				$dates[] = $date;
 			
 			$cur_dow = $weekdays[$counter % $num_weekdays];
 			$next_dow = $weekdays[++$counter % $num_weekdays];
 
 			$increment_str = sprintf("%s %s",
 				$name_weekdays[$next_dow],
-				($next_dow == $cur_dow) ? '+1 week' : '' 
+				($next_dow == $cur_dow) ? '+1 week' : ''
 			);
 			
 			$date = strtotime(
@@ -499,7 +499,7 @@ class DevblocksCalendarHelper {
 			// Stop if we have no end in sight
 			if(!$done && empty($max_iter) && empty($until))
 				$done = true;
-			// Stop if we hit the 32-bit Unix armageddon 
+			// Stop if we hit the 32-bit Unix armageddon
 			if(!$done && $last_date >= $date)
 				$done = true;
 			// Stop if we have a result cap and we passed it
@@ -520,7 +520,7 @@ class DevblocksCalendarHelper {
 		
 		// If we're asked to make things starting at a date beyond the end date, stop.
 		if(!is_null($until) && $start > $until)
-			return $dates;		
+			return $dates;
 		
 		$num_days = count($days);
 
@@ -546,7 +546,7 @@ class DevblocksCalendarHelper {
 		
 		while(!$done && ++$num_loops < 250) {
 			if($date >= $start)
-				$dates[] = $date; 
+				$dates[] = $date;
 			
 			do {
 				$cur_dy = (integer) date('d', $date);
@@ -569,7 +569,7 @@ class DevblocksCalendarHelper {
 			// Stop if we have no end in sight
 			if(!$done && empty($max_iter) && empty($until))
 				$done = true;
-			// Stop if we hit the 32-bit Unix armageddon 
+			// Stop if we hit the 32-bit Unix armageddon
 			if(!$done && $last_date >= $date)
 				$done = true;
 			// Stop if we have a result cap and we passed it
@@ -582,7 +582,7 @@ class DevblocksCalendarHelper {
 			$last_date = $date;
 		}
 
-		return $dates;		
+		return $dates;
 	}
 	
 	static function getYearlyDates($start, array $months, $until=null, $max_iter=null) {
@@ -590,7 +590,7 @@ class DevblocksCalendarHelper {
 		
 		// If we're asked to make things starting at a date beyond the end date, stop.
 		if(!is_null($until) && $start > $until)
-			return $dates;		
+			return $dates;
 		
 		$num_months = count($months);
 
@@ -616,7 +616,7 @@ class DevblocksCalendarHelper {
 		
 		while(!$done && ++$num_loops < 250) {
 			if($date >= $start)
-				$dates[] = $date; 
+				$dates[] = $date;
 			
 			do {
 				$cur_mo = (integer) date('m', $date);
@@ -632,7 +632,7 @@ class DevblocksCalendarHelper {
 			// Stop if we have no end in sight
 			if(!$done && empty($max_iter) && empty($until))
 				$done = true;
-			// Stop if we hit the 32-bit Unix armageddon 
+			// Stop if we hit the 32-bit Unix armageddon
 			if(!$done && $last_date >= $date)
 				$done = true;
 			// Stop if we have a result cap and we passed it

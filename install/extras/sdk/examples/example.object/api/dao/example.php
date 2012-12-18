@@ -20,10 +20,42 @@ class DAO_ExampleObject extends C4_ORMHelper {
 	}
 	
 	static function update($ids, $fields) {
-		parent::_update($ids, 'example_object', $fields);
+		if(!is_array($ids))
+			$ids = array($ids);
 		
-	    // Log the context update
-   		//DevblocksPlatform::markContextChanged('example.context', $ids);
+		// Make a diff for the requested objects in batches
+		
+		$chunks = array_chunk($ids, 100, true);
+		while($batch_ids = array_shift($chunks)) {
+			if(empty($batch_ids))
+				continue;
+			
+			// Get state before changes
+			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
+
+			// Make changes
+			parent::_update($batch_ids, 'example_object', $fields);
+			
+			// Send events
+			if(!empty($object_changes)) {
+				// Local events
+				//self::_processUpdateEvents($object_changes);
+				
+				// Trigger an event about the changes
+				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr->trigger(
+					new Model_DevblocksEvent(
+						'dao.example_object.update',
+						array(
+							'objects' => $object_changes,
+						)
+					)
+				);
+				
+				// Log the context update
+				//DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_, $batch_ids);
+			}
+		}
 	}
 	
 	static function updateWhere($fields, $where) {
@@ -189,7 +221,7 @@ class DAO_ExampleObject extends C4_ORMHelper {
 					self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $join_sql, $where_sql);
 					break;
 			}
-		}		
+		}
 		
 		return array(
 			'primary_table' => 'example_object',
@@ -225,7 +257,7 @@ class DAO_ExampleObject extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -253,7 +285,7 @@ class DAO_ExampleObject extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT example_object.id) " : "SELECT COUNT(example_object.id) ").
 				$join_sql.
 				$where_sql;
@@ -306,7 +338,7 @@ class SearchFields_ExampleObject implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 
@@ -424,7 +456,7 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 		}
 		
 		return $counts;
-	}	
+	}
 	
 	function render() {
 		$this->_sanitize();
@@ -453,7 +485,7 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 				$this->_renderVirtualWatchers($param);
 				break;
 		}
-	}	
+	}
 	
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -615,7 +647,7 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 		}
 
 		unset($ids);
-	}			
+	}
 };
 
 class Context_ExampleObject extends Extension_DevblocksContext {
@@ -719,7 +751,7 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -751,7 +783,7 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		

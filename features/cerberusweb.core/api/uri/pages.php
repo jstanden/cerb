@@ -227,7 +227,7 @@ class Page_Custom extends CerberusPageExtension {
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_OWNER_ID, 'in', array('{{current_worker_id}}')),
 			), true);
 			
-			$view_model = C4_AbstractViewLoader::serializeAbstractView($view);		
+			$view_model = C4_AbstractViewLoader::serializeAbstractView($view);
 			
 			$list_view = new Model_WorkspaceListView();
 			$list_view->title = $view_model->name;
@@ -270,7 +270,7 @@ class Page_Custom extends CerberusPageExtension {
 				SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '=', '{{current_worker_id}}'),
 			), true);
 			
-			$view_model = C4_AbstractViewLoader::serializeAbstractView($view);		
+			$view_model = C4_AbstractViewLoader::serializeAbstractView($view);
 			
 			$list_view = new Model_WorkspaceListView();
 			$list_view->title = $view_model->name;
@@ -288,7 +288,7 @@ class Page_Custom extends CerberusPageExtension {
 				DAO_WorkspaceList::WORKSPACE_TAB_ID => $tab_id,
 			));
 		
-		// Drafts		
+		// Drafts
 		
 		$tab_id = DAO_WorkspaceTab::create(array(
 			DAO_WorkspaceTab::NAME => 'Drafts',
@@ -318,7 +318,7 @@ class Page_Custom extends CerberusPageExtension {
 				//new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED, '=', 0),
 			), true);
 			
-			$view_model = C4_AbstractViewLoader::serializeAbstractView($view);		
+			$view_model = C4_AbstractViewLoader::serializeAbstractView($view);
 			
 			$list_view = new Model_WorkspaceListView();
 			$list_view->title = $view_model->name;
@@ -334,7 +334,7 @@ class Page_Custom extends CerberusPageExtension {
 				DAO_WorkspaceList::LIST_POS => $list_pos++,
 				DAO_WorkspaceList::LIST_VIEW => serialize($list_view),
 				DAO_WorkspaceList::WORKSPACE_TAB_ID => $tab_id,
-			));		
+			));
 		
 		// Sent
 		
@@ -366,7 +366,7 @@ class Page_Custom extends CerberusPageExtension {
 				new DevblocksSearchCriteria(SearchFields_Message::IS_OUTGOING, '=', 1),
 			), true);
 			
-			$view_model = C4_AbstractViewLoader::serializeAbstractView($view);		
+			$view_model = C4_AbstractViewLoader::serializeAbstractView($view);
 			
 			$list_view = new Model_WorkspaceListView();
 			$list_view->title = $view_model->name;
@@ -382,7 +382,7 @@ class Page_Custom extends CerberusPageExtension {
 				DAO_WorkspaceList::LIST_POS => $list_pos++,
 				DAO_WorkspaceList::LIST_VIEW => serialize($list_view),
 				DAO_WorkspaceList::WORKSPACE_TAB_ID => $tab_id,
-			));			
+			));
 	}
 	
 	function setPageOrderAction() {
@@ -404,7 +404,7 @@ class Page_Custom extends CerberusPageExtension {
 				continue;
 			
 			$menu[] = $page_id;
-		}		
+		}
 
 		DAO_WorkerPref::set($active_worker->id, 'menu_json', json_encode($menu));
 		exit;
@@ -577,7 +577,7 @@ class Page_Custom extends CerberusPageExtension {
 			}
 			$tpl->display('devblocks:cerberusweb.core::pages/tab_extension.tpl');
 		}
-	}	
+	}
 	
 	function initWorkspaceListAction() {
 		@$list_id = DevblocksPlatform::importGPC($_REQUEST['list_id'],'integer', 0);
@@ -700,7 +700,7 @@ class Page_Custom extends CerberusPageExtension {
 		}
 		$tpl->assign('owner_roles', $owner_roles);
 	
-		// Extensions 
+		// Extensions
 		
 		$page_extensions = Extension_WorkspacePage::getAll(false);
 		$tpl->assign('page_extensions', $page_extensions);
@@ -850,7 +850,7 @@ class Page_Custom extends CerberusPageExtension {
 	
 		if(!$workspace_page->isWriteableByWorker($active_worker)) {
 			echo json_encode(false);
-			return;			
+			return;
 		}
 	
 		if($do_delete) { // Delete

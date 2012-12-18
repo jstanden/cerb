@@ -16,12 +16,15 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFind('#chooser{$view->id}');
+	var $popup = genericAjaxPopupFetch('{$layer}');
 	
 	$popup.find('UL.buffer').sortable({ placeholder: 'ui-state-highlight' });
 	
 	$popup.one('popup_open',function(event,ui) {
 		event.stopPropagation();
+
+		$popup = $(this);
+		
 		$(this).dialog('option','title','{$context->manifest->name} Chooser');
 		
 		$popup.find('input:text:first').focus();
@@ -55,9 +58,9 @@
 		
 		on_refresh();
 
-		$(this).delegate('DIV[id^=view]','view_refresh', on_refresh);		
+		$(this).delegate('DIV[id^=view]','view_refresh', on_refresh);
 		
-		$('#view{$view->id}').delegate(' TABLE.worklistBody input:checkbox', 'check', function(event) {
+		$('#view{$view->id}').delegate('TABLE.worklistBody input:checkbox', 'check', function(event) {
 			checked = $(this).is(':checked');
 
 			$view = $('#viewForm{$view->id}');
@@ -84,14 +87,14 @@
 		
 		$("form#chooser{$view->id} button.submit").click(function(event) {
 			event.stopPropagation();
-			$popup = genericAjaxPopupFind('form#chooser{$view->id}');
+			var $popup = genericAjaxPopupFetch('{$layer}');
 			$buffer = $($popup).find('UL.buffer input:hidden');
 			$labels = [];
 			$values = [];
 			
 			$buffer.each(function() {
-				$labels.push($(this).attr('title')); 
-				$values.push($(this).val()); 
+				$labels.push($(this).attr('title'));
+				$values.push($(this).val());
 			});
 		
 			// Trigger event
@@ -101,9 +104,10 @@
 			$popup.trigger(event);
 			
 			genericAjaxPopupDestroy('{$layer}');
-		});		
+		});
 	});
-	$popup.one('diagogclose', function(event) {
+	
+	$popup.one('dialogclose', function(event) {
 		event.stopPropagation();
 		genericAjaxPopupDestroy('{$layer}');
 	});

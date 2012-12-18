@@ -47,7 +47,7 @@ class ChReportNewTickets extends Extension_Report {
 		
 		// DAO
 		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);		
+		$tpl->assign('groups', $groups);
 		
 		$group_buckets = DAO_Bucket::getGroups();
 		$tpl->assign('group_buckets', $group_buckets);
@@ -84,7 +84,7 @@ class ChReportNewTickets extends Extension_Report {
 			case 'hour':
 				$date_group='%Y-%m-%d %H';
 				$date_increment = 'hour';
-				break;				
+				break;
 		}
 		
 		// Fallback to automatic grouping
@@ -131,7 +131,7 @@ class ChReportNewTickets extends Extension_Report {
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CREATED_DATE,DevblocksSearchCriteria::OPER_BETWEEN, array($start_time, $end_time)),
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ, 0),
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_TRAINING,DevblocksSearchCriteria::OPER_NEQ, 'S'),
-			);			
+			);
 			
 			if(!empty($filter_group_ids)) {
 				$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID,DevblocksSearchCriteria::OPER_IN, $filter_group_ids);
@@ -146,7 +146,7 @@ class ChReportNewTickets extends Extension_Report {
 			C4_AbstractViewLoader::setView($view->id, $view);
 			
 			$tpl->assign('view', $view);
-		}		
+		}
 		
 		// Chart
 		$sql = sprintf("SELECT t.group_id AS group_id, DATE_FORMAT(FROM_UNIXTIME(t.created_date),'%s') AS date_plot, ".

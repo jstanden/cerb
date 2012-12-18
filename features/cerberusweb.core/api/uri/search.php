@@ -378,10 +378,10 @@ class Page_Search extends CerberusPageExtension {
 							
 							if(!empty($worker_ids)) {
 								$value = array_keys($worker_ids);
-							}							
+							}
 							
 							break;
-					}						
+					}
 
 				}
 				

@@ -10,6 +10,8 @@
 {elseif $widget->params.metric_type == 'seconds'}
 	{$metric_value = intval($metric_value)}
 	{$metric_label = DevblocksPlatform::strSecsToString($metric_value,2)}
+{elseif $widget->params.metric_type == 'bytes'}
+	{$metric_label = DevblocksPlatform::strPrettyBytes($metric_value, 2)}
 {/if}
 
 <div id="widget{$widget->id}_counter" style="font-family:Arial,Helvetica;font-weight:bold;font-size:32px;color:{$widget->params.color|default:'#57970A'};text-align:center;">

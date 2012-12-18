@@ -1,0 +1,1 @@
+{$widget->params.content nofilter}

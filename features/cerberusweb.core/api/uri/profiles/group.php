@@ -77,7 +77,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 			);
 		}
 		
-		$tpl->assign('properties', $properties);				
+		$tpl->assign('properties', $properties);
 		
 		// Macros
 		$macros = DAO_TriggerEvent::getByOwners(

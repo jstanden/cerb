@@ -24,7 +24,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 	const POS = 'pos';
 	const OPTIONS = 'options';
 	
-	const CACHE_ALL = 'ch_customfields'; 
+	const CACHE_ALL = 'ch_customfields';
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -33,7 +33,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 			"VALUES ()"
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-		$id = $db->LastInsertId(); 
+		$id = $db->LastInsertId();
 
 		self::update($id, $fields);
 		
@@ -120,7 +120,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 				"FROM custom_field ".
 				"ORDER BY group_id ASC, pos ASC "
 			;
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			
 			$objects = self::_createObjectsFromResultSet($rs);
 			
@@ -163,7 +163,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 		$id_string = implode(',', $ids);
 		
 		$sql = sprintf("DELETE QUICK FROM custom_field WHERE id IN (%s)",$id_string);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		if(is_array($ids))
 		foreach($ids as $id) {
@@ -194,10 +194,10 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		switch($field->type) {
 			// stringvalue
 			case Model_CustomField::TYPE_SINGLE_LINE:
-			case Model_CustomField::TYPE_DROPDOWN:	
-			case Model_CustomField::TYPE_MULTI_CHECKBOX:	
+			case Model_CustomField::TYPE_DROPDOWN:
+			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 			case Model_CustomField::TYPE_URL:
-				$table = 'custom_field_stringvalue';	
+				$table = 'custom_field_stringvalue';
 				break;
 			// clobvalue
 			case Model_CustomField::TYPE_MULTI_LINE:
@@ -209,7 +209,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			case Model_CustomField::TYPE_NUMBER:
 			case Model_CustomField::TYPE_WORKER:
 				$table = 'custom_field_numbervalue';
-				break;	
+				break;
 		}
 		
 		return $table;
@@ -291,14 +291,14 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param object $context
 	 * @param object $context_id
 	 * @param object $values
-	 * @return 
+	 * @return
 	 */
 	public static function formatAndSetFieldValues($context, $context_id, $values, $is_blank_unset=true, $delta=false, $autoadd_options=false) {
-		// [TODO] This could probably be combined with ::formatFieldValues()		
+		// [TODO] This could probably be combined with ::formatFieldValues()
 		
 		if(empty($context) || empty($context_id) || !is_array($values))
 			return;
@@ -310,8 +310,8 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				continue;
 
 			$field =& $fields[$field_id]; /* @var $field Model_CustomField */
-			$is_delta = ($field->type==Model_CustomField::TYPE_MULTI_CHECKBOX) 
-					? $delta 
+			$is_delta = ($field->type==Model_CustomField::TYPE_MULTI_CHECKBOX)
+					? $delta
 					: false
 					;
 
@@ -349,7 +349,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					
 					// If we're allowed to add/remove fields without touching the rest
 					if(in_array($value, $field->options))
-						self::setFieldValue($context, $context_id, $field_id, $value); 
+						self::setFieldValue($context, $context_id, $field_id, $value);
 					
 					break;
 					
@@ -430,7 +430,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			case 'E': // date
 				if(is_numeric($value))
 					$value = intval($value);
-				else 
+				else
 					$value = @strtotime($value);
 				break;
 			case 'D': // dropdown
@@ -590,7 +590,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 	
 	public static function handleFormPost($context, $context_id, $field_ids) {
 		$field_values = self::parseFormPost($context, $field_ids);
-		self::formatAndSetFieldValues($context, $context_id, $field_values);		
+		self::formatAndSetFieldValues($context, $context_id, $field_values);
 		return true;
 	}
 	
@@ -617,7 +617,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		
 		/*
 		 * Only scan the tables where this context has custom fields.  For example,
-		 * if we only have a string custom field defined on tickets, we only need to 
+		 * if we only have a string custom field defined on tickets, we only need to
 		 * check one table out of the three.
 		 */
 
@@ -646,7 +646,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			return array();
 		
 		/*
-		 * UNION the custom field queries into a single statement so we don't have to 
+		 * UNION the custom field queries into a single statement so we don't have to
 		 * merge them in PHP from different resultsets.
 		 */
 		
@@ -674,7 +674,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				$ptr[$field_id] = $field_value;
 				
 			}
-		}		
+		}
 		
 		mysql_free_result($rs);
 		

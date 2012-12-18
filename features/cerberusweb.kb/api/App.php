@@ -16,31 +16,31 @@
 ***********************************************************************/
 /*
  * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
- * 
- * Sure, it would be so easy to just cheat and edit this file to use the 
- * software without paying for it.  But we trust you anyway.  In fact, we're 
- * writing this software for you! 
- * 
- * Quality software backed by a dedicated team takes money to develop.  We 
- * don't want to be out of the office bagging groceries when you call up 
- * needing a helping hand.  We'd rather spend our free time coding your 
- * feature requests than mowing the neighbors' lawns for rent money. 
- * 
- * We've never believed in hiding our source code out of paranoia over not 
- * getting paid.  We want you to have the full source code and be able to 
- * make the tweaks your organization requires to get more done -- despite 
- * having less of everything than you might need (time, people, money, 
+ *
+ * Sure, it would be so easy to just cheat and edit this file to use the
+ * software without paying for it.  But we trust you anyway.  In fact, we're
+ * writing this software for you!
+ *
+ * Quality software backed by a dedicated team takes money to develop.  We
+ * don't want to be out of the office bagging groceries when you call up
+ * needing a helping hand.  We'd rather spend our free time coding your
+ * feature requests than mowing the neighbors' lawns for rent money.
+ *
+ * We've never believed in hiding our source code out of paranoia over not
+ * getting paid.  We want you to have the full source code and be able to
+ * make the tweaks your organization requires to get more done -- despite
+ * having less of everything than you might need (time, people, money,
  * energy).  We shouldn't be your bottleneck.
- * 
- * We've been building our expertise with this project since January 2002.  We 
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to 
- * let us take over your shared e-mail headache is a worthwhile investment.  
- * It will give you a sense of control over your inbox that you probably 
- * haven't had since spammers found you in a game of 'E-mail Battleship'. 
+ *
+ * We've been building our expertise with this project since January 2002.  We
+ * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to
+ * let us take over your shared e-mail headache is a worthwhile investment.
+ * It will give you a sense of control over your inbox that you probably
+ * haven't had since spammers found you in a game of 'E-mail Battleship'.
  * Miss. Miss. You sunk my inbox!
- * 
- * A legitimate license entitles you to support from the developers,  
- * and the warm fuzzy feeling of feeding a couple of obsessed developers 
+ *
+ * A legitimate license entitles you to support from the developers,
+ * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
  * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
@@ -65,7 +65,7 @@ class ChKbPage extends CerberusPageExtension {
 		$url_writer = DevblocksPlatform::getUrlService();
 		
 		// Generate hash
-		$hash = md5($view_id.$active_worker->id.time()); 
+		$hash = md5($view_id.$active_worker->id.time());
 		
 		// Loop through view and get IDs
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
@@ -100,7 +100,7 @@ class ChKbPage extends CerberusPageExtension {
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&tab=kb_article', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
-				$models[] = $model; 
+				$models[] = $model;
 				
 				$view->renderTotal = false; // speed up subsequent pages
 			}
@@ -117,7 +117,7 @@ class ChKbPage extends CerberusPageExtension {
 					'id' => $row[SearchFields_KbArticle::ID],
 					'url' => $url_writer->writeNoProxy(sprintf("c=profiles&type=kb&id=%d", $row[SearchFields_KbArticle::ID]), true),
 				);
-				$models[] = $model; 
+				$models[] = $model;
 			}
 			
 			DAO_ExplorerSet::createFromModels($models);
@@ -127,7 +127,7 @@ class ChKbPage extends CerberusPageExtension {
 		} while(!empty($results));
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
-	}	
+	}
 	
 };
 
@@ -204,14 +204,14 @@ class WorkspaceTab_KbBrowse extends Extension_WorkspaceTab {
 		
 		$tpl->assign('view', $view);
 		
-		$tpl->display('devblocks:cerberusweb.kb::kb/tabs/articles/index.tpl');	
+		$tpl->display('devblocks:cerberusweb.kb::kb/tabs/articles/index.tpl');
 	}
 }
 endif;
 
 if (class_exists('Extension_ReplyToolbarItem',true)):
 	class ChKbReplyToolbarButton extends Extension_ReplyToolbarItem {
-		function render(Model_Message $message) { 
+		function render(Model_Message $message) {
 			$tpl = DevblocksPlatform::getTemplateService();
 			
 			$tpl->assign('div', 'replyToolbarOptions'.$message->id);
@@ -237,23 +237,23 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		if(!$this->isVisible())
 			return;
 		
-	    $path = $request->path;
+		$path = $request->path;
 		$controller = array_shift($path); // timetracking
 
-	    @$action = DevblocksPlatform::strAlphaNum(array_shift($path), '\_') . 'Action';
+		@$action = DevblocksPlatform::strAlphaNum(array_shift($path), '\_') . 'Action';
 
-	    switch($action) {
-	        case NULL:
-	            // [TODO] Index/page render
-	            break;
-	            
-	        default:
-			    // Default action, call arg as a method suffixed with Action
+		switch($action) {
+			case NULL:
+				// [TODO] Index/page render
+				break;
+				
+			default:
+				// Default action, call arg as a method suffixed with Action
 				if(method_exists($this,$action)) {
 					call_user_func(array(&$this, $action));
 				}
-	            break;
-	    }
+				break;
+		}
 	}
 	
 	function showArticleEditPanelAction() {
@@ -387,7 +387,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		}
 		
 		/*
-		 * [TODO] Remove the current category + descendents from the categories, 
+		 * [TODO] Remove the current category + descendents from the categories,
 		 * so the worker can't create a closed subtree (e.g. category's parent is its child)
 		 */
 		
@@ -450,10 +450,10 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
-	    if(!empty($id_csv)) {
-	        $ids = DevblocksPlatform::parseCsvString($id_csv);
-	        $tpl->assign('ids', implode(',', $ids));
-	    }
+		if(!empty($id_csv)) {
+			$ids = DevblocksPlatform::parseCsvString($id_csv);
+			$tpl->assign('ids', implode(',', $ids));
+		}
 		
 		// Categories
 		$categories = DAO_KbCategory::getAll();
@@ -475,10 +475,10 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	
 	function doArticlesBulkUpdateAction() {
 		// Filter: whole list or check
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-	    $ids = array();
-	    
-	    // View
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		$ids = array();
+		
+		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
@@ -524,7 +524,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 			case 'sample':
@@ -555,7 +555,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 
 		$tpl->assign('body', $article->getContent());
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/html_editor/preview.tpl');		
+		$tpl->display('devblocks:cerberusweb.core::internal/html_editor/preview.tpl');
 	}
 };
 
@@ -626,18 +626,18 @@ class DAO_KbCategory extends C4_ORMHelper {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param bool $nocache
 	 * @return Model_KbCategory[]
 	 */
 	static function getAll($nocache=false) {
-	    $cache = DevblocksPlatform::getCacheService();
-	    if($nocache || null === ($categories = $cache->load(self::CACHE_ALL))) {
-    	    $categories = self::getWhere();
-    	    $cache->save($categories, self::CACHE_ALL);
-	    }
-	    
-	    return $categories;
+		$cache = DevblocksPlatform::getCacheService();
+		if($nocache || null === ($categories = $cache->load(self::CACHE_ALL))) {
+			$categories = self::getWhere();
+			$cache->save($categories, self::CACHE_ALL);
+		}
+		
+		return $categories;
 	}
 	
 	static function getTree($root=0) {
@@ -749,21 +749,21 @@ class DAO_KbCategory extends C4_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"kbc.id as %s, ".
 			"kbc.name as %s, ".
 			"kbc.parent_id as %s ",
-			    SearchFields_KbCategory::ID,
-			    SearchFields_KbCategory::NAME,
-			    SearchFields_KbCategory::PARENT_ID
+				SearchFields_KbCategory::ID,
+				SearchFields_KbCategory::NAME,
+				SearchFields_KbCategory::PARENT_ID
 			);
 			
 		$join_sql = "FROM kb_category kbc ";
 
 		// [JAS]: Dynamic table joins
-//		if(isset($tables['context_link'])) 
+//		if(isset($tables['context_link']))
 //			$join_sql .= "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.kb_article' AND context_link.to_context_id = kb.id) ";
 		
 		// Custom field joins
@@ -790,9 +790,9 @@ class DAO_KbCategory extends C4_ORMHelper {
 		);
 		
 		return $result;
-	}	
+	}
 	
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
@@ -804,14 +804,14 @@ class DAO_KbCategory extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY kbc.id ' : '').
 			$sort_sql;
 		
-		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$results = array();
 		
@@ -827,7 +827,7 @@ class DAO_KbCategory extends C4_ORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT kbc.id) " : "SELECT COUNT(kbc.id) ").
 				$join_sql.
 				$where_sql;
@@ -837,7 +837,7 @@ class DAO_KbCategory extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-    }	
+	}
 	
 	static public function clearCache() {
 		$cache = DevblocksPlatform::getCacheService();
@@ -875,9 +875,9 @@ class SearchFields_KbCategory implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
-};	
+};
 
 class Context_KbCategory extends Extension_DevblocksContext {
 	function authorize($context_id, Model_Worker $worker) {
@@ -977,7 +977,7 @@ class Context_KbCategory extends Extension_DevblocksContext {
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -1013,7 +1013,7 @@ class Context_KbCategory extends Extension_DevblocksContext {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		//$view->name = 'Calls';

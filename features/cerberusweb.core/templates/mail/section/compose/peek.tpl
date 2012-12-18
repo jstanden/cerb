@@ -32,19 +32,13 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{'contact_org.name'|devblocks_translate}:&nbsp;</td>
 			<td width="100%">
-				<input type="text" name="org_name" value="{$draft->params.org_name}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
-				<div class="instructions" style="display:none;">
-				(optional) Link this ticket to an organization for suggested recipients
-				</div>
+				<input type="text" name="org_name" value="{$draft->params.org_name}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="(optional) Link this ticket to an organization for suggested recipients">
 			</td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'message.header.to'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 			<td width="100%">
-				<input type="text" name="to" id="emailinput" value="{if !empty($to)}{$to}{else}{$draft->params.to}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="e.g. recipient@example.com, customer@example.com" required>
-				<div class="instructions" style="display:none;">
-					These recipients will automatically be included in all future correspondence
-				</div>
+				<input type="text" name="to" id="emailinput" value="{if !empty($to)}{$to}{else}{$draft->params.to}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence" required>
 				
 				<div id="compose_suggested" style="display:none;">
 					<a href="javascript:;" onclick="$(this).closest('div').hide();">x</a>
@@ -56,19 +50,13 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{'message.header.cc'|devblocks_translate|capitalize}:&nbsp;</td>
 			<td width="100%">
-				<input type="text" name="cc" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->params.cc}" autocomplete="off">
-				<div class="instructions" style="display:none;">
-					These recipients will publicly receive a copy of this message	
-				</div>
+				<input type="text" name="cc" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->params.cc}" placeholder="These recipients will publicly receive a copy of this message" autocomplete="off">
 			</td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{'message.header.bcc'|devblocks_translate|capitalize}:&nbsp;</td>
 			<td width="100%">
-				<input type="text" name="bcc" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->params.bcc}" autocomplete="off">
-				<div class="instructions" style="display:none;">
-					These recipients will secretly receive a copy of this message			
-				</div>
+				<input type="text" name="bcc" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->params.bcc}" placeholder="These recipients will secretly receive a copy of this message" autocomplete="off">
 			</td>
 		</tr>
 		<tr>
@@ -79,13 +67,26 @@
 		</tr>
 		<tr>
 			<td width="100%" colspan="2">
-				<div style="padding:2px;">
-					<button id="btnSaveDraft" class="toolbar-item" type="button" onclick="genericAjaxPost('frmComposePeek',null,'c=mail&a=handleSectionAction&section=drafts&action=saveDraft&type=compose',function(json) { var obj = $.parseJSON(json); if(!obj || !obj.html || !obj.draft_id) return; $('#divDraftStatus').html(obj.html); $('#frmComposePeek input[name=draft_id]').val(obj.draft_id); } );"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
-					<button class="toolbar-item" type="button" onclick="ajax.chooserSnippet('snippets',$('#divComposeContent'), { '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });"><span class="cerb-sprite sprite-view"></span> {'common.snippets'|devblocks_translate|capitalize}</button>
-					<button class="toolbar-item" type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+$(this.form.group_id).val()+'&bucket_id='+$(this.form.bucket_id).val(),function(text) { insertAtCursor(document.getElementById('divComposeContent'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
-				</div>
-			
 				<div id="divDraftStatus"></div>
+				
+				<div>
+					<fieldset style="display:inline-block;">
+						<legend>Actions</legend>
+						
+						<button id="btnComposeSaveDraft" class="toolbar-item" type="button"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
+						<button id="btnComposeInsertSig" class="toolbar-item" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if} onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+$(this.form.group_id).val()+'&bucket_id='+$(this.form.bucket_id).val(),function(text) { insertAtCursor(document.getElementById('divComposeContent'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
+					</fieldset>
+				
+					<fieldset style="display:inline-block;">
+						<legend>{'common.snippets'|devblocks_translate|capitalize}</legend>
+						<div>
+							Insert: 
+							<input type="text" size="25" class="context-snippet autocomplete" {if $pref_keyboard_shortcuts}placeholder="(Ctrl+Shift+I)"{/if}>
+							<button type="button" onclick="ajax.chooserSnippet('snippets',$('#divComposeContent'), { '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });"><span class="cerb-sprite sprite-view"></span></button>
+							<button type="button" onclick="genericAjaxPopup('add_snippet','c=internal&a=showSnippetsPeek&id=0&owner_context={CerberusContexts::CONTEXT_WORKER}&owner_context_id={$active_worker->id}&context=',null,false,'550');"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+						</div>
+					</fieldset>
+				</div>
 				
 				<textarea id="divComposeContent" name="content" style="width:98%;height:150px;border:1px solid rgb(180,180,180);padding:2px;">{$draft->body}</textarea>
 			</td>
@@ -104,11 +105,11 @@
 	</div>
 	
 	<div style="margin-top:10px;">
-		<label><input type="radio" name="closed" value="0" {if (empty($drafts) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.closed==0)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','none');">{'status.open'|devblocks_translate}</label>
-		<label><input type="radio" name="closed" value="2" {if (empty($drafts) && 'waiting'==$defaults.status) || (!empty($draft) && $draft->params.closed==2)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','block');">{'status.waiting'|devblocks_translate}</label>
-		{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1" {if (empty($drafts) && 'closed'==$defaults.status) || (!empty($draft) && $draft->params.closed==1)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','block');">{'status.closed'|devblocks_translate}</label>{/if}
+		<label><input type="radio" name="closed" value="0" {if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.closed==0)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','none');">{'status.open'|devblocks_translate}</label>
+		<label><input type="radio" name="closed" value="2" {if (empty($draft) && 'waiting'==$defaults.status) || (!empty($draft) && $draft->params.closed==2)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','block');">{'status.waiting'|devblocks_translate}</label>
+		{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1" {if (empty($draft) && 'closed'==$defaults.status) || (!empty($draft) && $draft->params.closed==1)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','block');">{'status.closed'|devblocks_translate}</label>{/if}
 		
-		<div id="divComposeClosed" style="display:{if (empty($drafts) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.closed==0)}none{else}block{/if};margin-top:5px;margin-left:10px;">
+		<div id="divComposeClosed" style="display:{if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.closed==0)}none{else}block{/if};margin-top:5px;margin-left:10px;">
 			<b>{$translate->_('display.reply.next.resume')}</b><br>
 			{$translate->_('display.reply.next.resume_eg')}<br> 
 			<input type="text" name="ticket_reopen" size="55" value="{$draft->params.ticket_reopen}"><br>
@@ -184,6 +185,9 @@
 </form>
 
 <script type="text/javascript">
+	if(draftComposeAutoSaveInterval == undefined)
+		var draftComposeAutoSaveInterval = null;
+
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
 		$(this).dialog('option','title','{'mail.send_mail'|devblocks_translate|capitalize}');
@@ -208,15 +212,9 @@
 			ajax.chooserFile(this,'file_ids');
 		});
 		
+		$frm.find('textarea').elastic();
+		
 		$frm.validate();
-		
-		$frm.find('input:text').focus(function(event) {
-			$(this).nextAll('div.instructions').fadeIn();
-		});
-		
-		$frm.find('input:text').blur(function(event) {
-			$(this).nextAll('div.instructions').fadeOut();
-		});
 		
 		$frm.find('select[name=group_or_bucket_id]').change(function(e) {
 			$div = $('#compose_cfields');
@@ -305,7 +303,130 @@
 				
 				$sug.show();
 			});
-		});		
+		});
+		
+		// Drafts
+		
+		$('#btnComposeSaveDraft').click(function(e) {
+			var $this = $(this);
+			
+			if(!$this.is(':visible')) {
+				clearTimeout(draftComposeAutoSaveInterval);
+				draftComposeAutoSaveInterval = null;
+				return;
+			}
+			
+			if($this.attr('disabled'))
+				return;
+			
+			$this.attr('disabled','disabled');
+			
+			genericAjaxPost(
+				'frmComposePeek',
+				null,
+				'c=mail&a=handleSectionAction&section=drafts&action=saveDraft&type=compose',
+				function(json) { 
+					var obj = $.parseJSON(json);
+					
+					if(!obj || !obj.html || !obj.draft_id)
+						return;
+				
+					$('#divDraftStatus').html(obj.html);
+					
+					$('#frmComposePeek input[name=draft_id]').val(obj.draft_id);
+					
+					$('#btnComposeSaveDraft').removeAttr('disabled');
+				}
+			);
+		});
+		
+		if(null != draftComposeAutoSaveInterval) {
+			clearTimeout(draftComposeAutoSaveInterval);
+			draftComposeAutoSaveInterval = null;
+		}
+		
+		draftComposeAutoSaveInterval = setInterval("$('#btnComposeSaveDraft').click();", 30000); // and every 30 sec
+		
+		// Snippet chooser shortcut
+		
+		$frm.find('input:text.context-snippet').autocomplete({
+			source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=cerberusweb.contexts.snippet&contexts[]=cerberusweb.contexts.worker',
+			minLength: 1,
+			focus:function(event, ui) {
+				return false;
+			},
+			autoFocus:true,
+			select:function(event, ui) {
+				$this = $(this);
+				$textarea = $('#divComposeContent');
+				
+				$label = ui.item.label.replace("<","&lt;").replace(">","&gt;");
+				$value = ui.item.value;
+				
+				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
+				url = 'c=internal&a=snippetPaste&id=' + $value;
+
+				// Context-dependent arguments
+				if ('cerberusweb.contexts.worker'==ui.item.context) {
+					url += "&context_id={$active_worker->id}";
+				}
+
+				genericAjaxGet('',url,function(txt) {
+					// If the content has placeholders, use that popup instead
+					if(txt.match(/\(__(.*?)__\)/)) {
+						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&text=' + encodeURIComponent(txt),null,false,'600');
+					
+						$popup_paste.bind('snippet_paste', function(event) {
+							if(null == event.text)
+								return;
+						
+							$textarea.insertAtCursor(event.text).focus();
+						});
+						
+					} else {
+						$textarea.insertAtCursor(txt).focus();
+					}
+					
+				}, { async: false });
+
+				$this.val('');
+				return false;
+			}
+		});
+		
+		// Shortcuts
+		
+		{if $pref_keyboard_shortcuts}
+		
+		// Reply textbox
+		$('#divComposeContent').keypress(function(event) {
+			if(!$(this).is(':focus'))
+				return;
+			
+			if(!event.ctrlKey) //!event.altKey && !event.ctrlKey && !event.metaKey
+				return;
+
+			if(event.ctrlKey && event.shiftKey) {
+				switch(event.which) {
+					case 7:  
+					case 71: // (G) Insert Signature
+						try {
+							event.preventDefault();
+							$('#btnComposeInsertSig').click();
+						} catch(ex) { } 
+						break;
+					case 9:  
+					case 73: // (I) Insert Snippet
+						try {
+							event.preventDefault();
+							$('#frmComposePeek').find('INPUT:text.context-snippet').focus();
+						} catch(ex) { } 
+						break;
+				}
+			}
+		});
+		
+		{/if}
 		
 		$frm.find(':input:text:first').focus().select();
 		
@@ -314,12 +435,13 @@
 			$input = $frm.find('input#emailinput');
 			
 			if($frm.validate().form()) {
+				if(null != draftComposeAutoSaveInterval) { 
+					clearTimeout(draftComposeAutoSaveInterval);
+					draftComposeAutoSaveInterval = null;
+				}
+				
 				genericAjaxPopupPostCloseReloadView(null,'frmComposePeek','{$view_id}',false,'compose_save');
-			} else {
 			}
-			
 		});
-		
-		//setInterval("$('#btnSaveDraft').click();", 30000);
 	});
 </script>

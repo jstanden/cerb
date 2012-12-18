@@ -21,7 +21,7 @@ if(!isset($tables['crm_opportunity'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->Execute($sql);
 }
 
 list($columns, $indexes) = $db->metaTable('crm_opportunity');
@@ -69,7 +69,7 @@ if(!isset($tables['crm_opp_comment'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->Execute($sql);
 }
 
 if(!isset($indexes['opportunity_id'])) {
@@ -84,7 +84,7 @@ if(!isset($tables['crm_campaign'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->Execute($sql);
 }
 
 if(!isset($tables['crm_campaign_bucket'])) {
@@ -96,7 +96,7 @@ if(!isset($tables['crm_campaign_bucket'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->Execute($sql);
 }
 
 list($columns, $indexes) = $db->metaTable('crm_campaign_bucket');

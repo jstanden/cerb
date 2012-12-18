@@ -118,7 +118,7 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 			return $tokens[$token];
 		
 		return NULL;
-	}	
+	}
 	
 	function getContext($id) {
 		$labels = array();
@@ -162,7 +162,7 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 			'results' => $objects,
 		);
 		
-		return $container;		
+		return $container;
 	}
 	
 	function postSearch() {
@@ -276,7 +276,7 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 			
 		// Check required fields
 		$reqfields = array(
-			DAO_KbCategory::NAME,  
+			DAO_KbCategory::NAME,
 		);
 
 		$this->_handleRequiredFields($reqfields, $fields);
@@ -290,6 +290,6 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 				
 			$this->getId($id);
 		}
-	}	
+	}
 
 };

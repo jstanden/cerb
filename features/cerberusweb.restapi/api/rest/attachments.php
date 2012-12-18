@@ -119,7 +119,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 			return $tokens[$token];
 		
 		return NULL;
-	}	
+	}
 	
 	function getContext($id) {
 		$labels = array();
@@ -174,7 +174,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 			'results' => $objects,
 		);
 		
-		return $container;		
+		return $container;
 	}
 	
 	function postSearch() {

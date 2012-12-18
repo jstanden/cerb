@@ -40,15 +40,15 @@ class PageSection_SetupStorageAttachments extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
-	    if(!empty($id_csv)) {
-	        $ids = DevblocksPlatform::parseCsvString($id_csv);
-	        $tpl->assign('ids', implode(',', $ids));
-	    }
+		if(!empty($id_csv)) {
+			$ids = DevblocksPlatform::parseCsvString($id_csv);
+			$tpl->assign('ids', implode(',', $ids));
+		}
 		
-	    // Lists
-//	    $lists = DAO_FeedbackList::getWhere();
-//	    $tpl->assign('lists', $lists);
-	    
+		// Lists
+//		$lists = DAO_FeedbackList::getWhere();
+//		$tpl->assign('lists', $lists);
+		
 		// Custom Fields
 //		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
 //		$tpl->assign('custom_fields', $custom_fields);
@@ -58,10 +58,10 @@ class PageSection_SetupStorageAttachments extends Extension_PageSection {
 	
 	function doAttachmentsBulkUpdateAction() {
 		// Filter: whole list or check
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-	    $ids = array();
-	    
-	    // View
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		$ids = array();
+		
+		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
@@ -80,7 +80,7 @@ class PageSection_SetupStorageAttachments extends Extension_PageSection {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 			case 'sample':
@@ -96,5 +96,5 @@ class PageSection_SetupStorageAttachments extends Extension_PageSection {
 		
 		$view->render();
 		return;
-	}	
+	}
 }

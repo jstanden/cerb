@@ -143,7 +143,7 @@ class DAO_MailQueue extends DevblocksORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || (!empty($columns) && !in_array($sortBy, $columns)))
 			$sortBy=null;
 		
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"mail_queue.id as %s, ".
@@ -185,21 +185,21 @@ class DAO_MailQueue extends DevblocksORMHelper {
 		);
 		
 		return $result;
-	}	
+	}
 	
-    /**
-     * Enter description here...
-     *
-     * @param array $columns
-     * @param DevblocksSearchCriteria[] $params
-     * @param integer $limit
-     * @param integer $page
-     * @param string $sortBy
-     * @param boolean $sortAsc
-     * @param boolean $withCounts
-     * @return array
-     */
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	/**
+	 * Enter description here...
+	 *
+	 * @param array $columns
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
@@ -211,7 +211,7 @@ class DAO_MailQueue extends DevblocksORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -220,10 +220,10 @@ class DAO_MailQueue extends DevblocksORMHelper {
 			
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		} else {
-		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-            $total = mysql_num_rows($rs);
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$total = mysql_num_rows($rs);
 		}
 		
 		$results = array();
@@ -240,7 +240,7 @@ class DAO_MailQueue extends DevblocksORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT mail_queue.id) " : "SELECT COUNT(mail_queue.id) ").
 				$join_sql.
 				$where_sql;
@@ -264,8 +264,6 @@ class SearchFields_MailQueue implements IDevblocksSearchFields {
 	const IS_QUEUED = 'm_is_queued';
 	const QUEUE_DELIVERY_DATE = 'm_queue_delivery_date';
 	const QUEUE_FAILS = 'm_queue_fails';
-//	const BODY = 'm_body';
-//	const PARAMS_JSON = 'm_params_json';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -284,14 +282,12 @@ class SearchFields_MailQueue implements IDevblocksSearchFields {
 			self::IS_QUEUED => new DevblocksSearchField(self::IS_QUEUED, 'mail_queue', 'is_queued', $translate->_('mail_queue.is_queued')),
 			self::QUEUE_DELIVERY_DATE => new DevblocksSearchField(self::QUEUE_DELIVERY_DATE, 'mail_queue', 'queue_delivery_date', $translate->_('mail_queue.queue_delivery_date')),
 			self::QUEUE_FAILS => new DevblocksSearchField(self::QUEUE_FAILS, 'mail_queue', 'queue_fails', $translate->_('mail_queue.queue_fails')),
-//			self::BODY => new DevblocksSearchField(self::BODY, 'mail_queue', 'body', $translate->_('common.content')),
-//			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'mail_queue', 'params_json', $translate->_('mail_queue.params_json')),
 		);
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 
@@ -375,7 +371,7 @@ class Model_MailQueue {
 		$properties['content'] = $this->body;
 
 		// Next action
-		$properties['closed'] = isset($this->params['next_is_closed']) ? intval($this->params['next_is_closed']) : 0; 
+		$properties['closed'] = isset($this->params['next_is_closed']) ? intval($this->params['next_is_closed']) : 0;
 
 		// Org
 		if(isset($this->params['org_id'])) {
@@ -391,7 +387,17 @@ class Model_MailQueue {
 		// Send mail
 		if(false == ($ticket_id = CerberusMail::compose($properties)))
 			return false;
+		
+		// Context links
+		@$context_links = $this->params['context_links'];
+		if(is_array($context_links));
+		foreach($this->params['context_links'] as $context_pair) {
+			if(!is_array($context_pair) || 2 != count($context_pair))
+				continue;
 			
+			DAO_ContextLink::setLink($context_pair[0], $context_pair[1], CerberusContexts::CONTEXT_TICKET, $ticket_id);
+		}
+		
 		return true;
 	}
 	
@@ -447,13 +453,23 @@ class Model_MailQueue {
 		// 'files' => $attachment_files,
 		// 'files' => @$_FILES['attachment'],
 		
-//	    'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
-//	    'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
-//	    'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
+//		'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
+//		'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
+//		'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
 
-//	    'forward_files' => DevblocksPlatform::importGPC(@$_REQUEST['forward_files'],'array',array()),
+//		'forward_files' => DevblocksPlatform::importGPC(@$_REQUEST['forward_files'],'array',array()),
 		
 		// [TODO] Custom fields
+		
+		// Context links
+		@$context_links = $this->params['context_links'];
+		if(is_array($context_links));
+		foreach($this->params['context_links'] as $context_pair) {
+			if(!is_array($context_pair) || 2 != count($context_pair))
+				continue;
+			
+			DAO_ContextLink::setLink($context_pair[0], $context_pair[1], CerberusContexts::CONTEXT_TICKET, $ticket_id);
+		}
 		
 		// Send message
 		return CerberusMail::sendTicketMessage($properties);
@@ -574,7 +590,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals 
 		}
 		
 		return $counts;
-	}	
+	}
 	
 	function render() {
 		$this->_sanitize();
@@ -584,6 +600,12 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals 
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
+		$label_map_type = array(
+			'mail.compose' => 'Compose',
+			'ticket.reply' => 'Reply',
+		);
+		$tpl->assign('label_map_type', $label_map_type);
+		
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::mail/queue/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
@@ -629,6 +651,14 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals 
 				$this->_renderCriteriaParamBoolean($param);
 				break;
 			
+			case SearchFields_MailQueue::TYPE:
+				$label_map = array(
+					'mail.compose' => 'Compose',
+					'ticket.reply' => 'Reply',
+				);
+				$this->_renderCriteriaParamString($param, $label_map);
+				break;
+				
 			case SearchFields_MailQueue::WORKER_ID:
 				$this->_renderCriteriaParamWorker($param);
 				break;
@@ -741,7 +771,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals 
 		for($x=0;$x<=$batch_total;$x+=100) {
 			$batch_ids = array_slice($ids,$x,100);
 			
-			if(!$deleted) { 
+			if(!$deleted) {
 				DAO_MailQueue::update($batch_ids, $change_fields);
 			} else {
 				DAO_MailQueue::delete($batch_ids);
@@ -751,7 +781,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals 
 		}
 
 		unset($ids);
-	}			
+	}
 };
 
 class Context_Draft extends Extension_DevblocksContext {
@@ -838,7 +868,7 @@ class Context_Draft extends Extension_DevblocksContext {
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -890,7 +920,7 @@ class Context_Draft extends Extension_DevblocksContext {
 		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		C4_AbstractViewLoader::setView($view_id, $view);
-		return $view;		
+		return $view;
 	}
 	
 	function getView($context=null, $context_id=null, $options=array()) {
@@ -900,7 +930,7 @@ class Context_Draft extends Extension_DevblocksContext {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Drafts';

@@ -6,34 +6,34 @@ class UmScAjaxController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$umsession = ChPortalHelper::getSession();
 		
-        @$active_contact = $umsession->getProperty('sc_login',null);
-        $tpl->assign('active_contact', $active_contact);
+		@$active_contact = $umsession->getProperty('sc_login',null);
+		$tpl->assign('active_contact', $active_contact);
 
 		// Usermeet Session
 		if(null == ($fingerprint = ChPortalHelper::getFingerprint())) {
 			die("A problem occurred.");
 		}
-        $tpl->assign('fingerprint', $fingerprint);
+		$tpl->assign('fingerprint', $fingerprint);
 	}
 	
 	function handleRequest(DevblocksHttpRequest $request) {
 		@$path = $request->path;
 		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string');
-	    
+		
 		if(empty($a)) {
-    	    @$action = array_shift($path) . 'Action';
+			@$action = array_shift($path) . 'Action';
 		} else {
-	    	@$action = $a . 'Action';
+			@$action = $a . 'Action';
 		}
 		
-	    switch($action) {
-	        default:
-			    // Default action, call arg as a method suffixed with Action
+		switch($action) {
+			default:
+				// Default action, call arg as a method suffixed with Action
 				if(method_exists($this,$action)) {
 					call_user_func(array($this, $action), new DevblocksHttpRequest($path)); // Pass HttpRequest as arg
 				}
-	            break;
-	    }
+				break;
+		}
 	}
 	
 	function viewRefreshAction(DevblocksHttpRequest $request) {
@@ -141,7 +141,7 @@ class UmScAjaxController extends Extension_UmScController {
 		}
 		
 		exit;
-	}	
+	}
 	
 	function downloadFileAction(DevblocksHttpRequest $request) {
 		$umsession = ChPortalHelper::getSession();
@@ -160,7 +160,7 @@ class UmScAjaxController extends Extension_UmScController {
 
 		switch($link->context) {
 			case CerberusContexts::CONTEXT_MESSAGE:
-		        if(null == ($active_contact = $umsession->getProperty('sc_login',null)))
+				if(null == ($active_contact = $umsession->getProperty('sc_login',null)))
 					return;
 		
 				// [TODO] API/model ::getAddresses()
@@ -176,7 +176,7 @@ class UmScAjaxController extends Extension_UmScController {
 				if(null == ($message = DAO_Message::get($link->context_id)))
 					return;
 		
-				// Requesters		
+				// Requesters
 				if(null == ($requesters = DAO_Ticket::getRequestersByTicket($message->ticket_id)))
 					return;
 		

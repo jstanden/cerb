@@ -199,5 +199,5 @@ class PageSection_SetupACL extends Extension_PageSection {
 		);
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','acl',$friendly),array('saved'=>'')));
 		exit;
-	}	
+	}
 };

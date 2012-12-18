@@ -167,9 +167,9 @@
 										e = jQuery.Event('select_all');
 										e.view_id = view_id;
 										e.checked = !$(this).is(':checked')
-										$('div#view' + view_id).trigger(e);
+										$('#view' + view_id).trigger(e);
 									});
-								} catch(e) { } 
+								} catch(e) { }
 								break;
 								
 							case 126: // (~) show subtotals
@@ -184,7 +184,7 @@
 						if(hotkey_activated) {
 							event.preventDefault();
 							return;
-						}						
+						}
 						
 						if($view.length > 0) {
 							// Trigger event
@@ -228,7 +228,7 @@
 			// Edit tab
 			$workspace.find('button.edit-tab').click(function(e) {
 				$tabs = $("#pageTabs");
-				$selected_tab = $tabs.find('li.ui-tabs-selected').first();
+				$selected_tab = $tabs.find('li.ui-tabs-active').first();
 				
 				if(0 == $selected_tab.length)
 					return;
@@ -247,7 +247,7 @@
 						$tabs.tabs('load', selected_idx);
 						
 						if(null != json.name) {
-							$selected_tab = $tabs.find('> ul > li.ui-tabs-selected');
+							$selected_tab = $tabs.find('> ul > li.ui-tabs-active');
 							$selected_tab.find('a').html(json.name);
 						}
 					}

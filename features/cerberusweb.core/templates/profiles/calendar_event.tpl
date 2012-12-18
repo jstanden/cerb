@@ -43,10 +43,19 @@
 			{/if}
 		{/if}
 	
-		{if $active_worker->is_superuser}			
+		{if $active_worker->is_superuser}
 			<button type="button" id="btnProfileEventEdit"><span class="cerb-sprite sprite-document_edit"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 		{/if}
 	</form>
+	
+	{if $pref_keyboard_shortcuts}
+	<small>
+		{$translate->_('common.keyboard')|lower}:
+		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
+		(<b>1-9</b>) change tab
+	</small> 
+	{/if}
 </fieldset>
 
 <div>
@@ -100,6 +109,56 @@ $(function() {
 	
 	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl"}
 });
+</script>
+
+<script type="text/javascript">
+{if $pref_keyboard_shortcuts}
+$(document).keypress(function(event) {
+	if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
+		return;
+	
+	if($(event.target).is(':input'))
+		return;
+
+	hotkey_activated = true;
+	
+	switch(event.which) {
+		case 49:  // (1) tab cycle
+		case 50:  // (2) tab cycle
+		case 51:  // (3) tab cycle
+		case 52:  // (4) tab cycle
+		case 53:  // (5) tab cycle
+		case 54:  // (6) tab cycle
+		case 55:  // (7) tab cycle
+		case 56:  // (8) tab cycle
+		case 57:  // (9) tab cycle
+		case 58:  // (0) tab cycle
+			try {
+				idx = event.which-49;
+				$tabs = $("#profileTabs").tabs();
+				$tabs.tabs('select', idx);
+			} catch(ex) { } 
+			break;
+		case 101:  // (E) edit
+			try {
+				$('#btnProfileEventEdit').click();
+			} catch(ex) { } 
+			break;
+		case 109:  // (M) macros
+			try {
+				$('#btnDisplayMacros').click();
+			} catch(ex) { } 
+			break;
+		default:
+			// We didn't find any obvious keys, try other codes
+			hotkey_activated = false;
+			break;
+	}
+	
+	if(hotkey_activated)
+		event.preventDefault();
+});
+{/if}
 </script>
 
 {$profile_scripts = Extension_ContextProfileScript::getExtensions(true, $page_context)}

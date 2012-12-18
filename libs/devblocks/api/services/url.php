@@ -1,7 +1,7 @@
 <?php
 class _DevblocksUrlManager {
-    private static $instance = null;
-        
+	private static $instance = null;
+		
    	private function __construct() {}
 	
 	/**
@@ -75,13 +75,13 @@ class _DevblocksUrlManager {
 		
 		$proxyssl = null;
 		$proxyhost = null;
-		$proxybase = null;		
+		$proxybase = null;
 	
 		// Allow proxy override
 		if($check_proxy) {
-    		@$proxyssl = $_SERVER['HTTP_DEVBLOCKSPROXYSSL'];
-    		@$proxyhost = $_SERVER['HTTP_DEVBLOCKSPROXYHOST'];
-    		@$proxybase = $_SERVER['HTTP_DEVBLOCKSPROXYBASE'];
+			@$proxyssl = $_SERVER['HTTP_DEVBLOCKSPROXYSSL'];
+			@$proxyhost = $_SERVER['HTTP_DEVBLOCKSPROXYHOST'];
+			@$proxybase = $_SERVER['HTTP_DEVBLOCKSPROXYBASE'];
 		}
 
 		// Proxy (Community Tool)
@@ -98,9 +98,9 @@ class _DevblocksUrlManager {
 		
 			// Index page
 			if(empty($sQuery)) {
-			    return sprintf("%s",
-			        $prefix
-			    );
+				return sprintf("%s",
+					$prefix
+				);
 			}
 			
 			// [JAS]: Internal non-component URL (images/css/js/etc)
@@ -109,7 +109,7 @@ class _DevblocksUrlManager {
 					$prefix,
 					$sQuery
 				);
-		    
+			
 			// [JAS]: Component URL
 			} else {
 				$contents = sprintf("%s%s",
@@ -132,10 +132,10 @@ class _DevblocksUrlManager {
 
 			// Index page
 			if(empty($sQuery)) {
-			    return sprintf("%s%s",
-			        $prefix,
-			        (DEVBLOCKS_REWRITE) ? '' : 'index.php/'
-			    );
+				return sprintf("%s%s",
+					$prefix,
+					(DEVBLOCKS_REWRITE) ? '' : 'index.php/'
+				);
 			}
 			
 			// [JAS]: Internal non-component URL (images/css/js/etc)
@@ -144,7 +144,7 @@ class _DevblocksUrlManager {
 					$prefix,
 					$sQuery
 				);
-		    
+			
 				// [JAS]: Component URL
 			} else {
 				if(DEVBLOCKS_REWRITE) {
@@ -197,15 +197,15 @@ class _DevblocksUrlManager {
 		if(!empty($request->path))
 			$url_parts .= '&f=' . implode('/', $request->path);
 		
-		// Build the URL		
+		// Build the URL
 		$url = $this->write($url_parts, $full);
 		
 		$query = '';
 		foreach($request->query as $key=>$val) {
-			$query .= 
-				(empty($query)?'':'&') . // arg1=val1&arg2=val2 
-				$key . 
-				'=' . 
+			$query .=
+				(empty($query)?'':'&') . // arg1=val1&arg2=val2
+				$key .
+				'=' .
 				$val
 			;
 		}

@@ -26,7 +26,7 @@ require_once(APP_PATH . '/install/classes.php');
 
 DevblocksPlatform::getCacheService()->clean();
 
-// DevblocksPlatform::init() workaround 
+// DevblocksPlatform::init() workaround
 if(!defined('DEVBLOCKS_WEBPATH')) {
 	$php_self = $_SERVER["SCRIPT_NAME"];
 	$php_self = str_replace('/install','',$php_self);
@@ -280,7 +280,7 @@ switch($step) {
 		
 		$tpl->assign('template', 'steps/step_license.tpl');
 		
-	    break;	
+	    break;
 	
 	// Configure and test the database connection
 	// [TODO] This should remind the user to make a backup (and refer to a wiki article how)
@@ -451,7 +451,7 @@ switch($step) {
 		}
 		break;
 		
-	// [JAS]: If we didn't save directly to the config file, user action required		
+	// [JAS]: If we didn't save directly to the config file, user action required
 	case STEP_SAVE_CONFIG_FILE:
 		@$db_driver = DevblocksPlatform::importGPC($_POST['db_driver'],'string');
 		@$db_engine = DevblocksPlatform::importGPC($_POST['db_engine'],'string');
@@ -552,8 +552,8 @@ switch($step) {
 			
 		} else { // upgrade / patch
 			/*
-			 * [TODO] We should probably only forward to upgrade when we know 
-			 * the proper tables were installed.  We may be repeating an install 
+			 * [TODO] We should probably only forward to upgrade when we know
+			 * the proper tables were installed.  We may be repeating an install
 			 * request where the clean DB failed.
 			 */
 			$tpl->assign('step', STEP_UPGRADE);
@@ -584,12 +584,12 @@ switch($step) {
 			if(!empty($default_reply_from) && is_array($validate) && 1==count($validate)) {
 				if(null != ($address = DAO_Address::lookupAddress($default_reply_from, true))) {
 					$address_id = $address->id;
-					$fields[DAO_AddressOutgoing::ADDRESS_ID] = $address->id; 
+					$fields[DAO_AddressOutgoing::ADDRESS_ID] = $address->id;
 				}
 			}
 			
 			if(!empty($default_reply_personal)) {
-				$fields[DAO_AddressOutgoing::REPLY_PERSONAL] = $default_reply_personal; 
+				$fields[DAO_AddressOutgoing::REPLY_PERSONAL] = $default_reply_personal;
 			}
 
 			// Create or update
@@ -754,7 +754,7 @@ switch($step) {
 						DAO_Worker::FIRST_NAME => 'Super',
 						DAO_Worker::LAST_NAME => 'User',
 						DAO_Worker::TITLE => 'Administrator',
-						DAO_Worker::IS_SUPERUSER => 1, 
+						DAO_Worker::IS_SUPERUSER => 1,
 					);
 					
 					$worker_id = DAO_Worker::create($fields);
@@ -767,15 +767,15 @@ switch($step) {
 					DAO_AddressToWorker::assign($worker_email, $worker_id);
 					DAO_AddressToWorker::update($worker_email, array(
 						DAO_AddressToWorker::IS_CONFIRMED => 1
-					));					
+					));
 					
 					// Default group memberships
 					if(!empty($dispatch_gid))
-						DAO_Group::setGroupMember($dispatch_gid,$worker_id,true);			
+						DAO_Group::setGroupMember($dispatch_gid,$worker_id,true);
 					if(!empty($support_gid))
-						DAO_Group::setGroupMember($support_gid,$worker_id,true);			
+						DAO_Group::setGroupMember($support_gid,$worker_id,true);
 					if(!empty($sales_gid))
-						DAO_Group::setGroupMember($sales_gid,$worker_id,true);			
+						DAO_Group::setGroupMember($sales_gid,$worker_id,true);
 				}
 				
 				// Send a first ticket which allows people to reply for support
@@ -789,7 +789,7 @@ switch($step) {
 						$message->headers['date'] = date('r');
 						$message->headers['message-id'] = CerberusApplication::generateMessageId();
 						$message->body = <<< EOF
-Welcome to Cerb6!
+Welcome to Cerb!
 
 We automatically set up a few things for you during the installation process.
 
@@ -810,8 +810,8 @@ http://cerberusweb.com/book/6.0/worker_guide/
 
 Thanks!
 ---
-The Cerb6 Team
-WebGroup Media, LLC.
+The Cerb Team
+Webgroup Media, LLC.
 http://www.cerbweb.com/
 EOF;
 					CerberusParser::parseMessage($message);

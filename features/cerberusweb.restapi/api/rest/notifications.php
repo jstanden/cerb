@@ -78,7 +78,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 			return $tokens[$token];
 		
 		return NULL;
-	}	
+	}
 	
 	function getContext($id) {
 		$labels = array();
@@ -86,7 +86,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_NOTIFICATION, $id, $labels, $values, null, true);
 
 		return $values;
-	} 
+	}
 	
 	private function getId($id) {
 		$worker = $this->getActiveWorker();
@@ -172,8 +172,8 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 			'results' => $objects,
 		);
 		
-		return $container;		
-	}	
+		return $container;
+	}
 	
 	function postSearch() {
 		$worker = $this->getActiveWorker();
@@ -290,8 +290,8 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		
 		// Check required fields
 		$reqfields = array(
-			DAO_Notification::MESSAGE, 
-			DAO_Notification::URL, 
+			DAO_Notification::MESSAGE,
+			DAO_Notification::URL,
 			DAO_Notification::WORKER_ID,
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
@@ -305,5 +305,5 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 			
 			$this->getId($id);
 		}
-	}	
+	}
 };

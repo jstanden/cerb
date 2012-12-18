@@ -103,6 +103,6 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		$tpl->assign('tab_manifests', $tab_manifests);
 
 		// Template
-		$tpl->display('devblocks:cerberusweb.kb::kb/profile.tpl');		
+		$tpl->display('devblocks:cerberusweb.kb::kb/profile.tpl');
 	}
 };

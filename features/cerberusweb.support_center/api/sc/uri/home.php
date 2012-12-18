@@ -14,5 +14,5 @@ class UmScHomeController extends Extension_UmScController {
 	function configure(Model_CommunityTool $instance) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/config/module/home.tpl");
-	}	
+	}
 };

@@ -82,7 +82,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
 			if($time <= $end_time)
 				$ticks[strftime($date_group, $time)] = 0;
-		}		
+		}
 		
 		// Table
 		
@@ -115,7 +115,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 				$end_time
 			);
 		}
-		else { //default is by org 
+		else { //default is by org
 			$sql = sprintf("SELECT count(*) AS hits, a.contact_org_id as contact_id, o.name as contact_name, t.group_id, t.bucket_id ".
 				"FROM ticket t ".
 				"INNER JOIN address a ON t.first_wrote_address_id = a.id ".
@@ -170,7 +170,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 		
 		uasort($group_counts, array("ChReportTopTicketsByContact", "sortCountsArrayByHits"));
 		
-		$tpl->assign('group_counts', $group_counts);		
+		$tpl->assign('group_counts', $group_counts);
 		
 		// Chart
 
@@ -241,7 +241,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 			
 			foreach($top_results as $row) {
 				$top_ids[] = $row['id'];
-			}			
+			}
 			
 			if(empty($top_results))
 				$top_ids[] = -1;
@@ -263,7 +263,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 				$start_time,
 				$end_time,
 				implode(',', $top_ids)
-			);			
+			);
 		};
 		$rs = $db->Execute($sql);
 		

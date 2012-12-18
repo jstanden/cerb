@@ -16,31 +16,31 @@
 ***********************************************************************/
 /*
  * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
- * 
- * Sure, it would be so easy to just cheat and edit this file to use the 
- * software without paying for it.  But we trust you anyway.  In fact, we're 
- * writing this software for you! 
- * 
- * Quality software backed by a dedicated team takes money to develop.  We 
- * don't want to be out of the office bagging groceries when you call up 
- * needing a helping hand.  We'd rather spend our free time coding your 
- * feature requests than mowing the neighbors' lawns for rent money. 
- * 
- * We've never believed in hiding our source code out of paranoia over not 
- * getting paid.  We want you to have the full source code and be able to 
- * make the tweaks your organization requires to get more done -- despite 
- * having less of everything than you might need (time, people, money, 
+ *
+ * Sure, it would be so easy to just cheat and edit this file to use the
+ * software without paying for it.  But we trust you anyway.  In fact, we're
+ * writing this software for you!
+ *
+ * Quality software backed by a dedicated team takes money to develop.  We
+ * don't want to be out of the office bagging groceries when you call up
+ * needing a helping hand.  We'd rather spend our free time coding your
+ * feature requests than mowing the neighbors' lawns for rent money.
+ *
+ * We've never believed in hiding our source code out of paranoia over not
+ * getting paid.  We want you to have the full source code and be able to
+ * make the tweaks your organization requires to get more done -- despite
+ * having less of everything than you might need (time, people, money,
  * energy).  We shouldn't be your bottleneck.
- * 
- * We've been building our expertise with this project since January 2002.  We 
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to 
- * let us take over your shared e-mail headache is a worthwhile investment.  
- * It will give you a sense of control over your inbox that you probably 
- * haven't had since spammers found you in a game of 'E-mail Battleship'. 
+ *
+ * We've been building our expertise with this project since January 2002.  We
+ * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to
+ * let us take over your shared e-mail headache is a worthwhile investment.
+ * It will give you a sense of control over your inbox that you probably
+ * haven't had since spammers found you in a game of 'E-mail Battleship'.
  * Miss. Miss. You sunk my inbox!
- * 
- * A legitimate license entitles you to support from the developers,  
- * and the warm fuzzy feeling of feeding a couple of obsessed developers 
+ *
+ * A legitimate license entitles you to support from the developers,
+ * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
  * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
@@ -117,8 +117,8 @@ class GovDataset extends SimulatorDataset {
 class HostingDataset extends SimulatorDataset {
 	
 	public function __construct() {
-	    $domain_extensions = array('com'=>'com','net'=>'net','org'=>'org');
-	    
+		$domain_extensions = array('com'=>'com','net'=>'net','org'=>'org');
+		
 		$this->addEmailTemplate('##site## down','I can\'t ##access## my ##site##?');
 		$this->addEmailTemplate('How do I ##login## with ##product##?','I just finished ##signup_present## for ##product##.  How do I ##login## to my account?');
 		$this->addEmailTemplate('##lost## ##password##','I ##lost## my ##password##, how do I get it back?');
@@ -155,12 +155,12 @@ class HostingDataset extends SimulatorDataset {
 		$this->addToken('##using_tool##',array('PHP','Java','Ruby on Rails','Perl','Coldfusion','ASP.NET'));
 		$this->addToken('##hosting_plan##',array('Platinum','Gold','Silver','Copper'));
 		$this->addToken('##hosting_domain##',array(
-		    'business.'.array_rand($domain_extensions),
-		    'shopping.'.array_rand($domain_extensions),
-		    'fitness.'.array_rand($domain_extensions),
-		    'finance.'.array_rand($domain_extensions),
-		    'coffee.'.array_rand($domain_extensions)
-		    ));
+			'business.'.array_rand($domain_extensions),
+			'shopping.'.array_rand($domain_extensions),
+			'fitness.'.array_rand($domain_extensions),
+			'finance.'.array_rand($domain_extensions),
+			'coffee.'.array_rand($domain_extensions)
+			));
 		$this->addToken('##hosting_mopay##',array('$25-$30','$5-$10','$1.25-$2.50'));
 	}
 	

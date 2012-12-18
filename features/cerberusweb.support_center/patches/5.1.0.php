@@ -3,7 +3,7 @@ $db = DevblocksPlatform::getDatabaseService();
 $tables = $db->metaTables();
 
 // ===========================================================================
-// Clear unused property keys 
+// Clear unused property keys
 
 if(isset($tables['community_tool_property'])) {
 	$db->Execute("DELETE FROM community_tool_property WHERE property_key = 'common.header_html'");

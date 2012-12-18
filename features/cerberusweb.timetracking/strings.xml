@@ -14,6 +14,12 @@
 			<tuv xml:lang="en_US"><seg>Track Time</seg></tuv>
 		</tu>
 		
+		<!-- Activity points -->
+		
+		<tu tuid='activities.timetracking.status'>
+			<tuv xml:lang="en_US"><seg>{{actor}} changed timetracking entry {{target}} to status {{status}}</seg></tuv>
+		</tu>
+		
 		<!-- ACL -->
 		
 		<tu tuid='acl.timetracking.actions.create'>
@@ -83,18 +89,6 @@
 			<tuv xml:lang="en_US"><seg>Time Spent</seg></tuv>
 		</tu>
 
-		<!-- Trial -->
-		
-		<tu tuid='timetracking.ui.trial.limit_exceeded'>
-			<tuv xml:lang="en_US"><seg>Trial Limit Exceeded</seg></tuv>
-		</tu>
-		<tu tuid='timetracking.ui.trial.limit_exceeded.desc'>
-			<tuv xml:lang="en_US"><seg>You're able to evaluate the Time Tracking plugin by creating up to 10 entries with the free version of Cerberus Helpdesk 4.0.</seg></tuv>
-		</tu>
-		<tu tuid='timetracking.ui.trial.purchase'>
-			<tuv xml:lang="en_US"><seg>To continue using this plugin please support the project and purchase a license.</seg></tuv>
-		</tu>		
-		
 		<!-- Entries -->
 
 		<tu tuid='timetracking_entry.activity_id'>

@@ -19,7 +19,7 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 	protected $_event_id = null; // override
 
 	/**
-	 * 
+	 *
 	 * @param integer $group_id
 	 * @return Model_DevblocksEvent
 	 */
@@ -51,7 +51,7 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 				'group_id' => $group_id,
 			)
 		);
-	}	
+	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null) {
 		$labels = array();
@@ -61,7 +61,7 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 		 * Group
 		 */
 		
-		@$group_id = $event_model->params['group_id']; 
+		@$group_id = $event_model->params['group_id'];
 		$merge_labels = array();
 		$merge_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $merge_labels, $merge_values, null, true);
@@ -81,7 +81,7 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 		 */
 
 		$this->setLabels($labels);
-		$this->setValues($values);		
+		$this->setValues($values);
 	}
 	
 	function getValuesContexts($trigger) {
@@ -109,7 +109,7 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 
-		return $conditions;		
+		return $conditions;
 	}
 	
 	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -139,7 +139,7 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions() {
-		$actions = 
+		$actions =
 			array(
 // 				'add_watchers' => array('label' =>'Add watchers'),
 				'create_comment' => array('label' =>'Create a comment'),
@@ -191,8 +191,8 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 				$dates = array();
 				$conditions = $this->getConditions($trigger);
 				foreach($conditions as $key => $data) {
-					if($data['type'] == Model_CustomField::TYPE_DATE)
-					$dates[$key] = $data['label'];
+					if(isset($data['type']) && $data['type'] == Model_CustomField::TYPE_DATE)
+						$dates[$key] = $data['label'];
 				}
 				$tpl->assign('dates', $dates);
 			
@@ -218,7 +218,7 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 		
 		$tpl->clearAssign('params');
 		$tpl->clearAssign('namePrefix');
-		$tpl->clearAssign('token_labels');		
+		$tpl->clearAssign('token_labels');
 	}
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
@@ -331,7 +331,7 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 					if(!empty($context) && !empty($context_id))
 						DevblocksEventHelper::runActionSetCustomField($custom_field, 'group_custom', $params, $dict, $context, $context_id);
 				}
-				break;	
+				break;
 		}
 	}
 	

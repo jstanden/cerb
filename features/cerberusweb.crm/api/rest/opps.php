@@ -120,7 +120,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 			return $tokens[$token];
 		
 		return NULL;
-	}		
+	}
 	
 	function getId($id) {
 		$worker = $this->getActiveWorker();
@@ -174,8 +174,8 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 			'results' => $objects,
 		);
 		
-		return $container;		
-	}	
+		return $container;
+	}
 	
 	function postSearch() {
 		$worker = $this->getActiveWorker();
@@ -302,7 +302,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 						unset($postfields['email_id']);
 						$postfield = 'email_id';
 						$value = $lookup->id;
-					} 
+					}
 					break;
 			}
 			
@@ -326,7 +326,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 		
 		// Check required fields
 		$reqfields = array(
-			DAO_CrmOpportunity::NAME, 
+			DAO_CrmOpportunity::NAME,
 			DAO_CrmOpportunity::PRIMARY_EMAIL_ID,
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
@@ -372,5 +372,5 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 			'opp_id' => $opp->id,
 			'note_id' => $note_id,
 		));
-	}	
+	}
 };

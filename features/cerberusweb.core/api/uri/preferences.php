@@ -73,14 +73,14 @@ class ChPreferencesPage extends CerberusPageExtension {
 				$tpl->display('devblocks:cerberusweb.core::preferences/index.tpl');
 				break;
 
-		    default:
+			default:
 				// Remember the last tab/URL
 				if(null == ($selected_tab = @$response->path[1])) {
 					$selected_tab = $visit->get(Extension_PreferenceTab::POINT, '');
 				}
 				$tpl->assign('selected_tab', $selected_tab);
 
-		    	$tpl->assign('tab', $section);
+				$tpl->assign('tab', $section);
 				$tpl->display('devblocks:cerberusweb.core::preferences/index.tpl');
 				break;
 		}
@@ -214,10 +214,10 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
-	    if(!empty($ids)) {
-	        $id_list = DevblocksPlatform::parseCsvString($ids);
-	        $tpl->assign('ids', implode(',', $id_list));
-	    }
+		if(!empty($ids)) {
+			$id_list = DevblocksPlatform::parseCsvString($ids);
+			$tpl->assign('ids', implode(',', $id_list));
+		}
 
 		// Custom Fields
 		//$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
@@ -228,10 +228,10 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 	function doNotificationsBulkUpdateAction() {
 		// Filter: whole list or check
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 		$ids = array();
 
-	    // View
+		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 
@@ -250,7 +250,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 			case 'sample':
@@ -302,7 +302,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$view->render();
 		
 		exit;
-	}	
+	}
 	
 	function viewNotificationsExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
@@ -374,7 +374,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 				}
 				
 				if(empty($url))
-					continue;				
+					continue;
 				
 				if(!empty($context) && !empty($context_id)) {
 					// Is this a dupe?
@@ -442,11 +442,13 @@ class ChPreferencesPage extends CerberusPageExtension {
 				case '':
 				case CerberusContexts::CONTEXT_MESSAGE:
 					// Mark as read before we redirect
-					DAO_Notification::update($id, array(
-						DAO_Notification::IS_READ => 1
-					));
+					if(empty($notification->is_read)) {
+						DAO_Notification::update($id, array(
+							DAO_Notification::IS_READ => 1
+						));
 					
-					DAO_Notification::clearCountCache($worker->id);
+						DAO_Notification::clearCountCache($worker->id);
+					}
 					break;
 			}
 
@@ -468,8 +470,8 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 		// [TODO] WorkerPrefs_*?
 		$prefs = array();
-		$prefs['assist_mode'] = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1)); 
-		$prefs['keyboard_shortcuts'] = intval(DAO_WorkerPref::get($worker->id, 'keyboard_shortcuts', 1)); 
+		$prefs['assist_mode'] = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
+		$prefs['keyboard_shortcuts'] = intval(DAO_WorkerPref::get($worker->id, 'keyboard_shortcuts', 1));
 		$prefs['mail_always_show_all'] = DAO_WorkerPref::get($worker->id,'mail_always_show_all',0);
 		$prefs['mail_reply_button'] = DAO_WorkerPref::get($worker->id,'mail_reply_button',0);
 		$prefs['mail_status_compose'] = DAO_WorkerPref::get($worker->id,'compose.status','waiting');
@@ -494,6 +496,54 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::preferences/modules/general.tpl');
 	}
 
+	function showSecurityTabAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
+		
+		$visit->set(Extension_PreferenceTab::POINT, 'security');
+
+		$worker = CerberusApplication::getActiveWorker();
+		$tpl->assign('worker', $worker);
+		
+		// Secret questions
+		$secret_questions_json = DAO_WorkerPref::get($worker->id, 'login.recover.secret_questions', null);
+		if(false !== ($secret_questions = json_decode($secret_questions_json, true)) && is_array($secret_questions)) {
+			$tpl->assign('secret_questions', $secret_questions);
+		}
+		
+		// Load the worker's auth extension
+		if(null != ($ext = Extension_LoginAuthenticator::get($worker->auth_extension_id, true))) {
+			/* @var $ext Extension_LoginAuthenticator */
+			$tpl->assign('auth_extension', $ext);
+		}
+		
+		$tpl->display('devblocks:cerberusweb.core::preferences/modules/security.tpl');
+	}
+	
+	function saveSecurityTabAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		
+		// Secret questions
+		@$q = DevblocksPlatform::importGPC($_REQUEST['sq_q'], 'array', array('','',''));
+		@$h = DevblocksPlatform::importGPC($_REQUEST['sq_h'], 'array', array('','',''));
+		@$a = DevblocksPlatform::importGPC($_REQUEST['sq_a'], 'array', array('','',''));
+		
+		$secret_questions = array(
+			array('q'=>$q[0], 'h'=>$h[0], 'a'=>$a[0]),
+			array('q'=>$q[1], 'h'=>$h[1], 'a'=>$a[1]),
+			array('q'=>$q[2], 'h'=>$h[2], 'a'=>$a[2]),
+		);
+		
+		DAO_WorkerPref::set($worker->id, 'login.recover.secret_questions', json_encode($secret_questions));
+		
+		if(null != ($ext = Extension_LoginAuthenticator::get($worker->auth_extension_id, true))) {
+			/* @var $ext Extension_LoginAuthenticator */
+			$ext->saveWorkerPrefs($worker);
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('preferences','security')));
+	}
+	
 	function showRssTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -514,30 +564,19 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 		$worker = CerberusApplication::getActiveWorker();
 		$translate = DevblocksPlatform::getTranslationService();
-   		$tpl = DevblocksPlatform::getTemplateService();
-   		$pref_errors = array();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$pref_errors = array();
 
-   		// Time
-   		$_SESSION['timezone'] = $timezone;
-   		@date_default_timezone_set($timezone);
-   		DAO_WorkerPref::set($worker->id,'timezone',$timezone);
+		// Time
+		$_SESSION['timezone'] = $timezone;
+		@date_default_timezone_set($timezone);
+		DAO_WorkerPref::set($worker->id,'timezone',$timezone);
 
-   		// Language
-   		$_SESSION['locale'] = $lang_code;
-   		DevblocksPlatform::setLocale($lang_code);
-   		DAO_WorkerPref::set($worker->id,'locale',$lang_code);
-
-		@$new_password = DevblocksPlatform::importGPC($_REQUEST['change_pass'],'string');
-		@$verify_password = DevblocksPlatform::importGPC($_REQUEST['change_pass_verify'],'string');
-
-		//[mdf] if nonempty passwords match, update worker's password
-		if($new_password != "" && $new_password===$verify_password) {
-			$session = DevblocksPlatform::getSessionService();
-			$fields = array(
-				DAO_Worker::PASSWORD => md5($new_password)
-			);
-			DAO_Worker::update($worker->id, $fields);
-		}
+		// Language
+		$_SESSION['locale'] = $lang_code;
+		DevblocksPlatform::setLocale($lang_code);
+		DAO_WorkerPref::set($worker->id,'locale',$lang_code);
 
 		@$assist_mode = DevblocksPlatform::importGPC($_REQUEST['assist_mode'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'assist_mode', $assist_mode);

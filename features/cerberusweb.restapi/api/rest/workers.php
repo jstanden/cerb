@@ -53,15 +53,15 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 		
 //		$worker = $this->getActiveWorker();
-//		
+//
 //		if(!$worker->is_superuser)
 //			$this->error(self::ERRNO_ACL);
-//		
+//
 //		$id = array_shift($stack);
 //
 //		if($worker->id == $id)
 //			$this->error(self::ERRNO_CUSTOM, sprintf("You can't delete yourself!"));
-//		
+//
 //		if(null == ($worker = DAO_Worker::get($id)))
 //			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid worker ID %d", $id));
 //
@@ -109,7 +109,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		if(isset($tokens[$token]))
 			return $tokens[$token];
 		
-		return NULL;		
+		return NULL;
 	}
 	
 	function getId($id) {
@@ -179,7 +179,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'results' => $objects,
 		);
 		
-		return $container;			
+		return $container;
 	}
 	
 	function putId($id) {
@@ -285,7 +285,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		
 		// Check required fields
 		$reqfields = array(
-			DAO_Worker::EMAIL, 
+			DAO_Worker::EMAIL,
 			DAO_Worker::PASSWORD,
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
@@ -312,5 +312,5 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			
 			$this->getId($id);
 		}
-	}	
+	}
 };

@@ -124,7 +124,7 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 	}
 	
 	static function deleteByContext($context, $context_ids) {
-		if(!is_array($context_ids)) 
+		if(!is_array($context_ids))
 			$context_ids = array($context_ids);
 		
 		if(empty($context_ids))
@@ -132,7 +132,7 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 			
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute(sprintf("DELETE FROM context_activity_log WHERE target_context = %s AND target_context_id IN (%s) ", 
+		$db->Execute(sprintf("DELETE FROM context_activity_log WHERE target_context = %s AND target_context_id IN (%s) ",
 			$db->qstr($context),
 			implode(',', $context_ids)
 		));
@@ -147,7 +147,7 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"context_activity_log.id as %s, ".
@@ -170,13 +170,27 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 			
 		$join_sql = "FROM context_activity_log ";
 		
-		$has_multiple_values = false; // [TODO] Temporary when custom fields disabled
+		$has_multiple_values = false;
 				
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 	
+		// Translate virtual fields
+		
+		$args = array(
+			'join_sql' => &$join_sql,
+			'where_sql' => &$where_sql,
+			'has_multiple_values' => &$has_multiple_values
+		);
+		
+		array_walk_recursive(
+			$params,
+			array('DAO_ContextActivityLog', '_translateVirtualParameters'),
+			$args
+		);
+		
 		return array(
 			'primary_table' => 'context_activity_log',
 			'select' => $select_sql,
@@ -187,19 +201,67 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 		);
 	}
 	
-    /**
-     * Enter description here...
-     *
-     * @param array $columns
-     * @param DevblocksSearchCriteria[] $params
-     * @param integer $limit
-     * @param integer $page
-     * @param string $sortBy
-     * @param boolean $sortAsc
-     * @param boolean $withCounts
-     * @return array
-     */
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+
+		$from_context = CerberusContexts::CONTEXT_ACTIVITY_LOG;
+		$from_index = 'context_activity_log.id';
+		
+		$param_key = $param->field;
+		settype($param_key, 'string');
+		
+		switch($param_key) {
+			case SearchFields_ContextActivityLog::VIRTUAL_ACTOR:
+			case SearchFields_ContextActivityLog::VIRTUAL_TARGET:
+				switch($param_key) {
+					case SearchFields_ContextActivityLog::VIRTUAL_ACTOR:
+						$context_field = 'actor_context';
+						break;
+					case SearchFields_ContextActivityLog::VIRTUAL_TARGET:
+						$context_field = 'target_context';
+						break;
+				}
+
+				if(is_array($param->value)) {
+					$wheres = array();
+					foreach($param->value as $context_pair) {
+						@list($context, $context_id) = explode(':', $context_pair);
+						if(!empty($context_id)) {
+							$wheres[] = sprintf("(%s = %s AND %s_id = %d)",
+								$context_field,
+								C4_ORMHelper::qstr($context),
+								$context_field,
+								$context_id
+							);
+						} else {
+							$wheres[] = sprintf("(%s = %s)",
+								$context_field,
+								C4_ORMHelper::qstr($context)
+							);
+						}
+					}
+				}
+				
+				if(!empty($wheres))
+					$args['where_sql'] .= ' AND ' . implode(' OR ', $wheres);
+				break;
+		}
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param array $columns
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		// Build search queries
@@ -211,7 +273,7 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -219,10 +281,10 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 			$sort_sql;
 			
 		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		} else {
-		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-            $total = mysql_num_rows($rs);
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$total = mysql_num_rows($rs);
 		}
 		
 		$results = array();
@@ -239,7 +301,7 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT context_activity_log.id) " : "SELECT COUNT(context_activity_log.id) ").
 				$join_sql.
 				$where_sql;
@@ -263,6 +325,9 @@ class SearchFields_ContextActivityLog implements IDevblocksSearchFields {
 	const CREATED = 'c_created';
 	const ENTRY_JSON = 'c_entry_json';
 	
+	const VIRTUAL_ACTOR = '*_actor';
+	const VIRTUAL_TARGET = '*_target';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -278,12 +343,15 @@ class SearchFields_ContextActivityLog implements IDevblocksSearchFields {
 			self::TARGET_CONTEXT_ID => new DevblocksSearchField(self::TARGET_CONTEXT_ID, 'context_activity_log', 'target_context_id', $translate->_('dao.context_activity_log.target_context_id'), null),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'context_activity_log', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE),
 			self::ENTRY_JSON => new DevblocksSearchField(self::ENTRY_JSON, 'context_activity_log', 'entry_json', $translate->_('dao.context_activity_log.entry'), null),
+				
+			self::VIRTUAL_ACTOR => new DevblocksSearchField(self::VIRTUAL_ACTOR, '*', 'actor', 'Actor', null),
+			self::VIRTUAL_TARGET => new DevblocksSearchField(self::VIRTUAL_TARGET, '*', 'target', 'Target', null),
 		);
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 
@@ -302,10 +370,8 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 	const DEFAULT_ID = 'context_activity_log';
 
 	function __construct() {
-		$translate = DevblocksPlatform::getTranslationService();
-	
 		$this->id = self::DEFAULT_ID;
-		$this->name = 'Activity Log'; //$translate->_('ContextActivityLog');
+		$this->name = 'Activity Log';
 		$this->renderLimit = 10;
 		$this->renderSortBy = SearchFields_ContextActivityLog::CREATED;
 		$this->renderSortAsc = false;
@@ -315,7 +381,6 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		);
 		$this->addColumnsHidden(array(
 			SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID,
-			SearchFields_ContextActivityLog::TARGET_CONTEXT,
 			SearchFields_ContextActivityLog::TARGET_CONTEXT_ID,
 			SearchFields_ContextActivityLog::ID,
 		));
@@ -342,6 +407,10 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		return $objects;
 	}
 	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_ContextActivityLog', $ids);
+	}
+	
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_ContextActivityLog', $size);
 	}
@@ -358,8 +427,11 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 			switch($field_key) {
 				// DAO
 				case SearchFields_ContextActivityLog::ACTIVITY_POINT:
-				case SearchFields_ContextActivityLog::ACTOR_CONTEXT:
-				case SearchFields_ContextActivityLog::TARGET_CONTEXT:
+					$pass = true;
+					break;
+					
+				case SearchFields_ContextActivityLog::VIRTUAL_ACTOR:
+				case SearchFields_ContextActivityLog::VIRTUAL_TARGET:
 					$pass = true;
 					break;
 					
@@ -397,32 +469,28 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 						$label_map[$k] = $translate->_($string_id);
 					}
 				}
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_ContextActivityLog', $column, $label_map);
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_ContextActivityLog', $column, $label_map, 'in', 'options[]');
 				break;
 				
-			case SearchFields_ContextActivityLog::ACTOR_CONTEXT:
-			case SearchFields_ContextActivityLog::TARGET_CONTEXT:
-				$label_map = array();
-				$contexts = Extension_DevblocksContext::getAll(false);
-				
-				foreach($contexts as $k => $mft) {
-					$label_map[$k] = $mft->name;
-				}
-				
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_ContextActivityLog', $column, $label_map);
+			case SearchFields_ContextActivityLog::VIRTUAL_ACTOR:
+				$counts = $this->_getSubtotalCountForContextAndIdColumns('DAO_ContextActivityLog', CerberusContexts::CONTEXT_ACTIVITY_LOG, $column, DAO_ContextActivityLog::ACTOR_CONTEXT, DAO_ContextActivityLog::ACTOR_CONTEXT_ID);
 				break;
-
+				
+			case SearchFields_ContextActivityLog::VIRTUAL_TARGET:
+				$counts = $this->_getSubtotalCountForContextAndIdColumns('DAO_ContextActivityLog', CerberusContexts::CONTEXT_ACTIVITY_LOG, $column, DAO_ContextActivityLog::TARGET_CONTEXT, DAO_ContextActivityLog::TARGET_CONTEXT_ID);
+				break;
+				
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_Task', $column, 't.id');
+					$counts = $this->_getSubtotalCountForCustomColumn('DAO_ContextActivityLog', $column, 'context_activity_log.id');
 				}
 				
 				break;
 		}
 		
 		return $counts;
-	}	
+	}
 	
 	function render() {
 		$this->_sanitize();
@@ -440,9 +508,6 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
-			case SearchFields_ContextActivityLog::ACTIVITY_POINT:
-			case SearchFields_ContextActivityLog::ACTOR_CONTEXT:
-			case SearchFields_ContextActivityLog::TARGET_CONTEXT:
 			case SearchFields_ContextActivityLog::ENTRY_JSON:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
@@ -457,9 +522,45 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 			case SearchFields_ContextActivityLog::CREATED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
+			case SearchFields_ContextActivityLog::ACTIVITY_POINT:
+				$activities = DevblocksPlatform::getActivityPointRegistry();
+				$options = array();
+				
+				foreach($activities as $activity_id => $activity) {
+					if(isset($activity['params']['label_key']))
+						$options[$activity_id] = $activity['params']['label_key'];
+				}
+				
+				$tpl->assign('options', $options);
+				
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
+				break;
+			case SearchFields_ContextActivityLog::ACTOR_CONTEXT:
+			case SearchFields_ContextActivityLog::TARGET_CONTEXT:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context.tpl');
+				break;
+			case SearchFields_ContextActivityLog::VIRTUAL_ACTOR:
+			case SearchFields_ContextActivityLog::VIRTUAL_TARGET:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
+				break;
 		}
 	}
 
+	function renderVirtualCriteria($param) {
+		$key = $param->field;
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		switch($key) {
+			case SearchFields_ContextActivityLog::VIRTUAL_ACTOR:
+				$this->_renderVirtualContextLinks($param, 'Actor', 'Actors');
+				break;
+			case SearchFields_ContextActivityLog::VIRTUAL_TARGET:
+				$this->_renderVirtualContextLinks($param, 'Target', 'Targets');
+				break;
+		}
+	}
+	
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
@@ -519,9 +620,6 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		$criteria = null;
 
 		switch($field) {
-			case SearchFields_ContextActivityLog::ACTIVITY_POINT:
-			case SearchFields_ContextActivityLog::ACTOR_CONTEXT:
-			case SearchFields_ContextActivityLog::TARGET_CONTEXT:
 			case SearchFields_ContextActivityLog::ENTRY_JSON:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
@@ -539,6 +637,23 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 			case 'placeholder_bool':
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+
+			case SearchFields_ContextActivityLog::ACTIVITY_POINT:
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
+				break;
+				
+			case SearchFields_ContextActivityLog::ACTOR_CONTEXT:
+			case SearchFields_ContextActivityLog::TARGET_CONTEXT:
+				@$contexts = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$contexts);
+				break;
+				
+			case SearchFields_ContextActivityLog::VIRTUAL_ACTOR:
+			case SearchFields_ContextActivityLog::VIRTUAL_TARGET:
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 		}
 
@@ -598,6 +713,135 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		}
 
 		unset($ids);
-	}			
+	}
 };
 
+class Context_ContextActivityLog extends Extension_DevblocksContext {
+	function getRandom() {
+		return null;
+	}
+	
+	function getMeta($context_id) {
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		$entry = DAO_ContextActivityLog::get($context_id);
+		
+		return array(
+			'id' => $entry->id,
+			'name' => CerberusContexts::formatActivityLogEntry(json_decode($entry,true), 'text'),
+			'permalink' => null,
+		);
+	}
+	
+	function getContext($entry, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Activity:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		// Polymorph
+		if(is_numeric($entry)) {
+			$entry = DAO_ContextActivityLog::get($entry);
+		} elseif($entry instanceof Model_ContextActivityLog) {
+			// It's what we want already.
+		} else {
+			$entry = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+			'id' => $prefix.$translate->_('common.id'),
+			'created|date' => $prefix.$translate->_('common.created'),
+		);
+		
+		// Token values
+		$token_values = array();
+		
+		$token_values['_context'] = CerberusContexts::CONTEXT_ACTIVITY_LOG;
+
+		// Address token values
+		if(null != $entry) {
+			$token_values['_loaded'] = true;
+			$token_values['_label'] = CerberusContexts::formatActivityLogEntry(json_decode($entry->entry_json,true),'text');
+			$token_values['id'] = $entry->id;
+			$token_values['created'] = $entry->created;
+		}
+		
+		return true;
+	}
+	
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_ACTIVITY_LOG;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values);
+		}
+		
+		switch($token) {
+		}
+		
+		return $values;
+	}
+
+	function getChooserView($view_id=null) {
+		if(empty($view_id))
+			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		
+		// View
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = $this->getViewClass();
+		
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Activity Log';
+		
+		$view->addParamsDefault(array(
+			//SearchFields_ContextActivityLog::IS_BANNED => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::IS_BANNED,'=',0),
+			//SearchFields_ContextActivityLog::IS_DEFUNCT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::IS_DEFUNCT,'=',0),
+		), true);
+		$view->addParams($view->getParamsDefault(), true);
+		
+		$view->renderSortBy = SearchFields_ContextActivityLog::CREATED;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderFilters = false;
+		$view->renderTemplate = 'contextlinks_chooser';
+		
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+	
+	function getView($context=null, $context_id=null, $options=array()) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Activity Log';
+		
+		$params_req = array();
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params_req = array(
+// 				new DevblocksSearchCriteria(SearchFields_ContextActivityLog::CONTEXT_LINK,'=',$context),
+// 				new DevblocksSearchCriteria(SearchFields_ContextActivityLog::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
+		
+		$view->addParamsRequired($params_req, true);
+		
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+};

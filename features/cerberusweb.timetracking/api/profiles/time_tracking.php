@@ -106,6 +106,6 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Template
-		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/profile.tpl');		
+		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/profile.tpl');
 	}
 };

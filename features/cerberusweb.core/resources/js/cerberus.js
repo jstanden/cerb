@@ -134,7 +134,7 @@ var cAjaxCalls = function() {
 			}
 		}
 		
-		frm.ticket_ids.value = ids.join(',');		
+		frm.ticket_ids.value = ids.join(',');
 
 		showLoadingPanel();
 
@@ -201,7 +201,7 @@ var cAjaxCalls = function() {
 			}
 		}
 		
-		frm.address_ids.value = ids.join(',');		
+		frm.address_ids.value = ids.join(',');
 
 		genericAjaxPost('formBatchUpdate', '', 'c=contacts&a=doAddressBatchUpdate', function(html) {
 			$('#'+divName).html(html);
@@ -226,39 +226,43 @@ var cAjaxCalls = function() {
 		);
 	}
 
-	this.viewTicketsAction = function(view_id,action) {
+	this.viewTicketsAction = function(view_id, action) {
 		var divName = 'view'+view_id;
 		var formName = 'viewForm'+view_id;
 
-		showLoadingPanel();
-
 		switch(action) {
+			case 'merge_popup':
+				$popup=genericAjaxPopup('merge','c=tickets&a=viewMergeTicketsPopup&view_id=' + view_id,null,true,'550');
+				break;
 			case 'merge':
+				showLoadingPanel();
 				genericAjaxPost(formName, '', 'c=tickets&a=viewMergeTickets&view_id='+view_id, function(html) {
 					$('#'+divName).html(html).trigger('view_refresh');
 					hideLoadingPanel();
 				});
 				break;
 			case 'not_spam':
+				showLoadingPanel();
 				genericAjaxPost(formName, '', 'c=tickets&a=viewNotSpamTickets&view_id='+view_id, function(html) {
 					$('#'+divName).html(html).trigger('view_refresh');
 					hideLoadingPanel();
 				});
 				break;
 			case 'waiting':
+				showLoadingPanel();
 				genericAjaxPost(formName, '', 'c=tickets&a=viewWaitingTickets&view_id='+view_id, function(html) {
 					$('#'+divName).html(html).trigger('view_refresh');
 					hideLoadingPanel();
 				});
 				break;
 			case 'not_waiting':
+				showLoadingPanel();
 				genericAjaxPost(formName, '', 'c=tickets&a=viewNotWaitingTickets&view_id='+view_id, function(html) {
 					$('#'+divName).html(html).trigger('view_refresh');
 					hideLoadingPanel();
 				});
 				break;
 			default:
-				hideLoadingPanel();
 				break;
 		}
 	}
@@ -479,7 +483,7 @@ var cAjaxCalls = function() {
 			$button = $(this);
 			var $ul = $(this).siblings('ul.chooser-container:first');
 			
-			$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=' + context,null,true,'750');
+			$chooser=genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=chooserOpen&context=' + context,null,true,'750');
 			$chooser.one('chooser_save', function(event) {
 				// Add the labels
 				for(var idx in event.labels)
@@ -534,28 +538,41 @@ var cAjaxCalls = function() {
 	this.chooserSnippet = function(layer, $textarea, contexts) {
 		ctx = [];
 		for(x in contexts)
-			ctx.push(x);
+			ctx.push(x + ":" + contexts[x]);
 		
-		$chooser=genericAjaxPopup(layer,'c=internal&a=chooserOpenSnippet&context=cerberusweb.contexts.snippet&contexts=' + ctx.join(','),null,false,'650');
+		$chooser=genericAjaxPopup(layer,'c=internal&a=chooserOpenSnippet&context=cerberusweb.contexts.snippet&contexts=' + ctx.join(','),null,false,'600');
 		$chooser.bind('snippet_select', function(event) {
 			event.stopPropagation();
 			
 			snippet_id = event.snippet_id;
 			context = event.context;
-
+			
 			if(null == snippet_id || null == context)
 				return;
 			
 			// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
-			url = 'c=internal&a=snippetPaste&id='+snippet_id;
+			url = 'c=internal&a=snippetPaste&id='+encodeURIComponent(snippet_id);
 			
 			// Context-dependent arguments
 			if(null != contexts[context])
-				url += "&context_id=" + contexts[context];
+				url += "&context_id=" + encodeURIComponent(contexts[context]);
 			
 			// Ajax the content (synchronously)
 			genericAjaxGet('',url,function(txt) {
-				$textarea.insertAtCursor(txt);
+				if(txt.match(/\(__(.*?)__\)/)) {
+					var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&text=' + encodeURIComponent(txt),null,false,'600');
+					
+					$popup_paste.bind('snippet_paste', function(event) {
+						if(null == event.text)
+							return;
+						
+						$textarea.insertAtCursor(event.text).focus();
+					});
+					
+				} else {
+					$textarea.insertAtCursor(txt).focus();
+				}
+				
 			}, { async: false });
 		});
 	}

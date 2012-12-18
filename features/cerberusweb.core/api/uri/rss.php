@@ -24,7 +24,7 @@ class ChRssController extends DevblocksControllerExtension {
 		
 		// [TODO] Do we want any concept of authentication here?
 
-        $stack = $request->path;
+		$stack = $request->path;
 		array_shift($stack); // rss
 		$hash = array_shift($stack);
 
@@ -37,18 +37,18 @@ class ChRssController extends DevblocksControllerExtension {
 		
 		// Make sure the feed is valid
 		// and the worker isn't disabled
-        if(empty($feed) || $worker->is_disabled) {
-            die($translate->_('rss.bad_feed'));
-        }
+		if(empty($feed) || $worker->is_disabled) {
+			die($translate->_('rss.bad_feed'));
+		}
 
-        // Sources
-        $rss_sources = DevblocksPlatform::getExtensions('cerberusweb.rss.source', true);
-        if(isset($rss_sources[$feed->source_extension])) {
-        	$rss_source =& $rss_sources[$feed->source_extension]; /* @var $rss_source Extension_RssSource */
+		// Sources
+		$rss_sources = DevblocksPlatform::getExtensions('cerberusweb.rss.source', true);
+		if(isset($rss_sources[$feed->source_extension])) {
+			$rss_source =& $rss_sources[$feed->source_extension]; /* @var $rss_source Extension_RssSource */
 			header("Content-Type: text/xml");
-        	echo $rss_source->getFeedAsRss($feed);
-        }
-        
+			echo $rss_source->getFeedAsRss($feed);
+		}
+		
 		exit;
 	}
 };

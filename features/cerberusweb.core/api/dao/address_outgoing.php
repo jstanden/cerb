@@ -39,7 +39,7 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 		
 		self::update($id, $fields);
 		
-		return $id;		
+		return $id;
 	}
 	
 	static function update($ids, $fields) {
@@ -66,11 +66,11 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 			$cache->save($froms, self::_CACHE_ALL);
 		}
 		
-		return $froms;		
+		return $froms;
 	}
 	
 	/**
-	 * 
+	 *
 	 * @return Model_AddressOutgoing
 	 */
 	static public function getDefault() {
@@ -95,12 +95,12 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param integer $id
 	 * @return Model_AddressOutgoing|null
 	 */
 	static public function get($id) {
-		$addresses = self::getAll();		
+		$addresses = self::getAll();
 		
 		if(isset($addresses[$id]))
 			return $addresses[$id];
@@ -123,14 +123,14 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 		
 		mysql_free_result($rs);
 		
-		return $objects;		
+		return $objects;
 	}
 	
 	static function isLocalAddress($address) {
 		$helpdesk_froms = DAO_AddressOutgoing::getAll();
 		foreach($helpdesk_froms as $from) {
 			if(0 == strcasecmp($from->email, $address))
-				return true;	
+				return true;
 		}
 		
 		return false;

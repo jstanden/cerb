@@ -22,9 +22,9 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 		switch(array_shift($path)) {
 			case 'welcome':
 				$tour = array(
-	                'title' => 'Welcome!',
-	                'body' => "This assistant will help you become familiar with the application by following along and providing information about the current page.  You may follow the 'Points of Interest' links highlighted below to read tips about nearby functionality.",
-	                'callouts' => array(
+					'title' => 'Welcome!',
+					'body' => "This assistant will help you become familiar with the application by following along and providing information about the current page.  You may follow the 'Points of Interest' links highlighted below to read tips about nearby functionality.",
+					'callouts' => array(
 							new DevblocksTourCallout(
 								'#tourHeaderMenu',
 								'Navigation Bar',
@@ -58,13 +58,13 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 
 			case 'pages':
 				$tour = array(
-	                'title' => 'Workspace Pages',
-	                'body' => 
+					'title' => 'Workspace Pages',
+					'body' =>
 <<< EOF
 Pages give you the freedom to build a completely personalized interface based on how you use the software. You can add as many new pages as you want, and your favorites can be added to the navigation menu for quick access.
 EOF
 					,
-	                'callouts' => array(
+					'callouts' => array(
 						new DevblocksTourCallout(
 							'#tourHeaderMenu',
 							'Navigation Bar',
@@ -99,15 +99,15 @@ EOF
 				
 			case 'preferences':
 				$tour = array(
-             	   'title' => 'Preferences',
-            	    'body' => 'This screen allows you to change the personal preferences on your helpdesk account.',
+			 	   'title' => 'Preferences',
+					'body' => 'This screen allows you to change the personal preferences on your helpdesk account.',
 				);
 				break;
 
 			case 'groups':
 				$tour = array(
-             	   'title' => 'Group Setup',
-              	  'body' => 'This screen allows you to administer and configure groups for which you are a manager.  This includes members, buckets, mail routing rules, and other group-specific preferences.',
+			 	   'title' => 'Group Setup',
+			  	  'body' => 'This screen allows you to administer and configure groups for which you are a manager.  This includes members, buckets, mail routing rules, and other group-specific preferences.',
 				);
 				break;
 
@@ -115,8 +115,8 @@ EOF
 				switch(array_shift($path)) {
 					default:
 						$tour = array(
-	                        'title' => 'Setup',
-    	                    'body' => 'This page is where you configure and customize Cerb6.',
+							'title' => 'Setup',
+							'body' => 'This page is where you configure and customize Cerb6.',
 							'callouts' => array(
 								new DevblocksTourCallout(
 									'DIV.cerb-menu',
@@ -142,142 +142,142 @@ EOF
 						
 					case 'branding':
 						$tour = array(
-	                        'title' => 'Logo & Title',
-    	                    'body' => 'This setup page provides options for personalizing your copy of Cerb6 with your own logo and browser title.',
+							'title' => 'Logo & Title',
+							'body' => 'This setup page provides options for personalizing your copy of Cerb6 with your own logo and browser title.',
 						);
 						break;
 
 					case 'security':
 						$tour = array(
-	                        'title' => 'Security',
-    	                    'body' => 'Security is IP-based.  On this page you should enter the IPs that are allowed to access the /cron and /update URLs.',
+							'title' => 'Security',
+							'body' => 'Security is IP-based.  On this page you should enter the IPs that are allowed to access the /cron and /update URLs.',
 						);
 						break;
 						
 					case 'fields':
 						$tour = array(
-	                        'title' => 'Custom Fields',
-    	                    'body' => 'Custom fields allow you to track any kind of information that is important to your team for each record type.',
+							'title' => 'Custom Fields',
+							'body' => 'Custom fields allow you to track any kind of information that is important to your team for each record type.',
 						);
 						break;
 						
 					case 'license':
 						$tour = array(
-	                        'title' => 'License',
-    	                    'body' => "This setup page manages your Cerb6 license.  If you don't have a license, one can be <a href='http://www.cerberusweb.com/buy' target='_blank'>purchased from the project website</a>.",
+							'title' => 'License',
+							'body' => "This setup page manages your Cerb6 license.  If you don't have a license, one can be <a href='http://www.cerberusweb.com/buy' target='_blank'>purchased from the project website</a>.",
 						);
 						break;
 						
 					case 'scheduler':
 						$tour = array(
-	                        'title' => 'Scheduler',
-    	                    'body' => 'The scheduler is where you can set up tasks that will periodically run behind-the-scenes.',
+							'title' => 'Scheduler',
+							'body' => 'The scheduler is where you can set up tasks that will periodically run behind-the-scenes.',
 						);
 						break;
 
 					case 'groups':
 						$tour = array(
-	                        'title' => 'Groups',
-    	                    'body' => "Here you may organize workers into groups.  Common groups often include departments (such as: Support, Sales, Development, Marketing, Billing, etc.) or various projects that warrant their own workloads.",
+							'title' => 'Groups',
+							'body' => "Here you may organize workers into groups.  Common groups often include departments (such as: Support, Sales, Development, Marketing, Billing, etc.) or various projects that warrant their own workloads.",
 						);
 						break;
 						
 					case 'acl':
 						$tour = array(
-	                        'title' => 'Worker Permissions',
-    	                    'body' => "This setup page provides a way to restrict the access rights of workers by role.",
+							'title' => 'Worker Permissions',
+							'body' => "This setup page provides a way to restrict the access rights of workers by role.",
 						);
 						break;
 						
 					case 'workers':
 						$tour = array(
-	                        'title' => 'Worker',
-    	                    'body' => "Here you may create, manage, or remove worker accounts.",
+							'title' => 'Worker',
+							'body' => "Here you may create, manage, or remove worker accounts.",
 						);
 						break;
 						
 					case 'mail_incoming':
 						$tour = array(
-	                        'title' => 'Incoming Mail',
-    	                    'body' => "This page configures incoming mail preferences.",
+							'title' => 'Incoming Mail',
+							'body' => "This page configures incoming mail preferences.",
 						);
 						break;
 						
 					case 'mail_pop3':
 						$tour = array(
-	                        'title' => 'POP3 Accounts',
-    	                    'body' => "Here is where you specify the mailboxes that should be checked for new mail to import into Cerb6.",
+							'title' => 'POP3 Accounts',
+							'body' => "Here is where you specify the mailboxes that should be checked for new mail to import into Cerb6.",
 						);
 						break;
 						
 					case 'mail_routing':
 						$tour = array(
-	                        'title' => 'Mail Routing',
-    	                    'body' => "Mail routing determines which group should receive a new message.",
+							'title' => 'Mail Routing',
+							'body' => "Mail routing determines which group should receive a new message.",
 						);
 						break;
 
 					case 'mail_filtering':
 						$tour = array(
-	                        'title' => 'Mail Filtering',
-    	                    'body' => "Mail filtering provides a way to remove unwanted mail before it is processed or stored by the system.",
+							'title' => 'Mail Filtering',
+							'body' => "Mail filtering provides a way to remove unwanted mail before it is processed or stored by the system.",
 						);
 						break;
 						
 					case 'mail_smtp':
 						$tour = array(
-	                        'title' => 'SMTP Server',
-    	                    'body' => "This is where you configure your outgoing mail server.",
+							'title' => 'SMTP Server',
+							'body' => "This is where you configure your outgoing mail server.",
 						);
 						break;
 
 					case 'mail_from':
 						$tour = array(
-	                        'title' => 'Reply-To Addresses',
-    	                    'body' => "Each group or bucket can specify a reply-to address.  This is where you configure all the available reply-to email addresses.  It is <b>very important</b> that these addresses deliver to one of the mailboxes that Cerb6 checks for new mail, otherwise you won't receive correspondence from your audience.",
+							'title' => 'Reply-To Addresses',
+							'body' => "Each group or bucket can specify a reply-to address.  This is where you configure all the available reply-to email addresses.  It is <b>very important</b> that these addresses deliver to one of the mailboxes that Cerb6 checks for new mail, otherwise you won't receive correspondence from your audience.",
 						);
 						break;
 
 					case 'mail_queue':
 						$tour = array(
-	                        'title' => 'Mail Queue',
-    	                    'body' => "This page displays the mail delivery queue.",
+							'title' => 'Mail Queue',
+							'body' => "This page displays the mail delivery queue.",
 						);
 						break;
 
 					case 'storage_content':
 						$tour = array(
-	                        'title' => 'Storage Content',
-    	                    'body' => "This page provides a summary of the content stored by the system.  You can also configure when and where each kind of content is archived for long-term storage.",
+							'title' => 'Storage Content',
+							'body' => "This page provides a summary of the content stored by the system.  You can also configure when and where each kind of content is archived for long-term storage.",
 						);
 						break;
 
 					case 'storage_profiles':
 						$tour = array(
-	                        'title' => 'Storage Profiles',
-    	                    'body' => "Storage profiles allow you to create new archival locations for storing content; for example, in Amazon's durable S3 storage service.",
+							'title' => 'Storage Profiles',
+							'body' => "Storage profiles allow you to create new archival locations for storing content; for example, in Amazon's durable S3 storage service.",
 						);
 						break;
 
 					case 'storage_attachments':
 						$tour = array(
-	                        'title' => 'Attachments',
-    	                    'body' => "This page displays email attachments as a subset of stored content.  This can be used to purge inactive or unusually large content.",
+							'title' => 'Attachments',
+							'body' => "This page displays email attachments as a subset of stored content.  This can be used to purge inactive or unusually large content.",
 						);
 						break;
 						
 					case 'portals':
 						$tour = array(
-	                        'title' => 'Community Portals',
-    	                    'body' => "Here you can create public, community-facing interfaces -- knowledgebases, contact forms, and Support Centers.",
+							'title' => 'Community Portals',
+							'body' => "Here you can create public, community-facing interfaces -- knowledgebases, contact forms, and Support Centers.",
 						);
 						break;
 						
 					case 'plugins':
 						$tour = array(
-	                        'title' => 'Manage Plugins',
-	                        'body' => "This is where you can extend Cerb6 by installing new functionality through plugins.",
-	                        'callouts' => array(
+							'title' => 'Manage Plugins',
+							'body' => "This is where you can extend Cerb6 by installing new functionality through plugins.",
+							'callouts' => array(
 							)
 						);
 						break;
@@ -287,13 +287,13 @@ EOF
 
 			case 'kb':
 				$tour = array(
-	                'title' => 'Knowledgebase',
-	                'body' =>
+					'title' => 'Knowledgebase',
+					'body' =>
 <<< EOF
 The knowledgebase is a collection of informative articles organized into categories.  Categories can be based on anything: product lines, languages, etc.
 EOF
 					,
-	                'callouts' => array(
+					'callouts' => array(
 					),
 				);
 				break;
@@ -302,13 +302,13 @@ EOF
 				switch(array_shift($path)) {
 					default:
 						$tour = array(
-			                'title' => 'Profiles',
-			                'body' =>
+							'title' => 'Profiles',
+							'body' =>
 <<< EOF
 A profile displays all the information related to a particular record.
 EOF
 							,
-			                'callouts' => array(
+							'callouts' => array(
 							),
 						);
 						break;
@@ -316,13 +316,13 @@ EOF
 						
 					case 'ticket':
 						$tour = array(
-			                'title' => 'Ticket Profile',
-			                'body' => 
+							'title' => 'Ticket Profile',
+							'body' =>
 <<< EOF
 This is a detailed profile page for an email conversation.
 EOF
 							,
-			                'callouts' => array(
+							'callouts' => array(
 								new DevblocksTourCallout(
 									'SPAN#spanWatcherToolbar BUTTON:first',
 									'Watchers',
@@ -387,18 +387,18 @@ EOF
 									10
 									),
 							)
-						);						
+						);
 						break;
 						
 					case 'worker':
 						$tour = array(
-			                'title' => 'Worker Profiles',
-			                'body' =>
+							'title' => 'Worker Profiles',
+							'body' =>
 <<< EOF
 You can think of your profile as your homepage within Cerb6.  It provides quick access to your notifications, activity history, calendar, virtual attendant, and watchlist.
 EOF
 							,
-			                'callouts' => array(
+							'callouts' => array(
 							),
 						);
 						break;
@@ -407,13 +407,13 @@ EOF
 				
 			case 'reports':
 				$tour = array(
-	                'title' => 'Reports',
-	                'body' =>
+					'title' => 'Reports',
+					'body' =>
 <<< EOF
 This page helps you to run detailed reports about the metrics collected by Cerb6.
 EOF
 					,
-	                'callouts' => array(
+					'callouts' => array(
 					),
 				);
 				break;
@@ -528,10 +528,10 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		}
 		
 		// [TODO] This could be cached in a runtime registry too
-		if(null == ($mft = DevblocksPlatform::getExtension($event->id, false))) 
+		if(null == ($mft = DevblocksPlatform::getExtension($event->id, false)))
 			return;
 		
-		if(null == ($event_ext = $mft->createInstance()) 
+		if(null == ($event_ext = $mft->createInstance())
 			|| !$event_ext instanceof Extension_DevblocksEvent)  /* @var $event_ext Extension_DevblocksEvent */
 				return;
 		
@@ -548,7 +548,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			foreach($event->params['_variables'] as $var_key => $var_val) {
 				$dict->$var_key = $var_val;
 			}
-		}	
+		}
 		
 		// Registry (trigger variables, etc)
 		$registry = DevblocksPlatform::getRegistryService();
@@ -560,11 +560,11 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 					$trigger->title
 				));
 				continue;
-			}			
+			}
 			
 			/*
-			 * If a top level trigger already ran as a consequence of the 
-			 * event chain, don't run it again. 
+			 * If a top level trigger already ran as a consequence of the
+			 * event chain, don't run it again.
 			 */
 			if(self::getDepth() == 0 && self::triggerHasSprung($trigger->id)) {
 				$logger->info(sprintf("Skipping trigger %d (%s) because it has already run this event chain.",
@@ -572,7 +572,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 					$trigger->title
 				));
 				continue;
-			}			
+			}
 			
 			self::increaseDepth($trigger->id);
 			
@@ -592,7 +592,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		}
 
 		/*
-		 * Clear our event chain when we finish all triggers and we're 
+		 * Clear our event chain when we finish all triggers and we're
 		 * no longer nested.
 		 */
 		if(0 == self::getDepth()) {
@@ -620,7 +620,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			curl_close($ch);
 			echo($response);
 		}
-		*/	
+		*/
 	}
 };
 
@@ -669,7 +669,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		@$context_ids = $event->params['context_ids'];
 		
 		// Core
-    	DAO_AttachmentLink::removeAllByContext($context, $context_ids);
+		DAO_AttachmentLink::removeAllByContext($context, $context_ids);
 		DAO_Comment::deleteByContext($context, $context_ids);
 		DAO_ContextActivityLog::deleteByContext($context, $context_ids);
 		DAO_ContextLink::delete($context, $context_ids);
@@ -697,7 +697,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		$db->Execute(sprintf("DELETE QUICK ctx ".
 			"FROM comment AS ctx ".
 			"LEFT JOIN %s ON ctx.context_id=%s ".
-			"WHERE ctx.context = %s ". 
+			"WHERE ctx.context = %s ".
 			"AND %s IS NULL",
 			$context_table,
 			$context_index,
@@ -713,7 +713,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		$db->Execute(sprintf("DELETE QUICK ctx ".
 			"FROM context_activity_log AS ctx ".
 			"LEFT JOIN %s ON ctx.target_context_id=%s ".
-			"WHERE ctx.target_context = %s ". 
+			"WHERE ctx.target_context = %s ".
 			"AND %s IS NULL",
 			$context_table,
 			$context_index,
@@ -729,7 +729,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		$db->Execute(sprintf("DELETE QUICK ctx ".
 			"FROM context_link AS ctx ".
 			"LEFT JOIN %s ON ctx.from_context_id=%s ".
-			"WHERE ctx.from_context = %s ". 
+			"WHERE ctx.from_context = %s ".
 			"AND %s IS NULL",
 			$context_table,
 			$context_index,
@@ -800,7 +800,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		$db->Execute(sprintf("DELETE QUICK ctx ".
 			"FROM notification AS ctx ".
 			"LEFT JOIN %s ON ctx.context_id=%s ".
-			"WHERE ctx.context = %s ". 
+			"WHERE ctx.context = %s ".
 			"AND %s IS NULL",
 			$context_table,
 			$context_index,
@@ -816,7 +816,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		$rs = $db->Execute(sprintf("SELECT ctx.id ".
 			"FROM trigger_event AS ctx ".
 			"LEFT JOIN %s ON ctx.owner_context_id=%s ".
-			"WHERE ctx.owner_context = %s ". 
+			"WHERE ctx.owner_context = %s ".
 			"AND %s IS NULL",
 			$context_table,
 			$context_index,

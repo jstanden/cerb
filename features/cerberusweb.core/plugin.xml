@@ -4,7 +4,7 @@
 	<name>Cerb6 Core</name>
 	<description>The core functionality of Cerb6.</description>
 	<author>WebGroup Media, LLC.</author>
-	<version>6.1.0</version>
+	<version>6.2.0</version>
 	<link>http://wiki.cerb4.com/wiki/New_Changes</link>
 	
 	<!-- Plugin Dependencies -->
@@ -47,15 +47,8 @@
 		
 		<patch version="6.0.0"  revision="989" file="patches/6.x/6.0.0.php" />
 		<patch version="6.1.0" revision="1005" file="patches/6.x/6.1.0.php" />
+		<patch version="6.2.0" revision="1015" file="patches/6.x/6.2.0.php" />
 	</patches>
-
-	<!-- Declared Extension Points -->
-
-	<!-- 
-	<extension_points>
-		<point id=""></point>
-	</extension_points>
-	-->
 
 	<!-- Controller Routing -->
 
@@ -187,6 +180,7 @@
 		</file>
 		
 		<file path="api/dao/context_activity_log.php">
+			<class name="Context_ContextActivityLog" />
 			<class name="DAO_ContextActivityLog" />
 			<class name="Model_ContextActivityLog" />
 			<class name="SearchFields_ContextActivityLog" />
@@ -505,6 +499,9 @@
 		<activity point="ticket.message.outbound">
 			<param key="label_key" value="Ticket Message Outbound" />
 		</activity>
+		<activity point="ticket.moved">
+			<param key="label_key" value="Ticket Moved" />
+		</activity>
 		<activity point="ticket.owner.assigned">
 			<param key="label_key" value="Ticket Assigned" />
 		</activity>
@@ -534,6 +531,15 @@
 		</activity>
 		<activity point="watcher.unfollow">
 			<param key="label_key" value="Watcher Unfollowed" />
+		</activity>
+		<activity point="worker.impersonated">
+			<param key="label_key" value="Worker Impersonated" />
+		</activity>
+		<activity point="worker.logged_in">
+			<param key="label_key" value="Worker Logged In" />
+		</activity>
+		<activity point="worker.logged_out">
+			<param key="label_key" value="Worker Logged Out" />
 		</activity>
 	</activity_points>
 	
@@ -627,6 +633,7 @@
 		<!-- Mail page -->
 		<priv id="core.mail" label="acl.core.mail" />
 		<priv id="core.mail.send" label="acl.core.mail.send" />
+		<priv id="core.mail.draft.delete_all" label="acl.core.mail.draft.delete_all" />
 
 		<!-- RSS -->
 		<priv id="core.rss" label="acl.core.rss" />
@@ -796,6 +803,27 @@
 					</value>
 				</param>
 				-->
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.activity_log</id>
+			<name>Activity Log</name>
+			<class>
+				<file>api/dao/context_activity_log.php</file>
+				<name>Context_ContextActivityLog</name>
+			</class>
+			<params>
+				<param key="alias" value="activity_log" />
+				<param key="dao_class" value="DAO_ContextActivityLog" />
+				<param key="view_class" value="View_ContextActivityLog" />
+				<param key="options">
+					<value>
+						<data key="find" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -990,7 +1018,7 @@
 				<param key="options">
 					<value>
 						<!--<data key="create" />-->
-						<!--<data key="find" />-->
+						<data key="find" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -2244,7 +2272,7 @@
 	
 		<extension point="cerberusweb.ui.workspace.widget">
 			<id>core.workspace.widget.chart</id>
-			<name>Chart</name>
+			<name>Line/Bar Chart</name>
 			<class>
 				<file>api/uri/internal/dashboards.php</file>
 				<name>WorkspaceWidget_Chart</name>
@@ -2259,6 +2287,39 @@
 			<class>
 				<file>api/uri/internal/dashboards.php</file>
 				<name>WorkspaceWidget_Counter</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
+		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.custom_html</id>
+			<name>Custom HTML</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_CustomHtml</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.pie_chart</id>
+			<name>Pie Chart</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_PieChart</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.scatterplot</id>
+			<name>Scatterplot</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_Scatterplot</name>
 			</class>
 			<params>
 			</params>
@@ -2286,18 +2347,73 @@
 			</params>
 		</extension>
 	
+		<!-- Workspace Widget Datasources -->
+		
+		<extension point="cerberusweb.ui.workspace.widget.datasource">
+			<id>core.workspace.widget.datasource.manual</id>
+			<name>Manual Input</name>
+			<class>
+				<file>api/uri/internal/dashboards/widget_datasources.php</file>
+				<name>WorkspaceWidgetDatasource_Manual</name>
+			</class>
+			<params>
+				<param key="widgets">
+					<value>
+						<data key="core.workspace.widget.counter" />
+						<data key="core.workspace.widget.gauge" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.workspace.widget.datasource">
+			<id>core.workspace.widget.datasource.url</id>
+			<name>URL</name>
+			<class>
+				<file>api/uri/internal/dashboards/widget_datasources.php</file>
+				<name>WorkspaceWidgetDatasource_URL</name>
+			</class>
+			<params>
+				<param key="widgets">
+					<value>
+						<data key="core.workspace.widget.counter" />
+						<data key="core.workspace.widget.gauge" />
+						<data key="core.workspace.widget.pie_chart" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.workspace.widget.datasource">
+			<id>core.workspace.widget.datasource.worklist</id>
+			<name>Worklist</name>
+			<class>
+				<file>api/uri/internal/dashboards/widget_datasources.php</file>
+				<name>WorkspaceWidgetDatasource_Worklist</name>
+			</class>
+			<params>
+				<param key="widgets">
+					<value>
+						<data key="core.workspace.widget.chart" />
+						<data key="core.workspace.widget.counter" />
+						<data key="core.workspace.widget.gauge" />
+						<data key="core.workspace.widget.scatterplot" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 		<!--  Login Extensions -->
 
 		<extension point="cerberusweb.login">
-			<id>login.default</id>
-			<name>Default Login</name>
+			<id>login.password</id>
+			<name>Password</name>
 			<class>
 				<file>api/login.classes.php</file>
 				<name>DefaultLoginModule</name>
 			</class>
 			<params>
-				<param key="switcher_icon" value="images/plugin/mail.png" />
-				<param key="switcher_label" value="Log in with email and password" />
+				<param key="uri" value="password" />
 			</params>
 		</extension>
 
@@ -2414,7 +2530,7 @@
 			</class>
 			<params>
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rss.source">
 			<id>core.rss.source.task</id>
@@ -2425,7 +2541,7 @@
 			</class>
 			<params>
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rss.source">
 			<id>core.rss.source.ticket</id>
@@ -2436,7 +2552,7 @@
 			</class>
 			<params>
 			</params>
-		</extension>		
+		</extension>
 		
 	</extensions>
 </plugin>

@@ -1,5 +1,5 @@
 <?php
-/***********************************************************************
+/************************************************************************
  | Cerb(tm) developed by WebGroup Media, LLC.
  |-----------------------------------------------------------------------
  | All source code & content (c) Copyright 2012, WebGroup Media LLC
@@ -31,7 +31,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 			"VALUES ()"
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-		$id = $db->LastInsertId(); 
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		
@@ -53,7 +53,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 			"FROM view_rss ".
 			(!empty($ids) ? sprintf("WHERE id IN (%s)",implode(',',$ids)) : " ").
 		"";
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		return self::_getObjectsFromResults($rs);
 	}
@@ -73,7 +73,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 			"WHERE hash = %s",
 				$db->qstr($hash)
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$objects = self::_getObjectsFromResults($rs);
 		
@@ -98,7 +98,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 			"WHERE worker_id = %d",
 				$worker_id
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$objects = self::_getObjectsFromResults($rs);
 		
@@ -111,7 +111,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 	 * @param resource $rs
 	 * @return Model_ViewRss[]
 	 */
-	private static function _getObjectsFromResults($rs) { 
+	private static function _getObjectsFromResults($rs) {
 		$objects = array();
 		
 		while($row = mysql_fetch_assoc($rs)) {
@@ -168,7 +168,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 		$sql = sprintf("DELETE QUICK FROM view_rss WHERE id = %d",
 			$id
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 };
 

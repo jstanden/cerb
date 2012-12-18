@@ -26,16 +26,16 @@ class Event_TicketMacro extends AbstractEvent_Ticket {
 	static function trigger($trigger_id, $ticket_id, $variables=array()) {
 		$events = DevblocksPlatform::getEventService();
 		$events->trigger(
-	        new Model_DevblocksEvent(
-	            self::ID,
-                array(
-                    'ticket_id' => $ticket_id,
-                    '_variables' => $variables,
-                	'_whisper' => array(
-                		'_trigger_id' => array($trigger_id),
-                	),
-                )
-            )
+			new Model_DevblocksEvent(
+				self::ID,
+				array(
+					'ticket_id' => $ticket_id,
+					'_variables' => $variables,
+					'_whisper' => array(
+						'_trigger_id' => array($trigger_id),
+					),
+				)
+			)
 		);
 	}
 };

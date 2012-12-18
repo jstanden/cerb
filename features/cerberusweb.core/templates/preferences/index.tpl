@@ -26,10 +26,11 @@
 
 <div id="prefTabs">
 	<ul>
-		{$tabs = [general,watcher,rss]}
+		{$tabs = [general,security,watcher,rss]}
 		{$point = Extension_PreferenceTab::POINT}
 
 		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showGeneralTab{/devblocks_url}">{'common.settings'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showSecurityTab{/devblocks_url}">Security</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showWatcherTab{/devblocks_url}">Watcher Notifications</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showRssTab{/devblocks_url}">RSS</a></li>
 

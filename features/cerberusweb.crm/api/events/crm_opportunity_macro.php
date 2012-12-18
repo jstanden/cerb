@@ -22,21 +22,21 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 	static function trigger($trigger_id, $opp_id, $variables=array()) {
 		$events = DevblocksPlatform::getEventService();
 		$events->trigger(
-	        new Model_DevblocksEvent(
-	            self::ID,
-                array(
-                    'opp_id' => $opp_id,
-                    '_variables' => $variables,
-                	'_whisper' => array(
-                		'_trigger_id' => array($trigger_id),
-                	),
-                )
-            )
+			new Model_DevblocksEvent(
+				self::ID,
+				array(
+					'opp_id' => $opp_id,
+					'_variables' => $variables,
+					'_whisper' => array(
+						'_trigger_id' => array($trigger_id),
+					),
+				)
+			)
 		);
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param integer $opp_id
 	 * @return Model_DevblocksEvent
 	 */
@@ -69,7 +69,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				'opp_id' => $opp_id,
 			)
 		);
-	}	
+	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null) {
 		$labels = array();
@@ -79,7 +79,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 		 * Opportunity
 		 */
 		
-		@$opp_id = $event_model->params['opp_id']; 
+		@$opp_id = $event_model->params['opp_id'];
 		$opp_labels = array();
 		$opp_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $opp_labels, $opp_values, null, true);
@@ -99,7 +99,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 		 */
 
 		$this->setLabels($labels);
-		$this->setValues($values);		
+		$this->setValues($values);
 	}
 	
 	function getValuesContexts($trigger) {
@@ -185,7 +185,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
-		return $conditions;		
+		return $conditions;
 	}
 	
 	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -315,7 +315,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions() {
-		$actions = 
+		$actions =
 			array(
 				'add_watchers' => array('label' =>'Add watchers'),
 				'create_comment' => array('label' =>'Create a comment'),
@@ -323,9 +323,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				'create_task' => array('label' =>'Create a task'),
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'send_email' => array('label' => 'Send email'),
-				'set_opp_links' => array('label' => 'Set links on opportunity'),
-				'set_opp_email_links' => array('label' => 'Set links on lead'),
-				'set_opp_email_org_links' => array('label' => 'Set links on lead organization'),
+				'set_links' => array('label' => 'Set links'),
 				'set_status' => array('label' => 'Set status'),
 			)
 			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_OPPORTUNITY)
@@ -369,8 +367,8 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				$dates = array();
 				$conditions = $this->getConditions($trigger);
 				foreach($conditions as $key => $data) {
-					if($data['type'] == Model_CustomField::TYPE_DATE)
-					$dates[$key] = $data['label'];
+					if(isset($data['type']) && $data['type'] == Model_CustomField::TYPE_DATE)
+						$dates[$key] = $data['label'];
 				}
 				$tpl->assign('dates', $dates);
 			
@@ -385,12 +383,8 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.crm::crm/opps/events/macro/action_set_status.tpl');
 				break;
 				
-			case 'set_opp_links':
-			case 'set_opp_email_links':
-			case 'set_opp_email_org_links':
-				$contexts = Extension_DevblocksContext::getAll(false);
-				$tpl->assign('contexts', $contexts);
-				$tpl->display('devblocks:cerberusweb.core::events/action_set_links.tpl');
+			case 'set_links':
+				DevblocksEventHelper::renderActionSetLinks($trigger);
 				break;
 				
 			case 'unschedule_behavior':
@@ -408,7 +402,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 		
 		$tpl->clearAssign('params');
 		$tpl->clearAssign('namePrefix');
-		$tpl->clearAssign('token_labels');		
+		$tpl->clearAssign('token_labels');
 	}
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
@@ -453,10 +447,9 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 			case 'set_status':
 				break;
 				
-			case 'set_opp_links':
-			case 'set_opp_email_links':
-			case 'set_opp_email_org_links':
-				break;			
+			case 'set_links':
+				return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
+				break;
 				
 			default:
 				if('set_cf_' == substr($token,0,7)) {
@@ -476,7 +469,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 					if(!empty($context) && !empty($context_id))
 						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'opp_custom', $params, $dict, $context, $context_id);
 				}
-				break;				
+				break;
 		}
 	}
 	
@@ -555,44 +548,9 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				}
 				break;
 				
-			case 'set_opp_links':
-			case 'set_opp_email_links':
-			case 'set_opp_email_org_links':
-				@$to_context_strings = $params['context_objects'];
-
-				if(!is_array($to_context_strings) || empty($to_context_strings))
-					break;
-
-				$from_context = null;
-				$from_context_id = null;
-				
-				switch($token) {
-					case 'set_opp_links':
-						$from_context = CerberusContexts::CONTEXT_OPPORTUNITY;
-						@$from_context_id = $dict->opp_id;
-						break;
-					case 'set_opp_email_links':
-						$from_context = CerberusContexts::CONTEXT_ADDRESS;
-						@$from_context_id = $dict->opp_email_id;
-						break;
-					case 'set_opp_email_org_links':
-						$from_context = CerberusContexts::CONTEXT_ORG;
-						@$from_context_id = $dict->opp_email_org_id;
-						break;
-				}
-				
-				if(empty($from_context) || empty($from_context_id))
-					break;
-				
-				foreach($to_context_strings as $to_context_string) {
-					@list($to_context, $to_context_id) = explode(':', $to_context_string);
-					
-					if(empty($to_context) || empty($to_context_id))
-						continue;
-					
-					DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $to_context_id);
-				}
-				break;			
+			case 'set_links':
+				DevblocksEventHelper::runActionSetLinks($trigger, $params, $dict);
+				break;
 				
 			default:
 				if('set_cf_' == substr($token,0,7)) {
@@ -612,7 +570,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 					if(!empty($context) && !empty($context_id))
 						DevblocksEventHelper::runActionSetCustomField($custom_field, 'opp_custom', $params, $dict, $context, $context_id);
 				}
-				break;				
+				break;
 		}
-	}	
+	}
 };

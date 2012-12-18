@@ -64,11 +64,11 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 		$tpl->assign('total_db_size', $total_db_size);
 		$tpl->assign('total_db_data', $total_db_data);
 		$tpl->assign('total_db_indexes', $total_db_indexes);
-		$tpl->assign('total_db_slack', $total_db_slack);		
+		$tpl->assign('total_db_slack', $total_db_slack);
 
 		// Template
 		
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/storage_content/index.tpl');		
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/storage_content/index.tpl');
 	}
 	
 	function showStorageSchemaAction() {
@@ -119,5 +119,5 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 		$extension->saveConfig();
 		
 		$this->showStorageSchemaAction();
-	}	
+	}
 }

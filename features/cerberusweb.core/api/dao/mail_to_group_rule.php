@@ -206,7 +206,7 @@ class Model_MailToGroupRule {
 							$passed++;
 						}
 
-						break;					
+						break;
 					
 					case 'tocc':
 						$tocc = array();
@@ -235,7 +235,7 @@ class Model_MailToGroupRule {
 						$dest_flag = false; // bail out when true
 						if(is_array($destinations) && is_array($tocc))
 						foreach($destinations as $dest) {
-							if($dest_flag) 
+							if($dest_flag)
 								break;
 								
 							$regexp_dest = DevblocksPlatform::strToRegExp($dest);

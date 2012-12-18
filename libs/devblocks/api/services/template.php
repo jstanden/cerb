@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Smarty Template Manager Singleton
  *
@@ -7,14 +7,14 @@
 class _DevblocksTemplateManager {
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @private
 	 */
 	private function _DevblocksTemplateManager() {}
 	/**
 	 * Returns an instance of the Smarty Template Engine
-	 * 
-	 * @static 
+	 *
+	 * @static
 	 * @return Smarty
 	 */
 	static function getInstance() {
@@ -45,6 +45,7 @@ class _DevblocksTemplateManager {
 			// Devblocks plugins
 			$instance->registerPlugin('block','devblocks_url', array('_DevblocksTemplateManager', 'block_devblocks_url'));
 			$instance->registerPlugin('modifier','devblocks_date', array('_DevblocksTemplateManager', 'modifier_devblocks_date'));
+			$instance->registerPlugin('modifier','devblocks_email_quote', array('_DevblocksTemplateManager', 'modifier_devblocks_email_quote'));
 			$instance->registerPlugin('modifier','devblocks_hyperlinks', array('_DevblocksTemplateManager', 'modifier_devblocks_hyperlinks'));
 			$instance->registerPlugin('modifier','devblocks_hideemailquotes', array('_DevblocksTemplateManager', 'modifier_devblocks_hide_email_quotes'));
 			$instance->registerPlugin('modifier','devblocks_permalink', array('_DevblocksTemplateManager', 'modifier_devblocks_permalink'));
@@ -70,7 +71,10 @@ class _DevblocksTemplateManager {
 		array_shift($args); // pop off $string
 		
 		$translated = $translate->_($string);
-		$translated = @vsprintf($translated,$args);
+		
+		if(!empty($args))
+			@$translated = vsprintf($translated, $args);
+		
 		return $translated;
 	}
 	
@@ -82,11 +86,11 @@ class _DevblocksTemplateManager {
 		
 		$contents = $url->write($content, !empty($params['full']) ? true : false);
 		
-	    if (!empty($params['assign'])) {
-	        $smarty->assign($params['assign'], $contents);
-	    } else {
-	        return $contents;
-	    }
+		if (!empty($params['assign'])) {
+			$smarty->assign($params['assign'], $contents);
+		} else {
+			return $contents;
+		}
 	}
 	
 	static function modifier_devblocks_date($string, $format=null, $gmt=false) {
@@ -107,7 +111,7 @@ class _DevblocksTemplateManager {
 		
 	static function modifier_devblocks_prettysecs($string, $length=0) {
 		return DevblocksPlatform::strSecsToString($string, $length);
-	}	
+	}
 
 	static function modifier_devblocks_prettybytes($string, $precision='0') {
 		return DevblocksPlatform::strPrettyBytes($string, $precision);
@@ -116,7 +120,96 @@ class _DevblocksTemplateManager {
 	static function modifier_devblocks_hyperlinks($string) {
 		return DevblocksPlatform::strToHyperlinks($string);
 	}
+	
+	static function modifier_devblocks_email_quote($string, $wrap_to=76) {
+		$lines = DevblocksPlatform::parseCrlfString($string, true);
+		$bins = array();
+		$last_prefix = null;
 		
+		// Sort lines into bins
+		foreach($lines as $i => $line) {
+			$prefix = '';
+
+			if(preg_match("/^((\> )+)/", $line, $matches))
+				$prefix = $matches[1];
+			
+			if($prefix != $last_prefix) {
+				$bins[] = array(
+					'prefix' => $prefix,
+					'lines' => array(),
+				);
+			}
+			
+			// Strip the prefix
+			$line = substr($line, strlen($prefix));
+			
+			if(empty($bins)) {
+				$bins[] = array(
+					'prefix' => $prefix,
+					'lines' => array(),
+				);
+			}
+			
+			end($bins);
+			
+			$bins[key($bins)]['lines'][] = $line;
+			
+			$last_prefix = $prefix;
+		}
+		
+		// Rewrap quoted blocks
+		foreach($bins as $i => $bin) {
+			$prefix = $bin['prefix'];
+			$l = 0;
+			$bail = 75000; // prevent infinite loops
+		
+			if(strlen($prefix) == 0)
+				continue;
+		
+			while(isset($bins[$i]['lines'][$l]) && $bail > 0) {
+				$line = $bins[$i]['lines'][$l];
+				$boundary = $wrap_to - strlen($prefix);
+					
+				if(strlen($line) > $boundary) {
+					// Try to split on a space
+					$pos = strrpos($line, ' ', -1 * (strlen($line)-$boundary));
+					$break_word = (false === $pos);
+		
+					$overflow = substr($line, ($break_word ? $boundary : ($pos+1)));
+					$bins[$i]['lines'][$l] = substr($line, 0, $break_word ? $boundary : $pos);
+		
+					// If we don't have more lines, add a new one
+					if(!empty($overflow)) {
+						if(isset($bins[$i]['lines'][$l+1])) {
+							if(strlen($bins[$i]['lines'][$l+1]) == 0) {
+								array_splice($bins[$i]['lines'], $l+1, 0, $overflow);
+							} else {
+								$bins[$i]['lines'][$l+1] = $overflow . " " . $bins[$i]['lines'][$l+1];
+							}
+						} else {
+							$bins[$i]['lines'][] = $overflow;
+						}
+					}
+				}
+				
+				$l++;
+				$bail--;
+			}
+		}
+		
+		$out = "";
+		
+		foreach($bins as $i => $bin) {
+			$prefix = $bin['prefix'];
+			
+			foreach($bin['lines'] as $line) {
+				$out .= $prefix . $line . "\n";
+			}
+		}
+		
+		return $out;
+	}
+	
 	static function modifier_devblocks_hide_email_quotes($string, $length=3) {
 		$string = str_replace("\r\n","\n",$string);
 		$string = str_replace("\r","\n",$string);
@@ -197,7 +290,7 @@ class _DevblocksSmartyTemplateResource {
 			return false;
 		
 		$tpl_source = file_get_contents($path);
-		return true;			
+		return true;
 	}
 	
 	static function get_timestamp($tpl_name, &$tpl_timestamp, $smarty_obj) { /* @var $smarty_obj Smarty */
@@ -227,7 +320,7 @@ class _DevblocksSmartyTemplateResource {
 						$match = array_shift($matches); /* @var $match Model_DevblocksTemplate */
 						//echo time(),"==(DB)",$match->last_updated,"<BR>";
 						$tpl_timestamp = $match->last_updated;
-						return true; 
+						return true;
 					}
 				}
 			}

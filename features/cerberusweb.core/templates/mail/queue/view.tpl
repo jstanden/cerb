@@ -99,6 +99,15 @@
 					{$translate->_('common.no')|capitalize}
 				{/if}
 			</td>
+			{elseif $column=="m_type"}
+			<td>
+				{$label_key = $result.$column}
+				{if isset($label_map_type.$label_key)}
+					{$label_map_type.$label_key}
+				{else}
+					{$label_key}
+				{/if}
+			</td>
 			{else}
 			<td>{$result.$column}</td>
 			{/if}

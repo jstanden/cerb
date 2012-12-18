@@ -1,5 +1,5 @@
 <?php
-/***********************************************************************
+/************************************************************************
  | Cerb(tm) developed by WebGroup Media, LLC.
  |-----------------------------------------------------------------------
  | All source code & content (c) Copyright 2012, WebGroup Media LLC
@@ -37,10 +37,42 @@ class DAO_WorkspaceWidget extends C4_ORMHelper {
 	}
 	
 	static function update($ids, $fields) {
-		parent::_update($ids, 'workspace_widget', $fields);
+		if(!is_array($ids))
+			$ids = array($ids);
 		
-		// Log the context update
-	    //DevblocksPlatform::markContextChanged('example.context', $ids);
+		// Make a diff for the requested objects in batches
+		
+		$chunks = array_chunk($ids, 100, true);
+		while($batch_ids = array_shift($chunks)) {
+			if(empty($batch_ids))
+				continue;
+			
+			// Get state before changes
+			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
+
+			// Make changes
+			parent::_update($batch_ids, 'workspace_widget', $fields);
+			
+			// Send events
+			if(!empty($object_changes)) {
+				// Local events
+				//self::_processUpdateEvents($object_changes);
+				
+				// Trigger an event about the changes
+				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr->trigger(
+					new Model_DevblocksEvent(
+						'dao.workspace_widget.update',
+						array(
+							'objects' => $object_changes,
+						)
+					)
+				);
+				
+				// Log the context update
+				//DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_, $batch_ids);
+			}
+		}
 	}
 	
 	static function updateWhere($fields, $where) {
@@ -127,17 +159,17 @@ class DAO_WorkspaceWidget extends C4_ORMHelper {
 		
 		// Fire event
 		/*
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.delete',
-                array(
-                	'context' => 'cerberusweb.contexts.',
-                	'context_ids' => $ids
-                )
-            )
-	    );
-	    */
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => 'cerberusweb.contexts.',
+					'context_ids' => $ids
+				)
+			)
+		);
+		*/
 		
 		return true;
 	}
@@ -151,7 +183,7 @@ class DAO_WorkspaceWidget extends C4_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM workspace_widget WHERE workspace_tab_id IN (%s)", $ids_list));		
+		$db->Execute(sprintf("DELETE FROM workspace_widget WHERE workspace_tab_id IN (%s)", $ids_list));
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
@@ -161,7 +193,7 @@ class DAO_WorkspaceWidget extends C4_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"workspace_widget.id as %s, ".
@@ -229,19 +261,19 @@ class DAO_WorkspaceWidget extends C4_ORMHelper {
 		}
 	}
 	
-    /**
-     * Enter description here...
-     *
-     * @param array $columns
-     * @param DevblocksSearchCriteria[] $params
-     * @param integer $limit
-     * @param integer $page
-     * @param string $sortBy
-     * @param boolean $sortAsc
-     * @param boolean $withCounts
-     * @return array
-     */
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	/**
+	 * Enter description here...
+	 *
+	 * @param array $columns
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		// Build search queries
@@ -253,7 +285,7 @@ class DAO_WorkspaceWidget extends C4_ORMHelper {
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql = 
+		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
@@ -261,10 +293,10 @@ class DAO_WorkspaceWidget extends C4_ORMHelper {
 			$sort_sql;
 			
 		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		} else {
-		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-            $total = mysql_num_rows($rs);
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$total = mysql_num_rows($rs);
 		}
 		
 		$results = array();
@@ -281,7 +313,7 @@ class DAO_WorkspaceWidget extends C4_ORMHelper {
 
 		// [JAS]: Count all
 		if($withCounts) {
-			$count_sql = 
+			$count_sql =
 				($has_multiple_values ? "SELECT COUNT(DISTINCT workspace_widget.id) " : "SELECT COUNT(workspace_widget.id) ").
 				$join_sql.
 				$where_sql;
@@ -323,7 +355,7 @@ class SearchFields_WorkspaceWidget implements IDevblocksSearchFields {
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
-		return $columns;		
+		return $columns;
 	}
 };
 

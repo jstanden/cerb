@@ -16,31 +16,31 @@
 ***********************************************************************/
 /*
  * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
- * 
- * Sure, it would be so easy to just cheat and edit this file to use the 
- * software without paying for it.  But we trust you anyway.  In fact, we're 
- * writing this software for you! 
- * 
- * Quality software backed by a dedicated team takes money to develop.  We 
- * don't want to be out of the office bagging groceries when you call up 
- * needing a helping hand.  We'd rather spend our free time coding your 
- * feature requests than mowing the neighbors' lawns for rent money. 
- * 
- * We've never believed in hiding our source code out of paranoia over not 
- * getting paid.  We want you to have the full source code and be able to 
- * make the tweaks your organization requires to get more done -- despite 
- * having less of everything than you might need (time, people, money, 
+ *
+ * Sure, it would be so easy to just cheat and edit this file to use the
+ * software without paying for it.  But we trust you anyway.  In fact, we're
+ * writing this software for you!
+ *
+ * Quality software backed by a dedicated team takes money to develop.  We
+ * don't want to be out of the office bagging groceries when you call up
+ * needing a helping hand.  We'd rather spend our free time coding your
+ * feature requests than mowing the neighbors' lawns for rent money.
+ *
+ * We've never believed in hiding our source code out of paranoia over not
+ * getting paid.  We want you to have the full source code and be able to
+ * make the tweaks your organization requires to get more done -- despite
+ * having less of everything than you might need (time, people, money,
  * energy).  We shouldn't be your bottleneck.
- * 
- * We've been building our expertise with this project since January 2002.  We 
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to 
- * let us take over your shared e-mail headache is a worthwhile investment.  
- * It will give you a sense of control over your inbox that you probably 
- * haven't had since spammers found you in a game of 'E-mail Battleship'. 
+ *
+ * We've been building our expertise with this project since January 2002.  We
+ * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to
+ * let us take over your shared e-mail headache is a worthwhile investment.
+ * It will give you a sense of control over your inbox that you probably
+ * haven't had since spammers found you in a game of 'E-mail Battleship'.
  * Miss. Miss. You sunk my inbox!
- * 
- * A legitimate license entitles you to support from the developers,  
- * and the warm fuzzy feeling of feeding a couple of obsessed developers 
+ *
+ * A legitimate license entitles you to support from the developers,
+ * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
  * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
@@ -48,12 +48,12 @@
  */
 
 class CerberusParserMessage {
-    public $encoding = '';
-    public $headers = array();
-    public $body = '';
-    public $body_encoding = '';
-    public $htmlbody = '';
-    public $files = array();
+	public $encoding = '';
+	public $headers = array();
+	public $body = '';
+	public $body_encoding = '';
+	public $htmlbody = '';
+	public $files = array();
 	public $custom_fields = array();
 };
 
@@ -103,7 +103,7 @@ class CerberusParserModel {
 	
 	/**
 	 * @return Model_Address|null
-	 */    
+	 */
 	private function _parseHeadersFrom() {
 		try {
 			$this->_sender_address_model = null;
@@ -149,7 +149,7 @@ class CerberusParserModel {
 			return false;
 			
 		}
-	} 
+	}
 	
 	/**
 	 * @return string $subject
@@ -188,8 +188,8 @@ class CerberusParserModel {
 	}
 	
 	/**
-	 * First we check the references and in-reply-to headers to find a 
-	 * historical match in the database. If those don't match we check 
+	 * First we check the references and in-reply-to headers to find a
+	 * historical match in the database. If those don't match we check
 	 * the subject line for a mask (if one exists). If none of those
 	 * options match we return null.
 	 */
@@ -200,6 +200,8 @@ class CerberusParserModel {
 		@$sReferences = trim($this->_message->headers['references']);
 		@$sThreadTopic = trim($this->_message->headers['thread-topic']);
 
+		@$senderWorker = $this->getSenderWorkerModel();
+		
 		$aReferences = array();
 		
 		// Add all References
@@ -233,7 +235,11 @@ class CerberusParserModel {
 				if(empty($ref))
 					continue;
 				
-				if(preg_match('#\<(.*)\_(\d*)\_(\d*)\_([a-f0-9]{8})\@cerb5\>#', $ref, $hits)) {
+				// Only consider the watcher auth header to be a reply if it validates
+				if($senderWorker instanceof Model_Worker
+						&& @preg_match('#\<(.*)\_(\d*)\_(\d*)\_([a-f0-9]{8})\@cerb\d{0,1}\>#', $ref, $hits)
+						&& $this->isValidAuthHeader($ref, $senderWorker)) {
+				
 					$ticket_id = $hits[2];
 					
 					if(null != ($ticket = DAO_Ticket::get($ticket_id))) {
@@ -290,10 +296,10 @@ class CerberusParserModel {
 			$sources = array_merge($sources, is_array($headers['to']) ? $headers['to'] : array($headers['to']));
 
 		if(isset($headers['cc']))
-			$sources = array_merge($sources, is_array($headers['cc']) ? $headers['cc'] : array($headers['cc'])); 
+			$sources = array_merge($sources, is_array($headers['cc']) ? $headers['cc'] : array($headers['cc']));
 		
 		if(isset($headers['envelope-to']))
-			$sources = array_merge($sources, is_array($headers['envelope-to']) ? $headers['envelope-to'] : array($headers['envelope-to'])); 
+			$sources = array_merge($sources, is_array($headers['envelope-to']) ? $headers['envelope-to'] : array($headers['envelope-to']));
 		
 		if(isset($headers['x-envelope-to']))
 			$sources = array_merge($sources, is_array($headers['x-envelope-to']) ? $headers['x-envelope-to'] : array($headers['x-envelope-to']));
@@ -318,7 +324,26 @@ class CerberusParserModel {
 		@imap_errors(); // Prevent errors from spilling out into STDOUT
 
 		return $addresses;
-	} 		
+	}
+	
+	public function isValidAuthHeader($in_reply_to, $worker) {
+		if(empty($worker) || !($worker instanceof Model_Worker))
+			return false;
+		
+		if(@preg_match('#\<(.*)\_(\d*)\_(\d*)\_([a-f0-9]{8})\@cerb\d{0,1}\>#', $in_reply_to, $hits)) {
+			$proxy_context = $hits[1];
+			$proxy_context_id = $hits[2];
+			$signed = $hits[4];
+			
+			$signed_compare = substr(md5($proxy_context.$proxy_context_id.$worker->pass),8,8);
+			
+			$is_authenticated = ($signed_compare == $signed);
+			
+			return $is_authenticated;
+		}
+		
+		return false;
+	}
 	
 	// Getters/Setters
 	
@@ -503,13 +528,13 @@ class ParseFileBuffer extends ParserFile {
 
 class CerberusParser {
 
-    /**
-     * Enter description here...
-     *
-     * @param object $mime
-     * @return CerberusParserMessage
-     */
-    static public function parseMime($mime, $full_filename) {
+	/**
+	 * Enter description here...
+	 *
+	 * @param object $mime
+	 * @return CerberusParserMessage
+	 */
+	static public function parseMime($mime, $full_filename) {
 		$struct = mailparse_msg_get_structure($mime);
 		$msginfo = mailparse_msg_get_part_data($mime);
 		
@@ -524,7 +549,7 @@ class CerberusParser {
 		foreach($message->headers as $header_name => $header_val) {
 			if(is_array($header_val)) {
 				foreach($header_val as $idx => $val) {
-					$message->headers[$header_name][$idx] = self::fixQuotePrintableString($val, $message->body_encoding);	
+					$message->headers[$header_name][$idx] = self::fixQuotePrintableString($val, $message->body_encoding);
 				}
 			} else {
 				$message->headers[$header_name] = self::fixQuotePrintableString($header_val, $message->body_encoding);
@@ -549,8 +574,8 @@ class CerberusParser {
 			if($skip)
 				continue;
 			
-		    $section = mailparse_msg_get_part($mime, $st);
-		    $info = mailparse_msg_get_part_data($section);
+			$section = mailparse_msg_get_part($mime, $st);
+			$info = mailparse_msg_get_part_data($section);
 
 			// Overrides
 			switch(strtolower($info['charset'])) {
@@ -558,7 +583,7 @@ class CerberusParser {
 					$info['charset'] = 'gbk';
 					break;
 			}
-		    
+
 			// See if we have a content filename
 			
 			$content_filename = isset($info['disposition-filename']) ? $info['disposition-filename'] : '';
@@ -572,12 +597,12 @@ class CerberusParser {
 			
 			$content_type = isset($info['content-type']) ? $info['content-type'] : '';
 			
-		    // handle parts that shouldn't have a content-name, don't handle twice
-		    $handled = false;
-		    
-		    if(empty($content_filename)) {
-		    	switch(strtolower($content_type)) {
-		    		case 'text/plain':
+			// handle parts that shouldn't have a content-name, don't handle twice
+			$handled = false;
+			
+			if(empty($content_filename)) {
+				switch(strtolower($content_type)) {
+					case 'text/plain':
 						$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
 						
 						if(isset($info['charset']) && !empty($info['charset'])) {
@@ -587,7 +612,7 @@ class CerberusParser {
 								$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['charset']);
 							} else {
 								mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1');
-
+								
 								if(false !== ($charset = mb_detect_encoding($text))) {
 									$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset);
 								} else {
@@ -596,15 +621,15 @@ class CerberusParser {
 							}
 						}
 						
-		            	@$message->body .= $text;
-		            	
-		            	unset($text);
-		            	$handled = true;
-		    			break;
-		    			
-		    		case 'text/html':
-		        		@$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
-	
+						@$message->body .= $text;
+						
+						unset($text);
+						$handled = true;
+						break;
+					
+					case 'text/html':
+						@$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
+						
 						if(isset($info['charset']) && !empty($info['charset'])) {
 							if(@mb_check_encoding($text, $info['charset'])) {
 								$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['charset']);
@@ -618,82 +643,82 @@ class CerberusParser {
 								}
 							}
 						}
-		        		
+						
 						$message->htmlbody .= $text;
 						unset($text);
 						
-			            // Add the html part as an attachment
-			            // [TODO] Make attaching the HTML part an optional config option (off by default)
-		                $tmpname = ParserFile::makeTempFilename();
-		                $html_attach = new ParserFile();
-		                $html_attach->setTempFile($tmpname,'text/html');
-		                @file_put_contents($tmpname,$message->htmlbody);
-		                $html_attach->file_size = filesize($tmpname);
-		                $message->files["original_message.html"] = $html_attach;
-		                unset($html_attach);
-			            $handled = true;
-		    			break;
-		    			
-		    		case 'message/delivery-status':
+						// Add the html part as an attachment
+						// [TODO] Make attaching the HTML part an optional config option (off by default)
+						$tmpname = ParserFile::makeTempFilename();
+						$html_attach = new ParserFile();
+						$html_attach->setTempFile($tmpname,'text/html');
+						@file_put_contents($tmpname,$message->htmlbody);
+						$html_attach->file_size = filesize($tmpname);
+						$message->files["original_message.html"] = $html_attach;
+						unset($html_attach);
+						$handled = true;
+						break;
+						 
+					case 'message/delivery-status':
 						@$message_content = mailparse_msg_extract_part_file($section, $full_filename, NULL);
 						$message_counter = empty($message_counter) ? 1 : $message_counter++;
-			        	
-		                $tmpname = ParserFile::makeTempFilename();
-		                $bounce_attach = new ParserFile();
-		                $bounce_attach->setTempFile($tmpname,'message/delivery-status');
-		                @file_put_contents($tmpname, $message_content);
-		                $bounce_attach->file_size = filesize($tmpname);
-		                $bounce_attach->mime_type = 'message/delivery-status';
-		                $bounce_attach_filename = sprintf("delivery_status%s.txt",
-		                	(($message_counter > 1) ? ('_'.$message_counter) : '')
-		                );
-		                $message->files[$bounce_attach_filename] = $bounce_attach;
-		                unset($bounce_attach);
-			            $handled = true;
-			            
-			            // Skip any nested parts in this message/rfc822 parent
-			            $ignore_mime_prefixes[] = $st . '.';
-		    			break;
-		    			
-		    		case 'message/rfc822':
+
+						$tmpname = ParserFile::makeTempFilename();
+						$bounce_attach = new ParserFile();
+						$bounce_attach->setTempFile($tmpname,'message/delivery-status');
+						@file_put_contents($tmpname, $message_content);
+						$bounce_attach->file_size = filesize($tmpname);
+						$bounce_attach->mime_type = 'message/delivery-status';
+						$bounce_attach_filename = sprintf("delivery_status%s.txt",
+								(($message_counter > 1) ? ('_'.$message_counter) : '')
+						);
+						$message->files[$bounce_attach_filename] = $bounce_attach;
+						unset($bounce_attach);
+						$handled = true;
+						
+						// Skip any nested parts in this message/rfc822 parent
+						$ignore_mime_prefixes[] = $st . '.';
+						break;
+
+					case 'message/rfc822':
 						@$message_content = mailparse_msg_extract_part_file($section, $full_filename, NULL);
-			        	$message_counter = empty($message_counter) ? 1 : $message_counter++;
-			        	
-		                $tmpname = ParserFile::makeTempFilename();
-		                $rfc_attach = new ParserFile();
-		                $rfc_attach->setTempFile($tmpname,'message/rfc822');
-		                @file_put_contents($tmpname,$message_content);
-		                $rfc_attach->file_size = filesize($tmpname);
-		                $rfc_attach->mime_type = 'text/plain';
-		                $rfc_attach_filename = sprintf("attached_message%s.txt",
-		                	(($message_counter > 1) ? ('_'.$message_counter) : '')
-		                );
-		                $message->files[$rfc_attach_filename] = $rfc_attach;
-		                unset($rfc_attach);
-			            $handled = true;
-			            
-			            // Skip any nested parts in this message/rfc822 parent
-			            $ignore_mime_prefixes[] = $st . '.';
-		    			break;
-		    	}
-		    }
-		    
-		    // whether or not it has a content-name, we need to add it as an attachment (if not already handled)
-		    if(!$handled) {
-		    	if (false === strpos(strtolower($info['content-type']),'multipart')) {
-	                if(!$is_attachments_enabled) {
-	                    break; // skip attachment
-	                }
-				    $attach = new ParseFileBuffer($section, $info, $full_filename);
-	                
-				    // [TODO] This could be more efficient by not even saving in the first place above:
-                    // Make sure our attachment is under the max preferred size
-				    if(filesize($attach->tmpname) > ($attachments_max_size * 1024000)) {
-				        @unlink($attach->tmpname);
-				        break;
-				    }
-				    
-				    // content-name is not necessarily unique...
+						$message_counter = empty($message_counter) ? 1 : $message_counter++;
+
+						$tmpname = ParserFile::makeTempFilename();
+						$rfc_attach = new ParserFile();
+						$rfc_attach->setTempFile($tmpname,'message/rfc822');
+						@file_put_contents($tmpname,$message_content);
+						$rfc_attach->file_size = filesize($tmpname);
+						$rfc_attach->mime_type = 'text/plain';
+						$rfc_attach_filename = sprintf("attached_message%s.txt",
+							(($message_counter > 1) ? ('_'.$message_counter) : '')
+						);
+						$message->files[$rfc_attach_filename] = $rfc_attach;
+						unset($rfc_attach);
+						$handled = true;
+
+						// Skip any nested parts in this message/rfc822 parent
+						$ignore_mime_prefixes[] = $st . '.';
+						break;
+				}
+			}
+
+			// whether or not it has a content-name, we need to add it as an attachment (if not already handled)
+			if(!$handled) {
+				if (false === strpos(strtolower($info['content-type']),'multipart')) {
+					if(!$is_attachments_enabled) {
+						break; // skip attachment
+					}
+					$attach = new ParseFileBuffer($section, $info, $full_filename);
+					
+					// [TODO] This could be more efficient by not even saving in the first place above:
+					// Make sure our attachment is under the max preferred size
+					if(filesize($attach->tmpname) > ($attachments_max_size * 1024000)) {
+						@unlink($attach->tmpname);
+						break;
+					}
+
+					// content-name is not necessarily unique...
 					if (isset($message->files[$content_filename])) {
 						$j=1;
 						while (isset($message->files[$content_filename . '(' . $j . ')'])) {
@@ -703,47 +728,47 @@ class CerberusParser {
 					}
 					
 					$message->files[$content_filename] = $attach;
-		        }
-		    }
+				}
+			}
 		}
 		
 		// generate the plaintext part (if necessary)
 		if(empty($message->body) && !empty($message->htmlbody)) {
 			$message->body = DevblocksPlatform::stripHTML($message->htmlbody);
 		}
-		
+
 		return $message;
-    }
-    
-    /**
-     * Enter description here...
-     *
-     * @param string $source
-     * @return $filename
-     */
-    static public function saveMimeToFile($source, $path=null) {
-    	if(empty($path))
-    		$path = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
-    	else
-    		$path = $path . DIRECTORY_SEPARATOR;
-    	
+	}
+
+	/**
+	 * Enter description here...
+	 *
+	 * @param string $source
+	 * @return $filename
+	 */
+	static public function saveMimeToFile($source, $path=null) {
+		if(empty($path))
+			$path = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
+		else
+			$path = $path . DIRECTORY_SEPARATOR;
+		 
 		do {
 			$unique = sprintf("%s.%04d.msg",
 				time(),
 				mt_rand(0,9999)
 			);
 			$filename = $path . $unique;
-        } while(file_exists($filename));
+		} while(file_exists($filename));
 
-          $fp = fopen($filename,'w');
-          
-          if($fp) {
-              fwrite($fp,$source,strlen($source));
-              @fclose($fp);
-          }
-          
+		$fp = fopen($filename,'w');
+
+		if($fp) {
+			fwrite($fp,$source,strlen($source));
+			@fclose($fp);
+		}
+
 		return $filename;
-    }
+	}
 
 	/**
 	 * @param CerberusParserMessage $message
@@ -759,12 +784,12 @@ class CerberusParser {
 		$headers =& $message->headers;
 
 		/*
-		 * [mdf] Check attached files before creating the ticket because we may need to 
-		 * overwrite the message-id also store any contents of rfc822 files so we can 
+		 * [mdf] Check attached files before creating the ticket because we may need to
+		 * overwrite the message-id also store any contents of rfc822 files so we can
 		 * include them after the body
 		 */
 		// [TODO] Refactor
-		if(is_array($message->files))		
+		if(is_array($message->files))
 		foreach ($message->files as $filename => $file) { /* @var $file ParserFile */
 			switch($file->mime_type) {
 				case 'message/rfc822':
@@ -782,12 +807,12 @@ class CerberusParser {
 		}
 
 		// Parse headers into $model
-		$model = new CerberusParserModel($message);		
+		$model = new CerberusParserModel($message);
 		
 		if(false == ($validated = $model->validate()))
 			return $validated; // false or null
 		
-        // Pre-parse mail filters
+		// Pre-parse mail filters
 		// Changing the incoming message through a VA
 		Event_MailReceivedByApp::trigger($model);
 		
@@ -795,8 +820,59 @@ class CerberusParser {
 		
 		// Reject?
 		if(isset($pre_actions['reject'])) {
-			$logger->info('Rejecting based on Virtual Attendant behavioral action.');
+			$logger->info('Rejecting based on Virtual Attendant filtering.');
 			return NULL;
+		}
+		
+		// Filter attachments?
+		// [TODO] Encapsulate this somewhere
+		if(isset($pre_actions['attachment_filters']) && !empty($message->files)) {
+			foreach($message->files as $filename => $file) {
+				$matched = false;
+				
+				foreach($pre_actions['attachment_filters'] as $filter) {
+					if($matched)
+						continue;
+					
+					if(!isset($filter['oper']) || !isset($filter['value']))
+						continue;
+					
+					$not = false;
+					
+					if(substr($filter['oper'],0,1)=='!') {
+						$not = true;
+						$filter['oper'] = substr($filter['oper'],1);
+					}
+					
+					switch($filter['oper']) {
+						case 'is':
+							$matched = (0 == strcasecmp($filename, $filter['value']));
+							break;
+							
+						case 'like':
+						case 'regexp':
+							if($filter['oper'] == 'like')
+								$pattern = DevblocksPlatform::strToRegExp($filter['value']);
+							else
+								$pattern = $filter['value'];
+							
+							$matched = (@preg_match($pattern, $filename));
+							break;
+					}
+					
+					// Did we want a negative match?
+					if(!$matched && $not)
+						$matched = true;
+					
+					// Remove a matched attachment
+					if($matched) {
+						$logger->info(sprintf("Removing attachment '%s' based on Virtual Attendant filtering.", $filename));
+						@unlink($file->tmpname);
+						unset($message->files[$filename]);
+						continue;
+					}
+				}
+			}
 		}
 		
 		// Overloadable
@@ -804,9 +880,9 @@ class CerberusParser {
 
 		// Is it a worker reply from an external client?  If so, proxy
 		
-		if(null != ($proxy_ticket = $model->getTicketModel()) 
-			&& $model->isSenderWorker() 
-			&& null != ($proxy_worker = $model->getSenderWorkerModel())) { /* @var $proxy_worker Model_Worker */	
+		if(null != ($proxy_ticket = $model->getTicketModel())
+			&& $model->isSenderWorker()
+			&& null != ($proxy_worker = $model->getSenderWorkerModel())) { /* @var $proxy_worker Model_Worker */
 			
 			$logger->info("[Worker Relay] Handling an external worker relay for " . $model->getSenderAddressModel()->email);
 
@@ -819,24 +895,8 @@ class CerberusParser {
 				$is_authenticated = true;
 				
 			} else {
-				@$in_reply_to = $message->headers['in-reply-to'];
-				
-				if(preg_match('#\<(.*)\_(\d*)\_(\d*)\_([a-f0-9]{8})\@cerb5\>#', $in_reply_to, $hits)) {
-					$proxy_context = $hits[1];
-					$proxy_context_id = $hits[2];
-					$signed = $hits[4];
-					 
-					$signed_compare = substr(md5($proxy_context.$proxy_context_id.$proxy_worker->pass),8,8);
-					 
-					$is_authenticated = ($signed_compare == $signed);
-					
-					unset($hits);
-					unset($proxy_context);
-					unset($proxy_context_id);
-					unset($signed);
-					unset($signed_compare);
-					unset($in_reply_to);
-				}
+				if(isset($message->headers['in-reply-to']) && $proxy_worker instanceof Model_Worker)
+					$is_authenticated = $model->isValidAuthHeader($message->headers['in-reply-to'], $proxy_worker);
 			}
 
 			// Compare worker signature, then auth
@@ -852,19 +912,19 @@ class CerberusParser {
 					foreach($parser_message->files as $filename => $file) {
 						if(0 == strcasecmp($filename, 'original_message.html'))
 							continue;
-						
-					    $fields = array(
-					        DAO_Attachment::DISPLAY_NAME => $filename,
-					        DAO_Attachment::MIME_TYPE => $file->mime_type,
-					    );
-					    
-					    if(null == ($file_id = DAO_Attachment::create($fields))) {
-					        @unlink($file->tmpname); // remove our temp file
-						    continue;
-					    }
-						
-					    $attachment_file_ids[] = $file_id;
-			
+
+						$fields = array(
+							DAO_Attachment::DISPLAY_NAME => $filename,
+							DAO_Attachment::MIME_TYPE => $file->mime_type,
+						);
+							
+						if(null == ($file_id = DAO_Attachment::create($fields))) {
+							@unlink($file->tmpname); // remove our temp file
+							continue;
+						}
+
+						$attachment_file_ids[] = $file_id;
+							
 						if(null !== ($fp = fopen($file->getTempFile(), 'rb'))) {
 							Storage_Attachments::put($file_id, $fp);
 							fclose($fp);
@@ -898,17 +958,17 @@ class CerberusParser {
 								
 						} elseif(preg_match('/^#cut/', $line, $matches)) {
 							$is_cut = true;
-								
+							
 						} elseif(preg_match('/^#watch/', $line, $matches)) {
 							CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $proxy_ticket->id, $proxy_worker->id);
-								
+							
 						} elseif(preg_match('/^#unwatch/', $line, $matches)) {
 							CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TICKET, $proxy_ticket->id, $proxy_worker->id);
-								
+							
 						} elseif(preg_match('/^#noreply/', $line, $matches)) {
 							$properties['dont_send'] = 1;
 							$properties['dont_keep_copy'] = 1;
-								
+							
 						} elseif(preg_match('/^#status (.*)/', $line, $matches)) {
 							switch(strtolower($matches[1])) {
 								case 'o':
@@ -924,10 +984,10 @@ class CerberusParser {
 									$properties['closed'] = 1;
 									break;
 							}
-								
+							
 						} elseif(preg_match('/^#reopen (.*)/', $line, $matches)) {
 							$properties['ticket_reopen'] = $matches[1];
-								
+							
 						} elseif(preg_match('/^#comment (.*)/', $line, $matches)) {
 							if(!isset($matches[1]) || empty($matches[1]))
 								continue;
@@ -939,15 +999,15 @@ class CerberusParser {
 								DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
 								DAO_Comment::CONTEXT_ID => $proxy_ticket->id,
 							));
-								
+							
 						} else {
 							if(!$is_cut)
 								$body .= $line . PHP_EOL;
 						}
 					}
-					 
+					
 					$properties['content'] = $body;
-					 
+					
 					$result = CerberusMail::sendTicketMessage($properties);
 					return NULL;
 				}
@@ -1040,14 +1100,14 @@ class CerberusParser {
 			}
 
 		} // endif ($model->getIsNew())
-	    		
-        $fields = array(
-            DAO_Message::TICKET_ID => $model->getTicketId(),
-            DAO_Message::CREATED_DATE => $model->getDate(),
-            DAO_Message::ADDRESS_ID => $model->getSenderAddressModel()->id,
-        );
+		 
+		$fields = array(
+			DAO_Message::TICKET_ID => $model->getTicketId(),
+			DAO_Message::CREATED_DATE => $model->getDate(),
+			DAO_Message::ADDRESS_ID => $model->getSenderAddressModel()->id,
+		);
 		$model->setMessageId(DAO_Message::create($fields));
-		
+
 		$message_id = $model->getMessageId();
 		if(empty($message_id)) {
 			$logger->error("Problem saving message to database...");
@@ -1059,7 +1119,7 @@ class CerberusParser {
 		
 		// Save headers
 		foreach($headers as $hk => $hv) {
-		    DAO_MessageHeader::create($model->getMessageId(), $hk, $hv);
+			DAO_MessageHeader::create($model->getMessageId(), $hk, $hv);
 		}
 		
 		// [mdf] Loop through files to insert attachment records in the db, and move temporary files
@@ -1115,23 +1175,23 @@ class CerberusParser {
 						}
 					}
 					//}
-					break;				
+					break;
 			}
 			
 			if(!$handled) {
-			    $fields = array(
-			        DAO_Attachment::DISPLAY_NAME => $filename,
-			        DAO_Attachment::MIME_TYPE => $file->mime_type,
-			    );
-			    $file_id = DAO_Attachment::create($fields);
+				$fields = array(
+					DAO_Attachment::DISPLAY_NAME => $filename,
+					DAO_Attachment::MIME_TYPE => $file->mime_type,
+				);
+				$file_id = DAO_Attachment::create($fields);
 				
-			    // Link
-			    DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId());
-			    
-			    // Content
-			    if(empty($file_id)) {
-			        @unlink($file->tmpname); // remove our temp file
-				    continue;
+				// Link
+				DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId());
+				
+				// Content
+				if(empty($file_id)) {
+					@unlink($file->tmpname); // remove our temp file
+					continue;
 				}
 	
 				if(null !== ($fp = fopen($file->getTempFile(), 'rb'))) {
@@ -1143,7 +1203,7 @@ class CerberusParser {
 			} else {
 				@unlink($file->tmpname); // remove our temp file
 				
-			}				
+			}
 		}
 		
 		// Pre-load custom fields
@@ -1164,11 +1224,11 @@ class CerberusParser {
 			
 			// Prime the change fields (which a few things like anti-spam might change before we commit)
 			$change_fields = array(
-			    DAO_Ticket::GROUP_ID => $model->getGroupId(), // this triggers move rules
+				DAO_Ticket::GROUP_ID => $model->getGroupId(), // this triggers move rules
 			);
 			
 			// [TODO] Benchmark anti-spam
-		    $out = CerberusBayes::calculateTicketSpamProbability($model->getTicketId());
+			$out = CerberusBayes::calculateTicketSpamProbability($model->getTicketId());
 		
 			// Save properties
 			if(!empty($change_fields))
@@ -1178,13 +1238,13 @@ class CerberusParser {
 		
 			// Re-open and update our date on new replies
 			DAO_Ticket::update($model->getTicketId(),array(
-			    DAO_Ticket::UPDATED_DATE => time(),
-			    DAO_Ticket::IS_WAITING => 0,
-			    DAO_Ticket::IS_CLOSED => 0,
-			    DAO_Ticket::IS_DELETED => 0,
-			    DAO_Ticket::LAST_MESSAGE_ID => $model->getMessageId(),
-			    DAO_Ticket::LAST_WROTE_ID => $model->getSenderAddressModel()->id,
-			    DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_CUSTOMER_REPLY,
+				DAO_Ticket::UPDATED_DATE => time(),
+				DAO_Ticket::IS_WAITING => 0,
+				DAO_Ticket::IS_CLOSED => 0,
+				DAO_Ticket::IS_DELETED => 0,
+				DAO_Ticket::LAST_MESSAGE_ID => $model->getMessageId(),
+				DAO_Ticket::LAST_WROTE_ID => $model->getSenderAddressModel()->id,
+				DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_CUSTOMER_REPLY,
 			));
 			// [TODO] The TICKET_CUSTOMER_REPLY should be sure of this message address not being a worker
 		}
@@ -1216,8 +1276,8 @@ class CerberusParser {
 			Event_MailReceivedByWatcher::trigger($model->getMessageId(), $watcher_id);
 		}
 		
-	    @imap_errors(); // Prevent errors from spilling out into STDOUT
-	    
+		@imap_errors(); // Prevent errors from spilling out into STDOUT
+		
 		return $model->getTicketId();
 	}
 	

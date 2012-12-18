@@ -19,7 +19,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	const ID = 'event.mail.received.app';
 	
 	/**
-	 * 
+	 *
 	 * Enter description here ...
 	 * @param CerberusParserModel $parser_model
 	 */
@@ -39,7 +39,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param CerberusParserModel $parser_model
 	 * @return Model_DevblocksEvent
 	 */
@@ -131,7 +131,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		 */
 
 		$this->setLabels($labels);
-		$this->setValues($values);		
+		$this->setValues($values);
 	}
 	
 	function getValuesContexts($trigger) {
@@ -193,7 +193,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
-		return $conditions;		
+		return $conditions;
 	}
 	
 	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -305,7 +305,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 					}
 				}
 				
-				$pass = ($not) ? !$found : $found;				
+				$pass = ($not) ? !$found : $found;
 				break;
 				
 			case 'recipients':
@@ -372,7 +372,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				}
 				
 				$pass = ($not) ? !$pass : $pass;
-				break;				
+				break;
 				
 			default:
 				$pass = false;
@@ -383,13 +383,15 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions() {
-		$actions = 
+		$actions =
 			array(
 				'append_to_content' => array('label' =>'Append text to message content'),
+				'create_notification' => array('label' =>'Create a notification'),
 				'prepend_to_content' => array('label' =>'Prepend text to message content'),
 				'replace_content' => array('label' =>'Replace text in message content'),
 				'reject' => array('label' =>'Reject delivery of message'),
 				'redirect_email' => array('label' =>'Redirect delivery to another email address'),
+				'remove_attachments' => array('label' => 'Remove attachments by filename'),
 				'send_email' => array('label' => 'Send email'),
 				'send_email_sender' => array('label' => 'Reply to sender'),
 				'set_header' => array('label' => 'Set message header'),
@@ -416,6 +418,11 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::events/mail_before_sent_by_group/action_add_content.tpl');
 				break;
 				
+			case 'create_notification':
+				$translate = DevblocksPlatform::getTranslationService();
+				DevblocksEventHelper::renderActionCreateNotification($trigger);
+				break;
+				
 			case 'replace_content':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_before_sent_by_group/action_replace_content.tpl');
 				break;
@@ -426,7 +433,11 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			case 'redirect_email':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_app/action_redirect_email.tpl');
 				break;
-
+			
+			case 'remove_attachments':
+				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_app/action_remove_attachments.tpl');
+				break;
+			
 			case 'send_email':
 				DevblocksEventHelper::renderActionSendEmail($trigger);
 				break;
@@ -452,7 +463,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		
 		$tpl->clearAssign('params');
 		$tpl->clearAssign('namePrefix');
-		$tpl->clearAssign('token_labels');		
+		$tpl->clearAssign('token_labels');
 	}
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
@@ -470,6 +481,10 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				);
 				
 				return $out;
+				break;
+				
+			case 'create_notification':
+				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict);
 				break;
 				
 			case 'prepend_to_content':
@@ -527,11 +542,22 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			
 				$out = sprintf(">>> Redirecting message to:\n%s",
 					$to
-					);
+				);
 			
 				return $out;
 				break;
-
+			
+			case 'remove_attachments':
+				@$oper = $params['match_oper'];
+				@$value = $params['match_value'];
+				
+				$out = sprintf(">>> Removing attachments where filename %s %s\n",
+					$oper,
+					$value
+				);
+				return $out;
+				break;
+				
 			case 'send_email':
 				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
@@ -599,7 +625,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 					);
 					return $out;
 				}
-				break;				
+				break;
 		}
 	}
 	
@@ -608,6 +634,10 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			case 'append_to_content':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 				$dict->body .= "\r\n" . $tpl_builder->build($params['content'], $dict);
+				break;
+				
+			case 'create_notification':
+				DevblocksEventHelper::runActionCreateNotification($params, $dict);
 				break;
 				
 			case 'prepend_to_content':
@@ -637,13 +667,27 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			
 			case 'redirect_email':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-   				@$to = $tpl_builder->build($params['to'], $dict);
-
-   				@$parser_model = $dict->_parser_model;
-   				if(empty($parser_model) || !is_a($parser_model,'CerberusParserModel'))
-   					break;
-   					
-  				CerberusMail::reflect($parser_model, $to);
+				@$to = $tpl_builder->build($params['to'], $dict);
+				
+				@$parser_model = $dict->_parser_model;
+				if(empty($parser_model) || !is_a($parser_model,'CerberusParserModel'))
+					break;
+				
+				CerberusMail::reflect($parser_model, $to);
+				break;
+				
+			case 'remove_attachments':
+				@$oper = $params['match_oper'];
+				@$value = $params['match_value'];
+				
+				if(empty($oper) || empty($value))
+					break;
+				
+				if(!isset($dict->pre_actions['attachment_filters'])) {
+					$dict->pre_actions['attachment_filters'] = array();
+				}
+				
+				$dict->pre_actions['attachment_filters'][] = array('oper' => $oper, 'value' => $value);
 				break;
 				
 			case 'send_email':
@@ -737,9 +781,9 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 							break;
 					}
 					
-					$parser_model->getMessage()->custom_fields[$field_id] = $value; 
+					$parser_model->getMessage()->custom_fields[$field_id] = $value;
 				}
-				break;				
+				break;
 		}
 	}
 };

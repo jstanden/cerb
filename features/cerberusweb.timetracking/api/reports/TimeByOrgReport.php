@@ -49,7 +49,7 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		
 		// reload variables in template
 		$tpl->assign('start', $start);
-		$tpl->assign('end', $end);		
+		$tpl->assign('end', $end);
 		
 		// Calculate the # of ticks between the dates (and the scale -- day, month, etc)
 		$range = $end_time - $start_time;
@@ -106,7 +106,7 @@ class ChReportTimeSpentOrg extends Extension_Report {
 			}
 		}
 		
-		$tpl->assign('report_date_grouping', $date_increment);	
+		$tpl->assign('report_date_grouping', $date_increment);
 				
 		// Find unique values
 		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
@@ -120,8 +120,8 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		$sql = sprintf("SELECT contact_org.id AS org_id, DATE_FORMAT(FROM_UNIXTIME(tte.log_date),'%s') as date_plot, ".
 			"SUM(tte.time_actual_mins) AS mins, contact_org.name AS org_name ".
 			"FROM timetracking_entry tte ".
-			"INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.timetracking' AND context_link.to_context_id = tte.id AND context_link.from_context = 'cerberusweb.contexts.org') ". 
-			"INNER JOIN contact_org ON (context_link.from_context_id = contact_org.id) ". 
+			"INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.timetracking' AND context_link.to_context_id = tte.id AND context_link.from_context = 'cerberusweb.contexts.org') ".
+			"INNER JOIN contact_org ON (context_link.from_context_id = contact_org.id) ".
 			"WHERE 1 ".
 			"AND log_date > %d ".
 			"AND log_date <= %d ".
@@ -183,7 +183,7 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		$tpl->assign('chart_data', $chart_data);
 		$tpl->assign('data', $data);
 		
-		mysql_free_result($rs);		
+		mysql_free_result($rs);
 		
 		// Table
 		
@@ -222,7 +222,7 @@ class ChReportTimeSpentOrg extends Extension_Report {
 			C4_AbstractViewLoader::setView($view->id, $view);
 			
 			$tpl->assign('view', $view);
-		}		
+		}
 		
 		// Template
 		

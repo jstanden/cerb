@@ -63,7 +63,7 @@ function chooserOpen(ref) {
 		
 	$context = $select.val();
 	
-	$popup = genericAjaxPopup('chooser','c=internal&a=chooserOpen&context='+encodeURIComponent($context),null,true,'750');
+	$popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context='+encodeURIComponent($context),null,true,'750');
 	$popup.one('chooser_save', function(event) {
 		event.stopPropagation();
 		$id = $context.replace(/\./g,'_');
@@ -91,7 +91,7 @@ function chooserOpen(ref) {
 			if(json.links_count) {
 				$connections = $('#divConnections');
 				$tabs = $connections.closest('div.ui-tabs');
-				$tab = $tabs.find('> ul.ui-tabs-nav > li.ui-tabs-selected');
+				$tab = $tabs.find('> ul.ui-tabs-nav > li.ui-tabs-active');
 				$tab.find('> a > div.tab-badge').html(json.links_count);
 			}
 		};
@@ -142,7 +142,7 @@ function removeSelectedContextLinks(ref) {
 		if(json.links_count) {
 			$connections = $('#divConnections');
 			$tabs = $connections.closest('div.ui-tabs');
-			$tab = $tabs.find('> ul.ui-tabs-nav > li.ui-tabs-selected');
+			$tab = $tabs.find('> ul.ui-tabs-nav > li.ui-tabs-active');
 			$tab.find('> a > div.tab-badge').html(json.links_count);
 		}
 	};

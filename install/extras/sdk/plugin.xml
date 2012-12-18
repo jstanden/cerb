@@ -7,14 +7,14 @@
 	<version>0.0.0</version>
 	<link>http://www.cerberusweb.com/</link>
 	<!--<image>plugin.png</image>-->
- 
- 	<!-- Requirements -->
+
+	<!-- Requirements -->
 
 	<requires>
-		<app_version min="6.1" max="6.1.99" />
+		<app_version min="6.2" max="6.2.99" />
 		<!--<php_extension name="curl" />-->
 	</requires>
- 
+
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
@@ -61,10 +61,8 @@
 	-->
 
 	<!-- Extensions -->
- 
+
 	<extensions>
 
-		
-		
-    </extensions> 
+	</extensions> 
 </plugin>

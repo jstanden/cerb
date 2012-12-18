@@ -1,3 +1,5 @@
+<div class="chart-tooltip" style="margin-top:2px;">&nbsp;</div>
+
 <canvas id="widget{$widget->id}_axes_canvas" width="325" height="125" style="position:absolute;cursor:crosshair;display:none;" class="overlay">
 	Your browser does not support HTML5 Canvas.
 </canvas>
@@ -8,10 +10,10 @@
 
 <div style="margin-top:5px;">
 {foreach from=$widget->params.series item=series key=series_idx name=series}
-{if !empty($series.view_context)}
+{if 0 != strlen($series.label)}
 <div style="display:inline-block;white-space:nowrap;">
 	<span style="width:10px;height:10px;display:inline-block;background-color:{$series.line_color};margin:2px;vertical-align:middle;border-radius:10px;-moz-border-radius:10px;-webkit-border-radius:10px;-o-border-radius:10px;"></span>
-	<b style="vertical-align:middle;">{if !empty($series.label)}{$series.label}{else}Series #{$smarty.foreach.series.iteration}{/if}</b>
+	<b style="vertical-align:middle;">{if 0 != strlen($series.label)}{$series.label}{else}Series #{$smarty.foreach.series.iteration}{/if}</b>
 </div>
 {/if}
 {/foreach}
@@ -47,8 +49,7 @@ try {
 			
 			options = $(this).data('model');
 			
-			chart_top = 15;
-			chart_height = canvas.height - chart_top;
+			chart_height = canvas.height;
 			chart_width = canvas.width;
 			
 			// Cache: Plots chart coords
@@ -88,8 +89,7 @@ try {
 			canvas = $(this).get(0);
 			context = canvas.getContext('2d');
 			
-			chart_top = 15;
-			chart_height = canvas.height - chart_top;
+			chart_height = canvas.height;
 			chart_width = canvas.width;
 			
 			options = $(this).data('model');
@@ -102,12 +102,15 @@ try {
 			
 			if(undefined != e.offsetX) {
 				x = e.offsetX;
+				y = e.offsetY;
 				
 			} else if(undefined != e.layerX) {
 				x = e.layerX;
+				y = e.layerY;
 				
 			} else if(null != e.originalEvent && undefined != e.originalEvent.layerX) {
 				x = e.originalEvent.layerX;
+				y = e.originalEvent.layerY;
 			}
 
 			closest = {
@@ -131,30 +134,14 @@ try {
 
 			context.beginPath();
 			context.fillStyle = 'rgba(255,255,255,0.4)';
-			context.moveTo(closest.plot.chart_x, chart_height + chart_top);
-			context.lineTo(closest.plot.chart_x, chart_top);
+			context.moveTo(closest.plot.chart_x, chart_height);
+			context.lineTo(closest.plot.chart_x, 0);
 			chart_x = Math.floor(closest.plot.chart_x+xtick_width-1);
-			context.lineTo(chart_x, chart_top);
-			context.lineTo(chart_x, chart_height + chart_top);
+			context.lineTo(chart_x, 0);
+			context.lineTo(chart_x, chart_height);
 			context.fill();
 			
-			text = options.series[0].data[closest.plot.index].x_label + ': '; // Label
-			bounds = context.measureText(text);
-			padding = 2;
-
-			text_x = padding;
-			
-			context.beginPath();
-			context.fillStyle = '#FFF';
-			context.fillRect(0,0,chart_width,chart_top);
-			
-			context.beginPath();
-			context.fillStyle = '#34434E';
-			context.font = "12px Verdana";
-			context.fillText(text, text_x, 10+padding);
-			context.stroke();
-			
-			text_x += bounds.width + padding;
+			$label = $('<span style="background-color:rgb(240,240,240);padding:2px 2px 2px 7px;font-weight:bold;border:1px solid '+series.options.fill_color+';"><span style="margin-right:5px;color:'+series.options.line_color+'">'+options.series[0].data[closest.plot.index].x_label+':</span></span>');
 			
 			for(series_idx in options.series) {
 				series = options.series[series_idx];
@@ -162,18 +149,18 @@ try {
 
 				if(null == series || null == series.data)
 					continue;
-				
-				text = series.data[index].y_label; // Label
-				bounds = context.measureText(text);
-				
-				context.beginPath();
-				context.fillStyle = series.options.color;
-				context.fillText(text, text_x, 10+padding);
-				context.stroke();
-				
-				text_x += bounds.width + 5;
+
+				$metric_label = $('<span style="color:'+series.options.color+';margin-right:5px;">'+series.data[index].y_label+'</span>');
+				$label.append($metric_label);
 			}
 			
+			$tooltip = $(this).siblings('DIV.chart-tooltip');
+			$tooltip.html('').append($label);
+			
+		})
+		.mouseout(function(e) {
+			$tooltip = $(this).siblings('DIV.chart-tooltip');
+			$tooltip.html('&nbsp;');
 		})
 		;	
 	

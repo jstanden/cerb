@@ -3,10 +3,14 @@
 {assign var=results value=$view->getData()}
 {assign var=total value=$results[1]}
 {assign var=data value=$results[0]}
+
+{include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
+
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right">
+			{if $active_worker->hasPriv('core.snippets.actions.create')}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('peek','c=internal&a=showSnippetsPeek&id=0&owner_context={$owner_context}&owner_context_id={$owner_context_id}&view_id={$view->id}',null,false,'550');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></a>{/if}
 			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',this,false,'400');"><span class="cerb-sprite2 sprite-document-search-result"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="cerb-sprite2 sprite-gear"></span></a>
 			<a href="javascript:;" title="Subtotals" class="subtotals minimal"><span class="cerb-sprite2 sprite-application-sidebar-list"></span></a>
@@ -56,7 +60,7 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-		<td align="center"><input type="checkbox" name="row_id[]" value="{$result.s_id}" style="display:none;"></td>
+		<td rowspan="2" align="center" valign="top"><input type="checkbox" name="row_id[]" value="{$result.s_id}" style="display:none;"></td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
@@ -91,6 +95,24 @@
 			<td>{$result.$column}</td>
 			{/if}
 		{/foreach}
+		</tr>
+		<tr class="{$tableRowClass}">
+			<td colspan="{count($view->view_columns) + 1}">
+				{$snippet_content = $result.s_content|regex_replace:'#({{.*?}})#':'[ph]\1[/ph]'}
+				
+				{if isset($dicts.{$result.s_context}) && isset($tpl_builder)}
+					{$dict = $dicts.{$result.s_context}}
+					{$snippet_content = $tpl_builder->build($snippet_content, $dict)}
+				{/if}
+				
+				{$snippet_content = $snippet_content|escape:'htmlall'}
+				{$snippet_content = $snippet_content|regex_replace:'#(\(\((_+)\[ph\](.*?)\[/ph\]_+\)\))#':'((\2\3\2))'}
+				{$snippet_content = $snippet_content|regex_replace:'#(\[ph\](.*?)\[/ph\])#':'<div class="bubble">\2</div>'}
+				
+				{$snippet_content = $snippet_content|regex_replace:'#(\(\(_+(.*?)_+\)\))#':'<span class="placeholder placeholder-input">(\2)</span>'}
+				
+				<div class="emailbody" style="max-height:100px;overflow-y:auto;border-left:2px solid rgb(220,220,220);font-size:12px;margin-left:15px;color:rgb(75,75,75);padding:5px 10px;">{$snippet_content nofilter}</div>
+			</td>
 		</tr>
 	</tbody>
 	{/foreach}

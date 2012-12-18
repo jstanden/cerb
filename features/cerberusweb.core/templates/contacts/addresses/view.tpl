@@ -95,6 +95,10 @@
 			<td>
 				{if $result.$column}Yes{/if}&nbsp;
 			</td>
+			{elseif $column=="a_updated"}
+			<td>
+				<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
+			</td>
 			{else}
 			<td>{$result.$column}</td>
 			{/if}

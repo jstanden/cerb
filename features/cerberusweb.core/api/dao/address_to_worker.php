@@ -66,7 +66,8 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 	}
 	
 	static function update($addresses, $fields) {
-	    if(!is_array($addresses)) $addresses = array($addresses);
+		if(!is_array($addresses)) $addresses = array($addresses);
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		$sets = array();
 		
@@ -74,11 +75,11 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 			return;
 		
 		foreach($fields as $k => $v) {
-		    if(is_null($v))
-		        $value = 'NULL';
-		    else
-		        $value = $db->qstr($v);
-		    
+			if(is_null($v))
+				$value = 'NULL';
+			else
+				$value = $db->qstr($v);
+			
 			$sets[] = sprintf("%s = %s",
 				$k,
 				$value
@@ -91,7 +92,7 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 			self::ADDRESS,
 			implode("','", $addresses)
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
 	/**
@@ -159,7 +160,7 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 			"FROM address_to_worker ".
 			(!empty($where) ? sprintf("WHERE %s ", $where) : " ").
 			"ORDER BY address";
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());  
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		return self::_getObjectsFromResult($rs);
 	}

@@ -17,14 +17,15 @@
 
 // [TODO] This could just be a sub-controller
 class PageSection_MailDrafts extends Extension_PageSection {
-	function render() {}
+	function render() {
+	}
 	
-	function saveDraftAction() {
+	function saveDraft() {
 		$active_worker = CerberusApplication::getActiveWorker();
-		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0); 
+		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
 
-		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string',''); 
-		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string',''); 
+		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 
 		$params = array();
@@ -33,11 +34,10 @@ class PageSection_MailDrafts extends Extension_PageSection {
 		$type = null;
 			
 		if(empty($to) && empty($subject) && empty($content)) {
-			echo json_encode(array());
-			return;
+			return false;
 		}
 		
-		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string','');
+		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string','compose');
 
 		switch($type) {
 			case 'compose':
@@ -73,8 +73,8 @@ class PageSection_MailDrafts extends Extension_PageSection {
 				break;
 				
 			default:
-				echo json_encode(array());
-				return;
+				return false;
+				break;
 		}
 		
 		$fields = array(
@@ -109,6 +109,15 @@ class PageSection_MailDrafts extends Extension_PageSection {
 			DAO_MailQueue::update($draft_id, $fields);
 		}
 		
+		return $draft_id;
+	}
+	
+	function saveDraftAction() {
+		if(false == ($draft_id = $this->saveDraft())) {
+			echo json_encode(array());
+			return;
+		}
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('timestamp', time());
 		$html = $tpl->fetch('devblocks:cerberusweb.core::mail/queue/saved.tpl');
@@ -123,8 +132,12 @@ class PageSection_MailDrafts extends Extension_PageSection {
 		
 		if(!empty($draft_id)
 			&& null != ($draft = DAO_MailQueue::get($draft_id))
-			&& ($active_worker->id == $draft->worker_id || $active_worker->is_superuser)) {
-			
+			&&
+				(
+					$active_worker->id == $draft->worker_id
+					|| $active_worker->hasPriv('core.mail.draft.delete_all')
+				)
+			) {
 			DAO_MailQueue::delete($draft_id);
 		}
 	}
@@ -152,20 +165,20 @@ class PageSection_MailDrafts extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
-	    if(!empty($id_csv)) {
-	        $ids = DevblocksPlatform::parseCsvString($id_csv);
-	        $tpl->assign('ids', implode(',', $ids));
-	    }
+		if(!empty($id_csv)) {
+			$ids = DevblocksPlatform::parseCsvString($id_csv);
+			$tpl->assign('ids', implode(',', $ids));
+		}
 		
-		$tpl->display('devblocks:cerberusweb.core::mail/queue/bulk.tpl');		
+		$tpl->display('devblocks:cerberusweb.core::mail/queue/bulk.tpl');
 	}
 	
 	function doDraftsBulkUpdateAction() {
 		// Filter: whole list or check
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-	    $ids = array();
-	    
-	    // View
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		$ids = array();
+		
+		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
@@ -181,7 +194,7 @@ class PageSection_MailDrafts extends Extension_PageSection {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 			case 'sample':
@@ -196,6 +209,6 @@ class PageSection_MailDrafts extends Extension_PageSection {
 		$view->doBulkUpdate($filter, $do, $ids);
 		
 		$view->render();
-		return;		
+		return;
 	}
 };

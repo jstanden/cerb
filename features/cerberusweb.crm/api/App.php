@@ -159,15 +159,15 @@ class CrmPage extends CerberusPageExtension {
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('view_id', $view_id);
 
-	    if(!empty($ids)) {
-	        $id_list = DevblocksPlatform::parseCsvString($ids);
-	        $tpl->assign('opp_ids', implode(',', $id_list));
-	    }
+		if(!empty($ids)) {
+			$id_list = DevblocksPlatform::parseCsvString($ids);
+			$tpl->assign('opp_ids', implode(',', $id_list));
+		}
 		
-	    // Workers
-	    $workers = DAO_Worker::getAllActive();
-	    $tpl->assign('workers', $workers);
-	    
+		// Workers
+		$workers = DAO_Worker::getAllActive();
+		$tpl->assign('workers', $workers);
+		
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY);
 		$tpl->assign('custom_fields', $custom_fields);
@@ -191,10 +191,10 @@ class CrmPage extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// Filter: whole list or check
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-	    $ids = array();
-	    
-	    // View
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		$ids = array();
+		
+		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id); /* @var $view View_CrmOpportunity */
 		
@@ -266,8 +266,8 @@ class CrmPage extends CerberusPageExtension {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-			    @$opp_ids_str = DevblocksPlatform::importGPC($_REQUEST['opp_ids'],'string');
-		        $ids = DevblocksPlatform::parseCsvString($opp_ids_str);
+				@$opp_ids_str = DevblocksPlatform::importGPC($_REQUEST['opp_ids'],'string');
+				$ids = DevblocksPlatform::parseCsvString($opp_ids_str);
 				break;
 			case 'sample':
 				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
@@ -345,7 +345,7 @@ class CrmPage extends CerberusPageExtension {
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
 		}
-	}	
+	}
 	
 	function viewOppsExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
@@ -354,7 +354,7 @@ class CrmPage extends CerberusPageExtension {
 		$url_writer = DevblocksPlatform::getUrlService();
 		
 		// Generate hash
-		$hash = md5($view_id.$active_worker->id.time()); 
+		$hash = md5($view_id.$active_worker->id.time());
 		
 		// Loop through view and get IDs
 		$view = C4_AbstractViewLoader::getView($view_id);
@@ -388,7 +388,7 @@ class CrmPage extends CerberusPageExtension {
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=opportunity', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
-				$models[] = $model; 
+				$models[] = $model;
 				
 				$view->renderTotal = false; // speed up subsequent pages
 			}
@@ -405,7 +405,7 @@ class CrmPage extends CerberusPageExtension {
 					'id' => $row[SearchFields_CrmOpportunity::ID],
 					'url' => $url_writer->writeNoProxy(sprintf("c=profiles&tab=opportunity&id=%d-%s", $row[SearchFields_CrmOpportunity::ID], DevblocksPlatform::strToPermalink($row[SearchFields_CrmOpportunity::NAME])), true),
 				);
-				$models[] = $model; 
+				$models[] = $model;
 			}
 			
 			DAO_ExplorerSet::createFromModels($models);
@@ -419,16 +419,16 @@ class CrmPage extends CerberusPageExtension {
 };
 
 class CrmEventListener extends DevblocksEventListenerExtension {
-    /**
-     * @param Model_DevblocksEvent $event
-     */
-    function handleEvent(Model_DevblocksEvent $event) {
-        switch($event->id) {
-            case 'cron.maint':
-            	DAO_CrmOpportunity::maint();
-            	break;
-        }
-    }
+	/**
+	 * @param Model_DevblocksEvent $event
+	 */
+	function handleEvent(Model_DevblocksEvent $event) {
+		switch($event->id) {
+			case 'cron.maint':
+				DAO_CrmOpportunity::maint();
+				break;
+		}
+	}
 };
 
 if (class_exists('Extension_ContextProfileTab')):
@@ -460,7 +460,7 @@ class CrmOrgOppTab extends Extension_ContextProfileTab {
 		
 		$view->name = "Org: " . $org->name;
 		$view->addParamsRequired(array(
-			SearchFields_CrmOpportunity::ORG_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::ORG_ID,'=',$org_id) 
+			SearchFields_CrmOpportunity::ORG_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::ORG_ID,'=',$org_id)
 		), true);
 
 		C4_AbstractViewLoader::setView($view->id, $view);
@@ -494,7 +494,7 @@ class CrmTicketOppTab extends Extension_ContextProfileTab {
 
 		$view->name = sprintf("Opportunities: %s recipient(s)", count($requesters));
 		$view->addParamsRequired(array(
-			SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,'in',array_keys($requesters)), 
+			SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,'in',array_keys($requesters)),
 		), true);
 		
 		C4_AbstractViewLoader::setView($view->id, $view);

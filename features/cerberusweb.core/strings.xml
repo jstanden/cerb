@@ -61,10 +61,13 @@
 			<tuv xml:lang="en_US"><seg>{{actor}} merged ticket {{source}} with ticket {{target}}</seg></tuv>
 		</tu>
 		<tu tuid='activities.ticket.message.inbound'>
-			<tuv xml:lang="en_US"><seg>{{actor}} replied to ticket {{target}}</seg></tuv>
+			<tuv xml:lang="en_US"><seg>{{actor}} wrote on ticket {{target}}</seg></tuv>
 		</tu>
 		<tu tuid='activities.ticket.message.outbound'>
 			<tuv xml:lang="en_US"><seg>{{actor}} responded to ticket {{target}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.ticket.moved'>
+			<tuv xml:lang="en_US"><seg>{{actor}} moved ticket {{target}} to {{group}}: {{bucket}}</seg></tuv>
 		</tu>
 		<tu tuid='activities.ticket.status'>
 			<tuv xml:lang="en_US"><seg>{{actor}} changed ticket {{target}} to status {{status}}</seg></tuv>
@@ -83,6 +86,15 @@
 		</tu>
 		<tu tuid='activities.watcher.unfollow'>
 			<tuv xml:lang="en_US"><seg>{{actor}} stopped watching {{target_object}} {{target}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.worker.impersonated'>
+			<tuv xml:lang="en_US"><seg>{{actor}} impersonated {{target}} from {{ip}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.worker.logged_in'>
+			<tuv xml:lang="en_US"><seg>{{actor}} logged in from {{ip}} using {{user_agent}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.worker.logged_out'>
+			<tuv xml:lang="en_US"><seg>{{actor}} logged out from {{ip}}</seg></tuv>
 		</tu>
 
 		<!-- Common Strings -->
@@ -721,6 +733,9 @@
 		<tu tuid='acl.core.mail.send'>
 			<tuv xml:lang="en_US"><seg>[Mail] Can compose new messages</seg></tuv>
 		</tu>
+		<tu tuid='acl.core.mail.draft.delete_all'>
+			<tuv xml:lang="en_US"><seg>[Mail] Can delete drafts owned by other workers</seg></tuv>
+		</tu>
 
 			<!-- RSS -->
 		<tu tuid='acl.core.rss'>
@@ -838,7 +853,7 @@
 			<tuv xml:lang="en_US"><seg>Mail History</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.org.tabs.people'>
-			<tuv xml:lang="en_US"><seg>People (%s)</seg></tuv>
+			<tuv xml:lang="en_US"><seg>People</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.peek.compose'>
 			<tuv xml:lang="en_US"><seg>compose</seg></tuv>
@@ -1500,6 +1515,10 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		</tu>
 		<tu tuid='message.response_time'>
 			<tuv xml:lang="en_US"><seg>Response Time</seg></tuv>
+		</tu>
+
+		<tu tuid='message.note.content'>
+			<tuv xml:lang="en_US"><seg>Note Content</seg></tuv>
 		</tu>
 
 		<!-- Preferences -->

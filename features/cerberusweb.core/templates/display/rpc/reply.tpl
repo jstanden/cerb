@@ -10,7 +10,7 @@
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
 				{if isset($groups.{$ticket->group_id})}
 				<tr>
-					<td width="1%" nowrap="nowrap" valign="top">{$translate->_('message.header.from')|capitalize}: </td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{$translate->_('message.header.from')|capitalize}:</b>&nbsp;</td>
 					<td width="99%" align="left">
 						{$groups.{$ticket->group_id}->name}
 					</td>
@@ -18,17 +18,9 @@
 				{/if}
 				
 				<tr>
-					<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('message.header.to')|capitalize}:</b> </td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{$translate->_('message.header.to')|capitalize}:</b>&nbsp;</td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="to" value="{if !empty($draft)}{$draft->params.to}{else}{if $is_forward}{else}{foreach from=$requesters item=req_addy name=reqs}{$fullname=$req_addy->getName()}{if !empty($fullname)}{$fullname} &lt;{$req_addy->email}&gt;{else}{$req_addy->email}{/if}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}" class="required" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
-						<div class="instructions" style="display:none;">
-							{if $is_forward}
-							These recipients will receive this forwarded message
-							{else}
-							These recipients will automatically be included in all future correspondence
-							{/if}
-						</div>
-						
+						<input type="text" size="45" name="to" value="{if !empty($draft)}{$draft->params.to}{else}{if $is_forward}{else}{foreach from=$requesters item=req_addy name=reqs}{$fullname=$req_addy->getName()}{if !empty($fullname)}{$fullname} &lt;{$req_addy->email}&gt;{else}{$req_addy->email}{/if}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}" placeholder="{if $is_forward}These recipients will receive this forwarded message{else}These recipients will automatically be included in all future correspondence{/if}" class="required" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
 						{if !$is_forward}
 							{if !empty($suggested_recipients)}
 								<div id="reply{$message->id}_suggested">
@@ -46,27 +38,21 @@
 				</tr>
 				
 				<tr>
-					<td width="1%" nowrap="nowrap" valign="top">{$translate->_('message.header.cc')|capitalize}: </td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle">{$translate->_('message.header.cc')|capitalize}:&nbsp;</td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="cc" value="{$draft->params.cc}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
-						<div class="instructions" style="display:none;">
-							These recipients will publicly receive a copy of this message	
-						</div>
+						<input type="text" size="45" name="cc" value="{$draft->params.cc}" placeholder="These recipients will publicly receive a one-time copy of this message" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
 					</td>
 				</tr>
 
 				<tr>
-					<td width="1%" nowrap="nowrap" valign="top">{$translate->_('message.header.bcc')|capitalize}: </td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle">{$translate->_('message.header.bcc')|capitalize}:&nbsp;</td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="bcc" value="{$draft->params.bcc}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">					
-						<div class="instructions" style="display:none;">
-							These recipients will secretly receive a copy of this message			
-						</div>
+						<input type="text" size="45" name="bcc" value="{$draft->params.bcc}" placeholder="These recipients will secretly receive a one-time copy of this message" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">					
 					</td>
 				</tr>
 				
 				<tr>
-					<td width="1%" nowrap="nowrap" valign="top">{$translate->_('message.header.subject')|capitalize}: </td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{$translate->_('message.header.subject')|capitalize}:</b>&nbsp;</td>
 					<td width="99%" align="left">
 						<input type="text" size="45" name="subject" value="{if !empty($draft)}{$draft->params.subject}{else}{if $is_forward}Fwd: {/if}{$ticket->subject}{/if}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;" class="required">					
 					</td>
@@ -80,21 +66,21 @@
 				<fieldset style="display:inline-block;">
 					<legend>Actions</legend>
 					{assign var=headers value=$message->getHeaders()}
-					<button name="saveDraft" type="button" onclick="if($(this).attr('disabled'))return;$(this).attr('disabled','disabled');genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json, ui) { var obj = $.parseJSON(json); $('#divDraftStatus{$message->id}').html(obj.html); $('#reply{$message->id}_part2 input[name=draft_id]').val(obj.draft_id); $('#reply{$message->id}_part1 button[name=saveDraft]').removeAttr('disabled'); } );"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
-					<button id="btnInsertReplySig{$message->id}" type="button" title="(Ctrl+Shift+G)" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->group_id}&bucket_id={$ticket->bucket_id}',function(txt) { $('#reply_{$message->id}').insertAtCursor(txt); } );"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('display.reply.insert_sig')|capitalize}</button>
+					<button name="saveDraft" type="button"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
+					<button id="btnInsertReplySig{$message->id}" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if} onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->group_id}&bucket_id={$ticket->bucket_id}',function(txt) { $('#reply_{$message->id}').insertAtCursor(txt); } );"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('display.reply.insert_sig')|capitalize}</button>
 					{* Plugin Toolbar *}
 					{if !empty($reply_toolbaritems)}
 						{foreach from=$reply_toolbaritems item=renderer}
 							{if !empty($renderer)}{$renderer->render($message)}{/if}
 						{/foreach}
 					{/if}
-				</fieldset>		
+				</fieldset>
 				
 				<fieldset style="display:inline-block;">
 					<legend>{'common.snippets'|devblocks_translate|capitalize}</legend>
 					<div>
 						Insert: 
-						<input type="text" size="25" class="context-snippet autocomplete">
+						<input type="text" size="25" class="context-snippet autocomplete" {if $pref_keyboard_shortcuts}placeholder="(Ctrl+Shift+I)"{/if}>
 						<button type="button" onclick="ajax.chooserSnippet('chooser{$message->id}',$('#reply_{$message->id}'), { '{CerberusContexts::CONTEXT_TICKET}':'{$ticket->id}', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });"><span class="cerb-sprite sprite-view"></span></button>
 						<button type="button" onclick="genericAjaxPopup('peek','c=internal&a=showSnippetsPeek&id=0&owner_context={CerberusContexts::CONTEXT_WORKER}&owner_context_id={$active_worker->id}&context={CerberusContexts::CONTEXT_TICKET}&context_id={$ticket->id}',null,false,'550');"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
 					</div>
@@ -128,6 +114,8 @@
 <input type="hidden" name="bcc" value="{$draft->params.bcc}">
 <input type="hidden" name="subject" value="{if !empty($draft)}{$draft->params.subject}{else}{if $is_forward}Fwd: {/if}{$ticket->subject}{/if}">
 
+{$message_content = $message->getContent()}
+
 {if $is_forward}
 <textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
 {if !empty($draft)}{$draft->body}{else}
@@ -143,7 +131,7 @@
 {if isset($headers.date)}{$translate->_('message.header.date')|capitalize}: {$headers.date|cat:"\n"}{/if}
 {if isset($headers.to)}{$translate->_('message.header.to')|capitalize}: {$headers.to|cat:"\n"}{/if}
 
-{$message->getContent()|trim}
+{$message_content|trim}
 {/if}
 </textarea>
 {else}
@@ -157,7 +145,7 @@
 
 {/if}
 {/if}{if $is_quoted}{$quote_sender=$message->getSender()}{$quote_sender_personal=$quote_sender->getName()}{if !empty($quote_sender_personal)}{$reply_personal=$quote_sender_personal}{else}{$reply_personal=$quote_sender->email}{/if}{$reply_date=$message->created_date|devblocks_date:'D, d M Y'}{'display.reply.reply_banner'|devblocks_translate:$reply_date:$reply_personal}
-{/if}{if $is_quoted}{$message->getContent()|trim|indent:1:'> '}
+{/if}{if $is_quoted}{$message_content|trim|indent:1:'> '|devblocks_email_quote}
 {/if}{if !empty($signature) && 2==$signature_pos}
 
 
@@ -209,47 +197,47 @@
 							<br>
 							<br>
 							
-					      	<div id="replyClosed{$message->id}" style="display:{if (empty($draft) && 'open'==$mail_status_reply) || (!empty($draft) && $draft->params.closed==0)}none{else}block{/if};margin-left:10px;margin-bottom:10px;">
-					      	<b>{$translate->_('display.reply.next.resume')}</b> {$translate->_('display.reply.next.resume_eg')}<br> 
-					      	<input type="text" name="ticket_reopen" size="55" value="{if !empty($draft)}{$draft->params.ticket_reopen}{elseif !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}"><br>
-					      	{$translate->_('display.reply.next.resume_blank')}<br>
-					      	</div>
+							<div id="replyClosed{$message->id}" style="display:{if (empty($draft) && 'open'==$mail_status_reply) || (!empty($draft) && $draft->params.closed==0)}none{else}block{/if};margin-left:10px;margin-bottom:10px;">
+							<b>{$translate->_('display.reply.next.resume')}</b> {$translate->_('display.reply.next.resume_eg')}<br> 
+							<input type="text" name="ticket_reopen" size="55" value="{if !empty($draft)}{$draft->params.ticket_reopen}{elseif !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}"><br>
+							{$translate->_('display.reply.next.resume_blank')}<br>
+							</div>
 	
 							{if $active_worker->hasPriv('core.ticket.actions.move')}
 							<b>{$translate->_('display.reply.next.move')}</b><br>  
-					      	<select name="bucket_id">
-					      		<option value="">-- {$translate->_('display.reply.next.move.no_thanks')|lower} --</option>
-					      		{if empty($ticket->bucket_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
-					      		<optgroup label="{$translate->_('common.inboxes')|capitalize}">
-					      		{foreach from=$groups item=group}
-					      			<option value="t{$group->id}" {if $draft->params.bucket_id=="t{$group->id}"}selected="selected"{/if}>{$group->name}{if $t_or_c=='t' && $ticket->group_id==$group->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
-					      		{/foreach}
-					      		</optgroup>
-					      		{foreach from=$group_buckets item=buckets key=groupId}
-					      			{assign var=group value=$groups.$groupId}
-					      			{if !empty($active_worker_memberships.$groupId)}
-						      			<optgroup label="-- {$group->name} --">
-						      			{foreach from=$buckets item=bucket}
-						    				<option value="c{$bucket->id}" {if $draft->params.bucket_id=="c{$bucket->id}"}selected="selected"{/if}>{$bucket->name}{if $t_or_c=='c' && $ticket->bucket_id==$bucket->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
-						    			{/foreach}
-						    			</optgroup>
-						    		{/if}
-					     		{/foreach}
-					      	</select><br>
-					      	<br>
-					      	{/if}
-					      	
-					      	<b>{'display.reply.next.owner'|devblocks_translate}</b><br>
-					      	<select name="owner_id">
-					      		<option value="">-- {'common.nobody'|devblocks_translate|lower} --</option>
-					      		{foreach from=$workers item=owner key=owner_id}
-					      		<option value="{$owner_id}" {if !empty($draft) && $draft->params.owner_id==$owner_id}selected="selected"{elseif $ticket->owner_id==$owner_id}selected="selected"{/if}>{$owner->getName()}</option>
-					      		{/foreach}
-					      	</select>
-					      	<button type="button" onclick="$(this).prev('select[name=owner_id]').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
-					      	<button type="button" onclick="$(this).prevAll('select[name=owner_id]').first().val('');">{'common.nobody'|devblocks_translate|lower}</button>
-					      	<br>
-					      	<br>
+							<select name="bucket_id">
+								<option value="">-- {$translate->_('display.reply.next.move.no_thanks')|lower} --</option>
+								{if empty($ticket->bucket_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
+								<optgroup label="{$translate->_('common.inboxes')|capitalize}">
+								{foreach from=$groups item=group}
+									<option value="t{$group->id}" {if $draft->params.bucket_id=="t{$group->id}"}selected="selected"{/if}>{$group->name}{if $t_or_c=='t' && $ticket->group_id==$group->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
+								{/foreach}
+								</optgroup>
+								{foreach from=$group_buckets item=buckets key=groupId}
+									{assign var=group value=$groups.$groupId}
+									{if !empty($active_worker_memberships.$groupId)}
+										<optgroup label="-- {$group->name} --">
+										{foreach from=$buckets item=bucket}
+											<option value="c{$bucket->id}" {if $draft->params.bucket_id=="c{$bucket->id}"}selected="selected"{/if}>{$bucket->name}{if $t_or_c=='c' && $ticket->bucket_id==$bucket->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
+										{/foreach}
+										</optgroup>
+									{/if}
+								{/foreach}
+							</select><br>
+							<br>
+							{/if}
+							
+							<b>{'display.reply.next.owner'|devblocks_translate}</b><br>
+							<select name="owner_id">
+								<option value="">-- {'common.nobody'|devblocks_translate|lower} --</option>
+								{foreach from=$workers item=owner key=owner_id}
+								<option value="{$owner_id}" {if !empty($draft) && $draft->params.owner_id==$owner_id}selected="selected"{elseif $ticket->owner_id==$owner_id}selected="selected"{/if}>{$owner->getName()}</option>
+								{/foreach}
+							</select>
+							<button type="button" onclick="$(this).prev('select[name=owner_id]').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
+							<button type="button" onclick="$(this).prevAll('select[name=owner_id]').first().val('');">{'common.nobody'|devblocks_translate|lower}</button>
+							<br>
+							<br>
 						</td>
 					</tr>
 				</table>
@@ -276,14 +264,14 @@
 		</td>
 	</tr>
 	<tr>
-		<td>
+		<td id="reply{$message->id}_buttons">
 			<button type="button" class="send split-left" onclick="$(this).closest('td').find('ul li:first a').click();"><span class="cerb-sprite2 sprite-tick-circle"></span> {if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.send_message')}{/if}</button><!--
-      		--><button type="button" class="split-right" onclick="$(this).next('ul').toggle();"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
-      		<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
-      			<li><a href="javascript:;" class="send" onclick="if($('#reply{$message->id}_part1').validate().form()) { if(null != draftAutoSaveInterval) { clearTimeout(draftAutoSaveInterval); draftAutoSaveInterval = null; } $frm = $(this).closest('form'); $frm.find('input:hidden[name=reply_mode]').val(''); $(this).closest('td').hide(); $frm.submit(); }">{if $is_forward}{$translate->_('display.ui.forward')}{else}{$translate->_('display.ui.send_message')}{/if}</a></li>
-      			<li><a href="javascript:;" class="save" onclick="if($('#reply{$message->id}_part1').validate().form()) { if(null != draftAutoSaveInterval) { clearTimeout(draftAutoSaveInterval); draftAutoSaveInterval = null; } $frm = $(this).closest('form'); $frm.find('input:hidden[name=reply_mode]').val('save'); $(this).closest('td').hide(); $frm.submit(); }">{'display.ui.save_nosend'|devblocks_translate}</a></li>
-      			<li><a href="javascript:;" class="draft" onclick="if($('#reply{$message->id}_part1').validate().form()) { if(null != draftAutoSaveInterval) { clearTimeout(draftAutoSaveInterval); draftAutoSaveInterval = null; } $frm = $(this).closest('form'); $frm.find('input:hidden[name=a]').val('saveDraftReply'); $(this).closest('td').hide(); $frm.submit(); } ">{$translate->_('display.ui.continue_later')}</a></li>
-      		</ul>
+			--><button type="button" class="split-right" onclick="$(this).next('ul').toggle();"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
+			<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
+				<li><a href="javascript:;" class="send">{if $is_forward}{$translate->_('display.ui.forward')}{else}{$translate->_('display.ui.send_message')}{/if}</a></li>
+				<li><a href="javascript:;" class="save">{'display.ui.save_nosend'|devblocks_translate}</a></li>
+				<li><a href="javascript:;" class="draft">{$translate->_('display.ui.continue_later')}</a></li>
+			</ul>
 			<button type="button" class="discard" onclick="window.onbeforeunload=null;if(confirm('Are you sure you want to discard this reply?')) { if(null != draftAutoSaveInterval) { clearTimeout(draftAutoSaveInterval); draftAutoSaveInterval = null; } $frm = $(this).closest('form'); genericAjaxGet('', 'c=mail&a=handleSectionAction&section=drafts&action=deleteDraft&draft_id='+escape($frm.find('input:hidden[name=draft_id]').val()), function(o) { $frm = $('#reply{$message->id}_part2'); $('#draft'+escape($frm.find('input:hidden[name=draft_id]').val())).remove(); $('#reply{$message->id}').html('');  } ); }"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('display.ui.discard')|capitalize}</button>
 		</td>
 	</tr>
@@ -305,12 +293,7 @@
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=cc]', { multiple: true } );
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=bcc]', { multiple: true } );
 		
-		$frm.find('input:text').focus(function(event) {
-			$(this).nextAll('div.instructions').fadeIn();
-		});
-		
 		$frm.find('input:text').blur(function(event) {
-			$(this).nextAll('div.instructions').fadeOut();
 			name = event.target.name;
 			$('#reply{$message->id}_part2 input:hidden[name='+name+']').val(event.target.value);
 		} );
@@ -318,6 +301,8 @@
 		$frm.find('input:text[name=to], input:text[name=cc], input:text[name=bcc]').focus(function(event) {
 			$('#reply{$message->id}_suggested').appendTo($(this).closest('td'));
 		});
+		
+		var $content = $('#reply_{$message->id}').elastic();
 		
 		// Insert suggested on click
 		$('#reply{$message->id}_suggested').find('a.suggested').click(function(e) {
@@ -345,7 +330,83 @@
 				$ul.closest('div').remove();
 		});
 		
+		// Reply action buttons
+		
+		var $buttons = $('#reply{$message->id}_buttons');
+		
+		$buttons.find('a.send').click(function() {
+			if($('#reply{$message->id}_part1').validate().form()) {
+				if(null != draftAutoSaveInterval) {
+					clearTimeout(draftAutoSaveInterval);
+					draftAutoSaveInterval = null;
+				}
+				
+				var $frm = $(this).closest('form');
+				$frm.find('input:hidden[name=reply_mode]').val('');
+				$(this).closest('td').hide();
+				showLoadingPanel();
+				$frm.submit();
+			}
+		});
+		
+		$buttons.find('a.save').click(function() {
+			if($('#reply{$message->id}_part1').validate().form()) {
+				if(null != draftAutoSaveInterval) {
+					clearTimeout(draftAutoSaveInterval);
+					draftAutoSaveInterval = null;
+				}
+				
+				var $frm = $(this).closest('form');
+				$frm.find('input:hidden[name=reply_mode]').val('save');
+				$(this).closest('td').hide();
+				showLoadingPanel();
+				$frm.submit();
+			}
+		});
+
+		$buttons.find('a.draft').click(function() {
+			if($('#reply{$message->id}_part1').validate().form()) {
+				if(null != draftAutoSaveInterval) {
+					clearTimeout(draftAutoSaveInterval);
+					draftAutoSaveInterval = null;
+				}
+				
+				var $frm = $(this).closest('form');
+				$frm.find('input:hidden[name=a]').val('saveDraftReply');
+				$(this).closest('td').hide();
+				showLoadingPanel();
+				$frm.submit();
+			}
+		});
+		
 		$frm.validate();
+		
+		// Draft
+		
+		$frm.find('button[name=saveDraft]')
+			.click(function() {
+				if($(this).attr('disabled'))
+					return;
+				
+				$(this).attr('disabled','disabled');
+				
+				genericAjaxPost(
+					'reply{$message->id}_part2',
+					null,
+					'c=display&a=saveDraftReply&is_ajax=1',
+					function(json, ui) {
+						var obj = $.parseJSON(json);
+						
+						if(null != obj.html && null != obj.draft_id) {
+							$('#divDraftStatus{$message->id}').html(obj.html);
+							$('#reply{$message->id}_part2 input[name=draft_id]').val(obj.draft_id);
+						}
+						
+						$('#reply{$message->id}_part1 button[name=saveDraft]').removeAttr('disabled');
+					}
+				);
+			})
+			.click(); // save now
 		
 		$frm.find('button[name=saveDraft]').click(); // save now
 		if(null != draftAutoSaveInterval) {
@@ -379,7 +440,21 @@
 				}
 
 				genericAjaxGet('',url,function(txt) {
-					$textarea.insertAtCursor(txt);
+					// If the content has placeholders, use that popup instead
+					if(txt.match(/\(__(.*?)__\)/)) {
+						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&text=' + encodeURIComponent(txt),null,false,'600');
+					
+						$popup_paste.bind('snippet_paste', function(event) {
+							if(null == event.text)
+								return;
+						
+							$textarea.insertAtCursor(event.text).focus();
+						});
+						
+					} else {
+						$textarea.insertAtCursor(txt).focus();
+					}
+					
 				}, { async: false });
 
 				$this.val('');
@@ -402,15 +477,15 @@
 			.find('> li')
 			.click(function(e) {
 				$(this).closest('ul.cerb-popupmenu').hide();
-
+				
 				e.stopPropagation();
 				if(!$(e.target).is('li'))
 				return;
-
+				
 				$(this).find('a').trigger('click');
 			})
 		;
-
+		
 		// Shortcuts
 		
 		{if $pref_keyboard_shortcuts}
@@ -439,10 +514,105 @@
 							$('#reply{$message->id}_part1').find('.context-snippet').focus();
 						} catch(ex) { } 
 						break;
+					case 10:
+					case 74: // (J) Jump to first blank line
+						try {
+							event.preventDefault();
+							var txt = $(this).val();
+							var pos = txt.indexOf("\n\n")+2;
+							$(this).setCursorLocation(pos).focus();
+						} catch(ex) { } 
+						break;
+					case 17:
+					case 81: // (Q) Reformat quotes
+						try {
+							event.preventDefault();
+							var txt = $(this).val();
+							
+							var lines = txt.split("\n");
+							
+							var bins = [];
+							var last_prefix = null;
+							var wrap_to = 76;
+							
+							// Sort lines into bins
+							for(i in lines) {
+								var line = lines[i];
+								var matches = line.match(/^((\> )+)/);
+								var prefix = '';
+								
+								if(matches)
+									prefix = matches[1];
+								
+								if(prefix != last_prefix)
+									bins.push({ prefix:prefix, lines:[] });
+								
+								// Strip the prefix
+								line = line.substring(prefix.length);
+								
+								idx = Math.max(bins.length-1, 0);
+								bins[idx].lines.push(line);
+								
+								last_prefix = prefix;
+							}
+							
+							// Rewrap quoted blocks
+							for(i in bins) {
+								prefix = bins[i].prefix;
+								l = 0;
+								bail = 75000; // prevent infinite loops
+								
+								if(prefix.length == 0)
+									continue;
+								
+								while(undefined != bins[i].lines[l] && bail > 0) {
+									line = bins[i].lines[l];
+									boundary = wrap_to-prefix.length;
+									
+									if(line.length > boundary) {
+										// Try to split on a space
+										pos = line.lastIndexOf(' ', boundary);
+										break_word = (-1 == pos);
+										
+										overflow = line.substring(break_word ? boundary : (pos+1));
+										bins[i].lines[l] = line.substring(0, break_word ? boundary : pos);
+										
+										// If we don't have more lines, add a new one
+										if(overflow) {
+											if(undefined != bins[i].lines[l+1]) {
+												if(bins[i].lines[l+1].length == 0) {
+													bins[i].lines.splice(l+1,0,overflow);
+												} else {
+													bins[i].lines[l+1] = overflow + " " + bins[i].lines[l+1];
+												}
+											} else {
+												bins[i].lines.push(overflow);
+											}
+										}
+									}
+									
+									l++;
+									bail--;
+								}
+							}
+							
+							out = "";
+							
+							for(i in bins) {
+								for(l in bins[i].lines) {
+									out += bins[i].prefix + bins[i].lines[l] + "\n";
+								}
+							}
+							
+							$(this).val($.trim(out));
+							
+						} catch(ex) { }
+						break;
 				}
 			}
 		});
 		
 		{/if}
+		
 	});
 </script>

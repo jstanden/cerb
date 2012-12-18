@@ -16,35 +16,35 @@ class UmScContactController extends Extension_UmScController {
 		
 		$stack = $response->path;
 		array_shift($stack); // contact
-    	$section = array_shift($stack);
-    	
-        $captcha_enabled = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_CAPTCHA_ENABLED, 1);
+		$section = array_shift($stack);
+		
+		$captcha_enabled = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_CAPTCHA_ENABLED, 1);
 		$tpl->assign('captcha_enabled', $captcha_enabled);
 
-        $allow_subjects = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_ALLOW_SUBJECTS, 0);
+		$allow_subjects = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_ALLOW_SUBJECTS, 0);
 		$tpl->assign('allow_subjects', $allow_subjects);
 
-        $attachments_mode = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_ATTACHMENTS_MODE, 0);
+		$attachments_mode = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_ATTACHMENTS_MODE, 0);
 		$tpl->assign('attachments_mode', $attachments_mode);
 		
-    	switch($section) {
-    		case 'confirm':
-    			$tpl->assign('last_opened',$umsession->getProperty('support.write.last_opened',''));
-    			$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/contact/confirm.tpl");
-    			break;
-    		
-    		default:
-    		case 'step1':
-    			$umsession->setProperty('support.write.last_error', null);
-    			
-    		case 'step2':
-    			$sFrom = $umsession->getProperty('support.write.last_from','');
-    			$sSubject = $umsession->getProperty('support.write.last_subject','');
-    			$sNature = $umsession->getProperty('support.write.last_nature','');
-    			$sContent = $umsession->getProperty('support.write.last_content','');
-    			$aLastFollowupA = $umsession->getProperty('support.write.last_followup_a','');
-    			$sError = $umsession->getProperty('support.write.last_error','');
-    			
+		switch($section) {
+			case 'confirm':
+				$tpl->assign('last_opened',$umsession->getProperty('support.write.last_opened',''));
+				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/contact/confirm.tpl");
+				break;
+			
+			default:
+			case 'step1':
+				$umsession->setProperty('support.write.last_error', null);
+				
+			case 'step2':
+				$sFrom = $umsession->getProperty('support.write.last_from','');
+				$sSubject = $umsession->getProperty('support.write.last_subject','');
+				$sNature = $umsession->getProperty('support.write.last_nature','');
+				$sContent = $umsession->getProperty('support.write.last_content','');
+				$aLastFollowupA = $umsession->getProperty('support.write.last_followup_a','');
+				$sError = $umsession->getProperty('support.write.last_error','');
+				
 				$tpl->assign('last_from', $sFrom);
 				$tpl->assign('last_subject', $sSubject);
 				$tpl->assign('last_nature', $sNature);
@@ -53,67 +53,67 @@ class UmScContactController extends Extension_UmScController {
 				$tpl->assign('last_error', $sError);
 				
    				$sDispatch = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, '');
-    			$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
-    			
-    			// Remove hidden contact situations
-    			if(is_array($dispatch))
-    			foreach($dispatch as $k => $params) {
-    				if(isset($params['is_hidden']) && !empty($params['is_hidden']))
-    					unset($dispatch[$k]);
-    			}
-    			
-		        $tpl->assign('dispatch', $dispatch);
-		        
-		        switch($section) {
-		        	default:
-		        		// If there's only one situation, skip to step2
-				        if(1==count($dispatch)) {
-				        	@$sNature = md5(key($dispatch));
-				        	$umsession->setProperty('support.write.last_nature', $sNature);
-				        	reset($dispatch);
-				        } else {
-				        	$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/contact/step1.tpl");
-				        	break;
-				        }
-		        		
-		        	case 'step2':
-		        		// Cache along with answers?
+				$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+				
+				// Remove hidden contact situations
+				if(is_array($dispatch))
+				foreach($dispatch as $k => $params) {
+					if(isset($params['is_hidden']) && !empty($params['is_hidden']))
+						unset($dispatch[$k]);
+				}
+				
+				$tpl->assign('dispatch', $dispatch);
+				
+				switch($section) {
+					default:
+						// If there's only one situation, skip to step2
+						if(1==count($dispatch)) {
+							@$sNature = md5(key($dispatch));
+							$umsession->setProperty('support.write.last_nature', $sNature);
+							reset($dispatch);
+						} else {
+							$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/contact/step1.tpl");
+							break;
+						}
+						
+					case 'step2':
+						// Cache along with answers?
 						if(is_array($dispatch))
-				        foreach($dispatch as $k => $v) {
-				        	if(md5($k)==$sNature) {
-				        		$umsession->setProperty('support.write.last_nature_string', $k);
-				        		$tpl->assign('situation', $k);
-				        		$tpl->assign('situation_params', $v);
-				        		break;
-				        	}
-				        }
-				        
-				        $ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
+						foreach($dispatch as $k => $v) {
+							if(md5($k)==$sNature) {
+								$umsession->setProperty('support.write.last_nature_string', $k);
+								$tpl->assign('situation', $k);
+								$tpl->assign('situation_params', $v);
+								break;
+							}
+						}
+						
+						$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 						$tpl->assign('ticket_fields', $ticket_fields);
-				        
+						
 						$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/contact/step2.tpl");
-		        		break;
-		        }
-		        break;
-    		}
-    		
+						break;
+				}
+				break;
+			}
+			
 	}
 
 	function configure(Model_CommunityTool $instance) {
 		$tpl = DevblocksPlatform::getTemplateService();
 
-        $captcha_enabled = DAO_CommunityToolProperty::get($instance->code, self::PARAM_CAPTCHA_ENABLED, 1);
+		$captcha_enabled = DAO_CommunityToolProperty::get($instance->code, self::PARAM_CAPTCHA_ENABLED, 1);
 		$tpl->assign('captcha_enabled', $captcha_enabled);
 
-        $allow_subjects = DAO_CommunityToolProperty::get($instance->code, self::PARAM_ALLOW_SUBJECTS, 0);
+		$allow_subjects = DAO_CommunityToolProperty::get($instance->code, self::PARAM_ALLOW_SUBJECTS, 0);
 		$tpl->assign('allow_subjects', $allow_subjects);
 
-        $attachments_mode = DAO_CommunityToolProperty::get($instance->code, self::PARAM_ATTACHMENTS_MODE, 0);
+		$attachments_mode = DAO_CommunityToolProperty::get($instance->code, self::PARAM_ATTACHMENTS_MODE, 0);
 		$tpl->assign('attachments_mode', $attachments_mode);
 
-        $sDispatch = DAO_CommunityToolProperty::get($instance->code,self::PARAM_SITUATIONS, '');
-        $dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
-        $tpl->assign('dispatch', $dispatch);
+		$sDispatch = DAO_CommunityToolProperty::get($instance->code,self::PARAM_SITUATIONS, '');
+		$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+		$tpl->assign('dispatch', $dispatch);
 		
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
@@ -134,60 +134,60 @@ class UmScContactController extends Extension_UmScController {
 	}
 	
 	function saveConfiguration(Model_CommunityTool $instance) {
-        @$iCaptcha = DevblocksPlatform::importGPC($_POST['captcha_enabled'],'integer',1);
-        DAO_CommunityToolProperty::set($instance->code, self::PARAM_CAPTCHA_ENABLED, $iCaptcha);
+		@$iCaptcha = DevblocksPlatform::importGPC($_POST['captcha_enabled'],'integer',1);
+		DAO_CommunityToolProperty::set($instance->code, self::PARAM_CAPTCHA_ENABLED, $iCaptcha);
 
-        @$iAllowSubjects = DevblocksPlatform::importGPC($_POST['allow_subjects'],'integer',0);
-        DAO_CommunityToolProperty::set($instance->code, self::PARAM_ALLOW_SUBJECTS, $iAllowSubjects);
+		@$iAllowSubjects = DevblocksPlatform::importGPC($_POST['allow_subjects'],'integer',0);
+		DAO_CommunityToolProperty::set($instance->code, self::PARAM_ALLOW_SUBJECTS, $iAllowSubjects);
 
-        @$iAttachmentsMode = DevblocksPlatform::importGPC($_POST['attachments_mode'],'integer',0);
-        DAO_CommunityToolProperty::set($instance->code, self::PARAM_ATTACHMENTS_MODE, $iAttachmentsMode);
+		@$iAttachmentsMode = DevblocksPlatform::importGPC($_POST['attachments_mode'],'integer',0);
+		DAO_CommunityToolProperty::set($instance->code, self::PARAM_ATTACHMENTS_MODE, $iAttachmentsMode);
 
 		// Contact Form
 		$replyto_default = DAO_AddressOutgoing::getDefault();
-        
+		
 		// Situations
-    	@$aReason = DevblocksPlatform::importGPC($_POST['contact_reason'],'array',array());
-        @$aTo = DevblocksPlatform::importGPC($_POST['contact_to'],'array',array());
-        @$aStatus = DevblocksPlatform::importGPC($_POST['status'],'array',array());
-        @$aFollowup = DevblocksPlatform::importGPC($_POST['contact_followup'],'array',array());
-        @$aFollowupField = DevblocksPlatform::importGPC($_POST['contact_followup_fields'],'array',array());
-        
-        $dispatch = array();
-        	
-        foreach($aReason as $key => $reason) {
-        	if(empty($reason))
-        		continue;
-        	
-        	@$to = $aTo[$key];
-        	@$followups = $aFollowup[$key];
-        	@$followup_fields = $aFollowupField[$key];
-        	@$status = $aStatus[$key];
+		@$aReason = DevblocksPlatform::importGPC($_POST['contact_reason'],'array',array());
+		@$aTo = DevblocksPlatform::importGPC($_POST['contact_to'],'array',array());
+		@$aStatus = DevblocksPlatform::importGPC($_POST['status'],'array',array());
+		@$aFollowup = DevblocksPlatform::importGPC($_POST['contact_followup'],'array',array());
+		@$aFollowupField = DevblocksPlatform::importGPC($_POST['contact_followup_fields'],'array',array());
+		
+		$dispatch = array();
+			
+		foreach($aReason as $key => $reason) {
+			if(empty($reason))
+				continue;
+			
+			@$to = $aTo[$key];
+			@$followups = $aFollowup[$key];
+			@$followup_fields = $aFollowupField[$key];
+			@$status = $aStatus[$key];
 
-        	if('deleted' == $status)
-        		continue;
-        	
-        	$part = array(
-        		'to' => !empty($to) ? $to : $replyto_default->email,
-        		'is_hidden' => ('hidden' == $status) ? true : false,
-        		'followups' => array()
-        	);
+			if('deleted' == $status)
+				continue;
+			
+			$part = array(
+				'to' => !empty($to) ? $to : $replyto_default->email,
+				'is_hidden' => ('hidden' == $status) ? true : false,
+				'followups' => array()
+			);
 
-        	// Process followups
-        	if(is_array($followups))
-        	foreach($followups as $followup_idx => $followup) {
-        		if(empty($followup))
-        			continue; // skip blanks
-        			
-        		$part['followups'][$followup] = 
-        			(is_array($followup_fields) && isset($followup_fields[$followup_idx])) 
-        			? $followup_fields[$followup_idx] 
-        			: array()
-        			;
-        	}
-        	
-        	$dispatch[$reason] = $part;
-        }
+			// Process followups
+			if(is_array($followups))
+			foreach($followups as $followup_idx => $followup) {
+				if(empty($followup))
+					continue; // skip blanks
+					
+				$part['followups'][$followup] =
+					(is_array($followup_fields) && isset($followup_fields[$followup_idx]))
+					? $followup_fields[$followup_idx]
+					: array()
+					;
+			}
+			
+			$dispatch[$reason] = $part;
+		}
 
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_SITUATIONS, serialize($dispatch));
 	}
@@ -210,15 +210,15 @@ class UmScContactController extends Extension_UmScController {
 		// Check if this nature has followups, if not skip to send
 		$followups = array();
 		if(is_array($dispatch))
-        foreach($dispatch as $k => $v) {
-        	if(md5($k)==$sNature) {
-        		$umsession->setProperty('support.write.last_nature_string', $k);
-        		@$followups = $v['followups'];
-        		break;
-        	}
-        }
-        
-        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'contact','step2')));
+		foreach($dispatch as $k => $v) {
+			if(md5($k)==$sNature) {
+				$umsession->setProperty('support.write.last_nature_string', $k);
+				@$followups = $v['followups'];
+				break;
+			}
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'contact','step2')));
 	}
 	
 	function doContactSendAction() {
@@ -279,10 +279,10 @@ class UmScContactController extends Extension_UmScController {
 		$umsession->setProperty('support.write.last_subject',$sSubject);
 		$umsession->setProperty('support.write.last_content',$sContent);
 		$umsession->setProperty('support.write.last_followup_a',$aFollowUpA);
-        
+		
 		$sNature = $umsession->getProperty('support.write.last_nature', '');
 		
-        $captcha_enabled = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_CAPTCHA_ENABLED, 1);
+		$captcha_enabled = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_CAPTCHA_ENABLED, 1);
 		$captcha_session = $umsession->getProperty(UmScApp::SESSION_CAPTCHA,'***');
 		
 		// Subject is required if the field  is on the form
@@ -312,19 +312,19 @@ class UmScContactController extends Extension_UmScController {
 		$to = $replyto_default->email;
 		$subject = 'Contact me: Other';
 		
-        $sDispatch = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, '');
-        $dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
-        
-        foreach($dispatch as $k => $v) {
-        	if(md5($k)==$sNature) {
-        		$to = $v['to'];
-        		$subject = 'Contact me: ' . strip_tags($k);
-        		break;
-        	}
-        }
-        
-        if(!empty($sSubject))
-        	$subject = $sSubject;
+		$sDispatch = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, '');
+		$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+		
+		foreach($dispatch as $k => $v) {
+			if(md5($k)==$sNature) {
+				$to = $v['to'];
+				$subject = 'Contact me: ' . strip_tags($k);
+				break;
+			}
+		}
+		
+		if(!empty($sSubject))
+			$subject = $sSubject;
 		
 		$fieldContent = '';
 		
@@ -347,7 +347,7 @@ class UmScContactController extends Extension_UmScController {
 		$community_portal = DAO_CommunityTool::getByCode(ChPortalHelper::getCode());
 		
 		$message = new CerberusParserMessage();
-		$message->headers['date'] = date('r'); 
+		$message->headers['date'] = date('r');
 		$message->headers['to'] = $to;
 		$message->headers['subject'] = $subject;
 		$message->headers['message-id'] = CerberusApplication::generateMessageId();
@@ -359,12 +359,12 @@ class UmScContactController extends Extension_UmScController {
 			return; // abort with message
 		}
 		$from = array_shift($fromList);
-		$message->headers['from'] = $from->mailbox . '@' . $from->host; 
+		$message->headers['from'] = $from->mailbox . '@' . $from->host;
 
 		$message->body = 'IP: ' . $fingerprint['ip'] . "\r\n\r\n" . $sContent . $fieldContent;
 
 		// Attachments
-        $attachments_mode = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_ATTACHMENTS_MODE, 0);
+		$attachments_mode = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_ATTACHMENTS_MODE, 0);
 
 		if(0==$attachments_mode || (1==$attachments_mode && !empty($active_contact)))
 		if(is_array($_FILES) && !empty($_FILES))
@@ -372,19 +372,19 @@ class UmScContactController extends Extension_UmScController {
 			// field[]
 			if(is_array($files['name'])) {
 				foreach($files['name'] as $idx => $name) {
-			        $attach = new ParserFile();
-			        $attach->setTempFile($files['tmp_name'][$idx],'application/octet-stream');
-			        $attach->file_size = filesize($files['tmp_name'][$idx]);
-			        $message->files[$name] = $attach;
+					$attach = new ParserFile();
+					$attach->setTempFile($files['tmp_name'][$idx],'application/octet-stream');
+					$attach->file_size = filesize($files['tmp_name'][$idx]);
+					$message->files[$name] = $attach;
 				}
 				
 			} else {
-		        $attach = new ParserFile();
-		        $attach->setTempFile($files['tmp_name'],'application/octet-stream');
-		        $attach->file_size = filesize($files['tmp_name']);
-		        $message->files[$files['name']] = $attach;
+				$attach = new ParserFile();
+				$attach->setTempFile($files['tmp_name'],'application/octet-stream');
+				$attach->file_size = filesize($files['tmp_name']);
+				$message->files[$files['name']] = $attach;
 			}
-		}	
+		}
 		
 		// Custom Fields
 		
@@ -429,7 +429,7 @@ class UmScContactController extends Extension_UmScController {
 						break;
 				}
 				
-				if((is_array($value) && !empty($value)) 
+				if((is_array($value) && !empty($value))
 					|| (!is_array($value) && 0 != strlen($value)))
 						$message->custom_fields[$iFieldId] = $value;
 			}
@@ -440,9 +440,9 @@ class UmScContactController extends Extension_UmScController {
 		
 		// It's possible for the parser to reject the message using pre-filters
 		if(!empty($ticket_id) && null != ($ticket = DAO_Ticket::get($ticket_id))) {
-			$umsession->setProperty('support.write.last_opened',$ticket->mask);			
+			$umsession->setProperty('support.write.last_opened',$ticket->mask);
 		} else {
-			$umsession->setProperty('support.write.last_opened',null);			
+			$umsession->setProperty('support.write.last_opened',null);
 		}
 		
 		// Clear any errors
@@ -452,6 +452,6 @@ class UmScContactController extends Extension_UmScController {
 		$umsession->setProperty('support.write.last_error',null);
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'contact','confirm')));
-	}	
+	}
 	
 };

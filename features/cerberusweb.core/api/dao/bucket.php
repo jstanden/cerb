@@ -18,15 +18,15 @@
 class DAO_Bucket extends DevblocksORMHelper {
 	const CACHE_ALL = 'cerberus_cache_buckets_all';
 	
-    const ID = 'id';
-    const POS = 'pos';
-    const NAME = 'name';
-    const GROUP_ID = 'group_id';
-    const REPLY_ADDRESS_ID = 'reply_address_id';
-    const REPLY_PERSONAL = 'reply_personal';
-    const REPLY_SIGNATURE = 'reply_signature';
-    const IS_ASSIGNABLE = 'is_assignable';
-    
+	const ID = 'id';
+	const POS = 'pos';
+	const NAME = 'name';
+	const GROUP_ID = 'group_id';
+	const REPLY_ADDRESS_ID = 'reply_address_id';
+	const REPLY_PERSONAL = 'reply_personal';
+	const REPLY_SIGNATURE = 'reply_signature';
+	const IS_ASSIGNABLE = 'is_assignable';
+	
 	static function getGroups() {
 		$buckets = self::getAll();
 		$group_buckets = array();
@@ -39,22 +39,22 @@ class DAO_Bucket extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param bool $nocache
 	 * @return Model_Bucket[]
 	 */
 	static function getAll($nocache=false) {
-	    $cache = DevblocksPlatform::getCacheService();
-	    if($nocache || null === ($buckets = $cache->load(self::CACHE_ALL))) {
-    	    $buckets = self::getList();
-    	    $cache->save($buckets, self::CACHE_ALL);
-	    }
-	    
-	    return $buckets;
+		$cache = DevblocksPlatform::getCacheService();
+		if($nocache || null === ($buckets = $cache->load(self::CACHE_ALL))) {
+			$buckets = self::getList();
+			$cache->save($buckets, self::CACHE_ALL);
+		}
+		
+		return $buckets;
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param integer $id
 	 * @return Model_Bucket
 	 */
@@ -87,7 +87,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 			(!empty($ids) ? sprintf("WHERE bucket.id IN (%s) ", implode(',', $ids)) : "").
 			"ORDER BY worker_group.name ASC, bucket.pos ASC "
 		;
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$buckets = array();
 		
@@ -125,7 +125,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 	}
 	
 	static function getAssignableBuckets($group_ids=null) {
-		if(!is_null($group_ids) && !is_array($group_ids)) 
+		if(!is_null($group_ids) && !is_array($group_ids))
 			$group_ids = array($group_ids);
 		
 		if(empty($group_ids)) {
@@ -165,7 +165,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 			$group_id
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-		$id = $db->LastInsertId(); 
+		$id = $db->LastInsertId();
 
 		self::clearCache();
 		
@@ -179,7 +179,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 	}
 	
 	static function delete($ids) {
-	    if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(empty($ids))
@@ -188,39 +188,39 @@ class DAO_Bucket extends DevblocksORMHelper {
 		/*
 		 * Notify anything that wants to know when buckets delete.
 		 */
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'bucket.delete',
-                array(
-                    'bucket_ids' => $ids,
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'bucket.delete',
+				array(
+					'bucket_ids' => $ids,
+				)
+			)
+		);
 		
 		$sql = sprintf("DELETE QUICK FROM bucket WHERE id IN (%s)", implode(',',$ids));
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		// Reset any tickets using this bucket
 		$sql = sprintf("UPDATE ticket SET bucket_id = 0 WHERE bucket_id IN (%s)", implode(',',$ids));
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		self::clearCache();
 	}
 	
 	static public function maint() {
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.maint',
-                array(
-                	'context' => CerberusContexts::CONTEXT_BUCKET,
-                	'context_table' => 'bucket',
-                	'context_key' => 'id',
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.maint',
+				array(
+					'context' => CerberusContexts::CONTEXT_BUCKET,
+					'context_table' => 'bucket',
+					'context_key' => 'id',
+				)
+			)
+		);
 	}
 	
 	static public function clearCache() {
@@ -241,7 +241,7 @@ class Model_Bucket {
 	public $reply_signature;
 	
 	/**
-	 * 
+	 *
 	 * @param integer $bucket_id
 	 * @return Model_AddressOutgoing
 	 */
@@ -376,7 +376,7 @@ class Model_Bucket {
 		}
 		
 		return $signature;
-	}	
+	}
 };
 
 class Context_Bucket extends Extension_DevblocksContext {
@@ -414,7 +414,7 @@ class Context_Bucket extends Extension_DevblocksContext {
 				'permalink' => '',
 			);
 			
-		$url = '';		
+		$url = '';
 		
 		if(null == ($bucket = DAO_Bucket::get($context_id)))
 			return false;
@@ -477,7 +477,7 @@ class Context_Bucket extends Extension_DevblocksContext {
 			//$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=group&id=%d-%s",$group->id, DevblocksPlatform::strToPermalink($group->name)), true);
 		}
 		
-		return true;		
+		return true;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {
@@ -512,7 +512,7 @@ class Context_Bucket extends Extension_DevblocksContext {
 		}
 		
 		return $values;
-	}	
+	}
 	
 	function getChooserView($view_id=null) {
 		if(empty($view_id))
@@ -545,7 +545,7 @@ class Context_Bucket extends Extension_DevblocksContext {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Buckets';

@@ -8,11 +8,11 @@ if(!isset($tables['feedback_entry'])) {
 		CREATE TABLE IF NOT EXISTS feedback_entry (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			log_date INT UNSIGNED DEFAULT 0 NOT NULL,
-			list_id INT UNSIGNED DEFAULT 0 NOT NULL, 
-			worker_id INT UNSIGNED DEFAULT 0 NOT NULL, 
+			list_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			worker_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			quote_text TEXT,
-			quote_mood TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL, 
-			quote_address_id INT UNSIGNED DEFAULT 0 NOT NULL, 
+			quote_mood TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
+			quote_address_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);

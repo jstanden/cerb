@@ -6,17 +6,15 @@
 {if !empty($widget) && !empty($widget->id)}<input type="hidden" name="id" value="{$widget->id}">{/if}
 <input type="hidden" name="do_delete" value="0">
 
-<fieldset class="peek" style="margin-bottom:0px;border-top:0;">
-	{if $extension instanceof Extension_WorkspaceWidget}
-	<b>Type:</b>
-	{$extension->manifest->name} 
-	<br>
-	{/if}
-	
-	<b>Label:</b>
-	<input type="text" name="label" value="{$widget->label}" size="45">
-	<br>
-</fieldset>
+{if $extension instanceof Extension_WorkspaceWidget}
+<b>Type:</b>
+{$extension->manifest->name} 
+<br>
+{/if}
+
+<b>Label:</b>
+<input type="text" name="label" value="{$widget->label}" size="45">
+<br>
 
 {* The rest of config comes from the widget *}
 {if $extension instanceof Extension_WorkspaceWidget}

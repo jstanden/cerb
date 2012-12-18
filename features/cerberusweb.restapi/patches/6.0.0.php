@@ -17,7 +17,7 @@ if(!isset($tables['webapi_credentials'])) {
 			INDEX access_key (access_key)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->Execute($sql);
 	
 	$tables['webapi_credentials'] = 'webapi_credentials';
 }

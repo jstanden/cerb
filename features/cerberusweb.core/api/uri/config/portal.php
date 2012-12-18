@@ -31,7 +31,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 			$tpl->assign('tool_manifests', DevblocksPlatform::getExtensions('usermeet.tool', false));
 
 			@$tab_selected = array_shift($stack);
-			if(empty($tab_selected)) 
+			if(empty($tab_selected))
 				$tab_selected = 'settings';
 			$tpl->assign('tab_selected', $tab_selected);
 			
@@ -55,7 +55,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		
 		// Custom field types
 		$types = Model_CustomField::getTypes();
-		$tpl->assign('field_types', $types);		
+		$tpl->assign('field_types', $types);
 		
 		// Default reply-to
 		$replyto_default = DAO_AddressOutgoing::getDefault();
@@ -125,7 +125,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 
 		$view->name = 'Custom Templates';
 		$view->addParam(new DevblocksSearchCriteria(SearchFields_DevblocksTemplate::TAG,'=','portal_'.$tool->code));
-		C4_AbstractViewLoader::setView($view->id, $view);  
+		C4_AbstractViewLoader::setView($view->id, $view);
 		
 		$tpl->assign('view', $view);
 			
@@ -188,7 +188,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 			case 'sample':
@@ -204,7 +204,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		
 		$view->render();
 		return;
-	}	
+	}
 
 	function saveTemplatePeekAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
@@ -289,7 +289,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 			if(file_exists($path)) {
 				$content = file_get_contents($path);
 			}
-		} 
+		}
 		
 		$fields = array(
 			DAO_DevblocksTemplate::LAST_UPDATED => 0,
@@ -301,7 +301,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		$id = DAO_DevblocksTemplate::create($fields);
 
 		$template = DAO_DevblocksTemplate::get($id);
-		$tpl->assign('template', $template); 
+		$tpl->assign('template', $template);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/portal/tabs/templates/peek.tpl');
 	}
@@ -403,7 +403,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		
 		echo $doc->saveXML();
 		exit;
-	}	
+	}
 	
 	function showTabInstallationAction() {
 		@$tool_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
@@ -413,21 +413,21 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		if(null != ($tool = DAO_CommunityTool::get($tool_id)))
 			$tpl->assign('tool', $tool);
 			
-        // Install
-        $url_writer = DevblocksPlatform::getUrlService();
-        $url = $url_writer->writeNoProxy('c=portal&a='.$tool->code,true);
-        $url_parts = parse_url($url);
-        
-        $host = $url_parts['host'];
-        @$port = $_SERVER['SERVER_PORT']; 
+		// Install
+		$url_writer = DevblocksPlatform::getUrlService();
+		$url = $url_writer->writeNoProxy('c=portal&a='.$tool->code,true);
+		$url_parts = parse_url($url);
+		
+		$host = $url_parts['host'];
+		@$port = $_SERVER['SERVER_PORT'];
 		$base = substr(DEVBLOCKS_WEBPATH,0,-1); // consume trailing
-        $path = substr($url_parts['path'],strlen(DEVBLOCKS_WEBPATH)-1); // consume trailing slash
+		$path = substr($url_parts['path'],strlen(DEVBLOCKS_WEBPATH)-1); // consume trailing slash
 
-        @$parts = explode('/', $path);
-        if($parts[1]=='index.php') // 0 is null from /part1/part2 paths.
-        	unset($parts[1]);
-        $path = implode('/', $parts);
-        
+		@$parts = explode('/', $path);
+		if($parts[1]=='index.php') // 0 is null from /part1/part2 paths.
+			unset($parts[1]);
+		$path = implode('/', $parts);
+		
 		$tpl->assign('host', $host);
 		$tpl->assign('is_ssl', ($url_writer->isSSL() ? 1 : 0));
 		$tpl->assign('port', $port);
@@ -435,5 +435,5 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		$tpl->assign('path', $path);
 			
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/portal/tabs/installation/index.tpl');
-	}	
+	}
 }

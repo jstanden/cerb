@@ -10,7 +10,7 @@ if(!isset($tables['timetracking_entry'])) {
 			time_actual_mins SMALLINT UNSIGNED DEFAULT 0 NOT NULL,
 			log_date INT UNSIGNED DEFAULT 0 NOT NULL,
 			worker_id INT UNSIGNED DEFAULT 0 NOT NULL,
-			activity_id INT UNSIGNED DEFAULT 0 NOT NULL, 
+			activity_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			debit_org_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			notes VARCHAR(255) DEFAULT '' NOT NULL,
 			source_extension_id VARCHAR(255) DEFAULT '' NOT NULL,
@@ -18,7 +18,7 @@ if(!isset($tables['timetracking_entry'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->Execute($sql);
 }
 
 list($columns, $indexes) = $db->metaTable('timetracking_entry');
@@ -61,7 +61,7 @@ if(!isset($tables['timetracking_activity'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->Execute($sql);
 }
 
 // ===========================================================================

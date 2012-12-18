@@ -83,6 +83,13 @@
 				{else}
 				<td>never</td>
 				{/if}
+			{elseif $column=="w_auth_extension_id"}
+				<td>
+					{if isset($auth_extensions.{$result.$column})}
+						{$auth_ext = $auth_extensions.{$result.$column}}
+						{$auth_ext->name}
+					{/if}
+				</td>
 			{else}
 			<td>{$result.$column}</td>
 			{/if}

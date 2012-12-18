@@ -24,7 +24,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 	}
 	
 	function getActivity() {
-	    return new Model_Activity('activity.default');
+		return new Model_Activity('activity.default');
 	}
 	
 	function render() {
@@ -36,10 +36,10 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$stack = $response->path;
 		$command = array_shift($stack); // groups
 		
-    	$groups = DAO_Group::getAll();
-    	$tpl->assign('groups', $groups);
-    	
-    	@$group_id = intval(array_shift($stack));
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		@$group_id = intval(array_shift($stack));
 
 		// Only group managers and superusers can configure
 		if(empty($group_id) || (!$active_worker->isGroupManager($group_id) && !$active_worker->is_superuser)) {
@@ -47,15 +47,15 @@ class ChGroupsPage extends CerberusPageExtension  {
 			
 		} else {
 			$group =& $groups[$group_id];
-	    	$tpl->assign('group', $group);
-	    	
+			$tpl->assign('group', $group);
+			
 			// Remember the last tab/URL
 			if(null == ($selected_tab = @$response->path[2])) {
 				$selected_tab = $visit->get('cerberusweb.groups.tab', '');
 			}
 			$tpl->assign('selected_tab', $selected_tab);
 		}
-    	
+		
 		$tpl->display('devblocks:cerberusweb.core::groups/index.tpl');
 	}
 	
@@ -84,20 +84,20 @@ class ChGroupsPage extends CerberusPageExtension  {
 	
 	// Post
 	function saveTabMailAction() {
-	    @$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer');
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer');
 
-	    @$active_worker = CerberusApplication::getActiveWorker();
-	    if(!$active_worker->isGroupManager($group_id) && !$active_worker->is_superuser)
-	    	return;
-	    	
-	    //========== GENERAL
-	    @$subject_has_mask = DevblocksPlatform::importGPC($_REQUEST['subject_has_mask'],'integer',0);
-	    @$subject_prefix = DevblocksPlatform::importGPC($_REQUEST['subject_prefix'],'string','');
+		@$active_worker = CerberusApplication::getActiveWorker();
+		if(!$active_worker->isGroupManager($group_id) && !$active_worker->is_superuser)
+			return;
+			
+		//========== GENERAL
+		@$subject_has_mask = DevblocksPlatform::importGPC($_REQUEST['subject_has_mask'],'integer',0);
+		@$subject_prefix = DevblocksPlatform::importGPC($_REQUEST['subject_prefix'],'string','');
 
-	    DAO_GroupSettings::set($group_id, DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK, $subject_has_mask);
-	    DAO_GroupSettings::set($group_id, DAO_GroupSettings::SETTING_SUBJECT_PREFIX, $subject_prefix);
-	       
-        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups',$group_id)));
+		DAO_GroupSettings::set($group_id, DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK, $subject_has_mask);
+		DAO_GroupSettings::set($group_id, DAO_GroupSettings::SETTING_SUBJECT_PREFIX, $subject_prefix);
+		   
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups',$group_id)));
 	}
 	
 	function showTabMembersAction() {
@@ -117,10 +117,10 @@ class ChGroupsPage extends CerberusPageExtension  {
 		}
 		
 		$members = DAO_Group::getGroupMembers($group_id);
-	    $tpl->assign('members', $members);
-	    
+		$tpl->assign('members', $members);
+		
 		$workers = DAO_Worker::getAllActive();
-	    $tpl->assign('workers', $workers);
+		$tpl->assign('workers', $workers);
 		
 		$tpl->display('devblocks:cerberusweb.core::groups/manage/members.tpl');
 	}
@@ -130,30 +130,30 @@ class ChGroupsPage extends CerberusPageExtension  {
 		@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_ids'],'array',array());
 		@$worker_levels = DevblocksPlatform::importGPC($_REQUEST['worker_levels'],'array',array());
 		
-	    @$active_worker = CerberusApplication::getActiveWorker();
-	    @$members = DAO_Group::getGroupMembers($group_id);
-	    
-	    if(!$active_worker->isGroupManager($group_id) && !$active_worker->is_superuser)
-	    	return;
-	    
-	    if(is_array($worker_ids) && !empty($worker_ids))
-	    foreach($worker_ids as $idx => $worker_id) {
-	    	@$level = $worker_levels[$idx];
-	    	
-	    	if(isset($members[$worker_id]) && empty($level)) {
-	    		DAO_Group::unsetGroupMember($group_id, $worker_id);
-	    		DAO_WorkerRole::clearWorkerCache($worker_id);
-	    		
-	    	} elseif(!empty($level)) { // member|manager
+		@$active_worker = CerberusApplication::getActiveWorker();
+		@$members = DAO_Group::getGroupMembers($group_id);
+		
+		if(!$active_worker->isGroupManager($group_id) && !$active_worker->is_superuser)
+			return;
+		
+		if(is_array($worker_ids) && !empty($worker_ids))
+		foreach($worker_ids as $idx => $worker_id) {
+			@$level = $worker_levels[$idx];
+			
+			if(isset($members[$worker_id]) && empty($level)) {
+				DAO_Group::unsetGroupMember($group_id, $worker_id);
+				DAO_WorkerRole::clearWorkerCache($worker_id);
+				
+			} elseif(!empty($level)) { // member|manager
 				DAO_Group::setGroupMember($group_id, $worker_id, (1==$level)?false:true);
 				
 				// If this is a new addition
 				if(!isset($members[$worker_id]))
 					DAO_WorkerRole::clearWorkerCache($worker_id);
-	    	}
-	    }
-	    
-	    DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups',$group_id,'members')));
+			}
+		}
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups',$group_id,'members')));
 	}
 	
 	function showTabBucketsAction() {
@@ -182,10 +182,10 @@ class ChGroupsPage extends CerberusPageExtension  {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer');
 		@$bucket_ids = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'array',array());
 		
-	    @$active_worker = CerberusApplication::getActiveWorker();
-	    
-	    if(!$active_worker->isGroupManager($group_id) && !$active_worker->is_superuser)
-	    	return;
+		@$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->isGroupManager($group_id) && !$active_worker->is_superuser)
+			return;
 		
 		// Save the order
 		if(is_array($bucket_ids))
@@ -244,26 +244,26 @@ class ChGroupsPage extends CerberusPageExtension  {
 		@$reply_signature = DevblocksPlatform::importGPC($_REQUEST['reply_signature'],'string','');
 		
 		// ACL
-	    @$active_worker = CerberusApplication::getActiveWorker();
-	    if(!$active_worker->isGroupManager($group_id) && !$active_worker->is_superuser)
-	    	return;
+		@$active_worker = CerberusApplication::getActiveWorker();
+		if(!$active_worker->isGroupManager($group_id) && !$active_worker->is_superuser)
+			return;
 		
-	    switch($form_submit) {
-	    	case 'delete':
-	    		@$delete_moveto = DevblocksPlatform::importGPC($_REQUEST['delete_moveto'],'integer',0);
-	    		$buckets = DAO_Bucket::getAll();
-	    		// Bucket must exist
-	    		if(empty($bucket_id) || !isset($buckets[$bucket_id]))
-	    			break;
-	    		// Destination must be inbox or exist
-	    		if(!empty($delete_moveto) && !isset($buckets[$delete_moveto]))
-	    			break;
-	    		$where = sprintf("%s = %d",DAO_Ticket::BUCKET_ID, $bucket_id);
-	    		DAO_Ticket::updateWhere(array(DAO_Ticket::BUCKET_ID => $delete_moveto), $where);
-	    		DAO_Bucket::delete($bucket_id);
-	    		break;
-	    		
-	    	case 'save':
+		switch($form_submit) {
+			case 'delete':
+				@$delete_moveto = DevblocksPlatform::importGPC($_REQUEST['delete_moveto'],'integer',0);
+				$buckets = DAO_Bucket::getAll();
+				// Bucket must exist
+				if(empty($bucket_id) || !isset($buckets[$bucket_id]))
+					break;
+				// Destination must be inbox or exist
+				if(!empty($delete_moveto) && !isset($buckets[$delete_moveto]))
+					break;
+				$where = sprintf("%s = %d",DAO_Ticket::BUCKET_ID, $bucket_id);
+				DAO_Ticket::updateWhere(array(DAO_Ticket::BUCKET_ID => $delete_moveto), $where);
+				DAO_Bucket::delete($bucket_id);
+				break;
+				
+			case 'save':
 				if('0' == $bucket_id) { // Inbox
 					$fields = array(
 						DAO_Group::REPLY_ADDRESS_ID => $reply_address_id,
@@ -288,8 +288,8 @@ class ChGroupsPage extends CerberusPageExtension  {
 						
 					DAO_Bucket::update($bucket_id, $fields);
 				}
-	    		break;
-	    }
+				break;
+		}
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups',$group_id,'buckets')));
 	}
@@ -301,7 +301,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set('cerberusweb.groups.tab', 'fields');		
+		$visit->set('cerberusweb.groups.tab', 'fields');
 		
 		if(!$active_worker->isGroupManager($group_id) && !$active_worker->is_superuser) {
 			return;
@@ -310,9 +310,9 @@ class ChGroupsPage extends CerberusPageExtension  {
 			$tpl->assign('group', $group);
 		}
 		
-		$group_fields = DAO_CustomField::getByContextAndGroupId(CerberusContexts::CONTEXT_TICKET, $group_id); 
+		$group_fields = DAO_CustomField::getByContextAndGroupId(CerberusContexts::CONTEXT_TICKET, $group_id);
 		$tpl->assign('group_fields', $group_fields);
-                    
+					
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
 		
@@ -323,10 +323,10 @@ class ChGroupsPage extends CerberusPageExtension  {
 	function saveTabFieldsAction() {
 		@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer');
 		
-	    @$active_worker = CerberusApplication::getActiveWorker();
-	    if(!$active_worker->isGroupManager($group_id) && !$active_worker->is_superuser)
-	    	return;
-	    	
+		@$active_worker = CerberusApplication::getActiveWorker();
+		if(!$active_worker->isGroupManager($group_id) && !$active_worker->is_superuser)
+			return;
+			
 		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array',array());
 		@$names = DevblocksPlatform::importGPC($_POST['names'],'array',array());
 		@$orders = DevblocksPlatform::importGPC($_POST['orders'],'array',array());
@@ -346,7 +346,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 				
 			} else {
 				$fields = array(
-					DAO_CustomField::NAME => $name, 
+					DAO_CustomField::NAME => $name,
 					DAO_CustomField::POS => $order,
 					DAO_CustomField::OPTIONS => !is_null($option) ? $option : '',
 				);
@@ -380,7 +380,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 
 		$fields = array(
-			DAO_Group::NAME => $name			
+			DAO_Group::NAME => $name
 		);
 		
 		if(empty($group_id)) { // new

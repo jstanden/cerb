@@ -1,49 +1,49 @@
 <?php
 class DevblocksTourCallout {
-    public $selector = '';
-    public $title = '';
-    public $body = '';
-    public $tipCorner = '';
-    public $targetCorner = '';
-    public $xOffset = 0;
-    public $yOffset = 0;
-    
-    function __construct($selector='',$title='Callout',$body='...',$tipCorner='topLeft',$targetCorner='topLeft',$xOffset=0,$yOffset=0) {
-        $this->selector = $selector;
-        $this->title = $title;
-        $this->body = $body;
-        $this->tipCorner = $tipCorner;
-        $this->targetCorner = $targetCorner;
-        $this->xOffset = $xOffset;
-        $this->yOffset = $yOffset;
-    }
+	public $selector = '';
+	public $title = '';
+	public $body = '';
+	public $tipCorner = '';
+	public $targetCorner = '';
+	public $xOffset = 0;
+	public $yOffset = 0;
+	
+	function __construct($selector='',$title='Callout',$body='...',$tipCorner='topLeft',$targetCorner='topLeft',$xOffset=0,$yOffset=0) {
+		$this->selector = $selector;
+		$this->title = $title;
+		$this->body = $body;
+		$this->tipCorner = $tipCorner;
+		$this->targetCorner = $targetCorner;
+		$this->xOffset = $xOffset;
+		$this->yOffset = $yOffset;
+	}
 };
 interface IDevblocksSearchFields {
-    static function getFields();
+	static function getFields();
 }
 class DevblocksSearchCriteria {
-    const OPER_EQ = '=';
-    const OPER_EQ_OR_NULL = 'equals or null';
-    const OPER_NEQ = '!=';
-    const OPER_IS_NULL = 'is null';
-    const OPER_IS_NOT_NULL = 'is not null';
-    const OPER_IN = 'in';
-    const OPER_IN_OR_NULL = 'in or null';
-    const OPER_NIN = 'not in';
-    const OPER_NIN_OR_NULL = 'not in or null';
-    const OPER_FULLTEXT = 'fulltext';
-    const OPER_LIKE = 'like';
-    const OPER_NOT_LIKE = 'not like';
-    const OPER_GT = '>';
-    const OPER_LT = '<';
-    const OPER_GTE = '>=';
-    const OPER_LTE = '<=';
-    const OPER_BETWEEN = 'between';
-    const OPER_TRUE = '1';
-    
-    const GROUP_OR = 'OR';
-    const GROUP_AND = 'AND';
-    
+	const OPER_EQ = '=';
+	const OPER_EQ_OR_NULL = 'equals or null';
+	const OPER_NEQ = '!=';
+	const OPER_IS_NULL = 'is null';
+	const OPER_IS_NOT_NULL = 'is not null';
+	const OPER_IN = 'in';
+	const OPER_IN_OR_NULL = 'in or null';
+	const OPER_NIN = 'not in';
+	const OPER_NIN_OR_NULL = 'not in or null';
+	const OPER_FULLTEXT = 'fulltext';
+	const OPER_LIKE = 'like';
+	const OPER_NOT_LIKE = 'not like';
+	const OPER_GT = '>';
+	const OPER_LT = '<';
+	const OPER_GTE = '>=';
+	const OPER_LTE = '<=';
+	const OPER_BETWEEN = 'between';
+	const OPER_TRUE = '1';
+	
+	const GROUP_OR = 'OR';
+	const GROUP_AND = 'AND';
+	
 	public $field;
 	public $operator;
 	public $value;
@@ -63,14 +63,14 @@ class DevblocksSearchCriteria {
 	}
 	
 	/*
-	 * [TODO] [JAS] Having to pass $fields here is kind of silly, but I'm ignoring 
+	 * [TODO] [JAS] Having to pass $fields here is kind of silly, but I'm ignoring
 	 * for now since it's only called in 2 abstracted places.
 	 */
 	public function getWhereSQL($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$where = '';
 		
-		$db_field_name = $fields[$this->field]->db_table . '.' . $fields[$this->field]->db_column; 
+		$db_field_name = $fields[$this->field]->db_table . '.' . $fields[$this->field]->db_column;
 
 		// [JAS]: Operators
 		switch($this->operator) {
@@ -263,10 +263,10 @@ class DevblocksSearchCriteria {
 				
 				if(!is_array($values)) {
 					$value = $values;
-					$scope = 'expert'; 
+					$scope = 'expert';
 				} else {
 					$value = $values[0];
-					$scope = $values[1]; 
+					$scope = $values[1];
 				}
 				
 				switch($scope) {
@@ -324,7 +324,7 @@ class DevblocksSearchCriteria {
 				break;
 				
 			/*
-			 * [TODO] Someday we may want to call this OPER_DATE_BETWEEN so it doesn't interfere 
+			 * [TODO] Someday we may want to call this OPER_DATE_BETWEEN so it doesn't interfere
 			 * with the operator in other uses
 			 */
 			case DevblocksSearchCriteria::OPER_BETWEEN: // 'between'
@@ -376,7 +376,7 @@ class DevblocksSearchCriteria {
 					$this->operator,
 					self::_escapeSearchParam($this, $fields)
 				);
-			    break;
+				break;
 				
 			default:
 				break;
@@ -386,22 +386,22 @@ class DevblocksSearchCriteria {
 	}
 	
 	static protected function _escapeSearchParam(DevblocksSearchCriteria $param, $fields) {
-	    $db = DevblocksPlatform::getDatabaseService();
-	    $field = $fields[$param->field];
-	    $where_value = null;
+		$db = DevblocksPlatform::getDatabaseService();
+		$field = $fields[$param->field];
+		$where_value = null;
 
-	    if($field) {
-	    	if(!is_array($param->value)) {
-	    		$where_value = $db->qstr($param->value);
-	    	} else {
-	    		$where_value = array();
-	    		foreach($param->value as $v) {
-	    			$where_value[] = $db->qstr($v);
-	    		}
-	    	}
-	    }
+		if($field) {
+			if(!is_array($param->value)) {
+				$where_value = $db->qstr($param->value);
+			} else {
+				$where_value = array();
+				foreach($param->value as $v) {
+					$where_value[] = $db->qstr($v);
+				}
+			}
+		}
 
-        return $where_value;
+		return $where_value;
 	}
 };
 
@@ -428,15 +428,15 @@ class DevblocksAclPrivilege {
 };
 
 class DevblocksEventPoint {
-    var $id = '';
-    var $plugin_id = '';
-    var $name = '';
-    var $param = array();
+	var $id = '';
+	var $plugin_id = '';
+	var $name = '';
+	var $param = array();
 };
 
 class DevblocksExtensionPoint {
 	var $id = '';
-    var $plugin_id = '';
+	var $plugin_id = '';
 	var $extensions = array();
 };
 
@@ -482,7 +482,7 @@ class DevblocksPluginManifest {
 	}
 	
 	/**
-	 * 
+	 *
 	 */
 	function getActivityPoints() {
 		$points = array();
@@ -539,7 +539,7 @@ class DevblocksPluginManifest {
 		}
 		
 		// Check PHP extensions
-		if(isset($this->manifest_cache['requires']['php_extensions'])) 
+		if(isset($this->manifest_cache['requires']['php_extensions']))
 		foreach($this->manifest_cache['requires']['php_extensions'] as $php_extension => $data) {
 			if(!extension_loaded($php_extension))
 				$this->_requirements_errors[] = sprintf("The '%s' PHP extension is required", $php_extension);
@@ -552,7 +552,7 @@ class DevblocksPluginManifest {
 				if(!isset($plugins[$dependency])) {
 					$this->_requirements_errors[] = sprintf("The '%s' plugin is required", $dependency);
 				} else if(!$plugins[$dependency]->enabled) {
-					$dependency_name = isset($plugins[$dependency]) ? $plugins[$dependency]->name : $dependency; 
+					$dependency_name = isset($plugins[$dependency]) ? $plugins[$dependency]->name : $dependency;
 					$this->_requirements_errors[] = sprintf("The '%s' (%s) plugin must be enabled first", $dependency_name, $dependency);
 				}
 			}
@@ -577,19 +577,19 @@ class DevblocksPluginManifest {
 		$db = DevblocksPlatform::getDatabaseService();
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 		
-        $db->Execute(sprintf("DELETE FROM %splugin WHERE id = %s",
-            $prefix,
-            $db->qstr($this->id)
-        ));
-        $db->Execute(sprintf("DELETE FROM %sextension WHERE plugin_id = %s",
-            $prefix,
-            $db->qstr($this->id)
-        ));
-        $db->Execute(sprintf("DELETE %1\$sproperty_store FROM %1\$sproperty_store ".
-        	"LEFT JOIN %1\$sextension ON (%1\$sproperty_store.extension_id=%1\$sextension.id) ".
-        	"WHERE %1\$sextension.id IS NULL",
-        	$prefix
-        ));
+		$db->Execute(sprintf("DELETE FROM %splugin WHERE id = %s",
+			$prefix,
+			$db->qstr($this->id)
+		));
+		$db->Execute(sprintf("DELETE FROM %sextension WHERE plugin_id = %s",
+			$prefix,
+			$db->qstr($this->id)
+		));
+		$db->Execute(sprintf("DELETE %1\$sproperty_store FROM %1\$sproperty_store ".
+			"LEFT JOIN %1\$sextension ON (%1\$sproperty_store.extension_id=%1\$sextension.id) ".
+			"WHERE %1\$sextension.id IS NULL",
+			$prefix
+		));
 	}
 	
 	function uninstall() {
@@ -647,15 +647,15 @@ class DevblocksExtensionManifest {
 	function DevblocksExtensionManifest() {}
 	
 	/**
-	 * Creates and loads a usable extension from a manifest record.  The object returned 
-	 * will be of type $class defined by the manifest.  $instance_id is passed as an 
+	 * Creates and loads a usable extension from a manifest record.  The object returned
+	 * will be of type $class defined by the manifest.  $instance_id is passed as an
 	 * argument to uniquely identify multiple instances of an extension.
 	 *
 	 * @param integer $instance_id
 	 * @return object
 	 */
 	function createInstance() {
-		if(empty($this->id) || empty($this->plugin_id)) // empty($instance_id) || 
+		if(empty($this->id) || empty($this->plugin_id)) // empty($instance_id) ||
 			return null;
 
 		if(null == ($plugin = DevblocksPlatform::getPlugin($this->plugin_id)))
@@ -711,7 +711,7 @@ abstract class DevblocksVisit {
 	public function get($key, $default=null) {
 		@$value = $this->registry[$key];
 		
-		if(is_null($value) && !is_null($default)) 
+		if(is_null($value) && !is_null($default))
 			$value = $default;
 			
 		return $value;
@@ -727,7 +727,7 @@ abstract class DevblocksVisit {
 };
 
 /**
- * 
+ *
  */
 class DevblocksPatch {
 	private $plugin_id = ''; // cerberusweb.core
@@ -743,11 +743,11 @@ class DevblocksPatch {
 	}
 	
 	public function run() {
-	    if($this->hasRun())
-	        return TRUE;
+		if($this->hasRun())
+			return TRUE;
 
-	    if(empty($this->filename) || !file_exists($this->filename))
-	        return FALSE;
+		if(empty($this->filename) || !file_exists($this->filename))
+			return FALSE;
 
 		if(false === ($result = require_once($this->filename)))
 			return FALSE;
@@ -784,12 +784,12 @@ class DevblocksPatch {
 };
 
 class Model_DevblocksEvent {
-  public $id = '';
-  public $params = array(); 
+	public $id = '';
+	public $params = array();
 
   function __construct($id='',$params=array()) {
-      $this->id = $id;
-      $this->params = $params;
+		$this->id = $id;
+		$this->params = $params;
   }
 };
 

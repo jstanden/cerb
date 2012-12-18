@@ -124,7 +124,7 @@ class Page_ExampleObjects extends CerberusPageExtension {
 				DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
 			);
 			$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
-		}		
+		}
 		
 		// Custom fields
 		@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
@@ -203,7 +203,7 @@ class Page_ExampleObjects extends CerberusPageExtension {
 		$view->doBulkUpdate($filter, $do, $ids);
 		
 		$view->render();
-		return;		
+		return;
 	}
 	
 	function viewExploreAction() {
@@ -213,7 +213,7 @@ class Page_ExampleObjects extends CerberusPageExtension {
 		$url_writer = DevblocksPlatform::getUrlService();
 		
 		// Generate hash
-		$hash = md5($view_id.$active_worker->id.time()); 
+		$hash = md5($view_id.$active_worker->id.time());
 		
 		// Loop through view and get IDs
 		$view = C4_AbstractViewLoader::getView($view_id);
@@ -247,7 +247,7 @@ class Page_ExampleObjects extends CerberusPageExtension {
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=example.objects', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
-				$models[] = $model; 
+				$models[] = $model;
 				
 				$view->renderTotal = false; // speed up subsequent pages
 			}
@@ -264,7 +264,7 @@ class Page_ExampleObjects extends CerberusPageExtension {
 					'id' => $id,
 					'url' => $url_writer->writeNoProxy(sprintf("c=example.objects&p=profile&id=%d", $row[SearchFields_ExampleObject::ID]), true),
 				);
-				$models[] = $model; 
+				$models[] = $model;
 			}
 			
 			DAO_ExplorerSet::createFromModels($models);
@@ -273,6 +273,6 @@ class Page_ExampleObjects extends CerberusPageExtension {
 			
 		} while(!empty($results));
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
 };

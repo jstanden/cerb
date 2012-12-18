@@ -100,7 +100,7 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string','');
 
 		try {
-			if(empty($extension_id) 
+			if(empty($extension_id)
 				|| null == ($ext = $ext = DevblocksPlatform::getExtension($extension_id, true)))
 				throw new Exception("Can't load extension.");
 				
@@ -110,8 +110,8 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 				throw new Exception('Your storage profile is not configured properly.');
 			}
 			
-		    echo json_encode(array('status'=>true,'message'=>'Your storage profile is configured properly.'));
-		    return;
+			echo json_encode(array('status'=>true,'message'=>'Your storage profile is configured properly.'));
+			return;
 			
 		} catch(Exception $e) {
 			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
@@ -149,9 +149,9 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 			}
 			
 		} else {
-		    $fields = array(
-		    	DAO_DevblocksStorageProfile::NAME => $name,
-		    );
+			$fields = array(
+				DAO_DevblocksStorageProfile::NAME => $name,
+			);
 
 			if(empty($id)) {
 				$fields[DAO_DevblocksStorageProfile::EXTENSION_ID] = $extension_id;
@@ -180,6 +180,6 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		if(!empty($view_id)) {
 			$view = C4_AbstractViewLoader::getView($view_id);
 			$view->render();
-		}		
-	}	
+		}
+	}
 }

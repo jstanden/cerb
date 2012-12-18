@@ -22,21 +22,21 @@ class ExCommunityPortal extends Extension_UsermeetTool {
 	
 	public function configure(Model_CommunityTool $instance) {
 		$tpl = DevblocksPlatform::getTemplateService();
-    	$portal_id = ChPortalHelper::getCode();
+		$portal_id = ChPortalHelper::getCode();
 		
-    	// This demonstrates how to load portal settings
+		// This demonstrates how to load portal settings
 		$properties = DAO_CommunityToolProperty::getAllByTool($portal_id);
 		$tpl->assign('properties', $properties);
 		
 		$tpl->display('devblocks:example.community_portal::config.tpl');
 	}
 	
-    public function saveConfiguration() {
-    	$portal_id = ChPortalHelper::getCode();
-    	
-    	// This demonstrates how to save portal settings
-        @$property = DevblocksPlatform::importGPC($_POST['property'],'string','');
-        DAO_CommunityToolProperty::set($portal_id, 'property', $property);
-    }
+	public function saveConfiguration() {
+		$portal_id = ChPortalHelper::getCode();
+		
+		// This demonstrates how to save portal settings
+		@$property = DevblocksPlatform::importGPC($_POST['property'],'string','');
+		DAO_CommunityToolProperty::set($portal_id, 'property', $property);
+	}
 }
 endif;

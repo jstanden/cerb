@@ -31,19 +31,18 @@
 </fieldset>
 	
 <fieldset class="peek">
-	<legend>Authentication</legend>
+	<legend>Login</legend>
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top"><b>{$translate->_('common.password')|capitalize}</b>: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top"><b>Authentication</b>: </td>
 			<td width="100%">
-				<input id="password" type="password" name="password" value="" style="width:98%;"><br>
-				{if empty($worker->id)}&nbsp;(Leave blank to e-mail a randomly-generated password.){/if}
+				<select name="auth_extension_id">
+					{foreach from=$auth_extensions item=auth_ext_mft key=auth_ext_id}
+					<option value="{$auth_ext_id}" {if $worker->auth_extension_id==$auth_ext_id}selected="selected"{/if}>{$auth_ext_mft->name}</option>
+					{/foreach}
+				</select>
 			</td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('Password (again)')}: </td>
-			<td width="100%"><input id="password2" type="password" name="password2" value="" style="width:98%;"></td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{$translate->_('worker.is_superuser')|capitalize}: </td>
