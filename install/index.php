@@ -755,6 +755,7 @@ switch($step) {
 						DAO_Worker::LAST_NAME => 'User',
 						DAO_Worker::TITLE => 'Administrator',
 						DAO_Worker::IS_SUPERUSER => 1,
+						DAO_Worker::AUTH_EXTENSION_ID => 'login.password',
 					);
 					
 					$worker_id = DAO_Worker::create($fields);

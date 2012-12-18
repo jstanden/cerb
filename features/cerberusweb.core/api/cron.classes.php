@@ -869,6 +869,7 @@ class ImportCron extends CerberusCronPageExtension {
 			DAO_Worker::FIRST_NAME => $sFirstName,
 			DAO_Worker::LAST_NAME => $sLastName,
 			DAO_Worker::IS_SUPERUSER => intval($isSuperuser),
+			DAO_Worker::AUTH_EXTENSION_ID => 'login.password',
 		);
 		$worker_id = DAO_Worker::create($fields);
 		
