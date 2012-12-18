@@ -290,6 +290,8 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
 		
+		$fields[DAO_Worker::AUTH_EXTENSION_ID] = 'login.password';
+		
 		// Create
 		if(false != ($id = DAO_Worker::create($fields))) {
 			$email = $fields[DAO_Worker::EMAIL];
