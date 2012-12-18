@@ -22,6 +22,9 @@
 	
 	$popup.one('popup_open',function(event,ui) {
 		event.stopPropagation();
+
+		$popup = $(this);
+		
 		$(this).dialog('option','title','{$context->manifest->name} Chooser');
 		
 		$popup.find('input:text:first').focus();
@@ -84,7 +87,7 @@
 		
 		$("form#chooser{$view->id} button.submit").click(function(event) {
 			event.stopPropagation();
-			$popup = genericAjaxPopupFind('form#chooser{$view->id}');
+			var $popup = genericAjaxPopupFetch('{$layer}');
 			$buffer = $($popup).find('UL.buffer input:hidden');
 			$labels = [];
 			$values = [];
@@ -104,7 +107,7 @@
 		});
 	});
 	
-	$popup.one('diagogclose', function(event) {
+	$popup.one('dialogclose', function(event) {
 		event.stopPropagation();
 		genericAjaxPopupDestroy('{$layer}');
 	});

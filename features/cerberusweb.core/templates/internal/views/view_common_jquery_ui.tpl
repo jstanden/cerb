@@ -8,7 +8,7 @@ $view_frm.find('TABLE.worklistBody TBODY')
 	.click(function(e) {
 		$target = $(e.target);
 	
-		// Are any of our parents an anchor tag?	
+		// Are any of our parents an anchor tag?
 		$parents = $target.parents('a');
 		if($parents.length > 0) {
 			$target = $parents[$parents.length-1]; // 0-based

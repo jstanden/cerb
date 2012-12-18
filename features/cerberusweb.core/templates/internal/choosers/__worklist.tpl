@@ -11,7 +11,8 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFind('#chooser{$view->id}');
+	var $popup = genericAjaxPopupFetch('{$layer}');
+	
 	$popup.one('popup_open',function(event,ui) {
 		event.stopPropagation();
 		$(this).dialog('option','title','{$context->manifest->name} Worklist');
@@ -47,7 +48,7 @@
 		
 		$("form#chooser{$view->id} button.submit").click(function(event) {
 			event.stopPropagation();
-			$popup = genericAjaxPopupFind('form#chooser{$view->id}');
+			var $popup = genericAjaxPopupFetch('{$layer}');
 			
 			genericAjaxGet('', 'c=internal&a=serializeView&view_id={$view->id}', function(json) {
 				// Trigger event
@@ -61,7 +62,7 @@
 		});
 	});
 	
-	$popup.one('diagogclose', function(event) {
+	$popup.one('dialogclose', function(event) {
 		event.stopPropagation();
 		genericAjaxPopupDestroy('{$layer}');
 	});

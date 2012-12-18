@@ -121,7 +121,7 @@
 		
 	});
 	
-	$popup.one('diagogclose', function(event) {
+	$popup.one('dialogclose', function(event) {
 		event.stopPropagation();
 		genericAjaxPopupDestroy('{$layer}');
 	});
