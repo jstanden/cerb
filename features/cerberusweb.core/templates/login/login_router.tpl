@@ -15,7 +15,7 @@
 	<input type="text" name="email" size="45" value="{$email}">
 
 	<div style="margin-left: 10px;">
-		<label><input type="checkbox" name="remember_me" value="1" {if !empty($remember_me)}checked="checked"{/if}> Remember me for two weeks</label>
+		<label><input type="checkbox" name="remember_me" value="1" {if !empty($remember_me)}checked="checked"{/if}> Remember me</label>
 	</div>
 	
 	<p>
