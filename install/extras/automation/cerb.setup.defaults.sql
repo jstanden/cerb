@@ -30,7 +30,7 @@ INSERT INTO worker_group (id, name, is_default) VALUES (2, 'Sales', 0);
 #INSERT INTO bucket (id, group_id, name, is_assignable) VALUES (3, 3, 'Spam', 1);
 
 # Add Superuser
-INSERT INTO worker (id, title, email, pass, is_superuser, first_name, last_name) VALUES (1, 'Administrator', 'superuser@localhost', MD5('password'), 1, 'Super', 'User');
+INSERT INTO worker (id, title, email, pass, is_superuser, first_name, last_name, auth_extension_id) VALUES (1, 'Administrator', 'superuser@localhost', MD5('password'), 1, 'Super', 'User', 'login.password');
 INSERT INTO address (id,email) VALUES(2,'superuser@localhost');
 INSERT INTO address_to_worker (address, worker_id, is_confirmed) VALUES ('superuser@localhost', 1, 1);
 
