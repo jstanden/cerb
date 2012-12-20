@@ -994,6 +994,9 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 					
 					$tpl_dict = new DevblocksDictionaryDelegate($tpl_tokens);
 
+					if($tpl_dict->is_defunct)
+						continue;
+					
 					$subject = $tpl_builder->build($params['subject'], $tpl_dict);
 					$body = $tpl_builder->build($params['message'], $tpl_dict);
 					

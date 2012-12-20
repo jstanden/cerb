@@ -956,6 +956,9 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 					CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $tpl_labels, $tpl_tokens);
 					
 					$tpl_dict = new DevblocksDictionaryDelegate($tpl_tokens);
+
+					if($tpl_dict->email_is_defunct)
+						continue;
 					
 					$subject = $tpl_builder->build($params['subject'], $tpl_dict);
 					$body = $tpl_builder->build($params['message'], $tpl_dict);
