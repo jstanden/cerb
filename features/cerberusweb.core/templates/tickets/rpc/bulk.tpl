@@ -165,7 +165,7 @@
 		<br>
 		<button type="button" onclick="ajax.chooserSnippet('snippets',$('#bulkTicketBroadcast textarea[name=broadcast_message]'), { '{CerberusContexts::CONTEXT_TICKET}':'', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
 		<button type="button" onclick="genericAjaxPost('formBatchUpdate','bulkTicketBroadcastTest','c=tickets&a=doBulkUpdateBroadcastTest');"><span class="cerb-sprite2 sprite-gear"></span> Test</button><!--
-		--><select onchange="insertAtCursor(this.form.broadcast_message,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.broadcast_message.focus();">
+		--><select class="insert-placeholders">
 			<option value="">-- insert at cursor --</option>
 			{foreach from=$token_labels key=k item=v}
 			<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
@@ -186,15 +186,31 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$frm = $('#formBatchUpdate');
+		var $this = $(this);
+		var $frm = $('#formBatchUpdate');
 		
-		$(this).dialog('option','title',"{$translate->_('common.bulk_update')|capitalize}");
+		$this.dialog('option','title',"{$translate->_('common.bulk_update')|capitalize}");
 		
 		ajax.orgAutoComplete('#formBatchUpdate input:text[name=do_org]');
 		
+		$this.find('select.insert-placeholders').change(function(e) {
+			var $select = $(this);
+			var $val = $select.val();
+			
+			if($val.length == 0)
+				return;
+			
+			var $textarea = $select.siblings('textarea[name=broadcast_message]');
+			
+			$textarea.insertAtCursor($val).focus();
+			
+			$select.val('');
+		});
+		
+		
 		$frm.find('button.chooser-worker').each(function() {
-			$button = $(this);
-			context = 'cerberusweb.contexts.worker';
+			var $button = $(this);
+			var context = 'cerberusweb.contexts.worker';
 			
 			if($button.hasClass('remove'))
 				ajax.chooser(this, context, 'do_watcher_remove_ids', { autocomplete: true, autocomplete_class:'input_remove' } );
