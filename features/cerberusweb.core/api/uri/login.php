@@ -258,7 +258,8 @@ class ChSignInPage extends CerberusPageExtension {
 			}
 			
 			if($remember_me) {
-				setcookie('cerb_login_email', $email, time()+30*86400);
+				$url_writer = DevblocksPlatform::getUrlService();
+				setcookie('cerb_login_email', $email, time()+30*86400, $url_writer->write('c=login',false,false));
 			}
 			
 			$query = array(
