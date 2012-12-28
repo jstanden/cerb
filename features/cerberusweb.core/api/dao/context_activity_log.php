@@ -38,6 +38,15 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 	}
 	
 	static function update($ids, $fields) {
+		@$target_context = $fields[DAO_ContextActivityLog::TARGET_CONTEXT];
+		@$target_context_id = $fields[DAO_ContextActivityLog::TARGET_CONTEXT_ID];
+
+		if(is_null($target_context))
+			$fields[DAO_ContextActivityLog::TARGET_CONTEXT] = '';
+		
+		if(is_null($target_context_id))
+			$fields[DAO_ContextActivityLog::TARGET_CONTEXT_ID] = 0;
+		
 		parent::_update($ids, 'context_activity_log', $fields);
 	}
 	
