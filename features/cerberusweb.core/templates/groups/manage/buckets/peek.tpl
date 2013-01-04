@@ -50,7 +50,7 @@
 	<b>Send replies as name:</b> (leave blank for default)<br>
 	<input type="text" name="reply_personal" value="{$object->reply_personal}" size="65" style="width:100%;"><br>
 	<button type="button" onclick="genericAjaxPost('frmAddyOutgoingPeek','divSnippetBucketFromTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_personal');">{'common.test'|devblocks_translate|capitalize}</button>
-	<select name="personal_token" onchange="insertAtCursor(this.form.reply_personal,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.reply_personal.focus();">
+	<select name="personal_token">
 		<option value="">-- insert at cursor --</option>
 		{foreach from=$worker_token_labels key=k item=v}
 		<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
@@ -65,7 +65,7 @@
 	<textarea name="reply_signature" rows="10" cols="76" style="width:100%;" wrap="off">{$object->reply_signature}</textarea><br>
 	<button type="button" onclick="genericAjaxPost('frmAddyOutgoingPeek','divSnippetBucketSigTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_signature');">{'common.test'|devblocks_translate|capitalize}</button>
 	<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&raw=1&group_id={$group_id}&bucket_id={$bucket_id}',function(txt) { $('#frmAddyOutgoingPeek textarea').text(txt); } );">{'common.default'|devblocks_translate|capitalize}</button>
-	<select name="sig_token" onchange="insertAtCursor(this.form.reply_signature,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.reply_signature.focus();">
+	<select name="sig_token">
 		<option value="">-- insert at cursor --</option>
 		{foreach from=$worker_token_labels key=k item=v}
 		<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
@@ -113,6 +113,36 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title', '{'common.bucket'|devblocks_translate|capitalize}');
-	} );
+		var $this = $(this);
+		
+		$this.dialog('option','title', '{'common.bucket'|devblocks_translate|capitalize}');
+		
+		$this.find('select[name=personal_token]').change(function(e) {
+			var $select = $(this);
+			var $val = $select.val();
+			
+			if($val.length == 0)
+				return;
+			
+			var $textarea = $select.siblings('input[name=reply_personal]');
+			
+			$textarea.insertAtCursor($val).focus();
+			
+			$select.val('');
+		});
+		
+		$this.find('select[name=sig_token]').change(function(e) {
+			var $select = $(this);
+			var $val = $select.val();
+			
+			if($val.length == 0)
+				return;
+			
+			var $textarea = $select.siblings('textarea[name=reply_signature]');
+			
+			$textarea.insertAtCursor($val).focus();
+			
+			$select.val('');
+		});
+	});
 </script>

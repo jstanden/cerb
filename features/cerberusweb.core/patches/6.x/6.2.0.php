@@ -531,6 +531,18 @@ if(!empty($change_columns))
 	$db->Execute("ALTER TABLE address " . implode(', ', $change_columns));
 
 // ===========================================================================
+// Clean up context_activity_log
+
+if(!isset($tables['context_activity_log'])) {
+	$logger->error("The 'context_activity_log' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('context_activity_log');
+
+$db->Execute("DELETE FROM context_activity_log WHERE activity_point = '' OR activity_point IS NULL;");
+
+// ===========================================================================
 // Finish
 
 return TRUE;

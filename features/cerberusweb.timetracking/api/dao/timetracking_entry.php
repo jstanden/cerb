@@ -714,6 +714,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 			switch($field_key) {
 				case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
 				case SearchFields_TimeTrackingEntry::IS_CLOSED:
+				case SearchFields_TimeTrackingEntry::WORKER_ID:
 					$pass = true;
 					break;
 					
@@ -761,6 +762,14 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				
 			case SearchFields_TimeTrackingEntry::IS_CLOSED:
 				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_TimeTrackingEntry', $column);
+				break;
+				
+			case SearchFields_TimeTrackingEntry::WORKER_ID:
+				$workers = DAO_Worker::getAll();
+				$label_map = array();
+				foreach($workers as $worker_id => $worker)
+					$label_map[$worker_id] = $worker->getName();
+				$counts = $this->_getSubtotalCountForNumberColumn('DAO_TimeTrackingEntry', $column, $label_map, 'in', 'worker_id[]');
 				break;
 				
 			case SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK:

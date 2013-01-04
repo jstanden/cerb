@@ -140,29 +140,6 @@ function checkAll(divName, state) {
 	}
 }
 
-// [MDF]
-function insertAtCursor(field, value) {
-	if (document.selection) {
-		field.focus();
-		sel = document.selection.createRange();
-		sel.text = value;
-		field.focus();
-	} 
-	else if (field.selectionStart || field.selectionStart == '0') {
-		var startPos = field.selectionStart;
-		var endPos = field.selectionEnd;
-		var cursorPos = startPos + value.length;
-
-		field.value = field.value.substring(0, startPos) + value	+ field.value.substring(endPos, field.value.length);
-
-		field.selectionStart = cursorPos;
-		field.selectionEnd = cursorPos;
-	}
-	else{
-		field.value += value;
-	} 
-}
-
 // [JAS]: [TODO] Make this a little more generic?
 function appendTextboxAsCsv(formName, field, oLink) {
 	var frm = document.getElementById(formName);

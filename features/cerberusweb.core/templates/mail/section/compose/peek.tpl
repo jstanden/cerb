@@ -74,7 +74,7 @@
 						<legend>Actions</legend>
 						
 						<button id="btnComposeSaveDraft" class="toolbar-item" type="button"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
-						<button id="btnComposeInsertSig" class="toolbar-item" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if} onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+$(this.form.group_id).val()+'&bucket_id='+$(this.form.bucket_id).val(),function(text) { insertAtCursor(document.getElementById('divComposeContent'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
+						<button id="btnComposeInsertSig" class="toolbar-item" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if}"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
 					</fieldset>
 				
 					<fieldset style="display:inline-block;">
@@ -303,6 +303,28 @@
 				
 				$sug.show();
 			});
+		});
+		
+		// Insert Sig
+		
+		$('#btnComposeInsertSig').click(function(e) {
+			var $this = $(this);
+			var $frm = $this.closest('form');
+			var $input_group = $frm.find('input:hidden[name=group_id]');
+			var $input_bucket = $frm.find('input:hidden[name=bucket_id]');
+			
+			genericAjaxGet(
+				'',
+				'c=tickets&a=getComposeSignature&group_id='+$input_group.val()+'&bucket_id='+$input_bucket.val(),
+				function(text) {
+					$textarea = $('#divComposeContent');
+					
+					if(text.slice(-1) != "\n")
+						text += "\n";
+					
+					$textarea.insertAtCursor(text).focus();
+				}
+			);
 		});
 		
 		// Drafts

@@ -226,7 +226,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	 */
 	private function _renderNotes($message_id) {
 		$tpl = DevblocksPlatform::getTemplateService();
-				$tpl->assign('message_id', $message_id);
+		$tpl->assign('message_id', $message_id);
 		
 		$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_MESSAGE, $message_id);
 		$message_notes = array();

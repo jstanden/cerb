@@ -166,6 +166,7 @@ class ChSignInPage extends CerberusPageExtension {
 			case 'failed':
 			case NULL:
 				@$url = DevblocksPlatform::importGPC($_REQUEST['url'], 'string', '');
+				@$error = DevblocksPlatform::importGPC($_REQUEST['error'], 'string', '');
 				
 				if(!empty($url))
 					$_SESSION['login_post_url'] = $url;
@@ -191,6 +192,9 @@ class ChSignInPage extends CerberusPageExtension {
 					$email = $remember_email;
 				
 				$tpl->assign('email', $email);
+				
+				if(!empty($error))
+					$tpl->assign('error', $error);
 				
 				switch($section) {
 					case 'failed':
@@ -254,7 +258,8 @@ class ChSignInPage extends CerberusPageExtension {
 			}
 			
 			if($remember_me) {
-				setcookie('cerb_login_email', $email, time()+30*86400);
+				$url_writer = DevblocksPlatform::getUrlService();
+				setcookie('cerb_login_email', $email, time()+30*86400, $url_writer->write('c=login',false,false));
 			}
 			
 			$query = array(

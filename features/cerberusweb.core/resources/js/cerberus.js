@@ -212,20 +212,6 @@ var cAjaxCalls = function() {
 		});
 	}
 
-	this.insertReplyTemplate = function(template_id,txt_name,msgid) {
-		genericAjaxGet('','c=display&a=getTemplate&id=' + template_id + '&reply_id='+msgid,
-			function(text) {
-				var div = document.getElementById(txt_name);
-				if(null == div) return;
-				
-				insertAtCursor(div, text);
-				div.focus();
-
-				genericAjaxPopupClose('peek');
-			} 
-		);
-	}
-
 	this.viewTicketsAction = function(view_id, action) {
 		var divName = 'view'+view_id;
 		var formName = 'viewForm'+view_id;

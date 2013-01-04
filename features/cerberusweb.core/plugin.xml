@@ -4,7 +4,7 @@
 	<name>Cerb6 Core</name>
 	<description>The core functionality of Cerb6.</description>
 	<author>WebGroup Media, LLC.</author>
-	<version>6.2.0</version>
+	<version>6.2.1</version>
 	<link>http://wiki.cerb4.com/wiki/New_Changes</link>
 	
 	<!-- Plugin Dependencies -->
@@ -47,7 +47,7 @@
 		
 		<patch version="6.0.0"  revision="989" file="patches/6.x/6.0.0.php" />
 		<patch version="6.1.0" revision="1005" file="patches/6.x/6.1.0.php" />
-		<patch version="6.2.0" revision="1015" file="patches/6.x/6.2.0.php" />
+		<patch version="6.2.0" revision="1016" file="patches/6.x/6.2.0.php" />
 	</patches>
 
 	<!-- Controller Routing -->
