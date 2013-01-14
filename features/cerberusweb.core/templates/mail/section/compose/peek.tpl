@@ -444,6 +444,91 @@
 							$('#frmComposePeek').find('INPUT:text.context-snippet').focus();
 						} catch(ex) { } 
 						break;
+					case 17:
+					case 81: // (Q) Reformat quotes
+						try {
+							event.preventDefault();
+							var txt = $(this).val();
+							
+							var lines = txt.split("\n");
+							
+							var bins = [];
+							var last_prefix = null;
+							var wrap_to = 76;
+							
+							// Sort lines into bins
+							for(i in lines) {
+								var line = lines[i];
+								var matches = line.match(/^((\> )+)/);
+								var prefix = '';
+								
+								if(matches)
+									prefix = matches[1];
+								
+								if(prefix != last_prefix)
+									bins.push({ prefix:prefix, lines:[] });
+								
+								// Strip the prefix
+								line = line.substring(prefix.length);
+								
+								idx = Math.max(bins.length-1, 0);
+								bins[idx].lines.push(line);
+								
+								last_prefix = prefix;
+							}
+							
+							// Rewrap quoted blocks
+							for(i in bins) {
+								prefix = bins[i].prefix;
+								l = 0;
+								bail = 75000; // prevent infinite loops
+								
+								if(prefix.length == 0)
+									continue;
+								
+								while(undefined != bins[i].lines[l] && bail > 0) {
+									line = bins[i].lines[l];
+									boundary = wrap_to-prefix.length;
+									
+									if(line.length > boundary) {
+										// Try to split on a space
+										pos = line.lastIndexOf(' ', boundary);
+										break_word = (-1 == pos);
+										
+										overflow = line.substring(break_word ? boundary : (pos+1));
+										bins[i].lines[l] = line.substring(0, break_word ? boundary : pos);
+										
+										// If we don't have more lines, add a new one
+										if(overflow) {
+											if(undefined != bins[i].lines[l+1]) {
+												if(bins[i].lines[l+1].length == 0) {
+													bins[i].lines.splice(l+1,0,overflow);
+												} else {
+													bins[i].lines[l+1] = overflow + " " + bins[i].lines[l+1];
+												}
+											} else {
+												bins[i].lines.push(overflow);
+											}
+										}
+									}
+									
+									l++;
+									bail--;
+								}
+							}
+							
+							out = "";
+							
+							for(i in bins) {
+								for(l in bins[i].lines) {
+									out += bins[i].prefix + bins[i].lines[l] + "\n";
+								}
+							}
+							
+							$(this).val($.trim(out));
+							
+						} catch(ex) { }
+						break;
 				}
 			}
 		});
