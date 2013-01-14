@@ -491,7 +491,7 @@
 		{if $pref_keyboard_shortcuts}
 		
 		// Reply textbox
-		$('#reply_{$message->id}').keypress(function(event) {
+		$('#reply_{$message->id}').keydown(function(event) {
 			if(!$(this).is(':focus'))
 				return;
 			

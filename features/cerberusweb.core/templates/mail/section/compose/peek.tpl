@@ -421,7 +421,7 @@
 		{if $pref_keyboard_shortcuts}
 		
 		// Reply textbox
-		$('#divComposeContent').keypress(function(event) {
+		$('#divComposeContent').keydown(function(event) {
 			if(!$(this).is(':focus'))
 				return;
 			
