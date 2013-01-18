@@ -170,7 +170,7 @@ class _DevblocksTemplateManager {
 				$line = $bins[$i]['lines'][$l];
 				$boundary = $wrap_to - mb_strlen($prefix);
 				
-				if(strlen($line) > $boundary) {
+				if(mb_strlen($line) > $boundary) {
 					// Try to split on a space
 					$pos = mb_strrpos($line, ' ', -1 * (mb_strlen($line)-$boundary));
 					$break_word = (false === $pos);
