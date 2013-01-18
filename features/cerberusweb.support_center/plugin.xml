@@ -92,6 +92,9 @@
 		<template path="support_center/login/openid/register_confirm.tpl" />
 		<template path="support_center/login/openid/register.tpl" />
 		<template path="support_center/login/switcher.tpl" />
+        <template path="support_center/mail/view.tpl" />
+		<template path="support_center/mail/view_html.tpl" />
+		<template path="support_center/ticket/display.tpl" />
 	</templates>
 	
 	<!-- Extensions -->
@@ -209,6 +212,18 @@
 			<params>
 				<param key="uri" value="history" />
 				<param key="menu_title" value="portal.sc.public.history.ticket_history" />
+			</params>
+		</extension>
+
+		<extension point="usermeet.sc.controller">
+			<id>sc.controller.ticket</id>
+			<name>Ticket Viewer</name>
+			<class>
+				<file>api/sc/uri/ticket.php</file>
+				<name>UmScTicketController</name>
+			</class>
+			<params>
+				<param key="uri" value="ticket" />
 			</params>
 		</extension>
 

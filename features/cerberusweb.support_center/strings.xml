@@ -18,6 +18,9 @@
 		<tu tuid='portal.cfg.captcha_hint'>
 			<tuv xml:lang="en_US"><seg>(displays a CAPTCHA image in the form to help block automated spam)</seg></tuv>
 		</tu>
+		<tu tuid='portal.cfg.send_mail'>
+			<tuv xml:lang="en_US"><seg>Send users a confirmation e-mail.</seg></tuv>
+		</tu>
 		<tu tuid='portal.cfg.default_if_blank'>
 			<tuv xml:lang="en_US"><seg>(default if blank)</seg></tuv>
 		</tu>
@@ -57,6 +60,38 @@
 		<tu tuid='portal.common.open_ticket'>
 			<tuv xml:lang="en_US"><seg>Contact Us</seg></tuv>
 		</tu>
+		
+		<tu tuid='portal.sc.public.authentication.authfailed'>
+			<tuv xml:lang="en_US"><seg>Login failed.</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.mail.register.subject'>
+			<tuv xml:lang="en_US"><seg>Please confirm your email address</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.mail.register.text'>
+			<tuv xml:lang="en_US"><seg>Your confirmation code: %s</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.recover.emailnotregistered'>
+			<tuv xml:lang="en_US"><seg>The email address you provided is not registered.</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.register.addressassociated'>
+			<tuv xml:lang="en_US"><seg>The provided email address is already associated with an account.</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.register.invalidaddress'>
+			<tuv xml:lang="en_US"><seg>The email address you provided is invalid.</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.registerconfirm.errorcreateaccount'>
+			<tuv xml:lang="en_US"><seg>There was an error creating your account.</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.registerconfirm.invalidcode'>
+			<tuv xml:lang="en_US"><seg>Your confirmation code is invalid.</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.registerconfirm.passwordblank'>
+			<tuv xml:lang="en_US"><seg>Your password cannot be blank.</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.registerconfirm.passwordsdontmatch'>
+			<tuv xml:lang="en_US"><seg>Your passwords do not match.</seg></tuv>
+		</tu>
+		
 		<tu tuid='portal.public.open_ticket.additional_info'>
 			<tuv xml:lang="en_US"><seg>Additional Information</seg></tuv>
 		</tu>
@@ -133,6 +168,32 @@
 		<tu tuid='portal.sc.cfg.open_ticket.attachments.nobody'>
 			<tuv xml:lang="en_US"><seg>Nobody</seg></tuv>
 		</tu>
+
+		<tu tuid='portal.sc.cfg.view_ticket.ticket_view_url'>
+			<tuv xml:lang="en_US"><seg>Ticket view URL:</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.view_ticket.view_settings'>
+			<tuv xml:lang="en_US"><seg>View settings</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.view_ticket.ticket_change_status'>
+			<tuv xml:lang="en_US"><seg>Change ticket</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.view_ticket.ticket_answer'>
+			<tuv xml:lang="en_US"><seg>Answer ticket</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.view_ticket.editable_no'>
+			<tuv xml:lang="en_US"><seg>Not Editable</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.view_ticket.editable_text'>
+			<tuv xml:lang="en_US"><seg>Textfield</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.view_ticket.editable_closeonly'>
+			<tuv xml:lang="en_US"><seg>Close only</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.view_ticket.editable_like_history'>
+			<tuv xml:lang="en_US"><seg>Like history</seg></tuv>
+		</tu>
+
 		<tu tuid='portal.sc.cfg.reason_contacting'>
 			<tuv xml:lang="en_US"><seg>Reason for contacting:</seg></tuv>
 		</tu>

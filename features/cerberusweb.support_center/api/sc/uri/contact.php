@@ -2,6 +2,7 @@
 class UmScContactController extends Extension_UmScController {
 	const PARAM_CAPTCHA_ENABLED = 'contact.captcha_enabled';
 	const PARAM_ALLOW_SUBJECTS = 'contact.allow_subjects';
+	const PARAM_SEND_MAIL = 'contact.send_mail';
 	const PARAM_ATTACHMENTS_MODE = 'contact.attachments_mode';
 	const PARAM_SITUATIONS = 'contact.situations';
 	
@@ -30,7 +31,7 @@ class UmScContactController extends Extension_UmScController {
 		switch($section) {
 			case 'confirm':
 				$tpl->assign('last_opened',$umsession->getProperty('support.write.last_opened',''));
-				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/contact/confirm.tpl");
+				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/contact/confirm.tpl");
 				break;
 			
 			default:
@@ -111,6 +112,9 @@ class UmScContactController extends Extension_UmScController {
 		$attachments_mode = DAO_CommunityToolProperty::get($instance->code, self::PARAM_ATTACHMENTS_MODE, 0);
 		$tpl->assign('attachments_mode', $attachments_mode);
 
+		$send_mail = DAO_CommunityToolProperty::get($instance->code, self::PARAM_SEND_MAIL, 0);
+		$tpl->assign('send_mail', $send_mail);
+
 		$sDispatch = DAO_CommunityToolProperty::get($instance->code,self::PARAM_SITUATIONS, '');
 		$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
 		$tpl->assign('dispatch', $dispatch);
@@ -140,6 +144,9 @@ class UmScContactController extends Extension_UmScController {
 		@$iAllowSubjects = DevblocksPlatform::importGPC($_POST['allow_subjects'],'integer',0);
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_ALLOW_SUBJECTS, $iAllowSubjects);
 
+		@$iSendMail = DevblocksPlatform::importGPC($_POST['send_mail'], 'integer', 0);
+		DAO_CommunityToolProperty::set($instance->code, self::PARAM_SEND_MAIL, $iSendMail);
+		
 		@$iAttachmentsMode = DevblocksPlatform::importGPC($_POST['attachments_mode'],'integer',0);
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_ATTACHMENTS_MODE, $iAttachmentsMode);
 
@@ -443,6 +450,35 @@ class UmScContactController extends Extension_UmScController {
 			$umsession->setProperty('support.write.last_opened',$ticket->mask);
 		} else {
 			$umsession->setProperty('support.write.last_opened',null);
+		}
+		
+		// Send Mail?
+		$send_mail = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_SEND_MAIL, 0);
+		if ($send_mail) {
+			$tpl = DevblocksPlatform::getTemplateService();
+			$translate = DevblocksPlatform::getTranslationService();
+			$url = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'ticket_view.ticket_view_url', null);
+			$msg = $translate->_('portal.sc.public.mail.ticket_send');
+			$msg .= "\r\n\r\n--------------------------------------------\r\n".$sContent."\r\n--------------------------------------------";
+			if (null != $ticket) {
+				if (null != $url)
+					$url .= $ticket->mask;
+				else
+					$url = $ticket->mask;
+				$msg .= "\r\n\r\n".sprintf($translate->_('portal.sc.public.mail.link_to_ticket'), $url);
+			}
+			
+			$tpl->assign('greeting', $from->personal);
+			$tpl->assign('msg', $msg);
+			
+			$message->headers['from'] = $to;
+			$message->headers['to'] = $from->mailbox.'@'.$from->host;
+			$message->body = $tpl->fetch("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/mail/view.tpl");
+			$message->htmlbody = $tpl->fetch("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/mail/view_html.tpl");
+			$model = new CerberusParserModel($message);
+			if (CerberusMail::reflect($model, $from->mailbox.'@'.$from->host) === false) {
+				// [TODO] Warning message send failed
+			}
 		}
 		
 		// Clear any errors

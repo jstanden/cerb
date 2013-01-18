@@ -22,9 +22,45 @@
 		<tu tuid='kb.common.knowledgebase_article'>
 			<tuv xml:lang="en_US"><seg>Knowledgebase Article</seg></tuv>
 		</tu>
+		<tu tuid='kb.common.all_words'>
+			<tuv xml:lang="en_US"><seg>all words</seg></tuv>
+		</tu>
+		<tu tuid='kb.common.any_words'>
+			<tuv xml:lang="en_US"><seg>any words</seg></tuv>
+		</tu>
+		<tu tuid='kb.common.phrase'>
+			<tuv xml:lang="en_US"><seg>phrase</seg></tuv>
+		</tu>
 		
 		<tu tuid='activity.kb'>
 			<tuv xml:lang="en_US"><seg>%s is browsing the knowledgebase</seg></tuv>
+		</tu>
+
+		<tu tuid='display.manage.kb.topic'>
+			<tuv xml:lang="en_US"><seg>Topic</seg></tuv>
+		</tu>
+		<tu tuid='display.manage.kb.category'>
+			<tuv xml:lang="en_US"><seg>Category</seg></tuv>
+		</tu>
+		<tu tuid='display.manage.kb.subcategory'>
+			<tuv xml:lang="en_US"><seg>Subcategory</seg></tuv>
+		</tu>
+		
+		<tu tuid='display.manage.kb.add_t_sc.prefix'>
+			<tuv xml:lang="en_US"><seg>Add</seg></tuv>
+		</tu>
+		<tu tuid='display.manage.kb.add_t_sc.suffix'>
+			<tuv xml:lang="en_US"><seg></seg></tuv>
+		</tu>
+		<tu tuid='display.manage.kb.add_article'>
+			<tuv xml:lang="en_US"><seg>Add Article</seg></tuv>
+		</tu>
+
+		<tu tuid='display.manage.kb.edit_t_sc.prefix'>
+			<tuv xml:lang="en_US"><seg>Edit</seg></tuv>
+		</tu>
+		<tu tuid='display.manage.kb.edit_t_sc.suffix'>
+			<tuv xml:lang="en_US"><seg></seg></tuv>
 		</tu>
 
 		<tu tuid='display.reply.kb.all_topics'>
@@ -47,6 +83,12 @@
 		</tu>
 		<tu tuid='portal.kb.public.top'>
 			<tuv xml:lang="en_US"><seg>Top</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.search_results'>
+			<tuv xml:lang="en_US"><seg>Search results</seg></tuv>
+		</tu>
+		<tu tuid='portal.kb.public.for'>
+			<tuv xml:lang="en_US"><seg>for</seg></tuv>
 		</tu>
 		<tu tuid='portal.sc.cfg.choose_kb_topics'>
 			<tuv xml:lang="en_US"><seg>Choose which knowledgebase topics to expose to this portal:</seg></tuv>

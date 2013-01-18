@@ -410,16 +410,17 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$url_writer = DevblocksPlatform::getUrlService();
 		$umsession = ChPortalHelper::getSession();
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		try {
 			// Validate
 			$address_parsed = imap_rfc822_parse_adrlist($email,'host');
 			if(empty($email) || empty($address_parsed) || !is_array($address_parsed) || empty($address_parsed[0]->host) || $address_parsed[0]->host=='host')
-				throw new Exception("The email address you provided is invalid.");
+				throw new Exception($translate->_('portal.sc.public.register.invalidaddress'));
 			
 			// Check to see if the address is currently assigned to an account
 			if(null != ($address = DAO_Address::lookupAddress($email, false)) && !empty($address->contact_person_id))
-				throw new Exception("The provided email address is already associated with an account.");
+				throw new Exception($translate->_('portal.sc.public.register.addressassociated'));
 				
 			// Update the preferred email address
 			$umsession->setProperty('register.email', $email);
@@ -437,10 +438,15 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 
 			// Quick send
 			$msg = sprintf(
-				"Your confirmation code: %s",
+				$translate->_('portal.sc.public.mail.register.text'),
 				urlencode($fields[DAO_ConfirmationCode::CONFIRMATION_CODE])
 			);
-			CerberusMail::quickSend($email,"Please confirm your email address", $msg);
+				
+			$tpl->assign('greeting', '');
+			$tpl->assign('msg', $msg);
+			$msg = $tpl->fetch("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/mail/view.tpl");
+			
+			CerberusMail::quickSend($email, $translate->_('portal.sc.public.mail.register.subject'), $msg);
 				
 		} catch(Exception $e) {
 			$tpl->assign('error', $e->getMessage());
@@ -460,6 +466,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$url_writer = DevblocksPlatform::getUrlService();
 		$umsession = ChPortalHelper::getSession();
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		try {
 			// Load the session (OpenID + email)
@@ -473,26 +480,26 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			
 			// Lookup code
 			if(null == ($code = DAO_ConfirmationCode::getByCode('support_center.login.register.verify', $confirm)))
-				throw new Exception("Your confirmation code is invalid.");
+				throw new Exception($translate->_('portal.sc.public.registerconfirm.invalidcode'));
 			
 			// Compare to address
 			if(!isset($code->meta['email']) || 0 != strcasecmp($email, $code->meta['email']))
-				throw new Exception("Your confirmation code is invalid.");
+				throw new Exception($translate->_('portal.sc.public.registerconfirm.invalidcode'));
 
 			// Password
 			if(empty($password) || empty($password2))
-				throw new Exception("Your password cannot be blank.");
+				throw new Exception($translate->_('portal.sc.public.registerconfirm.passwordblank'));
 
 			if(0 != strcmp($password, $password2))
-				throw new Exception("Your passwords do not match.");
+				throw new Exception($translate->_('portal.sc.public.registerconfirm.passwordsdontmatch'));
 				
 			// Load the address
 			if(null == ($address = DAO_Address::lookupAddress($email, true)))
-				throw new Exception("You have provided an invalid email address.");
+				throw new Exception($translate->_('portal.sc.public.register.invalidaddress'));
 				
 			// Verify address is unlinked
 			if(!empty($address->contact_person_id))
-				throw new Exception("The email address you provided is already associated with an account.");
+				throw new Exception($translate->_('portal.sc.public.register.addressassociated'));
 
 			// Create the contact
 			$salt = CerberusApplication::generatePassword(8);
@@ -506,7 +513,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			$contact_person_id = DAO_ContactPerson::create($fields);
 			
 			if(empty($contact_person_id) || null == ($contact = DAO_ContactPerson::get($contact_person_id)))
-				throw new Exception("There was an error creating your account.");
+				throw new Exception($translate->_('portal.sc.public.registerconfirm.errorcreateaccount'));
 				
 			// Link email
 			DAO_Address::update($address->id,array(
@@ -535,15 +542,16 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$url_writer = DevblocksPlatform::getUrlService();
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		try {
 			// Verify email is a contact
 			if(null == ($address = DAO_Address::lookupAddress($email, false))) {
-				throw new Exception("The email address you provided is not registered.");
+				throw new Exception($translate->_('portal.sc.public.recover.emailnotregistered'));
 			}
 			
 			if(empty($address->contact_person_id) || null == ($contact = DAO_ContactPerson::get($address->contact_person_id))) {
-				throw new Exception("The email address you provided is not registered.");
+				throw new Exception($translate->_('portal.sc.public.recover.emailnotregistered'));
 			}
 			
 			// Generate + send confirmation
@@ -560,10 +568,16 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 
 			// Quick send
 			$msg = sprintf(
-				"Your confirmation code: %s",
+				$translate->_('portal.sc.public.mail.register.text'),
 				urlencode($fields[DAO_ConfirmationCode::CONFIRMATION_CODE])
 			);
-			CerberusMail::quickSend($address->email,"Please confirm your email address", $msg);
+			
+			$tpl->assign('greeting', empty($address->last_name) ? '' : $address->first_name.' '.$address->last_name);
+			$tpl->assign('msg', $msg);
+			$msg = $tpl->fetch("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/mail/view.tpl");
+			$tpl->clearAllAssign();
+			
+			CerberusMail::quickSend($address->email, $translate->_('portal.sc.public.mail.register.subject'), $msg);
 			
 			$tpl->assign('email', $address->email);
 			
@@ -583,6 +597,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		$umsession = ChPortalHelper::getSession();
 		$url_writer = DevblocksPlatform::getUrlService();
 		$tpl = DevblocksPlatform::getTemplateService();
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		try {
 			// Verify email is a contact
@@ -593,20 +608,20 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			$tpl->assign('email', $address->email);
 			
 			if(empty($address->contact_person_id) || null == ($contact = DAO_ContactPerson::get($address->contact_person_id))) {
-				throw new Exception("The email address you provided is not registered.");
+				throw new Exception($translate->_('portal.sc.public.recover.emailnotregistered'));
 			}
 			
 			// Lookup code
 			if(null == ($code = DAO_ConfirmationCode::getByCode('support_center.login.recover', $confirm)))
-				throw new Exception("Your confirmation code is invalid.");
+				throw new Exception($translate->_('portal.sc.public.registerconfirm.invalidcode'));
 			
 			// Compare to contact
 			if(!isset($code->meta['contact_id']) || $contact->id != $code->meta['contact_id'])
-				throw new Exception("Your confirmation code is invalid.");
+				throw new Exception($translate->_('portal.sc.public.registerconfirm.invalidcode'));
 				
 			// Compare to email address
 			if(!isset($code->meta['address_id']) || $address->id != $code->meta['address_id'])
-				throw new Exception("Your confirmation code is invalid.");
+				throw new Exception($translate->_('portal.sc.public.registerconfirm.invalidcode'));
 				
 			// Success (delete token and one-time log in token)
 			DAO_ConfirmationCode::delete($code->id);
@@ -631,6 +646,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		$umsession = ChPortalHelper::getSession();
 		$tpl = DevblocksPlatform::getTemplateService();
 		$url_writer = DevblocksPlatform::getUrlService();
+		$translate = DevblocksPlatform::getTranslationService();
 
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email']);
 		@$pass = DevblocksPlatform::importGPC($_REQUEST['password']);
@@ -641,15 +657,15 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		try {
 			// Find the address
 			if(null == ($addy = DAO_Address::lookupAddress($email, FALSE)))
-				throw new Exception("Login failed.");
+				throw new Exception($translate->_('portal.sc.public.authentication.authfailed'));
 				
 			// Not registered
 			if(empty($addy->contact_person_id) || null == ($contact = DAO_ContactPerson::get($addy->contact_person_id)))
-				throw new Exception("Login failed.");
+				throw new Exception($translate->_('portal.sc.public.authentication.authfailed'));
 			
 			// Compare salt
 			if(0 != strcmp(md5($contact->auth_salt.md5($pass)),$contact->auth_password))
-				throw new Exception("Login failed.");
+				throw new Exception($translate->_('portal.sc.public.authentication.authfailed'));	
 			
 			$umsession->login($contact);
 			header("Location: " . $url_writer->write('', true));
@@ -721,16 +737,17 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$url_writer = DevblocksPlatform::getUrlService();
 		$umsession = ChPortalHelper::getSession();
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		try {
 			// Validate
 			$address_parsed = imap_rfc822_parse_adrlist($email,'host');
 			if(empty($email) || empty($address_parsed) || !is_array($address_parsed) || empty($address_parsed[0]->host) || $address_parsed[0]->host=='host')
-				throw new Exception("The email address you provided is invalid.");
+				throw new Exception($translate->_('portal.sc.public.register.invalidaddress'));
 			
 			// Check to see if the address is currently assigned to an account
 			if(null != ($address = DAO_Address::lookupAddress($email, false)) && !empty($address->contact_person_id))
-				throw new Exception("The provided email address is already associated with an account.");
+				throw new Exception($translate->_('portal.sc.public.register.addressassociated'));
 			
 			// Update the preferred email address
 			$umsession->setProperty('register.email', $email);
@@ -748,10 +765,16 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 
 			// Quick send
 			$msg = sprintf(
-				"Your confirmation code: %s",
+				$translate->_('portal.sc.public.mail.register.text'),
 				urlencode($fields[DAO_ConfirmationCode::CONFIRMATION_CODE])
 			);
-			CerberusMail::quickSend($email,"Please confirm your email address", $msg);
+				
+			$tpl->assign('greeting', '');
+			$tpl->assign('msg', $msg);
+			$msg = $tpl->fetch("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/mail/view.tpl");
+			$tpl->clearAllAssign();
+			
+			CerberusMail::quickSend($email,$translate->_('portal.sc.public.mail.register.subject'), $msg);
 				
 		} catch(Exception $e) {
 			$tpl->assign('error', $e->getMessage());
@@ -769,6 +792,7 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$url_writer = DevblocksPlatform::getUrlService();
 		$umsession = ChPortalHelper::getSession();
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		try {
 			// Load the session (OpenID + email)
@@ -783,19 +807,19 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 
 			// Lookup code
 			if(null == ($code = DAO_ConfirmationCode::getByCode('support_center.openid.register.verify', $confirm)))
-				throw new Exception("Your confirmation code is invalid.");
+				throw new Exception($translate->_('portal.sc.public.registerconfirm.invalidcode'));
 
 			// Compare to address
 			if(!isset($code->meta['email']) || 0 != strcasecmp($email, $code->meta['email']))
-				throw new Exception("Your confirmation code is invalid.");
+				throw new Exception($translate->_('portal.sc.public.registerconfirm.invalidcode'));
 				
 			// Load the address
 			if(null == ($address = DAO_Address::lookupAddress($email, true)))
-				throw new Exception("You have provided an invalid email address.");
+				throw new Exception($translate->_('portal.sc.public.register.invalidaddress'));
 				
 			// Verify address is unlinked
 			if(!empty($address->contact_person_id))
-				throw new Exception("The email address you provided is already associated with an account.");
+				throw new Exception($translate->_('portal.sc.public.register.addressassociated'));
 
 			// Create the contact
 			$fields = array(
@@ -808,7 +832,7 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			$contact_person_id = DAO_ContactPerson::create($fields);
 			
 			if(empty($contact_person_id) || null == ($contact = DAO_ContactPerson::get($contact_person_id)))
-				throw new Exception("There was an error creating your account.");
+				throw new Exception($translate->_('portal.sc.public.registerconfirm.errorcreateaccount'));
 				
 			// Link email
 			DAO_Address::update($address->id,array(
@@ -840,15 +864,16 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$url_writer = DevblocksPlatform::getUrlService();
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		try {
 			// Verify email is a contact
 			if(null == ($address = DAO_Address::lookupAddress($email, false))) {
-				throw new Exception("The email address you provided is not registered.");
+				throw new Exception($translate->_('portal.sc.public.recover.emailnotregistered'));
 			}
 			
 			if(empty($address->contact_person_id) || null == ($contact = DAO_ContactPerson::get($address->contact_person_id))) {
-				throw new Exception("The email address you provided is not registered.");
+				throw new Exception($translate->_('portal.sc.public.recover.emailnotregistered'));
 			}
 			
 			// Generate + send confirmation
@@ -865,10 +890,16 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 
 			// Quick send
 			$msg = sprintf(
-				"Your confirmation code: %s",
+				$translate->_('portal.sc.public.mail.register.text'),
 				urlencode($fields[DAO_ConfirmationCode::CONFIRMATION_CODE])
 			);
-			CerberusMail::quickSend($address->email,"Please confirm your email address", $msg);
+			
+			$tpl->assign('greeting', empty($address->last_name) ? '' : $address->first_name.' '.$address->last_name);
+			$tpl->assign('msg', $msg);
+			$msg = $tpl->fetch("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/mail/view.tpl");
+			$tpl->clearAllAssign();
+			
+			CerberusMail::quickSend($address->email,$translate->_('portal.sc.public.mail.register.subject'), $msg);
 			
 			$tpl->assign('email', $address->email);
 			
@@ -888,30 +919,31 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		$umsession = ChPortalHelper::getSession();
 		$url_writer = DevblocksPlatform::getUrlService();
 		$tpl = DevblocksPlatform::getTemplateService();
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		try {
 			// Verify email is a contact
 			if(null == ($address = DAO_Address::lookupAddress($email, false))) {
-				throw new Exception("The email address you provided is not registered.");
+				throw new Exception($translate->_('portal.sc.public.recover.emailnotregistered'));
 			}
 			
 			$tpl->assign('email', $address->email);
 			
 			if(empty($address->contact_person_id) || null == ($contact = DAO_ContactPerson::get($address->contact_person_id))) {
-				throw new Exception("The email address you provided is not registered.");
+				throw new Exception($translate->_('portal.sc.public.recover.emailnotregistered'));
 			}
 			
 			// Lookup code
 			if(null == ($code = DAO_ConfirmationCode::getByCode('support_center.openid.recover', $confirm)))
-				throw new Exception("Your confirmation code is invalid.");
+				throw new Exception($translate->_('portal.sc.public.registerconfirm.invalidcode'));
 			
 			// Compare to contact
 			if(!isset($code->meta['contact_id']) || $contact->id != $code->meta['contact_id'])
-				throw new Exception("Your confirmation code is invalid.");
+				throw new Exception($translate->_('portal.sc.public.registerconfirm.invalidcode'));
 				
 			// Compare to email address
 			if(!isset($code->meta['address_id']) || $address->id != $code->meta['address_id'])
-				throw new Exception("Your confirmation code is invalid.");
+				throw new Exception($translate->_('portal.sc.public.registerconfirm.invalidcode'));
 				
 			// Success (delete token and one-time log in token)
 			DAO_ConfirmationCode::delete($code->id);
