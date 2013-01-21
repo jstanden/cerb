@@ -1831,6 +1831,9 @@ For example: *receipt*</seg></tuv>
 
 		<!-- Worker -->
 		
+		<tu tuid='worker.auth_extension_id'>
+			<tuv xml:lang="en_US"><seg>Authentication</seg></tuv>
+		</tu>
 		<tu tuid='worker.first_name'>
 			<tuv xml:lang="en_US"><seg>First Name</seg></tuv>
 		</tu>

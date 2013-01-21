@@ -1170,6 +1170,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 				case 'is_disabled':
 					$change_fields[DAO_Worker::IS_DISABLED] = intval($v);
 					break;
+				case 'auth_extension_id':
+					if(null !== (Extension_LoginAuthenticator::get($v, false)))
+						$change_fields[DAO_Worker::AUTH_EXTENSION_ID] = $v;
+					break;
 				default:
 					// Custom fields
 					if(substr($k,0,3)=="cf_") {

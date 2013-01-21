@@ -29,6 +29,17 @@
 				<button type="button" onclick="this.form.is_disabled.selectedIndex=2;">{$translate->_('common.yes')}</button>
 			</td>
 		</tr>
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right">{'worker.auth_extension_id'|devblocks_translate|capitalize}:</td>
+			<td width="100%">
+				<select name="auth_extension_id">
+					<option value="">&nbsp;</option>
+					{foreach from=$auth_extensions item=auth_extension key=auth_extension_id}
+					<option value="{$auth_extension_id}">{$auth_extension->name}</option>
+					{/foreach}
+				</select>
+			</td>
+		</tr>
 	</table>
 </fieldset>
 
