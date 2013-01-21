@@ -882,7 +882,8 @@ class CerberusParser {
 		
 		if(null != ($proxy_ticket = $model->getTicketModel())
 			&& $model->isSenderWorker()
-			&& null != ($proxy_worker = $model->getSenderWorkerModel())) { /* @var $proxy_worker Model_Worker */
+			&& null != ($proxy_worker = $model->getSenderWorkerModel())
+			&& !$proxy_worker->is_disabled) { /* @var $proxy_worker Model_Worker */
 			
 			$logger->info("[Worker Relay] Handling an external worker relay for " . $model->getSenderAddressModel()->email);
 
