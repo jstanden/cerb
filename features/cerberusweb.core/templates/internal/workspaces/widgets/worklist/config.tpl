@@ -3,10 +3,10 @@
 		<li><a href="#widget{$widget->id}ConfigTabDatasource">Data Source</a></li>
 	</ul>
 	
-    <div id="widget{$widget->id}ConfigTabDatasource">
-    	
-    	<fieldset id="widget{$widget->id}Datasource" class="peek">
-    		{$div_popup_worklist = uniqid()}
+	<div id="widget{$widget->id}ConfigTabDatasource">
+	
+		<fieldset id="widget{$widget->id}Datasource" class="peek">
+			{$div_popup_worklist = uniqid()}
 
 			{$series_ctx_id = $widget->params.view_context}
 			
@@ -59,7 +59,14 @@
 				});
 				
 				$('#popup{$div_popup_worklist}').click(function(e) {
-					context = $(this).siblings('select.context').val();
+					var $select = $(this).siblings('select.context');
+					context = $select.val();
+					
+					if(context.length == 0) {
+						$select.effect('highlight','slow');
+						return;
+					}
+					
 					$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist_config"}',null,true,'750');
 					$chooser.bind('chooser_save',function(event) {
 						if(null != event.view_model) {
@@ -67,11 +74,11 @@
 						}
 					});
 				});
-			</script>			
-    	</fieldset>
+			</script>
+		</fieldset>
 
 	</div>
-    
+	
 </div>
 
 <script type="text/javascript">

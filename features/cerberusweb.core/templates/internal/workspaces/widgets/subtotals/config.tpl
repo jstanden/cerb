@@ -68,7 +68,14 @@
 		});
 		
 		$('#popup{$div_popup_worklist}').click(function(e) {
-			context = $(this).siblings('select.context').val();
+			var $select =  $(this).siblings('select.context');
+			var context = $select.val();
+			
+			if(context.length == 0) {
+				$select.effect('highlight','slow');
+				return;
+			}
+			
 			$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist"}',null,true,'750');
 			$chooser.bind('chooser_save',function(event) {
 				if(null != event.view_model) {
