@@ -207,10 +207,19 @@ class DAO_Snippet extends C4_ORMHelper {
 		$fields = SearchFields_Snippet::getFields();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		switch($sortBy) {
+			case SearchFields_Snippet::VIRTUAL_OWNER:
+				$sortBy = SearchFields_Snippet::OWNER_CONTEXT;
+				
+				if(!in_array($sortBy, $columns))
+					$columns[] = $sortBy;
+				break;
+		}
+		
 		// Sanitize
-		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
+		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy, $columns))
 			$sortBy=null;
-
+		
 		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
