@@ -16,8 +16,10 @@
 			
 			{if !empty($series_ctx_id)}
 				{$series_ctx = Extension_DevblocksContext::get($series_ctx_id)}
-				{$series_ctx_view = $series_ctx->getChooserView()} 
-				{$series_ctx_fields = $series_ctx_view->getParamsAvailable()}
+				{if $series_ctx instanceof Extension_DevblocksContext}
+					{$series_ctx_view = $series_ctx->getChooserView()} 
+					{$series_ctx_fields = $series_ctx_view->getParamsAvailable()}
+				{/if}
 			{/if}
 
 			<b>Display </b>
