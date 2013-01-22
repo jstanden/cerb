@@ -16,7 +16,7 @@
 </ul>
 
 <b>{'message.header.subject'|devblocks_translate|capitalize}:</b> (use {literal}{{ticket_subject}}{/literal} for default)<br>
-<input type="text" name="{$namePrefix}[subject]" value="{if empty($params.subject)}{literal}{{ticket_subject}}{/literal}{else}{$params.subject}{/if}" size="45" style="width:100%;"><br>
+<input type="text" name="{$namePrefix}[subject]" value="{if empty($params.subject)}{literal}{{ticket_subject}}{/literal}{else}{$params.subject}{/if}" size="45" style="width:100%;" class="placeholders"><br>
 <br>
 
 <b>{'common.content'|devblocks_translate|capitalize}:</b>
