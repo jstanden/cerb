@@ -17,7 +17,9 @@
 	
 		{if $page->isWriteableByWorker($active_worker)}
 			<button type="button" class="edit-page toolbar-item"><span class="cerb-sprite2 sprite-ui-tab-content-gear"></span> Edit Page</button>
+			{if empty($page->extension_id)}
 			<button type="button" class="edit-tab toolbar-item"><span class="cerb-sprite2 sprite-ui-tab-gear"></span> Edit Tab</button>
+			{/if}
 		{/if}
 	</div>
 

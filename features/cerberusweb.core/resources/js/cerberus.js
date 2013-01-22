@@ -172,7 +172,7 @@ var cAjaxCalls = function() {
 		
 		var row_ids = ids.join(','); // [TODO] Encode?
 	
-		genericAjaxPopup('peek','c=contacts&a=showAddressBatchPanel&view_id=' + view_id + '&ids=' + row_ids,null,false,'500');
+		genericAjaxPopup('bulk','c=contacts&a=showAddressBatchPanel&view_id=' + view_id + '&ids=' + row_ids,null,false,'500');
 	}
 	
 	// [TODO] This is not necessary
@@ -206,7 +206,7 @@ var cAjaxCalls = function() {
 		genericAjaxPost('formBatchUpdate', '', 'c=contacts&a=doAddressBatchUpdate', function(html) {
 			$('#'+divName).html(html);
 
-			genericAjaxPopupClose('peek');
+			genericAjaxPopupClose('bulk');
 			
 			document.location = '#top';
 		});

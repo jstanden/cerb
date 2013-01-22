@@ -159,7 +159,10 @@ class ChSignInPage extends CerberusPageExtension {
 			
 			case 'reset':
 				unset($_COOKIE['cerb_login_email']);
-				setcookie('cerb_login_email', null);
+				
+				$url_writer = DevblocksPlatform::getUrlService();
+				setcookie('cerb_login_email', null, time()-3600, $url_writer->write('c=login',false,false));
+				
 				DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login')));
 				break;
 				

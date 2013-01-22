@@ -155,7 +155,7 @@ $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function()
 	$actions = $(this).find('DIV[id$=_actions]');
 	
 	if(0 == $actions.find('button.unlink').length) {
-		$actions.prepend($('<button type="button" class="action-always-show unlink" onclick="removeSelectedContextLinks(this);">Unlink</button>&nbsp;'));
+		$actions.prepend($('<button type="button" class="unlink" style="display:none;" onclick="removeSelectedContextLinks(this);">Unlink</button>&nbsp;'));
 	}
 });
 </script>
@@ -179,7 +179,7 @@ $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function()
 		if(div_top > window_fold + 100) {
 			$div.one('appear',function(event) {
 				var $this = $(this);
-				$ajaxQueue.queue(function(next) {	
+				$ajaxQueue.queue(function(next) {
 					genericAjaxGet(
 						$this,
 						'c=internal&a=initConnectionsView&context={$context}&context_id={$context_id}&to_context={$to_context}',
@@ -190,7 +190,7 @@ $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function()
 							
 							$this
 								.find('DIV[id$=_actions]')
-								.prepend($('<button type="button" class="action-always-show unlink" onclick="removeSelectedContextLinks(this);">Unlink</button>'))
+								.prepend($('<button type="button" class="unlink" style="display:none;" onclick="removeSelectedContextLinks(this);">Unlink</button>'))
 								;
 							
 							next();
@@ -211,7 +211,7 @@ $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function()
 					
 					$div
 						.find('DIV[id$=_actions]')
-						.prepend($('<button type="button" class="action-always-show unlink" onclick="removeSelectedContextLinks(this);">Unlink</button>'))
+						.prepend($('<button type="button" class="unlink" style="display:none;" onclick="removeSelectedContextLinks(this);">Unlink</button>'))
 						;
 					
 					next();

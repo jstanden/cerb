@@ -141,7 +141,7 @@ class _DevblocksTemplateManager {
 			}
 			
 			// Strip the prefix
-			$line = substr($line, strlen($prefix));
+			$line = mb_substr($line, mb_strlen($prefix));
 			
 			if(empty($bins)) {
 				$bins[] = array(
@@ -163,25 +163,26 @@ class _DevblocksTemplateManager {
 			$l = 0;
 			$bail = 75000; // prevent infinite loops
 		
-			if(strlen($prefix) == 0)
+			if(mb_strlen($prefix) == 0)
 				continue;
 		
 			while(isset($bins[$i]['lines'][$l]) && $bail > 0) {
 				$line = $bins[$i]['lines'][$l];
-				$boundary = $wrap_to - strlen($prefix);
-					
-				if(strlen($line) > $boundary) {
+				$boundary = $wrap_to - mb_strlen($prefix);
+				
+				if(mb_strlen($line) > $boundary) {
 					// Try to split on a space
-					$pos = strrpos($line, ' ', -1 * (strlen($line)-$boundary));
+					$pos = mb_strrpos($line, ' ', -1 * (mb_strlen($line)-$boundary));
 					$break_word = (false === $pos);
-		
-					$overflow = substr($line, ($break_word ? $boundary : ($pos+1)));
-					$bins[$i]['lines'][$l] = substr($line, 0, $break_word ? $boundary : $pos);
+					
+					$overflow = mb_substr($line, ($break_word ? $boundary : ($pos+1)));
+					
+					$bins[$i]['lines'][$l] = mb_substr($line, 0, $break_word ? $boundary : $pos);
 		
 					// If we don't have more lines, add a new one
 					if(!empty($overflow)) {
 						if(isset($bins[$i]['lines'][$l+1])) {
-							if(strlen($bins[$i]['lines'][$l+1]) == 0) {
+							if(mb_strlen($bins[$i]['lines'][$l+1]) == 0) {
 								array_splice($bins[$i]['lines'], $l+1, 0, $overflow);
 							} else {
 								$bins[$i]['lines'][$l+1] = $overflow . " " . $bins[$i]['lines'][$l+1];

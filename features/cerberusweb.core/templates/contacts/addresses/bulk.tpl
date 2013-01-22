@@ -103,7 +103,7 @@
 </form>
 
 <script type="text/javascript">
-	var $panel = genericAjaxPopupFetch('peek');
+	var $panel = genericAjaxPopupFind('#formBatchUpdate');
 	$panel.one('popup_open',function(event,ui) {
 		var $this = $(this);
 		$panel.dialog('option','title',"{$translate->_('common.bulk_update')|capitalize}");

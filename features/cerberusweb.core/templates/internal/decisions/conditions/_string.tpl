@@ -7,12 +7,6 @@
 	<option value="!like" {if $params.oper=='!like'}selected="selected"{/if}>does not match wildcards</option>
 	<option value="regexp" {if $params.oper=='regexp'}selected="selected"{/if}>matches regular expression</option>
 	<option value="!regexp" {if $params.oper=='!regexp'}selected="selected"{/if}>does not match regular expression</option>
-	{*
-	<option value="words_all" {if $params.oper=='words_all'}selected="selected"{/if}>contains ALL of these words</option>
-	<option value="!words_all" {if $params.oper=='!words_all'}selected="selected"{/if}>does not contain ALL of these words</option>
-	<option value="words_any" {if $params.oper=='words_any'}selected="selected"{/if}>contains ANY of these words</option>
-	<option value="!words_any" {if $params.oper=='!words_any'}selected="selected"{/if}>does not contain ANY of these words</option>
-	*}
 </select>
 <br>
 

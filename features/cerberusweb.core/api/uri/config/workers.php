@@ -225,6 +225,10 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);
 		$tpl->assign('custom_fields', $custom_fields);
 		
+		// Auth extensions
+		$auth_extensions = Extension_LoginAuthenticator::getAll(false);
+		$tpl->assign('auth_extensions', $auth_extensions);
+		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/workers/bulk.tpl');
 	}
 	
@@ -239,12 +243,17 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		
 		// Worker fields
 		@$is_disabled = trim(DevblocksPlatform::importGPC($_POST['is_disabled'],'string',''));
+		@$auth_extension_id = trim(DevblocksPlatform::importGPC($_POST['auth_extension_id'],'string',''));
 
 		$do = array();
 		
 		// Do: Disabled
 		if(0 != strlen($is_disabled))
 			$do['is_disabled'] = $is_disabled;
+		
+		// Do: Authentication Extension
+		if(0 != strlen($auth_extension_id))
+			$do['auth_extension_id'] = $auth_extension_id;
 			
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);

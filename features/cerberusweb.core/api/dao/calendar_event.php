@@ -1058,6 +1058,8 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 			$event->is_available = 0;
 			$event->is_recurring = 0;
 			$tpl->assign('event', $event);
+			
+			$tpl->assign('workers', DAO_Worker::getAllActive());
 		}
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar/peek.tpl');

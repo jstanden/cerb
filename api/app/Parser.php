@@ -326,6 +326,15 @@ class CerberusParserModel {
 		return $addresses;
 	}
 	
+	public function isWorkerRelayReply() {
+		@$in_reply_to = trim($this->_message->headers['in-reply-to']);
+		
+		if(!empty($in_reply_to) && @preg_match('#\<(.*)\_(\d*)\_(\d*)\_([a-f0-9]{8})\@cerb\d{0,1}\>#', $in_reply_to))
+			return true;
+		
+		return false;
+	}
+	
 	public function isValidAuthHeader($in_reply_to, $worker) {
 		if(empty($worker) || !($worker instanceof Model_Worker))
 			return false;
@@ -880,9 +889,11 @@ class CerberusParser {
 
 		// Is it a worker reply from an external client?  If so, proxy
 		
-		if(null != ($proxy_ticket = $model->getTicketModel())
+		if($model->isWorkerRelayReply()
 			&& $model->isSenderWorker()
-			&& null != ($proxy_worker = $model->getSenderWorkerModel())) { /* @var $proxy_worker Model_Worker */
+			&& null != ($proxy_ticket = $model->getTicketModel())
+			&& null != ($proxy_worker = $model->getSenderWorkerModel())
+			&& !$proxy_worker->is_disabled) { /* @var $proxy_worker Model_Worker */
 			
 			$logger->info("[Worker Relay] Handling an external worker relay for " . $model->getSenderAddressModel()->email);
 
