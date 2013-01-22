@@ -3381,6 +3381,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$repeat_freq = DevblocksPlatform::importGPC($_REQUEST['repeat_freq'],'string', '');
 		@$repeat_end = DevblocksPlatform::importGPC($_REQUEST['repeat_end'],'string', '');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer', 0);
+		
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
 
 		@$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'string');
 		@$owner_context_id = DevblocksPlatform::importGPC($_REQUEST['owner_context_id'],'integer');
@@ -3602,6 +3604,19 @@ class ChInternalController extends DevblocksControllerExtension {
 			$fields[DAO_CalendarEvent::OWNER_CONTEXT] = $owner_context;
 			$fields[DAO_CalendarEvent::OWNER_CONTEXT_ID] = $owner_context_id;
 			$event_id = DAO_CalendarEvent::create($fields);
+			
+			// Context Link (if given)
+			@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+			@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+			if(!empty($event_id) && !empty($link_context) && !empty($link_context_id)) {
+				DAO_ContextLink::setLink(CerberusContexts::CONTEXT_CALENDAR_EVENT, $event_id, $link_context, $link_context_id);
+			}
+			
+			// View marquee
+			if(!empty($event_id) && !empty($view_id)) {
+				C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CALENDAR_EVENT, $event_id);
+			}
+			
 		} else {
 			DAO_CalendarEvent::update($event_id, $fields);
 		}

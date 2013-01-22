@@ -4,9 +4,14 @@
 <form action="#" method="POST" id="frmCalEvtPeek" name="frmCalEvtPeek" onsubmit="return false;" class="calendar_popup">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="saveCalendarEventPopup">
+<input type="hidden" name="event_id" value="{$event->id}">
+{if !empty($view_id)}
+<input type="hidden" name="view_id" value="{$view_id}">
+{/if}
+{if !empty($event->owner_context)}
 <input type="hidden" name="owner_context" value="{$event->owner_context}">
 <input type="hidden" name="owner_context_id" value="{$event->owner_context_id}">
-<input type="hidden" name="event_id" value="{$event->id}">
+{/if}
 {if !empty($link_context)}
 <input type="hidden" name="link_context" value="{$link_context}">
 <input type="hidden" name="link_context_id" value="{$link_context_id}">
@@ -19,6 +24,19 @@
 			<input type="text" name="name" value="{$event->name}" style="width:98%;">
 		</td>
 	</tr>
+	{if empty($event->owner_context)}
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top" align="right">Who: </td>
+		<td width="100%">
+			<input type="hidden" name="owner_context" value="{CerberusContexts::CONTEXT_WORKER}">
+			<select name="owner_context_id">
+				{foreach from=$workers item=worker key=worker_id}
+				<option value="{$worker_id}" {if $worker_id==$active_worker->id}selected="selected"{/if}>{$worker->getName()}</option>
+				{/foreach}
+			</select>
+		</td>
+	</tr>
+	{/if}
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top" align="right">When: </td>
 		<td width="100%">
