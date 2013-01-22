@@ -354,6 +354,11 @@ class DAO_Ticket extends C4_ORMHelper {
 				implode(',', $merge_ticket_ids)
 			));
 			
+			$db->Execute(sprintf("DELETE FROM context_link WHERE from_context=to_context AND from_context_id=to_context_id ".
+				"AND from_context = 'cerberusweb.contexts.ticket' AND from_context_id = %d",
+				$oldest_id
+			));
+			
 			// Activity log
 			
 			$db->Execute(sprintf("UPDATE IGNORE context_activity_log ".
