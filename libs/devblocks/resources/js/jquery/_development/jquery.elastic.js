@@ -123,6 +123,7 @@
 						
 					}
 					
+					$textarea.css({'overflow':'auto'});
 				}
 				
 				// Hide scrollbars
