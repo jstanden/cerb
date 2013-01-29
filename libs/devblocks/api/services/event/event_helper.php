@@ -2004,7 +2004,7 @@ class DevblocksEventHelper {
 	 * Action: Send Email
 	 */
 	
-	static function renderActionSendEmail($trigger) {
+	static function renderActionSendEmail($trigger, $placeholders=array()) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$replyto_default = DAO_AddressOutgoing::getDefault();
@@ -2016,6 +2016,8 @@ class DevblocksEventHelper {
 		$event = $trigger->getEvent();
 		$values_to_contexts = $event->getValuesContexts($trigger);
 		$tpl->assign('values_to_contexts', $values_to_contexts);
+		
+		$tpl->assign('placeholders', $placeholders);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_send_email.tpl');
 	}
@@ -2033,9 +2035,6 @@ class DevblocksEventHelper {
 			
 			$to = DevblocksPlatform::parseCsvString($to_string);
 		}
-		
-		$replyto_addresses = DAO_AddressOutgoing::getAll();
-		$replyto_default = DAO_AddressOutgoing::getDefault();
 		
 		if(is_array($to_vars))
 		foreach($to_vars as $to_var) {
@@ -2058,11 +2057,31 @@ class DevblocksEventHelper {
 				$to[] = $addy->email;
 			}
 		}
+
+		$replyto_addresses = DAO_AddressOutgoing::getAll();
+		$replyto_default = DAO_AddressOutgoing::getDefault();
 		
 		if(empty($replyto_default))
 			return "[ERROR] There is no default reply-to address.  Please configure one from Setup->Mail";
 		
 		@$from_address_id = $params['from_address_id'];
+		
+		if(!is_numeric($from_address_id) || false !== strpos($from_address_id, ',')) {
+			$from_address_id = 0;
+			$from_placeholders = DevblocksPlatform::parseCsvString($params['from_address_id']);
+			
+			foreach($from_placeholders as $from_placeholder) {
+				if(!empty($from_address_id))
+					continue;
+
+				if(isset($dict->$from_placeholder)) {
+					$possible_from_id = $dict->$from_placeholder;
+					
+					if(isset($replyto_addresses[$possible_from_id]))
+						$from_address_id = $possible_from_id;
+				}
+			}
+		}
 		
 		if(empty($from_address_id))
 			$from_address_id = $replyto_default->address_id;

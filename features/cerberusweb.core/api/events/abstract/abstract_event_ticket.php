@@ -758,7 +758,11 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 			
 			case 'send_email':
-				DevblocksEventHelper::renderActionSendEmail($trigger);
+				$placeholders = array(
+					'ticket_bucket_reply_address_id,group_reply_address_id' => 'Ticket Bucket',
+				);
+				
+				DevblocksEventHelper::renderActionSendEmail($trigger, $placeholders);
 				break;
 				
 			case 'send_email_recipients':

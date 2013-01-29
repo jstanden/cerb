@@ -1164,6 +1164,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values['_label'] = $group->name;
 			$token_values['id'] = $group->id;
 			$token_values['name'] = $group->name;
+			$token_values['reply_address_id'] = $group->reply_address_id;
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
