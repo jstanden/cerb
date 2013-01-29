@@ -115,9 +115,11 @@
 <input type="hidden" name="subject" value="{if !empty($draft)}{$draft->params.subject}{else}{if $is_forward}Fwd: {/if}{$ticket->subject}{/if}">
 
 {$message_content = $message->getContent()}
+{$mail_reply_textbox_size_inelastic = DAO_WorkerPref::get($active_worker->id, 'mail_reply_textbox_size_inelastic', 0)}
+{$mail_reply_textbox_size_px = DAO_WorkerPref::get($active_worker->id, 'mail_reply_textbox_size_px', 300)}
 
 {if $is_forward}
-<textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
+<textarea name="content" id="reply_{$message->id}" class="reply" style="width:98%;height:{$mail_reply_textbox_size_px|default:300}px;border:1px solid rgb(180,180,180);padding:5px;">
 {if !empty($draft)}{$draft->body}{else}
 {if !empty($signature)}
 
@@ -135,7 +137,7 @@
 {/if}
 </textarea>
 {else}
-<textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
+<textarea name="content" id="reply_{$message->id}" class="reply" style="width:98%;height:{$mail_reply_textbox_size_px|default:300}px;border:1px solid rgb(180,180,180);padding:5px;">
 {if !empty($draft)}{$draft->body}{else}
 {if !empty($signature) && 1==$signature_pos}
 
@@ -302,7 +304,11 @@
 			$('#reply{$message->id}_suggested').appendTo($(this).closest('td'));
 		});
 		
-		var $content = $('#reply_{$message->id}').elastic();
+		var $content = $('#reply_{$message->id}');
+		
+		{if empty($mail_reply_textbox_size_inelastic)}
+		$content.elastic();
+		{/if}
 		
 		// Insert suggested on click
 		$('#reply{$message->id}_suggested').find('a.suggested').click(function(e) {

@@ -468,11 +468,12 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$worker = CerberusApplication::getActiveWorker();
 		$tpl->assign('worker', $worker);
 
-		// [TODO] WorkerPrefs_*?
 		$prefs = array();
 		$prefs['assist_mode'] = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
 		$prefs['keyboard_shortcuts'] = intval(DAO_WorkerPref::get($worker->id, 'keyboard_shortcuts', 1));
 		$prefs['mail_always_show_all'] = DAO_WorkerPref::get($worker->id,'mail_always_show_all',0);
+		$prefs['mail_reply_textbox_size_inelastic'] = DAO_WorkerPref::get($worker->id,'mail_reply_textbox_size_inelastic',0);
+		$prefs['mail_reply_textbox_size_px'] = DAO_WorkerPref::get($worker->id,'mail_reply_textbox_size_px',300);
 		$prefs['mail_reply_button'] = DAO_WorkerPref::get($worker->id,'mail_reply_button',0);
 		$prefs['mail_status_compose'] = DAO_WorkerPref::get($worker->id,'compose.status','waiting');
 		$prefs['mail_status_reply'] = DAO_WorkerPref::get($worker->id,'mail_status_reply','waiting');
@@ -587,6 +588,12 @@ class ChPreferencesPage extends CerberusPageExtension {
 		@$mail_always_show_all = DevblocksPlatform::importGPC($_REQUEST['mail_always_show_all'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'mail_always_show_all', $mail_always_show_all);
 
+		@$mail_reply_textbox_size_px = DevblocksPlatform::importGPC($_REQUEST['mail_reply_textbox_size_px'],'integer',0);
+		DAO_WorkerPref::set($worker->id, 'mail_reply_textbox_size_px', max(100, min(2000, $mail_reply_textbox_size_px)));
+		
+		@$mail_reply_textbox_size_inelastic = DevblocksPlatform::importGPC($_REQUEST['mail_reply_textbox_size_inelastic'],'integer',0);
+		DAO_WorkerPref::set($worker->id, 'mail_reply_textbox_size_inelastic', $mail_reply_textbox_size_inelastic);
+		
 		@$mail_reply_button = DevblocksPlatform::importGPC($_REQUEST['mail_reply_button'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'mail_reply_button', $mail_reply_button);
 		

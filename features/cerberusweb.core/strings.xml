@@ -1939,6 +1939,15 @@ For example: *receipt*</seg></tuv>
 	    <tu tuid='preferences.account.mail.readall'>
 			<tuv xml:lang="en_US"><seg>Always use 'read all' mode (expand messages and sort chronologically)</seg></tuv>
 	    </tu>
+	    <tu tuid='preferences.account.mail.reply_textbox_size'>
+			<tuv xml:lang="en_US"><seg>While replying:</seg></tuv>
+	    </tu>
+	    <tu tuid='preferences.account.mail.reply_textbox_size.inelastic'>
+			<tuv xml:lang="en_US"><seg>Don't automatically grow the text box as I type</seg></tuv>
+	    </tu>
+	    <tu tuid='preferences.account.mail.reply_textbox_size.pixels'>
+			<tuv xml:lang="en_US"><seg>Set the initial text box height to </seg></tuv>
+	    </tu>
 	    <tu tuid='preferences.account.mail.reply_button'>
 			<tuv xml:lang="en_US"><seg>When I click the reply button:</seg></tuv>
 	    </tu>
