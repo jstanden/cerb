@@ -47,7 +47,7 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 define("APP_BUILD", 2013021801);
-define("APP_VERSION", '6.2.4');
+define("APP_VERSION", '6.3.0-dev');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
