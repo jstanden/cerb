@@ -1691,15 +1691,36 @@ class C4_ORMHelper extends DevblocksORMHelper {
 		}
 	}
 	
-	static function _searchComponentsVirtualWatchers(&$param, $from_context, $from_index, &$join_sql, &$where_sql) {
+	static function _searchComponentsVirtualWatchers(&$param, $from_context, $from_index, &$join_sql, &$where_sql, &$tables) {
 		if(!is_array($param->value))
 			$param->value = array($param->value);
 		
-		$param->value = DevblocksPlatform::sanitizeArray($param->value, 'integer', array('nonzero','unique'));
+		$table_alias = 'context_watcher'; // . uniq_id();
 		
+		$param->value = DevblocksPlatform::sanitizeArray($param->value, 'integer', array('nonzero','unique'));
+
 		// Join and return anything
 		if(DevblocksSearchCriteria::OPER_TRUE == $param->operator) {
-			$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
+			if(!isset($tables[$table_alias])) {
+				$join_sql .= sprintf("LEFT JOIN context_link AS %s ON (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker') ",
+					$table_alias,
+					$table_alias,
+					$from_context,
+					$table_alias,
+					$from_index,
+					$table_alias
+				);
+				
+			} else {
+				$where_sql .= sprintf("(%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker') ",
+					$table_alias,
+					$from_context,
+					$table_alias,
+					$from_index,
+					$table_alias
+				);
+			}
+			
 		} else {
 			if(empty($param->value)) {
 				switch($param->operator) {
@@ -1714,38 +1735,144 @@ class C4_ORMHelper extends DevblocksORMHelper {
 			
 			switch($param->operator) {
 				case DevblocksSearchCriteria::OPER_IN:
-					$join_sql .= sprintf("INNER JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker' AND context_watcher.to_context_id IN (%s)) ",
-						$from_context,
-						$from_index,
-						implode(',', $param->value)
-					);
+					if(!isset($tables[$table_alias])) {
+						$join_sql .= sprintf("INNER JOIN context_link AS %s ON (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker' AND %s.to_context_id IN (%s)) ",
+							$table_alias,
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias,
+							$table_alias,
+							implode(',', $param->value)
+						);
+						
+					} else {
+						$where_sql .= sprintf("AND (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker' AND %s.to_context_id IN (%s)) ",
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias,
+							$table_alias,
+							implode(',', $param->value)
+						);
+						
+					}
 					break;
 				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
 				case DevblocksSearchCriteria::OPER_IS_NULL:
-					$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
-					$where_sql .= sprintf("AND (context_watcher.to_context_id IS NULL %s) ",
-						(!empty($param->value) ? sprintf("OR context_watcher.to_context_id IN (%s)", implode(',',$param->value)) : '')
-					);
+					if(!isset($tables[$table_alias])) {
+						$join_sql .= sprintf("LEFT JOIN context_link AS %s ON (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker') ",
+							$table_alias,
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias
+						);
+						$where_sql .= sprintf("AND (%s.to_context_id IS NULL %s) ",
+							$table_alias,
+							(!empty($param->value) ? sprintf("OR %s.to_context_id IN (%s) ", $table_alias, implode(',',$param->value)) : '')
+						);
+						
+					} else {
+						$where_sql .= sprintf("AND (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker' AND (%s.to_context_id IS NULL %s)) ",
+							$table_alias,
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias,
+							$table_alias,
+							(!empty($param->value) ? sprintf("OR %s.to_context_id IN (%s) ", $table_alias, implode(',',$param->value)) : '')
+						);
+						
+					}
 					break;
 				case DevblocksSearchCriteria::OPER_NIN:
-					$join_sql .= sprintf("INNER JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker' AND context_watcher.to_context_id NOT IN (%s)) ",
-						$from_context,
-						$from_index,
-						implode(',', $param->value)
-					);
+					if(!isset($tables[$table_alias])) {
+						$join_sql .= sprintf("INNER JOIN context_link AS %s ON (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker' AND %s.to_context_id NOT IN (%s)) ",
+							$table_alias,
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias,
+							$table_alias,
+							implode(',', $param->value)
+						);
+						
+					} else {
+						$where_sql .= sprintf("AND (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker' AND %s.to_context_id NOT IN (%s)) ",
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias,
+							$table_alias,
+							implode(',', $param->value)
+						);
+						
+					}
 					break;
 				case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
-					$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
-					$where_sql .= sprintf("AND (context_watcher.to_context_id IS NOT NULL) ");
+					if(!isset($tables[$table_alias])) {
+						$join_sql .= sprintf("LEFT JOIN context_link AS %s ON (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker') ",
+							$table_alias,
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias
+						);
+						$where_sql .= sprintf("AND (%s.to_context_id IS NOT NULL) ", $table_alias);
+						
+					} else {
+						$where_sql .= sprintf("AND (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker' AND %s.to_context_id IS NOT NULL) ",
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias,
+							$table_alias
+						);
+						
+					}
 					break;
 				case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
-					$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
-					$where_sql .= sprintf("AND (context_watcher.to_context_id IS NULL %s) ",
-						(!empty($param->value) ? sprintf("OR context_watcher.to_context_id NOT IN (%s)", implode(',',$param->value)) : '')
-					);
+					if(!isset($tables[$table_alias])) {
+						$join_sql .= sprintf("LEFT JOIN context_link AS %s ON (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker') ",
+							$table_alias,
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias
+						);
+						$where_sql .= sprintf("AND (%s.to_context_id IS NULL %s) ",
+							$table_alias,
+							(!empty($param->value) ? sprintf("OR %s.to_context_id NOT IN (%s)", $table_alias, implode(',',$param->value)) : '')
+						);
+						
+					} else {
+						$where_sql .= sprintf("AND (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker' AND (%s.to_context_id IS NULL %s)) ",
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias,
+							$table_alias,
+							(!empty($param->value) ? sprintf("OR %s.to_context_id NOT IN (%s)", $table_alias, implode(',',$param->value)) : '')
+						);
+						
+					}
 					break;
 			}
 		}
+		
+		// Mark the table as used
+		$tables[$table_alias] = $table_alias;
 	}
 	
 	static function _searchComponentsVirtualContextLinks(&$param, $to_context, $to_index, &$join_sql, &$where_sql) {

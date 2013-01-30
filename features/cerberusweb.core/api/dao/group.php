@@ -424,6 +424,7 @@ class DAO_Group extends C4_ORMHelper {
 		$args = array(
 			'join_sql' => &$join_sql,
 			'where_sql' => &$where_sql,
+			'tables' => &$tables,
 			'has_multiple_values' => &$has_multiple_values
 		);
 		

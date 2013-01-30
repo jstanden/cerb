@@ -166,6 +166,7 @@ class DAO_WebApiCredentials extends C4_ORMHelper {
 		$args = array(
 			'join_sql' => &$join_sql,
 			'where_sql' => &$where_sql,
+			'tables' => &$tables,
 			'has_multiple_values' => &$has_multiple_values
 		);
 		
@@ -199,7 +200,7 @@ class DAO_WebApiCredentials extends C4_ORMHelper {
 			/*
 			case SearchFields_EXAMPLE::VIRTUAL_WATCHERS:
 				$args['has_multiple_values'] = true;
-				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql'], $args['tables']);
 				break;
 			*/
 		}

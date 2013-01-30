@@ -282,6 +282,7 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 		$args = array(
 			'join_sql' => &$join_sql,
 			'where_sql' => &$where_sql,
+			'tables' => &$tables,
 			'has_multiple_values' => &$has_multiple_values
 		);
 		
@@ -308,9 +309,6 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 		$param_key = $param->field;
 		settype($param_key, 'string');
 		switch($param_key) {
-			case SearchFields_ContextScheduledBehavior::VIRTUAL_OWNER:
-				//self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
 			case SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET:
 				break;
 		}
