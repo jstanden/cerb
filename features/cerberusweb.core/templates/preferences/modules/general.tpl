@@ -44,6 +44,14 @@
 		<label><input type="radio" name="mail_reply_button" value="1" {if 1==$prefs.mail_reply_button}checked="checked"{/if}> {'display.reply.no_quote'|devblocks_translate}</label><br>
 	</div>
 
+	<b>{'preferences.account.mail.reply_textbox_size'|devblocks_translate}</b>
+	<div style="margin:0px 0px 10px 10px;">
+		{$translate->_('preferences.account.mail.reply_textbox_size.pixels')} <input type="text" name="mail_reply_textbox_size_px" size="4" maxlength=4" value="{$prefs.mail_reply_textbox_size_px|default:'500'}" onfocus="$(this).prev().find('input:radio').click();"> pixels<br>
+		<div style="margin:0px 0px 10px 10px;">
+			<label><input type="checkbox" name="mail_reply_textbox_size_inelastic" value="1" {if !empty($prefs.mail_reply_textbox_size_inelastic)}checked{/if}> {$translate->_('preferences.account.mail.reply_textbox_size.inelastic')}</label><br>
+		</div>
+	</div>
+
 	<b>{'preferences.account.mail.signature'|devblocks_translate}</b>
 	<div style="margin:0px 0px 10px 10px;">
 		<label><input type="radio" name="mail_signature_pos" value="0" {if empty($prefs.mail_signature_pos)}checked="checked"{/if}> {'preferences.account.mail.signature.none'|devblocks_translate}</label><br>

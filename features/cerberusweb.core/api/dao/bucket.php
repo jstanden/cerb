@@ -471,6 +471,7 @@ class Context_Bucket extends Extension_DevblocksContext {
 			$token_values['_label'] = $bucket->name;
 			$token_values['id'] = $bucket->id;
 			$token_values['name'] = $bucket->name;
+			$token_values['reply_address_id'] = $bucket->reply_address_id;
 			
 			// URL
 			//$url_writer = DevblocksPlatform::getUrlService();

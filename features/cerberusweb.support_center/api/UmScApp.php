@@ -286,7 +286,7 @@ class UmScApp extends Extension_UsermeetTool {
 				$tpl->assign('module', $controller);
 				$tpl->assign('module_response', new DevblocksHttpResponse($stack));
 				
-   				$tpl->display('devblocks:cerberusweb.support_center:portal_'.ChPortalHelper::getCode() . ":support_center/index.tpl");
+				$tpl->display('devblocks:cerberusweb.support_center:portal_' . ChPortalHelper::getCode() . ':support_center/index.tpl');
 				break;
 		}
 	}

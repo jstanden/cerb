@@ -42,7 +42,7 @@
 			<!-- Sidebar -->
 			{if !empty($module) && method_exists($module,'renderSidebar')}
 			{$module->renderSidebar($module_response)}
-			{/if}						
+			{/if}
 		</td>
 		
 		<td width="99%" valign="top">

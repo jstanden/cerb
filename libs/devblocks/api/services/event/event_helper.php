@@ -2004,12 +2004,20 @@ class DevblocksEventHelper {
 	 * Action: Send Email
 	 */
 	
-	static function renderActionSendEmail($trigger) {
+	static function renderActionSendEmail($trigger, $placeholders=array()) {
 		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$replyto_default = DAO_AddressOutgoing::getDefault();
+		$tpl->assign('replyto_default', $replyto_default);
+		
+		$replyto_addresses = DAO_AddressOutgoing::getAll();
+		$tpl->assign('replyto_addresses', $replyto_addresses);
 		
 		$event = $trigger->getEvent();
 		$values_to_contexts = $event->getValuesContexts($trigger);
 		$tpl->assign('values_to_contexts', $values_to_contexts);
+		
+		$tpl->assign('placeholders', $placeholders);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_send_email.tpl');
 	}
@@ -2049,6 +2057,38 @@ class DevblocksEventHelper {
 				$to[] = $addy->email;
 			}
 		}
+
+		$replyto_addresses = DAO_AddressOutgoing::getAll();
+		$replyto_default = DAO_AddressOutgoing::getDefault();
+		
+		if(empty($replyto_default))
+			return "[ERROR] There is no default reply-to address.  Please configure one from Setup->Mail";
+		
+		@$from_address_id = $params['from_address_id'];
+		
+		if(!is_numeric($from_address_id) || false !== strpos($from_address_id, ',')) {
+			$from_address_id = 0;
+			$from_placeholders = DevblocksPlatform::parseCsvString($params['from_address_id']);
+			
+			foreach($from_placeholders as $from_placeholder) {
+				if(!empty($from_address_id))
+					continue;
+
+				if(isset($dict->$from_placeholder)) {
+					$possible_from_id = $dict->$from_placeholder;
+					
+					if(isset($replyto_addresses[$possible_from_id]))
+						$from_address_id = $possible_from_id;
+				}
+			}
+		}
+		
+		if(empty($from_address_id))
+			$from_address_id = $replyto_default->address_id;
+
+		if(!isset($replyto_addresses[$from_address_id])) {
+			return "[ERROR] The 'from' address is invalid.";
+		}
 		
 		if(empty($to)) {
 			return "[ERROR] The 'to' field has no recipients.";
@@ -2064,14 +2104,14 @@ class DevblocksEventHelper {
 			return "[ERROR] The 'content' field has invalid placeholders.";
 		}
 		
-		// [TODO] Simulate 'From:'
-		
 		$out = sprintf(">>> Sending email\n".
 			"To: %s\n".
+			"From: %s\n".
 			"Subject: %s\n".
 			"\n".
 			"%s\n",
 			implode(",\n  ", $to),
+			$replyto_addresses[$from_address_id]->email,
 			$subject,
 			$content
 		);
@@ -2085,6 +2125,23 @@ class DevblocksEventHelper {
 		@$trigger = $dict->_trigger;
 		@$to_vars = @$params['to_var'];
 		$to = array();
+		
+		// From
+		
+		$replyto_addresses = DAO_AddressOutgoing::getAll();
+		$replyto_default = DAO_AddressOutgoing::getDefault();
+		
+		if(empty($replyto_default))
+			return;
+		
+		@$from_address_id = $params['from_address_id'];
+		
+		if(empty($from_address_id))
+			$from_address_id = $replyto_default->address_id;
+
+		if(!isset($replyto_addresses[$from_address_id]))
+			return;
+		
 		
 		// To
 		
@@ -2123,7 +2180,9 @@ class DevblocksEventHelper {
 		CerberusMail::quickSend(
 			implode(', ', $to),
 			$subject,
-			$content
+			$content,
+			$replyto_addresses[$from_address_id]->email,
+			$replyto_addresses[$from_address_id]->reply_personal
 		);
 	}
 	

@@ -168,7 +168,7 @@ class CerberusParserModel {
 		$subject = str_replace(array("\t","\n","\r")," ",$subject);
 		
 		// The subject can still end up empty after QP decode
-		if(empty($subject))
+		if(0 == strlen(trim($subject)))
 			$subject = "(no subject)";
 			
 		$this->_subject = $subject;
