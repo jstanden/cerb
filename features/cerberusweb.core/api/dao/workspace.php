@@ -378,6 +378,7 @@ class DAO_WorkspaceTab extends C4_ORMHelper {
 	const WORKSPACE_PAGE_ID = 'workspace_page_id';
 	const POS = 'pos';
 	const EXTENSION_ID = 'extension_id';
+	const PARAMS_JSON = 'params_json';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -429,7 +430,7 @@ class DAO_WorkspaceTab extends C4_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, workspace_page_id, pos, extension_id ".
+		$sql = "SELECT id, name, workspace_page_id, pos, extension_id, params_json ".
 			"FROM workspace_tab ".
 			$where_sql.
 			$sort_sql.
@@ -479,6 +480,10 @@ class DAO_WorkspaceTab extends C4_ORMHelper {
 			$object->workspace_page_id = $row['workspace_page_id'];
 			$object->pos = $row['pos'];
 			$object->extension_id = $row['extension_id'];
+			
+			if(!empty($row['params_json']) && false !== ($params = json_decode($row['params_json'], true)))
+				@$object->params = $params;
+			
 			$objects[$object->id] = $object;
 		}
 		
@@ -824,6 +829,7 @@ class Model_WorkspaceTab {
 	public $workspace_page_id;
 	public $pos;
 	public $extension_id;
+	public $params=array();
 	
 	function getWorklists() {
 		return DAO_WorkspaceList::getWhere(sprintf("%s = %d",

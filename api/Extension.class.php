@@ -326,11 +326,13 @@ abstract class Extension_WorkspaceTab extends DevblocksExtension {
 			DevblocksPlatform::sortObjects($exts, 'manifest->name');
 		else
 			DevblocksPlatform::sortObjects($exts, 'name');
-	
+		
 		return $exts;
 	}
 
 	abstract function renderTab(Model_WorkspacePage $page, Model_WorkspaceTab $tab);
+	function renderTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {}
+	function saveTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {}
 };
 
 abstract class Extension_WorkspaceWidgetDatasource extends DevblocksExtension {
