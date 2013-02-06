@@ -156,6 +156,9 @@
 		<tu tuid='common.bulk_update.with'>
 			<tuv xml:lang="en_US"><seg>With</seg></tuv>
 		</tu>
+		<tu tuid='common.calendar'>
+			<tuv xml:lang="en_US"><seg>Calendar</seg></tuv>
+		</tu>
 		<tu tuid='common.cancel'>
 			<tuv xml:lang="en_US"><seg>cancel</seg></tuv>
 		</tu>

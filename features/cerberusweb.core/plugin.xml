@@ -2247,6 +2247,18 @@
 		<!-- Workspace Tabs -->
 		
 		<extension point="cerberusweb.ui.workspace.tab">
+			<id>core.workspace.tab.calendar</id>
+			<name>Calendar Workspace Tab</name>
+			<class>
+				<file>api/uri/internal/workspaces/calendar.php</file>
+				<name>WorkspaceTab_Calendar</name>
+			</class>
+			<params>
+				<param key="label" value="common.calendar" />
+			</params>
+		</extension>
+
+		<extension point="cerberusweb.ui.workspace.tab">
 			<id>core.workspace.tab</id>
 			<name>Dashboards Workspace Tab</name>
 			<class>
@@ -2256,7 +2268,7 @@
 			<params>
 				<param key="label" value="core.workspace.dashboard" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<!-- Workspace Widgets -->
 		
