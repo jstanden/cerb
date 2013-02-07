@@ -652,7 +652,8 @@ class CerberusMail {
 	
 			// Mime Attachments
 			if (is_array($files) && !empty($files)) {
-				foreach ($files['tmp_name'] as $idx => $file) {
+				if(isset($files['tmp_name']))
+				foreach($files['tmp_name'] as $idx => $file) {
 					if(empty($file) || empty($files['name'][$idx]))
 						continue;
 	
@@ -800,6 +801,7 @@ class CerberusMail {
 			// Attachments
 			if (is_array($files) && !empty($files)) {
 				reset($files);
+				if(isset($files['tmp_name']))
 				foreach ($files['tmp_name'] as $idx => $file) {
 					if(empty($file) || empty($files['name'][$idx]) || !file_exists($file))
 						continue;

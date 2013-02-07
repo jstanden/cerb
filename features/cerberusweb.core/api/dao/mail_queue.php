@@ -463,14 +463,14 @@ class Model_MailQueue {
 		
 		// Context links
 		@$context_links = $this->params['context_links'];
-		if(is_array($context_links));
-		foreach($this->params['context_links'] as $context_pair) {
+		if(!empty($context_links) && is_array($context_links))
+		foreach($context_links as $context_pair) {
 			if(!is_array($context_pair) || 2 != count($context_pair))
 				continue;
 			
 			DAO_ContextLink::setLink($context_pair[0], $context_pair[1], CerberusContexts::CONTEXT_TICKET, $ticket_id);
 		}
-		
+
 		// Send message
 		return CerberusMail::sendTicketMessage($properties);
 	}

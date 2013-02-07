@@ -142,7 +142,7 @@
 			</td>
 		</tr>
 		{/if}
-	</table>	
+	</table>
 </fieldset>
 
 {if !empty($custom_fields)}

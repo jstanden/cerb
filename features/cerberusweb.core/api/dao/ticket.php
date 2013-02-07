@@ -2939,9 +2939,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 							)),
 						);
 						
-						if($is_queued) {
+						if($is_queued)
 							$fields[DAO_MailQueue::IS_QUEUED] = 1;
-						}
 						
 						$draft_id = DAO_MailQueue::create($fields);
 					}
