@@ -987,7 +987,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 
 			$is_queued = (isset($params['is_queued']) && $params['is_queued']) ? true : false;
 			$next_is_closed = (isset($params['next_is_closed'])) ? intval($params['next_is_closed']) : 0;
-						
+			
 			if(is_array($ids))
 			foreach($ids as $addy_id) {
 				try {
@@ -1007,6 +1007,9 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 						'next_is_closed' => $next_is_closed,
 						'is_broadcast' => 1,
 					);
+					
+					if(isset($params['file_ids']))
+						$json_params['file_ids'] = $params['file_ids'];
 					
 					$fields = array(
 						DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,

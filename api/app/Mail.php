@@ -411,6 +411,14 @@ class CerberusMail {
 			}
 		}
 
+		// Forwarded attachments
+		if(isset($properties['link_forward_files']) && !empty($properties['link_forward_files'])) {
+			// Attachments
+			if(is_array($forward_files) && !empty($forward_files)) {
+				DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $forward_files);
+			}
+		}
+		
 		// Finalize ticket
 		$fields = array(
 			DAO_Ticket::FIRST_MESSAGE_ID => $message_id,

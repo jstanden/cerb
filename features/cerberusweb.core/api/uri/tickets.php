@@ -1232,11 +1232,14 @@ class ChTicketsPage extends CerberusPageExtension {
 		if($active_worker->hasPriv('core.ticket.view.actions.broadcast_reply')) {
 			@$do_broadcast = DevblocksPlatform::importGPC($_REQUEST['do_broadcast'],'string',null);
 			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
+			@$broadcast_file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['broadcast_file_ids'],'array',array()), 'integer', array('nonzero','unique'));
 			@$broadcast_is_queued = DevblocksPlatform::importGPC($_REQUEST['broadcast_is_queued'],'integer',0);
+			
 			if(0 != strlen($do_broadcast) && !empty($broadcast_message)) {
 				$do['broadcast'] = array(
 					'message' => $broadcast_message,
 					'is_queued' => $broadcast_is_queued,
+					'file_ids' => $broadcast_file_ids,
 					'worker_id' => $active_worker->id,
 				);
 			}

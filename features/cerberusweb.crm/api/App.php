@@ -251,6 +251,8 @@ class CrmPage extends CerberusPageExtension {
 			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
 			@$broadcast_is_queued = DevblocksPlatform::importGPC($_REQUEST['broadcast_is_queued'],'integer',0);
 			@$broadcast_is_closed = DevblocksPlatform::importGPC($_REQUEST['broadcast_next_is_closed'],'integer',0);
+			@$broadcast_file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['broadcast_file_ids'],'array',array()), 'integer', array('nonzero','unique'));
+			
 			if(0 != strlen($do_broadcast) && !empty($broadcast_subject) && !empty($broadcast_message)) {
 				$do['broadcast'] = array(
 					'subject' => $broadcast_subject,
@@ -259,6 +261,7 @@ class CrmPage extends CerberusPageExtension {
 					'next_is_closed' => $broadcast_is_closed,
 					'group_id' => $broadcast_group_id,
 					'worker_id' => $active_worker->id,
+					'file_ids' => $broadcast_file_ids,
 				);
 			}
 		}

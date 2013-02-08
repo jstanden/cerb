@@ -974,6 +974,9 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 						),
 					);
 					
+					if(isset($params['file_ids']))
+						$json_params['file_ids'] = $params['file_ids'];
+					
 					$fields = array(
 						DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
 						DAO_MailQueue::TICKET_ID => 0,

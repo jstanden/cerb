@@ -2924,6 +2924,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						
 						$tpl_dict = new DevblocksDictionaryDelegate($tpl_tokens);
 						$body = $tpl_builder->build($broadcast_params['message'], $tpl_dict);
+
+						$params_json = array(
+							'in_reply_message_id' => $row[SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID],
+							'is_broadcast' => 1,
+						);
 						
 						$fields = array(
 							DAO_MailQueue::TYPE => Model_MailQueue::TYPE_TICKET_REPLY,
@@ -2933,14 +2938,16 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 							DAO_MailQueue::HINT_TO => $row[SearchFields_Ticket::TICKET_FIRST_WROTE],
 							DAO_MailQueue::SUBJECT => $row[SearchFields_Ticket::TICKET_SUBJECT],
 							DAO_MailQueue::BODY => $body,
-							DAO_MailQueue::PARAMS_JSON => json_encode(array(
-								'in_reply_message_id' => $row[SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID],
-								'is_broadcast' => 1,
-							)),
 						);
 						
 						if($is_queued)
 							$fields[DAO_MailQueue::IS_QUEUED] = 1;
+
+						if(isset($broadcast_params['file_ids']))
+							$params_json['file_ids'] = $broadcast_params['file_ids'];
+						
+						if(!empty($params_json))
+							$fields[DAO_MailQueue::PARAMS_JSON] = json_encode($params_json);
 						
 						$draft_id = DAO_MailQueue::create($fields);
 					}
