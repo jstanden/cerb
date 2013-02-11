@@ -781,14 +781,13 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 				case 'delete':
 					//$change_fields[DAO_ContactPerson::EXAMPLE] = 'some value';
 					break;
-				/*
+
 				default:
 					// Custom fields
 					if(substr($k,0,3)=="cf_") {
 						$custom_fields[substr($k,3)] = $v;
 					}
 					break;
-				*/
 			}
 		}
 
@@ -821,8 +820,19 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 			} else {
 				DAO_ContactPerson::update($batch_ids, $change_fields);
 				
+				// Watchers
+				if(isset($do['watchers']) && is_array($do['watchers'])) {
+					$watcher_params = $do['watchers'];
+					foreach($batch_ids as $batch_id) {
+						if(isset($watcher_params['add']) && is_array($watcher_params['add']))
+							CerberusContexts::addWatchers(CerberusContexts::CONTEXT_CONTACT_PERSON, $batch_id, $watcher_params['add']);
+						if(isset($watcher_params['remove']) && is_array($watcher_params['remove']))
+							CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_CONTACT_PERSON, $batch_id, $watcher_params['remove']);
+					}
+				}
+				
 				// Custom Fields
-				//self::_doBulkSetCustomFields(ChCustomFieldSource_ContactPerson::ID, $custom_fields, $batch_ids);
+				self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_CONTACT_PERSON, $custom_fields, $batch_ids);
 			}
 			
 			unset($batch_ids);

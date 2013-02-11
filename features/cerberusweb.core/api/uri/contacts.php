@@ -36,20 +36,12 @@ class ChContactsPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
-				$tpl->assign('view_id', $view_id);
+		$tpl->assign('view_id', $view_id);
+		$tpl->assign('ids', $ids);
 
-		if(!empty($ids)) {
-			$ids = DevblocksPlatform::parseCsvString($ids);
-			$tpl->assign('ids', $ids);
-		}
-		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT_PERSON);
 		$tpl->assign('custom_fields', $custom_fields);
-		
-		// Groups
-		//$groups = DAO_Group::getAll();
-		//$tpl->assign('groups', $groups);
 		
 		// Broadcast
 		//CerberusContexts::getContext(CerberusContexts::CONTEXT_CONTACT_PERSON, null, $token_labels, $token_values);
@@ -75,9 +67,23 @@ class ChContactsPage extends CerberusPageExtension {
 		// Do: Delete
 		if(!empty($do_delete))
 			$do['delete'] = 1;
+
+		// Watchers
+		$watcher_params = array();
+		
+		@$watcher_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_add_ids'],'array',array());
+		if(!empty($watcher_add_ids))
+			$watcher_params['add'] = $watcher_add_ids;
 			
+		@$watcher_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_remove_ids'],'array',array());
+		if(!empty($watcher_remove_ids))
+			$watcher_params['remove'] = $watcher_remove_ids;
+		
+		if(!empty($watcher_params))
+			$do['watchers'] = $watcher_params;
+		
 		// Do: Custom fields
-		//$do = DAO_CustomFieldValue::handleBulkPost($do);
+		$do = DAO_CustomFieldValue::handleBulkPost($do);
 
 		switch($filter) {
 			// Checked rows
