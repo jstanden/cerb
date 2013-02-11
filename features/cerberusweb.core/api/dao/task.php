@@ -30,12 +30,31 @@ class DAO_Task extends C4_ORMHelper {
 			"VALUES ()"
 		);
 		$db->Execute($sql);
+		
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		
 		if(!empty($custom_fields)) {
 			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TASK, $id, $custom_fields);
+		}
+		
+		/*
+		 * Log the activity of a new task being created
+		 */
+		
+		if(isset($fields[DAO_Task::TITLE])) {
+			$entry = array(
+				//{{actor}} created task {{target}}
+				'message' => 'activities.task.created',
+				'variables' => array(
+					'target' => $fields[DAO_Task::TITLE],
+					),
+				'urls' => array(
+					'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_TASK, $id),
+					)
+			);
+			CerberusContexts::logActivity('task.created', CerberusContexts::CONTEXT_TASK, $id, $entry, null, null);
 		}
 		
 		// New task

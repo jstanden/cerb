@@ -51,6 +51,9 @@
 		<tu tuid='activities.org.merge'>
 			<tuv xml:lang="en_US"><seg>{{actor}} merged organization {{source}} with organization {{target}}</seg></tuv>
 		</tu>
+		<tu tuid='activities.task.created'>
+			<tuv xml:lang="en_US"><seg>{{actor}} created task {{target}}</seg></tuv>
+		</tu>
 		<tu tuid='activities.task.status.completed'>
 			<tuv xml:lang="en_US"><seg>{{actor}} completed task {{target}}</seg></tuv>
 		</tu>

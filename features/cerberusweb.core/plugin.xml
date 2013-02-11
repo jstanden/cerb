@@ -488,6 +488,9 @@
 		<activity point="org.merge">
 			<param key="label_key" value="Organization Merged" />
 		</activity>
+		<activity point="task.created">
+			<param key="label_key" value="Task Created" />
+		</activity>
 		<activity point="task.status.completed">
 			<param key="label_key" value="Task Completed" />
 		</activity>
