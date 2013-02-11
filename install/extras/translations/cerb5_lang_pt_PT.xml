@@ -5180,11 +5180,6 @@ Por exemplo: *recipiente*</seg>
         <seg>Concluído</seg>
       </tuv>
     </tu>
-    <tu tuid="task.updated_date">
-      <tuv xml:lang="pt_PT">
-        <seg>Última Atualização</seg>
-      </tuv>
-    </tu>
     <tu tuid="tasks.add">
       <tuv xml:lang="pt_PT">
         <seg>Adicionar Tarefa</seg>

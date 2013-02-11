@@ -1691,9 +1691,6 @@ For example: *receipt*</seg></tuv>
 		<tu tuid='task.is_completed'>
 			<tuv xml:lang="en_US"><seg>Completed</seg></tuv>
 		</tu>
-		<tu tuid='task.updated_date'>
-			<tuv xml:lang="en_US"><seg>Last Updated</seg></tuv>
-		</tu>
 		<tu tuid='task.worker_id'>
 			<tuv xml:lang="en_US"><seg>Worker</seg></tuv>
 		</tu>

@@ -88,7 +88,7 @@
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="t_id"}
 				<td>{$result.t_id}&nbsp;</td>
-			{elseif $column=="t_completed_date" || $column=="t_updated_date"}
+			{elseif $column=="t_created_at" || $column=="t_completed_date" || $column=="t_updated_date"}
 				<td title="{$result.$column|devblocks_date}">
 					{if !empty($result.$column)}
 						{$result.$column|devblocks_prettytime}&nbsp;

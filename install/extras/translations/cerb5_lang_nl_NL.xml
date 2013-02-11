@@ -3237,11 +3237,6 @@
         <seg>Voltooid</seg>
       </tuv>
     </tu>
-    <tu tuid="task.updated_date">
-      <tuv xml:lang="nl_NL">
-        <seg>Laatst bijgewerkt</seg>
-      </tuv>
-    </tu>
     <tu tuid="task.worker_id">
       <tuv xml:lang="nl_NL">
         <seg>Werknemer</seg>

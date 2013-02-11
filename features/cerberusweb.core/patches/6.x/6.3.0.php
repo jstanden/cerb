@@ -18,6 +18,21 @@ if(!isset($columns['params_json'])) {
 }
 
 // ===========================================================================
+// Add a 'created_at' field to the 'task' table
+
+if(!isset($tables['task'])) {
+	$logger->error("The 'task' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('task');
+
+if(!isset($columns['created_at'])) {
+	$db->Execute("ALTER TABLE task ADD COLUMN created_at INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->Execute("UPDATE task SET created_at = updated_date WHERE created_at = 0");
+}
+
+// ===========================================================================
 // Finish
 
 return TRUE;

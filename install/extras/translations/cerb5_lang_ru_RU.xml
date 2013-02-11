@@ -3208,11 +3208,6 @@ login &lt;ftp&#13;
         <seg>Заголовок</seg>
       </tuv>
     </tu>
-    <tu tuid="task.updated_date">
-      <tuv xml:lang="ru_RU">
-        <seg>Последний раз обновлено</seg>
-      </tuv>
-    </tu>
     <tu tuid="task.worker_id">
       <tuv xml:lang="ru_RU">
         <seg>Исполнитель</seg>

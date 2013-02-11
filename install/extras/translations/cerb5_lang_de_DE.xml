@@ -4027,11 +4027,6 @@ login</seg>
         <seg>Titel</seg>
       </tuv>
     </tu>
-    <tu tuid="task.updated_date">
-      <tuv xml:lang="de_DE">
-        <seg>Zuletzt aktualisiert</seg>
-      </tuv>
-    </tu>
     <tu tuid="task.worker_id">
       <tuv xml:lang="de_DE">
         <seg>Mitarbeiter</seg>

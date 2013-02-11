@@ -72,6 +72,12 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 			);
 		}
 		
+		$properties['created_at'] = array(
+			'label' => ucfirst($translate->_('common.created')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $task->created_at,
+		);
+		
 		$properties['updated_date'] = array(
 			'label' => ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,

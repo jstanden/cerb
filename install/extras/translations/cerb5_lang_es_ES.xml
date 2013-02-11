@@ -3207,11 +3207,6 @@ Por ejemplo: *recibo*</seg>
         <seg>Título</seg>
       </tuv>
     </tu>
-    <tu tuid="task.updated_date">
-      <tuv xml:lang="es_ES">
-        <seg>Última Actualización</seg>
-      </tuv>
-    </tu>
     <tu tuid="task.worker_id">
       <tuv xml:lang="es_ES">
         <seg>Usuario</seg>
