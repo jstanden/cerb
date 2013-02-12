@@ -1580,6 +1580,9 @@ If you did not request this, do not click the link above.  The request will expi
 		<tu tuid='search.date.between.and'>
 			<tuv xml:lang="en_US"><seg>and</seg></tuv>
 		</tu>
+		<tu tuid='search.date.between.not'>
+			<tuv xml:lang="en_US"><seg>not between</seg></tuv>
+		</tu>
 		<tu tuid='search.date.examples'>
 			<tuv xml:lang="en_US"><seg>examples:
 now

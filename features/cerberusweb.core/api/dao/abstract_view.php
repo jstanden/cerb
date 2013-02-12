@@ -643,16 +643,27 @@ abstract class C4_AbstractView {
 	}
 	
 	protected function _doSetCriteriaDate($field, $oper) {
-		@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','big bang');
-		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','now');
-
-		if(is_null($from) || (!is_numeric($from) && @false === strtotime(str_replace('.','-',$from))))
-			$from = 'big bang';
-			
-		if(is_null($to) || (!is_numeric($to) && @false === strtotime(str_replace('.','-',$to))))
-			$to = 'now';
+		switch($oper) {
+			default:
+			case DevblocksSearchCriteria::OPER_BETWEEN:
+			case DevblocksSearchCriteria::OPER_NOT_BETWEEN:
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','big bang');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','now');
 		
-		return new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				if(is_null($from) || (!is_numeric($from) && @false === strtotime(str_replace('.','-',$from))))
+					$from = 'big bang';
+					
+				if(is_null($to) || (!is_numeric($to) && @false === strtotime(str_replace('.','-',$to))))
+					$to = 'now';
+				
+				return new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				break;
+				
+			case DevblocksSearchCriteria::OPER_EQ_OR_NULL:
+				return new DevblocksSearchCriteria($field,$oper,0);
+				break;
+		}
+		
 	}
 	
 	protected function _doSetCriteriaWorker($field, $oper) {
