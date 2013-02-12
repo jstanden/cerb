@@ -125,6 +125,7 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 			'email_address' => Model_CustomField::TYPE_SINGLE_LINE,
 			'email_is_banned' => Model_CustomField::TYPE_CHECKBOX,
 			'email_is_defunct' => Model_CustomField::TYPE_CHECKBOX,
+			'email_is_defunct' => Model_CustomField::TYPE_CHECKBOX,
 			'email_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'email_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'email_last_name' => Model_CustomField::TYPE_SINGLE_LINE,

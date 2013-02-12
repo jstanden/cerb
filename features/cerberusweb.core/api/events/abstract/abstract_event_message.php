@@ -250,6 +250,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			'sender_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_is_banned' => Model_CustomField::TYPE_CHECKBOX,
+			'sender_is_defunct' => Model_CustomField::TYPE_CHECKBOX,
 			'sender_is_worker' => Model_CustomField::TYPE_CHECKBOX,
 			'sender_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_num_nonspam' => Model_CustomField::TYPE_NUMBER,
