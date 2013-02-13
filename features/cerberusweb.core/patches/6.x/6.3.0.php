@@ -33,6 +33,24 @@ if(!isset($columns['created_at'])) {
 }
 
 // ===========================================================================
+// Add an aggregate 'hits' field to the 'snippet' table
+
+if(!isset($tables['snippet'])) {
+	$logger->error("The 'snippet' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('snippet');
+
+if(!isset($columns['total_uses'])) {
+	$db->Execute("ALTER TABLE snippet ADD COLUMN total_uses INT UNSIGNED NOT NULL DEFAULT 0");
+	
+	if(isset($tables['snippet_usage'])) {
+		$db->Execute("UPDATE snippet SET total_uses = (SELECT IFNULL(SUM(hits),0) FROM snippet_usage WHERE snippet_id=snippet.id)");
+	}
+}
+
+// ===========================================================================
 // Finish
 
 return TRUE;

@@ -22,6 +22,7 @@ class DAO_Snippet extends C4_ORMHelper {
 	const OWNER_CONTEXT_ID = 'owner_context_id';
 	const CONTEXT = 'context';
 	const CONTENT = 'content';
+	const TOTAL_USES = 'total_uses';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -82,7 +83,12 @@ class DAO_Snippet extends C4_ORMHelper {
 	
 	static function incrementUse($id, $worker_id) {
 		$db = DevblocksPlatform::getDatabaseService();
+
+		// Update the aggregate counter
+		$sql = sprintf("UPDATE snippet SET total_uses = total_uses + 1 WHERE id = %d", $id);
+		$db->Execute($sql);
 		
+		/*
 		$sql = sprintf("UPDATE snippet_usage SET hits = hits + 1 WHERE snippet_id = %d AND worker_id = %d",
 			$id,
 			$worker_id
@@ -95,6 +101,7 @@ class DAO_Snippet extends C4_ORMHelper {
 			);
 			return $db->Execute($sql);
 		}
+		*/
 		
 		return TRUE;
 	}
@@ -112,7 +119,7 @@ class DAO_Snippet extends C4_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, title, context, owner_context, owner_context_id, content ".
+		$sql = "SELECT id, title, context, owner_context, owner_context_id, content, total_uses ".
 			"FROM snippet ".
 			$where_sql.
 			$sort_sql.
@@ -154,6 +161,7 @@ class DAO_Snippet extends C4_ORMHelper {
 			$object->owner_context = $row['owner_context'];
 			$object->owner_context_id = $row['owner_context_id'];
 			$object->content = $row['content'];
+			$object->total_uses = intval($row['total_uses']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -228,13 +236,15 @@ class DAO_Snippet extends C4_ORMHelper {
 			"snippet.context as %s, ".
 			"snippet.owner_context as %s, ".
 			"snippet.owner_context_id as %s, ".
-			"snippet.content as %s",
+			"snippet.content as %s, ".
+			"snippet.total_uses as %s",
 				SearchFields_Snippet::ID,
 				SearchFields_Snippet::TITLE,
 				SearchFields_Snippet::CONTEXT,
 				SearchFields_Snippet::OWNER_CONTEXT,
 				SearchFields_Snippet::OWNER_CONTEXT_ID,
-				SearchFields_Snippet::CONTENT
+				SearchFields_Snippet::CONTENT,
+				SearchFields_Snippet::TOTAL_USES
 			);
 			
 		if(isset($tables['snippet_usage']) && !empty($active_worker)) {
@@ -305,7 +315,6 @@ class DAO_Snippet extends C4_ORMHelper {
 				$args['has_multiple_values'] = true;
 				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
-			
 			
 			case SearchFields_Snippet::VIRTUAL_OWNER:
 				if(!is_array($param->value))
@@ -415,6 +424,7 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 	const OWNER_CONTEXT = 's_owner_context';
 	const OWNER_CONTEXT_ID = 's_owner_context_id';
 	const CONTENT = 's_content';
+	const TOTAL_USES = 's_total_uses';
 	
 	const USAGE_HITS = 'su_hits';
 	
@@ -437,6 +447,7 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'snippet', 'owner_context', $translate->_('dao.snippet.owner_context')),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'snippet', 'owner_context_id', $translate->_('dao.snippet.owner_context_id')),
 			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'snippet', 'content', $translate->_('common.content'), Model_CustomField::TYPE_MULTI_LINE),
+			self::TOTAL_USES => new DevblocksSearchField(self::TOTAL_USES, 'snippet', 'total_uses', $translate->_('dao.snippet.total_uses'), Model_CustomField::TYPE_NUMBER),
 			
 			self::USAGE_HITS => new DevblocksSearchField(self::USAGE_HITS, 'snippet_usage', 'hits', $translate->_('dao.snippet_usage.hits'), Model_CustomField::TYPE_NUMBER),
 			
@@ -469,6 +480,7 @@ class Model_Snippet {
 	public $owner_context;
 	public $owner_context_id;
 	public $content;
+	public $total_uses;
 	
 	public function incrementUse($worker_id) {
 		return DAO_Snippet::incrementUse($this->id, $worker_id);
@@ -561,6 +573,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Snippet::TITLE,
 			SearchFields_Snippet::CONTEXT,
 			SearchFields_Snippet::VIRTUAL_OWNER,
+			SearchFields_Snippet::TOTAL_USES,
 		);
 		
 		$this->addColumnsHidden(array(
@@ -718,7 +731,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
-			case 'placeholder_number':
+			case SearchFields_Snippet::TOTAL_USES:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
@@ -821,7 +834,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
-			case 'placeholder_number':
+			case SearchFields_Snippet::TOTAL_USES:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
@@ -957,6 +970,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
+			'total_uses' => $prefix.$translate->_('dao.snippet.total_uses'),
 //			'completed|date' => $prefix.$translate->_('task.completed_date'),
 		);
 		
@@ -972,7 +986,8 @@ class Context_Snippet extends Extension_DevblocksContext {
 		
 		if($snippet) {
 			$token_values['_loaded'] = true;
-			$token_values['_snippet'] = $snippet->title;
+			$token_values['_label'] = $snippet->title;
+			$token_values['total_uses'] = $snippet->total_uses;
 			
 //			$token_values['completed'] = $task->completed_date;
 			
@@ -1047,7 +1062,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 			SearchFields_Snippet::TITLE,
 			SearchFields_Snippet::CONTEXT,
 			SearchFields_Snippet::VIRTUAL_OWNER,
-			SearchFields_Snippet::USAGE_HITS,
+			SearchFields_Snippet::TOTAL_USES, // [TODO] USAGE_HITS
 		);
 		
 		$params_required = array();

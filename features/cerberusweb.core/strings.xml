@@ -647,10 +647,14 @@
 		
 		<!-- Snippets -->
 
+		<tu tuid='dao.snippet.total_uses'>
+			<tuv xml:lang="en_US"><seg>Total Uses</seg></tuv>
+		</tu>
+		
 		<tu tuid='dao.snippet_usage.hits'>
 			<tuv xml:lang="en_US"><seg>Hits</seg></tuv>
 		</tu>
-
+		
 		<!-- Trigger -->
 		
 		<tu tuid='dao.trigger_event.is_disabled'>
