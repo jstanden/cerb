@@ -363,6 +363,10 @@
 			<class name="AbstractEvent_CalendarEvent" />
 		</file>
 		
+		<file path="api/events/abstract/abstract_event_comment.php">
+			<class name="AbstractEvent_Comment" />
+		</file>
+		
 		<file path="api/events/abstract/abstract_event_group.php">
 			<class name="AbstractEvent_Group" />
 		</file>
@@ -389,6 +393,10 @@
 		
 		<file path="api/events/app/mail_received_by_app.php">
 			<class name="Event_MailReceivedByApp" />
+		</file>
+		
+		<file path="api/events/app/comment_created_by_worker.php">
+			<class name="Event_CommentCreatedByWorker" />
 		</file>
 		
 		<file path="api/events/app/task_created_by_worker.php">
@@ -1365,6 +1373,22 @@
 				</param>
 			</params>
 		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.comment.created.worker</id>
+			<name>New comment on a record</name>
+			<class>
+				<file>api/events/app/comment_created_by_worker.php</file>
+				<name>Event_CommentCreatedByWorker</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+					</value>
+				</param>
+			</params>
+		</extension>
 
 		<!-- Event Listeners -->
 		
@@ -1400,7 +1424,7 @@
 				<!--
 				<param key="events">
 					<value>
-						<data key="*" />						
+						<data key="*" />
 					</value>
 				</param>
 				-->

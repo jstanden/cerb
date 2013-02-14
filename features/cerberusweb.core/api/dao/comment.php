@@ -67,6 +67,12 @@ class DAO_Comment extends C4_ORMHelper {
 			)
 		);
 		
+		/*
+		 * Trigger global VA behavior
+		 */
+		
+		Event_CommentCreatedByWorker::trigger($id);
+		
 		return $id;
 	}
 	
@@ -750,7 +756,12 @@ class Context_Comment extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
-//			'completed|date' => $prefix.$translate->_('task.completed_date'),
+			'context' => $prefix.$translate->_('common.context'),
+			'comment' => $prefix.$translate->_('common.content'),
+			'created|date' => $prefix.$translate->_('common.created'),
+			'record_label' => $prefix.'Record Label',
+			'record_type' => $prefix.'Record Type',
+			'record_url' => $prefix.'Record URL',
 		);
 		
 		if(is_array($fields))
@@ -774,6 +785,20 @@ class Context_Comment extends Extension_DevblocksContext {
 			$token_values['comment'] = $comment->comment;
 		}
 		
+		// Address
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'address_',
+			'Author:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
 		return true;
 	}
 
@@ -793,6 +818,21 @@ class Context_Comment extends Extension_DevblocksContext {
 		}
 		
 		switch($token) {
+			case 'record_type':
+				$context_ext = $dictionary['context'];
+				$ext = Extension_DevblocksContext::get($context_ext);
+				$values['record_type'] = $ext->manifest->name;
+				break;
+				
+			case 'record_label':
+			case 'record_url':
+				$ext = Extension_DevblocksContext::get($dictionary['context']);
+				$meta = $ext->getMeta($dictionary['context_id']);
+				
+				$values['record_label'] = $meta['name'];
+				$values['record_url'] = $meta['permalink'];
+				break;
+				
 			default:
 				if(substr($token,0,7) == 'custom_') {
 					$fields = $this->_lazyLoadCustomFields($context, $context_id);
