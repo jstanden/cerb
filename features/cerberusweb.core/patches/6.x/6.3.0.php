@@ -51,6 +51,34 @@ if(!isset($columns['total_uses'])) {
 }
 
 // ===========================================================================
+// Add a new 'snippet_use_history' table for time-based reports
+
+if(!isset($tables['snippet_use_history'])) {
+	$sql = sprintf("
+		CREATE TABLE IF NOT EXISTS snippet_use_history (
+			snippet_id INT UNSIGNED NOT NULL DEFAULT 0,
+			worker_id INT UNSIGNED NOT NULL DEFAULT 0,
+			ts_day INT UNSIGNED NOT NULL DEFAULT 0,
+			uses INT UNSIGNED NOT NULL DEFAULT 0,
+			PRIMARY KEY (snippet_id, worker_id, ts_day)
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->Execute($sql);
+
+	$tables['snippet_use_history'] = 'snippet_use_history';
+	
+	// Copy over the previous per-worker stats
+	if(isset($tables['snippet_usage'])) {
+		$db->Execute("INSERT INTO snippet_use_history SELECT snippet_id, worker_id, 0 AS ts_day, hits FROM snippet_usage");
+	}
+}
+
+if(isset($tables['snippet_usage'])) {
+	$db->Execute("DROP TABLE snippet_usage");
+	unset($tables['snippet_usage']);
+}
+
+// ===========================================================================
 // Finish
 
 return TRUE;

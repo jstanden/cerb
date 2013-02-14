@@ -63,10 +63,6 @@ class DevblocksSearchCriteria {
 		$this->value = $value;
 	}
 	
-	/*
-	 * [TODO] [JAS] Having to pass $fields here is kind of silly, but I'm ignoring
-	 * for now since it's only called in 2 abstracted places.
-	 */
 	public function getWhereSQL($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$where = '';

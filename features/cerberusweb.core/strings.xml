@@ -648,11 +648,11 @@
 		<!-- Snippets -->
 
 		<tu tuid='dao.snippet.total_uses'>
-			<tuv xml:lang="en_US"><seg>Total Uses</seg></tuv>
+			<tuv xml:lang="en_US"><seg>All Uses</seg></tuv>
 		</tu>
 		
-		<tu tuid='dao.snippet_usage.hits'>
-			<tuv xml:lang="en_US"><seg>Hits</seg></tuv>
+		<tu tuid='dao.snippet_use_history.uses.mine'>
+			<tuv xml:lang="en_US"><seg>My Uses</seg></tuv>
 		</tu>
 		
 		<!-- Trigger -->

@@ -138,8 +138,8 @@ abstract class DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$tables = array();
-		$wheres = array();
 		$selects = array();
+		$wheres = array();
 		
 		// Sort By
 		if(!empty($sortBy) && isset($fields[$sortBy]))
@@ -164,7 +164,7 @@ abstract class DevblocksORMHelper {
 		
 		// Params
 		if(is_array($params))
-		foreach($params as $param) {
+		foreach($params as $param_key => $param) {
 			// Skip virtuals
 			if(!is_array($param) && !is_object($param))
 				continue;
@@ -187,13 +187,15 @@ abstract class DevblocksORMHelper {
 				$where = $param->getWhereSQL($fields);
 			}
 			
-			if(!empty($where)) $wheres[] = $where;
+			if(!empty($where)) {
+				$wheres[$param_key] = $where;
+			}
 		}
 		
 		return array($tables, $wheres, $selects);
 	}
 	
-	static private function _parseNestedSearchParams($param,&$tables,$fields) {
+	static private function _parseNestedSearchParams($param, &$tables, $fields) {
 		$outer_wheres = array();
 		$group_wheres = array();
 		@$group_oper = strtoupper(array_shift($param));

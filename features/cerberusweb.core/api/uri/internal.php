@@ -979,12 +979,12 @@ class ChInternalController extends DevblocksControllerExtension {
 				list($results, $null) = DAO_Snippet::search(
 					array(
 						SearchFields_Snippet::TITLE,
-						SearchFields_Snippet::USAGE_HITS,
+						SearchFields_Snippet::USE_HISTORY_MINE,
 					),
 					$params,
 					25,
 					0,
-					SearchFields_Snippet::USAGE_HITS,
+					SearchFields_Snippet::USE_HISTORY_MINE,
 					false,
 					false
 				);
@@ -993,7 +993,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					$entry = new stdClass();
 					$entry->label = sprintf("%s -- used %s",
 						$row[SearchFields_Snippet::TITLE],
-						((1 != $row[SearchFields_Snippet::USAGE_HITS]) ? (intval($row[SearchFields_Snippet::USAGE_HITS]) . ' times') : 'once')
+						((1 != $row[SearchFields_Snippet::USE_HISTORY_MINE]) ? (intval($row[SearchFields_Snippet::USE_HISTORY_MINE]) . ' times') : 'once')
 					);
 					$entry->value = $row[SearchFields_Snippet::ID];
 					$entry->context = $row[SearchFields_Snippet::CONTEXT];

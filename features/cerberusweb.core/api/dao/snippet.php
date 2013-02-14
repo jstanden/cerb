@@ -87,21 +87,16 @@ class DAO_Snippet extends C4_ORMHelper {
 		// Update the aggregate counter
 		$sql = sprintf("UPDATE snippet SET total_uses = total_uses + 1 WHERE id = %d", $id);
 		$db->Execute($sql);
-		
-		/*
-		$sql = sprintf("UPDATE snippet_usage SET hits = hits + 1 WHERE snippet_id = %d AND worker_id = %d",
-			$id,
-			$worker_id
-		);
-		
-		if(!$db->Execute($sql) || 0==$db->Affected_Rows()) {
-			$sql = sprintf("INSERT INTO snippet_usage (snippet_id, worker_id, hits) VALUES (%d, %d, 1)",
+
+		// Update the per-worker usage-over-time data
+		$sql = sprintf("INSERT INTO snippet_use_history (snippet_id, worker_id, ts_day, uses) ".
+				"VALUES (%d,%d,%d,1) ".
+				"ON DUPLICATE KEY UPDATE uses=uses+1",
 				$id,
-				$worker_id
-			);
-			return $db->Execute($sql);
-		}
-		*/
+				$worker_id,
+				time()-(time() % 86400) // start of today
+		);
+		$db->Execute($sql);
 		
 		return TRUE;
 	}
@@ -174,10 +169,10 @@ class DAO_Snippet extends C4_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$sql = "DELETE QUICK snippet_usage FROM snippet_usage LEFT JOIN worker ON snippet_usage.worker_id = worker.id WHERE worker.id IS NULL";
+		$sql = "DELETE snippet_use_history FROM snippet_use_history LEFT JOIN worker ON snippet_use_history.worker_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
 		
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' snippet_usage records.');
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' snippet_use_history records.');
 	}
 	
 	static function delete($ids) {
@@ -190,7 +185,7 @@ class DAO_Snippet extends C4_ORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		$db->Execute(sprintf("DELETE FROM snippet WHERE id IN (%s)", $ids_list));
-		$db->Execute(sprintf("DELETE FROM snippet_usage WHERE snippet_id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE FROM snippet_use_history WHERE snippet_id IN (%s)", $ids_list));
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -228,7 +223,7 @@ class DAO_Snippet extends C4_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy, $columns))
 			$sortBy=null;
 		
-		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables, $wheres, $null) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"snippet.id as %s, ".
@@ -246,18 +241,13 @@ class DAO_Snippet extends C4_ORMHelper {
 				SearchFields_Snippet::CONTENT,
 				SearchFields_Snippet::TOTAL_USES
 			);
-			
-		if(isset($tables['snippet_usage']) && !empty($active_worker)) {
-			$select_sql .= sprintf(
-				", ".
-				"snippet_usage.hits as %s",
-				SearchFields_Snippet::USAGE_HITS
-			);
+		
+		if(isset($tables['snippet_use_history'])) {
+			$select_sql .= sprintf(", (SELECT SUM(uses) FROM snippet_use_history WHERE worker_id=%d AND snippet_id=snippet.id) AS %s ", $active_worker->id, SearchFields_Snippet::USE_HISTORY_MINE);
 		}
 		
 		$join_sql = " FROM snippet ".
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.snippet' AND context_link.to_context_id = snippet.id) " : " ").
-			((isset($tables['snippet_usage']) && !empty($active_worker)) ? sprintf("LEFT JOIN snippet_usage ON (snippet_usage.snippet_id=snippet.id AND snippet_usage.worker_id=%d) ",$active_worker->id) : " ")
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.snippet' AND context_link.to_context_id = snippet.id) " : " ")
 		;
 		
 		// Custom field joins
@@ -269,9 +259,9 @@ class DAO_Snippet extends C4_ORMHelper {
 			$join_sql
 		);
 				
-		$where_sql = "".
+		$where_sql = ''.
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
-			
+		
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 		
 		$args = array(
@@ -380,7 +370,7 @@ class DAO_Snippet extends C4_ORMHelper {
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY snippet.id ' : '').
 			$sort_sql;
-			
+		
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
 			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
@@ -426,7 +416,7 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 	const CONTENT = 's_content';
 	const TOTAL_USES = 's_total_uses';
 	
-	const USAGE_HITS = 'su_hits';
+	const USE_HISTORY_MINE = 'suh_my_uses';
 	
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
@@ -449,7 +439,7 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'snippet', 'content', $translate->_('common.content'), Model_CustomField::TYPE_MULTI_LINE),
 			self::TOTAL_USES => new DevblocksSearchField(self::TOTAL_USES, 'snippet', 'total_uses', $translate->_('dao.snippet.total_uses'), Model_CustomField::TYPE_NUMBER),
 			
-			self::USAGE_HITS => new DevblocksSearchField(self::USAGE_HITS, 'snippet_usage', 'hits', $translate->_('dao.snippet_usage.hits'), Model_CustomField::TYPE_NUMBER),
+			self::USE_HISTORY_MINE => new DevblocksSearchField(self::USE_HISTORY_MINE, 'snippet_use_history', 'uses', $translate->_('dao.snippet_use_history.uses.mine'), Model_CustomField::TYPE_NUMBER),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
@@ -590,9 +580,9 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Snippet::CONTEXT_LINK,
 			SearchFields_Snippet::CONTEXT_LINK_ID,
 			SearchFields_Snippet::ID,
-			SearchFields_Snippet::USAGE_HITS,
 			SearchFields_Snippet::OWNER_CONTEXT,
 			SearchFields_Snippet::OWNER_CONTEXT_ID,
+			SearchFields_Snippet::USE_HISTORY_MINE,
 		));
 		
 		$this->doResetCriteria();
@@ -732,6 +722,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 				
 			case SearchFields_Snippet::TOTAL_USES:
+			case SearchFields_Snippet::USE_HISTORY_MINE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
@@ -835,6 +826,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 				
 			case SearchFields_Snippet::TOTAL_USES:
+			case SearchFields_Snippet::USE_HISTORY_MINE:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
@@ -1062,7 +1054,8 @@ class Context_Snippet extends Extension_DevblocksContext {
 			SearchFields_Snippet::TITLE,
 			SearchFields_Snippet::CONTEXT,
 			SearchFields_Snippet::VIRTUAL_OWNER,
-			SearchFields_Snippet::TOTAL_USES, // [TODO] USAGE_HITS
+			SearchFields_Snippet::USE_HISTORY_MINE,
+			SearchFields_Snippet::TOTAL_USES,
 		);
 		
 		$params_required = array();
@@ -1093,7 +1086,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 		
 		$view->addParamsRequired($params_required, true);
 		
-		$view->renderSortBy = SearchFields_Snippet::USAGE_HITS;
+		$view->renderSortBy = SearchFields_Snippet::USE_HISTORY_MINE;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
