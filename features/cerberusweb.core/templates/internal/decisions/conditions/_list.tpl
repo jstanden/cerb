@@ -5,5 +5,5 @@
 <br>
 
 {foreach from=$options item=opt key=k}
-<label><input type="checkbox" name="{$namePrefix}[values][]" value="{$k}" {if in_array($opt,$params.values)}checked="checked"{/if}> {$opt}</label><br>
+<label><input type="checkbox" name="{$namePrefix}[values][]" value="{$k}" {if in_array($k,$params.values)}checked="checked"{/if}> {$opt}</label><br>
 {/foreach}
