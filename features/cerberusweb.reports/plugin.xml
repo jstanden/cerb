@@ -34,6 +34,7 @@
 		<priv id="reports.group.custom_fields" label="acl.reports.group.custom_fields" />
 		<priv id="reports.group.groups" label="acl.reports.group.groups" />
 		<priv id="reports.group.orgs" label="acl.reports.group.orgs" />
+		<priv id="reports.group.snippets" label="acl.reports.group.snippets" />
 		<priv id="reports.group.spam" label="acl.reports.group.spam" />
 		<priv id="reports.group.tickets" label="acl.reports.group.tickets" />
 		<priv id="reports.group.workers" label="acl.reports.group.workers" />
@@ -53,7 +54,7 @@
 		<params>
 			<param key="label" value="reports.menu.reports" />
 		</params>
-	</extension>		
+	</extension>
 	
 	<!-- Report Groups -->
 	
@@ -93,6 +94,19 @@
 		<params>
 			<param key="group_name" value="reports.ui.group.org" />
 			<param key="acl" value="reports.group.orgs" />
+		</params>
+	</extension>
+	
+	<extension point="cerberusweb.report.group">
+		<id>report.group.snippets</id>
+		<name>Snippet Reports</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportGroupSnippets</name>
+		</class>
+		<params>
+			<param key="group_name" value="reports.ui.group.snippet" />
+			<param key="acl" value="reports.group.snippets" />
 		</params>
 	</extension>
 	
@@ -203,6 +217,19 @@
 	</extension>
 	
 	<extension point="cerberusweb.report">
+		<id>report.snippets.popularity</id>
+		<name>Snippet Popularity Report</name>
+		<class>
+			<file>api/reports/snippets/SnippetPopularityReport.php</file>
+			<name>ChReportSnippetPopularity</name>
+		</class>
+		<params>
+			<param key="report_name" value="reports.ui.snippets.popularity" />
+			<param key="report_group" value="report.group.snippets" />
+		</params>
+	</extension>
+	
+	<extension point="cerberusweb.report">
 		<id>report.workers.roster</id>
 		<name>Group Roster Report</name>
 		<class>
@@ -280,7 +307,6 @@
 		</params>
 	</extension>
 	
-
 	<extension point="cerberusweb.report">
 		<id>report.workers.worker_history</id>
 		<name>Worker History Report</name>
@@ -292,7 +318,7 @@
 			<param key="report_name" value="reports.ui.worker.worker_history" />
 			<param key="report_group" value="report.group.workers" />
 		</params>
-	</extension>		
+	</extension>
 	
 	</extensions>
 	

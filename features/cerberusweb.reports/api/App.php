@@ -92,6 +92,9 @@ class ChReportGroupCustomFields extends Extension_ReportGroup {
 class ChReportGroupOrgs extends Extension_ReportGroup {
 };
 
+class ChReportGroupSnippets extends Extension_ReportGroup {
+};
+
 class ChReportGroupSpam extends Extension_ReportGroup {
 };
 

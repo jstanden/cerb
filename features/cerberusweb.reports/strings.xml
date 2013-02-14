@@ -14,22 +14,25 @@
 		<!-- ACL -->
 
 		<tu tuid='acl.reports.group.custom_fields'>
-			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Custom Field Reports' group</seg></tuv>
+			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Custom Field' reports</seg></tuv>
 		</tu>
 		<tu tuid='acl.reports.group.groups'>
-			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Group Reports' group</seg></tuv>
+			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Group' reports</seg></tuv>
 		</tu>
 		<tu tuid='acl.reports.group.orgs'>
-			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Organization Reports' group</seg></tuv>
+			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Organization' reports</seg></tuv>
+		</tu>
+		<tu tuid='acl.reports.group.snippets'>
+			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Snippets' reports</seg></tuv>
 		</tu>
 		<tu tuid='acl.reports.group.spam'>
-			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Spam Reports' group</seg></tuv>
+			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Spam' reports</seg></tuv>
 		</tu>
 		<tu tuid='acl.reports.group.tickets'>
-			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Ticket Reports' group</seg></tuv>
+			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Ticket' reports</seg></tuv>
 		</tu>
 		<tu tuid='acl.reports.group.workers'>
-			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Worker Reports' group</seg></tuv>
+			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Worker' reports</seg></tuv>
 		</tu>
 		
 		<!-- Reports Common -->
@@ -64,6 +67,9 @@
 		</tu>
 		<tu tuid='reports.ui.filters.1_year'>
 			<tuv xml:lang="en_US"><seg>1 year</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.filters.all_time'>
+			<tuv xml:lang="en_US"><seg>all-time</seg></tuv>
 		</tu>
 		<tu tuid='reports.ui.filters.group'>
 			<tuv xml:lang="en_US"><seg>Filter groups:</seg></tuv>
@@ -121,6 +127,15 @@
 			<tuv xml:lang="en_US"><seg># Orgs</seg></tuv>
 		</tu>
 
+		<!-- Snippet Reports -->
+
+		<tu tuid='reports.ui.group.snippet'>
+			<tuv xml:lang="en_US"><seg>Snippet Reports</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.snippets.popularity'>
+			<tuv xml:lang="en_US"><seg>Most/Least Popular Snippets over Date Range</seg></tuv>
+		</tu>
+		
 		<!-- Spam Reports -->
 
 		<tu tuid='reports.ui.group.spam'>
