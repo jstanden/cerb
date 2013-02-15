@@ -407,6 +407,10 @@
 			<class name="Event_TicketViewedByWorker" />
 		</file>
 
+		<file path="api/events/group/comment_on_ticket_in_group.php">
+			<class name="Event_CommentOnTicketInGroup" />
+		</file>
+		
 		<file path="api/events/group/mail_assigned_in_group.php">
 			<class name="Event_MailAssignedInGroup" />
 		</file>
@@ -1076,6 +1080,22 @@
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.app" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.comment.ticket.group</id>
+			<name>New comment on conversation in group</name>
+			<class>
+				<file>api/events/group/comment_on_ticket_in_group.php</file>
+				<name>Event_CommentOnTicketInGroup</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.group" />
 					</value>
 				</param>
 			</params>

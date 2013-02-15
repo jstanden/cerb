@@ -73,6 +73,22 @@ class DAO_Comment extends C4_ORMHelper {
 		
 		Event_CommentCreatedByWorker::trigger($id);
 		
+		/*
+		 * Trigger group-level VA behavior
+		 */
+		
+		switch($context->id) {
+			case CerberusContexts::CONTEXT_TICKET:
+				@$ticket_id = $fields[self::CONTEXT_ID];
+
+				// [TODO] This is inefficient
+				if(!empty($ticket_id)) {
+					@$ticket = DAO_Ticket::get($ticket_id);
+					Event_CommentOnTicketInGroup::trigger($id, $ticket_id, $ticket->group_id);
+				}
+				break;
+		}
+		
 		return $id;
 	}
 	
@@ -792,7 +808,7 @@ class Context_Comment extends Extension_DevblocksContext {
 
 		CerberusContexts::merge(
 			'address_',
-			'Author:',
+			'Comment:Author:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,
@@ -820,14 +836,20 @@ class Context_Comment extends Extension_DevblocksContext {
 		switch($token) {
 			case 'record_type':
 				$context_ext = $dictionary['context'];
-				$ext = Extension_DevblocksContext::get($context_ext);
+				
+				if(null == ($ext = Extension_DevblocksContext::get($context_ext)))
+					break;
+				
 				$values['record_type'] = $ext->manifest->name;
 				break;
 				
 			case 'record_label':
 			case 'record_url':
-				$ext = Extension_DevblocksContext::get($dictionary['context']);
-				$meta = $ext->getMeta($dictionary['context_id']);
+				if(null == ($ext = Extension_DevblocksContext::get($dictionary['context'])))
+					break;
+				
+				if(null == ($meta = $ext->getMeta($dictionary['context_id'])))
+					break;
 				
 				$values['record_label'] = $meta['name'];
 				$values['record_url'] = $meta['permalink'];

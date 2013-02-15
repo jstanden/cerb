@@ -24,7 +24,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 	 * @param integer $group_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($ticket_id=null) {
+	function generateSampleEventModel($ticket_id=null, $comment_id=null) {
 		if(empty($ticket_id)) {
 			// Pull the latest ticket
 			list($results) = DAO_Ticket::search(
@@ -45,11 +45,17 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			
 			$ticket_id = $result[SearchFields_Ticket::TICKET_ID];
 		}
+
+		// If this is the 'new comment on convo in group' event, simulate a comment
+		if(empty($comment_id) && get_class($this) == 'Event_CommentOnTicketInGroup') {
+			$comment_id = DAO_Comment::random();
+		}
 		
 		return new Model_DevblocksEvent(
 			$this->_event_id,
 			array(
 				'ticket_id' => $ticket_id,
+				'comment_id' => $comment_id,
 			)
 		);
 	}
@@ -94,19 +100,41 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		 * Group
 		 */
 		
-		$group_labels = array();
-		$group_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $group_labels, $group_values, null, true);
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $merge_token_labels, $merge_token_values, null, true);
 				
 			// Merge
 			CerberusContexts::merge(
 				'group_',
 				'',
-				$group_labels,
-				$group_values,
+				$merge_token_labels,
+				$merge_token_values,
 				$labels,
 				$values
 			);
+		
+		/**
+		 * Comment
+		 */
+			
+		@$comment_id = $event_model->params['comment_id'];
+
+		if(get_class($this) == 'Event_CommentOnTicketInGroup') {
+			$merge_token_labels = array();
+			$merge_token_values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_COMMENT, $comment_id, $merge_token_labels, $merge_token_values, null, true);
+				
+				// Merge
+				CerberusContexts::merge(
+					'comment_',
+					'',
+					$merge_token_labels,
+					$merge_token_values,
+					$labels,
+					$values
+				);
+		}
 		
 		/**
 		 * Return
@@ -306,6 +334,24 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			'ticket_org_watcher_count' => null,
 			'ticket_watcher_count' => null,
 		);
+		
+		if(get_class($this) == 'Event_CommentOnTicketInGroup') {
+			$types['comment_address_num_nonspam'] = Model_CustomField::TYPE_NUMBER;
+			$types['comment_address_num_spam'] = Model_CustomField::TYPE_NUMBER;
+			$types['comment_address_address'] = Model_CustomField::TYPE_SINGLE_LINE;
+			$types['comment_address_first_name'] = Model_CustomField::TYPE_SINGLE_LINE;
+			$types['comment_address_full_name'] = Model_CustomField::TYPE_SINGLE_LINE;
+			$types['comment_address_is_banned'] = Model_CustomField::TYPE_CHECKBOX;
+			$types['comment_address_is_defunct'] = Model_CustomField::TYPE_CHECKBOX;
+			$types['comment_address_last_name'] = Model_CustomField::TYPE_SINGLE_LINE;
+			$types['comment_address_updated'] = Model_CustomField::TYPE_DATE;
+			
+			$types['comment_address_org_created'] = Model_CustomField::TYPE_DATE;
+			$types['comment_address_org_name'] = Model_CustomField::TYPE_SINGLE_LINE;
+			
+			$types['comment_created|date'] = Model_CustomField::TYPE_DATE;
+			$types['comment_comment'] = Model_CustomField::TYPE_MULTI_LINE;
+		}
 		
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		return $conditions;
