@@ -14,7 +14,7 @@
 		{if !empty($placeholders)}
 		<optgroup label="Placeholders">
 		{foreach from=$placeholders item=label key=placeholder}
-		<option value="{$placeholder}">{$label}</option>
+		<option value="{$placeholder}" {if $params.from_address_id==$placeholder}selected="selected"{/if}>{$label}</option>
 		{/foreach}
 		</optgroup>
 		{/if}

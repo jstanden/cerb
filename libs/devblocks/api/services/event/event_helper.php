@@ -2136,6 +2136,23 @@ class DevblocksEventHelper {
 		
 		@$from_address_id = $params['from_address_id'];
 		
+		if(!is_numeric($from_address_id) || false !== strpos($from_address_id, ',')) {
+			$from_address_id = 0;
+			$from_placeholders = DevblocksPlatform::parseCsvString($params['from_address_id']);
+			
+			foreach($from_placeholders as $from_placeholder) {
+				if(!empty($from_address_id))
+					continue;
+
+				if(isset($dict->$from_placeholder)) {
+					$possible_from_id = $dict->$from_placeholder;
+					
+					if(isset($replyto_addresses[$possible_from_id]))
+						$from_address_id = $possible_from_id;
+				}
+			}
+		}
+		
 		if(empty($from_address_id))
 			$from_address_id = $replyto_default->address_id;
 
