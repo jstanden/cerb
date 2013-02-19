@@ -652,6 +652,8 @@ class ChInternalController extends DevblocksControllerExtension {
 				return;
 		}
 		
+		// Add placeholders
+		
 		if(!empty($trigger_id) && null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
 			$event = $trigger->getEvent();
 			
@@ -674,6 +676,20 @@ class ChInternalController extends DevblocksControllerExtension {
 			}
 			
 			$view->setPlaceholderLabels($conditions);
+			
+		} elseif(null != $active_worker = CerberusApplication::getActiveWorker()) {
+			$labels = array();
+			$values = array();
+			
+			$labels['current_worker_id'] = array(
+				'label' => 'Current Worker',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			);
+			
+			$values['current_worker_id'] = $active_worker->id;
+			
+			$view->setPlaceholderLabels($labels);
+			$view->setPlaceholderValues($values);
 		}
 		
 		C4_AbstractViewLoader::setView($view->id, $view);

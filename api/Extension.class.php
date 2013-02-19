@@ -409,7 +409,6 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 	abstract function renderConfig(Model_WorkspaceWidget $widget);
 	abstract function saveConfig(Model_WorkspaceWidget $widget);
 
-	// [TODO] This probably has a better home
 	public static function getParamsViewModel($widget, $params) {
 		$view_model = null;
 		
@@ -417,7 +416,7 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 			$view_model_encoded = $params['view_model'];
 			$view_model = unserialize(base64_decode($view_model_encoded));
 		}
-		
+
 		if(empty($view_model)) {
 			@$view_id = $params['view_id'];
 			@$view_context = $params['view_context'];
@@ -435,9 +434,16 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 				$view->id = $view_id;
 				$view->is_ephemeral = true;
 				$view->renderFilters = false;
-	
+
 				$view_model = C4_AbstractViewLoader::serializeAbstractView($view);
 			}
+		}
+		
+		if(isset($view_model->placeholderValues)
+			&& isset($view_model->placeholderValues['current_worker_id'])) {
+				$active_worker = CerberusApplication::getActiveWorker();
+				
+				$view_model->placeholderValues['current_worker_id'] = !empty($active_worker) ? $active_worker->id : 0;
 		}
 		
 		return $view_model;
