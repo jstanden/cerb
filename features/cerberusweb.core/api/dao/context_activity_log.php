@@ -737,7 +737,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 		
 		return array(
 			'id' => $entry->id,
-			'name' => CerberusContexts::formatActivityLogEntry(json_decode($entry,true), 'text'),
+			'name' => CerberusContexts::formatActivityLogEntry(json_decode($entry->entry_json, true), 'text'),
 			'permalink' => null,
 		);
 	}

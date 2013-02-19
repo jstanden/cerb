@@ -183,7 +183,7 @@
 		
 		<extension point="cerberusweb.ui.workspace.tab">
 			<id>cerberusweb.kb.tab.browse</id>
-			<name>Browse KB Tab</name>
+			<name>Knowledgebase Browser Tab</name>
 			<class>
 				<file>api/App.php</file>
 				<name>WorkspaceTab_KbBrowse</name>
@@ -191,7 +191,7 @@
 			<params>
 				<param key="label" value="kb.workspace.tab.browser" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<!-- Profile Page Sections -->
 		
