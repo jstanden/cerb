@@ -2136,7 +2136,7 @@ class DevblocksEventHelper {
 		
 		@$from_address_id = $params['from_address_id'];
 		
-		if(!is_numeric($from_address_id) || false !== strpos($from_address_id, ',')) {
+		if(!empty($from_address_id) && !is_numeric($from_address_id) || false !== strpos($from_address_id, ',')) {
 			$from_address_id = 0;
 			$from_placeholders = DevblocksPlatform::parseCsvString($params['from_address_id']);
 			
