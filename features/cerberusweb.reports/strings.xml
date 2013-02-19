@@ -31,6 +31,9 @@
 		<tu tuid='acl.reports.group.tickets'>
 			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Ticket' reports</seg></tuv>
 		</tu>
+		<tu tuid='acl.reports.group.virtual_attendants'>
+			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Virtual Attendant' reports</seg></tuv>
+		</tu>
 		<tu tuid='acl.reports.group.workers'>
 			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Worker' reports</seg></tuv>
 		</tu>
@@ -219,6 +222,15 @@
 		</tu>
 		<tu tuid='reports.ui.ticket.top_contacts.by_address'>
 			<tuv xml:lang="en_US"><seg>by Address</seg></tuv>
+		</tu>
+		
+		<!-- Virtual Attendant Reports -->
+	
+		<tu tuid='reports.ui.group.virtual_attendant'>
+			<tuv xml:lang="en_US"><seg>Virtual Attendant Reports</seg></tuv>
+		</tu>
+		<tu tuid='reports.ui.virtual_attendant.usage'>
+			<tuv xml:lang="en_US"><seg>Virtual Attendant Usage over Date Range</seg></tuv>
 		</tu>
 		
 		<!-- Worker Reports -->

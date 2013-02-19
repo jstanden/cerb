@@ -98,6 +98,9 @@ class ChReportGroupSnippets extends Extension_ReportGroup {
 class ChReportGroupSpam extends Extension_ReportGroup {
 };
 
+class ChReportGroupVirtualAttendants extends Extension_ReportGroup {
+};
+
 if(class_exists('Extension_WorkspacePage')):
 class ChReportsWorkspacePage extends Extension_WorkspacePage {
 	function renderPage(Model_WorkspacePage $page) {

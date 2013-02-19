@@ -37,6 +37,7 @@
 		<priv id="reports.group.snippets" label="acl.reports.group.snippets" />
 		<priv id="reports.group.spam" label="acl.reports.group.spam" />
 		<priv id="reports.group.tickets" label="acl.reports.group.tickets" />
+		<priv id="reports.group.virtual_attendants" label="acl.reports.group.virtual_attendants" />
 		<priv id="reports.group.workers" label="acl.reports.group.workers" />
 	</acl>
 		
@@ -146,6 +147,19 @@
 		<params>
 			<param key="group_name" value="reports.ui.group.worker" />
 			<param key="acl" value="reports.group.workers" />
+		</params>
+	</extension>
+
+	<extension point="cerberusweb.report.group">
+		<id>report.group.virtual_attendants</id>
+		<name>Virtual Attendant Reports</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportGroupVirtualAttendants</name>
+		</class>
+		<params>
+			<param key="group_name" value="reports.ui.group.virtual_attendant" />
+			<param key="acl" value="reports.group.virtual_attendants" />
 		</params>
 	</extension>
 
@@ -304,6 +318,19 @@
 		<params>
 			<param key="report_name" value="reports.ui.ticket.top_contacts" />
 			<param key="report_group" value="report.group.tickets" />
+		</params>
+	</extension>
+	
+	<extension point="cerberusweb.report">
+		<id>report.virtual_attendants.usage</id>
+		<name>Virtual Attendant Usage Report</name>
+		<class>
+			<file>api/reports/va/VirtualAttendantUsageReport.php</file>
+			<name>ChReportVirtualAttendantUsage</name>
+		</class>
+		<params>
+			<param key="report_name" value="reports.ui.virtual_attendant.usage" />
+			<param key="report_group" value="report.group.virtual_attendants" />
 		</params>
 	</extension>
 	
