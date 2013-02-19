@@ -725,31 +725,44 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 
 	function chooserOpenFileUploadAction() {
-		@$file = $_FILES['file_data'];
+		@$files = $_FILES['file_data'];
+		$results = array();
 
-		// [TODO] Return false in JSON if file is empty, etc.
-
-		// Create a record w/ timestamp + ID
-		$fields = array(
-			DAO_Attachment::DISPLAY_NAME => $file['name'],
-			DAO_Attachment::MIME_TYPE => $file['type'],
-		);
-		$file_id = DAO_Attachment::create($fields);
-
-		// Save the file
-		if(null !== ($fp = fopen($file['tmp_name'], 'rb'))) {
-			Storage_Attachments::put($file_id, $fp);
-			fclose($fp);
-			unlink($file['tmp_name']);
+		if(is_array($files) && isset($files['tmp_name']))
+		foreach(array_keys($files['tmp_name']) as $file_idx) {
+			$file_name = $files['name'][$file_idx];
+			$file_type = $files['type'][$file_idx];
+			$file_size = $files['size'][$file_idx];
+			$file_tmp_name = $files['tmp_name'][$file_idx];
+		
+			if(empty($file_tmp_name) || empty($file_name))
+				continue;
+			
+			// Create a record w/ timestamp + ID
+			$fields = array(
+				DAO_Attachment::DISPLAY_NAME => $file_name,
+				DAO_Attachment::MIME_TYPE => $file_type,
+			);
+			$file_id = DAO_Attachment::create($fields);
+	
+			// Save the file
+			if(null !== ($fp = fopen($file_tmp_name, 'rb'))) {
+				Storage_Attachments::put($file_id, $fp);
+				fclose($fp);
+				unlink($file_tmp_name);
+				
+				$results[] = array(
+					'id' => $file_id,
+					'name' => $file_name,
+					'type' => $file_type,
+					'size' => $file_size,
+				);
+			}
 		}
 
 		// [TODO] Unlinked records should expire
 
-		echo json_encode(array(
-			'name' => $file['name'],
-			'size' => $file['size'],
-			'id' => $file_id,
-		));
+		echo json_encode($results);
 	}
 
 	function contextAddLinksJsonAction() {

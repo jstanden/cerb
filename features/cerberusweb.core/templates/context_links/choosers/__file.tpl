@@ -4,7 +4,7 @@
 
 <fieldset>
 	<legend>Upload File</legend>
-	<input type="file" name="file_data">
+	<input type="file" name="file_data[]" multiple="multiple">
 </fieldset>
 
 <button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.upload')|capitalize}</button>
@@ -26,13 +26,14 @@
 			data = $(this).contents().find('body').html();
 			$json = $.parseJSON(data);
 			
-			// [TODO] Error check
-			
 			$labels = [];
 			$values = [];
-
-			$labels.push($json.name + ' (' + $json.size + ' bytes)'); 
-			$values.push($json.id);
+			
+			if(typeof $json == 'object')
+			for(file_idx in $json) {
+				$labels.push($json[file_idx].name + ' (' + $json[file_idx].size + ' bytes)'); 
+				$values.push($json[file_idx].id);
+			}
 		
 			// Trigger event
 			event = jQuery.Event('chooser_save');
