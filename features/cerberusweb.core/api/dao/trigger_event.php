@@ -226,6 +226,24 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 		return $objects;
 	}
 	
+	static function logUsage($trigger_id, $runtime_ms) {
+		if(empty($trigger_id))
+			return;
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("INSERT INTO trigger_event_history (trigger_id, ts_day, uses, elapsed_ms) ".
+			"VALUES (%d, %d, %d, %d) ".
+			"ON DUPLICATE KEY UPDATE uses = uses + VALUES(uses), elapsed_ms = elapsed_ms + VALUES(elapsed_ms) ",
+			$trigger_id,
+			time() - (time() % 86400),
+			1,
+			$runtime_ms
+		);
+		
+		$db->Execute($sql);
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
@@ -661,6 +679,10 @@ class Model_TriggerEvent {
 		}
 		
 		return $pass;
+	}
+	
+	function logUsage($runtime_ms) {
+		return DAO_TriggerEvent::logUsage($this->id, $runtime_ms);
 	}
 };
 

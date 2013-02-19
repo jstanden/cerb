@@ -79,6 +79,24 @@ if(isset($tables['snippet_usage'])) {
 }
 
 // ===========================================================================
+// Add a new 'trigger_event_history' table for time-based reports
+
+if(!isset($tables['trigger_event_history'])) {
+	$sql = sprintf("
+		CREATE TABLE IF NOT EXISTS trigger_event_history (
+			trigger_id INT UNSIGNED NOT NULL DEFAULT 0,
+			ts_day INT UNSIGNED NOT NULL DEFAULT 0,
+			uses INT UNSIGNED NOT NULL DEFAULT 0,
+			elapsed_ms INT UNSIGNED NOT NULL DEFAULT 0,
+			PRIMARY KEY (trigger_id, ts_day)
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->Execute($sql);
+
+	$tables['trigger_event_history'] = 'trigger_event_history';
+}
+
+// ===========================================================================
 // Finish
 
 return TRUE;

@@ -554,6 +554,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		$registry = DevblocksPlatform::getRegistryService();
 		
 		foreach($triggers as $trigger) { /* @var $trigger Model_TriggerEvent */
+			
 			if(self::inception($trigger->id)) {
 				$logger->info(sprintf("Skipping trigger %d (%s) because we're currently inside of it.",
 					$trigger->id,
@@ -576,6 +577,8 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			
 			self::increaseDepth($trigger->id);
 			
+			$start_runtime = intval(microtime(true));
+			
 			$logger->info(sprintf("Running decision tree on trigger %d (%s) for %s=%d",
 				$trigger->id,
 				$trigger->title,
@@ -587,6 +590,10 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			
 			// Increase the trigger run count
 			$registry->increment('trigger.'.$trigger->id.'.counter', 1);
+			
+			$runtime_ms = intval((microtime(true) - $start_runtime) * 1000);
+
+			$trigger->logUsage($runtime_ms);
 			
 			self::decreaseDepth();
 		}
