@@ -979,11 +979,16 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 	
 	static function create($attachment_id, $context, $context_id) {
 		$db = DevblocksPlatform::getDatabaseService();
+		
+		// We do this in a separate query for binary logging consistency
+		$uuid = $db->GetOne("SELECT UUID()");
+		
 		$db->Execute(sprintf("INSERT IGNORE INTO attachment_link (attachment_id, context, context_id, guid) ".
-			"VALUES (%d, %s, %d, UUID())",
+			"VALUES (%d, %s, %d, %s)",
 			$attachment_id,
 			$db->qstr($context),
-			$context_id
+			$context_id,
+			$db->qstr($uuid)
 		));
 	}
 	
