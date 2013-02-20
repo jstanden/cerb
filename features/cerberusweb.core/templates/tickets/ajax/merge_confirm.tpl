@@ -25,10 +25,13 @@
 		
 		$this.dialog('option','title',"{'mail.merge'|devblocks_translate|capitalize}");
 		
-		$this.find('button.submit').click(function() {
-			ajax.viewTicketsAction('{$view_id}','merge');
-			genericAjaxPopupClose('merge');
-		});
+		$this.find('button.submit')
+			.click(function() {
+				ajax.viewTicketsAction('{$view_id}','merge');
+				genericAjaxPopupClose('merge');
+			})
+			.focus()
+			;
 		
 		$this.find('button.cancel').click(function() {
 			genericAjaxPopupClose('merge');
