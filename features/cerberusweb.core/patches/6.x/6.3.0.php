@@ -97,6 +97,25 @@ if(!isset($tables['trigger_event_history'])) {
 }
 
 // ===========================================================================
+// Improve `attachment_link` efficiency for GUID column
+
+if(!isset($tables['attachment_link'])) {
+	$logger->error("The 'attachment_link' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('attachment_link');
+
+if(!isset($columns['guid'])) {
+	$logger->error("The 'attachment_link.guid' column does not exist.");
+	return FALSE;
+}
+
+if($column['guid']['type'] == 'varchar(64)') {
+	$db->Execute("ALTER TABLE attachment_link DROP INDEX guid, MODIFY COLUMN guid char(36) NOT NULL DEFAULT '', ADD INDEX guid (guid(3))");;
+}
+
+// ===========================================================================
 // Finish
 
 return TRUE;
