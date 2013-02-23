@@ -109,6 +109,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		 */
 		
 		$sender = !empty($parser_model) ? $parser_model->getSenderAddressModel() : null;
+		
 		$sender_labels = array();
 		$sender_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $sender, $sender_labels, $sender_values, null, true);
@@ -396,8 +397,14 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				'send_email_sender' => array('label' => 'Reply to sender'),
 				'set_header' => array('label' => 'Set message header'),
 			)
-			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_TICKET)
+			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
 			;
+		
+		$ticket_custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
+		
+		foreach($ticket_custom_fields as $cf_id => $cf) {
+			$actions['set_cf_ticket_custom_' . $cf_id] = array('label' => 'Set ticket ' . mb_convert_case($cf->name, MB_CASE_LOWER));
+		}
 		
 		return $actions;
 	}
@@ -452,10 +459,9 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches)) {
+					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
-		
 					DevblocksEventHelper::renderActionSetCustomField($custom_field);
 				}
 				break;
@@ -589,19 +595,21 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					
-					$field_id = substr($token,7);
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches)) {
+					$field_key = $matches[1];
+					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
-					$context = null;
-					$context_id = null;
+					
+					$value_label = array();
 					
 					switch($custom_field->type) {
 						case Model_CustomField::TYPE_MULTI_CHECKBOX:
 							$value = $params['values'];
 							break;
 						case Model_CustomField::TYPE_WORKER:
+							$workers = DAO_Worker::getAll();
 							$value = $params['worker_id'];
+							@$value_label = $workers[$value]->getName();
 							break;
 						case Model_CustomField::TYPE_DROPDOWN:
 						case Model_CustomField::TYPE_CHECKBOX:
@@ -613,15 +621,33 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 							$value = $tpl_builder->build($params['value'], $dict);
 							break;
 					}
+
+					if(empty($value_label))
+						$value_label = (is_array($value) ? implode(', ', $value) : $value);
+					
+					$field_context_id = null;
+					
+					switch($custom_field->context) {
+						case CerberusContexts::CONTEXT_TICKET:
+							break;
+							
+						default:
+							$field_id_key = $field_key . '_id';
+							$field_context_id = $dict->$field_id_key;
+							break;
+					}
 					
 					if(!empty($parser_model))
-						$parser_model->getMessage()->custom_fields[$field_id] = $value;
-						
+						$parser_model->getMessage()->custom_fields[] = array(
+							'field_id' => $field_id,
+							'value' => $value,
+						);
+					
 					$out = sprintf(">>> Setting custom field\n".
 						"Custom Field: %s\n".
 						"Value: %s\n",
 						$custom_field->name,
-						$value
+						$value_label
 					);
 					return $out;
 				}
@@ -755,10 +781,11 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			default:
-				if('set_cf_' == substr($token,0,7)) {
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches)) {
 					@$parser_model = $dict->_parser_model;
 					
-					$field_id = substr($token,7);
+					$field_key = $matches[1];
+					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
 					$context = null;
 					$context_id = null;
@@ -781,7 +808,24 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 							break;
 					}
 					
-					$parser_model->getMessage()->custom_fields[$field_id] = $value;
+					$field_context_id = null;
+					
+					switch($custom_field->context) {
+						case CerberusContexts::CONTEXT_TICKET:
+							break;
+							
+						default:
+							$field_id_key = $field_key . '_id';
+							$field_context_id = $dict->$field_id_key;
+							break;
+					}
+					
+					$parser_model->getMessage()->custom_fields[] = array(
+						'field_id' => $field_id,
+						'context' => $custom_field->context,
+						'context_id' => $field_context_id,
+						'value' => $value,
+					);
 				}
 				break;
 		}

@@ -282,7 +282,7 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				'set_links' => array('label' => 'Set links'),
 				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
-			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_ADDRESS)
+			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
 			;
 			
 		return $actions;
@@ -349,8 +349,8 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				break;
 				
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches)) {
+					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
 					DevblocksEventHelper::renderActionSetCustomField($custom_field);
 				}
@@ -403,23 +403,8 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
 				break;
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
-					$custom_field = DAO_CustomField::get($field_id);
-					$context = null;
-					$context_id = null;
-					
-					// If different types of custom fields, need to find the proper context_id
-					switch($custom_field->context) {
-						case CerberusContexts::CONTEXT_ADDRESS:
-							$context = $custom_field->context;
-							$context_id = $address_id;
-							break;
-					}
-					
-					if(!empty($context) && !empty($context_id))
-						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'email_custom', $params, $dict, $context, $context_id);
-				}
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token))
+					return DevblocksEventHelper::simulateActionSetCustomField($token, $params, $dict);
 				break;
 		}
 	}
@@ -486,23 +471,8 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				break;
 				
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
-					$custom_field = DAO_CustomField::get($field_id);
-					$context = null;
-					$context_id = null;
-					
-					// If different types of custom fields, need to find the proper context_id
-					switch($custom_field->context) {
-						case CerberusContexts::CONTEXT_ADDRESS:
-							$context = $custom_field->context;
-							$context_id = $address_id;
-							break;
-					}
-					
-					if(!empty($context) && !empty($context_id))
-						DevblocksEventHelper::runActionSetCustomField($custom_field, 'email_custom', $params, $dict, $context, $context_id);
-				}
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token))
+					return DevblocksEventHelper::runActionSetCustomField($token, $params, $dict);
 				break;
 		}
 	}

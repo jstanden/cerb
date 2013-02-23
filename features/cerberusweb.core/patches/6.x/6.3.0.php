@@ -116,6 +116,156 @@ if($columns['guid']['type'] == 'varchar(64)') {
 }
 
 // ===========================================================================
+// Modify VA behaviors to support setting cross-record custom field values
+
+if(!isset($tables['decision_node'])) {
+	$logger->error("The 'decision_node' table does not exist.");
+	return FALSE;
+}
+
+$rs = $db->Execute("SELECT decision_node.id, decision_node.params_json, trigger_event.event_point FROM decision_node INNER JOIN trigger_event ON (trigger_event.id=decision_node.trigger_id) WHERE decision_node.node_type = 'action'");
+
+while($row = mysql_fetch_assoc($rs)) {
+	$event_point = $row['event_point'];
+	$json = $row['params_json'];
+	$params = json_decode($json, true);
+	$is_changed = false;
+	
+	if(!isset($params['actions']))
+		continue;
+	
+	foreach($params['actions'] as $idx => $action_params) {
+		if(!isset($action_params['action']))
+			continue;
+		
+		if(preg_match('#set_cf_([0-9]+)#', $action_params['action'], $matches)) {
+			if(!isset($matches[1]) || empty($matches[1]))
+				continue;
+			
+			switch($event_point) {
+				// Address
+				case 'event.macro.address':
+					$params['actions'][$idx]['action'] = sprintf("set_cf_email_custom_%d", $matches[1]);
+					$is_changed = true;
+					break;
+				
+				// Calendar Event
+				case 'event.macro.calendar_event':
+					$params['actions'][$idx]['action'] = sprintf("set_cf_event_custom_%d", $matches[1]);
+					$is_changed = true;
+					break;
+
+				// Call
+				case 'event.macro.call':
+					$params['actions'][$idx]['action'] = sprintf("set_cf_call_custom_%d", $matches[1]);
+					$is_changed = true;
+					break;
+					
+				// Comment
+				case 'event.comment.created.worker':
+					$params['actions'][$idx]['action'] = sprintf("set_cf_comment_custom_%d", $matches[1]);
+					$is_changed = true;
+					break;
+
+				// Domain
+				case 'event.macro.domain':
+					$params['actions'][$idx]['action'] = sprintf("set_cf_domain_custom_%d", $matches[1]);
+					$is_changed = true;
+					break;
+
+				// Feed Item
+				case 'event.macro.feeditem':
+					$params['actions'][$idx]['action'] = sprintf("set_cf_item_custom_%d", $matches[1]);
+					$is_changed = true;
+					break;
+					
+				// Group
+				case 'event.macro.group':
+					$params['actions'][$idx]['action'] = sprintf("set_cf_group_custom_%d", $matches[1]);
+					$is_changed = true;
+					break;
+
+				// KB Article
+				case 'event.macro.kb_article':
+					$params['actions'][$idx]['action'] = sprintf("set_cf_article_custom_%d", $matches[1]);
+					$is_changed = true;
+					break;
+					
+				// Message
+				case 'event.mail.after.sent.group':
+				case 'event.mail.received.group':
+				case 'event.mail.reply.pre.ui.worker':
+					$params['actions'][$idx]['action'] = sprintf("set_cf_ticket_custom_%d", $matches[1]);
+					$is_changed = true;
+					break;
+
+				// Opp
+				case 'event.macro.crm.opportunity':
+					$params['actions'][$idx]['action'] = sprintf("set_cf_opp_custom_%d", $matches[1]);
+					$is_changed = true;
+					break;
+					
+				// Org
+				case 'event.macro.org':
+					$params['actions'][$idx]['action'] = sprintf("set_cf_org_custom_%d", $matches[1]);
+					$is_changed = true;
+					break;
+
+				// Sensor
+				case 'event.macro.sensor':
+					$params['actions'][$idx]['action'] = sprintf("set_cf_sensor_custom_%d", $matches[1]);
+					$is_changed = true;
+					break;
+					
+				// Server
+				case 'event.macro.server':
+					$params['actions'][$idx]['action'] = sprintf("set_cf_server_custom_%d", $matches[1]);
+					$is_changed = true;
+					break;
+					
+				// Task
+				case 'event.macro.task':
+				case 'event.task.created.worker':
+					$params['actions'][$idx]['action'] = sprintf("set_cf_task_custom_%d", $matches[1]);
+					$is_changed = true;
+					break;
+					
+				// Ticket
+				case 'event.macro.ticket':
+				case 'event.comment.ticket.group':
+				case 'event.mail.assigned.group':
+				case 'event.mail.closed.group':
+				case 'event.mail.moved.group':
+				case 'event.mail.sent.group':
+				case 'event.ticket.viewed.worker':
+					$params['actions'][$idx]['action'] = sprintf("set_cf_ticket_custom_%d", $matches[1]);
+					$is_changed = true;
+					break;
+
+				// Time Tracking
+				case 'event.macro.timetracking':
+					$params['actions'][$idx]['action'] = sprintf("set_cf_time_custom_%d", $matches[1]);
+					$is_changed = true;
+					break;
+					
+				// Worker
+				case 'event.macro.worker':
+					$params['actions'][$idx]['action'] = sprintf("set_cf_worker_custom_%d", $matches[1]);
+					$is_changed = true;
+					break;
+			}
+		}
+	}
+	
+	if($is_changed) {
+		$db->Execute(sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
+			$db->qstr(json_encode($params)),
+			$row['id']
+		));
+	}
+}
+
+// ===========================================================================
 // Finish
 
 return TRUE;

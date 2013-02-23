@@ -62,16 +62,23 @@ class DevblocksEventHelper {
 		return $custom_field_values;
 	}
 	
-	static function getActionCustomFields($context) {
+	static function getActionCustomFieldsFromLabels($labels) {
 		$actions = array();
+		$custom_fields = DAO_CustomField::getAll();
 		
 		// Set custom fields
-		$custom_fields = DAO_CustomField::getByContext($context);
-		foreach($custom_fields as $field_id => $field) {
-			$actions['set_cf_' . $field_id] = array(
-				'label' => 'Set ' . mb_convert_case($field->name, MB_CASE_LOWER),
-				'type' => $field->type,
-			);
+		foreach($labels as $key => $label) {
+			if(preg_match('#(.*?)_custom_([0-9]+)#', $key, $matches)) {
+				if(!isset($matches[2]) || !isset($custom_fields[$matches[2]]))
+					continue;
+				
+				$field = $custom_fields[$matches[2]];
+				
+				$actions[sprintf("set_cf_%s", $key)] = array(
+					'label' => 'Set ' . mb_convert_case($label, MB_CASE_LOWER),
+					'type' => $field->type,
+				);
+			}
 		}
 		
 		return $actions;
@@ -226,8 +233,19 @@ class DevblocksEventHelper {
 		return $out;
 	}
 	
-	static function simulateActionSetCustomField(Model_CustomField $custom_field, $value_key, $params, DevblocksDictionaryDelegate $dict, $context, $context_id) {
-		@$field_id = $custom_field->id;
+	static function simulateActionSetCustomField($token, $params, DevblocksDictionaryDelegate $dict) {
+		if(!preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches))
+			return;
+		
+		$custom_key = $matches[1];
+		$field_id = $matches[2];
+		
+		if(null == ($custom_field = DAO_CustomField::get($field_id)))
+			return;
+
+		$context = $custom_field->context;
+		$custom_key_id = $custom_key . '_id';
+		$context_id = $dict->$custom_key_id;
 		
 		if(empty($field_id) || empty($context) || empty($context_id))
 			return;
@@ -348,10 +366,20 @@ class DevblocksEventHelper {
 		return $out;
 	}
 	
-	static function runActionSetCustomField(Model_CustomField $custom_field, $value_key, $params, DevblocksDictionaryDelegate $dict, $context, $context_id) {
-		@$field_id = $custom_field->id;
+	static function runActionSetCustomField($token, $params, DevblocksDictionaryDelegate $dict) {
+		if(!preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches))
+			return;
 		
-		// [TODO] Log
+		$custom_key = $matches[1];
+		$field_id = $matches[2];
+		
+		if(null == ($custom_field = DAO_CustomField::get($field_id)))
+			return;
+
+		$context = $custom_field->context;
+		$custom_key_id = $custom_key . '_id';
+		$context_id = $dict->$custom_key_id;
+		
 		if(empty($field_id) || empty($context) || empty($context_id))
 			return;
 		
