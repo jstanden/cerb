@@ -80,7 +80,14 @@
 </form>
 
 <script type="text/javascript">
-$('#qrcode').qrcode({ width:192, height:192, text:"otpauth://totp/Cerb:{$worker->email}?secret={$seed}" });
+var options = { width:192, height:192, text:"otpauth://totp/Cerb:{$worker->email}?secret={$seed}" };
+var hasCanvasSupport = !!window.CanvasRenderingContext2D;
+
+// If no <canvas> tag, use <table> instead
+if(!hasCanvasSupport)
+	options.render = 'table';
+
+$('#qrcode').qrcode(options);
 
 $('#loginForm').find('input:text').first().focus();
 </script>
