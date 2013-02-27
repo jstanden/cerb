@@ -31,8 +31,8 @@ class ChFilesController extends DevblocksControllerExtension {
 		
 		$stack = $request->path;				// URLS like: /files/10000/plaintext.txt
 		array_shift($stack);					// files
-		$file_guid = array_shift($stack); 		// GUID
-		$file_name = array_shift($stack); 		// plaintext.txt
+		$file_guid = array_shift($stack);		// GUID
+		$file_name = array_shift($stack);		// plaintext.txt
 
 		// Security
 		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
@@ -70,9 +70,20 @@ class ChFilesController extends DevblocksControllerExtension {
 //		header("Keep-Alive: timeout=5, max=100");
 //		header("Connection: Keep-Alive");
 		header("Content-Type: " . $file->mime_type);
-		header("Content-Length: " . $file_stats['size']);
 
-		fpassthru($fp);
+		switch(strtolower($file->mime_type)) {
+			case 'text/html':
+				$clean_html = DevblocksPlatform::purifyHTML($fp);
+				header("Content-Length: " . strlen($clean_html));
+				echo $clean_html;
+				break;
+				
+			default:
+				header("Content-Length: " . $file_stats['size']);
+				fpassthru($fp);
+				break;
+		}
+		
 		fclose($fp);
 		
 		exit;
