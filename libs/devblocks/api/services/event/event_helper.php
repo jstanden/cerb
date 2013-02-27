@@ -325,7 +325,7 @@ class DevblocksEventHelper {
 					$dict->$value_key.'_'.$field_id = implode(',',$opts);
 
 					$array =& $dict->$value_key;
-					$array[$field_id] = $value;
+					$array[$field_id] = $opts;
 				}
 				
 				break;
@@ -353,7 +353,7 @@ class DevblocksEventHelper {
 					$dict->$value_key.'_'.$field_id = $worker_id;
 
 					$array =& $dict->$value_key;
-					$array[$field_id] = $value;
+					$array[$field_id] = $worker_id;
 				}
 				break;
 				
@@ -428,7 +428,7 @@ class DevblocksEventHelper {
 					$dict->$value_key.'_'.$field_id = implode(',',$opts);
 
 					$array =& $dict->$value_key;
-					$array[$field_id] = $value;
+					$array[$field_id] = $opts;
 				}
 				
 				break;
@@ -447,7 +447,7 @@ class DevblocksEventHelper {
 					$dict->$value_key.'_'.$field_id = $worker_id;
 					
 					$array =& $dict->$value_key;
-					$array[$field_id] = $value;
+					$array[$field_id] = $worker_id;
 				}
 				break;
 				

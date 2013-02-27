@@ -115,7 +115,10 @@ class ChPortalHelper {
 					'GroupLoginPassport',
 					serialize(self::$_fingerprint),
 					0,
-					'/'
+					'/',
+					null,
+					null,
+					true
 				);
 			}
 		}
