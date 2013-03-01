@@ -77,7 +77,7 @@ class Login_PasswordAndGoogleAuth extends Extension_LoginAuthenticator {
 			
 			// If we're not an imposter, go to the login form
 			if(!$visit->isImposter()) {
-				$session->clearAll();
+				$session->clear();
 				$query = array(
 					'email' => $worker->email,
 					//'url' => '', // [TODO] This prefs URL
