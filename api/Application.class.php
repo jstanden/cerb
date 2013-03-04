@@ -1434,7 +1434,7 @@ class CerberusSettingsDefaults {
 	const SESSION_LIFESPAN = 0;
 };
 
-class C4_DevblocksExtensionDelegate implements DevblocksExtensionDelegate {
+class Cerb_DevblocksExtensionDelegate implements DevblocksExtensionDelegate {
 	static $_worker = null;
 	static $_plugin_cache = array();
 	

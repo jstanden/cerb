@@ -68,7 +68,7 @@ if('' == APP_DB_DRIVER
 require(APP_PATH . '/api/Application.class.php');
 
 DevblocksPlatform::init();
-DevblocksPlatform::setExtensionDelegate('C4_DevblocksExtensionDelegate');
+DevblocksPlatform::setExtensionDelegate('Cerb_DevblocksExtensionDelegate');
 
 // Do we need an update first?
 if(!DevblocksPlatform::versionConsistencyCheck()) {
