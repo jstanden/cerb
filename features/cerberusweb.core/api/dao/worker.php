@@ -261,7 +261,7 @@ class DAO_Worker extends C4_ORMHelper {
 			if(0 == ($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_EVENTS)) {
 				if(!empty($object_changes)) {
 					// Local events
-					//self::_processUpdateEvents($object_changes);
+					self::_processUpdateEvents($object_changes);
 					
 					// Trigger an event about the changes
 					$eventMgr = DevblocksPlatform::getEventService();
@@ -284,6 +284,27 @@ class DAO_Worker extends C4_ORMHelper {
 		if(0 == ($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_FLUSH_CACHE)) {
 			self::clearCache();
 		}
+	}
+	
+	static function _processUpdateEvents($objects) {
+		if(is_array($objects))
+		foreach($objects as $object_id => $object) {
+			@$model = $object['model'];
+			@$changes = $object['changes'];
+			
+			if(empty($model) || empty($changes))
+				continue;
+			
+			/*
+			 * Worker deactivated
+			 */
+			@$is_disabled = $changes[DAO_Worker::IS_DISABLED];
+			
+			if(!empty($is_disabled) && !empty($model[DAO_Worker::IS_DISABLED])) {
+				Cerb_DevblocksSessionHandler::destroyByWorkerIds($model[DAO_Worker::ID]);
+			}
+			
+		} // foreach
 	}
 	
 	static function maint() {

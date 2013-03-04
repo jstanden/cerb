@@ -1515,6 +1515,18 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		$db = DevblocksPlatform::getDatabaseService();
 		$db->Execute("DELETE FROM devblocks_session");
 	}
+	
+	static function destroyByWorkerIds($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		
+		$ids_list = implode(',', $ids);
+		
+		if(empty($ids_list))
+			return;
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Execute(sprintf("DELETE FROM devblocks_session WHERE user_id IN (%s)", $ids_list));
+	}
 };
 
 class Cerb_DevblocksExtensionDelegate implements DevblocksExtensionDelegate {
