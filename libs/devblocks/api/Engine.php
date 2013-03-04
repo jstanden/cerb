@@ -21,6 +21,7 @@ abstract class DevblocksEngine {
 	const CACHE_TAG_TRANSLATIONS = 'devblocks_translations';
 	
 	static protected $extensionDelegate = null;
+	static protected $handlerSession = null;
 	
 	static protected $start_time = 0;
 	static protected $start_memory = 0;

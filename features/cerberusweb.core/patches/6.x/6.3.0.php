@@ -266,6 +266,28 @@ while($row = mysql_fetch_assoc($rs)) {
 }
 
 // ===========================================================================
+// Modify the `devblocks_session` table to include worker_id and remote_ip
+
+if(!isset($tables['devblocks_session'])) {
+	$logger->error("The 'devblocks_session' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('devblocks_session');
+
+if(!isset($columns['user_id'])) {
+	$db->Execute("ALTER TABLE devblocks_session ADD COLUMN user_id INT UNSIGNED NOT NULL DEFAULT 0");
+}
+
+if(!isset($columns['user_ip'])) {
+	$db->Execute("ALTER TABLE devblocks_session ADD COLUMN user_ip VARCHAR(32) NOT NULL DEFAULT ''");
+}
+
+if(!isset($columns['user_agent'])) {
+	$db->Execute("ALTER TABLE devblocks_session ADD COLUMN user_agent VARCHAR(255) NOT NULL DEFAULT ''");
+}
+
+// ===========================================================================
 // Finish
 
 return TRUE;

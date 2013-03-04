@@ -69,6 +69,7 @@ require(APP_PATH . '/api/Application.class.php');
 
 DevblocksPlatform::init();
 DevblocksPlatform::setExtensionDelegate('Cerb_DevblocksExtensionDelegate');
+DevblocksPlatform::setHandlerSession('Cerb_DevblocksSessionHandler');
 
 // Do we need an update first?
 if(!DevblocksPlatform::versionConsistencyCheck()) {

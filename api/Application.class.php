@@ -1434,6 +1434,89 @@ class CerberusSettingsDefaults {
 	const SESSION_LIFESPAN = 0;
 };
 
+class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
+	static $_data = null;
+	
+	static function open($save_path, $session_name) {
+		return true;
+	}
+	
+	static function close() {
+		return true;
+	}
+	
+	static function read($id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		if(null != (self::$_data = $db->GetOne(sprintf("SELECT session_data FROM devblocks_session WHERE session_key = %s", $db->qstr($id)))))
+			return self::$_data;
+			
+		return false;
+	}
+	
+	static function write($id, $session_data) {
+		// Nothing changed!
+		if(self::$_data==$session_data) {
+			return true;
+		}
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		$user_ip = $_SERVER['REMOTE_ADDR'];
+		$user_agent = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '';
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Update
+		$sql = sprintf("UPDATE devblocks_session SET updated=%d, session_data=%s, user_id=%d, user_ip=%s, user_agent=%s WHERE session_key=%s",
+			time(),
+			$db->qstr($session_data),
+			!is_null($active_worker) ? $active_worker->id : 0,
+			$db->qstr($user_ip),
+			$db->qstr($user_agent),
+			$db->qstr($id)
+		);
+		$result = $db->Execute($sql);
+		
+		if(0==$db->Affected_Rows()) {
+			// Insert
+			$sql = sprintf("INSERT INTO devblocks_session (session_key, created, updated, user_id, user_ip, user_agent, session_data) ".
+				"VALUES (%s, %d, %d, %d, %s, %s, %s)",
+				$db->qstr($id),
+				time(),
+				time(),
+				!is_null($active_worker) ? $active_worker->id : 0,
+				$db->qstr($user_ip),
+				$db->qstr($user_agent),
+				$db->qstr($session_data)
+			);
+			$db->Execute($sql);
+		}
+		
+		return true;
+	}
+	
+	static function destroy($id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Execute(sprintf("DELETE FROM devblocks_session WHERE session_key = %s", $db->qstr($id)));
+		return true;
+	}
+	
+	static function gc($maxlifetime) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Execute(sprintf("DELETE FROM devblocks_session WHERE updated + %d < %d", $maxlifetime, time()));
+		return true;
+	}
+	
+	static function getAll() {
+		$db = DevblocksPlatform::getDatabaseService();
+		return $db->GetArray("SELECT session_key, created, updated, user_id, user_ip, user_agent, session_data FROM devblocks_session");
+	}
+	
+	static function destroyAll() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Execute("DELETE FROM devblocks_session");
+	}
+};
+
 class Cerb_DevblocksExtensionDelegate implements DevblocksExtensionDelegate {
 	static $_worker = null;
 	static $_plugin_cache = array();

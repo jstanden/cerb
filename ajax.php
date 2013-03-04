@@ -56,6 +56,7 @@ $request = DevblocksPlatform::readRequest();
 
 DevblocksPlatform::init();
 DevblocksPlatform::setExtensionDelegate('Cerb_DevblocksExtensionDelegate');
+DevblocksPlatform::setHandlerSession('Cerb_DevblocksSessionHandler');
 
 $session = DevblocksPlatform::getSessionService();
 $settings = DevblocksPlatform::getPluginSettingsService();

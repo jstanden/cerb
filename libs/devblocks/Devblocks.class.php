@@ -1855,6 +1855,15 @@ class DevblocksPlatform extends DevblocksEngine {
 			self::$extensionDelegate = $class;
 	}
 	
+	static function setHandlerSession($class) {
+		if(!empty($class) && class_exists($class, true))
+			self::$handlerSession = $class;
+	}
+	
+	static function getHandlerSession() {
+		return self::$handlerSession;
+	}
+	
 	static function redirect(DevblocksHttpIO $httpIO) {
 		$url_service = self::getUrlService();
 		session_write_close();

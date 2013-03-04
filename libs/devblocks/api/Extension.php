@@ -42,6 +42,17 @@ class DevblocksExtension {
 	}
 };
 
+interface IDevblocksHandler_Session {
+	static function open($save_path, $session_name);
+	static function close();
+	static function read($id);
+	static function write($id, $session_data);
+	static function destroy($id);
+	static function gc($maxlifetime);
+	static function getAll();
+	static function destroyAll();
+};
+
 interface IDevblocksContextPeek {
 	function renderPeekPopup($context_id=0, $view_id='');
 }
