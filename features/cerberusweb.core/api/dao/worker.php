@@ -76,21 +76,21 @@ class DAO_Worker extends C4_ORMHelper {
 		// Track the active workers based on session data
 		foreach($sessions as $session_id => $session_data) {
 			$key = $session_data['session_key'];
-			$data = $session->decodeSession($session_data['session_data']);
-			@$visit = $data['db_visit']; /* @var $visit CerberusVisit */
+			@$worker_id = $session_data['user_id'];
 			
-			if(empty($visit))
-				continue;
-			
-			if(!empty($visit) && null == ($worker = $visit->getWorker()))
+			if(empty($worker_id))
 				continue;
 
+			if(null == ($worker = DAO_Worker::get($worker_id)))
+				continue;
+			
 			// All workers from the sessions
 			$session_workers[$worker->id] = $worker;
 
 			// Map workers to sessions
 			if(!isset($workers_to_sessions[$worker->id]))
 				$workers_to_sessions[$worker->id] = array();
+			
 			$workers_to_sessions[$worker->id][$key] = $data;
 		}
 		
