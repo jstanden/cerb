@@ -545,6 +545,38 @@ class ChPreferencesPage extends CerberusPageExtension {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('preferences','security')));
 	}
 	
+	function showSessionsTabAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
+		
+		$visit->set(Extension_PreferenceTab::POINT, 'sessions');
+
+		$worker = CerberusApplication::getActiveWorker();
+		$tpl->assign('worker', $worker);
+		
+		// View
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = 'workerprefs_sessions';
+		$defaults->class_name = 'View_DevblocksSession';
+		
+		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
+		
+		$view->is_ephemeral = true;
+		
+		$view->addParamsRequired(array(
+			SearchFields_DevblocksSession::USER_ID => new DevblocksSearchCriteria(SearchFields_DevblocksSession::USER_ID, '=', $worker->id),
+		));
+		
+		$view->addParamsHidden(array(SearchFields_DevblocksSession::USER_ID));
+		
+		C4_AbstractViewLoader::setView($view->id, $view);
+		
+		$tpl->assign('view', $view);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
+	}
+	
 	function showRssTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
