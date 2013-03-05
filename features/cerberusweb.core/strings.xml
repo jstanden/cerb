@@ -633,6 +633,21 @@
 			<tuv xml:lang="en_US"><seg>Trigger Id</seg></tuv>
 		</tu>
 		
+		<!-- DevblocksSession -->
+		
+		<tu tuid='dao.devblocks_session.session_key'>
+			<tuv xml:lang="en_US"><seg>Session Key</seg></tuv>
+		</tu>
+		<tu tuid='dao.devblocks_session.session_data'>
+			<tuv xml:lang="en_US"><seg>Session Data</seg></tuv>
+		</tu>
+		<tu tuid='dao.devblocks_session.user_ip'>
+			<tuv xml:lang="en_US"><seg>IP Address</seg></tuv>
+		</tu>
+		<tu tuid='dao.devblocks_session.user_agent'>
+			<tuv xml:lang="en_US"><seg>User Agent</seg></tuv>
+		</tu>
+		
 		<!-- Plugin Library -->
 		
 		<tu tuid='dao.plugin_library.plugin_id'>

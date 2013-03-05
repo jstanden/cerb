@@ -217,6 +217,13 @@
 			<class name="View_DecisionNode" />
 		</file>
 		
+		<file path="api/dao/devblocks_session.php">
+			<class name="DAO_DevblocksSession" />
+			<class name="Model_DevblocksSession" />
+			<class name="SearchFields_DevblocksSession" />
+			<class name="View_DevblocksSession" />
+		</file>
+		
 		<file path="api/dao/explorer.php">
 			<class name="DAO_ExplorerSet" />
 			<class name="Model_ExplorerSet" />
@@ -2104,6 +2111,19 @@
 				<params>
 					<param key="page_id" value="core.page.configuration" />
 					<param key="uri" value="security" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.sessions</id>
+				<name>Sessions Section</name>
+				<class>
+					<file>api/uri/config/sessions.php</file>
+					<name>PageSection_SetupSessions</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="sessions" />
 				</params>
 			</extension>
 		

@@ -17,7 +17,7 @@
 </fieldset>
 
 <fieldset>
-	<legend>Sessions</legend>
+	<legend>Session Expiration</legend>
 	
 	<b>Expire session cookies:</b>
 	<br>
