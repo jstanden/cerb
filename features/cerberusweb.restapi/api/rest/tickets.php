@@ -56,6 +56,10 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			
 		} else {
 			switch($action) {
+				case 'compose':
+					$this->postCompose();
+					break;
+					
 				case 'search':
 					$this->postSearch();
 					break;
@@ -347,6 +351,90 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		$container = $this->_handlePostSearch();
 		
 		$this->success($container);
+	}
+	
+	private function _handlePostCompose() {
+		$worker = $this->getActiveWorker();
+		
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
+		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
+		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+		@$cc = DevblocksPlatform::importGPC($_REQUEST['cc'],'string','');
+		@$bcc = DevblocksPlatform::importGPC($_REQUEST['bcc'],'string','');
+		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
+		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
+		
+		@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_id'],'array',array());
+		
+		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
+		@$reopen_at = DevblocksPlatform::importGPC($_REQUEST['reopen_at'],'integer',0);
+		
+		$properties = array();
+		
+		if(empty($group_id))
+			$this->error(self::ERRNO_CUSTOM, "The 'group_id' parameter is required");
+		
+		if(empty($to))
+			$this->error(self::ERRNO_CUSTOM, "The 'to' parameter is required");
+		
+		if(empty($subject))
+			$this->error(self::ERRNO_CUSTOM, "The 'subject' parameter is required");
+		
+		if(empty($content))
+			$this->error(self::ERRNO_CUSTOM, "The 'content' parameter is required");
+
+		if(!empty($file_ids))
+			$file_ids = DevblocksPlatform::sanitizeArray($file_ids, 'integer', array('nonzero','unique'));
+		
+		$properties = array(
+			'group_id' => $group_id,
+			'bucket_id' => $bucket_id,
+			'org_id' => $org_id,
+			'to' => $to,
+			'subject' => $subject,
+			'content' => $content,
+			'worker_id' => $worker->id,
+		);
+
+		if(!empty($cc))
+			$properties['cc'] = $cc;
+		
+		if(!empty($bcc))
+			$properties['bcc'] = $bcc;
+		
+		if(!empty($status) && in_array($status, array(0,1,2)))
+			$properties['closed'] = $status;
+		
+		if(!empty($reopen_at))
+			$properties['reopen_at'] = $reopen_at;
+		
+		if(!empty($file_ids)) {
+			$properties['link_forward_files'] = true;
+			$properties['forward_files'] = $file_ids;
+		}
+		
+		if(false == ($ticket_id = CerberusMail::compose($properties)))
+			$this->error(self::ERRNO_CUSTOM, "Failed to create a new message.");
+		
+		// Handle custom fields
+		$custom_fields = $this->_handleCustomFields($_POST);
+		
+		if(is_array($custom_fields))
+			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TICKET, $ticket_id, $custom_fields, true, true, true);
+		
+		return $ticket_id;
+	}
+	
+	private function postCompose() {
+		$worker = $this->getActiveWorker();
+
+		// ACL
+		if(!$worker->hasPriv('core.mail.send'))
+			$this->error(self::ERRNO_ACL, 'Access denied to compose mail.');
+		
+		$ticket_id = $this->_handlePostCompose();
+		$this->getId($ticket_id);
 	}
 	
 	private function postComment($id) {
