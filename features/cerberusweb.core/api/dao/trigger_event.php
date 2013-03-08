@@ -86,6 +86,16 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 			$macros = array_merge($macros, $add_macros);
 		}
 		
+		foreach($macros as $macro_id => $macro) {
+			$has_public_vars = false;
+			if(is_array($macro->variables))
+			foreach($macro->variables as $var_name => $var_data) {
+				if(empty($var_data['is_private']))
+					$has_public_vars = true;
+			}
+			
+			$macros[$macro_id]->has_public_vars = $has_public_vars;
+		}
 		
 		return $macros;
 	}
