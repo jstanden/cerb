@@ -1,4 +1,4 @@
-<div class="block" style="width:98%;margin:10px;">
+<div class="block reply_frame" style="width:98%;margin:10px;">
 
 <form id="reply{$message->id}_part1">
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
@@ -43,7 +43,7 @@
 						<input type="text" size="45" name="cc" value="{$draft->params.cc}" placeholder="These recipients will publicly receive a one-time copy of this message" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
 					</td>
 				</tr>
-
+				
 				<tr>
 					<td width="1%" nowrap="nowrap" align="right" valign="middle">{$translate->_('message.header.bcc')|capitalize}:&nbsp;</td>
 					<td width="99%" align="left">
@@ -59,7 +59,7 @@
 				</tr>
 				
 			</table>
-
+			
 			<div id="divDraftStatus{$message->id}"></div>
 			
 			<div>
@@ -68,6 +68,7 @@
 					{assign var=headers value=$message->getHeaders()}
 					<button name="saveDraft" type="button"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
 					<button id="btnInsertReplySig{$message->id}" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if} onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->group_id}&bucket_id={$ticket->bucket_id}',function(txt) { $('#reply_{$message->id}').insertAtCursor(txt); } );"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('display.reply.insert_sig')|capitalize}</button>
+					
 					{* Plugin Toolbar *}
 					{if !empty($reply_toolbaritems)}
 						{foreach from=$reply_toolbaritems item=renderer}
@@ -161,7 +162,7 @@
 		<td>
 			<fieldset class="peek">
 				<legend>{$translate->_('common.attachments')|capitalize}</legend>
-
+				
 				<button type="button" class="chooser_file"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
 				<ul class="bubbles chooser-container">
 				{if $draft->params.file_ids}
@@ -192,10 +193,10 @@
 							<div style="margin-bottom:10px;">
 								{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" object_watchers=$object_watchers context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
 							</div>
-
-							<label><input type="radio" name="closed" value="0" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if (empty($draft) && 'open'==$mail_status_reply) || $draft->params.closed==0}checked="checked"{/if}>{$translate->_('status.open')|capitalize}</label>
-							<label><input type="radio" name="closed" value="2" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'waiting'==$mail_status_reply) || $draft->params.closed==2}checked="checked"{/if}>{$translate->_('status.waiting')|capitalize}</label>
-							{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label><input type="radio" name="closed" value="1" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'closed'==$mail_status_reply) || $draft->params.closed==1}checked="checked"{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
+							
+							<label><input type="radio" name="closed" value="0" class="status_open" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if (empty($draft) && 'open'==$mail_status_reply) || $draft->params.closed==0}checked="checked"{/if}>{$translate->_('status.open')|capitalize}</label>
+							<label><input type="radio" name="closed" value="2" class="status_waiting" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'waiting'==$mail_status_reply) || $draft->params.closed==2}checked="checked"{/if}>{$translate->_('status.waiting')|capitalize}</label>
+							{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label><input type="radio" name="closed" value="1" class="status_closed" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'closed'==$mail_status_reply) || $draft->params.closed==1}checked="checked"{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
 							<br>
 							<br>
 							
@@ -204,7 +205,7 @@
 							<input type="text" name="ticket_reopen" size="55" value="{if !empty($draft)}{$draft->params.ticket_reopen}{elseif !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}"><br>
 							{$translate->_('display.reply.next.resume_blank')}<br>
 							</div>
-	
+							
 							{if $active_worker->hasPriv('core.ticket.actions.move')}
 							<b>{$translate->_('display.reply.next.move')}</b><br>  
 							<select name="bucket_id">
