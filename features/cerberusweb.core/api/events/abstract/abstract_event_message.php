@@ -74,6 +74,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		 */
 		
 		@$ticket_id = $values['ticket_id'];
+		$group_id = 0;
+		
 		$ticket_labels = array();
 		$ticket_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $ticket_labels, $ticket_values, null, true);
@@ -83,6 +85,9 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				$values['is_first'] = ($values['id'] == $ticket_values['initial_message_id']) ? 1 : 0;
 			}
 		
+			if(isset($ticket_values['group_id']))
+				$group_id = $ticket_values['group_id'];
+			
 			// Clear dupe content
 			CerberusContexts::scrubTokensWithRegexp(
 				$ticket_labels,
@@ -108,7 +113,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		/**
 		 * Group
 		 */
-		@$group_id = $event_model->params['group_id'];
 		$group_labels = array();
 		$group_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $group_labels, $group_values, null, true);
