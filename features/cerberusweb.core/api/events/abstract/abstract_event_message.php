@@ -153,6 +153,14 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				$labels,
 				$values
 			);
+
+		/**
+		 * Caller actions
+		 */
+		
+		if(isset($event_model->params['_caller_actions'])) {
+			$values['_caller_actions'] =& $event_model->params['_caller_actions'];
+		}
 			
 		/**
 		 * Return
