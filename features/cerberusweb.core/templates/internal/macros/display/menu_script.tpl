@@ -1,5 +1,8 @@
 {if $macros}
-$menu = $('#menuDisplayMacros');
+{if empty($selector_button)}{$selector_button = '#btnDisplayMacros'}{/if}
+{if empty($selector_menu)}{$selector_menu = '#menuDisplayMacros'}{/if}
+
+$menu = $('{$selector_menu}');
 $menu.appendTo('body');
 $menu.find('> li')
 	.click(function(e) {
@@ -33,9 +36,9 @@ $menu.find('> li > input.filter').keyup(
 	})
 	;
 
-$('#btnDisplayMacros')
+$('{$selector_button}')
 	.click(function(e) {
-		$menu = $('#menuDisplayMacros');
+		$menu = $('{$selector_menu}');
 
 		if($menu.is(':visible')) {
 			$menu.hide();
@@ -57,7 +60,7 @@ $menu
 	.hover(
 		function(e) {},
 		function(e) {
-			$('#menuDisplayMacros')
+			$('{$selector_menu}')
 				.hide()
 			;
 		}
