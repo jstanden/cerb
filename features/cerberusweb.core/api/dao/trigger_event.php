@@ -72,7 +72,10 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 			@$owner_context_id = $owner[1];
 			@$owner_label = $owner[2];
 			
-			if(empty($owner_context) || empty($owner_context_id))
+			if(empty($owner_context))
+				continue;
+			
+			if($owner_context != CerberusContexts::CONTEXT_APPLICATION && empty($owner_context_id))
 				continue;
 			
 			$add_macros = DAO_TriggerEvent::getByOwner($owner_context, $owner_context_id, $event_point);
@@ -113,7 +116,8 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 
 		// Include the current context in allowed owners
 		$owner_contexts = array();
-		$owner_contexts[$context . ':' . $context_id] = true;
+		$owner_context_key = $context . (!empty($context_id) ? (':' . $context_id) : '');
+		$owner_contexts[$owner_context_key] = true;
 		
 		// If our context owner is a worker, include their roles as allowed owners
 		if($context == CerberusContexts::CONTEXT_WORKER) {
@@ -131,7 +135,8 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 				continue;
 
 			// If we're allowed to see this behavior, include it
-			if(isset($owner_contexts[$behavior->owner_context . ':' . $behavior->owner_context_id])) {
+			$behavior_owner_context_key = $behavior->owner_context . (!empty($behavior->owner_context_id) ? (':' . $behavior->owner_context_id) : '');
+			if(isset($owner_contexts[$behavior_owner_context_key])) {
 				// If including all events, or this particular one
 				if(is_null($event_point) || 0==strcasecmp($event_point, $behavior->event_point)) {
 					$results[$behavior_id] = $behavior;
