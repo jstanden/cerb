@@ -86,7 +86,7 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 				}
 			}
 			
-			$macros = array_merge($macros, $add_macros);
+			$macros = $macros + $add_macros;
 		}
 		
 		foreach($macros as $macro_id => $macro) {
