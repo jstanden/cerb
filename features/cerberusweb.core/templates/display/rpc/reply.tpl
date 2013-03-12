@@ -67,6 +67,41 @@
 					<legend>Actions</legend>
 					{assign var=headers value=$message->getHeaders()}
 					<button name="saveDraft" type="button"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
+					
+					{* Virtual Attendants *}
+					{if !empty($macros)}
+					<button type="button" title="(Ctrl+Shift+B)" class="split-left" onclick="$(this).next('button').click();"><span class="cerb-sprite2 sprite-robot"></span> Virtual Attendant</button><!--  
+					--><button type="button" title="(Ctrl+Shift+B)" class="split-right" id="btnReplyMacros{$message->id}"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
+					<ul class="cerb-popupmenu cerb-float" id="menuReplyMacros{$message->id}">
+						<li style="background:none;">
+							<input type="text" size="32" class="input_search filter">
+						</li>
+						{foreach from=$macros item=macro key=macro_id}
+						{$owner_ctx = Extension_DevblocksContext::get($macro->owner_context)}
+						<li class="item">
+							<div>
+								{if $macro->has_public_vars}
+								<a href="javascript:;" onclick="genericAjaxPopup('peek','c=display&a=showMacroReplyPopup&ticket_id={$message->ticket_id}&message_id={$message->id}&macro={$macro->id}',$(this).closest('ul').get(),false,'400');$(this).closest('ul.cerb-popupmenu').hide();">
+								{else}
+								<a href="javascript:;" onclick="genericAjaxGet('','c=display&a=getMacroReply&ticket_id={$message->ticket_id}&message_id={$message->id}&macro={$macro->id}', function(js) { $script=$('<div></div>').html(js); $('BODY').append($script); });$(this).closest('ul.cerb-popupmenu').hide();">
+								{/if}
+									{if !empty($macro->title)}
+										{$macro->title}
+									{else}
+										{$event = DevblocksPlatform::getExtension($macro->event_point, false)}
+										{$event->name}
+									{/if}
+								</a>
+							</div>
+							<div style="margin-left:10px;">
+								{$meta = $owner_ctx->getMeta($macro->owner_context_id)}
+								{$meta.name} ({$owner_ctx->manifest->name})
+							</div>
+						</li>
+						{/foreach}
+					</ul>
+					{/if}
+					
 					<button id="btnInsertReplySig{$message->id}" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if} onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->group_id}&bucket_id={$ticket->bucket_id}',function(txt) { $('#reply_{$message->id}').insertAtCursor(txt); } );"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('display.reply.insert_sig')|capitalize}</button>
 					
 					{* Plugin Toolbar *}
@@ -531,6 +566,13 @@
 							$('#reply{$message->id}_part1').find('.context-snippet').focus();
 						} catch(ex) { } 
 						break;
+					case 2:  
+					case 66: // (B) Insert Behavior
+						try {
+							event.preventDefault();
+							$('#btnReplyMacros{$message->id}').click();
+						} catch(ex) { } 
+						break;
 					case 10:
 					case 74: // (J) Jump to first blank line
 						try {
@@ -642,3 +684,9 @@
 			{/foreach}
 		});
 		{/if}
+	});
+</script>
+
+<script type="text/javascript">
+{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_menu="#menuReplyMacros{$message->id}" selector_button="#btnReplyMacros{$message->id}"}
+</script>

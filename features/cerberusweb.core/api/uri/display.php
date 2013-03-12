@@ -491,6 +491,42 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
 		
+		// VA macros
+		
+		$macros = DAO_TriggerEvent::getByOwners(
+			array(
+				array(CerberusContexts::CONTEXT_APPLICATION, null, null),
+				array(CerberusContexts::CONTEXT_GROUP, $ticket->group_id, $groups[$ticket->group_id]->name),
+				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id, null),
+			),
+			Event_MailDuringUiReplyByWorker::ID
+		);
+		$tpl->assign('macros', $macros);
+		
+		// VA behavior
+		
+		if(null != $active_worker) {
+			$actions = array();
+			
+			$macros = DAO_TriggerEvent::getByOwners(
+				array(
+					array(CerberusContexts::CONTEXT_APPLICATION, null, null),
+					array(CerberusContexts::CONTEXT_GROUP, $ticket->group_id, $groups[$ticket->group_id]->name),
+					array(CerberusContexts::CONTEXT_WORKER, $active_worker->id, null),
+				),
+				Event_MailBeforeUiReplyByWorker::ID
+			);
+			
+			foreach($macros as $macro)
+				Event_MailBeforeUiReplyByWorker::trigger($macro->id, $message->id, $actions);
+
+			if(isset($actions['jquery_scripts']) && is_array($actions['jquery_scripts'])) {
+				$tpl->assign('jquery_scripts', $actions['jquery_scripts']);
+			}
+		}
+		
+		// Display template
+		
 		$tpl->display('devblocks:cerberusweb.core::display/rpc/reply.tpl');
 	}
 	
@@ -714,6 +750,93 @@ class ChDisplayPage extends CerberusPageExtension {
 		} else {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket->mask)));
 		}
+	}
+	
+	function showMacroReplyPopupAction() {
+		@$macro_id = DevblocksPlatform::importGPC($_REQUEST['macro'],'integer',0);
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+		@$message_id = DevblocksPlatform::importGPC($_REQUEST['message_id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		try {
+			if(null == ($macro = DAO_TriggerEvent::get($macro_id)))
+				throw new Exception("Missing macro.");
+			
+			$tpl->assign('macro', $macro);
+			
+		} catch(Exception $e) {
+			DevblocksPlatform::redirectURL($return_url);
+			exit;
+		}
+			
+		$tpl->assign('ticket_id', $ticket_id);
+		$tpl->assign('message_id', $message_id);
+		
+		if(null == ($ctx = DevblocksPlatform::getExtension(CerberusContexts::CONTEXT_TICKET, true))) /* @var $ctx Extension_DevblocksContext */
+			return;
+
+		// Verify permission
+		$editable = $ctx->authorize($ticket_id, $active_worker);
+		
+		if(!$editable)
+			return;
+
+		$event = $macro->getEvent();
+		$conditions = $event->getConditions($macro);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/macros/reply/run_popup.tpl');
+	}
+	
+	function getMacroReplyAction() {
+		@$macro_id = DevblocksPlatform::importGPC($_REQUEST['macro'],'integer',0);
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+		@$message_id = DevblocksPlatform::importGPC($_REQUEST['message_id'],'integer',0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		try {
+			if(null == ($macro = DAO_TriggerEvent::get($macro_id)))
+				throw new Exception("Missing macro.");
+			
+		} catch(Exception $e) {
+			return;
+		}
+			
+		if(null == ($ctx = DevblocksPlatform::getExtension(CerberusContexts::CONTEXT_TICKET, true))) /* @var $ctx Extension_DevblocksContext */
+			return;
+
+		// Verify permission
+		$editable = $ctx->authorize($ticket_id, $active_worker);
+		
+		if(!$editable)
+			return;
+
+		$event = $macro->getEvent();
+		$conditions = $event->getConditions($macro);
+		
+		$actions = array();
+		
+		// Variables
+		@$var_keys = DevblocksPlatform::importGPC($_REQUEST['var_keys'],'array',array());
+		@$var_vals = DevblocksPlatform::importGPC($_REQUEST['var_vals'],'array',array());
+
+		// [TODO] Abstract this?
+		$vars = DAO_ContextScheduledBehavior::buildVariables($var_keys, $var_vals, $macro);
+		
+		Event_MailDuringUiReplyByWorker::trigger($macro_id, $message_id, $actions, $vars);
+
+		// [TODO] Move script block to template?
+		if(isset($actions['jquery_scripts'])) {
+			echo '<script type="text/javascript">';
+			echo '$("#reply' . $message_id . '_part1").closest("div.reply_frame").each(function(e) { try {';
+			echo implode("\n", $actions['jquery_scripts']);
+			echo ' } catch(e) {} });';
+			echo '</script>';
+		}
+		
+		exit;
 	}
 	
 	function showConversationAction() {

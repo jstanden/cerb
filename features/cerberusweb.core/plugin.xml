@@ -478,6 +478,10 @@
 			<class name="Event_MailBeforeUiReplyByWorker" />
 		</file>
 		
+		<file path="api/events/ui/ui_during_reply_by_worker.php">
+			<class name="Event_MailDuringUiReplyByWorker" />
+		</file>
+		
 		<file path="api/events/worker/mail_received_by_watcher.php">
 			<class name="Event_MailReceivedByWatcher" />
 		</file>
@@ -1424,6 +1428,24 @@
 			</params>
 		</extension>
 		
+		<extension point="devblocks.event">
+			<id>event.mail.reply.during.ui.worker</id>
+			<name>[UI] While replying to a message</name>
+			<class>
+				<file>api/events/ui/ui_during_reply_by_worker.php</file>
+				<name>Event_MailDuringUiReplyByWorker</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.comment.created.worker</id>
