@@ -169,6 +169,10 @@
 			<tuv xml:lang="en_US"><seg>Nobody</seg></tuv>
 		</tu>
 
+		
+		<tu tuid='portal.sc.public.ticket_viewer'>
+			<tuv xml:lang="en_US"><seg>Ticket Viewer</seg></tuv>
+		</tu>
 		<tu tuid='portal.sc.cfg.view_ticket.ticket_view_url'>
 			<tuv xml:lang="en_US"><seg>Ticket view URL:</seg></tuv>
 		</tu>

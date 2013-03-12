@@ -236,4 +236,3 @@ class UmScTicketController extends Extension_UmScController {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'history',$ticket[SearchFields_Ticket::TICKET_MASK])));
 	}
 };
-?>

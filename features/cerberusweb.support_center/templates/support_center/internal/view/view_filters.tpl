@@ -18,7 +18,7 @@
 		<select name="do" onchange="ajaxHtmlPost('FORM#filters_{$view->id}','FORM#filters_{$view->id}','{devblocks_url}c=ajax&a=viewFiltersDo{/devblocks_url}');">
 			<option value="">-- action --</option>
 			<option value="remove">Remove selected filters</option>
-			<option value="reset">Reset filters</option>
+			{if $view->id != 'sc_srv_jrn_list'}<option value="reset">Reset filters</option>{/if}
 		</select>
 	</fieldset>
 </div>

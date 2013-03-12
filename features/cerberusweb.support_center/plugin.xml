@@ -51,6 +51,9 @@
 		<file path="api/sc/uri/history.php">
 			<class name="UmSc_TicketHistoryView" />
 		</file>
+		<file path="api/sc/uri/ticket.php">
+			<class name="UmScTicketController" />
+		</file>
 	</class_loader>
 
 	<!-- Templates -->

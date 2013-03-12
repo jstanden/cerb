@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>cerberusweb.datacenter.servers</id>
+	<name>Servers</name>
+	<description>This plugin adds Server objects that can be used to manage datacenters.</description>
+	<author>WebGroup Media, LLC.</author>
+	<version>1.0.14</version>
+	<link>http://www.cerbweb.com/book/latest/plugins/cerberusweb.datacenter.servers.html</link>
+	<image>plugin.png</image>
+ 
+	<!-- Requirements -->
+
+	<requires>
+		<app_version min="6.2" max="6.2.99" />
+	</requires>
+ 
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="6.1.0" />
+		<require plugin_id="cerberusweb.support_center" version="6.2.1" />
+	</dependencies>
+
+	<!-- Patches -->
+	
+	<patches>
+		<patch version="5.1.0" revision="1" file="patches/5.1.0.php" />
+	</patches>
+	
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/dao/server.php">
+			<class name="DAO_Server" />
+			<class name="Model_Server" />
+			<class name="Plugin_Server" />
+			<class name="SearchFields_Server" />
+			<class name="View_Server" />
+		</file>
+		<file path="api/events/abstract_event_server.php">
+			<class name="AbstractEvent_Server" />
+		</file>
+		<file path="api/events/server_macro.php">
+			<class name="Event_ServerMacro" />
+		</file>
+		<file path="api/sc/uri/server.php">
+			<class name="UmSc_ServerJournalListView" />
+		</file>
+		<file path="api/sc/uri/server.php">
+			<class name="UmSc_ServerStatusView" />
+		</file>
+	</class_loader>
+
+	<!-- Templates -->
+
+	<templates set="cerberusweb.support_center">
+		<template path="support_center/server/display.tpl" />
+		<template path="support_center/server/index.tpl" />
+		<template path="support_center/server/view.tpl" />
+	</templates>
+
+	<!-- Extensions -->
+ 
+	<extensions>
+
+		<!-- Event Listeners -->
+		
+		<extension point="devblocks.listener.event">
+			<id>cerberusweb.datacenter.listener</id>
+			<name>Event Listener</name>
+			<class>
+				<file>api/App.php</file>
+				<name>EventListener_Datacenter</name>
+			</class>
+			<params>
+				<param key="events">
+					<value>
+						<data key="cron.maint" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<!-- Contexts -->
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.datacenter.server</id>
+			<name>Server</name>
+			<class>
+				<file>api/dao/server.php</file>
+				<name>Context_Server</name>
+			</class>
+			<params>
+				<param key="alias" value="server" />
+				<param key="dao_class" value="DAO_Server" />
+				<param key="view_class" value="View_Server" />
+				<param key="options">
+					<value>
+						<data key="create" />
+						<data key="find" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<!-- Events -->
+
+		<extension point="devblocks.event">
+			<id>event.macro.server</id>
+			<name>Custom server behavior</name>
+			<class>
+				<file>api/events/server_macro.php</file>
+				<name>Event_ServerMacro</name>
+			</class>
+			<params>
+				<param key="macro_context" value="cerberusweb.contexts.datacenter.server" />
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<!-- Pages -->
+		
+		<extension point="cerberusweb.page">
+			<id>cerberusweb.datacenter.page</id>
+			<name>Datacenter Page</name>
+			<class>
+				<file>api/App.php</file>
+				<name>Page_Datacenter</name>
+			</class>
+			<params>
+				<param key="uri" value="datacenter" />
+				<param key="menutitle" value="" />
+			</params>
+		</extension>
+
+		<!-- Profile Page Sections -->
+		
+		<extension point="cerberusweb.ui.page.section">
+			<id>cerberusweb.profiles.server</id>
+			<name>Server Page Section</name>
+			<class>
+				<file>api/profiles/server.php</file>
+				<name>PageSection_ProfilesServer</name>
+			</class>
+			<params>
+				<param key="page_id" value="core.page.profiles" />
+				<param key="uri" value="server" />
+			</params>
+		</extension>
+
+		<!-- Support Center -->
+
+		<extension point="usermeet.sc.controller">
+			<id>sc.controller.server</id>
+			<name>Server History</name>
+			<class>
+				<file>api/sc/uri/server.php</file>
+				<name>UmScServerController</name>
+			</class>
+			<params>
+				<param key="uri" value="server" />
+				<param key="menu_title" value="portal.sc.public.server_history" />
+			</params>
+		</extension>
+
+    </extensions> 
+</plugin>

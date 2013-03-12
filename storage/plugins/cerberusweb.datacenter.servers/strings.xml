@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx>
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us"
+		srclang="en-us" o-tmf="abc" />
+	<body>
+
+		<!-- Common -->
+
+		<tu tuid='cerberusweb.datacenter.common.datacenter'>
+			<tuv xml:lang="en_US"><seg>Datacenter</seg></tuv>
+		</tu>
+		<tu tuid='cerberusweb.datacenter.common.server'>
+			<tuv xml:lang="en_US"><seg>Server</seg></tuv>
+		</tu>
+		<tu tuid='cerberusweb.datacenter.common.servers'>
+			<tuv xml:lang="en_US"><seg>Servers</seg></tuv>
+		</tu>
+		
+		<tu tuid='cerberusweb.datacenter.servers.add'>
+			<tuv xml:lang="en_US"><seg>Add Server</seg></tuv>
+		</tu>
+
+		<tu tuid='portal.sc.public.server_history'>
+			<tuv xml:lang="en_US"><seg>Server History</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.datacenter.show'>
+			<tuv xml:lang="en_US"><seg>Show these entries</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.datacenter.just_public'>
+			<tuv xml:lang="en_US"><seg>Just public</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.datacenter.just_own'>
+			<tuv xml:lang="en_US"><seg>Just own</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.cfg.datacenter.own_and_public'>
+			<tuv xml:lang="en_US"><seg>Own and public</seg></tuv>
+		</tu>
+		
+	</body>
+</tmx>

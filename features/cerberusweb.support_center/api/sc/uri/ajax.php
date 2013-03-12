@@ -36,6 +36,27 @@ class UmScAjaxController extends Extension_UmScController {
 		}
 	}
 	
+	function portalAction(DevblocksHttpRequest $request) {
+		$stack = $request->path;
+		@$uri = array_shift($stack);
+		if (empty($uri))
+			return;
+		$registry = DevblocksPlatform::getExtensionRegistry();
+		$controller = NULL;
+		foreach ($registry as $controller_mft) {
+			if ($controller_mft->point !== 'usermeet.sc.controller' || empty($controller_mft->params['uri']))
+				continue;
+			if ($controller_mft->params['uri'] == $uri) {
+				$controller = $controller_mft->createInstance();
+				break;
+			}
+		}
+		if (NULL !== $controller) {
+			array_unshift($stack, $uri);
+			$controller->writeResponse(new DevblocksHttpResponse($stack));
+		}
+	}
+	
 	function viewRefreshAction(DevblocksHttpRequest $request) {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
 		
@@ -93,7 +114,7 @@ class UmScAjaxController extends Extension_UmScController {
 			
 			$tpl->assign('view', $view);
 			$tpl->assign('reload_view', true);
-			$tpl->display('devblocks:cerberusweb.support_center::support_center/internal/view/view_filters.tpl');
+			$tpl->display('devblocks:cerberusweb.support_center:portal_'.ChPortalHelper::getCode().':support_center/internal/view/view_filters.tpl');
 		}
 		
 		exit;
@@ -137,7 +158,7 @@ class UmScAjaxController extends Extension_UmScController {
 			
 			$tpl->assign('view', $view);
 			$tpl->assign('reload_view', true);
-			$tpl->display('devblocks:cerberusweb.support_center::support_center/internal/view/view_filters.tpl');
+			$tpl->display('devblocks:cerberusweb.support_center:portal_'.ChPortalHelper::getCode().':support_center/internal/view/view_filters.tpl');
 		}
 		
 		exit;

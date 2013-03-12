@@ -47,7 +47,7 @@
 		
 		<patch version="6.0.0"  revision="989" file="patches/6.x/6.0.0.php" />
 		<patch version="6.1.0" revision="1005" file="patches/6.x/6.1.0.php" />
-		<patch version="6.2.0" revision="1016" file="patches/6.x/6.2.0.php" />
+		<patch version="6.2.0" revision="1017" file="patches/6.x/6.2.0.php" />
 	</patches>
 
 	<!-- Controller Routing -->
@@ -468,6 +468,30 @@
 		
 		<file path="api/uri/portal.php">
 			<class name="ChPortalHelper" />
+		</file>
+
+		<file path="api/dao/context_journal.php">
+			<class name="SearchFields_Journal" />
+		</file>
+
+		<file path="api/dao/context_journal.php">
+			<class name="DAO_Journal" />
+		</file>
+
+		<file path="api/dao/context_journal.php">
+			<class name="View_Journal" />
+		</file>
+
+		<file path="api/dao/context_journal.php">
+			<class name="Context_Journal" />
+		</file>
+
+		<file path="api/dao/context_journal.php">
+			<class name="Search_JournalContent" />
+		</file>
+
+		<file path="api/dao/context_journal.php">
+			<class name="Model_Journal" />
 		</file>
 		
 	</class_loader>
@@ -1048,6 +1072,26 @@
 					</value>
 					-->
 				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.journal</id>
+			<name>Journal</name>
+			<class>
+				<file>api/dao/context_journal.php</file>
+				<name>Context_Journal</name>
+			</class>
+			<params>
+				<param key="alias" value="journal" />
+				<param key="dao_class" value="DAO_Journal" />
+				<param key="view_class" value="View_Journal" />
+				<!--
+				<param key="options">
+					<value>
+					</value>
+				</param>
+				-->
 			</params>
 		</extension>
 

@@ -4,6 +4,30 @@ $logger = DevblocksPlatform::getConsoleLog();
 $tables = $db->metaTables();
 
 // ===========================================================================
+// Journal
+if(!isset($tables['journal'])) {
+	$sql = sprintf("
+		CREATE TABLE IF NOT EXISTS `journal` (
+			`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+			`context` varchar(128) DEFAULT '',
+			`context_id` int(10) unsigned NOT NULL DEFAULT '0',
+			`created` int(10) unsigned NOT NULL DEFAULT '0',
+			`address_id` int(10) unsigned NOT NULL DEFAULT '0',
+			`journal` mediumtext,
+			`ispublic` tinyint(1) unsigned NOT NULL DEFAULT '0',
+			`isinternal` tinyint(1) unsigned NOT NULL DEFAULT '0',
+			`state` tinyint(3) unsigned NOT NULL DEFAULT '0',
+			PRIMARY KEY (`id`),
+			INDEX `context` (`context`),
+			INDEX `context_id` (`context_id`),
+			INDEX `address_id` (`address_id`),
+			INDEX `created` (`created`)
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->Execute($sql);
+}
+
+// ===========================================================================
 // Refactor series datasources in workspace widgets
 
 if(!isset($tables['workspace_widget'])) {

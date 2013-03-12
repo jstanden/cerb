@@ -740,6 +740,14 @@ DIV.block {
 	border-radius: 5px;
 }
 
+DIV.block.state {
+	background-image: url(bg_block_state.jpg?v=2012111201);
+}
+
+DIV.block.state2 {
+	background-image: url(bg_block_state2.jpg?v=2012111201);
+}
+
 DIV.block H2 {
 	font-weight: bold;
 	font-size: 18px;
