@@ -93,18 +93,6 @@
 				$div.html(html);
 				
 				document.location = '#reply' + msgid;
-	
-				$frm_reply = $('#reply' + msgid + '_part2');
-				
-				if(0 != $frm_reply.length) {
-					if(!is_forward) {
-						$textarea = $div.find('textarea[name=content]');
-						$textarea.focus();
-						setElementSelRange($textarea.get(0), 0, 0);
-					} else {
-						$div.find('input:text[name=to]').focus();
-					}
-				}
 			}
 		);
 	}

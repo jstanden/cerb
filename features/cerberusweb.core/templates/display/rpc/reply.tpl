@@ -337,6 +337,16 @@
 				$ul.closest('div').remove();
 		});
 		
+		// Focus
+		
+		{if !$is_forward}
+			$textarea = $frm2.find('textarea[name=content]');
+			$textarea.focus();
+			setElementSelRange($textarea.get(0), 0, 0);
+		{else}
+			$frm.find('input:text[name=to]').focus();
+		{/if}
+		
 		// Reply action buttons
 		
 		var $buttons = $('#reply{$message->id}_buttons');
