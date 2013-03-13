@@ -36,10 +36,11 @@ class DevblocksEventHelper {
 	/*
 	 * Action: Custom Fields
 	 */
-	private static function _getCustomFieldValuesFromParams($params) {
+	public static function getCustomFieldValuesFromParams($params) {
 		$custom_fields = DAO_CustomField::getAll();
 		$custom_field_values = array();
 		
+		if(is_array($params))
 		foreach($params as $key => $val) {
 			if(substr($key,0,6) == 'field_') {
 				$cf_id = substr($key, 6);
@@ -1631,7 +1632,7 @@ class DevblocksEventHelper {
 
 		if(false != ($params = $tpl->getVariable('params'))) {
 			$params = $params->value;
-			$custom_field_values = self::_getCustomFieldValuesFromParams($params);
+			$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 			$tpl->assign('custom_field_values', $custom_field_values);
 		}
 		
@@ -1662,7 +1663,7 @@ class DevblocksEventHelper {
 		);
 
 		$custom_fields = DAO_CustomField::getAll();
-		$custom_field_values = self::_getCustomFieldValuesFromParams($params);
+		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 		
 		foreach($custom_field_values as $cf_id => $val) {
 			if(!isset($custom_fields[$cf_id]))
@@ -1778,7 +1779,7 @@ class DevblocksEventHelper {
 					$task_id = DAO_Task::create($fields);
 					
 					// Custom fields
-					$custom_field_values = self::_getCustomFieldValuesFromParams($params);
+					$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 					
 					if(is_array($custom_field_values))
 					foreach($custom_field_values as $cf_id => $val) {
@@ -1832,7 +1833,7 @@ class DevblocksEventHelper {
 
 		if(false != ($params = $tpl->getVariable('params'))) {
 			$params = $params->value;
-			$custom_field_values = self::_getCustomFieldValuesFromParams($params);
+			$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 			$tpl->assign('custom_field_values', $custom_field_values);
 		}
 		
@@ -1869,7 +1870,7 @@ class DevblocksEventHelper {
 		// Custom fields
 		
 		$custom_fields = DAO_CustomField::getAll();
-		$custom_field_values = self::_getCustomFieldValuesFromParams($params);
+		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 		
 		foreach($custom_field_values as $cf_id => $val) {
 			if(!isset($custom_fields[$cf_id]))
@@ -1997,7 +1998,7 @@ class DevblocksEventHelper {
 		CerberusMail::sendTicketMessage($properties);
 		
 		// Custom fields
-		$custom_field_values = self::_getCustomFieldValuesFromParams($params);
+		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 		
 		if(is_array($custom_field_values))
 		foreach($custom_field_values as $cf_id => $val) {
