@@ -585,12 +585,10 @@ class ChTicketsPage extends CerberusPageExtension {
 			@$type_param = $piles_type_param[$idx];
 			@$val = $piles_value[$idx];
 			
-			/*
-			 * [TODO] [JAS]: Somewhere here we should be ignoring these values for a bit
-			 * so other options have a chance to bubble up
-			 */
 			if(empty($hash) || empty($moveto) || empty($type) || empty($val))
 				continue;
+			
+			$doActions = array();
 			
 			switch(strtolower(substr($moveto,0,1))) {
 				// Group/Bucket Move
@@ -617,7 +615,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					);
 					break;
 					
-				// Action
+				// Status
 				case 'a':
 					switch(strtolower(substr($moveto,1))) {
 						case 'c': // close
@@ -674,8 +672,21 @@ class ChTicketsPage extends CerberusPageExtension {
 					);
 					break;
 					
+					
+				// Actions
 				default:
-					$doActions = array();
+					switch($moveto) {
+						case 'merge':
+							$doActions = array(
+								'merge' => true,
+							);
+							break;
+							
+						default:
+							$doActions = array();
+							break;
+					}
+					
 					break;
 			}
 			
@@ -705,7 +716,8 @@ class ChTicketsPage extends CerberusPageExtension {
 				$doData = array($val);
 			}
 			
-			$view->doBulkUpdate($doType, $doTypeParam, $doData, $doActions, array());
+			if(!empty($doActions))
+				$view->doBulkUpdate($doType, $doTypeParam, $doData, $doActions, array());
 		}
 
 		$view->renderPage = 0; // Reset the paging since we may have reduced our list size

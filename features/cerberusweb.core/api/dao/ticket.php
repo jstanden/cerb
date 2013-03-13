@@ -2730,6 +2730,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$change_fields = array();
 		$custom_fields = array();
 
+		$do_merge = false;
+		
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		
 		// Make sure we have actions
@@ -2743,6 +2745,9 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		if(is_array($do))
 		foreach($do as $k => $v) {
 			switch($k) {
+				case 'merge':
+					$do_merge = true;
+					break;
 				case 'move':
 					$change_fields[DAO_Ticket::GROUP_ID] = $v['group_id'];
 					$change_fields[DAO_Ticket::BUCKET_ID] = $v['bucket_id'];
@@ -2830,7 +2835,15 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					 
 				} while(!empty($tickets));
 			}
-	   
+			
+			// If merging, do that first, then run subsequent actions on the lone destination ticket
+			// [TODO] This could show up on the ticket bulk update popup
+			if($do_merge) {
+				if(null != ($merged_into_id = DAO_Ticket::merge($ids))) {
+					$ids = array($merged_into_id);
+				}
+			}
+			
 			$batch_total = count($ids);
 			for($x=0;$x<=$batch_total;$x+=200) {
 				$batch_ids = array_slice($ids,$x,200);
