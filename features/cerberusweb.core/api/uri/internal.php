@@ -377,6 +377,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				'line' => $parts,
 				'fields' => $field,
 				'columns' => $column,
+				'virtual_fields' => array(),
 			);
 			
 			$fields = array();
@@ -405,12 +406,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(0 == strlen($val))
 					continue;
 				
-				// Are we setting a custom field?
-				$cf_id = null;
-				if('cf_' == substr($key,0,3)) {
-					$cf_id = substr($key,3);
-				}
-
 				// What type of field is this?
 				$type = $keys[$key]['type'];
 				$value = null;
@@ -513,10 +508,23 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(!is_null($value)) {
 					$val = $value;
 					
-					if(is_null($cf_id)) {
-						$fields[$key] = $value;
+					// Are we setting a custom field?
+					$cf_id = null;
+					if('cf_' == substr($key,0,3)) {
+						$cf_id = substr($key,3);
+					}
+					
+					// Is this a virtual field?
+					if(substr($key,0,1) == '_') {
+						$meta['virtual_fields'][$key] = $value;
+						
+					// ...or is it a normal DAO field?
 					} else {
-						$custom_fields[$cf_id] = $value;
+						if(is_null($cf_id)) {
+							$fields[$key] = $value;
+						} else {
+							$custom_fields[$cf_id] = $value;
+						}
 					}
 				}
 				
