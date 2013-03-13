@@ -1179,14 +1179,14 @@ class DAO_Ticket extends C4_ORMHelper {
 		return $tops;
 	}
 	
-	private function sortByCount($a,$b) {
+	private static function sortByCount($a,$b) {
 		if ($a[2] == $b[2]) {
 			return 0;
 		}
 		return ($a[2] > $b[2]) ? -1 : 1;
 	}
 
-	private function findLongestCommonPrefix($list) {
+	private static function findLongestCommonPrefix($list) {
 		// Find the longest subject line
 		$subjects = array_keys($list);
 		usort($subjects, array('DAO_Ticket','sortByLen'));
@@ -1226,7 +1226,7 @@ class DAO_Ticket extends C4_ORMHelper {
 	}
 	
 	// Sort by strlen (longest to shortest)
-	private function sortByLen($a,$b) {
+	private static function sortByLen($a,$b) {
 		$asize = strlen($a);
 		$bsize = strlen($b);
 		if($asize==$bsize) return 0;
