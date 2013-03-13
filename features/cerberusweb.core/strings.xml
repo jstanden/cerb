@@ -1147,6 +1147,9 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='header.signoff'>
 			<tuv xml:lang="en_US"><seg>Sign off</seg></tuv>
 		</tu>
+		<tu tuid='header.signoff.all.my'>
+			<tuv xml:lang="en_US"><seg>Sign off (all my sessions)</seg></tuv>
+		</tu>
 		<tu tuid='header.signon'>
 			<tuv xml:lang="en_US"><seg>Sign on</seg></tuv>
 		</tu>

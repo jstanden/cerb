@@ -377,6 +377,12 @@ class ChSignInPage extends CerberusPageExtension {
 	}
 	
 	function signoutAction() {
+		$request = DevblocksPlatform::getHttpRequest();
+		$stack = $request->path;
+		@array_shift($stack); // login
+		@array_shift($stack); // signout
+		@$option = strtolower(array_shift($stack));
+		
 		/*
 		 * Log activity (worker.logged_out)
 		 */
@@ -397,7 +403,16 @@ class ChSignInPage extends CerberusPageExtension {
 		
 		DAO_Worker::logActivity(new Model_Activity(null));
 		
-		$session->clear();
+		switch($option) {
+			case 'all':
+				if(null != ($active_worker = CerberusApplication::getActiveWorker()))
+					Cerb_DevblocksSessionHandler::destroyByWorkerIds($active_worker->id);
+				break;
+				
+			default:
+				$session->clear();
+				break;
+		}
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
 	}

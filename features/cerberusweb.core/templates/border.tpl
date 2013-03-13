@@ -38,6 +38,7 @@
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=links{/devblocks_url}">{'watchlist'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=activity{/devblocks_url}">{'header.history'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{'header.signoff'|devblocks_translate|lower}</a></li>
+				<li><a href="{devblocks_url}c=login&a=signout&w=all{/devblocks_url}">{'header.signoff.all.my'|devblocks_translate|lower}</a></li>
 			</ul>
 		{/if}
 		</td>
