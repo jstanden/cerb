@@ -842,7 +842,7 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 	}
 };
 
-class Context_ContactPerson extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+class Context_ContactPerson extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
 	static function searchInboundLinks($from_context, $from_context_id) {
 		list($results, $null) = DAO_ContactPerson::search(
 			array(
@@ -1089,5 +1089,116 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 		$tpl->assign('view_id', $view_id);
 		
 		$tpl->display('devblocks:cerberusweb.core::contacts/people/peek.tpl');
+	}
+	
+	function importGetKeys() {
+		// [TODO] Translate
+	
+		$keys = array(
+			'created' => array(
+				'label' => 'Created Date',
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_ContactPerson::CREATED,
+			),
+			'auth_password' => array(
+				'label' => 'Password',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_ContactPerson::AUTH_PASSWORD,
+			),
+			'email_id' => array(
+				'label' => 'Email',
+				'type' => 'ctx_' . CerberusContexts::CONTEXT_ADDRESS,
+				'param' => SearchFields_ContactPerson::EMAIL_ID,
+				'force_match' => true,
+				'required' => true,
+			),
+				
+			// Virtual fields
+				
+			'_first_name' => array(
+				'label' => 'First Name',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_ContactPerson::ADDRESS_FIRST_NAME,
+			),
+			'_last_name' => array(
+				'label' => 'Last Name',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_ContactPerson::ADDRESS_LAST_NAME,
+			),
+		);
+	
+		$cfields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT_PERSON);
+	
+		foreach($cfields as $cfield_id => $cfield) {
+			$keys['cf_' . $cfield_id] = array(
+				'label' => $cfield->name,
+				'type' => $cfield->type,
+				'param' => 'cf_' . $cfield_id,
+			);
+		}
+	
+		DevblocksPlatform::sortObjects($keys, '[label]', true);
+	
+		return $keys;
+	}
+	
+	function importKeyValue($key, $value) {
+		switch($key) {
+		}
+	
+		return $value;
+	}
+	
+	function importSaveObject(array $fields, array $custom_fields, array $meta) {
+		if(!isset($fields[DAO_ContactPerson::CREATED]))
+			$fields[DAO_ContactPerson::CREATED] = time();
+
+		// Hash any plaintext passwords
+		// [TODO] Handle pre-hashed passwords?
+		if(isset($fields[DAO_ContactPerson::AUTH_PASSWORD])) {
+			$salt = CerberusApplication::generatePassword(8);
+			$fields[DAO_ContactPerson::AUTH_SALT] = $salt;
+			$fields[DAO_ContactPerson::AUTH_PASSWORD] = md5($salt . md5($fields[DAO_ContactPerson::AUTH_PASSWORD]));
+		}
+		
+		// If new...
+		if(!isset($meta['object_id']) || empty($meta['object_id'])) {
+			// Create
+			if(null != ($object_id = DAO_ContactPerson::create($fields))) {
+				$meta['object_id'] = $object_id;
+			}
+			
+			// Link the address back to the contact
+			if(isset($fields[DAO_ContactPerson::EMAIL_ID]))
+			DAO_Address::update($fields[DAO_ContactPerson::EMAIL_ID], array(
+				DAO_Address::CONTACT_PERSON_ID => $object_id,
+			));
+	
+		} else {
+			// Update
+			DAO_ContactPerson::update($meta['object_id'], $fields);
+		}
+
+		// Custom fields
+		if(!empty($custom_fields) && !empty($meta['object_id'])) {
+			DAO_CustomFieldValue::formatAndSetFieldValues($this->manifest->id, $meta['object_id'], $custom_fields, false, true, true); //$is_blank_unset (4th)
+		}
+		
+		// Handle linked address fields
+		
+		$address_fields = array();
+		
+		if(isset($meta['virtual_fields']['_first_name'])) {
+			$address_fields[DAO_Address::FIRST_NAME] = $meta['virtual_fields']['_first_name'];
+		}
+		
+		if(isset($meta['virtual_fields']['_last_name'])) {
+			$address_fields[DAO_Address::LAST_NAME] = $meta['virtual_fields']['_last_name'];
+		}
+		
+		if(isset($fields[DAO_ContactPerson::EMAIL_ID]) && !empty($fields[DAO_ContactPerson::EMAIL_ID]) && !empty($address_fields)) {
+			DAO_Address::update($fields[DAO_ContactPerson::EMAIL_ID], $address_fields);
+		}
+		
 	}
 };
