@@ -27,6 +27,10 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 			case 'create':
 				$this->postCreate();
 				break;
+			
+			case 'search':
+				$this->postSearch();
+				break;
 		}
 		
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
