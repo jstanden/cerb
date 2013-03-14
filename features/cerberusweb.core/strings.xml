@@ -1500,6 +1500,16 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		
 		<!-- Message -->
 
+		<tu tuid='message.header'>
+			<tuv xml:lang="en_US"><seg>Header</seg></tuv>
+		</tu>
+		<tu tuid='message.headers'>
+			<tuv xml:lang="en_US"><seg>Headers</seg></tuv>
+		</tu>
+		<tu tuid='message.headers.custom'>
+			<tuv xml:lang="en_US"><seg>Custom Headers</seg></tuv>
+		</tu>
+		
 		<tu tuid='message.header.bcc'>
 			<tuv xml:lang="en_US"><seg>Bcc</seg></tuv>
 		</tu>

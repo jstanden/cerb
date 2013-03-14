@@ -2127,11 +2127,17 @@ class DevblocksEventHelper {
 		
 		$to = array_unique($to);
 		
-		if(false == ($subject = $tpl_builder->build($params['subject'], $dict))) {
+		if(false === ($subject = $tpl_builder->build($params['subject'], $dict))) {
 			return "[ERROR] The 'subject' field has invalid placeholders.";
 		}
 		
-		if(false == ($content = $tpl_builder->build($params['content'], $dict))) {
+		if(false === ($headers_string = $tpl_builder->build($params['headers'], $dict))) {
+			return "[ERROR] The 'headers' field has invalid placeholders.";
+		}
+		
+		$headers = DevblocksPlatform::parseCrlfString($headers_string);
+		
+		if(false === ($content = $tpl_builder->build($params['content'], $dict))) {
 			return "[ERROR] The 'content' field has invalid placeholders.";
 		}
 		
@@ -2139,11 +2145,13 @@ class DevblocksEventHelper {
 			"To: %s\n".
 			"From: %s\n".
 			"Subject: %s\n".
+			"%s".
 			"\n".
 			"%s\n",
 			implode(",\n  ", $to),
 			$replyto_addresses[$from_address_id]->email,
 			$subject,
+			(!empty($headers) ? (implode("\n", $headers) . "\n") : ''),
 			$content
 		);
 		
@@ -2224,12 +2232,20 @@ class DevblocksEventHelper {
 		$subject = $tpl_builder->build($params['subject'], $dict);
 		$content = $tpl_builder->build($params['content'], $dict);
 
+		// Headers
+		
+		@$headers_string = $tpl_builder->build($params['headers'], $dict);
+		@$headers = DevblocksPlatform::parseCrlfString($headers_string);
+		
+		// Send
+		
 		CerberusMail::quickSend(
 			implode(', ', $to),
 			$subject,
 			$content,
 			$replyto_addresses[$from_address_id]->email,
-			$replyto_addresses[$from_address_id]->reply_personal
+			$replyto_addresses[$from_address_id]->reply_personal,
+			$headers
 		);
 	}
 	
@@ -2239,10 +2255,24 @@ class DevblocksEventHelper {
 
 	static function simulateActionSendEmailRecipients($params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		// Headers
+		
+		if(false === ($headers_string = $tpl_builder->build($params['headers'], $dict)))
+			return "[ERROR] The 'headers' field has invalid placeholders.";
+		
+		$headers = DevblocksPlatform::parseCrlfString($headers_string);
+		
+		// Content
+		
 		$content = $tpl_builder->build($params['content'], $dict);
 
+		// Out
+		
 		$out = sprintf(">>> Sending email to recipients\n".
+			"%s".
 			"%s\n",
+			(!empty($headers) ? (implode("\n", $headers) . "\n\n") : ''),
 			$content
 		);
 

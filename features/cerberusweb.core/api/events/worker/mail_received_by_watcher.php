@@ -647,6 +647,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			case 'send_email_recipients':
 				// Translate message tokens
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				
 				$content = $tpl_builder->build($params['content'], $dict);
 				
 				$properties = array(
@@ -655,6 +656,16 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 					'content' => $content,
 					'worker_id' => 0,
 				);
+				
+				// Headers
+
+				@$headers = $tpl_builder->build($params['headers'], $dict);
+
+				if(!empty($headers))
+					$properties['headers'] = DevblocksPlatform::parseCrlfString($headers);
+
+				// Send
+				
 				CerberusMail::sendTicketMessage($properties);
 				break;
 				

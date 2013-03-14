@@ -1000,6 +1000,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			case 'send_email_recipients':
 				// Translate message tokens
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
 				$content = $tpl_builder->build($params['content'], $dict);
 				
 				$properties = array(
@@ -1009,8 +1010,19 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 					'worker_id' => 0, //$worker_id,
 				);
 				
+				// Headers
+
+				@$headers = $tpl_builder->build($params['headers'], $dict);
+
+				if(!empty($headers))
+					$properties['headers'] = DevblocksPlatform::parseCrlfString($headers);
+
+				// Options
+				
 				if(isset($params['is_autoreply']) && !empty($params['is_autoreply']))
 					$properties['is_autoreply'] = true;
+				
+				// Send
 				
 				CerberusMail::sendTicketMessage($properties);
 				break;

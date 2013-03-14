@@ -91,7 +91,7 @@ class CerberusMail {
 		return $results;
 	}
 	
-	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null) {
+	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null, $custom_headers=array()) {
 		try {
 			$mail_service = DevblocksPlatform::getMailService();
 			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
@@ -120,9 +120,21 @@ class CerberusMail {
 			$mail->setSubject($subject);
 			$mail->generateId();
 			
+			// Headers
+			
 			$headers = $mail->getHeaders();
 			
-			$headers->addTextHeader('X-Mailer','Cerberus Helpdesk ' . APP_VERSION . ' (Build '.APP_BUILD.')');
+			$headers->addTextHeader('X-Mailer','Cerb ' . APP_VERSION . ' (Build '.APP_BUILD.')');
+			
+			if(is_array($custom_headers) && !empty($custom_headers))
+			foreach($custom_headers as $custom_header) {
+				@list($header_key, $header_val) = explode(':', $custom_header);
+				
+				if(!empty($header_key) && !empty($header_val))
+					$headers->addTextHeader(trim($header_key), trim($header_val));
+			}
+			
+			// Body
 			
 			$mail->setBody($body);
 		
@@ -470,6 +482,7 @@ class CerberusMail {
 		'cc'
 		'bcc'
 		'content'
+		'headers'
 		'files'
 		'closed'
 		'ticket_reopen'
@@ -652,6 +665,17 @@ class CerberusMail {
 					} else {
 						$mail->addBcc($k);
 					}
+				}
+			}
+			
+			// Custom headers
+			
+			if(isset($properties['headers']) && is_array($properties['headers']))
+			foreach($properties['headers'] as $custom_header) {
+				@list($header_key, $header_val) = explode(':', $custom_header);
+				
+				if(!empty($header_key) && !empty($header_val)) {
+					$headers->addTextHeader(trim($header_key), trim($header_val));
 				}
 			}
 			
