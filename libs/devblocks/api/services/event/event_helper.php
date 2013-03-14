@@ -1264,7 +1264,7 @@ class DevblocksEventHelper {
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
 
 		// Event
-		$trigger = $dict->_trigger;
+		$trigger = $dict->_trigger; /* @var $trigger Model_TriggerEvent */
 		$event = $trigger->getEvent();
 		
 		// Translate message tokens
@@ -1274,7 +1274,8 @@ class DevblocksEventHelper {
 		// Fields
 		
 		$fields = array(
-			DAO_Comment::ADDRESS_ID => 0,
+			DAO_Comment::OWNER_CONTEXT => $trigger->owner_context,
+			DAO_Comment::OWNER_CONTEXT_ID => $trigger->owner_context_id,
 			DAO_Comment::CREATED => time(),
 			DAO_Comment::COMMENT => $content,
 		);
@@ -1797,7 +1798,8 @@ class DevblocksEventHelper {
 					// Comment content
 					if(!empty($comment)) {
 						$fields = array(
-							DAO_Comment::ADDRESS_ID => 0,
+							DAO_Comment::OWNER_CONTEXT => $trigger->owner_context,
+							DAO_Comment::OWNER_CONTEXT_ID => $trigger->owner_context_id,
 							DAO_Comment::COMMENT => $comment,
 							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
 							DAO_Comment::CONTEXT_ID => $task_id,
