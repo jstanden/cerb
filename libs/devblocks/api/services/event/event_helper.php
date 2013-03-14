@@ -1331,6 +1331,157 @@ class DevblocksEventHelper {
 		);
 		$queue_id = DAO_MailQueue::create($fields);
 	}
+
+	/*
+	 * Action: Set Ticket Org
+	 */
+	
+	static function renderActionSetTicketOrg($trigger) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$event = $trigger->getEvent();
+		
+		$values_to_contexts = $event->getValuesContexts($trigger);
+		
+		// Only keep address and ticket contexts
+		if(is_array($values_to_contexts))
+		foreach($values_to_contexts as $value_key => $value_data) {
+			if(!isset($value_data['context'])
+				|| !in_array($value_data['context'], array(CerberusContexts::CONTEXT_ADDRESS, CerberusContexts::CONTEXT_TICKET)))
+					unset($values_to_contexts[$value_key]);
+		}
+		
+		$tpl->assign('values_to_contexts', $values_to_contexts);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_org.tpl');
+	}
+	
+	static function simulateActionSetTicketOrg($params, DevblocksDictionaryDelegate $dict, $default_on) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		@$org = trim(
+			$tpl_builder->build(
+				DevblocksPlatform::importVar($params['org'], 'string', ''),
+				$dict
+			)
+		);
+		
+		// Org
+		
+		$out = ">>> Setting organization:\n";
+		
+		if(empty($org)) {
+			$out .= " * No org is being set. Skipping...";
+			return $out;
+		}
+		
+		$out .= $org ."\n";
+		
+		// Event
+
+		$trigger = $dict->_trigger; /* @var $trigger Model_TriggerEvent */
+		$event = $trigger->getEvent();
+		
+		// On
+		
+		@$on = DevblocksPlatform::importVar($params['on'], 'string', $default_on);
+
+		$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
+		@$on_objects = $on_result['objects'];
+		
+		if(is_array($on_objects)) {
+			$out .= "\n>>> On:\n";
+			
+			foreach($on_objects as $on_object) {
+				$on_object_context = Extension_DevblocksContext::get($on_object->_context);
+				$out .= ' * (' . $on_object_context->manifest->name . ') ' . @$on_object->_label . "\n";
+			}
+			$out .= "\n";
+		}
+		
+		return $out;
+	}
+	
+	static function runActionSetTicketOrg($params, DevblocksDictionaryDelegate $dict, $ticket_id, $values_prefix) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		@$org = trim(
+			$tpl_builder->build(
+				DevblocksPlatform::importVar($params['org'], 'string', ''),
+				$dict
+			)
+		);
+
+		// Event
+
+		$trigger = $dict->_trigger; /* @var $trigger Model_TriggerEvent */
+		$event = $trigger->getEvent();
+
+		// Pull org record
+		
+		if(null == ($org_id = DAO_ContactOrg::lookup($org, true)) || empty($org_id)) {
+			return;
+		}
+		
+		// On:
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string',$default_on);
+		
+		$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
+		@$on_objects = $on_result['objects'];
+		
+		if(is_array($on_objects)) {
+			foreach($on_objects as $on_object) {
+				switch($on_object->_context) {
+					case CerberusContexts::CONTEXT_ADDRESS:
+						DAO_Address::update($on_object->id, array(
+							DAO_Address::CONTACT_ORG_ID => $org_id,
+						));
+						break;
+						
+					case CerberusContexts::CONTEXT_TICKET:
+						DAO_Ticket::update($on_object->id, array(
+							DAO_Ticket::ORG_ID => $org_id,
+						));
+						break;
+				}
+			}
+		}
+		
+		/**
+		 * Re-update org values
+		 */
+		// [TODO] Redo with DevblocksDictionaryDelegate
+		/*
+		$worker_labels = array();
+		$worker_values = array();
+		$labels = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $owner_id, $worker_labels, $worker_values, NULL, true);
+				
+			// Clear dupe content
+			CerberusContexts::scrubTokensWithRegexp(
+				$worker_labels,
+				$worker_values,
+				array(
+					"#^address_org_#",
+				)
+			);
+		
+			// Merge
+			CerberusContexts::merge(
+				$values_prefix,
+				'',
+				$worker_labels,
+				$worker_values,
+				$labels,
+				$values
+			);
+		*/
+	}
+	
+	/*
+	 * Action: Set Ticket Owner
+	 */
 	
 	static function renderActionSetTicketOwner() {
 		$tpl = DevblocksPlatform::getTemplateService();

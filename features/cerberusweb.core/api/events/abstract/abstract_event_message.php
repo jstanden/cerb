@@ -660,6 +660,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				'schedule_behavior' => array('label' => 'Schedule behavior'),
 				'send_email' => array('label' => 'Send email'),
 				'send_email_recipients' => array('label' => 'Send email to recipients'),
+				'set_org' => array('label' =>'Set organization'),
 				'set_owner' => array('label' =>'Set owner'),
 				'set_reopen_date' => array('label' => 'Set reopen date'),
 				'set_spam_training' => array('label' => 'Set spam training'),
@@ -747,6 +748,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				$tpl->assign('dates', $dates);
 				
 				DevblocksEventHelper::renderActionScheduleBehavior($trigger);
+				break;
+				
+			case 'set_org':
+				DevblocksEventHelper::renderActionSetTicketOrg($trigger);
 				break;
 				
 			case 'set_owner':
@@ -853,6 +858,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
 				break;
 				
+			case 'set_org':
+				return DevblocksEventHelper::simulateActionSetTicketOrg($params, $dict, 'ticket_id');
+				break;
+				
 			case 'set_owner':
 				return DevblocksEventHelper::simulateActionSetTicketOwner($params, $dict);
 				break;
@@ -957,6 +966,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 			case 'schedule_behavior':
 				DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
+				break;
+				
+			case 'set_org':
+				DevblocksEventHelper::runActionSetTicketOrg($params, $dict, 'ticket_id', 'ticket_org_');
 				break;
 				
 			case 'set_owner':

@@ -706,6 +706,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				'schedule_email_recipients' => array('label' => 'Schedule email to recipients'),
 				'send_email' => array('label' => 'Send email'),
 				'send_email_recipients' => array('label' => 'Send email to recipients'),
+				'set_org' => array('label' =>'Set organization'),
 				'set_owner' => array('label' =>'Set owner'),
 				'set_reopen_date' => array('label' => 'Set reopen date'),
 				'set_spam_training' => array('label' => 'Set spam training'),
@@ -804,6 +805,10 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				
 			case 'schedule_email_recipients':
 				DevblocksEventHelper::renderActionScheduleTicketReply();
+				break;
+				
+			case 'set_org':
+				DevblocksEventHelper::renderActionSetTicketOrg($trigger);
 				break;
 				
 			case 'set_owner':
@@ -911,6 +916,10 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				
 			case 'send_email_recipients':
 				return DevblocksEventHelper::simulateActionSendEmailRecipients($params, $dict);
+				break;
+				
+			case 'set_org':
+				return DevblocksEventHelper::simulateActionSetTicketOrg($params, $dict, 'ticket_id');
 				break;
 				
 			case 'set_owner':
@@ -1038,6 +1047,10 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				// Send
 				
 				CerberusMail::sendTicketMessage($properties);
+				break;
+				
+			case 'set_org':
+				DevblocksEventHelper::runActionSetTicketOrg($params, $dict, 'ticket_id', 'ticket_org_');
 				break;
 				
 			case 'set_owner':
