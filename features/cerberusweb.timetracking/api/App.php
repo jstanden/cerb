@@ -272,7 +272,8 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 							$url_writer->writeNoProxy(sprintf("c=profiles&type=time_tracking&id=%d", $id), true)
 						);
 						$fields = array(
-							DAO_Comment::ADDRESS_ID => intval($worker_address->id),
+							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+							DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
 							DAO_Comment::COMMENT => $context_comment,
 							DAO_Comment::CREATED => time(),
 							DAO_Comment::CONTEXT => $link_context,
@@ -351,7 +352,8 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 			@$also_notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
 			
 			$fields = array(
-				DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+				DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+				DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
 				DAO_Comment::COMMENT => $comment,
 				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TIMETRACKING,
 				DAO_Comment::CONTEXT_ID => $id,

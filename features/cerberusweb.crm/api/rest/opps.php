@@ -362,7 +362,8 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 		$fields = array(
 			DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_OPPORTUNITY,
 			DAO_Comment::CONTEXT_ID => $opp->id,
-			DAO_Comment::ADDRESS_ID => $worker->getAddress()->id,
+			DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+			DAO_Comment::OWNER_CONTEXT_ID => $worker->id,
 			DAO_Comment::CREATED => time(),
 			DAO_Comment::COMMENT => $note,
 		);

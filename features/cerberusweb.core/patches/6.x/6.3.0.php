@@ -288,6 +288,43 @@ if(!isset($columns['user_agent'])) {
 }
 
 // ===========================================================================
+// Change comment.address_id to comment.owner_context + comment.owner_context_id
+
+if(!isset($tables['comment'])) {
+	$logger->error("The 'comment' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('comment');
+
+if(!isset($columns['owner_context']) && !isset($columns['owner_context_id'])) {
+	$db->Execute("ALTER TABLE comment ADD COLUMN owner_context VARCHAR(255) NOT NULL DEFAULT '', ".
+		"ADD COLUMN owner_context_id INT UNSIGNED NOT NULL DEFAULT 0"
+	);
+}
+
+if(isset($columns['address_id'])) {
+	// Set workers where possible
+	$db->Execute("UPDATE comment INNER JOIN address ON (comment.address_id=address.id) ".
+		"INNER JOIN worker ON (worker.email=address.email) ".
+		"SET owner_context = 'cerberusweb.contexts.worker', owner_context_id=worker.id ".
+		"WHERE owner_context = ''"
+	);
+	
+	// Catch everything that falls through the cracks
+	$db->Execute("UPDATE comment SET owner_context = 'cerberusweb.contexts.address', owner_context_id = address_id ".
+		"WHERE owner_context = '' AND address_id != 0"
+	);
+	
+	// Catch everything that falls through the cracks
+	$db->Execute("UPDATE comment SET owner_context = 'cerberusweb.contexts.app', owner_context_id = address_id ".
+		"WHERE owner_context = ''"
+	);
+	
+	$db->Execute("ALTER TABLE comment DROP COLUMN address_id");
+}
+
+// ===========================================================================
 // Finish
 
 return TRUE;

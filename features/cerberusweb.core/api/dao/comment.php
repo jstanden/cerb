@@ -20,7 +20,8 @@ class DAO_Comment extends C4_ORMHelper {
 	const CONTEXT = 'context';
 	const CONTEXT_ID = 'context_id';
 	const CREATED = 'created';
-	const ADDRESS_ID = 'address_id';
+	const OWNER_CONTEXT = 'owner_context';
+	const OWNER_CONTEXT_ID = 'owner_context_id';
 	const COMMENT = 'comment';
 
 	static function create($fields, $also_notify_worker_ids=array()) {
@@ -113,7 +114,7 @@ class DAO_Comment extends C4_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, context, context_id, created, address_id, comment ".
+		$sql = "SELECT id, context, context_id, created, owner_context, owner_context_id, comment ".
 			"FROM comment ".
 			$where_sql.
 			$sort_sql.
@@ -167,7 +168,8 @@ class DAO_Comment extends C4_ORMHelper {
 			$object->context = $row['context'];
 			$object->context_id = $row['context_id'];
 			$object->created = $row['created'];
-			$object->address_id = $row['address_id'];
+			$object->owner_context = $row['owner_context'];
+			$object->owner_context_id = $row['owner_context_id'];
 			$object->comment = $row['comment'];
 			$objects[$object->id] = $object;
 		}
@@ -251,13 +253,15 @@ class DAO_Comment extends C4_ORMHelper {
 			"comment.context as %s, ".
 			"comment.context_id as %s, ".
 			"comment.created as %s, ".
-			"comment.address_id as %s, ".
+			"comment.owner_context as %s, ".
+			"comment.owner_context_id as %s, ".
 			"comment.comment as %s ",
 				SearchFields_Comment::ID,
 				SearchFields_Comment::CONTEXT,
 				SearchFields_Comment::CONTEXT_ID,
 				SearchFields_Comment::CREATED,
-				SearchFields_Comment::ADDRESS_ID,
+				SearchFields_Comment::OWNER_CONTEXT,
+				SearchFields_Comment::OWNER_CONTEXT_ID,
 				SearchFields_Comment::COMMENT
 			);
 			
@@ -391,7 +395,8 @@ class SearchFields_Comment implements IDevblocksSearchFields {
 	const CONTEXT = 'c_context';
 	const CONTEXT_ID = 'c_context_id';
 	const CREATED = 'c_created';
-	const ADDRESS_ID = 'c_address_id';
+	const OWNER_CONTEXT = 'c_owner_context';
+	const OWNER_CONTEXT_ID = 'c_owner_context_id';
 	const COMMENT = 'c_comment';
 	
 	/**
@@ -405,7 +410,8 @@ class SearchFields_Comment implements IDevblocksSearchFields {
 			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'comment', 'context', null),
 			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'comment', 'context_id', null),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'comment', 'created', $translate->_('common.created')),
-			self::ADDRESS_ID => new DevblocksSearchField(self::ADDRESS_ID, 'comment', 'address_id', $translate->_('common.email')),
+			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'comment', 'owner_context', null),
+			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'comment', 'owner_context_id', null),
 			self::COMMENT => new DevblocksSearchField(self::COMMENT, 'comment', 'comment', $translate->_('common.comment')),
 		);
 		
@@ -498,18 +504,19 @@ class Model_Comment {
 	public $context;
 	public $context_id;
 	public $created;
-	public $address_id;
+	public $owner_context;
+	public $owner_context_id;
 	public $comment;
 	
 	public $_email_record = null;
 	
-	public function getAddress() {
-		// Cache repeated calls
-		if(null == $this->_email_record) {
-			$this->_email_record = DAO_Address::get($this->address_id);
+	public function getOwnerMeta() {
+		if(null != ($ext = Extension_DevblocksContext::get($this->owner_context))) {
+			$meta = $ext->getMeta($this->owner_context_id);
+			$meta['context'] = $this->owner_context;
+			$meta['context_ext'] = $ext;
+			return $meta;
 		}
-		
-		return $this->_email_record;
 	}
 	
 	function getLinksAndAttachments() {
@@ -534,7 +541,7 @@ class View_Comment extends C4_AbstractView {
 			SearchFields_Comment::CONTEXT,
 			SearchFields_Comment::CONTEXT_ID,
 			SearchFields_Comment::CREATED,
-			SearchFields_Comment::ADDRESS_ID,
+			SearchFields_Comment::OWNER_CONTEXT,
 			SearchFields_Comment::COMMENT,
 		);
 		
@@ -575,7 +582,6 @@ class View_Comment extends C4_AbstractView {
 			case SearchFields_Comment::CONTEXT:
 			case SearchFields_Comment::CONTEXT_ID:
 			case SearchFields_Comment::CREATED:
-			case SearchFields_Comment::ADDRESS_ID:
 			case SearchFields_Comment::COMMENT:
 			case 'placeholder_string':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
@@ -619,7 +625,6 @@ class View_Comment extends C4_AbstractView {
 			case SearchFields_Comment::CONTEXT:
 			case SearchFields_Comment::CONTEXT_ID:
 			case SearchFields_Comment::CREATED:
-			case SearchFields_Comment::ADDRESS_ID:
 			case SearchFields_Comment::COMMENT:
 			case 'placeholder_string':
 				// force wildcards if none used on a LIKE
@@ -772,11 +777,15 @@ class Context_Comment extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
-			'context' => $prefix.$translate->_('common.context'),
 			'comment' => $prefix.$translate->_('common.content'),
 			'created|date' => $prefix.$translate->_('common.created'),
+			'owner_context' => $prefix.'Author Context',
+			'author_label' => $prefix.'Author Label',
+			'author_type' => $prefix.'Author Type',
+			'author_url' => $prefix.'Author URL',
+			'context' => $prefix.'Record Context',
 			'record_label' => $prefix.'Record Label',
-			'record_type' => $prefix.'Record Type',
+			'record_type' => $prefix.'Record Type Label',
 			'record_url' => $prefix.'Record URL',
 		);
 		
@@ -797,23 +806,10 @@ class Context_Comment extends Extension_DevblocksContext {
 			$token_values['context'] = $comment->context;
 			$token_values['context_id'] = $comment->context_id;
 			$token_values['created'] = $comment->created;
-			$token_values['address_id'] = $comment->address_id;
+			$token_values['owner_context'] = $comment->owner_context;
+			$token_values['owner_context_id'] = $comment->owner_context_id;
 			$token_values['comment'] = $comment->comment;
 		}
-		
-		// Address
-		$merge_token_labels = array();
-		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, '', true);
-
-		CerberusContexts::merge(
-			'address_',
-			'Comment:Author:',
-			$merge_token_labels,
-			$merge_token_values,
-			$token_labels,
-			$token_values
-		);
 		
 		return true;
 	}
@@ -853,6 +849,27 @@ class Context_Comment extends Extension_DevblocksContext {
 				
 				$values['record_label'] = $meta['name'];
 				$values['record_url'] = $meta['permalink'];
+				break;
+				
+			case 'author_type':
+				$context_ext = $dictionary['owner_context'];
+				
+				if(null == ($ext = Extension_DevblocksContext::get($context_ext)))
+					break;
+				
+				$values['author_type'] = $ext->manifest->name;
+				break;
+				
+			case 'author_label':
+			case 'author_url':
+				if(null == ($ext = Extension_DevblocksContext::get($dictionary['owner_context'])))
+					break;
+				
+				if(null == ($meta = $ext->getMeta($dictionary['owner_context_id'])))
+					break;
+				
+				$values['author_label'] = $meta['name'];
+				$values['author_url'] = $meta['permalink'];
 				break;
 				
 			default:

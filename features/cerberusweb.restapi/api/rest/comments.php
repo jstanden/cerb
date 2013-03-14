@@ -66,7 +66,8 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 			$tokens = array(
 				'context' => DAO_Comment::CONTEXT,
 				'context_id' => DAO_Comment::CONTEXT_ID,
-				'address_id' => DAO_Comment::ADDRESS_ID,
+				'owner_context' => DAO_Comment::OWNER_CONTEXT,
+				'owner_context_id' => DAO_Comment::OWNER_CONTEXT_ID,
 				'comment' => DAO_Comment::COMMENT,
 				'created' => DAO_Comment::CREATED,
 			);
@@ -75,7 +76,8 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 				'id' => SearchFields_Comment::ID,
 				'context' => SearchFields_Comment::CONTEXT,
 				'context_id' => SearchFields_Comment::CONTEXT_ID,
-				'address_id' => SearchFields_Comment::ADDRESS_ID,
+				'owner_context' => SearchFields_Comment::OWNER_CONTEXT,
+				'owner_context_id' => SearchFields_Comment::OWNER_CONTEXT_ID,
 				'comment' => SearchFields_Comment::COMMENT,
 			);
 		}
@@ -189,7 +191,7 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 			$fields[DAO_Comment::CREATED] = time();
 		
 		// Check required fields
-		$reqfields = array(DAO_Comment::CONTEXT, DAO_Comment::CONTEXT_ID, DAO_Comment::ADDRESS_ID, DAO_Comment::COMMENT, DAO_Comment::CREATED);
+		$reqfields = array(DAO_Comment::CONTEXT, DAO_Comment::CONTEXT_ID, DAO_Comment::OWNER_CONTEXT, DAO_Comment::OWNER_CONTEXT_ID, DAO_Comment::COMMENT, DAO_Comment::CREATED);
 		$this->_handleRequiredFields($reqfields, $fields);
 		
 		// Create

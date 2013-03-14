@@ -283,7 +283,8 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_MESSAGE,
 			DAO_Comment::CONTEXT_ID => $id,
 			DAO_Comment::CREATED => time(),
-			DAO_Comment::ADDRESS_ID => $worker->getAddress()->id,
+			DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+			DAO_Comment::OWNER_CONTEXT_ID => $worker->id,
 			DAO_Comment::COMMENT => $content,
 		);
 		$note_id = DAO_Comment::create($fields, $also_notify_worker_ids);

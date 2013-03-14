@@ -846,10 +846,6 @@ class ChFeedbackController extends DevblocksControllerExtension {
 			if(!empty($source_extension_id) && !empty($source_id))
 			switch($source_extension_id) {
 				case 'feedback.source.ticket':
-					// Create a ticket comment about the feedback (to prevent dupes)
-					if(null == ($worker_address = DAO_Address::lookupAddress($active_worker->email)))
-						break;
-						
 					$comment_text = sprintf(
 						"== Capture Feedback ==\n".
 						"Author: %s\n".
@@ -861,7 +857,8 @@ class ChFeedbackController extends DevblocksControllerExtension {
 						$quote
 					);
 					$fields = array(
-						DAO_Comment::ADDRESS_ID => $worker_address->id,
+						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+						DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
 						DAO_Comment::COMMENT => $comment_text,
 						DAO_Comment::CREATED => time(),
 						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,

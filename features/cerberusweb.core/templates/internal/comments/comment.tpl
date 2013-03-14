@@ -1,19 +1,27 @@
-{assign var=comment_address value=$comment->getAddress()}
+{$owner_meta = $comment->getOwnerMeta()}
 <div id="comment{$comment->id}">
 	<div class="block" style="overflow:auto;">
 		<span class="tag" style="color:rgb(71,133,210);">{$translate->_('common.comment')|lower}</span>
 		
 		<b style="font-size:1.3em;">
-			{if empty($comment_address)}
+			{if empty($owner_meta)}
 				(system)
-			{else} 
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$comment_address->id}', null, false, '500');" title="{$comment_address->email}">{if empty($comment_address->first_name) && empty($comment_address->last_name)}&lt;{$comment_address->email}&gt;{else}{$comment_address->getName()}{/if}</a>
+			{else}
+				{if $owner_meta.context_ext instanceof IDevblocksContextPeek} 
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$comment->owner_context}&context_id={$comment->owner_context_id}', null, false, '500');">{$owner_meta.name}</a>
+				{elseif !empty($owner_meta.permalink)} 
+				<a href="{$owner_meta.permalink}" target="_blank">{$owner_meta.name}</a>
+				{else}
+				{$owner_meta.name}
+				{/if}
 			{/if}
 		</b>
-				
+		
+		({$owner_meta.context_ext->manifest->name|lower})
+		
 		&nbsp;
 		
-		{if !$readonly && ($active_worker->is_superuser || $comment_address->email==$active_worker->email)}
+		{if !$readonly && ($active_worker->is_superuser || ($comment->owner_context == CerberusContexts::CONTEXT_WORKER && $comment->owner_context_id == $active_worker->id))}
 			<a href="javascript:;" onclick="if(confirm('Are you sure you want to permanently delete this comment?')) { genericAjaxGet('', 'c=internal&a=commentDelete&id={$comment->id}', function(o) { $('#comment{$comment->id}').remove(); } ); } ">{$translate->_('common.delete')|lower}</a>
 		{/if}
 		

@@ -79,17 +79,6 @@ class ChPrintController extends DevblocksControllerExtension {
 				
 				$tpl->assign('convo_timeline', $convo_timeline);
 
-				// Comment parent addresses
-				$comment_addresses = array();
-				foreach($comments as $comment) { /* @var $comment Model_Comment */
-					$address_id = intval($comment->address_id);
-					if(!isset($comment_addresses[$address_id])) {
-						$address = DAO_Address::get($address_id);
-						$comment_addresses[$address_id] = $address;
-					}
-				}
-				$tpl->assign('comment_addresses', $comment_addresses);
-				
 				// Message Notes
 				$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $ticket->id);
 				$message_notes = array();

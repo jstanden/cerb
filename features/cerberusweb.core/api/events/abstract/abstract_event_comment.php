@@ -90,10 +90,6 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 				'label' => 'Comment',
 				'context' => CerberusContexts::CONTEXT_COMMENT,
 			),
-			'comment_address_id' => array(
-				'label' => 'Author Email',
-				'context' => CerberusContexts::CONTEXT_ADDRESS,
-			),
 		);
 		
 		$vars = parent::getValuesContexts($trigger);
@@ -106,28 +102,19 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
-		
+
 		$labels['comment_context'] = 'Comment record type';
+		$labels['comment_owner_context'] = 'Comment author type';
 		
 		$types = array(
-			'comment_address_num_nonspam' => Model_CustomField::TYPE_NUMBER,
-			'comment_address_num_spam' => Model_CustomField::TYPE_NUMBER,
-			'comment_address_address' => Model_CustomField::TYPE_SINGLE_LINE,
-			'comment_address_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'comment_address_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'comment_address_is_banned' => Model_CustomField::TYPE_CHECKBOX,
-			'comment_address_is_defunct' => Model_CustomField::TYPE_CHECKBOX,
-			'comment_address_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'comment_address_updated' => Model_CustomField::TYPE_DATE,
-			
-			'comment_address_org_created' => Model_CustomField::TYPE_DATE,
-			'comment_address_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			
 			'comment_created|date' => Model_CustomField::TYPE_DATE,
 			'comment_comment' => Model_CustomField::TYPE_MULTI_LINE,
 		);
 
 		$types['comment_context'] = null;
+		$types['comment_owner_context'] = null;
+		$types['comment_record_label'] = Model_CustomField::TYPE_SINGLE_LINE;
+		$types['comment_author_label'] = Model_CustomField::TYPE_SINGLE_LINE;
 		
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 
@@ -143,6 +130,7 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 		
 		switch($token) {
 			case 'comment_context':
+			case 'comment_owner_context':
 				$context_exts = Extension_DevblocksContext::getAll(false);
 				$options = array();
 				
@@ -164,6 +152,7 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 		
 		switch($token) {
 			case 'comment_context':
+			case 'comment_owner_context':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
 				@$value = $dict->$token;

@@ -462,7 +462,8 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			DAO_Comment::CREATED => time(),
 			DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
 			DAO_Comment::CONTEXT_ID => $ticket->id,
-			DAO_Comment::ADDRESS_ID => $address->id,
+			DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+			DAO_Comment::OWNER_CONTEXT_ID => $worker->id,
 			DAO_Comment::COMMENT => $comment,
 		);
 		$comment_id = DAO_Comment::create($fields);

@@ -104,7 +104,8 @@ class ChTasksPage extends CerberusPageExtension {
 				$fields = array(
 					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
 					DAO_Comment::CONTEXT_ID => $id,
-					DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+					DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
 					DAO_Comment::CREATED => time(),
 					DAO_Comment::COMMENT => $comment,
 				);
