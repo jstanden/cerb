@@ -65,7 +65,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 						</style>
 					</head>
 					<body>
-						<h1>Cerberus Helpdesk - Requirements Checker:</h1>
+						<h1>Cerb - Requirements Checker:</h1>
 					"
 				);
 
@@ -79,7 +79,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					echo "</ul>";
 					
 				} else {
-					echo '<span class="pass">Your server is compatible with Cerberus Helpdesk '.APP_VERSION.'!</span>';
+					echo '<span class="pass">Your server is compatible with Cerb '.APP_VERSION.'!</span>';
 				}
 				
 				echo sprintf("
@@ -96,10 +96,10 @@ class ChDebugController extends DevblocksControllerExtension  {
 				@$tables = $db->MetaTables('TABLE',false);
 				
 				$report_output = sprintf(
-					"[Cerberus Helpdesk] App Version: %s\n".
-					"[Cerberus Helpdesk] App Build: %s\n".
-					"[Cerberus Helpdesk] Devblocks Build: %s\n".
-					"[Cerberus Helpdesk] URL-Rewrite: %s\n".
+					"[Cerb] App Version: %s\n".
+					"[Cerb] App Build: %s\n".
+					"[Cerb] Devblocks Build: %s\n".
+					"[Cerb] URL-Rewrite: %s\n".
 					"\n".
 					"[Privs] storage/attachments: %s\n".
 					"[Privs] storage/mail/new: %s\n".
@@ -218,7 +218,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					</head>
 					<body>
 						<form>
-							<h1>Cerberus Helpdesk - Debug Report:</h1>
+							<h1>Cerb - Debug Report:</h1>
 							<textarea rows='25' cols='100'>%s</textarea>
 						</form>
 					</body>
@@ -463,7 +463,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					</head>
 					<body>
 						<form>
-							<h1>Cerberus Helpdesk - Debug Menu:</h1>
+							<h1>Cerb - Debug Menu:</h1>
 							<ul>
 								<li><a href='%s'>Requirements Checker</a></li>
 								<li><a href='%s'>Debug Report (for technical support)</a></li>

@@ -37,7 +37,7 @@ class PageSection_SetupBranding extends Extension_PageSection {
 	
 			// [TODO] New branding
 			if(empty($title))
-				$title = 'Cerberus Helpdesk :: Group-based Email Management';
+				$title = CerberusSettingsDefaults::HELPDESK_TITLE;
 				
 			$settings = DevblocksPlatform::getPluginSettingsService();
 			$settings->set('cerberusweb.core',CerberusSettings::HELPDESK_TITLE, $title);

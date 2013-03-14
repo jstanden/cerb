@@ -123,7 +123,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 					
 					$headers = $mail->getHeaders();
 					
-					$headers->addTextHeader('X-Mailer','Cerberus Helpdesk ' . APP_VERSION . ' (Build '.APP_BUILD.')');
+					$headers->addTextHeader('X-Mailer','Cerb ' . APP_VERSION . ' (Build '.APP_BUILD.')');
 					
 					$body = sprintf("Your new Cerb login information is below:\r\n".
 						"\r\n".

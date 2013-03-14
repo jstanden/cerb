@@ -636,7 +636,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 	 * @param Model_DevblocksEvent $event
 	 */
 	function handleEvent(Model_DevblocksEvent $event) {
-		// Cerberus Helpdesk Workflow
+		// Cerb Workflow
 		switch($event->id) {
 			case 'comment.create':
 				$this->_handleCommentCreate($event);

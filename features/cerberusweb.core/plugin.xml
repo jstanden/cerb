@@ -1467,7 +1467,7 @@
 		
 		<extension point="devblocks.listener.event">
 			<id>cerberusweb.listeners.event</id>
-			<name>Cerberus Helpdesk Event Listener</name>
+			<name>Cerb Event Listener</name>
 			<class>
 				<file>api/listeners.classes.php</file>
 				<name>ChCoreEventListener</name>
@@ -1619,7 +1619,7 @@
 
 		<extension point="devblocks.controller">
 			<id>core.controller.page</id>
-			<name>Cerberus Helpdesk Controller</name>
+			<name>Cerb Controller</name>
 			<class>
 				<file>api/plugin.classes.php</file>
 				<name>ChPageController</name>

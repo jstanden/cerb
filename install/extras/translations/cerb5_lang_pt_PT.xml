@@ -511,7 +511,7 @@ Brea, CA 92822 USA&lt;br&gt;&#13;
     </tu>
     <tu tuid="portal.sc.cfg.fnr.info">
       <tuv xml:lang="pt_PT">
-        <seg>Este portal de suporte permite à sua comunidade pesquisar conteúdos de knowledgebase externas atravs do sistema de busca &amp; importação do Cerberus Helpdesk,  obtendo links drectos para conteúdo como artigos, artigos de wikis, posts em forums, documentação, posts em blogs, report de erros, etc.</seg>
+        <seg>Este portal de suporte permite à sua comunidade pesquisar conteúdos de knowledgebase externas atravs do sistema de busca &amp; importação do Cerb,  obtendo links drectos para conteúdo como artigos, artigos de wikis, posts em forums, documentação, posts em blogs, report de erros, etc.</seg>
       </tuv>
     </tu>
     <tu tuid="portal.sc.cfg.fnr.choose_resources">
@@ -5522,7 +5522,7 @@ Por exemplo: *recipiente*</seg>
     </tu>
     <tu tuid="timetracking.ui.trial.limit_exceeded.desc">
       <tuv xml:lang="pt_PT">
-        <seg>É possível avaliar o Time Tracking plugin criando até 10 entradas com a versão gratuita do Cerberus Helpdesk 4.0.</seg>
+        <seg>É possível avaliar o Time Tracking plugin criando até 10 entradas com a versão gratuita do Cerb 4.0.</seg>
       </tuv>
     </tu>
     <tu tuid="timetracking.ui.trial.purchase">

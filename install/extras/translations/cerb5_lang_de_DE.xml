@@ -2893,7 +2893,7 @@
     </tu>
     <tu tuid="portal.sc.cfg.fnr.info">
       <tuv xml:lang="de_DE">
-        <seg>Dieses Support-Center ermöglicht der Community Ihre externen Wissensquellen durch Cerberus Helpdesk Fetch &amp; Retrieve abzurufen und direkte Links zu Inhalten wie Hilfedatenbank-Artikel, Wikipedia-Artikel, Forum- &amp; Dokumentations-Seiten, Blog-Einträge, Wunschlisten &amp; Bug-Reports, e.t.c. anzuzeigen.</seg>
+        <seg>Dieses Support-Center ermöglicht der Community Ihre externen Wissensquellen durch Cerb Fetch &amp; Retrieve abzurufen und direkte Links zu Inhalten wie Hilfedatenbank-Artikel, Wikipedia-Artikel, Forum- &amp; Dokumentations-Seiten, Blog-Einträge, Wunschlisten &amp; Bug-Reports, e.t.c. anzuzeigen.</seg>
       </tuv>
     </tu>
     <tu tuid="portal.sc.cfg.fnr.not_configured">
@@ -4754,7 +4754,7 @@ login</seg>
     </tu>
     <tu tuid="watchers.ui.pref.reply_normally">
       <tuv xml:lang="de_DE">
-        <seg>Sie können die weitergeleitete Email beantworten, als wäre sie Ihnen direkt gesendet worden - das Cerberus Helpdesk wird diese sie dem/den richtigen Empfänger(n) zuordnen.</seg>
+        <seg>Sie können die weitergeleitete Email beantworten, als wäre sie Ihnen direkt gesendet worden - das Cerb wird diese sie dem/den richtigen Empfänger(n) zuordnen.</seg>
       </tuv>
     </tu>
     <tu tuid="watchers.ui.pref.which_events">

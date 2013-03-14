@@ -2218,7 +2218,7 @@
     </tu>
     <tu tuid="portal.sc.cfg.fnr.info">
       <tuv xml:lang="es_ES">
-        <seg>Este centro de soporte permitirá a su comunidad buscar recursos externos a través del sistema Buscar y Recuperar de Cerberus Helpdesk, devolviendo enlaces directos a contenidos como artículos de la base de conocimientos, artículos wiki, temas de foros, páginas de documentación, entradas en blogs, informes de fallos/listas de deseos, etc.</seg>
+        <seg>Este centro de soporte permitirá a su comunidad buscar recursos externos a través del sistema Buscar y Recuperar de Cerb, devolviendo enlaces directos a contenidos como artículos de la base de conocimientos, artículos wiki, temas de foros, páginas de documentación, entradas en blogs, informes de fallos/listas de deseos, etc.</seg>
       </tuv>
     </tu>
     <tu tuid="portal.sc.cfg.fnr.not_configured">
