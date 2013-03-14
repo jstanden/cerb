@@ -1,7 +1,7 @@
 <?php
 /**
  * Devblocks DAO
- * @author Jeff Standen, WebGroup Media LLC <jeff@webgroupmedia.com>
+ * @author Jeff Standen, Webgroup Media LLC <jeff@webgroupmedia.com>
  * @version 2012-06-20
  */
 

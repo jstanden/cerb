@@ -27,11 +27,11 @@
 
 <div style="width:90%;height:200px;border:1px solid rgb(160,160,160);overflow:auto;margin:5px;padding:5px;">
 	<p
-	>Cerberus Helpdesk - Copyright &copy; 2011 WebGroup Media LLC.</p
+	>Cerb - Copyright &copy; 2013 Webgroup Media LLC.</p
 	><h1 id="devblocks-public-license-1.0-dpl"
 	>Devblocks Public License 1.0 (DPL)</h1
 	><p
-	>The following are the terms and conditions by which WebGroup Media LLC (&quot;Licensor&quot;) grants you a License to use, modify, and redistribute this software, which is protected as the exclusive intellectual property of Licensor by U.S. copyright law.</p
+	>The following are the terms and conditions by which Webgroup Media LLC (&quot;Licensor&quot;) grants you a License to use, modify, and redistribute this software, which is protected as the exclusive intellectual property of Licensor by U.S. copyright law.</p
 	><p
 	>Licensor's copyrights are also protected by international treaties where applicable, including but not limited to: the Berne Convention, World Intellectual Property Organization (WIPO), and the World Trade Organization's (WTO) Trade-related Aspects of Intellectual Property Rights (TRIPS).</p
 	><p
