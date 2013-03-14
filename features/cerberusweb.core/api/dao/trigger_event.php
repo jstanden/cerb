@@ -273,6 +273,8 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 		
 		$db->Execute(sprintf("DELETE FROM trigger_event WHERE id IN (%s)", $ids_list));
 		
+		$db->Execute(sprintf("DELETE FROM trigger_event_history WHERE trigger_id IN (%s)", $ids_list));
+		
 		self::clearCache();
 		return true;
 	}

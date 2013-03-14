@@ -372,6 +372,9 @@ class DAO_Worker extends C4_ORMHelper {
 
 		$sql = sprintf("DELETE QUICK FROM view_rss WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		
+		$sql = sprintf("DELETE FROM snippet_use_history WHERE worker_id = %d", $id);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
