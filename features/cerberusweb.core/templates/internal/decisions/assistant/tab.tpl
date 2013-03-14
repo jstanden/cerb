@@ -1,6 +1,6 @@
-{$menu_divid = "{uniqid()}"}
+{$tab_uniqid = "{uniqid()}"}
 
-<form action="javascript:;" id="frmTrigger" onsubmit="return false;">
+<form action="javascript:;" id="frmTrigger{$tab_uniqid}" onsubmit="return false;">
 
 <div style="float:left;">
 	<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle"></span> Create Behavior</button>
@@ -9,9 +9,9 @@
 </form>
 <br clear="all">
 
-<div id="triggers_by_event">
+<div id="triggers_by_event{$tab_uniqid}">
 	{foreach from=$events key=event_point item=event}
-	<div id="event_{$event_point|replace:'.':'_'}" style="margin-left:15px;{if !isset($triggers_by_event.$event_point)}display:none;{/if}">
+	<div id="event_{$event_point|replace:'.':'_'}_{$tab_uniqid}" style="margin-left:15px;{if !isset($triggers_by_event.$event_point)}display:none;{/if}">
 		<h3 style="margin-left:-15px;">{$event->name}</h3>
 		{foreach from=$triggers_by_event.$event_point key=trigger_id item=trigger}
 		<form id="decisionTree{$trigger_id}" action="javascript:;" onsubmit="return false;">
@@ -23,19 +23,19 @@
 	{/foreach}
 </div>
 
-<div id="nodeMenu{$menu_divid}" style="display:none;position:absolute;z-index:5;"></div>
+<div id="nodeMenu{$tab_uniqid}" style="display:none;position:absolute;z-index:5;"></div>
 
 <script type="text/javascript">
-	$('#nodeMenu{$menu_divid}').appendTo('body');
+	$('#nodeMenu{$tab_uniqid}').appendTo('body');
 	
-	$('#frmTrigger BUTTON.add').click(function() {
+	$('#frmTrigger{$tab_uniqid} BUTTON.add').click(function() {
 		$popup = genericAjaxPopup('node_trigger','c=internal&a=showDecisionPopup&trigger_id=0&context={$context}&context_id={$context_id}{if isset($only_event_ids)}&only_event_ids={$only_event_ids}{/if}',null,false,'500');
 		
 		$popup.one('trigger_create',function(event) {
 			if(null == event.event_point || null == event.trigger_id)
 				return;
 			
-			$event = $('#event_' + event.event_point.replace(/\./g,'_'));
+			$event = $('#event_' + event.event_point.replace(/\./g,'_') + '_{$tab_uniqid}');
 			$tree = $('<form id="decisionTree'+event.trigger_id+'"></form>');
 			$event.show().append($tree);
 			$(window).scrollTop($tree.position().top);
@@ -55,7 +55,7 @@
 		
 		genericAjaxGet('', 'c=internal&a=showDecisionNodeMenu&id='+node_id+'&trigger_id='+trigger_id, function(html) {
 			$position = $(element).offset();
-			$('#nodeMenu{$menu_divid}')
+			$('#nodeMenu{$tab_uniqid}')
 				.appendTo('body')
 				.unbind()
 				.hide()
@@ -66,7 +66,7 @@
 				.html(html)
 				.fadeIn('fast')
 				;
-			$('#nodeMenu{$menu_divid}')
+			$('#nodeMenu{$tab_uniqid}')
 				.hover(
 					function() {
 					},
@@ -90,7 +90,7 @@
 		});
 	}
 	
-	$('#triggers_by_event').find('> DIV')
+	$('#triggers_by_event{$tab_uniqid}').find('> DIV')
 		.sortable({
 			items: '> FORM',
 			handle: 'legend',
