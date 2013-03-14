@@ -2808,17 +2808,18 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$labels = $ext_event->getLabels($trigger);
 		$values = $ext_event->getValues();
+		$dict = new DevblocksDictionaryDelegate($values);
 
 		$conditions = $ext_event->getConditions($trigger);
-		
+
 		$dictionary = array();
 		
 		foreach($conditions as $k => $v) {
-			if(isset($values[$k])) {
+			if(isset($dict->$k)) {
 				$dictionary[$k] = array(
 					'label' => $v['label'],
 					'type' => $v['type'],
-					'value' => $values[$k],
+					'value' => $dict->$k,
 				);
 			}
 		}
