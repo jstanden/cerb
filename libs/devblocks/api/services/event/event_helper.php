@@ -1490,18 +1490,44 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_worker.tpl');
 	}
 	
-	static function runActionSetTicketOwner($params, DevblocksDictionaryDelegate $dict, $ticket_id, $values_prefix) {
+	static function simulateActionSetTicketOwner($params, DevblocksDictionaryDelegate $dict, $default_on) {
+		@$owner_id = intval($params['worker_id']);
+		@$ticket_id = $dict->$default_on;
+		
+		if(empty($ticket_id))
+			return;
+		
+		$out = ">>> Setting owner to:\n";
+
+		if(empty($owner_id)) {
+			$out .= "(nobody)\n";
+			
+		} else {
+			if(null != ($owner_model = DAO_Worker::get($owner_id))) {
+				$out .= $owner_model->getName() . "\n";
+			}
+		}
+		
+		return $out;
+	}
+	
+	static function runActionSetTicketOwner($params, DevblocksDictionaryDelegate $dict, $default_on, $values_prefix) {
 		@$owner_id = $params['worker_id'];
+		@$ticket_id = $dict->$default_on;
+		
+		if(empty($ticket_id))
+			return;
 		
 		// Variable?
 		if(substr($owner_id,0,4) == 'var_') {
 			@$owner_id = intval($dict->$owner_id);
 		}
 		
-		$fields = array(
-			DAO_Ticket::OWNER_ID => $owner_id,
-		);
-		DAO_Ticket::update($ticket_id, $fields);
+		if(empty($owner_id) || null != ($owner_model = DAO_Worker::get($owner_id))) {
+			DAO_Ticket::update($ticket_id, array(
+				DAO_Ticket::OWNER_ID => $owner_id,
+			));
+		}
 		
 		/**
 		 * Re-update owner values

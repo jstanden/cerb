@@ -923,7 +923,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_owner':
-				//return DevblocksEventHelper::simulateActionSetTicketOwner($params, $dict);
+				return DevblocksEventHelper::simulateActionSetTicketOwner($params, $dict, 'ticket_id');
 				break;
 				
 			case 'set_reopen_date':
@@ -1054,7 +1054,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_owner':
-				DevblocksEventHelper::runActionSetTicketOwner($params, $dict, $ticket_id, 'ticket_owner_');
+				DevblocksEventHelper::runActionSetTicketOwner($params, $dict, 'ticket_id', 'ticket_owner_');
 				break;
 			
 			case 'set_reopen_date':
