@@ -648,6 +648,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 	function getActionExtensions() {
 		$actions =
 			array(
+				'add_recipients' => array('label' =>'Add recipients'),
 				'add_watchers' => array('label' =>'Add watchers'),
 				'create_comment' => array('label' =>'Create a comment'),
 				'create_notification' => array('label' =>'Send a notification'),
@@ -684,6 +685,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
+			case 'add_recipients':
+				DevblocksEventHelper::renderActionAddRecipients($trigger);
+				break;
+				
 			case 'add_watchers':
 				DevblocksEventHelper::renderActionAddWatchers($trigger);
 				break;
@@ -813,6 +818,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
+			case 'add_recipients':
+				return DevblocksEventHelper::simulateActionAddRecipients($params, $dict, 'ticket_id');
+				break;
+				
 			case 'add_watchers':
 				return DevblocksEventHelper::simulateActionAddWatchers($params, $dict, 'ticket_id');
 				break;
@@ -902,6 +911,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
+			case 'add_recipients':
+				DevblocksEventHelper::runActionAddRecipients($params, $dict, 'ticket_id');
+				break;
+				
 			case 'add_watchers':
 				DevblocksEventHelper::runActionAddWatchers($params, $dict, 'ticket_id');
 				break;

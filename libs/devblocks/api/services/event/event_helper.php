@@ -1382,6 +1382,84 @@ class DevblocksEventHelper {
 			);
 		*/
 	}
+
+	/*
+	 * Action: Add Recipients
+	 */
+	
+	static function renderActionAddRecipients($trigger) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('workers', DAO_Worker::getAllActive());
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_add_emails.tpl');
+	}
+
+	static function simulateActionAddRecipients($params, DevblocksDictionaryDelegate $dict, $default_on) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		@$recipients = DevblocksPlatform::parseCsvString(
+			$tpl_builder->build(
+				DevblocksPlatform::importVar($params['recipients'],'string',''),
+				$dict
+			)
+		);
+		
+		// Event
+		
+		$trigger = $dict->_trigger;
+		$event = $trigger->getEvent();
+		
+		// Recipients
+		
+		$out = ">>> Adding recipients:\n";
+		
+		if(!is_array($recipients) || empty($recipients)) {
+			$out .= " * No recipients are being set. Skipping...";
+			return $out;
+		}
+		
+		// Iterate addys
+			
+		foreach($recipients as $addy) {
+			if(null != ($addy_model = DAO_Address::lookupAddress($addy, true))) {
+				$out .= " * " . $addy_model->email . "\n";
+			}
+		}
+		
+		return $out;
+	}
+	
+	static function runActionAddRecipients($params, DevblocksDictionaryDelegate $dict, $default_on) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		@$recipients = DevblocksPlatform::parseCsvString(
+			$tpl_builder->build(
+				DevblocksPlatform::importVar($params['recipients'],'string',''),
+				$dict
+			)
+		);
+
+		if(!is_array($recipients) || empty($recipients))
+			return;
+		
+		// Event
+		
+		$trigger = $dict->_trigger;
+		$event = $trigger->getEvent();
+		
+		// Action
+		
+		$ticket_id = $dict->$default_on;
+		
+		if(is_array($recipients))
+		foreach($recipients as $addy) {
+			DAO_Ticket::createRequester($addy, $ticket_id);
+		}
+	}
+	
+	/*
+	 * Action: Add Watchers
+	 */
 	
 	static function renderActionAddWatchers($trigger) {
 		$tpl = DevblocksPlatform::getTemplateService();
