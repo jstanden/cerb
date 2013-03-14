@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, WebGroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 /*
- * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
+ * IMPORTANT LICENSING NOTE from your friends on the Cerb Development Team
  *
  * Sure, it would be so easy to just cheat and edit this file to use the
  * software without paying for it.  But we trust you anyway.  In fact, we're
@@ -43,8 +43,8 @@
  * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
- * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
- *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
+ \* - Jeff Standen, Darren Sugita, Dan Hildebrandt
+ *	 Webgroup Media LLC - Developers of Cerb
  */
 define("APP_BUILD", 2013031101);
 define("APP_VERSION", '6.3.0-dev');
@@ -1362,7 +1362,7 @@ class CerberusLicense {
 	}
 	
 	public static function getReleases() {
-		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000,'5.6.0'=>1317686400,'5.7.0'=>1326067200,'6.0.0'=>1338163200,'6.1.0'=>1346025600,'6.2.0'=>1353888000);/*
+		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000,'5.6.0'=>1317686400,'5.7.0'=>1326067200,'6.0.0'=>1338163200,'6.1.0'=>1346025600,'6.2.0'=>1353888000,'6.3.0'=>1364169600);/*
 		 * Major versions by release date in GMT
 		 */
 		return array(
@@ -1377,6 +1377,7 @@ class CerberusLicense {
 			'6.0.0' => gmmktime(0,0,0,5,28,2012),
 			'6.1.0' => gmmktime(0,0,0,8,27,2012),
 			'6.2.0' => gmmktime(0,0,0,11,26,2012),
+			'6.3.0' => gmmktime(0,0,0,3,25,2013),
 		);
 	}
 	
