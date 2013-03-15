@@ -325,6 +325,17 @@ if(isset($columns['address_id'])) {
 }
 
 // ===========================================================================
+// Refactor C4_* to View_*
+
+$db->Execute("UPDATE worker_view_model SET class_name = 'View_FeedbackEntry' WHERE class_name = 'C4_FeedbackEntryView'");
+$db->Execute("UPDATE view_filters_preset SET view_class = 'View_FeedbackEntry' WHERE view_class = 'C4_FeedbackEntryView'");
+
+$db->Execute("UPDATE worker_view_model SET class_name = 'View_Translation' WHERE class_name = 'C4_TranslationView'");
+$db->Execute("UPDATE view_filters_preset SET view_class = 'View_Translation' WHERE view_class = 'C4_TranslationView'");
+
+$db->Execute("DELETE FROM worker_view_model WHERE class_name = ''");
+
+// ===========================================================================
 // Finish
 
 return TRUE;

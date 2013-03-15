@@ -25,7 +25,7 @@
 	
 	<class_loader>
 		<file path="api/App.php">
-			<class name="C4_TranslationView" />
+			<class name="View_Translation" />
 		</file>
 	</class_loader>
 	

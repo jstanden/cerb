@@ -405,7 +405,7 @@ class SearchFields_FeedbackEntry {
 };
 
 // [TODO] Rename this for consistency  -- View_
-class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subtotals {
+class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'feedback_entries';
 
 	function __construct() {
