@@ -3,7 +3,7 @@
 	<id>wgm.login.password.google_auth</id>
 	<name>Google Authenticator</name>
 	<description>Enable two-factor worker logins with passwords and the Google Authenticator app on iOS, Android, or Blackberry.</description>
-	<author>WebGroup Media, LLC.</author>
+	<author>Webgroup Media, LLC.</author>
 	<version>0.0.1</version>
 	<link>http://www.cerbweb.com/</link>
 	<image>plugin.png</image>

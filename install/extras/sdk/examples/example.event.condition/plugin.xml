@@ -3,7 +3,7 @@
 	<id>example.event.condition</id>
 	<name>[Example] Event Condition</name>
 	<description>This plugin demonstrates a custom condition on an event.</description>
-	<author>WebGroup Media, LLC.</author>
+	<author>Webgroup Media, LLC.</author>
 	<version>0.0.0</version>
 	<link>http://www.cerb5.com/</link>
 	<!--<image>plugin.png</image>-->

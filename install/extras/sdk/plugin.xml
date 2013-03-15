@@ -3,7 +3,7 @@
 	<id>example.plugin</id>
 	<name>[Example] Plugin Name</name>
 	<description>This explains what your plugin does.</description>
-	<author>WebGroup Media, LLC.</author>
+	<author>Webgroup Media, LLC.</author>
 	<version>0.0.0</version>
 	<link>http://www.cerberusweb.com/</link>
 	<!--<image>plugin.png</image>-->

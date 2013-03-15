@@ -1,6 +1,6 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
 | All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
@@ -784,7 +784,7 @@ switch($step) {
 				
 				if(null != $replyto_default) {
 					$message = new CerberusParserMessage();
-						$message->headers['from'] = '"WebGroup Media, LLC." <support@webgroupmedia.com>';
+						$message->headers['from'] = '"Webgroup Media, LLC." <support@webgroupmedia.com>';
 						$message->headers['to'] = $replyto_default->email;
 						$message->headers['subject'] = "Welcome to Cerb6!";
 						$message->headers['date'] = date('r');

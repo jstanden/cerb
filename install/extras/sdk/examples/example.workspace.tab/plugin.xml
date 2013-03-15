@@ -3,7 +3,7 @@
 	<id>example.workspace.tab</id>
 	<name>[Example] Workspace Tab</name>
 	<description>This plugin demonstrates a custom workspace tab.</description>
-	<author>WebGroup Media, LLC.</author>
+	<author>Webgroup Media, LLC.</author>
 	<version>6.0.0</version>
 	<link>http://www.cerb5.com/</link>
 	<!--<image>plugin.png</image>-->

@@ -3,7 +3,7 @@
 	<id>cerberusweb.feedback</id>
 	<name>Feedback Capture</name>
 	<description>Organically capture praise or criticism and share it with decision makers.  This adds a Feedback tab to the Activity page.  You can also capture feedback while reading e-mail by highlighting a quote and clicking 'more' in the toolbar.</description>
-	<author>WebGroup Media, LLC.</author>
+	<author>Webgroup Media, LLC.</author>
 	<version>6.3.0</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Feedback_Capture</link>
 	<image>images/plugin.png</image>

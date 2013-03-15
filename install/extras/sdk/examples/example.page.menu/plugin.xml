@@ -3,7 +3,7 @@
 	<id>example.page.menu</id>
 	<name>[Example] Page Menu</name>
 	<description>This example demonstrates a custom menu on the Setup page.</description>
-	<author>WebGroup Media, LLC.</author>
+	<author>Webgroup Media, LLC.</author>
 	<version>0.0.0</version>
 	<link>http://www.cerb5.com/</link>
 	<!--<image>plugin.png</image>-->
