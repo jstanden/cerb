@@ -47,7 +47,7 @@
 
 </form>
 
-<form id="frmDecisionActionAdd{$id}">
+<form id="frmDecisionActionAdd{$id}" action="javascript:;" onsubmit="return false;">
 <input type="hidden" name="seq" value="{if !is_null($seq)}{$seq+1}{else}0{/if}">
 {if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
 <fieldset>
