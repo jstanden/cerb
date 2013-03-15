@@ -85,7 +85,7 @@
 	{/if}
 </form>
 
-<div id="{$status_div}" style="display:none;"></div>	
+<div id="{$status_div}" style="display:none;"></div>
 
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('node_action{$id}');
@@ -180,7 +180,7 @@
 			var divTester = $(this).nextAll('div.tester').first();
 			
 			$toolbar = $('DIV#divDecisionActionToolbar{$id}');
-			$field = $toolbar.prev(':text, textarea');			
+			$field = $toolbar.prev(':text, textarea');
 			
 			if(null == $field)
 				return;
@@ -255,7 +255,7 @@
 			strtoken = $(this).attr('token');
 			
 			$field.focus().insertAtCursor('{literal}{{{/literal}' + strtoken + '{literal}}}{/literal}');
-		});		
+		});
 		
 	}); // popup_open
 </script>

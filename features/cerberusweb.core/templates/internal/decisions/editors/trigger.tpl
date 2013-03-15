@@ -96,7 +96,7 @@
 						{foreach from=$list_contexts item=list_context key=list_context_id}
 						<option value="ctx_{$list_context_id}">(List) {$list_context->name}</option>
 						{/foreach}
-					</select>				
+					</select>
 				</td>
 			</tr>
 		</table>
@@ -104,7 +104,6 @@
 </tr>
 
 </table>
-
 
 <div style="margin-top:2px;">
 	<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle" style="verical-align:middle;"></span></button>

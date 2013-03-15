@@ -231,7 +231,7 @@
 
 				$frmDecAdd.find('input[name=seq]').val(1+seq);
 			});
-		});			
+		});
 
 	}); // end popup_open
 </script>

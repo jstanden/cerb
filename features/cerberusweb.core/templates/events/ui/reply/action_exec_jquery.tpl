@@ -79,7 +79,6 @@ $fieldset_cfields.hide();
 
 {/if}</textarea>
 </div>
-<br>
 
 <script type="text/javascript">
 $action = $('fieldset#{$namePrefix}');
