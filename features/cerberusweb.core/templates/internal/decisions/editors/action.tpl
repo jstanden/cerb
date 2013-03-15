@@ -49,17 +49,23 @@
 
 <form id="frmDecisionActionAdd{$id}" action="javascript:;" onsubmit="return false;">
 <input type="hidden" name="seq" value="{if !is_null($seq)}{$seq+1}{else}0{/if}">
+<input type="hidden" name="action" value="">
 {if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
 <fieldset>
 	<legend>Add Action</legend>
 
 	<span class="cerb-sprite2 sprite-plus-circle"></span>
-	<select name="action">
-		<option value=""></option>
+	
+	<button type="button" class="action cerb-popupmenu-trigger">Add Action &#x25be;</button>
+
+	<ul class="cerb-popupmenu" style="border:0;">
+		<li style="background:none;">
+			<input type="text" size="16" class="input_search filter">
+		</li>
 		{foreach from=$actions item=action key=token}
-		<option value="{$token}">{$action.label}</option>
+		<li><a href="javascript:;" token="{$token}">{$action.label}</a></li>
 		{/foreach}
-	</select>
+	</ul>
 </fieldset>
 </form>
 
@@ -93,6 +99,8 @@
 		$(this).dialog('option','title',"{if empty($id)}New {/if}Actions");
 		$(this).find('input:text').first().focus();
 
+		// Choosers
+		
 		$popup.find('BUTTON.chooser_group.unbound').each(function() {
 			seq = $(this).closest('fieldset').find('input:hidden[name="actions[]"]').val();
 			ajax.chooser(this,'cerberusweb.contexts.group','action'+seq+'[group_id]', { autocomplete:true });
@@ -114,6 +122,8 @@
 			.sortable({ 'items':'FIELDSET', 'placeholder':'ui-state-highlight', 'handle':'legend' })
 		;
 
+		// Placeholders
+		
 		$popup.delegate(':text.placeholders, textarea.placeholders', 'focus', function(e) {
 			$toolbar = $('#divDecisionActionToolbar{$id}');
 			src = (null==e.srcElement) ? e.target : e.srcElement;
@@ -124,57 +134,13 @@
 			}
 		});
 		
-		$popup.find('#frmDecisionActionAdd{$id} SELECT').first().change(function() {
-			$select = $(this);
-			$val=$select.val();
-	
-			if(''==$val) {
-				return;
-			}
-	
-			genericAjaxPost('frmDecisionActionAdd{$id}','','c=internal&a=doDecisionAddAction',function(html) {
-				$ul = $('#frmDecisionAction{$id}Action DIV.actions');
-				
-				seq = parseInt($('#frmDecisionActionAdd{$id}').find('input[name=seq]').val());
-				if(null == seq)
-					seq = 0;
-	
-				$container = $('<fieldset id="action' + seq + '"></fieldset>');
-				$container.prepend('<legend style="cursor:move;"><a href="javascript:;" onclick="$(this).closest(\'fieldset\').find(\'#divDecisionActionToolbar{$id}\').hide().appendTo($(\'#frmDecisionAction{$id}Action\'));$(this).closest(\'fieldset\').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></a> ' + $select.find('option:selected').text() + '</legend>');
-				$container.append('<input type="hidden" name="actions[]" value="' + seq + '">');
-				$container.append('<input type="hidden" name="action'+seq+'[action]" value="' + $select.val() + '">');
-				$ul.append($container);
-	
-				$html = $('<div>' + html + '</div>');
-				$container.append($html);
-				
-				$html.find('BUTTON.chooser_group.unbound').each(function() {
-					ajax.chooser(this,'cerberusweb.contexts.group','action'+seq+'[group_id]', { autocomplete:true });
-					$(this).removeClass('unbound');
-				});
-				
-				$html.find('BUTTON.chooser_worker.unbound').each(function() {
-					ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[worker_id]', { autocomplete:true });
-					$(this).removeClass('unbound');
-				});
-				$html.find('BUTTON.chooser_notify_workers.unbound').each(function() {
-					ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[notify_worker_id]', { autocomplete:true });
-					$(this).removeClass('unbound');
-				});
-				
-				$select.val(0);
-	
-				$('#frmDecisionActionAdd{$id}').find('input[name=seq]').val(1+seq);
-			});
-		});
-
-		// Menu
+		// Placeholder menu
 		
 		$divPlaceholderMenu = $('#divDecisionActionToolbar{$id}');
 		
-		$menu_trigger = $divPlaceholderMenu.find('button.cerb-popupmenu-trigger');
-		$menu = $divPlaceholderMenu.find('ul.cerb-popupmenu');
-		$menu_trigger.data('menu', $menu);
+		$ph_menu_trigger = $divPlaceholderMenu.find('button.cerb-popupmenu-trigger');
+		$ph_menu = $divPlaceholderMenu.find('ul.cerb-popupmenu');
+		$ph_menu_trigger.data('menu', $ph_menu);
 		
 		$divPlaceholderMenu.find('button.tester').click(function(e) {
 			var divTester = $(this).nextAll('div.tester').first();
@@ -197,16 +163,16 @@
 			genericAjaxPost($(this).closest('form').attr('id'), divTester, 'c=internal&a=testDecisionEventSnippets&prefix=' + strNamespace + '&field=' + strName);			
 		});
 		
-		$menu_trigger
+		$ph_menu_trigger
 			.click(
 				function(e) {
-					$menu = $(this).data('menu');
+					$ph_menu = $(this).data('menu');
 					
-					if($menu.is(':visible')) {
-						$menu.hide();
+					if($ph_menu.is(':visible')) {
+						$ph_menu.hide();
 						
 					} else {
-						$menu
+						$ph_menu
 							.show()
 							.find('> li input:text')
 							.focus()
@@ -217,17 +183,17 @@
 			)
 			.bind('remove',
 				function(e) {
-					$menu = $(this).data('menu');
-					$menu.remove();
+					$ph_menu = $(this).data('menu');
+					$ph_menu.remove();
 				}
 			)
 		;
 		
-		$menu.find('> li > input.filter').keyup(
+		$ph_menu.find('> li > input.filter').keyup(
 			function(e) {
 				term = $(this).val().toLowerCase();
-				$menu = $(this).closest('ul.cerb-popupmenu');
-				$menu.find('> li a').each(function(e) {
+				$ph_menu = $(this).closest('ul.cerb-popupmenu');
+				$ph_menu.find('> li a').each(function(e) {
 					if(-1 != $(this).html().toLowerCase().indexOf(term)) {
 						$(this).parent().show();
 					} else {
@@ -237,7 +203,7 @@
 			}
 		);
 		
-		$menu.find('> li').click(function(e) {
+		$ph_menu.find('> li').click(function(e) {
 			e.stopPropagation();
 			if(!$(e.target).is('li'))
 				return;
@@ -245,7 +211,7 @@
 			$(this).find('a').trigger('click');
 		});
 		
-		$menu.find('> li > a').click(function() {
+		$ph_menu.find('> li > a').click(function() {
 			$toolbar = $('DIV#divDecisionActionToolbar{$id}');
 			$field = $toolbar.prev(':text, textarea');
 			
@@ -255,6 +221,96 @@
 			strtoken = $(this).attr('token');
 			
 			$field.focus().insertAtCursor('{literal}{{{/literal}' + strtoken + '{literal}}}{/literal}');
+		});
+		
+		// Action menu
+		
+		var $frm = $('#frmDecisionActionAdd{$id}');
+		var $act_menu_trigger = $frm.find('button.action.cerb-popupmenu-trigger');
+		var $act_menu = $frm.find('ul.cerb-popupmenu');
+		$act_menu_trigger.data('menu', $act_menu);
+		
+		$act_menu_trigger
+			.click(
+				function(e) {
+					$act_menu = $(this).data('menu');
+					
+					if($act_menu.is(':visible')) {
+						$act_menu.hide();
+						return;
+					}
+					
+					$act_menu
+						.show()
+						.find('> li input:text')
+						.focus()
+						.select()
+						;
+				}
+			);
+
+		$act_menu.find('> li > input.filter').keyup(
+			function(e) {
+				term = $(this).val().toLowerCase();
+				$act_menu = $(this).closest('ul.cerb-popupmenu');
+				$act_menu.find('> li a').each(function(e) {
+					if(-1 != $(this).html().toLowerCase().indexOf(term)) {
+						$(this).parent().show();
+					} else {
+						$(this).parent().hide();
+					}
+				});
+			}
+		);
+	
+		$act_menu.find('> li').click(function(e) {
+			e.stopPropagation();
+			if(!$(e.target).is('li'))
+				return;
+	
+			$(this).find('a').trigger('click');
+		});
+	
+		$act_menu.find('> li > a').click(function() {
+			token = $(this).attr('token');
+			$frmDecAdd = $('#frmDecisionActionAdd{$id}');
+			$frmDecAdd.find('input[name=action]').val(token);
+			$this = $(this);
+			
+			genericAjaxPost('frmDecisionActionAdd{$id}','','c=internal&a=doDecisionAddAction',function(html) {
+				$ul = $('#frmDecisionAction{$id}Action DIV.actions');
+				
+				seq = parseInt($frmDecAdd.find('input[name=seq]').val());
+				if(null == seq)
+					seq = 0;
+	
+				$container = $('<fieldset id="action' + seq + '"></fieldset>');
+				$container.prepend('<legend style="cursor:move;"><a href="javascript:;" onclick="$(this).closest(\'fieldset\').find(\'#divDecisionActionToolbar{$id}\').hide().appendTo($(\'#frmDecisionAction{$id}Action\'));$(this).closest(\'fieldset\').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></a> ' + $this.text() + '</legend>');
+				$container.append('<input type="hidden" name="actions[]" value="' + seq + '">');
+				$container.append('<input type="hidden" name="action'+seq+'[action]" value="' + token + '">');
+				$ul.append($container);
+	
+				$html = $('<div>' + html + '</div>');
+				$container.append($html);
+				
+				$html.find('BUTTON.chooser_group.unbound').each(function() {
+					ajax.chooser(this,'cerberusweb.contexts.group','action'+seq+'[group_id]', { autocomplete:true });
+					$(this).removeClass('unbound');
+				});
+				
+				$html.find('BUTTON.chooser_worker.unbound').each(function() {
+					ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[worker_id]', { autocomplete:true });
+					$(this).removeClass('unbound');
+				});
+				$html.find('BUTTON.chooser_notify_workers.unbound').each(function() {
+					ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[notify_worker_id]', { autocomplete:true });
+					$(this).removeClass('unbound');
+				});
+				
+				$act_menu.find('input:text:first').focus().select();
+	
+				$frmDecAdd.find('input[name=seq]').val(1+seq);
+			});
 		});
 		
 	}); // popup_open
