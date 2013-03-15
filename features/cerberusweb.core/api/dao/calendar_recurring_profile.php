@@ -15,7 +15,7 @@
  |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
  ***********************************************************************/
 
-class DAO_CalendarRecurringProfile extends C4_ORMHelper {
+class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 	const ID = 'id';
 	const EVENT_NAME = 'event_name';
 	const OWNER_CONTEXT = 'owner_context';

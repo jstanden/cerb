@@ -93,9 +93,9 @@ class DAO_ConfirmationCode extends DevblocksORMHelper {
 	static function getByCode($namespace_key, $code) {
 		$results = self::getWhere(sprintf("%s = %s AND %s = %s",
 			self::NAMESPACE_KEY,
-			C4_ORMHelper::qstr($namespace_key),
+			Cerb_ORMHelper::qstr($namespace_key),
 			self::CONFIRMATION_CODE,
-			C4_ORMHelper::qstr($code)
+			Cerb_ORMHelper::qstr($code)
 		));
 		
 		if(is_array($results))

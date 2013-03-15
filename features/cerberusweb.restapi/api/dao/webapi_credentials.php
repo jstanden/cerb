@@ -1,5 +1,5 @@
 <?php
-class DAO_WebApiCredentials extends C4_ORMHelper {
+class DAO_WebApiCredentials extends Cerb_ORMHelper {
 	const _CACHE_ALL = 'dao_webapi_credentials_all';
 	
 	const ID = 'id';

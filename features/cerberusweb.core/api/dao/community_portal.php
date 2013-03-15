@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_CommunityTool extends C4_ORMHelper {
+class DAO_CommunityTool extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
 	const CODE = 'code';

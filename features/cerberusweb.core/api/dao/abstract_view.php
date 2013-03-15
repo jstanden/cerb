@@ -943,7 +943,7 @@ abstract class C4_AbstractView {
 		return DAO_ViewFiltersPreset::getWhere(
 			sprintf("%s = %s AND %s = %d",
 				DAO_ViewFiltersPreset::VIEW_CLASS,
-				C4_ORMHelper::qstr(get_class($this)),
+				Cerb_ORMHelper::qstr(get_class($this)),
 				DAO_ViewFiltersPreset::WORKER_ID,
 				$active_worker->id
 			)

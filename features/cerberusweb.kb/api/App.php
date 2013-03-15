@@ -559,7 +559,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	}
 };
 
-class DAO_KbCategory extends C4_ORMHelper {
+class DAO_KbCategory extends Cerb_ORMHelper {
 	const CACHE_ALL = 'ch_cache_kbcategories_all';
 	
 	const ID = 'id';

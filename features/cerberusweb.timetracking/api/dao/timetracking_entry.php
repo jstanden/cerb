@@ -139,7 +139,7 @@ class Model_TimeTrackingActivity {
 	public $name;
 };
 
-class DAO_TimeTrackingEntry extends C4_ORMHelper {
+class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 	const ID = 'id';
 	const TIME_ACTUAL_MINS = 'time_actual_mins';
 	const LOG_DATE = 'log_date';

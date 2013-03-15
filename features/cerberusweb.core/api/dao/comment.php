@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_Comment extends C4_ORMHelper {
+class DAO_Comment extends Cerb_ORMHelper {
 	const ID = 'id';
 	const CONTEXT = 'context';
 	const CONTEXT_ID = 'context_id';
@@ -134,7 +134,7 @@ class DAO_Comment extends C4_ORMHelper {
 
 		return self::getWhere(sprintf("%s = %s AND %s IN (%s)",
 			self::CONTEXT,
-			C4_ORMHelper::qstr($context),
+			Cerb_ORMHelper::qstr($context),
 			self::CONTEXT_ID,
 			implode(',', $context_ids)
 		));

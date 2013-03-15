@@ -15,7 +15,7 @@
  |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
  ***********************************************************************/
 
-class DAO_CerbPlugin extends C4_ORMHelper {
+class DAO_CerbPlugin extends Cerb_ORMHelper {
 	const ID = 'id';
 	const ENABLED = 'enabled';
 	const NAME = 'name';

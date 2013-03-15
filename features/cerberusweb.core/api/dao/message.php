@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_Message extends C4_ORMHelper {
+class DAO_Message extends Cerb_ORMHelper {
 	const ID = 'id';
 	const TICKET_ID = 'ticket_id';
 	const CREATED_DATE = 'created_date';

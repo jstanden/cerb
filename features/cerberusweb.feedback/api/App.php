@@ -47,7 +47,7 @@
  *	 Webgroup Media LLC - Developers of Cerb
  */
 
-class DAO_FeedbackEntry extends C4_ORMHelper {
+class DAO_FeedbackEntry extends Cerb_ORMHelper {
 	const ID = 'id';
 	const LOG_DATE = 'log_date';
 	const WORKER_ID = 'worker_id';

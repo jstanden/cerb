@@ -15,7 +15,7 @@
  |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
  ***********************************************************************/
 
-class DAO_KbArticle extends C4_ORMHelper {
+class DAO_KbArticle extends Cerb_ORMHelper {
 	const ID = 'id';
 	const TITLE = 'title';
 	const UPDATED = 'updated';

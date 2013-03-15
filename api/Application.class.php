@@ -1619,7 +1619,7 @@ class CerberusVisit extends DevblocksVisit {
 	
 };
 
-class C4_ORMHelper extends DevblocksORMHelper {
+class Cerb_ORMHelper extends DevblocksORMHelper {
 	static public function qstr($str) {
 		$db = DevblocksPlatform::getDatabaseService();
 		return $db->qstr($str);
@@ -1698,7 +1698,7 @@ class C4_ORMHelper extends DevblocksORMHelper {
 			}
 			
 			// If we have multiple values but we don't need to WHERE the JOIN, be efficient and don't GROUP BY
-			if(!C4_ORMHelper::paramExistsInSet('cf_'.$field_id, $params)) {
+			if(!Cerb_ORMHelper::paramExistsInSet('cf_'.$field_id, $params)) {
 				$select_sql .= sprintf(",(SELECT field_value FROM %s WHERE %s=context_id AND field_id=%d LIMIT 0,1) AS %s ",
 					$value_table,
 					$field_key,
@@ -2009,7 +2009,7 @@ class C4_ORMHelper extends DevblocksORMHelper {
 				$join_sql .= sprintf("INNER JOIN context_link AS %s ON (%s.to_context=%s AND %s.to_context_id=%s) ",
 					$table_alias,
 					$table_alias,
-					C4_ORMHelper::qstr($to_context),
+					Cerb_ORMHelper::qstr($to_context),
 					$table_alias,
 					$to_index
 				);

@@ -47,7 +47,7 @@
  *	 Webgroup Media LLC - Developers of Cerb
  */
 
-class DAO_DevblocksSession extends C4_ORMHelper {
+class DAO_DevblocksSession extends Cerb_ORMHelper {
 	const SESSION_KEY = 'session_key';
 	const CREATED = 'created';
 	const UPDATED = 'updated';
@@ -184,7 +184,7 @@ class DAO_DevblocksSession extends C4_ORMHelper {
 			return;
 
 		foreach($ids as $k => $v) {
-			$ids[$k] = C4_ORMHelper::qstr($v);
+			$ids[$k] = Cerb_ORMHelper::qstr($v);
 		}
 		
 		$ids_list = implode(',', $ids);

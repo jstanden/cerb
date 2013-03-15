@@ -2095,7 +2095,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			));
 
 			// Syndicate
-			$worker_views = DAO_WorkerViewModel::getWhere(sprintf("view_id = %s", C4_ORMHelper::qstr($id)));
+			$worker_views = DAO_WorkerViewModel::getWhere(sprintf("view_id = %s", Cerb_ORMHelper::qstr($id)));
 
 			// Update any instances of this view with the new required columns + params
 			foreach($worker_views as $worker_view) { /* @var $worker_view C4_AbstractViewModel */

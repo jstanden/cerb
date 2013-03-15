@@ -424,9 +424,9 @@ class ChDisplayPage extends CerberusPageExtension {
 				DAO_MailQueue::WORKER_ID,
 				$active_worker->id,
 				DAO_MailQueue::TYPE,
-				C4_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_REPLY),
+				Cerb_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_REPLY),
 				DAO_MailQueue::TYPE,
-				C4_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_FORWARD),
+				Cerb_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_FORWARD),
 				DAO_MailQueue::ID,
 				$draft_id
 			));
@@ -864,9 +864,9 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_MailQueue::TICKET_ID,
 			$id,
 			DAO_MailQueue::TYPE,
-			C4_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_REPLY),
+			Cerb_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_REPLY),
 			DAO_MailQueue::TYPE,
-			C4_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_FORWARD)
+			Cerb_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_FORWARD)
 		));
 		
 		if(!empty($drafts))

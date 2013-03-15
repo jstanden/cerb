@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_DecisionNode extends C4_ORMHelper {
+class DAO_DecisionNode extends Cerb_ORMHelper {
 	const CACHE_ALL = 'cerberus_cache_decision_nodes_all';
 	
 	const ID = 'id';

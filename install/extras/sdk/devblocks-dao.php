@@ -33,7 +33,7 @@ foreach($tables as $table_name => $field_strs) {
 ?>
 <b>api/dao/<?php echo $table_name; ?>.php</b><br>
 <textarea style="width:98%;height:200px;">
-class DAO_<?php echo $class_name; ?> extends C4_ORMHelper {
+class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 <?php
 foreach($fields as $field_name => $field_type) {
 	printf("\tconst %s = '%s';\n",

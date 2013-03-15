@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_ContactPerson extends C4_ORMHelper {
+class DAO_ContactPerson extends Cerb_ORMHelper {
 	const ID = 'id';
 	const EMAIL_ID = 'email_id';
 	const CREATED = 'created';

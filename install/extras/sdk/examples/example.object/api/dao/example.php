@@ -1,5 +1,5 @@
 <?php
-class DAO_ExampleObject extends C4_ORMHelper {
+class DAO_ExampleObject extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
 	const CREATED = 'created';
@@ -188,7 +188,7 @@ class DAO_ExampleObject extends C4_ORMHelper {
 		$join_sql = "FROM example_object ".
 		
 		// [JAS]: Dynamic table joins
-			(isset($tables['context_link']) ? sprintf("INNER JOIN context_link ON (context_link.to_context = %s AND context_link.to_context_id = example_object.id) ", C4_ORMHelper::qstr(Context_ExampleObject::ID)) : " ")
+			(isset($tables['context_link']) ? sprintf("INNER JOIN context_link ON (context_link.to_context = %s AND context_link.to_context_id = example_object.id) ", Cerb_ORMHelper::qstr(Context_ExampleObject::ID)) : " ")
 			;
 		
 		// Custom field joins

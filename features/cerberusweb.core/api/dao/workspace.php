@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_WorkspacePage extends C4_ORMHelper {
+class DAO_WorkspacePage extends Cerb_ORMHelper {
 	const _CACHE_ALL = 'ch_workspace_pages';
 	
 	const ID = 'id';
@@ -343,7 +343,7 @@ class DAO_WorkspacePage extends C4_ORMHelper {
 						continue;
 					
 					$wheres[] = sprintf("(workspace_page.owner_context = %s AND workspace_page.owner_context_id = %d)",
-						C4_ORMHelper::qstr($context),
+						Cerb_ORMHelper::qstr($context),
 						$context_id
 					);
 				}
@@ -370,7 +370,7 @@ class DAO_WorkspacePage extends C4_ORMHelper {
 	}
 };
 
-class DAO_WorkspaceTab extends C4_ORMHelper {
+class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	const _CACHE_ALL = 'ch_workspace_tabs';
 	
 	const ID = 'id';

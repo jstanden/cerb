@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_ContextScheduledBehavior extends C4_ORMHelper {
+class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 	const ID = 'id';
 	const CONTEXT = 'context';
 	const CONTEXT_ID = 'context_id';
@@ -139,7 +139,7 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 		$objects = self::getWhere(
 			sprintf("%s = %s AND %s = %d",
 				self::CONTEXT,
-				C4_ORMHelper::qstr($context),
+				Cerb_ORMHelper::qstr($context),
 				self::CONTEXT_ID,
 				$context_id
 			),

@@ -938,7 +938,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 	}
 };
 
-class DAO_AttachmentLink extends C4_ORMHelper {
+class DAO_AttachmentLink extends Cerb_ORMHelper {
 	const GUID = 'guid';
 	const ATTACHMENT_ID = 'attachment_id';
 	const CONTEXT = 'context';

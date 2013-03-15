@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_Worker extends C4_ORMHelper {
+class DAO_Worker extends Cerb_ORMHelper {
 	private function DAO_Worker() {}
 	
 	const CACHE_ALL = 'ch_workers';
@@ -581,7 +581,7 @@ class DAO_Worker extends C4_ORMHelper {
 					"AND owner_context = %s AND owner_context_id = w.id) %s 0 ",
 					strtotime($param->value[1]),
 					strtotime($param->value[0]),
-					C4_ORMHelper::qstr('cerberusweb.contexts.worker'),
+					Cerb_ORMHelper::qstr('cerberusweb.contexts.worker'),
 					(!empty($param->value[2]) ? '!=' : '=')
 				);
 				break;

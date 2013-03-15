@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_ContactOrg extends C4_ORMHelper {
+class DAO_ContactOrg extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
 	const STREET = 'street';

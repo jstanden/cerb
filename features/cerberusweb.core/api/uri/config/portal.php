@@ -251,7 +251,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		$templates = DevblocksPlatform::getTemplates($template_set);
 		$existing_templates = DAO_DevblocksTemplate::getWhere(sprintf("%s = %s",
 			DAO_DevblocksTemplate::TAG,
-			C4_ORMHelper::qstr('portal_'.$portal)
+			Cerb_ORMHelper::qstr('portal_'.$portal)
 		));
 		
 		// Sort templates

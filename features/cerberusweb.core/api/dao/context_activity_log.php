@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_ContextActivityLog extends C4_ORMHelper {
+class DAO_ContextActivityLog extends Cerb_ORMHelper {
 	const ID = 'id';
 	const ACTIVITY_POINT = 'activity_point';
 	const ACTOR_CONTEXT = 'actor_context';
@@ -240,14 +240,14 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 						if(!empty($context_id)) {
 							$wheres[] = sprintf("(%s = %s AND %s_id = %d)",
 								$context_field,
-								C4_ORMHelper::qstr($context),
+								Cerb_ORMHelper::qstr($context),
 								$context_field,
 								$context_id
 							);
 						} else {
 							$wheres[] = sprintf("(%s = %s)",
 								$context_field,
-								C4_ORMHelper::qstr($context)
+								Cerb_ORMHelper::qstr($context)
 							);
 						}
 					}

@@ -15,7 +15,7 @@
  |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
  ***********************************************************************/
 
-class DAO_CrmOpportunity extends C4_ORMHelper {
+class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
 	const AMOUNT = 'amount';

@@ -15,7 +15,7 @@
  |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
  ***********************************************************************/
 
-class DAO_WorkspaceWidget extends C4_ORMHelper {
+class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 	const ID = 'id';
 	const EXTENSION_ID = 'extension_id';
 	const WORKSPACE_TAB_ID = 'workspace_tab_id';

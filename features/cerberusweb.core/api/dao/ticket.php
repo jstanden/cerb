@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_Ticket extends C4_ORMHelper {
+class DAO_Ticket extends Cerb_ORMHelper {
 	const ID = 'id';
 	const MASK = 'mask';
 	const SUBJECT = 'subject';
@@ -3555,7 +3555,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				DAO_MailQueue::WORKER_ID,
 				$active_worker->id,
 				DAO_MailQueue::TYPE,
-				C4_ORMHelper::qstr(Model_MailQueue::TYPE_COMPOSE)
+				Cerb_ORMHelper::qstr(Model_MailQueue::TYPE_COMPOSE)
 			));
 			
 			@$draft = $drafts[$draft_id];

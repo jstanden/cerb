@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_Task extends C4_ORMHelper {
+class DAO_Task extends Cerb_ORMHelper {
 	const ID = 'id';
 	const TITLE = 'title';
 	const CREATED_AT = 'created_at';

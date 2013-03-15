@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_TriggerEvent extends C4_ORMHelper {
+class DAO_TriggerEvent extends Cerb_ORMHelper {
 	const CACHE_ALL = 'cerberus_cache_behavior_all';
 	
 	const ID = 'id';
@@ -285,7 +285,7 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 		
 		$results = self::getWhere(sprintf("%s = %s AND %s IN (%s)",
 			self::OWNER_CONTEXT,
-			C4_ORMHelper::qstr($context),
+			Cerb_ORMHelper::qstr($context),
 			self::OWNER_CONTEXT_ID,
 			implode(',', $context_ids)
 		));

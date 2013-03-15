@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_Snippet extends C4_ORMHelper {
+class DAO_Snippet extends Cerb_ORMHelper {
 	const ID = 'id';
 	const TITLE = 'title';
 	const OWNER_CONTEXT = 'owner_context';
@@ -321,13 +321,13 @@ class DAO_Snippet extends C4_ORMHelper {
 					
 					if(!empty($context_id)) {
 						$wheres[] = sprintf("(snippet.owner_context = %s AND snippet.owner_context_id = %d)",
-							C4_ORMHelper::qstr($context),
+							Cerb_ORMHelper::qstr($context),
 							$context_id
 						);
 						
 					} else {
 						$wheres[] = sprintf("(snippet.owner_context = %s)",
-							C4_ORMHelper::qstr($context)
+							Cerb_ORMHelper::qstr($context)
 						);
 					}
 					
