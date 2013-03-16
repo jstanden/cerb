@@ -276,6 +276,62 @@ XML;
 	}
 };
 
+class ChRssSource_ServerJournal extends Extension_RssSource {
+	function getSourceName() {
+		return "Server History";
+	}
+	
+	function getFeedAsRss(Model_ViewRss $feed) {
+		$xmlstr = <<<XML
+		<rss version='2.0' xmlns:atom='http://www.w3.org/2005/Atom'>
+		</rss>
+XML;
+		$xml = new SimpleXMLElement($xmlstr);
+		$url = DevblocksPlatform::getUrlService();
+		
+		$dUrl = DAO_CommunityToolProperty::get($feed->params['code'], 'server.datacenter_status_url', '');
+		
+		// Channel
+		$channel = $xml->addChild('channel');
+		$channel->addChild('title', $feed->title);
+		$channel->addChild('link', $url->write('', TRUE));
+		$channel->addChild('description', '');
+		
+		// View
+		$view = new View_Journal();
+		$view->name = $feed->title;
+		$view->addParams($view->getParamsDefault(), TRUE);
+		if (!empty($feed->params['params']))	$view->addParams($feed->params['params'], TRUE);
+		if (!empty($feed->params['sort_by']))	$view->renderSortBy = $feed->params['sort_by'];
+		if (!empty($feed->params['sort_asc']))	$view->renderSortAsc = $feed->params['sorty_asc'];
+		$view->renderLimit = 100;
+		
+		// Result
+		list($entries, $count) = $view->getData();
+		
+		foreach($entries as $entry) {
+			$created = intval($entry[SearchFields_Journal::CREATED]);
+
+			$eItem = $channel->addChild('item');
+			
+			$server = DAO_Server::get($entry[SearchFields_Journal::CONTEXT_ID]);
+			$eItem->addChild('title', $server->name);
+
+			$eItem->addChild('description', $entry[SearchFields_Journal::JOURNAL]);
+			
+			$link = $dUrl.'detail/'.$entry[SearchFields_Journal::ID].'-'.DevblocksPlatform::strToPermalink($entry[SearchFields_Journal::JOURNAL]);
+			$eItem->addChild('link', $link);
+				
+			$eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
+			
+			$eGuid = $eItem->addChild('guid', md5($server->name.$link.$created));
+			$eGuid->addAttribute('isPermaLink', "false");
+		}
+
+		return $xml->asXML();
+	}
+}
+
 class ChRssSource_Ticket extends Extension_RssSource {
 	function getSourceName() {
 		return "Tickets";

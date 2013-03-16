@@ -8,10 +8,30 @@
 			{assign var=parent_id value=$categories.$root_id->parent_id}
 		{/if}
 			
-		{if !empty($root_id)}<button type="button" class="category_edit"><span class="cerb-sprite2 sprite-folder-gear"></span> Edit {if $parent_id}Category{else}Topic{/if}</button>{/if}
-		<button type="button" class="category_add"><span class="cerb-sprite sprite-folder_add"></span> Add {if empty($root_id)}Topic{else}Subcategory{/if}</button>
+		{if !empty($root_id)}
+			<button type="button" class="category_edit">
+				<span class="cerb-sprite2 sprite-folder-gear"></span>
+				{$translate->_('display.manage.kb.edit_t_sc.prefix')}
+				{if $parent_id}
+					{$translate->_('display.manage.kb.category')}
+				{else}
+					{$translate->_('display.manage.kb.topic')}
+				{/if}
+				{$translate->_('display.manage.kb.edit_t_sc.suffix')}
+			</button>
+		{/if}
+		<button type="button" class="category_add">
+			<span class="cerb-sprite sprite-folder_add"></span>
+			{$translate->_('display.manage.kb.add_t_sc.prefix')}
+			{if empty($root_id)}
+				{$translate->_('display.manage.kb.topic')}
+			{else}
+				{$translate->_('display.manage.kb.subcategory')}
+			{/if}
+			{$translate->_('display.manage.kb.add_t_sc.suffix')}
+		</button>
 			
-		<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&view_id={$view->id}',null,false,'700');"><span class="cerb-sprite2 sprite-plus-circle"></span> Add Article</button>
+		<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&view_id={$view->id}',null,false,'700');"><span class="cerb-sprite2 sprite-plus-circle"></span>{$translate->_('display.manage.kb.add_article')}</button>
 	{/if}
 </form>
 

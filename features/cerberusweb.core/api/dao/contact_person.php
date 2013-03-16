@@ -16,6 +16,8 @@
 ***********************************************************************/
 
 class DAO_ContactPerson extends C4_ORMHelper {
+	const CACHE_SERVER_ROSTER = 'ch_server_roster';
+
 	const ID = 'id';
 	const EMAIL_ID = 'email_id';
 	const CREATED = 'created';
@@ -104,6 +106,57 @@ class DAO_ContactPerson extends C4_ORMHelper {
 		
 		return self::_getObjectsFromResult($rs);
 	}
+	
+	static function getServerRosters() {
+		$cache = DevblocksPlatform::getCacheService();
+		
+		if (null === ($objects = $cache->load(self::CACHE_SERVER_ROSTER))) {
+			$db = DevblocksPlatform::getDatabaseService();
+			$sql = sprintf('SELECT st.server_id, st.contact_id '.
+				'FROM server_to_contact st '.
+				'INNER JOIN contact_person c ON (st.contact_id=c.id) '.
+				'INNER JOIN server s ON (st.server_id=s.id) '.
+				'INNER JOIN address a ON (c.email_id=a.id) '.
+				'ORDER BY a.last_name ASC, a.first_name ASC, a.email ASC '
+			);
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			
+			$objects = array();
+			
+			while ($row = mysql_fetch_assoc($rs)) {
+				$server_id = intval($row['server_id']);
+				$contact_id = intval($row['contact_id']);
+				
+				if (!isset($objects[$server_id]))
+					$objects[$server_id] = array();
+				
+				$owner = new Model_ServerOwner();
+				$owner->id = $contact_id;
+				$owner->server_id = $server_id;
+				$objects[$server_id][$contact_id] = $owner;
+			}
+			
+			mysql_free_result($rs);
+			
+			$cache->save($objects, self::CACHE_SERVER_ROSTER);
+		}
+		
+		return $objects;
+	}
+	
+	static function getOwnedServers($contact_id) {
+		$rosters = self::getServerRosters();
+		
+		$servers = array();
+		if (is_array($rosters))
+		foreach ($rosters as $server_id => $owners) {
+			if (isset($owners[$contact_id])) {
+				$servers[$server_id] = $owners[$contact_id];
+			}
+		}
+		
+		return $servers;
+	}
 
 	/**
 	 * @param integer $id
@@ -144,6 +197,37 @@ class DAO_ContactPerson extends C4_ORMHelper {
 		return $objects;
 	}
 	
+	static function setServerOwner($id, $server_id) {
+		if (empty($id) || empty($server_id))
+			return FALSE;
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		$cache = DevblocksPlatform::getCacheService();
+		
+		$db->Execute(sprintf("REPLACE INTO server_to_contact (server_id, contact_id)".
+			"VALUES (%u, %u)", 
+			$server_id,
+			$id
+		));
+		
+		$cache->remove(self::CACHE_SERVER_ROSTER);
+	}
+	
+	static function unsetServerOwner($id, $server_id) {
+		if (empty($id) || empty($server_id))
+			return FALSE;
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		$cache = DevblocksPlatform::getCacheService();
+		
+		$db->Execute(sprintf("DELETE QUICK FROM server_to_contact WHERE server_id = %u AND contact_id IN (%u)",
+			$server_id,
+			$id
+		));
+		
+		$cache->remove(self::CACHE_SERVER_ROSTER);
+	}
+
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
@@ -174,6 +258,9 @@ class DAO_ContactPerson extends C4_ORMHelper {
 		
 		// Release verified email addresses
 		$db->Execute(sprintf("UPDATE address SET contact_person_id = 0 WHERE contact_person_id IN (%s)", $ids_list));
+		
+		// Remove Server owns
+		$db->Execute(sprintf("DELETE FROM server_to_contact WHERE contact_id IN (%s)", $ids_list));
 		
 		// Remove records
 		$db->Execute(sprintf("DELETE FROM contact_person WHERE id IN (%s)", $ids_list));
@@ -1081,3 +1168,8 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 		$tpl->display('devblocks:cerberusweb.core::contacts/people/peek.tpl');
 	}
 };
+
+class Model_ServerOwner {
+	public $id;
+	public $server_id;
+}

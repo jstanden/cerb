@@ -2088,6 +2088,61 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('devblocks:cerberusweb.core::search/quick_search_popup.tpl');
 	}
 	
+	function viewShowRssAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_name = DevblocksPlatform::importGPC($_REQUEST['view'], 'string', '');
+		@$source = DevblocksPlatform::importGPC($_REQUEST['source'], 'string', '');
+		
+		// View exists?
+		if (empty($view_id) || NULL === ($view = C4_AbstractViewLoader::getView($view_id))) {
+			if (empty($view_name))
+				return;
+			else {
+				// Try to initialize view
+				$view_name = 'View_'.ucfirst($view_name);
+				if (NULL === ($view = new $view_name()))
+					return;
+				C4_AbstractViewLoader::setView($view->id, $view);
+			}	
+		}
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view->id);
+		$tpl->assign('view', $view);
+		$tpl->assign('source', $source);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/views/view_rss_builder.tpl');
+	}
+	
+	function viewBuildRssAction() {
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		@$source = DevblocksPlatform::importGPC($_POST['source'], 'string', '');
+		@$title = DevblocksPlatform::importGPC($_POST['title'], 'string', '');
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		$hash = md5($title.$view_id.$active_worker->id.time());
+		
+		$params = array(
+			'params' => $view->getParams(),
+			'sort_by' => $view->renderSortBy,
+			'sort_asc' => $view->renderSortAsc
+		);
+		
+		$fields = array(
+			DAO_ViewRss::TITLE				=> $title,
+			DAO_ViewRss::HASH				=> $hash,
+			DAO_ViewRss::CREATED			=> time(),
+			DAO_ViewRss::WORKER_ID			=> $active_worker->id,
+			DAO_ViewRss::SOURCE_EXTENSION	=> $source,
+			DAO_ViewRss::PARAMS				=> serialize($params)
+		);
+		$feed_id = DAO_ViewRss::create($fields);
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('preferences','rss')));
+	}
+	
 	function viewSubtotalAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$toggle = DevblocksPlatform::importGPC($_REQUEST['toggle'],'integer',0);
@@ -3653,6 +3708,109 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('body', $body);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/html_editor/preview.tpl');
+	}
+	
+	// Journal
+	function showTabContextJournalAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer');
+		@$point	= DevblocksPlatform::importGPC($_REQUEST['point'], 'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
+		
+		if (!empty($point))
+			$visit->set($point, 'journal');
+		
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+		$journal = DAO_Journal::getByContext($context, $context_id);
+		$tpl->assign('journal', $journal);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/journal/tab.tpl');
+	}
+	
+	function journalShowPopupAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+		
+		$notify_workers = array();
+		
+		// Automatically tell anybody associated with this context object
+		switch($context) {
+			case CerberusContexts::CONTEXT_WORKER:
+				$notify_workers[] = $context_id;
+				break;
+				
+			case CerberusContexts::CONTEXT_GROUP:
+				if(null != ($group = DAO_Group::get($context_id))) {
+					$members = $group->getMembers();
+					$notify_workers = array_keys($members);
+				}
+				break;
+		}
+		
+//		$workers = CerberusContexts::getWatchers($context, $context_id);
+//		if(isset($workers[$active_worker->id]))
+//			unset($workers[$active_worker->id]);
+
+		$tpl->assign('notify_workers', $notify_workers);
+
+		$tpl->display('devblocks:cerberusweb.core::internal/journal/peek.tpl');
+	}
+	
+	function journalSavePopupAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$journal = DevblocksPlatform::importGPC($_REQUEST['journal'],'string','');
+		@$ispublic = DevblocksPlatform::importGPC($_REQUEST['ispublic'],'integer',0);
+		@$isinternal = DevblocksPlatform::importGPC($_REQUEST['isinternal'], 'integer', 0);
+		@$state = DevblocksPlatform::importGPC($_REQUEST['state'], 'integer', 0);
+		@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_ids'],'array',array());
+
+		$translate = DevblocksPlatform::getTranslationService();
+
+		// Worker is logged in
+		if(null === ($active_worker = CerberusApplication::getActiveWorker()))
+			return;
+
+		// [TODO] Validate context + ID
+		// [TODO] Validate ACL
+
+		// Form was filled in
+		if(empty($context) || empty($context_id) || empty($journal))
+			return;
+
+		@$also_notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+		
+		$fields = array(
+			DAO_Journal::CONTEXT => $context,
+			DAO_Journal::CONTEXT_ID => $context_id,
+			DAO_Journal::ADDRESS_ID => $active_worker->getAddress()->id,
+			DAO_Journal::JOURNAL => $journal,
+			DAO_Journal::CREATED => time(),
+			DAO_Journal::ISPUBLIC => $ispublic,
+			DAO_Journal::ISINTERNAL => $isinternal,
+			DAO_Journal::STATE => $state
+		);
+		$journal_id = DAO_Journal::create($fields, $also_notify_worker_ids);
+
+		// Attachments
+		if(!empty($file_ids))
+		foreach($file_ids as $file_id) {
+			DAO_AttachmentLink::create(intval($file_id), CerberusContexts::CONTEXT_JOURNAL, $journal_id);
+		}
+	}
+
+	function journalDeleteAction() {
+		@$journal_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		DAO_Journal::delete($journal_id);
 	}
 
 	// Comments

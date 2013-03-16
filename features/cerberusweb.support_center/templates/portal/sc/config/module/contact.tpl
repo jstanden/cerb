@@ -14,6 +14,12 @@
 <br>
 <br>
 
+<b>{$translate->_('portal.cfg.send_mail')}</b><br>
+<label><input type="radio" name="send_mail" value="1"{if $send_mail} checked="checked"{/if}>{$translate->_('portal.cfg.enabled')}</label>
+<label><input type="radio" name="send_mail" value="0"{if !$send_mail} checked="checked"{/if}>{$translate->_('portal.cfg.disabled')}</label>
+<br>
+<br>
+
 <div id="situations" class="container">
 {foreach from=$dispatch item=params key=reason}
 	{include file="devblocks:cerberusweb.support_center::portal/sc/config/module/contact/situation.tpl" reason=$reason params=$params}

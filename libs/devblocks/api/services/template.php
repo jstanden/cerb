@@ -34,6 +34,7 @@ class _DevblocksTemplateManager {
 			$instance->caching = 0;
 			$instance->cache_lifetime = 0;
 			$instance->compile_check = (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) ? true : false;
+			$instance->debugging = (defined('SMARTY_DEBUG_MODE') && SMARTY_DEBUG_MODE) ? true : false;
 			
 			$instance->error_unassigned = false;
 			$instance->error_reporting = E_ERROR & ~E_NOTICE;
