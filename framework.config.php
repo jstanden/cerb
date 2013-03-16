@@ -2,9 +2,9 @@
 define('APP_DB_DRIVER','mysqli');
 define('APP_DB_ENGINE','myisam');
 define('APP_DB_HOST','localhost');
-define('APP_DB_DATABASE','cerb6dev');
-define('APP_DB_USER','root');
-define('APP_DB_PASS','%dadate%');
+define('APP_DB_DATABASE','');
+define('APP_DB_USER','');
+define('APP_DB_PASS','');
 define('APP_DB_PCONNECT',false);
 
 define('LANG_CHARSET_CODE','utf-8');
