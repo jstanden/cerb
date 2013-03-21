@@ -336,6 +336,11 @@ $db->Execute("UPDATE view_filters_preset SET view_class = 'View_Translation' WHE
 $db->Execute("DELETE FROM worker_view_model WHERE class_name = ''");
 
 // ===========================================================================
+// Clear old message worklist searches
+
+$db->Execute("DELETE FROM worker_view_model WHERE view_id = 'search_cerberusweb_contexts_message'");
+
+// ===========================================================================
 // Finish
 
 return TRUE;

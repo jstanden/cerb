@@ -1864,6 +1864,11 @@ class Context_Message extends Extension_DevblocksContext {
 //			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
 			//SearchFields_Task::VIRTUAL_WATCHERS => new DevblocksSearchCriteria(SearchFields_Task::VIRTUAL_WATCHERS,'in',array($active_worker->id)),
 		), true);
+		
+		$view->addParamsRequired(array(
+			SearchFields_Message::TICKET_GROUP_ID => new DevblocksSearchCriteria(SearchFields_Message::TICKET_GROUP_ID,'in',array_keys($active_worker->getMemberships())),
+		), true);
+		
 		$view->renderSortBy = SearchFields_Message::CREATED_DATE;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
@@ -1889,7 +1894,7 @@ class Context_Message extends Extension_DevblocksContext {
 				new DevblocksSearchCriteria(SearchFields_Message::CONTEXT_LINK_ID,'=',$context_id),
 			);
 		}
-
+		
 		$view->addParamsRequired($params_req, true);
 		
 		$view->renderTemplate = 'context';
