@@ -183,6 +183,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$tpl->assign('workers', DAO_Worker::getAll());
 		
 		// Watchers
+		// [TODO] Is this necessary or redundant?
 		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
 		$tpl->assign('context_watchers', $context_watchers);
 		

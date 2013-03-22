@@ -69,7 +69,7 @@
 			<td colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.e_id}" style="display:none;">
 				<a href="{devblocks_url}c=profiles&type=example_object&id={$result.e_id}{/devblocks_url}" class="subject">{$result.e_name}</a>
-				<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=internal&a=showEntryPopup&context={$view_context}&context_id={$result.e_id}&view_id={$view->id}',null,false,'500');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button> 
+				<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.e_id}&view_id={$view->id}',null,false,'500');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 			</td>
 		</tr>
 		
