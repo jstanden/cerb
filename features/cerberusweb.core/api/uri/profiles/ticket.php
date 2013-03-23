@@ -63,8 +63,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		if(empty($selected_tab))
 			$selected_tab = 'conversation';
 		
-		$tpl->assign('selected_tab', $selected_tab);
-		
 		switch($selected_tab) {
 			case 'conversation':
 				@$mail_always_show_all = DAO_WorkerPref::get($active_worker->id,'mail_always_show_all',0);
@@ -74,7 +72,18 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 					$tpl->assign('expand_all', true);
 				}
 				break;
+				
+			case 'message':
+				@$ticket_focus_msg_id = intval(array_shift($stack));
+				$selected_tab = 'conversation';
+				
+				if(!empty($ticket_focus_msg_id))
+					$tpl->assign('ticket_focus_msg_id', $ticket_focus_msg_id);
+				
+				break;
 		}
+		
+		$tpl->assign('selected_tab', $selected_tab);
 		
 		// Trigger ticket view event
 		Event_TicketViewedByWorker::trigger($ticket->id, $active_worker->id);
