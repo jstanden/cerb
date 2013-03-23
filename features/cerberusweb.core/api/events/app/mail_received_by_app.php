@@ -178,6 +178,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			'sender_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_num_spam' => Model_CustomField::TYPE_NUMBER,
 			'sender_num_nonspam' => Model_CustomField::TYPE_NUMBER,
+			'sender_is_defunct' => Model_CustomField::TYPE_CHECKBOX,
 			'sender_is_banned' => Model_CustomField::TYPE_CHECKBOX,
 			'sender_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_org_created' => Model_CustomField::TYPE_DATE,
