@@ -73,12 +73,25 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 				}
 				break;
 				
-			case 'message':
-				@$ticket_focus_msg_id = intval(array_shift($stack));
+			case 'comment':
+				@$focus_id = intval(array_shift($stack));
 				$selected_tab = 'conversation';
 				
-				if(!empty($ticket_focus_msg_id))
-					$tpl->assign('ticket_focus_msg_id', $ticket_focus_msg_id);
+				if(!empty($focus_id)) {
+					$tpl->assign('convo_focus_ctx', CerberusContexts::CONTEXT_COMMENT);
+					$tpl->assign('convo_focus_ctx_id', $focus_id);
+				}
+				
+				break;
+				
+			case 'message':
+				@$focus_id = intval(array_shift($stack));
+				$selected_tab = 'conversation';
+				
+				if(!empty($focus_id)) {
+					$tpl->assign('convo_focus_ctx', CerberusContexts::CONTEXT_MESSAGE);
+					$tpl->assign('convo_focus_ctx_id', $focus_id);
+				}
 				
 				break;
 		}

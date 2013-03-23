@@ -842,7 +842,8 @@ class ChDisplayPage extends CerberusPageExtension {
 	
 	function showConversationAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
-		@$focus_msg_id = DevblocksPlatform::importGPC($_REQUEST['focus_msg_id'],'integer','0');
+		@$focus_ctx = DevblocksPlatform::importGPC($_REQUEST['focus_ctx'],'string','');
+		@$focus_ctx_id = DevblocksPlatform::importGPC($_REQUEST['focus_ctx_id'],'integer','0');
 		@$expand_all = DevblocksPlatform::importGPC($_REQUEST['expand_all'],'integer','0');
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
 
@@ -855,7 +856,8 @@ class ChDisplayPage extends CerberusPageExtension {
 			$visit->set($point, 'conversation');
 				
 		$tpl->assign('expand_all', $expand_all);
-		$tpl->assign('focus_msg_id', $focus_msg_id);
+		$tpl->assign('focus_ctx', $focus_ctx);
+		$tpl->assign('focus_ctx_id', $focus_ctx_id);
 		
 		$ticket = DAO_Ticket::get($id);
 		$tpl->assign('ticket', $ticket);

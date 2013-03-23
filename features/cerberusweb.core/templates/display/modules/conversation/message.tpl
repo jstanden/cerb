@@ -11,7 +11,7 @@
 			{assign var=sender_org value=$message_sender_orgs.$sender_org_id}
 			{assign var=is_outgoing value=$message->is_outgoing}
 
-			<div style="float:right;">
+			<div class="toolbar-minmax" style="display:none;float:right;">
 				<button id="btnMsgMax{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}');"></button>
 				<button id="btnMsgMin{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}&hide=1');"></button>
 			{if !$expanded}

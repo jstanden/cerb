@@ -32,7 +32,7 @@
 				{assign var=message value=$messages.$message_id}
 				<div id="{$message->id}t" style="background-color:rgb(255,255,255);">
 					{assign var=expanded value=false}
-					{if $expand_all || $focus_msg_id==$message_id || $latest_message_id==$message_id || isset($message_notes.$message_id)}{assign var=expanded value=true}{/if}
+					{if $expand_all || ($focus_ctx == CerberusContexts::CONTEXT_MESSAGE && $focus_ctx_id==$message_id) || $latest_message_id==$message_id || isset($message_notes.$message_id)}{assign var=expanded value=true}{/if}
 					{include file="devblocks:cerberusweb.core::display/modules/conversation/message.tpl" expanded=$expanded}
 				</div>
 				
@@ -61,9 +61,14 @@
 </div>
 
 <script type="text/javascript">
-	{if !empty($focus_msg_id)}
+	{if $focus_ctx && focus_ctx_id}
 	$(function() {
-		var $anchor = $('#{$focus_msg_id}t');
+		{if $focus_ctx == CerberusContexts::CONTEXT_COMMENT}
+		var $anchor = $('#comment{$focus_ctx_id}');
+		{elseif $focus_ctx == CerberusContexts::CONTEXT_MESSAGE}
+		var $anchor = $('#{$focus_ctx_id}t');
+		{/if}
+		
 		if($anchor.length > 0) {
 			var offset = $anchor.offset();
 			window.scrollTo(offset.left, offset.top);
