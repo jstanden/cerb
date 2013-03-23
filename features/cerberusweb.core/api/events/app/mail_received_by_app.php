@@ -394,6 +394,8 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				'send_email' => array('label' => 'Send email'),
 				'send_email_sender' => array('label' => 'Reply to sender'),
 				'set_header' => array('label' => 'Set message header'),
+				'set_sender_is_banned' => array('label' => 'Set sender is banned'),
+				'set_sender_is_defunct' => array('label' => 'Set sender is defunct'),
 			)
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
 			;
@@ -454,6 +456,11 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				
 			case 'set_header':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_app/action_set_header.tpl');
+				break;
+				
+			case 'set_sender_is_banned':
+			case 'set_sender_is_defunct':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_bool.tpl');
 				break;
 				
 			default:
@@ -590,6 +597,14 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				);
 				
 				return $out;
+				break;
+				
+			case 'set_sender_is_banned':
+				return DevblocksEventHelper::simulateActionSetAbstractField('is banned', Model_CustomField::TYPE_CHECKBOX, 'sender_is_banned', $params, $dict);
+				break;
+				
+			case 'set_sender_is_defunct':
+				return DevblocksEventHelper::simulateActionSetAbstractField('is defunct', Model_CustomField::TYPE_CHECKBOX, 'sender_is_defunct', $params, $dict);
 				break;
 				
 			default:
@@ -776,6 +791,36 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	   				$headers[$header] = $value;
    				}
    					
+				break;
+				
+			case 'set_sender_is_banned':
+				@$address_id = $dict->sender_id;
+				
+				if(empty($address_id))
+					break;
+				
+				@$value = $params['value'];
+				@$bit = !empty($value) ? 1 : 0;
+				
+				DAO_Address::update($address_id, array(
+					DAO_Address::IS_BANNED => $bit,
+				));
+				$dict->is_banned = $bit;
+				break;
+				
+			case 'set_sender_is_defunct':
+				@$address_id = $dict->sender_id;
+				
+				if(empty($address_id))
+					break;
+				
+				@$value = $params['value'];
+				@$bit = !empty($value) ? 1 : 0;
+				
+				DAO_Address::update($address_id, array(
+					DAO_Address::IS_DEFUNCT => $bit,
+				));
+				$dict->is_defunct = $bit;
 				break;
 				
 			default:
