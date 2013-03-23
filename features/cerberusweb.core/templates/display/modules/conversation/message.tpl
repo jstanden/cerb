@@ -162,6 +162,17 @@
 <div id="reply{$message->id}"></div>
 <br>
 
+<script type="text/javascript">
+$('#{$message->id}t').hover(
+	function() {
+		$(this).find('div.toolbar-minmax').show();
+	},
+	function() {
+		$(this).find('div.toolbar-minmax').hide();
+	}
+);
+</script>
+
 {if $active_worker->hasPriv('core.display.actions.reply')}
 <script type="text/javascript">
 $('#{$message->id}act')
