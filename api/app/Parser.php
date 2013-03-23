@@ -1238,6 +1238,17 @@ class CerberusParser {
 				DAO_CustomFieldValue::setFieldValue($cf_context, $cf_context_id, $cf_id, $cf_val);
 		}
 
+		// If the sender was previously defunct, remove the flag
+		
+		$sender = $model->getSenderAddressModel();
+		if($sender->is_defunct && $sender->id) {
+			DAO_Address::update($sender->id, array(
+				DAO_Address::IS_DEFUNCT => 0,
+			));
+			
+			$logger->info(sprintf("[Parser] Setting %s as no longer defunct", $sender->email));
+		}
+		
 		// Finalize our new ticket details (post-message creation)
 		if($model->getIsNew()) {
 			// First thread (needed for anti-spam)
