@@ -49,14 +49,14 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$replyto = DAO_AddressOutgoing::getDefault();
 		
 		$parser_message = new CerberusParserMessage();
-		$parser_message->headers['to'] = 'customer@example.com';
-		$parser_message->headers['from'] = $replyto->email;
+		$parser_message->headers['to'] = $replyto->email;
+		$parser_message->headers['from'] = 'customer@example.com';
 		$parser_message->headers['cc'] = 'boss@example.com';
 		$parser_message->headers['bcc'] = 'secret@example.com';
 		$parser_message->headers['subject'] = 'This is the subject';
 		$parser_message->body = "This is the message body\r\nOn more than one line.\r\n";
 		
-		if(empty($parser_model)) {
+		if(empty($parser_model) || !($parser_model instanceof CerberusParserModel)) {
 			$parser_model = new CerberusParserModel($parser_message);
 		}
 		
@@ -114,18 +114,15 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$sender_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $sender, $sender_labels, $sender_values, null, true);
 
-		// Fill in some custom values
-		//$values['sender_is_worker'] = (!empty($values['worker_id'])) ? 1 : 0;
-		
-			// Merge
-			CerberusContexts::merge(
-				'sender_',
-				'Sender ',
-				$sender_labels,
-				$sender_values,
-				$labels,
-				$values
-			);
+		// Merge
+		CerberusContexts::merge(
+			'sender_',
+			'Sender ',
+			$sender_labels,
+			$sender_values,
+			$labels,
+			$values
+		);
 		
 		/**
 		 * Return

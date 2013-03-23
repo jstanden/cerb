@@ -450,20 +450,22 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				
 			case 'set_is_banned':
 				@$value = $params['value'];
+				@$bit = !empty($value) ? 1 : 0;
 				
 				DAO_Address::update($address_id, array(
-					DAO_Address::IS_BANNED => $value,
+					DAO_Address::IS_BANNED => $bit,
 				));
-				$dict->is_banned = $value;
+				$dict->is_banned = $bit;
 				break;
 				
 			case 'set_is_defunct':
 				@$value = $params['value'];
+				@$bit = !empty($value) ? 1 : 0;
 				
 				DAO_Address::update($address_id, array(
-					DAO_Address::IS_DEFUNCT => $value,
+					DAO_Address::IS_DEFUNCT => $bit,
 				));
-				$dict->is_defunct = $value;
+				$dict->is_defunct = $bit;
 				break;
 				
 			case 'set_links':
