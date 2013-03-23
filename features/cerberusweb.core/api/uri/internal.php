@@ -2780,6 +2780,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->clearAssign('id');
 		$tpl->clearAssign('model');
 		$tpl->clearAssign('parent_id');
+		
 		$tpl->clearAssign('trigger');
 		$tpl->clearAssign('trigger_id');
 		$tpl->clearAssign('type');
@@ -2787,7 +2788,6 @@ class ChInternalController extends DevblocksControllerExtension {
 
 	function showBehaviorSimulatorPopupAction() {
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer', 0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -2799,13 +2799,13 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		if(null == ($ext_event = DevblocksPlatform::getExtension($trigger->event_point, true))) /* @var $ext_event Extension_DevblocksEvent */
 			return;
-		
+
 		$event_model = $ext_event->generateSampleEventModel($context_id);
 		$ext_event->setEvent($event_model);
-		
+
 		$event_params_json = json_encode($event_model->params);
 		$tpl->assign('event_params_json', $event_params_json);
-
+		
 		$labels = $ext_event->getLabels($trigger);
 		$values = $ext_event->getValues();
 		$dict = new DevblocksDictionaryDelegate($values);
@@ -2851,20 +2851,30 @@ class ChInternalController extends DevblocksControllerExtension {
  		if(null == ($ext_event = DevblocksPlatform::getExtension($trigger->event_point, true))) /* @var $ext_event Extension_DevblocksEvent */
  			return;
 
- 		// Reconstruct the event scope
- 		
- 		$event_model = new Model_DevblocksEvent();
- 		$event_model->id = $trigger->event_point;
- 		$event_model_params = json_decode($event_params_json, true);
- 		$event_model->params = is_array($event_model_params) ? $event_model_params : array();
- 		$ext_event->setEvent($event_model);
+		// Set the base event scope
+		
+		// [TODO] This is hacky and needs to be handled by the extensions
+		switch($trigger->event_point) {
+			case Event_MailReceivedByApp::ID:
+				$event_model = $ext_event->generateSampleEventModel(0);
+				break;
+				
+			default:
+				$event_model = new Model_DevblocksEvent();
+				$event_model->id = $trigger->event_point;
+				$event_model_params = json_decode($event_params_json, true);
+				$event_model->params = is_array($event_model_params) ? $event_model_params : array();
+				break;
+		}
+		
+		$ext_event->setEvent($event_model);
 
- 		$tpl->assign('event', $ext_event);
- 		
- 		// Merge baseline values with user overrides
- 		
- 		$values = $ext_event->getValues();
- 		$values = array_merge($values, $custom_values);
+		$tpl->assign('event', $ext_event);
+		
+		// Merge baseline values with user overrides
+		
+		$values = $ext_event->getValues();
+		$values = array_merge($values, $custom_values);
  		
  		// Get conditions
  		
