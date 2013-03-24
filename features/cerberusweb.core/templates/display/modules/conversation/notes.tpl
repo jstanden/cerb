@@ -18,9 +18,14 @@
 			{/if}
 			</b>
 			
-			
 			<div class="toolbar" style="display:none;float:right;margin-right:20px;">
-				<a href="javascript:;" onclick="if(confirm('Are you sure you want to permanently delete this note?')) { genericAjaxGet('','c=internal&a=commentDelete&id={$note->id}');$(this).closest('div.message_note').remove(); } ">{$translate->_('common.delete')|lower}</a><br>
+				{if $comment->context == CerberusContexts::CONTEXT_TICKET}
+					<a href="{devblocks_url}c=profiles&type=ticket&mask={$ticket->mask}&focus=comment&focus_id={$note->id}{/devblocks_url}">{'common.permalink'|devblocks_translate|lower}</a>
+				{/if}
+				
+				{if !$readonly}
+					<a href="javascript:;" style="margin-left:10px;" onclick="if(confirm('Are you sure you want to permanently delete this note?')) { genericAjaxGet('','c=internal&a=commentDelete&id={$note->id}');$(this).closest('div.message_note').remove(); } ">{$translate->_('common.delete')|lower}</a><br>
+				{/if}
 			</div>
 			
 			<br>

@@ -29,7 +29,6 @@
 			{/if}
 		</div>
 		
-		
 		{$extensions = DevblocksPlatform::getExtensions('cerberusweb.comment.badge', true)}
 		{foreach from=$extensions item=extension}
 			{$extension->render($comment)}
