@@ -3751,10 +3751,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 		}
 		
-//		$workers = CerberusContexts::getWatchers($context, $context_id);
-//		if(isset($workers[$active_worker->id]))
-//			unset($workers[$active_worker->id]);
-
 		$tpl->assign('notify_workers', $notify_workers);
 
 		$tpl->display('devblocks:cerberusweb.core::internal/comments/peek.tpl');

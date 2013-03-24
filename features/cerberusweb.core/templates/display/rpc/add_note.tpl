@@ -22,7 +22,7 @@
 	</tr>
 	<tr>
 		<td style="padding-top:5px;">
-			<b>Notify workers</b>:<br>
+			<b>{'common.notify_watchers_and'|devblocks_translate}</b>:<br>
 			<div style="margin-left:20px;margin-bottom:1em;">
 				<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
 			</div>
