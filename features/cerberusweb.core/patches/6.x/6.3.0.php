@@ -341,6 +341,23 @@ $db->Execute("DELETE FROM worker_view_model WHERE class_name = ''");
 $db->Execute("DELETE FROM worker_view_model WHERE view_id = 'search_cerberusweb_contexts_message'");
 
 // ===========================================================================
+// Increase the max bucket name length
+
+if(!isset($tables['bucket'])) {
+	$logger->error("The 'bucket' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('bucket');
+
+if(!isset($columns['name'])) {
+	$logger->error("The 'bucket.name' column does not exist.");
+	return FALSE;
+}
+
+$db->Execute("ALTER TABLE bucket MODIFY COLUMN name VARCHAR(64)");
+
+// ===========================================================================
 // Finish
 
 return TRUE;

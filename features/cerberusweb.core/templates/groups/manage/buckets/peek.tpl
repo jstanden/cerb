@@ -8,7 +8,7 @@
 {if '0' == $bucket_id}
 {'common.inbox'|devblocks_translate|capitalize}
 {else}
-<input type="text" name="name" value="{$bucket->name}" style="width:100%;">
+<input type="text" name="name" value="{$bucket->name}" maxlength="64" style="width:100%;">
 {/if}
 <br>
 <br>
