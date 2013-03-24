@@ -17,6 +17,7 @@
 
 class UmScKbController extends Extension_UmScController {
 	const PARAM_KB_ROOTS = 'kb.roots';
+	const PARAM_KB_VIEW_NUMROWS = 'kb.view.num_rows';
 	const SESSION_ARTICLE_LIST = 'kb_article_list';
 	
 	function isVisible() {
@@ -83,6 +84,7 @@ class UmScKbController extends Extension_UmScController {
 				
 				$view->addParams($params, true);
 				$view->renderPage = 0;
+				$view->renderLimit = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_KB_VIEW_NUMROWS, 10);
 				
 				UmScAbstractViewLoader::setView($view->id, $view);
 				$tpl->assign('view', $view);
@@ -224,11 +226,13 @@ class UmScKbController extends Extension_UmScController {
 					), true);
 				}
 
+				// View
+				
 				$view->name = "";
 				$view->renderSortBy = SearchFields_KbArticle::UPDATED;
 				$view->renderSortAsc = false;
 				$view->renderPage = 0;
-				$view->renderLimit = 10;
+				$view->renderLimit = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_KB_VIEW_NUMROWS, 10);
 
 				UmScAbstractViewLoader::setView($view->id, $view);
 				$tpl->assign('view', $view);
@@ -256,6 +260,9 @@ class UmScKbController extends Extension_UmScController {
 		$kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
 		$tpl->assign('kb_roots', $kb_roots);
 
+		$prop_kb_view_numrows = DAO_CommunityToolProperty::get($instance->code,self::PARAM_KB_VIEW_NUMROWS, 10);
+		$tpl->assign('kb_view_numrows', max(intval($prop_kb_view_numrows), 5));
+		
 		$tpl->display("devblocks:cerberusweb.kb::portal/sc/config/kb.tpl");
 	}
 	
@@ -264,6 +271,9 @@ class UmScKbController extends Extension_UmScController {
 		@$aKbRoots = DevblocksPlatform::importGPC($_POST['category_ids'],'array',array());
 		$aKbRoots = array_flip($aKbRoots);
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_KB_ROOTS, serialize($aKbRoots));
+		
+		@$prop_kb_view_numrows = DevblocksPlatform::importGPC($_POST['kb_view_numrows'],'integer',10);
+		DAO_CommunityToolProperty::set($instance->code, self::PARAM_KB_VIEW_NUMROWS, max($prop_kb_view_numrows, 5));
 	}
 };
 
