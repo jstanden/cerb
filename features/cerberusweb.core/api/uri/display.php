@@ -77,7 +77,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Expanded/Collapsed
 		if(empty($hide)) {
-			$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $message->ticket_id);
+			$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_MESSAGE, $message->id);
 			$message_notes = array();
 			// Index notes by message id
 			if(is_array($notes))
