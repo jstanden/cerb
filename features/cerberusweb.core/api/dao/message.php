@@ -1746,7 +1746,7 @@ class Context_Message extends Extension_DevblocksContext {
 		return array(
 			'id' => $context_id,
 			'name' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
-			'permalink' => $url_writer->writeNoProxy('c=profiles&type=ticket&id='.$ticket->mask, true),
+			'permalink' => $url_writer->writeNoProxy(sprintf('c=profiles&type=ticket&mask=%s&focus=message&focusid=%d', $ticket->mask, $message->id), true),
 		);
 	}
 	
