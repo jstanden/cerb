@@ -1,6 +1,10 @@
 {if !empty($last_action)}
 <div id="{$view->id}_output" class="ui-widget">
 	<div class="ui-state-highlight ui-corner-all" style="margin: 0 0 .5em 0; padding: 0 .7em;"> 
+		<div style="float:right;margin-top:5px;margin-right:5px;">
+			(<a href="javascript:;" onclick="$('#{$view->id}_output').html('');genericAjaxGet('','c=tickets&a=viewUndo&view_id={$view->id}&clear=1');" style="">dismiss</a>)
+		</div>
+	
 		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
 		{$last_action_count} ticket{if $last_action_count!=1}s{/if} 
 	
@@ -29,11 +33,7 @@
 			{/if}
 		{/if}
 		
-		 ( 
-		 <a href="javascript:;" onclick="ajax.viewUndo('{$view->id}');" style="font-weight:bold;">Undo</a> 
-		  | 
-		 <a href="javascript:;" onclick="$('#{$view->id}_output').html('');genericAjaxGet('','c=tickets&a=viewUndo&view_id={$view->id}&clear=1');" style="">Dismiss</a>
-		  )
+		(<a href="javascript:;" onclick="ajax.viewUndo('{$view->id}');" style="font-weight:bold;">undo</a>)
 	</div>
 </div>
 {/if}
