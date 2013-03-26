@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -938,7 +938,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 	}
 };
 
-class DAO_AttachmentLink extends C4_ORMHelper {
+class DAO_AttachmentLink extends Cerb_ORMHelper {
 	const GUID = 'guid';
 	const ATTACHMENT_ID = 'attachment_id';
 	const CONTEXT = 'context';
@@ -979,11 +979,16 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 	
 	static function create($attachment_id, $context, $context_id) {
 		$db = DevblocksPlatform::getDatabaseService();
+		
+		// We do this in a separate query for binary logging consistency
+		$uuid = $db->GetOne("SELECT UUID()");
+		
 		$db->Execute(sprintf("INSERT IGNORE INTO attachment_link (attachment_id, context, context_id, guid) ".
-			"VALUES (%d, %s, %d, UUID())",
+			"VALUES (%d, %s, %d, %s)",
 			$attachment_id,
 			$db->qstr($context),
-			$context_id
+			$context_id,
+			$db->qstr($uuid)
 		));
 	}
 	

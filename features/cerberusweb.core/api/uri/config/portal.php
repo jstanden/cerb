@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -251,7 +251,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		$templates = DevblocksPlatform::getTemplates($template_set);
 		$existing_templates = DAO_DevblocksTemplate::getWhere(sprintf("%s = %s",
 			DAO_DevblocksTemplate::TAG,
-			C4_ORMHelper::qstr('portal_'.$portal)
+			Cerb_ORMHelper::qstr('portal_'.$portal)
 		));
 		
 		// Sort templates

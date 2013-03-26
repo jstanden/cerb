@@ -7,6 +7,7 @@
  */
 class _DevblocksSessionManager {
 	var $visit = null;
+	private $_handler_class = null;
 	
 	/**
 	 * @private
@@ -33,15 +34,15 @@ class _DevblocksSessionManager {
 			
 			@session_destroy();
 			
-			$handler = '_DevblocksSessionDatabaseDriver';
+			$handler_class = DevblocksPlatform::getHandlerSession();
 			
 			session_set_save_handler(
-				array($handler, 'open'),
-				array($handler, 'close'),
-				array($handler, 'read'),
-				array($handler, 'write'),
-				array($handler, 'destroy'),
-				array($handler, 'gc')
+				array($handler_class, 'open'),
+				array($handler_class, 'close'),
+				array($handler_class, 'read'),
+				array($handler_class, 'write'),
+				array($handler_class, 'destroy'),
+				array($handler_class, 'gc')
 			);
 
 			$session_lifespan = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
@@ -52,11 +53,13 @@ class _DevblocksSessionManager {
 			
 			$instance = new _DevblocksSessionManager();
 			$instance->visit = isset($_SESSION['db_visit']) ? $_SESSION['db_visit'] : NULL; /* @var $visit DevblocksVisit */
+			$instance->_handler_class = $handler_class;
 		}
 		
 		return $instance;
 	}
 	
+	/*
 	function decodeSession($data) {
 		$vars=preg_split(
 			'/([a-zA-Z_\.\x7f-\xff][a-zA-Z0-9_\.\x7f-\xff^|]*)\|/',
@@ -75,6 +78,7 @@ class _DevblocksSessionManager {
 		
 		return $scope;
 	}
+	*/
 	
 	/**
 	 * Returns the current session or NULL if no session exists.
@@ -94,7 +98,7 @@ class _DevblocksSessionManager {
 	}
 	
 	function getAll() {
-		return _DevblocksSessionDatabaseDriver::getAll();
+		return call_user_func(array($this->_handler_class, 'getAll'));
 	}
 	
 	/**
@@ -108,84 +112,13 @@ class _DevblocksSessionManager {
 			session_unset();
 			session_destroy();
 		} else {
-			_DevblocksSessionDatabaseDriver::destroy($key);
+			call_user_func(array($this->_handler_class, 'destroy'), $key);
 		}
 	}
 	
 	function clearAll() {
 		self::clear();
 		// [TODO] Allow subclasses to be cleared here too
-		_DevblocksSessionDatabaseDriver::destroyAll();
-	}
-};
-
-class _DevblocksSessionDatabaseDriver {
-	static $_data = null;
-	
-	static function open($save_path, $session_name) {
-		return true;
-	}
-	
-	static function close() {
-		return true;
-	}
-	
-	static function read($id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		if(null != (self::$_data = $db->GetOne(sprintf("SELECT session_data FROM devblocks_session WHERE session_key = %s", $db->qstr($id)))))
-			return self::$_data;
-			
-		return false;
-	}
-	
-	static function write($id, $session_data) {
-		// Nothing changed!
-		if(self::$_data==$session_data) {
-			return true;
-		}
-		
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		// Update
-		$result = $db->Execute(sprintf("UPDATE devblocks_session SET updated=%d, session_data=%s WHERE session_key=%s",
-			time(),
-			$db->qstr($session_data),
-			$db->qstr($id)
-		));
-		
-		if(0==$db->Affected_Rows()) {
-			// Insert
-			$db->Execute(sprintf("INSERT INTO devblocks_session (session_key, created, updated, session_data) ".
-				"VALUES (%s, %d, %d, %s)",
-				$db->qstr($id),
-				time(),
-				time(),
-				$db->qstr($session_data)
-			));
-		}
-		
-		return true;
-	}
-	
-	static function destroy($id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute(sprintf("DELETE FROM devblocks_session WHERE session_key = %s", $db->qstr($id)));
-		return true;
-	}
-	
-	static function gc($maxlifetime) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute(sprintf("DELETE FROM devblocks_session WHERE updated + %d < %d", $maxlifetime, time()));
-		return true;
-	}
-	
-	static function getAll() {
-		$db = DevblocksPlatform::getDatabaseService();
-		return $db->GetArray("SELECT session_key, created, updated, session_data FROM devblocks_session");
-	}
-	
-	static function destroyAll() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute("DELETE FROM devblocks_session");
+		call_user_func(array($this->_handler_class, 'destroyAll'));
 	}
 };

@@ -27,6 +27,10 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 			case 'create':
 				$this->postCreate();
 				break;
+			
+			case 'search':
+				$this->postSearch();
+				break;
 		}
 		
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
@@ -66,7 +70,8 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 			$tokens = array(
 				'context' => DAO_Comment::CONTEXT,
 				'context_id' => DAO_Comment::CONTEXT_ID,
-				'address_id' => DAO_Comment::ADDRESS_ID,
+				'owner_context' => DAO_Comment::OWNER_CONTEXT,
+				'owner_context_id' => DAO_Comment::OWNER_CONTEXT_ID,
 				'comment' => DAO_Comment::COMMENT,
 				'created' => DAO_Comment::CREATED,
 			);
@@ -75,7 +80,8 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 				'id' => SearchFields_Comment::ID,
 				'context' => SearchFields_Comment::CONTEXT,
 				'context_id' => SearchFields_Comment::CONTEXT_ID,
-				'address_id' => SearchFields_Comment::ADDRESS_ID,
+				'owner_context' => SearchFields_Comment::OWNER_CONTEXT,
+				'owner_context_id' => SearchFields_Comment::OWNER_CONTEXT_ID,
 				'comment' => SearchFields_Comment::COMMENT,
 			);
 		}
@@ -137,11 +143,16 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 		$postfields = array(
 			'context' => 'string',
 			'context_id' => 'integer',
-			'address' => 'string',
-			'address_id' => 'integer',
+			'owner_context' => 'string',
+			'owner_context_id' => 'integer',
 			'created' => 'integer',
 			'comment' => 'string',
 		);
+
+		@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
+		@$context_id = DevblocksPlatform::importGPC($_POST['context'], 'integer', 0);
+		@$owner_context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
+		@$owner_context_id = DevblocksPlatform::importGPC($_POST['context'], 'integer', 0);
 
 		$fields = array();
 		
@@ -152,22 +163,39 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 			@$value = DevblocksPlatform::importGPC($_POST[$postfield], 'string', '');
 			
 			switch($postfield) {
-				case 'address':
-					if(null != ($lookup = DAO_Address::lookupAddress($value, true))) {
-						unset($postfields['address']);
-						$postfield = 'address_id';
-						$value = $lookup->id;
+				case 'context':
+					if($worker->is_superuser) {
+						// A superuser can do anything
+					} else {
+						// Otherwise, is this worker allowed to see this record they are commenting on?
+						if(null != ($context_ext = Extension_DevblocksContext::get($context))) {
+							if(!$context_ext->authorize($context_id, $worker))
+								$this->error(self::ERRNO_ACL);
+						}
 					}
 					break;
-				case 'context':
-					switch($_POST[$postfield]) {
-						case CerberusContexts::CONTEXT_TICKET:
-							if(!$worker->hasPriv('core.display.actions.comment')) {
+				
+				case 'owner_context':
+					if($worker->is_superuser) {
+						// A superuser can do anything
+						
+					} else {
+						// A worker cannot comment as the app, a role, or a group
+						switch($owner_context) {
+							case CerberusContexts::CONTEXT_APPLICATION:
+							case CerberusContexts::CONTEXT_GROUP:
+							case CerberusContexts::CONTEXT_ROLE:
 								$this->error(self::ERRNO_ACL);
-							}
-							break;
+								break;
+								
+							case CerberusContexts::CONTEXT_WORKER:
+								// A worker cannot comment as someone else
+								if($owner_context_id != $worker->id)
+									$this->error(self::ERRNO_ACL);
+								break;
+						}
+					}
 					break;
-				}
 			}
 			
 			if(null == ($field = self::translateToken($postfield, 'dao'))) {
@@ -189,7 +217,7 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 			$fields[DAO_Comment::CREATED] = time();
 		
 		// Check required fields
-		$reqfields = array(DAO_Comment::CONTEXT, DAO_Comment::CONTEXT_ID, DAO_Comment::ADDRESS_ID, DAO_Comment::COMMENT, DAO_Comment::CREATED);
+		$reqfields = array(DAO_Comment::CONTEXT, DAO_Comment::CONTEXT_ID, DAO_Comment::OWNER_CONTEXT, DAO_Comment::OWNER_CONTEXT_ID, DAO_Comment::COMMENT, DAO_Comment::CREATED);
 		$this->_handleRequiredFields($reqfields, $fields);
 		
 		// Create

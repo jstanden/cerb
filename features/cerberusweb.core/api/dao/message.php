@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_Message extends C4_ORMHelper {
+class DAO_Message extends Cerb_ORMHelper {
 	const ID = 'id';
 	const TICKET_ID = 'ticket_id';
 	const CREATED_DATE = 'created_date';
@@ -314,6 +314,7 @@ class DAO_Message extends C4_ORMHelper {
 		$args = array(
 			'join_sql' => &$join_sql,
 			'where_sql' => &$where_sql,
+			'tables' => &$tables,
 			'has_multiple_values' => &$has_multiple_values
 		);
 		
@@ -1745,7 +1746,7 @@ class Context_Message extends Extension_DevblocksContext {
 		return array(
 			'id' => $context_id,
 			'name' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
-			'permalink' => $url_writer->writeNoProxy('c=profiles&type=ticket&id='.$ticket->mask, true),
+			'permalink' => $url_writer->writeNoProxy(sprintf('c=profiles&type=ticket&mask=%s&focus=message&focusid=%d', $ticket->mask, $message->id), true),
 		);
 	}
 	
@@ -1863,6 +1864,11 @@ class Context_Message extends Extension_DevblocksContext {
 //			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
 			//SearchFields_Task::VIRTUAL_WATCHERS => new DevblocksSearchCriteria(SearchFields_Task::VIRTUAL_WATCHERS,'in',array($active_worker->id)),
 		), true);
+		
+		$view->addParamsRequired(array(
+			SearchFields_Message::TICKET_GROUP_ID => new DevblocksSearchCriteria(SearchFields_Message::TICKET_GROUP_ID,'in',array_keys($active_worker->getMemberships())),
+		), true);
+		
 		$view->renderSortBy = SearchFields_Message::CREATED_DATE;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
@@ -1888,7 +1894,7 @@ class Context_Message extends Extension_DevblocksContext {
 				new DevblocksSearchCriteria(SearchFields_Message::CONTEXT_LINK_ID,'=',$context_id),
 			);
 		}
-
+		
 		$view->addParamsRequired($params_req, true);
 		
 		$view->renderTemplate = 'context';

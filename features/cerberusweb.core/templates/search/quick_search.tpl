@@ -91,6 +91,7 @@ var $frm = $('#{$uniqid}').each(function(e) {
 				$bubbles.append($('<li><tt>Jan 1 2010 to +1 year</tt></li>'));
 				$bubbles.append($('<li><tt>-2 weeks to now</tt></li>'));
 				$bubbles.append($('<li><tt>last Monday to next Monday</tt></li>'));
+				$bubbles.append($('<li><tt>blank</tt></li>'));
 				
 			} else if (field_type == 'W' || field_type == 'WS') {
 				$bubbles.append($('<li><tt>jeff</tt></li>'));

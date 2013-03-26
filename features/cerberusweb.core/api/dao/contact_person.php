@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_ContactPerson extends C4_ORMHelper {
+class DAO_ContactPerson extends Cerb_ORMHelper {
 	const ID = 'id';
 	const EMAIL_ID = 'email_id';
 	const CREATED = 'created';
@@ -251,6 +251,7 @@ class DAO_ContactPerson extends C4_ORMHelper {
 		$args = array(
 			'join_sql' => &$join_sql,
 			'where_sql' => &$where_sql,
+			'tables' => &$tables,
 			'has_multiple_values' => &$has_multiple_values
 		);
 		
@@ -288,8 +289,7 @@ class DAO_ContactPerson extends C4_ORMHelper {
 			
 			case SearchFields_ContactPerson::VIRTUAL_WATCHERS:
 				$args['has_multiple_values'] = true;
-				
-				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql'], $args['tables']);
 				break;
 		}
 	}
@@ -781,14 +781,13 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 				case 'delete':
 					//$change_fields[DAO_ContactPerson::EXAMPLE] = 'some value';
 					break;
-				/*
+
 				default:
 					// Custom fields
 					if(substr($k,0,3)=="cf_") {
 						$custom_fields[substr($k,3)] = $v;
 					}
 					break;
-				*/
 			}
 		}
 
@@ -821,8 +820,19 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 			} else {
 				DAO_ContactPerson::update($batch_ids, $change_fields);
 				
+				// Watchers
+				if(isset($do['watchers']) && is_array($do['watchers'])) {
+					$watcher_params = $do['watchers'];
+					foreach($batch_ids as $batch_id) {
+						if(isset($watcher_params['add']) && is_array($watcher_params['add']))
+							CerberusContexts::addWatchers(CerberusContexts::CONTEXT_CONTACT_PERSON, $batch_id, $watcher_params['add']);
+						if(isset($watcher_params['remove']) && is_array($watcher_params['remove']))
+							CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_CONTACT_PERSON, $batch_id, $watcher_params['remove']);
+					}
+				}
+				
 				// Custom Fields
-				//self::_doBulkSetCustomFields(ChCustomFieldSource_ContactPerson::ID, $custom_fields, $batch_ids);
+				self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_CONTACT_PERSON, $custom_fields, $batch_ids);
 			}
 			
 			unset($batch_ids);
@@ -832,7 +842,7 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 	}
 };
 
-class Context_ContactPerson extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+class Context_ContactPerson extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
 	static function searchInboundLinks($from_context, $from_context_id) {
 		list($results, $null) = DAO_ContactPerson::search(
 			array(
@@ -1079,5 +1089,116 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 		$tpl->assign('view_id', $view_id);
 		
 		$tpl->display('devblocks:cerberusweb.core::contacts/people/peek.tpl');
+	}
+	
+	function importGetKeys() {
+		// [TODO] Translate
+	
+		$keys = array(
+			'created' => array(
+				'label' => 'Created Date',
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_ContactPerson::CREATED,
+			),
+			'auth_password' => array(
+				'label' => 'Password',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_ContactPerson::AUTH_PASSWORD,
+			),
+			'email_id' => array(
+				'label' => 'Email',
+				'type' => 'ctx_' . CerberusContexts::CONTEXT_ADDRESS,
+				'param' => SearchFields_ContactPerson::EMAIL_ID,
+				'force_match' => true,
+				'required' => true,
+			),
+				
+			// Virtual fields
+				
+			'_first_name' => array(
+				'label' => 'First Name',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_ContactPerson::ADDRESS_FIRST_NAME,
+			),
+			'_last_name' => array(
+				'label' => 'Last Name',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_ContactPerson::ADDRESS_LAST_NAME,
+			),
+		);
+	
+		$cfields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT_PERSON);
+	
+		foreach($cfields as $cfield_id => $cfield) {
+			$keys['cf_' . $cfield_id] = array(
+				'label' => $cfield->name,
+				'type' => $cfield->type,
+				'param' => 'cf_' . $cfield_id,
+			);
+		}
+	
+		DevblocksPlatform::sortObjects($keys, '[label]', true);
+	
+		return $keys;
+	}
+	
+	function importKeyValue($key, $value) {
+		switch($key) {
+		}
+	
+		return $value;
+	}
+	
+	function importSaveObject(array $fields, array $custom_fields, array $meta) {
+		if(!isset($fields[DAO_ContactPerson::CREATED]))
+			$fields[DAO_ContactPerson::CREATED] = time();
+
+		// Hash any plaintext passwords
+		// [TODO] Handle pre-hashed passwords?
+		if(isset($fields[DAO_ContactPerson::AUTH_PASSWORD])) {
+			$salt = CerberusApplication::generatePassword(8);
+			$fields[DAO_ContactPerson::AUTH_SALT] = $salt;
+			$fields[DAO_ContactPerson::AUTH_PASSWORD] = md5($salt . md5($fields[DAO_ContactPerson::AUTH_PASSWORD]));
+		}
+		
+		// If new...
+		if(!isset($meta['object_id']) || empty($meta['object_id'])) {
+			// Create
+			if(null != ($object_id = DAO_ContactPerson::create($fields))) {
+				$meta['object_id'] = $object_id;
+			}
+			
+			// Link the address back to the contact
+			if(isset($fields[DAO_ContactPerson::EMAIL_ID]))
+			DAO_Address::update($fields[DAO_ContactPerson::EMAIL_ID], array(
+				DAO_Address::CONTACT_PERSON_ID => $object_id,
+			));
+	
+		} else {
+			// Update
+			DAO_ContactPerson::update($meta['object_id'], $fields);
+		}
+
+		// Custom fields
+		if(!empty($custom_fields) && !empty($meta['object_id'])) {
+			DAO_CustomFieldValue::formatAndSetFieldValues($this->manifest->id, $meta['object_id'], $custom_fields, false, true, true); //$is_blank_unset (4th)
+		}
+		
+		// Handle linked address fields
+		
+		$address_fields = array();
+		
+		if(isset($meta['virtual_fields']['_first_name'])) {
+			$address_fields[DAO_Address::FIRST_NAME] = $meta['virtual_fields']['_first_name'];
+		}
+		
+		if(isset($meta['virtual_fields']['_last_name'])) {
+			$address_fields[DAO_Address::LAST_NAME] = $meta['virtual_fields']['_last_name'];
+		}
+		
+		if(isset($fields[DAO_ContactPerson::EMAIL_ID]) && !empty($fields[DAO_ContactPerson::EMAIL_ID]) && !empty($address_fields)) {
+			DAO_Address::update($fields[DAO_ContactPerson::EMAIL_ID], $address_fields);
+		}
+		
 	}
 };

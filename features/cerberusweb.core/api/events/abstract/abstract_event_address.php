@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -124,6 +124,7 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 		$types = array(
 			'email_address' => Model_CustomField::TYPE_SINGLE_LINE,
 			'email_is_banned' => Model_CustomField::TYPE_CHECKBOX,
+			'email_is_defunct' => Model_CustomField::TYPE_CHECKBOX,
 			'email_is_defunct' => Model_CustomField::TYPE_CHECKBOX,
 			'email_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'email_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -281,7 +282,7 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				'set_links' => array('label' => 'Set links'),
 				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
-			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_ADDRESS)
+			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
 			;
 			
 		return $actions;
@@ -348,8 +349,8 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				break;
 				
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches)) {
+					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
 					DevblocksEventHelper::renderActionSetCustomField($custom_field);
 				}
@@ -402,23 +403,8 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
 				break;
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
-					$custom_field = DAO_CustomField::get($field_id);
-					$context = null;
-					$context_id = null;
-					
-					// If different types of custom fields, need to find the proper context_id
-					switch($custom_field->context) {
-						case CerberusContexts::CONTEXT_ADDRESS:
-							$context = $custom_field->context;
-							$context_id = $address_id;
-							break;
-					}
-					
-					if(!empty($context) && !empty($context_id))
-						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'email_custom', $params, $dict, $context, $context_id);
-				}
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token))
+					return DevblocksEventHelper::simulateActionSetCustomField($token, $params, $dict);
 				break;
 		}
 	}
@@ -464,20 +450,22 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				
 			case 'set_is_banned':
 				@$value = $params['value'];
+				@$bit = !empty($value) ? 1 : 0;
 				
 				DAO_Address::update($address_id, array(
-					DAO_Address::IS_BANNED => $value,
+					DAO_Address::IS_BANNED => $bit,
 				));
-				$dict->is_banned = $value;
+				$dict->is_banned = $bit;
 				break;
 				
 			case 'set_is_defunct':
 				@$value = $params['value'];
+				@$bit = !empty($value) ? 1 : 0;
 				
 				DAO_Address::update($address_id, array(
-					DAO_Address::IS_DEFUNCT => $value,
+					DAO_Address::IS_DEFUNCT => $bit,
 				));
-				$dict->is_defunct = $value;
+				$dict->is_defunct = $bit;
 				break;
 				
 			case 'set_links':
@@ -485,23 +473,8 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				break;
 				
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
-					$custom_field = DAO_CustomField::get($field_id);
-					$context = null;
-					$context_id = null;
-					
-					// If different types of custom fields, need to find the proper context_id
-					switch($custom_field->context) {
-						case CerberusContexts::CONTEXT_ADDRESS:
-							$context = $custom_field->context;
-							$context_id = $address_id;
-							break;
-					}
-					
-					if(!empty($context) && !empty($context_id))
-						DevblocksEventHelper::runActionSetCustomField($custom_field, 'email_custom', $params, $dict, $context, $context_id);
-				}
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token))
+					return DevblocksEventHelper::runActionSetCustomField($token, $params, $dict);
 				break;
 		}
 	}

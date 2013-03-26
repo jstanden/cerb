@@ -1,4 +1,4 @@
-<div class="block" style="width:98%;margin:10px;">
+<div class="block reply_frame" style="width:98%;margin:10px;">
 
 <form id="reply{$message->id}_part1">
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
@@ -43,7 +43,7 @@
 						<input type="text" size="45" name="cc" value="{$draft->params.cc}" placeholder="These recipients will publicly receive a one-time copy of this message" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
 					</td>
 				</tr>
-
+				
 				<tr>
 					<td width="1%" nowrap="nowrap" align="right" valign="middle">{$translate->_('message.header.bcc')|capitalize}:&nbsp;</td>
 					<td width="99%" align="left">
@@ -59,7 +59,7 @@
 				</tr>
 				
 			</table>
-
+			
 			<div id="divDraftStatus{$message->id}"></div>
 			
 			<div>
@@ -67,7 +67,43 @@
 					<legend>Actions</legend>
 					{assign var=headers value=$message->getHeaders()}
 					<button name="saveDraft" type="button"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
+					
+					{* Virtual Attendants *}
+					{if !empty($macros)}
+					<button type="button" title="(Ctrl+Shift+B)" class="split-left" onclick="$(this).next('button').click();"><span class="cerb-sprite2 sprite-robot"></span> Virtual Attendant</button><!--  
+					--><button type="button" title="(Ctrl+Shift+B)" class="split-right" id="btnReplyMacros{$message->id}"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
+					<ul class="cerb-popupmenu cerb-float" id="menuReplyMacros{$message->id}">
+						<li style="background:none;">
+							<input type="text" size="32" class="input_search filter">
+						</li>
+						{foreach from=$macros item=macro key=macro_id}
+						{$owner_ctx = Extension_DevblocksContext::get($macro->owner_context)}
+						<li class="item">
+							<div>
+								{if $macro->has_public_vars}
+								<a href="javascript:;" onclick="genericAjaxPopup('peek','c=display&a=showMacroReplyPopup&ticket_id={$message->ticket_id}&message_id={$message->id}&macro={$macro->id}',$(this).closest('ul').get(),false,'400');$(this).closest('ul.cerb-popupmenu').hide();">
+								{else}
+								<a href="javascript:;" onclick="genericAjaxGet('','c=display&a=getMacroReply&ticket_id={$message->ticket_id}&message_id={$message->id}&macro={$macro->id}', function(js) { $script=$('<div></div>').html(js); $('BODY').append($script); });$(this).closest('ul.cerb-popupmenu').hide();">
+								{/if}
+									{if !empty($macro->title)}
+										{$macro->title}
+									{else}
+										{$event = DevblocksPlatform::getExtension($macro->event_point, false)}
+										{$event->name}
+									{/if}
+								</a>
+							</div>
+							<div style="margin-left:10px;">
+								{$meta = $owner_ctx->getMeta($macro->owner_context_id)}
+								{$meta.name} ({$owner_ctx->manifest->name})
+							</div>
+						</li>
+						{/foreach}
+					</ul>
+					{/if}
+					
 					<button id="btnInsertReplySig{$message->id}" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if} onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->group_id}&bucket_id={$ticket->bucket_id}',function(txt) { $('#reply_{$message->id}').insertAtCursor(txt); } );"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('display.reply.insert_sig')|capitalize}</button>
+					
 					{* Plugin Toolbar *}
 					{if !empty($reply_toolbaritems)}
 						{foreach from=$reply_toolbaritems item=renderer}
@@ -161,7 +197,7 @@
 		<td>
 			<fieldset class="peek">
 				<legend>{$translate->_('common.attachments')|capitalize}</legend>
-
+				
 				<button type="button" class="chooser_file"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
 				<ul class="bubbles chooser-container">
 				{if $draft->params.file_ids}
@@ -192,10 +228,10 @@
 							<div style="margin-bottom:10px;">
 								{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" object_watchers=$object_watchers context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
 							</div>
-
-							<label><input type="radio" name="closed" value="0" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if (empty($draft) && 'open'==$mail_status_reply) || $draft->params.closed==0}checked="checked"{/if}>{$translate->_('status.open')|capitalize}</label>
-							<label><input type="radio" name="closed" value="2" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'waiting'==$mail_status_reply) || $draft->params.closed==2}checked="checked"{/if}>{$translate->_('status.waiting')|capitalize}</label>
-							{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label><input type="radio" name="closed" value="1" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'closed'==$mail_status_reply) || $draft->params.closed==1}checked="checked"{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
+							
+							<label><input type="radio" name="closed" value="0" class="status_open" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if (empty($draft) && 'open'==$mail_status_reply) || $draft->params.closed==0}checked="checked"{/if}>{$translate->_('status.open')|capitalize}</label>
+							<label><input type="radio" name="closed" value="2" class="status_waiting" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'waiting'==$mail_status_reply) || $draft->params.closed==2}checked="checked"{/if}>{$translate->_('status.waiting')|capitalize}</label>
+							{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label><input type="radio" name="closed" value="1" class="status_closed" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'closed'==$mail_status_reply) || $draft->params.closed==1}checked="checked"{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
 							<br>
 							<br>
 							
@@ -204,7 +240,7 @@
 							<input type="text" name="ticket_reopen" size="55" value="{if !empty($draft)}{$draft->params.ticket_reopen}{elseif !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}"><br>
 							{$translate->_('display.reply.next.resume_blank')}<br>
 							</div>
-	
+							
 							{if $active_worker->hasPriv('core.ticket.actions.move')}
 							<b>{$translate->_('display.reply.next.move')}</b><br>  
 							<select name="bucket_id">
@@ -335,6 +371,16 @@
 			if(0==$ul.find('li').length)
 				$ul.closest('div').remove();
 		});
+		
+		// Focus
+		
+		{if !$is_forward}
+			$textarea = $frm2.find('textarea[name=content]');
+			$textarea.focus();
+			setElementSelRange($textarea.get(0), 0, 0);
+		{else}
+			$frm.find('input:text[name=to]').focus();
+		{/if}
 		
 		// Reply action buttons
 		
@@ -520,6 +566,13 @@
 							$('#reply{$message->id}_part1').find('.context-snippet').focus();
 						} catch(ex) { } 
 						break;
+					case 2:  
+					case 66: // (B) Insert Behavior
+						try {
+							event.preventDefault();
+							$('#btnReplyMacros{$message->id}').click();
+						} catch(ex) { } 
+						break;
 					case 10:
 					case 74: // (J) Jump to first blank line
 						try {
@@ -620,5 +673,20 @@
 		
 		{/if}
 		
+		{* Run custom jQuery scripts from VA behavior *}
+		
+		{if !empty($jquery_scripts)}
+		$('#reply{$message->id}_part1').closest('div.reply_frame').each(function(e) {
+			{foreach from=$jquery_scripts item=jquery_script}
+			try {
+				{$jquery_script nofilter}
+			} catch(e) { }
+			{/foreach}
+		});
+		{/if}
 	});
+</script>
+
+<script type="text/javascript">
+{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_menu="#menuReplyMacros{$message->id}" selector_button="#btnReplyMacros{$message->id}"}
 </script>

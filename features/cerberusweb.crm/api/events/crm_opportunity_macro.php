@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -326,7 +326,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				'set_links' => array('label' => 'Set links'),
 				'set_status' => array('label' => 'Set status'),
 			)
-			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_OPPORTUNITY)
+			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
 			;
 			
 		return $actions;
@@ -392,8 +392,8 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				break;
 				
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches)) {
+					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
 					DevblocksEventHelper::renderActionSetCustomField($custom_field);
 				}
@@ -452,23 +452,8 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				break;
 				
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
-					$custom_field = DAO_CustomField::get($field_id);
-					$context = null;
-					$context_id = null;
-					
-					// If different types of custom fields, need to find the proper context_id
-					switch($custom_field->context) {
-						case CerberusContexts::CONTEXT_OPPORTUNITY:
-							$context = $custom_field->context;
-							$context_id = $opp_id;
-							break;
-					}
-					
-					if(!empty($context) && !empty($context_id))
-						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'opp_custom', $params, $dict, $context, $context_id);
-				}
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token))
+					return DevblocksEventHelper::simulateActionSetCustomField($token, $params, $dict);
 				break;
 		}
 	}
@@ -553,23 +538,8 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				break;
 				
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
-					$custom_field = DAO_CustomField::get($field_id);
-					$context = null;
-					$context_id = null;
-					
-					// If different types of custom fields, need to find the proper context_id
-					switch($custom_field->context) {
-						case CerberusContexts::CONTEXT_OPPORTUNITY:
-							$context = $custom_field->context;
-							$context_id = $opp_id;
-							break;
-					}
-					
-					if(!empty($context) && !empty($context_id))
-						DevblocksEventHelper::runActionSetCustomField($custom_field, 'opp_custom', $params, $dict, $context, $context_id);
-				}
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token))
+					return DevblocksEventHelper::runActionSetCustomField($token, $params, $dict);
 				break;
 		}
 	}

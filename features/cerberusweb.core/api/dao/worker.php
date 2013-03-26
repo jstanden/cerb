@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_Worker extends C4_ORMHelper {
+class DAO_Worker extends Cerb_ORMHelper {
 	private function DAO_Worker() {}
 	
 	const CACHE_ALL = 'ch_workers';
@@ -76,21 +76,21 @@ class DAO_Worker extends C4_ORMHelper {
 		// Track the active workers based on session data
 		foreach($sessions as $session_id => $session_data) {
 			$key = $session_data['session_key'];
-			$data = $session->decodeSession($session_data['session_data']);
-			@$visit = $data['db_visit']; /* @var $visit CerberusVisit */
+			@$worker_id = $session_data['user_id'];
 			
-			if(empty($visit))
-				continue;
-			
-			if(!empty($visit) && null == ($worker = $visit->getWorker()))
+			if(empty($worker_id))
 				continue;
 
+			if(null == ($worker = DAO_Worker::get($worker_id)))
+				continue;
+			
 			// All workers from the sessions
 			$session_workers[$worker->id] = $worker;
 
 			// Map workers to sessions
 			if(!isset($workers_to_sessions[$worker->id]))
 				$workers_to_sessions[$worker->id] = array();
+			
 			$workers_to_sessions[$worker->id][$key] = $data;
 		}
 		
@@ -261,7 +261,7 @@ class DAO_Worker extends C4_ORMHelper {
 			if(0 == ($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_EVENTS)) {
 				if(!empty($object_changes)) {
 					// Local events
-					//self::_processUpdateEvents($object_changes);
+					self::_processUpdateEvents($object_changes);
 					
 					// Trigger an event about the changes
 					$eventMgr = DevblocksPlatform::getEventService();
@@ -284,6 +284,27 @@ class DAO_Worker extends C4_ORMHelper {
 		if(0 == ($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_FLUSH_CACHE)) {
 			self::clearCache();
 		}
+	}
+	
+	static function _processUpdateEvents($objects) {
+		if(is_array($objects))
+		foreach($objects as $object_id => $object) {
+			@$model = $object['model'];
+			@$changes = $object['changes'];
+			
+			if(empty($model) || empty($changes))
+				continue;
+			
+			/*
+			 * Worker deactivated
+			 */
+			@$is_disabled = $changes[DAO_Worker::IS_DISABLED];
+			
+			if(!empty($is_disabled) && !empty($model[DAO_Worker::IS_DISABLED])) {
+				Cerb_DevblocksSessionHandler::destroyByWorkerIds($model[DAO_Worker::ID]);
+			}
+			
+		} // foreach
 	}
 	
 	static function maint() {
@@ -350,6 +371,9 @@ class DAO_Worker extends C4_ORMHelper {
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		$sql = sprintf("DELETE QUICK FROM view_rss WHERE worker_id = %d", $id);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		
+		$sql = sprintf("DELETE FROM snippet_use_history WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		// Fire event
@@ -497,6 +521,7 @@ class DAO_Worker extends C4_ORMHelper {
 		$args = array(
 			'join_sql' => &$join_sql,
 			'where_sql' => &$where_sql,
+			'tables' => &$tables,
 			'has_multiple_values' => &$has_multiple_values
 		);
 		
@@ -556,7 +581,7 @@ class DAO_Worker extends C4_ORMHelper {
 					"AND owner_context = %s AND owner_context_id = w.id) %s 0 ",
 					strtotime($param->value[1]),
 					strtotime($param->value[0]),
-					C4_ORMHelper::qstr('cerberusweb.contexts.worker'),
+					Cerb_ORMHelper::qstr('cerberusweb.contexts.worker'),
 					(!empty($param->value[2]) ? '!=' : '=')
 				);
 				break;

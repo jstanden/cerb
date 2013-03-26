@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -150,7 +150,7 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 				'send_email' => array('label' => 'Send email'),
 				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
-			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_GROUP)
+			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
 			;
 			
 		return $actions;
@@ -208,8 +208,8 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 				break;
 				
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches)) {
+					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
 					DevblocksEventHelper::renderActionSetCustomField($custom_field);
 				}
@@ -253,23 +253,8 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
 				break;
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
-					$custom_field = DAO_CustomField::get($field_id);
-					$context = null;
-					$context_id = null;
-					
-					// If different types of custom fields, need to find the proper context_id
-					switch($custom_field->context) {
-						case CerberusContexts::CONTEXT_GROUP:
-							$context = $custom_field->context;
-							$context_id = $group_id;
-							break;
-					}
-					
-					if(!empty($context) && !empty($context_id))
-						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'group_custom', $params, $dict, $context, $context_id);
-				}
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token))
+					return DevblocksEventHelper::simulateActionSetCustomField($token, $params, $dict);
 				break;
 		}
 	}
@@ -314,23 +299,8 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 				break;
 				
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
-					$custom_field = DAO_CustomField::get($field_id);
-					$context = null;
-					$context_id = null;
-					
-					// If different types of custom fields, need to find the proper context_id
-					switch($custom_field->context) {
-						case CerberusContexts::CONTEXT_GROUP:
-							$context = $custom_field->context;
-							$context_id = $group_id;
-							break;
-					}
-					
-					if(!empty($context) && !empty($context_id))
-						DevblocksEventHelper::runActionSetCustomField($custom_field, 'group_custom', $params, $dict, $context, $context_id);
-				}
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token))
+					return DevblocksEventHelper::runActionSetCustomField($token, $params, $dict);
 				break;
 		}
 	}

@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -74,6 +74,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		 */
 		
 		@$ticket_id = $values['ticket_id'];
+		$group_id = 0;
+		
 		$ticket_labels = array();
 		$ticket_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $ticket_labels, $ticket_values, null, true);
@@ -83,6 +85,9 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				$values['is_first'] = ($values['id'] == $ticket_values['initial_message_id']) ? 1 : 0;
 			}
 		
+			if(isset($ticket_values['group_id']))
+				$group_id = $ticket_values['group_id'];
+			
 			// Clear dupe content
 			CerberusContexts::scrubTokensWithRegexp(
 				$ticket_labels,
@@ -108,7 +113,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		/**
 		 * Group
 		 */
-		@$group_id = $event_model->params['group_id'];
 		$group_labels = array();
 		$group_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $group_labels, $group_values, null, true);
@@ -149,6 +153,14 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				$labels,
 				$values
 			);
+
+		/**
+		 * Caller actions
+		 */
+		
+		if(isset($event_model->params['_caller_actions'])) {
+			$values['_caller_actions'] =& $event_model->params['_caller_actions'];
+		}
 			
 		/**
 		 * Return
@@ -250,6 +262,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			'sender_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_is_banned' => Model_CustomField::TYPE_CHECKBOX,
+			'sender_is_defunct' => Model_CustomField::TYPE_CHECKBOX,
 			'sender_is_worker' => Model_CustomField::TYPE_CHECKBOX,
 			'sender_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_num_nonspam' => Model_CustomField::TYPE_NUMBER,
@@ -635,6 +648,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 	function getActionExtensions() {
 		$actions =
 			array(
+				'add_recipients' => array('label' =>'Add recipients'),
 				'add_watchers' => array('label' =>'Add watchers'),
 				'create_comment' => array('label' =>'Create a comment'),
 				'create_notification' => array('label' =>'Send a notification'),
@@ -646,6 +660,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				'schedule_behavior' => array('label' => 'Schedule behavior'),
 				'send_email' => array('label' => 'Send email'),
 				'send_email_recipients' => array('label' => 'Send email to recipients'),
+				'set_org' => array('label' =>'Set organization'),
 				'set_owner' => array('label' =>'Set owner'),
 				'set_reopen_date' => array('label' => 'Set reopen date'),
 				'set_spam_training' => array('label' => 'Set spam training'),
@@ -654,7 +669,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				'set_links' => array('label' => 'Set links'),
 				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
-			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_TICKET)
+			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
 			;
 		
 		return $actions;
@@ -671,6 +686,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
+			case 'add_recipients':
+				DevblocksEventHelper::renderActionAddRecipients($trigger);
+				break;
+				
 			case 'add_watchers':
 				DevblocksEventHelper::renderActionAddWatchers($trigger);
 				break;
@@ -731,6 +750,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				DevblocksEventHelper::renderActionScheduleBehavior($trigger);
 				break;
 				
+			case 'set_org':
+				DevblocksEventHelper::renderActionSetTicketOrg($trigger);
+				break;
+				
 			case 'set_owner':
 				DevblocksEventHelper::renderActionSetTicketOwner();
 				break;
@@ -779,8 +802,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				break;
 				
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches)) {
+					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
 					DevblocksEventHelper::renderActionSetCustomField($custom_field);
 				}
@@ -800,6 +823,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
+			case 'add_recipients':
+				return DevblocksEventHelper::simulateActionAddRecipients($params, $dict, 'ticket_id');
+				break;
+				
 			case 'add_watchers':
 				return DevblocksEventHelper::simulateActionAddWatchers($params, $dict, 'ticket_id');
 				break;
@@ -831,8 +858,12 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
 				break;
 				
+			case 'set_org':
+				return DevblocksEventHelper::simulateActionSetTicketOrg($params, $dict, 'ticket_id');
+				break;
+				
 			case 'set_owner':
-				return DevblocksEventHelper::simulateActionSetTicketOwner($params, $dict);
+				return DevblocksEventHelper::simulateActionSetTicketOwner($params, $dict, 'ticket_id');
 				break;
 			
 			case 'set_reopen_date':
@@ -875,23 +906,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				break;
 				
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
-					$custom_field = DAO_CustomField::get($field_id);
-					$context = null;
-					$context_id = null;
-					
-					// If different types of custom fields, need to find the proper context_id
-					switch($custom_field->context) {
-						case CerberusContexts::CONTEXT_TICKET:
-							$context = $custom_field->context;
-							$context_id = $ticket_id;
-							break;
-					}
-					
-					if(!empty($context) && !empty($context_id))
-						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'ticket_custom', $params, $dict, $context, $context_id);
-				}
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token))
+					return DevblocksEventHelper::simulateActionSetCustomField($token, $params, $dict);
 				break;
 		}
 	}
@@ -904,6 +920,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
+			case 'add_recipients':
+				DevblocksEventHelper::runActionAddRecipients($params, $dict, 'ticket_id');
+				break;
+				
 			case 'add_watchers':
 				DevblocksEventHelper::runActionAddWatchers($params, $dict, 'ticket_id');
 				break;
@@ -948,8 +968,12 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
 				break;
 				
+			case 'set_org':
+				DevblocksEventHelper::runActionSetTicketOrg($params, $dict, 'ticket_id', 'ticket_org_');
+				break;
+				
 			case 'set_owner':
-				DevblocksEventHelper::runActionSetTicketOwner($params, $dict, $ticket_id, 'ticket_owner_');
+				DevblocksEventHelper::runActionSetTicketOwner($params, $dict, 'ticket_id', 'ticket_owner_');
 				break;
 				
 			case 'send_email':
@@ -959,8 +983,9 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			case 'send_email_recipients':
 				// Translate message tokens
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
 				$content = $tpl_builder->build($params['content'], $dict);
-				
+
 				$properties = array(
 					'ticket_id' => $ticket_id,
 					'message_id' => $message_id,
@@ -968,8 +993,19 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 					'worker_id' => 0,
 				);
 				
+				// Headers
+				
+				@$headers = $tpl_builder->build($params['headers'], $dict);
+
+				if(!empty($headers))
+					$properties['headers'] = DevblocksPlatform::parseCrlfString($headers);
+				
+				// Options
+				
 				if(isset($params['is_autoreply']) && !empty($params['is_autoreply']))
 					$properties['is_autoreply'] = true;
+				
+				// Send
 				
 				CerberusMail::sendTicketMessage($properties);
 				break;
@@ -1142,23 +1178,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				break;
 				
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
-					$custom_field = DAO_CustomField::get($field_id);
-					$context = null;
-					$context_id = null;
-					
-					// If different types of custom fields, need to find the proper context_id
-					switch($custom_field->context) {
-						case CerberusContexts::CONTEXT_TICKET:
-							$context = $custom_field->context;
-							$context_id = $ticket_id;
-							break;
-					}
-					
-					if(!empty($context) && !empty($context_id))
-						DevblocksEventHelper::runActionSetCustomField($custom_field, 'ticket_custom', $params, $dict, $context, $context_id);
-				}
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token))
+					return DevblocksEventHelper::runActionSetCustomField($token, $params, $dict);
 				break;
 		}
 	}

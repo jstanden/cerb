@@ -270,9 +270,9 @@ class _DevblocksSmartyTemplateResource {
 					// [TODO] Use cache
 					// Check if template is overloaded in DB/cache
 					$matches = DAO_DevblocksTemplate::getWhere(sprintf("plugin_id = %s AND path = %s %s",
-						C4_ORMHelper::qstr($plugin_id),
-						C4_ORMHelper::qstr($tpl_path),
-						(!empty($tag) ? sprintf("AND tag = %s ",C4_ORMHelper::qstr($tag)) : "")
+						Cerb_ORMHelper::qstr($plugin_id),
+						Cerb_ORMHelper::qstr($tpl_path),
+						(!empty($tag) ? sprintf("AND tag = %s ",Cerb_ORMHelper::qstr($tag)) : "")
 					));
 						
 					if(!empty($matches)) {
@@ -312,9 +312,9 @@ class _DevblocksSmartyTemplateResource {
 				if(0 == strcasecmp($v['path'], $tpl_path)) {
 					// Check if template is overloaded in DB/cache
 					$matches = DAO_DevblocksTemplate::getWhere(sprintf("plugin_id = %s AND path = %s %s",
-						C4_ORMHelper::qstr($plugin_id),
-						C4_ORMHelper::qstr($tpl_path),
-						(!empty($tag) ? sprintf("AND tag = %s ",C4_ORMHelper::qstr($tag)) : "")
+						Cerb_ORMHelper::qstr($plugin_id),
+						Cerb_ORMHelper::qstr($tpl_path),
+						(!empty($tag) ? sprintf("AND tag = %s ",Cerb_ORMHelper::qstr($tag)) : "")
 					));
 			
 					if(!empty($matches)) {

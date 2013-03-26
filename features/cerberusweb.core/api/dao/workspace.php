@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_WorkspacePage extends C4_ORMHelper {
+class DAO_WorkspacePage extends Cerb_ORMHelper {
 	const _CACHE_ALL = 'ch_workspace_pages';
 	
 	const ID = 'id';
@@ -271,6 +271,7 @@ class DAO_WorkspacePage extends C4_ORMHelper {
 		$args = array(
 			'join_sql' => &$join_sql,
 			'where_sql' => &$where_sql,
+			'tables' => &$tables,
 			'has_multiple_values' => &$has_multiple_values
 		);
 		
@@ -342,7 +343,7 @@ class DAO_WorkspacePage extends C4_ORMHelper {
 						continue;
 					
 					$wheres[] = sprintf("(workspace_page.owner_context = %s AND workspace_page.owner_context_id = %d)",
-						C4_ORMHelper::qstr($context),
+						Cerb_ORMHelper::qstr($context),
 						$context_id
 					);
 				}
@@ -369,7 +370,7 @@ class DAO_WorkspacePage extends C4_ORMHelper {
 	}
 };
 
-class DAO_WorkspaceTab extends C4_ORMHelper {
+class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	const _CACHE_ALL = 'ch_workspace_tabs';
 	
 	const ID = 'id';
@@ -377,6 +378,7 @@ class DAO_WorkspaceTab extends C4_ORMHelper {
 	const WORKSPACE_PAGE_ID = 'workspace_page_id';
 	const POS = 'pos';
 	const EXTENSION_ID = 'extension_id';
+	const PARAMS_JSON = 'params_json';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -428,7 +430,7 @@ class DAO_WorkspaceTab extends C4_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, workspace_page_id, pos, extension_id ".
+		$sql = "SELECT id, name, workspace_page_id, pos, extension_id, params_json ".
 			"FROM workspace_tab ".
 			$where_sql.
 			$sort_sql.
@@ -478,6 +480,10 @@ class DAO_WorkspaceTab extends C4_ORMHelper {
 			$object->workspace_page_id = $row['workspace_page_id'];
 			$object->pos = $row['pos'];
 			$object->extension_id = $row['extension_id'];
+			
+			if(!empty($row['params_json']) && false !== ($params = json_decode($row['params_json'], true)))
+				@$object->params = $params;
+			
 			$objects[$object->id] = $object;
 		}
 		
@@ -823,6 +829,7 @@ class Model_WorkspaceTab {
 	public $workspace_page_id;
 	public $pos;
 	public $extension_id;
+	public $params=array();
 	
 	function getWorklists() {
 		return DAO_WorkspaceList::getWhere(sprintf("%s = %d",

@@ -109,7 +109,6 @@ class _DevblocksClassLoadManager {
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/session.php', array(
 			'_DevblocksSessionManager',
-			'_DevblocksSessionDatabaseDriver',
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/settings.php', array(
 			'_DevblocksPluginSettingsManager',

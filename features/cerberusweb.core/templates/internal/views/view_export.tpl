@@ -19,7 +19,7 @@
 	{foreach from=$model_columns item=model_column}
 		{if substr($model_column->token,0,3) != "cf_"}
 			{if !empty($model_column->db_label) && !empty($model_column->token)}
-				<option value="{$model_column->token}" {if $view->view_columns.$index==$model_column->token}selected{/if}>{$model_column->db_label}</option>
+				<option value="{$model_column->token}" {if $view->view_columns.$index==$model_column->token}selected{/if}>{$model_column->db_label|capitalize}</option>
 			{/if}
 		{else}
 			{assign var=has_custom value=1}
@@ -31,7 +31,7 @@
 	{foreach from=$model_columns item=model_column}
 		{if substr($model_column->token,0,3) == "cf_"}
 			{if !empty($model_column->db_label) && !empty($model_column->token)}
-			<option value="{$model_column->token}" {if $view->view_columns.$index==$model_column->token}selected{/if}>{$model_column->db_label}</option>
+			<option value="{$model_column->token}" {if $view->view_columns.$index==$model_column->token}selected{/if}>{$model_column->db_label|capitalize}</option>
 			{/if}
 		{/if}
 	{/foreach}

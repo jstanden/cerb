@@ -1,8 +1,8 @@
 <?php
 /************************************************************************
- | Cerb(tm) developed by WebGroup Media, LLC.
+ | Cerb(tm) developed by Webgroup Media, LLC.
  |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2012, WebGroup Media LLC
+ | All source code & content (c) Copyright 2013, Webgroup Media LLC
  |   unless specifically noted otherwise.
  |
  | This source code is released under the Devblocks Public License.
@@ -15,7 +15,7 @@
  |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
  ***********************************************************************/
 
-class DAO_WorkspaceWidget extends C4_ORMHelper {
+class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 	const ID = 'id';
 	const EXTENSION_ID = 'extension_id';
 	const WORKSPACE_TAB_ID = 'workspace_tab_id';
@@ -227,6 +227,7 @@ class DAO_WorkspaceWidget extends C4_ORMHelper {
 			array(
 				'join_sql' => &$join_sql,
 				'where_sql' => &$where_sql,
+				'tables' => &$tables,
 				'has_multiple_values' => &$has_multiple_values
 			)
 		);
@@ -255,7 +256,7 @@ class DAO_WorkspaceWidget extends C4_ORMHelper {
 			/*
 			case SearchFields_EXAMPLE::VIRTUAL_WATCHERS:
 				$args['has_multiple_values'] = true;
-				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql'], $args['tables']);
 				break;
 			*/
 		}

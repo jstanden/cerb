@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -104,7 +104,8 @@ class ChTasksPage extends CerberusPageExtension {
 				$fields = array(
 					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
 					DAO_Comment::CONTEXT_ID => $id,
-					DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+					DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
 					DAO_Comment::CREATED => time(),
 					DAO_Comment::COMMENT => $comment,
 				);

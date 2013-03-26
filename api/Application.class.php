@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 /*
- * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
+ * IMPORTANT LICENSING NOTE from your friends on the Cerb Development Team
  *
  * Sure, it would be so easy to just cheat and edit this file to use the
  * software without paying for it.  But we trust you anyway.  In fact, we're
@@ -43,11 +43,11 @@
  * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
- * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
- *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
+ \* - Jeff Standen, Darren Sugita, Dan Hildebrandt
+ *	 Webgroup Media LLC - Developers of Cerb
  */
-define("APP_BUILD", 2013022701);
-define("APP_VERSION", '6.2.5');
+define("APP_BUILD", 2013032301);
+define("APP_VERSION", '6.3.0');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
@@ -1362,7 +1362,7 @@ class CerberusLicense {
 	}
 	
 	public static function getReleases() {
-		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000,'5.6.0'=>1317686400,'5.7.0'=>1326067200,'6.0.0'=>1338163200,'6.1.0'=>1346025600,'6.2.0'=>1353888000);/*
+		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000,'5.6.0'=>1317686400,'5.7.0'=>1326067200,'6.0.0'=>1338163200,'6.1.0'=>1346025600,'6.2.0'=>1353888000,'6.3.0'=>1364169600);/*
 		 * Major versions by release date in GMT
 		 */
 		return array(
@@ -1377,6 +1377,7 @@ class CerberusLicense {
 			'6.0.0' => gmmktime(0,0,0,5,28,2012),
 			'6.1.0' => gmmktime(0,0,0,8,27,2012),
 			'6.2.0' => gmmktime(0,0,0,11,26,2012),
+			'6.3.0' => gmmktime(0,0,0,3,25,2013),
 		);
 	}
 	
@@ -1434,7 +1435,102 @@ class CerberusSettingsDefaults {
 	const SESSION_LIFESPAN = 0;
 };
 
-class C4_DevblocksExtensionDelegate implements DevblocksExtensionDelegate {
+class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
+	static $_data = null;
+	
+	static function open($save_path, $session_name) {
+		return true;
+	}
+	
+	static function close() {
+		return true;
+	}
+	
+	static function read($id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		if(null != (self::$_data = $db->GetOne(sprintf("SELECT session_data FROM devblocks_session WHERE session_key = %s", $db->qstr($id)))))
+			return self::$_data;
+			
+		return false;
+	}
+	
+	static function write($id, $session_data) {
+		// Nothing changed!
+		if(self::$_data==$session_data) {
+			return true;
+		}
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		$user_ip = $_SERVER['REMOTE_ADDR'];
+		$user_agent = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '';
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Update
+		$sql = sprintf("UPDATE devblocks_session SET updated=%d, session_data=%s, user_id=%d, user_ip=%s, user_agent=%s WHERE session_key=%s",
+			time(),
+			$db->qstr($session_data),
+			!is_null($active_worker) ? $active_worker->id : 0,
+			$db->qstr($user_ip),
+			$db->qstr($user_agent),
+			$db->qstr($id)
+		);
+		$result = $db->Execute($sql);
+		
+		if(0==$db->Affected_Rows()) {
+			// Insert
+			$sql = sprintf("INSERT INTO devblocks_session (session_key, created, updated, user_id, user_ip, user_agent, session_data) ".
+				"VALUES (%s, %d, %d, %d, %s, %s, %s)",
+				$db->qstr($id),
+				time(),
+				time(),
+				!is_null($active_worker) ? $active_worker->id : 0,
+				$db->qstr($user_ip),
+				$db->qstr($user_agent),
+				$db->qstr($session_data)
+			);
+			$db->Execute($sql);
+		}
+		
+		return true;
+	}
+	
+	static function destroy($id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Execute(sprintf("DELETE FROM devblocks_session WHERE session_key = %s", $db->qstr($id)));
+		return true;
+	}
+	
+	static function gc($maxlifetime) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Execute(sprintf("DELETE FROM devblocks_session WHERE updated + %d < %d", $maxlifetime, time()));
+		return true;
+	}
+	
+	static function getAll() {
+		$db = DevblocksPlatform::getDatabaseService();
+		return $db->GetArray("SELECT session_key, created, updated, user_id, user_ip, user_agent, session_data FROM devblocks_session");
+	}
+	
+	static function destroyAll() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Execute("DELETE FROM devblocks_session");
+	}
+	
+	static function destroyByWorkerIds($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		
+		$ids_list = implode(',', $ids);
+		
+		if(empty($ids_list))
+			return;
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Execute(sprintf("DELETE FROM devblocks_session WHERE user_id IN (%s)", $ids_list));
+	}
+};
+
+class Cerb_DevblocksExtensionDelegate implements DevblocksExtensionDelegate {
 	static $_worker = null;
 	static $_plugin_cache = array();
 	
@@ -1523,7 +1619,7 @@ class CerberusVisit extends DevblocksVisit {
 	
 };
 
-class C4_ORMHelper extends DevblocksORMHelper {
+class Cerb_ORMHelper extends DevblocksORMHelper {
 	static public function qstr($str) {
 		$db = DevblocksPlatform::getDatabaseService();
 		return $db->qstr($str);
@@ -1602,7 +1698,7 @@ class C4_ORMHelper extends DevblocksORMHelper {
 			}
 			
 			// If we have multiple values but we don't need to WHERE the JOIN, be efficient and don't GROUP BY
-			if(!C4_ORMHelper::paramExistsInSet('cf_'.$field_id, $params)) {
+			if(!Cerb_ORMHelper::paramExistsInSet('cf_'.$field_id, $params)) {
 				$select_sql .= sprintf(",(SELECT field_value FROM %s WHERE %s=context_id AND field_id=%d LIMIT 0,1) AS %s ",
 					$value_table,
 					$field_key,
@@ -1691,15 +1787,36 @@ class C4_ORMHelper extends DevblocksORMHelper {
 		}
 	}
 	
-	static function _searchComponentsVirtualWatchers(&$param, $from_context, $from_index, &$join_sql, &$where_sql) {
+	static function _searchComponentsVirtualWatchers(&$param, $from_context, $from_index, &$join_sql, &$where_sql, &$tables) {
 		if(!is_array($param->value))
 			$param->value = array($param->value);
 		
-		$param->value = DevblocksPlatform::sanitizeArray($param->value, 'integer', array('nonzero','unique'));
+		$table_alias = 'context_watcher'; // . uniq_id();
 		
+		$param->value = DevblocksPlatform::sanitizeArray($param->value, 'integer', array('nonzero','unique'));
+
 		// Join and return anything
 		if(DevblocksSearchCriteria::OPER_TRUE == $param->operator) {
-			$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
+			if(!isset($tables[$table_alias])) {
+				$join_sql .= sprintf("LEFT JOIN context_link AS %s ON (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker') ",
+					$table_alias,
+					$table_alias,
+					$from_context,
+					$table_alias,
+					$from_index,
+					$table_alias
+				);
+				
+			} else {
+				$where_sql .= sprintf("(%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker') ",
+					$table_alias,
+					$from_context,
+					$table_alias,
+					$from_index,
+					$table_alias
+				);
+			}
+			
 		} else {
 			if(empty($param->value)) {
 				switch($param->operator) {
@@ -1714,38 +1831,144 @@ class C4_ORMHelper extends DevblocksORMHelper {
 			
 			switch($param->operator) {
 				case DevblocksSearchCriteria::OPER_IN:
-					$join_sql .= sprintf("INNER JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker' AND context_watcher.to_context_id IN (%s)) ",
-						$from_context,
-						$from_index,
-						implode(',', $param->value)
-					);
+					if(!isset($tables[$table_alias])) {
+						$join_sql .= sprintf("INNER JOIN context_link AS %s ON (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker' AND %s.to_context_id IN (%s)) ",
+							$table_alias,
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias,
+							$table_alias,
+							implode(',', $param->value)
+						);
+						
+					} else {
+						$where_sql .= sprintf("AND (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker' AND %s.to_context_id IN (%s)) ",
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias,
+							$table_alias,
+							implode(',', $param->value)
+						);
+						
+					}
 					break;
 				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
 				case DevblocksSearchCriteria::OPER_IS_NULL:
-					$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
-					$where_sql .= sprintf("AND (context_watcher.to_context_id IS NULL %s) ",
-						(!empty($param->value) ? sprintf("OR context_watcher.to_context_id IN (%s)", implode(',',$param->value)) : '')
-					);
+					if(!isset($tables[$table_alias])) {
+						$join_sql .= sprintf("LEFT JOIN context_link AS %s ON (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker') ",
+							$table_alias,
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias
+						);
+						$where_sql .= sprintf("AND (%s.to_context_id IS NULL %s) ",
+							$table_alias,
+							(!empty($param->value) ? sprintf("OR %s.to_context_id IN (%s) ", $table_alias, implode(',',$param->value)) : '')
+						);
+						
+					} else {
+						$where_sql .= sprintf("AND (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker' AND (%s.to_context_id IS NULL %s)) ",
+							$table_alias,
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias,
+							$table_alias,
+							(!empty($param->value) ? sprintf("OR %s.to_context_id IN (%s) ", $table_alias, implode(',',$param->value)) : '')
+						);
+						
+					}
 					break;
 				case DevblocksSearchCriteria::OPER_NIN:
-					$join_sql .= sprintf("INNER JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker' AND context_watcher.to_context_id NOT IN (%s)) ",
-						$from_context,
-						$from_index,
-						implode(',', $param->value)
-					);
+					if(!isset($tables[$table_alias])) {
+						$join_sql .= sprintf("INNER JOIN context_link AS %s ON (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker' AND %s.to_context_id NOT IN (%s)) ",
+							$table_alias,
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias,
+							$table_alias,
+							implode(',', $param->value)
+						);
+						
+					} else {
+						$where_sql .= sprintf("AND (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker' AND %s.to_context_id NOT IN (%s)) ",
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias,
+							$table_alias,
+							implode(',', $param->value)
+						);
+						
+					}
 					break;
 				case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
-					$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
-					$where_sql .= sprintf("AND (context_watcher.to_context_id IS NOT NULL) ");
+					if(!isset($tables[$table_alias])) {
+						$join_sql .= sprintf("LEFT JOIN context_link AS %s ON (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker') ",
+							$table_alias,
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias
+						);
+						$where_sql .= sprintf("AND (%s.to_context_id IS NOT NULL) ", $table_alias);
+						
+					} else {
+						$where_sql .= sprintf("AND (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker' AND %s.to_context_id IS NOT NULL) ",
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias,
+							$table_alias
+						);
+						
+					}
 					break;
 				case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
-					$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
-					$where_sql .= sprintf("AND (context_watcher.to_context_id IS NULL %s) ",
-						(!empty($param->value) ? sprintf("OR context_watcher.to_context_id NOT IN (%s)", implode(',',$param->value)) : '')
-					);
+					if(!isset($tables[$table_alias])) {
+						$join_sql .= sprintf("LEFT JOIN context_link AS %s ON (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker') ",
+							$table_alias,
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias
+						);
+						$where_sql .= sprintf("AND (%s.to_context_id IS NULL %s) ",
+							$table_alias,
+							(!empty($param->value) ? sprintf("OR %s.to_context_id NOT IN (%s)", $table_alias, implode(',',$param->value)) : '')
+						);
+						
+					} else {
+						$where_sql .= sprintf("AND (%s.from_context = '%s' AND %s.from_context_id = %s AND %s.to_context = 'cerberusweb.contexts.worker' AND (%s.to_context_id IS NULL %s)) ",
+							$table_alias,
+							$from_context,
+							$table_alias,
+							$from_index,
+							$table_alias,
+							$table_alias,
+							(!empty($param->value) ? sprintf("OR %s.to_context_id NOT IN (%s)", $table_alias, implode(',',$param->value)) : '')
+						);
+						
+					}
 					break;
 			}
 		}
+		
+		// Mark the table as used
+		$tables[$table_alias] = $table_alias;
 	}
 	
 	static function _searchComponentsVirtualContextLinks(&$param, $to_context, $to_index, &$join_sql, &$where_sql) {
@@ -1786,7 +2009,7 @@ class C4_ORMHelper extends DevblocksORMHelper {
 				$join_sql .= sprintf("INNER JOIN context_link AS %s ON (%s.to_context=%s AND %s.to_context_id=%s) ",
 					$table_alias,
 					$table_alias,
-					C4_ORMHelper::qstr($to_context),
+					Cerb_ORMHelper::qstr($to_context),
 					$table_alias,
 					$to_index
 				);

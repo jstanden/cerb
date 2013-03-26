@@ -57,6 +57,11 @@ Sort biggest piles by:
 					<option value="w{$worker_id}">{$worker->getName()}</option>
 				{/foreach}
 			</optgroup>
+			{if $active_worker->hasPriv('core.ticket.view.actions.merge')}
+			<optgroup label="Actions" style="font-weight:bold;">
+				<option value="merge">Merge</option>
+			</optgroup>
+			{/if}
 		</select>
 		{if $active_worker->hasPriv('core.ticket.actions.close')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$hash}.value='ac';"><span class="cerb-sprite2 sprite-folder-tick-circle"></span></a>{/if}
 		{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$hash}.value='as';"><span class="cerb-sprite sprite-spam"></span></a>{/if}

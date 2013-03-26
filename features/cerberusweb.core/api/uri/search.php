@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -204,21 +204,27 @@ class Page_Search extends CerberusPageExtension {
 			case Model_CustomField::TYPE_DATE:
 				if(strlen($query) == 0)
 					break;
-					
-				$oper = DevblocksSearchCriteria::OPER_BETWEEN;
-				$value = explode(' to ', $query);
-
-				if(count($value) > 2) {
-					$value = array_slice($value, 0, 2);
-				}
 				
-				if(count($value) != 2) {
-					$from = @intval(strtotime($query));
+				if(in_array(strtolower($query), array('blank', 'null', 'empty', 'is blank', 'is null', 'is empty'))) {
+					$oper = DevblocksSearchCriteria::OPER_EQ_OR_NULL;
+					$value = '0';
 					
-					if($from > time())
-						array_unshift($value, 'now');
-					else
-						$value[] = 'now';
+				} else {
+					$oper = DevblocksSearchCriteria::OPER_BETWEEN;
+					$value = explode(' to ', $query);
+	
+					if(count($value) > 2) {
+						$value = array_slice($value, 0, 2);
+					}
+					
+					if(count($value) != 2) {
+						$from = @intval(strtotime($query));
+						
+						if($from > time())
+							array_unshift($value, 'now');
+						else
+							$value[] = 'now';
+					}
 				}
 				
 				break;

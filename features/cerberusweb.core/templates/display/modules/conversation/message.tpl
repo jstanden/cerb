@@ -11,14 +11,14 @@
 			{assign var=sender_org value=$message_sender_orgs.$sender_org_id}
 			{assign var=is_outgoing value=$message->is_outgoing}
 
-			<div style="float:right;">      
-	  			<button id="btnMsgMax{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}');"></button>
-	  			<button id="btnMsgMin{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}&hide=1');"></button>
-		      {if !$expanded}
+			<div class="toolbar-minmax" style="display:none;float:right;">
+				<button id="btnMsgMax{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}');"></button>
+				<button id="btnMsgMin{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}&hide=1');"></button>
+			{if !$expanded}
 				<a href="javascript:;" onclick="$('#btnMsgMax{$message->id}').click();">{$translate->_('common.maximize')|lower}</a>
-			  {else}
-			  	<a href="javascript:;" onclick="$('#btnMsgMin{$message->id}').click();">{$translate->_('common.minimize')|lower}</a>
-	  		  {/if}
+			{else}
+				<a href="javascript:;" onclick="$('#btnMsgMin{$message->id}').click();">{$translate->_('common.minimize')|lower}</a>
+			{/if}
 			</div>
 		
 			<span class="tag" style="{if !$is_outgoing}color:rgb(185,50,40);{else}color:rgb(100,140,25);{/if}">{if $is_outgoing}{$translate->_('mail.sent')|lower}{else}{$translate->_('mail.received')|lower}{/if}</span>
@@ -59,7 +59,7 @@
 			<br>
 		{/if}
 	  
-	  <div id="{$message->id}sh" style="display:block;">      
+	  <div id="{$message->id}sh" style="display:block;">
       {if isset($headers.from)}<b>{$translate->_('message.header.from')|capitalize}:</b> {$headers.from|escape|nl2br nofilter}<br>{/if}
       {if isset($headers.to)}<b>{$translate->_('message.header.to')|capitalize}:</b> {$headers.to|escape|nl2br nofilter}<br>{/if}
       {if isset($headers.cc)}<b>{$translate->_('message.header.cc')|capitalize}:</b> {$headers.cc|escape|nl2br nofilter}<br>{/if}
@@ -88,6 +88,7 @@
       <div style="margin:2px;margin-left:10px;">
       	 <a href="javascript:;" class="brief" onclick="if($(this).hasClass('brief')) { $('#{$message->id}sh').hide();$('#{$message->id}h').show();$(this).html('{$translate->_('display.convo.brief_headers')|lower}').removeClass('brief'); } else { $('#{$message->id}sh').show();$('#{$message->id}h').hide();$(this).html('{$translate->_('display.convo.full_headers')|lower}').addClass('brief'); } ">{$translate->_('display.convo.full_headers')|lower}</a>
       	 | <a href="#{$message->id}act">{$translate->_('display.convo.skip_to_bottom')|lower}</a>
+      	 | <a href="{devblocks_url}c=profiles&type=ticket&mask={$ticket->mask}&jump=message&jump_id={$message->id}{/devblocks_url}">{'common.permalink'|devblocks_translate|lower}</a>
       </div>
       {/if}
       
@@ -160,6 +161,17 @@
 </div>
 <div id="reply{$message->id}"></div>
 <br>
+
+<script type="text/javascript">
+$('#{$message->id}t').hover(
+	function() {
+		$(this).find('div.toolbar-minmax').show();
+	},
+	function() {
+		$(this).find('div.toolbar-minmax').hide();
+	}
+);
+</script>
 
 {if $active_worker->hasPriv('core.display.actions.reply')}
 <script type="text/javascript">

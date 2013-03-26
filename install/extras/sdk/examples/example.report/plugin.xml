@@ -3,7 +3,7 @@
 	<id>example.report</id>
 	<name>[Example] Report</name>
 	<description>This plugin demonstrates how to add a custom report.</description>
-	<author>WebGroup Media, LLC.</author>
+	<author>Webgroup Media, LLC.</author>
 	<version>0.0.1</version>
 	<link>http://www.cerbweb.com/</link>
 	<image>plugin.png</image>
@@ -11,7 +11,7 @@
  	<!-- Requirements -->
 
 	<requires>
-		<app_version min="6.2" max="6.2.99" />
+		<app_version min="6.3" max="6.3.99" />
 	</requires>
  
 	<!-- Plugin Dependencies -->

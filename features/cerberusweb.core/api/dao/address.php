@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_Address extends C4_ORMHelper {
+class DAO_Address extends Cerb_ORMHelper {
 	const ID = 'id';
 	const EMAIL = 'email';
 	const FIRST_NAME = 'first_name';
@@ -406,6 +406,7 @@ class DAO_Address extends C4_ORMHelper {
 		$args = array(
 			'join_sql' => &$join_sql,
 			'where_sql' => &$where_sql,
+			'tables' => &$tables,
 			'has_multiple_values' => &$has_multiple_values
 		);
 		
@@ -445,7 +446,7 @@ class DAO_Address extends C4_ORMHelper {
 			
 			case SearchFields_Address::VIRTUAL_WATCHERS:
 				$args['has_multiple_values'] = true;
-				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql'], $args['tables']);
 				break;
 		}
 	}
@@ -986,7 +987,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 
 			$is_queued = (isset($params['is_queued']) && $params['is_queued']) ? true : false;
 			$next_is_closed = (isset($params['next_is_closed'])) ? intval($params['next_is_closed']) : 0;
-						
+			
 			if(is_array($ids))
 			foreach($ids as $addy_id) {
 				try {
@@ -1006,6 +1007,9 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 						'next_is_closed' => $next_is_closed,
 						'is_broadcast' => 1,
 					);
+					
+					if(isset($params['file_ids']))
+						$json_params['file_ids'] = $params['file_ids'];
 					
 					$fields = array(
 						DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,

@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -383,6 +383,12 @@ class Model_MailQueue {
 		
 		// Files + Next step
 		//'files' => $files,
+		
+		// Attachments
+		if(isset($this->params['file_ids'])) {
+			$properties['forward_files'] = $this->params['file_ids'];
+			$properties['link_forward_files'] = true;
+		}
 
 		// Send mail
 		if(false == ($ticket_id = CerberusMail::compose($properties)))
@@ -390,8 +396,8 @@ class Model_MailQueue {
 		
 		// Context links
 		@$context_links = $this->params['context_links'];
-		if(is_array($context_links));
-		foreach($this->params['context_links'] as $context_pair) {
+		if(is_array($context_links))
+		foreach($context_links as $context_pair) {
 			if(!is_array($context_pair) || 2 != count($context_pair))
 				continue;
 			
@@ -450,27 +456,27 @@ class Model_MailQueue {
 		$properties['worker_id'] = !empty($this->worker_id) ? $this->worker_id : 0;
 		
 		// Attachments
-		// 'files' => $attachment_files,
-		// 'files' => @$_FILES['attachment'],
+		if(isset($this->params['file_ids'])) {
+			$properties['forward_files'] = $this->params['file_ids'];
+			$properties['link_forward_files'] = true;
+		}
 		
 //		'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
 //		'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
 //		'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
 
-//		'forward_files' => DevblocksPlatform::importGPC(@$_REQUEST['forward_files'],'array',array()),
-		
 		// [TODO] Custom fields
 		
 		// Context links
 		@$context_links = $this->params['context_links'];
-		if(is_array($context_links));
-		foreach($this->params['context_links'] as $context_pair) {
+		if(!empty($context_links) && is_array($context_links))
+		foreach($context_links as $context_pair) {
 			if(!is_array($context_pair) || 2 != count($context_pair))
 				continue;
 			
 			DAO_ContextLink::setLink($context_pair[0], $context_pair[1], CerberusContexts::CONTEXT_TICKET, $ticket_id);
 		}
-		
+
 		// Send message
 		return CerberusMail::sendTicketMessage($properties);
 	}

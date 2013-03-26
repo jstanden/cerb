@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 /*
- * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
+ * IMPORTANT LICENSING NOTE from your friends on the Cerb Development Team
  *
  * Sure, it would be so easy to just cheat and edit this file to use the
  * software without paying for it.  But we trust you anyway.  In fact, we're
@@ -43,8 +43,8 @@
  * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
- * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
- *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
+ \* - Jeff Standen, Darren Sugita, Dan Hildebrandt
+ *	 Webgroup Media LLC - Developers of Cerb
  */
 
 class CerberusParserMessage {
@@ -1005,7 +1005,8 @@ class CerberusParser {
 
 							DAO_Comment::create(array(
 								DAO_Comment::CREATED => time(),
-								DAO_Comment::ADDRESS_ID => $model->getSenderAddressModel()->id,
+								DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+								DAO_Comment::OWNER_CONTEXT_id => $proxy_worker->id,
 								DAO_Comment::COMMENT => $matches[1],
 								DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
 								DAO_Comment::CONTEXT_ID => $proxy_ticket->id,
@@ -1219,12 +1220,35 @@ class CerberusParser {
 		
 		// Pre-load custom fields
 		if(isset($message->custom_fields) && !empty($message->custom_fields))
-		foreach($message->custom_fields as $cf_id => $cf_val) {
+		foreach($message->custom_fields as $cf_data) {
+			if(!is_array($cf_data))
+				continue;
+		
+			$cf_id = $cf_data['field_id'];
+			$cf_context = $cf_data['context'];
+			$cf_context_id = $cf_data['context_id'];
+			$cf_val = $cf_data['value'];
+			
+			// If we're setting fields on the ticket, find the ticket ID
+			if($cf_context == CerberusContexts::CONTEXT_TICKET && empty($cf_context_id))
+				$cf_context_id = $model->getTicketId();
+			
 			if((is_array($cf_val) && !empty($cf_val))
 				|| (!is_array($cf_val) && 0 != strlen($cf_val)))
-				DAO_CustomFieldValue::setFieldValue(CerberusContexts::CONTEXT_TICKET,$model->getTicketId(),$cf_id,$cf_val);
+				DAO_CustomFieldValue::setFieldValue($cf_context, $cf_context_id, $cf_id, $cf_val);
 		}
 
+		// If the sender was previously defunct, remove the flag
+		
+		$sender = $model->getSenderAddressModel();
+		if($sender->is_defunct && $sender->id) {
+			DAO_Address::update($sender->id, array(
+				DAO_Address::IS_DEFUNCT => 0,
+			));
+			
+			$logger->info(sprintf("[Parser] Setting %s as no longer defunct", $sender->email));
+		}
+		
 		// Finalize our new ticket details (post-message creation)
 		if($model->getIsNew()) {
 			// First thread (needed for anti-spam)

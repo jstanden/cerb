@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 /*
- * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
+ * IMPORTANT LICENSING NOTE from your friends on the Cerb Development Team
  *
  * Sure, it would be so easy to just cheat and edit this file to use the
  * software without paying for it.  But we trust you anyway.  In fact, we're
@@ -43,8 +43,8 @@
  * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
- * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
- *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
+ \* - Jeff Standen, Darren Sugita, Dan Hildebrandt
+ *	 Webgroup Media LLC - Developers of Cerb
  */
 
 abstract class Extension_AppPreBodyRenderer extends DevblocksExtension {
@@ -326,11 +326,13 @@ abstract class Extension_WorkspaceTab extends DevblocksExtension {
 			DevblocksPlatform::sortObjects($exts, 'manifest->name');
 		else
 			DevblocksPlatform::sortObjects($exts, 'name');
-	
+		
 		return $exts;
 	}
 
 	abstract function renderTab(Model_WorkspacePage $page, Model_WorkspaceTab $tab);
+	function renderTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {}
+	function saveTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {}
 };
 
 abstract class Extension_WorkspaceWidgetDatasource extends DevblocksExtension {

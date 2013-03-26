@@ -143,7 +143,7 @@
 		{/if}
 	});
 	
-	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl"}
+	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 </script>
 
 {$profile_scripts = Extension_ContextProfileScript::getExtensions(true, $page_context)}

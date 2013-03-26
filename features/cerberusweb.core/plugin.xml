@@ -3,8 +3,8 @@
 	<id>cerberusweb.core</id>
 	<name>Cerb6 Core</name>
 	<description>The core functionality of Cerb6.</description>
-	<author>WebGroup Media, LLC.</author>
-	<version>6.2.2</version>
+	<author>Webgroup Media, LLC.</author>
+	<version>6.3.0</version>
 	<link>http://wiki.cerb4.com/wiki/New_Changes</link>
 	
 	<!-- Plugin Dependencies -->
@@ -48,6 +48,7 @@
 		<patch version="6.0.0"  revision="989" file="patches/6.x/6.0.0.php" />
 		<patch version="6.1.0" revision="1005" file="patches/6.x/6.1.0.php" />
 		<patch version="6.2.0" revision="1016" file="patches/6.x/6.2.0.php" />
+		<patch version="6.3.0" revision="1030" file="patches/6.x/6.3.0.php" />
 	</patches>
 
 	<!-- Controller Routing -->
@@ -216,6 +217,13 @@
 			<class name="View_DecisionNode" />
 		</file>
 		
+		<file path="api/dao/devblocks_session.php">
+			<class name="DAO_DevblocksSession" />
+			<class name="Model_DevblocksSession" />
+			<class name="SearchFields_DevblocksSession" />
+			<class name="View_DevblocksSession" />
+		</file>
+		
 		<file path="api/dao/explorer.php">
 			<class name="DAO_ExplorerSet" />
 			<class name="Model_ExplorerSet" />
@@ -362,6 +370,10 @@
 			<class name="AbstractEvent_CalendarEvent" />
 		</file>
 		
+		<file path="api/events/abstract/abstract_event_comment.php">
+			<class name="AbstractEvent_Comment" />
+		</file>
+		
 		<file path="api/events/abstract/abstract_event_group.php">
 			<class name="AbstractEvent_Group" />
 		</file>
@@ -390,6 +402,10 @@
 			<class name="Event_MailReceivedByApp" />
 		</file>
 		
+		<file path="api/events/app/comment_created_by_worker.php">
+			<class name="Event_CommentCreatedByWorker" />
+		</file>
+		
 		<file path="api/events/app/task_created_by_worker.php">
 			<class name="Event_TaskCreatedByWorker" />
 		</file>
@@ -398,6 +414,10 @@
 			<class name="Event_TicketViewedByWorker" />
 		</file>
 
+		<file path="api/events/group/comment_on_ticket_in_group.php">
+			<class name="Event_CommentOnTicketInGroup" />
+		</file>
+		
 		<file path="api/events/group/mail_assigned_in_group.php">
 			<class name="Event_MailAssignedInGroup" />
 		</file>
@@ -454,6 +474,14 @@
 			<class name="Event_WorkerMacro" />
 		</file>
 		
+		<file path="api/events/ui/ui_before_reply_by_worker.php">
+			<class name="Event_MailBeforeUiReplyByWorker" />
+		</file>
+		
+		<file path="api/events/ui/ui_during_reply_by_worker.php">
+			<class name="Event_MailDuringUiReplyByWorker" />
+		</file>
+		
 		<file path="api/events/worker/mail_received_by_watcher.php">
 			<class name="Event_MailReceivedByWatcher" />
 		</file>
@@ -486,6 +514,9 @@
 		</activity>
 		<activity point="org.merge">
 			<param key="label_key" value="Organization Merged" />
+		</activity>
+		<activity point="task.created">
+			<param key="label_key" value="Task Created" />
 		</activity>
 		<activity point="task.status.completed">
 			<param key="label_key" value="Task Completed" />
@@ -1070,6 +1101,22 @@
 		</extension>
 		
 		<extension point="devblocks.event">
+			<id>event.comment.ticket.group</id>
+			<name>New comment on conversation in group</name>
+			<class>
+				<file>api/events/group/comment_on_ticket_in_group.php</file>
+				<name>Event_CommentOnTicketInGroup</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.group" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
 			<id>event.mail.assigned.group</id>
 			<name>Conversation assigned in group</name>
 			<class>
@@ -1361,12 +1408,66 @@
 				</param>
 			</params>
 		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.mail.reply.pre.ui.worker</id>
+			<name>[UI] When starting a reply to a message</name>
+			<class>
+				<file>api/events/ui/ui_before_reply_by_worker.php</file>
+				<name>Event_MailBeforeUiReplyByWorker</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.mail.reply.during.ui.worker</id>
+			<name>[UI] While replying to a message</name>
+			<class>
+				<file>api/events/ui/ui_during_reply_by_worker.php</file>
+				<name>Event_MailDuringUiReplyByWorker</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.comment.created.worker</id>
+			<name>New comment on a record</name>
+			<class>
+				<file>api/events/app/comment_created_by_worker.php</file>
+				<name>Event_CommentCreatedByWorker</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+					</value>
+				</param>
+			</params>
+		</extension>
 
 		<!-- Event Listeners -->
 		
 		<extension point="devblocks.listener.event">
 			<id>cerberusweb.listeners.event</id>
-			<name>Cerberus Helpdesk Event Listener</name>
+			<name>Cerb Event Listener</name>
 			<class>
 				<file>api/listeners.classes.php</file>
 				<name>ChCoreEventListener</name>
@@ -1396,7 +1497,7 @@
 				<!--
 				<param key="events">
 					<value>
-						<data key="*" />						
+						<data key="*" />
 					</value>
 				</param>
 				-->
@@ -1518,7 +1619,7 @@
 
 		<extension point="devblocks.controller">
 			<id>core.controller.page</id>
-			<name>Cerberus Helpdesk Controller</name>
+			<name>Cerb Controller</name>
 			<class>
 				<file>api/plugin.classes.php</file>
 				<name>ChPageController</name>
@@ -2058,6 +2159,19 @@
 					<param key="uri" value="security" />
 				</params>
 			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.sessions</id>
+				<name>Sessions Section</name>
+				<class>
+					<file>api/uri/config/sessions.php</file>
+					<name>PageSection_SetupSessions</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="sessions" />
+				</params>
+			</extension>
 		
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.storage_attachments</id>
@@ -2246,6 +2360,18 @@
 		<!-- Workspace Tabs -->
 		
 		<extension point="cerberusweb.ui.workspace.tab">
+			<id>core.workspace.tab.calendar</id>
+			<name>Calendar Workspace Tab</name>
+			<class>
+				<file>api/uri/internal/workspaces/calendar.php</file>
+				<name>WorkspaceTab_Calendar</name>
+			</class>
+			<params>
+				<param key="label" value="common.calendar" />
+			</params>
+		</extension>
+
+		<extension point="cerberusweb.ui.workspace.tab">
 			<id>core.workspace.tab</id>
 			<name>Dashboards Workspace Tab</name>
 			<class>
@@ -2255,7 +2381,7 @@
 			<params>
 				<param key="label" value="core.workspace.dashboard" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<!-- Workspace Widgets -->
 		

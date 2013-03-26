@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -36,20 +36,12 @@ class ChContactsPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
-				$tpl->assign('view_id', $view_id);
+		$tpl->assign('view_id', $view_id);
+		$tpl->assign('ids', $ids);
 
-		if(!empty($ids)) {
-			$ids = DevblocksPlatform::parseCsvString($ids);
-			$tpl->assign('ids', $ids);
-		}
-		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT_PERSON);
 		$tpl->assign('custom_fields', $custom_fields);
-		
-		// Groups
-		//$groups = DAO_Group::getAll();
-		//$tpl->assign('groups', $groups);
 		
 		// Broadcast
 		//CerberusContexts::getContext(CerberusContexts::CONTEXT_CONTACT_PERSON, null, $token_labels, $token_values);
@@ -75,9 +67,23 @@ class ChContactsPage extends CerberusPageExtension {
 		// Do: Delete
 		if(!empty($do_delete))
 			$do['delete'] = 1;
+
+		// Watchers
+		$watcher_params = array();
+		
+		@$watcher_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_add_ids'],'array',array());
+		if(!empty($watcher_add_ids))
+			$watcher_params['add'] = $watcher_add_ids;
 			
+		@$watcher_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_remove_ids'],'array',array());
+		if(!empty($watcher_remove_ids))
+			$watcher_params['remove'] = $watcher_remove_ids;
+		
+		if(!empty($watcher_params))
+			$do['watchers'] = $watcher_params;
+		
 		// Do: Custom fields
-		//$do = DAO_CustomFieldValue::handleBulkPost($do);
+		$do = DAO_CustomFieldValue::handleBulkPost($do);
 
 		switch($filter) {
 			// Checked rows
@@ -1098,7 +1104,8 @@ class ChContactsPage extends CerberusPageExtension {
 						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_ORG,
 						DAO_Comment::CONTEXT_ID => $id,
 						DAO_Comment::COMMENT => $comment,
-						DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+						DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
 					);
 					$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
 				}
@@ -1162,6 +1169,8 @@ class ChContactsPage extends CerberusPageExtension {
 			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
 			@$broadcast_is_queued = DevblocksPlatform::importGPC($_REQUEST['broadcast_is_queued'],'integer',0);
 			@$broadcast_is_closed = DevblocksPlatform::importGPC($_REQUEST['broadcast_next_is_closed'],'integer',0);
+			@$broadcast_file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['broadcast_file_ids'],'array',array()), 'integer', array('nonzero','unique'));
+			
 			if(0 != strlen($do_broadcast) && !empty($broadcast_subject) && !empty($broadcast_message)) {
 				$do['broadcast'] = array(
 					'subject' => $broadcast_subject,
@@ -1170,6 +1179,7 @@ class ChContactsPage extends CerberusPageExtension {
 					'next_is_closed' => $broadcast_is_closed,
 					'group_id' => $broadcast_group_id,
 					'worker_id' => $active_worker->id,
+					'file_ids' => $broadcast_file_ids,
 				);
 			}
 		}
@@ -1549,7 +1559,8 @@ class ChContactsPage extends CerberusPageExtension {
 						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_CONTACT_PERSON,
 						DAO_Comment::CONTEXT_ID => $id,
 						DAO_Comment::COMMENT => $comment,
-						DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+						DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
 					);
 					$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
 				}

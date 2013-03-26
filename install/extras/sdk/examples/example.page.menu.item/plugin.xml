@@ -3,7 +3,7 @@
 	<id>example.page.menu.item</id>
 	<name>[Example] Page Menu Item</name>
 	<description>This example adds a new menu item to the Plugins menu on the Setup page.</description>
-	<author>WebGroup Media, LLC.</author>
+	<author>Webgroup Media, LLC.</author>
 	<version>0.0.0</version>
 	<link>http://www.cerb5.com/</link>
 	<!--<image>plugin.png</image>-->

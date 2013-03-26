@@ -29,6 +29,10 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 			case 'search':
 				$this->postSearch();
 				break;
+				
+			case 'upload':
+				$this->postUpload();
+				break;
 		}
 		
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
@@ -185,6 +189,58 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 // 			$this->error(self::ERRNO_ACL, 'Access denied to search tickets.');
 
 		$container = $this->_handlePostSearch();
+		
+		$this->success($container);
+	}
+	
+	private function _handlePostUpload() {
+		@$file_name = DevblocksPlatform::importGPC($_REQUEST['file_name'],'string','');
+		@$mime_type = DevblocksPlatform::importGPC($_REQUEST['mime_type'],'string','application/octet-stream');
+		@$encoding = DevblocksPlatform::importGPC($_REQUEST['encoding'],'string','');
+		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
+		
+		if(empty($file_name))
+			$this->error(self::ERRNO_CUSTOM, "The 'file_name' parameter is required.");
+		
+		if(empty($mime_type))
+			$this->error(self::ERRNO_CUSTOM, "The 'mime_type' parameter is required.");
+		
+		if(empty($content))
+			$this->error(self::ERRNO_CUSTOM, "The 'content' parameter is required.");
+		
+		switch($encoding) {
+			case 'base64':
+				$content = base64_decode($content);
+				break;
+			
+			case 'text':
+			default:
+				break;
+		}
+		
+		$fields = array(
+			DAO_Attachment::DISPLAY_NAME => $file_name,
+			DAO_Attachment::MIME_TYPE => $mime_type,
+			DAO_Attachment::UPDATED => time(),
+		);
+		
+		$file_id = DAO_Attachment::create($fields);
+
+		Storage_Attachments::put($file_id, $content);
+		
+		return array(
+			'file_id' => $file_id,
+		);
+	}
+	
+	function postUpload() {
+		$worker = $this->getActiveWorker();
+		
+		// ACL
+// 		if(!$worker->hasPriv('core.example'))
+// 			$this->error(self::ERRNO_ACL, 'Access denied to upload attachments.');
+
+		$container = $this->_handlePostUpload();
 		
 		$this->success($container);
 	}

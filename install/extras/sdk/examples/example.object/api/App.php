@@ -121,7 +121,8 @@ class Page_ExampleObjects extends CerberusPageExtension {
 				DAO_Comment::CONTEXT => Context_ExampleObject::ID,
 				DAO_Comment::CONTEXT_ID => $id,
 				DAO_Comment::COMMENT => $comment,
-				DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+				DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+				DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
 			);
 			$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
 		}

@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -15,9 +15,10 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_Task extends C4_ORMHelper {
+class DAO_Task extends Cerb_ORMHelper {
 	const ID = 'id';
 	const TITLE = 'title';
+	const CREATED_AT = 'created_at';
 	const UPDATED_DATE = 'updated_date';
 	const DUE_DATE = 'due_date';
 	const IS_COMPLETED = 'is_completed';
@@ -30,12 +31,34 @@ class DAO_Task extends C4_ORMHelper {
 			"VALUES ()"
 		);
 		$db->Execute($sql);
+		
 		$id = $db->LastInsertId();
+		
+		if(!isset($fields[DAO_Task::CREATED_AT]))
+			$fields[DAO_Task::CREATED_AT] = time();
 		
 		self::update($id, $fields);
 		
 		if(!empty($custom_fields)) {
 			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TASK, $id, $custom_fields);
+		}
+		
+		/*
+		 * Log the activity of a new task being created
+		 */
+		
+		if(isset($fields[DAO_Task::TITLE])) {
+			$entry = array(
+				//{{actor}} created task {{target}}
+				'message' => 'activities.task.created',
+				'variables' => array(
+					'target' => $fields[DAO_Task::TITLE],
+					),
+				'urls' => array(
+					'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_TASK, $id),
+					)
+			);
+			CerberusContexts::logActivity('task.created', CerberusContexts::CONTEXT_TASK, $id, $entry, null, null);
 		}
 		
 		// New task
@@ -141,7 +164,7 @@ class DAO_Task extends C4_ORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, title, due_date, updated_date, is_completed, completed_date ".
+		$sql = "SELECT id, title, due_date, created_at, updated_date, is_completed, completed_date ".
 			"FROM task ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
@@ -176,10 +199,11 @@ class DAO_Task extends C4_ORMHelper {
 			$object = new Model_Task();
 			$object->id = $row['id'];
 			$object->title = $row['title'];
-			$object->updated_date = $row['updated_date'];
-			$object->due_date = $row['due_date'];
-			$object->is_completed = $row['is_completed'];
-			$object->completed_date = $row['completed_date'];
+			$object->created_at = intval($row['created_at']);
+			$object->updated_date = intval($row['updated_date']);
+			$object->due_date = intval($row['due_date']);
+			$object->is_completed = intval($row['is_completed']);
+			$object->completed_date = intval($row['completed_date']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -250,12 +274,14 @@ class DAO_Task extends C4_ORMHelper {
 		
 		$select_sql = sprintf("SELECT ".
 			"t.id as %s, ".
+			"t.created_at as %s, ".
 			"t.updated_date as %s, ".
 			"t.due_date as %s, ".
 			"t.is_completed as %s, ".
 			"t.completed_date as %s, ".
 			"t.title as %s ",
 				SearchFields_Task::ID,
+				SearchFields_Task::CREATED_AT,
 				SearchFields_Task::UPDATED_DATE,
 				SearchFields_Task::DUE_DATE,
 				SearchFields_Task::IS_COMPLETED,
@@ -291,6 +317,7 @@ class DAO_Task extends C4_ORMHelper {
 		$args = array(
 			'join_sql' => &$join_sql,
 			'where_sql' => &$where_sql,
+			'tables' => &$tables,
 			'has_multiple_values' => &$has_multiple_values
 		);
 		
@@ -330,7 +357,7 @@ class DAO_Task extends C4_ORMHelper {
 			
 			case SearchFields_Task::VIRTUAL_WATCHERS:
 				$args['has_multiple_values'] = true;
-				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql'], $args['tables']);
 				break;
 		}
 	}
@@ -399,6 +426,7 @@ class DAO_Task extends C4_ORMHelper {
 class SearchFields_Task implements IDevblocksSearchFields {
 	// Task
 	const ID = 't_id';
+	const CREATED_AT = 't_created_at';
 	const UPDATED_DATE = 't_updated_date';
 	const DUE_DATE = 't_due_date';
 	const IS_COMPLETED = 't_is_completed';
@@ -422,7 +450,8 @@ class SearchFields_Task implements IDevblocksSearchFields {
 		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 't', 'id', $translate->_('common.id')),
-			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 't', 'updated_date', $translate->_('task.updated_date'), Model_CustomField::TYPE_DATE),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 't', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE),
+			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 't', 'updated_date', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 't', 'title', $translate->_('common.title'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::IS_COMPLETED => new DevblocksSearchField(self::IS_COMPLETED, 't', 'is_completed', $translate->_('task.is_completed'), Model_CustomField::TYPE_CHECKBOX),
 			self::DUE_DATE => new DevblocksSearchField(self::DUE_DATE, 't', 'due_date', $translate->_('task.due_date'), Model_CustomField::TYPE_DATE),
@@ -458,6 +487,7 @@ class SearchFields_Task implements IDevblocksSearchFields {
 class Model_Task {
 	public $id;
 	public $title;
+	public $created_at;
 	public $due_date;
 	public $is_completed;
 	public $completed_date;
@@ -636,6 +666,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
+			case SearchFields_Task::CREATED_AT:
 			case SearchFields_Task::UPDATED_DATE:
 			case SearchFields_Task::DUE_DATE:
 			case SearchFields_Task::COMPLETED_DATE:
@@ -709,6 +740,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
+			case SearchFields_Task::CREATED_AT:
 			case SearchFields_Task::UPDATED_DATE:
 			case SearchFields_Task::COMPLETED_DATE:
 			case SearchFields_Task::DUE_DATE:
@@ -910,13 +942,14 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		
 		// Token labels
 		$token_labels = array(
+			'created|date' => $prefix.$translate->_('common.created'),
 			'completed|date' => $prefix.$translate->_('task.completed_date'),
 			'due|date' => $prefix.$translate->_('task.due_date'),
 			'id' => $prefix.$translate->_('common.id'),
 			'is_completed' => $prefix.$translate->_('task.is_completed'),
 			'status' => $prefix.$translate->_('common.status'),
 			'title' => $prefix.$translate->_('common.title'),
-			'updated|date' => $prefix.$translate->_('task.updated_date'),
+			'updated|date' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
@@ -933,6 +966,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		if($task) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $task->title;
+			$token_values['created'] = $task->created_at;
 			$token_values['completed'] = $task->completed_date;
 			$token_values['due'] = $task->due_date;
 			$token_values['id'] = $task->id;
@@ -1079,6 +1113,11 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		// [TODO] Translate
 	
 		$keys = array(
+			'created_at' => array(
+				'label' => 'Created Date',
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_Task::CREATED_AT,
+			),
 			'completed_date' => array(
 				'label' => 'Completed Date',
 				'type' => Model_CustomField::TYPE_DATE,
@@ -1134,9 +1173,11 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			$fields[DAO_Task::COMPLETED_DATE] = time();
 		}
 		
-		if(!isset($fields[DAO_Task::UPDATED_DATE])) {
+		if(!isset($fields[DAO_Task::CREATED_AT]))
+			$fields[DAO_Task::CREATED_AT] = time();
+		
+		if(!isset($fields[DAO_Task::UPDATED_DATE]))
 			$fields[DAO_Task::UPDATED_DATE] = time();
-		}
 		
 		// If new...
 		if(!isset($meta['object_id']) || empty($meta['object_id'])) {

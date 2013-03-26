@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
- | Cerb(tm) developed by WebGroup Media, LLC.
+ | Cerb(tm) developed by Webgroup Media, LLC.
  |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2012, WebGroup Media LLC
+ | All source code & content (c) Copyright 2013, Webgroup Media LLC
  |   unless specifically noted otherwise.
  |
  | This source code is released under the Devblocks Public License.
@@ -139,6 +139,34 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 				'key' => $param->token,
 				'label' => mb_convert_case($param->db_label, MB_CASE_LOWER),
 				'type' => $param->type
+			);
+		}
+		
+		echo json_encode($results);
+	}
+	
+	function getContextPlaceholdersJsonAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', null);
+		
+		header('Content-Type: application/json');
+		
+		$labels = array();
+		$values = array();
+		
+		CerberusContexts::getContext($context, null, $labels, $values, null, true);
+		
+		if(empty($labels)) {
+			echo json_encode(false);
+			return;
+		}
+		
+		$results = array();
+		
+		foreach($labels as $k => $v) {
+			$results[] = array(
+				'key' => $k,
+				'label' => $v,
+				'type' => '',
 			);
 		}
 		

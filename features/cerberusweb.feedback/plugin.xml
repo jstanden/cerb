@@ -3,15 +3,15 @@
 	<id>cerberusweb.feedback</id>
 	<name>Feedback Capture</name>
 	<description>Organically capture praise or criticism and share it with decision makers.  This adds a Feedback tab to the Activity page.  You can also capture feedback while reading e-mail by highlighting a quote and clicking 'more' in the toolbar.</description>
-	<author>WebGroup Media, LLC.</author>
-	<version>6.2.2</version>
+	<author>Webgroup Media, LLC.</author>
+	<version>6.3.0</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Feedback_Capture</link>
 	<image>images/plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="6.2" max="6.2.99" />
+		<app_version min="6.3" max="6.3.99" />
 	</requires>
 	
 	<!-- Plugin Dependencies -->
@@ -31,7 +31,7 @@
 	
 	<class_loader>
 		<file path="api/App.php">
-			<class name="C4_FeedbackEntryView" />
+			<class name="View_FeedbackEntry" />
 			<class name="DAO_FeedbackEntry" />
 			<class name="Model_FeedbackEntry" />
 			<class name="SearchFields_FeedbackEntry" />
@@ -59,7 +59,7 @@
 			<params>
 				<param key="alias" value="feedback" />
 				<param key="dao_class" value="DAO_FeedbackEntry" />
-				<param key="view_class" value="C4_FeedbackEntryView" />
+				<param key="view_class" value="View_FeedbackEntry" />
 				<param key="options">
 					<value>
 						<data key="create" />

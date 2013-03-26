@@ -10,6 +10,7 @@
 					<li><a href="{devblocks_url}c=config&a=license{/devblocks_url}">License</a></li>
 					{if !$smarty.const.ONDEMAND_MODE}<li><a href="{devblocks_url}c=config&a=scheduler{/devblocks_url}">Scheduler</a></li>{/if}
 					<li><a href="{devblocks_url}c=config&a=snippets{/devblocks_url}">Snippets</a></li>
+					<li><a href="{devblocks_url}c=config&a=sessions{/devblocks_url}">Sessions</a></li>
 					<li><a href="{devblocks_url}c=config&a=portals{/devblocks_url}">Community Portals</a></li>
 					<li><a href="{devblocks_url}c=config&a=attendants{/devblocks_url}">Virtual Attendants</a></li>
 					<li><a href="{devblocks_url}c=config&a=scheduled_behavior{/devblocks_url}">Scheduled Behavior</a></li>

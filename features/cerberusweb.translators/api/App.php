@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 /*
- * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
+ * IMPORTANT LICENSING NOTE from your friends on the Cerb Development Team
  *
  * Sure, it would be so easy to just cheat and edit this file to use the
  * software without paying for it.  But we trust you anyway.  In fact, we're
@@ -43,8 +43,8 @@
  * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
- * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
- *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
+ \* - Jeff Standen, Darren Sugita, Dan Hildebrandt
+ *	 Webgroup Media LLC - Developers of Cerb
  */
 
 if(class_exists('Extension_PageSection')):
@@ -57,10 +57,10 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 	
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_TranslationView';
-		$defaults->id = C4_TranslationView::DEFAULT_ID;
+		$defaults->class_name = 'View_Translation';
+		$defaults->id = View_Translation::DEFAULT_ID;
 		
-		$view = C4_AbstractViewLoader::getView(C4_TranslationView::DEFAULT_ID, $defaults);
+		$view = C4_AbstractViewLoader::getView(View_Translation::DEFAULT_ID, $defaults);
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.translators::config/section/index.tpl');
@@ -130,11 +130,11 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		}
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_TranslationView';
-		$defaults->id = C4_TranslationView::DEFAULT_ID;
+		$defaults->class_name = 'View_Translation';
+		$defaults->id = View_Translation::DEFAULT_ID;
 			
 		// Clear the existing view
-		$view = C4_AbstractViewLoader::getView(C4_TranslationView::DEFAULT_ID, $defaults);
+		$view = C4_AbstractViewLoader::getView(View_Translation::DEFAULT_ID, $defaults);
 		$view->doResetCriteria();
 		
 		// Set search to untranslated strings that aren't English
@@ -229,11 +229,11 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		// If we added a new language then change the view to display it
 		if(!empty($add_lang_code)) {
 			$defaults = new C4_AbstractViewModel();
-			$defaults->class_name = 'C4_TranslationView';
-			$defaults->id = C4_TranslationView::DEFAULT_ID;
+			$defaults->class_name = 'View_Translation';
+			$defaults->id = View_Translation::DEFAULT_ID;
 			
 			// Clear the existing view
-			$view = C4_AbstractViewLoader::getView(C4_TranslationView::DEFAULT_ID, $defaults);
+			$view = C4_AbstractViewLoader::getView(View_Translation::DEFAULT_ID, $defaults);
 			$view->doResetCriteria();
 			
 			// Set search to untranslated strings that aren't English
@@ -275,10 +275,10 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 	
 	function exportTmxAction() {
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_TranslationView';
-		$defaults->id = C4_TranslationView::DEFAULT_ID;
+		$defaults->class_name = 'View_Translation';
+		$defaults->id = View_Translation::DEFAULT_ID;
 		
-		$view = C4_AbstractViewLoader::getView(C4_TranslationView::DEFAULT_ID, $defaults);
+		$view = C4_AbstractViewLoader::getView(View_Translation::DEFAULT_ID, $defaults);
 
 		// Extract every result from the view
 		list($results, $null) = DAO_Translation::search(
@@ -376,8 +376,7 @@ class ChTranslators_SetupPluginsMenuItem extends Extension_PageMenuItem {
 }
 endif;
 
-// [TODO] Rename View_*
-class C4_TranslationView extends C4_AbstractView implements IAbstractView_Subtotals {
+class View_Translation extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'translations';
 
 	function __construct() {

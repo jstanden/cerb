@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -30,7 +30,6 @@ class Event_MailReceivedByGroup extends AbstractEvent_Message {
 				self::ID,
 				array(
 					'message_id' => $message_id,
-					'group_id' => $group_id,
 					'_whisper' => array(
 						CerberusContexts::CONTEXT_GROUP => array($group_id),
 					),

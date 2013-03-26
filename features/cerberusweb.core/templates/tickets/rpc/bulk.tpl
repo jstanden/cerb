@@ -142,7 +142,7 @@
 			</td>
 		</tr>
 		{/if}
-	</table>	
+	</table>
 </fieldset>
 
 {if !empty($custom_fields)}
@@ -160,21 +160,35 @@
 	<label><input type="checkbox" name="do_broadcast" id="chkMassReply" onclick="$('#bulkTicketBroadcast').toggle();"> {'common.enabled'|devblocks_translate|capitalize}</label>
 	
 	<blockquote id="bulkTicketBroadcast" style="display:none;margin:10px;">
-		<b>Reply:</b><br>
-		<textarea name="broadcast_message" style="width:100%;height:200px;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
-		<br>
-		<button type="button" onclick="ajax.chooserSnippet('snippets',$('#bulkTicketBroadcast textarea[name=broadcast_message]'), { '{CerberusContexts::CONTEXT_TICKET}':'', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
-		<button type="button" onclick="genericAjaxPost('formBatchUpdate','bulkTicketBroadcastTest','c=tickets&a=doBulkUpdateBroadcastTest');"><span class="cerb-sprite2 sprite-gear"></span> Test</button><!--
-		--><select class="insert-placeholders">
-			<option value="">-- insert at cursor --</option>
-			{foreach from=$token_labels key=k item=v}
-			<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
-			{/foreach}
-		</select>
-		<br>
-		<div id="bulkTicketBroadcastTest"></div>
-		<label><input type="radio" name="broadcast_is_queued" value="0" checked="checked"> Save as drafts</label>
-		<label><input type="radio" name="broadcast_is_queued" value="1"> Send now</label>
+		<b>Reply:</b>
+		
+		<div style="margin:0px 0px 5px 10px;">
+			<textarea name="broadcast_message" style="width:100%;height:200px;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
+			<br>
+			<button type="button" onclick="ajax.chooserSnippet('snippets',$('#bulkTicketBroadcast textarea[name=broadcast_message]'), { '{CerberusContexts::CONTEXT_TICKET}':'', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
+			<button type="button" onclick="genericAjaxPost('formBatchUpdate','bulkTicketBroadcastTest','c=tickets&a=doBulkUpdateBroadcastTest');"><span class="cerb-sprite2 sprite-gear"></span> Test</button><!--
+			--><select class="insert-placeholders">
+				<option value="">-- insert at cursor --</option>
+				{foreach from=$token_labels key=k item=v}
+				<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
+				{/foreach}
+			</select>
+			<br>
+			<div id="bulkTicketBroadcastTest"></div>
+		</div>
+		
+		<b>{'common.attachments'|devblocks_translate|capitalize}:</b><br>
+	
+		<div style="margin:0px 0px 5px 10px;">
+			<button type="button" class="chooser_file"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+			<ul class="bubbles chooser-container">
+		</div>
+		
+		<b>Then:</b>
+		<div style="margin:0px 0px 5px 10px;">
+			<label><input type="radio" name="broadcast_is_queued" value="0" checked="checked"> Save as drafts</label>
+			<label><input type="radio" name="broadcast_is_queued" value="1"> Send now</label>
+		</div>
 	</blockquote>
 </fieldset>
 {/if}
@@ -192,6 +206,10 @@
 		$this.dialog('option','title',"{$translate->_('common.bulk_update')|capitalize}");
 		
 		ajax.orgAutoComplete('#formBatchUpdate input:text[name=do_org]');
+		
+		$frm.find('button.chooser_file').each(function() {
+			ajax.chooserFile(this,'broadcast_file_ids');
+		});
 		
 		$this.find('select.insert-placeholders').change(function(e) {
 			var $select = $(this);

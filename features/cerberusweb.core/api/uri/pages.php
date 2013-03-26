@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -876,66 +876,76 @@ class Page_Custom extends CerberusPageExtension {
 					DAO_WorkspaceTab::update($workspace_tab_id, $fields);
 			}
 	
-			// Create any new worklists
-			if(is_array($ids) && !empty($ids))
-				foreach($ids as $idx => $id) {
-				if(!is_numeric($id)) { // Create
-					if(null == ($context_ext = DevblocksPlatform::getExtension($id, true))) /* @var $context_ext Extension_DevblocksContext */
-						continue;
-						
-					if(null == ($view = $context_ext->getChooserView()))  /* @var $view C4_AbstractView */
-						continue;
-	
-					// Build the list model
-					$list = new Model_WorkspaceListView();
-					$list->title = $names[$idx];
-					$list->columns = $view->view_columns;
-					$list->params = $view->getEditableParams();
-					$list->params_required = $view->getParamsRequired();
-					$list->num_rows = 5;
-					$list->sort_by = $view->renderSortBy;
-					$list->sort_asc = $view->renderSortAsc;
-	
-					// Add the worklist
-					$fields = array(
-						DAO_WorkspaceList::LIST_POS => $idx,
-						DAO_WorkspaceList::LIST_VIEW => serialize($list),
-						DAO_WorkspaceList::WORKSPACE_TAB_ID => $workspace_tab_id,
-						DAO_WorkspaceList::CONTEXT => $id,
-					);
-					$ids[$idx] = DAO_WorkspaceList::create($fields);
+			// If we have no tab extension (worklists default)
+			if(empty($workspace_tab->extension_id)) {
+				// Create any new worklists
+				if(is_array($ids) && !empty($ids))
+					foreach($ids as $idx => $id) {
+					if(!is_numeric($id)) { // Create
+						if(null == ($context_ext = DevblocksPlatform::getExtension($id, true))) /* @var $context_ext Extension_DevblocksContext */
+							continue;
+							
+						if(null == ($view = $context_ext->getChooserView()))  /* @var $view C4_AbstractView */
+							continue;
+		
+						// Build the list model
+						$list = new Model_WorkspaceListView();
+						$list->title = $names[$idx];
+						$list->columns = $view->view_columns;
+						$list->params = $view->getEditableParams();
+						$list->params_required = $view->getParamsRequired();
+						$list->num_rows = 5;
+						$list->sort_by = $view->renderSortBy;
+						$list->sort_asc = $view->renderSortAsc;
+		
+						// Add the worklist
+						$fields = array(
+							DAO_WorkspaceList::LIST_POS => $idx,
+							DAO_WorkspaceList::LIST_VIEW => serialize($list),
+							DAO_WorkspaceList::WORKSPACE_TAB_ID => $workspace_tab_id,
+							DAO_WorkspaceList::CONTEXT => $id,
+						);
+						$ids[$idx] = DAO_WorkspaceList::create($fields);
+					}
 				}
-			}
-	
-			$worklists = $workspace_tab->getWorklists();
-	
-			// Deletes
-			$delete_ids = array_diff(array_keys($worklists), $ids);
-			if(is_array($delete_ids) && !empty($delete_ids))
-				DAO_WorkspaceList::delete($delete_ids);
-	
-			// Reorder worklists, rename lists, on workspace
-			if(is_array($ids) && !empty($ids))
-				foreach($ids as $idx => $id) {
-				if(null == ($worklist = DAO_WorkspaceList::get($id)))
-					continue;
-	
-				$list_view = $worklists[$id]->list_view; /* @var $list_view Model_WorkspaceListView */
-	
-				// If the name changed
-				if(isset($names[$idx]) && 0 != strcmp($list_view->title, $names[$idx])) {
-					$list_view->title = $names[$idx];
-	
-					// Save the view in the session
-					$view = C4_AbstractViewLoader::getView('cust_'.$id);
-					$view->name = $list_view->title;
-					C4_AbstractViewLoader::setView('cust_'.$id, $view);
+		
+				$worklists = $workspace_tab->getWorklists();
+		
+				// Deletes
+				$delete_ids = array_diff(array_keys($worklists), $ids);
+				if(is_array($delete_ids) && !empty($delete_ids))
+					DAO_WorkspaceList::delete($delete_ids);
+		
+				// Reorder worklists, rename lists, on workspace
+				if(is_array($ids) && !empty($ids))
+					foreach($ids as $idx => $id) {
+					if(null == ($worklist = DAO_WorkspaceList::get($id)))
+						continue;
+		
+					$list_view = $worklists[$id]->list_view; /* @var $list_view Model_WorkspaceListView */
+		
+					// If the name changed
+					if(isset($names[$idx]) && 0 != strcmp($list_view->title, $names[$idx])) {
+						$list_view->title = $names[$idx];
+		
+						// Save the view in the session
+						$view = C4_AbstractViewLoader::getView('cust_'.$id);
+						$view->name = $list_view->title;
+						C4_AbstractViewLoader::setView('cust_'.$id, $view);
+					}
+		
+					DAO_WorkspaceList::update($id,array(
+						DAO_WorkspaceList::LIST_POS => intval($idx),
+						DAO_WorkspaceList::LIST_VIEW => serialize($list_view),
+					));
 				}
-	
-				DAO_WorkspaceList::update($id,array(
-					DAO_WorkspaceList::LIST_POS => intval($idx),
-					DAO_WorkspaceList::LIST_VIEW => serialize($list_view),
-				));
+				
+			} else { // tab extension
+				if(null != ($tab_extension = DevblocksPlatform::getExtension($workspace_tab->extension_id, true, true))) {
+					/* @var $tab_extension Extension_WorkspaceTab */
+					if(method_exists($tab_extension, 'saveTabConfig'))
+						$tab_extension->saveTabConfig($workspace_page, $workspace_tab);
+				}
 			}
 		}
 		

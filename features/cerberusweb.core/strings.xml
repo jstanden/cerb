@@ -51,6 +51,9 @@
 		<tu tuid='activities.org.merge'>
 			<tuv xml:lang="en_US"><seg>{{actor}} merged organization {{source}} with organization {{target}}</seg></tuv>
 		</tu>
+		<tu tuid='activities.task.created'>
+			<tuv xml:lang="en_US"><seg>{{actor}} created task {{target}}</seg></tuv>
+		</tu>
 		<tu tuid='activities.task.status.completed'>
 			<tuv xml:lang="en_US"><seg>{{actor}} completed task {{target}}</seg></tuv>
 		</tu>
@@ -155,6 +158,9 @@
 		</tu>
 		<tu tuid='common.bulk_update.with'>
 			<tuv xml:lang="en_US"><seg>With</seg></tuv>
+		</tu>
+		<tu tuid='common.calendar'>
+			<tuv xml:lang="en_US"><seg>Calendar</seg></tuv>
 		</tu>
 		<tu tuid='common.cancel'>
 			<tuv xml:lang="en_US"><seg>cancel</seg></tuv>
@@ -627,6 +633,21 @@
 			<tuv xml:lang="en_US"><seg>Trigger Id</seg></tuv>
 		</tu>
 		
+		<!-- DevblocksSession -->
+		
+		<tu tuid='dao.devblocks_session.session_key'>
+			<tuv xml:lang="en_US"><seg>Session Key</seg></tuv>
+		</tu>
+		<tu tuid='dao.devblocks_session.session_data'>
+			<tuv xml:lang="en_US"><seg>Session Data</seg></tuv>
+		</tu>
+		<tu tuid='dao.devblocks_session.user_ip'>
+			<tuv xml:lang="en_US"><seg>IP Address</seg></tuv>
+		</tu>
+		<tu tuid='dao.devblocks_session.user_agent'>
+			<tuv xml:lang="en_US"><seg>User Agent</seg></tuv>
+		</tu>
+		
 		<!-- Plugin Library -->
 		
 		<tu tuid='dao.plugin_library.plugin_id'>
@@ -641,10 +662,14 @@
 		
 		<!-- Snippets -->
 
-		<tu tuid='dao.snippet_usage.hits'>
-			<tuv xml:lang="en_US"><seg>Hits</seg></tuv>
+		<tu tuid='dao.snippet.total_uses'>
+			<tuv xml:lang="en_US"><seg>All Uses</seg></tuv>
 		</tu>
-
+		
+		<tu tuid='dao.snippet_use_history.uses.mine'>
+			<tuv xml:lang="en_US"><seg>My Uses</seg></tuv>
+		</tu>
+		
 		<!-- Trigger -->
 		
 		<tu tuid='dao.trigger_event.is_disabled'>
@@ -1122,6 +1147,9 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='header.signoff'>
 			<tuv xml:lang="en_US"><seg>Sign off</seg></tuv>
 		</tu>
+		<tu tuid='header.signoff.all.my'>
+			<tuv xml:lang="en_US"><seg>Sign off (all my sessions)</seg></tuv>
+		</tu>
 		<tu tuid='header.signon'>
 			<tuv xml:lang="en_US"><seg>Sign on</seg></tuv>
 		</tu>
@@ -1472,6 +1500,16 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		
 		<!-- Message -->
 
+		<tu tuid='message.header'>
+			<tuv xml:lang="en_US"><seg>Header</seg></tuv>
+		</tu>
+		<tu tuid='message.headers'>
+			<tuv xml:lang="en_US"><seg>Headers</seg></tuv>
+		</tu>
+		<tu tuid='message.headers.custom'>
+			<tuv xml:lang="en_US"><seg>Custom Headers</seg></tuv>
+		</tu>
+		
 		<tu tuid='message.header.bcc'>
 			<tuv xml:lang="en_US"><seg>Bcc</seg></tuv>
 		</tu>
@@ -1573,6 +1611,9 @@ If you did not request this, do not click the link above.  The request will expi
 		</tu>
 		<tu tuid='search.date.between.and'>
 			<tuv xml:lang="en_US"><seg>and</seg></tuv>
+		</tu>
+		<tu tuid='search.date.between.not'>
+			<tuv xml:lang="en_US"><seg>not between</seg></tuv>
 		</tu>
 		<tu tuid='search.date.examples'>
 			<tuv xml:lang="en_US"><seg>examples:
@@ -1684,9 +1725,6 @@ For example: *receipt*</seg></tuv>
 		</tu>
 		<tu tuid='task.is_completed'>
 			<tuv xml:lang="en_US"><seg>Completed</seg></tuv>
-		</tu>
-		<tu tuid='task.updated_date'>
-			<tuv xml:lang="en_US"><seg>Last Updated</seg></tuv>
 		</tu>
 		<tu tuid='task.worker_id'>
 			<tuv xml:lang="en_US"><seg>Worker</seg></tuv>

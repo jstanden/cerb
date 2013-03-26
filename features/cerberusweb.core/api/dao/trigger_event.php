@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_TriggerEvent extends C4_ORMHelper {
+class DAO_TriggerEvent extends Cerb_ORMHelper {
 	const CACHE_ALL = 'cerberus_cache_behavior_all';
 	
 	const ID = 'id';
@@ -72,7 +72,10 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 			@$owner_context_id = $owner[1];
 			@$owner_label = $owner[2];
 			
-			if(empty($owner_context) || empty($owner_context_id))
+			if(empty($owner_context))
+				continue;
+			
+			if($owner_context != CerberusContexts::CONTEXT_APPLICATION && empty($owner_context_id))
 				continue;
 			
 			$add_macros = DAO_TriggerEvent::getByOwner($owner_context, $owner_context_id, $event_point);
@@ -83,9 +86,19 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 				}
 			}
 			
-			$macros = array_merge($macros, $add_macros);
+			$macros = $macros + $add_macros;
 		}
 		
+		foreach($macros as $macro_id => $macro) {
+			$has_public_vars = false;
+			if(is_array($macro->variables))
+			foreach($macro->variables as $var_name => $var_data) {
+				if(empty($var_data['is_private']))
+					$has_public_vars = true;
+			}
+			
+			$macros[$macro_id]->has_public_vars = $has_public_vars;
+		}
 		
 		return $macros;
 	}
@@ -103,7 +116,8 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 
 		// Include the current context in allowed owners
 		$owner_contexts = array();
-		$owner_contexts[$context . ':' . $context_id] = true;
+		$owner_context_key = $context . (!empty($context_id) ? (':' . $context_id) : '');
+		$owner_contexts[$owner_context_key] = true;
 		
 		// If our context owner is a worker, include their roles as allowed owners
 		if($context == CerberusContexts::CONTEXT_WORKER) {
@@ -121,7 +135,8 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 				continue;
 
 			// If we're allowed to see this behavior, include it
-			if(isset($owner_contexts[$behavior->owner_context . ':' . $behavior->owner_context_id])) {
+			$behavior_owner_context_key = $behavior->owner_context . (!empty($behavior->owner_context_id) ? (':' . $behavior->owner_context_id) : '');
+			if(isset($owner_contexts[$behavior_owner_context_key])) {
 				// If including all events, or this particular one
 				if(is_null($event_point) || 0==strcasecmp($event_point, $behavior->event_point)) {
 					$results[$behavior_id] = $behavior;
@@ -226,6 +241,24 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 		return $objects;
 	}
 	
+	static function logUsage($trigger_id, $runtime_ms) {
+		if(empty($trigger_id))
+			return;
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("INSERT INTO trigger_event_history (trigger_id, ts_day, uses, elapsed_ms) ".
+			"VALUES (%d, %d, %d, %d) ".
+			"ON DUPLICATE KEY UPDATE uses = uses + VALUES(uses), elapsed_ms = elapsed_ms + VALUES(elapsed_ms) ",
+			$trigger_id,
+			time() - (time() % 86400),
+			1,
+			$runtime_ms
+		);
+		
+		$db->Execute($sql);
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
@@ -240,6 +273,8 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 		
 		$db->Execute(sprintf("DELETE FROM trigger_event WHERE id IN (%s)", $ids_list));
 		
+		$db->Execute(sprintf("DELETE FROM trigger_event_history WHERE trigger_id IN (%s)", $ids_list));
+		
 		self::clearCache();
 		return true;
 	}
@@ -250,7 +285,7 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 		
 		$results = self::getWhere(sprintf("%s = %s AND %s IN (%s)",
 			self::OWNER_CONTEXT,
-			C4_ORMHelper::qstr($context),
+			Cerb_ORMHelper::qstr($context),
 			self::OWNER_CONTEXT_ID,
 			implode(',', $context_ids)
 		));
@@ -661,6 +696,10 @@ class Model_TriggerEvent {
 		}
 		
 		return $pass;
+	}
+	
+	function logUsage($runtime_ms) {
+		return DAO_TriggerEvent::logUsage($this->id, $runtime_ms);
 	}
 };
 

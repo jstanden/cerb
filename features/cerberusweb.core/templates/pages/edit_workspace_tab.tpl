@@ -57,6 +57,11 @@
 	{/foreach}
 	
 </fieldset>
+{else}
+	{$tab_extension = DevblocksPlatform::getExtension($workspace_tab->extension_id, true)}
+	{if $tab_extension && method_exists($tab_extension,'renderTabConfig')}
+		{$tab_extension->renderTabConfig($workspace_page, $workspace_tab)}
+	{/if}
 {/if}
 
 <fieldset class="delete" style="display:none;">

@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 /*
- * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
+ * IMPORTANT LICENSING NOTE from your friends on the Cerb Development Team
  *
  * Sure, it would be so easy to just cheat and edit this file to use the
  * software without paying for it.  But we trust you anyway.  In fact, we're
@@ -43,8 +43,8 @@
  * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
- * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
- *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
+ \* - Jeff Standen, Darren Sugita, Dan Hildebrandt
+ *	 Webgroup Media LLC - Developers of Cerb
  */
 class CerberusMail {
 	private function __construct() {}
@@ -91,7 +91,7 @@ class CerberusMail {
 		return $results;
 	}
 	
-	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null) {
+	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null, $custom_headers=array()) {
 		try {
 			$mail_service = DevblocksPlatform::getMailService();
 			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
@@ -120,9 +120,21 @@ class CerberusMail {
 			$mail->setSubject($subject);
 			$mail->generateId();
 			
+			// Headers
+			
 			$headers = $mail->getHeaders();
 			
-			$headers->addTextHeader('X-Mailer','Cerberus Helpdesk ' . APP_VERSION . ' (Build '.APP_BUILD.')');
+			$headers->addTextHeader('X-Mailer','Cerb ' . APP_VERSION . ' (Build '.APP_BUILD.')');
+			
+			if(is_array($custom_headers) && !empty($custom_headers))
+			foreach($custom_headers as $custom_header) {
+				@list($header_key, $header_val) = explode(':', $custom_header);
+				
+				if(!empty($header_key) && !empty($header_val))
+					$headers->addTextHeader(trim($header_key), trim($header_val));
+			}
+			
+			// Body
 			
 			$mail->setBody($body);
 		
@@ -248,7 +260,7 @@ class CerberusMail {
 			
 			$headers = $email->getHeaders();
 			
-			$headers->addTextHeader('X-Mailer','Cerberus Helpdesk ' . APP_VERSION . ' (Build '.APP_BUILD.')');
+			$headers->addTextHeader('X-Mailer','Cerb ' . APP_VERSION . ' (Build '.APP_BUILD.')');
 			
 			$email->setBody($content);
 			
@@ -411,6 +423,14 @@ class CerberusMail {
 			}
 		}
 
+		// Forwarded attachments
+		if(isset($properties['link_forward_files']) && !empty($properties['link_forward_files'])) {
+			// Attachments
+			if(is_array($forward_files) && !empty($forward_files)) {
+				DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $forward_files);
+			}
+		}
+		
 		// Finalize ticket
 		$fields = array(
 			DAO_Ticket::FIRST_MESSAGE_ID => $message_id,
@@ -462,6 +482,7 @@ class CerberusMail {
 		'cc'
 		'bcc'
 		'content'
+		'headers'
 		'files'
 		'closed'
 		'ticket_reopen'
@@ -534,7 +555,7 @@ class CerberusMail {
 			
 			$headers = $mail->getHeaders();
 			
-			$headers->addTextHeader('X-Mailer','Cerberus Helpdesk ' . APP_VERSION . ' (Build '.APP_BUILD.')');
+			$headers->addTextHeader('X-Mailer','Cerb ' . APP_VERSION . ' (Build '.APP_BUILD.')');
 	
 			// Subject
 			if(empty($subject)) $subject = $ticket->subject;
@@ -647,12 +668,24 @@ class CerberusMail {
 				}
 			}
 			
+			// Custom headers
+			
+			if(isset($properties['headers']) && is_array($properties['headers']))
+			foreach($properties['headers'] as $custom_header) {
+				@list($header_key, $header_val) = explode(':', $custom_header);
+				
+				if(!empty($header_key) && !empty($header_val)) {
+					$headers->addTextHeader(trim($header_key), trim($header_val));
+				}
+			}
+			
 			// Body
 			$mail->setBody($content);
 	
 			// Mime Attachments
 			if (is_array($files) && !empty($files)) {
-				foreach ($files['tmp_name'] as $idx => $file) {
+				if(isset($files['tmp_name']))
+				foreach($files['tmp_name'] as $idx => $file) {
 					if(empty($file) || empty($files['name'][$idx]))
 						continue;
 	
@@ -800,6 +833,7 @@ class CerberusMail {
 			// Attachments
 			if (is_array($files) && !empty($files)) {
 				reset($files);
+				if(isset($files['tmp_name']))
 				foreach ($files['tmp_name'] as $idx => $file) {
 					if(empty($file) || empty($files['name'][$idx]) || !file_exists($file))
 						continue;

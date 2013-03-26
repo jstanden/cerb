@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
- | Cerb(tm) developed by WebGroup Media, LLC.
+ | Cerb(tm) developed by Webgroup Media, LLC.
  |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2012, WebGroup Media LLC
+ | All source code & content (c) Copyright 2013, Webgroup Media LLC
  |   unless specifically noted otherwise.
  |
  | This source code is released under the Devblocks Public License.
@@ -643,16 +643,27 @@ abstract class C4_AbstractView {
 	}
 	
 	protected function _doSetCriteriaDate($field, $oper) {
-		@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','big bang');
-		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','now');
-
-		if(is_null($from) || (!is_numeric($from) && @false === strtotime(str_replace('.','-',$from))))
-			$from = 'big bang';
-			
-		if(is_null($to) || (!is_numeric($to) && @false === strtotime(str_replace('.','-',$to))))
-			$to = 'now';
+		switch($oper) {
+			default:
+			case DevblocksSearchCriteria::OPER_BETWEEN:
+			case DevblocksSearchCriteria::OPER_NOT_BETWEEN:
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','big bang');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','now');
 		
-		return new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				if(is_null($from) || (!is_numeric($from) && @false === strtotime(str_replace('.','-',$from))))
+					$from = 'big bang';
+					
+				if(is_null($to) || (!is_numeric($to) && @false === strtotime(str_replace('.','-',$to))))
+					$to = 'now';
+				
+				return new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				break;
+				
+			case DevblocksSearchCriteria::OPER_EQ_OR_NULL:
+				return new DevblocksSearchCriteria($field,$oper,0);
+				break;
+		}
+		
 	}
 	
 	protected function _doSetCriteriaWorker($field, $oper) {
@@ -932,7 +943,7 @@ abstract class C4_AbstractView {
 		return DAO_ViewFiltersPreset::getWhere(
 			sprintf("%s = %s AND %s = %d",
 				DAO_ViewFiltersPreset::VIEW_CLASS,
-				C4_ORMHelper::qstr(get_class($this)),
+				Cerb_ORMHelper::qstr(get_class($this)),
 				DAO_ViewFiltersPreset::WORKER_ID,
 				$active_worker->id
 			)

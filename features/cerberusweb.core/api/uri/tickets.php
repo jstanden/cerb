@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -345,7 +345,8 @@ class ChTicketsPage extends CerberusPageExtension {
 				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
 				DAO_Comment::CONTEXT_ID => $id,
 				DAO_Comment::COMMENT => $comment,
-				DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+				DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+				DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
 			);
 			$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
 		}
@@ -585,12 +586,10 @@ class ChTicketsPage extends CerberusPageExtension {
 			@$type_param = $piles_type_param[$idx];
 			@$val = $piles_value[$idx];
 			
-			/*
-			 * [TODO] [JAS]: Somewhere here we should be ignoring these values for a bit
-			 * so other options have a chance to bubble up
-			 */
 			if(empty($hash) || empty($moveto) || empty($type) || empty($val))
 				continue;
+			
+			$doActions = array();
 			
 			switch(strtolower(substr($moveto,0,1))) {
 				// Group/Bucket Move
@@ -617,7 +616,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					);
 					break;
 					
-				// Action
+				// Status
 				case 'a':
 					switch(strtolower(substr($moveto,1))) {
 						case 'c': // close
@@ -674,8 +673,21 @@ class ChTicketsPage extends CerberusPageExtension {
 					);
 					break;
 					
+					
+				// Actions
 				default:
-					$doActions = array();
+					switch($moveto) {
+						case 'merge':
+							$doActions = array(
+								'merge' => true,
+							);
+							break;
+							
+						default:
+							$doActions = array();
+							break;
+					}
+					
 					break;
 			}
 			
@@ -705,7 +717,8 @@ class ChTicketsPage extends CerberusPageExtension {
 				$doData = array($val);
 			}
 			
-			$view->doBulkUpdate($doType, $doTypeParam, $doData, $doActions, array());
+			if(!empty($doActions))
+				$view->doBulkUpdate($doType, $doTypeParam, $doData, $doActions, array());
 		}
 
 		$view->renderPage = 0; // Reset the paging since we may have reduced our list size
@@ -1232,11 +1245,14 @@ class ChTicketsPage extends CerberusPageExtension {
 		if($active_worker->hasPriv('core.ticket.view.actions.broadcast_reply')) {
 			@$do_broadcast = DevblocksPlatform::importGPC($_REQUEST['do_broadcast'],'string',null);
 			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
+			@$broadcast_file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['broadcast_file_ids'],'array',array()), 'integer', array('nonzero','unique'));
 			@$broadcast_is_queued = DevblocksPlatform::importGPC($_REQUEST['broadcast_is_queued'],'integer',0);
+			
 			if(0 != strlen($do_broadcast) && !empty($broadcast_message)) {
 				$do['broadcast'] = array(
 					'message' => $broadcast_message,
 					'is_queued' => $broadcast_is_queued,
+					'file_ids' => $broadcast_file_ids,
 					'worker_id' => $active_worker->id,
 				);
 			}

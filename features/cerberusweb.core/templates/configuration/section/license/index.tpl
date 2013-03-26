@@ -8,7 +8,7 @@
 		<span style="color:rgb(200,0,0);">No License (Evaluation Edition)</span><br>
 		<ul style="margin-top:0px;">
 			<li>Limited to 1 simultaneous worker.</li>
-			<li><a href="http://www.cerberusweb.com/buy" target="_blank">Purchase a Cerberus Helpdesk license</a></li>
+			<li><a href="http://www.cerberusweb.com/buy" target="_blank">Purchase a Cerb license</a></li>
 		</ul> 
 	{else}
 		{if $smarty.const.ONDEMAND_MODE}

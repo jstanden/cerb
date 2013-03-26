@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -24,7 +24,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 	 * @param integer $group_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($ticket_id=null) {
+	function generateSampleEventModel($ticket_id=null, $comment_id=null) {
 		if(empty($ticket_id)) {
 			// Pull the latest ticket
 			list($results) = DAO_Ticket::search(
@@ -45,11 +45,17 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			
 			$ticket_id = $result[SearchFields_Ticket::TICKET_ID];
 		}
+
+		// If this is the 'new comment on convo in group' event, simulate a comment
+		if(empty($comment_id) && get_class($this) == 'Event_CommentOnTicketInGroup') {
+			$comment_id = DAO_Comment::random();
+		}
 		
 		return new Model_DevblocksEvent(
 			$this->_event_id,
 			array(
 				'ticket_id' => $ticket_id,
+				'comment_id' => $comment_id,
 			)
 		);
 	}
@@ -94,19 +100,41 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		 * Group
 		 */
 		
-		$group_labels = array();
-		$group_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $group_labels, $group_values, null, true);
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $merge_token_labels, $merge_token_values, null, true);
 				
 			// Merge
 			CerberusContexts::merge(
 				'group_',
 				'',
-				$group_labels,
-				$group_values,
+				$merge_token_labels,
+				$merge_token_values,
 				$labels,
 				$values
 			);
+		
+		/**
+		 * Comment
+		 */
+			
+		@$comment_id = $event_model->params['comment_id'];
+
+		if(get_class($this) == 'Event_CommentOnTicketInGroup') {
+			$merge_token_labels = array();
+			$merge_token_values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_COMMENT, $comment_id, $merge_token_labels, $merge_token_values, null, true);
+				
+				// Merge
+				CerberusContexts::merge(
+					'comment_',
+					'',
+					$merge_token_labels,
+					$merge_token_values,
+					$labels,
+					$values
+				);
+		}
 		
 		/**
 		 * Return
@@ -211,6 +239,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			'ticket_initial_message_sender_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_initial_message_sender_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_initial_message_sender_is_banned' => Model_CustomField::TYPE_CHECKBOX,
+			'ticket_initial_message_sender_is_defunct' => Model_CustomField::TYPE_CHECKBOX,
 			'ticket_initial_message_sender_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_initial_message_sender_num_nonspam' => Model_CustomField::TYPE_NUMBER,
 			'ticket_initial_message_sender_num_spam' => Model_CustomField::TYPE_NUMBER,
@@ -233,6 +262,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			'ticket_latest_message_sender_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_latest_message_sender_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_latest_message_sender_is_banned' => Model_CustomField::TYPE_CHECKBOX,
+			'ticket_latest_message_sender_is_defunct' => Model_CustomField::TYPE_CHECKBOX,
 			'ticket_latest_message_sender_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_latest_message_sender_num_nonspam' => Model_CustomField::TYPE_NUMBER,
 			'ticket_latest_message_sender_num_spam' => Model_CustomField::TYPE_NUMBER,
@@ -304,6 +334,24 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			'ticket_org_watcher_count' => null,
 			'ticket_watcher_count' => null,
 		);
+		
+		if(get_class($this) == 'Event_CommentOnTicketInGroup') {
+			$types['comment_address_num_nonspam'] = Model_CustomField::TYPE_NUMBER;
+			$types['comment_address_num_spam'] = Model_CustomField::TYPE_NUMBER;
+			$types['comment_address_address'] = Model_CustomField::TYPE_SINGLE_LINE;
+			$types['comment_address_first_name'] = Model_CustomField::TYPE_SINGLE_LINE;
+			$types['comment_address_full_name'] = Model_CustomField::TYPE_SINGLE_LINE;
+			$types['comment_address_is_banned'] = Model_CustomField::TYPE_CHECKBOX;
+			$types['comment_address_is_defunct'] = Model_CustomField::TYPE_CHECKBOX;
+			$types['comment_address_last_name'] = Model_CustomField::TYPE_SINGLE_LINE;
+			$types['comment_address_updated'] = Model_CustomField::TYPE_DATE;
+			
+			$types['comment_address_org_created'] = Model_CustomField::TYPE_DATE;
+			$types['comment_address_org_name'] = Model_CustomField::TYPE_SINGLE_LINE;
+			
+			$types['comment_created|date'] = Model_CustomField::TYPE_DATE;
+			$types['comment_comment'] = Model_CustomField::TYPE_MULTI_LINE;
+		}
 		
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		return $conditions;
@@ -646,6 +694,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 	function getActionExtensions() {
 		$actions =
 			array(
+				'add_recipients' => array('label' =>'Add recipients'),
 				'add_watchers' => array('label' =>'Add watchers'),
 				'create_comment' => array('label' =>'Create a comment'),
 				'create_notification' => array('label' =>'Create a notification'),
@@ -657,6 +706,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				'schedule_email_recipients' => array('label' => 'Schedule email to recipients'),
 				'send_email' => array('label' => 'Send email'),
 				'send_email_recipients' => array('label' => 'Send email to recipients'),
+				'set_org' => array('label' =>'Set organization'),
 				'set_owner' => array('label' =>'Set owner'),
 				'set_reopen_date' => array('label' => 'Set reopen date'),
 				'set_spam_training' => array('label' => 'Set spam training'),
@@ -665,7 +715,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				'set_links' => array('label' => 'Set links'),
 				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
-			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_TICKET)
+			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
 			;
 		
 		return $actions;
@@ -682,6 +732,10 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
+			case 'add_recipients':
+				DevblocksEventHelper::renderActionAddRecipients($trigger);
+				break;
+				
 			case 'add_watchers':
 				DevblocksEventHelper::renderActionAddWatchers($trigger);
 				break;
@@ -753,6 +807,10 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				DevblocksEventHelper::renderActionScheduleTicketReply();
 				break;
 				
+			case 'set_org':
+				DevblocksEventHelper::renderActionSetTicketOrg($trigger);
+				break;
+				
 			case 'set_owner':
 				DevblocksEventHelper::renderActionSetTicketOwner($trigger);
 				break;
@@ -795,8 +853,8 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 				
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches)) {
+					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
 					DevblocksEventHelper::renderActionSetCustomField($custom_field);
 				}
@@ -816,6 +874,10 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
+			case 'add_recipients':
+				return DevblocksEventHelper::simulateActionAddRecipients($params, $dict, 'ticket_id');
+				break;
+				
 			case 'add_watchers':
 				return DevblocksEventHelper::simulateActionAddWatchers($params, $dict, 'ticket_id');
 				break;
@@ -856,8 +918,12 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionSendEmailRecipients($params, $dict);
 				break;
 				
+			case 'set_org':
+				return DevblocksEventHelper::simulateActionSetTicketOrg($params, $dict, 'ticket_id');
+				break;
+				
 			case 'set_owner':
-				//return DevblocksEventHelper::simulateActionSetTicketOwner($params, $dict);
+				return DevblocksEventHelper::simulateActionSetTicketOwner($params, $dict, 'ticket_id');
 				break;
 				
 			case 'set_reopen_date':
@@ -887,23 +953,8 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 				
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
-					$custom_field = DAO_CustomField::get($field_id);
-					$context = null;
-					$context_id = null;
-					
-					// If different types of custom fields, need to find the proper context_id
-					switch($custom_field->context) {
-						case CerberusContexts::CONTEXT_TICKET:
-							$context = $custom_field->context;
-							$context_id = $ticket_id;
-							break;
-					}
-					
-					if(!empty($context) && !empty($context_id))
-						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'ticket_custom', $params, $dict, $context, $context_id);
-				}
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token))
+					return DevblocksEventHelper::simulateActionSetCustomField($token, $params, $dict);
 				break;
 		}
 	}
@@ -916,6 +967,10 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
+			case 'add_recipients':
+				DevblocksEventHelper::runActionAddRecipients($params, $dict, 'ticket_id');
+				break;
+				
 			case 'add_watchers':
 				DevblocksEventHelper::runActionAddWatchers($params, $dict, 'ticket_id');
 				break;
@@ -967,6 +1022,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			case 'send_email_recipients':
 				// Translate message tokens
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
 				$content = $tpl_builder->build($params['content'], $dict);
 				
 				$properties = array(
@@ -976,14 +1032,29 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 					'worker_id' => 0, //$worker_id,
 				);
 				
+				// Headers
+
+				@$headers = $tpl_builder->build($params['headers'], $dict);
+
+				if(!empty($headers))
+					$properties['headers'] = DevblocksPlatform::parseCrlfString($headers);
+
+				// Options
+				
 				if(isset($params['is_autoreply']) && !empty($params['is_autoreply']))
 					$properties['is_autoreply'] = true;
+				
+				// Send
 				
 				CerberusMail::sendTicketMessage($properties);
 				break;
 				
+			case 'set_org':
+				DevblocksEventHelper::runActionSetTicketOrg($params, $dict, 'ticket_id', 'ticket_org_');
+				break;
+				
 			case 'set_owner':
-				DevblocksEventHelper::runActionSetTicketOwner($params, $dict, $ticket_id, 'ticket_owner_');
+				DevblocksEventHelper::runActionSetTicketOwner($params, $dict, 'ticket_id', 'ticket_owner_');
 				break;
 			
 			case 'set_reopen_date':
@@ -1154,23 +1225,8 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 				
 			default:
-				if('set_cf_' == substr($token,0,7)) {
-					$field_id = substr($token,7);
-					$custom_field = DAO_CustomField::get($field_id);
-					$context = null;
-					$context_id = null;
-					
-					// If different types of custom fields, need to find the proper context_id
-					switch($custom_field->context) {
-						case CerberusContexts::CONTEXT_TICKET:
-							$context = $custom_field->context;
-							$context_id = $ticket_id;
-							break;
-					}
-					
-					if(!empty($context) && !empty($context_id))
-						DevblocksEventHelper::runActionSetCustomField($custom_field, 'ticket_custom', $params, $dict, $context, $context_id);
-				}
+				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token))
+					return DevblocksEventHelper::runActionSetCustomField($token, $params, $dict);
 				break;
 		}
 	}

@@ -39,6 +39,7 @@ class DevblocksSearchCriteria {
 	const OPER_GTE = '>=';
 	const OPER_LTE = '<=';
 	const OPER_BETWEEN = 'between';
+	const OPER_NOT_BETWEEN = 'not between';
 	const OPER_TRUE = '1';
 	
 	const GROUP_OR = 'OR';
@@ -62,10 +63,6 @@ class DevblocksSearchCriteria {
 		$this->value = $value;
 	}
 	
-	/*
-	 * [TODO] [JAS] Having to pass $fields here is kind of silly, but I'm ignoring
-	 * for now since it's only called in 2 abstracted places.
-	 */
 	public function getWhereSQL($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$where = '';
@@ -328,6 +325,9 @@ class DevblocksSearchCriteria {
 			 * with the operator in other uses
 			 */
 			case DevblocksSearchCriteria::OPER_BETWEEN: // 'between'
+			case DevblocksSearchCriteria::OPER_NOT_BETWEEN: // 'not between'
+				$not = $this->operator == DevblocksSearchCriteria::OPER_NOT_BETWEEN ? true : false;
+				
 				if(!is_array($this->value) && 2 != count($this->value))
 					break;
 					
@@ -342,6 +342,7 @@ class DevblocksSearchCriteria {
 				}
 				
 				$to_date = $this->value[1];
+				
 				if(!is_numeric($to_date)) {
 					// Translate periods into dashes on string dates
 					if(false !== strpos($to_date,'.'))
@@ -352,15 +353,26 @@ class DevblocksSearchCriteria {
 				}
 				
 				if(0 == $from_date) {
-					$where = sprintf("(%s IS NULL OR %s BETWEEN %s and %s)",
-						$db_field_name,
-						$db_field_name,
-						$from_date,
-						$to_date
-					);
+					if($not) {
+						$where = sprintf("(%s IS NOT NULL AND %s NOT BETWEEN %s and %s)",
+							$db_field_name,
+							$db_field_name,
+							$from_date,
+							$to_date
+						);
+					} else {
+						$where = sprintf("(%s IS NULL OR %s BETWEEN %s and %s)",
+							$db_field_name,
+							$db_field_name,
+							$from_date,
+							$to_date
+						);
+						
+					}
 				} else {
-					$where = sprintf("%s BETWEEN %s and %s",
+					$where = sprintf("%s %sBETWEEN %s and %s",
 						$db_field_name,
+						($not ? 'NOT ' : ''),
 						$from_date,
 						$to_date
 					);

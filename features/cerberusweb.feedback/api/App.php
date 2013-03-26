@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 /*
- * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
+ * IMPORTANT LICENSING NOTE from your friends on the Cerb Development Team
  *
  * Sure, it would be so easy to just cheat and edit this file to use the
  * software without paying for it.  But we trust you anyway.  In fact, we're
@@ -43,11 +43,11 @@
  * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
- * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
- *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
+ \* - Jeff Standen, Darren Sugita, Dan Hildebrandt
+ *	 Webgroup Media LLC - Developers of Cerb
  */
 
-class DAO_FeedbackEntry extends C4_ORMHelper {
+class DAO_FeedbackEntry extends Cerb_ORMHelper {
 	const ID = 'id';
 	const LOG_DATE = 'log_date';
 	const WORKER_ID = 'worker_id';
@@ -405,7 +405,7 @@ class SearchFields_FeedbackEntry {
 };
 
 // [TODO] Rename this for consistency  -- View_
-class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subtotals {
+class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'feedback_entries';
 
 	function __construct() {
@@ -846,10 +846,6 @@ class ChFeedbackController extends DevblocksControllerExtension {
 			if(!empty($source_extension_id) && !empty($source_id))
 			switch($source_extension_id) {
 				case 'feedback.source.ticket':
-					// Create a ticket comment about the feedback (to prevent dupes)
-					if(null == ($worker_address = DAO_Address::lookupAddress($active_worker->email)))
-						break;
-						
 					$comment_text = sprintf(
 						"== Capture Feedback ==\n".
 						"Author: %s\n".
@@ -861,7 +857,8 @@ class ChFeedbackController extends DevblocksControllerExtension {
 						$quote
 					);
 					$fields = array(
-						DAO_Comment::ADDRESS_ID => $worker_address->id,
+						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+						DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
 						DAO_Comment::COMMENT => $comment_text,
 						DAO_Comment::CREATED => time(),
 						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,

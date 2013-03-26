@@ -32,7 +32,7 @@
 				{assign var=message value=$messages.$message_id}
 				<div id="{$message->id}t" style="background-color:rgb(255,255,255);">
 					{assign var=expanded value=false}
-					{if $expand_all || $latest_message_id==$message_id || isset($message_notes.$message_id)}{assign var=expanded value=true}{/if}
+					{if $expand_all || ($focus_ctx == CerberusContexts::CONTEXT_MESSAGE && $focus_ctx_id==$message_id) || $latest_message_id==$message_id || isset($message_notes.$message_id)}{assign var=expanded value=true}{/if}
 					{include file="devblocks:cerberusweb.core::display/modules/conversation/message.tpl" expanded=$expanded}
 				</div>
 				
@@ -61,6 +61,23 @@
 </div>
 
 <script type="text/javascript">
+	{if $focus_ctx && focus_ctx_id}
+	$(function() {
+		{if $focus_ctx == CerberusContexts::CONTEXT_COMMENT}
+		var $anchor = $('#comment{$focus_ctx_id}');
+		{elseif $focus_ctx == CerberusContexts::CONTEXT_MESSAGE}
+		var $anchor = $('#{$focus_ctx_id}t');
+		{/if}
+		
+		if($anchor.length > 0) {
+			var offset = $anchor.offset();
+			window.scrollTo(offset.left, offset.top);
+			
+			$anchor.find('> div.block').effect('highlight');
+		}
+	});
+	{/if}
+
 	$('#btnComment').click(function(event) {
 		$popup = genericAjaxPopup('peek', 'c=internal&a=commentShowPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id={$ticket->id}', null, false, '550');
 		$popup.one('comment_save', function(event) {
@@ -75,7 +92,7 @@
 		msgid = parseInt(msgid);
 		$div = $('#reply' + msgid);
 		
-		if(0 == $div.length)	
+		if(0 == $div.length)
 			return;
 		
 		is_forward = (null == is_forward || 0 == is_forward) ? 0 : 1;
@@ -93,18 +110,6 @@
 				$div.html(html);
 				
 				document.location = '#reply' + msgid;
-	
-				$frm_reply = $('#reply' + msgid + '_part2');
-				
-				if(0 != $frm_reply.length) {
-					if(!is_forward) {
-						$textarea = $div.find('textarea[name=content]');
-						$textarea.focus();
-						setElementSelRange($textarea.get(0), 0, 0);
-					} else {
-						$div.find('input:text[name=to]').focus();
-					}
-				}
 			}
 		);
 	}

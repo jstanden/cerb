@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -77,7 +77,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Expanded/Collapsed
 		if(empty($hide)) {
-			$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $message->ticket_id);
+			$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_MESSAGE, $message->id);
 			$message_notes = array();
 			// Index notes by message id
 			if(is_array($notes))
@@ -278,12 +278,19 @@ class ChDisplayPage extends CerberusPageExtension {
 		$worker = CerberusApplication::getActiveWorker();
 		
 		@$also_notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+
+		// Merge in ticket watchers
+		$also_notify_worker_ids = array_merge(
+			$also_notify_worker_ids,
+			array_keys(CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id))
+		);
 		
 		$fields = array(
 			DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_MESSAGE,
 			DAO_Comment::CONTEXT_ID => $id,
 			DAO_Comment::CREATED => time(),
-			DAO_Comment::ADDRESS_ID => $worker->getAddress()->id,
+			DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+			DAO_Comment::OWNER_CONTEXT_ID => $worker->id,
 			DAO_Comment::COMMENT => $content,
 		);
 		$note_id = DAO_Comment::create($fields, $also_notify_worker_ids);
@@ -423,9 +430,9 @@ class ChDisplayPage extends CerberusPageExtension {
 				DAO_MailQueue::WORKER_ID,
 				$active_worker->id,
 				DAO_MailQueue::TYPE,
-				C4_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_REPLY),
+				Cerb_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_REPLY),
 				DAO_MailQueue::TYPE,
-				C4_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_FORWARD),
+				Cerb_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_FORWARD),
 				DAO_MailQueue::ID,
 				$draft_id
 			));
@@ -490,6 +497,42 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 		
 		$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
+		
+		// VA macros
+		
+		$macros = DAO_TriggerEvent::getByOwners(
+			array(
+				array(CerberusContexts::CONTEXT_APPLICATION, null, null),
+				array(CerberusContexts::CONTEXT_GROUP, $ticket->group_id, $groups[$ticket->group_id]->name),
+				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id, null),
+			),
+			Event_MailDuringUiReplyByWorker::ID
+		);
+		$tpl->assign('macros', $macros);
+		
+		// VA behavior
+		
+		if(null != $active_worker) {
+			$actions = array();
+			
+			$macros = DAO_TriggerEvent::getByOwners(
+				array(
+					array(CerberusContexts::CONTEXT_APPLICATION, null, null),
+					array(CerberusContexts::CONTEXT_GROUP, $ticket->group_id, $groups[$ticket->group_id]->name),
+					array(CerberusContexts::CONTEXT_WORKER, $active_worker->id, null),
+				),
+				Event_MailBeforeUiReplyByWorker::ID
+			);
+			
+			foreach($macros as $macro)
+				Event_MailBeforeUiReplyByWorker::trigger($macro->id, $message->id, $actions);
+
+			if(isset($actions['jquery_scripts']) && is_array($actions['jquery_scripts'])) {
+				$tpl->assign('jquery_scripts', $actions['jquery_scripts']);
+			}
+		}
+		
+		// Display template
 		
 		$tpl->display('devblocks:cerberusweb.core::display/rpc/reply.tpl');
 	}
@@ -716,8 +759,97 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 	}
 	
+	function showMacroReplyPopupAction() {
+		@$macro_id = DevblocksPlatform::importGPC($_REQUEST['macro'],'integer',0);
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+		@$message_id = DevblocksPlatform::importGPC($_REQUEST['message_id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		try {
+			if(null == ($macro = DAO_TriggerEvent::get($macro_id)))
+				throw new Exception("Missing macro.");
+			
+			$tpl->assign('macro', $macro);
+			
+		} catch(Exception $e) {
+			DevblocksPlatform::redirectURL($return_url);
+			exit;
+		}
+			
+		$tpl->assign('ticket_id', $ticket_id);
+		$tpl->assign('message_id', $message_id);
+		
+		if(null == ($ctx = DevblocksPlatform::getExtension(CerberusContexts::CONTEXT_TICKET, true))) /* @var $ctx Extension_DevblocksContext */
+			return;
+
+		// Verify permission
+		$editable = $ctx->authorize($ticket_id, $active_worker);
+		
+		if(!$editable)
+			return;
+
+		$event = $macro->getEvent();
+		$conditions = $event->getConditions($macro);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/macros/reply/run_popup.tpl');
+	}
+	
+	function getMacroReplyAction() {
+		@$macro_id = DevblocksPlatform::importGPC($_REQUEST['macro'],'integer',0);
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+		@$message_id = DevblocksPlatform::importGPC($_REQUEST['message_id'],'integer',0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		try {
+			if(null == ($macro = DAO_TriggerEvent::get($macro_id)))
+				throw new Exception("Missing macro.");
+			
+		} catch(Exception $e) {
+			return;
+		}
+			
+		if(null == ($ctx = DevblocksPlatform::getExtension(CerberusContexts::CONTEXT_TICKET, true))) /* @var $ctx Extension_DevblocksContext */
+			return;
+
+		// Verify permission
+		$editable = $ctx->authorize($ticket_id, $active_worker);
+		
+		if(!$editable)
+			return;
+
+		$event = $macro->getEvent();
+		$conditions = $event->getConditions($macro);
+		
+		$actions = array();
+		
+		// Variables
+		@$var_keys = DevblocksPlatform::importGPC($_REQUEST['var_keys'],'array',array());
+		@$var_vals = DevblocksPlatform::importGPC($_REQUEST['var_vals'],'array',array());
+
+		// [TODO] Abstract this?
+		$vars = DAO_ContextScheduledBehavior::buildVariables($var_keys, $var_vals, $macro);
+		
+		Event_MailDuringUiReplyByWorker::trigger($macro_id, $message_id, $actions, $vars);
+
+		// [TODO] Move script block to template?
+		if(isset($actions['jquery_scripts'])) {
+			echo '<script type="text/javascript">';
+			echo '$("#reply' . $message_id . '_part1").closest("div.reply_frame").each(function(e) { try {';
+			echo implode("\n", $actions['jquery_scripts']);
+			echo ' } catch(e) {} });';
+			echo '</script>';
+		}
+		
+		exit;
+	}
+	
 	function showConversationAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+		@$focus_ctx = DevblocksPlatform::importGPC($_REQUEST['focus_ctx'],'string','');
+		@$focus_ctx_id = DevblocksPlatform::importGPC($_REQUEST['focus_ctx_id'],'integer','0');
 		@$expand_all = DevblocksPlatform::importGPC($_REQUEST['expand_all'],'integer','0');
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
 
@@ -730,6 +862,8 @@ class ChDisplayPage extends CerberusPageExtension {
 			$visit->set($point, 'conversation');
 				
 		$tpl->assign('expand_all', $expand_all);
+		$tpl->assign('focus_ctx', $focus_ctx);
+		$tpl->assign('focus_ctx_id', $focus_ctx_id);
 		
 		$ticket = DAO_Ticket::get($id);
 		$tpl->assign('ticket', $ticket);
@@ -740,9 +874,9 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_MailQueue::TICKET_ID,
 			$id,
 			DAO_MailQueue::TYPE,
-			C4_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_REPLY),
+			Cerb_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_REPLY),
 			DAO_MailQueue::TYPE,
-			C4_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_FORWARD)
+			Cerb_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_FORWARD)
 		));
 		
 		if(!empty($drafts))

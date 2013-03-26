@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -647,6 +647,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			case 'send_email_recipients':
 				// Translate message tokens
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				
 				$content = $tpl_builder->build($params['content'], $dict);
 				
 				$properties = array(
@@ -655,6 +656,16 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 					'content' => $content,
 					'worker_id' => 0,
 				);
+				
+				// Headers
+
+				@$headers = $tpl_builder->build($params['headers'], $dict);
+
+				if(!empty($headers))
+					$properties['headers'] = DevblocksPlatform::parseCrlfString($headers);
+
+				// Send
+				
 				CerberusMail::sendTicketMessage($properties);
 				break;
 				

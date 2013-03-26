@@ -60,38 +60,61 @@
 	<label><input type="checkbox" name="do_broadcast" id="chkMassReply" onclick="$('#bulkAddyBroadcast').toggle();"> {'common.enabled'|devblocks_translate|capitalize}</label>
 
 	<blockquote id="bulkAddyBroadcast" style="display:none;margin:10px;">
-		<b>From:</b> <br>
-		<select name="broadcast_group_id">
-			{foreach from=$groups item=group key=group_id}
-			{if $active_worker_memberships.$group_id}
-			<option value="{$group->id}">{$group->name}</option>
-			{/if}
-			{/foreach}
-		</select>
-		<br>
-		<b>Subject:</b> <br>
-		<input type="text" name="broadcast_subject" value="" style="width:100%;"><br>
-		<b>Compose:</b> {*[<a href="#">syntax</a>]*}<br>
-		<textarea name="broadcast_message" style="width:100%;height:200px;"></textarea>
-		<br>
-		<button type="button" onclick="ajax.chooserSnippet('snippets',$('#bulkAddyBroadcast textarea[name=broadcast_message]'), { '{CerberusContexts::CONTEXT_ADDRESS}':'', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
-		<button type="button" onclick="genericAjaxPost('formBatchUpdate','bulkAddyBroadcastTest','c=contacts&a=doAddressBulkUpdateBroadcastTest');"><span class="cerb-sprite2 sprite-gear"></span> Test</button><!--
-		--><select class="insert-placeholders">
-			<option value="">-- insert at cursor --</option>
-			{foreach from=$token_labels key=k item=v}
-			<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
-			{/foreach}
-		</select>
-		<br>
-		<div id="bulkAddyBroadcastTest"></div>
-		<b>{$translate->_('common.options')|capitalize}:</b> 
-		<label><input type="radio" name="broadcast_is_queued" value="0" checked="checked"> Save as drafts</label>
-		<label><input type="radio" name="broadcast_is_queued" value="1"> Send now</label>
-		<br>
-		<b>{$translate->_('common.status')|capitalize}:</b> 
-		<label><input type="radio" name="broadcast_next_is_closed" value="0"> {$translate->_('status.open')|capitalize}</label>
-		<label><input type="radio" name="broadcast_next_is_closed" value="2" checked="checked"> {$translate->_('status.waiting')|capitalize}</label>
-		<label><input type="radio" name="broadcast_next_is_closed" value="1"> {$translate->_('status.closed')|capitalize}</label>
+		<b>From:</b>
+		
+		<div style="margin:0px 0px 5px 10px;">
+			<select name="broadcast_group_id">
+				{foreach from=$groups item=group key=group_id}
+				{if $active_worker_memberships.$group_id}
+				<option value="{$group->id}">{$group->name}</option>
+				{/if}
+				{/foreach}
+			</select>
+		</div>
+		
+		<b>Subject:</b>
+		
+		<div style="margin:0px 0px 5px 10px;">
+			<input type="text" name="broadcast_subject" value="" style="width:100%;">
+		</div>
+		
+		<b>Compose:</b> {*[<a href="#">syntax</a>]*}
+		
+		<div style="margin:0px 0px 5px 10px;">
+			<textarea name="broadcast_message" style="width:100%;height:200px;"></textarea>
+			<br>
+			<button type="button" onclick="ajax.chooserSnippet('snippets',$('#bulkAddyBroadcast textarea[name=broadcast_message]'), { '{CerberusContexts::CONTEXT_ADDRESS}':'', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
+			<button type="button" onclick="genericAjaxPost('formBatchUpdate','bulkAddyBroadcastTest','c=contacts&a=doAddressBulkUpdateBroadcastTest');"><span class="cerb-sprite2 sprite-gear"></span> Test</button><!--
+			--><select class="insert-placeholders">
+				<option value="">-- insert at cursor --</option>
+				{foreach from=$token_labels key=k item=v}
+				<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
+				{/foreach}
+			</select>
+			<br>
+			<div id="bulkAddyBroadcastTest"></div>
+		</div>
+		
+		<b>{'common.attachments'|devblocks_translate|capitalize}:</b>
+		
+		<div style="margin:0px 0px 5px 10px;">
+			<button type="button" class="chooser_file"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+			<ul class="bubbles chooser-container">
+		</div>
+		
+		<b>{$translate->_('common.status')|capitalize}:</b>
+		<div style="margin:0px 0px 5px 10px;"> 
+			<label><input type="radio" name="broadcast_next_is_closed" value="0"> {$translate->_('status.open')|capitalize}</label>
+			<label><input type="radio" name="broadcast_next_is_closed" value="2" checked="checked"> {$translate->_('status.waiting')|capitalize}</label>
+			<label><input type="radio" name="broadcast_next_is_closed" value="1"> {$translate->_('status.closed')|capitalize}</label>
+		</div>
+		
+		<b>{$translate->_('common.options')|capitalize}:</b>
+		
+		<div style="margin:0px 0px 5px 10px;"> 
+			<label><input type="radio" name="broadcast_is_queued" value="0" checked="checked"> Save as drafts</label>
+			<label><input type="radio" name="broadcast_is_queued" value="1"> Send now</label>
+		</div>
 	</blockquote>
 </fieldset>
 {/if}
@@ -122,6 +145,10 @@
 			$textarea.insertAtCursor($val).focus();
 			
 			$select.val('');
+		});
+		
+		$this.find('button.chooser_file').each(function() {
+			ajax.chooserFile(this,'broadcast_file_ids');
 		});
 	});
 </script>

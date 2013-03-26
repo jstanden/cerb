@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_ContextActivityLog extends C4_ORMHelper {
+class DAO_ContextActivityLog extends Cerb_ORMHelper {
 	const ID = 'id';
 	const ACTIVITY_POINT = 'activity_point';
 	const ACTOR_CONTEXT = 'actor_context';
@@ -191,6 +191,7 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 		$args = array(
 			'join_sql' => &$join_sql,
 			'where_sql' => &$where_sql,
+			'tables' => &$tables,
 			'has_multiple_values' => &$has_multiple_values
 		);
 		
@@ -239,14 +240,14 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 						if(!empty($context_id)) {
 							$wheres[] = sprintf("(%s = %s AND %s_id = %d)",
 								$context_field,
-								C4_ORMHelper::qstr($context),
+								Cerb_ORMHelper::qstr($context),
 								$context_field,
 								$context_id
 							);
 						} else {
 							$wheres[] = sprintf("(%s = %s)",
 								$context_field,
-								C4_ORMHelper::qstr($context)
+								Cerb_ORMHelper::qstr($context)
 							);
 						}
 					}

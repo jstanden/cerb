@@ -36,10 +36,11 @@ class DevblocksEventHelper {
 	/*
 	 * Action: Custom Fields
 	 */
-	private static function _getCustomFieldValuesFromParams($params) {
+	public static function getCustomFieldValuesFromParams($params) {
 		$custom_fields = DAO_CustomField::getAll();
 		$custom_field_values = array();
 		
+		if(is_array($params))
 		foreach($params as $key => $val) {
 			if(substr($key,0,6) == 'field_') {
 				$cf_id = substr($key, 6);
@@ -62,16 +63,23 @@ class DevblocksEventHelper {
 		return $custom_field_values;
 	}
 	
-	static function getActionCustomFields($context) {
+	static function getActionCustomFieldsFromLabels($labels) {
 		$actions = array();
+		$custom_fields = DAO_CustomField::getAll();
 		
 		// Set custom fields
-		$custom_fields = DAO_CustomField::getByContext($context);
-		foreach($custom_fields as $field_id => $field) {
-			$actions['set_cf_' . $field_id] = array(
-				'label' => 'Set ' . mb_convert_case($field->name, MB_CASE_LOWER),
-				'type' => $field->type,
-			);
+		foreach($labels as $key => $label) {
+			if(preg_match('#(.*?)_custom_([0-9]+)#', $key, $matches)) {
+				if(!isset($matches[2]) || !isset($custom_fields[$matches[2]]))
+					continue;
+				
+				$field = $custom_fields[$matches[2]];
+				
+				$actions[sprintf("set_cf_%s", $key)] = array(
+					'label' => 'Set ' . mb_convert_case($label, MB_CASE_LOWER),
+					'type' => $field->type,
+				);
+			}
 		}
 		
 		return $actions;
@@ -226,8 +234,19 @@ class DevblocksEventHelper {
 		return $out;
 	}
 	
-	static function simulateActionSetCustomField(Model_CustomField $custom_field, $value_key, $params, DevblocksDictionaryDelegate $dict, $context, $context_id) {
-		@$field_id = $custom_field->id;
+	static function simulateActionSetCustomField($token, $params, DevblocksDictionaryDelegate $dict) {
+		if(!preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches))
+			return;
+		
+		$custom_key = $matches[1];
+		$field_id = $matches[2];
+		
+		if(null == ($custom_field = DAO_CustomField::get($field_id)))
+			return;
+
+		$context = $custom_field->context;
+		$custom_key_id = $custom_key . '_id';
+		$context_id = $dict->$custom_key_id;
 		
 		if(empty($field_id) || empty($context) || empty($context_id))
 			return;
@@ -348,10 +367,20 @@ class DevblocksEventHelper {
 		return $out;
 	}
 	
-	static function runActionSetCustomField(Model_CustomField $custom_field, $value_key, $params, DevblocksDictionaryDelegate $dict, $context, $context_id) {
-		@$field_id = $custom_field->id;
+	static function runActionSetCustomField($token, $params, DevblocksDictionaryDelegate $dict) {
+		if(!preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches))
+			return;
 		
-		// [TODO] Log
+		$custom_key = $matches[1];
+		$field_id = $matches[2];
+		
+		if(null == ($custom_field = DAO_CustomField::get($field_id)))
+			return;
+
+		$context = $custom_field->context;
+		$custom_key_id = $custom_key . '_id';
+		$context_id = $dict->$custom_key_id;
+		
 		if(empty($field_id) || empty($context) || empty($context_id))
 			return;
 		
@@ -1235,7 +1264,7 @@ class DevblocksEventHelper {
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
 
 		// Event
-		$trigger = $dict->_trigger;
+		$trigger = $dict->_trigger; /* @var $trigger Model_TriggerEvent */
 		$event = $trigger->getEvent();
 		
 		// Translate message tokens
@@ -1245,7 +1274,8 @@ class DevblocksEventHelper {
 		// Fields
 		
 		$fields = array(
-			DAO_Comment::ADDRESS_ID => 0,
+			DAO_Comment::OWNER_CONTEXT => $trigger->owner_context,
+			DAO_Comment::OWNER_CONTEXT_ID => $trigger->owner_context_id,
 			DAO_Comment::CREATED => time(),
 			DAO_Comment::COMMENT => $content,
 		);
@@ -1301,6 +1331,157 @@ class DevblocksEventHelper {
 		);
 		$queue_id = DAO_MailQueue::create($fields);
 	}
+
+	/*
+	 * Action: Set Ticket Org
+	 */
+	
+	static function renderActionSetTicketOrg($trigger) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$event = $trigger->getEvent();
+		
+		$values_to_contexts = $event->getValuesContexts($trigger);
+		
+		// Only keep address and ticket contexts
+		if(is_array($values_to_contexts))
+		foreach($values_to_contexts as $value_key => $value_data) {
+			if(!isset($value_data['context'])
+				|| !in_array($value_data['context'], array(CerberusContexts::CONTEXT_ADDRESS, CerberusContexts::CONTEXT_TICKET)))
+					unset($values_to_contexts[$value_key]);
+		}
+		
+		$tpl->assign('values_to_contexts', $values_to_contexts);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_org.tpl');
+	}
+	
+	static function simulateActionSetTicketOrg($params, DevblocksDictionaryDelegate $dict, $default_on) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		@$org = trim(
+			$tpl_builder->build(
+				DevblocksPlatform::importVar($params['org'], 'string', ''),
+				$dict
+			)
+		);
+		
+		// Org
+		
+		$out = ">>> Setting organization:\n";
+		
+		if(empty($org)) {
+			$out .= " * No org is being set. Skipping...";
+			return $out;
+		}
+		
+		$out .= $org ."\n";
+		
+		// Event
+
+		$trigger = $dict->_trigger; /* @var $trigger Model_TriggerEvent */
+		$event = $trigger->getEvent();
+		
+		// On
+		
+		@$on = DevblocksPlatform::importVar($params['on'], 'string', $default_on);
+
+		$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
+		@$on_objects = $on_result['objects'];
+		
+		if(is_array($on_objects)) {
+			$out .= "\n>>> On:\n";
+			
+			foreach($on_objects as $on_object) {
+				$on_object_context = Extension_DevblocksContext::get($on_object->_context);
+				$out .= ' * (' . $on_object_context->manifest->name . ') ' . @$on_object->_label . "\n";
+			}
+			$out .= "\n";
+		}
+		
+		return $out;
+	}
+	
+	static function runActionSetTicketOrg($params, DevblocksDictionaryDelegate $dict, $ticket_id, $values_prefix) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		@$org = trim(
+			$tpl_builder->build(
+				DevblocksPlatform::importVar($params['org'], 'string', ''),
+				$dict
+			)
+		);
+
+		// Event
+
+		$trigger = $dict->_trigger; /* @var $trigger Model_TriggerEvent */
+		$event = $trigger->getEvent();
+
+		// Pull org record
+		
+		if(null == ($org_id = DAO_ContactOrg::lookup($org, true)) || empty($org_id)) {
+			return;
+		}
+		
+		// On:
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string',$default_on);
+		
+		$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
+		@$on_objects = $on_result['objects'];
+		
+		if(is_array($on_objects)) {
+			foreach($on_objects as $on_object) {
+				switch($on_object->_context) {
+					case CerberusContexts::CONTEXT_ADDRESS:
+						DAO_Address::update($on_object->id, array(
+							DAO_Address::CONTACT_ORG_ID => $org_id,
+						));
+						break;
+						
+					case CerberusContexts::CONTEXT_TICKET:
+						DAO_Ticket::update($on_object->id, array(
+							DAO_Ticket::ORG_ID => $org_id,
+						));
+						break;
+				}
+			}
+		}
+		
+		/**
+		 * Re-update org values
+		 */
+		// [TODO] Redo with DevblocksDictionaryDelegate
+		/*
+		$worker_labels = array();
+		$worker_values = array();
+		$labels = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $owner_id, $worker_labels, $worker_values, NULL, true);
+				
+			// Clear dupe content
+			CerberusContexts::scrubTokensWithRegexp(
+				$worker_labels,
+				$worker_values,
+				array(
+					"#^address_org_#",
+				)
+			);
+		
+			// Merge
+			CerberusContexts::merge(
+				$values_prefix,
+				'',
+				$worker_labels,
+				$worker_values,
+				$labels,
+				$values
+			);
+		*/
+	}
+	
+	/*
+	 * Action: Set Ticket Owner
+	 */
 	
 	static function renderActionSetTicketOwner() {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1309,18 +1490,44 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_worker.tpl');
 	}
 	
-	static function runActionSetTicketOwner($params, DevblocksDictionaryDelegate $dict, $ticket_id, $values_prefix) {
+	static function simulateActionSetTicketOwner($params, DevblocksDictionaryDelegate $dict, $default_on) {
+		@$owner_id = intval($params['worker_id']);
+		@$ticket_id = $dict->$default_on;
+		
+		if(empty($ticket_id))
+			return;
+		
+		$out = ">>> Setting owner to:\n";
+
+		if(empty($owner_id)) {
+			$out .= "(nobody)\n";
+			
+		} else {
+			if(null != ($owner_model = DAO_Worker::get($owner_id))) {
+				$out .= $owner_model->getName() . "\n";
+			}
+		}
+		
+		return $out;
+	}
+	
+	static function runActionSetTicketOwner($params, DevblocksDictionaryDelegate $dict, $default_on, $values_prefix) {
 		@$owner_id = $params['worker_id'];
+		@$ticket_id = $dict->$default_on;
+		
+		if(empty($ticket_id))
+			return;
 		
 		// Variable?
 		if(substr($owner_id,0,4) == 'var_') {
 			@$owner_id = intval($dict->$owner_id);
 		}
 		
-		$fields = array(
-			DAO_Ticket::OWNER_ID => $owner_id,
-		);
-		DAO_Ticket::update($ticket_id, $fields);
+		if(empty($owner_id) || null != ($owner_model = DAO_Worker::get($owner_id))) {
+			DAO_Ticket::update($ticket_id, array(
+				DAO_Ticket::OWNER_ID => $owner_id,
+			));
+		}
 		
 		/**
 		 * Re-update owner values
@@ -1352,6 +1559,84 @@ class DevblocksEventHelper {
 			);
 		*/
 	}
+
+	/*
+	 * Action: Add Recipients
+	 */
+	
+	static function renderActionAddRecipients($trigger) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('workers', DAO_Worker::getAllActive());
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_add_emails.tpl');
+	}
+
+	static function simulateActionAddRecipients($params, DevblocksDictionaryDelegate $dict, $default_on) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		@$recipients = DevblocksPlatform::parseCsvString(
+			$tpl_builder->build(
+				DevblocksPlatform::importVar($params['recipients'],'string',''),
+				$dict
+			)
+		);
+		
+		// Event
+		
+		$trigger = $dict->_trigger;
+		$event = $trigger->getEvent();
+		
+		// Recipients
+		
+		$out = ">>> Adding recipients:\n";
+		
+		if(!is_array($recipients) || empty($recipients)) {
+			$out .= " * No recipients are being set. Skipping...";
+			return $out;
+		}
+		
+		// Iterate addys
+			
+		foreach($recipients as $addy) {
+			if(null != ($addy_model = DAO_Address::lookupAddress($addy, true))) {
+				$out .= " * " . $addy_model->email . "\n";
+			}
+		}
+		
+		return $out;
+	}
+	
+	static function runActionAddRecipients($params, DevblocksDictionaryDelegate $dict, $default_on) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		@$recipients = DevblocksPlatform::parseCsvString(
+			$tpl_builder->build(
+				DevblocksPlatform::importVar($params['recipients'],'string',''),
+				$dict
+			)
+		);
+
+		if(!is_array($recipients) || empty($recipients))
+			return;
+		
+		// Event
+		
+		$trigger = $dict->_trigger;
+		$event = $trigger->getEvent();
+		
+		// Action
+		
+		$ticket_id = $dict->$default_on;
+		
+		if(is_array($recipients))
+		foreach($recipients as $addy) {
+			DAO_Ticket::createRequester($addy, $ticket_id);
+		}
+	}
+	
+	/*
+	 * Action: Add Watchers
+	 */
 	
 	static function renderActionAddWatchers($trigger) {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1603,7 +1888,7 @@ class DevblocksEventHelper {
 
 		if(false != ($params = $tpl->getVariable('params'))) {
 			$params = $params->value;
-			$custom_field_values = self::_getCustomFieldValuesFromParams($params);
+			$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 			$tpl->assign('custom_field_values', $custom_field_values);
 		}
 		
@@ -1634,7 +1919,7 @@ class DevblocksEventHelper {
 		);
 
 		$custom_fields = DAO_CustomField::getAll();
-		$custom_field_values = self::_getCustomFieldValuesFromParams($params);
+		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 		
 		foreach($custom_field_values as $cf_id => $val) {
 			if(!isset($custom_fields[$cf_id]))
@@ -1750,7 +2035,7 @@ class DevblocksEventHelper {
 					$task_id = DAO_Task::create($fields);
 					
 					// Custom fields
-					$custom_field_values = self::_getCustomFieldValuesFromParams($params);
+					$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 					
 					if(is_array($custom_field_values))
 					foreach($custom_field_values as $cf_id => $val) {
@@ -1768,7 +2053,8 @@ class DevblocksEventHelper {
 					// Comment content
 					if(!empty($comment)) {
 						$fields = array(
-							DAO_Comment::ADDRESS_ID => 0,
+							DAO_Comment::OWNER_CONTEXT => $trigger->owner_context,
+							DAO_Comment::OWNER_CONTEXT_ID => $trigger->owner_context_id,
 							DAO_Comment::COMMENT => $comment,
 							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
 							DAO_Comment::CONTEXT_ID => $task_id,
@@ -1804,7 +2090,7 @@ class DevblocksEventHelper {
 
 		if(false != ($params = $tpl->getVariable('params'))) {
 			$params = $params->value;
-			$custom_field_values = self::_getCustomFieldValuesFromParams($params);
+			$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 			$tpl->assign('custom_field_values', $custom_field_values);
 		}
 		
@@ -1841,7 +2127,7 @@ class DevblocksEventHelper {
 		// Custom fields
 		
 		$custom_fields = DAO_CustomField::getAll();
-		$custom_field_values = self::_getCustomFieldValuesFromParams($params);
+		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 		
 		foreach($custom_field_values as $cf_id => $val) {
 			if(!isset($custom_fields[$cf_id]))
@@ -1969,7 +2255,7 @@ class DevblocksEventHelper {
 		CerberusMail::sendTicketMessage($properties);
 		
 		// Custom fields
-		$custom_field_values = self::_getCustomFieldValuesFromParams($params);
+		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 		
 		if(is_array($custom_field_values))
 		foreach($custom_field_values as $cf_id => $val) {
@@ -2096,11 +2382,17 @@ class DevblocksEventHelper {
 		
 		$to = array_unique($to);
 		
-		if(false == ($subject = $tpl_builder->build($params['subject'], $dict))) {
+		if(false === ($subject = $tpl_builder->build($params['subject'], $dict))) {
 			return "[ERROR] The 'subject' field has invalid placeholders.";
 		}
 		
-		if(false == ($content = $tpl_builder->build($params['content'], $dict))) {
+		if(false === ($headers_string = $tpl_builder->build($params['headers'], $dict))) {
+			return "[ERROR] The 'headers' field has invalid placeholders.";
+		}
+		
+		$headers = DevblocksPlatform::parseCrlfString($headers_string);
+		
+		if(false === ($content = $tpl_builder->build($params['content'], $dict))) {
 			return "[ERROR] The 'content' field has invalid placeholders.";
 		}
 		
@@ -2108,11 +2400,13 @@ class DevblocksEventHelper {
 			"To: %s\n".
 			"From: %s\n".
 			"Subject: %s\n".
+			"%s".
 			"\n".
 			"%s\n",
 			implode(",\n  ", $to),
 			$replyto_addresses[$from_address_id]->email,
 			$subject,
+			(!empty($headers) ? (implode("\n", $headers) . "\n") : ''),
 			$content
 		);
 		
@@ -2155,10 +2449,9 @@ class DevblocksEventHelper {
 		
 		if(empty($from_address_id))
 			$from_address_id = $replyto_default->address_id;
-
+		
 		if(!isset($replyto_addresses[$from_address_id]))
 			return;
-		
 		
 		// To
 		
@@ -2194,12 +2487,20 @@ class DevblocksEventHelper {
 		$subject = $tpl_builder->build($params['subject'], $dict);
 		$content = $tpl_builder->build($params['content'], $dict);
 
+		// Headers
+		
+		@$headers_string = $tpl_builder->build($params['headers'], $dict);
+		@$headers = DevblocksPlatform::parseCrlfString($headers_string);
+		
+		// Send
+		
 		CerberusMail::quickSend(
 			implode(', ', $to),
 			$subject,
 			$content,
 			$replyto_addresses[$from_address_id]->email,
-			$replyto_addresses[$from_address_id]->reply_personal
+			$replyto_addresses[$from_address_id]->reply_personal,
+			$headers
 		);
 	}
 	
@@ -2209,10 +2510,24 @@ class DevblocksEventHelper {
 
 	static function simulateActionSendEmailRecipients($params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		// Headers
+		
+		if(false === ($headers_string = $tpl_builder->build($params['headers'], $dict)))
+			return "[ERROR] The 'headers' field has invalid placeholders.";
+		
+		$headers = DevblocksPlatform::parseCrlfString($headers_string);
+		
+		// Content
+		
 		$content = $tpl_builder->build($params['content'], $dict);
 
+		// Out
+		
 		$out = sprintf(">>> Sending email to recipients\n".
+			"%s".
 			"%s\n",
+			(!empty($headers) ? (implode("\n", $headers) . "\n\n") : ''),
 			$content
 		);
 

@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -63,8 +63,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		if(empty($selected_tab))
 			$selected_tab = 'conversation';
 		
-		$tpl->assign('selected_tab', $selected_tab);
-		
 		switch($selected_tab) {
 			case 'conversation':
 				@$mail_always_show_all = DAO_WorkerPref::get($active_worker->id,'mail_always_show_all',0);
@@ -74,7 +72,31 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 					$tpl->assign('expand_all', true);
 				}
 				break;
+				
+			case 'comment':
+				@$focus_id = intval(array_shift($stack));
+				$selected_tab = 'conversation';
+				
+				if(!empty($focus_id)) {
+					$tpl->assign('convo_focus_ctx', CerberusContexts::CONTEXT_COMMENT);
+					$tpl->assign('convo_focus_ctx_id', $focus_id);
+				}
+				
+				break;
+				
+			case 'message':
+				@$focus_id = intval(array_shift($stack));
+				$selected_tab = 'conversation';
+				
+				if(!empty($focus_id)) {
+					$tpl->assign('convo_focus_ctx', CerberusContexts::CONTEXT_MESSAGE);
+					$tpl->assign('convo_focus_ctx_id', $focus_id);
+				}
+				
+				break;
 		}
+		
+		$tpl->assign('selected_tab', $selected_tab);
 		
 		// Trigger ticket view event
 		Event_TicketViewedByWorker::trigger($ticket->id, $active_worker->id);
@@ -183,6 +205,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$tpl->assign('workers', DAO_Worker::getAll());
 		
 		// Watchers
+		// [TODO] Is this necessary or redundant?
 		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
 		$tpl->assign('context_watchers', $context_watchers);
 		

@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -377,6 +377,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				'line' => $parts,
 				'fields' => $field,
 				'columns' => $column,
+				'virtual_fields' => array(),
 			);
 			
 			$fields = array();
@@ -405,12 +406,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(0 == strlen($val))
 					continue;
 				
-				// Are we setting a custom field?
-				$cf_id = null;
-				if('cf_' == substr($key,0,3)) {
-					$cf_id = substr($key,3);
-				}
-
 				// What type of field is this?
 				$type = $keys[$key]['type'];
 				$value = null;
@@ -513,10 +508,23 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(!is_null($value)) {
 					$val = $value;
 					
-					if(is_null($cf_id)) {
-						$fields[$key] = $value;
+					// Are we setting a custom field?
+					$cf_id = null;
+					if('cf_' == substr($key,0,3)) {
+						$cf_id = substr($key,3);
+					}
+					
+					// Is this a virtual field?
+					if(substr($key,0,1) == '_') {
+						$meta['virtual_fields'][$key] = $value;
+						
+					// ...or is it a normal DAO field?
 					} else {
-						$custom_fields[$cf_id] = $value;
+						if(is_null($cf_id)) {
+							$fields[$key] = $value;
+						} else {
+							$custom_fields[$cf_id] = $value;
+						}
 					}
 				}
 				
@@ -725,31 +733,44 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 
 	function chooserOpenFileUploadAction() {
-		@$file = $_FILES['file_data'];
+		@$files = $_FILES['file_data'];
+		$results = array();
 
-		// [TODO] Return false in JSON if file is empty, etc.
-
-		// Create a record w/ timestamp + ID
-		$fields = array(
-			DAO_Attachment::DISPLAY_NAME => $file['name'],
-			DAO_Attachment::MIME_TYPE => $file['type'],
-		);
-		$file_id = DAO_Attachment::create($fields);
-
-		// Save the file
-		if(null !== ($fp = fopen($file['tmp_name'], 'rb'))) {
-			Storage_Attachments::put($file_id, $fp);
-			fclose($fp);
-			unlink($file['tmp_name']);
+		if(is_array($files) && isset($files['tmp_name']))
+		foreach(array_keys($files['tmp_name']) as $file_idx) {
+			$file_name = $files['name'][$file_idx];
+			$file_type = $files['type'][$file_idx];
+			$file_size = $files['size'][$file_idx];
+			$file_tmp_name = $files['tmp_name'][$file_idx];
+		
+			if(empty($file_tmp_name) || empty($file_name))
+				continue;
+			
+			// Create a record w/ timestamp + ID
+			$fields = array(
+				DAO_Attachment::DISPLAY_NAME => $file_name,
+				DAO_Attachment::MIME_TYPE => $file_type,
+			);
+			$file_id = DAO_Attachment::create($fields);
+	
+			// Save the file
+			if(null !== ($fp = fopen($file_tmp_name, 'rb'))) {
+				Storage_Attachments::put($file_id, $fp);
+				fclose($fp);
+				unlink($file_tmp_name);
+				
+				$results[] = array(
+					'id' => $file_id,
+					'name' => $file_name,
+					'type' => $file_type,
+					'size' => $file_size,
+				);
+			}
 		}
 
 		// [TODO] Unlinked records should expire
 
-		echo json_encode(array(
-			'name' => $file['name'],
-			'size' => $file['size'],
-			'id' => $file_id,
-		));
+		echo json_encode($results);
 	}
 
 	function contextAddLinksJsonAction() {
@@ -979,12 +1000,12 @@ class ChInternalController extends DevblocksControllerExtension {
 				list($results, $null) = DAO_Snippet::search(
 					array(
 						SearchFields_Snippet::TITLE,
-						SearchFields_Snippet::USAGE_HITS,
+						SearchFields_Snippet::USE_HISTORY_MINE,
 					),
 					$params,
 					25,
 					0,
-					SearchFields_Snippet::USAGE_HITS,
+					SearchFields_Snippet::USE_HISTORY_MINE,
 					false,
 					false
 				);
@@ -993,7 +1014,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					$entry = new stdClass();
 					$entry->label = sprintf("%s -- used %s",
 						$row[SearchFields_Snippet::TITLE],
-						((1 != $row[SearchFields_Snippet::USAGE_HITS]) ? (intval($row[SearchFields_Snippet::USAGE_HITS]) . ' times') : 'once')
+						((1 != $row[SearchFields_Snippet::USE_HISTORY_MINE]) ? (intval($row[SearchFields_Snippet::USE_HISTORY_MINE]) . ' times') : 'once')
 					);
 					$entry->value = $row[SearchFields_Snippet::ID];
 					$entry->context = $row[SearchFields_Snippet::CONTEXT];
@@ -2074,7 +2095,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			));
 
 			// Syndicate
-			$worker_views = DAO_WorkerViewModel::getWhere(sprintf("view_id = %s", C4_ORMHelper::qstr($id)));
+			$worker_views = DAO_WorkerViewModel::getWhere(sprintf("view_id = %s", Cerb_ORMHelper::qstr($id)));
 
 			// Update any instances of this view with the new required columns + params
 			foreach($worker_views as $worker_view) { /* @var $worker_view C4_AbstractViewModel */
@@ -2759,6 +2780,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->clearAssign('id');
 		$tpl->clearAssign('model');
 		$tpl->clearAssign('parent_id');
+		
 		$tpl->clearAssign('trigger');
 		$tpl->clearAssign('trigger_id');
 		$tpl->clearAssign('type');
@@ -2766,7 +2788,6 @@ class ChInternalController extends DevblocksControllerExtension {
 
 	function showBehaviorSimulatorPopupAction() {
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer', 0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -2778,26 +2799,27 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		if(null == ($ext_event = DevblocksPlatform::getExtension($trigger->event_point, true))) /* @var $ext_event Extension_DevblocksEvent */
 			return;
-		
+
 		$event_model = $ext_event->generateSampleEventModel($context_id);
 		$ext_event->setEvent($event_model);
-		
+
 		$event_params_json = json_encode($event_model->params);
 		$tpl->assign('event_params_json', $event_params_json);
-
+		
 		$labels = $ext_event->getLabels($trigger);
 		$values = $ext_event->getValues();
+		$dict = new DevblocksDictionaryDelegate($values);
 
 		$conditions = $ext_event->getConditions($trigger);
-		
+
 		$dictionary = array();
 		
 		foreach($conditions as $k => $v) {
-			if(isset($values[$k])) {
+			if(isset($dict->$k)) {
 				$dictionary[$k] = array(
 					'label' => $v['label'],
 					'type' => $v['type'],
-					'value' => $values[$k],
+					'value' => $dict->$k,
 				);
 			}
 		}
@@ -2829,20 +2851,30 @@ class ChInternalController extends DevblocksControllerExtension {
  		if(null == ($ext_event = DevblocksPlatform::getExtension($trigger->event_point, true))) /* @var $ext_event Extension_DevblocksEvent */
  			return;
 
- 		// Reconstruct the event scope
- 		
- 		$event_model = new Model_DevblocksEvent();
- 		$event_model->id = $trigger->event_point;
- 		$event_model_params = json_decode($event_params_json, true);
- 		$event_model->params = is_array($event_model_params) ? $event_model_params : array();
- 		$ext_event->setEvent($event_model);
+		// Set the base event scope
+		
+		// [TODO] This is hacky and needs to be handled by the extensions
+		switch($trigger->event_point) {
+			case Event_MailReceivedByApp::ID:
+				$event_model = $ext_event->generateSampleEventModel(0);
+				break;
+				
+			default:
+				$event_model = new Model_DevblocksEvent();
+				$event_model->id = $trigger->event_point;
+				$event_model_params = json_decode($event_params_json, true);
+				$event_model->params = is_array($event_model_params) ? $event_model_params : array();
+				break;
+		}
+		
+		$ext_event->setEvent($event_model);
 
- 		$tpl->assign('event', $ext_event);
- 		
- 		// Merge baseline values with user overrides
- 		
- 		$values = $ext_event->getValues();
- 		$values = array_merge($values, $custom_values);
+		$tpl->assign('event', $ext_event);
+		
+		// Merge baseline values with user overrides
+		
+		$values = $ext_event->getValues();
+		$values = array_merge($values, $custom_values);
  		
  		// Get conditions
  		
@@ -3719,10 +3751,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 		}
 		
-//		$workers = CerberusContexts::getWatchers($context, $context_id);
-//		if(isset($workers[$active_worker->id]))
-//			unset($workers[$active_worker->id]);
-
 		$tpl->assign('notify_workers', $notify_workers);
 
 		$tpl->display('devblocks:cerberusweb.core::internal/comments/peek.tpl');
@@ -3752,7 +3780,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		$fields = array(
 			DAO_Comment::CONTEXT => $context,
 			DAO_Comment::CONTEXT_ID => $context_id,
-			DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+			DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+			DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
 			DAO_Comment::COMMENT => $comment,
 			DAO_Comment::CREATED => time(),
 		);

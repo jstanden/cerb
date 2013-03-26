@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -93,9 +93,9 @@ class DAO_ConfirmationCode extends DevblocksORMHelper {
 	static function getByCode($namespace_key, $code) {
 		$results = self::getWhere(sprintf("%s = %s AND %s = %s",
 			self::NAMESPACE_KEY,
-			C4_ORMHelper::qstr($namespace_key),
+			Cerb_ORMHelper::qstr($namespace_key),
 			self::CONFIRMATION_CODE,
-			C4_ORMHelper::qstr($code)
+			Cerb_ORMHelper::qstr($code)
 		));
 		
 		if(is_array($results))

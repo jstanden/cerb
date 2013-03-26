@@ -80,10 +80,10 @@
 		{elseif $convo_set.0=='c'}
 			{assign var=comment_id value=$convo_set.1}
 			{assign var=comment value=$comments.$comment_id}
-			{assign var=comment_address value=$comment->getAddress()}
+			{$comment_owner_meta = $comment->getOwnerMeta()}
 			
 			<b>[{$translate->_('common.comment')|capitalize}]</b><br>
-			<b>From:</b>{if empty($comment_address->first_name) && empty($comment_address->last_name)}&lt;{$comment_address->email}&gt;{else}{$comment_address->getName()}{/if}<br>
+			<b>From:</b> {$comment_owner_meta.name} ({$comment_owner_meta.context_ext->manifest->name|lower})<br>
 			
 			{if isset($comment->created)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$comment->created|devblocks_date}<br>{/if}
 			<br>

@@ -3,15 +3,15 @@
 	<id>cerberusweb.reports</id>
 	<name>Reports</name>
 	<description>Pluggable reporting area with default reports on various metrics.  This adds a Reports menu and several plugin hooks for creating new reports.</description>
-	<author>WebGroup Media, LLC.</author>
-	<version>6.2.2</version>
+	<author>Webgroup Media, LLC.</author>
+	<version>6.3.0</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Reports</link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="6.2" max="6.2.99" />
+		<app_version min="6.3" max="6.3.99" />
 	</requires>
 
 	<!-- Plugin Dependencies -->
@@ -34,8 +34,10 @@
 		<priv id="reports.group.custom_fields" label="acl.reports.group.custom_fields" />
 		<priv id="reports.group.groups" label="acl.reports.group.groups" />
 		<priv id="reports.group.orgs" label="acl.reports.group.orgs" />
+		<priv id="reports.group.snippets" label="acl.reports.group.snippets" />
 		<priv id="reports.group.spam" label="acl.reports.group.spam" />
 		<priv id="reports.group.tickets" label="acl.reports.group.tickets" />
+		<priv id="reports.group.virtual_attendants" label="acl.reports.group.virtual_attendants" />
 		<priv id="reports.group.workers" label="acl.reports.group.workers" />
 	</acl>
 		
@@ -53,7 +55,7 @@
 		<params>
 			<param key="label" value="reports.menu.reports" />
 		</params>
-	</extension>		
+	</extension>
 	
 	<!-- Report Groups -->
 	
@@ -97,6 +99,19 @@
 	</extension>
 	
 	<extension point="cerberusweb.report.group">
+		<id>report.group.snippets</id>
+		<name>Snippet Reports</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportGroupSnippets</name>
+		</class>
+		<params>
+			<param key="group_name" value="reports.ui.group.snippet" />
+			<param key="acl" value="reports.group.snippets" />
+		</params>
+	</extension>
+	
+	<extension point="cerberusweb.report.group">
 		<id>report.group.spam</id>
 		<name>Spam Reports</name>
 		<class>
@@ -132,6 +147,19 @@
 		<params>
 			<param key="group_name" value="reports.ui.group.worker" />
 			<param key="acl" value="reports.group.workers" />
+		</params>
+	</extension>
+
+	<extension point="cerberusweb.report.group">
+		<id>report.group.virtual_attendants</id>
+		<name>Virtual Attendant Reports</name>
+		<class>
+			<file>api/App.php</file>
+			<name>ChReportGroupVirtualAttendants</name>
+		</class>
+		<params>
+			<param key="group_name" value="reports.ui.group.virtual_attendant" />
+			<param key="acl" value="reports.group.virtual_attendants" />
 		</params>
 	</extension>
 
@@ -199,6 +227,19 @@
 		<params>
 			<param key="report_name" value="reports.ui.spam.domains" />
 			<param key="report_group" value="report.group.spam" />
+		</params>
+	</extension>
+	
+	<extension point="cerberusweb.report">
+		<id>report.snippets.popularity</id>
+		<name>Snippet Popularity Report</name>
+		<class>
+			<file>api/reports/snippets/SnippetPopularityReport.php</file>
+			<name>ChReportSnippetPopularity</name>
+		</class>
+		<params>
+			<param key="report_name" value="reports.ui.snippets.popularity" />
+			<param key="report_group" value="report.group.snippets" />
 		</params>
 	</extension>
 	
@@ -280,7 +321,19 @@
 		</params>
 	</extension>
 	
-
+	<extension point="cerberusweb.report">
+		<id>report.virtual_attendants.usage</id>
+		<name>Virtual Attendant Usage Report</name>
+		<class>
+			<file>api/reports/va/VirtualAttendantUsageReport.php</file>
+			<name>ChReportVirtualAttendantUsage</name>
+		</class>
+		<params>
+			<param key="report_name" value="reports.ui.virtual_attendant.usage" />
+			<param key="report_group" value="report.group.virtual_attendants" />
+		</params>
+	</extension>
+	
 	<extension point="cerberusweb.report">
 		<id>report.workers.worker_history</id>
 		<name>Worker History Report</name>
@@ -292,7 +345,7 @@
 			<param key="report_name" value="reports.ui.worker.worker_history" />
 			<param key="report_group" value="report.group.workers" />
 		</params>
-	</extension>		
+	</extension>
 	
 	</extensions>
 	

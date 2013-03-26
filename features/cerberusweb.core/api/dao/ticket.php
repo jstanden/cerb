@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Cerberus Public License.
@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_Ticket extends C4_ORMHelper {
+class DAO_Ticket extends Cerb_ORMHelper {
 	const ID = 'id';
 	const MASK = 'mask';
 	const SUBJECT = 'subject';
@@ -1179,14 +1179,14 @@ class DAO_Ticket extends C4_ORMHelper {
 		return $tops;
 	}
 	
-	private function sortByCount($a,$b) {
+	private static function sortByCount($a,$b) {
 		if ($a[2] == $b[2]) {
 			return 0;
 		}
 		return ($a[2] > $b[2]) ? -1 : 1;
 	}
 
-	private function findLongestCommonPrefix($list) {
+	private static function findLongestCommonPrefix($list) {
 		// Find the longest subject line
 		$subjects = array_keys($list);
 		usort($subjects, array('DAO_Ticket','sortByLen'));
@@ -1226,7 +1226,7 @@ class DAO_Ticket extends C4_ORMHelper {
 	}
 	
 	// Sort by strlen (longest to shortest)
-	private function sortByLen($a,$b) {
+	private static function sortByLen($a,$b) {
 		$asize = strlen($a);
 		$bsize = strlen($b);
 		if($asize==$bsize) return 0;
@@ -1358,6 +1358,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		$args = array(
 			'join_sql' => &$join_sql,
 			'where_sql' => &$where_sql,
+			'tables' => &$tables,
 			'has_multiple_values' => &$has_multiple_values
 		);
 		
@@ -1401,7 +1402,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
 				$args['has_multiple_values'] = true;
-				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql'], $args['tables']);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_ASSIGNABLE:
@@ -2729,6 +2730,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$change_fields = array();
 		$custom_fields = array();
 
+		$do_merge = false;
+		
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		
 		// Make sure we have actions
@@ -2742,6 +2745,9 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		if(is_array($do))
 		foreach($do as $k => $v) {
 			switch($k) {
+				case 'merge':
+					$do_merge = true;
+					break;
 				case 'move':
 					$change_fields[DAO_Ticket::GROUP_ID] = $v['group_id'];
 					$change_fields[DAO_Ticket::BUCKET_ID] = $v['bucket_id'];
@@ -2829,7 +2835,15 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					 
 				} while(!empty($tickets));
 			}
-	   
+			
+			// If merging, do that first, then run subsequent actions on the lone destination ticket
+			// [TODO] This could show up on the ticket bulk update popup
+			if($do_merge) {
+				if(null != ($merged_into_id = DAO_Ticket::merge($ids))) {
+					$ids = array($merged_into_id);
+				}
+			}
+			
 			$batch_total = count($ids);
 			for($x=0;$x<=$batch_total;$x+=200) {
 				$batch_ids = array_slice($ids,$x,200);
@@ -2923,6 +2937,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						
 						$tpl_dict = new DevblocksDictionaryDelegate($tpl_tokens);
 						$body = $tpl_builder->build($broadcast_params['message'], $tpl_dict);
+
+						$params_json = array(
+							'in_reply_message_id' => $row[SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID],
+							'is_broadcast' => 1,
+						);
 						
 						$fields = array(
 							DAO_MailQueue::TYPE => Model_MailQueue::TYPE_TICKET_REPLY,
@@ -2932,15 +2951,16 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 							DAO_MailQueue::HINT_TO => $row[SearchFields_Ticket::TICKET_FIRST_WROTE],
 							DAO_MailQueue::SUBJECT => $row[SearchFields_Ticket::TICKET_SUBJECT],
 							DAO_MailQueue::BODY => $body,
-							DAO_MailQueue::PARAMS_JSON => json_encode(array(
-								'in_reply_message_id' => $row[SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID],
-								'is_broadcast' => 1,
-							)),
 						);
 						
-						if($is_queued) {
+						if($is_queued)
 							$fields[DAO_MailQueue::IS_QUEUED] = 1;
-						}
+
+						if(isset($broadcast_params['file_ids']))
+							$params_json['file_ids'] = $broadcast_params['file_ids'];
+						
+						if(!empty($params_json))
+							$fields[DAO_MailQueue::PARAMS_JSON] = json_encode($params_json);
 						
 						$draft_id = DAO_MailQueue::create($fields);
 					}
@@ -3535,7 +3555,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				DAO_MailQueue::WORKER_ID,
 				$active_worker->id,
 				DAO_MailQueue::TYPE,
-				C4_ORMHelper::qstr(Model_MailQueue::TYPE_COMPOSE)
+				Cerb_ORMHelper::qstr(Model_MailQueue::TYPE_COMPOSE)
 			));
 			
 			@$draft = $drafts[$draft_id];
@@ -3581,6 +3601,18 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$tpl->assign('ticket', $ticket);
 			
 			$messages = $ticket->getMessages();
+		}
+		
+		// Permissions
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		$active_worker_memberships = $active_worker->getMemberships();
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		// Check group membership ACL
+		if(!isset($active_worker_memberships[$ticket->group_id])) {
+			echo $translate->_('common.access_denied');
+			return;
 		}
 		
 		// Do we have a specific message to look at?

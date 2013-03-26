@@ -2128,7 +2128,7 @@
     </tu>
     <tu tuid="portal.sc.cfg.fnr.info">
       <tuv xml:lang="ru_RU">
-        <seg>This Support Center will allow your community to search your external knowledge resources through Cerberus Helpdesk's Fetch &amp; Retrieve system, returning direct links to content like knowledgebase articles, wiki articles, forum posts, documentation pages, blog entries, wishlist/bug reports, etc.</seg>
+        <seg>This Support Center will allow your community to search your external knowledge resources through Cerb's Fetch &amp; Retrieve system, returning direct links to content like knowledgebase articles, wiki articles, forum posts, documentation pages, blog entries, wishlist/bug reports, etc.</seg>
       </tuv>
     </tu>
     <tu tuid="portal.sc.cfg.fnr.not_configured">
@@ -3206,11 +3206,6 @@ login &lt;ftp&#13;
     <tu tuid="task.title">
       <tuv xml:lang="ru_RU">
         <seg>Заголовок</seg>
-      </tuv>
-    </tu>
-    <tu tuid="task.updated_date">
-      <tuv xml:lang="ru_RU">
-        <seg>Последний раз обновлено</seg>
       </tuv>
     </tu>
     <tu tuid="task.worker_id">

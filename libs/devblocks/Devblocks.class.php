@@ -546,7 +546,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 			
-			$user_agent = 'Cerberus Helpdesk ' . APP_VERSION . ' (Build ' . APP_BUILD . ')';
+			$user_agent = 'Cerb ' . APP_VERSION . ' (Build ' . APP_BUILD . ')';
 			curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
 			
 			$is_safemode = !(ini_get('open_basedir') == '' && ini_get('safe_mode' == 'Off'));
@@ -1853,6 +1853,15 @@ class DevblocksPlatform extends DevblocksEngine {
 	static function setExtensionDelegate($class) {
 		if(!empty($class) && class_exists($class, true))
 			self::$extensionDelegate = $class;
+	}
+	
+	static function setHandlerSession($class) {
+		if(!empty($class) && class_exists($class, true))
+			self::$handlerSession = $class;
+	}
+	
+	static function getHandlerSession() {
+		return self::$handlerSession;
 	}
 	
 	static function redirect(DevblocksHttpIO $httpIO) {

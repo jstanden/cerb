@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
- | Cerb(tm) developed by WebGroup Media, LLC.
+ | Cerb(tm) developed by Webgroup Media, LLC.
  |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2012, WebGroup Media LLC
+ | All source code & content (c) Copyright 2013, Webgroup Media LLC
  |   unless specifically noted otherwise.
  |
  | This source code is released under the Devblocks Public License.
@@ -15,7 +15,7 @@
  |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
  ***********************************************************************/
 
-class DAO_CalendarEvent extends C4_ORMHelper {
+class DAO_CalendarEvent extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
@@ -236,6 +236,7 @@ class DAO_CalendarEvent extends C4_ORMHelper {
 		$args = array(
 			'join_sql' => &$join_sql,
 			'where_sql' => &$where_sql,
+			'tables' => &$tables,
 			'has_multiple_values' => &$has_multiple_values
 		);
 		

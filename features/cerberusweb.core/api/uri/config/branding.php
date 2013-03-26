@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -37,7 +37,7 @@ class PageSection_SetupBranding extends Extension_PageSection {
 	
 			// [TODO] New branding
 			if(empty($title))
-				$title = 'Cerberus Helpdesk :: Group-based Email Management';
+				$title = CerberusSettingsDefaults::HELPDESK_TITLE;
 				
 			$settings = DevblocksPlatform::getPluginSettingsService();
 			$settings->set('cerberusweb.core',CerberusSettings::HELPDESK_TITLE, $title);

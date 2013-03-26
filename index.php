@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
-| Cerb(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2012, WebGroup Media LLC
+| All source code & content (c) Copyright 2013, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 /*
- * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
+ * IMPORTANT LICENSING NOTE from your friends on the Cerb Development Team
  *
  * Sure, it would be so easy to just cheat and edit this file to use the
  * software without paying for it.  But we trust you anyway.  In fact, we're
@@ -43,8 +43,8 @@
  * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
- * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
- *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
+ \* - Jeff Standen, Darren Sugita, Dan Hildebrandt
+ *	 Webgroup Media LLC - Developers of Cerb
  */
 
 if(version_compare(PHP_VERSION, "5.3", "<"))
@@ -68,7 +68,8 @@ if('' == APP_DB_DRIVER
 require(APP_PATH . '/api/Application.class.php');
 
 DevblocksPlatform::init();
-DevblocksPlatform::setExtensionDelegate('C4_DevblocksExtensionDelegate');
+DevblocksPlatform::setExtensionDelegate('Cerb_DevblocksExtensionDelegate');
+DevblocksPlatform::setHandlerSession('Cerb_DevblocksSessionHandler');
 
 // Do we need an update first?
 if(!DevblocksPlatform::versionConsistencyCheck()) {

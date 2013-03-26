@@ -1,8 +1,8 @@
 <?php
 /***********************************************************************
- | Cerb(tm) developed by WebGroup Media, LLC.
+ | Cerb(tm) developed by Webgroup Media, LLC.
  |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2012, WebGroup Media LLC
+ | All source code & content (c) Copyright 2013, Webgroup Media LLC
  |   unless specifically noted otherwise.
  |
  | This source code is released under the Devblocks Public License.
@@ -15,7 +15,7 @@
  |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
  ***********************************************************************/
 
-class DAO_CrmOpportunity extends C4_ORMHelper {
+class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
 	const AMOUNT = 'amount';
@@ -328,6 +328,7 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 		$args = array(
 			'join_sql' => &$join_sql,
 			'where_sql' => &$where_sql,
+			'tables' => &$tables,
 			'has_multiple_values' => &$has_multiple_values
 		);
 		
@@ -367,7 +368,7 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 			
 			case SearchFields_CrmOpportunity::VIRTUAL_WATCHERS:
 				$args['has_multiple_values'] = true;
-				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql'], $args['tables']);
 				break;
 		}
 	}
@@ -972,6 +973,9 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 							array(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id),
 						),
 					);
+					
+					if(isset($params['file_ids']))
+						$json_params['file_ids'] = $params['file_ids'];
 					
 					$fields = array(
 						DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
