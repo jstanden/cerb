@@ -19,7 +19,7 @@
 			</b>
 			
 			<div class="toolbar" style="display:none;float:right;margin-right:20px;">
-				{if $comment->context == CerberusContexts::CONTEXT_TICKET}
+				{if $note->context == CerberusContexts::CONTEXT_MESSAGE}
 					<a href="{devblocks_url}c=profiles&type=ticket&mask={$ticket->mask}&focus=comment&focus_id={$note->id}{/devblocks_url}">{'common.permalink'|devblocks_translate|lower}</a>
 				{/if}
 				
