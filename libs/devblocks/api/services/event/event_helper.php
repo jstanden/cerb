@@ -2321,7 +2321,7 @@ class DevblocksEventHelper {
 			
 			$to = DevblocksPlatform::parseCsvString($to_string);
 		}
-		
+
 		if(is_array($to_vars))
 		foreach($to_vars as $to_var) {
 			if(!isset($dict->$to_var))
@@ -2331,7 +2331,13 @@ class DevblocksEventHelper {
 			if(substr($to_var,0,4) != 'var_')
 				continue;
 			
-			$address_ids = $dict->$to_var;
+			$address_ids = array();
+			
+			if(is_array($dict->$to_var))
+				$address_ids = array_keys($dict->$to_var);
+
+			if(empty($address_ids))
+				continue;
 			
 			$addresses = DAO_Address::getWhere(sprintf("%s IN (%s)",
 				DAO_Address::ID,
@@ -2469,7 +2475,13 @@ class DevblocksEventHelper {
 			if(substr($to_var,0,4) != 'var_')
 				continue;
 			
-			$address_ids = $dict->$to_var;
+			$address_ids = array();
+			
+			if(is_array($dict->$to_var))
+				$address_ids = array_keys($dict->$to_var);
+			
+			if(empty($address_ids))
+				continue;
 			
 			$addresses = DAO_Address::getWhere(sprintf("%s IN (%s)",
 				DAO_Address::ID,
