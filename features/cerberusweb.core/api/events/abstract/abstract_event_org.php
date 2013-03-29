@@ -241,6 +241,7 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 				'create_task' => array('label' =>'Create a task'),
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'schedule_behavior' => array('label' => 'Schedule behavior'),
+				'send_email' => array('label' => 'Send email'),
 				'set_links' => array('label' => 'Set links'),
 				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
@@ -296,6 +297,10 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 			case 'unschedule_behavior':
 				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger);
 				break;
+
+			case 'send_email':
+				DevblocksEventHelper::renderActionSendEmail($trigger);
+				break;
 				
 			case 'set_links':
 				DevblocksEventHelper::renderActionSetLinks($trigger);
@@ -350,6 +355,10 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
 				break;
 				
+			case 'send_email':
+				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
+				break;
+				
 			case 'set_links':
 				return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
 				break;
@@ -394,6 +403,10 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 				
 			case 'unschedule_behavior':
 				DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
+				break;
+				
+			case 'send_email':
+				DevblocksEventHelper::runActionSendEmail($params, $dict);
 				break;
 				
 			case 'set_links':
