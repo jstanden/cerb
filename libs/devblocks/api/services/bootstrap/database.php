@@ -6,7 +6,10 @@ class _DevblocksDatabaseManager {
 	private function __construct(){
 		// [TODO] Implement proper pconnect abstraction for mysqli
 		$persistent = (defined('APP_DB_PCONNECT') && APP_DB_PCONNECT) ? true : false;
-		$this->Connect(APP_DB_HOST, APP_DB_USER, APP_DB_PASS, APP_DB_DATABASE, $persistent);
+		
+		if(false == ($conn = $this->Connect(APP_DB_HOST, APP_DB_USER, APP_DB_PASS, APP_DB_DATABASE, $persistent))) {
+			die("[Cerb] Error connecting to the database.  Please check MySQL and the framework.config.php settings.");
+		}
 	}
 	
 	static function getInstance() {
@@ -22,10 +25,10 @@ class _DevblocksDatabaseManager {
 	}
 	
 	function Connect($host, $user, $pass, $database, $persistent=false) {
-		if(false === (@$this->_db = mysql_pconnect($host, $user, $pass, !$persistent)))
+		if(false === ($this->_db = @mysql_pconnect($host, $user, $pass, !$persistent)))
 			return false;
 
-		if(false === mysql_select_db($database, $this->_db)) {
+		if(false === @mysql_select_db($database, $this->_db)) {
 			return false;
 		}
 		
