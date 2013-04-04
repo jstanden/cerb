@@ -109,7 +109,8 @@
 				
 				$div.html(html);
 				
-				document.location = '#reply' + msgid;
+				var offset = $div.offset();
+				window.scrollTo(offset.left, offset.top);
 			}
 		);
 	}
@@ -127,14 +128,13 @@
 				
 				$div.html(html);
 				
-				document.location = '#reply' + msgid;
+				var offset = $div.offset();
+				window.scrollTo(offset.left, offset.top);
 				
 				$frm = $('#reply' + msgid + '_form');
 				$textarea = $frm.find('textarea[name=content]');
 				
-				if(0 != $frm.length && 0 != $textarea) {
-					$textarea.focus();
-				}
+				$textarea.focus();
 			}
 		);
 	}

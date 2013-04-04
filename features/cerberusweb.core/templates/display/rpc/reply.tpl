@@ -322,7 +322,7 @@
 	if(draftAutoSaveInterval == undefined)
 		var draftAutoSaveInterval = null;
 	
-	$(function() {
+	$(function(e) {
 		$frm = $('#reply{$message->id}_part1');
 		$frm2 = $('#reply{$message->id}_part2');
 		
