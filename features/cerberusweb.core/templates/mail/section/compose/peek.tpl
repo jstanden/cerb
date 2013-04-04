@@ -421,7 +421,7 @@
 		{if $pref_keyboard_shortcuts}
 		
 		// Reply textbox
-		$('#divComposeContent').keydown(function(event) {
+		$('#divComposeContent').keyup(function(event) {
 			if(!$(this).is(':focus'))
 				return;
 			
@@ -430,21 +430,18 @@
 
 			if(event.ctrlKey && event.shiftKey) {
 				switch(event.which) {
-					case 7:  
 					case 71: // (G) Insert Signature
 						try {
 							event.preventDefault();
 							$('#btnComposeInsertSig').click();
 						} catch(ex) { } 
 						break;
-					case 9:  
 					case 73: // (I) Insert Snippet
 						try {
 							event.preventDefault();
 							$('#frmComposePeek').find('INPUT:text.context-snippet').focus();
 						} catch(ex) { } 
 						break;
-					case 17:
 					case 81: // (Q) Reformat quotes
 						try {
 							event.preventDefault();

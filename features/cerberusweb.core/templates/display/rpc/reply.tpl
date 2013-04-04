@@ -543,7 +543,7 @@
 		{if $pref_keyboard_shortcuts}
 		
 		// Reply textbox
-		$('#reply_{$message->id}').keydown(function(event) {
+		$('#reply_{$message->id}').keyup(function(event) {
 			if(!$(this).is(':focus'))
 				return;
 			
@@ -552,28 +552,24 @@
 
 			if(event.ctrlKey && event.shiftKey) {
 				switch(event.which) {
-					case 7:  
 					case 71: // (G) Insert Signature
 						try {
 							event.preventDefault();
 							$('#btnInsertReplySig{$message->id}').click();
 						} catch(ex) { } 
 						break;
-					case 9:  
 					case 73: // (I) Insert Snippet
 						try {
 							event.preventDefault();
 							$('#reply{$message->id}_part1').find('.context-snippet').focus();
 						} catch(ex) { } 
 						break;
-					case 2:  
 					case 66: // (B) Insert Behavior
 						try {
 							event.preventDefault();
 							$('#btnReplyMacros{$message->id}').click();
 						} catch(ex) { } 
 						break;
-					case 10:
 					case 74: // (J) Jump to first blank line
 						try {
 							event.preventDefault();
@@ -582,7 +578,6 @@
 							$(this).setCursorLocation(pos).focus();
 						} catch(ex) { } 
 						break;
-					case 17:
 					case 81: // (Q) Reformat quotes
 						try {
 							event.preventDefault();
