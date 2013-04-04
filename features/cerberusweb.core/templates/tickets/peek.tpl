@@ -93,7 +93,7 @@
 						{/foreach}
 					</select>
 					<button type="button" onclick="$(this).prev('select[name=owner_id]').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
-					<button type="button" onclick="$(this).prevAll('select[name=owner_id]').first().val('');">{'common.nobody'|devblocks_translate|lower}</button>
+					<button type="button" onclick="$(this).prevAll('select[name=owner_id]').first().val('0');">{'common.nobody'|devblocks_translate|lower}</button>
 				</td>
 			</tr>
 			
