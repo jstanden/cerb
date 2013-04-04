@@ -1502,6 +1502,13 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 	}
 	
 	static function gc($maxlifetime) {
+		// We ignore caller's $maxlifetime (session.gc_maxlifetime) on purpose.
+		// Look up Cerb's session max lifetime
+		$maxlifetime = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
+		
+		if(empty($maxlifetime))
+			$maxlifetime = 86400;
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		$db->Execute(sprintf("DELETE FROM devblocks_session WHERE updated + %d < %d", $maxlifetime, time()));
 		return true;
