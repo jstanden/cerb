@@ -4,7 +4,7 @@
 	<name>Simulator</name>
 	<description>A tool that makes it easy to create batches of realistic sample tickets, tasks, and organizations; useful for evaluations, plugin development, and testing.  This adds a Simulator option to the Setup Plugins menu.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>6.3.0</version>
+	<version>6.3.1</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Ticket_Simulator</link>
 	<image>plugin.png</image>
 	

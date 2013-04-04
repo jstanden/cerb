@@ -143,8 +143,6 @@ var cAjaxCalls = function() {
 
 			genericAjaxPopupClose('peek');
 			
-			document.location = '#top';
-			
 			hideLoadingPanel();
 		});
 	}
@@ -207,8 +205,6 @@ var cAjaxCalls = function() {
 			$('#'+divName).html(html);
 
 			genericAjaxPopupClose('bulk');
-			
-			document.location = '#top';
 		});
 	}
 

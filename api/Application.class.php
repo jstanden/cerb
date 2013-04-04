@@ -46,8 +46,8 @@
  \* - Jeff Standen, Darren Sugita, Dan Hildebrandt
  *	 Webgroup Media LLC - Developers of Cerb
  */
-define("APP_BUILD", 2013032301);
-define("APP_VERSION", '6.3.0');
+define("APP_BUILD", 2013040401);
+define("APP_VERSION", '6.3.1');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
@@ -1502,6 +1502,13 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 	}
 	
 	static function gc($maxlifetime) {
+		// We ignore caller's $maxlifetime (session.gc_maxlifetime) on purpose.
+		// Look up Cerb's session max lifetime
+		$maxlifetime = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
+		
+		if(empty($maxlifetime))
+			$maxlifetime = 86400;
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		$db->Execute(sprintf("DELETE FROM devblocks_session WHERE updated + %d < %d", $maxlifetime, time()));
 		return true;
