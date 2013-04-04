@@ -76,16 +76,22 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 	static public function getDefault() {
 		$froms = self::getAll();
 		
+		if(!is_array($froms) || empty($froms))
+			return null;
+		
+		// [TODO] This could be used if we don't have any reply addresses
+		//$default = new Model_AddressOutgoing();
+		//$default->address_id = 0;
+		//$default->email = 'do-not-reply@localhost';
+		
+		// Use the default reply-to
 		foreach($froms as $from) {
 			if($from->is_default)
 				return $from;
 		}
 		
-//		$default = new Model_AddressOutgoing();
-//		$default->address_id = 0;
-//		$default->email = 'do-not-reply';
-		
-		return null;
+		// If we got this far, it means we don't have a default. Use the first address.
+		return reset($froms);
 	}
 	
 	static public function setDefault($address_id) {
