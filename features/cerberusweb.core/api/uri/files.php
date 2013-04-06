@@ -69,13 +69,23 @@ class ChFilesController extends DevblocksControllerExtension {
 		header("Accept-Ranges: bytes");
 //		header("Keep-Alive: timeout=5, max=100");
 //		header("Connection: Keep-Alive");
-		header("Content-Type: " . $file->mime_type);
 
+		header("Content-Type: " . $file->mime_type);
+		
 		switch(strtolower($file->mime_type)) {
 			case 'text/html':
-				$clean_html = DevblocksPlatform::purifyHTML($fp);
-				header("Content-Length: " . strlen($clean_html));
-				echo $clean_html;
+					// If the 'tidy' extension exists, and the file size is less than 5MB
+					if(extension_loaded('tidy') && $file_stats['size'] < 1024000 * 5) {
+						$tidy = new tidy();
+						if(null != ($fp_filename = DevblocksPlatform::getTempFileInfo($fp))) {
+							file_put_contents($fp_filename, $tidy->repairFile($fp_filename));
+							fseek($fp, 0);
+						}
+					}
+					
+					$clean_html = DevblocksPlatform::purifyHTML($fp);
+					header("Content-Length: " . strlen($clean_html));
+					echo $clean_html;
 				break;
 				
 			default:
