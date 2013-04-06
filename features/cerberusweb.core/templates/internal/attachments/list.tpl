@@ -1,9 +1,10 @@
 {$a_map = DAO_AttachmentLink::getLinksAndAttachments($context, $context_id)}
 {$links = $a_map.links}
 {$attachments = $a_map.attachments}
+{$uniq_id = uniqid()}
 
 {if !empty($links) && !empty($attachments)}
-<div>
+<div id="attachments{$uniq_id}">
 <b>{$translate->_('common.attachments')|capitalize}:</b><br>
 <ul style="margin-top:0px;margin-bottom:5px;">
 	{foreach from=$links item=link name=links}
@@ -16,9 +17,21 @@
 			- 
 			{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{$translate->_('display.convo.unknown_format')|capitalize}{/if}
 			 )
+			 <span style="margin-left:10px;" class="download"><a href="{devblocks_url}c=files&p={$link->guid}&name={$attachment->display_name|escape:'url'}{/devblocks_url}?download=">download</a></span>
 		</li>
 	{/if}
 	{/foreach}
 </ul>
 </div>
+
+<script type="text/javascript">
+$('#attachments{$uniq_id} ul li').hover(
+	function() {
+		$(this).find('span.download').show();
+	},
+	function() {
+		$(this).find('span.download').hide();
+	}
+);
+</script>
 {/if}

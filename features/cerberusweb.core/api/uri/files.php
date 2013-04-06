@@ -55,13 +55,14 @@ class ChFilesController extends DevblocksControllerExtension {
 			
 		$file = $link->getAttachment();
 		
-		
 		if(false === ($fp = DevblocksPlatform::getTempFile()))
 			die("Could not open a temporary file.");
 		if(false === $file->getFileContents($fp))
 			die("Error reading resource.");
 			
 		$file_stats = fstat($fp);
+		
+		$is_download = isset($request->query['download']) ? true : false;
 
 		// Set headers
 		header("Expires: Mon, 26 Nov 1979 00:00:00 GMT");
@@ -69,13 +70,35 @@ class ChFilesController extends DevblocksControllerExtension {
 		header("Accept-Ranges: bytes");
 //		header("Keep-Alive: timeout=5, max=100");
 //		header("Connection: Keep-Alive");
-		header("Content-Type: " . $file->mime_type);
 
+		if($is_download) {
+			header('Content-Disposition: attachment; filename=' . urlencode($file->display_name));
+		}
+		
+		header("Content-Type: " . $file->mime_type);
+		
 		switch(strtolower($file->mime_type)) {
 			case 'text/html':
-				$clean_html = DevblocksPlatform::purifyHTML($fp);
-				header("Content-Length: " . strlen($clean_html));
-				echo $clean_html;
+				// If we're downloading the HTML, just pass the raw bytes
+				if($is_download) {
+					header("Content-Length: " . $file_stats['size']);
+					fpassthru($fp);
+					
+				// If we're displaying the HTML inline, tidy and purify it first
+				} else {
+					// If the 'tidy' extension exists, and the file size is less than 5MB
+					if(extension_loaded('tidy') && $file_stats['size'] < 1024000 * 5) {
+						$tidy = new tidy();
+						if(null != ($fp_filename = DevblocksPlatform::getTempFileInfo($fp))) {
+							file_put_contents($fp_filename, $tidy->repairFile($fp_filename));
+							fseek($fp, 0);
+						}
+					}
+					
+					$clean_html = DevblocksPlatform::purifyHTML($fp);
+					header("Content-Length: " . strlen($clean_html));
+					echo $clean_html;
+				}
 				break;
 				
 			default:
