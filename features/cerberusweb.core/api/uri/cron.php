@@ -54,10 +54,12 @@ class ChCronController extends DevblocksControllerExtension {
 		array_shift($stack); // cron
 		$job_id = array_shift($stack);
 
-		@set_time_limit(0); // no limit
+		@set_time_limit(600); // 10 mins
 		
 		$url = DevblocksPlatform::getUrlService();
-		$timelimit = intval(ini_get('max_execution_time'));
+		$time_left = intval(ini_get('max_execution_time')) ?: 86400;
+		
+		$logger->info(sprintf("[Scheduler] Set Time Limit: %d seconds", $time_left));
 		
 		if($reload) {
 			$reload_url = sprintf("%s?reload=%d&loglevel=%d&ignore_wait=%d",
@@ -75,49 +77,49 @@ class ChCronController extends DevblocksControllerExtension {
 			"<BODY>"; // onload=\"setTimeout(\\\"window.location.replace('".$url->write('c=cron')."')\\\",30);\"
 		}
 
-		// [TODO] Determine if we're on a time limit under 60 seconds
-		
 		$cron_manifests = DevblocksPlatform::getExtensions('cerberusweb.cron', true, true);
 		$jobs = array();
 		
 		if(empty($job_id)) { // do everything
-			
-			// Determine who wants to go first by next time and longest waiting
-			$nexttime = time() + 86400;
-			
 			if(is_array($cron_manifests))
 			foreach($cron_manifests as $idx => $instance) { /* @var $instance CerberusCronPageExtension */
-				$lastrun = $instance->getParam(CerberusCronPageExtension::PARAM_LASTRUN, 0);
-				
 				if($instance->isReadyToRun($is_ignoring_wait)) {
-					if($timelimit) {
-						if($lastrun < $nexttime) {
-							// [TODO] This should run more than one thing at a time (e.g. safe_mode)
-							$jobs[0] = $cron_manifests[$idx];
-							$nexttime = $lastrun;
-						}
-					} else {
-						$jobs[] =& $cron_manifests[$idx];
-					}
+					$jobs[] =& $cron_manifests[$idx];
 				}
 			}
 			
 		} else { // single job
-			$manifest = DevblocksPlatform::getExtension($job_id, false, true);
-			if(empty($manifest)) exit;
-						
-			$instance = $manifest->createInstance();
-			
-			if($instance) {
-				if($instance->isReadyToRun($is_ignoring_wait)) {
+			if(isset($cron_manifests[$job_id])) {
+				$instance = $cron_manifests[$job_id];
+				
+				if($instance->isReadyToRun($is_ignoring_wait))
 					$jobs[0] =& $instance;
-				}
 			}
 		}
+
+		// Find out when each job ran last
+		if(is_array($jobs))
+		foreach($jobs as $idx => $job) {
+			$jobs[$idx]->last_ran_at = $job->getParam(CerberusCronPageExtension::PARAM_LASTRUN, 0);
+		}
+		
+		// Sort jobs by longest wait to run
+		DevblocksPlatform::sortObjects($jobs, 'last_ran_at');
 		
 		if(!empty($jobs)) {
 			foreach($jobs as $nextjob) {
+				// Are we out of time?
+				if($time_left < 20)
+					continue;
+				
+				$started_at = time();
+				
 				$nextjob->_run();
+				
+				// Subtract the time we've used
+				$time_left -= (time()-$started_at);
+				
+				$logger->info(sprintf("[Scheduler] Time Remaining: %d seconds", $time_left));
 			}
 		} elseif($reload) {
 			$logger->info(vsprintf($translate->_('cron.nothing_to_do'), intval($reload)));
