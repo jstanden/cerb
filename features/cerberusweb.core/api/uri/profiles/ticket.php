@@ -63,9 +63,10 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		if(empty($selected_tab))
 			$selected_tab = 'conversation';
 		
+		@$mail_always_show_all = DAO_WorkerPref::get($active_worker->id,'mail_always_show_all',0);
+		
 		switch($selected_tab) {
 			case 'conversation':
-				@$mail_always_show_all = DAO_WorkerPref::get($active_worker->id,'mail_always_show_all',0);
 				@$tab_option = array_shift($stack);
 		
 				if($mail_always_show_all || 0==strcasecmp("read_all",$tab_option)) {
@@ -82,6 +83,9 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 					$tpl->assign('convo_focus_ctx_id', $focus_id);
 				}
 				
+				if($mail_always_show_all)
+					$tpl->assign('expand_all', true);
+				
 				break;
 				
 			case 'message':
@@ -92,6 +96,9 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 					$tpl->assign('convo_focus_ctx', CerberusContexts::CONTEXT_MESSAGE);
 					$tpl->assign('convo_focus_ctx_id', $focus_id);
 				}
+				
+				if($mail_always_show_all)
+					$tpl->assign('expand_all', true);
 				
 				break;
 		}
