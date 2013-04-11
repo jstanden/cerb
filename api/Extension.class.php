@@ -379,6 +379,10 @@ abstract class Extension_WorkspaceWidgetDatasource extends DevblocksExtension {
 	abstract function getData(Model_WorkspaceWidget $widget, array $params=array());
 };
 
+interface ICerbWorkspaceWidget_ExportData {
+	function exportData(Model_WorkspaceWidget $widget, $format=null);
+};
+
 abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 	static $_registry = array();
 	
