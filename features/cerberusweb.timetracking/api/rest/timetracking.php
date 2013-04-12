@@ -37,7 +37,7 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 	}
 	
 	private function getId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('plugin.cerberusweb.timetracking'))
@@ -86,7 +86,7 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		$params = $this->_handleSearchBuildParams($filters);
 		
@@ -123,7 +123,7 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 	}
 	
 	function postSearch() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('plugin.cerberusweb.timetracking'))

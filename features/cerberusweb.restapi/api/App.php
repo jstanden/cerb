@@ -299,7 +299,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		if(isset($controllers[$controller_uri])) {
 			$controller = DevblocksPlatform::getExtension($controllers[$controller_uri]->id, true, true);
 			/* @var $controller Extension_RestController */
-			$controller->setActiveWorker($worker);
+			CerberusApplication::setActiveWorker($worker);
 			$controller->setPayload($this->_payload);
 			array_unshift($stack, $verb);
 			$controller->handleRequest(new DevblocksHttpRequest($stack));
@@ -464,10 +464,11 @@ abstract class Extension_RestController extends DevblocksExtension {
 	}
 	
 	/**
+	 * @deprecated
 	 * @return Model_Worker
 	 */
 	public function getActiveWorker() {
-		return($this->_activeWorker);
+		return CerberusApplication::getActiveWorker();
 	}
 	
 	public function getPayload() {
@@ -476,14 +477,6 @@ abstract class Extension_RestController extends DevblocksExtension {
 	
 	public function setPayload($payload) {
 		$this->_payload = $payload;
-	}
-	
-	/**
-	 *
-	 * @param Model_Worker $worker
-	 */
-	public function setActiveWorker($worker) {
-		$this->_activeWorker = $worker;
 	}
 	
 	function handleRequest(DevblocksHttpRequest $request) {

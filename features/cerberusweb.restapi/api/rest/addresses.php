@@ -51,7 +51,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 		// Consistency with the Web-UI
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 		
-//		$worker = $this->getActiveWorker();
+//		$worker = CerberusApplication::getActiveWorker();
 //		if(!$worker->hasPriv('core.addybook.person.actions.delete'))
 //			$this->error(self::ERRNO_ACL);
 //
@@ -67,7 +67,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 	}
 	
 	private function getId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('core.addybook'))
@@ -128,7 +128,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 	}
 	
 	function search($filters=array(), $sortToken='email', $sortAsc=1, $page=1, $limit=10) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_ADDRESS);
 		$params = $this->_handleSearchBuildParams($filters);
@@ -167,7 +167,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 	}
 	
 	function putId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('core.addybook.addy.actions.update'))
@@ -222,7 +222,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 	}
 	
 	function postCreate() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('core.addybook.addy.actions.update'))
@@ -275,7 +275,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 	}
 	
 	function postSearch() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('core.addybook'))

@@ -81,6 +81,8 @@ DevblocksPlatform::registerClasses($path . 'Utils.php', array(
  * Application-level Facade
  */
 class CerberusApplication extends DevblocksApplication {
+	private static $_active_worker = null;
+	
 	/**
 	 * @return CerberusVisit
 	 */
@@ -89,10 +91,17 @@ class CerberusApplication extends DevblocksApplication {
 		return $session->getVisit();
 	}
 	
+	static function setActiveWorker($worker) {
+		self::$_active_worker = $worker;
+	}
+	
 	/**
 	 * @return Model_Worker
 	 */
 	static function getActiveWorker() {
+		if(isset(self::$_active_worker))
+			return self::$_active_worker;
+		
 		$visit = self::getVisit();
 		return (null != $visit)
 			? $visit->getWorker()

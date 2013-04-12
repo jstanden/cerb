@@ -101,7 +101,7 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 	}
 	
 	function search($filters=array(), $sortToken='email', $sortAsc=1, $page=1, $limit=10) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		$params = $this->_handleSearchBuildParams($filters);
 		
@@ -138,7 +138,7 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 	}
 	
 	function postCreate() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		$postfields = array(
 			'context' => 'string',
@@ -227,7 +227,7 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 	}
 	
 	function postSearch() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		$container = $this->_handlePostSearch();
 		

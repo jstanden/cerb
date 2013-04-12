@@ -50,7 +50,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 	
 	private function getId($id) {
 		// ACL
-//		$worker = $this->getActiveWorker();
+//		$worker = CerberusApplication::getActiveWorker();
 //		if(!$worker->hasPriv('core.addybook'))
 //			$this->error(self::ERRNO_ACL);
 
@@ -67,7 +67,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 
 	private function getIdDownload($id) {
 		// ACL
-//		$worker = $this->getActiveWorker();
+//		$worker = CerberusApplication::getActiveWorker();
 //		if(!$worker->hasPriv('core.addybook'))
 //			$this->error(self::ERRNO_ACL);
 
@@ -134,7 +134,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 	}
 	
 	function search($filters=array(), $sortToken='email', $sortAsc=1, $page=1, $limit=10) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		$params = $this->_handleSearchBuildParams($filters);
 		
@@ -182,7 +182,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 	}
 	
 	function postSearch() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 // 		if(!$worker->hasPriv('core.mail.search'))
@@ -234,7 +234,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 	}
 	
 	function postUpload() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 // 		if(!$worker->hasPriv('core.example'))

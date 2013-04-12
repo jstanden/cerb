@@ -10,7 +10,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		} else { // actions
 			switch($action) {
 				case 'me':
-					$worker = $this->getActiveWorker();
+					$worker = CerberusApplication::getActiveWorker();
 					$this->getId($worker->id);
 					break;
 			}
@@ -52,7 +52,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 	function deleteAction($stack) {
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 		
-//		$worker = $this->getActiveWorker();
+//		$worker = CerberusApplication::getActiveWorker();
 //
 //		if(!$worker->is_superuser)
 //			$this->error(self::ERRNO_ACL);
@@ -113,7 +113,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 	}
 	
 	function getId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if($id != $worker->id && !$worker->is_superuser)
@@ -137,7 +137,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 	}
 	
 	function search($filters=array(), $sortToken='first_name', $sortAsc=1, $page=1, $limit=10) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		$params = $this->_handleSearchBuildParams($filters);
 		
@@ -183,7 +183,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 	}
 	
 	function putId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->is_superuser)
@@ -243,7 +243,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 	}
 	
 	function postCreate() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->is_superuser)

@@ -33,7 +33,7 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 	}
 	
 	function deleteAction($stack) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		if(!$worker->hasPriv('core.display.message.actions.delete'))
 			$this->error(self::ERRNO_ACL);
 
@@ -48,7 +48,7 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 	}
 	
 	private function getId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		$container = $this->search(array(
 			array('id', '=', $id),
@@ -93,7 +93,7 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		$params = $this->_handleSearchBuildParams($filters);
 		
@@ -140,7 +140,7 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 	}
 	
 	function postSearch() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 // 		if(!$worker->hasPriv('core.mail.search'))

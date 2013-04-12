@@ -34,7 +34,7 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 	
 	function deleteAction($stack) {
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
-//		$worker = $this->getActiveWorker();
+//		$worker = CerberusApplication::getActiveWorker();
 //
 //		$id = array_shift($stack);
 //
@@ -47,7 +47,7 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 	}
 	
 	private function getId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		$memberships = $worker->getMemberships();
 		
 		$container = $this->search(array(
@@ -94,7 +94,7 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		$params = $this->_handleSearchBuildParams($filters);
 		

@@ -123,7 +123,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 	}
 	
 	function getId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('plugin.cerberusweb.crm'))
@@ -141,7 +141,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		$params = $this->_handleSearchBuildParams($filters);
 		
@@ -178,7 +178,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 	}
 	
 	function postSearch() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('plugin.cerberusweb.crm'))
@@ -190,7 +190,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 	}
 	
 	function putId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// Validate the ID
 		if(null == ($opp = DAO_CrmOpportunity::get($id)))
@@ -266,7 +266,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 	}
 	
 	function postCreate() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('crm.opp.actions.create'))
@@ -343,7 +343,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 	}
 	
 	private function postNote($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		@$note = DevblocksPlatform::importGPC($_POST['note'],'string','');
 		

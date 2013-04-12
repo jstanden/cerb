@@ -62,7 +62,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 	}
 	
 	function deleteAction($stack) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		if(!$worker->hasPriv('core.kb.articles.modify'))
 			$this->error(self::ERRNO_ACL);
 
@@ -78,7 +78,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 	}
 	
 	private function getId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('plugin.cerberusweb.kb'))
@@ -135,7 +135,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_KB_ARTICLE);
 		$params = $this->_handleSearchBuildParams($filters);
@@ -174,7 +174,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 	}
 	
 	function postSearch() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('plugin.cerberusweb.kb'))
@@ -186,7 +186,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 	}
 	
 	function putId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// Validate the ID
 		if(null == ($article = DAO_KbArticle::get($id)))
@@ -243,7 +243,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 	}
 	
 	function postCreate() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('core.kb.articles.modify'))

@@ -25,7 +25,7 @@ class ChRest_Parser extends Extension_RestController { //implements IExtensionRe
 	}
 	
 	private function postParse() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		if(!$worker->hasPriv('acl.core.mail.send'))
 			$this->error(self::ERRNO_ACL);
