@@ -1187,7 +1187,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
 		}
 		
 		switch($token) {
