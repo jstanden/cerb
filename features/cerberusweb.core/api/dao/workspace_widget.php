@@ -108,6 +108,8 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 	 * @return Model_WorkspaceWidget
 	 */
 	static function get($id) {
+		// [TODO] Pull from cache
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id
@@ -117,6 +119,14 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 			return $objects[$id];
 		
 		return null;
+	}
+	
+	static function getByTab($tab_id) {
+		return self::getWhere(sprintf("%s = %d",
+			self::WORKSPACE_TAB_ID,
+			$tab_id,
+			DAO_WorkspaceWidget::POS
+		));
 	}
 	
 	/**

@@ -216,7 +216,7 @@
 			<params>
 				<param key="uri" value="tickets" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.workers</id>

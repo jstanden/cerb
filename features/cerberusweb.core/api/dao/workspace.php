@@ -832,10 +832,7 @@ class Model_WorkspaceTab {
 	public $params=array();
 	
 	function getWorklists() {
-		return DAO_WorkspaceList::getWhere(sprintf("%s = %d",
-			DAO_WorkspaceList::WORKSPACE_TAB_ID,
-			$this->id
-		));
+		return DAO_WorkspaceList::getByTab($this->id);
 	}
 };
 
@@ -916,6 +913,14 @@ class DAO_WorkspaceList extends DevblocksORMHelper {
 		mysql_free_result($rs);
 		
 		return $objects;
+	}
+	
+	static function getByTab($tab_id) {
+		return DAO_WorkspaceList::getWhere(sprintf("%s = %d",
+			DAO_WorkspaceList::WORKSPACE_TAB_ID,
+			$tab_id,
+			DAO_WorkspaceList::LIST_POS
+		));
 	}
 	
 	static function update($ids, $fields) {
