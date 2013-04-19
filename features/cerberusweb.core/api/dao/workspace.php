@@ -1151,3 +1151,225 @@ class View_WorkspacePage extends C4_AbstractView {
 		}
 	}
 };
+
+class Context_WorkspacePage extends Extension_DevblocksContext {
+	function getRandom() {
+		//return DAO_Address::random();
+	}
+	
+	function getMeta($context_id) {
+		$url_writer = DevblocksPlatform::getUrlService();
+
+		if(null == ($workspace_page = DAO_WorkspacePage::get($context_id)))
+			return array();
+		
+		$url = $url_writer(sprintf("c=pages&id=%d",
+			$workspace_page->id
+		));
+		
+		//$url = $this->profileGetUrl($context_id);
+		$friendly = DevblocksPlatform::strToPermalink($workspace_page->name);
+
+		if(!empty($friendly))
+			$url .= '-' . $friendly;
+		
+		return array(
+			'id' => $workspace_page->id,
+			'name' => $workspace_page->name,
+			'permalink' => $url,
+		);
+	}
+	
+	function getContext($page, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Workspace Page:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKSPACE_PAGE);
+		
+		// Polymorph
+		if(is_numeric($page)) {
+			$page = DAO_WorkspacePage::get($page);
+		} elseif($page instanceof Model_WorkspacePage) {
+			// It's what we want already.
+		} else {
+			$page = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+			'name' => $prefix.$translate->_('common.name'),
+			'owner_context' => $prefix.$translate->_('common.context'),
+			'owner_context_id' => $prefix.$translate->_('common.context_id'),
+			'extension_id' => $prefix.$translate->_('common.extension'),
+			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+		}
+
+		// Token values
+		$token_values = array();
+		
+		$token_values['_context'] = CerberusContexts::CONTEXT_WORKSPACE_PAGE;
+
+		// Token values
+		if(null != $page) {
+			$token_values['_loaded'] = true;
+			$token_values['_label'] = $page->name;
+			$token_values['id'] = $page->id;
+			$token_values['name'] = $page->name;
+			$token_values['extension_id'] = $page->extension_id;
+
+			// URL
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=pages&id=%d-%s",$page->id, DevblocksPlatform::strToPermalink($page->name)), true);
+			
+			$token_values['owner__context'] = $page->owner_context;
+			$token_values['owner_id'] = $page->owner_context_id;
+		}
+		
+		return true;
+	}
+	
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_WORKSPACE_PAGE;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, false);
+		}
+		
+		switch($token) {
+			case 'tabs':
+				$tabs = DAO_WorkspaceTab::getByPage($context_id);
+				$values['tabs'] = array();
+				
+				foreach(array_keys($tabs) as $tab_id) {
+					$tab_labels = array();
+					$tab_values = array();
+					CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKSPACE_TAB, $tab_id, $tab_labels, $tab_values, null, true);
+					$values['tabs'][] = $tab_values;
+				}
+				break;
+				
+			case 'widgets':
+				$values = $dictionary;
+				
+				if(!isset($values['tabs']))
+					$values = self::lazyLoadContextValues('tabs', $values);
+				
+				if(!is_array($values['tabs']))
+					break;
+				
+				$context_tab = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKSPACE_TAB); /* @var $context_widget Context_WorkspaceTab */
+				
+				// Send the lazy load request to the tab itself
+				foreach($values['tabs'] as $idx => $tab) {
+					$values['tabs'][$idx] = $context_tab->lazyLoadContextValues('widgets', $values['tabs'][$idx]);
+				}
+				break;
+				
+			case 'worklists':
+				$values = $dictionary;
+
+				if(!isset($values['tabs']))
+					$values = self::lazyLoadContextValues('tabs', $values);
+				
+				if(!is_array($values['tabs']))
+					break;
+				
+				$context_tab = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKSPACE_TAB); /* @var $context_widget Context_WorkspaceTab */
+				
+				// Send the lazy load request to the tab itself
+				foreach($values['tabs'] as $idx => $tab) {
+					$values['tabs'][$idx] = $context_tab->lazyLoadContextValues('worklists', $values['tabs'][$idx]);
+				}
+				break;
+			
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}
+
+	function getChooserView($view_id=null) {
+		if(empty($view_id))
+			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		
+		// View
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = $this->getViewClass();
+		
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Pages';
+		
+		/*
+		$view->view_columns = array(
+			SearchFields_Address::FIRST_NAME,
+			SearchFields_Address::LAST_NAME,
+			SearchFields_Address::ORG_NAME,
+		);
+		*/
+		
+		/*
+		$view->addParamsDefault(array(
+			SearchFields_Address::IS_BANNED => new DevblocksSearchCriteria(SearchFields_Address::IS_BANNED,'=',0),
+			SearchFields_Address::IS_DEFUNCT => new DevblocksSearchCriteria(SearchFields_Address::IS_DEFUNCT,'=',0),
+		), true);
+		$view->addParams($view->getParamsDefault(), true);
+		*/
+		
+		$view->renderSortBy = SearchFields_WorkspacePage::ID;
+		$view->renderSortAsc = true;
+		$view->renderLimit = 10;
+		$view->renderFilters = false;
+		$view->renderTemplate = 'contextlinks_chooser';
+		
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+	
+	function getView($context=null, $context_id=null, $options=array()) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Pages';
+		
+		$params_req = array();
+		
+		/*
+		if(!empty($context) && !empty($context_id)) {
+			$params_req = array(
+				new DevblocksSearchCriteria(SearchFields_WorkspacePage::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_WorkspacePage::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
+		
+		$view->addParamsRequired($params_req, true);
+		*/
+		
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+};

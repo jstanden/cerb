@@ -659,6 +659,7 @@ class CerberusContexts {
 	const CONTEXT_TICKET = 'cerberusweb.contexts.ticket';
 	const CONTEXT_TIMETRACKING = 'cerberusweb.contexts.timetracking';
 	const CONTEXT_WORKER = 'cerberusweb.contexts.worker';
+	const CONTEXT_WORKSPACE_PAGE = 'cerberusweb.contexts.workspace.page';
 	
 	public static function getContext($context, $context_object, &$labels, &$values, $prefix=null, $nested=false) {
 		switch($context) {
