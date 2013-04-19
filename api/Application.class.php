@@ -661,6 +661,7 @@ class CerberusContexts {
 	const CONTEXT_WORKER = 'cerberusweb.contexts.worker';
 	const CONTEXT_WORKSPACE_PAGE = 'cerberusweb.contexts.workspace.page';
 	const CONTEXT_WORKSPACE_TAB = 'cerberusweb.contexts.workspace.tab';
+	const CONTEXT_WORKSPACE_WIDGET = 'cerberusweb.contexts.workspace.widget';
 	
 	public static function getContext($context, $context_object, &$labels, &$values, $prefix=null, $nested=false) {
 		switch($context) {

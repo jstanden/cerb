@@ -359,6 +359,7 @@
 		</file>
 		
 		<file path="api/dao/workspace_widget.php">
+			<class name="Context_WorkspaceWidget" />
 			<class name="DAO_WorkspaceWidget" />
 			<class name="Model_WorkspaceWidget" />
 			<class name="SearchFields_WorkspaceWidget" />
@@ -1129,6 +1130,30 @@
 				</param>
 			</params>
 		</extension>
+
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.workspace.widget</id>
+			<name>Workspace Widget</name>
+			<class>
+				<file>api/dao/workspace_widget.php</file>
+				<name>Context_WorkspaceWidget</name>
+			</class>
+			<params>
+				<param key="alias" value="workspace_widget" />
+				<param key="dao_class" value="DAO_WorkspaceWidget" />
+				<param key="view_class" value="View_WorkspaceWidget" />
+				<param key="options">
+					<value>
+						<!--<data key="create" />-->
+						<!--<data key="find" />-->
+						<!--<data key="snippets" />-->
+						<!--<data key="va_variable" />-->
+						<!--<data key="workspace" />-->
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<!-- Event Triggers -->
 		
 		<extension point="devblocks.event">
