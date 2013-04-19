@@ -179,6 +179,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(is_string($item))
 			$item = stripslashes($item);
 	}
+
+	static function intClamp($n, $min, $max) {
+		return min(max((integer)$n, $min), $max);
+	}
 	
 	/**
 	 * Returns a string as a regexp.
