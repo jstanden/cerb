@@ -345,6 +345,7 @@
 		
 		<file path="api/dao/workspace.php">
 			<class name="Context_WorkspacePage" />
+			<class name="Context_WorkspaceTab" />
 			<class name="DAO_WorkspaceList" />
 			<class name="DAO_WorkspacePage" />
 			<class name="DAO_WorkspaceTab" />
@@ -1106,6 +1107,28 @@
 			</params>
 		</extension>
 
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.workspace.tab</id>
+			<name>Workspace Tab</name>
+			<class>
+				<file>api/dao/workspace.php</file>
+				<name>Context_WorkspaceTab</name>
+			</class>
+			<params>
+				<param key="alias" value="workspace_tab" />
+				<param key="dao_class" value="DAO_WorkspaceTab" />
+				<param key="view_class" value="View_WorkspaceTab" />
+				<param key="options">
+					<value>
+						<!--<data key="create" />-->
+						<!--<data key="find" />-->
+						<!--<data key="snippets" />-->
+						<!--<data key="va_variable" />-->
+						<!--<data key="workspace" />-->
+					</value>
+				</param>
+			</params>
+		</extension>
 		<!-- Event Triggers -->
 		
 		<extension point="devblocks.event">

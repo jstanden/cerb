@@ -1373,3 +1373,239 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 		return $view;
 	}
 };
+
+class Context_WorkspaceTab extends Extension_DevblocksContext {
+	function getRandom() {
+		//return DAO_WorkspaceTab::random();
+	}
+	
+	function getMeta($context_id) {
+		$url_writer = DevblocksPlatform::getUrlService();
+
+		if(null == ($workspace_tab = DAO_WorkspaceTab::get($context_id)))
+			return array();
+		
+		$url = $url_writer(sprintf("c=pages&id=%d",
+			$workspace_tab->workspace_page_id
+		));
+		
+		return array(
+			'id' => $workspace_tab->id,
+			'name' => $workspace_tab->name,
+			'permalink' => $url,
+		);
+	}
+	
+	function getContext($tab, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Workspace Tab:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKSPACE_TAB);
+		
+		// Polymorph
+		if(is_numeric($tab)) {
+			$tab = DAO_WorkspaceTab::get($tab);
+		} elseif($tab instanceof Model_WorkspaceTab) {
+			// It's what we want already.
+		} else {
+			$tab = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+			'name' => $prefix.$translate->_('common.name'),
+			'extension_id' => $prefix.$translate->_('common.extension'),
+		);
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+		}
+
+		// Token values
+		$token_values = array();
+		
+		$token_values['_context'] = CerberusContexts::CONTEXT_WORKSPACE_TAB;
+
+		// Token values
+		if(null != $tab) {
+			$token_values['_loaded'] = true;
+			$token_values['_label'] = $tab->name;
+			$token_values['id'] = $tab->id;
+			$token_values['name'] = $tab->name;
+			$token_values['extension_id'] = $tab->extension_id;
+		}
+		
+		return true;
+	}
+	
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_WORKSPACE_TAB;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, false);
+		}
+		
+		switch($token) {
+			case 'widgets':
+				$values = $dictionary;
+
+				if(!isset($values['widgets']))
+					$values['widgets'] = array();
+				
+				$widgets = DAO_WorkspaceWidget::getByTab($context_id);
+
+				if(is_array($widgets))
+				foreach($widgets as $widget) { /* @var $widget Model_WorkspaceWidget */
+					$widget_labels = array();
+					$widget_values = array();
+					CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $widget, $widget_labels, $widget_values, null, true);
+					$values['widgets'][] = $widget_values;
+				}
+				break;
+			
+			case 'widgets_data':
+				$values = $dictionary;
+				
+				if(!isset($values['widgets']))
+					$values = self::lazyLoadContextValues('widgets', $values);
+				
+				if(!isset($values['widgets']))
+					break;
+				
+				$widgets = DAO_WorkspaceWidget::getByTab($context_id);
+				
+				if(is_array($values['widgets']))
+				foreach($values['widgets'] as $k => $widget) {
+					if(!isset($widgets[$widget['id']]))
+						continue;
+				
+					$widget_ext = Extension_WorkspaceWidget::get($widget['extension_id']);
+					
+					$values['widgets'][$k]['data'] = false;
+					
+					if(!($widget_ext instanceof ICerbWorkspaceWidget_ExportData))
+						continue;
+					
+					@$json = json_decode($widget_ext->exportData($widgets[$widget['id']], 'json'), true);
+
+					if(!is_array($json))
+						continue;
+					
+					// Remove redundant data
+					if(isset($json['widget'])) {
+						unset($json['widget']['label']);
+						unset($json['widget']['version']);
+					}
+					
+					$values['widgets'][$k]['data'] = isset($json['widget']) ? $json['widget'] : $json;
+				}
+				break;
+				
+			case 'worklists':
+				$values = $dictionary;
+
+				if(!isset($values['worklists']))
+					$values['worklists'] = array();
+				
+				$worklists = DAO_WorkspaceList::getByTab($context_id);
+
+				if(is_array($worklists))
+				foreach($worklists as $worklist) { /* @var $worklist Model_WorkspaceList */
+					if(empty($worklist->list_view))
+						continue;
+					
+					$values['worklists'][] = array(
+						'id' => $worklist->id,
+						'title' => $worklist->list_view->title,
+						'context' => $worklist->context,
+					);
+				}
+				break;
+			
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}
+
+	function getChooserView($view_id=null) {
+		if(empty($view_id))
+			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		
+		// View
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = $this->getViewClass();
+		
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Tabs';
+		
+		/*
+		$view->view_columns = array(
+			SearchFields_Address::FIRST_NAME,
+			SearchFields_Address::LAST_NAME,
+			SearchFields_Address::ORG_NAME,
+		);
+		*/
+		
+		/*
+		$view->addParamsDefault(array(
+			SearchFields_Address::IS_BANNED => new DevblocksSearchCriteria(SearchFields_Address::IS_BANNED,'=',0),
+			SearchFields_Address::IS_DEFUNCT => new DevblocksSearchCriteria(SearchFields_Address::IS_DEFUNCT,'=',0),
+		), true);
+		$view->addParams($view->getParamsDefault(), true);
+		*/
+		
+		$view->renderSortBy = SearchFields_WorkspaceTab::ID;
+		$view->renderSortAsc = true;
+		$view->renderLimit = 10;
+		$view->renderFilters = false;
+		$view->renderTemplate = 'contextlinks_chooser';
+		
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+	
+	function getView($context=null, $context_id=null, $options=array()) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Tabs';
+		
+		$params_req = array();
+		
+		/*
+		if(!empty($context) && !empty($context_id)) {
+			$params_req = array(
+				new DevblocksSearchCriteria(SearchFields_WorkspacePage::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_WorkspacePage::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
+		
+		$view->addParamsRequired($params_req, true);
+		*/
+		
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+};
