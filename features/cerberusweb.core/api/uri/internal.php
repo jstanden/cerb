@@ -713,11 +713,13 @@ class ChInternalController extends DevblocksControllerExtension {
 		header("Content-type: application/json");
 		
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($view_id))) {
 			echo json_encode(array(
 				'view_name' => $view->name,
 				'view_model' => base64_encode(serialize(C4_AbstractViewLoader::serializeAbstractView($view))),
+				'worklist_model' => C4_AbstractViewLoader::serializeViewToAbstractJson($view, $context),
 			));
 		}
 		

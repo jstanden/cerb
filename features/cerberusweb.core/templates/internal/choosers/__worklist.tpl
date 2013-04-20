@@ -50,11 +50,12 @@
 			event.stopPropagation();
 			var $popup = genericAjaxPopupFetch('{$layer}');
 			
-			genericAjaxGet('', 'c=internal&a=serializeView&view_id={$view->id}', function(json) {
+			genericAjaxGet('', 'c=internal&a=serializeView&view_id={$view->id}&context={$context}', function(json) {
 				// Trigger event
 				event = jQuery.Event('chooser_save');
 				event.view_name = json.view_name;
 				event.view_model = json.view_model;
+				event.worklist_model = json.worklist_model;
 				$popup.trigger(event);
 				
 				genericAjaxPopupDestroy('{$layer}');

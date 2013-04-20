@@ -2070,6 +2070,22 @@ class C4_AbstractViewLoader {
 		
 		return $inst;
 	}
+	
+	static function serializeViewToAbstractJson(C4_AbstractView $view, $context=null) {
+		$model = array(
+			'columns' => $view->view_columns,
+			'params' => json_decode(json_encode($view->getEditableParams()), true),
+			'limit' => $view->renderLimit,
+			'sort_by' => $view->renderSortBy,
+			'sort_asc' => !empty($view->renderSortAsc),
+			'subtotals' => $view->renderSubtotals,
+		);
+		
+		if(!empty($context))
+			$model['context'] = $context;
+		
+		return json_encode($model);
+	}
 };
 
 class DAO_WorkerViewModel {

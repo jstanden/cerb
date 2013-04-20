@@ -337,6 +337,13 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget implements ICerbWo
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
 		
+		// Convert the serialized model to proper JSON before saving
+		
+		if(isset($params['worklist_model_json'])) {
+			$params['worklist_model'] = json_decode($params['worklist_model_json'], true);
+			unset($params['worklist_model_json']);
+		}
+		
 		if(isset($params['threshold_values']))
 		foreach($params['threshold_values'] as $idx => $val) {
 			if(empty($val)) {
@@ -506,6 +513,13 @@ class WorkspaceWidget_Counter extends Extension_WorkspaceWidget implements ICerb
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
 		
+		// Convert the serialized model to proper JSON before saving
+		
+		if(isset($params['worklist_model_json'])) {
+			$params['worklist_model'] = json_decode($params['worklist_model_json'], true);
+			unset($params['worklist_model_json']);
+		}
+		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
@@ -660,6 +674,14 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget implements ICerbWo
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
 		
 		foreach($params['series'] as $idx => $series) {
+			// Convert the serialized model to proper JSON before saving
+		
+			if(isset($series['worklist_model_json'])) {
+				$series['worklist_model'] = json_decode($series['worklist_model_json'], true);
+				unset($series['worklist_model_json']);
+				$params['series'][$idx] = $series;
+			}
+			
 			if(isset($series['line_color'])) {
 				if(false != ($rgb = $this->_hex2RGB($series['line_color']))) {
 					$params['series'][$idx]['fill_color'] = sprintf("rgba(%d,%d,%d,0.15)", $rgb['r'], $rgb['g'], $rgb['b']);
@@ -925,6 +947,13 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
+		
+		// Convert the serialized model to proper JSON before saving
+		
+		if(isset($params['worklist_model_json'])) {
+			$params['worklist_model'] = json_decode($params['worklist_model_json'], true);
+			unset($params['worklist_model_json']);
+		}
 		
 		// Save the widget
 		
@@ -1367,7 +1396,9 @@ class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget implements I
 			if(null == ($datasource_ext = Extension_WorkspaceWidgetDatasource::get($datasource_extid)))
 				continue;
 			
-			$data = $datasource_ext->getData($widget, $series_params);
+			$params_prefix = sprintf("[series][%d]", $series_idx);
+			
+			$data = $datasource_ext->getData($widget, $series_params, $params_prefix);
 
 			if(!empty($data))
 				$widget->params['series'][$series_idx] = $data;
@@ -1413,6 +1444,16 @@ class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget implements I
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
+		
+		foreach($params['series'] as $idx => $series) {
+			// Convert the serialized model to proper JSON before saving
+		
+			if(isset($series['worklist_model_json'])) {
+				$series['worklist_model'] = json_decode($series['worklist_model_json'], true);
+				unset($series['worklist_model_json']);
+				$params['series'][$idx] = $series;
+			}
+		}
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
