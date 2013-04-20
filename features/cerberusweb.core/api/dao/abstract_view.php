@@ -2086,6 +2086,52 @@ class C4_AbstractViewLoader {
 		
 		return json_encode($model);
 	}
+	
+	static function unserializeViewFromAbstractJson($view_model, $view_id) {
+		$view_context = $view_model['context'];
+		
+		if(empty($view_context))
+			return false;
+		
+		if(null == ($ctx = Extension_DevblocksContext::get($view_context)))
+			return false;
+		
+		if(null == ($view = $ctx->getChooserView($view_id))) /* @var $view C4_AbstractView */
+			return false;
+		
+		$view->view_columns = $view_model['columns'];
+		$view->renderLimit = $view_model['limit'];
+		$view->renderSortBy = $view_model['sort_by'];
+		$view->renderSortAsc = $view_model['sort_asc'];
+		$view->renderSubtotals = $view_model['subtotals'];
+		
+		// Convert JSON params back to objects
+		$func = function(&$e) {
+			if(isset($e['field']) && isset($e['operator']) && isset($e['value'])) {
+				$e = new DevblocksSearchCriteria($e['field'], $e['operator'], $e['value']);
+			} else {
+				// [TODO] If the value is another style of array, we need to recurse
+				array_walk(
+					$e,
+					$func
+				);
+			}
+		};
+		
+		array_walk(
+			$view_model['params'],
+			$func
+		);
+		
+		$view->addParams($view_model['params'], true);
+
+		// [TODO] This needs a bit more logic
+		$active_worker = CerberusApplication::getActiveWorker();
+		//$view->setPlaceholderLabels(array('current_worker_id', 'Current Worker'));
+		$view->setPlaceholderValues(array('current_worker_id' => !empty($active_worker) ? $active_worker->id : 0));
+		
+		return $view;
+	}
 };
 
 class DAO_WorkerViewModel {
