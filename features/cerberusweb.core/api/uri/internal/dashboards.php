@@ -585,7 +585,7 @@ class WorkspaceWidget_Counter extends Extension_WorkspaceWidget implements ICerb
 class WorkspaceWidget_Chart extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
 	private function _loadData(Model_WorkspaceWidget &$widget) {
 		@$series = $widget->params['series'];
-		
+
 		if(empty($series)) {
 			return false;
 		}
@@ -600,8 +600,10 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget implements ICerbWo
 			
 			if(null == ($datasource_ext = Extension_WorkspaceWidgetDatasource::get($datasource_extid)))
 				continue;
-			
-			$data = $datasource_ext->getData($widget, $series_params);
+
+			$params_prefix = sprintf("[series][%d]", $series_idx);
+
+			$data = $datasource_ext->getData($widget, $series_params, $params_prefix);
 
 			if(!empty($data))
 				$widget->params['series'][$series_idx] = $data;
@@ -817,11 +819,7 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 	function render(Model_WorkspaceWidget $widget) {
 		$view_id = sprintf("widget%d_worklist", $widget->id);
 
-		if(null == ($view_model = self::getParamsViewModel($widget, $widget->params)))
-			return;
-		
-		// Force reload parameters (we can't trust the session)
-		if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
+		if(null == ($view = self::getViewFromParams($widget, $widget->params, $view_id)))
 			return;
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
@@ -959,13 +957,9 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 	private function _exportDataLoad(Model_WorkspaceWidget &$widget) {
 		$view_id = sprintf("widget%d_worklist", $widget->id);
 		
-		if(null == ($view_model = self::getParamsViewModel($widget, $widget->params)))
+		if(null == ($view = self::getViewFromParams($widget, $widget->params, $view_id)))
 			return false;
 
-		// Force reload parameters (we can't trust the session)
-		if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
-			return false;
-		
 		if(!($view instanceof IAbstractView_Subtotals))
 			return false;
 		
@@ -1053,17 +1047,20 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 };
 
 class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
-	function render(Model_WorkspaceWidget $widget) {
-		if(null == ($view_model = Extension_WorkspaceWidget::getParamsViewModel($widget, $widget->params)))
-			return false;
+	private function _getView(Model_WorkspaceWidget $widget) {
+		$view_id = sprintf("widget%d_worklist", $widget->id);
 		
-		// Force reload parameters (we can't trust the session)
-		if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
+		if(null == ($view = Extension_WorkspaceWidget::getViewFromParams($widget, $widget->params, $view_id)))
 			return false;
-		
-		$view->id = sprintf("widget%d_worklist", $widget->id);
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
+		
+		return $view;
+	}
+	
+	function render(Model_WorkspaceWidget $widget) {
+		if(false == ($view = $this->_getView($widget)))
+			return;
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view->id);
@@ -1087,19 +1084,14 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
 		$context_mfts = Extension_DevblocksContext::getAll(false, 'workspace');
 		$tpl->assign('context_mfts', $context_mfts);
 		
-		// Mirrored worklist for config (two worklists can render at once)
+		// Grab the latest view and copy it to _config
 		
-		if(
-			null != ($view_model = Extension_WorkspaceWidget::getParamsViewModel($widget, $widget->params))
-			&& false != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model))
-			) {
-			
-			// Mirror the worklist to the config worklist
-			$view->id = sprintf("widget%d_worklist_config", $widget->id);
-			$view->is_ephemeral = true;
-			
-			C4_AbstractViewLoader::setView($view->id, $view);
-		}
+		if(false == ($view = $this->_getView($widget)))
+			return;
+		
+		$view->id .= '_config';
+		$view->is_ephemeral = true;
+		C4_AbstractViewLoader::setView($view->id, $view);
 		
 		// Template
 		
@@ -1108,16 +1100,12 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
+
+		// Convert the serialized model to proper JSON before saving
 		
-		if(
-			null != ($view_model = self::getParamsViewModel($widget, $params))
-			&& false != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model))
-		) {
-			// Set the usable worklist
-			$view->id = sprintf("widget%d_worklist", $widget->id);
-			$view->is_ephemeral = false;
-			
-			C4_AbstractViewLoader::setView($view->id, $view);
+		if(isset($params['worklist_model_json'])) {
+			$params['worklist_model'] = json_decode($params['worklist_model_json'], true);
+			unset($params['worklist_model_json']);
 		}
 		
 		// Save

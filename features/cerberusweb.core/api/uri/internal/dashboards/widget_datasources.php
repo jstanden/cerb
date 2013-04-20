@@ -2,6 +2,14 @@
 // [TODO] This could split up into two worklist datasources (metric, series).
 //		This would allow reuse without having to know about the caller at all.
 class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDatasource {
+	private function _getSeriesIdxFromPrefix($params_prefix) {
+		if(!empty($params_prefix) && preg_match("#\[series\]\[(\d+)\]#", $params_prefix, $matches) && count($matches) == 2) {
+			return $matches[1];
+		}
+		
+		return null;
+	}
+	
 	function renderConfig(Model_WorkspaceWidget $widget, $params=array(), $params_prefix=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
@@ -9,20 +17,19 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		$tpl->assign('params', $params);
 		$tpl->assign('params_prefix', $params_prefix);
 		
-		// [TODO] This is a hack. We shouldn't have to access series_idx
-		if(!empty($params_prefix)) {
-			if(preg_match("#\[series\]\[(\d+)\]#", $params_prefix, $matches) && count($matches) == 2) {
-				$series_idx = $matches[1];
-				$tpl->assign('series_idx', $series_idx);
-			}
-		}
+		if(null !== ($series_idx = $this->_getSeriesIdxFromPrefix($params_prefix)))
+			$tpl->assign('series_idx', $series_idx);
 		
 		// Prime the worklist
-		if(null != ($view_model = Extension_WorkspaceWidget::getParamsViewModel($widget, $params))) {
-			// Force reload parameters (we can't trust the session)
-			if(false != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model))) {
-				C4_AbstractViewLoader::setView($view->id, $view);
-			}
+		
+		$view_id = sprintf(
+			"widget%d_worklist%s",
+			$widget->id,
+			(!is_null($series_idx) ? intval($series_idx) : '')
+		);
+		
+		if(null != ($view = Extension_WorkspaceWidget::getViewFromParams($widget, $params, $view_id))) {
+			C4_AbstractViewLoader::setView($view->id, $view);
 		}
 		
 		// Worklists
@@ -44,33 +51,41 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		}
 	}
 	
-	function getData(Model_WorkspaceWidget $widget, array $params=array()) {
+	function getData(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
 		switch($widget->extension_id) {
 			case 'core.workspace.widget.chart':
 			case 'core.workspace.widget.scatterplot':
-				return $this->_getDataSeries($widget, $params);
+				return $this->_getDataSeries($widget, $params, $params_prefix);
 				break;
 				
 			case 'core.workspace.widget.counter':
 			case 'core.workspace.widget.gauge':
 			case 'core.workspace.widget.pie_chart':
-				return $this->_getDataSingle($widget, $params);
+				return $this->_getDataSingle($widget, $params, $params_prefix);
 				break;
 		}
 	}
 	
-	private function _getDataSingle(Model_WorkspaceWidget $widget, array $params=array()) {
-		if(null == ($view_model = Extension_WorkspaceWidget::getParamsViewModel($widget, $params)))
+	private function _getDataSingle(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
+		$series_idx = $this->_getSeriesIdxFromPrefix($params_prefix);
+		
+		$view_id = sprintf("widget%d_worklist%s",
+			$widget->id,
+			(!is_null($series_idx) ? intval($series_idx) : '')
+		);
+		
+		if(null == ($view = Extension_WorkspaceWidget::getViewFromParams($widget, $params, $view_id)))
 			return;
 		
-		if(null == ($context_ext = Extension_DevblocksContext::get($params['view_context'])))
+		@$view_context = $params['worklist_model']['context'];
+		
+		if(empty($view_context))
+			return;
+		
+		if(null == ($context_ext = Extension_DevblocksContext::get($view_context)))
 			return;
 
 		if(null == ($dao_class = @$context_ext->manifest->params['dao_class']))
-			return;
-		
-		// Force reload parameters (we can't trust the session)
-		if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
 			return;
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
@@ -146,20 +161,28 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		return $params;
 	}
 	
-	private function _getDataSeries(Model_WorkspaceWidget $widget, array $params=array()) {
-		if(null == ($view_model = Extension_WorkspaceWidget::getParamsViewModel($widget, $params)))
+	private function _getDataSeries(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
+		$series_idx = $this->_getSeriesIdxFromPrefix($params_prefix);
+		
+		$view_id = sprintf("widget%d_worklist%s",
+			$widget->id,
+			(!is_null($series_idx) ? intval($series_idx) : '')
+		);
+		
+		if(null == ($view = Extension_WorkspaceWidget::getViewFromParams($widget, $params, $view_id)))
 			return;
-			
-		if(null == ($context_ext = Extension_DevblocksContext::get($params['view_context'])))
+		
+		@$view_context = $params['worklist_model']['context'];
+		
+		if(empty($view_context))
+			return;
+		
+		if(null == ($context_ext = Extension_DevblocksContext::get($view_context)))
 			return;
 
 		if(null == ($dao_class = @$context_ext->manifest->params['dao_class']))
 			continue;
 			
-		// Force reload parameters (we can't trust the session)
-		if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
-			return;
-		
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
 		$data = array();
@@ -496,7 +519,7 @@ class WorkspaceWidgetDatasource_Manual extends Extension_WorkspaceWidgetDatasour
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/datasources/config_manual_metric.tpl');
 	}
 	
-	function getData(Model_WorkspaceWidget $widget, array $params=array()) {
+	function getData(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
 		$metric_value = $params['metric_value'];
 		$metric_value = floatval(str_replace(',','', $metric_value));
 		$params['metric_value'] = $metric_value;
@@ -515,7 +538,7 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/datasources/config_url.tpl');
 	}
 	
-	function getData(Model_WorkspaceWidget $widget, array $params=array()) {
+	function getData(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
 		$cache = DevblocksPlatform::getCacheService();
 		
 		@$url = $params['url'];

@@ -10,7 +10,7 @@
 	<div id="widget{$widget->id}ConfigTabDatasource">
 		{section start=0 loop=3 name=series}
 		{$series_idx = $smarty.section.series.index}
-		{$series_prefix = "[series][{$series_idx}]"}	
+		{$series_prefix = "[series][{$series_idx}]"}
 		
 		<fieldset id="widget{$widget->id}Datasource{$series_idx}" class="peek">
 			<legend>Source #{$smarty.section.series.iteration}</legend>

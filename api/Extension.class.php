@@ -376,7 +376,7 @@ abstract class Extension_WorkspaceWidgetDatasource extends DevblocksExtension {
 	}
 	
 	abstract function renderConfig(Model_WorkspaceWidget $widget, $params=array(), $params_prefix=null);
-	abstract function getData(Model_WorkspaceWidget $widget, array $params=array());
+	abstract function getData(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null);
 };
 
 interface ICerbWorkspaceWidget_ExportData {
@@ -415,44 +415,56 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 	abstract function renderConfig(Model_WorkspaceWidget $widget);
 	abstract function saveConfig(Model_WorkspaceWidget $widget);
 
-	public static function getParamsViewModel($widget, $params) {
-		$view_model = null;
+	public static function getViewFromParams($widget, $params, $view_id) {
+		if(!isset($params['worklist_model']))
+			return;
 		
-		if(isset($params['view_model'])) {
-			$view_model_encoded = $params['view_model'];
-			$view_model = unserialize(base64_decode($view_model_encoded));
-		}
+		$view_model = $params['worklist_model'];
+		$view_context = $view_model['context'];
+		
+		if(empty($view_context))
+			return;
+		
+		if(null == ($ctx = Extension_DevblocksContext::get($view_context)))
+			return;
+		
+		if(null == ($view = $ctx->getChooserView($view_id))) /* @var $view C4_AbstractView */
+			return;
 
-		if(empty($view_model)) {
-			@$view_id = $params['view_id'];
-			@$view_context = $params['view_context'];
-			
-			if(empty($view_context))
-				return;
-			
-			if(null == ($ctx = Extension_DevblocksContext::get($view_context)))
-				return;
-			
-			if(null == ($view = $ctx->getChooserView($view_id))) /* @var $view C4_AbstractView */
-				return;
-				
-			if($view instanceof C4_AbstractView) {
-				$view->id = $view_id;
-				$view->is_ephemeral = true;
-				$view->renderFilters = false;
-
-				$view_model = C4_AbstractViewLoader::serializeAbstractView($view);
+		
+		$view->view_columns = $view_model['columns'];
+		$view->renderLimit = $view_model['limit'];
+		$view->renderSortBy = $view_model['sort_by'];
+		$view->renderSortAsc = $view_model['sort_asc'];
+		$view->renderSubtotals = $view_model['subtotals'];
+		
+		// Convert JSON params back to objects
+		$func = function(&$e) {
+			if(isset($e['field']) && isset($e['operator']) && isset($e['value'])) {
+				$e = new DevblocksSearchCriteria($e['field'], $e['operator'], $e['value']);
+			} else {
+				// [TODO] If the value is another style of array, we need to recurse
+				array_walk(
+					$e,
+					$func
+				);
 			}
-		}
+			
+		};
 		
-		if(isset($view_model->placeholderValues)
-			&& isset($view_model->placeholderValues['current_worker_id'])) {
-				$active_worker = CerberusApplication::getActiveWorker();
-				
-				$view_model->placeholderValues['current_worker_id'] = !empty($active_worker) ? $active_worker->id : 0;
-		}
+		array_walk(
+			$view_model['params'],
+			$func
+		);
 		
-		return $view_model;
+		$view->addParams($view_model['params'], true);
+
+		// [TODO] This needs a bit more logic
+		$active_worker = CerberusApplication::getActiveWorker();
+		//$view->setPlaceholderLabels(array('current_worker_id', 'Current Worker'));
+		$view->setPlaceholderValues(array('current_worker_id' => !empty($active_worker) ? $active_worker->id : 0));
+		
+		return $view;
 	}
 };
 
