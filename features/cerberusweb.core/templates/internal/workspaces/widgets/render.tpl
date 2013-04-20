@@ -8,8 +8,11 @@
 		<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;margin-left:-180px;">
 			<li><a href="javascript:;" class="dashboard-widget-edit" onclick="genericAjaxPopup('widget_edit','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetPopup&widget_id={$widget->id}',null,false,'550');">Configure</a></li>
 			<li><a href="javascript:;" class="dashboard-widget-refresh" onclick="genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}');">Refresh</a></li>
+			
+			<li><a href="javascript:;" class="dashboard-widget-export" onclick="genericAjaxPopup('widget_export','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetExportPopup&widget_id={$widget->id}',null,false,'650');">Export Widget</a></li>
+			
 			{if $widget_extension instanceof ICerbWorkspaceWidget_ExportData}
-			<li><a href="javascript:;" class="dashboard-widget-export-data" onclick="genericAjaxPopup('widget_export','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetExportPopup&widget_id={$widget->id}',null,false,'650');">Export Data</a></li>
+			<li><a href="javascript:;" class="dashboard-widget-export-data" onclick="genericAjaxPopup('widget_export_data','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetExportDataPopup&widget_id={$widget->id}',null,false,'650');">Export Data</a></li>
 			{/if}
 		</ul>
 	</div>

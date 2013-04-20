@@ -116,6 +116,27 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 		if(null == ($widget = DAO_WorkspaceWidget::get($widget_id)))
 			return;
 		
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		$tpl->assign('widget', $widget);
+		
+		$widget_json = json_encode(array(
+			'label' => $widget->label,
+			'extension_id' => $widget->extension_id,
+			'params' => $widget->params,
+		));
+		
+		$tpl->assign('widget_json', DevblocksPlatform::strFormatJson($widget_json));
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/export.tpl');
+	}
+	
+	function showWidgetExportDataPopupAction() {
+		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'], 'integer', 0);
+
+		if(null == ($widget = DAO_WorkspaceWidget::get($widget_id)))
+			return;
+		
 		if(null == ($widget_extension = Extension_WorkspaceWidget::get($widget->extension_id)))
 			return;
 		
