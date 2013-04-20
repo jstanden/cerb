@@ -6,17 +6,6 @@
 	<fieldset id="widget{$widget->id}Datasource" class="peek">
 		{$div_popup_worklist = uniqid()}
 
-		{$series_ctx_id = $widget->params.view_context}
-		
-		{$series_ctx = null}
-		{$series_ctx_view = null}
-		{$series_ctx_fields = []}
-		
-		{if !empty($series_ctx_id)}
-			{$series_ctx = Extension_DevblocksContext::get($series_ctx_id)}
-			{$series_ctx_view = $series_ctx->getChooserView()} 
-			{$series_ctx_fields = $series_ctx_view->getParamsAvailable()}
-		{/if}
 		{$worklist_ctx_id = $widget->params.worklist_model.context}
 
 		<b>Display </b>
@@ -51,22 +40,6 @@
 
 	<script type="text/javascript">
 		$fieldset = $('fieldset#widget{$widget->id}Datasource');
-		
-		$fieldset.find('select.context').change(function(e) {
-			ctx = $(this).val();
-			
-			var $select = $(this);
-			
-			if(0 == ctx.length)
-				return;
-			
-			genericAjaxGet('','c=internal&a=handleSectionAction&section=dashboards&action=getContextFieldsJson&context=' + ctx, function(json) {
-				if('object' == typeof(json) && json.length > 0) {
-					// ...
-				}
-			});
-		});
-		
 
 		$('#popup{$div_popup_worklist}').click(function(e) {
 			var $select =  $(this).siblings('select.context');

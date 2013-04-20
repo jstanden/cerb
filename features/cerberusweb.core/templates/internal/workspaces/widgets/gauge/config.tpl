@@ -99,15 +99,4 @@
 			genericAjaxGet($div_params, 'c=internal&a=handleSectionAction&section=dashboards&action=getWidgetDatasourceConfig&widget_id={$widget->id}&ext_id=' + datasource);
 		}
 	});
-	
-	$('#popup{$div_popup_worklist}').click(function(e) {
-		context = $(this).siblings('select.context').val();
-		$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist"}',null,true,'750');
-		$chooser.bind('chooser_save',function(event) {
-			if(null != event.view_model) {
-				//$('#popup{$div_popup_worklist}').find('span.name').html(event.view_name);
-				$('#popup{$div_popup_worklist}').parent().find('input:hidden.model').val(event.view_model);
-			}
-		});
-	});
 </script>
