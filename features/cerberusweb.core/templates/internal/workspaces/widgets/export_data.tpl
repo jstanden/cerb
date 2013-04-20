@@ -12,13 +12,13 @@
 	
 	{if $export_data.json}
 	<div id="widgetExportTabJson">
-		<textarea style="width:100%;height:250px;white-space:pre;word-wrap:normal;" rows="10" cols="45" readonly="readonly" spellcheck="false">{$export_data.json}</textarea>
+		<textarea style="width:100%;height:250px;white-space:pre;word-wrap:normal;" rows="10" cols="45" spellcheck="false">{$export_data.json}</textarea>
 	</div>
 	{/if}
 	
 	{if $export_data.csv}
 	<div id="widgetExportTabCsv">
-		<textarea style="width:100%;height:250px;white-space:pre;word-wrap:normal;" rows="10" cols="45" readonly="readonly" spellcheck="false">{$export_data.csv}</textarea>
+		<textarea style="width:100%;height:250px;white-space:pre;word-wrap:normal;" rows="10" cols="45" spellcheck="false">{$export_data.csv}</textarea>
 	</div>
 	{/if}
 </div>
