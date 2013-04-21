@@ -2,7 +2,7 @@
 <b>Find objects using this worklist:</b>
 <div style="margin:0px 0px 5px 10px;">
 	<div id="popup{$uniq_id}" class="badge badge-lightgray" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;"><span class="name">{if !empty($view->name)}{$view->name}{else}Worklist{/if}</span> &#x25be;</div>
-	<input type="hidden" name="{$namePrefix}[view_model]" value="{$params.view_model}" class="model">
+	<input type="hidden" name="{$namePrefix}[worklist_model_json]" value="{$params.worklist_model|json_encode}" class="model">
 </div>
 
 <b>Limit to:</b>
@@ -34,9 +34,9 @@
 	$div.click(function(e) {
 		$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context={$context}&view_id={$view->id}&trigger_id={$trigger->id}',null,true,'750');
 		$chooser.bind('chooser_save',function(event) {
-			if(null != event.view_model) {
+			if(null != event.worklist_model) {
 				$('#popup{$uniq_id}').find('span.name').html(event.view_name);
-				$('#popup{$uniq_id}').parent().find('input:hidden.model').val(event.view_model);
+				$('#popup{$uniq_id}').parent().find('input:hidden.model').val(event.worklist_model);
 			}
 		});
 	});

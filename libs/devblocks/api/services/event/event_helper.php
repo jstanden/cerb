@@ -482,17 +482,11 @@ class DevblocksEventHelper {
 	
 	static function renderActionSetListVariable($token, $trigger, $params, $context) {
 		$tpl = DevblocksPlatform::getTemplateService();
-
-		if(null == ($view_model = DevblocksEventHelper::getParamsViewModel($token, $params, $trigger, $context)))
-			return;
 		
-		// Force reload parameters (we can't trust the session)
-		if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
+		if(null == ($view = DevblocksEventHelper::getViewFromAbstractJson($token, $params, $trigger, $context)))
 			return;
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
-		
-		$params['view_model'] = base64_encode(serialize($view_model));
 		
 		$tpl->assign('context', $context);
 		$tpl->assign('params', $params);
@@ -2792,45 +2786,33 @@ class DevblocksEventHelper {
 		return array_unique($worker_ids);
 	}
 	
-	static function getParamsViewModel($token, $params, $trigger, $context) {
-		$view_model = null;
+	static function getViewFromAbstractJson($token, $params, $trigger, $context) {
+		@$worklist_model = $params['worklist_model'];
 		
-		if(isset($params['view_model'])) {
-			$view_model_encoded = $params['view_model'];
-			$view_model = unserialize(base64_decode($view_model_encoded));
+		$view_id = sprintf("_trigger_%d_%s_%s",
+			$trigger->id,
+			$token,
+			uniqid()
+		);
+		
+		// If the model is blank, initialize it
+		if(empty($worklist_model)) {
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			if(null == ($view = $context_ext->getChooserView($view_id)))
+				return;
+			
+			$worklist_model = json_decode(C4_AbstractViewLoader::serializeViewToAbstractJson($view, $context), true);
 		}
 		
-		if(empty($view_model)) {
-			$view_id = sprintf("_trigger_%d_%s_%s",
-				$trigger->id,
-				$token,
-				uniqid()
-			);
-			
-			$ctx = Extension_DevblocksContext::get($context);
-			
-			$view = $ctx->getChooserView(); /* @var $view C4_AbstractView */
-			
-			if($view instanceof C4_AbstractView) {
-				$view->id = $view_id;
-				$view->is_ephemeral = true;
-				$view->renderFilters = true;
-	
-				$view_model = C4_AbstractViewLoader::serializeAbstractView($view);
-			}
-		}
-		
-		return $view_model;
+		return C4_AbstractViewLoader::unserializeViewFromAbstractJson($worklist_model, $view_id);
 	}
 	
 	static function runActionSetListVariable($token, $context, $params, DevblocksDictionaryDelegate $dict) {
 		$trigger = $dict->_trigger;
 		
-		if(null == ($view_model = DevblocksEventHelper::getParamsViewModel($token, $params, $trigger, $context)))
-			return;
-		
-		// Force reload parameters (we can't trust the session)
-		if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
+		if(null == ($view = DevblocksEventHelper::getViewFromAbstractJson($token, $params, $trigger, $context)))
 			return;
 		
 		$view->setPlaceholderValues($dict->getDictionary());

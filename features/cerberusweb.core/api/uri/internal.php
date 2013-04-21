@@ -718,7 +718,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null != ($view = C4_AbstractViewLoader::getView($view_id))) {
 			echo json_encode(array(
 				'view_name' => $view->name,
-				'view_model' => base64_encode(serialize(C4_AbstractViewLoader::serializeAbstractView($view))),
 				'worklist_model' => C4_AbstractViewLoader::serializeViewToAbstractJson($view, $context),
 			));
 		}
@@ -3172,7 +3171,13 @@ class ChInternalController extends DevblocksControllerExtension {
 		$objects = array();
 		
 		foreach($action_ids as $action_id) {
-			$objects[] = DevblocksPlatform::importGPC($scope['action'.$action_id],'array',array());
+			$params = DevblocksPlatform::importGPC($scope['action'.$action_id],'array',array());
+			if(isset($params['worklist_model_json'])) {
+				$params['worklist_model'] = json_decode($params['worklist_model_json'], true);
+				unset($params['worklist_model_json']);
+			}
+			
+			$objects[] = $params;
 		}
 		
 		return $objects;

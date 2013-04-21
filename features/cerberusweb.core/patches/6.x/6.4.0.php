@@ -134,7 +134,7 @@ while($row = mysql_fetch_assoc($rs)) {
 $rs = $db->Execute("SELECT id, params_json FROM workspace_tab WHERE extension_id = 'core.workspace.tab.calendar'");
 
 while($row = mysql_fetch_assoc($rs)) {
-	$widget_id = $row['id'];
+	$tab_id = $row['id'];
 	$params_json = $row['params_json'];
 	
 	if(false == ($json = json_decode($params_json, true)))
@@ -167,9 +167,70 @@ while($row = mysql_fetch_assoc($rs)) {
 	
 	$sql = sprintf("UPDATE workspace_tab SET params_json=%s WHERE id=%d",
 		$db->qstr(json_encode($json)),
-		$widget_id
+		$tab_id
 	);
 	$db->Execute($sql);
+}
+
+// ===========================================================================
+// Convert worklist-based VA actions to a simplified JSON format
+
+$rs = $db->Execute("SELECT decision_node.id, decision_node.params_json, trigger_event.variables_json FROM decision_node INNER JOIN trigger_event ON (trigger_event.id = decision_node.trigger_id) WHERE decision_node.node_type = 'action'");
+
+while($row = mysql_fetch_assoc($rs)) {
+	$changed = false;
+	
+	$node_id = $row['id'];
+	$params_json = $row['params_json'];
+	$variables_json = $row['variables_json'];
+	
+	if(false == ($variables = json_decode($variables_json, true)))
+		continue;
+	
+	if(false == ($json = json_decode($params_json, true)))
+		continue;
+	
+	if(!isset($json['actions']) || !is_array($json['actions']))
+		continue;
+	
+	foreach($json['actions'] as $idx => $action) {
+		if(!isset($action['action']))
+			continue;
+		
+		if('var_' == substr($action['action'], 0, 4)) {
+			if(!isset($variables[$action['action']]))
+				continue;
+			
+			if(!isset($action['view_model']))
+				continue;
+			
+			if(false == ($old_model = unserialize(base64_decode($action['view_model']))))
+				continue;
+			
+			$action['worklist_model'] = array(
+				'context' => substr($variables[$action['action']]['type'], 4),
+				'columns' => $old_model->view_columns,
+				'params' => json_decode(json_encode($old_model->paramsEditable), true),
+				'limit' => $old_model->renderLimit,
+				'sort_by' => $old_model->renderSortBy,
+				'sort_asc' => !empty($old_model->renderSortAsc),
+				'subtotals' => $old_model->renderSubtotals,
+			);
+			
+			unset($action['view_model']);
+			
+			$json['actions'][$idx] = $action;
+			$changed = true;
+		}
+	}
+	
+	if($changed) {
+		$sql = sprintf("UPDATE decision_node SET params_json=%s WHERE id=%d",
+			$db->qstr(json_encode($json)),
+			$node_id
+		);
+		$db->Execute($sql);
+	}
 }
 
 return TRUE;
