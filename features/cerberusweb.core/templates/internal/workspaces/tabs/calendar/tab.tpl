@@ -1,4 +1,4 @@
-{if empty($workspace_tab->params.context_extid)}
+{if empty($workspace_tab->params.worklist_model)}
 
 <div class="help-box" style="padding:5px;border:0;">
 	<h1 style="margin-bottom:5px;text-align:left;">Configure the calendar</h1>

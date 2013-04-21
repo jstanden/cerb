@@ -1,14 +1,15 @@
 {$div_popup_worklist = "workspace_tab{$workspace_tab->id}_worklist"}
+{$worklist_context_id = $workspace_tab->params.worklist_model.context}
 
 <fieldset id="tabConfig{$workspace_tab->id}">
 <legend>Calendar events</legend>
 
 <b>Load</b>
 
-<select name="params[context_extid]" class="context">
+<select class="context">
 	<option value=""> - {'common.choose'|devblocks_translate|lower} - </option>
 	{foreach from=$context_mfts item=context_mft}
-	<option value="{$context_mft->id}" {if $workspace_tab->params.context_extid==$context_mft->id}selected="selected"{/if}>{$context_mft->name}</option>
+	<option value="{$context_mft->id}" {if $worklist_context_id==$context_mft->id}selected="selected"{/if}>{$context_mft->name}</option>
 	{/foreach}
 </select>
 
@@ -16,8 +17,7 @@
 
 <div id="popup{$div_popup_worklist}" class="badge badge-lightgray" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;display:inline;"><span class="name">Worklist</span> &#x25be;</div>
 
-<input type="hidden" name="params[view_id]" value="{$workspace_tab->params.view_id|default:$div_popup_worklist}">
-<input type="hidden" name="params[view_model]" value="{$workspace_tab->params.view_model}" class="model">
+<input type="hidden" name="params[worklist_model_json]" value="{$workspace_tab->params.worklist_model|json_encode}" class="model">
 
 <br>
 
@@ -140,8 +140,8 @@ $('#popup{$div_popup_worklist}').click(function(e) {
 	
 	$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"workspace_tab{$workspace_tab->id}_worklist"}',null,true,'750');
 	$chooser.bind('chooser_save',function(event) {
-		if(null != event.view_model) {
-			$('#popup{$div_popup_worklist}').parent().find('input:hidden.model').val(event.view_model);
+		if(null != event.worklist_model) {
+			$('#popup{$div_popup_worklist}').parent().find('input:hidden.model').val(event.worklist_model);
 		}
 	});
 });

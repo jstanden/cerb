@@ -19,22 +19,44 @@ class WorkspaceTab_Calendar extends Extension_WorkspaceTab {
 		$context_mfts = Extension_DevblocksContext::getAll(false, array('workspace'));
 		$tpl->assign('context_mfts', $context_mfts);
 
-		if(isset($tab->params['context_extid'])) {
-			$ctx = Extension_DevblocksContext::get($tab->params['context_extid']);
-			if(null != ($view_class = $ctx->getViewClass())) { /* @var $view_class C4_AbstractView */
-				if(null != ($view = new $view_class))
-					$tpl->assign('ctx_fields', $view->getFields());
+		@$worklist_context = $tab->params['worklist_model']['context'];
+		
+		// Load the initial fields from the context
+		
+		if(!empty($worklist_context)) {
+			if(null != ($ctx = Extension_DevblocksContext::get($worklist_context))) {
+				if(null != ($view_class = $ctx->getViewClass())) { /* @var $view_class C4_AbstractView */
+					if(null != ($view = new $view_class))
+						$tpl->assign('ctx_fields', $view->getFields());
+				}
+				
+				CerberusContexts::getContext($ctx->id, null, $labels, $values, null, true);
+				$tpl->assign('placeholders', $labels);
 			}
-			
-			CerberusContexts::getContext($ctx->id, null, $labels, $values, null, true);
-			$tpl->assign('placeholders', $labels);
 		}
+		
+		// Prime the worklist view
+		
+		@$worklist_view_id = sprintf("workspace_tab%d_worklist", $tab->id);
+		@$worklist_model = $tab->params['worklist_model'];
+		
+		if(null != ($worklist_view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($worklist_model, $view_id)))
+			C4_AbstractViewLoader::setView($worklist_view_id, $worklist_view);
+		
+		// Render template
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/tabs/calendar/config.tpl');
 	}
 	
 	function saveTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array');
+
+		// Convert the serialized model to proper JSON before saving
+		
+		if(isset($params['worklist_model_json'])) {
+			$params['worklist_model'] = json_decode($params['worklist_model_json'], true);
+			unset($params['worklist_model_json']);
+		}
 		
 		DAO_WorkspaceTab::update($tab->id, array(
 			DAO_WorkspaceTab::PARAMS_JSON => json_encode($params),
@@ -142,15 +164,16 @@ class WorkspaceTab_Calendar extends Extension_WorkspaceTab {
 		
 		$calendar_events = array();
 		
-		if(isset($tab->params['context_extid'])
-			&& isset($tab->params['view_id'])
-			&& isset($tab->params['view_model'])) {
+		if(isset($tab->params['worklist_model'])) {
+			@$worklist_context = $tab->params['worklist_model']['context'];
 			
-			if(null != ($context_ext = Extension_DevblocksContext::get($tab->params['context_extid']))) {
-				$view_model = unserialize(base64_decode($tab->params['view_model'])); /* @var $view C4_AbstractView */
+			if(!empty($worklist_context) && null != ($context_ext = Extension_DevblocksContext::get($worklist_context))) {
+				$worklist_model = $tab->params['worklist_model'];
+				$view_id = sprintf("workspace_tab%d_worklist", $tab->id);
 				
-				if(null != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model))) {
-				
+				if(false != ($view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($worklist_model, $view_id))) {
+					/* @var $view C4_AbstractView */
+					
 					$view->addParam(
 						new DevblocksSearchCriteria($tab->params['field_start_date'], DevblocksSearchCriteria::OPER_BETWEEN, array($date_range_from, $date_range_to)),
 						$tab->params['field_start_date']
@@ -173,82 +196,21 @@ class WorkspaceTab_Calendar extends Extension_WorkspaceTab {
 					foreach($results as $id => $row) {
 						$epoch = strtotime('midnight', $row[$tab->params['field_start_date']]);
 
+						// [TODO] This needs to be more efficient
 						CerberusContexts::getContext($context_ext->id, $id, $labels, $values);
 
-						// [TODO] This needs to be more efficient
-						$dict = new DevblocksDictionaryDelegate($values);
-						
 						$calendar_events[$epoch][$id] = array(
 							'id' => $id,
-							'context' => @$tab->params['context_extid'],
-							'label' => $tpl_builder->build($template, $dict),
+							'context' => @$worklist_context,
+							'label' => $tpl_builder->build($template, $values),
 						);
 					}
-					
-					//var_dump($results);
-					
-					//foreach($results as $row_id => $row) {
-						
-						/*
-						$day_range = range(strtotime('midnight', $tab->params['field_start_date']), strtotime('midnight', $tab->params['field_start_date']), 86400);
-						
-						foreach($day_range as $epoch) {
-							if(!isset($calendar_events[$epoch]))
-								$calendar_events[$epoch] = array();
-							
-							$calendar_events[$epoch][$row['id']] = array(
-								'id' => $row[SearchFields_Task::ID],
-								'name' => $row[SearchFields_Task::TITLE],
-							);
-						}
-						*/
-					//}
-					
 				}
 			}
 			
 		}
 		
-		//var_dump($calendar_events);
-		
-		// [TODO] Convert to DAO
-		/*
-		$db = DevblocksPlatform::getDatabaseService();
-		$sql = sprintf(
-			"SELECT id, name, recurring_id, is_available, date_start, date_end ".
-			"FROM calendar_event ".
-			"WHERE owner_context = %s ".
-			"AND owner_context_id = %d ".
-			"AND ((date_start >= %d AND date_start <= %d) OR (date_end >= %d AND date_end <= %d)) ".
-			"ORDER BY is_available DESC, date_start ASC",
-			$db->qstr($context),
-			$context_id,
-			$date_range_from,
-			$date_range_to,
-			$date_range_from,
-			$date_range_to
-		);
-		$results = $db->GetArray($sql);
-
-		foreach($results as $row) {
-			$day_range = range(strtotime('midnight', $row['date_start']), strtotime('midnight', $row['date_end']), 86400);
-			
-			foreach($day_range as $epoch) {
-				if(!isset($calendar_events[$epoch]))
-					$calendar_events[$epoch] = array();
-				
-				$calendar_events[$epoch][$row['id']] = array(
-					'id' => $row['id'],
-					'name' => $row['name'],
-					'is_available' => $row['is_available'],
-				);
-			}
-		}
-		*/
-
 		// Template scope
-		//$tpl->assign('context', $context);
-		//$tpl->assign('context_id', $context_id);
 		$tpl->assign('today', strtotime('today'));
 		$tpl->assign('prev_month', $prev_month);
 		$tpl->assign('prev_year', $prev_year);

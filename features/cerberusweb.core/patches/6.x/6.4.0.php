@@ -7,6 +7,9 @@ $db = DevblocksPlatform::getDatabaseService();
 $logger = DevblocksPlatform::getConsoleLog();
 $tables = $db->metaTables();
 
+// ===========================================================================
+// Convert worklist-based workspace widgets to a simplified JSON format
+
 $rs = $db->Execute("SELECT id, extension_id, params_json FROM workspace_widget");
 
 while($row = mysql_fetch_assoc($rs)) {
@@ -123,6 +126,50 @@ while($row = mysql_fetch_assoc($rs)) {
 		);
 		$db->Execute($sql);
 	}
+}
+
+// ===========================================================================
+// Convert worklist-based calendar tabs to a simplified JSON format
+
+$rs = $db->Execute("SELECT id, params_json FROM workspace_tab WHERE extension_id = 'core.workspace.tab.calendar'");
+
+while($row = mysql_fetch_assoc($rs)) {
+	$widget_id = $row['id'];
+	$params_json = $row['params_json'];
+	
+	if(false == ($json = json_decode($params_json, true)))
+		continue;
+
+	if(!isset($json['context_extid']))
+		continue;
+	
+	$view_context = $json['context_extid'];
+	
+	if(!isset($json['view_model']))
+		continue;
+	
+	if(false == ($old_model = unserialize(base64_decode($json['view_model']))))
+		continue;
+	
+	$json['worklist_model'] = array(
+		'context' => $view_context,
+		'columns' => $old_model->view_columns,
+		'params' => json_decode(json_encode($old_model->paramsEditable), true),
+		'limit' => $old_model->renderLimit,
+		'sort_by' => $old_model->renderSortBy,
+		'sort_asc' => !empty($old_model->renderSortAsc),
+		'subtotals' => $old_model->renderSubtotals,
+	);
+	
+	unset($json['context_extid']);
+	unset($json['view_id']);
+	unset($json['view_model']);
+	
+	$sql = sprintf("UPDATE workspace_tab SET params_json=%s WHERE id=%d",
+		$db->qstr(json_encode($json)),
+		$widget_id
+	);
+	$db->Execute($sql);
 }
 
 return TRUE;
