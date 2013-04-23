@@ -2918,6 +2918,21 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/simulator/results.tpl');
 	}
 	
+	function showBehaviorExportPopupAction() {
+		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+		
+		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
+			return;
+
+		$behavior_json = $trigger->exportToJson();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('trigger', $trigger);
+		$tpl->assign('behavior_json', $behavior_json);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/_export.tpl');
+	}
 	function showScheduleBehaviorParamsAction() {
 		@$name_prefix = DevblocksPlatform::importGPC($_REQUEST['name_prefix'],'string', '');
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
