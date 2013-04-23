@@ -230,5 +230,17 @@
 			</params>
 		</extension>
 		
+		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.workspaces</id>
+			<name>Workspaces</name>
+			<class>
+				<file>api/rest/workspaces.php</file>
+				<name>ChRest_Workspaces</name>
+			</class>
+			<params>
+				<param key="uri" value="workspaces" />
+			</params>
+		</extension>
+		
 	</extensions>
 </plugin>
