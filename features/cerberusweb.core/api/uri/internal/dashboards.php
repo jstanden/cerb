@@ -110,6 +110,87 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 		));
 	}
 	
+	function addWidgetImportJsonAction() {
+		@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'], 'string', null);
+		@$workspace_tab_id = DevblocksPlatform::importGPC($_REQUEST['workspace_tab_id'], 'integer', 0);
+		@$configure = DevblocksPlatform::importGPC($_REQUEST['configure'],'array', array());
+		
+		header('Content-Type: application/json');
+
+		try {
+		
+			if(empty($workspace_tab_id))
+				throw new Exception("Invalid workspace tab target");
+			
+			if(false == ($widget_json = json_decode($import_json, true)))
+				throw new Exception("Invalid JSON");
+			
+			if(!isset($widget_json['widget']['extension_id']))
+				throw new Exception("JSON doesn't contain widget extension info");
+			
+			if(!isset($widget_json['widget']['params']))
+				throw new Exception("JSON doesn't contain widget params");
+				
+			@$extension_id = $widget_json['widget']['extension_id'];
+			
+			if(empty($extension_id) || null == ($extension = Extension_WorkspaceWidget::get($extension_id)))
+				throw new Exception("Invalid widget extension");
+
+			// [TODO] Do more error checking on acceptable params
+			
+			// Allow prompted configuration of the widget import
+			
+			@$configure_fields = $widget_json['widget']['configure'];
+			
+			// Are there configurable fields in this import file?
+			if(is_array($configure_fields) && !empty($configure_fields)) {
+				// If the worker has provided the configuration, make the changes to JSON array
+				if(!empty($configure)) {
+					foreach($configure_fields as $config_field_idx => $config_field) {
+						if(!isset($config_field['path']))
+							continue;
+						
+						if(!isset($configure[$config_field_idx]))
+							continue;
+						
+						$ptr =& DevblocksPlatform::jsonGetPointerFromPath($widget_json, $config_field['path']);
+						$ptr = $configure[$config_field_idx];
+					}
+					
+				// If the worker hasn't been prompted, do that now
+				} else {
+					$tpl = DevblocksPlatform::getTemplateService();
+					$tpl->assign('import_json', $import_json);
+					$tpl->assign('import_fields', $configure_fields);
+					$config_html = $tpl->fetch('devblocks:cerberusweb.core::internal/import/prompted/configure_json_import.tpl');
+					
+					echo json_encode(array(
+						'config_html' => $config_html,
+					));
+					return;
+				}
+			}
+			
+			$widget_id = DAO_WorkspaceWidget::create(array(
+				DAO_WorkspaceWidget::LABEL => @$widget_json['widget']['label'] ?: 'New widget',
+				DAO_WorkspaceWidget::EXTENSION_ID => $extension_id,
+				DAO_WorkspaceWidget::WORKSPACE_TAB_ID => $workspace_tab_id,
+				DAO_WorkspaceWidget::POS => '0000',
+				DAO_WorkspaceWidget::PARAMS_JSON => json_encode($widget_json['widget']['params'])
+			));
+			
+			echo json_encode(array(
+				'widget_id' => $widget_id,
+				'widget_extension_id' => $extension_id,
+				'widget_tab_id' => $workspace_tab_id,
+			));
+			
+		} catch (Exception $e) {
+			echo json_encode(array(false, $e->getMessage()));
+			return;
+		}
+	}
+	
 	function showWidgetExportPopupAction() {
 		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'], 'integer', 0);
 
@@ -121,9 +202,11 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 		$tpl->assign('widget', $widget);
 		
 		$widget_json = json_encode(array(
-			'label' => $widget->label,
-			'extension_id' => $widget->extension_id,
-			'params' => $widget->params,
+			'widget' => array(
+				'label' => $widget->label,
+				'extension_id' => $widget->extension_id,
+				'params' => $widget->params,
+			),
 		));
 		
 		$tpl->assign('widget_json', DevblocksPlatform::strFormatJson($widget_json));
