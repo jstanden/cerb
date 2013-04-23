@@ -950,6 +950,46 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 
 	/**
+	 * Returns a pointer to an arbitrary property in a deeply nested JSON tree.  The pointer
+	 * can be used to get or set the value at that location.
+	 *
+	 * @param array|string $json
+	 * @param string $path
+	 *
+	 * @return mixed Pointer to the value at $path, or FALSE on error
+	 */
+	static function &jsonGetPointerFromPath(array &$array, $path) {
+		if(empty($path))
+			return false;
+		
+		$keys = explode('.', $path);
+		$array_keys = array();
+
+		if(!is_array($keys) || empty($keys))
+			return false;
+		
+		foreach($keys as $idx => $k) {
+			if(preg_match('/(.*)\[(\d+)\]/', $k, $matches)) {
+				$array_keys[] = $matches[1];
+				$array_keys[] = $matches[2];
+			} else {
+				$array_keys[] = $k;
+			}
+		}
+
+		$ptr =& $array;
+
+		while(null !== ($key = array_shift($array_keys))) {
+			if(!isset($ptr[$key]))
+				return false;
+			
+			$ptr =& $ptr[$key];
+		}
+
+		return $ptr;
+	}
+
+	/**
 	 * Clears any platform-level plugin caches.
 	 *
 	 */
