@@ -461,6 +461,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 					}
 						
 					// Scatterplots ignore histograms
+					if(isset($widget->params['chart_type']))
 					switch($widget->params['chart_type']) {
 						case 'scatterplot':
 							$group_by = null;

@@ -2352,7 +2352,7 @@ class DevblocksEventHelper {
 		
 		@$from_address_id = $params['from_address_id'];
 		
-		if(!is_numeric($from_address_id) || false !== strpos($from_address_id, ',')) {
+		if(!empty($from_address_id) && (!is_numeric($from_address_id) || false !== strpos($from_address_id, ','))) {
 			$from_address_id = 0;
 			$from_placeholders = DevblocksPlatform::parseCsvString($params['from_address_id']);
 			
@@ -2386,7 +2386,7 @@ class DevblocksEventHelper {
 			return "[ERROR] The 'subject' field has invalid placeholders.";
 		}
 		
-		if(false === ($headers_string = $tpl_builder->build($params['headers'], $dict))) {
+		if(false === ($headers_string = isset($params['headers']) ? $tpl_builder->build($params['headers'], $dict) : '')) {
 			return "[ERROR] The 'headers' field has invalid placeholders.";
 		}
 		
