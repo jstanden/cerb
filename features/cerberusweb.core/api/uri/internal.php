@@ -641,6 +641,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer',0);
 		
+		// [TODO] This should be able to take a simplified JSON view model
+		
 		if(null == ($context_ext = Extension_DevblocksContext::get($context))) { /* @var $context_ext Extension_DevblocksContext */
 			return;
 		}
@@ -3344,6 +3346,13 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		foreach($action_ids as $action_id) {
 			$params = DevblocksPlatform::importGPC($scope['action'.$action_id],'array',array());
+
+			/*
+			 * [TODO] This should probably be given to each action extension so they
+			 * can make any last minute changes to the persisted params.  We don't really
+			 * want to bury the worklist_model_json stuff here since this is global, and
+			 * only set_var_* uses this param.
+			 */
 			if(isset($params['worklist_model_json'])) {
 				$params['worklist_model'] = json_decode($params['worklist_model_json'], true);
 				unset($params['worklist_model_json']);

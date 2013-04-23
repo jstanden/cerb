@@ -777,6 +777,8 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget implements ICerbWo
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
 		
+		// [TODO] The extension should be able to filter the properties here
+		
 		foreach($params['series'] as $idx => $series) {
 			// Convert the serialized model to proper JSON before saving
 		
@@ -1548,6 +1550,8 @@ class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget implements I
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
+		
+		// [TODO] The extension should be able to filter the properties here
 		
 		foreach($params['series'] as $idx => $series) {
 			// Convert the serialized model to proper JSON before saving
