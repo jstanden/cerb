@@ -2933,6 +2933,163 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/_export.tpl');
 	}
+	
+	function saveBehaviorImportJsonAction() {
+		@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'],'string', '');
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string', '');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer', 0);
+		@$configure = DevblocksPlatform::importGPC($_REQUEST['configure'],'array', array());
+		
+		header('Content-type: application/json');
+		
+		$trigger_id = null;
+		
+		try {
+			if(empty($import_json))
+				throw new Exception("Import JSON not provided.");
+			
+			if(
+				false == ($json = json_decode($import_json, true))
+				|| !isset($json['behavior'])
+				|| !isset($json['behavior']['event']['key'])
+				|| !isset($json['behavior']['nodes'])
+			) {
+				throw new Exception("Import JSON is an invalid format.");
+			}
+
+			@$event_point = $json['behavior']['event']['key'];
+			
+			if(
+				// [TODO] We should have an Extension_DevblocksEvent::get($id) method
+				false == ($event = DevblocksPlatform::getExtension($event_point, true))
+				|| !($event instanceof Extension_DevblocksEvent)
+			) {
+				throw new Exception("Invalid event in the provided behavior.");
+			}
+
+			// [TODO] Verify that the active worker has access to make events for this context
+			
+			// Verify the event can be owned by this context
+			
+			if(
+				!isset($event->manifest->params['contexts'])
+				|| !isset($event->manifest->params['contexts'][0])
+				|| !is_array($event->manifest->params['contexts'][0])
+				|| !in_array($context, array_keys($event->manifest->params['contexts'][0]))
+			) {
+				throw new Exception("Unable to bind event to this owner.");
+			}
+			
+			// Allow prompted configuration of the VA behavior import
+			
+			@$configure_fields = $json['behavior']['configure'];
+			
+			// Are there configurable fields in this import file?
+			if(is_array($configure_fields) && !empty($configure_fields)) {
+				// If the worker has provided the configuration, make the changes to JSON array
+				if(!empty($configure)) {
+					foreach($configure_fields as $config_field_idx => $config_field) {
+						if(!isset($config_field['path']))
+							continue;
+						
+						if(!isset($configure[$config_field_idx]))
+							continue;
+						
+						$ptr =& DevblocksPlatform::jsonGetPointerFromPath($json, $config_field['path']);
+						$ptr = $configure[$config_field_idx];
+					}
+					
+				// If the worker hasn't been prompted, do that now
+				} else {
+					$tpl = DevblocksPlatform::getTemplateService();
+					$tpl->assign('import_json', $import_json);
+					$tpl->assign('import_fields', $configure_fields);
+					$config_html = $tpl->fetch('devblocks:cerberusweb.core::internal/import/prompted/configure_json_import.tpl');
+					
+					echo json_encode(array(
+						'config_html' => $config_html,
+					));
+					return;
+				}
+			}
+			
+			// Create behavior record
+			// [TODO] We need to sanitize this data
+			
+			$fields = array(
+				DAO_TriggerEvent::TITLE => $json['behavior']['title'],
+				DAO_TriggerEvent::EVENT_POINT => $event_point,
+				DAO_TriggerEvent::VARIABLES_JSON => isset($json['behavior']['variables']) ? json_encode($json['behavior']['variables']) : '',
+				DAO_TriggerEvent::OWNER_CONTEXT => $context,
+				DAO_TriggerEvent::OWNER_CONTEXT_ID => $context_id,
+				DAO_TriggerEvent::POS => DAO_TriggerEvent::getNextPosByOwnerAndEvent($context, $context_id, $event_point),
+				DAO_TriggerEvent::IS_DISABLED => 1, // default to disabled until successfully imported
+			);
+			
+			$trigger_id = DAO_TriggerEvent::create($fields);
+			
+			// Create records for all child nodes and link them to the proper parents
+
+			if(false == $this->_recursiveImportDecisionNodes($json['behavior']['nodes'], $trigger_id, 0))
+				throw new Exception("Failed to import nodes");
+			
+			// Enable the new behavior since we've succeeded
+			
+			DAO_TriggerEvent::update($trigger_id, array(
+				DAO_TriggerEvent::IS_DISABLED => 0,
+			));
+			
+			echo json_encode(array(
+				'trigger_id' => $trigger_id,
+				'event_point' => $event_point,
+			));
+			return;
+			
+		} catch (Exception $e) {
+			if(!empty($trigger_id))
+				DAO_TriggerEvent::delete($trigger_id);
+			
+			echo json_encode(array(false, $e->getMessage()));
+			return;
+		}
+	}
+	
+	private function _recursiveImportDecisionNodes($nodes, $trigger_id, $parent_id) {
+		if(!is_array($nodes) || empty($nodes))
+			return;
+		
+		$pos = 0;
+		
+		// [TODO] We need to sanitize this data
+		foreach($nodes as $node) {
+			//var_dump($node);
+			
+			if(
+				!isset($node['type'])
+				|| !isset($node['title'])
+				|| !in_array($node['type'], array('switch','outcome','action'))
+			)
+				return false;
+			
+			$fields = array(
+				DAO_DecisionNode::NODE_TYPE => $node['type'],
+				DAO_DecisionNode::TITLE => $node['title'],
+				DAO_DecisionNode::PARENT_ID => $parent_id,
+				DAO_DecisionNode::TRIGGER_ID => $trigger_id,
+				DAO_DecisionNode::POS => $pos++,
+				DAO_DecisionNode::PARAMS_JSON => isset($node['params']) ? json_encode($node['params']) : '',
+			);
+			
+			$node_id = DAO_DecisionNode::create($fields);
+			
+			if(isset($node['nodes']) && is_array($node['nodes']))
+				if(false == ($result = $this->_recursiveImportDecisionNodes($node['nodes'], $trigger_id, $node_id)))
+					return false;
+		}
+		
+		return true;
+	}
+	
 	function showScheduleBehaviorParamsAction() {
 		@$name_prefix = DevblocksPlatform::importGPC($_REQUEST['name_prefix'],'string', '');
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
