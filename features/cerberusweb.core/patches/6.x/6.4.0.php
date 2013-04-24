@@ -233,4 +233,18 @@ while($row = mysql_fetch_assoc($rs)) {
 	}
 }
 
+// ===========================================================================
+// Convert `pop3_account` records to not auto-disable on failure, but delay
+
+if(!isset($tables['pop3_account'])) {
+	$logger->error("The 'pop3_account' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('pop3_account');
+
+if(!isset($columns['delay_until'])) {
+	$db->Execute("ALTER TABLE pop3_account ADD COLUMN delay_until INT UNSIGNED DEFAULT 0 NOT NULL");
+}
+
 return TRUE;

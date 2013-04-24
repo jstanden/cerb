@@ -106,7 +106,8 @@ class _DevblocksEmailManager {
 		
 		// Clear error stack
 		imap_errors();
-			
+		imap_timeout(IMAP_OPENTIMEOUT, 20);
+		
 		switch($service) {
 			default:
 			case 'pop3': // 110

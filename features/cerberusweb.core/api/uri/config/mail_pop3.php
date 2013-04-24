@@ -97,6 +97,7 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 				DAO_Pop3Account::PASSWORD => $password,
 				DAO_Pop3Account::PORT => $port,
 				DAO_Pop3Account::NUM_FAILS => 0,
+				DAO_Pop3Account::DELAY_UNTIL => 0,
 			);
 			
 			if(!empty($id) && !empty($delete)) {
