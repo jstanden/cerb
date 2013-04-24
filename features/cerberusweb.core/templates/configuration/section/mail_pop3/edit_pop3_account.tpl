@@ -2,6 +2,7 @@
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="mail_pop3">
 <input type="hidden" name="action" value="saveMailboxJson">
+<input type="hidden" name="do_delete" value="0">
 
 <fieldset>
 	<legend>
@@ -63,19 +64,26 @@
 			<td width="0%" nowrap="nowrap"><b>Port:</b></td>
 			<td width="100%"><input type="text" name="port" value="{$pop3_account->port}" size="5"> (leave blank for default)</td>
 		</tr>
-		{if !empty($pop3_account->id)}
-		<tr>
-			<td width="0%" nowrap="nowrap"><b>Delete:</b></td>
-			<td width="100%"><label style="background-color:rgb(255,220,220);"><input type="checkbox" name="delete" value="{$pop3_account->id}"> Delete this mail account</label></td>
-		</tr>
-		{/if}
 	</table>
 	<br>
 	
 	<div class="status"></div>	
 
-	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
-	<button type="button" class="tester"><span class="cerb-sprite2 sprite-gear"></span> Test Mailbox</button>
+	{if !empty($pop3_account->id)}
+	<fieldset class="delete" style="display:none;">
+		<legend>Delete this mailbox?</legend>
+		<p>Are you sure you want to permanently delete this mailbox?  This will not affect any mail you have already downloaded.</p>
+		<button type="button" class="green"> {'common.yes'|devblocks_translate|capitalize}</button>
+		<button type="button" class="red" onclick="$(this).closest('fieldset').hide().next('div.toolbar').fadeIn();"> {'common.no'|devblocks_translate|capitalize}</button>
+	</fieldset>
+	{/if}
+
+	
+	<div class="toolbar">
+		<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+		<button type="button" class="tester"><span class="cerb-sprite2 sprite-gear"></span> Test Mailbox</button>
+		<button type="button" class="delete" onclick="$(this).closest('div.toolbar').hide().prev('fieldset.delete').fadeIn();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+	</div>
 </fieldset>
 
 <script type="text/javascript">
@@ -91,6 +99,13 @@ $('#configMailbox BUTTON.submit')
 		});
 	})
 ;
+
+$('#configMailbox FIELDSET.delete BUTTON.green').click(function(e) {
+	var $frm=$(this).closest('form');
+	$frm.find('input:hidden[name=do_delete]').val('1');
+	$frm.find('BUTTON.submit').click();
+});
+
 $('#configMailbox BUTTON.tester')
 	.click(function(e) {
 		$this = $(this);
