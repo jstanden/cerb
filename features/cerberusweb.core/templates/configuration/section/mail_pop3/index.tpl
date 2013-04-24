@@ -14,7 +14,14 @@
 				{if !empty($pop3_accounts)}
 					{foreach from=$pop3_accounts item=pop3}
 						<li style="line-height:150%;">
-							<a href="javascript:;" onclick="genericAjaxGet('configMailbox','c=config&a=handleSectionAction&section=mail_pop3&action=getMailbox&id={$pop3->id}');" style="{if !$pop3->enabled}font-style:italic;color:rgb(150,0,0);{/if}">{$pop3->nickname}</a>
+							{if !$pop3->enabled}
+							<span class="cerb-sprite2 sprite-cross-circle-gray"></span>
+							{elseif $pop3->num_fails}
+							<span class="cerb-sprite2 sprite-exclamation-red"></span>
+							{else}
+							<span class="cerb-sprite2 sprite-tick-circle"></span>
+							{/if}
+							<a href="javascript:;" onclick="genericAjaxGet('configMailbox','c=config&a=handleSectionAction&section=mail_pop3&action=getMailbox&id={$pop3->id}');" style="{if !$pop3->enabled}font-style:italic;{/if}">{$pop3->nickname}</a>
 						</li>
 					{/foreach}
 				{/if}

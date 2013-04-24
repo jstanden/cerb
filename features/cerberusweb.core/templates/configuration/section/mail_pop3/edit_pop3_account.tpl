@@ -15,9 +15,24 @@
 	</legend>
 
 	<table cellpadding="2" cellspacing="0" border="0">
+		{if $pop3_account->enabled && $pop3_account->num_fails}
+		<tr>
+			<td colspan="2">
+				<div class="ui-widget">
+					<div class="ui-state-error ui-corner-all" style="padding: 0.7em; margin: 0.2em; "> 
+						<span class="cerb-sprite2 sprite-exclamation-red"></span>
+						<strong>Error!</strong>
+						This mailbox has failed to check mail for {$pop3_account->num_fails} consecutive attempt{if $pop3_account->num_fails > 1}s{/if}.
+					</div>
+				</div>
+			</td>
+		</tr>
+		{/if}
 		<tr>
 			<td width="0%" nowrap="nowrap"><b>Enabled:</b></td>
-			<td width="100%"><input type="checkbox" name="pop3_enabled" value="1" {if $pop3_account->enabled || empty($pop3_account)}checked{/if}></td>
+			<td width="100%">
+				<input type="checkbox" name="pop3_enabled" value="1" {if $pop3_account->enabled || empty($pop3_account)}checked{/if}>
+			</td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap"><b>Nickname:</b></td>
