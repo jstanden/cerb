@@ -266,6 +266,156 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 		return array($results,$total);
 	}
 
+	static function syncManifestsWithRepository() {
+		$url = 'http://plugins.cerb5.com/plugins/list?version=' . DevblocksPlatform::strVersionToInt(APP_VERSION);
+		
+		try {
+			if(!extension_loaded("curl"))
+				throw new Exception("The cURL PHP extension is not installed");
+			
+			$ch = curl_init($url);
+			curl_setopt_array($ch, array(
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_FOLLOWLOCATION => true,
+			));
+			$json_data = curl_exec($ch);
+			
+		} catch(Exception $e) {
+			return false;
+		}
+		
+		if(false === ($plugins = json_decode($json_data, true)))
+			return false;
+
+		unset($json_data);
+		
+		// Clear local cache
+		DAO_PluginLibrary::flush();
+		
+		// Import plugins to plugin_library
+		if(is_array($plugins))
+		foreach($plugins as $plugin) {
+			$fields = array(
+				DAO_PluginLibrary::ID => $plugin['seq'],
+				DAO_PluginLibrary::PLUGIN_ID => $plugin['plugin_id'],
+				DAO_PluginLibrary::NAME => $plugin['name'],
+				DAO_PluginLibrary::AUTHOR => $plugin['author'],
+				DAO_PluginLibrary::DESCRIPTION => $plugin['description'],
+				DAO_PluginLibrary::LINK => $plugin['link'],
+				DAO_PluginLibrary::ICON_URL => $plugin['icon_url'],
+				DAO_PluginLibrary::UPDATED => $plugin['updated'],
+				DAO_PluginLibrary::LATEST_VERSION => $plugin['latest_version'],
+				DAO_PluginLibrary::REQUIREMENTS_JSON => $plugin['requirements_json'],
+			);
+			DAO_PluginLibrary::create($fields);
+		}
+		
+		return count($plugins);
+	}
+	
+	static function downloadUpdatedPluginsFromRepository() {
+		if(!extension_loaded("curl") || false == ($count = DAO_PluginLibrary::syncManifestsWithRepository()))
+			return false;
+		
+		$plugin_library = DAO_PluginLibrary::getWhere();
+		$plugins = DevblocksPlatform::getPluginRegistry();
+		
+		$updated = 0;
+		
+		$plugin_library_keys = array_map(function($e) {
+				return $e->plugin_id;
+			},
+			$plugin_library
+		);
+		
+		asort($plugin_library_keys);
+		
+		$plugin_library_keys = array_flip($plugin_library_keys);
+		
+		// Find the library plugins we have installed that need updates
+		
+		if(is_array($plugin_library_keys))
+		foreach($plugin_library_keys as $plugin_library_key => $plugin_library_id) {
+			@$local_plugin = $plugins[$plugin_library_key]; /* @var $local_plugin DevblocksPluginManifest */
+			@$remote_plugin = $plugin_library[$plugin_library_id]; /* @var $remote_plugin Model_PluginLibrary */
+			
+			// If not installed locally, skip it.
+			
+			if(empty($local_plugin)) {
+				unset($plugin_library_keys[$plugin_library_key]);
+				continue;
+			}
+			
+			// If we're already on the latest version, skip it.
+			
+			if(intval($local_plugin->version) >= $remote_plugin->latest_version) {
+				unset($plugin_library_keys[$plugin_library_key]);
+				continue;
+			}
+			
+			// If we can't meet the remote plugin's new requirements, skip it.
+			
+			$failed_requirements = Model_PluginLibrary::testRequirements($remote_plugin->requirements);
+			if(!empty($failed_requirements)) {
+				unset($plugin_library_keys[$plugin_library_key]);
+				continue;
+			}
+		}
+		
+		// Auto install updated plugins
+		if(is_array($plugin_library_keys))
+		foreach($plugin_library_keys as $plugin_library_key => $plugin_library_id) {
+			@$local_plugin = $plugins[$plugin_library_key]; /* @var $local_plugin DevblocksPluginManifest */
+			@$remote_plugin = $plugin_library[$plugin_library_id]; /* @var $remote_plugin Model_PluginLibrary */
+
+			// Don't auto-update any development plugin
+			
+			$plugin_path = APP_PATH . '/' . $local_plugin->dir;
+			if(file_exists($plugin_path . '/.git')) {
+				continue;
+			}
+			
+			$url = sprintf("http://plugins.cerb5.com/plugins/download?plugin=%s&version=%d",
+				urlencode($remote_plugin->plugin_id),
+				$remote_plugin->latest_version
+			);
+			
+			// Connect to portal for download URL
+			$ch = curl_init($url);
+			curl_setopt_array($ch, array(
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_FOLLOWLOCATION => true,
+				CURLOPT_SSL_VERIFYPEER => false,
+			));
+			$json_data = curl_exec($ch);
+			
+			if(false === ($response = json_decode($json_data, true)))
+				continue;
+			
+			@$package_url = $response['package_url'];
+			
+			if(empty($package_url))
+				continue;
+			
+			$success = DevblocksPlatform::installPluginZipFromUrl($package_url);
+				
+			if($success) {
+				$updated++;
+				
+				// Reload plugin translations
+				$strings_xml = APP_PATH . '/' . $local_plugin->dir . '/strings.xml';
+				if(file_exists($strings_xml)) {
+					DAO_Translation::importTmxFile($strings_xml);
+				}
+			}
+		}
+		
+		return array(
+			'count' => $count,
+			'updated' => $updated,
+		);
+	}
+	
 };
 
 class SearchFields_PluginLibrary implements IDevblocksSearchFields {

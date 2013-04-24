@@ -3,7 +3,7 @@
 </div>
 
 <form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
-	<button type="button" id="btnPluginLibrarySync"><span class="cerb-sprite sprite-refresh"></span> Check for updates</button>
+	<button type="button" id="btnPluginLibrarySync"><span class="cerb-sprite sprite-refresh"></span> Download updates</button>
 </form>
 
 <div id="divPluginLibrarySync" style="clear:both;display:none;font-size:18pt;text-align:center;padding:20px;margin:20px;background-color:rgb(232,242,255);"></div>
@@ -18,7 +18,12 @@ $('#btnPluginLibrarySync').click(function() {
 	$out.html("Synchronizing... please wait").fadeIn();
 	genericAjaxGet('','c=config&a=handleSectionAction&section=plugin_library&action=sync', function(json) {
 		if(json.status == true) {
-			$out.html("Success! Synchronized " + json.count + " plugins.");
+			if(json.updated == 0) {
+				$out.html("Success! All plugins are up to date.");
+			} else {
+				$out.html("Success! Downloaded updates for " + json.updated + " plugin" + (json.updated != 1 ? "s" : "") + ".");
+			}
+			
 			genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');
 			setTimeout(function() {
 				$('#divPluginLibrarySync').fadeOut();
