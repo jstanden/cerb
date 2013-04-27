@@ -640,6 +640,7 @@ class CerberusContexts {
 	const CONTEXT_CALL = 'cerberusweb.contexts.call';
 	const CONTEXT_COMMENT = 'cerberusweb.contexts.comment';
 	const CONTEXT_CONTACT_PERSON = 'cerberusweb.contexts.contact_person';
+	const CONTEXT_CUSTOM_FIELD_GROUP = 'cerberusweb.contexts.custom_field_group';
 	const CONTEXT_DOMAIN = 'cerberusweb.contexts.datacenter.domain';
 	const CONTEXT_DRAFT = 'cerberusweb.contexts.mail.draft';
 	const CONTEXT_FEED = 'cerberusweb.contexts.feed';

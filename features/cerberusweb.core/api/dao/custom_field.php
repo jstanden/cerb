@@ -19,10 +19,10 @@ class DAO_CustomField extends DevblocksORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
 	const TYPE = 'type';
-	const GROUP_ID = 'group_id';
 	const CONTEXT = 'context';
 	const POS = 'pos';
 	const OPTIONS = 'options';
+	const CUSTOM_FIELD_GROUP_ID = 'custom_field_group_id';
 	
 	const CACHE_ALL = 'ch_customfields';
 	
@@ -90,35 +90,38 @@ class DAO_CustomField extends DevblocksORMHelper {
 	* @return array
 	*/
 	
-	static function getByContext($context, $group_id = null) {
+	static function getByContext($context, $with_groups=true) {
 		$fields = self::getAll();
-		
+		$results = array();
+
 		// Filter fields to only the requested source
 		foreach($fields as $idx => $field) { /* @var $field Model_CustomField */
 			// If we only want a specifi context, filter out the rest
-			if(0 != strcasecmp($field->context, $context)) {
-				unset($fields[$idx]);
+			if(0 != strcasecmp($field->context, $context))
 				continue;
-			}
 			
-			// If we want a specific group's custom fields, filter out the rest
-			if(!empty($group_id) && !empty($field->group_id) && $field->group_id != $group_id) {
-				unset($fields[$idx]);
+			if(!$with_groups && !empty($field->custom_field_group_id))
 				continue;
-			}
+			
+			$results[$idx] = $field;
 		}
 		
-		return $fields;
+		return $results;
 	}
 	
+	/**
+	 *
+	 * @param boolean $nocache
+	 * @return Model_CustomField[]
+	 */
 	static function getAll($nocache=false) {
 		$cache = DevblocksPlatform::getCacheService();
 		
 		if(null === ($objects = $cache->load(self::CACHE_ALL))) {
 			$db = DevblocksPlatform::getDatabaseService();
-			$sql = "SELECT id, name, type, context, group_id, pos, options ".
+			$sql = "SELECT id, name, type, context, custom_field_group_id, pos, options ".
 				"FROM custom_field ".
-				"ORDER BY group_id ASC, pos ASC "
+				"ORDER BY custom_field_group_id ASC, pos ASC "
 			;
 			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			
@@ -141,7 +144,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 			$object->name = $row['name'];
 			$object->type = $row['type'];
 			$object->context = $row['context'];
-			$object->group_id = intval($row['group_id']);
+			$object->custom_field_group_id = intval($row['custom_field_group_id']);
 			$object->pos = intval($row['pos']);
 			$object->options = DevblocksPlatform::parseCrlfString($row['options']);
 			$objects[$object->id] = $object;
@@ -730,7 +733,7 @@ class Model_CustomField {
 	public $id = 0;
 	public $name = '';
 	public $type = '';
-	public $group_id = 0;
+	public $custom_field_group_id = 0;
 	public $context = '';
 	public $pos = 0;
 	public $options = array();

@@ -40,7 +40,7 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 		$tpl->assign('types', $types);
 
 		// Look up the defined global fields by the given extension
-		$fields = DAO_CustomField::getByContextAndGroupId($ext_id, 0);
+		$fields = DAO_CustomField::getByContext($ext_id, false);
 		$tpl->assign('fields', $fields);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/fields/edit_source.tpl');
@@ -108,7 +108,7 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 			$fields = array(
 				DAO_CustomField::NAME => $add_name,
 				DAO_CustomField::TYPE => $add_type,
-				DAO_CustomField::GROUP_ID => 0,
+				DAO_CustomField::CUSTOM_FIELD_GROUP_ID => 0,
 				DAO_CustomField::CONTEXT => $ext_id,
 				DAO_CustomField::OPTIONS => $add_options,
 			);
