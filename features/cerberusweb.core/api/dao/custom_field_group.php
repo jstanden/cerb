@@ -506,8 +506,8 @@ class View_CustomFieldGroup extends C4_AbstractView implements IAbstractView_Sub
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_CustomFieldGroup::NAME,
 			SearchFields_CustomFieldGroup::CONTEXT,
+			SearchFields_CustomFieldGroup::NAME,
 			SearchFields_CustomFieldGroup::VIRTUAL_OWNER,
 		);
 
@@ -939,11 +939,6 @@ class Context_CustomFieldGroup extends Extension_DevblocksContext {
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Custom Field Groups';
-		$view->view_columns = array(
-			SearchFields_CustomFieldGroup::NAME,
-			SearchFields_CustomFieldGroup::CONTEXT,
-			SearchFields_CustomFieldGroup::VIRTUAL_OWNER,
-		);
 		
 		$params_required = array();
 		
