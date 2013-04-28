@@ -42,6 +42,17 @@ class PageSection_InternalCustomFieldGroups extends Extension_PageSection {
 			
 			$custom_fields = $custom_field_group->getCustomFields();
 			$tpl->assign('custom_fields', $custom_fields);
+			
+		} else {
+			@$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'string','');
+			@$owner_context_id = DevblocksPlatform::importGPC($_REQUEST['owner_context_id'],'integer',0);
+		
+			$custom_field_group = new Model_CustomFieldGroup();
+			$custom_field_group->id = 0;
+			$custom_field_group->owner_context = !empty($owner_context) ? $owner_context : '';
+			$custom_field_group->owner_context_id = $owner_context_id;
+			
+			$tpl->assign('custom_field_group', $custom_field_group);
 		}
 		
 		// Contexts

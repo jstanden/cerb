@@ -24,7 +24,7 @@
 				<b>{'common.type'|devblocks_translate|capitalize}:</b><br>
 			</td>
 			<td width="99%">
-				{if !empty($custom_field_group)}
+				{if !empty($custom_field_group->id)}
 					<input type="hidden" name="context" value="{$custom_field_group->context}">
 					{if $contexts.{$custom_field_group->context}}
 						{$contexts.{$custom_field_group->context}->name}
@@ -163,7 +163,7 @@
 {/if}
 
 <div class="buttons">
-{if empty($custom_field_group) || $custom_field_group->isWriteableByWorker($active_worker)}
+{if empty($custom_field_group->id) || $custom_field_group->isWriteableByWorker($active_worker)}
 	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView('{$layer}','frmCustomFieldGroupPeek','{$view_id}',false,'custom_field_group_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
 {else}
 	<fieldset class="delete" style="font-weight:bold;">
