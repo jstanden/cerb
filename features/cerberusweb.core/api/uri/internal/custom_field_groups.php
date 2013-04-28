@@ -151,6 +151,11 @@ class PageSection_InternalCustomFieldGroups extends Extension_PageSection {
 			);
 			$custom_field_group_id = DAO_CustomFieldGroup::create($fields);
 			
+			// View marquee
+			if(!empty($custom_field_group_id) && !empty($view_id)) {
+				C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CUSTOM_FIELD_GROUP, $custom_field_group_id);
+			}
+			
 		// Update field set
 		} else {
 			$fields = array(
