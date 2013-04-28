@@ -966,6 +966,14 @@ class Context_CustomFieldGroup extends Extension_DevblocksContext {
 		);
 		$params_required['_ownership'] = $param_ownership;
 		
+		// Restrict contexts
+		if(isset($_REQUEST['link_context'])) {
+			$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+			if(!empty($link_context)) {
+				$params_required['_ownership'] = new DevblocksSearchCriteria(SearchFields_CustomFieldGroup::CONTEXT, DevblocksSearchCriteria::OPER_EQ, $link_context);
+			}
+		}
+		
 		$view->addParamsRequired($params_required, true);
 		
 		$view->renderSortBy = SearchFields_CustomFieldGroup::NAME;
