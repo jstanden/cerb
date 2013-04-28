@@ -315,4 +315,9 @@ if(isset($columns['group_id'])) {
 	$db->Execute("ALTER TABLE custom_field DROP COLUMN group_id");
 }
 
+// ===========================================================================
+// Clean up some `worker_view_model` rows
+
+$db->Execute("DELETE FROM worker_view_model WHERE view_id IN ('_snippets', 'snippets', 'mail_drafts', 'mail_snippets','cerberuswebaddresstab','cerberuswebcrmopportunitytab','cerberusweborgtab','cerberuswebprofilesaddress','cerberuswebprofilesopportunity','cerberuswebprofilesorg')");
+
 return TRUE;

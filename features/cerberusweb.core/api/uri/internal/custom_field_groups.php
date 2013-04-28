@@ -205,6 +205,44 @@ class PageSection_InternalCustomFieldGroups extends Extension_PageSection {
 		}
 	}
 	
-	// [TODO] Render custom field group tab by owner
+	function showTabCustomFieldGroupsAction() {
+		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',null);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		$tpl->assign('owner_context', $context);
+		$tpl->assign('owner_context_id', $context_id);
+		
+		// Remember the tab
+		$visit->set($point, 'custom_field_groups');
+
+		$view_id = str_replace('.','_',$point) . '_cfield_groups';
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		if(null == $view) {
+			$ctx = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_CUSTOM_FIELD_GROUP);
+			$view = $ctx->getChooserView($view_id);
+		}
+		
+		if($active_worker->is_superuser && 0 == strcasecmp($context, 'all')) {
+			$view->addParamsRequired(array(), true);
+			
+		} else {
+			$view->addParamsRequired(array(
+				SearchFields_CustomFieldGroup::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldGroup::OWNER_CONTEXT, DevblocksSearchCriteria::OPER_EQ, $context),
+				SearchFields_CustomFieldGroup::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldGroup::OWNER_CONTEXT_ID, DevblocksSearchCriteria::OPER_EQ, $context_id),
+			), true);
+		}
+		
+		C4_AbstractViewLoader::setView($view->id,$view);
+		$tpl->assign('view', $view);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
+	}
 }
 endif;
