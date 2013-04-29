@@ -148,64 +148,7 @@
 	{if !empty($custom_fields)}
 	<fieldset class="peek">
 		<legend>{'common.custom_fields'|devblocks_translate}</legend>
-		
-		<table cellpadding="2" cellspacing="1" border="0">
-		{assign var=last_group_id value=-1}
-		{foreach from=$custom_fields item=f key=f_id}
-		{assign var=field_group_id value=$f->group_id}
-		{if $field_group_id == 0 || $field_group_id == $ticket->group_id}
-			{assign var=show_submit value=1}
-			{if $field_group_id && $field_group_id != $last_group_id}
-			{* ... *}
-			{/if}
-				<tr>
-					<td valign="top" width="1%" align="right" nowrap="nowrap">
-						<input type="hidden" name="field_ids[]" value="{$f_id}">
-						{$f->name}:
-					</td>
-					<td valign="top" width="99%">
-						{if $f->type=='S'}
-							<input type="text" name="field_{$f_id}" size="45" maxlength="255" style="width:98%;" value="{$custom_field_values.$f_id}"><br>
-						{elseif $f->type=='U'}
-							<input type="text" name="field_{$f_id}" size="40" maxlength="255" style="width:98%;" value="{$custom_field_values.$f_id}">
-							{if !empty($custom_field_values.$f_id)}<a href="{$custom_field_values.$f_id}" target="_blank">URL</a>{else}<i>(URL)</i>{/if}
-						{elseif $f->type=='N'}
-							<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$custom_field_values.$f_id}"><br>
-						{elseif $f->type=='T'}
-							<textarea name="field_{$f_id}" rows="4" cols="50" style="width:98%;">{$custom_field_values.$f_id}</textarea><br>
-						{elseif $f->type=='C'}
-							<input type="checkbox" name="field_{$f_id}" value="1" {if $custom_field_values.$f_id}checked{/if}><br>
-						{elseif $f->type=='X'}
-							{foreach from=$f->options item=opt}
-							<label><input type="checkbox" name="field_{$f_id}[]" value="{$opt}" {if isset($custom_field_values.$f_id.$opt)}checked="checked"{/if}> {$opt}</label><br>
-							{/foreach}
-						{elseif $f->type=='D'}
-							<select name="field_{$f_id}">{* [TODO] Fix selected *}
-								<option value=""></option>
-								{foreach from=$f->options item=opt}
-								<option value="{$opt}" {if $opt==$custom_field_values.$f_id}selected{/if}>{$opt}</option>
-								{/foreach}
-							</select><br>
-						{elseif $f->type=='E'}
-							<input type="text" name="field_{$f_id}" size="35" maxlength="255" value="{if !empty($custom_field_values.$f_id)}{$custom_field_values.$f_id|devblocks_date}{/if}"><button type="button" onclick="devblocksAjaxDateChooser(this.form.field_{$f_id},'#dateCustom{$f_id}');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
-							<div id="dateCustom{$f_id}"></div>
-						{elseif $f->type=='W'}
-							{if empty($workers)}
-								{$workers = DAO_Worker::getAllActive()}
-							{/if}
-							<select name="field_{$f_id}">
-								<option value=""></option>
-								{foreach from=$workers item=worker}
-								<option value="{$worker->id}" {if $worker->id==$custom_field_values.$f_id}selected="selected"{/if}>{$worker->getName()}</option>
-								{/foreach}
-							</select>
-						{/if}	
-					</td>
-				</tr>
-			{assign var=last_group_id value=$f->group_id}
-		{/if}
-		{/foreach}
-		</table>
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
 	</fieldset>
 	{/if}
 	
