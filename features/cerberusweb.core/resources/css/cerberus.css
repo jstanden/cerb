@@ -980,6 +980,8 @@ DIV.cerb-properties > DIV > LABEL {
 
 FIELDSET.peek {
 	border-width:2px 0px 0px 0px;
+	margin-bottom: 5px;
+	padding-bottom: 0px;
 }
 
 FIELDSET.peek LEGEND {

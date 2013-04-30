@@ -584,7 +584,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					break;
 			}
-					
+			
 			$results[$field_id] = $field_value;
 		}
 		
@@ -593,7 +593,51 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 	
 	public static function handleFormPost($context, $context_id, $field_ids) {
 		$field_values = self::parseFormPost($context, $field_ids);
+		self::_linkCustomFieldsets($context, $context_id, $field_values);
 		self::formatAndSetFieldValues($context, $context_id, $field_values);
+		return true;
+	}
+
+	private static function _linkCustomFieldsets($context, $context_id, &$field_values) {
+		@$custom_fieldset_adds = DevblocksPlatform::importGPC($_REQUEST['custom_fieldset_adds'], 'array', array());
+		@$custom_fieldset_deletes = DevblocksPlatform::importGPC($_REQUEST['custom_fieldset_deletes'], 'array', array());
+		
+		if(empty($custom_fieldset_adds) && empty($custom_fieldset_deletes))
+			return;
+		
+		// [TODO] Check worker privs
+		
+		if(is_array($custom_fieldset_adds))
+		foreach($custom_fieldset_adds as $cfset_id) {
+			if(empty($cfset_id))
+				continue;
+		
+			DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELD_GROUP, $cfset_id);
+		}
+		
+		if(is_array($custom_fieldset_deletes))
+		foreach($custom_fieldset_deletes as $cfset_id) {
+			if(empty($cfset_id))
+				continue;
+		
+			$custom_fieldset = DAO_CustomFieldGroup::get($cfset_id);
+			$custom_fieldset_fields = $custom_fieldset->getCustomFields();
+			
+			// Remove the custom field values
+			if(is_array($custom_fieldset_fields))
+			foreach(array_keys($custom_fieldset_fields) as $cf_id) {
+				// Remove any data for this field on this record
+				DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $cf_id);
+				
+				// Remove any field values we're currently setting
+				if(isset($field_values[$cf_id]))
+					unset($field_values[$cf_id]);
+			}
+			
+			// Break the context link
+			DAO_ContextLink::deleteLink($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELD_GROUP, $cfset_id);
+		}
+		
 		return true;
 	}
 	

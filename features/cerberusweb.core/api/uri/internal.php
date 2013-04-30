@@ -147,8 +147,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		// Only valid extensions
 		$contexts = array_intersect($contexts, array_keys($all_contexts));
 		
-		$contexts = array_diff($contexts, array( // Hide workers
-			CerberusContexts::CONTEXT_WORKER,
+		$contexts = array_diff($contexts, array(
+			CerberusContexts::CONTEXT_CUSTOM_FIELD_GROUP, // hide custom field group
+			CerberusContexts::CONTEXT_WORKER, // hide workers
 		));
 		
 		$tpl->assign('contexts', $contexts);

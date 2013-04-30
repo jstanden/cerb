@@ -260,5 +260,26 @@ class PageSection_InternalCustomFieldGroups extends Extension_PageSection {
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
+	
+	function getCustomFieldSetAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		if(empty($id))
+			return;
+		
+		if(null == ($custom_field_group = DAO_CustomFieldGroup::get($id)))
+			return;
+		
+		if(!$custom_field_group->isReadableByWorker($active_worker))
+			return;
+		
+		$tpl->assign('custom_field_group', $custom_field_group);
+		$tpl->assign('custom_field_group_is_new', true);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/custom_field_groups/fieldset.tpl');
+	}
 }
 endif;

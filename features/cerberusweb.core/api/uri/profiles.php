@@ -75,4 +75,62 @@ class Page_Profiles extends CerberusPageExtension {
 			$inst->showTab($context, $context_id);
 		}
 	}
+	
+	static function getProfilePropertiesCustomFields($context, $values) {
+		$custom_fields = DAO_CustomField::getByContext($context);
+		$properties = array();
+		
+		foreach($custom_fields as $cf_id => $cfield) {
+			if($cfield->custom_field_group_id != 0)
+				continue;
+			
+			if(!isset($values[$cf_id]))
+				continue;
+		
+			$properties['cf_' . $cf_id] = array(
+				'label' => $cfield->name,
+				'type' => $cfield->type,
+				'value' => $values[$cf_id],
+			);
+		}
+		
+		return $properties;
+	}
+	
+	static function getProfilePropertiesCustomFieldSets($context, $context_id, $values) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$custom_fields = DAO_CustomField::getByContext($context);
+		$custom_field_groups = DAO_CustomFieldGroup::getByContextLink($context, $context_id);
+		$properties = array();
+		
+		if(is_array($custom_field_groups))
+		foreach($custom_field_groups as $custom_field_group) { /* @var $custom_field_group Model_CustomFieldGroup */
+			if(!$custom_field_group->isReadableByWorker($active_worker))
+				continue;
+		
+			$cf_group_fields = $custom_field_group->getCustomFields();
+			$cf_group_props = array();
+			
+			if(is_array($cf_group_fields))
+			foreach($cf_group_fields as $cf_group_field_id => $cf_group_field) {
+				if(!isset($custom_fields[$cf_group_field_id]))
+					continue;
+			
+				$cf_group_props['cf_' . $cf_group_field_id] = array(
+					'label' => $cf_group_field->name,
+					'type' => $cf_group_field->type,
+					'value' => isset($values[$cf_group_field->id]) ? $values[$cf_group_field->id] : null,
+				);
+			}
+			
+			$properties[$custom_field_group->id] = array(
+				'model' => $custom_field_group,
+				'properties' => $cf_group_props,
+			);
+			
+		}
+		
+		return $properties;
+	}
 };
