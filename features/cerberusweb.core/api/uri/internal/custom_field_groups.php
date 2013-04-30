@@ -57,7 +57,7 @@ class PageSection_InternalCustomFieldGroups extends Extension_PageSection {
 		
 		// Contexts
 		
-		$contexts = Extension_DevblocksContext::getAll(false);
+		$contexts = Extension_DevblocksContext::getAll(false, array('custom_fields'));
 		$tpl->assign('contexts', $contexts);
 		
 		// Owners

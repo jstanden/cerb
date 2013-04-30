@@ -21,8 +21,9 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 		$visit = CerberusApplication::getVisit();
 		
 		$visit->set(ChConfigurationPage::ID, 'fields');
-				
-		$tpl->assign('context_manifests', Extension_DevblocksContext::getAll());
+		
+		$context_manifests = Extension_DevblocksContext::getAll(false, array('custom_fields'));
+		$tpl->assign('context_manifests', $context_manifests);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/fields/index.tpl');
 	}
@@ -32,8 +33,10 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 		
 		$tpl->assign('ext_id', $ext_id);
 
-		// [TODO] Make sure the extension exists before continuing
-		$context_manifest = DevblocksPlatform::getExtension($ext_id, false);
+		//  Make sure the extension exists before continuing
+		if(false == ($context_manifest = DevblocksPlatform::getExtension($ext_id, false)))
+			return;
+		
 		$tpl->assign('context_manifest', $context_manifest);
 		
 		$types = Model_CustomField::getTypes();
