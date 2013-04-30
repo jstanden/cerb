@@ -52,6 +52,7 @@
 				<param key="options">
 					<value>
 						<!--<data key="create" />-->
+						<data key="custom_fields" />
 						<data key="find" />
 						<data key="snippets" />
 						<data key="workspace" />

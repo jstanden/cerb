@@ -62,7 +62,7 @@ class Page_ExampleObjects extends CerberusPageExtension {
 		if(null != ($model = DAO_ExampleObject::get($id)))
 			$tpl->assign('model', $model);
 		
-		$custom_fields = DAO_CustomField::getByContext(Context_ExampleObject::ID);
+		$custom_fields = DAO_CustomField::getByContext(Context_ExampleObject::ID, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		if(!empty($id)) {
