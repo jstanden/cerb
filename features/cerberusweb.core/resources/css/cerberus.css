@@ -1005,9 +1005,15 @@ FIELDSET.properties DIV.property {
 	float:left;
 }
 
-FIELDSET.properties SMALL {
+FIELDSET.properties SMALL, DIV.cerb-profile-toolbar SMALL {
 	font-size:90%;
 	color:rgb(100,100,100);
+}
+
+/* Profiles */
+
+DIV.cerb-profile-toolbar {
+	margin-bottom: 10px;
 }
 
 /* Popup menu */
