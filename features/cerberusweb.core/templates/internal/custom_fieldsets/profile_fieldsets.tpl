@@ -1,6 +1,6 @@
 {if !empty($properties)}
 {foreach from=$properties item=cfset_props}
-<fieldset class="properties">
+<fieldset class="properties" style="border:0;">
 	<legend>{$cfset_props.model->name}</legend>
 	
 	<div style="margin-left:15px;">
