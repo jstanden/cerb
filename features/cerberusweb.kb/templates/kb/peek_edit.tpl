@@ -39,9 +39,16 @@
 				<br>
 			{/foreach}
 		</div>
-		
-		{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
 		<br>
+		
+		{if !empty($custom_fields)}
+		<fieldset class="peek">
+			<legend>{'common.custom_fields'|devblocks_translate|capitalize}</legend>
+			{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+		</fieldset>
+		{/if}
+		
+		{include file="devblocks:cerberusweb.core::internal/custom_field_groups/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_KB_ARTICLE context_id=$article->id}
 	</div>
 	
 	<div id="kbArticleAttachments">

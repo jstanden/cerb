@@ -16,18 +16,19 @@
 	</ul>
 
 <script type="text/javascript">
-$popup = genericAjaxPopupFind('#peekTemplateTest');
-var $menu = $popup.find('ul.cerb-popupmenu');
+var $popup = genericAjaxPopupFind('#peekTemplateTest');
 
 // Quick insert token menu
 
-$menu_trigger = $popup.find('button.cerb-popupmenu-trigger');
+var $menu_trigger = $popup.find('button.cerb-popupmenu-trigger');
+var $menu = $menu_trigger.siblings('ul.cerb-popupmenu');
+
 $menu_trigger.data('menu', $menu);
 
 $menu_trigger
 	.click(
 		function(e) {
-			$menu = $(this).data('menu');
+			var $menu = $(this).data('menu');
 
 			if($menu.is(':visible')) {
 				$menu.hide();
@@ -46,8 +47,8 @@ $menu_trigger
 
 $menu.find('> li > input.filter').keyup(
 	function(e) {
-		term = $(this).val().toLowerCase();
-		$menu = $(this).closest('ul.cerb-popupmenu');
+		var term = $(this).val().toLowerCase();
+		var $menu = $(this).closest('ul.cerb-popupmenu');
 		$menu.find('> li a').each(function(e) {
 			if(-1 != $(this).html().toLowerCase().indexOf(term)) {
 				$(this).parent().show();
@@ -67,8 +68,8 @@ $menu.find('> li').click(function(e) {
 });
 
 $menu.find('> li > a').click(function() {
-	token = $(this).attr('token');
-	$content = $popup.find('textarea[name=content]');
+	var token = $(this).attr('token');
+	var $content = $popup.find('textarea[name=content]');
 	if(token.match(/^\(\(__(.*?)__\)\)$/)) {
 		$content.insertAtCursor(token);
 	} else {

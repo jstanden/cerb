@@ -108,10 +108,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		// Trigger ticket view event
 		Event_TicketViewedByWorker::trigger($ticket->id, $active_worker->id);
 		
-		// Custom fields
-		$custom_fields = DAO_CustomField::getAll();
-		$tpl->assign('custom_fields', $custom_fields);
-		
 		// Properties
 		
 		$properties = array(
@@ -162,21 +158,23 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			'value' => (100*$ticket->spam_score) . '%',
 		);
 		
+		// Custom Fields
+
 		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id)) or array();
+		$tpl->assign('custom_field_values', $values);
 		
-		foreach($custom_fields as $cf_id => $cfield) {
-			if(!isset($values[$cf_id]))
-				continue;
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_TICKET, $values);
 		
-			if(!empty($cfield->group_id) && $cfield->group_id != $ticket->group_id)
-				continue;
+		if(!empty($properties_cfields))
+			$properties = array_merge($properties, $properties_cfields);
 		
-			$properties['cf_' . $cf_id] = array(
-				'label' => $cfield->name,
-				'type' => $cfield->type,
-				'value' => $values[$cf_id],
-			);
-		}
+
+		// Custom Field Groups
+
+		$properties_custom_field_groups = Page_Profiles::getProfilePropertiesCustomFieldSets(CerberusContexts::CONTEXT_TICKET, $ticket->id, $values);
+		$tpl->assign('properties_custom_field_groups', $properties_custom_field_groups);
+		
+		// Properties
 		
 		$tpl->assign('properties', $properties);
 		

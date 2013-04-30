@@ -1141,7 +1141,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		$tpl->assign('contact', $contact);
 		
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $context_id);

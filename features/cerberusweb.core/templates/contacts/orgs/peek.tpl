@@ -82,6 +82,8 @@
 	</fieldset>
 	{/if}
 	
+	{include file="devblocks:cerberusweb.core::internal/custom_field_groups/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_ORG context_id=$contact->id}
+	
 	{* Comment *}
 	{if !empty($last_comment)}
 		{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl" readonly=true comment=$last_comment}

@@ -43,11 +43,6 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		}
 		$tpl->assign('selected_tab', $selected_tab);
 		
-		// Custom fields
-		
-		$custom_fields = DAO_CustomField::getAll();
-		$tpl->assign('custom_fields', $custom_fields);
-		
 		// Properties
 		
 		$properties = array();
@@ -84,18 +79,22 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 			'value' => $task->updated_date,
 		);
 		
+		// Custom Fields
+
 		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TASK, $task->id)) or array();
+		$tpl->assign('custom_field_values', $values);
 		
-		foreach($custom_fields as $cf_id => $cfield) {
-			if(!isset($values[$cf_id]))
-				continue;
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_TASK, $values);
 		
-			$properties['cf_' . $cf_id] = array(
-				'label' => $cfield->name,
-				'type' => $cfield->type,
-				'value' => $values[$cf_id],
-			);
-		}
+		if(!empty($properties_cfields))
+			$properties = array_merge($properties, $properties_cfields);
+		
+		// Custom Field Groups
+
+		$properties_custom_field_groups = Page_Profiles::getProfilePropertiesCustomFieldSets(CerberusContexts::CONTEXT_TASK, $task->id, $values);
+		$tpl->assign('properties_custom_field_groups', $properties_custom_field_groups);
+		
+		// Properties
 		
 		$tpl->assign('properties', $properties);
 		

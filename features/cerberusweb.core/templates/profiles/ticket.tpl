@@ -18,8 +18,78 @@
 {assign var=ticket_group_bucket_set value=$group_buckets.$ticket_group_id}
 {assign var=ticket_bucket value=$ticket_group_bucket_set.$ticket_bucket_id}
 
+<div class="cerb-profile-toolbar">
+	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-top:5px;margin-bottom:5px;">
+		<input type="hidden" name="c" value="display">
+		<input type="hidden" name="a" value="updateProperties">
+		<input type="hidden" name="id" value="{$ticket->id}">
+		<input type="hidden" name="closed" value="{if $ticket->is_closed}1{else}0{/if}">
+		<input type="hidden" name="deleted" value="{if $ticket->is_deleted}1{else}0{/if}">
+		<input type="hidden" name="spam" value="0">
+		
+		<span id="spanWatcherToolbar">
+		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
+		</span>
+		
+		<!-- Macros -->
+		{devblocks_url assign=return_url full=true}c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
+		
+		<!-- Edit -->		
+		<button type="button" id="btnDisplayTicketEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
+		
+		{if !$ticket->is_deleted}
+			{if $ticket->is_closed}
+				<button type="button" title="{'common.reopen'|devblocks_translate|capitalize}" onclick="this.form.closed.value='0';this.form.submit();">&nbsp;<span class="cerb-sprite sprite-folder_out">&nbsp;</span></button>
+			{else}
+				{if $active_worker->hasPriv('core.ticket.actions.close')}<button title="{'display.shortcut.close'|devblocks_translate|capitalize}" id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();">&nbsp;<span class="cerb-sprite2 sprite-tick-circle"></span>&nbsp;</button>{/if}
+			{/if}
+			
+			{if empty($ticket->spam_training)}
+				{if $active_worker->hasPriv('core.ticket.actions.spam')}<button title="{'display.shortcut.spam'|devblocks_translate|capitalize}" id="btnSpam" type="button" onclick="this.form.spam.value='1';this.form.submit();">&nbsp;<span class="cerb-sprite sprite-spam"></span>&nbsp;</button>{/if}
+			{/if}
+		{/if}
+		
+		{if $ticket->is_deleted}
+			<button type="button" title="{'common.undelete'|devblocks_translate|capitalize}" onclick="this.form.deleted.value='0';this.form.closed.value=0;this.form.submit();">&nbsp;<span class="cerb-sprite2 sprite-cross-circle-gray"></span>&nbsp;</button>
+		{else}
+			{if $active_worker->hasPriv('core.ticket.actions.delete')}<button title="{'display.shortcut.delete'|devblocks_translate}" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();">&nbsp;<span class="cerb-sprite2 sprite-cross-circle"></span>&nbsp;</button>{/if}
+		{/if}
+		
+		{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPopup('peek','c=display&a=showMergePanel&ticket_id={$ticket->id}',null,false,'500');" title="{'mail.merge'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-arrow-merge-090-left"></span>&nbsp;</button>{/if}
+		
+		<button id="btnPrint" title="{'display.shortcut.print'|devblocks_translate}" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();">&nbsp;<span class="cerb-sprite sprite-printer"></span>&nbsp;</button>
+		<button type="button" title="{'display.shortcut.refresh'|devblocks_translate}" onclick="document.location='{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
+	</form>
+	
+	<form action="{devblocks_url}{/devblocks_url}" method="post" name="frmPrint" id="frmPrint" target="_blank" style="display:none;"></form>
+	
+	{if $pref_keyboard_shortcuts}
+	<small>
+		{$translate->_('common.keyboard')|lower}:
+		(<b>e</b>) {'common.edit'|devblocks_translate|lower} 
+		(<b>i</b>) {'ticket.requesters'|devblocks_translate|lower} 
+		(<b>w</b>) {$translate->_('common.watch')|lower}  
+		{if $active_worker->hasPriv('core.display.actions.comment')}(<b>o</b>) {$translate->_('common.comment')} {/if}
+		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
+		{if !$ticket->is_closed && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower} {/if}
+		{if !$ticket->spam_trained && $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower} {/if}
+		{if !$ticket->is_deleted && $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {$translate->_('common.delete')|lower} {/if}
+		{if empty($ticket->owner_id)}(<b>t</b>) {$translate->_('common.assign')|lower} {/if}
+		{if !empty($ticket->owner_id)}(<b>u</b>) {$translate->_('common.unassign')|lower} {/if}
+		{if !$expand_all}(<b>a</b>) {$translate->_('display.button.read_all')|lower} {/if} 
+		{if $active_worker->hasPriv('core.display.actions.reply')}(<b>r</b>) {$translate->_('display.ui.reply')|lower} {/if}  
+		(<b>p</b>) {$translate->_('common.print')|lower} 
+		(<b>1-9</b>) change tab 
+	</small>
+	{/if}
+</div>
+
 <fieldset class="properties">
 	<legend>{'common.conversation'|devblocks_translate|capitalize}</legend>
+
+	<div style="margin-left:15px;">
 
 	{foreach from=$properties item=v key=k name=props}
 		<div class="property">
@@ -82,74 +152,10 @@
 		{include file="devblocks:cerberusweb.core::display/rpc/requester_list.tpl" ticket_id=$ticket->id}
 	</span>
 	<br clear="all">
-
-	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-top:5px;margin-bottom:5px;">
-		<input type="hidden" name="c" value="display">
-		<input type="hidden" name="a" value="updateProperties">
-		<input type="hidden" name="id" value="{$ticket->id}">
-		<input type="hidden" name="closed" value="{if $ticket->is_closed}1{else}0{/if}">
-		<input type="hidden" name="deleted" value="{if $ticket->is_deleted}1{else}0{/if}">
-		<input type="hidden" name="spam" value="0">
-		
-		<span id="spanWatcherToolbar">
-		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
-		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
-		</span>
-		
-		<!-- Macros -->
-		{devblocks_url assign=return_url full=true}c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
-		
-		<!-- Edit -->		
-		<button type="button" id="btnDisplayTicketEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
-		
-		{if !$ticket->is_deleted}
-			{if $ticket->is_closed}
-				<button type="button" title="{'common.reopen'|devblocks_translate|capitalize}" onclick="this.form.closed.value='0';this.form.submit();">&nbsp;<span class="cerb-sprite sprite-folder_out">&nbsp;</span></button>
-			{else}
-				{if $active_worker->hasPriv('core.ticket.actions.close')}<button title="{'display.shortcut.close'|devblocks_translate|capitalize}" id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();">&nbsp;<span class="cerb-sprite2 sprite-tick-circle"></span>&nbsp;</button>{/if}
-			{/if}
-			
-			{if empty($ticket->spam_training)}
-				{if $active_worker->hasPriv('core.ticket.actions.spam')}<button title="{'display.shortcut.spam'|devblocks_translate|capitalize}" id="btnSpam" type="button" onclick="this.form.spam.value='1';this.form.submit();">&nbsp;<span class="cerb-sprite sprite-spam"></span>&nbsp;</button>{/if}
-			{/if}
-		{/if}
-		
-		{if $ticket->is_deleted}
-			<button type="button" title="{'common.undelete'|devblocks_translate|capitalize}" onclick="this.form.deleted.value='0';this.form.closed.value=0;this.form.submit();">&nbsp;<span class="cerb-sprite2 sprite-cross-circle-gray"></span>&nbsp;</button>
-		{else}
-			{if $active_worker->hasPriv('core.ticket.actions.delete')}<button title="{'display.shortcut.delete'|devblocks_translate}" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();">&nbsp;<span class="cerb-sprite2 sprite-cross-circle"></span>&nbsp;</button>{/if}
-		{/if}
-		
-		{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPopup('peek','c=display&a=showMergePanel&ticket_id={$ticket->id}',null,false,'500');" title="{'mail.merge'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-arrow-merge-090-left"></span>&nbsp;</button>{/if}
-		
-	   	<button id="btnPrint" title="{'display.shortcut.print'|devblocks_translate}" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();">&nbsp;<span class="cerb-sprite sprite-printer"></span>&nbsp;</button>
-	   	<button type="button" title="{'display.shortcut.refresh'|devblocks_translate}" onclick="document.location='{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
-	</form>
-	
-	<form action="{devblocks_url}{/devblocks_url}" method="post" name="frmPrint" id="frmPrint" target="_blank" style="display:none;"></form>
-					
-	{if $pref_keyboard_shortcuts}
-	<small>
-		{$translate->_('common.keyboard')|lower}:
-		(<b>e</b>) {'common.edit'|devblocks_translate|lower} 
-		(<b>i</b>) {'ticket.requesters'|devblocks_translate|lower} 
-		(<b>w</b>) {$translate->_('common.watch')|lower}  
-		{if $active_worker->hasPriv('core.display.actions.comment')}(<b>o</b>) {$translate->_('common.comment')} {/if}
-		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
-		{if !$ticket->is_closed && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower} {/if}
-		{if !$ticket->spam_trained && $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower} {/if}
-		{if !$ticket->is_deleted && $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {$translate->_('common.delete')|lower} {/if}
-		{if empty($ticket->owner_id)}(<b>t</b>) {$translate->_('common.assign')|lower} {/if}
-		{if !empty($ticket->owner_id)}(<b>u</b>) {$translate->_('common.unassign')|lower} {/if}
-		{if !$expand_all}(<b>a</b>) {$translate->_('display.button.read_all')|lower} {/if} 
-		{if $active_worker->hasPriv('core.display.actions.reply')}(<b>r</b>) {$translate->_('display.ui.reply')|lower} {/if}  
-		(<b>p</b>) {$translate->_('common.print')|lower} 
-		(<b>1-9</b>) change tab 
-	</small>
-	{/if}
-					
+	</div>
 </fieldset>
+
+{include file="devblocks:cerberusweb.core::internal/custom_field_groups/profile_fieldsets.tpl" properties=$properties_custom_field_groups}
 
 <div>
 {include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}

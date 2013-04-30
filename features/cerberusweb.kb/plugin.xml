@@ -36,23 +36,23 @@
 			<class name="Model_KbCategory" />
 			<class name="SearchFields_KbCategory" />
 		</file>
-        <file path="api/dao/kb_article.php">
+		<file path="api/dao/kb_article.php">
 			<class name="Context_KbArticle" />
 			<class name="DAO_KbArticle" />
 			<class name="Model_KbArticle" />
 			<class name="Search_KbArticle" />
 			<class name="SearchFields_KbArticle" />
 			<class name="View_KbArticle" />
-        </file>
-        <file path="api/events/abstract/abstract_event_kbarticle.php">
+		</file>
+		<file path="api/events/abstract/abstract_event_kbarticle.php">
 			<class name="AbstractEvent_KbArticle" />
 		</file>
-        <file path="api/events/macro/kbarticle_macro.php">
+		<file path="api/events/macro/kbarticle_macro.php">
 			<class name="Event_KbArticleMacro" />
 		</file>
-        <file path="api/sc/kb.php">
+		<file path="api/sc/kb.php">
 			<class name="UmSc_KbArticleView" />
-		</file>		
+		</file>
 	</class_loader>
 
 	<!-- Templates -->
@@ -110,6 +110,7 @@
 				<param key="options">
 					<value>
 						<data key="create" />
+						<data key="custom_fields" />
 						<data key="find" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -141,7 +142,7 @@
 					-->
 				</param>
 			</params>
-		</extension>	
+		</extension>
 	
 		<!-- Event Triggers -->
 		

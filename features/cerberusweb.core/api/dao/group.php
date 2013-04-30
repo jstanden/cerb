@@ -1274,7 +1274,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		
 		// Custom fields
 		
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_GROUP);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_GROUP, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_GROUP, $context_id);

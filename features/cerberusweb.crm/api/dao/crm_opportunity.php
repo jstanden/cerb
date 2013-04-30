@@ -1271,7 +1271,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			}
 		}
 		
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		if(!empty($context_id)) {

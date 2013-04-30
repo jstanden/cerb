@@ -279,7 +279,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			$article_categories = DAO_KbArticle::getCategoriesByArticleId($id);
 			$tpl->assign('article_categories', $article_categories);
 			
-			$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_KB_ARTICLE);
+			$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_KB_ARTICLE, false);
 			$tpl->assign('custom_fields', $custom_fields);
 			
 			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_KB_ARTICLE, $id);

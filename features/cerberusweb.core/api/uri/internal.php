@@ -1218,7 +1218,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('contexts', $contexts);
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SNIPPET);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SNIPPET, false);
 		$tpl->assign('custom_fields', $custom_fields);
 
 		if(!empty($custom_fields)) {

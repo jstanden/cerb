@@ -750,6 +750,7 @@
 				<param key="view_class" value="View_ContactPerson" />
 				<param key="options">
 					<value>
+						<data key="custom_fields" />
 						<!--<data key="create" />-->
 						<!--<data key="find" />-->
 						<!--<data key="snippets" />-->
@@ -773,6 +774,7 @@
 				<param key="options">
 					<value>
 						<data key="create" />
+						<data key="custom_fields" />
 						<data key="find" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -928,6 +930,7 @@
 				<param key="view_class" value="View_Group" />
 				<param key="options">
 					<value>
+						<data key="custom_fields" />
 						<data key="find" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -976,7 +979,7 @@
 					</value>
 				</param>
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.org</id>
@@ -992,6 +995,7 @@
 				<param key="options">
 					<value>
 						<data key="create" />
+						<data key="custom_fields" />
 						<data key="find" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -1015,6 +1019,7 @@
 				<param key="options">
 					<value>
 						<!--<data key="create" />-->
+						<data key="custom_fields" />
 						<data key="find" />
 						<!--<data key="snippets" />-->
 						<data key="workspace" />
@@ -1037,6 +1042,7 @@
 				<param key="options">
 					<value>
 						<data key="create" />
+						<data key="custom_fields" />
 						<data key="find" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -1060,6 +1066,7 @@
 				<param key="options">
 					<value>
 						<data key="create" />
+						<data key="custom_fields" />
 						<data key="find" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -1083,6 +1090,7 @@
 				<param key="options">
 					<value>
 						<!--<data key="create" />-->
+						<data key="custom_fields" />
 						<data key="find" />
 						<data key="snippets" />
 						<data key="va_variable" />

@@ -94,6 +94,7 @@
 				<param key="options">
 					<value>
 						<data key="create" />
+						<data key="custom_fields" />
 						<data key="find" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -115,7 +116,7 @@
 			<params>
 				<param key="events">
 					<value>
-						<data key="cron.maint" />						
+						<data key="cron.maint" />
 					</value>
 				</param>
 			</params>

@@ -1087,7 +1087,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		}
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK, false);
 		$tpl->assign('custom_fields', $custom_fields);
 
 		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TASK, $context_id);

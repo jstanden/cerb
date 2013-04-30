@@ -19,24 +19,7 @@
 
 <br clear="all">
 
-<fieldset class="properties">
-	<legend>{'addy_book.peek.title'|devblocks_translate|capitalize}</legend>
-	
-	{foreach from=$properties item=v key=k name=props}
-		<div class="property">
-			{if $k == 'org'}
-				<b>{$v.label|capitalize}:</b>
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$v.org_id}',null,false,'600');">{$v.org->name}</a>
-			{else}
-				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
-			{/if}
-		</div>
-		{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
-			<br clear="all">
-		{/if}
-	{/foreach}
-	<br clear="all">
-	
+<div class="cerb-profile-toolbar">
 	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
@@ -59,7 +42,30 @@
 		(<b>1-9</b>) change tab
 	</small> 
 	{/if}
+</div>
+
+<fieldset class="properties">
+	<legend>{'addy_book.peek.title'|devblocks_translate|capitalize}</legend>
+	
+	<div style="margin-left:15px;">
+	{foreach from=$properties item=v key=k name=props}
+		<div class="property">
+			{if $k == 'org'}
+				<b>{$v.label|capitalize}:</b>
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$v.org_id}',null,false,'600');">{$v.org->name}</a>
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+			{/if}
+		</div>
+		{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+			<br clear="all">
+		{/if}
+	{/foreach}
+	<br clear="all">
+	</div>
 </fieldset>
+
+{include file="devblocks:cerberusweb.core::internal/custom_field_groups/profile_fieldsets.tpl" properties=$properties_custom_field_groups}
 
 <div>
 {include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}

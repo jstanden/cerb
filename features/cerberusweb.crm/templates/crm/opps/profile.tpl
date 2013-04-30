@@ -12,9 +12,40 @@
 
 <div style="clear:both;"></div>
 
+<div class="cerb-profile-toolbar">
+	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
+		<!-- Toolbar -->
+		<span>
+		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
+		</span>		
+		
+		<!-- Macros -->
+		{devblocks_url assign=return_url full=true}c=profiles&type=opportunity&id={$page_context_id}-{$opp->name|devblocks_permalink}{/devblocks_url}
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
+		
+		<!-- Edit -->
+		{if $active_worker->hasPriv('crm.opp.actions.update_all')}	
+		<button type="button" id="btnDisplayOppEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
+		{/if}
+	</form>
+	
+	{if $pref_keyboard_shortcuts}
+	<small>
+		{$translate->_('common.keyboard')|lower}:
+		(<b>a</b>) show contact
+		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
+		(<b>o</b>) show organization
+		(<b>1-9</b>) change tab
+	</small> 
+	{/if}
+</div>
+
 <fieldset class="properties">
 	<legend>{'crm.common.opportunity'|devblocks_translate|capitalize}</legend>
 	
+	<div style="margin-left:15px;">
 	{foreach from=$properties item=v key=k name=props}
 		<div class="property">
 			{if $k == 'status'}
@@ -46,35 +77,10 @@
 		{/if}
 	{/foreach}
 	<br clear="all">
-	
-	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
-		<!-- Toolbar -->
-		<span>
-		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
-		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
-		</span>		
-		
-		<!-- Macros -->
-		{devblocks_url assign=return_url full=true}c=profiles&type=opportunity&id={$page_context_id}-{$opp->name|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
-		
-		<!-- Edit -->
-		{if $active_worker->hasPriv('crm.opp.actions.update_all')}	
-		<button type="button" id="btnDisplayOppEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
-		{/if}
-	</form>
-	
-	{if $pref_keyboard_shortcuts}
-	<small>
-		{$translate->_('common.keyboard')|lower}:
-		(<b>a</b>) show contact
-		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
-		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
-		(<b>o</b>) show organization
-		(<b>1-9</b>) change tab
-	</small> 
-	{/if}
+	</div>
 </fieldset>
+
+{include file="devblocks:cerberusweb.core::internal/custom_field_groups/profile_fieldsets.tpl" properties=$properties_custom_field_groups}
 
 <div>
 {include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}

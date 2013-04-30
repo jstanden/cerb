@@ -11,7 +11,7 @@
 {if !empty($custom_field_groups_available)}
 {$btn_cfield_group_domid = "cfield_groups_{uniqid()}"}
 <div style="margin-left:10px;margin-bottom:10px;">
-	<button type="button" id="{$btn_cfield_group_domid}" class="action cerb-popupmenu-trigger">Add Fieldset &#x25be;</button>
+	<button type="button" id="{$btn_cfield_group_domid}" class="action">Add Fieldset &#x25be;</button>
 	<ul class="cerb-popupmenu" style="border:0;">
 		<li style="background:none;">
 			<input type="text" size="32" class="input_search filter">
@@ -57,8 +57,8 @@ $('#{$btn_cfield_group_domid}')
 				if(undefined == html || null == html)
 					return;
 
-				$popup = genericAjaxPopupFetch('peek');
-				$at = $popup.find('div.custom-fieldset-insertion');
+				var $popup = genericAjaxPopupFetch('peek');
+				var $at = $popup.find('div.custom-fieldset-insertion');
 				
 				var $fieldset = $(html);
 				$fieldset.insertBefore($at);
@@ -73,8 +73,8 @@ $('#{$btn_cfield_group_domid}')
 		
 		$menu.find('> li > input.filter').keyup(
 			function(e) {
-				term = $(this).val().toLowerCase();
-				$fs_menu = $(this).closest('ul.cerb-popupmenu');
+				var term = $(this).val().toLowerCase();
+				var $fs_menu = $(this).closest('ul.cerb-popupmenu');
 				$fs_menu.find('> li.item').each(function(e) {
 					if(-1 != $(this).text().toLowerCase().indexOf(term)) {
 						$(this).show();
@@ -89,11 +89,7 @@ $('#{$btn_cfield_group_domid}')
 	})
 	.click(function() {
 		var $ul = $(this).data('menu');
-		var off = $(this).offset();
-		
-		$ul.css('top', off.top + 20);
-		$ul.css('left', off.left - 100);
-		
+
 		$ul.toggle();
 		
 		if($ul.is(':hidden')) {
