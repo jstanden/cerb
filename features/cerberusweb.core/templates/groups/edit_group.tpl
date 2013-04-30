@@ -8,8 +8,8 @@
 		<li><a href="{devblocks_url}ajax.php?c=groups&a=showTabMembers&id={$group->id}{/devblocks_url}">{'common.members'|devblocks_translate|capitalize}</a></li>
 		
 		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}
-		{$tabs[] = 'custom_field_groups'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=custom_field_groups&action=showTabCustomFieldGroups&context={CerberusContexts::CONTEXT_GROUP}&context_id={$group->id}&point={$point}{/devblocks_url}">{$translate->_('common.custom_fields')|capitalize}</a></li>
+		{$tabs[] = 'custom_fieldsets'}
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=custom_fieldsets&action=showTabCustomFieldsets&context={CerberusContexts::CONTEXT_GROUP}&context_id={$group->id}&point={$point}{/devblocks_url}">{$translate->_('common.custom_fields')|capitalize}</a></li>
 		{/if}
 		
 		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}

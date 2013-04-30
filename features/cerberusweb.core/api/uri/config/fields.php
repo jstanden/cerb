@@ -111,7 +111,7 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 			$fields = array(
 				DAO_CustomField::NAME => $add_name,
 				DAO_CustomField::TYPE => $add_type,
-				DAO_CustomField::CUSTOM_FIELD_GROUP_ID => 0,
+				DAO_CustomField::CUSTOM_FIELDSET_ID => 0,
 				DAO_CustomField::CONTEXT => $ext_id,
 				DAO_CustomField::OPTIONS => $add_options,
 			);

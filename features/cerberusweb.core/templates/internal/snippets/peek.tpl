@@ -99,7 +99,7 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_field_groups/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_SNIPPET context_id=$snippet->id}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_SNIPPET context_id=$snippet->id}
 
 {if isset($snippet->id)}
 <fieldset class="delete" style="display:none;">

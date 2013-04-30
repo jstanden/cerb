@@ -16,10 +16,10 @@
  ***********************************************************************/
 
 if(class_exists('Extension_PageSection')):
-class PageSection_InternalCustomFieldGroups extends Extension_PageSection {
+class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 	function render() {}
 	
-	function showCustomFieldGroupPeekAction() {
+	function showCustomFieldsetPeekAction() {
 		// [TODO] Check permissions
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
@@ -37,22 +37,22 @@ class PageSection_InternalCustomFieldGroups extends Extension_PageSection {
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
 		
-		if($id && null != ($custom_field_group = DAO_CustomFieldGroup::get($id))) {
-			$tpl->assign('custom_field_group', $custom_field_group);
+		if($id && null != ($custom_fieldset = DAO_CustomFieldset::get($id))) {
+			$tpl->assign('custom_fieldset', $custom_fieldset);
 			
-			$custom_fields = $custom_field_group->getCustomFields();
+			$custom_fields = $custom_fieldset->getCustomFields();
 			$tpl->assign('custom_fields', $custom_fields);
 			
 		} else {
 			@$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'string','');
 			@$owner_context_id = DevblocksPlatform::importGPC($_REQUEST['owner_context_id'],'integer',0);
 		
-			$custom_field_group = new Model_CustomFieldGroup();
-			$custom_field_group->id = 0;
-			$custom_field_group->owner_context = !empty($owner_context) ? $owner_context : '';
-			$custom_field_group->owner_context_id = $owner_context_id;
+			$custom_fieldset = new Model_CustomFieldset();
+			$custom_fieldset->id = 0;
+			$custom_fieldset->owner_context = !empty($owner_context) ? $owner_context : '';
+			$custom_fieldset->owner_context_id = $owner_context_id;
 			
-			$tpl->assign('custom_field_group', $custom_field_group);
+			$tpl->assign('custom_fieldset', $custom_fieldset);
 		}
 		
 		// Contexts
@@ -87,15 +87,15 @@ class PageSection_InternalCustomFieldGroups extends Extension_PageSection {
 
 		// Template
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/custom_field_groups/peek.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/custom_fieldsets/peek.tpl');
 	}
 	
-	function saveCustomFieldGroupPeekAction() {
+	function saveCustomFieldsetPeekAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 		
-		@$custom_field_group_id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		@$custom_fieldset_id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
 		@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
@@ -111,14 +111,14 @@ class PageSection_InternalCustomFieldGroups extends Extension_PageSection {
 
 		// Check permissions
 		
-		if(!empty($custom_field_group_id)) {
+		if(!empty($custom_fieldset_id)) {
 			if(
-				false == ($custom_field_group = DAO_CustomFieldGroup::get($custom_field_group_id))
-				|| !$custom_field_group->isWriteableByWorker($active_worker)
+				false == ($custom_fieldset = DAO_CustomFieldset::get($custom_fieldset_id))
+				|| !$custom_fieldset->isWriteableByWorker($active_worker)
 			)
 			return;
 			
-			$context = $custom_field_group->context;
+			$context = $custom_fieldset->context;
 		}
 		
 		// Owner
@@ -142,28 +142,28 @@ class PageSection_InternalCustomFieldGroups extends Extension_PageSection {
 			return;
 		
 		// Create field set
-		if(empty($custom_field_group_id)) {
+		if(empty($custom_fieldset_id)) {
 			$fields = array(
-				DAO_CustomFieldGroup::NAME => $name,
-				DAO_CustomFieldGroup::CONTEXT => $context,
-				DAO_CustomFieldGroup::OWNER_CONTEXT => $owner_ctx,
-				DAO_CustomFieldGroup::OWNER_CONTEXT_ID => $owner_ctx_id,
+				DAO_CustomFieldset::NAME => $name,
+				DAO_CustomFieldset::CONTEXT => $context,
+				DAO_CustomFieldset::OWNER_CONTEXT => $owner_ctx,
+				DAO_CustomFieldset::OWNER_CONTEXT_ID => $owner_ctx_id,
 			);
-			$custom_field_group_id = DAO_CustomFieldGroup::create($fields);
+			$custom_fieldset_id = DAO_CustomFieldset::create($fields);
 			
 			// View marquee
-			if(!empty($custom_field_group_id) && !empty($view_id)) {
-				C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CUSTOM_FIELD_GROUP, $custom_field_group_id);
+			if(!empty($custom_fieldset_id) && !empty($view_id)) {
+				C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $custom_fieldset_id);
 			}
 			
 		// Update field set
 		} else {
 			$fields = array(
-				DAO_CustomFieldGroup::NAME => $name,
-				DAO_CustomFieldGroup::OWNER_CONTEXT => $owner_ctx,
-				DAO_CustomFieldGroup::OWNER_CONTEXT_ID => $owner_ctx_id,
+				DAO_CustomFieldset::NAME => $name,
+				DAO_CustomFieldset::OWNER_CONTEXT => $owner_ctx,
+				DAO_CustomFieldset::OWNER_CONTEXT_ID => $owner_ctx_id,
 			);
-			DAO_CustomFieldGroup::update($custom_field_group_id, $fields);
+			DAO_CustomFieldset::update($custom_fieldset_id, $fields);
 			
 		}
 		
@@ -188,8 +188,8 @@ class PageSection_InternalCustomFieldGroups extends Extension_PageSection {
 					// If we have permission to delete fields
 					if(
 						$active_worker->is_superuser
-						|| ($cfield->custom_field_group_id == $custom_field_group->id
-							&& $custom_field_group->isWriteableByWorker($active_worker))
+						|| ($cfield->custom_fieldset_id == $custom_fieldset->id
+							&& $custom_fieldset->isWriteableByWorker($active_worker))
 					)
 						DAO_CustomField::delete($id);
 					
@@ -202,7 +202,7 @@ class PageSection_InternalCustomFieldGroups extends Extension_PageSection {
 				$fields = array(
 					DAO_CustomField::CONTEXT => $context,
 					DAO_CustomField::NAME => $names[$idx],
-					DAO_CustomField::CUSTOM_FIELD_GROUP_ID => $custom_field_group_id,
+					DAO_CustomField::CUSTOM_FIELDSET_ID => $custom_fieldset_id,
 					DAO_CustomField::OPTIONS => $options[$idx],
 					DAO_CustomField::TYPE => $types[$idx],
 					DAO_CustomField::POS => $idx,
@@ -221,7 +221,7 @@ class PageSection_InternalCustomFieldGroups extends Extension_PageSection {
 		}
 	}
 	
-	function showTabCustomFieldGroupsAction() {
+	function showTabCustomFieldsetsAction() {
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',null);
@@ -234,14 +234,14 @@ class PageSection_InternalCustomFieldGroups extends Extension_PageSection {
 		$tpl->assign('owner_context_id', $context_id);
 		
 		// Remember the tab
-		$visit->set($point, 'custom_field_groups');
+		$visit->set($point, 'custom_fieldsets');
 
-		$view_id = str_replace('.','_',$point) . '_cfield_groups';
+		$view_id = str_replace('.','_',$point) . '_cfield_sets';
 		
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
 		if(null == $view) {
-			$ctx = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_CUSTOM_FIELD_GROUP);
+			$ctx = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_CUSTOM_FIELDSET);
 			$view = $ctx->getChooserView($view_id);
 		}
 		
@@ -250,8 +250,8 @@ class PageSection_InternalCustomFieldGroups extends Extension_PageSection {
 			
 		} else {
 			$view->addParamsRequired(array(
-				SearchFields_CustomFieldGroup::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldGroup::OWNER_CONTEXT, DevblocksSearchCriteria::OPER_EQ, $context),
-				SearchFields_CustomFieldGroup::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldGroup::OWNER_CONTEXT_ID, DevblocksSearchCriteria::OPER_EQ, $context_id),
+				SearchFields_CustomFieldset::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT, DevblocksSearchCriteria::OPER_EQ, $context),
+				SearchFields_CustomFieldset::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT_ID, DevblocksSearchCriteria::OPER_EQ, $context_id),
 			), true);
 		}
 		
@@ -270,16 +270,16 @@ class PageSection_InternalCustomFieldGroups extends Extension_PageSection {
 		if(empty($id))
 			return;
 		
-		if(null == ($custom_field_group = DAO_CustomFieldGroup::get($id)))
+		if(null == ($custom_fieldset = DAO_CustomFieldset::get($id)))
 			return;
 		
-		if(!$custom_field_group->isReadableByWorker($active_worker))
+		if(!$custom_fieldset->isReadableByWorker($active_worker))
 			return;
 		
-		$tpl->assign('custom_field_group', $custom_field_group);
-		$tpl->assign('custom_field_group_is_new', true);
+		$tpl->assign('custom_fieldset', $custom_fieldset);
+		$tpl->assign('custom_fieldset_is_new', true);
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/custom_field_groups/fieldset.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/custom_fieldsets/fieldset.tpl');
 	}
 }
 endif;

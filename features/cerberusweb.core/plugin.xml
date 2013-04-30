@@ -211,12 +211,12 @@
 			<class name="Model_CustomField" />
 		</file>
 
-		<file path="api/dao/custom_field_group.php">
-			<class name="Context_CustomFieldGroup" />
-			<class name="DAO_CustomFieldGroup" />
-			<class name="Model_CustomFieldGroup" />
-			<class name="SearchFields_CustomFieldGroup" />
-			<class name="View_CustomFieldGroup" />
+		<file path="api/dao/custom_fieldset.php">
+			<class name="Context_CustomFieldset" />
+			<class name="DAO_CustomFieldset" />
+			<class name="Model_CustomFieldset" />
+			<class name="SearchFields_CustomFieldset" />
+			<class name="View_CustomFieldset" />
 		</file>
 
 		<file path="api/dao/decision_node.php">
@@ -852,16 +852,16 @@
 		</extension>
 		
 		<extension point="devblocks.context">
-			<id>cerberusweb.contexts.custom_field_group</id>
-			<name>Custom Field Group</name>
+			<id>cerberusweb.contexts.custom_fieldset</id>
+			<name>Custom Fieldset</name>
 			<class>
-				<file>api/dao/custom_field_group.php</file>
-				<name>Context_CustomFieldGroup</name>
+				<file>api/dao/custom_fieldset.php</file>
+				<name>Context_CustomFieldset</name>
 			</class>
 			<params>
-				<param key="alias" value="custom_field_group" />
-				<param key="dao_class" value="DAO_CustomFieldGroup" />
-				<param key="view_class" value="View_CustomFieldGroup" />
+				<param key="alias" value="custom_fieldset" />
+				<param key="dao_class" value="DAO_CustomFieldset" />
+				<param key="view_class" value="View_CustomFieldset" />
 				<param key="options">
 					<value>
 						<!--<data key="create" />-->
@@ -1644,15 +1644,15 @@
 			<!-- Internal Page Sections -->
 			
 			<extension point="cerberusweb.ui.page.section">
-				<id>core.internal.section.custom_field_groups</id>
-				<name>Internal Section Custom Field Groups</name>
+				<id>core.internal.section.custom_fieldsets</id>
+				<name>Internal Section Custom Fieldsets</name>
 				<class>
-					<file>api/uri/internal/custom_field_groups.php</file>
-					<name>PageSection_InternalCustomFieldGroups</name>
+					<file>api/uri/internal/custom_fieldsets.php</file>
+					<name>PageSection_InternalCustomFieldsets</name>
 				</class>
 				<params>
 					<param key="page_id" value="core.controller.internal" />
-					<param key="uri" value="custom_field_groups" />
+					<param key="uri" value="custom_fieldsets" />
 				</params>
 			</extension>
 

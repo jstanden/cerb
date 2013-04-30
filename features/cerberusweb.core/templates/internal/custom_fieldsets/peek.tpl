@@ -1,9 +1,9 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmCustomFieldGroupPeek" name="frmCustomFieldGroupPeek" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmCustomFieldsetPeek" name="frmCustomFieldsetPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="custom_field_groups">
-<input type="hidden" name="action" value="saveCustomFieldGroupPeek">
-<input type="hidden" name="id" value="{$custom_field_group->id}">
+<input type="hidden" name="section" value="custom_fieldsets">
+<input type="hidden" name="action" value="saveCustomFieldsetPeek">
+<input type="hidden" name="id" value="{$custom_fieldset->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">
 
@@ -16,7 +16,7 @@
 				<b>{'common.name'|devblocks_translate|capitalize}:</b><br>
 			</td>
 			<td width="99%">
-				<input type="text" name="name" value="{$custom_field_group->name}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;"><br>
+				<input type="text" name="name" value="{$custom_fieldset->name}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;"><br>
 			</td>
 		</tr>
 		<tr>
@@ -24,15 +24,15 @@
 				<b>{'common.type'|devblocks_translate|capitalize}:</b><br>
 			</td>
 			<td width="99%">
-				{if !empty($custom_field_group->id)}
-					<input type="hidden" name="context" value="{$custom_field_group->context}">
-					{if $contexts.{$custom_field_group->context}}
-						{$contexts.{$custom_field_group->context}->name}
+				{if !empty($custom_fieldset->id)}
+					<input type="hidden" name="context" value="{$custom_fieldset->context}">
+					{if $contexts.{$custom_fieldset->context}}
+						{$contexts.{$custom_fieldset->context}->name}
 					{/if}
 				{else}
 				<select name="context">
 					{foreach from=$contexts item=ctx key=k}
-					<option value="{$k}" {if $custom_field_group->context==$k}selected="selected"{/if}>{$ctx->name}</option>
+					<option value="{$k}" {if $custom_fieldset->context==$k}selected="selected"{/if}>{$ctx->name}</option>
 					{/foreach}
 				</select>
 				{/if}
@@ -44,46 +44,46 @@
 			</td>
 			<td width="99%">
 				<select name="owner">
-					{if !empty($custom_field_group->id)}
+					{if !empty($custom_fieldset->id)}
 						<option value=""> - transfer - </option>
 					{/if}
 					
-					<option value="w_{$active_worker->id}" {if $custom_field_group->owner_context==CerberusContexts::CONTEXT_WORKER && $active_worker->id==$custom_field_group->owner_context_id}selected="selected"{/if}>me</option>
+					<option value="w_{$active_worker->id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_WORKER && $active_worker->id==$custom_fieldset->owner_context_id}selected="selected"{/if}>me</option>
 
 					{if !empty($owner_roles)}
 					{foreach from=$owner_roles item=role key=role_id}
-						<option value="r_{$role_id}" {if $custom_field_group->owner_context==CerberusContexts::CONTEXT_ROLE && $role_id==$custom_field_group->owner_context_id}selected="selected"{/if}>Role: {$role->name}</option>
+						<option value="r_{$role_id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_ROLE && $role_id==$custom_fieldset->owner_context_id}selected="selected"{/if}>Role: {$role->name}</option>
 					{/foreach}
 					{/if}
 					
 					{if !empty($owner_groups)}
 					{foreach from=$owner_groups item=group key=group_id}
-						<option value="g_{$group_id}" {if $custom_field_group->owner_context==CerberusContexts::CONTEXT_GROUP && $group_id==$custom_field_group->owner_context_id}selected="selected"{/if}>Group: {$group->name}</option>
+						<option value="g_{$group_id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_GROUP && $group_id==$custom_fieldset->owner_context_id}selected="selected"{/if}>Group: {$group->name}</option>
 					{/foreach}
 					{/if}
 					
 					{if $active_worker->is_superuser}
 					{foreach from=$workers item=worker key=worker_id}
 						{if empty($worker->is_disabled)}
-						<option value="w_{$worker_id}" {if $custom_field_group->owner_context==CerberusContexts::CONTEXT_WORKER && $worker_id==$custom_field_group->owner_context_id && $active_worker->id != $worker_id}selected="selected"{/if}>Worker: {$worker->getName()}</option>
+						<option value="w_{$worker_id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_WORKER && $worker_id==$custom_fieldset->owner_context_id && $active_worker->id != $worker_id}selected="selected"{/if}>Worker: {$worker->getName()}</option>
 						{/if}
 					{/foreach}
 					{/if}
 				</select>
 				
-				{if !empty($custom_field_group->id)}
+				{if !empty($custom_fieldset->id)}
 				<ul class="bubbles">
 					<li>
-					{if $custom_field_group->owner_context==CerberusContexts::CONTEXT_ROLE && isset($roles.{$custom_field_group->owner_context_id})}
-					<b>{$roles.{$custom_field_group->owner_context_id}->name}</b> (Role)
+					{if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_ROLE && isset($roles.{$custom_fieldset->owner_context_id})}
+					<b>{$roles.{$custom_fieldset->owner_context_id}->name}</b> (Role)
 					{/if}
 					
-					{if $custom_field_group->owner_context==CerberusContexts::CONTEXT_GROUP && isset($groups.{$custom_field_group->owner_context_id})}
-					<b>{$groups.{$custom_field_group->owner_context_id}->name}</b> (Group)
+					{if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_GROUP && isset($groups.{$custom_fieldset->owner_context_id})}
+					<b>{$groups.{$custom_fieldset->owner_context_id}->name}</b> (Group)
 					{/if}
 					
-					{if $custom_field_group->owner_context==CerberusContexts::CONTEXT_WORKER && isset($workers.{$custom_field_group->owner_context_id})}
-					<b>{$workers.{$custom_field_group->owner_context_id}->getName()}</b> (Worker)
+					{if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_WORKER && isset($workers.{$custom_fieldset->owner_context_id})}
+					<b>{$workers.{$custom_fieldset->owner_context_id}->getName()}</b> (Worker)
 					{/if}
 					</li>
 				</ul>
@@ -153,24 +153,24 @@
 	
 </fieldset>
 
-{if !empty($custom_field_group->id) && $custom_field_group->isWriteableByWorker($active_worker)}
+{if !empty($custom_fieldset->id) && $custom_fieldset->isWriteableByWorker($active_worker)}
 <fieldset class="delete" style="display:none;">
-	<legend>Delete this custom field group?</legend>
-	<p>Are you sure you want to permanently delete this custom field group?  All custom fields and their values will be removed.</p>
+	<legend>Delete this custom fieldset?</legend>
+	<p>Are you sure you want to permanently delete this custom fieldset?  All custom fields and their values will be removed.</p>
 	<button type="button" class="green" onclick="var $frm=$(this).closest('form');$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('button.submit').click();"> {'common.yes'|devblocks_translate|capitalize}</button>
 	<button type="button" class="red" onclick="$(this).closest('fieldset').hide().next('div.buttons').show();"> {'common.no'|devblocks_translate|capitalize}</button>
 </fieldset>
 {/if}
 
 <div class="buttons">
-{if empty($custom_field_group->id) || $custom_field_group->isWriteableByWorker($active_worker)}
-	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView('{$layer}','frmCustomFieldGroupPeek','{$view_id}',false,'custom_field_group_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
+{if empty($custom_fieldset->id) || $custom_fieldset->isWriteableByWorker($active_worker)}
+	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView('{$layer}','frmCustomFieldsetPeek','{$view_id}',false,'custom_fieldset_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
 {else}
 	<fieldset class="delete" style="font-weight:bold;">
 		{'error.core.no_acl.edit'|devblocks_translate}
 	</fieldset>
 {/if}
-{if !empty($custom_field_group->id) && $custom_field_group->isWriteableByWorker($active_worker)}
+{if !empty($custom_fieldset->id) && $custom_fieldset->isWriteableByWorker($active_worker)}
 	<button type="button" onclick="$(this).closest('div.buttons').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>
 {/if}
 </div>
@@ -183,10 +183,10 @@
 		var $popup = genericAjaxPopupFetch('{$layer}');
 		var $this = $(this);
 		
-		{if empty($custom_field_group->id)}
-		$this.dialog('option','title', 'Create Custom Field Group');
+		{if empty($custom_fieldset->id)}
+		$this.dialog('option','title', 'Create Custom Fieldset');
 		{else}
-		$this.dialog('option','title', 'Modify Custom Field Group');
+		$this.dialog('option','title', 'Modify Custom Fieldset');
 		{/if}
 
 		$this.find('input:text:first').focus().select();

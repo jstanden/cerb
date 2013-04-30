@@ -248,11 +248,11 @@ if(!isset($columns['delay_until'])) {
 }
 
 // ===========================================================================
-// Add the `custom_field_group` database table
+// Add the `custom_fieldset` database table
 
-if(!isset($tables['custom_field_group'])) {
+if(!isset($tables['custom_fieldset'])) {
 	$sql = sprintf("
-		CREATE TABLE IF NOT EXISTS custom_field_group (
+		CREATE TABLE IF NOT EXISTS custom_fieldset (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			name VARCHAR(255) DEFAULT '',
 			context VARCHAR(255) DEFAULT '',
@@ -263,11 +263,11 @@ if(!isset($tables['custom_field_group'])) {
 	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
-	$tables['custom_field_group'] = 'custom_field_group';
+	$tables['custom_fieldset'] = 'custom_fieldset';
 }
 
 // ===========================================================================
-// Add the `custom_field.custom_field_group_id` field
+// Add the `custom_field.custom_fieldset_id` field
 
 if(!isset($tables['custom_field'])) {
 	$logger->error("The 'custom_field' table does not exist.");
@@ -277,21 +277,21 @@ if(!isset($tables['custom_field'])) {
 list($columns, $indexes) = $db->metaTable('custom_field');
 
 // If the foreign key column for groups doesn't exist, add it.
-if(!isset($columns['custom_field_group_id'])) {
-	$db->Execute("ALTER TABLE custom_field ADD COLUMN custom_field_group_id INT UNSIGNED DEFAULT 0 NOT NULL, ADD INDEX (custom_field_group_id)");
+if(!isset($columns['custom_fieldset_id'])) {
+	$db->Execute("ALTER TABLE custom_field ADD COLUMN custom_fieldset_id INT UNSIGNED DEFAULT 0 NOT NULL, ADD INDEX (custom_fieldset_id)");
 }
 
-// If the old style custom_field.group_id field exists, migrate it to custom_field_group rows.
+// If the old style custom_field.group_id field exists, migrate it to custom_fieldset rows.
 if(isset($columns['group_id'])) {
 	$rs = $db->Execute("SELECT DISTINCT custom_field.group_id, worker_group.name AS group_name, custom_field.context FROM custom_field INNER JOIN worker_group ON (custom_field.group_id=worker_group.id) WHERE custom_field.group_id > 0");
 	
-	// Migrate group-based custom fields to custom field group records
+	// Migrate group-based custom fields to custom fieldset records
 	while($row = mysql_fetch_assoc($rs)) {
 		$group_id = $row['group_id'];
 		$group_name = $row['group_name'];
 		$context = $row['context'];
 		
-		$sql = sprintf("INSERT INTO custom_field_group (name, context, owner_context, owner_context_id) VALUES ('%s', '%s', '%s', %d)",
+		$sql = sprintf("INSERT INTO custom_fieldset (name, context, owner_context, owner_context_id) VALUES ('%s', '%s', '%s', %d)",
 			mysql_real_escape_string($group_name),
 			mysql_real_escape_string($context),
 			mysql_real_escape_string('cerberusweb.contexts.group'),
@@ -299,17 +299,17 @@ if(isset($columns['group_id'])) {
 		);
 		$db->Execute($sql);
 		
-		$custom_field_group_id = $db->LastInsertId();
+		$custom_fieldset_id = $db->LastInsertId();
 		
-		$db->Execute(sprintf("UPDATE custom_field SET custom_field_group_id = %d WHERE group_id = %d",
-			$custom_field_group_id,
+		$db->Execute(sprintf("UPDATE custom_field SET custom_fieldset_id = %d WHERE group_id = %d",
+			$custom_fieldset_id,
 			$group_id
 		));
 	}
 	
-	// Set up context_link records between custom_field_group records and tickets
-	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.ticket', cfv.context_id, 'cerberusweb.contexts.custom_field_group', cf.custom_field_group_id from custom_field_stringvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_field_group_id > 0");
-	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.custom_field_group', cf.custom_field_group_id, 'cerberusweb.contexts.ticket', cfv.context_id from custom_field_stringvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_field_group_id > 0");
+	// Set up context_link records between custom_fieldset records and tickets
+	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.ticket', cfv.context_id, 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id from custom_field_stringvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0");
+	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id, 'cerberusweb.contexts.ticket', cfv.context_id from custom_field_stringvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0");
 
 	// Drop the old column
 	$db->Execute("ALTER TABLE custom_field DROP COLUMN group_id");

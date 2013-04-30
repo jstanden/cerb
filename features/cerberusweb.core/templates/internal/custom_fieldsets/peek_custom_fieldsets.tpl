@@ -1,22 +1,22 @@
-{$custom_field_groups_available = DAO_CustomFieldGroup::getByContext($context)}
-{$custom_field_groups_linked = DAO_CustomFieldGroup::getByContextLink($context, $context_id)}
-{$custom_field_groups_available = array_diff_key($custom_field_groups_available, $custom_field_groups_linked)}
+{$custom_fieldsets_available = DAO_CustomFieldset::getByContext($context)}
+{$custom_fieldsets_linked = DAO_CustomFieldset::getByContextLink($context, $context_id)}
+{$custom_fieldsets_available = array_diff_key($custom_fieldsets_available, $custom_fieldsets_linked)}
 
-{foreach from=$custom_field_groups_linked item=cf_group}
-{include file="devblocks:cerberusweb.core::internal/custom_field_groups/fieldset.tpl" bulk=false custom_field_group=$cf_group}
+{foreach from=$custom_fieldsets_linked item=cf_group}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/fieldset.tpl" bulk=false custom_fieldset=$cf_group}
 {/foreach}
 
 <div class="custom-fieldset-insertion"></div>
 
-{if !empty($custom_field_groups_available)}
-{$btn_cfield_group_domid = "cfield_groups_{uniqid()}"}
+{if !empty($custom_fieldsets_available)}
+{$btn_cfield_group_domid = "cfield_sets_{uniqid()}"}
 <div style="margin-left:10px;margin-bottom:10px;">
 	<button type="button" id="{$btn_cfield_group_domid}" class="action">Add Fieldset &#x25be;</button>
 	<ul class="cerb-popupmenu" style="border:0;">
 		<li style="background:none;">
 			<input type="text" size="32" class="input_search filter">
 		</li>
-		{foreach from=$custom_field_groups_available item=cf_group}
+		{foreach from=$custom_fieldsets_available item=cf_group}
 		{$owner_ctx = Extension_DevblocksContext::get($cf_group->owner_context)}
 		<li class="item" cf_group_id="{$cf_group->id}">
 			<div>
@@ -53,7 +53,7 @@ $('#{$btn_cfield_group_domid}')
 			var $ul = $li.closest('ul.cerb-popupmenu');
 			var cf_group_id = $li.attr('cf_group_id');
 			
-			genericAjaxGet('', 'c=internal&a=handleSectionAction&section=custom_field_groups&action=getCustomFieldSet&id=' + cf_group_id, function(html) {
+			genericAjaxGet('', 'c=internal&a=handleSectionAction&section=custom_fieldsets&action=getCustomFieldSet&id=' + cf_group_id, function(html) {
 				if(undefined == html || null == html)
 					return;
 

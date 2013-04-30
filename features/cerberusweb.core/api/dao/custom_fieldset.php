@@ -1,17 +1,17 @@
 <?php
-class DAO_CustomFieldGroup extends Cerb_ORMHelper {
+class DAO_CustomFieldset extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
 	const CONTEXT = 'context';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
 
-	const CACHE_ALL = 'ch_customfieldgroups';
+	const CACHE_ALL = 'ch_CustomFieldsets';
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "INSERT INTO custom_field_group () VALUES ()";
+		$sql = "INSERT INTO custom_fieldset () VALUES ()";
 		$db->Execute($sql);
 		$id = $db->LastInsertId();
 		
@@ -21,13 +21,13 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields) {
-		parent::_update($ids, 'custom_field_group', $fields);
+		parent::_update($ids, 'custom_fieldset', $fields);
 		
 		self::clearCache();
 	}
 	
 	static function updateWhere($fields, $where) {
-		parent::_updateWhere('custom_field_group', $fields, $where);
+		parent::_updateWhere('custom_fieldset', $fields, $where);
 	}
 	
 	/**
@@ -35,7 +35,7 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 	 * @param mixed $sortBy
 	 * @param mixed $sortAsc
 	 * @param integer $limit
-	 * @return Model_CustomFieldGroup[]
+	 * @return Model_CustomFieldset[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -44,7 +44,7 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 		
 		// SQL
 		$sql = "SELECT id, name, context, owner_context, owner_context_id ".
-			"FROM custom_field_group ".
+			"FROM custom_fieldset ".
 			$where_sql.
 			$sort_sql.
 			$limit_sql
@@ -56,7 +56,7 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 
 	/**
 	 * @param integer $id
-	 * @return Model_CustomFieldGroup
+	 * @return Model_CustomFieldset
 	 */
 	static function get($id) {
 		$objects = self::getWhere(sprintf("%s = %d",
@@ -74,7 +74,7 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 		$cache = DevblocksPlatform::getCacheService();
 		
 		if($nocache || null === ($objects = $cache->load(self::CACHE_ALL))) {
-			$objects = DAO_CustomFieldGroup::getWhere();
+			$objects = DAO_CustomFieldset::getWhere();
 			$cache->save($objects, self::CACHE_ALL);
 		}
 		
@@ -82,10 +82,10 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 	}
 	
 	static function getByContext($context) {
-		$cf_groups = DAO_CustomFieldGroup::getAll();
+		$cf_groups = DAO_CustomFieldset::getAll();
 		$results = array();
 		
-		foreach($cf_groups as $cf_group_id => $cf_group) { /* @var $cg_group Model_CustomFieldGroup */
+		foreach($cf_groups as $cf_group_id => $cf_group) { /* @var $cg_group Model_CustomFieldset */
 			if(0 == strcasecmp($cf_group->context, $context))
 				$results[$cf_group_id] = $cf_group;
 		}
@@ -97,11 +97,11 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 	 *
 	 * @param string $context
 	 * @param integer $context_id
-	 * @return Model_CustomFieldGroup[]
+	 * @return Model_CustomFieldset[]
 	 */
 	static function getByContextLink($context, $context_id) {
-		$cf_groups = DAO_CustomFieldGroup::getAll();
-		$context_values = DAO_ContextLink::getContextLinks($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELD_GROUP);
+		$cf_groups = DAO_CustomFieldset::getAll();
+		$context_values = DAO_ContextLink::getContextLinks($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET);
 		$results = array();
 		
 		if(!isset($context_values[$context_id]))
@@ -119,10 +119,10 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 	}
 	
 	static function getByOwner($owner_context, $owner_context_id=0) {
-		$cf_groups = DAO_CustomFieldGroup::getAll();
+		$cf_groups = DAO_CustomFieldset::getAll();
 		$results = array();
 		
-		foreach($cf_groups as $cf_group_id => $cf_group) { /* @var $cg_group Model_CustomFieldGroup */
+		foreach($cf_groups as $cf_group_id => $cf_group) { /* @var $cg_group Model_CustomFieldset */
 			if(0 == strcasecmp($cf_group->owner_context, $owner_context)
 				&& intval($cf_group->owner_context_id) == intval($owner_context_id))
 				$results[$cf_group_id] = $cf_group;
@@ -133,13 +133,13 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 	
 	/**
 	 * @param resource $rs
-	 * @return Model_CustomFieldGroup[]
+	 * @return Model_CustomFieldset[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
 		while($row = mysql_fetch_assoc($rs)) {
-			$object = new Model_CustomFieldGroup();
+			$object = new Model_CustomFieldset();
 			$object->id = $row['id'];
 			$object->name = $row['name'];
 			$object->context = $row['context'];
@@ -162,7 +162,7 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM custom_field_group WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE FROM custom_fieldset WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -170,7 +170,7 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 			new Model_DevblocksEvent(
 				'context.delete',
 				array(
-					'context' => 'cerberusweb.contexts.custom_field_group',
+					'context' => 'cerberusweb.contexts.custom_fieldset',
 					'context_ids' => $ids
 				)
 			)
@@ -182,7 +182,7 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
-		$fields = SearchFields_CustomFieldGroup::getFields();
+		$fields = SearchFields_CustomFieldset::getFields();
 		
 		// Sanitize
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]))
@@ -191,20 +191,20 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
-			"custom_field_group.id as %s, ".
-			"custom_field_group.name as %s, ".
-			"custom_field_group.context as %s, ".
-			"custom_field_group.owner_context as %s, ".
-			"custom_field_group.owner_context_id as %s ",
-				SearchFields_CustomFieldGroup::ID,
-				SearchFields_CustomFieldGroup::NAME,
-				SearchFields_CustomFieldGroup::CONTEXT,
-				SearchFields_CustomFieldGroup::OWNER_CONTEXT,
-				SearchFields_CustomFieldGroup::OWNER_CONTEXT_ID
+			"custom_fieldset.id as %s, ".
+			"custom_fieldset.name as %s, ".
+			"custom_fieldset.context as %s, ".
+			"custom_fieldset.owner_context as %s, ".
+			"custom_fieldset.owner_context_id as %s ",
+				SearchFields_CustomFieldset::ID,
+				SearchFields_CustomFieldset::NAME,
+				SearchFields_CustomFieldset::CONTEXT,
+				SearchFields_CustomFieldset::OWNER_CONTEXT,
+				SearchFields_CustomFieldset::OWNER_CONTEXT_ID
 			);
 			
-		$join_sql = "FROM custom_field_group ".
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.custom_field_group' AND context_link.to_context_id = custom_field_group.id) " : " ")
+		$join_sql = "FROM custom_fieldset ".
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.custom_fieldset' AND context_link.to_context_id = custom_fieldset.id) " : " ")
 			;
 		
 		$has_multiple_values = false; // [TODO] Temporary when custom fields disabled
@@ -225,12 +225,12 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 	
 		array_walk_recursive(
 			$params,
-			array('DAO_CustomFieldGroup', '_translateVirtualParameters'),
+			array('DAO_CustomFieldset', '_translateVirtualParameters'),
 			$args
 		);
 		
 		return array(
-			'primary_table' => 'custom_field_group',
+			'primary_table' => 'custom_fieldset',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
@@ -243,19 +243,19 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 		if(!is_a($param, 'DevblocksSearchCriteria'))
 			return;
 			
-		$from_context = CerberusContexts::CONTEXT_CUSTOM_FIELD_GROUP;
-		$from_index = 'custom_field_group.id';
+		$from_context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
+		$from_index = 'custom_fieldset.id';
 		
 		$param_key = $param->field;
 		settype($param_key, 'string');
 		
 		switch($param_key) {
-			case SearchFields_CustomFieldGroup::VIRTUAL_CONTEXT_LINK:
+			case SearchFields_CustomFieldset::VIRTUAL_CONTEXT_LINK:
 				$args['has_multiple_values'] = true;
 				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
 			
-			case SearchFields_CustomFieldGroup::VIRTUAL_OWNER:
+			case SearchFields_CustomFieldset::VIRTUAL_OWNER:
 				if(!is_array($param->value))
 					break;
 				
@@ -269,13 +269,13 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 						continue;
 					
 					if(!empty($context_id)) {
-						$wheres[] = sprintf("(custom_field_group.owner_context = %s AND custom_field_group.owner_context_id = %d)",
+						$wheres[] = sprintf("(custom_fieldset.owner_context = %s AND custom_fieldset.owner_context_id = %d)",
 							Cerb_ORMHelper::qstr($context),
 							$context_id
 						);
 						
 					} else {
-						$wheres[] = sprintf("(custom_field_group.owner_context = %s)",
+						$wheres[] = sprintf("(custom_fieldset.owner_context = %s)",
 							Cerb_ORMHelper::qstr($context)
 						);
 					}
@@ -316,7 +316,7 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 			$select_sql.
 			$join_sql.
 			$where_sql.
-			($has_multiple_values ? 'GROUP BY custom_field_group.id ' : '').
+			($has_multiple_values ? 'GROUP BY custom_fieldset.id ' : '').
 			$sort_sql;
 			
 		if($limit > 0) {
@@ -334,14 +334,14 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$object_id = intval($row[SearchFields_CustomFieldGroup::ID]);
+			$object_id = intval($row[SearchFields_CustomFieldset::ID]);
 			$results[$object_id] = $result;
 		}
 
 		// [JAS]: Count all
 		if($withCounts) {
 			$count_sql =
-				($has_multiple_values ? "SELECT COUNT(DISTINCT custom_field_group.id) " : "SELECT COUNT(custom_field_group.id) ").
+				($has_multiple_values ? "SELECT COUNT(DISTINCT custom_fieldset.id) " : "SELECT COUNT(custom_fieldset.id) ").
 				$join_sql.
 				$where_sql;
 			$total = $db->GetOne($count_sql);
@@ -360,7 +360,7 @@ class DAO_CustomFieldGroup extends Cerb_ORMHelper {
 
 };
 
-class SearchFields_CustomFieldGroup implements IDevblocksSearchFields {
+class SearchFields_CustomFieldset implements IDevblocksSearchFields {
 	const ID = 'c_id';
 	const NAME = 'c_name';
 	const CONTEXT = 'c_context';
@@ -380,11 +380,11 @@ class SearchFields_CustomFieldGroup implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'custom_field_group', 'id', $translate->_('common.id')),
-			self::NAME => new DevblocksSearchField(self::NAME, 'custom_field_group', 'name', $translate->_('common.name')),
-			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'custom_field_group', 'context', $translate->_('common.context')),
-			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'custom_field_group', 'owner_context', $translate->_('common.owner_context')),
-			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'custom_field_group', 'owner_context_id', $translate->_('common.owner_context_id')),
+			self::ID => new DevblocksSearchField(self::ID, 'custom_fieldset', 'id', $translate->_('common.id')),
+			self::NAME => new DevblocksSearchField(self::NAME, 'custom_fieldset', 'name', $translate->_('common.name')),
+			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'custom_fieldset', 'context', $translate->_('common.context')),
+			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'custom_fieldset', 'owner_context', $translate->_('common.owner_context')),
+			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'custom_fieldset', 'owner_context_id', $translate->_('common.owner_context_id')),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
@@ -400,7 +400,7 @@ class SearchFields_CustomFieldGroup implements IDevblocksSearchFields {
 	}
 };
 
-class Model_CustomFieldGroup {
+class Model_CustomFieldset {
 	public $id;
 	public $name;
 	public $context;
@@ -416,7 +416,7 @@ class Model_CustomFieldGroup {
 		$results = array();
 		
 		foreach($fields as $field_id => $field) {
-			if($field->custom_field_group_id == $this->id)
+			if($field->custom_fieldset_id == $this->id)
 				$results[$field_id] = $field;
 		}
 		
@@ -493,44 +493,44 @@ class Model_CustomFieldGroup {
 	}
 };
 
-class View_CustomFieldGroup extends C4_AbstractView implements IAbstractView_Subtotals {
-	const DEFAULT_ID = 'custom_field_groups';
+class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subtotals {
+	const DEFAULT_ID = 'custom_fieldsets';
 
 	function __construct() {
 		$translate = DevblocksPlatform::getTranslationService();
 	
 		$this->id = self::DEFAULT_ID;
-		$this->name = $translate->_('Custom Field Groups');
+		$this->name = $translate->_('Custom Fieldsets');
 		$this->renderLimit = 25;
-		$this->renderSortBy = SearchFields_CustomFieldGroup::ID;
+		$this->renderSortBy = SearchFields_CustomFieldset::ID;
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_CustomFieldGroup::CONTEXT,
-			SearchFields_CustomFieldGroup::NAME,
-			SearchFields_CustomFieldGroup::VIRTUAL_OWNER,
+			SearchFields_CustomFieldset::CONTEXT,
+			SearchFields_CustomFieldset::NAME,
+			SearchFields_CustomFieldset::VIRTUAL_OWNER,
 		);
 
 		$this->addColumnsHidden(array(
-			SearchFields_CustomFieldGroup::ID,
-			SearchFields_CustomFieldGroup::OWNER_CONTEXT,
-			SearchFields_CustomFieldGroup::OWNER_CONTEXT_ID,
-			SearchFields_CustomFieldGroup::VIRTUAL_CONTEXT_LINK,
+			SearchFields_CustomFieldset::ID,
+			SearchFields_CustomFieldset::OWNER_CONTEXT,
+			SearchFields_CustomFieldset::OWNER_CONTEXT_ID,
+			SearchFields_CustomFieldset::VIRTUAL_CONTEXT_LINK,
 		));
 		
 		$this->addParamsHidden(array(
-			SearchFields_CustomFieldGroup::CONTEXT_LINK,
-			SearchFields_CustomFieldGroup::CONTEXT_LINK_ID,
-			SearchFields_CustomFieldGroup::ID,
-			SearchFields_CustomFieldGroup::OWNER_CONTEXT,
-			SearchFields_CustomFieldGroup::OWNER_CONTEXT_ID,
+			SearchFields_CustomFieldset::CONTEXT_LINK,
+			SearchFields_CustomFieldset::CONTEXT_LINK_ID,
+			SearchFields_CustomFieldset::ID,
+			SearchFields_CustomFieldset::OWNER_CONTEXT,
+			SearchFields_CustomFieldset::OWNER_CONTEXT_ID,
 		));
 		
 		$this->doResetCriteria();
 	}
 
 	function getData() {
-		$objects = DAO_CustomFieldGroup::search(
+		$objects = DAO_CustomFieldset::search(
 			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
@@ -543,11 +543,11 @@ class View_CustomFieldGroup extends C4_AbstractView implements IAbstractView_Sub
 	}
 	
 	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_CustomFieldGroup', $ids);
+		return $this->_getDataAsObjects('DAO_CustomFieldset', $ids);
 	}
 	
 	function getDataSample($size) {
-		return $this->_doGetDataSample('DAO_CustomFieldGroup', $size);
+		return $this->_doGetDataSample('DAO_CustomFieldset', $size);
 	}
 
 	function getSubtotalFields() {
@@ -561,13 +561,13 @@ class View_CustomFieldGroup extends C4_AbstractView implements IAbstractView_Sub
 			
 			switch($field_key) {
 				// Fields
-				case SearchFields_CustomFieldGroup::CONTEXT:
+				case SearchFields_CustomFieldset::CONTEXT:
 					$pass = true;
 					break;
 					
 				// Virtuals
-				case SearchFields_CustomFieldGroup::VIRTUAL_CONTEXT_LINK:
-				case SearchFields_CustomFieldGroup::VIRTUAL_OWNER:
+				case SearchFields_CustomFieldset::VIRTUAL_CONTEXT_LINK:
+				case SearchFields_CustomFieldset::VIRTUAL_OWNER:
 					$pass = true;
 					break;
 					
@@ -593,11 +593,11 @@ class View_CustomFieldGroup extends C4_AbstractView implements IAbstractView_Sub
 			return array();
 		
 		switch($column) {
-			case SearchFields_CustomFieldGroup::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_CustomFieldGroup', CerberusContexts::CONTEXT_CUSTOM_FIELD_GROUP, $column);
+			case SearchFields_CustomFieldset::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_CustomFieldset', CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $column);
 				break;
 			
-			case SearchFields_CustomFieldGroup::CONTEXT:
+			case SearchFields_CustomFieldset::CONTEXT:
 				$label_map = array();
 				$contexts = Extension_DevblocksContext::getAll(false);
 				
@@ -605,11 +605,11 @@ class View_CustomFieldGroup extends C4_AbstractView implements IAbstractView_Sub
 					$label_map[$k] = $mft->name;
 				}
 				
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_CustomFieldGroup', $column, $label_map, 'in', 'contexts[]');
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_CustomFieldset', $column, $label_map, 'in', 'contexts[]');
 				break;
 			
-			case SearchFields_CustomFieldGroup::VIRTUAL_OWNER:
-				$counts = $this->_getSubtotalCountForContextAndIdColumns('DAO_CustomFieldGroup', CerberusContexts::CONTEXT_CUSTOM_FIELD_GROUP, $column, DAO_CustomFieldGroup::OWNER_CONTEXT, DAO_CustomFieldGroup::OWNER_CONTEXT_ID, 'owner_context[]');
+			case SearchFields_CustomFieldset::VIRTUAL_OWNER:
+				$counts = $this->_getSubtotalCountForContextAndIdColumns('DAO_CustomFieldset', CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $column, DAO_CustomFieldset::OWNER_CONTEXT, DAO_CustomFieldset::OWNER_CONTEXT_ID, 'owner_context[]');
 				break;
 			
 			default:
@@ -629,7 +629,7 @@ class View_CustomFieldGroup extends C4_AbstractView implements IAbstractView_Sub
 		$contexts = Extension_DevblocksContext::getAll(false);
 		$tpl->assign('contexts', $contexts);
 		
-		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/custom_field_groups/view.tpl');
+		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/custom_fieldsets/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
@@ -638,14 +638,14 @@ class View_CustomFieldGroup extends C4_AbstractView implements IAbstractView_Sub
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
-			case SearchFields_CustomFieldGroup::NAME:
-			case SearchFields_CustomFieldGroup::CONTEXT:
-			case SearchFields_CustomFieldGroup::OWNER_CONTEXT:
-			case SearchFields_CustomFieldGroup::OWNER_CONTEXT_ID:
+			case SearchFields_CustomFieldset::NAME:
+			case SearchFields_CustomFieldset::CONTEXT:
+			case SearchFields_CustomFieldset::OWNER_CONTEXT:
+			case SearchFields_CustomFieldset::OWNER_CONTEXT_ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
-			case SearchFields_CustomFieldGroup::ID:
+			case SearchFields_CustomFieldset::ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
@@ -657,20 +657,20 @@ class View_CustomFieldGroup extends C4_AbstractView implements IAbstractView_Sub
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
-			case SearchFields_CustomFieldGroup::CONTEXT:
+			case SearchFields_CustomFieldset::CONTEXT:
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
 				
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context.tpl');
 				break;
 				
-			case SearchFields_CustomFieldGroup::VIRTUAL_CONTEXT_LINK:
+			case SearchFields_CustomFieldset::VIRTUAL_CONTEXT_LINK:
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
 				break;
 				
-			case SearchFields_CustomFieldGroup::VIRTUAL_OWNER:
+			case SearchFields_CustomFieldset::VIRTUAL_OWNER:
 				$groups = DAO_Group::getAll();
 				$tpl->assign('groups', $groups);
 				
@@ -690,7 +690,7 @@ class View_CustomFieldGroup extends C4_AbstractView implements IAbstractView_Sub
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-			case SearchFields_CustomFieldGroup::CONTEXT:
+			case SearchFields_CustomFieldset::CONTEXT:
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$strings = array();
 				
@@ -715,31 +715,31 @@ class View_CustomFieldGroup extends C4_AbstractView implements IAbstractView_Sub
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
-			case SearchFields_CustomFieldGroup::VIRTUAL_CONTEXT_LINK:
+			case SearchFields_CustomFieldset::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
 				break;
 			
-			case SearchFields_CustomFieldGroup::VIRTUAL_OWNER:
+			case SearchFields_CustomFieldset::VIRTUAL_OWNER:
 				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners');
 				break;
 		}
 	}
 
 	function getFields() {
-		return SearchFields_CustomFieldGroup::getFields();
+		return SearchFields_CustomFieldset::getFields();
 	}
 
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
 		switch($field) {
-			case SearchFields_CustomFieldGroup::NAME:
-			case SearchFields_CustomFieldGroup::OWNER_CONTEXT:
-			case SearchFields_CustomFieldGroup::OWNER_CONTEXT_ID:
+			case SearchFields_CustomFieldset::NAME:
+			case SearchFields_CustomFieldset::OWNER_CONTEXT:
+			case SearchFields_CustomFieldset::OWNER_CONTEXT_ID:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
-			case SearchFields_CustomFieldGroup::ID:
+			case SearchFields_CustomFieldset::ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
@@ -752,17 +752,17 @@ class View_CustomFieldGroup extends C4_AbstractView implements IAbstractView_Sub
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
-			case SearchFields_CustomFieldGroup::CONTEXT:
+			case SearchFields_CustomFieldset::CONTEXT:
 				@$in_contexts = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$in_contexts);
 				break;
 				
-			case SearchFields_CustomFieldGroup::VIRTUAL_CONTEXT_LINK:
+			case SearchFields_CustomFieldset::VIRTUAL_CONTEXT_LINK:
 				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
-			case SearchFields_CustomFieldGroup::VIRTUAL_OWNER:
+			case SearchFields_CustomFieldset::VIRTUAL_OWNER:
 				@$owner_contexts = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
 				break;
@@ -793,7 +793,7 @@ class View_CustomFieldGroup extends C4_AbstractView implements IAbstractView_Sub
 			switch($k) {
 				// [TODO] Implement actions
 				case 'example':
-					//$change_fields[DAO_CustomFieldGroup::EXAMPLE] = 'some value';
+					//$change_fields[DAO_CustomFieldset::EXAMPLE] = 'some value';
 					break;
 				/*
 				default:
@@ -810,12 +810,12 @@ class View_CustomFieldGroup extends C4_AbstractView implements IAbstractView_Sub
 
 		if(empty($ids))
 		do {
-			list($objects,$null) = DAO_CustomFieldGroup::search(
+			list($objects,$null) = DAO_CustomFieldset::search(
 				array(),
 				$this->getParams(),
 				100,
 				$pg++,
-				SearchFields_CustomFieldGroup::ID,
+				SearchFields_CustomFieldset::ID,
 				true,
 				false
 			);
@@ -828,11 +828,11 @@ class View_CustomFieldGroup extends C4_AbstractView implements IAbstractView_Sub
 			$batch_ids = array_slice($ids,$x,100);
 			
 			if(!empty($change_fields)) {
-				DAO_CustomFieldGroup::update($batch_ids, $change_fields);
+				DAO_CustomFieldset::update($batch_ids, $change_fields);
 			}
 
 			// Custom Fields
-			//self::_doBulkSetCustomFields(ChCustomFieldSource_CustomFieldGroup::ID, $custom_fields, $batch_ids);
+			//self::_doBulkSetCustomFields(ChCustomFieldSource_CustomFieldset::ID, $custom_fields, $batch_ids);
 			
 			unset($batch_ids);
 		}
@@ -841,13 +841,13 @@ class View_CustomFieldGroup extends C4_AbstractView implements IAbstractView_Sub
 	}
 };
 
-class Context_CustomFieldGroup extends Extension_DevblocksContext {
+class Context_CustomFieldset extends Extension_DevblocksContext {
 	function getRandom() {
-		//return DAO_CustomFieldGroup::random();
+		//return DAO_CustomFieldset::random();
 	}
 	
 	function getMeta($context_id) {
-		$cf_group = DAO_CustomFieldGroup::get($context_id);
+		$cf_group = DAO_CustomFieldset::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
 		
 		return array(
@@ -859,14 +859,14 @@ class Context_CustomFieldGroup extends Extension_DevblocksContext {
 	
 	function getContext($cf_group, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
-			$prefix = 'Custom Field Group:';
+			$prefix = 'Custom Fieldsets:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
 
 		// Polymorph
 		if(is_numeric($cf_group)) {
-			$cf_group = DAO_CustomFieldGroup::get($cf_group);
-		} elseif($cf_group instanceof Model_CustomFieldGroup) {
+			$cf_group = DAO_CustomFieldset::get($cf_group);
+		} elseif($cf_group instanceof Model_CustomFieldset) {
 			// It's what we want already.
 		} else {
 			$cf_group = null;
@@ -883,7 +883,7 @@ class Context_CustomFieldGroup extends Extension_DevblocksContext {
 		// Token values
 		$token_values = array();
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_CUSTOM_FIELD_GROUP;
+		$token_values['_context'] = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
 		
 		if($snippet) {
 			$token_values['_loaded'] = true;
@@ -901,7 +901,7 @@ class Context_CustomFieldGroup extends Extension_DevblocksContext {
 		if(!isset($dictionary['id']))
 			return;
 		
-		$context = CerberusContexts::CONTEXT_CUSTOM_FIELD_GROUP;
+		$context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
@@ -938,7 +938,7 @@ class Context_CustomFieldGroup extends Extension_DevblocksContext {
 		$defaults->is_ephemeral = true;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Custom Field Groups';
+		$view->name = 'Custom Fieldsets';
 		
 		$params_required = array();
 		
@@ -950,18 +950,18 @@ class Context_CustomFieldGroup extends Extension_DevblocksContext {
 			DevblocksSearchCriteria::GROUP_OR,
 			array(
 				DevblocksSearchCriteria::GROUP_AND,
-				SearchFields_CustomFieldGroup::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldGroup::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_WORKER),
-				SearchFields_CustomFieldGroup::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldGroup::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_EQ,$active_worker->id),
+				SearchFields_CustomFieldset::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_WORKER),
+				SearchFields_CustomFieldset::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_EQ,$active_worker->id),
 			),
 			array(
 				DevblocksSearchCriteria::GROUP_AND,
-				SearchFields_CustomFieldGroup::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldGroup::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_GROUP),
-				SearchFields_CustomFieldGroup::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldGroup::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,$worker_group_ids),
+				SearchFields_CustomFieldset::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_GROUP),
+				SearchFields_CustomFieldset::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,$worker_group_ids),
 			),
 			array(
 				DevblocksSearchCriteria::GROUP_AND,
-				SearchFields_CustomFieldGroup::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldGroup::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_ROLE),
-				SearchFields_CustomFieldGroup::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldGroup::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,$worker_role_ids),
+				SearchFields_CustomFieldset::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_ROLE),
+				SearchFields_CustomFieldset::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,$worker_role_ids),
 			),
 		);
 		$params_required['_ownership'] = $param_ownership;
@@ -970,13 +970,13 @@ class Context_CustomFieldGroup extends Extension_DevblocksContext {
 		if(isset($_REQUEST['link_context'])) {
 			$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
 			if(!empty($link_context)) {
-				$params_required['_ownership'] = new DevblocksSearchCriteria(SearchFields_CustomFieldGroup::CONTEXT, DevblocksSearchCriteria::OPER_EQ, $link_context);
+				$params_required['_ownership'] = new DevblocksSearchCriteria(SearchFields_CustomFieldset::CONTEXT, DevblocksSearchCriteria::OPER_EQ, $link_context);
 			}
 		}
 		
 		$view->addParamsRequired($params_required, true);
 		
-		$view->renderSortBy = SearchFields_CustomFieldGroup::NAME;
+		$view->renderSortBy = SearchFields_CustomFieldset::NAME;
 		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
@@ -992,14 +992,14 @@ class Context_CustomFieldGroup extends Extension_DevblocksContext {
 		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Custom Field Groups';
+		$view->name = 'Custom Fieldsets';
 
 		$params_req = array();
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_CustomFieldGroup::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_CustomFieldGroup::CONTEXT_LINK_ID,'=',$context_id),
+				new DevblocksSearchCriteria(SearchFields_CustomFieldset::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_CustomFieldset::CONTEXT_LINK_ID,'=',$context_id),
 			);
 		}
 		

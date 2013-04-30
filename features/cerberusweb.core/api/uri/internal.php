@@ -148,7 +148,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$contexts = array_intersect($contexts, array_keys($all_contexts));
 		
 		$contexts = array_diff($contexts, array(
-			CerberusContexts::CONTEXT_CUSTOM_FIELD_GROUP, // hide custom field group
+			CerberusContexts::CONTEXT_CUSTOM_FIELDSET, // hide custom fieldset
 			CerberusContexts::CONTEXT_WORKER, // hide workers
 		));
 		

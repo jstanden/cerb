@@ -22,7 +22,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 	const CONTEXT = 'context';
 	const POS = 'pos';
 	const OPTIONS = 'options';
-	const CUSTOM_FIELD_GROUP_ID = 'custom_field_group_id';
+	const CUSTOM_FIELDSET_ID = 'custom_fieldset_id';
 	
 	const CACHE_ALL = 'ch_customfields';
 	
@@ -100,7 +100,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 			if(0 != strcasecmp($field->context, $context))
 				continue;
 			
-			if(!$with_groups && !empty($field->custom_field_group_id))
+			if(!$with_groups && !empty($field->custom_fieldset_id))
 				continue;
 			
 			$results[$idx] = $field;
@@ -119,9 +119,9 @@ class DAO_CustomField extends DevblocksORMHelper {
 		
 		if(null === ($objects = $cache->load(self::CACHE_ALL))) {
 			$db = DevblocksPlatform::getDatabaseService();
-			$sql = "SELECT id, name, type, context, custom_field_group_id, pos, options ".
+			$sql = "SELECT id, name, type, context, custom_fieldset_id, pos, options ".
 				"FROM custom_field ".
-				"ORDER BY custom_field_group_id ASC, pos ASC "
+				"ORDER BY custom_fieldset_id ASC, pos ASC "
 			;
 			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			
@@ -144,7 +144,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 			$object->name = $row['name'];
 			$object->type = $row['type'];
 			$object->context = $row['context'];
-			$object->custom_field_group_id = intval($row['custom_field_group_id']);
+			$object->custom_fieldset_id = intval($row['custom_fieldset_id']);
 			$object->pos = intval($row['pos']);
 			$object->options = DevblocksPlatform::parseCrlfString($row['options']);
 			$objects[$object->id] = $object;
@@ -612,7 +612,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			if(empty($cfset_id))
 				continue;
 		
-			DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELD_GROUP, $cfset_id);
+			DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $cfset_id);
 		}
 		
 		if(is_array($custom_fieldset_deletes))
@@ -620,7 +620,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			if(empty($cfset_id))
 				continue;
 		
-			$custom_fieldset = DAO_CustomFieldGroup::get($cfset_id);
+			$custom_fieldset = DAO_CustomFieldset::get($cfset_id);
 			$custom_fieldset_fields = $custom_fieldset->getCustomFields();
 			
 			// Remove the custom field values
@@ -635,7 +635,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			}
 			
 			// Break the context link
-			DAO_ContextLink::deleteLink($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELD_GROUP, $cfset_id);
+			DAO_ContextLink::deleteLink($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $cfset_id);
 		}
 		
 		return true;
@@ -777,7 +777,7 @@ class Model_CustomField {
 	public $id = 0;
 	public $name = '';
 	public $type = '';
-	public $custom_field_group_id = 0;
+	public $custom_fieldset_id = 0;
 	public $context = '';
 	public $pos = 0;
 	public $options = array();

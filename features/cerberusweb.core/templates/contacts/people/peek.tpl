@@ -58,7 +58,7 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_field_groups/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_CONTACT_PERSON context_id=$contact->id}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_CONTACT_PERSON context_id=$contact->id}
 
 {if $active_worker->hasPriv('core.addybook.person.actions.update')}
 	<button type="button" onclick="if($('#formContactPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formContactPeek', '{$view_id}', false, 'contact_save'); }"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
