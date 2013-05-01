@@ -30,6 +30,31 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		parent::_updateWhere('custom_fieldset', $fields, $where);
 	}
 	
+	public static function linkToContextByFieldIds($context, $context_id, $field_ids) {
+		$all_fields = DAO_CustomField::getAll();
+		$all_fieldsets = DAO_CustomFieldset::getAll();
+		
+		$link_fieldset_ids = array();
+
+		if(is_array($field_ids))
+		foreach($field_ids as $field_id) {
+			if(!isset($all_fields[$field_id]))
+				continue;
+			
+			$fieldset_id = $all_fields[$field_id]->custom_fieldset_id;
+			
+			if(!isset($all_fieldsets[$fieldset_id]))
+				continue;
+			
+			$link_fieldset_ids[$fieldset_id] = true;
+		}
+		
+		if(!empty($link_fieldset_ids))
+		foreach(array_keys($link_fieldset_ids) as $fieldset_id) {
+			DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $fieldset_id);
+		}
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy

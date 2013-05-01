@@ -294,6 +294,8 @@
 				</div>
 			</fieldset>
 			{/if}
+			
+			{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id bulk=false}
 		</td>
 	</tr>
 	<tr>

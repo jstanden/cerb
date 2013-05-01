@@ -60,8 +60,10 @@ $('#{$btn_cfield_group_domid}')
 				if(undefined == html || null == html)
 					return;
 
-				var $popup = genericAjaxPopupFind('#{$btn_cfield_group_domid}');
-				var $at = $popup.find('div.custom-fieldset-insertion');
+				var $at = $('#{$btn_cfield_group_domid}')
+					.closest('div')
+					.siblings('div.custom-fieldset-insertion')
+					;
 				
 				var $fieldset = $(html);
 				$fieldset.insertBefore($at);

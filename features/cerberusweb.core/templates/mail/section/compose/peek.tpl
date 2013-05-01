@@ -161,6 +161,8 @@
 	{/if}
 </fieldset>
 
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET bulk=false}
+
 <fieldset class="peek">
 	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
 	<button type="button" class="chooser_file"><span class="cerb-sprite2 sprite-plus-circle"></span></button>

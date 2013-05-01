@@ -1822,9 +1822,6 @@ abstract class C4_AbstractView {
 	
 	public static function _doBulkSetCustomFields($context, $custom_fields, $ids) {
 		$fields = DAO_CustomField::getAll();
-		$fieldsets = DAO_CustomFieldset::getAll();
-		
-		$fieldset_adds = array();
 		
 		if(!empty($custom_fields))
 		foreach($custom_fields as $cf_id => $params) {
@@ -1835,9 +1832,6 @@ abstract class C4_AbstractView {
 			
 			if(empty($cf_field))
 				continue;
-			
-			if(!empty($cf_field->custom_fieldset_id))
-				$fieldset_adds[$cf_field->custom_fieldset_id] = true;
 			
 			$cf_val = $params['value'];
 			
@@ -1880,11 +1874,10 @@ abstract class C4_AbstractView {
 			}
 		}
 		
-		// Fieldset adds
-		if(!empty($fieldset_adds))
-		foreach(array_keys($fieldset_adds) as $fieldset_add_id) {
-			foreach($ids as $id)
-				DAO_ContextLink::setLink($context, $id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $fieldset_add_id);
+		// Link any utilized custom fieldsets to these IDs
+		if(is_array($ids))
+		foreach($ids as $id) {
+			DAO_CustomFieldset::linkToContextByFieldIds($context, $id, array_keys($custom_fields));
 		}
 	}
 };
