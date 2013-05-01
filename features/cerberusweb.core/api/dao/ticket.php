@@ -1659,17 +1659,15 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			$columns[self::FULLTEXT_NOTE_CONTENT] = new DevblocksSearchField(self::FULLTEXT_NOTE_CONTENT, 'ftnc', 'content', $translate->_('message.note.content'), 'FT');
 		}
 		
-		// Custom Fields: ticket + org
-		$fields =
-			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET) +
-			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG)
-		;
+		// Custom fields with fieldsets
 		
-		if(is_array($fields))
-		foreach($fields as $field_id => $field) {
-			$key = 'cf_'.$field_id;
-			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name,$field->type);
-		}
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
+			CerberusContexts::CONTEXT_TICKET,
+			CerberusContexts::CONTEXT_ORG,
+		));
+		
+		if(is_array($custom_columns))
+			$columns = array_merge($columns, $custom_columns);
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');

@@ -448,13 +448,14 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner')),
 		);
 		
-		// Custom Fields
-		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SNIPPET);
-		if(is_array($fields))
-		foreach($fields as $field_id => $field) {
-			$key = 'cf_'.$field_id;
-			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name,$field->type);
-		}
+		// Custom fields with fieldsets
+		
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
+			CerberusContexts::CONTEXT_SNIPPET,
+		));
+		
+		if(is_array($custom_columns))
+			$columns = array_merge($columns, $custom_columns);
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');

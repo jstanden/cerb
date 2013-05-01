@@ -1794,8 +1794,30 @@ class ChInternalController extends DevblocksControllerExtension {
 			}
 		}
 
-		$custom_fields = DAO_CustomField::getAll();
+		// Custom fields
+		
+		$all_columns = $view->getColumnsAvailable();
+		$all_custom_fields = DAO_CustomField::getAll();
+		$all_custom_fieldsets = DAO_CustomFieldset::getAll();
+		
+		$custom_fields = array();
+		$custom_fieldsets = array();
+		
+		foreach($all_custom_fields as $cf_id => $cf) {
+			if(!isset($all_columns['cf_' . $cf_id]))
+				continue;
+			
+			if(empty($cf->custom_fieldset_id)) {
+				$custom_fields[$cf_id] = $cf;
+				
+			} else {
+				if(!isset($custom_fieldsets[$cf->custom_fieldset_id]))
+					$custom_fieldsets[$cf->custom_fieldset_id] = $all_custom_fieldsets[$cf->custom_fieldset_id];
+			}
+		}
+		
 		$tpl->assign('custom_fields', $custom_fields);
+		$tpl->assign('custom_fieldsets', $custom_fieldsets);
 
 		$tpl->assign('view', $view);
 		

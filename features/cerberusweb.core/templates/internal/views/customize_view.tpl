@@ -37,32 +37,10 @@
 	<option value=""></option>
 	
 	{foreach from=$columnsAvailable item=colAvail}
-		{if substr($colAvail->token,0,3) != "cf_"}
-			{if !empty($colAvail->db_label) && !empty($colAvail->token)}
-				<option value="{$colAvail->token}" {if $view->view_columns.$index==$colAvail->token}selected{/if}>{$colAvail->db_label|capitalize}</option>
-			{/if}
-		{else}
-			{assign var=has_custom value=1}
+		{if !empty($colAvail->db_label) && !empty($colAvail->token)}
+			<option value="{$colAvail->token}" {if $view->view_columns.$index==$colAvail->token}selected{/if}>{$colAvail->db_label|capitalize}</option>
 		{/if}
 	{/foreach}
-	
-	{if $has_custom}
-	<optgroup label="Custom Fields">
-	{foreach from=$columnsAvailable item=colAvail}
-		{if substr($colAvail->token,0,3) == "cf_"}
-			{$field_id = substr($colAvail->token,3)}
-			{if isset($custom_fields.$field_id)}
-				{$field = $custom_fields.$field_id}
-				{if empty($field->group_id) || $active_worker->isGroupMember($field->group_id)}
-					{if !empty($colAvail->db_label) && !empty($colAvail->token)}
-					<option value="{$colAvail->token}" {if $view->view_columns.$index==$colAvail->token}selected{/if}>{$colAvail->db_label|capitalize}</option>
-					{/if}
-				{/if}
-			{/if}
-		{/if}
-	{/foreach}
-	</optgroup>
-	{/if}
 </select>
 </div>
 {/section}

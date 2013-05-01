@@ -505,18 +505,16 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 			$columns[self::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT');
 		}
 		
-		// Custom Fields: opp + addy + org
-		$fields =
-			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY) +
-			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS) +
-			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG)
-		;
+		// Custom fields with fieldsets
 		
-		if(is_array($fields))
-		foreach($fields as $field_id => $field) {
-			$key = 'cf_'.$field_id;
-			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name,$field->type);
-		}
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
+			CerberusContexts::CONTEXT_OPPORTUNITY,
+			CerberusContexts::CONTEXT_ADDRESS,
+			CerberusContexts::CONTEXT_ORG,
+		));
+		
+		if(is_array($custom_columns))
+			$columns = array_merge($columns, $custom_columns);
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
