@@ -157,13 +157,8 @@
 	{$custom_field_values = $draft->params.custom_fields}
 	
 	{if !empty($custom_fields)}
-	<div class="global">
-		{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-	</div>
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
 	{/if}
-	<div class="group">
-		{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" custom_fields=$group_fields bulk=false}
-	</div>
 </fieldset>
 
 <fieldset class="peek">
@@ -218,7 +213,6 @@
 		
 		$frm.find('select[name=group_or_bucket_id]').change(function(e) {
 			$div = $('#compose_cfields');
-			$div.find('div.group').html('');
 			
 			$frm = $(this).closest('form');
 			
@@ -234,16 +228,6 @@
 			
 			$frm.find('input:hidden[name=group_id]').val(group_id);
 			$frm.find('input:hidden[name=bucket_id]').val(bucket_id);
-			
-			genericAjaxGet($div, 'c=tickets&a=getCustomFieldEntry&group_id=' + group_id, function(html) {
-				$cfields = $('#compose_cfields');
-				if(html.length > 0) {
-					$cfields.show().find('div.group').html(html);
-				} else {
-					if(0 == $cfields.find('div.global').length)
-						$cfields.hide();
-				}
-			});
 		});
 		
 		$frm.find('select[name=group_or_bucket_id]').trigger('change');

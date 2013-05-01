@@ -3572,13 +3572,9 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$tpl->assign('defaults', $defaults);
 		
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContextAndGroupId(CerberusContexts::CONTEXT_TICKET, 0);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, false);
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$default_group_id = isset($defaults['group_id']) ? $defaults['group_id'] : key($groups);
-		$group_fields = DAO_CustomField::getByContextAndGroupId(CerberusContexts::CONTEXT_TICKET, $default_group_id);
-		$tpl->assign('group_fields', $group_fields);
-		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::mail/section/compose/peek.tpl');
 	}
