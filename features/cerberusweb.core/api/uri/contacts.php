@@ -40,12 +40,8 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('ids', $ids);
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT_PERSON);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT_PERSON, false);
 		$tpl->assign('custom_fields', $custom_fields);
-		
-		// Broadcast
-		//CerberusContexts::getContext(CerberusContexts::CONTEXT_CONTACT_PERSON, null, $token_labels, $token_values);
-		//$tpl->assign('token_labels', $token_labels);
 		
 		$tpl->display('devblocks:cerberusweb.core::contacts/people/bulk.tpl');
 	}
@@ -567,7 +563,7 @@ class ChContactsPage extends CerberusPageExtension {
 		}
 		
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Groups
@@ -600,7 +596,7 @@ class ChContactsPage extends CerberusPageExtension {
 		}
 		
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Macros

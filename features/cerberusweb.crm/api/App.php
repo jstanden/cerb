@@ -170,7 +170,7 @@ class CrmPage extends CerberusPageExtension {
 		$tpl->assign('workers', $workers);
 		
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Groups

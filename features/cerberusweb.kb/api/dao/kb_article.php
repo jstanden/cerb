@@ -1189,9 +1189,9 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 //					break;
 				default:
 					// Custom fields
-//					if(substr($k,0,3)=="cf_") {
-//						$custom_fields[substr($k,3)] = $v;
-//					}
+					if(substr($k,0,3)=="cf_") {
+						$custom_fields[substr($k,3)] = $v;
+					}
 					break;
 			}
 		}
@@ -1229,7 +1229,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 			}
 			
 			// Custom Fields
-			//self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_ADDRESS, $custom_fields, $batch_ids);
+			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_KB_ARTICLE, $custom_fields, $batch_ids);
 			
 			// Scheduled behavior
 			if(isset($do['behavior']) && is_array($do['behavior'])) {

@@ -134,7 +134,7 @@ class ChTasksPage extends CerberusPageExtension {
 		$tpl->assign('workers', $workers);
 		
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Macros

@@ -463,8 +463,8 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		$tpl->assign('levels',$levels);
 		
 		// Custom Fields
-//		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
-//		$tpl->assign('custom_fields', $custom_fields);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_KB_ARTICLE, false);
+		$tpl->assign('custom_fields', $custom_fields);
 
 		// Macros
 		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.kb_article');
@@ -502,15 +502,8 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			}
 		}
 		
-		// Feedback fields
-//		@$list_id = trim(DevblocksPlatform::importGPC($_POST['list_id'],'integer',0));
-		
-		// Do: List
-//		if(0 != strlen($list_id))
-//			$do['list_id'] = $list_id;
-			
 		// Do: Custom fields
-//		$do = DAO_CustomFieldValue::handleBulkPost($do);
+		$do = DAO_CustomFieldValue::handleBulkPost($do);
 
 		// Do: Scheduled Behavior
 		if(0 != strlen($behavior_id)) {

@@ -222,7 +222,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		}
 		
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Auth extensions

@@ -45,14 +45,6 @@ class PageSection_SetupStorageAttachments extends Extension_PageSection {
 			$tpl->assign('ids', implode(',', $ids));
 		}
 		
-		// Lists
-//		$lists = DAO_FeedbackList::getWhere();
-//		$tpl->assign('lists', $lists);
-		
-		// Custom Fields
-//		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
-//		$tpl->assign('custom_fields', $custom_fields);
-		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/storage_attachments/bulk.tpl');
 	}
 	

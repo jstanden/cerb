@@ -4,7 +4,7 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="opp_ids" value="{$opp_ids}">
 
-<fieldset>
+<fieldset class="peek">
 	<legend>{$translate->_('common.bulk_update.with')|capitalize}</legend>
 	<label><input type="radio" name="filter" value="" {if empty($opp_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
 	{if !empty($opp_ids)}
@@ -14,7 +14,7 @@
 	{/if}
 </fieldset>
 
-<fieldset>
+<fieldset class="peek">
 	<legend>Set Fields</legend>
 	<table cellspacing="0" cellpadding="2" width="100%">
 		<tr>
@@ -27,15 +27,15 @@
 				{if $active_worker->hasPriv('crm.opp.actions.delete')}
 				<option value="deleted">{'status.deleted'|devblocks_translate|capitalize}</option>
 				{/if}
-	      	</select>
-	      	<br>
+			</select>
+			<br>
 			<button type="button" onclick="this.form.status.selectedIndex = 1;">{'crm.opp.status.open'|devblocks_translate|lower}</button>
 			<button type="button" onclick="this.form.status.selectedIndex = 2;">{'crm.opp.status.closed.won'|devblocks_translate|lower}</button>
 			<button type="button" onclick="this.form.status.selectedIndex = 3;">{'crm.opp.status.closed.lost'|devblocks_translate|lower}</button>
 			{if $active_worker->hasPriv('crm.opp.actions.delete')}
 			<button type="button" onclick="this.form.status.selectedIndex = 4;">{'status.deleted'|devblocks_translate|lower}</button>
 			{/if}
-	      	</td>
+			</td>
 		</tr>
 		{if $active_worker->hasPriv('core.watchers.assign') || $active_worker->hasPriv('core.watchers.unassign')}
 		<tr>
@@ -57,22 +57,24 @@
 			<td width="100%">
 				<input type="text" name="closed_date" size=35 value=""><button type="button" onclick="devblocksAjaxDateChooser(this.form.closed_date,'#dateOppBulkClosed');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
 				<div id="dateOppBulkClosed"></div>
-	      	</td>
+			</td>
 		</tr>
 	</table>
 </fieldset>
 
 {if !empty($custom_fields)}
-<fieldset>
+<fieldset class="peek">
 	<legend>Set Custom Fields</legend>
 	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=true}	
 </fieldset>
 {/if}
 
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_OPPORTUNITY bulk=true}
+
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
 
 {if $active_worker->hasPriv('crm.opp.view.actions.broadcast')}
-<fieldset>
+<fieldset class="peek">
 	<legend>Send Broadcast</legend>
 	
 	<label><input type="checkbox" name="do_broadcast" id="chkMassReply" onclick="$('#bulkOppBroadcast').toggle();">{'common.enabled'|devblocks_translate|capitalize}</label>

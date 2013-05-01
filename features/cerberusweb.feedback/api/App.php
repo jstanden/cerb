@@ -898,7 +898,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		}
 		
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->display('devblocks:cerberusweb.feedback::feedback/bulk.tpl');

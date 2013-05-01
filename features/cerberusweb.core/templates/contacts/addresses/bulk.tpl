@@ -4,7 +4,7 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="address_ids" value="{if is_array($address_ids)}{$address_ids|implode:','}{/if}">
 
-<fieldset>
+<fieldset class="peek">
 	<legend>{$translate->_('common.bulk_update.with')|capitalize}</legend>
 	<label><input type="radio" name="filter" value="" {if empty($address_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
 	
@@ -16,7 +16,7 @@
 
 </fieldset>
 
-<fieldset>
+<fieldset class="peek">
 	<legend>Set Fields</legend>
 	
 	<table cellspacing="0" cellpadding="2" width="100%">
@@ -32,7 +32,7 @@
 				<option value=""></option>
 				<option value="0">{$translate->_('common.no')|capitalize}</option>
 				<option value="1">{$translate->_('common.yes')|capitalize}</option>
-	      	</select></td>
+			</select></td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{$translate->_('address.is_defunct')|capitalize}:</td>
@@ -40,22 +40,24 @@
 				<option value=""></option>
 				<option value="0">{$translate->_('common.no')|capitalize}</option>
 				<option value="1">{$translate->_('common.yes')|capitalize}</option>
-	      	</select></td>
+			</select></td>
 		</tr>
 	</table>
 </fieldset>
 
 {if !empty($custom_fields)}
-<fieldset>
+<fieldset class="peek">
 	<legend>Set Custom Fields</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=true}	
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=true}
 </fieldset>
 {/if}
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_ADDRESS bulk=true}
 
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
 
 {if $active_worker->hasPriv('core.addybook.addy.view.actions.broadcast')}
-<fieldset>
+<fieldset class="peek">
 	<legend>Send Broadcast</legend>
 	<label><input type="checkbox" name="do_broadcast" id="chkMassReply" onclick="$('#bulkAddyBroadcast').toggle();"> {'common.enabled'|devblocks_translate|capitalize}</label>
 

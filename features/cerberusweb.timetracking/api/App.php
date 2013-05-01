@@ -481,7 +481,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		$tpl->assign('activities', $activities);
 		
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TIMETRACKING);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TIMETRACKING, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Macros

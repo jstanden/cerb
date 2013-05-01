@@ -60,7 +60,7 @@ $('#{$btn_cfield_group_domid}')
 				if(undefined == html || null == html)
 					return;
 
-				var $popup = genericAjaxPopupFetch('peek');
+				var $popup = genericAjaxPopupFind('#{$btn_cfield_group_domid}');
 				var $at = $popup.find('div.custom-fieldset-insertion');
 				
 				var $fieldset = $(html);

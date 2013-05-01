@@ -220,7 +220,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		}
 
 		// Custom Fields
-		//$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
+		//$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_NOTIFICATION, false);
 		//$tpl->assign('custom_fields', $custom_fields);
 
 		$tpl->display('devblocks:cerberusweb.core::preferences/tabs/notifications/bulk.tpl');
