@@ -86,21 +86,21 @@ class DAO_CustomField extends DevblocksORMHelper {
 	* Returns all of the fields for the specified context available to $group_id, including global fields
 	*
 	* @param string $context The context of the custom field
-	* @param int $group_id The id of the group
+	* @param boolean $with_fieldsets Include fieldsets
 	* @return array
 	*/
 	
-	static function getByContext($context, $with_groups=true) {
+	static function getByContext($context, $with_fieldsets=true) {
 		$fields = self::getAll();
 		$results = array();
 
 		// Filter fields to only the requested source
 		foreach($fields as $idx => $field) { /* @var $field Model_CustomField */
-			// If we only want a specifi context, filter out the rest
+			// If we only want a specific context, filter out the rest
 			if(0 != strcasecmp($field->context, $context))
 				continue;
 			
-			if(!$with_groups && !empty($field->custom_fieldset_id))
+			if(!$with_fieldsets && !empty($field->custom_fieldset_id))
 				continue;
 			
 			$results[$idx] = $field;

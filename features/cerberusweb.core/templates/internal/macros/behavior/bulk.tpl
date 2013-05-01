@@ -1,5 +1,5 @@
 {if !empty($macros)}
-<fieldset>
+<fieldset class="peek">
 	<legend>Schedule Behavior</legend>
 
 	<table width="100%">

@@ -1,10 +1,13 @@
 {$custom_fieldsets_available = DAO_CustomFieldset::getByContext($context)}
-{$custom_fieldsets_linked = DAO_CustomFieldset::getByContextLink($context, $context_id)}
-{$custom_fieldsets_available = array_diff_key($custom_fieldsets_available, $custom_fieldsets_linked)}
 
-{foreach from=$custom_fieldsets_linked item=cf_group}
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/fieldset.tpl" bulk=false custom_fieldset=$cf_group}
-{/foreach}
+{if !empty($context_id)}
+	{$custom_fieldsets_linked = DAO_CustomFieldset::getByContextLink($context, $context_id)}
+	{$custom_fieldsets_available = array_diff_key($custom_fieldsets_available, $custom_fieldsets_linked)}
+	
+	{foreach from=$custom_fieldsets_linked item=cf_group}
+	{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/fieldset.tpl" bulk=false custom_fieldset=$cf_group}
+	{/foreach}
+{/if}
 
 <div class="custom-fieldset-insertion"></div>
 
@@ -53,7 +56,7 @@ $('#{$btn_cfield_group_domid}')
 			var $ul = $li.closest('ul.cerb-popupmenu');
 			var cf_group_id = $li.attr('cf_group_id');
 			
-			genericAjaxGet('', 'c=internal&a=handleSectionAction&section=custom_fieldsets&action=getCustomFieldSet&id=' + cf_group_id, function(html) {
+			genericAjaxGet('', 'c=internal&a=handleSectionAction&section=custom_fieldsets&action=getCustomFieldSet&bulk={if !empty($bulk)}1{else}0{/if}&id=' + cf_group_id, function(html) {
 				if(undefined == html || null == html)
 					return;
 
@@ -64,7 +67,7 @@ $('#{$btn_cfield_group_domid}')
 				$fieldset.insertBefore($at);
 			});
 			
-			$li.remove();
+			$li.hide();
 			
 			if($ul.find('> li').length < 2)
 				$ul.closest('div').remove();

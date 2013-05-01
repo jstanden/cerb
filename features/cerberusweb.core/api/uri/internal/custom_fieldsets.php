@@ -263,9 +263,12 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 	
 	function getCustomFieldSetAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		@$bulk = DevblocksPlatform::importGPC($_REQUEST['bulk'], 'integer', 0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('bulk', !empty($bulk) ? true : false);
 		
 		if(empty($id))
 			return;

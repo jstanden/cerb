@@ -1820,18 +1820,29 @@ abstract class C4_AbstractView {
 		return $counts;
 	}
 	
-	public static function _doBulkSetCustomFields($context,$custom_fields, $ids) {
+	public static function _doBulkSetCustomFields($context, $custom_fields, $ids) {
 		$fields = DAO_CustomField::getAll();
+		$fieldsets = DAO_CustomFieldset::getAll();
+		
+		$fieldset_adds = array();
 		
 		if(!empty($custom_fields))
 		foreach($custom_fields as $cf_id => $params) {
 			if(!is_array($params) || !isset($params['value']))
 				continue;
-				
+			
+			@$cf_field = $fields[$cf_id];
+			
+			if(empty($cf_field))
+				continue;
+			
+			if(!empty($cf_field->custom_fieldset_id))
+				$fieldset_adds[$cf_field->custom_fieldset_id] = true;
+			
 			$cf_val = $params['value'];
 			
 			// Data massaging
-			switch($fields[$cf_id]->type) {
+			switch($cf_field->type) {
 				case Model_CustomField::TYPE_DATE:
 					$cf_val = intval(@strtotime($cf_val));
 					break;
@@ -1842,7 +1853,7 @@ abstract class C4_AbstractView {
 			}
 
 			// If multi-selection types, handle delta changes
-			if(Model_CustomField::TYPE_MULTI_CHECKBOX==$fields[$cf_id]->type) {
+			if(Model_CustomField::TYPE_MULTI_CHECKBOX==$cf_field->type) {
 				if(is_array($cf_val))
 				foreach($cf_val as $val) {
 					$op = substr($val,0,1);
@@ -1867,6 +1878,13 @@ abstract class C4_AbstractView {
 						DAO_CustomFieldValue::unsetFieldValue($context,$id,$cf_id);
 				}
 			}
+		}
+		
+		// Fieldset adds
+		if(!empty($fieldset_adds))
+		foreach(array_keys($fieldset_adds) as $fieldset_add_id) {
+			foreach($ids as $id)
+				DAO_ContextLink::setLink($context, $id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $fieldset_add_id);
 		}
 	}
 };

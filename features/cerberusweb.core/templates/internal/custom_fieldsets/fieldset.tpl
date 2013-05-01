@@ -9,7 +9,7 @@
 	<input type="hidden" name="custom_fieldset_deletes[]" value="">
 	{/if}
 	
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false custom_fields=$custom_fieldset->getCustomFields()}
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=$bulk custom_fields=$custom_fieldset->getCustomFields()}
 </fieldset>
 
 <script type="text/javascript">
