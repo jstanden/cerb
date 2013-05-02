@@ -280,22 +280,6 @@
 					</tr>
 				</table>
 			</fieldset>
-			
-			{if !empty($custom_fields)}
-			<fieldset class="peek">
-				<legend>{'common.custom_fields'|devblocks_translate|capitalize}</legend>
-				
-				{if !empty($draft) && !empty($draft->params.custom_fields)}
-					{$custom_field_values = $draft->params.custom_fields}
-				{/if}
-				
-				<div id="compose_cfields" style="margin:5px 0px 0px 10px;">
-					{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-				</div>
-			</fieldset>
-			{/if}
-			
-			{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id bulk=false}
 		</td>
 	</tr>
 	<tr>
