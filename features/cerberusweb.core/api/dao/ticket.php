@@ -3096,12 +3096,11 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'updated|date' => $prefix.$translate->_('common.updated'),
 			'url' => $prefix.$translate->_('common.url'),
 		);
-		
-		if(is_array($fields))
-		foreach($fields as $cf_id => $field) {
-			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
-		}
 
+		// Custom field/fieldset token labels
+		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+			$token_labels = array_merge($token_labels, $custom_field_labels);
+		
 		// Token values
 		$token_values = array();
 		

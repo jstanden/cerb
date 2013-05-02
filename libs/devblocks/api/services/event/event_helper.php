@@ -247,7 +247,7 @@ class DevblocksEventHelper {
 		$context = $custom_field->context;
 		$custom_key_id = $custom_key . '_id';
 		$context_id = $dict->$custom_key_id;
-		
+
 		if(empty($field_id) || empty($context) || empty($context_id))
 			return;
 		
@@ -376,13 +376,21 @@ class DevblocksEventHelper {
 		
 		if(null == ($custom_field = DAO_CustomField::get($field_id)))
 			return;
-
+		
 		$context = $custom_field->context;
 		$custom_key_id = $custom_key . '_id';
 		$context_id = $dict->$custom_key_id;
 		
 		if(empty($field_id) || empty($context) || empty($context_id))
 			return;
+		
+		/**
+		 * If we have a fieldset-based custom field that doesn't exist in scope yet
+		 * then link it.
+		 */
+		if($custom_field->custom_fieldset_id && !isset($dict->$token)) {
+			DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $custom_field->custom_fieldset_id);
+		}
 		
 		switch($custom_field->type) {
 			case Model_CustomField::TYPE_SINGLE_LINE:

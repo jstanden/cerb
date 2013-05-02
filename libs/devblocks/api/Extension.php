@@ -234,6 +234,24 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		
 		return $token_values;
 	}
+	
+	protected function _getTokenLabelsFromCustomFields($fields, $prefix) {
+		$labels = array();
+		$fieldsets = DAO_CustomFieldset::getAll();
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$fieldset = $field->custom_fieldset_id ? @$fieldsets[$field->custom_fieldset_id] : null;
+		
+			$labels['custom_'.$cf_id] = sprintf("%s%s%s",
+				$prefix,
+				($fieldset ? ($fieldset->name . ':') : ''),
+				$field->name
+			);
+		}
+		
+		return $labels;
+	}
 };
 
 abstract class Extension_DevblocksEvent extends DevblocksExtension {
@@ -291,8 +309,11 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 				
 				if(null == ($cfield = DAO_CustomField::get($matches[1])))
 					continue;
-					
-				$conditions[$token] = array('label' => $label, 'type' => $cfield->type);
+				
+				$conditions[$token] = array(
+					'label' => $label,
+					'type' => $cfield->type,
+				);
 				
 				switch($cfield->type) {
 					case Model_CustomField::TYPE_DROPDOWN:

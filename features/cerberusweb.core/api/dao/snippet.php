@@ -967,11 +967,10 @@ class Context_Snippet extends Extension_DevblocksContext {
 //			'completed|date' => $prefix.$translate->_('task.completed_date'),
 		);
 		
-//		if(is_array($fields))
-//		foreach($fields as $cf_id => $field) {
-//			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
-//		}
-
+		// Custom field/fieldset token labels
+		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+			$token_labels = array_merge($token_labels, $custom_field_labels);
+		
 		// Token values
 		$token_values = array();
 		
