@@ -66,13 +66,28 @@ $('#{$btn_cfield_group_domid}')
 					;
 				
 				var $fieldset = $(html);
+				
+				// If the fieldset we added is removed, add its option back to the menu
+				$fieldset.on('custom_fieldset_delete', function(e) {
+					var $menu = $('#{$btn_cfield_group_domid}').siblings('ul.cerb-popupmenu');
+					var fieldset_id = e.fieldset_id;
+					
+					$menu.find('li.item').each(function() {
+						if($(this).attr('cf_group_id') == e.fieldset_id) {
+							$(this).show()
+						}
+					});
+					
+					$menu.closest('div').show();
+				});
+				
 				$fieldset.insertBefore($at);
 			});
 			
 			$li.hide();
 			
-			if($ul.find('> li').length < 2)
-				$ul.closest('div').remove();
+			if($ul.find('> li.item:visible').length == 0)
+				$ul.closest('div').hide();
 		})
 		;
 		

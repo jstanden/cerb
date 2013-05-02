@@ -29,6 +29,9 @@ $('#{$fieldset_domid}')
 		
 		if($hidden.length == 0) {
 			$fieldset.fadeTo('fast', 0.0, function() {
+				var event = jQuery.Event("custom_fieldset_delete");
+				event.fieldset_id = '{$custom_fieldset->id}';
+				$(this).trigger(event);
 				$(this).remove();
 			});
 			
