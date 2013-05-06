@@ -99,7 +99,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		$cache = DevblocksPlatform::getCacheService();
 		
 		if($nocache || null === ($objects = $cache->load(self::CACHE_ALL))) {
-			$objects = DAO_CustomFieldset::getWhere();
+			$objects = DAO_CustomFieldset::getWhere(null, DAO_CustomFieldset::NAME, true);
 			$cache->save($objects, self::CACHE_ALL);
 		}
 		
@@ -531,8 +531,8 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_CustomFieldset::CONTEXT,
 			SearchFields_CustomFieldset::NAME,
+			SearchFields_CustomFieldset::CONTEXT,
 			SearchFields_CustomFieldset::VIRTUAL_OWNER,
 		);
 

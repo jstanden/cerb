@@ -249,6 +249,12 @@
 		<tu tuid='common.field'>
 			<tuv xml:lang="en_US"><seg>field</seg></tuv>
 		</tu>
+		<tu tuid='common.fieldset'>
+			<tuv xml:lang="en_US"><seg>Fieldset</seg></tuv>
+		</tu>
+		<tu tuid='common.fieldsets'>
+			<tuv xml:lang="en_US"><seg>Fieldsets</seg></tuv>
+		</tu>
 		<tu tuid='common.filter'>
 			<tuv xml:lang="en_US"><seg>filter</seg></tuv>
 		</tu>

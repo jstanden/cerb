@@ -548,7 +548,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			
 			switch($fields[$field_id]->type) {
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
+					@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field_id],'array',array());
 					break;
 					
 				case Model_CustomField::TYPE_CHECKBOX:
@@ -560,7 +560,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				case Model_CustomField::TYPE_URL:
 				case Model_CustomField::TYPE_WORKER:
 				default:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+					@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field_id],'string','');
 					break;
 			}
 			

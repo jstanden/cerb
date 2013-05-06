@@ -157,12 +157,47 @@ abstract class C4_AbstractView {
 	
 	// Params Editable
 	
-	function getParamsAvailable() {
+	function getParamsAvailable($filter_fieldsets=false) {
 		$params = $this->getFields();
 		
 		if(is_array($this->_paramsHidden))
 		foreach($this->_paramsHidden as $param)
 			unset($params[$param]);
+		
+		// Hide other custom fields when filtering to a specific fieldset
+		if($filter_fieldsets)
+			$params = $this->_filterParamsByFieldset($params);
+		
+		return $params;
+	}
+
+	private function _filterParamsByFieldset($params) {
+		$results = $this->findParam('*_has_fieldset', $this->getParams());
+		
+		if(!empty($results)) {
+			$fieldset_ids = array();
+			
+			foreach($results as $result) { /* @var $result DevblocksSearchField */
+				if($result->operator == DevblocksSearchCriteria::OPER_IN) {
+					$fieldset_ids = array_merge($fieldset_ids, $result->value);
+				}
+			}
+			
+			if(!empty($fieldset_ids)) {
+				foreach($params as $k => $param) {
+					if('cf_' == substr($k,0,3)) {
+						list($prefix, $field_id) = explode('_', $k, 2);
+						$cfield = DAO_CustomField::get($field_id);
+						
+						if(empty($cfield->custom_fieldset_id))
+							continue;
+						
+						if(!in_array($cfield->custom_fieldset_id, $fieldset_ids))
+							unset($params[$k]);
+					}
+				}
+			}
+		}
 		
 		return $params;
 	}
@@ -483,6 +518,19 @@ abstract class C4_AbstractView {
 		echo sprintf("%s", $list_of_strings);
 	}
 	
+	protected function _renderCriteriaHasFieldset($tpl, $context) {
+		$options = array();
+		
+		$fieldsets = DAO_CustomFieldset::getByContext($context);
+		
+		foreach($fieldsets as $id => $fieldset) {
+			$options[$id] = $fieldset->name;
+		}
+		
+		$tpl->assign('options', $options);
+		$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
+	}
+	
 	protected function _renderVirtualContextLinks($param, $label_singular='Link', $label_plural='Links') {
 		$strings = array();
 		
@@ -517,6 +565,54 @@ abstract class C4_AbstractView {
 			}
 		}
 		
+		$list_of_strings = implode(' or ', $strings);
+		
+		if(count($strings) > 2) {
+			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d %s)</abbr>",
+				htmlentities(strip_tags($list_of_strings)),
+				count($strings),
+				strtolower($label_plural)
+			);
+		}
+		
+		switch($param->operator) {
+			case DevblocksSearchCriteria::OPER_IS_NULL:
+				echo sprintf("There are no <b>%s</b>",
+					strtolower($label_plural)
+				);
+				break;
+			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
+				echo sprintf("There are <b>%s</b>",
+					strtolower($label_plural)
+				);
+				break;
+			case DevblocksSearchCriteria::OPER_IN:
+				echo sprintf("%s is %s", $label_singular, $list_of_strings);
+				break;
+			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+				echo sprintf("%s is blank or %s", $label_singular, $list_of_strings);
+				break;
+			case DevblocksSearchCriteria::OPER_NIN:
+				echo sprintf("%s is not %s", $label_singular, $list_of_strings);
+				break;
+			case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+				echo sprintf("%s is blank or not %s", $label_singular, $list_of_strings);
+				break;
+		}
+	}
+	
+	protected function _renderVirtualHasFieldset($param) {
+		$strings = array();
+		$custom_fieldsets = DAO_CustomFieldset::getAll();
+		
+		foreach($param->value as $param_data) {
+			if(isset($custom_fieldsets[$param_data]))
+				$strings[] = '<b>' . $custom_fieldsets[$param_data]->name . '</b>';
+		}
+		
+		$label_singular = 'Fieldset';
+		$label_plural = 'Fieldsets';
+
 		$list_of_strings = implode(' or ', $strings);
 		
 		if(count($strings) > 2) {
@@ -993,7 +1089,7 @@ abstract class C4_AbstractView {
 				$pass = true;
 				break;
 		}
-
+		
 		return $pass;
 	}
 	
@@ -1578,6 +1674,79 @@ abstract class C4_AbstractView {
 		}
 		
 		return $counts;
+	}
+	
+	protected function _getSubtotalCountForHasFieldsetColumn($dao_class, $context, $field_key) {
+		$counts = array();
+		
+		$custom_fieldsets = DAO_CustomFieldset::getAll();
+		$data = $this->_getSubtotalDataForHasFieldsetColumn($dao_class, $context);
+		
+		foreach($data as $row) {
+			@$custom_fieldset = $custom_fieldsets[$row['link_fieldset_id']];
+			
+			if(empty($custom_fieldset))
+				continue;
+			
+			$counts[] = array(
+				'hits' => $row['hits'],
+				'label' => $custom_fieldset->name,
+				'filter' => array(
+					'field' => $field_key,
+					'oper' => DevblocksSearchCriteria::OPER_EQ,
+					'values' => array(
+						'options[]' => $custom_fieldset->id,
+					)
+				),
+				'children' => array(),
+			);
+		}
+		
+		return $counts;
+	}
+	
+	protected function _getSubtotalDataForHasFieldsetColumn($dao_class, $context) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$fields = $this->getFields();
+		$columns = $this->view_columns;
+		$params = $this->getParams();
+
+		// [TODO] Is this the best way to go about this?
+		// Show all linked custom fieldsets; ignore current fieldset filters
+		unset($params['*_has_fieldset']);
+		
+		if(!method_exists($dao_class, 'getSearchQueryComponents'))
+			return array();
+		
+		$query_parts = call_user_func_array(
+			array($dao_class,'getSearchQueryComponents'),
+			array(
+				$columns,
+				$params,
+				$this->renderSortBy,
+				$this->renderSortAsc
+			)
+		);
+		
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+
+		// This intentionally isn't constrained with a LIMIT
+		$sql = sprintf("SELECT from_context_id AS link_fieldset_id, count(*) AS hits FROM context_link WHERE to_context = %s AND to_context_id IN (%s) AND from_context = %s GROUP BY from_context_id ORDER BY hits DESC ",
+			$db->qstr($context),
+			(
+				sprintf("SELECT %s.id ", $query_parts['primary_table']).
+				$query_parts['join'] .
+				$query_parts['where']
+			),
+			$db->qstr(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+		);
+		
+		$results = $db->GetArray($sql);
+
+		return $results;
+		
 	}
 	
 	protected function _getSubtotalCountForCustomColumn($dao_class, $field_key, $primary_key) {
