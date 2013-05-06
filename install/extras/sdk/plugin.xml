@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>example.plugin</id>
-	<name>[Example] Plugin Name</name>
+	<name>Plugin Name</name>
 	<description>This explains what your plugin does.</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>0.0.0</version>
@@ -18,14 +18,14 @@
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="6.1.0" />
+		<require plugin_id="cerberusweb.core" version="6.4.0" />
 	</dependencies>
 
 	<!-- Patches -->
 	
 	<patches>
 		<!--
-		<patch version="6.1.0" revision="1" file="patches/6.1.0.php" />
+		<patch version="6.4.0" revision="1" file="patches/6.4.0.php" />
 		-->
 	</patches>
 	
@@ -63,6 +63,5 @@
 	<!-- Extensions -->
 
 	<extensions>
-
-	</extensions> 
+	</extensions>
 </plugin>
