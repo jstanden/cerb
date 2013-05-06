@@ -474,7 +474,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 	}
 	
 	function getSubtotalFields() {
-		$all_fields = $this->getParamsAvailable();
+		$all_fields = $this->getParamsAvailable(true);
 		
 		$fields = array();
 

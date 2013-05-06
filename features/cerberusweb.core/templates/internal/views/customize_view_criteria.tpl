@@ -125,7 +125,7 @@
 			
 			<b>{$translate->_('common.field')|capitalize}:</b><br>
 			<blockquote style="margin:5px;">
-				{$searchable_fields = $view->getParamsAvailable()}
+				{$searchable_fields = $view->getParamsAvailable(true)}
 				{$has_custom = false}
 				
 				<select name="field" onchange="genericAjaxGet('add{$parent_div}','c=internal&a=viewGetCriteria&id={$view->id}&field='+selectValue(this));">

@@ -426,7 +426,7 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 	}
 
 	function getSubtotalFields() {
-		$all_fields = $this->getParamsAvailable();
+		$all_fields = $this->getParamsAvailable(true);
 
 		$fields = array();
 

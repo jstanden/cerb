@@ -682,7 +682,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 	}
 
 	function getSubtotalFields() {
-		$all_fields = $this->getParamsAvailable();
+		$all_fields = $this->getParamsAvailable(true);
 		
 		$fields = array();
 
