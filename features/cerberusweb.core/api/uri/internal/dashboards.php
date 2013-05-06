@@ -1220,13 +1220,12 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
 		$tpl->assign('context_mfts', $context_mfts);
 		
 		// Grab the latest view and copy it to _config
-		
-		if(false == ($view = $this->_getView($widget)))
-			return;
-		
-		$view->id .= '_config';
-		$view->is_ephemeral = true;
-		C4_AbstractViewLoader::setView($view->id, $view);
+
+		if(false !== ($view = $this->_getView($widget))) {
+			$view->id .= '_config';
+			$view->is_ephemeral = true;
+			C4_AbstractViewLoader::setView($view->id, $view);
+		}
 		
 		// Template
 		
