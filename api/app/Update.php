@@ -85,7 +85,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 				
 			default:
 				$path = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
-				$file = $path . 'c4update_lock';
+				$file = $path . 'cerb_update_lock';
 				
 				$settings = DevblocksPlatform::getPluginSettingsService();
 				
