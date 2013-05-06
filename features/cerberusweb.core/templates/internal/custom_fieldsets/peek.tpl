@@ -125,7 +125,7 @@
 	<tr class="cfields-add-template sortable" style="display:none;">
 		<td width="1%" valign="top" nowrap="nowrap"><span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span></td>
 		<td width="1%" valign="top" nowrap="nowrap">
-			<select name="types[]" onchange="var val = selectValue(this); var $div = $(this).closest('tbody').find('div.options'); if(val=='X' || val=='D') $div.fadeIn(); else $div.fadeOut();">
+			<select name="types[]" onchange="var val = selectValue(this); var $div = $(this).closest('tr').find('div.options'); if(val=='X' || val=='D') $div.fadeIn(); else $div.fadeOut();">
 				{foreach from=$types item=type key=type_code}
 				<option value="{$type_code}">{$type}</option>
 				{/foreach}
@@ -194,10 +194,10 @@
 		$this.find('fieldset.cfields button.add').click(function() {
 			var $parent = $(this).closest('tr');
 			var $template = $parent.siblings('.cfields-add-template');
-			var $tbody = $template.clone();
-			$tbody.removeClass('cfields-add-template');
-			$tbody.insertBefore($template).fadeIn();
-			$tbody.find('input:text:first').focus();
+			var $tr = $template.clone();
+			$tr.removeClass('cfields-add-template');
+			$tr.insertBefore($template).fadeIn();
+			$tr.find('input:text:first').focus();
 		});
 		
 		$this.find('fieldset.cfields table').sortable({ 
