@@ -291,6 +291,9 @@
 		<tu tuid='common.inboxes'>
 			<tuv xml:lang="en_US"><seg>inboxes</seg></tuv>
 		</tu>
+		<tu tuid='common.is_closed'>
+			<tuv xml:lang="en_US"><seg>Is Closed</seg></tuv>
+		</tu>
 		<tu tuid='common.keyboard'>
 			<tuv xml:lang="en_US"><seg>Keyboard</seg></tuv>
 		</tu>

@@ -448,7 +448,7 @@ class DevblocksSearchField {
 				$label = $field->name;
 				
 				if(!empty($field->custom_fieldset_id) && isset($custom_fieldsets[$field->custom_fieldset_id])) {
-					$label = $custom_fieldsets[$field->custom_fieldset_id]->name . ': ' . $label;
+					$label = $custom_fieldsets[$field->custom_fieldset_id]->name . ' ' . $label;
 				}
 				
 				$columns[$key] = new DevblocksSearchField(

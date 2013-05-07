@@ -655,6 +655,7 @@ class CerberusContexts {
 	const CONTEXT_ORG = 'cerberusweb.contexts.org';
 	const CONTEXT_PORTAL = 'cerberusweb.contexts.portal';
 	const CONTEXT_PROJECT = 'cerberusweb.contexts.project';
+	const CONTEXT_PROJECT_ISSUE = 'cerberusweb.contexts.project.issue';
 	const CONTEXT_ROLE = 'cerberusweb.contexts.role';
 	const CONTEXT_SENSOR = 'cerberusweb.contexts.datacenter.sensor';
 	const CONTEXT_SERVER = 'cerberusweb.contexts.datacenter.server';
