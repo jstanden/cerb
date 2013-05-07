@@ -78,7 +78,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 			return;
 		
 		@$view_context = $params['worklist_model']['context'];
-		
+
 		if(empty($view_context))
 			return;
 		
@@ -93,6 +93,21 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		$view->renderPage = 0;
 		$view->renderLimit = 1;
 		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// We need to know what date fields we have
+		$fields = $view->getFields();
+		@$metric_func = $params['metric_func'];
+		@$metric_field = $fields[$params['metric_field']];
+
+		// If we're subtotalling on a custom field, make sure it's joined
+		
+		if(!$view->hasParam($metric_field->token, $view->getParams())) {
+			$view->addParam(new DevblocksSearchCriteria($metric_field->token, DevblocksSearchCriteria::OPER_TRUE), $metric_field->token);
+		}
+
+		// Build the query
+		
 		$query_parts = $dao_class::getSearchQueryComponents(
 			$view->view_columns,
 			$view->getParams(),
@@ -100,13 +115,6 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 			$view->renderSortAsc
 		);
 		
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		// We need to know what date fields we have
-		$fields = $view->getFields();
-		@$metric_func = $params['metric_func'];
-		@$metric_field = $fields[$params['metric_field']];
-				
 		if(empty($metric_func))
 			$metric_func = 'count';
 		
@@ -144,7 +152,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 				$select_func = 'COUNT(*)';
 				break;
 		}
-			
+		
 		$sql = sprintf("SELECT %s AS counter_value " .
 			str_replace('%','%%',$query_parts['join']).
 			str_replace('%','%%',$query_parts['where']),
