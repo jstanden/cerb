@@ -549,9 +549,9 @@ function drawScatterplot($canvas, options) {
 			stat = stats;
 		}
 		
-		xaxis_tick = chart_width / stat.x_range;
-		yaxis_tick = chart_height / stat.y_range;
-		
+		xaxis_tick = (stat.x_range != 0) ? (chart_width / stat.x_range) : chart_width;
+		yaxis_tick = (stat.y_range != 0) ? (chart_height / stat.y_range) : chart_height;
+
 		context.fillStyle = series.options.color;
 		context.strokeStyle = series.options.color;
 		
@@ -583,12 +583,6 @@ function drawScatterplot($canvas, options) {
 			context.beginPath();
 			context.fillText(label, chart_x-measure.width/2, chart_y+measure.width/2);
 			context.fill();
-			
-			/*
-			context.beginPath();
-			context.arc(chart_x, chart_y, 2.5, 0, 2 * Math.PI, false);
-			context.stroke();
-			*/
 		}
 	}
 }
