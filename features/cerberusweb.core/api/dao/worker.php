@@ -558,6 +558,10 @@ class DAO_Worker extends Cerb_ORMHelper {
 				$args['has_multiple_values'] = true;
 				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
+				
+			case SearchFields_Worker::VIRTUAL_HAS_FIELDSET:
+				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
 			
 			case SearchFields_Worker::VIRTUAL_GROUPS:
 				$args['has_multiple_values'] = true;
@@ -705,6 +709,7 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_GROUPS = '*_groups';
+	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_CALENDAR_AVAILABILITY = '*_calendar_availability';
 	
 	const CONTEXT_LINK = 'cl_context_from';
@@ -733,6 +738,7 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
 			self::VIRTUAL_GROUPS => new DevblocksSearchField(self::VIRTUAL_GROUPS, '*', 'groups', $translate->_('common.groups')),
+			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
 			self::VIRTUAL_CALENDAR_AVAILABILITY => new DevblocksSearchField(self::VIRTUAL_CALENDAR_AVAILABILITY, '*', 'calendar_availability', 'Calendar Availability'),
 		);
 
@@ -891,6 +897,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Worker::CONTEXT_LINK_ID,
 			SearchFields_Worker::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Worker::VIRTUAL_GROUPS,
+			SearchFields_Worker::VIRTUAL_HAS_FIELDSET,
 		));
 		
 		$this->addParamsHidden(array(
@@ -943,6 +950,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 					break;
 					
 				case SearchFields_Worker::VIRTUAL_CONTEXT_LINK:
+				case SearchFields_Worker::VIRTUAL_HAS_FIELDSET:
 					$pass = true;
 					break;
 					
@@ -981,6 +989,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 			
 			case SearchFields_Worker::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Worker', CerberusContexts::CONTEXT_WORKER, $column);
+				break;
+				
+			case SearchFields_Worker::VIRTUAL_HAS_FIELDSET:
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_Worker', CerberusContexts::CONTEXT_WORKER, $column);
 				break;
 				
 			default:
@@ -1046,6 +1058,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 				}
 				break;
 				
+			case SearchFields_Worker::VIRTUAL_HAS_FIELDSET:
+				$this->_renderVirtualHasFieldset($param);
+				break;
+				
 			case SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY:
 				if(!is_array($param->value) || count($param->value) != 3)
 					break;
@@ -1088,6 +1104,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 				
 			case SearchFields_Worker::VIRTUAL_GROUPS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_group.tpl');
+				break;
+				
+			case SearchFields_Worker::VIRTUAL_HAS_FIELDSET:
+				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_WORKER);
 				break;
 				
 			case SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY:
@@ -1145,6 +1165,13 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
+			case SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY:
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','now');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','now');
+				@$is_available = DevblocksPlatform::importGPC($_REQUEST['is_available'],'integer',0);
+				$criteria = new DevblocksSearchCriteria($field,null,array($from,$to,$is_available));
+				break;
+				
 			case SearchFields_Worker::VIRTUAL_CONTEXT_LINK:
 				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
@@ -1155,11 +1182,9 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 				$criteria = new DevblocksSearchCriteria($field,'in', $group_ids);
 				break;
 				
-			case SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','now');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','now');
-				@$is_available = DevblocksPlatform::importGPC($_REQUEST['is_available'],'integer',0);
-				$criteria = new DevblocksSearchCriteria($field,null,array($from,$to,$is_available));
+			case SearchFields_Worker::VIRTUAL_HAS_FIELDSET:
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			default:

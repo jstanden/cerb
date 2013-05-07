@@ -305,6 +305,10 @@ class DAO_Snippet extends Cerb_ORMHelper {
 				$args['has_multiple_values'] = true;
 				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
+				
+			case SearchFields_Snippet::VIRTUAL_HAS_FIELDSET:
+				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
 			
 			case SearchFields_Snippet::VIRTUAL_OWNER:
 				if(!is_array($param->value))
@@ -422,6 +426,7 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
+	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_OWNER = '*_owner';
 	
 	/**
@@ -445,6 +450,7 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
+			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
 			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner')),
 		);
 		
@@ -575,6 +581,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Snippet::OWNER_CONTEXT,
 			SearchFields_Snippet::OWNER_CONTEXT_ID,
 			SearchFields_Snippet::VIRTUAL_CONTEXT_LINK,
+			SearchFields_Snippet::VIRTUAL_HAS_FIELDSET,
 		));
 		
 		$this->addParamsHidden(array(
@@ -621,6 +628,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 					break;
 					
 				case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
+				case SearchFields_Snippet::VIRTUAL_HAS_FIELDSET:
 				case SearchFields_Snippet::VIRTUAL_OWNER:
 					$pass = true;
 					break;
@@ -662,6 +670,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				}
 				
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_Snippet', $column, $label_map, 'in', 'contexts[]');
+				break;
+				
+			case SearchFields_Snippet::VIRTUAL_HAS_FIELDSET:
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_Snippet', CerberusContexts::CONTEXT_SNIPPET, $column);
 				break;
 			
 			case SearchFields_Snippet::VIRTUAL_OWNER:
@@ -745,6 +757,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
 				break;
+
+			case SearchFields_Snippet::VIRTUAL_HAS_FIELDSET:
+				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_SNIPPET);
+				break;
 				
 			case SearchFields_Snippet::VIRTUAL_OWNER:
 				$groups = DAO_Group::getAll();
@@ -778,6 +794,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 		switch($key) {
 			case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
+				break;
+				
+			case SearchFields_Snippet::VIRTUAL_HAS_FIELDSET:
+				$this->_renderVirtualHasFieldset($param);
 				break;
 			
 			case SearchFields_Snippet::VIRTUAL_OWNER:
@@ -839,6 +859,11 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
 				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
+				break;
+				
+			case SearchFields_Snippet::VIRTUAL_HAS_FIELDSET:
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_Snippet::VIRTUAL_OWNER:

@@ -361,6 +361,10 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
 			
+			case SearchFields_KbArticle::VIRTUAL_HAS_FIELDSET:
+				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
+				
 			case SearchFields_KbArticle::VIRTUAL_WATCHERS:
 				$args['has_multiple_values'] = true;
 				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql'], $args['tables']);
@@ -431,6 +435,7 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 	const FULLTEXT_ARTICLE_CONTENT = 'ftkb_content';
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
+	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
 	const CONTEXT_LINK = 'cl_context_from';
@@ -454,6 +459,7 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 			self::TOP_CATEGORY_ID => new DevblocksSearchField(self::TOP_CATEGORY_ID, 'katc', 'kb_top_category_id', $translate->_('kb_article.topic')),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
+			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
@@ -773,12 +779,6 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		$defaults->is_ephemeral = true;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-//		$view->name = 'Headlines';
-//		$view->view_columns = array(
-//			SearchFields_CallEntry::IS_OUTGOING,
-//			SearchFields_CallEntry::PHONE,
-//			SearchFields_CallEntry::UPDATED_DATE,
-//		);
 		$view->addParams(array(
 			//SearchFields_KbArticle::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_KbArticle::IS_CLOSED,'=',0),
 		), true);
@@ -849,6 +849,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 			SearchFields_KbArticle::CONTENT,
 			SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,
 			SearchFields_KbArticle::VIRTUAL_CONTEXT_LINK,
+			SearchFields_KbArticle::VIRTUAL_HAS_FIELDSET,
 			SearchFields_KbArticle::VIRTUAL_WATCHERS,
 		));
 		
@@ -899,6 +900,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 					break;
 					
 				case SearchFields_KbArticle::VIRTUAL_CONTEXT_LINK:
+				case SearchFields_KbArticle::VIRTUAL_HAS_FIELDSET:
 				case SearchFields_KbArticle::VIRTUAL_WATCHERS:
 					$pass = true;
 					break;
@@ -947,6 +949,10 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 
 			case SearchFields_KbArticle::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_KbArticle', CerberusContexts::CONTEXT_KB_ARTICLE, $column);
+				break;
+				
+			case SearchFields_KbArticle::VIRTUAL_HAS_FIELDSET:
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_KbArticle', CerberusContexts::CONTEXT_KB_ARTICLE, $column);
 				break;
 				
 			case SearchFields_KbArticle::VIRTUAL_WATCHERS:
@@ -1032,6 +1038,10 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
 				break;
 				
+			case SearchFields_KbArticle::VIRTUAL_HAS_FIELDSET:
+				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_KB_ARTICLE);
+				break;
+				
 			case SearchFields_KbArticle::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
@@ -1052,6 +1062,10 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 		switch($key) {
 			case SearchFields_KbArticle::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
+				break;
+				
+			case SearchFields_KbArticle::VIRTUAL_HAS_FIELDSET:
+				$this->_renderVirtualHasFieldset($param);
 				break;
 			
 			case SearchFields_KbArticle::VIRTUAL_WATCHERS:
@@ -1146,6 +1160,11 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 			case SearchFields_KbArticle::VIRTUAL_CONTEXT_LINK:
 				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
+				break;
+				
+			case SearchFields_KbArticle::VIRTUAL_HAS_FIELDSET:
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_KbArticle::VIRTUAL_WATCHERS:

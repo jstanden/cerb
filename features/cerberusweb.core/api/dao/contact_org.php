@@ -428,6 +428,10 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 				$args['has_multiple_values'] = true;
 				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
+				
+			case SearchFields_ContactOrg::VIRTUAL_HAS_FIELDSET:
+				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
 			
 			case SearchFields_ContactOrg::VIRTUAL_WATCHERS:
 				$args['has_multiple_values'] = true;
@@ -514,6 +518,7 @@ class SearchFields_ContactOrg {
 
 	// Virtuals
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
+	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
 	// Comment Content
@@ -542,6 +547,7 @@ class SearchFields_ContactOrg {
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'c', 'created', $translate->_('contact_org.created'), Model_CustomField::TYPE_DATE),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
+			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
@@ -606,6 +612,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_ContactOrg::CONTEXT_LINK_ID,
 			SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_ContactOrg::VIRTUAL_CONTEXT_LINK,
+			SearchFields_ContactOrg::VIRTUAL_HAS_FIELDSET,
 			SearchFields_ContactOrg::VIRTUAL_WATCHERS,
 		));
 		
@@ -658,6 +665,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 					
 				// Virtuals
 				case SearchFields_ContactOrg::VIRTUAL_CONTEXT_LINK:
+				case SearchFields_ContactOrg::VIRTUAL_HAS_FIELDSET:
 				case SearchFields_ContactOrg::VIRTUAL_WATCHERS:
 					$pass = true;
 					break;
@@ -692,6 +700,10 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 				
 			case SearchFields_ContactOrg::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_ContactOrg', CerberusContexts::CONTEXT_ORG, $column);
+				break;
+				
+			case SearchFields_ContactOrg::VIRTUAL_HAS_FIELDSET:
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_ContactOrg', CerberusContexts::CONTEXT_ORG, $column);
 				break;
 				
 			case SearchFields_ContactOrg::VIRTUAL_WATCHERS:
@@ -766,6 +778,10 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
 				break;
 				
+			case SearchFields_ContactOrg::VIRTUAL_HAS_FIELDSET:
+				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_ORG);
+				break;
+				
 			case SearchFields_ContactOrg::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
@@ -787,6 +803,10 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 		switch($key) {
 			case SearchFields_ContactOrg::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
+				break;
+				
+			case SearchFields_ContactOrg::VIRTUAL_HAS_FIELDSET:
+				$this->_renderVirtualHasFieldset($param);
 				break;
 
 			case SearchFields_ContactOrg::VIRTUAL_WATCHERS:
@@ -832,6 +852,11 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 			case SearchFields_ContactOrg::VIRTUAL_CONTEXT_LINK:
 				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
+				break;
+				
+			case SearchFields_ContactOrg::VIRTUAL_HAS_FIELDSET:
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_ContactOrg::VIRTUAL_WATCHERS:
