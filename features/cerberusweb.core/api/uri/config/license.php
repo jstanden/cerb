@@ -30,9 +30,6 @@ class PageSection_SetupLicense extends Extension_PageSection {
 		$worker = CerberusApplication::getActiveWorker();
 
 		try {
-			if(ONDEMAND_MODE)
-				throw new Exception("The helpdesk is in On-Demand mode.");
-				
 			if(!$worker || !$worker->is_superuser)
 				throw new Exception("You are not a superuser.");
 				

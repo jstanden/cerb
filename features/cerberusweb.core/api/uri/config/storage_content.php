@@ -17,9 +17,6 @@
 
 class PageSection_SetupStorageContent extends Extension_PageSection {
 	function render() {
-		if(ONDEMAND_MODE)
-			return;
-		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
@@ -72,9 +69,6 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 	}
 	
 	function showStorageSchemaAction() {
-		if(ONDEMAND_MODE)
-			return;
-		
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -92,9 +86,6 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 	}
 	
 	function showStorageSchemaPeekAction() {
-		if(ONDEMAND_MODE)
-			return;
-		
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -110,9 +101,6 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 	
 	function saveStorageSchemaPeekAction() {
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
-		
-		if(ONDEMAND_MODE)
-			return;
 		
 		$extension = DevblocksPlatform::getExtension($ext_id, true, true);
 		/* @var $extension Extension_DevblocksStorageSchema */

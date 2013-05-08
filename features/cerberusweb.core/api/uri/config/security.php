@@ -17,9 +17,6 @@
 
 class PageSection_SetupSecurity extends Extension_PageSection {
 	function render() {
-		if(ONDEMAND_MODE)
-			return;
-		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
@@ -35,10 +32,8 @@ class PageSection_SetupSecurity extends Extension_PageSection {
 			if(!$worker || !$worker->is_superuser)
 				throw new Exception("You are not a superuser.");
 			
-			if(!ONDEMAND_MODE) {
-				@$authorized_ips = DevblocksPlatform::importGPC($_POST['authorized_ips'],'string','');
-				DevblocksPlatform::setPluginSetting('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS, $authorized_ips);
-			}
+			@$authorized_ips = DevblocksPlatform::importGPC($_POST['authorized_ips'],'string','');
+			DevblocksPlatform::setPluginSetting('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS, $authorized_ips);
 			
 			@$session_lifespan = DevblocksPlatform::importGPC($_POST['session_lifespan'],'integer',0);
 			DevblocksPlatform::setPluginSetting('cerberusweb.core',CerberusSettings::SESSION_LIFESPAN, $session_lifespan);
