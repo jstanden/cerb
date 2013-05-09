@@ -34,23 +34,66 @@ var on_refresh = function() {
 	
 	// Hide watchers column (if exists)
 	if($worklist_body.find('tr:first th:first:contains(Watchers)').length > 0) {
-		$worklist_body.find('tr:first th:first').html('');
-		$worklist_body.find('tbody').find('> tr > td:first > button').remove();
+		$worklist_body.find('tr:first th:first').remove();
+		$worklist_body.find('tbody').find('> tr > td:first').remove();
 	}
 	
+	$worklist_body.find("tr:first th").each(function(e) {
+		var $this = $(this);
+
+		if($this.find('a').length == 0) {
+			var idx = e;
+			$this.remove();
+		}
+	});
+
 	$worklist_body.find('tr:first th')
 		.css('background', 'none')
 		.css('border', '0')
 		;
 
-	$worklist_body.find('th, td')
+	$worklist_body.find('td')
 		.css('display', 'block')
 		.css('min-width', '')
 		.css('font-weight', 'normal')
 		.removeAttr('align', '')
 		.each(function(e) {
-			if(0==$.trim($(this).text()).length)
-				$(this).hide();
+			var $td = $(this);
+
+			if($td.attr('colspan') != undefined || $td.attr('rowspan') != undefined) {
+				if($(this).is('[rowspan]')) {
+					$(this).remove();
+					return;
+				}
+				
+				// Ignore spanning cells
+				$(this)
+					.removeAttr('colspan', '')
+					;
+				
+			} else {
+				if($td.find('a.subject, b.subject').length > 0)
+					return;
+				
+				// Hide cells with no content
+				/*
+				if(0==$.trim($td.text()).length) {
+					$(this).hide();
+					return;
+				}
+				*/
+				
+				var $ths = $td.closest('table.worklistBody').find('th');
+				var $siblings = $td.closest('tr').find('td');
+				var idx = $siblings.index($td);
+				
+				var txt = $ths.filter(':nth(' + (idx) + ')').text().trim();
+				
+				var $label = $('<span style="color:rgb(120,120,120);margin-left:15px;">' 
+					+ txt 
+					+ ': </span>');
+				$label.prependTo($td);
+			}
 		})
 		;
 
@@ -72,27 +115,26 @@ var on_refresh = function() {
 			} else {
 				$cols = $(this).find('td:gt(0)');
 			}
-
-			if(null != $cols) {
-				$cols.css('padding-left', '15px');
-			}
 		})
 		;
 	
 	$sort_links = $('<div style="margin-bottom:5px;"></div>');
 	
-	$worklist_body.find('tr:first th').each(function(e) {
-		$(this).find('> a')
-			.css('font-weight', 'bold')
-			.css('text-decoration', 'underline')
-			.css('color', 'rgb(51,92,142)')
-		;
-
-		$span = $('<span style="margin-right:10px;"></span>');
-		$(this).children().appendTo($span);
-		$span.appendTo($sort_links);
-		$(this).remove();
-	});
+	$worklist_body.find('tr:first th')
+		.each(function(e) {
+			$(this).find('> a')
+				.css('font-weight', 'bold')
+				.css('text-decoration', 'underline')
+				.css('color', 'rgb(51,92,142)')
+			;
+	
+			$span = $('<span style="margin-right:10px;"></span>');
+			$(this).children().appendTo($span);
+			$span.appendTo($sort_links);
+		})
+		.closest('tbody')
+			.remove()
+			;
 	
 	$sort_links.insertBefore($worklist_body);
 	$worklist_links.insertBefore($sort_links);
