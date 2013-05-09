@@ -258,7 +258,8 @@ if(!isset($tables['custom_fieldset'])) {
 			context VARCHAR(255) DEFAULT '',
 			owner_context VARCHAR(255) DEFAULT '',
 			owner_context_id INT UNSIGNED NOT NULL DEFAULT 0,
-			PRIMARY KEY (id)
+			PRIMARY KEY (id),
+			INDEX owner (owner_context, owner_context_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
 	$db->Execute($sql);
