@@ -198,9 +198,17 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		$view->renderPage = 0;
 		$view->renderLimit = 30;
 			
-		
 		$db = DevblocksPlatform::getDatabaseService();
-			
+
+		// Initial query planner
+		
+		$query_parts = $dao_class::getSearchQueryComponents(
+			$view->view_columns,
+			$view->getParams(),
+			$view->renderSortBy,
+			$view->renderSortAsc
+		);
+		
 		// We need to know what date fields we have
 		
 		$fields = $view->getFields();
@@ -218,9 +226,12 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		}
 		
 		if(!empty($xaxis_field))
+			$params_changed = false;
+			
 			// If we're subtotalling on a custom field, make sure it's joined
-			if(!$view->hasParam($xaxis_field->token, $view->getParams())) {
+			if($xaxis_field != '_id' && !$view->hasParam($xaxis_field->token, $view->getParams())) {
 				$view->addParam(new DevblocksSearchCriteria($xaxis_field->token, DevblocksSearchCriteria::OPER_TRUE));
+				$params_changed = true;
 			}
 			
 			@$yaxis_func = $params['yaxis_func'];
@@ -233,8 +244,20 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 				// If we're subtotalling on a custom field, make sure it's joined
 				if(!$view->hasParam($yaxis_field->token, $view->getParams())) {
 					$view->addParam(new DevblocksSearchCriteria($yaxis_field->token, DevblocksSearchCriteria::OPER_TRUE));
+					$params_changed = true;
 				}
 			}
+			
+			if($params_changed) {
+				$query_parts = $dao_class::getSearchQueryComponents(
+					$view->view_columns,
+					$view->getParams(),
+					$view->renderSortBy,
+					$view->renderSortAsc
+				);
+			}
+			
+			unset($params_changed);
 			
 			switch($xaxis_field->type) {
 				case Model_CustomField::TYPE_DATE:
@@ -313,13 +336,6 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 							$select_func = 'COUNT(*)';
 							break;
 					}
-					
-					$query_parts = $dao_class::getSearchQueryComponents(
-						$view->view_columns,
-						$view->getParams(),
-						$view->renderSortBy,
-						$view->renderSortAsc
-					);
 					
 					$sql = sprintf("SELECT %s AS hits, DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%s') AS histo ",
 						$select_func,
@@ -491,13 +507,6 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 							break;
 					}
 					
-					$query_parts = $dao_class::getSearchQueryComponents(
-						$view->view_columns,
-						$view->getParams(),
-						$view->renderSortBy,
-						$view->renderSortAsc
-					);
-						
 					$sql = sprintf("SELECT %s AS yaxis, %s.%s AS xaxis " .
 						str_replace('%','%%',$query_parts['join']).
 						str_replace('%','%%',$query_parts['where']).
