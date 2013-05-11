@@ -132,7 +132,7 @@ var on_refresh = function() {
 			$(this).children().appendTo($span);
 			$span.appendTo($sort_links);
 		})
-		.closest('tbody')
+		.closest('thead')
 			.remove()
 			;
 	

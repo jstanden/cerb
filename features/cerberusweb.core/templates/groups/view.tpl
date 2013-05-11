@@ -32,6 +32,7 @@
 <table cellpadding="5" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
+	<thead>
 	<tr>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
@@ -49,6 +50,7 @@
 			</th>
 		{/foreach}
 	</tr>
+	</thead>
 
 	{* Column Data *}
 	{*$object_watchers = DAO_ContextLink::getContextLinks($view_context, array_keys($data), CerberusContexts::CONTEXT_WORKER)*}

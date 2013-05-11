@@ -35,6 +35,7 @@
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
+	<thead>
 	<tr>
 		<th style="text-align:center;width:75px;">
 			<a href="javascript:;">{'common.watchers'|devblocks_translate|capitalize}</a>
@@ -55,6 +56,7 @@
 			</th>
 		{/foreach}
 	</tr>
+	</thead>
 
 	{* Column Data *}
 	{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_CONTACT_PERSON, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
