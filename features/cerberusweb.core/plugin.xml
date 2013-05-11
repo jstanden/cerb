@@ -49,7 +49,7 @@
 		<patch version="6.1.0" revision="1005" file="patches/6.x/6.1.0.php" />
 		<patch version="6.2.0" revision="1016" file="patches/6.x/6.2.0.php" />
 		<patch version="6.3.0" revision="1030" file="patches/6.x/6.3.0.php" />
-		<patch version="6.4.0" revision="1039" file="patches/6.x/6.4.0.php" />
+		<patch version="6.4.0" revision="1040" file="patches/6.x/6.4.0.php" />
 	</patches>
 
 	<!-- Controller Routing -->
@@ -119,6 +119,14 @@
 		<file path="api/dao/bucket.php">
 			<class name="DAO_Bucket" />
 			<class name="Model_Bucket" />
+		</file>
+		
+		<file path="api/dao/calendar.php">
+			<class name="Context_Calendar" />
+			<class name="DAO_Calendar" />
+			<class name="Model_Calendar" />
+			<class name="SearchFields_Calendar" />
+			<class name="View_Calendar" />
 		</file>
 		
 		<file path="api/dao/calendar_event.php">
@@ -805,6 +813,30 @@
 					</value>
 				</param>
 				-->
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.calendar</id>
+			<name>Calendar</name>
+			<class>
+				<file>api/dao/calendar.php</file>
+				<name>Context_Calendar</name>
+			</class>
+			<params>
+				<param key="alias" value="calendar" />
+				<param key="dao_class" value="DAO_Calendar" />
+				<param key="view_class" value="View_Calendar" />
+				<param key="options">
+					<value>
+						<data key="create" />
+						<data key="custom_fields" />
+						<data key="find" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -2387,6 +2419,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="address" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.calendars.page.profiles.calendar</id>
+				<name>Calendar Section</name>
+				<class>
+					<file>api/uri/profiles/calendar.php</file>
+					<name>PageSection_ProfilesCalendar</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="calendar" />
 				</params>
 			</extension>
 		

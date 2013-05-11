@@ -1,347 +1,165 @@
-{$page_context = CerberusContexts::CONTEXT_CALENDAR_EVENT}
-{$page_context_id = $event->id}
-
-<form action="#" method="POST" id="frmCalEvtPeek" name="frmCalEvtPeek" onsubmit="return false;" class="calendar_popup">
-<input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="saveCalendarEventPopup">
-<input type="hidden" name="event_id" value="{$event->id}">
-{if !empty($view_id)}
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmCalendarPeek">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="calendar">
+<input type="hidden" name="action" value="savePeek">
 <input type="hidden" name="view_id" value="{$view_id}">
-{/if}
-{if !empty($event->owner_context)}
-<input type="hidden" name="owner_context" value="{$event->owner_context}">
-<input type="hidden" name="owner_context_id" value="{$event->owner_context_id}">
-{/if}
-{if !empty($link_context)}
-<input type="hidden" name="link_context" value="{$link_context}">
-<input type="hidden" name="link_context_id" value="{$link_context_id}">
-{/if}
+{if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
+<input type="hidden" name="do_delete" value="0">
 
-<table cellpadding="0" cellspacing="2" border="0" width="98%">
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.name'|devblocks_translate|capitalize}: </td>
-		<td width="100%">
-			<input type="text" name="name" value="{$event->name}" style="width:98%;">
-		</td>
-	</tr>
-	{if empty($event->owner_context)}
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right">Who: </td>
-		<td width="100%">
-			<input type="hidden" name="owner_context" value="{CerberusContexts::CONTEXT_WORKER}">
-			<select name="owner_context_id">
-				{foreach from=$workers item=worker key=worker_id}
-				<option value="{$worker_id}" {if $worker_id==$active_worker->id}selected="selected"{/if}>{$worker->getName()}</option>
-				{/foreach}
-			</select>
-		</td>
-	</tr>
-	{/if}
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right">When: </td>
-		<td width="100%">
-			<div>
-				<input type="text" name="date_start" value="{$event->date_start|devblocks_date:'M d Y h:ia'}" size="32">
-				 until 
-				<input type="text" name="date_end" value="{$event->date_end|devblocks_date:'M d Y h:ia'}" size="32">
-			</div>
-			
-			<i>(e.g. "tomorrow 5pm", "+2 hours", "2011-04-27 5:00pm", "8am", "August 15", "next Thursday")</i>
-		</td>
-	</tr>
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.status'|devblocks_translate|capitalize}: </td>
-		<td width="100%">
-			<label><input type="radio" name="is_available" value="1" {if empty($event) || $event->is_available}checked="checked"{/if}> Available</label>
-			<label><input type="radio" name="is_available" value="0" {if !empty($event) && empty($event->is_available)}checked="checked"{/if}> Busy</label>
-		</td>
-	</tr>
-	<tbody class="repeat">
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"> Repeat:</td>
-		<td width="100%">
-			<label><input type="radio" name="repeat_freq" value="" {if empty($recurring->params.freq)}checked="checked"{/if}> Never</label>
-			<label><input type="radio" name="repeat_freq" value="daily" {if $recurring->params.freq=='daily'}checked="checked"{/if}> Daily</label>
-			<label><input type="radio" name="repeat_freq" value="weekly" {if $recurring->params.freq=='weekly'}checked="checked"{/if}> Weekly</label>
-			<label><input type="radio" name="repeat_freq" value="monthly" {if $recurring->params.freq=='monthly'}checked="checked"{/if}> Monthly</label>
-			<label><input type="radio" name="repeat_freq" value="yearly" {if $recurring->params.freq=='yearly'}checked="checked"{/if}> Yearly</label>
-			
-			<div class="terms" style="padding-top:5px;">
-				<div class="daily" style="display:{if $recurring->params.freq=='daily'}block{else}none{/if};">
-					<fieldset>
-						Every 
-						<input type="text" name="repeat_options[daily][every_n]" value="{if $recurring->params.freq == 'daily' && isset($recurring->params.options.every_n)}{$recurring->params.options.every_n}{else}1{/if}" size="2"> 
-						day(s)
-					</fieldset>
-				</div>
-				<div class="weekly" style="display:{if $recurring->params.freq=='weekly'}block{else}none{/if};">
-					<fieldset>
-						Every 
-						<input type="text" name="repeat_options[weekly][every_n]" value="{if $recurring->params.freq == 'weekly' && isset($recurring->params.options.every_n)}{$recurring->params.options.every_n}{else}1{/if}" size="2"> 
-						weeks(s) on:
-						
-						<table cellpadding="5" cellspacing="2" border="0" class="toggle_grid">
-							<tr>
-							{$day_time = strtotime("last Sunday")}
-							{section loop=7 start=0 name=days}
-								{$sel = $recurring->params.freq == 'weekly' && false !== in_array({$smarty.section.days.index}, $recurring->params.options.day)}
-								<td {if $sel}class="selected"{/if}>
-									<input type="checkbox" name="repeat_options[weekly][day][]" value="{$smarty.section.days.index}" {if $sel}checked="checked"{/if}>
-									{$day_time|devblocks_date:'D'}
-								</td>
-								{$day_time = strtotime("tomorrow", $day_time)}
-							{/section}
-							</tr>
-						</table>
-						
-					</fieldset>
-				</div>
-				<div class="monthly" style="display:{if $recurring->params.freq=='monthly'}block{else}none{/if};">
-					<fieldset>
-						Every 
-						<input type="text" name="repeat_options[monthly][every_n]" value="{if $recurring->params.freq == 'monthly' && isset($recurring->params.options.every_n)}{$recurring->params.options.every_n}{else}1{/if}" size="2"> 
-						month(s) on:
-						
-						<table cellpadding="5" cellspacing="2" border="0" class="toggle_grid">
-							{section loop=32 start=1 name=days}
-								{$sel = $recurring->params.freq == 'monthly' && false !== in_array({$smarty.section.days.index}, $recurring->params.options.day)}
-								{if $smarty.section.days.iteration % 7 == 1}
-									<tr>
-								{/if}
-									<td {if $sel}class="selected"{/if}>
-										<input type="checkbox" name="repeat_options[monthly][day][]" value="{$smarty.section.days.iteration}" {if $sel}checked="checked"{/if}>
-										{$smarty.section.days.iteration}
-									</td>
-								{if $smarty.section.days.last || $smarty.section.days.iteration % 7 == 0}
-									</tr>
-								{/if}
-							{/section}
-						</table>						 
-					</fieldset>
-				</div>
-				<div class="yearly" style="display:{if $recurring->params.freq=='yearly'}block{else}none{/if};">
-					<fieldset>
-						Every 
-						<input type="text" name="repeat_options[yearly][every_n]" value="{if $recurring->params.freq == 'yearly' && isset($recurring->params.options.every_n)}{$recurring->params.options.every_n}{else}1{/if}" size="2"> 
-						year(s) in: 
-						
-						<table cellpadding="5" cellspacing="2" border="0" class="toggle_grid">
-							{section loop=13 start=1 name=months}
-								{$month_time = mktime(0,0,0,$smarty.section.months.iteration,1,0)}
-								{$sel = $recurring->params.freq == 'yearly' && false !== in_array({$smarty.section.months.index}, $recurring->params.options.month)}
-								{if $smarty.section.months.iteration % 4 == 1}
-									<tr>
-								{/if}
-								<td {if $sel}class="selected"{/if}>
-									<input type="checkbox" name="repeat_options[yearly][month][]" value="{$smarty.section.months.iteration}" {if $sel}checked="checked"{/if}>
-									{$month_time|devblocks_date:'M'}
-								</td>
-								{if $smarty.section.months.last || $smarty.section.months.iteration % 4 == 0}
-									</tr>
-								{/if}
-							{/section}
-						</table>
-					</fieldset>
-				</div>
-				
-			</div>
-		</td>
-	</tr>
-	</tbody>
-	<tbody class="end" style="{if empty($recurring)}display:none;{/if}">
+<fieldset class="peek">
+	<legend>{'common.properties'|devblocks_translate}</legend>
+	
+	<table cellspacing="0" cellpadding="2" border="0" width="98%">
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"> End:</td>
-			<td width="100%">
-				<label><input type="radio" name="repeat_end" value="" {if empty($recurring->params.end.term)}checked="checked"{/if}> Never</label>
-				<label><input type="radio" name="repeat_end" value="after_n" {if $recurring->params.end.term=='after_n'}checked="checked"{/if}> After</label>
-				<label><input type="radio" name="repeat_end" value="date" {if $recurring->params.end.term=='date'}checked="checked"{/if}> On Date</label>
-				
-				<div class="ends">
-					<div class="end after_n" style="display:{if $recurring->params.end.term=='after_n'}block{else}none{/if};">
-						<fieldset>
-							<input type="text" name="repeat_ends[after_n][iterations]" value="{if $recurring->params.end.term=='after_n' && isset($recurring->params.end.options.iterations)}{$recurring->params.end.options.iterations}{/if}" size="2"> 
-							time(s)
-						</fieldset>
-					</div>
-					<div class="end date" style="display:{if $recurring->params.end.term=='date'}block{else}none{/if};">
-						<fieldset>
-							<input type="text" name="repeat_ends[date][on]" value="{if $recurring->params.end.term=='date' && isset($recurring->params.end.options.on)}{$recurring->params.end.options.on|devblocks_date:'M d Y h:ia'}{/if}" style="width:98%;"> 
-						</fieldset>
-					</div>
-				</div>
+			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
+			<td width="99%">
+				<input type="text" name="name" value="{$model->name}" style="width:98%;">
 			</td>
 		</tr>
-	</tbody>
-</table>
-<br>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap" valign="top">
+				<b>{'common.owner'|devblocks_translate|capitalize}:</b>
+			</td>
+			<td width="99%">
+				<select name="owner">
+					{if !empty($model->id)}
+						<option value=""> - transfer - </option>
+					{/if}
+					
+					<option value="w_{$active_worker->id}" {if $model->owner_context==CerberusContexts::CONTEXT_WORKER && $active_worker->id==$model->owner_context_id}selected="selected"{/if}>me</option>
 
-<div>
-{include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
-</div>
+					{if !empty($owner_roles)}
+					{foreach from=$owner_roles item=role key=role_id}
+						<option value="r_{$role_id}" {if $model->owner_context==CerberusContexts::CONTEXT_ROLE && $role_id==$model->owner_context_id}selected="selected"{/if}>Role: {$role->name}</option>
+					{/foreach}
+					{/if}
+					
+					{if !empty($owner_groups)}
+					{foreach from=$owner_groups item=group key=group_id}
+						<option value="g_{$group_id}" {if $model->owner_context==CerberusContexts::CONTEXT_GROUP && $group_id==$model->owner_context_id}selected="selected"{/if}>Group: {$group->name}</option>
+					{/foreach}
+					{/if}
+					
+					{if $active_worker->is_superuser}
+					{foreach from=$workers item=worker key=worker_id}
+						{if empty($worker->is_disabled)}
+						<option value="w_{$worker_id}" {if $model->owner_context==CerberusContexts::CONTEXT_WORKER && $worker_id==$model->owner_context_id && $active_worker->id != $worker_id}selected="selected"{/if}>Worker: {$worker->getName()}</option>
+						{/if}
+					{/foreach}
+					{/if}
+				</select>
+				
+				{if !empty($model->id)}
+				<ul class="bubbles">
+					<li>
+					{if $model->owner_context==CerberusContexts::CONTEXT_ROLE && isset($roles.{$model->owner_context_id})}
+					<b>{$roles.{$model->owner_context_id}->name}</b> (Role)
+					{/if}
+					
+					{if $model->owner_context==CerberusContexts::CONTEXT_GROUP && isset($groups.{$model->owner_context_id})}
+					<b>{$groups.{$model->owner_context_id}->name}</b> (Group)
+					{/if}
+					
+					{if $model->owner_context==CerberusContexts::CONTEXT_WORKER && isset($workers.{$model->owner_context_id})}
+					<b>{$workers.{$model->owner_context_id}->getName()}</b> (Worker)
+					{/if}
+					</li>
+				</ul>
+				{/if}
+			</td>
+		</tr>
+		
+		{* Watchers *}
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.watchers')|capitalize}: </td>
+			<td width="100%">
+				{if empty($model->id)}
+					<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
+					<ul class="chooser-container bubbles" style="display:block;"></ul>
+				{else}
+					{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_CALENDAR, array($model->id), CerberusContexts::CONTEXT_WORKER)}
+					{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_CALENDAR context_id=$model->id full=true}
+				{/if}
+			</td>
+		</tr>
+		
+	</table>
+	
+</fieldset>
 
-{if !empty($event->id)}
+{if !empty($custom_fields)}
+<fieldset class="peek">
+	<legend>{'common.custom_fields'|devblocks_translate}</legend>
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+</fieldset>
+{/if}
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_CALENDAR context_id=$model->id}
+
+{* Comment *}
+{if !empty($last_comment)}
+	{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl" readonly=true comment=$last_comment}
+{/if}
+
+<fieldset class="peek">
+	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
+	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea>
+	<div class="notify" style="display:none;">
+		<b>{'common.notify_watchers_and'|devblocks_translate}:</b>
+		<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
+		<ul class="chooser-container bubbles" style="display:block;"></ul>
+	</div>
+</fieldset>
+
+{if !empty($model->id)}
 <fieldset style="display:none;" class="delete">
 	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
 	
-	{if $event->recurring_id}
-	You are deleting a repeating event. Delete:
-	<div style="margin:5px;">
-		<label><input type="radio" name="delete_scope" value="this" checked="checked"> Only this event</label>
-		<label><input type="radio" name="delete_scope" value="future"> Future occurrences</label>
-		<label><input type="radio" name="delete_scope" value="all"> Past and future occurrences</label>
-	</div>
-	{else}
 	<div>
-		Are you sure you want to delete this event?
+		Are you sure you want to delete this calendar?
 	</div>
-	{/if}
 	
-	<button type="button" class="delete"><span class="cerb-sprite2 sprite-tick-circle"></span> Confirm</button>
+	<button type="button" class="delete" onclick="var $frm=$(this).closest('form');$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('button.submit').click();"><span class="cerb-sprite2 sprite-tick-circle"></span> Confirm</button>
 	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="cerb-sprite2 sprite-minus-circle"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 </fieldset>
 {/if}
 
-{* [TODO] If the worker can edit this calendar *}
-{if 1}
-	<div class="buttons">
-		{if $event->id && $event->recurring_id}
-			<fieldset>
-				<legend>You are editing a recurring event. Modify:</legend>
-				<div style="margin:5px;">
-					<label><input type="radio" name="edit_scope" value="this"> Only this event</label>
-					<label><input type="radio" name="edit_scope" value="future" checked="checked"> Future occurrences</label>
-				</div>
-			</fieldset>
-		{/if}
-		
-		<button type="button" class="save"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
-		{if !empty($event->id)}
-		<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>
-		{/if}
-		
-		{if !empty($event->id)}
-		<div style="float:right"><a href="{devblocks_url}c=profiles&type=calendar_event&id={$event->name|devblocks_permalink}-{$event->id}{/devblocks_url}">view full record</a></div>
-		{/if}
-		
-		<br clear="all">
-	</div>
+<div class="buttons">
+	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmCalendarPeek','{$view_id}', false, 'calendar_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	{if !empty($model->id)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+</div>
+
+{if !empty($model->id)}
+<div style="float:right;">
+	<a href="{devblocks_url}c=profiles&type=calendar&id={$model->id}-{$model->name|devblocks_permalink}{/devblocks_url}">view full record</a>
+</div>
+<br clear="all">
 {/if}
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFind('#frmCalEvtPeek');
-	$popup.one('popup_open',function(event,ui) {
-		$this = $(this);
-		$frm = $this.find('form');
+	$popup = genericAjaxPopupFetch('peek');
+	$popup.one('popup_open', function(event,ui) {
+		$(this).dialog('option','title',"{'Calendar'}");
 		
-		// Title
+		$(this).find('button.chooser_watcher').each(function() {
+			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
+		});
 		
-		$this.dialog('option','title', 'Calendar Event');
-		$('#frmCalEvtPeek :input:text:first').focus();
-		
-		// Repeat freq
-		
-		$frm.find('input:radio[name=repeat_freq]').click(function(e) {
-			$td = $(this).closest('td');
-			$table = $td.closest('table');
-			$terms = $td.find('div.terms');
-			$val = $(this).val();
-			
-			$terms.find('> div').hide();
-
-			if($val.length > 0) {
-				$terms.find('div.'+$(this).val()).fadeIn();
-				$table.find('tbody.end').show();
+		$(this).find('textarea[name=comment]').keyup(function() {
+			if($(this).val().length > 0) {
+				$(this).next('DIV.notify').show();
 			} else {
-				$table.find('tbody.end').hide();
+				$(this).next('DIV.notify').hide();
 			}
 		});
 		
-		// Repeat end
-		
-		$frm.find('input:radio[name=repeat_end]').click(function(e) {
-			$ends=$(this).closest('td').find('div.ends');
-			$val = $(this).val();
-			
-			$ends.find('> div').hide();
-
-			if($val.length > 0) {
-				$ends.find('div.'+$(this).val()).fadeIn();
-			}
+		$('#frmCalendarPeek button.chooser_notify_worker').each(function() {
+			ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
 		});
 		
-		// Modify recurring event
-		
-		$frm.find('DIV.buttons INPUT:radio[name=edit_scope]').change(function(e) {
-			$frm = $(this).closest('form');
-			$val = $(this).val();
-			
-			if($val == 'this') {
-				$frm.find('tbody.repeat, tbody.end').hide();
-			} else {
-				$frm.find('tbody.repeat, tbody.end').show();
-			}
-		});	
-		
-		// Toggle grids
-		
-		$frm.find('TABLE.toggle_grid TR TD').click(function(e) {
-			$td = $(this).closest('td');
-			$td.disableSelection();
-			
-			if($td.is('.selected')) {
-				$td.find('input:checkbox').removeAttr('checked');
-			} else {
-				$td.find('input:checkbox').attr('checked', 'checked');
-			}
-			
-			$td.toggleClass('selected');
-			
-			e.stopPropagation();
-		});
-		
-		// Save button
-		
-		$frm.find('button.save').click(function() {
-			genericAjaxPost('frmCalEvtPeek','','c=internal&a=saveCalendarEventPopupJson',function(json) {
-				$popup = genericAjaxPopupFind('#frmCalEvtPeek');
-				if(null != $popup) {
-					$layer = $popup.prop('id').substring(5);
-					
-					$event = jQuery.Event('calendar_event_save');
-					if(json.event_id)
-						$event.event_id = json.event_id;
-					if(json.month)
-						$event.month = json.month;
-					if(json.year)
-						$event.year = json.year;
-					
-					genericAjaxPopupClose($layer, $event);
-					
-					{if !empty($view_id)}
-					genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
-					{/if}
-				}
-			});
-		});
-		
-		$frm.find('button.delete').click(function() {
-			genericAjaxPost('frmCalEvtPeek','','c=internal&a=saveCalendarEventPopupJson&do_delete=1',function(json) {
-				$popup = genericAjaxPopupFind('#frmCalEvtPeek');
-				if(null != $popup) {
-					$layer = $popup.prop('id').substring(5);
-
-					$event = jQuery.Event('calendar_event_delete');
-					if(json.event_id)
-						$event.event_id = json.event_id;
-					
-					genericAjaxPopupClose($layer, $event);
-					
-					{if !empty($view_id)}
-					genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
-					{/if}
-				}
-			});
-		});
-	});
+		$(this).find('input:text:first').focus();
+	} );
 </script>

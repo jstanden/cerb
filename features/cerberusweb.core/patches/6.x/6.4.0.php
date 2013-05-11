@@ -321,4 +321,27 @@ if(isset($columns['group_id'])) {
 
 $db->Execute("DELETE FROM worker_view_model WHERE view_id IN ('_snippets', 'snippets', 'mail_drafts', 'mail_snippets','cerberuswebaddresstab','cerberuswebcrmopportunitytab','cerberusweborgtab','cerberuswebprofilesaddress','cerberuswebprofilesopportunity','cerberuswebprofilesorg')");
 
+// ===========================================================================
+// Add the `calendar` database table
+
+if(!isset($tables['calendar'])) {
+	$sql = sprintf("
+		CREATE TABLE IF NOT EXISTS calendar (
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+			name VARCHAR(255) DEFAULT '',
+			owner_context VARCHAR(255) DEFAULT '',
+			owner_context_id INT UNSIGNED NOT NULL DEFAULT 0,
+			updated_at INT UNSIGNED NOT NULL DEFAULT 0,
+			PRIMARY KEY (id),
+			INDEX owner (owner_context, owner_context_id)
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->Execute($sql);
+
+	$tables['calendar'] = 'calendar';
+}
+
+// ===========================================================================
+// Finish up
+
 return TRUE;
