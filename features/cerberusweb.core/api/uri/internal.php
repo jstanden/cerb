@@ -3628,7 +3628,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('calendar_weeks', $calendar_weeks);
 		$tpl->assign('calendar_events', $calendar_events);
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/calendar_event/tab.tpl');
 	}
 	
 	function saveCalendarEventPopupJsonAction() {

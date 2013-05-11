@@ -653,7 +653,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 
 		switch($this->renderTemplate) {
 			default:
-				$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/calendar/view.tpl');
+				$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/calendar_event/view.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 				break;
 		}
@@ -1062,6 +1062,6 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 			$tpl->assign('workers', DAO_Worker::getAllActive());
 		}
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/calendar/peek.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/calendar_event/peek.tpl');
 	}
 };
