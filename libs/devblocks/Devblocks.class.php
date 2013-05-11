@@ -965,8 +965,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		$keys = explode('.', $path);
 		$array_keys = array();
 
+		$ptr = null;
+		
 		if(!is_array($keys) || empty($keys))
-			return false;
+			return $ptr;
 		
 		foreach($keys as $idx => $k) {
 			if(preg_match('/(.*)\[(\d+)\]/', $k, $matches)) {
@@ -980,8 +982,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		$ptr =& $array;
 
 		while(null !== ($key = array_shift($array_keys))) {
-			if(!isset($ptr[$key]))
-				return false;
+			if(!isset($ptr[$key])) {
+				$ptr = null;
+				return $ptr;
+			}
 			
 			$ptr =& $ptr[$key];
 		}
