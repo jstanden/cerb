@@ -124,7 +124,9 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids))
+			$ids = array($ids);
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(empty($ids))
@@ -133,6 +135,10 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		$db->Execute(sprintf("DELETE FROM calendar WHERE id IN (%s)", $ids_list));
+		
+		// Delete linked records
+		DAO_CalendarEvent::deleteByCalendarIds($ids);
+		DAO_CalendarRecurringProfile::deleteByCalendarIds($ids);
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -172,7 +178,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 			);
 			
 		$join_sql = "FROM calendar ".
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = CerberusContexts::CONTEXT_CALENDAR AND context_link.to_context_id = calendar.id) " : " ").
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.calendar' AND context_link.to_context_id = calendar.id) " : " ").
 			'';
 		
 		// Custom field joins

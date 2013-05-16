@@ -175,6 +175,20 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 		return true;
 	}
 	
+	static function deleteByCalendarIds($ids) {
+		if(!is_array($ids))
+			$ids = array($ids);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($ids))
+			return;
+		
+		$ids_list = implode(',', $ids);
+		
+		$db->Execute(sprintf("DELETE FROM calendar_event WHERE calendar_id IN (%s)", $ids_list));
+	}
+	
 	static function deleteByRecurringIds($ids, $from_timestamp=0) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
