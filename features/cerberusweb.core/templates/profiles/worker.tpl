@@ -94,7 +94,7 @@
 		{/if}
 		
 		{$tabs[] = 'calendar'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showCalendarTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">Calendar</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">Calendar</a></li>
 		
 		{$tabs[] = 'activity'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=actor&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>

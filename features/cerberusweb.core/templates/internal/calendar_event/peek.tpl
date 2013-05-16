@@ -303,7 +303,7 @@
 		// Save button
 		
 		$frm.find('button.save').click(function() {
-			genericAjaxPost('frmCalEvtPeek','','c=internal&a=saveCalendarEventPopupJson',function(json) {
+			genericAjaxPost('frmCalEvtPeek','','c=internal&a=handleSectionAction&section=calendars&action=saveCalendarEventPopupJson',function(json) {
 				$popup = genericAjaxPopupFind('#frmCalEvtPeek');
 				if(null != $popup) {
 					$layer = $popup.prop('id').substring(5);
@@ -326,7 +326,7 @@
 		});
 		
 		$frm.find('button.delete').click(function() {
-			genericAjaxPost('frmCalEvtPeek','','c=internal&a=saveCalendarEventPopupJson&do_delete=1',function(json) {
+			genericAjaxPost('frmCalEvtPeek','','c=internal&a=handleSectionAction&section=calendars&action=saveCalendarEventPopupJson&do_delete=1',function(json) {
 				$popup = genericAjaxPopupFind('#frmCalEvtPeek');
 				if(null != $popup) {
 					$layer = $popup.prop('id').substring(5);

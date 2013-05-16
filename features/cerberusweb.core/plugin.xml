@@ -1676,6 +1676,19 @@
 			<!-- Internal Page Sections -->
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.internal.section.calendars</id>
+				<name>Internal Section Calendars</name>
+				<class>
+					<file>api/uri/internal/calendars.php</file>
+					<name>PageSection_InternalCalendars</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.controller.internal" />
+					<param key="uri" value="calendars" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.internal.section.custom_fieldsets</id>
 				<name>Internal Section Custom Fieldsets</name>
 				<class>

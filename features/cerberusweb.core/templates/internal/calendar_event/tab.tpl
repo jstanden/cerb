@@ -9,9 +9,9 @@
 	</div>
 
 	<div style="float:right;">
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=showCalendarTab&context={$context}&context_id={$context_id}&month={$prev_month}&year={$prev_year}');">&lt;</button>
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=showCalendarTab&context={$context}&context_id={$context_id}&month={$month}&year={$year}');">Today</button>
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=showCalendarTab&context={$context}&context_id={$context_id}&month={$next_month}&year={$next_year}');">&gt;</button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month={$prev_month}&year={$prev_year}');">&lt;</button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month={$month}&year={$year}');">Today</button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month={$next_month}&year={$next_year}');">&gt;</button>
 	</div>
 	
 	<br clear="all">
@@ -68,7 +68,7 @@ $openEvtPopupEvent = function(e) {
 	
 	$popup.one('calendar_event_save', function(event) {
 		if(event.month && event.year) {
-			genericAjaxGet($('#frm{$guid}').closest('div.ui-tabs-panel'), 'c=internal&a=showCalendarTab&context={$context}&context_id={$context_id}&month=' + event.month + '&year=' + event.year);
+			genericAjaxGet($('#frm{$guid}').closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month=' + event.month + '&year=' + event.year);
 		}
 		
 		event.stopPropagation();
