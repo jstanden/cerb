@@ -102,7 +102,7 @@ $(function() {
 		$popup = genericAjaxPopup('event','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CALENDAR_EVENT}&context_id={$event->id}',null,false,'600');
 		$popup.one('calendar_event_save', function(event) {
 			event.stopPropagation();
-			document.location.href.reload();
+			document.location.reload();
 		});
 	});
 	{/if}
