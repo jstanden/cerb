@@ -99,7 +99,7 @@ $(function() {
 
 	{if $active_worker->is_superuser}
 	$('#btnProfileEventEdit').bind('click', function() {
-		$popup = genericAjaxPopup('event','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CALENDAR_EVENT}&context_id={$event->id}&owner_context={$event->owner_context}&owner_context_id={$event->owner_context_id}',null,false,'600');
+		$popup = genericAjaxPopup('event','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CALENDAR_EVENT}&context_id={$event->id}',null,false,'600');
 		$popup.one('calendar_event_save', function(event) {
 			event.stopPropagation();
 			document.location.href.reload();

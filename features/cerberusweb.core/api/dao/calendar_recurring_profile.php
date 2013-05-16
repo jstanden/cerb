@@ -18,8 +18,7 @@
 class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 	const ID = 'id';
 	const EVENT_NAME = 'event_name';
-	const OWNER_CONTEXT = 'owner_context';
-	const OWNER_CONTEXT_ID = 'owner_context_id';
+	const CALENDAR_ID = 'calendar_id';
 	const IS_AVAILABLE = 'is_available';
 	const DATE_START = 'date_start';
 	const DATE_END = 'date_end';
@@ -58,7 +57,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, event_name, owner_context, owner_context_id, is_available, date_start, date_end, params_json ".
+		$sql = "SELECT id, event_name, calendar_id, is_available, date_start, date_end, params_json ".
 			"FROM calendar_recurring_profile ".
 			$where_sql.
 			$sort_sql.
@@ -95,8 +94,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 			$object = new Model_CalendarRecurringProfile();
 			$object->id = $row['id'];
 			$object->event_name = $row['event_name'];
-			$object->owner_context = $row['owner_context'];
-			$object->owner_context_id = $row['owner_context_id'];
+			$object->calendar_id = $row['calendar_id'];
 			$object->is_available = $row['is_available'];
 			$object->date_start = $row['date_start'];
 			$object->date_end = $row['date_end'];
@@ -168,16 +166,14 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"calendar_recurring_profile.id as %s, ".
 			"calendar_recurring_profile.event_name as %s, ".
-			"calendar_recurring_profile.owner_context as %s, ".
-			"calendar_recurring_profile.owner_context_id as %s, ".
+			"calendar_recurring_profile.calendar_id as %s, ".
 			"calendar_recurring_profile.is_available as %s, ".
 			"calendar_recurring_profile.date_start as %s, ".
 			"calendar_recurring_profile.date_end as %s, ".
 			"calendar_recurring_profile.params_json as %s ",
 				SearchFields_CalendarRecurringProfile::ID,
 				SearchFields_CalendarRecurringProfile::EVENT_NAME,
-				SearchFields_CalendarRecurringProfile::OWNER_CONTEXT,
-				SearchFields_CalendarRecurringProfile::OWNER_CONTEXT_ID,
+				SearchFields_CalendarRecurringProfile::CALENDAR_ID,
 				SearchFields_CalendarRecurringProfile::IS_AVAILABLE,
 				SearchFields_CalendarRecurringProfile::DATE_START,
 				SearchFields_CalendarRecurringProfile::DATE_END,
@@ -272,8 +268,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 class SearchFields_CalendarRecurringProfile implements IDevblocksSearchFields {
 	const ID = 'c_id';
 	const EVENT_NAME = 'c_event_name';
-	const OWNER_CONTEXT = 'c_owner_context';
-	const OWNER_CONTEXT_ID = 'c_owner_context_id';
+	const CALENDAR_ID = 'c_calendar_id';
 	const IS_AVAILABLE = 'c_is_available';
 	const DATE_START = 'c_date_start';
 	const DATE_END = 'c_date_end';
@@ -288,8 +283,7 @@ class SearchFields_CalendarRecurringProfile implements IDevblocksSearchFields {
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'calendar_recurring_profile', 'id', null),
 			self::EVENT_NAME => new DevblocksSearchField(self::EVENT_NAME, 'calendar_recurring_profile', 'event_name', null),
-			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'calendar_recurring_profile', 'owner_context', null),
-			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'calendar_recurring_profile', 'owner_context_id', null),
+			self::CALENDAR_ID => new DevblocksSearchField(self::CALENDAR_ID, 'calendar_recurring_profile', 'calendar_id', null),
 			self::IS_AVAILABLE => new DevblocksSearchField(self::IS_AVAILABLE, 'calendar_recurring_profile', 'is_available', null),
 			self::DATE_START => new DevblocksSearchField(self::DATE_START, 'calendar_recurring_profile', 'date_start', null),
 			self::DATE_END => new DevblocksSearchField(self::DATE_END, 'calendar_recurring_profile', 'date_end', null),
@@ -306,8 +300,7 @@ class SearchFields_CalendarRecurringProfile implements IDevblocksSearchFields {
 class Model_CalendarRecurringProfile {
 	public $id;
 	public $event_name;
-	public $owner_context;
-	public $owner_context_id;
+	public $calendar_id;
 	public $is_available;
 	public $date_start;
 	public $date_end;
@@ -387,8 +380,7 @@ class Model_CalendarRecurringProfile {
 					DAO_CalendarEvent::DATE_START => $date_start,
 					DAO_CalendarEvent::DATE_END => $date_end,
 					DAO_CalendarEvent::IS_AVAILABLE => $this->is_available,
-					DAO_CalendarEvent::OWNER_CONTEXT => $this->owner_context,
-					DAO_CalendarEvent::OWNER_CONTEXT_ID => $this->owner_context_id,
+					DAO_CalendarEvent::CALENDAR_ID => $this->calendar_id,
 				);
 				DAO_CalendarEvent::create($fields);
 			}

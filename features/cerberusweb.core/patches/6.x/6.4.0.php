@@ -342,6 +342,92 @@ if(!isset($tables['calendar'])) {
 }
 
 // ===========================================================================
+// Migrate `calendar_recurring_profile.owner_*` to `calendar_recurring_profile.calendar_id`
+
+if(!isset($tables['calendar_recurring_profile'])) {
+	$logger->error("The 'calendar_recurring_profile' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('calendar_recurring_profile');
+
+if(!isset($columns['calendar_id'])) {
+	$db->Execute("ALTER TABLE calendar_recurring_profile ADD COLUMN calendar_id INT UNSIGNED DEFAULT 0 NOT NULL, ADD INDEX calendar_id (calendar_id)");
+}
+
+// ===========================================================================
+// Migrate `calendar_event.owner_*` to `calendar_event.calendar_id`
+
+if(!isset($tables['calendar_event'])) {
+	$logger->error("The 'calendar_event' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('calendar_event');
+
+if(!isset($columns['calendar_id'])) {
+	$db->Execute("ALTER TABLE calendar_event ADD COLUMN calendar_id INT UNSIGNED DEFAULT 0 NOT NULL, ADD INDEX calendar_id (calendar_id)");
+}
+
+if(isset($columns['owner_context'])) {
+	$rs = $db->Execute("SELECT DISTINCT calendar_event.owner_context, calendar_event.owner_context_id, CONCAT(worker.first_name,' ',worker.last_name) as worker_name FROM calendar_event INNER JOIN worker ON (worker.id=owner_context_id) WHERE calendar_event.calendar_id = 0");
+	
+	while($row = mysql_fetch_assoc($rs)) {
+		// Create calendar
+		$calendar_name = $row['worker_name'] . "'s Calendar";
+		$owner_context = $row['owner_context'];
+		$owner_context_id = $row['owner_context_id'];
+		
+		// [TODO] Set calendar datasource to manual
+		$sql = sprintf("INSERT INTO calendar(name, owner_context, owner_context_id, updated_at) ".
+			"VALUES (%s, %s, %d, %d)",
+			$db->qstr($calendar_name),
+			$db->qstr($owner_context),
+			$owner_context_id,
+			time()
+		);
+		$db->Execute($sql);
+	
+		$new_calendar_id = $db->LastInsertId();
+		
+		// Set the new calendar id on event records
+		
+		$sql = sprintf("UPDATE calendar_event SET calendar_id = %d WHERE owner_context = %s AND owner_context_id = %d",
+			$new_calendar_id,
+			$db->qstr($owner_context),
+			$owner_context_id
+		);
+		$db->Execute($sql);
+		
+		// Update recurring profiles
+		
+		$sql = sprintf("UPDATE calendar_recurring_profile SET calendar_id = %d WHERE owner_context = %s AND owner_context_id = %d",
+			$new_calendar_id,
+			$db->qstr($owner_context),
+			$owner_context_id
+		);
+		$db->Execute($sql);
+	}
+	
+	// Drop owner_context_* columns from calendar
+	$db->Execute("ALTER TABLE calendar_event DROP COLUMN owner_context, DROP COLUMN owner_context_id");
+}
+
+// ===========================================================================
+// Drop `calendar_recurring_profile.owner_*`
+
+if(!isset($tables['calendar_recurring_profile'])) {
+	$logger->error("The 'calendar_recurring_profile' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('calendar_recurring_profile');
+
+if(isset($columns['owner_context'])) {
+	$db->Execute("ALTER TABLE calendar_recurring_profile DROP COLUMN owner_context, DROP COLUMN owner_context_id");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
