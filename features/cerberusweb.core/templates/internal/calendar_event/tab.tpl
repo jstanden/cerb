@@ -4,7 +4,7 @@
 	<div style="float:left;">
 		<span style="font-weight:bold;font-size:150%;">{$calendar_properties.calendar_date|devblocks_date:'F Y'}</span>
 		<span style="margin-left:10px;">
-			{if in_array($calendar->extension_id, ['calendar.datasource.manual'])}
+			{if !empty($context)}
 			<button type="button" class="create_event"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
 			{/if}
 		</span>
@@ -64,7 +64,7 @@ $openEvtPopupEvent = function(e) {
 	var link = '';
 	
 	if($this.is('button')) {
-		link = 'ctx://{CerberusContexts::CONTEXT_CALENDAR_EVENT}:0';
+		link = 'ctx://{$context}:0';
 	
 	} else if($this.is('div.event')) {
 		link = $this.attr('link');
@@ -78,8 +78,8 @@ $openEvtPopupEvent = function(e) {
 		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context=' + context + '&context_id=' + context_id  + '&calendar_id={$calendar->id}',null,false,'600');
 		
 		$popup.one('popup_saved calendar_event_save calendar_event_delete', function(event) {
-			var month = (event.month) ? event.month : '{$month}';
-			var year = (event.year) ? event.year : '{$year}';
+			var month = (event.month) ? event.month : '{$calendar_properties.month}';
+			var year = (event.year) ? event.year : '{$calendar_properties.year}';
 			
 			genericAjaxGet($('#frm{$guid}').closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month=' + month + '&year=' + year);
 			event.stopPropagation();
@@ -90,7 +90,7 @@ $openEvtPopupEvent = function(e) {
 	}
 }
 
-{if in_array($calendar->extension_id, ['calendar.datasource.manual', 'calendar.datasource.worklist'])}
+{if !empty($context)}
 $frm.find('button.create_event').click($openEvtPopupEvent);
 {/if}
 
