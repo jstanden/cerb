@@ -400,6 +400,111 @@ class _DevblocksDateManager {
 };
 
 class DevblocksCalendarHelper {
+	static function getCalendar($month=null, $year=null) {
+		if(empty($month) || empty($year)) {
+			$month = date('m');
+			$year = date('Y');
+		}
+		
+		$calendar_date = mktime(0,0,0,$month,1,$year);
+		
+		$num_days = date('t', $calendar_date);
+		$first_dow = date('w', $calendar_date);
+		
+		$prev_month_date = mktime(0,0,0,$month,0,$year);
+		$prev_month = date('m', $prev_month_date);
+		$prev_year = date('Y', $prev_month_date);
+
+		$next_month_date = mktime(0,0,0,$month+1,1,$year);
+		$next_month = date('m', $next_month_date);
+		$next_year = date('Y', $next_month_date);
+		
+		$days = array();
+
+		for($day = 1; $day <= $num_days; $day++) {
+			$timestamp = mktime(0,0,0,$month,$day,$year);
+			
+			$days[$timestamp] = array(
+				'dom' => $day,
+				'dow' => (($first_dow+$day-1) % 7),
+				'is_padding' => false,
+				'timestamp' => $timestamp,
+			);
+		}
+		
+		// How many cells do we need to pad the first and last weeks?
+		$first_day = reset($days);
+		$left_pad = $first_day['dow'];
+		$last_day = end($days);
+		$right_pad = 6-$last_day['dow'];
+
+		$calendar_cells = $days;
+		
+		if($left_pad > 0) {
+			$prev_month_days = date('t', $prev_month_date);
+			
+			for($i=1;$i<=$left_pad;$i++) {
+				$dom = $prev_month_days - ($i-1);
+				$timestamp = mktime(0,0,0,$prev_month,$dom,$prev_year);
+				$day = array(
+					'dom' => $dom,
+					'dow' => $first_dow - $i,
+					'is_padding' => true,
+					'timestamp' => $timestamp,
+				);
+				$calendar_cells[$timestamp] = $day;
+			}
+		}
+		
+		if($right_pad > 0) {
+			for($i=1;$i<=$right_pad;$i++) {
+				$timestamp = mktime(0,0,0,$next_month,$i,$next_year);
+				
+				$day = array(
+					'dom' => $i,
+					'dow' => (($first_dow + $num_days + $i - 1) % 7),
+					'is_padding' => true,
+					'timestamp' => $timestamp,
+				);
+				$calendar_cells[$timestamp] = $day;
+			}
+		}
+		
+		// Sort calendar
+		ksort($calendar_cells);
+		
+		// Break into weeks
+		$calendar_weeks = array_chunk($calendar_cells, 7, true);
+
+		// Events
+		$first_cell = array_slice($calendar_cells, 0, 1, false);
+		$last_cell = array_slice($calendar_cells, -1, 1, false);
+		$range_from = array_shift($first_cell);
+		$range_to = array_shift($last_cell);
+		
+		unset($days);
+		unset($calendar_cells);
+		
+		$date_range_from = strtotime('00:00', $range_from['timestamp']);
+		$date_range_to = strtotime('23:59', $range_to['timestamp']);
+		
+		$calendar_properties = array(
+			'today' => strtotime('today'),
+			'month' => $month,
+			'prev_month' => $prev_month,
+			'next_month' => $next_month,
+			'year' => $year,
+			'prev_year' => $prev_year,
+			'next_year' => $next_year,
+			'date_range_from' => $date_range_from,
+			'date_range_to' => $date_range_to,
+			'calendar_date' => $calendar_date,
+			'calendar_weeks' => $calendar_weeks,
+		);
+		
+		return $calendar_properties;
+	}
+	
 	static function getDailyDates($start, $every_n=1, $until=null, $max_iter=null) {
 		$dates = array();
 		$counter = 0;
