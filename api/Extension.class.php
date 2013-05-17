@@ -291,6 +291,45 @@ abstract class Extension_ContextProfileScript extends DevblocksExtension {
 	function renderScript($context, $context_id) {}
 };
 
+abstract class Extension_CalendarDatasource extends DevblocksExtension {
+	const POINT = 'cerberusweb.calendar.datasource';
+	
+	static $_registry = array();
+	
+	/**
+	 * @return DevblocksExtensionManifest[]|Extension_WorkspacePage[]
+	 */
+	static function getAll($as_instances=true) {
+		$exts = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
+
+		// Sorting
+		if($as_instances)
+			DevblocksPlatform::sortObjects($exts, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($exts, 'name');
+	
+		return $exts;
+	}
+	
+	static function get($extension_id) {
+		if(isset(self::$_registry[$extension_id]))
+			return self::$_registry[$extension_id];
+		
+		if(null != ($extension = DevblocksPlatform::getExtension($extension_id, true))
+			&& $extension instanceof Extension_CalendarDatasource) {
+
+			self::$_registry[$extension->id] = $extension;
+			return $extension;
+		}
+		
+		return null;
+	}
+	
+	abstract function renderConfig(Model_Calendar $calendar);
+	abstract function getData(Model_Calendar $calendar, $date_range_from, $date_range_to);
+	abstract function renderEvent(Model_Calendar $calendar, $event);
+};
+
 abstract class Extension_WorkspacePage extends DevblocksExtension {
 	const POINT = 'cerberusweb.ui.workspace.page';
 	

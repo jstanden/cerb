@@ -325,12 +325,15 @@ $db->Execute("DELETE FROM worker_view_model WHERE view_id IN ('_snippets', 'snip
 // Add the `calendar` database table
 
 if(!isset($tables['calendar'])) {
+	
 	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS calendar (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			name VARCHAR(255) DEFAULT '',
 			owner_context VARCHAR(255) DEFAULT '',
 			owner_context_id INT UNSIGNED NOT NULL DEFAULT 0,
+			extension_id VARCHAR(255) DEFAULT '',
+			params_json TEXT,
 			updated_at INT UNSIGNED NOT NULL DEFAULT 0,
 			PRIMARY KEY (id),
 			INDEX owner (owner_context, owner_context_id)
@@ -378,12 +381,13 @@ if(isset($columns['owner_context'])) {
 		$owner_context = $row['owner_context'];
 		$owner_context_id = $row['owner_context_id'];
 		
-		// [TODO] Set calendar datasource to manual
-		$sql = sprintf("INSERT INTO calendar(name, owner_context, owner_context_id, updated_at) ".
-			"VALUES (%s, %s, %d, %d)",
+		$sql = sprintf("INSERT INTO calendar(name, owner_context, owner_context_id, params_json, updated_at) ".
+			"VALUES (%s, %s, %d, %s, %d)",
 			$db->qstr($calendar_name),
 			$db->qstr($owner_context),
 			$owner_context_id,
+			$db->qstr('calendar.datasource.manual'),
+			$db->qstr(json_encode(array())),
 			time()
 		);
 		$db->Execute($sql);

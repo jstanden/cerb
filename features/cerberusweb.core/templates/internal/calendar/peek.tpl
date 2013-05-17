@@ -1,93 +1,87 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmCalendarPeek">
-<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="calendar">
-<input type="hidden" name="action" value="savePeek">
+<input type="hidden" name="section" value="calendars">
+<input type="hidden" name="action" value="saveCalendarPeek">
 <input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
 <input type="hidden" name="do_delete" value="0">
 
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
+<table cellspacing="0" cellpadding="2" border="0" width="98%" style="margin-bottom:10px;">
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
+		<td width="99%">
+			<input type="text" name="name" value="{$model->name}" style="width:98%;">
+		</td>
+	</tr>
 	
-	<table cellspacing="0" cellpadding="2" border="0" width="98%">
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
-			<td width="99%">
-				<input type="text" name="name" value="{$model->name}" style="width:98%;">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top">
-				<b>{'common.owner'|devblocks_translate|capitalize}:</b>
-			</td>
-			<td width="99%">
-				<select name="owner">
-					{if !empty($model->id)}
-						<option value=""> - transfer - </option>
-					{/if}
-					
-					<option value="w_{$active_worker->id}" {if $model->owner_context==CerberusContexts::CONTEXT_WORKER && $active_worker->id==$model->owner_context_id}selected="selected"{/if}>me</option>
-
-					{if !empty($owner_roles)}
-					{foreach from=$owner_roles item=role key=role_id}
-						<option value="r_{$role_id}" {if $model->owner_context==CerberusContexts::CONTEXT_ROLE && $role_id==$model->owner_context_id}selected="selected"{/if}>Role: {$role->name}</option>
-					{/foreach}
-					{/if}
-					
-					{if !empty($owner_groups)}
-					{foreach from=$owner_groups item=group key=group_id}
-						<option value="g_{$group_id}" {if $model->owner_context==CerberusContexts::CONTEXT_GROUP && $group_id==$model->owner_context_id}selected="selected"{/if}>Group: {$group->name}</option>
-					{/foreach}
-					{/if}
-					
-					{if $active_worker->is_superuser}
-					{foreach from=$workers item=worker key=worker_id}
-						{if empty($worker->is_disabled)}
-						<option value="w_{$worker_id}" {if $model->owner_context==CerberusContexts::CONTEXT_WORKER && $worker_id==$model->owner_context_id && $active_worker->id != $worker_id}selected="selected"{/if}>Worker: {$worker->getName()}</option>
-						{/if}
-					{/foreach}
-					{/if}
-				</select>
-				
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top">
+			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
+		</td>
+		<td width="99%">
+			<select name="owner">
 				{if !empty($model->id)}
-				<ul class="bubbles">
-					<li>
-					{if $model->owner_context==CerberusContexts::CONTEXT_ROLE && isset($roles.{$model->owner_context_id})}
-					<b>{$roles.{$model->owner_context_id}->name}</b> (Role)
-					{/if}
-					
-					{if $model->owner_context==CerberusContexts::CONTEXT_GROUP && isset($groups.{$model->owner_context_id})}
-					<b>{$groups.{$model->owner_context_id}->name}</b> (Group)
-					{/if}
-					
-					{if $model->owner_context==CerberusContexts::CONTEXT_WORKER && isset($workers.{$model->owner_context_id})}
-					<b>{$workers.{$model->owner_context_id}->getName()}</b> (Worker)
-					{/if}
-					</li>
-				</ul>
+					<option value=""> - transfer - </option>
 				{/if}
-			</td>
-		</tr>
-		
-		{* Watchers *}
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.watchers')|capitalize}: </td>
-			<td width="100%">
-				{if empty($model->id)}
-					<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
-					<ul class="chooser-container bubbles" style="display:block;"></ul>
-				{else}
-					{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_CALENDAR, array($model->id), CerberusContexts::CONTEXT_WORKER)}
-					{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_CALENDAR context_id=$model->id full=true}
+				
+				<option value="w_{$active_worker->id}" {if $model->owner_context==CerberusContexts::CONTEXT_WORKER && $active_worker->id==$model->owner_context_id}selected="selected"{/if}>me</option>
+
+				{if !empty($owner_roles)}
+				{foreach from=$owner_roles item=role key=role_id}
+					<option value="r_{$role_id}" {if $model->owner_context==CerberusContexts::CONTEXT_ROLE && $role_id==$model->owner_context_id}selected="selected"{/if}>Role: {$role->name}</option>
+				{/foreach}
 				{/if}
-			</td>
-		</tr>
-		
-	</table>
+				
+				{if !empty($owner_groups)}
+				{foreach from=$owner_groups item=group key=group_id}
+					<option value="g_{$group_id}" {if $model->owner_context==CerberusContexts::CONTEXT_GROUP && $group_id==$model->owner_context_id}selected="selected"{/if}>Group: {$group->name}</option>
+				{/foreach}
+				{/if}
+				
+				{if $active_worker->is_superuser}
+				{foreach from=$workers item=worker key=worker_id}
+					{if empty($worker->is_disabled)}
+					<option value="w_{$worker_id}" {if $model->owner_context==CerberusContexts::CONTEXT_WORKER && $worker_id==$model->owner_context_id && $active_worker->id != $worker_id}selected="selected"{/if}>Worker: {$worker->getName()}</option>
+					{/if}
+				{/foreach}
+				{/if}
+			</select>
+			
+			{if !empty($model->id)}
+			<ul class="bubbles">
+				<li>
+				{if $model->owner_context==CerberusContexts::CONTEXT_ROLE && isset($roles.{$model->owner_context_id})}
+				<b>{$roles.{$model->owner_context_id}->name}</b> (Role)
+				{/if}
+				
+				{if $model->owner_context==CerberusContexts::CONTEXT_GROUP && isset($groups.{$model->owner_context_id})}
+				<b>{$groups.{$model->owner_context_id}->name}</b> (Group)
+				{/if}
+				
+				{if $model->owner_context==CerberusContexts::CONTEXT_WORKER && isset($workers.{$model->owner_context_id})}
+				<b>{$workers.{$model->owner_context_id}->getName()}</b> (Worker)
+				{/if}
+				</li>
+			</ul>
+			{/if}
+		</td>
+	</tr>
 	
-</fieldset>
+	{* Watchers *}
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.watchers')|capitalize}: </td>
+		<td width="100%">
+			{if empty($model->id)}
+				<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
+				<ul class="chooser-container bubbles" style="display:block;"></ul>
+			{else}
+				{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_CALENDAR, array($model->id), CerberusContexts::CONTEXT_WORKER)}
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_CALENDAR context_id=$model->id full=true}
+			{/if}
+		</td>
+	</tr>
+</table>
 
 {if !empty($custom_fields)}
 <fieldset class="peek">
@@ -97,6 +91,26 @@
 {/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_CALENDAR context_id=$model->id}
+
+{* Datasources *}
+
+<fieldset class="peek">
+	<legend>Events</legend>
+	
+	<b>Create</b> calendar using 
+	
+	<select name="extension_id">
+		{foreach from=$datasource_extensions item=datasource_ext key=datasource_ext_id}
+		<option value="{$datasource_ext_id}" {if $datasource_ext_id==$model->extension_id}selected="selected"{/if}>{$datasource_ext->name}</option>
+		{/foreach}
+	</select>
+	
+	<div style="margin:2px 0px 0px 10px;" class="calendar-datasource-params">
+		{if $datasource_extension}
+			{$datasource_extension->renderConfig($model)}
+		{/if}
+	</div>
+</fieldset>
 
 {* Comment *}
 {if !empty($last_comment)}

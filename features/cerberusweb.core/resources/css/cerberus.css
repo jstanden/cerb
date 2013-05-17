@@ -628,7 +628,12 @@ TABLE.calendar TR.week TD DIV.day_contents DIV {
 TABLE.calendar TR.week TD DIV.day_contents DIV.available {
 	background-color:rgb(180,220,110);
 }
-
+TABLE.calendar TR.week TD DIV.day_contents A {
+	text-decoration:none;
+}
+TABLE.calendar TR.week TD DIV.day_contents A:hover {
+	text-decoration:underline;
+}
 TABLE.toggle_grid TR TD {
 	text-align:center;
 	cursor:pointer;

@@ -4,13 +4,15 @@
 	<div style="float:left;">
 		<span style="font-weight:bold;font-size:150%;">{$calendar_date|devblocks_date:'F Y'}</span>
 		<span style="margin-left:10px;">
+			{if in_array($calendar->extension_id, ['calendar.datasource.manual'])}
 			<button type="button" class="create_event"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+			{/if}
 		</span>
 	</div>
 
 	<div style="float:right;">
 		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month={$prev_month}&year={$prev_year}');">&lt;</button>
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month={$month}&year={$year}');">Today</button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month=&year=');">Today</button>
 		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month={$next_month}&year={$next_year}');">&gt;</button>
 	</div>
 	
@@ -41,7 +43,9 @@
 			<div class="day_contents">
 				{if $calendar_events.{$day.timestamp}}
 					{foreach from=$calendar_events.{$day.timestamp} item=event}
-						<div class="event event{$event.id}{if $event.is_available} available{/if}" event_id="{$event.id}"><a href="javascript:;">{$event.name}</a></div>
+						<div class="event" style="background-color:{$event.color|default:'#C8C8C8'};" link="{$event.link}">
+							<a href="javascript:;" style="color:rgb(0,0,0);" title="{$event.label}">{$event.label}</a>
+						</div>
 					{/foreach}
 				{/if}
 			</div>
@@ -56,36 +60,39 @@ $frm = $('#frm{$guid}');
 $tab = $frm.closest('div.ui-tabs-panel');
 
 $openEvtPopupEvent = function(e) {
-	$this = $(this);
+	var $this = $(this);
+	var link = '';
 	
 	if($this.is('button')) {
-		event_id = 0;	
+		link = 'ctx://{CerberusContexts::CONTEXT_CALENDAR_EVENT}:0';
+	
 	} else if($this.is('div.event')) {
-		event_id = $this.attr('event_id');
+		link = $this.attr('link');
 	}
-
-	$popup = genericAjaxPopup('event','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CALENDAR_EVENT}&context_id=' + event_id + '&calendar_id={$calendar->id}',null,false,'600');
 	
-	$popup.one('calendar_event_save', function(event) {
-		if(event.month && event.year) {
-			genericAjaxGet($('#frm{$guid}').closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month=' + event.month + '&year=' + event.year);
-		}
+	if(link.substring(0,6) == 'ctx://') {
+		var context_parts = link.substring(6).split(':');
+		var context = context_parts[0];
+		var context_id = context_parts[1];
 		
-		event.stopPropagation();
-	});
-	
-	$popup.one('calendar_event_delete', function(event) {
-		$frm = $('#frm{$guid}');
-		$tab = $frm.closest('div.ui-tabs-panel');
+		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context=' + context + '&context_id=' + context_id  + '&calendar_id={$calendar->id}',null,false,'600');
 		
-		if(event.event_id) {
-			$tab.find('TABLE.calendar TR.week div.day_contents div.event' + event.event_id).remove();
-		}
+		$popup.one('popup_saved calendar_event_save calendar_event_delete', function(event) {
+			var month = (event.month) ? event.month : '{$month}';
+			var year = (event.year) ? event.year : '{$year}';
+			
+			genericAjaxGet($('#frm{$guid}').closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month=' + month + '&year=' + year);
+			event.stopPropagation();
+		});
 		
-		event.stopPropagation();
-	});
+	} else {
+		// [TODO] Regular link
+	}
 }
 
+{if in_array($calendar->extension_id, ['calendar.datasource.manual', 'calendar.datasource.worklist'])}
 $frm.find('button.create_event').click($openEvtPopupEvent);
+{/if}
+
 $tab.find('TABLE.calendar TR.week div.day_contents').find('div.event').click($openEvtPopupEvent);
 </script>

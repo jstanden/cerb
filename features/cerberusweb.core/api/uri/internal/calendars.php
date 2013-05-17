@@ -32,7 +32,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		if(!empty($point))
 			$visit->set($point, 'calendar');
 
-		if(null == ($calendar = DAO_Calendar::get($calendar_id)))
+		if(null == ($calendar = DAO_Calendar::get($calendar_id))) /* @var Model_Calendar $calendar */
 			return;
 		
 		// [TODO] Test owner read/write access
@@ -127,45 +127,20 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		$date_range_from = strtotime('00:00', $range_from['timestamp']);
 		$date_range_to = strtotime('23:59', $range_to['timestamp']);
 		
-		// [TODO] Calendar datasources (manual, worklist, sync)
-		// [TODO] Convert to DAO
+		if(null == ($datasource_extension = $calendar->getDatasourceExtension()))
+			return;
 		
-		$db = DevblocksPlatform::getDatabaseService();
-		$sql = sprintf(
-			"SELECT id, name, recurring_id, is_available, date_start, date_end ".
-			"FROM calendar_event ".
-			"WHERE calendar_id = %d ".
-			"AND ((date_start >= %d AND date_start <= %d) OR (date_end >= %d AND date_end <= %d)) ".
-			"ORDER BY is_available DESC, date_start ASC",
-			$calendar_id,
-			$date_range_from,
-			$date_range_to,
-			$date_range_from,
-			$date_range_to
-		);
+		$calendar_events = $datasource_extension->getData($calendar, $date_range_from, $date_range_to);
 		
-		$results = $db->GetArray($sql);
-
-		$calendar_events = array();
+		$calendar_render_event_callback = array($datasource_extension, 'renderEvent');
 		
-		foreach($results as $row) {
-			$day_range = range(strtotime('midnight', $row['date_start']), strtotime('midnight', $row['date_end']), 86400);
-			
-			foreach($day_range as $epoch) {
-				if(!isset($calendar_events[$epoch]))
-					$calendar_events[$epoch] = array();
-				
-				$calendar_events[$epoch][$row['id']] = array(
-					'id' => $row['id'],
-					'name' => $row['name'],
-					'is_available' => $row['is_available'],
-				);
-			}
-		}
-
 		// Template scope
 		$tpl->assign('calendar', $calendar);
+		$tpl->assign('datasource_extension', $datasource_extension);
+		$tpl->assign('calendar_render_event_callback', $calendar_render_event_callback);
 		$tpl->assign('today', strtotime('today'));
+		$tpl->assign('month', $month);
+		$tpl->assign('year', $year);
 		$tpl->assign('prev_month', $prev_month);
 		$tpl->assign('prev_year', $prev_year);
 		$tpl->assign('next_month', $next_month);
@@ -175,6 +150,110 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		$tpl->assign('calendar_events', $calendar_events);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar_event/tab.tpl');
+	}
+	
+	function saveCalendarPeekAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+		@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
+		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
+		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!empty($id) && !empty($do_delete)) { // Delete
+			DAO_Calendar::delete($id);
+			
+		} else {
+			// Owner
+			
+			$owner_ctx = '';
+			@list($owner_ctx_code, $owner_ctx_id) = explode('_', $owner, 2);
+			
+			switch(strtolower($owner_ctx_code)) {
+				case 'w':
+					$owner_ctx = CerberusContexts::CONTEXT_WORKER;
+					break;
+				case 'g':
+					$owner_ctx = CerberusContexts::CONTEXT_GROUP;
+					break;
+				case 'r':
+					$owner_ctx = CerberusContexts::CONTEXT_ROLE;
+					break;
+			}
+			
+			if(empty($owner_ctx))
+				return;
+			
+			
+			if(isset($params['worklist_model_json'])) {
+				$params['worklist_model'] = json_decode($params['worklist_model_json'], true);
+				unset($params['worklist_model_json']);
+			}
+			
+			// Model
+			
+			if(empty($id)) { // New
+				$fields = array(
+					DAO_Calendar::UPDATED_AT => time(),
+					DAO_Calendar::NAME => $name,
+					DAO_Calendar::OWNER_CONTEXT => $owner_ctx,
+					DAO_Calendar::OWNER_CONTEXT_ID => $owner_ctx_id,
+					DAO_Calendar::EXTENSION_ID => $extension_id,
+					DAO_Calendar::PARAMS_JSON => json_encode($params),
+				);
+				$id = DAO_Calendar::create($fields);
+				
+				// Watchers
+				@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
+				if(!empty($add_watcher_ids))
+					CerberusContexts::addWatchers(CerberusContexts::CONTEXT_CALENDAR, $id, $add_watcher_ids);
+				
+				// Context Link (if given)
+				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+				@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+				if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
+					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_CALENDAR, $id, $link_context, $link_context_id);
+				}
+				
+				if(!empty($view_id) && !empty($id))
+					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CALENDAR, $id);
+				
+			} else { // Edit
+				$fields = array(
+					DAO_Calendar::UPDATED_AT => time(),
+					DAO_Calendar::NAME => $name,
+					DAO_Calendar::OWNER_CONTEXT => $owner_ctx,
+					DAO_Calendar::OWNER_CONTEXT_ID => $owner_ctx_id,
+					DAO_Calendar::EXTENSION_ID => $extension_id,
+					DAO_Calendar::PARAMS_JSON => json_encode($params),
+				);
+				DAO_Calendar::update($id, $fields);
+				
+			}
+
+			// If we're adding a comment
+			if(!empty($comment)) {
+				@$also_notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+				
+				$fields = array(
+					DAO_Comment::CREATED => time(),
+					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_CALENDAR,
+					DAO_Comment::CONTEXT_ID => $id,
+					DAO_Comment::COMMENT => $comment,
+					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+					DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
+				);
+				$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+			}
+			
+			// Custom fields
+			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CALENDAR, $id, $field_ids);
+		}
 	}
 	
 	function saveCalendarEventPopupJsonAction() {

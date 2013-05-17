@@ -4,6 +4,8 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
+	const EXTENSION_ID = 'extension_id';
+	const PARAMS_JSON = 'params_json';
 	const UPDATED_AT = 'updated_at';
 
 	static function create($fields) {
@@ -52,7 +54,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 				);
 				
 				// Log the context update
-				//DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_, $batch_ids);
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_CALENDAR, $batch_ids);
 			}
 		}
 	}
@@ -74,7 +76,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, owner_context, owner_context_id, updated_at ".
+		$sql = "SELECT id, name, owner_context, owner_context_id, extension_id, params_json, updated_at ".
 			"FROM calendar ".
 			$where_sql.
 			$sort_sql.
@@ -114,7 +116,12 @@ class DAO_Calendar extends Cerb_ORMHelper {
 			$object->name = $row['name'];
 			$object->owner_context = $row['owner_context'];
 			$object->owner_context_id = $row['owner_context_id'];
+			$object->extension_id = $row['extension_id'];
 			$object->updated_at = $row['updated_at'];
+			
+			if(!empty($row['params_json']) && false !== ($params_json = json_decode($row['params_json'], true)))
+				$object->params = $params_json;
+			
 			$objects[$object->id] = $object;
 		}
 		
@@ -169,11 +176,15 @@ class DAO_Calendar extends Cerb_ORMHelper {
 			"calendar.name as %s, ".
 			"calendar.owner_context as %s, ".
 			"calendar.owner_context_id as %s, ".
+			"calendar.extension_id as %s, ".
+			"calendar.params_json as %s, ".
 			"calendar.updated_at as %s ",
 				SearchFields_Calendar::ID,
 				SearchFields_Calendar::NAME,
 				SearchFields_Calendar::OWNER_CONTEXT,
 				SearchFields_Calendar::OWNER_CONTEXT_ID,
+				SearchFields_Calendar::EXTENSION_ID,
+				SearchFields_Calendar::PARAMS_JSON,
 				SearchFields_Calendar::UPDATED_AT
 			);
 			
@@ -349,6 +360,8 @@ class SearchFields_Calendar implements IDevblocksSearchFields {
 	const NAME = 'c_name';
 	const OWNER_CONTEXT = 'c_owner_context';
 	const OWNER_CONTEXT_ID = 'c_owner_context_id';
+	const EXTENSION_ID = 'c_extension_id';
+	const PARAMS_JSON = 'c_params_json';
 	const UPDATED_AT = 'c_updated_at';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -370,6 +383,8 @@ class SearchFields_Calendar implements IDevblocksSearchFields {
 			self::NAME => new DevblocksSearchField(self::NAME, 'calendar', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'calendar', 'owner_context', $translate->_('common.owner_context')),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'calendar', 'owner_context_id', $translate->_('common.owner_context_id')),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'calendar', 'extension_id', $translate->_('common.type'), null),
+			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'calendar', 'params_json', $translate->_('dao.calendar.params_json'), null),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'calendar', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
@@ -401,7 +416,17 @@ class Model_Calendar {
 	public $name;
 	public $owner_context;
 	public $owner_context_id;
+	public $extension_id;
+	public $params;
 	public $updated_at;
+	
+	/**
+	 *
+	 * @return NULL|Extension_CalendarDatasource
+	 */
+	function getDatasourceExtension() {
+		return Extension_CalendarDatasource::get($this->extension_id);
+	}
 };
 
 class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals {
@@ -420,11 +445,13 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Calendar::NAME,
 			SearchFields_Calendar::UPDATED_AT,
 			SearchFields_Calendar::VIRTUAL_OWNER,
+			SearchFields_Calendar::EXTENSION_ID,
 		);
 		
 		$this->addColumnsHidden(array(
 			SearchFields_Calendar::OWNER_CONTEXT,
 			SearchFields_Calendar::OWNER_CONTEXT_ID,
+			SearchFields_Calendar::PARAMS_JSON,
 			SearchFields_Calendar::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Calendar::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Calendar::VIRTUAL_WATCHERS,
@@ -433,6 +460,7 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals {
 		$this->addParamsHidden(array(
 			SearchFields_Calendar::OWNER_CONTEXT,
 			SearchFields_Calendar::OWNER_CONTEXT_ID,
+			SearchFields_Calendar::PARAMS_JSON,
 		));
 		
 		$this->doResetCriteria();
@@ -825,6 +853,8 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		$token_labels = array(
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
+			'extension_id' => $prefix.$translate->_('common.type'),
+			'params_json' => $prefix.$translate->_('dao.calendar.params_json'),
 			'updated_at|date' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -843,6 +873,8 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			$token_values['_label'] = $calendar->name;
 			$token_values['id'] = $calendar->id;
 			$token_values['name'] = $calendar->name;
+			$token_values['extension_id'] = $calendar->extension_id;
+			$token_values['params_json'] = $calendar->params_json;
 			$token_values['updated_at'] = $calendar->updated_at;
 			
 			// URL
@@ -994,6 +1026,15 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 				$owner_roles[$k] = $v;
 		}
 		$tpl->assign('owner_roles', $owner_roles);
+		
+		// Datasources
+		
+		$datasource_extensions = Extension_CalendarDatasource::getAll(false);
+		$tpl->assign('datasource_extensions', $datasource_extensions);
+		
+		if(!empty($calendar) && null != ($datasource_extension = $calendar->getDatasourceExtension())) {
+			$tpl->assign('datasource_extension', $datasource_extension);
+		}
 		
 		// Template
 		
