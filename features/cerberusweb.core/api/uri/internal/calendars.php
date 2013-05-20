@@ -177,6 +177,19 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		}
 	}
 	
+	function getCalendarDatasourceParamsAction() {
+		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'],'string', '');
+		
+		if(empty($extension_id))
+			return;
+		
+		if(false == ($extension = Extension_CalendarDatasource::get($extension_id)))
+			return;
+		
+		$calendar = new Model_Calendar();
+		$extension->renderConfig($calendar);
+	}
+	
 	function saveCalendarEventPopupJsonAction() {
 		@$event_id = DevblocksPlatform::importGPC($_REQUEST['event_id'],'integer', 0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string', '');

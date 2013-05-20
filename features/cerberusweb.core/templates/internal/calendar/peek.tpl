@@ -160,6 +160,13 @@
 		
 		$this.dialog('option','title',"{'Calendar'}");
 		
+		$this.find('select[name=extension_id]').change(function(e) {
+			var $select = $(this);
+			var $frm = $select.closest('form');
+			
+			genericAjaxGet($frm.find('div.calendar-datasource-params'), 'c=internal&a=handleSectionAction&section=calendars&action=getCalendarDatasourceParams&extension_id=' + $select.val());
+		});
+		
 		$this.find('button.chooser_watcher').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
 		});
