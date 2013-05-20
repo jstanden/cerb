@@ -33,7 +33,7 @@
 
 <br>
 
-<b>Label</b> as <input type="text" name="params[label]" value="{$calendar->params.label}" size="80">
+<b>Label</b> with <input type="text" name="params[label]" value="{$calendar->params.label|default:'{{__label}}'}" size="45">
 
 <div style="margin-left:60px;">
 	<select class="placeholders">

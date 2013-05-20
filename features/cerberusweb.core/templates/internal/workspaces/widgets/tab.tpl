@@ -644,8 +644,6 @@ function drawScatterplot($canvas, options) {
 		});
 	});
 	
-	var dragTimer = null;
-	
 	var $dashboard = $('#dashboard{$workspace_tab->id}');
 	
 	// Reusable hover events

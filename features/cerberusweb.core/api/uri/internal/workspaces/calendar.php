@@ -40,7 +40,7 @@ class WorkspaceTab_Calendar extends Extension_WorkspaceTab {
 		@$worklist_view_id = sprintf("workspace_tab%d_worklist", $tab->id);
 		@$worklist_model = $tab->params['worklist_model'];
 		
-		if(null != ($worklist_view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($worklist_model, $view_id)))
+		if(null != ($worklist_view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($worklist_model, $worklist_view_id)))
 			C4_AbstractViewLoader::setView($worklist_view_id, $worklist_view);
 		
 		// Render template

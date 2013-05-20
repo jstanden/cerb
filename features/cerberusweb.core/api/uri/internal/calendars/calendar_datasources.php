@@ -1,10 +1,6 @@
 <?php
 class CalendarDatasource_Manual extends Extension_CalendarDatasource {
 	function renderConfig(Model_Calendar $calendar) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('calendar', $calendar);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/calendar/datasources/manual/config.tpl');
 	}
 	
 	function getData(Model_Calendar $calendar, $date_range_from, $date_range_to) {
@@ -48,9 +44,6 @@ class CalendarDatasource_Manual extends Extension_CalendarDatasource {
 		
 		return $calendar_events;
 	}
-	
-	function renderEvent(Model_Calendar $calendar, $event) {
-	}
 };
 
 class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
@@ -82,7 +75,7 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 		@$worklist_view_id = sprintf("calendar%d_worklist", $calendar->id);
 		@$worklist_model = $calendar->params['worklist_model'];
 		
-		if(null != ($worklist_view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($worklist_model, $view_id)))
+		if(null != ($worklist_view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($worklist_model, $worklist_view_id)))
 			C4_AbstractViewLoader::setView($worklist_view_id, $worklist_view);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar/datasources/worklist/config.tpl');
@@ -143,12 +136,6 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 		}
 		
 		return $calendar_events;
-	}
-	
-	function renderEvent(Model_Calendar $calendar, $event) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('event', $event);
-		$tpl->display('devblocks:cerberusweb.core::internal/calendar/datasources/worklist/render_cell.tpl');
 	}
 };
 

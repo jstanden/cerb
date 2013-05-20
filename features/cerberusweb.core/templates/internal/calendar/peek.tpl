@@ -156,17 +156,20 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{'Calendar'}");
+		var $this = $(this);
 		
-		$(this).find('button.chooser_watcher').each(function() {
+		$this.dialog('option','title',"{'Calendar'}");
+		
+		$this.find('button.chooser_watcher').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
 		});
 		
-		$(this).find('textarea[name=comment]').keyup(function() {
-			if($(this).val().length > 0) {
-				$(this).next('DIV.notify').show();
+		$this.find('textarea[name=comment]').keyup(function() {
+			var $this = $(this);
+			if($this.val().length > 0) {
+				$this.next('DIV.notify').show();
 			} else {
-				$(this).next('DIV.notify').hide();
+				$this.next('DIV.notify').hide();
 			}
 		});
 		
@@ -174,6 +177,6 @@
 			ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
 		});
 		
-		$(this).find('input:text:first').focus();
+		$this.find('input:text:first').focus();
 	} );
 </script>

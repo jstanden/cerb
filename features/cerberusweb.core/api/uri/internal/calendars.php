@@ -43,14 +43,10 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		
 		$calendar_events = $datasource_extension->getData($calendar, $calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
 		
-		// [TODO] This could be even smarter so that the datasource can be used for widget + workspace tab
-		$calendar_render_event_callback = array($datasource_extension, 'renderEvent');
-		
 		// Template scope
 		
 		$tpl->assign('calendar', $calendar);
 		$tpl->assign('datasource_extension', $datasource_extension);
-		$tpl->assign('calendar_render_event_callback', $calendar_render_event_callback);
 		$tpl->assign('calendar_events', $calendar_events);
 		$tpl->assign('calendar_properties', $calendar_properties);
 		
