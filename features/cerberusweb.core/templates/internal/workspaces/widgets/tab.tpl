@@ -619,6 +619,28 @@ function drawScatterplot($canvas, options) {
 </table>
 
 <script type="text/javascript">
+	
+	try {
+		clearInterval(window.dashboardTimer{$workspace_tab->id});
+		
+		var tick = function() {
+			var $dashboard = $('#dashboard{$workspace_tab->id}');
+			
+			if($dashboard.length == 0 || !$dashboard.is(':visible')) {
+				clearInterval(window.dashboardTimer{$workspace_tab->id});
+				delete window.dashboardTimer{$workspace_tab->id};
+				return;
+			}
+			
+			$dashboard.find('DIV.dashboard-widget').trigger('dashboard_heartbeat');
+		};
+		
+		//tick();
+		window.dashboardTimer{$workspace_tab->id} = setInterval(tick, 1000);
+		
+	} catch(e) {
+	}
+
 	$frm = $('#frmAddWidget{$workspace_tab->id} button.add_widget').click(function(e) {
 		$popup = genericAjaxPopup('widget_edit','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetPopup&widget_id=0&workspace_tab_id={$workspace_tab->id}',null,false,'500');
 		$popup.one('new_widget', function(e) {
