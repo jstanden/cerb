@@ -430,6 +430,65 @@ if(isset($columns['owner_context'])) {
 }
 
 // ===========================================================================
+// Convert calendar workspace tabs to calendar records
+
+if(!isset($tables['workspace_tab'])) {
+	$logger->error("The 'workspace_tab' table does not exist.");
+	return FALSE;
+}
+
+$sql = "SELECT workspace_tab.id, workspace_tab.name, workspace_tab.params_json, workspace_page.owner_context, workspace_page.owner_context_id ".
+	"FROM workspace_tab ".
+	"INNER JOIN workspace_page ON (workspace_tab.workspace_page_id=workspace_page.id) ".
+	"WHERE workspace_tab.extension_id = 'core.workspace.tab.calendar'"
+	;
+$rs = $db->Execute($sql);
+
+while($row = mysql_fetch_assoc($rs)) {
+	$calendar_name = $row['name'];
+	$owner_context = $row['owner_context'];
+	$owner_context_id = $row['owner_context_id'];
+	@$params = json_decode($row['params_json'], true);
+
+	if(!isset($params['worklist_model']) || isset($params['calendar_id']))
+		continue;
+	
+	$params['manual_disabled'] = '1';
+	$params['sync_enabled'] = '1';
+	$params['datasource'] = 'calendar.datasource.worklist';
+	
+	$params = array(
+		'series' => array(
+			$params,
+		)
+	);
+	
+	$sql = sprintf("INSERT INTO calendar(name, owner_context, owner_context_id, params_json, updated_at) ".
+		"VALUES (%s, %s, %d, %s, %d)",
+		$db->qstr($calendar_name),
+		$db->qstr($owner_context),
+		$owner_context_id,
+		$db->qstr(json_encode($params)),
+		time()
+	);
+	$db->Execute($sql);
+
+	$new_calendar_id = $db->LastInsertId();
+	
+	$sql = sprintf("UPDATE workspace_tab SET params_json = %s WHERE id = %d",
+		$db->qstr(json_encode(array('calendar_id' => $new_calendar_id))),
+		$row['id']
+	);
+	$db->Execute($sql);
+}
+
+// ===========================================================================
+// Clear cached calendar models
+
+$sql = "DELETE FROM worker_view_model WHERE class_name = 'View_CalendarEvent'";
+$db->Execute($sql);
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
