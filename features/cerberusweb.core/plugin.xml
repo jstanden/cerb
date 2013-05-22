@@ -2714,17 +2714,6 @@
 		<!-- Calendar Datasources -->
 		
 		<extension point="cerberusweb.calendar.datasource">
-			<id>calendar.datasource.manual</id>
-			<name>Calendar Events</name>
-			<class>
-				<file>api/uri/internal/calendars/calendar_datasources.php</file>
-				<name>CalendarDatasource_Manual</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
-		<extension point="cerberusweb.calendar.datasource">
 			<id>calendar.datasource.worklist</id>
 			<name>Worklist</name>
 			<class>

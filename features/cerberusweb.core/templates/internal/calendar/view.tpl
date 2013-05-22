@@ -90,13 +90,6 @@
 						{$result.$column|devblocks_prettytime}&nbsp;
 					{/if}
 				</td>
-			{elseif $column=="c_extension_id"}
-				<td>
-					{$datasource_ext = Extension_CalendarDatasource::get($result.$column)}
-					{if !empty($datasource_ext)}
-					{$datasource_ext->manifest->name}
-					{/if}
-				</td>
 			{elseif $column=="*_owner"}
 				{$owner_context = $result.c_owner_context}
 				{$owner_context_id = $result.c_owner_context_id}

@@ -38,15 +38,11 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year);
 		
-		if(null == ($datasource_extension = $calendar->getDatasourceExtension()))
-			return;
-		
-		$calendar_events = $datasource_extension->getData($calendar, $calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
+		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
 		
 		// Template scope
 		
 		$tpl->assign('calendar', $calendar);
-		$tpl->assign('datasource_extension', $datasource_extension);
 		$tpl->assign('calendar_events', $calendar_events);
 		$tpl->assign('calendar_properties', $calendar_properties);
 		
@@ -79,7 +75,6 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 		@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
-		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
 		
@@ -109,10 +104,16 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 			if(empty($owner_ctx))
 				return;
 			
+			// Clean params
+			// [TODO] Move this
 			
-			if(isset($params['worklist_model_json'])) {
-				$params['worklist_model'] = json_decode($params['worklist_model_json'], true);
-				unset($params['worklist_model_json']);
+			if(isset($params['series']))
+			foreach($params['series'] as $series_idx => $series) {
+				if(isset($series['worklist_model_json'])) {
+					$series['worklist_model'] = json_decode($series['worklist_model_json'], true);
+					unset($series['worklist_model_json']);
+					$params['series'][$series_idx] = $series;
+				}
 			}
 			
 			// Model
@@ -123,7 +124,6 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 					DAO_Calendar::NAME => $name,
 					DAO_Calendar::OWNER_CONTEXT => $owner_ctx,
 					DAO_Calendar::OWNER_CONTEXT_ID => $owner_ctx_id,
-					DAO_Calendar::EXTENSION_ID => $extension_id,
 					DAO_Calendar::PARAMS_JSON => json_encode($params),
 				);
 				$id = DAO_Calendar::create($fields);
@@ -149,7 +149,6 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 					DAO_Calendar::NAME => $name,
 					DAO_Calendar::OWNER_CONTEXT => $owner_ctx,
 					DAO_Calendar::OWNER_CONTEXT_ID => $owner_ctx_id,
-					DAO_Calendar::EXTENSION_ID => $extension_id,
 					DAO_Calendar::PARAMS_JSON => json_encode($params),
 				);
 				DAO_Calendar::update($id, $fields);
@@ -179,6 +178,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 	
 	function getCalendarDatasourceParamsAction() {
 		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'],'string', '');
+		@$params_prefix = DevblocksPlatform::importGPC($_REQUEST['params_prefix'],'string', '');
 		
 		if(empty($extension_id))
 			return;
@@ -187,7 +187,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 			return;
 		
 		$calendar = new Model_Calendar();
-		$extension->renderConfig($calendar);
+		$extension->renderConfig($calendar, array(), $params_prefix);
 	}
 	
 	function saveCalendarEventPopupJsonAction() {

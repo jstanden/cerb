@@ -3,11 +3,11 @@
 <form id="frm{$guid}" action="#" style="margin-bottom:5px;width:98%;">
 	<div style="float:left;">
 		<span style="font-weight:bold;font-size:150%;">{$calendar_properties.calendar_date|devblocks_date:'F Y'}</span>
+		{if empty($calendar->params.manual_disabled)}
 		<span style="margin-left:10px;">
-			{if !empty($context)}
 			<button type="button" class="create_event"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
-			{/if}
 		</span>
+		{/if}
 	</div>
 
 	<div style="float:right;">
@@ -64,7 +64,7 @@ $openEvtPopupEvent = function(e) {
 	var link = '';
 	
 	if($this.is('button')) {
-		link = 'ctx://{$context}:0';
+		link = 'ctx://{$context|default:"cerberusweb.contexts.calendar_event"}:0';
 	
 	} else if($this.is('div.event')) {
 		link = $this.attr('link');
@@ -90,7 +90,7 @@ $openEvtPopupEvent = function(e) {
 	}
 }
 
-{if !empty($context)}
+{if empty($calendar->params.manual_disabled)}
 $frm.find('button.create_event').click($openEvtPopupEvent);
 {/if}
 

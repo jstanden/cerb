@@ -1,39 +1,40 @@
-{$uniqid = "div{uniqid()}"}
-<div id="{$uniqid}">
+{$uniqid = "{uniqid()}"}
+{$is_blank = empty($params.worklist_model.context)}
+
+<div id="div{$uniqid}">
 <b>Load</b>
 
 <select class="context">
 	<option value=""> - {'common.choose'|devblocks_translate|lower} - </option>
 	{foreach from=$context_mfts item=context_mft}
-	<option value="{$context_mft->id}" {if $calendar->params.worklist_model.context==$context_mft->id}selected="selected"{/if}>{$context_mft->name}</option>
+	<option value="{$context_mft->id}" {if $params.worklist_model.context==$context_mft->id}selected="selected"{/if}>{$context_mft->name}</option>
 	{/foreach}
 </select>
 
  data using 
 
-<div id="popup{$div_popup_worklist}" class="badge badge-lightgray" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;display:inline;"><span class="name">Worklist</span> &#x25be;</div>
+<div id="popup{$uniqid}" class="badge badge-lightgray" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;display:inline;"><span class="name">Worklist</span> &#x25be;</div>
 
-<input type="hidden" name="params[worklist_model_json]" value="{$calendar->params.worklist_model|json_encode}" class="model">
+<input type="hidden" name="params{$params_prefix}[worklist_model_json]" value="{$params.worklist_model|json_encode}" class="model">
 
 <br>
 
 <b>Start date</b> is 
 	
-<select name="params[field_start_date]" class="field_start_date">
+<select name="params{$params_prefix}[field_start_date]" class="field_start_date">
 	{if !empty($ctx_fields)}
 	{foreach from=$ctx_fields item=field}
 		{if !empty($field->db_label)}
 			{if $field->type == Model_CustomField::TYPE_DATE}
-			<option value="{$field->token}" class="{if $field->type == Model_CustomField::TYPE_DATE}date{else}{/if}" {if $calendar->params.field_start_date==$field->token}selected="selected"{/if}>{$field->db_label|lower}</option>
+			<option value="{$field->token}" class="{if $field->type == Model_CustomField::TYPE_DATE}date{else}{/if}" {if $params.field_start_date==$field->token}selected="selected"{/if}>{$field->db_label|lower}</option>
 			{/if}
 		{/if}
 	{/foreach}
 	{/if}
 </select>
-
 <br>
 
-<b>Label</b> with <input type="text" name="params[label]" value="{$calendar->params.label|default:'{{__label}}'}" size="45">
+<b>Label</b> with <input type="text" name="params{$params_prefix}[label]" value="{$params.label|default:'{{_label}}'}" size="64">
 
 <div style="margin-left:60px;">
 	<select class="placeholders">
@@ -46,20 +47,20 @@
 	</select>
 </div>
 
-<b>Color</b> it 
 
-<input type="hidden" name="params[color]" value="{$calendar->params.color|default:'#A0D95B'}" style="width:100%;" class="color-picker">
+<b>Color</b> it 
+<input type="hidden" name="params{$params_prefix}[color]" value="{$params.color|default:'#A0D95B'}" style="width:100%;" class="color-picker">
 </div>
 
 <script type="text/javascript">
-var $div = $('#{$uniqid}');
+var $div = $('#div{$uniqid}');
 
 $div.find('select.field_start_date').change(function(e) {
 	$this = $(this);
 });
 
 $div.find('input:hidden.color-picker').miniColors({
-	color_favorites: ['#A0D95B','#FEAF03','#FCB3B3','#FF6666','#C5DCFA','#85BAFF','#E8F554','#F4A3FE','#ADADAD']
+	color_favorites: ['#A0D95B','#FEAF03','#FCB3B3','#FF6666','#C5DCFA','#85BAFF','#E8F554','#F4A3FE','#C8C8C8']
 });
 
 $div.find('select.context').change(function(e) {
@@ -92,7 +93,7 @@ $div.find('select.context').change(function(e) {
 	
 	genericAjaxGet('','c=internal&a=handleSectionAction&section=dashboards&action=getContextPlaceholdersJson&context=' + ctx, function(json) {
 		if('object' == typeof(json) && json.length > 0) {
-			var $div = $('#{$uniqid}');
+			var $div = $('#div{$uniqid}');
 			var $placeholders = $div.find('select.placeholders');
 			
 			$placeholders.html('');
@@ -123,7 +124,7 @@ $div.find('select.placeholders').change(function(e) {
 	$select.val('');
 });
 
-$('#popup{$div_popup_worklist}').click(function(e) {
+$('#popup{$uniqid}').click(function(e) {
 	var $select = $(this).siblings('select.context');
 	var context = $select.val();
 	
@@ -135,7 +136,7 @@ $('#popup{$div_popup_worklist}').click(function(e) {
 	$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"workspace_tab{$workspace_tab->id}_worklist"}',null,true,'750');
 	$chooser.bind('chooser_save',function(event) {
 		if(null != event.worklist_model) {
-			$('#popup{$div_popup_worklist}').parent().find('input:hidden.model').val(event.worklist_model);
+			$('#popup{$uniqid}').parent().find('input:hidden.model').val(event.worklist_model);
 		}
 	});
 });

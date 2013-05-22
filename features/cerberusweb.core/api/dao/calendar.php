@@ -4,7 +4,6 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
-	const EXTENSION_ID = 'extension_id';
 	const PARAMS_JSON = 'params_json';
 	const UPDATED_AT = 'updated_at';
 
@@ -76,7 +75,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, owner_context, owner_context_id, extension_id, params_json, updated_at ".
+		$sql = "SELECT id, name, owner_context, owner_context_id, params_json, updated_at ".
 			"FROM calendar ".
 			$where_sql.
 			$sort_sql.
@@ -116,7 +115,6 @@ class DAO_Calendar extends Cerb_ORMHelper {
 			$object->name = $row['name'];
 			$object->owner_context = $row['owner_context'];
 			$object->owner_context_id = $row['owner_context_id'];
-			$object->extension_id = $row['extension_id'];
 			$object->updated_at = $row['updated_at'];
 			
 			if(!empty($row['params_json']) && false !== ($params_json = json_decode($row['params_json'], true)))
@@ -176,14 +174,12 @@ class DAO_Calendar extends Cerb_ORMHelper {
 			"calendar.name as %s, ".
 			"calendar.owner_context as %s, ".
 			"calendar.owner_context_id as %s, ".
-			"calendar.extension_id as %s, ".
 			"calendar.params_json as %s, ".
 			"calendar.updated_at as %s ",
 				SearchFields_Calendar::ID,
 				SearchFields_Calendar::NAME,
 				SearchFields_Calendar::OWNER_CONTEXT,
 				SearchFields_Calendar::OWNER_CONTEXT_ID,
-				SearchFields_Calendar::EXTENSION_ID,
 				SearchFields_Calendar::PARAMS_JSON,
 				SearchFields_Calendar::UPDATED_AT
 			);
@@ -360,7 +356,6 @@ class SearchFields_Calendar implements IDevblocksSearchFields {
 	const NAME = 'c_name';
 	const OWNER_CONTEXT = 'c_owner_context';
 	const OWNER_CONTEXT_ID = 'c_owner_context_id';
-	const EXTENSION_ID = 'c_extension_id';
 	const PARAMS_JSON = 'c_params_json';
 	const UPDATED_AT = 'c_updated_at';
 
@@ -383,7 +378,6 @@ class SearchFields_Calendar implements IDevblocksSearchFields {
 			self::NAME => new DevblocksSearchField(self::NAME, 'calendar', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'calendar', 'owner_context', $translate->_('common.owner_context')),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'calendar', 'owner_context_id', $translate->_('common.owner_context_id')),
-			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'calendar', 'extension_id', $translate->_('common.type'), null),
 			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'calendar', 'params_json', $translate->_('dao.calendar.params_json'), null),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'calendar', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 
@@ -416,16 +410,89 @@ class Model_Calendar {
 	public $name;
 	public $owner_context;
 	public $owner_context_id;
-	public $extension_id;
 	public $params;
 	public $updated_at;
 	
-	/**
-	 *
-	 * @return NULL|Extension_CalendarDatasource
-	 */
-	function getDatasourceExtension() {
-		return Extension_CalendarDatasource::get($this->extension_id);
+	function getEvents($date_from, $date_to) {
+		if(isset($this->params['manual_disabled']) && !empty($this->params['manual_disabled'])) {
+			$calendar_events = array();
+		} else {
+			$calendar_events = $this->_getSelfEvents($date_from, $date_to);
+		}
+		
+		// Load data from each extension
+		
+		if(isset($this->params['series']))
+		foreach($this->params['series'] as $series_idx => $series) {
+			$series_prefix = sprintf("[series][%d]",
+				$series_idx
+			);
+		
+			if(!isset($series['datasource']))
+				continue;
+		
+			if(null == ($datasource_extension = Extension_CalendarDatasource::get($series['datasource'])))
+				continue;
+
+			$series_events = $datasource_extension->getData($this, $series, $series_prefix, $date_from, $date_to);
+			
+			foreach($series_events as $time => $events) {
+				if(!isset($calendar_events[$time]))
+					$calendar_events[$time] = array();
+				
+				foreach($events as $event)
+					$calendar_events[$time][] = $event;
+			}
+		}
+		
+		// [TODO] Sort daily events by start time
+		return $calendar_events;
+	}
+	
+	private function _getSelfEvents($date_from, $date_to) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$sql = sprintf(
+			"SELECT id, name, recurring_id, is_available, date_start, date_end ".
+			"FROM calendar_event ".
+			"WHERE calendar_id = %d ".
+			"AND ((date_start >= %d AND date_start <= %d) OR (date_end >= %d AND date_end <= %d)) ".
+			"ORDER BY is_available DESC, date_start ASC",
+			$this->id,
+			$date_from,
+			$date_to,
+			$date_from,
+			$date_to
+		);
+		
+		$results = $db->GetArray($sql);
+
+		$calendar_events = array();
+		
+		@$color_available = $this->params['color_available'] ?: '#A0D95B';
+		@$color_busy = $this->params['color_busy'] ?: '#C8C8C8';
+		
+		foreach($results as $row) {
+			$day_range = range(strtotime('midnight', $row['date_start']), strtotime('midnight', $row['date_end']), 86400);
+			
+			foreach($day_range as $epoch) {
+				if(!isset($calendar_events[$epoch]))
+					$calendar_events[$epoch] = array();
+				
+				$calendar_events[$epoch][] = array(
+					'context' => CerberusContexts::CONTEXT_CALENDAR_EVENT,
+					'context_id' => $row['id'],
+					'label' => $row['name'],
+					'color' => $row['is_available'] ? $color_available : $color_busy,
+					'ts' => strtotime('now', $row['date_start']),
+					'link' => sprintf("ctx://%s:%d",
+						CerberusContexts::CONTEXT_CALENDAR_EVENT,
+						$row['id']
+					),
+				);
+			}
+		}
+		
+		return $calendar_events;
 	}
 };
 
@@ -445,7 +512,6 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Calendar::NAME,
 			SearchFields_Calendar::UPDATED_AT,
 			SearchFields_Calendar::VIRTUAL_OWNER,
-			SearchFields_Calendar::EXTENSION_ID,
 		);
 		
 		$this->addColumnsHidden(array(
@@ -853,7 +919,6 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		$token_labels = array(
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
-			'extension_id' => $prefix.$translate->_('common.type'),
 			'params_json' => $prefix.$translate->_('dao.calendar.params_json'),
 			'updated_at|date' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
@@ -873,7 +938,6 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			$token_values['_label'] = $calendar->name;
 			$token_values['id'] = $calendar->id;
 			$token_values['name'] = $calendar->name;
-			$token_values['extension_id'] = $calendar->extension_id;
 			$token_values['params_json'] = $calendar->params_json;
 			$token_values['updated_at'] = $calendar->updated_at;
 			
@@ -1031,10 +1095,6 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		
 		$datasource_extensions = Extension_CalendarDatasource::getAll(false);
 		$tpl->assign('datasource_extensions', $datasource_extensions);
-		
-		if(!empty($calendar) && null != ($datasource_extension = $calendar->getDatasourceExtension())) {
-			$tpl->assign('datasource_extension', $datasource_extension);
-		}
 		
 		// Template
 		

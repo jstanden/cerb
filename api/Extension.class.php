@@ -325,8 +325,8 @@ abstract class Extension_CalendarDatasource extends DevblocksExtension {
 		return null;
 	}
 	
-	abstract function renderConfig(Model_Calendar $calendar);
-	abstract function getData(Model_Calendar $calendar, $date_range_from, $date_range_to);
+	abstract function renderConfig(Model_Calendar $calendar, $params, $series_prefix);
+	abstract function getData(Model_Calendar $calendar, array $params=array(), $params_prefix=null, $date_range_from, $date_range_to);
 };
 
 abstract class Extension_WorkspacePage extends DevblocksExtension {

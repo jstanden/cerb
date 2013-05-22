@@ -332,7 +332,6 @@ if(!isset($tables['calendar'])) {
 			name VARCHAR(255) DEFAULT '',
 			owner_context VARCHAR(255) DEFAULT '',
 			owner_context_id INT UNSIGNED NOT NULL DEFAULT 0,
-			extension_id VARCHAR(255) DEFAULT '',
 			params_json TEXT,
 			updated_at INT UNSIGNED NOT NULL DEFAULT 0,
 			PRIMARY KEY (id),
@@ -386,8 +385,7 @@ if(isset($columns['owner_context'])) {
 			$db->qstr($calendar_name),
 			$db->qstr($owner_context),
 			$owner_context_id,
-			$db->qstr('calendar.datasource.manual'),
-			$db->qstr(json_encode(array())),
+			$db->qstr(''),
 			time()
 		);
 		$db->Execute($sql);

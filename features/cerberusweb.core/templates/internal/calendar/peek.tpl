@@ -95,22 +95,57 @@
 {* Datasources *}
 
 <fieldset class="peek">
-	<legend>Events</legend>
+	<legend>Calendar Events</legend>
+
+	<b>Creating</b> events is 
+	<label><input type="radio" name="params[manual_disabled]" value="0" {if empty($model->params.manual_disabled)}checked="checked"{/if}> enabled</label>
+	<label><input type="radio" name="params[manual_disabled]" value="1" {if !empty($model->params.manual_disabled)}checked="checked"{/if}> disabled</label>
+	<br>
 	
-	<b>Create</b> calendar using 
+	<b>Synchronizing</b> events is 
+	<label><input type="radio" name="params[sync_enabled]" value="1" {if !empty($model->params.sync_enabled)}checked="checked"{/if}> enabled</label>
+	<label><input type="radio" name="params[sync_enabled]" value="0" {if empty($model->params.sync_enabled)}checked="checked"{/if}> disabled</label>
+	<br>
+</fieldset>
+
+<fieldset class="calendar-events peek" style="{if !empty($model->params.manual_disabled)}display:none;{/if}">
+	<legend>Created Events</legend>
 	
-	<select name="extension_id">
+	<b>Available</b> events are 
+	<input type="hidden" name="params[color_available]" value="{$model->params.color_available|default:'#A0D95B'}" style="width:100%;" class="color-picker">
+	<br>
+	
+	<b>Busy</b> events are 
+	<input type="hidden" name="params[color_busy]" value="{$model->params.color_busy|default:'C8C8C8'}" style="width:100%;" class="color-picker">
+	<br>
+</fieldset>
+
+{section start=0 loop=3 name=series}
+{$series_idx = $smarty.section.series.index}
+{$series_prefix = "[series][{$series_idx}]"}
+
+<fieldset id="calendar{$model->id}Datasource{$series_idx}" class="sync-events peek" style="{if empty($model->params.sync_enabled)}display:none;{/if}">
+	<legend>Synchronize</legend>
+
+	<b>Events</b> from 
+	{$source = $model->params.series[{$series_idx}].datasource}
+	
+	<select name="params{$series_prefix}[datasource]" class="datasource-selector" params_prefix="{$series_prefix}">
+		<option value=""></option>
 		{foreach from=$datasource_extensions item=datasource_ext key=datasource_ext_id}
-		<option value="{$datasource_ext_id}" {if $datasource_ext_id==$model->extension_id}selected="selected"{/if}>{$datasource_ext->name}</option>
+		<option value="{$datasource_ext_id}" {if $datasource_ext_id==$source}selected="selected"{/if}>{$datasource_ext->name}</option>
 		{/foreach}
 	</select>
-	
+
 	<div style="margin:2px 0px 0px 10px;" class="calendar-datasource-params">
-		{if $datasource_extension}
-			{$datasource_extension->renderConfig($model)}
+		{$datasource_extension = Extension_CalendarDatasource::get($source)}
+		{if !empty($datasource_extension) && method_exists($datasource_extension, 'renderConfig')}
+			{$datasource_extension->renderConfig($model, $model->params.series[{$series_idx}], $series_prefix)}
 		{/if}
 	</div>
 </fieldset>
+
+{/section}
 
 {* Comment *}
 {if !empty($last_comment)}
@@ -160,11 +195,36 @@
 		
 		$this.dialog('option','title',"{'Calendar'}");
 		
-		$this.find('select[name=extension_id]').change(function(e) {
+		$this.find('fieldset.calendar-events input:hidden.color-picker').miniColors({
+			color_favorites: ['#A0D95B','#FEAF03','#FCB3B3','#FF6666','#C5DCFA','#85BAFF','#E8F554','#F4A3FE','#C8C8C8']
+		});
+		
+		$this.find('select.datasource-selector').change(function(e) {
 			var $select = $(this);
-			var $frm = $select.closest('form');
+			var params_prefix = $select.attr('params_prefix');
+			genericAjaxGet($select.siblings('div.calendar-datasource-params'), 'c=internal&a=handleSectionAction&section=calendars&action=getCalendarDatasourceParams&extension_id=' + $select.val() + '&params_prefix=' + params_prefix);
+		});
+		
+		$this.find('input:radio[name="params[manual_disabled]"]').change(function() {
+			var $radio = $(this);
+			var $params = $(this).closest('form').find('fieldset.calendar-events');
 			
-			genericAjaxGet($frm.find('div.calendar-datasource-params'), 'c=internal&a=handleSectionAction&section=calendars&action=getCalendarDatasourceParams&extension_id=' + $select.val());
+			if($radio.val() == '1') {
+				$params.fadeOut();
+			} else {
+				$params.fadeIn();
+			}
+		});
+		
+		$this.find('input:radio[name="params[sync_enabled]"]').change(function() {
+			var $radio = $(this);
+			var $params = $(this).closest('form').find('fieldset.sync-events');
+			
+			if($radio.val() == '1') {
+				$params.fadeIn();
+			} else {
+				$params.fadeOut();
+			}
 		});
 		
 		$this.find('button.chooser_watcher').each(function() {
