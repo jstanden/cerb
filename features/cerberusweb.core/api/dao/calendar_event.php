@@ -359,6 +359,7 @@ class SearchFields_CalendarEvent implements IDevblocksSearchFields {
 	const DATE_START = 'c_date_start';
 	const DATE_END = 'c_date_end';
 	
+	// Virtuals
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	
 	// Context Links
@@ -434,7 +435,6 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		$this->addColumnsHidden(array(
 			SearchFields_CalendarEvent::ID,
 			SearchFields_CalendarEvent::RECURRING_ID,
-			SearchFields_CalendarEvent::CALENDAR_ID,
 			SearchFields_CalendarEvent::CONTEXT_LINK,
 			SearchFields_CalendarEvent::CONTEXT_LINK_ID,
 			SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK,
@@ -443,7 +443,6 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		$this->addParamsHidden(array(
 			SearchFields_CalendarEvent::ID,
 			SearchFields_CalendarEvent::RECURRING_ID,
-			SearchFields_CalendarEvent::CALENDAR_ID,
 			SearchFields_CalendarEvent::CONTEXT_LINK,
 			SearchFields_CalendarEvent::CONTEXT_LINK_ID,
 		));
@@ -482,7 +481,8 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 			$pass = false;
 			
 			switch($field_key) {
-				// Booleans
+				// Fields
+				case SearchFields_CalendarEvent::CALENDAR_ID:
 				case SearchFields_CalendarEvent::IS_AVAILABLE:
 					$pass = true;
 					break;
@@ -514,6 +514,18 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 			return array();
 		
 		switch($column) {
+			case SearchFields_CalendarEvent::CALENDAR_ID:
+				$calendars = DAO_Calendar::getAll();
+				$label_map = array();
+				
+				if(is_array($calendars))
+				foreach($calendars as $calendar_id => $calendar) {
+					$label_map[$calendar_id] = $calendar->name;
+				}
+				
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_CalendarEvent', $column, $label_map, DevblocksSearchCriteria::OPER_IN, 'context_id[]');
+				break;
+				
 			case SearchFields_CalendarEvent::IS_AVAILABLE:
 				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_CalendarEvent', $column);
 				break;
@@ -541,6 +553,10 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
+		// Calendars
+		$calendars = DAO_Calendar::getAll();
+		$tpl->assign('calendars', $calendars);
+		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CALENDAR_EVENT);
 		$tpl->assign('custom_fields', $custom_fields);
@@ -576,6 +592,11 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
+			case SearchFields_CalendarEvent::CALENDAR_ID:
+				$tpl->assign('context', CerberusContexts::CONTEXT_CALENDAR);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__chooser.tpl');
+				break;
+				
 			case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
@@ -598,6 +619,18 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_CalendarEvent::CALENDAR_ID:
+				$calendars = DAO_Calendar::getAll();
+				$label_map = array();
+				
+				if(is_array($calendars))
+				foreach($calendars as $calendar_id => $calendar) {
+					$label_map[$calendar_id] = $calendar->name;
+				}
+				
+				$this->_renderCriteriaParamString($param, $label_map);
+				break;
+				
 			case SearchFields_CalendarEvent::IS_AVAILABLE:
 				$this->_renderCriteriaParamBoolean($param);
 				break;
@@ -645,6 +678,11 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 			case SearchFields_CalendarEvent::IS_AVAILABLE:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_CalendarEvent::CALENDAR_ID:
+				@$context_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['context_id'],'array',array()), 'integer', array('nonzero','unique'));
+				$criteria = new DevblocksSearchCriteria($field,$oper,$context_ids);
 				break;
 				
 			case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:

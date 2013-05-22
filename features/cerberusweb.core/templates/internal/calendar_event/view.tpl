@@ -80,6 +80,13 @@
 						{$result.$column|devblocks_prettytime}&nbsp;
 					{/if}
 				</td>
+			{elseif $column=="c_calendar_id"}
+				<td>
+					{$calendar_id = $result.c_calendar_id}
+					{if isset($calendars.$calendar_id)}
+						{$calendars.$calendar_id->name}
+					{/if}
+				</td>
 			{elseif $column=="c_is_available"}
 				<td>
 					{if $result.$column}{'common.yes'|devblocks_translate}{else}{'common.no'|devblocks_translate}{/if}
