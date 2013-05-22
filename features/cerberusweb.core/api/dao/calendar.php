@@ -1,12 +1,14 @@
 <?php
 class DAO_Calendar extends Cerb_ORMHelper {
+	const CACHE_ALL = 'cerb_calendars_all';
+	
 	const ID = 'id';
 	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
 	const PARAMS_JSON = 'params_json';
 	const UPDATED_AT = 'updated_at';
-
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -56,10 +58,13 @@ class DAO_Calendar extends Cerb_ORMHelper {
 				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_CALENDAR, $batch_ids);
 			}
 		}
+		
+		self::clearCache();
 	}
 	
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('calendar', $fields, $where);
+		self::clearCache();
 	}
 	
 	/**
@@ -87,18 +92,34 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	}
 
 	/**
+	 *
+	 * @param bool $nocache
+	 * @return Model_Calendar[]
+	 */
+	static function getAll($nocache=false) {
+		$cache = DevblocksPlatform::getCacheService();
+		if($nocache || null === ($calendars = $cache->load(self::CACHE_ALL))) {
+			$calendars = DAO_Calendar::getWhere(
+				array(),
+				DAO_Calendar::NAME,
+				true
+			);
+			$cache->save($calendars, self::CACHE_ALL);
+		}
+		
+		return $calendars;
+	}
+	
+	/**
 	 * @param integer $id
 	 * @return Model_Calendar
 	 */
 	static function get($id) {
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
-		
-		if(isset($objects[$id]))
-			return $objects[$id];
-		
+		$calendars = self::getAll();
+
+		if(isset($calendars[$id]))
+			return $calendars[$id];
+			
 		return null;
 	}
 	
@@ -156,6 +177,8 @@ class DAO_Calendar extends Cerb_ORMHelper {
 				)
 			)
 		);
+		
+		self::clearCache();
 		
 		return true;
 	}
@@ -349,6 +372,10 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		return array($results,$total);
 	}
 
+	static public function clearCache() {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ALL);
+	}
 };
 
 class SearchFields_Calendar implements IDevblocksSearchFields {
