@@ -2590,6 +2590,28 @@
 		</extension>
 		
 		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.clock</id>
+			<name>Clock</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_Clock</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.countdown</id>
+			<name>Countdown</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_Countdown</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.workspace.widget">
 			<id>core.workspace.widget.counter</id>
 			<name>Counter</name>
 			<class>
