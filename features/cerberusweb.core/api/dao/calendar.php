@@ -530,6 +530,75 @@ class Model_Calendar {
 		
 		return $calendar_events;
 	}
+	function isReadableByWorker($worker) {
+		if(is_a($worker, 'Model_Worker')) {
+			// This is what we want
+		} elseif (is_numeric($worker)) {
+			if(null == ($worker = DAO_Worker::get($worker)))
+				return false;
+		} else {
+			return false;
+		}
+		
+		// Superusers can do anything
+		if($worker->is_superuser)
+			return true;
+		
+		switch($this->owner_context) {
+			case CerberusContexts::CONTEXT_GROUP:
+				if(in_array($this->owner_context_id, array_keys($worker->getMemberships())))
+					return true;
+				break;
+				
+			case CerberusContexts::CONTEXT_ROLE:
+				if(in_array($this->owner_context_id, array_keys($worker->getRoles())))
+					return true;
+				break;
+				
+			case CerberusContexts::CONTEXT_WORKER:
+				if($worker->id == $this->owner_context_id)
+					return true;
+				break;
+		}
+		
+		return false;
+	}
+	
+	function isWriteableByWorker($worker) {
+		if(is_a($worker, 'Model_Worker')) {
+			// This is what we want
+		} elseif (is_numeric($worker)) {
+			if(null == ($worker = DAO_Worker::get($worker)))
+				return false;
+		} else {
+			return false;
+		}
+		
+		// Superusers can do anything
+		if($worker->is_superuser)
+			return true;
+		
+		switch($this->owner_context) {
+			case CerberusContexts::CONTEXT_GROUP:
+				if(in_array($this->owner_context_id, array_keys($worker->getMemberships())))
+					if($worker->isGroupManager($this->owner_context_id))
+						return true;
+				break;
+				
+			case CerberusContexts::CONTEXT_ROLE:
+				if($worker->is_superuser)
+					return true;
+				break;
+				
+			case CerberusContexts::CONTEXT_WORKER:
+				if($worker->id == $this->owner_context_id)
+					return true;
+				break;
+		}
+		
+		return false;
+	}
+	
 };
 
 class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals {
