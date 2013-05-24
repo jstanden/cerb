@@ -84,7 +84,7 @@
 				<td>
 					{$calendar_id = $result.c_calendar_id}
 					{if isset($calendars.$calendar_id)}
-						{$calendars.$calendar_id->name}
+						<a href="{devblocks_url}c=profiles&what=calendar&id={$calendar_id}-{$calendars.$calendar_id->name|devblocks_permalink}{/devblocks_url}">{$calendars.$calendar_id->name}</a>
 					{/if}
 				</td>
 			{elseif $column=="c_is_available"}
