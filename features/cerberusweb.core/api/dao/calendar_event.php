@@ -955,6 +955,13 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 						$tpl->assign('recurring', $recurring_profile);
 					}
 				}
+				
+				$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CALENDAR_EVENT, false);
+				$tpl->assign('custom_fields', $custom_fields);
+				
+				$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CALENDAR_EVENT, $context_id);
+				if(isset($custom_field_values[$context_id]))
+					$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
 			}
 		}
 		

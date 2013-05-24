@@ -159,6 +159,15 @@
 </table>
 <br>
 
+{if !empty($custom_fields)}
+<fieldset class="peek">
+	<legend>{'common.custom_fields'|devblocks_translate}</legend>
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+</fieldset>
+{/if}
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_CALENDAR_EVENT context_id=$event->id}
+
 <div>
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
