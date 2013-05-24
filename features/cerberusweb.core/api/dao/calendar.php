@@ -471,8 +471,15 @@ class Model_Calendar {
 					$calendar_events[$time][] = $event;
 			}
 		}
+
+		// Sort days by timestamp
+		ksort($calendar_events);
 		
-		// [TODO] Sort daily events by start time
+		// Sort daily events by start time
+		foreach($calendar_events as $ts => $events) {
+			DevblocksPlatform::sortObjects($calendar_events[$ts], '[ts]');
+		}
+		
 		return $calendar_events;
 	}
 	
