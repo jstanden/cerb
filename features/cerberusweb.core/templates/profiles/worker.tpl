@@ -93,8 +93,8 @@
 		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showMyNotificationsTab{/devblocks_url}">{'home.tab.my_notifications'|devblocks_translate}</a></li>
 		{/if}
 		
-		{$tabs[] = 'calendar'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">Calendar</a></li>
+		{$tabs[] = 'availability'}
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=calendars&action=showCalendarAvailabilityTab&point={$point}&id={$profile_worker_prefs.availability_calendar_id}{/devblocks_url}">Availability</a></li>
 		
 		{$tabs[] = 'activity'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=actor&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>

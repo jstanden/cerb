@@ -376,7 +376,7 @@ if(isset($columns['owner_context'])) {
 	
 	while($row = mysql_fetch_assoc($rs)) {
 		// Create calendar
-		$calendar_name = $row['worker_name'] . "'s Calendar";
+		$calendar_name = $row['worker_name'] . "'s Schedule";
 		$owner_context = $row['owner_context'];
 		$owner_context_id = $row['owner_context_id'];
 		
@@ -407,6 +407,15 @@ if(isset($columns['owner_context'])) {
 			$new_calendar_id,
 			$db->qstr($owner_context),
 			$owner_context_id
+		);
+		$db->Execute($sql);
+		
+		// Elect the new calendar as the worker's availability
+		
+		$sql = sprintf("INSERT INTO worker_pref (worker_id, setting, value) VALUES (%d, %s, %d)",
+			$owner_context_id,
+			$db->qstr('availability_calendar_id'),
+			$new_calendar_id
 		);
 		$db->Execute($sql);
 	}

@@ -113,6 +113,10 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_WORKER);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
+		// Prefs
+		$profile_worker_prefs = DAO_WorkerPref::getByWorker($worker->id);
+		$tpl->assign('profile_worker_prefs', $profile_worker_prefs);
+		
 		// SSL
 		$url_writer = DevblocksPlatform::getUrlService();
 		$tpl->assign('is_ssl', $url_writer->isSSL());

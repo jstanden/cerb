@@ -88,26 +88,23 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		if(!empty($point))
 			$visit->set($point, 'calendar');
 
-		if(null == ($calendar = DAO_Calendar::get($calendar_id))) /* @var Model_Calendar $calendar */
-			return;
-		
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year);
-		
-		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
-		
-		$availability = $calendar->computeAvailability($calendar_properties['date_range_from'], $calendar_properties['date_range_to'], $calendar_events);
-
-		unset($calendar_events);
-		
-		// Convert availability back to abstract calendar events
-
-		$calendar_events = $availability->getAsCalendarEvents($calendar_properties);
-		
-		// Template scope
-		
-		$tpl->assign('calendar', $calendar);
-		$tpl->assign('calendar_events', $calendar_events);
 		$tpl->assign('calendar_properties', $calendar_properties);
+		
+		if(null != ($calendar = DAO_Calendar::get($calendar_id))) {
+			$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
+			
+			$availability = $calendar->computeAvailability($calendar_properties['date_range_from'], $calendar_properties['date_range_to'], $calendar_events);
+	
+			unset($calendar_events);
+			
+			// Convert availability back to abstract calendar events
+	
+			$calendar_events = $availability->getAsCalendarEvents($calendar_properties);
+			
+			$tpl->assign('calendar', $calendar);
+			$tpl->assign('calendar_events', $calendar_events);
+		}
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab_availability.tpl');
 	}

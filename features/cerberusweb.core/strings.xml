@@ -132,6 +132,9 @@
 		<tu tuid='common.available'>
 			<tuv xml:lang="en_US"><seg>Available</seg></tuv>
 		</tu>
+		<tu tuid='common.availability'>
+			<tuv xml:lang="en_US"><seg>Availability</seg></tuv>
+		</tu>
 		<tu tuid='common.behavior'>
 			<tuv xml:lang="en_US"><seg>Behavior</seg></tuv>
 		</tu>
@@ -1930,6 +1933,9 @@ For example: *receipt*</seg></tuv>
 	    <!-- My Account Preferences -->
 		
 	    <tu tuid='preferences.account.settings'>
+		<tu tuid='preferences.account.availability.calendar_id'>
+			<tuv xml:lang="en_US"><seg>Determine my availability using calendar:</seg></tuv>
+		</tu>
 			<tuv xml:lang="en_US"><seg>Account Settings</seg></tuv>
 	    </tu>
 	    <tu tuid='preferences.account.password.change'>

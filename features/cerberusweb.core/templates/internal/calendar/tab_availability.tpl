@@ -10,9 +10,11 @@
 		</span>
 		{/if}
 		*}
+		{if !empty($calendar)}
 		<span style="margin-left:10px;">
 			Availability based on <a href="{devblocks_url}c=profiles&what=calendar&id={$calendar->id}-{$calendar->name|devblocks_permalink}{/devblocks_url}" style="font-weight:bold;">{$calendar->name}</a>
 		</span>
+		{/if}
 	</div>
 
 	<div style="float:right;">
