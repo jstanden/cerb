@@ -123,6 +123,21 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		return null;
 	}
 	
+	static function getWriteableByWorker($worker) {
+		$calendars = DAO_Calendar::getAll();
+		
+		foreach($calendars as $calendar_id => $calendar) { /* @var $calendar Model_Calendar */
+			@$manual_disabled = $calendar->params['manual_disabled'];
+			
+			if(!$calendar->isWriteableByWorker($worker) || !empty($manual_disabled)) {
+				unset($calendars[$calendar_id]);
+				continue;
+			}
+		}
+		
+		return $calendars;
+	}
+	
 	/**
 	 * @param resource $rs
 	 * @return Model_Calendar[]

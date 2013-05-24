@@ -8,7 +8,9 @@
 {if !empty($view_id)}
 <input type="hidden" name="view_id" value="{$view_id}">
 {/if}
+{if !empty($event->calendar_id)}
 <input type="hidden" name="calendar_id" value="{$event->calendar_id}">
+{/if}
 {if !empty($link_context)}
 <input type="hidden" name="link_context" value="{$link_context}">
 <input type="hidden" name="link_context_id" value="{$link_context_id}">
@@ -21,6 +23,18 @@
 			<input type="text" name="name" value="{$event->name}" style="width:98%;">
 		</td>
 	</tr>
+	{if empty($event->calendar_id) && !empty($calendars)}
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.calendar'|devblocks_translate|capitalize}: </td>
+		<td width="100%">
+			<select name="calendar_id">
+				{foreach from=$calendars item=calendar key=calendar_id}
+				<option value="{$calendar_id}">{$calendar->name}</option>
+				{/foreach}
+			</select>
+		</td>
+	</tr>
+	{/if}
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top" align="right">When: </td>
 		<td width="100%">

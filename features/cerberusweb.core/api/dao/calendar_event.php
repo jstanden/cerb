@@ -975,6 +975,12 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 			$event->is_recurring = 0;
 			$tpl->assign('event', $event);
 			
+			if(empty($calendar_id)) {
+				$active_worker = CerberusApplication::getActiveWorker();
+				$calendars = DAO_Calendar::getWriteableByWorker($active_worker);
+				$tpl->assign('calendars', $calendars);
+			}
+			
 			$tpl->assign('workers', DAO_Worker::getAllActive());
 		}
 		
