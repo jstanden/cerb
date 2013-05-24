@@ -2579,6 +2579,17 @@
 		</extension>
 	
 		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.calendar</id>
+			<name>Calendar</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_Calendar</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.workspace.widget">
 			<id>core.workspace.widget.chart</id>
 			<name>Line/Bar Chart</name>
 			<class>
