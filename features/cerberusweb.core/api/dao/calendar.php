@@ -640,14 +640,21 @@ class Model_CalendarAvailability {
 		$this->_mins = $mins;
 	}
 	
-	// [TODO]
-	function isAvailableAtFor() {
-		$ts = strtotime('May 16 2013 5:50pm');
-		$at = ceil(($ts - $availability['start'])/60);
-		$for = 15; // mins
+	function isAvailableAtFor($at, $for_mins) {
+		$from_pos = ceil(($at - $this->_start)/60);
 		
-		//var_dump($ts, $at, $for);
-		//var_dump(substr($availability['mins'], $at, $for));
+		$mins = substr($this->_mins, $from_pos, $for_mins);
+		
+		return (false === strpos($mins, '0')) ? true : false;
+	}
+	
+	function isAvailableBetween($from, $to) {
+		$from_pos = ceil(($from - $this->_start)/60);
+		$to_pos = ceil(($to - $this->_start)/60);
+		
+		$mins = substr($this->_mins, $from_pos, $to_pos-$from_pos);
+
+		return (false === strpos($mins, '0')) ? true : false;
 	}
 	
 	function scheduleInRelativeTime($starting_at, $for) {
@@ -704,7 +711,7 @@ class Model_CalendarAvailability {
 					$next_block = strpos($mins, ($bit ? '0' : '1'), $offset);
 					
 					// We are busy all day
-					if(false == $next_block) {
+					if(false === $next_block) {
 						if($offset > 0 && $bit) {
 							$event_start = $ts + ($offset * 60);
 							$event_end = strtotime('11:59:59pm', $event_start);
