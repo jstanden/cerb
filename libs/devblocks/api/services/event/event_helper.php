@@ -607,14 +607,48 @@ class DevblocksEventHelper {
 				break;
 				
 			case Model_CustomField::TYPE_DATE:
-				if(!isset($params['value']))
-					break;
-					
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$value = $tpl_builder->build($params['value'], $dict);
+				@$mode = $params['mode'];
 				
-				$value = is_numeric($value) ? $value : @strtotime($value);
-				$dict->$token = $value;
+				switch($mode) {
+					case 'calendar':
+						@$calendar_id = $params['calendar_id'];
+						@$rel_date = $params['calendar_reldate'];
+						
+						if(empty($calendar_id) || empty($rel_date))
+							return;
+						
+						if(false == ($calendar = DAO_Calendar::get($calendar_id)))
+							return;
+						
+						$today = strtotime('today', time());
+
+						// [TODO] Cache
+						$calendar_events = $calendar->getEvents($today, strtotime('+2 weeks 23:59:59', $today));
+						
+						// [TODO] Cache
+						$availability = $calendar->computeAvailability($today, strtotime('+2 weeks 23:59:59', $today), $calendar_events);
+						
+						// [TODO] Do we have enough available time to schedule this?
+						// 	We should be able to lazy append events + availability as we go
+						
+						if(false !== ($value = $availability->scheduleInRelativeTime(time(), $rel_date)))
+							$dict->$token = $value;
+						
+						break;
+						
+					default:
+						if(!isset($params['value']))
+							return;
+						
+						$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+						$value = $tpl_builder->build($params['value'], $dict);
+						
+						$value = is_numeric($value) ? $value : @strtotime($value);
+						$dict->$token = $value;
+						break;
+				}
+				
+				
 				break;
 				
 			case Model_CustomField::TYPE_NUMBER:

@@ -886,6 +886,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 								return $tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_bool.tpl');
 								break;
 							case Model_CustomField::TYPE_DATE:
+								$calendars = DAO_Calendar::getAll();
+								$tpl->assign('calendars', $calendars);
 								return $tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_date.tpl');
 								break;
 							case Model_CustomField::TYPE_NUMBER:
