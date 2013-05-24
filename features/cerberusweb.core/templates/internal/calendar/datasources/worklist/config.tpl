@@ -1,7 +1,7 @@
 {$uniqid = "{uniqid()}"}
 {$is_blank = empty($params.worklist_model.context)}
 
-<div id="div{$uniqid}">
+<div id="div{$uniqid}" class="datasource-params">
 <b>Load</b>
 
 <select class="context">
@@ -19,6 +19,21 @@
 
 <br>
 
+<div>
+<b>Label</b> with <input type="text" name="params{$params_prefix}[label]" value="{$params.label|default:'{{_label}}'}" size="64" class="placeholders-input">
+</div>
+
+<div style="display:none;" class="placeholders-toolbar">
+<select class="placeholders">
+	<option value="">- insert at cursor -</option>
+	{if !empty($placeholders)}
+	{foreach from=$placeholders key=k item=label}
+	<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$label}</option>
+	{/foreach}
+	{/if}
+</select>
+</div>
+
 <b>Start date</b> is 
 	
 <select name="params{$params_prefix}[field_start_date]" class="field_start_date">
@@ -34,19 +49,15 @@
 </select>
 <br>
 
-<b>Label</b> with <input type="text" name="params{$params_prefix}[label]" value="{$params.label|default:'{{_label}}'}" size="64">
-
-<div style="margin-left:60px;">
-	<select class="placeholders">
-		<option value="">- insert at cursor -</option>
-		{if !empty($placeholders)}
-		{foreach from=$placeholders key=k item=label}
-		<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$label}</option>
-		{/foreach}
-		{/if}
-	</select>
+<div>
+<b>End date</b> is <input type="text" name="params{$params_prefix}[end_date]" value="{$params.end_date|default:''}" size="64" class="placeholders-input">
 </div>
 
+<div>
+<b>Status</b> is 
+<label><input type="radio" name="params{$params_prefix}[is_available]" value="1" {if !empty($params.is_available)}checked="checked"{/if}> available</label>
+<label><input type="radio" name="params{$params_prefix}[is_available]" value="0" {if empty($params.is_available)}checked="checked"{/if}> busy</label>
+</div>
 
 <b>Color</b> it 
 <input type="hidden" name="params{$params_prefix}[color]" value="{$params.color|default:'#A0D95B'}" style="width:100%;" class="color-picker">
@@ -73,23 +84,23 @@ $div.find('select.context').change(function(e) {
 		return;
 	
 	genericAjaxGet('','c=internal&a=handleSectionAction&section=dashboards&action=getContextFieldsJson&context=' + ctx, function(json) {
-		if('object' == typeof(json) && json.length > 0) {
-			var $select_field_start_date = $select.siblings('select.field_start_date').html('');
-			
-			for(idx in json) {
-				field = json[idx];
-				field_type = (field.type=='E') ? 'date' : ((field.type=='N') ? 'number' : '');
+			if('object' == typeof(json) && json.length > 0) {
+				var $select_field_start_date = $select.siblings('select.field_start_date').html('');
 				
-				$option = $('<option value="'+field.key+'" class="'+field_type+'">'+field.label+'</option>');
-
-				// Field: Start Date
-				if(field_type == 'date')
-					$select_field_start_date.append($option.clone());
-				
-				delete $option;
+				for(idx in json) {
+					field = json[idx];
+					field_type = (field.type=='E') ? 'date' : ((field.type=='N') ? 'number' : '');
+					
+					$option = $('<option value="'+field.key+'" class="'+field_type+'">'+field.label+'</option>');
+	
+					// Field: Start Date
+					if(field_type == 'date')
+						$select_field_start_date.append($option.clone());
+					
+					delete $option;
+				}
 			}
-		}
-	});
+		});
 	
 	genericAjaxGet('','c=internal&a=handleSectionAction&section=dashboards&action=getContextPlaceholdersJson&context=' + ctx, function(json) {
 		if('object' == typeof(json) && json.length > 0) {
@@ -116,6 +127,18 @@ $div.find('select.context').change(function(e) {
 	});
 });
 
+$div.find('input.placeholders-input')
+	.focus(function() {
+		var $this = $(this);
+		var $div = $(this).closest('div.datasource-params');
+		
+		$div.find('div.placeholders-toolbar')
+			.insertAfter($this)
+			.css('margin-left', ($this.position().left-30) + 'px')
+			.fadeIn();
+	})
+	;
+
 $div.find('select.placeholders').change(function(e) {
 	var $select = $(this);
 	var $input = $select.parent().prev('input:text');
@@ -133,7 +156,7 @@ $('#popup{$uniqid}').click(function(e) {
 		return;
 	}
 	
-	$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"workspace_tab{$workspace_tab->id}_worklist"}',null,true,'750');
+	$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"calendar{$calendar->id}_worklist{$series_idx}"}',null,true,'750');
 	$chooser.bind('chooser_save',function(event) {
 		if(null != event.worklist_model) {
 			$('#popup{$uniqid}').parent().find('input:hidden.model').val(event.worklist_model);

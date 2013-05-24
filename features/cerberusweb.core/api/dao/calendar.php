@@ -518,6 +518,8 @@ class Model_Calendar {
 					'label' => $row['name'],
 					'color' => $row['is_available'] ? $color_available : $color_busy,
 					'ts' => strtotime('now', $row['date_start']),
+					'ts_end' => strtotime('now', $row['date_end']),
+					'is_available' => intval($row['is_available']),
 					'link' => sprintf("ctx://%s:%d",
 						CerberusContexts::CONTEXT_CALENDAR_EVENT,
 						$row['id']

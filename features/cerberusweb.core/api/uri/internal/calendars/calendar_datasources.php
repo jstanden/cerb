@@ -88,6 +88,11 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 
 						// [TODO] This should be more efficient
 						CerberusContexts::getContext($context_ext->id, $id, $labels, $values);
+						
+						@$ts_end = strtotime($tpl_builder->build($params['end_date'], $values));
+						
+						if(empty($ts_end))
+							$ts_end = $ts;
 
 						$calendar_events[$epoch][] = array(
 							'context' => $context_ext->id,
@@ -95,6 +100,8 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 							'label' => $tpl_builder->build($template, $values),
 							'color' => $params['color'],
 							'ts' => $ts,
+							'ts_end' => $ts_end,
+							'is_available' => @$params['is_available'] ?: 0,
 							'link' => sprintf("ctx://%s:%d",
 								$context_ext->id,
 								$id
