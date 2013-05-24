@@ -530,6 +530,34 @@ class Model_Calendar {
 		
 		return $calendar_events;
 	}
+	
+	function computeAvailability($date_from, $date_to, $events) {
+		$mins_len = ceil(($date_to - $date_from)/60);
+		
+		$mins_bits = str_pad('', $mins_len, '*', STR_PAD_LEFT);
+		
+		foreach($events as $ts => $schedule) {
+			foreach($schedule as $event) {
+				$start = $event['ts'];
+				$end = @$event['ts_end'] ?: $start;
+				
+				$start_mins = ceil(($start - $date_from)/60);
+				$dur_mins = ceil((($end - $date_from) - ($start - $date_from))/60);
+				
+				if($start_mins > $mins_len || $start_mins + $dur_mins > $mins_len)
+					continue;
+				
+				for($x = 0; $x < $dur_mins; $x++) {
+					// Only set mins as available that aren't marked as busy already.
+					if($mins_bits[$start_mins + $x] != '0')
+						$mins_bits[$start_mins + $x] = $event['is_available'];
+				}
+			}
+		}
+		
+		return new Model_CalendarAvailability($date_from, $date_to, str_replace('*', '0', $mins_bits));
+	}
+	
 	function isReadableByWorker($worker) {
 		if(is_a($worker, 'Model_Worker')) {
 			// This is what we want
@@ -599,6 +627,150 @@ class Model_Calendar {
 		return false;
 	}
 	
+};
+
+class Model_CalendarAvailability {
+	private $_start = null;
+	private $_end = null;
+	private $_mins = array();
+	
+	function __construct($start, $end, $mins) {
+		$this->_start = $start;
+		$this->_end = $end;
+		$this->_mins = $mins;
+	}
+	
+	// [TODO]
+	function isAvailableAtFor() {
+		$ts = strtotime('May 16 2013 5:50pm');
+		$at = ceil(($ts - $availability['start'])/60);
+		$for = 15; // mins
+		
+		//var_dump($ts, $at, $for);
+		//var_dump(substr($availability['mins'], $at, $for));
+	}
+	
+	function scheduleInRelativeTime($starting_at, $for) {
+		$at = ceil(($starting_at - $this->_start)/60);
+		$for = ceil((strtotime($for) - time())/60);
+		$left = $for;
+		$offset = $at;
+		
+		while($left) {
+			$bit = $this->_mins[$offset];
+
+			// If we're starting in busy space, advance to available
+			if(!$bit)
+				$offset = strpos($this->_mins, '1', $offset);
+			
+			if(false === $offset) {
+				return false;
+			}
+
+			$next_block = strpos($this->_mins, '0', $offset);
+			
+			if(false === $next_block) {
+				return false;
+			}
+			
+			// If we have enough time in the current availability block to schedule a time
+			if($next_block - $offset >= $left) {
+				$sched = $this->_start + (($offset + $left) * 60);
+				return $sched;
+				
+			} else {
+				$left -= $next_block - $offset;
+				$offset = $next_block;
+				
+			}
+		}
+	}
+	
+	function getAsCalendarEvents($calendar_properties) {
+		$calendar_events = array();
+		
+		if(isset($calendar_properties['calendar_weeks']))
+		foreach($calendar_properties['calendar_weeks'] as $week_idx => $days) {
+			foreach($days as $ts => $day) {
+				$at = ceil(($ts - $this->_start)/60);
+				$for = ceil((strtotime('11:59:59pm', $ts) - $ts)/60);
+				$mins = substr($this->_mins, $at, $for);
+				$until = strlen($mins);
+				
+				$offset = 0;
+				
+				while($offset < $until) {
+					$bit = $mins[$offset];
+					$next_block = strpos($mins, ($bit ? '0' : '1'), $offset);
+					
+					// We are busy all day
+					if(false == $next_block) {
+						if($offset > 0 && $bit) {
+							$event_start = $ts + ($offset * 60);
+							$event_end = strtotime('11:59:59pm', $event_start);
+
+							// If this event is at least a minute long
+							if($event_end - $event_start > 59) {
+								$calendar_events[$ts][] = array(
+									'label' => sprintf("%s - 11:59pm",
+										date('h:ia', $event_start)
+									),
+									'ts' => $event_start,
+									'ts_end' => $event_end,
+									'is_available' => ($bit) ? 1 : 0,
+									'color' => ($bit) ? '#A0D95B' : '#C8C8C8',
+								);
+							}
+						}
+						$offset = strlen($mins);
+						
+					} else {
+						if($bit) {
+							$event_start = $ts + ($offset * 60);
+							$event_end = $ts + (($next_block-1) * 60);
+							
+							// If this event is at least a minute long
+							if($event_end - $event_start > 59) {
+								$calendar_events[$ts][] = array(
+									'label' => sprintf("%s - %s",
+										date('h:ia', $event_start),
+										date('h:ia', $event_end)
+									),
+									'ts' => $event_start,
+									'ts_end' => $event_end,
+									'is_available' => ($bit) ? 1 : 0,
+									'color' => ($bit) ? '#A0D95B' : '#C8C8C8',
+								);
+							}
+						}
+						$offset = $next_block;
+						
+					}
+				}
+			}
+		}
+		
+		return $calendar_events;
+	}
+	
+	function occludeCalendarEvents(&$calendar_events) {
+		foreach($calendar_events as $ts => $day_schedule) {
+			foreach($day_schedule as $idx => $event) {
+				if(empty($event['is_available']))
+					continue;
+				
+				//var_dump($event['label']);
+				$at = ceil(($event['ts'] - $this->_start)/60);
+				$for = ceil(($event['ts_end'] - $event['ts'])/60);
+				$mins = substr($this->_mins, $at, $for);
+				
+				if(false === strpos($mins, '1'))
+					unset($calendar_events[$ts][$idx]);
+			}
+		}
+	}
+	
+	// [TODO] Find 5 mins between two dates
 };
 
 class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals {

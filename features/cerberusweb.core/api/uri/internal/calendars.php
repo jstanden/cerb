@@ -32,13 +32,17 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		if(!empty($point))
 			$visit->set($point, 'calendar');
 
-		// [TODO] Test owner read/write access
 		if(null == ($calendar = DAO_Calendar::get($calendar_id))) /* @var Model_Calendar $calendar */
 			return;
 		
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year);
 		
 		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
+
+		// Occlusion
+		
+		$availability = $calendar->computeAvailability($calendar_properties['date_range_from'], $calendar_properties['date_range_to'], $calendar_events);
+		$availability->occludeCalendarEvents($calendar_events);
 		
 		// Template scope
 		
@@ -46,6 +50,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		$tpl->assign('calendar_events', $calendar_events);
 		$tpl->assign('calendar_properties', $calendar_properties);
 		
+		/*
 		switch($datasource_extension->id) {
 			case 'calendar.datasource.manual':
 				$context = CerberusContexts::CONTEXT_CALENDAR_EVENT;
@@ -63,10 +68,48 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 			) {
 			$tpl->assign('context', $context);
 		}
+		*/
 		
 		// Template
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab.tpl');
+	}
+	
+	function showCalendarAvailabilityTabAction() {
+		@$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+		
+		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
+		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
+		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
+
+		if(!empty($point))
+			$visit->set($point, 'calendar');
+
+		if(null == ($calendar = DAO_Calendar::get($calendar_id))) /* @var Model_Calendar $calendar */
+			return;
+		
+		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year);
+		
+		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
+		
+		$availability = $calendar->computeAvailability($calendar_properties['date_range_from'], $calendar_properties['date_range_to'], $calendar_events);
+
+		unset($calendar_events);
+		
+		// Convert availability back to abstract calendar events
+
+		$calendar_events = $availability->getAsCalendarEvents($calendar_properties);
+		
+		// Template scope
+		
+		$tpl->assign('calendar', $calendar);
+		$tpl->assign('calendar_events', $calendar_events);
+		$tpl->assign('calendar_properties', $calendar_properties);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab_availability.tpl');
 	}
 	
 	function saveCalendarPeekAction() {
