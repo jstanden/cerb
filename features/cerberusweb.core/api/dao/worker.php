@@ -578,16 +578,51 @@ class DAO_Worker extends Cerb_ORMHelper {
 			case SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY:
 				if(!is_array($param->value) || count($param->value) != 3)
 					break;
+
+				$from = $param->value[0];
+				$to = $param->value[1];
+				$is_available = !empty($param->value[2]);
+				
+				// [TODO] Load all worker availability calendars
+				
+				$workers = DAO_Worker::getAllActive();
+				$results = array();
+				
+				foreach($workers as $worker_id => $worker) {
+					@$availability_calendar_id = DAO_WorkerPref::get($worker->id, 'availability_calendar_id', 0);
 					
-				$args['where_sql'] .= sprintf("AND (SELECT IF(COUNT(id) = SUM(is_available) && COUNT(id) > 0,1,0) AS num_available ".
-					"FROM calendar_event ".
-					"WHERE date_start <= %d AND date_end >= %d ".
-					"AND owner_context = %s AND owner_context_id = w.id) %s 0 ",
-					strtotime($param->value[1]),
-					strtotime($param->value[0]),
-					Cerb_ORMHelper::qstr('cerberusweb.contexts.worker'),
-					(!empty($param->value[2]) ? '!=' : '=')
-				);
+					if(empty($availability_calendar_id)) {
+						if(!$is_available)
+							$results[] = $worker_id;
+						continue;
+					}
+					
+					if(false == ($calendar = DAO_Calendar::get($availability_calendar_id))) {
+						if(!$is_available)
+							$results[] = $worker_id;
+						continue;
+					}
+					
+					@$cal_from = strtotime("today", strtotime($from));
+					@$cal_to = strtotime("tomorrow", strtotime($to));
+					
+					// [TODO] Cache!!
+					$calendar_events = $calendar->getEvents($cal_from, $cal_to);
+					$availability = $calendar->computeAvailability($cal_from, $cal_to, $calendar_events);
+					
+					$pass = $availability->isAvailableBetween(strtotime($from), strtotime($to));
+					
+					if($pass == $is_available) {
+						$results[] = $worker_id;
+						continue;
+					}
+				}
+				
+				if(empty($results))
+					$results[] = '-1';
+				
+				$args['where_sql'] .= sprintf("AND w.id IN (%s) ", implode($results));
+				
 				break;
 		}
 	}
