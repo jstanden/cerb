@@ -108,7 +108,7 @@ $openEvtPopupEvent = function(e) {
 		$popup.one('popup_saved calendar_event_save calendar_event_delete', function(event) {
 			var month = (event.month) ? event.month : '{$calendar_properties.month}';
 			var year = (event.year) ? event.year : '{$calendar_properties.year}';
-			
+
 			genericAjaxGet($('#frm{$guid}').closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month=' + month + '&year=' + year);
 			event.stopPropagation();
 		});

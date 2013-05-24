@@ -36,9 +36,9 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 			}
 		}
 		
-		// Prime the worklist view
+		// Prime the worklist views
 		
-		@$worklist_view_id = sprintf("calendar%d_worklist", $calendar->id);
+		@$worklist_view_id = sprintf("calendar%d_worklist%d", $calendar->id, $series_idx);
 		@$worklist_model = $params['worklist_model'];
 		
 		if(null != ($worklist_view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($worklist_model, $worklist_view_id)))
@@ -86,7 +86,7 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 						$ts = strtotime('now', $row[$params['field_start_date']]);
 						$epoch = strtotime('midnight', $row[$params['field_start_date']]);
 
-						// [TODO] This needs to be more efficient
+						// [TODO] This should be more efficient
 						CerberusContexts::getContext($context_ext->id, $id, $labels, $values);
 
 						$calendar_events[$epoch][] = array(
@@ -109,5 +109,3 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 		return $calendar_events;
 	}
 };
-
-// [TODO] Convert existing workspace tabs to calendars?  Use this datasource? Aggregate?

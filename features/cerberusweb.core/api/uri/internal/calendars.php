@@ -66,7 +66,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		
 		// Template
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/calendar_event/tab.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab.tpl');
 	}
 	
 	function saveCalendarPeekAction() {

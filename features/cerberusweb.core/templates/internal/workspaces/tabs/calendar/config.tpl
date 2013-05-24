@@ -1,7 +1,7 @@
 <fieldset id="tabConfig{$workspace_tab->id}" class="peek">
 <legend>Calendar</legend>
 
-<b>Use</b> 
+<b>Display:</b> 
 <select name="params[calendar_id]">
 	<option value="">-- {'common.choose'|devblocks_translate} --</option>
 	{foreach from=$calendars item=calendar key=calendar_id}
