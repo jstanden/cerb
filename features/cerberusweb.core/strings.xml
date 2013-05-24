@@ -1930,101 +1930,102 @@ For example: *receipt*</seg></tuv>
 			<tuv xml:lang="en_US"><seg>Worker</seg></tuv>
 		</tu>
 		
-	    <!-- My Account Preferences -->
+		<!-- My Account Preferences -->
 		
-	    <tu tuid='preferences.account.settings'>
 		<tu tuid='preferences.account.availability.calendar_id'>
 			<tuv xml:lang="en_US"><seg>Determine my availability using calendar:</seg></tuv>
 		</tu>
+		<tu tuid='preferences.account.settings'>
 			<tuv xml:lang="en_US"><seg>Account Settings</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.password.change'>
+		</tu>
+		<tu tuid='preferences.account.password.change'>
 			<tuv xml:lang="en_US"><seg>Change Password: </seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.password.new'>
+		</tu>
+		<tu tuid='preferences.account.password.new'>
 			<tuv xml:lang="en_US"><seg>New Password: </seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.password.verify'>
-	    	<tuv xml:lang="en_US"><seg>Verify Password: </seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.current'>
+		</tu>
+		<tu tuid='preferences.account.password.verify'>
+			<tuv xml:lang="en_US"><seg>Verify Password: </seg></tuv>
+		</tu>
+		<tu tuid='preferences.account.current'>
 			<tuv xml:lang="en_US"><seg>current:</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.timezone'>
+		</tu>
+		<tu tuid='preferences.account.timezone'>
 			<tuv xml:lang="en_US"><seg>Timezone:</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.language'>
+		</tu>
+		<tu tuid='preferences.account.language'>
 			<tuv xml:lang="en_US"><seg>Language:</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.email'>
+		</tu>
+		<tu tuid='preferences.account.email'>
 			<tuv xml:lang="en_US"><seg>Email Addresses</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.email.associated'>
+		</tu>
+		<tu tuid='preferences.account.email.associated'>
 			<tuv xml:lang="en_US"><seg>These addresses will be associated with your account.</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.email.address'>
+		</tu>
+		<tu tuid='preferences.account.email.address'>
 			<tuv xml:lang="en_US"><seg>Address</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.email.address.confirmed'>
+		</tu>
+		<tu tuid='preferences.account.email.address.confirmed'>
 			<tuv xml:lang="en_US"><seg>Confirmed</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.email.address.resend.confirm'>
+		</tu>
+		<tu tuid='preferences.account.email.address.resend.confirm'>
 			<tuv xml:lang="en_US"><seg>resend confirmation</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.email.address.add'>
+		</tu>
+		<tu tuid='preferences.account.email.address.add'>
 			<tuv xml:lang="en_US"><seg>Add email address:</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.preferences'>
+		</tu>
+		<tu tuid='preferences.account.preferences'>
 			<tuv xml:lang="en_US"><seg>Preferences</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.assist'>
+		</tu>
+		<tu tuid='preferences.account.assist'>
 			<tuv xml:lang="en_US"><seg>Assist Mode:</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.keyboard.shortcuts'>
+		</tu>
+		<tu tuid='preferences.account.keyboard.shortcuts'>
 			<tuv xml:lang="en_US"><seg>Keyboard Shortcuts:</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.mail'>
+		</tu>
+		<tu tuid='preferences.account.mail'>
 			<tuv xml:lang="en_US"><seg>Mail:</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.mail.comments'>
+		</tu>
+		<tu tuid='preferences.account.mail.comments'>
 			<tuv xml:lang="en_US"><seg>Show comments in the conversation</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.mail.readall'>
+		</tu>
+		<tu tuid='preferences.account.mail.readall'>
 			<tuv xml:lang="en_US"><seg>Always use 'read all' mode (expand messages and sort chronologically)</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.mail.reply_textbox_size'>
+		</tu>
+		<tu tuid='preferences.account.mail.reply_textbox_size'>
 			<tuv xml:lang="en_US"><seg>While replying:</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.mail.reply_textbox_size.inelastic'>
+		</tu>
+		<tu tuid='preferences.account.mail.reply_textbox_size.inelastic'>
 			<tuv xml:lang="en_US"><seg>Don't automatically grow the text box as I type</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.mail.reply_textbox_size.pixels'>
+		</tu>
+		<tu tuid='preferences.account.mail.reply_textbox_size.pixels'>
 			<tuv xml:lang="en_US"><seg>Set the initial text box height to </seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.mail.reply_button'>
+		</tu>
+		<tu tuid='preferences.account.mail.reply_button'>
 			<tuv xml:lang="en_US"><seg>When I click the reply button:</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.mail.signature'>
+		</tu>
+		<tu tuid='preferences.account.mail.signature'>
 			<tuv xml:lang="en_US"><seg>Insert my signature:</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.mail.signature.above'>
+		</tu>
+		<tu tuid='preferences.account.mail.signature.above'>
 			<tuv xml:lang="en_US"><seg>Above the quoted message</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.mail.signature.below'>
+		</tu>
+		<tu tuid='preferences.account.mail.signature.below'>
 			<tuv xml:lang="en_US"><seg>Below the quoted message</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.mail.signature.none'>
+		</tu>
+		<tu tuid='preferences.account.mail.signature.none'>
 			<tuv xml:lang="en_US"><seg>Don't automatically insert my signature</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.mail.status.compose'>
+		</tu>
+		<tu tuid='preferences.account.mail.status.compose'>
 			<tuv xml:lang="en_US"><seg>When composing a new outgoing message, default the status to:</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.mail.status.reply'>
+		</tu>
+		<tu tuid='preferences.account.mail.status.reply'>
 			<tuv xml:lang="en_US"><seg>When replying to mail, default the status to:</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.mail.no_discard_warning'>
+		</tu>
+		<tu tuid='preferences.account.mail.no_discard_warning'>
 			<tuv xml:lang="en_US"><seg>Don't warn me about losing unsaved changes if I click links while composing mail</seg></tuv>
-	    </tu>
+		</tu>
+		
 
 	</body>
 </tmx>
