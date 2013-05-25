@@ -20,6 +20,8 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 	function render() {}
 	
 	function showCalendarTabAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 		
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
@@ -50,25 +52,12 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		$tpl->assign('calendar_events', $calendar_events);
 		$tpl->assign('calendar_properties', $calendar_properties);
 		
-		/*
-		switch($datasource_extension->id) {
-			case 'calendar.datasource.manual':
-				$context = CerberusContexts::CONTEXT_CALENDAR_EVENT;
-				break;
-				
-			case 'calendar.datasource.worklist':
-				@$context = $calendar->params['worklist_model']['context'];
-				break;
+		// Contexts (for creating events)
+
+		if($calendar->isWriteableByWorker($active_worker)) {
+			$create_contexts = $calendar->getCreateContexts();
+			$tpl->assign('create_contexts', $create_contexts);
 		}
-		
-		if(
-			!empty($context)
-			&& false !== ($context_ext = Extension_DevblocksContext::get($context))
-			&& isset($context_ext->manifest->params['options'][0]['create'])
-			) {
-			$tpl->assign('context', $context);
-		}
-		*/
 		
 		// Template
 		
@@ -82,6 +71,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
 		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
 		
+		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 
@@ -104,6 +94,13 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 			
 			$tpl->assign('calendar', $calendar);
 			$tpl->assign('calendar_events', $calendar_events);
+			
+			// Contexts (for creating events)
+
+			if($calendar->isWriteableByWorker($active_worker)) {
+				$create_contexts = $calendar->getCreateContexts();
+				$tpl->assign('create_contexts', $create_contexts);
+			}
 		}
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab_availability.tpl');

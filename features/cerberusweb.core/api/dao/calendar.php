@@ -455,6 +455,28 @@ class Model_Calendar {
 	public $params;
 	public $updated_at;
 	
+	function getCreateContexts() {
+		$context_extensions = Extension_DevblocksContext::getAll(false, array('create'));
+		$contexts = array();
+			
+		if(!isset($this->params['manual_disabled']) || empty($this->params['manual_disabled']))
+			$contexts[CerberusContexts::CONTEXT_CALENDAR_EVENT] = $context_extensions[CerberusContexts::CONTEXT_CALENDAR_EVENT];
+		
+		if(isset($this->params['series']))
+		foreach($this->params['series'] as $series) {
+			if(isset($series['datasource']))
+			switch($series['datasource']) {
+				case 'calendar.datasource.worklist':
+					if(null != (@$worklist_context = $series['worklist_model']['context']))
+						if(isset($context_extensions[$worklist_context]))
+							$contexts[$worklist_context] = $context_extensions[$worklist_context];
+					break;
+			}
+		}
+		
+		return $contexts;
+	}
+	
 	function getEvents($date_from, $date_to) {
 		if(isset($this->params['manual_disabled']) && !empty($this->params['manual_disabled'])) {
 			$calendar_events = array();

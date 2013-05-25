@@ -35,6 +35,8 @@ class WorkspaceTab_Calendar extends Extension_WorkspaceTab {
 	}
 	
 	private function _showCalendarTab(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
 		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
 		
@@ -50,8 +52,15 @@ class WorkspaceTab_Calendar extends Extension_WorkspaceTab {
 			// Template scope
 			$tpl->assign('calendar', $calendar);
 			$tpl->assign('calendar_events', $calendar_events);
+			
+			// Contexts (for creating events)
+	
+			if($calendar->isWriteableByWorker($active_worker)) {
+				$create_contexts = $calendar->getCreateContexts();
+				$tpl->assign('create_contexts', $create_contexts);
+			}
 		}
-
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/tabs/calendar/tab.tpl');
 	}
 }

@@ -562,6 +562,7 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget implements ICerbWo
 
 class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
 	function render(Model_WorkspaceWidget $widget) {
+		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		@$month = DevblocksPlatform::importGPC($_REQUEST['month'], 'integer', null);
@@ -578,6 +579,13 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 		
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year);
 		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
+		
+		// Contexts (for creating events)
+
+		if($calendar->isWriteableByWorker($active_worker)) {
+			$create_contexts = $calendar->getCreateContexts();
+			$tpl->assign('create_contexts', $create_contexts);
+		}
 		
 		// Template scope
 		

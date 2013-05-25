@@ -16,9 +16,23 @@
 	<div style="float:left;">
 		<span style="font-weight:bold;font-size:150%;">{$calendar_properties.calendar_date|devblocks_date:'F Y'}</span>
 		<span style="margin-left:10px;">
-			{if empty($calendar->params.manual_disabled)}
-				<button type="button" class="event-create"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+			{if !empty($create_contexts)}
+			<div style="display:inline-block;margin-left:10px;">
+				{if count($create_contexts) > 1}
+				<button type="button" class="reply split-left" onclick="$(this).next('button.split-right').click();"><span class="cerb-sprite2 sprite-plus-circle"></span> </button><!--
+				--><button type="button" class="split-right" onclick="$ul=$(this).next('ul');$ul.toggle();"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
+				<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
+					{foreach from=$create_contexts item=create_context}
+					<li><a href="javascript:;" class="create-event" context="{$create_context->id}">{$create_context->name}</a></li>
+					{/foreach}
+				</ul>
+				{else}
+				{$create_context = reset($create_contexts)}
+				<button type="button" class="create-event" context="{$create_context->id}"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+				{/if}
+			</div>
 			{/if}
+		
 			<button type="button" class="calendar-edit"><span class="cerb-sprite2 sprite-gear"></span></button>
 		</span>
 	</div>
@@ -91,9 +105,11 @@ $openEvtPopupEvent = function(e) {
 	var $this = $(this);
 	var link = '';
 	
-	if($this.is('button')) {
-		link = 'ctx://{$context|default:"cerberusweb.contexts.calendar_event"}:0';
-	
+	if($this.is('.create-event')) {
+		$this.closest('div').find('ul.cerb-popupmenu').hide();
+		context = $this.attr('context');
+		link = 'ctx://' + context + ':0';
+		
 	} else if($this.is('div.event')) {
 		link = $this.attr('link');
 	}
@@ -118,8 +134,13 @@ $openEvtPopupEvent = function(e) {
 	}
 }
 
-{if empty($calendar->params.manual_disabled)}
-$frm.find('button.event-create').click($openEvtPopupEvent);
+{if !empty($create_contexts)}
+$frm.find('ul.cerb-popupmenu > li').click(function(e) {
+	e.stopPropagation();
+	$(this).find('a.create-event').click();
+});
+
+$frm.find('button.create-event, a.create-event').click($openEvtPopupEvent);
 {/if}
 
 $tab.find('TABLE.calendar TR.week div.day_contents').find('div.event').click($openEvtPopupEvent);
