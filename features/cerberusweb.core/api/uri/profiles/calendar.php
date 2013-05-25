@@ -30,7 +30,7 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 
 		@$id = intval($id);
 		
-		if(null == ($calendar = DAO_Calendar::get($id))) {
+		if(null == ($calendar = DAO_Calendar::get($id))) { /* @var $calenar Model_Calendar */
 			return;
 		}
 		$tpl->assign('calendar', $calendar);
@@ -53,6 +53,15 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 			'label' => ucfirst($translate->_('common.name')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $calendar->name,
+		);
+		
+		$context_ext = Extension_DevblocksContext::get($calendar->owner_context);
+		$context_meta = $context_ext->getMeta($calendar->owner_context_id);
+		
+		$properties['owner'] = array(
+			'label' => ucfirst($translate->_('common.owner')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => sprintf("%s (%s)", $context_meta['name'], $context_ext->manifest->name)
 		);
 			
 		$properties['updated'] = array(
