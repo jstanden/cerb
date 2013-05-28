@@ -219,8 +219,8 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'schedule_behavior' => array('label' => 'Schedule behavior'),
 				'send_email' => array('label' => 'Send email'),
-				'set_due_date' => array('label' => 'Set due date'),
-				'set_status' => array('label' => 'Set status'),
+				'set_due_date' => array('label' => 'Set task due date'),
+				'set_status' => array('label' => 'Set task status'),
 				'set_links' => array('label' => 'Set links'),
 				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
