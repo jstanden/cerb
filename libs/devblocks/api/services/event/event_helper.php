@@ -201,8 +201,9 @@ class DevblocksEventHelper {
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 				$value = $tpl_builder->build($params['value'], $dict);
 				
-				$value = strtotime($value);
-
+				if(!is_numeric($value))
+					$value = intval(@strtotime($value));
+				
 				if(!empty($value)) {
 					$out .= sprintf("%s (%s)\n",
 						date('D M d Y h:ia', $value),
@@ -2020,8 +2021,14 @@ class DevblocksEventHelper {
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
 				
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
 		$title = $tpl_builder->build($params['title'], $dict);
-		$due_date = intval(@strtotime($tpl_builder->build($params['due_date'], $dict)));
+
+		$due_date = $tpl_builder->build($params['due_date'], $dict);
+		
+		if(!is_numeric($due_date))
+			$due_date = intval(@strtotime($due_date));
+		
 		$comment = $tpl_builder->build($params['comment'], $dict);
 
 		$out = sprintf(">>> Creating task\n".
@@ -2126,7 +2133,12 @@ class DevblocksEventHelper {
 				
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$title = $tpl_builder->build($params['title'], $dict);
-		$due_date = intval(@strtotime($tpl_builder->build($params['due_date'], $dict)));
+		
+		$due_date = $tpl_builder->build($params['due_date'], $dict);
+		
+		if(!is_numeric($due_date))
+			$due_date = intval(@strtotime($due_date));
+		
 		$comment = $tpl_builder->build($params['comment'], $dict);
 
 		// On
