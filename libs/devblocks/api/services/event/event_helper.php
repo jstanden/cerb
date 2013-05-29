@@ -2053,6 +2053,8 @@ class DevblocksEventHelper {
 			if(is_array($val))
 				$val = implode('; ', $val);
 			
+			$val = $tpl_builder->build($val, $dict);
+			
 			$out .= $custom_fields[$cf_id]->name . ': ' . $val . "\n";
 		}
 		
@@ -2265,6 +2267,8 @@ class DevblocksEventHelper {
 			
 			if(is_array($val))
 				$val = implode('; ', $val);
+			
+			$val = $tpl_builder->build($val, $dict);
 			
 			$out .= $custom_fields[$cf_id]->name . ': ' . $val . "\n";
 		}
