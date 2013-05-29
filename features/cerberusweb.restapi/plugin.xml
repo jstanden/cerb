@@ -98,6 +98,18 @@
 			</params>
 		</extension>		
 		
+		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.calendars</id>
+			<name>Calendars</name>
+			<class>
+				<file>api/rest/calendars.php</file>
+				<name>ChRest_Calendars</name>
+			</class>
+			<params>
+				<param key="uri" value="calendars" />
+			</params>
+		</extension>		
+		
         <extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.comments</id>
 			<name>Comments</name>

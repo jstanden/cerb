@@ -123,6 +123,19 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		return null;
 	}
 	
+	static function getReadableByWorker($worker) {
+		$calendars = DAO_Calendar::getAll();
+		
+		foreach($calendars as $calendar_id => $calendar) { /* @var $calendar Model_Calendar */
+			if(!$calendar->isReadableByWorker($worker)) {
+				unset($calendars[$calendar_id]);
+				continue;
+			}
+		}
+		
+		return $calendars;
+	}
+	
 	static function getWriteableByWorker($worker) {
 		$calendars = DAO_Calendar::getAll();
 		
@@ -1240,7 +1253,6 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		$token_labels = array(
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
-			'params_json' => $prefix.$translate->_('dao.calendar.params_json'),
 			'updated_at|date' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -1259,12 +1271,15 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			$token_values['_label'] = $calendar->name;
 			$token_values['id'] = $calendar->id;
 			$token_values['name'] = $calendar->name;
-			$token_values['params_json'] = $calendar->params_json;
 			$token_values['updated_at'] = $calendar->updated_at;
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=calendar&id=%d-%s",$calendar->id, DevblocksPlatform::strToPermalink($calendar->name)), true);
+			
+			// Owner
+			$token_values['owner__context'] = $calendar->owner_context;
+			$token_values['owner_id'] = $calendar->owner_context_id;
 		}
 		
 		return true;
@@ -1291,6 +1306,95 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 					$token => CerberusContexts::getWatchers($context, $context_id, true),
 				);
 				$values = array_merge($values, $watchers);
+				break;
+			
+			case 'calendar_scope':
+				// This can be preset in scope to select a specific month/year
+				$calendar_scope = DevblocksCalendarHelper::getCalendar(null, null);
+				unset($calendar_scope['calendar_weeks']);
+				$values['calendar_scope'] = $calendar_scope;
+				break;
+				
+			case 'weeks':
+				if(!isset($dictionary['calendar_scope'])) {
+					$values = self::lazyLoadContextValues('calendar_scope', $dictionary);
+				}
+				
+				@$month = $dictionary['calendar_scope']['month'];
+				@$year = $dictionary['calendar_scope']['year'];
+				
+				$calendar_scope = DevblocksCalendarHelper::getCalendar($month, $year);
+				
+				$values['weeks'] = $calendar_scope['calendar_weeks'];
+				
+				break;
+			
+			case 'events':
+				if(!isset($dictionary['calendar_scope'])) {
+					$values = self::lazyLoadContextValues('calendar_scope', $dictionary);
+				}
+				
+				@$calendar_scope = $dictionary['calendar_scope'];
+				@$month = $calendar_scope['month'];
+				@$year = $calendar_scope['year'];
+				
+				$calendar = DAO_Calendar::get($context_id);
+				
+				$calendar_events = $calendar->getEvents($calendar_scope['date_range_from'], $calendar_scope['date_range_to']);
+				$events = array();
+				
+				foreach($calendar_events as $day_ts => $day_events) {
+					foreach($day_events as $event) {
+						if(isset($event['context'])) {
+							$event['event__context'] = $event['context'];
+							$event['event_id'] = $event['context_id'];
+						}
+						unset($event['context']);
+						unset($event['context_id']);
+						unset($event['link']);
+						
+						$events[] = $event;
+					}
+				}
+
+				$values['events'] = $events;
+				
+				break;
+				
+			case 'weeks_events':
+				if(!isset($dictionary['weeks'])) {
+					$values = self::lazyLoadContextValues('weeks', $dictionary);
+				}
+				
+				@$calendar_scope = $dictionary['calendar_scope'];
+				
+				@$month = $calendar_scope['month'];
+				@$year = $calendar_scope['year'];
+				
+				$calendar = DAO_Calendar::get($context_id);
+				
+				$calendar_events = $calendar->getEvents($calendar_scope['date_range_from'], $calendar_scope['date_range_to']);
+				
+				foreach($values['weeks'] as $week_idx => $week) {
+					foreach($week as $day_ts => $day) {
+						if(isset($calendar_events[$day_ts])) {
+							$events = $calendar_events[$day_ts];
+							
+							array_walk($events, function(&$event) {
+								if(isset($event['context'])) {
+									$event['event__context'] = $event['context'];
+									$event['event_id'] = $event['context_id'];
+								}
+								unset($event['context']);
+								unset($event['context_id']);
+								unset($event['link']);
+							});
+							
+							$values['weeks'][$week_idx][$day_ts]['events'] = $events;
+						}
+					}
+				}
+				
 				break;
 				
 			default:
