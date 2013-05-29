@@ -1317,15 +1317,6 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Calendar';
-		$view->view_columns = array(
-			SearchFields_Calendar::NAME,
-			SearchFields_Calendar::UPDATED_AT,
-		);
-		/*
-		$view->addParams(array(
-			SearchFields_Calendar::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_Calendar::UPDATED_AT,'=',0),
-		), true);
-		*/
 		$view->renderSortBy = SearchFields_Calendar::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;

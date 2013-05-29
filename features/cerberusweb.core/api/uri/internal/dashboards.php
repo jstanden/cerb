@@ -1593,7 +1593,7 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 	}
 };
 
-class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
+class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
 	private function _getView(Model_WorkspaceWidget $widget) {
 		$view_id = sprintf("widget%d_worklist", $widget->id);
 		
@@ -1658,6 +1658,147 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
+	}
+	
+	function exportData(Model_WorkspaceWidget $widget, $format=null) {
+		if(false == ($view = $this->_getView($widget)))
+			return false;
+		
+		switch(strtolower($format)) {
+			case 'csv':
+				return $this->_exportDataAsCSV($widget, $view);
+				break;
+				
+			case 'json':
+			default:
+				return $this->_exportDataAsJson($widget, $view);
+				break;
+		}
+	}
+	
+	private function _exportDataAsJson(Model_WorkspaceWidget $widget, $view) {
+		$results = array(
+			'widget' => array(
+				'label' => $widget->label,
+				'type' => 'worklist',
+				'version' => 'Cerb ' . APP_VERSION,
+				'page' => $view->renderPage,
+				'total' => 0,
+				'results' => array(),
+			),
+		);
+
+		$fields = $view->getFields();
+		$columns_all = $view->getColumnsAvailable();
+		
+		$view->renderPage = 0;
+		$view->renderLimit = 100;
+		$view->renderTotal = false;
+		
+		do {
+			list($data, $count) = $view->getData();
+			
+			if(!empty($data)) {
+				foreach($data as $idx => $row) {
+					$result = array();
+					
+					if(is_array($row))
+					foreach($row as $k => $v) {
+						if(isset($fields[$k]) && !empty($fields[$k]->db_label))
+							if(!isset($columns_all[$k]))
+								continue;
+							
+							$result[$k] = array(
+								'label' => $fields[$k]->db_label,
+								'type' => $fields[$k]->type,
+								'value' => $v,
+							);
+					}
+					
+					if(!empty($result))
+						$results['widget']['results'][] = $result;
+				}
+				
+			}
+			
+			$view->renderPage++;
+			
+		} while(count($data));
+		
+		$results['widget']['total'] = count($results['widget']['results']);
+		
+		return DevblocksPlatform::strFormatJson(json_encode($results));
+	}
+	
+	private function _exportDataAsCSV(Model_WorkspaceWidget $widget, $view) {
+		$fields = $view->getFields();
+		$columns_all = $view->getColumnsAvailable();
+		
+		$view->renderPage = 0;
+		$view->renderLimit = 100;
+		$view->renderTotal = false;
+		
+		$is_first = true;
+		
+		$fp = fopen("php://temp", 'r+');
+		
+		do {
+			list($data, $count) = $view->getData();
+			
+			if(!empty($data)) {
+				// CSV headings
+				if($is_first) {
+					$row = current($data);
+					$result = array();
+					
+					if(is_array($row))
+					foreach($row as $k => $v) {
+						if(!isset($columns_all[$k]))
+							continue;
+					
+						if(isset($fields[$k]) && !empty($fields[$k]->db_label))
+							$result[] = $fields[$k]->db_label;
+					}
+					
+					if(!empty($result))
+						fputcsv($fp, $result);
+					
+					$is_first = false;
+				}
+				
+				foreach($data as $idx => $row) {
+					$result = array();
+					
+					if(is_array($row))
+					foreach($row as $k => $v) {
+						if(!isset($columns_all[$k]))
+							continue;
+						
+						if(isset($fields[$k]) && !empty($fields[$k]->db_label))
+							$result[] = $v;
+					}
+					
+					if(!empty($result))
+						fputcsv($fp, $result);
+				}
+				
+			}
+			
+			$view->renderPage++;
+			
+		} while(count($data));
+		
+		rewind($fp);
+
+		$output = "";
+		
+		while(!feof($fp)) {
+			$output .= fgets($fp);
+		}
+		
+		fclose($fp);
+		
+		return $output;
 	}
 };
 

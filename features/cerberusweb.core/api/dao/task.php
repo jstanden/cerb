@@ -274,19 +274,19 @@ class DAO_Task extends Cerb_ORMHelper {
 		
 		$select_sql = sprintf("SELECT ".
 			"t.id as %s, ".
+			"t.title as %s, ".
 			"t.created_at as %s, ".
 			"t.updated_date as %s, ".
 			"t.due_date as %s, ".
 			"t.is_completed as %s, ".
-			"t.completed_date as %s, ".
-			"t.title as %s ",
+			"t.completed_date as %s ",
 				SearchFields_Task::ID,
+				SearchFields_Task::TITLE,
 				SearchFields_Task::CREATED_AT,
 				SearchFields_Task::UPDATED_DATE,
 				SearchFields_Task::DUE_DATE,
 				SearchFields_Task::IS_COMPLETED,
-				SearchFields_Task::COMPLETED_DATE,
-				SearchFields_Task::TITLE
+				SearchFields_Task::COMPLETED_DATE
 		);
 
 		$join_sql =
