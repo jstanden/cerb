@@ -1,3 +1,5 @@
+{if empty($calendars)}{$calendars = DAO_Calendar::getAll()}{/if}
+
 <div class="set-date-mode">
 	<b>Using:</b> 
 	<div style="margin:0px 0px 5px 5px;">

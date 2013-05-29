@@ -231,6 +231,9 @@
 		<tu tuid='common.discard'>
 			<tuv xml:lang="en_US"><seg>discard</seg></tuv>
 		</tu>
+		<tu tuid='common.due'>
+			<tuv xml:lang="en_US"><seg>due</seg></tuv>
+		</tu>
 		<tu tuid='common.email'>
 			<tuv xml:lang="en_US"><seg>Email</seg></tuv>
 		</tu>

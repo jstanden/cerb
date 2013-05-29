@@ -867,8 +867,15 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				break;
 			
 			case 'set_reopen_date':
+				DevblocksEventHelper::runActionSetDate('ticket_reopen_date', $params, $dict);
+				$out = sprintf(">>> Setting ticket reopen date to:\n".
+					"%s (%d)\n",
+					date('D M d Y h:ia', $dict->ticket_reopen_date),
+					$dict->ticket_reopen_date
+				);
+				return $out;
 				break;
-			
+				
 			case 'send_email':
 				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
@@ -1011,13 +1018,11 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				break;
 
 			case 'set_reopen_date':
-				@$reopen_date = intval(strtotime($params['value']));
-			
+				DevblocksEventHelper::runActionSetDate('ticket_reopen_date', $params, $dict);
+				
 				DAO_Ticket::update($ticket_id, array(
-					DAO_Ticket::REOPEN_AT => $reopen_date,
+					DAO_Ticket::REOPEN_AT => intval($dict->ticket_reopen_date),
 				));
-			
-				$dict->ticket_reopen_date = $reopen_date;
 				break;
 			
 			case 'set_spam_training':
