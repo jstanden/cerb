@@ -462,11 +462,11 @@ while($row = mysql_fetch_assoc($rs)) {
 	if(!isset($params['worklist_model']) || isset($params['calendar_id']))
 		continue;
 	
-	$params['manual_disabled'] = '1';
-	$params['sync_enabled'] = '1';
 	$params['datasource'] = 'calendar.datasource.worklist';
 	
 	$params = array(
+		'manual_disabled' => 1,
+		'sync_enabled' => 1,
 		'series' => array(
 			$params,
 		)
