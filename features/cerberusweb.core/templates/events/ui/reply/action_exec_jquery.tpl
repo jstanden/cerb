@@ -71,12 +71,6 @@ if($btn_watcher.hasClass('green'))
 	$btn_watcher.click();
 */
 
-/*
-var $fieldset_cfields = $form.actions.find('fieldset:nth(2)');
-// Hide the custom fields section
-$fieldset_cfields.hide();
-*/
-
 {/if}</textarea>
 </div>
 
