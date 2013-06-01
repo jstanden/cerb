@@ -638,6 +638,7 @@ class CerberusContexts {
 	const CONTEXT_BUCKET = 'cerberusweb.contexts.bucket';
 	const CONTEXT_CALENDAR = 'cerberusweb.contexts.calendar';
 	const CONTEXT_CALENDAR_EVENT = 'cerberusweb.contexts.calendar_event';
+	const CONTEXT_CALENDAR_EVENT_RECURRING = 'cerberusweb.contexts.calendar_event.recurring';
 	const CONTEXT_CALL = 'cerberusweb.contexts.call';
 	const CONTEXT_COMMENT = 'cerberusweb.contexts.comment';
 	const CONTEXT_CONTACT_PERSON = 'cerberusweb.contexts.contact_person';

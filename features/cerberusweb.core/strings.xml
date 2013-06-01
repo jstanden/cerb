@@ -621,6 +621,30 @@
 			<tuv xml:lang="en_US"><seg>End Date</seg></tuv>
 		</tu>
 		
+		<!-- CalendarRecurringProfile -->
+		
+		<tu tuid='dao.calendar_recurring_profile.event_name'>
+			<tuv xml:lang="en_US"><seg>Event Name</seg></tuv>
+		</tu>
+		<tu tuid='dao.calendar_recurring_profile.is_available'>
+			<tuv xml:lang="en_US"><seg>Is Available</seg></tuv>
+		</tu>
+		<tu tuid='dao.calendar_recurring_profile.tz'>
+			<tuv xml:lang="en_US"><seg>Timezone</seg></tuv>
+		</tu>
+		<tu tuid='dao.calendar_recurring_profile.event_start'>
+			<tuv xml:lang="en_US"><seg>Event Start</seg></tuv>
+		</tu>
+		<tu tuid='dao.calendar_recurring_profile.event_end'>
+			<tuv xml:lang="en_US"><seg>Event End</seg></tuv>
+		</tu>
+		<tu tuid='dao.calendar_recurring_profile.recur_end'>
+			<tuv xml:lang="en_US"><seg>Recur End</seg></tuv>
+		</tu>
+		<tu tuid='dao.calendar_recurring_profile.patterns'>
+			<tuv xml:lang="en_US"><seg>Patterns</seg></tuv>
+		</tu>
+		
 		<!-- CerbPlugin -->
 		
 		<tu tuid='dao.cerb_plugin.description'>

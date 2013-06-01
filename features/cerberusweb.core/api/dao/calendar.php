@@ -472,8 +472,10 @@ class Model_Calendar {
 		$context_extensions = Extension_DevblocksContext::getAll(false, array('create'));
 		$contexts = array();
 			
-		if(!isset($this->params['manual_disabled']) || empty($this->params['manual_disabled']))
+		if(!isset($this->params['manual_disabled']) || empty($this->params['manual_disabled'])) {
 			$contexts[CerberusContexts::CONTEXT_CALENDAR_EVENT] = $context_extensions[CerberusContexts::CONTEXT_CALENDAR_EVENT];
+			$contexts[CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING] = $context_extensions[CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING];
+		}
 		
 		if(isset($this->params['series']))
 		foreach($this->params['series'] as $series) {
