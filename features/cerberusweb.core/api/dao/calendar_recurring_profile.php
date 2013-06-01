@@ -324,97 +324,66 @@ class Model_CalendarRecurringProfile {
 	public $recur_end;
 	public $patterns;
 	
-	function createRecurringEvents($epoch=null) {
-		$params = $this->params;
-
-		$until = strtotime("December 31 +1 month 23:59");
+	function generateRecurringEvents($date_from, $date_to) {
+		$calendar_events = array();
 		
-		$every_n = max(intval(@$params['options']['every_n']),1);
-		$after_n = null;
-		$end_params = isset($params['end']['options']) ? $params['end']['options'] : array();
+		// Termination date for recurring event
+		if($this->recur_end && $this->recur_end < $date_from)
+			return array();
 		
-		switch(@$params['end']['term']) {
-			case 'after_n':
-				if(isset($end_params['iterations'])) {
-					$after_n = $end_params['iterations'];
-				}
-				break;
-				
-			case 'date':
-				if(isset($end_params['on'])) {
-					$until_date = $end_params['on'];
-					$until = min($until_date, $until);
-				}
-				break;
-		}
+		$day = strtotime('today', $date_from);
+		$end_day = strtotime('today', $date_to);
 		
-		$on_dates = array();
-		$date_start = strtotime("today", $this->date_start);
-		
-		switch(@$params['freq']) {
-			case 'daily':
-				$on_dates = DevblocksCalendarHelper::getDailyDates($date_start, $every_n, $until, $after_n);
-				break;
-			case 'weekly':
-				$on_dates = DevblocksCalendarHelper::getWeeklyDates($date_start, $params['options']['day'], $until, $after_n);
-				break;
-			case 'monthly':
-				$on_dates = DevblocksCalendarHelper::getMonthlyDates($date_start, $params['options']['day'], $until, $after_n);
-				break;
-			case 'yearly':
-				$on_dates = DevblocksCalendarHelper::getYearlyDates($date_start, $params['options']['month'], $until, $after_n);
-				break;
-		}
-
-		$time_start = date('H:i', $this->date_start);
-		$time_end = date('H:i', $this->date_end);
-		
-		$event_start = new DateTime();
-		$event_start->setTimestamp($this->date_start);
-		
-		$event_end = new DateTime();
-		$event_end->setTimestamp($this->date_end);
-		
-		$event_interval = $event_end->diff($event_start);
-		
-		if(!empty($on_dates)) {
-			if(is_array($on_dates))
-			foreach($on_dates as $k => $on_date) {
-				$date_start = strtotime($time_start, $on_date);
-				
-				if($date_start < $epoch) {
-					unset($on_dates[$k]);
+		while($day <= $date_to) {
+			$passed = false;
+			
+			$patterns = DevblocksPlatform::parseCrlfString($this->patterns);
+			
+			foreach($patterns as $pattern) {
+				if($passed)
 					continue;
+				
+				if(strlen($pattern) <= 4 && in_array(substr($pattern,-2),array('st','nd','rd','th')))
+					$pattern = substr($pattern,0,-2);
+				
+				if(is_numeric($pattern)) {
+					$passed = ($day == mktime(0,0,0,date('n', $day),$pattern,date('Y', $day)));
+					
+				} else {
+					@$pattern_day = strtotime('today', strtotime($pattern, $day));
+					$passed = ($pattern_day == $day);
 				}
 				
-				$date_end = strtotime($time_end, strtotime($event_interval->format('%R%a days'), $date_start));
-				
-				if($date_end < $date_start)
-					$date_end = strtotime("+1 day", $date_end);
-				
-				$fields = array(
-					DAO_CalendarEvent::NAME => $this->event_name,
-					DAO_CalendarEvent::RECURRING_ID => $this->id,
-					DAO_CalendarEvent::DATE_START => $date_start,
-					DAO_CalendarEvent::DATE_END => $date_end,
-					DAO_CalendarEvent::IS_AVAILABLE => $this->is_available,
-					DAO_CalendarEvent::CALENDAR_ID => $this->calendar_id,
-				);
-				DAO_CalendarEvent::create($fields);
+				if($passed) {
+					$timezone = new DateTimeZone($this->tz);
+					$datetime = new DateTime(date('Y-m-d', $day), $timezone);
+					
+					$datetime->modify($this->event_start);
+					$event_start_local = $datetime->getTimestamp();
+					
+					$datetime->modify($this->event_end);
+					$event_end_local = $datetime->getTimestamp();
+					
+					$calendar_events[] = array(
+						'context' => CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING,
+						'context' => null,
+						'context_id' => $this->id,
+						'label' => $this->event_name,
+						//'color' => false ? $color_available : $color_busy,
+						'ts' => $event_start_local,
+						'ts_end' => $event_end_local,
+						'is_available' => $this->is_available,
+						'link' => sprintf("ctx://%s:%d",
+							CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING,
+							$this->id
+						),
+					);
+				}
 			}
-
-			// Update the recurring profile with the last sched date
 			
-			if(isset($date_start) && isset($date_end)) {
-				DAO_CalendarRecurringProfile::update($this->id, array(
-					DAO_CalendarRecurringProfile::DATE_START => $date_start,
-					DAO_CalendarRecurringProfile::DATE_END => $date_end,
-				));
-			}
-			
-			unset($on_dates);
+			$day = strtotime('tomorrow', $day);
 		}
 		
-		return true;
+		return $calendar_events;
 	}
 };

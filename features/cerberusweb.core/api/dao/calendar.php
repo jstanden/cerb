@@ -534,9 +534,31 @@ class Model_Calendar {
 	}
 	
 	private function _getSelfEvents($date_from, $date_to) {
+		$calendar_events = array();
+		
+		@$color_available = $this->params['color_available'] ?: '#A0D95B';
+		@$color_busy = $this->params['color_busy'] ?: '#C8C8C8';
+		
+		// Generate recurring events
+		$recurrings = DAO_CalendarRecurringProfile::getByCalendar($this->id);
+
+		// Get recurring events
+		if(is_array($recurrings))
+		foreach($recurrings as $recurring) {
+			$events = $recurring->generateRecurringEvents($date_from, $date_to);
+
+			if(is_array($events))
+			foreach($events as $event) {
+				$epoch = strtotime('today', $event['ts']);
+				$event['color'] = $event['is_available'] ? $color_available : $color_busy;
+				$calendar_events[$epoch][] = $event;
+			}
+		}
+		
+		// Get manual events from the database
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf(
-			"SELECT id, name, recurring_id, is_available, date_start, date_end ".
+			"SELECT id, name, is_available, date_start, date_end ".
 			"FROM calendar_event ".
 			"WHERE calendar_id = %d ".
 			"AND ((date_start >= %d AND date_start <= %d) OR (date_end >= %d AND date_end <= %d)) ".
@@ -550,11 +572,6 @@ class Model_Calendar {
 		
 		$results = $db->GetArray($sql);
 
-		$calendar_events = array();
-		
-		@$color_available = $this->params['color_available'] ?: '#A0D95B';
-		@$color_busy = $this->params['color_busy'] ?: '#C8C8C8';
-		
 		foreach($results as $row) {
 			$day_range = range(strtotime('midnight', $row['date_start']), strtotime('midnight', $row['date_end']), 86400);
 			
