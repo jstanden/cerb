@@ -2864,16 +2864,6 @@
 			<params />
 		</extension>
 		
-		<extension point="cerberusweb.cron">
-			<id>cron.calendar_recurring</id>
-			<name>Calendar Recurring Event Schedule</name>
-			<class>
-				<file>api/cron.classes.php</file>
-				<name>Cron_CalendarRecurringEventScheduler</name>
-			</class>
-			<params />
-		</extension>
-		
 		<!-- RSS Sources -->
 		
 		<extension point="cerberusweb.rss.source">

@@ -1473,27 +1473,3 @@ class SearchCron extends CerberusCronPageExtension {
 	function configure($instance) {
 	}
 };
-
-class Cron_CalendarRecurringEventScheduler extends CerberusCronPageExtension {
-	function run() {
-		$logger = DevblocksPlatform::getConsoleLog();
-		$runtime = microtime(true);
-		
-		$logger->info("[Calendar Recurring] Starting...");
-
-		// [TODO] Cache
-		$recurring_events = DAO_CalendarRecurringProfile::getWhere();
-
-		// Run through every calendar recurring profile
-		foreach($recurring_events as $recurring) { /* @var $recurring Model_CalendarRecurringProfile */
-			//var_dump($recurring->date_start);
-			// [TODO] We need to stop when the limit is reached too (not end date)
-			$recurring->createRecurringEvents(strtotime("tomorrow", $recurring->date_start));
-		}
-		
-		$logger->info("[Calendar Recurring] Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
-	}
-	
-	function configure($instance) {
-	}
-};
