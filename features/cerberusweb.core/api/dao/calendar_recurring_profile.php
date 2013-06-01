@@ -20,9 +20,11 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 	const EVENT_NAME = 'event_name';
 	const CALENDAR_ID = 'calendar_id';
 	const IS_AVAILABLE = 'is_available';
-	const DATE_START = 'date_start';
-	const DATE_END = 'date_end';
-	const PARAMS_JSON = 'params_json';
+	const TZ = 'tz';
+	const EVENT_START = 'event_start';
+	const EVENT_END = 'event_end';
+	const RECUR_END = 'recur_end';
+	const PATTERNS = 'patterns';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -57,7 +59,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, event_name, calendar_id, is_available, date_start, date_end, params_json ".
+		$sql = "SELECT id, event_name, calendar_id, is_available, tz, event_start, event_end, recur_end, patterns ".
 			"FROM calendar_recurring_profile ".
 			$where_sql.
 			$sort_sql.
@@ -83,6 +85,15 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 		return null;
 	}
 	
+	static function getByCalendar($calendar_id) {
+		$objects = self::getWhere(sprintf("%s = %d",
+			self::CALENDAR_ID,
+			$calendar_id
+		));
+		
+		return $objects;
+	}
+	
 	/**
 	 * @param resource $rs
 	 * @return Model_CalendarRecurringProfile[]
@@ -96,14 +107,11 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 			$object->event_name = $row['event_name'];
 			$object->calendar_id = $row['calendar_id'];
 			$object->is_available = $row['is_available'];
-			$object->date_start = $row['date_start'];
-			$object->date_end = $row['date_end'];
-			
-			if(!empty($row['params_json'])) {
-				@$json = json_decode($row['params_json'], true);
-				$object->params = !empty($json) ? $json : array();
-			}
-			
+			$object->tz = $row['tz'];
+			$object->event_start = $row['event_start'];
+			$object->event_end = $row['event_end'];
+			$object->recur_end = $row['recur_end'];
+			$object->patterns = $row['patterns'];
 			$objects[$object->id] = $object;
 		}
 		
@@ -168,16 +176,20 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 			"calendar_recurring_profile.event_name as %s, ".
 			"calendar_recurring_profile.calendar_id as %s, ".
 			"calendar_recurring_profile.is_available as %s, ".
-			"calendar_recurring_profile.date_start as %s, ".
-			"calendar_recurring_profile.date_end as %s, ".
-			"calendar_recurring_profile.params_json as %s ",
+			"calendar_recurring_profile.tz as %s, ".
+			"calendar_recurring_profile.event_start as %s, ".
+			"calendar_recurring_profile.event_end as %s, ".
+			"calendar_recurring_profile.recur_end as %s, ".
+			"calendar_recurring_profile.patterns as %s ",
 				SearchFields_CalendarRecurringProfile::ID,
 				SearchFields_CalendarRecurringProfile::EVENT_NAME,
 				SearchFields_CalendarRecurringProfile::CALENDAR_ID,
 				SearchFields_CalendarRecurringProfile::IS_AVAILABLE,
-				SearchFields_CalendarRecurringProfile::DATE_START,
-				SearchFields_CalendarRecurringProfile::DATE_END,
-				SearchFields_CalendarRecurringProfile::PARAMS_JSON
+				SearchFields_CalendarRecurringProfile::TZ,
+				SearchFields_CalendarRecurringProfile::EVENT_START,
+				SearchFields_CalendarRecurringProfile::EVENT_END,
+				SearchFields_CalendarRecurringProfile::RECUR_END,
+				SearchFields_CalendarRecurringProfile::PATTERNS
 			);
 			
 		$join_sql = "FROM calendar_recurring_profile ";
@@ -270,9 +282,11 @@ class SearchFields_CalendarRecurringProfile implements IDevblocksSearchFields {
 	const EVENT_NAME = 'c_event_name';
 	const CALENDAR_ID = 'c_calendar_id';
 	const IS_AVAILABLE = 'c_is_available';
-	const DATE_START = 'c_date_start';
-	const DATE_END = 'c_date_end';
-	const PARAMS_JSON = 'c_params_json';
+	const TZ = 'c_tz';
+	const EVENT_START = 'c_event_start';
+	const EVENT_END = 'c_event_end';
+	const RECUR_END = 'c_recur_end';
+	const PATTERNS = 'c_patterns';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -285,9 +299,11 @@ class SearchFields_CalendarRecurringProfile implements IDevblocksSearchFields {
 			self::EVENT_NAME => new DevblocksSearchField(self::EVENT_NAME, 'calendar_recurring_profile', 'event_name', null),
 			self::CALENDAR_ID => new DevblocksSearchField(self::CALENDAR_ID, 'calendar_recurring_profile', 'calendar_id', null),
 			self::IS_AVAILABLE => new DevblocksSearchField(self::IS_AVAILABLE, 'calendar_recurring_profile', 'is_available', null),
-			self::DATE_START => new DevblocksSearchField(self::DATE_START, 'calendar_recurring_profile', 'date_start', null),
-			self::DATE_END => new DevblocksSearchField(self::DATE_END, 'calendar_recurring_profile', 'date_end', null),
-			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'calendar_recurring_profile', 'params_json', null),
+			self::TZ => new DevblocksSearchField(self::TZ, 'calendar_recurring_profile', 'tz', null),
+			self::EVENT_START => new DevblocksSearchField(self::EVENT_START, 'calendar_recurring_profile', 'event_start', null),
+			self::EVENT_END => new DevblocksSearchField(self::EVENT_END, 'calendar_recurring_profile', 'event_end', null),
+			self::RECUR_END => new DevblocksSearchField(self::RECUR_END, 'calendar_recurring_profile', 'recur_end', null),
+			self::PATTERNS => new DevblocksSearchField(self::PATTERNS, 'calendar_recurring_profile', 'patterns', null),
 		);
 		
 		// Sort by label (translation-conscious)
@@ -302,9 +318,11 @@ class Model_CalendarRecurringProfile {
 	public $event_name;
 	public $calendar_id;
 	public $is_available;
-	public $date_start;
-	public $date_end;
-	public $params;
+	public $tz;
+	public $event_start;
+	public $event_end;
+	public $recur_end;
+	public $patterns;
 	
 	function createRecurringEvents($epoch=null) {
 		$params = $this->params;

@@ -498,6 +498,231 @@ $sql = "DELETE FROM worker_view_model WHERE class_name = 'View_CalendarEvent'";
 $db->Execute($sql);
 
 // ===========================================================================
+// Convert recurring events to a more flexible text-based format (because this isn't Windows)
+
+if(!isset($tables['calendar_recurring_profile'])) {
+	$logger->error("The 'calendar_recurring_profile' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('calendar_recurring_profile');
+
+// Add a timezone to each recurring profile (based on the owner)
+
+if(!isset($columns['tz'])) {
+	$db->Execute("ALTER TABLE calendar_recurring_profile ADD COLUMN tz VARCHAR(128) NOT NULL DEFAULT ''");
+
+	$db->Execute(sprintf("UPDATE calendar_recurring_profile SET tz = %s",
+		$db->qstr(date_default_timezone_get())
+	));
+	
+	$worker_timezones = $db->GetArray("SELECT worker_id, value FROM worker_pref WHERE setting = 'timezone'");
+	
+	foreach($worker_timezones as $wtz) {
+		$sql = sprintf("UPDATE calendar_recurring_profile INNER JOIN calendar ON (calendar.id=calendar_recurring_profile.calendar_id) SET tz = %s WHERE calendar.owner_context = %s AND calendar.owner_context_id = %d",
+			$db->qstr($wtz['value']),
+			$db->qstr('cerberusweb.contexts.worker'),
+			$wtz['worker_id']
+		);
+		$db->Execute($sql);
+	}
+	
+	unset($worker_timezones);
+}
+
+if(!isset($columns['event_start'])) {
+	$db->Execute("ALTER TABLE calendar_recurring_profile ADD COLUMN event_start VARCHAR(128) NOT NULL DEFAULT ''");
+}
+
+if(!isset($columns['event_end'])) {
+	$db->Execute("ALTER TABLE calendar_recurring_profile ADD COLUMN event_end VARCHAR(128) NOT NULL DEFAULT ''");
+}
+
+if(!isset($columns['recur_end'])) {
+	$db->Execute("ALTER TABLE calendar_recurring_profile ADD COLUMN recur_end INT UNSIGNED NOT NULL DEFAULT 0");
+}
+
+if(!isset($columns['patterns'])) {
+	$db->Execute("ALTER TABLE calendar_recurring_profile ADD COLUMN patterns TEXT");
+}
+
+if(isset($columns['params_json'])) {
+	$sql = "SELECT r.id, r.date_start, r.date_end, r.tz, r.params_json, c.owner_context, c.owner_context_id FROM calendar_recurring_profile AS r INNER JOIN calendar AS c ON (c.id=r.calendar_id)";
+	$rs = $db->Execute($sql);
+	
+	while($row = mysql_fetch_assoc($rs)) {
+		$event_start = 0;
+		$event_end = 0;
+		$recur_end = 0;
+
+		// Convert params
+		
+		if(false !== (@$json = json_decode($row['params_json'], true)) && isset($json['freq'])) {
+			$options = $json['options'];
+			
+			$patterns = '';
+			
+			// Pull an example event
+			$event = $db->GetRow(sprintf("SELECT e.date_start, e.date_end FROM calendar_event AS e WHERE e.recurring_id = %d ORDER BY e.date_start desc LIMIT 1", $row['id']));
+			
+			// If there wasn't an event in the system, use the recurring profile itself.
+			if(empty($event)) {
+				$event = array(
+					'date_start' => $row['date_start'],
+					'date_end' => $row['date_end'],
+				);
+			}
+			
+			// Handle ending dates
+			if(isset($json['end']['term']) && $json['end']['term'] == 'date') {
+				if(isset($json['end']['options']))
+					if(isset($json['end']['options']['on']))
+						$recur_end = $json['end']['options']['on'];
+			}
+			
+			$days_of_week = array(
+				0 => 'Sunday',
+				1 => 'Monday',
+				2 => 'Tuesday',
+				3 => 'Wednesday',
+				4 => 'Thursday',
+				5 => 'Friday',
+				6 => 'Saturday',
+			);
+			
+			switch($json['freq']) {
+				case 'daily':
+					foreach($days_of_week as $day) {
+						$patterns .= sprintf("%s\n",
+							$day
+						);
+					}
+					break;
+					
+				case 'weekly':
+					if(isset($options['day']))
+					foreach($options['day'] as $day) {
+						$patterns .= sprintf("%s\n",
+							$days_of_week[$day]
+						);
+					}
+					break;
+					
+				case 'monthly':
+					$suffixes = array(
+						'0' => 'th',
+						'1' => 'st',
+						'2' => 'nd',
+						'3' => 'rd',
+						'4' => 'th',
+						'5' => 'th',
+						'6' => 'th',
+						'7' => 'th',
+						'8' => 'th',
+						'9' => 'th',
+					);
+					
+					if(isset($options['day']))
+					foreach($options['day'] as $day) {
+						$patterns .= sprintf("%d%s\n",
+							$day,
+							$suffixes[substr($day,-1)]
+						);
+					}
+					break;
+					
+				case 'yearly':
+					$months = array(
+						1 => 'Jan',
+						2 => 'Feb',
+						3 => 'Mar',
+						4 => 'Apr',
+						5 => 'May',
+						6 => 'Jun',
+						7 => 'Jul',
+						8 => 'Aug',
+						9 => 'Sep',
+						10 => 'Oct',
+						11 => 'Nov',
+						12 => 'Dec',
+					);
+					
+					if(isset($options['month']))
+					foreach($options['month'] as $month) {
+						$patterns .= sprintf("%s %d\n",
+							$months[$month],
+							gmdate('d', $event['date_start'])
+						);
+					}
+					break;
+			}
+			
+			// Handle start and end relative to Jan 1 1970 (ignore DST)
+			
+			$timezone = new DateTimeZone($row['tz']);
+			
+			$datetime_start = new DateTime(date('r', $event['date_start']), $timezone);
+			$datetime_end = new DateTime(date('r', $event['date_end']), $timezone);
+			
+			$event_start = $datetime_start->format('H:i');
+
+			$event_duration = $datetime_end->getTimestamp() - $datetime_start->getTimestamp();
+
+			if(empty($event_duration)) {
+				$event_end = $event_start;
+				
+			} else {
+				$datetime_tomorrow = clone $datetime_start;
+				$datetime_tomorrow->modify("+1 day");
+				
+				// Later the same day
+				if($datetime_start->format('Y-m-d') == $datetime_end->format('Y-m-d')) {
+					$event_end = $datetime_end->format('H:i');
+					
+				// Tomorrow
+				} elseif($datetime_tomorrow->format('Y-m-d') == $datetime_end->format('Y-m-d')) {
+					$event_end = 'tomorrow ' . $datetime_end->format('H:i');
+					
+				// Relative date longer than two days
+				} else {
+					$event_end = '+' . DevblocksPlatform::strSecsToString($event_duration);
+				}
+			}
+			
+			// Update
+			
+			$sql = sprintf("UPDATE calendar_recurring_profile ".
+				"SET patterns = %s, event_start = %s, event_end = %s, recur_end = %d ".
+				"WHERE id = %d",
+				$db->qstr($patterns),
+				$db->qstr($event_start),
+				$db->qstr($event_end),
+				$recur_end,
+				$row['id']
+			);
+			$db->Execute($sql);
+		}
+	}
+	
+	$db->Execute("ALTER TABLE calendar_recurring_profile DROP COLUMN params_json, DROP COLUMN date_start, DROP COLUMN date_end");
+}
+
+// ===========================================================================
+// Delete old manual recurring event records
+
+if(!isset($tables['calendar_event'])) {
+	$logger->error("The 'calendar_event' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('calendar_event');
+
+if(isset($columns['recurring_id'])) {
+	$db->Execute("DELETE FROM calendar_event WHERE recurring_id != 0");
+	$db->Execute("ALTER TABLE calendar_event DROP COLUMN recurring_id");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

@@ -19,7 +19,6 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
 	const CALENDAR_ID = 'calendar_id';
-	const RECURRING_ID = 'recurring_id';
 	const IS_AVAILABLE = 'is_available';
 	const DATE_START = 'date_start';
 	const DATE_END = 'date_end';
@@ -92,7 +91,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, calendar_id, recurring_id, is_available, date_start, date_end ".
+		$sql = "SELECT id, name, calendar_id, is_available, date_start, date_end ".
 			"FROM calendar_event ".
 			$where_sql.
 			$sort_sql.
@@ -130,7 +129,6 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 			$object->id = $row['id'];
 			$object->name = $row['name'];
 			$object->calendar_id = $row['calendar_id'];
-			$object->recurring_id = $row['recurring_id'];
 			$object->is_available = $row['is_available'];
 			$object->date_start = intval($row['date_start']);
 			$object->date_end = intval($row['date_end']);
@@ -140,11 +138,6 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 		mysql_free_result($rs);
 		
 		return $objects;
-	}
-	
-	static function countByRecurringId($recurring_id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		return $db->GetOne(sprintf("SELECT count(id) AS hits FROM calendar_event WHERE recurring_id = %d", $recurring_id));
 	}
 	
 	static function delete($ids) {
@@ -187,18 +180,6 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 		$db->Execute(sprintf("DELETE FROM calendar_event WHERE calendar_id IN (%s)", $ids_list));
 	}
 	
-	static function deleteByRecurringIds($ids, $from_timestamp=0) {
-		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		if(empty($ids))
-			return;
-		
-		$ids_list = implode(',', $ids);
-		
-		$db->Execute(sprintf("DELETE FROM calendar_event WHERE recurring_id IN (%s) AND date_start >= %d", $ids_list, $from_timestamp));
-	}
-	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_CalendarEvent::getFields();
 		
@@ -212,14 +193,12 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 			"calendar_event.id as %s, ".
 			"calendar_event.name as %s, ".
 			"calendar_event.calendar_id as %s, ".
-			"calendar_event.recurring_id as %s, ".
 			"calendar_event.is_available as %s, ".
 			"calendar_event.date_start as %s, ".
 			"calendar_event.date_end as %s ",
 				SearchFields_CalendarEvent::ID,
 				SearchFields_CalendarEvent::NAME,
 				SearchFields_CalendarEvent::CALENDAR_ID,
-				SearchFields_CalendarEvent::RECURRING_ID,
 				SearchFields_CalendarEvent::IS_AVAILABLE,
 				SearchFields_CalendarEvent::DATE_START,
 				SearchFields_CalendarEvent::DATE_END
@@ -354,7 +333,6 @@ class SearchFields_CalendarEvent implements IDevblocksSearchFields {
 	const ID = 'c_id';
 	const NAME = 'c_name';
 	const CALENDAR_ID = 'c_calendar_id';
-	const RECURRING_ID = 'c_recurring_id';
 	const IS_AVAILABLE = 'c_is_available';
 	const DATE_START = 'c_date_start';
 	const DATE_END = 'c_date_end';
@@ -376,7 +354,6 @@ class SearchFields_CalendarEvent implements IDevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'calendar_event', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER),
 			self::NAME => new DevblocksSearchField(self::NAME, 'calendar_event', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::CALENDAR_ID => new DevblocksSearchField(self::CALENDAR_ID, 'calendar_event', 'calendar_id', $translate->_('common.calendar')),
-			self::RECURRING_ID => new DevblocksSearchField(self::RECURRING_ID, 'calendar_event', 'recurring_id', $translate->_('dao.calendar_event.recurring_id')),
 			self::IS_AVAILABLE => new DevblocksSearchField(self::IS_AVAILABLE, 'calendar_event', 'is_available', $translate->_('dao.calendar_event.is_available'), Model_CustomField::TYPE_CHECKBOX),
 			self::DATE_START => new DevblocksSearchField(self::DATE_START, 'calendar_event', 'date_start', $translate->_('dao.calendar_event.date_start'), Model_CustomField::TYPE_DATE),
 			self::DATE_END => new DevblocksSearchField(self::DATE_END, 'calendar_event', 'date_end', $translate->_('dao.calendar_event.date_end'), Model_CustomField::TYPE_DATE),
@@ -407,7 +384,6 @@ class Model_CalendarEvent {
 	public $id;
 	public $name;
 	public $calendar_id;
-	public $recurring_id;
 	public $is_available;
 	public $date_start;
 	public $date_end;
@@ -434,7 +410,6 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		
 		$this->addColumnsHidden(array(
 			SearchFields_CalendarEvent::ID,
-			SearchFields_CalendarEvent::RECURRING_ID,
 			SearchFields_CalendarEvent::CONTEXT_LINK,
 			SearchFields_CalendarEvent::CONTEXT_LINK_ID,
 			SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK,
@@ -442,7 +417,6 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		
 		$this->addParamsHidden(array(
 			SearchFields_CalendarEvent::ID,
-			SearchFields_CalendarEvent::RECURRING_ID,
 			SearchFields_CalendarEvent::CONTEXT_LINK,
 			SearchFields_CalendarEvent::CONTEXT_LINK_ID,
 		));
@@ -579,7 +553,6 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 				break;
 				
 			case SearchFields_CalendarEvent::ID:
-			case SearchFields_CalendarEvent::RECURRING_ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
@@ -666,7 +639,6 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 				break;
 				
 			case SearchFields_CalendarEvent::ID:
-			case SearchFields_CalendarEvent::RECURRING_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
