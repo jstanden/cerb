@@ -71,13 +71,6 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 			'value' => $event->date_end,
 		);
 		
-		$properties['is_recurring'] = array(
-			//'label' => ucfirst($translate->_('dao.calendar_event.is_available')),
-			'label' => 'Is Repeating',
-			'type' => Model_CustomField::TYPE_CHECKBOX,
-			'value' => ($event->recurring_id != 0) ? 1 : 0,
-		);
-				
 		$properties['is_available'] = array(
 			'label' => ucfirst($translate->_('dao.calendar_event.is_available')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
