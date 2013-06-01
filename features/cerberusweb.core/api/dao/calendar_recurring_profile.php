@@ -445,6 +445,21 @@ class Model_CalendarRecurringProfile {
 			$passed = false;
 			
 			$patterns = DevblocksPlatform::parseCrlfString($this->patterns);
+
+			// Translate convenience placeholders
+			foreach($patterns as $idx => $pattern) {
+				if(0 == strcasecmp($pattern, 'weekdays')) {
+					unset($patterns[$idx]);
+					array_push($patterns, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday');
+					continue;
+				}
+				
+				if(0 == strcasecmp($pattern, 'weekends')) {
+					unset($patterns[$idx]);
+					array_push($patterns, 'Saturday', 'Sunday');
+					continue;
+				}
+			}
 			
 			foreach($patterns as $pattern) {
 				if($passed)
@@ -457,6 +472,9 @@ class Model_CalendarRecurringProfile {
 					$passed = ($day == mktime(0,0,0,date('n', $day),$pattern,date('Y', $day)));
 					
 				} else {
+					if(preg_match('#of every month$#i', $pattern))
+						$pattern = str_replace('of every month', 'of this month', $pattern);
+					
 					@$pattern_day = strtotime('today', strtotime($pattern, $day));
 					$passed = ($pattern_day == $day);
 				}
@@ -465,10 +483,10 @@ class Model_CalendarRecurringProfile {
 					$timezone = new DateTimeZone($this->tz);
 					$datetime = new DateTime(date('Y-m-d', $day), $timezone);
 					
-					$datetime->modify($this->event_start);
+					$datetime->modify($this->event_start ?: 'midnight');
 					$event_start_local = $datetime->getTimestamp();
 					
-					$datetime->modify($this->event_end);
+					$datetime->modify($this->event_end ?: 'midnight');
 					$event_end_local = $datetime->getTimestamp();
 					
 					$calendar_events[] = array(
