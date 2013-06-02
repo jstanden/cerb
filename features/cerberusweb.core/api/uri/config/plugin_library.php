@@ -136,13 +136,11 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 			
 			if(!empty($package_url))
 				$success = DevblocksPlatform::installPluginZipFromUrl($package_url);
-			
-			try {
-				CerberusApplication::update();
-			} catch (Exception $e) {
+
+			if($success) {
+				DevblocksPlatform::readPlugins(false);
+				DevblocksPlatform::clearCache();
 			}
-	
-			DevblocksPlatform::clearCache();
 			
 			// Reload plugin translations
 			if(null != ($plugin_manifest = DevblocksPlatform::getPlugin($plugin->id))) {

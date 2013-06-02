@@ -410,6 +410,11 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 			}
 		}
 		
+		if($updated) {
+			DevblocksPlatform::readPlugins(false);
+			DevblocksPlatform::clearCache();
+		}
+		
 		return array(
 			'count' => $count,
 			'updated' => $updated,

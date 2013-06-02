@@ -53,8 +53,6 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(empty($plugin_id))
 			return false;
 		
-		DevblocksPlatform::readPlugins(false);
-		DevblocksPlatform::clearCache();
 		return true;
 	}
 	
