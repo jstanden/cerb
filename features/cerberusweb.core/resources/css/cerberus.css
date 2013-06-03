@@ -549,15 +549,11 @@ table.worklistBody tr.hover {
 	background-color: rgb(255,255,200);
 }
 
-table.worklistBody tr.even.selected {
+table.worklistBody tr.selected {
 	background-color: rgb(251,236,136); 
 }
 
-table.worklistBody tr.odd.selected {
-	background-color: rgb(251,236,136); 
-}
-
-table.worklistBody tr.even.selected.hover, table.worklistBody tr.odd.selected.hover {
+table.worklistBody tr.selected.hover, table.worklistBody tr.selected.hover {
 	background-color: rgb(255,255,200);
 }
 

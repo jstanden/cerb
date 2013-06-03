@@ -129,6 +129,23 @@ $view.bind('select_all', function(e) {
 $view_actions.find('button,.action-on-select').not('.action-always-show').hide();
 </script>
 
+{* Run custom jQuery scripts from VA behavior *}
+{$va_actions = []}
+{Event_UiWorklistRenderByWorker::triggerForWorker($active_worker, $view_context, $view->id, $va_actions)}
+{array_keys($va_actions)}
+
+<script type="text/javascript">
+{if $va_actions.jquery_scripts}
+{
+	{foreach from=$va_actions.jquery_scripts item=jquery_script}
+	try {
+		{$jquery_script nofilter}
+	} catch(e) { }
+	{/foreach}
+}
+{/if}
+</script>
+
 <script type="text/javascript">
 //Condense the TH headers
 {
