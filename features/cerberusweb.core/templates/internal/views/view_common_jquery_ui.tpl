@@ -128,3 +128,58 @@ $view.bind('select_all', function(e) {
 // View actions
 $view_actions.find('button,.action-on-select').not('.action-always-show').hide();
 </script>
+
+<script type="text/javascript">
+//Condense the TH headers
+{
+	var $view_thead = $view_frm.find('TABLE.worklistBody THEAD');
+	
+	// Remove the heading labels to let the browser find the content-based widths
+	$view_thead.find('TH').each(function() {
+		var $th = $(this);
+		var $a = $th.find('a');
+		
+		$th.find('span.cerb-sprite').prependTo($th);
+		
+		$a.attr('title', $a.text());
+		$a.html('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+	});
+
+	var view_table_width = $view_thead.closest('TABLE').width();
+	var view_table_width_left = 100;
+	var view_table_width_cols = $view_thead.find('TH').length - 1;
+	
+	$view_thead.find('TH A').each(function(idx) {
+		var $a = $(this);
+		var $th = $a.closest('th');
+		var width = 0;
+		
+		// On the last column, take all the remaining width (no rounding errors)
+		if(idx == view_table_width_cols) {
+			width = view_table_width_left;
+	
+		// Figure out the proportional width for this column compared to the whole table
+		} else {
+			width = Math.ceil(100 * $th.width() / view_table_width);
+			view_table_width_left -= width;
+		}
+		
+		// Set explicit proportional widths
+		$th
+			.css('white-space','nowrap')
+			.css('overflow','hidden')
+			.css('width', width + '%')
+			;
+		
+	});
+	
+	// Reflow the table using our explicit widths (no auto layout)
+	$view_thead.closest('table').css('table-layout','fixed');
+	
+	// Replace the truncated heading labels
+	$view_thead.find('TH A').each(function(idx) {
+		var $a = $(this);
+		$a.html($a.attr('title'));
+	});
+}
+</script>
