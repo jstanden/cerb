@@ -83,6 +83,102 @@ function appendFileInput(divName,fieldName) {
 	//frm.innerHTML += "<BR>";
 }
 
+$.fn.cerbDateInputHelper = function() {
+	return this.each(function() {
+		var $this = $(this);
+		
+		$(this)
+			.attr('placeholder', '+2 hours; +4 hours @Calendar; Jan 15 2018 2pm; 5pm America/New York')
+			.autocomplete({
+				minLength: 1,
+				autoFocus: true,
+				source: function(request, response) {
+					var last = request.term.split(' ').pop();
+
+					request.term = last;
+					
+					if(request.term == null)
+						return;
+					
+					var url = DevblocksAppPath+'ajax.php?c=internal&a=handleSectionAction&section=calendars&action=getDateInputAutoCompleteOptionsJson';
+					
+					$.ajax({
+						url: url,
+						dataType: "json",
+						data: request,
+						success: function(data) {
+							response(data);
+						}
+					});
+					
+				},
+				focus: function() {
+					return false;
+				},
+				select: function(event, ui) {
+					$(this).addClass('autocomplete_select');
+					
+					var terms = this.value.split(' ');
+					terms.pop();
+					terms.push(ui.item.value);
+					terms.push('');
+					this.value = terms.join(' ');
+					$(this).addClass('changed', true);
+					return false;
+				}
+			})
+			.data('autocomplete')
+				._renderItem = function(ul, item) {
+					var $li = $('<li></li>')
+						.data('item.autocomplete', item)
+						.append($('<a></a>').html(item.label))
+						.appendTo(ul);
+					
+					item.value = $li.text();
+					
+					return $li;
+				}
+			;
+		
+		$(this)
+			.on('send', function(e) {
+				var $input_date = $(this);
+				
+				if(!$input_date.is('.changed'))
+					return;
+				
+				$input_date.autocomplete('close');
+				
+				genericAjaxGet('', 'c=internal&a=handleSectionAction&section=calendars&action=parseDateJson&date=' + encodeURIComponent($input_date.val()), function(json) {
+					if(json == false) {
+						// [TODO] Color it red for failed, and display an error somewhere
+						$input_date.val('');
+					} else {
+						$input_date.val(json.to_string);
+					}
+					$input_date.removeClass('changed');
+				});
+			})
+			.blur(function(e) {
+				$(this).trigger('send');
+			})
+			.keyup(function(e) {
+				$(this).addClass('changed', true);
+				
+				// If the worker hit enter and we're not showing an autocomplete menu
+				if(e.which == 13) {
+					if($(this).is('.autocomplete_select')) {
+						$(this).removeClass('autocomplete_select');
+						return false;
+					}
+					
+					$(this).trigger('send');
+				}
+			})
+			;
+	});
+};
+
 var cAjaxCalls = function() {
 	// [TODO] We don't really need all this
 	this.showBatchPanel = function(view_id,target) {
@@ -593,7 +689,7 @@ var cAjaxCalls = function() {
 					}
 			});
 		});
-	}	
+	}
 }
 
 var ajax = new cAjaxCalls();

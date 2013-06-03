@@ -312,5 +312,97 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		));
 		return;
 	}
+	
+	function parseDateJsonAction() {
+		@$date = DevblocksPlatform::importGPC($_REQUEST['date'], 'string', '');
+		
+		@$active_worker = CerberusApplication::getActiveWorker();
+		
+		header('Content-Type: application/json');
+		
+		$results = array();
+		
+		if(strpos($date, '@')) {
+			$date_parts = explode('@', $date, 2);
+			@$date = trim($date_parts[0]);
+			@$calendar_lookup = trim($date_parts[1]);
+			
+			@$calendars = DAO_Calendar::getReadableByWorker($active_worker);
+			$use_calendar = null; /* @var $use_calendar Model_Calendar */
+			
+			foreach($calendars as $calendar) {
+				if($use_calendar)
+					continue;
+				
+				if(preg_match(sprintf("/^%s/i", preg_quote($calendar_lookup)), $calendar->name)) {
+					$use_calendar = $calendar;
+					break;
+				}
+			}
+			
+			if($use_calendar) {
+				$calendar_events = $use_calendar->getEvents(strtotime('-1 day midnight'), strtotime('+2 weeks 23:59:59'));
+				$availability = $use_calendar->computeAvailability(strtotime('-1 day midnight'), strtotime('+2 weeks 23:59:59'), $calendar_events);
+				$timestamp = $availability->scheduleInRelativeTime(time(), $date);
+				
+				if($timestamp) {
+					$results['calendar_id'] = $calendar->id;
+					$results['calendar_name'] = $calendar->name;
+				}
+			}
+		}
+		
+		if(empty($timestamp))
+			@$timestamp = strtotime($date);
+		
+		if(empty($timestamp)) {
+			echo json_encode(false);
+			return;
+		}
+		
+		$results['timestamp'] = $timestamp;
+		$results['to_string'] = date('D, M d Y h:ia', $timestamp);
+		
+		echo json_encode($results);
+	}
+	
+	function getDateInputAutoCompleteOptionsJsonAction() {
+		@$term = DevblocksPlatform::importGPC($_REQUEST['term'], 'string', '');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$calendars = DAO_Calendar::getReadableByWorker($active_worker);
+		$date = DevblocksPlatform::getDateService();
+		$timezones = $date->getTimezones();
+
+		header('Content-Type: application/json');
+		
+		$options = array();
+		
+		if(empty($term) || substr($term,0,1) == '@')
+		foreach($calendars as $calendar) {
+			if(0 == strcasecmp($term, substr('@'.$calendar->name, 0, strlen($term))))
+				$options[] = '@' . $calendar->name;
+		}
+		
+		foreach($timezones as $tz) {
+			$areas = explode('/', $tz);
+			$areas[] = $tz;
+			$found = false;
+			
+			foreach($areas as $area) {
+				if($found)
+					continue;
+				
+				if(0 == strcasecmp($term, substr($area, 0, strlen($term)))) {
+					$found = true;
+					$options[] = $tz;
+					break;
+				}
+			}
+		}
+		
+		echo json_encode($options);
+	}
 }
 endif;
