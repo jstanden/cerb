@@ -25,7 +25,7 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 		$this->_event_id = self::ID;
 	}
 	
-	static function triggerForWorker($worker, $context, $view_id, &$actions) {
+	static function triggerForWorker($worker, $context, $view_id, &$actions, &$triggers) {
 		if(empty($worker) || !($worker instanceof Model_Worker))
 			return;
 		
@@ -38,8 +38,20 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 		);
 		
 		if(is_array($macros))
-		foreach($macros as $macro)
-			Event_UiWorklistRenderByWorker::trigger($macro->id, $context, $view_id, $actions);
+		foreach($macros as $macro) {
+			$new_actions = array();;
+			Event_UiWorklistRenderByWorker::trigger($macro->id, $context, $view_id, $new_actions);
+			
+			if(!empty($new_actions)) {
+				foreach($new_actions as $idx => $action) {
+					if(isset($actions[$idx]))
+						$actions[$idx] = array_merge($actions[$idx], $action);
+					else
+						$actions[$idx] = $action;
+				}
+				$triggers[] = $macro;
+			}
+		}
 	}
 	
 	static function trigger($trigger_id, $context, $view_id, &$actions) {

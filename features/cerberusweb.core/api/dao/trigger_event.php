@@ -508,6 +508,14 @@ class Model_TriggerEvent {
 		return $event;
 	}
 	
+	public function getOwnerMeta() {
+		$context_ext = Extension_DevblocksContext::get($this->owner_context);
+		$meta = $context_ext->getMeta($this->owner_context_id);
+		$meta['context'] = $context_ext->id;
+		$meta['context_label'] = $context_ext->manifest->name;
+		return $meta;
+	}
+	
 	private function _getNodes() {
 		if(empty($this->_nodes))
 			$this->_nodes = DAO_DecisionNode::getByTriggerParent($this->id);

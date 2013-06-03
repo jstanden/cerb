@@ -131,20 +131,48 @@ $view_actions.find('button,.action-on-select').not('.action-always-show').hide()
 
 {* Run custom jQuery scripts from VA behavior *}
 {$va_actions = []}
-{Event_UiWorklistRenderByWorker::triggerForWorker($active_worker, $view_context, $view->id, $va_actions)}
-{array_keys($va_actions)}
+{$va_behaviors = []}
+{Event_UiWorklistRenderByWorker::triggerForWorker($active_worker, $view_context, $view->id, $va_actions, $va_behaviors)}
 
-<script type="text/javascript">
-{if $va_actions.jquery_scripts}
-{
-	{foreach from=$va_actions.jquery_scripts item=jquery_script}
-	try {
-		{$jquery_script nofilter}
-	} catch(e) { }
-	{/foreach}
-}
+{if !empty($va_behaviors)}
+	<script type="text/javascript">
+	{if $va_actions.jquery_scripts}
+	{
+		{foreach from=$va_actions.jquery_scripts item=jquery_script}
+		try {
+			{$jquery_script nofilter}
+		} catch(e) { }
+		{/foreach}
+
+		var $va_button = $('<a href="javascript:;" title="This worklist was modified by Virtual Attendants"><span class="cerb-sprite2 sprite-robot" style="vertical-align:bottom;"></span></a>');
+		$va_button.click(function() {
+			var $va_action_log = $('#view{$view->id}_va_actions');
+			if($va_action_log.is(':hidden')) {
+				$va_action_log.fadeIn();
+			} else {
+				$va_action_log.fadeOut();
+			}
+		});
+		$va_button.insertAfter($view.find('TABLE.worklist SPAN.title'));
+		$('#view{$view->id}_va_actions').insertAfter($view.find('TABLE.worklist'));
+	}
+	{/if}
+	</script>
+	
+	<div class="block" style="display:none;margin:5px;" id="view{$view->id}_va_actions">
+		<b>This worklist was modified by Virtual Attendants:</b>
+		<ul style="margin:0;">
+			{foreach from=$va_behaviors item=va_behavior name=va_behaviors}
+			<li>
+				{$meta = $va_behavior->getOwnerMeta()}
+				{$va_behavior->title} [{$meta.name}]
+			</li>
+			{/foreach}
+		</ul>
+		
+		<button type="button" onclick="$(this).closest('div.block').fadeOut();">{'common.ok'|devblocks_translate|upper}</button>
+	</div>
 {/if}
-</script>
 
 <script type="text/javascript">
 //Condense the TH headers
