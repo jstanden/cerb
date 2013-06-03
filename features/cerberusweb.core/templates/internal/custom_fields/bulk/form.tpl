@@ -71,7 +71,7 @@
 				{elseif $f->type=='F'}
 					<input type="file" name="{$field_name}" size="45" maxlength="255" value="{$custom_field_values.$f_id}">
 				{elseif $f->type=='E'}
-					<input type="text" id="{$field_name}" name="{$field_name}" class="input_date" size="64" style="width:90%;" maxlength="255" placeholder="2 hours; +4 hours @Calendar; Jan 15 2018 2pm; 5pm America/New York" value="{if !empty($custom_field_values.$f_id)}{if is_numeric($custom_field_values.$f_id)}{$custom_field_values.$f_id|devblocks_date}{else}{$custom_field_values.$f_id}{/if}{/if}">
+					<input type="text" id="{$field_name}" name="{$field_name}" class="input_date" size="64" style="width:90%;" maxlength="255" value="{if !empty($custom_field_values.$f_id)}{if is_numeric($custom_field_values.$f_id)}{$custom_field_values.$f_id|devblocks_date}{else}{$custom_field_values.$f_id}{/if}{/if}">
 				{/if}
 				</div>
 			</td>

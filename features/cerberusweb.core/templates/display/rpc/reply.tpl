@@ -327,6 +327,8 @@
 		$content.elastic();
 		{/if}
 		
+		$frm2.find('input[name=ticket_reopen]').cerbDateInputHelper();
+		
 		// Insert suggested on click
 		$('#reply{$message->id}_suggested').find('a.suggested').click(function(e) {
 			$this = $(this);

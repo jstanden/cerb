@@ -58,7 +58,7 @@
 					<div id="ticketClosed" style="display:{if $ticket->is_closed || $ticket->is_waiting}block{else}none{/if};margin:5px 0px 5px 15px;">
 						<b>{$translate->_('display.reply.next.resume')}:</b><br>
 						<i>{$translate->_('display.reply.next.resume_eg')}</i><br>
-						<input type="text" name="ticket_reopen" size="55" value="{if !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}"><br>
+						<input type="text" name="ticket_reopen" size="64" class="input_date" value="{if !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}"><br>
 						{$translate->_('display.reply.next.resume_blank')}<br>
 					</div>
 				</td>
@@ -196,8 +196,13 @@
 		$(this).focus();
 	});
 	
+	var $frm = $('form#frmTicketPeek');
+	
 	// Choosers
-	$('#frmTicketPeek button.chooser_notify_worker').each(function() {
+	$frm.find('button.chooser_notify_worker').each(function() {
 		ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
 	});
+	
+	// Dates
+	$frm.find('div#ticketPeekProps > fieldset:first input.input_date').cerbDateInputHelper();
 </script>

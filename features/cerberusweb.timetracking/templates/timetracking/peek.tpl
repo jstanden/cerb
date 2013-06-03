@@ -44,7 +44,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('timetracking_entry.log_date')|capitalize}</b>:</td>
 			<td width="100%">
-				<input type="text" name="log_date" size="45" style="width:98%;" value="{$model->log_date|devblocks_date}"> 
+				<input type="text" name="log_date" size="64" class="input_date" value="{$model->log_date|devblocks_date}"> 
 			</td>
 		</tr>
 		<tr>
@@ -139,12 +139,17 @@
 				$(this).next('DIV.notify').hide();
 			}
 		});
-	});
-	
-	$('#frmTimeEntry button.chooser_worker').each(function() {
-		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
-	});
-	$('#frmTimeEntry button.chooser_notify_worker').each(function() {
-		ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
+		
+		var $frm = $('#frmTimeEntry');
+		
+		$frm.find('> fieldset:first input.input_date').cerbDateInputHelper();
+		
+		$frm.find('button.chooser_worker').each(function() {
+			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
+		});
+		
+		$frm.find('button.chooser_notify_worker').each(function() {
+			ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
+		});
 	});
 </script>

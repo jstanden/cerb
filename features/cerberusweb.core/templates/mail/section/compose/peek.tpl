@@ -112,7 +112,7 @@
 		<div id="divComposeClosed" style="display:{if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.closed==0)}none{else}block{/if};margin-top:5px;margin-left:10px;">
 			<b>{$translate->_('display.reply.next.resume')}</b><br>
 			{$translate->_('display.reply.next.resume_eg')}<br> 
-			<input type="text" name="ticket_reopen" size="55" value="{$draft->params.ticket_reopen}"><br>
+			<input type="text" name="ticket_reopen" size="64" class="input_date" value="{$draft->params.ticket_reopen}"><br>
 			{$translate->_('display.reply.next.resume_blank')}<br>
 		</div>
 	</div>
@@ -189,7 +189,7 @@
 	$popup.one('popup_open',function(event,ui) {
 		$(this).dialog('option','title','{'mail.send_mail'|devblocks_translate|capitalize}');
 		
-		$frm = $('#frmComposePeek');
+		var $frm = $('#frmComposePeek');
 
 		ajax.emailAutoComplete('#frmComposePeek input[name=to]', { multiple: true } );
 		ajax.emailAutoComplete('#frmComposePeek input[name=cc]', { multiple: true } );
@@ -290,6 +290,10 @@
 				$sug.show();
 			});
 		});
+		
+		// Date entry
+		
+		$frm.find('> fieldset:nth(1) input.input_date').cerbDateInputHelper();
 		
 		// Insert Sig
 		
