@@ -80,11 +80,19 @@ class DevblocksSearchCriteria {
 				break;
 				
 			case DevblocksSearchCriteria::OPER_EQ_OR_NULL:
-				$where = sprintf("(%s = %s OR %s IS NULL)",
-					$db_field_name,
-					self::_escapeSearchParam($this, $fields),
-					$db_field_name
-				);
+				$val = self::_escapeSearchParam($this, $fields);
+
+				if(is_string($val)) {
+					$where = sprintf("(%s = %s OR %s IS NULL)",
+						$db_field_name,
+						$val,
+						$db_field_name
+					);
+				} else {
+					$where = sprintf("%s IS NULL",
+						$db_field_name
+					);
+				}
 				break;
 				
 			case "neq":

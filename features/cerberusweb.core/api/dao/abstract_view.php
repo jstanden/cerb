@@ -756,7 +756,7 @@ abstract class C4_AbstractView {
 				break;
 				
 			case DevblocksSearchCriteria::OPER_EQ_OR_NULL:
-				return new DevblocksSearchCriteria($field,$oper,0);
+				return new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_EQ_OR_NULL,0);
 				break;
 		}
 		
@@ -825,7 +825,16 @@ abstract class C4_AbstractView {
 				if(empty($from)) $from = 0;
 				if(empty($to)) $to = 'today';
 	
-				$criteria = new DevblocksSearchCriteria($token,$oper,array($from,$to));
+				switch($oper) {
+					case DevblocksSearchCriteria::OPER_EQ_OR_NULL:
+						$criteria = new DevblocksSearchCriteria($token,$oper,0);
+						break;
+						
+					default:
+						$criteria = new DevblocksSearchCriteria($token,$oper,array($from,$to));
+						break;
+				}
+				
 				break;
 			case Model_CustomField::TYPE_WORKER:
 				@$oper = DevblocksPlatform::importGPC($_REQUEST['oper'],'string','eq');
