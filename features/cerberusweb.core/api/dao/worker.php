@@ -91,7 +91,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			if(!isset($workers_to_sessions[$worker->id]))
 				$workers_to_sessions[$worker->id] = array();
 			
-			$workers_to_sessions[$worker->id][$key] = $data;
+			$workers_to_sessions[$worker->id][$key] = $session_data;
 		}
 		
 		// Sort workers by idle time (newest first)
