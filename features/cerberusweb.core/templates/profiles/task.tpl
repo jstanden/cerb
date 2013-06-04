@@ -50,9 +50,13 @@
 	<div style="margin-left:15px;">
 	{foreach from=$properties item=v key=k name=props}
 		<div class="property">
-			{if $k == '...'}
-				<b>{$translate->_('...')|capitalize}:</b>
-				...
+			{if $k == 'status'}
+				<b>{'common.status'|devblocks_translate|capitalize}:</b>
+				{if $task->is_completed}
+					<span class="cerb-sprite2 sprite-tick-circle" style="vertical-align:middle;"></span> <span style="color:rgb(0,150,0);font-weight:bold;">{'task.is_completed'|devblocks_translate|capitalize}</span>
+				{else}
+					{'status.open'|devblocks_translate|capitalize}
+				{/if}
 			{elseif $k == 'due_date'}
 				<b>{$translate->_('task.due_date')|capitalize}:</b>
 				<abbr title="{$task->due_date|devblocks_date}" style="{if !$task->is_completed && $task->due_date < time()}font-weight:bold;color:rgb(150,0,0);{/if}">{$task->due_date|devblocks_prettytime}</abbr>

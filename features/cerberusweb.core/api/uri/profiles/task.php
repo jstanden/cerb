@@ -47,10 +47,10 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		
 		$properties = array();
 		
-		$properties['is_completed'] = array(
-			'label' => ucfirst($translate->_('task.is_completed')),
-			'type' => Model_CustomField::TYPE_CHECKBOX,
-			'value' => $task->is_completed,
+		$properties['status'] = array(
+			'label' => ucfirst($translate->_('common.status')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => null,
 		);
 		
 		if(!$task->is_completed) {
@@ -59,6 +59,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 				'type' => Model_CustomField::TYPE_DATE,
 				'value' => $task->due_date,
 			);
+			
 		} else {
 			$properties['completed_date'] = array(
 				'label' => ucfirst($translate->_('task.completed_date')),
