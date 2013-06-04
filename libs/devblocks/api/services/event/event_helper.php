@@ -1070,10 +1070,13 @@ class DevblocksEventHelper {
 		@$on_dupe = $params['on_dupe'];
 
 		$trigger = $dict->_trigger;
-
+		
 		if(empty($behavior_id)) {
 			return "[ERROR] No behavior is selected. Skipping...";
 		}
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$run_date = $tpl_builder->build($run_date, $dict);
 		
 		@$run_timestamp = strtotime($run_date);
 		
@@ -1084,7 +1087,7 @@ class DevblocksEventHelper {
 			"Behavior: %s\n".
 			"When: %s (%s)\n",
 			$behavior->title,
-			date('Y-m-d h:ip', $run_timestamp),
+			date('Y-m-d h:ia', $run_timestamp),
 			$run_date
 		);
 		
@@ -1129,13 +1132,16 @@ class DevblocksEventHelper {
 		@$run_date = $params['run_date'];
 		@$on_dupe = $params['on_dupe'];
 		
-		@$run_timestamp = strtotime($run_date);
-		
 		if(empty($behavior_id))
 			return FALSE;
 		
-		// Variables as parameters
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$run_date = $tpl_builder->build($run_date, $dict);
+		
+		
+		@$run_timestamp = strtotime($run_date);
+		
+		// Variables as parameters
 		$vars = array();
 		foreach($params as $k => $v) {
 			if(substr($k,0,4) == 'var_') {
