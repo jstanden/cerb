@@ -226,9 +226,9 @@ TABLE.sidebar TD INPUT {
 
 #kb div.content { 
 	color: rgb(50,50,50);
-    font-family: Arial, Helvetica, Verdana, sans-serif;
-    font-size: 100%;
-    line-height: 140%;
+	font-family: Arial, Helvetica, Verdana, sans-serif;
+	font-size: 100%;
+	line-height: 140%;
 }
 
 #kb div.content h1, #kb div.content h2, #kb div.content h3, #kb div.content h4, #kb div.content h5, #kb div.content h6 { 
@@ -276,9 +276,9 @@ TABLE.sidebar TD INPUT {
 	border-right: 1px solid rgb(200,200,200);
 	border-left: 3px solid rgb(150,150,150);
 	border-bottom: 3px solid rgb(150,150,150);
-    background-color: rgb(240,240,240);
-    color: #1111111;
-    padding: 0.5em;
+	background-color: rgb(240,240,240);
+	color: #1111111;
+	padding: 0.5em;
 }
 
 #kb div.content code {

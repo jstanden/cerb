@@ -68,7 +68,7 @@
 			</class>
 			<params>
 				<param key="uri" value="api" />
-    			<param key="title" value="webapi.common.api_credentials" />
+				<param key="title" value="webapi.common.api_credentials" />
 			</params>
 		</extension>
 
@@ -84,7 +84,7 @@
 			<params>
 				<param key="uri" value="addresses" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.attachments</id>
@@ -96,7 +96,7 @@
 			<params>
 				<param key="uri" value="attachments" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.calendars</id>
@@ -108,9 +108,9 @@
 			<params>
 				<param key="uri" value="calendars" />
 			</params>
-		</extension>		
+		</extension>
 		
-        <extension point="cerberusweb.rest.controller">
+		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.comments</id>
 			<name>Comments</name>
 			<class>
@@ -122,7 +122,7 @@
 			</params>
 		</extension>
 		
-        <extension point="cerberusweb.rest.controller">
+		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.contactperson</id>
 			<name>Contact Person</name>
 			<class>
@@ -134,7 +134,7 @@
 			</params>
 		</extension>
 
-        <extension point="cerberusweb.rest.controller">
+		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.custom_fields</id>
 			<name>Custom Fields</name>
 			<class>
@@ -144,7 +144,7 @@
 			<params>
 				<param key="uri" value="customfields" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.groups</id>
@@ -168,7 +168,7 @@
 			<params>
 				<param key="uri" value="messages" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.notifications</id>
@@ -180,7 +180,7 @@
 			<params>
 				<param key="uri" value="notifications" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.orgs</id>
@@ -192,7 +192,7 @@
 			<params>
 				<param key="uri" value="orgs" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.parser</id>
@@ -204,7 +204,7 @@
 			<params>
 				<param key="uri" value="parser" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.tasks</id>
@@ -216,7 +216,7 @@
 			<params>
 				<param key="uri" value="tasks" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.tickets</id>

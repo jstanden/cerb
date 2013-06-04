@@ -4,30 +4,30 @@
 		<li><a href="#widget{$widget->id}ConfigTabThresholds">Thresholds</a></li>
 	</ul>
 	
-    <div id="widget{$widget->id}ConfigTabThresholds">
-    	<table cellpadding="0" cellspacing="0" border="0" width="100%">
-    		<tr>
-    			<td width="50%"><b>Label</b></td>
-    			<td width="30%"><b>Max. Value</b></td>
-    			<td width="20%"><b>Color</b></td>
-    		</tr>
-    		{section name=thresholds loop=4}
-    		<tr>
-    			<td style="padding-right:10px;" valign="top">
-    				<input type="text" name="params[threshold_labels][]" value="{$widget->params.threshold_labels.{$smarty.section.thresholds.index}}" style="width:100%;">
-    			</td>
-    			<td style="padding-right:10px;" valign="top">
-    				<input type="text" name="params[threshold_values][]" value="{$widget->params.threshold_values.{$smarty.section.thresholds.index}}" style="width:100%;">
-    			</td>
-    			<td valign="top">
-    				<input type="hidden" name="params[threshold_colors][]" value="{$widget->params.threshold_colors.{$smarty.section.thresholds.index}}" style="width:100%;" class="color-picker">
-    			</td>
-    		</tr>
-    		{/section}
-    	</table>
+	<div id="widget{$widget->id}ConfigTabThresholds">
+		<table cellpadding="0" cellspacing="0" border="0" width="100%">
+			<tr>
+				<td width="50%"><b>Label</b></td>
+				<td width="30%"><b>Max. Value</b></td>
+				<td width="20%"><b>Color</b></td>
+			</tr>
+			{section name=thresholds loop=4}
+			<tr>
+				<td style="padding-right:10px;" valign="top">
+					<input type="text" name="params[threshold_labels][]" value="{$widget->params.threshold_labels.{$smarty.section.thresholds.index}}" style="width:100%;">
+				</td>
+				<td style="padding-right:10px;" valign="top">
+					<input type="text" name="params[threshold_values][]" value="{$widget->params.threshold_values.{$smarty.section.thresholds.index}}" style="width:100%;">
+				</td>
+				<td valign="top">
+					<input type="hidden" name="params[threshold_colors][]" value="{$widget->params.threshold_colors.{$smarty.section.thresholds.index}}" style="width:100%;" class="color-picker">
+				</td>
+			</tr>
+			{/section}
+		</table>
 	</div>
 	
-    <div id="widget{$widget->id}ConfigTabDatasource">
+	<div id="widget{$widget->id}ConfigTabDatasource">
 		
 		<b>Data</b> from 
 		{$source = $widget->params.datasource}

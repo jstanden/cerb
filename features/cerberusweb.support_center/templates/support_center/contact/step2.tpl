@@ -8,13 +8,13 @@
 <input type="hidden" name="a" value="doContactSend">
 <table border="0" cellpadding="0" cellspacing="0" width="99%">
   <tbody>
-    <tr>
-      <td colspan="2">
-      	<fieldset>
-      		<legend>{$translate->_('portal.common.open_ticket')}:</legend>
+	<tr>
+	  <td colspan="2">
+	  	<fieldset>
+	  		<legend>{$translate->_('portal.common.open_ticket')}:</legend>
 			
-	      	<b>{$translate->_('portal.public.what_email_reply')}</b><br>
-	      	<input type="hidden" name="nature" value="{$sNature}">
+		  	<b>{$translate->_('portal.public.what_email_reply')}</b><br>
+		  	<input type="hidden" name="nature" value="{$sNature}">
 			
 			{if !empty($active_contact)}
 				<select name="from">
@@ -29,8 +29,8 @@
 			{/if}
 			<br>
 	
-	      	<b>{$translate->_('ticket.subject')|capitalize}:</b><br>
-	      	{if $allow_subjects}
+		  	<b>{$translate->_('ticket.subject')|capitalize}:</b><br>
+		  	{if $allow_subjects}
 			<input type="text" name="subject" value="{if !empty($last_subject)}{$last_subject}{/if}" autocomplete="off" style="width:100%;" class="required"><br>
 			{else}
 			{$situation}<br>
@@ -39,9 +39,9 @@
 			
 			<b>{$translate->_('portal.public.open_ticket.message')}:</b><br>
 			<textarea name="content" rows="15" cols="60" style="width:100%;" class="required">{$last_content}</textarea><br>
-      	</fieldset>
+	  	</fieldset>
 
-      	{if !empty($situation_params.followups)}
+	  	{if !empty($situation_params.followups)}
 		<fieldset>
 			<legend>{$translate->_('portal.public.open_ticket.additional_info')}</legend>
 			
@@ -53,50 +53,50 @@
 				{else}
 					{assign var=required value=false}
 				{/if}
-		      	
-		      	<h2>{$question}</h2>
-		      	<input type="hidden" name="followup_q[]" value="{$question}">
-		      	{if !empty($field_id)}
-		      		{assign var=field value=$ticket_fields.$field_id}
+			  	
+			  	<h2>{$question}</h2>
+			  	<input type="hidden" name="followup_q[]" value="{$question}">
+			  	{if !empty($field_id)}
+			  		{assign var=field value=$ticket_fields.$field_id}
 					<input type="hidden" name="field_ids[]" value="{$field_id}">
-		      		
-		      		{if $field->type=='S'}
-		      			<input type="text" name="followup_a_{$idx}" value="{$last_followup_a.$idx}" autocomplete="off" style="width:100%;" class="{if $required}required{/if}">
-		      		{elseif $field->type=='U'}
-		      			<input type="text" name="followup_a_{$idx}" value="{$last_followup_a.$idx}" autocomplete="off" style="width:100%;" class="url {if $required}required{/if}">
-		      		{elseif $field->type=='N'}
-		      			<input type="text" name="followup_a_{$idx}" size="12" maxlength="20" value="{$last_followup_a.$idx}" autocomplete="off" class="number {if $required}required{/if}">
-		      		{elseif $field->type=='T'}
-		      			<textarea name="followup_a_{$idx}" rows="5" cols="60" style="width:100%;" class="{if $required}required{/if}">{$last_followup_a.$idx}</textarea>
-		      		{elseif $field->type=='D'}
-		      			<select name="followup_a_{$idx}" class="{if $required}required{/if}">
-		      				<option value=""></option>
-		      				{foreach from=$field->options item=opt}
-		      				<option value="{$opt}" {if $last_followup_a.$idx==$opt}selected="selected"{/if}>{$opt}
-		      				{/foreach}
-		      			</select>
-		      		{elseif $field->type=='W'}
+			  		
+			  		{if $field->type=='S'}
+			  			<input type="text" name="followup_a_{$idx}" value="{$last_followup_a.$idx}" autocomplete="off" style="width:100%;" class="{if $required}required{/if}">
+			  		{elseif $field->type=='U'}
+			  			<input type="text" name="followup_a_{$idx}" value="{$last_followup_a.$idx}" autocomplete="off" style="width:100%;" class="url {if $required}required{/if}">
+			  		{elseif $field->type=='N'}
+			  			<input type="text" name="followup_a_{$idx}" size="12" maxlength="20" value="{$last_followup_a.$idx}" autocomplete="off" class="number {if $required}required{/if}">
+			  		{elseif $field->type=='T'}
+			  			<textarea name="followup_a_{$idx}" rows="5" cols="60" style="width:100%;" class="{if $required}required{/if}">{$last_followup_a.$idx}</textarea>
+			  		{elseif $field->type=='D'}
+			  			<select name="followup_a_{$idx}" class="{if $required}required{/if}">
+			  				<option value=""></option>
+			  				{foreach from=$field->options item=opt}
+			  				<option value="{$opt}" {if $last_followup_a.$idx==$opt}selected="selected"{/if}>{$opt}
+			  				{/foreach}
+			  			</select>
+			  		{elseif $field->type=='W'}
 						{if empty($workers)}
 							{$workers = DAO_Worker::getAllActive()}
 						{/if}
-		      			<select name="followup_a_{$idx}" class="{if $required}required{/if}">
-		      				<option value=""></option>
-		      				{foreach from=$workers item=worker key=worker_id}
-		      				<option value="{$worker_id}" {if $last_followup_a.$idx==$worker_id}selected="selected"{/if}>{$worker->getName()}</option>
-		      				{/foreach}
-		      			</select>
-		      		{elseif $field->type=='E'}
-		      			<input type="text" name="followup_a_{$idx}" value="{$last_followup_a.$idx}" autocomplete="off" class="date {if $required}required{/if}">
+			  			<select name="followup_a_{$idx}" class="{if $required}required{/if}">
+			  				<option value=""></option>
+			  				{foreach from=$workers item=worker key=worker_id}
+			  				<option value="{$worker_id}" {if $last_followup_a.$idx==$worker_id}selected="selected"{/if}>{$worker->getName()}</option>
+			  				{/foreach}
+			  			</select>
+			  		{elseif $field->type=='E'}
+			  			<input type="text" name="followup_a_{$idx}" value="{$last_followup_a.$idx}" autocomplete="off" class="date {if $required}required{/if}">
 					{elseif $field->type=='X'}
 						{foreach from=$field->options item=opt}
 						<label><input type="checkbox" name="followup_a_{$idx}[]" value="{$opt}"> {$opt}</label><br>
 						{/foreach}
-		      		{elseif $field->type=='C'}
-		      			<label><input name="followup_a_{$idx}" type="checkbox" value="Yes" {if $last_followup_a.$idx}checked="checked"{/if}> {$translate->_('common.yes')|capitalize}</label>
-		      		{/if}
-		      		
-		      	{else}
-		      		<input type="hidden" name="field_ids[]" value="0">
+			  		{elseif $field->type=='C'}
+			  			<label><input name="followup_a_{$idx}" type="checkbox" value="Yes" {if $last_followup_a.$idx}checked="checked"{/if}> {$translate->_('common.yes')|capitalize}</label>
+			  		{/if}
+			  		
+			  	{else}
+			  		<input type="hidden" name="field_ids[]" value="0">
 					<input type="text" name="followup_a_{$idx}" value="{$last_followup_a.$idx}" autocomplete="off" style="width:100%;" class="{if $required}required{/if}">
 				{/if}
 				<br>
@@ -128,9 +128,9 @@
 			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top" border="0"> {$translate->_('portal.public.send_message')}</button>
 			<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/delete.gif{/devblocks_url}" align="top" border="0"> {$translate->_('common.discard')|capitalize}</button>
 		</div>
-      </td>
-    </tr>
-    
+	  </td>
+	</tr>
+	
   </tbody>
 </table>
 </form>
@@ -139,11 +139,11 @@
 <script type="text/javascript">
   $(document).ready(function(){
 	$frm = $("#openTicketForm");
-    $frm.validate({
-    	submitHandler: function(form) {
-    		$(form).find('div.buttons').hide();
-    		form.submit();
-    	},
+	$frm.validate({
+		submitHandler: function(form) {
+			$(form).find('div.buttons').hide();
+			form.submit();
+		},
 		rules: {
 			captcha: {
 				required: true,

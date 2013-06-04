@@ -78,7 +78,7 @@ var cerbChartStyle = {
 };
 
 plot1 = $.jqplot('reportChart', [series1], {
-    stackSeries: false,
+	stackSeries: false,
 	legend:{ 
 		show:false,
 		location:'nw'
@@ -93,9 +93,9 @@ plot1 = $.jqplot('reportChart', [series1], {
 		borderWidth:0
 	},
 	seriesColors: cerbChartStyle.seriesColors,	
-    seriesDefaults:{
+	seriesDefaults:{
 		renderer:$.jqplot.BarRenderer,
-        rendererOptions:{ 
+		rendererOptions:{ 
 			barDirection: 'horizontal',
 			barMargin:3,
 			varyBarColor:true,
@@ -111,16 +111,16 @@ plot1 = $.jqplot('reportChart', [series1], {
 			seriesLabelIndex:0
 		}
 	}],
-    axes:{
-        yaxis:{
+	axes:{
+		yaxis:{
 		  renderer:$.jqplot.CategoryAxisRenderer,
-	      tickOptions:{ 
-	        fontSize:'11px',
+		  tickOptions:{ 
+			fontSize:'11px',
 			mark:null,
 		  	showGridline:false
-	      },
+		  },
 		}, 
-        xaxis:{
+		xaxis:{
 		  min:0,
 		  padMax:1.2,
 		  tickOptions:{
@@ -129,7 +129,7 @@ plot1 = $.jqplot('reportChart', [series1], {
 		  	formatString:'%d'
 		  }
 		}
-    },
+	},
 });	
 </script>
 

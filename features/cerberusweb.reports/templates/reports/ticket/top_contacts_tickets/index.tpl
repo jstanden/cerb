@@ -89,7 +89,7 @@ var cerbChartStyle = {
 };
 
 var chartOptions = {
-    stackSeries: false,
+	stackSeries: false,
 	legend:{ 
 		show:false
 	},
@@ -102,9 +102,9 @@ var chartOptions = {
 		borderWidth:0
 	},
 	seriesColors: cerbChartStyle.seriesColors,	
-    seriesDefaults:{
+	seriesDefaults:{
 		//renderer:$.jqplot.BarRenderer,
-        rendererOptions:{ 
+		rendererOptions:{ 
 			highlightMouseOver: false
 		},
 		shadow: false,
@@ -117,23 +117,23 @@ var chartOptions = {
 			shadow:false
 		}
 	},
-    series:[
+	series:[
 		{foreach from=$data key=group_id item=group name=groups}{ label:'{$labels.$group_id}' }{if !$smarty.foreach.groups.last},{/if}{/foreach}
-    ],
-    axes:{
-        xaxis:{
+	],
+	axes:{
+		xaxis:{
 		  renderer:$.jqplot.CategoryAxisRenderer,
-	      tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-	      tickOptions: {
+		  tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+		  tickOptions: {
 		  	showGridline:false,
-	        {if count($xaxis_ticks) > 13}
+			{if count($xaxis_ticks) > 13}
 			angle: 90,
 			{/if}
-	        fontSize: '8pt'
-	      },
+			fontSize: '8pt'
+		  },
 		  ticks:['{implode("','",$xaxis_ticks) nofilter}']
 		}, 
-        yaxis:{
+		yaxis:{
 		  labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
 		  label:'(# tickets opened)',
 		  min:0,
@@ -144,7 +144,7 @@ var chartOptions = {
 			fontSize: '8pt'
 		  }
 		}
-    }
+	}
 };
 
 $('#reportChart').bind('jqplotPostDraw',function(event, plot) {
