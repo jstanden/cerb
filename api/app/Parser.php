@@ -1117,6 +1117,7 @@ class CerberusParser {
 			DAO_Message::TICKET_ID => $model->getTicketId(),
 			DAO_Message::CREATED_DATE => $model->getDate(),
 			DAO_Message::ADDRESS_ID => $model->getSenderAddressModel()->id,
+			DAO_Message::WORKER_ID => $model->isSenderWorker() ? 1 : 0,
 		);
 		$model->setMessageId(DAO_Message::create($fields));
 
