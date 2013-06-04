@@ -165,7 +165,7 @@ $view_actions.find('button,.action-on-select').not('.action-always-show').hide()
 			{foreach from=$va_behaviors item=va_behavior name=va_behaviors}
 			<li>
 				{$meta = $va_behavior->getOwnerMeta()}
-				{$va_behavior->title} [{$meta.name}]
+				{$va_behavior->title} [{$meta.name|default:'Global'}]
 			</li>
 			{/foreach}
 		</ul>
