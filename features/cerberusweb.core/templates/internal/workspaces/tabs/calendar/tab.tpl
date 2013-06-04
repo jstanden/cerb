@@ -102,6 +102,8 @@ $frm.find('button.calendar-edit').click(function() {
 });
 
 $openEvtPopupEvent = function(e) {
+	e.stopPropagation();
+	
 	var $this = $(this);
 	var link = '';
 	
