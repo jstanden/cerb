@@ -1043,17 +1043,8 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Calendar Recurring Profile';
-		$view->view_columns = array(
-			SearchFields_CalendarRecurringProfile::NAME,
-			SearchFields_CalendarRecurringProfile::UPDATED_AT,
-		);
-		/*
-		$view->addParams(array(
-			SearchFields_CalendarRecurringProfile::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_CalendarRecurringProfile::UPDATED_AT,'=',0),
-		), true);
-		*/
-		$view->renderSortBy = SearchFields_CalendarRecurringProfile::UPDATED_AT;
-		$view->renderSortAsc = false;
+		$view->renderSortBy = SearchFields_CalendarRecurringProfile::EVENT_NAME;
+		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
 		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
@@ -1140,13 +1131,8 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			'name' => array(
 				'label' => 'Name',
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'param' => SearchFields_CalendarRecurringProfile::NAME,
+				'param' => SearchFields_CalendarRecurringProfile::EVENT_NAME,
 				'required' => true,
-			),
-			'updated_at' => array(
-				'label' => 'Updated Date',
-				'type' => Model_CustomField::TYPE_DATE,
-				'param' => SearchFields_CalendarRecurringProfile::UPDATED_AT,
 			),
 		);
 	
@@ -1176,8 +1162,8 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		// If new...
 		if(!isset($meta['object_id']) || empty($meta['object_id'])) {
 			// Make sure we have a name
-			if(!isset($fields[DAO_CalendarRecurringProfile::NAME])) {
-				$fields[DAO_CalendarRecurringProfile::NAME] = 'New ' . $this->manifest->name;
+			if(!isset($fields[DAO_CalendarRecurringProfile::EVENT_NAME])) {
+				$fields[DAO_CalendarRecurringProfile::EVENT_NAME] = 'New ' . $this->manifest->name;
 			}
 	
 			// Create
