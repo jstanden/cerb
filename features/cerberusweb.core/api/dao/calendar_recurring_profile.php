@@ -480,21 +480,34 @@ class Model_CalendarRecurringProfile {
 				}
 				
 				if($passed) {
-					$timezone = new DateTimeZone($this->tz);
-					$datetime = new DateTime(date('Y-m-d', $day), $timezone);
-					
-					$datetime->modify($this->event_start ?: 'midnight');
-					$event_start_local = $datetime->getTimestamp();
-					
-					$datetime->modify($this->event_end ?: 'midnight');
-					$event_end_local = $datetime->getTimestamp();
+					// This is a B.S. workaround for a PHP bug
+					// If we can do things the right way
+					if(version_compare(PHP_VERSION, '5.3.6', '>=')) {
+						$timezone = new DateTimeZone($this->tz);
+						$datetime = new DateTime(date('Y-m-d', $day), $timezone);
+						
+						$datetime->modify($this->event_start ?: 'midnight');
+						$event_start_local = $datetime->getTimestamp();
+						
+						$datetime->modify($this->event_end ?: 'midnight');
+						$event_end_local = $datetime->getTimestamp();
+						
+					// If we have to hack around the PHP bug with DateTime::modify($absolute_time)
+					} else {
+						$datetime_date = date('Y-m-d', $day);
+						$previous_timezone = date_default_timezone_get();
+						date_default_timezone_set($this->tz);
+						$datetime = strtotime($datetime_date);
+						
+						@$event_start_local = strtotime($this->event_start ?: 'midnight', $datetime);
+						@$event_end_local = strtotime($this->event_end ?: 'midnight', $datetime);
+						date_default_timezone_set($previous_timezone);
+					}
 					
 					$calendar_events[] = array(
 						'context' => CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING,
-						'context' => null,
 						'context_id' => $this->id,
 						'label' => $this->event_name,
-						//'color' => false ? $color_available : $color_busy,
 						'ts' => $event_start_local,
 						'ts_end' => $event_end_local,
 						'is_available' => $this->is_available,
