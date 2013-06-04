@@ -1837,6 +1837,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				// DAO
 				case SearchFields_Ticket::ORG_NAME:
 				case SearchFields_Ticket::TICKET_FIRST_WROTE:
+				case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
 				case SearchFields_Ticket::TICKET_LAST_WROTE:
 				case SearchFields_Ticket::TICKET_SPAM_TRAINING:
 				case SearchFields_Ticket::TICKET_SUBJECT:
@@ -1884,6 +1885,16 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_SUBJECT:
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_Ticket', $column);
 				break;
+				
+			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
+				$label_map = array(
+					'O' => 'New Ticket',
+					'R' => 'Recipient Replied',
+					'W' => 'Worker Replied',
+				);
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_Ticket', $column, $label_map, 'in', 'options[]');
+				break;
+				
 			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
 				$label_map = array(
 					'' => 'Not trained',
@@ -2362,8 +2373,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
 				$options = array(
 					'O' => 'New Ticket',
-					'R' => 'Customer Reply',
-					'W' => 'Worker Reply',
+					'R' => 'Recipient Replied',
+					'W' => 'Worker Replied',
 				);
 				
 				$tpl->assign('options', $options);
@@ -2575,10 +2586,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 							$strings[] = "New Ticket";
 							break;
 						case 'R':
-							$strings[] = "Customer Reply";
+							$strings[] = "Recipient Replied";
 							break;
 						case 'W':
-							$strings[] = "Worker Reply";
+							$strings[] = "Worker Replied";
 							break;
 					}
 				}
