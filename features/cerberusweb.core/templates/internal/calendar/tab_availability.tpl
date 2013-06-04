@@ -3,27 +3,27 @@
 <form id="frm{$guid}" action="#" style="margin-bottom:5px;width:98%;">
 	<div style="float:left;">
 		<span style="font-weight:bold;font-size:150%;">{$calendar_properties.calendar_date|devblocks_date:'F Y'}</span>
-		{if !empty($create_contexts)}
-		<div style="display:inline-block;margin-left:10px;">
-			{if count($create_contexts) > 1}
-			<button type="button" class="reply split-left" onclick="$(this).next('button.split-right').click();"><span class="cerb-sprite2 sprite-plus-circle"></span> </button><!--
-			--><button type="button" class="split-right" onclick="$ul=$(this).next('ul');$ul.toggle();"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
-			<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
-				{foreach from=$create_contexts item=create_context}
-				<li><a href="javascript:;" class="create-event" context="{$create_context->id}">{$create_context->name}</a></li>
-				{/foreach}
-			</ul>
-			{else}
-			{$create_context = reset($create_contexts)}
-			<button type="button" class="create-event" context="{$create_context->id}"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
-			{/if}
-		</div>
-		{/if}
-		
 		{if !empty($calendar)}
-		<span style="margin-left:10px;">
-			Availability based on <a href="{devblocks_url}c=profiles&what=calendar&id={$calendar->id}-{$calendar->name|devblocks_permalink}{/devblocks_url}" style="font-weight:bold;">{$calendar->name}</a>
-		</span>
+			{if !empty($create_contexts)}
+			<div style="display:inline-block;margin-left:10px;">
+				{if count($create_contexts) > 1}
+				<button type="button" class="reply split-left" onclick="$(this).next('button.split-right').click();"><span class="cerb-sprite2 sprite-plus-circle"></span> </button><!--
+				--><button type="button" class="split-right" onclick="$ul=$(this).next('ul');$ul.toggle();"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
+				<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
+					{foreach from=$create_contexts item=create_context}
+					<li><a href="javascript:;" class="create-event" context="{$create_context->id}">{$create_context->name}</a></li>
+					{/foreach}
+				</ul>
+				{else}
+				{$create_context = reset($create_contexts)}
+				<button type="button" class="create-event" context="{$create_context->id}"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+				{/if}
+			</div>
+			{/if}
+			
+			<span style="margin-left:10px;">
+				Availability based on <a href="{devblocks_url}c=profiles&what=calendar&id={$calendar->id}-{$calendar->name|devblocks_permalink}{/devblocks_url}" style="font-weight:bold;">{$calendar->name}</a>
+			</span>
 		{/if}
 	</div>
 
@@ -81,6 +81,8 @@ $frm = $('#frm{$guid}');
 $tab = $frm.closest('div.ui-tabs-panel');
 
 $openEvtPopupEvent = function(e) {
+	e.stopPropagation();
+	
 	var $this = $(this);
 	var link = '';
 	
@@ -90,7 +92,8 @@ $openEvtPopupEvent = function(e) {
 		link = 'ctx://' + context + ':0';
 	
 	} else if($this.is('div.event')) {
-		link = $this.attr('link');
+		//link = $this.attr('link');
+		return;
 	}
 	
 	if(link.substring(0,6) == 'ctx://') {
@@ -116,13 +119,10 @@ $openEvtPopupEvent = function(e) {
 {if !empty($create_contexts)}
 $frm.find('ul.cerb-popupmenu > li').click(function(e) {
 	e.stopPropagation();
+	e.preventDefault();
 	$(this).find('a.create-event').click();
 });
 
 $frm.find('button.create-event, a.create-event').click($openEvtPopupEvent);
 {/if}
-
-{*
-$tab.find('TABLE.calendar TR.week div.day_contents').find('div.event').click($openEvtPopupEvent);
-*}
 </script>

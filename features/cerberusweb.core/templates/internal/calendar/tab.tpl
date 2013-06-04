@@ -72,6 +72,7 @@ $tab = $frm.closest('div.ui-tabs-panel');
 
 $openEvtPopupEvent = function(e) {
 	e.stopPropagation();
+	
 	var $this = $(this);
 	var link = '';
 
@@ -105,12 +106,13 @@ $openEvtPopupEvent = function(e) {
 }
 
 {if !empty($create_contexts)}
-	$frm.find('ul.cerb-popupmenu > li').click(function(e) {
-		e.stopPropagation();
-		$(this).find('a.create-event').click();
-	});
-	
-	$frm.find('button.create-event, a.create-event').click($openEvtPopupEvent);
+$frm.find('ul.cerb-popupmenu > li').click(function(e) {
+	e.stopPropagation();
+	e.preventDefault();
+	$(this).find('a.create-event').click();
+});
+
+$frm.find('button.create-event, a.create-event').click($openEvtPopupEvent);
 {/if}
 
 $tab.find('TABLE.calendar TR.week div.day_contents').find('div.event').click($openEvtPopupEvent);
