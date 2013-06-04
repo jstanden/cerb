@@ -2883,8 +2883,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$batch_ids = array_slice($ids,$x,200);
 				
 				// Fields
-				if(!empty($change_fields))
+				if(!empty($change_fields)) {
+					$change_fields[DAO_Ticket::UPDATED_DATE] = time();
 					DAO_Ticket::update($batch_ids, $change_fields);
+				}
 				
 				// Custom Fields
 				self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_TICKET, $custom_fields, $batch_ids);
