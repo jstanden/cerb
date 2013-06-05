@@ -1683,6 +1683,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 				'type' => 'worklist',
 				'version' => 'Cerb ' . APP_VERSION,
 				'page' => $view->renderPage,
+				'count' => 0,
 				'total' => 0,
 				'results' => array(),
 			),
@@ -1691,42 +1692,35 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		$fields = $view->getFields();
 		$columns_all = $view->getColumnsAvailable();
 		
-		$view->renderPage = 0;
-		$view->renderLimit = 100;
-		$view->renderTotal = false;
+		$view->renderTotal = true;
 		
-		do {
-			list($data, $count) = $view->getData();
-			
-			if(!empty($data)) {
-				foreach($data as $idx => $row) {
-					$result = array();
-					
-					if(is_array($row))
-					foreach($row as $k => $v) {
-						if(isset($fields[$k]) && !empty($fields[$k]->db_label))
-							if(!isset($columns_all[$k]))
-								continue;
-							
-							$result[$k] = array(
-								'label' => $fields[$k]->db_label,
-								'type' => $fields[$k]->type,
-								'value' => $v,
-							);
-					}
-					
-					if(!empty($result))
-						$results['widget']['results'][] = $result;
+		list($data, $count) = $view->getData();
+		
+		$results['widget']['total'] = $count;
+		$results['widget']['count'] = count($data);
+		
+		if(!empty($data)) {
+			foreach($data as $idx => $row) {
+				$result = array();
+				
+				if(is_array($row))
+				foreach($row as $k => $v) {
+					if(isset($fields[$k]) && !empty($fields[$k]->db_label))
+						if(!isset($columns_all[$k]))
+							continue;
+						
+						$result[$k] = array(
+							'label' => $fields[$k]->db_label,
+							'type' => $fields[$k]->type,
+							'value' => $v,
+						);
 				}
 				
+				if(!empty($result))
+					$results['widget']['results'][] = $result;
 			}
+		}
 			
-			$view->renderPage++;
-			
-		} while(count($data));
-		
-		$results['widget']['total'] = count($results['widget']['results']);
-		
 		return DevblocksPlatform::strFormatJson(json_encode($results));
 	}
 	
@@ -1734,59 +1728,52 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		$fields = $view->getFields();
 		$columns_all = $view->getColumnsAvailable();
 		
-		$view->renderPage = 0;
-		$view->renderLimit = 100;
-		$view->renderTotal = false;
+		$view->renderTotal = true;
 		
 		$is_first = true;
 		
 		$fp = fopen("php://temp", 'r+');
 		
-		do {
-			list($data, $count) = $view->getData();
-			
-			if(!empty($data)) {
-				// CSV headings
-				if($is_first) {
-					$row = current($data);
-					$result = array();
-					
-					if(is_array($row))
-					foreach($row as $k => $v) {
-						if(!isset($columns_all[$k]))
-							continue;
-					
-						if(isset($fields[$k]) && !empty($fields[$k]->db_label))
-							$result[] = $fields[$k]->db_label;
-					}
-					
-					if(!empty($result))
-						fputcsv($fp, $result);
-					
-					$is_first = false;
+		list($data, $count) = $view->getData();
+		
+		if(!empty($data)) {
+			// CSV headings
+			if($is_first) {
+				$row = current($data);
+				$result = array();
+				
+				if(is_array($row))
+				foreach($row as $k => $v) {
+					if(!isset($columns_all[$k]))
+						continue;
+				
+					if(isset($fields[$k]) && !empty($fields[$k]->db_label))
+						$result[] = $fields[$k]->db_label;
 				}
 				
-				foreach($data as $idx => $row) {
-					$result = array();
-					
-					if(is_array($row))
-					foreach($row as $k => $v) {
-						if(!isset($columns_all[$k]))
-							continue;
-						
-						if(isset($fields[$k]) && !empty($fields[$k]->db_label))
-							$result[] = $v;
-					}
-					
-					if(!empty($result))
-						fputcsv($fp, $result);
-				}
+				if(!empty($result))
+					fputcsv($fp, $result);
 				
+				$is_first = false;
 			}
 			
-			$view->renderPage++;
+			foreach($data as $idx => $row) {
+				$result = array();
+				
+				if(is_array($row))
+				foreach($row as $k => $v) {
+					if(!isset($columns_all[$k]))
+						continue;
+					
+					if(isset($fields[$k]) && !empty($fields[$k]->db_label))
+						$result[] = $v;
+				}
+				
+				if(!empty($result))
+					fputcsv($fp, $result);
+			}
 			
-		} while(count($data));
+		}
 		
 		rewind($fp);
 
