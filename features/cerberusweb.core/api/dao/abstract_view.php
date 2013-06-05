@@ -54,6 +54,7 @@ abstract class C4_AbstractView {
 			$data = call_user_func_array(
 				array($dao_class,'search'),
 				array(
+					$this->view_columns,
 					$this->getParams(),
 					$this->renderLimit,
 					$this->renderPage,
@@ -70,7 +71,7 @@ abstract class C4_AbstractView {
 
 		if(!is_array($ids) || empty($ids))
 			return array();
-		
+
 		$sql = sprintf("id IN (%s)",
 			implode(',', $ids)
 		);
@@ -78,12 +79,23 @@ abstract class C4_AbstractView {
 		if(!method_exists($dao_class,'getWhere'))
 			return array();
 		
-		$results = call_user_func_array(
+		$results = array();
+		
+		$models = call_user_func_array(
 			array($dao_class,'getWhere'),
 			array(
 				$sql,
 			)
 		);
+		
+		foreach($ids as $id) {
+			if(!isset($models[$id]))
+				continue;
+			
+			$results[$id] = $models[$id];
+		}
+		
+		unset($models);
 		
 		return $results;
 	}
