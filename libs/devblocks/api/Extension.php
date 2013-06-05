@@ -149,6 +149,23 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		return null;
 	}
 	
+	public static function getByViewClass($view_class, $as_instance=false) {
+		$contexts = self::getAll(false);
+		
+		if(is_array($contexts))
+		foreach($contexts as $ctx_id => $ctx) { /* @var $ctx DevblocksExtensionManifest */
+			if(isset($ctx->params['view_class']) && 0 == strcasecmp($ctx->params['view_class'], $view_class)) {
+				if($as_instance) {
+					return $ctx->createInstance();
+				} else {
+					return $ctx;
+				}
+			}
+		}
+		
+		return null;
+	}
+	
 	/**
 	 * Lazy loader + cache
 	 * @param unknown_type $context
