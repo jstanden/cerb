@@ -39,6 +39,12 @@
 		
 		<!-- Activity points -->
 		
+		<tu tuid='activities.calendar_event.created'>
+			<tuv xml:lang="en_US"><seg>{{actor}} created event {{event}} on calendar {{target}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.calendar_event_recurring.created'>
+			<tuv xml:lang="en_US"><seg>{{actor}} created recurring event {{event}} on calendar {{target}}</seg></tuv>
+		</tu>
 		<tu tuid='activities.comment.create'>
 			<tuv xml:lang="en_US"><seg>{{actor}} commented on {{object}} {{target}}: {{content}}</seg></tuv>
 		</tu>

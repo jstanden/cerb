@@ -529,6 +529,12 @@
 	<!-- Activity Points -->
 	
 	<activity_points>
+		<activity point="calendar_event.created">
+			<param key="label_key" value="Calendar Event Created" />
+		</activity>
+		<activity point="calendar_event_recurring.created">
+			<param key="label_key" value="Calendar Recurring Event Created" />
+		</activity>
 		<activity point="comment.create">
 			<param key="label_key" value="Comment Created" />
 		</activity>

@@ -27,6 +27,12 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 	const PATTERNS = 'patterns';
 
 	static function create($fields) {
+		if(
+			!isset($fields[DAO_CalendarRecurringProfile::CALENDAR_ID])
+			|| false == ($calendar = DAO_Calendar::get($fields[DAO_CalendarRecurringProfile::CALENDAR_ID]))
+			)
+			return false;
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = "INSERT INTO calendar_recurring_profile () VALUES ()";
@@ -34,6 +40,24 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
+		
+		/*
+		 * Log the activity of a new recurring event being created
+		 */
+		
+		$entry = array(
+			//{{actor}} created recurring event {{event}} on calendar {{target}}
+			'message' => 'activities.calendar_event_recurring.created',
+			'variables' => array(
+				'event' => $fields[DAO_CalendarRecurringProfile::EVENT_NAME],
+				'target' => $calendar->name,
+				),
+			'urls' => array(
+				'event' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $id),
+				'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_CALENDAR, $calendar->id),
+				)
+		);
+		CerberusContexts::logActivity('calendar_event_recurring.created', CerberusContexts::CONTEXT_CALENDAR, $calendar->id, $entry, null, null);
 		
 		return $id;
 	}

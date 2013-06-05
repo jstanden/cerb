@@ -24,13 +24,37 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 	const DATE_END = 'date_end';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		if(
+			!isset($fields[DAO_CalendarEvent::CALENDAR_ID])
+			|| false == ($calendar = DAO_Calendar::get($fields[DAO_CalendarEvent::CALENDAR_ID]))
+			)
+			return false;
 		
+		$db = DevblocksPlatform::getDatabaseService();
+
 		$sql = "INSERT INTO calendar_event () VALUES ()";
 		$db->Execute($sql);
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
+		
+		/*
+		 * Log the activity of a new event being created
+		 */
+		
+		$entry = array(
+			//{{actor}} created event {{event}} on calendar {{target}}
+			'message' => 'activities.calendar_event.created',
+			'variables' => array(
+				'event' => $fields[DAO_CalendarEvent::NAME],
+				'target' => $calendar->name,
+				),
+			'urls' => array(
+				'event' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_CALENDAR_EVENT, $id),
+				'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_CALENDAR, $calendar->id),
+				)
+		);
+		CerberusContexts::logActivity('calendar_event.created', CerberusContexts::CONTEXT_CALENDAR, $calendar->id, $entry, null, null);
 		
 		return $id;
 	}
