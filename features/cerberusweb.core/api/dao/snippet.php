@@ -975,7 +975,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 			$prefix = 'Snippet:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		//$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SNIPPET);
 
 		// Polymorph
 		if(is_numeric($snippet)) {
@@ -988,8 +988,10 @@ class Context_Snippet extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
+			'title' => $prefix.$translate->_('dao.common.title'),
+			'context' => $prefix.$translate->_('common.context'),
+			'content' => $prefix.$translate->_('common.content'),
 			'total_uses' => $prefix.$translate->_('dao.snippet.total_uses'),
-//			'completed|date' => $prefix.$translate->_('task.completed_date'),
 		);
 		
 		// Custom field/fieldset token labels
@@ -1004,32 +1006,13 @@ class Context_Snippet extends Extension_DevblocksContext {
 		if($snippet) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $snippet->title;
+			$token_values['content'] = $snippet->content;
+			$token_values['context'] = $snippet->context;
+			$token_values['id'] = $snippet->id;
+			$token_values['owner__context'] = $snippet->owner_context;
+			$token_values['owner_id'] = $snippet->owner_context_id;
+			$token_values['title'] = $snippet->title;
 			$token_values['total_uses'] = $snippet->total_uses;
-			
-//			$token_values['completed'] = $task->completed_date;
-			
-//			$token_values['custom'] = array();
-			
-//			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TASK, $task->id));
-//			if(is_array($field_values) && !empty($field_values)) {
-//				foreach($field_values as $cf_id => $cf_val) {
-//					if(!isset($fields[$cf_id]))
-//						continue;
-//
-//					// The literal value
-//					if(null != $task)
-//						$token_values['custom'][$cf_id] = $cf_val;
-//
-//					// Stringify
-//					if(is_array($cf_val))
-//						$cf_val = implode(', ', $cf_val);
-//
-//					if(is_string($cf_val)) {
-//						if(null != $task)
-//							$token_values['custom_'.$cf_id] = $cf_val;
-//					}
-//				}
-//			}
 		}
 
 		return true;
