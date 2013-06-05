@@ -798,6 +798,7 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 			'id' => $prefix.$translate->_('common.id'),
 			'is_available' => $prefix.$translate->_('dao.calendar_event.is_available'),
 			'name' => $prefix.$translate->_('common.name'),
+			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		// Custom field/fieldset token labels
@@ -817,6 +818,10 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 			$token_values['id'] = $calendar_event->id;
 			$token_values['is_available'] = $calendar_event->is_available;
 			$token_values['name'] = $calendar_event->name;
+			
+			// URL
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=calendar_event&id=%d-%s",$calendar_event->id, DevblocksPlatform::strToPermalink($calendar_event->name)), true);
 		}
 
 		return true;

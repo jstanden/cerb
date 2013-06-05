@@ -1776,6 +1776,7 @@ class Context_Message extends Extension_DevblocksContext {
 			'is_outgoing' => $prefix.$translate->_('message.is_outgoing'),
 			'response_time' => $prefix.$translate->_('message.response_time'),
 			'storage_size' => $prefix.$translate->_('message.storage_size').' (bytes)',
+			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		// Token values
@@ -1800,6 +1801,10 @@ class Context_Message extends Extension_DevblocksContext {
 			// Sender
 			@$address_id = $message->address_id;
 			$token_values['sender_id'] = $address_id;
+			
+			// URL
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=ticket&id=%d/message/%d", $message->ticket_id, $message->id), true);
 		}
 
 		// Ticket (only if message is the top of the context chain)
