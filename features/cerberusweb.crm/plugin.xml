@@ -101,6 +101,7 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="context_expand_export" value="email_" />
 			</params>
 		</extension>
 	

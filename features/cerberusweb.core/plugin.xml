@@ -771,6 +771,7 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="context_expand_export" value="email_" />
 			</params>
 		</extension>
 		
@@ -795,6 +796,7 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="context_expand_export" value="org_" />
 			</params>
 		</extension>
 		
@@ -843,6 +845,7 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="context_expand_export" value="owner_" />
 			</params>
 		</extension>
 		
@@ -867,6 +870,7 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="context_expand_export" value="calendar_" />
 			</params>
 		</extension>
 		
@@ -893,6 +897,7 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="context_expand_export" value="calendar_" />
 			</params>
 		</extension>
 		
@@ -1022,6 +1027,7 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="context_expand_export" value="ticket_,ticket_bucket,ticket_group,sender_,sender_org_" />
 			</params>
 		</extension>
 		
@@ -1090,6 +1096,7 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="context_expand_export" value="owner_" />
 			</params>
 		</extension>
 		
@@ -1138,6 +1145,7 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="context_expand_export" value="group_,bucket_,owner_,latest_message_sender_" />
 			</params>
 		</extension>
 
@@ -1162,6 +1170,7 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="context_expand_export" value="address_" />
 			</params>
 		</extension>
 

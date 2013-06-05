@@ -69,6 +69,7 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="context_expand_export" value="author_" />
 			</params>
 		</extension>
 	
