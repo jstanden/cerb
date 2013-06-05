@@ -162,11 +162,13 @@ $.fn.cerbDateInputHelper = function() {
 			.blur(function(e) {
 				$(this).trigger('send');
 			})
-			.keyup(function(e) {
+			.keydown(function(e) {
 				$(this).addClass('changed', true);
 				
 				// If the worker hit enter and we're not showing an autocomplete menu
 				if(e.which == 13) {
+					e.preventDefault();
+
 					if($(this).is('.autocomplete_select')) {
 						$(this).removeClass('autocomplete_select');
 						return false;

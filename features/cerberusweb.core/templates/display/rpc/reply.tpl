@@ -1,6 +1,6 @@
 <div class="block reply_frame" style="width:98%;margin:10px;">
 
-<form id="reply{$message->id}_part1">
+<form id="reply{$message->id}_part1" onsubmit="return false;">
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
 		<td><h2 style="color:rgb(50,50,50);">{if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.reply')|capitalize}{/if}</h2></td>
@@ -306,6 +306,15 @@
 	$(function(e) {
 		$frm = $('#reply{$message->id}_part1');
 		$frm2 = $('#reply{$message->id}_part2');
+		
+		// Disable ENTER submission on the FORM text input
+		$frm2
+			.find('input:text')
+			.keydown(function(e) {
+				if(e.which == 13)
+					e.preventDefault();
+			})
+			;
 		
 		// Autocompletes
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=to]', { multiple: true } );
