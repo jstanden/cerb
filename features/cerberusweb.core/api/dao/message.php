@@ -109,7 +109,7 @@ class DAO_Message extends Cerb_ORMHelper {
 			$object->storage_profile_id = $row['storage_profile_id'];
 			$object->storage_size = $row['storage_size'];
 			$object->response_time = $row['response_time'];
-			$object->is_broadcast = intval($row['response_time']);
+			$object->is_broadcast = intval($row['is_broadcast']);
 			$objects[$object->id] = $object;
 		}
 		
