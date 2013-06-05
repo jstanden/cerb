@@ -813,11 +813,26 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		if($calendar_event) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $calendar_event->name;
+			$token_values['calendar_id'] = $calendar_event->calendar_id;
 			$token_values['date_end'] = $calendar_event->date_end;
 			$token_values['date_start'] = $calendar_event->date_start;
 			$token_values['id'] = $calendar_event->id;
 			$token_values['is_available'] = $calendar_event->is_available;
 			$token_values['name'] = $calendar_event->name;
+
+			// Calendar
+			$merge_token_labels = array();
+			$merge_token_values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_CALENDAR, null, $merge_token_labels, $merge_token_values, '', true);
+	
+			CerberusContexts::merge(
+				'calendar_',
+				'Calendar:',
+				$merge_token_labels,
+				$merge_token_values,
+				$token_labels,
+				$token_values
+			);
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
