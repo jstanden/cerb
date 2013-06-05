@@ -1676,103 +1676,103 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		}
 	}
 	
+	private function _exportDataLoadAsContexts(Model_WorkspaceWidget $widget, $view) {
+		$results = array();
+		
+		@$context_ext = Extension_DevblocksContext::getByViewClass(get_class($view));
+
+		if(empty($context_ext))
+			return array();
+		
+		$models = $view->getDataAsObjects();
+		
+		/*
+		 * [TODO] This should be able to reuse lazy loads (e.g. every calendar_event may share
+		 * a calendar_event.calendar_id link to the same record
+		 *
+		 */
+		
+		foreach($models as $model) {
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext($context_ext->id, $model, $labels, $values, null, true);
+			
+			unset($values['_loaded']);
+			
+			$dict = new DevblocksDictionaryDelegate($values);
+			
+			if(isset($context_ext->params['context_expand_export'])) {
+				@$context_expand = DevblocksPlatform::parseCsvString($context_ext->params['context_expand_export']);
+				
+				foreach($context_expand as $expand)
+					$dict->$expand;
+			}
+			
+			$values = $dict->getDictionary();
+			
+			foreach($values as $k => $v) {
+				// Hide complex values
+				if(!is_string($v) && !is_numeric($v)) {
+					unset($values[$k]);
+					continue;
+				}
+				
+				// Hide any failed key lookups
+				if(substr($k,0,1) == '_' && is_null($v)) {
+					unset($values[$k]);
+					continue;
+				}
+				
+				// Hide meta data
+				if(preg_match('/__context$/', $k)) {
+					unset($values[$k]);
+					continue;
+				}
+			}
+			
+			$results[] = $values;
+		}
+		
+		return $results;
+	}
+	
 	private function _exportDataAsJson(Model_WorkspaceWidget $widget, $view) {
-		$results = array(
+		$export_data = array(
 			'widget' => array(
 				'label' => $widget->label,
 				'type' => 'worklist',
 				'version' => 'Cerb ' . APP_VERSION,
 				'page' => $view->renderPage,
 				'count' => 0,
-				'total' => 0,
 				'results' => array(),
 			),
 		);
-
-		$fields = $view->getFields();
-		$columns_all = $view->getColumnsAvailable();
 		
-		$view->renderTotal = true;
+		$results = $this->_exportDataLoadAsContexts($widget, $view);
 		
-		list($data, $count) = $view->getData();
-		
-		$results['widget']['total'] = $count;
-		$results['widget']['count'] = count($data);
-		
-		if(!empty($data)) {
-			foreach($data as $idx => $row) {
-				$result = array();
-				
-				if(is_array($row))
-				foreach($row as $k => $v) {
-					if(isset($fields[$k]) && !empty($fields[$k]->db_label))
-						if(!isset($columns_all[$k]))
-							continue;
-						
-						$result[$k] = array(
-							'label' => $fields[$k]->db_label,
-							'type' => $fields[$k]->type,
-							'value' => $v,
-						);
-				}
-				
-				if(!empty($result))
-					$results['widget']['results'][] = $result;
-			}
-		}
+		$export_data['widget']['count'] = count($results);
+		$export_data['widget']['results'] = $results;
 			
-		return DevblocksPlatform::strFormatJson(json_encode($results));
+		return DevblocksPlatform::strFormatJson(json_encode($export_data));
 	}
 	
 	private function _exportDataAsCSV(Model_WorkspaceWidget $widget, $view) {
-		$fields = $view->getFields();
-		$columns_all = $view->getColumnsAvailable();
-		
-		$view->renderTotal = true;
-		
-		$is_first = true;
+		$results = $this->_exportDataLoadAsContexts($widget, $view);
 		
 		$fp = fopen("php://temp", 'r+');
-		
-		list($data, $count) = $view->getData();
-		
-		if(!empty($data)) {
-			// CSV headings
-			if($is_first) {
-				$row = current($data);
-				$result = array();
-				
-				if(is_array($row))
-				foreach($row as $k => $v) {
-					if(!isset($columns_all[$k]))
-						continue;
-				
-					if(isset($fields[$k]) && !empty($fields[$k]->db_label))
-						$result[] = $fields[$k]->db_label;
-				}
-				
-				if(!empty($result))
-					fputcsv($fp, $result);
-				
-				$is_first = false;
-			}
+
+		if(!empty($results)) {
+			$first_result = current($results);
+			$headings = array();
 			
-			foreach($data as $idx => $row) {
-				$result = array();
-				
-				if(is_array($row))
-				foreach($row as $k => $v) {
-					if(!isset($columns_all[$k]))
-						continue;
-					
-					if(isset($fields[$k]) && !empty($fields[$k]->db_label))
-						$result[] = $v;
-				}
-				
-				if(!empty($result))
-					fputcsv($fp, $result);
-			}
+			foreach(array_keys($first_result) as $k)
+				$headings[] = $k;
 			
+			fputcsv($fp, $headings);
+		}
+		
+		foreach($results as $result) {
+			fputcsv($fp, $result);
 		}
 		
 		rewind($fp);
