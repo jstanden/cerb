@@ -1751,6 +1751,8 @@ class Context_Message extends Extension_DevblocksContext {
 	}
 	
 	function getContext($message, &$token_labels, &$token_values, $prefix=null) {
+		$is_nested = $prefix ? true : false;
+		
 		if(is_null($prefix))
 			$prefix = 'Message:';
 		
@@ -1800,6 +1802,22 @@ class Context_Message extends Extension_DevblocksContext {
 			$token_values['sender_id'] = $address_id;
 		}
 
+		// Ticket (only if message is the top of the context chain)
+		if(!$is_nested) {
+			$merge_token_labels = array();
+			$merge_token_values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, null, $merge_token_labels, $merge_token_values, '', true);
+	
+			CerberusContexts::merge(
+				'ticket_',
+				'Ticket:',
+				$merge_token_labels,
+				$merge_token_values,
+				$token_labels,
+				$token_values
+			);
+		}
+		
 		// Sender
 		$merge_token_labels = array();
 		$merge_token_values = array();
