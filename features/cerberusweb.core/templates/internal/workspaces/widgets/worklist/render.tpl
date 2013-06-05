@@ -33,25 +33,21 @@ var on_refresh = function() {
 		;
 	
 	// Hide watchers column (if exists)
-	if($worklist_body.find('tr:first th:first:contains(Watchers)').length > 0) {
-		$worklist_body.find('tr:first th:first').remove();
-		$worklist_body.find('tbody').find('> tr > td:first').remove();
+	
+	var $th_watchers = $worklist_body.find('tr:first th:contains(Watchers)').first();
+	if($th_watchers.length > 0) {
+		$th_watchers.hide();
+		$worklist_body.find('tbody').find('> tr > td:first').hide();
 	}
 	
-	$worklist_body.find("tr:first th").each(function(e) {
-		var $this = $(this);
-
-		if($this.find('a').length == 0) {
-			var idx = e;
-			$this.remove();
-		}
+	$worklist_body.find('tr:first th').each(function(e) {
+		var $th = $(this);
+		if($th.text().length == 0)
+			$th.hide();
 	});
-
-	$worklist_body.find('tr:first th')
-		.css('background', 'none')
-		.css('border', '0')
-		;
-
+	
+	// Prepend header labels to column cells
+	
 	$worklist_body.find('td')
 		.css('display', 'block')
 		.css('min-width', '')
@@ -60,40 +56,39 @@ var on_refresh = function() {
 		.each(function(e) {
 			var $td = $(this);
 
-			if($td.attr('colspan') != undefined || $td.attr('rowspan') != undefined) {
-				if($(this).is('[rowspan]')) {
-					$(this).remove();
-					return;
-				}
-				
-				// Ignore spanning cells
-				$(this)
-					.removeAttr('colspan', '')
-					;
-				
-			} else {
-				if($td.find('a.subject, b.subject').length > 0)
-					return;
-				
-				// Hide cells with no content
-				/*
-				if(0==$.trim($td.text()).length) {
-					$(this).hide();
-					return;
-				}
-				*/
-				
-				var $ths = $td.closest('table.worklistBody').find('th');
-				var $siblings = $td.closest('tr').find('td');
-				var idx = $siblings.index($td);
-				
-				var txt = $ths.filter(':nth(' + (idx) + ')').text().trim();
-				
-				var $label = $('<span style="color:rgb(120,120,120);margin-left:15px;">' 
-					+ txt 
-					+ ': </span>');
-				$label.prependTo($td);
+			if($td.is(':hidden'))
+				return;
+			
+			if($td.find('button.split-right').length > 0) {
+				$td.hide();
+				return;
 			}
+			
+			if($td.find('a.subject, b.subject, input:checkbox:hidden').length > 0) {
+				if($.trim($td.text()).length == 0)
+					$td.hide();
+				
+				return;
+			}
+			
+			var $ths = $td.closest('table.worklistBody').find('th:not(:hidden)');
+			var $siblings = $td.closest('tr').find('td:not(:hidden)');
+			var idx = $siblings.index($td);
+
+			var $th = $ths.filter(':nth(' + (idx) + ')');
+			
+			// If the column header is hidden or contentless, hide this cell
+			if($th.is(':hidden')) {
+				$td.hide();
+				return;
+			}
+			
+			var txt = $th.text().trim();
+			
+			var $label = $('<span style="color:rgb(120,120,120);margin-left:15px;">' 
+				+ txt 
+				+ ': </span>');
+			$label.prependTo($td);
 		})
 		;
 
@@ -120,7 +115,7 @@ var on_refresh = function() {
 	
 	$sort_links = $('<div style="margin-bottom:5px;"></div>');
 	
-	$worklist_body.find('tr:first th')
+	$worklist_body.find('tr:first th:not(:hidden)')
 		.each(function(e) {
 			$(this).find('> a')
 				.css('font-weight', 'bold')

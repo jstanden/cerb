@@ -32,7 +32,6 @@
 	{* Column Headers *}
 	<thead>
 	<tr>
-		<th style="width:10px;max-width:10px;"></th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
@@ -61,7 +60,6 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td rowspan="2"></td>
 			<td colspan="{$smarty.foreach.headers.total}" style="font-size:12px;color:rgb(80,80,80);padding:2px 0px;">
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
 				{* If we're looking at the target context, hide the text in the entry *}

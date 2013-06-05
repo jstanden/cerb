@@ -26,7 +26,7 @@ $view_frm.find('TABLE.worklistBody TBODY')
 			e.preventDefault();
 			$this.disableSelection();
 			
-			$chk=$this.find('input:checkbox:first');
+			$chk = $this.find('input:checkbox:first');
 			if(!$chk)
 				return;
 			
