@@ -970,6 +970,12 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		$token_labels = array(
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
+			'event_start' => $prefix.$translate->_('dao.calendar_recurring_profile.event_start'),
+			'event_end' => $prefix.$translate->_('dao.calendar_recurring_profile.event_end'),
+			'recur_end' => $prefix.$translate->_('dao.calendar_recurring_profile.recur_end'),
+			'is_available' => $prefix.$translate->_('dao.calendar_recurring_profile.is_available'),
+			'tz' => $prefix.$translate->_('dao.calendar_recurring_profile.tz'),
+			'patterns' => $prefix.$translate->_('dao.calendar_recurring_profile.patterns'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
@@ -984,9 +990,30 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		
 		if($calendar_recurring_profile) {
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = $calendar_recurring_profile->name;
+			$token_values['_label'] = $calendar_recurring_profile->event_name;
 			$token_values['id'] = $calendar_recurring_profile->id;
 			$token_values['name'] = $calendar_recurring_profile->event_name;
+			$token_values['calendar_id'] = $calendar_recurring_profile->calendar_id;
+			$token_values['event_start'] = $calendar_recurring_profile->event_start;
+			$token_values['event_end'] = $calendar_recurring_profile->event_end;
+			$token_values['recur_end'] = $calendar_recurring_profile->recur_end;
+			$token_values['is_available'] = $calendar_recurring_profile->is_available;
+			$token_values['tz'] = $calendar_recurring_profile->tz;
+			$token_values['patterns'] = $calendar_recurring_profile->patterns;
+
+			// Calendar
+			$merge_token_labels = array();
+			$merge_token_values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_CALENDAR, null, $merge_token_labels, $merge_token_values, '', true);
+	
+			CerberusContexts::merge(
+				'calendar_',
+				'Calendar:',
+				$merge_token_labels,
+				$merge_token_values,
+				$token_labels,
+				$token_values
+			);
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
