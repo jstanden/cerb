@@ -113,7 +113,7 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 		
 		// Search
 		list($results, $total) = DAO_Message::search(
-//			array(),
+			array(),
 			$params,
 			$limit,
 			max(0,$page-1),

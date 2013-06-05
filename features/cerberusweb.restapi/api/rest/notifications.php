@@ -149,7 +149,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		
 		// Search
 		list($results, $total) = DAO_Notification::search(
-//			array(),
+			array(),
 			$params,
 			$limit,
 			max(0,$page-1),

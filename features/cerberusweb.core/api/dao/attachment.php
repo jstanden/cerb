@@ -226,11 +226,11 @@ class DAO_Attachment extends DevblocksORMHelper {
 	 * @param boolean $withCounts
 	 * @return array
 	 */
-	static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
-		$query_parts = self::getSearchQueryComponents(array(),$params,$sortBy,$sortAsc);
+		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
 
 		$select_sql = $query_parts['select'];
 		$join_sql = $query_parts['join'];
@@ -667,6 +667,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 
 	function getData() {
 		$objects = DAO_AttachmentLink::search(
+			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
@@ -906,6 +907,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 		if(empty($ids))
 		do {
 			list($objects,$null) = DAO_AttachmentLink::search(
+				$this->view_columns,
 				$this->getParams(),
 				100,
 				$pg++,
@@ -1234,11 +1236,11 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 	 * @param boolean $withCounts
 	 * @return array
 	 */
-	static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
-		$query_parts = self::getSearchQueryComponents(array(),$params,$sortBy,$sortAsc);
+		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
 
 		$select_sql = $query_parts['select'];
 		$join_sql = $query_parts['join'];

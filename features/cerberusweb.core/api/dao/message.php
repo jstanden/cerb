@@ -403,11 +403,11 @@ class DAO_Message extends Cerb_ORMHelper {
 	 * @param boolean $withCounts
 	 * @return array
 	 */
-	static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
-		$query_parts = self::getSearchQueryComponents(array(),$params,$sortBy,$sortAsc);
+		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
 
 		$select_sql = $query_parts['select'];
 		$join_sql = $query_parts['join'];
@@ -1114,7 +1114,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 	function getData() {
 		return DAO_Message::search(
-			//$this->view_columns,
+			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
@@ -1677,7 +1677,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		if(empty($ids))
 		do {
 			list($objects,$null) = DAO_Message::search(
-//			array(),
+			array(),
 			$this->getParams(),
 			100,
 			$pg++,

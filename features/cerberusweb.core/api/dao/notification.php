@@ -332,11 +332,11 @@ class DAO_Notification extends DevblocksORMHelper {
 	 * @param boolean $withCounts
 	 * @return array
 	 */
-	static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
-		$query_parts = self::getSearchQueryComponents(array(),$params,$sortBy,$sortAsc);
+		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
 
 		$select_sql = $query_parts['select'];
 		$join_sql = $query_parts['join'];
@@ -494,6 +494,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 
 	function getData() {
 		$objects = DAO_Notification::search(
+			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
@@ -712,7 +713,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		if(empty($ids))
 		do {
 			list($objects,$null) = DAO_Notification::search(
-				//array(),
+				array(),
 				$this->getParams(),
 				100,
 				$pg++,
