@@ -107,12 +107,12 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	}
 	
 	static function getByContext($context) {
-		$cf_groups = DAO_CustomFieldset::getAll();
+		$cfieldsets = DAO_CustomFieldset::getAll();
 		$results = array();
 		
-		foreach($cf_groups as $cf_group_id => $cf_group) { /* @var $cg_group Model_CustomFieldset */
-			if(0 == strcasecmp($cf_group->context, $context))
-				$results[$cf_group_id] = $cf_group;
+		foreach($cfieldsets as $cfieldset_id => $cfieldset) { /* @var $cg_group Model_CustomFieldset */
+			if(0 == strcasecmp($cfieldset->context, $context))
+				$results[$cfieldset_id] = $cfieldset;
 		}
 		
 		return $results;
@@ -125,7 +125,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	 * @return Model_CustomFieldset[]
 	 */
 	static function getByContextLink($context, $context_id) {
-		$cf_groups = DAO_CustomFieldset::getAll();
+		$cfieldsets = DAO_CustomFieldset::getAll();
 		$context_values = DAO_ContextLink::getContextLinks($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET);
 		$results = array();
 		
@@ -135,22 +135,22 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		if(!is_array($context_values[$context_id]))
 			return $results;
 		
-		foreach($context_values[$context_id] as $cf_group_id => $ctx_pair) {
-			if(isset($cf_groups[$cf_group_id]))
-				$results[$cf_group_id] = $cf_groups[$cf_group_id];
+		foreach($context_values[$context_id] as $cfieldset_id => $ctx_pair) {
+			if(isset($cfieldsets[$cfieldset_id]))
+				$results[$cfieldset_id] = $cfieldsets[$cfieldset_id];
 		}
 		
 		return $results;
 	}
 	
 	static function getByOwner($owner_context, $owner_context_id=0) {
-		$cf_groups = DAO_CustomFieldset::getAll();
+		$cfieldsets = DAO_CustomFieldset::getAll();
 		$results = array();
 		
-		foreach($cf_groups as $cf_group_id => $cf_group) { /* @var $cg_group Model_CustomFieldset */
-			if(0 == strcasecmp($cf_group->owner_context, $owner_context)
-				&& intval($cf_group->owner_context_id) == intval($owner_context_id))
-				$results[$cf_group_id] = $cf_group;
+		foreach($cfieldsets as $cfieldset_id => $cfieldset) { /* @var $cg_group Model_CustomFieldset */
+			if(0 == strcasecmp($cfieldset->owner_context, $owner_context)
+				&& intval($cfieldset->owner_context_id) == intval($owner_context_id))
+				$results[$cfieldset_id] = $cfieldset;
 		}
 		
 		return $results;
@@ -872,29 +872,29 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 	}
 	
 	function getMeta($context_id) {
-		$cf_group = DAO_CustomFieldset::get($context_id);
+		$cfieldset = DAO_CustomFieldset::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
 		
 		return array(
 			'id' => $context_id,
-			'name' => $cf_group->name,
+			'name' => $cfieldset->name,
 			'permalink' => '', //$url_writer->writeNoProxy('c=tasks&action=display&id='.$task->id, true),
 		);
 	}
 	
-	function getContext($cf_group, &$token_labels, &$token_values, $prefix=null) {
+	function getContext($cfieldset, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Custom Fieldsets:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
 
 		// Polymorph
-		if(is_numeric($cf_group)) {
-			$cf_group = DAO_CustomFieldset::get($cf_group);
-		} elseif($cf_group instanceof Model_CustomFieldset) {
+		if(is_numeric($cfieldset)) {
+			$cfieldset = DAO_CustomFieldset::get($cfieldset);
+		} elseif($cfieldset instanceof Model_CustomFieldset) {
 			// It's what we want already.
 		} else {
-			$cf_group = null;
+			$cfieldset = null;
 		}
 		
 		// Token labels
@@ -910,13 +910,13 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
 		
-		if($snippet) {
+		if($cfieldset) {
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = $cf_group->name;
-			$token_values['context'] = $cf_group->context;
-			$token_values['name'] = $cf_group->name;
-			$token_values['owner_context'] = $cf_group->owner_context;
-			$token_values['owner_context_id'] = $cf_group->owner_context_id;
+			$token_values['_label'] = $cfieldset->name;
+			$token_values['context'] = $cfieldset->context;
+			$token_values['name'] = $cfieldset->name;
+			$token_values['owner_context'] = $cfieldset->owner_context;
+			$token_values['owner_context_id'] = $cfieldset->owner_context_id;
 		}
 
 		return true;
