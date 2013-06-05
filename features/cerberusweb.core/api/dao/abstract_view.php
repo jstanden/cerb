@@ -51,7 +51,7 @@ abstract class C4_AbstractView {
 			if(!method_exists($dao_class,'search'))
 				return array();
 			
-			$results = call_user_func_array(
+			$data = call_user_func_array(
 				array($dao_class,'search'),
 				array(
 					$this->getParams(),
@@ -62,17 +62,19 @@ abstract class C4_AbstractView {
 					false
 				)
 			);
-		
+			
+			list($results, $count) = $data;
+			
 			$ids = array_keys($results);
 		}
-		
+
 		if(!is_array($ids) || empty($ids))
 			return array();
 		
 		$sql = sprintf("id IN (%s)",
 			implode(',', $ids)
 		);
-		
+
 		if(!method_exists($dao_class,'getWhere'))
 			return array();
 		
