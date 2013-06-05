@@ -187,9 +187,9 @@ $view_actions.find('button,.action-on-select').not('.action-always-show').hide()
 		$th.find('span.cerb-sprite').prependTo($th);
 		
 		$a.attr('title', $a.text());
-		$a.html('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+		$a.html('&nbsp;&nbsp;&nbsp;');
 	});
-
+	
 	var view_table_width = $view_thead.closest('TABLE').width();
 	var view_table_width_left = 100;
 	var view_table_width_cols = $view_thead.find('TH').length - 1;
@@ -205,7 +205,7 @@ $view_actions.find('button,.action-on-select').not('.action-always-show').hide()
 	
 		// Figure out the proportional width for this column compared to the whole table
 		} else {
-			width = Math.ceil(100 * $th.width() / view_table_width);
+			width = Math.ceil(100 * ($th.outerWidth()) / view_table_width);
 			view_table_width_left -= width;
 		}
 		

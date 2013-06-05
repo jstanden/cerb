@@ -491,7 +491,7 @@ table.worklistBody th {
 	background: -moz-linear-gradient(top, rgb(240,240,240), rgb(200,200,200));
 	background: -o-linear-gradient(top, rgb(240,240,240), rgb(200,200,200));
 	background: -ms-linear-gradient(top, rgb(240,240,240), rgb(200,200,200));
-	padding:2px 5px 2px 5px;
+	padding:2px 0px 2px 5px;
 	border-right:1px solid rgb(175,175,175);
 	text-align: left;
 	cursor:pointer;
@@ -521,6 +521,7 @@ table.worklistBody th:hover a {
 }
 	
 table.worklistBody td {
+	overflow: hidden;
 	font-size:11px;
 	padding-right:5px;
 }
