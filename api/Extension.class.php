@@ -363,6 +363,24 @@ abstract class Extension_WorkspacePage extends DevblocksExtension {
 		return null;
 	}
 	
+	function exportPageConfigJson(Model_WorkspacePage $page) {
+		$json_array = array(
+			'page' => array(
+				'name' => $page->name,
+				'extension_id' => $page->extension_id,
+			),
+		);
+		
+		return json_encode($json_array);
+	}
+	
+	function importPageConfigJson($import_json, Model_WorkspacePage $page) {
+		if(!is_array($import_json) || !isset($import_json['page']))
+			return false;
+		
+		return true;
+	}
+	
 	abstract function renderPage(Model_WorkspacePage $page);
 };
 
@@ -401,6 +419,8 @@ abstract class Extension_WorkspaceTab extends DevblocksExtension {
 	}
 	
 	abstract function renderTab(Model_WorkspacePage $page, Model_WorkspaceTab $tab);
+	function exportTabConfigJson(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {}
+	function importTabConfigJson($import_json, Model_WorkspaceTab $tab) {}
 	function renderTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {}
 	function saveTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {}
 };

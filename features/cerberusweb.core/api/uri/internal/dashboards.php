@@ -381,6 +381,55 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/tab.tpl');
 	}
+	
+	function exportTabConfigJson(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
+		$json = array(
+			'tab' => array(
+				'name' => $tab->name,
+				'extension_id' => $tab->extension_id,
+				'params' => $tab->params,
+				'widgets' => array(),
+			),
+		);
+		
+		$widgets = DAO_WorkspaceWidget::getByTab($tab->id);
+		
+		foreach($widgets as $widget) {
+			$widget_json = array(
+				'widget' => array(
+					'label' => $widget->label,
+					'extension_id' => $widget->extension_id,
+					'pos' => $widget->pos,
+					'params' => $widget->params,
+				),
+			);
+			
+			$json['tab']['widgets'][] = $widget_json;
+		}
+		
+		return json_encode($json);
+	}
+	
+	function importTabConfigJson($json, Model_WorkspaceTab $tab) {
+		if(empty($tab->id) || !is_array($json) || !isset($json['tab']))
+			return false;
+		
+		if(!isset($json['tab']['widgets']) || !is_array($json['tab']['widgets']))
+			return false;
+		
+		foreach($json['tab']['widgets'] as $widget) {
+			DAO_WorkspaceWidget::create(array(
+				DAO_WorkspaceWidget::LABEL => $widget['widget']['label'],
+				DAO_WorkspaceWidget::EXTENSION_ID => $widget['widget']['extension_id'],
+				DAO_WorkspaceWidget::POS => $widget['widget']['pos'],
+				DAO_WorkspaceWidget::PARAMS_JSON => json_encode($widget['widget']['params']),
+				DAO_WorkspaceWidget::WORKSPACE_TAB_ID => $tab->id,
+				DAO_WorkspaceWidget::UPDATED_AT => time(),
+			));
+		}
+		
+		return true;
+	}
 }
 endif;
 

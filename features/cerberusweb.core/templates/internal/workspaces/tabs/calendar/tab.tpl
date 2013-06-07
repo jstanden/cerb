@@ -4,7 +4,7 @@
 	<h1 style="margin-bottom:5px;text-align:left;">Configure the calendar</h1>
 	
 	<p>
-		Click the <button type="button" class="edit-tab toolbar-item"><span class="cerb-sprite2 sprite-ui-tab-gear"></span> Edit Tab</button> button.
+		Click the <button type="button" class="toolbar-item"><span class="cerb-sprite2 sprite-gear"></span></button> button and select <b>Edit Tab</b>.
 	</p>
 </div>
 

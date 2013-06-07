@@ -215,6 +215,7 @@ class ChRest_Workspaces extends Extension_RestController { // implements IExtens
 			return;
 		}
 		
+		// [TODO] Convert this to the abstract worklist format
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
 			$list_view = $workspace_worklist->list_view; /* @var $list_view Model_WorkspaceListView */
 				

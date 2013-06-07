@@ -723,6 +723,17 @@ if(isset($columns['recurring_id'])) {
 }
 
 // ===========================================================================
+// All workspace pages and tabs should have an extension
+
+$db->Execute(sprintf("UPDATE workspace_page SET extension_id = %s WHERE extension_id = ''",
+	$db->qstr('core.workspace.page.workspace')
+));
+
+$db->Execute(sprintf("UPDATE workspace_tab SET extension_id = %s WHERE extension_id = ''",
+	$db->qstr('core.workspace.tab.worklists')
+));
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

@@ -49,7 +49,7 @@
 		<patch version="6.1.0" revision="1005" file="patches/6.x/6.1.0.php" />
 		<patch version="6.2.0" revision="1016" file="patches/6.x/6.2.0.php" />
 		<patch version="6.3.0" revision="1030" file="patches/6.x/6.3.0.php" />
-		<patch version="6.4.0" revision="1043" file="patches/6.x/6.4.0.php" />
+		<patch version="6.4.0" revision="1044" file="patches/6.x/6.4.0.php" />
 	</patches>
 
 	<!-- Controller Routing -->
@@ -1779,6 +1779,19 @@
 				</params>
 			</extension>
 			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.internal.section.workspaces</id>
+				<name>Internal Section Workspaces</name>
+				<class>
+					<file>api/uri/internal/workspaces.php</file>
+					<name>PageSection_InternalWorkspaces</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.controller.internal" />
+					<param key="uri" value="workspaces" />
+				</params>
+			</extension>
+			
 		<extension point="devblocks.controller">
 			<id>core.controller.print</id>
 			<name>Print Controller</name>
@@ -2616,6 +2629,20 @@
 					<param key="uri" value="worker" />
 				</params>
 			</extension>
+			
+		<!-- Workspace Pages -->
+		
+		<extension point="cerberusweb.ui.workspace.page">
+			<id>core.workspace.page.workspace</id>
+			<name>Workspace Page</name>
+			<class>
+				<file>api/uri/internal/workspaces.php</file>
+				<name>WorkspacePage_Workspace</name>
+			</class>
+			<params>
+				<param key="label" value="common.workspace" />
+			</params>
+		</extension>
 		
 		<!-- Workspace Tabs -->
 		
@@ -2640,6 +2667,18 @@
 			</class>
 			<params>
 				<param key="label" value="core.workspace.dashboard" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.workspace.tab">
+			<id>core.workspace.tab.worklists</id>
+			<name>Workspace Worklists Tab</name>
+			<class>
+				<file>api/uri/internal/workspaces.php</file>
+				<name>WorkspaceTab_Worklists</name>
+			</class>
+			<params>
+				<param key="label" value="Worklists" />
 			</params>
 		</extension>
 		
