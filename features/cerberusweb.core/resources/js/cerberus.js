@@ -58,9 +58,9 @@ var markitupHTMLSettings = {
 	]
 } 
 
+$.fn.cerbDateInputHelper = function(options) {
+	var options = (typeof options == 'object') ? options : {};
 	
-
-$.fn.cerbDateInputHelper = function() {
 	return this.each(function() {
 		var $this = $(this);
 		
@@ -121,8 +121,13 @@ $.fn.cerbDateInputHelper = function() {
 			.on('send', function(e) {
 				var $input_date = $(this);
 				
-				if(!$input_date.is('.changed'))
+				if(!$input_date.is('.changed')) {
+					if(e.keydown_event_caller && e.keydown_event_caller.shiftKey && e.keydown_event_caller.ctrlKey && e.keydown_event_caller.which == 13)
+						if(options.submit && typeof options.submit == 'function')
+							options.submit();
+						
 					return;
+				}
 				
 				$input_date.autocomplete('close');
 				
@@ -133,6 +138,11 @@ $.fn.cerbDateInputHelper = function() {
 					} else {
 						$input_date.val(json.to_string);
 					}
+					
+					if(e.keydown_event_caller && e.keydown_event_caller.shiftKey && e.keydown_event_caller.ctrlKey && e.keydown_event_caller.which == 13)
+						if(options.submit && typeof options.submit == 'function')
+							options.submit();
+					
 					$input_date.removeClass('changed');
 				});
 			})
@@ -151,7 +161,7 @@ $.fn.cerbDateInputHelper = function() {
 						return false;
 					}
 					
-					$(this).trigger('send');
+					$(this).trigger({ type: 'send', 'keydown_event_caller': e });
 				}
 			})
 			;
