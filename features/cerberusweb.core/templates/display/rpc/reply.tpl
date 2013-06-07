@@ -222,16 +222,16 @@
 			<fieldset class="peek">
 				<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 				
-				<table cellpadding="2" cellspacing="0" border="0">
+				<table cellpadding="2" cellspacing="0" border="0" id="replyStatus{$message->id}">
 					<tr>
 						<td nowrap="nowrap" valign="top" colspan="2">
 							<div style="margin-bottom:10px;">
 								{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" object_watchers=$object_watchers context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
 							</div>
 							
-							<label><input type="radio" name="closed" value="0" class="status_open" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if (empty($draft) && 'open'==$mail_status_reply) || $draft->params.closed==0}checked="checked"{/if}>{$translate->_('status.open')|capitalize}</label>
-							<label><input type="radio" name="closed" value="2" class="status_waiting" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'waiting'==$mail_status_reply) || $draft->params.closed==2}checked="checked"{/if}>{$translate->_('status.waiting')|capitalize}</label>
-							{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label><input type="radio" name="closed" value="1" class="status_closed" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'closed'==$mail_status_reply) || $draft->params.closed==1}checked="checked"{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
+							<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="closed" value="0" class="status_open" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if (empty($draft) && 'open'==$mail_status_reply) || $draft->params.closed==0}checked="checked"{/if}>{$translate->_('status.open')|capitalize}</label>
+							<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="closed" value="2" class="status_waiting" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'waiting'==$mail_status_reply) || $draft->params.closed==2}checked="checked"{/if}>{$translate->_('status.waiting')|capitalize}</label>
+							{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="closed" value="1" class="status_closed" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'closed'==$mail_status_reply) || $draft->params.closed==1}checked="checked"{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
 							<br>
 							<br>
 							
@@ -551,6 +551,44 @@
 						event.preventDefault();
 						$('#reply{$message->id}_buttons a.send').click();
 					} catch(ex) { } 
+					break;
+				case 67: // (C) Set closed + focus reopen
+				case 79: // (O) Set open
+				case 87: // (W) Set waiting + focus reopen
+					try {
+						event.preventDefault();
+						
+						var $reply_status = $('#replyStatus{$message->id}');
+						var $radio = $reply_status.find('input:radio[name=closed]');
+						
+						switch(event.which) {
+							case 67: // closed
+								$radio.filter('.status_closed').click();
+								$reply_status
+									.find('input:text[name=ticket_reopen]')
+										.select()
+										.focus()
+									;
+								break;
+							case 79: // open
+								$radio.filter('.status_open').click();
+								$reply_status
+									.find('select[name=bucket_id]')
+										.select()
+										.focus()
+									;
+								break;
+							case 87: // waiting
+								$radio.filter('.status_waiting').click();
+								$reply_status
+									.find('input:text[name=ticket_reopen]')
+										.select()
+										.focus()
+									;
+								break;
+						}
+						
+					} catch(ex) {}
 					break;
 				case 71: // (G) Insert Signature
 					try {
