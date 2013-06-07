@@ -332,6 +332,8 @@ abstract class Extension_CalendarDatasource extends DevblocksExtension {
 abstract class Extension_WorkspacePage extends DevblocksExtension {
 	const POINT = 'cerberusweb.ui.workspace.page';
 	
+	static $_registry = array();
+	
 	/**
 	 * @return DevblocksExtensionManifest[]|Extension_WorkspacePage[]
 	 */
@@ -347,11 +349,27 @@ abstract class Extension_WorkspacePage extends DevblocksExtension {
 		return $exts;
 	}
 	
+	static function get($extension_id) {
+		if(isset(self::$_registry[$extension_id]))
+			return self::$_registry[$extension_id];
+		
+		if(null != ($extension = DevblocksPlatform::getExtension($extension_id, true))
+			&& $extension instanceof Extension_WorkspacePage) {
+
+			self::$_registry[$extension->id] = $extension;
+			return $extension;
+		}
+		
+		return null;
+	}
+	
 	abstract function renderPage(Model_WorkspacePage $page);
 };
 
 abstract class Extension_WorkspaceTab extends DevblocksExtension {
 	const POINT = 'cerberusweb.ui.workspace.tab';
+	
+	static $_registry = array();
 	
 	/**
 	 * @return DevblocksExtensionManifest[]|Extension_WorkspaceTab[]
@@ -368,6 +386,20 @@ abstract class Extension_WorkspaceTab extends DevblocksExtension {
 		return $exts;
 	}
 
+	static function get($extension_id) {
+		if(isset(self::$_registry[$extension_id]))
+			return self::$_registry[$extension_id];
+		
+		if(null != ($extension = DevblocksPlatform::getExtension($extension_id, true))
+			&& $extension instanceof Extension_WorkspaceTab) {
+
+			self::$_registry[$extension->id] = $extension;
+			return $extension;
+		}
+		
+		return null;
+	}
+	
 	abstract function renderTab(Model_WorkspacePage $page, Model_WorkspaceTab $tab);
 	function renderTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {}
 	function saveTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {}

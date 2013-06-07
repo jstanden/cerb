@@ -2327,6 +2327,15 @@ class C4_AbstractViewLoader {
 		);
 		
 		$view->addParams($view_model['params'], true);
+		
+		if(isset($view_model['params_required'])) {
+			array_walk(
+				$view_model['params_required'],
+				$func
+			);
+			
+			$view->addParamsRequired($view_model['params_required'], true);
+		}
 
 		// [TODO] This needs a bit more logic
 		$active_worker = CerberusApplication::getActiveWorker();

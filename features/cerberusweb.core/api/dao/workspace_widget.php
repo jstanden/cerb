@@ -123,10 +123,12 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 	
 	static function getByTab($tab_id) {
 		return self::getWhere(sprintf("%s = %d",
-			self::WORKSPACE_TAB_ID,
-			$tab_id,
-			DAO_WorkspaceWidget::POS
-		));
+				self::WORKSPACE_TAB_ID,
+				$tab_id
+			),
+			DAO_WorkspaceWidget::POS,
+			true
+		);
 	}
 	
 	/**
@@ -138,7 +140,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		
 		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_WorkspaceWidget();
-			$object->id = $row['id'];
+			$object->id = intval($row['id']);
 			$object->extension_id = $row['extension_id'];
 			$object->workspace_tab_id = $row['workspace_tab_id'];
 			$object->label = $row['label'];
@@ -376,6 +378,7 @@ class Model_WorkspaceWidget {
 	public $workspace_tab_id = 0;
 	public $label = '';
 	public $updated_at = 0;
+	public $pos = '0000';
 	public $params = array();
 };
 

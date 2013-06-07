@@ -722,6 +722,16 @@ class Model_WorkspacePage {
 	public $owner_context_id;
 	public $extension_id;
 	
+	function getExtension() {
+		$extension = Extension_WorkspacePage::get($this->extension_id);
+		return $extension;
+	}
+	
+	/**
+	 *
+	 * @param Model_Worker $as_worker
+	 * @return Model_WorkspaceTab[]
+	 */
 	function getTabs(Model_Worker $as_worker=null) {
 		$tabs = DAO_WorkspaceTab::getByPage($this->id);
 		
@@ -830,6 +840,19 @@ class Model_WorkspaceTab {
 	public $pos;
 	public $extension_id;
 	public $params=array();
+	
+	/**
+	 * @return Extension_WorkspaceTab
+	 */
+	function getExtension() {
+		$extension_id = $this->extension_id;
+		
+		
+		if(null != ($extension = DevblocksPlatform::getExtension($extension_id, true)))
+			return $extension;
+		
+		return null;
+	}
 	
 	function getWorklists() {
 		return DAO_WorkspaceList::getByTab($this->id);

@@ -1768,7 +1768,7 @@
 
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.internal.section.dashboards</id>
-				<name>Internal Section</name>
+				<name>Internal Section Dashboards</name>
 				<class>
 					<file>api/uri/internal/dashboards.php</file>
 					<name>PageSection_InternalDashboards</name>
