@@ -51,9 +51,10 @@ abstract class C4_AbstractView {
 			if(!method_exists($dao_class,'search'))
 				return array();
 			
-			$results = call_user_func_array(
+			$data = call_user_func_array(
 				array($dao_class,'search'),
 				array(
+					$this->view_columns,
 					$this->getParams(),
 					$this->renderLimit,
 					$this->renderPage,
@@ -62,26 +63,39 @@ abstract class C4_AbstractView {
 					false
 				)
 			);
-		
+			
+			list($results, $count) = $data;
+			
 			$ids = array_keys($results);
 		}
-		
+
 		if(!is_array($ids) || empty($ids))
 			return array();
-		
+
 		$sql = sprintf("id IN (%s)",
 			implode(',', $ids)
 		);
-		
+
 		if(!method_exists($dao_class,'getWhere'))
 			return array();
 		
-		$results = call_user_func_array(
+		$results = array();
+		
+		$models = call_user_func_array(
 			array($dao_class,'getWhere'),
 			array(
 				$sql,
 			)
 		);
+		
+		foreach($ids as $id) {
+			if(!isset($models[$id]))
+				continue;
+			
+			$results[$id] = $models[$id];
+		}
+		
+		unset($models);
 		
 		return $results;
 	}
@@ -157,12 +171,47 @@ abstract class C4_AbstractView {
 	
 	// Params Editable
 	
-	function getParamsAvailable() {
+	function getParamsAvailable($filter_fieldsets=false) {
 		$params = $this->getFields();
 		
 		if(is_array($this->_paramsHidden))
 		foreach($this->_paramsHidden as $param)
 			unset($params[$param]);
+		
+		// Hide other custom fields when filtering to a specific fieldset
+		if($filter_fieldsets)
+			$params = $this->_filterParamsByFieldset($params);
+		
+		return $params;
+	}
+
+	private function _filterParamsByFieldset($params) {
+		$results = $this->findParam('*_has_fieldset', $this->getParams());
+		
+		if(!empty($results)) {
+			$fieldset_ids = array();
+			
+			foreach($results as $result) { /* @var $result DevblocksSearchField */
+				if($result->operator == DevblocksSearchCriteria::OPER_IN) {
+					$fieldset_ids = array_merge($fieldset_ids, $result->value);
+				}
+			}
+			
+			if(!empty($fieldset_ids)) {
+				foreach($params as $k => $param) {
+					if('cf_' == substr($k,0,3)) {
+						list($prefix, $field_id) = explode('_', $k, 2);
+						$cfield = DAO_CustomField::get($field_id);
+						
+						if(empty($cfield->custom_fieldset_id))
+							continue;
+						
+						if(!in_array($cfield->custom_fieldset_id, $fieldset_ids))
+							unset($params[$k]);
+					}
+				}
+			}
+		}
 		
 		return $params;
 	}
@@ -483,6 +532,19 @@ abstract class C4_AbstractView {
 		echo sprintf("%s", $list_of_strings);
 	}
 	
+	protected function _renderCriteriaHasFieldset($tpl, $context) {
+		$options = array();
+		
+		$fieldsets = DAO_CustomFieldset::getByContext($context);
+		
+		foreach($fieldsets as $id => $fieldset) {
+			$options[$id] = $fieldset->name;
+		}
+		
+		$tpl->assign('options', $options);
+		$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
+	}
+	
 	protected function _renderVirtualContextLinks($param, $label_singular='Link', $label_plural='Links') {
 		$strings = array();
 		
@@ -517,6 +579,54 @@ abstract class C4_AbstractView {
 			}
 		}
 		
+		$list_of_strings = implode(' or ', $strings);
+		
+		if(count($strings) > 2) {
+			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d %s)</abbr>",
+				htmlentities(strip_tags($list_of_strings)),
+				count($strings),
+				strtolower($label_plural)
+			);
+		}
+		
+		switch($param->operator) {
+			case DevblocksSearchCriteria::OPER_IS_NULL:
+				echo sprintf("There are no <b>%s</b>",
+					strtolower($label_plural)
+				);
+				break;
+			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
+				echo sprintf("There are <b>%s</b>",
+					strtolower($label_plural)
+				);
+				break;
+			case DevblocksSearchCriteria::OPER_IN:
+				echo sprintf("%s is %s", $label_singular, $list_of_strings);
+				break;
+			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+				echo sprintf("%s is blank or %s", $label_singular, $list_of_strings);
+				break;
+			case DevblocksSearchCriteria::OPER_NIN:
+				echo sprintf("%s is not %s", $label_singular, $list_of_strings);
+				break;
+			case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+				echo sprintf("%s is blank or not %s", $label_singular, $list_of_strings);
+				break;
+		}
+	}
+	
+	protected function _renderVirtualHasFieldset($param) {
+		$strings = array();
+		$custom_fieldsets = DAO_CustomFieldset::getAll();
+		
+		foreach($param->value as $param_data) {
+			if(isset($custom_fieldsets[$param_data]))
+				$strings[] = '<b>' . $custom_fieldsets[$param_data]->name . '</b>';
+		}
+		
+		$label_singular = 'Fieldset';
+		$label_plural = 'Fieldsets';
+
 		$list_of_strings = implode(' or ', $strings);
 		
 		if(count($strings) > 2) {
@@ -660,7 +770,7 @@ abstract class C4_AbstractView {
 				break;
 				
 			case DevblocksSearchCriteria::OPER_EQ_OR_NULL:
-				return new DevblocksSearchCriteria($field,$oper,0);
+				return new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_EQ_OR_NULL,0);
 				break;
 		}
 		
@@ -729,7 +839,16 @@ abstract class C4_AbstractView {
 				if(empty($from)) $from = 0;
 				if(empty($to)) $to = 'today';
 	
-				$criteria = new DevblocksSearchCriteria($token,$oper,array($from,$to));
+				switch($oper) {
+					case DevblocksSearchCriteria::OPER_EQ_OR_NULL:
+						$criteria = new DevblocksSearchCriteria($token,$oper,0);
+						break;
+						
+					default:
+						$criteria = new DevblocksSearchCriteria($token,$oper,array($from,$to));
+						break;
+				}
+				
 				break;
 			case Model_CustomField::TYPE_WORKER:
 				@$oper = DevblocksPlatform::importGPC($_REQUEST['oper'],'string','eq');
@@ -993,7 +1112,7 @@ abstract class C4_AbstractView {
 				$pass = true;
 				break;
 		}
-
+		
 		return $pass;
 	}
 	
@@ -1580,6 +1699,79 @@ abstract class C4_AbstractView {
 		return $counts;
 	}
 	
+	protected function _getSubtotalCountForHasFieldsetColumn($dao_class, $context, $field_key) {
+		$counts = array();
+		
+		$custom_fieldsets = DAO_CustomFieldset::getAll();
+		$data = $this->_getSubtotalDataForHasFieldsetColumn($dao_class, $context);
+		
+		foreach($data as $row) {
+			@$custom_fieldset = $custom_fieldsets[$row['link_fieldset_id']];
+			
+			if(empty($custom_fieldset))
+				continue;
+			
+			$counts[] = array(
+				'hits' => $row['hits'],
+				'label' => $custom_fieldset->name,
+				'filter' => array(
+					'field' => $field_key,
+					'oper' => DevblocksSearchCriteria::OPER_EQ,
+					'values' => array(
+						'options[]' => $custom_fieldset->id,
+					)
+				),
+				'children' => array(),
+			);
+		}
+		
+		return $counts;
+	}
+	
+	protected function _getSubtotalDataForHasFieldsetColumn($dao_class, $context) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$fields = $this->getFields();
+		$columns = $this->view_columns;
+		$params = $this->getParams();
+
+		// [TODO] Is this the best way to go about this?
+		// Show all linked custom fieldsets; ignore current fieldset filters
+		unset($params['*_has_fieldset']);
+		
+		if(!method_exists($dao_class, 'getSearchQueryComponents'))
+			return array();
+		
+		$query_parts = call_user_func_array(
+			array($dao_class,'getSearchQueryComponents'),
+			array(
+				$columns,
+				$params,
+				$this->renderSortBy,
+				$this->renderSortAsc
+			)
+		);
+		
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+
+		// This intentionally isn't constrained with a LIMIT
+		$sql = sprintf("SELECT from_context_id AS link_fieldset_id, count(*) AS hits FROM context_link WHERE to_context = %s AND to_context_id IN (%s) AND from_context = %s GROUP BY from_context_id ORDER BY hits DESC ",
+			$db->qstr($context),
+			(
+				sprintf("SELECT %s.id ", $query_parts['primary_table']).
+				$query_parts['join'] .
+				$query_parts['where']
+			),
+			$db->qstr(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+		);
+		
+		$results = $db->GetArray($sql);
+
+		return $results;
+		
+	}
+	
 	protected function _getSubtotalCountForCustomColumn($dao_class, $field_key, $primary_key) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$translate = DevblocksPlatform::getTranslationService();
@@ -1820,18 +2012,23 @@ abstract class C4_AbstractView {
 		return $counts;
 	}
 	
-	public static function _doBulkSetCustomFields($context,$custom_fields, $ids) {
+	public static function _doBulkSetCustomFields($context, $custom_fields, $ids) {
 		$fields = DAO_CustomField::getAll();
 		
 		if(!empty($custom_fields))
 		foreach($custom_fields as $cf_id => $params) {
 			if(!is_array($params) || !isset($params['value']))
 				continue;
-				
+			
+			@$cf_field = $fields[$cf_id];
+			
+			if(empty($cf_field))
+				continue;
+			
 			$cf_val = $params['value'];
 			
 			// Data massaging
-			switch($fields[$cf_id]->type) {
+			switch($cf_field->type) {
 				case Model_CustomField::TYPE_DATE:
 					$cf_val = intval(@strtotime($cf_val));
 					break;
@@ -1842,7 +2039,7 @@ abstract class C4_AbstractView {
 			}
 
 			// If multi-selection types, handle delta changes
-			if(Model_CustomField::TYPE_MULTI_CHECKBOX==$fields[$cf_id]->type) {
+			if(Model_CustomField::TYPE_MULTI_CHECKBOX==$cf_field->type) {
 				if(is_array($cf_val))
 				foreach($cf_val as $val) {
 					$op = substr($val,0,1);
@@ -1867,6 +2064,12 @@ abstract class C4_AbstractView {
 						DAO_CustomFieldValue::unsetFieldValue($context,$id,$cf_id);
 				}
 			}
+		}
+		
+		// Link any utilized custom fieldsets to these IDs
+		if(is_array($ids))
+		foreach($ids as $id) {
+			DAO_CustomFieldset::linkToContextByFieldIds($context, $id, array_keys($custom_fields));
 		}
 	}
 };
@@ -2069,6 +2272,77 @@ class C4_AbstractViewLoader {
 		$inst->addParamsRequired($parent->getParamsRequired());
 		
 		return $inst;
+	}
+	
+	static function serializeViewToAbstractJson(C4_AbstractView $view, $context=null) {
+		$model = array(
+			'columns' => $view->view_columns,
+			'params' => json_decode(json_encode($view->getEditableParams()), true),
+			'limit' => $view->renderLimit,
+			'sort_by' => $view->renderSortBy,
+			'sort_asc' => !empty($view->renderSortAsc),
+			'subtotals' => $view->renderSubtotals,
+		);
+		
+		if(!empty($context))
+			$model['context'] = $context;
+		
+		return json_encode($model);
+	}
+	
+	static function unserializeViewFromAbstractJson($view_model, $view_id) {
+		$view_context = $view_model['context'];
+		
+		if(empty($view_context))
+			return false;
+		
+		if(null == ($ctx = Extension_DevblocksContext::get($view_context)))
+			return false;
+		
+		if(null == ($view = $ctx->getChooserView($view_id))) /* @var $view C4_AbstractView */
+			return false;
+		
+		$view->view_columns = $view_model['columns'];
+		$view->renderLimit = $view_model['limit'];
+		$view->renderSortBy = $view_model['sort_by'];
+		$view->renderSortAsc = $view_model['sort_asc'];
+		$view->renderSubtotals = $view_model['subtotals'];
+		
+		// Convert JSON params back to objects
+		$func = function(&$e) {
+			if(isset($e['field']) && isset($e['operator']) && isset($e['value'])) {
+				$e = new DevblocksSearchCriteria($e['field'], $e['operator'], $e['value']);
+			} else {
+				// [TODO] If the value is another style of array, we need to recurse
+				array_walk(
+					$e,
+					$func
+				);
+			}
+		};
+		
+		array_walk(
+			$view_model['params'],
+			$func
+		);
+		
+		$view->addParams($view_model['params'], true);
+		
+		if(isset($view_model['params_required'])) {
+			array_walk(
+				$view_model['params_required'],
+				$func
+			);
+			
+			$view->addParamsRequired($view_model['params_required'], true);
+		}
+
+		// [TODO] This needs a bit more logic
+		$active_worker = CerberusApplication::getActiveWorker();
+		//$view->setPlaceholderLabels(array('current_worker_id', 'Current Worker'));
+		$view->setPlaceholderValues(array('current_worker_id' => !empty($active_worker) ? $active_worker->id : 0));
+		
+		return $view;
 	}
 };
 

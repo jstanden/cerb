@@ -58,7 +58,7 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 			@$username = DevblocksPlatform::importGPC($_POST['username'],'string');
 			@$password = DevblocksPlatform::importGPC($_POST['password'],'string');
 			@$port = DevblocksPlatform::importGPC($_POST['port'],'integer');
-			@$delete = DevblocksPlatform::importGPC($_POST['delete'],'integer');
+			@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 	
 			if(empty($nickname))
 				$nickname = "POP3";
@@ -97,6 +97,7 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 				DAO_Pop3Account::PASSWORD => $password,
 				DAO_Pop3Account::PORT => $port,
 				DAO_Pop3Account::NUM_FAILS => 0,
+				DAO_Pop3Account::DELAY_UNTIL => 0,
 			);
 			
 			if(!empty($id) && !empty($delete)) {

@@ -305,6 +305,10 @@ class DAO_Snippet extends Cerb_ORMHelper {
 				$args['has_multiple_values'] = true;
 				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
+				
+			case SearchFields_Snippet::VIRTUAL_HAS_FIELDSET:
+				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
 			
 			case SearchFields_Snippet::VIRTUAL_OWNER:
 				if(!is_array($param->value))
@@ -422,6 +426,7 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
+	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_OWNER = '*_owner';
 	
 	/**
@@ -445,16 +450,18 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
+			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
 			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner')),
 		);
 		
-		// Custom Fields
-		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SNIPPET);
-		if(is_array($fields))
-		foreach($fields as $field_id => $field) {
-			$key = 'cf_'.$field_id;
-			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name,$field->type);
-		}
+		// Custom fields with fieldsets
+		
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
+			CerberusContexts::CONTEXT_SNIPPET,
+		));
+		
+		if(is_array($custom_columns))
+			$columns = array_merge($columns, $custom_columns);
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
@@ -574,6 +581,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Snippet::OWNER_CONTEXT,
 			SearchFields_Snippet::OWNER_CONTEXT_ID,
 			SearchFields_Snippet::VIRTUAL_CONTEXT_LINK,
+			SearchFields_Snippet::VIRTUAL_HAS_FIELDSET,
 		));
 		
 		$this->addParamsHidden(array(
@@ -606,7 +614,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 	}
 	
 	function getSubtotalFields() {
-		$all_fields = $this->getParamsAvailable();
+		$all_fields = $this->getParamsAvailable(true);
 		
 		$fields = array();
 
@@ -620,6 +628,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 					break;
 					
 				case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
+				case SearchFields_Snippet::VIRTUAL_HAS_FIELDSET:
 				case SearchFields_Snippet::VIRTUAL_OWNER:
 					$pass = true;
 					break;
@@ -661,6 +670,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				}
 				
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_Snippet', $column, $label_map, 'in', 'contexts[]');
+				break;
+				
+			case SearchFields_Snippet::VIRTUAL_HAS_FIELDSET:
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_Snippet', CerberusContexts::CONTEXT_SNIPPET, $column);
 				break;
 			
 			case SearchFields_Snippet::VIRTUAL_OWNER:
@@ -744,6 +757,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
 				break;
+
+			case SearchFields_Snippet::VIRTUAL_HAS_FIELDSET:
+				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_SNIPPET);
+				break;
 				
 			case SearchFields_Snippet::VIRTUAL_OWNER:
 				$groups = DAO_Group::getAll();
@@ -777,6 +794,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 		switch($key) {
 			case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
+				break;
+				
+			case SearchFields_Snippet::VIRTUAL_HAS_FIELDSET:
+				$this->_renderVirtualHasFieldset($param);
 				break;
 			
 			case SearchFields_Snippet::VIRTUAL_OWNER:
@@ -838,6 +859,11 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
 				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
+				break;
+				
+			case SearchFields_Snippet::VIRTUAL_HAS_FIELDSET:
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_Snippet::VIRTUAL_OWNER:
@@ -949,7 +975,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 			$prefix = 'Snippet:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		//$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SNIPPET);
 
 		// Polymorph
 		if(is_numeric($snippet)) {
@@ -962,15 +988,16 @@ class Context_Snippet extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
+			'title' => $prefix.$translate->_('dao.common.title'),
+			'context' => $prefix.$translate->_('common.context'),
+			'content' => $prefix.$translate->_('common.content'),
 			'total_uses' => $prefix.$translate->_('dao.snippet.total_uses'),
-//			'completed|date' => $prefix.$translate->_('task.completed_date'),
 		);
 		
-//		if(is_array($fields))
-//		foreach($fields as $cf_id => $field) {
-//			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
-//		}
-
+		// Custom field/fieldset token labels
+		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+			$token_labels = array_merge($token_labels, $custom_field_labels);
+		
 		// Token values
 		$token_values = array();
 		
@@ -979,32 +1006,13 @@ class Context_Snippet extends Extension_DevblocksContext {
 		if($snippet) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $snippet->title;
+			$token_values['content'] = $snippet->content;
+			$token_values['context'] = $snippet->context;
+			$token_values['id'] = $snippet->id;
+			$token_values['owner__context'] = $snippet->owner_context;
+			$token_values['owner_id'] = $snippet->owner_context_id;
+			$token_values['title'] = $snippet->title;
 			$token_values['total_uses'] = $snippet->total_uses;
-			
-//			$token_values['completed'] = $task->completed_date;
-			
-//			$token_values['custom'] = array();
-			
-//			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TASK, $task->id));
-//			if(is_array($field_values) && !empty($field_values)) {
-//				foreach($field_values as $cf_id => $cf_val) {
-//					if(!isset($fields[$cf_id]))
-//						continue;
-//
-//					// The literal value
-//					if(null != $task)
-//						$token_values['custom'][$cf_id] = $cf_val;
-//
-//					// Stringify
-//					if(is_array($cf_val))
-//						$cf_val = implode(', ', $cf_val);
-//
-//					if(is_string($cf_val)) {
-//						if(null != $task)
-//							$token_values['custom_'.$cf_id] = $cf_val;
-//					}
-//				}
-//			}
 		}
 
 		return true;
@@ -1022,7 +1030,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
 		}
 		
 		switch($token) {

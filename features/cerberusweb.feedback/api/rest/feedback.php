@@ -62,7 +62,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 	}
 	
 	function deleteAction($stack) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		if(!$worker->hasPriv('feedback.actions.delete_all'))
 			$this->error(self::ERRNO_ACL);
@@ -119,7 +119,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 	}
 	
 	function getId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('plugin.cerberusweb.feedback'))
@@ -137,7 +137,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		foreach($filters as $k => $filter) {
 			switch($k) {
@@ -196,7 +196,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 	}
 	
 	function postSearch() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('plugin.cerberusweb.feedback'))
@@ -208,7 +208,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 	}
 	
 	function putId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// Validate the ID
 		if(null == ($feedback = DAO_FeedbackEntry::get($id)))
@@ -296,7 +296,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 	}
 	
 	function postCreate() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('feedback.actions.create'))

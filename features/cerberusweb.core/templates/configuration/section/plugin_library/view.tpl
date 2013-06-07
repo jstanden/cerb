@@ -30,6 +30,7 @@
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
+	<thead>
 	<tr>
 		<th style="width:106px;"></th>
 		{foreach from=$view->view_columns item=header name=headers}
@@ -48,7 +49,8 @@
 			</th>
 		{/foreach}
 	</tr>
-
+	</thead>
+	
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
 	{$plugin = $plugins.{$result.p_plugin_id}}

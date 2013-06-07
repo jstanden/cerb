@@ -4,14 +4,14 @@
 	<name>Support Center</name>
 	<description>Adds a Support Center community portal for public-facing support.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>6.3.1</version>
+	<version>6.4.0</version>
 	<link>http://wiki.cerb5.com/wiki/Support_Center</link>
 	<image>plugin.png</image>
  
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="6.3" max="6.3.99" />
+		<app_version min="6.4" max="6.4.99" />
 	</requires>
  
 	<!-- Plugin Dependencies -->
@@ -238,5 +238,5 @@
 			</params>
 		</extension>
 		
-    </extensions> 	
+	</extensions>
 </plugin>

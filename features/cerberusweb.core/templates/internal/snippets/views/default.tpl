@@ -31,8 +31,8 @@
 <table cellpadding="5" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
+	<thead>
 	<tr>
-		<th style="text-align:center"></th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
@@ -49,6 +49,7 @@
 			</th>
 		{/foreach}
 	</tr>
+	</thead>
 
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
@@ -60,12 +61,12 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-		<td rowspan="2" align="center" valign="top"><input type="checkbox" name="row_id[]" value="{$result.s_id}" style="display:none;"></td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="s_title"}
 			<td context="{$result.s_context}" id="{$result.s_id}">
+				<input type="checkbox" name="row_id[]" value="{$result.s_id}" style="display:none;">
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showSnippetsPeek&view_id={$view->id}&id={$result.s_id}', null, false, '550');" class="subject">{if empty($result.$column)}(no title){else}{$result.$column}{/if}</a>
 			</td>
 			{elseif $column=="s_context"}
@@ -96,8 +97,8 @@
 			{/if}
 		{/foreach}
 		</tr>
-		<tr class="{$tableRowClass}">
-			<td colspan="{count($view->view_columns) + 1}">
+		<tr class="{$tableRowClass} preview" style="display:none;">
+			<td colspan="{count($view->view_columns)}">
 				{$snippet_content = $result.s_content|regex_replace:'#({{.*?}})#':'[ph]\1[/ph]'}
 				
 				{if isset($dicts.{$result.s_context}) && isset($tpl_builder)}

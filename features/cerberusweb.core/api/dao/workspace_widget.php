@@ -108,6 +108,8 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 	 * @return Model_WorkspaceWidget
 	 */
 	static function get($id) {
+		// [TODO] Pull from cache
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id
@@ -119,6 +121,16 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		return null;
 	}
 	
+	static function getByTab($tab_id) {
+		return self::getWhere(sprintf("%s = %d",
+				self::WORKSPACE_TAB_ID,
+				$tab_id
+			),
+			DAO_WorkspaceWidget::POS,
+			true
+		);
+	}
+	
 	/**
 	 * @param resource $rs
 	 * @return Model_WorkspaceWidget[]
@@ -128,7 +140,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		
 		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_WorkspaceWidget();
-			$object->id = $row['id'];
+			$object->id = intval($row['id']);
 			$object->extension_id = $row['extension_id'];
 			$object->workspace_tab_id = $row['workspace_tab_id'];
 			$object->label = $row['label'];
@@ -366,5 +378,208 @@ class Model_WorkspaceWidget {
 	public $workspace_tab_id = 0;
 	public $label = '';
 	public $updated_at = 0;
+	public $pos = '0000';
 	public $params = array();
+};
+
+class Context_WorkspaceWidget extends Extension_DevblocksContext {
+	function getRandom() {
+		//return DAO_WorkspaceTab::random();
+	}
+	
+	function getMeta($context_id) {
+		$url_writer = DevblocksPlatform::getUrlService();
+
+		if(null == ($workspace_widget = DAO_WorkspaceWidget::get($context_id)))
+			return array();
+		
+		/*
+		$url = $url_writer(sprintf("c=pages&id=%d",
+			$workspace_tab->workspace_page_id
+		));
+		*/
+		
+		return array(
+			'id' => $workspace_widget->id,
+			'name' => $workspace_widget->label,
+			'permalink' => null,
+		);
+	}
+	
+	function getContext($widget, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Workspace Widget:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKSPACE_WIDGET);
+		
+		// Polymorph
+		if(is_numeric($widget)) {
+			$widget = DAO_WorkspaceWidget::get($widget);
+		} elseif($widget instanceof Model_WorkspaceWidget) {
+			// It's what we want already.
+		} else {
+			$widget = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+			'extension_id' => $prefix.$translate->_('common.extension'),
+			'label' => $prefix.$translate->_('common.label'),
+			//'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Custom field/fieldset token labels
+		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+			$token_labels = array_merge($token_labels, $custom_field_labels);
+		
+		// Token values
+		$token_values = array();
+		
+		$token_values['_context'] = CerberusContexts::CONTEXT_WORKSPACE_WIDGET;
+
+		// Token values
+		if(null != $widget) {
+			$token_values['_loaded'] = true;
+			$token_values['_label'] = $widget->label;
+			$token_values['id'] = $widget->id;
+			$token_values['extension_id'] = $widget->extension_id;
+			$token_values['label'] = $widget->label;
+
+			// URL
+			//$url_writer = DevblocksPlatform::getUrlService();
+			//$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=pages&id=%d-%s",$page->id, DevblocksPlatform::strToPermalink($page->name)), true);
+		}
+		
+		return true;
+	}
+	
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_WORKSPACE_WIDGET;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, false);
+		}
+		
+		switch($token) {
+			/*
+			case 'widgets':
+				//$widgets = DAO_WorkspaceWidget::get();
+				//$values['widgets'] = array_keys($widgets);
+				
+				$values['widgets'] = array();
+				break;
+			*/
+			
+			case 'data':
+				$values = $dictionary;
+				
+				if(null == ($widget = DAO_WorkspaceWidget::get($context_id)))
+					break;
+				
+				$widget_ext = Extension_WorkspaceWidget::get($dictionary['extension_id']);
+
+				$values['data'] = false;
+				
+				if(!($widget_ext instanceof ICerbWorkspaceWidget_ExportData))
+					break;
+
+				$json = json_decode($widget_ext->exportData($widget, 'json'), true);
+
+				if(!is_array($json))
+					break;
+				
+				// Remove redundant data
+				if(isset($json['widget'])) {
+					unset($json['widget']['label']);
+					unset($json['widget']['version']);
+				}
+				
+				$values['data'] = isset($json['widget']) ? $json['widget'] : $json;
+				break;
+			
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}
+
+	function getChooserView($view_id=null) {
+		if(empty($view_id))
+			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		
+		// View
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = $this->getViewClass();
+		
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Widgets';
+		
+		/*
+		$view->view_columns = array(
+			SearchFields_Address::FIRST_NAME,
+			SearchFields_Address::LAST_NAME,
+			SearchFields_Address::ORG_NAME,
+		);
+		*/
+		
+		/*
+		$view->addParamsDefault(array(
+			SearchFields_Address::IS_BANNED => new DevblocksSearchCriteria(SearchFields_Address::IS_BANNED,'=',0),
+			SearchFields_Address::IS_DEFUNCT => new DevblocksSearchCriteria(SearchFields_Address::IS_DEFUNCT,'=',0),
+		), true);
+		$view->addParams($view->getParamsDefault(), true);
+		*/
+		
+		$view->renderSortBy = SearchFields_WorkspaceWidget::ID;
+		$view->renderSortAsc = true;
+		$view->renderLimit = 10;
+		$view->renderFilters = false;
+		$view->renderTemplate = 'contextlinks_chooser';
+		
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+	
+	function getView($context=null, $context_id=null, $options=array()) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Widgets';
+		
+		$params_req = array();
+		
+		/*
+		if(!empty($context) && !empty($context_id)) {
+			$params_req = array(
+				new DevblocksSearchCriteria(SearchFields_WorkspacePage::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_WorkspacePage::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
+		
+		$view->addParamsRequired($params_req, true);
+		*/
+		
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
 };

@@ -219,8 +219,8 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'schedule_behavior' => array('label' => 'Schedule behavior'),
 				'send_email' => array('label' => 'Send email'),
-				'set_due_date' => array('label' => 'Set due date'),
-				'set_status' => array('label' => 'Set status'),
+				'set_due_date' => array('label' => 'Set task due date'),
+				'set_status' => array('label' => 'Set task status'),
 				'set_links' => array('label' => 'Set links'),
 				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
@@ -342,6 +342,16 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
 			
+			case 'set_due_date':
+				DevblocksEventHelper::runActionSetDate('task_due', $params, $dict);
+				$out = sprintf(">>> Setting task due date to:\n".
+					"%s (%d)\n",
+					date('D M d Y h:ia', $dict->task_due),
+					$dict->task_due
+				);
+				return $out;
+				break;
+				
 			case 'set_links':
 				return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
 				break;
@@ -397,13 +407,12 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_due_date':
-				@$to_date = intval(strtotime($params['value']));
+				DevblocksEventHelper::runActionSetDate('task_due', $params, $dict);
 				
 				DAO_Task::update($task_id, array(
-					DAO_Task::DUE_DATE => $to_date,
+					DAO_Task::DUE_DATE => $dict->task_due,
 				));
 				
-				$dict->task_due = $to_date;
 				break;
 				
 			case 'set_status':

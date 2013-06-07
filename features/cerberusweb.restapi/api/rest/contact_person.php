@@ -48,7 +48,7 @@ class ChRest_ContactPerson extends Extension_RestController implements IExtensio
 	}
 	
 	function deleteAction($stack) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		if(!$worker->hasPriv('core.addybook.person.actions.delete'))
 			$this->error(self::ERRNO_ACL);
 
@@ -64,7 +64,7 @@ class ChRest_ContactPerson extends Extension_RestController implements IExtensio
 	}
 	
 	private function getId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('core.addybook'))
@@ -117,7 +117,7 @@ class ChRest_ContactPerson extends Extension_RestController implements IExtensio
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_CONTACT_PERSON);
 		$params = $this->_handleSearchBuildParams($filters);
@@ -156,7 +156,7 @@ class ChRest_ContactPerson extends Extension_RestController implements IExtensio
 	}
 	
 	function putId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('core.addybook.addy.actions.update'))
@@ -217,7 +217,7 @@ class ChRest_ContactPerson extends Extension_RestController implements IExtensio
 	}
 	
 	function postCreate() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('core.addybook.addy.actions.update'))
@@ -290,7 +290,7 @@ class ChRest_ContactPerson extends Extension_RestController implements IExtensio
 	}
 	
 	function postSearch() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('core.addybook'))

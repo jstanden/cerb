@@ -10,7 +10,7 @@
 {/if}
 
 <div style="margin-left:10px;">
-	<input type="text" name="{$namePrefix}[org]" style="width:100%;" class="placeholders input_org" value="">
+	<input type="text" name="{$namePrefix}[org]" style="width:100%;" class="placeholders input_org" value="{$params.org}">
 	<ul class="bubbles"></ul>
 </div>
 

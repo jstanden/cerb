@@ -45,15 +45,13 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.created_date')|capitalize}: </td>
 			<td width="100%">
-				<input type="text" name="created_date" size=35 value="{if !empty($opp->created_date)}{$opp->created_date|devblocks_date}{else}now{/if}"><button type="button" onclick="devblocksAjaxDateChooser(this.form.created_date,'#dateOppCreated');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
-				<div id="dateOppCreated"></div>
+				<input type="text" name="created_date" size=35 class="input_date" value="{if !empty($opp->created_date)}{$opp->created_date|devblocks_date}{else}now{/if}">
 			</td>
 		</tr>
 		<tr id="oppPeekClosedDate" {if !$opp->is_closed}style="display:none;"{/if}>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.closed_date')|capitalize}: </td>
 			<td width="100%">
-				<input type="text" name="closed_date" size="35" value="{if !empty($opp->closed_date)}{$opp->closed_date|devblocks_date}{/if}"><button type="button" onclick="devblocksAjaxDateChooser(this.form.closed_date,'#dateOppClosed');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
-				<div id="dateOppClosed"></div>
+				<input type="text" name="closed_date" size="35" class="input_date" value="{if !empty($opp->closed_date)}{$opp->closed_date|devblocks_date}{/if}">
 			</td>
 		</tr>
 		
@@ -80,6 +78,8 @@
 	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
 </fieldset>
 {/if}
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_OPPORTUNITY context_id=$opp->id}
 
 {* Comment *}
 {if !empty($last_comment)}
@@ -133,14 +133,19 @@
 				$(this).next('DIV.notify').hide();
 			}
 		});
-		$('#formOppPeek :input:text:first').focus();
-	} );
-	
-	$('#formOppPeek button.chooser_worker').each(function() {
-		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
-	});
-	
-	$('#formOppPeek button.chooser_notify_worker').each(function() {
-		ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
+		
+		var $frm = $('#formOppPeek');
+		
+		$frm.find(':input:text:first').focus();
+		
+		$frm.find('input.input_date').cerbDateInputHelper();
+		
+		$frm.find('button.chooser_worker').each(function() {
+			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
+		});
+		
+		$frm.find('button.chooser_notify_worker').each(function() {
+			ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
+		});
 	});
 </script>

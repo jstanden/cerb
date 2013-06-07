@@ -4,15 +4,15 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="ticket_ids" value="">
 
-<fieldset>
+<fieldset class="peek">
 	<legend>{$translate->_('common.bulk_update.with')|capitalize}</legend>
 	<label><input type="radio" name="filter" value="" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if empty($ticket_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
- 	{if !empty($ticket_ids)}
+	{if !empty($ticket_ids)}
 		<label><input type="radio" name="filter" value="checks" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if !empty($ticket_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.checked')}</label> 
 	{/if}
 	<label><input type="radio" name="filter" value="sender" onclick="toggleDiv('categoryFilterPanelSender','block');toggleDiv('categoryFilterPanelSubject','none');"> Similar senders</label>
 	<label><input type="radio" name="filter" value="subject" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','block');"> Similar subjects</label>
- 	{if empty($ticket_ids)}
+	{if empty($ticket_ids)}
 		<label><input type="radio" name="filter" value="sample" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');"> {'common.bulk_update.filter.random'|devblocks_translate} </label><input type="text" name="filter_sample_size" size="5" maxlength="4" value="100" class="input_number">
 	{/if}
 	
@@ -27,7 +27,7 @@
 	</div>
 </fieldset>
 
-<fieldset>
+<fieldset class="peek">
 	<legend>Set Fields</legend>
 	<table cellspacing="0" cellpadding="2" width="100%">
 		{if $active_worker->hasPriv('core.ticket.actions.move')}
@@ -35,23 +35,23 @@
 			<td width="0%" nowrap="nowrap">Move to:</td>
 			<td width="100%"><select name="do_move">
 				<option value=""></option>
-	      		<optgroup label="Move to Group">
-	      		{foreach from=$groups item=group}
-	      			<option value="t{$group->id}">{$group->name}</option>
-	      		{/foreach}
-	      		</optgroup>
-	      		
-	      		{foreach from=$group_buckets item=buckets key=groupId}
-	      			{assign var=group value=$groups.$groupId}
-	      			{if !empty($active_worker_memberships.$groupId)}
-		      			<optgroup label="{$group->name}">
-		      			{foreach from=$buckets item=bucket}
-		    				<option value="c{$bucket->id}">{$bucket->name}</option>
-		    			{/foreach}
-		    			</optgroup>
-	    			{/if}
-	     		{/foreach}
-	      	</select></td>
+				<optgroup label="Move to Group">
+				{foreach from=$groups item=group}
+					<option value="t{$group->id}">{$group->name}</option>
+				{/foreach}
+				</optgroup>
+				
+				{foreach from=$group_buckets item=buckets key=groupId}
+					{assign var=group value=$groups.$groupId}
+					{if !empty($active_worker_memberships.$groupId)}
+						<optgroup label="{$group->name}">
+						{foreach from=$buckets item=bucket}
+							<option value="c{$bucket->id}">{$bucket->name}</option>
+						{/foreach}
+						</optgroup>
+					{/if}
+				{/foreach}
+			</select></td>
 		</tr>
 		{/if}
 		
@@ -75,14 +75,14 @@
 				{if $active_worker->hasPriv('core.ticket.actions.delete')}<button type="button" onclick="$(this.form).find('select[name=do_status]').val('2').trigger('change');">deleted</button>{/if}
 				
 				<div id="bulk{$view_id}_waiting" style="display:none;">
-			      	<b>{$translate->_('display.reply.next.resume')}</b>
+					<b>{$translate->_('display.reply.next.resume')}</b>
 					<br>
 					<i>{$translate->_('display.reply.next.resume_eg')}</i>
-			      	<br> 
-			      	<input type="text" name="do_reopen" size="55" value="">
-			      	<br>
-			      	{$translate->_('display.reply.next.resume_blank')}
-			      	<br>
+					<br> 
+					<input type="text" name="do_reopen" size="55" value="">
+					<br>
+					{$translate->_('display.reply.next.resume_blank')}
+					<br>
 				</div>
 			</td>
 		</tr>
@@ -146,16 +146,18 @@
 </fieldset>
 
 {if !empty($custom_fields)}
-<fieldset>
+<fieldset class="peek">
 	<legend>Set Custom Fields</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=true}	
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=true}
 </fieldset>
 {/if}
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET bulk=true}
 
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
 
 {if $active_worker->hasPriv('core.ticket.view.actions.broadcast_reply')}
-<fieldset>
+<fieldset class="peek">
 	<legend>Send Broadcast Reply</legend>
 	<label><input type="checkbox" name="do_broadcast" id="chkMassReply" onclick="$('#bulkTicketBroadcast').toggle();"> {'common.enabled'|devblocks_translate|capitalize}</label>
 	

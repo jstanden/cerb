@@ -58,6 +58,8 @@
 </fieldset>
 {/if}
 
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_CONTACT_PERSON context_id=$contact->id}
+
 {if $active_worker->hasPriv('core.addybook.person.actions.update')}
 	<button type="button" onclick="if($('#formContactPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formContactPeek', '{$view_id}', false, 'contact_save'); }"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
 	{if $active_worker->hasPriv('core.addybook.person.actions.delete') && !empty($contact)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this contact person?')) { $('#formContactPeek input[name=do_delete]').val('1'); genericAjaxPopupPostCloseReloadView(null,'formContactPeek','{$view_id}',false,'contact_delete'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}

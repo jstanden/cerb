@@ -106,7 +106,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	}
 	
 	private function getId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// Internally search (checks ACL via groups)
 		
@@ -122,7 +122,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	}
 	
 	private function putId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		$workers = DAO_Worker::getAll();
 		
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
@@ -188,7 +188,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	}
 	
 	public function putRequester($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		if(null == ($ticket = DAO_Ticket::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid ticket ID %d", $id));
@@ -207,7 +207,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	}
 	
 	private function deleteId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('core.ticket.actions.delete'))
@@ -232,7 +232,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	}
 	
 	public function deleteRequester($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		if(null == ($ticket = DAO_Ticket::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid ticket ID %d", $id));
@@ -292,7 +292,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	}
 	
 	function search($filters=array(), $sortToken='updated', $sortAsc=0, $page=1, $limit=10) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_TICKET);
 		$params = $this->_handleSearchBuildParams($filters);
@@ -342,7 +342,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	}
 	
 	private function postSearch() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		// ACL
 // 		if(!$worker->hasPriv('core.mail.search'))
@@ -354,7 +354,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	}
 	
 	private function _handlePostCompose() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
 		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
@@ -427,7 +427,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	}
 	
 	private function postCompose() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		// ACL
 		if(!$worker->hasPriv('core.mail.send'))
@@ -438,7 +438,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	}
 	
 	private function postComment($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		@$comment = DevblocksPlatform::importGPC($_POST['comment'],'string','');
 		

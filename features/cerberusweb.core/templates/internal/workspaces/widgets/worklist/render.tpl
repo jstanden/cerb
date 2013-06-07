@@ -33,24 +33,62 @@ var on_refresh = function() {
 		;
 	
 	// Hide watchers column (if exists)
-	if($worklist_body.find('tr:first th:first:contains(Watchers)').length > 0) {
-		$worklist_body.find('tr:first th:first').html('');
-		$worklist_body.find('tbody').find('> tr > td:first > button').remove();
+	
+	var $th_watchers = $worklist_body.find('tr:first th:contains(Watchers)').first();
+	if($th_watchers.length > 0) {
+		$th_watchers.hide();
+		$worklist_body.find('tbody').find('> tr > td:first').hide();
 	}
 	
-	$worklist_body.find('tr:first th')
-		.css('background', 'none')
-		.css('border', '0')
-		;
-
-	$worklist_body.find('th, td')
+	$worklist_body.find('tr:first th').each(function(e) {
+		var $th = $(this);
+		if($th.text().length == 0)
+			$th.hide();
+	});
+	
+	// Prepend header labels to column cells
+	
+	$worklist_body.find('td')
 		.css('display', 'block')
 		.css('min-width', '')
 		.css('font-weight', 'normal')
 		.removeAttr('align', '')
 		.each(function(e) {
-			if(0==$.trim($(this).text()).length)
-				$(this).hide();
+			var $td = $(this);
+
+			if($td.is(':hidden'))
+				return;
+			
+			if($td.find('button.split-right').length > 0) {
+				$td.hide();
+				return;
+			}
+			
+			if($td.find('a.subject, b.subject, input:checkbox:hidden').length > 0) {
+				if($.trim($td.text()).length == 0)
+					$td.hide();
+				
+				return;
+			}
+			
+			var $ths = $td.closest('table.worklistBody').find('th:not(:hidden)');
+			var $siblings = $td.closest('tr').find('td:not(:hidden)');
+			var idx = $siblings.index($td);
+
+			var $th = $ths.filter(':nth(' + (idx) + ')');
+			
+			// If the column header is hidden or contentless, hide this cell
+			if($th.is(':hidden')) {
+				$td.hide();
+				return;
+			}
+			
+			var txt = $th.text().trim();
+			
+			var $label = $('<span style="color:rgb(120,120,120);margin-left:15px;">' 
+				+ txt 
+				+ ': </span>');
+			$label.prependTo($td);
 		})
 		;
 
@@ -72,27 +110,26 @@ var on_refresh = function() {
 			} else {
 				$cols = $(this).find('td:gt(0)');
 			}
-
-			if(null != $cols) {
-				$cols.css('padding-left', '15px');
-			}
 		})
 		;
 	
 	$sort_links = $('<div style="margin-bottom:5px;"></div>');
 	
-	$worklist_body.find('tr:first th').each(function(e) {
-		$(this).find('> a')
-			.css('font-weight', 'bold')
-			.css('text-decoration', 'underline')
-			.css('color', 'rgb(51,92,142)')
-		;
-
-		$span = $('<span style="margin-right:10px;"></span>');
-		$(this).children().appendTo($span);
-		$span.appendTo($sort_links);
-		$(this).remove();
-	});
+	$worklist_body.find('tr:first th:not(:hidden)')
+		.each(function(e) {
+			$(this).find('> a')
+				.css('font-weight', 'bold')
+				.css('text-decoration', 'underline')
+				.css('color', 'rgb(51,92,142)')
+			;
+	
+			$span = $('<span style="margin-right:10px;"></span>');
+			$(this).children().appendTo($span);
+			$span.appendTo($sort_links);
+		})
+		.closest('thead')
+			.remove()
+			;
 	
 	$sort_links.insertBefore($worklist_body);
 	$worklist_links.insertBefore($sort_links);

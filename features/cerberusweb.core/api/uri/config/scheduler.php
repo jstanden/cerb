@@ -17,9 +17,6 @@
 
 class PageSection_SetupScheduler extends Extension_PageSection {
 	function render() {
-		if(ONDEMAND_MODE)
-			return;
-		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
@@ -34,9 +31,6 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 	function getJobAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
 
-		if(ONDEMAND_MODE)
-			return;
-		
 		$worker = CerberusApplication::getActiveWorker();
 		if(!$worker || !$worker->is_superuser)
 			return;
@@ -51,9 +45,6 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 	
 	function saveJobJsonAction() {
 		try {
-			if(ONDEMAND_MODE)
-				throw new Exception("Your helpdesk is in On-Demand mode.");
-			
 			$worker = CerberusApplication::getActiveWorker();
 			if(!$worker || !$worker->is_superuser)
 				throw new Exception("You are not a superuser.");

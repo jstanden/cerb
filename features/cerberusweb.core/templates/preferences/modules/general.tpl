@@ -27,7 +27,23 @@
 
 	<b>{$translate->_('preferences.account.keyboard.shortcuts')|capitalize}</b><br>
 	<label><input type="checkbox" name="keyboard_shortcuts" value="1" {if $prefs.keyboard_shortcuts eq 1}checked{/if}> {$translate->_('common.enabled')|capitalize}</label><br>
+</fieldset>
+
+<fieldset class="peek">
+	<legend>{'common.availability'|devblocks_translate|capitalize}</legend>
 	
+	<b>{'preferences.account.availability.calendar_id'|devblocks_translate}</b><br>
+	
+	<div style="margin-left:10px;">
+		<select name="availability_calendar_id">
+			<option value="">- always unavailable -</option>
+			{foreach from=$calendars item=calendar}
+			{if $calendar->owner_context == CerberusContexts::CONTEXT_WORKER && $calendar->owner_context_id == $active_worker->id}
+			<option value="{$calendar->id}" {if $calendar->id==$prefs.availability_calendar_id}selected="selected"{/if}>{$calendar->name}</option>
+			{/if}
+			{/foreach}
+		</select>
+	</div>
 </fieldset>
 
 <fieldset class="peek">

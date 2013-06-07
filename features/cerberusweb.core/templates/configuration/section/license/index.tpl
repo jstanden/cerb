@@ -11,23 +11,17 @@
 			<li><a href="http://www.cerberusweb.com/buy" target="_blank">Purchase a Cerb license</a></li>
 		</ul> 
 	{else}
-		{if $smarty.const.ONDEMAND_MODE}
-			<b>Licensed To:</b> {$we_trust_you->company}<br>
-			<b>Simultaneous Workers:</b> {if 100==$we_trust_you->seats}100+{else}{$we_trust_you->seats}{/if}<br>
-		{else}
-			<b>Serial #:</b> {$we_trust_you->key}<br>
-			<b>Licensed To:</b> {$we_trust_you->company}<br>
-			<b>Simultaneous Workers:</b> {if 100==$we_trust_you->seats}100+{else}{$we_trust_you->seats}{/if}<br>
-			<b>Software Updates Expire:</b> {$we_trust_you->upgrades|devblocks_date:'F d, Y':true}<br>
-			
-			<div style="margin-top:5px;">
-				<button type="button" onclick="$(this).parent().fadeOut();$('#frmLicense').fadeIn().find('input:text:first').focus();"><span class="cerb-sprite2 sprite-plus-circle"></span> Update License</button>
-			</div>
-		{/if}
+		<b>Serial #:</b> {$we_trust_you->key}<br>
+		<b>Licensed To:</b> {$we_trust_you->company}<br>
+		<b>Simultaneous Workers:</b> {if 100==$we_trust_you->seats}100+{else}{$we_trust_you->seats}{/if}<br>
+		<b>Software Updates Expire:</b> {$we_trust_you->upgrades|devblocks_date:'F d, Y':true}<br>
+		
+		<div style="margin-top:5px;">
+			<button type="button" onclick="$(this).parent().fadeOut();$('#frmLicense').fadeIn().find('input:text:first').focus();"><span class="cerb-sprite2 sprite-plus-circle"></span> Update License</button>
+		</div>
 	{/if}
 </fieldset>
 
-{if !$smarty.const.ONDEMAND_MODE}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmLicense" style="{if $we_trust_you->key && empty($error)}display:none;{/if}" onsubmit="return false;">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="handleSectionAction">
@@ -65,7 +59,6 @@
 
 </fieldset>
 </form>
-{/if}
 
 <script type="text/javascript">
 	$('#frmLicense BUTTON.submit')

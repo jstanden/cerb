@@ -25,6 +25,7 @@ class DAO_Pop3Account {
 	const PASSWORD = 'password';
 	const PORT = 'port';
 	const NUM_FAILS = 'num_fails';
+	const DELAY_UNTIL = 'delay_until';
 	
 	static function createPop3Account($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -45,7 +46,7 @@ class DAO_Pop3Account {
 		$db = DevblocksPlatform::getDatabaseService();
 		$pop3accounts = array();
 		
-		$sql = "SELECT id, enabled, nickname, protocol, host, username, password, port, num_fails ".
+		$sql = "SELECT id, enabled, nickname, protocol, host, username, password, port, num_fails, delay_until ".
 			"FROM pop3_account ".
 			((!empty($ids) ? sprintf("WHERE id IN (%s)", implode(',', $ids)) : " ").
 			"ORDER BY nickname "
@@ -63,6 +64,7 @@ class DAO_Pop3Account {
 			$pop3->password = $row['password'];
 			$pop3->port = intval($row['port']);
 			$pop3->num_fails = intval($row['num_fails']);
+			$pop3->delay_until = intval($row['delay_until']);
 			$pop3accounts[$pop3->id] = $pop3;
 		}
 		
@@ -131,4 +133,5 @@ class Model_Pop3Account {
 	public $password;
 	public $port=110;
 	public $num_fails = 0;
+	public $delay_until = 0;
 };

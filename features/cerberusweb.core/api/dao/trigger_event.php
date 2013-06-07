@@ -478,15 +478,6 @@ class SearchFields_TriggerEvent implements IDevblocksSearchFields {
 			self::EVENT_POINT => new DevblocksSearchField(self::EVENT_POINT, 'trigger_event', 'event_point', $translate->_('common.event')),
 		);
 		
-		// Custom Fields
-		//$fields = DAO_CustomField::getByContext(CerberusContexts::XXX);
-
-		//if(is_array($fields))
-		//foreach($fields as $field_id => $field) {
-		//	$key = 'cf_'.$field_id;
-		//	$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name,$field->type);
-		//}
-		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
@@ -515,6 +506,14 @@ class Model_TriggerEvent {
 			return NULL;
 		
 		return $event;
+	}
+	
+	public function getOwnerMeta() {
+		$context_ext = Extension_DevblocksContext::get($this->owner_context);
+		$meta = $context_ext->getMeta($this->owner_context_id);
+		$meta['context'] = $context_ext->id;
+		$meta['context_label'] = $context_ext->manifest->name;
+		return $meta;
 	}
 	
 	private function _getNodes() {
@@ -700,6 +699,59 @@ class Model_TriggerEvent {
 	
 	function logUsage($runtime_ms) {
 		return DAO_TriggerEvent::logUsage($this->id, $runtime_ms);
+	}
+	
+	function exportToJson() {
+		if(null == ($event = $this->getEvent()))
+			return;
+		
+		$ptrs = array(
+			'0' => array(
+				'nodes' => array(),
+			),
+		);
+		
+		$tree_data = $this->getDecisionTreeData();
+		
+		$nodes = $tree_data['nodes'];
+		$depths = $tree_data['depths'];
+		
+		foreach($depths as $node_id => $depth) {
+			$node = $nodes[$node_id]; /* @var $node Model_DecisionNode */
+			
+			$ptrs[$node->id] = array(
+				'type' => $node->node_type,
+				'title' => $node->title,
+			);
+			
+			if(!empty($node->params_json))
+				$ptrs[$node->id]['params'] = json_decode($node->params_json, true);
+			
+			$parent =& $ptrs[$node->parent_id];
+			
+			if(!isset($parent['nodes']))
+				$parent['nodes'] = array();
+			
+			$parent['nodes'][] =& $ptrs[$node->id];
+		}
+
+		$array = array(
+			'behavior' => array(
+				'title' => $this->title,
+				'event' => array(
+					'key' => $this->event_point,
+					'label' => $event->manifest->name,
+				),
+			),
+		);
+		
+		if(!empty($this->variables))
+			$array['behavior']['variables'] = $this->variables;
+		
+		if(!empty($ptrs[0]['nodes']))
+			$array['behavior']['nodes'] = $ptrs[0]['nodes'];
+		
+		return DevblocksPlatform::strFormatJson(json_encode($array));
 	}
 };
 

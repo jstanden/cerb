@@ -37,6 +37,8 @@
 </fieldset>
 {/if}
 
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_FEEDBACK context_id=$model->id}
+
 <input type="hidden" name="source_extension_id" value="{$source_extension_id}">
 <input type="hidden" name="source_id" value="{$source_id}">
 <br>

@@ -27,8 +27,8 @@
 <table cellpadding="5" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
+	<thead>
 	<tr>
-		<th style="text-align:center;width:10px;max-width:10px;"></th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
@@ -47,6 +47,7 @@
 			</th>
 		{/foreach}
 	</tr>
+	</thead>
 
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
@@ -58,19 +59,17 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center">		
-				<input type="checkbox" name="row_id[]" value="{$result.we_id}" style="display:none;">
-			</td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="we_id"}
 				<td valign="top">{$result.we_id}&nbsp;</td>
 			{elseif $column=="we_message"}
 				<td valign="top">
+					<input type="checkbox" name="row_id[]" value="{$result.we_id}" style="display:none;">
 					{if $result.we_is_read}<span class="cerb-sprite2 sprite-tick-circle-gray"></span> {/if}
 					<a href="{devblocks_url}c=preferences&a=redirectRead&id={$result.we_id}{/devblocks_url}" class="subject">{$result.we_message}</a>
 				</td>
 			{elseif $column=="we_created_date"}
-				<td style="max-width:100px;width:100px;" valign="top"><abbr title="{$result.we_created_date|devblocks_date}">{$result.we_created_date|devblocks_prettytime}</abbr>&nbsp;</td>
+				<td valign="top" nowrap="nowrap"><abbr title="{$result.we_created_date|devblocks_date}">{$result.we_created_date|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="we_worker_id"}
 				{assign var=worker_id value=$result.$column}
 				<td>

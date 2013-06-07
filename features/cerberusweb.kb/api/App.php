@@ -206,6 +206,25 @@ class WorkspaceTab_KbBrowse extends Extension_WorkspaceTab {
 		
 		$tpl->display('devblocks:cerberusweb.kb::kb/tabs/articles/index.tpl');
 	}
+	
+	function exportTabConfigJson(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
+		$json = array(
+			'tab' => array(
+				'name' => $tab->name,
+				'extension_id' => $tab->extension_id,
+				'params' => $tab->params,
+			),
+		);
+		
+		return json_encode($json);
+	}
+	
+	function importTabConfigJson($json, Model_WorkspaceTab $tab) {
+		if(empty($tab) || empty($tab->id) || !is_array($json) || !isset($json['tab']))
+			return false;
+		
+		return true;
+	}
 }
 endif;
 
@@ -279,7 +298,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			$article_categories = DAO_KbArticle::getCategoriesByArticleId($id);
 			$tpl->assign('article_categories', $article_categories);
 			
-			$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_KB_ARTICLE);
+			$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_KB_ARTICLE, false);
 			$tpl->assign('custom_fields', $custom_fields);
 			
 			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_KB_ARTICLE, $id);
@@ -463,8 +482,8 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		$tpl->assign('levels',$levels);
 		
 		// Custom Fields
-//		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
-//		$tpl->assign('custom_fields', $custom_fields);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_KB_ARTICLE, false);
+		$tpl->assign('custom_fields', $custom_fields);
 
 		// Macros
 		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.kb_article');
@@ -502,15 +521,8 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			}
 		}
 		
-		// Feedback fields
-//		@$list_id = trim(DevblocksPlatform::importGPC($_POST['list_id'],'integer',0));
-		
-		// Do: List
-//		if(0 != strlen($list_id))
-//			$do['list_id'] = $list_id;
-			
 		// Do: Custom fields
-//		$do = DAO_CustomFieldValue::handleBulkPost($do);
+		$do = DAO_CustomFieldValue::handleBulkPost($do);
 
 		// Do: Scheduled Behavior
 		if(0 != strlen($behavior_id)) {
@@ -864,13 +876,14 @@ class SearchFields_KbCategory implements IDevblocksSearchFields {
 
 		);
 		
-		// Custom Fields
-		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_KB_CATEGORY);
-		if(is_array($fields))
-		foreach($fields as $field_id => $field) {
-			$key = 'cf_'.$field_id;
-			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name,$field->type);
-		}
+		// Custom fields with fieldsets
+		
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
+			CerberusContexts::CONTEXT_KB_CATEGORY,
+		));
+		
+		if(is_array($custom_columns))
+			$columns = array_merge($columns, $custom_columns);
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
@@ -923,11 +936,10 @@ class Context_KbCategory extends Extension_DevblocksContext {
 			'parent_id' => $prefix.$translate->_('kb_category.parent_id'),
 		);
 		
-		if(is_array($fields))
-		foreach($fields as $cf_id => $field) {
-			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
-		}
-
+		// Custom field/fieldset token labels
+		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+			$token_labels = array_merge($token_labels, $custom_field_labels);
+		
 		// Token values
 		$token_values = array();
 		
@@ -957,7 +969,7 @@ class Context_KbCategory extends Extension_DevblocksContext {
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
 		}
 		
 		switch($token) {

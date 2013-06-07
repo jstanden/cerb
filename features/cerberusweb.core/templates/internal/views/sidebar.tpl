@@ -25,7 +25,7 @@
 		<tr>
 			<td style="padding-left:10px;padding-right:10px;" nowrap="nowrap" valign="top">
 				{if !empty($subcategory.filter)}<a href="javascript:;" onclick="ajax.viewAddFilter('{$view_id}', '{$subcategory.filter.field}', '{$subcategory.filter.oper}', { {foreach from=$subcategory.filter.values name=values item=value key=key}'{$key}':'{$value|escape:'quotes'}'{if !$smarty.foreach.values.last},{/if}{/foreach} } );">{/if}
-				<span>{$subcategory.label}</span>
+				<span>{$subcategory.label|truncate:25}</span>
 				{if !empty($subcategory.filter)}</a>{/if}
 			</td>
 			<td align="right" nowrap="nowrap" valign="top">
@@ -35,12 +35,17 @@
 		{/foreach}
 		{/if}
 	{/foreach}
-	</table>	
+	</table>
 	
 </fieldset>
 
 <script type="text/javascript">
 $legend = $('#view{$view_id}_sidebar fieldset:first legend');
+
+if($legend.width() > 200) {
+	$legend.css('width', '200px');
+	$legend.css('white-space', 'normal');
+}
 
 $legend
 	.hoverIntent({

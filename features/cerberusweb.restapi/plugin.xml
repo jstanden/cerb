@@ -4,14 +4,14 @@
 	<name>Web Services API (JSON/XML) *EXPERIMENTAL*</name>
 	<description>A RESTful JSON/XML interface for integrating Cerb with other applications and tools.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>6.3.1</version>
+	<version>6.4.0</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Web_Services_API</link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="6.3" max="6.3.99" />
+		<app_version min="6.4" max="6.4.99" />
 	</requires>
 
 	<!-- Plugin Dependencies -->
@@ -68,7 +68,7 @@
 			</class>
 			<params>
 				<param key="uri" value="api" />
-    			<param key="title" value="webapi.common.api_credentials" />
+				<param key="title" value="webapi.common.api_credentials" />
 			</params>
 		</extension>
 
@@ -84,7 +84,7 @@
 			<params>
 				<param key="uri" value="addresses" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.attachments</id>
@@ -96,9 +96,21 @@
 			<params>
 				<param key="uri" value="attachments" />
 			</params>
-		</extension>		
+		</extension>
 		
-        <extension point="cerberusweb.rest.controller">
+		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.calendars</id>
+			<name>Calendars</name>
+			<class>
+				<file>api/rest/calendars.php</file>
+				<name>ChRest_Calendars</name>
+			</class>
+			<params>
+				<param key="uri" value="calendars" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.comments</id>
 			<name>Comments</name>
 			<class>
@@ -110,7 +122,7 @@
 			</params>
 		</extension>
 		
-        <extension point="cerberusweb.rest.controller">
+		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.contactperson</id>
 			<name>Contact Person</name>
 			<class>
@@ -122,7 +134,7 @@
 			</params>
 		</extension>
 
-        <extension point="cerberusweb.rest.controller">
+		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.custom_fields</id>
 			<name>Custom Fields</name>
 			<class>
@@ -132,7 +144,7 @@
 			<params>
 				<param key="uri" value="customfields" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.groups</id>
@@ -156,7 +168,7 @@
 			<params>
 				<param key="uri" value="messages" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.notifications</id>
@@ -168,7 +180,7 @@
 			<params>
 				<param key="uri" value="notifications" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.orgs</id>
@@ -180,7 +192,7 @@
 			<params>
 				<param key="uri" value="orgs" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.parser</id>
@@ -192,7 +204,7 @@
 			<params>
 				<param key="uri" value="parser" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.tasks</id>
@@ -204,7 +216,7 @@
 			<params>
 				<param key="uri" value="tasks" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.tickets</id>
@@ -216,7 +228,7 @@
 			<params>
 				<param key="uri" value="tickets" />
 			</params>
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.workers</id>
@@ -227,6 +239,18 @@
 			</class>
 			<params>
 				<param key="uri" value="workers" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.workspaces</id>
+			<name>Workspaces</name>
+			<class>
+				<file>api/rest/workspaces.php</file>
+				<name>ChRest_Workspaces</name>
+			</class>
+			<params>
+				<param key="uri" value="workspaces" />
 			</params>
 		</extension>
 		

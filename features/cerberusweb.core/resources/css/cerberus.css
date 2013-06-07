@@ -42,11 +42,13 @@ form {
 }
 
 fieldset {
-	background-color:rgb(255,255,255);
+	background-color: rgb(255,255,255);
 	background-image: url(bg_block.jpg?v=2012111201);
 	background-repeat: repeat-x;
-	border:1px solid rgb(230,230,230);
-	margin-bottom:10px;
+	border-width: 1px;
+	border-style: double;
+	border-color: rgb(230,230,230);
+	margin-bottom: 10px;
 }
 
 fieldset legend {
@@ -406,6 +408,7 @@ UL.navmenu > LI {
 	border-right:1px solid rgb(210,210,210);
 	padding:5px 8px;
 	margin:0px;
+	min-height:16px;
 	cursor:pointer;
 }
 
@@ -488,7 +491,7 @@ table.worklistBody th {
 	background: -moz-linear-gradient(top, rgb(240,240,240), rgb(200,200,200));
 	background: -o-linear-gradient(top, rgb(240,240,240), rgb(200,200,200));
 	background: -ms-linear-gradient(top, rgb(240,240,240), rgb(200,200,200));
-	padding:2px 5px 2px 5px;
+	padding:2px 0px 2px 5px;
 	border-right:1px solid rgb(175,175,175);
 	text-align: left;
 	cursor:pointer;
@@ -518,6 +521,7 @@ table.worklistBody th:hover a {
 }
 	
 table.worklistBody td {
+	overflow: hidden;
 	font-size:11px;
 	padding-right:5px;
 }
@@ -546,15 +550,11 @@ table.worklistBody tr.hover {
 	background-color: rgb(255,255,200);
 }
 
-table.worklistBody tr.even.selected {
+table.worklistBody tr.selected {
 	background-color: rgb(251,236,136); 
 }
 
-table.worklistBody tr.odd.selected {
-	background-color: rgb(251,236,136); 
-}
-
-table.worklistBody tr.even.selected.hover, table.worklistBody tr.odd.selected.hover {
+table.worklistBody tr.selected.hover, table.worklistBody tr.selected.hover {
 	background-color: rgb(255,255,200);
 }
 
@@ -599,6 +599,9 @@ TABLE.calendar TR.week TD DIV.day_header A {
 TABLE.calendar TR.week TD.today {
 	border:2px solid rgb(74,110,158);
 }
+TABLE.calendar TR.week TD.hover {
+	background-color:rgb(251,236,136);
+}
 TABLE.calendar TR.week TD.today DIV.day_header A {
 	font-weight:bold;
 	color:rgb(74,110,158);
@@ -625,7 +628,12 @@ TABLE.calendar TR.week TD DIV.day_contents DIV {
 TABLE.calendar TR.week TD DIV.day_contents DIV.available {
 	background-color:rgb(180,220,110);
 }
-
+TABLE.calendar TR.week TD DIV.day_contents A {
+	text-decoration:none;
+}
+TABLE.calendar TR.week TD DIV.day_contents A:hover {
+	text-decoration:underline;
+}
 TABLE.toggle_grid TR TD {
 	text-align:center;
 	cursor:pointer;
@@ -1000,9 +1008,15 @@ FIELDSET.properties DIV.property {
 	float:left;
 }
 
-FIELDSET.properties SMALL {
+FIELDSET.properties SMALL, DIV.cerb-profile-toolbar SMALL {
 	font-size:90%;
 	color:rgb(100,100,100);
+}
+
+/* Profiles */
+
+DIV.cerb-profile-toolbar {
+	margin-bottom: 10px;
 }
 
 /* Popup menu */
@@ -1289,7 +1303,7 @@ button span.cerb-sprite { display:inline-block; }
 .sprite-warning_gray{ background-position: -150px -583px; width: 16px; height: 16px; } 
 
 .cerb-sprite2 { 
-	background:url(cerb_sprites.png?v=2012051701);
+	background:url(cerb_sprites.png?v=2013042301);
 	background-repeat:no-repeat;
 	background-position:top left;
 	display:inline-block;
@@ -1298,37 +1312,39 @@ button span.cerb-sprite { display:inline-block; }
 button span.cerb-sprite2 { display:inline-block; }
 
 .sprite-application-export{ background-position: 0 0; width: 16px; height: 16px; } 
-.sprite-application-import{ background-position: 0 -41px; width: 16px; height: 16px; } 
-.sprite-application-sidebar-list{ background-position: 0 -82px; width: 16px; height: 16px; } 
-.sprite-application-sidebar{ background-position: 0 -123px; width: 16px; height: 16px; } 
-.sprite-applications{ background-position: 0 -164px; width: 16px; height: 16px; } 
-.sprite-arrow-circle-135-left{ background-position: 0 -205px; width: 16px; height: 16px; } 
-.sprite-arrow-merge-090-left{ background-position: 0 -246px; width: 16px; height: 16px; } 
-.sprite-cross-circle-frame-gray{ background-position: 0 -287px; width: 16px; height: 16px; } 
-.sprite-cross-circle-frame{ background-position: 0 -328px; width: 16px; height: 16px; } 
-.sprite-cross-circle-gray{ background-position: 0 -369px; width: 16px; height: 16px; } 
-.sprite-cross-circle{ background-position: 0 -410px; width: 16px; height: 16px; } 
-.sprite-document-search-result{ background-position: 0 -451px; width: 16px; height: 16px; } 
-.sprite-folder-cross-circle{ background-position: 0 -492px; width: 16px; height: 16px; } 
-.sprite-folder-gear{ background-position: 0 -533px; width: 16px; height: 16px; } 
-.sprite-folder-tick-circle{ background-position: 0 -574px; width: 16px; height: 16px; } 
-.sprite-gear{ background-position: 0 -615px; width: 16px; height: 16px; } 
-.sprite-keyboard{ background-position: 0 -656px; width: 16px; height: 16px; } 
-.sprite-layout-select-sidebar{ background-position: 0 -697px; width: 16px; height: 16px; } 
-.sprite-mail-send{ background-position: 0 -738px; width: 16px; height: 16px; } 
-.sprite-minus-circle-frame{ background-position: 0 -779px; width: 16px; height: 16px; } 
-.sprite-minus-circle{ background-position: 0 -820px; width: 16px; height: 16px; } 
-.sprite-plus-circle-frame{ background-position: 0 -861px; width: 16px; height: 16px; } 
-.sprite-plus-circle{ background-position: 0 -902px; width: 16px; height: 16px; } 
-.sprite-robot{ background-position: 0 -943px; width: 16px; height: 16px; } 
-.sprite-sort-price{ background-position: 0 -984px; width: 16px; height: 16px; } 
-.sprite-tick-circle-frame-gray{ background-position: 0 -1025px; width: 16px; height: 16px; } 
-.sprite-tick-circle-frame{ background-position: 0 -1066px; width: 16px; height: 16px; } 
-.sprite-tick-circle-gray{ background-position: 0 -1107px; width: 16px; height: 16px; } 
-.sprite-tick-circle{ background-position: 0 -1148px; width: 16px; height: 16px; } 
-.sprite-ui-tab-content-gear{ background-position: 0 -1189px; width: 16px; height: 16px; } 
-.sprite-ui-tab-gear{ background-position: 0 -1230px; width: 16px; height: 16px; } 
-.sprite-user-silhouette{ background-position: 0 -1271px; width: 16px; height: 16px; } 
+.sprite-application-import{ background-position: 0 -66px; width: 16px; height: 16px; } 
+.sprite-application-sidebar-list{ background-position: 0 -132px; width: 16px; height: 16px; } 
+.sprite-application-sidebar{ background-position: 0 -198px; width: 16px; height: 16px; } 
+.sprite-applications{ background-position: 0 -264px; width: 16px; height: 16px; } 
+.sprite-arrow-circle-135-left{ background-position: 0 -330px; width: 16px; height: 16px; } 
+.sprite-arrow-merge-090-left{ background-position: 0 -396px; width: 16px; height: 16px; } 
+.sprite-cross-circle-frame-gray{ background-position: 0 -462px; width: 16px; height: 16px; } 
+.sprite-cross-circle-frame{ background-position: 0 -528px; width: 16px; height: 16px; } 
+.sprite-cross-circle-gray{ background-position: 0 -594px; width: 16px; height: 16px; } 
+.sprite-cross-circle{ background-position: 0 -660px; width: 16px; height: 16px; } 
+.sprite-document-search-result{ background-position: 0 -726px; width: 16px; height: 16px; } 
+.sprite-exclamation-red{ background-position: 0 -792px; width: 16px; height: 16px; } 
+.sprite-exclamation{ background-position: 0 -858px; width: 16px; height: 16px; } 
+.sprite-folder-cross-circle{ background-position: 0 -924px; width: 16px; height: 16px; } 
+.sprite-folder-gear{ background-position: 0 -990px; width: 16px; height: 16px; } 
+.sprite-folder-tick-circle{ background-position: 0 -1056px; width: 16px; height: 16px; } 
+.sprite-gear{ background-position: 0 -1122px; width: 16px; height: 16px; } 
+.sprite-keyboard{ background-position: 0 -1188px; width: 16px; height: 16px; } 
+.sprite-layout-select-sidebar{ background-position: 0 -1254px; width: 16px; height: 16px; } 
+.sprite-mail-send{ background-position: 0 -1320px; width: 16px; height: 16px; } 
+.sprite-minus-circle-frame{ background-position: 0 -1386px; width: 16px; height: 16px; } 
+.sprite-minus-circle{ background-position: 0 -1452px; width: 16px; height: 16px; } 
+.sprite-plus-circle-frame{ background-position: 0 -1518px; width: 16px; height: 16px; } 
+.sprite-plus-circle{ background-position: 0 -1584px; width: 16px; height: 16px; } 
+.sprite-robot{ background-position: 0 -1650px; width: 16px; height: 16px; } 
+.sprite-sort-price{ background-position: 0 -1716px; width: 16px; height: 16px; } 
+.sprite-tick-circle-frame-gray{ background-position: 0 -1782px; width: 16px; height: 16px; } 
+.sprite-tick-circle-frame{ background-position: 0 -1848px; width: 16px; height: 16px; } 
+.sprite-tick-circle-gray{ background-position: 0 -1914px; width: 16px; height: 16px; } 
+.sprite-tick-circle{ background-position: -66px 0; width: 16px; height: 16px; } 
+.sprite-ui-tab-content-gear{ background-position: -66px -66px; width: 16px; height: 16px; } 
+.sprite-ui-tab-gear{ background-position: -66px -132px; width: 16px; height: 16px; } 
+.sprite-user-silhouette{ background-position: -66px -198px; width: 16px; height: 16px; } 
 
 span.plugin_icon_overlay_disabled {
 	background:url(plugin_overlay_disabled.png?v=2012091301);

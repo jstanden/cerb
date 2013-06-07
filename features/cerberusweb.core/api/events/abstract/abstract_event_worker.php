@@ -112,7 +112,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
-		$labels['worker_calendar'] = 'Worker calendar is...';
+		$labels['worker_calendar'] = 'Worker availability';
 		
 		$types = array(
 			'worker_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -166,22 +166,36 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 		switch($token) {
 			case 'worker_calendar':
 				@$worker_id = $dict->worker_id;
+
+				if(empty($worker_id)) {
+					$pass = false;
+					break;
+				}
 				
 				@$from = $params['from'];
 				@$to = $params['to'];
 				$is_available = !empty($params['is_available']) ? 1 : 0;
 				
-				list($results, $null) = DAO_Worker::search(
-					array(),
-					array(
-						SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY => new DevblocksSearchCriteria(SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY, null, array($from, $to, $is_available)),
-						SearchFields_Worker::ID => new DevblocksSearchCriteria(SearchFields_Worker::ID, '=', $worker_id),
-					),
-					1,
-					0
-				);
-
-				$pass = !empty($results) ? true : false;
+				@$availability_calendar_id = DAO_WorkerPref::get($worker_id, 'availability_calendar_id', 0);
+				
+				if(empty($availability_calendar_id)) {
+					$pass = ($is_available) ? false : true;
+					
+				} else {
+					if(false == ($calendar = DAO_Calendar::get($availability_calendar_id))) {
+						$pass = false;
+						break;
+					}
+					
+					@$cal_from = strtotime("today", strtotime($from));
+					@$cal_to = strtotime("tomorrow", strtotime($to));
+					
+					$calendar_events = $calendar->getEvents($cal_from, $cal_to);
+					$availability = $calendar->computeAvailability($cal_from, $cal_to, $calendar_events);
+					
+					$pass = $availability->isAvailableBetween(strtotime($from), strtotime($to));
+				}
+				
 				break;
 			
 			default:

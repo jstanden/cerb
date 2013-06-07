@@ -50,63 +50,30 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 	
 	function syncAction() {
 		header('Content-Type: application/json');
-		
-		// [TODO] This should come from somewhere in Setup
-		$url = 'http://plugins.cerb5.com/plugins/list?version=' . DevblocksPlatform::strVersionToInt(APP_VERSION);
-		
-		try {
-			if(!extension_loaded("curl"))
-				throw new Exception("The cURL PHP extension is not installed");
-			
-			$ch = curl_init($url);
-			curl_setopt_array($ch, array(
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_FOLLOWLOCATION => true,
-			));
-			$json_data = curl_exec($ch);
-			
-		} catch(Exception $e) {
-			echo json_encode(array(
-				'status' => false,
-				'message' => $e->getMessage()
-			));
-			exit;
-		}
-		
-		if(false === ($plugins = json_decode($json_data, true))) {
-			echo json_encode(array(
-				'status' => false,
-				'message' => 'Failed to download master plugin list.'
-			));
-			exit;
-		}
 
-		unset($json_data);
+		if(!extension_loaded("curl") || false == ($results = DAO_PluginLibrary::downloadUpdatedPluginsFromRepository())) {
+			echo json_encode(array(
+				'status' => false,
+				'message' => 'Failed to connect to plugin server.'
+			));
+			exit;
+		}
 		
-		// Clear local cache
-		DAO_PluginLibrary::flush();
-		
-		// Import plugins to plugin_library
-		foreach($plugins as $plugin) {
-			$fields = array(
-				DAO_PluginLibrary::ID => $plugin['seq'],
-				DAO_PluginLibrary::PLUGIN_ID => $plugin['plugin_id'],
-				DAO_PluginLibrary::NAME => $plugin['name'],
-				DAO_PluginLibrary::AUTHOR => $plugin['author'],
-				DAO_PluginLibrary::DESCRIPTION => $plugin['description'],
-				DAO_PluginLibrary::LINK => $plugin['link'],
-				DAO_PluginLibrary::ICON_URL => $plugin['icon_url'],
-				DAO_PluginLibrary::UPDATED => $plugin['updated'],
-				DAO_PluginLibrary::LATEST_VERSION => $plugin['latest_version'],
-				DAO_PluginLibrary::REQUIREMENTS_JSON => $plugin['requirements_json'],
-			);
-			DAO_PluginLibrary::create($fields);
+		// If we updated plugins, update and clear the cache
+		if(isset($results['updated']) && !empty($results['upated'])) {
+			try {
+				CerberusApplication::update();
+				
+			} catch (Exception $e) {}
+	
+			DevblocksPlatform::clearCache();
 		}
 		
 		// Return JSON
 		echo json_encode(array(
 			'status' => true,
-			'count' => count($plugins)
+			'count' => $results['count'],
+			'updated' => $results['updated'],
 		));
 		
 		exit;
@@ -169,13 +136,11 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 			
 			if(!empty($package_url))
 				$success = DevblocksPlatform::installPluginZipFromUrl($package_url);
-			
-			try {
-				CerberusApplication::update();
-			} catch (Exception $e) {
+
+			if($success) {
+				DevblocksPlatform::readPlugins(false);
+				DevblocksPlatform::clearCache();
 			}
-	
-			DevblocksPlatform::clearCache();
 			
 			// Reload plugin translations
 			if(null != ($plugin_manifest = DevblocksPlatform::getPlugin($plugin->id))) {

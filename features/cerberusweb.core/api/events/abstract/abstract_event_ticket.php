@@ -706,12 +706,12 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				'schedule_email_recipients' => array('label' => 'Schedule email to recipients'),
 				'send_email' => array('label' => 'Send email'),
 				'send_email_recipients' => array('label' => 'Send email to recipients'),
-				'set_org' => array('label' =>'Set organization'),
-				'set_owner' => array('label' =>'Set owner'),
-				'set_reopen_date' => array('label' => 'Set reopen date'),
-				'set_spam_training' => array('label' => 'Set spam training'),
-				'set_status' => array('label' => 'Set status'),
-				'set_subject' => array('label' => 'Set subject'),
+				'set_org' => array('label' =>'Set ticket organization'),
+				'set_owner' => array('label' =>'Set ticket owner'),
+				'set_reopen_date' => array('label' => 'Set ticket reopen date'),
+				'set_spam_training' => array('label' => 'Set ticket spam training'),
+				'set_status' => array('label' => 'Set ticket status'),
+				'set_subject' => array('label' => 'Set ticket subject'),
 				'set_links' => array('label' => 'Set links'),
 				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
@@ -927,6 +927,13 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_reopen_date':
+				DevblocksEventHelper::runActionSetDate('ticket_reopen_date', $params, $dict);
+				$out = sprintf(">>> Setting ticket reopen date to:\n".
+					"%s (%d)\n",
+					date('D M d Y h:ia', $dict->ticket_reopen_date),
+					$dict->ticket_reopen_date
+				);
+				return $out;
 				break;
 				
 			case 'set_spam_training':
@@ -1058,15 +1065,13 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 			
 			case 'set_reopen_date':
-				@$reopen_date = intval(strtotime($params['value']));
+				DevblocksEventHelper::runActionSetDate('ticket_reopen_date', $params, $dict);
 				
 				DAO_Ticket::update($ticket_id, array(
-					DAO_Ticket::REOPEN_AT => $reopen_date,
+					DAO_Ticket::REOPEN_AT => intval($dict->ticket_reopen_date),
 				));
-				
-				$dict->ticket_reopen_date = $reopen_date;
 				break;
-				
+			
 			case 'set_spam_training':
 				@$to_training = $params['value'];
 				@$current_training = $dict->ticket_spam_training;

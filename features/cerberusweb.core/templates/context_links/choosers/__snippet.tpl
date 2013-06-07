@@ -57,7 +57,7 @@
 			$worklist_body.find('TBODY')
 				.unbind('click')
 				.click(function(e) {
-					var $preview = $(this).find('div.emailbody');
+					var $preview = $(this).find('TR.preview');
 					$preview.toggle();
 					
 					var $icon = $(this).closest('tbody').find('tr:first b.subject').prev('span.ui-icon');
@@ -70,7 +70,7 @@
 				})
 				;
 			
-			$worklist_body.find('TBODY div.emailbody')
+			$worklist_body.find('TBODY TR.preview')
 				.hide()
 				.css('max-height','')
 				;
@@ -103,9 +103,9 @@
 					$popup.trigger(event);
 				});
 				
-				$td_first.append($btn);
+				$td_first.prepend($btn);
 				
-				var $txt = $('<span class="ui-icon ui-icon-triangle-1-e" style="display:inline-block;vertical-align:bottom;"></span> <b class="subject">' + $(this).text() + '</b>');
+				var $txt = $('<span class="ui-icon ui-icon-triangle-1-e" style="display:inline-block;vertical-align:middle;"></span> <b class="subject">' + $(this).text() + '</b>');
 				$txt.insertBefore($(this));
 				
 				$(this).remove();

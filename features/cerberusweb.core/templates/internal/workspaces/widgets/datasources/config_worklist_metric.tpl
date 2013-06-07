@@ -1,7 +1,7 @@
 {$div_popup_worklist = uniqid()}
 {$div_id = uniqid()}
 
-{$ctx_id = $widget->params.view_context}
+{$ctx_id = $widget->params.worklist_model.context}
 
 {$ctx = null}
 {$ctx_view = null}
@@ -17,7 +17,7 @@
 
 <b>Load </b>
 
-<select name="params[view_context]" class="context">
+<select class="context">
 	{foreach from=$context_mfts item=context_mft key=context_id}
 	<option value="{$context_id}" {if $ctx_id==$context_id}selected="selected"{/if}>{$context_mft->name}</option>
 	{/foreach}
@@ -27,7 +27,7 @@
 
 <div id="popup{$div_popup_worklist}" class="badge badge-lightgray" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;display:inline;"><span class="name">Worklist</span> &#x25be;</div>
 
-<input type="hidden" name="params[view_model]" value="{$widget->params.view_model}" class="model">
+<input type="hidden" name="params[worklist_model_json]" value="{$widget->params.worklist_model|json_encode}" class="model">
 
 <br>
 
@@ -107,9 +107,8 @@ $('#popup{$div_popup_worklist}').click(function(e) {
 	context = $(this).siblings('select.context').val();
 	$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist"}',null,true,'750');
 	$chooser.bind('chooser_save',function(event) {
-		if(null != event.view_model) {
-			//$('#popup{$div_popup_worklist}').find('span.name').html(event.view_name);
-			$('#popup{$div_popup_worklist}').parent().find('input:hidden.model').val(event.view_model);
+		if(null != event.worklist_model) {
+			$('#popup{$div_popup_worklist}').parent().find('input:hidden.model').val(event.worklist_model);
 		}
 	});
 });

@@ -46,8 +46,8 @@
  \* - Jeff Standen, Darren Sugita, Dan Hildebrandt
  *	 Webgroup Media LLC - Developers of Cerb
  */
-define("APP_BUILD", 2013041001);
-define("APP_VERSION", '6.3.2');
+define("APP_BUILD", 2013060701);
+define("APP_VERSION", '6.4.0');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
@@ -81,6 +81,8 @@ DevblocksPlatform::registerClasses($path . 'Utils.php', array(
  * Application-level Facade
  */
 class CerberusApplication extends DevblocksApplication {
+	private static $_active_worker = null;
+	
 	/**
 	 * @return CerberusVisit
 	 */
@@ -89,10 +91,17 @@ class CerberusApplication extends DevblocksApplication {
 		return $session->getVisit();
 	}
 	
+	static function setActiveWorker($worker) {
+		self::$_active_worker = $worker;
+	}
+	
 	/**
 	 * @return Model_Worker
 	 */
 	static function getActiveWorker() {
+		if(isset(self::$_active_worker))
+			return self::$_active_worker;
+		
 		$visit = self::getVisit();
 		return (null != $visit)
 			? $visit->getWorker()
@@ -302,6 +311,10 @@ class CerberusApplication extends DevblocksApplication {
 		// Clean up missing plugins
 		DAO_Platform::cleanupPluginTables();
 		DAO_Platform::maint();
+
+		// Download updated plugins from repository
+		if(class_exists('DAO_PluginLibrary'))
+			DAO_PluginLibrary::downloadUpdatedPluginsFromRepository();
 		
 		// Registry
 		$plugins = DevblocksPlatform::getPluginRegistry();
@@ -624,10 +637,13 @@ class CerberusContexts {
 	const CONTEXT_ADDRESS = 'cerberusweb.contexts.address';
 	const CONTEXT_ATTACHMENT = 'cerberusweb.contexts.attachment';
 	const CONTEXT_BUCKET = 'cerberusweb.contexts.bucket';
+	const CONTEXT_CALENDAR = 'cerberusweb.contexts.calendar';
 	const CONTEXT_CALENDAR_EVENT = 'cerberusweb.contexts.calendar_event';
+	const CONTEXT_CALENDAR_EVENT_RECURRING = 'cerberusweb.contexts.calendar_event.recurring';
 	const CONTEXT_CALL = 'cerberusweb.contexts.call';
 	const CONTEXT_COMMENT = 'cerberusweb.contexts.comment';
 	const CONTEXT_CONTACT_PERSON = 'cerberusweb.contexts.contact_person';
+	const CONTEXT_CUSTOM_FIELDSET = 'cerberusweb.contexts.custom_fieldset';
 	const CONTEXT_DOMAIN = 'cerberusweb.contexts.datacenter.domain';
 	const CONTEXT_DRAFT = 'cerberusweb.contexts.mail.draft';
 	const CONTEXT_FEED = 'cerberusweb.contexts.feed';
@@ -642,6 +658,7 @@ class CerberusContexts {
 	const CONTEXT_ORG = 'cerberusweb.contexts.org';
 	const CONTEXT_PORTAL = 'cerberusweb.contexts.portal';
 	const CONTEXT_PROJECT = 'cerberusweb.contexts.project';
+	const CONTEXT_PROJECT_ISSUE = 'cerberusweb.contexts.project.issue';
 	const CONTEXT_ROLE = 'cerberusweb.contexts.role';
 	const CONTEXT_SENSOR = 'cerberusweb.contexts.datacenter.sensor';
 	const CONTEXT_SERVER = 'cerberusweb.contexts.datacenter.server';
@@ -650,6 +667,9 @@ class CerberusContexts {
 	const CONTEXT_TICKET = 'cerberusweb.contexts.ticket';
 	const CONTEXT_TIMETRACKING = 'cerberusweb.contexts.timetracking';
 	const CONTEXT_WORKER = 'cerberusweb.contexts.worker';
+	const CONTEXT_WORKSPACE_PAGE = 'cerberusweb.contexts.workspace.page';
+	const CONTEXT_WORKSPACE_TAB = 'cerberusweb.contexts.workspace.tab';
+	const CONTEXT_WORKSPACE_WIDGET = 'cerberusweb.contexts.workspace.widget';
 	
 	public static function getContext($context, $context_object, &$labels, &$values, $prefix=null, $nested=false) {
 		switch($context) {
@@ -1246,11 +1266,10 @@ class Context_Application extends Extension_DevblocksContext {
 			//'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
-		if(is_array($fields))
-		foreach($fields as $cf_id => $field) {
-			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
-		}
-
+		// Custom field/fieldset token labels
+		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+			$token_labels = array_merge($token_labels, $custom_field_labels);
+		
 		// Token values
 		$token_values = array();
 		
@@ -1283,7 +1302,7 @@ class Context_Application extends Extension_DevblocksContext {
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
 		}
 		
 		switch($token) {
@@ -1362,7 +1381,7 @@ class CerberusLicense {
 	}
 	
 	public static function getReleases() {
-		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000,'5.6.0'=>1317686400,'5.7.0'=>1326067200,'6.0.0'=>1338163200,'6.1.0'=>1346025600,'6.2.0'=>1353888000,'6.3.0'=>1364169600);/*
+		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000,'5.6.0'=>1317686400,'5.7.0'=>1326067200,'6.0.0'=>1338163200,'6.1.0'=>1346025600,'6.2.0'=>1353888000,'6.3.0'=>1364169600,'6.4.0'=>1370217600);/*
 		 * Major versions by release date in GMT
 		 */
 		return array(
@@ -1378,6 +1397,7 @@ class CerberusLicense {
 			'6.1.0' => gmmktime(0,0,0,8,27,2012),
 			'6.2.0' => gmmktime(0,0,0,11,26,2012),
 			'6.3.0' => gmmktime(0,0,0,3,25,2013),
+			'6.4.0' => gmmktime(0,0,0,6,3,2013),
 		);
 	}
 	
@@ -1976,6 +1996,49 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 		
 		// Mark the table as used
 		$tables[$table_alias] = $table_alias;
+	}
+	
+	static function _searchComponentsVirtualHasFieldset(&$param, $to_context, $to_index, &$join_sql, &$where_sql) {
+		if($param->operator != DevblocksSearchCriteria::OPER_TRUE) {
+			if(empty($param->value) || !is_array($param->value))
+				$param->operator = DevblocksSearchCriteria::OPER_IS_NULL;
+		}
+		
+		$table_alias = 'fieldset_' . uniqid();
+		$where_contexts = array();
+		
+		if(is_array($param->value))
+		foreach($param->value as $context_id) {
+			$where_contexts[] = sprintf("(%s.from_context = %s%s)",
+				$table_alias,
+				self::qstr(CerberusContexts::CONTEXT_CUSTOM_FIELDSET),
+				(!empty($context_id) ? sprintf(" AND %s.from_context_id = %d", $table_alias, $context_id) : '')
+			);
+		}
+		
+		switch($param->operator) {
+			case DevblocksSearchCriteria::OPER_TRUE:
+				break;
+				
+			case DevblocksSearchCriteria::OPER_IS_NULL:
+				$where_sql .= sprintf("AND (SELECT count(*) FROM context_link WHERE context_link.to_context=%s AND context_link.to_context_id=%s) = 0 ",
+					self::qstr($to_context),
+					$to_index
+				);
+				break;
+				
+			case DevblocksSearchCriteria::OPER_IN:
+				$join_sql .= sprintf("INNER JOIN context_link AS %s ON (%s.to_context=%s AND %s.to_context_id=%s) ",
+					$table_alias,
+					$table_alias,
+					Cerb_ORMHelper::qstr($to_context),
+					$table_alias,
+					$to_index
+				);
+				
+				$where_sql .= 'AND (' . implode(' OR ', $where_contexts) . ') ';
+				break;
+		}
 	}
 	
 	static function _searchComponentsVirtualContextLinks(&$param, $to_context, $to_index, &$join_sql, &$where_sql) {

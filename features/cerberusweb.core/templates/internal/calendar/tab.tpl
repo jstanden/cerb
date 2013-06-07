@@ -2,16 +2,29 @@
 
 <form id="frm{$guid}" action="#" style="margin-bottom:5px;width:98%;">
 	<div style="float:left;">
-		<span style="font-weight:bold;font-size:150%;">{$calendar_date|devblocks_date:'F Y'}</span>
-		<span style="margin-left:10px;">
-			<button type="button" class="create_event"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
-		</span>
+		<span style="font-weight:bold;font-size:150%;">{$calendar_properties.calendar_date|devblocks_date:'F Y'}</span>
+		{if !empty($create_contexts)}
+		<div style="display:inline-block;margin-left:10px;">
+			{if count($create_contexts) > 1}
+			<button type="button" class="reply split-left" onclick="$(this).next('button.split-right').click();"><span class="cerb-sprite2 sprite-plus-circle"></span> </button><!--
+			--><button type="button" class="split-right" onclick="$ul=$(this).next('ul');$ul.toggle();"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
+			<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
+				{foreach from=$create_contexts item=create_context}
+				<li><a href="javascript:;" class="create-event" context="{$create_context->id}">{$create_context->name}</a></li>
+				{/foreach}
+			</ul>
+			{else}
+			{$create_context = reset($create_contexts)}
+			<button type="button" class="create-event" context="{$create_context->id}"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+			{/if}
+		</div>
+		{/if}
 	</div>
 
 	<div style="float:right;">
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=showCalendarTab&context={$context}&context_id={$context_id}&month={$prev_month}&year={$prev_year}');">&lt;</button>
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=showCalendarTab&context={$context}&context_id={$context_id}&month={$month}&year={$year}');">Today</button>
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=showCalendarTab&context={$context}&context_id={$context_id}&month={$next_month}&year={$next_year}');">&gt;</button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.prev_month}&year={$calendar_properties.prev_year}');">&lt;</button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month=&year=');">Today</button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.next_month}&year={$calendar_properties.next_year}');">&gt;</button>
 	</div>
 	
 	<br clear="all">
@@ -27,13 +40,13 @@
 	<th>Fri</th>
 	<th>Sat</th>
 </tr>
-{foreach from=$calendar_weeks item=week name=weeks}
+{foreach from=$calendar_properties.calendar_weeks item=week name=weeks}
 <tr class="week">
 	{foreach from=$week item=day name=days}
-		<td class="{if $today == $day.timestamp}today{/if}{if $day.is_padding} inactive{/if}{if $smarty.foreach.days.last} cellborder_r{/if}{if $smarty.foreach.weeks.last} cellborder_b{/if}">
+		<td class="{if $calendar_properties.today == $day.timestamp}today{/if}{if $day.is_padding} inactive{/if}{if $smarty.foreach.days.last} cellborder_r{/if}{if $smarty.foreach.weeks.last} cellborder_b{/if}">
 			<div class="day_header">
-				{if $today == $day.timestamp}
-				<a href="javascript:;" onclick="">Today, {$today|devblocks_date:"M d"}</a>
+				{if $calendar_properties.today == $day.timestamp}
+				<a href="javascript:;" onclick="">Today, {$calendar_properties.today|devblocks_date:"M d"}</a>
 				{else}
 				<a href="javascript:;" onclick="">{$day.dom}</a>
 				{/if}
@@ -41,7 +54,9 @@
 			<div class="day_contents">
 				{if $calendar_events.{$day.timestamp}}
 					{foreach from=$calendar_events.{$day.timestamp} item=event}
-						<div class="event event{$event.id}{if $event.is_available} available{/if}" event_id="{$event.id}"><a href="javascript:;">{$event.name}</a></div>
+						<div class="event" style="background-color:{$event.color|default:'#C8C8C8'};" link="{$event.link}">
+							<a href="javascript:;" style="color:rgb(0,0,0);" title="{$event.label}">{$event.label}</a>
+						</div>
 					{/foreach}
 				{/if}
 			</div>
@@ -56,36 +71,49 @@ $frm = $('#frm{$guid}');
 $tab = $frm.closest('div.ui-tabs-panel');
 
 $openEvtPopupEvent = function(e) {
-	$this = $(this);
+	e.stopPropagation();
 	
-	if($this.is('button')) {
-		event_id = 0;	
-	} else if($this.is('div.event')) {
-		event_id = $this.attr('event_id');
-	}
+	var $this = $(this);
+	var link = '';
 
-	$popup = genericAjaxPopup('event','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CALENDAR_EVENT}&context_id=' + event_id + '&owner_context={$context}&owner_context_id={$context_id}',null,false,'600');
+	if($this.is('.create-event')) {
+		$this.closest('div').find('ul.cerb-popupmenu').hide();
+		context = $this.attr('context');
+		link = 'ctx://' + context + ':0';
 	
-	$popup.one('calendar_event_save', function(event) {
-		if(event.month && event.year) {
-			genericAjaxGet($('#frm{$guid}').closest('div.ui-tabs-panel'), 'c=internal&a=showCalendarTab&context={$context}&context_id={$context_id}&month=' + event.month + '&year=' + event.year);
-		}
-		
-		event.stopPropagation();
-	});
+	} else if($this.is('div.event')) {
+		link = $this.attr('link');
+	}
 	
-	$popup.one('calendar_event_delete', function(event) {
-		$frm = $('#frm{$guid}');
-		$tab = $frm.closest('div.ui-tabs-panel');
+	if(link.substring(0,6) == 'ctx://') {
+		var context_parts = link.substring(6).split(':');
+		var context = context_parts[0];
+		var context_id = context_parts[1];
 		
-		if(event.event_id) {
-			$tab.find('TABLE.calendar TR.week div.day_contents div.event' + event.event_id).remove();
-		}
+		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context=' + context + '&context_id=' + context_id  + '&calendar_id={$calendar->id}',null,false,'600');
 		
-		event.stopPropagation();
-	});
+		$popup.one('popup_saved calendar_event_save calendar_event_delete', function(event) {
+			var month = (event.month) ? event.month : '{$calendar_properties.month}';
+			var year = (event.year) ? event.year : '{$calendar_properties.year}';
+			
+			genericAjaxGet($('#frm{$guid}').closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month=' + month + '&year=' + year);
+			event.stopPropagation();
+		});
+		
+	} else {
+		// [TODO] Regular link
+	}
 }
 
-$frm.find('button.create_event').click($openEvtPopupEvent);
+{if !empty($create_contexts)}
+$frm.find('ul.cerb-popupmenu > li').click(function(e) {
+	e.stopPropagation();
+	e.preventDefault();
+	$(this).find('a.create-event').click();
+});
+
+$frm.find('button.create-event, a.create-event').click($openEvtPopupEvent);
+{/if}
+
 $tab.find('TABLE.calendar TR.week div.day_contents').find('div.event').click($openEvtPopupEvent);
 </script>

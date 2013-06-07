@@ -332,11 +332,11 @@ class DAO_Notification extends DevblocksORMHelper {
 	 * @param boolean $withCounts
 	 * @return array
 	 */
-	static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
-		$query_parts = self::getSearchQueryComponents(array(),$params,$sortBy,$sortAsc);
+		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
 
 		$select_sql = $query_parts['select'];
 		$join_sql = $query_parts['join'];
@@ -494,6 +494,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 
 	function getData() {
 		$objects = DAO_Notification::search(
+			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
@@ -513,7 +514,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 	}
 	
 	function getSubtotalFields() {
-		$all_fields = $this->getParamsAvailable();
+		$all_fields = $this->getParamsAvailable(true);
 		
 		$fields = array();
 
@@ -712,7 +713,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		if(empty($ids))
 		do {
 			list($objects,$null) = DAO_Notification::search(
-				//array(),
+				array(),
 				$this->getParams(),
 				100,
 				$pg++,
@@ -820,11 +821,10 @@ class Context_Notification extends Extension_DevblocksContext {
 			'url' => $prefix.$translate->_('common.url'),
 		);
 		
-		if(is_array($fields))
-		foreach($fields as $cf_id => $field) {
-			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
-		}
-
+		// Custom field/fieldset token labels
+		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+			$token_labels = array_merge($token_labels, $custom_field_labels);
+		
 		// Token values
 		$token_values = array();
 		
@@ -878,7 +878,7 @@ class Context_Notification extends Extension_DevblocksContext {
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
 		}
 		
 		switch($token) {

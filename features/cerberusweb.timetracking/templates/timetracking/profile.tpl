@@ -12,27 +12,7 @@
 
 <div style="clear:both;"></div>
 
-<fieldset class="properties">
-	<legend>{'timetracking.activity.tab'|devblocks_translate|capitalize}</legend>
-	
-	{foreach from=$properties item=v key=k name=props}
-		<div class="property">
-			{if $k == 'status'}
-				<b>{$v.label}:</b>
-				{$v.value}
-			{elseif $k == 'time_spent'}
-				<b>{$v.label}:</b>
-				{$time_entry->getTimeSpentAsString()}
-			{else}
-				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
-			{/if}
-		</div>
-		{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
-			<br clear="all">
-		{/if}
-	{/foreach}
-	<br clear="all">
-	
+<div class="cerb-profile-toolbar">
 	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 		<!-- Toolbar -->
 		<span>
@@ -56,7 +36,33 @@
 		(<b>1-9</b>) change tab
 	</small> 
 	{/if}
+</div>
+
+<fieldset class="properties">
+	<legend>{'timetracking.activity.tab'|devblocks_translate|capitalize}</legend>
+	
+	<div style="margin-left:15px;">
+	{foreach from=$properties item=v key=k name=props}
+		<div class="property">
+			{if $k == 'status'}
+				<b>{$v.label}:</b>
+				{$v.value}
+			{elseif $k == 'time_spent'}
+				<b>{$v.label}:</b>
+				{$time_entry->getTimeSpentAsString()}
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+			{/if}
+		</div>
+		{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+			<br clear="all">
+		{/if}
+	{/foreach}
+	<br clear="all">
+	</div>
 </fieldset>
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$properties_custom_fieldsets}
 
 <div>
 {include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}

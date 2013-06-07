@@ -442,7 +442,7 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Sub
 	}
 
 	function getSubtotalFields() {
-		$all_fields = $this->getParamsAvailable();
+		$all_fields = $this->getParamsAvailable(true);
 		
 		$fields = array();
 

@@ -295,17 +295,18 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		
 		// Look up the subcontroller for this URI
 		$controllers = $this->_getRestControllers();
-		
-		if(isset($controllers[$controller_uri])) {
-			$controller = DevblocksPlatform::getExtension($controllers[$controller_uri]->id, true, true);
+
+		if(isset($controllers[$controller_uri])
+			&& null != ($controller = DevblocksPlatform::getExtension($controllers[$controller_uri]->id, true, true))) {
 			/* @var $controller Extension_RestController */
-			$controller->setActiveWorker($worker);
+			CerberusApplication::setActiveWorker($worker);
 			$controller->setPayload($this->_payload);
 			array_unshift($stack, $verb);
 			$controller->handleRequest(new DevblocksHttpRequest($stack));
 			
 		} else {
-			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Unknown command ({$controller_uri})"));
+			array_unshift($stack, $controller_uri);
+			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Unknown command (" . implode('/', $stack) . ")"));
 		}
 	}
 	
@@ -412,6 +413,23 @@ abstract class Extension_RestController extends DevblocksExtension {
 		return Plugin_RestAPI::render($out, $this->_format);
 	}
 	
+	private function _expandResults($array, $expand) {
+		$dict = new DevblocksDictionaryDelegate($array);
+		
+		foreach($expand as $expand_field)
+			$dict->$expand_field;
+		
+		$values = $dict->getDictionary();
+		
+		// If nothing was loaded, don't add the token
+		foreach($expand as $expand_field) {
+			if(!isset($values[$expand_field]) || is_null($values[$expand_field]))
+				unset($values[$expand_field]);
+		}
+		
+		return $values;
+	}
+	
 	/**
 	 *
 	 * @param array $array
@@ -425,24 +443,14 @@ abstract class Extension_RestController extends DevblocksExtension {
 		// Do we need to lazy load some fields to be helpful?
 		if(is_array($expand) && !empty($expand)) {
 			if(isset($array['_context'])) {
-				$dict = new DevblocksDictionaryDelegate($array);
-				
-				foreach($expand as $expand_field)
-					$dict->$expand_field;
-				
-				$array = $dict->getDictionary();
+				$array = $this->_expandResults($array, $expand);
 				
 			} elseif(isset($array['results'])) {
 				foreach($array['results'] as $k => $v) {
 					if(!isset($array['results'][$k]['_context']))
 						continue;
 					
-					$dict = new DevblocksDictionaryDelegate($array['results'][$k]);
-					
-					foreach($expand as $expand_field)
-						$dict->$expand_field;
-					
-					$array['results'][$k] = $dict->getDictionary();
+					$array['results'][$k] = $this->_expandResults($array['results'][$k], $expand);
 				}
 				
 			}
@@ -464,10 +472,11 @@ abstract class Extension_RestController extends DevblocksExtension {
 	}
 	
 	/**
+	 * @deprecated
 	 * @return Model_Worker
 	 */
 	public function getActiveWorker() {
-		return($this->_activeWorker);
+		return CerberusApplication::getActiveWorker();
 	}
 	
 	public function getPayload() {
@@ -476,14 +485,6 @@ abstract class Extension_RestController extends DevblocksExtension {
 	
 	public function setPayload($payload) {
 		$this->_payload = $payload;
-	}
-	
-	/**
-	 *
-	 * @param Model_Worker $worker
-	 */
-	public function setActiveWorker($worker) {
-		$this->_activeWorker = $worker;
 	}
 	
 	function handleRequest(DevblocksHttpRequest $request) {

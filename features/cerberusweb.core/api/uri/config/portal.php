@@ -157,10 +157,6 @@ class PageSection_SetupPortal extends Extension_PageSection {
 			$tpl->assign('ids', implode(',', $ids));
 		}
 
-		// Custom Fields
-//		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
-//		$tpl->assign('custom_fields', $custom_fields);
-		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/portal/tabs/templates/bulk.tpl');
 	}
 	

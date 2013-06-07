@@ -1111,7 +1111,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('workers', $workers);
 		
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Macros
@@ -1404,17 +1404,5 @@ class ChTicketsPage extends CerberusPageExtension {
 		$feed_id = DAO_ViewRss::create($fields);
 				
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('preferences','rss')));
-	}
-	
-	function getCustomFieldEntryAction() {
-		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		$group_fields = DAO_CustomField::getByContextAndGroupId(CerberusContexts::CONTEXT_TICKET, $group_id);
-		$tpl->assign('custom_fields', $group_fields);
-		$tpl->assign('bulk', false);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl');
 	}
 };

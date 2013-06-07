@@ -32,9 +32,26 @@
 
 <div style="clear:both;"></div>
 
+<div class="cerb-profile-toolbar">
+	<form class="toolbar" action="javascript:;" method="POST" style="margin-top:5px;" onsubmit="return false;">
+		<!-- Macros -->
+		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}
+			{if !empty($page_context) && !empty($page_context_id) && !empty($macros)}
+				{devblocks_url assign=return_url full=true}c=profiles&tab=group&id={$page_context_id}-{$group->name|devblocks_permalink}{/devblocks_url}
+				{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
+			{/if}
+		{/if}
+	
+		{if $active_worker->is_superuser}
+			<button type="button" id="btnProfileGroupEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
+		{/if}
+	</form>
+</div>
+
 <fieldset class="properties">
 	<legend>Group</legend>
 	
+	<div style="margin-left:15px;">
 	{if !empty($properties)}
 	{foreach from=$properties item=v key=k name=props}
 		<div class="property">
@@ -51,21 +68,10 @@
 	{/foreach}
 	<br clear="all">
 	{/if}
-	
-	<form class="toolbar" action="javascript:;" method="POST" style="margin-top:5px;" onsubmit="return false;">
-		<!-- Macros -->
-		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}
-			{if !empty($page_context) && !empty($page_context_id) && !empty($macros)}
-				{devblocks_url assign=return_url full=true}c=profiles&tab=group&id={$page_context_id}-{$group->name|devblocks_permalink}{/devblocks_url}
-				{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
-			{/if}
-		{/if}
-	
-		{if $active_worker->is_superuser}			
-			<button type="button" id="btnProfileGroupEdit"><span class="cerb-sprite sprite-document_edit"></span> {'common.edit'|devblocks_translate|capitalize}</button>
-		{/if}
-	</form>
+	</div>
 </fieldset>
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$properties_custom_fieldsets}
 
 <div>
 {include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}

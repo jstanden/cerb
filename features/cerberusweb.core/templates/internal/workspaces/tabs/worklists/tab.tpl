@@ -5,8 +5,8 @@
 	
 	<p>
 		You now have a blank tab.  You can click the  
-		<button type="button" onclick="$btn=$('#frmWorkspacePage{$page->id} button.edit-tab');$(this).effect('transfer', { to:$btn, className:'effects-transfer' }, 500, function() { $btn.effect('pulsate', {  times: 3 }, function(e) { $(this).click(); } ); } );"><span class="cerb-sprite2 sprite-ui-tab-gear"></span> Edit Tab</button> 
-		button to display any number of worklists with the exact information you want. 
+		<button type="button" onclick="$btn=$('#frmWorkspacePage{$page->id} button.config-page.split-left'); $(this).effect('transfer', { to:$btn, className:'effects-transfer' }, 500, function() { $btn.effect('pulsate', {  times: 3 }, function(e) { $(this).click(); } ); } );"><span class="cerb-sprite2 sprite-gear"></span></button> 
+		button and select <b>Edit Tab</b> to display any number of worklists with the exact information you want. 
 	</p>
 </div>
 </form>

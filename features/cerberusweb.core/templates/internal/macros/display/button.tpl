@@ -9,7 +9,7 @@
 	{$owner_ctx = Extension_DevblocksContext::get($macro->owner_context)}
 	<li class="item">
 		<div>
-			<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showMacroSchedulerPopup&context={$context}&context_id={$context_id}&macro={$macro->id}&return_url={$return_url|escape:'url'}',$(this).closest('ul').get(),false,'400');$(this).closest('ul.cerb-popupmenu').hide();">
+			<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showMacroSchedulerPopup&context={$context}&context_id={$context_id}&macro={$macro->id}&return_url={$return_url|escape:'url'}',$(this).closest('ul').get(),false,'600');$(this).closest('ul.cerb-popupmenu').hide();">
 				{if !empty($macro->title)}
 					{$macro->title}
 				{else}

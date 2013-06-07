@@ -1,10 +1,10 @@
 <?php
 /**
- * This file will convert the binary datafiles from the Text::Unidecode 
+ * This file will convert the binary datafiles from the Text::Unidecode
  * project into a format used by Devblocks.
- * 
+ *
  * When complete, move the new x*.php files to the appropriate location.
- * 
+ *
  * @author Jeff Standen @ WebGroup Media <jeff@webgroupmedia.com>
  */
 
@@ -14,7 +14,7 @@ $blocks = array();
 foreach($bin_files as $bin_file) {
 	$unicode_block = file_get_contents($bin_file);
 	
-	var_dump($bin_file);
+	//var_dump($bin_file);
 	
 	if(!preg_match("#x(.*)\.bin#", $bin_file, $matches))
 		continue;
@@ -41,7 +41,7 @@ foreach($bin_files as $bin_file) {
 foreach($blocks as $highbyte => $glyphs) {
 	$fp = fopen(sprintf("x%s.php", $highbyte), "wb");
 		
-	fwrite($fp, 
+	fwrite($fp,
 		utf8_encode(sprintf(
 			"<?php\n\$glyphs = array(\n"
 		))
@@ -77,7 +77,7 @@ foreach($blocks as $highbyte => $glyphs) {
 		if('00' == $highbyte && $idx <= 31)
 			$chr = '';
 		
-		fwrite($fp, 
+		fwrite($fp,
 			sprintf(
 				"\"%s\"%s // 0x%s  %s\n",
 				$glyph,
@@ -85,10 +85,10 @@ foreach($blocks as $highbyte => $glyphs) {
 				$unicode_chr,
 				$chr
 			)
-		);			
+		);
 	}
 			
-	fwrite($fp, 
+	fwrite($fp,
 		sprintf(
 			");\n"
 		)

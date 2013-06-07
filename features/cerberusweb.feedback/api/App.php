@@ -246,24 +246,21 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
+
+		// Translate virtual fields
 		
-		// Virtuals
-		foreach($params as $param) {
-			if(!is_a($param, 'DevblocksSearchCriteria'))
-				continue;
-			
-			$param_key = $param->field;
-			settype($param_key, 'string');
-			switch($param_key) {
-				case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
-					$has_multiple_values = true;
-					$from_context = CerberusContexts::CONTEXT_FEEDBACK;
-					$from_index = 'f.id';
-					
-					self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $join_sql, $where_sql);
-					break;
-			}
-		}
+		$args = array(
+			'join_sql' => &$join_sql,
+			'where_sql' => &$where_sql,
+			'tables' => &$tables,
+			'has_multiple_values' => &$has_multiple_values
+		);
+		
+		array_walk_recursive(
+			$params,
+			array('DAO_FeedbackEntry', '_translateVirtualParameters'),
+			$args
+		);
 		
 		$result = array(
 			'primary_table' => 'f',
@@ -275,6 +272,28 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 		);
 		
 		return $result;
+	}
+	
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+	
+		$from_context = CerberusContexts::CONTEXT_FEEDBACK;
+		$from_index = 'f.id';
+		
+		$param_key = $param->field;
+		settype($param_key, 'string');
+		
+		switch($param_key) {
+			case SearchFields_FeedbackEntry::VIRTUAL_HAS_FIELDSET:
+				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
+				
+			case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
+				$args['has_multiple_values'] = true;
+				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql'], $args['tables']);
+				break;
+		}
 	}
 	
 	/**
@@ -362,6 +381,7 @@ class SearchFields_FeedbackEntry {
 	
 	const ADDRESS_EMAIL = 'a_email';
 	
+	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
 	const CONTEXT_LINK = 'cl_context_from';
@@ -383,19 +403,21 @@ class SearchFields_FeedbackEntry {
 			
 			self::ADDRESS_EMAIL => new DevblocksSearchField(self::ADDRESS_EMAIL, 'a', 'email', $translate->_('feedback_entry.quote_address'), Model_CustomField::TYPE_SINGLE_LINE),
 
+			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', mb_convert_case($translate->_('common.watchers'), MB_CASE_TITLE), 'WS'),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 		);
 		
-		// Custom Fields
-		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
-		if(is_array($fields))
-		foreach($fields as $field_id => $field) {
-			$key = 'cf_'.$field_id;
-			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name,$field->type);
-		}
+		// Custom fields with fieldsets
+		
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
+			CerberusContexts::CONTEXT_FEEDBACK,
+		));
+		
+		if(is_array($custom_columns))
+			$columns = array_merge($columns, $custom_columns);
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
@@ -426,6 +448,7 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 		$this->addColumnsHidden(array(
 			SearchFields_FeedbackEntry::ID,
 			SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID,
+			SearchFields_FeedbackEntry::VIRTUAL_HAS_FIELDSET,
 			SearchFields_FeedbackEntry::VIRTUAL_WATCHERS,
 		));
 		
@@ -462,7 +485,7 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 	}
 
 	function getSubtotalFields() {
-		$all_fields = $this->getParamsAvailable();
+		$all_fields = $this->getParamsAvailable(true);
 		
 		$fields = array();
 
@@ -478,6 +501,7 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 					break;
 					
 				// Virtuals
+				case SearchFields_FeedbackEntry::VIRTUAL_HAS_FIELDSET:
 				case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
 					$pass = true;
 					break;
@@ -506,6 +530,10 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 		switch($column) {
 			case SearchFields_FeedbackEntry::ADDRESS_EMAIL:
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_FeedbackEntry', $column);
+				break;
+				
+			case SearchFields_FeedbackEntry::VIRTUAL_HAS_FIELDSET:
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_FeedbackEntry', CerberusContexts::CONTEXT_FEEDBACK, $column);
 				break;
 				
 			case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
@@ -590,6 +618,10 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 				$tpl->assign('options', $options);
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
 				break;
+
+			case SearchFields_FeedbackEntry::VIRTUAL_HAS_FIELDSET:
+				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_FEEDBACK);
+				break;
 				
 			case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
@@ -610,6 +642,10 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 		$key = $param->field;
 		
 		switch($key) {
+			case SearchFields_FeedbackEntry::VIRTUAL_HAS_FIELDSET:
+				$this->_renderVirtualHasFieldset($param);
+				break;
+			
 			case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
 				$this->_renderVirtualWatchers($param);
 				break;
@@ -678,6 +714,11 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 			case SearchFields_FeedbackEntry::QUOTE_MOOD:
 				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
+				break;
+				
+			case SearchFields_FeedbackEntry::VIRTUAL_HAS_FIELDSET:
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
@@ -897,7 +938,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		}
 		
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->display('devblocks:cerberusweb.feedback::feedback/bulk.tpl');
@@ -1021,11 +1062,10 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 			'url' => $prefix.$translate->_('feedback_entry.source_url'),
 		);
 		
-		if(is_array($fields))
-		foreach($fields as $cf_id => $field) {
-			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
-		}
-
+		// Custom field/fieldset token labels
+		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+			$token_labels = array_merge($token_labels, $custom_field_labels);
+		
 		// Token values
 		$token_values = array();
 		
@@ -1095,7 +1135,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
 		}
 		
 		switch($token) {
@@ -1231,7 +1271,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		}
 		
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK, false);
 		$tpl->assign('custom_fields', $custom_fields);
 
 		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_FEEDBACK, $id);

@@ -62,7 +62,7 @@ class Page_ExampleObjects extends CerberusPageExtension {
 		if(null != ($model = DAO_ExampleObject::get($id)))
 			$tpl->assign('model', $model);
 		
-		$custom_fields = DAO_CustomField::getByContext(Context_ExampleObject::ID);
+		$custom_fields = DAO_CustomField::getByContext(Context_ExampleObject::ID, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		if(!empty($id)) {
@@ -139,24 +139,24 @@ class Page_ExampleObjects extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		
-	    if(!empty($ids)) {
-	        $id_list = DevblocksPlatform::parseCsvString($ids);
-	        $tpl->assign('ids', implode(',', $id_list));
-	    }
+		if(!empty($ids)) {
+			$id_list = DevblocksPlatform::parseCsvString($ids);
+			$tpl->assign('ids', implode(',', $id_list));
+		}
 
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getByContext(Context_ExampleObject::ID);
+		$custom_fields = DAO_CustomField::getByContext(Context_ExampleObject::ID, false);
 		$tpl->assign('custom_fields', $custom_fields);
-	    
+		
 		$tpl->display('devblocks:example.object::example_object/bulk.tpl');
 	}
 	
 	function saveBulkUpdatePopupAction() {
 		// Filter: whole list or check
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 		$ids = array();
-	    
-	    // View
+		
+		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
@@ -189,7 +189,7 @@ class Page_ExampleObjects extends CerberusPageExtension {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 			case 'sample':

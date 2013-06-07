@@ -53,7 +53,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		$tpl->assign('groups', $groups);
 		
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_WORKER, $id);
@@ -222,7 +222,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		}
 		
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Auth extensions

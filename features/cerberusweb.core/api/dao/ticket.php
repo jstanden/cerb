@@ -1400,6 +1400,10 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
 			
+			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
+				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
+				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
 				$args['has_multiple_values'] = true;
 				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql'], $args['tables']);
@@ -1582,6 +1586,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const VIRTUAL_ASSIGNABLE = '*_assignable';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_GROUPS_OF_WORKER = '*_groups_of_worker';
+	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_STATUS = '*_status';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
@@ -1644,6 +1649,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_ASSIGNABLE => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ASSIGNABLE, '*', 'assignable', $translate->_('ticket.assignable')),
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '*', 'groups_of_worker', $translate->_('ticket.groups_of_worker')),
+			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_STATUS, '*', 'status', $translate->_('ticket.status')),
 			SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
 		);
@@ -1659,17 +1665,15 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			$columns[self::FULLTEXT_NOTE_CONTENT] = new DevblocksSearchField(self::FULLTEXT_NOTE_CONTENT, 'ftnc', 'content', $translate->_('message.note.content'), 'FT');
 		}
 		
-		// Custom Fields: ticket + org
-		$fields =
-			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET) +
-			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG)
-		;
+		// Custom fields with fieldsets
 		
-		if(is_array($fields))
-		foreach($fields as $field_id => $field) {
-			$key = 'cf_'.$field_id;
-			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name,$field->type);
-		}
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
+			CerberusContexts::CONTEXT_TICKET,
+			CerberusContexts::CONTEXT_ORG,
+		));
+		
+		if(is_array($custom_columns))
+			$columns = array_merge($columns, $custom_columns);
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
@@ -1780,6 +1784,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_ASSIGNABLE,
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,
+			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Ticket::VIRTUAL_STATUS,
 			SearchFields_Ticket::VIRTUAL_WATCHERS,
 		));
@@ -1820,7 +1825,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 	
 	function getSubtotalFields() {
-		$all_fields = $this->getParamsAvailable();
+		$all_fields = $this->getParamsAvailable(true);
 		
 		$fields = array();
 
@@ -1832,6 +1837,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				// DAO
 				case SearchFields_Ticket::ORG_NAME:
 				case SearchFields_Ticket::TICKET_FIRST_WROTE:
+				case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
 				case SearchFields_Ticket::TICKET_LAST_WROTE:
 				case SearchFields_Ticket::TICKET_SPAM_TRAINING:
 				case SearchFields_Ticket::TICKET_SUBJECT:
@@ -1846,6 +1852,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					break;
 					
 				case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
+				case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
 				case SearchFields_Ticket::VIRTUAL_WATCHERS:
 					$pass = true;
 					break;
@@ -1878,6 +1885,16 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_SUBJECT:
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_Ticket', $column);
 				break;
+				
+			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
+				$label_map = array(
+					'O' => 'New Ticket',
+					'R' => 'Recipient Replied',
+					'W' => 'Worker Replied',
+				);
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_Ticket', $column, $label_map, 'in', 'options[]');
+				break;
+				
 			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
 				$label_map = array(
 					'' => 'Not trained',
@@ -1907,6 +1924,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Ticket', CerberusContexts::CONTEXT_TICKET, $column);
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_Ticket', CerberusContexts::CONTEXT_TICKET, $column);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
@@ -2352,8 +2373,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
 				$options = array(
 					'O' => 'New Ticket',
-					'R' => 'Customer Reply',
-					'W' => 'Worker Reply',
+					'R' => 'Recipient Replied',
+					'W' => 'Worker Replied',
 				);
 				
 				$tpl->assign('options', $options);
@@ -2395,6 +2416,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
+				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_TICKET);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
@@ -2442,6 +2467,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
+				$this->_renderVirtualHasFieldset($param);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
@@ -2557,10 +2586,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 							$strings[] = "New Ticket";
 							break;
 						case 'R':
-							$strings[] = "Customer Reply";
+							$strings[] = "Recipient Replied";
 							break;
 						case 'W':
-							$strings[] = "Worker Reply";
+							$strings[] = "Worker Replied";
 							break;
 					}
 				}
@@ -2695,14 +2724,19 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
-			case SearchFields_Ticket::VIRTUAL_WATCHERS:
-				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field, $oper, $worker_ids);
-				break;
-				
 			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
 				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'string','');
 				$criteria = new DevblocksSearchCriteria($field, '=', $worker_id);
+				break;
+
+			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_WATCHERS:
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field, $oper, $worker_ids);
 				break;
 				
 			default:
@@ -2849,8 +2883,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$batch_ids = array_slice($ids,$x,200);
 				
 				// Fields
-				if(!empty($change_fields))
+				if(!empty($change_fields)) {
+					$change_fields[DAO_Ticket::UPDATED_DATE] = time();
 					DAO_Ticket::update($batch_ids, $change_fields);
+				}
 				
 				// Custom Fields
 				self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_TICKET, $custom_fields, $batch_ids);
@@ -3098,12 +3134,11 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'updated|date' => $prefix.$translate->_('common.updated'),
 			'url' => $prefix.$translate->_('common.url'),
 		);
-		
-		if(is_array($fields))
-		foreach($fields as $cf_id => $field) {
-			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
-		}
 
+		// Custom field/fieldset token labels
+		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+			$token_labels = array_merge($token_labels, $custom_field_labels);
+		
 		// Token values
 		$token_values = array();
 		
@@ -3321,7 +3356,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
 		}
 		
 		switch($token) {
@@ -3574,13 +3609,9 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$tpl->assign('defaults', $defaults);
 		
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContextAndGroupId(CerberusContexts::CONTEXT_TICKET, 0);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, false);
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$default_group_id = isset($defaults['group_id']) ? $defaults['group_id'] : key($groups);
-		$group_fields = DAO_CustomField::getByContextAndGroupId(CerberusContexts::CONTEXT_TICKET, $default_group_id);
-		$tpl->assign('group_fields', $group_fields);
-		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::mail/section/compose/peek.tpl');
 	}
@@ -3661,7 +3692,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$tpl->assign('object_watchers', $object_watchers);
 		
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, $ticket->group_id);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id);

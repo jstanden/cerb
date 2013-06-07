@@ -108,7 +108,7 @@ var cerbChartStyle = {
 };
 
 chartOptions = {
-    stackSeries: true,
+	stackSeries: true,
 	legend:{ 
 		show:false
 	},
@@ -121,9 +121,9 @@ chartOptions = {
 		borderWidth:0
 	},
 	seriesColors: cerbChartStyle.seriesColors,	
-    seriesDefaults:{
+	seriesDefaults:{
 		renderer:$.jqplot.BarRenderer,
-        rendererOptions:{ 
+		rendererOptions:{ 
 			highlightMouseOver: true,
 			barPadding:0,
 			barMargin:0
@@ -139,24 +139,24 @@ chartOptions = {
 			shadow:false
 		}
 	},
-    series:[
+	series:[
 		{foreach from=$data key=group_id item=group name=groups}{ label:'{$groups.$group_id->name}' }{if !$smarty.foreach.groups.last},{/if}{/foreach}
-    ],
-    axes:{
-        xaxis:{
+	],
+	axes:{
+		xaxis:{
 		  renderer:$.jqplot.CategoryAxisRenderer,
-	      tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-	      tickOptions: {
+		  tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+		  tickOptions: {
 		  	{if count($xaxis_ticks) > 94}show:false,{/if}
 		  	showGridline:false,
-	        {if count($xaxis_ticks) < 94 && count($xaxis_ticks) > 13}
+			{if count($xaxis_ticks) < 94 && count($xaxis_ticks) > 13}
 			angle: 90,
 			{/if}
-	        fontSize: '8pt'
-	      },
+			fontSize: '8pt'
+		  },
 		  ticks:['{implode("','",$xaxis_ticks) nofilter}']
 		}, 
-        yaxis:{
+		yaxis:{
 		  min:0,
 		  autoscale:true,
 		  tickRenderer: $.jqplot.CanvasAxisTickRenderer,
@@ -165,7 +165,7 @@ chartOptions = {
 			fontSize: '8pt'
 		  }
 		}
-    }
+	}
 }
 
 $('#reportChart').bind('jqplotPostDraw',function(event, plot) {

@@ -36,6 +36,8 @@ if(!defined('DEVBLOCKS_WEBPATH')) {
 	@define('DEVBLOCKS_APP_WEBPATH',$php_self);
 }
 
+DevblocksPlatform::setHandlerSession('Cerb_DevblocksSessionHandler');
+
 define('STEP_ENVIRONMENT', 1);
 define('STEP_LICENSE', 2);
 define('STEP_DATABASE', 3);

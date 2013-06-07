@@ -12,27 +12,7 @@
 
 <div style="clear:both;"></div>
 
-<fieldset class="properties">
-	<legend>Task</legend>
-	
-	{foreach from=$properties item=v key=k name=props}
-		<div class="property">
-			{if $k == '...'}
-				<b>{$translate->_('...')|capitalize}:</b>
-				...
-			{elseif $k == 'due_date'}
-				<b>{$translate->_('task.due_date')|capitalize}:</b>
-				<abbr title="{$task->due_date|devblocks_date}" style="{if !$task->is_completed && $task->due_date < time()}font-weight:bold;color:rgb(150,0,0);{/if}">{$task->due_date|devblocks_prettytime}</abbr>
-			{else}
-				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
-			{/if}
-		</div>
-		{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
-			<br clear="all">
-		{/if}
-	{/foreach}
-	<br clear="all">
-	
+<div class="cerb-profile-toolbar">
 	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 		<input type="hidden" name="c" value="tasks">
 		<input type="hidden" name="a" value="">
@@ -62,8 +42,37 @@
 		(<b>1-9</b>) change tab
 	</small> 
 	{/if}
+</div>
+
+<fieldset class="properties">
+	<legend>Task</legend>
 	
+	<div style="margin-left:15px;">
+	{foreach from=$properties item=v key=k name=props}
+		<div class="property">
+			{if $k == 'status'}
+				<b>{'common.status'|devblocks_translate|capitalize}:</b>
+				{if $task->is_completed}
+					<span class="cerb-sprite2 sprite-tick-circle" style="vertical-align:middle;"></span> <span style="color:rgb(0,150,0);font-weight:bold;">{'task.is_completed'|devblocks_translate|capitalize}</span>
+				{else}
+					{'status.open'|devblocks_translate|capitalize}
+				{/if}
+			{elseif $k == 'due_date'}
+				<b>{$translate->_('task.due_date')|capitalize}:</b>
+				<abbr title="{$task->due_date|devblocks_date}" style="{if !$task->is_completed && $task->due_date < time()}font-weight:bold;color:rgb(150,0,0);{/if}">{$task->due_date|devblocks_prettytime}</abbr>
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+			{/if}
+		</div>
+		{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+			<br clear="all">
+		{/if}
+	{/foreach}
+	<br clear="all">
+	</div>
 </fieldset>
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$properties_custom_fieldsets}
 
 <div>
 {include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}

@@ -4,14 +4,14 @@
 	<name>Time Tracking</name>
 	<description>Track time spent on various helpdesk activities (replying to tickets, etc).  This adds a Track Time button to Display Ticket and Organizations, and a Time Tracking tab to the Activity page.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>6.3.1</version>
+	<version>6.4.0</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Time_Tracking</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="6.3" max="6.3.99" />
+		<app_version min="6.4" max="6.4.99" />
 	</requires>
 	
 	<!-- Plugin Dependencies -->
@@ -83,6 +83,7 @@
 				<param key="options">
 					<value>
 						<data key="create" />
+						<data key="custom_fields" />
 						<data key="find" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -159,9 +160,9 @@
 					<value>
 						<data key="*" />
 					</value>
-				</param>				
+				</param>
 			</params>
-		</extension>		
+		</extension>
 	
 		<!-- Ticket Reply Toolbar -->
 			
@@ -248,7 +249,7 @@
 			<params>
 				<param key="uri" value="timetracking" />
 			</params>
-		</extension>		
+		</extension>
 		 
 		<!-- Report Groups -->
 		
@@ -263,7 +264,7 @@
 				<param key="group_name" value="timetracking.ui.reports" />
 				<param key="acl" value="timetracking.report.group.time" />
 			</params>
-		</extension>		 
+		</extension>
 	
 		<!-- Reports -->
 	

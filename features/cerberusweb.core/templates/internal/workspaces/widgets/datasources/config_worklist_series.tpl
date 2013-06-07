@@ -1,4 +1,4 @@
-{$series_ctx_id = $params.view_context}
+{$series_ctx_id = $params.worklist_model.context}
 
 {$series_ctx = null}
 {$series_ctx_view = null}
@@ -14,7 +14,7 @@
 
 <b>Load </b>
 
-<select name="params{$params_prefix}[view_context]" class="context">
+<select class="context">
 	<option value=""> - {'common.choose'|devblocks_translate|lower} - </option>
 	{foreach from=$context_mfts item=context_mft key=context_id}
 	<option value="{$context_id}" {if $series_ctx_id==$context_id}selected="selected"{/if}>{$context_mft->name}</option>
@@ -25,8 +25,7 @@
 
 <div id="popup{$div_popup_worklist}" class="badge badge-lightgray" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;display:inline;"><span class="name">Worklist</span> &#x25be;</div>
 
-<input type="hidden" name="params{$params_prefix}[view_id]" value="widget{$widget->id}_worklist{$series_idx}">
-<input type="hidden" name="params{$params_prefix}[view_model]" value="{$params.view_model}" class="model">
+<input type="hidden" name="params{$params_prefix}[worklist_model_json]" value="{$params.worklist_model|json_encode}" class="model">
 
 <br>
 
@@ -168,8 +167,8 @@
 		
 		$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist{$series_idx}"}',null,true,'750');
 		$chooser.bind('chooser_save',function(event) {
-			if(null != event.view_model) {
-				$('#popup{$div_popup_worklist}').parent().find('input:hidden.model').val(event.view_model);
+			if(null != event.worklist_model) {
+				$('#popup{$div_popup_worklist}').parent().find('input:hidden.model').val(event.worklist_model);
 			}
 		});
 	});

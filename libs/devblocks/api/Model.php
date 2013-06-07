@@ -80,11 +80,19 @@ class DevblocksSearchCriteria {
 				break;
 				
 			case DevblocksSearchCriteria::OPER_EQ_OR_NULL:
-				$where = sprintf("(%s = %s OR %s IS NULL)",
-					$db_field_name,
-					self::_escapeSearchParam($this, $fields),
-					$db_field_name
-				);
+				$val = self::_escapeSearchParam($this, $fields);
+
+				if(is_string($val)) {
+					$where = sprintf("(%s = %s OR %s IS NULL)",
+						$db_field_name,
+						$val,
+						$db_field_name
+					);
+				} else {
+					$where = sprintf("%s IS NULL",
+						$db_field_name
+					);
+				}
 				break;
 				
 			case "neq":
@@ -430,6 +438,38 @@ class DevblocksSearchField {
 		$this->db_column = $db_column;
 		$this->db_label = $label;
 		$this->type = $type;
+	}
+	
+	static function getCustomSearchFieldsByContexts($contexts) {
+		if(!is_array($contexts))
+			$contexts = array($contexts);
+		
+		$columns = array();
+		$custom_fieldsets = DAO_CustomFieldset::getAll();
+
+		foreach($contexts as $context) {
+			$custom_fields = DAO_CustomField::getByContext($context);
+	
+			if(is_array($custom_fields))
+			foreach($custom_fields as $field_id => $field) {
+				$key = 'cf_'.$field_id;
+				$label = $field->name;
+				
+				if(!empty($field->custom_fieldset_id) && isset($custom_fieldsets[$field->custom_fieldset_id])) {
+					$label = $custom_fieldsets[$field->custom_fieldset_id]->name . ' ' . $label;
+				}
+				
+				$columns[$key] = new DevblocksSearchField(
+					$key, // token
+					$key, // table
+					'field_value', // column
+					$label, // label
+					$field->type // type
+				);
+			}
+		}
+		
+		return $columns;
 	}
 };
 

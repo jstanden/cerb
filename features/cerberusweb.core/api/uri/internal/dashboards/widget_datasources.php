@@ -2,6 +2,14 @@
 // [TODO] This could split up into two worklist datasources (metric, series).
 //		This would allow reuse without having to know about the caller at all.
 class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDatasource {
+	private function _getSeriesIdxFromPrefix($params_prefix) {
+		if(!empty($params_prefix) && preg_match("#\[series\]\[(\d+)\]#", $params_prefix, $matches) && count($matches) == 2) {
+			return $matches[1];
+		}
+		
+		return null;
+	}
+	
 	function renderConfig(Model_WorkspaceWidget $widget, $params=array(), $params_prefix=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
@@ -9,20 +17,19 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		$tpl->assign('params', $params);
 		$tpl->assign('params_prefix', $params_prefix);
 		
-		// [TODO] This is a hack. We shouldn't have to access series_idx
-		if(!empty($params_prefix)) {
-			if(preg_match("#\[series\]\[(\d+)\]#", $params_prefix, $matches) && count($matches) == 2) {
-				$series_idx = $matches[1];
-				$tpl->assign('series_idx', $series_idx);
-			}
-		}
+		if(null !== ($series_idx = $this->_getSeriesIdxFromPrefix($params_prefix)))
+			$tpl->assign('series_idx', $series_idx);
 		
 		// Prime the worklist
-		if(null != ($view_model = Extension_WorkspaceWidget::getParamsViewModel($widget, $params))) {
-			// Force reload parameters (we can't trust the session)
-			if(false != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model))) {
-				C4_AbstractViewLoader::setView($view->id, $view);
-			}
+		
+		$view_id = sprintf(
+			"widget%d_worklist%s",
+			$widget->id,
+			(!is_null($series_idx) ? intval($series_idx) : '')
+		);
+		
+		if(null != ($view = Extension_WorkspaceWidget::getViewFromParams($widget, $params, $view_id))) {
+			C4_AbstractViewLoader::setView($view->id, $view);
 		}
 		
 		// Worklists
@@ -44,39 +51,62 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		}
 	}
 	
-	function getData(Model_WorkspaceWidget $widget, array $params=array()) {
+	function getData(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
 		switch($widget->extension_id) {
 			case 'core.workspace.widget.chart':
 			case 'core.workspace.widget.scatterplot':
-				return $this->_getDataSeries($widget, $params);
+				return $this->_getDataSeries($widget, $params, $params_prefix);
 				break;
 				
 			case 'core.workspace.widget.counter':
 			case 'core.workspace.widget.gauge':
 			case 'core.workspace.widget.pie_chart':
-				return $this->_getDataSingle($widget, $params);
+				return $this->_getDataSingle($widget, $params, $params_prefix);
 				break;
 		}
 	}
 	
-	private function _getDataSingle(Model_WorkspaceWidget $widget, array $params=array()) {
-		if(null == ($view_model = Extension_WorkspaceWidget::getParamsViewModel($widget, $params)))
+	private function _getDataSingle(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
+		$series_idx = $this->_getSeriesIdxFromPrefix($params_prefix);
+		
+		$view_id = sprintf("widget%d_worklist%s",
+			$widget->id,
+			(!is_null($series_idx) ? intval($series_idx) : '')
+		);
+		
+		if(null == ($view = Extension_WorkspaceWidget::getViewFromParams($widget, $params, $view_id)))
 			return;
 		
-		if(null == ($context_ext = Extension_DevblocksContext::get($params['view_context'])))
+		@$view_context = $params['worklist_model']['context'];
+
+		if(empty($view_context))
+			return;
+		
+		if(null == ($context_ext = Extension_DevblocksContext::get($view_context)))
 			return;
 
 		if(null == ($dao_class = @$context_ext->manifest->params['dao_class']))
-			return;
-		
-		// Force reload parameters (we can't trust the session)
-		if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
 			return;
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
 		$view->renderPage = 0;
 		$view->renderLimit = 1;
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// We need to know what date fields we have
+		$fields = $view->getFields();
+		@$metric_func = $params['metric_func'];
+		@$metric_field = $fields[$params['metric_field']];
+
+		// If we're subtotalling on a custom field, make sure it's joined
+		
+		if(!$view->hasParam($metric_field->token, $view->getParams())) {
+			$view->addParam(new DevblocksSearchCriteria($metric_field->token, DevblocksSearchCriteria::OPER_TRUE), $metric_field->token);
+		}
+
+		// Build the query
 		
 		$query_parts = $dao_class::getSearchQueryComponents(
 			$view->view_columns,
@@ -85,13 +115,6 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 			$view->renderSortAsc
 		);
 		
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		// We need to know what date fields we have
-		$fields = $view->getFields();
-		@$metric_func = $params['metric_func'];
-		@$metric_field = $fields[$params['metric_field']];
-				
 		if(empty($metric_func))
 			$metric_func = 'count';
 		
@@ -129,7 +152,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 				$select_func = 'COUNT(*)';
 				break;
 		}
-			
+		
 		$sql = sprintf("SELECT %s AS counter_value " .
 			str_replace('%','%%',$query_parts['join']).
 			str_replace('%','%%',$query_parts['where']),
@@ -146,20 +169,28 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		return $params;
 	}
 	
-	private function _getDataSeries(Model_WorkspaceWidget $widget, array $params=array()) {
-		if(null == ($view_model = Extension_WorkspaceWidget::getParamsViewModel($widget, $params)))
+	private function _getDataSeries(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
+		$series_idx = $this->_getSeriesIdxFromPrefix($params_prefix);
+		
+		$view_id = sprintf("widget%d_worklist%s",
+			$widget->id,
+			(!is_null($series_idx) ? intval($series_idx) : '')
+		);
+		
+		if(null == ($view = Extension_WorkspaceWidget::getViewFromParams($widget, $params, $view_id)))
 			return;
-			
-		if(null == ($context_ext = Extension_DevblocksContext::get($params['view_context'])))
+		
+		@$view_context = $params['worklist_model']['context'];
+		
+		if(empty($view_context))
+			return;
+		
+		if(null == ($context_ext = Extension_DevblocksContext::get($view_context)))
 			return;
 
 		if(null == ($dao_class = @$context_ext->manifest->params['dao_class']))
 			continue;
 			
-		// Force reload parameters (we can't trust the session)
-		if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
-			return;
-		
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
 		$data = array();
@@ -167,20 +198,23 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		$view->renderPage = 0;
 		$view->renderLimit = 30;
 			
+		$db = DevblocksPlatform::getDatabaseService();
+
+		// Initial query planner
+		
 		$query_parts = $dao_class::getSearchQueryComponents(
 			$view->view_columns,
 			$view->getParams(),
 			$view->renderSortBy,
 			$view->renderSortAsc
 		);
-			
-		$db = DevblocksPlatform::getDatabaseService();
-			
+		
 		// We need to know what date fields we have
+		
 		$fields = $view->getFields();
 		$xaxis_field = null;
 		$xaxis_field_type = null;
-			
+		
 		switch($params['xaxis_field']) {
 			case '_id':
 				$xaxis_field = new DevblocksSearchField('_id', $query_parts['primary_table'], 'id', null, Model_CustomField::TYPE_NUMBER);
@@ -190,8 +224,41 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 				@$xaxis_field = $fields[$params['xaxis_field']];
 				break;
 		}
-			
+		
 		if(!empty($xaxis_field))
+			$params_changed = false;
+			
+			// If we're subtotalling on a custom field, make sure it's joined
+			if($xaxis_field != '_id' && !$view->hasParam($xaxis_field->token, $view->getParams())) {
+				$view->addParam(new DevblocksSearchCriteria($xaxis_field->token, DevblocksSearchCriteria::OPER_TRUE));
+				$params_changed = true;
+			}
+			
+			@$yaxis_func = $params['yaxis_func'];
+			@$yaxis_field = $fields[$params['yaxis_field']];
+				
+			if(empty($yaxis_field)) {
+				$yaxis_func = 'count';
+				
+			} else {
+				// If we're subtotalling on a custom field, make sure it's joined
+				if(!$view->hasParam($yaxis_field->token, $view->getParams())) {
+					$view->addParam(new DevblocksSearchCriteria($yaxis_field->token, DevblocksSearchCriteria::OPER_TRUE));
+					$params_changed = true;
+				}
+			}
+			
+			if($params_changed) {
+				$query_parts = $dao_class::getSearchQueryComponents(
+					$view->view_columns,
+					$view->getParams(),
+					$view->renderSortBy,
+					$view->renderSortAsc
+				);
+			}
+			
+			unset($params_changed);
+			
 			switch($xaxis_field->type) {
 				case Model_CustomField::TYPE_DATE:
 					// X-axis tick
@@ -227,39 +294,40 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 							$date_label = '%Y';
 							break;
 					}
-						
-					@$yaxis_func = $params['yaxis_func'];
-					@$yaxis_field = $fields[$params['yaxis_field']];
-						
-					if(empty($yaxis_field))
-						$yaxis_func = 'count';
-						
+					
 					switch($yaxis_func) {
 						case 'sum':
 							$select_func = sprintf("SUM(%s.%s)",
-							$yaxis_field->db_table,
-							$yaxis_field->db_column
+								$yaxis_field->db_table,
+								$yaxis_field->db_column
 							);
 							break;
 								
 						case 'avg':
 							$select_func = sprintf("AVG(%s.%s)",
-							$yaxis_field->db_table,
-							$yaxis_field->db_column
+								$yaxis_field->db_table,
+								$yaxis_field->db_column
 							);
 							break;
 								
 						case 'min':
 							$select_func = sprintf("MIN(%s.%s)",
-							$yaxis_field->db_table,
-							$yaxis_field->db_column
+								$yaxis_field->db_table,
+								$yaxis_field->db_column
 							);
 							break;
 								
 						case 'max':
 							$select_func = sprintf("MAX(%s.%s)",
-							$yaxis_field->db_table,
-							$yaxis_field->db_column
+								$yaxis_field->db_table,
+								$yaxis_field->db_column
+							);
+							break;
+							
+						case 'value':
+							$select_func = sprintf("%s.%s",
+								$yaxis_field->db_table,
+								$yaxis_field->db_column
 							);
 							break;
 								
@@ -268,7 +336,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 							$select_func = 'COUNT(*)';
 							break;
 					}
-						
+					
 					$sql = sprintf("SELECT %s AS hits, DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%s') AS histo ",
 						$select_func,
 						$xaxis_field->db_table,
@@ -360,12 +428,6 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 					break;
 
 				case Model_CustomField::TYPE_NUMBER:
-					@$yaxis_func = $params['yaxis_func'];
-					@$yaxis_field = $fields[$params['yaxis_field']];
-						
-					if(empty($yaxis_func))
-						$yaxis_func = 'count';
-						
 					switch($xaxis_field->token) {
 						case '_id':
 							$order_by = null;
@@ -386,8 +448,8 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 
 						default:
 							$group_by = sprintf("GROUP BY %s.%s",
-							$xaxis_field->db_table,
-							$xaxis_field->db_column
+								$xaxis_field->db_table,
+								$xaxis_field->db_column
 							);
 							
 							$order_by = 'ORDER BY xaxis ASC';
@@ -425,7 +487,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 							break;
 								
 						case 'value':
-							$select_func = sprintf("DISTINCT %s.%s",
+							$select_func = sprintf("%s.%s",
 								$yaxis_field->db_table,
 								$yaxis_field->db_column
 							);
@@ -438,12 +500,13 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 					}
 						
 					// Scatterplots ignore histograms
+					if(isset($widget->params['chart_type']))
 					switch($widget->params['chart_type']) {
 						case 'scatterplot':
 							$group_by = null;
 							break;
 					}
-						
+					
 					$sql = sprintf("SELECT %s AS yaxis, %s.%s AS xaxis " .
 						str_replace('%','%%',$query_parts['join']).
 						str_replace('%','%%',$query_parts['where']).
@@ -496,7 +559,7 @@ class WorkspaceWidgetDatasource_Manual extends Extension_WorkspaceWidgetDatasour
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/datasources/config_manual_metric.tpl');
 	}
 	
-	function getData(Model_WorkspaceWidget $widget, array $params=array()) {
+	function getData(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
 		$metric_value = $params['metric_value'];
 		$metric_value = floatval(str_replace(',','', $metric_value));
 		$params['metric_value'] = $metric_value;
@@ -515,7 +578,7 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/datasources/config_url.tpl');
 	}
 	
-	function getData(Model_WorkspaceWidget $widget, array $params=array()) {
+	function getData(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
 		$cache = DevblocksPlatform::getCacheService();
 		
 		@$url = $params['url'];

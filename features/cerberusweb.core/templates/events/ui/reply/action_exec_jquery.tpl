@@ -1,7 +1,7 @@
 <b>jQuery Script:</b>
 <div>
-<textarea name="{$namePrefix}[jquery_script]" rows="3" cols="45" style="width:100%;" class="placeholders">{if !empty($params.jquery_script)}{$params.jquery_script}{else}
-var $reply = $(this);
+<textarea name="{$namePrefix}[jquery_script]" rows="3" cols="45" style="width:100%;" class="placeholders" wrap="off" spellcheck="false">{if !empty($params.jquery_script)}{$params.jquery_script}{else}
+{if !empty($default_jquery)}{$default_jquery}{else}var $reply = $(this);
 var $form = {
 	fields: $reply.find('form:nth(0)'),
 	actions: $reply.find('form:nth(1)')
@@ -71,13 +71,7 @@ if($btn_watcher.hasClass('green'))
 	$btn_watcher.click();
 */
 
-/*
-var $fieldset_cfields = $form.actions.find('fieldset:nth(2)');
-// Hide the custom fields section
-$fieldset_cfields.hide();
-*/
-
-{/if}</textarea>
+{/if}{/if}</textarea>
 </div>
 
 <script type="text/javascript">

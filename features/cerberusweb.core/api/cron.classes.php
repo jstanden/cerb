@@ -1055,7 +1055,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 			return false;
 		}
 		
-		@set_time_limit(1200); // 20m
+		@set_time_limit(600); // 10m
 
 		$accounts = DAO_Pop3Account::getPop3Accounts(); /* @var $accounts Model_Pop3Account[] */
 
@@ -1072,6 +1072,8 @@ class Pop3Cron extends CerberusCronPageExtension {
 			return;
 		}
 
+		imap_timeout(IMAP_OPENTIMEOUT, 20);
+		
 		$runtime = microtime(true);
 		$mailboxes_checked = 0;
 		
@@ -1079,6 +1081,11 @@ class Pop3Cron extends CerberusCronPageExtension {
 		foreach ($accounts as $account) { /* @var $account Model_Pop3Account */
 			if(!$account->enabled)
 				continue;
+			
+			if($account->delay_until > time()) {
+				$logger->info(sprintf("[POP3] Delaying failing mailbox '%s' check for %d more seconds (%s)", $account->nickname, $account->delay_until - time(), date("h:i a", $account->delay_until)));
+				continue;
+			}
 			
 			$mailboxes_checked++;
 
@@ -1119,19 +1126,27 @@ class Pop3Cron extends CerberusCronPageExtension {
 			 
 			if(false === ($mailbox = @imap_open($connect,
 				!empty($account->username)?$account->username:"",
-				!empty($account->password)?$account->password:""))) {
+				!empty($account->password)?$account->password:"",
+				null,
+				0
+				))) {
 				
 				$logger->error("[POP3] Failed with error: ".imap_last_error());
 				
 				// Increment fails
 				$num_fails = $account->num_fails + 1;
+				$delay_until = time() + (min($num_fails, 15) * 120);
+				
 				$fields = array(
 					DAO_Pop3Account::NUM_FAILS => $num_fails,
+					DAO_Pop3Account::DELAY_UNTIL => $delay_until, // Delay 2 mins per consecutive failure
 				);
 				
-				// Automatically disable POP3s that fail 5+ times
-				if($num_fails >= 5) {
-					$fields[DAO_Pop3Account::ENABLED] = 0;
+				$logger->error("[POP3] Delaying next mailbox check until ".date('h:i a', $delay_until));
+				
+				// Notify admins about consecutive POP3 failures at an interval
+				if(in_array($num_fails, array(5,10,20,30))) {
+					$logger->info(sprintf("[POP3] Sending notification about %d consecutive failures on this mailbox", $num_fails));
 					
 					$url_writer = DevblocksPlatform::getUrlService();
 					$workers = DAO_Worker::getAll();
@@ -1142,11 +1157,12 @@ class Pop3Cron extends CerberusCronPageExtension {
 							continue;
 						
 						$notify_fields = array(
-							DAO_Notification::CONTEXT => null,
-							DAO_Notification::CONTEXT_ID => null,
+							DAO_Notification::CONTEXT => '',
+							DAO_Notification::CONTEXT_ID => 0,
 							DAO_Notification::CREATED_DATE => time(),
-							DAO_Notification::MESSAGE => sprintf("Mailbox '%s' had more than 5 connection errors and was automatically disabled: %s",
+							DAO_Notification::MESSAGE => sprintf("Mailbox '%s' has failed %d consecutive times: %s",
 								$account->nickname,
+								$num_fails,
 								imap_last_error()
 							),
 							DAO_Notification::URL => $url_writer->write('c=config&a=mail_pop3', true),
@@ -1222,6 +1238,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 			if($account->num_fails) {
 				DAO_Pop3Account::updatePop3Account($account->id, array(
 					DAO_Pop3Account::NUM_FAILS => 0,
+					DAO_Pop3Account::DELAY_UNTIL => 0,
 				));
 			}
 			
@@ -1233,7 +1250,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 		}
 		
 		if(empty($mailboxes_checked))
-			$logger->info('[POP3] There are no active mailboxes.');
+			$logger->info('[POP3] There are no mailboxes ready to be checked.');
 		
 		$logger->info("[POP3] Finished POP3 job (".number_format((microtime(true)-$runtime)*1000,2)." ms)");
 	}
@@ -1451,30 +1468,6 @@ class SearchCron extends CerberusCronPageExtension {
 		}
 		
 		$logger->info("[Search] Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
-	}
-	
-	function configure($instance) {
-	}
-};
-
-class Cron_CalendarRecurringEventScheduler extends CerberusCronPageExtension {
-	function run() {
-		$logger = DevblocksPlatform::getConsoleLog();
-		$runtime = microtime(true);
-		
-		$logger->info("[Calendar Recurring] Starting...");
-
-		// [TODO] Cache
-		$recurring_events = DAO_CalendarRecurringProfile::getWhere();
-
-		// Run through every calendar recurring profile
-		foreach($recurring_events as $recurring) { /* @var $recurring Model_CalendarRecurringProfile */
-			//var_dump($recurring->date_start);
-			// [TODO] We need to stop when the limit is reached too (not end date)
-			$recurring->createRecurringEvents(strtotime("tomorrow", $recurring->date_start));
-		}
-		
-		$logger->info("[Calendar Recurring] Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
 	}
 	
 	function configure($instance) {

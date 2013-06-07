@@ -303,14 +303,14 @@ class DAO_ContextLink {
 		return $objects;
 	}
 	
-	static public function count($from_context, $from_context_id, $ignore_workers=true) {
+	static public function count($from_context, $from_context_id, $ignore_internal=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		return $db->GetOne(sprintf("SELECT count(*) FROM context_link ".
 			"WHERE from_context = %s AND from_context_id = %d ".
 			"%s",
 			$db->qstr($from_context),
 			$from_context_id,
-			($ignore_workers ? sprintf("AND to_context != %s ", $db->qstr(CerberusContexts::CONTEXT_WORKER)) : "")
+			($ignore_internal ? sprintf("AND to_context NOT IN (%s,%s) ", $db->qstr(CerberusContexts::CONTEXT_CUSTOM_FIELDSET), $db->qstr(CerberusContexts::CONTEXT_WORKER)) : "")
 		));
 	}
 	

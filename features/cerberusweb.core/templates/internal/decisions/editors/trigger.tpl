@@ -1,3 +1,5 @@
+{* Capture the form, since we might drop it inside a tab set if this is a new behavior *}
+{capture name=behavior_build}
 <form id="frmDecisionBehavior{$trigger->id}" onsubmit="return false;">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="">
@@ -129,6 +131,44 @@
 	{/if}
 	{if isset($trigger->id)}<button type="button" onclick="$(this).closest('form').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </form>
+{/capture}
+
+{* Draw tabs if we're adding a new behavior *}
+{if empty($trigger_id)}
+<div class="tabs">
+	<ul>
+		<li><a href="#tabBehavior{$trigger->id}Build">Build</a></li>
+		<li><a href="#tabBehavior{$trigger->id}Import">Import</a></li>
+	</ul>
+	
+	<div id="tabBehavior{$trigger->id}Build">
+		{$smarty.capture.behavior_build nofilter}
+	</div>
+	
+	<div id="tabBehavior{$trigger->id}Import">
+		<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmBehaviorImport" onsubmit="return false;">
+		<input type="hidden" name="c" value="internal">
+		<input type="hidden" name="a" value="">
+		<input type="hidden" name="context" value="{$context}">
+		<input type="hidden" name="context_id" value="{$context_id}">
+
+		<div class="import">
+			<b>Import:</b> (.json format)
+			<br>
+			<textarea name="import_json" style="width:100%;height:250px;white-space:pre;word-wrap:normal;" rows="10" cols="45" spellcheck="false"></textarea>
+		</div>
+		
+		<div class="config"></div>
+		
+		<div style="margin-top:10px;">
+			<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.continue'|devblocks_translate|capitalize}</button>
+		</div>
+		</form>
+	</div>
+</div>
+{else}{* Otherwise, just draw the form to edit an existing behavior *}
+	{$smarty.capture.behavior_build nofilter}
+{/if}
 
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('node_trigger{$trigger->id}');
@@ -141,5 +181,34 @@
 			$tr = $template.clone().removeClass('template').show();
 			$tr.insertBefore($template);
 		});
+		
+		{if empty($trigger_id)}
+			$(this).find('div.tabs').tabs();
+			
+			var $frm_import = $('#frmBehaviorImport');
+			
+			$frm_import.find('button.submit').click(function() {
+				genericAjaxPost('frmBehaviorImport','','c=internal&a=saveBehaviorImportJson', function(json) {
+					
+					$popup = genericAjaxPopupFetch('node_trigger');
+					
+					if(json.config_html) {
+						var $frm_import = $('#frmBehaviorImport');
+						$frm_import.find('div.import').hide();
+						$frm_import.find('div.config').hide().html(json.config_html).fadeIn();
+						
+					} else {
+						event = jQuery.Event('trigger_create');
+						event.trigger_id = json.trigger_id;
+						event.event_point = json.event_point;
+						$popup.trigger(event);
+						
+						genericAjaxPopupDestroy('node_trigger');
+					}
+					
+				});
+			});
+		{/if}
+		
 	});
 </script>

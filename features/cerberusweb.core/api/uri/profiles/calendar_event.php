@@ -71,31 +71,26 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 			'value' => $event->date_end,
 		);
 		
-		$properties['is_recurring'] = array(
-			//'label' => ucfirst($translate->_('dao.calendar_event.is_available')),
-			'label' => 'Is Repeating',
-			'type' => Model_CustomField::TYPE_CHECKBOX,
-			'value' => ($event->recurring_id != 0) ? 1 : 0,
-		);
-				
 		$properties['is_available'] = array(
 			'label' => ucfirst($translate->_('dao.calendar_event.is_available')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $event->is_available,
 		);
-		
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CALENDAR_EVENT, $event->id)) or array();
 
-		foreach($custom_fields as $cf_id => $cfield) {
-			if(!isset($values[$cf_id]))
-				continue;
-				
-			$properties['cf_' . $cf_id] = array(
-				'label' => $cfield->name,
-				'type' => $cfield->type,
-				'value' => $values[$cf_id],
-			);
-		}
+		// Custom Fields
+
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CALENDAR_EVENT, $event->id)) or array();
+		$tpl->assign('custom_field_values', $values);
+		
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_CALENDAR_EVENT, $values);
+		
+		if(!empty($properties_cfields))
+			$properties = array_merge($properties, $properties_cfields);
+		
+		// Custom Fieldsets
+
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_CALENDAR_EVENT, $event->id, $values);
+		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		$tpl->assign('properties', $properties);
 		

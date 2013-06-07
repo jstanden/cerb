@@ -106,7 +106,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 	}
 	
 	function getId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 //		if(!$worker->hasPriv('...'))
@@ -124,7 +124,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_TASK);
 		$params = $this->_handleSearchBuildParams($filters);
@@ -163,7 +163,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 	}
 	
 	function postSearch() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 //		if(!$worker->hasPriv('core.addybook'))
@@ -175,7 +175,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 	}
 	
 	function putId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// Validate the ID
 		if(null == ($task = DAO_Task::get($id)))
@@ -236,7 +236,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 	}
 	
 	function postCreate() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 		if(!$worker->hasPriv('core.tasks.actions.create'))
@@ -295,7 +295,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 	}
 
 	private function postNote($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		@$note = DevblocksPlatform::importGPC($_POST['note'],'string','');
 		

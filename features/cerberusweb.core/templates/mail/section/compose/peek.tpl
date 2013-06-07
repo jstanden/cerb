@@ -112,7 +112,7 @@
 		<div id="divComposeClosed" style="display:{if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.closed==0)}none{else}block{/if};margin-top:5px;margin-left:10px;">
 			<b>{$translate->_('display.reply.next.resume')}</b><br>
 			{$translate->_('display.reply.next.resume_eg')}<br> 
-			<input type="text" name="ticket_reopen" size="55" value="{$draft->params.ticket_reopen}"><br>
+			<input type="text" name="ticket_reopen" size="64" class="input_date" value="{$draft->params.ticket_reopen}"><br>
 			{$translate->_('display.reply.next.resume_blank')}<br>
 		</div>
 	</div>
@@ -157,14 +157,11 @@
 	{$custom_field_values = $draft->params.custom_fields}
 	
 	{if !empty($custom_fields)}
-	<div class="global">
-		{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-	</div>
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
 	{/if}
-	<div class="group">
-		{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" custom_fields=$group_fields bulk=false}
-	</div>
 </fieldset>
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET bulk=false}
 
 <fieldset class="peek">
 	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
@@ -192,7 +189,7 @@
 	$popup.one('popup_open',function(event,ui) {
 		$(this).dialog('option','title','{'mail.send_mail'|devblocks_translate|capitalize}');
 		
-		$frm = $('#frmComposePeek');
+		var $frm = $('#frmComposePeek');
 
 		ajax.emailAutoComplete('#frmComposePeek input[name=to]', { multiple: true } );
 		ajax.emailAutoComplete('#frmComposePeek input[name=cc]', { multiple: true } );
@@ -218,7 +215,6 @@
 		
 		$frm.find('select[name=group_or_bucket_id]').change(function(e) {
 			$div = $('#compose_cfields');
-			$div.find('div.group').html('');
 			
 			$frm = $(this).closest('form');
 			
@@ -234,16 +230,6 @@
 			
 			$frm.find('input:hidden[name=group_id]').val(group_id);
 			$frm.find('input:hidden[name=bucket_id]').val(bucket_id);
-			
-			genericAjaxGet($div, 'c=tickets&a=getCustomFieldEntry&group_id=' + group_id, function(html) {
-				$cfields = $('#compose_cfields');
-				if(html.length > 0) {
-					$cfields.show().find('div.group').html(html);
-				} else {
-					if(0 == $cfields.find('div.global').length)
-						$cfields.hide();
-				}
-			});
 		});
 		
 		$frm.find('select[name=group_or_bucket_id]').trigger('change');
@@ -304,6 +290,10 @@
 				$sug.show();
 			});
 		});
+		
+		// Date entry
+		
+		$frm.find('> fieldset:nth(1) input.input_date').cerbDateInputHelper();
 		
 		// Insert Sig
 		

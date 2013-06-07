@@ -1,6 +1,6 @@
 <div class="block reply_frame" style="width:98%;margin:10px;">
 
-<form id="reply{$message->id}_part1">
+<form id="reply{$message->id}_part1" onsubmit="return false;">
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
 		<td><h2 style="color:rgb(50,50,50);">{if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.reply')|capitalize}{/if}</h2></td>
@@ -222,16 +222,16 @@
 			<fieldset class="peek">
 				<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 				
-				<table cellpadding="2" cellspacing="0" border="0">
+				<table cellpadding="2" cellspacing="0" border="0" id="replyStatus{$message->id}">
 					<tr>
 						<td nowrap="nowrap" valign="top" colspan="2">
 							<div style="margin-bottom:10px;">
 								{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" object_watchers=$object_watchers context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
 							</div>
 							
-							<label><input type="radio" name="closed" value="0" class="status_open" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if (empty($draft) && 'open'==$mail_status_reply) || $draft->params.closed==0}checked="checked"{/if}>{$translate->_('status.open')|capitalize}</label>
-							<label><input type="radio" name="closed" value="2" class="status_waiting" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'waiting'==$mail_status_reply) || $draft->params.closed==2}checked="checked"{/if}>{$translate->_('status.waiting')|capitalize}</label>
-							{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label><input type="radio" name="closed" value="1" class="status_closed" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'closed'==$mail_status_reply) || $draft->params.closed==1}checked="checked"{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
+							<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="closed" value="0" class="status_open" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if (empty($draft) && 'open'==$mail_status_reply) || $draft->params.closed==0}checked="checked"{/if}>{$translate->_('status.open')|capitalize}</label>
+							<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="closed" value="2" class="status_waiting" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'waiting'==$mail_status_reply) || $draft->params.closed==2}checked="checked"{/if}>{$translate->_('status.waiting')|capitalize}</label>
+							{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="closed" value="1" class="status_closed" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'closed'==$mail_status_reply) || $draft->params.closed==1}checked="checked"{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
 							<br>
 							<br>
 							
@@ -280,30 +280,11 @@
 					</tr>
 				</table>
 			</fieldset>
-			
-			{if !empty($custom_fields) || !empty($group_fields)}
-			<fieldset class="peek">
-				<legend>{'common.custom_fields'|devblocks_translate|capitalize}</legend>
-				
-				{if !empty($draft) && !empty($draft->params.custom_fields)}
-					{$custom_field_values = $draft->params.custom_fields}
-				{/if}
-				
-				<div id="compose_cfields" style="margin:5px 0px 0px 10px;">
-					<div class="global">
-						{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-					</div>
-					<div class="group">
-						{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" custom_fields=$group_fields bulk=false}
-					</div>
-				</div>
-			</fieldset>
-			{/if}
 		</td>
 	</tr>
 	<tr>
 		<td id="reply{$message->id}_buttons">
-			<button type="button" class="send split-left" onclick="$(this).closest('td').find('ul li:first a').click();"><span class="cerb-sprite2 sprite-tick-circle"></span> {if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.send_message')}{/if}</button><!--
+			<button type="button" class="send split-left" onclick="$(this).closest('td').find('ul li:first a').click();" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="cerb-sprite2 sprite-tick-circle"></span> {if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.send_message')}{/if}</button><!--
 			--><button type="button" class="split-right" onclick="$(this).next('ul').toggle();"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
 			<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
 				<li><a href="javascript:;" class="send">{if $is_forward}{$translate->_('display.ui.forward')}{else}{$translate->_('display.ui.send_message')}{/if}</a></li>
@@ -326,6 +307,15 @@
 		$frm = $('#reply{$message->id}_part1');
 		$frm2 = $('#reply{$message->id}_part2');
 		
+		// Disable ENTER submission on the FORM text input
+		$frm2
+			.find('input:text')
+			.keydown(function(e) {
+				if(e.which == 13)
+					e.preventDefault();
+			})
+			;
+		
 		// Autocompletes
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=to]', { multiple: true } );
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=cc]', { multiple: true } );
@@ -345,6 +335,13 @@
 		{if empty($mail_reply_textbox_size_inelastic)}
 		$content.elastic();
 		{/if}
+		
+		$frm2.find('input[name=ticket_reopen]')
+			.cerbDateInputHelper({
+				submit: function(e) {
+					$('#reply{$message->id}_buttons a.send').click();
+				}
+			})
 		
 		// Insert suggested on click
 		$('#reply{$message->id}_suggested').find('a.suggested').click(function(e) {
@@ -554,6 +551,50 @@
 				return;
 			
 			switch(event.which) {
+				case 13: // (RETURN) Send message
+					try {
+						event.preventDefault();
+						$('#reply{$message->id}_buttons a.send').click();
+					} catch(ex) { } 
+					break;
+				case 67: // (C) Set closed + focus reopen
+				case 79: // (O) Set open
+				case 87: // (W) Set waiting + focus reopen
+					try {
+						event.preventDefault();
+						
+						var $reply_status = $('#replyStatus{$message->id}');
+						var $radio = $reply_status.find('input:radio[name=closed]');
+						
+						switch(event.which) {
+							case 67: // closed
+								$radio.filter('.status_closed').click();
+								$reply_status
+									.find('input:text[name=ticket_reopen]')
+										.select()
+										.focus()
+									;
+								break;
+							case 79: // open
+								$radio.filter('.status_open').click();
+								$reply_status
+									.find('select[name=bucket_id]')
+										.select()
+										.focus()
+									;
+								break;
+							case 87: // waiting
+								$radio.filter('.status_waiting').click();
+								$reply_status
+									.find('input:text[name=ticket_reopen]')
+										.select()
+										.focus()
+									;
+								break;
+						}
+						
+					} catch(ex) {}
+					break;
 				case 71: // (G) Insert Signature
 					try {
 						event.preventDefault();

@@ -220,7 +220,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		}
 
 		// Custom Fields
-		//$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
+		//$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_NOTIFICATION, false);
 		//$tpl->assign('custom_fields', $custom_fields);
 
 		$tpl->display('devblocks:cerberusweb.core::preferences/tabs/notifications/bulk.tpl');
@@ -471,6 +471,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$prefs = array();
 		$prefs['assist_mode'] = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
 		$prefs['keyboard_shortcuts'] = intval(DAO_WorkerPref::get($worker->id, 'keyboard_shortcuts', 1));
+		$prefs['availability_calendar_id'] = intval(DAO_WorkerPref::get($worker->id, 'availability_calendar_id', 0));
 		$prefs['mail_always_show_all'] = DAO_WorkerPref::get($worker->id,'mail_always_show_all',0);
 		$prefs['mail_reply_textbox_size_inelastic'] = DAO_WorkerPref::get($worker->id,'mail_reply_textbox_size_inelastic',0);
 		$prefs['mail_reply_textbox_size_px'] = DAO_WorkerPref::get($worker->id,'mail_reply_textbox_size_px',300);
@@ -494,6 +495,11 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl->assign('langs', $langs);
 		$tpl->assign('selected_language', DAO_WorkerPref::get($worker->id,'locale','en_US'));
 
+		// Availability
+		$calendars = DAO_Calendar::getAll();
+		$tpl->assign('calendars', $calendars);
+		
+		// Template
 		$tpl->display('devblocks:cerberusweb.core::preferences/modules/general.tpl');
 	}
 
@@ -614,6 +620,9 @@ class ChPreferencesPage extends CerberusPageExtension {
 		@$assist_mode = DevblocksPlatform::importGPC($_REQUEST['assist_mode'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'assist_mode', $assist_mode);
 
+		@$availability_calendar_id = DevblocksPlatform::importGPC($_REQUEST['availability_calendar_id'],'integer',0);
+		DAO_WorkerPref::set($worker->id, 'availability_calendar_id', $availability_calendar_id);
+		
 		@$keyboard_shortcuts = DevblocksPlatform::importGPC($_REQUEST['keyboard_shortcuts'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'keyboard_shortcuts', $keyboard_shortcuts);
 

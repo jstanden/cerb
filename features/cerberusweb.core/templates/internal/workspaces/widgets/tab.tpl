@@ -549,9 +549,9 @@ function drawScatterplot($canvas, options) {
 			stat = stats;
 		}
 		
-		xaxis_tick = chart_width / stat.x_range;
-		yaxis_tick = chart_height / stat.y_range;
-		
+		xaxis_tick = (stat.x_range != 0) ? (chart_width / stat.x_range) : chart_width;
+		yaxis_tick = (stat.y_range != 0) ? (chart_height / stat.y_range) : chart_height;
+
 		context.fillStyle = series.options.color;
 		context.strokeStyle = series.options.color;
 		
@@ -583,12 +583,6 @@ function drawScatterplot($canvas, options) {
 			context.beginPath();
 			context.fillText(label, chart_x-measure.width/2, chart_y+measure.width/2);
 			context.fill();
-			
-			/*
-			context.beginPath();
-			context.arc(chart_x, chart_y, 2.5, 0, 2 * Math.PI, false);
-			context.stroke();
-			*/
 		}
 	}
 }
@@ -625,6 +619,28 @@ function drawScatterplot($canvas, options) {
 </table>
 
 <script type="text/javascript">
+	
+	try {
+		clearInterval(window.dashboardTimer{$workspace_tab->id});
+		
+		var tick = function() {
+			var $dashboard = $('#dashboard{$workspace_tab->id}');
+			
+			if($dashboard.length == 0 || !$dashboard.is(':visible')) {
+				clearInterval(window.dashboardTimer{$workspace_tab->id});
+				delete window.dashboardTimer{$workspace_tab->id};
+				return;
+			}
+			
+			$dashboard.find('DIV.dashboard-widget').trigger('dashboard_heartbeat');
+		};
+		
+		//tick();
+		window.dashboardTimer{$workspace_tab->id} = setInterval(tick, 1000);
+		
+	} catch(e) {
+	}
+
 	$frm = $('#frmAddWidget{$workspace_tab->id} button.add_widget').click(function(e) {
 		$popup = genericAjaxPopup('widget_edit','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetPopup&widget_id=0&workspace_tab_id={$workspace_tab->id}',null,false,'500');
 		$popup.one('new_widget', function(e) {
@@ -649,8 +665,6 @@ function drawScatterplot($canvas, options) {
 			$dashboard.trigger('reorder');
 		});
 	});
-	
-	var dragTimer = null;
 	
 	var $dashboard = $('#dashboard{$workspace_tab->id}');
 	

@@ -282,6 +282,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 
 		// Extract every result from the view
 		list($results, $null) = DAO_Translation::search(
+			$view->view_columns,
 			$view->getParams(),
 			-1,
 			0,
@@ -404,6 +405,7 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 
 	function getData() {
 		$objects = DAO_Translation::search(
+			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
@@ -415,7 +417,7 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 	}
 
 	function getSubtotalFields() {
-		$all_fields = $this->getParamsAvailable();
+		$all_fields = $this->getParamsAvailable(true);
 		
 		$fields = array();
 

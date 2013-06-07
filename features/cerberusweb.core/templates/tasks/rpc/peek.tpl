@@ -22,8 +22,7 @@
 		<tr>
 			<td width="1%" nowrap="nowrap" align="right" valign="top">{'task.due_date'|devblocks_translate|capitalize}: </td>
 			<td width="99%">
-				<input type="text" name="due_date" size="45" value="{if !empty($task->due_date)}{$task->due_date|devblocks_date}{/if}"><button type="button" onclick="devblocksAjaxDateChooser(this.form.due_date,'#dateTaskDue');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
-				<div id="dateTaskDue"></div>
+				<input type="text" name="due_date" size="45" class="input_date" value="{if !empty($task->due_date)}{$task->due_date|devblocks_date}{/if}">
 			</td>
 		</tr>
 		<tr>
@@ -56,6 +55,8 @@
 	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
 </fieldset>
 {/if}
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TASK context_id=$task->id}
 
 {* Comment *}
 {if !empty($last_comment)}
@@ -91,8 +92,10 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title','Tasks');
-		$(this).find('textarea[name=comment]').keyup(function() {
+		var $this = $(this);
+		
+		$this.dialog('option','title','Tasks');
+		$this.find('textarea[name=comment]').keyup(function() {
 			if($(this).val().length > 0) {
 				$(this).next('DIV.notify').show();
 			} else {
@@ -100,13 +103,17 @@
 			}
 		});
 		
-		$(this).find('button.chooser_watcher').each(function() {
+		$this.find('button.chooser_watcher').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
 		});
 		
+		$this.find('input.input_date').cerbDateInputHelper();
+		
 		$('#formTaskPeek :input:text:first').focus().select();
+		
+		$this.find('button.chooser_notify_worker').each(function() {
+			ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
+		});
 	});
-	$('#formTaskPeek button.chooser_notify_worker').each(function() {
-		ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
-	});
+	
 </script>

@@ -5,7 +5,7 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">
 
-<fieldset>
+<fieldset class="peek">
 	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
 	<table cellpadding="2" cellspacing="0" border="0" width="100%">
@@ -93,11 +93,13 @@
 </fieldset>
 
 {if !empty($custom_fields)}
-<fieldset>
+<fieldset class="peek" style="margin-top:10px;">
 	<legend>{'common.custom_fields'|devblocks_translate}</legend>
 	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
 </fieldset>
 {/if}
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_SNIPPET context_id=$snippet->id}
 
 {if isset($snippet->id)}
 <fieldset class="delete" style="display:none;">

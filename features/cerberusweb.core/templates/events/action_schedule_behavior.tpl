@@ -33,7 +33,7 @@
 
 <b>When should this behavior happen?</b> (default: now)
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<input type="text" name="{$namePrefix}[run_date]" value="{if empty($params.run_date)}now{else}{$params.run_date}{/if}" size="45" style="width:100%;">
+	<input type="text" name="{$namePrefix}[run_date]" value="{if empty($params.run_date)}now{else}{$params.run_date}{/if}" size="45" class="placeholders" style="width:100%;">
 	<br>
 	<i>e.g. +2 days; next Monday; tomorrow 8am; 5:30pm; Dec 21 2012</i>
 </div>

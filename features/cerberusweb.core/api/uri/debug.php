@@ -230,222 +230,40 @@ class ChDebugController extends DevblocksControllerExtension  {
 				break;
 				
 			case 'export_attendants':
-					$event_mfts = DevblocksPlatform::getExtensions('devblocks.event', false, true);
+				$event_mfts = DevblocksPlatform::getExtensions('devblocks.event', false, true);
 
-					header("Content-type: text/xml");
-					$doc = new DOMDocument("1.0", "UTF-8");
-					$eAttendants = $doc->createElement('attendants');
-					$doc->appendChild($eAttendants);
-
-					$workers = DAO_Worker::getAll();
-					
+				header("Content-type: application/json");
+				
+				$output = array(
+					'events' => array(),
+				);
+				
 				foreach($event_mfts as $event_id => $event_mft) { /* @var $event_mft DevblocksExtensionManifest */
 					$triggers = DAO_TriggerEvent::getByEvent($event_id);
 					
 					if(empty($triggers))
 						continue;
-
-					// New event element
-					$eEvent = $doc->createElement("event");
-					$eEvent->setAttribute("point", $event_id);
-					$eEvent->setAttribute("label", $event_mft->name);
-					$eAttendants->appendChild($eEvent);
-
-					$event = $event_mft->createInstance(); /* @var $event Extension_DevblocksEvent */
 					
+					$output['events'][$event_id] = array(
+						'label' => $event_mft->name,
+						'behaviors' => array(),
+					);
 					// Behaviors
 					foreach($triggers as $trigger) { /* @var $trigger Model_TriggerEvent */
-						$event_conditions = $event->getConditions($trigger);
-						$event_actions = $event->getActions($trigger);
-					
-						$eBehavior = $doc->createElement("behavior");
-						$eBehavior->setAttribute("label", $trigger->title);
-						$eEvent->appendChild($eBehavior);
-						
-						// Owner
-						$eBehaviorOwner = $doc->createElement("owner");
-						$eBehaviorOwner->setAttribute("context", $trigger->owner_context);
-						$eBehaviorOwner->setAttribute("context_id", $trigger->owner_context_id);
-						$eBehavior->appendChild($eBehaviorOwner);
-
-						// Variables
-						if(!empty($trigger->variables)) {
-							$eBehaviorVariables = $doc->createElement("variables");
-							$eBehavior->appendChild($eBehaviorVariables);
-							
-							foreach($trigger->variables as $var) {
-								$eVariable = $doc->createElement("variable");
-								$eVariable->setAttribute("key", $var['key']);
-								$eVariable->setAttribute("label", $var['label']);
-								$eVariable->setAttribute("type", $var['type']);
-								$eBehaviorVariables->appendChild($eVariable);
-							}
-						}
-						
-						$context = Extension_DevblocksContext::get($trigger->owner_context); /* @var $context Extension_DevblocksContext */
-						if(!empty($context)) {
-							$meta = $context->getMeta($trigger->owner_context_id);
-							$txt = $doc->createTextNode(sprintf("%s (%s)",
-								$meta['name'],
-								$context->manifest->name
-							));
-							$eBehaviorOwner->appendChild($txt);
-						}
-						
-						$data = $trigger->getDecisionTreeData();
-						$nodes = $data['nodes'];
-						$tree = $data['tree'];
-						$depths = $data['depths'];
-						
-						if(empty($nodes))
-							continue;
-						
-						$index = array();
-						foreach($nodes as $idx => $node) { /* @var $node Model_DecisionNode */
-							$node_type = $node->node_type;
-							
-							switch($node_type) {
-								case 'action':
-									$node_type = 'actions';
-									break;
-							}
-							
-							$eNode = $doc->createElement($node_type);
-							$eNode->setAttribute('label', $node->title);
-							
-							$params = $node->params;
-
-							switch($node->node_type) {
-								case 'switch':
-									break;
-									
-								case 'outcome':
-									// Groups
-									if(isset($params['groups']))
-									foreach($params['groups'] as $group) {
-										$is_any = $group['any'];
-										
-										$eConditions = $doc->createElement("conditions");
-										$eConditions->setAttribute("scope", ($is_any?"any":"all"));
-										$eNode->appendChild($eConditions);
-										
-										$conditions = $group['conditions'];
-										
-										foreach($conditions as $values) {
-											if(!isset($values['condition']))
-												continue;
-											
-											$eCondition = $doc->createElement("condition");
-											$eConditions->appendChild($eCondition);
-											
-											$condition_key = $values['condition'];
-											unset($values['condition']);
-											$eCondition->setAttribute("key", $condition_key);
-											
-											if(isset($event_conditions[$condition_key]))
-												$eCondition->setAttribute('label', $event_conditions[$condition_key]['label']);
-											
-											foreach($values as $k => $v) {
-												$eParam = $doc->createElement("param");
-												$eParam->setAttribute("key", $k);
-												
-												if(!is_array($v))
-													$v = array($v);
-												
-												foreach($v as $iter_v) {
-													switch($k) {
-														case 'day':
-															$days = array(
-																0 => 'Sun',
-																1 => 'Mon',
-																2 => 'Tue',
-																3 => 'Wed',
-																4 => 'Thu',
-																5 => 'Fri',
-																6 => 'Sat',
-															);
-															$eParam->appendChild($doc->createComment($days[$iter_v]));
-															break;
-													}
-													
-													$eValue = $doc->createElement("value");
-													$eValue->appendChild($doc->createTextNode($iter_v));
-													$eParam->appendChild($eValue);
-												}
-													
-												$eCondition->appendChild($eParam);
-											}
-										}
-									}
-									break;
-									
-								case 'action':
-									if(isset($params['actions'])) {
-										foreach($params['actions'] as $values) {
-											if(!isset($values['action']))
-												continue;
-											
-											$eAction = $doc->createElement("action");
-											$eNode->appendChild($eAction);
-											
-											$action_key = $values['action'];
-											unset($values['action']);
-											$eAction->setAttribute("key", $action_key);
-											
-											if(isset($event_actions[$action_key]))
-												$eAction->setAttribute('label', $event_actions[$action_key]['label']);
-											
-											foreach($values as $k => $v) {
-												$eParam = $doc->createElement("param");
-												$eParam->setAttribute("key", $k);
-												
-												if(!is_array($v))
-													$v = array($v);
-												
-												foreach($v as $iter_v) {
-													switch($k) {
-														case 'worker_id':
-															if(isset($workers[$iter_v])) {
-																$eParam->appendChild($doc->createComment($workers[$iter_v]->getName()));
-															}
-															break;
-													}
-													
-													$eValue = $doc->createElement("value");
-													$eValue->appendChild($doc->createTextNode($iter_v));
-													$eParam->appendChild($eValue);
-													
-												}
-												
-												$eAction->appendChild($eParam);
-											}
-										}
-									}
-									break;
-							}
-							
-							$index[$idx] = $eNode;
-							
-						} // end nodes
-						
-						foreach($tree as $parent_id => $children) {
-							foreach($children as $child_id) {
-								$eChild = $index[$child_id];
-								
-								if(empty($parent_id)) {
-									$eBehavior->appendChild($eChild);
-								} else {
-									$eParent = $index[$parent_id];
-									$eParent->appendChild($eChild);
-								}
-							}
+						if(false !== ($json = $trigger->exportToJson())) {
+							$json_array = json_decode($json, true);
+							$json_array['behavior']['owner'] = array(
+								'owner_context' => $trigger->owner_context,
+								'owner_context_id' => $trigger->owner_context_id,
+							);
+							$output['events'][$event_id]['behaviors'][] = $json_array;
 						}
 						
 					} // end behaviors
 					
 				} // end events
 
-				echo $doc->saveXML();
+				echo DevblocksPlatform::strFormatJson(json_encode($output));
 				break;
 				
 			default:

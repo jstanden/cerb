@@ -46,7 +46,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		if(empty($notification_id)) {
 			// Pull the latest ticket
 			list($results) = DAO_Notification::search(
-				//array(),
+				array(),
 				array(
 					new DevblocksSearchCriteria(SearchFields_Notification::WORKER_ID,'=',$worker->id),
 				),

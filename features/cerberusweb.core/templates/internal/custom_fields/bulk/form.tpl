@@ -1,5 +1,6 @@
 {if !empty($custom_fields)}
-<table cellspacing="0" cellpadding="2" width="100%">
+{$uniqid = uniqid()}
+<table cellspacing="0" cellpadding="2" width="100%" id="cfields{$uniqid}">
 	<!-- Custom Fields -->
 	{foreach from=$custom_fields item=f key=f_id}
 		{if !empty($field_wrapper)}
@@ -70,13 +71,15 @@
 				{elseif $f->type=='F'}
 					<input type="file" name="{$field_name}" size="45" maxlength="255" value="{$custom_field_values.$f_id}">
 				{elseif $f->type=='E'}
-					<div id="#dateCustom{$f_id}" class="div-calendar"></div>
-					<input type="text" id="{$field_name}" name="{$field_name}" class="input_date" size="30" maxlength="255" value="{if !empty($custom_field_values.$f_id)}{if is_numeric($custom_field_values.$f_id)}{$custom_field_values.$f_id|devblocks_date}{else}{$custom_field_values.$f_id}{/if}{/if}"><!--
-					--><button type="button" onclick="devblocksAjaxDateChooser($(this).prev('input.input_date'),$(this).prev().prev('div.div-calendar'));">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
+					<input type="text" id="{$field_name}" name="{$field_name}" class="input_date" size="64" style="width:90%;" maxlength="255" value="{if !empty($custom_field_values.$f_id)}{if is_numeric($custom_field_values.$f_id)}{$custom_field_values.$f_id|devblocks_date}{else}{$custom_field_values.$f_id}{/if}{/if}">
 				{/if}
 				</div>
 			</td>
 		</tr>
 	{/foreach}
 </table>
+
+<script type="text/javascript">
+$('#cfields{$uniqid}').find('input.input_date').cerbDateInputHelper();
+</script>
 {/if}

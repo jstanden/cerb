@@ -89,7 +89,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 	}
 	
 	private function getId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		$container = $this->search(array(
 			array('id', '=', $id),
@@ -103,7 +103,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 	}
 	
 	private function getList() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		@$page = DevblocksPlatform::importGPC($_REQUEST['page'],'integer',1);
 		@$unread = DevblocksPlatform::importGPC($_REQUEST['unread'],'string','');
@@ -130,7 +130,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 	}
 
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 
 		$params = $this->_handleSearchBuildParams($filters);
 		
@@ -149,7 +149,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		
 		// Search
 		list($results, $total) = DAO_Notification::search(
-//			array(),
+			array(),
 			$params,
 			$limit,
 			max(0,$page-1),
@@ -176,7 +176,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 	}
 	
 	function postSearch() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 //		if(!$worker->hasPriv('core.addybook'))
@@ -188,7 +188,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 	}
 	
 	function putId($id) {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// Validate the ID
 		if(null == ($event = DAO_Notification::get($id)))
@@ -246,7 +246,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 	}
 	
 	function postCreate() {
-		$worker = $this->getActiveWorker();
+		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
 //		if(!$worker->is_superuser)
