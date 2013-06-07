@@ -58,30 +58,7 @@ var markitupHTMLSettings = {
 	]
 } 
 
-function appendFileInput(divName,fieldName) {
-	var frm = document.getElementById(divName);
-	if(null == frm) return;
-
-	// Why is IE such a PITA?  it doesn't allow post-creation specification of the "name" attribute.  Who thought that one up?
-	try {
-		var fileInput = document.createElement('<input type="file" name="'+fieldName+'" size="45">');
-	} catch (err) {
-		var fileInput = document.createElement('input');
-		fileInput.setAttribute('type','file');
-		fileInput.setAttribute('name',fieldName);
-		fileInput.setAttribute('size','45');
-	}
 	
-	// Gotta add the <br> as a child, see below
-	var brTag = document.createElement('br');
-	
-	frm.appendChild(fileInput);
-	frm.appendChild(brTag);
-
-	// This is effectively the same as frm.innerHTML = frm.innerHTML + "<br>".
-	// The innerHTML element doesn't know jack about the selected files of the child elements, so it throws that away.	
-	//frm.innerHTML += "<BR>";
-}
 
 $.fn.cerbDateInputHelper = function() {
 	return this.each(function() {
