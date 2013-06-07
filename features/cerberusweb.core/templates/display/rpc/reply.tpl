@@ -284,7 +284,7 @@
 	</tr>
 	<tr>
 		<td id="reply{$message->id}_buttons">
-			<button type="button" class="send split-left" onclick="$(this).closest('td').find('ul li:first a').click();"><span class="cerb-sprite2 sprite-tick-circle"></span> {if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.send_message')}{/if}</button><!--
+			<button type="button" class="send split-left" onclick="$(this).closest('td').find('ul li:first a').click();" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="cerb-sprite2 sprite-tick-circle"></span> {if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.send_message')}{/if}</button><!--
 			--><button type="button" class="split-right" onclick="$(this).next('ul').toggle();"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
 			<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
 				<li><a href="javascript:;" class="send">{if $is_forward}{$translate->_('display.ui.forward')}{else}{$translate->_('display.ui.send_message')}{/if}</a></li>
@@ -546,6 +546,12 @@
 				return;
 			
 			switch(event.which) {
+				case 13: // (RETURN) Send message
+					try {
+						event.preventDefault();
+						$('#reply{$message->id}_buttons a.send').click();
+					} catch(ex) { } 
+					break;
 				case 71: // (G) Insert Signature
 					try {
 						event.preventDefault();
