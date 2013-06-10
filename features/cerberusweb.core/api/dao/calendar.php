@@ -578,16 +578,34 @@ class Model_Calendar {
 			$day_range = range(strtotime('midnight', $row['date_start']), strtotime('midnight', $row['date_end']), 86400);
 			
 			foreach($day_range as $epoch) {
+				// If the day segment is outside of our desired range, skip
+				if($epoch < $date_from || $epoch > $date_to)
+					continue;
+
+				$day_start = strtotime('midnight', $epoch);
+				$day_end = strtotime('23:59:59', $epoch);
+				
 				if(!isset($calendar_events[$epoch]))
 					$calendar_events[$epoch] = array();
+				
+				$event_start = $row['date_start'];
+				$event_end = $row['date_end'];
+
+				// Segment multi-day events with day-based start/end times
+				
+				if($event_start < $day_start)
+					$event_start = $day_start;
+				
+				if($event_end > $day_end)
+					$event_end = $day_end;
 				
 				$calendar_events[$epoch][] = array(
 					'context' => CerberusContexts::CONTEXT_CALENDAR_EVENT,
 					'context_id' => $row['id'],
 					'label' => $row['name'],
 					'color' => $row['is_available'] ? $color_available : $color_busy,
-					'ts' => strtotime('now', $row['date_start']),
-					'ts_end' => strtotime('now', $row['date_end']),
+					'ts' => $event_start,
+					'ts_end' => $event_end,
 					'is_available' => intval($row['is_available']),
 					'link' => sprintf("ctx://%s:%d",
 						CerberusContexts::CONTEXT_CALENDAR_EVENT,
@@ -604,22 +622,25 @@ class Model_Calendar {
 		$mins_len = ceil(($date_to - $date_from)/60);
 		
 		$mins_bits = str_pad('', $mins_len, '*', STR_PAD_LEFT);
-		
+
 		foreach($events as $ts => $schedule) {
 			foreach($schedule as $event) {
 				$start = $event['ts'];
 				$end = @$event['ts_end'] ?: $start;
-				
+
 				$start_mins = ceil(($start - $date_from)/60);
-				$dur_mins = ceil((($end - $date_from) - ($start - $date_from))/60);
+				$end_mins = ceil(($end - $date_from)/60);
 				
-				if($start_mins > $mins_len || $start_mins + $dur_mins > $mins_len)
-					continue;
+				if($start_mins < 0)
+					$start_mins = 0;
 				
-				for($x = 0; $x < $dur_mins; $x++) {
+				if($end_mins > $mins_len)
+					$end_mins = $mins_len - 1;
+				
+				for($x = $start_mins; $x <= $end_mins; $x++) {
 					// Only set mins as available that aren't marked as busy already.
-					if($mins_bits[$start_mins + $x] != '0')
-						$mins_bits[$start_mins + $x] = $event['is_available'];
+					if($mins_bits[$x] != '0')
+						$mins_bits[$x] = $event['is_available'];
 				}
 			}
 		}
