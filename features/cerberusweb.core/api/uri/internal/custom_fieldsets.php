@@ -107,8 +107,6 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		@$options = DevblocksPlatform::importGPC($_REQUEST['options'], 'array', array());
 		@$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'], 'array', array());
 		
-		// [TODO] Delete
-
 		// Check permissions
 		
 		if(!empty($custom_fieldset_id)) {
@@ -119,6 +117,13 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 			return;
 			
 			$context = $custom_fieldset->context;
+		}
+		
+		// Delete
+		
+		if($do_delete && $custom_fieldset) {
+			DAO_CustomFieldset::delete($custom_fieldset->id);
+			return;
 		}
 		
 		// Owner

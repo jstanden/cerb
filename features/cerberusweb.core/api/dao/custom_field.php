@@ -285,6 +285,8 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		if(empty($context) || empty($context_id) || !is_array($values))
 			return;
 
+		self::_linkCustomFieldsets($context, $context_id, $values);
+		
 		$fields = DAO_CustomField::getByContext($context);
 
 		foreach($values as $field_id => $value) {
@@ -572,7 +574,6 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 	
 	public static function handleFormPost($context, $context_id, $field_ids) {
 		$field_values = self::parseFormPost($context, $field_ids);
-		self::_linkCustomFieldsets($context, $context_id, $field_values);
 		self::formatAndSetFieldValues($context, $context_id, $field_values);
 		return true;
 	}
