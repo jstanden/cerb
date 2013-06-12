@@ -64,7 +64,16 @@ $.fn.cerbDateInputHelper = function(options) {
 	return this.each(function() {
 		var $this = $(this);
 		
-		$(this)
+		$this.datepicker({
+			showOn: 'button',
+			dateFormat: 'D, d M yy',
+			defaultDate: 'D, d M yy',
+			onSelect: function(dateText, inst) {
+				inst.input.addClass('changed').focus();
+			}
+		});
+		
+		$this
 			.attr('placeholder', '+2 hours; +4 hours @Calendar; Jan 15 2018 2pm; 5pm America/New York')
 			.autocomplete({
 				minLength: 1,
@@ -117,7 +126,7 @@ $.fn.cerbDateInputHelper = function(options) {
 				}
 			;
 		
-		$(this)
+		$this
 			.on('send', function(e) {
 				var $input_date = $(this);
 				
