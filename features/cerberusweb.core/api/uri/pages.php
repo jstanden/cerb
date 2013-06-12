@@ -288,6 +288,7 @@ class Page_Custom extends CerberusPageExtension {
 		
 		$tab_id = DAO_WorkspaceTab::create(array(
 			DAO_WorkspaceTab::NAME => 'Drafts',
+			DAO_WorkspaceTab::EXTENSION_ID => 'core.workspace.tab.worklists',
 			DAO_WorkspaceTab::POS => $pos++,
 			DAO_WorkspaceTab::WORKSPACE_PAGE_ID => $page_id,
 		));
@@ -336,6 +337,7 @@ class Page_Custom extends CerberusPageExtension {
 		
 		$tab_id = DAO_WorkspaceTab::create(array(
 			DAO_WorkspaceTab::NAME => 'Sent',
+			DAO_WorkspaceTab::EXTENSION_ID => 'core.workspace.tab.worklists',
 			DAO_WorkspaceTab::POS => $pos++,
 			DAO_WorkspaceTab::WORKSPACE_PAGE_ID => $page_id,
 		));
