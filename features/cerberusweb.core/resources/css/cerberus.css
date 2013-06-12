@@ -547,15 +547,15 @@ table.worklistBody tr.odd {
 }
 
 table.worklistBody tr.hover {
-	background-color: rgb(255,255,200);
+	background-color: rgb(255,255,200) !important;
 }
 
 table.worklistBody tr.selected {
-	background-color: rgb(251,236,136); 
+	background-color: rgb(251,236,136) !important; 
 }
 
-table.worklistBody tr.selected.hover, table.worklistBody tr.selected.hover {
-	background-color: rgb(255,255,200);
+table.worklistBody tr.selected.hover {
+	background-color: rgb(255,255,200) !important;
 }
 
 /* Calendar */
