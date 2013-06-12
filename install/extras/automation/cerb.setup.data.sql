@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.1.37
+-- MySQL dump 10.13  Distrib 5.5.30, for osx10.8 (i386)
 --
 -- Host: localhost    Database: cerb6
 -- ------------------------------------------------------
--- Server version	5.1.37-log
+-- Server version	5.5.28
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -16,102 +16,75 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Dumping data for table `address`
---
-
-LOCK TABLES `address` WRITE;
-/*!40000 ALTER TABLE `address` DISABLE KEYS */;
-/*!40000 ALTER TABLE `address` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `address_outgoing`
---
-
-LOCK TABLES `address_outgoing` WRITE;
-/*!40000 ALTER TABLE `address_outgoing` DISABLE KEYS */;
-/*!40000 ALTER TABLE `address_outgoing` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `address_to_worker`
---
-
-LOCK TABLES `address_to_worker` WRITE;
-/*!40000 ALTER TABLE `address_to_worker` DISABLE KEYS */;
-/*!40000 ALTER TABLE `address_to_worker` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `attachment`
---
-
-LOCK TABLES `attachment` WRITE;
-/*!40000 ALTER TABLE `attachment` DISABLE KEYS */;
-/*!40000 ALTER TABLE `attachment` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `attachment_link`
---
-
-LOCK TABLES `attachment_link` WRITE;
-/*!40000 ALTER TABLE `attachment_link` DISABLE KEYS */;
-/*!40000 ALTER TABLE `attachment_link` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `bayes_stats`
---
-
-LOCK TABLES `bayes_stats` WRITE;
-/*!40000 ALTER TABLE `bayes_stats` DISABLE KEYS */;
-/*!40000 ALTER TABLE `bayes_stats` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `bayes_words`
---
-
-LOCK TABLES `bayes_words` WRITE;
-/*!40000 ALTER TABLE `bayes_words` DISABLE KEYS */;
-/*!40000 ALTER TABLE `bayes_words` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `bucket`
---
-
-LOCK TABLES `bucket` WRITE;
-/*!40000 ALTER TABLE `bucket` DISABLE KEYS */;
-/*!40000 ALTER TABLE `bucket` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `calendar_event`
---
-
-LOCK TABLES `calendar_event` WRITE;
-/*!40000 ALTER TABLE `calendar_event` DISABLE KEYS */;
-/*!40000 ALTER TABLE `calendar_event` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `calendar_recurring_profile`
---
-
-LOCK TABLES `calendar_recurring_profile` WRITE;
-/*!40000 ALTER TABLE `calendar_recurring_profile` DISABLE KEYS */;
-/*!40000 ALTER TABLE `calendar_recurring_profile` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Dumping data for table `cerb_acl`
 --
 
 LOCK TABLES `cerb_acl` WRITE;
 /*!40000 ALTER TABLE `cerb_acl` DISABLE KEYS */;
-INSERT INTO `cerb_acl` VALUES ('core.ticket.actions.move','cerberusweb.core','acl.core.ticket.actions.move'),('core.ticket.actions.delete','cerberusweb.core','acl.core.ticket.actions.delete'),('core.ticket.actions.close','cerberusweb.core','acl.core.ticket.actions.close'),('core.ticket.actions.assign','cerberusweb.core','acl.core.ticket.actions.assign'),('core.tasks.view.actions.export','cerberusweb.core','acl.core.tasks.view.actions.export'),('core.tasks.actions.update_all','cerberusweb.core','acl.core.tasks.actions.update_all'),('core.tasks.actions.delete','cerberusweb.core','acl.core.tasks.actions.delete'),('core.tasks.actions.create','cerberusweb.core','acl.core.tasks.actions.create'),('core.snippets.actions.create','cerberusweb.core','acl.core.snippets.actions.create'),('core.rss','cerberusweb.core','acl.core.rss'),('core.mail','cerberusweb.core','acl.core.mail'),('core.mail.send','cerberusweb.core','acl.core.mail.send'),('core.display.message.actions.delete','cerberusweb.core','acl.core.display.message.actions.delete'),('core.display.actions.split','cerberusweb.core','acl.core.display.actions.split'),('core.display.actions.reply','cerberusweb.core','acl.core.display.actions.reply'),('core.display.actions.note','cerberusweb.core','acl.core.display.actions.note'),('core.display.actions.forward','cerberusweb.core','acl.core.display.actions.forward'),('core.display.actions.comment','cerberusweb.core','acl.core.display.actions.comment'),('core.display.actions.attachments.download','cerberusweb.core','acl.core.display.actions.attachments.download'),('core.addybook.person.actions.update','cerberusweb.core','acl.core.addybook.person.actions.update'),('core.addybook.person.actions.delete','cerberusweb.core','acl.core.addybook.person.actions.delete'),('core.addybook.org.view.actions.export','cerberusweb.core','acl.core.addybook.org.view.actions.export'),('core.addybook.org.actions.update','cerberusweb.core','acl.core.addybook.org.actions.update'),('core.addybook.org.actions.merge','cerberusweb.core','acl.core.addybook.org.actions.merge'),('core.addybook.org.actions.delete','cerberusweb.core','acl.core.addybook.org.actions.delete'),('core.addybook.addy.view.actions.export','cerberusweb.core','acl.core.addybook.addy.view.actions.export'),('core.addybook.addy.view.actions.broadcast','cerberusweb.core','acl.core.addybook.addy.view.actions.broadcast'),('core.addybook.addy.actions.update','cerberusweb.core','acl.core.addybook.addy.actions.update'),('core.addybook','cerberusweb.core','acl.core.addybook'),('core.activity','cerberusweb.core','acl.core.activity'),('crm.opp.view.actions.broadcast','cerberusweb.crm','acl.crm.opp.view.actions.broadcast'),('crm.opp.actions.update_all','cerberusweb.crm','acl.crm.opp.actions.update_all'),('crm.opp.actions.import','cerberusweb.crm','acl.crm.opp.actions.import'),('crm.opp.actions.delete','cerberusweb.crm','acl.crm.opp.actions.delete'),('crm.opp.actions.create','cerberusweb.crm','acl.crm.opp.actions.create'),('feedback.view.actions.export','cerberusweb.feedback','acl.feedback.view.actions.export'),('feedback.actions.update_all','cerberusweb.feedback','acl.feedback.actions.update_all'),('feedback.actions.delete_all','cerberusweb.feedback','acl.feedback.actions.delete_all'),('feedback.actions.create','cerberusweb.feedback','acl.feedback.actions.create'),('kb.articles.actions.update_all','cerberusweb.kb','acl.kb.articles.actions.update_all'),('core.kb.categories.modify','cerberusweb.kb','acl.core.kb.categories.modify'),('core.kb.articles.modify','cerberusweb.kb','acl.core.kb.articles.modify'),('reports.group.tickets','cerberusweb.reports','acl.reports.group.tickets'),('reports.group.spam','cerberusweb.reports','acl.reports.group.spam'),('reports.group.orgs','cerberusweb.reports','acl.reports.group.orgs'),('reports.group.groups','cerberusweb.reports','acl.reports.group.groups'),('reports.group.custom_fields','cerberusweb.reports','acl.reports.group.custom_fields'),('timetracking.view.actions.export','cerberusweb.timetracking','acl.timetracking.view.actions.export'),('timetracking.report.group.time','cerberusweb.timetracking','acl.timetracking.report.group.time'),('timetracking.actions.update_all','cerberusweb.timetracking','acl.timetracking.actions.update_all'),('timetracking.actions.create','cerberusweb.timetracking','acl.timetracking.actions.create'),('core.ticket.actions.spam','cerberusweb.core','acl.core.ticket.actions.spam'),('core.ticket.view.actions.broadcast_reply','cerberusweb.core','acl.core.ticket.view.actions.broadcast_reply'),('core.ticket.view.actions.bulk_update','cerberusweb.core','acl.core.ticket.view.actions.bulk_update'),('core.ticket.view.actions.export','cerberusweb.core','acl.core.ticket.view.actions.export'),('core.ticket.view.actions.merge','cerberusweb.core','acl.core.ticket.view.actions.merge'),('core.ticket.view.actions.pile_sort','cerberusweb.core','acl.core.ticket.view.actions.pile_sort'),('core.watchers.assign','cerberusweb.core','acl.core.watchers.assign'),('core.watchers.unassign','cerberusweb.core','acl.core.watchers.unassign'),('crm.opp.view.actions.export','cerberusweb.crm','acl.crm.opp.view.actions.export'),('reports.group.workers','cerberusweb.reports','acl.reports.group.workers');
+INSERT INTO `cerb_acl` VALUES ('core.ticket.view.actions.pile_sort','cerberusweb.core','acl.core.ticket.view.actions.pile_sort');
+INSERT INTO `cerb_acl` VALUES ('core.ticket.view.actions.merge','cerberusweb.core','acl.core.ticket.view.actions.merge');
+INSERT INTO `cerb_acl` VALUES ('core.ticket.view.actions.export','cerberusweb.core','acl.core.ticket.view.actions.export');
+INSERT INTO `cerb_acl` VALUES ('core.ticket.view.actions.bulk_update','cerberusweb.core','acl.core.ticket.view.actions.bulk_update');
+INSERT INTO `cerb_acl` VALUES ('core.ticket.view.actions.broadcast_reply','cerberusweb.core','acl.core.ticket.view.actions.broadcast_reply');
+INSERT INTO `cerb_acl` VALUES ('core.ticket.actions.spam','cerberusweb.core','acl.core.ticket.actions.spam');
+INSERT INTO `cerb_acl` VALUES ('core.ticket.actions.move','cerberusweb.core','acl.core.ticket.actions.move');
+INSERT INTO `cerb_acl` VALUES ('core.ticket.actions.delete','cerberusweb.core','acl.core.ticket.actions.delete');
+INSERT INTO `cerb_acl` VALUES ('core.ticket.actions.close','cerberusweb.core','acl.core.ticket.actions.close');
+INSERT INTO `cerb_acl` VALUES ('core.ticket.actions.assign','cerberusweb.core','acl.core.ticket.actions.assign');
+INSERT INTO `cerb_acl` VALUES ('core.tasks.actions.update_all','cerberusweb.core','acl.core.tasks.actions.update_all');
+INSERT INTO `cerb_acl` VALUES ('core.tasks.view.actions.export','cerberusweb.core','acl.core.tasks.view.actions.export');
+INSERT INTO `cerb_acl` VALUES ('core.tasks.actions.delete','cerberusweb.core','acl.core.tasks.actions.delete');
+INSERT INTO `cerb_acl` VALUES ('core.tasks.actions.create','cerberusweb.core','acl.core.tasks.actions.create');
+INSERT INTO `cerb_acl` VALUES ('core.snippets.actions.create','cerberusweb.core','acl.core.snippets.actions.create');
+INSERT INTO `cerb_acl` VALUES ('core.rss','cerberusweb.core','acl.core.rss');
+INSERT INTO `cerb_acl` VALUES ('core.mail.send','cerberusweb.core','acl.core.mail.send');
+INSERT INTO `cerb_acl` VALUES ('core.mail','cerberusweb.core','acl.core.mail');
+INSERT INTO `cerb_acl` VALUES ('core.mail.draft.delete_all','cerberusweb.core','acl.core.mail.draft.delete_all');
+INSERT INTO `cerb_acl` VALUES ('core.display.message.actions.delete','cerberusweb.core','acl.core.display.message.actions.delete');
+INSERT INTO `cerb_acl` VALUES ('core.display.actions.reply','cerberusweb.core','acl.core.display.actions.reply');
+INSERT INTO `cerb_acl` VALUES ('core.display.actions.split','cerberusweb.core','acl.core.display.actions.split');
+INSERT INTO `cerb_acl` VALUES ('core.display.actions.note','cerberusweb.core','acl.core.display.actions.note');
+INSERT INTO `cerb_acl` VALUES ('core.display.actions.forward','cerberusweb.core','acl.core.display.actions.forward');
+INSERT INTO `cerb_acl` VALUES ('core.display.actions.comment','cerberusweb.core','acl.core.display.actions.comment');
+INSERT INTO `cerb_acl` VALUES ('core.display.actions.attachments.download','cerberusweb.core','acl.core.display.actions.attachments.download');
+INSERT INTO `cerb_acl` VALUES ('core.addybook.person.actions.update','cerberusweb.core','acl.core.addybook.person.actions.update');
+INSERT INTO `cerb_acl` VALUES ('core.addybook.person.actions.delete','cerberusweb.core','acl.core.addybook.person.actions.delete');
+INSERT INTO `cerb_acl` VALUES ('core.addybook.org.view.actions.export','cerberusweb.core','acl.core.addybook.org.view.actions.export');
+INSERT INTO `cerb_acl` VALUES ('core.addybook.org.actions.update','cerberusweb.core','acl.core.addybook.org.actions.update');
+INSERT INTO `cerb_acl` VALUES ('crm.opp.view.actions.broadcast','cerberusweb.crm','acl.crm.opp.view.actions.broadcast');
+INSERT INTO `cerb_acl` VALUES ('crm.opp.view.actions.export','cerberusweb.crm','acl.crm.opp.view.actions.export');
+INSERT INTO `cerb_acl` VALUES ('crm.opp.actions.update_all','cerberusweb.crm','acl.crm.opp.actions.update_all');
+INSERT INTO `cerb_acl` VALUES ('crm.opp.actions.import','cerberusweb.crm','acl.crm.opp.actions.import');
+INSERT INTO `cerb_acl` VALUES ('crm.opp.actions.delete','cerberusweb.crm','acl.crm.opp.actions.delete');
+INSERT INTO `cerb_acl` VALUES ('feedback.actions.update_all','cerberusweb.feedback','acl.feedback.actions.update_all');
+INSERT INTO `cerb_acl` VALUES ('feedback.actions.delete_all','cerberusweb.feedback','acl.feedback.actions.delete_all');
+INSERT INTO `cerb_acl` VALUES ('feedback.actions.create','cerberusweb.feedback','acl.feedback.actions.create');
+INSERT INTO `cerb_acl` VALUES ('core.kb.categories.modify','cerberusweb.kb','acl.core.kb.categories.modify');
+INSERT INTO `cerb_acl` VALUES ('core.kb.articles.modify','cerberusweb.kb','acl.core.kb.articles.modify');
+INSERT INTO `cerb_acl` VALUES ('reports.group.tickets','cerberusweb.reports','acl.reports.group.tickets');
+INSERT INTO `cerb_acl` VALUES ('reports.group.spam','cerberusweb.reports','acl.reports.group.spam');
+INSERT INTO `cerb_acl` VALUES ('reports.group.snippets','cerberusweb.reports','acl.reports.group.snippets');
+INSERT INTO `cerb_acl` VALUES ('reports.group.groups','cerberusweb.reports','acl.reports.group.groups');
+INSERT INTO `cerb_acl` VALUES ('reports.group.orgs','cerberusweb.reports','acl.reports.group.orgs');
+INSERT INTO `cerb_acl` VALUES ('timetracking.report.group.time','cerberusweb.timetracking','acl.timetracking.report.group.time');
+INSERT INTO `cerb_acl` VALUES ('timetracking.actions.update_all','cerberusweb.timetracking','acl.timetracking.actions.update_all');
+INSERT INTO `cerb_acl` VALUES ('timetracking.actions.create','cerberusweb.timetracking','acl.timetracking.actions.create');
+INSERT INTO `cerb_acl` VALUES ('core.addybook.org.actions.merge','cerberusweb.core','acl.core.addybook.org.actions.merge');
+INSERT INTO `cerb_acl` VALUES ('core.addybook.org.actions.delete','cerberusweb.core','acl.core.addybook.org.actions.delete');
+INSERT INTO `cerb_acl` VALUES ('core.addybook.addy.view.actions.export','cerberusweb.core','acl.core.addybook.addy.view.actions.export');
+INSERT INTO `cerb_acl` VALUES ('core.addybook.addy.view.actions.broadcast','cerberusweb.core','acl.core.addybook.addy.view.actions.broadcast');
+INSERT INTO `cerb_acl` VALUES ('core.addybook.addy.actions.update','cerberusweb.core','acl.core.addybook.addy.actions.update');
+INSERT INTO `cerb_acl` VALUES ('core.addybook','cerberusweb.core','acl.core.addybook');
+INSERT INTO `cerb_acl` VALUES ('core.activity','cerberusweb.core','acl.core.activity');
+INSERT INTO `cerb_acl` VALUES ('crm.opp.actions.create','cerberusweb.crm','acl.crm.opp.actions.create');
+INSERT INTO `cerb_acl` VALUES ('feedback.view.actions.export','cerberusweb.feedback','acl.feedback.view.actions.export');
+INSERT INTO `cerb_acl` VALUES ('kb.articles.actions.update_all','cerberusweb.kb','acl.kb.articles.actions.update_all');
+INSERT INTO `cerb_acl` VALUES ('reports.group.virtual_attendants','cerberusweb.reports','acl.reports.group.virtual_attendants');
+INSERT INTO `cerb_acl` VALUES ('reports.group.custom_fields','cerberusweb.reports','acl.reports.group.custom_fields');
+INSERT INTO `cerb_acl` VALUES ('timetracking.view.actions.export','cerberusweb.timetracking','acl.timetracking.view.actions.export');
+INSERT INTO `cerb_acl` VALUES ('core.watchers.assign','cerberusweb.core','acl.core.watchers.assign');
+INSERT INTO `cerb_acl` VALUES ('core.watchers.unassign','cerberusweb.core','acl.core.watchers.unassign');
+INSERT INTO `cerb_acl` VALUES ('reports.group.workers','cerberusweb.reports','acl.reports.group.workers');
 /*!40000 ALTER TABLE `cerb_acl` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -121,7 +94,287 @@ UNLOCK TABLES;
 
 LOCK TABLES `cerb_class_loader` WRITE;
 /*!40000 ALTER TABLE `cerb_class_loader` DISABLE KEYS */;
-INSERT INTO `cerb_class_loader` VALUES ('Swift_Plugins_AntiFloodPlugin','devblocks.core','libs/swift/swift_required.php'),('Swift_Message','devblocks.core','libs/swift/swift_required.php'),('Swift_Mailer','devblocks.core','libs/swift/swift_required.php'),('Swift_Attachment','devblocks.core','libs/swift/swift_required.php'),('Swift','devblocks.core','libs/swift/swift_required.php'),('View_DevblocksTemplate','devblocks.core','api/dao/devblocks_template.php'),('View_DevblocksStorageProfile','devblocks.core','api/dao/devblocks_storage_profile.php'),('Model_WorkerRole','cerberusweb.core','api/dao/worker_role.php'),('DAO_WorkerRole','cerberusweb.core','api/dao/worker_role.php'),('Context_WorkerRole','cerberusweb.core','api/dao/worker_role.php'),('WorkerPrefs','cerberusweb.core','api/dao/worker.php'),('View_Worker','cerberusweb.core','api/dao/worker.php'),('SearchFields_Worker','cerberusweb.core','api/dao/worker.php'),('Model_Worker','cerberusweb.core','api/dao/worker.php'),('DAO_WorkerPref','cerberusweb.core','api/dao/worker.php'),('DAO_Worker','cerberusweb.core','api/dao/worker.php'),('Model_ViewRss','cerberusweb.core','api/dao/view_rss.php'),('DAO_ViewRss','cerberusweb.core','api/dao/view_rss.php'),('SearchFields_ViewFiltersPreset','cerberusweb.core','api/dao/view_filters_preset.php'),('Model_ViewFiltersPreset','cerberusweb.core','api/dao/view_filters_preset.php'),('DAO_ViewFiltersPreset','cerberusweb.core','api/dao/view_filters_preset.php'),('View_TriggerEvent','cerberusweb.core','api/dao/trigger_event.php'),('SearchFields_TriggerEvent','cerberusweb.core','api/dao/trigger_event.php'),('Model_TriggerEvent','cerberusweb.core','api/dao/trigger_event.php'),('DAO_TriggerEvent','cerberusweb.core','api/dao/trigger_event.php'),('Model_TicketViewLastAction','cerberusweb.core','api/dao/ticket.php'),('CerberusTicketStatus','cerberusweb.core','api/dao/ticket.php'),('CerberusTicketSpamTraining','cerberusweb.core','api/dao/ticket.php'),('CerberusTicketActionCode','cerberusweb.core','api/dao/ticket.php'),('View_Ticket','cerberusweb.core','api/dao/ticket.php'),('SearchFields_Ticket','cerberusweb.core','api/dao/ticket.php'),('Model_Ticket','cerberusweb.core','api/dao/ticket.php'),('DAO_Ticket','cerberusweb.core','api/dao/ticket.php'),('View_Task','cerberusweb.core','api/dao/task.php'),('SearchFields_Task','cerberusweb.core','api/dao/task.php'),('Model_Task','cerberusweb.core','api/dao/task.php'),('DAO_Task','cerberusweb.core','api/dao/task.php'),('View_Snippet','cerberusweb.core','api/dao/snippet.php'),('SearchFields_Snippet','cerberusweb.core','api/dao/snippet.php'),('Model_Snippet','cerberusweb.core','api/dao/snippet.php'),('DAO_Snippet','cerberusweb.core','api/dao/snippet.php'),('Model_Pop3Account','cerberusweb.core','api/dao/pop3_account.php'),('DAO_Pop3Account','cerberusweb.core','api/dao/pop3_account.php'),('View_PluginLibrary','cerberusweb.core','api/dao/plugin_library.php'),('SearchFields_PluginLibrary','cerberusweb.core','api/dao/plugin_library.php'),('Model_PluginLibrary','cerberusweb.core','api/dao/plugin_library.php'),('DAO_PluginLibrary','cerberusweb.core','api/dao/plugin_library.php'),('Model_OpenIdToContactPerson','cerberusweb.core','api/dao/openid_to_contact_person.php'),('DAO_OpenIdToContactPerson','cerberusweb.core','api/dao/openid_to_contact_person.php'),('View_Message','cerberusweb.core','api/dao/message.php'),('Storage_MessageContent','cerberusweb.core','api/dao/message.php'),('SearchFields_Message','cerberusweb.core','api/dao/message.php'),('Search_MessageContent','cerberusweb.core','api/dao/message.php'),('Model_Message','cerberusweb.core','api/dao/message.php'),('DAO_MessageHeader','cerberusweb.core','api/dao/message.php'),('DAO_Message','cerberusweb.core','api/dao/message.php'),('Model_MailToGroupRule','cerberusweb.core','api/dao/mail_to_group_rule.php'),('DAO_MailToGroupRule','cerberusweb.core','api/dao/mail_to_group_rule.php'),('View_MailQueue','cerberusweb.core','api/dao/mail_queue.php'),('SearchFields_MailQueue','cerberusweb.core','api/dao/mail_queue.php'),('Model_MailQueue','cerberusweb.core','api/dao/mail_queue.php'),('DAO_MailQueue','cerberusweb.core','api/dao/mail_queue.php'),('Context_Draft','cerberusweb.core','api/dao/mail_queue.php'),('Model_GroupMember','cerberusweb.core','api/dao/group.php'),('View_Group','cerberusweb.core','api/dao/group.php'),('SearchFields_Group','cerberusweb.core','api/dao/group.php'),('Model_Group','cerberusweb.core','api/dao/group.php'),('DAO_GroupSettings','cerberusweb.core','api/dao/group.php'),('DAO_Group','cerberusweb.core','api/dao/group.php'),('Model_ExplorerSet','cerberusweb.core','api/dao/explorer.php'),('DAO_ExplorerSet','cerberusweb.core','api/dao/explorer.php'),('View_DecisionNode','cerberusweb.core','api/dao/decision_node.php'),('SearchFields_DecisionNode','cerberusweb.core','api/dao/decision_node.php'),('Model_DecisionNode','cerberusweb.core','api/dao/decision_node.php'),('DAO_DecisionNode','cerberusweb.core','api/dao/decision_node.php'),('Model_CustomField','cerberusweb.core','api/dao/custom_field.php'),('DAO_CustomFieldValue','cerberusweb.core','api/dao/custom_field.php'),('DAO_CustomField','cerberusweb.core','api/dao/custom_field.php'),('View_ContextScheduledBehavior','cerberusweb.core','api/dao/context_scheduled_behavior.php'),('SearchFields_ContextScheduledBehavior','cerberusweb.core','api/dao/context_scheduled_behavior.php'),('Model_ContextScheduledBehavior','cerberusweb.core','api/dao/context_scheduled_behavior.php'),('DAO_ContextScheduledBehavior','cerberusweb.core','api/dao/context_scheduled_behavior.php'),('DAO_ContextMergeHistory','cerberusweb.core','api/dao/context_merge_history.php'),('Model_ContextLink','cerberusweb.core','api/dao/context_link.php'),('DAO_ContextLink','cerberusweb.core','api/dao/context_link.php'),('View_ContextActivityLog','cerberusweb.core','api/dao/context_activity_log.php'),('SearchFields_ContextActivityLog','cerberusweb.core','api/dao/context_activity_log.php'),('Model_ContextActivityLog','cerberusweb.core','api/dao/context_activity_log.php'),('DAO_ContextActivityLog','cerberusweb.core','api/dao/context_activity_log.php'),('View_ContactOrg','cerberusweb.core','api/dao/contact_org.php'),('SearchFields_ContactOrg','cerberusweb.core','api/dao/contact_org.php'),('Model_ContactOrg','cerberusweb.core','api/dao/contact_org.php'),('DAO_ContactOrg','cerberusweb.core','api/dao/contact_org.php'),('View_ContactPerson','cerberusweb.core','api/dao/contact_person.php'),('SearchFields_ContactPerson','cerberusweb.core','api/dao/contact_person.php'),('Model_ContactPerson','cerberusweb.core','api/dao/contact_person.php'),('DAO_ContactPerson','cerberusweb.core','api/dao/contact_person.php'),('Context_ContactPerson','cerberusweb.core','api/dao/contact_person.php'),('SearchFields_ConfirmationCode','cerberusweb.core','api/dao/confirmation_code.php'),('Model_ConfirmationCode','cerberusweb.core','api/dao/confirmation_code.php'),('DAO_ConfirmationCode','cerberusweb.core','api/dao/confirmation_code.php'),('View_CommunityPortal','cerberusweb.core','api/dao/community_portal.php'),('SearchFields_CommunityTool','cerberusweb.core','api/dao/community_portal.php'),('Model_CommunityTool','cerberusweb.core','api/dao/community_portal.php'),('Model_CommunitySession','cerberusweb.core','api/dao/community_portal.php'),('DAO_CommunityToolProperty','cerberusweb.core','api/dao/community_portal.php'),('DAO_CommunityTool','cerberusweb.core','api/dao/community_portal.php'),('DAO_CommunitySession','cerberusweb.core','api/dao/community_portal.php'),('View_Comment','cerberusweb.core','api/dao/comment.php'),('SearchFields_Comment','cerberusweb.core','api/dao/comment.php'),('Search_CommentContent','cerberusweb.core','api/dao/comment.php'),('Model_Comment','cerberusweb.core','api/dao/comment.php'),('DAO_Comment','cerberusweb.core','api/dao/comment.php'),('View_CerbPlugin','cerberusweb.core','api/dao/cerb_plugin.php'),('SearchFields_CerbPlugin','cerberusweb.core','api/dao/cerb_plugin.php'),('Model_CerbPlugin','cerberusweb.core','api/dao/cerb_plugin.php'),('DAO_CerbPlugin','cerberusweb.core','api/dao/cerb_plugin.php'),('SearchFields_CalendarRecurringProfile','cerberusweb.core','api/dao/calendar_recurring_profile.php'),('Model_CalendarRecurringProfile','cerberusweb.core','api/dao/calendar_recurring_profile.php'),('DAO_CalendarRecurringProfile','cerberusweb.core','api/dao/calendar_recurring_profile.php'),('View_CalendarEvent','cerberusweb.core','api/dao/calendar_event.php'),('SearchFields_CalendarEvent','cerberusweb.core','api/dao/calendar_event.php'),('Model_CalendarEvent','cerberusweb.core','api/dao/calendar_event.php'),('DAO_CalendarEvent','cerberusweb.core','api/dao/calendar_event.php'),('Context_CalendarEvent','cerberusweb.core','api/dao/calendar_event.php'),('Model_Bucket','cerberusweb.core','api/dao/bucket.php'),('DAO_Bucket','cerberusweb.core','api/dao/bucket.php'),('Model_BayesWord','cerberusweb.core','api/dao/bayes.php'),('DAO_Bayes','cerberusweb.core','api/dao/bayes.php'),('CerberusBayes','cerberusweb.core','api/dao/bayes.php'),('View_AttachmentLink','cerberusweb.core','api/dao/attachment.php'),('Storage_Attachments','cerberusweb.core','api/dao/attachment.php'),('SearchFields_AttachmentLink','cerberusweb.core','api/dao/attachment.php'),('SearchFields_Attachment','cerberusweb.core','api/dao/attachment.php'),('Model_AttachmentLink','cerberusweb.core','api/dao/attachment.php'),('Model_Attachment','cerberusweb.core','api/dao/attachment.php'),('DAO_AttachmentLink','cerberusweb.core','api/dao/attachment.php'),('DAO_Attachment','cerberusweb.core','api/dao/attachment.php'),('Model_AddressToWorker','cerberusweb.core','api/dao/address_to_worker.php'),('DAO_AddressToWorker','cerberusweb.core','api/dao/address_to_worker.php'),('Model_AddressOutgoing','cerberusweb.core','api/dao/address_outgoing.php'),('DAO_AddressOutgoing','cerberusweb.core','api/dao/address_outgoing.php'),('View_Address','cerberusweb.core','api/dao/address.php'),('SearchFields_Address','cerberusweb.core','api/dao/address.php'),('Model_Address','cerberusweb.core','api/dao/address.php'),('DAO_Address','cerberusweb.core','api/dao/address.php'),('Context_Address','cerberusweb.core','api/dao/address.php'),('DAO_WorkerViewModel','cerberusweb.core','api/dao/abstract_view.php'),('C4_AbstractModel','cerberusweb.core','api/dao/abstract_view.php'),('C4_AbstractLoader','cerberusweb.core','api/dao/abstract_view.php'),('C4_AbstractView','cerberusweb.core','api/dao/abstract_view.php'),('ChTaskSource_Ticket','cerberusweb.core','api/plugin.classes.php'),('ChTaskSource_Org','cerberusweb.core','api/plugin.classes.php'),('ChRssSource_Ticket','cerberusweb.core','api/plugin.classes.php'),('ChRssSource_Task','cerberusweb.core','api/plugin.classes.php'),('ChRssSource_Notification','cerberusweb.core','api/plugin.classes.php'),('ChPageController','cerberusweb.core','api/plugin.classes.php'),('EventListener_Triggers','cerberusweb.core','api/listeners.classes.php'),('View_CrmOpportunity','cerberusweb.crm','api/dao/crm_opportunity.php'),('SearchFields_CrmOpportunity','cerberusweb.crm','api/dao/crm_opportunity.php'),('Model_CrmOpportunity','cerberusweb.crm','api/dao/crm_opportunity.php'),('DAO_CrmOpportunity','cerberusweb.crm','api/dao/crm_opportunity.php'),('Context_CrmOpportunity','cerberusweb.crm','api/dao/crm_opportunity.php'),('SearchFields_FeedbackEntry','cerberusweb.feedback','api/App.php'),('Model_FeedbackEntry','cerberusweb.feedback','api/App.php'),('DAO_FeedbackEntry','cerberusweb.feedback','api/App.php'),('C4_FeedbackEntryView','cerberusweb.feedback','api/App.php'),('View_KbArticle','cerberusweb.kb','api/dao/kb_article.php'),('SearchFields_KbArticle','cerberusweb.kb','api/dao/kb_article.php'),('Search_KbArticle','cerberusweb.kb','api/dao/kb_article.php'),('Model_KbArticle','cerberusweb.kb','api/dao/kb_article.php'),('DAO_KbArticle','cerberusweb.kb','api/dao/kb_article.php'),('Context_KbArticle','cerberusweb.kb','api/dao/kb_article.php'),('SearchFields_KbCategory','cerberusweb.kb','api/App.php'),('Model_KbCategory','cerberusweb.kb','api/App.php'),('DAO_KbCategory','cerberusweb.kb','api/App.php'),('Context_KbCategory','cerberusweb.kb','api/App.php'),('Extension_ReportGroup','cerberusweb.reports','api/App.php'),('Extension_Report','cerberusweb.reports','api/App.php'),('SearchFields_WebApiCredentials','cerberusweb.restapi','api/dao/webapi_credentials.php'),('Model_WebApiCredentials','cerberusweb.restapi','api/dao/webapi_credentials.php'),('DAO_WebApiCredentials','cerberusweb.restapi','api/dao/webapi_credentials.php'),('Plugin_RestAPI','cerberusweb.restapi','api/App.php'),('IExtensionRestController','cerberusweb.restapi','api/App.php'),('Model_SupportCenterAddressShare','cerberusweb.support_center','api/dao/supportcenter_address_share.php'),('DAO_SupportCenterAddressShare','cerberusweb.support_center','api/dao/supportcenter_address_share.php'),('Extension_UmScRssController','cerberusweb.support_center','api/Extension.php'),('Extension_UmScController','cerberusweb.support_center','api/Extension.php'),('Extension_SupportCenterMessageBadge','cerberusweb.support_center','api/Extension.php'),('Extension_ScLoginAuthenticator','cerberusweb.support_center','api/Extension.php'),('AbstractEvent_TimeTracking','cerberusweb.timetracking','api/events/abstract_event_timetracking.php'),('View_TimeTracking','cerberusweb.timetracking','api/dao/timetracking_entry.php'),('SearchFields_TimeTrackingEntry','cerberusweb.timetracking','api/dao/timetracking_entry.php'),('Model_TimeTrackingEntry','cerberusweb.timetracking','api/dao/timetracking_entry.php'),('Model_TimeTrackingActivity','cerberusweb.timetracking','api/dao/timetracking_entry.php'),('DAO_TimeTrackingEntry','cerberusweb.timetracking','api/dao/timetracking_entry.php'),('DAO_TimeTrackingActivity','cerberusweb.timetracking','api/dao/timetracking_entry.php'),('Context_TimeTrackingEntry','cerberusweb.timetracking','api/dao/timetracking_entry.php'),('C4_TranslationView','cerberusweb.translators','api/App.php'),('Swift_SmtpTransport','devblocks.core','libs/swift/swift_required.php'),('DAO_Notification','cerberusweb.core','api/dao/notification.php'),('Model_Notification','cerberusweb.core','api/dao/notification.php'),('SearchFields_Notification','cerberusweb.core','api/dao/notification.php'),('View_Notification','cerberusweb.core','api/dao/notification.php'),('DAO_WorkspaceList','cerberusweb.core','api/dao/workspace.php'),('DAO_WorkspacePage','cerberusweb.core','api/dao/workspace.php'),('DAO_WorkspaceTab','cerberusweb.core','api/dao/workspace.php'),('Model_WorkspaceList','cerberusweb.core','api/dao/workspace.php'),('Model_WorkspaceListView','cerberusweb.core','api/dao/workspace.php'),('Model_WorkspacePage','cerberusweb.core','api/dao/workspace.php'),('Model_WorkspaceTab','cerberusweb.core','api/dao/workspace.php'),('SearchFields_WorkspacePage','cerberusweb.core','api/dao/workspace.php'),('SearchFields_WorkspaceTab','cerberusweb.core','api/dao/workspace.php'),('View_WorkspacePage','cerberusweb.core','api/dao/workspace.php'),('AbstractEvent_Address','cerberusweb.core','api/events/abstract/abstract_event_address.php'),('AbstractEvent_CalendarEvent','cerberusweb.core','api/events/abstract/abstract_event_calendar_event.php'),('AbstractEvent_Group','cerberusweb.core','api/events/abstract/abstract_event_group.php'),('AbstractEvent_Message','cerberusweb.core','api/events/abstract/abstract_event_message.php'),('AbstractEvent_Org','cerberusweb.core','api/events/abstract/abstract_event_org.php'),('AbstractEvent_Task','cerberusweb.core','api/events/abstract/abstract_event_task.php'),('AbstractEvent_Ticket','cerberusweb.core','api/events/abstract/abstract_event_ticket.php'),('AbstractEvent_Worker','cerberusweb.core','api/events/abstract/abstract_event_worker.php'),('Event_MailReceivedByApp','cerberusweb.core','api/events/app/mail_received_by_app.php'),('Event_TaskCreatedByWorker','cerberusweb.core','api/events/app/task_created_by_worker.php'),('Event_TicketViewedByWorker','cerberusweb.core','api/events/app/ticket_viewed_by_worker.php'),('Event_MailAssignedInGroup','cerberusweb.core','api/events/group/mail_assigned_in_group.php'),('Event_MailClosedInGroup','cerberusweb.core','api/events/group/mail_closed_in_group.php'),('Event_MailMovedToGroup','cerberusweb.core','api/events/group/mail_moved_to_group.php'),('Event_MailReceivedByGroup','cerberusweb.core','api/events/group/mail_received_by_group.php'),('Event_MailAfterSentByGroup','cerberusweb.core','api/events/group/mail_after_sent_by_group.php'),('Event_MailBeforeSentByGroup','cerberusweb.core','api/events/group/mail_before_sent_by_group.php'),('Event_AddressMacro','cerberusweb.core','api/events/macro/address_macro.php'),('Event_CalendarEventMacro','cerberusweb.core','api/events/macro/calendar_event_macro.php'),('Event_GroupMacro','cerberusweb.core','api/events/macro/group_macro.php'),('Event_MessageMacro','cerberusweb.core','api/events/macro/message_macro.php'),('Event_OrgMacro','cerberusweb.core','api/events/macro/org_macro.php'),('Event_TaskMacro','cerberusweb.core','api/events/macro/task_macro.php'),('Event_TicketMacro','cerberusweb.core','api/events/macro/ticket_macro.php'),('Event_WorkerMacro','cerberusweb.core','api/events/macro/worker_macro.php'),('Event_MailReceivedByWatcher','cerberusweb.core','api/events/worker/mail_received_by_watcher.php'),('Event_NotificationReceivedByWorker','cerberusweb.core','api/events/worker/notification_received_by_worker.php'),('Subcontroller_Internal_VirtualAttendants','cerberusweb.core','api/uri/internal/virtual_attendants.php'),('ChPortalHelper','cerberusweb.core','api/uri/portal.php'),('Event_CrmOpportunityMacro','cerberusweb.crm','api/events/crm_opportunity_macro.php'),('AbstractEvent_KbArticle','cerberusweb.kb','api/events/abstract/abstract_event_kbarticle.php'),('Event_KbArticleMacro','cerberusweb.kb','api/events/macro/kbarticle_macro.php'),('UmSc_KbArticleView','cerberusweb.kb','api/sc/kb.php'),('View_WebApiCredentials','cerberusweb.restapi','api/dao/webapi_credentials.php'),('UmScAjaxController','cerberusweb.support_center','api/sc/uri/ajax.php'),('UmSc_TicketHistoryView','cerberusweb.support_center','api/sc/uri/history.php'),('Event_TimeTrackingMacro','cerberusweb.timetracking','api/events/timetracking_macro.php');
+INSERT INTO `cerb_class_loader` VALUES ('Swift_SmtpTransport','devblocks.core','libs/swift/swift_required.php');
+INSERT INTO `cerb_class_loader` VALUES ('Swift_Plugins_AntiFloodPlugin','devblocks.core','libs/swift/swift_required.php');
+INSERT INTO `cerb_class_loader` VALUES ('Swift_Message','devblocks.core','libs/swift/swift_required.php');
+INSERT INTO `cerb_class_loader` VALUES ('Swift_Mailer','devblocks.core','libs/swift/swift_required.php');
+INSERT INTO `cerb_class_loader` VALUES ('Swift_Attachment','devblocks.core','libs/swift/swift_required.php');
+INSERT INTO `cerb_class_loader` VALUES ('Swift','devblocks.core','libs/swift/swift_required.php');
+INSERT INTO `cerb_class_loader` VALUES ('UserAgentParser','devblocks.core','libs/user_agent_parser.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_WorkerMacro','cerberusweb.core','api/events/macro/worker_macro.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_TicketMacro','cerberusweb.core','api/events/macro/ticket_macro.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_TaskMacro','cerberusweb.core','api/events/macro/task_macro.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_OrgMacro','cerberusweb.core','api/events/macro/org_macro.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_MessageMacro','cerberusweb.core','api/events/macro/message_macro.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_GroupMacro','cerberusweb.core','api/events/macro/group_macro.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_CalendarEventMacro','cerberusweb.core','api/events/macro/calendar_event_macro.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_AddressMacro','cerberusweb.core','api/events/macro/address_macro.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_MailBeforeSentByGroup','cerberusweb.core','api/events/group/mail_before_sent_by_group.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_MailAfterSentByGroup','cerberusweb.core','api/events/group/mail_after_sent_by_group.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_MailReceivedByGroup','cerberusweb.core','api/events/group/mail_received_by_group.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_MailMovedToGroup','cerberusweb.core','api/events/group/mail_moved_to_group.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_MailClosedInGroup','cerberusweb.core','api/events/group/mail_closed_in_group.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_MailAssignedInGroup','cerberusweb.core','api/events/group/mail_assigned_in_group.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_CommentOnTicketInGroup','cerberusweb.core','api/events/group/comment_on_ticket_in_group.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_TicketViewedByWorker','cerberusweb.core','api/events/app/ticket_viewed_by_worker.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_TaskCreatedByWorker','cerberusweb.core','api/events/app/task_created_by_worker.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_CommentCreatedByWorker','cerberusweb.core','api/events/app/comment_created_by_worker.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_MailReceivedByApp','cerberusweb.core','api/events/app/mail_received_by_app.php');
+INSERT INTO `cerb_class_loader` VALUES ('AbstractEvent_Worker','cerberusweb.core','api/events/abstract/abstract_event_worker.php');
+INSERT INTO `cerb_class_loader` VALUES ('AbstractEvent_Ticket','cerberusweb.core','api/events/abstract/abstract_event_ticket.php');
+INSERT INTO `cerb_class_loader` VALUES ('AbstractEvent_Task','cerberusweb.core','api/events/abstract/abstract_event_task.php');
+INSERT INTO `cerb_class_loader` VALUES ('AbstractEvent_Org','cerberusweb.core','api/events/abstract/abstract_event_org.php');
+INSERT INTO `cerb_class_loader` VALUES ('AbstractEvent_Message','cerberusweb.core','api/events/abstract/abstract_event_message.php');
+INSERT INTO `cerb_class_loader` VALUES ('AbstractEvent_Group','cerberusweb.core','api/events/abstract/abstract_event_group.php');
+INSERT INTO `cerb_class_loader` VALUES ('AbstractEvent_Comment','cerberusweb.core','api/events/abstract/abstract_event_comment.php');
+INSERT INTO `cerb_class_loader` VALUES ('AbstractEvent_Address','cerberusweb.core','api/events/abstract/abstract_event_address.php');
+INSERT INTO `cerb_class_loader` VALUES ('AbstractEvent_CalendarEvent','cerberusweb.core','api/events/abstract/abstract_event_calendar_event.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_WorkspaceWidget','cerberusweb.core','api/dao/workspace_widget.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_WorkspaceWidget','cerberusweb.core','api/dao/workspace_widget.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_WorkspaceWidget','cerberusweb.core','api/dao/workspace_widget.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_WorkspacePage','cerberusweb.core','api/dao/workspace.php');
+INSERT INTO `cerb_class_loader` VALUES ('Context_WorkspaceWidget','cerberusweb.core','api/dao/workspace_widget.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_WorkspacePage','cerberusweb.core','api/dao/workspace.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_WorkspaceTab','cerberusweb.core','api/dao/workspace.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_WorkspaceTab','cerberusweb.core','api/dao/workspace.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_WorkspacePage','cerberusweb.core','api/dao/workspace.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_WorkspaceListView','cerberusweb.core','api/dao/workspace.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_WorkspaceList','cerberusweb.core','api/dao/workspace.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_WorkspaceTab','cerberusweb.core','api/dao/workspace.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_WorkspacePage','cerberusweb.core','api/dao/workspace.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_WorkspaceList','cerberusweb.core','api/dao/workspace.php');
+INSERT INTO `cerb_class_loader` VALUES ('Context_WorkspaceTab','cerberusweb.core','api/dao/workspace.php');
+INSERT INTO `cerb_class_loader` VALUES ('Context_WorkspacePage','cerberusweb.core','api/dao/workspace.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_Notification','cerberusweb.core','api/dao/notification.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_Notification','cerberusweb.core','api/dao/notification.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_Notification','cerberusweb.core','api/dao/notification.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_Notification','cerberusweb.core','api/dao/notification.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_WorkerRole','cerberusweb.core','api/dao/worker_role.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_WorkerRole','cerberusweb.core','api/dao/worker_role.php');
+INSERT INTO `cerb_class_loader` VALUES ('Context_WorkerRole','cerberusweb.core','api/dao/worker_role.php');
+INSERT INTO `cerb_class_loader` VALUES ('WorkerPrefs','cerberusweb.core','api/dao/worker.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_Worker','cerberusweb.core','api/dao/worker.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_Worker','cerberusweb.core','api/dao/worker.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_Worker','cerberusweb.core','api/dao/worker.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_WorkerPref','cerberusweb.core','api/dao/worker.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_Worker','cerberusweb.core','api/dao/worker.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_ViewRss','cerberusweb.core','api/dao/view_rss.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_ViewRss','cerberusweb.core','api/dao/view_rss.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_ViewFiltersPreset','cerberusweb.core','api/dao/view_filters_preset.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_ViewFiltersPreset','cerberusweb.core','api/dao/view_filters_preset.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_TriggerEvent','cerberusweb.core','api/dao/trigger_event.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_ViewFiltersPreset','cerberusweb.core','api/dao/view_filters_preset.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_TriggerEvent','cerberusweb.core','api/dao/trigger_event.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_TriggerEvent','cerberusweb.core','api/dao/trigger_event.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_TriggerEvent','cerberusweb.core','api/dao/trigger_event.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_TicketViewLastAction','cerberusweb.core','api/dao/ticket.php');
+INSERT INTO `cerb_class_loader` VALUES ('CerberusTicketStatus','cerberusweb.core','api/dao/ticket.php');
+INSERT INTO `cerb_class_loader` VALUES ('CerberusTicketActionCode','cerberusweb.core','api/dao/ticket.php');
+INSERT INTO `cerb_class_loader` VALUES ('CerberusTicketSpamTraining','cerberusweb.core','api/dao/ticket.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_Ticket','cerberusweb.core','api/dao/ticket.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_Ticket','cerberusweb.core','api/dao/ticket.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_Ticket','cerberusweb.core','api/dao/ticket.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_Task','cerberusweb.core','api/dao/task.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_Ticket','cerberusweb.core','api/dao/ticket.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_Task','cerberusweb.core','api/dao/task.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_Task','cerberusweb.core','api/dao/task.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_Task','cerberusweb.core','api/dao/task.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_Snippet','cerberusweb.core','api/dao/snippet.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_Snippet','cerberusweb.core','api/dao/snippet.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_Snippet','cerberusweb.core','api/dao/snippet.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_Snippet','cerberusweb.core','api/dao/snippet.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_Pop3Account','cerberusweb.core','api/dao/pop3_account.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_Pop3Account','cerberusweb.core','api/dao/pop3_account.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_PluginLibrary','cerberusweb.core','api/dao/plugin_library.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_PluginLibrary','cerberusweb.core','api/dao/plugin_library.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_PluginLibrary','cerberusweb.core','api/dao/plugin_library.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_PluginLibrary','cerberusweb.core','api/dao/plugin_library.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_OpenIdToContactPerson','cerberusweb.core','api/dao/openid_to_contact_person.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_OpenIdToContactPerson','cerberusweb.core','api/dao/openid_to_contact_person.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_Message','cerberusweb.core','api/dao/message.php');
+INSERT INTO `cerb_class_loader` VALUES ('Storage_MessageContent','cerberusweb.core','api/dao/message.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_Message','cerberusweb.core','api/dao/message.php');
+INSERT INTO `cerb_class_loader` VALUES ('Search_MessageContent','cerberusweb.core','api/dao/message.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_Message','cerberusweb.core','api/dao/message.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_MessageHeader','cerberusweb.core','api/dao/message.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_Message','cerberusweb.core','api/dao/message.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_MailToGroupRule','cerberusweb.core','api/dao/mail_to_group_rule.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_MailToGroupRule','cerberusweb.core','api/dao/mail_to_group_rule.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_MailQueue','cerberusweb.core','api/dao/mail_queue.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_MailQueue','cerberusweb.core','api/dao/mail_queue.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_MailQueue','cerberusweb.core','api/dao/mail_queue.php');
+INSERT INTO `cerb_class_loader` VALUES ('Context_Draft','cerberusweb.core','api/dao/mail_queue.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_MailQueue','cerberusweb.core','api/dao/mail_queue.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_Group','cerberusweb.core','api/dao/group.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_GroupMember','cerberusweb.core','api/dao/group.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_Group','cerberusweb.core','api/dao/group.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_GroupSettings','cerberusweb.core','api/dao/group.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_Group','cerberusweb.core','api/dao/group.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_Group','cerberusweb.core','api/dao/group.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_ExplorerSet','cerberusweb.core','api/dao/explorer.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_ExplorerSet','cerberusweb.core','api/dao/explorer.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_DevblocksSession','cerberusweb.core','api/dao/devblocks_session.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_DevblocksSession','cerberusweb.core','api/dao/devblocks_session.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_DevblocksSession','cerberusweb.core','api/dao/devblocks_session.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_DevblocksSession','cerberusweb.core','api/dao/devblocks_session.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_DecisionNode','cerberusweb.core','api/dao/decision_node.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_DecisionNode','cerberusweb.core','api/dao/decision_node.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_DecisionNode','cerberusweb.core','api/dao/decision_node.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_DecisionNode','cerberusweb.core','api/dao/decision_node.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_CustomFieldset','cerberusweb.core','api/dao/custom_fieldset.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_CustomFieldset','cerberusweb.core','api/dao/custom_fieldset.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_CustomFieldset','cerberusweb.core','api/dao/custom_fieldset.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_CustomFieldset','cerberusweb.core','api/dao/custom_fieldset.php');
+INSERT INTO `cerb_class_loader` VALUES ('Context_CustomFieldset','cerberusweb.core','api/dao/custom_fieldset.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_CustomFieldValue','cerberusweb.core','api/dao/custom_field.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_CustomField','cerberusweb.core','api/dao/custom_field.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_CustomField','cerberusweb.core','api/dao/custom_field.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_ContextScheduledBehavior','cerberusweb.core','api/dao/context_scheduled_behavior.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_ContextScheduledBehavior','cerberusweb.core','api/dao/context_scheduled_behavior.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_ContextScheduledBehavior','cerberusweb.core','api/dao/context_scheduled_behavior.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_ContextScheduledBehavior','cerberusweb.core','api/dao/context_scheduled_behavior.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_ContextMergeHistory','cerberusweb.core','api/dao/context_merge_history.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_ContextLink','cerberusweb.core','api/dao/context_link.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_ContextLink','cerberusweb.core','api/dao/context_link.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_ContextActivityLog','cerberusweb.core','api/dao/context_activity_log.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_ContextActivityLog','cerberusweb.core','api/dao/context_activity_log.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_ContextActivityLog','cerberusweb.core','api/dao/context_activity_log.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_ContextActivityLog','cerberusweb.core','api/dao/context_activity_log.php');
+INSERT INTO `cerb_class_loader` VALUES ('Context_ContextActivityLog','cerberusweb.core','api/dao/context_activity_log.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_ContactOrg','cerberusweb.core','api/dao/contact_org.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_ContactOrg','cerberusweb.core','api/dao/contact_org.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_ContactOrg','cerberusweb.core','api/dao/contact_org.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_ContactOrg','cerberusweb.core','api/dao/contact_org.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_ContactPerson','cerberusweb.core','api/dao/contact_person.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_ContactPerson','cerberusweb.core','api/dao/contact_person.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_ContactPerson','cerberusweb.core','api/dao/contact_person.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_ContactPerson','cerberusweb.core','api/dao/contact_person.php');
+INSERT INTO `cerb_class_loader` VALUES ('Context_ContactPerson','cerberusweb.core','api/dao/contact_person.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_ConfirmationCode','cerberusweb.core','api/dao/confirmation_code.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_ConfirmationCode','cerberusweb.core','api/dao/confirmation_code.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_ConfirmationCode','cerberusweb.core','api/dao/confirmation_code.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_CommunityPortal','cerberusweb.core','api/dao/community_portal.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_CommunityTool','cerberusweb.core','api/dao/community_portal.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_CommunityTool','cerberusweb.core','api/dao/community_portal.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_CommunitySession','cerberusweb.core','api/dao/community_portal.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_CommunityToolProperty','cerberusweb.core','api/dao/community_portal.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_CommunityTool','cerberusweb.core','api/dao/community_portal.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_CommunitySession','cerberusweb.core','api/dao/community_portal.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_Comment','cerberusweb.core','api/dao/comment.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_Comment','cerberusweb.core','api/dao/comment.php');
+INSERT INTO `cerb_class_loader` VALUES ('Search_CommentContent','cerberusweb.core','api/dao/comment.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_Comment','cerberusweb.core','api/dao/comment.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_Comment','cerberusweb.core','api/dao/comment.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_CerbPlugin','cerberusweb.core','api/dao/cerb_plugin.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_CerbPlugin','cerberusweb.core','api/dao/cerb_plugin.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_CerbPlugin','cerberusweb.core','api/dao/cerb_plugin.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_CerbPlugin','cerberusweb.core','api/dao/cerb_plugin.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_CalendarRecurringProfile','cerberusweb.core','api/dao/calendar_recurring_profile.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_CalendarRecurringProfile','cerberusweb.core','api/dao/calendar_recurring_profile.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_CrmOpportunity','cerberusweb.crm','api/dao/crm_opportunity.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_CrmOpportunityMacro','cerberusweb.crm','api/events/crm_opportunity_macro.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_CrmOpportunity','cerberusweb.crm','api/dao/crm_opportunity.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_CrmOpportunity','cerberusweb.crm','api/dao/crm_opportunity.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_CrmOpportunity','cerberusweb.crm','api/dao/crm_opportunity.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_FeedbackEntry','cerberusweb.feedback','api/App.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_FeedbackEntry','cerberusweb.feedback','api/App.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_FeedbackEntry','cerberusweb.feedback','api/App.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_KbArticleMacro','cerberusweb.kb','api/events/macro/kbarticle_macro.php');
+INSERT INTO `cerb_class_loader` VALUES ('AbstractEvent_KbArticle','cerberusweb.kb','api/events/abstract/abstract_event_kbarticle.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_KbArticle','cerberusweb.kb','api/dao/kb_article.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_KbArticle','cerberusweb.kb','api/dao/kb_article.php');
+INSERT INTO `cerb_class_loader` VALUES ('Search_KbArticle','cerberusweb.kb','api/dao/kb_article.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_KbArticle','cerberusweb.kb','api/dao/kb_article.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_KbArticle','cerberusweb.kb','api/dao/kb_article.php');
+INSERT INTO `cerb_class_loader` VALUES ('Context_KbArticle','cerberusweb.kb','api/dao/kb_article.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_KbCategory','cerberusweb.kb','api/App.php');
+INSERT INTO `cerb_class_loader` VALUES ('Extension_Report','cerberusweb.reports','api/App.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_WebApiCredentials','cerberusweb.restapi','api/dao/webapi_credentials.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_WebApiCredentials','cerberusweb.restapi','api/dao/webapi_credentials.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_WebApiCredentials','cerberusweb.restapi','api/dao/webapi_credentials.php');
+INSERT INTO `cerb_class_loader` VALUES ('Plugin_RestAPI','cerberusweb.restapi','api/App.php');
+INSERT INTO `cerb_class_loader` VALUES ('UmScAjaxController','cerberusweb.support_center','api/sc/uri/ajax.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_SupportCenterAddressShare','cerberusweb.support_center','api/dao/supportcenter_address_share.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_SupportCenterAddressShare','cerberusweb.support_center','api/dao/supportcenter_address_share.php');
+INSERT INTO `cerb_class_loader` VALUES ('Extension_UmScRssController','cerberusweb.support_center','api/Extension.php');
+INSERT INTO `cerb_class_loader` VALUES ('Extension_UmScController','cerberusweb.support_center','api/Extension.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_TimeTrackingMacro','cerberusweb.timetracking','api/events/timetracking_macro.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_TimeTracking','cerberusweb.timetracking','api/dao/timetracking_entry.php');
+INSERT INTO `cerb_class_loader` VALUES ('AbstractEvent_TimeTracking','cerberusweb.timetracking','api/events/abstract_event_timetracking.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_TimeTrackingEntry','cerberusweb.timetracking','api/dao/timetracking_entry.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_TimeTrackingActivity','cerberusweb.timetracking','api/dao/timetracking_entry.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_TimeTrackingEntry','cerberusweb.timetracking','api/dao/timetracking_entry.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_TimeTrackingEntry','cerberusweb.timetracking','api/dao/timetracking_entry.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_TimeTrackingActivity','cerberusweb.timetracking','api/dao/timetracking_entry.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_Translation','cerberusweb.translators','api/App.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_DevblocksTemplate','devblocks.core','api/dao/devblocks_template.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_DevblocksStorageProfile','devblocks.core','api/dao/devblocks_storage_profile.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_CalendarRecurringProfile','cerberusweb.core','api/dao/calendar_recurring_profile.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_CalendarRecurringProfile','cerberusweb.core','api/dao/calendar_recurring_profile.php');
+INSERT INTO `cerb_class_loader` VALUES ('Context_CalendarRecurringProfile','cerberusweb.core','api/dao/calendar_recurring_profile.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_CalendarEvent','cerberusweb.core','api/dao/calendar_event.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_CalendarEvent','cerberusweb.core','api/dao/calendar_event.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_CalendarEvent','cerberusweb.core','api/dao/calendar_event.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_CalendarEvent','cerberusweb.core','api/dao/calendar_event.php');
+INSERT INTO `cerb_class_loader` VALUES ('Context_CalendarEvent','cerberusweb.core','api/dao/calendar_event.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_Calendar','cerberusweb.core','api/dao/calendar.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_Calendar','cerberusweb.core','api/dao/calendar.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_Calendar','cerberusweb.core','api/dao/calendar.php');
+INSERT INTO `cerb_class_loader` VALUES ('Context_Calendar','cerberusweb.core','api/dao/calendar.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_Calendar','cerberusweb.core','api/dao/calendar.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_Bucket','cerberusweb.core','api/dao/bucket.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_Bucket','cerberusweb.core','api/dao/bucket.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_BayesWord','cerberusweb.core','api/dao/bayes.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_Bayes','cerberusweb.core','api/dao/bayes.php');
+INSERT INTO `cerb_class_loader` VALUES ('CerberusBayes','cerberusweb.core','api/dao/bayes.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_AttachmentLink','cerberusweb.core','api/dao/attachment.php');
+INSERT INTO `cerb_class_loader` VALUES ('Storage_Attachments','cerberusweb.core','api/dao/attachment.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_AttachmentLink','cerberusweb.core','api/dao/attachment.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_Attachment','cerberusweb.core','api/dao/attachment.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_AttachmentLink','cerberusweb.core','api/dao/attachment.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_Attachment','cerberusweb.core','api/dao/attachment.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_AttachmentLink','cerberusweb.core','api/dao/attachment.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_Attachment','cerberusweb.core','api/dao/attachment.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_AddressToWorker','cerberusweb.core','api/dao/address_to_worker.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_AddressToWorker','cerberusweb.core','api/dao/address_to_worker.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_AddressOutgoing','cerberusweb.core','api/dao/address_outgoing.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_AddressOutgoing','cerberusweb.core','api/dao/address_outgoing.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_Address','cerberusweb.core','api/dao/address.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_Address','cerberusweb.core','api/dao/address.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_Address','cerberusweb.core','api/dao/address.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_Address','cerberusweb.core','api/dao/address.php');
+INSERT INTO `cerb_class_loader` VALUES ('Context_Address','cerberusweb.core','api/dao/address.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_WorkerViewModel','cerberusweb.core','api/dao/abstract_view.php');
+INSERT INTO `cerb_class_loader` VALUES ('C4_AbstractModel','cerberusweb.core','api/dao/abstract_view.php');
+INSERT INTO `cerb_class_loader` VALUES ('C4_AbstractLoader','cerberusweb.core','api/dao/abstract_view.php');
+INSERT INTO `cerb_class_loader` VALUES ('C4_AbstractView','cerberusweb.core','api/dao/abstract_view.php');
+INSERT INTO `cerb_class_loader` VALUES ('ChTaskSource_Ticket','cerberusweb.core','api/plugin.classes.php');
+INSERT INTO `cerb_class_loader` VALUES ('ChTaskSource_Org','cerberusweb.core','api/plugin.classes.php');
+INSERT INTO `cerb_class_loader` VALUES ('ChRssSource_Ticket','cerberusweb.core','api/plugin.classes.php');
+INSERT INTO `cerb_class_loader` VALUES ('ChRssSource_Task','cerberusweb.core','api/plugin.classes.php');
+INSERT INTO `cerb_class_loader` VALUES ('ChRssSource_Notification','cerberusweb.core','api/plugin.classes.php');
+INSERT INTO `cerb_class_loader` VALUES ('ChPageController','cerberusweb.core','api/plugin.classes.php');
+INSERT INTO `cerb_class_loader` VALUES ('EventListener_Triggers','cerberusweb.core','api/listeners.classes.php');
+INSERT INTO `cerb_class_loader` VALUES ('Context_CrmOpportunity','cerberusweb.crm','api/dao/crm_opportunity.php');
+INSERT INTO `cerb_class_loader` VALUES ('SearchFields_FeedbackEntry','cerberusweb.feedback','api/App.php');
+INSERT INTO `cerb_class_loader` VALUES ('Model_KbCategory','cerberusweb.kb','api/App.php');
+INSERT INTO `cerb_class_loader` VALUES ('DAO_KbCategory','cerberusweb.kb','api/App.php');
+INSERT INTO `cerb_class_loader` VALUES ('Context_KbCategory','cerberusweb.kb','api/App.php');
+INSERT INTO `cerb_class_loader` VALUES ('Extension_ReportGroup','cerberusweb.reports','api/App.php');
+INSERT INTO `cerb_class_loader` VALUES ('View_WebApiCredentials','cerberusweb.restapi','api/dao/webapi_credentials.php');
+INSERT INTO `cerb_class_loader` VALUES ('IExtensionRestController','cerberusweb.restapi','api/App.php');
+INSERT INTO `cerb_class_loader` VALUES ('UmSc_TicketHistoryView','cerberusweb.support_center','api/sc/uri/history.php');
+INSERT INTO `cerb_class_loader` VALUES ('Extension_SupportCenterMessageBadge','cerberusweb.support_center','api/Extension.php');
+INSERT INTO `cerb_class_loader` VALUES ('Extension_ScLoginAuthenticator','cerberusweb.support_center','api/Extension.php');
+INSERT INTO `cerb_class_loader` VALUES ('Context_TimeTrackingEntry','cerberusweb.timetracking','api/dao/timetracking_entry.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_MailBeforeUiReplyByWorker','cerberusweb.core','api/events/ui/ui_before_reply_by_worker.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_MailDuringUiReplyByWorker','cerberusweb.core','api/events/ui/ui_during_reply_by_worker.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_UiWorklistRenderByWorker','cerberusweb.core','api/events/ui/ui_worklist_render_by_worker.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_MailReceivedByWatcher','cerberusweb.core','api/events/worker/mail_received_by_watcher.php');
+INSERT INTO `cerb_class_loader` VALUES ('Event_NotificationReceivedByWorker','cerberusweb.core','api/events/worker/notification_received_by_worker.php');
+INSERT INTO `cerb_class_loader` VALUES ('Subcontroller_Internal_VirtualAttendants','cerberusweb.core','api/uri/internal/virtual_attendants.php');
+INSERT INTO `cerb_class_loader` VALUES ('ChPortalHelper','cerberusweb.core','api/uri/portal.php');
+INSERT INTO `cerb_class_loader` VALUES ('UmSc_KbArticleView','cerberusweb.kb','api/sc/kb.php');
 /*!40000 ALTER TABLE `cerb_class_loader` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -131,7 +384,19 @@ UNLOCK TABLES;
 
 LOCK TABLES `cerb_event_point` WRITE;
 /*!40000 ALTER TABLE `cerb_event_point` DISABLE KEYS */;
-INSERT INTO `cerb_event_point` VALUES ('address.peek.saved','cerberusweb.core','Address Peek Saved','a:0:{}'),('bucket.delete','cerberusweb.core','Bucket Delete','a:0:{}'),('comment.create','cerberusweb.core','Comment Create','a:0:{}'),('context.delete','cerberusweb.core','Context Delete','a:0:{}'),('context.maint','cerberusweb.core','Context Maint','a:0:{}'),('context_link.set','cerberusweb.core','Context Link Set','a:0:{}'),('cron.heartbeat','cerberusweb.core','Heartbeat','a:0:{}'),('cron.maint','cerberusweb.core','Maintenance','a:0:{}'),('group.delete','cerberusweb.core','Group Delete','a:0:{}'),('task.create','cerberusweb.core','Task Create','a:0:{}'),('ticket.action.merge','cerberusweb.core','Ticket Merge','a:0:{}'),('worker.delete','cerberusweb.core','Worker Delete','a:0:{}'),('opportunity.create','cerberusweb.crm','Opportunity Create','a:0:{}');
+INSERT INTO `cerb_event_point` VALUES ('address.peek.saved','cerberusweb.core','Address Peek Saved','a:0:{}');
+INSERT INTO `cerb_event_point` VALUES ('bucket.delete','cerberusweb.core','Bucket Delete','a:0:{}');
+INSERT INTO `cerb_event_point` VALUES ('comment.create','cerberusweb.core','Comment Create','a:0:{}');
+INSERT INTO `cerb_event_point` VALUES ('context.delete','cerberusweb.core','Context Delete','a:0:{}');
+INSERT INTO `cerb_event_point` VALUES ('context.maint','cerberusweb.core','Context Maint','a:0:{}');
+INSERT INTO `cerb_event_point` VALUES ('context_link.set','cerberusweb.core','Context Link Set','a:0:{}');
+INSERT INTO `cerb_event_point` VALUES ('cron.heartbeat','cerberusweb.core','Heartbeat','a:0:{}');
+INSERT INTO `cerb_event_point` VALUES ('cron.maint','cerberusweb.core','Maintenance','a:0:{}');
+INSERT INTO `cerb_event_point` VALUES ('group.delete','cerberusweb.core','Group Delete','a:0:{}');
+INSERT INTO `cerb_event_point` VALUES ('task.create','cerberusweb.core','Task Create','a:0:{}');
+INSERT INTO `cerb_event_point` VALUES ('ticket.action.merge','cerberusweb.core','Ticket Merge','a:0:{}');
+INSERT INTO `cerb_event_point` VALUES ('worker.delete','cerberusweb.core','Worker Delete','a:0:{}');
+INSERT INTO `cerb_event_point` VALUES ('opportunity.create','cerberusweb.crm','Opportunity Create','a:0:{}');
 /*!40000 ALTER TABLE `cerb_event_point` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -141,17 +406,257 @@ UNLOCK TABLES;
 
 LOCK TABLES `cerb_extension` WRITE;
 /*!40000 ALTER TABLE `cerb_extension` DISABLE KEYS */;
-INSERT INTO `cerb_extension` VALUES ('devblocks.storage.engine.disk','devblocks.core','devblocks.storage.engine',0,'Disk','api/services/storage.php','DevblocksStorageEngineDisk','a:0:{}'),('devblocks.storage.engine.database','devblocks.core','devblocks.storage.engine',1,'Database','api/services/storage.php','DevblocksStorageEngineDatabase','a:0:{}'),('devblocks.storage.engine.s3','devblocks.core','devblocks.storage.engine',2,'Amazon S3','api/services/storage.php','DevblocksStorageEngineS3','a:0:{}'),('cerberusweb.contexts.app','cerberusweb.core','devblocks.context',0,'Application','api/Application.php','Context_Application','a:3:{s:5:\"alias\";s:3:\"app\";s:10:\"view_class\";s:0:\"\";s:7:\"options\";s:0:\"\";}'),('cerberusweb.contexts.contact_person','cerberusweb.core','devblocks.context',1,'Contact Person','api/dao/contact_person.php','Context_ContactPerson','a:3:{s:5:\"alias\";s:6:\"person\";s:10:\"view_class\";s:18:\"View_ContactPerson\";s:7:\"options\";a:1:{i:0;a:1:{s:9:\"workspace\";s:0:\"\";}}}'),('cerberusweb.contexts.address','cerberusweb.core','devblocks.context',2,'Email Address','api/dao/address.php','Context_Address','a:3:{s:5:\"alias\";s:7:\"address\";s:10:\"view_class\";s:12:\"View_Address\";s:7:\"options\";a:1:{i:0;a:5:{s:6:\"create\";s:0:\"\";s:4:\"find\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}'),('cerberusweb.contexts.calendar_event','cerberusweb.core','devblocks.context',3,'Calendar Event','api/dao/calendar_event.php','Context_CalendarEvent','a:3:{s:5:\"alias\";s:14:\"calendar_event\";s:10:\"view_class\";s:18:\"View_CalendarEvent\";s:7:\"options\";a:1:{i:0;a:3:{s:4:\"find\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}'),('cerberusweb.contexts.comment','cerberusweb.core','devblocks.context',4,'Comment','api/dao/comment.php','Context_Comment','a:2:{s:5:\"alias\";s:7:\"comment\";s:10:\"view_class\";s:12:\"View_Comment\";}'),('cerberusweb.contexts.mail.draft','cerberusweb.core','devblocks.context',5,'Draft','api/dao/mail_queue.php','Context_Draft','a:3:{s:5:\"alias\";s:5:\"draft\";s:10:\"view_class\";s:14:\"View_MailQueue\";s:7:\"options\";a:1:{i:0;a:2:{s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}'),('cerberusweb.contexts.group','cerberusweb.core','devblocks.context',6,'Group','api/dao/group.php','Context_Group','a:3:{s:5:\"alias\";s:5:\"group\";s:10:\"view_class\";s:10:\"View_Group\";s:7:\"options\";a:1:{i:0;a:4:{s:4:\"find\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}'),('cerberusweb.contexts.message','cerberusweb.core','devblocks.context',7,'Message','api/dao/message.php','Context_Message','a:3:{s:5:\"alias\";s:7:\"message\";s:10:\"view_class\";s:12:\"View_Message\";s:7:\"options\";a:1:{i:0;a:2:{s:8:\"snippets\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}'),('cerberusweb.contexts.notification','cerberusweb.core','devblocks.context',8,'Notification','api/dao/notification.php','Context_Notification','a:3:{s:5:\"alias\";s:12:\"notification\";s:10:\"view_class\";s:17:\"View_Notification\";s:7:\"options\";a:1:{i:0;a:2:{s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}'),('cerberusweb.contexts.org','cerberusweb.core','devblocks.context',9,'Organization','api/dao/contact_org.php','Context_Org','a:3:{s:5:\"alias\";s:3:\"org\";s:10:\"view_class\";s:15:\"View_ContactOrg\";s:7:\"options\";a:1:{i:0;a:5:{s:6:\"create\";s:0:\"\";s:4:\"find\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}'),('cerberusweb.contexts.snippet','cerberusweb.core','devblocks.context',10,'Snippet','api/dao/snippet.php','Context_Snippet','a:3:{s:5:\"alias\";s:7:\"snippet\";s:10:\"view_class\";s:12:\"View_Snippet\";s:7:\"options\";a:1:{i:0;a:2:{s:4:\"find\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}'),('cerberusweb.contexts.task','cerberusweb.core','devblocks.context',11,'Task','api/dao/task.php','Context_Task','a:3:{s:5:\"alias\";s:4:\"task\";s:10:\"view_class\";s:9:\"View_Task\";s:7:\"options\";a:1:{i:0;a:5:{s:6:\"create\";s:0:\"\";s:4:\"find\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}'),('cerberusweb.contexts.ticket','cerberusweb.core','devblocks.context',12,'Ticket','api/dao/ticket.php','Context_Ticket','a:3:{s:5:\"alias\";s:6:\"ticket\";s:10:\"view_class\";s:11:\"View_Ticket\";s:7:\"options\";a:1:{i:0;a:5:{s:6:\"create\";s:0:\"\";s:4:\"find\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}'),('cerberusweb.contexts.worker','cerberusweb.core','devblocks.context',13,'Worker','api/dao/worker.php','Context_Worker','a:3:{s:5:\"alias\";s:6:\"worker\";s:10:\"view_class\";s:11:\"View_Worker\";s:7:\"options\";a:1:{i:0;a:3:{s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}'),('cerberusweb.contexts.role','cerberusweb.core','devblocks.context',14,'Role','api/dao/worker_role.php','Context_WorkerRole','a:2:{s:10:\"view_class\";s:15:\"View_WorkerRole\";s:7:\"options\";s:0:\"\";}'),('event.mail.received.app','cerberusweb.core','devblocks.event',15,'Before new mail is accepted','api/events/app/mail_received_by_app.php','Event_MailReceivedByApp','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:24:\"cerberusweb.contexts.app\";s:0:\"\";}}}'),('event.mail.assigned.group','cerberusweb.core','devblocks.event',16,'Conversation assigned in group','api/events/group/mail_assigned_in_group.php','Event_MailAssignedInGroup','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";}}}'),('event.mail.closed.group','cerberusweb.core','devblocks.event',17,'Conversation closed in group','api/events/group/mail_closed_in_group.php','Event_MailClosedInGroup','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";}}}'),('event.mail.moved.group','cerberusweb.core','devblocks.event',18,'Conversation moved in group','api/events/group/mail_moved_to_group.php','Event_MailMovedToGroup','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";}}}'),('event.mail.received.group','cerberusweb.core','devblocks.event',19,'New message on a group conversation','api/events/group/mail_received_by_group.php','Event_MailReceivedByGroup','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";}}}'),('event.mail.after.sent.group','cerberusweb.core','devblocks.event',20,'After sending worker message','api/events/group/mail_after_sent_by_group.php','Event_MailAfterSentByGroup','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";}}}'),('event.mail.sent.group','cerberusweb.core','devblocks.event',21,'Before sending worker message','api/events/group/mail_before_sent_by_group.php','Event_MailBeforeSentByGroup','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";}}}'),('event.ticket.viewed.worker','cerberusweb.core','devblocks.event',22,'Mail conversation viewed by worker','api/events/app/ticket_viewed_by_worker.php','Event_TicketViewedByWorker','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:24:\"cerberusweb.contexts.app\";s:0:\"\";}}}'),('event.task.created.worker','cerberusweb.core','devblocks.event',23,'Task created by worker','api/events/app/task_created_by_worker.php','Event_TaskCreatedByWorker','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:24:\"cerberusweb.contexts.app\";s:0:\"\";}}}'),('event.macro.address','cerberusweb.core','devblocks.event',24,'Custom address behavior','api/events/macro/address_macro.php','Event_AddressMacro','a:2:{s:13:\"macro_context\";s:28:\"cerberusweb.contexts.address\";s:8:\"contexts\";a:1:{i:0;a:2:{s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}'),('event.macro.calendar_event','cerberusweb.core','devblocks.event',25,'Custom calendar event behavior','api/events/macro/calendar_event_macro.php','Event_CalendarEventMacro','a:2:{s:13:\"macro_context\";s:35:\"cerberusweb.contexts.calendar_event\";s:8:\"contexts\";a:1:{i:0;a:2:{s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}'),('event.macro.group','cerberusweb.core','devblocks.event',26,'Custom group behavior','api/events/macro/group_macro.php','Event_GroupMacro','a:2:{s:13:\"macro_context\";s:26:\"cerberusweb.contexts.group\";s:8:\"contexts\";a:1:{i:0;a:2:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";s:25:\"cerberusweb.contexts.role\";s:0:\"\";}}}'),('event.macro.org','cerberusweb.core','devblocks.event',27,'Custom organization behavior','api/events/macro/org_macro.php','Event_OrgMacro','a:2:{s:13:\"macro_context\";s:24:\"cerberusweb.contexts.org\";s:8:\"contexts\";a:1:{i:0;a:2:{s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}'),('event.macro.task','cerberusweb.core','devblocks.event',28,'Custom task behavior','api/events/macro/task_macro.php','Event_TaskMacro','a:2:{s:13:\"macro_context\";s:25:\"cerberusweb.contexts.task\";s:8:\"contexts\";a:1:{i:0;a:2:{s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}'),('event.macro.ticket','cerberusweb.core','devblocks.event',29,'Custom ticket behavior','api/events/macro/ticket_macro.php','Event_TicketMacro','a:2:{s:13:\"macro_context\";s:27:\"cerberusweb.contexts.ticket\";s:8:\"contexts\";a:1:{i:0;a:3:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}'),('event.macro.worker','cerberusweb.core','devblocks.event',30,'Custom worker behavior','api/events/macro/worker_macro.php','Event_WorkerMacro','a:2:{s:13:\"macro_context\";s:27:\"cerberusweb.contexts.worker\";s:8:\"contexts\";a:1:{i:0;a:3:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}'),('event.mail.received.watcher','cerberusweb.core','devblocks.event',31,'New message on a watched conversation','api/events/worker/mail_received_by_watcher.php','Event_MailReceivedByWatcher','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}'),('event.notification.received.worker','cerberusweb.core','devblocks.event',32,'New notification for me','api/events/worker/notification_received_by_worker.php','Event_NotificationReceivedByWorker','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}'),('cerberusweb.listeners.event','cerberusweb.core','devblocks.listener.event',33,'Cerberus Helpdesk Event Listener','api/listeners.classes.php','ChCoreEventListener','a:1:{s:6:\"events\";a:1:{i:0;a:6:{s:14:\"comment.create\";s:0:\"\";s:14:\"context.update\";s:0:\"\";s:14:\"context.delete\";s:0:\"\";s:13:\"context.maint\";s:0:\"\";s:14:\"cron.heartbeat\";s:0:\"\";s:10:\"cron.maint\";s:0:\"\";}}}'),('cerberusweb.listeners.triggers','cerberusweb.core','devblocks.listener.event',34,'Triggers Manager','api/listeners.classes.php','EventListener_Triggers','a:0:{}'),('core.controller.rss','cerberusweb.core','devblocks.controller',35,'RSS Controller','api/uri/rss.php','ChRssController','a:1:{s:3:\"uri\";s:3:\"rss\";}'),('core.controller.internal','cerberusweb.core','devblocks.controller',36,'Internal Controller','api/uri/internal.php','ChInternalController','a:1:{s:3:\"uri\";s:8:\"internal\";}'),('core.controller.print','cerberusweb.core','devblocks.controller',37,'Print Controller','api/uri/print.php','ChPrintController','a:1:{s:3:\"uri\";s:5:\"print\";}'),('core.controller.debug','cerberusweb.core','devblocks.controller',38,'Debug Controller','api/uri/debug.php','ChDebugController','a:1:{s:3:\"uri\";s:5:\"debug\";}'),('core.controller.files','cerberusweb.core','devblocks.controller',39,'Files Controller','api/uri/files.php','ChFilesController','a:1:{s:3:\"uri\";s:5:\"files\";}'),('core.controller.explorer','cerberusweb.core','devblocks.controller',40,'Explorer Controller','api/uri/explorer.php','ChExplorerController','a:1:{s:3:\"uri\";s:7:\"explore\";}'),('core.controller.cron','cerberusweb.core','devblocks.controller',41,'Scheduled Tasks (Cron) Controller','api/uri/cron.php','ChCronController','a:1:{s:3:\"uri\";s:4:\"cron\";}'),('core.controller.portal','cerberusweb.core','devblocks.controller',42,'Portal Controller','api/uri/portal.php','Controller_Portal','a:1:{s:3:\"uri\";s:6:\"portal\";}'),('core.controller.page','cerberusweb.core','devblocks.controller',43,'Cerberus Helpdesk Controller','api/plugin.classes.php','ChPageController','a:0:{}'),('core.listeners.tour','cerberusweb.core','devblocks.listener.http',44,'Core Helpdesk Tour','api/listeners.classes.php','ChCoreTour','a:0:{}'),('cerberusweb.storage.schema.attachments','cerberusweb.core','devblocks.storage.schema',45,'Attachments','api/dao/attachment.php','Storage_Attachments','a:3:{s:22:\"active_storage_profile\";s:29:\"devblocks.storage.engine.disk\";s:23:\"archive_storage_profile\";s:29:\"devblocks.storage.engine.disk\";s:18:\"archive_after_days\";s:1:\"7\";}'),('cerberusweb.storage.schema.message_content','cerberusweb.core','devblocks.storage.schema',46,'Message Content','api/dao/message.php','Storage_MessageContent','a:3:{s:22:\"active_storage_profile\";s:33:\"devblocks.storage.engine.database\";s:23:\"archive_storage_profile\";s:33:\"devblocks.storage.engine.database\";s:18:\"archive_after_days\";s:1:\"7\";}'),('cerberusweb.search.schema.comment_content','cerberusweb.core','devblocks.search.schema',47,'Comment Content','api/dao/comment.php','Search_CommentContent','a:0:{}'),('cerberusweb.search.schema.message_content','cerberusweb.core','devblocks.search.schema',48,'Message Content','api/dao/message.php','Search_MessageContent','a:0:{}'),('core.page.welcome','cerberusweb.core','cerberusweb.page',49,'Welcome Page','api/uri/welcome.php','ChWelcomePage','a:2:{s:3:\"uri\";s:7:\"welcome\";s:9:\"menutitle\";s:0:\"\";}'),('core.page.pages','cerberusweb.core','cerberusweb.page',50,'Custom Pages','api/uri/pages.php','Page_Custom','a:2:{s:3:\"uri\";s:5:\"pages\";s:9:\"menutitle\";s:0:\"\";}'),('core.page.search','cerberusweb.core','cerberusweb.page',51,'Search Page','api/uri/search.php','Page_Search','a:2:{s:3:\"uri\";s:6:\"search\";s:9:\"menutitle\";s:0:\"\";}'),('core.page.mail','cerberusweb.core','cerberusweb.page',52,'Mail Page','api/uri/mail.php','Page_Mail','a:3:{s:3:\"uri\";s:4:\"mail\";s:9:\"menutitle\";s:11:\"common.mail\";s:3:\"acl\";s:9:\"core.mail\";}'),('core.page.mail.drafts','cerberusweb.core','cerberusweb.ui.page.section',53,'Drafts Section','api/uri/mail/drafts.php','PageSection_MailDrafts','a:2:{s:7:\"page_id\";s:14:\"core.page.mail\";s:3:\"uri\";s:6:\"drafts\";}'),('core.page.tickets','cerberusweb.core','cerberusweb.page',54,'Tickets Page','api/uri/tickets.php','ChTicketsPage','a:3:{s:3:\"uri\";s:7:\"tickets\";s:9:\"menutitle\";s:0:\"\";s:3:\"acl\";s:9:\"core.mail\";}'),('core.page.tasks','cerberusweb.core','cerberusweb.page',55,'Tasks Page','api/uri/tasks.php','ChTasksPage','a:2:{s:3:\"uri\";s:5:\"tasks\";s:9:\"menutitle\";s:0:\"\";}'),('core.page.groups','cerberusweb.core','cerberusweb.page',56,'Groups Page','api/uri/groups.php','ChGroupsPage','a:2:{s:3:\"uri\";s:6:\"groups\";s:9:\"menutitle\";s:0:\"\";}'),('core.page.contacts','cerberusweb.core','cerberusweb.page',57,'Contacts Page','api/uri/contacts.php','ChContactsPage','a:3:{s:3:\"uri\";s:8:\"contacts\";s:9:\"menutitle\";s:0:\"\";s:3:\"acl\";s:13:\"core.addybook\";}'),('core.page.display','cerberusweb.core','cerberusweb.page',58,'Display Ticket Page','api/uri/display.php','ChDisplayPage','a:3:{s:3:\"uri\";s:7:\"display\";s:9:\"menutitle\";s:0:\"\";s:3:\"acl\";s:9:\"core.mail\";}'),('core.page.signin','cerberusweb.core','cerberusweb.page',59,'Signin Page','api/uri/login.php','ChSignInPage','a:2:{s:3:\"uri\";s:5:\"login\";s:9:\"menutitle\";s:0:\"\";}'),('core.page.configuration','cerberusweb.core','cerberusweb.page',60,'Setup Page','api/uri/config.php','ChConfigurationPage','a:2:{s:3:\"uri\";s:6:\"config\";s:9:\"menutitle\";s:0:\"\";}'),('core.page.setup.acl','cerberusweb.core','cerberusweb.ui.page.section',61,'ACL Section','api/uri/config/acl.php','PageSection_SetupACL','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:3:\"acl\";}'),('core.page.setup.virtual_attendants','cerberusweb.core','cerberusweb.ui.page.section',62,'Virtual Attendants Section','api/uri/config/attendants.php','PageSection_SetupAttendants','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:10:\"attendants\";}'),('core.page.setup.branding','cerberusweb.core','cerberusweb.ui.page.section',63,'Branding Section','api/uri/config/branding.php','PageSection_SetupBranding','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:8:\"branding\";}'),('core.page.setup.fields','cerberusweb.core','cerberusweb.ui.page.section',64,'Custom Fields Section','api/uri/config/fields.php','PageSection_SetupCustomFields','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:6:\"fields\";}'),('core.page.setup.snippets','cerberusweb.core','cerberusweb.ui.page.section',65,'Snippets Section','api/uri/config/snippets.php','PageSection_SetupSnippets','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:8:\"snippets\";}'),('core.page.setup.groups','cerberusweb.core','cerberusweb.ui.page.section',66,'Groups Section','api/uri/config/groups.php','PageSection_SetupGroups','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:6:\"groups\";}'),('core.page.setup.license','cerberusweb.core','cerberusweb.ui.page.section',67,'License Section','api/uri/config/license.php','PageSection_SetupLicense','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:7:\"license\";}'),('core.page.setup.mail_filtering','cerberusweb.core','cerberusweb.ui.page.section',68,'Mail Filtering Section','api/uri/config/mail_filtering.php','PageSection_SetupMailFiltering','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:14:\"mail_filtering\";}'),('core.page.setup.mail_from','cerberusweb.core','cerberusweb.ui.page.section',69,'Mail From Section','api/uri/config/mail_from.php','PageSection_SetupMailFrom','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:9:\"mail_from\";}'),('core.page.setup.mail_incoming','cerberusweb.core','cerberusweb.ui.page.section',70,'Incoming Mail Section','api/uri/config/mail_incoming.php','PageSection_SetupMailIncoming','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:13:\"mail_incoming\";}'),('core.page.setup.mail_outgoing','cerberusweb.core','cerberusweb.ui.page.section',71,'Outgoing Mail Section','api/uri/config/mail_outgoing.php','PageSection_SetupMailOutgoing','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:13:\"mail_outgoing\";}'),('core.page.setup.mail_pop3','cerberusweb.core','cerberusweb.ui.page.section',72,'POP3 Section','api/uri/config/mail_pop3.php','PageSection_SetupMailPop3','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:9:\"mail_pop3\";}'),('core.page.setup.mail_queue','cerberusweb.core','cerberusweb.ui.page.section',73,'Mail Queue Section','api/uri/config/mail_queue.php','PageSection_SetupMailQueue','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:10:\"mail_queue\";}'),('core.page.setup.mail_routing','cerberusweb.core','cerberusweb.ui.page.section',74,'Mail Routing Section','api/uri/config/mail_routing.php','PageSection_SetupMailRouting','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:12:\"mail_routing\";}'),('core.page.setup.mail_smtp','cerberusweb.core','cerberusweb.ui.page.section',75,'SMTP Section','api/uri/config/mail_smtp.php','PageSection_SetupMailSmtp','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:9:\"mail_smtp\";}'),('core.page.setup.plugins','cerberusweb.core','cerberusweb.ui.page.section',76,'Plugins Section','api/uri/config/plugins.php','PageSection_SetupPlugins','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:7:\"plugins\";}'),('core.page.setup.plugin_library','cerberusweb.core','cerberusweb.ui.page.section',77,'Plugin Library Section','api/uri/config/plugin_library.php','PageSection_SetupPluginLibrary','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:14:\"plugin_library\";}'),('core.page.setup.portal','cerberusweb.core','cerberusweb.ui.page.section',78,'Portal Section','api/uri/config/portal.php','PageSection_SetupPortal','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:6:\"portal\";}'),('core.page.setup.portals','cerberusweb.core','cerberusweb.ui.page.section',79,'Portals Section','api/uri/config/portals.php','PageSection_SetupPortals','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:7:\"portals\";}'),('core.page.setup.scheduler','cerberusweb.core','cerberusweb.ui.page.section',80,'Scheduler Section','api/uri/config/scheduler.php','PageSection_SetupScheduler','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:9:\"scheduler\";}'),('core.page.setup.scheduled_behavior','cerberusweb.core','cerberusweb.ui.page.section',81,'Scheduled Behavior Section','api/uri/config/scheduled_behavior.php','PageSection_SetupScheduledBehavior','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:18:\"scheduled_behavior\";}'),('core.page.setup.security','cerberusweb.core','cerberusweb.ui.page.section',82,'Security Section','api/uri/config/security.php','PageSection_SetupSecurity','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:8:\"security\";}'),('core.page.setup.storage_attachments','cerberusweb.core','cerberusweb.ui.page.section',83,'Storage Attachments Section','api/uri/config/storage_attachments.php','PageSection_SetupStorageAttachments','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:19:\"storage_attachments\";}'),('core.page.setup.storage_content','cerberusweb.core','cerberusweb.ui.page.section',84,'Storage Content Section','api/uri/config/storage_content.php','PageSection_SetupStorageContent','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:15:\"storage_content\";}'),('core.page.setup.storage_profiles','cerberusweb.core','cerberusweb.ui.page.section',85,'Storage Profiles Section','api/uri/config/storage_profiles.php','PageSection_SetupStorageProfiles','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:16:\"storage_profiles\";}'),('core.page.setup.workers','cerberusweb.core','cerberusweb.ui.page.section',86,'Workers Section','api/uri/config/workers.php','PageSection_SetupWorkers','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:7:\"workers\";}'),('core.page.preferences','cerberusweb.core','cerberusweb.page',87,'Preferences Page','api/uri/preferences.php','ChPreferencesPage','a:2:{s:3:\"uri\";s:11:\"preferences\";s:9:\"menutitle\";s:0:\"\";}'),('core.page.profiles','cerberusweb.core','cerberusweb.page',88,'Profiles Pages','api/uri/profiles.php','Page_Profiles','a:2:{s:3:\"uri\";s:8:\"profiles\";s:9:\"menutitle\";s:0:\"\";}'),('core.page.profiles.address','cerberusweb.core','cerberusweb.ui.page.section',89,'Address Section','api/uri/profiles/address.php','PageSection_ProfilesAddress','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:7:\"address\";}'),('core.page.profiles.calendar_event','cerberusweb.core','cerberusweb.ui.page.section',90,'Calendar Event Section','api/uri/profiles/calendar_event.php','PageSection_ProfilesCalendarEvent','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:14:\"calendar_event\";}'),('core.page.profiles.contact_person','cerberusweb.core','cerberusweb.ui.page.section',91,'Contact Person Section','api/uri/profiles/contact_person.php','PageSection_ProfilesContactPerson','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:14:\"contact_person\";}'),('core.page.profiles.group','cerberusweb.core','cerberusweb.ui.page.section',92,'Group Section','api/uri/profiles/group.php','PageSection_ProfilesGroup','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:5:\"group\";}'),('core.page.profiles.organization','cerberusweb.core','cerberusweb.ui.page.section',93,'Organization Section','api/uri/profiles/organization.php','PageSection_ProfilesOrganization','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:3:\"org\";}'),('core.page.profiles.task','cerberusweb.core','cerberusweb.ui.page.section',94,'Task Section','api/uri/profiles/task.php','PageSection_ProfilesTask','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:4:\"task\";}'),('core.page.profiles.ticket','cerberusweb.core','cerberusweb.ui.page.section',95,'Ticket Section','api/uri/profiles/ticket.php','PageSection_ProfilesTicket','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:6:\"ticket\";}'),('core.page.profiles.worker','cerberusweb.core','cerberusweb.ui.page.section',96,'Worker Section','api/uri/profiles/worker.php','PageSection_ProfilesWorker','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:6:\"worker\";}'),('login.default','cerberusweb.core','cerberusweb.login',97,'Default Login','api/login.classes.php','DefaultLoginModule','a:2:{s:13:\"switcher_icon\";s:22:\"images/plugin/mail.png\";s:14:\"switcher_label\";s:30:\"Log in with email and password\";}'),('cron.pop3','cerberusweb.core','cerberusweb.cron',98,'POP3 / IMAP E-Mail Importing','api/cron.classes.php','Pop3Cron','a:0:{}'),('cron.parser','cerberusweb.core','cerberusweb.cron',99,'Inbound E-Mail Processing','api/cron.classes.php','ParseCron','a:0:{}'),('cron.maint','cerberusweb.core','cerberusweb.cron',100,'Maintenance','api/cron.classes.php','MaintCron','a:0:{}'),('cron.heartbeat','cerberusweb.core','cerberusweb.cron',101,'Heartbeat','api/cron.classes.php','HeartbeatCron','a:0:{}'),('cron.import','cerberusweb.core','cerberusweb.cron',102,'Background Importing and Synchronization','api/cron.classes.php','ImportCron','a:0:{}'),('cron.storage','cerberusweb.core','cerberusweb.cron',103,'Storage Manager','api/cron.classes.php','StorageCron','a:0:{}'),('cron.search','cerberusweb.core','cerberusweb.cron',104,'Search Indexer','api/cron.classes.php','SearchCron','a:0:{}'),('cron.mail_queue','cerberusweb.core','cerberusweb.cron',105,'Mail Queue','api/cron.classes.php','MailQueueCron','a:0:{}'),('cron.virtual_attendant.scheduled_behavior','cerberusweb.core','cerberusweb.cron',106,'Virtual Attendant Scheduled Behavior','api/cron.classes.php','Cron_VirtualAttendantScheduledBehavior','a:0:{}'),('cron.calendar_recurring','cerberusweb.core','cerberusweb.cron',107,'Calendar Recurring Event Schedule','api/cron.classes.php','Cron_CalendarRecurringEventScheduler','a:0:{}'),('core.rss.source.notification','cerberusweb.core','cerberusweb.rss.source',108,'Notifications RSS','api/plugin.classes.php','ChRssSource_Notification','a:0:{}'),('core.rss.source.task','cerberusweb.core','cerberusweb.rss.source',109,'Tasks RSS','api/plugin.classes.php','ChRssSource_Task','a:0:{}'),('core.rss.source.ticket','cerberusweb.core','cerberusweb.rss.source',110,'Tickets RSS','api/plugin.classes.php','ChRssSource_Ticket','a:0:{}'),('cerberusweb.contexts.opportunity','cerberusweb.crm','devblocks.context',0,'Opportunity','api/dao/crm_opportunity.php','Context_Opportunity','a:3:{s:5:\"alias\";s:11:\"opportunity\";s:10:\"view_class\";s:19:\"View_CrmOpportunity\";s:7:\"options\";a:1:{i:0;a:5:{s:6:\"create\";s:0:\"\";s:4:\"find\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}'),('crm.listeners.core','cerberusweb.crm','devblocks.listener.event',1,'CRM Listener','api/App.php','CrmEventListener','a:1:{s:6:\"events\";a:1:{i:0;a:1:{s:10:\"cron.maint\";s:0:\"\";}}}'),('crm.page.profiles.opportunity','cerberusweb.crm','cerberusweb.ui.page.section',2,'Opp Section','api/uri/profiles/opp.php','PageSection_ProfilesOpportunity','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:11:\"opportunity\";}'),('event.macro.crm.opportunity','cerberusweb.crm','devblocks.event',3,'Custom opportunity behavior','api/events/crm_opportunity_macro.php','Event_CrmOpportunityMacro','a:2:{s:13:\"macro_context\";s:32:\"cerberusweb.contexts.opportunity\";s:8:\"contexts\";a:1:{i:0;a:2:{s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}'),('crm.page.crm','cerberusweb.crm','cerberusweb.page',4,'CRM Page','api/App.php','CrmPage','a:2:{s:3:\"uri\";s:3:\"crm\";s:9:\"menutitle\";s:0:\"\";}'),('crm.opp.tab.org','cerberusweb.crm','cerberusweb.ui.context.profile.tab',5,'Opportunity Tab','api/App.php','CrmOrgOppTab','a:3:{s:3:\"uri\";s:4:\"opps\";s:8:\"contexts\";a:1:{i:0;a:1:{s:24:\"cerberusweb.contexts.org\";s:0:\"\";}}s:5:\"title\";s:13:\"crm.tab.title\";}'),('crm.opp.tab.ticket','cerberusweb.crm','cerberusweb.ui.context.profile.tab',6,'Opportunity Tab','api/App.php','CrmTicketOppTab','a:3:{s:3:\"uri\";s:4:\"opps\";s:8:\"contexts\";a:1:{i:0;a:1:{s:27:\"cerberusweb.contexts.ticket\";s:0:\"\";}}s:5:\"title\";s:13:\"crm.tab.title\";}'),('crm.rest.controller.opps','cerberusweb.crm','cerberusweb.rest.controller',7,'Opportunities','api/rest/opps.php','ChRest_Opps','a:1:{s:3:\"uri\";s:4:\"opps\";}'),('cerberusweb.contexts.feedback','cerberusweb.feedback','devblocks.context',0,'Feedback','api/App.php','Context_Feedback','a:3:{s:5:\"alias\";s:8:\"feedback\";s:10:\"view_class\";s:20:\"C4_FeedbackEntryView\";s:7:\"options\";a:1:{i:0;a:3:{s:6:\"create\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}'),('feedback.message.toolbaritem.feedback','cerberusweb.feedback','cerberusweb.message.toolbaritem',1,'Ticket Message Toolbar Feedback Item','api/App.php','ChFeedbackMessageToolbarFeedback','a:0:{}'),('feedback.controller','cerberusweb.feedback','devblocks.controller',2,'Feedback Controller','api/App.php','ChFeedbackController','a:1:{s:3:\"uri\";s:8:\"feedback\";}'),('feedback.rest.controller.feedback','cerberusweb.feedback','cerberusweb.rest.controller',3,'Feedback','api/rest/feedback.php','ChRest_Feedback','a:1:{s:3:\"uri\";s:8:\"feedback\";}'),('kb.listener','cerberusweb.kb','devblocks.listener.event',0,'Event Listener','api/App.php','EventListener_Kb','a:1:{s:6:\"events\";a:1:{i:0;a:1:{s:10:\"cron.maint\";s:0:\"\";}}}'),('cerberusweb.contexts.kb_article','cerberusweb.kb','devblocks.context',1,'Knowledgebase Article','api/dao/kb_article.php','Context_KbArticle','a:3:{s:5:\"alias\";s:10:\"kb_article\";s:10:\"view_class\";s:14:\"View_KbArticle\";s:7:\"options\";a:1:{i:0;a:5:{s:6:\"create\";s:0:\"\";s:4:\"find\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}'),('cerberusweb.contexts.kb_category','cerberusweb.kb','devblocks.context',2,'Knowledgebase Category','api/dao/kb_category.php','Context_KbCategory','a:3:{s:5:\"alias\";s:11:\"kb_category\";s:10:\"view_class\";s:15:\"View_KbCategory\";s:7:\"options\";s:0:\"\";}'),('event.macro.kb_article','cerberusweb.kb','devblocks.event',3,'Custom knowledgebase article behavior','api/events/macro/kbarticle_macro.php','Event_KbArticleMacro','a:2:{s:13:\"macro_context\";s:31:\"cerberusweb.contexts.kb_article\";s:8:\"contexts\";a:1:{i:0;a:2:{s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}'),('core.page.kb','cerberusweb.kb','cerberusweb.page',4,'Knowledgebase','api/App.php','ChKbPage','a:2:{s:3:\"uri\";s:2:\"kb\";s:9:\"menutitle\";s:0:\"\";}'),('cerberusweb.kb.tab.browse','cerberusweb.kb','cerberusweb.ui.workspace.tab',5,'Browse KB Tab','api/App.php','WorkspaceTab_KbBrowse','a:1:{s:5:\"label\";s:24:\"kb.workspace.tab.browser\";}'),('cerberusweb.page.profiles.kb_article','cerberusweb.kb','cerberusweb.ui.page.section',6,'KB Article Section','api/profiles/kb_article.php','PageSection_ProfilesKbArticle','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:2:\"kb\";}'),('cerberusweb.kb.controller.ajax','cerberusweb.kb','devblocks.controller',7,'KB Ajax Controller','api/App.php','ChKbAjaxController','a:1:{s:3:\"uri\";s:7:\"kb.ajax\";}'),('cerberusweb.kb.reply.toolbaritem.kb','cerberusweb.kb','cerberusweb.reply.toolbaritem',8,'KB Reply Toolbar','api/App.php','ChKbReplyToolbarButton','a:0:{}'),('cerberusweb.kb.sc.controller','cerberusweb.kb','usermeet.sc.controller',9,'Knowledgebase','api/sc/kb.php','UmScKbController','a:3:{s:3:\"uri\";s:2:\"kb\";s:10:\"menu_title\";s:20:\"common.knowledgebase\";s:4:\"icon\";s:37:\"images/crystal/icon_knowledgebase.gif\";}'),('cerberusweb.kb.sc.rss.controller','cerberusweb.kb','usermeet.sc.rss.controller',10,'Knowledgebase RSS','api/sc/rss/kb.php','UmScKbRssController','a:1:{s:3:\"uri\";s:2:\"kb\";}'),('cerberusweb.search.schema.kb_article','cerberusweb.kb','devblocks.search.schema',11,'Knowledgebase Articles','api/dao/kb_article.php','Search_KbArticle','a:0:{}'),('cerberusweb.rest.controller.kbarticles','cerberusweb.kb','cerberusweb.rest.controller',12,'KB Articles','api/rest/kbarticles.php','ChRest_KbArticles','a:1:{s:3:\"uri\";s:10:\"kbarticles\";}'),('cerberusweb.rest.controller.kbcategories','cerberusweb.kb','cerberusweb.rest.controller',13,'KB Categories','api/rest/kbcategories.php','ChRest_KbCategories','a:1:{s:3:\"uri\";s:12:\"kbcategories\";}'),('reports.workspace.page','cerberusweb.reports','cerberusweb.ui.workspace.page',0,'Reports Workspace Page','api/App.php','ChReportsWorkspacePage','a:1:{s:5:\"label\";s:20:\"reports.menu.reports\";}'),('report.group.custom_fields','cerberusweb.reports','cerberusweb.report.group',1,'Custom Field Reports','api/App.php','ChReportGroupCustomFields','a:2:{s:10:\"group_name\";s:30:\"reports.ui.group.custom_fields\";s:3:\"acl\";s:27:\"reports.group.custom_fields\";}'),('report.group.groups','cerberusweb.reports','cerberusweb.report.group',2,'Group Reports','api/App.php','ChReportGroupGroups','a:2:{s:10:\"group_name\";s:22:\"reports.ui.group.group\";s:3:\"acl\";s:20:\"reports.group.groups\";}'),('report.group.orgs','cerberusweb.reports','cerberusweb.report.group',3,'Org Reports','api/App.php','ChReportGroupOrgs','a:2:{s:10:\"group_name\";s:20:\"reports.ui.group.org\";s:3:\"acl\";s:18:\"reports.group.orgs\";}'),('report.group.spam','cerberusweb.reports','cerberusweb.report.group',4,'Spam Reports','api/App.php','ChReportGroupSpam','a:2:{s:10:\"group_name\";s:21:\"reports.ui.group.spam\";s:3:\"acl\";s:18:\"reports.group.spam\";}'),('report.group.tickets','cerberusweb.reports','cerberusweb.report.group',5,'Ticket Reports','api/App.php','ChReportGroupTickets','a:2:{s:10:\"group_name\";s:23:\"reports.ui.group.ticket\";s:3:\"acl\";s:21:\"reports.group.tickets\";}'),('report.group.workers','cerberusweb.reports','cerberusweb.report.group',6,'Worker Reports','api/App.php','ChReportGroupWorkers','a:2:{s:10:\"group_name\";s:23:\"reports.ui.group.worker\";s:3:\"acl\";s:21:\"reports.group.workers\";}'),('report.custom_fields.usage','cerberusweb.reports','cerberusweb.report',7,'Custom Field Usage Report','api/reports/custom_fields/CustomFieldsUsageReport.php','ChReportCustomFieldUsage','a:2:{s:11:\"report_name\";s:30:\"reports.ui.custom_fields.usage\";s:12:\"report_group\";s:26:\"report.group.custom_fields\";}'),('report.tickets.new_tickets','cerberusweb.reports','cerberusweb.report',8,'Created Tickets By Group Report','api/reports/tickets/CreatedTicketsReport.php','ChReportNewTickets','a:2:{s:11:\"report_name\";s:29:\"reports.ui.ticket.new_tickets\";s:12:\"report_group\";s:20:\"report.group.tickets\";}'),('report.tickets.spam_words','cerberusweb.reports','cerberusweb.report',9,'Spam Word Report','api/reports/spam/TopSpamWordsReport.php','ChReportSpamWords','a:2:{s:11:\"report_name\";s:21:\"reports.ui.spam.words\";s:12:\"report_group\";s:17:\"report.group.spam\";}'),('report.tickets.spam_addys','cerberusweb.reports','cerberusweb.report',10,'Spam Addy Report','api/reports/spam/TopSpamAddysReport.php','ChReportSpamAddys','a:2:{s:11:\"report_name\";s:23:\"reports.ui.spam.senders\";s:12:\"report_group\";s:17:\"report.group.spam\";}'),('report.tickets.spam_domains','cerberusweb.reports','cerberusweb.report',11,'Spam Domains Report','api/reports/spam/TopSpamDomainsReport.php','ChReportSpamDomains','a:2:{s:11:\"report_name\";s:23:\"reports.ui.spam.domains\";s:12:\"report_group\";s:17:\"report.group.spam\";}'),('report.workers.roster','cerberusweb.reports','cerberusweb.report',12,'Group Roster Report','api/reports/groups/GroupRostersReport.php','ChReportGroupRoster','a:2:{s:11:\"report_name\";s:23:\"reports.ui.group.roster\";s:12:\"report_group\";s:19:\"report.group.groups\";}'),('report.workers.averageresponsetime','cerberusweb.reports','cerberusweb.report',13,'Average Response Time Report','api/reports/worker/WorkerAverageResponseTimeReport.php','ChReportAverageResponseTime','a:2:{s:11:\"report_name\";s:31:\"reports.ui.worker.response_time\";s:12:\"report_group\";s:20:\"report.group.workers\";}'),('report.groups.group_replies','cerberusweb.reports','cerberusweb.report',14,'Group Replies Report','api/reports/groups/GroupRepliesReport.php','ChReportGroupReplies','a:2:{s:11:\"report_name\";s:24:\"reports.ui.group.replies\";s:12:\"report_group\";s:19:\"report.group.groups\";}'),('report.tickets.closed_tickets','cerberusweb.reports','cerberusweb.report',15,'Closed Tickets Report','api/reports/tickets/ClosedTicketsReport.php','ChReportClosedTickets','a:2:{s:11:\"report_name\";s:24:\"reports.ui.ticket.closed\";s:12:\"report_group\";s:20:\"report.group.tickets\";}'),('report.orgs.shared_sender_domains','cerberusweb.reports','cerberusweb.report',16,'Top 100 Shared Sender Domains Report','api/reports/orgs/SharedSenderDomainsReport.php','ChReportOrgSharedEmailDomains','a:2:{s:11:\"report_name\";s:36:\"reports.ui.org.shared_sender_domains\";s:12:\"report_group\";s:17:\"report.group.orgs\";}'),('report.tickets.top_contacts','cerberusweb.reports','cerberusweb.report',17,'Top Created Tickets By Contact Report','api/reports/tickets/TopContactsReport.php','ChReportTopTicketsByContact','a:2:{s:11:\"report_name\";s:30:\"reports.ui.ticket.top_contacts\";s:12:\"report_group\";s:20:\"report.group.tickets\";}'),('report.workers.worker_history','cerberusweb.reports','cerberusweb.report',18,'Worker History Report','api/reports/worker/WorkerHistoryReport.php','ChReportWorkerHistory','a:2:{s:11:\"report_name\";s:32:\"reports.ui.worker.worker_history\";s:12:\"report_group\";s:20:\"report.group.workers\";}'),('rest.controller','cerberusweb.restapi','devblocks.controller',0,'REST Controller','api/App.php','Ch_RestFrontController','a:1:{s:3:\"uri\";s:4:\"rest\";}'),('rest.preferences.tab.api','cerberusweb.restapi','cerberusweb.preferences.tab',1,'API Preferences Tab','api/App.php','Ch_RestPreferencesTab','a:2:{s:3:\"uri\";s:3:\"api\";s:5:\"title\";s:29:\"webapi.common.api_credentials\";}'),('cerberusweb.rest.controller.addresses','cerberusweb.restapi','cerberusweb.rest.controller',2,'Addresses','api/rest/addresses.php','ChRest_Addresses','a:1:{s:3:\"uri\";s:9:\"addresses\";}'),('cerberusweb.rest.controller.attachments','cerberusweb.restapi','cerberusweb.rest.controller',3,'Attachments','api/rest/attachments.php','ChRest_Attachments','a:1:{s:3:\"uri\";s:11:\"attachments\";}'),('cerberusweb.rest.controller.comments','cerberusweb.restapi','cerberusweb.rest.controller',4,'Comments','api/rest/comments.php','ChRest_Comments','a:1:{s:3:\"uri\";s:8:\"comments\";}'),('cerberusweb.rest.controller.contactperson','cerberusweb.restapi','cerberusweb.rest.controller',5,'Contact Person','api/rest/contact_person.php','ChRest_ContactPerson','a:1:{s:3:\"uri\";s:8:\"contacts\";}'),('cerberusweb.rest.controller.custom_fields','cerberusweb.restapi','cerberusweb.rest.controller',6,'Custom Fields','api/rest/custom_fields.php','ChRest_CustomFields','a:1:{s:3:\"uri\";s:12:\"customfields\";}'),('cerberusweb.rest.controller.groups','cerberusweb.restapi','cerberusweb.rest.controller',7,'Groups','api/rest/groups.php','ChRest_Groups','a:1:{s:3:\"uri\";s:6:\"groups\";}'),('cerberusweb.rest.controller.messages','cerberusweb.restapi','cerberusweb.rest.controller',8,'Messages','api/rest/messages.php','ChRest_Messages','a:1:{s:3:\"uri\";s:8:\"messages\";}'),('cerberusweb.rest.controller.notifications','cerberusweb.restapi','cerberusweb.rest.controller',9,'Notifications','api/rest/notifications.php','ChRest_Notifications','a:1:{s:3:\"uri\";s:13:\"notifications\";}'),('cerberusweb.rest.controller.orgs','cerberusweb.restapi','cerberusweb.rest.controller',10,'Orgs','api/rest/orgs.php','ChRest_Orgs','a:1:{s:3:\"uri\";s:4:\"orgs\";}'),('cerberusweb.rest.controller.parser','cerberusweb.restapi','cerberusweb.rest.controller',11,'Parser','api/rest/parser.php','ChRest_Parser','a:1:{s:3:\"uri\";s:6:\"parser\";}'),('cerberusweb.rest.controller.tasks','cerberusweb.restapi','cerberusweb.rest.controller',12,'Tasks','api/rest/tasks.php','ChRest_Tasks','a:1:{s:3:\"uri\";s:5:\"tasks\";}'),('cerberusweb.rest.controller.tickets','cerberusweb.restapi','cerberusweb.rest.controller',13,'Tickets','api/rest/tickets.php','ChRest_Tickets','a:1:{s:3:\"uri\";s:7:\"tickets\";}'),('cerberusweb.rest.controller.workers','cerberusweb.restapi','cerberusweb.rest.controller',14,'Workers','api/rest/workers.php','ChRest_Workers','a:1:{s:3:\"uri\";s:7:\"workers\";}'),('simulator.listeners.tour','cerberusweb.simulator','devblocks.listener.http',0,'Simulator Tour','listeners.classes.php','ChSimulatorTour','a:0:{}'),('simulator.setup.section.simulator','cerberusweb.simulator','cerberusweb.ui.page.section',1,'Setup Page Simulator Section','classes.php','PageSection_SetupSimulator','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:9:\"simulator\";}'),('simulator.setup.menu.mail.simulator','cerberusweb.simulator','cerberusweb.ui.page.menu.item',2,'Setup Page Simulator Menu Item','classes.php','PageMenuItem_SetupSimulator','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:7:\"menu_id\";s:23:\"core.setup.menu.plugins\";}'),('sc.listeners.core','cerberusweb.support_center','devblocks.listener.event',0,'Support Center Event Listener','api/UmScApp.php','UmScEventListener','a:1:{s:6:\"events\";a:1:{i:0;a:1:{s:10:\"cron.maint\";s:0:\"\";}}}'),('sc.tool','cerberusweb.support_center','usermeet.tool',1,'Support Center','api/UmScApp.php','UmScApp','a:1:{s:12:\"template_set\";s:26:\"cerberusweb.support_center\";}'),('sc.login.auth.default','cerberusweb.support_center','usermeet.login.authenticator',2,'Cerb6 (Default)','api/UmScApp.php','UmScLoginAuthenticator','a:2:{s:13:\"switcher_icon\";s:15:\"images/mail.png\";s:14:\"switcher_label\";s:30:\"Log in with email and password\";}'),('sc.login.auth.openid','cerberusweb.support_center','usermeet.login.authenticator',3,'OpenID (Recommended)','api/UmScApp.php','ScOpenIDLoginAuthenticator','a:2:{s:13:\"switcher_icon\";s:17:\"images/openid.gif\";s:14:\"switcher_label\";s:18:\"Log in with OpenID\";}'),('sc.controller.home','cerberusweb.support_center','usermeet.sc.controller',4,'Home','api/sc/uri/home.php','UmScHomeController','a:2:{s:3:\"uri\";s:4:\"home\";s:10:\"menu_title\";s:21:\"portal.sc.public.home\";}'),('sc.controller.announcements','cerberusweb.support_center','usermeet.sc.controller',5,'Announcements','api/sc/uri/announcements.php','UmScAnnouncementsController','a:2:{s:3:\"uri\";s:13:\"announcements\";s:10:\"menu_title\";s:30:\"portal.sc.public.announcements\";}'),('sc.controller.contact','cerberusweb.support_center','usermeet.sc.controller',6,'Contact Us','api/sc/uri/contact.php','UmScContactController','a:2:{s:3:\"uri\";s:7:\"contact\";s:10:\"menu_title\";s:25:\"portal.common.open_ticket\";}'),('sc.controller.history','cerberusweb.support_center','usermeet.sc.controller',7,'Ticket History','api/sc/uri/history.php','UmScHistoryController','a:2:{s:3:\"uri\";s:7:\"history\";s:10:\"menu_title\";s:39:\"portal.sc.public.history.ticket_history\";}'),('sc.controller.account','cerberusweb.support_center','usermeet.sc.controller',8,'My Account','api/sc/uri/account.php','UmScAccountController','a:2:{s:3:\"uri\";s:7:\"account\";s:10:\"menu_title\";s:27:\"portal.sc.public.my_account\";}'),('sc.controller.login','cerberusweb.support_center','usermeet.sc.controller',9,'Login','api/sc/uri/login.php','UmScLoginController','a:2:{s:3:\"uri\";s:5:\"login\";s:10:\"menu_title\";s:31:\"portal.sc.public.themes.sign_in\";}'),('cerberusweb.contexts.timetracking','cerberusweb.timetracking','devblocks.context',0,'Time Tracking','api/dao/timetracking_entry.php','Context_TimeTracking','a:3:{s:5:\"alias\";s:10:\"time_entry\";s:10:\"view_class\";s:17:\"View_TimeTracking\";s:7:\"options\";a:1:{i:0;a:5:{s:6:\"create\";s:0:\"\";s:4:\"find\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}'),('event.macro.timetracking','cerberusweb.timetracking','devblocks.event',1,'Custom time tracking behavior','api/events/timetracking_macro.php','Event_TimeTrackingMacro','a:2:{s:13:\"macro_context\";s:33:\"cerberusweb.contexts.timetracking\";s:8:\"contexts\";a:1:{i:0;a:2:{s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}'),('timetracking.listener.core','cerberusweb.timetracking','devblocks.listener.event',2,'Time Tracking Listener','api/App.php','ChTimeTrackingEventListener','a:1:{s:6:\"events\";a:1:{i:0;a:2:{s:10:\"cron.maint\";s:0:\"\";s:19:\"ticket.action.merge\";s:0:\"\";}}}'),('timetracking.renderer.prebody','cerberusweb.timetracking','cerberusweb.renderer.prebody',3,'Time Tracking Pre-body Renderer','api/App.php','ChTimeTrackingPreBodyRenderer','a:0:{}'),('timetracking.profile_script.timer','cerberusweb.timetracking','cerberusweb.ui.context.profile.script',4,'Time Tracking Profile Script','api/App.php','ChTimeTrackingProfileScript','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:1:\"*\";s:0:\"\";}}}'),('timetracking.reply.toolbaritem.timer','cerberusweb.timetracking','cerberusweb.reply.toolbaritem',5,'Time Tracking Reply Toolbar Timer','api/App.php','ChTimeTrackingReplyToolbarTimer','a:0:{}'),('timetracking.setup.section.timetracking','cerberusweb.timetracking','cerberusweb.ui.page.section',6,'Setup Page Simulator Section','api/App.php','ChTimeTracking_SetupPageSection','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:12:\"timetracking\";}'),('timetracking.setup.menu.plugins.timetracking','cerberusweb.timetracking','cerberusweb.ui.page.menu.item',7,'Setup Page Time Tracking Menu Item','api/App.php','ChTimeTracking_SetupPluginsMenuItem','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:7:\"menu_id\";s:23:\"core.setup.menu.plugins\";}'),('timetracking.page','cerberusweb.timetracking','cerberusweb.page',8,'Time Tracking Page','api/App.php','ChTimeTrackingPage','a:2:{s:3:\"uri\";s:12:\"timetracking\";s:9:\"menutitle\";s:0:\"\";}'),('cerberusweb.profiles.time_tracking','cerberusweb.timetracking','cerberusweb.ui.page.section',9,'Time Tracking Page Section','api/profiles/time_tracking.php','PageSection_ProfilesTimeTracking','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:13:\"time_tracking\";}'),('cerberusweb.rest.controller.timetracking','cerberusweb.timetracking','cerberusweb.rest.controller',10,'Time Tracking','api/rest/timetracking.php','ChRest_TimeTracking','a:1:{s:3:\"uri\";s:12:\"timetracking\";}'),('report.group.timetracking','cerberusweb.timetracking','cerberusweb.report.group',11,'Time Tracking Reports','api/App.php','ChReportGroupTimeTracking','a:2:{s:10:\"group_name\";s:23:\"timetracking.ui.reports\";s:3:\"acl\";s:30:\"timetracking.report.group.time\";}'),('report.timetracking.timespentworker','cerberusweb.timetracking','cerberusweb.report',12,'Time Spent Per Worker','api/reports/TimeByWorkerReport.php','ChReportTimeSpentWorker','a:2:{s:11:\"report_name\";s:41:\"timetracking.ui.reports.time_spent_worker\";s:12:\"report_group\";s:25:\"report.group.timetracking\";}'),('report.timetracking.timespentorg','cerberusweb.timetracking','cerberusweb.report',13,'Time Spent Per Organization','api/reports/TimeByOrgReport.php','ChReportTimeSpentOrg','a:2:{s:11:\"report_name\";s:38:\"timetracking.ui.reports.time_spent_org\";s:12:\"report_group\";s:25:\"report.group.timetracking\";}'),('report.timetracking.timespentactivity','cerberusweb.timetracking','cerberusweb.report',14,'Time Spent Per Activity','api/reports/TimeByActivityReport.php','ChReportTimeSpentActivity','a:2:{s:11:\"report_name\";s:43:\"timetracking.ui.reports.time_spent_activity\";s:12:\"report_group\";s:25:\"report.group.timetracking\";}'),('translators.setup.section.translations','cerberusweb.translators','cerberusweb.ui.page.section',0,'Setup Page Translations Section','api/App.php','ChTranslators_SetupPageSection','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:12:\"translations\";}'),('translators.setup.menu.mail.translations','cerberusweb.translators','cerberusweb.ui.page.menu.item',1,'Setup Page Translations Menu Item','api/App.php','ChTranslators_SetupPluginsMenuItem','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:7:\"menu_id\";s:23:\"core.setup.menu.plugins\";}');
+INSERT INTO `cerb_extension` VALUES ('devblocks.storage.engine.disk','devblocks.core','devblocks.storage.engine',0,'Disk','api/services/storage.php','DevblocksStorageEngineDisk','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('devblocks.storage.engine.database','devblocks.core','devblocks.storage.engine',1,'Database','api/services/storage.php','DevblocksStorageEngineDatabase','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('devblocks.storage.engine.s3','devblocks.core','devblocks.storage.engine',2,'Amazon S3','api/services/storage.php','DevblocksStorageEngineS3','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.app','cerberusweb.core','devblocks.context',0,'Application','api/Application.php','Context_Application','a:4:{s:5:\"alias\";s:3:\"app\";s:9:\"dao_class\";s:0:\"\";s:10:\"view_class\";s:0:\"\";s:7:\"options\";s:0:\"\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.contact_person','cerberusweb.core','devblocks.context',1,'Contact Person','api/dao/contact_person.php','Context_ContactPerson','a:5:{s:5:\"alias\";s:6:\"person\";s:9:\"dao_class\";s:17:\"DAO_ContactPerson\";s:10:\"view_class\";s:18:\"View_ContactPerson\";s:7:\"options\";a:1:{i:0;a:2:{s:13:\"custom_fields\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}s:21:\"context_expand_export\";s:6:\"email_\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.address','cerberusweb.core','devblocks.context',2,'Email Address','api/dao/address.php','Context_Address','a:5:{s:5:\"alias\";s:7:\"address\";s:9:\"dao_class\";s:11:\"DAO_Address\";s:10:\"view_class\";s:12:\"View_Address\";s:7:\"options\";a:1:{i:0;a:6:{s:6:\"create\";s:0:\"\";s:13:\"custom_fields\";s:0:\"\";s:4:\"find\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}s:21:\"context_expand_export\";s:4:\"org_\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.bucket','cerberusweb.core','devblocks.context',3,'Bucket','api/dao/bucket.php','Context_Bucket','a:3:{s:5:\"alias\";s:6:\"bucket\";s:9:\"dao_class\";s:10:\"DAO_Bucket\";s:10:\"view_class\";s:11:\"View_Bucket\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.calendar','cerberusweb.core','devblocks.context',4,'Calendar','api/dao/calendar.php','Context_Calendar','a:5:{s:5:\"alias\";s:8:\"calendar\";s:9:\"dao_class\";s:12:\"DAO_Calendar\";s:10:\"view_class\";s:13:\"View_Calendar\";s:7:\"options\";a:1:{i:0;a:6:{s:6:\"create\";s:0:\"\";s:13:\"custom_fields\";s:0:\"\";s:4:\"find\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}s:21:\"context_expand_export\";s:6:\"owner_\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.calendar_event','cerberusweb.core','devblocks.context',5,'Calendar Event','api/dao/calendar_event.php','Context_CalendarEvent','a:5:{s:5:\"alias\";s:14:\"calendar_event\";s:9:\"dao_class\";s:17:\"DAO_CalendarEvent\";s:10:\"view_class\";s:18:\"View_CalendarEvent\";s:7:\"options\";a:1:{i:0;a:5:{s:6:\"create\";s:0:\"\";s:13:\"custom_fields\";s:0:\"\";s:4:\"find\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}s:21:\"context_expand_export\";s:9:\"calendar_\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.calendar_event.recurring','cerberusweb.core','devblocks.context',6,'Calendar Recurring Event','api/dao/calendar_recurring_profile.php','Context_CalendarRecurringProfile','a:5:{s:5:\"alias\";s:24:\"calendar_recurring_event\";s:9:\"dao_class\";s:28:\"DAO_CalendarRecurringProfile\";s:10:\"view_class\";s:29:\"View_CalendarRecurringProfile\";s:7:\"options\";a:1:{i:0;a:5:{s:6:\"create\";s:0:\"\";s:13:\"custom_fields\";s:0:\"\";s:4:\"find\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}s:21:\"context_expand_export\";s:9:\"calendar_\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.comment','cerberusweb.core','devblocks.context',7,'Comment','api/dao/comment.php','Context_Comment','a:3:{s:5:\"alias\";s:7:\"comment\";s:9:\"dao_class\";s:11:\"DAO_Comment\";s:10:\"view_class\";s:12:\"View_Comment\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.custom_fieldset','cerberusweb.core','devblocks.context',8,'Custom Fieldset','api/dao/custom_fieldset.php','Context_CustomFieldset','a:4:{s:5:\"alias\";s:15:\"custom_fieldset\";s:9:\"dao_class\";s:18:\"DAO_CustomFieldset\";s:10:\"view_class\";s:19:\"View_CustomFieldset\";s:7:\"options\";a:1:{i:0;a:2:{s:4:\"find\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.activity_log','cerberusweb.core','devblocks.context',9,'Activity Log','api/dao/context_activity_log.php','Context_ContextActivityLog','a:4:{s:5:\"alias\";s:12:\"activity_log\";s:9:\"dao_class\";s:22:\"DAO_ContextActivityLog\";s:10:\"view_class\";s:23:\"View_ContextActivityLog\";s:7:\"options\";a:1:{i:0;a:3:{s:4:\"find\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.mail.draft','cerberusweb.core','devblocks.context',10,'Draft','api/dao/mail_queue.php','Context_Draft','a:4:{s:5:\"alias\";s:5:\"draft\";s:9:\"dao_class\";s:13:\"DAO_MailQueue\";s:10:\"view_class\";s:14:\"View_MailQueue\";s:7:\"options\";a:1:{i:0;a:2:{s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.group','cerberusweb.core','devblocks.context',11,'Group','api/dao/group.php','Context_Group','a:4:{s:5:\"alias\";s:5:\"group\";s:9:\"dao_class\";s:9:\"DAO_Group\";s:10:\"view_class\";s:10:\"View_Group\";s:7:\"options\";a:1:{i:0;a:5:{s:13:\"custom_fields\";s:0:\"\";s:4:\"find\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.message','cerberusweb.core','devblocks.context',12,'Message','api/dao/message.php','Context_Message','a:5:{s:5:\"alias\";s:7:\"message\";s:9:\"dao_class\";s:11:\"DAO_Message\";s:10:\"view_class\";s:12:\"View_Message\";s:7:\"options\";a:1:{i:0;a:2:{s:8:\"snippets\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}s:21:\"context_expand_export\";s:54:\"ticket_,ticket_bucket,ticket_group,sender_,sender_org_\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.notification','cerberusweb.core','devblocks.context',13,'Notification','api/dao/notification.php','Context_Notification','a:4:{s:5:\"alias\";s:12:\"notification\";s:9:\"dao_class\";s:16:\"DAO_Notification\";s:10:\"view_class\";s:17:\"View_Notification\";s:7:\"options\";a:1:{i:0;a:2:{s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.org','cerberusweb.core','devblocks.context',14,'Organization','api/dao/contact_org.php','Context_Org','a:4:{s:5:\"alias\";s:3:\"org\";s:9:\"dao_class\";s:14:\"DAO_ContactOrg\";s:10:\"view_class\";s:15:\"View_ContactOrg\";s:7:\"options\";a:1:{i:0;a:6:{s:6:\"create\";s:0:\"\";s:13:\"custom_fields\";s:0:\"\";s:4:\"find\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.snippet','cerberusweb.core','devblocks.context',15,'Snippet','api/dao/snippet.php','Context_Snippet','a:5:{s:5:\"alias\";s:7:\"snippet\";s:9:\"dao_class\";s:11:\"DAO_Snippet\";s:10:\"view_class\";s:12:\"View_Snippet\";s:7:\"options\";a:1:{i:0;a:3:{s:13:\"custom_fields\";s:0:\"\";s:4:\"find\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}s:21:\"context_expand_export\";s:6:\"owner_\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.task','cerberusweb.core','devblocks.context',16,'Task','api/dao/task.php','Context_Task','a:4:{s:5:\"alias\";s:4:\"task\";s:9:\"dao_class\";s:8:\"DAO_Task\";s:10:\"view_class\";s:9:\"View_Task\";s:7:\"options\";a:1:{i:0;a:6:{s:6:\"create\";s:0:\"\";s:13:\"custom_fields\";s:0:\"\";s:4:\"find\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.ticket','cerberusweb.core','devblocks.context',17,'Ticket','api/dao/ticket.php','Context_Ticket','a:5:{s:5:\"alias\";s:6:\"ticket\";s:9:\"dao_class\";s:10:\"DAO_Ticket\";s:10:\"view_class\";s:11:\"View_Ticket\";s:7:\"options\";a:1:{i:0;a:6:{s:6:\"create\";s:0:\"\";s:13:\"custom_fields\";s:0:\"\";s:4:\"find\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}s:21:\"context_expand_export\";s:44:\"group_,bucket_,owner_,latest_message_sender_\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.worker','cerberusweb.core','devblocks.context',18,'Worker','api/dao/worker.php','Context_Worker','a:5:{s:5:\"alias\";s:6:\"worker\";s:9:\"dao_class\";s:10:\"DAO_Worker\";s:10:\"view_class\";s:11:\"View_Worker\";s:7:\"options\";a:1:{i:0;a:5:{s:13:\"custom_fields\";s:0:\"\";s:4:\"find\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}s:21:\"context_expand_export\";s:8:\"address_\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.role','cerberusweb.core','devblocks.context',19,'Role','api/dao/worker_role.php','Context_WorkerRole','a:4:{s:5:\"alias\";s:4:\"role\";s:9:\"dao_class\";s:14:\"DAO_WorkerRole\";s:10:\"view_class\";s:15:\"View_WorkerRole\";s:7:\"options\";s:0:\"\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.workspace.page','cerberusweb.core','devblocks.context',20,'Workspace Page','api/dao/workspace.php','Context_WorkspacePage','a:3:{s:5:\"alias\";s:14:\"workspace_page\";s:9:\"dao_class\";s:17:\"DAO_WorkspacePage\";s:10:\"view_class\";s:18:\"View_WorkspacePage\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.workspace.tab','cerberusweb.core','devblocks.context',21,'Workspace Tab','api/dao/workspace.php','Context_WorkspaceTab','a:3:{s:5:\"alias\";s:13:\"workspace_tab\";s:9:\"dao_class\";s:16:\"DAO_WorkspaceTab\";s:10:\"view_class\";s:17:\"View_WorkspaceTab\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.workspace.widget','cerberusweb.core','devblocks.context',22,'Workspace Widget','api/dao/workspace_widget.php','Context_WorkspaceWidget','a:3:{s:5:\"alias\";s:16:\"workspace_widget\";s:9:\"dao_class\";s:19:\"DAO_WorkspaceWidget\";s:10:\"view_class\";s:20:\"View_WorkspaceWidget\";}');
+INSERT INTO `cerb_extension` VALUES ('event.mail.received.app','cerberusweb.core','devblocks.event',23,'Before new mail is accepted','api/events/app/mail_received_by_app.php','Event_MailReceivedByApp','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:24:\"cerberusweb.contexts.app\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.comment.ticket.group','cerberusweb.core','devblocks.event',24,'New comment on conversation in group','api/events/group/comment_on_ticket_in_group.php','Event_CommentOnTicketInGroup','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.mail.assigned.group','cerberusweb.core','devblocks.event',25,'Conversation assigned in group','api/events/group/mail_assigned_in_group.php','Event_MailAssignedInGroup','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.mail.closed.group','cerberusweb.core','devblocks.event',26,'Conversation closed in group','api/events/group/mail_closed_in_group.php','Event_MailClosedInGroup','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.mail.moved.group','cerberusweb.core','devblocks.event',27,'Conversation moved in group','api/events/group/mail_moved_to_group.php','Event_MailMovedToGroup','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.mail.received.group','cerberusweb.core','devblocks.event',28,'New message on a group conversation','api/events/group/mail_received_by_group.php','Event_MailReceivedByGroup','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.mail.after.sent.group','cerberusweb.core','devblocks.event',29,'After sending worker message','api/events/group/mail_after_sent_by_group.php','Event_MailAfterSentByGroup','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.mail.sent.group','cerberusweb.core','devblocks.event',30,'Before sending worker message','api/events/group/mail_before_sent_by_group.php','Event_MailBeforeSentByGroup','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.ticket.viewed.worker','cerberusweb.core','devblocks.event',31,'Mail conversation viewed by worker','api/events/app/ticket_viewed_by_worker.php','Event_TicketViewedByWorker','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:24:\"cerberusweb.contexts.app\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.task.created.worker','cerberusweb.core','devblocks.event',32,'Task created by worker','api/events/app/task_created_by_worker.php','Event_TaskCreatedByWorker','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:24:\"cerberusweb.contexts.app\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.macro.address','cerberusweb.core','devblocks.event',33,'Custom address behavior','api/events/macro/address_macro.php','Event_AddressMacro','a:2:{s:13:\"macro_context\";s:28:\"cerberusweb.contexts.address\";s:8:\"contexts\";a:1:{i:0;a:3:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.macro.calendar_event','cerberusweb.core','devblocks.event',34,'Custom calendar event behavior','api/events/macro/calendar_event_macro.php','Event_CalendarEventMacro','a:2:{s:13:\"macro_context\";s:35:\"cerberusweb.contexts.calendar_event\";s:8:\"contexts\";a:1:{i:0;a:3:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.macro.group','cerberusweb.core','devblocks.event',35,'Custom group behavior','api/events/macro/group_macro.php','Event_GroupMacro','a:2:{s:13:\"macro_context\";s:26:\"cerberusweb.contexts.group\";s:8:\"contexts\";a:1:{i:0;a:3:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.macro.org','cerberusweb.core','devblocks.event',36,'Custom organization behavior','api/events/macro/org_macro.php','Event_OrgMacro','a:2:{s:13:\"macro_context\";s:24:\"cerberusweb.contexts.org\";s:8:\"contexts\";a:1:{i:0;a:3:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.macro.task','cerberusweb.core','devblocks.event',37,'Custom task behavior','api/events/macro/task_macro.php','Event_TaskMacro','a:2:{s:13:\"macro_context\";s:25:\"cerberusweb.contexts.task\";s:8:\"contexts\";a:1:{i:0;a:3:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.macro.ticket','cerberusweb.core','devblocks.event',38,'Custom ticket behavior','api/events/macro/ticket_macro.php','Event_TicketMacro','a:2:{s:13:\"macro_context\";s:27:\"cerberusweb.contexts.ticket\";s:8:\"contexts\";a:1:{i:0;a:3:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.macro.worker','cerberusweb.core','devblocks.event',39,'Custom worker behavior','api/events/macro/worker_macro.php','Event_WorkerMacro','a:2:{s:13:\"macro_context\";s:27:\"cerberusweb.contexts.worker\";s:8:\"contexts\";a:1:{i:0;a:3:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.mail.received.watcher','cerberusweb.core','devblocks.event',40,'New message on a watched conversation','api/events/worker/mail_received_by_watcher.php','Event_MailReceivedByWatcher','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.notification.received.worker','cerberusweb.core','devblocks.event',41,'New notification for me','api/events/worker/notification_received_by_worker.php','Event_NotificationReceivedByWorker','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.mail.reply.pre.ui.worker','cerberusweb.core','devblocks.event',42,'[UI] When starting a reply to a message','api/events/ui/ui_before_reply_by_worker.php','Event_MailBeforeUiReplyByWorker','a:1:{s:8:\"contexts\";a:1:{i:0;a:4:{s:24:\"cerberusweb.contexts.app\";s:0:\"\";s:26:\"cerberusweb.contexts.group\";s:0:\"\";s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.mail.reply.during.ui.worker','cerberusweb.core','devblocks.event',43,'[UI] While replying to a message','api/events/ui/ui_during_reply_by_worker.php','Event_MailDuringUiReplyByWorker','a:1:{s:8:\"contexts\";a:1:{i:0;a:4:{s:24:\"cerberusweb.contexts.app\";s:0:\"\";s:26:\"cerberusweb.contexts.group\";s:0:\"\";s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.ui.worklist.render.worker','cerberusweb.core','devblocks.event',44,'[UI] While displaying a worklist','api/events/ui/ui_worklist_render_by_worker.php','Event_UiWorklistRenderByWorker','a:1:{s:8:\"contexts\";a:1:{i:0;a:2:{s:24:\"cerberusweb.contexts.app\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.comment.created.worker','cerberusweb.core','devblocks.event',45,'New comment on a record','api/events/app/comment_created_by_worker.php','Event_CommentCreatedByWorker','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:24:\"cerberusweb.contexts.app\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.listeners.event','cerberusweb.core','devblocks.listener.event',46,'Cerb Event Listener','api/listeners.classes.php','ChCoreEventListener','a:1:{s:6:\"events\";a:1:{i:0;a:6:{s:14:\"comment.create\";s:0:\"\";s:14:\"context.update\";s:0:\"\";s:14:\"context.delete\";s:0:\"\";s:13:\"context.maint\";s:0:\"\";s:14:\"cron.heartbeat\";s:0:\"\";s:10:\"cron.maint\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.listeners.triggers','cerberusweb.core','devblocks.listener.event',47,'Triggers Manager','api/listeners.classes.php','EventListener_Triggers','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('core.controller.rss','cerberusweb.core','devblocks.controller',48,'RSS Controller','api/uri/rss.php','ChRssController','a:1:{s:3:\"uri\";s:3:\"rss\";}');
+INSERT INTO `cerb_extension` VALUES ('core.controller.internal','cerberusweb.core','devblocks.controller',49,'Internal Controller','api/uri/internal.php','ChInternalController','a:1:{s:3:\"uri\";s:8:\"internal\";}');
+INSERT INTO `cerb_extension` VALUES ('core.internal.section.calendars','cerberusweb.core','cerberusweb.ui.page.section',50,'Internal Section Calendars','api/uri/internal/calendars.php','PageSection_InternalCalendars','a:2:{s:7:\"page_id\";s:24:\"core.controller.internal\";s:3:\"uri\";s:9:\"calendars\";}');
+INSERT INTO `cerb_extension` VALUES ('core.internal.section.custom_fieldsets','cerberusweb.core','cerberusweb.ui.page.section',51,'Internal Section Custom Fieldsets','api/uri/internal/custom_fieldsets.php','PageSection_InternalCustomFieldsets','a:2:{s:7:\"page_id\";s:24:\"core.controller.internal\";s:3:\"uri\";s:16:\"custom_fieldsets\";}');
+INSERT INTO `cerb_extension` VALUES ('core.internal.section.dashboards','cerberusweb.core','cerberusweb.ui.page.section',52,'Internal Section Dashboards','api/uri/internal/dashboards.php','PageSection_InternalDashboards','a:2:{s:7:\"page_id\";s:24:\"core.controller.internal\";s:3:\"uri\";s:10:\"dashboards\";}');
+INSERT INTO `cerb_extension` VALUES ('core.internal.section.workspaces','cerberusweb.core','cerberusweb.ui.page.section',53,'Internal Section Workspaces','api/uri/internal/workspaces.php','PageSection_InternalWorkspaces','a:2:{s:7:\"page_id\";s:24:\"core.controller.internal\";s:3:\"uri\";s:10:\"workspaces\";}');
+INSERT INTO `cerb_extension` VALUES ('core.controller.print','cerberusweb.core','devblocks.controller',54,'Print Controller','api/uri/print.php','ChPrintController','a:1:{s:3:\"uri\";s:5:\"print\";}');
+INSERT INTO `cerb_extension` VALUES ('core.controller.debug','cerberusweb.core','devblocks.controller',55,'Debug Controller','api/uri/debug.php','ChDebugController','a:1:{s:3:\"uri\";s:5:\"debug\";}');
+INSERT INTO `cerb_extension` VALUES ('core.controller.files','cerberusweb.core','devblocks.controller',56,'Files Controller','api/uri/files.php','ChFilesController','a:1:{s:3:\"uri\";s:5:\"files\";}');
+INSERT INTO `cerb_extension` VALUES ('core.controller.explorer','cerberusweb.core','devblocks.controller',57,'Explorer Controller','api/uri/explorer.php','ChExplorerController','a:1:{s:3:\"uri\";s:7:\"explore\";}');
+INSERT INTO `cerb_extension` VALUES ('core.controller.cron','cerberusweb.core','devblocks.controller',58,'Scheduled Tasks (Cron) Controller','api/uri/cron.php','ChCronController','a:1:{s:3:\"uri\";s:4:\"cron\";}');
+INSERT INTO `cerb_extension` VALUES ('core.controller.portal','cerberusweb.core','devblocks.controller',59,'Portal Controller','api/uri/portal.php','Controller_Portal','a:1:{s:3:\"uri\";s:6:\"portal\";}');
+INSERT INTO `cerb_extension` VALUES ('core.controller.page','cerberusweb.core','devblocks.controller',60,'Cerb Controller','api/plugin.classes.php','ChPageController','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('core.listeners.tour','cerberusweb.core','devblocks.listener.http',61,'Core Helpdesk Tour','api/listeners.classes.php','ChCoreTour','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.storage.schema.attachments','cerberusweb.core','devblocks.storage.schema',62,'Attachments','api/dao/attachment.php','Storage_Attachments','a:3:{s:22:\"active_storage_profile\";s:29:\"devblocks.storage.engine.disk\";s:23:\"archive_storage_profile\";s:29:\"devblocks.storage.engine.disk\";s:18:\"archive_after_days\";s:1:\"7\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.storage.schema.message_content','cerberusweb.core','devblocks.storage.schema',63,'Message Content','api/dao/message.php','Storage_MessageContent','a:3:{s:22:\"active_storage_profile\";s:33:\"devblocks.storage.engine.database\";s:23:\"archive_storage_profile\";s:33:\"devblocks.storage.engine.database\";s:18:\"archive_after_days\";s:1:\"7\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.search.schema.comment_content','cerberusweb.core','devblocks.search.schema',64,'Comment Content','api/dao/comment.php','Search_CommentContent','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.search.schema.message_content','cerberusweb.core','devblocks.search.schema',65,'Message Content','api/dao/message.php','Search_MessageContent','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('core.page.welcome','cerberusweb.core','cerberusweb.page',66,'Welcome Page','api/uri/welcome.php','ChWelcomePage','a:2:{s:3:\"uri\";s:7:\"welcome\";s:9:\"menutitle\";s:0:\"\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.pages','cerberusweb.core','cerberusweb.page',67,'Custom Pages','api/uri/pages.php','Page_Custom','a:2:{s:3:\"uri\";s:5:\"pages\";s:9:\"menutitle\";s:0:\"\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.search','cerberusweb.core','cerberusweb.page',68,'Search Page','api/uri/search.php','Page_Search','a:2:{s:3:\"uri\";s:6:\"search\";s:9:\"menutitle\";s:0:\"\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.mail','cerberusweb.core','cerberusweb.page',69,'Mail Page','api/uri/mail.php','Page_Mail','a:3:{s:3:\"uri\";s:4:\"mail\";s:9:\"menutitle\";s:11:\"common.mail\";s:3:\"acl\";s:9:\"core.mail\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.mail.drafts','cerberusweb.core','cerberusweb.ui.page.section',70,'Drafts Section','api/uri/mail/drafts.php','PageSection_MailDrafts','a:2:{s:7:\"page_id\";s:14:\"core.page.mail\";s:3:\"uri\";s:6:\"drafts\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.tickets','cerberusweb.core','cerberusweb.page',71,'Tickets Page','api/uri/tickets.php','ChTicketsPage','a:3:{s:3:\"uri\";s:7:\"tickets\";s:9:\"menutitle\";s:0:\"\";s:3:\"acl\";s:9:\"core.mail\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.tasks','cerberusweb.core','cerberusweb.page',72,'Tasks Page','api/uri/tasks.php','ChTasksPage','a:2:{s:3:\"uri\";s:5:\"tasks\";s:9:\"menutitle\";s:0:\"\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.groups','cerberusweb.core','cerberusweb.page',73,'Groups Page','api/uri/groups.php','ChGroupsPage','a:2:{s:3:\"uri\";s:6:\"groups\";s:9:\"menutitle\";s:0:\"\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.contacts','cerberusweb.core','cerberusweb.page',74,'Contacts Page','api/uri/contacts.php','ChContactsPage','a:3:{s:3:\"uri\";s:8:\"contacts\";s:9:\"menutitle\";s:0:\"\";s:3:\"acl\";s:13:\"core.addybook\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.display','cerberusweb.core','cerberusweb.page',75,'Display Ticket Page','api/uri/display.php','ChDisplayPage','a:3:{s:3:\"uri\";s:7:\"display\";s:9:\"menutitle\";s:0:\"\";s:3:\"acl\";s:9:\"core.mail\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.signin','cerberusweb.core','cerberusweb.page',76,'Signin Page','api/uri/login.php','ChSignInPage','a:2:{s:3:\"uri\";s:5:\"login\";s:9:\"menutitle\";s:0:\"\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.configuration','cerberusweb.core','cerberusweb.page',77,'Setup Page','api/uri/config.php','ChConfigurationPage','a:2:{s:3:\"uri\";s:6:\"config\";s:9:\"menutitle\";s:0:\"\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.acl','cerberusweb.core','cerberusweb.ui.page.section',78,'ACL Section','api/uri/config/acl.php','PageSection_SetupACL','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:3:\"acl\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.virtual_attendants','cerberusweb.core','cerberusweb.ui.page.section',79,'Virtual Attendants Section','api/uri/config/attendants.php','PageSection_SetupAttendants','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:10:\"attendants\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.branding','cerberusweb.core','cerberusweb.ui.page.section',80,'Branding Section','api/uri/config/branding.php','PageSection_SetupBranding','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:8:\"branding\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.fields','cerberusweb.core','cerberusweb.ui.page.section',81,'Custom Fields Section','api/uri/config/fields.php','PageSection_SetupCustomFields','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:6:\"fields\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.snippets','cerberusweb.core','cerberusweb.ui.page.section',82,'Snippets Section','api/uri/config/snippets.php','PageSection_SetupSnippets','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:8:\"snippets\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.groups','cerberusweb.core','cerberusweb.ui.page.section',83,'Groups Section','api/uri/config/groups.php','PageSection_SetupGroups','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:6:\"groups\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.license','cerberusweb.core','cerberusweb.ui.page.section',84,'License Section','api/uri/config/license.php','PageSection_SetupLicense','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:7:\"license\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.mail_filtering','cerberusweb.core','cerberusweb.ui.page.section',85,'Mail Filtering Section','api/uri/config/mail_filtering.php','PageSection_SetupMailFiltering','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:14:\"mail_filtering\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.mail_relay','cerberusweb.core','cerberusweb.ui.page.section',86,'Mail Relay Section','api/uri/config/mail_relay.php','PageSection_SetupMailRelay','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:10:\"mail_relay\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.mail_from','cerberusweb.core','cerberusweb.ui.page.section',87,'Mail From Section','api/uri/config/mail_from.php','PageSection_SetupMailFrom','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:9:\"mail_from\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.mail_incoming','cerberusweb.core','cerberusweb.ui.page.section',88,'Incoming Mail Section','api/uri/config/mail_incoming.php','PageSection_SetupMailIncoming','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:13:\"mail_incoming\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.mail_outgoing','cerberusweb.core','cerberusweb.ui.page.section',89,'Outgoing Mail Section','api/uri/config/mail_outgoing.php','PageSection_SetupMailOutgoing','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:13:\"mail_outgoing\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.mail_pop3','cerberusweb.core','cerberusweb.ui.page.section',90,'POP3 Section','api/uri/config/mail_pop3.php','PageSection_SetupMailPop3','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:9:\"mail_pop3\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.mail_queue','cerberusweb.core','cerberusweb.ui.page.section',91,'Mail Queue Section','api/uri/config/mail_queue.php','PageSection_SetupMailQueue','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:10:\"mail_queue\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.mail_routing','cerberusweb.core','cerberusweb.ui.page.section',92,'Mail Routing Section','api/uri/config/mail_routing.php','PageSection_SetupMailRouting','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:12:\"mail_routing\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.mail_smtp','cerberusweb.core','cerberusweb.ui.page.section',93,'SMTP Section','api/uri/config/mail_smtp.php','PageSection_SetupMailSmtp','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:9:\"mail_smtp\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.plugins','cerberusweb.core','cerberusweb.ui.page.section',94,'Plugins Section','api/uri/config/plugins.php','PageSection_SetupPlugins','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:7:\"plugins\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.plugin_library','cerberusweb.core','cerberusweb.ui.page.section',95,'Plugin Library Section','api/uri/config/plugin_library.php','PageSection_SetupPluginLibrary','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:14:\"plugin_library\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.portal','cerberusweb.core','cerberusweb.ui.page.section',96,'Portal Section','api/uri/config/portal.php','PageSection_SetupPortal','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:6:\"portal\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.portals','cerberusweb.core','cerberusweb.ui.page.section',97,'Portals Section','api/uri/config/portals.php','PageSection_SetupPortals','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:7:\"portals\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.scheduler','cerberusweb.core','cerberusweb.ui.page.section',98,'Scheduler Section','api/uri/config/scheduler.php','PageSection_SetupScheduler','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:9:\"scheduler\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.scheduled_behavior','cerberusweb.core','cerberusweb.ui.page.section',99,'Scheduled Behavior Section','api/uri/config/scheduled_behavior.php','PageSection_SetupScheduledBehavior','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:18:\"scheduled_behavior\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.security','cerberusweb.core','cerberusweb.ui.page.section',100,'Security Section','api/uri/config/security.php','PageSection_SetupSecurity','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:8:\"security\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.sessions','cerberusweb.core','cerberusweb.ui.page.section',101,'Sessions Section','api/uri/config/sessions.php','PageSection_SetupSessions','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:8:\"sessions\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.storage_attachments','cerberusweb.core','cerberusweb.ui.page.section',102,'Storage Attachments Section','api/uri/config/storage_attachments.php','PageSection_SetupStorageAttachments','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:19:\"storage_attachments\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.storage_content','cerberusweb.core','cerberusweb.ui.page.section',103,'Storage Content Section','api/uri/config/storage_content.php','PageSection_SetupStorageContent','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:15:\"storage_content\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.storage_profiles','cerberusweb.core','cerberusweb.ui.page.section',104,'Storage Profiles Section','api/uri/config/storage_profiles.php','PageSection_SetupStorageProfiles','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:16:\"storage_profiles\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.setup.workers','cerberusweb.core','cerberusweb.ui.page.section',105,'Workers Section','api/uri/config/workers.php','PageSection_SetupWorkers','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:7:\"workers\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.preferences','cerberusweb.core','cerberusweb.page',106,'Preferences Page','api/uri/preferences.php','ChPreferencesPage','a:2:{s:3:\"uri\";s:11:\"preferences\";s:9:\"menutitle\";s:0:\"\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.profiles','cerberusweb.core','cerberusweb.page',107,'Profiles Pages','api/uri/profiles.php','Page_Profiles','a:2:{s:3:\"uri\";s:8:\"profiles\";s:9:\"menutitle\";s:0:\"\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.profiles.address','cerberusweb.core','cerberusweb.ui.page.section',108,'Address Section','api/uri/profiles/address.php','PageSection_ProfilesAddress','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:7:\"address\";}');
+INSERT INTO `cerb_extension` VALUES ('core.calendars.page.profiles.calendar','cerberusweb.core','cerberusweb.ui.page.section',109,'Calendar Section','api/uri/profiles/calendar.php','PageSection_ProfilesCalendar','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:8:\"calendar\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.profiles.calendar_event','cerberusweb.core','cerberusweb.ui.page.section',110,'Calendar Event Section','api/uri/profiles/calendar_event.php','PageSection_ProfilesCalendarEvent','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:14:\"calendar_event\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.profiles.calendar_recurring_profile','cerberusweb.core','cerberusweb.ui.page.section',111,'Calendar Recurring Profile Section','api/uri/profiles/calendar_recurring_profile.php','PageSection_ProfilesCalendarRecurringProfile','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:26:\"calendar_recurring_profile\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.profiles.contact_person','cerberusweb.core','cerberusweb.ui.page.section',112,'Contact Person Section','api/uri/profiles/contact_person.php','PageSection_ProfilesContactPerson','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:14:\"contact_person\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.profiles.group','cerberusweb.core','cerberusweb.ui.page.section',113,'Group Section','api/uri/profiles/group.php','PageSection_ProfilesGroup','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:5:\"group\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.profiles.organization','cerberusweb.core','cerberusweb.ui.page.section',114,'Organization Section','api/uri/profiles/organization.php','PageSection_ProfilesOrganization','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:3:\"org\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.profiles.task','cerberusweb.core','cerberusweb.ui.page.section',115,'Task Section','api/uri/profiles/task.php','PageSection_ProfilesTask','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:4:\"task\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.profiles.ticket','cerberusweb.core','cerberusweb.ui.page.section',116,'Ticket Section','api/uri/profiles/ticket.php','PageSection_ProfilesTicket','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:6:\"ticket\";}');
+INSERT INTO `cerb_extension` VALUES ('core.page.profiles.worker','cerberusweb.core','cerberusweb.ui.page.section',117,'Worker Section','api/uri/profiles/worker.php','PageSection_ProfilesWorker','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:6:\"worker\";}');
+INSERT INTO `cerb_extension` VALUES ('core.workspace.page.workspace','cerberusweb.core','cerberusweb.ui.workspace.page',118,'Workspace Page','api/uri/internal/workspaces.php','WorkspacePage_Workspace','a:1:{s:5:\"label\";s:16:\"common.workspace\";}');
+INSERT INTO `cerb_extension` VALUES ('core.workspace.tab.calendar','cerberusweb.core','cerberusweb.ui.workspace.tab',119,'Calendar Workspace Tab','api/uri/internal/workspaces/calendar.php','WorkspaceTab_Calendar','a:1:{s:5:\"label\";s:15:\"common.calendar\";}');
+INSERT INTO `cerb_extension` VALUES ('core.workspace.tab','cerberusweb.core','cerberusweb.ui.workspace.tab',120,'Dashboards Workspace Tab','api/uri/internal/dashboards.php','WorkspaceTab_Dashboards','a:1:{s:5:\"label\";s:24:\"core.workspace.dashboard\";}');
+INSERT INTO `cerb_extension` VALUES ('core.workspace.tab.worklists','cerberusweb.core','cerberusweb.ui.workspace.tab',121,'Workspace Worklists Tab','api/uri/internal/workspaces.php','WorkspaceTab_Worklists','a:1:{s:5:\"label\";s:9:\"Worklists\";}');
+INSERT INTO `cerb_extension` VALUES ('core.workspace.widget.gauge','cerberusweb.core','cerberusweb.ui.workspace.widget',122,'Gauge','api/uri/internal/dashboards.php','WorkspaceWidget_Gauge','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('core.workspace.widget.calendar','cerberusweb.core','cerberusweb.ui.workspace.widget',123,'Calendar','api/uri/internal/dashboards.php','WorkspaceWidget_Calendar','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('core.workspace.widget.chart','cerberusweb.core','cerberusweb.ui.workspace.widget',124,'Line/Bar Chart','api/uri/internal/dashboards.php','WorkspaceWidget_Chart','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('core.workspace.widget.clock','cerberusweb.core','cerberusweb.ui.workspace.widget',125,'Clock','api/uri/internal/dashboards.php','WorkspaceWidget_Clock','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('core.workspace.widget.countdown','cerberusweb.core','cerberusweb.ui.workspace.widget',126,'Countdown','api/uri/internal/dashboards.php','WorkspaceWidget_Countdown','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('core.workspace.widget.counter','cerberusweb.core','cerberusweb.ui.workspace.widget',127,'Counter','api/uri/internal/dashboards.php','WorkspaceWidget_Counter','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('core.workspace.widget.custom_html','cerberusweb.core','cerberusweb.ui.workspace.widget',128,'Custom HTML','api/uri/internal/dashboards.php','WorkspaceWidget_CustomHtml','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('core.workspace.widget.pie_chart','cerberusweb.core','cerberusweb.ui.workspace.widget',129,'Pie Chart','api/uri/internal/dashboards.php','WorkspaceWidget_PieChart','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('core.workspace.widget.scatterplot','cerberusweb.core','cerberusweb.ui.workspace.widget',130,'Scatterplot','api/uri/internal/dashboards.php','WorkspaceWidget_Scatterplot','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('core.workspace.widget.subtotals','cerberusweb.core','cerberusweb.ui.workspace.widget',131,'Subtotals','api/uri/internal/dashboards.php','WorkspaceWidget_Subtotals','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('core.workspace.widget.worklist','cerberusweb.core','cerberusweb.ui.workspace.widget',132,'Worklist','api/uri/internal/dashboards.php','WorkspaceWidget_Worklist','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('core.workspace.widget.datasource.manual','cerberusweb.core','cerberusweb.ui.workspace.widget.datasource',133,'Manual Input','api/uri/internal/dashboards/widget_datasources.php','WorkspaceWidgetDatasource_Manual','a:1:{s:7:\"widgets\";a:1:{i:0;a:2:{s:29:\"core.workspace.widget.counter\";s:0:\"\";s:27:\"core.workspace.widget.gauge\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('core.workspace.widget.datasource.url','cerberusweb.core','cerberusweb.ui.workspace.widget.datasource',134,'URL','api/uri/internal/dashboards/widget_datasources.php','WorkspaceWidgetDatasource_URL','a:1:{s:7:\"widgets\";a:1:{i:0;a:3:{s:29:\"core.workspace.widget.counter\";s:0:\"\";s:27:\"core.workspace.widget.gauge\";s:0:\"\";s:31:\"core.workspace.widget.pie_chart\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('core.workspace.widget.datasource.worklist','cerberusweb.core','cerberusweb.ui.workspace.widget.datasource',135,'Worklist','api/uri/internal/dashboards/widget_datasources.php','WorkspaceWidgetDatasource_Worklist','a:1:{s:7:\"widgets\";a:1:{i:0;a:4:{s:27:\"core.workspace.widget.chart\";s:0:\"\";s:29:\"core.workspace.widget.counter\";s:0:\"\";s:27:\"core.workspace.widget.gauge\";s:0:\"\";s:33:\"core.workspace.widget.scatterplot\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('calendar.datasource.worklist','cerberusweb.core','cerberusweb.calendar.datasource',136,'Worklist','api/uri/internal/calendars/calendar_datasources.php','CalendarDatasource_Worklist','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('login.password','cerberusweb.core','cerberusweb.login',137,'Password','api/login.classes.php','DefaultLoginModule','a:1:{s:3:\"uri\";s:8:\"password\";}');
+INSERT INTO `cerb_extension` VALUES ('cron.pop3','cerberusweb.core','cerberusweb.cron',138,'POP3 / IMAP E-Mail Importing','api/cron.classes.php','Pop3Cron','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('cron.parser','cerberusweb.core','cerberusweb.cron',139,'Inbound E-Mail Processing','api/cron.classes.php','ParseCron','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('cron.maint','cerberusweb.core','cerberusweb.cron',140,'Maintenance','api/cron.classes.php','MaintCron','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('cron.heartbeat','cerberusweb.core','cerberusweb.cron',141,'Heartbeat','api/cron.classes.php','HeartbeatCron','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('cron.import','cerberusweb.core','cerberusweb.cron',142,'Background Importing and Synchronization','api/cron.classes.php','ImportCron','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('cron.storage','cerberusweb.core','cerberusweb.cron',143,'Storage Manager','api/cron.classes.php','StorageCron','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('cron.search','cerberusweb.core','cerberusweb.cron',144,'Search Indexer','api/cron.classes.php','SearchCron','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('cron.mail_queue','cerberusweb.core','cerberusweb.cron',145,'Mail Queue','api/cron.classes.php','MailQueueCron','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('cron.virtual_attendant.scheduled_behavior','cerberusweb.core','cerberusweb.cron',146,'Virtual Attendant Scheduled Behavior','api/cron.classes.php','Cron_VirtualAttendantScheduledBehavior','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('core.rss.source.notification','cerberusweb.core','cerberusweb.rss.source',147,'Notifications RSS','api/plugin.classes.php','ChRssSource_Notification','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('core.rss.source.task','cerberusweb.core','cerberusweb.rss.source',148,'Tasks RSS','api/plugin.classes.php','ChRssSource_Task','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('core.rss.source.ticket','cerberusweb.core','cerberusweb.rss.source',149,'Tickets RSS','api/plugin.classes.php','ChRssSource_Ticket','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.opportunity','cerberusweb.crm','devblocks.context',0,'Opportunity','api/dao/crm_opportunity.php','Context_Opportunity','a:5:{s:5:\"alias\";s:11:\"opportunity\";s:9:\"dao_class\";s:18:\"DAO_CrmOpportunity\";s:10:\"view_class\";s:19:\"View_CrmOpportunity\";s:7:\"options\";a:1:{i:0;a:6:{s:6:\"create\";s:0:\"\";s:13:\"custom_fields\";s:0:\"\";s:4:\"find\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}s:21:\"context_expand_export\";s:6:\"email_\";}');
+INSERT INTO `cerb_extension` VALUES ('crm.listeners.core','cerberusweb.crm','devblocks.listener.event',1,'CRM Listener','api/App.php','CrmEventListener','a:1:{s:6:\"events\";a:1:{i:0;a:1:{s:10:\"cron.maint\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('crm.page.profiles.opportunity','cerberusweb.crm','cerberusweb.ui.page.section',2,'Opp Section','api/uri/profiles/opp.php','PageSection_ProfilesOpportunity','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:11:\"opportunity\";}');
+INSERT INTO `cerb_extension` VALUES ('event.macro.crm.opportunity','cerberusweb.crm','devblocks.event',3,'Custom opportunity behavior','api/events/crm_opportunity_macro.php','Event_CrmOpportunityMacro','a:2:{s:13:\"macro_context\";s:32:\"cerberusweb.contexts.opportunity\";s:8:\"contexts\";a:1:{i:0;a:3:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('crm.page.crm','cerberusweb.crm','cerberusweb.page',4,'CRM Page','api/App.php','CrmPage','a:2:{s:3:\"uri\";s:3:\"crm\";s:9:\"menutitle\";s:0:\"\";}');
+INSERT INTO `cerb_extension` VALUES ('crm.opp.tab.org','cerberusweb.crm','cerberusweb.ui.context.profile.tab',5,'Opportunity Tab','api/App.php','CrmOrgOppTab','a:3:{s:3:\"uri\";s:4:\"opps\";s:8:\"contexts\";a:1:{i:0;a:1:{s:24:\"cerberusweb.contexts.org\";s:0:\"\";}}s:5:\"title\";s:13:\"crm.tab.title\";}');
+INSERT INTO `cerb_extension` VALUES ('crm.opp.tab.ticket','cerberusweb.crm','cerberusweb.ui.context.profile.tab',6,'Opportunity Tab','api/App.php','CrmTicketOppTab','a:3:{s:3:\"uri\";s:4:\"opps\";s:8:\"contexts\";a:1:{i:0;a:1:{s:27:\"cerberusweb.contexts.ticket\";s:0:\"\";}}s:5:\"title\";s:13:\"crm.tab.title\";}');
+INSERT INTO `cerb_extension` VALUES ('crm.rest.controller.opps','cerberusweb.crm','cerberusweb.rest.controller',7,'Opportunities','api/rest/opps.php','ChRest_Opps','a:1:{s:3:\"uri\";s:4:\"opps\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.feedback','cerberusweb.feedback','devblocks.context',0,'Feedback','api/App.php','Context_Feedback','a:5:{s:5:\"alias\";s:8:\"feedback\";s:9:\"dao_class\";s:17:\"DAO_FeedbackEntry\";s:10:\"view_class\";s:18:\"View_FeedbackEntry\";s:7:\"options\";a:1:{i:0;a:4:{s:6:\"create\";s:0:\"\";s:13:\"custom_fields\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}s:21:\"context_expand_export\";s:7:\"author_\";}');
+INSERT INTO `cerb_extension` VALUES ('feedback.message.toolbaritem.feedback','cerberusweb.feedback','cerberusweb.message.toolbaritem',1,'Ticket Message Toolbar Feedback Item','api/App.php','ChFeedbackMessageToolbarFeedback','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('feedback.controller','cerberusweb.feedback','devblocks.controller',2,'Feedback Controller','api/App.php','ChFeedbackController','a:1:{s:3:\"uri\";s:8:\"feedback\";}');
+INSERT INTO `cerb_extension` VALUES ('feedback.rest.controller.feedback','cerberusweb.feedback','cerberusweb.rest.controller',3,'Feedback','api/rest/feedback.php','ChRest_Feedback','a:1:{s:3:\"uri\";s:8:\"feedback\";}');
+INSERT INTO `cerb_extension` VALUES ('kb.listener','cerberusweb.kb','devblocks.listener.event',0,'Event Listener','api/App.php','EventListener_Kb','a:1:{s:6:\"events\";a:1:{i:0;a:1:{s:10:\"cron.maint\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.kb_article','cerberusweb.kb','devblocks.context',1,'Knowledgebase Article','api/dao/kb_article.php','Context_KbArticle','a:4:{s:5:\"alias\";s:10:\"kb_article\";s:9:\"dao_class\";s:13:\"DAO_KbArticle\";s:10:\"view_class\";s:14:\"View_KbArticle\";s:7:\"options\";a:1:{i:0;a:6:{s:6:\"create\";s:0:\"\";s:13:\"custom_fields\";s:0:\"\";s:4:\"find\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.kb_category','cerberusweb.kb','devblocks.context',2,'Knowledgebase Category','api/dao/kb_category.php','Context_KbCategory','a:4:{s:5:\"alias\";s:11:\"kb_category\";s:9:\"dao_class\";s:14:\"DAO_KbCategory\";s:10:\"view_class\";s:15:\"View_KbCategory\";s:7:\"options\";s:0:\"\";}');
+INSERT INTO `cerb_extension` VALUES ('event.macro.kb_article','cerberusweb.kb','devblocks.event',3,'Custom knowledgebase article behavior','api/events/macro/kbarticle_macro.php','Event_KbArticleMacro','a:2:{s:13:\"macro_context\";s:31:\"cerberusweb.contexts.kb_article\";s:8:\"contexts\";a:1:{i:0;a:3:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('core.page.kb','cerberusweb.kb','cerberusweb.page',4,'Knowledgebase','api/App.php','ChKbPage','a:2:{s:3:\"uri\";s:2:\"kb\";s:9:\"menutitle\";s:0:\"\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.kb.tab.browse','cerberusweb.kb','cerberusweb.ui.workspace.tab',5,'Knowledgebase Browser Tab','api/App.php','WorkspaceTab_KbBrowse','a:1:{s:5:\"label\";s:24:\"kb.workspace.tab.browser\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.page.profiles.kb_article','cerberusweb.kb','cerberusweb.ui.page.section',6,'KB Article Section','api/profiles/kb_article.php','PageSection_ProfilesKbArticle','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:2:\"kb\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.kb.controller.ajax','cerberusweb.kb','devblocks.controller',7,'KB Ajax Controller','api/App.php','ChKbAjaxController','a:1:{s:3:\"uri\";s:7:\"kb.ajax\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.kb.reply.toolbaritem.kb','cerberusweb.kb','cerberusweb.reply.toolbaritem',8,'KB Reply Toolbar','api/App.php','ChKbReplyToolbarButton','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.kb.sc.controller','cerberusweb.kb','usermeet.sc.controller',9,'Knowledgebase','api/sc/kb.php','UmScKbController','a:3:{s:3:\"uri\";s:2:\"kb\";s:10:\"menu_title\";s:20:\"common.knowledgebase\";s:4:\"icon\";s:37:\"images/crystal/icon_knowledgebase.gif\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.kb.sc.rss.controller','cerberusweb.kb','usermeet.sc.rss.controller',10,'Knowledgebase RSS','api/sc/rss/kb.php','UmScKbRssController','a:1:{s:3:\"uri\";s:2:\"kb\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.search.schema.kb_article','cerberusweb.kb','devblocks.search.schema',11,'Knowledgebase Articles','api/dao/kb_article.php','Search_KbArticle','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.rest.controller.kbarticles','cerberusweb.kb','cerberusweb.rest.controller',12,'KB Articles','api/rest/kbarticles.php','ChRest_KbArticles','a:1:{s:3:\"uri\";s:10:\"kbarticles\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.rest.controller.kbcategories','cerberusweb.kb','cerberusweb.rest.controller',13,'KB Categories','api/rest/kbcategories.php','ChRest_KbCategories','a:1:{s:3:\"uri\";s:12:\"kbcategories\";}');
+INSERT INTO `cerb_extension` VALUES ('reports.workspace.page','cerberusweb.reports','cerberusweb.ui.workspace.page',0,'Reports Workspace Page','api/App.php','ChReportsWorkspacePage','a:1:{s:5:\"label\";s:20:\"reports.menu.reports\";}');
+INSERT INTO `cerb_extension` VALUES ('report.group.custom_fields','cerberusweb.reports','cerberusweb.report.group',1,'Custom Field Reports','api/App.php','ChReportGroupCustomFields','a:2:{s:10:\"group_name\";s:30:\"reports.ui.group.custom_fields\";s:3:\"acl\";s:27:\"reports.group.custom_fields\";}');
+INSERT INTO `cerb_extension` VALUES ('report.group.groups','cerberusweb.reports','cerberusweb.report.group',2,'Group Reports','api/App.php','ChReportGroupGroups','a:2:{s:10:\"group_name\";s:22:\"reports.ui.group.group\";s:3:\"acl\";s:20:\"reports.group.groups\";}');
+INSERT INTO `cerb_extension` VALUES ('report.group.orgs','cerberusweb.reports','cerberusweb.report.group',3,'Org Reports','api/App.php','ChReportGroupOrgs','a:2:{s:10:\"group_name\";s:20:\"reports.ui.group.org\";s:3:\"acl\";s:18:\"reports.group.orgs\";}');
+INSERT INTO `cerb_extension` VALUES ('report.group.snippets','cerberusweb.reports','cerberusweb.report.group',4,'Snippet Reports','api/App.php','ChReportGroupSnippets','a:2:{s:10:\"group_name\";s:24:\"reports.ui.group.snippet\";s:3:\"acl\";s:22:\"reports.group.snippets\";}');
+INSERT INTO `cerb_extension` VALUES ('report.group.spam','cerberusweb.reports','cerberusweb.report.group',5,'Spam Reports','api/App.php','ChReportGroupSpam','a:2:{s:10:\"group_name\";s:21:\"reports.ui.group.spam\";s:3:\"acl\";s:18:\"reports.group.spam\";}');
+INSERT INTO `cerb_extension` VALUES ('report.group.tickets','cerberusweb.reports','cerberusweb.report.group',6,'Ticket Reports','api/App.php','ChReportGroupTickets','a:2:{s:10:\"group_name\";s:23:\"reports.ui.group.ticket\";s:3:\"acl\";s:21:\"reports.group.tickets\";}');
+INSERT INTO `cerb_extension` VALUES ('report.group.workers','cerberusweb.reports','cerberusweb.report.group',7,'Worker Reports','api/App.php','ChReportGroupWorkers','a:2:{s:10:\"group_name\";s:23:\"reports.ui.group.worker\";s:3:\"acl\";s:21:\"reports.group.workers\";}');
+INSERT INTO `cerb_extension` VALUES ('report.group.virtual_attendants','cerberusweb.reports','cerberusweb.report.group',8,'Virtual Attendant Reports','api/App.php','ChReportGroupVirtualAttendants','a:2:{s:10:\"group_name\";s:34:\"reports.ui.group.virtual_attendant\";s:3:\"acl\";s:32:\"reports.group.virtual_attendants\";}');
+INSERT INTO `cerb_extension` VALUES ('report.custom_fields.usage','cerberusweb.reports','cerberusweb.report',9,'Custom Field Usage Report','api/reports/custom_fields/CustomFieldsUsageReport.php','ChReportCustomFieldUsage','a:2:{s:11:\"report_name\";s:30:\"reports.ui.custom_fields.usage\";s:12:\"report_group\";s:26:\"report.group.custom_fields\";}');
+INSERT INTO `cerb_extension` VALUES ('report.tickets.new_tickets','cerberusweb.reports','cerberusweb.report',10,'Created Tickets By Group Report','api/reports/tickets/CreatedTicketsReport.php','ChReportNewTickets','a:2:{s:11:\"report_name\";s:29:\"reports.ui.ticket.new_tickets\";s:12:\"report_group\";s:20:\"report.group.tickets\";}');
+INSERT INTO `cerb_extension` VALUES ('report.tickets.spam_words','cerberusweb.reports','cerberusweb.report',11,'Spam Word Report','api/reports/spam/TopSpamWordsReport.php','ChReportSpamWords','a:2:{s:11:\"report_name\";s:21:\"reports.ui.spam.words\";s:12:\"report_group\";s:17:\"report.group.spam\";}');
+INSERT INTO `cerb_extension` VALUES ('report.tickets.spam_addys','cerberusweb.reports','cerberusweb.report',12,'Spam Addy Report','api/reports/spam/TopSpamAddysReport.php','ChReportSpamAddys','a:2:{s:11:\"report_name\";s:23:\"reports.ui.spam.senders\";s:12:\"report_group\";s:17:\"report.group.spam\";}');
+INSERT INTO `cerb_extension` VALUES ('report.tickets.spam_domains','cerberusweb.reports','cerberusweb.report',13,'Spam Domains Report','api/reports/spam/TopSpamDomainsReport.php','ChReportSpamDomains','a:2:{s:11:\"report_name\";s:23:\"reports.ui.spam.domains\";s:12:\"report_group\";s:17:\"report.group.spam\";}');
+INSERT INTO `cerb_extension` VALUES ('report.snippets.popularity','cerberusweb.reports','cerberusweb.report',14,'Snippet Popularity Report','api/reports/snippets/SnippetPopularityReport.php','ChReportSnippetPopularity','a:2:{s:11:\"report_name\";s:30:\"reports.ui.snippets.popularity\";s:12:\"report_group\";s:21:\"report.group.snippets\";}');
+INSERT INTO `cerb_extension` VALUES ('report.workers.roster','cerberusweb.reports','cerberusweb.report',15,'Group Roster Report','api/reports/groups/GroupRostersReport.php','ChReportGroupRoster','a:2:{s:11:\"report_name\";s:23:\"reports.ui.group.roster\";s:12:\"report_group\";s:19:\"report.group.groups\";}');
+INSERT INTO `cerb_extension` VALUES ('report.workers.averageresponsetime','cerberusweb.reports','cerberusweb.report',16,'Average Response Time Report','api/reports/worker/WorkerAverageResponseTimeReport.php','ChReportAverageResponseTime','a:2:{s:11:\"report_name\";s:31:\"reports.ui.worker.response_time\";s:12:\"report_group\";s:20:\"report.group.workers\";}');
+INSERT INTO `cerb_extension` VALUES ('report.groups.group_replies','cerberusweb.reports','cerberusweb.report',17,'Group Replies Report','api/reports/groups/GroupRepliesReport.php','ChReportGroupReplies','a:2:{s:11:\"report_name\";s:24:\"reports.ui.group.replies\";s:12:\"report_group\";s:19:\"report.group.groups\";}');
+INSERT INTO `cerb_extension` VALUES ('report.tickets.closed_tickets','cerberusweb.reports','cerberusweb.report',18,'Closed Tickets Report','api/reports/tickets/ClosedTicketsReport.php','ChReportClosedTickets','a:2:{s:11:\"report_name\";s:24:\"reports.ui.ticket.closed\";s:12:\"report_group\";s:20:\"report.group.tickets\";}');
+INSERT INTO `cerb_extension` VALUES ('report.orgs.shared_sender_domains','cerberusweb.reports','cerberusweb.report',19,'Top 100 Shared Sender Domains Report','api/reports/orgs/SharedSenderDomainsReport.php','ChReportOrgSharedEmailDomains','a:2:{s:11:\"report_name\";s:36:\"reports.ui.org.shared_sender_domains\";s:12:\"report_group\";s:17:\"report.group.orgs\";}');
+INSERT INTO `cerb_extension` VALUES ('report.tickets.top_contacts','cerberusweb.reports','cerberusweb.report',20,'Top Created Tickets By Contact Report','api/reports/tickets/TopContactsReport.php','ChReportTopTicketsByContact','a:2:{s:11:\"report_name\";s:30:\"reports.ui.ticket.top_contacts\";s:12:\"report_group\";s:20:\"report.group.tickets\";}');
+INSERT INTO `cerb_extension` VALUES ('report.virtual_attendants.usage','cerberusweb.reports','cerberusweb.report',21,'Virtual Attendant Usage Report','api/reports/va/VirtualAttendantUsageReport.php','ChReportVirtualAttendantUsage','a:2:{s:11:\"report_name\";s:34:\"reports.ui.virtual_attendant.usage\";s:12:\"report_group\";s:31:\"report.group.virtual_attendants\";}');
+INSERT INTO `cerb_extension` VALUES ('report.workers.worker_history','cerberusweb.reports','cerberusweb.report',22,'Worker History Report','api/reports/worker/WorkerHistoryReport.php','ChReportWorkerHistory','a:2:{s:11:\"report_name\";s:32:\"reports.ui.worker.worker_history\";s:12:\"report_group\";s:20:\"report.group.workers\";}');
+INSERT INTO `cerb_extension` VALUES ('rest.controller','cerberusweb.restapi','devblocks.controller',0,'REST Controller','api/App.php','Ch_RestFrontController','a:1:{s:3:\"uri\";s:4:\"rest\";}');
+INSERT INTO `cerb_extension` VALUES ('rest.preferences.tab.api','cerberusweb.restapi','cerberusweb.preferences.tab',1,'API Preferences Tab','api/App.php','Ch_RestPreferencesTab','a:2:{s:3:\"uri\";s:3:\"api\";s:5:\"title\";s:29:\"webapi.common.api_credentials\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.rest.controller.addresses','cerberusweb.restapi','cerberusweb.rest.controller',2,'Addresses','api/rest/addresses.php','ChRest_Addresses','a:1:{s:3:\"uri\";s:9:\"addresses\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.rest.controller.attachments','cerberusweb.restapi','cerberusweb.rest.controller',3,'Attachments','api/rest/attachments.php','ChRest_Attachments','a:1:{s:3:\"uri\";s:11:\"attachments\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.rest.controller.calendars','cerberusweb.restapi','cerberusweb.rest.controller',4,'Calendars','api/rest/calendars.php','ChRest_Calendars','a:1:{s:3:\"uri\";s:9:\"calendars\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.rest.controller.comments','cerberusweb.restapi','cerberusweb.rest.controller',5,'Comments','api/rest/comments.php','ChRest_Comments','a:1:{s:3:\"uri\";s:8:\"comments\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.rest.controller.contactperson','cerberusweb.restapi','cerberusweb.rest.controller',6,'Contact Person','api/rest/contact_person.php','ChRest_ContactPerson','a:1:{s:3:\"uri\";s:8:\"contacts\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.rest.controller.custom_fields','cerberusweb.restapi','cerberusweb.rest.controller',7,'Custom Fields','api/rest/custom_fields.php','ChRest_CustomFields','a:1:{s:3:\"uri\";s:12:\"customfields\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.rest.controller.groups','cerberusweb.restapi','cerberusweb.rest.controller',8,'Groups','api/rest/groups.php','ChRest_Groups','a:1:{s:3:\"uri\";s:6:\"groups\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.rest.controller.messages','cerberusweb.restapi','cerberusweb.rest.controller',9,'Messages','api/rest/messages.php','ChRest_Messages','a:1:{s:3:\"uri\";s:8:\"messages\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.rest.controller.notifications','cerberusweb.restapi','cerberusweb.rest.controller',10,'Notifications','api/rest/notifications.php','ChRest_Notifications','a:1:{s:3:\"uri\";s:13:\"notifications\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.rest.controller.orgs','cerberusweb.restapi','cerberusweb.rest.controller',11,'Orgs','api/rest/orgs.php','ChRest_Orgs','a:1:{s:3:\"uri\";s:4:\"orgs\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.rest.controller.parser','cerberusweb.restapi','cerberusweb.rest.controller',12,'Parser','api/rest/parser.php','ChRest_Parser','a:1:{s:3:\"uri\";s:6:\"parser\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.rest.controller.tasks','cerberusweb.restapi','cerberusweb.rest.controller',13,'Tasks','api/rest/tasks.php','ChRest_Tasks','a:1:{s:3:\"uri\";s:5:\"tasks\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.rest.controller.tickets','cerberusweb.restapi','cerberusweb.rest.controller',14,'Tickets','api/rest/tickets.php','ChRest_Tickets','a:1:{s:3:\"uri\";s:7:\"tickets\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.rest.controller.workers','cerberusweb.restapi','cerberusweb.rest.controller',15,'Workers','api/rest/workers.php','ChRest_Workers','a:1:{s:3:\"uri\";s:7:\"workers\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.rest.controller.workspaces','cerberusweb.restapi','cerberusweb.rest.controller',16,'Workspaces','api/rest/workspaces.php','ChRest_Workspaces','a:1:{s:3:\"uri\";s:10:\"workspaces\";}');
+INSERT INTO `cerb_extension` VALUES ('simulator.listeners.tour','cerberusweb.simulator','devblocks.listener.http',0,'Simulator Tour','listeners.classes.php','ChSimulatorTour','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('simulator.setup.section.simulator','cerberusweb.simulator','cerberusweb.ui.page.section',1,'Setup Page Simulator Section','classes.php','PageSection_SetupSimulator','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:9:\"simulator\";}');
+INSERT INTO `cerb_extension` VALUES ('simulator.setup.menu.mail.simulator','cerberusweb.simulator','cerberusweb.ui.page.menu.item',2,'Setup Page Simulator Menu Item','classes.php','PageMenuItem_SetupSimulator','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:7:\"menu_id\";s:23:\"core.setup.menu.plugins\";}');
+INSERT INTO `cerb_extension` VALUES ('sc.listeners.core','cerberusweb.support_center','devblocks.listener.event',0,'Support Center Event Listener','api/UmScApp.php','UmScEventListener','a:1:{s:6:\"events\";a:1:{i:0;a:1:{s:10:\"cron.maint\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('sc.tool','cerberusweb.support_center','usermeet.tool',1,'Support Center','api/UmScApp.php','UmScApp','a:1:{s:12:\"template_set\";s:26:\"cerberusweb.support_center\";}');
+INSERT INTO `cerb_extension` VALUES ('sc.login.auth.default','cerberusweb.support_center','usermeet.login.authenticator',2,'Cerb6 (Default)','api/UmScApp.php','UmScLoginAuthenticator','a:2:{s:13:\"switcher_icon\";s:15:\"images/mail.png\";s:14:\"switcher_label\";s:30:\"Log in with email and password\";}');
+INSERT INTO `cerb_extension` VALUES ('sc.login.auth.openid','cerberusweb.support_center','usermeet.login.authenticator',3,'OpenID (Recommended)','api/UmScApp.php','ScOpenIDLoginAuthenticator','a:2:{s:13:\"switcher_icon\";s:17:\"images/openid.gif\";s:14:\"switcher_label\";s:18:\"Log in with OpenID\";}');
+INSERT INTO `cerb_extension` VALUES ('sc.controller.home','cerberusweb.support_center','usermeet.sc.controller',4,'Home','api/sc/uri/home.php','UmScHomeController','a:2:{s:3:\"uri\";s:4:\"home\";s:10:\"menu_title\";s:21:\"portal.sc.public.home\";}');
+INSERT INTO `cerb_extension` VALUES ('sc.controller.announcements','cerberusweb.support_center','usermeet.sc.controller',5,'Announcements','api/sc/uri/announcements.php','UmScAnnouncementsController','a:2:{s:3:\"uri\";s:13:\"announcements\";s:10:\"menu_title\";s:30:\"portal.sc.public.announcements\";}');
+INSERT INTO `cerb_extension` VALUES ('sc.controller.contact','cerberusweb.support_center','usermeet.sc.controller',6,'Contact Us','api/sc/uri/contact.php','UmScContactController','a:2:{s:3:\"uri\";s:7:\"contact\";s:10:\"menu_title\";s:25:\"portal.common.open_ticket\";}');
+INSERT INTO `cerb_extension` VALUES ('sc.controller.history','cerberusweb.support_center','usermeet.sc.controller',7,'Ticket History','api/sc/uri/history.php','UmScHistoryController','a:2:{s:3:\"uri\";s:7:\"history\";s:10:\"menu_title\";s:39:\"portal.sc.public.history.ticket_history\";}');
+INSERT INTO `cerb_extension` VALUES ('sc.controller.account','cerberusweb.support_center','usermeet.sc.controller',8,'My Account','api/sc/uri/account.php','UmScAccountController','a:2:{s:3:\"uri\";s:7:\"account\";s:10:\"menu_title\";s:27:\"portal.sc.public.my_account\";}');
+INSERT INTO `cerb_extension` VALUES ('sc.controller.login','cerberusweb.support_center','usermeet.sc.controller',9,'Login','api/sc/uri/login.php','UmScLoginController','a:2:{s:3:\"uri\";s:5:\"login\";s:10:\"menu_title\";s:31:\"portal.sc.public.themes.sign_in\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.contexts.timetracking','cerberusweb.timetracking','devblocks.context',0,'Time Tracking','api/dao/timetracking_entry.php','Context_TimeTracking','a:4:{s:5:\"alias\";s:10:\"time_entry\";s:9:\"dao_class\";s:21:\"DAO_TimeTrackingEntry\";s:10:\"view_class\";s:17:\"View_TimeTracking\";s:7:\"options\";a:1:{i:0;a:6:{s:6:\"create\";s:0:\"\";s:13:\"custom_fields\";s:0:\"\";s:4:\"find\";s:0:\"\";s:8:\"snippets\";s:0:\"\";s:11:\"va_variable\";s:0:\"\";s:9:\"workspace\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('event.macro.timetracking','cerberusweb.timetracking','devblocks.event',1,'Custom time tracking behavior','api/events/timetracking_macro.php','Event_TimeTrackingMacro','a:2:{s:13:\"macro_context\";s:33:\"cerberusweb.contexts.timetracking\";s:8:\"contexts\";a:1:{i:0;a:3:{s:26:\"cerberusweb.contexts.group\";s:0:\"\";s:25:\"cerberusweb.contexts.role\";s:0:\"\";s:27:\"cerberusweb.contexts.worker\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('timetracking.listener.core','cerberusweb.timetracking','devblocks.listener.event',2,'Time Tracking Listener','api/App.php','ChTimeTrackingEventListener','a:1:{s:6:\"events\";a:1:{i:0;a:2:{s:10:\"cron.maint\";s:0:\"\";s:19:\"ticket.action.merge\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('timetracking.renderer.prebody','cerberusweb.timetracking','cerberusweb.renderer.prebody',3,'Time Tracking Pre-body Renderer','api/App.php','ChTimeTrackingPreBodyRenderer','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('timetracking.profile_script.timer','cerberusweb.timetracking','cerberusweb.ui.context.profile.script',4,'Time Tracking Profile Script','api/App.php','ChTimeTrackingProfileScript','a:1:{s:8:\"contexts\";a:1:{i:0;a:1:{s:1:\"*\";s:0:\"\";}}}');
+INSERT INTO `cerb_extension` VALUES ('timetracking.reply.toolbaritem.timer','cerberusweb.timetracking','cerberusweb.reply.toolbaritem',5,'Time Tracking Reply Toolbar Timer','api/App.php','ChTimeTrackingReplyToolbarTimer','a:0:{}');
+INSERT INTO `cerb_extension` VALUES ('timetracking.setup.section.timetracking','cerberusweb.timetracking','cerberusweb.ui.page.section',6,'Setup Page Simulator Section','api/App.php','ChTimeTracking_SetupPageSection','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:12:\"timetracking\";}');
+INSERT INTO `cerb_extension` VALUES ('timetracking.setup.menu.plugins.timetracking','cerberusweb.timetracking','cerberusweb.ui.page.menu.item',7,'Setup Page Time Tracking Menu Item','api/App.php','ChTimeTracking_SetupPluginsMenuItem','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:7:\"menu_id\";s:23:\"core.setup.menu.plugins\";}');
+INSERT INTO `cerb_extension` VALUES ('timetracking.page','cerberusweb.timetracking','cerberusweb.page',8,'Time Tracking Page','api/App.php','ChTimeTrackingPage','a:2:{s:3:\"uri\";s:12:\"timetracking\";s:9:\"menutitle\";s:0:\"\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.profiles.time_tracking','cerberusweb.timetracking','cerberusweb.ui.page.section',9,'Time Tracking Page Section','api/profiles/time_tracking.php','PageSection_ProfilesTimeTracking','a:2:{s:7:\"page_id\";s:18:\"core.page.profiles\";s:3:\"uri\";s:13:\"time_tracking\";}');
+INSERT INTO `cerb_extension` VALUES ('cerberusweb.rest.controller.timetracking','cerberusweb.timetracking','cerberusweb.rest.controller',10,'Time Tracking','api/rest/timetracking.php','ChRest_TimeTracking','a:1:{s:3:\"uri\";s:12:\"timetracking\";}');
+INSERT INTO `cerb_extension` VALUES ('report.group.timetracking','cerberusweb.timetracking','cerberusweb.report.group',11,'Time Tracking Reports','api/App.php','ChReportGroupTimeTracking','a:2:{s:10:\"group_name\";s:23:\"timetracking.ui.reports\";s:3:\"acl\";s:30:\"timetracking.report.group.time\";}');
+INSERT INTO `cerb_extension` VALUES ('report.timetracking.timespentworker','cerberusweb.timetracking','cerberusweb.report',12,'Time Spent Per Worker','api/reports/TimeByWorkerReport.php','ChReportTimeSpentWorker','a:2:{s:11:\"report_name\";s:41:\"timetracking.ui.reports.time_spent_worker\";s:12:\"report_group\";s:25:\"report.group.timetracking\";}');
+INSERT INTO `cerb_extension` VALUES ('report.timetracking.timespentorg','cerberusweb.timetracking','cerberusweb.report',13,'Time Spent Per Organization','api/reports/TimeByOrgReport.php','ChReportTimeSpentOrg','a:2:{s:11:\"report_name\";s:38:\"timetracking.ui.reports.time_spent_org\";s:12:\"report_group\";s:25:\"report.group.timetracking\";}');
+INSERT INTO `cerb_extension` VALUES ('report.timetracking.timespentactivity','cerberusweb.timetracking','cerberusweb.report',14,'Time Spent Per Activity','api/reports/TimeByActivityReport.php','ChReportTimeSpentActivity','a:2:{s:11:\"report_name\";s:43:\"timetracking.ui.reports.time_spent_activity\";s:12:\"report_group\";s:25:\"report.group.timetracking\";}');
+INSERT INTO `cerb_extension` VALUES ('translators.setup.section.translations','cerberusweb.translators','cerberusweb.ui.page.section',0,'Setup Page Translations Section','api/App.php','ChTranslators_SetupPageSection','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:3:\"uri\";s:12:\"translations\";}');
+INSERT INTO `cerb_extension` VALUES ('translators.setup.menu.mail.translations','cerberusweb.translators','cerberusweb.ui.page.menu.item',1,'Setup Page Translations Menu Item','api/App.php','ChTranslators_SetupPluginsMenuItem','a:2:{s:7:\"page_id\";s:23:\"core.page.configuration\";s:7:\"menu_id\";s:23:\"core.setup.menu.plugins\";}');
+INSERT INTO `cerb_extension` VALUES ('login.password.google_auth','wgm.login.password.google_auth','cerberusweb.login',0,'Password + Google Authenticator','api/App.php','Login_PasswordAndGoogleAuth','a:1:{s:3:\"uri\";s:14:\"password-gauth\";}');
 /*!40000 ALTER TABLE `cerb_extension` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `cerb_extension_point`
---
-
-LOCK TABLES `cerb_extension_point` WRITE;
-/*!40000 ALTER TABLE `cerb_extension_point` DISABLE KEYS */;
-/*!40000 ALTER TABLE `cerb_extension_point` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -160,7 +665,13 @@ UNLOCK TABLES;
 
 LOCK TABLES `cerb_patch_history` WRITE;
 /*!40000 ALTER TABLE `cerb_patch_history` DISABLE KEYS */;
-INSERT INTO `cerb_patch_history` VALUES ('devblocks.core',309,1338507803),('cerberusweb.core',988,1338507854),('cerberusweb.crm',15,1338507843),('cerberusweb.feedback',5,1338507843),('cerberusweb.support_center',24,1338507846),('cerberusweb.timetracking',9,1338507844),('cerberusweb.kb',7,1338507843);
+INSERT INTO `cerb_patch_history` VALUES ('devblocks.core',309,1371005074);
+INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.core',1044,1371005080);
+INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.crm',15,1371005078);
+INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.feedback',5,1371005078);
+INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.support_center',24,1371005078);
+INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.timetracking',9,1371005078);
+INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.kb',7,1371005078);
 /*!40000 ALTER TABLE `cerb_patch_history` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -170,18 +681,19 @@ UNLOCK TABLES;
 
 LOCK TABLES `cerb_plugin` WRITE;
 /*!40000 ALTER TABLE `cerb_plugin` DISABLE KEYS */;
-INSERT INTO `cerb_plugin` VALUES ('devblocks.core',1,'[Devblocks] Core','Devblocks: PHP5 Application Framework','WebGroup Media, LLC.',20102,'libs/devblocks','http://wiki.devblocks.com/','{\"patches\":[{\"version\":\"1.0.0-alpha\",\"revision\":\"1\",\"file\":\"patches\\/1.0.0_alpha.php\"},{\"version\":\"1.0.0-beta\",\"revision\":\"253\",\"file\":\"patches\\/1.0.0_beta.php\"},{\"version\":\"1.1.0\",\"revision\":\"290\",\"file\":\"patches\\/1.1.0.php\"},{\"version\":\"2.0.0\",\"revision\":\"305\",\"file\":\"patches\\/2.0.0.php\"},{\"version\":\"2.1.0\",\"revision\":\"306\",\"file\":\"patches\\/2.1.0.php\"},{\"version\":\"2.1.1\",\"revision\":\"308\",\"file\":\"patches\\/2.1.1.php\"},{\"version\":\"2.1.2\",\"revision\":\"309\",\"file\":\"patches\\/2.1.2.php\"}],\"activity_points\":[]}'),('cerberusweb.core',1,'Cerb6 Core','The core functionality of Cerb6.','WebGroup Media, LLC.',60000,'features/cerberusweb.core','http://wiki.cerb4.com/wiki/New_Changes','{\"dependencies\":[\"devblocks.core\"],\"patches\":[{\"version\":\"4.0.0-alpha\",\"revision\":\"180\",\"file\":\"patches\\/4.x\\/4.0.0_alpha.php\"},{\"version\":\"4.0.0-beta\",\"revision\":\"555\",\"file\":\"patches\\/4.x\\/4.0.0_beta.php\"},{\"version\":\"4.0.0-rc1\",\"revision\":\"809\",\"file\":\"patches\\/4.x\\/4.0.0_rc1.php\"},{\"version\":\"4.1.0\",\"revision\":\"826\",\"file\":\"patches\\/4.x\\/4.1.0.php\"},{\"version\":\"4.1.1\",\"revision\":\"827\",\"file\":\"patches\\/4.x\\/4.1.1.php\"},{\"version\":\"4.2.0\",\"revision\":\"830\",\"file\":\"patches\\/4.x\\/4.2.0.php\"},{\"version\":\"4.2.1\",\"revision\":\"832\",\"file\":\"patches\\/4.x\\/4.2.1.php\"},{\"version\":\"4.2.3\",\"revision\":\"834\",\"file\":\"patches\\/4.x\\/4.2.3.php\"},{\"version\":\"4.3.0\",\"revision\":\"836\",\"file\":\"patches\\/4.x\\/4.3.0.php\"},{\"version\":\"4.3.1\",\"revision\":\"837\",\"file\":\"patches\\/4.x\\/4.3.1.php\"},{\"version\":\"5.0.0-alpha\",\"revision\":\"855\",\"file\":\"patches\\/5.x\\/5.0.0_alpha.php\"},{\"version\":\"5.0.0-beta\",\"revision\":\"856\",\"file\":\"patches\\/5.x\\/5.0.0_beta.php\"},{\"version\":\"5.0.0-rc1\",\"revision\":\"861\",\"file\":\"patches\\/5.x\\/5.0.0_rc1.php\"},{\"version\":\"5.0.1\",\"revision\":\"864\",\"file\":\"patches\\/5.x\\/5.0.1.php\"},{\"version\":\"5.1.0\",\"revision\":\"896\",\"file\":\"patches\\/5.x\\/5.1.0.php\"},{\"version\":\"5.1.1\",\"revision\":\"898\",\"file\":\"patches\\/5.x\\/5.1.1.php\"},{\"version\":\"5.1.2\",\"revision\":\"904\",\"file\":\"patches\\/5.x\\/5.1.2.php\"},{\"version\":\"5.2.0\",\"revision\":\"905\",\"file\":\"patches\\/5.x\\/5.2.0.php\"},{\"version\":\"5.3.0\",\"revision\":\"916\",\"file\":\"patches\\/5.x\\/5.3.0.php\"},{\"version\":\"5.4.0\",\"revision\":\"934\",\"file\":\"patches\\/5.x\\/5.4.0.php\"},{\"version\":\"5.4.3\",\"revision\":\"935\",\"file\":\"patches\\/5.x\\/5.4.3.php\"},{\"version\":\"5.4.4\",\"revision\":\"936\",\"file\":\"patches\\/5.x\\/5.4.4.php\"},{\"version\":\"5.5.0\",\"revision\":\"944\",\"file\":\"patches\\/5.x\\/5.5.0.php\"},{\"version\":\"5.6.0\",\"revision\":\"957\",\"file\":\"patches\\/5.x\\/5.6.0.php\"},{\"version\":\"5.6.1\",\"revision\":\"961\",\"file\":\"patches\\/5.x\\/5.6.1.php\"},{\"version\":\"5.6.2\",\"revision\":\"965\",\"file\":\"patches\\/5.x\\/5.6.2.php\"},{\"version\":\"5.7.0\",\"revision\":\"973\",\"file\":\"patches\\/5.x\\/5.7.0.php\"},{\"version\":\"6.0.0\",\"revision\":\"988\",\"file\":\"patches\\/6.x\\/6.0.0.php\"}],\"activity_points\":{\"comment.create\":{\"point\":\"comment.create\",\"params\":{\"label_key\":\"Comment Created\"}},\"connection.link\":{\"point\":\"connection.link\",\"params\":{\"label_key\":\"Connection Linked\"}},\"connection.unlink\":{\"point\":\"connection.unlink\",\"params\":{\"label_key\":\"Connection Unlinked\"}},\"org.merge\":{\"point\":\"org.merge\",\"params\":{\"label_key\":\"Organization Merged\"}},\"task.status.completed\":{\"point\":\"task.status.completed\",\"params\":{\"label_key\":\"Task Completed\"}},\"ticket.merge\":{\"point\":\"ticket.merge\",\"params\":{\"label_key\":\"Ticket Merged\"}},\"ticket.message.inbound\":{\"point\":\"ticket.message.inbound\",\"params\":{\"label_key\":\"Ticket Message Inbound\"}},\"ticket.message.outbound\":{\"point\":\"ticket.message.outbound\",\"params\":{\"label_key\":\"Ticket Message Outbound\"}},\"ticket.owner.assigned\":{\"point\":\"ticket.owner.assigned\",\"params\":{\"label_key\":\"Ticket Assigned\"}},\"ticket.owner.unassigned\":{\"point\":\"ticket.owner.unassigned\",\"params\":{\"label_key\":\"Ticket Unassigned\"}},\"ticket.status.closed\":{\"point\":\"ticket.status.closed\",\"params\":{\"label_key\":\"Ticket Closed\"}},\"ticket.status.deleted\":{\"point\":\"ticket.status.deleted\",\"params\":{\"label_key\":\"Ticket Deleted\"}},\"ticket.status.open\":{\"point\":\"ticket.status.open\",\"params\":{\"label_key\":\"Ticket Opened\"}},\"ticket.status.waiting\":{\"point\":\"ticket.status.waiting\",\"params\":{\"label_key\":\"Ticket Waiting\"}},\"watcher.assigned\":{\"point\":\"watcher.assigned\",\"params\":{\"label_key\":\"Watcher Assigned\"}},\"watcher.follow\":{\"point\":\"watcher.follow\",\"params\":{\"label_key\":\"Watcher Followed\"}},\"watcher.unassigned\":{\"point\":\"watcher.unassigned\",\"params\":{\"label_key\":\"Watcher Unassigned\"}},\"watcher.unfollow\":{\"point\":\"watcher.unfollow\",\"params\":{\"label_key\":\"Watcher Unfollowed\"}}}}'),('cerberusweb.crm',1,'Opportunity Tracking','Create opportunities (sales leads) linked to e-mail addresses. Opportunity records can be created from the Activity menu or while reading tickets.','WebGroup Media, LLC.',60000,'features/cerberusweb.crm','http://wiki.cerb5.com/wiki/Features:Opportunity_Tracking','{\"requires\":{\"app_version\":{\"min\":\"6.0\",\"max\":\"6.0.99\"}},\"dependencies\":[\"cerberusweb.core\"],\"patches\":[{\"version\":\"4.0.0-alpha\",\"revision\":\"6\",\"file\":\"patches\\/4.0.0_alpha.php\"},{\"version\":\"4.1.0\",\"revision\":\"12\",\"file\":\"patches\\/4.1.0.php\"},{\"version\":\"5.1.0-dev\",\"revision\":\"15\",\"file\":\"patches\\/5.1.0.php\"}],\"plugin_image\":\"plugin.png\",\"activity_points\":{\"opp.status.closed_lost\":{\"point\":\"opp.status.closed_lost\",\"params\":{\"label_key\":\"Opportunity Closed\\/Lost\"}},\"opp.status.closed_won\":{\"point\":\"opp.status.closed_won\",\"params\":{\"label_key\":\"Opportunity Closed\\/Won\"}},\"opp.status.open\":{\"point\":\"opp.status.open\",\"params\":{\"label_key\":\"Opportunity Opened\"}}}}'),('cerberusweb.feedback',1,'Feedback Capture','Organically capture praise or criticism and share it with decision makers.  This adds a Feedback tab to the Activity page.  You can also capture feedback while reading e-mail by highlighting a quote and clicking \'more\' in the toolbar.','WebGroup Media, LLC.',60000,'features/cerberusweb.feedback','http://wiki.cerb5.com/wiki/Features:Feedback_Capture','{\"requires\":{\"app_version\":{\"min\":\"6.0\",\"max\":\"6.0.99\"}},\"dependencies\":[\"cerberusweb.core\"],\"patches\":[{\"version\":\"4.1.0\",\"revision\":\"4\",\"file\":\"patches\\/4.1.0.php\"},{\"version\":\"5.1.0-dev\",\"revision\":\"5\",\"file\":\"patches\\/5.1.0.php\"}],\"plugin_image\":\"images\\/plugin.png\",\"activity_points\":[]}'),('cerberusweb.kb',1,'Knowledgebase','Create and categorize articles to share knowledge between workers or your community.','WebGroup Media, LLC.',60000,'features/cerberusweb.kb','http://wiki.cerb5.com/wiki/Features:Knowledgebase','{\"requires\":{\"app_version\":{\"min\":\"6.0\",\"max\":\"6.0.99\"}},\"dependencies\":[\"cerberusweb.core\"],\"patches\":[{\"version\":\"5.0.0-beta\",\"revision\":\"6\",\"file\":\"patches\\/5.0.0_beta.php\"},{\"version\":\"5.1.0-dev\",\"revision\":\"7\",\"file\":\"patches\\/5.1.0.php\"}],\"templates\":[{\"plugin_id\":\"cerberusweb.kb\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/kb\\/article.tpl\"},{\"plugin_id\":\"cerberusweb.kb\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/kb\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.kb\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/kb\\/search_results.tpl\"},{\"plugin_id\":\"cerberusweb.kb\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/kb\\/sidebar.tpl\"},{\"plugin_id\":\"cerberusweb.kb\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/kb\\/view.tpl\"}],\"plugin_image\":\"plugin.png\",\"activity_points\":[]}'),('cerberusweb.reports',1,'Reports','Pluggable reporting area with default reports on various metrics.  This adds a Reports menu and several plugin hooks for creating new reports.','WebGroup Media, LLC.',60000,'features/cerberusweb.reports','http://wiki.cerb5.com/wiki/Features:Reports','{\"requires\":{\"app_version\":{\"min\":\"6.0\",\"max\":\"6.0.99\"}},\"dependencies\":[\"cerberusweb.core\"],\"plugin_image\":\"plugin.png\",\"activity_points\":[]}'),('cerberusweb.restapi',0,'Web Services API (JSON/XML) *EXPERIMENTAL*','A RESTful JSON/XML interface for integrating Cerb with other applications and tools.','WebGroup Media, LLC.',60000,'features/cerberusweb.restapi','http://wiki.cerb5.com/wiki/Features:Web_Services_API','{\"requires\":{\"app_version\":{\"min\":\"6.0\",\"max\":\"6.0.99\"}},\"dependencies\":[\"cerberusweb.core\"],\"patches\":[{\"version\":\"6.0.0-dev\",\"revision\":\"1\",\"file\":\"patches\\/6.0.0.php\"}],\"plugin_image\":\"plugin.png\",\"activity_points\":[]}'),('cerberusweb.simulator',1,'Simulator','A tool that makes it easy to create batches of realistic sample tickets, tasks, and organizations; useful for evaluations, plugin development, and testing.  This adds a Simulator option to the Setup Plugins menu.','WebGroup Media, LLC.',60000,'features/cerberusweb.simulator','http://wiki.cerb5.com/wiki/Features:Ticket_Simulator','{\"requires\":{\"app_version\":{\"min\":\"6.0\",\"max\":\"6.0.99\"}},\"dependencies\":[\"cerberusweb.core\"],\"plugin_image\":\"plugin.png\",\"activity_points\":[]}'),('cerberusweb.support_center',1,'Support Center','Adds a Support Center community portal for public-facing support.','WebGroup Media, LLC.',60000,'features/cerberusweb.support_center','http://wiki.cerb5.com/wiki/Support_Center','{\"requires\":{\"app_version\":{\"min\":\"6.0\",\"max\":\"6.0.99\"}},\"dependencies\":[\"cerberusweb.core\"],\"patches\":[{\"version\":\"4.1.0\",\"revision\":\"13\",\"file\":\"patches\\/4.1.0.php\"},{\"version\":\"4.2.2\",\"revision\":\"14\",\"file\":\"patches\\/4.2.2.php\"},{\"version\":\"4.3.0\",\"revision\":\"15\",\"file\":\"patches\\/4.3.0.php\"},{\"version\":\"4.3.1\",\"revision\":\"16\",\"file\":\"patches\\/4.3.1.php\"},{\"version\":\"5.0.0-beta\",\"revision\":\"19\",\"file\":\"patches\\/5.0.0_beta.php\"},{\"version\":\"5.1.0-dev\",\"revision\":\"21\",\"file\":\"patches\\/5.1.0.php\"},{\"version\":\"5.2.0-dev\",\"revision\":\"24\",\"file\":\"patches\\/5.2.0.php\"}],\"templates\":[{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/header.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/footer.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/style.css.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/user_styles.css.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/customfields_readonly.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/customfields_writeable.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/sidebar_menu.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/delete\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/email\\/confirm.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/email\\/display.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/email\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/openid\\/display.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/openid\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/password\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/sharing\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/announcements\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/contact\\/confirm.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/contact\\/step1.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/contact\\/step2.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/history\\/display.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/history\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/history\\/view.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/home\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/internal\\/view\\/view_filters.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/default\\/forgot_confirm.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/default\\/forgot.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/default\\/login.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/default\\/register_confirm.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/default\\/register.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/openid\\/forgot_confirm.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/openid\\/forgot.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/openid\\/login.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/openid\\/register_confirm.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/openid\\/register.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/switcher.tpl\"}],\"plugin_image\":\"plugin.png\",\"activity_points\":[]}'),('cerberusweb.timetracking',1,'Time Tracking','Track time spent on various helpdesk activities (replying to tickets, etc).  This adds a Track Time button to Display Ticket and Organizations, and a Time Tracking tab to the Activity page.','WebGroup Media, LLC.',60000,'features/cerberusweb.timetracking','http://wiki.cerb5.com/wiki/Features:Time_Tracking','{\"requires\":{\"app_version\":{\"min\":\"6.0\",\"max\":\"6.0.99\"}},\"dependencies\":[\"cerberusweb.core\"],\"patches\":[{\"version\":\"4.1.0\",\"revision\":\"4\",\"file\":\"patches\\/4.1.0.php\"},{\"version\":\"5.1.0-dev\",\"revision\":\"9\",\"file\":\"patches\\/5.1.0.php\"}],\"plugin_image\":\"plugin.png\",\"activity_points\":[]}'),('cerberusweb.translators',0,'Translation Editor','A GUI for translating the Cerberus Helpdesk interface into other languages.  This adds a \'Translations\' tab to Configuration.','WebGroup Media, LLC.',60000,'features/cerberusweb.translators','http://wiki.cerb5.com/wiki/Features:Translation_Editor','{\"requires\":{\"app_version\":{\"min\":\"6.0\",\"max\":\"6.0.99\"},\"php_extensions\":{\"mbstring\":{\"name\":\"mbstring\"}}},\"dependencies\":[\"cerberusweb.core\"],\"plugin_image\":\"plugin.png\",\"activity_points\":[]}');
+INSERT INTO `cerb_plugin` VALUES ('devblocks.core',1,'[Devblocks] Core','Devblocks: PHP5 Application Framework','Webgroup Media, LLC.',20103,'libs/devblocks','http://wiki.devblocks.com/','{\"patches\":[{\"version\":\"1.0.0-alpha\",\"revision\":\"1\",\"file\":\"patches\\/1.0.0_alpha.php\"},{\"version\":\"1.0.0-beta\",\"revision\":\"253\",\"file\":\"patches\\/1.0.0_beta.php\"},{\"version\":\"1.1.0\",\"revision\":\"290\",\"file\":\"patches\\/1.1.0.php\"},{\"version\":\"2.0.0\",\"revision\":\"305\",\"file\":\"patches\\/2.0.0.php\"},{\"version\":\"2.1.0\",\"revision\":\"306\",\"file\":\"patches\\/2.1.0.php\"},{\"version\":\"2.1.1\",\"revision\":\"308\",\"file\":\"patches\\/2.1.1.php\"},{\"version\":\"2.1.2\",\"revision\":\"309\",\"file\":\"patches\\/2.1.2.php\"}],\"activity_points\":[]}');
+INSERT INTO `cerb_plugin` VALUES ('cerberusweb.core',1,'Cerb6 Core','The core functionality of Cerb6.','Webgroup Media, LLC.',60400,'features/cerberusweb.core','http://wiki.cerb4.com/wiki/New_Changes','{\"dependencies\":[\"devblocks.core\"],\"patches\":[{\"version\":\"4.0.0-alpha\",\"revision\":\"180\",\"file\":\"patches\\/4.x\\/4.0.0_alpha.php\"},{\"version\":\"4.0.0-beta\",\"revision\":\"555\",\"file\":\"patches\\/4.x\\/4.0.0_beta.php\"},{\"version\":\"4.0.0-rc1\",\"revision\":\"809\",\"file\":\"patches\\/4.x\\/4.0.0_rc1.php\"},{\"version\":\"4.1.0\",\"revision\":\"826\",\"file\":\"patches\\/4.x\\/4.1.0.php\"},{\"version\":\"4.1.1\",\"revision\":\"827\",\"file\":\"patches\\/4.x\\/4.1.1.php\"},{\"version\":\"4.2.0\",\"revision\":\"830\",\"file\":\"patches\\/4.x\\/4.2.0.php\"},{\"version\":\"4.2.1\",\"revision\":\"832\",\"file\":\"patches\\/4.x\\/4.2.1.php\"},{\"version\":\"4.2.3\",\"revision\":\"834\",\"file\":\"patches\\/4.x\\/4.2.3.php\"},{\"version\":\"4.3.0\",\"revision\":\"836\",\"file\":\"patches\\/4.x\\/4.3.0.php\"},{\"version\":\"4.3.1\",\"revision\":\"837\",\"file\":\"patches\\/4.x\\/4.3.1.php\"},{\"version\":\"5.0.0-alpha\",\"revision\":\"855\",\"file\":\"patches\\/5.x\\/5.0.0_alpha.php\"},{\"version\":\"5.0.0-beta\",\"revision\":\"856\",\"file\":\"patches\\/5.x\\/5.0.0_beta.php\"},{\"version\":\"5.0.0-rc1\",\"revision\":\"861\",\"file\":\"patches\\/5.x\\/5.0.0_rc1.php\"},{\"version\":\"5.0.1\",\"revision\":\"864\",\"file\":\"patches\\/5.x\\/5.0.1.php\"},{\"version\":\"5.1.0\",\"revision\":\"896\",\"file\":\"patches\\/5.x\\/5.1.0.php\"},{\"version\":\"5.1.1\",\"revision\":\"898\",\"file\":\"patches\\/5.x\\/5.1.1.php\"},{\"version\":\"5.1.2\",\"revision\":\"904\",\"file\":\"patches\\/5.x\\/5.1.2.php\"},{\"version\":\"5.2.0\",\"revision\":\"905\",\"file\":\"patches\\/5.x\\/5.2.0.php\"},{\"version\":\"5.3.0\",\"revision\":\"916\",\"file\":\"patches\\/5.x\\/5.3.0.php\"},{\"version\":\"5.4.0\",\"revision\":\"934\",\"file\":\"patches\\/5.x\\/5.4.0.php\"},{\"version\":\"5.4.3\",\"revision\":\"935\",\"file\":\"patches\\/5.x\\/5.4.3.php\"},{\"version\":\"5.4.4\",\"revision\":\"936\",\"file\":\"patches\\/5.x\\/5.4.4.php\"},{\"version\":\"5.5.0\",\"revision\":\"944\",\"file\":\"patches\\/5.x\\/5.5.0.php\"},{\"version\":\"5.6.0\",\"revision\":\"957\",\"file\":\"patches\\/5.x\\/5.6.0.php\"},{\"version\":\"5.6.1\",\"revision\":\"961\",\"file\":\"patches\\/5.x\\/5.6.1.php\"},{\"version\":\"5.6.2\",\"revision\":\"965\",\"file\":\"patches\\/5.x\\/5.6.2.php\"},{\"version\":\"5.7.0\",\"revision\":\"973\",\"file\":\"patches\\/5.x\\/5.7.0.php\"},{\"version\":\"6.0.0\",\"revision\":\"989\",\"file\":\"patches\\/6.x\\/6.0.0.php\"},{\"version\":\"6.1.0\",\"revision\":\"1005\",\"file\":\"patches\\/6.x\\/6.1.0.php\"},{\"version\":\"6.2.0\",\"revision\":\"1016\",\"file\":\"patches\\/6.x\\/6.2.0.php\"},{\"version\":\"6.3.0\",\"revision\":\"1030\",\"file\":\"patches\\/6.x\\/6.3.0.php\"},{\"version\":\"6.4.0\",\"revision\":\"1044\",\"file\":\"patches\\/6.x\\/6.4.0.php\"}],\"activity_points\":{\"calendar_event.created\":{\"point\":\"calendar_event.created\",\"params\":{\"label_key\":\"Calendar Event Created\"}},\"calendar_event_recurring.created\":{\"point\":\"calendar_event_recurring.created\",\"params\":{\"label_key\":\"Calendar Recurring Event Created\"}},\"comment.create\":{\"point\":\"comment.create\",\"params\":{\"label_key\":\"Comment Created\"}},\"connection.link\":{\"point\":\"connection.link\",\"params\":{\"label_key\":\"Connection Linked\"}},\"connection.unlink\":{\"point\":\"connection.unlink\",\"params\":{\"label_key\":\"Connection Unlinked\"}},\"org.merge\":{\"point\":\"org.merge\",\"params\":{\"label_key\":\"Organization Merged\"}},\"task.created\":{\"point\":\"task.created\",\"params\":{\"label_key\":\"Task Created\"}},\"task.status.completed\":{\"point\":\"task.status.completed\",\"params\":{\"label_key\":\"Task Completed\"}},\"ticket.merge\":{\"point\":\"ticket.merge\",\"params\":{\"label_key\":\"Ticket Merged\"}},\"ticket.message.inbound\":{\"point\":\"ticket.message.inbound\",\"params\":{\"label_key\":\"Ticket Message Inbound\"}},\"ticket.message.outbound\":{\"point\":\"ticket.message.outbound\",\"params\":{\"label_key\":\"Ticket Message Outbound\"}},\"ticket.moved\":{\"point\":\"ticket.moved\",\"params\":{\"label_key\":\"Ticket Moved\"}},\"ticket.owner.assigned\":{\"point\":\"ticket.owner.assigned\",\"params\":{\"label_key\":\"Ticket Assigned\"}},\"ticket.owner.unassigned\":{\"point\":\"ticket.owner.unassigned\",\"params\":{\"label_key\":\"Ticket Unassigned\"}},\"ticket.status.closed\":{\"point\":\"ticket.status.closed\",\"params\":{\"label_key\":\"Ticket Closed\"}},\"ticket.status.deleted\":{\"point\":\"ticket.status.deleted\",\"params\":{\"label_key\":\"Ticket Deleted\"}},\"ticket.status.open\":{\"point\":\"ticket.status.open\",\"params\":{\"label_key\":\"Ticket Opened\"}},\"ticket.status.waiting\":{\"point\":\"ticket.status.waiting\",\"params\":{\"label_key\":\"Ticket Waiting\"}},\"watcher.assigned\":{\"point\":\"watcher.assigned\",\"params\":{\"label_key\":\"Watcher Assigned\"}},\"watcher.follow\":{\"point\":\"watcher.follow\",\"params\":{\"label_key\":\"Watcher Followed\"}},\"watcher.unassigned\":{\"point\":\"watcher.unassigned\",\"params\":{\"label_key\":\"Watcher Unassigned\"}},\"watcher.unfollow\":{\"point\":\"watcher.unfollow\",\"params\":{\"label_key\":\"Watcher Unfollowed\"}},\"worker.impersonated\":{\"point\":\"worker.impersonated\",\"params\":{\"label_key\":\"Worker Impersonated\"}},\"worker.logged_in\":{\"point\":\"worker.logged_in\",\"params\":{\"label_key\":\"Worker Logged In\"}},\"worker.logged_out\":{\"point\":\"worker.logged_out\",\"params\":{\"label_key\":\"Worker Logged Out\"}}}}');
+INSERT INTO `cerb_plugin` VALUES ('cerberusweb.crm',1,'Opportunity Tracking','Create opportunities (sales leads) linked to e-mail addresses. Opportunity records can be created from the Activity menu or while reading tickets.','Webgroup Media, LLC.',60400,'features/cerberusweb.crm','http://wiki.cerb5.com/wiki/Features:Opportunity_Tracking','{\"requires\":{\"app_version\":{\"min\":\"6.4\",\"max\":\"6.4.99\"}},\"dependencies\":[\"cerberusweb.core\"],\"patches\":[{\"version\":\"4.0.0-alpha\",\"revision\":\"6\",\"file\":\"patches\\/4.0.0_alpha.php\"},{\"version\":\"4.1.0\",\"revision\":\"12\",\"file\":\"patches\\/4.1.0.php\"},{\"version\":\"5.1.0-dev\",\"revision\":\"15\",\"file\":\"patches\\/5.1.0.php\"}],\"plugin_image\":\"plugin.png\",\"activity_points\":{\"opp.status.closed_lost\":{\"point\":\"opp.status.closed_lost\",\"params\":{\"label_key\":\"Opportunity Closed\\/Lost\"}},\"opp.status.closed_won\":{\"point\":\"opp.status.closed_won\",\"params\":{\"label_key\":\"Opportunity Closed\\/Won\"}},\"opp.status.open\":{\"point\":\"opp.status.open\",\"params\":{\"label_key\":\"Opportunity Opened\"}}}}');
+INSERT INTO `cerb_plugin` VALUES ('cerberusweb.feedback',1,'Feedback Capture','Organically capture praise or criticism and share it with decision makers.  This adds a Feedback tab to the Activity page.  You can also capture feedback while reading e-mail by highlighting a quote and clicking \'more\' in the toolbar.','Webgroup Media, LLC.',60400,'features/cerberusweb.feedback','http://wiki.cerb5.com/wiki/Features:Feedback_Capture','{\"requires\":{\"app_version\":{\"min\":\"6.4\",\"max\":\"6.4.99\"}},\"dependencies\":[\"cerberusweb.core\"],\"patches\":[{\"version\":\"4.1.0\",\"revision\":\"4\",\"file\":\"patches\\/4.1.0.php\"},{\"version\":\"5.1.0-dev\",\"revision\":\"5\",\"file\":\"patches\\/5.1.0.php\"}],\"plugin_image\":\"images\\/plugin.png\",\"activity_points\":[]}');
+INSERT INTO `cerb_plugin` VALUES ('cerberusweb.kb',1,'Knowledgebase','Create and categorize articles to share knowledge between workers or your community.','Webgroup Media, LLC.',60400,'features/cerberusweb.kb','http://wiki.cerb5.com/wiki/Features:Knowledgebase','{\"requires\":{\"app_version\":{\"min\":\"6.4\",\"max\":\"6.4.99\"}},\"dependencies\":[\"cerberusweb.core\"],\"patches\":[{\"version\":\"5.0.0-beta\",\"revision\":\"6\",\"file\":\"patches\\/5.0.0_beta.php\"},{\"version\":\"5.1.0-dev\",\"revision\":\"7\",\"file\":\"patches\\/5.1.0.php\"}],\"templates\":[{\"plugin_id\":\"cerberusweb.kb\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/kb\\/article.tpl\"},{\"plugin_id\":\"cerberusweb.kb\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/kb\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.kb\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/kb\\/search_results.tpl\"},{\"plugin_id\":\"cerberusweb.kb\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/kb\\/sidebar.tpl\"},{\"plugin_id\":\"cerberusweb.kb\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/kb\\/view.tpl\"}],\"plugin_image\":\"plugin.png\",\"activity_points\":[]}');
+INSERT INTO `cerb_plugin` VALUES ('cerberusweb.reports',1,'Reports','Pluggable reporting area with default reports on various metrics.  This adds a Reports menu and several plugin hooks for creating new reports.','Webgroup Media, LLC.',60400,'features/cerberusweb.reports','http://wiki.cerb5.com/wiki/Features:Reports','{\"requires\":{\"app_version\":{\"min\":\"6.4\",\"max\":\"6.4.99\"}},\"dependencies\":[\"cerberusweb.core\"],\"plugin_image\":\"plugin.png\",\"activity_points\":[]}');
+INSERT INTO `cerb_plugin` VALUES ('cerberusweb.restapi',0,'Web Services API (JSON/XML) *EXPERIMENTAL*','A RESTful JSON/XML interface for integrating Cerb with other applications and tools.','Webgroup Media, LLC.',60400,'features/cerberusweb.restapi','http://wiki.cerb5.com/wiki/Features:Web_Services_API','{\"requires\":{\"app_version\":{\"min\":\"6.4\",\"max\":\"6.4.99\"}},\"dependencies\":[\"cerberusweb.core\"],\"patches\":[{\"version\":\"6.0.0-dev\",\"revision\":\"1\",\"file\":\"patches\\/6.0.0.php\"}],\"plugin_image\":\"plugin.png\",\"activity_points\":[]}');
+INSERT INTO `cerb_plugin` VALUES ('cerberusweb.simulator',1,'Simulator','A tool that makes it easy to create batches of realistic sample tickets, tasks, and organizations; useful for evaluations, plugin development, and testing.  This adds a Simulator option to the Setup Plugins menu.','Webgroup Media, LLC.',60400,'features/cerberusweb.simulator','http://wiki.cerb5.com/wiki/Features:Ticket_Simulator','{\"requires\":{\"app_version\":{\"min\":\"6.4\",\"max\":\"6.4.99\"}},\"dependencies\":[\"cerberusweb.core\"],\"plugin_image\":\"plugin.png\",\"activity_points\":[]}');
+INSERT INTO `cerb_plugin` VALUES ('cerberusweb.support_center',1,'Support Center','Adds a Support Center community portal for public-facing support.','Webgroup Media, LLC.',60400,'features/cerberusweb.support_center','http://wiki.cerb5.com/wiki/Support_Center','{\"requires\":{\"app_version\":{\"min\":\"6.4\",\"max\":\"6.4.99\"}},\"dependencies\":[\"cerberusweb.core\"],\"patches\":[{\"version\":\"4.1.0\",\"revision\":\"13\",\"file\":\"patches\\/4.1.0.php\"},{\"version\":\"4.2.2\",\"revision\":\"14\",\"file\":\"patches\\/4.2.2.php\"},{\"version\":\"4.3.0\",\"revision\":\"15\",\"file\":\"patches\\/4.3.0.php\"},{\"version\":\"4.3.1\",\"revision\":\"16\",\"file\":\"patches\\/4.3.1.php\"},{\"version\":\"5.0.0-beta\",\"revision\":\"19\",\"file\":\"patches\\/5.0.0_beta.php\"},{\"version\":\"5.1.0-dev\",\"revision\":\"21\",\"file\":\"patches\\/5.1.0.php\"},{\"version\":\"5.2.0-dev\",\"revision\":\"24\",\"file\":\"patches\\/5.2.0.php\"}],\"templates\":[{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/header.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/footer.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/style.css.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/user_styles.css.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/customfields_readonly.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/customfields_writeable.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/sidebar_menu.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/delete\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/email\\/confirm.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/email\\/display.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/email\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/openid\\/display.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/openid\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/password\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/account\\/sharing\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/announcements\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/contact\\/confirm.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/contact\\/step1.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/contact\\/step2.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/history\\/display.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/history\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/history\\/view.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/home\\/index.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/internal\\/view\\/view_filters.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/default\\/forgot_confirm.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/default\\/forgot.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/default\\/login.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/default\\/register_confirm.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/default\\/register.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/openid\\/forgot_confirm.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/openid\\/forgot.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/openid\\/login.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/openid\\/register_confirm.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/openid\\/register.tpl\"},{\"plugin_id\":\"cerberusweb.support_center\",\"set\":\"cerberusweb.support_center\",\"path\":\"support_center\\/login\\/switcher.tpl\"}],\"plugin_image\":\"plugin.png\",\"activity_points\":[]}');
+INSERT INTO `cerb_plugin` VALUES ('cerberusweb.timetracking',1,'Time Tracking','Track time spent on various helpdesk activities (replying to tickets, etc).  This adds a Track Time button to Display Ticket and Organizations, and a Time Tracking tab to the Activity page.','Webgroup Media, LLC.',60400,'features/cerberusweb.timetracking','http://wiki.cerb5.com/wiki/Features:Time_Tracking','{\"requires\":{\"app_version\":{\"min\":\"6.4\",\"max\":\"6.4.99\"}},\"dependencies\":[\"cerberusweb.core\"],\"patches\":[{\"version\":\"4.1.0\",\"revision\":\"4\",\"file\":\"patches\\/4.1.0.php\"},{\"version\":\"5.1.0-dev\",\"revision\":\"9\",\"file\":\"patches\\/5.1.0.php\"}],\"plugin_image\":\"plugin.png\",\"activity_points\":{\"timetracking.status.closed\":{\"point\":\"timetracking.status.closed\",\"params\":{\"label_key\":\"Time Tracking Entry Closed\"}},\"timetracking.status.open\":{\"point\":\"timetracking.status.open\",\"params\":{\"label_key\":\"Time Tracking Entry Opened\"}}}}');
+INSERT INTO `cerb_plugin` VALUES ('cerberusweb.translators',0,'Translation Editor','A GUI for translating the Cerb interface into other languages.  This adds a \'Translations\' tab to Configuration.','Webgroup Media, LLC.',60400,'features/cerberusweb.translators','http://wiki.cerb5.com/wiki/Features:Translation_Editor','{\"requires\":{\"app_version\":{\"min\":\"6.4\",\"max\":\"6.4.99\"},\"php_extensions\":{\"mbstring\":{\"name\":\"mbstring\"}}},\"dependencies\":[\"cerberusweb.core\"],\"plugin_image\":\"plugin.png\",\"activity_points\":[]}');
+INSERT INTO `cerb_plugin` VALUES ('wgm.login.password.google_auth',0,'Google Authenticator','Enable two-factor worker logins with passwords and the Google Authenticator app on iOS, Android, or Blackberry.','Webgroup Media, LLC.',1,'features/wgm.login.password.google_auth','http://www.cerbweb.com/','{\"requires\":{\"app_version\":{\"min\":\"6.4\",\"max\":\"6.4.99\"}},\"dependencies\":[\"cerberusweb.core\"],\"plugin_image\":\"plugin.png\",\"activity_points\":[]}');
 /*!40000 ALTER TABLE `cerb_plugin` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `cerb_property_store`
---
-
-LOCK TABLES `cerb_property_store` WRITE;
-/*!40000 ALTER TABLE `cerb_property_store` DISABLE KEYS */;
-INSERT INTO `cerb_property_store` VALUES ('cron.heartbeat','enabled','1'),('cron.heartbeat','duration','5'),('cron.heartbeat','term','m'),('cron.heartbeat','lastrun','1338336000'),('cron.import','enabled',''),('cron.import','duration','0'),('cron.import','term','m'),('cron.import','lastrun','1338336000'),('cron.storage','enabled','1'),('cron.storage','duration','1'),('cron.storage','term','h'),('cron.storage','lastrun','1338416100'),('cron.search','enabled','1'),('cron.search','duration','10'),('cron.search','term','m'),('cron.search','lastrun','1338416100'),('cron.mail_queue','enabled','1'),('cron.mail_queue','duration','1'),('cron.mail_queue','term','m'),('cron.mail_queue','lastrun','1338416100'),('cron.virtual_attendant.scheduled_behavior','enabled','1'),('cron.virtual_attendant.scheduled_behavior','duration','1'),('cron.virtual_attendant.scheduled_behavior','term','m'),('cron.virtual_attendant.scheduled_behavior','lastrun','1338418800'),('cron.pop3','enabled','1'),('cron.pop3','duration','5'),('cron.pop3','term','m'),('cron.pop3','lastrun','1338422400'),('cron.parser','enabled','1'),('cron.parser','duration','1'),('cron.parser','term','m'),('cron.parser','lastrun','1338422400'),('cron.maint','enabled','1'),('cron.maint','duration','24'),('cron.maint','term','h'),('cron.maint','lastrun','1338336000');
-/*!40000 ALTER TABLE `cerb_property_store` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -195,435 +707,35 @@ INSERT INTO `cerb_uri_routing` VALUES ('tickets','cerberusweb.core','core.contro
 UNLOCK TABLES;
 
 --
--- Dumping data for table `comment`
---
-
-LOCK TABLES `comment` WRITE;
-/*!40000 ALTER TABLE `comment` DISABLE KEYS */;
-/*!40000 ALTER TABLE `comment` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `community_session`
---
-
-LOCK TABLES `community_session` WRITE;
-/*!40000 ALTER TABLE `community_session` DISABLE KEYS */;
-/*!40000 ALTER TABLE `community_session` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `community_tool`
---
-
-LOCK TABLES `community_tool` WRITE;
-/*!40000 ALTER TABLE `community_tool` DISABLE KEYS */;
-/*!40000 ALTER TABLE `community_tool` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `community_tool_property`
---
-
-LOCK TABLES `community_tool_property` WRITE;
-/*!40000 ALTER TABLE `community_tool_property` DISABLE KEYS */;
-/*!40000 ALTER TABLE `community_tool_property` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `confirmation_code`
---
-
-LOCK TABLES `confirmation_code` WRITE;
-/*!40000 ALTER TABLE `confirmation_code` DISABLE KEYS */;
-/*!40000 ALTER TABLE `confirmation_code` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `contact_org`
---
-
-LOCK TABLES `contact_org` WRITE;
-/*!40000 ALTER TABLE `contact_org` DISABLE KEYS */;
-/*!40000 ALTER TABLE `contact_org` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `contact_person`
---
-
-LOCK TABLES `contact_person` WRITE;
-/*!40000 ALTER TABLE `contact_person` DISABLE KEYS */;
-/*!40000 ALTER TABLE `contact_person` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `context_activity_log`
---
-
-LOCK TABLES `context_activity_log` WRITE;
-/*!40000 ALTER TABLE `context_activity_log` DISABLE KEYS */;
-/*!40000 ALTER TABLE `context_activity_log` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `context_link`
---
-
-LOCK TABLES `context_link` WRITE;
-/*!40000 ALTER TABLE `context_link` DISABLE KEYS */;
-/*!40000 ALTER TABLE `context_link` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `context_merge_history`
---
-
-LOCK TABLES `context_merge_history` WRITE;
-/*!40000 ALTER TABLE `context_merge_history` DISABLE KEYS */;
-/*!40000 ALTER TABLE `context_merge_history` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `context_scheduled_behavior`
---
-
-LOCK TABLES `context_scheduled_behavior` WRITE;
-/*!40000 ALTER TABLE `context_scheduled_behavior` DISABLE KEYS */;
-/*!40000 ALTER TABLE `context_scheduled_behavior` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `crm_opportunity`
---
-
-LOCK TABLES `crm_opportunity` WRITE;
-/*!40000 ALTER TABLE `crm_opportunity` DISABLE KEYS */;
-/*!40000 ALTER TABLE `crm_opportunity` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `custom_field`
---
-
-LOCK TABLES `custom_field` WRITE;
-/*!40000 ALTER TABLE `custom_field` DISABLE KEYS */;
-/*!40000 ALTER TABLE `custom_field` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `custom_field_clobvalue`
---
-
-LOCK TABLES `custom_field_clobvalue` WRITE;
-/*!40000 ALTER TABLE `custom_field_clobvalue` DISABLE KEYS */;
-/*!40000 ALTER TABLE `custom_field_clobvalue` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `custom_field_numbervalue`
---
-
-LOCK TABLES `custom_field_numbervalue` WRITE;
-/*!40000 ALTER TABLE `custom_field_numbervalue` DISABLE KEYS */;
-/*!40000 ALTER TABLE `custom_field_numbervalue` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `custom_field_stringvalue`
---
-
-LOCK TABLES `custom_field_stringvalue` WRITE;
-/*!40000 ALTER TABLE `custom_field_stringvalue` DISABLE KEYS */;
-/*!40000 ALTER TABLE `custom_field_stringvalue` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `decision_node`
---
-
-LOCK TABLES `decision_node` WRITE;
-/*!40000 ALTER TABLE `decision_node` DISABLE KEYS */;
-/*!40000 ALTER TABLE `decision_node` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `devblocks_registry`
---
-
-LOCK TABLES `devblocks_registry` WRITE;
-/*!40000 ALTER TABLE `devblocks_registry` DISABLE KEYS */;
-/*!40000 ALTER TABLE `devblocks_registry` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `devblocks_session`
---
-
-LOCK TABLES `devblocks_session` WRITE;
-/*!40000 ALTER TABLE `devblocks_session` DISABLE KEYS */;
-/*!40000 ALTER TABLE `devblocks_session` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `devblocks_setting`
---
-
-LOCK TABLES `devblocks_setting` WRITE;
-/*!40000 ALTER TABLE `devblocks_setting` DISABLE KEYS */;
-/*!40000 ALTER TABLE `devblocks_setting` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `devblocks_storage_profile`
---
-
-LOCK TABLES `devblocks_storage_profile` WRITE;
-/*!40000 ALTER TABLE `devblocks_storage_profile` DISABLE KEYS */;
-/*!40000 ALTER TABLE `devblocks_storage_profile` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `devblocks_template`
---
-
-LOCK TABLES `devblocks_template` WRITE;
-/*!40000 ALTER TABLE `devblocks_template` DISABLE KEYS */;
-/*!40000 ALTER TABLE `devblocks_template` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `explorer_set`
---
-
-LOCK TABLES `explorer_set` WRITE;
-/*!40000 ALTER TABLE `explorer_set` DISABLE KEYS */;
-/*!40000 ALTER TABLE `explorer_set` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `feedback_entry`
---
-
-LOCK TABLES `feedback_entry` WRITE;
-/*!40000 ALTER TABLE `feedback_entry` DISABLE KEYS */;
-/*!40000 ALTER TABLE `feedback_entry` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `fnr_external_resource`
---
-
-LOCK TABLES `fnr_external_resource` WRITE;
-/*!40000 ALTER TABLE `fnr_external_resource` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fnr_external_resource` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `fnr_topic`
---
-
-LOCK TABLES `fnr_topic` WRITE;
-/*!40000 ALTER TABLE `fnr_topic` DISABLE KEYS */;
-/*!40000 ALTER TABLE `fnr_topic` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `group_setting`
---
-
-LOCK TABLES `group_setting` WRITE;
-/*!40000 ALTER TABLE `group_setting` DISABLE KEYS */;
-/*!40000 ALTER TABLE `group_setting` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `kb_article`
---
-
-LOCK TABLES `kb_article` WRITE;
-/*!40000 ALTER TABLE `kb_article` DISABLE KEYS */;
-/*!40000 ALTER TABLE `kb_article` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `kb_article_to_category`
---
-
-LOCK TABLES `kb_article_to_category` WRITE;
-/*!40000 ALTER TABLE `kb_article_to_category` DISABLE KEYS */;
-/*!40000 ALTER TABLE `kb_article_to_category` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `kb_category`
---
-
-LOCK TABLES `kb_category` WRITE;
-/*!40000 ALTER TABLE `kb_category` DISABLE KEYS */;
-/*!40000 ALTER TABLE `kb_category` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `mail_queue`
---
-
-LOCK TABLES `mail_queue` WRITE;
-/*!40000 ALTER TABLE `mail_queue` DISABLE KEYS */;
-/*!40000 ALTER TABLE `mail_queue` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `mail_to_group_rule`
---
-
-LOCK TABLES `mail_to_group_rule` WRITE;
-/*!40000 ALTER TABLE `mail_to_group_rule` DISABLE KEYS */;
-/*!40000 ALTER TABLE `mail_to_group_rule` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `message`
---
-
-LOCK TABLES `message` WRITE;
-/*!40000 ALTER TABLE `message` DISABLE KEYS */;
-/*!40000 ALTER TABLE `message` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `message_header`
---
-
-LOCK TABLES `message_header` WRITE;
-/*!40000 ALTER TABLE `message_header` DISABLE KEYS */;
-/*!40000 ALTER TABLE `message_header` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `notification`
---
-
-LOCK TABLES `notification` WRITE;
-/*!40000 ALTER TABLE `notification` DISABLE KEYS */;
-/*!40000 ALTER TABLE `notification` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `openid_to_contact_person`
---
-
-LOCK TABLES `openid_to_contact_person` WRITE;
-/*!40000 ALTER TABLE `openid_to_contact_person` DISABLE KEYS */;
-/*!40000 ALTER TABLE `openid_to_contact_person` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Dumping data for table `plugin_library`
 --
 
 LOCK TABLES `plugin_library` WRITE;
 /*!40000 ALTER TABLE `plugin_library` DISABLE KEYS */;
+INSERT INTO `plugin_library` VALUES (17,'wgm.ldap','LDAP Integration','Webgroup Media, LLC.','Authenticate worker and customer logins via LDAP.','http://www.cerbweb.com/book/latest/plugins/wgm.ldap.html',10009,'https://cerb5-plugins.s3.amazonaws.com/icons/wgm.ldap.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"php_extensions\":[\"ldap\"],\"dependencies\":[\"cerberusweb.core\"]}',1366790942);
+INSERT INTO `plugin_library` VALUES (25,'cerberusweb.spam_analysis','Spam Score Analysis','Webgroup Media, LLC.','This plugin provides extra insight about how Cerb\'s anti-spam system is making filtering decisions. It adds a new \'Spam Analysis\' tab when displaying ticket profiles.','http://www.cerbweb.com/book/latest/plugins/cerberusweb.spam_analysis.html',10007,'https://cerb5-plugins.s3.amazonaws.com/icons/cerberusweb.spam_analysis.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"dependencies\":[\"cerberusweb.core\"]}',1366790850);
+INSERT INTO `plugin_library` VALUES (16,'wgm.org_dupe_finder','Organization Dupe Finder','Webgroup Media, LLC.','Finds duplicate organizations in your address book by analyzing subtle variations and misspellings.','http://www.cerbweb.com/book/latest/plugins/wgm.org_dupe_finder',10007,'https://cerb5-plugins.s3.amazonaws.com/icons/wgm.org_dupe_finder.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"dependencies\":[\"cerberusweb.core\"]}',1366790906);
+INSERT INTO `plugin_library` VALUES (7,'wgm.twilio','Twilio.com Integration','Webgroup Media, LLC.','This plugin provides integration with Twilio.com for phone and SMS functionality using the twilio-php API.  This plugin is intended to be a bridge used by other plugins to communicate with Twilio services.','http://www.cerbweb.com/book/latest/plugins/wgm.twilio.html',10007,'https://cerb5-plugins.s3.amazonaws.com/icons/wgm.twilio.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"php_extensions\":[\"curl\"],\"dependencies\":[\"cerberusweb.core\"]}',1366790934);
+INSERT INTO `plugin_library` VALUES (10,'jsjohnst.fluidapp','Fluid.app Integration','Jeremy Johnstone @ LinkedIn','Provides data needed by Fluid.app for Growl alerts and Mac OS X dock badges','http://www.cerbweb.com/book/latest/plugins/jsjohnst.fluidapp.html',10008,'https://cerb5-plugins.s3.amazonaws.com/icons/jsjohnst.fluidapp.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"dependencies\":[\"cerberusweb.core\"]}',1370429194);
+INSERT INTO `plugin_library` VALUES (31,'cerberusweb.assets','Asset Tracking','Webgroup Media, LLC.','This plugin introduces asset records.','http://www.cerberusweb.com/',2,'','{\"app_version\":{\"min\":60400,\"max\":60499},\"dependencies\":[\"cerberusweb.core\"]}',1369902017);
+INSERT INTO `plugin_library` VALUES (30,'wgm.hipchat','HipChat Integration','Webgroup Media, LLC.','This plugin provides integration with Atlassian\'s HipChat via their API. It is intended to be a bridge used by other plugins to communicate with HipChat services. In addition, a new Virtual Attendant action is added for posting automated messages to a HipChat room.','http://www.cerberusweb.com/',4,'https://cerb5-plugins.s3.amazonaws.com/icons/wgm.hipchat.png','{\"app_version\":{\"min\":60000,\"max\":60499},\"php_extensions\":[\"curl\"],\"dependencies\":[\"cerberusweb.core\"]}',1366790893);
+INSERT INTO `plugin_library` VALUES (26,'cerberusweb.datacenter.sensors','Sensors','Webgroup Media, LLC.','This plugin adds flexible Sensor objects that can be used for network and server monitoring, operational intelligence, etc.','http://www.cerbweb.com/book/latest/plugins/cerberusweb.datacenter.sensors.html',518,'https://cerb5-plugins.s3.amazonaws.com/icons/cerberusweb.datacenter.sensors.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"php_extensions\":[\"curl\"],\"dependencies\":[\"cerberusweb.core\"]}',1370396635);
+INSERT INTO `plugin_library` VALUES (11,'wgm.notifications.emailer','Notifications Emailer','Webgroup Media, LLC.','This plugin automatically sends an email to workers if they have received new notifications.  It sends digests, so if you receive 100 new assignments you\'ll only receive a single email about them.','http://www.cerbweb.com/book/latest/plugins/wgm.notifications.emailer.html',10007,'https://cerb5-plugins.s3.amazonaws.com/icons/wgm.notifications.emailer.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"dependencies\":[\"cerberusweb.core\"]}',1366790900);
+INSERT INTO `plugin_library` VALUES (20,'cerberusweb.feed_reader','Collaborative Feed Reader','Webgroup Media, LLC.','This plugin adds new records for Feeds and Feed Items.  These can be used to share monitoring duties on RSS/Atom feeds: moderate blog comments, audit wiki changes, read new forum posts, track vendor announcements, etc.','http://www.cerbweb.com/book/latest/plugins/cerberusweb.feed_reader.git',10021,'https://cerb5-plugins.s3.amazonaws.com/icons/cerberusweb.feed_reader.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"dependencies\":[\"cerberusweb.core\"]}',1370429188);
+INSERT INTO `plugin_library` VALUES (14,'wgm.clickatell','Clickatell Integration','Webgroup Media, LLC.','This plugin provides integration with Clickatell for SMS functionality.  This plugin is intended to be a bridge used by other plugins to communicate with Clickatell services.','http://www.cerbweb.com/book/latest/plugins/wgm.clickatell.html',10007,'https://cerb5-plugins.s3.amazonaws.com/icons/wgm.clickatell.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"php_extensions\":[\"curl\"],\"dependencies\":[\"cerberusweb.core\"]}',1366790872);
+INSERT INTO `plugin_library` VALUES (12,'wgm.facebook','Facebook Integration','Webgroup Media, LLC.','This plugin provides integration with Facebook for status update functionality.','http://www.cerbweb.com/book/latest/plugins/wgm.facebook.html',10007,'https://cerb5-plugins.s3.amazonaws.com/icons/wgm.facebook.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"php_extensions\":[\"oauth\"],\"dependencies\":[\"cerberusweb.core\"]}',1366790880);
+INSERT INTO `plugin_library` VALUES (27,'cerberusweb.datacenter.servers','Servers','Webgroup Media, LLC.','This plugin adds Server objects that can be used to manage datacenters.','http://www.cerbweb.com/book/latest/plugins/cerberusweb.datacenter.servers.html',10019,'https://cerb5-plugins.s3.amazonaws.com/icons/cerberusweb.datacenter.servers.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"dependencies\":[\"cerberusweb.core\"]}',1370396628);
+INSERT INTO `plugin_library` VALUES (23,'cerberusweb.datacenter.domains','Domains','Webgroup Media, LLC.','This plugin adds Domain objects for managing webhosting/SaaS/On-Demand infrastructure.','http://www.cerbweb.com/book/latest/plugins/cerberusweb.datacenter.domains.html',10023,'https://cerb5-plugins.s3.amazonaws.com/icons/cerberusweb.datacenter.domains.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"dependencies\":[\"cerberusweb.core\"]}',1370396640);
+INSERT INTO `plugin_library` VALUES (9,'wgm.campfire','37Signals Campfire Integration','Webgroup Media, LLC.','This plugin provides integration with 37Signals Campfire via their API. It is intended to be a bridge used by other plugins to communicate with Campfire services. In addition, a new Virtual Attendant action is added for posting automated messages to Campfire.','http://www.cerbweb.com/book/latest/plugins/wgm.campfire.html',10009,'https://cerb5-plugins.s3.amazonaws.com/icons/wgm.campfire.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"php_extensions\":[\"curl\"],\"dependencies\":[\"cerberusweb.core\"]}',1366790865);
+INSERT INTO `plugin_library` VALUES (18,'wgm.ticket.display.move_to','Display Ticket \'move to\' shortcut','Webgroup Media, LLC.','This adds a \'move to\' dropdown shortcut to the Ticket profile page.','http://www.cerbweb.com/book/latest/plugins/wgm.ticket.display.move_to.html',10006,'https://cerb5-plugins.s3.amazonaws.com/icons/wgm.ticket.display.move_to.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"dependencies\":[\"cerberusweb.core\"]}',1369902009);
+INSERT INTO `plugin_library` VALUES (15,'wgm.freshbooks','Freshbooks Integration','Webgroup Media, LLC.','This plugin provides integration with Freshbooks via their REST API. This plugin is intended to be a bridge used by other plugins to communicate with Freshbooks services. It adds records for Freshbooks Clients.  Plugin development has been sponsored by Nolan Interactive - http://www.nolaninteractive.com/','http://www.cerbweb.com/book/latest/plugins/wgm.freshbooks.html',10017,'https://cerb5-plugins.s3.amazonaws.com/icons/wgm.freshbooks.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"php_extensions\":[\"curl\"],\"dependencies\":[\"cerberusweb.core\"]}',1370429199);
+INSERT INTO `plugin_library` VALUES (29,'wgm.profile.attachments','Ticket Profile Attachments Tab','Webgroup Media, LLC.','This plugin adds a new Attachments tab to ticket profiles, making it easier to manage multiple files that are associated with long conversations.  You can also download all the attachments on a ticket as a single ZIP archive.  Sponsored by Pinnacle Technical Resources - http://www.pinnacle1.com/','http://www.cerbweb.com/book/latest/plugins/wgm.profile.attachments.html',6,'https://cerb5-plugins.s3.amazonaws.com/icons/wgm.profile.attachments.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"dependencies\":[\"cerberusweb.core\"]}',1366790916);
+INSERT INTO `plugin_library` VALUES (21,'cerberusweb.calls','Call Logging','Webgroup Media, LLC.','This plugin adds a new Call record type for logging incoming and outgoing phone activity.','http://www.cerbweb.com/book/latest/plugins/cerberusweb.calls.html',10019,'https://cerb5-plugins.s3.amazonaws.com/icons/cerberusweb.calls.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"dependencies\":[\"cerberusweb.core\"]}',1369902024);
+INSERT INTO `plugin_library` VALUES (19,'cerberusweb.gravatar','Gravatar Profile Pictures','Webgroup Media, LLC.','Displays profile pictures for contacts using gravatar.com','http://www.cerbweb.com/book/latest/plugins/cerberusweb.gravatar.html',10008,'https://cerb5-plugins.s3.amazonaws.com/icons/cerberusweb.gravatar.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"dependencies\":[\"cerberusweb.core\"]}',1366790827);
+INSERT INTO `plugin_library` VALUES (24,'cerberusweb.openid','OpenID Integration','Webgroup Media, LLC.','Authenticate worker logins via OpenID','http://www.cerbweb.com/book/latest/plugins/cerberusweb.openid.html',10009,'https://cerb5-plugins.s3.amazonaws.com/icons/cerberusweb.openid.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"php_extensions\":[\"curl\"],\"dependencies\":[\"cerberusweb.core\"]}',1366790843);
+INSERT INTO `plugin_library` VALUES (13,'wgm.twitter','Twitter Integration','Webgroup Media, LLC.','This plugin provides integration with Twitter via their API. This plugin is intended to be a bridge used by other plugins to communicate with Twitter services. The plugin introduces record types for Twitter Accounts and Messages.  It supports multiple accounts;  @mentions are automatically synchronized and messages can be replied to from within Cerb.  In addition, it adds a new Virtual Attendant action with the ability to post status updates to Twitter.','http://www.cerbweb.com/book/latest/plugins/wgm.twitter.html',10109,'https://cerb5-plugins.s3.amazonaws.com/icons/wgm.twitter.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"php_extensions\":[\"oauth\"],\"dependencies\":[\"cerberusweb.core\"]}',1369902069);
+INSERT INTO `plugin_library` VALUES (8,'wgm.storage.s3.gatekeeper','S3 Gatekeeper Storage Engine','Webgroup Media, LLC.','This plugin adds a new storage engine for Amazon S3 that doesn\'t store or expose your AWS account credentials. Instead, it authenticates with a remote gatekeeper script and retrieves a secure, pre-signed URL that is used to perform requests.','http://www.cerbweb.com/book/latest/plugins/wgm.storage.s3.gatekeeper.html',10007,'https://cerb5-plugins.s3.amazonaws.com/icons/wgm.storage.s3.gatekeeper.png','{\"app_version\":{\"min\":60400,\"max\":60499},\"php_extensions\":[\"curl\"],\"dependencies\":[\"cerberusweb.core\"]}',1366790923);
 /*!40000 ALTER TABLE `plugin_library` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `pop3_account`
---
-
-LOCK TABLES `pop3_account` WRITE;
-/*!40000 ALTER TABLE `pop3_account` DISABLE KEYS */;
-/*!40000 ALTER TABLE `pop3_account` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `requester`
---
-
-LOCK TABLES `requester` WRITE;
-/*!40000 ALTER TABLE `requester` DISABLE KEYS */;
-/*!40000 ALTER TABLE `requester` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `snippet`
---
-
-LOCK TABLES `snippet` WRITE;
-/*!40000 ALTER TABLE `snippet` DISABLE KEYS */;
-/*!40000 ALTER TABLE `snippet` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `snippet_usage`
---
-
-LOCK TABLES `snippet_usage` WRITE;
-/*!40000 ALTER TABLE `snippet_usage` DISABLE KEYS */;
-/*!40000 ALTER TABLE `snippet_usage` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `storage_message_content`
---
-
-LOCK TABLES `storage_message_content` WRITE;
-/*!40000 ALTER TABLE `storage_message_content` DISABLE KEYS */;
-/*!40000 ALTER TABLE `storage_message_content` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `supportcenter_address_share`
---
-
-LOCK TABLES `supportcenter_address_share` WRITE;
-/*!40000 ALTER TABLE `supportcenter_address_share` DISABLE KEYS */;
-/*!40000 ALTER TABLE `supportcenter_address_share` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `task`
---
-
-LOCK TABLES `task` WRITE;
-/*!40000 ALTER TABLE `task` DISABLE KEYS */;
-/*!40000 ALTER TABLE `task` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `ticket`
---
-
-LOCK TABLES `ticket` WRITE;
-/*!40000 ALTER TABLE `ticket` DISABLE KEYS */;
-/*!40000 ALTER TABLE `ticket` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `ticket_mask_forward`
---
-
-LOCK TABLES `ticket_mask_forward` WRITE;
-/*!40000 ALTER TABLE `ticket_mask_forward` DISABLE KEYS */;
-/*!40000 ALTER TABLE `ticket_mask_forward` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `timetracking_activity`
---
-
-LOCK TABLES `timetracking_activity` WRITE;
-/*!40000 ALTER TABLE `timetracking_activity` DISABLE KEYS */;
-/*!40000 ALTER TABLE `timetracking_activity` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `timetracking_entry`
---
-
-LOCK TABLES `timetracking_entry` WRITE;
-/*!40000 ALTER TABLE `timetracking_entry` DISABLE KEYS */;
-/*!40000 ALTER TABLE `timetracking_entry` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -632,127 +744,901 @@ UNLOCK TABLES;
 
 LOCK TABLES `translation` WRITE;
 /*!40000 ALTER TABLE `translation` DISABLE KEYS */;
-INSERT INTO `translation` VALUES (1,'core.menu.activity','en_US','activity',NULL),(2,'core.menu.address_book','en_US','address book',NULL),(3,'display.tab.comments','en_US','Comments (%s)',NULL),(4,'display.tab.history','en_US','Recipient History',NULL),(5,'display.tab.tasks','en_US','Tasks',NULL),(6,'display.tab.timeline','en_US','Timeline',NULL),(7,'home.tab.my_notifications','en_US','Notifications',NULL),(8,'home.tab.workspaces_intro','en_US','About Workspaces',NULL),(9,'activity.tab.tasks','en_US','Tasks',NULL),(10,'activities.comment.create','en_US','{{actor}} commented on {{object}} {{target}}: {{content}}',NULL),(11,'activities.connection.link','en_US','{{actor}} connected {{target_object}} {{target}} to {{link_object}} {{link}}',NULL),(12,'activities.connection.unlink','en_US','{{actor}} disconnected {{target_object}} {{target}} from {{link_object}} {{link}}',NULL),(13,'activities.org.merge','en_US','{{actor}} merged organization {{source}} with organization {{target}}',NULL),(14,'activities.task.status.completed','en_US','{{actor}} completed task {{target}}',NULL),(15,'activities.ticket.assigned','en_US','{{actor}} assigned ticket {{target}} to worker {{worker}}',NULL),(16,'activities.ticket.merge','en_US','{{actor}} merged ticket {{source}} with ticket {{target}}',NULL),(17,'activities.ticket.message.inbound','en_US','{{actor}} replied to ticket {{target}}',NULL),(18,'activities.ticket.message.outbound','en_US','{{actor}} responded to ticket {{target}}',NULL),(19,'activities.ticket.status','en_US','{{actor}} changed ticket {{target}} to status {{status}}',NULL),(20,'activities.ticket.unassigned','en_US','{{actor}} unassigned ticket {{target}}',NULL),(21,'activities.watcher.assigned','en_US','{{actor}} added {{watcher}} as a watcher to {{target_object}} {{target}}',NULL),(22,'activities.watcher.follow','en_US','{{actor}} started watching {{target_object}} {{target}}',NULL),(23,'activities.watcher.unassigned','en_US','{{actor}} removed {{watcher}} as a watcher from {{target_object}} {{target}}',NULL),(24,'activities.watcher.unfollow','en_US','{{actor}} stopped watching {{target_object}} {{target}}',NULL),(25,'common.access_denied','en_US','Access denied.',NULL),(26,'common.activity_log','en_US','Activity Log',NULL),(27,'common.add','en_US','add',NULL),(28,'common.all','en_US','all',NULL),(29,'common.anonymous','en_US','anonymous',NULL),(30,'common.anybody','en_US','anybody',NULL),(31,'common.assign','en_US','assign',NULL),(32,'common.assigned','en_US','Assigned',NULL),(33,'common.attachments','en_US','Attachments',NULL),(34,'common.available','en_US','Available',NULL),(35,'common.behavior','en_US','Behavior',NULL),(36,'common.bucket','en_US','Bucket',NULL),(37,'common.buckets','en_US','Buckets',NULL),(38,'common.bulk_update','en_US','Bulk Update',NULL),(39,'common.bulk_update.do','en_US','Do',NULL),(40,'common.bulk_update.filter.all','en_US','Whole list',NULL),(41,'common.bulk_update.filter.checked','en_US','Only checked',NULL),(42,'common.bulk_update.filter.random','en_US','Random',NULL),(43,'common.bulk_update.with','en_US','With',NULL),(44,'common.cancel','en_US','cancel',NULL),(45,'common.category','en_US','category',NULL),(46,'common.choose','en_US','choose',NULL),(47,'common.clear','en_US','clear',NULL),(48,'common.close','en_US','close',NULL),(49,'common.comment','en_US','comment',NULL),(50,'common.comments','en_US','comments',NULL),(51,'common.content','en_US','Content',NULL),(52,'common.context','en_US','Context',NULL),(53,'common.context_id','en_US','Context ID',NULL),(54,'common.continue','en_US','continue',NULL),(55,'common.conversation','en_US','conversation',NULL),(56,'common.copy','en_US','copy',NULL),(57,'common.created','en_US','created',NULL),(58,'common.custom_fields','en_US','Custom Fields',NULL),(59,'common.customize','en_US','customize',NULL),(60,'common.day','en_US','day',NULL),(61,'common.days','en_US','days',NULL),(62,'common.default','en_US','Default',NULL),(63,'common.delete','en_US','delete',NULL),(64,'common.disabled','en_US','Disabled',NULL),(65,'common.discard','en_US','discard',NULL),(66,'common.email','en_US','Email',NULL),(67,'common.enabled','en_US','Enabled',NULL),(68,'common.edit','en_US','edit',NULL),(69,'common.event','en_US','event',NULL),(70,'common.explore','en_US','explore',NULL),(71,'common.export','en_US','export',NULL),(72,'common.field','en_US','field',NULL),(73,'common.filter','en_US','filter',NULL),(74,'common.filter.add','en_US','Add Filter',NULL),(75,'common.filters','en_US','filters',NULL),(76,'common.fnr','en_US','fetch & retrieve',NULL),(77,'common.group','en_US','Group',NULL),(78,'common.groups','en_US','Groups',NULL),(79,'common.guid','en_US','GUID',NULL),(80,'common.hours','en_US','hours',NULL),(81,'common.id','en_US','ID',NULL),(82,'common.import','en_US','import',NULL),(83,'common.inbox','en_US','inbox',NULL),(84,'common.inboxes','en_US','inboxes',NULL),(85,'common.keyboard','en_US','Keyboard',NULL),(86,'common.knowledgebase','en_US','Knowledgebase',NULL),(87,'common.macro','en_US','Macro',NULL),(88,'common.macros','en_US','Macros',NULL),(89,'common.mail','en_US','Mail',NULL),(90,'common.manager','en_US','Manager',NULL),(91,'common.managers','en_US','Managers',NULL),(92,'common.maximize','en_US','maximize',NULL),(93,'common.me','en_US','me',NULL),(94,'common.member','en_US','Member',NULL),(95,'common.members','en_US','Members',NULL),(96,'common.message','en_US','Message',NULL),(97,'common.messages','en_US','Messages',NULL),(98,'common.minimize','en_US','minimize',NULL),(99,'common.minutes','en_US','minutes',NULL),(100,'common.month','en_US','month',NULL),(101,'common.months','en_US','months',NULL),(102,'common.more','en_US','More',NULL),(103,'common.move','en_US','move',NULL),(104,'common.move_to','en_US','move to',NULL),(105,'common.name','en_US','Name',NULL),(106,'common.never','en_US','Never',NULL),(107,'common.no','en_US','no',NULL),(108,'common.no_title','en_US','(no title)',NULL),(109,'common.nobody','en_US','nobody',NULL),(110,'common.none','en_US','none',NULL),(111,'common.notspam','en_US','Not Spam',NULL),(112,'common.optional','en_US','optional',NULL),(113,'common.options','en_US','Options',NULL),(114,'common.or','en_US','or',NULL),(115,'common.order','en_US','order',NULL),(116,'common.owner','en_US','owner',NULL),(117,'common.label','en_US','Label',NULL),(118,'common.languages','en_US','Languages',NULL),(119,'common.links','en_US','Links',NULL),(120,'common.load','en_US','Load',NULL),(121,'common.next','en_US','next',NULL),(122,'common.notify_watchers_and','en_US','Notify watchers and',NULL),(123,'common.notify_workers','en_US','Notify workers',NULL),(124,'common.ok','en_US','OK',NULL),(125,'common.password','en_US','password',NULL),(126,'common.permalink','en_US','permalink',NULL),(127,'common.preview','en_US','preview',NULL),(128,'common.previous_short','en_US','prev',NULL),(129,'common.previous','en_US','previous',NULL),(130,'common.print','en_US','Print',NULL),(131,'common.profiles','en_US','Profiles',NULL),(132,'common.properties','en_US','Properties',NULL),(133,'common.quick_compose','en_US','Quick Compose',NULL),(134,'common.quick_search','en_US','Quick Search',NULL),(135,'common.refresh','en_US','refresh',NULL),(136,'common.remove','en_US','remove',NULL),(137,'common.reopen','en_US','Re-open',NULL),(138,'common.reset','en_US','reset',NULL),(139,'common.roles','en_US','roles',NULL),(140,'common.role','en_US','role',NULL),(141,'common.save','en_US','Save',NULL),(142,'common.save_and_continue','en_US','Save & Continue',NULL),(143,'common.save_and_close','en_US','Save & Close',NULL),(144,'common.save_changes','en_US','Save Changes',NULL),(145,'common.search','en_US','search',NULL),(146,'common.search_results','en_US','Search Results',NULL),(147,'common.search_go','en_US','go!',NULL),(148,'common.settings','en_US','settings',NULL),(149,'common.signature','en_US','signature',NULL),(150,'common.snippets','en_US','snippets',NULL),(151,'common.spam','en_US','Spam',NULL),(152,'common.status','en_US','Status',NULL),(153,'common.subtotals','en_US','Subtotals',NULL),(154,'common.summary','en_US','Summary',NULL),(155,'common.synchronize','en_US','Synchronize',NULL),(156,'common.tag','en_US','Tag',NULL),(157,'common.target','en_US','Target',NULL),(158,'common.task','en_US','Task',NULL),(159,'common.tasks','en_US','Tasks',NULL),(160,'common.test','en_US','Test',NULL),(161,'common.text','en_US','Text',NULL),(162,'common.ticket','en_US','ticket',NULL),(163,'common.tickets','en_US','tickets',NULL),(164,'common.time.mins.num','en_US','%s min',NULL),(165,'common.time.secs.num','en_US','%s sec',NULL),(166,'common.title','en_US','Title',NULL),(167,'common.today','en_US','today',NULL),(168,'common.type','en_US','Type',NULL),(169,'common.unassign','en_US','Unassign',NULL),(170,'common.undelete','en_US','Undelete',NULL),(171,'common.update','en_US','update',NULL),(172,'common.updated','en_US','updated',NULL),(173,'common.upload','en_US','upload',NULL),(174,'common.url','en_US','URL',NULL),(175,'common.url.record','en_US','Record URL',NULL),(176,'common.watch','en_US','watch',NULL),(177,'common.watcher','en_US','watcher',NULL),(178,'common.watchers','en_US','watchers',NULL),(179,'common.watchers.add_me','en_US','Notify me about new activity',NULL),(180,'common.week','en_US','week',NULL),(181,'common.worker','en_US','worker',NULL),(182,'common.workers','en_US','workers',NULL),(183,'common.worklist','en_US','worklist',NULL),(184,'common.workspace','en_US','Workspace',NULL),(185,'common.workspaces','en_US','Workspaces',NULL),(186,'common.year','en_US','year',NULL),(187,'common.yes','en_US','yes',NULL),(188,'dao.calendar_event.is_available','en_US','Is Available',NULL),(189,'dao.calendar_event.date_start','en_US','Start Date',NULL),(190,'dao.calendar_event.date_end','en_US','End Date',NULL),(191,'dao.cerb_plugin.description','en_US','Description',NULL),(192,'dao.cerb_plugin.author','en_US','Author',NULL),(193,'dao.cerb_plugin.version','en_US','Version',NULL),(194,'dao.decision_node.node_type','en_US','Node Type',NULL),(195,'dao.decision_node.params','en_US','Params',NULL),(196,'dao.decision_node.parent_id','en_US','Parent Id',NULL),(197,'dao.decision_node.trigger_id','en_US','Trigger Id',NULL),(198,'dao.plugin_library.plugin_id','en_US','Plugin ID',NULL),(199,'dao.plugin_library.icon_url','en_US','Icon URL',NULL),(200,'dao.plugin_library.requirements_json','en_US','Requirements',NULL),(201,'dao.snippet_usage.hits','en_US','Hits',NULL),(202,'dao.trigger_event.is_disabled','en_US','Is Disabled',NULL),(203,'dao.trigger_event.owner_context','en_US','Owner Context',NULL),(204,'dao.trigger_event.owner_context_id','en_US','Owner Context Id',NULL),(205,'error.core.no_acl.edit','en_US','You do not have permission to modify this record.',NULL),(206,'acl.core.activity','en_US','[Activity] Can view activity page',NULL),(207,'acl.core.addybook','en_US','[Address Book] Can browse the address book',NULL),(208,'acl.core.addybook.addy.actions.update','en_US','[Address Book] Can modify email address contacts',NULL),(209,'acl.core.addybook.addy.view.actions.broadcast','en_US','[Address Book] Can broadcast compose email to address lists',NULL),(210,'acl.core.addybook.addy.view.actions.export','en_US','[Address Book] Can export email address lists to CSV/XML',NULL),(211,'acl.core.addybook.org.actions.merge','en_US','[Address Book] Can merge organizations',NULL),(212,'acl.core.addybook.org.actions.update','en_US','[Address Book] Can modify organizations',NULL),(213,'acl.core.addybook.org.actions.delete','en_US','[Address Book] Can delete organizations',NULL),(214,'acl.core.addybook.org.view.actions.export','en_US','[Address Book] Can export organization lists to CSV/XML',NULL),(215,'acl.core.addybook.person.actions.delete','en_US','[Address Book] Can delete registered contacts',NULL),(216,'acl.core.addybook.person.actions.update','en_US','[Address Book] Can modify registered contacts',NULL),(217,'acl.core.display.actions.attachments.download','en_US','[Display Ticket] Can download ticket attachments',NULL),(218,'acl.core.display.actions.comment','en_US','[Display Ticket] Can comment on tickets',NULL),(219,'acl.core.display.actions.forward','en_US','[Display Ticket] Can forward tickets to third-party email addresses',NULL),(220,'acl.core.display.actions.note','en_US','[Display Ticket] Can add sticky notes to tickets',NULL),(221,'acl.core.display.actions.reply','en_US','[Display Ticket] Can reply to tickets',NULL),(222,'acl.core.display.actions.split','en_US','[Display Ticket] Can split tickets',NULL),(223,'acl.core.display.message.actions.delete','en_US','[Display Ticket] Can permanently delete messages on tickets',NULL),(224,'acl.core.mail','en_US','[Mail] Can view the mail page',NULL),(225,'acl.core.mail.send','en_US','[Mail] Can compose new messages',NULL),(226,'acl.core.rss','en_US','[RSS] Can export lists as RSS feeds',NULL),(227,'acl.core.snippets.actions.create','en_US','[Snippets] Can create snippets',NULL),(228,'acl.core.tasks.actions.create','en_US','[Tasks] Can create tasks',NULL),(229,'acl.core.tasks.actions.update_all','en_US','[Tasks] Can edit tasks',NULL),(230,'acl.core.tasks.actions.delete','en_US','[Tasks] Can delete tasks',NULL),(231,'acl.core.tasks.view.actions.export','en_US','[Tasks] Can export task lists to CSV/XML',NULL),(232,'acl.core.ticket.actions.assign','en_US','[Tickets] Can assign tickets to other workers',NULL),(233,'acl.core.ticket.actions.close','en_US','[Tickets] Can close tickets',NULL),(234,'acl.core.ticket.actions.delete','en_US','[Tickets] Can delete tickets',NULL),(235,'acl.core.ticket.actions.move','en_US','[Tickets] Can move tickets',NULL),(236,'acl.core.ticket.actions.spam','en_US','[Tickets] Can report tickets as spam',NULL),(237,'acl.core.ticket.view.actions.broadcast_reply','en_US','[Tickets] Can broadcast reply to ticket lists',NULL),(238,'acl.core.ticket.view.actions.bulk_update','en_US','[Tickets] Can bulk update tickets in lists',NULL),(239,'acl.core.ticket.view.actions.export','en_US','[Tickets] Can export ticket lists to CSV/XML',NULL),(240,'acl.core.ticket.view.actions.merge','en_US','[Tickets] Can merge tickets from lists',NULL),(241,'acl.core.ticket.view.actions.pile_sort','en_US','[Tickets] Can use the pile sorter on lists',NULL),(242,'acl.core.watchers.assign','en_US','[Watchers] Can add other workers as watchers',NULL),(243,'acl.core.watchers.unassign','en_US','[Watchers] Can remove other workers as watchers',NULL),(244,'address.address','en_US','Address',NULL),(245,'address.id','en_US','ID',NULL),(246,'address.email','en_US','Email',NULL),(247,'address.first_name','en_US','First Name',NULL),(248,'address.full_name','en_US','Full Name',NULL),(249,'address.num_spam','en_US','# Spam',NULL),(250,'address.num_nonspam','en_US','# Nonspam',NULL),(251,'address.is_banned','en_US','Is Banned',NULL),(252,'address.last_name','en_US','Last Name',NULL),(253,'address.contact_org_id','en_US','Organization ID',NULL),(254,'addy_book.address.add','en_US','Add Contact',NULL),(255,'addy_book.history.view.title','en_US','Contact History',NULL),(256,'addy_book.history.view.requester','en_US','Recipient History: %s contact(s)',NULL),(257,'addy_book.org.add','en_US','Add Org',NULL),(258,'addy_book.org.tabs.mail_history','en_US','Mail History',NULL),(259,'addy_book.org.tabs.people','en_US','People (%s)',NULL),(260,'addy_book.peek.compose','en_US','compose',NULL),(261,'addy_book.peek.count.open_tickets','en_US','%s open ticket(s)',NULL),(262,'addy_book.peek.count.closed_tickets','en_US','%s closed ticket(s)',NULL),(263,'addy_book.peek.title','en_US','Email Address',NULL),(264,'addy_book.peek.view_full','en_US','view full record',NULL),(265,'addy_book.tab.addresses','en_US','Addresses',NULL),(266,'addy_book.tab.organizations','en_US','Organizations',NULL),(267,'addy_book.tab.people','en_US','Registered Contacts',NULL),(268,'attachment.id','en_US','Attachment ID',NULL),(269,'attachment.display_name','en_US','File Name',NULL),(270,'attachment.mime_type','en_US','MIME Type',NULL),(271,'attachment.storage_extension','en_US','Storage Extension',NULL),(272,'attachment.storage_key','en_US','Storage Key',NULL),(273,'attachment.storage_profile_id','en_US','Storage Profile',NULL),(274,'attachment.storage_size','en_US','Size (bytes)',NULL),(275,'community_portal.code','en_US','Profile ID',NULL),(276,'community_portal.extension_id','en_US','Extension',NULL),(277,'community_portal.name','en_US','Name',NULL),(278,'portal.cfg.add_tool','en_US','Add a New Community Portal:',NULL),(279,'portal.cfg.confirm_delete','en_US','Are you sure you want to permanently delete this community portal?',NULL),(280,'portal.cfg.htaccess_hint','en_US','(optional, friendly URLs for Apache Web Server users)',NULL),(281,'portal.cfg.installation','en_US','Installation',NULL),(282,'portal.cfg.installation_instructions','en_US','Place the index.php file in a new directory on the appropriate public website.  This directory can be named anything but will usually describe the portal.\nFor example: http://www.cerberusweb.com/support/',NULL),(283,'portal.cfg.profile_id','en_US','Profile ID:',NULL),(284,'config.mail.pop3.error_hostname','en_US','Error: No hostname provided.',NULL),(285,'config.mail.pop3.failed','en_US','Mailbox Connection Failed.',NULL),(286,'config.mail.smtp.failed','en_US','SMTP Connection Failed:',NULL),(287,'dao.confirmation_code.namespace_key','en_US','Namespace',NULL),(288,'dao.confirmation_code.confirmation_code','en_US','Confirmation Code',NULL),(289,'contact_org.city','en_US','City',NULL),(290,'contact_org.country','en_US','Country',NULL),(291,'contact_org.created','en_US','Created',NULL),(292,'contact_org.id','en_US','ID',NULL),(293,'contact_org.name','en_US','Organization',NULL),(294,'contact_org.phone','en_US','Phone',NULL),(295,'contact_org.postal','en_US','Postal',NULL),(296,'contact_org.province','en_US','State/Prov',NULL),(297,'contact_org.street','en_US','Street',NULL),(298,'contact_org.website','en_US','Website',NULL),(299,'comment.filters.content','en_US','Comment Content',NULL),(300,'dao.contact_person.auth_salt','en_US','Password Salt',NULL),(301,'dao.contact_person.auth_password','en_US','Password',NULL),(302,'dao.contact_person.last_login','en_US','Last Login',NULL),(303,'dao.context_activity_log.activity_point','en_US','Activity',NULL),(304,'dao.context_activity_log.actor_context','en_US','Actor Context',NULL),(305,'dao.context_activity_log.actor_context_id','en_US','Actor Context ID',NULL),(306,'dao.context_activity_log.entry','en_US','Entry',NULL),(307,'dao.context_activity_log.target_context','en_US','Target Context',NULL),(308,'dao.context_activity_log.target_context_id','en_US','Target Context ID',NULL),(309,'dao.context_scheduled_behavior.repeat_json','en_US','Repeat',NULL),(310,'dao.context_scheduled_behavior.run_date','en_US','Run Date',NULL),(311,'cron.ip_unauthorized','en_US','Your IP address (%s) is not authorized to run scheduler jobs. Your administrator needs to authorize your IP in the Security menu of Setup or in the framework.config.php file under AUTHORIZED_IPS_DEFAULTS.',NULL),(312,'cron.nothing_to_do','en_US','Nothing to do yet!  (Waiting %s seconds)',NULL),(313,'activity.default','en_US','%s is browsing',NULL),(314,'activity.activity','en_US','%s is browsing the activity logs',NULL),(315,'activity.address_book','en_US','%s is browsing the address book',NULL),(316,'activity.config','en_US','%s is configuring the application',NULL),(317,'activity.display_ticket','en_US','%s is displaying ticket %s',NULL),(318,'activity.mail.search','en_US','%s is searching tickets',NULL),(319,'activity.mail.workflow','en_US','%s is browsing %s in Workflow',NULL),(320,'activity.mail.workspaces','en_US','%s is browsing %s in Workspaces',NULL),(321,'activity.simulator','en_US','%s is generating simulated tickets',NULL),(322,'activity.tickets','en_US','%s is browsing %s tickets',NULL),(323,'files.not_found','en_US','File not found.',NULL),(324,'header.config','en_US','setup',NULL),(325,'header.history','en_US','history',NULL),(326,'header.last_viewed','en_US','last viewed',NULL),(327,'header.my_profile','en_US','my profile',NULL),(328,'header.no_page','en_US','No page selected.',NULL),(329,'header.not_signed_in','en_US','Not signed on',NULL),(330,'header.notifications.unread','en_US','%s unread notification(s)',NULL),(331,'header.preferences','en_US','Settings',NULL),(332,'header.signed_in','en_US','Signed on as %s',NULL),(333,'header.signoff','en_US','Sign off',NULL),(334,'header.signon','en_US','Sign on',NULL),(335,'dashboard','en_US','Dashboard',NULL),(336,'dashboard.actions','en_US','Actions',NULL),(337,'dashboard.active_dashboard','en_US','Active Dashboard:',NULL),(338,'dashboard.add_dashboard','en_US','add dashboard',NULL),(339,'dashboard.add_view','en_US','add worklist',NULL),(340,'dashboard.choose_column','en_US','Choose Column',NULL),(341,'dashboard.choose_dashboard','en_US','Choose Dashboard',NULL),(342,'dashboard.columns','en_US','Columns',NULL),(343,'dashboard.create_ticket','en_US','Create Ticket',NULL),(344,'dashboard.group_filters','en_US','Group Filters',NULL),(345,'dashboard.dashboards','en_US','Dashboards',NULL),(346,'dashboard.delete','en_US','delete workspace',NULL),(347,'dashboard.delete.confirm','en_US','Are you sure you want to delete this entire workspace?',NULL),(348,'dashboard.modify','en_US','Modify Dashboard',NULL),(349,'dashboard.num_rows','en_US','Rows per page',NULL),(350,'dashboard.remove_view','en_US','Remove ticket list from dashboard',NULL),(351,'dashboard.switch','en_US','Switch',NULL),(352,'home.my_notifications.view.title','en_US','Notifications for %s',NULL),(353,'home.my_notifications.button.mark_read','en_US','Mark Read',NULL),(354,'home.my_tasks.view.title','en_US','Tasks for %s',NULL),(355,'home.my_tickets.view.title','en_US','Mail for %s',NULL),(356,'home.workspaces.worklist.add.new','en_US','New',NULL),(357,'home.workspaces.worklist.name','en_US','Worklist Name',NULL),(358,'home.workspaces.worklist.type','en_US','Worklist Type',NULL),(359,'display.invalid_ticket','en_US','Invalid Ticket!',NULL),(360,'display.convo.brief_headers','en_US','brief headers',NULL),(361,'display.convo.full_headers','en_US','full headers',NULL),(362,'display.convo.no_messages','en_US','No messages on ticket.',NULL),(363,'display.convo.order_oldest','en_US','Starting with the oldest message:',NULL),(364,'display.convo.order_newest','en_US','Starting with the newest message:',NULL),(365,'display.convo.set_org','en_US','set organization',NULL),(366,'display.convo.skip_to_bottom','en_US','skip to bottom',NULL),(367,'display.convo.unknown_format','en_US','Unknown Format',NULL),(368,'display.button.read_all','en_US','Read All',NULL),(369,'display.button.split_ticket','en_US','Split Ticket',NULL),(370,'display.reply.attachments_add','en_US','Add attachments:',NULL),(371,'display.reply.attachments_forward','en_US','Forward attachments:',NULL),(372,'display.reply.attachments_more','en_US','attach more',NULL),(373,'display.reply.attachments_limit','en_US','(The maximum attachment size is %s)',NULL),(374,'display.reply.email_templates','en_US','Email Templates',NULL),(375,'display.reply.forward.banner','en_US','---- Forwarded message ----',NULL),(376,'display.reply.insert_sig','en_US','Insert Signature',NULL),(377,'display.reply.next.move','en_US','Would you like to move this conversation?',NULL),(378,'display.reply.next.move.current','en_US','(current bucket)',NULL),(379,'display.reply.next.move.no_thanks','en_US','no thanks!',NULL),(380,'display.reply.next.owner','en_US','Who should this be assigned to?',NULL),(381,'display.reply.next.resume','en_US','When would you like to resume this conversation?',NULL),(382,'display.reply.next.resume_blank','en_US','(leave blank to wait for a reply before resuming)',NULL),(383,'display.reply.next.resume_eg','en_US','(e.g. \"Friday\", \"7 days\", \"Tomorrow 11:15AM\", \"Dec 31\")',NULL),(384,'display.reply.no_quote','en_US','Reply without quoting',NULL),(385,'display.reply.quote','en_US','Quote and reply',NULL),(386,'display.reply.reply_banner','en_US','On %s, %s wrote:',NULL),(387,'display.shortcut.close','en_US','Close this ticket (C)',NULL),(388,'display.shortcut.delete','en_US','Delete this ticket (X)',NULL),(389,'display.shortcut.print','en_US','Print this ticket (P)',NULL),(390,'display.shortcut.read_all','en_US','Read all messages in chronological order (A)',NULL),(391,'display.shortcut.refresh','en_US','Reload this ticket',NULL),(392,'display.shortcut.spam','en_US','Report this ticket as spam (S)',NULL),(393,'display.shortcut.follow','en_US','Follow this ticket (F)',NULL),(394,'display.shortcut.unfollow','en_US','Stop following this ticket (U)',NULL),(395,'display.ui.add_to_recipients','en_US','Add to Recipients',NULL),(396,'display.ui.continue_later','en_US','Save as draft',NULL),(397,'display.ui.discard','en_US','Discard',NULL),(398,'display.ui.forward','en_US','Forward',NULL),(399,'display.ui.reply','en_US','Reply',NULL),(400,'display.ui.save_nosend','en_US','Save without sending',NULL),(401,'display.ui.send_message','en_US','Send message',NULL),(402,'display.ui.sticky_note','en_US','Sticky Note',NULL),(403,'mail.create.on_behalf','en_US','#### This message was created by %s on your behalf.',NULL),(404,'mail.drafts','en_US','Drafts',NULL),(405,'mail.inbox_filter','en_US','Inbox Filter',NULL),(406,'mail.log_message','en_US','Open Ticket',NULL),(407,'mail.log_message.requesters','en_US','Recipient(s)',NULL),(408,'mail.log_message.send_to_requesters','en_US','Send a copy of this message to the recipients.',NULL),(409,'mail.merge','en_US','Merge',NULL),(410,'mail.nav.search_mail','en_US','Search:',NULL),(411,'mail.not_waiting','en_US','Not Waiting',NULL),(412,'mail.overview.all_done_text','en_US','There are no available tickets matching your selection.',NULL),(413,'mail.overview.all_groups','en_US','All Groups',NULL),(414,'mail.overview.assigned.title','en_US','For %s',NULL),(415,'mail.overview.my_mail','en_US','my mail',NULL),(416,'mail.piles','en_US','Piles',NULL),(417,'mail.quick_search.comments_all','en_US','Comments (all words)',NULL),(418,'mail.quick_search.comments_expert','en_US','Comments (expert)',NULL),(419,'mail.quick_search.comments_phrase','en_US','Comments (phrase)',NULL),(420,'mail.quick_search.messages_all','en_US','Messages (all words)',NULL),(421,'mail.quick_search.messages_expert','en_US','Messages (expert)',NULL),(422,'mail.quick_search.messages_phrase','en_US','Messages (phrase)',NULL),(423,'mail.received','en_US','Received',NULL),(424,'mail.send_mail','en_US','Compose',NULL),(425,'mail.sent','en_US','Sent',NULL),(426,'mail.view.add_filter','en_US','-add filter-',NULL),(427,'mail.waiting','en_US','Waiting',NULL),(428,'mail.workflow','en_US','Workflow',NULL),(429,'mail.workspaces.create','en_US','Click here to create your first workspace.',NULL),(430,'mail.workspaces.my','en_US','My Workspaces',NULL),(431,'mail.workspaces.new','en_US','New Workspace',NULL),(432,'mail.workspaces.new_list','en_US','New List',NULL),(433,'mail.workspaces.none','en_US','You haven\'t created any custom worklists.',NULL),(434,'mail_queue.is_queued','en_US','Is Queued',NULL),(435,'mail_queue.params_json','en_US','Parameters',NULL),(436,'mail_queue.queue_delivery_date','en_US','Delivery Date',NULL),(437,'mail_queue.queue_fails','en_US','# Fails',NULL),(438,'mail_queue.ticket_id','en_US','Ticket ID',NULL),(439,'mail_queue.type','en_US','Message Type',NULL),(440,'message.header.bcc','en_US','Bcc',NULL),(441,'message.header.cc','en_US','Cc',NULL),(442,'message.header.date','en_US','Date',NULL),(443,'message.header.from','en_US','From',NULL),(444,'message.header.subject','en_US','Subject',NULL),(445,'message.header.to','en_US','To',NULL),(446,'message.queued.delivery_immediate','en_US','scheduled for immediate delivery',NULL),(447,'message.queued.deliver_in','en_US','scheduled for delivery in %s',NULL),(448,'message.content','en_US','Message Content',NULL),(449,'message.created_date','en_US','Created',NULL),(450,'message.is_outgoing','en_US','Is Outgoing',NULL),(451,'message.storage_size','en_US','Size',NULL),(452,'prefs.address.exists','en_US','%s is already assigned to a worker.',NULL),(453,'prefs.address.confirm.tip','en_US','%s has been confirmed!',NULL),(454,'prefs.address.confirm.invalid_code','en_US','The confirmation code you provided is not valid.',NULL),(455,'prefs.address.confirm.mail.body','en_US','%s just added this email address to their Cerb6 account.\n\nTo approve and continue, click the following link:\n%s\n\nIf you did not request this, do not click the link above.  The request will expire in 24 hours.\n		',NULL),(456,'prefs.address.confirm.mail.subject','en_US','Confirm New Worker Email (%s)',NULL),(457,'prefs.address.confirm.mail.sent','en_US','A confirmation email has been sent to %s',NULL),(458,'prefs.address.invalid','en_US','%s is not a valid email address.',NULL),(459,'rss.bad_feed','en_US','Bad feed data.',NULL),(460,'signin.forgot.mail.subject','en_US','Confirm password recovery.',NULL),(461,'signin.forgot.mail.body','en_US','This confirmation code will allow you to reset your login: %s',NULL),(462,'search.date.between','en_US','between',NULL),(463,'search.date.between.and','en_US','and',NULL),(464,'search.date.examples','en_US','examples:\nnow\ntoday\n-2 days\n-1 month, 2 days\nlast Friday\nnext Monday\nJan 9 2002',NULL),(465,'search.fulltext.examples','en_US','<b>Any words:</b>\npayment receipt order sale\n\n<b>Booleans:</b>\n+payment -receipt\n+payment credit\n\n<b>Wildcards:</b>\nweb*\n\n<b>Exact phrases:</b>\n\"credit card\"\n\n<b>Boosting:</b>\ncerberus >helpdesk\nlogin <ftp\n',NULL),(466,'search.no_saved','en_US','No saved searches.',NULL),(467,'search.oper.equals','en_US','equals',NULL),(468,'search.oper.equals.not','en_US','doesn\'t equal',NULL),(469,'search.oper.equals.or_null','en_US','equals or null',NULL),(470,'search.oper.in_list','en_US','in list',NULL),(471,'search.oper.in_list.not','en_US','not in list',NULL),(472,'search.oper.matches','en_US','matches',NULL),(473,'search.oper.matches.not','en_US','doesn\'t match',NULL),(474,'search.oper.null','en_US','is null (not set)',NULL),(475,'search.operator','en_US','operator',NULL),(476,'search.string.examples','en_US','Use an asterisk (*) for wildcards.\nFor example: *receipt*',NULL),(477,'search.value','en_US','value',NULL),(478,'search.values','en_US','values',NULL),(479,'status.open','en_US','Open',NULL),(480,'status.closed','en_US','Closed',NULL),(481,'status.deleted','en_US','Deleted',NULL),(482,'status.waiting','en_US','Waiting for Reply',NULL),(483,'tasks.add','en_US','Add Task',NULL),(484,'tasks.complete','en_US','Complete',NULL),(485,'tasks.postpone','en_US','+24hrs',NULL),(486,'tasks.ticket.tab.view','en_US','Ticket Tasks',NULL),(487,'task.completed_date','en_US','Completed Date',NULL),(488,'task.due_date','en_US','Due Date',NULL),(489,'task.is_completed','en_US','Completed',NULL),(490,'task.updated_date','en_US','Last Updated',NULL),(491,'task.worker_id','en_US','Worker',NULL),(492,'task.status.active','en_US','Active',NULL),(493,'task.status.completed','en_US','Completed',NULL),(494,'ticket.assignable','en_US','Assignable',NULL),(495,'ticket.created','en_US','Created',NULL),(496,'ticket.due','en_US','Due',NULL),(497,'ticket.id','en_US','Ticket ID',NULL),(498,'ticket.first_wrote','en_US','First Wrote',NULL),(499,'ticket.groups_of_worker','en_US','In Groups of Worker',NULL),(500,'ticket.interesting_words','en_US','Interesting Words',NULL),(501,'ticket.last_action','en_US','Last Action',NULL),(502,'ticket.last_action.opened','en_US','Ticket opened',NULL),(503,'ticket.last_action.recipient_reply','en_US','Recipient replied',NULL),(504,'ticket.last_action.worker_reply','en_US','Worker replied',NULL),(505,'ticket.last_wrote','en_US','Last Wrote',NULL),(506,'ticket.mask','en_US','Mask',NULL),(507,'ticket.num_messages','en_US','# Messages',NULL),(508,'ticket.recipients.empty','en_US','This ticket has no recipients.',NULL),(509,'ticket.reopen_date','en_US','Reopen Date',NULL),(510,'ticket.requester','en_US','Recipient',NULL),(511,'ticket.requesters','en_US','Recipients',NULL),(512,'ticket.spam_score','en_US','Spam Score',NULL),(513,'ticket.spam_training','en_US','Spam Training',NULL),(514,'ticket.status','en_US','Status',NULL),(515,'ticket.subject','en_US','Subject',NULL),(516,'ticket.updated','en_US','Updated',NULL),(517,'training.report_spam','en_US','Report Spam',NULL),(518,'training.not_spam','en_US','Not Spam',NULL),(519,'update.correct_errors','en_US','Please correct the following errors before upgrading:',NULL),(520,'update.ip_unauthorized','en_US','Your IP address (%s) is not authorized to update this application. Your administrator needs to authorize your IP in the Security menu of Setup or in the framework.config.php file under AUTHORIZED_IPS_DEFAULTS.',NULL),(521,'update.locked_another','en_US','Another administrator is currently running an update.  Please wait...',NULL),(522,'va.actions.ticket.relay.default_content','en_US','## Relayed from {{ticket_url}}\n## Your reply to this message will be broadcast to the requesters. \n## Instructions: http://wiki.cerb5.com/wiki/Email_Relay\n##\n{{%s}}\n',NULL),(523,'views.new_list','en_US','New List',NULL),(524,'views.peek','en_US','(peek)',NULL),(525,'views.showing_from_to','en_US','Showing %s-%s of %s',NULL),(526,'views.jump_to_actions','en_US','jump to actions',NULL),(527,'whos_online.heading','en_US','%s Worker(s) Signed On:',NULL),(528,'worker.first_name','en_US','First Name',NULL),(529,'worker.full_name','en_US','Full Name',NULL),(530,'worker.is_superuser','en_US','Administrator',NULL),(531,'worker.last_activity','en_US','Last Activity',NULL),(532,'worker.last_activity_date','en_US','Last Activity Date',NULL),(533,'worker.last_name','en_US','Last Name',NULL),(534,'worker.title','en_US','Title',NULL),(535,'notification.id','en_US','ID',NULL),(536,'notification.created_date','en_US','Created',NULL),(537,'notification.is_read','en_US','Is Read',NULL),(538,'notification.message','en_US','Message',NULL),(539,'notification.worker_id','en_US','Worker',NULL),(540,'preferences.account.settings','en_US','Account Settings',NULL),(541,'preferences.account.password.change','en_US','Change Password: ',NULL),(542,'preferences.account.password.new','en_US','New Password: ',NULL),(543,'preferences.account.password.verify','en_US','Verify Password: ',NULL),(544,'preferences.account.current','en_US','current:',NULL),(545,'preferences.account.timezone','en_US','Timezone:',NULL),(546,'preferences.account.language','en_US','Language:',NULL),(547,'preferences.account.email','en_US','Email Addresses',NULL),(548,'preferences.account.email.associated','en_US','These addresses will be associated with your account.',NULL),(549,'preferences.account.email.address','en_US','Address',NULL),(550,'preferences.account.email.address.confirmed','en_US','Confirmed',NULL),(551,'preferences.account.email.address.resend.confirm','en_US','resend confirmation',NULL),(552,'preferences.account.email.address.add','en_US','Add email address:',NULL),(553,'preferences.account.preferences','en_US','Preferences',NULL),(554,'preferences.account.assist','en_US','Assist Mode:',NULL),(555,'preferences.account.keyboard.shortcuts','en_US','Keyboard Shortcuts:',NULL),(556,'preferences.account.mail','en_US','Mail:',NULL),(557,'preferences.account.mail.comments','en_US','Show comments in the conversation',NULL),(558,'preferences.account.mail.readall','en_US','Always use \'read all\' mode (expand messages and sort chronologically)',NULL),(559,'preferences.account.mail.reply_button','en_US','When I click the reply button:',NULL),(560,'preferences.account.mail.signature','en_US','Insert my signature:',NULL),(561,'preferences.account.mail.signature.above','en_US','Above the quoted message',NULL),(562,'preferences.account.mail.signature.below','en_US','Below the quoted message',NULL),(563,'preferences.account.mail.signature.none','en_US','Don\'t automatically insert my signature',NULL),(564,'preferences.account.mail.status.compose','en_US','When composing a new outgoing message, default the status to:',NULL),(565,'preferences.account.mail.status.reply','en_US','When replying to mail, default the status to:',NULL),(566,'preferences.account.mail.no_discard_warning','en_US','Don\'t warn me about losing unsaved changes if I click links while composing mail',NULL),(567,'feedback.activity.tab','en_US','Feedback',NULL),(568,'acl.feedback.actions.create','en_US','[Feedback] Can create feedback entries',NULL),(569,'acl.feedback.actions.delete_all','en_US','[Feedback] Can delete everyone\'s feedback entries',NULL),(570,'acl.feedback.actions.update_all','en_US','[Feedback] Can edit everyone\'s feedback entries',NULL),(571,'acl.feedback.view.actions.export','en_US','[Feedback] Can export feedback lists to CSV/XML',NULL),(572,'feedback.cfg.blank','en_US','(blank)',NULL),(573,'feedback.button.capture','en_US','Capture Feedback',NULL),(574,'feedback.mood.criticism','en_US','Criticism',NULL),(575,'feedback.mood.neutral','en_US','Neutral',NULL),(576,'feedback.mood.praise','en_US','Praise',NULL),(577,'feedback.peek.quote.tooltip','en_US','optional; blank for anonymous',NULL),(578,'feedback_entry.id','en_US','ID',NULL),(579,'feedback_entry.log_date','en_US','Log Date',NULL),(580,'feedback_entry.quote_address','en_US','Author E-mail',NULL),(581,'feedback_entry.quote_mood','en_US','Mood',NULL),(582,'feedback_entry.quote_text','en_US','Quote',NULL),(583,'feedback_entry.source_url','en_US','Link',NULL),(584,'feedback_entry.worker_id','en_US','Created By',NULL),(585,'acl.core.kb.articles.modify','en_US','[Knowledgebase] Can manage articles',NULL),(586,'acl.core.kb.categories.modify','en_US','[Knowledgebase] Can manage categories',NULL),(587,'acl.kb.articles.actions.update_all','en_US','[Knowledgebase] Can bulk update articles',NULL),(588,'kb.common.knowledgebase_article','en_US','Knowledgebase Article',NULL),(589,'activity.kb','en_US','%s is browsing the knowledgebase',NULL),(590,'display.reply.kb.all_topics','en_US','all topics',NULL),(591,'display.reply.kb.search','en_US','Search Knowledgebase:',NULL),(592,'kb.workspace.tab.browser','en_US','Knowledgebase Browser',NULL),(593,'portal.kb.public.no_content','en_US','No content.',NULL),(594,'portal.kb.public.top','en_US','Top',NULL),(595,'portal.sc.cfg.choose_kb_topics','en_US','Choose which knowledgebase topics to expose to this portal:',NULL),(596,'kb.view.articles','en_US','Articles: %s',NULL),(597,'kb.view.uncategorized','en_US','Uncategorized Articles',NULL),(598,'kb_article.content','en_US','Content',NULL),(599,'kb_article.format','en_US','Format',NULL),(600,'kb_article.id','en_US','ID',NULL),(601,'kb_article.title','en_US','Title',NULL),(602,'kb_article.topic','en_US','Topic',NULL),(603,'kb_article.updated','en_US','Updated',NULL),(604,'kb_article.views','en_US','Views',NULL),(605,'crm.tab.title','en_US','Opportunities',NULL),(606,'crm.common.opportunity','en_US','Opportunity',NULL),(607,'acl.crm.opp.actions.create','en_US','[Opportunities] Can create opportunities',NULL),(608,'acl.crm.opp.actions.import','en_US','[Opportunities] Can import opportunities from CSV files',NULL),(609,'acl.crm.opp.actions.update_all','en_US','[Opportunities] Can edit opportunities',NULL),(610,'acl.crm.opp.actions.delete','en_US','[Opportunities] Can delete opportunities',NULL),(611,'acl.crm.opp.view.actions.broadcast','en_US','[Opportunities] Can broadcast e-mail to opportunity lists',NULL),(612,'acl.crm.opp.view.actions.export','en_US','[Opportunities] Can export opportunity lists to CSV/XML',NULL),(613,'activities.opp.status','en_US','{{actor}} changed opportunity {{target}} to status {{status}}',NULL),(614,'crm.opp.add','en_US','Add Opportunity',NULL),(615,'crm.opp.import.upload_csv','en_US','Upload .CSV File',NULL),(616,'crm.opp.import.upload_csv.tip','en_US','(any column order; the next step will let you choose where the data goes)',NULL),(617,'crm.opp.status.closed.lost','en_US','Closed/Lost',NULL),(618,'crm.opp.status.closed.won','en_US','Closed/Won',NULL),(619,'crm.opp.status.open','en_US','Open',NULL),(620,'crm.opp.tab.properties','en_US','Properties',NULL),(621,'crm.opp.tab.tasks','en_US','Tasks',NULL),(622,'crm.opportunity.amount','en_US','Amount',NULL),(623,'crm.opportunity.closed_date','en_US','Closed Date',NULL),(624,'crm.opportunity.contact_phone','en_US','Phone',NULL),(625,'crm.opportunity.created_date','en_US','Created Date',NULL),(626,'crm.opportunity.email_address','en_US','Email',NULL),(627,'crm.opportunity.is_closed','en_US','Closed',NULL),(628,'crm.opportunity.is_won','en_US','Won',NULL),(629,'crm.opportunity.id','en_US','ID',NULL),(630,'crm.opportunity.name','en_US','Title',NULL),(631,'crm.opportunity.org_id','en_US','Org ID',NULL),(632,'crm.opportunity.org_name','en_US','Organization',NULL),(633,'crm.opportunity.primary_email_id','en_US','Email ID',NULL),(634,'crm.opportunity.updated_date','en_US','Updated Date',NULL),(635,'crm.opportunity.worker_id','en_US','Worker',NULL),(636,'reports.menu.reports','en_US','reports',NULL),(637,'acl.reports.group.custom_fields','en_US','[Report Group] Can view the \'Custom Field Reports\' group',NULL),(638,'acl.reports.group.groups','en_US','[Report Group] Can view the \'Group Reports\' group',NULL),(639,'acl.reports.group.orgs','en_US','[Report Group] Can view the \'Organization Reports\' group',NULL),(640,'acl.reports.group.spam','en_US','[Report Group] Can view the \'Spam Reports\' group',NULL),(641,'acl.reports.group.tickets','en_US','[Report Group] Can view the \'Ticket Reports\' group',NULL),(642,'acl.reports.group.workers','en_US','[Report Group] Can view the \'Worker Reports\' group',NULL),(643,'reports.common.run_report','en_US','Run report',NULL),(644,'reports.ui.average_per_day','en_US','(avg: %s/day)',NULL),(645,'reports.ui.created_from','en_US','Created From:',NULL),(646,'reports.ui.date_from','en_US','From:',NULL),(647,'reports.ui.date_past','en_US','Past:',NULL),(648,'reports.ui.date_to','en_US','To:',NULL),(649,'reports.ui.filters.1_day','en_US','1 day',NULL),(650,'reports.ui.filters.1_month','en_US','1 month',NULL),(651,'reports.ui.filters.1_week','en_US','1 week',NULL),(652,'reports.ui.filters.1_year','en_US','1 year',NULL),(653,'reports.ui.filters.group','en_US','Filter groups:',NULL),(654,'reports.ui.filters.n_months','en_US','%s months',NULL),(655,'reports.ui.filters.org','en_US','Filter organizations:',NULL),(656,'reports.ui.filters.worker','en_US','Filter workers:',NULL),(657,'reports.ui.invalid_date','en_US','Invalid Date specified.  Please try again.',NULL),(658,'reports.activity','en_US','%s is running reports',NULL),(659,'reports.ui.group.custom_fields','en_US','Custom Field Reports',NULL),(660,'reports.ui.custom_fields.usage','en_US','Custom Field Usage',NULL),(661,'reports.ui.group.group','en_US','Group Reports',NULL),(662,'reports.ui.group.replies','en_US','Group Replies over Date Range',NULL),(663,'reports.ui.group.roster','en_US','Group Rosters',NULL),(664,'reports.ui.group.org','en_US','Org Reports',NULL),(665,'reports.ui.org.shared_sender_domains','en_US','Top 100 Shared Sender Domains',NULL),(666,'reports.ui.org.shared_sender_domains.domain','en_US','Domain',NULL),(667,'reports.ui.org.shared_sender_domains.num_orgs','en_US','# Orgs',NULL),(668,'reports.ui.group.spam','en_US','Spam Reports',NULL),(669,'reports.ui.spam.num_nonspam','en_US','#nonspam',NULL),(670,'reports.ui.spam.num_spam','en_US','#spam',NULL),(671,'reports.ui.spam.senders','en_US','Top 100 Spam/Nonspam Senders',NULL),(672,'reports.ui.spam.senders.top_nonspam','en_US','Top 100 Nonspam Senders',NULL),(673,'reports.ui.spam.senders.top_spam','en_US','Top 100 Spam Senders',NULL),(674,'reports.ui.spam.domains','en_US','Top 100 Spam/Nonspam Domains',NULL),(675,'reports.ui.spam.domains.domain','en_US','Domain',NULL),(676,'reports.ui.spam.domains.top_nonspam','en_US','Top 100 Nonspam Domains',NULL),(677,'reports.ui.spam.domains.top_spam','en_US','Top 100 Spam Domains',NULL),(678,'reports.ui.spam.words','en_US','Top 100 Spam/Nonspam Words (Explicit Content)',NULL),(679,'reports.ui.spam.words.num_nonspam_trained','en_US','# Nonspam Trained:',NULL),(680,'reports.ui.spam.words.num_spam_trained','en_US','# Spam Trained:',NULL),(681,'reports.ui.spam.words.spam_training','en_US','Spam Training',NULL),(682,'reports.ui.spam.words.top_nonspam','en_US','Top 100 Nonspam Words',NULL),(683,'reports.ui.spam.words.top_spam','en_US','Top 100 Spam Words',NULL),(684,'reports.ui.spam.words.word','en_US','Word',NULL),(685,'reports.ui.group.ticket','en_US','Ticket Reports',NULL),(686,'reports.ui.ticket.closed','en_US','Closed Tickets by Group over Date Range',NULL),(687,'reports.ui.ticket.new_tickets','en_US','Created Tickets by Group over Date Range',NULL),(688,'reports.ui.ticket.top_contacts','en_US','Tickets Created by Top Contacts over Date Range',NULL),(689,'reports.ui.ticket.top_contacts.by_org','en_US','by Organization',NULL),(690,'reports.ui.ticket.top_contacts.by_address','en_US','by Address',NULL),(691,'reports.ui.group.worker','en_US','Worker Reports',NULL),(692,'reports.ui.worker.response_time','en_US','Average Response Time over Date Range',NULL),(693,'reports.ui.worker.response_time.date_range','en_US','Date Range:',NULL),(694,'reports.ui.worker.response_time.group_responses','en_US','Group Responses',NULL),(695,'reports.ui.worker.response_time.worker_responses','en_US','Worker Responses',NULL),(696,'reports.ui.worker.worker_history','en_US','Worker History over Date Range',NULL),(697,'simulator.common','en_US','Simulator',NULL),(698,'simulator.ui.cfg.sample_tickets','en_US','Create Sample Tickets',NULL),(699,'simulator.ui.cfg.to_address','en_US','To Address:',NULL),(700,'simulator.ui.cfg.flavor','en_US','Sample Data Flavor:',NULL),(701,'simulator.ui.cfg.how_many','en_US','How Many?',NULL),(702,'simulator.ui.cfg.generate','en_US','Generate',NULL),(703,'simulator.ui.cfg.generate_wait','en_US','Please wait. Generating tickets...',NULL),(704,'portal.cfg.add_new_situation','en_US','add new situation',NULL),(705,'portal.cfg.ask','en_US','Ask:',NULL),(706,'portal.cfg.captcha','en_US','CAPTCHA:',NULL),(707,'portal.cfg.captcha_hint','en_US','(displays a CAPTCHA image in the form to help block automated spam)',NULL),(708,'portal.cfg.default_if_blank','en_US','(default if blank)',NULL),(709,'portal.cfg.delete_situation','en_US','Delete this situation',NULL),(710,'portal.cfg.deliver_to','en_US','Deliver to:',NULL),(711,'portal.cfg.deliver_to_hint','en_US','(helpdesk e-mail address, blank for %s)',NULL),(712,'portal.cfg.disabled','en_US','Disabled',NULL),(713,'portal.cfg.enabled','en_US','Enabled',NULL),(714,'portal.cfg.followup_questions','en_US','Follow-up Questions:',NULL),(715,'portal.cfg.language','en_US','Language:',NULL),(716,'portal.cfg.page_title','en_US','Page Title:',NULL),(717,'portal.cfg.send_to','en_US','Send to:',NULL),(718,'portal.cfg.url','en_US','URL:',NULL),(719,'portal.cfg.url_hint','en_US','(where you plan to install this portal, e.g. http://website/portal/)',NULL),(720,'portal.common.open_ticket','en_US','Contact Us',NULL),(721,'portal.public.open_ticket.additional_info','en_US','Additional Information',NULL),(722,'portal.public.open_ticket.message','en_US','Message',NULL),(723,'portal.public.captcha_instructions','en_US','Please type the characters from the image below:',NULL),(724,'portal.public.logged_ip','en_US','Logged IP:',NULL),(725,'portal.public.no_results','en_US','No results found.',NULL),(726,'portal.public.powered_by','en_US','Powered by %s',NULL),(727,'portal.public.send_message','en_US','Send Message',NULL),(728,'portal.public.what_email_reply','en_US','What e-mail address should we reply to?',NULL),(729,'portal.public.your_reference_number','en_US','Your reference number is: #%s',NULL),(730,'portal.sc.cfg.add_contact_situation','en_US','Add a Contact Situation',NULL),(731,'portal.sc.cfg.append_to_message','en_US','append to message',NULL),(732,'portal.sc.cfg.example','en_US','Example:',NULL),(733,'portal.sc.cfg.feed_display_title','en_US','Feed Display Title:',NULL),(734,'portal.sc.cfg.feed_url','en_US','Feed URL:',NULL),(735,'portal.sc.cfg.feeds_info','en_US','You can display content from RSS feeds on your Support Center home page, such as: the latest blog entries, popular knowledgebase articles, recent forum posts/announcements, etc.  This is the place to pull together all your interesting and helpful content, related to this portal, so the community can find it.',NULL),(736,'portal.sc.cfg.fnr.choose_resources','en_US','Choose which resources to expose to this portal:',NULL),(737,'portal.sc.cfg.fnr.info','en_US','This Support Center will allow your community to search your external knowledge resources through Cerberus Helpdesk\'s Fetch & Retrieve system, returning direct links to content like knowledgebase articles, wiki articles, forum posts, documentation pages, blog entries, wishlist/bug reports, etc.',NULL),(738,'portal.sc.cfg.fnr.not_configured','en_US','Fetch & Retrieve has not been configured.',NULL),(739,'portal.sc.cfg.followup_questions_hint','en_US','(start with * to require; e.g. \"*Which product are you considering?\")',NULL),(740,'portal.sc.cfg.login_registration','en_US','Login/Registration',NULL),(741,'portal.sc.cfg.open_ticket.allow_custom_subjects','en_US','Allow users to provide their own ticket subjects.',NULL),(742,'portal.sc.cfg.open_ticket.attachments','en_US','Allow attachments from:',NULL),(743,'portal.sc.cfg.open_ticket.attachments.anybody','en_US','Anybody',NULL),(744,'portal.sc.cfg.open_ticket.attachments.logged_in','en_US','Logged in visitors',NULL),(745,'portal.sc.cfg.open_ticket.attachments.nobody','en_US','Nobody',NULL),(746,'portal.sc.cfg.reason_contacting','en_US','Reason for contacting:',NULL),(747,'portal.sc.cfg.reason_contacting_hint','en_US','(e.g. \"I\'d like more info on your products\")',NULL),(748,'portal.sc.cfg.situation.deleted','en_US','deleted',NULL),(749,'portal.sc.cfg.situation.hidden','en_US','hidden',NULL),(750,'portal.sc.cfg.situation.visible','en_US','visible',NULL),(751,'portal.sc.public.common.source','en_US','Source:',NULL),(752,'portal.sc.public.contact.contact_us','en_US','Contact us',NULL),(753,'portal.sc.public.contact.how_can_we_help','en_US','How can we help?',NULL),(754,'portal.sc.public.contact.message_received','en_US','Your message has been received! We will respond to you as soon as possible.',NULL),(755,'portal.sc.public.contact.text','en_US','Text:',NULL),(756,'portal.sc.public.contact.thanks_for_contacting','en_US','Thanks for contacting us',NULL),(757,'portal.sc.public.contact.write_to_us','en_US','You can write to us at: %s',NULL),(758,'portal.sc.public.history.action','en_US','Action:',NULL),(759,'portal.sc.public.history.add_message','en_US','Add a Message',NULL),(760,'portal.sc.public.announcements','en_US','Announcements',NULL),(761,'portal.sc.public.history.my_conversations','en_US','My Conversations',NULL),(762,'portal.sc.public.history.no_messages_from_email','en_US','We don\'t have a record of any messages sent from %s.',NULL),(763,'portal.sc.public.history.reference','en_US','Reference:',NULL),(764,'portal.sc.public.history.reply','en_US','Reply',NULL),(765,'portal.sc.public.history.ticket_history','en_US','Ticket History',NULL),(766,'portal.sc.public.home','en_US','Home',NULL),(767,'portal.sc.public.login.register','en_US','Don\'t have an account? Create one for free.',NULL),(768,'portal.sc.public.login.forgot','en_US','Forgot your password? Click here to recover it.',NULL),(769,'portal.sc.public.my_account','en_US','My Account',NULL),(770,'portal.sc.public.my_account.change_password','en_US','Change Password:',NULL),(771,'portal.sc.public.my_account.change_password_verify','en_US','Verify Password:',NULL),(772,'portal.sc.public.my_account.profile_picture','en_US','Profile Picture',NULL),(773,'portal.sc.public.my_account.settings_saved','en_US','Account settings saved!',NULL),(774,'portal.sc.public.register','en_US','Register',NULL),(775,'portal.sc.public.register.already_have_confirmation','en_US','Already have a confirmation code?',NULL),(776,'portal.sc.public.register.confirm_registration','en_US','Confirm Registration',NULL),(777,'portal.sc.public.register.contacted_before','en_US','(if you\'ve contacted us in the past, please enter the same e-mail address)',NULL),(778,'portal.sc.public.register.create_account','en_US','Create Account',NULL),(779,'portal.sc.public.register.email_address','en_US','E-mail address:',NULL),(780,'portal.sc.public.register.enter_confirmation','en_US','Enter your confirmation code:',NULL),(781,'portal.sc.public.register.enter_confirmation.hint','en_US','(this was sent to your e-mail address)',NULL),(782,'portal.sc.public.register.password_choose','en_US','Choose a password:',NULL),(783,'portal.sc.public.register.password_forgot','en_US','Forgot Password',NULL),(784,'portal.sc.public.register.password_reset','en_US','Reset Password',NULL),(785,'portal.sc.public.register.password_verify','en_US','Verify your password:',NULL),(786,'portal.sc.public.register.send_confirmation','en_US','Send Confirmation E-mail',NULL),(787,'portal.sc.public.themes.log_in','en_US','Log in',NULL),(788,'portal.sc.public.themes.sign_in','en_US','sign in',NULL),(789,'portal.sc.public.themes.sign_out','en_US','sign out',NULL),(790,'timetracking.activity.tab','en_US','Time Tracking',NULL),(791,'timetracking.ui.button.track','en_US','Track Time',NULL),(792,'acl.timetracking.actions.create','en_US','[Time Tracking] Can track time',NULL),(793,'acl.timetracking.actions.update_all','en_US','[Time Tracking] Can manage everyone\'s time slips',NULL),(794,'acl.timetracking.report.group.time','en_US','[Report Group] Can view the \'Time Tracking Reports\' group',NULL),(795,'acl.timetracking.view.actions.export','en_US','[Time Tracking] Can export time tracking lists to CSV/XML',NULL),(796,'timetracking.ui.generic_worker','en_US','A worker',NULL),(797,'timetracking.ui.timetracking','en_US','Time Tracking',NULL),(798,'timetracking.ui.tracked_desc','en_US','%s tracked %s on %s',NULL),(799,'timetracking.ui.worker','en_US','Worker:',NULL),(800,'timetracking.ui.source.ticket.link_text','en_US','Ticket #%s',NULL),(801,'timetracking.ui.entry_panel.activity','en_US','Activity',NULL),(802,'timetracking.ui.entry_panel.debit_time_client','en_US','Debit time from client:',NULL),(803,'timetracking.ui.entry_panel.debit_time_client_hint','en_US','(if org is known; autocompletes)',NULL),(804,'timetracking.ui.entry_panel.mins','en_US','min(s)',NULL),(805,'timetracking.ui.entry_panel.note','en_US','Note:',NULL),(806,'timetracking.ui.entry_panel.note_hint','en_US','(description of work performed)',NULL),(807,'timetracking.ui.entry_panel.reference','en_US','Reference:',NULL),(808,'timetracking.ui.entry_panel.resume','en_US','Resume',NULL),(809,'timetracking.ui.entry_panel.save_finish','en_US','Save & Finish',NULL),(810,'timetracking.ui.entry_panel.time_spent','en_US','Time Spent',NULL),(811,'timetracking.ui.trial.limit_exceeded','en_US','Trial Limit Exceeded',NULL),(812,'timetracking.ui.trial.limit_exceeded.desc','en_US','You\'re able to evaluate the Time Tracking plugin by creating up to 10 entries with the free version of Cerberus Helpdesk 4.0.',NULL),(813,'timetracking.ui.trial.purchase','en_US','To continue using this plugin please support the project and purchase a license.',NULL),(814,'timetracking_entry.activity_id','en_US','Activity',NULL),(815,'timetracking_entry.id','en_US','ID',NULL),(816,'timetracking_entry.is_closed','en_US','Is Closed',NULL),(817,'timetracking_entry.log_date','en_US','Log Date',NULL),(818,'timetracking_entry.time_actual_mins','en_US','Mins',NULL),(819,'timetracking_entry.worker_id','en_US','Worker',NULL),(820,'timetracking.ui.cfg.activities','en_US','Activities',NULL),(821,'timetracking.ui.cfg.add_activity','en_US','Add Activity',NULL),(822,'timetracking.ui.cfg.add_new_activity','en_US','add new activity',NULL),(823,'timetracking.ui.cfg.currency','en_US','US$',NULL),(824,'timetracking.ui.cfg.modify','en_US','Modify \'%s\'',NULL),(825,'timetracking.ui.cfg.name','en_US','Name:',NULL),(826,'timetracking.ui.cfg.name.hint','en_US','(e.g. \"Troubleshooting\")',NULL),(827,'timetracking.ui.cfg.per_hour','en_US','per hour',NULL),(828,'timetracking.ui.cfg.rate','en_US','Rate:',NULL),(829,'timetracking.ui.reports','en_US','Time Tracking Reports',NULL),(830,'timetracking.ui.reports.filters.1_day','en_US','1 day',NULL),(831,'timetracking.ui.reports.filters.1_month','en_US','1 month',NULL),(832,'timetracking.ui.reports.filters.1_week','en_US','1 week',NULL),(833,'timetracking.ui.reports.filters.1_year','en_US','1 year',NULL),(834,'timetracking.ui.reports.filters.n_months','en_US','%s months',NULL),(835,'timetracking.ui.reports.from','en_US','From:',NULL),(836,'timetracking.ui.reports.invalid_date','en_US','Invalid date specified.  Please try again.',NULL),(837,'timetracking.ui.reports.past','en_US','Past:',NULL),(838,'timetracking.ui.reports.time_spent_activity','en_US','Time Spent by Activity over Date Range',NULL),(839,'timetracking.ui.reports.time_spent_activity.no_activity','en_US','(no activity)',NULL),(840,'timetracking.ui.reports.time_spent_org','en_US','Time Spent by Organization over Date Range',NULL),(841,'timetracking.ui.reports.time_spent_org.no_organization','en_US','(no organization)',NULL),(842,'timetracking.ui.reports.time_spent_org.all_workers','en_US','All Workers',NULL),(843,'timetracking.ui.reports.time_spent_worker','en_US','Time Spent by Worker over Date Range',NULL),(844,'timetracking.ui.reports.to','en_US','To:',NULL),(845,'timetracking.ui.comment.time_spent','en_US','Time Spent (mins):',NULL),(846,'timetracking.ui.comment.activity','en_US','Activity:',NULL),(847,'timetracking.ui.comment.organization','en_US','Organization:',NULL),(848,'timetracking.ui.comment.not_set','en_US','(not set)',NULL);
+INSERT INTO `translation` VALUES (1,'core.menu.activity','en_US','activity',NULL);
+INSERT INTO `translation` VALUES (2,'core.menu.address_book','en_US','address book',NULL);
+INSERT INTO `translation` VALUES (3,'display.tab.comments','en_US','Comments (%s)',NULL);
+INSERT INTO `translation` VALUES (4,'display.tab.history','en_US','Recipient History',NULL);
+INSERT INTO `translation` VALUES (5,'display.tab.tasks','en_US','Tasks',NULL);
+INSERT INTO `translation` VALUES (6,'display.tab.timeline','en_US','Timeline',NULL);
+INSERT INTO `translation` VALUES (7,'home.tab.my_notifications','en_US','Notifications',NULL);
+INSERT INTO `translation` VALUES (8,'home.tab.workspaces_intro','en_US','About Workspaces',NULL);
+INSERT INTO `translation` VALUES (9,'activity.tab.tasks','en_US','Tasks',NULL);
+INSERT INTO `translation` VALUES (10,'activities.calendar_event.created','en_US','{{actor}} created event {{event}} on calendar {{target}}',NULL);
+INSERT INTO `translation` VALUES (11,'activities.calendar_event_recurring.created','en_US','{{actor}} created recurring event {{event}} on calendar {{target}}',NULL);
+INSERT INTO `translation` VALUES (12,'activities.comment.create','en_US','{{actor}} commented on {{object}} {{target}}: {{content}}',NULL);
+INSERT INTO `translation` VALUES (13,'activities.connection.link','en_US','{{actor}} connected {{target_object}} {{target}} to {{link_object}} {{link}}',NULL);
+INSERT INTO `translation` VALUES (14,'activities.connection.unlink','en_US','{{actor}} disconnected {{target_object}} {{target}} from {{link_object}} {{link}}',NULL);
+INSERT INTO `translation` VALUES (15,'activities.org.merge','en_US','{{actor}} merged organization {{source}} with organization {{target}}',NULL);
+INSERT INTO `translation` VALUES (16,'activities.task.created','en_US','{{actor}} created task {{target}}',NULL);
+INSERT INTO `translation` VALUES (17,'activities.task.status.completed','en_US','{{actor}} completed task {{target}}',NULL);
+INSERT INTO `translation` VALUES (18,'activities.ticket.assigned','en_US','{{actor}} assigned ticket {{target}} to worker {{worker}}',NULL);
+INSERT INTO `translation` VALUES (19,'activities.ticket.merge','en_US','{{actor}} merged ticket {{source}} with ticket {{target}}',NULL);
+INSERT INTO `translation` VALUES (20,'activities.ticket.message.inbound','en_US','{{actor}} wrote on ticket {{target}}',NULL);
+INSERT INTO `translation` VALUES (21,'activities.ticket.message.outbound','en_US','{{actor}} responded to ticket {{target}}',NULL);
+INSERT INTO `translation` VALUES (22,'activities.ticket.moved','en_US','{{actor}} moved ticket {{target}} to {{group}}: {{bucket}}',NULL);
+INSERT INTO `translation` VALUES (23,'activities.ticket.status','en_US','{{actor}} changed ticket {{target}} to status {{status}}',NULL);
+INSERT INTO `translation` VALUES (24,'activities.ticket.unassigned','en_US','{{actor}} unassigned ticket {{target}}',NULL);
+INSERT INTO `translation` VALUES (25,'activities.watcher.assigned','en_US','{{actor}} added {{watcher}} as a watcher to {{target_object}} {{target}}',NULL);
+INSERT INTO `translation` VALUES (26,'activities.watcher.follow','en_US','{{actor}} started watching {{target_object}} {{target}}',NULL);
+INSERT INTO `translation` VALUES (27,'activities.watcher.unassigned','en_US','{{actor}} removed {{watcher}} as a watcher from {{target_object}} {{target}}',NULL);
+INSERT INTO `translation` VALUES (28,'activities.watcher.unfollow','en_US','{{actor}} stopped watching {{target_object}} {{target}}',NULL);
+INSERT INTO `translation` VALUES (29,'activities.worker.impersonated','en_US','{{actor}} impersonated {{target}} from {{ip}}',NULL);
+INSERT INTO `translation` VALUES (30,'activities.worker.logged_in','en_US','{{actor}} logged in from {{ip}} using {{user_agent}}',NULL);
+INSERT INTO `translation` VALUES (31,'activities.worker.logged_out','en_US','{{actor}} logged out from {{ip}}',NULL);
+INSERT INTO `translation` VALUES (32,'common.access_denied','en_US','Access denied.',NULL);
+INSERT INTO `translation` VALUES (33,'common.activity_log','en_US','Activity Log',NULL);
+INSERT INTO `translation` VALUES (34,'common.add','en_US','add',NULL);
+INSERT INTO `translation` VALUES (35,'common.all','en_US','all',NULL);
+INSERT INTO `translation` VALUES (36,'common.anonymous','en_US','anonymous',NULL);
+INSERT INTO `translation` VALUES (37,'common.anybody','en_US','anybody',NULL);
+INSERT INTO `translation` VALUES (38,'common.assign','en_US','assign',NULL);
+INSERT INTO `translation` VALUES (39,'common.assigned','en_US','Assigned',NULL);
+INSERT INTO `translation` VALUES (40,'common.attachments','en_US','Attachments',NULL);
+INSERT INTO `translation` VALUES (41,'common.available','en_US','Available',NULL);
+INSERT INTO `translation` VALUES (42,'common.availability','en_US','Availability',NULL);
+INSERT INTO `translation` VALUES (43,'common.behavior','en_US','Behavior',NULL);
+INSERT INTO `translation` VALUES (44,'common.bucket','en_US','Bucket',NULL);
+INSERT INTO `translation` VALUES (45,'common.buckets','en_US','Buckets',NULL);
+INSERT INTO `translation` VALUES (46,'common.bulk_update','en_US','Bulk Update',NULL);
+INSERT INTO `translation` VALUES (47,'common.bulk_update.do','en_US','Do',NULL);
+INSERT INTO `translation` VALUES (48,'common.bulk_update.filter.all','en_US','Whole list',NULL);
+INSERT INTO `translation` VALUES (49,'common.bulk_update.filter.checked','en_US','Only checked',NULL);
+INSERT INTO `translation` VALUES (50,'common.bulk_update.filter.random','en_US','Random',NULL);
+INSERT INTO `translation` VALUES (51,'common.bulk_update.with','en_US','With',NULL);
+INSERT INTO `translation` VALUES (52,'common.calendar','en_US','Calendar',NULL);
+INSERT INTO `translation` VALUES (53,'common.cancel','en_US','cancel',NULL);
+INSERT INTO `translation` VALUES (54,'common.category','en_US','category',NULL);
+INSERT INTO `translation` VALUES (55,'common.choose','en_US','choose',NULL);
+INSERT INTO `translation` VALUES (56,'common.clear','en_US','clear',NULL);
+INSERT INTO `translation` VALUES (57,'common.close','en_US','close',NULL);
+INSERT INTO `translation` VALUES (58,'common.comment','en_US','comment',NULL);
+INSERT INTO `translation` VALUES (59,'common.comments','en_US','comments',NULL);
+INSERT INTO `translation` VALUES (60,'common.content','en_US','Content',NULL);
+INSERT INTO `translation` VALUES (61,'common.context','en_US','Context',NULL);
+INSERT INTO `translation` VALUES (62,'common.context_id','en_US','Context ID',NULL);
+INSERT INTO `translation` VALUES (63,'common.continue','en_US','continue',NULL);
+INSERT INTO `translation` VALUES (64,'common.conversation','en_US','conversation',NULL);
+INSERT INTO `translation` VALUES (65,'common.copy','en_US','copy',NULL);
+INSERT INTO `translation` VALUES (66,'common.created','en_US','created',NULL);
+INSERT INTO `translation` VALUES (67,'common.custom_fields','en_US','Custom Fields',NULL);
+INSERT INTO `translation` VALUES (68,'common.customize','en_US','customize',NULL);
+INSERT INTO `translation` VALUES (69,'common.day','en_US','day',NULL);
+INSERT INTO `translation` VALUES (70,'common.days','en_US','days',NULL);
+INSERT INTO `translation` VALUES (71,'common.default','en_US','Default',NULL);
+INSERT INTO `translation` VALUES (72,'common.delete','en_US','delete',NULL);
+INSERT INTO `translation` VALUES (73,'common.disabled','en_US','Disabled',NULL);
+INSERT INTO `translation` VALUES (74,'common.discard','en_US','discard',NULL);
+INSERT INTO `translation` VALUES (75,'common.due','en_US','due',NULL);
+INSERT INTO `translation` VALUES (76,'common.email','en_US','Email',NULL);
+INSERT INTO `translation` VALUES (77,'common.enabled','en_US','Enabled',NULL);
+INSERT INTO `translation` VALUES (78,'common.edit','en_US','edit',NULL);
+INSERT INTO `translation` VALUES (79,'common.event','en_US','event',NULL);
+INSERT INTO `translation` VALUES (80,'common.explore','en_US','explore',NULL);
+INSERT INTO `translation` VALUES (81,'common.export','en_US','export',NULL);
+INSERT INTO `translation` VALUES (82,'common.field','en_US','field',NULL);
+INSERT INTO `translation` VALUES (83,'common.fieldset','en_US','Fieldset',NULL);
+INSERT INTO `translation` VALUES (84,'common.fieldsets','en_US','Fieldsets',NULL);
+INSERT INTO `translation` VALUES (85,'common.filter','en_US','filter',NULL);
+INSERT INTO `translation` VALUES (86,'common.filter.add','en_US','Add Filter',NULL);
+INSERT INTO `translation` VALUES (87,'common.filters','en_US','filters',NULL);
+INSERT INTO `translation` VALUES (88,'common.fnr','en_US','fetch & retrieve',NULL);
+INSERT INTO `translation` VALUES (89,'common.group','en_US','Group',NULL);
+INSERT INTO `translation` VALUES (90,'common.groups','en_US','Groups',NULL);
+INSERT INTO `translation` VALUES (91,'common.guid','en_US','GUID',NULL);
+INSERT INTO `translation` VALUES (92,'common.hours','en_US','hours',NULL);
+INSERT INTO `translation` VALUES (93,'common.id','en_US','ID',NULL);
+INSERT INTO `translation` VALUES (94,'common.import','en_US','import',NULL);
+INSERT INTO `translation` VALUES (95,'common.inbox','en_US','inbox',NULL);
+INSERT INTO `translation` VALUES (96,'common.inboxes','en_US','inboxes',NULL);
+INSERT INTO `translation` VALUES (97,'common.is_closed','en_US','Is Closed',NULL);
+INSERT INTO `translation` VALUES (98,'common.keyboard','en_US','Keyboard',NULL);
+INSERT INTO `translation` VALUES (99,'common.knowledgebase','en_US','Knowledgebase',NULL);
+INSERT INTO `translation` VALUES (100,'common.macro','en_US','Macro',NULL);
+INSERT INTO `translation` VALUES (101,'common.macros','en_US','Macros',NULL);
+INSERT INTO `translation` VALUES (102,'common.mail','en_US','Mail',NULL);
+INSERT INTO `translation` VALUES (103,'common.manager','en_US','Manager',NULL);
+INSERT INTO `translation` VALUES (104,'common.managers','en_US','Managers',NULL);
+INSERT INTO `translation` VALUES (105,'common.maximize','en_US','maximize',NULL);
+INSERT INTO `translation` VALUES (106,'common.me','en_US','me',NULL);
+INSERT INTO `translation` VALUES (107,'common.member','en_US','Member',NULL);
+INSERT INTO `translation` VALUES (108,'common.members','en_US','Members',NULL);
+INSERT INTO `translation` VALUES (109,'common.message','en_US','Message',NULL);
+INSERT INTO `translation` VALUES (110,'common.messages','en_US','Messages',NULL);
+INSERT INTO `translation` VALUES (111,'common.minimize','en_US','minimize',NULL);
+INSERT INTO `translation` VALUES (112,'common.minutes','en_US','minutes',NULL);
+INSERT INTO `translation` VALUES (113,'common.month','en_US','month',NULL);
+INSERT INTO `translation` VALUES (114,'common.months','en_US','months',NULL);
+INSERT INTO `translation` VALUES (115,'common.more','en_US','More',NULL);
+INSERT INTO `translation` VALUES (116,'common.move','en_US','move',NULL);
+INSERT INTO `translation` VALUES (117,'common.move_to','en_US','move to',NULL);
+INSERT INTO `translation` VALUES (118,'common.name','en_US','Name',NULL);
+INSERT INTO `translation` VALUES (119,'common.never','en_US','Never',NULL);
+INSERT INTO `translation` VALUES (120,'common.no','en_US','no',NULL);
+INSERT INTO `translation` VALUES (121,'common.no_title','en_US','(no title)',NULL);
+INSERT INTO `translation` VALUES (122,'common.nobody','en_US','nobody',NULL);
+INSERT INTO `translation` VALUES (123,'common.none','en_US','none',NULL);
+INSERT INTO `translation` VALUES (124,'common.notspam','en_US','Not Spam',NULL);
+INSERT INTO `translation` VALUES (125,'common.optional','en_US','optional',NULL);
+INSERT INTO `translation` VALUES (126,'common.options','en_US','Options',NULL);
+INSERT INTO `translation` VALUES (127,'common.or','en_US','or',NULL);
+INSERT INTO `translation` VALUES (128,'common.order','en_US','order',NULL);
+INSERT INTO `translation` VALUES (129,'common.owner','en_US','owner',NULL);
+INSERT INTO `translation` VALUES (130,'common.label','en_US','Label',NULL);
+INSERT INTO `translation` VALUES (131,'common.languages','en_US','Languages',NULL);
+INSERT INTO `translation` VALUES (132,'common.links','en_US','Links',NULL);
+INSERT INTO `translation` VALUES (133,'common.load','en_US','Load',NULL);
+INSERT INTO `translation` VALUES (134,'common.next','en_US','next',NULL);
+INSERT INTO `translation` VALUES (135,'common.notify_watchers_and','en_US','Notify watchers and',NULL);
+INSERT INTO `translation` VALUES (136,'common.notify_workers','en_US','Notify workers',NULL);
+INSERT INTO `translation` VALUES (137,'common.ok','en_US','OK',NULL);
+INSERT INTO `translation` VALUES (138,'common.password','en_US','password',NULL);
+INSERT INTO `translation` VALUES (139,'common.permalink','en_US','permalink',NULL);
+INSERT INTO `translation` VALUES (140,'common.preview','en_US','preview',NULL);
+INSERT INTO `translation` VALUES (141,'common.previous_short','en_US','prev',NULL);
+INSERT INTO `translation` VALUES (142,'common.previous','en_US','previous',NULL);
+INSERT INTO `translation` VALUES (143,'common.print','en_US','Print',NULL);
+INSERT INTO `translation` VALUES (144,'common.profiles','en_US','Profiles',NULL);
+INSERT INTO `translation` VALUES (145,'common.properties','en_US','Properties',NULL);
+INSERT INTO `translation` VALUES (146,'common.quick_compose','en_US','Quick Compose',NULL);
+INSERT INTO `translation` VALUES (147,'common.quick_search','en_US','Quick Search',NULL);
+INSERT INTO `translation` VALUES (148,'common.refresh','en_US','refresh',NULL);
+INSERT INTO `translation` VALUES (149,'common.remove','en_US','remove',NULL);
+INSERT INTO `translation` VALUES (150,'common.reopen','en_US','Re-open',NULL);
+INSERT INTO `translation` VALUES (151,'common.reset','en_US','reset',NULL);
+INSERT INTO `translation` VALUES (152,'common.roles','en_US','roles',NULL);
+INSERT INTO `translation` VALUES (153,'common.role','en_US','role',NULL);
+INSERT INTO `translation` VALUES (154,'common.save','en_US','Save',NULL);
+INSERT INTO `translation` VALUES (155,'common.save_and_continue','en_US','Save & Continue',NULL);
+INSERT INTO `translation` VALUES (156,'common.save_and_close','en_US','Save & Close',NULL);
+INSERT INTO `translation` VALUES (157,'common.save_changes','en_US','Save Changes',NULL);
+INSERT INTO `translation` VALUES (158,'common.search','en_US','search',NULL);
+INSERT INTO `translation` VALUES (159,'common.search_results','en_US','Search Results',NULL);
+INSERT INTO `translation` VALUES (160,'common.search_go','en_US','go!',NULL);
+INSERT INTO `translation` VALUES (161,'common.settings','en_US','settings',NULL);
+INSERT INTO `translation` VALUES (162,'common.signature','en_US','signature',NULL);
+INSERT INTO `translation` VALUES (163,'common.snippets','en_US','snippets',NULL);
+INSERT INTO `translation` VALUES (164,'common.spam','en_US','Spam',NULL);
+INSERT INTO `translation` VALUES (165,'common.status','en_US','Status',NULL);
+INSERT INTO `translation` VALUES (166,'common.subtotals','en_US','Subtotals',NULL);
+INSERT INTO `translation` VALUES (167,'common.summary','en_US','Summary',NULL);
+INSERT INTO `translation` VALUES (168,'common.synchronize','en_US','Synchronize',NULL);
+INSERT INTO `translation` VALUES (169,'common.tag','en_US','Tag',NULL);
+INSERT INTO `translation` VALUES (170,'common.target','en_US','Target',NULL);
+INSERT INTO `translation` VALUES (171,'common.task','en_US','Task',NULL);
+INSERT INTO `translation` VALUES (172,'common.tasks','en_US','Tasks',NULL);
+INSERT INTO `translation` VALUES (173,'common.test','en_US','Test',NULL);
+INSERT INTO `translation` VALUES (174,'common.text','en_US','Text',NULL);
+INSERT INTO `translation` VALUES (175,'common.ticket','en_US','ticket',NULL);
+INSERT INTO `translation` VALUES (176,'common.tickets','en_US','tickets',NULL);
+INSERT INTO `translation` VALUES (177,'common.time.mins.num','en_US','%s min',NULL);
+INSERT INTO `translation` VALUES (178,'common.time.secs.num','en_US','%s sec',NULL);
+INSERT INTO `translation` VALUES (179,'common.title','en_US','Title',NULL);
+INSERT INTO `translation` VALUES (180,'common.today','en_US','today',NULL);
+INSERT INTO `translation` VALUES (181,'common.type','en_US','Type',NULL);
+INSERT INTO `translation` VALUES (182,'common.unassign','en_US','Unassign',NULL);
+INSERT INTO `translation` VALUES (183,'common.undelete','en_US','Undelete',NULL);
+INSERT INTO `translation` VALUES (184,'common.update','en_US','update',NULL);
+INSERT INTO `translation` VALUES (185,'common.updated','en_US','updated',NULL);
+INSERT INTO `translation` VALUES (186,'common.upload','en_US','upload',NULL);
+INSERT INTO `translation` VALUES (187,'common.url','en_US','URL',NULL);
+INSERT INTO `translation` VALUES (188,'common.url.record','en_US','Record URL',NULL);
+INSERT INTO `translation` VALUES (189,'common.watch','en_US','watch',NULL);
+INSERT INTO `translation` VALUES (190,'common.watcher','en_US','watcher',NULL);
+INSERT INTO `translation` VALUES (191,'common.watchers','en_US','watchers',NULL);
+INSERT INTO `translation` VALUES (192,'common.week','en_US','week',NULL);
+INSERT INTO `translation` VALUES (193,'common.worker','en_US','worker',NULL);
+INSERT INTO `translation` VALUES (194,'common.workers','en_US','workers',NULL);
+INSERT INTO `translation` VALUES (195,'common.worklist','en_US','worklist',NULL);
+INSERT INTO `translation` VALUES (196,'common.workspace','en_US','Workspace',NULL);
+INSERT INTO `translation` VALUES (197,'common.workspaces','en_US','Workspaces',NULL);
+INSERT INTO `translation` VALUES (198,'common.year','en_US','year',NULL);
+INSERT INTO `translation` VALUES (199,'common.yes','en_US','yes',NULL);
+INSERT INTO `translation` VALUES (200,'dao.calendar_event.is_available','en_US','Is Available',NULL);
+INSERT INTO `translation` VALUES (201,'dao.calendar_event.date_start','en_US','Start Date',NULL);
+INSERT INTO `translation` VALUES (202,'dao.calendar_event.date_end','en_US','End Date',NULL);
+INSERT INTO `translation` VALUES (203,'dao.calendar_recurring_profile.event_name','en_US','Event Name',NULL);
+INSERT INTO `translation` VALUES (204,'dao.calendar_recurring_profile.is_available','en_US','Is Available',NULL);
+INSERT INTO `translation` VALUES (205,'dao.calendar_recurring_profile.tz','en_US','Timezone',NULL);
+INSERT INTO `translation` VALUES (206,'dao.calendar_recurring_profile.event_start','en_US','Event Start',NULL);
+INSERT INTO `translation` VALUES (207,'dao.calendar_recurring_profile.event_end','en_US','Event End',NULL);
+INSERT INTO `translation` VALUES (208,'dao.calendar_recurring_profile.recur_end','en_US','Recur End',NULL);
+INSERT INTO `translation` VALUES (209,'dao.calendar_recurring_profile.patterns','en_US','Patterns',NULL);
+INSERT INTO `translation` VALUES (210,'dao.cerb_plugin.description','en_US','Description',NULL);
+INSERT INTO `translation` VALUES (211,'dao.cerb_plugin.author','en_US','Author',NULL);
+INSERT INTO `translation` VALUES (212,'dao.cerb_plugin.version','en_US','Version',NULL);
+INSERT INTO `translation` VALUES (213,'dao.decision_node.node_type','en_US','Node Type',NULL);
+INSERT INTO `translation` VALUES (214,'dao.decision_node.params','en_US','Params',NULL);
+INSERT INTO `translation` VALUES (215,'dao.decision_node.parent_id','en_US','Parent Id',NULL);
+INSERT INTO `translation` VALUES (216,'dao.decision_node.trigger_id','en_US','Trigger Id',NULL);
+INSERT INTO `translation` VALUES (217,'dao.devblocks_session.session_key','en_US','Session Key',NULL);
+INSERT INTO `translation` VALUES (218,'dao.devblocks_session.session_data','en_US','Session Data',NULL);
+INSERT INTO `translation` VALUES (219,'dao.devblocks_session.user_ip','en_US','IP Address',NULL);
+INSERT INTO `translation` VALUES (220,'dao.devblocks_session.user_agent','en_US','User Agent',NULL);
+INSERT INTO `translation` VALUES (221,'dao.plugin_library.plugin_id','en_US','Plugin ID',NULL);
+INSERT INTO `translation` VALUES (222,'dao.plugin_library.icon_url','en_US','Icon URL',NULL);
+INSERT INTO `translation` VALUES (223,'dao.plugin_library.requirements_json','en_US','Requirements',NULL);
+INSERT INTO `translation` VALUES (224,'dao.snippet.total_uses','en_US','All Uses',NULL);
+INSERT INTO `translation` VALUES (225,'dao.snippet_use_history.uses.mine','en_US','My Uses',NULL);
+INSERT INTO `translation` VALUES (226,'dao.trigger_event.is_disabled','en_US','Is Disabled',NULL);
+INSERT INTO `translation` VALUES (227,'dao.trigger_event.owner_context','en_US','Owner Context',NULL);
+INSERT INTO `translation` VALUES (228,'dao.trigger_event.owner_context_id','en_US','Owner Context Id',NULL);
+INSERT INTO `translation` VALUES (229,'error.core.no_acl.edit','en_US','You do not have permission to modify this record.',NULL);
+INSERT INTO `translation` VALUES (230,'acl.core.activity','en_US','[Activity] Can view activity page',NULL);
+INSERT INTO `translation` VALUES (231,'acl.core.addybook','en_US','[Address Book] Can browse the address book',NULL);
+INSERT INTO `translation` VALUES (232,'acl.core.addybook.addy.actions.update','en_US','[Address Book] Can modify email address contacts',NULL);
+INSERT INTO `translation` VALUES (233,'acl.core.addybook.addy.view.actions.broadcast','en_US','[Address Book] Can broadcast compose email to address lists',NULL);
+INSERT INTO `translation` VALUES (234,'acl.core.addybook.addy.view.actions.export','en_US','[Address Book] Can export email address lists to CSV/XML',NULL);
+INSERT INTO `translation` VALUES (235,'acl.core.addybook.org.actions.merge','en_US','[Address Book] Can merge organizations',NULL);
+INSERT INTO `translation` VALUES (236,'acl.core.addybook.org.actions.update','en_US','[Address Book] Can modify organizations',NULL);
+INSERT INTO `translation` VALUES (237,'acl.core.addybook.org.actions.delete','en_US','[Address Book] Can delete organizations',NULL);
+INSERT INTO `translation` VALUES (238,'acl.core.addybook.org.view.actions.export','en_US','[Address Book] Can export organization lists to CSV/XML',NULL);
+INSERT INTO `translation` VALUES (239,'acl.core.addybook.person.actions.delete','en_US','[Address Book] Can delete registered contacts',NULL);
+INSERT INTO `translation` VALUES (240,'acl.core.addybook.person.actions.update','en_US','[Address Book] Can modify registered contacts',NULL);
+INSERT INTO `translation` VALUES (241,'acl.core.display.actions.attachments.download','en_US','[Display Ticket] Can download ticket attachments',NULL);
+INSERT INTO `translation` VALUES (242,'acl.core.display.actions.comment','en_US','[Display Ticket] Can comment on tickets',NULL);
+INSERT INTO `translation` VALUES (243,'acl.core.display.actions.forward','en_US','[Display Ticket] Can forward tickets to third-party email addresses',NULL);
+INSERT INTO `translation` VALUES (244,'acl.core.display.actions.note','en_US','[Display Ticket] Can add sticky notes to tickets',NULL);
+INSERT INTO `translation` VALUES (245,'acl.core.display.actions.reply','en_US','[Display Ticket] Can reply to tickets',NULL);
+INSERT INTO `translation` VALUES (246,'acl.core.display.actions.split','en_US','[Display Ticket] Can split tickets',NULL);
+INSERT INTO `translation` VALUES (247,'acl.core.display.message.actions.delete','en_US','[Display Ticket] Can permanently delete messages on tickets',NULL);
+INSERT INTO `translation` VALUES (248,'acl.core.mail','en_US','[Mail] Can view the mail page',NULL);
+INSERT INTO `translation` VALUES (249,'acl.core.mail.send','en_US','[Mail] Can compose new messages',NULL);
+INSERT INTO `translation` VALUES (250,'acl.core.mail.draft.delete_all','en_US','[Mail] Can delete drafts owned by other workers',NULL);
+INSERT INTO `translation` VALUES (251,'acl.core.rss','en_US','[RSS] Can export lists as RSS feeds',NULL);
+INSERT INTO `translation` VALUES (252,'acl.core.snippets.actions.create','en_US','[Snippets] Can create snippets',NULL);
+INSERT INTO `translation` VALUES (253,'acl.core.tasks.actions.create','en_US','[Tasks] Can create tasks',NULL);
+INSERT INTO `translation` VALUES (254,'acl.core.tasks.actions.update_all','en_US','[Tasks] Can edit tasks',NULL);
+INSERT INTO `translation` VALUES (255,'acl.core.tasks.actions.delete','en_US','[Tasks] Can delete tasks',NULL);
+INSERT INTO `translation` VALUES (256,'acl.core.tasks.view.actions.export','en_US','[Tasks] Can export task lists to CSV/XML',NULL);
+INSERT INTO `translation` VALUES (257,'acl.core.ticket.actions.assign','en_US','[Tickets] Can assign tickets to other workers',NULL);
+INSERT INTO `translation` VALUES (258,'acl.core.ticket.actions.close','en_US','[Tickets] Can close tickets',NULL);
+INSERT INTO `translation` VALUES (259,'acl.core.ticket.actions.delete','en_US','[Tickets] Can delete tickets',NULL);
+INSERT INTO `translation` VALUES (260,'acl.core.ticket.actions.move','en_US','[Tickets] Can move tickets',NULL);
+INSERT INTO `translation` VALUES (261,'acl.core.ticket.actions.spam','en_US','[Tickets] Can report tickets as spam',NULL);
+INSERT INTO `translation` VALUES (262,'acl.core.ticket.view.actions.broadcast_reply','en_US','[Tickets] Can broadcast reply to ticket lists',NULL);
+INSERT INTO `translation` VALUES (263,'acl.core.ticket.view.actions.bulk_update','en_US','[Tickets] Can bulk update tickets in lists',NULL);
+INSERT INTO `translation` VALUES (264,'acl.core.ticket.view.actions.export','en_US','[Tickets] Can export ticket lists to CSV/XML',NULL);
+INSERT INTO `translation` VALUES (265,'acl.core.ticket.view.actions.merge','en_US','[Tickets] Can merge tickets from lists',NULL);
+INSERT INTO `translation` VALUES (266,'acl.core.ticket.view.actions.pile_sort','en_US','[Tickets] Can use the pile sorter on lists',NULL);
+INSERT INTO `translation` VALUES (267,'acl.core.watchers.assign','en_US','[Watchers] Can add other workers as watchers',NULL);
+INSERT INTO `translation` VALUES (268,'acl.core.watchers.unassign','en_US','[Watchers] Can remove other workers as watchers',NULL);
+INSERT INTO `translation` VALUES (269,'address.address','en_US','Address',NULL);
+INSERT INTO `translation` VALUES (270,'address.id','en_US','ID',NULL);
+INSERT INTO `translation` VALUES (271,'address.email','en_US','Email',NULL);
+INSERT INTO `translation` VALUES (272,'address.first_name','en_US','First Name',NULL);
+INSERT INTO `translation` VALUES (273,'address.full_name','en_US','Full Name',NULL);
+INSERT INTO `translation` VALUES (274,'address.num_spam','en_US','# Spam',NULL);
+INSERT INTO `translation` VALUES (275,'address.num_nonspam','en_US','# Nonspam',NULL);
+INSERT INTO `translation` VALUES (276,'address.is_banned','en_US','Is Banned',NULL);
+INSERT INTO `translation` VALUES (277,'address.is_defunct','en_US','Is Defunct',NULL);
+INSERT INTO `translation` VALUES (278,'address.last_name','en_US','Last Name',NULL);
+INSERT INTO `translation` VALUES (279,'address.contact_org_id','en_US','Organization ID',NULL);
+INSERT INTO `translation` VALUES (280,'addy_book.address.add','en_US','Add Contact',NULL);
+INSERT INTO `translation` VALUES (281,'addy_book.history.view.title','en_US','Contact History',NULL);
+INSERT INTO `translation` VALUES (282,'addy_book.history.view.requester','en_US','Recipient History: %s contact(s)',NULL);
+INSERT INTO `translation` VALUES (283,'addy_book.org.add','en_US','Add Org',NULL);
+INSERT INTO `translation` VALUES (284,'addy_book.org.tabs.mail_history','en_US','Mail History',NULL);
+INSERT INTO `translation` VALUES (285,'addy_book.org.tabs.people','en_US','People',NULL);
+INSERT INTO `translation` VALUES (286,'addy_book.peek.compose','en_US','compose',NULL);
+INSERT INTO `translation` VALUES (287,'addy_book.peek.count.open_tickets','en_US','%s open ticket(s)',NULL);
+INSERT INTO `translation` VALUES (288,'addy_book.peek.count.closed_tickets','en_US','%s closed ticket(s)',NULL);
+INSERT INTO `translation` VALUES (289,'addy_book.peek.title','en_US','Email Address',NULL);
+INSERT INTO `translation` VALUES (290,'addy_book.peek.view_full','en_US','view full record',NULL);
+INSERT INTO `translation` VALUES (291,'addy_book.tab.addresses','en_US','Addresses',NULL);
+INSERT INTO `translation` VALUES (292,'addy_book.tab.organizations','en_US','Organizations',NULL);
+INSERT INTO `translation` VALUES (293,'addy_book.tab.people','en_US','Registered Contacts',NULL);
+INSERT INTO `translation` VALUES (294,'attachment.id','en_US','Attachment ID',NULL);
+INSERT INTO `translation` VALUES (295,'attachment.display_name','en_US','File Name',NULL);
+INSERT INTO `translation` VALUES (296,'attachment.mime_type','en_US','MIME Type',NULL);
+INSERT INTO `translation` VALUES (297,'attachment.storage_extension','en_US','Storage Extension',NULL);
+INSERT INTO `translation` VALUES (298,'attachment.storage_key','en_US','Storage Key',NULL);
+INSERT INTO `translation` VALUES (299,'attachment.storage_profile_id','en_US','Storage Profile',NULL);
+INSERT INTO `translation` VALUES (300,'attachment.storage_size','en_US','Size (bytes)',NULL);
+INSERT INTO `translation` VALUES (301,'community_portal.code','en_US','Profile ID',NULL);
+INSERT INTO `translation` VALUES (302,'community_portal.extension_id','en_US','Extension',NULL);
+INSERT INTO `translation` VALUES (303,'community_portal.name','en_US','Name',NULL);
+INSERT INTO `translation` VALUES (304,'portal.cfg.add_tool','en_US','Add a New Community Portal:',NULL);
+INSERT INTO `translation` VALUES (305,'portal.cfg.confirm_delete','en_US','Are you sure you want to permanently delete this community portal?',NULL);
+INSERT INTO `translation` VALUES (306,'portal.cfg.htaccess_hint','en_US','(optional, friendly URLs for Apache Web Server users)',NULL);
+INSERT INTO `translation` VALUES (307,'portal.cfg.installation','en_US','Installation',NULL);
+INSERT INTO `translation` VALUES (308,'portal.cfg.installation_instructions','en_US','Place the index.php file in a new directory on the appropriate public website.  This directory can be named anything but will usually describe the portal.\nFor example: http://www.cerberusweb.com/support/',NULL);
+INSERT INTO `translation` VALUES (309,'portal.cfg.profile_id','en_US','Profile ID:',NULL);
+INSERT INTO `translation` VALUES (310,'config.mail.pop3.error_hostname','en_US','Error: No hostname provided.',NULL);
+INSERT INTO `translation` VALUES (311,'config.mail.pop3.failed','en_US','Mailbox Connection Failed.',NULL);
+INSERT INTO `translation` VALUES (312,'config.mail.smtp.failed','en_US','SMTP Connection Failed:',NULL);
+INSERT INTO `translation` VALUES (313,'dao.confirmation_code.namespace_key','en_US','Namespace',NULL);
+INSERT INTO `translation` VALUES (314,'dao.confirmation_code.confirmation_code','en_US','Confirmation Code',NULL);
+INSERT INTO `translation` VALUES (315,'contact_org.city','en_US','City',NULL);
+INSERT INTO `translation` VALUES (316,'contact_org.country','en_US','Country',NULL);
+INSERT INTO `translation` VALUES (317,'contact_org.created','en_US','Created',NULL);
+INSERT INTO `translation` VALUES (318,'contact_org.id','en_US','ID',NULL);
+INSERT INTO `translation` VALUES (319,'contact_org.name','en_US','Organization',NULL);
+INSERT INTO `translation` VALUES (320,'contact_org.phone','en_US','Phone',NULL);
+INSERT INTO `translation` VALUES (321,'contact_org.postal','en_US','Postal',NULL);
+INSERT INTO `translation` VALUES (322,'contact_org.province','en_US','State/Prov',NULL);
+INSERT INTO `translation` VALUES (323,'contact_org.street','en_US','Street',NULL);
+INSERT INTO `translation` VALUES (324,'contact_org.website','en_US','Website',NULL);
+INSERT INTO `translation` VALUES (325,'comment.filters.content','en_US','Comment Content',NULL);
+INSERT INTO `translation` VALUES (326,'dao.contact_person.auth_salt','en_US','Password Salt',NULL);
+INSERT INTO `translation` VALUES (327,'dao.contact_person.auth_password','en_US','Password',NULL);
+INSERT INTO `translation` VALUES (328,'dao.contact_person.last_login','en_US','Last Login',NULL);
+INSERT INTO `translation` VALUES (329,'dao.context_activity_log.activity_point','en_US','Activity',NULL);
+INSERT INTO `translation` VALUES (330,'dao.context_activity_log.actor_context','en_US','Actor Context',NULL);
+INSERT INTO `translation` VALUES (331,'dao.context_activity_log.actor_context_id','en_US','Actor Context ID',NULL);
+INSERT INTO `translation` VALUES (332,'dao.context_activity_log.entry','en_US','Entry',NULL);
+INSERT INTO `translation` VALUES (333,'dao.context_activity_log.target_context','en_US','Target Context',NULL);
+INSERT INTO `translation` VALUES (334,'dao.context_activity_log.target_context_id','en_US','Target Context ID',NULL);
+INSERT INTO `translation` VALUES (335,'dao.context_scheduled_behavior.repeat_json','en_US','Repeat',NULL);
+INSERT INTO `translation` VALUES (336,'dao.context_scheduled_behavior.run_date','en_US','Run Date',NULL);
+INSERT INTO `translation` VALUES (337,'cron.ip_unauthorized','en_US','Your IP address (%s) is not authorized to run scheduler jobs. Your administrator needs to authorize your IP in the Security menu of Setup or in the framework.config.php file under AUTHORIZED_IPS_DEFAULTS.',NULL);
+INSERT INTO `translation` VALUES (338,'cron.nothing_to_do','en_US','Nothing to do yet!  (Waiting %s seconds)',NULL);
+INSERT INTO `translation` VALUES (339,'activity.default','en_US','%s is browsing',NULL);
+INSERT INTO `translation` VALUES (340,'activity.activity','en_US','%s is browsing the activity logs',NULL);
+INSERT INTO `translation` VALUES (341,'activity.address_book','en_US','%s is browsing the address book',NULL);
+INSERT INTO `translation` VALUES (342,'activity.config','en_US','%s is configuring the application',NULL);
+INSERT INTO `translation` VALUES (343,'activity.display_ticket','en_US','%s is displaying ticket %s',NULL);
+INSERT INTO `translation` VALUES (344,'activity.mail.search','en_US','%s is searching tickets',NULL);
+INSERT INTO `translation` VALUES (345,'activity.mail.workflow','en_US','%s is browsing %s in Workflow',NULL);
+INSERT INTO `translation` VALUES (346,'activity.mail.workspaces','en_US','%s is browsing %s in Workspaces',NULL);
+INSERT INTO `translation` VALUES (347,'activity.simulator','en_US','%s is generating simulated tickets',NULL);
+INSERT INTO `translation` VALUES (348,'activity.tickets','en_US','%s is browsing %s tickets',NULL);
+INSERT INTO `translation` VALUES (349,'files.not_found','en_US','File not found.',NULL);
+INSERT INTO `translation` VALUES (350,'header.config','en_US','setup',NULL);
+INSERT INTO `translation` VALUES (351,'header.history','en_US','history',NULL);
+INSERT INTO `translation` VALUES (352,'header.last_viewed','en_US','last viewed',NULL);
+INSERT INTO `translation` VALUES (353,'header.my_profile','en_US','my profile',NULL);
+INSERT INTO `translation` VALUES (354,'header.no_page','en_US','No page selected.',NULL);
+INSERT INTO `translation` VALUES (355,'header.not_signed_in','en_US','Not signed on',NULL);
+INSERT INTO `translation` VALUES (356,'header.notifications.unread','en_US','%s unread notification(s)',NULL);
+INSERT INTO `translation` VALUES (357,'header.preferences','en_US','Settings',NULL);
+INSERT INTO `translation` VALUES (358,'header.signed_in','en_US','Signed on as %s',NULL);
+INSERT INTO `translation` VALUES (359,'header.signoff','en_US','Sign off',NULL);
+INSERT INTO `translation` VALUES (360,'header.signoff.all.my','en_US','Sign off (all my sessions)',NULL);
+INSERT INTO `translation` VALUES (361,'header.signon','en_US','Sign on',NULL);
+INSERT INTO `translation` VALUES (362,'dashboard','en_US','Dashboard',NULL);
+INSERT INTO `translation` VALUES (363,'dashboard.actions','en_US','Actions',NULL);
+INSERT INTO `translation` VALUES (364,'dashboard.active_dashboard','en_US','Active Dashboard:',NULL);
+INSERT INTO `translation` VALUES (365,'dashboard.add_dashboard','en_US','add dashboard',NULL);
+INSERT INTO `translation` VALUES (366,'dashboard.add_view','en_US','add worklist',NULL);
+INSERT INTO `translation` VALUES (367,'dashboard.choose_column','en_US','Choose Column',NULL);
+INSERT INTO `translation` VALUES (368,'dashboard.choose_dashboard','en_US','Choose Dashboard',NULL);
+INSERT INTO `translation` VALUES (369,'dashboard.columns','en_US','Columns',NULL);
+INSERT INTO `translation` VALUES (370,'dashboard.create_ticket','en_US','Create Ticket',NULL);
+INSERT INTO `translation` VALUES (371,'dashboard.group_filters','en_US','Group Filters',NULL);
+INSERT INTO `translation` VALUES (372,'dashboard.dashboards','en_US','Dashboards',NULL);
+INSERT INTO `translation` VALUES (373,'dashboard.delete','en_US','delete workspace',NULL);
+INSERT INTO `translation` VALUES (374,'dashboard.delete.confirm','en_US','Are you sure you want to delete this entire workspace?',NULL);
+INSERT INTO `translation` VALUES (375,'dashboard.modify','en_US','Modify Dashboard',NULL);
+INSERT INTO `translation` VALUES (376,'dashboard.num_rows','en_US','Rows per page',NULL);
+INSERT INTO `translation` VALUES (377,'dashboard.remove_view','en_US','Remove ticket list from dashboard',NULL);
+INSERT INTO `translation` VALUES (378,'dashboard.switch','en_US','Switch',NULL);
+INSERT INTO `translation` VALUES (379,'home.my_notifications.view.title','en_US','Notifications for %s',NULL);
+INSERT INTO `translation` VALUES (380,'home.my_notifications.button.mark_read','en_US','Mark Read',NULL);
+INSERT INTO `translation` VALUES (381,'home.my_tasks.view.title','en_US','Tasks for %s',NULL);
+INSERT INTO `translation` VALUES (382,'home.my_tickets.view.title','en_US','Mail for %s',NULL);
+INSERT INTO `translation` VALUES (383,'home.workspaces.worklist.add.new','en_US','New',NULL);
+INSERT INTO `translation` VALUES (384,'home.workspaces.worklist.name','en_US','Worklist Name',NULL);
+INSERT INTO `translation` VALUES (385,'home.workspaces.worklist.type','en_US','Worklist Type',NULL);
+INSERT INTO `translation` VALUES (386,'display.invalid_ticket','en_US','Invalid Ticket!',NULL);
+INSERT INTO `translation` VALUES (387,'display.convo.brief_headers','en_US','brief headers',NULL);
+INSERT INTO `translation` VALUES (388,'display.convo.full_headers','en_US','full headers',NULL);
+INSERT INTO `translation` VALUES (389,'display.convo.no_messages','en_US','No messages on ticket.',NULL);
+INSERT INTO `translation` VALUES (390,'display.convo.order_oldest','en_US','Starting with the oldest message:',NULL);
+INSERT INTO `translation` VALUES (391,'display.convo.order_newest','en_US','Starting with the newest message:',NULL);
+INSERT INTO `translation` VALUES (392,'display.convo.set_org','en_US','set organization',NULL);
+INSERT INTO `translation` VALUES (393,'display.convo.skip_to_bottom','en_US','skip to bottom',NULL);
+INSERT INTO `translation` VALUES (394,'display.convo.unknown_format','en_US','Unknown Format',NULL);
+INSERT INTO `translation` VALUES (395,'display.button.read_all','en_US','Read All',NULL);
+INSERT INTO `translation` VALUES (396,'display.button.split_ticket','en_US','Split Ticket',NULL);
+INSERT INTO `translation` VALUES (397,'display.reply.attachments_add','en_US','Add attachments:',NULL);
+INSERT INTO `translation` VALUES (398,'display.reply.attachments_forward','en_US','Forward attachments:',NULL);
+INSERT INTO `translation` VALUES (399,'display.reply.attachments_more','en_US','attach more',NULL);
+INSERT INTO `translation` VALUES (400,'display.reply.attachments_limit','en_US','(The maximum attachment size is %s)',NULL);
+INSERT INTO `translation` VALUES (401,'display.reply.email_templates','en_US','Email Templates',NULL);
+INSERT INTO `translation` VALUES (402,'display.reply.forward.banner','en_US','---- Forwarded message ----',NULL);
+INSERT INTO `translation` VALUES (403,'display.reply.insert_sig','en_US','Insert Signature',NULL);
+INSERT INTO `translation` VALUES (404,'display.reply.next.move','en_US','Would you like to move this conversation?',NULL);
+INSERT INTO `translation` VALUES (405,'display.reply.next.move.current','en_US','(current bucket)',NULL);
+INSERT INTO `translation` VALUES (406,'display.reply.next.move.no_thanks','en_US','no thanks!',NULL);
+INSERT INTO `translation` VALUES (407,'display.reply.next.owner','en_US','Who should this be assigned to?',NULL);
+INSERT INTO `translation` VALUES (408,'display.reply.next.resume','en_US','When would you like to resume this conversation?',NULL);
+INSERT INTO `translation` VALUES (409,'display.reply.next.resume_blank','en_US','(leave blank to wait for a reply before resuming)',NULL);
+INSERT INTO `translation` VALUES (410,'display.reply.next.resume_eg','en_US','(e.g. \"Friday\", \"7 days\", \"Tomorrow 11:15AM\", \"Dec 31\")',NULL);
+INSERT INTO `translation` VALUES (411,'display.reply.no_quote','en_US','Reply without quoting',NULL);
+INSERT INTO `translation` VALUES (412,'display.reply.quote','en_US','Quote and reply',NULL);
+INSERT INTO `translation` VALUES (413,'display.reply.reply_banner','en_US','On %s, %s wrote:',NULL);
+INSERT INTO `translation` VALUES (414,'display.shortcut.close','en_US','Close this ticket (C)',NULL);
+INSERT INTO `translation` VALUES (415,'display.shortcut.delete','en_US','Delete this ticket (X)',NULL);
+INSERT INTO `translation` VALUES (416,'display.shortcut.print','en_US','Print this ticket (P)',NULL);
+INSERT INTO `translation` VALUES (417,'display.shortcut.read_all','en_US','Read all messages in chronological order (A)',NULL);
+INSERT INTO `translation` VALUES (418,'display.shortcut.refresh','en_US','Reload this ticket',NULL);
+INSERT INTO `translation` VALUES (419,'display.shortcut.spam','en_US','Report this ticket as spam (S)',NULL);
+INSERT INTO `translation` VALUES (420,'display.shortcut.follow','en_US','Follow this ticket (F)',NULL);
+INSERT INTO `translation` VALUES (421,'display.shortcut.unfollow','en_US','Stop following this ticket (U)',NULL);
+INSERT INTO `translation` VALUES (422,'display.ui.add_to_recipients','en_US','Add to Recipients',NULL);
+INSERT INTO `translation` VALUES (423,'display.ui.continue_later','en_US','Save as draft',NULL);
+INSERT INTO `translation` VALUES (424,'display.ui.discard','en_US','Discard',NULL);
+INSERT INTO `translation` VALUES (425,'display.ui.forward','en_US','Forward',NULL);
+INSERT INTO `translation` VALUES (426,'display.ui.reply','en_US','Reply',NULL);
+INSERT INTO `translation` VALUES (427,'display.ui.save_nosend','en_US','Save without sending',NULL);
+INSERT INTO `translation` VALUES (428,'display.ui.send_message','en_US','Send message',NULL);
+INSERT INTO `translation` VALUES (429,'display.ui.sticky_note','en_US','Sticky Note',NULL);
+INSERT INTO `translation` VALUES (430,'mail.create.on_behalf','en_US','#### This message was created by %s on your behalf.',NULL);
+INSERT INTO `translation` VALUES (431,'mail.drafts','en_US','Drafts',NULL);
+INSERT INTO `translation` VALUES (432,'mail.inbox_filter','en_US','Inbox Filter',NULL);
+INSERT INTO `translation` VALUES (433,'mail.log_message','en_US','Open Ticket',NULL);
+INSERT INTO `translation` VALUES (434,'mail.log_message.requesters','en_US','Recipient(s)',NULL);
+INSERT INTO `translation` VALUES (435,'mail.log_message.send_to_requesters','en_US','Send a copy of this message to the recipients.',NULL);
+INSERT INTO `translation` VALUES (436,'mail.merge','en_US','Merge',NULL);
+INSERT INTO `translation` VALUES (437,'mail.nav.search_mail','en_US','Search:',NULL);
+INSERT INTO `translation` VALUES (438,'mail.not_waiting','en_US','Not Waiting',NULL);
+INSERT INTO `translation` VALUES (439,'mail.overview.all_done_text','en_US','There are no available tickets matching your selection.',NULL);
+INSERT INTO `translation` VALUES (440,'mail.overview.all_groups','en_US','All Groups',NULL);
+INSERT INTO `translation` VALUES (441,'mail.overview.assigned.title','en_US','For %s',NULL);
+INSERT INTO `translation` VALUES (442,'mail.overview.my_mail','en_US','my mail',NULL);
+INSERT INTO `translation` VALUES (443,'mail.piles','en_US','Piles',NULL);
+INSERT INTO `translation` VALUES (444,'mail.quick_search.comments_all','en_US','Comments (all words)',NULL);
+INSERT INTO `translation` VALUES (445,'mail.quick_search.comments_expert','en_US','Comments (expert)',NULL);
+INSERT INTO `translation` VALUES (446,'mail.quick_search.comments_phrase','en_US','Comments (phrase)',NULL);
+INSERT INTO `translation` VALUES (447,'mail.quick_search.messages_all','en_US','Messages (all words)',NULL);
+INSERT INTO `translation` VALUES (448,'mail.quick_search.messages_expert','en_US','Messages (expert)',NULL);
+INSERT INTO `translation` VALUES (449,'mail.quick_search.messages_phrase','en_US','Messages (phrase)',NULL);
+INSERT INTO `translation` VALUES (450,'mail.received','en_US','Received',NULL);
+INSERT INTO `translation` VALUES (451,'mail.send_mail','en_US','Compose',NULL);
+INSERT INTO `translation` VALUES (452,'mail.sent','en_US','Sent',NULL);
+INSERT INTO `translation` VALUES (453,'mail.view.add_filter','en_US','-add filter-',NULL);
+INSERT INTO `translation` VALUES (454,'mail.waiting','en_US','Waiting',NULL);
+INSERT INTO `translation` VALUES (455,'mail.workflow','en_US','Workflow',NULL);
+INSERT INTO `translation` VALUES (456,'mail.workspaces.create','en_US','Click here to create your first workspace.',NULL);
+INSERT INTO `translation` VALUES (457,'mail.workspaces.my','en_US','My Workspaces',NULL);
+INSERT INTO `translation` VALUES (458,'mail.workspaces.new','en_US','New Workspace',NULL);
+INSERT INTO `translation` VALUES (459,'mail.workspaces.new_list','en_US','New List',NULL);
+INSERT INTO `translation` VALUES (460,'mail.workspaces.none','en_US','You haven\'t created any custom worklists.',NULL);
+INSERT INTO `translation` VALUES (461,'mail_queue.is_queued','en_US','Is Queued',NULL);
+INSERT INTO `translation` VALUES (462,'mail_queue.params_json','en_US','Parameters',NULL);
+INSERT INTO `translation` VALUES (463,'mail_queue.queue_delivery_date','en_US','Delivery Date',NULL);
+INSERT INTO `translation` VALUES (464,'mail_queue.queue_fails','en_US','# Fails',NULL);
+INSERT INTO `translation` VALUES (465,'mail_queue.ticket_id','en_US','Ticket ID',NULL);
+INSERT INTO `translation` VALUES (466,'mail_queue.type','en_US','Message Type',NULL);
+INSERT INTO `translation` VALUES (467,'message.header','en_US','Header',NULL);
+INSERT INTO `translation` VALUES (468,'message.headers','en_US','Headers',NULL);
+INSERT INTO `translation` VALUES (469,'message.headers.custom','en_US','Custom Headers',NULL);
+INSERT INTO `translation` VALUES (470,'message.header.bcc','en_US','Bcc',NULL);
+INSERT INTO `translation` VALUES (471,'message.header.cc','en_US','Cc',NULL);
+INSERT INTO `translation` VALUES (472,'message.header.date','en_US','Date',NULL);
+INSERT INTO `translation` VALUES (473,'message.header.from','en_US','From',NULL);
+INSERT INTO `translation` VALUES (474,'message.header.subject','en_US','Subject',NULL);
+INSERT INTO `translation` VALUES (475,'message.header.to','en_US','To',NULL);
+INSERT INTO `translation` VALUES (476,'message.queued.delivery_immediate','en_US','scheduled for immediate delivery',NULL);
+INSERT INTO `translation` VALUES (477,'message.queued.deliver_in','en_US','scheduled for delivery in %s',NULL);
+INSERT INTO `translation` VALUES (478,'message.content','en_US','Message Content',NULL);
+INSERT INTO `translation` VALUES (479,'message.created_date','en_US','Created',NULL);
+INSERT INTO `translation` VALUES (480,'message.is_broadcast','en_US','Is Broadcast',NULL);
+INSERT INTO `translation` VALUES (481,'message.is_outgoing','en_US','Is Outgoing',NULL);
+INSERT INTO `translation` VALUES (482,'message.storage_size','en_US','Size',NULL);
+INSERT INTO `translation` VALUES (483,'message.response_time','en_US','Response Time',NULL);
+INSERT INTO `translation` VALUES (484,'message.note.content','en_US','Note Content',NULL);
+INSERT INTO `translation` VALUES (485,'prefs.address.exists','en_US','%s is already assigned to a worker.',NULL);
+INSERT INTO `translation` VALUES (486,'prefs.address.confirm.tip','en_US','%s has been confirmed!',NULL);
+INSERT INTO `translation` VALUES (487,'prefs.address.confirm.invalid_code','en_US','The confirmation code you provided is not valid.',NULL);
+INSERT INTO `translation` VALUES (488,'prefs.address.confirm.mail.body','en_US','%s just added this email address to their Cerb6 account.\n\nTo approve and continue, click the following link:\n%s\n\nIf you did not request this, do not click the link above.  The request will expire in 24 hours.\n		',NULL);
+INSERT INTO `translation` VALUES (489,'prefs.address.confirm.mail.subject','en_US','Confirm New Worker Email (%s)',NULL);
+INSERT INTO `translation` VALUES (490,'prefs.address.confirm.mail.sent','en_US','A confirmation email has been sent to %s',NULL);
+INSERT INTO `translation` VALUES (491,'prefs.address.invalid','en_US','%s is not a valid email address.',NULL);
+INSERT INTO `translation` VALUES (492,'rss.bad_feed','en_US','Bad feed data.',NULL);
+INSERT INTO `translation` VALUES (493,'signin.forgot.mail.subject','en_US','Confirm password recovery.',NULL);
+INSERT INTO `translation` VALUES (494,'signin.forgot.mail.body','en_US','This confirmation code will allow you to reset your login: %s',NULL);
+INSERT INTO `translation` VALUES (495,'search.date.between','en_US','between',NULL);
+INSERT INTO `translation` VALUES (496,'search.date.between.and','en_US','and',NULL);
+INSERT INTO `translation` VALUES (497,'search.date.between.not','en_US','not between',NULL);
+INSERT INTO `translation` VALUES (498,'search.date.examples','en_US','examples:\nnow\ntoday\n-2 days\n-1 month, 2 days\nlast Friday\nnext Monday\nJan 9 2002',NULL);
+INSERT INTO `translation` VALUES (499,'search.fulltext.examples','en_US','<b>Any words:</b>\npayment receipt order sale\n\n<b>Booleans:</b>\n+payment -receipt\n+payment credit\n\n<b>Wildcards:</b>\nweb*\n\n<b>Exact phrases:</b>\n\"credit card\"\n\n<b>Boosting:</b>\ncerberus >helpdesk\nlogin <ftp\n',NULL);
+INSERT INTO `translation` VALUES (500,'search.no_saved','en_US','No saved searches.',NULL);
+INSERT INTO `translation` VALUES (501,'search.oper.equals','en_US','equals',NULL);
+INSERT INTO `translation` VALUES (502,'search.oper.equals.not','en_US','doesn\'t equal',NULL);
+INSERT INTO `translation` VALUES (503,'search.oper.equals.or_null','en_US','equals or null',NULL);
+INSERT INTO `translation` VALUES (504,'search.oper.in_list','en_US','in list',NULL);
+INSERT INTO `translation` VALUES (505,'search.oper.in_list.not','en_US','not in list',NULL);
+INSERT INTO `translation` VALUES (506,'search.oper.matches','en_US','matches',NULL);
+INSERT INTO `translation` VALUES (507,'search.oper.matches.not','en_US','doesn\'t match',NULL);
+INSERT INTO `translation` VALUES (508,'search.oper.null','en_US','is null (not set)',NULL);
+INSERT INTO `translation` VALUES (509,'search.operator','en_US','operator',NULL);
+INSERT INTO `translation` VALUES (510,'search.string.examples','en_US','Use an asterisk (*) for wildcards.\nFor example: *receipt*',NULL);
+INSERT INTO `translation` VALUES (511,'search.value','en_US','value',NULL);
+INSERT INTO `translation` VALUES (512,'search.values','en_US','values',NULL);
+INSERT INTO `translation` VALUES (513,'status.open','en_US','Open',NULL);
+INSERT INTO `translation` VALUES (514,'status.closed','en_US','Closed',NULL);
+INSERT INTO `translation` VALUES (515,'status.deleted','en_US','Deleted',NULL);
+INSERT INTO `translation` VALUES (516,'status.waiting','en_US','Waiting for Reply',NULL);
+INSERT INTO `translation` VALUES (517,'tasks.add','en_US','Add Task',NULL);
+INSERT INTO `translation` VALUES (518,'tasks.complete','en_US','Complete',NULL);
+INSERT INTO `translation` VALUES (519,'tasks.postpone','en_US','+24hrs',NULL);
+INSERT INTO `translation` VALUES (520,'tasks.ticket.tab.view','en_US','Ticket Tasks',NULL);
+INSERT INTO `translation` VALUES (521,'task.completed_date','en_US','Completed Date',NULL);
+INSERT INTO `translation` VALUES (522,'task.due_date','en_US','Due Date',NULL);
+INSERT INTO `translation` VALUES (523,'task.is_completed','en_US','Completed',NULL);
+INSERT INTO `translation` VALUES (524,'task.worker_id','en_US','Worker',NULL);
+INSERT INTO `translation` VALUES (525,'task.status.active','en_US','Active',NULL);
+INSERT INTO `translation` VALUES (526,'task.status.completed','en_US','Completed',NULL);
+INSERT INTO `translation` VALUES (527,'ticket.assignable','en_US','Assignable',NULL);
+INSERT INTO `translation` VALUES (528,'ticket.closed_at','en_US','Closed',NULL);
+INSERT INTO `translation` VALUES (529,'ticket.due','en_US','Due',NULL);
+INSERT INTO `translation` VALUES (530,'ticket.id','en_US','Ticket ID',NULL);
+INSERT INTO `translation` VALUES (531,'ticket.elapsed_response_first','en_US','First Response',NULL);
+INSERT INTO `translation` VALUES (532,'ticket.elapsed_resolution_first','en_US','First Resolution',NULL);
+INSERT INTO `translation` VALUES (533,'ticket.first_wrote','en_US','First Wrote',NULL);
+INSERT INTO `translation` VALUES (534,'ticket.groups_of_worker','en_US','In Groups of Worker',NULL);
+INSERT INTO `translation` VALUES (535,'ticket.interesting_words','en_US','Interesting Words',NULL);
+INSERT INTO `translation` VALUES (536,'ticket.last_action','en_US','Last Action',NULL);
+INSERT INTO `translation` VALUES (537,'ticket.last_action.opened','en_US','Ticket opened',NULL);
+INSERT INTO `translation` VALUES (538,'ticket.last_action.recipient_reply','en_US','Recipient replied',NULL);
+INSERT INTO `translation` VALUES (539,'ticket.last_action.worker_reply','en_US','Worker replied',NULL);
+INSERT INTO `translation` VALUES (540,'ticket.last_wrote','en_US','Last Wrote',NULL);
+INSERT INTO `translation` VALUES (541,'ticket.mask','en_US','Mask',NULL);
+INSERT INTO `translation` VALUES (542,'ticket.num_messages','en_US','# Messages',NULL);
+INSERT INTO `translation` VALUES (543,'ticket.recipients.empty','en_US','This ticket has no recipients.',NULL);
+INSERT INTO `translation` VALUES (544,'ticket.reopen_at','en_US','Reopen At',NULL);
+INSERT INTO `translation` VALUES (545,'ticket.requester','en_US','Recipient',NULL);
+INSERT INTO `translation` VALUES (546,'ticket.requesters','en_US','Recipients',NULL);
+INSERT INTO `translation` VALUES (547,'ticket.spam_score','en_US','Spam Score',NULL);
+INSERT INTO `translation` VALUES (548,'ticket.spam_training','en_US','Spam Training',NULL);
+INSERT INTO `translation` VALUES (549,'ticket.status','en_US','Status',NULL);
+INSERT INTO `translation` VALUES (550,'ticket.subject','en_US','Subject',NULL);
+INSERT INTO `translation` VALUES (551,'training.report_spam','en_US','Report Spam',NULL);
+INSERT INTO `translation` VALUES (552,'training.not_spam','en_US','Not Spam',NULL);
+INSERT INTO `translation` VALUES (553,'update.correct_errors','en_US','Please correct the following errors before upgrading:',NULL);
+INSERT INTO `translation` VALUES (554,'update.ip_unauthorized','en_US','Your IP address (%s) is not authorized to update this application. Your administrator needs to authorize your IP in the Security menu of Setup or in the framework.config.php file under AUTHORIZED_IPS_DEFAULTS.',NULL);
+INSERT INTO `translation` VALUES (555,'update.locked_another','en_US','Another administrator is currently running an update.  Please wait...',NULL);
+INSERT INTO `translation` VALUES (556,'va.actions.ticket.relay.default_content','en_US','## Relayed from {{ticket_url}}\n## Your reply to this message will be broadcast to the requesters. \n## Instructions: http://wiki.cerb5.com/wiki/Email_Relay\n##\n{{%s}}\n',NULL);
+INSERT INTO `translation` VALUES (557,'views.new_list','en_US','New List',NULL);
+INSERT INTO `translation` VALUES (558,'views.peek','en_US','(peek)',NULL);
+INSERT INTO `translation` VALUES (559,'views.showing_from_to','en_US','Showing %s-%s of %s',NULL);
+INSERT INTO `translation` VALUES (560,'views.jump_to_actions','en_US','jump to actions',NULL);
+INSERT INTO `translation` VALUES (561,'whos_online.heading','en_US','%s Worker(s) Signed On:',NULL);
+INSERT INTO `translation` VALUES (562,'worker.auth_extension_id','en_US','Authentication',NULL);
+INSERT INTO `translation` VALUES (563,'worker.first_name','en_US','First Name',NULL);
+INSERT INTO `translation` VALUES (564,'worker.full_name','en_US','Full Name',NULL);
+INSERT INTO `translation` VALUES (565,'worker.is_superuser','en_US','Administrator',NULL);
+INSERT INTO `translation` VALUES (566,'worker.last_activity','en_US','Last Activity',NULL);
+INSERT INTO `translation` VALUES (567,'worker.last_activity_date','en_US','Last Activity Date',NULL);
+INSERT INTO `translation` VALUES (568,'worker.last_name','en_US','Last Name',NULL);
+INSERT INTO `translation` VALUES (569,'worker.title','en_US','Title',NULL);
+INSERT INTO `translation` VALUES (570,'core.workspace.dashboard','en_US','Dashboard',NULL);
+INSERT INTO `translation` VALUES (571,'notification.id','en_US','ID',NULL);
+INSERT INTO `translation` VALUES (572,'notification.created_date','en_US','Created',NULL);
+INSERT INTO `translation` VALUES (573,'notification.is_read','en_US','Is Read',NULL);
+INSERT INTO `translation` VALUES (574,'notification.message','en_US','Message',NULL);
+INSERT INTO `translation` VALUES (575,'notification.worker_id','en_US','Worker',NULL);
+INSERT INTO `translation` VALUES (576,'preferences.account.availability.calendar_id','en_US','Determine my availability using calendar:',NULL);
+INSERT INTO `translation` VALUES (577,'preferences.account.settings','en_US','Account Settings',NULL);
+INSERT INTO `translation` VALUES (578,'preferences.account.password.change','en_US','Change Password: ',NULL);
+INSERT INTO `translation` VALUES (579,'preferences.account.password.new','en_US','New Password: ',NULL);
+INSERT INTO `translation` VALUES (580,'preferences.account.password.verify','en_US','Verify Password: ',NULL);
+INSERT INTO `translation` VALUES (581,'preferences.account.current','en_US','current:',NULL);
+INSERT INTO `translation` VALUES (582,'preferences.account.timezone','en_US','Timezone:',NULL);
+INSERT INTO `translation` VALUES (583,'preferences.account.language','en_US','Language:',NULL);
+INSERT INTO `translation` VALUES (584,'preferences.account.email','en_US','Email Addresses',NULL);
+INSERT INTO `translation` VALUES (585,'preferences.account.email.associated','en_US','These addresses will be associated with your account.',NULL);
+INSERT INTO `translation` VALUES (586,'preferences.account.email.address','en_US','Address',NULL);
+INSERT INTO `translation` VALUES (587,'preferences.account.email.address.confirmed','en_US','Confirmed',NULL);
+INSERT INTO `translation` VALUES (588,'preferences.account.email.address.resend.confirm','en_US','resend confirmation',NULL);
+INSERT INTO `translation` VALUES (589,'preferences.account.email.address.add','en_US','Add email address:',NULL);
+INSERT INTO `translation` VALUES (590,'preferences.account.preferences','en_US','Preferences',NULL);
+INSERT INTO `translation` VALUES (591,'preferences.account.assist','en_US','Assist Mode:',NULL);
+INSERT INTO `translation` VALUES (592,'preferences.account.keyboard.shortcuts','en_US','Keyboard Shortcuts:',NULL);
+INSERT INTO `translation` VALUES (593,'preferences.account.mail','en_US','Mail:',NULL);
+INSERT INTO `translation` VALUES (594,'preferences.account.mail.comments','en_US','Show comments in the conversation',NULL);
+INSERT INTO `translation` VALUES (595,'preferences.account.mail.readall','en_US','Always use \'read all\' mode (expand messages and sort chronologically)',NULL);
+INSERT INTO `translation` VALUES (596,'preferences.account.mail.reply_textbox_size','en_US','While replying:',NULL);
+INSERT INTO `translation` VALUES (597,'preferences.account.mail.reply_textbox_size.inelastic','en_US','Don\'t automatically grow the text box as I type',NULL);
+INSERT INTO `translation` VALUES (598,'preferences.account.mail.reply_textbox_size.pixels','en_US','Set the initial text box height to ',NULL);
+INSERT INTO `translation` VALUES (599,'preferences.account.mail.reply_button','en_US','When I click the reply button:',NULL);
+INSERT INTO `translation` VALUES (600,'preferences.account.mail.signature','en_US','Insert my signature:',NULL);
+INSERT INTO `translation` VALUES (601,'preferences.account.mail.signature.above','en_US','Above the quoted message',NULL);
+INSERT INTO `translation` VALUES (602,'preferences.account.mail.signature.below','en_US','Below the quoted message',NULL);
+INSERT INTO `translation` VALUES (603,'preferences.account.mail.signature.none','en_US','Don\'t automatically insert my signature',NULL);
+INSERT INTO `translation` VALUES (604,'preferences.account.mail.status.compose','en_US','When composing a new outgoing message, default the status to:',NULL);
+INSERT INTO `translation` VALUES (605,'preferences.account.mail.status.reply','en_US','When replying to mail, default the status to:',NULL);
+INSERT INTO `translation` VALUES (606,'preferences.account.mail.no_discard_warning','en_US','Don\'t warn me about losing unsaved changes if I click links while composing mail',NULL);
+INSERT INTO `translation` VALUES (607,'feedback.activity.tab','en_US','Feedback',NULL);
+INSERT INTO `translation` VALUES (608,'acl.feedback.actions.create','en_US','[Feedback] Can create feedback entries',NULL);
+INSERT INTO `translation` VALUES (609,'acl.feedback.actions.delete_all','en_US','[Feedback] Can delete everyone\'s feedback entries',NULL);
+INSERT INTO `translation` VALUES (610,'acl.feedback.actions.update_all','en_US','[Feedback] Can edit everyone\'s feedback entries',NULL);
+INSERT INTO `translation` VALUES (611,'acl.feedback.view.actions.export','en_US','[Feedback] Can export feedback lists to CSV/XML',NULL);
+INSERT INTO `translation` VALUES (612,'feedback.cfg.blank','en_US','(blank)',NULL);
+INSERT INTO `translation` VALUES (613,'feedback.button.capture','en_US','Capture Feedback',NULL);
+INSERT INTO `translation` VALUES (614,'feedback.mood.criticism','en_US','Criticism',NULL);
+INSERT INTO `translation` VALUES (615,'feedback.mood.neutral','en_US','Neutral',NULL);
+INSERT INTO `translation` VALUES (616,'feedback.mood.praise','en_US','Praise',NULL);
+INSERT INTO `translation` VALUES (617,'feedback.peek.quote.tooltip','en_US','optional; blank for anonymous',NULL);
+INSERT INTO `translation` VALUES (618,'feedback_entry.id','en_US','ID',NULL);
+INSERT INTO `translation` VALUES (619,'feedback_entry.log_date','en_US','Log Date',NULL);
+INSERT INTO `translation` VALUES (620,'feedback_entry.quote_address','en_US','Author E-mail',NULL);
+INSERT INTO `translation` VALUES (621,'feedback_entry.quote_mood','en_US','Mood',NULL);
+INSERT INTO `translation` VALUES (622,'feedback_entry.quote_text','en_US','Quote',NULL);
+INSERT INTO `translation` VALUES (623,'feedback_entry.source_url','en_US','Link',NULL);
+INSERT INTO `translation` VALUES (624,'feedback_entry.worker_id','en_US','Created By',NULL);
+INSERT INTO `translation` VALUES (625,'acl.core.kb.articles.modify','en_US','[Knowledgebase] Can manage articles',NULL);
+INSERT INTO `translation` VALUES (626,'acl.core.kb.categories.modify','en_US','[Knowledgebase] Can manage categories',NULL);
+INSERT INTO `translation` VALUES (627,'acl.kb.articles.actions.update_all','en_US','[Knowledgebase] Can bulk update articles',NULL);
+INSERT INTO `translation` VALUES (628,'kb.common.knowledgebase_article','en_US','Knowledgebase Article',NULL);
+INSERT INTO `translation` VALUES (629,'activity.kb','en_US','%s is browsing the knowledgebase',NULL);
+INSERT INTO `translation` VALUES (630,'display.reply.kb.all_topics','en_US','all topics',NULL);
+INSERT INTO `translation` VALUES (631,'display.reply.kb.search','en_US','Search Knowledgebase:',NULL);
+INSERT INTO `translation` VALUES (632,'kb.workspace.tab.browser','en_US','Knowledgebase Browser',NULL);
+INSERT INTO `translation` VALUES (633,'portal.kb.public.no_content','en_US','No content.',NULL);
+INSERT INTO `translation` VALUES (634,'portal.kb.public.top','en_US','Top',NULL);
+INSERT INTO `translation` VALUES (635,'portal.sc.cfg.choose_kb_topics','en_US','Choose which knowledgebase topics to expose to this portal:',NULL);
+INSERT INTO `translation` VALUES (636,'kb.view.articles','en_US','Articles: %s',NULL);
+INSERT INTO `translation` VALUES (637,'kb.view.uncategorized','en_US','Uncategorized Articles',NULL);
+INSERT INTO `translation` VALUES (638,'kb_article.content','en_US','Content',NULL);
+INSERT INTO `translation` VALUES (639,'kb_article.format','en_US','Format',NULL);
+INSERT INTO `translation` VALUES (640,'kb_article.id','en_US','ID',NULL);
+INSERT INTO `translation` VALUES (641,'kb_article.title','en_US','Title',NULL);
+INSERT INTO `translation` VALUES (642,'kb_article.topic','en_US','Topic',NULL);
+INSERT INTO `translation` VALUES (643,'kb_article.updated','en_US','Updated',NULL);
+INSERT INTO `translation` VALUES (644,'kb_article.views','en_US','Views',NULL);
+INSERT INTO `translation` VALUES (645,'crm.tab.title','en_US','Opportunities',NULL);
+INSERT INTO `translation` VALUES (646,'crm.common.opportunity','en_US','Opportunity',NULL);
+INSERT INTO `translation` VALUES (647,'acl.crm.opp.actions.create','en_US','[Opportunities] Can create opportunities',NULL);
+INSERT INTO `translation` VALUES (648,'acl.crm.opp.actions.import','en_US','[Opportunities] Can import opportunities from CSV files',NULL);
+INSERT INTO `translation` VALUES (649,'acl.crm.opp.actions.update_all','en_US','[Opportunities] Can edit opportunities',NULL);
+INSERT INTO `translation` VALUES (650,'acl.crm.opp.actions.delete','en_US','[Opportunities] Can delete opportunities',NULL);
+INSERT INTO `translation` VALUES (651,'acl.crm.opp.view.actions.broadcast','en_US','[Opportunities] Can broadcast e-mail to opportunity lists',NULL);
+INSERT INTO `translation` VALUES (652,'acl.crm.opp.view.actions.export','en_US','[Opportunities] Can export opportunity lists to CSV/XML',NULL);
+INSERT INTO `translation` VALUES (653,'activities.opp.status','en_US','{{actor}} changed opportunity {{target}} to status {{status}}',NULL);
+INSERT INTO `translation` VALUES (654,'crm.opp.add','en_US','Add Opportunity',NULL);
+INSERT INTO `translation` VALUES (655,'crm.opp.import.upload_csv','en_US','Upload .CSV File',NULL);
+INSERT INTO `translation` VALUES (656,'crm.opp.import.upload_csv.tip','en_US','(any column order; the next step will let you choose where the data goes)',NULL);
+INSERT INTO `translation` VALUES (657,'crm.opp.status.closed.lost','en_US','Closed/Lost',NULL);
+INSERT INTO `translation` VALUES (658,'crm.opp.status.closed.won','en_US','Closed/Won',NULL);
+INSERT INTO `translation` VALUES (659,'crm.opp.status.open','en_US','Open',NULL);
+INSERT INTO `translation` VALUES (660,'crm.opp.tab.properties','en_US','Properties',NULL);
+INSERT INTO `translation` VALUES (661,'crm.opp.tab.tasks','en_US','Tasks',NULL);
+INSERT INTO `translation` VALUES (662,'crm.opportunity.amount','en_US','Amount',NULL);
+INSERT INTO `translation` VALUES (663,'crm.opportunity.closed_date','en_US','Closed Date',NULL);
+INSERT INTO `translation` VALUES (664,'crm.opportunity.contact_phone','en_US','Phone',NULL);
+INSERT INTO `translation` VALUES (665,'crm.opportunity.created_date','en_US','Created Date',NULL);
+INSERT INTO `translation` VALUES (666,'crm.opportunity.email_address','en_US','Email',NULL);
+INSERT INTO `translation` VALUES (667,'crm.opportunity.is_closed','en_US','Closed',NULL);
+INSERT INTO `translation` VALUES (668,'crm.opportunity.is_won','en_US','Won',NULL);
+INSERT INTO `translation` VALUES (669,'crm.opportunity.id','en_US','ID',NULL);
+INSERT INTO `translation` VALUES (670,'crm.opportunity.name','en_US','Title',NULL);
+INSERT INTO `translation` VALUES (671,'crm.opportunity.org_id','en_US','Org ID',NULL);
+INSERT INTO `translation` VALUES (672,'crm.opportunity.org_name','en_US','Organization',NULL);
+INSERT INTO `translation` VALUES (673,'crm.opportunity.primary_email_id','en_US','Email ID',NULL);
+INSERT INTO `translation` VALUES (674,'crm.opportunity.updated_date','en_US','Updated Date',NULL);
+INSERT INTO `translation` VALUES (675,'crm.opportunity.worker_id','en_US','Worker',NULL);
+INSERT INTO `translation` VALUES (676,'reports.menu.reports','en_US','reports',NULL);
+INSERT INTO `translation` VALUES (677,'acl.reports.group.custom_fields','en_US','[Report Group] Can view the \'Custom Field\' reports',NULL);
+INSERT INTO `translation` VALUES (678,'acl.reports.group.groups','en_US','[Report Group] Can view the \'Group\' reports',NULL);
+INSERT INTO `translation` VALUES (679,'acl.reports.group.orgs','en_US','[Report Group] Can view the \'Organization\' reports',NULL);
+INSERT INTO `translation` VALUES (680,'acl.reports.group.snippets','en_US','[Report Group] Can view the \'Snippets\' reports',NULL);
+INSERT INTO `translation` VALUES (681,'acl.reports.group.spam','en_US','[Report Group] Can view the \'Spam\' reports',NULL);
+INSERT INTO `translation` VALUES (682,'acl.reports.group.tickets','en_US','[Report Group] Can view the \'Ticket\' reports',NULL);
+INSERT INTO `translation` VALUES (683,'acl.reports.group.virtual_attendants','en_US','[Report Group] Can view the \'Virtual Attendant\' reports',NULL);
+INSERT INTO `translation` VALUES (684,'acl.reports.group.workers','en_US','[Report Group] Can view the \'Worker\' reports',NULL);
+INSERT INTO `translation` VALUES (685,'reports.common.run_report','en_US','Run report',NULL);
+INSERT INTO `translation` VALUES (686,'reports.ui.average_per_day','en_US','(avg: %s/day)',NULL);
+INSERT INTO `translation` VALUES (687,'reports.ui.created_from','en_US','Created From:',NULL);
+INSERT INTO `translation` VALUES (688,'reports.ui.date_from','en_US','From:',NULL);
+INSERT INTO `translation` VALUES (689,'reports.ui.date_past','en_US','Past:',NULL);
+INSERT INTO `translation` VALUES (690,'reports.ui.date_to','en_US','To:',NULL);
+INSERT INTO `translation` VALUES (691,'reports.ui.filters.1_day','en_US','1 day',NULL);
+INSERT INTO `translation` VALUES (692,'reports.ui.filters.1_month','en_US','1 month',NULL);
+INSERT INTO `translation` VALUES (693,'reports.ui.filters.1_week','en_US','1 week',NULL);
+INSERT INTO `translation` VALUES (694,'reports.ui.filters.1_year','en_US','1 year',NULL);
+INSERT INTO `translation` VALUES (695,'reports.ui.filters.all_time','en_US','all-time',NULL);
+INSERT INTO `translation` VALUES (696,'reports.ui.filters.group','en_US','Filter groups:',NULL);
+INSERT INTO `translation` VALUES (697,'reports.ui.filters.n_months','en_US','%s months',NULL);
+INSERT INTO `translation` VALUES (698,'reports.ui.filters.org','en_US','Filter organizations:',NULL);
+INSERT INTO `translation` VALUES (699,'reports.ui.filters.worker','en_US','Filter workers:',NULL);
+INSERT INTO `translation` VALUES (700,'reports.ui.invalid_date','en_US','Invalid Date specified.  Please try again.',NULL);
+INSERT INTO `translation` VALUES (701,'reports.activity','en_US','%s is running reports',NULL);
+INSERT INTO `translation` VALUES (702,'reports.ui.group.custom_fields','en_US','Custom Field Reports',NULL);
+INSERT INTO `translation` VALUES (703,'reports.ui.custom_fields.usage','en_US','Custom Field Usage',NULL);
+INSERT INTO `translation` VALUES (704,'reports.ui.group.group','en_US','Group Reports',NULL);
+INSERT INTO `translation` VALUES (705,'reports.ui.group.replies','en_US','Group Replies over Date Range',NULL);
+INSERT INTO `translation` VALUES (706,'reports.ui.group.roster','en_US','Group Rosters',NULL);
+INSERT INTO `translation` VALUES (707,'reports.ui.group.org','en_US','Org Reports',NULL);
+INSERT INTO `translation` VALUES (708,'reports.ui.org.shared_sender_domains','en_US','Top 100 Shared Sender Domains',NULL);
+INSERT INTO `translation` VALUES (709,'reports.ui.org.shared_sender_domains.domain','en_US','Domain',NULL);
+INSERT INTO `translation` VALUES (710,'reports.ui.org.shared_sender_domains.num_orgs','en_US','# Orgs',NULL);
+INSERT INTO `translation` VALUES (711,'reports.ui.group.snippet','en_US','Snippet Reports',NULL);
+INSERT INTO `translation` VALUES (712,'reports.ui.snippets.popularity','en_US','Most/Least Popular Snippets over Date Range',NULL);
+INSERT INTO `translation` VALUES (713,'reports.ui.group.spam','en_US','Spam Reports',NULL);
+INSERT INTO `translation` VALUES (714,'reports.ui.spam.num_nonspam','en_US','#nonspam',NULL);
+INSERT INTO `translation` VALUES (715,'reports.ui.spam.num_spam','en_US','#spam',NULL);
+INSERT INTO `translation` VALUES (716,'reports.ui.spam.senders','en_US','Top 100 Spam/Nonspam Senders',NULL);
+INSERT INTO `translation` VALUES (717,'reports.ui.spam.senders.top_nonspam','en_US','Top 100 Nonspam Senders',NULL);
+INSERT INTO `translation` VALUES (718,'reports.ui.spam.senders.top_spam','en_US','Top 100 Spam Senders',NULL);
+INSERT INTO `translation` VALUES (719,'reports.ui.spam.domains','en_US','Top 100 Spam/Nonspam Domains',NULL);
+INSERT INTO `translation` VALUES (720,'reports.ui.spam.domains.domain','en_US','Domain',NULL);
+INSERT INTO `translation` VALUES (721,'reports.ui.spam.domains.top_nonspam','en_US','Top 100 Nonspam Domains',NULL);
+INSERT INTO `translation` VALUES (722,'reports.ui.spam.domains.top_spam','en_US','Top 100 Spam Domains',NULL);
+INSERT INTO `translation` VALUES (723,'reports.ui.spam.words','en_US','Top 100 Spam/Nonspam Words (Explicit Content)',NULL);
+INSERT INTO `translation` VALUES (724,'reports.ui.spam.words.num_nonspam_trained','en_US','# Nonspam Trained:',NULL);
+INSERT INTO `translation` VALUES (725,'reports.ui.spam.words.num_spam_trained','en_US','# Spam Trained:',NULL);
+INSERT INTO `translation` VALUES (726,'reports.ui.spam.words.spam_training','en_US','Spam Training',NULL);
+INSERT INTO `translation` VALUES (727,'reports.ui.spam.words.top_nonspam','en_US','Top 100 Nonspam Words',NULL);
+INSERT INTO `translation` VALUES (728,'reports.ui.spam.words.top_spam','en_US','Top 100 Spam Words',NULL);
+INSERT INTO `translation` VALUES (729,'reports.ui.spam.words.word','en_US','Word',NULL);
+INSERT INTO `translation` VALUES (730,'reports.ui.group.ticket','en_US','Ticket Reports',NULL);
+INSERT INTO `translation` VALUES (731,'reports.ui.ticket.closed','en_US','Closed Tickets by Group over Date Range',NULL);
+INSERT INTO `translation` VALUES (732,'reports.ui.ticket.new_tickets','en_US','Created Tickets by Group over Date Range',NULL);
+INSERT INTO `translation` VALUES (733,'reports.ui.ticket.top_contacts','en_US','Tickets Created by Top Contacts over Date Range',NULL);
+INSERT INTO `translation` VALUES (734,'reports.ui.ticket.top_contacts.by_org','en_US','by Organization',NULL);
+INSERT INTO `translation` VALUES (735,'reports.ui.ticket.top_contacts.by_address','en_US','by Address',NULL);
+INSERT INTO `translation` VALUES (736,'reports.ui.group.virtual_attendant','en_US','Virtual Attendant Reports',NULL);
+INSERT INTO `translation` VALUES (737,'reports.ui.virtual_attendant.usage','en_US','Virtual Attendant Usage over Date Range',NULL);
+INSERT INTO `translation` VALUES (738,'reports.ui.group.worker','en_US','Worker Reports',NULL);
+INSERT INTO `translation` VALUES (739,'reports.ui.worker.response_time','en_US','Average Response Time over Date Range',NULL);
+INSERT INTO `translation` VALUES (740,'reports.ui.worker.response_time.date_range','en_US','Date Range:',NULL);
+INSERT INTO `translation` VALUES (741,'reports.ui.worker.response_time.group_responses','en_US','Group Responses',NULL);
+INSERT INTO `translation` VALUES (742,'reports.ui.worker.response_time.worker_responses','en_US','Worker Responses',NULL);
+INSERT INTO `translation` VALUES (743,'reports.ui.worker.worker_history','en_US','Worker History over Date Range',NULL);
+INSERT INTO `translation` VALUES (744,'simulator.common','en_US','Simulator',NULL);
+INSERT INTO `translation` VALUES (745,'simulator.ui.cfg.sample_tickets','en_US','Create Sample Tickets',NULL);
+INSERT INTO `translation` VALUES (746,'simulator.ui.cfg.to_address','en_US','To Address:',NULL);
+INSERT INTO `translation` VALUES (747,'simulator.ui.cfg.flavor','en_US','Sample Data Flavor:',NULL);
+INSERT INTO `translation` VALUES (748,'simulator.ui.cfg.how_many','en_US','How Many?',NULL);
+INSERT INTO `translation` VALUES (749,'simulator.ui.cfg.generate','en_US','Generate',NULL);
+INSERT INTO `translation` VALUES (750,'simulator.ui.cfg.generate_wait','en_US','Please wait. Generating tickets...',NULL);
+INSERT INTO `translation` VALUES (751,'portal.cfg.add_new_situation','en_US','add new situation',NULL);
+INSERT INTO `translation` VALUES (752,'portal.cfg.ask','en_US','Ask:',NULL);
+INSERT INTO `translation` VALUES (753,'portal.cfg.captcha','en_US','CAPTCHA:',NULL);
+INSERT INTO `translation` VALUES (754,'portal.cfg.captcha_hint','en_US','(displays a CAPTCHA image in the form to help block automated spam)',NULL);
+INSERT INTO `translation` VALUES (755,'portal.cfg.default_if_blank','en_US','(default if blank)',NULL);
+INSERT INTO `translation` VALUES (756,'portal.cfg.delete_situation','en_US','Delete this situation',NULL);
+INSERT INTO `translation` VALUES (757,'portal.cfg.deliver_to','en_US','Deliver to:',NULL);
+INSERT INTO `translation` VALUES (758,'portal.cfg.deliver_to_hint','en_US','(helpdesk e-mail address, blank for %s)',NULL);
+INSERT INTO `translation` VALUES (759,'portal.cfg.disabled','en_US','Disabled',NULL);
+INSERT INTO `translation` VALUES (760,'portal.cfg.enabled','en_US','Enabled',NULL);
+INSERT INTO `translation` VALUES (761,'portal.cfg.followup_questions','en_US','Follow-up Questions:',NULL);
+INSERT INTO `translation` VALUES (762,'portal.cfg.language','en_US','Language:',NULL);
+INSERT INTO `translation` VALUES (763,'portal.cfg.page_title','en_US','Page Title:',NULL);
+INSERT INTO `translation` VALUES (764,'portal.cfg.send_to','en_US','Send to:',NULL);
+INSERT INTO `translation` VALUES (765,'portal.cfg.url','en_US','URL:',NULL);
+INSERT INTO `translation` VALUES (766,'portal.cfg.url_hint','en_US','(where you plan to install this portal, e.g. http://website/portal/)',NULL);
+INSERT INTO `translation` VALUES (767,'portal.common.open_ticket','en_US','Contact Us',NULL);
+INSERT INTO `translation` VALUES (768,'portal.public.open_ticket.additional_info','en_US','Additional Information',NULL);
+INSERT INTO `translation` VALUES (769,'portal.public.open_ticket.message','en_US','Message',NULL);
+INSERT INTO `translation` VALUES (770,'portal.public.captcha_instructions','en_US','Please type the characters from the image below:',NULL);
+INSERT INTO `translation` VALUES (771,'portal.public.logged_ip','en_US','Logged IP:',NULL);
+INSERT INTO `translation` VALUES (772,'portal.public.no_results','en_US','No results found.',NULL);
+INSERT INTO `translation` VALUES (773,'portal.public.powered_by','en_US','Powered by %s',NULL);
+INSERT INTO `translation` VALUES (774,'portal.public.send_message','en_US','Send Message',NULL);
+INSERT INTO `translation` VALUES (775,'portal.public.what_email_reply','en_US','What e-mail address should we reply to?',NULL);
+INSERT INTO `translation` VALUES (776,'portal.public.your_reference_number','en_US','Your reference number is: #%s',NULL);
+INSERT INTO `translation` VALUES (777,'portal.sc.cfg.add_contact_situation','en_US','Add a Contact Situation',NULL);
+INSERT INTO `translation` VALUES (778,'portal.sc.cfg.append_to_message','en_US','append to message',NULL);
+INSERT INTO `translation` VALUES (779,'portal.sc.cfg.example','en_US','Example:',NULL);
+INSERT INTO `translation` VALUES (780,'portal.sc.cfg.feed_display_title','en_US','Feed Display Title:',NULL);
+INSERT INTO `translation` VALUES (781,'portal.sc.cfg.feed_url','en_US','Feed URL:',NULL);
+INSERT INTO `translation` VALUES (782,'portal.sc.cfg.feeds_info','en_US','You can display content from RSS feeds on your Support Center home page, such as: the latest blog entries, popular knowledgebase articles, recent forum posts/announcements, etc.  This is the place to pull together all your interesting and helpful content, related to this portal, so the community can find it.',NULL);
+INSERT INTO `translation` VALUES (783,'portal.sc.cfg.fnr.choose_resources','en_US','Choose which resources to expose to this portal:',NULL);
+INSERT INTO `translation` VALUES (784,'portal.sc.cfg.fnr.info','en_US','This Support Center will allow your community to search your external knowledge resources through Cerb\'s Fetch & Retrieve system, returning direct links to content like knowledgebase articles, wiki articles, forum posts, documentation pages, blog entries, wishlist/bug reports, etc.',NULL);
+INSERT INTO `translation` VALUES (785,'portal.sc.cfg.fnr.not_configured','en_US','Fetch & Retrieve has not been configured.',NULL);
+INSERT INTO `translation` VALUES (786,'portal.sc.cfg.followup_questions_hint','en_US','(start with * to require; e.g. \"*Which product are you considering?\")',NULL);
+INSERT INTO `translation` VALUES (787,'portal.sc.cfg.login_registration','en_US','Login/Registration',NULL);
+INSERT INTO `translation` VALUES (788,'portal.sc.cfg.open_ticket.allow_custom_subjects','en_US','Allow users to provide their own ticket subjects.',NULL);
+INSERT INTO `translation` VALUES (789,'portal.sc.cfg.open_ticket.attachments','en_US','Allow attachments from:',NULL);
+INSERT INTO `translation` VALUES (790,'portal.sc.cfg.open_ticket.attachments.anybody','en_US','Anybody',NULL);
+INSERT INTO `translation` VALUES (791,'portal.sc.cfg.open_ticket.attachments.logged_in','en_US','Logged in visitors',NULL);
+INSERT INTO `translation` VALUES (792,'portal.sc.cfg.open_ticket.attachments.nobody','en_US','Nobody',NULL);
+INSERT INTO `translation` VALUES (793,'portal.sc.cfg.reason_contacting','en_US','Reason for contacting:',NULL);
+INSERT INTO `translation` VALUES (794,'portal.sc.cfg.reason_contacting_hint','en_US','(e.g. \"I\'d like more info on your products\")',NULL);
+INSERT INTO `translation` VALUES (795,'portal.sc.cfg.situation.deleted','en_US','deleted',NULL);
+INSERT INTO `translation` VALUES (796,'portal.sc.cfg.situation.hidden','en_US','hidden',NULL);
+INSERT INTO `translation` VALUES (797,'portal.sc.cfg.situation.visible','en_US','visible',NULL);
+INSERT INTO `translation` VALUES (798,'portal.sc.public.common.source','en_US','Source:',NULL);
+INSERT INTO `translation` VALUES (799,'portal.sc.public.contact.contact_us','en_US','Contact us',NULL);
+INSERT INTO `translation` VALUES (800,'portal.sc.public.contact.how_can_we_help','en_US','How can we help?',NULL);
+INSERT INTO `translation` VALUES (801,'portal.sc.public.contact.message_received','en_US','Your message has been received! We will respond to you as soon as possible.',NULL);
+INSERT INTO `translation` VALUES (802,'portal.sc.public.contact.text','en_US','Text:',NULL);
+INSERT INTO `translation` VALUES (803,'portal.sc.public.contact.thanks_for_contacting','en_US','Thanks for contacting us',NULL);
+INSERT INTO `translation` VALUES (804,'portal.sc.public.contact.write_to_us','en_US','You can write to us at: %s',NULL);
+INSERT INTO `translation` VALUES (805,'portal.sc.public.history.action','en_US','Action:',NULL);
+INSERT INTO `translation` VALUES (806,'portal.sc.public.history.add_message','en_US','Add a Message',NULL);
+INSERT INTO `translation` VALUES (807,'portal.sc.public.announcements','en_US','Announcements',NULL);
+INSERT INTO `translation` VALUES (808,'portal.sc.public.history.my_conversations','en_US','My Conversations',NULL);
+INSERT INTO `translation` VALUES (809,'portal.sc.public.history.no_messages_from_email','en_US','We don\'t have a record of any messages sent from %s.',NULL);
+INSERT INTO `translation` VALUES (810,'portal.sc.public.history.reference','en_US','Reference:',NULL);
+INSERT INTO `translation` VALUES (811,'portal.sc.public.history.reply','en_US','Reply',NULL);
+INSERT INTO `translation` VALUES (812,'portal.sc.public.history.ticket_history','en_US','Ticket History',NULL);
+INSERT INTO `translation` VALUES (813,'portal.sc.public.home','en_US','Home',NULL);
+INSERT INTO `translation` VALUES (814,'portal.sc.public.login.register','en_US','Don\'t have an account? Create one for free.',NULL);
+INSERT INTO `translation` VALUES (815,'portal.sc.public.login.forgot','en_US','Forgot your password? Click here to recover it.',NULL);
+INSERT INTO `translation` VALUES (816,'portal.sc.public.my_account','en_US','My Account',NULL);
+INSERT INTO `translation` VALUES (817,'portal.sc.public.my_account.change_password','en_US','Change Password:',NULL);
+INSERT INTO `translation` VALUES (818,'portal.sc.public.my_account.change_password_verify','en_US','Verify Password:',NULL);
+INSERT INTO `translation` VALUES (819,'portal.sc.public.my_account.profile_picture','en_US','Profile Picture',NULL);
+INSERT INTO `translation` VALUES (820,'portal.sc.public.my_account.settings_saved','en_US','Account settings saved!',NULL);
+INSERT INTO `translation` VALUES (821,'portal.sc.public.register','en_US','Register',NULL);
+INSERT INTO `translation` VALUES (822,'portal.sc.public.register.already_have_confirmation','en_US','Already have a confirmation code?',NULL);
+INSERT INTO `translation` VALUES (823,'portal.sc.public.register.confirm_registration','en_US','Confirm Registration',NULL);
+INSERT INTO `translation` VALUES (824,'portal.sc.public.register.contacted_before','en_US','(if you\'ve contacted us in the past, please enter the same e-mail address)',NULL);
+INSERT INTO `translation` VALUES (825,'portal.sc.public.register.create_account','en_US','Create Account',NULL);
+INSERT INTO `translation` VALUES (826,'portal.sc.public.register.email_address','en_US','E-mail address:',NULL);
+INSERT INTO `translation` VALUES (827,'portal.sc.public.register.enter_confirmation','en_US','Enter your confirmation code:',NULL);
+INSERT INTO `translation` VALUES (828,'portal.sc.public.register.enter_confirmation.hint','en_US','(this was sent to your e-mail address)',NULL);
+INSERT INTO `translation` VALUES (829,'portal.sc.public.register.password_choose','en_US','Choose a password:',NULL);
+INSERT INTO `translation` VALUES (830,'portal.sc.public.register.password_forgot','en_US','Forgot Password',NULL);
+INSERT INTO `translation` VALUES (831,'portal.sc.public.register.password_reset','en_US','Reset Password',NULL);
+INSERT INTO `translation` VALUES (832,'portal.sc.public.register.password_verify','en_US','Verify your password:',NULL);
+INSERT INTO `translation` VALUES (833,'portal.sc.public.register.send_confirmation','en_US','Send Confirmation E-mail',NULL);
+INSERT INTO `translation` VALUES (834,'portal.sc.public.themes.log_in','en_US','Log in',NULL);
+INSERT INTO `translation` VALUES (835,'portal.sc.public.themes.sign_in','en_US','sign in',NULL);
+INSERT INTO `translation` VALUES (836,'portal.sc.public.themes.sign_out','en_US','sign out',NULL);
+INSERT INTO `translation` VALUES (837,'timetracking.activity.tab','en_US','Time Tracking',NULL);
+INSERT INTO `translation` VALUES (838,'timetracking.ui.button.track','en_US','Track Time',NULL);
+INSERT INTO `translation` VALUES (839,'activities.timetracking.status','en_US','{{actor}} changed timetracking entry {{target}} to status {{status}}',NULL);
+INSERT INTO `translation` VALUES (840,'acl.timetracking.actions.create','en_US','[Time Tracking] Can track time',NULL);
+INSERT INTO `translation` VALUES (841,'acl.timetracking.actions.update_all','en_US','[Time Tracking] Can manage everyone\'s time slips',NULL);
+INSERT INTO `translation` VALUES (842,'acl.timetracking.report.group.time','en_US','[Report Group] Can view the \'Time Tracking Reports\' group',NULL);
+INSERT INTO `translation` VALUES (843,'acl.timetracking.view.actions.export','en_US','[Time Tracking] Can export time tracking lists to CSV/XML',NULL);
+INSERT INTO `translation` VALUES (844,'timetracking.ui.generic_worker','en_US','A worker',NULL);
+INSERT INTO `translation` VALUES (845,'timetracking.ui.timetracking','en_US','Time Tracking',NULL);
+INSERT INTO `translation` VALUES (846,'timetracking.ui.tracked_desc','en_US','%s tracked %s on %s',NULL);
+INSERT INTO `translation` VALUES (847,'timetracking.ui.worker','en_US','Worker:',NULL);
+INSERT INTO `translation` VALUES (848,'timetracking.ui.source.ticket.link_text','en_US','Ticket #%s',NULL);
+INSERT INTO `translation` VALUES (849,'timetracking.ui.entry_panel.activity','en_US','Activity',NULL);
+INSERT INTO `translation` VALUES (850,'timetracking.ui.entry_panel.debit_time_client','en_US','Debit time from client:',NULL);
+INSERT INTO `translation` VALUES (851,'timetracking.ui.entry_panel.debit_time_client_hint','en_US','(if org is known; autocompletes)',NULL);
+INSERT INTO `translation` VALUES (852,'timetracking.ui.entry_panel.mins','en_US','min(s)',NULL);
+INSERT INTO `translation` VALUES (853,'timetracking.ui.entry_panel.note','en_US','Note:',NULL);
+INSERT INTO `translation` VALUES (854,'timetracking.ui.entry_panel.note_hint','en_US','(description of work performed)',NULL);
+INSERT INTO `translation` VALUES (855,'timetracking.ui.entry_panel.reference','en_US','Reference:',NULL);
+INSERT INTO `translation` VALUES (856,'timetracking.ui.entry_panel.resume','en_US','Resume',NULL);
+INSERT INTO `translation` VALUES (857,'timetracking.ui.entry_panel.save_finish','en_US','Save & Finish',NULL);
+INSERT INTO `translation` VALUES (858,'timetracking.ui.entry_panel.time_spent','en_US','Time Spent',NULL);
+INSERT INTO `translation` VALUES (859,'timetracking_entry.activity_id','en_US','Activity',NULL);
+INSERT INTO `translation` VALUES (860,'timetracking_entry.id','en_US','ID',NULL);
+INSERT INTO `translation` VALUES (861,'timetracking_entry.is_closed','en_US','Is Closed',NULL);
+INSERT INTO `translation` VALUES (862,'timetracking_entry.log_date','en_US','Log Date',NULL);
+INSERT INTO `translation` VALUES (863,'timetracking_entry.time_actual_mins','en_US','Mins',NULL);
+INSERT INTO `translation` VALUES (864,'timetracking_entry.worker_id','en_US','Worker',NULL);
+INSERT INTO `translation` VALUES (865,'timetracking.ui.cfg.activities','en_US','Activities',NULL);
+INSERT INTO `translation` VALUES (866,'timetracking.ui.cfg.add_activity','en_US','Add Activity',NULL);
+INSERT INTO `translation` VALUES (867,'timetracking.ui.cfg.add_new_activity','en_US','add new activity',NULL);
+INSERT INTO `translation` VALUES (868,'timetracking.ui.cfg.currency','en_US','US$',NULL);
+INSERT INTO `translation` VALUES (869,'timetracking.ui.cfg.modify','en_US','Modify \'%s\'',NULL);
+INSERT INTO `translation` VALUES (870,'timetracking.ui.cfg.name','en_US','Name:',NULL);
+INSERT INTO `translation` VALUES (871,'timetracking.ui.cfg.name.hint','en_US','(e.g. \"Troubleshooting\")',NULL);
+INSERT INTO `translation` VALUES (872,'timetracking.ui.cfg.per_hour','en_US','per hour',NULL);
+INSERT INTO `translation` VALUES (873,'timetracking.ui.cfg.rate','en_US','Rate:',NULL);
+INSERT INTO `translation` VALUES (874,'timetracking.ui.reports','en_US','Time Tracking Reports',NULL);
+INSERT INTO `translation` VALUES (875,'timetracking.ui.reports.filters.1_day','en_US','1 day',NULL);
+INSERT INTO `translation` VALUES (876,'timetracking.ui.reports.filters.1_month','en_US','1 month',NULL);
+INSERT INTO `translation` VALUES (877,'timetracking.ui.reports.filters.1_week','en_US','1 week',NULL);
+INSERT INTO `translation` VALUES (878,'timetracking.ui.reports.filters.1_year','en_US','1 year',NULL);
+INSERT INTO `translation` VALUES (879,'timetracking.ui.reports.filters.n_months','en_US','%s months',NULL);
+INSERT INTO `translation` VALUES (880,'timetracking.ui.reports.from','en_US','From:',NULL);
+INSERT INTO `translation` VALUES (881,'timetracking.ui.reports.invalid_date','en_US','Invalid date specified.  Please try again.',NULL);
+INSERT INTO `translation` VALUES (882,'timetracking.ui.reports.past','en_US','Past:',NULL);
+INSERT INTO `translation` VALUES (883,'timetracking.ui.reports.time_spent_activity','en_US','Time Spent by Activity over Date Range',NULL);
+INSERT INTO `translation` VALUES (884,'timetracking.ui.reports.time_spent_activity.no_activity','en_US','(no activity)',NULL);
+INSERT INTO `translation` VALUES (885,'timetracking.ui.reports.time_spent_org','en_US','Time Spent by Organization over Date Range',NULL);
+INSERT INTO `translation` VALUES (886,'timetracking.ui.reports.time_spent_org.no_organization','en_US','(no organization)',NULL);
+INSERT INTO `translation` VALUES (887,'timetracking.ui.reports.time_spent_org.all_workers','en_US','All Workers',NULL);
+INSERT INTO `translation` VALUES (888,'timetracking.ui.reports.time_spent_worker','en_US','Time Spent by Worker over Date Range',NULL);
+INSERT INTO `translation` VALUES (889,'timetracking.ui.reports.to','en_US','To:',NULL);
+INSERT INTO `translation` VALUES (890,'timetracking.ui.comment.time_spent','en_US','Time Spent (mins):',NULL);
+INSERT INTO `translation` VALUES (891,'timetracking.ui.comment.activity','en_US','Activity:',NULL);
+INSERT INTO `translation` VALUES (892,'timetracking.ui.comment.organization','en_US','Organization:',NULL);
+INSERT INTO `translation` VALUES (893,'timetracking.ui.comment.not_set','en_US','(not set)',NULL);
 /*!40000 ALTER TABLE `translation` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Dumping data for table `trigger_event`
---
-
-LOCK TABLES `trigger_event` WRITE;
-/*!40000 ALTER TABLE `trigger_event` DISABLE KEYS */;
-/*!40000 ALTER TABLE `trigger_event` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `view_filters_preset`
---
-
-LOCK TABLES `view_filters_preset` WRITE;
-/*!40000 ALTER TABLE `view_filters_preset` DISABLE KEYS */;
-/*!40000 ALTER TABLE `view_filters_preset` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `view_rss`
---
-
-LOCK TABLES `view_rss` WRITE;
-/*!40000 ALTER TABLE `view_rss` DISABLE KEYS */;
-/*!40000 ALTER TABLE `view_rss` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `worker`
---
-
-LOCK TABLES `worker` WRITE;
-/*!40000 ALTER TABLE `worker` DISABLE KEYS */;
-/*!40000 ALTER TABLE `worker` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `worker_group`
---
-
-LOCK TABLES `worker_group` WRITE;
-/*!40000 ALTER TABLE `worker_group` DISABLE KEYS */;
-/*!40000 ALTER TABLE `worker_group` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `worker_pref`
---
-
-LOCK TABLES `worker_pref` WRITE;
-/*!40000 ALTER TABLE `worker_pref` DISABLE KEYS */;
-/*!40000 ALTER TABLE `worker_pref` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `worker_role`
---
-
-LOCK TABLES `worker_role` WRITE;
-/*!40000 ALTER TABLE `worker_role` DISABLE KEYS */;
-/*!40000 ALTER TABLE `worker_role` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `worker_role_acl`
---
-
-LOCK TABLES `worker_role_acl` WRITE;
-/*!40000 ALTER TABLE `worker_role_acl` DISABLE KEYS */;
-/*!40000 ALTER TABLE `worker_role_acl` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `worker_to_group`
---
-
-LOCK TABLES `worker_to_group` WRITE;
-/*!40000 ALTER TABLE `worker_to_group` DISABLE KEYS */;
-/*!40000 ALTER TABLE `worker_to_group` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `worker_view_model`
---
-
-LOCK TABLES `worker_view_model` WRITE;
-/*!40000 ALTER TABLE `worker_view_model` DISABLE KEYS */;
-/*!40000 ALTER TABLE `worker_view_model` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `workspace_list`
---
-
-LOCK TABLES `workspace_list` WRITE;
-/*!40000 ALTER TABLE `workspace_list` DISABLE KEYS */;
-/*!40000 ALTER TABLE `workspace_list` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `workspace_page`
---
-
-LOCK TABLES `workspace_page` WRITE;
-/*!40000 ALTER TABLE `workspace_page` DISABLE KEYS */;
-/*!40000 ALTER TABLE `workspace_page` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `workspace_tab`
---
-
-LOCK TABLES `workspace_tab` WRITE;
-/*!40000 ALTER TABLE `workspace_tab` DISABLE KEYS */;
-/*!40000 ALTER TABLE `workspace_tab` ENABLE KEYS */;
-UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
@@ -762,4 +1648,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-05-31 16:53:33
+-- Dump completed on 2013-06-11 19:47:21

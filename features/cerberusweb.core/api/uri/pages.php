@@ -174,6 +174,7 @@ class Page_Custom extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::pages/wizard_popup.tpl');
 	}
 	
+	// [TODO] This should convert to the new JSON import format
 	function savePageWizardPopupAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string',null);
 		@$page_type = DevblocksPlatform::importGPC($_REQUEST['page_type'],'string',null);
@@ -182,6 +183,7 @@ class Page_Custom extends CerberusPageExtension {
 
 		$page_id = DAO_WorkspacePage::create(array(
 			DAO_WorkspacePage::NAME => 'Mail',
+			DAO_WorkspacePage::EXTENSION_ID => 'core.workspace.page.workspace',
 			DAO_WorkspacePage::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
 			DAO_WorkspacePage::OWNER_CONTEXT_ID => $active_worker->id,
 		));
@@ -192,6 +194,7 @@ class Page_Custom extends CerberusPageExtension {
 		
 		$tab_id = DAO_WorkspaceTab::create(array(
 			DAO_WorkspaceTab::NAME => 'Inbox',
+			DAO_WorkspaceTab::EXTENSION_ID => 'core.workspace.tab.worklists',
 			DAO_WorkspaceTab::POS => $pos++,
 			DAO_WorkspaceTab::WORKSPACE_PAGE_ID => $page_id,
 		));

@@ -75,10 +75,10 @@ class ChFilesController extends DevblocksControllerExtension {
 			header('Content-Disposition: attachment; filename=' . urlencode($file->display_name));
 		}
 		
-		header("Content-Type: " . $file->mime_type);
-		
 		switch(strtolower($file->mime_type)) {
 			case 'text/html':
+				header("Content-Type: " . $file->mime_type . '; charset=UTF-8');
+				
 				// If we're downloading the HTML, just pass the raw bytes
 				if($is_download) {
 					header("Content-Length: " . $file_stats['size']);
@@ -107,6 +107,7 @@ class ChFilesController extends DevblocksControllerExtension {
 				break;
 				
 			default:
+				header("Content-Type: " . $file->mime_type);
 				header("Content-Length: " . $file_stats['size']);
 				fpassthru($fp);
 				break;
