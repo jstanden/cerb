@@ -361,7 +361,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		}
 		
 		$results['timestamp'] = $timestamp;
-		$results['to_string'] = date('D, M d Y h:ia', $timestamp);
+		$results['to_string'] = date('D, d M Y h:i a', $timestamp);
 		
 		echo json_encode($results);
 	}
