@@ -802,9 +802,9 @@ class DevblocksPlatform extends DevblocksEngine {
 			} elseif($diffsecs >= 86400) { // days
 				$whole .= round($diffsecs/86400).' day';
 			} elseif($diffsecs >= 3600) { // hours
-				$whole .= round($diffsecs/3600).' hour';
+				$whole .= floor($diffsecs/3600).' hour';
 			} elseif($diffsecs >= 60) { // mins
-				$whole .= round($diffsecs/60).' min';
+				$whole .= floor($diffsecs/60).' min';
 			} elseif($diffsecs >= 0) { // secs
 				$whole .= $diffsecs.' sec';
 			}
@@ -817,9 +817,9 @@ class DevblocksPlatform extends DevblocksEngine {
 			} elseif($diffsecs <= -86400) { // days
 				$whole .= round($diffsecs/-86400).' day';
 			} elseif($diffsecs <= -3600) { // hours
-				$whole .= round($diffsecs/-3600).' hour';
+				$whole .= floor($diffsecs/-3600).' hour';
 			} elseif($diffsecs <= -60) { // mins
-				$whole .= round($diffsecs/-60).' min';
+				$whole .= floor($diffsecs/-60).' min';
 			} elseif($diffsecs <= 0) { // secs
 				$whole .= round($diffsecs/-1).' sec';
 			}
