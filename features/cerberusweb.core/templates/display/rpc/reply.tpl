@@ -224,7 +224,7 @@
 				
 				<table cellpadding="2" cellspacing="0" border="0" id="replyStatus{$message->id}">
 					<tr>
-						<td nowrap="nowrap" valign="top" colspan="2">
+						<td nowrap="nowrap" valign="top">
 							<div style="margin-bottom:10px;">
 								{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" object_watchers=$object_watchers context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
 							</div>
@@ -233,18 +233,18 @@
 							<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="closed" value="2" class="status_waiting" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'waiting'==$mail_status_reply) || $draft->params.closed==2}checked="checked"{/if}>{$translate->_('status.waiting')|capitalize}</label>
 							{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="closed" value="1" class="status_closed" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'closed'==$mail_status_reply) || $draft->params.closed==1}checked="checked"{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
 							<br>
-							<br>
 							
-							<div id="replyClosed{$message->id}" style="display:{if (empty($draft) && 'open'==$mail_status_reply) || (!empty($draft) && $draft->params.closed==0)}none{else}block{/if};margin-left:10px;margin-bottom:10px;">
+							<div id="replyClosed{$message->id}" style="display:{if (empty($draft) && 'open'==$mail_status_reply) || (!empty($draft) && $draft->params.closed==0)}none{else}block{/if};margin:10px 0px 10px 20px;">
 							<b>{$translate->_('display.reply.next.resume')}</b> {$translate->_('display.reply.next.resume_eg')}<br> 
 							<input type="text" name="ticket_reopen" size="55" value="{if !empty($draft)}{$draft->params.ticket_reopen}{elseif !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}"><br>
 							{$translate->_('display.reply.next.resume_blank')}<br>
 							</div>
 							
 							{if $active_worker->hasPriv('core.ticket.actions.move')}
-							<b>{$translate->_('display.reply.next.move')}</b><br>  
+							<b>{$translate->_('display.reply.next.move')}</b>
+							<br>
 							<select name="bucket_id">
-								<option value="">-- {$translate->_('display.reply.next.move.no_thanks')|lower} --</option>
+								<option value="">-- No, leave it in the <b>{if $ticket->bucket_id}{$buckets.{$ticket->bucket_id}->name} bucket{else}{'common.inbox'|devblocks_translate|lower}{/if}</b> of <b>{$groups.{$ticket->group_id}->name}</b> --</option>
 								{if empty($ticket->bucket_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
 								<optgroup label="{$translate->_('common.inboxes')|capitalize}">
 								{foreach from=$groups item=group}
@@ -275,11 +275,31 @@
 							<button type="button" onclick="$(this).prev('select[name=owner_id]').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
 							<button type="button" onclick="$(this).prevAll('select[name=owner_id]').first().val('');">{'common.nobody'|devblocks_translate|lower}</button>
 							<br>
-							<br>
 						</td>
 					</tr>
 				</table>
 			</fieldset>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<div id="replyCustomFields{$message->id}" class="reply-custom-fields">
+			{if !empty($custom_fields)}
+			<fieldset class="peek">
+				<legend>{'common.custom_fields'|devblocks_translate|capitalize}</legend>
+				
+				<table cellpadding="2" cellspacing="0" border="0">
+					<tr>
+						<td nowrap="nowrap" valign="top">
+							{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=true}
+						</td>
+					</tr>
+				</table>
+			</fieldset>
+			{/if}
+			
+			{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id bulk=true}
+			</div>
 		</td>
 	</tr>
 	<tr>
