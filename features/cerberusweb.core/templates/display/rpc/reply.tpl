@@ -241,9 +241,10 @@
 							</div>
 							
 							{if $active_worker->hasPriv('core.ticket.actions.move')}
-							<b>{$translate->_('display.reply.next.move')}</b><br>  
+							<b>{$translate->_('display.reply.next.move')}</b>
+							<br>
 							<select name="bucket_id">
-								<option value="">-- {$translate->_('display.reply.next.move.no_thanks')|lower} --</option>
+								<option value="">-- No, leave it in the <b>{if $ticket->bucket_id}{$buckets.{$ticket->bucket_id}->name} bucket{else}{'common.inbox'|devblocks_translate|lower}{/if}</b> of <b>{$groups.{$ticket->group_id}->name}</b> --</option>
 								{if empty($ticket->bucket_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
 								<optgroup label="{$translate->_('common.inboxes')|capitalize}">
 								{foreach from=$groups item=group}
