@@ -12,11 +12,11 @@
 </form>
 {/if}
 
-<div id="divWorkspaceTab{$tab->id}"></div>
+<div id="divWorklistsTab{$tab->id}"></div>
 
 <script type="text/javascript">
 	// Lazy loading
-	$workspace = $('#divWorkspaceTab{$tab->id}');
+	$workspace = $('#divWorklistsTab{$tab->id}');
 	$ajaxQueue = $({});
 	
 	{foreach from=$list_ids item=list_id}
