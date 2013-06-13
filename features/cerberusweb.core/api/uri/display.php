@@ -487,6 +487,15 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
 		
+		// Custom fields
+		
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, false);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id);
+		if(isset($custom_field_values[$ticket->id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$ticket->id]);
+		
 		// VA macros
 		
 		$macros = DAO_TriggerEvent::getByOwners(

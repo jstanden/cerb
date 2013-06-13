@@ -71,6 +71,13 @@ if($btn_watcher.hasClass('green'))
 	$btn_watcher.click();
 */
 
+/*
+var $fieldset_cfields = $form.actions.find('div.reply-custom-fields');
+// Show or hide custom fields entry
+//$fieldset_cfields.hide();
+//$fieldset_cfields.show();
+*/
+
 {/if}{/if}</textarea>
 </div>
 
