@@ -244,7 +244,9 @@
 							<b>{$translate->_('display.reply.next.move')}</b>
 							<br>
 							<select name="bucket_id">
-								<option value="">-- No, leave it in the <b>{if $ticket->bucket_id}{$buckets.{$ticket->bucket_id}->name} bucket{else}{'common.inbox'|devblocks_translate|lower}{/if}</b> of <b>{$groups.{$ticket->group_id}->name}</b> --</option>
+								{$ticket_group_id = $ticket->group_id}
+								{$ticket_bucket_id = $ticket->bucket_id}
+								<option value="">-- No, leave it in the <b>{if $ticket_bucket_id}{$group_buckets.{$ticket_group_id}.{$ticket_bucket_id}->name} bucket{else}{'common.inbox'|devblocks_translate|lower}{/if}</b> of <b>{$groups.{$ticket_group_id}->name}</b> --</option>
 								{if empty($ticket->bucket_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
 								<optgroup label="{$translate->_('common.inboxes')|capitalize}">
 								{foreach from=$groups item=group}
