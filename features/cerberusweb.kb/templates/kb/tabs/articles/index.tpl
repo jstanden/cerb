@@ -1,3 +1,5 @@
+<div style="margin-top:5px;" id="divKbTab{$tab->id}">
+
 <form id="frmKbBrowseTab{$tab->id}" enctype="multipart/form-data" method="post" action="{devblocks_url}{/devblocks_url}">
 	<input type="hidden" name="c" value="kb.ajax">
 	<input type="hidden" name="a" value="">
@@ -25,10 +27,10 @@
 	</legend>
 	
 	<div style="padding-bottom:5px;">
-	<a href="javascript:;" onclick="genericAjaxGet('divWorkspaceTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab_extension->id}&tab_id={$tab->id}&action=changeCategory&category_id=0');">Top</a> ::
+	<a href="javascript:;" onclick="genericAjaxGet('divKbTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab->extension_id}&tab_id={$tab->id}&action=changeCategory&category_id=0');">Top</a> ::
 	{if !empty($breadcrumb)}
 		{foreach from=$breadcrumb item=bread_id}
-			<a href="javascript:;" onclick="genericAjaxGet('divWorkspaceTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab_extension->id}&tab_id={$tab->id}&action=changeCategory&category_id={$bread_id}');">{$categories.$bread_id->name}</a> :
+			<a href="javascript:;" onclick="genericAjaxGet('divKbTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab->extension_id}&tab_id={$tab->id}&action=changeCategory&category_id={$bread_id}');">{$categories.$bread_id->name}</a> :
 		{/foreach} 
 	{/if}
 	</div>
@@ -40,12 +42,12 @@
 		<td width="50%" valign="top">
 		{foreach from=$tree.$root_id item=count key=cat_id name=kbcats}
 			<span class="cerb-sprite sprite-folder"></span>
-			<a href="javascript:;" onclick="genericAjaxGet('divWorkspaceTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab_extension->id}&tab_id={$tab->id}&action=changeCategory&category_id={$cat_id}');" style="font-weight:bold;">{$categories.$cat_id->name}</a> ({$count|string_format:"%d"})<br>
+			<a href="javascript:;" onclick="genericAjaxGet('divKbTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab->extension_id}&tab_id={$tab->id}&action=changeCategory&category_id={$cat_id}');" style="font-weight:bold;">{$categories.$cat_id->name}</a> ({$count|string_format:"%d"})<br>
 		
 			{if !empty($tree.$cat_id)}
 				&nbsp; &nbsp; 
 				{foreach from=$tree.$cat_id item=count key=child_id name=subcats}
-					 <a href="javascript:;" onclick="genericAjaxGet('divWorkspaceTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab_extension->id}&tab_id={$tab->id}&action=changeCategory&category_id={$child_id}');">{$categories.$child_id->name}</a>{if !$smarty.foreach.subcats.last}, {/if}
+					 <a href="javascript:;" onclick="genericAjaxGet('divKbTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab->extension_id}&tab_id={$tab->id}&action=changeCategory&category_id={$child_id}');">{$categories.$child_id->name}</a>{if !$smarty.foreach.subcats.last}, {/if}
 				{/foreach}
 				<br>
 			{/if}
@@ -64,6 +66,8 @@
 
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
 
+</div>
+
 <script type="text/javascript">
 $frm = $('#frmKbBrowseTab{$tab->id}');
 
@@ -77,7 +81,7 @@ $frm.find('button.category_add').click(function(e) {
 			category_id = e.id;
 		}
 		
-		genericAjaxGet('divWorkspaceTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab_extension->id}&tab_id={$tab->id}&action=changeCategory&category_id=' + category_id);
+		genericAjaxGet('divKbTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab->extension_id}&tab_id={$tab->id}&action=changeCategory&category_id=' + category_id);
 	});
 });
 
@@ -91,7 +95,7 @@ $frm.find('button.category_edit').click(function(e) {
 			category_id = e.id;
 		}
 		
-		genericAjaxGet('divWorkspaceTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab_extension->id}&tab_id={$tab->id}&action=changeCategory&category_id=' + category_id);
+		genericAjaxGet('divKbTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab->extension_id}&tab_id={$tab->id}&action=changeCategory&category_id=' + category_id);
 	});
 });
 </script>

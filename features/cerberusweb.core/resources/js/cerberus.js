@@ -174,6 +174,14 @@ $.fn.cerbDateInputHelper = function(options) {
 				}
 			})
 			;
+		
+		var $parent = $this.parent();
+		
+		if($parent.is(':visible')) {
+			var width_minus_icons = ($parent.width() - 64);
+			var width_relative = Math.floor(100 * (width_minus_icons / $parent.width()));
+			$this.css('width', width_relative + '%');
+		}
 	});
 };
 
