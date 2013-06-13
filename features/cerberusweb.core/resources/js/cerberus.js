@@ -77,7 +77,7 @@ $.fn.cerbDateInputHelper = function(options) {
 			.attr('placeholder', '+2 hours; +4 hours @Calendar; Jan 15 2018 2pm; 5pm America/New York')
 			.autocomplete({
 				minLength: 1,
-				autoFocus: true,
+				autoFocus: false,
 				source: function(request, response) {
 					var last = request.term.split(' ').pop();
 
