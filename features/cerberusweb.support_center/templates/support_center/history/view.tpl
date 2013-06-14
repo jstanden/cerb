@@ -66,6 +66,20 @@
 			<td>{if $result.$column}{'common.yes'|devblocks_translate}{else}{'common.no'|devblocks_translate}{/if}</td>
 			{elseif $column=="t_mask"}
 			<td><a href="{devblocks_url}c=history&mask={$result.t_mask}{/devblocks_url}">{$result.$column}</a></td>
+			{elseif $column=="t_group_id"}
+				<td>
+				{if $groups.{$result.$column}}
+				{$groups.{$result.$column}->name}
+				{/if}
+				</td>
+			{elseif $column=="t_bucket_id"}
+				<td>
+				{if $result.$column == 0}
+				{'common.inbox'|devblocks_translate|capitalize}
+				{elseif $buckets.{$result.$column}}
+				{$buckets.{$result.$column}->name}
+				{/if}
+				</td>
 			{else}
 			<td>{$result.$column}</td>
 			{/if}
