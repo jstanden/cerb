@@ -647,6 +647,9 @@
 		<tu tuid='dao.calendar_recurring_profile.recur_end'>
 			<tuv xml:lang="en_US"><seg>Recur End</seg></tuv>
 		</tu>
+		<tu tuid='dao.calendar_recurring_profile.recur_start'>
+			<tuv xml:lang="en_US"><seg>Recur Start</seg></tuv>
+		</tu>
 		<tu tuid='dao.calendar_recurring_profile.patterns'>
 			<tuv xml:lang="en_US"><seg>Patterns</seg></tuv>
 		</tu>

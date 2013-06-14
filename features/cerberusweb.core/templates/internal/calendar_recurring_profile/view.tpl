@@ -103,7 +103,7 @@
 					{$patterns = DevblocksPlatform::parseCrlfString($result.$column)}
 					{$patterns|implode:', '}
 				</td>
-			{elseif $column == "c_recur_end"}
+			{elseif $column == "c_recur_start" || $column == "c_recur_end"}
 				<td title="{$result.$column|devblocks_date}">
 					{if !empty($result.$column)}
 						{$result.$column|devblocks_prettytime}&nbsp;
