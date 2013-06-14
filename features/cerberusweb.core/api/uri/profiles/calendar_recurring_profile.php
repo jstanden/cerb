@@ -79,6 +79,12 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 			'value' => $calendar_recurring_profile->is_available,
 		);
 		
+		$properties['recur_start'] = array(
+			'label' => ucfirst($translate->_('dao.calendar_recurring_profile.recur_start')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $calendar_recurring_profile->recur_start,
+		);
+		
 		$properties['recur_end'] = array(
 			'label' => ucfirst($translate->_('dao.calendar_recurring_profile.recur_end')),
 			'type' => Model_CustomField::TYPE_DATE,
@@ -133,6 +139,7 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 		@$event_start = DevblocksPlatform::importGPC($_REQUEST['event_start'], 'string', '');
 		@$event_end = DevblocksPlatform::importGPC($_REQUEST['event_end'], 'string', '');
 		@$tz = DevblocksPlatform::importGPC($_REQUEST['tz'], 'string', $default_tz);
+		@$recur_start = intval(strtotime(DevblocksPlatform::importGPC($_REQUEST['recur_start'], 'string', '')));
 		@$recur_end = intval(strtotime(DevblocksPlatform::importGPC($_REQUEST['recur_end'], 'string', '')));
 		@$is_available = DevblocksPlatform::importGPC($_REQUEST['is_available'], 'integer', 0);
 		@$patterns = DevblocksPlatform::importGPC($_REQUEST['patterns'], 'string', '');
@@ -160,6 +167,7 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 					DAO_CalendarRecurringProfile::EVENT_START => $event_start ?: 'midnight',
 					DAO_CalendarRecurringProfile::EVENT_END => $event_end ?: '',
 					DAO_CalendarRecurringProfile::TZ => $tz,
+					DAO_CalendarRecurringProfile::RECUR_START => $recur_start,
 					DAO_CalendarRecurringProfile::RECUR_END => $recur_end,
 					DAO_CalendarRecurringProfile::IS_AVAILABLE => $is_available ? 1 : 0,
 					DAO_CalendarRecurringProfile::PATTERNS => $patterns,
@@ -182,6 +190,7 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 					DAO_CalendarRecurringProfile::EVENT_START => $event_start ?: 'midnight',
 					DAO_CalendarRecurringProfile::EVENT_END => $event_end ?: '',
 					DAO_CalendarRecurringProfile::TZ => $tz,
+					DAO_CalendarRecurringProfile::RECUR_START => $recur_start,
 					DAO_CalendarRecurringProfile::RECUR_END => $recur_end,
 					DAO_CalendarRecurringProfile::IS_AVAILABLE => $is_available ? 1 : 0,
 					DAO_CalendarRecurringProfile::PATTERNS => $patterns,

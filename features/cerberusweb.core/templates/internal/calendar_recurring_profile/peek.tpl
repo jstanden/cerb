@@ -81,7 +81,13 @@
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right">End: </td>
+		<td width="0%" nowrap="nowrap" valign="top" align="right">Starting on: </td>
+		<td width="100%">
+			<input type="text" name="recur_start" value="{$model->recur_start|devblocks_date:'M d Y h:ia'}" size="64" placeholder="e.g. January 9 2002; or leave blank for always">
+		</td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top" align="right">Ending on: </td>
 		<td width="100%">
 			<input type="text" name="recur_end" value="{$model->recur_end|devblocks_date:'M d Y h:ia'}" size="64" placeholder="e.g. January 19 2038; or leave blank to never end">
 		</td>

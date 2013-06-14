@@ -9,7 +9,7 @@
 			{foreach from=$params item=param key=param_key}
 			{if isset($fields.$param_key) && !empty($fields.$param_key->db_label)}
 			<li>
-				<label><input type="checkbox" name="filters[]" value="{$param_key}"> {$fields.$param_key->db_label} is <b>{$view->renderCriteriaParam($param)}</b></label> 
+				<label><input type="checkbox" name="filters[]" value="{$param_key}"> {$fields.$param_key->db_label|capitalize} is <b>{$view->renderCriteriaParam($param)}</b></label> 
 			</li>
 			{/if}
 			{/foreach}
@@ -31,7 +31,7 @@
 			<option value="">-- choose --</option>
 			{$fields = $view->getSearchFields()}
 			{foreach from=$fields item=field key=field_key}
-			<option value="{$field_key}">{$field->db_label}</option>
+			<option value="{$field_key}">{$field->db_label|capitalize}</option>
 			{/foreach}
 		</select>
 		

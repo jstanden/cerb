@@ -538,6 +538,10 @@ if(!isset($columns['event_end'])) {
 	$db->Execute("ALTER TABLE calendar_recurring_profile ADD COLUMN event_end VARCHAR(128) NOT NULL DEFAULT ''");
 }
 
+if(!isset($columns['recur_start'])) {
+	$db->Execute("ALTER TABLE calendar_recurring_profile ADD COLUMN recur_start INT UNSIGNED NOT NULL DEFAULT 0");
+}
+
 if(!isset($columns['recur_end'])) {
 	$db->Execute("ALTER TABLE calendar_recurring_profile ADD COLUMN recur_end INT UNSIGNED NOT NULL DEFAULT 0");
 }

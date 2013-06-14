@@ -23,6 +23,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 	const TZ = 'tz';
 	const EVENT_START = 'event_start';
 	const EVENT_END = 'event_end';
+	const RECUR_START = 'recur_start';
 	const RECUR_END = 'recur_end';
 	const PATTERNS = 'patterns';
 
@@ -118,7 +119,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, event_name, is_available, calendar_id, tz, event_start, event_end, recur_end, patterns ".
+		$sql = "SELECT id, event_name, is_available, calendar_id, tz, event_start, event_end, recur_start, recur_end, patterns ".
 			"FROM calendar_recurring_profile ".
 			$where_sql.
 			$sort_sql.
@@ -170,6 +171,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 			$object->tz = $row['tz'];
 			$object->event_start = $row['event_start'];
 			$object->event_end = $row['event_end'];
+			$object->recur_start = $row['recur_start'];
 			$object->recur_end = $row['recur_end'];
 			$object->patterns = $row['patterns'];
 			$objects[$object->id] = $object;
@@ -237,6 +239,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 			"calendar_recurring_profile.tz as %s, ".
 			"calendar_recurring_profile.event_start as %s, ".
 			"calendar_recurring_profile.event_end as %s, ".
+			"calendar_recurring_profile.recur_start as %s, ".
 			"calendar_recurring_profile.recur_end as %s, ".
 			"calendar_recurring_profile.patterns as %s ",
 				SearchFields_CalendarRecurringProfile::ID,
@@ -246,6 +249,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 				SearchFields_CalendarRecurringProfile::TZ,
 				SearchFields_CalendarRecurringProfile::EVENT_START,
 				SearchFields_CalendarRecurringProfile::EVENT_END,
+				SearchFields_CalendarRecurringProfile::RECUR_START,
 				SearchFields_CalendarRecurringProfile::RECUR_END,
 				SearchFields_CalendarRecurringProfile::PATTERNS
 			);
@@ -394,6 +398,7 @@ class SearchFields_CalendarRecurringProfile implements IDevblocksSearchFields {
 	const TZ = 'c_tz';
 	const EVENT_START = 'c_event_start';
 	const EVENT_END = 'c_event_end';
+	const RECUR_START = 'c_recur_start';
 	const RECUR_END = 'c_recur_end';
 	const PATTERNS = 'c_patterns';
 
@@ -418,6 +423,7 @@ class SearchFields_CalendarRecurringProfile implements IDevblocksSearchFields {
 			self::TZ => new DevblocksSearchField(self::TZ, 'calendar_recurring_profile', 'tz', $translate->_('dao.calendar_recurring_profile.tz'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::EVENT_START => new DevblocksSearchField(self::EVENT_START, 'calendar_recurring_profile', 'event_start', $translate->_('dao.calendar_recurring_profile.event_start'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::EVENT_END => new DevblocksSearchField(self::EVENT_END, 'calendar_recurring_profile', 'event_end', $translate->_('dao.calendar_recurring_profile.event_end'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::RECUR_START => new DevblocksSearchField(self::RECUR_START, 'calendar_recurring_profile', 'recur_start', $translate->_('dao.calendar_recurring_profile.recur_start'), Model_CustomField::TYPE_DATE),
 			self::RECUR_END => new DevblocksSearchField(self::RECUR_END, 'calendar_recurring_profile', 'recur_end', $translate->_('dao.calendar_recurring_profile.recur_end'), Model_CustomField::TYPE_DATE),
 			self::PATTERNS => new DevblocksSearchField(self::PATTERNS, 'calendar_recurring_profile', 'patterns', $translate->_('dao.calendar_recurring_profile.patterns'), Model_CustomField::TYPE_MULTI_LINE),
 
@@ -452,11 +458,16 @@ class Model_CalendarRecurringProfile {
 	public $tz;
 	public $event_start;
 	public $event_end;
+	public $recur_start;
 	public $recur_end;
 	public $patterns;
 	
 	function generateRecurringEvents($date_from, $date_to) {
 		$calendar_events = array();
+
+		// Commencement date for recurring event
+		if($this->recur_start && $this->recur_start > $date_to)
+			return array();
 		
 		// Termination date for recurring event
 		if($this->recur_end && $this->recur_end < $date_from)
@@ -484,7 +495,7 @@ class Model_CalendarRecurringProfile {
 					continue;
 				}
 			}
-			
+
 			foreach($patterns as $pattern) {
 				if($passed)
 					continue;
@@ -528,6 +539,14 @@ class Model_CalendarRecurringProfile {
 						date_default_timezone_set($previous_timezone);
 					}
 					
+					// If the generated event starts before the recurring event begins, skip
+					if($this->recur_start && $event_start_local < $this->recur_start)
+						continue;
+					
+					// If the generated event starts after the recurring event ends, skip
+					if($this->recur_end && $event_start_local > $this->recur_end)
+						continue;
+					
 					$calendar_events[] = array(
 						'context' => CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING,
 						'context_id' => $this->id,
@@ -568,6 +587,7 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 			SearchFields_CalendarRecurringProfile::EVENT_START,
 			SearchFields_CalendarRecurringProfile::EVENT_END,
 			SearchFields_CalendarRecurringProfile::TZ,
+			SearchFields_CalendarRecurringProfile::RECUR_START,
 			SearchFields_CalendarRecurringProfile::RECUR_END,
 			SearchFields_CalendarRecurringProfile::PATTERNS,
 		);
@@ -736,6 +756,7 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
+			case SearchFields_CalendarRecurringProfile::RECUR_START:
 			case SearchFields_CalendarRecurringProfile::RECUR_END:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
@@ -834,6 +855,7 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
+			case SearchFields_CalendarRecurringProfile::RECUR_START:
 			case SearchFields_CalendarRecurringProfile::RECUR_END:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
@@ -996,6 +1018,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			'name' => $prefix.$translate->_('common.name'),
 			'event_start' => $prefix.$translate->_('dao.calendar_recurring_profile.event_start'),
 			'event_end' => $prefix.$translate->_('dao.calendar_recurring_profile.event_end'),
+			'recur_start' => $prefix.$translate->_('dao.calendar_recurring_profile.recur_start'),
 			'recur_end' => $prefix.$translate->_('dao.calendar_recurring_profile.recur_end'),
 			'is_available' => $prefix.$translate->_('dao.calendar_recurring_profile.is_available'),
 			'tz' => $prefix.$translate->_('dao.calendar_recurring_profile.tz'),
@@ -1020,6 +1043,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			$token_values['calendar_id'] = $calendar_recurring_profile->calendar_id;
 			$token_values['event_start'] = $calendar_recurring_profile->event_start;
 			$token_values['event_end'] = $calendar_recurring_profile->event_end;
+			$token_values['recur_start'] = $calendar_recurring_profile->recur_start;
 			$token_values['recur_end'] = $calendar_recurring_profile->recur_end;
 			$token_values['is_available'] = $calendar_recurring_profile->is_available;
 			$token_values['tz'] = $calendar_recurring_profile->tz;
