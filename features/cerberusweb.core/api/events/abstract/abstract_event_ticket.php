@@ -899,7 +899,8 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 
 			case 'relay_email':
-				return DevblocksEventHelper::simulateActionRelayEmail($params, $dict);
+				// [TODO] This doesn't exist
+				//return DevblocksEventHelper::simulateActionRelayEmail($params, $dict);
 				break;
 				
 			case 'schedule_behavior':
@@ -937,18 +938,49 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_spam_training':
+				$out = sprintf(">>> Setting spam training:\n".
+					"%s\n",
+					$params['value'] == 'N' ? 'Not Spam' : 'Spam'
+				);
+				return $out;
 				break;
 				
 			case 'set_status':
-				return DevblocksEventHelper::simulateActionSetTicketStatus($params, $dict);
+				$out = sprintf(">>> Setting status to:\n%s\n",
+					$params['status']
+				);
+				return $out;
 				break;
 				
 			case 'set_subject':
-				return DevblocksEventHelper::simulateActionSetSubject($params, $dict);
+				$out = sprintf(">>> Setting subject to:\n%s\n",
+					$params['value']
+				);
+				return $out;
 				break;
 				
 			case 'move_to':
-				return DevblocksEventHelper::simulateActionMoveTo($params, $dict);
+				$groups = DAO_Group::getAll();
+				$buckets = DAO_Bucket::getAll();
+
+				if(!isset($params['group_id']) || !isset($params['bucket_id']))
+					return false;
+
+				$group_id = $params['group_id'];
+				$bucket_id = $params['bucket_id'];
+				
+				if(!isset($groups[$group_id]))
+					return false;
+				
+				if($bucket_id && !isset($buckets[$bucket_id]))
+					return false;
+				
+				$out = sprintf(">>> Moving to:\n%s: %s\n",
+					$groups[$group_id]->name,
+					($bucket_id ? $buckets[$bucket_id]->name : $translate->_('common.inbox'))
+				);
+				
+				return $out;
 				break;
 			
 			case 'set_links':
