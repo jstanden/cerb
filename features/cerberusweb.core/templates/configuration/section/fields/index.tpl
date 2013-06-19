@@ -1,30 +1,27 @@
 <h2>Custom Fields</h2>
 
-<table cellpadding="0" cellspacing="5" border="0" width="100%">
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">
-			<fieldset>
-				<legend>Record Type</legend>
-				
-				<ul style="margin:0;padding:0;list-style:none;">
-				{if !empty($context_manifests)}
-					{foreach from=$context_manifests item=manifest key=manifest_id}
-					<li style="line-height:150%;"><a href="javascript:;" onclick="genericAjaxGet('frmConfigFieldSource','c=config&a=handleSectionAction&section=fields&action=getRecordType&ext_id={$manifest_id}');">{$manifest->name}</a></li>
-					{/foreach}
-				{/if}
-				</ul>
-			</fieldset>
-		</td>
+<div id="cfTabs">
+	<ul>
+		{$tabs = [fields,fieldsets]}
+		{$point = 'setup.fields.tab'}
 		
-		<td width="100%" valign="top">
-			<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmConfigFieldSource" onsubmit="return false;">
-				{if !empty($ext_id)}
-					{assign var=context_manifest value=$context_manifests.$ext_id}
-					{include file="devblocks:cerberusweb.core::configuration/section/fields/edit_source.tpl" object=$context_manifest}
-				{/if}
-			</form>
-		</td>
-	</tr>
-</table>
+		<li>
+			<a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=fields&action=showFieldsTab&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}">Global</a>
+		</li>
+		<li>
+			<a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=fields&action=showFieldsetsTab&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}">Fieldsets</a>
+		</li>
+	</ul>
+</div> 
+<br>
 
+{$selected_tab_idx=0}
+{foreach from=$tabs item=tab_label name=tabs}
+	{if $tab_label==$selected_tab}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
+{/foreach}
 
+<script type="text/javascript">
+	$(function() {
+		var tabs = $("#cfTabs").tabs( { selected:{$selected_tab_idx} } );
+	});
+</script>
