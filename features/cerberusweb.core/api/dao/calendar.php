@@ -1351,17 +1351,19 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			case 'calendar_scope':
 				// This can be preset in scope to select a specific month/year
 				$calendar_scope = DevblocksCalendarHelper::getCalendar(null, null);
-				unset($calendar_scope['calendar_weeks']);
-				$values['calendar_scope'] = $calendar_scope;
+				$values['scope'] = $calendar_scope;
 				break;
 				
 			case 'weeks':
 				if(!isset($dictionary['calendar_scope'])) {
 					$values = self::lazyLoadContextValues('calendar_scope', $dictionary);
+					@$month = $values['scope']['month'];
+					@$year = $values['scope']['year'];
+					
+				} else {
+					@$month = $dictionary['calendar_scope']['month'];
+					@$year = $dictionary['calendar_scope']['year'];
 				}
-				
-				@$month = $dictionary['calendar_scope']['month'];
-				@$year = $dictionary['calendar_scope']['year'];
 				
 				$calendar_scope = DevblocksCalendarHelper::getCalendar($month, $year);
 				
@@ -1372,14 +1374,15 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			case 'events':
 				if(!isset($dictionary['calendar_scope'])) {
 					$values = self::lazyLoadContextValues('calendar_scope', $dictionary);
+					unset($values['scope']['calendar_weeks']);
+					@$calendar_scope = $values['scope'];
+					
+				} else {
+					@$calendar_scope = $dictionary['calendar_scope'];
 				}
-				
-				@$calendar_scope = $dictionary['calendar_scope'];
-				@$month = $calendar_scope['month'];
-				@$year = $calendar_scope['year'];
-				
+
 				$calendar = DAO_Calendar::get($context_id);
-				
+
 				$calendar_events = $calendar->getEvents($calendar_scope['date_range_from'], $calendar_scope['date_range_to']);
 				$events = array();
 				
@@ -1396,17 +1399,19 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 						$events[] = $event;
 					}
 				}
-
-				$values['events'] = $events;
 				
+				$values['events'] = $events;
 				break;
 				
 			case 'weeks_events':
 				if(!isset($dictionary['weeks'])) {
 					$values = self::lazyLoadContextValues('weeks', $dictionary);
+					@$calendar_scope = $values['scope'];
+					
+				} else {
+					@$calendar_scope = $dictionary['calendar_scope'];
+					
 				}
-				
-				@$calendar_scope = $dictionary['calendar_scope'];
 				
 				@$month = $calendar_scope['month'];
 				@$year = $calendar_scope['year'];
