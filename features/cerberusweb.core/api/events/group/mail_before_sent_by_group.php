@@ -153,8 +153,6 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 				$ticket_labels,
 				$ticket_values,
 				array(
-					"#^initial_message_#",
-					"#^latest_message_#",
 					"#^group_#",
 					//"#^id$#",
 				)
