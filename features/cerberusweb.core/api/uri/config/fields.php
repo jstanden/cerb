@@ -18,6 +18,11 @@
 class PageSection_SetupCustomFields extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/fields/index.tpl');
+	}
+	
+	function showFieldsTabAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
 		$visit->set(ChConfigurationPage::ID, 'fields');
@@ -25,7 +30,21 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 		$context_manifests = Extension_DevblocksContext::getAll(false, array('custom_fields'));
 		$tpl->assign('context_manifests', $context_manifests);
 		
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/fields/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/fields/fields/index.tpl');
+	}
+	
+	function showFieldsetsTabAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = 'cfg_fieldsets';
+		$defaults->class_name = 'View_CustomFieldset';
+		$defaults->renderSubtotals = SearchFields_CustomFieldset::CONTEXT;
+		
+		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
+		$tpl->assign('view', $view);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
 	private function _getRecordType($ext_id) {
