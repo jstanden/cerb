@@ -39,5 +39,7 @@
 
 <b>Where:</b>
 <div style="margin-left:10px;">
+	<label><input type="checkbox" name="{$namePrefix}[opt_is_available]" value="1" {if $params.opt_is_available}checked="checked"{/if}>The worker is available</label>
+	<br>
 	<label><input type="checkbox" name="{$namePrefix}[opt_logged_in]" value="1" {if $params.opt_logged_in}checked="checked"{/if}>The worker is currently logged in</label>
 </div>

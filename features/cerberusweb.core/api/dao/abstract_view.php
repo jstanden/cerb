@@ -1955,7 +1955,7 @@ abstract class C4_AbstractView {
 				
 				$sql =
 					sprintf(
-						"SELECT COUNT(*) AS hits, (SELECT field_value FROM custom_field_numbervalue WHERE %s=context_id AND field_id=%d LIMIT 1) AS %s ", //SQL_CALC_FOUND_ROWS
+						"SELECT COUNT(*) AS hits, IFNULL((SELECT field_value FROM custom_field_numbervalue WHERE %s=context_id AND field_id=%d LIMIT 1),0) AS %s ", //SQL_CALC_FOUND_ROWS
 						$primary_key,
 						$field_id,
 						$field_key
@@ -1990,8 +1990,8 @@ abstract class C4_AbstractView {
 					
 					if(empty($label)) {
 						$label = '(nobody)';
-						$oper = DevblocksSearchCriteria::OPER_IS_NULL;
-						$values = '';
+						$oper = DevblocksSearchCriteria::OPER_IN_OR_NULL;
+						$values = array('worker_id[]' => 0);
 					}
 					
 					$counts[$result[$field_key]] = array(

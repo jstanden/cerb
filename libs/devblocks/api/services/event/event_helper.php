@@ -750,6 +750,7 @@ class DevblocksEventHelper {
 				@$worker_ids = $params['worker_id'];
 				@$group_ids = $params['group_id'];
 				@$mode = $params['mode'];
+				@$opt_is_available = $params['opt_is_available'];
 				@$opt_logged_in = $params['opt_logged_in'];
 				
 				$possible_workers = array();
@@ -769,11 +770,12 @@ class DevblocksEventHelper {
 					}
 				}
 				
-				// Filter
 				$workers = DAO_Worker::getAll();
 				
-				if(!empty($opt_logged_in))
+				// Filter: Logged in
+				if(!empty($opt_logged_in)) {
 					$workers_online = DAO_Worker::getAllOnline();
+				}
 				
 				foreach($possible_workers as $k => $worker) {
 					// Remove non-existent workers
@@ -786,6 +788,38 @@ class DevblocksEventHelper {
 					if(!empty($opt_logged_in) && !isset($workers_online[$k])) {
 						unset($possible_workers[$k]);
 						continue;
+					}
+					
+					if(!empty($opt_is_available)) {
+						@$availability_calendar_id = DAO_WorkerPref::get($k, 'availability_calendar_id', 0);
+					
+						if(empty($availability_calendar_id)) {
+							unset($possible_workers[$k]);
+							continue;
+							
+						} else {
+							if(false == ($calendar = DAO_Calendar::get($availability_calendar_id))) {
+								unset($possible_workers[$k]);
+								continue;
+							}
+							
+							$from = '-5 mins';
+							$to = '+5 mins';
+							
+							@$cal_from = strtotime("today", strtotime($from));
+							@$cal_to = strtotime("tomorrow", strtotime($to));
+							
+							$calendar_events = $calendar->getEvents($cal_from, $cal_to);
+							$availability = $calendar->computeAvailability($cal_from, $cal_to, $calendar_events);
+							
+							$pass = $availability->isAvailableBetween(strtotime($from), strtotime($to));
+							
+							// If the worker is not available, remove them from the list
+							if(!$pass) {
+								unset($possible_workers[$k]);
+								continue;
+							}
+						}
 					}
 				}
 		
