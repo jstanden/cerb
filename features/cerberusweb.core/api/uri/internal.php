@@ -420,6 +420,12 @@ class ChInternalController extends DevblocksControllerExtension {
 						}
 						break;
 						
+					case 'ctx_' . CerberusContexts::CONTEXT_ORG:
+						if(null != ($org_id = DAO_ContactOrg::lookup($val, true))) {
+							$value = $org_id;
+						}
+						break;
+						
 					case Model_CustomField::TYPE_CHECKBOX:
 						// Attempt to interpret bool values
 						if(
