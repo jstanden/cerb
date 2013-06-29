@@ -279,7 +279,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		$db->Execute($sql);
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' group_setting records.');
 		
-		$sql = "DELETE QUICK custom_field FROM custom_field LEFT JOIN worker_group ON custom_field.group_id = worker_group.id WHERE custom_field.group_id > 0 AND worker_group.id IS NULL";
+		$sql = "DELETE QUICK custom_field FROM custom_field LEFT JOIN custom_fieldset ON custom_field.custom_fieldset_id = custom_fieldset.id WHERE custom_field.custom_fieldset_id > 0 AND custom_fieldset.id IS NULL";
 		$db->Execute($sql);
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' custom_field records.');
 		
