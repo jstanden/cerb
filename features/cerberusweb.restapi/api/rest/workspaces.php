@@ -234,6 +234,7 @@ class ChRest_Workspaces extends Extension_RestController { // implements IExtens
 				$view->addParamsRequired($list_view->params_required, true);
 			$view->renderSortBy = $list_view->sort_by;
 			$view->renderSortAsc = $list_view->sort_asc;
+			$view->renderSubtotals = $list_view->subtotals;
 		}
 	
 		if(!empty($view)) {

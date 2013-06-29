@@ -988,6 +988,7 @@ class Model_WorkspaceListView {
 	public $params_required = array();
 	public $sort_by = null;
 	public $sort_asc = 1;
+	public $subtotals = '';
 };
 
 class View_WorkspacePage extends C4_AbstractView {
