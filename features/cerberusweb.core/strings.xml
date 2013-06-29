@@ -738,11 +738,6 @@
 
 		<!-- ACL -->
 		
-			<!-- Activity -->
-		<tu tuid='acl.core.activity'>
-			<tuv xml:lang="en_US"><seg>[Activity] Can view activity page</seg></tuv>
-		</tu>
-		
 			<!-- Address Book -->
 		<tu tuid='acl.core.addybook'>
 			<tuv xml:lang="en_US"><seg>[Address Book] Can browse the address book</seg></tuv>
@@ -800,9 +795,6 @@
 		</tu>
 
 			<!-- Mail page -->
-		<tu tuid='acl.core.mail'>
-			<tuv xml:lang="en_US"><seg>[Mail] Can view the mail page</seg></tuv>
-		</tu>
 		<tu tuid='acl.core.mail.send'>
 			<tuv xml:lang="en_US"><seg>[Mail] Can compose new messages</seg></tuv>
 		</tu>

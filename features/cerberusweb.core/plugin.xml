@@ -676,9 +676,6 @@
 	<!-- Permissions -->
 
 	<acl>
-		<!-- Activity -->
-		<priv id="core.activity" label="acl.core.activity" />
-	
 		<!-- Addy Book -->
 		<priv id="core.addybook" label="acl.core.addybook" />
 		<priv id="core.addybook.addy.actions.update" label="acl.core.addybook.addy.actions.update" />
@@ -702,7 +699,6 @@
 		<priv id="core.display.message.actions.delete" label="acl.core.display.message.actions.delete" />
 
 		<!-- Mail page -->
-		<priv id="core.mail" label="acl.core.mail" />
 		<priv id="core.mail.send" label="acl.core.mail.send" />
 		<priv id="core.mail.draft.delete_all" label="acl.core.mail.draft.delete_all" />
 
@@ -2020,7 +2016,6 @@
 			<params>
 				<param key="uri" value="mail" />
 				<param key="menutitle" value="common.mail" />
-				<param key="acl" value="core.mail" />
 			</params>
 		</extension>
 		
@@ -2049,7 +2044,6 @@
 			<params>
 				<param key="uri" value="tickets" />
 				<param key="menutitle" value="" />
-				<param key="acl" value="core.mail" />
 			</params>
 		</extension>
 		
@@ -2103,7 +2097,6 @@
 			<params>
 				<param key="uri" value="display" />
 				<param key="menutitle" value="" />
-				<param key="acl" value="core.mail" />
 			</params>
 		</extension>
 
