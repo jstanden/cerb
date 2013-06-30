@@ -207,6 +207,9 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		DAO_CalendarEvent::deleteByCalendarIds($ids);
 		DAO_CalendarRecurringProfile::deleteByCalendarIds($ids);
 		
+		// Delete worker prefs
+		DAO_WorkerPref::deleteByKeyValues('availability_calendar_id', $ids);
+		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
 		$eventMgr->trigger(

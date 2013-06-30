@@ -1316,6 +1316,29 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 		$cache->remove(self::CACHE_PREFIX.$worker_id);
 	}
 	
+	static function deleteByKeyValues($key, $values) {
+		if(!is_array($values))
+			$values = array($values);
+		
+		$values = DevblocksPlatform::sanitizeArray($values, 'integer', array('nonzero','unique'));
+		
+		if(empty($values))
+			return;
+		
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$results = $db->GetArray(sprintf("SELECT worker_id FROM worker_pref WHERE setting = %s AND value IN (%s)",
+			$db->qstr($key),
+			implode(',', $values)
+		));
+		
+		if(!empty($results))
+		foreach($results as $result)
+			self::delete($result['worker_id'], 'availability_calendar_id');
+		
+		return true;
+	}
+	
 	static function set($worker_id, $key, $value) {
 		// Persist long-term
 		$db = DevblocksPlatform::getDatabaseService();
