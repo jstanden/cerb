@@ -67,6 +67,8 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 	function showCalendarAvailabilityTabAction() {
 		@$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 		
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer', 0);
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
 		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
 		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
@@ -78,6 +80,9 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		if(!empty($point))
 			$visit->set($point, 'calendar');
 
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+		
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year);
 		$tpl->assign('calendar_properties', $calendar_properties);
 		
@@ -101,6 +106,11 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 				$create_contexts = $calendar->getCreateContexts();
 				$tpl->assign('create_contexts', $create_contexts);
 			}
+			
+		} else {
+			$calendars = DAO_Calendar::getOwnedByWorker($active_worker);
+			$tpl->assign('calendars', $calendars);
+			
 		}
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab_availability.tpl');

@@ -124,4 +124,35 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/worker.tpl');
 	}
+	
+	function setAvailabilityCalendarAction() {
+		@$availability_calendar_id = DevblocksPlatform::importGPC($_REQUEST['availability_calendar_id'],'integer', 0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(!empty($availability_calendar_id)) {
+			if(false == ($calendar = DAO_Calendar::get($availability_calendar_id)))
+				$availability_calendar_id = 0;
+			
+			if(!$calendar->isWriteableByWorker($active_worker))
+				$availability_calendar_id = 0;
+		}
+		
+		if(empty($availability_calendar_id)) {
+			$fields = array(
+				DAO_Calendar::NAME => $active_worker->getName() .  "'s Schedule",
+				DAO_Calendar::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+				DAO_Calendar::OWNER_CONTEXT_ID => $active_worker->id,
+				DAO_Calendar::PARAMS_JSON => '{"manual_disabled":"0","sync_enabled":"0","color_available":"#A0D95B","color_busy":"#C8C8C8"}',
+				DAO_Calendar::UPDATED_AT => time(),
+			);
+			$availability_calendar_id = DAO_Calendar::create($fields);
+		}
+		
+		if(!empty($availability_calendar_id)) {
+			DAO_WorkerPref::set($active_worker->id, 'availability_calendar_id', $availability_calendar_id);
+		}
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','worker','me','availability')));
+	}
 };
