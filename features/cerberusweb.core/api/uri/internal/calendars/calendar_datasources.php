@@ -84,7 +84,6 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 					if(is_array($results))
 					foreach($results as $id => $row) {
 						$ts = strtotime('now', $row[$params['field_start_date']]);
-						$epoch = strtotime('midnight', $row[$params['field_start_date']]);
 
 						// [TODO] This should be more efficient
 						CerberusContexts::getContext($context_ext->id, $id, $labels, $values);
@@ -93,20 +92,37 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 						
 						if(empty($ts_end))
 							$ts_end = $ts;
+						
+						// If the worklist-fed event spans multiple days, split them up into distinct events
+						$day_range = range(strtotime('midnight', $ts), strtotime('midnight', $ts_end), 86400);
 
-						$calendar_events[$epoch][] = array(
-							'context' => $context_ext->id,
-							'context_id' => $id,
-							'label' => $tpl_builder->build($template, $values),
-							'color' => $params['color'],
-							'ts' => $ts,
-							'ts_end' => $ts_end,
-							'is_available' => @$params['is_available'] ?: 0,
-							'link' => sprintf("ctx://%s:%d",
-								$context_ext->id,
-								$id
-							),
-						);
+						foreach($day_range as $epoch) {
+							$day_start = strtotime('midnight', $epoch);
+							$day_end = strtotime('23:59:59', $epoch);
+
+							$event_start = $ts;
+							$event_end = $ts_end;
+							
+							if($event_start < $day_start)
+								$event_start = $day_start;
+							
+							if($event_end > $day_end)
+								$event_end = $day_end;
+							
+							$calendar_events[$epoch][] = array(
+								'context' => $context_ext->id,
+								'context_id' => $id,
+								'label' => $tpl_builder->build($template, $values),
+								'color' => $params['color'],
+								'ts' => $event_start,
+								'ts_end' => $event_end,
+								'is_available' => @$params['is_available'] ?: 0,
+								'link' => sprintf("ctx://%s:%d",
+									$context_ext->id,
+									$id
+								),
+							);
+						}
 					}
 				}
 			}

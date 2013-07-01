@@ -3535,9 +3535,12 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		$view->addParams($params, true);
 		$view->addParamsDefault($params, true);
-		$view->addParamsRequired(array(
-			SearchFields_Ticket::TICKET_GROUP_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID,'in',array_keys($active_worker->getMemberships())),
-		), true);
+		
+		if($active_worker) {
+			$view->addParamsRequired(array(
+				SearchFields_Ticket::TICKET_GROUP_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID,'in',array_keys($active_worker->getMemberships())),
+			), true);
+		}
 		
 		$view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 		$view->renderSortAsc = false;

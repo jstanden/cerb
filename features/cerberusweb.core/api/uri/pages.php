@@ -215,6 +215,7 @@ class Page_Custom extends CerberusPageExtension {
 				SearchFields_Ticket::TICKET_GROUP_ID,
 				SearchFields_Ticket::TICKET_BUCKET_ID,
 			);
+			$view->renderSubtotals = SearchFields_Ticket::TICKET_GROUP_ID;
 			$view->addParams(array(
 				//new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS, 'in', array('open')),
 			), true);
@@ -233,6 +234,7 @@ class Page_Custom extends CerberusPageExtension {
 			$list_view->params_required = $view_model->paramsRequired;
 			$list_view->sort_by = $view_model->renderSortBy;
 			$list_view->sort_asc = $view_model->renderSortAsc;
+			$list_view->subtotals = $view_model->renderSubtotals;
 			
 			$list_id = DAO_WorkspaceList::create(array(
 				DAO_WorkspaceList::CONTEXT => $context,
@@ -256,7 +258,7 @@ class Page_Custom extends CerberusPageExtension {
 				SearchFields_Ticket::TICKET_BUCKET_ID,
 				SearchFields_Ticket::TICKET_OWNER_ID,
 			);
-			//$view->renderSubtotals = SearchFields_Ticket::TICKET_GROUP_ID;
+			$view->renderSubtotals = SearchFields_Ticket::TICKET_GROUP_ID;
 			$view->addParams(array(
 				//new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS, 'in', array('open')),
 			), true);
@@ -276,6 +278,7 @@ class Page_Custom extends CerberusPageExtension {
 			$list_view->params_required = $view_model->paramsRequired;
 			$list_view->sort_by = $view_model->renderSortBy;
 			$list_view->sort_asc = $view_model->renderSortAsc;
+			$list_view->subtotals = $view_model->renderSubtotals;
 			
 			$list_id = DAO_WorkspaceList::create(array(
 				DAO_WorkspaceList::CONTEXT => $context,
@@ -325,6 +328,7 @@ class Page_Custom extends CerberusPageExtension {
 			$list_view->params_required = $view_model->paramsRequired;
 			$list_view->sort_by = $view_model->renderSortBy;
 			$list_view->sort_asc = $view_model->renderSortAsc;
+			$list_view->subtotals = $view_model->renderSubtotals;
 			
 			$list_id = DAO_WorkspaceList::create(array(
 				DAO_WorkspaceList::CONTEXT => $context,
@@ -374,6 +378,7 @@ class Page_Custom extends CerberusPageExtension {
 			$list_view->params_required = $view_model->paramsRequired;
 			$list_view->sort_by = $view_model->renderSortBy;
 			$list_view->sort_asc = $view_model->renderSortAsc;
+			$list_view->subtotals = $view_model->renderSubtotals;
 			
 			$list_id = DAO_WorkspaceList::create(array(
 				DAO_WorkspaceList::CONTEXT => $context,
@@ -665,6 +670,7 @@ class Page_Custom extends CerberusPageExtension {
 				$view->addParamsRequired($list_view->params_required, true);
 			$view->renderSortBy = $list_view->sort_by;
 			$view->renderSortAsc = $list_view->sort_asc;
+			$view->renderSubtotals = $list_view->subtotals;
 	
 			unset($ext);
 			unset($list_view);

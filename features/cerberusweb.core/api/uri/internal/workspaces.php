@@ -144,6 +144,7 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 				$list->num_rows = 5;
 				$list->sort_by = $view->renderSortBy;
 				$list->sort_asc = $view->renderSortAsc;
+				$list->subtotals = $view->renderSubtotals;
 
 				// Add the worklist
 				$fields = array(
@@ -272,6 +273,7 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 			$list_view->params_required = $view_model->paramsRequired;
 			$list_view->sort_by = $view_model->renderSortBy;
 			$list_view->sort_asc = $view_model->renderSortAsc;
+			$list_view->subtotals = $view_model->renderSubtotals;
 			
 			$worklist_id = DAO_WorkspaceList::create(array(
 				DAO_WorkspaceList::CONTEXT => $worklist['worklist']['model']['context'],

@@ -1,4 +1,5 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmComposePeek" name="frmComposePeek" onsubmit="return false;">
+{$random = uniqid()}
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmComposePeek{$random}" onsubmit="return false;">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="saveComposePeek">
 <input type="hidden" name="view_id" value="{$view_id}">
@@ -17,7 +18,7 @@
 			<td width="100%">
 				<input type="hidden" name="group_id" value="{$defaults.group_id}">
 				<input type="hidden" name="bucket_id" value="{$defaults.bucket_id}">
-				<select name="group_or_bucket_id" id="group_or_bucket_id" class="required" style="border:1px solid rgb(180,180,180);padding:2px;">
+				<select name="group_or_bucket_id" class="required" style="border:1px solid rgb(180,180,180);padding:2px;">
 					{foreach from=$groups item=group key=groupId}
 						{if !empty($active_worker_memberships.$groupId)}
 							<option value="{$group->id}_0" {if $defaults.group_id==$group->id && empty($defaults.bucket_id)}selected="selected"{/if}>{$group->name}</option>
@@ -38,9 +39,9 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'message.header.to'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 			<td width="100%">
-				<input type="text" name="to" id="emailinput" value="{if !empty($to)}{$to}{else}{$draft->params.to}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence" required>
+				<input type="text" name="to" id="emailinput{$random}" value="{if !empty($to)}{$to}{else}{$draft->params.to}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence" required>
 				
-				<div id="compose_suggested" style="display:none;">
+				<div id="compose_suggested{$random}" style="display:none;">
 					<a href="javascript:;" onclick="$(this).closest('div').hide();">x</a>
 					<b>Consider adding these recipients:</b>
 					<ul class="bubbles"></ul> 
@@ -67,14 +68,14 @@
 		</tr>
 		<tr>
 			<td width="100%" colspan="2">
-				<div id="divDraftStatus"></div>
+				<div id="divDraftStatus{$random}"></div>
 				
 				<div>
 					<fieldset style="display:inline-block;">
 						<legend>Actions</legend>
 						
-						<button id="btnComposeSaveDraft" class="toolbar-item" type="button"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
-						<button id="btnComposeInsertSig" class="toolbar-item" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if}"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
+						<button id="btnComposeSaveDraft{$random}" class="toolbar-item" type="button"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
+						<button id="btnComposeInsertSig{$random}" class="toolbar-item" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if}"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
 					</fieldset>
 				
 					<fieldset style="display:inline-block;">
@@ -82,13 +83,13 @@
 						<div>
 							Insert: 
 							<input type="text" size="25" class="context-snippet autocomplete" {if $pref_keyboard_shortcuts}placeholder="(Ctrl+Shift+I)"{/if}>
-							<button type="button" onclick="ajax.chooserSnippet('snippets',$('#divComposeContent'), { '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });"><span class="cerb-sprite sprite-view"></span></button>
+							<button type="button" onclick="ajax.chooserSnippet('snippets',$('#divComposeContent{$random}'), { '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });"><span class="cerb-sprite sprite-view"></span></button>
 							<button type="button" onclick="genericAjaxPopup('add_snippet','c=internal&a=showSnippetsPeek&id=0&owner_context={CerberusContexts::CONTEXT_WORKER}&owner_context_id={$active_worker->id}&context=',null,false,'550');"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
 						</div>
 					</fieldset>
 				</div>
 				
-				<textarea id="divComposeContent" name="content" style="width:98%;height:150px;border:1px solid rgb(180,180,180);padding:2px;">{$draft->body}</textarea>
+				<textarea id="divComposeContent{$random}" name="content" style="width:98%;height:150px;border:1px solid rgb(180,180,180);padding:2px;">{$draft->body}</textarea>
 			</td>
 		</tr>
 	</table>
@@ -105,11 +106,11 @@
 	</div>
 	
 	<div style="margin-top:10px;">
-		<label><input type="radio" name="closed" value="0" {if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.closed==0)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','none');">{'status.open'|devblocks_translate}</label>
-		<label><input type="radio" name="closed" value="2" {if (empty($draft) && 'waiting'==$defaults.status) || (!empty($draft) && $draft->params.closed==2)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','block');">{'status.waiting'|devblocks_translate}</label>
-		{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1" {if (empty($draft) && 'closed'==$defaults.status) || (!empty($draft) && $draft->params.closed==1)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','block');">{'status.closed'|devblocks_translate}</label>{/if}
+		<label><input type="radio" name="closed" value="0" {if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.closed==0)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$random}','none');">{'status.open'|devblocks_translate}</label>
+		<label><input type="radio" name="closed" value="2" {if (empty($draft) && 'waiting'==$defaults.status) || (!empty($draft) && $draft->params.closed==2)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$random}','block');">{'status.waiting'|devblocks_translate}</label>
+		{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1" {if (empty($draft) && 'closed'==$defaults.status) || (!empty($draft) && $draft->params.closed==1)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$random}','block');">{'status.closed'|devblocks_translate}</label>{/if}
 		
-		<div id="divComposeClosed" style="display:{if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.closed==0)}none{else}block{/if};margin-top:5px;margin-left:10px;">
+		<div id="divComposeClosed{$random}" style="display:{if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.closed==0)}none{else}block{/if};margin-top:5px;margin-left:10px;">
 			<b>{$translate->_('display.reply.next.resume')}</b><br>
 			{$translate->_('display.reply.next.resume_eg')}<br> 
 			<input type="text" name="ticket_reopen" size="64" class="input_date" value="{$draft->params.ticket_reopen}"><br>
@@ -151,7 +152,7 @@
 	</table>
 </fieldset>
 
-<fieldset class="peek" style="{if empty($custom_fields) && empty($group_fields)}display:none;{/if}" id="compose_cfields">
+<fieldset class="peek" style="{if empty($custom_fields) && empty($group_fields)}display:none;{/if}" id="compose_cfields{$random}">
 	<legend>{'common.custom_fields'|devblocks_translate|capitalize}</legend>
 	
 	{$custom_field_values = $draft->params.custom_fields}
@@ -185,17 +186,17 @@
 	if(draftComposeAutoSaveInterval == undefined)
 		var draftComposeAutoSaveInterval = null;
 
-	$popup = genericAjaxPopupFetch('peek');
+	var $popup = genericAjaxPopupFind('#frmComposePeek{$random}');
 	$popup.one('popup_open',function(event,ui) {
 		$(this).dialog('option','title','{'mail.send_mail'|devblocks_translate|capitalize}');
 		
-		var $frm = $('#frmComposePeek');
+		var $frm = $('#frmComposePeek{$random}');
 
-		ajax.emailAutoComplete('#frmComposePeek input[name=to]', { multiple: true } );
-		ajax.emailAutoComplete('#frmComposePeek input[name=cc]', { multiple: true } );
-		ajax.emailAutoComplete('#frmComposePeek input[name=bcc]', { multiple: true } );
+		ajax.emailAutoComplete('#frmComposePeek{$random} input[name=to]', { multiple: true } );
+		ajax.emailAutoComplete('#frmComposePeek{$random} input[name=cc]', { multiple: true } );
+		ajax.emailAutoComplete('#frmComposePeek{$random} input[name=bcc]', { multiple: true } );
 
-		ajax.orgAutoComplete('#frmComposePeek input:text[name=org_name]');
+		ajax.orgAutoComplete('#frmComposePeek{$random} input:text[name=org_name]');
 		
 		$frm.find('button.chooser_worker').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
@@ -214,19 +215,19 @@
 		$frm.validate();
 		
 		$frm.find('select[name=group_or_bucket_id]').change(function(e) {
-			$div = $('#compose_cfields');
+			var $div = $('#compose_cfields{$random}');
 			
-			$frm = $(this).closest('form');
+			var $frm = $(this).closest('form');
 			
 			// Regexp the group_bucket pattern
-			sep = /(\d+)_(\d+)/;
-			hits = sep.exec($(this).val());
+			var sep = /(\d+)_(\d+)/;
+			var hits = sep.exec($(this).val());
 			
 			if(hits < 3)
 				return;
 			
-			group_id = hits[1];
-			bucket_id = hits[2];
+			var group_id = hits[1];
+			var bucket_id = hits[2];
 			
 			$frm.find('input:hidden[name=group_id]').val(group_id);
 			$frm.find('input:hidden[name=bucket_id]').val(bucket_id);
@@ -235,12 +236,12 @@
 		$frm.find('select[name=group_or_bucket_id]').trigger('change');
 		
 		$frm.find('input:text[name=to], input:text[name=cc], input:text[name=bcc]').focus(function(event) {
-			$('#compose_suggested').appendTo($(this).closest('td'));
+			$('#compose_suggested{$random}').appendTo($(this).closest('td'));
 		});
 		
 		$frm.find('input:text[name=org_name]').bind('autocompletechange',function(event, ui) {
 			genericAjaxGet('', 'c=contacts&a=getTopContactsByOrgJson&org_name=' + $(this).val(), function(json) {
-				$sug = $('#compose_suggested');
+				var $sug = $('#compose_suggested{$random}');
 				
 				$sug.find('ul.bubbles li').remove();
 				
@@ -250,7 +251,7 @@
 				}
 				
 				for(i in json) {
-					label = '';
+					var label = '';
 					if(null != json[i].name && json[i].name.length > 0) {
 						label += json[i].name + " ";
 						label += "&lt;" + json[i].email + '&gt;';
@@ -263,16 +264,16 @@
 				
 				// Insert suggested on click
 				$sug.find('a.suggested').click(function(e) {
-					$this = $(this);
-					$sug = $this.text();
+					var $this = $(this);
+					var $sug = $this.text();
 					
-					$to=$this.closest('td').find('input:text:first');
-					$val=$to.val();
-					$len=$val.length;
+					var $to = $this.closest('td').find('input:text:first');
+					var $val = $to.val();
+					var $len = $val.length;
 					
-					$last = null;
+					var $last = null;
 					if($len>0)
-						$last=$val.substring($len-1);
+						$last = $val.substring($len-1);
 					
 					if(0==$len || $last==' ')
 						$to.val($val+$sug);
@@ -281,7 +282,7 @@
 					else $to.val($val + ', '+$sug);
 						$to.focus();
 					
-					$ul=$this.closest('ul');
+					var $ul = $this.closest('ul');
 					$this.closest('li').remove();
 					if(0==$ul.find('li').length)
 						$ul.closest('div').remove();
@@ -297,7 +298,7 @@
 		
 		// Insert Sig
 		
-		$('#btnComposeInsertSig').click(function(e) {
+		$('#btnComposeInsertSig{$random}').click(function(e) {
 			var $this = $(this);
 			var $frm = $this.closest('form');
 			var $input_group = $frm.find('input:hidden[name=group_id]');
@@ -307,7 +308,7 @@
 				'',
 				'c=tickets&a=getComposeSignature&group_id='+$input_group.val()+'&bucket_id='+$input_bucket.val(),
 				function(text) {
-					$textarea = $('#divComposeContent');
+					var $textarea = $('#divComposeContent{$random}');
 					
 					if(text.slice(-1) != "\n")
 						text += "\n";
@@ -319,7 +320,7 @@
 		
 		// Drafts
 		
-		$('#btnComposeSaveDraft').click(function(e) {
+		$('#btnComposeSaveDraft{$random}').click(function(e) {
 			var $this = $(this);
 			
 			if(!$this.is(':visible')) {
@@ -334,7 +335,7 @@
 			$this.attr('disabled','disabled');
 			
 			genericAjaxPost(
-				'frmComposePeek',
+				'frmComposePeek{$random}',
 				null,
 				'c=mail&a=handleSectionAction&section=drafts&action=saveDraft&type=compose',
 				function(json) { 
@@ -343,11 +344,11 @@
 					if(!obj || !obj.html || !obj.draft_id)
 						return;
 				
-					$('#divDraftStatus').html(obj.html);
+					$('#divDraftStatus{$random}').html(obj.html);
 					
-					$('#frmComposePeek input[name=draft_id]').val(obj.draft_id);
+					$('#frmComposePeek{$random} input[name=draft_id]').val(obj.draft_id);
 					
-					$('#btnComposeSaveDraft').removeAttr('disabled');
+					$('#btnComposeSaveDraft{$random}').removeAttr('disabled');
 				}
 			);
 		});
@@ -357,7 +358,7 @@
 			draftComposeAutoSaveInterval = null;
 		}
 		
-		draftComposeAutoSaveInterval = setInterval("$('#btnComposeSaveDraft').click();", 30000); // and every 30 sec
+		draftComposeAutoSaveInterval = setInterval("$('#btnComposeSaveDraft{$random}').click();", 30000); // and every 30 sec
 		
 		// Snippet chooser shortcut
 		
@@ -370,13 +371,13 @@
 			autoFocus:true,
 			select:function(event, ui) {
 				$this = $(this);
-				$textarea = $('#divComposeContent');
+				$textarea = $('#divComposeContent{$random}');
 				
 				$label = ui.item.label.replace("<","&lt;").replace(">","&gt;");
 				$value = ui.item.value;
 				
 				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
-				url = 'c=internal&a=snippetPaste&id=' + $value;
+				var url = 'c=internal&a=snippetPaste&id=' + $value;
 
 				// Context-dependent arguments
 				if ('cerberusweb.contexts.worker'==ui.item.context) {
@@ -411,7 +412,7 @@
 		{if $pref_keyboard_shortcuts}
 		
 		// Reply textbox
-		$('#divComposeContent').keydown(function(event) {
+		$('#divComposeContent{$random}').keydown(function(event) {
 			if(!$(this).is(':focus'))
 				return;
 			
@@ -425,13 +426,13 @@
 				case 71: // (G) Insert Signature
 					try {
 						event.preventDefault();
-						$('#btnComposeInsertSig').click();
+						$('#btnComposeInsertSig{$random}').click();
 					} catch(ex) { } 
 					break;
 				case 73: // (I) Insert Snippet
 					try {
 						event.preventDefault();
-						$('#frmComposePeek').find('INPUT:text.context-snippet').focus();
+						$('#frmComposePeek{$random}').find('INPUT:text.context-snippet').focus();
 					} catch(ex) { } 
 					break;
 				case 81: // (Q) Reformat quotes
@@ -526,8 +527,8 @@
 		$frm.find(':input:text:first').focus().select();
 		
 		$frm.find('button.submit').click(function() {
-			$frm = $(this).closest('form');
-			$input = $frm.find('input#emailinput');
+			var $frm = $(this).closest('form');
+			var $input = $frm.find('input#emailinput{$random}');
 			
 			if($frm.validate().form()) {
 				if(null != draftComposeAutoSaveInterval) { 
@@ -535,7 +536,7 @@
 					draftComposeAutoSaveInterval = null;
 				}
 				
-				genericAjaxPopupPostCloseReloadView(null,'frmComposePeek','{$view_id}',false,'compose_save');
+				genericAjaxPopupPostCloseReloadView(null,'frmComposePeek{$random}','{$view_id}',false,'compose_save');
 			}
 		});
 	});

@@ -1,5 +1,45 @@
 {$guid = uniqid()}
 
+{if empty($calendar) && $context == CerberusContexts::CONTEXT_WORKER && $context_id == $active_worker->id}
+<form action="{devblocks_url}{/devblocks_url}">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="worker">
+<input type="hidden" name="action" value="setAvailabilityCalendar">
+<div class="help-box" style="padding:5px;border:0;">
+	<h1 style="margin-bottom:5px;text-align:left;">Configure your availability calendar</h1>
+	
+	<p>
+		This calendar displays your availability.
+		
+		Since you can have multiple calendars, you need to nominate one of them as your availability calendar.  Any events you add to that calendar will automatically affect your availability in Cerb.
+	</p>
+	
+	<p>
+		For example, a group-owned Virtual Attendant may be designed to dispatch work only to available workers.  Your own Virtual Attendant may be instructed to send notifications to your mobile phone only if you are unavailable.
+	</p>
+	
+	<p>
+		<b>Which of these calendars should determine your availability?</b>
+		
+		<div style="margin:0px 0px 10px 20px;">
+			{if !empty($calendars)}
+			{foreach from=$calendars item=avail_calendar}
+			<label><input type="radio" name="availability_calendar_id" value="{$avail_calendar->id}"> {$avail_calendar->name}</label><br>
+			{/foreach}
+			<label><input type="radio" name="availability_calendar_id" value="0" checked="checked"> {if $calendars}None of them, c{else}I don't have any calendars. C{/if}reate a new one for me</label><br>
+			{else}
+			{/if}
+		</div>
+		
+		<div>
+			<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.continue'|devblocks_translate|capitalize}</button>
+		</div>
+	</p>
+</div>
+</form>
+{/if} 
+
 <form id="frm{$guid}" action="#" style="margin-bottom:5px;width:98%;">
 	<div style="float:left;">
 		<span style="font-weight:bold;font-size:150%;">{$calendar_properties.calendar_date|devblocks_date:'F Y'}</span>
@@ -24,13 +64,23 @@
 			<span style="margin-left:10px;">
 				Availability based on <a href="{devblocks_url}c=profiles&what=calendar&id={$calendar->id}-{$calendar->name|devblocks_permalink}{/devblocks_url}" style="font-weight:bold;">{$calendar->name}</a>
 			</span>
+		{else}
+			{if empty($workers)}{$workers = DAO_Worker::getAll()}{/if}
+
+			{if $context == CerberusContexts::CONTEXT_WORKER && $context_id != $active_worker->id && isset($workers.$context_id)}
+			<div class="ui-widget">
+				<div class="ui-state-error ui-corner-all" style="padding: 0.7em; margin: 0.2em; ">
+					<strong>{$workers.$context_id->getName()} has not configured an availability calendar in their settings.</strong>
+				</div>
+			</div>
+			{/if}
 		{/if}
 	</div>
 
 	<div style="float:right;">
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarAvailabilityTab&id={$calendar->id}&month={$calendar_properties.prev_month}&year={$calendar_properties.prev_year}');">&lt;</button>
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarAvailabilityTab&id={$calendar->id}&month=&year=');">Today</button>
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarAvailabilityTab&id={$calendar->id}&month={$calendar_properties.next_month}&year={$calendar_properties.next_year}');">&gt;</button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarAvailabilityTab&context={$context}&context_id={$context_id}&id={$calendar->id}&month={$calendar_properties.prev_month}&year={$calendar_properties.prev_year}');">&lt;</button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarAvailabilityTab&context={$context}&context_id={$context_id}&id={$calendar->id}&month=&year=');">Today</button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarAvailabilityTab&context={$context}&context_id={$context_id}&id={$calendar->id}&month={$calendar_properties.next_month}&year={$calendar_properties.next_year}');">&gt;</button>
 	</div>
 	
 	<br clear="all">
@@ -107,7 +157,7 @@ $openEvtPopupEvent = function(e) {
 			var month = (event.month) ? event.month : '{$calendar_properties.month}';
 			var year = (event.year) ? event.year : '{$calendar_properties.year}';
 			
-			genericAjaxGet($('#frm{$guid}').closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarAvailabilityTab&id={$calendar->id}&month=' + month + '&year=' + year);
+			genericAjaxGet($('#frm{$guid}').closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarAvailabilityTab&context={$context}&context_id={$context_id}&id={$calendar->id}&month=' + month + '&year=' + year);
 			event.stopPropagation();
 		});
 		

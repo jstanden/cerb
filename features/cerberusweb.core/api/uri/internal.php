@@ -420,6 +420,12 @@ class ChInternalController extends DevblocksControllerExtension {
 						}
 						break;
 						
+					case 'ctx_' . CerberusContexts::CONTEXT_ORG:
+						if(null != ($org_id = DAO_ContactOrg::lookup($val, true))) {
+							$value = $org_id;
+						}
+						break;
+						
 					case Model_CustomField::TYPE_CHECKBOX:
 						// Attempt to interpret bool values
 						if(
@@ -1863,6 +1869,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$list_view->params_required = $view->getParamsRequired();
 		$list_view->sort_by = $view->renderSortBy;
 		$list_view->sort_asc = $view->renderSortAsc;
+		$list_view->subtotals = $view->renderSubtotals;
 
 		// Save the new worklist
 		$fields = array(
@@ -2090,6 +2097,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			$list_view->params_required = $view->getParamsRequired();
 			$list_view->sort_by = $view->renderSortBy;
 			$list_view->sort_asc = $view->renderSortAsc;
+			$list_view->subtotals = $view->renderSubtotals;
 
 			DAO_WorkspaceList::update($list_view_id, array(
 				DAO_WorkspaceList::LIST_VIEW => serialize($list_view)

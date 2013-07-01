@@ -417,9 +417,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	// [TODO] Cache results for this request
 	function getConditions($trigger) {
 		$conditions = array(
-			'_month_of_year' => array('label' => 'Month of year', 'type' => ''),
-			'_day_of_week' => array('label' => 'Day of week', 'type' => ''),
-			'_time_of_day' => array('label' => 'Time of day', 'type' => ''),
+			'_custom_script' => array('label' => '(Custom script)', 'type' => ''),
+			'_month_of_year' => array('label' => '(Month of year)', 'type' => ''),
+			'_day_of_week' => array('label' => '(Day of week)', 'type' => ''),
+			'_time_of_day' => array('label' => '(Time of day)', 'type' => ''),
 		);
 		$custom = $this->getConditionExtensions();
 		
@@ -460,6 +461,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
+			case '_custom_script':
+				return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_custom_script.tpl');
+				break;
+				
 			case '_month_of_year':
 				return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_month_of_year.tpl');
 				break;
@@ -543,6 +548,49 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		
 		// Built-in actions
 		switch($token) {
+			case '_custom_script':
+				@$tpl = DevblocksPlatform::importVar($params['tpl'],'string','');
+				
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$value = $tpl_builder->build($tpl, $dict);
+
+				if(false === $value) {
+					$logger->error(sprintf("[Script] Syntax error:\n\n%s",
+						implode("\n", $tpl_builder->getErrors())
+					));
+					return false;
+				}
+				
+				$value = trim($value);
+				
+				@$not = (substr($params['oper'],0,1) == '!');
+				@$oper = ltrim($params['oper'],'!');
+				@$param_value = $params['value'];
+				
+				$logger->info(sprintf("Script: `%s` %s%s `%s`",
+					$value,
+					(!empty($not) ? 'not ' : ''),
+					$oper,
+					$param_value
+				));
+				
+				switch($oper) {
+					case 'is':
+						$pass = (0==strcasecmp($value,$param_value));
+						break;
+					case 'like':
+						$regexp = DevblocksPlatform::strToRegExp($param_value);
+						$pass = @preg_match($regexp, $value);
+						break;
+					case 'contains':
+						$pass = (false !== stripos($value, $param_value)) ? true : false;
+						break;
+					case 'regexp':
+						$pass = @preg_match($param_value, $value);
+						break;
+				}
+				break;
+				
 			case '_month_of_year':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
@@ -658,10 +706,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 								case 'regexp':
 									$pass = @preg_match($param_value, $value);
 									break;
-								//case 'words_all':
-								//	break;
-								//case 'words_any':
-								//	break;
 							}
 							
 							// Handle operator negation

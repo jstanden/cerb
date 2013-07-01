@@ -21,7 +21,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(null == ($worker = CerberusApplication::getActiveWorker()))
 			return false;
 		
-		return $worker->hasPriv('core.mail');
+		return true;
 	}
 	
 	function getActivity() {
