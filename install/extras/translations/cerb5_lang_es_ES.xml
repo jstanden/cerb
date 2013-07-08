@@ -1391,11 +1391,6 @@
         <seg>Formato Desconocido</seg>
       </tuv>
     </tu>
-    <tu tuid="display.invalid_ticket">
-      <tuv xml:lang="es_ES">
-        <seg>Ticket no válido!</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.listnav.active_list">
       <tuv xml:lang="es_ES">
         <seg>Lista activa:</seg>

@@ -1389,11 +1389,6 @@ Brea, CA 92822 USA&lt;br&gt;&#13;
         <seg>Lista activa:</seg>
       </tuv>
     </tu>
-    <tu tuid="display.invalid_ticket">
-      <tuv xml:lang="pt_PT">
-        <seg>Ticket inválido!</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.convo.unknown_format">
       <tuv xml:lang="pt_PT">
         <seg>Formato desconhecido</seg>
