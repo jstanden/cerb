@@ -1,3 +1,6 @@
+{$gravatar_plugin = DevblocksPlatform::getPlugin('cerberusweb.gravatar')}
+{$gravatar_enabled = $gravatar_plugin && $gravatar_plugin->enabled}
+
 {if !empty($account_error)}
 <div class="error">{$account_error}</div>
 {elseif !empty($account_success)}
@@ -22,6 +25,7 @@
 		</td>
 	</tr>
 	
+	{if $gravatar_enabled}
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('portal.sc.public.my_account.profile_picture')}:</b></td>
 		<td width="99%">
@@ -31,6 +35,7 @@
 			</div>
 		</td>
 	</tr>
+	{/if}
 	
 	{if $show_fields.addy_first_name}
 	<tr>

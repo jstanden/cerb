@@ -1351,11 +1351,6 @@
         <seg>Неизвестный формат</seg>
       </tuv>
     </tu>
-    <tu tuid="display.invalid_ticket">
-      <tuv xml:lang="ru_RU">
-        <seg>Некорректная заявка!</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.listnav.active_list">
       <tuv xml:lang="ru_RU">
         <seg>Активный список:</seg>

@@ -41,7 +41,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		}
 		
 		if(null == ($ticket = DAO_Ticket::get($id))) {
-			echo "<H1>".$translate->_('display.invalid_ticket')."</H1>";
+			DevblocksPlatform::redirect(new DevblocksHttpRequest());
 			return;
 		}
 		
@@ -184,8 +184,8 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		// Check group membership ACL
 		if(!isset($active_worker_memberships[$ticket->group_id])) {
-			echo "<H1>".$translate->_('common.access_denied')."</H1>";
-			return;
+			DevblocksPlatform::redirect(new DevblocksHttpRequest());
+			exit;
 		}
 		
 		// Groups

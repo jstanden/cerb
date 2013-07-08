@@ -1616,11 +1616,6 @@
         <seg>Onbekend formaat</seg>
       </tuv>
     </tu>
-    <tu tuid="display.invalid_ticket">
-      <tuv xml:lang="nl_NL">
-        <seg>Ongeldig ticket!</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.reply.attachments_add">
       <tuv xml:lang="nl_NL">
         <seg>Voeg bijlage toe:</seg>
