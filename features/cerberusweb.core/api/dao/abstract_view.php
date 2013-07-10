@@ -409,6 +409,23 @@ abstract class C4_AbstractView {
 			self::setMarquee($view_id, $string);
 	}
 	
+	static function setMarqueeContextImported($view_id, $context, $count) {
+		$string = null;
+		
+		if(null != ($ctx = Extension_DevblocksContext::get($context))) {
+			$string = sprintf("Imported <b>%d %s</b> record%s.",
+				$count,
+				strtolower($ctx->manifest->name),
+				($count == 1 ? '' : 's')
+			);
+		}
+		
+		if(empty($string))
+			self::unsetMarquee($view_id);
+		else
+			self::setMarquee($view_id, $string);
+	}
+	
 	static function setMarquee($view_id, $string) {
 		$visit = CerberusApplication::getVisit();
 		$visit->set($view_id . '_marquee', $string);

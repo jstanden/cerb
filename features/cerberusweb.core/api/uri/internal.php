@@ -226,12 +226,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
-
-		// [TODO] ACL
-// 		$active_worker = CerberusApplication::getActiveWorker();
-// 		if(!$active_worker->hasPriv('crm.opp.actions.import'))
-// 			return;
-
+		
 		if(!($context_ext instanceof IDevblocksContextImport))
 			return;
 		
@@ -279,11 +274,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
 	
-		// [TODO] ACL
-		// 		$active_worker = CerberusApplication::getActiveWorker();
-		// 		if(!$active_worker->hasPriv('crm.opp.actions.import'))
-		// 			return;
-	
 		if(!($context_ext instanceof IDevblocksContextImport))
 			return;
 
@@ -318,9 +308,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-// 		if(!$active_worker->hasPriv('crm.opp.actions.import'))
-// 			return;
-		
 		@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'array',array());
 		@$column = DevblocksPlatform::importGPC($_REQUEST['column'],'array',array());
 		@$column_custom = DevblocksPlatform::importGPC($_REQUEST['column_custom'],'array',array());
@@ -354,8 +341,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		@fgetcsv($fp, 8192, ',', '"');
 		
 		while(!feof($fp)) {
-			$line_number++;
-			
 			$parts = fgetcsv($fp, 8192, ',', '"');
 
 			if($is_preview && $line_number > 25)
@@ -363,6 +348,8 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 			if(empty($parts) || (1==count($parts) && is_null($parts[0])))
 				continue;
+			
+			$line_number++;
 
 			// Snippets dictionary
 			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
@@ -566,6 +553,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(!$is_preview) {
 			@unlink($csv_file); // nuke the imported file}
 			$visit->set('import.last.csv',null);
+		}
+		
+		if(!empty($view_id) && !empty($context)) {
+			C4_AbstractView::setMarqueeContextImported($view_id, $context, $line_number);
 		}
 	}
 	
