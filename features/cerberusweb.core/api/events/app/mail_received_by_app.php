@@ -589,10 +589,9 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_header':
-				// [TODO] Placeholders
-				@$header = strtolower($params['header']);
-				
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				
+				$header = $tpl_builder->build($params['header'], $dict);
 				$value = $tpl_builder->build($params['value'], $dict);
 				
 				@$parser_model = $dict->_parser_model;
@@ -792,9 +791,9 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_header':
-				@$header = strtolower($params['header']);
-				
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				
+				$header = $tpl_builder->build($params['header'], $dict);
 				$value = $tpl_builder->build($params['value'], $dict);
 				
 				@$parser_model = $dict->_parser_model;
