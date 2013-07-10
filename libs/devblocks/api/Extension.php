@@ -269,6 +269,24 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		
 		return $labels;
 	}
+	
+	protected function _getImportCustomFields($fields, &$keys) {
+		if(is_array($fields))
+		foreach($fields as $token => $cfield) {
+			if('cf_' != substr($token, 0, 3))
+				continue;
+			
+			$cfield_id = intval(substr($token, 3));
+			
+			$keys['cf_' . $cfield_id] = array(
+				'label' => $cfield->db_label,
+				'type' => $cfield->type,
+				'param' => $cfield->token,
+			);
+		}
+		
+		return true;
+	}
 };
 
 abstract class Extension_DevblocksEvent extends DevblocksExtension {
