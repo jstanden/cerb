@@ -73,6 +73,8 @@ class DAO_CustomField extends DevblocksORMHelper {
 		$fields = self::getAll();
 		$results = array();
 
+		// [TODO] Filter to the fieldsets the active worker is allowed to see
+		
 		// Filter fields to only the requested source
 		foreach($fields as $idx => $field) { /* @var $field Model_CustomField */
 			// If we only want a specific context, filter out the rest
@@ -579,21 +581,44 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 	}
 
 	private static function _linkCustomFieldsets($context, $context_id, &$field_values) {
-		@$custom_fieldset_adds = DevblocksPlatform::importGPC($_REQUEST['custom_fieldset_adds'], 'array', array());
-		@$custom_fieldset_deletes = DevblocksPlatform::importGPC($_REQUEST['custom_fieldset_deletes'], 'array', array());
-		
-		if(empty($custom_fieldset_adds) && empty($custom_fieldset_deletes))
-			return;
-		
-		// [TODO] Check worker privs
-		
-		if(is_array($custom_fieldset_adds))
-		foreach($custom_fieldset_adds as $cfset_id) {
-			if(empty($cfset_id))
-				continue;
-		
-			DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $cfset_id);
+		/*
+		 * If we have a request variable with hints about new custom fieldsets, use it
+		 */
+		if(isset($_REQUEST['custom_fieldset_adds'])) {
+			@$custom_fieldset_adds = DevblocksPlatform::importGPC($_REQUEST['custom_fieldset_adds'], 'array', array());
+			
+			if(is_array($custom_fieldset_adds))
+			foreach($custom_fieldset_adds as $cfset_id) {
+				if(empty($cfset_id))
+					continue;
+			
+				DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $cfset_id);
+			}
+			
+		/*
+		 * Otherwise, if the request variable doesn't exist we need to introspect the cfields
+		 * and look for fieldsets.
+		 */
+		} else {
+			$custom_fields = DAO_CustomField::getAll();
+			$custom_fieldsets = DAO_CustomFieldset::getByContextLink($context, $context_id);
+	
+			foreach(array_keys($field_values) as $field_id) {
+				if(!isset($custom_fields[$field_id]))
+					continue;
+				
+				@$cfset_id = $custom_fields[$field_id]->custom_fieldset_id;
+				
+				if($cfset_id && !isset($custom_fieldsets[$cfset_id])) {
+					DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $cfset_id);
+				}
+			}
 		}
+		
+		/*
+		 * If we have a request variable hint about removing fieldsets, do that now
+		 */
+		@$custom_fieldset_deletes = DevblocksPlatform::importGPC($_REQUEST['custom_fieldset_deletes'], 'array', array());
 		
 		if(is_array($custom_fieldset_deletes))
 		foreach($custom_fieldset_deletes as $cfset_id) {
