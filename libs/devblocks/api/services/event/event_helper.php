@@ -2748,13 +2748,17 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_relay_email.tpl');
 	}
 	
-	// [TODO] Move this to an event parent so we can presume values
+	static function simulateActionRelayEmail($params, DevblocksDictionaryDelegate $dict, $context, $context_id, $group_id, $bucket_id, $message_id, $owner_id, $sender_email, $sender_name, $subject) {
+	}
 	
 	static function runActionRelayEmail($params, DevblocksDictionaryDelegate $dict, $context, $context_id, $group_id, $bucket_id, $message_id, $owner_id, $sender_email, $sender_name, $subject) {
 		$logger = DevblocksPlatform::getConsoleLog('Attendant');
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$mail_service = DevblocksPlatform::getMailService();
 		$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
+		
+		// Our main record can either be a comment or a message
+		$comment_id = (isset($dict->comment_id) && !empty($dict->comment_id)) ? $dict->comment_id : null;
 		
 		if(empty($group_id) || null == ($group = DAO_Group::get($group_id))) {
 			$logger->error("Can't load the ticket's group. Aborting action.");
@@ -2766,8 +2770,13 @@ class DevblocksEventHelper {
 		
 		// Attachments
 		$attachment_data = array();
-		if(!empty($message_id)) {
-			if(isset($params['include_attachments']) && !empty($params['include_attachments'])) {
+		
+		if(isset($params['include_attachments']) && !empty($params['include_attachments'])) {
+			// If our main record is a comment, use those attachments instead
+			if($comment_id) {
+				$attachment_data = DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_COMMENT, $comment_id);
+				
+			} elseif($message_id) {
 				$attachment_data = DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_MESSAGE, $message_id);
 			}
 		}

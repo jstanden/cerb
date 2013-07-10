@@ -3556,13 +3556,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_Comment::COMMENT => $comment,
 			DAO_Comment::CREATED => time(),
 		);
-		$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
-
-		// Attachments
-		if(!empty($file_ids))
-		foreach($file_ids as $file_id) {
-			DAO_AttachmentLink::create(intval($file_id), CerberusContexts::CONTEXT_COMMENT, $comment_id);
-		}
+		$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids, $file_ids);
 	}
 
 	function commentDeleteAction() {
