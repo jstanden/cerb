@@ -589,6 +589,26 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_header':
+				// [TODO] Placeholders
+				@$header = strtolower($params['header']);
+				
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$value = $tpl_builder->build($params['value'], $dict);
+				
+				@$parser_model = $dict->_parser_model;
+				if(empty($parser_model) || !is_a($parser_model,'CerberusParserModel'))
+					break;
+				
+				$headers =& $parser_model->getHeaders();
+
+				if(empty($value)) {
+					if(isset($headers[$header]))
+						unset($headers[$header]);
+					
+				} else {
+					$headers[$header] = $value;
+				}
+				
 				$out = sprintf(">>> Setting header\n".
 					"Header: %s\n".
 					"Value: %s\n",
@@ -767,7 +787,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				
 				if(is_null($replyto_address))
 					$replyto_address = DAO_AddressOutgoing::getDefault();
-   				
+				
 				CerberusMail::quickSend($to, $subject, $body, $replyto_address->email, $replyto_address->getReplyPersonal());
 				break;
 				
@@ -777,20 +797,20 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 				$value = $tpl_builder->build($params['value'], $dict);
 				
-   				@$parser_model = $dict->_parser_model;
-   				if(empty($parser_model) || !is_a($parser_model,'CerberusParserModel'))
-   					break;
+				@$parser_model = $dict->_parser_model;
+				if(empty($parser_model) || !is_a($parser_model,'CerberusParserModel'))
+					break;
 				
-   				$headers =& $parser_model->getHeaders();
+				$headers =& $parser_model->getHeaders();
 
-   				if(empty($value)) {
-   					if(isset($headers[$header]))
-   						unset($headers[$header]);
-   					
-   				} else {
-	   				$headers[$header] = $value;
-   				}
-   					
+				if(empty($value)) {
+					if(isset($headers[$header]))
+						unset($headers[$header]);
+					
+				} else {
+					$headers[$header] = $value;
+				}
+					
 				break;
 				
 			case 'set_sender_is_banned':
