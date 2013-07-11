@@ -1006,7 +1006,7 @@ class CerberusParser {
 							DAO_Comment::create(array(
 								DAO_Comment::CREATED => time(),
 								DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-								DAO_Comment::OWNER_CONTEXT_id => $proxy_worker->id,
+								DAO_Comment::OWNER_CONTEXT_ID => $proxy_worker->id,
 								DAO_Comment::COMMENT => $matches[1],
 								DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
 								DAO_Comment::CONTEXT_ID => $proxy_ticket->id,
