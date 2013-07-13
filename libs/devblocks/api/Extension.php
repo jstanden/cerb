@@ -269,6 +269,24 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		
 		return $labels;
 	}
+	
+	protected function _getImportCustomFields($fields, &$keys) {
+		if(is_array($fields))
+		foreach($fields as $token => $cfield) {
+			if('cf_' != substr($token, 0, 3))
+				continue;
+			
+			$cfield_id = intval(substr($token, 3));
+			
+			$keys['cf_' . $cfield_id] = array(
+				'label' => $cfield->db_label,
+				'type' => $cfield->type,
+				'param' => $cfield->token,
+			);
+		}
+		
+		return true;
+	}
 };
 
 abstract class Extension_DevblocksEvent extends DevblocksExtension {
@@ -889,7 +907,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 	
 	function getActions($trigger) { /* @var $trigger Model_TriggerEvent */
-		$actions = array();
+		$actions = array(
+			'_set_custom_var' => array('label' => '(Set a custom placeholder)'),
+		);
 		$custom = $this->getActionExtensions();
 		
 		if(!empty($custom) && is_array($custom))
@@ -937,6 +957,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		// Nope, it's a global action
 		} else {
 			switch($token) {
+				case '_set_custom_var':
+					return $tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_custom_var.tpl');
+					break;
+				
 				default:
 					// Variables
 					if(substr($token,0,4) == 'var_') {
@@ -992,6 +1016,16 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			
 		} else {
 			switch($token) {
+				case '_set_custom_var':
+					@$var = $params['var'];
+					
+					return sprintf(">>> Setting custom variable {{%s}}:\n%s\n\n",
+						$var,
+						$dict->$var
+					);
+					
+					break;
+					
 				default:
 					// Variables
 					if(substr($token,0,4) == 'var_') {
@@ -1024,6 +1058,22 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			
 		} else {
 			switch($token) {
+				case '_set_custom_var':
+					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+					
+					@$var = $params['var'];
+					@$value = $params['value'];
+					
+					if(!empty($var) && !empty($value))
+						$dict->$var = $tpl_builder->build($value, $dict);
+					
+					if($dry_run) {
+						$out = $this->simulateAction($token, $trigger, $params, $dict);
+					} else {
+						return;
+					}
+					break;
+					
 				default:
 					// Variables
 					if(substr($token,0,4) == 'var_') {

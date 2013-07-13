@@ -899,8 +899,19 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 
 			case 'relay_email':
-				// [TODO] This doesn't exist
-				//return DevblocksEventHelper::simulateActionRelayEmail($params, $dict);
+				return DevblocksEventHelper::simulateActionRelayEmail(
+					$params,
+					$dict,
+					CerberusContexts::CONTEXT_TICKET,
+					$ticket_id,
+					$dict->ticket_group_id,
+					@intval($dict->ticket_bucket_id),
+					$dict->ticket_latest_message_id,
+					@intval($dict->ticket_owner_id),
+					$dict->ticket_latest_message_sender_address,
+					$dict->ticket_latest_message_sender_full_name,
+					$dict->ticket_subject
+				);
 				break;
 				
 			case 'schedule_behavior':

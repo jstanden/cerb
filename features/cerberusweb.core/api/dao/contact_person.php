@@ -1153,16 +1153,9 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 			),
 		);
 	
-		$cfields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT_PERSON);
-	
-		foreach($cfields as $cfield_id => $cfield) {
-			$keys['cf_' . $cfield_id] = array(
-				'label' => $cfield->name,
-				'type' => $cfield->type,
-				'param' => 'cf_' . $cfield_id,
-			);
-		}
-	
+		$fields = SearchFields_ContactPerson::getFields();
+		self::_getImportCustomFields($fields, $keys);
+		
 		DevblocksPlatform::sortObjects($keys, '[label]', true);
 	
 		return $keys;

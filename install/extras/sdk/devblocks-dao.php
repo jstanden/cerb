@@ -1085,15 +1085,8 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 			),
 		);
 	
-		$cfields = DAO_CustomField::getByContext('<?php echo $ctx_ext_id; ?>');
-	
-		foreach($cfields as $cfield_id => $cfield) {
-			$keys['cf_' . $cfield_id] = array(
-				'label' => $cfield->name,
-				'type' => $cfield->type,
-				'param' => 'cf_' . $cfield_id,
-			);
-		}
+		$fields = SearchFields_<?php echo $class_name; ?>::getFields();
+		self::_getImportCustomFields($fields, $keys);
 	
 		DevblocksPlatform::sortObjects($keys, '[label]', true);
 	

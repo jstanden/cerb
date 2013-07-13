@@ -24,13 +24,22 @@ class DAO_Comment extends Cerb_ORMHelper {
 	const OWNER_CONTEXT_ID = 'owner_context_id';
 	const COMMENT = 'comment';
 
-	static function create($fields, $also_notify_worker_ids=array()) {
+	static function create($fields, $also_notify_worker_ids=array(), $file_ids=array()) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$db->Execute("INSERT INTO comment () VALUES ()");
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
+		
+		/*
+		 * Attachments
+		 */
+		
+		if(!empty($file_ids))
+		foreach($file_ids as $file_id) {
+			DAO_AttachmentLink::create(intval($file_id), CerberusContexts::CONTEXT_COMMENT, $id);
+		}
 		
 		/*
 		 * Log the activity of a new comment being created
