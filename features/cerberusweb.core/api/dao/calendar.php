@@ -644,8 +644,8 @@ class Model_Calendar {
 				$start = $event['ts'];
 				$end = @$event['ts_end'] ?: $start;
 
-				$start_mins = ceil(($start - $date_from)/60);
-				$end_mins = ceil(($end - $date_from)/60);
+				$start_mins = intval(ceil(($start - $date_from)/60));
+				$end_mins = intval(ceil(($end - $date_from)/60));
 				
 				if($start_mins < 0)
 					$start_mins = 0;
