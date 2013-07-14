@@ -5,7 +5,7 @@
 	<description>This example plugin adds a new kind of object to the helpdesk, complete with all the amenities: custom fields, views, worklists, bulk update, explore, watchers, connections, comments, etc.</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>0.0.0</version>
-	<link>http://www.cerb5.com/</link>
+	<link>http://www.cerbweb.com/</link>
 	<!--<image>plugin.png</image>-->
  
 	<!-- Plugin Dependencies -->

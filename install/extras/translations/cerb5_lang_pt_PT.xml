@@ -5589,7 +5589,7 @@ Por exemplo: *recipiente*</seg>
       <tuv xml:lang="pt_PT">
         <seg>## Reenviado de {{ticket_url}}
 ## A sua resposta para esta mensagem será divulgada para os recepientes. 
-## instruções : http://wiki.cerb5.com/wiki/Email_Relay
+## instruções : http://wiki.cerbweb.com/Email_Relay
 ##
 {{%s}}
 </seg>
