@@ -156,6 +156,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 		
 		// Search
 		list($results, $total) = DAO_AttachmentLink::search(
+			array(),
 			$params,
 			$limit,
 			max(0,$page-1),
