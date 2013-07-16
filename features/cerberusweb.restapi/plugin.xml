@@ -5,7 +5,7 @@
 	<description>A RESTful JSON/XML interface for integrating Cerb with other applications and tools.</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>6.4.0</version>
-	<link>http://wiki.cerb5.com/wiki/Features:Web_Services_API</link>
+	<link>http://wiki.cerbweb.com/Features:Web_Services_API</link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->

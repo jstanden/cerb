@@ -1874,7 +1874,7 @@ For example: *receipt*</seg></tuv>
 		<tu tuid='va.actions.ticket.relay.default_content'>
 			<tuv xml:lang="en_US"><seg>## Relayed from {{ticket_url}}
 ## Your reply to this message will be broadcast to the requesters. 
-## Instructions: http://wiki.cerb5.com/wiki/Email_Relay
+## Instructions: http://wiki.cerbweb.com/Email_Relay
 ##
 {{%s}}
 </seg></tuv>

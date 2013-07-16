@@ -738,6 +738,14 @@ $db->Execute(sprintf("UPDATE workspace_tab SET extension_id = %s WHERE extension
 ));
 
 // ===========================================================================
+// Clean up custom fields from deleted custom fieldsets
+
+$db->Execute("DELETE FROM custom_field WHERE custom_fieldset_id > 0 AND custom_fieldset_id NOT IN (SELECT id FROM custom_fieldset)");
+$db->Execute("DELETE FROM custom_field_stringvalue WHERE field_id NOT IN (SELECT id FROM custom_field)");
+$db->Execute("DELETE FROM custom_field_numbervalue WHERE field_id NOT IN (SELECT id FROM custom_field)");
+$db->Execute("DELETE FROM custom_field_clobvalue WHERE field_id NOT IN (SELECT id FROM custom_field)");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

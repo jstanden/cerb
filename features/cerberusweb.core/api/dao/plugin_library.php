@@ -267,7 +267,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 	}
 
 	static function syncManifestsWithRepository() {
-		$url = 'http://plugins.cerb5.com/plugins/list?version=' . DevblocksPlatform::strVersionToInt(APP_VERSION);
+		$url = 'http://plugins.cerb6.com/plugins/list?version=' . DevblocksPlatform::strVersionToInt(APP_VERSION);
 		
 		try {
 			if(!extension_loaded("curl"))
@@ -375,7 +375,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 				continue;
 			}
 			
-			$url = sprintf("http://plugins.cerb5.com/plugins/download?plugin=%s&version=%d",
+			$url = sprintf("http://plugins.cerb6.com/plugins/download?plugin=%s&version=%d",
 				urlencode($remote_plugin->plugin_id),
 				$remote_plugin->latest_version
 			);

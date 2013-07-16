@@ -5,7 +5,7 @@
 	<description>A GUI for translating the Cerb interface into other languages.  This adds a 'Translations' tab to Configuration.</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>6.4.0</version>
-	<link>http://wiki.cerb5.com/wiki/Features:Translation_Editor</link>
+	<link>http://wiki.cerbweb.com/Features:Translation_Editor</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->

@@ -137,7 +137,8 @@ class DAO_CustomField extends DevblocksORMHelper {
 	}
 	
 	public static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids))
+			$ids = array($ids);
 		
 		if(empty($ids))
 			return;
@@ -146,7 +147,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 		
 		$id_string = implode(',', $ids);
 		
-		$sql = sprintf("DELETE QUICK FROM custom_field WHERE id IN (%s)",$id_string);
+		$sql = sprintf("DELETE FROM custom_field WHERE id IN (%s)",$id_string);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		if(is_array($ids))
@@ -469,7 +470,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			
 		foreach($value as $v) {
 			// Delete all values or optionally a specific given value
-			$sql = sprintf("DELETE QUICK FROM %s WHERE context = '%s' AND context_id = %d AND field_id = %d %s",
+			$sql = sprintf("DELETE FROM %s WHERE context = '%s' AND context_id = %d AND field_id = %d %s",
 				$table_name,
 				$context,
 				$context_id,
@@ -710,6 +711,9 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			$field_id = intval($row['field_id']);
 			$field_value = $row['field_value'];
 			
+			if(!isset($fields[$field_id]))
+				continue;
+			
 			if(!isset($results[$context_id]))
 				$results[$context_id] = array();
 				
@@ -743,7 +747,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		
 		if(!empty($context_ids))
 		foreach($tables as $table) {
-			$sql = sprintf("DELETE QUICK FROM %s WHERE context = %s AND context_id IN (%s)",
+			$sql = sprintf("DELETE FROM %s WHERE context = %s AND context_id IN (%s)",
 				$table,
 				$db->qstr($context),
 				implode(',', $context_ids)
@@ -758,7 +762,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		$tables = array('custom_field_stringvalue','custom_field_clobvalue','custom_field_numbervalue');
 
 		foreach($tables as $table) {
-			$sql = sprintf("DELETE QUICK FROM %s WHERE field_id = %d",
+			$sql = sprintf("DELETE FROM %s WHERE field_id = %d",
 				$table,
 				$field_id
 			);

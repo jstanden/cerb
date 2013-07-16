@@ -111,7 +111,7 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 			$requirements = Model_PluginLibrary::testRequirements($plugin->requirements);
 			
 			// [TODO] This should come from somewhere in Setup
-			$url = sprintf("http://plugins.cerb5.com/plugins/download?plugin=%s&version=%d",
+			$url = sprintf("http://plugins.cerb6.com/plugins/download?plugin=%s&version=%d",
 				urlencode($plugin->plugin_id),
 				$plugin->latest_version
 			);
