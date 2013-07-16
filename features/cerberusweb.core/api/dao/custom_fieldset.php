@@ -179,13 +179,26 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids))
+			$ids = array($ids);
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(empty($ids))
 			return;
 		
 		$ids_list = implode(',', $ids);
+
+		// Delete custom fields in these fieldsets
+
+		foreach($ids as $id) {
+			if(null == ($fieldset = DAO_CustomFieldset::get($id)))
+				continue;
+			
+			foreach($fieldset->getCustomFields() as $field_id => $field) {
+				DAO_CustomField::delete($field_id);
+			}
+		}
 		
 		$db->Execute(sprintf("DELETE FROM custom_fieldset WHERE id IN (%s)", $ids_list));
 		
