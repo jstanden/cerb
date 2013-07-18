@@ -1929,6 +1929,16 @@ Brea, CA 92822 USA&lt;br&gt;&#13;
         <seg>importar</seg>
       </tuv>
     </tu>
+    <tu tuid="common.import.upload_csv">
+      <tuv xml:lang="pt_PT">
+        <seg>Upload Ficheiro .CSV</seg>
+      </tuv>
+    </tu>
+    <tu tuid="common.import.upload_csv.tip">
+      <tuv xml:lang="pt_PT">
+        <seg>(qualquer ordem da coluna; o próximo passo permitrá escolher onde será colocados os dados)</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.id">
       <tuv xml:lang="pt_PT">
         <seg>ID</seg>
@@ -3822,16 +3832,6 @@ Brea, CA 92822 USA&lt;br&gt;&#13;
     <tu tuid="crm.opp.import.to_field">
       <tuv xml:lang="pt_PT">
         <seg>Definir valor no campo</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.upload_csv">
-      <tuv xml:lang="pt_PT">
-        <seg>Upload Ficheiro .CSV</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.upload_csv.tip">
-      <tuv xml:lang="pt_PT">
-        <seg>(qualquer ordem da coluna; o próximo passo permitrá escolher onde será colocados os dados)</seg>
       </tuv>
     </tu>
     <tu tuid="crm.opp.status.closed.lost">

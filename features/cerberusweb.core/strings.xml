@@ -297,6 +297,12 @@
 		<tu tuid='common.import'>
 			<tuv xml:lang="en_US"><seg>import</seg></tuv>
 		</tu>
+		<tu tuid='common.import.upload_csv'>
+			<tuv xml:lang="en_US"><seg>Upload .CSV File</seg></tuv>
+		</tu>
+		<tu tuid='common.import.upload_csv.tip'>
+			<tuv xml:lang="en_US"><seg>(any column order; the next step will let you choose where the data goes)</seg></tuv>
+		</tu>
 		<tu tuid='common.inbox'>
 			<tuv xml:lang="en_US"><seg>inbox</seg></tuv>
 		</tu>

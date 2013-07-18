@@ -1398,8 +1398,8 @@ INSERT INTO `translation` VALUES (651,'acl.crm.opp.view.actions.broadcast','en_U
 INSERT INTO `translation` VALUES (652,'acl.crm.opp.view.actions.export','en_US','[Opportunities] Can export opportunity lists to CSV/XML',NULL);
 INSERT INTO `translation` VALUES (653,'activities.opp.status','en_US','{{actor}} changed opportunity {{target}} to status {{status}}',NULL);
 INSERT INTO `translation` VALUES (654,'crm.opp.add','en_US','Add Opportunity',NULL);
-INSERT INTO `translation` VALUES (655,'crm.opp.import.upload_csv','en_US','Upload .CSV File',NULL);
-INSERT INTO `translation` VALUES (656,'crm.opp.import.upload_csv.tip','en_US','(any column order; the next step will let you choose where the data goes)',NULL);
+INSERT INTO `translation` VALUES (655,'common.import.upload_csv','en_US','Upload .CSV File',NULL);
+INSERT INTO `translation` VALUES (656,'common.import.upload_csv.tip','en_US','(any column order; the next step will let you choose where the data goes)',NULL);
 INSERT INTO `translation` VALUES (657,'crm.opp.status.closed.lost','en_US','Closed/Lost',NULL);
 INSERT INTO `translation` VALUES (658,'crm.opp.status.closed.won','en_US','Closed/Won',NULL);
 INSERT INTO `translation` VALUES (659,'crm.opp.status.open','en_US','Open',NULL);
