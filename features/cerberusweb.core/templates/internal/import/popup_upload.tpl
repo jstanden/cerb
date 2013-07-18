@@ -6,7 +6,7 @@
 
 <fieldset>
 	<legend>Upload File</legend>
-	<b>{'crm.opp.import.upload_csv'|devblocks_translate}:</b> {'crm.opp.import.upload_csv.tip'|devblocks_translate}<br>
+	<b>{'common.import.upload_csv'|devblocks_translate}:</b> {'common.import.upload_csv.tip'|devblocks_translate}<br>
 	<input type="file" name="csv_file">
 </fieldset>
 

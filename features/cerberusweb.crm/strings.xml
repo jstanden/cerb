@@ -47,13 +47,6 @@
 			<tuv xml:lang="en_US"><seg>Add Opportunity</seg></tuv>
 		</tu>
 		
-		<tu tuid='crm.opp.import.upload_csv'>
-			<tuv xml:lang="en_US"><seg>Upload .CSV File</seg></tuv>
-		</tu>
-		<tu tuid='crm.opp.import.upload_csv.tip'>
-			<tuv xml:lang="en_US"><seg>(any column order; the next step will let you choose where the data goes)</seg></tuv>
-		</tu>
-		
 		<tu tuid='crm.opp.status.closed.lost'>
 			<tuv xml:lang="en_US"><seg>Closed/Lost</seg></tuv>
 		</tu>

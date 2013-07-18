@@ -746,6 +746,16 @@
         <seg>импортировать</seg>
       </tuv>
     </tu>
+    <tu tuid="common.import.upload_csv">
+      <tuv xml:lang="ru_RU">
+        <seg></seg>
+      </tuv>
+    </tu>
+    <tu tuid="common.import.upload_csv.tip">
+      <tuv xml:lang="ru_RU">
+        <seg></seg>
+      </tuv>
+    </tu>
     <tu tuid="common.inbox">
       <tuv xml:lang="ru_RU">
         <seg>входящие</seg>
@@ -4491,16 +4501,6 @@ remote control of your helpdesk.</seg>
       </tuv>
     </tu>
     <tu tuid="crm.opp.add">
-      <tuv xml:lang="ru_RU">
-        <seg></seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.upload_csv">
-      <tuv xml:lang="ru_RU">
-        <seg></seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.upload_csv.tip">
       <tuv xml:lang="ru_RU">
         <seg></seg>
       </tuv>

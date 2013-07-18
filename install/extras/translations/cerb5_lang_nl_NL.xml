@@ -821,6 +821,16 @@
         <seg>importeer</seg>
       </tuv>
     </tu>
+    <tu tuid="common.import.upload_csv">
+      <tuv xml:lang="nl_NL">
+        <seg>Upload .CSV bestand</seg>
+      </tuv>
+    </tu>
+    <tu tuid="common.import.upload_csv.tip">
+      <tuv xml:lang="nl_NL">
+        <seg>(willekeurige kolom volgorde; de volgende stap laat u kiezen waar de data naartoe gaat)</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.inbox">
       <tuv xml:lang="nl_NL">
         <seg>inbox</seg>
@@ -1309,16 +1319,6 @@
     <tu tuid="crm.opp.add">
       <tuv xml:lang="nl_NL">
         <seg>Voeg Opportunity toe</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.upload_csv">
-      <tuv xml:lang="nl_NL">
-        <seg>Upload .CSV bestand</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.upload_csv.tip">
-      <tuv xml:lang="nl_NL">
-        <seg>(willekeurige kolom volgorde; de volgende stap laat u kiezen waar de data naartoe gaat)</seg>
       </tuv>
     </tu>
     <tu tuid="crm.opp.status.closed.lost">
