@@ -689,6 +689,13 @@ class DevblocksEventHelper {
 						$value
 					);
 					break;
+					
+				case Model_CustomField::TYPE_WORKER:
+					$workers = DAO_Worker::getAll();
+					
+					if(isset($workers[$value]))
+						$value = $workers[$value]->getName();
+					break;
 			}
 			
 			$out = sprintf(">>> Setting '%s' to:\n%s",
