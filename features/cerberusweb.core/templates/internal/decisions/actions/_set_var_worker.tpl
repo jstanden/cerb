@@ -28,6 +28,15 @@
 	</ul>
 </div>
 
+{if !empty($worker_variables)}
+<b>And the workers from these variables:</b>
+<div style="margin-left:10px;">
+	{foreach from=$worker_variables item=var key=var_key}
+		<label><input type="checkbox" name="{$namePrefix}[vars][]" value="{$var_key}" {if in_array($var_key, $params.vars)}checked="checked"{/if}> {$var}</label>
+	{/foreach}
+</div>
+{/if}
+
 <b>Pick:</b>
 <div style="margin-left:10px;">
 	<select name="{$namePrefix}[mode]">
