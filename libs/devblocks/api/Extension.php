@@ -982,7 +982,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 								return DevblocksEventHelper::renderActionSetVariableString($this->getLabels());
 								break;
 							case Model_CustomField::TYPE_WORKER:
-								return DevblocksEventHelper::renderActionSetVariableWorker();
+								return DevblocksEventHelper::renderActionSetVariableWorker($token, $trigger, $params);
 								break;
 							default:
 								if(substr(@$var['type'],0,4) == 'ctx_') {

@@ -123,6 +123,9 @@
 		<tu tuid='common.anonymous'>
 			<tuv xml:lang="en_US"><seg>anonymous</seg></tuv>
 		</tu>
+		<tu tuid='common.any'>
+			<tuv xml:lang="en_US"><seg>any</seg></tuv>
+		</tu>
 		<tu tuid='common.anybody'>
 			<tuv xml:lang="en_US"><seg>anybody</seg></tuv>
 		</tu>

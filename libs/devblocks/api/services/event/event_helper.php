@@ -572,15 +572,25 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
 	}
 	
-	static function renderActionSetVariableWorker() {
+	static function renderActionSetVariableWorker($token, $trigger, $params) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		
+
 		// Workers
 		$tpl->assign('workers', DAO_Worker::getAll());
 		
 		// Groups
 		$tpl->assign('groups', DAO_Group::getAll());
+
+		// Variables
+		$worker_variables = array();
+		if(is_array($trigger->variables))
+		foreach($trigger->variables as $var_key => $var) {
+			if($var['type'] == 'ctx_' . CerberusContexts::CONTEXT_WORKER)
+				$worker_variables[$var_key] = $var['label'];
+		}
+		$tpl->assign('worker_variables', $worker_variables);
 		
+		// Template
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_worker.tpl');
 	}
 	
@@ -679,6 +689,13 @@ class DevblocksEventHelper {
 						$value
 					);
 					break;
+					
+				case Model_CustomField::TYPE_WORKER:
+					$workers = DAO_Worker::getAll();
+					
+					if(isset($workers[$value]))
+						$value = $workers[$value]->getName();
+					break;
 			}
 			
 			$out = sprintf(">>> Setting '%s' to:\n%s",
@@ -749,6 +766,7 @@ class DevblocksEventHelper {
 			case Model_CustomField::TYPE_WORKER:
 				@$worker_ids = $params['worker_id'];
 				@$group_ids = $params['group_id'];
+				@$variables = $params['vars'];
 				@$mode = $params['mode'];
 				@$opt_is_available = $params['opt_is_available'];
 				@$opt_logged_in = $params['opt_logged_in'];
@@ -769,6 +787,19 @@ class DevblocksEventHelper {
 						$possible_workers[$member->id] = true;
 					}
 				}
+
+				// Add Worker variables
+				if(is_array($variables)) {
+					foreach($variables as $var_key) {
+						if(isset($dict->$var_key) && is_array($dict->$var_key)) {
+							foreach($dict->$var_key as $worker_id => $worker_context) {
+								$possible_workers[$worker_id] = true;
+							}
+						}
+					}
+				}
+				
+				//
 				
 				$workers = DAO_Worker::getAll();
 				
