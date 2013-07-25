@@ -234,11 +234,17 @@
 		<tu tuid='common.delete'>
 			<tuv xml:lang="en_US"><seg>delete</seg></tuv>
 		</tu>
+		<tu tuid='common.description'>
+			<tuv xml:lang="en_US"><seg>Description</seg></tuv>
+		</tu>
 		<tu tuid='common.disabled'>
 			<tuv xml:lang="en_US"><seg>Disabled</seg></tuv>
 		</tu>
 		<tu tuid='common.discard'>
 			<tuv xml:lang="en_US"><seg>discard</seg></tuv>
+		</tu>
+		<tu tuid='common.discussion'>
+			<tuv xml:lang="en_US"><seg>discussion</seg></tuv>
 		</tu>
 		<tu tuid='common.due'>
 			<tuv xml:lang="en_US"><seg>due</seg></tuv>

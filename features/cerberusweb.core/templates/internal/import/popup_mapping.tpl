@@ -20,7 +20,7 @@
 			<input type="checkbox" name="sync_dupes[]" value="{$token}" {if $key.force_match}checked="checked" disabled="disabled"{/if}>
 		</td>
 		<td style="padding-left:10px;" valign="top">
-			<span style="{if $key.required}font-weight:bold;{/if}">{$key.label|capitalize}:</span>
+			<span style="{if $key.required}font-weight:bold;{/if}">{$key.label|capitalize}</span>
 			<input type="hidden" name="field[]" value="{$token}">
 		</td>
 		<td style="padding-left:10px;" valign="top">

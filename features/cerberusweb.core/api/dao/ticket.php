@@ -3073,7 +3073,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 };
 
-class Context_Ticket extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
+class Context_Ticket extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile, IDevblocksContextImport {
 	const ID = 'cerberusweb.contexts.ticket';
 	
 	function authorize($context_id, Model_Worker $worker) {
@@ -3743,6 +3743,160 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			
 		// Display
 		$tpl->display('devblocks:cerberusweb.core::tickets/peek.tpl');
+	}
+	
+	function importGetKeys() {
+		$keys = array(
+			'_mask' => array(
+				'label' => 'Mask',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_Ticket::TICKET_MASK,
+				'required' => true,
+				'force_match' => true,
+			),
+			'org_id' => array(
+				'label' => 'Organization',
+				'type' => 'ctx_' . CerberusContexts::CONTEXT_ORG,
+				'param' => SearchFields_Ticket::TICKET_ORG_ID,
+			),
+			'_status' => array(
+				'label' => 'Status',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => null, // SearchFields_Task::IS_CLOSED,
+			),
+			'reopen_at' => array(
+				'label' => 'Reopen At',
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_Ticket::TICKET_REOPEN_AT,
+			),
+			'owner_id' => array(
+				'label' => 'Owner',
+				'type' => 'ctx_' . CerberusContexts::CONTEXT_WORKER,
+				'param' => SearchFields_Ticket::TICKET_OWNER_ID,
+			),
+			'_watchers' => array(
+				'label' => 'Watchers',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => null,
+			),
+			'updated_date' => array(
+				'label' => 'Updated Date',
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_Ticket::TICKET_UPDATED_DATE,
+			),
+		);
+	
+		$fields = SearchFields_Ticket::getFields();
+		self::_getImportCustomFields($fields, $keys);
+	
+		DevblocksPlatform::sortObjects($keys, '[label]', true);
+	
+		return $keys;
+	}
+	
+	function importKeyValue($key, $value) {
+		switch($key) {
+		}
+	
+		return $value;
+	}
+	
+	function importSaveObject(array $fields, array $custom_fields, array $meta) {
+		// This import is only capable of updating existing rows by mask
+		if(!isset($meta['object_id']) || empty($meta['object_id']))
+			return;
+		
+		// Convert virtual fields to fields
+		if(isset($meta['virtual_fields'])) {
+			
+			// Status
+			
+			if(isset($meta['virtual_fields']['_status'])) {
+				switch(strtolower($meta['virtual_fields']['_status'])) {
+					case 'open':
+						$fields[DAO_Ticket::IS_CLOSED] = 0;
+						$fields[DAO_Ticket::IS_WAITING] = 0;
+						$fields[DAO_Ticket::IS_DELETED] = 0;
+						break;
+						
+					case 'waiting':
+						$fields[DAO_Ticket::IS_CLOSED] = 0;
+						$fields[DAO_Ticket::IS_WAITING] = 1;
+						$fields[DAO_Ticket::IS_DELETED] = 0;
+						break;
+						
+					case 'closed':
+						$fields[DAO_Ticket::IS_CLOSED] = 1;
+						$fields[DAO_Ticket::IS_WAITING] = 0;
+						$fields[DAO_Ticket::IS_DELETED] = 0;
+						break;
+						
+					case 'deleted':
+						$fields[DAO_Ticket::IS_CLOSED] = 1;
+						$fields[DAO_Ticket::IS_WAITING] = 0;
+						$fields[DAO_Ticket::IS_DELETED] = 1;
+						break;
+				}
+			}
+			
+			// Watchers
+			
+			if(isset($meta['virtual_fields']['_watchers'])) {
+				@list($watchers_add, $watchers_del) = self::getWatcherDeltasFromString($meta['virtual_fields']['_watchers']);
+				
+				if(!empty($watchers_del))
+					CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TICKET, $meta['object_id'], array_keys($watchers_del));
+				
+				if(!empty($watchers_add))
+					CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $meta['object_id'], array_keys($watchers_add));
+			}
+		}
+		
+		if(!isset($fields[DAO_Ticket::UPDATED_DATE]))
+			$fields[DAO_Ticket::UPDATED_DATE] = time();
+		
+		if(!empty($fields)) {
+			DAO_Ticket::update($meta['object_id'], $fields);
+		}
+		
+		// Custom fields
+		if(!empty($custom_fields) && !empty($meta['object_id'])) {
+			DAO_CustomFieldValue::formatAndSetFieldValues($this->manifest->id, $meta['object_id'], $custom_fields, false, true, true); //$is_blank_unset (4th)
+		}
+	}
+	
+	private function getWatcherDeltasFromString($string) {
+		$workers = DAO_Worker::getAllActive();
+		$patterns = DevblocksPlatform::parseCsvString($string);
+		
+		$add_watchers = array();
+		$remove_watchers = array();
+		
+		foreach($patterns as $pattern) {
+			$is_add = true;
+			
+			switch(substr($pattern,0,1)) {
+				case '+':
+				case '-':
+					$is_add = substr($pattern,0,1) == '-' ? false : true;
+					$pattern = ltrim($pattern,'-+');
+					break;
+			}
+			
+			foreach($workers as $worker_id => $worker) {
+				$worker_name = $worker->getName();
+			
+				if(false !== stristr('all', $pattern) || false !== stristr($worker_name, $pattern)) {
+					if($is_add) {
+						$add_watchers[$worker_id] = $worker;
+					} else {
+						$remove_watchers[$worker_id] = $worker;
+					}
+				}
+			}
+		}
+
+		return array($add_watchers, $remove_watchers);
 	}
 };
 
