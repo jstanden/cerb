@@ -489,7 +489,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			// Load the address
 			if(null == ($address = DAO_Address::lookupAddress($email, true)))
 				throw new Exception("You have provided an invalid email address.");
-				
+			
 			// Verify address is unlinked
 			if(!empty($address->contact_person_id))
 				throw new Exception("The email address you provided is already associated with an account.");
@@ -517,7 +517,14 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			DAO_ConfirmationCode::delete($code->id);
 			
 			// Log in the session
+			
 			$umsession->login($contact);
+			
+			// Virtual Attendant events
+			
+			Event_ContactRegisteredInSupportCenter::trigger($contact_person_id, null);
+			
+			// Redirect
 			
 			$address_uri = urlencode(str_replace(array('@','.'),array('_at_','_dot_'),$address->email));
 			header("Location: " . $url_writer->write('c=account&a=email&address='.$address_uri, true));

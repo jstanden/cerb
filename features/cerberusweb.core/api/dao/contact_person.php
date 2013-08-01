@@ -929,7 +929,7 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 	
 	function getContext($person, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
-			$prefix = 'Person:';
+			$prefix = 'Contact:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT_PERSON);
@@ -945,9 +945,9 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 			
 		// Token labels
 		$token_labels = array(
-			'created' => $prefix.$translate->_('common.created'),
+			'created|date' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
-			'last_login' => $prefix.$translate->_('dao.contact_person.last_login'),
+			'last_login|date' => $prefix.$translate->_('dao.contact_person.last_login'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		

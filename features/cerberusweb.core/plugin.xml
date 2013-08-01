@@ -400,6 +400,10 @@
 			<class name="AbstractEvent_Comment" />
 		</file>
 		
+		<file path="api/events/abstract/abstract_event_contact.php">
+			<class name="AbstractEvent_ContactPerson" />
+		</file>
+
 		<file path="api/events/abstract/abstract_event_group.php">
 			<class name="AbstractEvent_Group" />
 		</file>
