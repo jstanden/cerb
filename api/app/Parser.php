@@ -1065,6 +1065,7 @@ class CerberusParser {
 			// Bounce if we can't set the group id
 			$group_id = $model->getGroupId();
 			if(empty($group_id)) {
+				$logger->error("[Parser] Can't determine a default group to deliver to.");
 				return FALSE;
 			}
 			
