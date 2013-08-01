@@ -258,6 +258,30 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		return 'devblocks_twig';
 	}
 	
+	public function getFunctions() {
+		return array(
+			'regexp_match_all' => new Twig_Function_Method($this, 'function_regexp_match_all'),
+		);
+	}
+	
+	function function_regexp_match_all($pattern, $text, $group = 0) {
+		$group = intval($group);
+		
+		@preg_match_all($pattern, $text, $matches, PREG_PATTERN_ORDER);
+		
+		if(!empty($matches)) {
+			
+			if(empty($group))
+				return $matches;
+			
+			if(is_array($matches) && isset($matches[$group])) {
+				return $matches[$group];
+			}
+		}
+		
+		return array();
+	}
+	
 	public function getFilters() {
 		return array(
 			'bytes_pretty' => new Twig_Filter_Method($this, 'filter_bytes_pretty'),
