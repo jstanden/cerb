@@ -18,6 +18,14 @@
 	<input type="text" name="confirm" size="10" maxlength="8" value=""><br>
 	<br>
 	
+	<b>First name:</b><br>
+	<input type="text" name="first_name" size="35" value=""><br>
+	<br>
+	
+	<b>Last name:</b><br>
+	<input type="text" name="last_name" size="35" value=""><br>
+	<br>
+	
 	<b>Choose a password:</b><br>
 	<input type="password" name="password" size="35" value=""><br>
 	<br>

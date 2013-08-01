@@ -4,7 +4,7 @@
 	<name>Reports</name>
 	<description>Pluggable reporting area with default reports on various metrics.  This adds a Reports menu and several plugin hooks for creating new reports.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>6.4.0</version>
+	<version>6.4.4</version>
 	<link>http://wiki.cerbweb.com/Features:Reports</link>
 	<image>plugin.png</image>
 

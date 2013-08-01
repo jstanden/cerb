@@ -29,7 +29,9 @@ class PageSection_ProfilesContactPerson extends Extension_PageSection {
 		@array_shift($stack); // calendar_event
 		@$id = intval(array_shift($stack));
 
-		$person = DAO_ContactPerson::get($id);
+		if(false == ($person = DAO_ContactPerson::get($id)))
+			return;
+		
 		$tpl->assign('person', $person);
 
 		// Remember the last tab/URL

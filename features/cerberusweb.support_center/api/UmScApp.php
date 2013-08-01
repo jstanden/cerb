@@ -454,6 +454,8 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	
 	function doRegisterConfirmAction() {
 		@$confirm = DevblocksPlatform::importGPC($_REQUEST['confirm'],'string','');
+		@$first_name = DevblocksPlatform::importGPC($_REQUEST['first_name'],'string','');
+		@$last_name = DevblocksPlatform::importGPC($_REQUEST['last_name'],'string','');
 		@$password = DevblocksPlatform::importGPC($_REQUEST['password'],'string','');
 		@$password2 = DevblocksPlatform::importGPC($_REQUEST['password2'],'string','');
 		
@@ -489,11 +491,19 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			// Load the address
 			if(null == ($address = DAO_Address::lookupAddress($email, true)))
 				throw new Exception("You have provided an invalid email address.");
-				
+			
 			// Verify address is unlinked
 			if(!empty($address->contact_person_id))
 				throw new Exception("The email address you provided is already associated with an account.");
 
+			// Set a new first or last name if given
+			if($address && (!empty($first_name) || !empty($last_name))) {
+				DAO_Address::update($address->id, array(
+					DAO_Address::FIRST_NAME => $first_name ?: $address->first_name,
+					DAO_Address::LAST_NAME => $last_name ?: $address->last_name,
+				));
+			}
+			
 			// Create the contact
 			$salt = CerberusApplication::generatePassword(8);
 			$fields = array(
@@ -517,7 +527,14 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			DAO_ConfirmationCode::delete($code->id);
 			
 			// Log in the session
+			
 			$umsession->login($contact);
+			
+			// Virtual Attendant events
+			
+			Event_ContactRegisteredInSupportCenter::trigger($contact_person_id, null);
+			
+			// Redirect
 			
 			$address_uri = urlencode(str_replace(array('@','.'),array('_at_','_dot_'),$address->email));
 			header("Location: " . $url_writer->write('c=account&a=email&address='.$address_uri, true));
