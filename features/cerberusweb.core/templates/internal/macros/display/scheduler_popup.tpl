@@ -65,25 +65,32 @@
 		{if empty($var.is_private)}
 		<div>
 			<input type="hidden" name="var_keys[]" value="{$var.key}">
-			<b>{$var.label}:</b><br>
-			{if $var.type == 'S'}
-			<input type="text" name="var_vals[]" value="{$job->variables.$var_key}" style="width:98%;">
-			{elseif $var.type == 'N'}
-			<input type="text" name="var_vals[]" value="{$job->variables.$var_key}">
-			{elseif $var.type == 'C'}
-			<label><input type="radio" name="var_vals[]" value="1" {if $job->variables.$var_key}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label> 
-			<label><input type="radio" name="var_vals[]" value="0" {if !$job->variables.$var_key}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label> 
-			{elseif $var.type == 'E'}
-			<input type="text" name="var_vals[]" value="{$job->variables.$var_key}" style="width:98%;">
-			{elseif $var.type == 'W'}
-			{if !isset($workers)}{$workers = DAO_Worker::getAll()}{/if}
-			<select name="var_vals[]">
-				<option value=""></option>
-				{foreach from=$workers item=worker}
-				<option value="{$worker->id}" {if $job->variables.$var_key==$worker->id}selected="selected"{/if}>{$worker->getName()}</option>
-				{/foreach}
-			</select>
-			{/if}
+			<b>{$var.label}:</b>
+			<div style="margin-left:15px;">
+				{if $var.type == 'S'}
+					{if $var.params.widget=='multiple'}
+					<textarea name="var_vals[]" style="height:50px;width:98%;">{$job->variables.$var_key}</textarea>
+					{else}
+					<input type="text" name="var_vals[]" value="{$job->variables.$var_key}" style="width:98%;">
+					{/if}
+				{elseif $var.type == 'D'}
+				{elseif $var.type == 'N'}
+				<input type="text" name="var_vals[]" value="{$job->variables.$var_key}">
+				{elseif $var.type == 'C'}
+				<label><input type="radio" name="var_vals[]" value="1" {if $job->variables.$var_key}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label> 
+				<label><input type="radio" name="var_vals[]" value="0" {if !$job->variables.$var_key}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label> 
+				{elseif $var.type == 'E'}
+				<input type="text" name="var_vals[]" value="{$job->variables.$var_key}" style="width:98%;">
+				{elseif $var.type == 'W'}
+				{if !isset($workers)}{$workers = DAO_Worker::getAll()}{/if}
+				<select name="var_vals[]">
+					<option value=""></option>
+					{foreach from=$workers item=worker}
+					<option value="{$worker->id}" {if $job->variables.$var_key==$worker->id}selected="selected"{/if}>{$worker->getName()}</option>
+					{/foreach}
+				</select>
+				{/if}
+			</div>
 		</div>
 		{/if}
 	{/foreach}

@@ -3171,6 +3171,30 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/tree.tpl');
 	}
 	
+	function addTriggerVariableAction() {
+		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string', '');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('seq', uniqid());
+		
+		// Contexts that can show up in VA vars
+		$list_contexts = Extension_DevblocksContext::getAll(false, 'va_variable');
+		$tpl->assign('list_contexts', $list_contexts);
+
+		// New variable
+		$var = array(
+			'key' => '',
+			'type' => $type,
+			'label' => 'New Variable',
+			'is_private' => 1,
+			'params' => array(),
+		);
+		$tpl->assign('var', $var);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/trigger_variable.tpl');
+	}
+	
 	function saveDecisionPopupAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', '');
@@ -3207,6 +3231,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'],'integer', 0);
 			@$json = DevblocksPlatform::importGPC($_REQUEST['json'],'integer', 0);
 
+			@$var_idxs = DevblocksPlatform::importGPC($_REQUEST['var'],'array',array());
 			@$var_keys = DevblocksPlatform::importGPC($_REQUEST['var_key'],'array',array());
 			@$var_types = DevblocksPlatform::importGPC($_REQUEST['var_type'],'array',array());
 			@$var_labels = DevblocksPlatform::importGPC($_REQUEST['var_label'],'array',array());
@@ -3214,17 +3239,24 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 			$variables = array();
 			
+			if(is_array($var_labels))
 			foreach($var_labels as $idx => $v) {
 				if(empty($var_labels[$idx]))
 					continue;
 				
 				$var_name = 'var_' . DevblocksPlatform::strAlphaNum(DevblocksPlatform::strToPermalink($v),'_');
 				$key = strtolower(!empty($var_keys[$idx]) ? $var_keys[$idx] : $var_name);
+				
+				// Variable params
+				@$var_idx = $var_idxs[$idx];
+				$var_params = isset($_REQUEST['var_params'.$var_idx]) ? DevblocksPlatform::importGPC($_REQUEST['var_params'.$var_idx],'array',array()) : array();
+				
 				$variables[$key] = array(
 					'key' => $key,
 					'label' => $v,
 					'type' => $var_types[$idx],
 					'is_private' => $var_is_private[$idx],
+					'params' => $var_params,
 				);
 			}
 			

@@ -10,7 +10,12 @@
 		<div>
 			<b>{$var.label}:</b><br>
 			{if $var.type == 'S'}
-			<input type="text" name="{$namePrefix}[{$var_key}]" value="{$params.$var_key}" style="width:98%;" class="placeholders">
+				{if $var.params.widget=='multiple'}
+				<textarea name="{$namePrefix}[{$var_key}]" style="height:50px;width:98%;" class="placeholders">{$params.$var_key}</textarea>
+				{else}
+				<input type="text" name="{$namePrefix}[{$var_key}]" value="{$params.$var_key}" style="width:98%;" class="placeholders">
+				{/if}
+			{elseif $var.type == 'D'}
 			{elseif $var.type == 'N'}
 			<input type="text" name="{$namePrefix}[{$var_key}]" value="{$params.$var_key}" class="placeholders">
 			{elseif $var.type == 'C'}
