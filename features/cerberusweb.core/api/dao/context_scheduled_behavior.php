@@ -381,12 +381,13 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 
 	static function buildVariables($var_keys, $var_vals, $trigger) {
 		$vars = array();
-		foreach($var_keys as $idx => $var) {
-			if(isset($var_vals[$idx])) {
+		foreach($var_keys as $var) {
+			if(isset($var_vals[$var])) {
 				@$var_mft = $trigger->variables[$var];
-				$val = $var_vals[$idx];
+				$val = $var_vals[$var];
 				
 				if(!empty($var_mft)) {
+					// Parse dates
 					switch($var_mft['type']) {
 						case Model_CustomField::TYPE_DATE:
 							@$val = strtotime($val);
@@ -394,7 +395,6 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 					}
 				}
 				
-				// Parse dates
 				$vars[$var] = $val;
 			}
 		}
