@@ -787,6 +787,8 @@ class Context_Comment extends Extension_DevblocksContext {
 			'record_label' => $prefix.'Record Label',
 			'record_type' => $prefix.'Record Type Label',
 			'record_url' => $prefix.'Record URL',
+			//'record_watchers' => $prefix.'Record Watchers',
+			'record_watchers_emails' => $prefix.'Record Watchers Email List',
 		);
 		
 		// Custom field/fieldset token labels
@@ -848,6 +850,21 @@ class Context_Comment extends Extension_DevblocksContext {
 				
 				$values['record_label'] = $meta['name'];
 				$values['record_url'] = $meta['permalink'];
+				break;
+				
+			case 'record_watchers':
+			case 'record_watchers_emails':
+				$watchers = CerberusContexts::getWatchers($dictionary['context'], $dictionary['context_id']);;
+				
+				$watchers_list = array();
+				
+				if(is_array($watchers))
+				foreach($watchers as $watcher) {
+					$watchers_list[] = $watcher->email;
+				}
+				
+				$values['record_watchers'] = $watchers;
+				$values['record_watchers_emails'] = implode(', ', $watchers_list);
 				break;
 				
 			case 'author_type':
