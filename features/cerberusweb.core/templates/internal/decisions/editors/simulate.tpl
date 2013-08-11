@@ -10,13 +10,13 @@
 	
 	<div class="" style="display:block;max-height:200px;overflow-y:auto;padding:5px;">
 	<b>Current time</b>:
-	<div style="margin-bottom:2px;">
+	<div style="margin:0px 0px 2px 10px;">
 		<input type="text" name="values[_current_time]" value="now" size="45" style="width:98%;">
 	</div>
 	
 	{foreach from=$dictionary item=v key=k}
-		<b>{$v.label}</b>{* ({$v.type})*}:
-		<div style="margin-bottom:2px;">
+		<b>{$v.label}</b>
+		<div style="margin:0px 0px 2px 10px;">
 			{if $v.type == 'T'}
 			<textarea name="values[{$k}]" cols="45" rows="8" style="width:98%;height:75px;">{$v.value}</textarea>
 			{elseif $v.type == 'C'}
