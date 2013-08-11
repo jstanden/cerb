@@ -7,6 +7,13 @@
 
 <fieldset>
 	<legend>{'common.properties'|devblocks_translate}</legend>
+{if is_array($trigger->variables) && !empty($trigger->variables)}
+<fieldset>
+	<legend>Parameters</legend>
+	{include file="devblocks:cerberusweb.core::internal/decisions/assistant/behavior_variables_entry.tpl" variables=$trigger->variables variable_values=$results field_name="values"}
+</fieldset>
+{/if}
+
 	
 	<div class="" style="display:block;max-height:200px;overflow-y:auto;padding:5px;">
 	<b>Current time</b>:
