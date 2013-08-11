@@ -66,7 +66,7 @@
 		<div>
 			<input type="hidden" name="var_keys[]" value="{$var.key}">
 			<b>{$var.label}:</b>
-			<div style="margin-left:15px;">
+			<div style="margin:0px 0px 5px 15px;">
 				{if $var.type == 'S'}
 					{if $var.params.widget=='multiple'}
 					<textarea name="var_vals[]" style="height:50px;width:98%;">{$job->variables.$var_key}</textarea>
@@ -74,6 +74,14 @@
 					<input type="text" name="var_vals[]" value="{$job->variables.$var_key}" style="width:98%;">
 					{/if}
 				{elseif $var.type == 'D'}
+				<select name="var_vals[]">
+					{$options = DevblocksPlatform::parseCrlfString($var.params.options, true)}
+					{if is_array($options)}
+					{foreach from=$options item=option}
+					<option value="{$option}">{$option}</option>
+					{/foreach}
+					{/if}
+				</select>
 				{elseif $var.type == 'N'}
 				<input type="text" name="var_vals[]" value="{$job->variables.$var_key}">
 				{elseif $var.type == 'C'}

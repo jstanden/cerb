@@ -37,6 +37,10 @@
 		<label><input type="radio" name="var_params{$seq}[widget]" value="multiple" {if $var.params.widget=='multiple'}checked="checked"{/if}> Multiple lines</label>
 	</div>
 	{elseif $var.type == 'D'}
+	<div>
+		<textarea name="var_params{$seq}[options]" rows="5" cols="45" style="width:98%;" placeholder="Enter one option per line">
+{$var.params.options}</textarea>
+	</div>
 	{elseif $var.type == 'N'}
 	{elseif $var.type == 'E'}
 	{elseif $var.type == 'C'}

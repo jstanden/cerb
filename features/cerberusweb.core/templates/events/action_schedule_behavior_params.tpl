@@ -16,6 +16,14 @@
 				<input type="text" name="{$namePrefix}[{$var_key}]" value="{$params.$var_key}" style="width:98%;" class="placeholders">
 				{/if}
 			{elseif $var.type == 'D'}
+			<select name="var_vals[]">
+				{$options = DevblocksPlatform::parseCrlfString($var.params.options, true)}
+				{if is_array($options)}
+				{foreach from=$options item=option}
+				<option value="{$option}">{$option}</option>
+				{/foreach}
+				{/if}
+			</select>
 			{elseif $var.type == 'N'}
 			<input type="text" name="{$namePrefix}[{$var_key}]" value="{$params.$var_key}" class="placeholders">
 			{elseif $var.type == 'C'}

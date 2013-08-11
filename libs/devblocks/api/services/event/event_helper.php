@@ -755,6 +755,8 @@ class DevblocksEventHelper {
 				
 			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_MULTI_LINE:
+			case Model_CustomField::TYPE_DROPDOWN:
+			case Model_CustomField::TYPE_URL:
 				if(!isset($params['value']))
 					break;
 				
