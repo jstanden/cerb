@@ -291,6 +291,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		return array(
 			'bytes_pretty' => new Twig_Filter_Method($this, 'filter_bytes_pretty'),
 			'date_pretty' => new Twig_Filter_Method($this, 'filter_date_pretty'),
+			'json_pretty' => new Twig_Filter_Method($this, 'filter_json_pretty'),
 			'md5' => new Twig_Filter_Method($this, 'filter_md5'),
 			'regexp' => new Twig_Filter_Method($this, 'filter_regexp'),
 			'truncate' => new Twig_Filter_Method($this, 'filter_truncate'),
@@ -303,6 +304,10 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	function filter_date_pretty($string, $is_delta=false) {
 		return DevblocksPlatform::strPrettyTime($string, $is_delta);
+	}
+	
+	function filter_json_pretty($string) {
+		return DevblocksPlatform::strFormatJson($string);
 	}
 	
 	function filter_md5($string) {
