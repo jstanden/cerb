@@ -615,6 +615,17 @@ class Model_Address {
 			$this->last_name
 		);
 	}
+	
+	function getNameWithEmail() {
+		$name = $this->getName();
+		
+		if(!empty($name))
+			$name .= ' <' . $this->email . '>';
+		else
+			$name = $this->email;
+		
+		return $name;
+	}
 };
 
 class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {

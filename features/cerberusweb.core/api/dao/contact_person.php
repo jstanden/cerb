@@ -906,14 +906,8 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 		$contact = DAO_ContactPerson::get($context_id);
 
 		$address = $contact->getPrimaryAddress();
+		$name = $address->getNameWithEmail();
 
-		$name = $address->getName();
-		
-		if(!empty($name))
-			$name .= ' <' . $address->email . '>';
-		else
-			$name = $address->email;
-		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($address->email);
 		
@@ -962,8 +956,11 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 		
 		// Address token values
 		if(null != $person) {
+			$address = $person->getPrimaryAddress();
+			$name = $address->getNameWithEmail();
+			
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = '(contact person)';
+			$token_values['_label'] = $name;
 			$token_values['id'] = $person->id;
 			if(!empty($person->created))
 				$token_values['created'] = $person->created;
