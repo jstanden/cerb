@@ -170,6 +170,12 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		$this->setValues($values);
 	}
 	
+	function renderSimulatorTarget($trigger, $event_model) {
+		$context = CerberusContexts::CONTEXT_MESSAGE;
+		$context_id = $event_model->params['message_id'];
+		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
+	}
+	
 	function getValuesContexts($trigger) {
 		$vals = array(
 			/*

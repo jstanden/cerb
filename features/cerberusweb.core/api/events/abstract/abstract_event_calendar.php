@@ -84,6 +84,12 @@ abstract class AbstractEvent_Calendar extends Extension_DevblocksEvent {
 		$this->setValues($values);
 	}
 	
+	function renderSimulatorTarget($trigger, $event_model) {
+		$context = CerberusContexts::CONTEXT_CALENDAR;
+		$context_id = $event_model->params['calendar_id'];
+		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
+	}
+	
 	function getValuesContexts($trigger) {
 		$vals = array(
 			'event_id' => array(

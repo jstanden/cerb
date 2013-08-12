@@ -144,6 +144,12 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		$this->setValues($values);
 	}
 	
+	function renderSimulatorTarget($trigger, $event_model) {
+		$context = CerberusContexts::CONTEXT_TICKET;
+		$context_id = $event_model->params['ticket_id'];
+		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
+	}
+	
 	function getValuesContexts($trigger) {
 		$vals = array(
 			'ticket_id' => array(

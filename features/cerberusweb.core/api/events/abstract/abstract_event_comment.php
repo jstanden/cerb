@@ -84,6 +84,14 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 		$this->setValues($values);
 	}
 	
+	/*
+	function renderSimulatorTarget($trigger, $event_model) {
+		$context = CerberusContexts::CONTEXT_COMMENT;
+		$context_id = $event_model->params['comment_id'];
+		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
+	}
+	*/
+	
 	function getValuesContexts($trigger) {
 		$vals = array(
 			'comment_id' => array(

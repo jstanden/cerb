@@ -68,6 +68,12 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 		$this->setValues($values);
 	}
 	
+	function renderSimulatorTarget($trigger, $event_model) {
+		$context = CerberusContexts::CONTEXT_TASK;
+		$context_id = $event_model->params['task_id'];
+		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
+	}
+	
 	function getValuesContexts($trigger) {
 		$vals = array(
 			'task_id' => array(

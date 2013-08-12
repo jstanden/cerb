@@ -85,6 +85,12 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 		$this->setValues($values);
 	}
 	
+	function renderSimulatorTarget($trigger, $event_model) {
+		$context = CerberusContexts::CONTEXT_ADDRESS;
+		$context_id = $event_model->params['address_id'];
+		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
+	}
+	
 	function getValuesContexts($trigger) {
 		$vals = array(
 			'email_id' => array(

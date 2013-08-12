@@ -68,6 +68,12 @@ abstract class AbstractEvent_ContactPerson extends Extension_DevblocksEvent {
 		$this->setValues($values);
 	}
 	
+	function renderSimulatorTarget($trigger, $event_model) {
+		$context = CerberusContexts::CONTEXT_CONTACT_PERSON;
+		$context_id = $event_model->params['contact_id'];
+		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
+	}
+	
 	function getValuesContexts($trigger) {
 		$vals = array(
 			'contact_id' => array(
