@@ -58,6 +58,24 @@ class DevblocksEventHelper {
 		return $value;
 	}
 	
+	public function renderSimulatorTarget($context, $context_id, $trigger, $event_model) {
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return;
+		
+		$labels = array();
+		$values = array();
+		CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+		$tpl->assign('context_ext', $context_ext);
+		$tpl->assign('values', $values);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/simulator/target.tpl');
+	}
+	
 	/*
 	 * Action: Custom Fields
 	 */

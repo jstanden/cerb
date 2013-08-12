@@ -2790,6 +2790,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 	function showBehaviorSimulatorPopupAction() {
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer', 0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -2804,9 +2805,12 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$event_model = $ext_event->generateSampleEventModel($context_id);
 		$ext_event->setEvent($event_model);
-
+		
 		$event_params_json = json_encode($event_model->params);
 		$tpl->assign('event_params_json', $event_params_json);
+		
+		$tpl->assign('ext_event', $ext_event);
+		$tpl->assign('event_model', $event_model);
 		
 		$labels = $ext_event->getLabels($trigger);
 		$values = $ext_event->getValues();

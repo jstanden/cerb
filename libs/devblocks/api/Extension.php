@@ -939,6 +939,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	abstract function renderActionExtension($token, $trigger, $params=array(), $seq=null);
 	abstract function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict);
 	protected function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {}
+	function renderSimulatorTarget($trigger, $event_model) {}
 	
 	function renderAction($token, $trigger, $params=array(), $seq=null) {
 		$actions = $this->getActionExtensions();
