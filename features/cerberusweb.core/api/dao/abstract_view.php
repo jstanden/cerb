@@ -2326,11 +2326,12 @@ class C4_AbstractViewLoader {
 		$view->renderSubtotals = $view_model['subtotals'];
 		
 		// Convert JSON params back to objects
-		$func = function(&$e) {
+		$func = function(&$e) use (&$func) {
 			if(isset($e['field']) && isset($e['operator']) && isset($e['value'])) {
 				$e = new DevblocksSearchCriteria($e['field'], $e['operator'], $e['value']);
+				
 			} else {
-				// [TODO] If the value is another style of array, we need to recurse
+				if(is_array($e))
 				array_walk(
 					$e,
 					$func
