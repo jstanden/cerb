@@ -567,12 +567,14 @@ class ChInternalController extends DevblocksControllerExtension {
 	function chooserOpenAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
+		@$single = DevblocksPlatform::importGPC($_REQUEST['single'],'integer',0);
 
 		if(null != ($context_extension = DevblocksPlatform::getExtension($context, true))) {
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl->assign('context', $context_extension);
 			$tpl->assign('layer', $layer);
 			$tpl->assign('view', $context_extension->getChooserView());
+			$tpl->assign('single', $single);
 			$tpl->display('devblocks:cerberusweb.core::context_links/choosers/__generic.tpl');
 		}
 	}
