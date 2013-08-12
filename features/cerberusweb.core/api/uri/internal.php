@@ -2884,12 +2884,14 @@ class ChInternalController extends DevblocksControllerExtension {
  		
  		// Sanitize values
  		
+ 		if(is_array($values))
  		foreach($values as $k => $v) {
  			if(
  				(isset($conditions[$k]) && $conditions[$k]['type'] == Model_CustomField::TYPE_DATE)
  				|| $k == '_current_time'
- 			)
+ 			) {
  				$values[$k] = strtotime($v);
+ 			}
  		}
  		
  		// Dictionary

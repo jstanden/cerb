@@ -59,6 +59,6 @@
 // Choosers
 $('#{$vars_uniqid} button.chooser').each(function() {
 	var $this = $(this);
-	ajax.chooser(this, $this.attr('context'), $this.attr('node_name'), { autocomplete:true });
+	ajax.chooser(this, $this.attr('context'), $this.attr('node_name'), { autocomplete:false });
 });
 </script>
