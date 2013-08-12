@@ -21,9 +21,8 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	const ID = 'id';
 	const TITLE = 'title';
 	const IS_DISABLED = 'is_disabled';
-	const OWNER_CONTEXT = 'owner_context';
-	const OWNER_CONTEXT_ID = 'owner_context_id';
 	const EVENT_POINT = 'event_point';
+	const VIRTUAL_ATTENDANT_ID = 'virtual_attendant_id';
 	const POS = 'pos';
 	const VARIABLES_JSON = 'variables_json';
 
@@ -202,7 +201,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, title, is_disabled, owner_context, owner_context_id, event_point, pos, variables_json ".
+		$sql = "SELECT id, title, is_disabled, event_point, virtual_attendant_id, pos, variables_json ".
 			"FROM trigger_event ".
 			$where_sql.
 			$sort_sql.
@@ -228,9 +227,8 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			$object->id = intval($row['id']);
 			$object->title = $row['title'];
 			$object->is_disabled = intval($row['is_disabled']);
-			$object->owner_context = $row['owner_context'];
-			$object->owner_context_id = intval($row['owner_context_id']);
 			$object->event_point = $row['event_point'];
+			$object->virtual_attendant_id = $row['virtual_attendant_id'];
 			$object->pos = intval($row['pos']);
 			$object->variables = @json_decode($row['variables_json'], true);
 			$objects[$object->id] = $object;
@@ -311,14 +309,12 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			"trigger_event.id as %s, ".
 			"trigger_event.title as %s, ".
 			"trigger_event.is_disabled as %s, ".
-			"trigger_event.owner_context as %s, ".
-			"trigger_event.owner_context_id as %s, ".
+			"trigger_event.virtual_attendant_id as %s, ".
 			"trigger_event.event_point as %s ",
 				SearchFields_TriggerEvent::ID,
 				SearchFields_TriggerEvent::TITLE,
 				SearchFields_TriggerEvent::IS_DISABLED,
-				SearchFields_TriggerEvent::OWNER_CONTEXT,
-				SearchFields_TriggerEvent::OWNER_CONTEXT_ID,
+				SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID,
 				SearchFields_TriggerEvent::EVENT_POINT
 			);
 			
@@ -459,8 +455,7 @@ class SearchFields_TriggerEvent implements IDevblocksSearchFields {
 	const ID = 't_id';
 	const TITLE = 't_title';
 	const IS_DISABLED = 't_is_disabled';
-	const OWNER_CONTEXT = 't_owner_context';
-	const OWNER_CONTEXT_ID = 't_owner_context_id';
+	const VIRTUAL_ATTENDANT_ID = 't_virtual_attendant_id';
 	const EVENT_POINT = 't_event_point';
 	
 	/**
@@ -473,8 +468,7 @@ class SearchFields_TriggerEvent implements IDevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'trigger_event', 'id', $translate->_('common.id')),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 'trigger_event', 'title', $translate->_('common.title')),
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'trigger_event', 'is_disabled', $translate->_('dao.trigger_event.is_disabled')),
-			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'trigger_event', 'owner_context', $translate->_('dao.trigger_event.owner_context')),
-			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'trigger_event', 'owner_context_id', $translate->_('dao.trigger_event.owner_context_id')),
+			self::VIRTUAL_ATTENDANT_ID => new DevblocksSearchField(self::VIRTUAL_ATTENDANT_ID, 'trigger_event', 'virtual_attendant_id', $translate->_('common.virtual_attendant')),
 			self::EVENT_POINT => new DevblocksSearchField(self::EVENT_POINT, 'trigger_event', 'event_point', $translate->_('common.event')),
 		);
 		
@@ -489,9 +483,8 @@ class Model_TriggerEvent {
 	public $id;
 	public $title;
 	public $is_disabled;
-	public $owner_context;
-	public $owner_context_id;
 	public $event_point;
+	public $virtual_attendant_id;
 	public $pos;
 	public $variables = array();
 	
@@ -771,8 +764,7 @@ class View_TriggerEvent extends C4_AbstractView {
 			SearchFields_TriggerEvent::ID,
 			SearchFields_TriggerEvent::TITLE,
 			SearchFields_TriggerEvent::IS_DISABLED,
-			SearchFields_TriggerEvent::OWNER_CONTEXT,
-			SearchFields_TriggerEvent::OWNER_CONTEXT_ID,
+			SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID,
 			SearchFields_TriggerEvent::EVENT_POINT,
 		);
 		
@@ -826,8 +818,7 @@ class View_TriggerEvent extends C4_AbstractView {
 			case SearchFields_TriggerEvent::ID:
 			case SearchFields_TriggerEvent::TITLE:
 			case SearchFields_TriggerEvent::IS_DISABLED:
-			case SearchFields_TriggerEvent::OWNER_CONTEXT:
-			case SearchFields_TriggerEvent::OWNER_CONTEXT_ID:
+			case SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID:
 			case SearchFields_TriggerEvent::EVENT_POINT:
 			case 'placeholder_string':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
@@ -877,8 +868,7 @@ class View_TriggerEvent extends C4_AbstractView {
 			case SearchFields_TriggerEvent::ID:
 			case SearchFields_TriggerEvent::TITLE:
 			case SearchFields_TriggerEvent::IS_DISABLED:
-			case SearchFields_TriggerEvent::OWNER_CONTEXT:
-			case SearchFields_TriggerEvent::OWNER_CONTEXT_ID:
+			case SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID:
 			case SearchFields_TriggerEvent::EVENT_POINT:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;

@@ -50,6 +50,8 @@
 		<patch version="6.2.0" revision="1016" file="patches/6.x/6.2.0.php" />
 		<patch version="6.3.0" revision="1030" file="patches/6.x/6.3.0.php" />
 		<patch version="6.4.0" revision="1046" file="patches/6.x/6.4.0.php" />
+		
+		<patch version="6.4.0" revision="1056" file="patches/6.x/6.5.0.php" />
 	</patches>
 
 	<!-- Controller Routing -->
@@ -338,6 +340,14 @@
 		<file path="api/dao/view_rss.php">
 			<class name="DAO_ViewRss" />
 			<class name="Model_ViewRss" />
+		</file>
+		
+		<file path="api/dao/virtual_attendant.php">
+			<class name="Context_VirtualAttendant" />
+			<class name="DAO_VirtualAttendant" />
+			<class name="Model_VirtualAttendant" />
+			<class name="SearchFields_VirtualAttendant" />
+			<class name="View_VirtualAttendant" />
 		</file>
 		
 		<file path="api/dao/worker.php">
@@ -1160,6 +1170,30 @@
 					</value>
 				</param>
 				<param key="context_expand_export" value="group_,bucket_,owner_,latest_message_sender_" />
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.virtual.attendant</id>
+			<name>Virtual Attendant</name>
+			<class>
+				<file>api/dao/virtual_attendant.php</file>
+				<name>Context_VirtualAttendant</name>
+			</class>
+			<params>
+				<param key="alias" value="virtual_attendant" />
+				<param key="dao_class" value="DAO_VirtualAttendant" />
+				<param key="view_class" value="View_VirtualAttendant" />
+				<param key="options">
+					<value>
+						<data key="create" />
+						<data key="custom_fields" />
+						<data key="find" />
+						<!--<data key="snippets" />-->
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
 			</params>
 		</extension>
 
@@ -2638,6 +2672,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="ticket" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.virtual_attendant</id>
+				<name>Virtual Attendant Section</name>
+				<class>
+					<file>api/uri/profiles/virtual_attendant.php</file>
+					<name>PageSection_ProfilesVirtualAttendant</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="virtual_attendant" />
 				</params>
 			</extension>
 			
