@@ -261,9 +261,14 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	public function getFunctions() {
 		return array(
 			'regexp_match_all' => new Twig_Function_Method($this, 'function_regexp_match_all'),
+			'json_decode' => new Twig_Function_Method($this, 'function_json_decode'),
 		);
 	}
 	
+	
+	function function_json_decode($str) {
+		return json_decode($str, true);
+	}
 	function function_regexp_match_all($pattern, $text, $group = 0) {
 		$group = intval($group);
 		
