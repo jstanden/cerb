@@ -1015,26 +1015,14 @@ class CerberusContexts {
 				&& null != ($trigger_id = end($stack))
 				&& !empty($trigger_id)
 				&& null != ($trigger = DAO_TriggerEvent::get($trigger_id))
+				&& false != ($trigger_va = $trigger->getVirtualAttendant())
 			) {
 				/* @var $trigger Model_TriggerEvent */
 				
-				switch($trigger->owner_context) {
-					case CerberusContexts::CONTEXT_GROUP:
-						$group = DAO_Group::get($trigger->owner_context_id);
-						$actor_name = $group->name . ' [' . $trigger->title . ']';
-						$actor_context = $trigger->owner_context;
-						$actor_context_id = $trigger->owner_context_id;
-						$actor_url = sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_GROUP, $actor_context_id);
-						break;
-						
-					case CerberusContexts::CONTEXT_WORKER:
-						$worker = DAO_Worker::get($trigger->owner_context_id);
-						$actor_name = $worker->getName() . ' [' . $trigger->title . ']';
-						$actor_context = $trigger->owner_context;
-						$actor_context_id = $trigger->owner_context_id;
-						$actor_url = sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_WORKER, $actor_context_id);
-						break;
-				}
+				$actor_name = sprintf("%s [%s]", $trigger_va->name, $trigger->title);
+				$actor_context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
+				$actor_context_id = $trigger_va->id;
+				$actor_url = sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger_va->id);
 				
 			// Otherwise see if we have an active session
 			} else {
