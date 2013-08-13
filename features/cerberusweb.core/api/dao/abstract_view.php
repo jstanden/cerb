@@ -1677,10 +1677,17 @@ abstract class C4_AbstractView {
 				if(null == ($ext = Extension_DevblocksContext::get($from_context)))
 					continue;
 				
-				if(false == ($meta = $ext->getMeta($from_context_id)) || empty($meta['name']))
-					continue;
+				if(!empty($from_context_id)) {
+					if(false == ($meta = $ext->getMeta($from_context_id)) || empty($meta['name']))
+						continue;
+					
+					$label = $meta['name'];
+					
+				} else {
+					$label = $ext->manifest->name;
+					
+				}
 
-				$label = $meta['name'];
 				$oper = DevblocksSearchCriteria::OPER_IN;
 				$values = array($filter_field => $from_context . ':' . $from_context_id);
 				

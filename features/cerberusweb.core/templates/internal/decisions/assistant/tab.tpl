@@ -29,7 +29,7 @@
 	$('#nodeMenu{$tab_uniqid}').appendTo('body');
 	
 	$('#frmTrigger{$tab_uniqid} BUTTON.add').click(function() {
-		$popup = genericAjaxPopup('node_trigger','c=internal&a=showDecisionPopup&trigger_id=0&context={$context}&context_id={$context_id}{if isset($only_event_ids)}&only_event_ids={$only_event_ids}{/if}',null,false,'500');
+		$popup = genericAjaxPopup('node_trigger','c=internal&a=showDecisionPopup&trigger_id=0&va_id={$va->id}{if isset($only_event_ids)}&only_event_ids={$only_event_ids}{/if}',null,false,'500');
 		
 		$popup.one('trigger_create',function(event) {
 			if(null == event.event_point || null == event.trigger_id)

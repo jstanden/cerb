@@ -499,7 +499,9 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 				$triggers[$trigger->id] = $trigger;
 			}
 			unset($event->params['_whisper']['_trigger_id']);
+			
 		} else {
+			// [TODO] Make sure the VA isn't disabled
 			$triggers = DAO_TriggerEvent::getByEvent($event->id, false);
 		}
 
@@ -511,9 +513,12 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		// We're restricting the scope of the event
 		if(isset($event->params['_whisper']) && is_array($event->params['_whisper']) && !empty($event->params['_whisper'])) {
 			foreach($triggers as $trigger_id => $trigger) { /* @var $trigger Model_TriggerEvent */
+				if(false == ($trigger_va = $trigger->getVirtualAttendant()))
+					continue;
+				
 				if (
-					null != ($allowed_ids = @$event->params['_whisper'][$trigger->owner_context])
-					&& in_array($trigger->owner_context_id, !is_array($allowed_ids) ? array($allowed_ids) : $allowed_ids)
+					null != ($allowed_ids = @$event->params['_whisper'][$trigger_va->owner_context])
+					&& in_array($trigger_va->owner_context_id, !is_array($allowed_ids) ? array($allowed_ids) : $allowed_ids)
 					) {
 					// We're allowed to see this event
 				} else {
@@ -579,11 +584,10 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			
 			$start_runtime = intval(microtime(true));
 			
-			$logger->info(sprintf("Running decision tree on trigger %d (%s) for %s=%d",
+			$logger->info(sprintf("Running decision tree on trigger %d (%s) for VA #%d",
 				$trigger->id,
 				$trigger->title,
-				$trigger->owner_context,
-				$trigger->owner_context_id
+				$trigger->virtual_attendant_id
 			));
 			
 			$trigger->runDecisionTree($dict);
@@ -682,7 +686,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		DAO_ContextLink::delete($context, $context_ids);
 		DAO_CustomFieldValue::deleteByContextIds($context, $context_ids);
 		DAO_Notification::deleteByContext($context, $context_ids);
-		DAO_TriggerEvent::deleteByOwner($context, $context_ids);
+		DAO_VirtualAttendant::deleteByOwner($context, $context_ids);
 		DAO_WorkspacePage::deleteByOwner($context, $context_ids);
 	}
 	
@@ -818,10 +822,10 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			$logger->info(sprintf("Purged %d %s notifications.", $deletes, $context));
 		
 		// ===========================================================================
-		// Virtual Attendant Behavior
+		// Virtual Attendants
 		
 		$rs = $db->Execute(sprintf("SELECT ctx.id ".
-			"FROM trigger_event AS ctx ".
+			"FROM virtual_attendant AS ctx ".
 			"LEFT JOIN %s ON ctx.owner_context_id=%s ".
 			"WHERE ctx.owner_context = %s ".
 			"AND %s IS NULL",
@@ -835,12 +839,12 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			$deletes = 0;
 			
 			while($row = mysql_fetch_row($rs)) {
-				DAO_TriggerEvent::delete($row[0]);
+				DAO_VirtualAttendant::delete($row[0]);
 				$deletes++;
 			}
 			
 			if(null != ($deletes = $db->Affected_Rows()))
-				$logger->info(sprintf("Purged %d %s virtual attendant behaviors.", $deletes, $context));
+				$logger->info(sprintf("Purged %d %s virtual attendants.", $deletes, $context));
 		}
 	}
 	

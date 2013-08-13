@@ -2658,7 +2658,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function showDecisionPopupAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string', '');
+		@$va_id = DevblocksPlatform::importGPC($_REQUEST['va_id'],'integer', 0);
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		@$only_event_ids = DevblocksPlatform::importGPC($_REQUEST['only_event_ids'],'string', '');
 		
@@ -2691,13 +2691,12 @@ class ChInternalController extends DevblocksControllerExtension {
 			$type = 'trigger';
 			
 			if(empty($trigger_id)) {
-				@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer', 0);
-				
 				$trigger = null;
-				$tpl->assign('context', $context);
-				$tpl->assign('context_id', $context_id);
 				
-				$events = Extension_DevblocksEvent::getByContext($context, false);
+				$va = DAO_VirtualAttendant::get($va_id);
+				$tpl->assign('va', $va);
+				
+				$events = Extension_DevblocksEvent::getByContext($va->owner_context, false);
 				
 				// Are we filtering the available events?
 				if(!empty($only_event_ids)) {
@@ -2943,8 +2942,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	function saveBehaviorImportJsonAction() {
 		@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'],'string', '');
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string', '');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer', 0);
+		@$va_id = DevblocksPlatform::importGPC($_REQUEST['va_id'],'integer', 0);
 		@$configure = DevblocksPlatform::importGPC($_REQUEST['configure'],'array', array());
 		
 		header('Content-type: application/json');
@@ -2973,16 +2971,17 @@ class ChInternalController extends DevblocksControllerExtension {
 			) {
 				throw new Exception("Invalid event in the provided behavior.");
 			}
-
-			// [TODO] Verify that the active worker has access to make events for this context
 			
 			// Verify the event can be owned by this context
 			
+			if(false == ($va = DAO_VirtualAttendant::get($va_id))) {
+				throw new Exception("Invalid Virtual Attendant as import destination.");
+			}
 			if(
 				!isset($event->manifest->params['contexts'])
 				|| !isset($event->manifest->params['contexts'][0])
 				|| !is_array($event->manifest->params['contexts'][0])
-				|| !in_array($context, array_keys($event->manifest->params['contexts'][0]))
+				|| !in_array($va->owner_context, array_keys($event->manifest->params['contexts'][0]))
 			) {
 				throw new Exception("Unable to bind event to this owner.");
 			}
@@ -3027,9 +3026,8 @@ class ChInternalController extends DevblocksControllerExtension {
 				DAO_TriggerEvent::TITLE => $json['behavior']['title'],
 				DAO_TriggerEvent::EVENT_POINT => $event_point,
 				DAO_TriggerEvent::VARIABLES_JSON => isset($json['behavior']['variables']) ? json_encode($json['behavior']['variables']) : '',
-				DAO_TriggerEvent::OWNER_CONTEXT => $context,
-				DAO_TriggerEvent::OWNER_CONTEXT_ID => $context_id,
-				DAO_TriggerEvent::POS => DAO_TriggerEvent::getNextPosByOwnerAndEvent($context, $context_id, $event_point),
+				DAO_TriggerEvent::VIRTUAL_ATTENDANT_ID => $va->id,
+				DAO_TriggerEvent::POS => DAO_TriggerEvent::getNextPosByVirtualAttendantAndEvent($va->id, $event_point),
 				DAO_TriggerEvent::IS_DISABLED => 1, // default to disabled until successfully imported
 			);
 			
@@ -3270,17 +3268,16 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 			// Create trigger
 			if(empty($trigger_id)) {
-				@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string', '');
-				@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer', 0);
+				@$va_id = DevblocksPlatform::importGPC($_REQUEST['va_id'],'integer', 0);
 				@$event_point = DevblocksPlatform::importGPC($_REQUEST['event_point'],'string', '');
 				
 				$type = 'trigger';
 				
-				$pos = DAO_TriggerEvent::getNextPosByOwnerAndEvent($context, $context_id, $event_point);
+				$pos = DAO_TriggerEvent::getNextPosByVirtualAttendantAndEvent($va_id, $event_point);
+				
 				
 				$trigger_id = DAO_TriggerEvent::create(array(
-					DAO_TriggerEvent::OWNER_CONTEXT => $context,
-					DAO_TriggerEvent::OWNER_CONTEXT_ID => $context_id,
+					DAO_TriggerEvent::VIRTUAL_ATTENDANT_ID => $va_id,
 					DAO_TriggerEvent::EVENT_POINT => $event_point,
 					DAO_TriggerEvent::TITLE => $title,
 					DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,

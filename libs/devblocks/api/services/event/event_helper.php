@@ -1525,8 +1525,8 @@ class DevblocksEventHelper {
 		// Fields
 		
 		$fields = array(
-			DAO_Comment::OWNER_CONTEXT => $trigger->owner_context,
-			DAO_Comment::OWNER_CONTEXT_ID => $trigger->owner_context_id,
+			DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
+			DAO_Comment::OWNER_CONTEXT_ID => $trigger->virtual_attendant_id,
 			DAO_Comment::CREATED => time(),
 			DAO_Comment::COMMENT => $content,
 		);
@@ -2317,8 +2317,8 @@ class DevblocksEventHelper {
 					// Comment content
 					if(!empty($comment)) {
 						$fields = array(
-							DAO_Comment::OWNER_CONTEXT => $trigger->owner_context,
-							DAO_Comment::OWNER_CONTEXT_ID => $trigger->owner_context_id,
+							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
+							DAO_Comment::OWNER_CONTEXT_ID => $trigger->virtual_attendant_id,
 							DAO_Comment::COMMENT => $comment,
 							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
 							DAO_Comment::CONTEXT_ID => $task_id,

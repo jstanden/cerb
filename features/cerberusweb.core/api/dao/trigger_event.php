@@ -63,84 +63,73 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		return $behaviors;
 	}
 	
-	static function getByOwners($owners, $event_point=null) {
+	static function getByVirtualAttendantOwners($owners, $event_point=null, $with_disabled=false) {
 		$macros = array();
-		
-		foreach($owners as $owner) {
-			@$owner_context = $owner[0];
-			@$owner_context_id = $owner[1];
-			@$owner_label = $owner[2];
+
+		$vas = DAO_VirtualAttendant::getByOwners($owners);
+
+		if(is_array($vas))
+		foreach($vas as $va) {
+			$behaviors = $va->getBehaviors($event_point, $with_disabled);
 			
-			if(empty($owner_context))
+			if(empty($behaviors))
 				continue;
 			
-			if($owner_context != CerberusContexts::CONTEXT_APPLICATION && empty($owner_context_id))
-				continue;
+			$results = array();
 			
-			$add_macros = DAO_TriggerEvent::getByOwner($owner_context, $owner_context_id, $event_point);
+			if(is_array($behaviors))
+			foreach($behaviors as $behavior_id => $behavior) {
+				$result = clone $behavior;
 			
-			if(!empty($owner_label)) {
-				foreach($add_macros as $k => $add_macro) { /* @var $add_macro Model_TriggerEvent */
-					$add_macros[$k]->title = sprintf("[%s] %s", $owner_label, $add_macro->title);
+				$has_public_vars = false;
+				if(is_array($result->variables))
+				foreach($result->variables as $var_name => $var_data) {
+					if(empty($var_data['is_private']))
+						$has_public_vars = true;
 				}
+				$result->has_public_vars = $has_public_vars;
+				
+				$results[$behavior_id] = $result;
 			}
 			
-			$macros = $macros + $add_macros;
+			$macros = $macros + $results;
 		}
 		
-		foreach($macros as $macro_id => $macro) {
-			$has_public_vars = false;
-			if(is_array($macro->variables))
-			foreach($macro->variables as $var_name => $var_data) {
-				if(empty($var_data['is_private']))
-					$has_public_vars = true;
-			}
-			
-			$macros[$macro_id]->has_public_vars = $has_public_vars;
-		}
+		DevblocksPlatform::sortObjects($macros, 'title', true);
 		
 		return $macros;
 	}
-	
+
 	/**
 	 *
-	 * @param string $context
-	 * @param integer $context_id
+	 * @param integer $va_id
 	 * @param string $event_point
 	 * @return Model_TriggerEvent[]
 	 */
-	static function getByOwner($context, $context_id, $event_point=null, $with_disabled=false, $sort_by='title') {
+	static function getByVirtualAttendant($va, $event_point=null, $with_disabled=false, $sort_by='title') {
+		// Polymorph if necessary
+		if(is_numeric($va))
+			$va = DAO_VirtualAttendant::get($va);
+		
+		// If we didn't resolve to a VA model
+		if(!($va instanceof Model_VirtualAttendant))
+			return array();
+		
 		$behaviors = self::getAll();
 		$results = array();
 
-		// Include the current context in allowed owners
-		$owner_contexts = array();
-		$owner_context_key = $context . (!empty($context_id) ? (':' . $context_id) : '');
-		$owner_contexts[$owner_context_key] = true;
-		
-		// If our context owner is a worker, include their roles as allowed owners
-		if($context == CerberusContexts::CONTEXT_WORKER) {
-			$roles = DAO_WorkerRole::getRolesByWorker($context_id);
-			
-			if(is_array($roles))
-			foreach($roles as $role) { /* @var $role Model_WorkerRole */
-				$owner_contexts[CerberusContexts::CONTEXT_ROLE . ':' . $role->id] = true;
-			}
-		}
-		
-		// Loop through behaviors and discover which ones we're allowed to see
+		if(is_array($behaviors))
 		foreach($behaviors as $behavior_id => $behavior) { /* @var $behavior Model_TriggerEvent */
+			if($behavior->virtual_attendant_id != $va->id)
+				continue;
+			
+			if($event_point && $behavior->event_point != $event_point)
+				continue;
+			
 			if(!$with_disabled && $behavior->is_disabled)
 				continue;
-
-			// If we're allowed to see this behavior, include it
-			$behavior_owner_context_key = $behavior->owner_context . (!empty($behavior->owner_context_id) ? (':' . $behavior->owner_context_id) : '');
-			if(isset($owner_contexts[$behavior_owner_context_key])) {
-				// If including all events, or this particular one
-				if(is_null($event_point) || 0==strcasecmp($event_point, $behavior->event_point)) {
-					$results[$behavior_id] = $behavior;
-				}
-			}
+			
+			$results[$behavior_id] = $behavior;
 		}
 		
 		switch($sort_by) {
@@ -277,15 +266,10 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		return true;
 	}
 	
-	static function deleteByOwner($context, $context_ids) {
-		if(!is_array($context_ids))
-			$context_ids = array($context_ids);
-		
-		$results = self::getWhere(sprintf("%s = %s AND %s IN (%s)",
-			self::OWNER_CONTEXT,
-			Cerb_ORMHelper::qstr($context),
-			self::OWNER_CONTEXT_ID,
-			implode(',', $context_ids)
+	static function deleteByVirtualAttendant($va_id) {
+		$results = self::getWhere(sprintf("%s = %d",
+			self::VIRTUAL_ATTENDANT_ID,
+			$va_id
 		));
 		
 		if(is_array($results))
@@ -434,19 +418,18 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		self::clearCache();
 	}
 	
-	static public function getNextPosByOwnerAndEvent($owner_context, $owner_context_id, $event_point) {
+	static public function getNextPosByVirtualAttendantAndEvent($va_id, $event_point) {
 		$db = DevblocksPlatform::getDatabaseService();
-		
+
 		$count = $db->GetOne(sprintf("SELECT MAX(pos) FROM trigger_event ".
-			"WHERE owner_context = %s AND owner_context_id = %d AND event_point = %s",
-			$db->qstr($owner_context),
-			$owner_context_id,
+			"WHERE virtual_attendant_id = %d AND event_point = %s",
+			$va_id,
 			$db->qstr($event_point)
 		));
-		
+
 		if(is_null($count))
 			return 0;
-		
+
 		return intval($count) + 1;
 	}
 };
@@ -501,12 +484,8 @@ class Model_TriggerEvent {
 		return $event;
 	}
 	
-	public function getOwnerMeta() {
-		$context_ext = Extension_DevblocksContext::get($this->owner_context);
-		$meta = $context_ext->getMeta($this->owner_context_id);
-		$meta['context'] = $context_ext->id;
-		$meta['context_label'] = $context_ext->manifest->name;
-		return $meta;
+	public function getVirtualAttendant() {
+		return DAO_VirtualAttendant::get($this->virtual_attendant_id);
 	}
 	
 	private function _getNodes() {

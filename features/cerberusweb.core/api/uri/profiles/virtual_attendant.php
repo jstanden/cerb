@@ -82,8 +82,13 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 			
 		// Macros
-		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.virtual_attendant');
-		$tpl->assign('macros', $macros);
+		//$macros = DAO_TriggerEvent::getByVirtualAttendantOwners(
+		//	array(
+		//		array(CerberusContexts::CONTEXT_WORKER, $active_worker->id),
+		//	),
+		//	'event.macro.virtual_attendant'
+		//);
+		//$tpl->assign('macros', $macros);
 
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT);
@@ -137,6 +142,8 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 					DAO_VirtualAttendant::CREATED_AT => time(),
 					DAO_VirtualAttendant::UPDATED_AT => time(),
 					DAO_VirtualAttendant::NAME => $name,
+					DAO_VirtualAttendant::OWNER_CONTEXT => $owner_ctx,
+					DAO_VirtualAttendant::OWNER_CONTEXT_ID => $owner_ctx_id,
 				);
 				$id = DAO_VirtualAttendant::create($fields);
 				

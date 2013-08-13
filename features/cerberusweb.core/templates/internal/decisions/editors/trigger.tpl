@@ -5,8 +5,7 @@
 <input type="hidden" name="a" value="">
 <input type="hidden" name="trigger_id" value="{if isset($trigger->id)}{$trigger->id}{else}0{/if}">
 {if empty($trigger->id)}
-<input type="hidden" name="context" value="{$context}">
-<input type="hidden" name="context_id" value="{$context_id}">
+<input type="hidden" name="va_id" value="{$va->id}">
 {/if}
 
 <b>{'common.title'|devblocks_translate|capitalize}:</b><br>
@@ -93,8 +92,7 @@
 		<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmBehaviorImport" onsubmit="return false;">
 		<input type="hidden" name="c" value="internal">
 		<input type="hidden" name="a" value="">
-		<input type="hidden" name="context" value="{$context}">
-		<input type="hidden" name="context_id" value="{$context_id}">
+		<input type="hidden" name="va_id" value="{$va->id}">
 
 		<div class="import">
 			<b>Import:</b> (.json format)

@@ -92,7 +92,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 	 * @param integer $limit
 	 * @return Model_VirtualAttendant[]
 	 */
-	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
+	static function getWhere($where=null, $sortBy='name', $sortAsc=true, $limit=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
@@ -109,6 +109,67 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		return self::_getObjectsFromResult($rs);
 	}
 
+	static function getByOwners($owners) {
+		$results = array();
+		
+		if(is_array($owners))
+		foreach($owners as $owner) {
+			@$owner_context = $owner[0];
+			@$owner_context_id = $owner[1];
+
+			if(empty($owner_context))
+				continue;
+
+			if($owner_context != CerberusContexts::CONTEXT_APPLICATION && empty($owner_context_id))
+				continue;
+
+			$add_vas = DAO_VirtualAttendant::getByOwner($owner_context, $owner_context_id);
+			
+			$results = $results + $add_vas;
+		}
+		
+		DevblocksPlatform::sortObjects($results, 'name', true);
+		
+		return $results;
+	}
+	
+	/**
+	 *
+	 * @param string $context
+	 * @param integer $context_id
+	 * @return Model_VirtualAttendant[]
+	 */
+	static function getByOwner($context, $context_id) {
+		$vas = DAO_VirtualAttendant::getWhere(); // [TODO] Cache!!!!!
+		$results = array();
+
+		// Include the current context in allowed owners
+		$owner_contexts = array();
+		$owner_context_key = $context . (!empty($context_id) ? (':' . $context_id) : '');
+		$owner_contexts[$owner_context_key] = true;
+
+		// If our context owner is a worker, include their roles as allowed owners
+		if($context == CerberusContexts::CONTEXT_WORKER) {
+			$roles = DAO_WorkerRole::getRolesByWorker($context_id);
+
+			if(is_array($roles))
+			foreach($roles as $role) { /* @var $role Model_WorkerRole */
+				$owner_contexts[CerberusContexts::CONTEXT_ROLE . ':' . $role->id] = true;
+			}
+		}
+
+		foreach($vas as $va_id => $va) {
+			
+			// If we're allowed to see this VA, include it
+			$va_owner_context_key = $va->owner_context . (!empty($va->owner_context_id) ? (':' . $va->owner_context_id) : '');
+			if(isset($owner_contexts[$va_owner_context_key])) {
+				$results[$va_id] = $va;
+			}
+		}
+
+		return $results;
+	}
+	
 	/**
 	 * @param integer $id
 	 * @return Model_VirtualAttendant
@@ -162,6 +223,11 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		$db->Execute(sprintf("DELETE FROM virtual_attendant WHERE id IN (%s)", $ids_list));
+
+		// Cascade
+		if(is_array($ids))
+		foreach($ids as $id)
+			DAO_TriggerEvent::deleteByVirtualAttendant($id);
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -176,6 +242,18 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		);
 		
 		return true;
+	}
+	
+	public static function deleteByOwner($context, $context_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($context) || empty($context_id))
+			return false;
+		
+		$vas = DAO_VirtualAttendant::getByOwner($context, $context_id);
+		
+		if(is_array($vas) && !empty($vas))
+			DAO_VirtualAttendant::delete(array_keys($vas));
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
@@ -435,6 +513,47 @@ class Model_VirtualAttendant {
 	public $params;
 	public $created_at;
 	public $updated_at;
+	
+	public function getOwnerMeta() {
+		if(null != ($ext = Extension_DevblocksContext::get($this->owner_context))) {
+			$meta = $ext->getMeta($this->owner_context_id);
+			$meta['context'] = $this->owner_context;
+			$meta['context_ext'] = $ext;
+			return $meta;
+		}
+	}
+	
+	function getBehaviors($event_point=null, $with_disabled=false, $sort_by=null) {
+		return DAO_TriggerEvent::getByVirtualAttendant($this->id, $event_point, $with_disabled, $sort_by);
+	}
+	
+	function isUsableByWorker(Model_Worker $worker) {
+		if($worker->is_superuser)
+			return true;
+		
+		switch($this->owner_context) {
+			case CerberusContexts::CONTEXT_APPLICATION:
+					return true;
+					break;
+					
+			case CerberusContexts::CONTEXT_WORKER:
+				if($this->owner_context_id == $worker->id)
+					return true;
+					break;
+				
+			case CerberusContexts::CONTEXT_GROUP:
+				if($worker->isGroupMember($this->owner_context_id))
+					return true;
+					break;
+					
+			case CerberusContexts::CONTEXT_ROLE:
+				if($worker->isRoleMember($this->owner_context_id))
+					return true;
+					break;
+		}
+		
+		return false;
+	}
 };
 
 class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Subtotals {
@@ -452,7 +571,6 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 		$this->view_columns = array(
 			SearchFields_VirtualAttendant::NAME,
 			SearchFields_VirtualAttendant::VIRTUAL_OWNER,
-			SearchFields_VirtualAttendant::CREATED_AT,
 			SearchFields_VirtualAttendant::UPDATED_AT,
 		);
 		
@@ -940,10 +1058,6 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Virtual Attendant';
-		$view->view_columns = array(
-			SearchFields_VirtualAttendant::NAME,
-			SearchFields_VirtualAttendant::UPDATED_AT,
-		);
 		/*
 		$view->addParams(array(
 			SearchFields_VirtualAttendant::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_VirtualAttendant::UPDATED_AT,'=',0),
