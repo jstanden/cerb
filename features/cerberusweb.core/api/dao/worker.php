@@ -892,6 +892,15 @@ class Model_Worker {
 		return true;
 	}
 	
+	function isRoleMember($role_id) {
+		$roles = $this->getRoles();
+		
+		if(isset($roles[$role_id]))
+			return true;
+		
+		return false;
+	}
+	
 	function getName($reverse=false) {
 		if(!$reverse) {
 			$name = sprintf("%s%s%s",
