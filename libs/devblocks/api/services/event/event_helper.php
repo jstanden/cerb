@@ -1134,13 +1134,35 @@ class DevblocksEventHelper {
 
 		// Macros
 		
-		$macros = DAO_TriggerEvent::getByOwner($trigger->owner_context, $trigger->owner_context_id);
+		if(false == ($va = $trigger->getVirtualAttendant()))
+			return;
 		
-		foreach($macros as $k => $macro) {
+		$macros = array();
+		
+		$results = DAO_TriggerEvent::getByVirtualAttendantOwners(
+			array(
+				array($va->owner_context, $va->owner_context_id)
+			)
+		);
+
+		foreach($results as $k => $macro) {
 			if(!in_array($macro->event_point, $context_to_macros)) {
-				unset($macros[$k]);
+				continue;
 			}
+
+			if(false == ($macro_va = $macro->getVirtualAttendant())) {
+				continue;
+			}
+			
+			$macro->title = sprintf("[%s] %s",
+				$macro_va->name,
+				$macro->title
+			);
+			
+			$macros[$k] = $macro;
 		}
+		
+		DevblocksPlatform::sortObjects($macros, 'title');
 		
 		$tpl->assign('macros', $macros);
 		
@@ -1320,13 +1342,35 @@ class DevblocksEventHelper {
 
 		// Macros
 		
-		$macros = DAO_TriggerEvent::getByOwner($trigger->owner_context, $trigger->owner_context_id);
+		if(false == ($va = $trigger->getVirtualAttendant()))
+			return;
 		
-		foreach($macros as $k => $macro) {
+		$macros = array();
+		
+		$results = DAO_TriggerEvent::getByVirtualAttendantOwners(
+			array(
+				array($va->owner_context, $va->owner_context_id)
+			)
+		);
+
+		foreach($results as $k => $macro) {
 			if(!in_array($macro->event_point, $context_to_macros)) {
-				unset($macros[$k]);
+				continue;
 			}
+
+			if(false == ($macro_va = $macro->getVirtualAttendant())) {
+				continue;
+			}
+			
+			$macro->title = sprintf("[%s] %s",
+				$macro_va->name,
+				$macro->title
+			);
+			
+			$macros[$k] = $macro;
 		}
+		
+		DevblocksPlatform::sortObjects($macros, 'title');
 		
 		$tpl->assign('macros', $macros);
 		
@@ -1473,7 +1517,7 @@ class DevblocksEventHelper {
 		// Event
 		$trigger = $dict->_trigger; /* @var $trigger Model_TriggerEvent */
 		$event = $trigger->getEvent();
-		
+
 		// Translate message tokens
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$content = $tpl_builder->build($params['content'], $dict);

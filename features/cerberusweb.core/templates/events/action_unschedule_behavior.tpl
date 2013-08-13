@@ -2,8 +2,9 @@
 <b>On:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
 <select name="{$namePrefix}[on]" class="on">
-	{foreach from=$values_to_contexts item=context_data key=val_key}
-	<option value="{$val_key}" context="{$context_data.context}" {if $params.on==$val_key}selected="selected"{/if}>{$context_data.label}</option>
+	{foreach from=$values_to_contexts item=context_data key=val_key name=context_data}
+	{if $smarty.foreach.context_data.first && empty($params.on)}{$params.on = $val_key}{/if}
+	<option value="{$val_key}" context="{$context_data.context}" {if $params.on==$val_key}{$selected_context = $context_data.context}selected="selected"{/if}>{$context_data.label}</option>
 	{/foreach}
 </select>
 </div>
@@ -18,7 +19,9 @@
 	</select>
 	<select name="{$namePrefix}[behavior_id]" class="behavior">
 	{foreach from=$macros item=macro key=macro_id}
+		{if $events_to_contexts.{$macro->event_point} == $selected_context}
 		<option value="{$macro_id}" {if $params.behavior_id==$macro_id}selected="selected"{/if}>{$macro->title}</option>
+		{/if}
 	{/foreach}
 	</select>
 </div>
