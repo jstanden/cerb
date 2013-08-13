@@ -2210,17 +2210,12 @@ class ChInternalController extends DevblocksControllerExtension {
 			if(null == ($macro = DAO_TriggerEvent::get($macro_id))) /* @var $macro Model_TriggerEvent */
 				throw new Exception("Invalid macro.");
 			
+			if(null == ($va = $macro->getVirtualAttendant()))
+				throw new Exception("Invalid VA.");
+			
 			// ACL: Ensure the worker has access to the macro
-			switch($macro->owner_context) {
-				case CerberusContexts::CONTEXT_WORKER:
-					if($macro->owner_context_id != $active_worker->id)
-						throw new Exception("Access denied to macro.");
-					break;
-				case CerberusContexts::CONTEXT_GROUP:
-					if(!$active_worker->isGroupMember($macro->owner_context_id))
-						throw new Exception("Access denied to macro.");
-					break;
-			}
+			if(!$va->isUsableByWorker($active_worker))
+				throw new Exception("Access denied to macro.");
 
 			// Relative scheduling
 			// [TODO] This is almost wholly redundant with saveMacroSchedulerPopup()
@@ -2471,7 +2466,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		exit;
 	}
 	
-	function showAttendantTabAction() {
+	function showAttendantsTabAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
@@ -2480,40 +2475,82 @@ class ChInternalController extends DevblocksControllerExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
 		$tpl = DevblocksPlatform::getTemplateService();
-
+		
 		if(empty($context))
 			return;
+
+		// Remember tab
+		if(!empty($point))
+			$visit->set($point, 'attendants');
 		
-		/*
-		 * Secure looking at other worker tabs (check superuser, worker_id)
-		 */
-		if(null == ($ctx = Extension_DevblocksContext::get($context)))
-			return;
+		$tpl->assign('owner_context', $context);
+		$tpl->assign('owner_context_id', $context_id);
 		
-		if(!$ctx->authorize($context_id, $active_worker))
+		$view_id = str_replace('.','_',$point) . '_attendants';
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		if(null == $view) {
+			$ctx = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT);
+			$view = $ctx->getChooserView($view_id);
+		}
+		
+		if($active_worker->is_superuser && 0 == strcasecmp($context, 'all')) {
+			$view->addParamsRequired(array(), true);
+			
+		} else {
+			$view->addParamsRequired(array(
+				SearchFields_VirtualAttendant::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_VirtualAttendant::OWNER_CONTEXT, DevblocksSearchCriteria::OPER_EQ, $context),
+				SearchFields_VirtualAttendant::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_VirtualAttendant::OWNER_CONTEXT_ID, DevblocksSearchCriteria::OPER_EQ, $context_id),
+			), true);
+		}
+		
+		C4_AbstractViewLoader::setView($view->id,$view);
+		$tpl->assign('view', $view);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
+	}
+	
+	function showAttendantBehaviorsTabAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		if(empty($id))
 			return;
 		
 		// Remember tab
 		if(!empty($point))
-			$visit->set($point, 'attendant');
+			$visit->set($point, 'behaviors');
+		
+		if(null == ($va = DAO_VirtualAttendant::get($id)))
+			return;
 
-		$tpl->assign('context', $context);
-		$tpl->assign('context_id', $context_id);
-			
+		$tpl->assign('va', $va);
+		
+		/*
+		 * Secure looking at other worker tabs (check superuser, worker_id)
+		 */
+		if(null == ($ctx = Extension_DevblocksContext::get($va->owner_context)))
+			return;
+		
+		if(!$ctx->authorize($va->owner_context_id, $active_worker))
+			return;
+
 		// Events
-		$events = Extension_DevblocksEvent::getByContext($context, false);
+		$events = Extension_DevblocksEvent::getByContext($va->owner_context, false);
 		$tpl->assign('events', $events);
 		
-		$triggers = DAO_TriggerEvent::getByOwner($context, $context_id, null, true, 'pos');
+		$triggers = DAO_TriggerEvent::getByVirtualAttendant($va, null, true, 'pos');
 		$tpl->assign('triggers', $triggers);
-
+		
 		$triggers_by_event = array();
 		
 		foreach($triggers as $trigger) { /* @var $trigger Model_TriggerEvent */
-			// We only want things owned by this explicit context (not inherited)
-			if($trigger->owner_context != $context || $trigger->owner_context_id != $context_id)
-				continue;
-			
 			if(!isset($triggers_by_event[$trigger->event_point]))
 				$triggers_by_event[$trigger->event_point] = array();
 			

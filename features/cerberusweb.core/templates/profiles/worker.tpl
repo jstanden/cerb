@@ -108,8 +108,8 @@
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize} <div class="tab-badge">{DAO_Comment::count($page_context, $page_context_id)|default:0}</div></a></li>
 
 		{if $active_worker->is_superuser || $worker->id == $active_worker->id}
-		{$tabs[] = 'attendant'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAttendantTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">Virtual Attendant</a></li>
+		{$tabs[] = 'attendants'}
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAttendantsTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">Virtual Attendants</a></li>
 		{/if}
 		
 		{$tabs[] = 'links'}

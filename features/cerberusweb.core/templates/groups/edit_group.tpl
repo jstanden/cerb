@@ -13,8 +13,8 @@
 		{/if}
 		
 		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}
-		{$tabs[] = 'attendant'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAttendantTab&context={CerberusContexts::CONTEXT_GROUP}&context_id={$group->id}&point={$point}{/devblocks_url}">Virtual Attendant</a></li>
+		{$tabs[] = 'attendants'}
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAttendantsTab&context={CerberusContexts::CONTEXT_GROUP}&context_id={$group->id}&point={$point}{/devblocks_url}">Virtual Attendants</a></li>
 		{/if}
 
 		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}

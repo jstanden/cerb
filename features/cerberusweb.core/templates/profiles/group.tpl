@@ -98,8 +98,8 @@
 		<li><a href="#members">Members</a></li>
 
 		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}
-		{$tabs[] = 'attendant'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAttendantTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">Virtual Attendant</a></li>
+		{$tabs[] = 'attendants'}
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAttendantsTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">Virtual Attendants</a></li>
 		{/if}
 
 		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}
