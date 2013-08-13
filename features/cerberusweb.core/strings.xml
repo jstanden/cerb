@@ -594,6 +594,12 @@
 		<tu tuid='common.url.record'>
 			<tuv xml:lang="en_US"><seg>Record URL</seg></tuv>
 		</tu>
+		<tu tuid='common.virtual_attendant'>
+			<tuv xml:lang="en_US"><seg>Virtual Attendant</seg></tuv>
+		</tu>
+		<tu tuid='common.virtual_attendants'>
+			<tuv xml:lang="en_US"><seg>Virtual Attendants</seg></tuv>
+		</tu>
 		<tu tuid='common.watch'>
 			<tuv xml:lang="en_US"><seg>watch</seg></tuv>
 		</tu>
