@@ -235,34 +235,29 @@ class ChDebugController extends DevblocksControllerExtension  {
 				header("Content-type: application/json");
 				
 				$output = array(
-					'events' => array(),
+					'virtual_attendants' => array(),
 				);
 				
-				foreach($event_mfts as $event_id => $event_mft) { /* @var $event_mft DevblocksExtensionManifest */
-					$triggers = DAO_TriggerEvent::getByEvent($event_id);
-					
-					if(empty($triggers))
-						continue;
-					
-					$output['events'][$event_id] = array(
-						'label' => $event_mft->name,
+				$vas = DAO_VirtualAttendant::getWhere();
+				
+				foreach($vas as $va) {
+					$output['virtual_attendants'][$va->id] = array(
+						'label' => $va->name,
+						'owner_context' => $va->owner_context,
+						'owner_context_id' => $va->owner_context_id,
 						'behaviors' => array(),
 					);
-					// Behaviors
-					foreach($triggers as $trigger) { /* @var $trigger Model_TriggerEvent */
-						if(false !== ($json = $trigger->exportToJson())) {
-							$json_array = json_decode($json, true);
-							$json_array['behavior']['owner'] = array(
-								'owner_context' => $trigger->owner_context,
-								'owner_context_id' => $trigger->owner_context_id,
-							);
-							$output['events'][$event_id]['behaviors'][] = $json_array;
-						}
-						
-					} // end behaviors
 					
-				} // end events
-
+					$behaviors = $va->getBehaviors(null, true);
+					
+					foreach($behaviors as $behavior) {
+						if(false !== ($json = $behavior->exportToJson())) {
+							$json_array = json_decode($json, true);
+							$output['virtual_attendants'][$va->id]['behaviors'][] = $json_array;
+						}
+					}
+				}
+				
 				echo DevblocksPlatform::strFormatJson(json_encode($output));
 				break;
 				
