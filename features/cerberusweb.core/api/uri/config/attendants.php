@@ -29,19 +29,18 @@ class PageSection_SetupAttendants extends Extension_PageSection {
 		
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
+
+		$view_id = 'setup_virtual_attendants';
 		
-		// Roles/Groups/Workers
+		$view = C4_AbstractViewLoader::getView($view_id);
 		
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
+		if(null == $view) {
+			$ctx = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT);
+			$view = $ctx->getChooserView($view_id);
+		}
 		
-		$roles = DAO_WorkerRole::getAll();
-		$tpl->assign('roles', $roles);
-		
-		$workers = DAO_Worker::getAll();
-		$tpl->assign('workers', $workers);
-		
-		// Render
+		C4_AbstractViewLoader::setView($view->id,$view);
+		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/attendants/index.tpl');
 	}
