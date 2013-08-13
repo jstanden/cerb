@@ -2,20 +2,17 @@
 /**
  * Devblocks DAO
  * @author Jeff Standen, Webgroup Media LLC <jeff@webgroupmedia.com>
- * @version 2013-05-07
+ * @version 2013-08-13
  */
 
-$plugin_id = 'cerberusweb.forums';
-$plugin_namespace = 'forums';
+$plugin_id = 'example.plugin';
+$plugin_namespace = 'example';
 
 $tables = array();
 
-$tables['Forum_Post'] = "
+$tables['Example_Object'] = "
 id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-topic_id INT UNSIGNED NOT NULL DEFAULT 0,
-owner_context VARCHAR(255) DEFAULT '',
-owner_context_id INT UNSIGNED NOT NULL DEFAULT 0,
-created_at INT UNSIGNED NOT NULL DEFAULT 0,
+name VARCHAR(255) DEFAULT '',
 updated_at INT UNSIGNED NOT NULL DEFAULT 0,
 ";
 
@@ -997,10 +994,6 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = '<?php echo $object_name ?>';
-		$view->view_columns = array(
-			SearchFields_<?php echo $class_name; ?>::NAME,
-			SearchFields_<?php echo $class_name; ?>::UPDATED_AT,
-		);
 		/*
 		$view->addParams(array(
 			SearchFields_<?php echo $class_name; ?>::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_<?php echo $class_name; ?>::UPDATED_AT,'=',0),
@@ -1537,7 +1530,12 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		$tpl->assign('properties', $properties);
 			
 		// Macros
-		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.<?php echo $table_name; ?>');
+		$macros = DAO_TriggerEvent::getByVirtualAttendantOwners(
+			array(
+				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id),
+			),
+			'event.macro.<?php echo $table_name; ?>'
+		);
 		$tpl->assign('macros', $macros);
 
 		// Tabs
