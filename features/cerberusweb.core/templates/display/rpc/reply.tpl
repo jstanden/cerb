@@ -70,35 +70,49 @@
 					
 					{* Virtual Attendants *}
 					{if !empty($macros)}
-					<button type="button" title="(Ctrl+Shift+B)" class="split-left" onclick="$(this).next('button').click();"><span class="cerb-sprite2 sprite-robot"></span> Virtual Attendant</button><!--  
+					<button type="button" title="(Ctrl+Shift+B)" class="split-left" onclick="$(this).next('button').click();"><span class="cerb-sprite2 sprite-robot"></span> Virtual Attendants</button><!--  
 					--><button type="button" title="(Ctrl+Shift+B)" class="split-right" id="btnReplyMacros{$message->id}"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
 					<ul class="cerb-popupmenu cerb-float" id="menuReplyMacros{$message->id}">
 						<li style="background:none;">
 							<input type="text" size="32" class="input_search filter">
 						</li>
-						{foreach from=$macros item=macro key=macro_id}
-						{$owner_ctx = Extension_DevblocksContext::get($macro->owner_context)}
-						<li class="item">
-							<div>
-								{if $macro->has_public_vars}
-								<a href="javascript:;" onclick="genericAjaxPopup('peek','c=display&a=showMacroReplyPopup&ticket_id={$message->ticket_id}&message_id={$message->id}&macro={$macro->id}',$(this).closest('ul').get(),false,'400');$(this).closest('ul.cerb-popupmenu').hide();">
-								{else}
-								<a href="javascript:;" onclick="genericAjaxGet('','c=display&a=getMacroReply&ticket_id={$message->ticket_id}&message_id={$message->id}&macro={$macro->id}', function(js) { $script=$('<div></div>').html(js); $('BODY').append($script); });$(this).closest('ul.cerb-popupmenu').hide();">
-								{/if}
-									{if !empty($macro->title)}
-										{$macro->title}
+						
+						{$vas = DAO_VirtualAttendant::getWhere()}
+						
+						{foreach from=$vas item=va}
+							{capture name=behaviors}
+							{foreach from=$macros item=macro key=macro_id}
+							{if $macro->virtual_attendant_id == $va->id}
+							<li class="item item-behavior">
+								<div style="margin-left:10px;">
+									{if $macro->has_public_vars}
+									<a href="javascript:;" onclick="genericAjaxPopup('peek','c=display&a=showMacroReplyPopup&ticket_id={$message->ticket_id}&message_id={$message->id}&macro={$macro->id}',$(this).closest('ul').get(),false,'400');$(this).closest('ul.cerb-popupmenu').hide();">
 									{else}
-										{$event = DevblocksPlatform::getExtension($macro->event_point, false)}
-										{$event->name}
+									<a href="javascript:;" onclick="genericAjaxGet('','c=display&a=getMacroReply&ticket_id={$message->ticket_id}&message_id={$message->id}&macro={$macro->id}', function(js) { $script=$('<div></div>').html(js); $('BODY').append($script); });$(this).closest('ul.cerb-popupmenu').hide();">
 									{/if}
-								</a>
-							</div>
-							<div style="margin-left:10px;">
-								{$meta = $owner_ctx->getMeta($macro->owner_context_id)}
-								{$meta.name} ({$owner_ctx->manifest->name})
-							</div>
-						</li>
+										{if !empty($macro->title)}
+											{$macro->title}
+										{else}
+											{$event = DevblocksPlatform::getExtension($macro->event_point, false)}
+											{$event->name}
+										{/if}
+									</a>
+								</div
+							</li>
+							{/if}
+							{/foreach}
+							{/capture}
+							
+							{if strlen(trim($smarty.capture.behaviors))}
+							<li class="item-va">
+								<div>
+									<a href="javascript:;" style="color:black;" tabindex="-1">{$va->name}</a>
+								</div>
+							</li>
+							{$smarty.capture.behaviors nofilter}
+							{/if}
 						{/foreach}
+						
 					</ul>
 					{/if}
 					
