@@ -138,7 +138,12 @@ class ChTasksPage extends CerberusPageExtension {
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Macros
-		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.task');
+		$macros = DAO_TriggerEvent::getByVirtualAttendantOwners(
+			array(
+				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id),
+			),
+			'event.macro.task'
+		);
 		$tpl->assign('macros', $macros);
 		
 		$tpl->display('devblocks:cerberusweb.core::tasks/rpc/bulk.tpl');

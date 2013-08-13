@@ -106,7 +106,12 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 		
 		// Macros
-		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.worker');
+		$macros = DAO_TriggerEvent::getByVirtualAttendantOwners(
+			array(
+				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id),
+			),
+			'event.macro.worker'
+		);
 		$tpl->assign('macros', $macros);
 
 		// Tabs

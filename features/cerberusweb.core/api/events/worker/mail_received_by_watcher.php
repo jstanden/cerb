@@ -337,17 +337,6 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				
 			case 'group_and_bucket':
 				$groups = DAO_Group::getAll();
-				
-				switch($trigger->owner_context) {
-					// If the owner of the behavior is a group
-					case CerberusContexts::CONTEXT_GROUP:
-						foreach($groups as $group_id => $group) {
-							if($group_id != $trigger->owner_context_id)
-								unset($groups[$group_id]);
-						}
-						break;
-				}
-				
 				$tpl->assign('groups', $groups);
 				
 				$group_buckets = DAO_Bucket::getGroups();
@@ -501,9 +490,12 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				break;
 				
 			case 'relay_email':
+				if(false == ($va = $trigger->getVirtualAttendant()))
+					break;
+				
 				// Filter to trigger owner
 				DevblocksEventHelper::renderActionRelayEmail(
-					array($trigger->owner_context_id),
+					array($va->owner_context_id),
 					array('workers'),
 					'content'
 				);

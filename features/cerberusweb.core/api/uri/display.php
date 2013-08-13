@@ -498,7 +498,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// VA macros
 		
-		$macros = DAO_TriggerEvent::getByOwners(
+		$macros = DAO_TriggerEvent::getByVirtualAttendantOwners(
 			array(
 				array(CerberusContexts::CONTEXT_APPLICATION, null, null),
 				array(CerberusContexts::CONTEXT_GROUP, $ticket->group_id, $groups[$ticket->group_id]->name),
@@ -513,7 +513,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(null != $active_worker) {
 			$actions = array();
 			
-			$macros = DAO_TriggerEvent::getByOwners(
+			$macros = DAO_TriggerEvent::getByVirtualAttendantOwners(
 				array(
 					array(CerberusContexts::CONTEXT_APPLICATION, null, null),
 					array(CerberusContexts::CONTEXT_GROUP, $ticket->group_id, $groups[$ticket->group_id]->name),

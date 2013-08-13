@@ -97,7 +97,12 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 		
 		// Macros
-		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.timetracking');
+		$macros = DAO_TriggerEvent::getByVirtualAttendantOwners(
+			array(
+				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id),
+			),
+			'event.macro.timetracking'
+		);
 		$tpl->assign('macros', $macros);
 		
 		// Tabs

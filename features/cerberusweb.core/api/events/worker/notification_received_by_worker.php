@@ -85,6 +85,12 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		$this->setValues($values);
 	}
 	
+	function renderSimulatorTarget($trigger, $event_model) {
+		$context = CerberusContexts::CONTEXT_NOTIFICATION;
+		$context_id = $event_model->params['notification_id'];
+		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
+	}
+	
 	function getValuesContexts($trigger) {
 		$vals = array(
 			'id' => array(
@@ -202,7 +208,10 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
 				
-				$addresses = DAO_AddressToWorker::getByWorker($trigger->owner_context_id);
+				if(false == ($va = $trigger->getVirtualAttendant()))
+					break;
+				
+				$addresses = DAO_AddressToWorker::getByWorker($va->owner_context_id);
 				$tpl->assign('addresses', $addresses);
 				
 				$tpl->display('devblocks:cerberusweb.core::events/notification_received_by_owner/action_send_email_owner.tpl');

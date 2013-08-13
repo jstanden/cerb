@@ -126,7 +126,12 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		$tpl->assign('workers', $workers);
 		
 		// Macros
-		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.crm.opportunity');
+		$macros = DAO_TriggerEvent::getByVirtualAttendantOwners(
+			array(
+				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id),
+			),
+			'event.macro.crm.opportunity'
+		);
 		$tpl->assign('macros', $macros);
 		
 		// Tabs

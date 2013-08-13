@@ -80,7 +80,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 		
 		// Macros
-		$macros = DAO_TriggerEvent::getByOwners(
+		$macros = DAO_TriggerEvent::getByVirtualAttendantOwners(
 			array(
 				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id, null),
 				array(CerberusContexts::CONTEXT_GROUP, $group->id, $group->name),

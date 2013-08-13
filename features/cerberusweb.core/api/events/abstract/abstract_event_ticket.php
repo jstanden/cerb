@@ -406,17 +406,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				
 			case 'group_and_bucket':
 				$groups = DAO_Group::getAll();
-				
-				switch($trigger->owner_context) {
-					// If the owner of the behavior is a group
-					case CerberusContexts::CONTEXT_GROUP:
-						foreach($groups as $group_id => $group) {
-							if($group_id != $trigger->owner_context_id)
-								unset($groups[$group_id]);
-						}
-						break;
-				}
-				
 				$tpl->assign('groups', $groups);
 				
 				$group_buckets = DAO_Bucket::getGroups();
@@ -774,10 +763,13 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 				
 			case 'relay_email':
-				switch($trigger->owner_context) {
+				if(false == ($va = $trigger->getVirtualAttendant()))
+					break;
+				
+				switch($va->owner_context) {
 					case CerberusContexts::CONTEXT_GROUP:
 						// Filter to group members
-						$group = DAO_Group::get($trigger->owner_context_id);
+						$group = DAO_Group::get($va->owner_context_id);
 						DevblocksEventHelper::renderActionRelayEmail(
 							array_keys($group->getMembers()),
 							array('owner','watchers','workers'),
