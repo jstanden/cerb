@@ -1788,7 +1788,6 @@ class Context_Message extends Extension_DevblocksContext {
 		if($message) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = '(message)';
-			$token_values['content'] = $message->getContent();
 			$token_values['created'] = $message->created_date;
 			$token_values['id'] = $message->id;
 			$token_values['is_broadcast'] = $message->is_broadcast;
@@ -1856,6 +1855,10 @@ class Context_Message extends Extension_DevblocksContext {
 		}
 		
 		switch($token) {
+			case 'content':
+				$values['content'] = Storage_MessageContent::get($context_id);
+				break;
+				
 			default:
 				if(substr($token,0,7) == 'custom_') {
 					$fields = $this->_lazyLoadCustomFields($context, $context_id);
