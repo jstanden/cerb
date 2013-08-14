@@ -23,6 +23,8 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 	const PARAMS_JSON = 'params_json';
 	const CREATED_AT = 'created_at';
 	const UPDATED_AT = 'updated_at';
+	
+	const CACHE_ALL = 'ch_virtual_attendants';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -40,45 +42,9 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields) {
-		if(!is_array($ids))
-			$ids = array($ids);
+		parent::_update($ids, 'virtual_attendant', $fields);
 		
-		if(!isset($fields[DAO_VirtualAttendant::UPDATED_AT]))
-			$fields[DAO_VirtualAttendant::UPDATED_AT] = time();
-		
-		// Make a diff for the requested objects in batches
-		
-		$chunks = array_chunk($ids, 100, true);
-		while($batch_ids = array_shift($chunks)) {
-			if(empty($batch_ids))
-				continue;
-			
-			// Get state before changes
-			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
-
-			// Make changes
-			parent::_update($batch_ids, 'virtual_attendant', $fields);
-			
-			// Send events
-			if(!empty($object_changes)) {
-				// Local events
-				//self::_processUpdateEvents($object_changes);
-				
-				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
-				$eventMgr->trigger(
-					new Model_DevblocksEvent(
-						'dao.virtual_attendant.update',
-						array(
-							'objects' => $object_changes,
-						)
-					)
-				);
-				
-				// Log the context update
-				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $batch_ids);
-			}
-		}
+		self::clearCache();
 	}
 	
 	static function updateWhere($fields, $where) {
@@ -108,7 +74,31 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		
 		return self::_getObjectsFromResult($rs);
 	}
+	
+	/**
+	 * @param integer $id
+	 * @return Model_VirtualAttendant
+	 */
+	static function get($id) {
+		$objects = DAO_VirtualAttendant::getAll();
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+		
+		return null;
+	}
 
+	static function getAll($nocache=false) {
+		$cache = DevblocksPlatform::getCacheService();
+		
+		if($nocache || null === ($objects = $cache->load(self::CACHE_ALL))) {
+			$objects = DAO_VirtualAttendant::getWhere(null, DAO_VirtualAttendant::NAME, true);
+			$cache->save($objects, self::CACHE_ALL);
+		}
+		
+		return $objects;
+	}
+	
 	static function getByOwners($owners) {
 		$results = array();
 		
@@ -140,7 +130,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 	 * @return Model_VirtualAttendant[]
 	 */
 	static function getByOwner($context, $context_id) {
-		$vas = DAO_VirtualAttendant::getWhere(); // [TODO] Cache!!!!!
+		$vas = DAO_VirtualAttendant::getAll();
 		$results = array();
 
 		// Include the current context in allowed owners
@@ -159,6 +149,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		}
 
 		foreach($vas as $va_id => $va) {
+			// [TODO] Check $va disabled
 			
 			// If we're allowed to see this VA, include it
 			$va_owner_context_key = $va->owner_context . (!empty($va->owner_context_id) ? (':' . $va->owner_context_id) : '');
@@ -168,22 +159,6 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		}
 
 		return $results;
-	}
-	
-	/**
-	 * @param integer $id
-	 * @return Model_VirtualAttendant
-	 */
-	static function get($id) {
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
-		
-		if(isset($objects[$id]))
-			return $objects[$id];
-		
-		return null;
 	}
 	
 	/**
@@ -240,6 +215,8 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 				)
 			)
 		);
+		
+		self::clearCache();
 		
 		return true;
 	}
@@ -447,6 +424,11 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		return array($results,$total);
 	}
 
+	public static function clearCache() {
+		// Invalidate cache on changes
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ALL);
+	}
 };
 
 class SearchFields_VirtualAttendant implements IDevblocksSearchFields {

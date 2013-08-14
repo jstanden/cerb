@@ -238,7 +238,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					'virtual_attendants' => array(),
 				);
 				
-				$vas = DAO_VirtualAttendant::getWhere();
+				$vas = DAO_VirtualAttendant::getAll();
 				
 				foreach($vas as $va) {
 					$output['virtual_attendants'][$va->id] = array(

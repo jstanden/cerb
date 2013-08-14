@@ -77,7 +77,7 @@
 							<input type="text" size="32" class="input_search filter">
 						</li>
 						
-						{$vas = DAO_VirtualAttendant::getWhere()}
+						{$vas = DAO_VirtualAttendant::getAll()}
 						
 						{foreach from=$vas item=va}
 							{capture name=behaviors}
