@@ -30,7 +30,7 @@
 					
 					<option value="w_{$active_worker->id}" {if $model->owner_context==CerberusContexts::CONTEXT_WORKER && $active_worker->id==$model->owner_context_id}selected="selected"{/if}>me</option>
 					
-					<option value="a_0" {if $model->owner_context==CerberusContexts::CONTEXT_APPLICATION}selected="selected"{/if}>Application</option>
+					<option value="a_0" {if $model->owner_context==CerberusContexts::CONTEXT_APPLICATION}selected="selected"{/if}>Application: Cerb</option>
 
 					{if !empty($owner_roles)}
 					{foreach from=$owner_roles item=role key=role_id}

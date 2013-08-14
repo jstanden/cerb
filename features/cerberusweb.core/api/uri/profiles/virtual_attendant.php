@@ -48,6 +48,11 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 		// Properties
 			
 		$properties = array();
+		
+		$properties['_owner'] = array(
+			'label' => ucfirst($translate->_('common.owner')),
+			'type' => null,
+			'value' => null,
 		);
 		
 		$properties['created'] = array(

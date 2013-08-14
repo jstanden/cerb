@@ -1216,20 +1216,12 @@ class Context_Application extends Extension_DevblocksContext {
 	}
 	
 	function getMeta($context_id) {
-		if(null == ($worker_role = DAO_WorkerRole::get($context_id)))
-			return null;
-			
 		$url_writer = DevblocksPlatform::getUrlService();
 		
-		$who = sprintf("%d-%s",
-			$worker_role->id,
-			DevblocksPlatform::strToPermalink($worker_role->name)
-		);
-		
 		return array(
-			'id' => $worker_role->id,
-			'name' => $worker_role->name,
-			'permalink' => $url_writer->writeNoProxy('c=profiles&type=role&who='.$who, true),
+			'id' => 0,
+			'name' => 'Cerb',
+			'permalink' => null, //$url_writer->writeNoProxy('', true),
 		);
 	}
 	
