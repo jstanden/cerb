@@ -46,4 +46,20 @@ class PageSection_SetupMailFiltering extends Extension_PageSection {
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_filtering/index.tpl');
 	}
+	
+	function createDefaultVaAction() {
+		@$do_create = DevblocksPlatform::importGPC($_REQUEST['do_create'],'integer', 0);
+		
+		DAO_VirtualAttendant::create(array(
+			DAO_VirtualAttendant::NAME => 'Global Virtual Attendant',
+			DAO_VirtualAttendant::CREATED_AT => time(),
+			DAO_VirtualAttendant::UPDATED_AT => time(),
+			DAO_VirtualAttendant::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+			DAO_VirtualAttendant::OWNER_CONTEXT_ID => 0,
+			DAO_VirtualAttendant::PARAMS_JSON => json_encode(array()),
+		));
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','mail_filtering')));
+		exit;
+	}
 }
