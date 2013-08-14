@@ -12,7 +12,8 @@
 	<option value="avg_elapsed_ms" {if $sort_by=='avg_elapsed_ms'}selected="selected"{/if}>Runtime (avg)</option>
 	<option value="elapsed_ms" {if $sort_by=='elapsed_ms'}selected="selected"{/if}>Runtime (total)</option>
 	<option value="event" {if $sort_by=='event'}selected="selected"{/if}>Event</option>
-	<option value="owner" {if $sort_by=='owner'}selected="selected"{/if}>Owner</option>
+	<option value="va_name" {if $sort_by=='va_name'}selected="selected"{/if}>Virtual Attendant</option>
+	{*<option value="va_owner" {if $sort_by=='va_owner'}selected="selected"{/if}>Virtual Attendant Owner</option>*}
 </select>
 
 <div id="divCal"></div>
@@ -42,7 +43,7 @@
 		<th>Total Runtime</th>
 		<th>Behavior</th>
 		<th>Event</th>
-		<th>Owner</th>
+		<th>Virtual Attendant</th>
 	</tr>
 	{foreach from=$stats item=row}
 	<tr style="background-color:{cycle values="#F0F0F0,#FFFFFF"};">
@@ -60,7 +61,7 @@
 			{$row.event}
 		</td>
 		<td valign="top">
-			{$row.owner}
+			<a href="{devblocks_url}c=profiles&w=virtual_attendant&id={$row.va_id}-{$row.va_name|devblocks_permalink}{/devblocks_url}" title="{$row.va_owner}">{$row.va_name}</span>
 		</td>
 	</tr>
 	{/foreach}
