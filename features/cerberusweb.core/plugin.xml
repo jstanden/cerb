@@ -2963,23 +2963,23 @@
 		
 		<extension point="cerberusweb.cron">
 			<id>cron.pop3</id>
-			<name>POP3 / IMAP E-Mail Importing</name>
+			<name>Mailbox (POP3/IMAP) Checker and Email Downloader</name>
 			<class>
 				<file>api/cron.classes.php</file>
 				<name>Pop3Cron</name>
 			</class>
 			<params />
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.cron">
 			<id>cron.parser</id>
-			<name>Inbound E-Mail Processing</name>
+			<name>Inbound Email Message Processor</name>
 			<class>
 				<file>api/cron.classes.php</file>
 				<name>ParseCron</name>
 			</class>
 			<params />
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.cron">
 			<id>cron.maint</id>
@@ -2989,7 +2989,7 @@
 				<name>MaintCron</name>
 			</class>
 			<params />
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.cron">
 			<id>cron.heartbeat</id>
@@ -3033,7 +3033,7 @@
 		
 		<extension point="cerberusweb.cron">
 			<id>cron.mail_queue</id>
-			<name>Mail Queue</name>
+			<name>Mail Queue Processor</name>
 			<class>
 				<file>api/cron.classes.php</file>
 				<name>MailQueueCron</name>
