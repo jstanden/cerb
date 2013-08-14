@@ -262,6 +262,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		return array(
 			'regexp_match_all' => new Twig_Function_Method($this, 'function_regexp_match_all'),
 			'json_decode' => new Twig_Function_Method($this, 'function_json_decode'),
+			'jsonpath_set' => new Twig_Function_Method($this, 'function_jsonpath_set'),
 		);
 	}
 	
@@ -269,6 +270,39 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	function function_json_decode($str) {
 		return json_decode($str, true);
 	}
+	
+	function function_jsonpath_set($var, $path, $val) {
+		if(empty($var))
+			$var = array();
+		
+		$parts = explode('.', $path);
+		$ptr =& $var;
+		
+		if(is_array($parts))
+		foreach($parts as $part) {
+			$is_array_set = false;
+		
+			if(substr($part,-2) == '[]') {
+				$part = rtrim($part, '[]');
+				$is_array_set = true;
+			}
+		
+			if(!isset($ptr[$part]))
+				$ptr[$part] = array();
+			
+			if($is_array_set) {
+				$ptr =& $ptr[$part][];
+				
+			} else {
+				$ptr =& $ptr[$part];
+			}
+		}
+		
+		$ptr = $val;
+		
+		return $var;
+	}
+	
 	function function_regexp_match_all($pattern, $text, $group = 0) {
 		$group = intval($group);
 		
