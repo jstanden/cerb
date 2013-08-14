@@ -24,38 +24,25 @@ class PageSection_SetupMailFiltering extends Extension_PageSection {
 		
 		$context = 'cerberusweb.contexts.app';
 		$context_id = 0;
-//		$point = 'cerberusweb.page.config.attendants';
-		
-		if(empty($context)) // || empty($context_id)
-			return;
-			
-		$tpl->assign('context', $context);
-		$tpl->assign('context_id', $context_id);
 		
 		// Events
+		
 		$events = Extension_DevblocksEvent::getByContext($context, false);
 		$tpl->assign('events', $events);
 		
-		// Triggers
-		$triggers = DAO_TriggerEvent::getByVirtualAttendantOwners(
-			array(
-				array($context, $context_id),
-			),
-			'event.mail.received.app',
-			true
-		);
-		$tpl->assign('triggers', $triggers);
-
-		$triggers_by_event = array();
+		// Virtual Attendanta
 		
-		foreach($triggers as $trigger) {
-			if(!isset($triggers_by_event[$trigger->event_point]))
-				$triggers_by_event[$trigger->event_point] = array();
+		$vas = DAO_VirtualAttendant::getByOwner($context, $context_id);
+		
+		foreach($vas as $va_id => $va) {
+			$behaviors = $va->getBehaviors('event.mail.received.app', true);
 			
-			$triggers_by_event[$trigger->event_point][$trigger->id] = $trigger;
+			$vas[$va_id]->behaviors = array(
+				'event.mail.received.app' => $behaviors,
+			);
 		}
 		
-		$tpl->assign('triggers_by_event', $triggers_by_event);
+		$tpl->assign('vas', $vas);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_filtering/index.tpl');
 	}
