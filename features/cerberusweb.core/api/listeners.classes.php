@@ -492,6 +492,8 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			$event->id
 		));
 
+		$trigger_vas = DAO_VirtualAttendant::getAll();
+		
 		// Are we limited to only one trigger on this event, or all of them?
 		
 		if(isset($event->params['_whisper']['_trigger_id'][0])) {
@@ -501,7 +503,6 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			unset($event->params['_whisper']['_trigger_id']);
 			
 		} else {
-			// [TODO] Make sure the VA isn't disabled
 			$triggers = DAO_TriggerEvent::getByEvent($event->id, false);
 		}
 
@@ -513,7 +514,10 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		// We're restricting the scope of the event
 		if(isset($event->params['_whisper']) && is_array($event->params['_whisper']) && !empty($event->params['_whisper'])) {
 			foreach($triggers as $trigger_id => $trigger) { /* @var $trigger Model_TriggerEvent */
-				if(false == ($trigger_va = $trigger->getVirtualAttendant()))
+				if(false == (@$trigger_va = $trigger_vas[$trigger->virtual_attendant_id]))
+					continue;
+
+				if($trigger_va->is_disabled)
 					continue;
 				
 				if (
@@ -559,6 +563,8 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		$registry = DevblocksPlatform::getRegistryService();
 		
 		foreach($triggers as $trigger) { /* @var $trigger Model_TriggerEvent */
+			if(false == (@$trigger_va = $trigger_vas[$trigger->virtual_attendant_id]))
+				continue;
 			
 			if(self::inception($trigger->id)) {
 				$logger->info(sprintf("Skipping trigger %d (%s) because we're currently inside of it.",
@@ -584,9 +590,10 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			
 			$start_runtime = intval(microtime(true));
 			
-			$logger->info(sprintf("Running decision tree on trigger %d (%s) for VA #%d",
-				$trigger->id,
+			$logger->info(sprintf("Running behavior '%s' (#%d) for %s (#%d)",
 				$trigger->title,
+				$trigger->id,
+				$trigger_va->name,
 				$trigger->virtual_attendant_id
 			));
 			
@@ -611,27 +618,6 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			//var_dump(self::getNodeLog());
 			self::clear();
 		}
-		
-		return;
-		
-		// [TODO] ACTION: HTTP POST
-		/*
-		if(extension_loaded('curl')) {
-			$postfields = array(
-				'json' => json_encode($values)
-			);
-			
-			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, "http://localhost/website/webhooks/notify.php");
-			curl_setopt($ch, CURLOPT_HEADER, 0);
-			curl_setopt($ch, CURLOPT_POST, 1);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			$response = curl_exec($ch);
-			curl_close($ch);
-			echo($response);
-		}
-		*/
 	}
 };
 

@@ -1,8 +1,4 @@
 <?php
-if(!class_exists('C4_AbstractViewModel')) {
-class C4_AbstractViewModel {};
-}
-
 $db = DevblocksPlatform::getDatabaseService();
 $logger = DevblocksPlatform::getConsoleLog();
 $tables = $db->metaTables();
@@ -17,6 +13,7 @@ if(!isset($tables['virtual_attendant'])) {
 			name VARCHAR(255) DEFAULT '',
 			owner_context VARCHAR(255) DEFAULT '',
 			owner_context_id INT UNSIGNED NOT NULL DEFAULT 0,
+			is_disabled TINYINT UNSIGNED NOT NULL DEFAULT 0,
 			params_json MEDIUMTEXT,
 			created_at INT UNSIGNED NOT NULL DEFAULT 0,
 			updated_at INT UNSIGNED NOT NULL DEFAULT 0,
@@ -27,6 +24,20 @@ if(!isset($tables['virtual_attendant'])) {
 	$db->Execute($sql);
 
 	$tables['virtual_attendant'] = 'virtual_attendant';
+}
+
+// ===========================================================================
+// Add `virtual_attendant.is_disabled`
+
+if(!isset($tables['virtual_attendant'])) {
+	$logger->error("The 'virtual_attendant' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('virtual_attendant');
+
+if(!isset($columns['is_disabled'])) {
+	$db->Execute("ALTER TABLE virtual_attendant ADD COLUMN is_disabled TINYINT UNSIGNED DEFAULT 0 NOT NULL AFTER owner_context_id");
 }
 
 // ===========================================================================

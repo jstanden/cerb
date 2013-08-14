@@ -20,6 +20,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
+	const IS_DISABLED = 'is_disabled';
 	const PARAMS_JSON = 'params_json';
 	const CREATED_AT = 'created_at';
 	const UPDATED_AT = 'updated_at';
@@ -64,7 +65,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, owner_context, owner_context_id, params_json, created_at, updated_at ".
+		$sql = "SELECT id, name, owner_context, owner_context_id, is_disabled, params_json, created_at, updated_at ".
 			"FROM virtual_attendant ".
 			$where_sql.
 			$sort_sql.
@@ -174,6 +175,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 			$object->name = $row['name'];
 			$object->owner_context = $row['owner_context'];
 			$object->owner_context_id = $row['owner_context_id'];
+			$object->is_disabled = $row['is_disabled'] ? true : false;
 			$object->created_at = $row['created_at'];
 			$object->updated_at = $row['updated_at'];
 			
@@ -247,6 +249,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 			"virtual_attendant.name as %s, ".
 			"virtual_attendant.owner_context as %s, ".
 			"virtual_attendant.owner_context_id as %s, ".
+			"virtual_attendant.is_disabled as %s, ".
 			"virtual_attendant.params_json as %s, ".
 			"virtual_attendant.created_at as %s, ".
 			"virtual_attendant.updated_at as %s ",
@@ -254,6 +257,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 				SearchFields_VirtualAttendant::NAME,
 				SearchFields_VirtualAttendant::OWNER_CONTEXT,
 				SearchFields_VirtualAttendant::OWNER_CONTEXT_ID,
+				SearchFields_VirtualAttendant::IS_DISABLED,
 				SearchFields_VirtualAttendant::PARAMS_JSON,
 				SearchFields_VirtualAttendant::CREATED_AT,
 				SearchFields_VirtualAttendant::UPDATED_AT
@@ -436,6 +440,7 @@ class SearchFields_VirtualAttendant implements IDevblocksSearchFields {
 	const NAME = 'v_name';
 	const OWNER_CONTEXT = 'v_owner_context';
 	const OWNER_CONTEXT_ID = 'v_owner_context_id';
+	const IS_DISABLED = 'v_is_disabled';
 	const PARAMS_JSON = 'v_params_json';
 	const CREATED_AT = 'v_created_at';
 	const UPDATED_AT = 'v_updated_at';
@@ -459,6 +464,7 @@ class SearchFields_VirtualAttendant implements IDevblocksSearchFields {
 			self::NAME => new DevblocksSearchField(self::NAME, 'virtual_attendant', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'virtual_attendant', 'owner_context', $translate->_('common.owner_context'), null),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'virtual_attendant', 'owner_context_id', $translate->_('common.owner_context_id'), null),
+			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'virtual_attendant', 'is_disabled', $translate->_('common.disabled'), Model_CustomField::TYPE_CHECKBOX),
 			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'virtual_attendant', 'params_json', $translate->_('common.parameters'), null),
 			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'virtual_attendant', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'virtual_attendant', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
@@ -492,6 +498,7 @@ class Model_VirtualAttendant {
 	public $name;
 	public $owner_context;
 	public $owner_context_id;
+	public $is_disabled;
 	public $params;
 	public $created_at;
 	public $updated_at;
@@ -606,9 +613,9 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 			
 			switch($field_key) {
 				// Fields
-//				case SearchFields_VirtualAttendant::EXAMPLE:
-//					$pass = true;
-//					break;
+				case SearchFields_VirtualAttendant::IS_DISABLED:
+					$pass = true;
+					break;
 					
 				// Virtuals
 				case SearchFields_VirtualAttendant::VIRTUAL_CONTEXT_LINK:
@@ -640,9 +647,9 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 			return array();
 		
 		switch($column) {
-//			case SearchFields_VirtualAttendant::EXAMPLE_BOOL:
-//				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_VirtualAttendant', $column);
-//				break;
+			case SearchFields_VirtualAttendant::IS_DISABLED:
+				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_VirtualAttendant', $column);
+				break;
 
 //			case SearchFields_VirtualAttendant::EXAMPLE_STRING:
 //				$counts = $this->_getSubtotalCountForStringColumn('DAO_VirtualAttendant', $column);
@@ -705,7 +712,7 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
-			case 'placeholder_bool':
+			case SearchFields_VirtualAttendant::IS_DISABLED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
@@ -757,6 +764,9 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_VirtualAttendant::IS_DISABLED:
+				$this->_renderCriteriaParamBoolean($param);
+				break;
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -809,7 +819,7 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case 'placeholder_bool':
+			case SearchFields_VirtualAttendant::IS_DISABLED:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
@@ -963,8 +973,10 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		
 		// Token labels
 		$token_labels = array(
+			'created_at|date' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
+			'is_disabled' => $prefix.$translate->_('common.disabled'),
 			'updated_at|date' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -981,8 +993,10 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		if($virtual_attendant) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $virtual_attendant->name;
+			$token_values['created_at'] = $virtual_attendant->created_at;
 			$token_values['id'] = $virtual_attendant->id;
 			$token_values['name'] = $virtual_attendant->name;
+			$token_values['is_disabled'] = $virtual_attendant->is_disabled;
 			$token_values['updated_at'] = $virtual_attendant->updated_at;
 			
 			// URL

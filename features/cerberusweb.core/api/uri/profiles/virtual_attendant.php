@@ -55,6 +55,12 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 			'value' => null,
 		);
 		
+		$properties['is_disabled'] = array(
+			'label' => ucfirst($translate->_('common.disabled')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $virtual_attendant->is_disabled,
+		);
+		
 		$properties['created'] = array(
 			'label' => ucfirst($translate->_('common.created')),
 			'type' => Model_CustomField::TYPE_DATE,
@@ -109,6 +115,7 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 		@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
+		@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'], 'integer', 0);
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -147,6 +154,7 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 					DAO_VirtualAttendant::CREATED_AT => time(),
 					DAO_VirtualAttendant::UPDATED_AT => time(),
 					DAO_VirtualAttendant::NAME => $name,
+					DAO_VirtualAttendant::IS_DISABLED => $is_disabled,
 					DAO_VirtualAttendant::OWNER_CONTEXT => $owner_ctx,
 					DAO_VirtualAttendant::OWNER_CONTEXT_ID => $owner_ctx_id,
 				);
@@ -171,6 +179,7 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 				$fields = array(
 					DAO_VirtualAttendant::UPDATED_AT => time(),
 					DAO_VirtualAttendant::NAME => $name,
+					DAO_VirtualAttendant::IS_DISABLED => $is_disabled,
 					DAO_VirtualAttendant::OWNER_CONTEXT => $owner_ctx,
 					DAO_VirtualAttendant::OWNER_CONTEXT_ID => $owner_ctx_id,
 				);
