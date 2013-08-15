@@ -216,8 +216,17 @@
 		<tu tuid='common.created'>
 			<tuv xml:lang="en_US"><seg>created</seg></tuv>
 		</tu>
+		<tu tuid='common.custom_field'>
+			<tuv xml:lang="en_US"><seg>Custom Field</seg></tuv>
+		</tu>
 		<tu tuid='common.custom_fields'>
 			<tuv xml:lang="en_US"><seg>Custom Fields</seg></tuv>
+		</tu>
+		<tu tuid='common.custom_fieldset'>
+			<tuv xml:lang="en_US"><seg>Custom Fieldset</seg></tuv>
+		</tu>
+		<tu tuid='common.custom_fieldsets'>
+			<tuv xml:lang="en_US"><seg>Custom Fieldsets</seg></tuv>
 		</tu>
 		<tu tuid='common.customize'>
 			<tuv xml:lang="en_US"><seg>customize</seg></tuv>
