@@ -434,6 +434,10 @@
 			<class name="AbstractEvent_Ticket" />
 		</file>
 		
+		<file path="api/events/abstract/abstract_event_virtual_attendant.php">
+			<class name="AbstractEvent_VirtualAttendant" />
+		</file>
+		
 		<file path="api/events/abstract/abstract_event_worker.php">
 			<class name="AbstractEvent_Worker" />
 		</file>
@@ -512,6 +516,10 @@
 		
 		<file path="api/events/macro/ticket_macro.php">
 			<class name="Event_TicketMacro" />
+		</file>
+		
+		<file path="api/events/macro/virtual_attendant_macro.php">
+			<class name="Event_VirtualAttendantMacro" />
 		</file>
 		
 		<file path="api/events/macro/worker_macro.php">
@@ -1606,6 +1614,26 @@
 			</class>
 			<params>
 				<param key="macro_context" value="cerberusweb.contexts.ticket" />
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.macro.virtual_attendant</id>
+			<name>Custom virtual attendant behavior</name>
+			<class>
+				<file>api/events/macro/virtual_attendant_macro.php</file>
+				<name>Event_VirtualAttendantMacro</name>
+			</class>
+			<params>
+				<param key="macro_context" value="cerberusweb.contexts.virtual.attendant" />
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.app" />
