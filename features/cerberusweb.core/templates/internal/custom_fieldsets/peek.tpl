@@ -1,3 +1,11 @@
+{$is_writeable = !$custom_fieldset->id || $custom_fieldset->isWriteableByWorker($active_worker)}
+
+{if !$is_writeable}
+<div class="error-box">
+	{'error.core.no_acl.edit'|devblocks_translate}
+</div>
+{/if}
+
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmCustomFieldsetPeek" name="frmCustomFieldsetPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="handleSectionAction">
@@ -43,6 +51,7 @@
 				<b>{'common.owner'|devblocks_translate|capitalize}:</b>
 			</td>
 			<td width="99%">
+				{if $is_writeable}
 				<select name="owner">
 					{if !empty($custom_fieldset->id)}
 						<option value=""> - transfer - </option>
@@ -76,10 +85,12 @@
 						{/if}
 					{/foreach}
 				</select>
+				{/if}
 				
 				{if !empty($custom_fieldset->id)}
 				<ul class="bubbles">
 					<li>
+					
 					{if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_ROLE && isset($roles.{$custom_fieldset->owner_context_id})}
 					<b>{$roles.{$custom_fieldset->owner_context_id}->name}</b> ({'common.role'|devblocks_translate|capitalize})
 					{/if}
@@ -111,7 +122,7 @@
 	{foreach from=$custom_fields item=f key=field_id name=fields}
 		{assign var=type_code value=$f->type}
 		<tr class="sortable">
-			<td valign="top" width="1%" nowrap="nowrap"><span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span></td>
+			<td valign="top" width="1%" nowrap="nowrap">{if $is_writeable}<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span>{/if}</td>
 			<td valign="top" width="1%" nowrap="nowrap">{$types.$type_code}</td>
 			<td valign="top" width="98%">
 				<input type="hidden" name="types[]" value="{$f->type}">
@@ -127,7 +138,7 @@
 				{/if}
 			</td>
 			<td width="1%" valign="top" nowrap="nowrap">
-				<span class="cerb-sprite2 sprite-minus-circle delete" style="margin-left:5px;cursor:pointer;"></span>
+				{if $is_writeable}<span class="cerb-sprite2 sprite-minus-circle delete" style="margin-left:5px;cursor:pointer;"></span>{/if}
 			</td>
 		</tr>
 	{/foreach}
@@ -156,14 +167,14 @@
 	
 	<tr>
 		<td colspan="4">
-			<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+			{if $is_writeable}<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle"></span></button>{/if}
 		</td>
 	</tr>
 	</table>
 	
 </fieldset>
 
-{if !empty($custom_fieldset->id) && $custom_fieldset->isWriteableByWorker($active_worker)}
+{if !empty($custom_fieldset->id) && $is_writeable}
 <fieldset class="delete" style="display:none;">
 	<legend>Delete this custom fieldset?</legend>
 	<p>Are you sure you want to permanently delete this custom fieldset?  All custom fields and their values will be removed.</p>
@@ -173,14 +184,10 @@
 {/if}
 
 <div class="buttons">
-{if empty($custom_fieldset->id) || $custom_fieldset->isWriteableByWorker($active_worker)}
+{if empty($custom_fieldset->id) || $is_writeable}
 	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView('{$layer}','frmCustomFieldsetPeek','{$view_id}',false,'custom_fieldset_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
-{else}
-	<fieldset class="delete" style="font-weight:bold;">
-		{'error.core.no_acl.edit'|devblocks_translate}
-	</fieldset>
 {/if}
-{if !empty($custom_fieldset->id) && $custom_fieldset->isWriteableByWorker($active_worker)}
+{if !empty($custom_fieldset->id) && $is_writeable}
 	<button type="button" onclick="$(this).closest('div.buttons').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>
 {/if}
 </div>
@@ -199,7 +206,11 @@
 		$this.dialog('option','title', 'Modify Custom Fieldset');
 		{/if}
 
+		{if $is_writeable}
 		$this.find('input:text:first').focus().select();
+		{else}
+		$this.find('input,select,textarea').attr('disabled','disabled');
+		{/if}
 		
 		$this.find('fieldset.cfields button.add').click(function() {
 			var $parent = $(this).closest('tr');
