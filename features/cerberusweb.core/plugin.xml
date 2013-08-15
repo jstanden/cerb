@@ -1488,6 +1488,7 @@
 				<param key="macro_context" value="cerberusweb.contexts.address" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
@@ -1507,6 +1508,7 @@
 				<param key="macro_context" value="cerberusweb.contexts.calendar" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
@@ -1526,6 +1528,7 @@
 				<param key="macro_context" value="cerberusweb.contexts.calendar_event" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
@@ -1545,6 +1548,7 @@
 				<param key="macro_context" value="cerberusweb.contexts.group" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
@@ -1564,6 +1568,7 @@
 				<param key="macro_context" value="cerberusweb.contexts.org" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
@@ -1583,6 +1588,7 @@
 				<param key="macro_context" value="cerberusweb.contexts.task" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
@@ -1602,6 +1608,7 @@
 				<param key="macro_context" value="cerberusweb.contexts.ticket" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
@@ -1621,6 +1628,7 @@
 				<param key="macro_context" value="cerberusweb.contexts.worker" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />

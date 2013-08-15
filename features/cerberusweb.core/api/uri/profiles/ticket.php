@@ -195,6 +195,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		// Macros
 		$macros = DAO_TriggerEvent::getByVirtualAttendantOwners(
 			array(
+				array(CerberusContexts::CONTEXT_APPLICATION, 0),
 				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id, null),
 				array(CerberusContexts::CONTEXT_GROUP, $ticket->group_id, $groups[$ticket->group_id]->name),
 			),

@@ -105,6 +105,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		// Macros
 		$macros = DAO_TriggerEvent::getByVirtualAttendantOwners(
 			array(
+				array(CerberusContexts::CONTEXT_APPLICATION, 0),
 				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id),
 			),
 			'event.macro.task'

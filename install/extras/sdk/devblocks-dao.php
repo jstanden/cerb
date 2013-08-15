@@ -1532,6 +1532,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		// Macros
 		$macros = DAO_TriggerEvent::getByVirtualAttendantOwners(
 			array(
+				array(CerberusContexts::CONTEXT_APPLICATION, 0),
 				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id),
 			),
 			'event.macro.<?php echo $table_name; ?>'
