@@ -91,18 +91,26 @@
 		{$tabs = []}
 		{$point = "cerberusweb.profiles.group.{$group->id}"}
 		
+		{$tabs[] = 'activity'}
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=both&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
+		
 		{$tabs[] = 'comments'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
 		
 		{$tabs[] = 'members'}
 		<li><a href="#members">Members</a></li>
 
-		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}
+		{if $active_worker->is_superuser || $active_worker->isGroupManager($group->id)}
 		{$tabs[] = 'attendants'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAttendantsTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">Virtual Attendants</a></li>
 		{/if}
 
-		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}
+		{if $active_worker->is_superuser || $active_worker->isGroupManager($group->id)}
+		{$tabs[] = 'custom_fieldsets'}
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=custom_fieldsets&action=showTabCustomFieldsets&context={$page_context}&context_id={$page_context_id}&point={$point}{/devblocks_url}">{$translate->_('common.custom_fieldsets')|capitalize}</a></li>
+		{/if}
+
+		{if $active_worker->is_superuser || $active_worker->isGroupManager($group->id)}
 		{$tabs[] = 'snippets'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabSnippets&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{$translate->_('common.snippets')|capitalize}</a></li>
 		{/if}
