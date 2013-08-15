@@ -500,9 +500,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$macros = DAO_TriggerEvent::getByVirtualAttendantOwners(
 			array(
-				array(CerberusContexts::CONTEXT_APPLICATION, null, null),
-				array(CerberusContexts::CONTEXT_GROUP, $ticket->group_id, $groups[$ticket->group_id]->name),
-				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id, null),
+				array(CerberusContexts::CONTEXT_APPLICATION, null),
+				array(CerberusContexts::CONTEXT_GROUP, $ticket->group_id),
+				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id),
 			),
 			Event_MailDuringUiReplyByWorker::ID
 		);
@@ -515,9 +515,9 @@ class ChDisplayPage extends CerberusPageExtension {
 			
 			$macros = DAO_TriggerEvent::getByVirtualAttendantOwners(
 				array(
-					array(CerberusContexts::CONTEXT_APPLICATION, null, null),
-					array(CerberusContexts::CONTEXT_GROUP, $ticket->group_id, $groups[$ticket->group_id]->name),
-					array(CerberusContexts::CONTEXT_WORKER, $active_worker->id, null),
+					array(CerberusContexts::CONTEXT_APPLICATION, 0),
+					array(CerberusContexts::CONTEXT_GROUP, $ticket->group_id),
+					array(CerberusContexts::CONTEXT_WORKER, $active_worker->id),
 				),
 				Event_MailBeforeUiReplyByWorker::ID
 			);

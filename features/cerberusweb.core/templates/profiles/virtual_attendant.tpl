@@ -1,4 +1,4 @@
-{$page_context = 'cerberusweb.contexts.virtual.attendant'}
+{$page_context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}
 {$page_context_id = $virtual_attendant->id}
 
 <div style="float:left">

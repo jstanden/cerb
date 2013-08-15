@@ -1,4 +1,4 @@
-{$view_context = 'cerberusweb.contexts.virtual.attendant'}
+{$view_context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}
 {$view_fields = $view->getColumnsAvailable()}
 {assign var=results value=$view->getData()}
 {assign var=total value=$results[1]}

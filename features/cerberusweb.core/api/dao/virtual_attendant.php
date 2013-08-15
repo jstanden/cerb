@@ -89,6 +89,10 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		return null;
 	}
 
+	static function getRandom() {
+		return parent::_getRandom('virtual_attendant');
+	}
+	
 	static function getAll($nocache=false) {
 		$cache = DevblocksPlatform::getCacheService();
 		

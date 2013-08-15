@@ -823,7 +823,7 @@ class CerberusContexts {
 
 				CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $watcher_id, $null_labels, $watcher_values, null, true);
 				
-				$workers[$watcher_id] = $watcher_values;
+				$workers[$watcher_id] = new DevblocksDictionaryDelegate($watcher_values);
 			}
 			
 		// Or as Model_* objects?

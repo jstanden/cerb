@@ -24,26 +24,8 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 	 * @return Model_DevblocksEvent
 	 */
 	function generateSampleEventModel($worker_id=null) {
-		
 		if(empty($worker_id)) {
-			// Pull the latest record
-			list($results) = DAO_Worker::search(
-				array(),
-				array(
-					//new DevblocksSearchCriteria(SearchFields_Task::IS_CLOSED,'=',0),
-				),
-				10,
-				0,
-				SearchFields_Worker::ID,
-				false,
-				false
-			);
-			
-			shuffle($results);
-			
-			$result = array_shift($results);
-			
-			$worker_id = $result[SearchFields_Worker::ID];
+			$worker_id = DAO_Worker::random();
 		}
 		
 		return new Model_DevblocksEvent(
