@@ -78,12 +78,23 @@
 
 <div id="virtual_attendantTabs">
 	<ul>
-		{$tabs = [behaviors,behavior,activity,comments,links]}
+		{$tabs = [behaviors,behavior]}
 
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAttendantBehaviorsTab&id={$page_context_id}&point={$point}{/devblocks_url}">Behaviors</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showScheduledBehaviorTab&point={$point}&va_id={$page_context_id}{/devblocks_url}">Scheduled Behaviors</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
+		
+		{if $virtual_attendant->isEditableByWorker($active_worker)}
+		{$tabs[] = 'custom_fieldsets'}
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=custom_fieldsets&action=showTabCustomFieldsets&context={$page_context}&context_id={$page_context_id}&point={$point}{/devblocks_url}">{$translate->_('common.custom_fieldsets')|capitalize}</a></li>
+		{/if}
+
+		{$tabs[] = 'activity'}
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=both&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
+		
+		{$tabs[] = 'comments'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context={$page_context}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize} <div class="tab-badge">{DAO_Comment::count($page_context, $page_context_id)|default:0}</div></a></li>
+		
+		{$tabs[] = 'links'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&point={$point}&context={$page_context}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.links')} <div class="tab-badge">{DAO_ContextLink::count($page_context, $page_context_id)|default:0}</div></a></li>
 
 		{foreach from=$tab_manifests item=tab_manifest}

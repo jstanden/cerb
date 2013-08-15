@@ -24,6 +24,9 @@ if(!isset($tables['virtual_attendant'])) {
 	$db->Execute($sql);
 
 	$tables['virtual_attendant'] = 'virtual_attendant';
+
+	// Fieldsets can be owned by VAs, so we need to purge old search worklists
+	$db->Execute("DELETE FROM worker_view_model WHERE view_id = 'search_cerberusweb_contexts_custom_fieldset'");
 }
 
 // ===========================================================================

@@ -216,6 +216,11 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		return true;
 	}
 	
+	static function deleteByOwner($owner_context, $owner_context_id) {
+		$fieldsets = DAO_CustomFieldset::getByOwner($owner_context, $owner_context_id);
+		DAO_CustomFieldset::delete(array_keys($fieldsets));
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_CustomFieldset::getFields();
 		
@@ -976,30 +981,38 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 		$view->name = 'Custom Fieldsets';
 		
 		$params_required = array();
-		
+
+		/*
+		// Restrict owners
 		$worker_group_ids = array_keys($active_worker->getMemberships());
 		$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($active_worker->id));
+		$worker_va_ids = array_keys(DAO_VirtualAttendant::getEditableByWorker($active_worker
+		));
 		
-		// Restrict owners
 		$param_ownership = array(
 			DevblocksSearchCriteria::GROUP_OR,
 			array(
 				DevblocksSearchCriteria::GROUP_AND,
 				SearchFields_CustomFieldset::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_WORKER),
-				SearchFields_CustomFieldset::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_EQ,$active_worker->id),
+				SearchFields_CustomFieldset::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_EQ, $active_worker->id),
 			),
 			array(
 				DevblocksSearchCriteria::GROUP_AND,
 				SearchFields_CustomFieldset::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_GROUP),
-				SearchFields_CustomFieldset::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,$worker_group_ids),
+				SearchFields_CustomFieldset::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN, $worker_group_ids),
 			),
 			array(
 				DevblocksSearchCriteria::GROUP_AND,
 				SearchFields_CustomFieldset::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_ROLE),
-				SearchFields_CustomFieldset::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,$worker_role_ids),
+				SearchFields_CustomFieldset::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN, $worker_role_ids),
+			),
+			array(
+				DevblocksSearchCriteria::GROUP_AND,
+				SearchFields_CustomFieldset::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT),
+				SearchFields_CustomFieldset::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN, $worker_va_ids),
 			),
 		);
-		$params_required['_ownership'] = $param_ownership;
+		*/
 		
 		// Restrict contexts
 		if(isset($_REQUEST['link_context'])) {

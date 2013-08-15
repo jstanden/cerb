@@ -162,6 +162,18 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		return $results;
 	}
 	
+	static function getEditableByWorker(Model_worker $worker) {
+		$vas = DAO_VirtualAttendant::getAll();
+		$results = array();
+
+		foreach($vas as $va_id => $va) {
+			if($va->isEditableByWorker($worker))
+				$results[$va_id] = $va;
+		}
+		
+		return $results;
+	}
+	
 	/**
 	 * @param resource $rs
 	 * @return Model_VirtualAttendant[]
@@ -522,8 +534,8 @@ class Model_VirtualAttendant {
 		
 		switch($this->owner_context) {
 			case CerberusContexts::CONTEXT_APPLICATION:
-					return true;
-					break;
+				return true;
+				break;
 					
 			case CerberusContexts::CONTEXT_WORKER:
 				if($this->owner_context_id == $worker->id)
@@ -539,6 +551,33 @@ class Model_VirtualAttendant {
 				if($worker->isRoleMember($this->owner_context_id))
 					return true;
 					break;
+		}
+		
+		return false;
+	}
+	
+	function isEditableByWorker(Model_Worker $worker) {
+		if($worker->is_superuser)
+			return true;
+		
+		switch($this->owner_context) {
+			case CerberusContexts::CONTEXT_APPLICATION:
+				return false;
+				break;
+					
+			case CerberusContexts::CONTEXT_WORKER:
+				if($this->owner_context_id == $worker->id)
+					return true;
+					break;
+				
+			case CerberusContexts::CONTEXT_GROUP:
+				if($worker->isGroupManager($this->owner_context_id))
+					return true;
+					break;
+					
+			case CerberusContexts::CONTEXT_ROLE:
+				return false;
+				break;
 		}
 		
 		return false;
@@ -1103,8 +1142,18 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		
+		
 		if(!empty($context_id) && null != ($virtual_attendant = DAO_VirtualAttendant::get($context_id))) {
 			$tpl->assign('model', $virtual_attendant);
+			
+		} else {
+			@$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'string','');
+			@$owner_context_id = DevblocksPlatform::importGPC($_REQUEST['owner_context_id'],'integer',0);
+			
+			$model = new Model_VirtualAttendant();
+			$model->owner_context = $owner_context;
+			$model->owner_context_id = $owner_context_id;
+			$tpl->assign('model', $model);
 		}
 		
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, false);

@@ -48,42 +48,52 @@
 						<option value=""> - transfer - </option>
 					{/if}
 					
-					<option value="w_{$active_worker->id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_WORKER && $active_worker->id==$custom_fieldset->owner_context_id}selected="selected"{/if}>me</option>
+					<option value="w_{$active_worker->id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_WORKER && $active_worker->id==$custom_fieldset->owner_context_id}selected="selected"{/if}>{'common.me'|devblocks_translate|lower}</option>
 
 					{if !empty($owner_roles)}
 					{foreach from=$owner_roles item=role key=role_id}
-						<option value="r_{$role_id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_ROLE && $role_id==$custom_fieldset->owner_context_id}selected="selected"{/if}>Role: {$role->name}</option>
+						<option value="r_{$role_id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_ROLE && $role_id==$custom_fieldset->owner_context_id}selected="selected"{/if}>{'common.role'|devblocks_translate|capitalize}: {$role->name}</option>
 					{/foreach}
 					{/if}
 					
 					{if !empty($owner_groups)}
 					{foreach from=$owner_groups item=group key=group_id}
-						<option value="g_{$group_id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_GROUP && $group_id==$custom_fieldset->owner_context_id}selected="selected"{/if}>Group: {$group->name}</option>
+						<option value="g_{$group_id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_GROUP && $group_id==$custom_fieldset->owner_context_id}selected="selected"{/if}>{'common.group'|devblocks_translate|capitalize}: {$group->name}</option>
 					{/foreach}
 					{/if}
 					
 					{if $active_worker->is_superuser}
 					{foreach from=$workers item=worker key=worker_id}
-						{if empty($worker->is_disabled)}
-						<option value="w_{$worker_id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_WORKER && $worker_id==$custom_fieldset->owner_context_id && $active_worker->id != $worker_id}selected="selected"{/if}>Worker: {$worker->getName()}</option>
+						{if !$worker->is_disabled}
+						<option value="w_{$worker_id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_WORKER && $worker_id==$custom_fieldset->owner_context_id && $active_worker->id != $worker_id}selected="selected"{/if}>{'common.worker'|devblocks_translate|capitalize}: {$worker->getName()}</option>
 						{/if}
 					{/foreach}
 					{/if}
+					
+					{foreach from=$virtual_attendants item=va key=va_id}
+						{if $va->isEditableByWorker($active_worker)}
+						<option value="v_{$va_id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT && $va_id==$custom_fieldset->owner_context_id}selected="selected"{/if}>{'common.virtual_attendant'|devblocks_translate|capitalize}: {$va->name}</option>
+						{/if}
+					{/foreach}
 				</select>
 				
 				{if !empty($custom_fieldset->id)}
 				<ul class="bubbles">
 					<li>
 					{if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_ROLE && isset($roles.{$custom_fieldset->owner_context_id})}
-					<b>{$roles.{$custom_fieldset->owner_context_id}->name}</b> (Role)
+					<b>{$roles.{$custom_fieldset->owner_context_id}->name}</b> ({'common.role'|devblocks_translate|capitalize})
 					{/if}
 					
 					{if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_GROUP && isset($groups.{$custom_fieldset->owner_context_id})}
-					<b>{$groups.{$custom_fieldset->owner_context_id}->name}</b> (Group)
+					<b>{$groups.{$custom_fieldset->owner_context_id}->name}</b> ({'common.group'|devblocks_translate|capitalize})
 					{/if}
 					
 					{if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_WORKER && isset($workers.{$custom_fieldset->owner_context_id})}
-					<b>{$workers.{$custom_fieldset->owner_context_id}->getName()}</b> (Worker)
+					<b>{$workers.{$custom_fieldset->owner_context_id}->getName()}</b> ({'common.worker'|devblocks_translate|capitalize})
+					{/if}
+					
+					{if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT && isset($virtual_attendants.{$custom_fieldset->owner_context_id})}
+					<b>{$virtual_attendants.{$custom_fieldset->owner_context_id}->name}</b> ({'common.virtual_attendant'|devblocks_translate|capitalize})
 					{/if}
 					</li>
 				</ul>
