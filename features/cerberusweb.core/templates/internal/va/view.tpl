@@ -107,8 +107,15 @@
 					{if !is_null($owner_context_ext)}
 						{$meta = $owner_context_ext->getMeta($owner_context_id)}
 						{if !empty($meta)}
-							{$meta.name}
-							({$owner_context_ext->manifest->name})
+							{if $meta.permalink}
+								<a href="{$meta.permalink}">
+								{$meta.name}
+								({$owner_context_ext->manifest->name})
+								</a>
+							{else}
+								{$meta.name}
+								({$owner_context_ext->manifest->name})
+							{/if}
 						{else}
 							{$owner_context_ext->manifest->name}
 						{/if}
