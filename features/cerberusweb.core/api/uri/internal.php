@@ -828,18 +828,42 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(!empty($point))
 			$visit->set($point, 'activity');
 
-		if(0 == strcasecmp('target',$scope)) {
-			$params = array(
-				SearchFields_ContextActivityLog::TARGET_CONTEXT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT,'=',$context),
-				SearchFields_ContextActivityLog::TARGET_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT_ID,'=',$context_id),
-			);
-		} else { // actor
-			$params = array(
-				SearchFields_ContextActivityLog::ACTOR_CONTEXT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::ACTOR_CONTEXT,'=',$context),
-				SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID,'=',$context_id),
-			);
+		switch($scope) {
+			case 'target':
+				$params = array(
+					SearchFields_ContextActivityLog::TARGET_CONTEXT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT,'=',$context),
+					SearchFields_ContextActivityLog::TARGET_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT_ID,'=',$context_id),
+				);
+				break;
+				
+			case 'both':
+				$params = array(
+					array(
+						DevblocksSearchCriteria::GROUP_OR,
+						
+						array(
+							DevblocksSearchCriteria::GROUP_AND,
+							SearchFields_ContextActivityLog::TARGET_CONTEXT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT,'=',$context),
+							SearchFields_ContextActivityLog::TARGET_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT_ID,'=',$context_id),
+						),
+						array(
+							DevblocksSearchCriteria::GROUP_AND,
+							SearchFields_ContextActivityLog::ACTOR_CONTEXT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::ACTOR_CONTEXT,'=',$context),
+							SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID,'=',$context_id),
+						),
+					),
+				);
+				break;
+				
+			default:
+			case 'actor':
+				$params = array(
+					SearchFields_ContextActivityLog::ACTOR_CONTEXT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::ACTOR_CONTEXT,'=',$context),
+					SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID,'=',$context_id),
+				);
+				break;
 		}
-
+		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = 'context_activity_log_'.str_replace('.','_',$context.'_'.$context_id);
 		$defaults->is_ephemeral = true;
