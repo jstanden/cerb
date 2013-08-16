@@ -21,32 +21,6 @@
 	</div>
 </form>
 
-<div class="reply">
-	<div class="header"><h2>{$translate->_('portal.sc.public.history.reply')}</h2></div>
-	<form action="{devblocks_url}c=history{/devblocks_url}" method="post" name="replyForm" enctype="multipart/form-data">
-	<input type="hidden" name="a" value="doReply">
-	<input type="hidden" name="mask" value="{$ticket.t_mask}">
-	
-	<b>{'message.header.from'|devblocks_translate|capitalize}:</b> 
-	<select name="from">
-		{$contact_addresses = $active_contact->getAddresses()}
-		{foreach from=$contact_addresses item=address}
-		<option value="{$address->email}" {if 0==strcasecmp($address->id,$active_contact->email_id)}selected="selected"{/if}>{$address->email}</option>
-		{/foreach}
-	</select>
-	<br>
-	
-	<textarea name="content" rows="10" cols="80" style="width:98%;"></textarea><br>
-	
-	<fieldset>
-		<legend>Attachments:</legend>
-		<input type="file" name="attachments[]" class="multi"><br>
-	</fieldset>
-	
-	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('portal.public.send_message')}</button>
-	</form>
-</div>
-
 {* Message History *}
 {$badge_extensions = DevblocksPlatform::getExtensions('cerberusweb.support_center.message.badge', true)}
 {foreach from=$messages item=message key=message_id}
@@ -94,6 +68,35 @@
 		</ul>
 		</div>
 	{/if}
+	
+	<button type="button" onclick="var $div = $(this).next('div.reply').toggle(); $div.find('textarea').focus();">Reply</button>
+	
+	<div class="reply" style="display:none;margin-left:15px;">
+		<div class="header"><h2>{$translate->_('portal.sc.public.history.reply')}</h2></div>
+		<form action="{devblocks_url}c=history{/devblocks_url}" method="post" enctype="multipart/form-data">
+		<input type="hidden" name="a" value="doReply">
+		<input type="hidden" name="mask" value="{$ticket.t_mask}">
+		
+		<b>{'message.header.from'|devblocks_translate|capitalize}:</b> 
+		<select name="from">
+			{$contact_addresses = $active_contact->getAddresses()}
+			{foreach from=$contact_addresses item=address}
+			<option value="{$address->email}" {if 0==strcasecmp($address->id,$active_contact->email_id)}selected="selected"{/if}>{$address->email}</option>
+			{/foreach}
+		</select>
+		<br>
+		
+		<textarea name="content" rows="15" cols="80" style="width:98%;">{$message->getContent()|trim|indent:1:'> '|devblocks_email_quote}</textarea><br>
+		
+		<fieldset style="margin:10px 0px 0px 0px;border:0;">
+			<legend>Attachments:</legend>
+			<input type="file" name="attachments[]" class="multi"><br>
+		</fieldset>
+		
+		<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('portal.public.send_message')}</button>
+		<button type="button" onclick="$(this).closest('div.reply').fadeOut();"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/forbidden.png{/devblocks_url}" align="top"> {'common.cancel'|devblocks_translate|capitalize}</button>
+		</form>
+	</div>
 	
 	</div>
 {/foreach}
