@@ -3156,7 +3156,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		return true;
 	}
 	
-	function showScheduleBehaviorParamsAction() {
+	function showBehaviorParamsAction() {
 		@$name_prefix = DevblocksPlatform::importGPC($_REQUEST['name_prefix'],'string', '');
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
 
@@ -3167,7 +3167,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null != ($trigger = DAO_TriggerEvent::get($trigger_id)))
 			$tpl->assign('macro_params', $trigger->variables);
 		
-		$tpl->display('devblocks:cerberusweb.core::events/action_schedule_behavior_params.tpl');
+		$tpl->display('devblocks:cerberusweb.core::events/_action_behavior_params.tpl');
 	}
 	
 	function showScheduleBehaviorBulkParamsAction() {

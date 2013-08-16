@@ -28,7 +28,7 @@
 </div>
 
 <div class="parameters">
-{include file="devblocks:cerberusweb.core::events/action_schedule_behavior_params.tpl" params=$params macro_params=$macros.{$params.behavior_id}->variables}
+{include file="devblocks:cerberusweb.core::events/_action_behavior_params.tpl" params=$params macro_params=$macros.{$params.behavior_id}->variables}
 </div>
 
 <b>When should this behavior happen?</b> (default: now)
@@ -49,7 +49,7 @@
 $action = $('fieldset#{$namePrefix}');
 $action.find('select.behavior').change(function(e) {
 	$div = $(this).closest('fieldset').find('div.parameters');
-	genericAjaxGet($div,'c=internal&a=showScheduleBehaviorParams&name_prefix={$namePrefix}&trigger_id=' + $(this).val());
+	genericAjaxGet($div,'c=internal&a=showBehaviorParams&name_prefix={$namePrefix}&trigger_id=' + $(this).val());
 });
 
 $action.find('select.on').change(function(e) {
