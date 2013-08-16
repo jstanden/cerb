@@ -25,7 +25,7 @@ class Event_OrgMacro extends AbstractEvent_Org {
 	
 	static function trigger($trigger_id, $org_id, $variables=array()) {
 		$events = DevblocksPlatform::getEventService();
-		$events->trigger(
+		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
 				array(

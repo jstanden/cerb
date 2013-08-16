@@ -20,7 +20,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 	
 	static function trigger($message_id, $worker_id) {
 		$events = DevblocksPlatform::getEventService();
-		$events->trigger(
+		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
 				array(

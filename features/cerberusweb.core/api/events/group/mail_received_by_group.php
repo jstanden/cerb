@@ -25,7 +25,7 @@ class Event_MailReceivedByGroup extends AbstractEvent_Message {
 	
 	static function trigger($message_id, $group_id) {
 		$events = DevblocksPlatform::getEventService();
-		$events->trigger(
+		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
 				array(

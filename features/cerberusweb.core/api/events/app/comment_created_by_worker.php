@@ -25,7 +25,7 @@ class Event_CommentCreatedByWorker extends AbstractEvent_Comment {
 	
 	static function trigger($comment_id) {
 		$events = DevblocksPlatform::getEventService();
-		$events->trigger(
+		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
 				array(

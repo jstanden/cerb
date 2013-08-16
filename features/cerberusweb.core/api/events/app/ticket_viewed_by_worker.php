@@ -25,7 +25,7 @@ class Event_TicketViewedByWorker extends AbstractEvent_Ticket {
 	
 	static function trigger($ticket_id, $worker_id) {
 		$events = DevblocksPlatform::getEventService();
-		$events->trigger(
+		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
 				array(

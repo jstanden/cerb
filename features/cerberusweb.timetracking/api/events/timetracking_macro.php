@@ -9,7 +9,7 @@ class Event_TimeTrackingMacro extends AbstractEvent_TimeTracking {
 	
 	static function trigger($trigger_id, $time_id, $variables=array()) {
 		$events = DevblocksPlatform::getEventService();
-		$events->trigger(
+		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
 				array(

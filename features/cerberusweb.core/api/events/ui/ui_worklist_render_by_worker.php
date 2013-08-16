@@ -56,7 +56,7 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 	
 	static function trigger($trigger_id, $context, $view_id, &$actions) {
 		$events = DevblocksPlatform::getEventService();
-		$events->trigger(
+		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
 				array(

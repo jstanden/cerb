@@ -492,6 +492,12 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			$event->id
 		));
 
+		// Keep track of the runners to return at the end
+		
+		$runners = array();
+		
+		// Load all VAs
+		
 		$trigger_vas = DAO_VirtualAttendant::getAll();
 		
 		// Are we limited to only one trigger on this event, or all of them?
@@ -598,6 +604,9 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			));
 			
 			$trigger->runDecisionTree($dict);
+
+			// Snapshot the dictionary of the behavior at conclusion
+			$runners[$trigger->id] = $dict;
 			
 			// Increase the trigger run count
 			$registry->increment('trigger.'.$trigger->id.'.counter', 1);
@@ -618,6 +627,8 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			//var_dump(self::getNodeLog());
 			self::clear();
 		}
+		
+		return $runners;
 	}
 };
 
