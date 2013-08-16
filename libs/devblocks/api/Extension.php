@@ -1113,16 +1113,20 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			if(!isset($dict->_simulator_output) || !is_array($dict->_simulator_output))
 				$dict->_simulator_output = array();
 			
-			$output = array(
-				'action' => $nodes[array_pop($log)]->title,
-				'title' => $all_actions[$token]['label'],
-				'content' => $out,
-			);
+			$node = array_pop($log);
 			
-			$previous_output = $dict->_simulator_output;
-			$previous_output[] = $output;
-			$dict->_simulator_output = $previous_output;
-			unset($out);
+			if(!empty($node) && isset($nodes[$node])) {
+				$output = array(
+					'action' => $nodes[$node]->title,
+					'title' => $all_actions[$token]['label'],
+					'content' => $out,
+				);
+				
+				$previous_output = $dict->_simulator_output;
+				$previous_output[] = $output;
+				$dict->_simulator_output = $previous_output;
+				unset($out);
+			}
 		}
 	}
 };
