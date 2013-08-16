@@ -908,6 +908,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	
 	function getActions($trigger) { /* @var $trigger Model_TriggerEvent */
 		$actions = array(
+			'_run_behavior' => array('label' => '(Run behavior)'),
 			'_set_custom_var' => array('label' => '(Set a custom placeholder)'),
 		);
 		$custom = $this->getActionExtensions();
@@ -959,7 +960,11 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		} else {
 			switch($token) {
 				case '_set_custom_var':
-					return $tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_custom_var.tpl');
+					$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_custom_var.tpl');
+					break;
+					
+				case '_run_behavior':
+					DevblocksEventHelper::renderActionRunBehavior($trigger);
 					break;
 				
 				default:
@@ -1024,7 +1029,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						$var,
 						$dict->$var
 					);
+					break;
 					
+				case '_run_behavior':
+					return DevblocksEventHelper::simulateActionRunBehavior($params, $dict);
 					break;
 					
 				default:
@@ -1073,6 +1081,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					} else {
 						return;
 					}
+					break;
+					
+				case '_run_behavior':
+					DevblocksEventHelper::runActionRunBehavior($params, $dict);
 					break;
 					
 				default:

@@ -1115,6 +1115,176 @@ class DevblocksEventHelper {
 	}
 	
 	/*
+	 * Action: Run Behavior
+	 */
+	
+	static function renderActionRunBehavior($trigger) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		// Macros
+		
+		$event = $trigger->getEvent();
+		
+		$values_to_contexts = $event->getValuesContexts($trigger);
+		$tpl->assign('values_to_contexts', $values_to_contexts);
+
+		$context_to_macros = DevblocksEventHelper::getContextToMacroMap();
+		$tpl->assign('context_to_macros', $context_to_macros);
+		$tpl->assign('events_to_contexts', array_flip($context_to_macros));
+
+		// Macros
+		
+		if(false == ($va = $trigger->getVirtualAttendant()))
+			return;
+		
+		$macros = array();
+		
+		$results = DAO_TriggerEvent::getByVirtualAttendantOwners(
+			array(
+				array($va->owner_context, $va->owner_context_id)
+			),
+			null,
+			true
+		);
+
+		foreach($results as $k => $macro) {
+			if(!in_array($macro->event_point, $context_to_macros)) {
+				continue;
+			}
+
+			if(false == ($macro_va = $macro->getVirtualAttendant())) {
+				continue;
+			}
+			
+			$macro->title = sprintf("[%s] %s%s",
+				$macro_va->name,
+				$macro->title,
+				($macro->is_disabled ? ' (disabled)' : '')
+			);
+			
+			$macros[$k] = $macro;
+		}
+		
+		DevblocksPlatform::sortObjects($macros, 'title');
+		
+		$tpl->assign('macros', $macros);
+		
+		// Template
+		
+		$tpl->display('devblocks:cerberusweb.core::events/action_run_behavior.tpl');
+	}
+	
+	static function simulateActionRunBehavior($params, DevblocksDictionaryDelegate $dict) {
+		@$behavior_id = $params['behavior_id'];
+
+		$trigger = $dict->_trigger;
+		
+		if(empty($behavior_id)) {
+			return "[ERROR] No behavior is selected. Skipping...";
+		}
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		if(null == ($behavior = DAO_TriggerEvent::get($behavior_id)))
+			return "[ERROR] Behavior does not exist. Skipping...";
+		
+		$out = sprintf(">>> Running behavior\n".
+			"Behavior: %s\n",
+			$behavior->title
+		);
+		
+		// [TODO] Variables as parameters
+		
+		$vars = array();
+		foreach($params as $k => $v) {
+			if(substr($k,0,4) == 'var_') {
+				$vars[$k] = $tpl_builder->build($v, $dict);
+			}
+		}
+		
+		// On
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		
+		if(!empty($on)) {
+			$event = $trigger->getEvent();
+			
+			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
+			@$on_objects = $on_result['objects'];
+			
+			if(is_array($on_objects)) {
+				$out .= "\n>>> On:\n";
+				
+				foreach($on_objects as $on_object) {
+					$on_object_context = Extension_DevblocksContext::get($on_object->_context);
+					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";
+				}
+				$out .= "\n";
+			}
+		}
+		
+		return $out;
+	}
+	
+	static function runActionRunBehavior($params, $dict) {
+		@$behavior_id = $params['behavior_id'];
+		@$var = $params['var'];
+		
+		if(empty($behavior_id))
+			return FALSE;
+		
+		if(empty($var))
+			return FALSE;
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		// Variables as parameters
+		$vars = array();
+		foreach($params as $k => $v) {
+			if(substr($k,0,4) == 'var_') {
+				$vars[$k] = $tpl_builder->build($v, $dict);
+			}
+		}
+		
+		// On
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		
+		if(!empty($on)) {
+			$trigger = $dict->_trigger;
+			$event = $trigger->getEvent();
+			
+			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
+			
+			@$on_objects = $on_result['objects'];
+			
+			if(is_array($on_objects)) {
+				foreach($on_objects as $on_object) {
+					if(!isset($on_object->id) && empty($on_object->id))
+						continue;
+
+					if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
+						continue;
+					
+					// Load event manifest
+					if(null == ($ext = DevblocksPlatform::getExtension($behavior->event_point, false))) /* @var $ext DevblocksExtensionManifest */
+						continue;
+						//throw new Exception("Invalid event.");
+					
+					$runners = call_user_func(array($ext->class, 'trigger'), $behavior->id, $on_object->id, $vars);
+					
+					if(null != (@$runner = $runners[$behavior->id])) {
+						$dict->$var = $runner;
+					}
+					
+				}
+			}
+		}
+
+		return;
+	}
+	
+	/*
 	 * Action: Schedule Behavior
 	 */
 	
