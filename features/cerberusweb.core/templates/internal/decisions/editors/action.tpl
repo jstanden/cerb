@@ -18,13 +18,22 @@
 <fieldset id="action{$seq}">
 	<legend style="cursor:move;">
 		<a href="javascript:;" onclick="$(this).closest('fieldset').find('#divDecisionActionToolbar{$id}').hide().appendTo($('#frmDecisionAction{$id}Action'));$(this).closest('fieldset').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></a>
-		{$actions.{$params.action}.label}
+		{if $actions.{$params.action}}
+			{$actions.{$params.action}.label}
+		{else}
+			(missing action: {$params.action})
+		{/if}
 	</legend>
 	
 	<input type="hidden" name="actions[]" value="{$seq}">
 	<input type="hidden" name="action{$seq}[action]" value="{$params.action}">
 	
-	{$event->renderAction({$params.action},$trigger,$params,$seq)}
+	{if $actions.{$params.action}}
+		{$event->renderAction({$params.action},$trigger,$params,$seq)}
+	{else}
+		The defined action could not be found. It may no longer be supported, or its plugin may be disabled. 
+		The action will be ignored by this behavior until it becomes available again.
+	{/if}
 </fieldset>
 {/foreach}
 {/if}
