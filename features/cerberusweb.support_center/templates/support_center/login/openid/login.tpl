@@ -1,5 +1,4 @@
 <form action="{devblocks_url}c=login&a=discover{/devblocks_url}" method="post" id="loginOpenID">
-<input type="hidden" name="original_path" value="{$original_path}">
 
 {if !empty($error)}
 <div class="error">{$error}</div>

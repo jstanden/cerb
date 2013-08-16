@@ -3,7 +3,6 @@
 {/if}
 
 <form action="{devblocks_url}c=login&a=authenticate{/devblocks_url}" method="post" id="loginForm">
-<input type="hidden" name="original_path" value="{$original_path}">
 <fieldset>
 	<legend>{$translate->_('header.signon')}</legend>
 	
