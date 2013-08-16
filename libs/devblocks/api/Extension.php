@@ -917,9 +917,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			$actions = array_merge($actions, $custom);
 		
 		// Trigger variables
+		
 		if(is_array($trigger->variables))
 		foreach($trigger->variables as $key => $var) {
-			$actions[$key] = array('label' => 'Set (variable) ' . $var['label']);
+			$actions[$key] = array('label' => '(Set variable: ' . $var['label'] . ')');
 		}
 		
 		// Add plugin extensions
