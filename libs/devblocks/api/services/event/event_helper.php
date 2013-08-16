@@ -1312,7 +1312,9 @@ class DevblocksEventHelper {
 		$results = DAO_TriggerEvent::getByVirtualAttendantOwners(
 			array(
 				array($va->owner_context, $va->owner_context_id)
-			)
+			),
+			null,
+			true
 		);
 
 		foreach($results as $k => $macro) {
@@ -1324,9 +1326,10 @@ class DevblocksEventHelper {
 				continue;
 			}
 			
-			$macro->title = sprintf("[%s] %s",
+			$macro->title = sprintf("[%s] %s%s",
 				$macro_va->name,
-				$macro->title
+				$macro->title,
+				($macro->is_disabled ? ' (disabled)' : '')
 			);
 			
 			$macros[$k] = $macro;
@@ -1414,7 +1417,6 @@ class DevblocksEventHelper {
 		
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$run_date = $tpl_builder->build($run_date, $dict);
-		
 		
 		@$run_timestamp = strtotime($run_date);
 		
@@ -1520,7 +1522,9 @@ class DevblocksEventHelper {
 		$results = DAO_TriggerEvent::getByVirtualAttendantOwners(
 			array(
 				array($va->owner_context, $va->owner_context_id)
-			)
+			),
+			null,
+			true
 		);
 
 		foreach($results as $k => $macro) {
@@ -1532,9 +1536,10 @@ class DevblocksEventHelper {
 				continue;
 			}
 			
-			$macro->title = sprintf("[%s] %s",
+			$macro->title = sprintf("[%s] %s%s",
 				$macro_va->name,
-				$macro->title
+				$macro->title,
+				($macro->is_disabled ? ' (disabled)' : '')
 			);
 			
 			$macros[$k] = $macro;
