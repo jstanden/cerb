@@ -979,6 +979,15 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 		return array();
 	}
 	
+	static function getByAttachmentId($id) {
+		$links = self::getWhere(sprintf("%s = %d",
+			self::ATTACHMENT_ID,
+			$id
+		));
+		
+		return $links;
+	}
+	
 	static function create($attachment_id, $context, $context_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -992,6 +1001,16 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 			$context_id,
 			$db->qstr($uuid)
 		));
+	}
+	
+	static function addLinks($context, $context_id, $attachment_ids) {
+		if(!is_array($attachment_ids))
+			$attachment_ids = array($attachment_ids);
+		
+		foreach($attachment_ids as $attachment_id)
+			DAO_AttachmentLink::create($attachment_id, $context, $context_id);
+		
+		return TRUE;
 	}
 	
 	/**

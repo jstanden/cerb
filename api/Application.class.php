@@ -1687,15 +1687,20 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 					break;
 				case Model_CustomField::TYPE_CHECKBOX:
 				case Model_CustomField::TYPE_DATE:
+				case Model_CustomField::TYPE_FILE:
+				case Model_CustomField::TYPE_FILES:
 				case Model_CustomField::TYPE_NUMBER:
 				case Model_CustomField::TYPE_WORKER:
 					$value_table = 'custom_field_numbervalue';
 					break;
-				default:
-				case Model_CustomField::TYPE_SINGLE_LINE:
 				case Model_CustomField::TYPE_DROPDOWN:
+				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+				case Model_CustomField::TYPE_SINGLE_LINE:
 				case Model_CustomField::TYPE_URL:
 					$value_table = 'custom_field_stringvalue';
+					break;
+				default:
+					$value_table = null;
 					break;
 			}
 

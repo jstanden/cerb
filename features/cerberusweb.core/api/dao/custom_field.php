@@ -187,7 +187,6 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		$field = DAO_CustomField::get($field_id);
 		
 		// Determine value table by type
-		$table = null;
 		switch($field->type) {
 			// stringvalue
 			case Model_CustomField::TYPE_SINGLE_LINE:
@@ -203,9 +202,14 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			// number
 			case Model_CustomField::TYPE_CHECKBOX:
 			case Model_CustomField::TYPE_DATE:
+			case Model_CustomField::TYPE_FILE:
+			case Model_CustomField::TYPE_FILES:
 			case Model_CustomField::TYPE_NUMBER:
 			case Model_CustomField::TYPE_WORKER:
 				$table = 'custom_field_numbervalue';
+				break;
+			default:
+				$table = null;
 				break;
 		}
 		
@@ -257,7 +261,24 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 							$value[$v] = $v;
 						}
 					}
+					break;
+					
+				case Model_CustomField::TYPE_FILES:
+					$values = $value;
+					$value = array();
+					
+					if(!is_array($values))
+						$values = array($values);
 
+					foreach($values as $idx => $v) {
+						$is_unset = ('-'==substr($v,0,1)) ? true : false;
+						$v = ltrim($v,'+-');
+							
+						if($is_unset) {
+						} else {
+							$value[$v] = $v;
+						}
+					}
 					break;
 
 				case Model_CustomField::TYPE_CHECKBOX:
@@ -272,10 +293,8 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					}
 					break;
 
+				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_NUMBER:
-					$value = intval($value);
-					break;
-					
 				case Model_CustomField::TYPE_WORKER:
 					$value = intval($value);
 					break;
@@ -309,7 +328,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				continue;
 
 			$field =& $fields[$field_id]; /* @var $field Model_CustomField */
-			$is_delta = ($field->type==Model_CustomField::TYPE_MULTI_CHECKBOX)
+			$is_delta = ($field->type==Model_CustomField::TYPE_MULTI_CHECKBOX || $field->type==Model_CustomField::TYPE_FILES)
 					? $delta
 					: false
 					;
@@ -350,6 +369,28 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					if(in_array($value, $field->options))
 						self::setFieldValue($context, $context_id, $field_id, $value);
 					
+					break;
+					
+				case Model_CustomField::TYPE_FILES:
+					if(!is_array($value))
+						$value = array($value);
+
+					if(!$delta) {
+						self::unsetFieldValue($context, $context_id, $field_id);
+					}
+					
+					// Protect from injection in cases where it's not desireable (controlled above)
+					foreach($value as $idx => $v) {
+						$is_unset = ('-'==substr($v,0,1)) ? true : false;
+						$v = ltrim($v,'+-');
+							
+						if($is_unset) {
+							if($delta)
+								self::unsetFieldValue($context, $context_id, $field_id, $v);
+						} else {
+							self::setFieldValue($context, $context_id, $field_id, $v, true);
+						}
+					}
 					break;
 					
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
@@ -400,11 +441,8 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					self::setFieldValue($context, $context_id, $field_id, $value);
 					break;
 
+				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_NUMBER:
-					$value = intval($value);
-					self::setFieldValue($context, $context_id, $field_id, $value);
-					break;
-					
 				case Model_CustomField::TYPE_WORKER:
 					$value = intval($value);
 					self::setFieldValue($context, $context_id, $field_id, $value);
@@ -426,27 +464,28 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 
 		// Data formating
 		switch($field->type) {
-			case 'E': // date
+			case Model_CustomField::TYPE_DATE: // date
 				if(is_numeric($value))
 					$value = intval($value);
 				else
 					$value = @strtotime($value);
 				break;
-			case 'D': // dropdown
-			case 'S': // string
-			case 'U': // URL
+			case Model_CustomField::TYPE_DROPDOWN:
+			case Model_CustomField::TYPE_SINGLE_LINE:
+			case Model_CustomField::TYPE_URL:
 				if(255 < strlen($value))
 					$value = substr($value,0,255);
 				break;
-			case 'N': // number
-			case 'W': // worker
+			case Model_CustomField::TYPE_FILE:
+			case Model_CustomField::TYPE_NUMBER:
+			case Model_CustomField::TYPE_WORKER:
 				$value = intval($value);
 				break;
 		}
 		
 		// Clear existing values (beats replace logic)
 		self::unsetFieldValue($context, $context_id, $field_id, ($delta?$value:null));
-
+		
 		// Set values consistently
 		if(!is_array($value))
 			$value = array($value);
@@ -465,6 +504,14 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		
 		DevblocksPlatform::markContextChanged($context, $context_id);
 		
+		// Special handling
+		switch($field->type) {
+			case Model_CustomField::TYPE_FILE:
+			case Model_CustomField::TYPE_FILES:
+				DAO_AttachmentLink::addLinks(CerberusContexts::CONTEXT_CUSTOM_FIELD, $field_id, $value);
+				break;
+		}
+		
 		return TRUE;
 	}
 	
@@ -479,7 +526,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		
 		if(!is_array($value))
 			$value = array($value);
-			
+		
 		foreach($value as $v) {
 			// Delete all values or optionally a specific given value
 			$sql = sprintf("DELETE FROM %s WHERE context = '%s' AND context_id = %d AND field_id = %d %s",
@@ -490,6 +537,19 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				(!is_null($v) ? sprintf("AND field_value = %s ",$db->qstr($v)) : "")
 			);
 			$db->Execute($sql);
+		}
+		
+		// We need to remove context links on file attachments
+		switch($field->type) {
+			case Model_CustomField::TYPE_FILE:
+			case Model_CustomField::TYPE_FILES:
+				$sql = sprintf("DELETE FROM attachment_link WHERE context = %s and context_id = %d AND attachment_id NOT IN (SELECT field_value FROM custom_field_numbervalue WHERE field_id = %d)",
+					$db->qstr(CerberusContexts::CONTEXT_CUSTOM_FIELD),
+					$field_id,
+					$field_id
+				);
+				$db->Execute($sql);
+				break;
 		}
 		
 		DevblocksPlatform::markContextChanged($context, $context_id);
@@ -515,6 +575,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
+				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_NUMBER:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					$field_value = (0==strlen($field_value)) ? '' : intval($field_value);
@@ -531,6 +592,11 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					$do['cf_'.$field_id] = array('value' => !empty($field_value) ? 1 : 0);
 					break;
 
+				case Model_CustomField::TYPE_FILES:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
+					$do['cf_'.$field_id] = array('value' => DevblocksPlatform::sanitizeArray($field_value,'integer',array('nonzero','unique')));
+					break;
+					
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
 					$do['cf_'.$field_id] = array('value' => $field_value);
@@ -564,6 +630,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			$field_value = null;
 			
 			switch($fields[$field_id]->type) {
+				case Model_CustomField::TYPE_FILES:
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
 					@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field_id],'array',array());
 					break;
@@ -571,6 +638,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				case Model_CustomField::TYPE_CHECKBOX:
 				case Model_CustomField::TYPE_DATE:
 				case Model_CustomField::TYPE_DROPDOWN:
+				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_MULTI_LINE:
 				case Model_CustomField::TYPE_NUMBER:
 				case Model_CustomField::TYPE_SINGLE_LINE:
@@ -659,9 +727,10 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		return true;
 	}
 	
-	public static function getValuesByContextIds($context, $context_ids) {
+	public static function getValuesByContextIds($context, $context_ids, $only_field_ids=null) {
 		if(is_null($context_ids))
 			return array();
+		
 		elseif(!is_array($context_ids))
 			$context_ids = array($context_ids);
 
@@ -672,6 +741,11 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		
 		// Only check the custom fields of this context
 		$fields = DAO_CustomField::getByContext($context);
+		
+		if(is_array($only_field_ids))
+		$fields = array_filter($fields, function($item) use ($only_field_ids) {
+			return in_array($item->id, $only_field_ids);
+		});
 		
 		$results = array();
 		$tables = array();
@@ -698,6 +772,9 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 
 		if(is_array($tables))
 		foreach($tables as $table) {
+			if(empty($table))
+				continue;
+		
 			$sqls[] = sprintf("SELECT context_id, field_id, field_value ".
 				"FROM %s ".
 				"WHERE context = '%s' AND context_id IN (%s)",
@@ -732,15 +809,18 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			$ptr =& $results[$context_id];
 			
 			// If multiple value type (multi-checkbox)
-			if($fields[$field_id]->type=='X') {
-				if(!isset($ptr[$field_id]))
-					$ptr[$field_id] = array();
+			switch($fields[$field_id]->type) {
+				case Model_CustomField::TYPE_FILES:
+				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+					if(!isset($ptr[$field_id]))
+						$ptr[$field_id] = array();
+						
+					$ptr[$field_id][$field_value] = $field_value;
+					break;
 					
-				$ptr[$field_id][$field_value] = $field_value;
-				
-			} else { // single value
-				$ptr[$field_id] = $field_value;
-				
+				default:
+					$ptr[$field_id] = $field_value;
+					break;
 			}
 		}
 		
@@ -780,20 +860,21 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			);
 			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		}
-
 	}
 };
 
 class Model_CustomField {
 	const TYPE_CHECKBOX = 'C';
-	const TYPE_DROPDOWN = 'D';
 	const TYPE_DATE = 'E';
+	const TYPE_DROPDOWN = 'D';
+	const TYPE_FILE = 'F';
+	const TYPE_FILES = 'I';
 	const TYPE_NUMBER = 'N';
 	const TYPE_SINGLE_LINE = 'S';
+	const TYPE_MULTI_CHECKBOX = 'X';
 	const TYPE_MULTI_LINE = 'T';
 	const TYPE_URL = 'U';
 	const TYPE_WORKER = 'W';
-	const TYPE_MULTI_CHECKBOX = 'X';
 	
 	public $id = 0;
 	public $name = '';
@@ -804,17 +885,20 @@ class Model_CustomField {
 	public $options = array();
 	
 	static function getTypes() {
+		// [TODO] Extension provided custom field types
+		
 		return array(
-			self::TYPE_SINGLE_LINE => 'Text: Single Line',
-			self::TYPE_MULTI_LINE => 'Text: Multi-Line',
-			self::TYPE_NUMBER => 'Number',
+			self::TYPE_CHECKBOX => 'Checkbox',
 			self::TYPE_DATE => 'Date',
 			self::TYPE_DROPDOWN => 'Picklist',
-			self::TYPE_CHECKBOX => 'Checkbox',
+			self::TYPE_FILE => 'File',
+			self::TYPE_FILES => 'Files: Multiple',
 			self::TYPE_MULTI_CHECKBOX => 'Multi-Checkbox',
-			self::TYPE_WORKER => 'Worker',
+			self::TYPE_MULTI_LINE => 'Text: Multi-Line',
+			self::TYPE_NUMBER => 'Number',
+			self::TYPE_SINGLE_LINE => 'Text: Single Line',
 			self::TYPE_URL => 'URL',
-//			self::TYPE_FILE => 'File',
+			self::TYPE_WORKER => 'Worker',
 		);
 	}
 };
