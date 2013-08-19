@@ -728,10 +728,15 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function chooserOpenFileAction() {
-		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
+		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'], 'string');
+		@$single = DevblocksPlatform::importGPC($_REQUEST['single'], 'integer', 0);
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('layer', $layer);
+		
+		// Single chooser mode?
+		$tpl->assign('single', $single);
+		
 		$tpl->display('devblocks:cerberusweb.core::context_links/choosers/__file.tpl');
 	}
 
