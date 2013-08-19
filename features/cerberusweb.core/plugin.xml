@@ -218,6 +218,7 @@
 		</file>
 		
 		<file path="api/dao/custom_field.php">
+			<class name="Context_CustomField" />
 			<class name="DAO_CustomField" />
 			<class name="DAO_CustomFieldValue" />
 			<class name="Model_CustomField" />
@@ -804,6 +805,30 @@
 					</value>
 				</param>
 				<param key="context_expand_export" value="email_" />
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.custom_field</id>
+			<name>Custom Field</name>
+			<class>
+				<file>api/dao/custom_field.php</file>
+				<name>Context_CustomField</name>
+			</class>
+			<params>
+				<param key="alias" value="custom_field" />
+				<param key="dao_class" value="DAO_CustomField" />
+				<param key="view_class" value="" />
+				<param key="options">
+					<!--
+					<value>
+						<data key="create" />
+						<data key="find" />
+						<data key="snippets" />
+						<data key="workspace" />
+					</value>
+					-->
+				</param>
 			</params>
 		</extension>
 		

@@ -154,6 +154,18 @@ class DAO_CustomField extends DevblocksORMHelper {
 		foreach($ids as $id) {
 			DAO_CustomFieldValue::deleteByFieldId($id);
 		}
+
+		// Fire event
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => CerberusContexts::CONTEXT_CUSTOM_FIELD,
+					'context_ids' => $ids
+				)
+			)
+		);
 		
 		self::clearCache();
 	}
@@ -804,5 +816,123 @@ class Model_CustomField {
 			self::TYPE_URL => 'URL',
 //			self::TYPE_FILE => 'File',
 		);
+	}
+};
+
+class Context_CustomField extends Extension_DevblocksContext {
+	function authorize($context_id, Model_Worker $worker) {
+		// Security
+		try {
+			if(empty($worker))
+				throw new Exception();
+			
+			if($worker->is_superuser)
+				return TRUE;
+				
+		} catch (Exception $e) {
+			// Fail
+		}
+		
+		return FALSE;
+	}
+	
+	function getRandom() {
+		//return DAO_WorkerRole::random();
+	}
+	
+	function getMeta($context_id) {
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		$field = DAO_CustomField::get($context_id);
+		
+		return array(
+			'id' => $field->id,
+			'name' => $field->name,
+			'permalink' => null, //$url_writer->writeNoProxy('', true),
+		);
+	}
+	
+	function getContext($cfield, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Custom Field:';
+			
+		$translate = DevblocksPlatform::getTranslationService();
+		//$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CUSTOM_FIELD);
+		
+		// Polymorph
+		if(is_numeric($cfield)) {
+			$cfield = DAO_CustomField::get($cfield);
+ 		} elseif($cfield instanceof Model_CustomField) {
+			// It's what we want already.
+		} else {
+			$cfield = null;
+		}
+			
+		// Token labels
+		$token_labels = array(
+			'name' => $prefix.$translate->_('common.name'),
+			//'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Custom field/fieldset token labels
+		//if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+		//	$token_labels = array_merge($token_labels, $custom_field_labels);
+		
+		// Token values
+		$token_values = array();
+		
+		$token_values['_context'] = CerberusContexts::CONTEXT_CUSTOM_FIELD;
+		
+		// Worker token values
+		if(null != $role) {
+			$token_values['_loaded'] = true;
+			$token_values['_label'] = $cfield->name;
+			$token_values['context'] = $cfield->context;
+			$token_values['custom_fieldset_id'] = $cfield->custom_fieldset_id;
+			$token_values['id'] = $cfield->id;
+			$token_values['name'] = $cfield->name;
+			$token_values['type'] = $cfield->type;
+			
+			// URL
+// 			$url_writer = DevblocksPlatform::getUrlService();
+// 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=worker&id=%d-%s",$worker->id, DevblocksPlatform::strToPermalink($worker->getName())), true);
+		}
+		
+		return true;
+	}
+
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_CUSTOM_FIELD;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+		}
+		
+		switch($token) {
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}
+	
+	function getChooserView($view_id=null) {
+		return null;
+	}
+	
+	function getView($context=null, $context_id=null, $options=array()) {
+		return null;
 	}
 };
