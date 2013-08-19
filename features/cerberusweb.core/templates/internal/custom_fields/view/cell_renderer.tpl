@@ -14,7 +14,13 @@
 {elseif $col->type=='D'}
 	<td>{$result.$column}</td>
 {elseif $col->type=='X'}
-	<td>{$result.$column}</td>
+	<td>
+		{$opts = DevblocksPlatform::parseCrlfString($result.$column)}
+		{DevblocksPlatform::sortObjects($opts)}
+		{foreach from=$opts item=opt name=opts}
+			<span>{$opt}</span>{if !$smarty.foreach.opts.last}, {/if}
+		{/foreach}
+	</td>
 {elseif $col->type=='E'}
 	<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
 {elseif $col->type=='C'}
