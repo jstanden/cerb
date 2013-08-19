@@ -363,18 +363,6 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				DevblocksEventHelper::renderActionCreateTicket($trigger);
 				break;
 			
-			case 'schedule_behavior':
-				$dates = array();
-				$conditions = $this->getConditions($trigger);
-				foreach($conditions as $key => $data) {
-					if(isset($data['type']) && $data['type'] == Model_CustomField::TYPE_DATE)
-						$dates[$key] = $data['label'];
-				}
-				$tpl->assign('dates', $dates);
-			
-				DevblocksEventHelper::renderActionScheduleBehavior($trigger);
-				break;
-				
 			case 'send_email':
 				DevblocksEventHelper::renderActionSendEmail($trigger);
 				break;
@@ -385,10 +373,6 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				
 			case 'set_links':
 				DevblocksEventHelper::renderActionSetLinks($trigger);
-				break;
-				
-			case 'unschedule_behavior':
-				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger);
 				break;
 				
 			default:
@@ -432,17 +416,11 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict, 'opp_id');
 				break;
 				
-			case 'schedule_behavior':
-				return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
-				break;
 				
 			case 'send_email':
 				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
 				
-			case 'unschedule_behavior':
-				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
-				break;
 				
 			case 'set_status':
 				break;
@@ -485,16 +463,8 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				DevblocksEventHelper::runActionCreateTicket($params, $dict, 'opp_id');
 				break;
 				
-			case 'schedule_behavior':
-				DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
-				break;
-				
 			case 'send_email':
 				DevblocksEventHelper::runActionSendEmail($params, $dict);
-				break;
-				
-			case 'unschedule_behavior':
-				DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 				break;
 				
 			case 'set_status':

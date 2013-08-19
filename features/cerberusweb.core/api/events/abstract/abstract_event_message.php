@@ -652,7 +652,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				'move_to' => array('label' => 'Move to'),
 				'relay_email' => array('label' => 'Relay to external email'),
 				'schedule_email_recipients' => array('label' => 'Schedule email to recipients'),
-				'schedule_behavior' => array('label' => 'Schedule behavior'),
 				'send_email' => array('label' => 'Send email'),
 				'send_email_recipients' => array('label' => 'Send email to recipients'),
 				'set_org' => array('label' =>'Set ticket organization'),
@@ -662,7 +661,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				'set_status' => array('label' => 'Set ticket status'),
 				'set_subject' => array('label' => 'Set ticket subject'),
 				'set_links' => array('label' => 'Set links'),
-				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
 			;
@@ -736,18 +734,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				DevblocksEventHelper::renderActionScheduleTicketReply();
 				break;
 				
-			case 'schedule_behavior':
-				$dates = array();
-				$conditions = $this->getConditions($trigger);
-				foreach($conditions as $key => $data) {
-					if(isset($data['type']) && $data['type'] == Model_CustomField::TYPE_DATE)
-						$dates[$key] = $data['label'];
-				}
-				$tpl->assign('dates', $dates);
-				
-				DevblocksEventHelper::renderActionScheduleBehavior($trigger);
-				break;
-				
 			case 'set_org':
 				DevblocksEventHelper::renderActionSetTicketOrg($trigger);
 				break;
@@ -793,10 +779,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 			case 'set_links':
 				DevblocksEventHelper::renderActionSetLinks($trigger);
-				break;
-				
-			case 'unschedule_behavior':
-				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger);
 				break;
 				
 			default:
@@ -855,9 +837,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			case 'schedule_email_recipients':
 				break;
 				
-			case 'schedule_behavior':
-				return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
-				break;
 				
 			case 'set_org':
 				return DevblocksEventHelper::simulateActionSetTicketOrg($params, $dict, 'ticket_id');
@@ -935,9 +914,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
 				break;
 				
-			case 'unschedule_behavior':
-				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
-				break;
 				
 			default:
 				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token))
@@ -996,10 +972,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 			case 'schedule_email_recipients':
 				DevblocksEventHelper::runActionScheduleTicketReply($params, $dict, $ticket_id, $message_id);
-				break;
-				
-			case 'schedule_behavior':
-				DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
 				break;
 				
 			case 'set_org':
@@ -1203,10 +1175,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 
 			case 'set_links':
 				return DevblocksEventHelper::runActionSetLinks($trigger, $params, $dict);
-				break;
-				
-			case 'unschedule_behavior':
-				DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 				break;
 				
 			default:

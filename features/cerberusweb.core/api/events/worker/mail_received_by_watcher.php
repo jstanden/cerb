@@ -445,12 +445,10 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			'send_email' => array('label' => 'Send email'),
 			'relay_email' => array('label' => 'Relay to external email'),
 			'send_email_recipients' => array('label' => 'Reply to recipients'),
-			'schedule_behavior' => array('label' => 'Schedule behavior'),
 			'create_comment' => array('label' =>'Create a comment'),
 			'create_notification' => array('label' =>'Create a notification'),
 			'create_task' => array('label' =>'Create a task'),
 			'create_ticket' => array('label' =>'Create a ticket'),
-			'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 		);
 		
 		// [TODO] Add set custom fields
@@ -510,22 +508,6 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_owner/action_send_email_recipients.tpl');
 				break;
 				
-			case 'schedule_behavior':
-				$dates = array();
-				$conditions = $this->getConditions($trigger);
-				foreach($conditions as $key => $data) {
-					if(isset($data['type']) && $data['type'] == Model_CustomField::TYPE_DATE)
-						$dates[$key] = $data['label'];
-				}
-				$tpl->assign('dates', $dates);
-			
-				DevblocksEventHelper::renderActionScheduleBehavior($trigger);
-				break;
-				
-			case 'unschedule_behavior':
-				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger);
-				break;
-				
 //			default:
 //				if('set_cf_' == substr($token,0,7)) {
 //					$field_id = substr($token,7);
@@ -578,13 +560,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			case 'send_email_recipients':
 				break;
 				
-			case 'schedule_behavior':
-				return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
-				break;
 				
-			case 'unschedule_behavior':
-				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
-				break;
 		}
 	}
 	
@@ -659,14 +635,6 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				// Send
 				
 				CerberusMail::sendTicketMessage($properties);
-				break;
-				
-			case 'schedule_behavior':
-				DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
-				break;
-				
-			case 'unschedule_behavior':
-				DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 				break;
 		}
 	}

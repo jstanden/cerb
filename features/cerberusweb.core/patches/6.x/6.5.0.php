@@ -27,6 +27,10 @@ if(!isset($tables['virtual_attendant'])) {
 
 	// Fieldsets can be owned by VAs, so we need to purge old search worklists
 	$db->Execute("DELETE FROM worker_view_model WHERE view_id = 'search_cerberusweb_contexts_custom_fieldset'");
+	
+	// Migrate itemized schedule/unschedule behavior events to globals
+	$db->Execute("UPDATE decision_node SET params_json = REPLACE(params_json,'\"action\":\"schedule_behavior\"','\"action\":\"_schedule_behavior\"') WHERE params_json LIKE '%\"action\":\"schedule_behavior\"%'");
+	$db->Execute("UPDATE decision_node SET params_json = REPLACE(params_json,'\"action\":\"unschedule_behavior\"','\"action\":\"_unschedule_behavior\"') WHERE params_json LIKE '%\"action\":\"unschedule_behavior\"%'");
 }
 
 // ===========================================================================

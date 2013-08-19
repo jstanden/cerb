@@ -239,10 +239,8 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 				'create_notification' => array('label' =>'Create a notification'),
 				'create_task' => array('label' =>'Create a task'),
 				'create_ticket' => array('label' =>'Create a ticket'),
-				'schedule_behavior' => array('label' => 'Schedule behavior'),
 				'send_email' => array('label' => 'Send email'),
 				'set_links' => array('label' => 'Set links'),
-				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
 			;
@@ -279,22 +277,6 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 				
 			case 'create_ticket':
 				DevblocksEventHelper::renderActionCreateTicket($trigger);
-				break;
-				
-			case 'schedule_behavior':
-				$dates = array();
-				$conditions = $this->getConditions($trigger);
-				foreach($conditions as $key => $data) {
-					if(isset($data['type']) && $data['type'] == Model_CustomField::TYPE_DATE)
-						$dates[$key] = $data['label'];
-				}
-				$tpl->assign('dates', $dates);
-			
-				DevblocksEventHelper::renderActionScheduleBehavior($trigger);
-				break;
-				
-			case 'unschedule_behavior':
-				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger);
 				break;
 				
 			case 'send_email':
@@ -346,13 +328,7 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict, 'article_id');
 				break;
 				
-			case 'schedule_behavior':
-				return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
-				break;
 				
-			case 'unschedule_behavior':
-				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
-				break;
 				
 			case 'send_email':
 				DevblocksEventHelper::simulateActionSendEmail($params, $dict);
@@ -394,14 +370,6 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 
 			case 'create_ticket':
 				DevblocksEventHelper::runActionCreateTicket($params, $dict, 'article_id');
-				break;
-				
-			case 'schedule_behavior':
-				DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
-				break;
-				
-			case 'unschedule_behavior':
-				DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 				break;
 				
 			case 'send_email':

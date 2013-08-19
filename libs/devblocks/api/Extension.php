@@ -564,7 +564,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		$logger->info('');
 		$logger->info(sprintf("Checking condition '%s'...", $token));
 		
-		// Built-in actions
+		// Built-in conditions
 		switch($token) {
 			case '_custom_script':
 				@$tpl = DevblocksPlatform::importVar($params['tpl'],'string','');
@@ -909,7 +909,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	function getActions($trigger) { /* @var $trigger Model_TriggerEvent */
 		$actions = array(
 			'_run_behavior' => array('label' => '(Run behavior)'),
+			'_schedule_behavior' => array('label' => '(Schedule behavior)'),
 			'_set_custom_var' => array('label' => '(Set a custom placeholder)'),
+			'_unschedule_behavior' => array('label' => '(Unschedule behavior)'),
 		);
 		$custom = $this->getActionExtensions();
 		
@@ -968,6 +970,22 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					DevblocksEventHelper::renderActionRunBehavior($trigger);
 					break;
 				
+				case '_schedule_behavior':
+					$dates = array();
+					$conditions = $this->getConditions($trigger);
+					foreach($conditions as $key => $data) {
+						if(isset($data['type']) && $data['type'] == Model_CustomField::TYPE_DATE)
+							$dates[$key] = $data['label'];
+					}
+					$tpl->assign('dates', $dates);
+				
+					DevblocksEventHelper::renderActionScheduleBehavior($trigger);
+					break;
+					
+				case '_unschedule_behavior':
+					DevblocksEventHelper::renderActionUnscheduleBehavior($trigger);
+					break;
+					
 				default:
 					// Variables
 					if(substr($token,0,4) == 'var_') {
@@ -1036,6 +1054,14 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					return DevblocksEventHelper::simulateActionRunBehavior($params, $dict);
 					break;
 					
+				case '_schedule_behavior':
+					return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
+					break;
+					
+				case '_unschedule_behavior':
+					return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
+					break;
+					
 				default:
 					// Variables
 					if(substr($token,0,4) == 'var_') {
@@ -1086,6 +1112,14 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					
 				case '_run_behavior':
 					DevblocksEventHelper::runActionRunBehavior($params, $dict);
+					break;
+					
+				case '_schedule_behavior':
+					DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
+					break;
+					
+				case '_unschedule_behavior':
+					DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 					break;
 					
 				default:
