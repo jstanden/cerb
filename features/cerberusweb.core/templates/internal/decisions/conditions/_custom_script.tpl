@@ -1,4 +1,4 @@
-<textarea name="{$namePrefix}[tpl]" cols="45" rows="5" style="width:100%;height:100px;" class="placeholders" spellcheck="false">{$params.tpl}</textarea>
+<textarea name="{$namePrefix}[tpl]" cols="45" rows="5" style="width:100%;height:75px;" class="placeholders" spellcheck="false">{$params.tpl}</textarea>
 
 <select name="{$namePrefix}[oper]">
 	<option value="is" {if $params.oper=='is'}selected="selected"{/if}>is</option>
@@ -13,3 +13,8 @@
 <br>
 
 <input type="text" name="{$namePrefix}[value]" value="{$params.value}" size="45">
+
+<script type="text/javascript">
+$condition = $('li#{$namePrefix}');
+$condition.find('textarea').elastic();
+</script>
