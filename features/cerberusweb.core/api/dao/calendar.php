@@ -1483,6 +1483,9 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
+		
+		$virtual_attendants = DAO_VirtualAttendant::getAll();
+		$tpl->assign('virtual_attendants', $virtual_attendants);
 
 		$owner_groups = array();
 		foreach($groups as $k => $v) {

@@ -27,6 +27,8 @@
 				
 				<option value="w_{$active_worker->id}" {if $model->owner_context==CerberusContexts::CONTEXT_WORKER && $active_worker->id==$model->owner_context_id}selected="selected"{/if}>me</option>
 
+				<option value="a_0" {if $model->owner_context==CerberusContexts::CONTEXT_APPLICATION}selected="selected"{/if}>Application: Cerb</option>
+
 				{if !empty($owner_roles)}
 				{foreach from=$owner_roles item=role key=role_id}
 					<option value="r_{$role_id}" {if $model->owner_context==CerberusContexts::CONTEXT_ROLE && $role_id==$model->owner_context_id}selected="selected"{/if}>Role: {$role->name}</option>
@@ -46,6 +48,12 @@
 					{/if}
 				{/foreach}
 				{/if}
+				
+				{foreach from=$virtual_attendants item=va key=va_id}
+					{if $va->isEditableByWorker($active_worker)}
+					<option value="v_{$va_id}" {if $model->owner_context==CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT && $va_id==$model->owner_context_id}selected="selected"{/if}>{'common.virtual_attendant'|devblocks_translate|capitalize}: {$va->name}</option>
+					{/if}
+				{/foreach}
 			</select>
 			
 			{if !empty($model->id)}
@@ -61,6 +69,14 @@
 				
 				{if $model->owner_context==CerberusContexts::CONTEXT_WORKER && isset($workers.{$model->owner_context_id})}
 				<b>{$workers.{$model->owner_context_id}->getName()}</b> (Worker)
+				{/if}
+				
+				{if $model->owner_context==CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT && isset($virtual_attendants.{$model->owner_context_id})}
+				<b>{$virtual_attendants.{$model->owner_context_id}->name}</b> ({'common.virtual_attendant'|devblocks_translate|capitalize})
+				{/if}
+				
+				{if $model->owner_context==CerberusContexts::CONTEXT_APPLICATION}
+				<b>Application</b>
 				{/if}
 				</li>
 			</ul>

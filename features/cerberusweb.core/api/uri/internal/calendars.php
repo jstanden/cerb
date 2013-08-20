@@ -137,6 +137,9 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 			@list($owner_ctx_code, $owner_ctx_id) = explode('_', $owner, 2);
 			
 			switch(strtolower($owner_ctx_code)) {
+				case 'a':
+					$owner_ctx = CerberusContexts::CONTEXT_APPLICATION;
+					break;
 				case 'w':
 					$owner_ctx = CerberusContexts::CONTEXT_WORKER;
 					break;
@@ -145,6 +148,9 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 					break;
 				case 'r':
 					$owner_ctx = CerberusContexts::CONTEXT_ROLE;
+					break;
+				case 'v':
+					$owner_ctx = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
 					break;
 			}
 			
