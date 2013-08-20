@@ -124,7 +124,7 @@ class ChRest_Calendars extends Extension_RestController implements IExtensionRes
 	private function _getList() {
 		$worker = CerberusApplication::getActiveWorker();
 
-		$calendars = DAO_Calendar::getReadableByWorker($worker);
+		$calendars = DAO_Calendar::getReadableByActor($worker);
 		
 		$results = array();
 

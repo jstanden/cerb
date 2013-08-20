@@ -147,7 +147,8 @@ class DevblocksEventHelper {
 				break;
 				
 			case Model_CustomField::TYPE_DATE:
-				$calendars = DAO_Calendar::getAll();
+				// Restricted to VA-readable calendars
+				$calendars = DAO_Calendar::getReadableByActor(array(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id));
 				$tpl->assign('calendars', $calendars);
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_date.tpl');
 				break;

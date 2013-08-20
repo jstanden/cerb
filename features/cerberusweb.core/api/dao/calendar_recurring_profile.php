@@ -1184,7 +1184,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		// Calendars
 		if(empty($context_id)) {
 			$active_worker = CerberusApplication::getActiveWorker();
-			$calendars = DAO_Calendar::getWriteableByWorker($active_worker);
+			$calendars = DAO_Calendar::getWriteableByActor($active_worker);
 			$tpl->assign('calendars', $calendars);
 		}
 		

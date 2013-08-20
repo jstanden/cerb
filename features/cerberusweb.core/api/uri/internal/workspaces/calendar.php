@@ -55,7 +55,7 @@ class WorkspaceTab_Calendar extends Extension_WorkspaceTab {
 			
 			// Contexts (for creating events)
 	
-			if($calendar->isWriteableByWorker($active_worker)) {
+			if(CerberusContexts::isWriteableByActor($calendar->owner_context, $calendar->owner_context_id, $active_worker)) {
 				$create_contexts = $calendar->getCreateContexts();
 				$tpl->assign('create_contexts', $create_contexts);
 			}

@@ -54,7 +54,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		
 		// Contexts (for creating events)
 
-		if($calendar->isWriteableByWorker($active_worker)) {
+		if(CerberusContexts::isWriteableByActor($calendar->owner_context, $calendar->owner_context_id, $active_worker)) {
 			$create_contexts = $calendar->getCreateContexts();
 			$tpl->assign('create_contexts', $create_contexts);
 		}
@@ -102,7 +102,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 			
 			// Contexts (for creating events)
 
-			if($calendar->isWriteableByWorker($active_worker)) {
+			if(CerberusContexts::isWriteableByActor($calendar->owner_context, $calendar->owner_context_id, $active_worker)) {
 				$create_contexts = $calendar->getCreateContexts();
 				$tpl->assign('create_contexts', $create_contexts);
 			}
@@ -337,7 +337,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 			@$date = trim($date_parts[0]);
 			@$calendar_lookup = trim($date_parts[1]);
 			
-			@$calendars = DAO_Calendar::getReadableByWorker($active_worker);
+			@$calendars = DAO_Calendar::getReadableByActor($active_worker);
 			$use_calendar = null; /* @var $use_calendar Model_Calendar */
 			
 			foreach($calendars as $calendar) {
@@ -381,7 +381,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$calendars = DAO_Calendar::getReadableByWorker($active_worker);
+		$calendars = DAO_Calendar::getReadableByActor($active_worker);
 		$date = DevblocksPlatform::getDateService();
 		$timezones = $date->getTimezones();
 

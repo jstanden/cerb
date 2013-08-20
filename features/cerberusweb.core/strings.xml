@@ -174,6 +174,9 @@
 		<tu tuid='common.calendar'>
 			<tuv xml:lang="en_US"><seg>Calendar</seg></tuv>
 		</tu>
+		<tu tuid='common.calendars'>
+			<tuv xml:lang="en_US"><seg>Calendars</seg></tuv>
+		</tu>
 		<tu tuid='common.cancel'>
 			<tuv xml:lang="en_US"><seg>cancel</seg></tuv>
 		</tu>

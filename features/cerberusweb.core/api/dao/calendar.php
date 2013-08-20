@@ -123,11 +123,11 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		return null;
 	}
 	
-	static function getReadableByWorker($worker) {
+	static function getReadableByActor($actor) {
 		$calendars = DAO_Calendar::getAll();
 		
 		foreach($calendars as $calendar_id => $calendar) { /* @var $calendar Model_Calendar */
-			if(!$calendar->isReadableByWorker($worker)) {
+			if(!CerberusContexts::isReadableByActor($calendar->owner_context, $calendar->owner_context_id, $actor)) {
 				unset($calendars[$calendar_id]);
 				continue;
 			}
@@ -136,13 +136,13 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		return $calendars;
 	}
 	
-	static function getWriteableByWorker($worker) {
+	static function getWriteableByActor() {
 		$calendars = DAO_Calendar::getAll();
 		
 		foreach($calendars as $calendar_id => $calendar) { /* @var $calendar Model_Calendar */
 			@$manual_disabled = $calendar->params['manual_disabled'];
 			
-			if(!$calendar->isWriteableByWorker($worker) || !empty($manual_disabled)) {
+			if(!empty($manual_disabled) || !CerberusContexts::isWriteableByActor($calendar->owner_context, $calendar->owner_context_id, $actor)) {
 				unset($calendars[$calendar_id]);
 				continue;
 			}
@@ -663,76 +663,6 @@ class Model_Calendar {
 		
 		return new Model_CalendarAvailability($date_from, $date_to, str_replace('*', '0', $mins_bits));
 	}
-	
-	function isReadableByWorker($worker) {
-		if(is_a($worker, 'Model_Worker')) {
-			// This is what we want
-		} elseif (is_numeric($worker)) {
-			if(null == ($worker = DAO_Worker::get($worker)))
-				return false;
-		} else {
-			return false;
-		}
-		
-		// Superusers can do anything
-		if($worker->is_superuser)
-			return true;
-		
-		switch($this->owner_context) {
-			case CerberusContexts::CONTEXT_GROUP:
-				if(in_array($this->owner_context_id, array_keys($worker->getMemberships())))
-					return true;
-				break;
-				
-			case CerberusContexts::CONTEXT_ROLE:
-				if(in_array($this->owner_context_id, array_keys($worker->getRoles())))
-					return true;
-				break;
-				
-			case CerberusContexts::CONTEXT_WORKER:
-				if($worker->id == $this->owner_context_id)
-					return true;
-				break;
-		}
-		
-		return false;
-	}
-	
-	function isWriteableByWorker($worker) {
-		if(is_a($worker, 'Model_Worker')) {
-			// This is what we want
-		} elseif (is_numeric($worker)) {
-			if(null == ($worker = DAO_Worker::get($worker)))
-				return false;
-		} else {
-			return false;
-		}
-		
-		// Superusers can do anything
-		if($worker->is_superuser)
-			return true;
-		
-		switch($this->owner_context) {
-			case CerberusContexts::CONTEXT_GROUP:
-				if(in_array($this->owner_context_id, array_keys($worker->getMemberships())))
-					if($worker->isGroupManager($this->owner_context_id))
-						return true;
-				break;
-				
-			case CerberusContexts::CONTEXT_ROLE:
-				if($worker->is_superuser)
-					return true;
-				break;
-				
-			case CerberusContexts::CONTEXT_WORKER:
-				if($worker->id == $this->owner_context_id)
-					return true;
-				break;
-		}
-		
-		return false;
-	}
-	
 };
 
 class Model_CalendarAvailability {

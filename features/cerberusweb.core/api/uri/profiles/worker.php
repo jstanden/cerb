@@ -140,7 +140,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 			if(false == ($calendar = DAO_Calendar::get($availability_calendar_id)))
 				$availability_calendar_id = 0;
 			
-			if(!$calendar->isWriteableByWorker($active_worker))
+			if(!CerberusContexts::isWriteableByActor($calendar->owner_context, $calendar->owner_context_id, $active_worker))
 				$availability_calendar_id = 0;
 		}
 		
