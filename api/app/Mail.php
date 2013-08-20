@@ -870,8 +870,10 @@ class CerberusMail {
 		}
 		
 		if(isset($properties['owner_id'])) {
-			if(empty($properties['owner_id']) || null != (DAO_Worker::get($properties['owner_id'])))
-				$change_fields[DAO_Ticket::OWNER_ID] = intval($properties['owner_id']);
+			if(empty($properties['owner_id']) || null != (DAO_Worker::get($properties['owner_id']))) {
+				$ticket->owner_id = intval($properties['owner_id']);
+				$change_fields[DAO_Ticket::OWNER_ID] = $ticket->owner_id;
+			}
 		}
 		
 		// Post-Reply Change Properties
@@ -935,8 +937,13 @@ class CerberusMail {
 
 			// Watchers
 			$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id);
+			
+			// Include the owner
+			if(!empty($ticket->owner_id) && !isset($context_watchers[$ticket->owner_id]))
+				$context_watchers[$ticket->owner_id] = true;
+
 			if(is_array($context_watchers))
-			foreach($context_watchers as $watcher_id => $watcher) {
+			foreach(array_unique($context_watchers) as $watcher_id) {
 				Event_MailReceivedByWatcher::trigger($message_id, $watcher_id);
 			}
 		}
