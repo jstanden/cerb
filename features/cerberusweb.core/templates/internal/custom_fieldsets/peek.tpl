@@ -59,6 +59,8 @@
 					
 					<option value="w_{$active_worker->id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_WORKER && $active_worker->id==$custom_fieldset->owner_context_id}selected="selected"{/if}>{'common.me'|devblocks_translate|lower}</option>
 
+					<option value="a_0" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_APPLICATION}selected="selected"{/if}>Application: Cerb</option>
+
 					{if !empty($owner_roles)}
 					{foreach from=$owner_roles item=role key=role_id}
 						<option value="r_{$role_id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_ROLE && $role_id==$custom_fieldset->owner_context_id}selected="selected"{/if}>{'common.role'|devblocks_translate|capitalize}: {$role->name}</option>
@@ -105,6 +107,10 @@
 					
 					{if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT && isset($virtual_attendants.{$custom_fieldset->owner_context_id})}
 					<b>{$virtual_attendants.{$custom_fieldset->owner_context_id}->name}</b> ({'common.virtual_attendant'|devblocks_translate|capitalize})
+					{/if}
+					
+					{if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_APPLICATION}
+					<b>Application</b>
 					{/if}
 					</li>
 				</ul>

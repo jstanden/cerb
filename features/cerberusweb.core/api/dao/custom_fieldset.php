@@ -492,6 +492,14 @@ class Model_CustomFieldset {
 				if($worker->id == $this->owner_context_id)
 					return true;
 				break;
+				
+			case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+				return false;
+				break;
+				
+			case CerberusContexts::CONTEXT_APPLICATION:
+				return true;
+				break;
 		}
 		
 		return false;
@@ -526,6 +534,14 @@ class Model_CustomFieldset {
 			case CerberusContexts::CONTEXT_WORKER:
 				if($worker->id == $this->owner_context_id)
 					return true;
+				break;
+				
+			case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+				return false;
+				break;
+				
+			case CerberusContexts::CONTEXT_APPLICATION:
+				return false;
 				break;
 		}
 		

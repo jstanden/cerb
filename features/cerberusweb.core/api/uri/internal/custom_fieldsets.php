@@ -147,6 +147,9 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 			case 'v':
 				$owner_ctx = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
 				break;
+			case 'a':
+				$owner_ctx = CerberusContexts::CONTEXT_APPLICATION;
+				break;
 		}
 		
 		if(empty($owner_ctx))
