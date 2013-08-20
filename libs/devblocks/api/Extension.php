@@ -435,6 +435,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	// [TODO] Cache results for this request
 	function getConditions($trigger) {
 		$conditions = array(
+			'_calendar_availability' => array('label' => '(Calendar availability)', 'type' => ''),
 			'_custom_script' => array('label' => '(Custom script)', 'type' => ''),
 			'_month_of_year' => array('label' => '(Month of year)', 'type' => ''),
 			'_day_of_week' => array('label' => '(Day of week)', 'type' => ''),
@@ -452,7 +453,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		}
 		
 		// Plugins
-		// [TODO] Work in progress
 		// [TODO] This should filter by event type
 		$manifests = Extension_DevblocksEventCondition::getAll(false);
 		foreach($manifests as $manifest) {
@@ -479,6 +479,14 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
+			case '_calendar_availability':
+				// Get readable by VA
+				$calendars = DAO_Calendar::getReadableByActor(array(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id));
+				$tpl->assign('calendars', $calendars);
+				
+				return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_calendar_availability.tpl');
+				break;
+				
 			case '_custom_script':
 				return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_custom_script.tpl');
 				break;
@@ -566,6 +574,26 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		
 		// Built-in conditions
 		switch($token) {
+			case '_calendar_availability':
+				if(false == (@$calendar_id = $params['calendar_id']))
+					return false;
+				
+				@$is_available = $params['is_available'];
+				@$from = $params['from'];
+				@$to = $params['to'];
+				
+				if(false == ($calendar = DAO_Calendar::get($calendar_id)))
+					return false;
+				
+				@$cal_from = strtotime("today", strtotime($from));
+				@$cal_to = strtotime("tomorrow", strtotime($to));
+				
+				$calendar_events = $calendar->getEvents($cal_from, $cal_to);
+				$availability = $calendar->computeAvailability($cal_from, $cal_to, $calendar_events);
+
+				$pass = ($is_available == $availability->isAvailableBetween(strtotime($from), strtotime($to)));
+				break;
+				
 			case '_custom_script':
 				@$tpl = DevblocksPlatform::importVar($params['tpl'],'string','');
 				
