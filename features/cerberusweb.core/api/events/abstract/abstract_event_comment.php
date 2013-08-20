@@ -242,7 +242,7 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches)) {
 					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
-					DevblocksEventHelper::renderActionSetCustomField($custom_field);
+					DevblocksEventHelper::renderActionSetCustomField($custom_field, $trigger);
 				}
 				break;
 		}

@@ -512,7 +512,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 //				if('set_cf_' == substr($token,0,7)) {
 //					$field_id = substr($token,7);
 //					$custom_field = DAO_CustomField::get($field_id);
-//					DevblocksEventHelper::renderActionSetCustomField($custom_field);
+//					DevblocksEventHelper::renderActionSetCustomField($custom_field, $trigger);
 //				}
 //				break;
 		}

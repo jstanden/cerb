@@ -128,7 +128,7 @@ class DevblocksEventHelper {
 		return $actions;
 	}
 	
-	static function renderActionSetCustomField(Model_CustomField $custom_field) {
+	static function renderActionSetCustomField(Model_CustomField $custom_field, $trigger) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		switch($custom_field->type) {
