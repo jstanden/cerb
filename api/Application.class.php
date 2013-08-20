@@ -798,6 +798,240 @@ class CerberusContexts {
 		return true;
 	}
 	
+	public static function isReadableByActor($owner_context, $owner_context_id, $actor) {
+		// Polymorph actor from context array
+		if(is_array($actor)) {
+			@list($actor_context, $actor_context_id) = $actor;
+			
+			switch($actor_context) {
+				case CerberusContexts::CONTEXT_ROLE:
+					$actor = DAO_WorkerRole::get($actor_context_id);
+					break;
+				case CerberusContexts::CONTEXT_GROUP:
+					$actor = DAO_Group::get($actor_context_id);
+					break;
+				case CerberusContexts::CONTEXT_WORKER:
+					$actor = DAO_Worker::get($actor_context_id);
+					break;
+				case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+					$actor = DAO_VirtualAttendant::get($actor_context_id);
+					break;
+			}
+		}
+		
+		if(!is_object($actor))
+			return false;
+		
+		switch($owner_context) {
+			// Everyone can see app-owned content
+			case CerberusContexts::CONTEXT_APPLICATION:
+				return true;
+				break;
+			
+			// The role itself, or members of the role, can see it
+			case CerberusContexts::CONTEXT_ROLE:
+				switch(get_class($actor)) {
+					case 'Model_WorkerRole': /* @var $actor Model_WorkerRole */
+						return ($owner_context_id == $actor->id);
+						break;
+						
+					case 'Model_Group': /* @var $actor Model_Group */
+						break;
+						
+					case 'Model_Worker': /* @var $actor Model_Worker */
+						return in_array($owner_context_id, array_keys($actor->getRoles()));
+						break;
+						
+					case 'Model_VirtualAttendant': /* @var $actor Model_VirtualAttendant */
+						return self::isReadableByActor($owner_context, $owner_context_id, array($actor->owner_context, $actor->owner_context_id));
+						break;
+				}
+				break;
+				
+			case CerberusContexts::CONTEXT_GROUP:
+				switch(get_class($actor)) {
+					case 'Model_WorkerRole':
+						break;
+						
+					case 'Model_Group':
+						return ($owner_context_id == $actor->id);
+						break;
+						
+					case 'Model_Worker':
+						return in_array($owner_context_id, array_keys($actor->getMemberships()));
+						break;
+						
+					case 'Model_VirtualAttendant':
+						return self::isReadableByActor($owner_context, $owner_context_id, array($actor->owner_context, $actor->owner_context_id));
+						break;
+				}
+				break;
+				
+			case CerberusContexts::CONTEXT_WORKER:
+				switch(get_class($actor)) {
+					case 'Model_WorkerRole':
+						break;
+						
+					case 'Model_Group':
+						break;
+						
+					case 'Model_Worker':
+						return ($owner_context_id == $actor->id);
+						break;
+						
+					case 'Model_VirtualAttendant':
+						return self::isReadableByActor($owner_context, $owner_context_id, array($actor->owner_context, $actor->owner_context_id));
+						break;
+				}
+				break;
+				
+			case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+				switch(get_class($actor)) {
+					case 'Model_WorkerRole':
+						break;
+						
+					case 'Model_Group':
+						break;
+						
+					case 'Model_Worker':
+						break;
+						
+					case 'Model_VirtualAttendant':
+						return ($owner_context_id == $actor->id);
+						break;
+				}
+				break;
+		}
+		
+		return false;
+	}
+
+	public static function isWriteableByActor($owner_context, $owner_context_id, $actor) {
+		// Polymorph actor from context array
+		if(is_array($actor)) {
+			@list($actor_context, $actor_context_id) = $actor;
+			
+			switch($actor_context) {
+				case CerberusContexts::CONTEXT_ROLE:
+					$actor = DAO_WorkerRole::get($actor_context_id);
+					break;
+				case CerberusContexts::CONTEXT_GROUP:
+					$actor = DAO_Group::get($actor_context_id);
+					break;
+				case CerberusContexts::CONTEXT_WORKER:
+					$actor = DAO_Worker::get($actor_context_id);
+					break;
+				case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+					$actor = DAO_VirtualAttendant::get($actor_context_id);
+					break;
+			}
+		}
+		
+		if(!is_object($actor))
+			return false;
+		
+		switch($owner_context) {
+			// Everyone can see app-owned content
+			case CerberusContexts::CONTEXT_APPLICATION:
+				switch(get_class($actor)) {
+					case 'Model_WorkerRole': /* @var $actor Model_WorkerRole */
+						break;
+						
+					case 'Model_Group': /* @var $actor Model_Group */
+						break;
+						
+					case 'Model_Worker': /* @var $actor Model_Worker */
+						// [TODO]
+						return $actor->is_superuser;
+						break;
+						
+					case 'Model_VirtualAttendant': /* @var $actor Model_VirtualAttendant */
+						return self::isWriteableByActor($owner_context, $owner_context_id, array($actor->owner_context, $actor->owner_context_id));
+						break;
+				}
+				break;
+			
+			// The role itself, or members of the role, can see it
+			case CerberusContexts::CONTEXT_ROLE:
+				switch(get_class($actor)) {
+					case 'Model_WorkerRole': /* @var $actor Model_WorkerRole */
+						return ($owner_context_id == $actor->id);
+						break;
+						
+					case 'Model_Group': /* @var $actor Model_Group */
+						break;
+						
+					case 'Model_Worker': /* @var $actor Model_Worker */
+						// [TODO]
+						return $actor->is_superuser;
+						break;
+						
+					case 'Model_VirtualAttendant': /* @var $actor Model_VirtualAttendant */
+						return self::isWriteableByActor($owner_context, $owner_context_id, array($actor->owner_context, $actor->owner_context_id));
+						break;
+				}
+				break;
+				
+			case CerberusContexts::CONTEXT_GROUP:
+				switch(get_class($actor)) {
+					case 'Model_WorkerRole':
+						break;
+						
+					case 'Model_Group':
+						return ($owner_context_id == $actor->id);
+						break;
+						
+					case 'Model_Worker':
+						// [TODO]
+						return ($actor->is_superuser || $actor->isGroupManager($owner_context_id));
+						break;
+						
+					case 'Model_VirtualAttendant':
+						return self::isWriteableByActor($owner_context, $owner_context_id, array($actor->owner_context, $actor->owner_context_id));
+						break;
+				}
+				break;
+				
+			case CerberusContexts::CONTEXT_WORKER:
+				switch(get_class($actor)) {
+					case 'Model_WorkerRole':
+						break;
+						
+					case 'Model_Group':
+						break;
+						
+					case 'Model_Worker':
+						// [TODO]
+						return ($actor->is_superuser || $owner_context_id == $actor->id);
+						break;
+						
+					case 'Model_VirtualAttendant':
+						return self::isWriteableByActor($owner_context, $owner_context_id, array($actor->owner_context, $actor->owner_context_id));
+						break;
+				}
+				break;
+				
+			case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+				switch(get_class($actor)) {
+					case 'Model_WorkerRole':
+						break;
+						
+					case 'Model_Group':
+						break;
+						
+					case 'Model_Worker':
+						break;
+						
+					case 'Model_VirtualAttendant':
+						return ($owner_context_id == $actor->id);
+						break;
+				}
+				break;
+		}
+		
+		return false;
+	}
+	
 	static public function getWatchers($context, $context_id, $as_contexts=false) {
 		list($results, $null) = DAO_Worker::search(
 			array(
