@@ -487,6 +487,10 @@
 			<class name="Event_MailAfterSentByGroup" />
 		</file>
 		
+		<file path="api/events/app/mail_before_sent.php">
+			<class name="Event_MailBeforeSent" />
+		</file>
+		
 		<file path="api/events/group/mail_before_sent_by_group.php">
 			<class name="Event_MailBeforeSentByGroup" />
 		</file>
@@ -1461,6 +1465,22 @@
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.group" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.mail.before.sent</id>
+			<name>Before sending worker message</name>
+			<class>
+				<file>api/events/app/mail_before_sent.php</file>
+				<name>Event_MailBeforeSent</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
 					</value>
 				</param>
 			</params>

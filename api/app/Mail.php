@@ -168,7 +168,10 @@ class CerberusMail {
 		if(null == ($group = DAO_Group::get($group_id)))
 			return;
 		
-		// Changing the outgoing message through a VA
+		// Changing the outgoing message through a VA (global)
+		Event_MailBeforeSent::trigger($properties, null, null, $group_id);
+		
+		// Changing the outgoing message through a VA (group)
 		Event_MailBeforeSentByGroup::trigger($properties, null, null, $group_id);
 		
 		@$org_id = $properties['org_id'];
@@ -517,7 +520,10 @@ class CerberusMail {
 			if(null == ($group = DAO_Group::get($ticket->group_id)))
 				return;
 			
-			// Changing the outgoing message through a VA
+			// Changing the outgoing message through a VA (global)
+			Event_MailBeforeSent::trigger($properties, $message->id, $ticket->id, $group->id);
+			
+			// Changing the outgoing message through a VA (group)
 			Event_MailBeforeSentByGroup::trigger($properties, $message->id, $ticket->id, $group->id);
 			
 			// Re-read properties
