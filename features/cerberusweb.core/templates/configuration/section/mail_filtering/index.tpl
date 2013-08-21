@@ -3,11 +3,11 @@
 
 {$has_atleast_one = false}
 {foreach from=$vas item=va key=va_id}
-{if $va->behaviors && !empty($va->behaviors)}
-	<h3 style="font-size:150%;margin-bottom:5px;">{$va->name}</h3>
-	{include file="devblocks:cerberusweb.core::internal/decisions/assistant/tab.tpl" triggers_by_event=$va->behaviors}
 	{$has_atleast_one = true}
-{/if}
+	<h3 style="font-size:150%;margin-bottom:5px;">{$va->name}</h3>
+	<div style="margin-left:10px;">
+	{include file="devblocks:cerberusweb.core::internal/decisions/assistant/tab.tpl" triggers_by_event=$va->behaviors}
+	</div>
 {/foreach}
 
 {if !$has_atleast_one}

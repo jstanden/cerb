@@ -30,16 +30,17 @@ class PageSection_SetupMailFiltering extends Extension_PageSection {
 		$events = Extension_DevblocksEvent::getByContext($context, false);
 		$tpl->assign('events', $events);
 		
-		// Virtual Attendanta
+		// Virtual Attendants
 		
 		$vas = DAO_VirtualAttendant::getByOwner($context, $context_id, true);
 		
 		foreach($vas as $va_id => $va) {
+			$vas[$va_id]->behaviors = array();
+			
 			$behaviors = $va->getBehaviors('event.mail.received.app', true);
 			
-			$vas[$va_id]->behaviors = array(
-				'event.mail.received.app' => $behaviors,
-			);
+			if(!empty($behaviors))
+				$vas[$va_id]->behaviors['event.mail.received.app'] = $behaviors;
 		}
 		
 		$tpl->assign('vas', $vas);
