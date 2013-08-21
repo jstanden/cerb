@@ -798,8 +798,18 @@ class CerberusContexts {
 		return true;
 	}
 	
-	public static function isReadableByActor($owner_context, $owner_context_id, $actor) {
-		// Polymorph actor from context array
+	public static function isSameObject($a, $b) {
+		if(false == ($a = CerberusContexts::polymorphActor($a)))
+			return false;
+		
+		if(false == ($b = CerberusContexts::polymorphActor($b)))
+			return false;
+		
+		return ((get_class($a) == get_class($b)) && ($a->id == $b->id));
+	}
+
+	// Polymorph actor from context array
+	public static function polymorphActor($actor) {
 		if(is_array($actor)) {
 			@list($actor_context, $actor_context_id) = $actor;
 			
@@ -820,6 +830,23 @@ class CerberusContexts {
 		}
 		
 		if(!is_object($actor))
+			return false;
+		
+		$actor_classes = array(
+			'Model_WorkerRole',
+			'Model_Group',
+			'Model_Worker',
+			'Model_VirtualAttendant',
+		);
+		
+		if(!in_array(get_class($actor), $actor_classes))
+			return false;
+		
+		return $actor;
+	}
+	
+	public static function isReadableByActor($owner_context, $owner_context_id, $actor) {
+		if(false == ($actor = CerberusContexts::polymorphActor($actor)))
 			return false;
 		
 		switch($owner_context) {
