@@ -805,7 +805,7 @@ class CerberusContexts {
 		if(false == ($b = CerberusContexts::polymorphActor($b)))
 			return false;
 		
-		return ((get_class($a) == get_class($b)) && ($a->id == $b->id));
+		return ((get_class($a) == get_class($b)) && (intval($a->id) == intval($b->id)));
 	}
 
 	// Polymorph actor from context array
@@ -814,6 +814,9 @@ class CerberusContexts {
 			@list($actor_context, $actor_context_id) = $actor;
 			
 			switch($actor_context) {
+				case CerberusContexts::CONTEXT_APPLICATION:
+					$actor = new Model_Application();
+					break;
 				case CerberusContexts::CONTEXT_ROLE:
 					$actor = DAO_WorkerRole::get($actor_context_id);
 					break;
@@ -833,6 +836,7 @@ class CerberusContexts {
 			return false;
 		
 		$actor_classes = array(
+			'Model_Application',
 			'Model_WorkerRole',
 			'Model_Group',
 			'Model_Worker',
@@ -1455,6 +1459,11 @@ class CerberusContexts {
 		return true;
 	}
 };
+
+class Model_Application {
+	public $id = 0;
+	public $name = 'Cerb';
+}
 
 class Context_Application extends Extension_DevblocksContext {
 	function authorize($context_id, Model_Worker $worker) {

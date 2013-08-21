@@ -104,63 +104,22 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
-	static function getByOwners($owners) {
-		$results = array();
-		
-		if(is_array($owners))
-		foreach($owners as $owner) {
-			@$owner_context = $owner[0];
-			@$owner_context_id = $owner[1];
-
-			if(empty($owner_context))
-				continue;
-
-			if($owner_context != CerberusContexts::CONTEXT_APPLICATION && empty($owner_context_id))
-				continue;
-
-			$add_vas = DAO_VirtualAttendant::getByOwner($owner_context, $owner_context_id);
-			
-			$results = $results + $add_vas;
-		}
-		
-		DevblocksPlatform::sortObjects($results, 'name', true);
-		
-		return $results;
-	}
-	
 	/**
 	 *
 	 * @param string $context
 	 * @param integer $context_id
 	 * @return Model_VirtualAttendant[]
 	 */
-	static function getByOwner($context, $context_id) {
+	static function getByOwner($context, $context_id, $with_disabled=false) {
 		$vas = DAO_VirtualAttendant::getAll();
 		$results = array();
 
-		// Include the current context in allowed owners
-		$owner_contexts = array();
-		$owner_context_key = $context . (!empty($context_id) ? (':' . $context_id) : '');
-		$owner_contexts[$owner_context_key] = true;
-
-		// If our context owner is a worker, include their roles as allowed owners
-		if($context == CerberusContexts::CONTEXT_WORKER) {
-			$roles = DAO_WorkerRole::getRolesByWorker($context_id);
-
-			if(is_array($roles))
-			foreach($roles as $role) { /* @var $role Model_WorkerRole */
-				$owner_contexts[CerberusContexts::CONTEXT_ROLE . ':' . $role->id] = true;
-			}
-		}
-
 		foreach($vas as $va_id => $va) {
-			// [TODO] Check $va disabled
+			if(!$with_disabled && $va->is_disabled)
+				continue;
 			
-			// If we're allowed to see this VA, include it
-			$va_owner_context_key = $va->owner_context . (!empty($va->owner_context_id) ? (':' . $va->owner_context_id) : '');
-			if(isset($owner_contexts[$va_owner_context_key])) {
+			if(CerberusContexts::isSameObject(array($context, $context_id), array($va->owner_context, $va->owner_context_id)))
 				$results[$va_id] = $va;
-			}
 		}
 
 		return $results;
@@ -257,7 +216,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		if(empty($context) || empty($context_id))
 			return false;
 		
-		$vas = DAO_VirtualAttendant::getByOwner($context, $context_id);
+		$vas = DAO_VirtualAttendant::getByOwner($context, $context_id, true);
 		
 		if(is_array($vas) && !empty($vas))
 			DAO_VirtualAttendant::delete(array_keys($vas));
