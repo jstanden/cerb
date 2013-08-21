@@ -60,7 +60,7 @@
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;"><input type="checkbox" name="row_id[]" value="{$result.al_guid}" style="display:none;"></td>
 			<td colspan="{$smarty.foreach.headers.total}">
-				<a href="{devblocks_url}c=files&p={$result.al_guid}&name={$result.a_display_name|escape:'url'}{/devblocks_url}" class="subject" target="_blank">{$result.a_display_name}</a>
+				<a href="{devblocks_url}c=files&p={$result.al_guid}&name={$result.a_display_name|escape:'url'}{/devblocks_url}" class="subject" target="_blank">{$result.a_display_name|default:'(no name)'}</a>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">

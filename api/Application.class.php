@@ -1653,7 +1653,7 @@ class CerberusSettings {
 };
 
 class CerberusSettingsDefaults {
-	const HELPDESK_TITLE = 'Cerb6 - a fast and flexible web-based platform for business collaboration and automation.';
+	const HELPDESK_TITLE = 'Cerb - a fast and flexible web-based platform for business collaboration and automation.';
 	const SMTP_HOST = 'localhost';
 	const SMTP_AUTH_ENABLED = 0;
 	const SMTP_AUTH_USER = '';

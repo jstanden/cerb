@@ -245,7 +245,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.contact.registered.sc</id>
-			<name>Contact registered in Support Center</name>
+			<name>New contact registered in Support Center</name>
 			<class>
 				<file>api/events/contact_registered_in_sc.php</file>
 				<name>Event_ContactRegisteredInSupportCenter</name>
