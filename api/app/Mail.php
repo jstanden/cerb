@@ -465,6 +465,9 @@ class CerberusMail {
 		
 		// Events
 		if(!empty($message_id) && !empty($group_id)) {
+			// After message sent (global)
+			Event_MailAfterSent::trigger($message_id, $group_id);
+			
 			// After message sent in group
 			Event_MailAfterSentByGroup::trigger($message_id, $group_id);
 
@@ -935,6 +938,9 @@ class CerberusMail {
 		
 		// Events
 		if(!empty($message_id) && empty($no_events)) {
+			// After message sent (global)
+			Event_MailAfterSent::trigger($message_id, $group->id);
+			
 			// After message sent in group
 			Event_MailAfterSentByGroup::trigger($message_id, $group->id);
 			
