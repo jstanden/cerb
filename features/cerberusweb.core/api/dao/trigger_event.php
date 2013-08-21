@@ -21,6 +21,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	const ID = 'id';
 	const TITLE = 'title';
 	const IS_DISABLED = 'is_disabled';
+	const IS_PRIVATE = 'is_private';
 	const EVENT_POINT = 'event_point';
 	const VIRTUAL_ATTENDANT_ID = 'virtual_attendant_id';
 	const POS = 'pos';
@@ -102,7 +103,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		
 		return $macros;
 	}
-
+	
 	/**
 	 *
 	 * @param integer $va_id
@@ -203,7 +204,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, title, is_disabled, event_point, virtual_attendant_id, pos, variables_json ".
+		$sql = "SELECT id, title, is_disabled, is_private, event_point, virtual_attendant_id, pos, variables_json ".
 			"FROM trigger_event ".
 			$where_sql.
 			$sort_sql.
@@ -229,6 +230,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			$object->id = intval($row['id']);
 			$object->title = $row['title'];
 			$object->is_disabled = intval($row['is_disabled']);
+			$object->is_private = intval($row['is_private']);
 			$object->event_point = $row['event_point'];
 			$object->virtual_attendant_id = $row['virtual_attendant_id'];
 			$object->pos = intval($row['pos']);
@@ -306,11 +308,13 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			"trigger_event.id as %s, ".
 			"trigger_event.title as %s, ".
 			"trigger_event.is_disabled as %s, ".
+			"trigger_event.is_private as %s, ".
 			"trigger_event.virtual_attendant_id as %s, ".
 			"trigger_event.event_point as %s ",
 				SearchFields_TriggerEvent::ID,
 				SearchFields_TriggerEvent::TITLE,
 				SearchFields_TriggerEvent::IS_DISABLED,
+				SearchFields_TriggerEvent::IS_PRIVATE,
 				SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID,
 				SearchFields_TriggerEvent::EVENT_POINT
 			);
@@ -451,6 +455,7 @@ class SearchFields_TriggerEvent implements IDevblocksSearchFields {
 	const ID = 't_id';
 	const TITLE = 't_title';
 	const IS_DISABLED = 't_is_disabled';
+	const IS_PRIVATE = 't_is_private';
 	const VIRTUAL_ATTENDANT_ID = 't_virtual_attendant_id';
 	const EVENT_POINT = 't_event_point';
 	
@@ -464,6 +469,7 @@ class SearchFields_TriggerEvent implements IDevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'trigger_event', 'id', $translate->_('common.id')),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 'trigger_event', 'title', $translate->_('common.title')),
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'trigger_event', 'is_disabled', $translate->_('dao.trigger_event.is_disabled')),
+			self::IS_PRIVATE => new DevblocksSearchField(self::IS_PRIVATE, 'trigger_event', 'is_private', $translate->_('dao.trigger_event.is_private')),
 			self::VIRTUAL_ATTENDANT_ID => new DevblocksSearchField(self::VIRTUAL_ATTENDANT_ID, 'trigger_event', 'virtual_attendant_id', $translate->_('common.virtual_attendant')),
 			self::EVENT_POINT => new DevblocksSearchField(self::EVENT_POINT, 'trigger_event', 'event_point', $translate->_('common.event')),
 		);
@@ -479,6 +485,7 @@ class Model_TriggerEvent {
 	public $id;
 	public $title;
 	public $is_disabled;
+	public $is_private;
 	public $event_point;
 	public $virtual_attendant_id;
 	public $pos;
@@ -723,6 +730,8 @@ class Model_TriggerEvent {
 		$array = array(
 			'behavior' => array(
 				'title' => $this->title,
+				'is_disabled' => $this->is_disabled ? true : false,
+				'is_private' => $this->is_private ? true : false,
 				'event' => array(
 					'key' => $this->event_point,
 					'label' => $event->manifest->name,
@@ -805,20 +814,17 @@ class View_TriggerEvent extends C4_AbstractView {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 
-		// [TODO] Move the fields into the proper data type
 		switch($field) {
-			case SearchFields_TriggerEvent::ID:
 			case SearchFields_TriggerEvent::TITLE:
-			case SearchFields_TriggerEvent::IS_DISABLED:
-			case SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID:
 			case SearchFields_TriggerEvent::EVENT_POINT:
-			case 'placeholder_string':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
-			case 'placeholder_number':
+			case SearchFields_TriggerEvent::ID:
+			case SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
-			case 'placeholder_bool':
+			case SearchFields_TriggerEvent::IS_DISABLED:
+			case SearchFields_TriggerEvent::IS_PRIVATE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 			case 'placeholder_date':
@@ -855,17 +861,14 @@ class View_TriggerEvent extends C4_AbstractView {
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
-		// [TODO] Move fields into the right data type
 		switch($field) {
-			case SearchFields_TriggerEvent::ID:
 			case SearchFields_TriggerEvent::TITLE:
-			case SearchFields_TriggerEvent::IS_DISABLED:
-			case SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID:
 			case SearchFields_TriggerEvent::EVENT_POINT:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
-			case 'placeholder_number':
+			case SearchFields_TriggerEvent::ID:
+			case SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
@@ -873,7 +876,8 @@ class View_TriggerEvent extends C4_AbstractView {
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case 'placeholder_bool':
+			case SearchFields_TriggerEvent::IS_DISABLED:
+			case SearchFields_TriggerEvent::IS_PRIVATE:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;

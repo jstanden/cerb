@@ -61,6 +61,10 @@ if(!isset($columns['virtual_attendant_id'])) {
 	$db->Execute("ALTER TABLE trigger_event ADD COLUMN virtual_attendant_id INT UNSIGNED DEFAULT 0 NOT NULL AFTER event_point, ADD INDEX virtual_attendant_id (virtual_attendant_id)");
 }
 
+if(!isset($columns['is_private'])) {
+	$db->Execute("ALTER TABLE trigger_event ADD COLUMN is_private TINYINT UNSIGNED DEFAULT 0 NOT NULL AFTER is_disabled, ADD INDEX is_private (is_private)");
+}
+
 if(isset($columns['owner_context'])) {
 	$sql = "SELECT DISTINCT trigger_event.owner_context, trigger_event.owner_context_id, 'Cerb' AS owner_label FROM trigger_event WHERE trigger_event.owner_context = 'cerberusweb.contexts.app' ".
 		"UNION ".

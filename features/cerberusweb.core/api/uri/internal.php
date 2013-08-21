@@ -2794,7 +2794,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(!empty($trigger))
 			if(null == ($event = DevblocksPlatform::getExtension($trigger->event_point, true)))
 				return;
-				
+
 		$tpl->assign('event', $event);
 		
 		// Template
@@ -3030,7 +3030,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				false == ($json = json_decode($import_json, true))
 				|| !isset($json['behavior'])
 				|| !isset($json['behavior']['event']['key'])
-				|| !isset($json['behavior']['nodes'])
 			) {
 				throw new Exception("Import JSON is an invalid format.");
 			}
@@ -3098,6 +3097,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			$fields = array(
 				DAO_TriggerEvent::TITLE => $json['behavior']['title'],
 				DAO_TriggerEvent::EVENT_POINT => $event_point,
+				DAO_TriggerEvent::IS_PRIVATE => @$json['behavior']['is_private'] ? 1 : 0,
 				DAO_TriggerEvent::VARIABLES_JSON => isset($json['behavior']['variables']) ? json_encode($json['behavior']['variables']) : '',
 				DAO_TriggerEvent::VIRTUAL_ATTENDANT_ID => $va->id,
 				DAO_TriggerEvent::POS => DAO_TriggerEvent::getNextPosByVirtualAttendantAndEvent($va->id, $event_point),
@@ -3108,13 +3108,14 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 			// Create records for all child nodes and link them to the proper parents
 
+			if(isset($json['behavior']['nodes']))
 			if(false == $this->_recursiveImportDecisionNodes($json['behavior']['nodes'], $trigger_id, 0))
 				throw new Exception("Failed to import nodes");
 			
 			// Enable the new behavior since we've succeeded
 			
 			DAO_TriggerEvent::update($trigger_id, array(
-				DAO_TriggerEvent::IS_DISABLED => 0,
+				DAO_TriggerEvent::IS_DISABLED => @$json['behavior']['is_disabled'] ? 1 : 0,
 			));
 			
 			echo json_encode(array(
@@ -3308,6 +3309,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
 			@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', '');
 			@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'],'integer', 0);
+			@$is_private = DevblocksPlatform::importGPC($_REQUEST['is_private'],'integer', 0);
 			@$json = DevblocksPlatform::importGPC($_REQUEST['json'],'integer', 0);
 
 			@$var_idxs = DevblocksPlatform::importGPC($_REQUEST['var'],'array',array());
@@ -3344,6 +3346,14 @@ class ChInternalController extends DevblocksControllerExtension {
 				@$va_id = DevblocksPlatform::importGPC($_REQUEST['va_id'],'integer', 0);
 				@$event_point = DevblocksPlatform::importGPC($_REQUEST['event_point'],'string', '');
 				
+				// Make sure the extension is valid
+				if(null == ($ext = DevblocksPlatform::getExtension($event_point, false)))
+					return false;
+				
+				// Only macros can decide to be private or not
+				if(!isset($ext->params['macro_context']))
+					$is_private = 0;
+				
 				$type = 'trigger';
 				
 				$pos = DAO_TriggerEvent::getNextPosByVirtualAttendantAndEvent($va_id, $event_point);
@@ -3354,6 +3364,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					DAO_TriggerEvent::EVENT_POINT => $event_point,
 					DAO_TriggerEvent::TITLE => $title,
 					DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
+					DAO_TriggerEvent::IS_PRIVATE => !empty($is_private) ? 1 : 0,
 					DAO_TriggerEvent::POS => $pos,
 					DAO_TriggerEvent::VARIABLES_JSON => json_encode($variables),
 				));
@@ -3372,10 +3383,9 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
 					$type = 'trigger';
 
-					if(empty($title)) {
+					if(empty($title))
 						if(null != ($ext = DevblocksPlatform::getExtension($trigger->event_point, false)))
 							$title = $ext->name;
-					}
 					
 					// Handle deletes
 					if(is_array($trigger->variables))
@@ -3388,6 +3398,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					DAO_TriggerEvent::update($trigger->id, array(
 						DAO_TriggerEvent::TITLE => $title,
 						DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
+						DAO_TriggerEvent::IS_PRIVATE => !empty($is_private) ? 1 : 0,
 						DAO_TriggerEvent::VARIABLES_JSON => json_encode($variables),
 					));
 				}

@@ -8,27 +8,44 @@
 <input type="hidden" name="va_id" value="{$va->id}">
 {/if}
 
-<b>{'common.title'|devblocks_translate|capitalize}:</b><br>
-<input type="text" name="title" value="{$trigger->title}" style="width:100%;"><br>
-<br>
+<div>
+	<b>{'common.title'|devblocks_translate|capitalize}:</b><br>
+	<input type="text" name="title" value="{$trigger->title}" style="width:100%;"><br>
+</div>
 
-<b>{'common.event'|devblocks_translate|capitalize}:</b><br>
-{if empty($ext)}
-	<select name="event_point">
-		{foreach from=$events item=event key=event_id}
-		<option value="{$event_id}">{$event->name}</option>
-		{/foreach}
-	</select>
-	<br>
-{else}
-	{$ext->name}<br>
-{/if}
-<br>
+<div style="margin-top:10px;">
+	<b>{'common.event'|devblocks_translate|capitalize}:</b><br>
+	{if empty($ext)}
+		<select name="event_point">
+			{foreach from=$events item=available_event key=available_event_id name=available_events}
+			{if $smarty.foreach.available_events.first}{$event = $available_event}{/if}
+			<option value="{$available_event_id}" {if $available_event->params.macro_context}is_macro="true"{/if}>{$available_event->name}</option>
+			{/foreach}
+		</select>
+		<br>
+	{else}
+		{$ext->name}
+	{/if}
+</div>
 
-<b>{'common.status'|devblocks_translate|capitalize}:</b><br>
-<label><input type="radio" name="is_disabled" value="0" {if empty($trigger->is_disabled)}checked="checked"{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
-<label><input type="radio" name="is_disabled" value="1" {if !empty($trigger->is_disabled)}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label>
-<br>
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:10px;">
+	<tr>
+		<td width="50%">
+			<b>{'common.status'|devblocks_translate|capitalize}:</b>
+			<br>
+			<label><input type="radio" name="is_disabled" value="0" {if empty($trigger->is_disabled)}checked="checked"{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
+			<label><input type="radio" name="is_disabled" value="1" {if !empty($trigger->is_disabled)}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label>
+		</td>
+		<td width="50%">
+			<div class="behavior-visibility" style="margin-top:10px;{if !$event->manifest->params.macro_context}display:none;{/if}">
+				<b>Visibility:</b>
+				<br>
+				<label><input type="radio" name="is_private" value="0" {if empty($trigger->is_private)}checked="checked"{/if}> {'common.public'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="is_private" value="1" {if !empty($trigger->is_private)}checked="checked"{/if}> {'common.private'|devblocks_translate|capitalize}</label>
+			</div>
+		</td>
+	</tr>
+</table>
 
 <h3>Variables</h3>
 
@@ -123,6 +140,16 @@
 		$this.find('#frmDecisionBehavior{$trigger->id}')
 			.sortable({ 'items':'FIELDSET', 'placeholder':'ui-state-highlight', 'handle':'legend' })
 			;
+		
+		$this.find("SELECT[name=event_point]").change(function() {
+			var $li = $(this).find('option:selected');
+			var $frm = $(this).closest('form');
+			
+			if($li.attr('is_macro'))
+				$frm.find('DIV.behavior-visibility').fadeIn();
+			else
+				$frm.find('DIV.behavior-visibility').fadeOut();
+		});
 		
 		$this.find('BUTTON.add-variable').click(function() {
 			var $button = $(this);

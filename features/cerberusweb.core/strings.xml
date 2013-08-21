@@ -474,11 +474,17 @@
 		<tu tuid='common.print'>
 			<tuv xml:lang="en_US"><seg>Print</seg></tuv>
 		</tu>
+		<tu tuid='common.private'>
+			<tuv xml:lang="en_US"><seg>private</seg></tuv>
+		</tu>
 		<tu tuid='common.profiles'>
 			<tuv xml:lang="en_US"><seg>Profiles</seg></tuv>
 		</tu>
 		<tu tuid='common.properties'>
 			<tuv xml:lang="en_US"><seg>Properties</seg></tuv>
+		</tu>
+		<tu tuid='common.public'>
+			<tuv xml:lang="en_US"><seg>public</seg></tuv>
 		</tu>
 		<tu tuid='common.quick_compose'>
 			<tuv xml:lang="en_US"><seg>Quick Compose</seg></tuv>
