@@ -398,6 +398,10 @@
 		<file path="api/events/abstract/abstract_event_address.php">
 			<class name="AbstractEvent_Address" />
 		</file>
+		
+		<file path="api/events/abstract/abstract_event_mail_before_sent.php">
+			<class name="AbstractEvent_MailBeforeSent" />
+		</file>
 
 		<file path="api/events/abstract/abstract_event_calendar.php">
 			<class name="AbstractEvent_Calendar" />
