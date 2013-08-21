@@ -1001,11 +1001,18 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 				// Headers
 				
+				@$headers_list = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['headers'], $dict));
+
+				if(is_array($headers_list))
+				foreach($headers_list as $header_line) {
+					@list($header, $value) = explode(':', $header_line);
+				
+					if(!empty($header) && !empty($value))
+						$properties['headers'][trim($header)] = trim($value);
+				}
+				
 				@$headers = $tpl_builder->build($params['headers'], $dict);
 
-				if(!empty($headers))
-					$properties['headers'] = DevblocksPlatform::parseCrlfString($headers);
-				
 				// Options
 				
 				if(isset($params['is_autoreply']) && !empty($params['is_autoreply']))

@@ -455,7 +455,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_header':
-				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_app/action_set_header.tpl');
+				$tpl->display('devblocks:cerberusweb.core::events/model/mail/action_set_header.tpl');
 				break;
 				
 			case 'set_sender_is_banned':

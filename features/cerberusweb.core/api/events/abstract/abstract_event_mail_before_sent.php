@@ -60,10 +60,12 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			'ticket_reopen' => "+2 hours",
 			'closed' => 2,
 			'content' => "This is the message body\r\nOn more than one line.\r\n",
+			'headers' => array(),
 			'worker_id' => $active_worker->id,
 		);
 		
 		$dict->content =& $properties['content'];
+		$dict->headers =& $properties['headers'];
 		$values['to'] =& $properties['to'];
 		$values['cc'] =& $properties['cc'];
 		$values['bcc'] =& $properties['bcc'];
@@ -96,6 +98,12 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		
 		$labels['content'] = $prefix.'content';
 		$values['content'] =& $properties['content'];
+		
+		if(!isset($properties['headers']))
+			$properties['headers'] = array();
+			
+		$labels['headers'] = $prefix.'headers';
+		$values['headers'] =& $properties['headers'];
 		
 		$labels['to'] = $prefix.'to';
 		$values['to'] =& $properties['to'];
@@ -429,9 +437,10 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		$actions =
 			array(
 				'append_to_content' => array('label' =>'Append text to message content'),
+				'create_notification' => array('label' =>'Create a notification'),
 				'prepend_to_content' => array('label' =>'Prepend text to message content'),
 				'replace_content' => array('label' =>'Replace text in message content'),
-				'create_notification' => array('label' =>'Create a notification'),
+				'set_header' => array('label' => 'Set message header'),
 			)
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
 			;
@@ -455,14 +464,18 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::events/mail_before_sent_by_group/action_add_content.tpl');
 				break;
 				
-			case 'replace_content':
-				$tpl->display('devblocks:cerberusweb.core::events/mail_before_sent_by_group/action_replace_content.tpl');
-				break;
-
 			case 'create_notification':
 				DevblocksEventHelper::renderActionCreateNotification($trigger);
 				break;
 				
+			case 'replace_content':
+				$tpl->display('devblocks:cerberusweb.core::events/mail_before_sent_by_group/action_replace_content.tpl');
+				break;
+				
+			case 'set_header':
+				$tpl->display('devblocks:cerberusweb.core::events/model/mail/action_set_header.tpl');
+				break;
+
 			default:
 				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches)) {
 					$field_id = $matches[2];
@@ -537,6 +550,35 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				
 				return $out;
 				break;
+				
+			case 'set_header':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				
+				$header = $tpl_builder->build($params['header'], $dict);
+				$value = $tpl_builder->build($params['value'], $dict);
+				
+				$headers =& $dict->headers;
+				
+				if(!isset($headers))
+					$headers = array();
+				
+				$header_string = sprintf("%s: %s", $header, $value);
+				
+				if(empty($value)) {
+					if(isset($headers[$header]))
+						unset($headers[$header]);
+					
+				} else {
+					$headers[$header] = $value;
+					
+				}
+				
+				$out = sprintf(">>> Setting header\n%s\n",
+					$header_string
+				);
+				
+				return $out;
+				break;
 		}
 
 		if(empty($ticket_id))
@@ -581,6 +623,27 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				
 				if(!empty($value)) {
 					$dict->content = trim($value,"\r\n");
+				}
+				break;
+				
+			case 'set_header':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				
+				$header = $tpl_builder->build($params['header'], $dict);
+				$value = $tpl_builder->build($params['value'], $dict);
+				
+				$headers =& $dict->headers;
+				
+				if(!isset($headers))
+					$headers = array();
+				
+				if(empty($value)) {
+					if(isset($headers[$header]))
+						unset($headers[$header]);
+					
+				} else {
+					$headers[$header] = $value;
+					
 				}
 				break;
 		}

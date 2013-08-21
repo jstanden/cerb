@@ -2943,8 +2943,7 @@ class DevblocksEventHelper {
 
 		// Headers
 		
-		@$headers_string = $tpl_builder->build($params['headers'], $dict);
-		@$headers = DevblocksPlatform::parseCrlfString($headers_string);
+		@$headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['headers'], $dict));
 		
 		// Send
 		

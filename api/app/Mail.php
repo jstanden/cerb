@@ -683,11 +683,9 @@ class CerberusMail {
 			// Custom headers
 			
 			if(isset($properties['headers']) && is_array($properties['headers']))
-			foreach($properties['headers'] as $custom_header) {
-				@list($header_key, $header_val) = explode(':', $custom_header);
-				
-				if(!empty($header_key) && !empty($header_val)) {
-					$headers->addTextHeader(trim($header_key), trim($header_val));
+			foreach($properties['headers'] as $header_key => $header_val) {
+				if(!empty($header_key) && is_string($header_key) && is_string($header_val)) {
+					$headers->addTextHeader($header_key, $header_val);
 				}
 			}
 			

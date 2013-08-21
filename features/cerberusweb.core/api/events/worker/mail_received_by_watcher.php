@@ -627,11 +627,16 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				
 				// Headers
 
-				@$headers = $tpl_builder->build($params['headers'], $dict);
+				@$headers_list = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['headers'], $dict));
 
-				if(!empty($headers))
-					$properties['headers'] = DevblocksPlatform::parseCrlfString($headers);
-
+				if(is_array($headers_list))
+				foreach($headers_list as $header_line) {
+					@list($header, $value) = explode(':', $header_line);
+				
+					if(!empty($header) && !empty($value))
+						$properties['headers'][trim($header)] = trim($value);
+				}
+				
 				// Send
 				
 				CerberusMail::sendTicketMessage($properties);
