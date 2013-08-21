@@ -14,14 +14,20 @@
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<select class="behavior_defaults" style="display:none;visibility:hidden;">
 	{foreach from=$macros item=macro key=macro_id}
-		<option value="{$macro_id}" context="{$events_to_contexts.{$macro->event_point}}" {if $params.behavior_id==$macro_id}selected="selected"{/if}>{$macro->title}</option>
+		{$is_selected = ($params.behavior_id==$macro_id)}
+		{if $is_selected || !$macro->is_disabled}
+		<option value="{$macro_id}" context="{$events_to_contexts.{$macro->event_point}}" {if $is_selected}selected="selected"{/if}>{$macro->title}</option>
+		{/if}
 	{/foreach}
 	</select>
 	<select name="{$namePrefix}[behavior_id]" class="behavior">
 	{foreach from=$macros item=macro key=macro_id}
 		{if $events_to_contexts.{$macro->event_point} == $selected_context}
 		{if empty($params.behavior_id)}{$params.behavior_id=$macro_id}{/if}
-		<option value="{$macro_id}" {if $params.behavior_id==$macro_id}selected="selected"{/if}>{$macro->title}</option>
+		{$is_selected = ($params.behavior_id==$macro_id)}
+		{if $is_selected || !$macro->is_disabled}
+		<option value="{$macro_id}" {if $is_selected}selected="selected"{/if}>{$macro->title}</option>
+		{/if}
 		{/if}
 	{/foreach}
 	</select>
@@ -31,7 +37,7 @@
 {include file="devblocks:cerberusweb.core::events/_action_behavior_params.tpl" params=$params macro_params=$macros.{$params.behavior_id}->variables}
 </div>
 
-<b>Save response to a placeholder named:</b>
+<b>Save behavior data to a placeholder named:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
 	&#123;&#123;<input type="text" name="{$namePrefix}[var]" size="24" value="{if !empty($params.var)}{$params.var}{else}_behavior{/if}" required="required" spellcheck="false">&#125;&#125;
 	<div style="margin-top:5px;">

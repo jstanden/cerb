@@ -14,13 +14,19 @@
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<select class="behavior_defaults" style="display:none;visibility:hidden;">
 	{foreach from=$macros item=macro key=macro_id}
-		<option value="{$macro_id}" context="{$events_to_contexts.{$macro->event_point}}" {if $params.behavior_id==$macro_id}selected="selected"{/if}>{$macro->title}</option>
+		{$is_selected = ($params.behavior_id==$macro_id)}
+		{if $is_selected || !$macro->is_disabled}
+		<option value="{$macro_id}" context="{$events_to_contexts.{$macro->event_point}}" {if $is_selected}selected="selected"{/if}>{$macro->title}</option>
+		{/if}
 	{/foreach}
 	</select>
 	<select name="{$namePrefix}[behavior_id]" class="behavior">
 	{foreach from=$macros item=macro key=macro_id}
 		{if $events_to_contexts.{$macro->event_point} == $selected_context}
-		<option value="{$macro_id}" {if $params.behavior_id==$macro_id}selected="selected"{/if}>{$macro->title}</option>
+		{$is_selected = ($params.behavior_id==$macro_id)}
+		{if $is_selected || !$macro->is_disabled}
+		<option value="{$macro_id}" {if $is_selected}selected="selected"{/if}>{$macro->title}</option>
+		{/if}
 		{/if}
 	{/foreach}
 	</select>

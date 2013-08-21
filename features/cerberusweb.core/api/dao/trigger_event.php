@@ -64,10 +64,10 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		return $behaviors;
 	}
 	
-	static function getByVirtualAttendantOwners($owners, $event_point=null, $with_disabled=false) {
+	static function getReadableByActor($actor, $event_point=null, $with_disabled=false) {
 		$macros = array();
 
-		$vas = DAO_VirtualAttendant::getByOwners($owners);
+		$vas = DAO_VirtualAttendant::getReadableByActor($actor);
 
 		if(is_array($vas))
 		foreach($vas as $va) {
@@ -82,8 +82,12 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			$results = array();
 			
 			if(is_array($behaviors))
-			foreach($behaviors as $behavior_id => $behavior) {
-				$result = clone $behavior;
+			foreach($behaviors as $behavior_id => $behavior) { /* @var $behavior Model_TriggerEvent */
+				if($behavior->is_private
+					&& !(CerberusContexts::isSameObject($actor, $va)))
+						continue;
+			
+				$result = clone $behavior; /* @var $result Model_TriggerEvent */
 			
 				$has_public_vars = false;
 				if(is_array($result->variables))

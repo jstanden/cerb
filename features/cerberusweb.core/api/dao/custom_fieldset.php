@@ -998,38 +998,6 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 		
 		$params_required = array();
 
-		/*
-		// Restrict owners
-		$worker_group_ids = array_keys($active_worker->getMemberships());
-		$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($active_worker->id));
-		$worker_va_ids = array_keys(DAO_VirtualAttendant::getEditableByWorker($active_worker
-		));
-		
-		$param_ownership = array(
-			DevblocksSearchCriteria::GROUP_OR,
-			array(
-				DevblocksSearchCriteria::GROUP_AND,
-				SearchFields_CustomFieldset::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_WORKER),
-				SearchFields_CustomFieldset::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_EQ, $active_worker->id),
-			),
-			array(
-				DevblocksSearchCriteria::GROUP_AND,
-				SearchFields_CustomFieldset::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_GROUP),
-				SearchFields_CustomFieldset::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN, $worker_group_ids),
-			),
-			array(
-				DevblocksSearchCriteria::GROUP_AND,
-				SearchFields_CustomFieldset::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_ROLE),
-				SearchFields_CustomFieldset::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN, $worker_role_ids),
-			),
-			array(
-				DevblocksSearchCriteria::GROUP_AND,
-				SearchFields_CustomFieldset::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT),
-				SearchFields_CustomFieldset::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN, $worker_va_ids),
-			),
-		);
-		*/
-		
 		// Restrict contexts
 		if(isset($_REQUEST['link_context'])) {
 			$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');

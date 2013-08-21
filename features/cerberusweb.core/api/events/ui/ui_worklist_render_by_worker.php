@@ -29,11 +29,8 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 		if(empty($worker) || !($worker instanceof Model_Worker))
 			return;
 		
-		$macros = DAO_TriggerEvent::getByVirtualAttendantOwners(
-			array(
-				array(CerberusContexts::CONTEXT_APPLICATION, null, null),
-				array(CerberusContexts::CONTEXT_WORKER, $worker->id, null),
-			),
+		$macros = DAO_TriggerEvent::getReadableByActor(
+			$worker,
 			Event_UiWorklistRenderByWorker::ID
 		);
 		

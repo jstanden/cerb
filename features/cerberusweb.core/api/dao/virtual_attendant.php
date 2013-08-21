@@ -166,12 +166,24 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		return $results;
 	}
 	
-	static function getEditableByWorker(Model_worker $worker) {
+	static function getReadableByActor($actor) {
 		$vas = DAO_VirtualAttendant::getAll();
 		$results = array();
 
 		foreach($vas as $va_id => $va) {
-			if($va->isEditableByWorker($worker))
+			if(CerberusContexts::isReadableByActor($va->owner_context, $va->owner_context_id, $actor))
+				$results[$va_id] = $va;
+		}
+		
+		return $results;
+	}
+	
+	static function getWriteableByActor($actor) {
+		$vas = DAO_VirtualAttendant::getAll();
+		$results = array();
+
+		foreach($vas as $va_id => $va) {
+			if(CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $va_id, $actor))
 				$results[$va_id] = $va;
 		}
 		

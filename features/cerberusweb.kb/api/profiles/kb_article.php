@@ -94,11 +94,9 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 			
 		// Macros
-		$macros = DAO_TriggerEvent::getByVirtualAttendantOwners(
-			array(
-				array(CerberusContexts::CONTEXT_APPLICATION, 0),
-				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id),
-			),
+		
+		$macros = DAO_TriggerEvent::getReadableByActor(
+			$active_worker,
 			'event.macro.kb_article'
 		);
 		$tpl->assign('macros', $macros);

@@ -1140,14 +1140,8 @@ class DevblocksEventHelper {
 		
 		$macros = array();
 		
-		$results = DAO_TriggerEvent::getByVirtualAttendantOwners(
-			array(
-				array($va->owner_context, $va->owner_context_id)
-			),
-			null,
-			true
-		);
-
+		$results = DAO_TriggerEvent::getReadableByActor($va, null, true);
+		
 		foreach($results as $k => $macro) {
 			if(!in_array($macro->event_point, $context_to_macros)) {
 				continue;
@@ -1310,14 +1304,8 @@ class DevblocksEventHelper {
 		
 		$macros = array();
 		
-		$results = DAO_TriggerEvent::getByVirtualAttendantOwners(
-			array(
-				array($va->owner_context, $va->owner_context_id)
-			),
-			null,
-			true
-		);
-
+		$results = DAO_TriggerEvent::getReadableByActor($va, null, true);
+		
 		foreach($results as $k => $macro) {
 			if(!in_array($macro->event_point, $context_to_macros)) {
 				continue;
@@ -1520,14 +1508,8 @@ class DevblocksEventHelper {
 		
 		$macros = array();
 		
-		$results = DAO_TriggerEvent::getByVirtualAttendantOwners(
-			array(
-				array($va->owner_context, $va->owner_context_id)
-			),
-			null,
-			true
-		);
-
+		$results = DAO_TriggerEvent::getReadableByActor($va, null, true);
+		
 		foreach($results as $k => $macro) {
 			if(!in_array($macro->event_point, $context_to_macros)) {
 				continue;

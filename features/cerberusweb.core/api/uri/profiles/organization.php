@@ -129,11 +129,9 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Macros
-		$macros = DAO_TriggerEvent::getByVirtualAttendantOwners(
-			array(
-				array(CerberusContexts::CONTEXT_APPLICATION, 0),
-				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id),
-			),
+		
+		$macros = DAO_TriggerEvent::getReadableByActor(
+			$active_worker,
 			'event.macro.org'
 		);
 		$tpl->assign('macros', $macros);
