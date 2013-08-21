@@ -1802,6 +1802,14 @@ class DevblocksPlatform extends DevblocksEngine {
 		return 'en_US';
 	}
 	
+	static function getDateTimeFormat() {
+		return self::$dateTimeFormat;
+	}
+	
+	static function setDateTimeFormat($time_format) {
+		self::$dateTimeFormat = $time_format;
+	}
+	
 	/**
 	 * @return _DevblocksTranslationManager
 	 */

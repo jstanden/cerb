@@ -1649,6 +1649,7 @@ class CerberusSettings {
 	const LICENSE = 'license_json';
 	const RELAY_DISABLE_AUTH = 'relay_disable_auth';
 	const SESSION_LIFESPAN = 'session_lifespan';
+	const TIME_FORMAT = 'time_format';
 };
 
 class CerberusSettingsDefaults {
@@ -1669,6 +1670,7 @@ class CerberusSettingsDefaults {
 	const AUTHORIZED_IPS = "127.0.0.1\n::1\n";
 	const RELAY_DISABLE_AUTH = 0;
 	const SESSION_LIFESPAN = 0;
+	const TIME_FORMAT = 'D, d M Y h:i a';
 };
 
 class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {

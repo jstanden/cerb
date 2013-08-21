@@ -12,6 +12,15 @@
 		{/foreach}
 	</select><br>
 	<br>
+	
+	<b>{$translate->_('preferences.account.timeformat')|capitalize}</b><br>
+	<select name="time_format">
+		{$timeformats = ['D, d M Y h:i a', 'D, d M Y H:i']}
+		{foreach from=$timeformats item=timeformat}
+			<option value="{$timeformat}" {if $prefs.time_format==$timeformat}selected{/if}>{time()|devblocks_date:$timeformat}</option>
+		{/foreach}
+	</select><br>
+	<br>
 
 	<b>{$translate->_('preferences.account.language')|capitalize}</b> {if !empty($selected_language) && isset($langs.$selected_language)}({$translate->_('preferences.account.current')} {$langs.$selected_language}){/if}<br>
 	<select name="lang_code">

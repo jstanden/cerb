@@ -146,6 +146,13 @@ EOF
 							'body' => 'This setup page provides options for personalizing your copy of Cerb6 with your own logo and browser title.',
 						);
 						break;
+						
+					case 'localization':
+						$tour = array(
+							'title' => 'Localization',
+							'body' => 'This setup page provides options for localizing your copy of Cerb.',
+						);
+						break;
 
 					case 'security':
 						$tour = array(

@@ -330,17 +330,18 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 	}
 	
 	function parseDateJsonAction() {
-		@$date = DevblocksPlatform::importGPC($_REQUEST['date'], 'string', '');
+		@$date_string = DevblocksPlatform::importGPC($_REQUEST['date'], 'string', '');
 		
 		@$active_worker = CerberusApplication::getActiveWorker();
+		$date = DevblocksPlatform::getDateService();
 		
 		header('Content-Type: application/json');
 		
 		$results = array();
 		
-		if(strpos($date, '@')) {
-			$date_parts = explode('@', $date, 2);
-			@$date = trim($date_parts[0]);
+		if(strpos($date_string, '@')) {
+			$date_parts = explode('@', $date_string, 2);
+			@$date_string = trim($date_parts[0]);
 			@$calendar_lookup = trim($date_parts[1]);
 			
 			@$calendars = DAO_Calendar::getReadableByActor($active_worker);
@@ -359,7 +360,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 			if($use_calendar) {
 				$calendar_events = $use_calendar->getEvents(strtotime('-1 day midnight'), strtotime('+2 weeks 23:59:59'));
 				$availability = $use_calendar->computeAvailability(strtotime('-1 day midnight'), strtotime('+2 weeks 23:59:59'), $calendar_events);
-				$timestamp = $availability->scheduleInRelativeTime(time(), $date);
+				$timestamp = $availability->scheduleInRelativeTime(time(), $date_string);
 				
 				if($timestamp) {
 					$results['calendar_id'] = $calendar->id;
@@ -369,7 +370,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		}
 		
 		if(empty($timestamp))
-			@$timestamp = strtotime($date);
+			@$timestamp = strtotime($date_string);
 		
 		if(empty($timestamp)) {
 			echo json_encode(false);
@@ -377,7 +378,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		}
 		
 		$results['timestamp'] = $timestamp;
-		$results['to_string'] = date('D, d M Y h:i a', $timestamp);
+		$results['to_string'] = $date->formatTime(null, $timestamp);
 		
 		echo json_encode($results);
 	}

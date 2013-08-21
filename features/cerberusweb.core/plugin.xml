@@ -2267,6 +2267,19 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.localization</id>
+				<name>Localizaiton Section</name>
+				<class>
+					<file>api/uri/config/localization.php</file>
+					<name>PageSection_SetupLocalization</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="localization" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.fields</id>
 				<name>Custom Fields Section</name>
 				<class>

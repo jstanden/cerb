@@ -2008,6 +2008,9 @@ For example: *receipt*</seg></tuv>
 		<tu tuid='preferences.account.current'>
 			<tuv xml:lang="en_US"><seg>current:</seg></tuv>
 		</tu>
+		<tu tuid='preferences.account.timeformat'>
+			<tuv xml:lang="en_US"><seg>Time Format:</seg></tuv>
+		</tu>
 		<tu tuid='preferences.account.timezone'>
 			<tuv xml:lang="en_US"><seg>Timezone:</seg></tuv>
 		</tu>
