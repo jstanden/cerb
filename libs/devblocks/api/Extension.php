@@ -1091,10 +1091,13 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			switch($token) {
 				case '_set_custom_var':
 					@$var = $params['var'];
+					@$format = $params['format'];
+					
+					$value = ($format == 'json') ? @DevblocksPlatform::strFormatJson(json_encode($dict->$var, true)) : $dict->$var;
 					
 					return sprintf(">>> Setting custom variable {{%s}}:\n%s\n\n",
 						$var,
-						$dict->$var
+						$value
 					);
 					break;
 					
@@ -1147,9 +1150,17 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					
 					@$var = $params['var'];
 					@$value = $params['value'];
+					@$format = $params['format'];
+					@$is_simulator_only = $params['is_simulator_only'] ? true : false;
+
+					// If this variable is only set in the simulator, and we're not simulating, abort
+					if($is_simulator_only && !$dry_run)
+						return;
 					
-					if(!empty($var) && !empty($value))
-						$dict->$var = $tpl_builder->build($value, $dict);
+					if(!empty($var) && !empty($value)) {
+						$value = $tpl_builder->build($value, $dict);
+						$dict->$var = ($format == 'json') ? @json_decode($value, true) : $value;
+					}
 					
 					if($dry_run) {
 						$out = $this->simulateAction($token, $trigger, $params, $dict);
