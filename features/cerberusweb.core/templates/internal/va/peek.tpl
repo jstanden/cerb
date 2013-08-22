@@ -81,13 +81,6 @@
 	</div>
 </fieldset>
 
-<fieldset class="peek">
-	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea>
-	<div class="notify" style="display:none;">
-		<b>{'common.notify_watchers_and'|devblocks_translate}:</b>
-		<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
-		<ul class="chooser-container bubbles" style="display:block;"></ul>
 <fieldset class="peek va-fieldset-actions">
 	<legend>Action Extensions</legend>
 	
