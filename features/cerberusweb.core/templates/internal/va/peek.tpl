@@ -65,6 +65,21 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT context_id=$model->id}
 
+<fieldset class="peek va-fieldset-events">
+	<legend>Events</legend>
+	
+	<div>
+		<label><input type="radio" name="allowed_events" value="all" {if !$model->params.events.mode || $model->params.events.mode == 'all'}checked="checked"{/if}> Allow all</label>
+		<label><input type="radio" name="allowed_events" value="allow" {if $model->params.events.mode == 'allow'}checked="checked"{/if}> Allow only these:</label>
+		<label><input type="radio" name="allowed_events" value="deny" {if $model->params.events.mode == 'deny'}checked="checked"{/if}> Deny only these:</label>
+	</div>
+	
+	<div style="margin:3px 0px 0px 10px;{if empty($model->params.events.mode) || $model->params.events.mode == 'all'}display:none;{/if}" class="va-events">
+		{foreach from=$event_extensions item=event_ext key=event_ext_id}
+			<label contexts="{if isset($event_ext->params['contexts'][0])}{$event_ext->params['contexts'][0]|array_keys|implode:' '}{/if}"><input type="checkbox" name="itemized_events[]" value="{$event_ext_id}" {if is_array($model->params.events.items) && in_array($event_ext_id, $model->params.events.items)}checked="checked"{/if}> {$event_ext->name}<br></label>
+		{/foreach}
+	</div>
+</fieldset>
 
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
@@ -107,6 +122,36 @@
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{'Virtual Attendant'}");
 		
+		$('#vaPeekTabs').tabs();
+		
+		$(this).find('select[name=owner]').change(function() {
+			var $this = $(this);
+			var $owner = $this.find('option:selected');
+			var owner_context = $owner.attr('context');
+			var $frm = $this.closest('form');
+			var $events_container = $frm.find('div.va-events');
+			var $events = $events_container.find('label');
+			
+			$events.each(function() {
+				var contexts = $(this).attr('contexts').split(' ');
+				
+				if($.inArray(owner_context, contexts) != -1)
+					$(this).show();
+				else
+					$(this).hide();
+			});
+		}).trigger('change');
+		
+		$(this).find('input:radio[name=allowed_events]').change(function() {
+			var $this = $(this);
+			var $frm = $this.closest('form');
+			var $events_container = $frm.find('div.va-events');
+
+			if($this.val() == 'all')
+				$events_container.hide();
+			else
+				$events_container.show();
+		});
 		$(this).find('button.chooser_watcher').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
 		});

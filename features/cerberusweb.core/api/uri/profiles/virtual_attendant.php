@@ -128,6 +128,8 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 			@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 			@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
 			@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'], 'integer', 0);
+			@$allowed_events = DevblocksPlatform::importGPC($_REQUEST['allowed_events'], 'string', '');
+			@$itemized_events = DevblocksPlatform::importGPC($_REQUEST['itemized_events'], 'array', array());
 			// Owner
 		
 			$owner_ctx = '';
@@ -148,6 +150,18 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 			
 			if(empty($owner_ctx))
 				return false;
+			
+			// Permissions
+			
+			$params = array(
+				'events' => array(
+					'mode' => $allowed_events,
+					'items' => $itemized_events,
+				),
+			);
+			
+			// Create or update
+			
 			if(empty($id)) { // New
 				$fields = array(
 					DAO_VirtualAttendant::CREATED_AT => time(),
@@ -156,6 +170,7 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 					DAO_VirtualAttendant::IS_DISABLED => $is_disabled,
 					DAO_VirtualAttendant::OWNER_CONTEXT => $owner_ctx,
 					DAO_VirtualAttendant::OWNER_CONTEXT_ID => $owner_ctx_id,
+					DAO_VirtualAttendant::PARAMS_JSON => json_encode($params),
 				);
 				$id = DAO_VirtualAttendant::create($fields);
 				
@@ -176,6 +191,7 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 					DAO_VirtualAttendant::IS_DISABLED => $is_disabled,
 					DAO_VirtualAttendant::OWNER_CONTEXT => $owner_ctx,
 					DAO_VirtualAttendant::OWNER_CONTEXT_ID => $owner_ctx_id,
+					DAO_VirtualAttendant::PARAMS_JSON => json_encode($params),
 				);
 				DAO_VirtualAttendant::update($id, $fields);
 				

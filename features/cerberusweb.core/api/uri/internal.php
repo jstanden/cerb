@@ -2764,6 +2764,21 @@ class ChInternalController extends DevblocksControllerExtension {
 				
 				$events = Extension_DevblocksEvent::getByContext($va->owner_context, false);
 				
+				// Filter the available events by VA
+				
+				@$events_mode = $va->params['events']['mode'];
+				@$events_items = $va->params['events']['items'];
+				
+				switch($events_mode) {
+					case 'allow':
+						$events = array_intersect_key($events, array_flip($events_items));
+						break;
+						
+					case 'deny':
+						$events = array_diff_key($events, array_flip($events_items));
+						break;
+				}
+					
 				// Are we filtering the available events?
 				if(!empty($only_event_ids)) {
 					$only_event_ids = DevblocksPlatform::parseCsvString($only_event_ids,false,'string');

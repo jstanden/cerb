@@ -18,7 +18,7 @@
 	{if empty($ext)}
 		<select name="event_point">
 			{foreach from=$events item=available_event key=available_event_id name=available_events}
-			{if $smarty.foreach.available_events.first}{$event = $available_event}{/if}
+			{if $smarty.foreach.available_events.first}{$event = DevblocksPlatform::getExtension($available_event_id, true)}{/if}
 			<option value="{$available_event_id}" {if $available_event->params.macro_context}is_macro="true"{/if}>{$available_event->name}</option>
 			{/foreach}
 		</select>

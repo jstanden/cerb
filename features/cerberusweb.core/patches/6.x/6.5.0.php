@@ -83,7 +83,7 @@ if(isset($columns['owner_context'])) {
 			$db->qstr(sprintf("%s's Virtual Attendant", $row['owner_label'])),
 			$db->qstr($row['owner_context']),
 			$row['owner_context_id'],
-			$db->qstr(json_encode(array())),
+			$db->qstr('{"events":{"mode":"all","items":[]},"actions":{"mode":"all","items":[]}}'),
 			time(),
 			time()
 		);

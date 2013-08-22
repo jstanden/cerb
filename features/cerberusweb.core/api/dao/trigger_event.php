@@ -70,7 +70,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		$vas = DAO_VirtualAttendant::getReadableByActor($actor);
 
 		if(is_array($vas))
-		foreach($vas as $va) {
+		foreach($vas as $va) { /* @var $va Model_VirtualAttendant */
 			if(!$with_disabled && $va->is_disabled)
 				continue;
 		
@@ -126,6 +126,9 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		if(!$with_disabled && $va->is_disabled)
 			return array();
 		
+		@$events_mode = $va->params['events']['mode'];
+		@$events_items = $va->params['events']['items'];
+		
 		$behaviors = self::getAll();
 		$results = array();
 
@@ -140,8 +143,20 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			if(!$with_disabled && $behavior->is_disabled)
 				continue;
 			
+			// Are we only showing approved events?
+			if($events_mode == 'allow' && is_array($events_items))
+			if(!in_array($behavior->event_point, $events_items))
+				continue;
+			
+			// Are we removing denied events?
+			if($events_mode == 'deny' && is_array($events_items))
+			if(in_array($behavior->event_point, $events_items))
+				continue;
+			
 			$results[$behavior_id] = $behavior;
 		}
+		
+		// Sort
 		
 		switch($sort_by) {
 			case 'title':
