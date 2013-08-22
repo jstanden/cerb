@@ -1140,15 +1140,24 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					break;
 					
 				case '_run_behavior':
-					DevblocksEventHelper::runActionRunBehavior($params, $dict);
+					if($dry_run)
+						$out = $this->simulateAction($token, $trigger, $params, $dict);
+					else
+						DevblocksEventHelper::runActionRunBehavior($params, $dict);
 					break;
 					
 				case '_schedule_behavior':
-					DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
+					if($dry_run)
+						$out = $this->simulateAction($token, $trigger, $params, $dict);
+					else
+						DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
 					break;
 					
 				case '_unschedule_behavior':
-					DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
+					if($dry_run)
+						$out = $this->simulateAction($token, $trigger, $params, $dict);
+					else
+						DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 					break;
 					
 				default:
