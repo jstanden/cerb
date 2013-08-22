@@ -957,10 +957,29 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		
 		$manifests = Extension_DevblocksEventAction::getAll(false, $trigger->event_point);
 		
+		// Filter extensions by VA permissions
+		
+		$va = $trigger->getVirtualAttendant();
+		
+		@$actions_mode = $va->params['actions']['mode'];
+		@$actions_items = $va->params['actions']['items'];
+		
+		switch($actions_mode) {
+			case 'allow':
+				$manifests = array_intersect_key($manifests, array_flip($actions_items));
+				break;
+				
+			case 'deny':
+				$manifests = array_diff_key($manifests, array_flip($actions_items));
+				break;
+		}
+		
 		if(is_array($manifests))
 		foreach($manifests as $manifest) {
 			$actions[$manifest->id] = array('label' => $manifest->params['label']);
 		}
+
+		// Sort by label
 		
 		DevblocksPlatform::sortObjects($actions, '[label]');
 		

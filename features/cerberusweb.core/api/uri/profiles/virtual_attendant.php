@@ -130,6 +130,9 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 			@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'], 'integer', 0);
 			@$allowed_events = DevblocksPlatform::importGPC($_REQUEST['allowed_events'], 'string', '');
 			@$itemized_events = DevblocksPlatform::importGPC($_REQUEST['itemized_events'], 'array', array());
+			@$allowed_actions = DevblocksPlatform::importGPC($_REQUEST['allowed_actions'], 'string', '');
+			@$itemized_actions = DevblocksPlatform::importGPC($_REQUEST['itemized_actions'], 'array', array());
+			
 			// Owner
 		
 			$owner_ctx = '';
@@ -157,6 +160,10 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 				'events' => array(
 					'mode' => $allowed_events,
 					'items' => $itemized_events,
+				),
+				'actions' => array(
+					'mode' => $allowed_actions,
+					'items' => $itemized_actions,
 				),
 			);
 			

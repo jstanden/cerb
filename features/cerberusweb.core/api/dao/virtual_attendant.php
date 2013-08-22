@@ -1156,7 +1156,12 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		DevblocksPlatform::sortObjects($event_extensions, 'name');
 		$tpl->assign('event_extensions', $event_extensions);
 		
+		$action_extensions = DevblocksPlatform::getExtensions('devblocks.event.action', false);
+		DevblocksPlatform::sortObjects($action_extensions, 'params->[label]');
+		$tpl->assign('action_extensions', $action_extensions);
+		
 		// Comments
+		
 		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $context_id);
 		$last_comment = array_shift($comments);
 		unset($comments);

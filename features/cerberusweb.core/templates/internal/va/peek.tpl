@@ -88,6 +88,19 @@
 		<b>{'common.notify_watchers_and'|devblocks_translate}:</b>
 		<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
 		<ul class="chooser-container bubbles" style="display:block;"></ul>
+<fieldset class="peek va-fieldset-actions">
+	<legend>Action Extensions</legend>
+	
+	<div>
+		<label><input type="radio" name="allowed_actions" value="all" {if !$model->params.actions.mode || $model->params.actions.mode == 'all'}checked="checked"{/if}> Allow all</label>
+		<label><input type="radio" name="allowed_actions" value="allow" {if $model->params.actions.mode == 'allow'}checked="checked"{/if}> Allow only these:</label>
+		<label><input type="radio" name="allowed_actions" value="deny" {if $model->params.actions.mode == 'deny'}checked="checked"{/if}> Deny only these:</label>
+	</div>
+	
+	<div style="margin:3px 0px 0px 10px;{if empty($model->params.actions.mode) || $model->params.actions.mode == 'all'}display:none;{/if}" class="va-actions">
+		{foreach from=$action_extensions item=action_ext key=action_ext_id}
+			<label events="{if isset($action_ext->params['events'][0])}{$action_ext->params['events'][0]|array_keys|implode:' '}{/if}"><input type="checkbox" name="itemized_actions[]" value="{$action_ext->id}" {if is_array($model->params.actions.items) && in_array($action_ext_id, $model->params.actions.items)}checked="checked"{/if}> {$action_ext->params.label}<br></label>
+		{/foreach}
 	</div>
 </fieldset>
 
@@ -152,6 +165,18 @@
 			else
 				$events_container.show();
 		});
+		
+		$(this).find('input:radio[name=allowed_actions]').change(function() {
+			var $this = $(this);
+			var $frm = $this.closest('form');
+			var $actions_container = $frm.find('div.va-actions');
+
+			if($this.val() == 'all')
+				$actions_container.hide();
+			else
+				$actions_container.show();
+		});
+		
 		$(this).find('button.chooser_watcher').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
 		});
