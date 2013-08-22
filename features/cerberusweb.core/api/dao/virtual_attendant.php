@@ -1117,7 +1117,6 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		
-		
 		if(!empty($context_id) && null != ($virtual_attendant = DAO_VirtualAttendant::get($context_id))) {
 			$tpl->assign('model', $virtual_attendant);
 			
@@ -1150,20 +1149,7 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
-
-		$owner_groups = array();
-		foreach($groups as $k => $v) {
-			if($active_worker->is_superuser || $active_worker->isGroupManager($k))
-				$owner_groups[$k] = $v;
-		}
-		$tpl->assign('owner_groups', $owner_groups);
 		
-		$owner_roles = array();
-		foreach($roles as $k => $v) { /* @var $v Model_WorkerRole */
-			if($active_worker->is_superuser)
-				$owner_roles[$k] = $v;
-		}
-		$tpl->assign('owner_roles', $owner_roles);
 		
 		// Comments
 		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $context_id);

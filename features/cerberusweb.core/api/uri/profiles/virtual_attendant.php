@@ -112,35 +112,12 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-		@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
-		@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'], 'integer', 0);
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!$active_worker || !$active_worker->is_superuser)
-			return;
-		
-		// Owner
-		
-		$owner_ctx = '';
-		@list($owner_ctx_code, $owner_ctx_id) = explode('_', $owner, 2);
-		
-		switch(strtolower($owner_ctx_code)) {
-			case 'a':
-				$owner_ctx = CerberusContexts::CONTEXT_APPLICATION;
-				break;
-			case 'w':
-				$owner_ctx = CerberusContexts::CONTEXT_WORKER;
-				break;
-			case 'g':
-				$owner_ctx = CerberusContexts::CONTEXT_GROUP;
-				break;
-			case 'r':
-				$owner_ctx = CerberusContexts::CONTEXT_ROLE;
-				break;
-		}
+			return false;
 		
 		// Model
 		
@@ -148,6 +125,29 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 			DAO_VirtualAttendant::delete($id);
 			
 		} else {
+			@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+			@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
+			@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'], 'integer', 0);
+			// Owner
+		
+			$owner_ctx = '';
+			@list($owner_ctx, $owner_ctx_id) = explode(':', $owner, 2);
+			
+			// Make sure we're given a valid ctx
+			
+			switch($owner_ctx) {
+				case CerberusContexts::CONTEXT_APPLICATION:
+				case CerberusContexts::CONTEXT_ROLE:
+				case CerberusContexts::CONTEXT_GROUP:
+				case CerberusContexts::CONTEXT_WORKER:
+					break;
+					
+				default:
+					$owner_ctx = null;
+			}
+			
+			if(empty($owner_ctx))
+				return false;
 			if(empty($id)) { // New
 				$fields = array(
 					DAO_VirtualAttendant::CREATED_AT => time(),
@@ -158,11 +158,6 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 					DAO_VirtualAttendant::OWNER_CONTEXT_ID => $owner_ctx_id,
 				);
 				$id = DAO_VirtualAttendant::create($fields);
-				
-				// Watchers
-				@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
-				if(!empty($add_watcher_ids))
-					CerberusContexts::addWatchers(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $id, $add_watcher_ids);
 				
 				// Context Link (if given)
 				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
@@ -186,21 +181,6 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 				
 			}
 
-			// If we're adding a comment
-			if(!empty($comment)) {
-				@$also_notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
-				
-				$fields = array(
-					DAO_Comment::CREATED => time(),
-					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
-					DAO_Comment::CONTEXT_ID => $id,
-					DAO_Comment::COMMENT => $comment,
-					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-					DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
-				);
-				$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
-			}
-			
 			// Custom fields
 			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
 			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $id, $field_ids);

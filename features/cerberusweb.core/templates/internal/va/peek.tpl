@@ -24,56 +24,23 @@
 			</td>
 			<td width="99%">
 				<select name="owner">
-					{if !empty($model->id)}
-						<option value=""> - transfer - </option>
-					{/if}
-					
-					<option value="w_{$active_worker->id}" {if $model->owner_context==CerberusContexts::CONTEXT_WORKER && $active_worker->id==$model->owner_context_id}selected="selected"{/if}>me</option>
-					
-					<option value="a_0" {if $model->owner_context==CerberusContexts::CONTEXT_APPLICATION}selected="selected"{/if}>Application: Cerb</option>
+					<option value="{CerberusContexts::CONTEXT_APPLICATION}:0"  context="{CerberusContexts::CONTEXT_APPLICATION}" {if $model->owner_context==CerberusContexts::CONTEXT_APPLICATION}selected="selected"{/if}>Application: Cerb</option>
 
-					{if !empty($owner_roles)}
-					{foreach from=$owner_roles item=role key=role_id}
-						<option value="r_{$role_id}" {if $model->owner_context==CerberusContexts::CONTEXT_ROLE && $role_id==$model->owner_context_id}selected="selected"{/if}>Role: {$role->name}</option>
+					{foreach from=$roles item=role key=role_id}
+						<option value="{CerberusContexts::CONTEXT_ROLE}:{$role_id}"  context="{CerberusContexts::CONTEXT_ROLE}" {if $model->owner_context==CerberusContexts::CONTEXT_ROLE && $role_id==$model->owner_context_id}selected="selected"{/if}>Role: {$role->name}</option>
 					{/foreach}
-					{/if}
 					
-					{if !empty($owner_groups)}
-					{foreach from=$owner_groups item=group key=group_id}
-						<option value="g_{$group_id}" {if $model->owner_context==CerberusContexts::CONTEXT_GROUP && $group_id==$model->owner_context_id}selected="selected"{/if}>Group: {$group->name}</option>
+					{foreach from=$groups item=group key=group_id}
+						<option value="{CerberusContexts::CONTEXT_GROUP}:{$group_id}"  context="{CerberusContexts::CONTEXT_GROUP}" {if $model->owner_context==CerberusContexts::CONTEXT_GROUP && $group_id==$model->owner_context_id}selected="selected"{/if}>Group: {$group->name}</option>
 					{/foreach}
-					{/if}
 					
-					{if $active_worker->is_superuser}
 					{foreach from=$workers item=worker key=worker_id}
-						{if empty($worker->is_disabled)}
-						<option value="w_{$worker_id}" {if $model->owner_context==CerberusContexts::CONTEXT_WORKER && $worker_id==$model->owner_context_id && $active_worker->id != $worker_id}selected="selected"{/if}>Worker: {$worker->getName()}</option>
+						{$is_selected = $model->owner_context==CerberusContexts::CONTEXT_WORKER && $worker_id==$model->owner_context_id}
+						{if $is_selected || !$worker->is_disabled}
+						<option value="{CerberusContexts::CONTEXT_WORKER}:{$worker_id}"  context="{CerberusContexts::CONTEXT_WORKER}" {if $is_selected}selected="selected"{/if}>Worker: {$worker->getName()}</option>
 						{/if}
 					{/foreach}
-					{/if}
 				</select>
-				
-				{if !empty($model->id)}
-				<ul class="bubbles">
-					<li>
-					{if $model->owner_context==CerberusContexts::CONTEXT_APPLICATION}
-					<b>Application</b>
-					{/if}
-					
-					{if $model->owner_context==CerberusContexts::CONTEXT_ROLE && isset($roles.{$model->owner_context_id})}
-					<b>{$roles.{$model->owner_context_id}->name}</b> (Role)
-					{/if}
-					
-					{if $model->owner_context==CerberusContexts::CONTEXT_GROUP && isset($groups.{$model->owner_context_id})}
-					<b>{$groups.{$model->owner_context_id}->name}</b> (Group)
-					{/if}
-					
-					{if $model->owner_context==CerberusContexts::CONTEXT_WORKER && isset($workers.{$model->owner_context_id})}
-					<b>{$workers.{$model->owner_context_id}->getName()}</b> (Worker)
-					{/if}
-					</li>
-				</ul>
-				{/if}
 			</td>
 		</tr>
 		
@@ -85,19 +52,6 @@
 			</td>
 		</tr>
 		
-		{* Watchers *}
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.watchers')|capitalize}: </td>
-			<td width="100%">
-				{if empty($model->id)}
-					<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
-					<ul class="chooser-container bubbles" style="display:block;"></ul>
-				{else}
-					{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, array($model->id), CerberusContexts::CONTEXT_WORKER)}
-					{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT context_id=$model->id full=true}
-				{/if}
-			</td>
-		</tr>
 	</table>
 	
 </fieldset>
@@ -111,10 +65,6 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT context_id=$model->id}
 
-{* Comment *}
-{if !empty($last_comment)}
-	{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl" readonly=true comment=$last_comment}
-{/if}
 
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
