@@ -40,7 +40,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 	 * @param integer $opp_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($opp_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $opp_id=null) {
 		
 		if(empty($opp_id)) {
 			// Pull the latest record

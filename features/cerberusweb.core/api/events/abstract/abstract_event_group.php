@@ -23,7 +23,7 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 	 * @param integer $group_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($group_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $group_id=null) {
 		
 		if(empty($group_id)) {
 			// Pull the latest record

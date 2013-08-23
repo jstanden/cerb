@@ -24,7 +24,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 	 * @param integer $group_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($ticket_id=null, $comment_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $ticket_id=null, $comment_id=null) {
 		if(empty($ticket_id)) {
 			// Pull the latest ticket
 			list($results) = DAO_Ticket::search(

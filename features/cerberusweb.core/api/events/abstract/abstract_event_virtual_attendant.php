@@ -23,9 +23,9 @@ abstract class AbstractEvent_VirtualAttendant extends Extension_DevblocksEvent {
 	 * @param integer $virtual_attendant_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($virtual_attendant_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $virtual_attendant_id=null) {
 		if(empty($virtual_attendant_id)) {
-			$virtual_attendant_id = DAO_VirtualAttendant::getRandom();
+			$virtual_attendant_id = $trigger->virtual_attendant_id;
 		}
 		
 		return new Model_DevblocksEvent(

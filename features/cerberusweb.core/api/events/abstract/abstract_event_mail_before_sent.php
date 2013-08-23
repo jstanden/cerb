@@ -26,7 +26,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 	 * @param Model_Group $group
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($properties=null, $message_id=null, $ticket_id=null, $group_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $properties=null, $message_id=null, $ticket_id=null, $group_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(empty($message_id)) {

@@ -40,7 +40,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 	 * @param integer $worker_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($message_id=null, $worker_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $message_id=null, $worker_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(empty($message_id)) {

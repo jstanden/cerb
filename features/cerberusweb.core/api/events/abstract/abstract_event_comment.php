@@ -23,7 +23,7 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 	 * @param integer $comment_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($comment_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $comment_id=null) {
 		
 		if(empty($comment_id)) {
 			// Pull the latest record

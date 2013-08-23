@@ -7,7 +7,7 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 	 * @param integer $time_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($time_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $time_id=null) {
 		
 		if(empty($time_id)) {
 			// Pull the latest record

@@ -23,7 +23,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 	 * @param integer $worker_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($worker_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $worker_id=null) {
 		if(empty($worker_id)) {
 			$worker_id = DAO_Worker::random();
 		}

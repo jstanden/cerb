@@ -23,7 +23,7 @@ abstract class AbstractEvent_Calendar extends Extension_DevblocksEvent {
 	 * @param integer $calendar_event_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($calendar_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $calendar_id=null) {
 		
 		if(empty($calendar_id)) {
 			// Pull the latest record

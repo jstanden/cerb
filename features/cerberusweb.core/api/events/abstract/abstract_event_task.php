@@ -23,7 +23,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 	 * @param integer $task_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($task_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $task_id=null) {
 		
 		if(empty($task_id)) {
 			$task_id = DAO_Task::random();

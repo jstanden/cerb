@@ -39,7 +39,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 	 * @param integer $worker_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($notification_id=null, $worker_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $notification_id=null, $worker_id=null) {
 		if(empty($worker_id) || null == ($worker = DAO_Worker::get($worker_id)))
 			$worker = CerberusApplication::getActiveWorker();
 		

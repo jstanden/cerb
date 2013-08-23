@@ -23,7 +23,7 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 	 * @param integer $address_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($address_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $address_id=null) {
 		
 		if(empty($address_id)) {
 			// Pull the latest record

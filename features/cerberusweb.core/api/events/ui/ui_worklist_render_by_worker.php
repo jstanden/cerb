@@ -74,7 +74,7 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 	 * @param string $view_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($context=null, $view_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $context=null, $view_id=null) {
 		// [TODO] Set defaults
 		
 		return new Model_DevblocksEvent(

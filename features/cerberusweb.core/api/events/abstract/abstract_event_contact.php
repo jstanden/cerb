@@ -23,7 +23,7 @@ abstract class AbstractEvent_ContactPerson extends Extension_DevblocksEvent {
 	 * @param integer $contact_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($contact_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $contact_id=null) {
 		
 		if(empty($contact_id)) {
 			$contact_id = DAO_ContactPerson::random();

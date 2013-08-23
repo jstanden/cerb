@@ -1505,8 +1505,9 @@ class Context_Application extends Extension_DevblocksContext {
 		
 		// Polymorph
 		if(is_numeric($app)) {
-			//$app = DAO_WorkerRole::get($role);
-// 		} elseif($app instanceof Model_WorkerRole) {
+			$app = new Model_Application();
+			$app->name = 'Application';
+ 		} elseif($app instanceof Model_Application) {
 			// It's what we want already.
 		} else {
 			$app = null;
@@ -1514,8 +1515,7 @@ class Context_Application extends Extension_DevblocksContext {
 			
 		// Token labels
 		$token_labels = array(
-			//'name' => $prefix.$translate->_('common.name'),
-			//'record_url' => $prefix.$translate->_('common.url.record'),
+			'name' => $prefix.$translate->_('common.name'),
 		);
 		
 		// Custom field/fieldset token labels
@@ -1528,15 +1528,10 @@ class Context_Application extends Extension_DevblocksContext {
 		$token_values['_context'] = CerberusContexts::CONTEXT_APPLICATION;
 		
 		// Worker token values
-		if(null != $role) {
+		if(null != $app) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = 'Application';
-			//$token_values['id'] = $role->id;
-			//$token_values['name'] = $role->name;
-			
-			// URL
-// 			$url_writer = DevblocksPlatform::getUrlService();
-// 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=worker&id=%d-%s",$worker->id, DevblocksPlatform::strToPermalink($worker->getName())), true);
+			$token_values['name'] = 'Application';
 		}
 		
 		return true;

@@ -43,7 +43,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	 * @param CerberusParserModel $parser_model
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($parser_model=null) { //, Model_Message $message=null, Model_Ticket $ticket=null, Model_Group $group=null
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $parser_model=null) { //, Model_Message $message=null, Model_Ticket $ticket=null, Model_Group $group=null
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$replyto = DAO_AddressOutgoing::getDefault();

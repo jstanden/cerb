@@ -23,7 +23,7 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 	 * @param integer $article_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($article_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $article_id=null) {
 		
 		if(empty($article_id)) {
 			// Pull the latest record

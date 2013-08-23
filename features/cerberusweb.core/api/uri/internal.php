@@ -668,7 +668,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			$event = $trigger->getEvent();
 			
 			if(method_exists($event,'generateSampleEventModel')) {
-				$event_model = $event->generateSampleEventModel();
+				$event_model = $event->generateSampleEventModel($trigger);
 				$event->setEvent($event_model);
 				$values = $event->getValues();
 				$view->setPlaceholderValues($values);
@@ -2250,7 +2250,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			// [TODO] This is almost wholly redundant with saveMacroSchedulerPopup()
 			
 			$event = $macro->getEvent();
-			$event_model = $event->generateSampleEventModel($context_id);
+			$event_model = $event->generateSampleEventModel($macro, $context_id);
 			$event->setEvent($event_model);
 			$values = $event->getValues();
 			
@@ -2434,7 +2434,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null == ($event = $trigger->getEvent()))
 			return;
 		
-		$event_model = $event->generateSampleEventModel($job->context_id);
+		$event_model = $event->generateSampleEventModel($trigger, $job->context_id);
 		$event->setEvent($event_model);
 		$values = $event->getValues();
 		
@@ -2890,7 +2890,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null == ($ext_event = DevblocksPlatform::getExtension($trigger->event_point, true))) /* @var $ext_event Extension_DevblocksEvent */
 			return;
 
-		$event_model = $ext_event->generateSampleEventModel($context_id);
+		$event_model = $ext_event->generateSampleEventModel($trigger, $context_id);
 		$ext_event->setEvent($event_model);
 		
 		$event_params_json = json_encode($event_model->params);
@@ -2947,9 +2947,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		// Set the base event scope
 		
 		// [TODO] This is hacky and needs to be handled by the extensions
+ 		
 		switch($trigger->event_point) {
 			case Event_MailReceivedByApp::ID:
-				$event_model = $ext_event->generateSampleEventModel(0);
+				$event_model = $ext_event->generateSampleEventModel($trigger, 0);
 				break;
 				
 			default:
@@ -3550,7 +3551,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			return;
 			
 		$event = $trigger->getEvent();
-		$event_model = $event->generateSampleEventModel();
+		$event_model = $event->generateSampleEventModel($trigger);
 		$event->setEvent($event_model);
 		$values = $event->getValues();
 		
