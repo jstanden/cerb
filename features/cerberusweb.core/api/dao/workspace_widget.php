@@ -426,7 +426,6 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 		$token_labels = array(
 			'extension_id' => $prefix.$translate->_('common.extension'),
 			'label' => $prefix.$translate->_('common.label'),
-			//'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		// Custom field/fieldset token labels
@@ -445,10 +444,6 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 			$token_values['id'] = $widget->id;
 			$token_values['extension_id'] = $widget->extension_id;
 			$token_values['label'] = $widget->label;
-
-			// URL
-			//$url_writer = DevblocksPlatform::getUrlService();
-			//$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=pages&id=%d-%s",$page->id, DevblocksPlatform::strToPermalink($page->name)), true);
 		}
 		
 		return true;
@@ -470,15 +465,6 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 		}
 		
 		switch($token) {
-			/*
-			case 'widgets':
-				//$widgets = DAO_WorkspaceWidget::get();
-				//$values['widgets'] = array_keys($widgets);
-				
-				$values['widgets'] = array();
-				break;
-			*/
-			
 			case 'data':
 				$values = $dictionary;
 				
@@ -529,23 +515,6 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 		
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Widgets';
-		
-		/*
-		$view->view_columns = array(
-			SearchFields_Address::FIRST_NAME,
-			SearchFields_Address::LAST_NAME,
-			SearchFields_Address::ORG_NAME,
-		);
-		*/
-		
-		/*
-		$view->addParamsDefault(array(
-			SearchFields_Address::IS_BANNED => new DevblocksSearchCriteria(SearchFields_Address::IS_BANNED,'=',0),
-			SearchFields_Address::IS_DEFUNCT => new DevblocksSearchCriteria(SearchFields_Address::IS_DEFUNCT,'=',0),
-		), true);
-		$view->addParams($view->getParamsDefault(), true);
-		*/
-		
 		$view->renderSortBy = SearchFields_WorkspaceWidget::ID;
 		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
