@@ -399,6 +399,10 @@
 			<class name="AbstractEvent_Address" />
 		</file>
 		
+		<file path="api/events/abstract/abstract_event_api_request.php">
+			<class name="AbstractEvent_ApiRequest" />
+		</file>
+		
 		<file path="api/events/abstract/abstract_event_mail_before_sent.php">
 			<class name="AbstractEvent_MailBeforeSent" />
 		</file>
@@ -445,6 +449,10 @@
 		
 		<file path="api/events/abstract/abstract_event_worker.php">
 			<class name="AbstractEvent_Worker" />
+		</file>
+		
+		<file path="api/events/api/api_request.php">
+			<class name="Event_ApiRequest" />
 		</file>
 		
 		<file path="api/events/app/mail_received_by_app.php">
@@ -1568,6 +1576,23 @@
 						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.api.custom_request</id>
+			<name>Custom API request</name>
+			<class>
+				<file>api/events/api/api_request.php</file>
+				<name>Event_ApiRequest</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
