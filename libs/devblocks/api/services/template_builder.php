@@ -212,6 +212,12 @@ class DevblocksDictionaryDelegate {
 	
 	public function getDictionary($with_prefix=null) {
 		$dict = $this->_dictionary;
+
+		// Convert any nested dictionaries to arrays
+		array_walk_recursive($dict, function(&$v) {
+			if($v instanceof DevblocksDictionaryDelegate)
+				$v = $v->getDictionary();
+		});
 		
 		if(empty($with_prefix))
 			return $dict;
