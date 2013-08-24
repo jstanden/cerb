@@ -9,9 +9,9 @@
 	<div style="margin:0px 0px 5px 15px;">
 		{if $var.type == 'S'}
 			{if $var.params.widget=='multiple'}
-			<textarea name="{$field_name}[{$var.key}]" style="height:50px;width:98%;">{$variable_values.$var_key}</textarea>
+			<textarea name="{$field_name}[{$var.key}]" style="height:50px;width:98%;" {if $with_placeholders}class="placeholders"{/if}>{$variable_values.$var_key}</textarea>
 			{else}
-			<input type="text" name="{$field_name}[{$var.key}]" value="{$variable_values.$var_key}" style="width:98%;">
+			<input type="text" name="{$field_name}[{$var.key}]" value="{$variable_values.$var_key}" style="width:98%;" {if $with_placeholders}class="placeholders"{/if}>
 			{/if}
 		{elseif $var.type == 'D'}
 		<select name="{$field_name}[{$var.key}]">
@@ -23,12 +23,12 @@
 			{/if}
 		</select>
 		{elseif $var.type == 'N'}
-		<input type="text" name="{$field_name}[{$var.key}]" value="{$variable_values.$var_key}">
+		<input type="text" name="{$field_name}[{$var.key}]" value="{$variable_values.$var_key}" {if $with_placeholders}class="placeholders"{/if}>
 		{elseif $var.type == 'C'}
 		<label><input type="radio" name="{$field_name}[{$var.key}]" value="1" {if $variable_values.$var_key}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label> 
 		<label><input type="radio" name="{$field_name}[{$var.key}]" value="0" {if !$variable_values.$var_key}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label> 
 		{elseif $var.type == 'E'}
-		<input type="text" name="{$field_name}[{$var.key}]" value="{$variable_values.$var_key}" style="width:98%;">
+		<input type="text" name="{$field_name}[{$var.key}]" value="{$variable_values.$var_key}" style="width:98%;" {if $with_placeholders}class="placeholders"{/if}>
 		{elseif $var.type == 'W'}
 		{if !isset($workers)}{$workers = DAO_Worker::getAll()}{/if}
 		<select name="{$field_name}[{$var.key}]">
@@ -40,7 +40,7 @@
 		{elseif substr($var.type,0,4) == 'ctx_'}
 			{$context = substr($var.type,4)}
 			<button type="button" class="chooser" context="{$context}" node_name="{$field_name}[{$var.key}]"><span class="cerb-sprite sprite-view"></span></button>
-			<ul class="bubbles chooser-container" style="display:block;">
+			<ul class="bubbles chooser-container" style="display:inline-block;">
 				{if is_array($variable_values.$var_key)}
 				{foreach from=$variable_values.$var_key item=context_id}
 					{CerberusContexts::getContext($context, $context_id, $labels, $values, true)}
