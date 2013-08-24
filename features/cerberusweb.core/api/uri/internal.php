@@ -2965,6 +2965,19 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$tpl->assign('event', $ext_event);
 		
+		// Format custom values
+		
+		if(is_array($trigger->variables))
+		foreach($trigger->variables as $var_key => $var) {
+			if(!empty($var['is_private']))
+				continue;
+			
+			if(!isset($custom_values[$var_key]))
+				continue;
+			
+			$custom_values[$var_key] = $trigger->formatVariable($var, $custom_values[$var_key]);
+		}
+		
 		// Merge baseline values with user overrides
 		
 		$values = $ext_event->getValues();
@@ -2979,10 +2992,11 @@ class ChInternalController extends DevblocksControllerExtension {
  		if(is_array($values))
  		foreach($values as $k => $v) {
  			if(
- 				(isset($conditions[$k]) && $conditions[$k]['type'] == Model_CustomField::TYPE_DATE)
- 				|| $k == '_current_time'
+ 				((isset($conditions[$k]) && $conditions[$k]['type'] == Model_CustomField::TYPE_DATE)
+ 					|| $k == '_current_time')
  			) {
- 				$values[$k] = strtotime($v);
+ 				if(!is_numeric($v))
+ 					$values[$k] = strtotime($v);
  			}
  		}
  		

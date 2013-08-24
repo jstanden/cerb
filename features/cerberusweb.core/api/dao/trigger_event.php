@@ -517,6 +517,107 @@ class Model_TriggerEvent {
 		return DAO_VirtualAttendant::get($this->virtual_attendant_id);
 	}
 	
+	public function formatVariable($var, $value) {
+		switch($var['type']) {
+			case Model_CustomField::TYPE_MULTI_LINE:
+			case Model_CustomField::TYPE_SINGLE_LINE:
+			case Model_CustomField::TYPE_URL:
+				settype($value, 'string');
+				break;
+				
+			case Model_CustomField::TYPE_DROPDOWN:
+				$options = DevblocksPlatform::parseCrlfString($var['params']['options'], true);
+	
+				if(!is_array($options))
+					throw new Exception(sprintf("The picklist variable '%s' has no options.",
+						$var['key']
+					));
+				
+				if(!in_array($value, $options))
+					throw new Exception(sprintf("The picklist variable '%s' has no option '%s'. Valid options are: %s",
+						$var['key'],
+						$value,
+						implode(', ', $options)
+					));
+				break;
+				
+			case Model_CustomField::TYPE_CHECKBOX:
+				$value = !empty($value) ? 1 : 0;
+				break;
+				
+			case Model_CustomField::TYPE_NUMBER:
+				settype($value, 'integer');
+				break;
+				
+			case Model_CustomField::TYPE_WORKER:
+				settype($value, 'integer');
+				
+				if(false == ($worker = DAO_Worker::get($value)))
+					throw new Exception(sprintf("The worklist variable '%s' can not be set to invalid worker #%d.",
+						$var['key'],
+						$value
+					));
+				
+				break;
+				
+			case Model_CustomField::TYPE_DATE:
+				settype($value, 'string');
+				
+				if(false == ($value = strtotime($value))) {
+					throw new Exception(sprintf("The date variable '%s' has an invalid value.",
+						$var['key']
+					));
+				}
+				break;
+				
+			// [TODO] Future public variable types
+			case Model_CustomField::TYPE_MULTI_CHECKBOX:
+			case Model_CustomField::TYPE_FILE:
+			case Model_CustomField::TYPE_FILES:
+				break;
+				
+			default:
+				if('ctx_' == substr($var['type'], 0, 4)) {
+					$objects = array();
+
+					$json = null;
+					
+					if(is_array($value)) {
+						$json = $value;
+						
+					} elseif (is_string($value)) {
+						@$json = json_decode($value, true);
+						
+					}
+					
+					if(!is_array($json)) {
+						throw new Exception(sprintf("The list variable '%s' must be set to an array of IDs.",
+							$var['key']
+						));
+					}
+						
+					$context = substr($var['type'], 4);
+					
+					foreach($json as $context_id) {
+						$labels = array();
+						$values = array();
+						
+						CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+						
+						if(!isset($values['_loaded']))
+							continue;
+						
+						$objects[$context_id] = new DevblocksDictionaryDelegate($values);
+					}
+					
+					$value = $objects;
+				}
+				break;
+		}
+		
+		return $value;
+	}
+	
 	private function _getNodes() {
 		if(empty($this->_nodes))
 			$this->_nodes = DAO_DecisionNode::getByTriggerParent($this->id);
