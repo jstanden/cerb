@@ -231,6 +231,18 @@
 		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.virtual_attendants</id>
+			<name>Virtual Attendants</name>
+			<class>
+				<file>api/rest/va.php</file>
+				<name>ChRest_VirtualAttendants</name>
+			</class>
+			<params>
+				<param key="uri" value="va" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.workers</id>
 			<name>Workers</name>
 			<class>

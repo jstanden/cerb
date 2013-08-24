@@ -992,7 +992,11 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 			'name' => $prefix.$translate->_('common.name'),
 			'is_disabled' => $prefix.$translate->_('common.disabled'),
 			'updated_at|date' => $prefix.$translate->_('common.updated'),
+			
 			'record_url' => $prefix.$translate->_('common.url.record'),
+			
+			'owner_context' => $prefix.$translate->_('common.context'),
+			'owner_context_id' => $prefix.$translate->_('common.context_id'),
 		);
 		
 		// Custom field/fieldset token labels
@@ -1016,6 +1020,9 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=virtual_attendant&id=%d-%s",$virtual_attendant->id, DevblocksPlatform::strToPermalink($virtual_attendant->name)), true);
+			
+			$token_values['owner__context'] = $virtual_attendant->owner_context;
+			$token_values['owner_id'] = $virtual_attendant->owner_context_id;
 		}
 		
 		return true;
@@ -1037,6 +1044,29 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		}
 		
 		switch($token) {
+			case 'behaviors':
+				$values = $dictionary;
+				
+				if(null == ($va = DAO_VirtualAttendant::get($context_id)))
+					break;
+
+				$values['behaviors'] = array();
+
+				$behaviors = $va->getBehaviors(null, true);
+
+				foreach($behaviors as $behavior) { /* @var $behavior Model_TriggerEvent */
+					if(false == ($behavior_json = $behavior->exportToJson()))
+						continue;
+					
+					@$json = json_decode($behavior_json, true);
+					
+					if(empty($json))
+						continue;
+					
+					$values['behaviors'][$behavior->id] = $json;
+				}
+				break;
+			
 			case 'watchers':
 				$watchers = array(
 					$token => CerberusContexts::getWatchers($context, $context_id, true),
