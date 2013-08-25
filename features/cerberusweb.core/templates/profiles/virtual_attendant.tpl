@@ -88,6 +88,11 @@
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=custom_fieldsets&action=showTabCustomFieldsets&context={$page_context}&context_id={$page_context_id}&point={$point}{/devblocks_url}">{$translate->_('common.custom_fieldsets')|capitalize}</a></li>
 		{/if}
 
+		{if $virtual_attendant->isWriteableByActor($active_worker)}
+		{$tabs[] = 'calendars'}
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=calendars&action=showCalendarsTab&context={$page_context}&context_id={$page_context_id}&point={$point}{/devblocks_url}">{$translate->_('common.calendars')|capitalize}</a></li>
+		{/if}
+
 		{$tabs[] = 'activity'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=both&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
 		

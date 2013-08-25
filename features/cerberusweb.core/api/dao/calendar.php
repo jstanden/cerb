@@ -1455,6 +1455,17 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		
 		if(!empty($context_id) && null != ($calendar = DAO_Calendar::get($context_id))) {
 			$tpl->assign('model', $calendar);
+			
+		} else {
+			@$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'string','');
+			@$owner_context_id = DevblocksPlatform::importGPC($_REQUEST['owner_context_id'],'integer',0);
+		
+			$calendar = new Model_Calendar();
+			$calendar->id = 0;
+			$calendar->owner_context = !empty($owner_context) ? $owner_context : '';
+			$calendar->owner_context_id = $owner_context_id;
+			
+			$tpl->assign('model', $calendar);
 		}
 		
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CALENDAR, false);
@@ -1466,13 +1477,6 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
 		}
 
-		// Comments
-		
-		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_CALENDAR, $context_id);
-		$last_comment = array_shift($comments);
-		unset($comments);
-		$tpl->assign('last_comment', $last_comment);
-		
 		// Owners
 		
 		$roles = DAO_WorkerRole::getAll();

@@ -919,12 +919,9 @@ class CerberusContexts {
 			case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
 				switch(get_class($actor)) {
 					case 'Model_WorkerRole':
-						break;
-						
 					case 'Model_Group':
-						break;
-						
 					case 'Model_Worker':
+						return self::isReadableByActor($va->owner_context, $va->owner_context_id, $actor);
 						break;
 						
 					case 'Model_VirtualAttendant':
@@ -1043,14 +1040,14 @@ class CerberusContexts {
 				break;
 				
 			case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+				if(false == ($va = DAO_VirtualAttendant::get($owner_context_id)))
+					return false;
+				
 				switch(get_class($actor)) {
 					case 'Model_WorkerRole':
-						break;
-						
 					case 'Model_Group':
-						break;
-						
 					case 'Model_Worker':
+						return self::isWriteableByActor($va->owner_context, $va->owner_context_id, $actor);
 						break;
 						
 					case 'Model_VirtualAttendant':
