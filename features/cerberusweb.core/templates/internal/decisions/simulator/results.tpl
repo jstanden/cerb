@@ -25,7 +25,7 @@
 		{$last_action = $output.action}
 	{/if}
 	<fieldset><!--
-		-->{if $output.title}<legend>{$output.title}</legend>{/if}<!--
+		-->{if $output.title}<legend><a href="javascript:;" onclick="$(this).parent().next('pre').toggle();" style="text-decoration:none;cursor:pointer;">{$output.title}</a></legend>{/if}<!--
 		--><pre class="emailbody" style="margin:0;">{$output.content}</pre><!--
 	--></fieldset>
 	{/if}
