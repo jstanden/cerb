@@ -2975,7 +2975,12 @@ class ChInternalController extends DevblocksControllerExtension {
 			if(!isset($custom_values[$var_key]))
 				continue;
 			
-			$custom_values[$var_key] = $trigger->formatVariable($var, $custom_values[$var_key]);
+			try {
+				$custom_values[$var_key] = $trigger->formatVariable($var, $custom_values[$var_key]);
+				
+			} catch(Exception $e) {
+				
+			}
 		}
 		
 		// Merge baseline values with user overrides

@@ -475,6 +475,19 @@ class Model_ContextScheduledBehavior {
 			return;
 		}
 		
+		// Format variables
+		
+		foreach($this->variables as $var_key => $var_val) {
+			if(!isset($macro->variables[$var_key]))
+				continue;
+			
+			try {
+				$this->variables[$var_key] = $macro->formatVariable($macro->variables[$var_key], $var_val);
+				
+			} catch(Exception $e) {
+			}
+		}
+		
 		// Are we going to be rescheduling this behavior?
 		$reschedule_date = $this->getNextOccurrence();
 	
