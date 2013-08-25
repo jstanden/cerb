@@ -83,7 +83,11 @@
 			<td>
 				<a href="{devblocks_url}c=profiles&type=virtual_attendant&id={$result.v_id}-{$result.v_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.v_name}</a>
 				{if $result.v_is_disabled}<span class="tag tag-gray" style="margin-left:3px;">{'common.disabled'|devblocks_translate|lower}</span> {/if}
+				
+				{* If the current worker can edit this VA, allow peek *}
+				{if $active_worker->is_superuser}
 				<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.v_id}&view_id={$view->id}',null,false,'550');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
+				{/if}
 			</td>
 			{elseif $column == "v_created_at" || $column == "v_updated_at"}
 				<td title="{$result.$column|devblocks_date}">

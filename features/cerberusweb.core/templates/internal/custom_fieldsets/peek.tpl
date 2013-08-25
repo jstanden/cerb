@@ -82,7 +82,7 @@
 					{/if}
 					
 					{foreach from=$virtual_attendants item=va key=va_id}
-						{if $va->isEditableByWorker($active_worker)}
+						{if $va->isWriteableByActor($active_worker)}
 						<option value="v_{$va_id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT && $va_id==$custom_fieldset->owner_context_id}selected="selected"{/if}>{'common.virtual_attendant'|devblocks_translate|capitalize}: {$va->name}</option>
 						{/if}
 					{/foreach}

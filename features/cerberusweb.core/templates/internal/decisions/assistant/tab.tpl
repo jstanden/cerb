@@ -1,13 +1,15 @@
 {$tab_uniqid = "{uniqid()}"}
 
-<form action="javascript:;" id="frmTrigger{$tab_uniqid}" onsubmit="return false;">
-
-<div style="float:left;">
-	<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle"></span> Create Behavior</button>
-</div>
-
-</form>
-<br clear="all">
+{if $is_writeable}
+	<form action="javascript:;" id="frmTrigger{$tab_uniqid}" onsubmit="return false;">
+	
+	<div style="float:left;">
+		<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle"></span> Create Behavior</button>
+	</div>
+	
+	</form>
+	<br clear="all">
+{/if}
 
 <div id="triggers_by_event{$tab_uniqid}">
 	{foreach from=$events key=event_point item=event}
@@ -16,7 +18,7 @@
 		{foreach from=$triggers_by_event.$event_point key=trigger_id item=trigger}
 		<form id="decisionTree{$trigger_id}" action="javascript:;" onsubmit="return false;">
 			<input type="hidden" name="trigger_id[]" value="{$trigger_id}">
-			{include file="devblocks:cerberusweb.core::internal/decisions/tree.tpl" trigger=$trigger event=$event}
+			{include file="devblocks:cerberusweb.core::internal/decisions/tree.tpl" trigger=$trigger event=$event is_writeable=$is_writeable}
 		</form>
 		{/foreach}
 	</div>
@@ -28,6 +30,7 @@
 <script type="text/javascript">
 	$('#nodeMenu{$tab_uniqid}').appendTo('body');
 	
+	{if $is_writeable}
 	$('#frmTrigger{$tab_uniqid} BUTTON.add').click(function() {
 		$popup = genericAjaxPopup('node_trigger','c=internal&a=showDecisionPopup&trigger_id=0&va_id={$va->id}{if isset($only_event_ids)}&only_event_ids={$only_event_ids}{/if}',null,false,'500');
 		
@@ -43,7 +46,9 @@
 			genericAjaxGet('decisionTree'+event.trigger_id, 'c=internal&a=showDecisionTree&id='+event.trigger_id);
 		});
 	});
+	{/if}
 	
+	{if $is_writeable}
 	function decisionNodeMenu(element) {
 		$this = $(element);
 		
@@ -89,7 +94,9 @@
 			;
 		});
 	}
+	{/if}
 	
+	{if $is_writeable}
 	$('#triggers_by_event{$tab_uniqid}').find('> DIV')
 		.sortable({
 			items: '> FORM',
@@ -106,5 +113,5 @@
 			}
 		})
 		;
-	
+	{/if}
 </script>

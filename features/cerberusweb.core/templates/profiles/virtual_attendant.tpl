@@ -83,7 +83,7 @@
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAttendantBehaviorsTab&id={$page_context_id}&point={$point}{/devblocks_url}">Behaviors</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showScheduledBehaviorTab&point={$point}&va_id={$page_context_id}{/devblocks_url}">Scheduled Behaviors</a></li>
 		
-		{if $virtual_attendant->isEditableByWorker($active_worker)}
+		{if $virtual_attendant->isWriteableByActor($active_worker)}
 		{$tabs[] = 'custom_fieldsets'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=custom_fieldsets&action=showTabCustomFieldsets&context={$page_context}&context_id={$page_context_id}&point={$point}{/devblocks_url}">{$translate->_('common.custom_fieldsets')|capitalize}</a></li>
 		{/if}

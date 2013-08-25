@@ -503,59 +503,69 @@ class Model_VirtualAttendant {
 		return DAO_TriggerEvent::getByVirtualAttendant($this->id, $event_point, $with_disabled, $sort_by);
 	}
 	
-	function isUsableByWorker(Model_Worker $worker) {
-		if($worker->is_superuser)
-			return true;
+	function canUseEvent($event_point) {
+		@$events_mode = $this->params['events']['mode'];
+		@$events_items = $this->params['events']['items'];
 		
-		switch($this->owner_context) {
-			case CerberusContexts::CONTEXT_APPLICATION:
-				return true;
+		switch($events_mode) {
+			case 'allow':
+				return in_array($event_point, $events_items);
 				break;
-					
-			case CerberusContexts::CONTEXT_WORKER:
-				if($this->owner_context_id == $worker->id)
-					return true;
-					break;
 				
-			case CerberusContexts::CONTEXT_GROUP:
-				if($worker->isGroupMember($this->owner_context_id))
-					return true;
-					break;
-					
-			case CerberusContexts::CONTEXT_ROLE:
-				if($worker->isRoleMember($this->owner_context_id))
-					return true;
-					break;
+			case 'deny':
+				return !in_array($event_point, $events_items);
+				break;
 		}
 		
-		return false;
+		return true;
 	}
 	
-	function isEditableByWorker(Model_Worker $worker) {
-		if($worker->is_superuser)
-			return true;
+	function filterEventsByAllowed($events) {
+		@$events_mode = $this->params['events']['mode'];
+		@$events_items = $this->params['events']['items'];
 		
-		switch($this->owner_context) {
-			case CerberusContexts::CONTEXT_APPLICATION:
-				return false;
+		switch($events_mode) {
+			case 'allow':
+				$events = array_intersect_key($events, array_flip($events_items));
 				break;
-					
-			case CerberusContexts::CONTEXT_WORKER:
-				if($this->owner_context_id == $worker->id)
-					return true;
-					break;
 				
-			case CerberusContexts::CONTEXT_GROUP:
-				if($worker->isGroupManager($this->owner_context_id))
-					return true;
-					break;
-					
-			case CerberusContexts::CONTEXT_ROLE:
-				return false;
+			case 'deny':
+				$events = array_diff_key($events, array_flip($events_items));
 				break;
 		}
 		
-		return false;
+		return $events;
+	}
+	
+	function filterActionManifestsByAllowed($manifests) {
+		@$actions_mode = $this->params['actions']['mode'];
+		@$actions_items = $this->params['actions']['items'];
+		
+		switch($actions_mode) {
+			case 'allow':
+				$manifests = array_intersect_key($manifests, array_flip($actions_items));
+				break;
+				
+			case 'deny':
+				$manifests = array_diff_key($manifests, array_flip($actions_items));
+				break;
+		}
+		
+		return $manifests;
+	}
+	
+	function isReadableByActor($actor) {
+		if($actor instanceof Model_Worker && $actor->is_superuser)
+			return true;
+		
+		return CerberusContexts::isReadableByActor($this->owner_context, $this->owner_context_id, $actor);
+	}
+	
+	function isWriteableByActor($actor) {
+		if($actor instanceof Model_Worker && $actor->is_superuser)
+			return true;
+		
+		return CerberusContexts::isWriteableByActor($this->owner_context, $this->owner_context_id, $actor);
 	}
 };
 

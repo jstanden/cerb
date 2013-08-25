@@ -2243,7 +2243,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				throw new Exception("Invalid VA.");
 			
 			// ACL: Ensure the worker has access to the macro
-			if(!$va->isUsableByWorker($active_worker))
+			if(!$va->isReadableByActor($active_worker))
 				throw new Exception("Access denied to macro.");
 
 			// Relative scheduling
@@ -2560,17 +2560,17 @@ class ChInternalController extends DevblocksControllerExtension {
 			return;
 
 		$tpl->assign('va', $va);
-		
-		/*
-		 * Secure looking at other worker tabs (check superuser, worker_id)
-		 */
-		if(null == ($ctx = Extension_DevblocksContext::get($va->owner_context)))
-			return;
-		
-		if(!$ctx->authorize($va->owner_context_id, $active_worker))
-			return;
 
+		// Security check
+
+		if(!$va->isReadableByActor($active_worker))
+			return;
+		
+		$is_writeable = $va->isWriteableByActor($active_worker) ? true : false;
+		$tpl->assign('is_writeable', $is_writeable);
+		
 		// Events
+		
 		$events = Extension_DevblocksEvent::getByContext($va->owner_context, false);
 		$tpl->assign('events', $events);
 		
@@ -2738,7 +2738,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				$tpl->assign('trigger_id', $model->trigger_id);
 				$type = $model->node_type;
 				$trigger_id = $model->trigger_id;
-				//echo $model->params_json;
 			}
 			
 		} elseif(isset($_REQUEST['parent_id'])) { // Add child node
@@ -2763,22 +2762,10 @@ class ChInternalController extends DevblocksControllerExtension {
 				$tpl->assign('va', $va);
 				
 				$events = Extension_DevblocksEvent::getByContext($va->owner_context, false);
-				
+
 				// Filter the available events by VA
+				$events = $va->filterEventsByAllowed($events);
 				
-				@$events_mode = $va->params['events']['mode'];
-				@$events_items = $va->params['events']['items'];
-				
-				switch($events_mode) {
-					case 'allow':
-						$events = array_intersect_key($events, array_flip($events_items));
-						break;
-						
-					case 'deny':
-						$events = array_diff_key($events, array_flip($events_items));
-						break;
-				}
-					
 				// Are we filtering the available events?
 				if(!empty($only_event_ids)) {
 					$only_event_ids = DevblocksPlatform::parseCsvString($only_event_ids,false,'string');
@@ -2819,9 +2806,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 				
 			case 'outcome':
-				//if(null != ($ext = DevblocksPlatform::getExtension($trigger->event_point, true)))
-				//	$tpl->assign('conditions', $ext->getConditions($trigger));
-				
 				if(null != ($evt = $trigger->getEvent()))
 					$tpl->assign('conditions', $evt->getConditions($trigger));
 					
@@ -3009,6 +2993,8 @@ class ChInternalController extends DevblocksControllerExtension {
  		
  		$dict = new DevblocksDictionaryDelegate($values);
  		
+ 		// [TODO] Update variables/values on assocated worklists
+ 		
  		// Behavior data
 
 		$behavior_data = $trigger->getDecisionTreeData();
@@ -3053,6 +3039,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$va_id = DevblocksPlatform::importGPC($_REQUEST['va_id'],'integer', 0);
 		@$configure = DevblocksPlatform::importGPC($_REQUEST['configure'],'array', array());
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		header('Content-type: application/json');
 		
 		$trigger_id = null;
@@ -3084,6 +3072,17 @@ class ChInternalController extends DevblocksControllerExtension {
 			if(false == ($va = DAO_VirtualAttendant::get($va_id))) {
 				throw new Exception("Invalid Virtual Attendant as import destination.");
 			}
+			
+			// Verify that the VA is allowed to make these events
+			
+			if(!$va->isWriteableByActor($active_worker))
+				throw new Exception("You don't have access to modify this Virtual Attendant.");
+			
+			// Verify that the active worker has access to make events for this context
+			
+			if(!$va->canUseEvent($event_point))
+				throw new Exception("This Virtual Attendant can't make behaviors for this event.");
+			
 			if(
 				!isset($event->manifest->params['contexts'])
 				|| !isset($event->manifest->params['contexts'][0])
@@ -3273,13 +3272,20 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
 
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
+			return;
+
+		if(false == ($va = $trigger->getVirtualAttendant()))
 			return;
 		
 		if(null == ($event = DevblocksPlatform::getExtension($trigger->event_point, false)))
 			return; /* @var $event Extension_DevblocksEvent */
 			
+		$is_writeable = $va->isWriteableByActor($active_worker) ? true : false;
+		$tpl->assign('is_writeable', $is_writeable);
+		
 		$tpl->assign('trigger', $trigger);
 		$tpl->assign('event', $event);
 		
@@ -3314,11 +3320,27 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', '');
 
+		@$active_worker = CerberusApplication::getActiveWorker();
+		
 		$fields = array();
+		
+		// DAO
 		
 		if(!empty($id)) { // Edit
 			if(null != ($model = DAO_DecisionNode::get($id))) {
 				$type = $model->node_type;
+				$trigger_id = $model->trigger_id;
+
+				// Security
+		
+				if(false == ($trigger = DAO_TriggerEvent::get($trigger_id)))
+					return false;
+				
+				if(false == ($va = $trigger->getVirtualAttendant()))
+					return false;
+				
+				if(!$va->isWriteableByActor($active_worker))
+					return false;
 				
 				// Title changed
 				if(0 != strcmp($model->title, $title) && !empty($title))
@@ -3331,6 +3353,19 @@ class ChInternalController extends DevblocksControllerExtension {
 			@$parent_id = DevblocksPlatform::importGPC($_REQUEST['parent_id'],'integer', 0);
 			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
 			@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string', '');
+
+			// Security
+	
+			if(!empty($trigger_id)) {
+				if(false == ($trigger = DAO_TriggerEvent::get($trigger_id)))
+					return false;
+				
+				if(false == ($va = $trigger->getVirtualAttendant()))
+					return false;
+				
+				if(!$va->isWriteableByActor($active_worker))
+					return false;
+			}
 			
 			$id = DAO_DecisionNode::create(array(
 				DAO_DecisionNode::TITLE => $title,
@@ -3346,6 +3381,8 @@ class ChInternalController extends DevblocksControllerExtension {
 			@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'],'integer', 0);
 			@$is_private = DevblocksPlatform::importGPC($_REQUEST['is_private'],'integer', 0);
 			@$json = DevblocksPlatform::importGPC($_REQUEST['json'],'integer', 0);
+
+			// Variables
 
 			@$var_idxs = DevblocksPlatform::importGPC($_REQUEST['var'],'array',array());
 			@$var_keys = DevblocksPlatform::importGPC($_REQUEST['var_key'],'array',array());
@@ -3382,10 +3419,23 @@ class ChInternalController extends DevblocksControllerExtension {
 				@$event_point = DevblocksPlatform::importGPC($_REQUEST['event_point'],'string', '');
 				
 				// Make sure the extension is valid
+				
 				if(null == ($ext = DevblocksPlatform::getExtension($event_point, false)))
+					return false;
+
+				// Verify permissions
+
+				if(false == ($va = DAO_VirtualAttendant::get($va_id)))
+					return false;
+				
+				if(empty($va) || !$va->isWriteableByActor($active_worker))
+					return false;
+				
+				if(!$va->canUseEvent($event_point))
 					return false;
 				
 				// Only macros can decide to be private or not
+				
 				if(!isset($ext->params['macro_context']))
 					$is_private = 0;
 				
@@ -3393,7 +3443,8 @@ class ChInternalController extends DevblocksControllerExtension {
 				
 				$pos = DAO_TriggerEvent::getNextPosByVirtualAttendantAndEvent($va_id, $event_point);
 				
-				
+				// DAO
+					
 				$trigger_id = DAO_TriggerEvent::create(array(
 					DAO_TriggerEvent::VIRTUAL_ATTENDANT_ID => $va_id,
 					DAO_TriggerEvent::EVENT_POINT => $event_point,
@@ -3415,9 +3466,19 @@ class ChInternalController extends DevblocksControllerExtension {
 				
 			// Update trigger
 			} else {
-				if(null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
+				if(false !== ($trigger = DAO_TriggerEvent::get($trigger_id))) {
 					$type = 'trigger';
 
+					// Security
+		
+					if(false == ($va = $trigger->getVirtualAttendant()))
+						return false;
+					
+					if(!$va->isWriteableByActor($active_worker))
+						return false;
+
+					// Fields
+					
 					if(empty($title))
 						if(null != ($ext = DevblocksPlatform::getExtension($trigger->event_point, false)))
 							$title = $ext->name;
