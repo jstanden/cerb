@@ -1183,17 +1183,49 @@ class DevblocksEventHelper {
 		if(null == ($behavior = DAO_TriggerEvent::get($behavior_id)))
 			return "[ERROR] Behavior does not exist. Skipping...";
 		
-		$out = sprintf(">>> Running behavior\n".
-			"Behavior: %s\n",
+		$out = sprintf(">>> Running behavior: %s\n",
 			$behavior->title
 		);
 		
-		// [TODO] Variables as parameters
+		// Variables as parameters
 		
 		$vars = array();
+		
+		if(is_array($params))
 		foreach($params as $k => $v) {
-			if(substr($k,0,4) == 'var_') {
-				$vars[$k] = $tpl_builder->build($v, $dict);
+			if(substr($k, 0, 4) == 'var_') {
+				if(!isset($behavior->variables[$k]))
+					continue;
+				
+				try {
+					$v = $behavior->formatVariable($behavior->variables[$k], $v);
+					
+					if(is_string($v))
+						$v = $tpl_builder->build($v, $dict);
+					
+					$vars[$k] = $v;
+					
+				} catch(Exception $e) {
+					
+				}
+			}
+		}
+		
+		if(is_array($vars) && !empty($vars)) {
+			foreach($vars as $k => $v) {
+				
+				if(is_array($v)) {
+					$vals = array();
+					foreach($v as $kk => $vv)
+						if(isset($vv->_label))
+							$vals[] = $vv->_label;
+					$v = implode("\n  ", $vals);
+				}
+				
+				$out .= sprintf("\n* %s:\n   %s\n",
+					$behavior->variables[$k]['label'],
+					$v
+				);
 			}
 		}
 		
@@ -1228,16 +1260,35 @@ class DevblocksEventHelper {
 		if(empty($behavior_id))
 			return FALSE;
 		
+		if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
+			return FALSE;
+		
 		if(empty($var))
 			return FALSE;
 		
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		
 		// Variables as parameters
+		
 		$vars = array();
+		
+		if(is_array($params))
 		foreach($params as $k => $v) {
-			if(substr($k,0,4) == 'var_') {
-				$vars[$k] = $tpl_builder->build($v, $dict);
+			if(substr($k, 0, 4) == 'var_') {
+				if(!isset($behavior->variables[$k]))
+					continue;
+				
+				try {
+					$v = $behavior->formatVariable($behavior->variables[$k], $v);
+					
+					if(is_string($v))
+						$v = $tpl_builder->build($v, $dict);
+					
+					$vars[$k] = $v;
+					
+				} catch(Exception $e) {
+					
+				}
 			}
 		}
 		
@@ -1372,6 +1423,48 @@ class DevblocksEventHelper {
 				break;
 		}
 		
+		// Variables as parameters
+		
+		$vars = array();
+		
+		if(is_array($params))
+		foreach($params as $k => $v) {
+			if(substr($k, 0, 4) == 'var_') {
+				if(!isset($behavior->variables[$k]))
+					continue;
+				
+				try {
+					$v = $behavior->formatVariable($behavior->variables[$k], $v);
+					
+					if(is_string($v))
+						$v = $tpl_builder->build($v, $dict);
+					
+					$vars[$k] = $v;
+					
+				} catch(Exception $e) {
+					
+				}
+			}
+		}
+		
+		if(is_array($vars) && !empty($vars)) {
+			foreach($vars as $k => $v) {
+				
+				if(is_array($v)) {
+					$vals = array();
+					foreach($v as $kk => $vv)
+						if(isset($vv->_label))
+							$vals[] = $vv->_label;
+					$v = implode("\n  ", $vals);
+				}
+				
+				$out .= sprintf("\n* %s:\n   %s\n",
+					$behavior->variables[$k]['label'],
+					$v
+				);
+			}
+		}
+		
 		// On
 		
 		@$on = DevblocksPlatform::importVar($params['on'],'string','');
@@ -1410,10 +1503,24 @@ class DevblocksEventHelper {
 		@$run_timestamp = strtotime($run_date);
 		
 		// Variables as parameters
+		
 		$vars = array();
+		
+		if(is_array($params))
 		foreach($params as $k => $v) {
-			if(substr($k,0,4) == 'var_') {
-				$vars[$k] = $tpl_builder->build($v, $dict);
+			if(substr($k, 0, 4) == 'var_') {
+				if(!isset($behavior->variables[$k]))
+					continue;
+				
+				try {
+					if(is_string($v))
+						$v = $tpl_builder->build($v, $dict);
+					
+					$vars[$k] = $v;
+					
+				} catch(Exception $e) {
+					
+				}
 			}
 		}
 		
