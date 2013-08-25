@@ -178,7 +178,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 	
 	function getActionExtensions() {
 		$actions = array(
-			'send_email_owner' => array('label' => 'Send email to me'),
+			'send_email_owner' => array('label' => 'Send email to notified worker'),
 			'create_task' => array('label' =>'Create a task'),
 			'mark_read' => array('label' =>'Mark read'),
 		);
@@ -228,6 +228,35 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		
 		switch($token) {
 			case 'send_email_owner':
+				$to = array();
+				
+				if(isset($params['to'])) {
+					$to = $params['to'];
+					
+				} else {
+					// Default to worker email address
+					@$to = array($dict->assignee_address_address);
+				}
+				
+				if(
+					empty($to)
+					|| !isset($params['subject'])
+					|| !isset($params['content'])
+				)
+					break;
+				
+				// Translate message tokens
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$subject = strtr($tpl_builder->build($params['subject'], $dict), "\r\n", ' '); // no CRLF
+				$content = $tpl_builder->build($params['content'], $dict);
+
+				$out = sprintf(">>> Sending email to notified worker\nTo: %s\nSubject: %s\n\n%s",
+					implode('; ', $to),
+					$subject,
+					$content
+				);
+				
+				return $out;
 				break;
 				
 			case 'mark_read':
@@ -250,7 +279,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 			case 'create_task':
 				DevblocksEventHelper::runActionCreateTask($params, $dict, 'id');
 				break;
-								
+			
 			case 'mark_read':
 				DAO_Notification::update($notification_id, array(
 					DAO_Notification::IS_READ => 1,
