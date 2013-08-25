@@ -384,6 +384,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			}
 		}
 		
+		// Sort
+		asort($this->_labels);
+		
 		return $this->_labels;
 	}
 	
