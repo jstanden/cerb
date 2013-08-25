@@ -119,6 +119,12 @@ class ChRest_VirtualAttendants extends Extension_RestController {
 		if(!CerberusContexts::isReadableByActor($va->owner_context, $va->owner_context_id, $active_worker))
 			$this->error(self::ERRNO_ACL);
 		
+		if($va->is_disabled)
+			$this->error(self::ERRNO_CUSTOM, "Virtual Attendant is disabled.");
+		
+		if($behavior->is_disabled)
+			$this->error(self::ERRNO_CUSTOM, "Virtual Attendant behavior is disabled.");
+		
 		// Vars
 
 		$vars = array();
