@@ -94,7 +94,7 @@ class CerberusParserModel {
 		
 		// Is banned?
 		if($this->_sender_address_model->is_banned) {
-			$logger->info("Ignoring ticket from banned address: " . $this->_sender_address_model->email);
+			$logger->warn("Ignoring ticket from banned address: " . $this->_sender_address_model->email);
 			return NULL;
 		}
 		
@@ -536,7 +536,55 @@ class ParseFileBuffer extends ParserFile {
 };
 
 class CerberusParser {
-
+	static public function parseMessageSource($message_source, $delete_on_success=true, $delete_on_failure=true) {
+		$file = null;
+		
+		try {
+			if(preg_match('/^file:\/\/(.*?)$/', $message_source, $matches)) {
+				$file = $matches[1];
+				
+			} else {
+				$message_source .= PHP_EOL;
+				
+				if(null == ($file = CerberusParser::saveMimeToFile($message_source))) {
+					throw new Exception('The MIME file could not be saved.');
+				}
+			}
+			
+			if(null == ($mime = mailparse_msg_parse_file($file))) {
+				throw new Exception("The message mime could not be decoded (it's probably malformed).");
+			}
+				
+			if(null == ($parser_msg = CerberusParser::parseMime($mime, $file))) {
+				throw new Exception("The message mime could not be parsed (it's probably malformed).");
+			}
+			
+			if(false === ($ticket_id = CerberusParser::parseMessage($parser_msg))) {
+				throw new Exception("The message was rejected by the parser.");
+			}
+			
+			if($delete_on_success)
+				@unlink($file);
+			
+			if(is_numeric($ticket_id)) {
+				$values = array();
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $null, $values);
+				$dict = new DevblocksDictionaryDelegate($values);
+				return $dict;
+				
+			} else {
+				return $ticket_id;
+			}
+			
+		} catch (Exception $e) {
+			if($delete_on_failure)
+				@unlink($file);
+			throw $e;
+		}
+		
+		return false;
+	}
+	
 	/**
 	 * Enter description here...
 	 *
@@ -829,7 +877,7 @@ class CerberusParser {
 		
 		// Reject?
 		if(isset($pre_actions['reject'])) {
-			$logger->info('Rejecting based on Virtual Attendant filtering.');
+			$logger->warn('Rejecting based on Virtual Attendant filtering.');
 			return NULL;
 		}
 		
@@ -1021,7 +1069,7 @@ class CerberusParser {
 					$properties['content'] = $body;
 					
 					$result = CerberusMail::sendTicketMessage($properties);
-					return NULL;
+					return $proxy_ticket->id;
 				}
 
 				// Clear temporary worker session

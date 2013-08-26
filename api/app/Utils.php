@@ -78,6 +78,8 @@ class CerberusUtils {
 			
 		}
 
+		@imap_errors();
+		
 		return $addys;
 	}
 	

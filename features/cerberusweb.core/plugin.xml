@@ -2440,6 +2440,19 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.mail_import</id>
+				<name>Import Messages Section</name>
+				<class>
+					<file>api/uri/config/mail_import.php</file>
+					<name>PageSection_SetupMailImport</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="mail_import" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.mail_incoming</id>
 				<name>Incoming Mail Section</name>
 				<class>
