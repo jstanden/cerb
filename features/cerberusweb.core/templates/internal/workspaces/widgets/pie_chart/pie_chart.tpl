@@ -52,8 +52,8 @@ try {
 		'radius': 90
 	};
 	
-	drawPieChart($('#widget{$widget->id}_canvas'), options);
-	
+	$('#widget{$widget->id}_canvas').devblocksCharts('pie', options);
+
 	$('#widget{$widget->id}_axes_canvas')
 		.data('model', options)
 		.each(function(e) {

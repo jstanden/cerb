@@ -40,7 +40,7 @@ try {
 		]
 	};
 	
-	drawScatterplot($('#widget{$widget->id}_canvas'), options);
+	$('#widget{$widget->id}_canvas').devblocksCharts('scatterplot', options);
 	
 	$('#widget{$widget->id}_axes_canvas')
 		.data('model', options)

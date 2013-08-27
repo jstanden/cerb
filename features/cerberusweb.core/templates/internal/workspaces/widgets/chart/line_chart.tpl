@@ -40,7 +40,7 @@ try {
 		]
 	};
 	
-	drawChart($('#widget{$widget->id}_canvas'), options);
+	$('#widget{$widget->id}_canvas').devblocksCharts('line', options);
 	
 	$('#widget{$widget->id}_axes_canvas')
 		.data('model', options)
