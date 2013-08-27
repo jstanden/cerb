@@ -484,6 +484,14 @@ class Model_Calendar {
 	public $params;
 	public $updated_at;
 	
+	function isReadableByActor($actor) {
+		return CerberusContexts::isReadableByActor($this->owner_context, $this->owner_context_id, $actor);
+	}
+	
+	function isWriteableByActor($actor) {
+		return CerberusContexts::isWriteableByActor($this->owner_context, $this->owner_context_id, $actor);
+	}
+	
 	function getCreateContexts() {
 		$context_extensions = Extension_DevblocksContext::getAll(false, array('create'));
 		$contexts = array();

@@ -49,7 +49,7 @@
 				<b>{'common.calendar'|devblocks_translate|capitalize}:</b>
 				{$calendar = $v.value}
 				{if $calendar instanceof Model_Calendar}
-					{if $calendar->isWriteableByWorker($active_worker)}
+					{if $calendar->isWriteableByActor($active_worker)}
 					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CALENDAR}&context_id={$calendar->id}',null,false,'600');">{$calendar->name}</a>
 					{else}
 					{$calendar->name}
