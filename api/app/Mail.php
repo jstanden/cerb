@@ -953,7 +953,7 @@ class CerberusMail {
 				$context_watchers[$ticket->owner_id] = true;
 
 			if(is_array($context_watchers))
-			foreach(array_unique($context_watchers) as $watcher_id) {
+			foreach(array_unique(array_keys($context_watchers)) as $watcher_id) {
 				Event_MailReceivedByWatcher::trigger($message_id, $watcher_id);
 			}
 		}
