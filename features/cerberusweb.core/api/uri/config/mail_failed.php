@@ -53,12 +53,161 @@ class PageSection_SetupMailFailed extends Extension_PageSection {
 		if(false == (dirname(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . 'test.msg') == dirname($full_path)))
 			return false;
 		
+		// If the extension isn't .msg, abort.
+		if(false == ($pathinfo = pathinfo($file)) || !isset($pathinfo['extension']) && $pathinfo['extension'] != 'msg')
+			return false;
+		
+		// Template
+		
 		$tpl->assign('filename', basename($full_path));
-		
-		@$message_source = file_get_contents($full_path);
-		$tpl->assign('message_source', $message_source);
-		
+
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_failed/peek.tpl');
+	}
+	
+	function getRawMessageSourceAction() {
+		@$file = basename(DevblocksPlatform::importGPC($_REQUEST['file'],'string',''));
+		
+		// Resolve any symbolic links
+		
+		if(false == ($full_path = realpath(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file)))
+			return false;
+
+		// Make sure our requested file is in the same directory
+		
+		if(false == (dirname(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . 'test.msg') == dirname($full_path)))
+			return false;
+		
+		// If the extension isn't .msg, abort.
+		if(false == ($pathinfo = pathinfo($file)) || !isset($pathinfo['extension']) && $pathinfo['extension'] != 'msg')
+			return false;
+		
+		if(null != ($mime = mailparse_msg_parse_file($full_path))) {
+			$struct = mailparse_msg_get_structure($mime);
+			$msginfo = mailparse_msg_get_part_data($mime);
+	
+			$message_encoding = strtolower($msginfo['charset']);
+			
+			header('Content-Type: text/plain; charset=' . $message_encoding);
+			
+			@$message_source = file_get_contents($full_path);
+			echo $message_source;
+		}
+	}
+	
+	function parseMessageJsonAction() {
+		header("Content-Type: application/json");
+		
+		$logger = DevblocksPlatform::getConsoleLog('Parser');
+		$logger->setLogLevel(4);
+		
+		ob_start();
+		
+		$log = null;
+		
+		try {
+			@$file = DevblocksPlatform::importGPC($_REQUEST['file'],'string','');
+			@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+	
+			// Resolve any symbolic links
+			
+			if(false == ($full_path = realpath(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file)))
+				return false;
+	
+			// Make sure our requested file is in the same directory
+			
+			if(false == (dirname(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . 'test.msg') == dirname($full_path)))
+				return false;
+			
+			// If the extension isn't .msg, abort.
+			if(false == ($pathinfo = pathinfo($file)) || !isset($pathinfo['extension']) && $pathinfo['extension'] != 'msg')
+				return false;
+			
+			// Parse
+			
+			if(false === ($dict = CerberusParser::parseMessageSource("file://" . $full_path, true, false)))
+				throw new Exception("Failed to parse the message.");
+			
+			// If successful, delete the referenced file and update marquee
+			
+			if(is_object($dict) && !empty($dict->id)) {
+				C4_AbstractView::setMarquee($view_id, sprintf('<b>Ticket updated:</b> <a href="%s">%s</a>',
+					$dict->url,
+					$dict->_label
+				));
+				
+			} elseif(null === $dict) {
+				$log = ob_get_contents();
+				
+				C4_AbstractView::setMarquee($view_id, sprintf('<b>Rejected:</b> %s',
+					$log
+				));
+			}
+			
+			// JSON
+			
+			$json = json_encode(array(
+				'status' => true,
+			));
+			
+			ob_end_clean();
+			
+			echo $json;
+			
+		} catch (Exception $e) {
+			$log = ob_get_contents();
+			
+			$json = json_encode(array(
+				'status' => false,
+				'message' => $e->getMessage(),
+				'log' => $log,
+			));
+			
+			ob_end_clean();
+			
+			echo $json;
+		}
+		
+		$logger->setLogLevel(0);
+	}
+	
+	function deleteMessageJsonAction() {
+		header("Content-Type: application/json");
+		
+		@$file = basename(DevblocksPlatform::importGPC($_REQUEST['file'],'string',''));
+		@$view_id = basename(DevblocksPlatform::importGPC($_REQUEST['view_id'],'string',''));
+		
+		try {
+			// Resolve any symbolic links
+			
+			if(false == ($full_path = realpath(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file)))
+				throw new Exception("Invalid message file.");
+	
+			// Make sure our requested file is in the same directory
+			
+			if(false == (dirname(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . 'test.msg') == dirname($full_path)))
+				throw new Exception("Invalid message file.");
+			
+			// If the extension isn't .msg, abort.
+			if(false == ($pathinfo = pathinfo($file)) || !isset($pathinfo['extension']) && $pathinfo['extension'] != 'msg')
+				throw new Exception("Invalid message file.");
+			
+			@unlink($full_path);
+			
+			C4_AbstractView::setMarquee($view_id, sprintf('<b>Deleted file:</b> %s',
+				$file
+			));
+			
+			echo json_encode(array(
+				'status' => true,
+			));
+			
+		} catch(Exception $e) {
+			echo json_encode(array(
+				'status' => false,
+				'message' => $e->getMessage(),
+			));
+			
+		}
 	}
 };
 

@@ -504,6 +504,9 @@
 		<tu tuid='common.reset'>
 			<tuv xml:lang="en_US"><seg>reset</seg></tuv>
 		</tu>
+		<tu tuid='common.retry'>
+			<tuv xml:lang="en_US"><seg>retry</seg></tuv>
+		</tu>
 		<tu tuid='common.roles'>
 			<tuv xml:lang="en_US"><seg>roles</seg></tuv>
 		</tu>
@@ -536,6 +539,9 @@
 		</tu>
 		<tu tuid='common.signature'>
 			<tuv xml:lang="en_US"><seg>signature</seg></tuv>
+		</tu>
+		<tu tuid='common.size'>
+			<tuv xml:lang="en_US"><seg>size</seg></tuv>
 		</tu>
 		<tu tuid='common.snippets'>
 			<tuv xml:lang="en_US"><seg>snippets</seg></tuv>

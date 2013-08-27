@@ -49,6 +49,7 @@
 					<li><a href="{devblocks_url}c=config&a=mail_pop3{/devblocks_url}">POP3 Accounts</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_routing{/devblocks_url}">Routing</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_filtering{/devblocks_url}">Filtering</a></li>
+					<li><a href="{devblocks_url}c=config&a=mail_failed{/devblocks_url}">Failed Messages</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_import{/devblocks_url}">Import Message</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_relay{/devblocks_url}">External Relay</a></li>
 					<li><hr></li>
