@@ -452,7 +452,13 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		// Trigger variables
 		if(is_array($trigger->variables))
 		foreach($trigger->variables as $key => $var) {
-			$conditions[$key] = array('label' => '(variable) ' . $var['label'], 'type' => $var['type']);
+			$conditions[$key] = array(
+				'label' => '(variable) ' . $var['label'],
+				'type' => $var['type']
+			);
+			
+			if($var['type'] == Model_CustomField::TYPE_DROPDOWN)
+				@$conditions[$key]['options'] = DevblocksPlatform::parseCrlfString($var['params']['options']);
 		}
 		
 		// Plugins
