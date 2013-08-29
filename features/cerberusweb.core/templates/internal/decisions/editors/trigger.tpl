@@ -49,7 +49,7 @@
 
 <h3>Variables</h3>
 
-<div id="cerb-variables">
+<div id="divBehaviorVariables{$trigger->id}">
 {foreach from=$trigger->variables key=k item=var name=vars}
 	{$seq = uniqid()}
 	{include file="devblocks:cerberusweb.core::internal/decisions/editors/trigger_variable.tpl" seq=$seq}
@@ -161,7 +161,7 @@
 			var field_type = $(this).find('a').attr('field_type');
 			
 			genericAjaxGet('', 'c=internal&a=addTriggerVariable&type=' +  encodeURIComponent(field_type), function(o) {
-				var $container = $('#cerb-variables');
+				var $container = $('#divBehaviorVariables{$trigger->id}');
 				var $html = $(o).appendTo($container);
 			});
 			

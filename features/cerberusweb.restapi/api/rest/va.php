@@ -116,7 +116,7 @@ class ChRest_VirtualAttendants extends Extension_RestController {
 		if(false == ($va = $behavior->getVirtualAttendant()))
 			$this->error(self::ERRNO_CUSTOM, "Invalid Virtual Attendant.");
 
-		if(!CerberusContexts::isReadableByActor($va->owner_context, $va->owner_context_id, $active_worker))
+		if(!$va->isReadableByActor($active_worker))
 			$this->error(self::ERRNO_ACL);
 		
 		if($va->is_disabled)

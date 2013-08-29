@@ -1643,7 +1643,7 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 };
 
 class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
-	private function _getView(Model_WorkspaceWidget $widget) {
+	public function getView(Model_WorkspaceWidget $widget) {
 		$view_id = sprintf("widget%d_worklist", $widget->id);
 		
 		if(null == ($view = Extension_WorkspaceWidget::getViewFromParams($widget, $widget->params, $view_id)))
@@ -1655,7 +1655,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	function render(Model_WorkspaceWidget $widget) {
-		if(false == ($view = $this->_getView($widget)))
+		if(false == ($view = $this->getView($widget)))
 			return;
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1682,7 +1682,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		
 		// Grab the latest view and copy it to _config
 
-		if(false !== ($view = $this->_getView($widget))) {
+		if(false !== ($view = $this->getView($widget))) {
 			$view->id .= '_config';
 			$view->is_ephemeral = true;
 			C4_AbstractViewLoader::setView($view->id, $view);
@@ -1710,7 +1710,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	function exportData(Model_WorkspaceWidget $widget, $format=null) {
-		if(false == ($view = $this->_getView($widget)))
+		if(false == ($view = $this->getView($widget)))
 			return false;
 		
 		switch(strtolower($format)) {

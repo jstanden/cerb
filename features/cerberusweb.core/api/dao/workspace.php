@@ -842,6 +842,13 @@ class Model_WorkspaceTab {
 	public $params=array();
 	
 	/**
+	 * @return Model_WorkspacePage
+	 */
+	function getWorkspacePage() {
+		return DAO_WorkspacePage::get($this->workspace_page_id);
+	}
+	
+	/**
 	 * @return Extension_WorkspaceTab
 	 */
 	function getExtension() {
@@ -854,6 +861,9 @@ class Model_WorkspaceTab {
 		return null;
 	}
 	
+	/**
+	 * @return Model_WorkspaceList[]
+	 */
 	function getWorklists() {
 		return DAO_WorkspaceList::getByTab($this->id);
 	}
