@@ -21,6 +21,7 @@
 </table>
 
 <script type="text/javascript">
+$(function() {
 try {
 	{$metric_value = $widget->params.metric_value}
 	{if $widget->params.metric_type == 'decimal'}{$decimals=2}{else}{$decimals=0}{/if}
@@ -50,4 +51,5 @@ try {
 	
 } catch(e) {
 }
+});
 </script>

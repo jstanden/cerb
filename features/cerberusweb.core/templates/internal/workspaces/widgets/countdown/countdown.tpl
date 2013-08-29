@@ -5,6 +5,7 @@
 </div>
 
 <script type="text/javascript">
+$(function() {
 try {
 	var $widget = $('#widget{$widget->id}');
 	
@@ -95,4 +96,5 @@ try {
 	
 } catch(e) {
 }
+});
 </script>

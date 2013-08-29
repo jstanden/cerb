@@ -20,10 +20,13 @@
 </div>
 
 <script type="text/javascript">
+$(function() {
 try {
 	$widget = $('#widget{$widget->id}');
 	width = $widget.width();
-	$widget.find('canvas').attr('width', width);
+	
+	if(width > 0)
+		$widget.find('canvas').attr('width', width);
 	
 	var options = {
 		series:[
@@ -166,4 +169,5 @@ try {
 	
 } catch(e) {
 }
+});
 </script>

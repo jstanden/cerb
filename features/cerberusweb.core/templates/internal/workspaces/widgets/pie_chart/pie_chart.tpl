@@ -41,10 +41,13 @@
 </div>
 
 <script type="text/javascript">
+$(function() {
 try {
 	$widget = $('#widget{$widget->id}');
 	width = $widget.width();
-	$widget.find('canvas').attr('width', width);
+	
+	if(width > 0)
+		$widget.find('canvas').attr('width', width);
 	
 	var options = {
 		{if !empty($widget->params.wedge_values)}'wedge_values': {json_encode($widget->params.wedge_values) nofilter},{/if}
@@ -270,8 +273,9 @@ try {
 			
 			{if !$show_legend}$subtotals.css('display', 'none');{/if}
 		})
-		;		
+		;
 	
 } catch(e) {
 }
+});
 </script>

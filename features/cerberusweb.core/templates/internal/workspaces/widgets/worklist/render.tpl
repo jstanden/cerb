@@ -3,6 +3,8 @@
 </div>
 
 <script type="text/javascript">
+$(function() {
+	
 var on_refresh = function() {
 	$worklist = $('#view{$view->id}').find('TABLE.worklist');
 	$worklist.hide();
@@ -145,4 +147,6 @@ $widget = $view.closest('div.dashboard-widget');
 
 $widget.undelegate('DIV[id^=view]','view_refresh');
 $widget.delegate('DIV[id^=view]','view_refresh', on_refresh);
+
+});
 </script>
