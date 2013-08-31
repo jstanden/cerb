@@ -197,6 +197,84 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	abstract function getRandom();
 	abstract function getMeta($context_id);
 	abstract function getContext($object, &$token_labels, &$token_values, $prefix=null);
+	
+	public function formatDictionaryValue($key, DevblocksDictionaryDelegate $dict) {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		@$type = $dict->_types[$key];
+		$value = $dict->$key;
+		
+		switch($type) {
+			case 'context_url':
+				// Try to find the context+id pair for this key
+				$parts = explode('_', str_replace('__','_',$key));
+				
+				// Start with the longest sub-token, and decrease until found
+				while(array_pop($parts)) {
+					$prefix = implode('_', $parts);
+					$test_key = $prefix . '__context';
+					
+					@$context = $dict->$test_key;
+					
+					if(!empty($context)) {
+						$id_key = $prefix . '_id';
+						$context_id = $dict->$id_key;
+						
+						if(!empty($context_id)) {
+							$context_url = sprintf("ctx://%s:%d/%s",
+								$context,
+								$context_id,
+								$value
+							);
+							return $context_url;
+							
+						} else {
+							return $value;
+							
+						}
+					}
+				}
+				
+				break;
+				
+			case 'percent':
+				if(is_float($value)) {
+					$value = sprintf("%0.2f%%",
+						($value * 100)
+					);
+					
+				} elseif(is_numeric($value)) {
+					$value = sprintf("%d%%",
+						$value
+					);
+				}
+				break;
+				
+			case 'size_bytes':
+				$value = DevblocksPlatform::strPrettyBytes($value);
+				break;
+				
+			case 'time_secs':
+				//$value = DevblocksPlatform::strPrettyTime($value, true);
+				break;
+				
+			case 'time_mins':
+				$secs = intval($value) * 60;
+				$value = DevblocksPlatform::strSecsToString($secs, 2);
+				break;
+				
+			case Model_CustomField::TYPE_CHECKBOX:
+				$value = (!empty($value)) ? $translate->_('common.yes') : $translate->_('common.no');
+				break;
+				
+			case Model_CustomField::TYPE_DATE:
+				$value = DevblocksPlatform::strPrettyTime($value);
+				break;
+		}
+		
+		return $value;
+	}
+	
 	public function getSearchView($view_id=null) {
 		if(empty($view_id)) {
 			$view_id = sprintf("search_%s",
@@ -268,6 +346,20 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		}
 		
 		return $labels;
+	}
+	
+	protected function _getTokenTypesFromCustomFields($fields, $prefix) {
+		$types = array();
+		$fieldsets = DAO_CustomFieldset::getAll();
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$fieldset = $field->custom_fieldset_id ? @$fieldsets[$field->custom_fieldset_id] : null;
+		
+			$types['custom_'.$cf_id] = $field->type;
+		}
+		
+		return $types;
 	}
 	
 	protected function _getImportCustomFields($fields, &$keys) {

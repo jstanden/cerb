@@ -745,13 +745,17 @@ class CerberusContexts {
 		}
 		
 		// Rename labels
+		// [TODO] mb_*
+
+		// [TODO] Phase out $labels
+		
 		foreach($labels as $idx => $label) {
-			// [TODO] mb_*
 			$labels[$idx] = ucfirst(strtolower(strtr($label,':',' ')));
 		}
 		
-		// Alphabetize
 		asort($labels);
+		
+		$values['_labels'] = $labels;
 		
 		return null;
 	}
@@ -792,9 +796,28 @@ class CerberusContexts {
 		}
 		
 		foreach($src_values as $token => $value) {
-			$dst_values[$token_prefix.$token] = $src_values[$token];
+			if(in_array($token, array('_labels', '_types')))
+				continue;
+			
+			$dst_values[$token_prefix.$token] = $value;
 		}
 
+		if(!isset($dst_values['_labels']))
+			$dst_values['_labels'] = array();
+		
+		if(isset($src_values['_labels']))
+		foreach($src_values['_labels'] as $key => $label) {
+			$dst_values['_labels'][$token_prefix.$key] = $label_prefix.$label;
+		}
+		
+		if(!isset($dst_values['_types']))
+			$dst_values['_types'] = array();
+		
+		if(isset($src_values['_types']))
+		foreach($src_values['_types'] as $key => $type) {
+			$dst_values['_types'][$token_prefix.$key] = $type;
+		}
+		
 		return true;
 	}
 	
