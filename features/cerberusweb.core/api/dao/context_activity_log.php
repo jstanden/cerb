@@ -773,6 +773,8 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 			'id' => $prefix.$translate->_('common.id'),
 			'event' => $prefix.$translate->_('common.event'),
 			'created' => $prefix.$translate->_('common.created'),
+			'actor__label' => $prefix.$translate->_('common.actor'),
+			'target__label' => $prefix.$translate->_('common.target'),
 		);
 		
 		// Token types
@@ -780,6 +782,8 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'created' => Model_CustomField::TYPE_DATE,
 			'event' => Model_CustomField::TYPE_SINGLE_LINE,
+			'actor__label' => 'context_url',
+			'target__label' => 'context_url',
 		);
 		
 		// Token values
@@ -794,6 +798,12 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 			$token_values['_label'] = CerberusContexts::formatActivityLogEntry(json_decode($entry->entry_json,true),'text');
 			$token_values['id'] = $entry->id;
 			$token_values['created'] = $entry->created;
+			
+			$token_values['actor__context'] = $entry->actor_context;
+			$token_values['actor_id'] = $entry->actor_context_id;
+			
+			$token_values['target__context'] = $entry->target_context;
+			$token_values['target_id'] = $entry->target_context_id;
 		}
 		
 		return true;
