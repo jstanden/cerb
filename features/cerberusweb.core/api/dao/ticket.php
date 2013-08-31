@@ -3138,10 +3138,10 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	function getDefaultProperties() {
 		return array(
 			'status',
-			'group_name',
+			'group__label',
 			'bucket_name',
-			'initial_message_sender_address',
-			'latest_message_sender_address',
+			'initial_message_sender__label',
+			'latest_message_sender__label',
 			'org__label',
 			'reopen_date',
 			'spam_score',

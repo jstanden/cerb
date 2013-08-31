@@ -1040,7 +1040,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
-			'author_address',
+			'author__label',
 			'quote_mood',
 			'quote_text',
 			'url',
@@ -1065,6 +1065,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'created' => $prefix.$translate->_('feedback_entry.log_date'),
 			'id' => $prefix.$translate->_('feedback_entry.id'),
 			'quote_mood' => $prefix.$translate->_('feedback_entry.quote_mood'),
@@ -1074,6 +1075,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		
 		// Token types
 		$token_types = array(
+			'_label' => 'context_url',
 			'created' => Model_CustomField::TYPE_DATE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'quote_mood' => Model_CustomField::TYPE_SINGLE_LINE,

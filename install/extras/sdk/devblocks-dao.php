@@ -924,6 +924,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
@@ -932,6 +933,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		
 		// Token types
 		$token_types = array(
+			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,

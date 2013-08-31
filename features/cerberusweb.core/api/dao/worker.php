@@ -1474,7 +1474,7 @@ class Context_Worker extends Extension_DevblocksContext {
 		return array(
 			'full_name',
 			'title',
-			'address_address',
+			'address__label',
 			'address_org__label',
 			'is_disabled',
 			'is_superuser',

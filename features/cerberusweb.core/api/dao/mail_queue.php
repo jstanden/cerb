@@ -839,6 +839,7 @@ class Context_Draft extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'content' => $prefix.$translate->_('common.content'),
 			'id' => $prefix.$translate->_('common.id'),
 			'subject' => $prefix.$translate->_('message.header.subject'),
@@ -848,6 +849,7 @@ class Context_Draft extends Extension_DevblocksContext {
 		
 		// Token types
 		$token_types = array(
+			'_label' => 'context_url',
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'subject' => Model_CustomField::TYPE_SINGLE_LINE,

@@ -770,6 +770,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'event' => $prefix.$translate->_('common.event'),
 			'created' => $prefix.$translate->_('common.created'),
@@ -779,6 +780,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 		
 		// Token types
 		$token_types = array(
+			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'created' => Model_CustomField::TYPE_DATE,
 			'event' => Model_CustomField::TYPE_SINGLE_LINE,

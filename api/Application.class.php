@@ -1543,11 +1543,13 @@ class Context_Application extends Extension_DevblocksContext {
 			
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'name' => $prefix.$translate->_('common.name'),
 		);
 		
 		// Token types
 		$token_types = array(
+			'_label' => 'context_url',
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 		);
 		

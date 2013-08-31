@@ -924,9 +924,8 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
-			'email_full_name',
-			'email_address',
-			'email_org_name',
+			'email__label',
+			'email_org__label',
 			'created',
 			'last_login',
 		);
@@ -950,6 +949,7 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 			
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'created' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
 			'last_login' => $prefix.$translate->_('dao.contact_person.last_login'),
@@ -958,6 +958,7 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 		
 		// Token types
 		$token_types = array(
+			'_label' => 'context_url',
 			'created' => Model_CustomField::TYPE_DATE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'last_login' => Model_CustomField::TYPE_DATE,

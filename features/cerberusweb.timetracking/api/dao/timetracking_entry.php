@@ -1152,6 +1152,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'log_date' => $prefix.$translate->_('timetracking_entry.log_date'),
 			'summary' => $prefix.$translate->_('common.summary'),
 			'mins' => $prefix.$translate->_('timetracking_entry.time_actual_mins'),
@@ -1160,6 +1161,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		
 		// Token types
 		$token_types = array(
+			'_label' => 'context_url',
 			'log_date' => Model_CustomField::TYPE_DATE,
 			'summary' => Model_CustomField::TYPE_SINGLE_LINE,
 			'mins' => 'time_mins',

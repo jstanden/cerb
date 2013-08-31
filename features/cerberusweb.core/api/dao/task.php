@@ -978,6 +978,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'created' => $prefix.$translate->_('common.created'),
 			'completed' => $prefix.$translate->_('task.completed_date'),
 			'due' => $prefix.$translate->_('task.due_date'),
@@ -991,6 +992,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 
 		// Token types
 		$token_types = array(
+			'_label' => 'context_url',
 			'created' => Model_CustomField::TYPE_DATE,
 			'completed' => Model_CustomField::TYPE_DATE,
 			'due' => Model_CustomField::TYPE_DATE,

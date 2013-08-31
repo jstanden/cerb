@@ -999,7 +999,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
-			'calendar_name',
+			'calendar__label',
 			'patterns',
 			'is_available',
 			'event_start',
@@ -1026,6 +1026,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'event_start' => $prefix.$translate->_('dao.calendar_recurring_profile.event_start'),
@@ -1040,8 +1041,9 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		
 		// Token types
 		$token_types = array(
+			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
-			'name' => 'context_url',
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'event_start' => Model_CustomField::TYPE_SINGLE_LINE,
 			'event_end' => Model_CustomField::TYPE_SINGLE_LINE,
 			'recur_start' => Model_CustomField::TYPE_SINGLE_LINE,

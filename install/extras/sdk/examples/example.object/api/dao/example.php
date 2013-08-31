@@ -695,6 +695,7 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'created' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
@@ -703,6 +704,7 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		
 		// Token types
 		$token_types = array(
+			'_label' => 'context_url',
 			'created' => Model_CustomField::TYPE_DATE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,

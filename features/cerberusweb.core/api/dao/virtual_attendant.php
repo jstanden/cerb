@@ -1006,6 +1006,7 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'created_at' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
@@ -1019,6 +1020,7 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		
 		// Token types
 		$token_types = array(
+			'_label' => 'context_url',
 			'created_at' => Model_CustomField::TYPE_DATE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,

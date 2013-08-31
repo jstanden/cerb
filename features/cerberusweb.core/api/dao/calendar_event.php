@@ -802,7 +802,7 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
-			'calendar_name',
+			'calendar__label',
 			'calendar_owner__label',
 			'date_start',
 			'date_end',
@@ -828,6 +828,7 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'date_end' => $prefix.$translate->_('dao.calendar_event.date_end'),
 			'date_start' => $prefix.$translate->_('dao.calendar_event.date_start'),
 			'id' => $prefix.$translate->_('common.id'),
@@ -838,11 +839,12 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		
 		// Token types
 		$token_types = array(
+			'_label' => 'context_url',
 			'date_end' => Model_CustomField::TYPE_DATE,
 			'date_start' => Model_CustomField::TYPE_DATE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'is_available' => Model_CustomField::TYPE_CHECKBOX,
-			'name' => 'context_url',
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		

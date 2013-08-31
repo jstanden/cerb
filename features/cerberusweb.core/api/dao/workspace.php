@@ -1232,6 +1232,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'name' => $prefix.$translate->_('common.name'),
 			'owner_context' => $prefix.$translate->_('common.context'),
 			'owner_context_id' => $prefix.$translate->_('common.context_id'),
@@ -1241,6 +1242,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 		
 		// Token types
 		$token_types = array(
+			'_label' => 'context_url',
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'owner_context' => Model_CustomField::TYPE_SINGLE_LINE,
 			'owner_context_id' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1457,12 +1459,14 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'name' => $prefix.$translate->_('common.name'),
 			'extension_id' => $prefix.$translate->_('common.extension'),
 		);
 		
 		// Token types
 		$token_types = array(
+			'_label' => 'context_url',
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
 		);

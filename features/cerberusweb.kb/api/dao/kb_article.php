@@ -692,6 +692,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 			
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'content' => $prefix.$translate->_('kb_article.content'),
 			'id' => $prefix.$translate->_('common.id'),
 			'title' => $prefix.$translate->_('kb_article.title'),
@@ -702,6 +703,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		
 		// Token types
 		$token_types = array(
+			'_label' => 'context_url',
 			'content' => null,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'title' => Model_CustomField::TYPE_SINGLE_LINE,

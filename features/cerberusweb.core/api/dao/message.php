@@ -1754,7 +1754,7 @@ class Context_Message extends Extension_DevblocksContext {
 	function getDefaultProperties() {
 		return array(
 			'ticket__label',
-			'sender_address',
+			'sender__label',
 			'ticket_org__label',
 			'created',
 			'response_time',
@@ -1783,6 +1783,7 @@ class Context_Message extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'content' => $prefix.$translate->_('common.content'),
 			'created' => $prefix.$translate->_('common.created'),
 			'is_broadcast' => $prefix.$translate->_('message.is_broadcast'),
@@ -1794,6 +1795,7 @@ class Context_Message extends Extension_DevblocksContext {
 		
 		// Token types
 		$token_types = array(
+			'_label' => 'context_url',
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
 			'created' => Model_CustomField::TYPE_DATE,
 			'is_broadcast' => Model_CustomField::TYPE_CHECKBOX,

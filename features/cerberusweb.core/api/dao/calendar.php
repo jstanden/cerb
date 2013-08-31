@@ -1253,6 +1253,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'owner__label' => $prefix.$translate->_('common.owner'),
@@ -1262,8 +1263,9 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		
 		// Token types
 		$token_types = array(
+			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
-			'name' => 'context_url',
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'owner__label' =>'context_url',
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,

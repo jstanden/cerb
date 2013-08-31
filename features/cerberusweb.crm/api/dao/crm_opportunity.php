@@ -1109,7 +1109,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 	function getDefaultProperties() {
 		return array(
 			'status',
-			'email_address',
+			'email__label',
 			'created',
 			'updated',
 		);
@@ -1133,6 +1133,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'amount' => $prefix.$translate->_('crm.opportunity.amount'),
 			'created' => $prefix.$translate->_('crm.opportunity.created_date'),
 			'is_closed' => $prefix.$translate->_('crm.opportunity.is_closed'),
@@ -1145,6 +1146,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		
 		// Token types
 		$token_types = array(
+			'_label' => 'context_url',
 			'amount' => Model_CustomField::TYPE_NUMBER,
 			'created' => Model_CustomField::TYPE_DATE,
 			'is_closed' => Model_CustomField::TYPE_CHECKBOX,
