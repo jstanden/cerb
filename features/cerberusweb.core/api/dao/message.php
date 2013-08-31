@@ -1816,7 +1816,7 @@ class Context_Message extends Extension_DevblocksContext {
 			$ticket = DAO_Ticket::get($message->ticket_id);
 			
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = '(message)';
+			$token_values['_label'] = sprintf("%s wrote on [%s] %s", $sender->email, $ticket->mask, $ticket->subject);
 			$token_values['created'] = $message->created_date;
 			$token_values['id'] = $message->id;
 			$token_values['is_broadcast'] = $message->is_broadcast;
