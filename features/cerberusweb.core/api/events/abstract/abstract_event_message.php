@@ -261,7 +261,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		
 		$types = array(
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
-			'created|date' => Model_CustomField::TYPE_DATE,
+			'created' => Model_CustomField::TYPE_DATE,
 			'is_first' => Model_CustomField::TYPE_CHECKBOX,
 			'is_outgoing' => Model_CustomField::TYPE_CHECKBOX,
 			'sender_address' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -311,15 +311,15 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			
 			// Ticket
 			"ticket_bucket_name|default('Inbox')" => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_created|date' => Model_CustomField::TYPE_DATE,
+			'ticket_created' => Model_CustomField::TYPE_DATE,
 			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_num_messages' => Model_CustomField::TYPE_NUMBER,
-			'ticket_reopen_date|date' => Model_CustomField::TYPE_DATE,
+			'ticket_reopen_date' => Model_CustomField::TYPE_DATE,
 			'ticket_spam_score' => null,
 			'ticket_spam_training' => null,
 			'ticket_status' => null,
 			'ticket_subject' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_updated|date' => Model_CustomField::TYPE_DATE,
+			'ticket_updated' => Model_CustomField::TYPE_DATE,
 			'ticket_url' => Model_CustomField::TYPE_URL,
 		
 			'ticket_has_owner' => null,

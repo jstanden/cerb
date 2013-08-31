@@ -812,6 +812,15 @@ class Context_Draft extends Extension_DevblocksContext {
 		//return DAO_MailQueue::random();
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'to',
+			'subject',
+			'updated',
+		);
+	}
+	
 	function getContext($object, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Draft:';
@@ -834,13 +843,23 @@ class Context_Draft extends Extension_DevblocksContext {
 			'id' => $prefix.$translate->_('common.id'),
 			'subject' => $prefix.$translate->_('message.header.subject'),
 			'to' => $prefix.$translate->_('message.header.to'),
-			'updated|date' => $prefix.$translate->_('common.updated'),
+			'updated' => $prefix.$translate->_('common.updated'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'content' => Model_CustomField::TYPE_MULTI_LINE,
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'subject' => Model_CustomField::TYPE_SINGLE_LINE,
+			'to' => Model_CustomField::TYPE_SINGLE_LINE,
+			'updated' => Model_CustomField::TYPE_DATE,
 		);
 		
 		// Token values
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_DRAFT;
+		$token_values['_types'] = $token_types;
 		
 		if($object) {
 			$token_values['_loaded'] = true;

@@ -996,6 +996,18 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		);
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'calendar_name',
+			'patterns',
+			'is_available',
+			'event_start',
+			'event_end',
+			'tz',
+		);
+	}
+	
 	function getContext($calendar_recurring_profile, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Calendar Recurring Event:';
@@ -1026,6 +1038,20 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
+		// Token types
+		$token_types = array(
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'name' => 'context_url',
+			'event_start' => Model_CustomField::TYPE_SINGLE_LINE,
+			'event_end' => Model_CustomField::TYPE_SINGLE_LINE,
+			'recur_start' => Model_CustomField::TYPE_SINGLE_LINE,
+			'recur_end' => Model_CustomField::TYPE_SINGLE_LINE,
+			'is_available' => Model_CustomField::TYPE_CHECKBOX,
+			'tz' => Model_CustomField::TYPE_SINGLE_LINE,
+			'patterns' => Model_CustomField::TYPE_MULTI_LINE,
+			'record_url' => Model_CustomField::TYPE_URL,
+		);
+		
 		// Custom field/fieldset token labels
 		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
 			$token_labels = array_merge($token_labels, $custom_field_labels);
@@ -1034,6 +1060,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING;
+		$token_values['_types'] = $token_types;
 		
 		if($calendar_recurring_profile) {
 			$token_values['_loaded'] = true;

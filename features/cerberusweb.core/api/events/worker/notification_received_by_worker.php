@@ -124,7 +124,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		
 		// [TODO] Move this into snippets somehow
 		$types = array(
-			'created|date' => Model_CustomField::TYPE_DATE,
+			'created' => Model_CustomField::TYPE_DATE,
 			'message' => Model_CustomField::TYPE_SINGLE_LINE,
 			'is_read' => Model_CustomField::TYPE_CHECKBOX,
 			'url' => Model_CustomField::TYPE_SINGLE_LINE,

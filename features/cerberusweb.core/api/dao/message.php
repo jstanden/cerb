@@ -1750,6 +1750,19 @@ class Context_Message extends Extension_DevblocksContext {
 		);
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'ticket__label',
+			'sender_address',
+			'ticket_org__label',
+			'created',
+			'response_time',
+			'is_outgoing',
+			'storage_size',
+		);
+	}
+	
 	function getContext($message, &$token_labels, &$token_values, $prefix=null) {
 		$is_nested = $prefix ? true : false;
 		
@@ -1771,21 +1784,37 @@ class Context_Message extends Extension_DevblocksContext {
 		// Token labels
 		$token_labels = array(
 			'content' => $prefix.$translate->_('common.content'),
-			'created|date' => $prefix.$translate->_('common.created'),
+			'created' => $prefix.$translate->_('common.created'),
 			'is_broadcast' => $prefix.$translate->_('message.is_broadcast'),
 			'is_outgoing' => $prefix.$translate->_('message.is_outgoing'),
 			'response_time' => $prefix.$translate->_('message.response_time'),
-			'storage_size' => $prefix.$translate->_('message.storage_size').' (bytes)',
+			'storage_size' => $prefix.$translate->_('message.storage_size'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'content' => Model_CustomField::TYPE_MULTI_LINE,
+			'created' => Model_CustomField::TYPE_DATE,
+			'is_broadcast' => Model_CustomField::TYPE_CHECKBOX,
+			'is_outgoing' => Model_CustomField::TYPE_CHECKBOX,
+			'response_time' => 'time_secs',
+			'storage_size' => 'size_bytes',
+			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Token values
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_MESSAGE;
+		$token_values['_types'] = $token_types;
 		
 		// Message token values
 		if($message) {
+			// [TODO] Cache these in a request registry
+			$sender = DAO_Address::get($message->address_id);
+			$ticket = DAO_Ticket::get($message->ticket_id);
+			
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = '(message)';
 			$token_values['created'] = $message->created_date;

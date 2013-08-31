@@ -970,6 +970,16 @@ class Context_Snippet extends Extension_DevblocksContext {
 		);
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'owner__label',
+			'context',
+			'total_uses',
+			'content',
+		);
+	}
+	
 	function getContext($snippet, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Snippet:';
@@ -991,7 +1001,17 @@ class Context_Snippet extends Extension_DevblocksContext {
 			'title' => $prefix.$translate->_('dao.common.title'),
 			'context' => $prefix.$translate->_('common.context'),
 			'content' => $prefix.$translate->_('common.content'),
+			'owner__label' => $prefix.$translate->_('common.owner'),
 			'total_uses' => $prefix.$translate->_('dao.snippet.total_uses'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'title' => Model_CustomField::TYPE_SINGLE_LINE,
+			'context' => Model_CustomField::TYPE_SINGLE_LINE,
+			'content' => Model_CustomField::TYPE_MULTI_LINE,
+			'owner__label' => 'context_url',
+			'total_uses' => Model_CustomField::TYPE_NUMBER,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1002,6 +1022,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_SNIPPET;
+		$token_values['_types'] = $token_types;
 		
 		if($snippet) {
 			$token_values['_loaded'] = true;

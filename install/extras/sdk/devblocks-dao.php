@@ -899,6 +899,13 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		);
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'updated_at',
+		);
+	}
+	
 	function getContext($<?php echo $ctx_var_model; ?>, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = '<?php echo $object_name; ?>:';
@@ -919,8 +926,16 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		$token_labels = array(
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
-			'updated_at|date' => $prefix.$translate->_('common.updated'),
+			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'updated_at' => Model_CustomField::TYPE_DATE,
+			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -931,6 +946,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		$token_values = array();
 		
 		$token_values['_context'] = '<?php echo $ctx_ext_id; ?>';
+		$token_values['_types'] = $token_types;
 		
 		if($<?php echo $ctx_var_model; ?>) {
 			$token_values['_loaded'] = true;

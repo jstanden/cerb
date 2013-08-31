@@ -121,7 +121,7 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 		$types = array(
 			'org_city' => Model_CustomField::TYPE_SINGLE_LINE,
 			'org_country' => Model_CustomField::TYPE_SINGLE_LINE,
-			'org_created|date' => Model_CustomField::TYPE_DATE,
+			'org_created' => Model_CustomField::TYPE_DATE,
 			'org_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
 			'org_postal' => Model_CustomField::TYPE_SINGLE_LINE,

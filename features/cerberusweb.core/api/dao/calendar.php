@@ -1227,6 +1227,14 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		);
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'owner__label',
+			'updated_at',
+		);
+	}
+	
 	function getContext($calendar, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Calendar:';
@@ -1247,8 +1255,18 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		$token_labels = array(
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
-			'updated_at|date' => $prefix.$translate->_('common.updated'),
+			'owner__label' => $prefix.$translate->_('common.owner'),
+			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'name' => 'context_url',
+			'owner__label' =>'context_url',
+			'updated_at' => Model_CustomField::TYPE_DATE,
+			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1259,6 +1277,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_CALENDAR;
+		$token_values['_types'] = $token_types;
 		
 		if($calendar) {
 			$token_values['_loaded'] = true;

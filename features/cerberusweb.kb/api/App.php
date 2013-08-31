@@ -940,6 +940,13 @@ class Context_KbCategory extends Extension_DevblocksContext {
 			'parent_id' => $prefix.$translate->_('kb_category.parent_id'),
 		);
 		
+		// Token types
+		$token_types = array(
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'parent_id' => Model_CustomField::TYPE_NUMBER,
+		);
+		
 		// Custom field/fieldset token labels
 		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
 			$token_labels = array_merge($token_labels, $custom_field_labels);
@@ -948,6 +955,7 @@ class Context_KbCategory extends Extension_DevblocksContext {
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_KB_CATEGORY;
+		$token_values['_types'] = $token_types;
 		
 		// Token values
 		if(null != $category) {

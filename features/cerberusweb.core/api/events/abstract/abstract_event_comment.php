@@ -115,7 +115,7 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 		$labels['comment_owner_context'] = 'Comment author type';
 		
 		$types = array(
-			'comment_created|date' => Model_CustomField::TYPE_DATE,
+			'comment_created' => Model_CustomField::TYPE_DATE,
 			'comment_comment' => Model_CustomField::TYPE_MULTI_LINE,
 		);
 

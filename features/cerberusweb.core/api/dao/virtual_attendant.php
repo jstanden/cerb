@@ -979,6 +979,15 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		);
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'owner__label',
+			'is_disabled',
+			'updated_at',
+		);
+	}
+	
 	function getContext($virtual_attendant, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Virtual Attendant:';
@@ -997,16 +1006,28 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		
 		// Token labels
 		$token_labels = array(
-			'created_at|date' => $prefix.$translate->_('common.created'),
+			'created_at' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'is_disabled' => $prefix.$translate->_('common.disabled'),
-			'updated_at|date' => $prefix.$translate->_('common.updated'),
+			'updated_at' => $prefix.$translate->_('common.updated'),
 			
 			'record_url' => $prefix.$translate->_('common.url.record'),
 			
-			'owner_context' => $prefix.$translate->_('common.context'),
-			'owner_context_id' => $prefix.$translate->_('common.context_id'),
+			'owner__label' => $prefix.$translate->_('common.owner'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'created_at' => Model_CustomField::TYPE_DATE,
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'is_disabled' => Model_CustomField::TYPE_CHECKBOX,
+			'updated_at' => Model_CustomField::TYPE_DATE,
+			
+			'record_url' => Model_CustomField::TYPE_URL,
+			
+			'owner__label' => 'context_url',
 		);
 		
 		// Custom field/fieldset token labels
@@ -1017,6 +1038,7 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
+		$token_values['_types'] = $token_types;
 		
 		if($virtual_attendant) {
 			$token_values['_loaded'] = true;

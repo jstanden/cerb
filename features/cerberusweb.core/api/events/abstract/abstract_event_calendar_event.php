@@ -106,8 +106,8 @@ abstract class AbstractEvent_CalendarEvent extends Extension_DevblocksEvent {
 		$types = array(
 			'event_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'event_is_available' => Model_CustomField::TYPE_CHECKBOX,
-			'event_date_start|date' => Model_CustomField::TYPE_DATE,
-			'event_date_end|date' => Model_CustomField::TYPE_DATE,
+			'event_date_start' => Model_CustomField::TYPE_DATE,
+			'event_date_end' => Model_CustomField::TYPE_DATE,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);

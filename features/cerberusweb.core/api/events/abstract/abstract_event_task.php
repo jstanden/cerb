@@ -102,9 +102,9 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 		
 		$types = array(
 			'task_is_completed' => Model_CustomField::TYPE_CHECKBOX,
-			'task_completed|date' => Model_CustomField::TYPE_DATE,
-			'task_due|date' => Model_CustomField::TYPE_DATE,
-			'task_updated|date' => Model_CustomField::TYPE_DATE,
+			'task_completed' => Model_CustomField::TYPE_DATE,
+			'task_due' => Model_CustomField::TYPE_DATE,
+			'task_updated' => Model_CustomField::TYPE_DATE,
 			'task_status' => Model_CustomField::TYPE_SINGLE_LINE,
 			'task_title' => Model_CustomField::TYPE_SINGLE_LINE,
 			

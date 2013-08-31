@@ -670,6 +670,13 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		);
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'created',
+		);
+	}
+	
 	function getContext($object, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Example:';
@@ -688,10 +695,18 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
-			'created|date' => $prefix.$translate->_('common.created'),
+			'created' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			//'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'created' => Model_CustomField::TYPE_DATE,
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			//'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -702,6 +717,7 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		$token_values = array();
 		
 		$token_values['_context'] = Context_ExampleObject::ID;
+		$token_values['_types'] = $token_types;
 		
 		if($object) {
 			$token_values['_loaded'] = true;

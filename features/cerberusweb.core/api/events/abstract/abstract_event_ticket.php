@@ -239,7 +239,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		$types = array(
 			// First wrote
 			'ticket_initial_message_content' => Model_CustomField::TYPE_MULTI_LINE,
-			'ticket_initial_message_created|date' => Model_CustomField::TYPE_DATE,
+			'ticket_initial_message_created' => Model_CustomField::TYPE_DATE,
 			'ticket_initial_message_is_outgoing' => Model_CustomField::TYPE_CHECKBOX,
 			'ticket_initial_message_sender_address' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_initial_message_sender_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -262,7 +262,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		
 			// Last wrote
 			'ticket_latest_message_content' => Model_CustomField::TYPE_MULTI_LINE,
-			'ticket_latest_message_created|date' => Model_CustomField::TYPE_DATE,
+			'ticket_latest_message_created' => Model_CustomField::TYPE_DATE,
 			'ticket_latest_message_is_outgoing' => Model_CustomField::TYPE_CHECKBOX,
 			'ticket_latest_message_sender_address' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_latest_message_sender_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -308,15 +308,15 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 
 			// Ticket
 			"ticket_bucket_name|default('Inbox')" => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_created|date' => Model_CustomField::TYPE_DATE,
+			'ticket_created' => Model_CustomField::TYPE_DATE,
 			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_num_messages' => Model_CustomField::TYPE_NUMBER,
-			'ticket_reopen_date|date' => Model_CustomField::TYPE_DATE,
+			'ticket_reopen_date' => Model_CustomField::TYPE_DATE,
 			'ticket_spam_score' => null,
 			'ticket_spam_training' => null,
 			'ticket_status' => null,
 			'ticket_subject' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_updated|date' => Model_CustomField::TYPE_DATE,
+			'ticket_updated' => Model_CustomField::TYPE_DATE,
 			'ticket_url' => Model_CustomField::TYPE_URL,
 		
 			// Virtual
@@ -355,7 +355,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			$types['comment_address_org_created'] = Model_CustomField::TYPE_DATE;
 			$types['comment_address_org_name'] = Model_CustomField::TYPE_SINGLE_LINE;
 			
-			$types['comment_created|date'] = Model_CustomField::TYPE_DATE;
+			$types['comment_created'] = Model_CustomField::TYPE_DATE;
 			$types['comment_comment'] = Model_CustomField::TYPE_MULTI_LINE;
 		}
 		

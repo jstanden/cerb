@@ -140,7 +140,7 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 			
 			'email_org_city' => Model_CustomField::TYPE_SINGLE_LINE,
 			'email_org_country' => Model_CustomField::TYPE_SINGLE_LINE,
-			'email_org_created|date' => Model_CustomField::TYPE_DATE,
+			'email_org_created' => Model_CustomField::TYPE_DATE,
 			'email_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'email_org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
 			'email_org_postal' => Model_CustomField::TYPE_SINGLE_LINE,

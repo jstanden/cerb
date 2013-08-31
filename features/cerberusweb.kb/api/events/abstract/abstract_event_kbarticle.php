@@ -120,7 +120,7 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 		$types = array(
 			'article_content' => Model_CustomField::TYPE_MULTI_LINE,
 			'article_title' => Model_CustomField::TYPE_SINGLE_LINE,
-			'article_updated|date' => Model_CustomField::TYPE_DATE,
+			'article_updated' => Model_CustomField::TYPE_DATE,
 			'article_views' => Model_CustomField::TYPE_NUMBER,
 			
 			'article_link' => null,

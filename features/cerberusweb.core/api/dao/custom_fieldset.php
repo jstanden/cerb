@@ -913,6 +913,14 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 		);
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'name',
+			'owner__label',
+		);
+	}
+	
 	function getContext($cfieldset, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Custom Fieldsets:';
@@ -932,22 +940,31 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 		$token_labels = array(
 			'context' => $prefix.$translate->_('common.context'),
 			'name' => $prefix.$translate->_('common.name'),
-			'owner_context' => $prefix.$translate->_('common.owner_context'),
-			'owner_context_id' => $prefix.$translate->_('common.owner_context_id'),
+			'owner__label' => $prefix.$translate->_('common.owner'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'content' => Model_CustomField::TYPE_MULTI_LINE,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'owner__label' => 'context_url',
 		);
 		
 		// Token values
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
+		$token_values['_types'] = $token_types;
 		
 		if($cfieldset) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $cfieldset->name;
 			$token_values['context'] = $cfieldset->context;
 			$token_values['name'] = $cfieldset->name;
-			$token_values['owner_context'] = $cfieldset->owner_context;
-			$token_values['owner_context_id'] = $cfieldset->owner_context_id;
+			
+			// For lazy loading
+			$token_values['owner__context'] = $cfieldset->owner_context;
+			$token_values['owner_id'] = $cfieldset->owner_context_id;
 		}
 
 		return true;

@@ -168,10 +168,10 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 			'opp_email_org_website' => Model_CustomField::TYPE_SINGLE_LINE,
 			'opp_amount' => Model_CustomField::TYPE_NUMBER,
 			'opp_is_closed' => Model_CustomField::TYPE_CHECKBOX,
-			'opp_created|date' => Model_CustomField::TYPE_DATE,
+			'opp_created' => Model_CustomField::TYPE_DATE,
 			'opp_status' => Model_CustomField::TYPE_SINGLE_LINE,
 			'opp_title' => Model_CustomField::TYPE_SINGLE_LINE,
-			'opp_updated|date' => Model_CustomField::TYPE_DATE,
+			'opp_updated' => Model_CustomField::TYPE_DATE,
 			'opp_is_won' => Model_CustomField::TYPE_CHECKBOX,
 			
 			'opp_link' => null,

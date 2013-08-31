@@ -743,6 +743,16 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 		);
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'event',
+			'created',
+			'actor__label',
+			'target__label',
+		);
+	}
+	
 	function getContext($entry, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Activity:';
@@ -761,13 +771,22 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 		// Token labels
 		$token_labels = array(
 			'id' => $prefix.$translate->_('common.id'),
-			'created|date' => $prefix.$translate->_('common.created'),
+			'event' => $prefix.$translate->_('common.event'),
+			'created' => $prefix.$translate->_('common.created'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'created' => Model_CustomField::TYPE_DATE,
+			'event' => Model_CustomField::TYPE_SINGLE_LINE,
 		);
 		
 		// Token values
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_ACTIVITY_LOG;
+		$token_values['_types'] = $token_types;
 
 		// Address token values
 		if(null != $entry) {

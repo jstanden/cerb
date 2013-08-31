@@ -1037,6 +1037,16 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		);
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'author_address',
+			'quote_mood',
+			'quote_text',
+			'url',
+		);
+	}
+	
 	function getContext($feedback, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Feedback:';
@@ -1055,11 +1065,20 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		
 		// Token labels
 		$token_labels = array(
-			'created|date' => $prefix.$translate->_('feedback_entry.log_date'),
+			'created' => $prefix.$translate->_('feedback_entry.log_date'),
 			'id' => $prefix.$translate->_('feedback_entry.id'),
 			'quote_mood' => $prefix.$translate->_('feedback_entry.quote_mood'),
 			'quote_text' => $prefix.$translate->_('feedback_entry.quote_text'),
 			'url' => $prefix.$translate->_('feedback_entry.source_url'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'created' => Model_CustomField::TYPE_DATE,
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'quote_mood' => Model_CustomField::TYPE_SINGLE_LINE,
+			'quote_text' => Model_CustomField::TYPE_MULTI_LINE,
+			'url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1070,6 +1089,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_FEEDBACK;
+		$token_values['_types'] = $token_types;
 		
 		if($feedback) {
 			$token_values['_loaded'] = true;

@@ -799,6 +799,17 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		return null;
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'calendar_name',
+			'calendar_owner__label',
+			'date_start',
+			'date_end',
+			'is_available',
+		);
+	}
+	
 	function getContext($calendar_event, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Calendar Event:';
@@ -817,12 +828,22 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		
 		// Token labels
 		$token_labels = array(
-			'date_end|date' => $prefix.$translate->_('dao.calendar_event.date_end'),
-			'date_start|date' => $prefix.$translate->_('dao.calendar_event.date_start'),
+			'date_end' => $prefix.$translate->_('dao.calendar_event.date_end'),
+			'date_start' => $prefix.$translate->_('dao.calendar_event.date_start'),
 			'id' => $prefix.$translate->_('common.id'),
 			'is_available' => $prefix.$translate->_('dao.calendar_event.is_available'),
 			'name' => $prefix.$translate->_('common.name'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'date_end' => Model_CustomField::TYPE_DATE,
+			'date_start' => Model_CustomField::TYPE_DATE,
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'is_available' => Model_CustomField::TYPE_CHECKBOX,
+			'name' => 'context_url',
+			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -833,6 +854,7 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_CALENDAR_EVENT;
+		$token_values['_types'] = $token_types;
 		
 		if($calendar_event) {
 			$token_values['_loaded'] = true;

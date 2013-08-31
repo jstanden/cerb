@@ -292,13 +292,13 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			'ticket_owner_title' => Model_CustomField::TYPE_SINGLE_LINE,
 		
 			"ticket_bucket_name|default('Inbox')" => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_created|date' => Model_CustomField::TYPE_DATE,
+			'ticket_created' => Model_CustomField::TYPE_DATE,
 			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_spam_score' => null,
 			'ticket_spam_training' => null,
 			'ticket_status' => null,
 			'ticket_subject' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_updated|date' => Model_CustomField::TYPE_DATE,
+			'ticket_updated' => Model_CustomField::TYPE_DATE,
 			'ticket_url' => Model_CustomField::TYPE_URL,
 		
 			'worker_address_address' => Model_CustomField::TYPE_SINGLE_LINE,

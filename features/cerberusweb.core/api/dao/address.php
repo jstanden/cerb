@@ -1160,6 +1160,17 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		);
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'full_name',
+			'org__label',
+			'is_banned',
+			'is_defunct',
+			'updated',
+		);
+	}
+	
 	function getContext($address, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Email:';
@@ -1180,6 +1191,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'address' => $prefix.$translate->_('address.address'),
 			'first_name' => $prefix.$translate->_('address.first_name'),
 			'full_name' => $prefix.$translate->_('address.full_name'),
@@ -1192,6 +1204,21 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'address' => Model_CustomField::TYPE_SINGLE_LINE,
+			'first_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'full_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'last_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'num_spam' => Model_CustomField::TYPE_NUMBER,
+			'num_nonspam' => Model_CustomField::TYPE_NUMBER,
+			'is_banned' => Model_CustomField::TYPE_CHECKBOX,
+			'is_defunct' => Model_CustomField::TYPE_CHECKBOX,
+			'updated' => Model_CustomField::TYPE_DATE,
+			'record_url' => Model_CustomField::TYPE_URL,
+		);
+		
 		// Custom field/fieldset token labels
 		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
 			$token_labels = array_merge($token_labels, $custom_field_labels);
@@ -1200,13 +1227,14 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_ADDRESS;
+		$token_values['_types'] = $token_types;
 
 		// Address token values
 		if(null != $address) {
 			$full_name = $address->getName();
 			
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = !empty($full_name) ? sprintf("%s <%s>", $full_name, $address->email) : sprintf("<%s>", $address->email);
+			$token_values['_label'] = !empty($full_name) ? sprintf("%s <%s>", $full_name, $address->email) : sprintf("%s", $address->email);
 			$token_values['id'] = $address->id;
 			$token_values['full_name'] = $address->getName();
 			if(!empty($address->email))

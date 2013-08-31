@@ -958,6 +958,11 @@ class Context_CustomField extends Extension_DevblocksContext {
 			//'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
+		// Token types
+		$token_types = array(
+			'name' => 'context_url',
+		);
+		
 		// Custom field/fieldset token labels
 		//if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
 		//	$token_labels = array_merge($token_labels, $custom_field_labels);
@@ -966,6 +971,7 @@ class Context_CustomField extends Extension_DevblocksContext {
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_CUSTOM_FIELD;
+		$token_values['_types'] = $token_types;
 		
 		// Worker token values
 		if(null != $role) {

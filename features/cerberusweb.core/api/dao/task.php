@@ -950,6 +950,16 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		return DAO_Task::random();
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'status',
+			'created',
+			'due',
+			'completed',
+		);
+	}
+	
 	function getContext($task, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Task:';
@@ -968,15 +978,28 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		
 		// Token labels
 		$token_labels = array(
-			'created|date' => $prefix.$translate->_('common.created'),
-			'completed|date' => $prefix.$translate->_('task.completed_date'),
-			'due|date' => $prefix.$translate->_('task.due_date'),
+			'created' => $prefix.$translate->_('common.created'),
+			'completed' => $prefix.$translate->_('task.completed_date'),
+			'due' => $prefix.$translate->_('task.due_date'),
 			'id' => $prefix.$translate->_('common.id'),
 			'is_completed' => $prefix.$translate->_('task.is_completed'),
 			'status' => $prefix.$translate->_('common.status'),
 			'title' => $prefix.$translate->_('common.title'),
-			'updated|date' => $prefix.$translate->_('common.updated'),
+			'updated' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+
+		// Token types
+		$token_types = array(
+			'created' => Model_CustomField::TYPE_DATE,
+			'completed' => Model_CustomField::TYPE_DATE,
+			'due' => Model_CustomField::TYPE_DATE,
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'is_completed' => Model_CustomField::TYPE_CHECKBOX,
+			'status' => Model_CustomField::TYPE_SINGLE_LINE,
+			'title' => Model_CustomField::TYPE_SINGLE_LINE,
+			'updated' => Model_CustomField::TYPE_DATE,
+			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -987,6 +1010,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_TASK;
+		$token_values['_types'] = $token_types;
 		
 		if($task) {
 			$token_values['_loaded'] = true;

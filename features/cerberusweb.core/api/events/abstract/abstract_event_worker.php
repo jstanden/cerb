@@ -115,7 +115,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 			
 			'worker_address_org_city' => Model_CustomField::TYPE_SINGLE_LINE,
 			'worker_address_org_country' => Model_CustomField::TYPE_SINGLE_LINE,
-			'worker_address_org_created|date' => Model_CustomField::TYPE_DATE,
+			'worker_address_org_created' => Model_CustomField::TYPE_DATE,
 			'worker_address_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'worker_address_org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
 			'worker_address_org_postal' => Model_CustomField::TYPE_SINGLE_LINE,

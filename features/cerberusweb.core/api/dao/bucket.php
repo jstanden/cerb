@@ -449,7 +449,7 @@ class Context_Bucket extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
-			'name|default(\'Inbox\')' => $prefix.$translate->_('common.name'),
+			'name' => $prefix.$translate->_('common.name'),
 			//'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
@@ -464,6 +464,7 @@ class Context_Bucket extends Extension_DevblocksContext {
 		$token_values = array();
 
 		$token_values['_context'] = CerberusContexts::CONTEXT_BUCKET;
+		$token_values['name'] = mb_convert_case($translate->_('common.inbox'), MB_CASE_TITLE);
 		
 		// Token values
 		if(null != $bucket) {

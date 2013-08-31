@@ -678,6 +678,7 @@ class CerberusContexts {
 			case 'cerberusweb.contexts.attachment':
 				self::_getAttachmentContext($context_object, $labels, $values, $prefix);
 				break;
+				
 			default:
 				// Migrated
 				if(null != ($ctx = DevblocksPlatform::getExtension($context, true))
@@ -693,7 +694,7 @@ class CerberusContexts {
 				'global_',
 				'(Global) ',
 				array(
-					'timestamp|date' => 'Current Date+Time',
+					'timestamp' => 'Current Date+Time',
 				),
 				array(
 					'timestamp' => time(),
@@ -1462,7 +1463,7 @@ class CerberusContexts {
 			'mime_type' => $prefix.$translate->_('attachment.mime_type'),
 			'name' => $prefix.$translate->_('attachment.display_name'),
 			'size' => $prefix.$translate->_('attachment.storage_size'),
-			'updated|date' => $prefix.$translate->_('common.updated'),
+			'updated' => $prefix.$translate->_('common.updated'),
 		);
 		
 		// Token values
@@ -1515,6 +1516,13 @@ class Context_Application extends Extension_DevblocksContext {
 			'permalink' => null, //$url_writer->writeNoProxy('', true),
 		);
 	}
+
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'name',
+		);
+	}
 	
 	function getContext($app, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
@@ -1538,6 +1546,11 @@ class Context_Application extends Extension_DevblocksContext {
 			'name' => $prefix.$translate->_('common.name'),
 		);
 		
+		// Token types
+		$token_types = array(
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+		);
+		
 		// Custom field/fieldset token labels
 		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
 			$token_labels = array_merge($token_labels, $custom_field_labels);
@@ -1546,6 +1559,7 @@ class Context_Application extends Extension_DevblocksContext {
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_APPLICATION;
+		$token_values['_types'] = $token_types;
 		
 		// Worker token values
 		if(null != $app) {

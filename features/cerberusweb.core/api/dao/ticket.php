@@ -3133,6 +3133,22 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'owner_id' => $ticket->owner_id,
 		);
 	}
+
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'status',
+			'group_name',
+			'bucket_name',
+			'initial_message_sender_address',
+			'latest_message_sender_address',
+			'org__label',
+			'reopen_date',
+			'spam_score',
+			'created',
+			'updated',
+		);
+	}
 	
 	function getContext($ticket, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
@@ -3150,32 +3166,56 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		} else {
 			$ticket = null;
 		}
-			
+		
 		// Token labels
 		$token_labels = array(
-			'created|date' => $prefix.$translate->_('common.created'),
+			'_label' => $prefix,
+			'created' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('ticket.id'),
 			'mask' => $prefix.$translate->_('ticket.mask'),
 			'num_messages' => $prefix.$translate->_('ticket.num_messages'),
 			'elapsed_response_first' => $prefix.$translate->_('ticket.elapsed_response_first'),
 			'elapsed_resolution_first' => $prefix.$translate->_('ticket.elapsed_resolution_first'),
-			'reopen_date|date' => $prefix.$translate->_('ticket.reopen_at'),
+			'reopen_date' => $prefix.$translate->_('ticket.reopen_at'),
 			'spam_score' => $prefix.$translate->_('ticket.spam_score'),
 			'spam_training' => $prefix.$translate->_('ticket.spam_training'),
 			'status' => $prefix.$translate->_('common.status'),
 			'subject' => $prefix.$translate->_('ticket.subject'),
-			'updated|date' => $prefix.$translate->_('common.updated'),
+			'updated' => $prefix.$translate->_('common.updated'),
 			'url' => $prefix.$translate->_('common.url'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'created' => Model_CustomField::TYPE_DATE,
+			'id' => 'id',
+			'mask' => Model_CustomField::TYPE_SINGLE_LINE,
+			'num_messages' => Model_CustomField::TYPE_NUMBER,
+			'elapsed_response_first' => 'time_secs',
+			'elapsed_resolution_first' => 'time_secs',
+			'reopen_date' => Model_CustomField::TYPE_DATE,
+			'spam_score' => 'percent',
+			'spam_training' => null,
+			'status' => '',
+			'subject' => Model_CustomField::TYPE_SINGLE_LINE, // [TODO] tag as _label
+			'updated' => Model_CustomField::TYPE_DATE,
+			'url' => Model_CustomField::TYPE_URL,
 		);
 
 		// Custom field/fieldset token labels
 		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
 			$token_labels = array_merge($token_labels, $custom_field_labels);
 		
+		// Custom field/fieldset token types
+		if(false !== ($custom_field_types = $this->_getTokenTypesFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+			$token_types = array_merge($token_types, $custom_field_types);
+		
 		// Token values
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_TICKET;
+		$token_values['_types'] = $token_types;
 		
 		// Ticket token values
 		if(null != $ticket) {

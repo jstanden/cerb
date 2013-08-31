@@ -1105,6 +1105,16 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		);
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'status',
+			'email_address',
+			'created',
+			'updated',
+		);
+	}
+	
 	function getContext($opp, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Opportunity:';
@@ -1124,13 +1134,25 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		// Token labels
 		$token_labels = array(
 			'amount' => $prefix.$translate->_('crm.opportunity.amount'),
-			'created|date' => $prefix.$translate->_('crm.opportunity.created_date'),
+			'created' => $prefix.$translate->_('crm.opportunity.created_date'),
 			'is_closed' => $prefix.$translate->_('crm.opportunity.is_closed'),
 			'is_won' => $prefix.$translate->_('crm.opportunity.is_won'),
 			'status' => $prefix.$translate->_('common.status'),
 			'title' => $prefix.$translate->_('crm.opportunity.name'),
-			'updated|date' => $prefix.$translate->_('crm.opportunity.updated_date'),
+			'updated' => $prefix.$translate->_('crm.opportunity.updated_date'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'amount' => Model_CustomField::TYPE_NUMBER,
+			'created' => Model_CustomField::TYPE_DATE,
+			'is_closed' => Model_CustomField::TYPE_CHECKBOX,
+			'is_won' => Model_CustomField::TYPE_CHECKBOX,
+			'status' => Model_CustomField::TYPE_SINGLE_LINE,
+			'title' => Model_CustomField::TYPE_SINGLE_LINE,
+			'updated' => Model_CustomField::TYPE_DATE,
+			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1141,6 +1163,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_OPPORTUNITY;
+		$token_values['_types'] = $token_types;
 		
 		// Opp token values
 		if($opp) {

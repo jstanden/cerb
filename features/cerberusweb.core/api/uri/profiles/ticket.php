@@ -111,21 +111,21 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		// Properties
 		
 		$properties = array(
-				'status' => null,
-				'owner' => null,
-				'mask' => null,
-				'bucket' => null,
-				'org' => null,
-				'created' => array(
-					'label' => ucfirst($translate->_('common.created')),
-					'type' => Model_CustomField::TYPE_DATE,
-					'value' => $ticket->created_date,
-				),
-				'updated' => array(
-					'label' => ucfirst($translate->_('common.updated')),
-					'type' => Model_CustomField::TYPE_DATE,
-					'value' => $ticket->updated_date,
-				),
+			'status' => null,
+			'owner' => null,
+			'mask' => null,
+			'bucket' => null,
+			'org' => null,
+			'created' => array(
+				'label' => ucfirst($translate->_('common.created')),
+				'type' => Model_CustomField::TYPE_DATE,
+				'value' => $ticket->created_date,
+			),
+			'updated' => array(
+				'label' => ucfirst($translate->_('common.updated')),
+				'type' => Model_CustomField::TYPE_DATE,
+				'value' => $ticket->updated_date,
+			),
 		);
 		
 		if(!empty($ticket->closed_at)) {

@@ -109,8 +109,8 @@ abstract class AbstractEvent_ContactPerson extends Extension_DevblocksEvent {
 		$labels['contact_watcher_count'] = 'Contact watcher count';
 		
 		$types = array(
-			'contact_created|date' => Model_CustomField::TYPE_DATE,
-			'contact_last_login|date' => Model_CustomField::TYPE_DATE,
+			'contact_created' => Model_CustomField::TYPE_DATE,
+			'contact_last_login' => Model_CustomField::TYPE_DATE,
 				
 			'contact_email_address' => Model_CustomField::TYPE_SINGLE_LINE,
 			'contact_email_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -123,7 +123,7 @@ abstract class AbstractEvent_ContactPerson extends Extension_DevblocksEvent {
 				
 			'contact_email_org_city' => Model_CustomField::TYPE_SINGLE_LINE,
 			'contact_email_org_country' => Model_CustomField::TYPE_SINGLE_LINE,
-			'contact_email_org_created|date' => Model_CustomField::TYPE_DATE,
+			'contact_email_org_created' => Model_CustomField::TYPE_DATE,
 			'contact_email_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'contact_email_org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
 			'contact_email_org_postal' => Model_CustomField::TYPE_SINGLE_LINE,

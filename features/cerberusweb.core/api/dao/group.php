@@ -1148,6 +1148,12 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		);
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+		);
+	}
+	
 	function getContext($group, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Group:';
@@ -1170,6 +1176,12 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
+		// Token types
+		$token_types = array(
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'record_url' => Model_CustomField::TYPE_URL,
+		);
+		
 		// Custom field/fieldset token labels
 		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
 			$token_labels = array_merge($token_labels, $custom_field_labels);
@@ -1178,6 +1190,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$token_values = array();
 
 		$token_values['_context'] = CerberusContexts::CONTEXT_GROUP;
+		$token_values['_types'] = $token_types;
 		
 		// Group token values
 		if(null != $group) {

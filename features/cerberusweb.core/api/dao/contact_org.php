@@ -1006,6 +1006,20 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		return DAO_ContactOrg::random();
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'name',
+			'street',
+			'city',
+			'province',
+			'postal',
+			'country',
+			'phone',
+			'website',
+		);
+	}
+	
 	function getContext($org, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Org:';
@@ -1024,16 +1038,32 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		
 		// Token labels
 		$token_labels = array(
-			'name' => $prefix.$translate->_('contact_org.name'),
+			'_label' => $prefix,
+			'name' => $prefix.$translate->_('common.name'),
 			'city' => $prefix.$translate->_('contact_org.city'),
 			'country' => $prefix.$translate->_('contact_org.country'),
-			'created|date' => $prefix.$translate->_('contact_org.created'),
+			'created' => $prefix.$translate->_('contact_org.created'),
 			'phone' => $prefix.$translate->_('contact_org.phone'),
 			'postal' => $prefix.$translate->_('contact_org.postal'),
 			'province' => $prefix.$translate->_('contact_org.province'),
 			'street' => $prefix.$translate->_('contact_org.street'),
 			'website' => $prefix.$translate->_('contact_org.website'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'city' => Model_CustomField::TYPE_SINGLE_LINE,
+			'country' => Model_CustomField::TYPE_SINGLE_LINE,
+			'created' => Model_CustomField::TYPE_DATE,
+			'phone' => Model_CustomField::TYPE_SINGLE_LINE,
+			'postal' => Model_CustomField::TYPE_SINGLE_LINE,
+			'province' => Model_CustomField::TYPE_SINGLE_LINE,
+			'street' => Model_CustomField::TYPE_SINGLE_LINE,
+			'website' => Model_CustomField::TYPE_URL,
+			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1044,6 +1074,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_ORG;
+		$token_values['_types'] = $token_types;
 		
 		// Org token values
 		if($org) {

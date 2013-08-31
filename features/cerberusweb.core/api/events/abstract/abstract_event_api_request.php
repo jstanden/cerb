@@ -99,8 +99,8 @@ abstract class AbstractEvent_ApiRequest extends Extension_DevblocksEvent {
 		$types = array(
 			'va_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'va_is_disabled' => Model_CustomField::TYPE_CHECKBOX,
-			'va_created|date' => Model_CustomField::TYPE_DATE,
-			'va_updated|date' => Model_CustomField::TYPE_DATE,
+			'va_created' => Model_CustomField::TYPE_DATE,
+			'va_updated' => Model_CustomField::TYPE_DATE,
 				
 			'va_link' => null,
 			

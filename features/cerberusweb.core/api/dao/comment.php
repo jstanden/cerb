@@ -778,7 +778,7 @@ class Context_Comment extends Extension_DevblocksContext {
 		// Token labels
 		$token_labels = array(
 			'comment' => $prefix.$translate->_('common.content'),
-			'created|date' => $prefix.$translate->_('common.created'),
+			'created' => $prefix.$translate->_('common.created'),
 			'owner_context' => $prefix.'Author Context',
 			'author_label' => $prefix.'Author Label',
 			'author_type' => $prefix.'Author Type',
@@ -791,6 +791,20 @@ class Context_Comment extends Extension_DevblocksContext {
 			'record_watchers_emails' => $prefix.'Record Watchers Email List',
 		);
 		
+		// Token types
+		$token_types = array(
+			'comment' => Model_CustomField::TYPE_MULTI_LINE,
+			'created' => Model_CustomField::TYPE_DATE,
+			'owner_context' => Model_CustomField::TYPE_SINGLE_LINE,
+			'author_label' => Model_CustomField::TYPE_SINGLE_LINE,
+			'author_type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'author_url' => Model_CustomField::TYPE_URL,
+			'context' => Model_CustomField::TYPE_SINGLE_LINE,
+			'record_label' => Model_CustomField::TYPE_SINGLE_LINE,
+			'record_type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'record_url' => Model_CustomField::TYPE_URL,
+		);
+		
 		// Custom field/fieldset token labels
 		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
 			$token_labels = array_merge($token_labels, $custom_field_labels);
@@ -799,6 +813,7 @@ class Context_Comment extends Extension_DevblocksContext {
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_COMMENT;
+		$token_values['_types'] = $token_types;
 		
 		if($comment) {
 			$token_values['_loaded'] = true;

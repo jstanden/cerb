@@ -665,6 +665,14 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		);
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'views',
+			'updated',
+		);
+	}
+	
 	function getContext($article, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Article:';
@@ -687,9 +695,19 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 			'content' => $prefix.$translate->_('kb_article.content'),
 			'id' => $prefix.$translate->_('common.id'),
 			'title' => $prefix.$translate->_('kb_article.title'),
-			'updated|date' => $prefix.$translate->_('kb_article.updated'),
+			'updated' => $prefix.$translate->_('kb_article.updated'),
 			'views' => $prefix.$translate->_('kb_article.views'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'content' => null,
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'title' => Model_CustomField::TYPE_SINGLE_LINE,
+			'updated' => Model_CustomField::TYPE_DATE,
+			'views' => Model_CustomField::TYPE_NUMBER,
+			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -700,6 +718,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_KB_ARTICLE;
+		$token_values['_types'] = $token_types;
 		
 		// Token values
 		if(null != $article) {
