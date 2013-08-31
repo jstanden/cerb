@@ -799,6 +799,10 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 			$token_values['id'] = $entry->id;
 			$token_values['created'] = $entry->created;
 			
+			$activities = DevblocksPlatform::getActivityPointRegistry();
+			if(isset($activities[$entry->activity_point]))
+				$token_values['event'] = $activities[$entry->activity_point]['params']['label_key'];
+			
 			$token_values['actor__context'] = $entry->actor_context;
 			$token_values['actor_id'] = $entry->actor_context_id;
 			
