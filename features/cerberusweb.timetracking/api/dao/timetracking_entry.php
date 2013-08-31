@@ -547,7 +547,7 @@ class Model_TimeTrackingEntry {
 		if(!empty($this->activity_id))
 			$activity = DAO_TimeTrackingActivity::get($this->activity_id); // [TODO] Cache?
 
-		$time_increment = $this->getTimeSpentAsString();
+		$time_increment = DevblocksPlatform::strSecsToString(intval($this->time_actual_mins) * 60, 2);
 		
 		$who = 'A worker';
 		if(null != ($worker = DAO_Worker::get($this->worker_id)))
@@ -569,21 +569,6 @@ class Model_TimeTrackingEntry {
 		}
 
 		return $out;
-	}
-	
-	function getTimeSpentAsString() {
-		$time_increment = sprintf("%d mins", $this->time_actual_mins);
-		
-		if($this->time_actual_mins >= 60) {
-			$hrs = ($this->time_actual_mins/60);
-			
-			$time_increment = sprintf("%0.2f hours",
-				$hrs,
-				($hrs != 1) ? 's' : ''
-			);
-		}
-		
-		return $time_increment;
 	}
 };
 
