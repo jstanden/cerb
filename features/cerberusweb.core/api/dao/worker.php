@@ -1502,6 +1502,8 @@ class Context_Worker extends Extension_DevblocksContext {
 			'_label' => $prefix,
 			'first_name' => $prefix.$translate->_('worker.first_name'),
 			'full_name' => $prefix.$translate->_('worker.full_name'),
+			'is_disabled' => $prefix.$translate->_('common.disabled'),
+			'is_superuser' => $prefix.$translate->_('worker.is_superuser'),
 			'last_name' => $prefix.$translate->_('worker.last_name'),
 			'title' => $prefix.$translate->_('worker.title'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
