@@ -1478,6 +1478,7 @@ class Context_Worker extends Extension_DevblocksContext {
 			'address_org__label',
 			'is_disabled',
 			'is_superuser',
+			'last_activity_date',
 		);
 	}
 	
@@ -1505,6 +1506,7 @@ class Context_Worker extends Extension_DevblocksContext {
 			'is_disabled' => $prefix.$translate->_('common.disabled'),
 			'is_superuser' => $prefix.$translate->_('worker.is_superuser'),
 			'last_name' => $prefix.$translate->_('worker.last_name'),
+			'last_activity_date' => $prefix.$translate->_('worker.last_activity_date'),
 			'title' => $prefix.$translate->_('worker.title'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -1517,6 +1519,7 @@ class Context_Worker extends Extension_DevblocksContext {
 			'is_disabled' => Model_CustomField::TYPE_CHECKBOX,
 			'is_superuser' => Model_CustomField::TYPE_CHECKBOX,
 			'last_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'last_activity_date' => Model_CustomField::TYPE_DATE,
 			'title' => Model_CustomField::TYPE_SINGLE_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
@@ -1542,6 +1545,7 @@ class Context_Worker extends Extension_DevblocksContext {
 			$token_values['is_disabled'] = $worker->is_disabled;
 			$token_values['is_superuser'] = $worker->is_superuser;
 			$token_values['last_name'] = $worker->last_name;
+			$token_values['last_activity_date'] = $worker->last_activity_date;
 			$token_values['title'] = $worker->title;
 
 			// URL
