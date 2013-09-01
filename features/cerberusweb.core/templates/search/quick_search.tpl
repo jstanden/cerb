@@ -15,7 +15,6 @@
 	<input type="hidden" name="c" value="search">
 	<input type="hidden" name="a" value="ajaxQuickSearch">
 	<input type="hidden" name="view_id" value="{$view->id}">
-	<input type="hidden" name="reset" value="{if !empty($reset)}1{else}0{/if}">
 	
 	<select name="field">
 		{$smarty.capture.options nofilter}
