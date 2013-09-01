@@ -751,7 +751,7 @@ class CerberusContexts {
 		// [TODO] Phase out $labels
 		
 		foreach($labels as $idx => $label) {
-			$labels[$idx] = ucfirst(strtolower(strtr($label,':',' ')));
+			$labels[$idx] = trim(ucfirst(strtolower(strtr($label,':',' '))));
 		}
 		
 		asort($labels);

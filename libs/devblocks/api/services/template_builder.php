@@ -126,6 +126,10 @@ class DevblocksDictionaryDelegate {
 	function __construct($dictionary) {
 		$this->_dictionary = $dictionary;
 	}
+
+	public static function instance($values) {
+		return new DevblocksDictionaryDelegate($values);
+	}
 	
 	public function __set($name, $value) {
 		$this->_dictionary[$name] = $value;
