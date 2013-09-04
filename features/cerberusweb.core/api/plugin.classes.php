@@ -215,6 +215,179 @@ class ChPageController extends DevblocksControllerExtension {
 	}
 };
 
+if(class_exists('Extension_DevblocksEventAction')):
+class VaAction_HttpRequest extends Extension_DevblocksEventAction {
+	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('params', $params);
+		
+		if(!is_null($seq))
+			$tpl->assign('namePrefix', 'action'.$seq);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_http_request.tpl');
+	}
+	
+	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
+		$out = null;
+		
+		@$http_verb = $params['http_verb'];
+		@$http_url = $tpl_builder->build($params['http_url'], $dict);
+		@$http_body = $tpl_builder->build($params['http_body'], $dict);
+		@$response_placeholder = $params['response_placeholder'];
+		
+		if(empty($http_verb))
+			return "[ERROR] HTTP verb is required.";
+		
+		if(empty($http_url))
+			return "[ERROR] HTTP URL is required.";
+		
+		if(empty($response_placeholder))
+			return "[ERROR] No result placeholder given.";
+		
+		// Output
+		$out = sprintf(">>> Sending HTTP request:\n%s %s\n%s\n",
+			mb_convert_case($http_verb, MB_CASE_UPPER),
+			$http_url,
+			(in_array($http_verb, array('post','put')) ? ("\n" . $http_body. "\n") : "")
+		);
+		
+		$out .= sprintf(">>> Saving response to placeholder:\n%s\n",
+			$response_placeholder
+		);
+
+		// [TODO] If set to run in simulator as well
+		//$response = $this->_execute($http_verb, $http_url, array(), $http_body);
+		//$dict->$response_placeholder = $response;
+		
+		return $out;
+	}
+	
+	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
+		@$http_verb = $params['http_verb'];
+		@$http_url = $tpl_builder->build($params['http_url'], $dict);
+		@$http_body = $tpl_builder->build($params['http_body'], $dict);
+		@$response_placeholder = $params['response_placeholder'];
+		
+		if(empty($http_verb) || empty($http_url))
+			return false;
+		
+		if(empty($response_placeholder))
+			return false;
+		
+		$response = $this->_execute($http_verb, $http_url, array(), $http_body);
+		$dict->$response_placeholder = $response;
+	}
+	
+	private function _execute($verb, $url, $params=array(), $body=null) {
+		switch($verb) {
+			case 'get':
+				return $this->_get($url, $params);
+				break;
+				
+			case 'post':
+			case 'put':
+				return $this->_post($url, $params, $body, $verb);
+				break;
+				
+			case 'delete':
+				// [TODO]
+				break;
+		}
+		
+	}
+	
+	private function _post($url, $params=array(), $body=null, $verb='post') {
+		if(!empty($params) && is_array($params))
+			$url .= '?' . http_build_query($params);
+		
+		$ch = curl_init($url);
+		
+		$headers = array();
+		
+		//$headers[] = 'Content-Type: application/json';
+		
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		
+		switch($verb) {
+			case 'post':
+				curl_setopt($ch, CURLOPT_POST, 1);
+				break;
+				
+			case 'put':
+				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+				curl_setopt($ch, CURLOPT_POST, 1);
+				break;
+		}
+		
+		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(json_decode($body, true)));
+		
+		if(!empty($headers))
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+		$out = curl_exec($ch);
+		
+		$info = curl_getinfo($ch);
+
+		// [TODO] This can fail without HTTPS
+		
+		if(curl_errno($ch)) {
+			
+		} else {
+			switch(@$info['content_type']) {
+				case 'application/json':
+					@$out = json_decode($out, true);
+					break;
+			}
+		}
+		
+		curl_close($ch);
+		return array(
+			'content_type' => $info['content_type'],
+			'body' => $out,
+		);
+	}
+	
+	private function _get($url, $params=array()) {
+		if(!empty($params) && is_array($params))
+			$url .= '?' . http_build_query($params);
+		
+		$ch = curl_init($url);
+		
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$out = curl_exec($ch);
+
+		$info = curl_getinfo($ch);
+		
+		if(curl_errno($ch)) {
+			
+		} else {
+			switch(@$info['content_type']) {
+				case 'application/json':
+					@$out = json_decode($out, true);
+					break;
+					
+				case 'image/gif':
+				case 'image/jpeg':
+				case 'image/jpg':
+				case 'image/png':
+					@$out = base64_encode($out);
+					break;
+			}
+		}
+		
+		curl_close($ch);
+		return array(
+			'content_type' => $info['content_type'],
+			'body' => $out,
+		);
+	}
+};
+endif;
+
 // RSS Sources
 
 class ChRssSource_Notification extends Extension_RssSource {
