@@ -1,24 +1,19 @@
-<table cellpadding="0" cellspacing="0" border="0" width="100%">
-	<tr>
-		<td width="1%" nowrap="nowrap">
-			<canvas id="widget{$widget->id}_canvas" width="200" height="125">
-				Your browser does not support HTML5 Canvas.
-			</canvas>
-		</td>
-		<td width="99%" valign="top">
-			<div style="margin-top:5px;">
-			{foreach from=$widget->params['threshold_labels'] item=label key=idx name=labels}
-			{if !empty($label)}
-			<div style="">
-				<span style="width:10px;height:10px;display:inline-block;background-color:{$widget->params['threshold_colors'][$idx]};margin:2px;vertical-align:middle;border-radius:10px;-moz-border-radius:10px;-webkit-border-radius:10px;-o-border-radius:10px;"></span>
-				<b style="vertical-align:middle;">{$label}</b>
-			</div>
-			{/if}
-			{/foreach}
-			</div>
-		</td>
-	</tr>
-</table>
+<div style="text-align:center;">
+<canvas id="widget{$widget->id}_canvas" width="200" height="125" style="margin-right:5px;">
+	Your browser does not support HTML5 Canvas.
+</canvas>
+</div>
+
+<span style="margin:5px 0px 0px 0px;display:inline-block;vertical-align:top;">
+{foreach from=$widget->params['threshold_labels'] item=label key=idx name=labels}
+{if !empty($label)}
+<span>
+	<span style="width:10px;height:10px;display:inline-block;background-color:{$widget->params['threshold_colors'][$idx]};margin:2px;vertical-align:middle;border-radius:10px;-moz-border-radius:10px;-webkit-border-radius:10px;-o-border-radius:10px;"></span>
+	<b style="vertical-align:middle;">{$label}</b>
+</span>
+{/if}
+{/foreach}
+</span>
 
 <script type="text/javascript">
 $(function() {
