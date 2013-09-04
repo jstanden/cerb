@@ -3361,6 +3361,11 @@ class DevblocksEventHelper {
 			return;
 		
 		$view->setPlaceholderValues($dict->getDictionary());
+		C4_AbstractViewLoader::setView($view->id, $view);
+		
+		// Save the generated view_id in the dictionary for reuse (paging, etc)
+		$var_view_id_key = sprintf("%s_view_id", $token);
+		$dict->$var_view_id_key = $view->id;
 		
 		// [TODO] Iterate through pages if over a certain list length?
 		//$view->renderLimit = (isset($params['limit']) && is_numeric($params['limit'])) ? intval($params['limit']) : 100;
