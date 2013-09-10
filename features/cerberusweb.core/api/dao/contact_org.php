@@ -1009,7 +1009,6 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
-			'name',
 			'street',
 			'city',
 			'province',

@@ -475,6 +475,7 @@ class Context_Bucket extends Extension_DevblocksContext {
 		$token_values['_types'] = $token_types;
 		
 		$token_values['name'] = mb_convert_case($translate->_('common.inbox'), MB_CASE_TITLE);
+		$token_values['_label'] = $token_values['name'];
 		
 		// Token values
 		if(null != $bucket) {

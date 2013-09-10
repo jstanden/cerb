@@ -1068,7 +1068,7 @@ class CerberusParser {
 					
 					$properties['content'] = $body;
 					
-					$result = CerberusMail::sendTicketMessage($properties);
+					CerberusMail::sendTicketMessage($properties);
 					return $proxy_ticket->id;
 				}
 

@@ -3139,7 +3139,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		return array(
 			'status',
 			'group__label',
-			'bucket_name',
+			'bucket__label',
 			'initial_message_sender__label',
 			'latest_message_sender__label',
 			'org__label',
@@ -3312,7 +3312,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		CerberusContexts::merge(
 			'initial_message_',
-			'Ticket:Initial:',
+			$prefix.'Initial:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,
@@ -3327,7 +3327,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		CerberusContexts::merge(
 			'initial_response_message_',
-			'Ticket:Initial:Response:',
+			$prefix.'Initial:Response:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,
@@ -3342,7 +3342,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		CerberusContexts::merge(
 			'latest_message_',
-			'Ticket:Latest:',
+			$prefix.'Latest:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,
@@ -3368,7 +3368,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 			CerberusContexts::merge(
 				'owner_',
-				'Ticket:Owner:',
+				$prefix.'Owner:',
 				$merge_token_labels,
 				$merge_token_values,
 				$token_labels,
@@ -3382,7 +3382,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 			CerberusContexts::merge(
 				'org_',
-				'Ticket:Org:',
+				$prefix.'Org:',
 				$merge_token_labels,
 				$merge_token_values,
 				$token_labels,

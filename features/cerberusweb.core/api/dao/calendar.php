@@ -136,7 +136,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		return $calendars;
 	}
 	
-	static function getWriteableByActor() {
+	static function getWriteableByActor($actor) {
 		$calendars = DAO_Calendar::getAll();
 		
 		foreach($calendars as $calendar_id => $calendar) { /* @var $calendar Model_Calendar */
