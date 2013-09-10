@@ -536,7 +536,7 @@ class Model_Calendar {
 		
 			if(null == ($datasource_extension = Extension_CalendarDatasource::get($series['datasource'])))
 				continue;
-
+			
 			$series_events = $datasource_extension->getData($this, $series, $series_prefix, $date_from, $date_to);
 			
 			foreach($series_events as $time => $events) {
@@ -587,13 +587,11 @@ class Model_Calendar {
 			"SELECT id, name, is_available, date_start, date_end ".
 			"FROM calendar_event ".
 			"WHERE calendar_id = %d ".
-			"AND ((date_start >= %d AND date_start <= %d) OR (date_end >= %d AND date_end <= %d)) ".
+			"AND date_start <= %d AND date_end >= %d ".
 			"ORDER BY is_available DESC, date_start ASC",
 			$this->id,
-			$date_from,
 			$date_to,
-			$date_from,
-			$date_to
+			$date_from
 		);
 		
 		$results = $db->GetArray($sql);
