@@ -34,6 +34,7 @@
 </select>
 </div>
 
+<div>
 <b>Start date</b> is 
 	
 <select name="params{$params_prefix}[field_start_date]" class="field_start_date">
@@ -47,10 +48,24 @@
 	{/foreach}
 	{/if}
 </select>
-<br>
+<input type="text" name="params{$params_prefix}[field_start_date_offset]" value="{$params.field_start_date_offset|default:''}" size="24" placeholder="e.g. +2 hours">
+</div>
 
 <div>
-<b>End date</b> is <input type="text" name="params{$params_prefix}[end_date]" value="{$params.end_date|default:''}" size="64" class="placeholders-input">
+<b>End date</b> is 
+
+<select name="params{$params_prefix}[field_end_date]" class="field_end_date">
+	{if !empty($ctx_fields)}
+	{foreach from=$ctx_fields item=field}
+		{if !empty($field->db_label)}
+			{if $field->type == Model_CustomField::TYPE_DATE}
+			<option value="{$field->token}" class="{if $field->type == Model_CustomField::TYPE_DATE}date{else}{/if}" {if $params.field_end_date==$field->token}selected="selected"{/if}>{$field->db_label|lower}</option>
+			{/if}
+		{/if}
+	{/foreach}
+	{/if}
+</select>
+<input type="text" name="params{$params_prefix}[field_end_date_offset]" value="{$params.field_end_date_offset|default:''}" size="24" placeholder="e.g. +2 hours">
 </div>
 
 <div>
@@ -67,7 +82,7 @@
 var $div = $('#div{$uniqid}');
 
 $div.find('select.field_start_date').change(function(e) {
-	$this = $(this);
+	var $this = $(this);
 });
 
 $div.find('input:hidden.color-picker').miniColors({
@@ -75,7 +90,7 @@ $div.find('input:hidden.color-picker').miniColors({
 });
 
 $div.find('select.context').change(function(e) {
-	ctx = $(this).val();
+	var ctx = $(this).val();
 	
 	// Hide options until we know the context
 	var $select = $(this);
@@ -85,17 +100,22 @@ $div.find('select.context').change(function(e) {
 	
 	genericAjaxGet('','c=internal&a=handleSectionAction&section=dashboards&action=getContextFieldsJson&context=' + ctx, function(json) {
 			if('object' == typeof(json) && json.length > 0) {
-				var $select_field_start_date = $select.siblings('select.field_start_date').html('');
+				var $div = $('#div{$uniqid}');
+				
+				var $select_field_start_date = $div.find('select.field_start_date').html('');
+				var $select_field_end_date = $div.find('select.field_end_date').html('');
 				
 				for(idx in json) {
-					field = json[idx];
-					field_type = (field.type=='E') ? 'date' : ((field.type=='N') ? 'number' : '');
+					var field = json[idx];
+					var field_type = (field.type=='E') ? 'date' : ((field.type=='N') ? 'number' : '');
 					
-					$option = $('<option value="'+field.key+'" class="'+field_type+'">'+field.label+'</option>');
+					var $option = $('<option value="'+field.key+'" class="'+field_type+'">'+field.label+'</option>');
 	
 					// Field: Start Date
-					if(field_type == 'date')
+					if(field_type == 'date') {
 						$select_field_start_date.append($option.clone());
+						$select_field_end_date.append($option.clone());
+					}
 					
 					delete $option;
 				}

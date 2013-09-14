@@ -289,13 +289,14 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 			return;
 		}
 		
+		$types = @$values['_types'] ?: array();
 		$results = array();
 		
 		foreach($labels as $k => $v) {
 			$results[] = array(
 				'key' => $k,
 				'label' => $v,
-				'type' => '',
+				'type' => @$types[$k] ?: '',
 			);
 		}
 		

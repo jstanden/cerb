@@ -62,9 +62,44 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 				if(false != ($view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($worklist_model, $view_id))) {
 					/* @var $view C4_AbstractView */
 					
+					@$field_start_date = $params['field_start_date'] ?: '';
+					@$field_end_date = $params['field_end_date'] ?: $field_start_date;
+					$field_start_date_offset = 0;
+					$field_end_date_offset = 0;
+					
+					$view->removeParam($field_start_date);
+					$view->removeParam($field_end_date);
+					
+					if(isset($params['field_start_date_offset'])) {
+						if(false !== ($offset = strtotime($params['field_start_date_offset'])))
+							$field_start_date_offset = $offset - time();
+					}
+					
+					if(isset($params['field_end_date_offset'])) {
+						if(false !== ($offset = strtotime($params['field_end_date_offset'])))
+							$field_end_date_offset = $offset - time();
+					}
+					
+					// Include any events that start before the calendar ends, and end after it starts
+					
 					$view->addParam(
-						new DevblocksSearchCriteria($params['field_start_date'], DevblocksSearchCriteria::OPER_BETWEEN, array($date_range_from, $date_range_to)),
-						$params['field_start_date']
+						new DevblocksSearchCriteria($field_start_date, DevblocksSearchCriteria::OPER_CUSTOM,
+							array('where' => sprintf("%s <= %d",
+								(!empty($field_start_date_offset) ? (' + ' . $field_start_date_offset) : ''),
+								$date_range_to
+							))
+						),
+						'filter_range_start' // $params['field_start_date']
+					);
+					
+					$view->addParam(
+						new DevblocksSearchCriteria($field_end_date, DevblocksSearchCriteria::OPER_CUSTOM,
+							array('where' => sprintf("%s >= %d",
+								(!empty($field_end_date_offset) ? (' + ' . $field_end_date_offset) : ''),
+								$date_range_from
+							))
+						),
+						'filter_range_end' // $params['field_end_date']
 					);
 					
 					$view->renderPage = 0;
@@ -83,12 +118,14 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 
 					if(is_array($results))
 					foreach($results as $id => $row) {
-						$ts = strtotime('now', $row[$params['field_start_date']]);
+						$ts_offset = @$params['field_start_date_offset'] ?: 'now';
+						$ts = strtotime($ts_offset, $row[$field_start_date]);
 
 						// [TODO] This should be more efficient
 						CerberusContexts::getContext($context_ext->id, $id, $labels, $values);
 						
-						@$ts_end = strtotime($tpl_builder->build($params['end_date'], $values));
+						$ts_end_offset = @$params['field_end_date_offset'] ?: 'now';
+						$ts_end = strtotime($ts_end_offset, $row[$field_end_date]);
 						
 						if(empty($ts_end))
 							$ts_end = $ts;
