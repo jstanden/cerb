@@ -41,6 +41,7 @@ class DevblocksSearchCriteria {
 	const OPER_BETWEEN = 'between';
 	const OPER_NOT_BETWEEN = 'not between';
 	const OPER_TRUE = '1';
+	const OPER_CUSTOM = 'custom';
 	
 	const GROUP_OR = 'OR';
 	const GROUP_AND = 'AND';
@@ -395,6 +396,13 @@ class DevblocksSearchCriteria {
 					$db_field_name,
 					$this->operator,
 					self::_escapeSearchParam($this, $fields)
+				);
+				break;
+			
+			case DevblocksSearchCriteria::OPER_CUSTOM:
+				$where = sprintf("%s %s",
+					$db_field_name,
+					$this->value['where']
 				);
 				break;
 				
