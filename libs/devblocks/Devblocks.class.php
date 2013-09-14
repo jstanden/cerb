@@ -711,6 +711,10 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function strToHyperlinks($string) {
+		// Bail out if we're asked to auto-hyperlink a huge block of text
+		if(strlen($string) > 512000)
+			return $string;
+		
 		return preg_replace_callback('@([^\s]+){0,1}(https?://(.*?))((?:[>"\.\?,\)]{0,1}(\s|$))|(&(?:quot|gt);))@i', function($matches) {
 			$prefix = $matches[1];
 			$url = $matches[2];
@@ -733,9 +737,6 @@ class DevblocksPlatform extends DevblocksEngine {
 				$suffix
 			);
 		}, $string);
-		
-		//$regex = '@(https?://(.*?))(([>"\.\?,\)]{0,1}(\s|$))|(&(quot|gt);))@i';
-		//return preg_replace($regex,'<a href="$1" target="_blank">$1</a>$3',$string);
 	}
 	
 	static function strSecsToString($string, $length=0) {
