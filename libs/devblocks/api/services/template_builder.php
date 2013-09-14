@@ -196,6 +196,10 @@ class DevblocksDictionaryDelegate {
 			
 			if(is_array($loaded_values))
 			foreach($loaded_values as $k => $v) {
+				// Don't cascade the labels + types on loaded contexts
+				if(in_array($k, array('_labels', '_types')))
+					continue;
+				
 				$this->_dictionary[$context_data['prefix'] . $k] = $v;
 			}
 		}

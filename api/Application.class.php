@@ -797,26 +797,31 @@ class CerberusContexts {
 		}
 		
 		foreach($src_values as $token => $value) {
-			if(in_array($token, array('_labels', '_types')))
-				continue;
-			
-			$dst_values[$token_prefix.$token] = $value;
-		}
+			if(in_array($token, array('_labels', '_types'))) {
 
-		if(!isset($dst_values['_labels']))
-			$dst_values['_labels'] = array();
-		
-		if(isset($src_values['_labels']))
-		foreach($src_values['_labels'] as $key => $label) {
-			$dst_values['_labels'][$token_prefix.$key] = $label_prefix.$label;
-		}
-		
-		if(!isset($dst_values['_types']))
-			$dst_values['_types'] = array();
-		
-		if(isset($src_values['_types']))
-		foreach($src_values['_types'] as $key => $type) {
-			$dst_values['_types'][$token_prefix.$key] = $type;
+				switch($token) {
+					case '_labels':
+						if(!isset($dst_values['_labels']))
+							$dst_values['_labels'] = array();
+						
+						foreach($value as $key => $label) {
+							$dst_values['_labels'][$token_prefix.$key] = $label_prefix.$label;
+						}
+						break;
+						
+					case '_types':
+						if(!isset($dst_values['_types']))
+							$dst_values['_types'] = array();
+						
+						foreach($value as $key => $type) {
+							$dst_values['_types'][$token_prefix.$key] = $type;
+						}
+						break;
+				}
+				
+			} else {
+				$dst_values[$token_prefix.$token] = $value;
+			}
 		}
 		
 		return true;
