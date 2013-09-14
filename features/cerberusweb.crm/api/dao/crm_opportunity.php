@@ -492,8 +492,8 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 			
 			self::NAME => new DevblocksSearchField(self::NAME, 'o', 'name', $translate->_('crm.opportunity.name'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::AMOUNT => new DevblocksSearchField(self::AMOUNT, 'o', 'amount', $translate->_('crm.opportunity.amount'), Model_CustomField::TYPE_NUMBER),
-			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'o', 'created_date', $translate->_('crm.opportunity.created_date'), Model_CustomField::TYPE_DATE),
-			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 'o', 'updated_date', $translate->_('crm.opportunity.updated_date'), Model_CustomField::TYPE_DATE),
+			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'o', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE),
+			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 'o', 'updated_date', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 			self::CLOSED_DATE => new DevblocksSearchField(self::CLOSED_DATE, 'o', 'closed_date', $translate->_('crm.opportunity.closed_date'), Model_CustomField::TYPE_DATE),
 			self::IS_WON => new DevblocksSearchField(self::IS_WON, 'o', 'is_won', $translate->_('crm.opportunity.is_won'), Model_CustomField::TYPE_CHECKBOX),
 			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'o', 'is_closed', $translate->_('crm.opportunity.is_closed'), Model_CustomField::TYPE_CHECKBOX),
@@ -1157,12 +1157,12 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		$token_labels = array(
 			'_label' => $prefix,
 			'amount' => $prefix.$translate->_('crm.opportunity.amount'),
-			'created' => $prefix.$translate->_('crm.opportunity.created_date'),
+			'created' => $prefix.$translate->_('common.created'),
 			'is_closed' => $prefix.$translate->_('crm.opportunity.is_closed'),
 			'is_won' => $prefix.$translate->_('crm.opportunity.is_won'),
 			'status' => $prefix.$translate->_('common.status'),
 			'title' => $prefix.$translate->_('crm.opportunity.name'),
-			'updated' => $prefix.$translate->_('crm.opportunity.updated_date'),
+			'updated' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		

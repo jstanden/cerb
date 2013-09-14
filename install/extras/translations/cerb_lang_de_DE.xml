@@ -1461,11 +1461,6 @@
         <seg>Telefon</seg>
       </tuv>
     </tu>
-    <tu tuid="crm.opportunity.created_date">
-      <tuv xml:lang="de_DE">
-        <seg>Erstellt</seg>
-      </tuv>
-    </tu>
     <tu tuid="crm.opportunity.email_address">
       <tuv xml:lang="de_DE">
         <seg>Haupt-Emailadresse</seg>
@@ -1524,11 +1519,6 @@
     <tu tuid="crm.opportunity.source">
       <tuv xml:lang="de_DE">
         <seg>Hinweis-Quelle</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opportunity.updated_date">
-      <tuv xml:lang="de_DE">
-        <seg>aktualisiert</seg>
       </tuv>
     </tu>
     <tu tuid="crm.opportunity.worker_id">

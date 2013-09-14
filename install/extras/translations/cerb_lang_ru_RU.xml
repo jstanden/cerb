@@ -4545,11 +4545,6 @@ remote control of your helpdesk.</seg>
         <seg></seg>
       </tuv>
     </tu>
-    <tu tuid="crm.opportunity.created_date">
-      <tuv xml:lang="ru_RU">
-        <seg></seg>
-      </tuv>
-    </tu>
     <tu tuid="crm.opportunity.email_address">
       <tuv xml:lang="ru_RU">
         <seg></seg>
@@ -4588,11 +4583,6 @@ remote control of your helpdesk.</seg>
     <tu tuid="crm.opportunity.primary_email_id">
       <tuv xml:lang="ru_RU">
         <seg></seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opportunity.updated_date">
-      <tuv xml:lang="ru_RU">
-        <seg>Дата обновления</seg>
       </tuv>
     </tu>
     <tu tuid="crm.opportunity.worker_id">

@@ -75,9 +75,6 @@
 		<tu tuid='crm.opportunity.contact_phone'>
 			<tuv xml:lang="en_US"><seg>Phone</seg></tuv>
 		</tu>
-		<tu tuid='crm.opportunity.created_date'>
-			<tuv xml:lang="en_US"><seg>Created Date</seg></tuv>
-		</tu>
 		<tu tuid='crm.opportunity.email_address'>
 			<tuv xml:lang="en_US"><seg>Email</seg></tuv>
 		</tu>
@@ -101,9 +98,6 @@
 		</tu>
 		<tu tuid='crm.opportunity.primary_email_id'>
 			<tuv xml:lang="en_US"><seg>Email ID</seg></tuv>
-		</tu>
-		<tu tuid='crm.opportunity.updated_date'>
-			<tuv xml:lang="en_US"><seg>Updated Date</seg></tuv>
 		</tu>
 		<tu tuid='crm.opportunity.worker_id'>
 			<tuv xml:lang="en_US"><seg>Worker</seg></tuv>

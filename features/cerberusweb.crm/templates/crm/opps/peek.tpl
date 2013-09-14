@@ -43,7 +43,7 @@
 		</tr>
 		
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.created_date')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('common.created')|capitalize}: </td>
 			<td width="100%">
 				<input type="text" name="created_date" size=35 class="input_date" value="{if !empty($opp->created_date)}{$opp->created_date|devblocks_date}{else}now{/if}">
 			</td>
