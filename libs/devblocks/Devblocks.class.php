@@ -832,6 +832,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		if($diffsecs > 0 && !$is_delta)
 			$whole .= ' ago';
 		
+		if($diffsecs == 0)
+			$whole = 'just now';
+		
 		return $whole;
 	}
 	
