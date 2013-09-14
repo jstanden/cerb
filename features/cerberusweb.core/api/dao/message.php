@@ -498,7 +498,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::ADDRESS_ID => new DevblocksSearchField(SearchFields_Message::ADDRESS_ID, 'm', 'address_id'),
 			SearchFields_Message::CREATED_DATE => new DevblocksSearchField(SearchFields_Message::CREATED_DATE, 'm', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE),
 			SearchFields_Message::IS_OUTGOING => new DevblocksSearchField(SearchFields_Message::IS_OUTGOING, 'm', 'is_outgoing', $translate->_('message.is_outgoing'), Model_CustomField::TYPE_CHECKBOX),
-			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'm', 'ticket_id'),
+			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'm', 'ticket_id', 'Ticket ID'),
 			SearchFields_Message::WORKER_ID => new DevblocksSearchField(SearchFields_Message::WORKER_ID, 'm', 'worker_id', $translate->_('common.worker'), Model_CustomField::TYPE_WORKER),
 			SearchFields_Message::RESPONSE_TIME => new DevblocksSearchField(SearchFields_Message::RESPONSE_TIME, 'm', 'response_time', $translate->_('message.response_time'), Model_CustomField::TYPE_NUMBER),
 			SearchFields_Message::IS_BROADCAST => new DevblocksSearchField(SearchFields_Message::IS_BROADCAST, 'm', 'is_broadcast', $translate->_('message.is_broadcast'), Model_CustomField::TYPE_CHECKBOX),
@@ -1750,16 +1750,44 @@ class Context_Message extends Extension_DevblocksContext {
 		);
 	}
 	
+	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {
+		$labels = $dict->_labels;
+		$prefix = $labels['_label'];
+		
+		if(!empty($prefix)) {
+			array_walk($labels, function(&$label, $key) use ($prefix) {
+				// [TODO] Translate
+				$label = preg_replace(sprintf("#^%s #i", preg_quote($prefix)), '', $label);
+				$label = preg_replace(sprintf("#^%s #i", preg_quote('Ticket org')), 'Org', $label);
+				
+				switch($key) {
+					case 'ticket_org__label':
+						$label = 'Org';
+						break;
+						
+					case 'ticket_status':
+						$label = 'Status';
+						break;
+				}
+				
+				$label = mb_convert_case($label, MB_CASE_LOWER);
+				$label[0] = mb_convert_case($label[0], MB_CASE_UPPER);
+			});
+		}
+		
+		asort($labels);
+		
+		return $labels;
+	}
+	
 	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'ticket__label',
+			'ticket_status',
 			'sender__label',
 			'ticket_org__label',
 			'created',
-			'response_time',
-			'is_outgoing',
-			'storage_size',
 		);
 	}
 	

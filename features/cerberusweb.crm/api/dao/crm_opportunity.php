@@ -1105,6 +1105,28 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		);
 	}
 	
+	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {
+		$labels = $dict->_labels;
+		$prefix = $labels['_label'];
+		
+		if(!empty($prefix)) {
+			array_walk($labels, function(&$label, $key) use ($prefix) {
+				$label = preg_replace(sprintf("#^%s #", preg_quote($prefix)), '', $label);
+				
+				// [TODO] Use translations
+				switch($key) {
+				}
+				
+				$label = mb_convert_case($label, MB_CASE_LOWER);
+				$label[0] = mb_convert_case($label[0], MB_CASE_UPPER);
+			});
+		}
+		
+		asort($labels);
+		
+		return $labels;
+	}
+	
 	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
