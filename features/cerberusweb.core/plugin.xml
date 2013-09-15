@@ -1907,7 +1907,26 @@
 				-->
 			</params>
 		</extension>
- 
+
+		<!-- VA Actions -->
+		
+		<extension point="devblocks.event.action">
+			<id>core.va.action.http_request</id>
+			<name>HTTP Request</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>VaAction_HttpRequest</name>
+			</class>
+			<params>
+				<param key="label" value="Execute an HTTP request" />
+				<param key="events">
+					<value>
+						<data key="*" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<!-- Controllers -->
 		
 		<extension point="devblocks.controller">
