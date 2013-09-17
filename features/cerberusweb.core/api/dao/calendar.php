@@ -1404,6 +1404,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 					
 				} else {
 					@$calendar_scope = $dictionary['calendar_scope'];
+					$values['weeks'] = $dictionary['weeks'];
 					
 				}
 				

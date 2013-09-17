@@ -151,6 +151,24 @@ class CerberusMail {
 	}
 
 	static function compose($properties) {
+		/*
+		 'group_id'
+		 'bucket_id'
+		 'worker_id'
+		 'org_id'
+		 'to'
+		 'cc'
+		 'bcc'
+		 'subject'
+		 'content'
+		 'files'
+		 'forward_files'
+		 'closed'
+		 'ticket_reopen'
+		 'dont_send'
+		 'draft_id'
+		 */
+		
 		@$group_id = $properties['group_id'];
 		@$bucket_id = intval($properties['bucket_id']);
 		

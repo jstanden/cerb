@@ -41,7 +41,6 @@ class DAO_Notification extends DevblocksORMHelper {
 		// If a worker was provided
 		if(isset($fields[self::WORKER_ID])) {
 			// Invalidate the worker notification count cache
-			$cache = DevblocksPlatform::getCacheService();
 			self::clearCountCache($fields[self::WORKER_ID]);
 			
 			// Trigger notification

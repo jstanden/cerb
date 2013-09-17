@@ -1189,6 +1189,8 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'org__label',
 			'is_banned',
 			'is_defunct',
+			'num_nonspam',
+			'num_spam',
 			'updated',
 		);
 	}
