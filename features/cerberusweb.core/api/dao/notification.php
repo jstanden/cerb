@@ -459,6 +459,14 @@ class Model_Notification {
 		
 		return $url;
 	}
+	
+	function markRead() {
+		DAO_Notification::update($this->id, array(
+			DAO_Notification::IS_READ => 1,
+		));
+		
+		DAO_Notification::clearCountCache($this->worker_id);
+	}
 };
 
 class View_Notification extends C4_AbstractView implements IAbstractView_Subtotals {
