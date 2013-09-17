@@ -63,7 +63,7 @@
 <tr>
 	<td width="60%" valign="top">
 		<fieldset>
-			<legend>{$translate->_('common.filters')|capitalize}</legend>
+			<legend>{'common.filters'|devblocks_translate|capitalize}</legend>
 			
 			{include file="devblocks:cerberusweb.core::internal/views/criteria_list_params.tpl" params=$view_params}
 			
@@ -102,8 +102,8 @@
 					<input type="text" name="_preset_name" size="32" value="">
 					<br>
 					<br>
-					<button type="button" onclick="var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'{$parent_div}','c=internal&a=viewAddPreset');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
-					<a href="javascript:;" onclick="$(this).closest('div').fadeOut();"> {$translate->_('common.cancel')|lower}</a>
+					<button type="button" onclick="var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'{$parent_div}','c=internal&a=viewAddPreset');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+					<a href="javascript:;" onclick="$(this).closest('div').fadeOut();"> {'common.cancel'|devblocks_translate|lower}</a>
 				</div>
 				<div id="divRemovePresets{$view->id}" class="block" style="display:none;margin:5px;">
 					<b>Remove these presets:</b><br>
@@ -111,8 +111,8 @@
 					<label><input type="checkbox" name="_preset_del[]" value="{$preset_id}"> {$preset->name}</label><br>
 					{/foreach}
 					<br>
-					<button type="button" onclick="var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'{$parent_div}','c=internal&a=viewEditPresets');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
-					<a href="javascript:;" onclick="$(this).closest('div').fadeOut();"> {$translate->_('common.cancel')|lower}</a>
+					<button type="button" onclick="var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'{$parent_div}','c=internal&a=viewEditPresets');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+					<a href="javascript:;" onclick="$(this).closest('div').fadeOut();"> {'common.cancel'|devblocks_translate|lower}</a>
 				</div>
 				{/if}
 			</div>
@@ -123,7 +123,7 @@
 		<fieldset>
 			<legend>Add Filter</legend>
 			
-			<b>{$translate->_('common.field')|capitalize}:</b><br>
+			<b>{'common.field'|devblocks_translate|capitalize}:</b><br>
 			<blockquote style="margin:5px;">
 				{$searchable_fields = $view->getParamsAvailable(true)}
 				{$has_custom = false}

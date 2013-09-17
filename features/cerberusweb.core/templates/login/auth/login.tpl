@@ -9,7 +9,7 @@
 <input type="hidden" name="ext" value="password">
 
 <fieldset>
-	<legend>{$translate->_('header.signon')|capitalize}</legend>
+	<legend>{'header.signon'|devblocks_translate|capitalize}</legend>
 	
 	<table cellpadding="0" cellspacing="5">
 	<tr>
@@ -38,7 +38,7 @@
 		</td>
 	</tr>
 	</table>
-	<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('header.signon')|capitalize}</button>
+	<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'header.signon'|devblocks_translate|capitalize}</button>
 </fieldset>
 </form>
 

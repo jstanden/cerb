@@ -1,4 +1,4 @@
-<b>{$translate->_('search.operator')|capitalize}:</b><br>
+<b>{'search.operator'|devblocks_translate|capitalize}:</b><br>
 <blockquote style="margin:5px;">
 	<select name="oper">
 		{if empty($opers)}
@@ -14,7 +14,7 @@
 	</select>
 </blockquote>
 
-<b>{$translate->_('common.workers')|capitalize}:</b><br>
+<b>{'common.workers'|devblocks_translate|capitalize}:</b><br>
 
 <blockquote style="margin:5px;">
 	{include file="devblocks:cerberusweb.core::internal/views/helpers/_shared_placeholder_worker_picker.tpl" param_name="worker_id" placeholders=$view->getPlaceholderLabels() show_chooser=true param=$param}

@@ -68,8 +68,8 @@
 
 {if 1}
 	<div class="toolbar">
-		<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmWebApiCredentials','{$view_id}',false,'webapi_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
-		{if !empty($model)}<button type="button" onclick="$toolbar=$(this).closest('div.toolbar').fadeOut();$toolbar.siblings('fieldset.delete').fadeIn();"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+		<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmWebApiCredentials','{$view_id}',false,'webapi_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
+		{if !empty($model)}<button type="button" onclick="$toolbar=$(this).closest('div.toolbar').fadeOut();$toolbar.siblings('fieldset.delete').fadeIn();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 	</div>
 {else}
 	<fieldset class="delete">

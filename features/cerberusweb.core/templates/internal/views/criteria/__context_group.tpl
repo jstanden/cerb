@@ -1,7 +1,7 @@
 {$btnId = "btnGroupChooser{microtime(true)|md5}"}
 <input type="hidden" name="oper" value="in">
 
-<b>{$translate->_('common.groups')|capitalize}:</b><br>
+<b>{'common.groups'|devblocks_translate|capitalize}:</b><br>
 
 <div style="margin:0px 0px 10px 10px;">
 <button type="button" class="chooser_group" id="{$btnId}"><span class="cerb-sprite2 sprite-plus-circle"></span></button>

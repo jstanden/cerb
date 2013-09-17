@@ -1,20 +1,20 @@
 {$menu_domid = "menu{uniqid()}"}
 
-<b>{$translate->_('search.operator')|capitalize}:</b><br>
+<b>{'search.operator'|devblocks_translate|capitalize}:</b><br>
 <blockquote style="margin:5px;">
 	<select name="oper">
-		<option value="like" {if $param && $param->operator=='like'}selected="selected"{/if}>{$translate->_('search.oper.matches')}</option>
-		<option value="not like" {if $param && $param->operator=='not like'}selected="selected"{/if}>{$translate->_('search.oper.matches.not')}</option>
-		<option value="=" {if $param && $param->operator=='='}selected="selected"{/if}>{$translate->_('search.oper.equals')}</option>
-		<option value="!=" {if $param && $param->operator=='!='}selected="selected"{/if}>{$translate->_('search.oper.equals.not')}</option>
-		<option value="is null" {if $param && $param->operator=='is null'}selected="selected"{/if}>{$translate->_('search.oper.null')}</option>
+		<option value="like" {if $param && $param->operator=='like'}selected="selected"{/if}>{'search.oper.matches'|devblocks_translate}</option>
+		<option value="not like" {if $param && $param->operator=='not like'}selected="selected"{/if}>{'search.oper.matches.not'|devblocks_translate}</option>
+		<option value="=" {if $param && $param->operator=='='}selected="selected"{/if}>{'search.oper.equals'|devblocks_translate}</option>
+		<option value="!=" {if $param && $param->operator=='!='}selected="selected"{/if}>{'search.oper.equals.not'|devblocks_translate}</option>
+		<option value="is null" {if $param && $param->operator=='is null'}selected="selected"{/if}>{'search.oper.null'|devblocks_translate}</option>
 	</select>
 </blockquote>
 
-<b>{$translate->_('search.value')|capitalize}:</b><br>
+<b>{'search.value'|devblocks_translate|capitalize}:</b><br>
 <blockquote style="margin:5px;">
 	<input type="text" name="value" value="{$param->value}" style="width:100%;"><br>
-	<i>{$translate->_('search.string.examples')|escape|nl2br nofilter}</i>
+	<i>{'search.string.examples'|devblocks_translate|escape|nl2br nofilter}</i>
 </blockquote>
 
 {$placeholders = $view->getPlaceholderLabels()}

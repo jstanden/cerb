@@ -1,6 +1,6 @@
 <form style="margin:5px;">
 	{if $active_worker->hasPriv('core.display.actions.comment')}<button type="button" id="btnComment"><span class="cerb-sprite sprite-document_edit"></span> Comment</button>{/if}
-	{if !$expand_all}<button id="btnReadAll" title="{$translate->_('display.shortcut.read_all')}" type="button" onclick="document.location='{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}&tab=conversation&opt=read_all{/devblocks_url}';"><span class="cerb-sprite sprite-document"></span> {$translate->_('display.button.read_all')|capitalize}</button>{/if} 
+	{if !$expand_all}<button id="btnReadAll" title="{'display.shortcut.read_all'|devblocks_translate}" type="button" onclick="document.location='{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}&tab=conversation&opt=read_all{/devblocks_url}';"><span class="cerb-sprite sprite-document"></span> {'display.button.read_all'|devblocks_translate|capitalize}</button>{/if} 
 </form>
 
 {if is_array($pending_drafts)}
@@ -18,9 +18,9 @@
 
 <div id="tourDisplayConversation"></div>
 {if $expand_all}
-	<b>{$translate->_('display.convo.order_oldest')}</b>
+	<b>{'display.convo.order_oldest'|devblocks_translate}</b>
 {else}
-	<b>{$translate->_('display.convo.order_newest')}</b>
+	<b>{'display.convo.order_newest'|devblocks_translate}</b>
 {/if}
 
 <div id="conversation">
@@ -55,7 +55,7 @@
 	{/if}
 	
 {else}
-  {$translate->_('display.convo.no_messages')}
+  {'display.convo.no_messages'|devblocks_translate}
   <br>
 {/if}
 </div>

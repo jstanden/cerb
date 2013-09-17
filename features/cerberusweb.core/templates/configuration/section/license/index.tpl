@@ -54,7 +54,7 @@
 		</div>
 	</div>
 	
-	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	{if $we_trust_you->key}<button type="button" class="delete"><span class="cerb-sprite2 sprite-minus-circle"></span> Remove License</button>{/if}
 
 </fieldset>

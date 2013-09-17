@@ -4,7 +4,7 @@
 {if !empty($account_error)}
 <div class="error">{$account_error}</div>
 {elseif !empty($account_success)}
-<div class="success">{$translate->_('portal.sc.public.my_account.settings_saved')}</div>
+<div class="success">{'portal.sc.public.my_account.settings_saved'|devblocks_translate}</div>
 {/if}
 
 <form action="{devblocks_url}c=account{/devblocks_url}" method="post" id="myAccountForm">
@@ -27,7 +27,7 @@
 	
 	{if $gravatar_enabled}
 	<tr>
-		<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('portal.sc.public.my_account.profile_picture')}:</b></td>
+		<td width="1%" nowrap="nowrap" valign="top"><b>{'portal.sc.public.my_account.profile_picture'|devblocks_translate}:</b></td>
 		<td width="99%">
 			<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$address->email|trim|lower|md5}?s=64&d=http://cerbweb.com/gravatar/gravatar_nouser.jpg" border="0" style="margin:0px 5px 5px 0px;" align="bottom">
 			<div>
@@ -39,7 +39,7 @@
 	
 	{if $show_fields.addy_first_name}
 	<tr>
-		<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('address.first_name')|capitalize}:</b></td>
+		<td width="1%" nowrap="nowrap" valign="top"><b>{'address.first_name'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
 			{if 1==$show_fields.addy_first_name}
 			{$address->first_name}
@@ -52,7 +52,7 @@
 	
 	{if $show_fields.addy_last_name}
 	<tr>
-		<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('address.last_name')|capitalize}:</b></td>
+		<td width="1%" nowrap="nowrap" valign="top"><b>{'address.last_name'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
 			{if 1==$show_fields.addy_last_name}
 			{$address->last_name}
@@ -89,7 +89,7 @@
 	<table cellpadding="2" cellspacing="2" border="0">
 		{if $show_fields.org_name}
 		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('contact_org.name')|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'contact_org.name'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				{if 1==$show_fields.org_name}
 				{$org->name}
@@ -102,7 +102,7 @@
 		
 		{if $show_fields.org_street}
 		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('contact_org.street')|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'contact_org.street'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				{if 1==$show_fields.org_street}
 				{$org->street}
@@ -115,7 +115,7 @@
 		
 		{if $show_fields.org_city}
 		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('contact_org.city')|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'contact_org.city'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				{if 1==$show_fields.org_city}
 				{$org->city}
@@ -128,7 +128,7 @@
 		
 		{if $show_fields.org_province}
 		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('contact_org.province')|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'contact_org.province'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				{if 1==$show_fields.org_province}
 				{$org->province}
@@ -141,7 +141,7 @@
 		
 		{if $show_fields.org_postal}
 		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('contact_org.postal')|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'contact_org.postal'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				{if 1==$show_fields.org_postal}
 				{$org->postal}
@@ -154,7 +154,7 @@
 		
 		{if $show_fields.org_country}
 		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('contact_org.country')|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'contact_org.country'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				{if 1==$show_fields.org_country}
 				{$org->country}
@@ -167,7 +167,7 @@
 		
 		{if $show_fields.org_phone}
 		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('contact_org.phone')|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'contact_org.phone'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				{if 1==$show_fields.org_phone}
 				{$org->phone}
@@ -180,7 +180,7 @@
 		
 		{if $show_fields.org_website}
 		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('contact_org.website')|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'contact_org.website'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				{if 1==$show_fields.org_website}
 				{$org->website}
@@ -209,7 +209,7 @@
 </fieldset>
 {/if}
 
-<button name="action" type="submit" value=""><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>
+<button name="action" type="submit" value=""><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top"> {'common.save_changes'|devblocks_translate}</button>
 {if $active_contact->email_id != $address->id}
 <button name="action" type="submit" value="remove"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/forbidden.png{/devblocks_url}" align="top"> Remove from account</button><br>
 {/if}

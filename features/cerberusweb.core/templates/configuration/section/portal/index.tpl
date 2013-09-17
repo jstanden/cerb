@@ -15,7 +15,7 @@
 	{/if}
 	
 	<div>
-		<label>{$translate->_('portal.cfg.profile_id')}</label> {$tool->code}
+		<label>{'portal.cfg.profile_id'|devblocks_translate}</label> {$tool->code}
 	</div>
 </div>
 

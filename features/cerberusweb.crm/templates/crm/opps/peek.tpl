@@ -14,19 +14,19 @@
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.email_address')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{'crm.opportunity.email_address'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				<input type="text" name="email" id="emailinput" value="{$address->email}" class="required email" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.name')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{'crm.opportunity.name'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				<input type="text" name="name" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$opp->name}" class="required" autocomplete="off">
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('common.status')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.status'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				<label><input type="radio" name="status" value="0" onclick="toggleDiv('oppPeekClosedDate','none');" {if empty($opp->id) || 0==$opp->is_closed}checked="checked"{/if}> {'crm.opp.status.open'|devblocks_translate|capitalize}</label>
 				<label><input type="radio" name="status" value="1" onclick="toggleDiv('oppPeekClosedDate','');" {if $opp->is_closed && $opp->is_won}checked="checked"{/if}> {'crm.opp.status.closed.won'|devblocks_translate|capitalize}</label>
@@ -34,7 +34,7 @@
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.amount')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{'crm.opportunity.amount'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				<input type="text" name="amount" size="10" maxlength="12" style="border:1px solid rgb(180,180,180);padding:2px;" value="{if empty($opp->amount)}0{else}{math equation="floor(x)" x=$opp->amount}{/if}" autocomplete="off">
 				 . 
@@ -43,13 +43,13 @@
 		</tr>
 		
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('common.created')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.created'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				<input type="text" name="created_date" size=35 class="input_date" value="{if !empty($opp->created_date)}{$opp->created_date|devblocks_date}{else}now{/if}">
 			</td>
 		</tr>
 		<tr id="oppPeekClosedDate" {if !$opp->is_closed}style="display:none;"{/if}>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.closed_date')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{'crm.opportunity.closed_date'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				<input type="text" name="closed_date" size="35" class="input_date" value="{if !empty($opp->closed_date)}{$opp->closed_date|devblocks_date}{/if}">
 			</td>
@@ -57,7 +57,7 @@
 		
 		{* Watchers *}
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.watchers')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.watchers'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				{if empty($opp->id)}
 					<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
@@ -97,8 +97,8 @@
 </fieldset>
 
 {if (empty($opp) && $active_worker->hasPriv('crm.opp.actions.create')) || (!empty($opp) && $active_worker->hasPriv('crm.opp.actions.update_all'))}
-	<button type="button" onclick="if($('#formOppPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formOppPeek','{$view_id}',false,'opp_save'); } "><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
-	{if $active_worker->hasPriv('crm.opp.actions.delete') && !empty($opp)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this opportunity?')) { $('#formOppPeek input[name=do_delete]').val('1'); genericAjaxPopupPostCloseReloadView(null,'formOppPeek','{$view_id}',false,'opp_delete'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+	<button type="button" onclick="if($('#formOppPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formOppPeek','{$view_id}',false,'opp_save'); } "><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
+	{if $active_worker->hasPriv('crm.opp.actions.delete') && !empty($opp)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this opportunity?')) { $('#formOppPeek input[name=do_delete]').val('1'); genericAjaxPopupPostCloseReloadView(null,'formOppPeek','{$view_id}',false,'opp_delete'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 {else}
 	<fieldset class="delete">
 		You do not have permission to modify this record.

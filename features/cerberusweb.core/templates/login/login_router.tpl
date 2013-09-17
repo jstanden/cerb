@@ -7,7 +7,7 @@
 
 <form action="{devblocks_url}c=login&a=router{/devblocks_url}" method="post" id="loginForm">
 <fieldset>
-	<legend>{$translate->_('header.signon')|capitalize}</legend>
+	<legend>{'header.signon'|devblocks_translate|capitalize}</legend>
 	
 	<b>{'common.email'|devblocks_translate|capitalize}:</b>
 	<br>
@@ -19,7 +19,7 @@
 	</div>
 	
 	<p>
-		<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.continue')|capitalize}</button>
+		<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.continue'|devblocks_translate|capitalize}</button>
 	</p>
 </fieldset>
 </form>

@@ -16,9 +16,9 @@
 	<input type="text" name="confirm" size="10" maxlength="8"><br>
 	<br>
 	
-	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')|capitalize}</button><br>
+	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top"> {'common.save_changes'|devblocks_translate|capitalize}</button><br>
 	<br>
 	
-	<a href="{devblocks_url}c=login{/devblocks_url}">{$translate->_('common.cancel')|capitalize}</a><br>
+	<a href="{devblocks_url}c=login{/devblocks_url}">{'common.cancel'|devblocks_translate|capitalize}</a><br>
 </fieldset>
 </form>

@@ -25,43 +25,43 @@
 		
 		<table cellpadding="0" cellspacing="2" border="0" width="98%">
 			<tr>
-				<td width="0%" nowrap="nowrap" align="right">{$translate->_('common.name')|capitalize}: </td>
+				<td width="0%" nowrap="nowrap" align="right">{'common.name'|devblocks_translate|capitalize}: </td>
 				<td width="100%"><input type="text" name="org_name" value="{$contact->name}" style="width:98%;" class="required"></td>
 			</tr>
 			<tr>
-				<td align="right" valign="top">{$translate->_('contact_org.street')|capitalize}: </td>
+				<td align="right" valign="top">{'contact_org.street'|devblocks_translate|capitalize}: </td>
 				<td><textarea name="street" style="width:98%;height:50px;">{$contact->street}</textarea></td>
 			</tr>
 			<tr>
-				<td align="right">{$translate->_('contact_org.city')|capitalize}: </td>
+				<td align="right">{'contact_org.city'|devblocks_translate|capitalize}: </td>
 				<td><input type="text" name="city" value="{$contact->city}" style="width:98%;"></td>
 			</tr>
 			<tr>
-				<td align="right">{$translate->_('contact_org.province')|capitalize}.: </td>
+				<td align="right">{'contact_org.province'|devblocks_translate|capitalize}.: </td>
 				<td><input type="text" name="province" value="{$contact->province}" style="width:98%;"></td>
 			</tr>
 			<tr>
-				<td align="right">{$translate->_('contact_org.postal')|capitalize}: </td>
+				<td align="right">{'contact_org.postal'|devblocks_translate|capitalize}: </td>
 				<td><input type="text" name="postal" value="{$contact->postal}" style="width:98%;"></td>
 			</tr>
 			<tr>
-				<td align="right">{$translate->_('contact_org.country')|capitalize}: </td>
+				<td align="right">{'contact_org.country'|devblocks_translate|capitalize}: </td>
 				<td>
 					<input type="text" name="country" id="org_country_input" value="{$contact->country}" style="width:98%;">
 				</td>
 			</tr>
 			<tr>
-				<td align="right">{$translate->_('contact_org.phone')|capitalize}: </td>
+				<td align="right">{'contact_org.phone'|devblocks_translate|capitalize}: </td>
 				<td><input type="text" name="phone" value="{$contact->phone}" style="width:98%;"></td>
 			</tr>
 			<tr>
-				<td align="right">{if !empty($contact->website)}<a href="{$contact->website}" target="_blank">{$translate->_('contact_org.website')|capitalize}</a>{else}{$translate->_('contact_org.website')|capitalize}{/if}: </td>
+				<td align="right">{if !empty($contact->website)}<a href="{$contact->website}" target="_blank">{'contact_org.website'|devblocks_translate|capitalize}</a>{else}{'contact_org.website'|devblocks_translate|capitalize}{/if}: </td>
 				<td><input type="text" name="website" value="{$contact->website}" style="width:98%;" class="url"></td>
 			</tr>
 			
 			{* Watchers *}
 			<tr>
-				<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.watchers')|capitalize}: </td>
+				<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.watchers'|devblocks_translate|capitalize}: </td>
 				<td width="100%">
 					{if empty($contact->id)}
 						<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
@@ -100,15 +100,15 @@
 	</fieldset>
 	
 	{if $active_worker->hasPriv('core.addybook.org.actions.update')}
-		<button type="button" onclick="if($('#formOrgPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formOrgPeek', '{$view_id}', false, 'org_save'); } "><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
-		{if $active_worker->hasPriv('core.addybook.org.actions.delete') && !empty($contact->id)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this organization?')) { $('#formOrgPeek input[name=do_delete]').val('1'); genericAjaxPopupPostCloseReloadView(null,'formOrgPeek','{$view_id}',false,'org_delete'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+		<button type="button" onclick="if($('#formOrgPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formOrgPeek', '{$view_id}', false, 'org_save'); } "><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		{if $active_worker->hasPriv('core.addybook.org.actions.delete') && !empty($contact->id)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this organization?')) { $('#formOrgPeek input[name=do_delete]').val('1'); genericAjaxPopupPostCloseReloadView(null,'formOrgPeek','{$view_id}',false,'org_delete'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 	{else}
-		<div class="error">{$translate->_('error.core.no_acl.edit')}</div>
+		<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>
 	{/if}
 	 
 	 {if !empty($contact->id)}
 	<div style="float:right;">
-		<a href="{devblocks_url}&c=profiles&type=org&id={$contact->id}-{$contact->name|devblocks_permalink}{/devblocks_url}">{$translate->_('addy_book.peek.view_full')}</a>
+		<a href="{devblocks_url}&c=profiles&type=org&id={$contact->id}-{$contact->name|devblocks_permalink}{/devblocks_url}">{'addy_book.peek.view_full'|devblocks_translate}</a>
 	</div>
 	{/if}
 	</form>

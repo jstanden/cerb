@@ -8,7 +8,7 @@
 <fieldset>
 	<legend>
 		{if empty($activity->id)}
-		{$translate->_('timetracking.ui.cfg.add_activity')}
+		{'timetracking.ui.cfg.add_activity'|devblocks_translate}
 		{else}
 		{'timetracking.ui.cfg.modify'|devblocks_translate:$activity->name}
 		{/if}
@@ -16,14 +16,14 @@
 	
 	<table cellpadding="2" cellspacing="0" border="0">
 		<tr>
-			<td width="0%" nowrap="nowrap"><b>{$translate->_('timetracking.ui.cfg.name')}</b></td>
-			<td width="100%"><input type="text" id="activityForm_name" name="name" value="{$activity->name}" size="45"> {$translate->_('timetracking.ui.cfg.name.hint')}</td>
+			<td width="0%" nowrap="nowrap"><b>{'timetracking.ui.cfg.name'|devblocks_translate}</b></td>
+			<td width="100%"><input type="text" id="activityForm_name" name="name" value="{$activity->name}" size="45"> {'timetracking.ui.cfg.name.hint'|devblocks_translate}</td>
 		</tr>
 		
 		<tr>
 			<td colspan="2">
-				<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
-				{if !empty($activity)}<button type="button" onclick="if(confirm('Are you sure you want to delete this activity?')){literal}{{/literal}this.form.do_delete.value=1;this.form.submit();{literal}}{/literal}"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+				<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+				{if !empty($activity)}<button type="button" onclick="if(confirm('Are you sure you want to delete this activity?')){literal}{{/literal}this.form.do_delete.value=1;this.form.submit();{literal}}{/literal}"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 			</td>
 		</tr>
 	</table>

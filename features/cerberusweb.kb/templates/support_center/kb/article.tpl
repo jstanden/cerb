@@ -6,7 +6,7 @@
 	{if !empty($article->content)}
 		{$article->getContent() nofilter}<br>
 	{else}
-		<i>[[ {$translate->_('portal.kb.public.no_content')} ]]</i><br>
+		<i>[[ {'portal.kb.public.no_content'|devblocks_translate} ]]</i><br>
 	{/if}
 </div>
 
@@ -49,7 +49,7 @@
 				( 
 					{$attachment->storage_size|devblocks_prettybytes}
 					- 
-					{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{$translate->_('display.convo.unknown_format')|capitalize}{/if}
+					{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if}
 				 )
 			</li>
 			{/foreach}

@@ -5,9 +5,9 @@
 	<tr>
 	  <td colspan="2">
 	  	<fieldset>
-	  		<legend>{$translate->_('portal.sc.public.contact.thanks_for_contacting')}</legend>
+	  		<legend>{'portal.sc.public.contact.thanks_for_contacting'|devblocks_translate}</legend>
 			
-		  	{$translate->_('portal.sc.public.contact.message_received')}<br>
+		  	{'portal.sc.public.contact.message_received'|devblocks_translate}<br>
 		  	{if !empty($last_opened)}
 			  	{assign var=tagged_last_opened value="<b>"|cat:$last_opened|cat:"</b>"}
 			  	{'portal.public.your_reference_number'|devblocks_translate:$tagged_last_opened nofilter}<br>
@@ -16,7 +16,7 @@
 	  	<h1></h1>
 	  	
 	  	
-		<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top" border="0"> {$translate->_('common.ok')|upper}</button>
+		<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top" border="0"> {'common.ok'|devblocks_translate|upper}</button>
 		
 	  </td>
 	</tr>

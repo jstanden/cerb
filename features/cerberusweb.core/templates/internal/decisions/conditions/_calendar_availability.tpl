@@ -12,10 +12,10 @@
 </select>
 <br>
 
-<b>{$translate->_('search.date.between')|capitalize}:</b><br>
+<b>{'search.date.between'|devblocks_translate|capitalize}:</b><br>
 <blockquote style="margin:5px;">
 	<input type="text" name="{$namePrefix}[from]" size="20" value="{$params.from}" style="width:98%;"><br>
-	-{$translate->_('search.date.between.and')}-<br>
+	-{'search.date.between.and'|devblocks_translate}-<br>
 	<input type="text" name="{$namePrefix}[to]" size="20" value="{$params.to}" style="width:98%;"><br>
 </blockquote>
 

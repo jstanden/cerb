@@ -8,14 +8,14 @@
 <br>
 <br>
 
-<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 <br>
 </form>
 
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title','{$translate->_('mail.merge')}');
+		$(this).dialog('option','title','{'mail.merge'|devblocks_translate}');
 	});
 	$('#frmDisplayMerge button.chooser_ticket').each(function() {
 		ajax.chooser(this,'cerberusweb.contexts.ticket','dst_ticket_id');

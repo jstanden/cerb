@@ -24,7 +24,7 @@
 				{$item.content|strip_tags|truncate:255:'...':true nofilter}
 				<br>
 			{/if}
-			<b>{$translate->_('portal.sc.public.common.source')}</b> <a href="{$item.link}" style="color:rgb(50,50,50);" target="_blank">{$item.link|truncate:65:'...':true:true}</a><br>
+			<b>{'portal.sc.public.common.source'|devblocks_translate}</b> <a href="{$item.link}" style="color:rgb(50,50,50);" target="_blank">{$item.link|truncate:65:'...':true:true}</a><br>
 			</div>
 		{/if}
 	{/foreach}

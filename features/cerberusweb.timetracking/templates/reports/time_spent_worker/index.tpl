@@ -1,9 +1,9 @@
 <fieldset class="peek">
-<legend>{$translate->_('timetracking.ui.reports.time_spent_worker')}</legend>
+<legend>{'timetracking.ui.reports.time_spent_worker'|devblocks_translate}</legend>
 
 <form action="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}&report=report.timetracking.timespentworker{/devblocks_url}" method="POST" id="frmRange" name="frmRange">
-<b>{$translate->_('timetracking.ui.reports.from')}</b> <input type="text" name="start" id="start" size="24" value="{$start}"><button type="button" onclick="devblocksAjaxDateChooser('#start','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
-<b>{$translate->_('timetracking.ui.reports.to')}</b> <input type="text" name="end" id="end" size="24" value="{$end}"><button type="button" onclick="devblocksAjaxDateChooser('#end','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
+<b>{'timetracking.ui.reports.from'|devblocks_translate}</b> <input type="text" name="start" id="start" size="24" value="{$start}"><button type="button" onclick="devblocksAjaxDateChooser('#start','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
+<b>{'timetracking.ui.reports.to'|devblocks_translate}</b> <input type="text" name="end" id="end" size="24" value="{$end}"><button type="button" onclick="devblocksAjaxDateChooser('#end','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
 <b>Grouping:</b> <select name="report_date_grouping">
 	<option value="">-auto-</option>
 	<option value="year" {if 'year'==$report_date_grouping}selected="selected"{/if}>Years</option>
@@ -14,16 +14,16 @@
 </select>
 <div id="divCal"></div>
 
-<b>{$translate->_('timetracking.ui.reports.past')}</b> <a href="javascript:;" onclick="$('#start').val('-1 year');$('#end').val('now');">{$translate->_('timetracking.ui.reports.filters.1_year')|lower}</a>
+<b>{'timetracking.ui.reports.past'|devblocks_translate}</b> <a href="javascript:;" onclick="$('#start').val('-1 year');$('#end').val('now');">{'timetracking.ui.reports.filters.1_year'|devblocks_translate|lower}</a>
 | <a href="javascript:;" onclick="$('#start').val('-6 months');$('#end').val('now');">{'timetracking.ui.reports.filters.n_months'|devblocks_translate:6}</a>
 | <a href="javascript:;" onclick="$('#start').val('-3 months');$('#end').val('now');">{'timetracking.ui.reports.filters.n_months'|devblocks_translate:3}</a>
-| <a href="javascript:;" onclick="$('#start').val('-1 month');$('#end').val('now');">{$translate->_('timetracking.ui.reports.filters.1_month')|lower}</a>
-| <a href="javascript:;" onclick="$('#start').val('-1 week');$('#end').val('now');">{$translate->_('timetracking.ui.reports.filters.1_week')|lower}</a>
-| <a href="javascript:;" onclick="$('#start').val('-1 day');$('#end').val('now');">{$translate->_('timetracking.ui.reports.filters.1_day')|lower}</a>
-| <a href="javascript:;" onclick="$('#start').val('today');$('#end').val('now');">{$translate->_('common.today')|lower}</a>
+| <a href="javascript:;" onclick="$('#start').val('-1 month');$('#end').val('now');">{'timetracking.ui.reports.filters.1_month'|devblocks_translate|lower}</a>
+| <a href="javascript:;" onclick="$('#start').val('-1 week');$('#end').val('now');">{'timetracking.ui.reports.filters.1_week'|devblocks_translate|lower}</a>
+| <a href="javascript:;" onclick="$('#start').val('-1 day');$('#end').val('now');">{'timetracking.ui.reports.filters.1_day'|devblocks_translate|lower}</a>
+| <a href="javascript:;" onclick="$('#start').val('today');$('#end').val('now');">{'common.today'|devblocks_translate|lower}</a>
 <br>
 
-<b>{$translate->_('reports.ui.filters.worker')}</b> 
+<b>{'reports.ui.filters.worker'|devblocks_translate}</b> 
 <button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
 <ul class="chooser-container bubbles">
 {if is_array($filter_worker_ids) && !empty($filter_worker_ids)}
@@ -37,7 +37,7 @@
 </ul>
 
 <div>
-	<button type="submit" id="btnSubmit">{$translate->_('reports.common.run_report')|capitalize}</button>
+	<button type="submit" id="btnSubmit">{'reports.common.run_report'|devblocks_translate|capitalize}</button>
 </div>
 </form>
 </fieldset>
@@ -232,7 +232,7 @@ plot1 = $.jqplot('reportChart', chartData, chartOptions);
 <!-- Table -->
 
 {if $invalidDate}
-	<div><font color="red"><b>{$translate->_('reports.ui.invalid_date')}</b></font></div>
+	<div><font color="red"><b>{'reports.ui.invalid_date'|devblocks_translate}</b></font></div>
 {/if}
 
 {if !empty($view)}

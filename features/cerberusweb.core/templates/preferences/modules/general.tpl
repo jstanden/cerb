@@ -3,9 +3,9 @@
 <input type="hidden" name="a" value="saveDefaults">
 
 <fieldset class="peek">
-	<legend>{$translate->_('preferences.account.settings')|capitalize}</legend>
+	<legend>{'preferences.account.settings'|devblocks_translate|capitalize}</legend>
 
-	<b>{$translate->_('preferences.account.timezone')|capitalize}</b> {if !empty($server_timezone)}({$translate->_('preferences.account.current')} {$server_timezone}){/if}<br>
+	<b>{'preferences.account.timezone'|devblocks_translate|capitalize}</b> {if !empty($server_timezone)}({'preferences.account.current'|devblocks_translate} {$server_timezone}){/if}<br>
 	<select name="timezone">
 		{foreach from=$timezones item=tz}
 			<option value="{$tz}" {if $tz==$server_timezone}selected{/if}>{$tz}</option>
@@ -13,7 +13,7 @@
 	</select><br>
 	<br>
 	
-	<b>{$translate->_('preferences.account.timeformat')|capitalize}</b><br>
+	<b>{'preferences.account.timeformat'|devblocks_translate|capitalize}</b><br>
 	<select name="time_format">
 		{$timeformats = ['D, d M Y h:i a', 'D, d M Y H:i']}
 		{foreach from=$timeformats item=timeformat}
@@ -22,7 +22,7 @@
 	</select><br>
 	<br>
 
-	<b>{$translate->_('preferences.account.language')|capitalize}</b> {if !empty($selected_language) && isset($langs.$selected_language)}({$translate->_('preferences.account.current')} {$langs.$selected_language}){/if}<br>
+	<b>{'preferences.account.language'|devblocks_translate|capitalize}</b> {if !empty($selected_language) && isset($langs.$selected_language)}({'preferences.account.current'|devblocks_translate} {$langs.$selected_language}){/if}<br>
 	<select name="lang_code">
 		{foreach from=$langs key=lang_code item=lang_name}
 			<option value="{$lang_code}" {if $lang_code==$selected_language}selected{/if}>{$lang_name}</option>
@@ -30,12 +30,12 @@
 	</select><br>
 	<br>
 
-	<b>{$translate->_('preferences.account.assist')|capitalize}</b><br>
-	<label><input type="checkbox" name="assist_mode" value="1" {if $prefs.assist_mode eq 1}checked{/if}> {$translate->_('common.enabled')|capitalize}</label><br>
+	<b>{'preferences.account.assist'|devblocks_translate|capitalize}</b><br>
+	<label><input type="checkbox" name="assist_mode" value="1" {if $prefs.assist_mode eq 1}checked{/if}> {'common.enabled'|devblocks_translate|capitalize}</label><br>
 	<br>
 
-	<b>{$translate->_('preferences.account.keyboard.shortcuts')|capitalize}</b><br>
-	<label><input type="checkbox" name="keyboard_shortcuts" value="1" {if $prefs.keyboard_shortcuts eq 1}checked{/if}> {$translate->_('common.enabled')|capitalize}</label><br>
+	<b>{'preferences.account.keyboard.shortcuts'|devblocks_translate|capitalize}</b><br>
+	<label><input type="checkbox" name="keyboard_shortcuts" value="1" {if $prefs.keyboard_shortcuts eq 1}checked{/if}> {'common.enabled'|devblocks_translate|capitalize}</label><br>
 </fieldset>
 
 <fieldset class="peek">
@@ -58,9 +58,9 @@
 <fieldset class="peek">
 	<legend>{'common.mail'|devblocks_translate|capitalize}</legend>
 	
-	<b>{$translate->_('common.options')|capitalize}:</b>
+	<b>{'common.options'|devblocks_translate|capitalize}:</b>
 	<div style="margin:0px 0px 10px 10px;">
-		<label><input type="checkbox" name="mail_always_show_all" value="1" {if $prefs.mail_always_show_all}checked{/if}> {$translate->_('preferences.account.mail.readall')}</label><br>
+		<label><input type="checkbox" name="mail_always_show_all" value="1" {if $prefs.mail_always_show_all}checked{/if}> {'preferences.account.mail.readall'|devblocks_translate}</label><br>
 	</div>
 
 	<b>{'preferences.account.mail.reply_button'|devblocks_translate}</b>
@@ -71,9 +71,9 @@
 
 	<b>{'preferences.account.mail.reply_textbox_size'|devblocks_translate}</b>
 	<div style="margin:0px 0px 10px 10px;">
-		{$translate->_('preferences.account.mail.reply_textbox_size.pixels')} <input type="text" name="mail_reply_textbox_size_px" size="4" maxlength=4" value="{$prefs.mail_reply_textbox_size_px|default:'500'}" onfocus="$(this).prev().find('input:radio').click();"> pixels<br>
+		{'preferences.account.mail.reply_textbox_size.pixels'|devblocks_translate} <input type="text" name="mail_reply_textbox_size_px" size="4" maxlength=4" value="{$prefs.mail_reply_textbox_size_px|default:'500'}" onfocus="$(this).prev().find('input:radio').click();"> pixels<br>
 		<div style="margin:0px 0px 10px 10px;">
-			<label><input type="checkbox" name="mail_reply_textbox_size_inelastic" value="1" {if !empty($prefs.mail_reply_textbox_size_inelastic)}checked{/if}> {$translate->_('preferences.account.mail.reply_textbox_size.inelastic')}</label><br>
+			<label><input type="checkbox" name="mail_reply_textbox_size_inelastic" value="1" {if !empty($prefs.mail_reply_textbox_size_inelastic)}checked{/if}> {'preferences.account.mail.reply_textbox_size.inelastic'|devblocks_translate}</label><br>
 		</div>
 	</div>
 
@@ -100,9 +100,9 @@
 </fieldset>
 
 <fieldset class="peek">
-	<legend>{$translate->_('preferences.account.email')|capitalize}</legend>
+	<legend>{'preferences.account.email'|devblocks_translate|capitalize}</legend>
 
-	{$translate->_('preferences.account.email.associated')}<br>
+	{'preferences.account.email.associated'|devblocks_translate}<br>
 
 	<ul id="listWorkerEmailAddresses" style="padding:0px;margin:5px 0px 0px 10px;list-style:none;">
 		{foreach from=$addresses item=address}
@@ -122,12 +122,12 @@
 				(Primary)
 				{/if}
 			{else}
-			<i>(Pending Verification:</i> <a href="javascript:;" style="font-style:italic;" onclick="document.resendConfirmationForm.email.value='{$address->address}';document.resendConfirmationForm.submit();">{$translate->_('preferences.account.email.address.resend.confirm')}</a>)
+			<i>(Pending Verification:</i> <a href="javascript:;" style="font-style:italic;" onclick="document.resendConfirmationForm.email.value='{$address->address}';document.resendConfirmationForm.submit();">{'preferences.account.email.address.resend.confirm'|devblocks_translate}</a>)
 			{/if}
 		</li>
 		{/foreach}
 		<li>
-			{$translate->_('preferences.account.email.address.add')}<br>
+			{'preferences.account.email.address.add'|devblocks_translate}<br>
 			<div style="padding:5px;">
 				<input type="text" name="new_email" size="45" value="" class="input_email">
 			</div>
@@ -135,7 +135,7 @@
 	</ul>
 </fieldset>
 
-<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
+<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
 </form>
 
 <form action="{devblocks_url}{/devblocks_url}" name="resendConfirmationForm" method="post">

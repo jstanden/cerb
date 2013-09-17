@@ -1,6 +1,6 @@
 <table cellpadding="0" cellspacing="0" border="0" class="sidebar" id="history_sidebar">
 	<tr>
-		<th>{$translate->_('portal.sc.public.my_account')|capitalize}</th>
+		<th>{'portal.sc.public.my_account'|devblocks_translate|capitalize}</th>
 	</tr>
 	<tr>
 		<td>

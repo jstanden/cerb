@@ -19,7 +19,7 @@
 		</td>
 		<td align="right" valign="bottom" style="line-height:150%;">
 		{if empty($visit)}
-			{$translate->_('header.not_signed_in')} <a href="{devblocks_url}c=login{/devblocks_url}">{$translate->_('header.signon')|lower}</a>
+			{'header.not_signed_in'|devblocks_translate} <a href="{devblocks_url}c=login{/devblocks_url}">{'header.signon'|devblocks_translate|lower}</a>
 		{elseif !empty($active_worker)}
 			<span id="badgeNotifications"><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=notifications{/devblocks_url}"></a></span>
 			
@@ -104,7 +104,7 @@ $().ready(function(e) {
 {if !empty($page) && $page->isVisible()}
 	{$page->render()}
 {else}
-	{$translate->_('header.no_page')}
+	{'header.no_page'|devblocks_translate}
 {/if}
 
 {if !empty($postbody_renderers)}

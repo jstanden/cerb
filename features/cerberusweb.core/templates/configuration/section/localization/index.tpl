@@ -11,7 +11,7 @@
 	
 	{$setting_time_format = $settings->get('cerberusweb.core',CerberusSettings::TIME_FORMAT,CerberusSettingsDefaults::TIME_FORMAT)}
 	
-	<b>{$translate->_('preferences.account.timeformat')|capitalize}</b><br>
+	<b>{'preferences.account.timeformat'|devblocks_translate|capitalize}</b><br>
 	<select name="time_format">
 		{$timeformats = ['D, d M Y h:i a', 'D, d M Y H:i']}
 		{foreach from=$timeformats item=timeformat}
@@ -22,7 +22,7 @@
 
 	<div class="status"></div>
 	
-	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </fieldset>
 </form>
 

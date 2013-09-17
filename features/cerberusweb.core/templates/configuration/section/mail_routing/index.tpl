@@ -27,9 +27,9 @@
 	{if !empty($rules)}
 	<table cellspacing="2" cellpadding="2">
 		<tr>
-			<td align="center" style="padding-right:10px;"><b>{$translate->_('common.order')|capitalize}</b></td>
+			<td align="center" style="padding-right:10px;"><b>{'common.order'|devblocks_translate|capitalize}</b></td>
 			<td><b>Routing Rule</b></td>
-			<td align="center"><b>{$translate->_('common.remove')|capitalize}</b></td>
+			<td align="center"><b>{'common.remove'|devblocks_translate|capitalize}</b></td>
 		</tr>
 		{counter start=0 print=false name=order}
 		{foreach from=$rules item=rule key=rule_id name=rules}
@@ -106,6 +106,6 @@
 	<br>	
 	{/if}
 
-	<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	</form>
 </fieldset>

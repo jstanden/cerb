@@ -4,27 +4,27 @@
 
 <input type="hidden" name="oper" value="between">
 
-<b>{$translate->_('search.operator')|capitalize}:</b><br>
+<b>{'search.operator'|devblocks_translate|capitalize}:</b><br>
 
 <blockquote style="margin:5px;">
 	<select name="oper">
 		<option value="between" {if $param && $param->operator=='between'}selected="selected"{/if}>{'search.date.between'|devblocks_translate|lower}</option>
-		<option value="not between" {if $param && $param->operator=='not between'}selected="selected"{/if}>{$translate->_('search.date.between.not')}</option>
-		<option value="equals or null" {if $param && $param->operator=='equals or null'}selected="selected"{/if}>{$translate->_('search.oper.null')}</option>
+		<option value="not between" {if $param && $param->operator=='not between'}selected="selected"{/if}>{'search.date.between.not'|devblocks_translate}</option>
+		<option value="equals or null" {if $param && $param->operator=='equals or null'}selected="selected"{/if}>{'search.oper.null'|devblocks_translate}</option>
 	</select>
 </blockquote>
 
 <div class="date_range" style="display:{if ($param && $param->operator == 'equals or null')}none{else}block{/if};">
-	<b>{$translate->_('search.value')|capitalize}:</b><br>
+	<b>{'search.value'|devblocks_translate|capitalize}:</b><br>
 	
 	<blockquote style="margin:5px;">
 		<input type="text" id="searchDateFrom" name="from" size="20" value="{if !is_null($param->value.0)}{$param->value.0}{/if}" style="width:98%;"><br>
-		-{$translate->_('search.date.between.and')}-
+		-{'search.date.between.and'|devblocks_translate}-
 		<br>
 		<input type="text" id="searchDateTo" name="to" size="20" value="{if !is_null($param->value.1)}{$param->value.1}{else}now{/if}" style="width:98%;">
 		<br>
 		<br>
-		{$translate->_('search.date.examples')|escape|nl2br nofilter}
+		{'search.date.examples'|devblocks_translate|escape|nl2br nofilter}
 	</blockquote>
 </div>
 

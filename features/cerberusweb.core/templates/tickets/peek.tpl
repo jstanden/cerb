@@ -48,18 +48,18 @@
 			</tr>
 			
 			<tr>
-				<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('ticket.status')|capitalize}: </td>
+				<td width="0%" nowrap="nowrap" valign="top" align="right">{'ticket.status'|devblocks_translate|capitalize}: </td>
 				<td width="100%">
-					<label><input type="radio" name="closed" value="0" onclick="toggleDiv('ticketClosed','none');" {if !$ticket->is_closed && !$ticket->is_waiting}checked{/if}>{$translate->_('status.open')|capitalize}</label>
-					<label><input type="radio" name="closed" value="2" onclick="toggleDiv('ticketClosed','block');" {if !$ticket->is_closed && $ticket->is_waiting}checked{/if}>{$translate->_('status.waiting')|capitalize}</label>
-					{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label><input type="radio" name="closed" value="1" onclick="toggleDiv('ticketClosed','block');" {if $ticket->is_closed && !$ticket->is_deleted}checked{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
-					{if $active_worker->hasPriv('core.ticket.actions.delete') || ($ticket->is_deleted)}<label><input type="radio" name="closed" value="3" onclick="toggleDiv('ticketClosed','none');" {if $ticket->is_deleted}checked{/if}>{$translate->_('status.deleted')|capitalize}</label>{/if}
+					<label><input type="radio" name="closed" value="0" onclick="toggleDiv('ticketClosed','none');" {if !$ticket->is_closed && !$ticket->is_waiting}checked{/if}>{'status.open'|devblocks_translate|capitalize}</label>
+					<label><input type="radio" name="closed" value="2" onclick="toggleDiv('ticketClosed','block');" {if !$ticket->is_closed && $ticket->is_waiting}checked{/if}>{'status.waiting'|devblocks_translate|capitalize}</label>
+					{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label><input type="radio" name="closed" value="1" onclick="toggleDiv('ticketClosed','block');" {if $ticket->is_closed && !$ticket->is_deleted}checked{/if}>{'status.closed'|devblocks_translate|capitalize}</label>{/if}
+					{if $active_worker->hasPriv('core.ticket.actions.delete') || ($ticket->is_deleted)}<label><input type="radio" name="closed" value="3" onclick="toggleDiv('ticketClosed','none');" {if $ticket->is_deleted}checked{/if}>{'status.deleted'|devblocks_translate|capitalize}</label>{/if}
 					
 					<div id="ticketClosed" style="display:{if $ticket->is_closed || $ticket->is_waiting}block{else}none{/if};margin:5px 0px 5px 15px;">
-						<b>{$translate->_('display.reply.next.resume')}:</b><br>
-						<i>{$translate->_('display.reply.next.resume_eg')}</i><br>
+						<b>{'display.reply.next.resume'|devblocks_translate}:</b><br>
+						<i>{'display.reply.next.resume_eg'|devblocks_translate}</i><br>
 						<input type="text" name="ticket_reopen" size="64" class="input_date" value="{if !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}"><br>
-						{$translate->_('display.reply.next.resume_blank')}<br>
+						{'display.reply.next.resume_blank'|devblocks_translate}<br>
 					</div>
 				</td>
 			</tr>
@@ -82,7 +82,7 @@
 			</tr>
 			
 			<tr>
-				<td width="0%" nowrap="nowrap" valign="middle" align="right">{$translate->_('common.owner')|capitalize}: </td>
+				<td width="0%" nowrap="nowrap" valign="middle" align="right">{'common.owner'|devblocks_translate|capitalize}: </td>
 				<td width="100%">
 					<select name="owner_id">
 						<option value="0"></option>
@@ -137,7 +137,7 @@
 			
 			{* Watchers *}
 			<tr>
-				<td width="0%" nowrap="nowrap" valign="middle" align="right">{$translate->_('common.watchers')|capitalize}: </td>
+				<td width="0%" nowrap="nowrap" valign="middle" align="right">{'common.watchers'|devblocks_translate|capitalize}: </td>
 				<td width="100%">
 					{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
 				</td>
@@ -169,7 +169,7 @@
 		</div>
 	</fieldset>
 	
-	<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmTicketPeek','{$view_id}',false,'ticket_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
+	<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmTicketPeek','{$view_id}',false,'ticket_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
 </div>
 <br>
 

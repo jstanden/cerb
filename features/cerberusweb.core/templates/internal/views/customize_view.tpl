@@ -2,7 +2,7 @@
 <input type="hidden" name="a" value="viewSaveCustomize">
 <input type="hidden" name="id" value="{$view->id}">
 <div class="block" style="margin:5px;">
-<h1>{$translate->_('common.customize')|capitalize}</h1>
+<h1>{'common.customize'|devblocks_translate|capitalize}</h1>
 
 {* Custom Views *}
 {if substr($view->id,0,5)=="cust_"}
@@ -24,9 +24,9 @@
 <br>
 {/if}
 
-<b>{$translate->_('dashboard.columns')|capitalize}:</b> 
+<b>{'dashboard.columns'|devblocks_translate|capitalize}:</b> 
  &nbsp; 
-<a href="javascript:;" onclick="Devblocks.resetSelectElements('customize{$view->id}','columns[]');">{$translate->_('common.clear')|lower}</a>
+<a href="javascript:;" onclick="Devblocks.resetSelectElements('customize{$view->id}','columns[]');">{'common.clear'|devblocks_translate|lower}</a>
 <br>
 {$columnsAvailable = $view->getColumnsAvailable()}
 {section start=0 step=1 loop=15 name=columns}
@@ -45,7 +45,7 @@
 </div>
 {/section}
 <br>
-<b>{$translate->_('dashboard.num_rows')|capitalize}:</b> <input type="text" name="num_rows" size="3" maxlength="3" value="{$view->renderLimit}"><br>
+<b>{'dashboard.num_rows'|devblocks_translate|capitalize}:</b> <input type="text" name="num_rows" size="3" maxlength="3" value="{$view->renderLimit}"><br>
 <br>
 
 {if $is_custom}
@@ -56,8 +56,8 @@
 <br>
 {/if}
 
-<button type="button" onclick="genericAjaxPost('customize{$view->id}','view{$view->id}','c=internal&a=viewSaveCustomize');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
-<button type="button" onclick="toggleDiv('customize{$view->id}','none');"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.cancel')|capitalize}</button>
+<button type="button" onclick="genericAjaxPost('customize{$view->id}','view{$view->id}','c=internal&a=viewSaveCustomize');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" onclick="toggleDiv('customize{$view->id}','none');"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 
 <br>
 <br>

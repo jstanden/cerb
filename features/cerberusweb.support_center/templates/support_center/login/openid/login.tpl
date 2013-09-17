@@ -18,7 +18,7 @@
 	<div style="clear:both;">
 		<b>Or enter your own OpenID:</b><br>
 		<input type="text" name="openid_url" size="45" class="input_openid">
-		<button type="submit">{$translate->_('header.signon')|capitalize}</button>
+		<button type="submit">{'header.signon'|devblocks_translate|capitalize}</button>
 	</div>
 </fieldset>
 </form>

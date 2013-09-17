@@ -7,10 +7,10 @@
 <input type="hidden" name="ids" value="{$ids}">
 
 <fieldset class="peek">
-	<legend>{$translate->_('common.bulk_update.with')|capitalize}</legend>
+	<legend>{'common.bulk_update.with'|devblocks_translate|capitalize}</legend>
 	
-	<label><input type="radio" name="filter" value="" {if empty($ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
-	<label><input type="radio" name="filter" value="checks" {if !empty($ids)}checked{/if}> {$translate->_('common.bulk_update.filter.checked')}</label> 
+	<label><input type="radio" name="filter" value="" {if empty($ids)}checked{/if}> {'common.bulk_update.filter.all'|devblocks_translate}</label> 
+	<label><input type="radio" name="filter" value="checks" {if !empty($ids)}checked{/if}> {'common.bulk_update.filter.checked'|devblocks_translate}</label> 
 </fieldset>
 
 <fieldset class="peek">
@@ -21,12 +21,12 @@
 			<td width="100%">
 				<select name="is_disabled">
 					<option value="">&nbsp;</option>
-					<option value="0">{$translate->_('common.no')}</option>
-					<option value="1">{$translate->_('common.yes')}</option>
+					<option value="0">{'common.no'|devblocks_translate}</option>
+					<option value="1">{'common.yes'|devblocks_translate}</option>
 				</select>
 				
-				<button type="button" onclick="this.form.is_disabled.selectedIndex=1;">{$translate->_('common.no')}</button>
-				<button type="button" onclick="this.form.is_disabled.selectedIndex=2;">{$translate->_('common.yes')}</button>
+				<button type="button" onclick="this.form.is_disabled.selectedIndex=1;">{'common.no'|devblocks_translate}</button>
+				<button type="button" onclick="this.form.is_disabled.selectedIndex=2;">{'common.yes'|devblocks_translate}</button>
 			</td>
 		</tr>
 		<tr>
@@ -52,13 +52,13 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_WORKER bulk=true}
 
-<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 <br>
 </form>
 
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{$translate->_('common.bulk_update')|capitalize}");
+		$(this).dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize}");
 	} );
 </script>

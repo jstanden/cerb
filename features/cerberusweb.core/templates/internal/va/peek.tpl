@@ -111,7 +111,7 @@
 {/if}
 
 <div class="buttons">
-	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmVirtualAttendantPeek','{$view_id}', false, 'virtual_attendant_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmVirtualAttendantPeek','{$view_id}', false, 'virtual_attendant_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	{if !empty($model->id)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 

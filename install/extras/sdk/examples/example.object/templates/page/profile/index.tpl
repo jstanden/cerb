@@ -17,8 +17,8 @@
 		{$tabs = [activity,notes,links]}
 		
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$point}&context_id={$model->id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>		
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={$point}&id={$model->id}{/devblocks_url}">{$translate->_('common.comments')|capitalize} <div class="tab-badge">{DAO_Comment::count($page_context, $page_context_id)|default:0}</div></a></li>		
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context={$point}&id={$model->id}{/devblocks_url}">{$translate->_('common.links')} <div class="tab-badge">{DAO_ContextLink::count($page_context, $page_context_id)|default:0}</div></a></li>		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={$point}&id={$model->id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize} <div class="tab-badge">{DAO_Comment::count($page_context, $page_context_id)|default:0}</div></a></li>		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context={$point}&id={$model->id}{/devblocks_url}">{'common.links'|devblocks_translate} <div class="tab-badge">{DAO_ContextLink::count($page_context, $page_context_id)|default:0}</div></a></li>		
 	</ul>
 </div> 
 <br>

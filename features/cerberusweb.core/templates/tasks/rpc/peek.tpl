@@ -35,7 +35,7 @@
 		
 		{* Watchers *}
 		<tr>
-			<td width="1%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.watchers')|capitalize}: </td>
+			<td width="1%" nowrap="nowrap" valign="top" align="right">{'common.watchers'|devblocks_translate|capitalize}: </td>
 			<td width="99%">
 				{if empty($task->id)}
 					<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
@@ -74,8 +74,8 @@
 </fieldset>
 
 {if $active_worker->hasPriv('core.tasks.actions.create')}
-	<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'formTaskPeek','{$view_id}',false,'task_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
-	{if $active_worker->hasPriv('core.tasks.actions.delete') && !empty($task)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this task?')) { $('#formTaskPeek input[name=do_delete]').val('1'); genericAjaxPopupPostCloseReloadView(null,'formTaskPeek','{$view_id}',false,'task_delete'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+	<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'formTaskPeek','{$view_id}',false,'task_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
+	{if $active_worker->hasPriv('core.tasks.actions.delete') && !empty($task)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this task?')) { $('#formTaskPeek input[name=do_delete]').val('1'); genericAjaxPopupPostCloseReloadView(null,'formTaskPeek','{$view_id}',false,'task_delete'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 {else}
 	<fieldset class="delete">
 		{'error.core.no_acl.edit'|devblocks_translate}

@@ -31,12 +31,12 @@
 		<!-- Edit -->
 		<button type="button" id="btnDisplayTaskEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
 
-		<button type="button" title="{$translate->_('display.shortcut.refresh')}" onclick="document.location='{devblocks_url}c=profiles&type=task&id={$page_context_id}-{$task->title|devblocks_permalink}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
+		<button type="button" title="{'display.shortcut.refresh'|devblocks_translate}" onclick="document.location='{devblocks_url}c=profiles&type=task&id={$page_context_id}-{$task->title|devblocks_permalink}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
 	<small>
-		{$translate->_('common.keyboard')|lower}:
+		{'common.keyboard'|devblocks_translate|lower}:
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
 		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
 		(<b>1-9</b>) change tab
@@ -58,7 +58,7 @@
 					{'status.open'|devblocks_translate|capitalize}
 				{/if}
 			{elseif $k == 'due_date'}
-				<b>{$translate->_('task.due_date')|capitalize}:</b>
+				<b>{'task.due_date'|devblocks_translate|capitalize}:</b>
 				<abbr title="{$task->due_date|devblocks_date}" style="{if !$task->is_completed && $task->due_date < time()}font-weight:bold;color:rgb(150,0,0);{/if}">{$task->due_date|devblocks_prettytime}</abbr>
 			{else}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}

@@ -3,14 +3,14 @@
 <form id="reply{$message->id}_part1" onsubmit="return false;">
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
-		<td><h2 style="color:rgb(50,50,50);">{if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.reply')|capitalize}{/if}</h2></td>
+		<td><h2 style="color:rgb(50,50,50);">{if $is_forward}{'display.ui.forward'|devblocks_translate|capitalize}{else}{'display.ui.reply'|devblocks_translate|capitalize}{/if}</h2></td>
 	</tr>
 	<tr>
 		<td width="100%">
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
 				{if isset($groups.{$ticket->group_id})}
 				<tr>
-					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{$translate->_('message.header.from')|capitalize}:</b>&nbsp;</td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{'message.header.from'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 					<td width="99%" align="left">
 						{$groups.{$ticket->group_id}->name}
 					</td>
@@ -18,7 +18,7 @@
 				{/if}
 				
 				<tr>
-					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{$translate->_('message.header.to')|capitalize}:</b>&nbsp;</td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{'message.header.to'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 					<td width="99%" align="left">
 						<input type="text" size="45" name="to" value="{if !empty($draft)}{$draft->params.to}{else}{if $is_forward}{else}{foreach from=$requesters item=req_addy name=reqs}{$fullname=$req_addy->getName()}{if !empty($fullname)}{$fullname} &lt;{$req_addy->email}&gt;{else}{$req_addy->email}{/if}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}" placeholder="{if $is_forward}These recipients will receive this forwarded message{else}These recipients will automatically be included in all future correspondence{/if}" class="required" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
 						{if !$is_forward}
@@ -38,21 +38,21 @@
 				</tr>
 				
 				<tr>
-					<td width="1%" nowrap="nowrap" align="right" valign="middle">{$translate->_('message.header.cc')|capitalize}:&nbsp;</td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle">{'message.header.cc'|devblocks_translate|capitalize}:&nbsp;</td>
 					<td width="99%" align="left">
 						<input type="text" size="45" name="cc" value="{$draft->params.cc}" placeholder="These recipients will publicly receive a one-time copy of this message" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
 					</td>
 				</tr>
 				
 				<tr>
-					<td width="1%" nowrap="nowrap" align="right" valign="middle">{$translate->_('message.header.bcc')|capitalize}:&nbsp;</td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle">{'message.header.bcc'|devblocks_translate|capitalize}:&nbsp;</td>
 					<td width="99%" align="left">
 						<input type="text" size="45" name="bcc" value="{$draft->params.bcc}" placeholder="These recipients will secretly receive a one-time copy of this message" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">					
 					</td>
 				</tr>
 				
 				<tr>
-					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{$translate->_('message.header.subject')|capitalize}:</b>&nbsp;</td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{'message.header.subject'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 					<td width="99%" align="left">
 						<input type="text" size="45" name="subject" value="{if !empty($draft)}{$draft->params.subject}{else}{if $is_forward}Fwd: {/if}{$ticket->subject}{/if}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;" class="required">
 					</td>
@@ -116,7 +116,7 @@
 					</ul>
 					{/if}
 					
-					<button id="btnInsertReplySig{$message->id}" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if} onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->group_id}&bucket_id={$ticket->bucket_id}',function(txt) { $('#reply_{$message->id}').insertAtCursor(txt); } );"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('display.reply.insert_sig')|capitalize}</button>
+					<button id="btnInsertReplySig{$message->id}" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if} onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->group_id}&bucket_id={$ticket->bucket_id}',function(txt) { $('#reply_{$message->id}').insertAtCursor(txt); } );"><span class="cerb-sprite sprite-document_edit"></span> {'display.reply.insert_sig'|devblocks_translate|capitalize}</button>
 					
 					{* Plugin Toolbar *}
 					{if !empty($reply_toolbaritems)}
@@ -177,11 +177,11 @@
 {$signature}
 {/if}
 
-{$translate->_('display.reply.forward.banner')}
-{if isset($headers.subject)}{$translate->_('message.header.subject')|capitalize}: {$headers.subject|cat:"\n"}{/if}
-{if isset($headers.from)}{$translate->_('message.header.from')|capitalize}: {$headers.from|cat:"\n"}{/if}
-{if isset($headers.date)}{$translate->_('message.header.date')|capitalize}: {$headers.date|cat:"\n"}{/if}
-{if isset($headers.to)}{$translate->_('message.header.to')|capitalize}: {$headers.to|cat:"\n"}{/if}
+{'display.reply.forward.banner'|devblocks_translate}
+{if isset($headers.subject)}{'message.header.subject'|devblocks_translate|capitalize}: {$headers.subject|cat:"\n"}{/if}
+{if isset($headers.from)}{'message.header.from'|devblocks_translate|capitalize}: {$headers.from|cat:"\n"}{/if}
+{if isset($headers.date)}{'message.header.date'|devblocks_translate|capitalize}: {$headers.date|cat:"\n"}{/if}
+{if isset($headers.to)}{'message.header.to'|devblocks_translate|capitalize}: {$headers.to|cat:"\n"}{/if}
 
 {$message_content|trim}
 {/if}
@@ -210,7 +210,7 @@
 	<tr>
 		<td>
 			<fieldset class="peek">
-				<legend>{$translate->_('common.attachments')|capitalize}</legend>
+				<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
 				
 				<button type="button" class="chooser_file"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
 				<ul class="bubbles chooser-container">
@@ -243,30 +243,30 @@
 								{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" object_watchers=$object_watchers context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
 							</div>
 							
-							<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="closed" value="0" class="status_open" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if (empty($draft) && 'open'==$mail_status_reply) || $draft->params.closed==0}checked="checked"{/if}>{$translate->_('status.open')|capitalize}</label>
-							<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="closed" value="2" class="status_waiting" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'waiting'==$mail_status_reply) || $draft->params.closed==2}checked="checked"{/if}>{$translate->_('status.waiting')|capitalize}</label>
-							{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="closed" value="1" class="status_closed" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'closed'==$mail_status_reply) || $draft->params.closed==1}checked="checked"{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
+							<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="closed" value="0" class="status_open" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if (empty($draft) && 'open'==$mail_status_reply) || $draft->params.closed==0}checked="checked"{/if}>{'status.open'|devblocks_translate|capitalize}</label>
+							<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="closed" value="2" class="status_waiting" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'waiting'==$mail_status_reply) || $draft->params.closed==2}checked="checked"{/if}>{'status.waiting'|devblocks_translate|capitalize}</label>
+							{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="closed" value="1" class="status_closed" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'closed'==$mail_status_reply) || $draft->params.closed==1}checked="checked"{/if}>{'status.closed'|devblocks_translate|capitalize}</label>{/if}
 							<br>
 							
 							<div id="replyClosed{$message->id}" style="display:{if (empty($draft) && 'open'==$mail_status_reply) || (!empty($draft) && $draft->params.closed==0)}none{else}block{/if};margin:10px 0px 0px 20px;">
-							<b>{$translate->_('display.reply.next.resume')}</b> {$translate->_('display.reply.next.resume_eg')}<br> 
+							<b>{'display.reply.next.resume'|devblocks_translate}</b> {'display.reply.next.resume_eg'|devblocks_translate}<br> 
 							<input type="text" name="ticket_reopen" size="55" value="{if !empty($draft)}{$draft->params.ticket_reopen}{elseif !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}"><br>
-							{$translate->_('display.reply.next.resume_blank')}<br>
+							{'display.reply.next.resume_blank'|devblocks_translate}<br>
 							</div>
 							
 							<div style="margin-bottom:10px;"></div>
 							
 							{if $active_worker->hasPriv('core.ticket.actions.move')}
-							<b>{$translate->_('display.reply.next.move')}</b>
+							<b>{'display.reply.next.move'|devblocks_translate}</b>
 							<br>
 							<select name="bucket_id">
 								{$ticket_group_id = $ticket->group_id}
 								{$ticket_bucket_id = $ticket->bucket_id}
 								<option value="">-- No, leave it in the <b>{if $ticket_bucket_id}{$group_buckets.{$ticket_group_id}.{$ticket_bucket_id}->name} bucket{else}{'common.inbox'|devblocks_translate|lower}{/if}</b> of <b>{$groups.{$ticket_group_id}->name}</b> --</option>
 								{if empty($ticket->bucket_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
-								<optgroup label="{$translate->_('common.inboxes')|capitalize}">
+								<optgroup label="{'common.inboxes'|devblocks_translate|capitalize}">
 								{foreach from=$groups item=group}
-									<option value="t{$group->id}" {if $draft->params.bucket_id=="t{$group->id}"}selected="selected"{/if}>{$group->name}{if $t_or_c=='t' && $ticket->group_id==$group->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
+									<option value="t{$group->id}" {if $draft->params.bucket_id=="t{$group->id}"}selected="selected"{/if}>{$group->name}{if $t_or_c=='t' && $ticket->group_id==$group->id} {'display.reply.next.move.current'|devblocks_translate}{/if}</option>
 								{/foreach}
 								</optgroup>
 								{foreach from=$group_buckets item=buckets key=groupId}
@@ -274,7 +274,7 @@
 									{if !empty($active_worker_memberships.$groupId)}
 										<optgroup label="-- {$group->name} --">
 										{foreach from=$buckets item=bucket}
-											<option value="c{$bucket->id}" {if $draft->params.bucket_id=="c{$bucket->id}"}selected="selected"{/if}>{$bucket->name}{if $t_or_c=='c' && $ticket->bucket_id==$bucket->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
+											<option value="c{$bucket->id}" {if $draft->params.bucket_id=="c{$bucket->id}"}selected="selected"{/if}>{$bucket->name}{if $t_or_c=='c' && $ticket->bucket_id==$bucket->id} {'display.reply.next.move.current'|devblocks_translate}{/if}</option>
 										{/foreach}
 										</optgroup>
 									{/if}
@@ -322,14 +322,14 @@
 	</tr>
 	<tr>
 		<td id="reply{$message->id}_buttons">
-			<button type="button" class="send split-left" onclick="$(this).closest('td').find('ul li:first a').click();" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="cerb-sprite2 sprite-tick-circle"></span> {if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.send_message')}{/if}</button><!--
+			<button type="button" class="send split-left" onclick="$(this).closest('td').find('ul li:first a').click();" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="cerb-sprite2 sprite-tick-circle"></span> {if $is_forward}{'display.ui.forward'|devblocks_translate|capitalize}{else}{'display.ui.send_message'|devblocks_translate}{/if}</button><!--
 			--><button type="button" class="split-right" onclick="$(this).next('ul').toggle();"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
 			<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
-				<li><a href="javascript:;" class="send">{if $is_forward}{$translate->_('display.ui.forward')}{else}{$translate->_('display.ui.send_message')}{/if}</a></li>
+				<li><a href="javascript:;" class="send">{if $is_forward}{'display.ui.forward'|devblocks_translate}{else}{'display.ui.send_message'|devblocks_translate}{/if}</a></li>
 				<li><a href="javascript:;" class="save">{'display.ui.save_nosend'|devblocks_translate}</a></li>
-				<li><a href="javascript:;" class="draft">{$translate->_('display.ui.continue_later')}</a></li>
+				<li><a href="javascript:;" class="draft">{'display.ui.continue_later'|devblocks_translate}</a></li>
 			</ul>
-			<button type="button" class="discard" onclick="window.onbeforeunload=null;if(confirm('Are you sure you want to discard this reply?')) { if(null != draftAutoSaveInterval) { clearTimeout(draftAutoSaveInterval); draftAutoSaveInterval = null; } $frm = $(this).closest('form'); genericAjaxGet('', 'c=mail&a=handleSectionAction&section=drafts&action=deleteDraft&draft_id='+escape($frm.find('input:hidden[name=draft_id]').val()), function(o) { $frm = $('#reply{$message->id}_part2'); $('#draft'+escape($frm.find('input:hidden[name=draft_id]').val())).remove(); $('#reply{$message->id}').html('');  } ); }"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('display.ui.discard')|capitalize}</button>
+			<button type="button" class="discard" onclick="window.onbeforeunload=null;if(confirm('Are you sure you want to discard this reply?')) { if(null != draftAutoSaveInterval) { clearTimeout(draftAutoSaveInterval); draftAutoSaveInterval = null; } $frm = $(this).closest('form'); genericAjaxGet('', 'c=mail&a=handleSectionAction&section=drafts&action=deleteDraft&draft_id='+escape($frm.find('input:hidden[name=draft_id]').val()), function(o) { $frm = $('#reply{$message->id}_part2'); $('#draft'+escape($frm.find('input:hidden[name=draft_id]').val())).remove(); $('#reply{$message->id}').html('');  } ); }"><span class="cerb-sprite2 sprite-cross-circle"></span> {'display.ui.discard'|devblocks_translate|capitalize}</button>
 		</td>
 	</tr>
 </table>

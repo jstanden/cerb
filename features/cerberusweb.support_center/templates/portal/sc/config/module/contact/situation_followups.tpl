@@ -2,7 +2,7 @@
 <span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span>
 <input type="text" name="contact_followup[{$uniq_id}][]" size="45" value="{$q}"> 
 <select name="contact_followup_fields[{$uniq_id}][]">
-	<option value="">-- {$translate->_('portal.sc.cfg.append_to_message')} --</option>
+	<option value="">-- {'portal.sc.cfg.append_to_message'|devblocks_translate} --</option>
 	<optgroup label="{'common.custom_fields'|devblocks_translate}">	
 		{foreach from=$ticket_fields item=f key=f_id}
 		{assign var=field_group_id value=$f->group_id}

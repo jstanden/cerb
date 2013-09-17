@@ -4,7 +4,7 @@
 
 <form action="{devblocks_url}c=login&a=authenticate{/devblocks_url}" method="post" id="loginForm">
 <fieldset>
-	<legend>{$translate->_('header.signon')}</legend>
+	<legend>{'header.signon'|devblocks_translate}</legend>
 	
 	<b>{'common.email'|devblocks_translate|capitalize}:</b><br>
 	<input type="text" name="email" size="45"><br>
@@ -13,7 +13,7 @@
 	<input type="password" name="password" size="45" autocomplete="off"><br>
 	
 	<br>
-	<button type="submit">{$translate->_('header.signon')|capitalize}</button><br>
+	<button type="submit">{'header.signon'|devblocks_translate|capitalize}</button><br>
 </fieldset>
 </form>
 

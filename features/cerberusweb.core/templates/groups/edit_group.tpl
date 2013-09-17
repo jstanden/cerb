@@ -9,7 +9,7 @@
 		
 		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}
 		{$tabs[] = 'custom_fieldsets'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=custom_fieldsets&action=showTabCustomFieldsets&context={CerberusContexts::CONTEXT_GROUP}&context_id={$group->id}&point={$point}{/devblocks_url}">{$translate->_('common.custom_fieldsets')|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=custom_fieldsets&action=showTabCustomFieldsets&context={CerberusContexts::CONTEXT_GROUP}&context_id={$group->id}&point={$point}{/devblocks_url}">{'common.custom_fieldsets'|devblocks_translate|capitalize}</a></li>
 		{/if}
 		
 		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}
@@ -19,7 +19,7 @@
 
 		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}
 		{$tabs[] = 'snippets'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabSnippets&context={CerberusContexts::CONTEXT_GROUP}&context_id={$group->id}&point={$point}{/devblocks_url}">{$translate->_('common.snippets')|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabSnippets&context={CerberusContexts::CONTEXT_GROUP}&context_id={$group->id}&point={$point}{/devblocks_url}">{'common.snippets'|devblocks_translate|capitalize}</a></li>
 		{/if}
 	</ul>
 </div> 

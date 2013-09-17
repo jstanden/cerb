@@ -1,7 +1,7 @@
 <fieldset>
 	<legend>
 		{$schema->manifest->name}
-		(<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=storage_content&action=showStorageSchemaPeek&ext_id={$schema->manifest->id}', null, false);">{$translate->_('common.edit')|lower}</a>)
+		(<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=storage_content&action=showStorageSchemaPeek&ext_id={$schema->manifest->id}', null, false);">{'common.edit'|devblocks_translate|lower}</a>)
 	</legend>
 
 	{$schema->render()}

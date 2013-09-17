@@ -32,7 +32,7 @@
 				{elseif $f->type==Model_CustomField::TYPE_MULTI_LINE}
 					<textarea name="{$field_name}" rows="4" cols="50" style="width:98%;">{$custom_field_values.$f_id}</textarea>
 				{elseif $f->type==Model_CustomField::TYPE_CHECKBOX}
-					<label><input type="checkbox" name="{$field_name}" value="1" {if $custom_field_values.$f_id}checked="checked"{/if}> {$translate->_('common.yes')|capitalize}</label>
+					<label><input type="checkbox" name="{$field_name}" value="1" {if $custom_field_values.$f_id}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
 				{elseif $f->type==Model_CustomField::TYPE_MULTI_CHECKBOX}
 					{if $bulk}
 						{foreach from=$f->options item=opt}

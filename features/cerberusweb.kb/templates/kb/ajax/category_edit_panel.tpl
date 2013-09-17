@@ -26,8 +26,8 @@
 </fieldset>
 
 <div class="toolbar">
-	{if $active_worker->hasPriv('core.kb.categories.modify')}<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button> {/if}
-	{if $active_worker->hasPriv('core.kb.categories.modify') && !empty($category)}<button type="button" onclick="$(this).closest('div.toolbar').fadeOut();$('#deleteCategory').fadeIn();"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+	{if $active_worker->hasPriv('core.kb.categories.modify')}<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button> {/if}
+	{if $active_worker->hasPriv('core.kb.categories.modify') && !empty($category)}<button type="button" onclick="$(this).closest('div.toolbar').fadeOut();$('#deleteCategory').fadeIn();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>

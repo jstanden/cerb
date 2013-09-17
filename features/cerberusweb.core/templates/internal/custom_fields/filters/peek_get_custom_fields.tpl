@@ -34,8 +34,8 @@
 				</select>
 				<input type="text" name="value_cf_{$field_id}" size="12" value="{$crit_field.value}" onchange="document.getElementById('chkGetField{$field_id}').checked=((0==this.value.length)?false:true);">
 			{elseif 'C'==$field->type}
-				<label><input type="radio" name="value_cf_{$field_id}" value="1" {if !is_null($crit_field) && 1==$crit_field.value}checked="checked"{/if} onchange="document.getElementById('chkGetField{$field_id}').checked=((0==this.checked)?false:true);"> {$translate->_('common.yes')}</label>
-				<label><input type="radio" name="value_cf_{$field_id}" value="0" {if !is_null($crit_field) && 0==$crit_field.value}checked="checked"{/if} onchange="document.getElementById('chkGetField{$field_id}').checked=((0==this.checked)?false:true);"> {$translate->_('common.no')}</label>
+				<label><input type="radio" name="value_cf_{$field_id}" value="1" {if !is_null($crit_field) && 1==$crit_field.value}checked="checked"{/if} onchange="document.getElementById('chkGetField{$field_id}').checked=((0==this.checked)?false:true);"> {'common.yes'|devblocks_translate}</label>
+				<label><input type="radio" name="value_cf_{$field_id}" value="0" {if !is_null($crit_field) && 0==$crit_field.value}checked="checked"{/if} onchange="document.getElementById('chkGetField{$field_id}').checked=((0==this.checked)?false:true);"> {'common.no'|devblocks_translate}</label>
 			{elseif 'E'==$field->type}
 				<i>between:</i><br>
 				<input type="text" name="value_cf_{$field_id}_from" size="20" value="{$crit_field.from}" onchange="document.getElementById('chkGetField{$field_id}').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>

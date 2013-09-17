@@ -3,12 +3,12 @@
 <input type="hidden" name="a" value="viewDoExport">
 <input type="hidden" name="view_id" value="{$view_id}">
 
-<h1>{$translate->_('common.export')|capitalize}</h1>
+<h1>{'common.export'|devblocks_translate|capitalize}</h1>
 <br>
 
 <b>Columns:</b>
  &nbsp; 
-<a href="javascript:;" onclick="Devblocks.resetSelectElements('frm{$view_id}_export','columns[]');">{$translate->_('common.clear')|capitalize}</a>
+<a href="javascript:;" onclick="Devblocks.resetSelectElements('frm{$view_id}_export','columns[]');">{'common.clear'|devblocks_translate|capitalize}</a>
 <br>
 {section start=0 step=1 loop=15 name=columns}
 {assign var=index value=$smarty.section.columns.index}
@@ -52,7 +52,7 @@
 <br>
 
 <br>
-<button type="button" onclick="this.form.submit();" style=""><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.export')|capitalize}</button>
+<button type="button" onclick="this.form.submit();" style=""><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.export'|devblocks_translate|capitalize}</button>
 <button type="button" onclick="toggleDiv('{$view_id}_tips','none');$('#{$view_id}_tips').html('');" style=""><span class="cerb-sprite2 sprite-cross-circle"></span> Cancel</button>
 
 </form>

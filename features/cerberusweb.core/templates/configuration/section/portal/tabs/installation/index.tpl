@@ -1,7 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <fieldset>
 <legend>index.php</legend>
-{$translate->_('portal.cfg.installation_instructions')|escape|nl2br nofilter}<br>
+{'portal.cfg.installation_instructions'|devblocks_translate|escape|nl2br nofilter}<br>
 <textarea rows="10" cols="80" style="width:98%;margin:10px;font-family:Courier;">
 &lt;?php
 define('REMOTE_PROTOCOL', '{if $is_ssl}https{else}http{/if}');
@@ -449,7 +449,7 @@ $router->connect();
 
 <fieldset>
 <legend>.htaccess</legend>
-{$translate->_('portal.cfg.htaccess_hint')}<br>
+{'portal.cfg.htaccess_hint'|devblocks_translate}<br>
 <textarea rows="10" cols="80" style="width:98%;margin:10px;font-family:Courier;">{literal}
 &lt;IfModule mod_rewrite.c&gt;
 RewriteEngine on

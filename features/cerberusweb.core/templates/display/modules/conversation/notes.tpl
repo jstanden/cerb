@@ -2,7 +2,7 @@
 	{foreach from=$message_notes.$message_id item=note name=notes key=note_id}
 		{$owner_meta = $note->getOwnerMeta()}
 		<div id="comment{$note->id}" class="message_note" style="margin:10px;margin-left:20px;">
-			<span class="tag" style="color:rgb(238,88,31);">{$translate->_('display.ui.sticky_note')|lower}</span>
+			<span class="tag" style="color:rgb(238,88,31);">{'display.ui.sticky_note'|devblocks_translate|lower}</span>
 			
 			<b style="font-size:1.3em;">
 			{if empty($owner_meta)}
@@ -24,13 +24,13 @@
 				{/if}
 				
 				{if !$readonly}
-					<a href="javascript:;" style="margin-left:10px;" onclick="if(confirm('Are you sure you want to permanently delete this note?')) { genericAjaxGet('','c=internal&a=commentDelete&id={$note->id}');$(this).closest('div.message_note').remove(); } ">{$translate->_('common.delete')|lower}</a><br>
+					<a href="javascript:;" style="margin-left:10px;" onclick="if(confirm('Are you sure you want to permanently delete this note?')) { genericAjaxGet('','c=internal&a=commentDelete&id={$note->id}');$(this).closest('div.message_note').remove(); } ">{'common.delete'|devblocks_translate|lower}</a><br>
 				{/if}
 			</div>
 			
 			<br>
 			
-			<b>{$translate->_('message.header.date')|capitalize}:</b> {$note->created|devblocks_date} (<abbr title="{$note->created|devblocks_date}">{$note->created|devblocks_prettytime}</abbr>)<br>
+			<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$note->created|devblocks_date} (<abbr title="{$note->created|devblocks_date}">{$note->created|devblocks_prettytime}</abbr>)<br>
 			{if !empty($note->comment)}<pre class="emailbody" style="padding-top:10px;">{$note->comment|escape|devblocks_hyperlinks nofilter}</pre>{/if}
 		</div>
 	{/foreach}

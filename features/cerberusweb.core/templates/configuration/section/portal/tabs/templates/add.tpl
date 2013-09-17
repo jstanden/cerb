@@ -17,9 +17,9 @@
 		<br>
 		
 		{if $active_worker->is_superuser}
-			<button type="button" onclick="genericAjaxPost('frmPortalAddTemplatePeek', 'divPortalAddTemplate', '');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
+			<button type="button" onclick="genericAjaxPost('frmPortalAddTemplatePeek', 'divPortalAddTemplate', '');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
 		{else}
-			<div class="error">{$translate->_('error.core.no_acl.edit')}</div>	
+			<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>	
 		{/if}
 		<br>
 		</form>

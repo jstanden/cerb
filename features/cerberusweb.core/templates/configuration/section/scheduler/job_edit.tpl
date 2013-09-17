@@ -44,8 +44,8 @@
 	
 	<div class="status"></div>
 	
-	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
-	<button type="button" onclick="javascript:toggleDiv('jobedit_{$extid}');"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.cancel')|capitalize}</button>
+	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="javascript:toggleDiv('jobedit_{$extid}');"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 	</form>
 </fieldset>
 

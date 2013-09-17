@@ -5,10 +5,10 @@
 <input type="hidden" name="ticket_ids" value="">
 
 <fieldset class="peek">
-	<legend>{$translate->_('common.bulk_update.with')|capitalize}</legend>
-	<label><input type="radio" name="filter" value="" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if empty($ticket_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
+	<legend>{'common.bulk_update.with'|devblocks_translate|capitalize}</legend>
+	<label><input type="radio" name="filter" value="" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if empty($ticket_ids)}checked{/if}> {'common.bulk_update.filter.all'|devblocks_translate}</label> 
 	{if !empty($ticket_ids)}
-		<label><input type="radio" name="filter" value="checks" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if !empty($ticket_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.checked')}</label> 
+		<label><input type="radio" name="filter" value="checks" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if !empty($ticket_ids)}checked{/if}> {'common.bulk_update.filter.checked'|devblocks_translate}</label> 
 	{/if}
 	<label><input type="radio" name="filter" value="sender" onclick="toggleDiv('categoryFilterPanelSender','block');toggleDiv('categoryFilterPanelSubject','none');"> Similar senders</label>
 	<label><input type="radio" name="filter" value="subject" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','block');"> Similar subjects</label>
@@ -75,13 +75,13 @@
 				{if $active_worker->hasPriv('core.ticket.actions.delete')}<button type="button" onclick="$(this.form).find('select[name=do_status]').val('2').trigger('change');">deleted</button>{/if}
 				
 				<div id="bulk{$view_id}_waiting" style="display:none;">
-					<b>{$translate->_('display.reply.next.resume')}</b>
+					<b>{'display.reply.next.resume'|devblocks_translate}</b>
 					<br>
-					<i>{$translate->_('display.reply.next.resume_eg')}</i>
+					<i>{'display.reply.next.resume_eg'|devblocks_translate}</i>
 					<br> 
 					<input type="text" name="do_reopen" size="55" value="">
 					<br>
-					{$translate->_('display.reply.next.resume_blank')}
+					{'display.reply.next.resume_blank'|devblocks_translate}
 					<br>
 				</div>
 			</td>
@@ -195,7 +195,7 @@
 </fieldset>
 {/if}
 	
-<button type="button" onclick="ajax.saveBatchPanel('{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="ajax.saveBatchPanel('{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 <br>
 </form>
 
@@ -205,7 +205,7 @@
 		var $this = $(this);
 		var $frm = $('#formBatchUpdate');
 		
-		$this.dialog('option','title',"{$translate->_('common.bulk_update')|capitalize}");
+		$this.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize}");
 		
 		ajax.orgAutoComplete('#formBatchUpdate input:text[name=do_org]');
 		

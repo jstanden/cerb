@@ -8,13 +8,13 @@
 <input type="file" name="import_file" size="45"><br>
 <br>
 
-<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{$translate->_('common.import')|capitalize}");
+		$(this).dialog('option','title',"{'common.import'|devblocks_translate|capitalize}");
 	} );
 </script>
 
