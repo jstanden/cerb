@@ -1765,6 +1765,10 @@ class Context_Message extends Extension_DevblocksContext {
 						$label = 'Org';
 						break;
 						
+					case 'worker__label':
+						$label = 'Worker';
+						break;
+						
 					case 'ticket_status':
 						$label = 'Status';
 						break;
@@ -1786,6 +1790,8 @@ class Context_Message extends Extension_DevblocksContext {
 			'ticket__label',
 			'ticket_status',
 			'sender__label',
+			'is_outgoing',
+			'worker__label',
 			'ticket_org__label',
 			'created',
 		);
@@ -1889,6 +1895,20 @@ class Context_Message extends Extension_DevblocksContext {
 		CerberusContexts::merge(
 			'sender_',
 			'Message:Sender:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
+		// Sender Worker
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'worker_',
+			'Message:Sender:Worker',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,
