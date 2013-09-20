@@ -2306,7 +2306,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				DAO_ContextScheduledBehavior::RUN_DATE => $run_timestamp,
 				DAO_ContextScheduledBehavior::RUN_RELATIVE => $run_relative,
 				DAO_ContextScheduledBehavior::RUN_LITERAL => $run_date,
-				DAO_ContextScheduledBehavior::RUN_DATE => $run_timestamp,
 				DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($vars),
 				DAO_ContextScheduledBehavior::REPEAT_JSON => json_encode($repeat_params),
 			));
