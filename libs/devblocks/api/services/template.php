@@ -45,6 +45,7 @@ class _DevblocksTemplateManager {
 			// Devblocks plugins
 			$instance->registerPlugin('block','devblocks_url', array('_DevblocksTemplateManager', 'block_devblocks_url'));
 			$instance->registerPlugin('modifier','devblocks_date', array('_DevblocksTemplateManager', 'modifier_devblocks_date'));
+			$instance->registerPlugin('modifier','devblocks_email_quotes_cull', array('_DevblocksTemplateManager', 'modifier_devblocks_email_quotes_cull'));
 			$instance->registerPlugin('modifier','devblocks_email_quote', array('_DevblocksTemplateManager', 'modifier_devblocks_email_quote'));
 			$instance->registerPlugin('modifier','devblocks_hyperlinks', array('_DevblocksTemplateManager', 'modifier_devblocks_hyperlinks'));
 			$instance->registerPlugin('modifier','devblocks_hideemailquotes', array('_DevblocksTemplateManager', 'modifier_devblocks_hide_email_quotes'));
@@ -209,6 +210,30 @@ class _DevblocksTemplateManager {
 		}
 		
 		return $out;
+	}
+	
+	static function modifier_devblocks_email_quotes_cull($string) {
+		$lines = DevblocksPlatform::parseCrlfString($string, true);
+		$out = array();
+		$found_sig = false;
+		
+		foreach($lines as $lineno => $line) {
+			if($found_sig)
+				continue;
+			
+			if(0 == $lineno && preg_match('#On (.*) wrote:$#', $line))
+				continue;
+			
+			if(preg_match('#^\-\- *$#', $line)) {
+				$found_sig = true;
+				continue;
+			}
+			
+			if(0 == preg_match('#^\>#', $line))
+				$out[] = $line;
+		}
+		
+		return implode("\n", $out);
 	}
 	
 	static function modifier_devblocks_hide_email_quotes($string, $length=3) {

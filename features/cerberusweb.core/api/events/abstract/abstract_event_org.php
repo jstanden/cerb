@@ -23,7 +23,7 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 	 * @param integer $org_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($org_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $org_id=null) {
 		
 		if(empty($org_id)) {
 			// Pull the latest record
@@ -85,6 +85,12 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 		$this->setValues($values);
 	}
 	
+	function renderSimulatorTarget($trigger, $event_model) {
+		$context = CerberusContexts::CONTEXT_ORG;
+		$context_id = $event_model->params['org_id'];
+		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
+	}
+	
 	function getValuesContexts($trigger) {
 		$vals = array(
 			'org_id' => array(
@@ -115,7 +121,7 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 		$types = array(
 			'org_city' => Model_CustomField::TYPE_SINGLE_LINE,
 			'org_country' => Model_CustomField::TYPE_SINGLE_LINE,
-			'org_created|date' => Model_CustomField::TYPE_DATE,
+			'org_created' => Model_CustomField::TYPE_DATE,
 			'org_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
 			'org_postal' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -240,10 +246,8 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 				'create_notification' => array('label' =>'Create a notification'),
 				'create_task' => array('label' =>'Create a task'),
 				'create_ticket' => array('label' =>'Create a ticket'),
-				'schedule_behavior' => array('label' => 'Schedule behavior'),
 				'send_email' => array('label' => 'Send email'),
 				'set_links' => array('label' => 'Set links'),
-				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
 			;
@@ -282,22 +286,6 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 				DevblocksEventHelper::renderActionCreateTicket($trigger);
 				break;
 				
-			case 'schedule_behavior':
-				$dates = array();
-				$conditions = $this->getConditions($trigger);
-				foreach($conditions as $key => $data) {
-					if(isset($data['type']) && $data['type'] == Model_CustomField::TYPE_DATE)
-						$dates[$key] = $data['label'];
-				}
-				$tpl->assign('dates', $dates);
-			
-				DevblocksEventHelper::renderActionScheduleBehavior($trigger);
-				break;
-				
-			case 'unschedule_behavior':
-				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger);
-				break;
-
 			case 'send_email':
 				DevblocksEventHelper::renderActionSendEmail($trigger);
 				break;
@@ -310,7 +298,7 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches)) {
 					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
-					DevblocksEventHelper::renderActionSetCustomField($custom_field);
+					DevblocksEventHelper::renderActionSetCustomField($custom_field, $trigger);
 				}
 				break;
 		}
@@ -347,13 +335,7 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict, 'org_id');
 				break;
 				
-			case 'schedule_behavior':
-				return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
-				break;
 				
-			case 'unschedule_behavior':
-				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
-				break;
 				
 			case 'send_email':
 				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
@@ -395,14 +377,6 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 
 			case 'create_ticket':
 				DevblocksEventHelper::runActionCreateTicket($params, $dict, 'org_id');
-				break;
-				
-			case 'schedule_behavior':
-				DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
-				break;
-				
-			case 'unschedule_behavior':
-				DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 				break;
 				
 			case 'send_email':

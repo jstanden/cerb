@@ -86,7 +86,7 @@
 {* [TODO] If the worker can edit this calendar *}
 {if 1}
 	<div class="buttons">
-		<button type="button" class="save"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
+		<button type="button" class="save"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
 		{if !empty($event->id)}
 		<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 		{/if}

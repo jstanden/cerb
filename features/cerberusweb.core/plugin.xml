@@ -4,7 +4,7 @@
 	<name>Cerb6 Core</name>
 	<description>The core functionality of Cerb6.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>6.4.4</version>
+	<version>6.5.0</version>
 	<link>http://wiki.cerb4.com/wiki/New_Changes</link>
 	
 	<!-- Plugin Dependencies -->
@@ -50,6 +50,8 @@
 		<patch version="6.2.0" revision="1016" file="patches/6.x/6.2.0.php" />
 		<patch version="6.3.0" revision="1030" file="patches/6.x/6.3.0.php" />
 		<patch version="6.4.0" revision="1046" file="patches/6.x/6.4.0.php" />
+		
+		<patch version="6.4.0" revision="1059" file="patches/6.x/6.5.0.php" />
 	</patches>
 
 	<!-- Controller Routing -->
@@ -216,6 +218,7 @@
 		</file>
 		
 		<file path="api/dao/custom_field.php">
+			<class name="Context_CustomField" />
 			<class name="DAO_CustomField" />
 			<class name="DAO_CustomFieldValue" />
 			<class name="Model_CustomField" />
@@ -340,6 +343,14 @@
 			<class name="Model_ViewRss" />
 		</file>
 		
+		<file path="api/dao/virtual_attendant.php">
+			<class name="Context_VirtualAttendant" />
+			<class name="DAO_VirtualAttendant" />
+			<class name="Model_VirtualAttendant" />
+			<class name="SearchFields_VirtualAttendant" />
+			<class name="View_VirtualAttendant" />
+		</file>
+		
 		<file path="api/dao/worker.php">
 			<class name="DAO_Worker" />
 			<class name="DAO_WorkerPref" />
@@ -387,6 +398,14 @@
 		<file path="api/events/abstract/abstract_event_address.php">
 			<class name="AbstractEvent_Address" />
 		</file>
+		
+		<file path="api/events/abstract/abstract_event_api_request.php">
+			<class name="AbstractEvent_ApiRequest" />
+		</file>
+		
+		<file path="api/events/abstract/abstract_event_mail_before_sent.php">
+			<class name="AbstractEvent_MailBeforeSent" />
+		</file>
 
 		<file path="api/events/abstract/abstract_event_calendar.php">
 			<class name="AbstractEvent_Calendar" />
@@ -424,8 +443,16 @@
 			<class name="AbstractEvent_Ticket" />
 		</file>
 		
+		<file path="api/events/abstract/abstract_event_virtual_attendant.php">
+			<class name="AbstractEvent_VirtualAttendant" />
+		</file>
+		
 		<file path="api/events/abstract/abstract_event_worker.php">
 			<class name="AbstractEvent_Worker" />
+		</file>
+		
+		<file path="api/events/api/api_request.php">
+			<class name="Event_ApiRequest" />
 		</file>
 		
 		<file path="api/events/app/mail_received_by_app.php">
@@ -464,8 +491,16 @@
 			<class name="Event_MailReceivedByGroup" />
 		</file>
 		
+		<file path="api/events/app/mail_after_sent.php">
+			<class name="Event_MailAfterSent" />
+		</file>
+		
 		<file path="api/events/group/mail_after_sent_by_group.php">
 			<class name="Event_MailAfterSentByGroup" />
+		</file>
+		
+		<file path="api/events/app/mail_before_sent.php">
+			<class name="Event_MailBeforeSent" />
 		</file>
 		
 		<file path="api/events/group/mail_before_sent_by_group.php">
@@ -504,6 +539,10 @@
 			<class name="Event_TicketMacro" />
 		</file>
 		
+		<file path="api/events/macro/virtual_attendant_macro.php">
+			<class name="Event_VirtualAttendantMacro" />
+		</file>
+		
 		<file path="api/events/macro/worker_macro.php">
 			<class name="Event_WorkerMacro" />
 		</file>
@@ -526,6 +565,11 @@
 		
 		<file path="api/events/worker/notification_received_by_worker.php">
 			<class name="Event_NotificationReceivedByWorker" />
+		</file>
+		
+		<file path="api/uri/config/mail_failed.php">
+			<class name="SearchFields_MailParseFail" />
+			<class name="View_MailParseFail" />
 		</file>
 		
 		<file path="api/uri/internal/virtual_attendants.php">
@@ -786,6 +830,30 @@
 					</value>
 				</param>
 				<param key="context_expand_export" value="email_" />
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.custom_field</id>
+			<name>Custom Field</name>
+			<class>
+				<file>api/dao/custom_field.php</file>
+				<name>Context_CustomField</name>
+			</class>
+			<params>
+				<param key="alias" value="custom_field" />
+				<param key="dao_class" value="DAO_CustomField" />
+				<param key="view_class" value="" />
+				<param key="options">
+					<!--
+					<value>
+						<data key="create" />
+						<data key="find" />
+						<data key="snippets" />
+						<data key="workspace" />
+					</value>
+					-->
+				</param>
 			</params>
 		</extension>
 		
@@ -1162,6 +1230,30 @@
 				<param key="context_expand_export" value="group_,bucket_,owner_,latest_message_sender_" />
 			</params>
 		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.virtual.attendant</id>
+			<name>Virtual Attendant</name>
+			<class>
+				<file>api/dao/virtual_attendant.php</file>
+				<name>Context_VirtualAttendant</name>
+			</class>
+			<params>
+				<param key="alias" value="virtual_attendant" />
+				<param key="dao_class" value="DAO_VirtualAttendant" />
+				<param key="view_class" value="View_VirtualAttendant" />
+				<param key="options">
+					<value>
+						<data key="create" />
+						<data key="custom_fields" />
+						<data key="find" />
+						<!--<data key="snippets" />-->
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+			</params>
+		</extension>
 
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.worker</id>
@@ -1380,6 +1472,22 @@
 		</extension>
 		
 		<extension point="devblocks.event">
+			<id>event.mail.after.sent</id>
+			<name>After sending worker message</name>
+			<class>
+				<file>api/events/app/mail_after_sent.php</file>
+				<name>Event_MailAfterSent</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
 			<id>event.mail.after.sent.group</id>
 			<name>After sending worker message</name>
 			<class>
@@ -1390,6 +1498,22 @@
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.group" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.mail.before.sent</id>
+			<name>Before sending worker message</name>
+			<class>
+				<file>api/events/app/mail_before_sent.php</file>
+				<name>Event_MailBeforeSent</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
 					</value>
 				</param>
 			</params>
@@ -1454,8 +1578,26 @@
 				<param key="macro_context" value="cerberusweb.contexts.address" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.api.custom_request</id>
+			<name>Custom API request</name>
+			<class>
+				<file>api/events/api/api_request.php</file>
+				<name>Event_ApiRequest</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
@@ -1473,6 +1615,7 @@
 				<param key="macro_context" value="cerberusweb.contexts.calendar" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
@@ -1492,6 +1635,7 @@
 				<param key="macro_context" value="cerberusweb.contexts.calendar_event" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
@@ -1511,6 +1655,7 @@
 				<param key="macro_context" value="cerberusweb.contexts.group" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
@@ -1530,6 +1675,7 @@
 				<param key="macro_context" value="cerberusweb.contexts.org" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
@@ -1549,6 +1695,7 @@
 				<param key="macro_context" value="cerberusweb.contexts.task" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
@@ -1568,6 +1715,27 @@
 				<param key="macro_context" value="cerberusweb.contexts.ticket" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.macro.virtual_attendant</id>
+			<name>Custom virtual attendant behavior</name>
+			<class>
+				<file>api/events/macro/virtual_attendant_macro.php</file>
+				<name>Event_VirtualAttendantMacro</name>
+			</class>
+			<params>
+				<param key="macro_context" value="cerberusweb.contexts.virtual.attendant" />
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
@@ -1587,6 +1755,7 @@
 				<param key="macro_context" value="cerberusweb.contexts.worker" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
@@ -1738,7 +1907,26 @@
 				-->
 			</params>
 		</extension>
- 
+
+		<!-- VA Actions -->
+		
+		<extension point="devblocks.event.action">
+			<id>core.va.action.http_request</id>
+			<name>HTTP Request</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>VaAction_HttpRequest</name>
+			</class>
+			<params>
+				<param key="label" value="Execute an HTTP request" />
+				<param key="events">
+					<value>
+						<data key="*" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<!-- Controllers -->
 		
 		<extension point="devblocks.controller">
@@ -2172,6 +2360,19 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.localization</id>
+				<name>Localizaiton Section</name>
+				<class>
+					<file>api/uri/config/localization.php</file>
+					<name>PageSection_SetupLocalization</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="localization" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.fields</id>
 				<name>Custom Fields Section</name>
 				<class>
@@ -2250,6 +2451,19 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.mail_failed</id>
+				<name>Failed Messages Section</name>
+				<class>
+					<file>api/uri/config/mail_failed.php</file>
+					<name>PageSection_SetupMailFailed</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="mail_failed" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.mail_from</id>
 				<name>Mail From Section</name>
 				<class>
@@ -2259,6 +2473,19 @@
 				<params>
 					<param key="page_id" value="core.page.configuration" />
 					<param key="uri" value="mail_from" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.mail_import</id>
+				<name>Import Messages Section</name>
+				<class>
+					<file>api/uri/config/mail_import.php</file>
+					<name>PageSection_SetupMailImport</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="mail_import" />
 				</params>
 			</extension>
 			
@@ -2642,6 +2869,19 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.virtual_attendant</id>
+				<name>Virtual Attendant Section</name>
+				<class>
+					<file>api/uri/profiles/virtual_attendant.php</file>
+					<name>PageSection_ProfilesVirtualAttendant</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="virtual_attendant" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.worker</id>
 				<name>Worker Section</name>
 				<class>
@@ -2916,23 +3156,23 @@
 		
 		<extension point="cerberusweb.cron">
 			<id>cron.pop3</id>
-			<name>POP3 / IMAP E-Mail Importing</name>
+			<name>Mailbox (POP3/IMAP) Checker and Email Downloader</name>
 			<class>
 				<file>api/cron.classes.php</file>
 				<name>Pop3Cron</name>
 			</class>
 			<params />
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.cron">
 			<id>cron.parser</id>
-			<name>Inbound E-Mail Processing</name>
+			<name>Inbound Email Message Processor</name>
 			<class>
 				<file>api/cron.classes.php</file>
 				<name>ParseCron</name>
 			</class>
 			<params />
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.cron">
 			<id>cron.maint</id>
@@ -2942,7 +3182,7 @@
 				<name>MaintCron</name>
 			</class>
 			<params />
-		</extension>		
+		</extension>
 		
 		<extension point="cerberusweb.cron">
 			<id>cron.heartbeat</id>
@@ -2986,7 +3226,7 @@
 		
 		<extension point="cerberusweb.cron">
 			<id>cron.mail_queue</id>
-			<name>Mail Queue</name>
+			<name>Mail Queue Processor</name>
 			<class>
 				<file>api/cron.classes.php</file>
 				<name>MailQueueCron</name>

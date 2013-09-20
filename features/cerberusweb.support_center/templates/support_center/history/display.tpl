@@ -6,46 +6,20 @@
 <input type="hidden" name="a" value="saveTicketProperties">
 <input type="hidden" name="mask" value="{$ticket.t_mask}">
 <input type="hidden" name="closed" value="{if $ticket.t_is_closed}1{else}0{/if}">
-	<b>{$translate->_('portal.sc.public.history.reference')}</b> {$ticket.t_mask}
+	<b>{'portal.sc.public.history.reference'|devblocks_translate}</b> {$ticket.t_mask}
 	 &nbsp; 
-	<b>{$translate->_('common.updated')|capitalize}:</b> <abbr title="{$ticket.t_updated_date|devblocks_date}">{$ticket.t_updated_date|devblocks_prettytime}</abbr>
+	<b>{'common.updated'|devblocks_translate|capitalize}:</b> <abbr title="{$ticket.t_updated_date|devblocks_date}">{$ticket.t_updated_date|devblocks_prettytime}</abbr>
 	 &nbsp; 
 	<br>
 	
 	<div style="padding:5px;">
 		{if $ticket.t_is_closed}
-		<button type="button" onclick="this.form.closed.value='0';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/folder_out.gif{/devblocks_url}" align="top"> {$translate->_('common.reopen')|capitalize}</button>
+		<button type="button" onclick="this.form.closed.value='0';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/folder_out.gif{/devblocks_url}" align="top"> {'common.reopen'|devblocks_translate|capitalize}</button>
 		{else}
-		<button type="button" onclick="this.form.closed.value='1';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/folder_ok.gif{/devblocks_url}" align="top"> {$translate->_('common.close')|capitalize}</button>
+		<button type="button" onclick="this.form.closed.value='1';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/folder_ok.gif{/devblocks_url}" align="top"> {'common.close'|devblocks_translate|capitalize}</button>
 		{/if}
 	</div>
 </form>
-
-<div class="reply">
-	<div class="header"><h2>{$translate->_('portal.sc.public.history.reply')}</h2></div>
-	<form action="{devblocks_url}c=history{/devblocks_url}" method="post" name="replyForm" enctype="multipart/form-data">
-	<input type="hidden" name="a" value="doReply">
-	<input type="hidden" name="mask" value="{$ticket.t_mask}">
-	
-	<b>{'message.header.from'|devblocks_translate|capitalize}:</b> 
-	<select name="from">
-		{$contact_addresses = $active_contact->getAddresses()}
-		{foreach from=$contact_addresses item=address}
-		<option value="{$address->email}" {if 0==strcasecmp($address->id,$active_contact->email_id)}selected="selected"{/if}>{$address->email}</option>
-		{/foreach}
-	</select>
-	<br>
-	
-	<textarea name="content" rows="10" cols="80" style="width:98%;"></textarea><br>
-	
-	<fieldset>
-		<legend>Attachments:</legend>
-		<input type="file" name="attachments[]" class="multi"><br>
-	</fieldset>
-	
-	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('portal.public.send_message')}</button>
-	</form>
-</div>
 
 {* Message History *}
 {$badge_extensions = DevblocksPlatform::getExtensions('cerberusweb.support_center.message.badge', true)}
@@ -58,13 +32,13 @@
 		{$extension->render($message)}
 	{/foreach}
 		
-	<span class="header"><b>{$translate->_('message.header.from')|capitalize}:</b>
+	<span class="header"><b>{'message.header.from'|devblocks_translate|capitalize}:</b>
 		{$sender_name = $sender->getName()}
 		{if !empty($sender_name)}&quot;{$sender_name}&quot; {/if}&lt;{$sender->email}&gt; 
 	</span><br>
-	<span class="header"><b>{$translate->_('message.header.to')|capitalize}:</b> {$headers.to}</span><br>
-	{if !empty($headers.cc)}<span class="header"><b>{$translate->_('message.header.cc')|capitalize}:</b> {$headers.cc}</span><br>{/if}
-	{if !empty($headers.date)}<span class="header"><b>{$translate->_('message.header.date')|capitalize}:</b> {$headers.date}</span><br>{/if}
+	<span class="header"><b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$headers.to}</span><br>
+	{if !empty($headers.cc)}<span class="header"><b>{'message.header.cc'|devblocks_translate|capitalize}:</b> {$headers.cc}</span><br>{/if}
+	{if !empty($headers.date)}<span class="header"><b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$headers.date}</span><br>{/if}
 	<br>
 	
 	<div style="clear:both;">
@@ -86,7 +60,7 @@
 				( 
 					{$attachment->storage_size|devblocks_prettybytes}
 					- 
-					{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{$translate->_('display.convo.unknown_format')|capitalize}{/if}
+					{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if}
 				 )
 			</li>
 			{/foreach}
@@ -94,6 +68,35 @@
 		</ul>
 		</div>
 	{/if}
+	
+	<button type="button" onclick="var $div = $(this).next('div.reply').toggle(); $div.find('textarea').focus();">Reply</button>
+	
+	<div class="reply" style="display:none;margin-left:15px;">
+		<div class="header"><h2>{'portal.sc.public.history.reply'|devblocks_translate}</h2></div>
+		<form action="{devblocks_url}c=history{/devblocks_url}" method="post" enctype="multipart/form-data">
+		<input type="hidden" name="a" value="doReply">
+		<input type="hidden" name="mask" value="{$ticket.t_mask}">
+		
+		<b>{'message.header.from'|devblocks_translate|capitalize}:</b> 
+		<select name="from">
+			{$contact_addresses = $active_contact->getAddresses()}
+			{foreach from=$contact_addresses item=address}
+			<option value="{$address->email}" {if 0==strcasecmp($address->id,$active_contact->email_id)}selected="selected"{/if}>{$address->email}</option>
+			{/foreach}
+		</select>
+		<br>
+		
+		<textarea name="content" rows="15" cols="80" style="width:98%;">{$message->getContent()|trim|indent:1:'> '|devblocks_email_quote}</textarea><br>
+		
+		<fieldset style="margin:10px 0px 0px 0px;border:0;">
+			<legend>Attachments:</legend>
+			<input type="file" name="attachments[]" class="multi"><br>
+		</fieldset>
+		
+		<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top"> {'portal.public.send_message'|devblocks_translate}</button>
+		<button type="button" onclick="$(this).closest('div.reply').fadeOut();"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/forbidden.png{/devblocks_url}" align="top"> {'common.cancel'|devblocks_translate|capitalize}</button>
+		</form>
+	</div>
 	
 	</div>
 {/foreach}

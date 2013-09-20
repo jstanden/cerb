@@ -33,7 +33,7 @@ class ChReportVirtualAttendantUsage extends Extension_Report {
 		$tpl->assign('end', $end);
 		
 		@$sort_by = DevblocksPlatform::importGPC($_REQUEST['sort_by'],'string','uses');
-		if(!in_array($sort_by, array('uses', 'avg_elapsed_ms', 'elapsed_ms', 'owner', 'event')))
+		if(!in_array($sort_by, array('uses', 'avg_elapsed_ms', 'elapsed_ms', 'va_name', 'va_owner', 'event')))
 			$sort_by = 'uses';
 		$tpl->assign('sort_by', $sort_by);
 
@@ -43,7 +43,7 @@ class ChReportVirtualAttendantUsage extends Extension_Report {
 
 		// Data
 		
-		$sql = sprintf("SELECT trigger_event.id, trigger_event.title, trigger_event.owner_context, trigger_event.owner_context_id, trigger_event.event_point, ".
+		$sql = sprintf("SELECT trigger_event.id, trigger_event.title, trigger_event.virtual_attendant_id, trigger_event.event_point, ".
 			"SUM(trigger_event_history.uses) AS uses, SUM(trigger_event_history.elapsed_ms) AS elapsed_ms ".
 			"FROM trigger_event_history ".
 			"INNER JOIN trigger_event ON (trigger_event_history.trigger_id=trigger_event.id) ".
@@ -55,6 +55,8 @@ class ChReportVirtualAttendantUsage extends Extension_Report {
 		
 		$stats = $db->GetArray(sprintf($sql, 'DESC'));
 		
+		$vas = DAO_VirtualAttendant::getAll();
+		
 		foreach($stats as $idx => $stat) {
 			// Avg. Runtime
 			
@@ -65,12 +67,18 @@ class ChReportVirtualAttendantUsage extends Extension_Report {
 			@$event_mft = $event_mfts[$stat['event_point']];
 			$stats[$idx]['event'] = !empty($event_mft) ? $event_mft->name : '';
 			
+			// VA
+			
+			if(false == (@$va = $vas[$stat['virtual_attendant_id']]))
+				continue;
+			
 			// Owner
+
+			$meta = $va->getOwnerMeta();
 			
-			$ctx = Extension_DevblocksContext::get($stat['owner_context']);
-			$meta = $ctx->getMeta($stat['owner_context_id']);
-			
-			$stats[$idx]['owner'] = sprintf("%s%s", $ctx->manifest->name, (!empty($meta['name']) ? (': '.$meta['name']) : ''));
+			$stats[$idx]['va_id'] = $va->id;
+			$stats[$idx]['va_name'] = $va->name;
+			$stats[$idx]['va_owner'] = sprintf("%s%s", $meta['context_ext']->manifest->name, (!empty($meta['name']) ? (': '.$meta['name']) : ''));
 		}
 		
 		// Sort
@@ -78,7 +86,8 @@ class ChReportVirtualAttendantUsage extends Extension_Report {
 		$sort_asc = false;
 		switch($sort_by) {
 			case 'event':
-			case 'owner':
+			case 'va_name':
+			case 'va_owner':
 				$sort_asc = true;
 				break;
 		}

@@ -1,14 +1,14 @@
-{$translate->_('portal.sc.cfg.feeds_info')}<br>
+{'portal.sc.cfg.feeds_info'|devblocks_translate}<br>
 <br>
 
 <table id="setupScAnnouncements" cellpadding="0" cellspacing="0" border="0" class="container">
 	<tr>
 		<td></td>
 		<td>
-			<b>{$translate->_('portal.sc.cfg.feed_display_title')}</b>
+			<b>{'portal.sc.cfg.feed_display_title'|devblocks_translate}</b>
 		</td>
 		<td>
-			<b>{$translate->_('portal.sc.cfg.feed_url')}</b>
+			<b>{'portal.sc.cfg.feed_url'|devblocks_translate}</b>
 		</td>
 	</tr>
 

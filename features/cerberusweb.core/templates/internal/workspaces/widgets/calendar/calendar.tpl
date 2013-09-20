@@ -71,6 +71,7 @@
 </table>
 
 <script type="text/javascript">
+$(function() {
 var $widget = $('#widget{$widget->id}');
 var $calendar = $widget.find('TABLE.calendar');
 var $calendar_cell = $calendar.find('TR.week:first TD:first');
@@ -175,4 +176,5 @@ $frm.find('button.create-event, a.create-event').click($openEvtPopupEvent);
 {/if}
 
 $calendar.find('TR.week DIV.bubble-popup-event').click($openEvtPopupEvent);
+});
 </script>

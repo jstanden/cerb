@@ -4,7 +4,7 @@
 	$subpage = $('BODY > DIV.cerb-subpage');
 	$toolbar = $subpage.find('form.toolbar');
 	
-	$new_button = $('<button type="button" title="{$translate->_('timetracking.ui.button.track')|capitalize}">&nbsp;<span class="cerb-sprite sprite-stopwatch"></span>&nbsp;</button>');
+	$new_button = $('<button type="button" title="{'timetracking.ui.button.track'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite sprite-stopwatch"></span>&nbsp;</button>');
 	$new_button.click(function(e) {
 		timeTrackingTimer.play('{$page_context}','{$page_context_id}');
 	});

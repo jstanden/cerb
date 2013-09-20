@@ -442,10 +442,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 
 		// Do we need to lazy load some fields to be helpful?
 		if(is_array($expand) && !empty($expand)) {
-			if(isset($array['_context'])) {
-				$array = $this->_expandResults($array, $expand);
-				
-			} elseif(isset($array['results'])) {
+			if(isset($array['results'])) {
 				foreach($array['results'] as $k => $v) {
 					if(!isset($array['results'][$k]['_context']))
 						continue;
@@ -453,6 +450,8 @@ abstract class Extension_RestController extends DevblocksExtension {
 					$array['results'][$k] = $this->_expandResults($array['results'][$k], $expand);
 				}
 				
+			} else {
+				$array = $this->_expandResults($array, $expand);
 			}
 		}
 		

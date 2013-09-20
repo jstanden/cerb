@@ -25,7 +25,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	 */
 	static function trigger(&$parser_model) { //, Model_Message $message, Model_Ticket $ticket, Model_Group $group
 		$events = DevblocksPlatform::getEventService();
-		$events->trigger(
+		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
 				array(
@@ -43,7 +43,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	 * @param CerberusParserModel $parser_model
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($parser_model=null) { //, Model_Message $message=null, Model_Ticket $ticket=null, Model_Group $group=null
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $parser_model=null) { //, Model_Message $message=null, Model_Ticket $ticket=null, Model_Group $group=null
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$replyto = DAO_AddressOutgoing::getDefault();
@@ -455,7 +455,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_header':
-				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_app/action_set_header.tpl');
+				$tpl->display('devblocks:cerberusweb.core::events/model/mail/action_set_header.tpl');
 				break;
 				
 			case 'set_sender_is_banned':
@@ -467,7 +467,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches)) {
 					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
-					DevblocksEventHelper::renderActionSetCustomField($custom_field);
+					DevblocksEventHelper::renderActionSetCustomField($custom_field, $trigger);
 				}
 				break;
 		}

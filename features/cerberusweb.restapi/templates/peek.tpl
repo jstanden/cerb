@@ -36,6 +36,12 @@
 				</div>
 			</td>
 		</tr>
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>QR Code:</b></td>
+			<td width="100%">
+				<div class="qrcode"></div>
+			</td>
+		</tr>
 		{/if}
 		
 		<tr>
@@ -62,8 +68,8 @@
 
 {if 1}
 	<div class="toolbar">
-		<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmWebApiCredentials','{$view_id}',false,'webapi_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
-		{if !empty($model)}<button type="button" onclick="$toolbar=$(this).closest('div.toolbar').fadeOut();$toolbar.siblings('fieldset.delete').fadeIn();"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+		<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmWebApiCredentials','{$view_id}',false,'webapi_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
+		{if !empty($model)}<button type="button" onclick="$toolbar=$(this).closest('div.toolbar').fadeOut();$toolbar.siblings('fieldset.delete').fadeIn();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 	</div>
 {else}
 	<fieldset class="delete">
@@ -77,5 +83,17 @@
 	$popup.one('popup_open',function(event,ui) {
 		$(this).dialog('option','title','{'webapi.common.api_credentials'|devblocks_translate|capitalize|escape:'javascript'}');
 		$('#frmWebApiCredentials :input:text:first').focus().select();
+		
+		{if !empty($model)}
+		// QR Code
+		var options = { width:150, height:150, text:"{$model->access_key}:{$model->secret_key}" };
+		var hasCanvasSupport = !!window.CanvasRenderingContext2D;
+
+		// If no <canvas> tag, use <table> instead
+		if(!hasCanvasSupport)
+			options.render = 'table';
+
+		$(this).find('div.qrcode').qrcode(options);
+		{/if}
 	});
 </script>

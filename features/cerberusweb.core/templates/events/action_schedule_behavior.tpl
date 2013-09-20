@@ -2,8 +2,9 @@
 <b>On:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
 <select name="{$namePrefix}[on]" class="on">
-	{foreach from=$values_to_contexts item=context_data key=val_key}
-	<option value="{$val_key}" context="{$context_data.context}" {if $params.on==$val_key}selected="selected"{/if}>{$context_data.label}</option>
+	{foreach from=$values_to_contexts item=context_data key=val_key name=context_data}
+	{if $smarty.foreach.context_data.first && empty($params.on)}{$params.on = $val_key}{/if}
+	<option value="{$val_key}" context="{$context_data.context}" {if $params.on==$val_key}{$selected_context = $context_data.context}selected="selected"{/if}>{$context_data.label}</option>
 	{/foreach}
 </select>
 </div>
@@ -13,22 +14,27 @@
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<select class="behavior_defaults" style="display:none;visibility:hidden;">
 	{foreach from=$macros item=macro key=macro_id}
-		<option value="{$macro_id}" context="{$events_to_contexts.{$macro->event_point}}" {if $params.behavior_id==$macro_id}selected="selected"{/if}>{$macro->title}</option>
+		{$is_selected = ($params.behavior_id==$macro_id)}
+		{if $is_selected || !$macro->is_disabled}
+		<option value="{$macro_id}" context="{$events_to_contexts.{$macro->event_point}}" {if $is_selected}selected="selected"{/if}>{$macro->title}</option>
+		{/if}
 	{/foreach}
 	</select>
 	<select name="{$namePrefix}[behavior_id]" class="behavior">
 	{foreach from=$macros item=macro key=macro_id}
-		<option value="{$macro_id}" {if $params.behavior_id==$macro_id}selected="selected"{/if}>{$macro->title}</option>
+		{if $events_to_contexts.{$macro->event_point} == $selected_context}
+		{if empty($params.behavior_id)}{$params.behavior_id=$macro_id}{/if}
+		{$is_selected = ($params.behavior_id==$macro_id)}
+		{if $is_selected || !$macro->is_disabled}
+		<option value="{$macro_id}" {if $is_selected}selected="selected"{/if}>{$macro->title}</option>
+		{/if}
+		{/if}
 	{/foreach}
 	</select>
 </div>
 
 <div class="parameters">
-{$behavior_id = $params.behavior_id}
-{if empty($behavior_id) || !isset($macros.$behavior_id)}
-	{$behavior_id = key($macros)}
-{/if}
-{include file="devblocks:cerberusweb.core::events/action_schedule_behavior_params.tpl" params=$params macro_params=$macros.{$behavior_id}->variables}
+{include file="devblocks:cerberusweb.core::events/_action_behavior_params.tpl" params=$params macro_params=$macros.{$params.behavior_id}->variables}
 </div>
 
 <b>When should this behavior happen?</b> (default: now)
@@ -49,7 +55,7 @@
 $action = $('fieldset#{$namePrefix}');
 $action.find('select.behavior').change(function(e) {
 	$div = $(this).closest('fieldset').find('div.parameters');
-	genericAjaxGet($div,'c=internal&a=showScheduleBehaviorParams&name_prefix={$namePrefix}&trigger_id=' + $(this).val());
+	genericAjaxGet($div,'c=internal&a=showBehaviorParams&name_prefix={$namePrefix}&trigger_id=' + $(this).val());
 });
 
 $action.find('select.on').change(function(e) {

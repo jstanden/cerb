@@ -906,14 +906,8 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 		$contact = DAO_ContactPerson::get($context_id);
 
 		$address = $contact->getPrimaryAddress();
+		$name = $address->getNameWithEmail();
 
-		$name = $address->getName();
-		
-		if(!empty($name))
-			$name .= ' <' . $address->email . '>';
-		else
-			$name = $address->email;
-		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($address->email);
 		
@@ -924,6 +918,38 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 			'id' => $contact->id,
 			'name' => $name,
 			'permalink' => $url,
+		);
+	}
+	
+	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {
+		$labels = $dict->_labels;
+		$prefix = $labels['_label'];
+		
+		if(!empty($prefix)) {
+			array_walk($labels, function(&$label, $key) use ($prefix) {
+				$label = preg_replace(sprintf("#^%s #", preg_quote($prefix)), '', $label);
+				
+				// [TODO] Use translations
+				switch($key) {
+				}
+				
+				$label = mb_convert_case($label, MB_CASE_LOWER);
+				$label[0] = mb_convert_case($label[0], MB_CASE_UPPER);
+			});
+		}
+		
+		asort($labels);
+		
+		return $labels;
+	}
+	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'email__label',
+			'email_org__label',
+			'created',
+			'last_login',
 		);
 	}
 	
@@ -945,10 +971,20 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 			
 		// Token labels
 		$token_labels = array(
-			'created|date' => $prefix.$translate->_('common.created'),
+			'_label' => $prefix,
+			'created' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
-			'last_login|date' => $prefix.$translate->_('dao.contact_person.last_login'),
+			'last_login' => $prefix.$translate->_('dao.contact_person.last_login'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'created' => Model_CustomField::TYPE_DATE,
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'last_login' => Model_CustomField::TYPE_DATE,
+			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -959,11 +995,15 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_CONTACT_PERSON;
+		$token_values['_types'] = $token_types;
 		
 		// Address token values
 		if(null != $person) {
+			$address = $person->getPrimaryAddress();
+			$name = $address->getNameWithEmail();
+			
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = '(contact person)';
+			$token_values['_label'] = $name;
 			$token_values['id'] = $person->id;
 			if(!empty($person->created))
 				$token_values['created'] = $person->created;

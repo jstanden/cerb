@@ -1,5 +1,5 @@
 <fieldset class="peek" style="margin-bottom:0;">
-<legend>{$translate->_('reports.ui.custom_fields.usage')}</legend>
+<legend>{'reports.ui.custom_fields.usage'|devblocks_translate}</legend>
 
 <form action="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}&report=report.custom_fields.usage{/devblocks_url}" method="POST" id="frmRange" name="frmRange">
 
@@ -16,7 +16,7 @@
 </select>
 
 <div style="margin-top:5px;">
-	<button type="submit" id="btnSubmit">{$translate->_('reports.common.run_report')|capitalize}</button>
+	<button type="submit" id="btnSubmit">{'reports.common.run_report'|devblocks_translate|capitalize}</button>
 </div>
 </form>
 </fieldset>

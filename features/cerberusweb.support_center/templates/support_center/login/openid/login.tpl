@@ -1,5 +1,4 @@
 <form action="{devblocks_url}c=login&a=discover{/devblocks_url}" method="post" id="loginOpenID">
-<input type="hidden" name="original_path" value="{$original_path}">
 
 {if !empty($error)}
 <div class="error">{$error}</div>
@@ -19,7 +18,7 @@
 	<div style="clear:both;">
 		<b>Or enter your own OpenID:</b><br>
 		<input type="text" name="openid_url" size="45" class="input_openid">
-		<button type="submit">{$translate->_('header.signon')|capitalize}</button>
+		<button type="submit">{'header.signon'|devblocks_translate|capitalize}</button>
 	</div>
 </fieldset>
 </form>

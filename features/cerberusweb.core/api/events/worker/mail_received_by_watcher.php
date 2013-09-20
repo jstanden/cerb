@@ -20,7 +20,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 	
 	static function trigger($message_id, $worker_id) {
 		$events = DevblocksPlatform::getEventService();
-		$events->trigger(
+		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
 				array(
@@ -40,7 +40,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 	 * @param integer $worker_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($message_id=null, $worker_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $message_id=null, $worker_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(empty($message_id)) {
@@ -245,7 +245,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 		
 		$types = array(
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
-			'created|date' => Model_CustomField::TYPE_DATE,
+			'created' => Model_CustomField::TYPE_DATE,
 			'is_first' => Model_CustomField::TYPE_CHECKBOX,
 			'is_outgoing' => Model_CustomField::TYPE_CHECKBOX,
 			'sender_address' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -295,10 +295,10 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			
 			// Ticket
 			"ticket_bucket_name|default('Inbox')" => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_created|date' => Model_CustomField::TYPE_DATE,
+			'ticket_created' => Model_CustomField::TYPE_DATE,
 			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_subject' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_updated|date' => Model_CustomField::TYPE_DATE,
+			'ticket_updated' => Model_CustomField::TYPE_DATE,
 			'ticket_url' => Model_CustomField::TYPE_URL,
 			
 			// Owner
@@ -337,17 +337,6 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				
 			case 'group_and_bucket':
 				$groups = DAO_Group::getAll();
-				
-				switch($trigger->owner_context) {
-					// If the owner of the behavior is a group
-					case CerberusContexts::CONTEXT_GROUP:
-						foreach($groups as $group_id => $group) {
-							if($group_id != $trigger->owner_context_id)
-								unset($groups[$group_id]);
-						}
-						break;
-				}
-				
 				$tpl->assign('groups', $groups);
 				
 				$group_buckets = DAO_Bucket::getGroups();
@@ -456,12 +445,10 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			'send_email' => array('label' => 'Send email'),
 			'relay_email' => array('label' => 'Relay to external email'),
 			'send_email_recipients' => array('label' => 'Reply to recipients'),
-			'schedule_behavior' => array('label' => 'Schedule behavior'),
 			'create_comment' => array('label' =>'Create a comment'),
 			'create_notification' => array('label' =>'Create a notification'),
 			'create_task' => array('label' =>'Create a task'),
 			'create_ticket' => array('label' =>'Create a ticket'),
-			'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 		);
 		
 		// [TODO] Add set custom fields
@@ -501,9 +488,12 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				break;
 				
 			case 'relay_email':
+				if(false == ($va = $trigger->getVirtualAttendant()))
+					break;
+				
 				// Filter to trigger owner
 				DevblocksEventHelper::renderActionRelayEmail(
-					array($trigger->owner_context_id),
+					array($va->owner_context_id),
 					array('workers'),
 					'content'
 				);
@@ -518,27 +508,11 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_owner/action_send_email_recipients.tpl');
 				break;
 				
-			case 'schedule_behavior':
-				$dates = array();
-				$conditions = $this->getConditions($trigger);
-				foreach($conditions as $key => $data) {
-					if(isset($data['type']) && $data['type'] == Model_CustomField::TYPE_DATE)
-						$dates[$key] = $data['label'];
-				}
-				$tpl->assign('dates', $dates);
-			
-				DevblocksEventHelper::renderActionScheduleBehavior($trigger);
-				break;
-				
-			case 'unschedule_behavior':
-				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger);
-				break;
-				
 //			default:
 //				if('set_cf_' == substr($token,0,7)) {
 //					$field_id = substr($token,7);
 //					$custom_field = DAO_CustomField::get($field_id);
-//					DevblocksEventHelper::renderActionSetCustomField($custom_field);
+//					DevblocksEventHelper::renderActionSetCustomField($custom_field, $trigger);
 //				}
 //				break;
 		}
@@ -586,13 +560,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			case 'send_email_recipients':
 				break;
 				
-			case 'schedule_behavior':
-				return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
-				break;
 				
-			case 'unschedule_behavior':
-				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
-				break;
 		}
 	}
 	
@@ -659,22 +627,19 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				
 				// Headers
 
-				@$headers = $tpl_builder->build($params['headers'], $dict);
+				@$headers_list = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['headers'], $dict));
 
-				if(!empty($headers))
-					$properties['headers'] = DevblocksPlatform::parseCrlfString($headers);
-
+				if(is_array($headers_list))
+				foreach($headers_list as $header_line) {
+					@list($header, $value) = explode(':', $header_line);
+				
+					if(!empty($header) && !empty($value))
+						$properties['headers'][trim($header)] = trim($value);
+				}
+				
 				// Send
 				
 				CerberusMail::sendTicketMessage($properties);
-				break;
-				
-			case 'schedule_behavior':
-				DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
-				break;
-				
-			case 'unschedule_behavior':
-				DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 				break;
 		}
 	}

@@ -2,20 +2,17 @@
 /**
  * Devblocks DAO
  * @author Jeff Standen, Webgroup Media LLC <jeff@webgroupmedia.com>
- * @version 2013-05-07
+ * @version 2013-08-13
  */
 
-$plugin_id = 'cerberusweb.forums';
-$plugin_namespace = 'forums';
+$plugin_id = 'example.plugin';
+$plugin_namespace = 'example';
 
 $tables = array();
 
-$tables['Forum_Post'] = "
+$tables['Example_Object'] = "
 id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-topic_id INT UNSIGNED NOT NULL DEFAULT 0,
-owner_context VARCHAR(255) DEFAULT '',
-owner_context_id INT UNSIGNED NOT NULL DEFAULT 0,
-created_at INT UNSIGNED NOT NULL DEFAULT 0,
+name VARCHAR(255) DEFAULT '',
 updated_at INT UNSIGNED NOT NULL DEFAULT 0,
 ";
 
@@ -902,6 +899,13 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		);
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'updated_at',
+		);
+	}
+	
 	function getContext($<?php echo $ctx_var_model; ?>, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = '<?php echo $object_name; ?>:';
@@ -920,10 +924,20 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
-			'updated_at|date' => $prefix.$translate->_('common.updated'),
+			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'updated_at' => Model_CustomField::TYPE_DATE,
+			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -934,6 +948,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		$token_values = array();
 		
 		$token_values['_context'] = '<?php echo $ctx_ext_id; ?>';
+		$token_values['_types'] = $token_types;
 		
 		if($<?php echo $ctx_var_model; ?>) {
 			$token_values['_loaded'] = true;
@@ -997,10 +1012,6 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = '<?php echo $object_name ?>';
-		$view->view_columns = array(
-			SearchFields_<?php echo $class_name; ?>::NAME,
-			SearchFields_<?php echo $class_name; ?>::UPDATED_AT,
-		);
 		/*
 		$view->addParams(array(
 			SearchFields_<?php echo $class_name; ?>::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_<?php echo $class_name; ?>::UPDATED_AT,'=',0),
@@ -1537,7 +1548,11 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		$tpl->assign('properties', $properties);
 			
 		// Macros
-		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.<?php echo $table_name; ?>');
+		
+		$macros = DAO_TriggerEvent::getReadableByActor(
+			$active_worker,
+			'event.macro.<?php echo $table_name; ?>'
+		);
 		$tpl->assign('macros', $macros);
 
 		// Tabs

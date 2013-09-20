@@ -898,6 +898,320 @@ abstract class C4_AbstractView {
 		return $criteria;
 	}
 	
+	function doQuickSearch($token, $query) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$reset = false;
+		
+		if(preg_match('/^\#reset(.*)/', $query, $matches)) {
+			$reset = true;
+			$query = trim($matches[1]);
+		}
+		
+		if(!empty($reset))
+			$this->doResetCriteria();
+		
+		$fields = $this->getParamsAvailable();
+		
+		if(!isset($fields[$token])) {
+			return false;
+		}
+		
+		$field = $fields[$token];
+		$oper = DevblocksSearchCriteria::OPER_EQ;
+		$value = null;
+		
+		if($this instanceof IAbstractView_QuickSearch) {
+			if(false == ($this->quickSearch($token, $query, $oper, $value)))
+				$value = null;
+		}
+		
+		if(null == $value)
+		switch($field->type) {
+			case Model_CustomField::TYPE_SINGLE_LINE:
+			case Model_CustomField::TYPE_MULTI_LINE:
+			case Model_CustomField::TYPE_URL:
+				if(strlen($query) == 0)
+					break;
+					
+				$oper = DevblocksSearchCriteria::OPER_LIKE;
+				$value = $query;
+				
+				// Parse operator hints
+				if(preg_match('#\"(.*)\"#', $value, $matches)) {
+					$oper = DevblocksSearchCriteria::OPER_EQ;
+					$value = trim($matches[1]);
+					
+				} elseif(preg_match('#([\<\>\!\=]+)(.*)#', $value, $matches)) {
+					$oper_hint = trim($matches[1]);
+					$value = trim($matches[2]);
+					
+					switch($oper_hint) {
+						case '!':
+						case '!=':
+							if($oper == DevblocksSearchCriteria::OPER_LIKE) {
+								$oper = DevblocksSearchCriteria::OPER_NOT_LIKE;
+							} else {
+								$oper = DevblocksSearchCriteria::OPER_NEQ;
+							}
+							break;
+					}
+				}
+				
+				switch($oper) {
+					case DevblocksSearchCriteria::OPER_LIKE:
+					case DevblocksSearchCriteria::OPER_NOT_LIKE:
+						if(false === strpos($value, '*'))
+							$value = '*' . $value . '*';
+						break;
+				}
+				
+				break;
+				
+			case Model_CustomField::TYPE_NUMBER:
+				if(strlen($query) == 0)
+					break;
+				
+				// Parse operator hints
+				if(preg_match('#([\<\>\!\=]+)(.*)#', $query, $matches)) {
+					$oper_hint = trim($matches[1]);
+					$query = trim($matches[2]);
+					
+					switch($oper_hint) {
+						case '!':
+						case '!=':
+							$oper = DevblocksSearchCriteria::OPER_NEQ;
+							break;
+						case '>':
+							$oper = DevblocksSearchCriteria::OPER_GT;
+							break;
+						case '<':
+							$oper = DevblocksSearchCriteria::OPER_LT;
+							break;
+						case '>=':
+							$oper = DevblocksSearchCriteria::OPER_GTE;
+							break;
+						case '<=':
+							$oper = DevblocksSearchCriteria::OPER_LTE;
+							break;
+						default:
+							$oper = DevblocksSearchCriteria::OPER_EQ;
+							break;
+					}
+				}
+				
+				$value = intval($query);
+				break;
+				
+			case Model_CustomField::TYPE_DATE:
+				if(strlen($query) == 0)
+					break;
+				
+				if(in_array(strtolower($query), array('blank', 'null', 'empty', 'is blank', 'is null', 'is empty'))) {
+					$oper = DevblocksSearchCriteria::OPER_EQ_OR_NULL;
+					$value = '0';
+					
+				} else {
+					$oper = DevblocksSearchCriteria::OPER_BETWEEN;
+					$value = explode(' to ', $query);
+	
+					if(count($value) > 2) {
+						$value = array_slice($value, 0, 2);
+					}
+					
+					if(count($value) != 2) {
+						$from = @intval(strtotime($query));
+						
+						if($from > time())
+							array_unshift($value, 'now');
+						else
+							$value[] = 'now';
+					}
+				}
+				
+				break;
+				
+			case Model_CustomField::TYPE_CHECKBOX:
+				if(strlen($query) == 0)
+					break;
+				
+				// Attempt to interpret bool values
+				if(
+					false !== stristr($query, 'yes')
+					|| false !== stristr($query, 'y')
+					|| false !== stristr($query, 'true')
+					|| false !== stristr($query, 't')
+					|| intval($query) > 0
+				) {
+					$oper = DevblocksSearchCriteria::OPER_EQ;
+					$value = true;
+				} else {
+					if(substr($token,0,3) == 'cf_') {
+						$oper = DevblocksSearchCriteria::OPER_EQ_OR_NULL;
+					} else {
+						$oper = DevblocksSearchCriteria::OPER_EQ;
+					}
+					$value = false;
+				}
+				break;
+				
+			case Model_CustomField::TYPE_DROPDOWN:
+			case Model_CustomField::TYPE_MULTI_CHECKBOX:
+				if(strlen($query) == 0)
+					break;
+				
+				$oper = DevblocksSearchCriteria::OPER_IN;
+					
+				// Parse operator hints
+				if(preg_match('#([\<\>\!\=]+)(.*)#', $query, $matches)) {
+					$oper_hint = trim($matches[1]);
+					$query = trim($matches[2]);
+					
+					switch($oper_hint) {
+						case '!':
+						case '!=':
+							$oper = DevblocksSearchCriteria::OPER_NIN;
+							break;
+						default:
+							$oper = DevblocksSearchCriteria::OPER_IN;
+							break;
+					}
+				}
+					
+				$custom_fields = DAO_CustomField::getAll();
+				$patterns = DevblocksPlatform::parseCsvString($query);
+				
+				list($null, $cf_id) = explode('_', $token);
+				
+				if(empty($cf_id) || !isset($custom_fields[$cf_id]))
+					break;
+				
+				$options = $custom_fields[$cf_id]->options;
+				
+				if(empty($options))
+					break;
+				
+				$results = array();
+				
+				foreach($options as $option) {
+					foreach($patterns as $pattern) {
+						if(isset($results[$option]))
+							continue;
+						
+						if(0 == strcasecmp(substr($option,0,strlen($pattern)), $pattern)) {
+							$results[$option] = true;
+						}
+					}
+				}
+				
+				if(!empty($results)) {
+					$value = array_keys($results);
+				}
+				break;
+				
+			case Model_CustomField::TYPE_WORKER:
+			case 'WS': // Watchers
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				$oper_hint = '';
+				
+				// Parse operator hints
+				if(preg_match('#([\<\>\!\=]+)(.*)#', $query, $matches)) {
+					$oper_hint = trim($matches[1]);
+					$query = trim($matches[2]);
+					
+					switch($oper_hint) {
+						case '!':
+						case '!=':
+							$oper = DevblocksSearchCriteria::OPER_NIN_OR_NULL;
+							
+							if(empty($query)) {
+								$oper = DevblocksSearchCriteria::OPER_IS_NOT_NULL;
+								$value = true;
+							}
+							
+							break;
+							
+						default:
+							$oper = DevblocksSearchCriteria::OPER_IN;
+							
+							if(empty($query)) {
+								$oper = DevblocksSearchCriteria::OPER_IS_NULL;
+								$value = true;
+							}
+							
+							break;
+					}
+				}
+
+				if(!empty($query)) {
+					switch(strtolower($query)) {
+						case 'any':
+						case 'anyone':
+						case 'anybody':
+							$oper = DevblocksSearchCriteria::OPER_NIN;
+							$value = array(0);
+							break;
+							
+						case 'none':
+						case 'noone':
+						case 'nobody':
+							$oper = DevblocksSearchCriteria::OPER_IN_OR_NULL;
+							$value = array(0);
+							break;
+							
+						default:
+							$workers = DAO_Worker::getAllActive();
+							$patterns = DevblocksPlatform::parseCsvString($query);
+							
+							$worker_names = array();
+							$worker_ids = array();
+							
+							foreach($patterns as $pattern) {
+								if(0 == strcasecmp($pattern, 'me')) {
+									$worker_ids[$active_worker->id] = true;
+									continue;
+								}
+								
+								foreach($workers as $worker_id => $worker) {
+									$worker_name = $worker->getName();
+								
+									if(isset($workers_ids[$worker_id]))
+										continue;
+									
+									if(false !== stristr($worker_name, $pattern)) {
+										$worker_ids[$worker_id] = true;
+									}
+								}
+							}
+							
+							if(!empty($worker_ids)) {
+								$value = array_keys($worker_ids);
+							}
+							
+							break;
+					}
+
+				}
+				
+				break;
+				
+			case 'FT':
+				if(!empty($query)) {
+					$oper = DevblocksSearchCriteria::OPER_FULLTEXT;
+					$value = array($query, 'expert');
+				}
+				break;
+		}
+		
+		if(!is_null($value)) {
+			$criteria = new DevblocksSearchCriteria($token,$oper,$value);
+			$this->addParam($criteria, $token);
+		} else {
+			$this->removeParam($token);
+		}
+		
+		$this->renderPage = 0;
+	}
+	
 	/**
 	 * This method automatically fixes any cached strange options, like
 	 * deleted custom fields.
@@ -1677,10 +1991,17 @@ abstract class C4_AbstractView {
 				if(null == ($ext = Extension_DevblocksContext::get($from_context)))
 					continue;
 				
-				if(false == ($meta = $ext->getMeta($from_context_id)) || empty($meta['name']))
-					continue;
+				if(!empty($from_context_id)) {
+					if(false == ($meta = $ext->getMeta($from_context_id)) || empty($meta['name']))
+						continue;
+					
+					$label = $meta['name'];
+					
+				} else {
+					$label = $ext->manifest->name;
+					
+				}
 
-				$label = $meta['name'];
 				$oper = DevblocksSearchCriteria::OPER_IN;
 				$values = array($filter_field => $from_context . ':' . $from_context_id);
 				
@@ -2326,11 +2647,12 @@ class C4_AbstractViewLoader {
 		$view->renderSubtotals = $view_model['subtotals'];
 		
 		// Convert JSON params back to objects
-		$func = function(&$e) {
+		$func = function(&$e) use (&$func) {
 			if(isset($e['field']) && isset($e['operator']) && isset($e['value'])) {
 				$e = new DevblocksSearchCriteria($e['field'], $e['operator'], $e['value']);
+				
 			} else {
-				// [TODO] If the value is another style of array, we need to recurse
+				if(is_array($e))
 				array_walk(
 					$e,
 					$func

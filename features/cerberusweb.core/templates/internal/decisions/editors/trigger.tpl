@@ -5,119 +5,79 @@
 <input type="hidden" name="a" value="">
 <input type="hidden" name="trigger_id" value="{if isset($trigger->id)}{$trigger->id}{else}0{/if}">
 {if empty($trigger->id)}
-<input type="hidden" name="context" value="{$context}">
-<input type="hidden" name="context_id" value="{$context_id}">
+<input type="hidden" name="va_id" value="{$va->id}">
 {/if}
 
-<b>{'common.title'|devblocks_translate|capitalize}:</b><br>
-<input type="text" name="title" value="{$trigger->title}" style="width:100%;"><br>
-<br>
-
-<b>{'common.event'|devblocks_translate|capitalize}:</b><br>
-{if empty($ext)}
-	<select name="event_point">
-		{foreach from=$events item=event key=event_id}
-		<option value="{$event_id}">{$event->name}</option>
-		{/foreach}
-	</select>
-	<br>
-{else}
-	{$ext->name}<br>
-{/if}
-<br>
-
-<b>{'common.status'|devblocks_translate|capitalize}:</b><br>
-<label><input type="radio" name="is_disabled" value="0" {if empty($trigger->is_disabled)}checked="checked"{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
-<label><input type="radio" name="is_disabled" value="1" {if !empty($trigger->is_disabled)}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label>
-<br>
-<br>
-
-<fieldset class="vars">
-<legend>Variables</legend>
-
-<table cellpadding="0" cellspacing="0" border="0" width="100%">
-{foreach from=$trigger->variables key=k item=var}
-<tr>
-	<td valign="top" nowrap="nowrap" width="1%">
-		<a href="javascript:;" onclick="$(this).closest('tr').remove();"><span class="cerb-sprite2 sprite-minus-circle" style="vertical-align:middle;"></span></a>
-		<select name="var_is_private[]">
-			<option value="1" {if $var.is_private}selected="selected"{/if}>private</option>
-			<option value="0" {if empty($var.is_private)}selected="selected"{/if}>public</option>
-		</select>  
-		<input type="hidden" name="var_key[]" value="{$var.key}">
-		<input type="hidden" name="var_type[]" value="{$var.type}">
-	</td>
-	<td valign="top" width="99%">
-		<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:10px;">
-			<tr>
-				<td>
-					<input type="text" name="var_label[]" value="{$var.label}" size="45" style="width:100%;"><br><!--
-					-->
-					{if $var.type == 'S'}
-					Text
-					{elseif $var.type == 'N'}
-					Number
-					{elseif $var.type == 'E'}
-					Date
-					{elseif $var.type == 'C'}
-					True/False
-					{elseif $var.type == 'W'}
-					Worker
-					{elseif substr($var.type,0,4)=='ctx_'}
-						{$list_context_ext = substr($var.type,4)}
-						{$list_context = $list_contexts.$list_context_ext}
-						(List) {$list_context->name}
-					{/if}
-				</td>
-			</tr>
-		</table>
-	</td>
-</tr>
-{/foreach}
-
-<tr class="template" style="display:none;">
-	<td valign="top" width="1%" nowrap="nowrap">
-		<a href="javascript:;" onclick="$(this).closest('tr').remove();"><span class="cerb-sprite2 sprite-minus-circle" style="vertical-align:middle;"></span></a>
-		<select name="var_is_private[]">
-			<option value="1" selected="selected">private</option>
-			<option value="0">public</option>
-		</select>	
-		<input type="hidden" name="var_key[]" value="">
-	</td>
-	<td valign="top" width="99%">
-		<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:10px;">
-			<tr>
-				<td>
-					<input type="text" name="var_label[]" value="" size="45" style="width:100%;"><br><!--
-					--><select name="var_type[]">
-						<option value="S">Text</option>
-						<option value="N">Number</option>
-						<option value="E">Date</option>
-						<option value="C">True/False</option>
-						<option value="W">Worker</option>
-						{foreach from=$list_contexts item=list_context key=list_context_id}
-						<option value="ctx_{$list_context_id}">(List) {$list_context->name}</option>
-						{/foreach}
-					</select>
-				</td>
-			</tr>
-		</table>
-	</td>
-</tr>
-
-</table>
-
-<div style="margin-top:2px;">
-	<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle" style="verical-align:middle;"></span></button>
+<div>
+	<b>{'common.title'|devblocks_translate|capitalize}:</b><br>
+	<input type="text" name="title" value="{$trigger->title}" style="width:100%;"><br>
 </div>
 
-</fieldset>
+<div style="margin-top:10px;">
+	<b>{'common.event'|devblocks_translate|capitalize}:</b><br>
+	{if empty($ext)}
+		<select name="event_point">
+			{foreach from=$events item=available_event key=available_event_id name=available_events}
+			{if $smarty.foreach.available_events.first}{$event = DevblocksPlatform::getExtension($available_event_id, true)}{/if}
+			<option value="{$available_event_id}" {if $available_event->params.macro_context}is_macro="true"{/if}>{$available_event->name}</option>
+			{/foreach}
+		</select>
+		<br>
+	{else}
+		{$ext->name}
+	{/if}
+</div>
+
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:10px;">
+	<tr>
+		<td width="50%">
+			<b>{'common.status'|devblocks_translate|capitalize}:</b>
+			<br>
+			<label><input type="radio" name="is_disabled" value="0" {if empty($trigger->is_disabled)}checked="checked"{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
+			<label><input type="radio" name="is_disabled" value="1" {if !empty($trigger->is_disabled)}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label>
+		</td>
+		<td width="50%">
+			<div class="behavior-visibility" style="margin-top:10px;{if !$event->manifest->params.macro_context}display:none;{/if}">
+				<b>Visibility:</b>
+				<br>
+				<label><input type="radio" name="is_private" value="0" {if empty($trigger->is_private)}checked="checked"{/if}> {'common.public'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="is_private" value="1" {if !empty($trigger->is_private)}checked="checked"{/if}> {'common.private'|devblocks_translate|capitalize}</label>
+			</div>
+		</td>
+	</tr>
+</table>
+
+<h3>Variables</h3>
+
+<div id="divBehaviorVariables{$trigger->id}">
+{foreach from=$trigger->variables key=k item=var name=vars}
+	{$seq = uniqid()}
+	{include file="devblocks:cerberusweb.core::internal/decisions/editors/trigger_variable.tpl" seq=$seq}
+{/foreach}
+</div>
+
+<div style="margin:5px 0px 10px 20px;">
+	<button type="button" class="add-variable cerb-popupmenu-trigger">Add Variable &#x25be;</button>
+	
+	<ul class="cerb-popupmenu add-variable-menu" style="border:0;">
+		<li><a href="javascript:;" field_type="S">Text</a></li>
+		<li><a href="javascript:;" field_type="D">Picklist</a></li>
+		<li><a href="javascript:;" field_type="N">Number</a></li>
+		<li><a href="javascript:;" field_type="E">Date</a></li>
+		<li><a href="javascript:;" field_type="C">True/False</a></li>
+		<li><a href="javascript:;" field_type="W">Worker</a></li>
+		{foreach from=$list_contexts item=list_context key=list_context_id}
+		<li><a href="javascript:;" field_type="ctx_{$list_context_id}">(List) {$list_context->name}</a></li>
+		{/foreach}
+	</ul>
+</div>
+
 </form>
 
 {if isset($trigger->id)}
 <fieldset class="delete" style="display:none;">
 	<legend>Delete this trigger?</legend>
-	<p>Are you sure you want to permanently delete this behavior and all its effects?</p>
+	<p>Are you sure you want to permanently delete this behavior and all of its effects?</p>
 	<button type="button" class="green" onclick="genericAjaxPost('frmDecisionBehavior{$trigger->id}','','c=internal&a=saveDecisionDeletePopup',function() { genericAjaxPopupDestroy('node_trigger{$trigger->id}'); genericAjaxGet('decisionTree{$trigger->id}','c=internal&a=showDecisionTree&id={$trigger->id}'); });"> {'common.yes'|devblocks_translate|capitalize}</button>
 	<button type="button" class="red" onclick="$(this).closest('fieldset').hide().next('form.toolbar').show();"> {'common.no'|devblocks_translate|capitalize}</button>
 </fieldset>
@@ -149,8 +109,7 @@
 		<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmBehaviorImport" onsubmit="return false;">
 		<input type="hidden" name="c" value="internal">
 		<input type="hidden" name="a" value="">
-		<input type="hidden" name="context" value="{$context}">
-		<input type="hidden" name="context_id" value="{$context_id}">
+		<input type="hidden" name="va_id" value="{$va->id}">
 
 		<div class="import">
 			<b>Import:</b> (.json format)
@@ -171,19 +130,46 @@
 {/if}
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('node_trigger{$trigger->id}');
+	var $popup = genericAjaxPopupFetch('node_trigger{$trigger->id}');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{if empty($trigger->id)}New {/if}Behavior");
-		$(this).find('input:text').first().focus();
+		var $this = $(this);
 		
-		$(this).find('fieldset.vars button.add').click(function() {
-			$template = $(this).closest('fieldset').find('table tr.template');
-			$tr = $template.clone().removeClass('template').show();
-			$tr.insertBefore($template);
+		$this.dialog('option','title',"{if empty($trigger->id)}New {/if}Behavior");
+		$this.find('input:text').first().focus();
+		
+		$this.find('#frmDecisionBehavior{$trigger->id}')
+			.sortable({ 'items':'FIELDSET', 'placeholder':'ui-state-highlight', 'handle':'legend' })
+			;
+		
+		$this.find("SELECT[name=event_point]").change(function() {
+			var $li = $(this).find('option:selected');
+			var $frm = $(this).closest('form');
+			
+			if($li.attr('is_macro'))
+				$frm.find('DIV.behavior-visibility').fadeIn();
+			else
+				$frm.find('DIV.behavior-visibility').fadeOut();
+		});
+		
+		$this.find('BUTTON.add-variable').click(function() {
+			var $button = $(this);
+			$button.next('ul.cerb-popupmenu').toggle();
+		});
+		
+		$this.find('UL.add-variable-menu LI').click(function(e) {
+			var $menu = $(this).closest('ul.cerb-popupmenu');
+			var field_type = $(this).find('a').attr('field_type');
+			
+			genericAjaxGet('', 'c=internal&a=addTriggerVariable&type=' +  encodeURIComponent(field_type), function(o) {
+				var $container = $('#divBehaviorVariables{$trigger->id}');
+				var $html = $(o).appendTo($container);
+			});
+			
+			$menu.hide();
 		});
 		
 		{if empty($trigger_id)}
-			$(this).find('div.tabs').tabs();
+			$this.find('div.tabs').tabs();
 			
 			var $frm_import = $('#frmBehaviorImport');
 			
@@ -209,6 +195,5 @@
 				});
 			});
 		{/if}
-		
 	});
 </script>

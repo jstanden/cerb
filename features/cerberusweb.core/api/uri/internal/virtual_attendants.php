@@ -18,8 +18,7 @@
 class Subcontroller_Internal_VirtualAttendants {
 
 	public static function showScheduledBehaviorAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$va_id = DevblocksPlatform::importGPC($_REQUEST['va_id'],'integer',0);
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
 		
 		$translate = DevblocksPlatform::getTranslationService();
@@ -32,39 +31,26 @@ class Subcontroller_Internal_VirtualAttendants {
 			$visit->set($point, 'behavior');
 
 		// Admins can see all owners at once
-		if(empty($context) && !$active_worker->is_superuser)
+		if(empty($va_id) && !$active_worker->is_superuser)
 			return;
-		
-		$tpl->assign('context', $context);
-		$tpl->assign('context_id', $context_id);
-		
-		/*
-		 * Secure looking at other worker tabs (check superuser, worker_id)
-		 */
-		
-		$ctx = Extension_DevblocksContext::get($context);
-		
-		if(!$active_worker->is_superuser) {
-			if(is_null($ctx) || !$ctx->authorize($context_id, $active_worker))
-				return;
-		}
+
+		// [TODO] ACL
 
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = 'va_schedbeh_' . DevblocksPlatform::strAlphaNum($context . '_' . $context_id, '_');
+		$defaults->id = 'va_schedbeh_' . $va_id;
 		$defaults->class_name = 'View_ContextScheduledBehavior';
 		$defaults->is_ephemeral = true;
 		
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
 
-		if(empty($context) && $active_worker->is_superuser) {
+		if(empty($va_id) && $active_worker->is_superuser) {
 			$view->addParamsRequired(array(), true);
 			
 		} else {
 			$view->addParamsRequired(array(
 				'_privs' => array(
 					DevblocksSearchCriteria::GROUP_AND,
-					new DevblocksSearchCriteria(SearchFields_ContextScheduledBehavior::BEHAVIOR_OWNER_CONTEXT, '=', $context),
-					new DevblocksSearchCriteria(SearchFields_ContextScheduledBehavior::BEHAVIOR_OWNER_CONTEXT_ID, '=', $context_id),
+					new DevblocksSearchCriteria(SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID, '=', $va_id),
 				)
 			), true);
 		}

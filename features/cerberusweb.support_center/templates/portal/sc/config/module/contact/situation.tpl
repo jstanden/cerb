@@ -3,7 +3,7 @@
 {if !empty($reason)}
 	<legend style="{if empty($params.is_hidden)}color:rgb(74,110,158);{else}color:rgb(130,130,130);{/if}cursor:pointer;">{$reason}{if !empty($params.is_hidden)} ({'portal.sc.cfg.situation.hidden'|devblocks_translate|lower}){/if}</legend>
 {else}
-	<legend style="color:rgb(74,110,158);cursor:pointer;">{$translate->_('portal.sc.cfg.add_contact_situation')}</legend>
+	<legend style="color:rgb(74,110,158);cursor:pointer;">{'portal.sc.cfg.add_contact_situation'|devblocks_translate}</legend>
 {/if}
 
 <div style="padding-left:20px;">
@@ -16,15 +16,15 @@
 	<br>
 	<br>
 
-	<b>{$translate->_('portal.sc.cfg.reason_contacting')}</b> {$translate->_('portal.sc.cfg.reason_contacting_hint')}<br>
+	<b>{'portal.sc.cfg.reason_contacting'|devblocks_translate}</b> {'portal.sc.cfg.reason_contacting_hint'|devblocks_translate}<br>
 	<input type="text" name="contact_reason[{$uniq_id}]" size="65" value="{$reason}"><br>
 	<br>
 	
-	<b>{$translate->_('portal.cfg.deliver_to')}</b> {'portal.cfg.deliver_to_hint'|devblocks_translate:$replyto_default->email}<br>
+	<b>{'portal.cfg.deliver_to'|devblocks_translate}</b> {'portal.cfg.deliver_to_hint'|devblocks_translate:$replyto_default->email}<br>
 	<input type="text" name="contact_to[{$uniq_id}]" size="65" value="{$params.to}"><br>
 	<br>
 	
-	<b>{$translate->_('portal.cfg.followup_questions')}</b> {$translate->_('portal.sc.cfg.followup_questions_hint')}
+	<b>{'portal.cfg.followup_questions'|devblocks_translate}</b> {'portal.sc.cfg.followup_questions_hint'|devblocks_translate}
 	<div class="container">
 		<div class="template" style="display:none;">
 			{include file="devblocks:cerberusweb.support_center::portal/sc/config/module/contact/situation_followups.tpl" q=null field_id=null uniq_id=$uniq_id}

@@ -673,6 +673,9 @@ var cAjaxCalls = function() {
 		// The <ul> buffer
 		$ul = $button.next('ul.chooser-container');
 		
+		if(null == options.single)
+			options.single = false;
+		
 		// Add the container if it doesn't exist
 		if(0==$ul.length) {
 			$ul = $('<ul class="bubbles chooser-container"></ul>');
@@ -683,12 +686,16 @@ var cAjaxCalls = function() {
 		$button.click(function(event) {
 			$button = $(this);
 			$ul = $(this).nextAll('ul.chooser-container:first');
-			$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile',null,true,'750');
+			$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=' + (options.single ? '1' : '0'),null,true,'750');
 			$chooser.one('chooser_save', function(event) {
+				// If in single-selection mode
+				if(options.single)
+					$ul.find('li').remove();
+				
 				// Add the labels
 				for(var idx in event.labels)
 					if(0==$ul.find('input:hidden[value="'+event.values[idx]+'"]').length) {
-						$li = $('<li>'+event.labels[idx]+'<input type="hidden" name="' + field_name + '[]" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
+						$li = $('<li>'+event.labels[idx]+'<input type="hidden" name="' + field_name + (options.single ? '' : '[]') + '" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
 						if(null != options.style)
 							$li.addClass(options.style);
 						$ul.append($li);

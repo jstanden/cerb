@@ -12,7 +12,7 @@ Sort biggest piles by:
 
 <h3>Header:</h3>
 <input type="text" name="header" value="" size="45">
-<button type="button" onclick="genericAjaxGet('{$view_id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view_id}&mode=headers&mode_param=' + encodeURIComponent($(this).prev('input:text').val()));">{$translate->_('common.search')|lower}</button>
+<button type="button" onclick="genericAjaxGet('{$view_id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view_id}&mode=headers&mode_param=' + encodeURIComponent($(this).prev('input:text').val()));">{'common.search'|devblocks_translate|lower}</button>
 <br>
 
 <a href="javascript:;" onclick="genericAjaxGet('{$view_id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view_id}&mode=headers&mode_param=to');">to</a>

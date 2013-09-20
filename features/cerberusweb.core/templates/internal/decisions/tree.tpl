@@ -1,5 +1,7 @@
 <fieldset style="margin-bottom:10px;border-radius:5px;padding-left:7px;{if $trigger->is_disabled}opacity:0.5;{/if}">
-	<legend style="font-size:120%;color:rgb(60,60,60);cursor:move;">{$trigger->title}{if $trigger->is_disabled}<span title="{'common.disabled'|devblocks_translate|capitalize}">*</span>{/if}</legend>
+	<legend style="font-size:120%;color:rgb(60,60,60);cursor:move;">
+		{if $trigger->is_private}<span class="cerb-sprite sprite-lock"></span> {/if}{$trigger->title}{if $trigger->is_disabled}<span title="{'common.disabled'|devblocks_translate|capitalize}">*</span>{/if}
+	</legend>
 	
 	{* [TODO] Use cache!! *}
 	{$tree_data = $trigger->getDecisionTreeData()}
@@ -11,17 +13,18 @@
 		<input type="hidden" name="node_id" value="0">
 		<div class="badge badge-lightgray">
 			<a href="javascript:;" onclick="decisionNodeMenu(this);" node_id="0" trigger_id="{$trigger->id}" style="font-weight:bold;color:rgb(0,0,0);text-decoration:none;">
-				{$event->name} &#x25be;
+				{$event->name}{if $is_writeable} &#x25be;{/if}
 			</a>
 		</div>
 		<div class="branch trigger" style="margin-left:10px;">
 			{foreach from=$tree_hier[0] item=child_id}
-				{include file="devblocks:cerberusweb.core::internal/decisions/branch.tpl" node_id=$child_id trigger_id=$trigger->id nodes=$tree_nodes tree=$tree_hier depths=$tree_depths}
+				{include file="devblocks:cerberusweb.core::internal/decisions/branch.tpl" node_id=$child_id trigger_id=$trigger->id nodes=$tree_nodes tree=$tree_hier depths=$tree_depths is_writeable=$is_writeable}
 			{/foreach}
 		</div>
 	</div>
 </fieldset>
 
+{if $is_writeable}
 <script type="text/javascript">
 $('#decisionTree{$trigger->id} DIV.node').draggable({
 	revert:"invalid",
@@ -118,3 +121,4 @@ $('#decisionTree{$trigger->id} DIV.node.outcome').droppable({
 	}
 });
 </script>
+{/if}

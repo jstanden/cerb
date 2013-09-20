@@ -4,10 +4,10 @@
 
 <fieldset>
 	<legend>Upload File</legend>
-	<input type="file" name="file_data[]" multiple="multiple">
+	<input type="file" name="file_data[]" {if !$single}multiple="multiple"{/if}>
 </fieldset>
 
-<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.upload')|capitalize}</button>
+<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.upload'|devblocks_translate|capitalize}</button>
 </form>
 
 <iframe name="iframe_file_post" style="visibility:hidden;display:none;width:0px;height:0px;background-color:#ffffff;"></iframe>

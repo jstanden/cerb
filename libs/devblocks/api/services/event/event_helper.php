@@ -58,6 +58,24 @@ class DevblocksEventHelper {
 		return $value;
 	}
 	
+	public function renderSimulatorTarget($context, $context_id, $trigger, $event_model) {
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return;
+		
+		$labels = array();
+		$values = array();
+		CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+		$tpl->assign('context_ext', $context_ext);
+		$tpl->assign('values', $values);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/simulator/target.tpl');
+	}
+	
 	/*
 	 * Action: Custom Fields
 	 */
@@ -110,7 +128,7 @@ class DevblocksEventHelper {
 		return $actions;
 	}
 	
-	static function renderActionSetCustomField(Model_CustomField $custom_field) {
+	static function renderActionSetCustomField(Model_CustomField $custom_field, $trigger) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		switch($custom_field->type) {
@@ -129,7 +147,8 @@ class DevblocksEventHelper {
 				break;
 				
 			case Model_CustomField::TYPE_DATE:
-				$calendars = DAO_Calendar::getAll();
+				// Restricted to VA-readable calendars
+				$calendars = DAO_Calendar::getReadableByActor(array(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id));
 				$tpl->assign('calendars', $calendars);
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_date.tpl');
 				break;
@@ -755,6 +774,8 @@ class DevblocksEventHelper {
 				
 			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_MULTI_LINE:
+			case Model_CustomField::TYPE_DROPDOWN:
+			case Model_CustomField::TYPE_URL:
 				if(!isset($params['value']))
 					break;
 				
@@ -1095,6 +1116,221 @@ class DevblocksEventHelper {
 	}
 	
 	/*
+	 * Action: Run Behavior
+	 */
+	
+	static function renderActionRunBehavior($trigger) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		// Macros
+		
+		$event = $trigger->getEvent();
+		
+		$values_to_contexts = $event->getValuesContexts($trigger);
+		$tpl->assign('values_to_contexts', $values_to_contexts);
+
+		$context_to_macros = DevblocksEventHelper::getContextToMacroMap();
+		$tpl->assign('context_to_macros', $context_to_macros);
+		$tpl->assign('events_to_contexts', array_flip($context_to_macros));
+
+		// Macros
+		
+		if(false == ($va = $trigger->getVirtualAttendant()))
+			return;
+		
+		$macros = array();
+		
+		$results = DAO_TriggerEvent::getReadableByActor($va, null, true);
+		
+		foreach($results as $k => $macro) {
+			if(!in_array($macro->event_point, $context_to_macros)) {
+				continue;
+			}
+
+			if(false == ($macro_va = $macro->getVirtualAttendant())) {
+				continue;
+			}
+			
+			$macro->title = sprintf("[%s] %s%s",
+				$macro_va->name,
+				$macro->title,
+				($macro->is_disabled ? ' (disabled)' : '')
+			);
+			
+			$macros[$k] = $macro;
+		}
+		
+		DevblocksPlatform::sortObjects($macros, 'title');
+		
+		$tpl->assign('macros', $macros);
+		
+		// Template
+		
+		$tpl->display('devblocks:cerberusweb.core::events/action_run_behavior.tpl');
+	}
+	
+	static function simulateActionRunBehavior($params, DevblocksDictionaryDelegate $dict) {
+		@$behavior_id = $params['behavior_id'];
+
+		$trigger = $dict->_trigger;
+		
+		if(empty($behavior_id)) {
+			return "[ERROR] No behavior is selected. Skipping...";
+		}
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		if(null == ($behavior = DAO_TriggerEvent::get($behavior_id)))
+			return "[ERROR] Behavior does not exist. Skipping...";
+		
+		$out = sprintf(">>> Running behavior: %s\n",
+			$behavior->title
+		);
+		
+		// Variables as parameters
+		
+		$vars = array();
+		
+		if(is_array($params))
+		foreach($params as $k => $v) {
+			if(substr($k, 0, 4) == 'var_') {
+				if(!isset($behavior->variables[$k]))
+					continue;
+				
+				try {
+					$v = $behavior->formatVariable($behavior->variables[$k], $v);
+					
+					if(is_string($v))
+						$v = $tpl_builder->build($v, $dict);
+					
+					$vars[$k] = $v;
+					
+				} catch(Exception $e) {
+					
+				}
+			}
+		}
+		
+		if(is_array($vars) && !empty($vars)) {
+			foreach($vars as $k => $v) {
+				
+				if(is_array($v)) {
+					$vals = array();
+					foreach($v as $kk => $vv)
+						if(isset($vv->_label))
+							$vals[] = $vv->_label;
+					$v = implode("\n  ", $vals);
+				}
+				
+				$out .= sprintf("\n* %s:\n   %s\n",
+					$behavior->variables[$k]['label'],
+					$v
+				);
+			}
+		}
+		
+		// On
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		
+		if(!empty($on)) {
+			$event = $trigger->getEvent();
+			
+			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
+			@$on_objects = $on_result['objects'];
+			
+			if(is_array($on_objects)) {
+				$out .= "\n>>> On:\n";
+				
+				foreach($on_objects as $on_object) {
+					$on_object_context = Extension_DevblocksContext::get($on_object->_context);
+					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";
+				}
+				$out .= "\n";
+			}
+		}
+		
+		return $out;
+	}
+	
+	static function runActionRunBehavior($params, $dict) {
+		@$behavior_id = $params['behavior_id'];
+		@$var = $params['var'];
+		
+		if(empty($behavior_id))
+			return FALSE;
+		
+		if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
+			return FALSE;
+		
+		if(empty($var))
+			return FALSE;
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		// Variables as parameters
+		
+		$vars = array();
+		
+		if(is_array($params))
+		foreach($params as $k => $v) {
+			if(substr($k, 0, 4) == 'var_') {
+				if(!isset($behavior->variables[$k]))
+					continue;
+				
+				try {
+					$v = $behavior->formatVariable($behavior->variables[$k], $v);
+					
+					if(is_string($v))
+						$v = $tpl_builder->build($v, $dict);
+					
+					$vars[$k] = $v;
+					
+				} catch(Exception $e) {
+					
+				}
+			}
+		}
+		
+		// On
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		
+		if(!empty($on)) {
+			$trigger = $dict->_trigger;
+			$event = $trigger->getEvent();
+			
+			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
+			
+			@$on_objects = $on_result['objects'];
+			
+			if(is_array($on_objects)) {
+				foreach($on_objects as $on_object) {
+					if(!isset($on_object->id) && empty($on_object->id))
+						continue;
+
+					if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
+						continue;
+					
+					// Load event manifest
+					if(null == ($ext = DevblocksPlatform::getExtension($behavior->event_point, false))) /* @var $ext DevblocksExtensionManifest */
+						continue;
+						//throw new Exception("Invalid event.");
+					
+					$runners = call_user_func(array($ext->class, 'trigger'), $behavior->id, $on_object->id, $vars);
+					
+					if(null != (@$runner = $runners[$behavior->id])) {
+						$dict->$var = $runner;
+					}
+					
+				}
+			}
+		}
+
+		return;
+	}
+	
+	/*
 	 * Action: Schedule Behavior
 	 */
 	
@@ -1114,13 +1350,32 @@ class DevblocksEventHelper {
 
 		// Macros
 		
-		$macros = DAO_TriggerEvent::getByOwner($trigger->owner_context, $trigger->owner_context_id);
+		if(false == ($va = $trigger->getVirtualAttendant()))
+			return;
 		
-		foreach($macros as $k => $macro) {
+		$macros = array();
+		
+		$results = DAO_TriggerEvent::getReadableByActor($va, null, true);
+		
+		foreach($results as $k => $macro) {
 			if(!in_array($macro->event_point, $context_to_macros)) {
-				unset($macros[$k]);
+				continue;
 			}
+
+			if(false == ($macro_va = $macro->getVirtualAttendant())) {
+				continue;
+			}
+			
+			$macro->title = sprintf("[%s] %s%s",
+				$macro_va->name,
+				$macro->title,
+				($macro->is_disabled ? ' (disabled)' : '')
+			);
+			
+			$macros[$k] = $macro;
 		}
+		
+		DevblocksPlatform::sortObjects($macros, 'title');
 		
 		$tpl->assign('macros', $macros);
 		
@@ -1168,6 +1423,48 @@ class DevblocksEventHelper {
 				break;
 		}
 		
+		// Variables as parameters
+		
+		$vars = array();
+		
+		if(is_array($params))
+		foreach($params as $k => $v) {
+			if(substr($k, 0, 4) == 'var_') {
+				if(!isset($behavior->variables[$k]))
+					continue;
+				
+				try {
+					$v = $behavior->formatVariable($behavior->variables[$k], $v);
+					
+					if(is_string($v))
+						$v = $tpl_builder->build($v, $dict);
+					
+					$vars[$k] = $v;
+					
+				} catch(Exception $e) {
+					
+				}
+			}
+		}
+		
+		if(is_array($vars) && !empty($vars)) {
+			foreach($vars as $k => $v) {
+				
+				if(is_array($v)) {
+					$vals = array();
+					foreach($v as $kk => $vv)
+						if(isset($vv->_label))
+							$vals[] = $vv->_label;
+					$v = implode("\n  ", $vals);
+				}
+				
+				$out .= sprintf("\n* %s:\n   %s\n",
+					$behavior->variables[$k]['label'],
+					$v
+				);
+			}
+		}
+		
 		// On
 		
 		@$on = DevblocksPlatform::importVar($params['on'],'string','');
@@ -1203,14 +1500,27 @@ class DevblocksEventHelper {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$run_date = $tpl_builder->build($run_date, $dict);
 		
-		
 		@$run_timestamp = strtotime($run_date);
 		
 		// Variables as parameters
+		
 		$vars = array();
+		
+		if(is_array($params))
 		foreach($params as $k => $v) {
-			if(substr($k,0,4) == 'var_') {
-				$vars[$k] = $tpl_builder->build($v, $dict);
+			if(substr($k, 0, 4) == 'var_') {
+				if(!isset($behavior->variables[$k]))
+					continue;
+				
+				try {
+					if(is_string($v))
+						$v = $tpl_builder->build($v, $dict);
+					
+					$vars[$k] = $v;
+					
+				} catch(Exception $e) {
+					
+				}
 			}
 		}
 		
@@ -1300,13 +1610,32 @@ class DevblocksEventHelper {
 
 		// Macros
 		
-		$macros = DAO_TriggerEvent::getByOwner($trigger->owner_context, $trigger->owner_context_id);
+		if(false == ($va = $trigger->getVirtualAttendant()))
+			return;
 		
-		foreach($macros as $k => $macro) {
+		$macros = array();
+		
+		$results = DAO_TriggerEvent::getReadableByActor($va, null, true);
+		
+		foreach($results as $k => $macro) {
 			if(!in_array($macro->event_point, $context_to_macros)) {
-				unset($macros[$k]);
+				continue;
 			}
+
+			if(false == ($macro_va = $macro->getVirtualAttendant())) {
+				continue;
+			}
+			
+			$macro->title = sprintf("[%s] %s%s",
+				$macro_va->name,
+				$macro->title,
+				($macro->is_disabled ? ' (disabled)' : '')
+			);
+			
+			$macros[$k] = $macro;
 		}
+		
+		DevblocksPlatform::sortObjects($macros, 'title');
 		
 		$tpl->assign('macros', $macros);
 		
@@ -1453,7 +1782,7 @@ class DevblocksEventHelper {
 		// Event
 		$trigger = $dict->_trigger; /* @var $trigger Model_TriggerEvent */
 		$event = $trigger->getEvent();
-		
+
 		// Translate message tokens
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$content = $tpl_builder->build($params['content'], $dict);
@@ -1461,8 +1790,8 @@ class DevblocksEventHelper {
 		// Fields
 		
 		$fields = array(
-			DAO_Comment::OWNER_CONTEXT => $trigger->owner_context,
-			DAO_Comment::OWNER_CONTEXT_ID => $trigger->owner_context_id,
+			DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
+			DAO_Comment::OWNER_CONTEXT_ID => $trigger->virtual_attendant_id,
 			DAO_Comment::CREATED => time(),
 			DAO_Comment::COMMENT => $content,
 		);
@@ -2253,8 +2582,8 @@ class DevblocksEventHelper {
 					// Comment content
 					if(!empty($comment)) {
 						$fields = array(
-							DAO_Comment::OWNER_CONTEXT => $trigger->owner_context,
-							DAO_Comment::OWNER_CONTEXT_ID => $trigger->owner_context_id,
+							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
+							DAO_Comment::OWNER_CONTEXT_ID => $trigger->virtual_attendant_id,
 							DAO_Comment::COMMENT => $comment,
 							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
 							DAO_Comment::CONTEXT_ID => $task_id,
@@ -2703,8 +3032,7 @@ class DevblocksEventHelper {
 
 		// Headers
 		
-		@$headers_string = $tpl_builder->build($params['headers'], $dict);
-		@$headers = DevblocksPlatform::parseCrlfString($headers_string);
+		@$headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['headers'], $dict));
 		
 		// Send
 		
@@ -3033,6 +3361,11 @@ class DevblocksEventHelper {
 			return;
 		
 		$view->setPlaceholderValues($dict->getDictionary());
+		C4_AbstractViewLoader::setView($view->id, $view);
+		
+		// Save the generated view_id in the dictionary for reuse (paging, etc)
+		$var_view_id_key = sprintf("%s_view_id", $token);
+		$dict->$var_view_id_key = $view->id;
 		
 		// [TODO] Iterate through pages if over a certain list length?
 		//$view->renderLimit = (isset($params['limit']) && is_numeric($params['limit'])) ? intval($params['limit']) : 100;

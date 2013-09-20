@@ -40,13 +40,13 @@ Leaving new text blank allows you to easily find translation work with a search.
 <br>
 {/if}
 
-{if count($codes) > 1}<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if}
+{if count($codes) > 1}<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>{/if}
 
 </form>
 
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{$translate->_('common.synchronize')|capitalize}");
+		$(this).dialog('option','title',"{'common.synchronize'|devblocks_translate|capitalize}");
 	} );
 </script>

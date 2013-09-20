@@ -1,8 +1,8 @@
-<b>{$translate->_('portal.cfg.page_title')}</b> {$translate->_('portal.cfg.default_if_blank')}<br>
+<b>{'portal.cfg.page_title'|devblocks_translate}</b> {'portal.cfg.default_if_blank'|devblocks_translate}<br>
 <input type="text" size="65" name="page_title" value="{$page_title}"><br>
 <br>
 
-<b>{$translate->_('portal.cfg.language')}</b><br>
+<b>{'portal.cfg.language'|devblocks_translate}</b><br>
 <select name="default_locale">
 	{foreach from=$locales item=loc key=code}
 	<option value="{$code}" {if $code==$default_locale}selected="selected"{/if}>{$loc}</option>

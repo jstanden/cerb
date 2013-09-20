@@ -1,7 +1,7 @@
 {$owner_meta = $comment->getOwnerMeta()}
 <div id="comment{$comment->id}">
 	<div class="block" style="overflow:auto;">
-		<span class="tag" style="color:rgb(71,133,210);">{$translate->_('common.comment')|lower}</span>
+		<span class="tag" style="color:rgb(71,133,210);">{'common.comment'|devblocks_translate|lower}</span>
 		
 		<b style="font-size:1.3em;">
 			{if empty($owner_meta)}
@@ -25,7 +25,7 @@
 			{/if}
 			
 			{if !$readonly && ($active_worker->is_superuser || ($comment->owner_context == CerberusContexts::CONTEXT_WORKER && $comment->owner_context_id == $active_worker->id))}
-				 <a href="javascript:;" style="margin-left:10px;" onclick="if(confirm('Are you sure you want to permanently delete this comment?')) { genericAjaxGet('', 'c=internal&a=commentDelete&id={$comment->id}', function(o) { $('#comment{$comment->id}').remove(); } ); } ">{$translate->_('common.delete')|lower}</a>
+				 <a href="javascript:;" style="margin-left:10px;" onclick="if(confirm('Are you sure you want to permanently delete this comment?')) { genericAjaxGet('', 'c=internal&a=commentDelete&id={$comment->id}', function(o) { $('#comment{$comment->id}').remove(); } ); } ">{'common.delete'|devblocks_translate|lower}</a>
 			{/if}
 		</div>
 		
@@ -35,7 +35,7 @@
 		{/foreach}
 		<br>
 		
-		{if isset($comment->created)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$comment->created|devblocks_date} (<abbr title="{$comment->created|devblocks_date}">{$comment->created|devblocks_prettytime}</abbr>)<br>{/if}
+		{if isset($comment->created)}<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$comment->created|devblocks_date} (<abbr title="{$comment->created|devblocks_date}">{$comment->created|devblocks_prettytime}</abbr>)<br>{/if}
 		
 		<pre class="emailbody" style="padding-top:10px;">{$comment->comment|trim|escape|devblocks_hyperlinks nofilter}</pre>
 		<br clear="all">

@@ -812,6 +812,37 @@ class Context_Draft extends Extension_DevblocksContext {
 		//return DAO_MailQueue::random();
 	}
 	
+	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {
+		$labels = $dict->_labels;
+		$prefix = $labels['_label'];
+		
+		if(!empty($prefix)) {
+			array_walk($labels, function(&$label, $key) use ($prefix) {
+				$label = preg_replace(sprintf("#^%s #", preg_quote($prefix)), '', $label);
+				
+				// [TODO] Use translations
+				switch($key) {
+				}
+				
+				$label = mb_convert_case($label, MB_CASE_LOWER);
+				$label[0] = mb_convert_case($label[0], MB_CASE_UPPER);
+			});
+		}
+		
+		asort($labels);
+		
+		return $labels;
+	}
+	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'to',
+			'subject',
+			'updated',
+		);
+	}
+	
 	function getContext($object, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Draft:';
@@ -830,17 +861,29 @@ class Context_Draft extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'content' => $prefix.$translate->_('common.content'),
 			'id' => $prefix.$translate->_('common.id'),
 			'subject' => $prefix.$translate->_('message.header.subject'),
 			'to' => $prefix.$translate->_('message.header.to'),
-			'updated|date' => $prefix.$translate->_('common.updated'),
+			'updated' => $prefix.$translate->_('common.updated'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'content' => Model_CustomField::TYPE_MULTI_LINE,
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'subject' => Model_CustomField::TYPE_SINGLE_LINE,
+			'to' => Model_CustomField::TYPE_SINGLE_LINE,
+			'updated' => Model_CustomField::TYPE_DATE,
 		);
 		
 		// Token values
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_DRAFT;
+		$token_values['_types'] = $token_types;
 		
 		if($object) {
 			$token_values['_loaded'] = true;

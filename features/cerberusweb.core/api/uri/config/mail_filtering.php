@@ -24,33 +24,43 @@ class PageSection_SetupMailFiltering extends Extension_PageSection {
 		
 		$context = 'cerberusweb.contexts.app';
 		$context_id = 0;
-//		$point = 'cerberusweb.page.config.attendants';
-		
-		if(empty($context)) // || empty($context_id)
-			return;
-			
-		$tpl->assign('context', $context);
-		$tpl->assign('context_id', $context_id);
 		
 		// Events
+		
 		$events = Extension_DevblocksEvent::getByContext($context, false);
 		$tpl->assign('events', $events);
 		
-		// Triggers
-		$triggers = DAO_TriggerEvent::getByOwner($context, $context_id, 'event.mail.received.app', true, 'pos');
-		$tpl->assign('triggers', $triggers);
-
-		$triggers_by_event = array();
+		// Virtual Attendants
 		
-		foreach($triggers as $trigger) {
-			if(!isset($triggers_by_event[$trigger->event_point]))
-				$triggers_by_event[$trigger->event_point] = array();
+		$vas = DAO_VirtualAttendant::getByOwner($context, $context_id, true);
+		
+		foreach($vas as $va_id => $va) {
+			$vas[$va_id]->behaviors = array();
 			
-			$triggers_by_event[$trigger->event_point][$trigger->id] = $trigger;
+			$behaviors = $va->getBehaviors('event.mail.received.app', true);
+			
+			if(!empty($behaviors))
+				$vas[$va_id]->behaviors['event.mail.received.app'] = $behaviors;
 		}
 		
-		$tpl->assign('triggers_by_event', $triggers_by_event);
+		$tpl->assign('vas', $vas);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_filtering/index.tpl');
+	}
+	
+	function createDefaultVaAction() {
+		@$do_create = DevblocksPlatform::importGPC($_REQUEST['do_create'],'integer', 0);
+		
+		DAO_VirtualAttendant::create(array(
+			DAO_VirtualAttendant::NAME => 'Global Virtual Attendant',
+			DAO_VirtualAttendant::CREATED_AT => time(),
+			DAO_VirtualAttendant::UPDATED_AT => time(),
+			DAO_VirtualAttendant::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+			DAO_VirtualAttendant::OWNER_CONTEXT_ID => 0,
+			DAO_VirtualAttendant::PARAMS_JSON => json_encode(array()),
+		));
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','mail_filtering')));
+		exit;
 	}
 }

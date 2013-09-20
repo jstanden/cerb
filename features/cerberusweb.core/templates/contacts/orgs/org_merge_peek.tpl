@@ -20,7 +20,7 @@
 <br>
 
 {if $active_worker->hasPriv('core.addybook.org.actions.update')}
-	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.continue')|capitalize}</button>
+	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.continue'|devblocks_translate|capitalize}</button>
 {/if}
 </form>
 

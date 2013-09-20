@@ -88,7 +88,7 @@
 						{/if}
 						<b>{$plugin->name}</b></label><br>
 							<div id="privs{$plugin_id}" style="padding-left:10px;margin-bottom:5px;display:{if $plugin->id=="cerberusweb.core" || isset($role_privs.$plugin_priv)}block{else}none{/if}">
-							<a href="javascript:;" style="font-size:90%;" onclick="checkAll('privs{$plugin_id}');">{$translate->_('check all')|lower}</a><br>
+							<a href="javascript:;" style="font-size:90%;" onclick="checkAll('privs{$plugin_id}');">{'check all'|devblocks_translate|lower}</a><br>
 							{foreach from=$acl item=priv key=priv_id}
 								{if $priv->plugin_id==$plugin_id}
 								<label style=""><input type="checkbox" name="acl_privs[]" value="{$priv_id}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv->label|devblocks_translate}</label><br>
@@ -105,8 +105,8 @@
 		<tr>
 			<td colspan="2">
 				<br>
-				<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
-				{if $active_worker->is_superuser}<button type="button" onclick="if(confirm('Are you sure you want to delete this role?')){literal}{{/literal}this.form.do_delete.value='1';this.form.submit();{literal}}{/literal}"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+				<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+				{if $active_worker->is_superuser}<button type="button" onclick="if(confirm('Are you sure you want to delete this role?')){literal}{{/literal}this.form.do_delete.value='1';this.form.submit();{literal}}{/literal}"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 			</td>
 		</tr>
 	</table>

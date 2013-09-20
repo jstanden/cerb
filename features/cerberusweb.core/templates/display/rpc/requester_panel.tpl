@@ -20,7 +20,7 @@
 <br>
 <br>
 
-<button id="btnSaveRequestersPanel" type="button"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button id="btnSaveRequestersPanel" type="button"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 <br>
 </form>
 

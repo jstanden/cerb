@@ -1,11 +1,11 @@
 {$menu_divid = "{uniqid()}"}
 
-<b>{$translate->_('search.operator')|capitalize}:</b><br>
+<b>{'search.operator'|devblocks_translate|capitalize}:</b><br>
 <blockquote style="margin:5px;">
 	<select name="oper">
-		<option value="in">{$translate->_('search.oper.in_list')}</option>
+		<option value="in">{'search.oper.in_list'|devblocks_translate}</option>
 		<option value="{DevblocksSearchCriteria::OPER_IN_OR_NULL}">blank or in list</option>
-		<option value="not in">{$translate->_('search.oper.in_list.not')}</option>
+		<option value="not in">{'search.oper.in_list.not'|devblocks_translate}</option>
 		<option value="{DevblocksSearchCriteria::OPER_NIN_OR_NULL}">blank or not in list</option>
 	</select>
 </blockquote>
@@ -15,6 +15,13 @@
 <input type="text" size="32" class="input_search filter">
 
 <ul class="cerb-popupmenu" id="{$menu_divid}" style="display:block;margin-bottom:5px;max-height:200px;overflow-x:hidden;overflow-y:auto;">
+	<li context="{CerberusContexts::CONTEXT_APPLICATION}" context_id="0" label="Application (Global)">
+		<div class="item">
+			<a href="javascript:;">Application</a><br>
+			<div style="margin-left:10px;">Global</div>
+		</div>
+	</li>
+
 	{foreach from=$roles item=role name=roles}
 	<li context="{CerberusContexts::CONTEXT_ROLE}" context_id="{$role->id}" label="{$role->name} (Role)">
 		<div class="item">

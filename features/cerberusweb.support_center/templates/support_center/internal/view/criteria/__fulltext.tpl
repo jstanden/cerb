@@ -1,6 +1,6 @@
 <input type="hidden" name="oper" value="fulltext">
 
-<b>{$translate->_('common.text')|capitalize}:</b><br>
+<b>{'common.text'|devblocks_translate|capitalize}:</b><br>
 <blockquote style="margin:5px;">
 	<input type="text" name="value" style="width:100%;"><br>
 	
@@ -10,7 +10,7 @@
 	<label><input type="radio" name="scope" value="expert" onclick="$('#fulltext_expert').show();"> expert mode</label><br>
 	
 	<div id="fulltext_expert" style="display:none;padding-left:10px;padding-top:5px;">
-		{$translate->_('search.fulltext.examples')|nl2br nofilter}
+		{'search.fulltext.examples'|devblocks_translate|nl2br nofilter}
 	</div>
 </blockquote>
 

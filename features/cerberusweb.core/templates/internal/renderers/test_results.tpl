@@ -5,7 +5,9 @@
 			<span style="float:right;">(<a href="javascript:;" onclick="$(this).closest('DIV.ui-widget').remove();">close</a>)</span>
 			<br>
 			<br>
-			{$output|escape|nl2br nofilter}
+<pre class="emailbody">
+{$output|escape nofilter}
+</pre>
 		</div>
 	</div>
 {else}
@@ -15,7 +17,9 @@
 			<span style="float:right;">(<a href="javascript:;" onclick="$(this).closest('DIV.ui-widget').remove();">close</a>)</span>
 			<br>
 			<br>
-			{$output|escape|nl2br nofilter}
+<pre class="emailbody">
+{$output|escape nofilter}
+</pre>
 		</div>
 	</div>
 {/if}

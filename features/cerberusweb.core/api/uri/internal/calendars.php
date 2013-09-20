@@ -54,7 +54,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		
 		// Contexts (for creating events)
 
-		if($calendar->isWriteableByWorker($active_worker)) {
+		if(CerberusContexts::isWriteableByActor($calendar->owner_context, $calendar->owner_context_id, $active_worker)) {
 			$create_contexts = $calendar->getCreateContexts();
 			$tpl->assign('create_contexts', $create_contexts);
 		}
@@ -62,6 +62,51 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		// Template
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab.tpl');
+	}
+	
+	function showCalendarsTabAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		if(empty($context))
+			return;
+
+		// Remember tab
+		if(!empty($point))
+			$visit->set($point, 'calendars');
+		
+		$tpl->assign('owner_context', $context);
+		$tpl->assign('owner_context_id', $context_id);
+		
+		$view_id = str_replace('.','_',$point) . '_calendars';
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		if(null == $view) {
+			$ctx = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_CALENDAR);
+			$view = $ctx->getChooserView($view_id);
+		}
+		
+		if($active_worker->is_superuser && 0 == strcasecmp($context, 'all')) {
+			$view->addParamsRequired(array(), true);
+			
+		} else {
+			$view->addParamsRequired(array(
+				SearchFields_Calendar::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Calendar::OWNER_CONTEXT, DevblocksSearchCriteria::OPER_EQ, $context),
+				SearchFields_Calendar::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Calendar::OWNER_CONTEXT_ID, DevblocksSearchCriteria::OPER_EQ, $context_id),
+			), true);
+		}
+		
+		C4_AbstractViewLoader::setView($view->id,$view);
+		$tpl->assign('view', $view);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
 	function showCalendarAvailabilityTabAction() {
@@ -102,7 +147,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 			
 			// Contexts (for creating events)
 
-			if($calendar->isWriteableByWorker($active_worker)) {
+			if(CerberusContexts::isWriteableByActor($calendar->owner_context, $calendar->owner_context_id, $active_worker)) {
 				$create_contexts = $calendar->getCreateContexts();
 				$tpl->assign('create_contexts', $create_contexts);
 			}
@@ -137,6 +182,9 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 			@list($owner_ctx_code, $owner_ctx_id) = explode('_', $owner, 2);
 			
 			switch(strtolower($owner_ctx_code)) {
+				case 'a':
+					$owner_ctx = CerberusContexts::CONTEXT_APPLICATION;
+					break;
 				case 'w':
 					$owner_ctx = CerberusContexts::CONTEXT_WORKER;
 					break;
@@ -145,6 +193,9 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 					break;
 				case 'r':
 					$owner_ctx = CerberusContexts::CONTEXT_ROLE;
+					break;
+				case 'v':
+					$owner_ctx = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
 					break;
 			}
 			
@@ -202,21 +253,6 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 				
 			}
 
-			// If we're adding a comment
-			if(!empty($comment)) {
-				@$also_notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
-				
-				$fields = array(
-					DAO_Comment::CREATED => time(),
-					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_CALENDAR,
-					DAO_Comment::CONTEXT_ID => $id,
-					DAO_Comment::COMMENT => $comment,
-					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-					DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
-				);
-				$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
-			}
-			
 			// Custom fields
 			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
 			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CALENDAR, $id, $field_ids);
@@ -324,20 +360,21 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 	}
 	
 	function parseDateJsonAction() {
-		@$date = DevblocksPlatform::importGPC($_REQUEST['date'], 'string', '');
+		@$date_string = DevblocksPlatform::importGPC($_REQUEST['date'], 'string', '');
 		
 		@$active_worker = CerberusApplication::getActiveWorker();
+		$date = DevblocksPlatform::getDateService();
 		
 		header('Content-Type: application/json');
 		
 		$results = array();
 		
-		if(strpos($date, '@')) {
-			$date_parts = explode('@', $date, 2);
-			@$date = trim($date_parts[0]);
+		if(strpos($date_string, '@')) {
+			$date_parts = explode('@', $date_string, 2);
+			@$date_string = trim($date_parts[0]);
 			@$calendar_lookup = trim($date_parts[1]);
 			
-			@$calendars = DAO_Calendar::getReadableByWorker($active_worker);
+			@$calendars = DAO_Calendar::getReadableByActor($active_worker);
 			$use_calendar = null; /* @var $use_calendar Model_Calendar */
 			
 			foreach($calendars as $calendar) {
@@ -353,7 +390,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 			if($use_calendar) {
 				$calendar_events = $use_calendar->getEvents(strtotime('-1 day midnight'), strtotime('+2 weeks 23:59:59'));
 				$availability = $use_calendar->computeAvailability(strtotime('-1 day midnight'), strtotime('+2 weeks 23:59:59'), $calendar_events);
-				$timestamp = $availability->scheduleInRelativeTime(time(), $date);
+				$timestamp = $availability->scheduleInRelativeTime(time(), $date_string);
 				
 				if($timestamp) {
 					$results['calendar_id'] = $calendar->id;
@@ -363,7 +400,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		}
 		
 		if(empty($timestamp))
-			@$timestamp = strtotime($date);
+			@$timestamp = strtotime($date_string);
 		
 		if(empty($timestamp)) {
 			echo json_encode(false);
@@ -371,7 +408,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		}
 		
 		$results['timestamp'] = $timestamp;
-		$results['to_string'] = date('D, d M Y h:i a', $timestamp);
+		$results['to_string'] = $date->formatTime(null, $timestamp);
 		
 		echo json_encode($results);
 	}
@@ -381,7 +418,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$calendars = DAO_Calendar::getReadableByWorker($active_worker);
+		$calendars = DAO_Calendar::getReadableByActor($active_worker);
 		$date = DevblocksPlatform::getDateService();
 		$timezones = $date->getTimezones();
 

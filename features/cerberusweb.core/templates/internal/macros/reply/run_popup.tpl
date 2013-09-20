@@ -30,7 +30,12 @@
 			<input type="hidden" name="var_keys[]" value="{$var.key}">
 			<b>{$var.label}:</b><br>
 			{if $var.type == 'S'}
-			<input type="text" name="var_vals[]" value="{$job->variables.$var_key}" style="width:98%;">
+				{if $var.params.widget=='multiple'}
+				<textarea name="var_vals[]" style="height:50px;width:98%;">{$job->variables.$var_key}</textarea>
+				{else}
+				<input type="text" name="var_vals[]" value="{$job->variables.$var_key}" style="width:98%;">
+				{/if}
+			{elseif $var.type == 'D'}
 			{elseif $var.type == 'N'}
 			<input type="text" name="var_vals[]" value="{$job->variables.$var_key}">
 			{elseif $var.type == 'C'}

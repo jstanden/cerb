@@ -123,11 +123,11 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		return null;
 	}
 	
-	static function getReadableByWorker($worker) {
+	static function getReadableByActor($actor) {
 		$calendars = DAO_Calendar::getAll();
 		
 		foreach($calendars as $calendar_id => $calendar) { /* @var $calendar Model_Calendar */
-			if(!$calendar->isReadableByWorker($worker)) {
+			if(!CerberusContexts::isReadableByActor($calendar->owner_context, $calendar->owner_context_id, $actor)) {
 				unset($calendars[$calendar_id]);
 				continue;
 			}
@@ -136,13 +136,13 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		return $calendars;
 	}
 	
-	static function getWriteableByWorker($worker) {
+	static function getWriteableByActor($actor) {
 		$calendars = DAO_Calendar::getAll();
 		
 		foreach($calendars as $calendar_id => $calendar) { /* @var $calendar Model_Calendar */
 			@$manual_disabled = $calendar->params['manual_disabled'];
 			
-			if(!$calendar->isWriteableByWorker($worker) || !empty($manual_disabled)) {
+			if(!empty($manual_disabled) || !CerberusContexts::isWriteableByActor($calendar->owner_context, $calendar->owner_context_id, $actor)) {
 				unset($calendars[$calendar_id]);
 				continue;
 			}
@@ -484,6 +484,14 @@ class Model_Calendar {
 	public $params;
 	public $updated_at;
 	
+	function isReadableByActor($actor) {
+		return CerberusContexts::isReadableByActor($this->owner_context, $this->owner_context_id, $actor);
+	}
+	
+	function isWriteableByActor($actor) {
+		return CerberusContexts::isWriteableByActor($this->owner_context, $this->owner_context_id, $actor);
+	}
+	
 	function getCreateContexts() {
 		$context_extensions = Extension_DevblocksContext::getAll(false, array('create'));
 		$contexts = array();
@@ -528,7 +536,7 @@ class Model_Calendar {
 		
 			if(null == ($datasource_extension = Extension_CalendarDatasource::get($series['datasource'])))
 				continue;
-
+			
 			$series_events = $datasource_extension->getData($this, $series, $series_prefix, $date_from, $date_to);
 			
 			foreach($series_events as $time => $events) {
@@ -579,13 +587,11 @@ class Model_Calendar {
 			"SELECT id, name, is_available, date_start, date_end ".
 			"FROM calendar_event ".
 			"WHERE calendar_id = %d ".
-			"AND ((date_start >= %d AND date_start <= %d) OR (date_end >= %d AND date_end <= %d)) ".
+			"AND date_start <= %d AND date_end >= %d ".
 			"ORDER BY is_available DESC, date_start ASC",
 			$this->id,
-			$date_from,
 			$date_to,
-			$date_from,
-			$date_to
+			$date_from
 		);
 		
 		$results = $db->GetArray($sql);
@@ -663,76 +669,6 @@ class Model_Calendar {
 		
 		return new Model_CalendarAvailability($date_from, $date_to, str_replace('*', '0', $mins_bits));
 	}
-	
-	function isReadableByWorker($worker) {
-		if(is_a($worker, 'Model_Worker')) {
-			// This is what we want
-		} elseif (is_numeric($worker)) {
-			if(null == ($worker = DAO_Worker::get($worker)))
-				return false;
-		} else {
-			return false;
-		}
-		
-		// Superusers can do anything
-		if($worker->is_superuser)
-			return true;
-		
-		switch($this->owner_context) {
-			case CerberusContexts::CONTEXT_GROUP:
-				if(in_array($this->owner_context_id, array_keys($worker->getMemberships())))
-					return true;
-				break;
-				
-			case CerberusContexts::CONTEXT_ROLE:
-				if(in_array($this->owner_context_id, array_keys($worker->getRoles())))
-					return true;
-				break;
-				
-			case CerberusContexts::CONTEXT_WORKER:
-				if($worker->id == $this->owner_context_id)
-					return true;
-				break;
-		}
-		
-		return false;
-	}
-	
-	function isWriteableByWorker($worker) {
-		if(is_a($worker, 'Model_Worker')) {
-			// This is what we want
-		} elseif (is_numeric($worker)) {
-			if(null == ($worker = DAO_Worker::get($worker)))
-				return false;
-		} else {
-			return false;
-		}
-		
-		// Superusers can do anything
-		if($worker->is_superuser)
-			return true;
-		
-		switch($this->owner_context) {
-			case CerberusContexts::CONTEXT_GROUP:
-				if(in_array($this->owner_context_id, array_keys($worker->getMemberships())))
-					if($worker->isGroupManager($this->owner_context_id))
-						return true;
-				break;
-				
-			case CerberusContexts::CONTEXT_ROLE:
-				if($worker->is_superuser)
-					return true;
-				break;
-				
-			case CerberusContexts::CONTEXT_WORKER:
-				if($worker->id == $this->owner_context_id)
-					return true;
-				break;
-		}
-		
-		return false;
-	}
-	
 };
 
 class Model_CalendarAvailability {
@@ -1289,6 +1225,35 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		);
 	}
 	
+	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {
+		$labels = $dict->_labels;
+		$prefix = $labels['_label'];
+		
+		if(!empty($prefix)) {
+			array_walk($labels, function(&$label, $key) use ($prefix) {
+				$label = preg_replace(sprintf("#^%s #", preg_quote($prefix)), '', $label);
+				
+				switch($key) {
+				}
+				
+				$label = mb_convert_case($label, MB_CASE_LOWER);
+				$label[0] = mb_convert_case($label[0], MB_CASE_UPPER);
+			});
+		}
+		
+		asort($labels);
+		
+		return $labels;
+	}
+	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'owner__label',
+			'updated_at',
+		);
+	}
+	
 	function getContext($calendar, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Calendar:';
@@ -1307,10 +1272,22 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
-			'updated_at|date' => $prefix.$translate->_('common.updated'),
+			'owner__label' => $prefix.$translate->_('common.owner'),
+			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'owner__label' =>'context_url',
+			'updated_at' => Model_CustomField::TYPE_DATE,
+			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1321,6 +1298,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_CALENDAR;
+		$token_values['_types'] = $token_types;
 		
 		if($calendar) {
 			$token_values['_loaded'] = true;
@@ -1426,6 +1404,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 					
 				} else {
 					@$calendar_scope = $dictionary['calendar_scope'];
+					$values['weeks'] = $dictionary['weeks'];
 					
 				}
 				
@@ -1525,6 +1504,17 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		
 		if(!empty($context_id) && null != ($calendar = DAO_Calendar::get($context_id))) {
 			$tpl->assign('model', $calendar);
+			
+		} else {
+			@$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'string','');
+			@$owner_context_id = DevblocksPlatform::importGPC($_REQUEST['owner_context_id'],'integer',0);
+		
+			$calendar = new Model_Calendar();
+			$calendar->id = 0;
+			$calendar->owner_context = !empty($owner_context) ? $owner_context : '';
+			$calendar->owner_context_id = $owner_context_id;
+			
+			$tpl->assign('model', $calendar);
 		}
 		
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CALENDAR, false);
@@ -1536,13 +1526,6 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
 		}
 
-		// Comments
-		
-		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_CALENDAR, $context_id);
-		$last_comment = array_shift($comments);
-		unset($comments);
-		$tpl->assign('last_comment', $last_comment);
-		
 		// Owners
 		
 		$roles = DAO_WorkerRole::getAll();
@@ -1553,6 +1536,9 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
+		
+		$virtual_attendants = DAO_VirtualAttendant::getAll();
+		$tpl->assign('virtual_attendants', $virtual_attendants);
 
 		$owner_groups = array();
 		foreach($groups as $k => $v) {

@@ -91,7 +91,11 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 			
 		// Macros
-		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.calendar');
+		
+		$macros = DAO_TriggerEvent::getReadableByActor(
+			$active_worker,
+			'event.macro.calendar'
+		);
 		$tpl->assign('macros', $macros);
 
 		// Tabs

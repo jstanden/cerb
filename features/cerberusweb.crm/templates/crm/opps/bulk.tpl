@@ -5,10 +5,10 @@
 <input type="hidden" name="opp_ids" value="{$opp_ids}">
 
 <fieldset class="peek">
-	<legend>{$translate->_('common.bulk_update.with')|capitalize}</legend>
-	<label><input type="radio" name="filter" value="" {if empty($opp_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
+	<legend>{'common.bulk_update.with'|devblocks_translate|capitalize}</legend>
+	<label><input type="radio" name="filter" value="" {if empty($opp_ids)}checked{/if}> {'common.bulk_update.filter.all'|devblocks_translate}</label> 
 	{if !empty($opp_ids)}
-		<label><input type="radio" name="filter" value="checks" {if !empty($opp_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.checked')}</label>
+		<label><input type="radio" name="filter" value="checks" {if !empty($opp_ids)}checked{/if}> {'common.bulk_update.filter.checked'|devblocks_translate}</label>
 	{else}
 		<label><input type="radio" name="filter" value="sample"> {'common.bulk_update.filter.random'|devblocks_translate} </label><input type="text" name="filter_sample_size" size="5" maxlength="4" value="100" class="input_number">
 	{/if}
@@ -122,15 +122,15 @@
 			<ul class="bubbles chooser-container">
 		</div>
 		
-		<b>{$translate->_('common.status')|capitalize}:</b>
+		<b>{'common.status'|devblocks_translate|capitalize}:</b>
 		
 		<div style="margin:0px 0px 5px 10px;">
-			<label><input type="radio" name="broadcast_next_is_closed" value="0"> {$translate->_('status.open')|capitalize}</label>
-			<label><input type="radio" name="broadcast_next_is_closed" value="2" checked="checked"> {$translate->_('status.waiting')|capitalize}</label>
-			<label><input type="radio" name="broadcast_next_is_closed" value="1"> {$translate->_('status.closed')|capitalize}</label>
+			<label><input type="radio" name="broadcast_next_is_closed" value="0"> {'status.open'|devblocks_translate|capitalize}</label>
+			<label><input type="radio" name="broadcast_next_is_closed" value="2" checked="checked"> {'status.waiting'|devblocks_translate|capitalize}</label>
+			<label><input type="radio" name="broadcast_next_is_closed" value="1"> {'status.closed'|devblocks_translate|capitalize}</label>
 		</div>
 		
-		<b>{$translate->_('common.options')|capitalize}:</b>
+		<b>{'common.options'|devblocks_translate|capitalize}:</b>
 		
 		<div style="margin:0px 0px 5px 10px;">
 			<label><input type="radio" name="broadcast_is_queued" value="0" checked="checked"> Save as drafts</label>
@@ -140,7 +140,7 @@
 </fieldset>
 {/if}
 
-<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
 <script type="text/javascript">
@@ -148,7 +148,7 @@
 	$popup.one('popup_open', function(event,ui) {
 		var $this = $(this);
 		
-		$this.dialog('option','title',"{$translate->_('common.bulk_update')|capitalize}");
+		$this.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize}");
 	
 		$this.find('select.insert-placeholders').change(function(e) {
 			var $select = $(this);

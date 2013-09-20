@@ -1405,9 +1405,7 @@ class Cron_VirtualAttendantScheduledBehavior extends CerberusCronPageExtension {
 						if(null == ($context_ext = DevblocksPlatform::getExtension($behavior->context, true)))
 							throw new Exception("Invalid context.");
 					
-						// ACL: Ensure access to the context object
-						//if(!$context_ext->authorize($context_id, $active_worker))
-						//	throw new Exception("Access denied to context.");
+						// [TODO] ACL: Ensure access to the context object
 							
 						// Load macro
 						if(null == ($macro = DAO_TriggerEvent::get($behavior->behavior_id))) /* @var $macro Model_TriggerEvent */
@@ -1416,9 +1414,7 @@ class Cron_VirtualAttendantScheduledBehavior extends CerberusCronPageExtension {
 						if($macro->is_disabled)
 							throw new Exception("Macro disabled.");
 							
-						// ACL: Ensure the worker owns the macro
-						//if(false == ($macro->owner_context == CerberusContexts::CONTEXT_WORKER && $macro->owner_context_id == $active_worker->id))
-						//	 new Exception("Access denied to macro.");
+						// [TODO] ACL: Ensure the worker owns the macro
 					
 						// Load event manifest
 						if(null == ($ext = DevblocksPlatform::getExtension($macro->event_point, false))) /* @var $ext DevblocksExtensionManifest */

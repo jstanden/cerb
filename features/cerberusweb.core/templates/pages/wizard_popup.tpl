@@ -35,7 +35,7 @@
 </fieldset>
 
 <div>
-	<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmPageWizard','{$view_id}',false,'page_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
+	<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmPageWizard','{$view_id}',false,'page_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
 </div>
 
 </form>

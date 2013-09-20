@@ -27,8 +27,8 @@
 	{/if}
 {elseif $field->type=='C'}
 	{if $values.{$field->id}}
-		{$translate->_('common.yes')|capitalize}
+		{'common.yes'|devblocks_translate|capitalize}
 	{else}
-		{$translate->_('common.no')|capitalize}
+		{'common.no'|devblocks_translate|capitalize}
 	{/if}
 {/if}

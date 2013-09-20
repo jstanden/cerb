@@ -24,7 +24,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 	 * @param integer $group_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($ticket_id=null, $comment_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $ticket_id=null, $comment_id=null) {
 		if(empty($ticket_id)) {
 			// Pull the latest ticket
 			list($results) = DAO_Ticket::search(
@@ -144,6 +144,12 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		$this->setValues($values);
 	}
 	
+	function renderSimulatorTarget($trigger, $event_model) {
+		$context = CerberusContexts::CONTEXT_TICKET;
+		$context_id = $event_model->params['ticket_id'];
+		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
+	}
+	
 	function getValuesContexts($trigger) {
 		$vals = array(
 			'ticket_id' => array(
@@ -233,7 +239,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		$types = array(
 			// First wrote
 			'ticket_initial_message_content' => Model_CustomField::TYPE_MULTI_LINE,
-			'ticket_initial_message_created|date' => Model_CustomField::TYPE_DATE,
+			'ticket_initial_message_created' => Model_CustomField::TYPE_DATE,
 			'ticket_initial_message_is_outgoing' => Model_CustomField::TYPE_CHECKBOX,
 			'ticket_initial_message_sender_address' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_initial_message_sender_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -256,7 +262,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		
 			// Last wrote
 			'ticket_latest_message_content' => Model_CustomField::TYPE_MULTI_LINE,
-			'ticket_latest_message_created|date' => Model_CustomField::TYPE_DATE,
+			'ticket_latest_message_created' => Model_CustomField::TYPE_DATE,
 			'ticket_latest_message_is_outgoing' => Model_CustomField::TYPE_CHECKBOX,
 			'ticket_latest_message_sender_address' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_latest_message_sender_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -302,15 +308,15 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 
 			// Ticket
 			"ticket_bucket_name|default('Inbox')" => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_created|date' => Model_CustomField::TYPE_DATE,
+			'ticket_created' => Model_CustomField::TYPE_DATE,
 			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_num_messages' => Model_CustomField::TYPE_NUMBER,
-			'ticket_reopen_date|date' => Model_CustomField::TYPE_DATE,
+			'ticket_reopen_date' => Model_CustomField::TYPE_DATE,
 			'ticket_spam_score' => null,
 			'ticket_spam_training' => null,
 			'ticket_status' => null,
 			'ticket_subject' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_updated|date' => Model_CustomField::TYPE_DATE,
+			'ticket_updated' => Model_CustomField::TYPE_DATE,
 			'ticket_url' => Model_CustomField::TYPE_URL,
 		
 			// Virtual
@@ -349,7 +355,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			$types['comment_address_org_created'] = Model_CustomField::TYPE_DATE;
 			$types['comment_address_org_name'] = Model_CustomField::TYPE_SINGLE_LINE;
 			
-			$types['comment_created|date'] = Model_CustomField::TYPE_DATE;
+			$types['comment_created'] = Model_CustomField::TYPE_DATE;
 			$types['comment_comment'] = Model_CustomField::TYPE_MULTI_LINE;
 		}
 		
@@ -400,17 +406,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				
 			case 'group_and_bucket':
 				$groups = DAO_Group::getAll();
-				
-				switch($trigger->owner_context) {
-					// If the owner of the behavior is a group
-					case CerberusContexts::CONTEXT_GROUP:
-						foreach($groups as $group_id => $group) {
-							if($group_id != $trigger->owner_context_id)
-								unset($groups[$group_id]);
-						}
-						break;
-				}
-				
 				$tpl->assign('groups', $groups);
 				
 				$group_buckets = DAO_Bucket::getGroups();
@@ -702,7 +697,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'move_to' => array('label' => 'Move to'),
 				'relay_email' => array('label' => 'Relay to worker email'),
-				'schedule_behavior' => array('label' => 'Schedule behavior'),
 				'schedule_email_recipients' => array('label' => 'Schedule email to recipients'),
 				'send_email' => array('label' => 'Send email'),
 				'send_email_recipients' => array('label' => 'Send email to recipients'),
@@ -713,7 +707,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				'set_status' => array('label' => 'Set ticket status'),
 				'set_subject' => array('label' => 'Set ticket subject'),
 				'set_links' => array('label' => 'Set links'),
-				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
 			;
@@ -768,10 +761,13 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 				
 			case 'relay_email':
-				switch($trigger->owner_context) {
+				if(false == ($va = $trigger->getVirtualAttendant()))
+					break;
+				
+				switch($va->owner_context) {
 					case CerberusContexts::CONTEXT_GROUP:
 						// Filter to group members
-						$group = DAO_Group::get($trigger->owner_context_id);
+						$group = DAO_Group::get($va->owner_context_id);
 						DevblocksEventHelper::renderActionRelayEmail(
 							array_keys($group->getMembers()),
 							array('owner','watchers','workers'),
@@ -789,18 +785,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 						);
 						break;
 				}
-				break;
-				
-			case 'schedule_behavior':
-				$dates = array();
-				$conditions = $this->getConditions($trigger);
-				foreach($conditions as $key => $data) {
-					if(isset($data['type']) && $data['type'] == Model_CustomField::TYPE_DATE)
-						$dates[$key] = $data['label'];
-				}
-				$tpl->assign('dates', $dates);
-			
-				DevblocksEventHelper::renderActionScheduleBehavior($trigger);
 				break;
 				
 			case 'schedule_email_recipients':
@@ -848,15 +832,11 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				DevblocksEventHelper::renderActionSetLinks($trigger);
 				break;
 				
-			case 'unschedule_behavior':
-				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger);
-				break;
-				
 			default:
 				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches)) {
 					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
-					DevblocksEventHelper::renderActionSetCustomField($custom_field);
+					DevblocksEventHelper::renderActionSetCustomField($custom_field, $trigger);
 				}
 				break;
 		}
@@ -912,10 +892,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 					$dict->ticket_latest_message_sender_full_name,
 					$dict->ticket_subject
 				);
-				break;
-				
-			case 'schedule_behavior':
-				return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
 				break;
 				
 			case 'schedule_email_recipients':
@@ -998,10 +974,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
 				break;
 				
-			case 'unschedule_behavior':
-				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
-				break;
-				
 			default:
 				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token))
 					return DevblocksEventHelper::simulateActionSetCustomField($token, $params, $dict);
@@ -1057,10 +1029,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				);
 				break;
 			
-			case 'schedule_behavior':
-				DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
-				break;
-				
 			case 'schedule_email_recipients':
 				DevblocksEventHelper::runActionScheduleTicketReply($params, $dict, $ticket_id, $message_id);
 				break;
@@ -1084,10 +1052,15 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				
 				// Headers
 
-				@$headers = $tpl_builder->build($params['headers'], $dict);
+				@$headers_list = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['headers'], $dict));
 
-				if(!empty($headers))
-					$properties['headers'] = DevblocksPlatform::parseCrlfString($headers);
+				if(is_array($headers_list))
+				foreach($headers_list as $header_line) {
+					@list($header, $value) = explode(':', $header_line);
+				
+					if(!empty($header) && !empty($value))
+						$properties['headers'][trim($header)] = trim($value);
+				}
 
 				// Options
 				
@@ -1266,10 +1239,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			
 			case 'set_links':
 				DevblocksEventHelper::runActionSetLinks($trigger, $params, $dict);
-				break;
-				
-			case 'unschedule_behavior':
-				DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 				break;
 				
 			default:

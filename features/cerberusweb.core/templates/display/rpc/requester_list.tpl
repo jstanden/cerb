@@ -8,7 +8,7 @@
 <div class="ui-widget" style="display:inline-block;white-space:nowrap;">
 	<div class="ui-state-error ui-corner-all" style="padding: 0 .7em; margin: 0.2em; "> 
 		<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
-		<strong>Warning:</strong> {$translate->_('ticket.recipients.empty')}</p>
+		<strong>Warning:</strong> {'ticket.recipients.empty'|devblocks_translate}</p>
 	</div>
 </div>
 {/if}

@@ -4,14 +4,14 @@
 	<name>Web Services API (JSON/XML) *EXPERIMENTAL*</name>
 	<description>A RESTful JSON/XML interface for integrating Cerb with other applications and tools.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>6.4.4</version>
+	<version>6.5.0</version>
 	<link>http://wiki.cerbweb.com/Features:Web_Services_API</link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="6.4" max="6.4.99" />
+		<app_version min="6.5" max="6.5.99" />
 	</requires>
 
 	<!-- Plugin Dependencies -->
@@ -227,6 +227,18 @@
 			</class>
 			<params>
 				<param key="uri" value="tickets" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.virtual_attendants</id>
+			<name>Virtual Attendants</name>
+			<class>
+				<file>api/rest/va.php</file>
+				<name>ChRest_VirtualAttendants</name>
+			</class>
+			<params>
+				<param key="uri" value="va" />
 			</params>
 		</extension>
 		

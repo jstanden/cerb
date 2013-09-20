@@ -743,6 +743,38 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 		);
 	}
 	
+	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {
+		$labels = $dict->_labels;
+		$prefix = $labels['_label'];
+		
+		if(!empty($prefix)) {
+			array_walk($labels, function(&$label, $key) use ($prefix) {
+				$label = preg_replace(sprintf("#^%s #", preg_quote($prefix)), '', $label);
+				
+				// [TODO] Use translations
+				switch($key) {
+				}
+				
+				$label = mb_convert_case($label, MB_CASE_LOWER);
+				$label[0] = mb_convert_case($label[0], MB_CASE_UPPER);
+			});
+		}
+		
+		asort($labels);
+		
+		return $labels;
+	}
+	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'event',
+			'created',
+			'actor__label',
+			'target__label',
+		);
+	}
+	
 	function getContext($entry, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Activity:';
@@ -760,14 +792,29 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
-			'created|date' => $prefix.$translate->_('common.created'),
+			'event' => $prefix.$translate->_('common.event'),
+			'created' => $prefix.$translate->_('common.created'),
+			'actor__label' => $prefix.$translate->_('common.actor'),
+			'target__label' => $prefix.$translate->_('common.target'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'created' => Model_CustomField::TYPE_DATE,
+			'event' => Model_CustomField::TYPE_SINGLE_LINE,
+			'actor__label' => 'context_url',
+			'target__label' => 'context_url',
 		);
 		
 		// Token values
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_ACTIVITY_LOG;
+		$token_values['_types'] = $token_types;
 
 		// Address token values
 		if(null != $entry) {
@@ -775,6 +822,16 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 			$token_values['_label'] = CerberusContexts::formatActivityLogEntry(json_decode($entry->entry_json,true),'text');
 			$token_values['id'] = $entry->id;
 			$token_values['created'] = $entry->created;
+			
+			$activities = DevblocksPlatform::getActivityPointRegistry();
+			if(isset($activities[$entry->activity_point]))
+				$token_values['event'] = $activities[$entry->activity_point]['params']['label_key'];
+			
+			$token_values['actor__context'] = $entry->actor_context;
+			$token_values['actor_id'] = $entry->actor_context_id;
+			
+			$token_values['target__context'] = $entry->target_context;
+			$token_values['target_id'] = $entry->target_context_id;
 		}
 		
 		return true;

@@ -6,14 +6,14 @@
 
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
 
-<form action="#" method="POST" id="chooser{$view->id}">
-<b>Selected:</b>
-<ul class="buffer bubbles"></ul>
-<br>
-<br>
-<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
-<br>
+<form action="#" method="POST" id="chooser{$view->id}" style="{if $single}display:none;{/if}}">
+	<b>Selected:</b>
+	<ul class="buffer bubbles"></ul>
+	<br>
+	<br>
+	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
 </form>
+<br>
 
 <script type="text/javascript">
 	var $popup = genericAjaxPopupFetch('{$layer}');
@@ -77,6 +77,10 @@
 						$li = $('<li>'+$label+'<input type="hidden" name="to_context_id[]" title="'+$label+'" value="'+$value+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
 						$buffer.append($li);
 					}
+					
+					{if $single}
+					$buffer.closest('form').find('button.submit').click();
+					{/if}
 				}
 				
 			} else {

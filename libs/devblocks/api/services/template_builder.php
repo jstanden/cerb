@@ -126,6 +126,10 @@ class DevblocksDictionaryDelegate {
 	function __construct($dictionary) {
 		$this->_dictionary = $dictionary;
 	}
+
+	public static function instance($values) {
+		return new DevblocksDictionaryDelegate($values);
+	}
 	
 	public function __set($name, $value) {
 		$this->_dictionary[$name] = $value;
@@ -192,6 +196,10 @@ class DevblocksDictionaryDelegate {
 			
 			if(is_array($loaded_values))
 			foreach($loaded_values as $k => $v) {
+				// Don't cascade the labels + types on loaded contexts
+				if(in_array($k, array('_labels', '_types')))
+					continue;
+				
 				$this->_dictionary[$context_data['prefix'] . $k] = $v;
 			}
 		}
@@ -212,6 +220,12 @@ class DevblocksDictionaryDelegate {
 	
 	public function getDictionary($with_prefix=null) {
 		$dict = $this->_dictionary;
+
+		// Convert any nested dictionaries to arrays
+		array_walk_recursive($dict, function(&$v) {
+			if($v instanceof DevblocksDictionaryDelegate)
+				$v = $v->getDictionary();
+		});
 		
 		if(empty($with_prefix))
 			return $dict;
@@ -261,7 +275,46 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	public function getFunctions() {
 		return array(
 			'regexp_match_all' => new Twig_Function_Method($this, 'function_regexp_match_all'),
+			'json_decode' => new Twig_Function_Method($this, 'function_json_decode'),
+			'jsonpath_set' => new Twig_Function_Method($this, 'function_jsonpath_set'),
 		);
+	}
+	
+	
+	function function_json_decode($str) {
+		return json_decode($str, true);
+	}
+	
+	function function_jsonpath_set($var, $path, $val) {
+		if(empty($var))
+			$var = array();
+		
+		$parts = explode('.', $path);
+		$ptr =& $var;
+		
+		if(is_array($parts))
+		foreach($parts as $part) {
+			$is_array_set = false;
+		
+			if(substr($part,-2) == '[]') {
+				$part = rtrim($part, '[]');
+				$is_array_set = true;
+			}
+		
+			if(!isset($ptr[$part]))
+				$ptr[$part] = array();
+			
+			if($is_array_set) {
+				$ptr =& $ptr[$part][];
+				
+			} else {
+				$ptr =& $ptr[$part];
+			}
+		}
+		
+		$ptr = $val;
+		
+		return $var;
 	}
 	
 	function function_regexp_match_all($pattern, $text, $group = 0) {
@@ -286,6 +339,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		return array(
 			'bytes_pretty' => new Twig_Filter_Method($this, 'filter_bytes_pretty'),
 			'date_pretty' => new Twig_Filter_Method($this, 'filter_date_pretty'),
+			'json_pretty' => new Twig_Filter_Method($this, 'filter_json_pretty'),
 			'md5' => new Twig_Filter_Method($this, 'filter_md5'),
 			'regexp' => new Twig_Filter_Method($this, 'filter_regexp'),
 			'truncate' => new Twig_Filter_Method($this, 'filter_truncate'),
@@ -298,6 +352,10 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	function filter_date_pretty($string, $is_delta=false) {
 		return DevblocksPlatform::strPrettyTime($string, $is_delta);
+	}
+	
+	function filter_json_pretty($string) {
+		return DevblocksPlatform::strFormatJson($string);
 	}
 	
 	function filter_md5($string) {

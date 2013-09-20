@@ -21,9 +21,9 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	const ID = 'id';
 	const TITLE = 'title';
 	const IS_DISABLED = 'is_disabled';
-	const OWNER_CONTEXT = 'owner_context';
-	const OWNER_CONTEXT_ID = 'owner_context_id';
+	const IS_PRIVATE = 'is_private';
 	const EVENT_POINT = 'event_point';
+	const VIRTUAL_ATTENDANT_ID = 'virtual_attendant_id';
 	const POS = 'pos';
 	const VARIABLES_JSON = 'variables_json';
 
@@ -64,85 +64,91 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		return $behaviors;
 	}
 	
-	static function getByOwners($owners, $event_point=null) {
+	static function getReadableByActor($actor, $event_point=null, $with_disabled=false) {
 		$macros = array();
+
+		$vas = DAO_VirtualAttendant::getReadableByActor($actor);
+
+		if(is_array($vas))
+		foreach($vas as $va) { /* @var $va Model_VirtualAttendant */
+			if(!$with_disabled && $va->is_disabled)
+				continue;
 		
-		foreach($owners as $owner) {
-			@$owner_context = $owner[0];
-			@$owner_context_id = $owner[1];
-			@$owner_label = $owner[2];
+			$behaviors = $va->getBehaviors($event_point, $with_disabled);
 			
-			if(empty($owner_context))
+			if(empty($behaviors))
 				continue;
 			
-			if($owner_context != CerberusContexts::CONTEXT_APPLICATION && empty($owner_context_id))
-				continue;
+			$results = array();
 			
-			$add_macros = DAO_TriggerEvent::getByOwner($owner_context, $owner_context_id, $event_point);
+			if(is_array($behaviors))
+			foreach($behaviors as $behavior_id => $behavior) { /* @var $behavior Model_TriggerEvent */
+				if($behavior->is_private
+					&& !(CerberusContexts::isSameObject($actor, $va)))
+						continue;
 			
-			if(!empty($owner_label)) {
-				foreach($add_macros as $k => $add_macro) { /* @var $add_macro Model_TriggerEvent */
-					$add_macros[$k]->title = sprintf("[%s] %s", $owner_label, $add_macro->title);
+				$result = clone $behavior; /* @var $result Model_TriggerEvent */
+			
+				$has_public_vars = false;
+				if(is_array($result->variables))
+				foreach($result->variables as $var_name => $var_data) {
+					if(empty($var_data['is_private']))
+						$has_public_vars = true;
 				}
+				$result->has_public_vars = $has_public_vars;
+				
+				$results[$behavior_id] = $result;
 			}
 			
-			$macros = $macros + $add_macros;
+			$macros = $macros + $results;
 		}
 		
-		foreach($macros as $macro_id => $macro) {
-			$has_public_vars = false;
-			if(is_array($macro->variables))
-			foreach($macro->variables as $var_name => $var_data) {
-				if(empty($var_data['is_private']))
-					$has_public_vars = true;
-			}
-			
-			$macros[$macro_id]->has_public_vars = $has_public_vars;
-		}
+		DevblocksPlatform::sortObjects($macros, 'title', true);
 		
 		return $macros;
 	}
 	
 	/**
 	 *
-	 * @param string $context
-	 * @param integer $context_id
+	 * @param integer $va_id
 	 * @param string $event_point
 	 * @return Model_TriggerEvent[]
 	 */
-	static function getByOwner($context, $context_id, $event_point=null, $with_disabled=false, $sort_by='title') {
+	static function getByVirtualAttendant($va, $event_point=null, $with_disabled=false, $sort_by='title') {
+		// Polymorph if necessary
+		if(is_numeric($va))
+			$va = DAO_VirtualAttendant::get($va);
+		
+		// If we didn't resolve to a VA model
+		if(!($va instanceof Model_VirtualAttendant))
+			return array();
+		
+		if(!$with_disabled && $va->is_disabled)
+			return array();
+		
 		$behaviors = self::getAll();
 		$results = array();
 
-		// Include the current context in allowed owners
-		$owner_contexts = array();
-		$owner_context_key = $context . (!empty($context_id) ? (':' . $context_id) : '');
-		$owner_contexts[$owner_context_key] = true;
-		
-		// If our context owner is a worker, include their roles as allowed owners
-		if($context == CerberusContexts::CONTEXT_WORKER) {
-			$roles = DAO_WorkerRole::getRolesByWorker($context_id);
-			
-			if(is_array($roles))
-			foreach($roles as $role) { /* @var $role Model_WorkerRole */
-				$owner_contexts[CerberusContexts::CONTEXT_ROLE . ':' . $role->id] = true;
-			}
-		}
-		
-		// Loop through behaviors and discover which ones we're allowed to see
+		if(is_array($behaviors))
 		foreach($behaviors as $behavior_id => $behavior) { /* @var $behavior Model_TriggerEvent */
+			if($behavior->virtual_attendant_id != $va->id)
+				continue;
+			
+			if($event_point && $behavior->event_point != $event_point)
+				continue;
+			
 			if(!$with_disabled && $behavior->is_disabled)
 				continue;
-
-			// If we're allowed to see this behavior, include it
-			$behavior_owner_context_key = $behavior->owner_context . (!empty($behavior->owner_context_id) ? (':' . $behavior->owner_context_id) : '');
-			if(isset($owner_contexts[$behavior_owner_context_key])) {
-				// If including all events, or this particular one
-				if(is_null($event_point) || 0==strcasecmp($event_point, $behavior->event_point)) {
-					$results[$behavior_id] = $behavior;
-				}
-			}
+			
+			// Are we only showing approved events?
+			// Are we removing denied events?
+			if(!$va->canUseEvent($behavior->event_point))
+				continue;
+			
+			$results[$behavior_id] = $behavior;
 		}
+		
+		// Sort
 		
 		switch($sort_by) {
 			case 'title':
@@ -160,20 +166,17 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	}
 	
 	static function getByEvent($event_id, $with_disabled=false) {
-		$behaviors = self::getAll();
-		$results = array();
-		
-		foreach($behaviors as $behavior_id => $behavior) {
-			/* @var $behavior Model_TriggerEvent */
-			if($behavior->event_point == $event_id) {
-				if(!$with_disabled && $behavior->is_disabled)
-					continue;
-				
-				$results[$behavior_id] = $behavior;
-			}
+		$vas = DAO_VirtualAttendant::getAll();
+		$behaviors = array();
+
+		foreach($vas as $va) { /* @var $va Model_VirtualAttendant */
+			$va_behaviors = $va->getBehaviors($event_id, $with_disabled);
+			
+			if(!empty($va_behaviors))
+				$behaviors += $va_behaviors;
 		}
 		
-		return $results;
+		return $behaviors;
 	}
 	
 	/**
@@ -202,7 +205,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, title, is_disabled, owner_context, owner_context_id, event_point, pos, variables_json ".
+		$sql = "SELECT id, title, is_disabled, is_private, event_point, virtual_attendant_id, pos, variables_json ".
 			"FROM trigger_event ".
 			$where_sql.
 			$sort_sql.
@@ -228,9 +231,9 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			$object->id = intval($row['id']);
 			$object->title = $row['title'];
 			$object->is_disabled = intval($row['is_disabled']);
-			$object->owner_context = $row['owner_context'];
-			$object->owner_context_id = intval($row['owner_context_id']);
+			$object->is_private = intval($row['is_private']);
 			$object->event_point = $row['event_point'];
+			$object->virtual_attendant_id = $row['virtual_attendant_id'];
 			$object->pos = intval($row['pos']);
 			$object->variables = @json_decode($row['variables_json'], true);
 			$objects[$object->id] = $object;
@@ -279,15 +282,10 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		return true;
 	}
 	
-	static function deleteByOwner($context, $context_ids) {
-		if(!is_array($context_ids))
-			$context_ids = array($context_ids);
-		
-		$results = self::getWhere(sprintf("%s = %s AND %s IN (%s)",
-			self::OWNER_CONTEXT,
-			Cerb_ORMHelper::qstr($context),
-			self::OWNER_CONTEXT_ID,
-			implode(',', $context_ids)
+	static function deleteByVirtualAttendant($va_id) {
+		$results = self::getWhere(sprintf("%s = %d",
+			self::VIRTUAL_ATTENDANT_ID,
+			$va_id
 		));
 		
 		if(is_array($results))
@@ -311,14 +309,14 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			"trigger_event.id as %s, ".
 			"trigger_event.title as %s, ".
 			"trigger_event.is_disabled as %s, ".
-			"trigger_event.owner_context as %s, ".
-			"trigger_event.owner_context_id as %s, ".
+			"trigger_event.is_private as %s, ".
+			"trigger_event.virtual_attendant_id as %s, ".
 			"trigger_event.event_point as %s ",
 				SearchFields_TriggerEvent::ID,
 				SearchFields_TriggerEvent::TITLE,
 				SearchFields_TriggerEvent::IS_DISABLED,
-				SearchFields_TriggerEvent::OWNER_CONTEXT,
-				SearchFields_TriggerEvent::OWNER_CONTEXT_ID,
+				SearchFields_TriggerEvent::IS_PRIVATE,
+				SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID,
 				SearchFields_TriggerEvent::EVENT_POINT
 			);
 			
@@ -438,19 +436,18 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		self::clearCache();
 	}
 	
-	static public function getNextPosByOwnerAndEvent($owner_context, $owner_context_id, $event_point) {
+	static public function getNextPosByVirtualAttendantAndEvent($va_id, $event_point) {
 		$db = DevblocksPlatform::getDatabaseService();
-		
+
 		$count = $db->GetOne(sprintf("SELECT MAX(pos) FROM trigger_event ".
-			"WHERE owner_context = %s AND owner_context_id = %d AND event_point = %s",
-			$db->qstr($owner_context),
-			$owner_context_id,
+			"WHERE virtual_attendant_id = %d AND event_point = %s",
+			$va_id,
 			$db->qstr($event_point)
 		));
-		
+
 		if(is_null($count))
 			return 0;
-		
+
 		return intval($count) + 1;
 	}
 };
@@ -459,8 +456,8 @@ class SearchFields_TriggerEvent implements IDevblocksSearchFields {
 	const ID = 't_id';
 	const TITLE = 't_title';
 	const IS_DISABLED = 't_is_disabled';
-	const OWNER_CONTEXT = 't_owner_context';
-	const OWNER_CONTEXT_ID = 't_owner_context_id';
+	const IS_PRIVATE = 't_is_private';
+	const VIRTUAL_ATTENDANT_ID = 't_virtual_attendant_id';
 	const EVENT_POINT = 't_event_point';
 	
 	/**
@@ -473,8 +470,8 @@ class SearchFields_TriggerEvent implements IDevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'trigger_event', 'id', $translate->_('common.id')),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 'trigger_event', 'title', $translate->_('common.title')),
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'trigger_event', 'is_disabled', $translate->_('dao.trigger_event.is_disabled')),
-			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'trigger_event', 'owner_context', $translate->_('dao.trigger_event.owner_context')),
-			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'trigger_event', 'owner_context_id', $translate->_('dao.trigger_event.owner_context_id')),
+			self::IS_PRIVATE => new DevblocksSearchField(self::IS_PRIVATE, 'trigger_event', 'is_private', $translate->_('dao.trigger_event.is_private')),
+			self::VIRTUAL_ATTENDANT_ID => new DevblocksSearchField(self::VIRTUAL_ATTENDANT_ID, 'trigger_event', 'virtual_attendant_id', $translate->_('common.virtual_attendant')),
 			self::EVENT_POINT => new DevblocksSearchField(self::EVENT_POINT, 'trigger_event', 'event_point', $translate->_('common.event')),
 		);
 		
@@ -489,9 +486,9 @@ class Model_TriggerEvent {
 	public $id;
 	public $title;
 	public $is_disabled;
-	public $owner_context;
-	public $owner_context_id;
+	public $is_private;
 	public $event_point;
+	public $virtual_attendant_id;
 	public $pos;
 	public $variables = array();
 	
@@ -508,12 +505,109 @@ class Model_TriggerEvent {
 		return $event;
 	}
 	
-	public function getOwnerMeta() {
-		$context_ext = Extension_DevblocksContext::get($this->owner_context);
-		$meta = $context_ext->getMeta($this->owner_context_id);
-		$meta['context'] = $context_ext->id;
-		$meta['context_label'] = $context_ext->manifest->name;
-		return $meta;
+	public function getVirtualAttendant() {
+		return DAO_VirtualAttendant::get($this->virtual_attendant_id);
+	}
+	
+	public function formatVariable($var, $value) {
+		switch($var['type']) {
+			case Model_CustomField::TYPE_MULTI_LINE:
+			case Model_CustomField::TYPE_SINGLE_LINE:
+			case Model_CustomField::TYPE_URL:
+				settype($value, 'string');
+				break;
+				
+			case Model_CustomField::TYPE_DROPDOWN:
+				$options = DevblocksPlatform::parseCrlfString($var['params']['options'], true);
+	
+				if(!is_array($options))
+					throw new Exception(sprintf("The picklist variable '%s' has no options.",
+						$var['key']
+					));
+				
+				if(!in_array($value, $options))
+					throw new Exception(sprintf("The picklist variable '%s' has no option '%s'. Valid options are: %s",
+						$var['key'],
+						$value,
+						implode(', ', $options)
+					));
+				break;
+				
+			case Model_CustomField::TYPE_CHECKBOX:
+				$value = !empty($value) ? 1 : 0;
+				break;
+				
+			case Model_CustomField::TYPE_NUMBER:
+				settype($value, 'integer');
+				break;
+				
+			case Model_CustomField::TYPE_WORKER:
+				settype($value, 'integer');
+				
+				if(false == ($worker = DAO_Worker::get($value)))
+					throw new Exception(sprintf("The worklist variable '%s' can not be set to invalid worker #%d.",
+						$var['key'],
+						$value
+					));
+				
+				break;
+				
+			case Model_CustomField::TYPE_DATE:
+				settype($value, 'string');
+				
+				if(false == ($value = strtotime($value))) {
+					throw new Exception(sprintf("The date variable '%s' has an invalid value.",
+						$var['key']
+					));
+				}
+				break;
+				
+			// [TODO] Future public variable types
+			case Model_CustomField::TYPE_MULTI_CHECKBOX:
+			case Model_CustomField::TYPE_FILE:
+			case Model_CustomField::TYPE_FILES:
+				break;
+				
+			default:
+				if('ctx_' == substr($var['type'], 0, 4)) {
+					$objects = array();
+
+					$json = null;
+					
+					if(is_array($value)) {
+						$json = $value;
+						
+					} elseif (is_string($value)) {
+						@$json = json_decode($value, true);
+						
+					}
+					
+					if(!is_array($json)) {
+						throw new Exception(sprintf("The list variable '%s' must be set to an array of IDs.",
+							$var['key']
+						));
+					}
+						
+					$context = substr($var['type'], 4);
+					
+					foreach($json as $context_id) {
+						$labels = array();
+						$values = array();
+						
+						CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+						
+						if(!isset($values['_loaded']))
+							continue;
+						
+						$objects[$context_id] = new DevblocksDictionaryDelegate($values);
+					}
+					
+					$value = $objects;
+				}
+				break;
+		}
+		
+		return $value;
 	}
 	
 	private function _getNodes() {
@@ -738,6 +832,8 @@ class Model_TriggerEvent {
 		$array = array(
 			'behavior' => array(
 				'title' => $this->title,
+				'is_disabled' => $this->is_disabled ? true : false,
+				'is_private' => $this->is_private ? true : false,
 				'event' => array(
 					'key' => $this->event_point,
 					'label' => $event->manifest->name,
@@ -771,8 +867,7 @@ class View_TriggerEvent extends C4_AbstractView {
 			SearchFields_TriggerEvent::ID,
 			SearchFields_TriggerEvent::TITLE,
 			SearchFields_TriggerEvent::IS_DISABLED,
-			SearchFields_TriggerEvent::OWNER_CONTEXT,
-			SearchFields_TriggerEvent::OWNER_CONTEXT_ID,
+			SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID,
 			SearchFields_TriggerEvent::EVENT_POINT,
 		);
 		
@@ -821,21 +916,17 @@ class View_TriggerEvent extends C4_AbstractView {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 
-		// [TODO] Move the fields into the proper data type
 		switch($field) {
-			case SearchFields_TriggerEvent::ID:
 			case SearchFields_TriggerEvent::TITLE:
-			case SearchFields_TriggerEvent::IS_DISABLED:
-			case SearchFields_TriggerEvent::OWNER_CONTEXT:
-			case SearchFields_TriggerEvent::OWNER_CONTEXT_ID:
 			case SearchFields_TriggerEvent::EVENT_POINT:
-			case 'placeholder_string':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
-			case 'placeholder_number':
+			case SearchFields_TriggerEvent::ID:
+			case SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
-			case 'placeholder_bool':
+			case SearchFields_TriggerEvent::IS_DISABLED:
+			case SearchFields_TriggerEvent::IS_PRIVATE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 			case 'placeholder_date':
@@ -872,18 +963,14 @@ class View_TriggerEvent extends C4_AbstractView {
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
-		// [TODO] Move fields into the right data type
 		switch($field) {
-			case SearchFields_TriggerEvent::ID:
 			case SearchFields_TriggerEvent::TITLE:
-			case SearchFields_TriggerEvent::IS_DISABLED:
-			case SearchFields_TriggerEvent::OWNER_CONTEXT:
-			case SearchFields_TriggerEvent::OWNER_CONTEXT_ID:
 			case SearchFields_TriggerEvent::EVENT_POINT:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
-			case 'placeholder_number':
+			case SearchFields_TriggerEvent::ID:
+			case SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
@@ -891,7 +978,8 @@ class View_TriggerEvent extends C4_AbstractView {
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case 'placeholder_bool':
+			case SearchFields_TriggerEvent::IS_DISABLED:
+			case SearchFields_TriggerEvent::IS_PRIVATE:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;

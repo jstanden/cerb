@@ -111,21 +111,21 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		// Properties
 		
 		$properties = array(
-				'status' => null,
-				'owner' => null,
-				'mask' => null,
-				'bucket' => null,
-				'org' => null,
-				'created' => array(
-					'label' => ucfirst($translate->_('common.created')),
-					'type' => Model_CustomField::TYPE_DATE,
-					'value' => $ticket->created_date,
-				),
-				'updated' => array(
-					'label' => ucfirst($translate->_('common.updated')),
-					'type' => Model_CustomField::TYPE_DATE,
-					'value' => $ticket->updated_date,
-				),
+			'status' => null,
+			'owner' => null,
+			'mask' => null,
+			'bucket' => null,
+			'org' => null,
+			'created' => array(
+				'label' => ucfirst($translate->_('common.created')),
+				'type' => Model_CustomField::TYPE_DATE,
+				'value' => $ticket->created_date,
+			),
+			'updated' => array(
+				'label' => ucfirst($translate->_('common.updated')),
+				'type' => Model_CustomField::TYPE_DATE,
+				'value' => $ticket->updated_date,
+			),
 		);
 		
 		if(!empty($ticket->closed_at)) {
@@ -193,13 +193,23 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$tpl->assign('groups', $groups);
 		
 		// Macros
-		$macros = DAO_TriggerEvent::getByOwners(
-			array(
-				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id, null),
-				array(CerberusContexts::CONTEXT_GROUP, $ticket->group_id, $groups[$ticket->group_id]->name),
-			),
+		
+		$macros = DAO_TriggerEvent::getReadableByActor(
+			$active_worker,
 			'event.macro.ticket'
 		);
+
+		// Filter macros to only those owned by the ticket's group
+		
+		$macros = array_filter($macros, function($macro) use ($ticket) { /* @var $macro Model_TriggerEvent */
+			$va = $macro->getVirtualAttendant(); /* @var $va Model_VirtualAttendant */
+			
+			if($va->owner_context == CerberusContexts::CONTEXT_GROUP && $va->owner_context_id != $ticket->group_id)
+				return false;
+			
+			return true;
+		});
+		
 		$tpl->assign('macros', $macros);
 		
 		// Requesters

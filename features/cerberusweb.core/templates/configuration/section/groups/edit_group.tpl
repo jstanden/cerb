@@ -70,8 +70,8 @@
 			</fieldset>
 			
 			<div class="toolbar">
-				<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
-				{if !empty($group->id)}<button type="button" onclick="$(this).closest('div.toolbar').fadeOut().siblings('fieldset.delete').fadeIn();"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.remove')|capitalize}</button>{/if}
+				<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+				{if !empty($group->id)}<button type="button" onclick="$(this).closest('div.toolbar').fadeOut().siblings('fieldset.delete').fadeIn();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.remove'|devblocks_translate|capitalize}</button>{/if}
 			</div>
 		</td>
 	</tr>

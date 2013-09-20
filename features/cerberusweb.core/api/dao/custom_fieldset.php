@@ -84,10 +84,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	 * @return Model_CustomFieldset
 	 */
 	static function get($id) {
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
+		$objects = DAO_CustomFieldset::getAll();
 		
 		if(isset($objects[$id]))
 			return $objects[$id];
@@ -217,6 +214,11 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		self::clearCache();
 		
 		return true;
+	}
+	
+	static function deleteByOwner($owner_context, $owner_context_id) {
+		$fieldsets = DAO_CustomFieldset::getByOwner($owner_context, $owner_context_id);
+		DAO_CustomFieldset::delete(array_keys($fieldsets));
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
@@ -490,6 +492,14 @@ class Model_CustomFieldset {
 				if($worker->id == $this->owner_context_id)
 					return true;
 				break;
+				
+			case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+				return false;
+				break;
+				
+			case CerberusContexts::CONTEXT_APPLICATION:
+				return true;
+				break;
 		}
 		
 		return false;
@@ -524,6 +534,14 @@ class Model_CustomFieldset {
 			case CerberusContexts::CONTEXT_WORKER:
 				if($worker->id == $this->owner_context_id)
 					return true;
+				break;
+				
+			case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+				return false;
+				break;
+				
+			case CerberusContexts::CONTEXT_APPLICATION:
+				return false;
 				break;
 		}
 		
@@ -895,6 +913,36 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 		);
 	}
 	
+	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {
+		$labels = $dict->_labels;
+		$prefix = $labels['_label'];
+		
+		if(!empty($prefix)) {
+			array_walk($labels, function(&$label, $key) use ($prefix) {
+				$label = preg_replace(sprintf("#^%s #", preg_quote($prefix)), '', $label);
+				
+				// [TODO] Use translations
+				switch($key) {
+				}
+				
+				$label = mb_convert_case($label, MB_CASE_LOWER);
+				$label[0] = mb_convert_case($label[0], MB_CASE_UPPER);
+			});
+		}
+		
+		asort($labels);
+		
+		return $labels;
+	}
+	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'name',
+			'owner__label',
+		);
+	}
+	
 	function getContext($cfieldset, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Custom Fieldsets:';
@@ -912,24 +960,35 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'context' => $prefix.$translate->_('common.context'),
 			'name' => $prefix.$translate->_('common.name'),
-			'owner_context' => $prefix.$translate->_('common.owner_context'),
-			'owner_context_id' => $prefix.$translate->_('common.owner_context_id'),
+			'owner__label' => $prefix.$translate->_('common.owner'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'content' => Model_CustomField::TYPE_MULTI_LINE,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'owner__label' => 'context_url',
 		);
 		
 		// Token values
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
+		$token_values['_types'] = $token_types;
 		
 		if($cfieldset) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $cfieldset->name;
 			$token_values['context'] = $cfieldset->context;
 			$token_values['name'] = $cfieldset->name;
-			$token_values['owner_context'] = $cfieldset->owner_context;
-			$token_values['owner_context_id'] = $cfieldset->owner_context_id;
+			
+			// For lazy loading
+			$token_values['owner__context'] = $cfieldset->owner_context;
+			$token_values['owner_id'] = $cfieldset->owner_context_id;
 		}
 
 		return true;
@@ -979,31 +1038,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 		$view->name = 'Custom Fieldsets';
 		
 		$params_required = array();
-		
-		$worker_group_ids = array_keys($active_worker->getMemberships());
-		$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($active_worker->id));
-		
-		// Restrict owners
-		$param_ownership = array(
-			DevblocksSearchCriteria::GROUP_OR,
-			array(
-				DevblocksSearchCriteria::GROUP_AND,
-				SearchFields_CustomFieldset::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_WORKER),
-				SearchFields_CustomFieldset::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_EQ,$active_worker->id),
-			),
-			array(
-				DevblocksSearchCriteria::GROUP_AND,
-				SearchFields_CustomFieldset::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_GROUP),
-				SearchFields_CustomFieldset::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,$worker_group_ids),
-			),
-			array(
-				DevblocksSearchCriteria::GROUP_AND,
-				SearchFields_CustomFieldset::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_ROLE),
-				SearchFields_CustomFieldset::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_CustomFieldset::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,$worker_role_ids),
-			),
-		);
-		$params_required['_ownership'] = $param_ownership;
-		
+
 		// Restrict contexts
 		if(isset($_REQUEST['link_context'])) {
 			$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');

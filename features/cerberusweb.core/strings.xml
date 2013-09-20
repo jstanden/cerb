@@ -114,6 +114,9 @@
 		<tu tuid='common.activity_log'>
 			<tuv xml:lang="en_US"><seg>Activity Log</seg></tuv>
 		</tu>
+		<tu tuid='common.actor'>
+			<tuv xml:lang="en_US"><seg>Actor</seg></tuv>
+		</tu>
 		<tu tuid='common.add'>
 			<tuv xml:lang="en_US"><seg>add</seg></tuv>
 		</tu>
@@ -174,6 +177,9 @@
 		<tu tuid='common.calendar'>
 			<tuv xml:lang="en_US"><seg>Calendar</seg></tuv>
 		</tu>
+		<tu tuid='common.calendars'>
+			<tuv xml:lang="en_US"><seg>Calendars</seg></tuv>
+		</tu>
 		<tu tuid='common.cancel'>
 			<tuv xml:lang="en_US"><seg>cancel</seg></tuv>
 		</tu>
@@ -216,8 +222,17 @@
 		<tu tuid='common.created'>
 			<tuv xml:lang="en_US"><seg>created</seg></tuv>
 		</tu>
+		<tu tuid='common.custom_field'>
+			<tuv xml:lang="en_US"><seg>Custom Field</seg></tuv>
+		</tu>
 		<tu tuid='common.custom_fields'>
 			<tuv xml:lang="en_US"><seg>Custom Fields</seg></tuv>
+		</tu>
+		<tu tuid='common.custom_fieldset'>
+			<tuv xml:lang="en_US"><seg>Custom Fieldset</seg></tuv>
+		</tu>
+		<tu tuid='common.custom_fieldsets'>
+			<tuv xml:lang="en_US"><seg>Custom Fieldsets</seg></tuv>
 		</tu>
 		<tu tuid='common.customize'>
 			<tuv xml:lang="en_US"><seg>customize</seg></tuv>
@@ -245,6 +260,9 @@
 		</tu>
 		<tu tuid='common.discussion'>
 			<tuv xml:lang="en_US"><seg>discussion</seg></tuv>
+		</tu>
+		<tu tuid='common.download'>
+			<tuv xml:lang="en_US"><seg>download</seg></tuv>
 		</tu>
 		<tu tuid='common.due'>
 			<tuv xml:lang="en_US"><seg>due</seg></tuv>
@@ -459,11 +477,17 @@
 		<tu tuid='common.print'>
 			<tuv xml:lang="en_US"><seg>Print</seg></tuv>
 		</tu>
+		<tu tuid='common.private'>
+			<tuv xml:lang="en_US"><seg>private</seg></tuv>
+		</tu>
 		<tu tuid='common.profiles'>
 			<tuv xml:lang="en_US"><seg>Profiles</seg></tuv>
 		</tu>
 		<tu tuid='common.properties'>
 			<tuv xml:lang="en_US"><seg>Properties</seg></tuv>
+		</tu>
+		<tu tuid='common.public'>
+			<tuv xml:lang="en_US"><seg>public</seg></tuv>
 		</tu>
 		<tu tuid='common.quick_compose'>
 			<tuv xml:lang="en_US"><seg>Quick Compose</seg></tuv>
@@ -482,6 +506,9 @@
 		</tu>
 		<tu tuid='common.reset'>
 			<tuv xml:lang="en_US"><seg>reset</seg></tuv>
+		</tu>
+		<tu tuid='common.retry'>
+			<tuv xml:lang="en_US"><seg>retry</seg></tuv>
 		</tu>
 		<tu tuid='common.roles'>
 			<tuv xml:lang="en_US"><seg>roles</seg></tuv>
@@ -515,6 +542,9 @@
 		</tu>
 		<tu tuid='common.signature'>
 			<tuv xml:lang="en_US"><seg>signature</seg></tuv>
+		</tu>
+		<tu tuid='common.size'>
+			<tuv xml:lang="en_US"><seg>size</seg></tuv>
 		</tu>
 		<tu tuid='common.snippets'>
 			<tuv xml:lang="en_US"><seg>snippets</seg></tuv>
@@ -594,6 +624,12 @@
 		<tu tuid='common.url.record'>
 			<tuv xml:lang="en_US"><seg>Record URL</seg></tuv>
 		</tu>
+		<tu tuid='common.virtual_attendant'>
+			<tuv xml:lang="en_US"><seg>Virtual Attendant</seg></tuv>
+		</tu>
+		<tu tuid='common.virtual_attendants'>
+			<tuv xml:lang="en_US"><seg>Virtual Attendants</seg></tuv>
+		</tu>
 		<tu tuid='common.watch'>
 			<tuv xml:lang="en_US"><seg>watch</seg></tuv>
 		</tu>
@@ -654,10 +690,10 @@
 			<tuv xml:lang="en_US"><seg>Timezone</seg></tuv>
 		</tu>
 		<tu tuid='dao.calendar_recurring_profile.event_start'>
-			<tuv xml:lang="en_US"><seg>Event Start</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Start</seg></tuv>
 		</tu>
 		<tu tuid='dao.calendar_recurring_profile.event_end'>
-			<tuv xml:lang="en_US"><seg>Event End</seg></tuv>
+			<tuv xml:lang="en_US"><seg>End</seg></tuv>
 		</tu>
 		<tu tuid='dao.calendar_recurring_profile.recur_end'>
 			<tuv xml:lang="en_US"><seg>Recur End</seg></tuv>
@@ -1986,6 +2022,9 @@ For example: *receipt*</seg></tuv>
 		</tu>
 		<tu tuid='preferences.account.current'>
 			<tuv xml:lang="en_US"><seg>current:</seg></tuv>
+		</tu>
+		<tu tuid='preferences.account.timeformat'>
+			<tuv xml:lang="en_US"><seg>Time Format:</seg></tuv>
 		</tu>
 		<tu tuid='preferences.account.timezone'>
 			<tuv xml:lang="en_US"><seg>Timezone:</seg></tuv>

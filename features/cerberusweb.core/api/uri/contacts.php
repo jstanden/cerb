@@ -575,7 +575,11 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('token_labels', $token_labels);
 		
 		// Macros
-		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.address');
+		
+		$macros = DAO_TriggerEvent::getReadableByActor(
+			$active_worker,
+			'event.macro.address'
+		);
 		$tpl->assign('macros', $macros);
 		
 		$tpl->display('devblocks:cerberusweb.core::contacts/addresses/bulk.tpl');
@@ -600,7 +604,11 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Macros
-		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.org');
+		
+		$macros = DAO_TriggerEvent::getReadableByActor(
+			$active_worker,
+			'event.macro.org'
+		);
 		$tpl->assign('macros', $macros);
 		
 		$tpl->display('devblocks:cerberusweb.core::contacts/orgs/bulk.tpl');

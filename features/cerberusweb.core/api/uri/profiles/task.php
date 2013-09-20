@@ -103,7 +103,11 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		$tpl->assign('workers', $workers);
 		
 		// Macros
-		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.task');
+		
+		$macros = DAO_TriggerEvent::getReadableByActor(
+			$active_worker,
+			'event.macro.task'
+		);
 		$tpl->assign('macros', $macros);
 		
 		// Tabs

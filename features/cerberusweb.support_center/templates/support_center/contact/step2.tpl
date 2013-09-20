@@ -11,9 +11,9 @@
 	<tr>
 	  <td colspan="2">
 	  	<fieldset>
-	  		<legend>{$translate->_('portal.common.open_ticket')}:</legend>
+	  		<legend>{'portal.common.open_ticket'|devblocks_translate}:</legend>
 			
-		  	<b>{$translate->_('portal.public.what_email_reply')}</b><br>
+		  	<b>{'portal.public.what_email_reply'|devblocks_translate}</b><br>
 		  	<input type="hidden" name="nature" value="{$sNature}">
 			
 			{if !empty($active_contact)}
@@ -29,7 +29,7 @@
 			{/if}
 			<br>
 	
-		  	<b>{$translate->_('ticket.subject')|capitalize}:</b><br>
+		  	<b>{'ticket.subject'|devblocks_translate|capitalize}:</b><br>
 		  	{if $allow_subjects}
 			<input type="text" name="subject" value="{if !empty($last_subject)}{$last_subject}{/if}" autocomplete="off" style="width:100%;" class="required"><br>
 			{else}
@@ -37,13 +37,13 @@
 			{/if}
 			<br>
 			
-			<b>{$translate->_('portal.public.open_ticket.message')}:</b><br>
+			<b>{'portal.public.open_ticket.message'|devblocks_translate}:</b><br>
 			<textarea name="content" rows="15" cols="60" style="width:100%;" class="required">{$last_content}</textarea><br>
 	  	</fieldset>
 
 	  	{if !empty($situation_params.followups)}
 		<fieldset>
-			<legend>{$translate->_('portal.public.open_ticket.additional_info')}</legend>
+			<legend>{'portal.public.open_ticket.additional_info'|devblocks_translate}</legend>
 			
 			{foreach from=$situation_params.followups key=question item=field_id name=situations}
 				{math assign=idx equation="x-1" x=$smarty.foreach.situations.iteration}
@@ -92,7 +92,7 @@
 						<label><input type="checkbox" name="followup_a_{$idx}[]" value="{$opt}"> {$opt}</label><br>
 						{/foreach}
 			  		{elseif $field->type=='C'}
-			  			<label><input name="followup_a_{$idx}" type="checkbox" value="Yes" {if $last_followup_a.$idx}checked="checked"{/if}> {$translate->_('common.yes')|capitalize}</label>
+			  			<label><input name="followup_a_{$idx}" type="checkbox" value="Yes" {if $last_followup_a.$idx}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
 			  		{/if}
 			  		
 			  	{else}
@@ -114,19 +114,19 @@
 		
 		{if $captcha_enabled}
 		<fieldset>
-			<legend>{$translate->_('portal.public.captcha_instructions')}</legend>
-			{$translate->_('portal.sc.public.contact.text')} <input type="text" id="captcha" name="captcha" class="question" value="" size="10" autocomplete="off"><br>
+			<legend>{'portal.public.captcha_instructions'|devblocks_translate}</legend>
+			{'portal.sc.public.contact.text'|devblocks_translate} <input type="text" id="captcha" name="captcha" class="question" value="" size="10" autocomplete="off"><br>
 			<div style="padding-top:10px;padding-left:10px;"><img src="{devblocks_url}c=captcha{/devblocks_url}?color=0,0,0&bgcolor=235,235,235"></div>
 		</fieldset>
 		{/if}
 		
 		<br>
-		<b>{$translate->_('portal.public.logged_ip')}</b> {$fingerprint.ip}<br>
+		<b>{'portal.public.logged_ip'|devblocks_translate}</b> {$fingerprint.ip}<br>
 		<br>
 		
 		<div class="buttons">
-			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top" border="0"> {$translate->_('portal.public.send_message')}</button>
-			<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/delete.gif{/devblocks_url}" align="top" border="0"> {$translate->_('common.discard')|capitalize}</button>
+			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top" border="0"> {'portal.public.send_message'|devblocks_translate}</button>
+			<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/delete.gif{/devblocks_url}" align="top" border="0"> {'common.discard'|devblocks_translate|capitalize}</button>
 		</div>
 	  </td>
 	</tr>

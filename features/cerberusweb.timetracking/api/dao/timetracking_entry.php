@@ -547,7 +547,7 @@ class Model_TimeTrackingEntry {
 		if(!empty($this->activity_id))
 			$activity = DAO_TimeTrackingActivity::get($this->activity_id); // [TODO] Cache?
 
-		$time_increment = $this->getTimeSpentAsString();
+		$time_increment = DevblocksPlatform::strSecsToString(intval($this->time_actual_mins) * 60, 2);
 		
 		$who = 'A worker';
 		if(null != ($worker = DAO_Worker::get($this->worker_id)))
@@ -569,21 +569,6 @@ class Model_TimeTrackingEntry {
 		}
 
 		return $out;
-	}
-	
-	function getTimeSpentAsString() {
-		$time_increment = sprintf("%d mins", $this->time_actual_mins);
-		
-		if($this->time_actual_mins >= 60) {
-			$hrs = ($this->time_actual_mins/60);
-			
-			$time_increment = sprintf("%0.2f hours",
-				$hrs,
-				($hrs != 1) ? 's' : ''
-			);
-		}
-		
-		return $time_increment;
 	}
 };
 
@@ -1139,6 +1124,37 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			'permalink' => $url,
 		);
 	}
+
+	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {
+		$labels = $dict->_labels;
+		$prefix = $labels['_label'];
+		
+		if(!empty($prefix)) {
+			array_walk($labels, function(&$label, $key) use ($prefix) {
+				$label = preg_replace(sprintf("#^%s #", preg_quote($prefix)), '', $label);
+				
+				// [TODO] Use translations
+				switch($key) {
+				}
+				
+				$label = mb_convert_case($label, MB_CASE_LOWER);
+				$label[0] = mb_convert_case($label[0], MB_CASE_UPPER);
+			});
+		}
+		
+		asort($labels);
+		
+		return $labels;
+	}
+	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'log_date',
+			'mins',
+			'worker__label',
+		);
+	}
 	
 	function getContext($timeentry, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
@@ -1158,10 +1174,20 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			
 		// Token labels
 		$token_labels = array(
-			'log_date|date' => $prefix.$translate->_('timetracking_entry.log_date'),
+			'_label' => $prefix,
+			'log_date' => $prefix.$translate->_('timetracking_entry.log_date'),
 			'summary' => $prefix.$translate->_('common.summary'),
 			'mins' => $prefix.$translate->_('timetracking_entry.time_actual_mins'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'log_date' => Model_CustomField::TYPE_DATE,
+			'summary' => Model_CustomField::TYPE_SINGLE_LINE,
+			'mins' => 'time_mins',
+			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1173,6 +1199,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		$blank = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_TIMETRACKING;
+		$token_values['_types'] = $token_types;
 		
 		if(null != $timeentry) {
 			$token_values['_loaded'] = true;

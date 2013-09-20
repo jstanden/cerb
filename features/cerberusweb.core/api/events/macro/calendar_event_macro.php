@@ -25,7 +25,7 @@ class Event_CalendarEventMacro extends AbstractEvent_CalendarEvent {
 	
 	static function trigger($trigger_id, $calendar_event_id, $variables=array()) {
 		$events = DevblocksPlatform::getEventService();
-		$events->trigger(
+		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
 				array(

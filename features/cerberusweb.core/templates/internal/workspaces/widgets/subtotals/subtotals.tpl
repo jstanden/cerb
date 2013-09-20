@@ -21,7 +21,9 @@
 	{/foreach}
 	{/if}
 {/foreach}
-</table>	
+</table>
 
 <script type="text/javascript">
+$(function() {
+});
 </script>

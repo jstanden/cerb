@@ -4,14 +4,14 @@
 	<name>Support Center</name>
 	<description>Adds a Support Center community portal for public-facing support.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>6.4.4</version>
+	<version>6.5.0</version>
 	<link>http://wiki.cerbweb.com/Support_Center</link>
 	<image>plugin.png</image>
  
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="6.4" max="6.4.99" />
+		<app_version min="6.5" max="6.5.99" />
 	</requires>
  
 	<!-- Plugin Dependencies -->
@@ -245,7 +245,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.contact.registered.sc</id>
-			<name>Contact registered in Support Center</name>
+			<name>New contact registered in Support Center</name>
 			<class>
 				<file>api/events/contact_registered_in_sc.php</file>
 				<name>Event_ContactRegisteredInSupportCenter</name>

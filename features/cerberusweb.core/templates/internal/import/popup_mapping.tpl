@@ -50,9 +50,9 @@
 </fieldset>
 
 <div class="buttons">
-	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.continue')|capitalize}</button>
-	<button type="button" class="preview"><span class="cerb-sprite2 sprite-gear"></span> {$translate->_('common.preview')|capitalize}</button>
-	<button type="button" class="cancel"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.cancel')|capitalize}</button>
+	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.continue'|devblocks_translate|capitalize}</button>
+	<button type="button" class="preview"><span class="cerb-sprite2 sprite-gear"></span> {'common.preview'|devblocks_translate|capitalize}</button>
+	<button type="button" class="cancel"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 </div>
 
 <div id="divImportPreview" style="margin:10px 0 0 0;border:1px solid rgb(230,230,230);padding:5px;height:200px;overflow-y:auto;display:none;"></div>

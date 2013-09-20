@@ -5,6 +5,7 @@
 				<a href="javascript:;" class="menu">Configure <span class="cerb-sprite sprite-arrow-down-white"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=branding{/devblocks_url}">Logo &amp; Title</a></li>
+					<li><a href="{devblocks_url}c=config&a=localization{/devblocks_url}">Localization</a></li>
 					<li><a href="{devblocks_url}c=config&a=security{/devblocks_url}">Security</a></li>
 					<li><a href="{devblocks_url}c=config&a=fields{/devblocks_url}">Custom Fields</a></li>
 					<li><a href="{devblocks_url}c=config&a=license{/devblocks_url}">License</a></li>
@@ -48,6 +49,8 @@
 					<li><a href="{devblocks_url}c=config&a=mail_pop3{/devblocks_url}">POP3 Accounts</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_routing{/devblocks_url}">Routing</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_filtering{/devblocks_url}">Filtering</a></li>
+					<li><a href="{devblocks_url}c=config&a=mail_failed{/devblocks_url}">Failed Messages</a></li>
+					<li><a href="{devblocks_url}c=config&a=mail_import{/devblocks_url}">Import Message</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_relay{/devblocks_url}">External Relay</a></li>
 					<li><hr></li>
 					

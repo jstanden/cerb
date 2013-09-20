@@ -19,6 +19,7 @@
 </div>
 
 <script type="text/javascript">
+$(function() {
 try {
 	// Scale the text to the width of the column
 	$container = $('DIV#widget{$widget->id}_counter');
@@ -42,4 +43,5 @@ try {
 	
 } catch(e) {
 }
+});
 </script>

@@ -71,7 +71,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 				continue;
 			
 			$event = $macro->getEvent();
-			$event_model = $event->generateSampleEventModel($object->context_id);
+			$event_model = $event->generateSampleEventModel($macro, $object->context_id);
 			$event->setEvent($event_model);
 			$values = $event->getValues();
 			
@@ -250,8 +250,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 			"context_scheduled_behavior.variables_json as %s, ".
 			"context_scheduled_behavior.repeat_json as %s, ".
 			"trigger_event.title as %s, ".
-			"trigger_event.owner_context as %s, ".
-			"trigger_event.owner_context_id as %s ",
+			"trigger_event.virtual_attendant_id as %s ",
 				SearchFields_ContextScheduledBehavior::ID,
 				SearchFields_ContextScheduledBehavior::CONTEXT,
 				SearchFields_ContextScheduledBehavior::CONTEXT_ID,
@@ -262,8 +261,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 				SearchFields_ContextScheduledBehavior::VARIABLES_JSON,
 				SearchFields_ContextScheduledBehavior::REPEAT_JSON,
 				SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME,
-				SearchFields_ContextScheduledBehavior::BEHAVIOR_OWNER_CONTEXT,
-				SearchFields_ContextScheduledBehavior::BEHAVIOR_OWNER_CONTEXT_ID
+				SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID
 		);
 			
 		$join_sql = "FROM context_scheduled_behavior ".
@@ -381,12 +379,13 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 
 	static function buildVariables($var_keys, $var_vals, $trigger) {
 		$vars = array();
-		foreach($var_keys as $idx => $var) {
-			if(isset($var_vals[$idx])) {
+		foreach($var_keys as $var) {
+			if(isset($var_vals[$var])) {
 				@$var_mft = $trigger->variables[$var];
-				$val = $var_vals[$idx];
+				$val = $var_vals[$var];
 				
 				if(!empty($var_mft)) {
+					// Parse dates
 					switch($var_mft['type']) {
 						case Model_CustomField::TYPE_DATE:
 							@$val = strtotime($val);
@@ -394,7 +393,6 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 					}
 				}
 				
-				// Parse dates
 				$vars[$var] = $val;
 			}
 		}
@@ -414,10 +412,8 @@ class SearchFields_ContextScheduledBehavior implements IDevblocksSearchFields {
 	const REPEAT_JSON = 'c_repeat_json';
 	
 	const BEHAVIOR_NAME = 'b_behavior_name';
-	const BEHAVIOR_OWNER_CONTEXT = 'b_behavior_owner_context';
-	const BEHAVIOR_OWNER_CONTEXT_ID = 'b_behavior_owner_context_id';
+	const BEHAVIOR_VIRTUAL_ATTENDANT_ID = 'b_behavior_virtual_attendant_id';
 	
-	const VIRTUAL_OWNER = '*_owner';
 	const VIRTUAL_TARGET = '*_target';
 
 	/**
@@ -438,10 +434,8 @@ class SearchFields_ContextScheduledBehavior implements IDevblocksSearchFields {
 			self::REPEAT_JSON => new DevblocksSearchField(self::REPEAT_JSON, 'context_scheduled_behavior', 'repeat_json', $translate->_('dao.context_scheduled_behavior.repeat_json'), null),
 			
 			self::BEHAVIOR_NAME => new DevblocksSearchField(self::BEHAVIOR_NAME, 'trigger_event', 'title', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::BEHAVIOR_OWNER_CONTEXT => new DevblocksSearchField(self::BEHAVIOR_OWNER_CONTEXT, 'trigger_event', 'owner_context', $translate->_('dao.trigger_event.owner_context'), null),
-			self::BEHAVIOR_OWNER_CONTEXT_ID => new DevblocksSearchField(self::BEHAVIOR_OWNER_CONTEXT_ID, 'trigger_event', 'owner_context_id', $translate->_('dao.trigger_event.owner_context_id'), null),
+			self::BEHAVIOR_VIRTUAL_ATTENDANT_ID => new DevblocksSearchField(self::BEHAVIOR_VIRTUAL_ATTENDANT_ID, 'trigger_event', 'virtual_attendant_id', $translate->_('common.virtual_attendant'), null),
 
-			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'), null),
 			self::VIRTUAL_TARGET => new DevblocksSearchField(self::VIRTUAL_TARGET, '*', 'target', $translate->_('common.target'), null),
 		);
 
@@ -479,6 +473,19 @@ class Model_ContextScheduledBehavior {
 		} catch(Exception $e) {
 			DAO_ContextScheduledBehavior::delete($this->id);
 			return;
+		}
+		
+		// Format variables
+		
+		foreach($this->variables as $var_key => $var_val) {
+			if(!isset($macro->variables[$var_key]))
+				continue;
+			
+			try {
+				$this->variables[$var_key] = $macro->formatVariable($macro->variables[$var_key], $var_val);
+				
+			} catch(Exception $e) {
+			}
 		}
 		
 		// Are we going to be rescheduling this behavior?
@@ -573,13 +580,11 @@ class View_ContextScheduledBehavior extends C4_AbstractView {
 		$this->view_columns = array(
 			SearchFields_ContextScheduledBehavior::RUN_DATE,
 			SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME,
-			SearchFields_ContextScheduledBehavior::VIRTUAL_OWNER,
+			SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID,
 			SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET,
 		);
 		$this->addColumnsHidden(array(
 			SearchFields_ContextScheduledBehavior::BEHAVIOR_ID,
-			SearchFields_ContextScheduledBehavior::BEHAVIOR_OWNER_CONTEXT,
-			SearchFields_ContextScheduledBehavior::BEHAVIOR_OWNER_CONTEXT_ID,
 			SearchFields_ContextScheduledBehavior::CONTEXT,
 			SearchFields_ContextScheduledBehavior::CONTEXT_ID,
 			SearchFields_ContextScheduledBehavior::ID,
@@ -590,8 +595,6 @@ class View_ContextScheduledBehavior extends C4_AbstractView {
 
 		$this->addParamsHidden(array(
 			SearchFields_ContextScheduledBehavior::BEHAVIOR_ID,
-			SearchFields_ContextScheduledBehavior::BEHAVIOR_OWNER_CONTEXT,
-			SearchFields_ContextScheduledBehavior::BEHAVIOR_OWNER_CONTEXT_ID,
 			SearchFields_ContextScheduledBehavior::CONTEXT,
 			SearchFields_ContextScheduledBehavior::CONTEXT_ID,
 			SearchFields_ContextScheduledBehavior::ID,
@@ -599,7 +602,6 @@ class View_ContextScheduledBehavior extends C4_AbstractView {
 			SearchFields_ContextScheduledBehavior::RUN_LITERAL,
 			SearchFields_ContextScheduledBehavior::RUN_RELATIVE,
 			SearchFields_ContextScheduledBehavior::VARIABLES_JSON,
-			SearchFields_ContextScheduledBehavior::VIRTUAL_OWNER,
 			SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET,
 		));
 

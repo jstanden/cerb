@@ -1,1 +1,1 @@
-<button type="button" onclick="alert('This is an example button.');"><img src="{devblocks_url}c=resource&p=example.reply.toolbaritem&f=box_new.png{/devblocks_url}" align="absmiddle"> {$translate->_('example.reply.toolbaritem')}</button>
+<button type="button" onclick="alert('This is an example button.');"><img src="{devblocks_url}c=resource&p=example.reply.toolbaritem&f=box_new.png{/devblocks_url}" align="absmiddle"> {'example.reply.toolbaritem'|devblocks_translate}</button>

@@ -29,11 +29,8 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 		if(empty($worker) || !($worker instanceof Model_Worker))
 			return;
 		
-		$macros = DAO_TriggerEvent::getByOwners(
-			array(
-				array(CerberusContexts::CONTEXT_APPLICATION, null, null),
-				array(CerberusContexts::CONTEXT_WORKER, $worker->id, null),
-			),
+		$macros = DAO_TriggerEvent::getReadableByActor(
+			$worker,
 			Event_UiWorklistRenderByWorker::ID
 		);
 		
@@ -56,7 +53,7 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 	
 	static function trigger($trigger_id, $context, $view_id, &$actions) {
 		$events = DevblocksPlatform::getEventService();
-		$events->trigger(
+		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
 				array(
@@ -77,7 +74,7 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 	 * @param string $view_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($context=null, $view_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $context=null, $view_id=null) {
 		// [TODO] Set defaults
 		
 		return new Model_DevblocksEvent(

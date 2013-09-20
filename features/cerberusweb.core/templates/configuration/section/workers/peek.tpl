@@ -12,19 +12,19 @@
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top"><b>{$translate->_('worker.first_name')|capitalize}:</b> </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top"><b>{'worker.first_name'|devblocks_translate|capitalize}:</b> </td>
 			<td width="100%"><input type="text" name="first_name" value="{$worker->first_name}" class="required" style="width:98%;"></td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('worker.last_name')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{'worker.last_name'|devblocks_translate|capitalize}: </td>
 			<td width="100%"><input type="text" name="last_name" value="{$worker->last_name}" style="width:98%;"></td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('worker.title')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{'worker.title'|devblocks_translate|capitalize}: </td>
 			<td width="100%"><input type="text" name="title" value="{$worker->title}" style="width:98%;"></td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top"><b>{$translate->_('common.email')}</b>: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top"><b>{'common.email'|devblocks_translate}</b>: </td>
 			<td width="100%"><input type="text" name="email" value="{$worker->email}" class="required" style="width:98%;"></td>
 		</tr>
 	</table>
@@ -45,15 +45,15 @@
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{$translate->_('worker.is_superuser')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right">{'worker.is_superuser'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				{if $active_worker->id == $worker->id}
 					<input type="hidden" name="is_superuser" value="{$worker->is_superuser}">
-					{if !$worker->is_superuser}{$translate->_('common.no')|capitalize}{else}{$translate->_('common.yes')|capitalize}{/if}
+					{if !$worker->is_superuser}{'common.no'|devblocks_translate|capitalize}{else}{'common.yes'|devblocks_translate|capitalize}{/if}
 				{else}
 					<select name="is_superuser">
-						<option value="0" {if !$worker->is_superuser}selected{/if}>{$translate->_('common.no')|capitalize}</option>
-						<option value="1" {if $worker->is_superuser}selected{/if}>{$translate->_('common.yes')|capitalize}</option>
+						<option value="0" {if !$worker->is_superuser}selected{/if}>{'common.no'|devblocks_translate|capitalize}</option>
+						<option value="1" {if $worker->is_superuser}selected{/if}>{'common.yes'|devblocks_translate|capitalize}</option>
 					</select>
 				{/if}
 			</td>
@@ -62,11 +62,11 @@
 			<input type="hidden" name="is_disabled" value="{$worker->is_disabled}">
 		{else}
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{$translate->_('common.disabled')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right">{'common.disabled'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				<select name="is_disabled">
-					<option value="0" {if !$worker->is_disabled}selected{/if}>{$translate->_('common.no')|capitalize}</option>
-					<option value="1" {if $worker->is_disabled}selected{/if}>{$translate->_('common.yes')|capitalize}</option>
+					<option value="0" {if !$worker->is_disabled}selected{/if}>{'common.no'|devblocks_translate|capitalize}</option>
+					<option value="1" {if $worker->is_disabled}selected{/if}>{'common.yes'|devblocks_translate|capitalize}</option>
 				</select>
 			</td>
 		</tr>
@@ -100,12 +100,12 @@
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_WORKER context_id=$worker->id}
 
 {if $active_worker->is_superuser}
-	<button type="button" onclick="if($('#formWorkerPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formWorkerPeek', '{$view_id}', false, 'worker_save'); } "><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
+	<button type="button" onclick="if($('#formWorkerPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formWorkerPeek', '{$view_id}', false, 'worker_save'); } "><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
 	{if !$disabled}
-		{if !empty($worker)}{if $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" onclick="if(confirm('Are you sure you want to delete this worker and their history?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView(null,'formWorkerPeek', '{$view_id}'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}{/if}
+		{if !empty($worker)}{if $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" onclick="if(confirm('Are you sure you want to delete this worker and their history?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView(null,'formWorkerPeek', '{$view_id}'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}{/if}
 	{/if}
 {else}
-	<div class="error">{$translate->_('error.core.no_acl.edit')}</div>	
+	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>	
 {/if}
 
 <br>

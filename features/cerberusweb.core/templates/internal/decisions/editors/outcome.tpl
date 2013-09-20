@@ -52,6 +52,20 @@
 	{/foreach}
 {/if}
 
+<div id="divDecisionOutcomeToolbar{$id}" style="display:none;">
+	<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert &#x25be;</button>
+	<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
+	<div class="tester"></div>
+	<ul class="cerb-popupmenu" style="max-height:200px;overflow-y:auto;">
+		<li style="background:none;">
+			<input type="text" size="18" class="input_search filter">
+		</li>
+		{foreach from=$labels key=k item=v}
+		<li><a href="javascript:;" token="{$k}">{$v}</a></li>
+		{/foreach}
+	</ul>
+</div>
+
 </form>
 
 <form id="frmDecisionOutcomeAdd{$id}" action="javascript:;" onsubmit="return false;">
@@ -149,6 +163,107 @@
 					;
 			})
 			;
+		
+		// Placeholders
+		
+		$popup.delegate(':text.placeholders, textarea.placeholders', 'focus', function(e) {
+			$toolbar = $('#divDecisionOutcomeToolbar{$id}');
+			src = (null==e.srcElement) ? e.target : e.srcElement;
+			if(0 == $(src).nextAll('#divDecisionOutcomeToolbar{$id}').length) {
+				$toolbar.find('div.tester').html('');
+				$toolbar.find('ul.cerb-popupmenu').hide();
+				$toolbar.show().insertAfter(src);
+			}
+		});
+		
+		// Placeholder menu
+		
+		$divPlaceholderMenu = $('#divDecisionOutcomeToolbar{$id}');
+		
+		$ph_menu_trigger = $divPlaceholderMenu.find('button.cerb-popupmenu-trigger');
+		$ph_menu = $divPlaceholderMenu.find('ul.cerb-popupmenu');
+		$ph_menu_trigger.data('menu', $ph_menu);
+		
+		$divPlaceholderMenu.find('button.tester').click(function(e) {
+			var divTester = $(this).nextAll('div.tester').first();
+			
+			$toolbar = $('DIV#divDecisionOutcomeToolbar{$id}');
+			$field = $toolbar.prev(':text, textarea');
+			
+			if(null == $field)
+				return;
+			
+			regexpName = /^(.*?)\[(.*?)\]$/;
+			hits = regexpName.exec($field.attr('name'));
+			
+			if(null == hits || hits.length < 3)
+				return;
+			
+			strNamespace = hits[1];
+			strName = hits[2];
+			
+			genericAjaxPost($(this).closest('form').attr('id'), divTester, 'c=internal&a=testDecisionEventSnippets&prefix=' + strNamespace + '&field=' + strName);
+		});
+		
+		$ph_menu_trigger
+			.click(
+				function(e) {
+					$ph_menu = $(this).data('menu');
+					
+					if($ph_menu.is(':visible')) {
+						$ph_menu.hide();
+						
+					} else {
+						$ph_menu
+							.show()
+							.find('> li input:text')
+							.focus()
+							.select()
+							;
+					}
+				}
+			)
+			.bind('remove',
+				function(e) {
+					$ph_menu = $(this).data('menu');
+					$ph_menu.remove();
+				}
+			)
+		;
+		
+		$ph_menu.find('> li > input.filter').keyup(
+			function(e) {
+				term = $(this).val().toLowerCase();
+				$ph_menu = $(this).closest('ul.cerb-popupmenu');
+				$ph_menu.find('> li a').each(function(e) {
+					if(-1 != $(this).html().toLowerCase().indexOf(term)) {
+						$(this).parent().show();
+					} else {
+						$(this).parent().hide();
+					}
+				});
+			}
+		);
+		
+		$ph_menu.find('> li').click(function(e) {
+			e.stopPropagation();
+			if(!$(e.target).is('li'))
+				return;
+		
+			$(this).find('a').trigger('click');
+		});
+		
+		$ph_menu.find('> li > a').click(function() {
+			$toolbar = $('DIV#divDecisionOutcomeToolbar{$id}');
+			$field = $toolbar.prev(':text, textarea');
+			
+			if(null == $field)
+				return;
+			
+			strtoken = $(this).attr('token');
+			
+			$field.focus().insertAtCursor('{literal}{{{/literal}' + strtoken + '{literal}}}{/literal}');
+		});
 
 		// Quick insert condition menu
 

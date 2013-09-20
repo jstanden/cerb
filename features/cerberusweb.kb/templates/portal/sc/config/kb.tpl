@@ -1,5 +1,5 @@
 <div style="margin-left:10px;">
-	{$translate->_('portal.sc.cfg.choose_kb_topics')}<br>
+	{'portal.sc.cfg.choose_kb_topics'|devblocks_translate}<br>
 
 	<div style="margin-left:10px;">
 		{assign var=root_id value="0"}

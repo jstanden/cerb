@@ -23,27 +23,9 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 	 * @param integer $worker_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($worker_id=null) {
-		
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $worker_id=null) {
 		if(empty($worker_id)) {
-			// Pull the latest record
-			list($results) = DAO_Worker::search(
-				array(),
-				array(
-					//new DevblocksSearchCriteria(SearchFields_Task::IS_CLOSED,'=',0),
-				),
-				10,
-				0,
-				SearchFields_Worker::ID,
-				false,
-				false
-			);
-			
-			shuffle($results);
-			
-			$result = array_shift($results);
-			
-			$worker_id = $result[SearchFields_Worker::ID];
+			$worker_id = DAO_Worker::random();
 		}
 		
 		return new Model_DevblocksEvent(
@@ -83,6 +65,12 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 
 		$this->setLabels($labels);
 		$this->setValues($values);
+	}
+	
+	function renderSimulatorTarget($trigger, $event_model) {
+		$context = CerberusContexts::CONTEXT_WORKER;
+		$context_id = $event_model->params['worker_id'];
+		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
 	}
 	
 	function getValuesContexts($trigger) {
@@ -127,7 +115,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 			
 			'worker_address_org_city' => Model_CustomField::TYPE_SINGLE_LINE,
 			'worker_address_org_country' => Model_CustomField::TYPE_SINGLE_LINE,
-			'worker_address_org_created|date' => Model_CustomField::TYPE_DATE,
+			'worker_address_org_created' => Model_CustomField::TYPE_DATE,
 			'worker_address_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'worker_address_org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
 			'worker_address_org_postal' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -214,10 +202,8 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 				'create_notification' => array('label' =>'Create a notification'),
 				'create_task' => array('label' =>'Create a task'),
 				'create_ticket' => array('label' =>'Create a ticket'),
-				'schedule_behavior' => array('label' => 'Schedule behavior'),
 				'send_email' => array('label' => 'Send email'),
 				'set_links' => array('label' => 'Set links'),
-				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
 			;
@@ -256,18 +242,6 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 				DevblocksEventHelper::renderActionCreateTicket($trigger);
 				break;
 				
-			case 'schedule_behavior':
-				$dates = array();
-				$conditions = $this->getConditions($trigger);
-				foreach($conditions as $key => $data) {
-					if(isset($data['type']) && $data['type'] == Model_CustomField::TYPE_DATE)
-						$dates[$key] = $data['label'];
-				}
-				$tpl->assign('dates', $dates);
-			
-				DevblocksEventHelper::renderActionScheduleBehavior($trigger);
-				break;
-
 			case 'send_email':
 				DevblocksEventHelper::renderActionSendEmail($trigger);
 				break;
@@ -276,15 +250,11 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 				DevblocksEventHelper::renderActionSetLinks($trigger);
 				break;
 
-			case 'unschedule_behavior':
-				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger);
-				break;
-				
 			default:
 				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches)) {
 					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
-					DevblocksEventHelper::renderActionSetCustomField($custom_field);
+					DevblocksEventHelper::renderActionSetCustomField($custom_field, $trigger);
 				}
 				break;
 		}
@@ -316,17 +286,11 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 			case 'create_ticket':
 				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict);
 				break;
-			case 'schedule_behavior':
-				return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
-				break;
 			case 'send_email':
 				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
 			case 'set_links':
 				return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
-				break;
-			case 'unschedule_behavior':
-				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
 				break;
 			default:
 				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token))
@@ -362,20 +326,12 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 				DevblocksEventHelper::runActionCreateTicket($params, $dict);
 				break;
 				
-			case 'schedule_behavior':
-				DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
-				break;
-
 			case 'send_email':
 				DevblocksEventHelper::runActionSendEmail($params, $dict);
 				break;
 				
 			case 'set_links':
 				DevblocksEventHelper::runActionSetLinks($trigger, $params, $dict);
-				break;
-				
-			case 'unschedule_behavior':
-				DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 				break;
 				
 			default:

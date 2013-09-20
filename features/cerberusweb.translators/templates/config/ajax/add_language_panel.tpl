@@ -7,7 +7,7 @@
 {if is_array($codes) && count($codes) > 1}
 <table cellspacing="0" cellpadding="2" border="0">
 <tr>
-	<td><b>{$translate->_('translators.language')|capitalize}</b></td>
+	<td><b>{'translators.language'|devblocks_translate|capitalize}</b></td>
 	<td style="padding-left:5px;"><b>Remove</b></td>
 </tr>
 {if is_array($codes)}
@@ -50,7 +50,7 @@
 <br>
 <br>
 
-<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 
 </form>
 

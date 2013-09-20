@@ -970,6 +970,37 @@ class Context_Snippet extends Extension_DevblocksContext {
 		);
 	}
 	
+	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {
+		$labels = $dict->_labels;
+		$prefix = $labels['_label'];
+		
+		if(!empty($prefix)) {
+			array_walk($labels, function(&$label, $key) use ($prefix) {
+				$label = preg_replace(sprintf("#^%s #", preg_quote($prefix)), '', $label);
+				
+				// [TODO] Use translations
+				switch($key) {
+				}
+				
+				$label = mb_convert_case($label, MB_CASE_LOWER);
+				$label[0] = mb_convert_case($label[0], MB_CASE_UPPER);
+			});
+		}
+		
+		asort($labels);
+		
+		return $labels;
+	}
+	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'owner__label',
+			'context',
+			'total_uses',
+		);
+	}
+	
 	function getContext($snippet, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Snippet:';
@@ -988,10 +1019,22 @@ class Context_Snippet extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'title' => $prefix.$translate->_('dao.common.title'),
 			'context' => $prefix.$translate->_('common.context'),
 			'content' => $prefix.$translate->_('common.content'),
+			'owner__label' => $prefix.$translate->_('common.owner'),
 			'total_uses' => $prefix.$translate->_('dao.snippet.total_uses'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'title' => Model_CustomField::TYPE_SINGLE_LINE,
+			'context' => Model_CustomField::TYPE_SINGLE_LINE,
+			'content' => Model_CustomField::TYPE_MULTI_LINE,
+			'owner__label' => 'context_url',
+			'total_uses' => Model_CustomField::TYPE_NUMBER,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1002,6 +1045,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_SNIPPET;
+		$token_values['_types'] = $token_types;
 		
 		if($snippet) {
 			$token_values['_loaded'] = true;

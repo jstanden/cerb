@@ -1,18 +1,18 @@
 <fieldset class="peek">
-<legend>{$translate->_('reports.ui.ticket.top_contacts')}</legend>
+<legend>{'reports.ui.ticket.top_contacts'|devblocks_translate}</legend>
 
 <form action="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}&report=report.tickets.top_contacts{/devblocks_url}" method="POST" id="frmRange" name="frmRange">
-{$translate->_('reports.ui.date_from')} <input type="text" name="start" id="start" size="24" value="{$start}"><button type="button" onclick="devblocksAjaxDateChooser('#start','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
-{$translate->_('reports.ui.date_to')} <input type="text" name="end" id="end" size="24" value="{$end}"><button type="button" onclick="devblocksAjaxDateChooser('#end','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
+{'reports.ui.date_from'|devblocks_translate} <input type="text" name="start" id="start" size="24" value="{$start}"><button type="button" onclick="devblocksAjaxDateChooser('#start','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
+{'reports.ui.date_to'|devblocks_translate} <input type="text" name="end" id="end" size="24" value="{$end}"><button type="button" onclick="devblocksAjaxDateChooser('#end','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
 <div id="divCal"></div>
 
-{$translate->_('reports.ui.date_past')} <a href="javascript:;" onclick="$('#start').val('-1 year');$('#end').val('now');$('#btnSubmit').click();">{$translate->_('reports.ui.filters.1_year')|lower}</a>
+{'reports.ui.date_past'|devblocks_translate} <a href="javascript:;" onclick="$('#start').val('-1 year');$('#end').val('now');$('#btnSubmit').click();">{'reports.ui.filters.1_year'|devblocks_translate|lower}</a>
 | <a href="javascript:;" onclick="$('#start').val('-6 months');$('#end').val('now');$('#btnSubmit').click();">{'reports.ui.filters.n_months'|devblocks_translate:6}</a>
 | <a href="javascript:;" onclick="$('#start').val('-3 months');$('#end').val('now');$('#btnSubmit').click();">{'reports.ui.filters.n_months'|devblocks_translate:3}</a>
-| <a href="javascript:;" onclick="$('#start').val('-1 month');$('#end').val('now');$('#btnSubmit').click();">{$translate->_('reports.ui.filters.1_month')|lower}</a>
-| <a href="javascript:;" onclick="$('#start').val('-1 week');$('#end').val('now');$('#btnSubmit').click();">{$translate->_('reports.ui.filters.1_week')|lower}</a>
-| <a href="javascript:;" onclick="$('#start').val('-1 day');$('#end').val('now');$('#btnSubmit').click();">{$translate->_('reports.ui.filters.1_day')|lower}</a>
-| <a href="javascript:;" onclick="$('#start').val('today');$('#end').val('now');$('#btnSubmit').click();">{$translate->_('common.today')|lower}</a>
+| <a href="javascript:;" onclick="$('#start').val('-1 month');$('#end').val('now');$('#btnSubmit').click();">{'reports.ui.filters.1_month'|devblocks_translate|lower}</a>
+| <a href="javascript:;" onclick="$('#start').val('-1 week');$('#end').val('now');$('#btnSubmit').click();">{'reports.ui.filters.1_week'|devblocks_translate|lower}</a>
+| <a href="javascript:;" onclick="$('#start').val('-1 day');$('#end').val('now');$('#btnSubmit').click();">{'reports.ui.filters.1_day'|devblocks_translate|lower}</a>
+| <a href="javascript:;" onclick="$('#start').val('today');$('#end').val('now');$('#btnSubmit').click();">{'common.today'|devblocks_translate|lower}</a>
 <br>
 {if !empty($years)}
 	{foreach from=$years item=year name=years}
@@ -22,11 +22,11 @@
 {/if}
 <br>
 
-<label><input type="radio" name="by_address" value="0" {if 0==$by_address}checked="checked"{/if} onclick="$('#btnSubmit').click();"></input>{$translate->_('reports.ui.ticket.top_contacts.by_org')}</label>
-<label><input type="radio" name="by_address" value="1" {if 1==$by_address}checked="checked"{/if} onclick="$('#btnSubmit').click();"></input>{$translate->_('reports.ui.ticket.top_contacts.by_address')}</label>
+<label><input type="radio" name="by_address" value="0" {if 0==$by_address}checked="checked"{/if} onclick="$('#btnSubmit').click();"></input>{'reports.ui.ticket.top_contacts.by_org'|devblocks_translate}</label>
+<label><input type="radio" name="by_address" value="1" {if 1==$by_address}checked="checked"{/if} onclick="$('#btnSubmit').click();"></input>{'reports.ui.ticket.top_contacts.by_address'|devblocks_translate}</label>
 
 <div>
-	<button type="submit" id="btnSubmit">{$translate->_('reports.common.run_report')|capitalize}</button>
+	<button type="submit" id="btnSubmit">{'reports.common.run_report'|devblocks_translate|capitalize}</button>
 </div>
 </form>
 </fieldset>
@@ -188,7 +188,7 @@ var plot1 = $.jqplot('reportChart', chartData, chartOptions);
 				
 				{if !empty($count_group_buckets.0)}
 				<tr>
-					<td style="padding-left:20px;padding-right:20px;">{$translate->_('common.inbox')|capitalize}</td>
+					<td style="padding-left:20px;padding-right:20px;">{'common.inbox'|devblocks_translate|capitalize}</td>
 					<td align="right">{$count_group_buckets.0}</td>
 					<td></td>
 				</tr>

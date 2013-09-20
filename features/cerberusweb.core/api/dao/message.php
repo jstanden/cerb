@@ -498,7 +498,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::ADDRESS_ID => new DevblocksSearchField(SearchFields_Message::ADDRESS_ID, 'm', 'address_id'),
 			SearchFields_Message::CREATED_DATE => new DevblocksSearchField(SearchFields_Message::CREATED_DATE, 'm', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE),
 			SearchFields_Message::IS_OUTGOING => new DevblocksSearchField(SearchFields_Message::IS_OUTGOING, 'm', 'is_outgoing', $translate->_('message.is_outgoing'), Model_CustomField::TYPE_CHECKBOX),
-			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'm', 'ticket_id'),
+			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'm', 'ticket_id', 'Ticket ID'),
 			SearchFields_Message::WORKER_ID => new DevblocksSearchField(SearchFields_Message::WORKER_ID, 'm', 'worker_id', $translate->_('common.worker'), Model_CustomField::TYPE_WORKER),
 			SearchFields_Message::RESPONSE_TIME => new DevblocksSearchField(SearchFields_Message::RESPONSE_TIME, 'm', 'response_time', $translate->_('message.response_time'), Model_CustomField::TYPE_NUMBER),
 			SearchFields_Message::IS_BROADCAST => new DevblocksSearchField(SearchFields_Message::IS_BROADCAST, 'm', 'is_broadcast', $translate->_('message.is_broadcast'), Model_CustomField::TYPE_CHECKBOX),
@@ -1750,6 +1750,53 @@ class Context_Message extends Extension_DevblocksContext {
 		);
 	}
 	
+	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {
+		$labels = $dict->_labels;
+		$prefix = $labels['_label'];
+		
+		if(!empty($prefix)) {
+			array_walk($labels, function(&$label, $key) use ($prefix) {
+				// [TODO] Translate
+				$label = preg_replace(sprintf("#^%s #i", preg_quote($prefix)), '', $label);
+				$label = preg_replace(sprintf("#^%s #i", preg_quote('Ticket org')), 'Org', $label);
+				
+				switch($key) {
+					case 'ticket_org__label':
+						$label = 'Org';
+						break;
+						
+					case 'worker__label':
+						$label = 'Worker';
+						break;
+						
+					case 'ticket_status':
+						$label = 'Status';
+						break;
+				}
+				
+				$label = mb_convert_case($label, MB_CASE_LOWER);
+				$label[0] = mb_convert_case($label[0], MB_CASE_UPPER);
+			});
+		}
+		
+		asort($labels);
+		
+		return $labels;
+	}
+	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'ticket__label',
+			'ticket_status',
+			'sender__label',
+			'is_outgoing',
+			'worker__label',
+			'ticket_org__label',
+			'created',
+		);
+	}
+	
 	function getContext($message, &$token_labels, &$token_values, $prefix=null) {
 		$is_nested = $prefix ? true : false;
 		
@@ -1770,25 +1817,42 @@ class Context_Message extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'content' => $prefix.$translate->_('common.content'),
-			'created|date' => $prefix.$translate->_('common.created'),
+			'created' => $prefix.$translate->_('common.created'),
 			'is_broadcast' => $prefix.$translate->_('message.is_broadcast'),
 			'is_outgoing' => $prefix.$translate->_('message.is_outgoing'),
 			'response_time' => $prefix.$translate->_('message.response_time'),
-			'storage_size' => $prefix.$translate->_('message.storage_size').' (bytes)',
+			'storage_size' => $prefix.$translate->_('message.storage_size'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'content' => Model_CustomField::TYPE_MULTI_LINE,
+			'created' => Model_CustomField::TYPE_DATE,
+			'is_broadcast' => Model_CustomField::TYPE_CHECKBOX,
+			'is_outgoing' => Model_CustomField::TYPE_CHECKBOX,
+			'response_time' => 'time_secs',
+			'storage_size' => 'size_bytes',
+			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Token values
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_MESSAGE;
+		$token_values['_types'] = $token_types;
 		
 		// Message token values
 		if($message) {
+			// [TODO] Cache these in a request registry
+			$sender = DAO_Address::get($message->address_id);
+			$ticket = DAO_Ticket::get($message->ticket_id);
+			
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = '(message)';
-			$token_values['content'] = $message->getContent();
+			$token_values['_label'] = sprintf("%s wrote on [%s] %s", $sender->email, $ticket->mask, $ticket->subject);
 			$token_values['created'] = $message->created_date;
 			$token_values['id'] = $message->id;
 			$token_values['is_broadcast'] = $message->is_broadcast;
@@ -1837,6 +1901,20 @@ class Context_Message extends Extension_DevblocksContext {
 			$token_values
 		);
 		
+		// Sender Worker
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'worker_',
+			'Message:Sender:Worker',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
 		return true;
 	}
 	
@@ -1856,6 +1934,10 @@ class Context_Message extends Extension_DevblocksContext {
 		}
 		
 		switch($token) {
+			case 'content':
+				$values['content'] = Storage_MessageContent::get($context_id);
+				break;
+				
 			default:
 				if(substr($token,0,7) == 'custom_') {
 					$fields = $this->_lazyLoadCustomFields($context, $context_id);

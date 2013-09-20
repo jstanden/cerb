@@ -16,7 +16,7 @@
 	<table cellpadding="2" cellspacing="0" width="100%">
 		{if !empty($model->worker_id) && isset($workers.{$model->worker_id})}
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('common.worker')|capitalize}</b>:</td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.worker'|devblocks_translate|capitalize}</b>:</td>
 			<td width="100%">
 				{$workers.{$model->worker_id}->getName()}
 			</td>
@@ -24,7 +24,7 @@
 		{/if}
 		{if !empty($activities)}
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('timetracking.ui.entry_panel.activity')}</b>:</td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'timetracking.ui.entry_panel.activity'|devblocks_translate}</b>:</td>
 			<td width="100%">
 				<select name="activity_id">
 					<option value=""></option>
@@ -36,28 +36,28 @@
 		</tr>
 		{/if}
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('timetracking.ui.entry_panel.time_spent')}</b>:</td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'timetracking.ui.entry_panel.time_spent'|devblocks_translate}</b>:</td>
 			<td width="100%">
-				<input type="text" name="time_actual_mins" size="5" value="{$model->time_actual_mins}"> {$translate->_('timetracking.ui.entry_panel.mins')}
+				<input type="text" name="time_actual_mins" size="5" value="{$model->time_actual_mins}"> {'timetracking.ui.entry_panel.mins'|devblocks_translate}
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('timetracking_entry.log_date')|capitalize}</b>:</td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'timetracking_entry.log_date'|devblocks_translate|capitalize}</b>:</td>
 			<td width="100%">
 				<input type="text" name="log_date" size="64" class="input_date" value="{$model->log_date|devblocks_date}"> 
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('common.status')|capitalize}</b>:</td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.status'|devblocks_translate|capitalize}</b>:</td>
 			<td width="100%">
-				<label><input type="radio" name="is_closed" value="0" {if !$model->is_closed}checked="checked"{/if}> {$translate->_('status.open')|capitalize}</label>
-				<label><input type="radio" name="is_closed" value="1" {if $model->is_closed}checked="checked"{/if}> {$translate->_('status.closed')|capitalize}</label>
+				<label><input type="radio" name="is_closed" value="0" {if !$model->is_closed}checked="checked"{/if}> {'status.open'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="is_closed" value="1" {if $model->is_closed}checked="checked"{/if}> {'status.closed'|devblocks_translate|capitalize}</label>
 			</td>
 		</tr>
 		
 		{* Watchers *}
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.watchers')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.watchers'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				{if empty($model->id)}
 					<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
@@ -104,12 +104,12 @@
 {if ($active_worker->hasPriv('timetracking.actions.create') && (empty($model->id) || $active_worker->id==$model->worker_id))
 	|| $active_worker->hasPriv('timetracking.actions.update_all')}
 	{if empty($model->id)}
-		<button type="button" onclick="timeTrackingTimer.finish();genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('timetracking.ui.entry_panel.save_finish')}</button>
-		<button type="button" onclick="timeTrackingTimer.play();genericAjaxPopupClose('peek');"><span class="cerb-sprite sprite-media_play_green"></span> {$translate->_('timetracking.ui.entry_panel.resume')}</button>
-		<button type="button" onclick="timeTrackingTimer.finish();genericAjaxPopupClose('peek');"><span class="cerb-sprite sprite-media_stop_red"></span> {$translate->_('common.cancel')|capitalize}</button>
+		<button type="button" onclick="timeTrackingTimer.finish();genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'timetracking.ui.entry_panel.save_finish'|devblocks_translate}</button>
+		<button type="button" onclick="timeTrackingTimer.play();genericAjaxPopupClose('peek');"><span class="cerb-sprite sprite-media_play_green"></span> {'timetracking.ui.entry_panel.resume'|devblocks_translate}</button>
+		<button type="button" onclick="timeTrackingTimer.finish();genericAjaxPopupClose('peek');"><span class="cerb-sprite sprite-media_stop_red"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 	{else}
-		<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
-		<button type="button" onclick="if(confirm('Permanently delete this time tracking entry?')) { this.form.do_delete.value='1'; genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_delete'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>
+		<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="if(confirm('Permanently delete this time tracking entry?')) { this.form.do_delete.value='1'; genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_delete'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 	{/if}
 {else}
 	<div class="error">You do not have permission to modify this record.</div>

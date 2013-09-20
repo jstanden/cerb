@@ -842,6 +842,13 @@ class Model_WorkspaceTab {
 	public $params=array();
 	
 	/**
+	 * @return Model_WorkspacePage
+	 */
+	function getWorkspacePage() {
+		return DAO_WorkspacePage::get($this->workspace_page_id);
+	}
+	
+	/**
 	 * @return Extension_WorkspaceTab
 	 */
 	function getExtension() {
@@ -854,6 +861,9 @@ class Model_WorkspaceTab {
 		return null;
 	}
 	
+	/**
+	 * @return Model_WorkspaceList[]
+	 */
 	function getWorklists() {
 		return DAO_WorkspaceList::getByTab($this->id);
 	}
@@ -1222,11 +1232,22 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'name' => $prefix.$translate->_('common.name'),
 			'owner_context' => $prefix.$translate->_('common.context'),
 			'owner_context_id' => $prefix.$translate->_('common.context_id'),
 			'extension_id' => $prefix.$translate->_('common.extension'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'owner_context' => Model_CustomField::TYPE_SINGLE_LINE,
+			'owner_context_id' => Model_CustomField::TYPE_SINGLE_LINE,
+			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
+			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1237,6 +1258,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_WORKSPACE_PAGE;
+		$token_values['_types'] = $token_types;
 
 		// Token values
 		if(null != $page) {
@@ -1437,8 +1459,16 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'name' => $prefix.$translate->_('common.name'),
 			'extension_id' => $prefix.$translate->_('common.extension'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1449,6 +1479,7 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_WORKSPACE_TAB;
+		$token_values['_types'] = $token_types;
 
 		// Token values
 		if(null != $tab) {

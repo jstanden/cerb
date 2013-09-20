@@ -5,7 +5,7 @@
 
 {if !empty($links) && !empty($attachments)}
 <div id="attachments{$uniq_id}">
-<b>{$translate->_('common.attachments')|capitalize}:</b><br>
+<b>{'common.attachments'|devblocks_translate|capitalize}:</b><br>
 <ul style="margin-top:0px;margin-bottom:5px;">
 	{foreach from=$links item=link name=links}
 	{$attachment = $attachments.{$link->attachment_id}}
@@ -15,7 +15,7 @@
 			(  
 			{$attachment->storage_size|devblocks_prettybytes} 
 			- 
-			{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{$translate->_('display.convo.unknown_format')|capitalize}{/if}
+			{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if}
 			 )
 			 <span style="margin-left:10px;" class="download"><a href="{devblocks_url}c=files&p={$link->guid}&name={$attachment->display_name|escape:'url'}{/devblocks_url}?download=">download</a></span>
 		</li>

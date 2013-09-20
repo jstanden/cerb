@@ -479,6 +479,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$prefs['mail_status_compose'] = DAO_WorkerPref::get($worker->id,'compose.status','waiting');
 		$prefs['mail_status_reply'] = DAO_WorkerPref::get($worker->id,'mail_status_reply','waiting');
 		$prefs['mail_signature_pos'] = DAO_WorkerPref::get($worker->id,'mail_signature_pos',2);
+		$prefs['time_format'] = DAO_WorkerPref::get($worker->id,'time_format',DevblocksPlatform::getDateTimeFormat());
 		$tpl->assign('prefs', $prefs);
 		
 		// Alternate addresses
@@ -611,6 +612,9 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$_SESSION['timezone'] = $timezone;
 		@date_default_timezone_set($timezone);
 		DAO_WorkerPref::set($worker->id,'timezone',$timezone);
+
+		@$time_format = DevblocksPlatform::importGPC($_REQUEST['time_format'],'string',null);
+		DAO_WorkerPref::set($worker->id, 'time_format', $time_format);
 
 		// Language
 		$_SESSION['locale'] = $lang_code;

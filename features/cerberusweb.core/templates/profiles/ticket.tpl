@@ -67,20 +67,20 @@
 	
 	{if $pref_keyboard_shortcuts}
 	<small>
-		{$translate->_('common.keyboard')|lower}:
+		{'common.keyboard'|devblocks_translate|lower}:
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower} 
 		(<b>i</b>) {'ticket.requesters'|devblocks_translate|lower} 
-		(<b>w</b>) {$translate->_('common.watch')|lower}  
-		{if $active_worker->hasPriv('core.display.actions.comment')}(<b>o</b>) {$translate->_('common.comment')} {/if}
+		(<b>w</b>) {'common.watch'|devblocks_translate|lower}  
+		{if $active_worker->hasPriv('core.display.actions.comment')}(<b>o</b>) {'common.comment'|devblocks_translate} {/if}
 		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
-		{if !$ticket->is_closed && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower} {/if}
-		{if !$ticket->spam_trained && $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower} {/if}
-		{if !$ticket->is_deleted && $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {$translate->_('common.delete')|lower} {/if}
-		{if empty($ticket->owner_id)}(<b>t</b>) {$translate->_('common.assign')|lower} {/if}
-		{if !empty($ticket->owner_id)}(<b>u</b>) {$translate->_('common.unassign')|lower} {/if}
-		{if !$expand_all}(<b>a</b>) {$translate->_('display.button.read_all')|lower} {/if} 
-		{if $active_worker->hasPriv('core.display.actions.reply')}(<b>r</b>) {$translate->_('display.ui.reply')|lower} {/if}  
-		(<b>p</b>) {$translate->_('common.print')|lower} 
+		{if !$ticket->is_closed && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {'common.close'|devblocks_translate|lower} {/if}
+		{if !$ticket->spam_trained && $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {'common.spam'|devblocks_translate|lower} {/if}
+		{if !$ticket->is_deleted && $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {'common.delete'|devblocks_translate|lower} {/if}
+		{if empty($ticket->owner_id)}(<b>t</b>) {'common.assign'|devblocks_translate|lower} {/if}
+		{if !empty($ticket->owner_id)}(<b>u</b>) {'common.unassign'|devblocks_translate|lower} {/if}
+		{if !$expand_all}(<b>a</b>) {'display.button.read_all'|devblocks_translate|lower} {/if} 
+		{if $active_worker->hasPriv('core.display.actions.reply')}(<b>r</b>) {'display.ui.reply'|devblocks_translate|lower} {/if}  
+		(<b>p</b>) {'common.print'|devblocks_translate|lower} 
 		(<b>1-9</b>) change tab 
 	</small>
 	{/if}
@@ -94,25 +94,25 @@
 	{foreach from=$properties item=v key=k name=props}
 		<div class="property">
 			{if $k == 'mask'}
-				<b>{$translate->_('ticket.mask')|capitalize}:</b>
+				<b>{'ticket.mask'|devblocks_translate|capitalize}:</b>
 				{$ticket->mask} 
 				(#{$ticket->id})
 			{elseif $k == 'status'}
-				<b>{$translate->_('ticket.status')|capitalize}:</b>
+				<b>{'ticket.status'|devblocks_translate|capitalize}:</b>
 				{if $ticket->is_deleted}
-					<span style="font-weight:bold;color:rgb(150,0,0);">{$translate->_('status.deleted')}</span>
+					<span style="font-weight:bold;color:rgb(150,0,0);">{'status.deleted'|devblocks_translate}</span>
 				{elseif $ticket->is_closed}
-					<span style="font-weight:bold;color:rgb(50,115,185);">{$translate->_('status.closed')}</span>
+					<span style="font-weight:bold;color:rgb(50,115,185);">{'status.closed'|devblocks_translate}</span>
 					{if !empty($ticket->reopen_at)}
 						(opens in <abbr title="{$ticket->reopen_at|devblocks_date}">{$ticket->reopen_at|devblocks_prettytime}</abbr>)
 					{/if}
 				{elseif $ticket->is_waiting}
-					<span style="font-weight:bold;color:rgb(50,115,185);">{$translate->_('status.waiting')}</span>
+					<span style="font-weight:bold;color:rgb(50,115,185);">{'status.waiting'|devblocks_translate}</span>
 					{if !empty($ticket->reopen_at)}
 						(opens in <abbr title="{$ticket->reopen_at|devblocks_date}">{$ticket->reopen_at|devblocks_prettytime}</abbr>)
 					{/if}
 				{else}
-					{$translate->_('status.open')}
+					{'status.open'|devblocks_translate}
 				{/if} 
 			{elseif $k == 'org'}
 				{$ticket_org = $ticket->getOrg()}
@@ -121,20 +121,20 @@
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$ticket->org_id}',null,false,'500');">{$ticket_org->name}</a>
 				{/if}
 			{elseif $k == 'bucket'}
-				<b>{$translate->_('common.bucket')|capitalize}:</b>
+				<b>{'common.bucket'|devblocks_translate|capitalize}:</b>
 				[{$groups.$ticket_group_id->name}]  
 				{if !empty($ticket_bucket_id)}
 					{$ticket_bucket->name}
 				{else}
-					{$translate->_('common.inbox')|capitalize}
+					{'common.inbox'|devblocks_translate|capitalize}
 				{/if}
 			{elseif $k == 'owner'}
 				{if !empty($ticket->owner_id) && isset($workers.{$ticket->owner_id})}
 					{$owner = $workers.{$ticket->owner_id}}
-					<b>{$translate->_('common.owner')|capitalize}:</b>
+					<b>{'common.owner'|devblocks_translate|capitalize}:</b>
 					<a href="{devblocks_url}c=profiles&p=worker&id={$owner->id}-{$owner->getName()|devblocks_permalink}{/devblocks_url}" target="_blank">{$owner->getName()}</a>
 				{else}
-					<b>{$translate->_('common.owner')|capitalize}:</b>
+					<b>{'common.owner'|devblocks_translate|capitalize}:</b>
 					{'common.nobody'|devblocks_translate|lower}
 				{/if}
 			{else}
@@ -169,9 +169,9 @@
 	<ul>
 		{$tabs = [conversation,activity,links,history]}
 
-		<li><a href="{devblocks_url}ajax.php?c=display&a=showConversation&point={$point}&ticket_id={$ticket->id}{if $convo_focus_ctx && $convo_focus_ctx_id}&focus_ctx={$convo_focus_ctx}&focus_ctx_id={$convo_focus_ctx_id}{/if}{if $expand_all}&expand_all=1{/if}{/devblocks_url}">{$translate->_('display.tab.timeline')|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=display&a=showConversation&point={$point}&ticket_id={$ticket->id}{if $convo_focus_ctx && $convo_focus_ctx_id}&focus_ctx={$convo_focus_ctx}&focus_ctx_id={$convo_focus_ctx_id}{/if}{if $expand_all}&expand_all=1{/if}{/devblocks_url}">{'display.tab.timeline'|devblocks_translate|capitalize}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>		
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&point={$point}&context=cerberusweb.contexts.ticket&id={$ticket->id}{/devblocks_url}">{$translate->_('common.links')} <div class="tab-badge">{DAO_ContextLink::count($page_context, $page_context_id)|default:0}</div></a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&point={$point}&context=cerberusweb.contexts.ticket&id={$ticket->id}{/devblocks_url}">{'common.links'|devblocks_translate} <div class="tab-badge">{DAO_ContextLink::count($page_context, $page_context_id)|default:0}</div></a></li>
 		<li><a href="{devblocks_url}ajax.php?c=display&a=showContactHistory&point={$point}&ticket_id={$ticket->id}{/devblocks_url}">{'display.tab.history'|devblocks_translate} <div class="tab-badge">{DAO_Ticket::getViewCountForRequesterHistory('contact_history', $ticket, $visit->get('display.history.scope', ''))|default:0}</div></a></li>
 
 		{foreach from=$tab_manifests item=tab_manifest}

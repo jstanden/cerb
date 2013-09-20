@@ -347,6 +347,12 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 		);
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+		);
+	}
+	
 	function getContext($role, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Role:';
@@ -365,8 +371,15 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 			
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'name' => $prefix.$translate->_('common.name'),
 			//'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 		);
 		
 		// Custom field/fieldset token labels
@@ -377,6 +390,7 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_ROLE;
+		$token_values['_types'] = $token_types;
 		
 		// Worker token values
 		if(null != $role) {

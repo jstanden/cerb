@@ -151,6 +151,24 @@ class CerberusMail {
 	}
 
 	static function compose($properties) {
+		/*
+		 'group_id'
+		 'bucket_id'
+		 'worker_id'
+		 'org_id'
+		 'to'
+		 'cc'
+		 'bcc'
+		 'subject'
+		 'content'
+		 'files'
+		 'forward_files'
+		 'closed'
+		 'ticket_reopen'
+		 'dont_send'
+		 'draft_id'
+		 */
+		
 		@$group_id = $properties['group_id'];
 		@$bucket_id = intval($properties['bucket_id']);
 		
@@ -168,7 +186,10 @@ class CerberusMail {
 		if(null == ($group = DAO_Group::get($group_id)))
 			return;
 		
-		// Changing the outgoing message through a VA
+		// Changing the outgoing message through a VA (global)
+		Event_MailBeforeSent::trigger($properties, null, null, $group_id);
+		
+		// Changing the outgoing message through a VA (group)
 		Event_MailBeforeSentByGroup::trigger($properties, null, null, $group_id);
 		
 		@$org_id = $properties['org_id'];
@@ -462,6 +483,9 @@ class CerberusMail {
 		
 		// Events
 		if(!empty($message_id) && !empty($group_id)) {
+			// After message sent (global)
+			Event_MailAfterSent::trigger($message_id, $group_id);
+			
 			// After message sent in group
 			Event_MailAfterSentByGroup::trigger($message_id, $group_id);
 
@@ -517,7 +541,10 @@ class CerberusMail {
 			if(null == ($group = DAO_Group::get($ticket->group_id)))
 				return;
 			
-			// Changing the outgoing message through a VA
+			// Changing the outgoing message through a VA (global)
+			Event_MailBeforeSent::trigger($properties, $message->id, $ticket->id, $group->id);
+			
+			// Changing the outgoing message through a VA (group)
 			Event_MailBeforeSentByGroup::trigger($properties, $message->id, $ticket->id, $group->id);
 			
 			// Re-read properties
@@ -674,11 +701,9 @@ class CerberusMail {
 			// Custom headers
 			
 			if(isset($properties['headers']) && is_array($properties['headers']))
-			foreach($properties['headers'] as $custom_header) {
-				@list($header_key, $header_val) = explode(':', $custom_header);
-				
-				if(!empty($header_key) && !empty($header_val)) {
-					$headers->addTextHeader(trim($header_key), trim($header_val));
+			foreach($properties['headers'] as $header_key => $header_val) {
+				if(!empty($header_key) && is_string($header_key) && is_string($header_val)) {
+					$headers->addTextHeader($header_key, $header_val);
 				}
 			}
 			
@@ -870,8 +895,10 @@ class CerberusMail {
 		}
 		
 		if(isset($properties['owner_id'])) {
-			if(empty($properties['owner_id']) || null != (DAO_Worker::get($properties['owner_id'])))
-				$change_fields[DAO_Ticket::OWNER_ID] = intval($properties['owner_id']);
+			if(empty($properties['owner_id']) || null != (DAO_Worker::get($properties['owner_id']))) {
+				$ticket->owner_id = intval($properties['owner_id']);
+				$change_fields[DAO_Ticket::OWNER_ID] = $ticket->owner_id;
+			}
 		}
 		
 		// Post-Reply Change Properties
@@ -927,6 +954,9 @@ class CerberusMail {
 		
 		// Events
 		if(!empty($message_id) && empty($no_events)) {
+			// After message sent (global)
+			Event_MailAfterSent::trigger($message_id, $group->id);
+			
 			// After message sent in group
 			Event_MailAfterSentByGroup::trigger($message_id, $group->id);
 			
@@ -935,8 +965,13 @@ class CerberusMail {
 
 			// Watchers
 			$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id);
+			
+			// Include the owner
+			if(!empty($ticket->owner_id) && !isset($context_watchers[$ticket->owner_id]))
+				$context_watchers[$ticket->owner_id] = true;
+
 			if(is_array($context_watchers))
-			foreach($context_watchers as $watcher_id => $watcher) {
+			foreach(array_unique(array_keys($context_watchers)) as $watcher_id) {
 				Event_MailReceivedByWatcher::trigger($message_id, $watcher_id);
 			}
 		}
@@ -956,7 +991,7 @@ class CerberusMail {
 		);
 		CerberusContexts::logActivity('ticket.message.outbound', CerberusContexts::CONTEXT_TICKET, $ticket_id, $entry);
 		
-		return true;
+		return $message_id;
 	}
 	
 	static function reflect(CerberusParserModel $model, $to) {

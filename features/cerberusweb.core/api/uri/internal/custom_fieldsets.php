@@ -71,6 +71,9 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 
+		$virtual_attendants = DAO_VirtualAttendant::getAll();
+		$tpl->assign('virtual_attendants', $virtual_attendants);
+		
 		$owner_groups = array();
 		foreach($groups as $k => $v) {
 			if($active_worker->is_superuser || $active_worker->isGroupManager($k))
@@ -140,6 +143,12 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 				break;
 			case 'r':
 				$owner_ctx = CerberusContexts::CONTEXT_ROLE;
+				break;
+			case 'v':
+				$owner_ctx = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
+				break;
+			case 'a':
+				$owner_ctx = CerberusContexts::CONTEXT_APPLICATION;
 				break;
 		}
 		

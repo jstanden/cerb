@@ -30,5 +30,5 @@
 	<label><input type="checkbox" name="{$field_prefix}_{$field->id}[]" value="{$opt}" {if is_array($values.{$field->id}) && in_array($opt,$values.{$field->id})}checked="checked"{/if}> {$opt}</label><br>
 	{/foreach}
 {elseif $field->type=='C'}
-	<label><input name="{$field_prefix}_{$field->id}" type="checkbox" value="Yes" {if $values.{$field_id}}checked="checked"{/if}> {$translate->_('common.yes')|capitalize}</label>
+	<label><input name="{$field_prefix}_{$field->id}" type="checkbox" value="Yes" {if $values.{$field_id}}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
 {/if}

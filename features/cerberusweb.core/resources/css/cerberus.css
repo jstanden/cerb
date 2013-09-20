@@ -933,7 +933,7 @@ DIV.badge-green {
 /* Tags */
 
 SPAN.tag {
-	padding:0px 5px;
+	padding:1px 4px;
 	font-weight:bold;
 	vertical-align:top;
 	
@@ -1055,7 +1055,7 @@ UL.cerb-popupmenu {
 
 UL.cerb-popupmenu.cerb-float {
 	position:absolute;
-	z-index:1500;
+	z-index:2500;
 	float:left;
 }
 
@@ -1120,7 +1120,7 @@ FORM.quick-search DIV.hints.hints-float {
 	background-color:rgba(245,245,245,0.9);
 	right:0;
 	margin-bottom: 0px;
-	z-index:9999;
+	z-index:2000;
 }
 
 FORM.quick-search DIV.hints.hints-shadow {

@@ -13,7 +13,7 @@
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('address.email')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right">{'address.email'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				{if $id == 0}
 					{if !empty($email)}
@@ -27,7 +27,7 @@
 					{$email_parts = explode('@',$address.a_email)}
 					{if is_array($email_parts) && 2==count($email_parts)}
 						{$domain = $email_parts.1}
-						(<a href="http://www.{$domain}" target="_blank" title="www.{$email_parts.1}">{$translate->_('contact_org.website')|lower}</a>) 
+						(<a href="http://www.{$domain}" target="_blank" title="www.{$email_parts.1}">{'contact_org.website'|devblocks_translate|lower}</a>) 
 						(<a href="{devblocks_url}c=contacts&a=findAddresses{/devblocks_url}?email={'*@'|cat:$domain}" target="_blank">similar</a>)
 					{/if}
 				{/if}
@@ -35,20 +35,20 @@
 		</tr>
 		
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('address.first_name')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right">{'address.first_name'|devblocks_translate|capitalize}: </td>
 			<td width="100%"><input type="text" name="first_name" value="{$address.a_first_name}" style="width:98%;"></td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('address.last_name')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right">{'address.last_name'|devblocks_translate|capitalize}: </td>
 			<td width="100%"><input type="text" name="last_name" value="{$address.a_last_name}" style="width:98%;"></td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right" valign="top">{$translate->_('contact_org.name')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right" valign="top">{'contact_org.name'|devblocks_translate|capitalize}: </td>
 			<td width="100%" valign="top">
 				{if !empty($address.a_contact_org_id)}
 					<b>{if !empty($address.o_name)}{$address.o_name}{else if !empty({$org_name})}{$org_name}{/if}</b>
-					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={if !empty($address.a_contact_org_id)}{$address.a_contact_org_id}{else}{$org_id}{/if}&view_id={$view->id}',null,false,'600');">{$translate->_('views.peek')}</a>
-					<a href="javascript:;" onclick="toggleDiv('divAddressOrg');">({$translate->_('common.edit')|lower})</a>
+					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={if !empty($address.a_contact_org_id)}{$address.a_contact_org_id}{else}{$org_id}{/if}&view_id={$view->id}',null,false,'600');">{'views.peek'|devblocks_translate}</a>
+					<a href="javascript:;" onclick="toggleDiv('divAddressOrg');">({'common.edit'|devblocks_translate|lower})</a>
 					<br>
 				{/if}
 				<div id="divAddressOrg" style="display:{if empty($address.a_contact_org_id)}block{else}none{/if};">
@@ -57,7 +57,7 @@
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.options')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.options'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				<label><input type="checkbox" name="is_banned" value="1" {if $address.a_is_banned}checked="checked"{/if}> {'address.is_banned'|devblocks_translate|capitalize}</label>
 				<label><input type="checkbox" name="is_defunct" value="1" {if $address.a_is_defunct}checked="checked"{/if}> {'address.is_defunct'|devblocks_translate|capitalize}</label>
@@ -66,7 +66,7 @@
 		
 		{* Watchers *}
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.watchers')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.watchers'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				{if empty($id)}
 					<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
@@ -91,16 +91,16 @@
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_ADDRESS context_id=$address.a_id}
 
 {if $active_worker->hasPriv('core.addybook.addy.actions.update')}
-	<button type="button" onclick="if($('#formAddressPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formAddressPeek', '{$view_id}', false, 'address_save'); } "><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
+	<button type="button" onclick="if($('#formAddressPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formAddressPeek', '{$view_id}', false, 'address_save'); } "><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
 {else}
-	<div class="error">{$translate->_('error.core.no_acl.edit')}</div>
+	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>
 {/if}
 
 {if $id != 0}
 	&nbsp; 
 	<a href="{devblocks_url}c=contacts&a=findTickets{/devblocks_url}?email={$address.a_email}&closed=0">{'addy_book.peek.count.open_tickets'|devblocks_translate:$open_count}</a> &nbsp; 
 	<a href="{devblocks_url}c=contacts&a=findTickets{/devblocks_url}?email={$address.a_email}&closed=1">{'addy_book.peek.count.closed_tickets'|devblocks_translate:$closed_count}</a> &nbsp; 
-	{if $active_worker->hasPriv('core.mail.send')}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id=0&view_id=&to={$address.a_email|escape:'url'}',null,false,'650');"> {$translate->_('addy_book.peek.compose')}</a> &nbsp; {/if}
+	{if $active_worker->hasPriv('core.mail.send')}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id=0&view_id=&to={$address.a_email|escape:'url'}',null,false,'650');"> {'addy_book.peek.compose'|devblocks_translate}</a> &nbsp; {/if}
 	<a href="{devblocks_url}c=profiles&type=address&id={$address.a_id}-{$address.a_email|devblocks_permalink}{/devblocks_url}">full record</a> &nbsp; 
 {/if}
 

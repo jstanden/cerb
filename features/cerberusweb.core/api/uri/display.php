@@ -498,12 +498,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// VA macros
 		
-		$macros = DAO_TriggerEvent::getByOwners(
-			array(
-				array(CerberusContexts::CONTEXT_APPLICATION, null, null),
-				array(CerberusContexts::CONTEXT_GROUP, $ticket->group_id, $groups[$ticket->group_id]->name),
-				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id, null),
-			),
+		// [TODO] Filter by $ticket->group_id
+		$macros = DAO_TriggerEvent::getReadableByActor(
+			$active_worker,
 			Event_MailDuringUiReplyByWorker::ID
 		);
 		$tpl->assign('macros', $macros);
@@ -512,16 +509,14 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		if(null != $active_worker) {
 			$actions = array();
-			
-			$macros = DAO_TriggerEvent::getByOwners(
-				array(
-					array(CerberusContexts::CONTEXT_APPLICATION, null, null),
-					array(CerberusContexts::CONTEXT_GROUP, $ticket->group_id, $groups[$ticket->group_id]->name),
-					array(CerberusContexts::CONTEXT_WORKER, $active_worker->id, null),
-				),
+
+			// [TODO] Filter by $ticket->group_id
+			$macros = DAO_TriggerEvent::getReadableByActor(
+				$active_worker,
 				Event_MailBeforeUiReplyByWorker::ID
 			);
-			
+
+			if(is_array($macros))
 			foreach($macros as $macro)
 				Event_MailBeforeUiReplyByWorker::trigger($macro->id, $message->id, $actions);
 

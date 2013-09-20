@@ -1115,7 +1115,11 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Macros
-		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.ticket');
+		
+		$macros = DAO_TriggerEvent::getReadableByActor(
+			$active_worker,
+			'event.macro.ticket'
+		);
 		$tpl->assign('macros', $macros);
 		
 		// Broadcast

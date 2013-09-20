@@ -319,7 +319,7 @@ class ChSignInPage extends CerberusPageExtension {
 			if(is_array($redirect_path) && !empty($redirect_path)) {
 				$redirect_uri = current($redirect_path);
 				
-				if($redirect_uri != 'explore' && !CerberusApplication::getPageManifestByUri($redirect_uri))
+				if(!in_array($redirect_uri, array('explore', 'm')) && !CerberusApplication::getPageManifestByUri($redirect_uri))
 					$redirect_path = array();
 			}
 		}

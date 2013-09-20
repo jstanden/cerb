@@ -146,6 +146,13 @@ EOF
 							'body' => 'This setup page provides options for personalizing your copy of Cerb6 with your own logo and browser title.',
 						);
 						break;
+						
+					case 'localization':
+						$tour = array(
+							'title' => 'Localization',
+							'body' => 'This setup page provides options for localizing your copy of Cerb.',
+						);
+						break;
 
 					case 'security':
 						$tour = array(
@@ -492,6 +499,14 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			$event->id
 		));
 
+		// Keep track of the runners to return at the end
+		
+		$runners = array();
+		
+		// Load all VAs
+		
+		$trigger_vas = DAO_VirtualAttendant::getAll();
+		
 		// Are we limited to only one trigger on this event, or all of them?
 		
 		if(isset($event->params['_whisper']['_trigger_id'][0])) {
@@ -499,6 +514,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 				$triggers[$trigger->id] = $trigger;
 			}
 			unset($event->params['_whisper']['_trigger_id']);
+			
 		} else {
 			$triggers = DAO_TriggerEvent::getByEvent($event->id, false);
 		}
@@ -511,9 +527,15 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		// We're restricting the scope of the event
 		if(isset($event->params['_whisper']) && is_array($event->params['_whisper']) && !empty($event->params['_whisper'])) {
 			foreach($triggers as $trigger_id => $trigger) { /* @var $trigger Model_TriggerEvent */
+				if(false == (@$trigger_va = $trigger_vas[$trigger->virtual_attendant_id]))
+					continue;
+
+				if($trigger_va->is_disabled)
+					continue;
+				
 				if (
-					null != ($allowed_ids = @$event->params['_whisper'][$trigger->owner_context])
-					&& in_array($trigger->owner_context_id, !is_array($allowed_ids) ? array($allowed_ids) : $allowed_ids)
+					null != ($allowed_ids = @$event->params['_whisper'][$trigger_va->owner_context])
+					&& in_array($trigger_va->owner_context_id, !is_array($allowed_ids) ? array($allowed_ids) : $allowed_ids)
 					) {
 					// We're allowed to see this event
 				} else {
@@ -554,6 +576,8 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		$registry = DevblocksPlatform::getRegistryService();
 		
 		foreach($triggers as $trigger) { /* @var $trigger Model_TriggerEvent */
+			if(false == (@$trigger_va = $trigger_vas[$trigger->virtual_attendant_id]))
+				continue;
 			
 			if(self::inception($trigger->id)) {
 				$logger->info(sprintf("Skipping trigger %d (%s) because we're currently inside of it.",
@@ -579,14 +603,17 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			
 			$start_runtime = intval(microtime(true));
 			
-			$logger->info(sprintf("Running decision tree on trigger %d (%s) for %s=%d",
-				$trigger->id,
+			$logger->info(sprintf("Running behavior '%s' (#%d) for %s (#%d)",
 				$trigger->title,
-				$trigger->owner_context,
-				$trigger->owner_context_id
+				$trigger->id,
+				$trigger_va->name,
+				$trigger->virtual_attendant_id
 			));
 			
 			$trigger->runDecisionTree($dict);
+
+			// Snapshot the dictionary of the behavior at conclusion
+			$runners[$trigger->id] = $dict;
 			
 			// Increase the trigger run count
 			$registry->increment('trigger.'.$trigger->id.'.counter', 1);
@@ -608,26 +635,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			self::clear();
 		}
 		
-		return;
-		
-		// [TODO] ACTION: HTTP POST
-		/*
-		if(extension_loaded('curl')) {
-			$postfields = array(
-				'json' => json_encode($values)
-			);
-			
-			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, "http://localhost/website/webhooks/notify.php");
-			curl_setopt($ch, CURLOPT_HEADER, 0);
-			curl_setopt($ch, CURLOPT_POST, 1);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			$response = curl_exec($ch);
-			curl_close($ch);
-			echo($response);
-		}
-		*/
+		return $runners;
 	}
 };
 
@@ -680,9 +688,10 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		DAO_Comment::deleteByContext($context, $context_ids);
 		DAO_ContextActivityLog::deleteByContext($context, $context_ids);
 		DAO_ContextLink::delete($context, $context_ids);
+		DAO_CustomFieldset::deleteByOwner($context, $context_ids);
 		DAO_CustomFieldValue::deleteByContextIds($context, $context_ids);
 		DAO_Notification::deleteByContext($context, $context_ids);
-		DAO_TriggerEvent::deleteByOwner($context, $context_ids);
+		DAO_VirtualAttendant::deleteByOwner($context, $context_ids);
 		DAO_WorkspacePage::deleteByOwner($context, $context_ids);
 	}
 	
@@ -818,10 +827,10 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			$logger->info(sprintf("Purged %d %s notifications.", $deletes, $context));
 		
 		// ===========================================================================
-		// Virtual Attendant Behavior
+		// Virtual Attendants
 		
 		$rs = $db->Execute(sprintf("SELECT ctx.id ".
-			"FROM trigger_event AS ctx ".
+			"FROM virtual_attendant AS ctx ".
 			"LEFT JOIN %s ON ctx.owner_context_id=%s ".
 			"WHERE ctx.owner_context = %s ".
 			"AND %s IS NULL",
@@ -835,12 +844,12 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			$deletes = 0;
 			
 			while($row = mysql_fetch_row($rs)) {
-				DAO_TriggerEvent::delete($row[0]);
+				DAO_VirtualAttendant::delete($row[0]);
 				$deletes++;
 			}
 			
 			if(null != ($deletes = $db->Affected_Rows()))
-				$logger->info(sprintf("Purged %d %s virtual attendant behaviors.", $deletes, $context));
+				$logger->info(sprintf("Purged %d %s virtual attendants.", $deletes, $context));
 		}
 	}
 	

@@ -1,15 +1,15 @@
 <fieldset class="peek">
-<legend>{$translate->_('reports.ui.spam.domains')}</legend>
+<legend>{'reports.ui.spam.domains'|devblocks_translate}</legend>
 
 <table cellpadding="2" cellspacing="0" border="0">
 	<tr>
 		<td width="50%" align="center" valign="top">
-			<h3>{$translate->_('reports.ui.spam.domains.top_spam')}</h3>
+			<h3>{'reports.ui.spam.domains.top_spam'|devblocks_translate}</h3>
 			<table cellpadding="5" cellspacing="0">
 				<tr>
-					<td><b>{$translate->_('reports.ui.spam.domains.domain')}</b></td>
-					<td align="center"><b>{$translate->_('reports.ui.spam.num_spam')}</b></td>
-					<td align="center"><b>{$translate->_('reports.ui.spam.num_nonspam')}</b></td>
+					<td><b>{'reports.ui.spam.domains.domain'|devblocks_translate}</b></td>
+					<td align="center"><b>{'reports.ui.spam.num_spam'|devblocks_translate}</b></td>
+					<td align="center"><b>{'reports.ui.spam.num_nonspam'|devblocks_translate}</b></td>
 					<td align="center"><b>%</b></td>
 				</tr>
 				{foreach from=$top_spam_domains key=domain item=counts}
@@ -23,12 +23,12 @@
 			</table>
 		</td>
 		<td width="50%" align="center" style="padding-left:30px;" valign="top">
-			<h3>{$translate->_('reports.ui.spam.domains.top_nonspam')}</h3>
+			<h3>{'reports.ui.spam.domains.top_nonspam'|devblocks_translate}</h3>
 			<table cellpadding="5" cellspacing="0">
 				<tr>
-					<td><b>{$translate->_('reports.ui.spam.domains.domain')}</b></td>
-					<td align="center"><b>{$translate->_('reports.ui.spam.num_nonspam')}</b></td>
-					<td align="center"><b>{$translate->_('reports.ui.spam.num_spam')}</b></td>
+					<td><b>{'reports.ui.spam.domains.domain'|devblocks_translate}</b></td>
+					<td align="center"><b>{'reports.ui.spam.num_nonspam'|devblocks_translate}</b></td>
+					<td align="center"><b>{'reports.ui.spam.num_spam'|devblocks_translate}</b></td>
 					<td align="center"><b>%</b></td>
 				</tr>
 				{foreach from=$top_nonspam_domains key=domain item=counts}

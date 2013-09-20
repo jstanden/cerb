@@ -892,6 +892,15 @@ class Model_Worker {
 		return true;
 	}
 	
+	function isRoleMember($role_id) {
+		$roles = $this->getRoles();
+		
+		if(isset($roles[$role_id]))
+			return true;
+		
+		return false;
+	}
+	
 	function getName($reverse=false) {
 		if(!$reverse) {
 			$name = sprintf("%s%s%s",
@@ -1460,6 +1469,41 @@ class Context_Worker extends Extension_DevblocksContext {
 		);
 	}
 	
+	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {
+		$labels = $dict->_labels;
+		$prefix = $labels['_label'];
+		
+		if(!empty($prefix)) {
+			array_walk($labels, function(&$label, $key) use ($prefix) {
+				$label = preg_replace(sprintf("#^%s #", preg_quote($prefix)), '', $label);
+				
+				// [TODO] Use translations
+				switch($key) {
+				}
+				
+				$label = mb_convert_case($label, MB_CASE_LOWER);
+				$label[0] = mb_convert_case($label[0], MB_CASE_UPPER);
+			});
+		}
+		
+		asort($labels);
+		
+		return $labels;
+	}
+	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'full_name',
+			'title',
+			'address__label',
+			'address_org__label',
+			'is_disabled',
+			'is_superuser',
+			'last_activity_date',
+		);
+	}
+	
 	function getContext($worker, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Worker:';
@@ -1478,11 +1522,28 @@ class Context_Worker extends Extension_DevblocksContext {
 			
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'first_name' => $prefix.$translate->_('worker.first_name'),
 			'full_name' => $prefix.$translate->_('worker.full_name'),
+			'is_disabled' => $prefix.$translate->_('common.disabled'),
+			'is_superuser' => $prefix.$translate->_('worker.is_superuser'),
 			'last_name' => $prefix.$translate->_('worker.last_name'),
+			'last_activity_date' => $prefix.$translate->_('worker.last_activity_date'),
 			'title' => $prefix.$translate->_('worker.title'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'first_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'full_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'is_disabled' => Model_CustomField::TYPE_CHECKBOX,
+			'is_superuser' => Model_CustomField::TYPE_CHECKBOX,
+			'last_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'last_activity_date' => Model_CustomField::TYPE_DATE,
+			'title' => Model_CustomField::TYPE_SINGLE_LINE,
+			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1494,19 +1555,20 @@ class Context_Worker extends Extension_DevblocksContext {
 		
 		// Context for lazy-loading
 		$token_values['_context'] = CerberusContexts::CONTEXT_WORKER;
+		$token_values['_types'] = $token_types;
 		
 		// Worker token values
 		if(null != $worker) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $worker->getName();
 			$token_values['id'] = $worker->id;
+			$token_values['first_name'] = $worker->first_name;
 			$token_values['full_name'] = $worker->getName();
-			if(!empty($worker->first_name))
-				$token_values['first_name'] = $worker->first_name;
-			if(!empty($worker->last_name))
-				$token_values['last_name'] = $worker->last_name;
-			if(!empty($worker->title))
-				$token_values['title'] = $worker->title;
+			$token_values['is_disabled'] = $worker->is_disabled;
+			$token_values['is_superuser'] = $worker->is_superuser;
+			$token_values['last_name'] = $worker->last_name;
+			$token_values['last_activity_date'] = $worker->last_activity_date;
+			$token_values['title'] = $worker->title;
 
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();

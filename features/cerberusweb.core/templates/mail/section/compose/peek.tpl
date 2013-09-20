@@ -111,10 +111,10 @@
 		{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1" {if (empty($draft) && 'closed'==$defaults.status) || (!empty($draft) && $draft->params.closed==1)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$random}','block');">{'status.closed'|devblocks_translate}</label>{/if}
 		
 		<div id="divComposeClosed{$random}" style="display:{if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.closed==0)}none{else}block{/if};margin-top:5px;margin-left:10px;">
-			<b>{$translate->_('display.reply.next.resume')}</b><br>
-			{$translate->_('display.reply.next.resume_eg')}<br> 
+			<b>{'display.reply.next.resume'|devblocks_translate}</b><br>
+			{'display.reply.next.resume_eg'|devblocks_translate}<br> 
 			<input type="text" name="ticket_reopen" size="64" class="input_date" value="{$draft->params.ticket_reopen}"><br>
-			{$translate->_('display.reply.next.resume_blank')}<br>
+			{'display.reply.next.resume_blank'|devblocks_translate}<br>
 		</div>
 	</div>
 </fieldset>
@@ -179,7 +179,7 @@
 	</ul>
 </fieldset>
 
-<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
+<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
 </form>
 
 <script type="text/javascript">

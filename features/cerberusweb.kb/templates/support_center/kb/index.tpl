@@ -4,7 +4,7 @@
 	{* Heading *}
 	<legend>
 		{if empty($root_id)}
-		{$translate->_('Topics')|capitalize}
+		{'Topics'|devblocks_translate|capitalize}
 		{else}
 		{$categories.$root_id->name}
 		{/if}
@@ -13,7 +13,7 @@
 	{* Breadcrumb category navigation *}
 	<div style="padding-bottom:10px;">
 	{if !empty($root_id)}
-		<a href="{devblocks_url}c=kb&a=browse{/devblocks_url}" style="font-style:italic;">{$translate->_('portal.kb.public.top')}</a> ::
+		<a href="{devblocks_url}c=kb&a=browse{/devblocks_url}" style="font-style:italic;">{'portal.kb.public.top'|devblocks_translate}</a> ::
 		{if !empty($breadcrumb)}
 			{foreach from=$breadcrumb item=bread_id}
 				<a href="{devblocks_url}c=kb&a=browse&id={$bread_id|string_format:"%06d"}{/devblocks_url}" style="font-style:italic;">{$categories.$bread_id->name}</a> :

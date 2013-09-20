@@ -21,7 +21,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 	
 	static function trigger($trigger_id, $opp_id, $variables=array()) {
 		$events = DevblocksPlatform::getEventService();
-		$events->trigger(
+		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
 				array(
@@ -40,7 +40,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 	 * @param integer $opp_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($opp_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $opp_id=null) {
 		
 		if(empty($opp_id)) {
 			// Pull the latest record
@@ -168,10 +168,10 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 			'opp_email_org_website' => Model_CustomField::TYPE_SINGLE_LINE,
 			'opp_amount' => Model_CustomField::TYPE_NUMBER,
 			'opp_is_closed' => Model_CustomField::TYPE_CHECKBOX,
-			'opp_created|date' => Model_CustomField::TYPE_DATE,
+			'opp_created' => Model_CustomField::TYPE_DATE,
 			'opp_status' => Model_CustomField::TYPE_SINGLE_LINE,
 			'opp_title' => Model_CustomField::TYPE_SINGLE_LINE,
-			'opp_updated|date' => Model_CustomField::TYPE_DATE,
+			'opp_updated' => Model_CustomField::TYPE_DATE,
 			'opp_is_won' => Model_CustomField::TYPE_CHECKBOX,
 			
 			'opp_link' => null,
@@ -363,18 +363,6 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				DevblocksEventHelper::renderActionCreateTicket($trigger);
 				break;
 			
-			case 'schedule_behavior':
-				$dates = array();
-				$conditions = $this->getConditions($trigger);
-				foreach($conditions as $key => $data) {
-					if(isset($data['type']) && $data['type'] == Model_CustomField::TYPE_DATE)
-						$dates[$key] = $data['label'];
-				}
-				$tpl->assign('dates', $dates);
-			
-				DevblocksEventHelper::renderActionScheduleBehavior($trigger);
-				break;
-				
 			case 'send_email':
 				DevblocksEventHelper::renderActionSendEmail($trigger);
 				break;
@@ -387,15 +375,11 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				DevblocksEventHelper::renderActionSetLinks($trigger);
 				break;
 				
-			case 'unschedule_behavior':
-				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger);
-				break;
-				
 			default:
 				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches)) {
 					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
-					DevblocksEventHelper::renderActionSetCustomField($custom_field);
+					DevblocksEventHelper::renderActionSetCustomField($custom_field, $trigger);
 				}
 				break;
 		}
@@ -432,17 +416,11 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict, 'opp_id');
 				break;
 				
-			case 'schedule_behavior':
-				return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
-				break;
 				
 			case 'send_email':
 				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
 				
-			case 'unschedule_behavior':
-				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
-				break;
 				
 			case 'set_status':
 				break;
@@ -485,16 +463,8 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				DevblocksEventHelper::runActionCreateTicket($params, $dict, 'opp_id');
 				break;
 				
-			case 'schedule_behavior':
-				DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
-				break;
-				
 			case 'send_email':
 				DevblocksEventHelper::runActionSendEmail($params, $dict);
-				break;
-				
-			case 'unschedule_behavior':
-				DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 				break;
 				
 			case 'set_status':

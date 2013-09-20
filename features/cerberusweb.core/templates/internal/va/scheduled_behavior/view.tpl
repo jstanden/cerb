@@ -8,7 +8,7 @@
 		<td nowrap="nowrap" align="right">
 			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',this,false,'400');"><span class="cerb-sprite2 sprite-document-search-result"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="cerb-sprite2 sprite-gear"></span></a>
-			<a href="javascript:;" title="{$translate->_('common.export')|capitalize}" class="minimal" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="cerb-sprite2 sprite-application-export"></span></a>
+			<a href="javascript:;" title="{'common.export'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="cerb-sprite2 sprite-application-export"></span></a>
 			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="cerb-sprite2 sprite-arrow-circle-135-left"></span></a>
 		</td>
 	</tr>
@@ -61,7 +61,7 @@
 			{elseif $column=="b_behavior_name"}
 			<td>
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
-				<a href="javascript:;" onclick="$popup=genericAjaxPopup('peek','c=internal&a=showMacroSchedulerPopup&job_id={$result.c_id}&view_id={$view->id}',this,false,'400');$popup.one('behavior_save',function(e) { genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}'); });" class="subject">{$result.$column}</a>
+				<a href="javascript:;" onclick="$popup=genericAjaxPopup('peek','c=internal&a=showMacroSchedulerPopup&job_id={$result.c_id}&view_id={$view->id}',this,false,'550');$popup.one('behavior_save',function(e) { genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}'); });" class="subject">{$result.$column}</a>
 			</td>
 			{elseif $column=="c_run_date"}
 			<td style="width:100px;">
@@ -71,18 +71,18 @@
 				<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
 				{/if}
 			</td>
-			{elseif $column=="*_owner"}
+			{elseif $column=="b_behavior_virtual_attendant_id"}
 			<td>
-				{$ctx = Extension_DevblocksContext::get($result.b_behavior_owner_context)}
+				{$ctx = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT)}
 				{if is_object($ctx)}
-				{$meta = $ctx->getMeta($result.b_behavior_owner_context_id)}
+				{$meta = $ctx->getMeta($result.$column)}
 				<span title="{$ctx->manifest->name}">
 				{if !empty($meta.permalink)}
 				<a href="{$meta.permalink}">{$meta.name|truncate:64}</a>
 				{else}
 				{$meta.name|truncate:64}
-				{/if}
-				</span> 
+				{/if} 
+				</span>
 				{/if}
 			</td>
 			{elseif $column=="*_target"}
@@ -134,11 +134,11 @@
 		
 		{if $view->renderPage > 0}
 			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page=0');">&lt;&lt;</a>
-			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{$translate->_('common.previous_short')|capitalize}</a>
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{'common.previous_short'|devblocks_translate|capitalize}</a>
 		{/if}
 		({'views.showing_from_to'|devblocks_translate:$fromRow:$toRow:$total})
 		{if $toRow < $total}
-			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$nextPage}');">{$translate->_('common.next')|capitalize}&gt;</a>
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$nextPage}');">{'common.next'|devblocks_translate|capitalize}&gt;</a>
 			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$lastPage}');">&gt;&gt;</a>
 		{/if}
 	</div>

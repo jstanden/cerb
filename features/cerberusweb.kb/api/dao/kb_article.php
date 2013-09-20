@@ -665,6 +665,36 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		);
 	}
 	
+	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {
+		$labels = $dict->_labels;
+		$prefix = $labels['_label'];
+		
+		if(!empty($prefix)) {
+			array_walk($labels, function(&$label, $key) use ($prefix) {
+				$label = preg_replace(sprintf("#^%s #", preg_quote($prefix)), '', $label);
+				
+				// [TODO] Use translations
+				switch($key) {
+				}
+				
+				$label = mb_convert_case($label, MB_CASE_LOWER);
+				$label[0] = mb_convert_case($label[0], MB_CASE_UPPER);
+			});
+		}
+		
+		asort($labels);
+		
+		return $labels;
+	}
+	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'views',
+			'updated',
+		);
+	}
+	
 	function getContext($article, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Article:';
@@ -684,12 +714,24 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 			
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'content' => $prefix.$translate->_('kb_article.content'),
 			'id' => $prefix.$translate->_('common.id'),
 			'title' => $prefix.$translate->_('kb_article.title'),
-			'updated|date' => $prefix.$translate->_('kb_article.updated'),
+			'updated' => $prefix.$translate->_('kb_article.updated'),
 			'views' => $prefix.$translate->_('kb_article.views'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'content' => null,
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'title' => Model_CustomField::TYPE_SINGLE_LINE,
+			'updated' => Model_CustomField::TYPE_DATE,
+			'views' => Model_CustomField::TYPE_NUMBER,
+			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -700,6 +742,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_KB_ARTICLE;
+		$token_values['_types'] = $token_types;
 		
 		// Token values
 		if(null != $article) {

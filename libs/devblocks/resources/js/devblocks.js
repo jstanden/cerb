@@ -260,8 +260,9 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 		closeOnEscape : true,
 		draggable : true,
 		modal : false,
+		resizable : false,
 		stack: true,
-		width : '300px',
+		width : '600px',
 		close: function(event, ui) {
 			$(this).unbind().find(':focus').blur();
 		}
@@ -313,7 +314,12 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			if(null == options.position)
 				options.position = [ 'center', 'top' ];
 
+			// Max height
+			var max_height = Math.round($(window).height() * 0.85);
+			$popup.css('max-height', max_height + 'px');
+			
 			// Render
+			options.maxHeight = max_height + 75;
 			$popup.dialog(options);
 			$popup.dialog('open');
 			

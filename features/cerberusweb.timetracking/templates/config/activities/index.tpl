@@ -9,7 +9,7 @@
 		<td width="0%" nowrap="nowrap" valign="top">
 		
 			<fieldset>
-				<legend>{$translate->_('timetracking.ui.cfg.activities')}</legend>
+				<legend>{'timetracking.ui.cfg.activities'|devblocks_translate}</legend>
 				
 				<table cellpadding="2" cellspacing="0" border="0">
 					<tr>

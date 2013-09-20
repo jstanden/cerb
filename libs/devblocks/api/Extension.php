@@ -197,6 +197,84 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	abstract function getRandom();
 	abstract function getMeta($context_id);
 	abstract function getContext($object, &$token_labels, &$token_values, $prefix=null);
+	
+	public function formatDictionaryValue($key, DevblocksDictionaryDelegate $dict) {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		@$type = $dict->_types[$key];
+		$value = $dict->$key;
+		
+		switch($type) {
+			case 'context_url':
+				// Try to find the context+id pair for this key
+				$parts = explode('_', str_replace('__','_',$key));
+				
+				// Start with the longest sub-token, and decrease until found
+				while(array_pop($parts)) {
+					$prefix = implode('_', $parts);
+					$test_key = $prefix . '__context';
+					
+					@$context = $dict->$test_key;
+					
+					if(!empty($context)) {
+						$id_key = $prefix . '_id';
+						$context_id = $dict->$id_key;
+						
+						if(!empty($context_id)) {
+							$context_url = sprintf("ctx://%s:%d/%s",
+								$context,
+								$context_id,
+								$value
+							);
+							return $context_url;
+							
+						} else {
+							return $value;
+							
+						}
+					}
+				}
+				
+				break;
+				
+			case 'percent':
+				if(is_float($value)) {
+					$value = sprintf("%0.2f%%",
+						($value * 100)
+					);
+					
+				} elseif(is_numeric($value)) {
+					$value = sprintf("%d%%",
+						$value
+					);
+				}
+				break;
+				
+			case 'size_bytes':
+				$value = DevblocksPlatform::strPrettyBytes($value);
+				break;
+				
+			case 'time_secs':
+				//$value = DevblocksPlatform::strPrettyTime($value, true);
+				break;
+				
+			case 'time_mins':
+				$secs = intval($value) * 60;
+				$value = DevblocksPlatform::strSecsToString($secs, 2);
+				break;
+				
+			case Model_CustomField::TYPE_CHECKBOX:
+				$value = (!empty($value)) ? $translate->_('common.yes') : $translate->_('common.no');
+				break;
+				
+			case Model_CustomField::TYPE_DATE:
+				$value = DevblocksPlatform::strPrettyTime($value);
+				break;
+		}
+		
+		return $value;
+	}
+	
 	public function getSearchView($view_id=null) {
 		if(empty($view_id)) {
 			$view_id = sprintf("search_%s",
@@ -268,6 +346,20 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		}
 		
 		return $labels;
+	}
+	
+	protected function _getTokenTypesFromCustomFields($fields, $prefix) {
+		$types = array();
+		$fieldsets = DAO_CustomFieldset::getAll();
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$fieldset = $field->custom_fieldset_id ? @$fieldsets[$field->custom_fieldset_id] : null;
+		
+			$types['custom_'.$cf_id] = $field->type;
+		}
+		
+		return $types;
 	}
 	
 	protected function _getImportCustomFields($fields, &$keys) {
@@ -384,6 +476,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			}
 		}
 		
+		// Sort
+		asort($this->_labels);
+		
 		return $this->_labels;
 	}
 	
@@ -435,6 +530,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	// [TODO] Cache results for this request
 	function getConditions($trigger) {
 		$conditions = array(
+			'_calendar_availability' => array('label' => '(Calendar availability)', 'type' => ''),
 			'_custom_script' => array('label' => '(Custom script)', 'type' => ''),
 			'_month_of_year' => array('label' => '(Month of year)', 'type' => ''),
 			'_day_of_week' => array('label' => '(Day of week)', 'type' => ''),
@@ -448,11 +544,16 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		// Trigger variables
 		if(is_array($trigger->variables))
 		foreach($trigger->variables as $key => $var) {
-			$conditions[$key] = array('label' => '(variable) ' . $var['label'], 'type' => $var['type']);
+			$conditions[$key] = array(
+				'label' => '(variable) ' . $var['label'],
+				'type' => $var['type']
+			);
+			
+			if($var['type'] == Model_CustomField::TYPE_DROPDOWN)
+				@$conditions[$key]['options'] = DevblocksPlatform::parseCrlfString($var['params']['options']);
 		}
 		
 		// Plugins
-		// [TODO] Work in progress
 		// [TODO] This should filter by event type
 		$manifests = Extension_DevblocksEventCondition::getAll(false);
 		foreach($manifests as $manifest) {
@@ -479,6 +580,14 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
+			case '_calendar_availability':
+				// Get readable by VA
+				$calendars = DAO_Calendar::getReadableByActor(array(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id));
+				$tpl->assign('calendars', $calendars);
+				
+				return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_calendar_availability.tpl');
+				break;
+				
 			case '_custom_script':
 				return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_custom_script.tpl');
 				break;
@@ -564,8 +673,28 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		$logger->info('');
 		$logger->info(sprintf("Checking condition '%s'...", $token));
 		
-		// Built-in actions
+		// Built-in conditions
 		switch($token) {
+			case '_calendar_availability':
+				if(false == (@$calendar_id = $params['calendar_id']))
+					return false;
+				
+				@$is_available = $params['is_available'];
+				@$from = $params['from'];
+				@$to = $params['to'];
+				
+				if(false == ($calendar = DAO_Calendar::get($calendar_id)))
+					return false;
+				
+				@$cal_from = strtotime("today", strtotime($from));
+				@$cal_to = strtotime("tomorrow", strtotime($to));
+				
+				$calendar_events = $calendar->getEvents($cal_from, $cal_to);
+				$availability = $calendar->computeAvailability($cal_from, $cal_to, $calendar_events);
+
+				$pass = ($is_available == $availability->isAvailableBetween(strtotime($from), strtotime($to)));
+				break;
+				
 			case '_custom_script':
 				@$tpl = DevblocksPlatform::importVar($params['tpl'],'string','');
 				
@@ -908,7 +1037,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	
 	function getActions($trigger) { /* @var $trigger Model_TriggerEvent */
 		$actions = array(
+			'_run_behavior' => array('label' => '(Run behavior)'),
+			'_schedule_behavior' => array('label' => '(Schedule behavior)'),
 			'_set_custom_var' => array('label' => '(Set a custom placeholder)'),
+			'_unschedule_behavior' => array('label' => '(Unschedule behavior)'),
 		);
 		$custom = $this->getActionExtensions();
 		
@@ -916,19 +1048,28 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			$actions = array_merge($actions, $custom);
 		
 		// Trigger variables
+		
 		if(is_array($trigger->variables))
 		foreach($trigger->variables as $key => $var) {
-			$actions[$key] = array('label' => 'Set (variable) ' . $var['label']);
+			$actions[$key] = array('label' => '(Set variable: ' . $var['label'] . ')');
 		}
+		
+		$va = $trigger->getVirtualAttendant();
 		
 		// Add plugin extensions
 		
 		$manifests = Extension_DevblocksEventAction::getAll(false, $trigger->event_point);
 		
+		// Filter extensions by VA permissions
+		
+		$manifests = $va->filterActionManifestsByAllowed($manifests);
+		
 		if(is_array($manifests))
 		foreach($manifests as $manifest) {
 			$actions[$manifest->id] = array('label' => $manifest->params['label']);
 		}
+
+		// Sort by label
 		
 		DevblocksPlatform::sortObjects($actions, '[label]');
 		
@@ -939,6 +1080,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	abstract function renderActionExtension($token, $trigger, $params=array(), $seq=null);
 	abstract function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict);
 	protected function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {}
+	function renderSimulatorTarget($trigger, $event_model) {}
 	
 	function renderAction($token, $trigger, $params=array(), $seq=null) {
 		$actions = $this->getActionExtensions();
@@ -958,9 +1100,29 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		} else {
 			switch($token) {
 				case '_set_custom_var':
-					return $tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_custom_var.tpl');
+					$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_custom_var.tpl');
+					break;
+					
+				case '_run_behavior':
+					DevblocksEventHelper::renderActionRunBehavior($trigger);
 					break;
 				
+				case '_schedule_behavior':
+					$dates = array();
+					$conditions = $this->getConditions($trigger);
+					foreach($conditions as $key => $data) {
+						if(isset($data['type']) && $data['type'] == Model_CustomField::TYPE_DATE)
+							$dates[$key] = $data['label'];
+					}
+					$tpl->assign('dates', $dates);
+				
+					DevblocksEventHelper::renderActionScheduleBehavior($trigger);
+					break;
+					
+				case '_unschedule_behavior':
+					DevblocksEventHelper::renderActionUnscheduleBehavior($trigger);
+					break;
+					
 				default:
 					// Variables
 					if(substr($token,0,4) == 'var_') {
@@ -971,7 +1133,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 								return $tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_bool.tpl');
 								break;
 							case Model_CustomField::TYPE_DATE:
-								$calendars = DAO_Calendar::getAll();
+								// Restricted to VA-readable calendars
+								$calendars = DAO_Calendar::getReadableByActor(array(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id));
 								$tpl->assign('calendars', $calendars);
 								return $tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_date.tpl');
 								break;
@@ -1018,12 +1181,26 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			switch($token) {
 				case '_set_custom_var':
 					@$var = $params['var'];
+					@$format = $params['format'];
+					
+					$value = ($format == 'json') ? @DevblocksPlatform::strFormatJson(json_encode($dict->$var, true)) : $dict->$var;
 					
 					return sprintf(">>> Setting custom variable {{%s}}:\n%s\n\n",
 						$var,
-						$dict->$var
+						$value
 					);
+					break;
 					
+				case '_run_behavior':
+					return DevblocksEventHelper::simulateActionRunBehavior($params, $dict);
+					break;
+					
+				case '_schedule_behavior':
+					return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
+					break;
+					
+				case '_unschedule_behavior':
+					return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
 					break;
 					
 				default:
@@ -1063,15 +1240,44 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					
 					@$var = $params['var'];
 					@$value = $params['value'];
+					@$format = $params['format'];
+					@$is_simulator_only = $params['is_simulator_only'] ? true : false;
+
+					// If this variable is only set in the simulator, and we're not simulating, abort
+					if($is_simulator_only && !$dry_run)
+						return;
 					
-					if(!empty($var) && !empty($value))
-						$dict->$var = $tpl_builder->build($value, $dict);
+					if(!empty($var) && !empty($value)) {
+						$value = $tpl_builder->build($value, $dict);
+						$dict->$var = ($format == 'json') ? @json_decode($value, true) : $value;
+					}
 					
 					if($dry_run) {
 						$out = $this->simulateAction($token, $trigger, $params, $dict);
 					} else {
 						return;
 					}
+					break;
+					
+				case '_run_behavior':
+					if($dry_run)
+						$out = $this->simulateAction($token, $trigger, $params, $dict);
+					else
+						DevblocksEventHelper::runActionRunBehavior($params, $dict);
+					break;
+					
+				case '_schedule_behavior':
+					if($dry_run)
+						$out = $this->simulateAction($token, $trigger, $params, $dict);
+					else
+						DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
+					break;
+					
+				case '_unschedule_behavior':
+					if($dry_run)
+						$out = $this->simulateAction($token, $trigger, $params, $dict);
+					else
+						DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 					break;
 					
 				default:
@@ -1112,16 +1318,20 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			if(!isset($dict->_simulator_output) || !is_array($dict->_simulator_output))
 				$dict->_simulator_output = array();
 			
-			$output = array(
-				'action' => $nodes[array_pop($log)]->title,
-				'title' => $all_actions[$token]['label'],
-				'content' => $out,
-			);
+			$node = array_pop($log);
 			
-			$previous_output = $dict->_simulator_output;
-			$previous_output[] = $output;
-			$dict->_simulator_output = $previous_output;
-			unset($out);
+			if(!empty($node) && isset($nodes[$node])) {
+				$output = array(
+					'action' => $nodes[$node]->title,
+					'title' => $all_actions[$token]['label'],
+					'content' => $out,
+				);
+				
+				$previous_output = $dict->_simulator_output;
+				$previous_output[] = $output;
+				$dict->_simulator_output = $previous_output;
+				unset($out);
+			}
 		}
 	}
 };

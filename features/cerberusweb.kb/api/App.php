@@ -486,7 +486,11 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		$tpl->assign('custom_fields', $custom_fields);
 
 		// Macros
-		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.kb_article');
+		
+		$macros = DAO_TriggerEvent::getReadableByActor(
+			$active_worker,
+			'event.macro.kb_article'
+		);
 		$tpl->assign('macros', $macros);
 		
 		$tpl->display('devblocks:cerberusweb.kb::kb/bulk.tpl');
@@ -931,9 +935,18 @@ class Context_KbCategory extends Extension_DevblocksContext {
 			
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('kb_category.name'),
 			'parent_id' => $prefix.$translate->_('kb_category.parent_id'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'parent_id' => Model_CustomField::TYPE_NUMBER,
 		);
 		
 		// Custom field/fieldset token labels
@@ -944,6 +957,7 @@ class Context_KbCategory extends Extension_DevblocksContext {
 		$token_values = array();
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_KB_CATEGORY;
+		$token_values['_types'] = $token_types;
 		
 		// Token values
 		if(null != $category) {
