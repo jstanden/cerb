@@ -949,7 +949,7 @@ class CerberusMail {
 		// Custom fields
 		@$custom_fields = isset($properties['custom_fields']) ? $properties['custom_fields'] : array();
 		if(is_array($custom_fields) && !empty($custom_fields)) {
-			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TICKET, $ticket_id, $custom_fields);
+			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TICKET, $ticket_id, $custom_fields, true, true, false);
 		}
 		
 		// Events
