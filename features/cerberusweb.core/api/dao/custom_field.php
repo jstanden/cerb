@@ -411,12 +411,15 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					
 					// Protect from injection in cases where it's not desireable (controlled above)
 					foreach($value as $idx => $v) {
-						if(!in_array($v, $field->options))
+						if(empty($v))
 							continue;
-
+						
 						$is_unset = ('-'==substr($v,0,1)) ? true : false;
 						$v = ltrim($v,'+-');
-							
+						
+						if(!in_array($v, $field->options))
+							continue;
+						
 						if($is_unset) {
 							if($delta)
 								self::unsetFieldValue($context, $context_id, $field_id, $v);
