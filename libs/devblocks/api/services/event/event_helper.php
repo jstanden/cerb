@@ -3,6 +3,16 @@ class DevblocksEventHelper {
 	public static function getVarValueToContextMap($trigger) {
 		$values_to_contexts = array();
 		
+		// Virtual Attendant
+		
+		$values_to_contexts['va_id'] = array(
+			'label' => 'Virtual Attendant',
+			'context' => CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
+			'context_id' => $trigger->virtual_attendant_id,
+		);
+		
+		// Behavior variables
+		
 		if(is_array($trigger->variables))
 		foreach($trigger->variables as $var_key => $var) {
 			if(substr($var_key,0,4) == 'var_') {
@@ -3283,7 +3293,13 @@ class DevblocksEventHelper {
 			$vals = array();
 			
 			foreach($on_keys as $on) {
-				@$on_value = $dict->$on;
+				$on_value = null;
+				
+				if(isset($values_to_contexts[$on]['context_id']))
+					@$on_value = $values_to_contexts[$on]['context_id'];
+				
+				if(empty($on_value))
+					@$on_value = $dict->$on;
 
 				if(empty($on_value))
 					continue;
