@@ -42,9 +42,10 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 			case 'search':
 				$this->postSearch();
 				break;
+			default:
+				$this->error(self::ERRNO_NOT_IMPLEMENTED);
+				break;
 		}
-		
-		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
 	function deleteAction($stack) {
