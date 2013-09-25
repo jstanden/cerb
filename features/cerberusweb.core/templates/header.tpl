@@ -8,8 +8,12 @@
 	<![endif]-->
 	
 	<title>{$settings->get('cerberusweb.core','helpdesk_title')}</title>
+	{assign var=favicon_url value=$settings->get('cerberusweb.core','helpdesk_favicon_url','')}
+	{if empty($favicon_url)}
 	<link type="image/x-icon" rel="shortcut icon" href="{devblocks_url}favicon.ico{/devblocks_url}">
-	
+	{else}
+	<link type="image/x-icon" rel="shortcut icon" href="{$favicon_url}">
+	{/if}
 	<script type="text/javascript">
 		var DevblocksAppPath = '{$smarty.const.DEVBLOCKS_WEBPATH}';
 	</script>

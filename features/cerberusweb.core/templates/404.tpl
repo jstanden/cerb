@@ -4,7 +4,12 @@
 	<meta http-equiv="Cache-Control" content="no-cache">
 	
 	<title>{$settings->get('cerberusweb.core','helpdesk_title')}</title>
+	{assign var=favicon_url value=$settings->get('cerberusweb.core','helpdesk_favicon_url','')}
+	{if empty($favicon_url)}
 	<link type="image/x-icon" rel="shortcut icon" href="{devblocks_url}favicon.ico{/devblocks_url}">
+	{else}
+	<link type="image/x-icon" rel="shortcut icon" href="{$favicon_url}">
+	{/if}
 	<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/cerberus.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
 </head>
 

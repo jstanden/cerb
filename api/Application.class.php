@@ -1704,6 +1704,7 @@ class CerberusLicense {
 
 class CerberusSettings {
 	const HELPDESK_TITLE = 'helpdesk_title';
+	const HELPDESK_FAVICON_URL = 'helpdesk_favicon_url';
 	const HELPDESK_LOGO_URL = 'helpdesk_logo_url';
 	const SMTP_HOST = 'smtp_host';
 	const SMTP_AUTH_ENABLED = 'smtp_auth_enabled';

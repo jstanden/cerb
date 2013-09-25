@@ -33,6 +33,7 @@ class PageSection_SetupBranding extends Extension_PageSection {
 				throw new Exception("You are not a superuser.");
 			
 			@$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
+			@$favicon = DevblocksPlatform::importGPC($_POST['favicon'],'string','');
 			@$logo = DevblocksPlatform::importGPC($_POST['logo'],'string');
 	
 			// [TODO] New branding
@@ -41,6 +42,7 @@ class PageSection_SetupBranding extends Extension_PageSection {
 				
 			$settings = DevblocksPlatform::getPluginSettingsService();
 			$settings->set('cerberusweb.core',CerberusSettings::HELPDESK_TITLE, $title);
+			$settings->set('cerberusweb.core',CerberusSettings::HELPDESK_FAVICON_URL, $favicon);
 			$settings->set('cerberusweb.core',CerberusSettings::HELPDESK_LOGO_URL, $logo); // [TODO] Enforce some kind of max resolution?
 			
 			echo json_encode(array('status'=>true));
