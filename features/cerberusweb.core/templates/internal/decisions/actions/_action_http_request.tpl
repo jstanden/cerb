@@ -18,9 +18,15 @@
 	</div>
 </div>
 
-<b>Save response to a variable named:</b><br>
-<div style="margin-left:15px;margin-bottom:5px;">
-	<input type="text" name="{$namePrefix}[response_placeholder]" value="{$params.response_placeholder|default:"_http_response"}" size="45" style="width:100%;" placeholder="e.g. _http_response">
+<b>Also execute HTTP request in simulator mode:</b>
+<div style="margin-left:10px;margin-bottom:10px;">
+	<label><input type="radio" name="{$namePrefix}[run_in_simulator]" value="1" {if $params.run_in_simulator}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
+	<label><input type="radio" name="{$namePrefix}[run_in_simulator]" value="0" {if !$params.run_in_simulator}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label>
+</div>
+
+<b>Save response to a placeholder named:</b><br>
+<div style="margin-left:10px;margin-bottom:10px;">
+	&#123;&#123;<input type="text" name="{$namePrefix}[response_placeholder]" value="{$params.response_placeholder|default:"_http_response"}" required="required" spellcheck="false" size="32" placeholder="e.g. _http_response">&#125;&#125;
 </div>
 
 <script type="text/javascript">
