@@ -490,6 +490,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		$contexts_to_macros = DevblocksEventHelper::getContextToMacroMap();
 		$macros_to_contexts = array_flip($contexts_to_macros);
 
+		// Custom fields
+		
 		$cfields = array();
 		$custom_fields = DAO_CustomField::getAll();
 		$vars = array();
@@ -521,7 +523,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			}
 		}
 		
-		// behavior vars
+		// Virtual Attendant
+		
+		
+		// Behavior Vars
 		$vars = DevblocksEventHelper::getVarValueToContextMap($trigger);
 		
 		return array_merge($cfields, $vars);
@@ -1185,7 +1190,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					
 					$value = ($format == 'json') ? @DevblocksPlatform::strFormatJson(json_encode($dict->$var, true)) : $dict->$var;
 					
-					return sprintf(">>> Setting custom variable {{%s}}:\n%s\n\n",
+					return sprintf(">>> Setting custom placeholder {{%s}}:\n%s\n\n",
 						$var,
 						$value
 					);
@@ -1313,16 +1318,15 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			/* @var $trigger Model_TriggerEvent */
 			$all_actions = $this->getActions($trigger);
 			$log = EventListener_Triggers::getNodeLog();
-			$nodes = $trigger->getNodes();
 			
 			if(!isset($dict->_simulator_output) || !is_array($dict->_simulator_output))
 				$dict->_simulator_output = array();
 			
-			$node = array_pop($log);
+			$node_id = array_pop($log);
 			
-			if(!empty($node) && isset($nodes[$node])) {
+			if(!empty($node_id) && false !== ($node = DAO_DecisionNode::get($node_id))) {
 				$output = array(
-					'action' => $nodes[$node]->title,
+					'action' => $node->title,
 					'title' => $all_actions[$token]['label'],
 					'content' => $out,
 				);

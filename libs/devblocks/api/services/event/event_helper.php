@@ -1171,6 +1171,8 @@ class DevblocksEventHelper {
 	
 	static function simulateActionRunBehavior($params, DevblocksDictionaryDelegate $dict) {
 		@$behavior_id = $params['behavior_id'];
+		@$var = $params['var'];
+		@$run_in_simulator = $params['run_in_simulator'];
 
 		$trigger = $dict->_trigger;
 		
@@ -1182,6 +1184,9 @@ class DevblocksEventHelper {
 		
 		if(null == ($behavior = DAO_TriggerEvent::get($behavior_id)))
 			return "[ERROR] Behavior does not exist. Skipping...";
+		
+		if(null == ($ext = DevblocksPlatform::getExtension($behavior->event_point, true))) /* @var $ext Extension_DevblocksEvent */
+			return "[ERROR] Behavior event does not exist. Skipping...";
 		
 		$out = sprintf(">>> Running behavior: %s\n",
 			$behavior->title
@@ -1222,9 +1227,9 @@ class DevblocksEventHelper {
 					$v = implode("\n  ", $vals);
 				}
 				
-				$out .= sprintf("\n* %s:\n   %s\n",
+				$out .= sprintf("\n* %s:%s\n",
 					$behavior->variables[$k]['label'],
-					$v
+					!empty($v) ? (sprintf("\n   %s", $v)) : ('')
 				);
 			}
 		}
@@ -1240,15 +1245,45 @@ class DevblocksEventHelper {
 			@$on_objects = $on_result['objects'];
 			
 			if(is_array($on_objects)) {
-				$out .= "\n>>> On:\n";
+				if($run_in_simulator) {
+					$out .= "\n";
+				} else {
+					$out .= "\n>>> On:\n";
+				}
 				
 				foreach($on_objects as $on_object) {
+					if(!isset($on_object->id) && empty($on_object->id))
+						continue;
+
 					$on_object_context = Extension_DevblocksContext::get($on_object->_context);
-					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";
+					
+					if($run_in_simulator) {
+						$out .= '=== On: (' . $on_object_context->manifest->name . ') ' . $on_object->_label . " ===\n";
+					} else {
+						$out .= '  * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";
+					}
+					
+					if($run_in_simulator) {
+						$behavior->runDecisionTree($on_object, true);
+						$dict->$var = $on_object;
+						
+						// Merge simulator output
+
+						if(isset($on_object->_simulator_output) && is_array($on_object->_simulator_output))
+						foreach($on_object->_simulator_output as $simulator_entry) {
+							//$dict->_simulator_output[] = $simulator_entry;
+							$out .= sprintf("\n%s",
+								str_replace('>>>', '>>>>', $simulator_entry['content'])
+							);
+						}
+					}
 				}
-				$out .= "\n";
 			}
 		}
+		
+		$out .= sprintf("\n>>> Saving output to {{%s}}\n",
+			$var
+		);
 		
 		return $out;
 	}
@@ -1261,6 +1296,10 @@ class DevblocksEventHelper {
 			return FALSE;
 		
 		if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
+			return FALSE;
+		
+		// Load event manifest
+		if(false == ($ext = DevblocksPlatform::getExtension($behavior->event_point, false))) /* @var $ext DevblocksExtensionManifest */
 			return FALSE;
 		
 		if(empty($var))
@@ -1309,14 +1348,6 @@ class DevblocksEventHelper {
 					if(!isset($on_object->id) && empty($on_object->id))
 						continue;
 
-					if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
-						continue;
-					
-					// Load event manifest
-					if(null == ($ext = DevblocksPlatform::getExtension($behavior->event_point, false))) /* @var $ext DevblocksExtensionManifest */
-						continue;
-						//throw new Exception("Invalid event.");
-					
 					$runners = call_user_func(array($ext->class, 'trigger'), $behavior->id, $on_object->id, $vars);
 					
 					if(null != (@$runner = $runners[$behavior->id])) {
