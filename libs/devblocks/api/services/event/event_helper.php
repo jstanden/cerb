@@ -1126,6 +1126,125 @@ class DevblocksEventHelper {
 	}
 	
 	/*
+	 * Action: Get links
+	 */
+	
+	static function renderActionGetLinks($trigger) { /* @var $trigger Model_TriggerEvent */
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('trigger', $trigger);
+
+		$event = $trigger->getEvent();
+		
+		$values_to_contexts = $event->getValuesContexts($trigger);
+		$tpl->assign('values_to_contexts', $values_to_contexts);
+		
+		$context_exts = Extension_DevblocksContext::getAll(false);
+		$tpl->assign('context_exts', $context_exts);
+		
+		$tpl->display('devblocks:cerberusweb.core::events/action_get_links.tpl');
+	}
+	
+	static function simulateActionGetLinks($params, DevblocksDictionaryDelegate $dict) {
+		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		@$links_context = DevblocksPlatform::importVar($params['links_context'],'string','');
+		@$var = DevblocksPlatform::importVar($params['var'],'string','');
+		
+		$out = '';
+		
+		$trigger = $dict->_trigger;
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($links_context)))
+			return;
+		
+		$out .= sprintf(">> Get %s links on:\n",
+			$context_ext->manifest->name
+		);
+		
+		// On
+		
+		if(!empty($on)) {
+			$event = $trigger->getEvent();
+			
+			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
+			@$on_objects = $on_result['objects'];
+			
+			if(is_array($on_objects)) {
+				foreach($on_objects as $on_object) {
+					if(!isset($on_object->id) && empty($on_object->id))
+						continue;
+
+					$on_object_context = Extension_DevblocksContext::get($on_object->_context);
+					$out .= '  * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";
+				}
+			}
+			
+			$out .= "\n";
+		}
+		
+		// Placeholder
+		
+		$out .= sprintf(">>> Save links to placeholder named:\n  {{%s}}\n",
+			$var
+		);
+		
+		// Run it in the simulator too
+		
+		self::runActionGetLinks($params, $dict);
+		
+		return $out;
+	}
+	
+	static function runActionGetLinks($params, $dict) {
+		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		@$links_context = DevblocksPlatform::importVar($params['links_context'],'string','');
+		@$var = DevblocksPlatform::importVar($params['var'],'string','');
+		
+		if(false == ($trigger = $dict->_trigger))
+			return;
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($links_context)))
+			return;
+		
+		if(!empty($on)) {
+			$event = $trigger->getEvent();
+			
+			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
+			@$on_objects = $on_result['objects'];
+
+			if(!empty($on_objects)) {
+				$first = current($on_objects);
+				$context = $first->_context;
+				unset($first);
+				
+				$keys = array_map(function($e) {
+					list($context, $context_id) = explode(':', $e);
+					return $context_id;
+				}, array_keys($on_objects));
+				
+				if(!empty($keys)) {
+					$results = DAO_ContextLink::getContextLinks($context, $keys, $links_context);
+					$data = array();
+					
+					foreach($results as $links) {
+						foreach($links as $link_pair) {
+							$values = array(
+								'_context' => $link_pair->context,
+								'id' => $link_pair->context_id,
+							);
+
+							$data[$link_pair->context_id] = DevblocksDictionaryDelegate::instance($values);
+						}
+					}
+					
+					$dict->$var = $data;
+				}
+				
+			}
+		}
+	}
+	
+	/*
 	 * Action: Run Behavior
 	 */
 	

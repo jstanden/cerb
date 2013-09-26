@@ -1042,6 +1042,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	
 	function getActions($trigger) { /* @var $trigger Model_TriggerEvent */
 		$actions = array(
+			'_get_links' => array('label' => '(Get links)'),
 			'_run_behavior' => array('label' => '(Run behavior)'),
 			'_schedule_behavior' => array('label' => '(Schedule behavior)'),
 			'_set_custom_var' => array('label' => '(Set a custom placeholder)'),
@@ -1104,6 +1105,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		// Nope, it's a global action
 		} else {
 			switch($token) {
+				case '_get_links':
+					DevblocksEventHelper::renderActionGetLinks($trigger);
+					break;
+					
 				case '_set_custom_var':
 					$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_custom_var.tpl');
 					break;
@@ -1184,6 +1189,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			
 		} else {
 			switch($token) {
+				case '_get_links':
+					return DevblocksEventHelper::simulateActionGetLinks($params, $dict);
+					break;
+					
 				case '_set_custom_var':
 					@$var = $params['var'];
 					@$format = $params['format'];
@@ -1240,6 +1249,13 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			
 		} else {
 			switch($token) {
+				case '_get_links':
+					if($dry_run)
+						$out = $this->simulateAction($token, $trigger, $params, $dict);
+					else
+						DevblocksEventHelper::runActionGetLinks($params, $dict);
+					break;
+					
 				case '_set_custom_var':
 					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 					
