@@ -2135,7 +2135,8 @@ abstract class C4_AbstractView {
 				$field_key => new DevblocksSearchCriteria($field_key,DevblocksSearchCriteria::OPER_TRUE),
 			);
 			$params = array_merge($params, $add_param);
-		} else {
+			
+		} elseif($params[$field_key] instanceof DevblocksSearchCriteria) {
 			switch($params[$field_key]->operator) {
 				case DevblocksSearchCriteria::OPER_EQ:
 				case DevblocksSearchCriteria::OPER_IS_NULL:
@@ -2648,15 +2649,16 @@ class C4_AbstractViewLoader {
 		
 		// Convert JSON params back to objects
 		$func = function(&$e) use (&$func) {
-			if(isset($e['field']) && isset($e['operator']) && isset($e['value'])) {
+			if(is_array($e) && isset($e['field']) && isset($e['operator'])) {
 				$e = new DevblocksSearchCriteria($e['field'], $e['operator'], $e['value']);
 				
-			} else {
-				if(is_array($e))
+			} elseif(is_array($e)) {
 				array_walk(
 					$e,
 					$func
 				);
+			} else {
+				// Trim?
 			}
 		};
 		
