@@ -1244,11 +1244,6 @@ Brea, CA 92822 USA&lt;br&gt;&#13;
         <seg>Reportar este ticket como spam (S)</seg>
       </tuv>
     </tu>
-    <tu tuid="display.shortcut.refresh">
-      <tuv xml:lang="pt_PT">
-        <seg>Refrescar este ticket</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.shortcut.read_all">
       <tuv xml:lang="pt_PT">
         <seg>Ler todas as mensagens por ordem cronolgica (A)</seg>
