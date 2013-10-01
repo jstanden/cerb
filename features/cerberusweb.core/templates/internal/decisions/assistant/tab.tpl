@@ -1,5 +1,7 @@
 {$tab_uniqid = "{uniqid()}"}
 
+{$is_writeable = $va->isWriteableByActor($active_worker)}
+
 {if $is_writeable}
 	<form action="javascript:;" id="frmTrigger{$tab_uniqid}" onsubmit="return false;">
 	

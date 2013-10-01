@@ -2565,9 +2565,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(!$va->isReadableByActor($active_worker))
 			return;
 		
-		$is_writeable = $va->isWriteableByActor($active_worker) ? true : false;
-		$tpl->assign('is_writeable', $is_writeable);
-		
 		// Events
 		
 		$events = Extension_DevblocksEvent::getByContext($va->owner_context, false);
