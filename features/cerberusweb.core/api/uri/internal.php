@@ -1971,9 +1971,14 @@ class ChInternalController extends DevblocksControllerExtension {
 					$cols = array();
 					if(is_array($columns))
 					foreach($columns as $col) {
-						$cols[] = sprintf("\"%s\"",
-							str_replace('"','\"',$row[$col])
-						);
+						$value = '';
+						
+						if(isset($row[$col]))
+							$value = sprintf("\"%s\"",
+								str_replace('"','\"',$row[$col])
+							);
+						
+						$cols[] = $value;
 					}
 					echo implode(',', $cols) . "\r\n";
 				}
@@ -1994,7 +1999,12 @@ class ChInternalController extends DevblocksControllerExtension {
 				$object = array();
 				if(is_array($columns))
 				foreach($columns as $col) {
-					$object[$col] = $row[$col];
+					$value = '';
+					
+					if(isset($row[$col]))
+						$value = $row[$col];
+						
+					$object[$col] = $value;
 				}
 				
 				$objects[] = $object;
@@ -2014,11 +2024,13 @@ class ChInternalController extends DevblocksControllerExtension {
 			list($results, $null) = $view->getData();
 			if(is_array($results))
 			foreach($results as $row) {
-				$result =& $xml->addChild("result");
+				$result = $xml->addChild("result");
 				if(is_array($columns))
 				foreach($columns as $col) {
-					$field =& $result->addChild("field",htmlspecialchars($row[$col],null,LANG_CHARSET_CODE));
-					$field->addAttribute("id", $col);
+					if(isset($row[$col])) {
+						$field = $result->addChild("field",htmlspecialchars($row[$col],null,LANG_CHARSET_CODE));
+						$field->addAttribute("id", $col);
+					}
 				}
 			}
 
