@@ -3411,15 +3411,29 @@ class DevblocksEventHelper {
 
 			$vals = array();
 			
+			// [TODO] We could cache the output of this for the same $on
+			//		It runs multiple times even on simple actions.
+			
 			foreach($on_keys as $on) {
 				$on_value = null;
-				
-				if(isset($values_to_contexts[$on]['context_id']))
-					@$on_value = $values_to_contexts[$on]['context_id'];
-				
+				@$is_polymorphic = $values_to_contexts[$on]['is_polymorphic'];
+
+				// If we're given an explicit context_id (i.e. not the value of the key)
+				if(isset($values_to_contexts[$on]['context_id'])) {
+					if(is_numeric($values_to_contexts[$on]['context_id'])) {
+						@$on_value = $values_to_contexts[$on]['context_id'];
+						
+					} else {
+						$on_value_key = $values_to_contexts[$on]['context_id'];
+						@$on_value = $dict->$on_value_key;
+					}
+				}
+
+				// If we don't have a value yet, use the value of the given $on key
 				if(empty($on_value))
 					@$on_value = $dict->$on;
 
+				// If we still don't have a value, skip this entry
 				if(empty($on_value))
 					continue;
 
@@ -3437,8 +3451,21 @@ class DevblocksEventHelper {
 						$vals = is_array($on_value) ? $on_value : array($on_value);
 				}
 
-				@$ctx_ext = $values_to_contexts[$on]['context'];
+				$ctx_ext = null;
 
+				// If $on is a dynamic context, find the right context
+				if($is_polymorphic) {
+					// If we're given a key to check for the context, use it.
+					if(isset($values_to_contexts[$on]['context'])) {
+						$ctx_ext_key = $values_to_contexts[$on]['context'];
+						$ctx_ext = $dict->$ctx_ext_key;
+					}
+					
+				// Otherwise, check the explicit context
+				} elseif(isset($values_to_contexts[$on]['context'])) {
+					@$ctx_ext = $values_to_contexts[$on]['context'];
+				}
+				
 				foreach($vals as $ctx_id => $ctx_object) {
 					if(empty($ctx_object))
 						continue;

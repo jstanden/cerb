@@ -98,6 +98,18 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 				'label' => 'Comment',
 				'context' => CerberusContexts::CONTEXT_COMMENT,
 			),
+			'comment_owner_context' => array(
+				'label' => 'Comment author',
+				'is_polymorphic' => true,
+				'context' => 'comment_owner_context',
+				'context_id' => 'comment_owner_context_id',
+			),
+			'comment_context' => array(
+				'label' => 'Comment record',
+				'is_polymorphic' => true,
+				'context' => 'comment_context',
+				'context_id' => 'comment_context_id',
+			),
 		);
 		
 		$vars = parent::getValuesContexts($trigger);

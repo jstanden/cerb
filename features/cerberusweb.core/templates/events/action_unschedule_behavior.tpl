@@ -4,7 +4,9 @@
 <select name="{$namePrefix}[on]" class="on">
 	{foreach from=$values_to_contexts item=context_data key=val_key name=context_data}
 	{if $smarty.foreach.context_data.first && empty($params.on)}{$params.on = $val_key}{/if}
+	{if !$context_data.is_polymorphic}
 	<option value="{$val_key}" context="{$context_data.context}" {if $params.on==$val_key}{$selected_context = $context_data.context}selected="selected"{/if}>{$context_data.label}</option>
+	{/if}
 	{/foreach}
 </select>
 </div>
@@ -35,14 +37,15 @@
 <script type="text/javascript">
 $action = $('fieldset#{$namePrefix}');
 $action.find('select.on').change(function(e) {
-	ctx = $(this).find('option:selected').attr('context');
+	var $on = $(this).find('option:selected');
+	var ctx = $on.attr('context');
 
-	$sel_behavior = $(this).closest('fieldset').find('select.behavior');
+	var $sel_behavior = $(this).closest('fieldset').find('select.behavior');
 	$sel_behavior.find('option').remove();
 	
-	$sel_behavior_defaults = $(this).closest('fieldset').find('select.behavior_defaults');
+	var $sel_behavior_defaults = $(this).closest('fieldset').find('select.behavior_defaults');
 	$sel_behavior_defaults.find('option').each(function() {
-		$this = $(this);
+		var $this = $(this);
 		if($this.attr('context') == ctx) {
 			$sel_behavior.append($this.clone());
 		}
