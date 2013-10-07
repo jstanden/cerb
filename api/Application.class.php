@@ -1956,10 +1956,10 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 		return false;
 	}
 	
-	static protected function _getRandom($table) {
+	static protected function _getRandom($table, $pkey='id') {
 		$db = DevblocksPlatform::getDatabaseService();
 		$offset = $db->GetOne(sprintf("SELECT ROUND(RAND()*(SELECT COUNT(*)-1 FROM %s))", $table));
-		return $db->GetOne(sprintf("SELECT id FROM %s LIMIT %d,1", $table, $offset));
+		return $db->GetOne(sprintf("SELECT %s FROM %s LIMIT %d,1", $pkey, $table, $offset));
 	}
 	
 	static protected function _appendSelectJoinSqlForCustomFieldTables($tables, $params, $key, $select_sql, $join_sql) {
