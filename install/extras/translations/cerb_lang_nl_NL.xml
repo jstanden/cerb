@@ -1706,11 +1706,6 @@
         <seg>Lees alle berichten in chronologische volgorde (A)</seg>
       </tuv>
     </tu>
-    <tu tuid="display.shortcut.refresh">
-      <tuv xml:lang="nl_NL">
-        <seg>Herlaad deze ticket</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.shortcut.spam">
       <tuv xml:lang="nl_NL">
         <seg>Rapporteer deze ticket als spam (S)</seg>

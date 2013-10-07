@@ -1836,11 +1836,6 @@
         <seg>Alle Nachrichten in chronologischer Reihenfolge lesen (A)</seg>
       </tuv>
     </tu>
-    <tu tuid="display.shortcut.refresh">
-      <tuv xml:lang="de_DE">
-        <seg>Ticket neu laden</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.shortcut.spam">
       <tuv xml:lang="de_DE">
         <seg>Ticket als Spam markieren (S)</seg>

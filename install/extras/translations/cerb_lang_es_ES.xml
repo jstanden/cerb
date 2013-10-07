@@ -1526,11 +1526,6 @@
         <seg>Leer todos los mensajes en orden cronológico (A)</seg>
       </tuv>
     </tu>
-    <tu tuid="display.shortcut.refresh">
-      <tuv xml:lang="es_ES">
-        <seg>Recargar este ticket</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.shortcut.spam">
       <tuv xml:lang="es_ES">
         <seg>Marcar este ticket como spam (S)</seg>

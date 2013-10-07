@@ -921,11 +921,6 @@
         <seg>Leggi tutti i messaggi in ordine cronologico (A)</seg>
       </tuv>
     </tu>
-    <tu tuid="display.shortcut.refresh">
-      <tuv xml:lang="it_IT">
-        <seg>Ricarica questo ticket</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.shortcut.spam">
       <tuv xml:lang="it_IT">
         <seg>Riporta ticket come spam (S)</seg>

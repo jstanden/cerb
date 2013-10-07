@@ -235,6 +235,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		@$http_verb = $params['http_verb'];
 		@$http_url = $tpl_builder->build($params['http_url'], $dict);
 		@$http_body = $tpl_builder->build($params['http_body'], $dict);
+		@$run_in_simulator = $params['run_in_simulator'];
 		@$response_placeholder = $params['response_placeholder'];
 		
 		if(empty($http_verb))
@@ -253,13 +254,15 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 			(in_array($http_verb, array('post','put')) ? ("\n" . $http_body. "\n") : "")
 		);
 		
-		$out .= sprintf(">>> Saving response to placeholder:\n%s\n",
+		$out .= sprintf(">>> Saving response to {{%s}}\n",
 			$response_placeholder
 		);
 
-		// [TODO] If set to run in simulator as well
-		//$response = $this->_execute($http_verb, $http_url, array(), $http_body);
-		//$dict->$response_placeholder = $response;
+		// If set to run in simulator as well
+		if($run_in_simulator) {
+			$response = $this->_execute($http_verb, $http_url, array(), $http_body);
+			$dict->$response_placeholder = $response;
+		}
 		
 		return $out;
 	}

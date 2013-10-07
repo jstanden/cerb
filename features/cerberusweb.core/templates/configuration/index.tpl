@@ -4,7 +4,7 @@
 			<div>
 				<a href="javascript:;" class="menu">Configure <span class="cerb-sprite sprite-arrow-down-white"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
-					<li><a href="{devblocks_url}c=config&a=branding{/devblocks_url}">Logo &amp; Title</a></li>
+					<li><a href="{devblocks_url}c=config&a=branding{/devblocks_url}">Branding</a></li>
 					<li><a href="{devblocks_url}c=config&a=localization{/devblocks_url}">Localization</a></li>
 					<li><a href="{devblocks_url}c=config&a=security{/devblocks_url}">Security</a></li>
 					<li><a href="{devblocks_url}c=config&a=fields{/devblocks_url}">Custom Fields</a></li>

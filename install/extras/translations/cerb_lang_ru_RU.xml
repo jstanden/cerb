@@ -1496,11 +1496,6 @@
         <seg>Прочесть все сообщения в хронологическом порядке (A)</seg>
       </tuv>
     </tu>
-    <tu tuid="display.shortcut.refresh">
-      <tuv xml:lang="ru_RU">
-        <seg>Обновить эту заявку</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.shortcut.spam">
       <tuv xml:lang="ru_RU">
         <seg>Пометить эту заявку как спам (S)</seg>

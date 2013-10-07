@@ -1422,9 +1422,6 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='display.shortcut.read_all'>
 			<tuv xml:lang="en_US"><seg>Read all messages in chronological order (A)</seg></tuv>
 		</tu>
-		<tu tuid='display.shortcut.refresh'>
-			<tuv xml:lang="en_US"><seg>Reload this ticket</seg></tuv>
-		</tu>
 		<tu tuid='display.shortcut.spam'>
 			<tuv xml:lang="en_US"><seg>Report this ticket as spam (S)</seg></tuv>
 		</tu>

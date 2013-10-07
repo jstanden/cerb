@@ -155,6 +155,7 @@
 		</file>
 		
 		<file path="api/dao/comment.php">
+			<class name="Context_Comment" />
 			<class name="DAO_Comment" />
 			<class name="Model_Comment" />
 			<class name="Search_CommentContent" />

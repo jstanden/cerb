@@ -4,7 +4,9 @@
 <select name="{$namePrefix}[on]" class="on">
 	{foreach from=$values_to_contexts item=context_data key=val_key name=context_data}
 	{if $smarty.foreach.context_data.first && empty($params.on)}{$params.on = $val_key}{/if}
+	{if !$context_data.is_polymorphic}
 	<option value="{$val_key}" context="{$context_data.context}" {if $params.on==$val_key}{$selected_context = $context_data.context}selected="selected"{/if}>{$context_data.label}</option>
+	{/if}
 	{/foreach}
 </select>
 </div>
@@ -37,6 +39,12 @@
 {include file="devblocks:cerberusweb.core::events/_action_behavior_params.tpl" params=$params macro_params=$macros.{$params.behavior_id}->variables}
 </div>
 
+<b>Also run behavior in simulator mode:</b>
+<div style="margin-left:10px;margin-bottom:10px;">
+	<label><input type="radio" name="{$namePrefix}[run_in_simulator]" value="1" {if $params.run_in_simulator}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
+	<label><input type="radio" name="{$namePrefix}[run_in_simulator]" value="0" {if !$params.run_in_simulator}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label>
+</div>
+
 <b>Save behavior data to a placeholder named:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
 	&#123;&#123;<input type="text" name="{$namePrefix}[var]" size="24" value="{if !empty($params.var)}{$params.var}{else}_behavior{/if}" required="required" spellcheck="false">&#125;&#125;
@@ -48,22 +56,23 @@
 <script type="text/javascript">
 $action = $('fieldset#{$namePrefix}');
 $action.find('select.behavior').change(function(e) {
-	$div = $(this).closest('fieldset').find('div.parameters');
+	var $div = $(this).closest('fieldset').find('div.parameters');
 	genericAjaxGet($div,'c=internal&a=showBehaviorParams&name_prefix={$namePrefix}&trigger_id=' + $(this).val());
 });
 
 $action.find('select.on').change(function(e) {
-	$div = $(this).closest('fieldset').find('div.parameters');
+	var $div = $(this).closest('fieldset').find('div.parameters');
 	$div.html('');
 	
-	ctx = $(this).find('option:selected').attr('context');
+	var $on = $(this).find('option:selected');
+	var ctx = $on.attr('context');
 
-	$sel_behavior = $(this).closest('fieldset').find('select.behavior');
+	var $sel_behavior = $(this).closest('fieldset').find('select.behavior');
 	$sel_behavior.find('option').remove();
 	
-	$sel_behavior_defaults = $(this).closest('fieldset').find('select.behavior_defaults');
+	var $sel_behavior_defaults = $(this).closest('fieldset').find('select.behavior_defaults');
 	$sel_behavior_defaults.find('option').each(function() {
-		$this = $(this);
+		var $this = $(this);
 		if($this.attr('context') == ctx) {
 			$sel_behavior.append($this.clone());
 		}

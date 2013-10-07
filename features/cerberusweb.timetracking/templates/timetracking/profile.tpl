@@ -49,7 +49,8 @@
 				{$v.value}
 			{elseif $k == 'time_spent'}
 				<b>{$v.label}:</b>
-				{$time_entry->getTimeSpentAsString()}
+				{$time_spent_secs = $time_entry->time_actual_mins * 60}
+				{$time_spent_secs|devblocks_prettysecs:2}
 			{else}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
 			{/if}

@@ -490,6 +490,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		$contexts_to_macros = DevblocksEventHelper::getContextToMacroMap();
 		$macros_to_contexts = array_flip($contexts_to_macros);
 
+		// Custom fields
+		
 		$cfields = array();
 		$custom_fields = DAO_CustomField::getAll();
 		$vars = array();
@@ -521,7 +523,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			}
 		}
 		
-		// behavior vars
+		// Virtual Attendant
+		
+		
+		// Behavior Vars
 		$vars = DevblocksEventHelper::getVarValueToContextMap($trigger);
 		
 		return array_merge($cfields, $vars);
@@ -1037,6 +1042,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	
 	function getActions($trigger) { /* @var $trigger Model_TriggerEvent */
 		$actions = array(
+			'_get_links' => array('label' => '(Get links)'),
 			'_run_behavior' => array('label' => '(Run behavior)'),
 			'_schedule_behavior' => array('label' => '(Schedule behavior)'),
 			'_set_custom_var' => array('label' => '(Set a custom placeholder)'),
@@ -1099,6 +1105,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		// Nope, it's a global action
 		} else {
 			switch($token) {
+				case '_get_links':
+					DevblocksEventHelper::renderActionGetLinks($trigger);
+					break;
+					
 				case '_set_custom_var':
 					$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_custom_var.tpl');
 					break;
@@ -1179,13 +1189,17 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			
 		} else {
 			switch($token) {
+				case '_get_links':
+					return DevblocksEventHelper::simulateActionGetLinks($params, $dict);
+					break;
+					
 				case '_set_custom_var':
 					@$var = $params['var'];
 					@$format = $params['format'];
 					
 					$value = ($format == 'json') ? @DevblocksPlatform::strFormatJson(json_encode($dict->$var, true)) : $dict->$var;
 					
-					return sprintf(">>> Setting custom variable {{%s}}:\n%s\n\n",
+					return sprintf(">>> Setting custom placeholder {{%s}}:\n%s\n\n",
 						$var,
 						$value
 					);
@@ -1235,6 +1249,13 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			
 		} else {
 			switch($token) {
+				case '_get_links':
+					if($dry_run)
+						$out = $this->simulateAction($token, $trigger, $params, $dict);
+					else
+						DevblocksEventHelper::runActionGetLinks($params, $dict);
+					break;
+					
 				case '_set_custom_var':
 					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 					
@@ -1313,16 +1334,15 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			/* @var $trigger Model_TriggerEvent */
 			$all_actions = $this->getActions($trigger);
 			$log = EventListener_Triggers::getNodeLog();
-			$nodes = $trigger->getNodes();
 			
 			if(!isset($dict->_simulator_output) || !is_array($dict->_simulator_output))
 				$dict->_simulator_output = array();
 			
-			$node = array_pop($log);
+			$node_id = array_pop($log);
 			
-			if(!empty($node) && isset($nodes[$node])) {
+			if(!empty($node_id) && false !== ($node = DAO_DecisionNode::get($node_id))) {
 				$output = array(
-					'action' => $nodes[$node]->title,
+					'action' => $node->title,
 					'title' => $all_actions[$token]['label'],
 					'content' => $out,
 				);

@@ -1,4 +1,4 @@
-<h2>Logo &amp; Title</h2>
+<h2>Branding</h2>
 
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupBranding" onsubmit="return false;">
 <input type="hidden" name="c" value="config">
@@ -13,6 +13,10 @@
 	<input type="text" name="logo" value="{$settings->get('cerberusweb.core','helpdesk_logo_url')}" size="64"><br>
 	<br>
 	
+	<b>Favicon URL:</b> (leave blank for default)<br>
+	<input type="text" name="favicon" value="{$settings->get('cerberusweb.core','helpdesk_favicon_url')}" size="64"><br>
+	<br>
+
 	<b>Helpdesk Title:</b><br>
 	<input type="text" name="title" value="{$settings->get('cerberusweb.core','helpdesk_title')}" size="64"><br>
 	<br>
