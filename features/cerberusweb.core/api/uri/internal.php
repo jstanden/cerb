@@ -2821,6 +2821,9 @@ class ChInternalController extends DevblocksControllerExtension {
 				$labels = $evt->getLabels($trigger);
 				$tpl->assign('labels', $labels);
 					
+				$values = $evt->getValues();
+				$tpl->assign('values', $values);
+				
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/outcome.tpl');
 				break;
 				
@@ -2834,6 +2837,9 @@ class ChInternalController extends DevblocksControllerExtension {
 				// Action labels
 				$labels = $evt->getLabels($trigger);
 				$tpl->assign('labels', $labels);
+				
+				$values = $evt->getValues();
+				$tpl->assign('values', $values);
 
 				// Template
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/action.tpl');

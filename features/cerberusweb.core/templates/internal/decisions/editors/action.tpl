@@ -48,8 +48,15 @@
 		<li style="background:none;">
 			<input type="text" size="18" class="input_search filter">
 		</li>
+		{$types = $values._types}
 		{foreach from=$labels key=k item=v}
-		<li><a href="javascript:;" token="{$k}">{$v}</a></li>
+			{$modifier = ''}
+			
+			{$type = $types.$k}
+			{if $type == Model_CustomField::TYPE_DATE}
+				{$modifier = '|date'}
+			{/if}
+			<li><a href="javascript:;" token="{$k}{$modifier}">{$v}</a></li>
 		{/foreach}
 	</ul>
 </div>
