@@ -2562,6 +2562,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 	
 	function renderCriteriaParam($param) {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
@@ -2596,7 +2598,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 				foreach($values as $val) {
 					if(0==$val) {
-						$strings[] = "Inbox";
+						$strings[] = mb_convert_case($translate->_('common.inbox'), MB_CASE_TITLE);
 					} elseif(!isset($buckets[$val])) {
 						continue;
 					} else {
