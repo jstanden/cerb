@@ -157,7 +157,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				$labels,
 				$values
 			);
-			
+		
 		/**
 		 * Group
 		 */
@@ -291,7 +291,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			'ticket_owner_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_owner_title' => Model_CustomField::TYPE_SINGLE_LINE,
 		
-			"ticket_bucket_name|default('Inbox')" => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_bucket_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_created' => Model_CustomField::TYPE_DATE,
 			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_spam_score' => null,
