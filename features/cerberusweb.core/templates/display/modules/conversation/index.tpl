@@ -89,20 +89,27 @@
 	});
 	
 	function displayReply(msgid, is_forward, draft_id, is_quoted, is_confirmed) {
-		msgid = parseInt(msgid);
-		$div = $('#reply' + msgid);
+		var msgid = parseInt(msgid);
+		var $div = $('#reply' + msgid);
 		
+		// If the reply window is already open, just focus it
+		if($div.contents().length > 0) {
+			$div.find('input:text:first').first().focus();
+			return;
+		}
+		
+		// 
 		if(0 == $div.length)
 			return;
 		
-		is_forward = (null == is_forward || 0 == is_forward) ? 0 : 1;
-		draft_id = (null == draft_id) ? 0 : parseInt(draft_id);
-		is_quoted = (null == is_quoted) ? 1 : parseInt(is_quoted);
-		is_confirmed = (null == is_confirmed) ? 0 : parseInt(is_confirmed);
+		var is_forward = (null == is_forward || 0 == is_forward) ? 0 : 1;
+		var draft_id = (null == draft_id) ? 0 : parseInt(draft_id);
+		var is_quoted = (null == is_quoted) ? 1 : parseInt(is_quoted);
+		var is_confirmed = (null == is_confirmed) ? 0 : parseInt(is_confirmed);
 		
 		genericAjaxGet('', 'c=display&a=reply&forward='+is_forward+'&draft_id='+draft_id+'&is_quoted='+is_quoted+'&is_confirmed='+is_confirmed+'&timestamp={time()}&id=' + msgid,
 			function(html) {
-				$div = $('#reply' + msgid);
+				var $div = $('#reply' + msgid);
 				
 				if(0 == $div.length)
 					return;
