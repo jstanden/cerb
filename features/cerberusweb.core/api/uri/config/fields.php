@@ -97,9 +97,11 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 		// Properties
 		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array',array());
 		@$names = DevblocksPlatform::importGPC($_POST['names'],'array',array());
-		@$orders = DevblocksPlatform::importGPC($_POST['orders'],'array',array());
 		@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
 		@$deletes = DevblocksPlatform::importGPC($_POST['deletes'],'array',array());
+		
+		// Sort order is based on the order of the sent IDs
+		$orders = array_keys($ids);
 		
 		if(!empty($ids) && !empty($ext_id))
 		foreach($ids as $idx => $id) {

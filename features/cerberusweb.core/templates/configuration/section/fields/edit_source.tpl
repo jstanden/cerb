@@ -8,43 +8,36 @@
 	<legend>{$context_manifest->name} - {'common.custom_fields'|devblocks_translate|capitalize}</legend>
 
 	<table cellspacing="2" cellpadding="1" border="0">
-		<tr style="background-color:rgb(230,230,230);">
-			<td><b>Order</b></td>
-			<td><b>Type</b></td>
-			<td><b>Custom Field</b></td>
-			<td><b>ID</b></td>
-			<td align="center"><b>Delete</td>
-		</tr>
+		<thead>
+			<tr style="background-color:rgb(230,230,230);">
+				<td align="center"></td>
+				<td align="center"><input type="checkbox" class="check-all"></td>
+				<td><b>Type</b></td>
+				<td><b>Custom Field</b></td>
+			</tr>
+		</thead>
 	{counter name=field_pos start=0 print=false}
 	{foreach from=$fields item=f key=field_id name=fields}
 		{assign var=type_code value=$f->type}
-		<tr>
-			<td valign="top"><input type="text" name="orders[]" value="{counter name=field_pos}" size="3"> </td>
-			<td valign="middle">{$types.$type_code}</td>
-			<td valign="middle">
-				<input type="hidden" name="ids[]" value="{$field_id}">
-				<input type="text" name="names[]" value="{$f->name}" size="35" style="width:300;">
-				{if $type_code != 'D' && $type_code != 'X'}
-					<input type="hidden" name="options[]" value="">
-				{/if}
-			</td>
-			<td valign="middle">{$field_id}</td>
-			<td valign="top" align="center"><input type="checkbox" name="deletes[]" value="{$field_id}"></td>
-		</tr>
-		{if $type_code=='D' || $type_code=='X'}
-		<tr>
-			<td></td>
-			<td></td>
-			<td valign="top">
-				<div class="subtle2">
-				<b>Options:</b> (one per line)<br>
-				<textarea cols="35" rows="6" name="options[]" style="width:300;">{foreach from=$f->options item=opt}{$opt|cat:"\r\n"}{/foreach}</textarea>
-				</div>
-			</td>
-			<td></td>
-			<td></td>
-		</tr>
-		{/if}
+		<tbody class="sortable">
+			<tr>
+				<td valign="top" align="center"><span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span></td>
+				<td valign="top" align="center"><input type="checkbox" name="selected[]" value="{$field_id}"></td>
+				<td valign="top">{$types.$type_code}</td>
+				<td valign="top">
+					<input type="hidden" name="ids[]" value="{$field_id}">
+					<input type="text" name="names[]" value="{$f->name}" size="35" style="width:300;">
+					{if $type_code != 'D' && $type_code != 'X'}
+						<input type="hidden" name="options[]" value="">
+					{else}
+						<div class="subtle2">
+						<b>Options:</b> (one per line)<br>
+						<textarea cols="35" rows="6" name="options[]" style="width:300;">{foreach from=$f->options item=opt}{$opt|cat:"\r\n"}{/foreach}</textarea>
+						</div>
+					{/if}
+				</td>
+			</tr>
+		</tbody>
 	{/foreach}
 	</table>
 	<br>
@@ -70,3 +63,27 @@
 	
 	<button id="frmConfigFieldSourceSubmit" type="button" onclick="genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </fieldset>
+
+<script type="text/javascript">
+var $frm = $('#frmConfigFieldSource');
+
+$frm.find('input:checkbox.check-all').click(function() {
+	var checked = $(this).is(':checked');
+	
+	var $checkboxes = $(this).closest('form').find('input:checkbox[name="selected[]"]');
+	
+	if(checked) {
+		$checkboxes.attr('checked', 'checked');
+	} else {
+		$checkboxes.removeAttr('checked');
+	}
+});
+
+$frm.find('table').sortable({ 
+	items:'TBODY.sortable',
+	helper: 'original',
+	forceHelperSize: true,
+	handle: 'span.ui-icon-arrowthick-2-n-s'
+});
+
+</script>
