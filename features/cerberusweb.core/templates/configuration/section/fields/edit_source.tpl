@@ -3,6 +3,7 @@
 <input type="hidden" name="section" value="fields">
 <input type="hidden" name="action" value="saveRecordType">
 <input type="hidden" name="ext_id" value="{$context_manifest->id}">
+<input type="hidden" name="submit" value="">
 
 <fieldset>
 	<legend>{$context_manifest->name} - {'common.custom_fields'|devblocks_translate|capitalize}</legend>
@@ -61,7 +62,20 @@
 	</div>
 	<br>
 	
-	<button id="frmConfigFieldSourceSubmit" type="button" onclick="genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<fieldset class="delete" style="display:none;">
+		<legend>Delete selected fields</legend>
+		<p>
+			Are you sure you want to delete the selected custom fields and all of their data?
+		</p>
+		<button class="red" type="button" value="delete" onclick="$(this).closest('form').find('input:hidden[name=submit]').val('delete');genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');">{'common.yes'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="$(this).closest('fieldset').fadeOut().siblings('div.toolbar').fadeIn();">{'common.no'|devblocks_translate|capitalize}</button>
+	</fieldset>
+	
+	
+	<div class="toolbar">
+		<button id="frmConfigFieldSourceSubmit" type="button" onclick="$(this).closest('form').find('input:hidden[name=submit]').val('');genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		<button id="frmConfigFieldSourceDelete" type="button"><span class="cerb-sprite2 sprite-cross-circle"></span> Delete selected</button>
+	</div>
 </fieldset>
 
 <script type="text/javascript">
@@ -84,6 +98,10 @@ $frm.find('table').sortable({
 	helper: 'original',
 	forceHelperSize: true,
 	handle: 'span.ui-icon-arrowthick-2-n-s'
+});
+
+$frm.find('button#frmConfigFieldSourceDelete').click(function() {
+	$(this).closest('.toolbar').fadeOut().siblings('fieldset.delete').fadeIn();
 });
 
 </script>

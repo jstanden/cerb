@@ -95,10 +95,11 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 		@$ext_id = DevblocksPlatform::importGPC($_POST['ext_id'],'string','');
 		
 		// Properties
+		@$submit = DevblocksPlatform::importGPC($_POST['submit'],'string','');
 		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array',array());
 		@$names = DevblocksPlatform::importGPC($_POST['names'],'array',array());
 		@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
-		@$deletes = DevblocksPlatform::importGPC($_POST['deletes'],'array',array());
+		@$selected = DevblocksPlatform::importGPC($_POST['selected'],'array',array());
 		
 		// Sort order is based on the order of the sent IDs
 		$orders = array_keys($ids);
@@ -108,9 +109,11 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 			@$name = $names[$idx];
 			@$order = intval($orders[$idx]);
 			@$option = $options[$idx];
-			@$delete = (false !== array_search($id,$deletes) ? 1 : 0);
+
+			// Are we deleting this field?
+			$is_delete = ($submit == 'delete' && in_array($id, $selected)) ? true : false;
 			
-			if($delete) {
+			if($is_delete) {
 				DAO_CustomField::delete($id);
 				
 			} else {
