@@ -277,6 +277,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			'regexp_match_all' => new Twig_Function_Method($this, 'function_regexp_match_all'),
 			'json_decode' => new Twig_Function_Method($this, 'function_json_decode'),
 			'jsonpath_set' => new Twig_Function_Method($this, 'function_jsonpath_set'),
+			'xml_decode' => new Twig_Function_Method($this, 'function_xml_decode'),
 		);
 	}
 	
@@ -333,6 +334,12 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		}
 		
 		return array();
+	}
+	
+	function function_xml_decode($str) {
+		$xml = simplexml_load_string($str);
+		$array = json_decode(json_encode($xml), true);
+		return $array;
 	}
 	
 	public function getFilters() {
