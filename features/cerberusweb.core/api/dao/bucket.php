@@ -440,7 +440,15 @@ class Context_Bucket extends Extension_DevblocksContext {
 		
 		// Polymorph
 		if(is_numeric($bucket)) {
-			$bucket = DAO_Bucket::get($bucket);
+			if(0 == $bucket) {
+				$bucket = new Model_Bucket();
+				$bucket->id = 0;
+				$bucket->name = mb_convert_case($translate->_('common.inbox'), MB_CASE_TITLE);
+				
+			} else {
+				$bucket = DAO_Bucket::get($bucket);
+			}
+			
 		} elseif($bucket instanceof Model_Bucket) {
 			// It's what we want already.
 		} else {
@@ -473,9 +481,6 @@ class Context_Bucket extends Extension_DevblocksContext {
 
 		$token_values['_context'] = CerberusContexts::CONTEXT_BUCKET;
 		$token_values['_types'] = $token_types;
-		
-		$token_values['name'] = mb_convert_case($translate->_('common.inbox'), MB_CASE_TITLE);
-		$token_values['_label'] = $token_values['name'];
 		
 		// Token values
 		if(null != $bucket) {

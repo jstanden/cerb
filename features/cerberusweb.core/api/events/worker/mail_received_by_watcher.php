@@ -294,7 +294,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			'ticket_owner_title' => Model_CustomField::TYPE_SINGLE_LINE,
 			
 			// Ticket
-			"ticket_bucket_name|default('Inbox')" => Model_CustomField::TYPE_SINGLE_LINE,
+			"ticket_bucket_name" => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_created' => Model_CustomField::TYPE_DATE,
 			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_subject' => Model_CustomField::TYPE_SINGLE_LINE,

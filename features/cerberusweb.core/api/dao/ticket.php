@@ -2562,6 +2562,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 	
 	function renderCriteriaParam($param) {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
@@ -2596,7 +2598,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 				foreach($values as $val) {
 					if(0==$val) {
-						$strings[] = "Inbox";
+						$strings[] = mb_convert_case($translate->_('common.inbox'), MB_CASE_TITLE);
 					} elseif(!isset($buckets[$val])) {
 						continue;
 					} else {
@@ -3238,7 +3240,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$token_labels = array_merge($token_labels, $custom_field_labels);
 		
 		// Custom field/fieldset token types
-		if(false !== ($custom_field_types = $this->_getTokenTypesFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+		if(false !== ($custom_field_types = $this->_getTokenTypesFromCustomFields($fields, $prefix)) && is_array($custom_field_types))
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values

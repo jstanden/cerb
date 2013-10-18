@@ -50,7 +50,22 @@
 	{/foreach}
 </ul>
 
-<ul class="bubbles" style="display:block;"></ul>
+<ul class="bubbles" style="display:block;">
+{foreach from=$param->value item=context_data}
+	{$context_pair = explode(':',$context_data)}
+	{if is_array($context_pair) && 2 == count($context_pair)}
+	<li>
+		{$context = $context_pair.0}
+		{$context_id = $context_pair.1}
+		{$context_ext = Extension_DevblocksContext::get($context,true)}
+		{$meta = $context_ext->getMeta($context_id)}
+		<b>{$meta.name}</b> ({$context_ext->manifest->name})<!--
+		--><input type="hidden" name="owner_context[]" value="{$context}:{$context_id}"><!--
+		--><span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;" onclick="$(this).closest('li').remove();"></span>
+	</li>
+	{/if}
+{/foreach}
+</ul>
 
 <br>
 
