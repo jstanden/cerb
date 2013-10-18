@@ -63,17 +63,33 @@
 	<br>
 	
 	<fieldset class="delete" style="display:none;">
-		<legend>Delete selected fields</legend>
+		<legend>Delete selected fields:</legend>
 		<p>
 			Are you sure you want to delete the selected custom fields and all of their data?
 		</p>
-		<button class="red" type="button" value="delete" onclick="$(this).closest('form').find('input:hidden[name=submit]').val('delete');genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');">{'common.yes'|devblocks_translate|capitalize}</button>
-		<button type="button" onclick="$(this).closest('fieldset').fadeOut().siblings('div.toolbar').fadeIn();">{'common.no'|devblocks_translate|capitalize}</button>
+		<button class="red" type="button" value="delete" onclick="$(this).closest('form').find('input:hidden[name=submit]').val('delete');genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.yes'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="$(this).closest('fieldset').fadeOut().siblings('div.toolbar').fadeIn();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.no'|devblocks_translate|capitalize}</button>
 	</fieldset>
 	
+	{if !empty($fieldsets)}
+	<fieldset class="move" style="display:none;">
+		<legend>Move selected fields to custom fieldset:</legend>
+		<p>
+			<select name="move_to_fieldset_id">
+				{foreach from=$fieldsets item=fieldset}
+					{$owner_dict = $fieldset->getOwnerDictionary()}
+					<option value="{$fieldset->id}">{$fieldset->name} ({$owner_dict->_label})</option>
+				{/foreach}
+			</select>
+		</p>
+		<button type="button" value="move" onclick="$(this).closest('form').find('input:hidden[name=submit]').val('move');genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.continue'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="$(this).closest('fieldset').fadeOut().siblings('div.toolbar').fadeIn();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+	</fieldset>
+	{/if}
 	
 	<div class="toolbar">
 		<button id="frmConfigFieldSourceSubmit" type="button" onclick="$(this).closest('form').find('input:hidden[name=submit]').val('');genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		{if !empty($fieldsets)}<button id="frmConfigFieldSourceMove" type="button"><span class="cerb-sprite2 sprite-arrow-merge-090-left"></span> Move selected to fieldset</button>{/if}
 		<button id="frmConfigFieldSourceDelete" type="button"><span class="cerb-sprite2 sprite-cross-circle"></span> Delete selected</button>
 	</div>
 </fieldset>
@@ -102,6 +118,10 @@ $frm.find('table').sortable({
 
 $frm.find('button#frmConfigFieldSourceDelete').click(function() {
 	$(this).closest('.toolbar').fadeOut().siblings('fieldset.delete').fadeIn();
+});
+
+$frm.find('button#frmConfigFieldSourceMove').click(function() {
+	$(this).closest('.toolbar').fadeOut().siblings('fieldset.move').fadeIn();
 });
 
 </script>

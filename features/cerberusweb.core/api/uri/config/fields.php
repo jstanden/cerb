@@ -65,6 +65,10 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 		$fields = DAO_CustomField::getByContext($ext_id, false);
 		$tpl->assign('fields', $fields);
 		
+		// Get the custom fieldsets for this type (visible to owner)
+		$fieldsets = DAO_CustomFieldset::getByContext($ext_id);
+		$tpl->assign('fieldsets', $fieldsets);
+		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/fields/edit_source.tpl');
 	}
 	
@@ -122,6 +126,17 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 					DAO_CustomField::POS => $order,
 					DAO_CustomField::OPTIONS => !is_null($option) ? $option : '',
 				);
+				
+				// Handle moves to fieldset
+				$move_to_fieldset_id = DevblocksPlatform::importGPC($_POST['move_to_fieldset_id'],'integer',0);
+				
+				if($submit == 'move' && $move_to_fieldset_id && in_array($id, $selected)) {
+					$fields[DAO_CustomField::CUSTOM_FIELDSET_ID] = $move_to_fieldset_id;
+					
+					// Set up links for the custom field
+					DAO_CustomFieldset::linkToContextsByFieldValues($move_to_fieldset_id, $id);
+				}
+				
 				DAO_CustomField::update($id, $fields);
 			}
 		}
@@ -138,6 +153,7 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 				DAO_CustomField::CUSTOM_FIELDSET_ID => 0,
 				DAO_CustomField::CONTEXT => $ext_id,
 				DAO_CustomField::OPTIONS => $add_options,
+				DAO_CustomField::POS => 99,
 			);
 			$id = DAO_CustomField::create($fields);
 		}

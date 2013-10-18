@@ -55,6 +55,41 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		}
 	}
 	
+	static function linkToContextsByFieldValues($fieldset_id, $field_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$temp_table = '_links_' . uniqid();
+		
+		// Generate a temporary table
+		$db->Execute(sprintf("CREATE TEMPORARY TABLE %s (context VARCHAR(128), context_id INT)", $temp_table));
+		
+		// Find any contexts linking to it
+		$db->Execute(sprintf("INSERT IGNORE INTO %s SELECT context, context_id FROM custom_field_stringvalue WHERE field_id = %d", $temp_table, $field_id));
+		$db->Execute(sprintf("INSERT IGNORE INTO %s SELECT context, context_id FROM custom_field_numbervalue WHERE field_id = %d", $temp_table, $field_id));
+		$db->Execute(sprintf("INSERT IGNORE INTO %s SELECT context, context_id FROM custom_field_clobvalue WHERE field_id = %d", $temp_table, $field_id));
+		
+		// Link from the records to the fieldset
+		$db->Execute(sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+			"SELECT context, context_id, %s, %s FROM %s",
+			$db->qstr(CerberusContexts::CONTEXT_CUSTOM_FIELDSET),
+			$db->qstr($fieldset_id),
+			$temp_table
+		));
+		
+		// And link back in the other direction
+		$db->Execute(sprintf("INSERT IGNORE INTO context_link (to_context, to_context_id, from_context, from_context_id) ".
+			"SELECT context, context_id, %s, %s FROM %s",
+			$db->qstr(CerberusContexts::CONTEXT_CUSTOM_FIELDSET),
+			$db->qstr($fieldset_id),
+			$temp_table
+		));
+		
+		// Drop the temp table
+		$db->Execute(sprintf("DROP TABLE %s", $temp_table));
+		
+		return TRUE;
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -546,6 +581,11 @@ class Model_CustomFieldset {
 		}
 		
 		return false;
+	}
+	
+	function getOwnerDictionary() {
+		CerberusContexts::getContext($this->owner_context, $this->owner_context_id, $labels, $values);
+		return new DevblocksDictionaryDelegate($values);
 	}
 };
 
