@@ -175,14 +175,16 @@ function showLoadingPanel() {
 	};
 
 	if(0 == $("#loadingPanel").length) {
-		$("body").append("<div id='loadingPanel' style='display:none;'></div>");
+		$("body").append("<div id='loadingPanel' style='display:none;text-align:center;padding-top:20px;'></div>");
 	}
 
 	// Set the content
-	$("#loadingPanel").html("This action may take a few moments.");
+	$("#loadingPanel").html('<img src="' + DevblocksAppPath + 'resource/cerberusweb.core/images/wgm/ajax-loader.gif"><h3>Loading, please wait...</h3>');
 	
 	// Render
 	loadingPanel = $("#loadingPanel").dialog(options);
+	
+	loadingPanel.siblings('.ui-dialog-titlebar').hide();
 	
 	loadingPanel.dialog('open');
 }

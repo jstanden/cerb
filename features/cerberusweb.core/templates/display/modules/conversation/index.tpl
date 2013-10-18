@@ -107,9 +107,13 @@
 		var is_quoted = (null == is_quoted) ? 1 : parseInt(is_quoted);
 		var is_confirmed = (null == is_confirmed) ? 0 : parseInt(is_confirmed);
 		
+		showLoadingPanel();
+		
 		genericAjaxGet('', 'c=display&a=reply&forward='+is_forward+'&draft_id='+draft_id+'&is_quoted='+is_quoted+'&is_confirmed='+is_confirmed+'&timestamp={time()}&id=' + msgid,
 			function(html) {
 				var $div = $('#reply' + msgid);
+				
+				hideLoadingPanel();
 				
 				if(0 == $div.length)
 					return;
