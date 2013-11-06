@@ -124,7 +124,6 @@
 	<legend>{'common.custom_fields'|devblocks_translate|capitalize}</legend>
 
 	<table cellspacing="2" cellpadding="1" border="0" width="100%">
-	{counter name=field_pos start=0 print=false}
 	{foreach from=$custom_fields item=f key=field_id name=fields}
 		{assign var=type_code value=$f->type}
 		<tr class="sortable">
@@ -135,12 +134,10 @@
 				<input type="hidden" name="ids[]" value="{$field_id}">
 				<input type="hidden" name="deletes[]" value="">
 				<input type="text" name="names[]" value="{$f->name}" placeholder="Enter a name for this custom field" size="35" style="width:100%;">
-				{if $type_code != 'D' && $type_code != 'X'}
-					<input type="hidden" name="options[]" value="">
-				{else}
-				<div class="options" style="">
-				<textarea cols="35" rows="6" name="options[]" style="width:100%;" placeholder="Enter choices (one per line)">{foreach from=$f->options item=opt}{$opt|cat:"\r\n"}{/foreach}</textarea>
-				</div>
+				{if $type_code == 'D' || $type_code == 'X'}
+					<div class="options" style="">
+						<textarea cols="35" rows="6" name="params[{$field_id}][options]" style="width:100%;" placeholder="Enter choices (one per line)">{foreach from=$f->params.options item=opt}{$opt|cat:"\r\n"}{/foreach}</textarea>
+					</div>
 				{/if}
 			</td>
 			<td width="1%" valign="top" nowrap="nowrap">
@@ -152,18 +149,19 @@
 	<tr class="cfields-add-template sortable" style="display:none;">
 		<td width="1%" valign="top" nowrap="nowrap"><span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span></td>
 		<td width="1%" valign="top" nowrap="nowrap">
-			<select name="types[]" onchange="var val = selectValue(this); var $div = $(this).closest('tr').find('div.options'); if(val=='X' || val=='D') $div.fadeIn(); else $div.fadeOut();">
+			<select name="types[]" class="context-picker">
 				{foreach from=$types item=type key=type_code}
 				<option value="{$type_code}">{$type}</option>
 				{/foreach}
 			</select>
 		</td>
 		<td width="97%" valign="top" nowrap="nowrap">
-			<input type="hidden" name="ids[]" value="">
+			<input type="hidden" name="ids[]" value="new_##id##">
 			<input type="hidden" name="deletes[]" value="">
 			<input type="text" name="names[]" value="" placeholder="Enter a name for this custom field" size="35" style="width:100%;">
-			<div class="options" style="display:none;">
-			<textarea cols="35" rows="6" name="options[]" style="width:100%;" placeholder="Enter choices (one per line)"></textarea>
+			<div class="params params-D params-X" style="display:none;">
+				<textarea cols="35" rows="6" name="params[new_##id##][options]" style="width:100%;" placeholder="Enter choices (one per line)"></textarea>
+			</div>
 			</div>
 		</td>
 		<td width="1%" valign="top" nowrap="nowrap">
@@ -225,6 +223,28 @@
 			$tr.removeClass('cfields-add-template');
 			$tr.insertBefore($template).fadeIn();
 			$tr.find('input:text:first').focus();
+			
+			var temp_id = new Date().getTime();
+			
+			// Generate a temporary ID
+			$tr.find('[name]').each(function() {
+				var $this = $(this);
+				$this.attr('name', $this.attr('name').replace('##id##', temp_id));
+			});
+			$tr.find('[value]').each(function() {
+				var $this = $(this);
+				$this.attr('value', $this.attr('value').replace('##id##', temp_id));
+			});
+			
+			// Show contextual options
+			$tr.find('select.context-picker').change(function() {
+				var $this = $(this);
+				var val = $this.val();
+				
+				// Reset all options, show the current one
+				$this.closest('tr').find('div.params').hide().filter('.params-' + val).fadeIn();
+			});
+			
 		});
 		
 		$this.find('fieldset.cfields table').sortable({ 

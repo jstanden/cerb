@@ -9,7 +9,7 @@
 {elseif $field->type=='D'}
 	<select name="{$field_prefix}_{$field->id}">
 		<option value=""></option>
-		{foreach from=$field->options item=opt}
+		{foreach from=$field->params.options item=opt}
 		<option value="{$opt}" {if $opt==$values.{$field->id}}selected="selected"{/if}>{$opt}
 		{/foreach}
 	</select>
@@ -26,7 +26,7 @@
 {elseif $field->type=='E'}
 	<input type="text" name="{$field_prefix}_{$field->id}" value="{$values.{$field->id}|devblocks_date}" size="32" autocomplete="off">
 {elseif $field->type=='X'}
-	{foreach from=$field->options item=opt}
+	{foreach from=$field->params.options item=opt}
 	<label><input type="checkbox" name="{$field_prefix}_{$field->id}[]" value="{$opt}" {if is_array($values.{$field->id}) && in_array($opt,$values.{$field->id})}checked="checked"{/if}> {$opt}</label><br>
 	{/foreach}
 {elseif $field->type=='C'}

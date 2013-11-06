@@ -44,7 +44,7 @@
 				<i>(+2 hours, now, next Friday 5pm, 2pm, Jan 25)</i>
 			{elseif 'D'==$field->type || 'X'==$field->type}
 				<i>is any of these:</i><br>
-				{foreach from=$field->options item=option}
+				{foreach from=$field->params.options item=option}
 					<label><input type="checkbox" name="value_cf_{$field_id}[]" value="{$option}" {if isset($crit_field.value.$option)}checked="checked"{/if}> {$option}</label><br>
 				{/foreach}
 			{elseif 'W'==$field->type}

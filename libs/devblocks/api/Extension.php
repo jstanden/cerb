@@ -445,7 +445,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 				switch($cfield->type) {
 					case Model_CustomField::TYPE_DROPDOWN:
 					case Model_CustomField::TYPE_MULTI_CHECKBOX:
-						$conditions[$token]['options'] = $cfield->options;
+						$conditions[$token]['options'] = @$cfield->params['options'];
 						break;
 				}
 			}

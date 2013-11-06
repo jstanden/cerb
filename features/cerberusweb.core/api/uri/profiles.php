@@ -88,6 +88,7 @@ class Page_Profiles extends CerberusPageExtension {
 				continue;
 		
 			$properties['cf_' . $cf_id] = array(
+				'id' => $cf_id,
 				'label' => $cfield->name,
 				'type' => $cfield->type,
 				'value' => $values[$cf_id],
@@ -119,6 +120,7 @@ class Page_Profiles extends CerberusPageExtension {
 					continue;
 			
 				$cf_group_props['cf_' . $cf_group_field_id] = array(
+					'id' => $cf_group_field_id,
 					'label' => $cf_group_field->name,
 					'type' => $cf_group_field->type,
 					'value' => isset($values[$cf_group_field->id]) ? $values[$cf_group_field->id] : null,

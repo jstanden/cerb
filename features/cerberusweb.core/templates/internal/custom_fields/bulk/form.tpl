@@ -35,7 +35,7 @@
 					<label><input type="checkbox" name="{$field_name}" value="1" {if $custom_field_values.$f_id}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
 				{elseif $f->type==Model_CustomField::TYPE_MULTI_CHECKBOX}
 					{if $bulk}
-						{foreach from=$f->options item=opt}
+						{foreach from=$f->params.options item=opt}
 							<select name="{$field_name}[]">
 								<option value=""></option>
 								<option value="+{$opt}">set</option>
@@ -45,14 +45,14 @@
 							<br>
 						{/foreach}
 					{else}
-						{foreach from=$f->options item=opt}
+						{foreach from=$f->params.options item=opt}
 						<label><input type="checkbox" name="{$field_name}[]" value="{$opt}" {if isset($custom_field_values.$f_id.$opt)}checked="checked"{/if}> {$opt}</label><br>
 						{/foreach}
 					{/if}
 				{elseif $f->type==Model_CustomField::TYPE_DROPDOWN}
 					<select name="{$field_name}">
 						<option value=""></option>
-						{foreach from=$f->options item=opt}
+						{foreach from=$f->params.options item=opt}
 						<option value="{$opt}" {if $opt==$custom_field_values.$f_id}selected="selected"{/if}>{$opt}</option>
 						{/foreach}
 					</select>

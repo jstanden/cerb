@@ -102,7 +102,7 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 		@$submit = DevblocksPlatform::importGPC($_POST['submit'],'string','');
 		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array',array());
 		@$names = DevblocksPlatform::importGPC($_POST['names'],'array',array());
-		@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+		@$params = DevblocksPlatform::importGPC($_POST['params'],'array',array());
 		@$selected = DevblocksPlatform::importGPC($_POST['selected'],'array',array());
 		
 		// Sort order is based on the order of the sent IDs
@@ -112,7 +112,6 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 		foreach($ids as $idx => $id) {
 			@$name = $names[$idx];
 			@$order = intval($orders[$idx]);
-			@$option = $options[$idx];
 
 			// Are we deleting this field?
 			$is_delete = ($submit == 'delete' && in_array($id, $selected)) ? true : false;
@@ -124,8 +123,15 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 				$fields = array(
 					DAO_CustomField::NAME => $name,
 					DAO_CustomField::POS => $order,
-					DAO_CustomField::OPTIONS => !is_null($option) ? $option : '',
 				);
+				
+				if(isset($params[$id]['options']))
+					$params[$id]['options'] = DevblocksPlatform::parseCrlfString($params[$id]['options']);
+				
+				if(isset($params[$id]))
+					$fields[DAO_CustomField::PARAMS_JSON] = json_encode($params[$id]);
+				else
+					$fields[DAO_CustomField::PARAMS_JSON] = json_encode(array());
 				
 				// Handle moves to fieldset
 				$move_to_fieldset_id = DevblocksPlatform::importGPC($_POST['move_to_fieldset_id'],'integer',0);
@@ -144,7 +150,6 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 		// Adding
 		@$add_name = DevblocksPlatform::importGPC($_POST['add_name'],'string','');
 		@$add_type = DevblocksPlatform::importGPC($_POST['add_type'],'string','');
-		@$add_options = DevblocksPlatform::importGPC($_POST['add_options'],'string','');
 		
 		if(!empty($add_name) && !empty($add_type)) {
 			$fields = array(
@@ -152,7 +157,7 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 				DAO_CustomField::TYPE => $add_type,
 				DAO_CustomField::CUSTOM_FIELDSET_ID => 0,
 				DAO_CustomField::CONTEXT => $ext_id,
-				DAO_CustomField::OPTIONS => $add_options,
+				DAO_CustomField::PARAMS_JSON => '',
 				DAO_CustomField::POS => 99,
 			);
 			$id = DAO_CustomField::create($fields);

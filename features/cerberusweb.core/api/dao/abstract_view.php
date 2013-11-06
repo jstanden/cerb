@@ -1085,7 +1085,7 @@ abstract class C4_AbstractView {
 				if(empty($cf_id) || !isset($custom_fields[$cf_id]))
 					break;
 				
-				$options = $custom_fields[$cf_id]->options;
+				@$options = $custom_fields[$cf_id]->params['options'] ?: array();
 				
 				if(empty($options))
 					break;

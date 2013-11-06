@@ -48,7 +48,7 @@ class ChRest_CustomFields extends Extension_RestController implements IExtension
 							'type' => $field->type,
 							'context' => $field->context,
 							'group_id' => $field->group_id,
-							'options' => $field->options,
+							'options' => @$field->params['options'],
 						);
 				break;
 				
@@ -61,7 +61,7 @@ class ChRest_CustomFields extends Extension_RestController implements IExtension
 							'name' => $field->name,
 							'type' => $field->type,
 							'context' => $field->context,
-							'options' => $field->options,
+							'options' => @$field->params['options'],
 						);
 				break;
 		}

@@ -50,8 +50,8 @@
 		<patch version="6.2.0" revision="1016" file="patches/6.x/6.2.0.php" />
 		<patch version="6.3.0" revision="1030" file="patches/6.x/6.3.0.php" />
 		<patch version="6.4.0" revision="1046" file="patches/6.x/6.4.0.php" />
-		
-		<patch version="6.4.0" revision="1059" file="patches/6.x/6.5.0.php" />
+		<patch version="6.5.0" revision="1059" file="patches/6.x/6.5.0.php" />
+		<patch version="6.6.0" revision="1069" file="patches/6.x/6.6.0.php" />
 	</patches>
 
 	<!-- Controller Routing -->

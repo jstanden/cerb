@@ -49,7 +49,7 @@ var $frm = $('#{$uniqid}').each(function(e) {
 {$cf = DAO_CustomField::get($cf_id)}
 {if $cf->type == 'D' || $cf->type == 'X'}
 	else if (token == '{$token}') { 
-		{foreach $cf->options as $opt}
+		{foreach $cf->params.options as $opt}
 		$bubbles.append($('<li><tt>{$opt|lower|escape:'javascript'}</tt></li>'));
 		{/foreach}
 		$bubbles.append($('<li><i>option1,option2</i></li>'));

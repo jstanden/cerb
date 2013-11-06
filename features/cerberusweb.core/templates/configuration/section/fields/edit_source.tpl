@@ -15,6 +15,7 @@
 				<td align="center"><input type="checkbox" class="check-all"></td>
 				<td><b>Type</b></td>
 				<td><b>Custom Field</b></td>
+				<td><b>Options</b></td>
 			</tr>
 		</thead>
 	{counter name=field_pos start=0 print=false}
@@ -28,12 +29,15 @@
 				<td valign="top">
 					<input type="hidden" name="ids[]" value="{$field_id}">
 					<input type="text" name="names[]" value="{$f->name}" size="35" style="width:300;">
-					{if $type_code != 'D' && $type_code != 'X'}
-						<input type="hidden" name="options[]" value="">
-					{else}
-						<div class="subtle2">
-						<b>Options:</b> (one per line)<br>
-						<textarea cols="35" rows="6" name="options[]" style="width:300;">{foreach from=$f->options item=opt}{$opt|cat:"\r\n"}{/foreach}</textarea>
+				</td>
+				<td valign="top">
+					{if $type_code == 'D' || $type_code == 'X'}
+						<div>
+							<textarea cols="35" rows="6" name="params[{$field_id}][options]" style="width:300;">{foreach from=$f->params.options item=opt}{$opt|cat:"\r\n"}{/foreach}</textarea>
+							<div>
+								(one option per line)
+							</div>
+						</div>
 						</div>
 					{/if}
 				</td>
@@ -46,19 +50,13 @@
 	<!-- Add Custom Field -->
 	<div style="margin-left:10px;">
 		<b>Add new custom field:</b><br>
-		<select name="add_type" onchange="toggleDiv('addCustomFieldDropdown',(selectValue(this)=='D'||selectValue(this)=='X')?'block':'none');">
+		<select name="add_type">
 			{foreach from=$types item=type key=type_code}
 			<option value="{$type_code}">{$type}</option>
 			{/foreach}
 		</select>
 		 named 
 		<input type="text" name="add_name" value="" size="45" maxlength="128">
-		<br>
-		
-		<div id="addCustomFieldDropdown" style="display:none;padding-top:5px;">
-		<b>Field Options:</b> (if dropdown, one per line)<br>
-		<textarea name="add_options" rows="6" cols="50"></textarea><br>
-		</div>
 	</div>
 	<br>
 	
@@ -67,8 +65,8 @@
 		<p>
 			Are you sure you want to delete the selected custom fields and all of their data?
 		</p>
-		<button class="red" type="button" value="delete" onclick="$(this).closest('form').find('input:hidden[name=submit]').val('delete');genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.yes'|devblocks_translate|capitalize}</button>
-		<button type="button" onclick="$(this).closest('fieldset').fadeOut().siblings('div.toolbar').fadeIn();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.no'|devblocks_translate|capitalize}</button>
+		<button class="red" type="button" value="delete" onclick="$(this).closest('form').find('input:hidden[name=submit]').val('delete');genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');">{'common.yes'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="$(this).closest('fieldset').fadeOut().siblings('div.toolbar').fadeIn();">{'common.no'|devblocks_translate|capitalize}</button>
 	</fieldset>
 	
 	{if !empty($fieldsets)}

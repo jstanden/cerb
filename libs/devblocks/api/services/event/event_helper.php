@@ -164,13 +164,13 @@ class DevblocksEventHelper {
 				break;
 				
 			case Model_CustomField::TYPE_DROPDOWN:
-				$tpl->assign('options', $custom_field->options);
+				$tpl->assign('options', @$custom_field->params['options']);
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_dropdown.tpl');
 				$tpl->clearAssign('options');
 				break;
 				
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
-				$tpl->assign('options', $custom_field->options);
+				$tpl->assign('options', @$custom_field->params['options']);
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_multi_checkbox.tpl');
 				$tpl->clearAssign('options');
 				break;

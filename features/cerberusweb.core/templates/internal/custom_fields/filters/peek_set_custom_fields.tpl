@@ -27,7 +27,7 @@
 				<i>(+2 hours, now, next Friday, 2pm, tomorrow 5pm)</i>
 			{elseif 'D'==$field->type}
 				<select name="do_cf_{$field_id}">
-					{foreach from=$field->options item=option}
+					{foreach from=$field->params.options item=option}
 					<option value="{$option}" {if 0==strcasecmp($option,$action_field.value)}selected="selected"{/if}}> {$option}</option>
 					{/foreach}
 				</select>
@@ -42,7 +42,7 @@
 				{/foreach}
 				</select>
 			{elseif 'X'==$field->type}
-				{foreach from=$field->options item=raw_option}
+				{foreach from=$field->params.options item=raw_option}
 					{assign var=option value='+'|cat:$raw_option}
 					<label><input type="checkbox" name="do_cf_{$field_id}[]" value="{$option}" {if isset($action_field.value.$option)}checked="checked"{/if}> {$raw_option}</label><br>
 				{/foreach}
