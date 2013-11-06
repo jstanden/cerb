@@ -53,7 +53,7 @@
 		{$workers = DAO_Worker::getAll()}
 	{/if}
 	{if !empty($worker_id) && isset($workers.$worker_id)}
-		{$workers.$worker_id->getName()}
+		<a href="{devblocks_url}c=profiles&what=worker&id={$worker_id}{/devblocks_url}" target="_blank">{$workers.$worker_id->getName()}</a>
 	{/if}
 	</td>
 {else}

@@ -39,6 +39,8 @@
 							</div>
 						</div>
 						</div>
+					{elseif $type_code == 'W'}
+						<label><input type="checkbox" name="params[{$field_id}][send_notifications]" value="1" {if $f->params.send_notifications}checked="checked"{/if}> Send watcher notifications</label>
 					{/if}
 				</td>
 			</tr>

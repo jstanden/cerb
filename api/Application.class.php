@@ -1398,6 +1398,26 @@ class CerberusContexts {
 			$also_notify_worker_ids
 		);
 		
+		// And include any worker-based custom fields with the 'send watcher notifications' option
+		$target_custom_fields = DAO_CustomField::getByContext($target_context, true);
+		
+		if(is_array($target_custom_fields))
+		foreach($target_custom_fields as $target_custom_field_id => $target_custom_field) {
+			if($target_custom_field->type != Model_CustomField::TYPE_WORKER)
+				continue;
+			
+			if(!isset($target_custom_field->params['send_notifications']) || empty($target_custom_field->params['send_notifications']))
+				continue;
+			
+			$values = DAO_CustomFieldValue::getValuesByContextIds($target_context, $target_context_id);
+			
+			if(isset($values[$target_context_id]) && isset($values[$target_context_id][$target_custom_field_id]))
+				$watchers = array_merge(
+					$watchers,
+					array($values[$target_context_id][$target_custom_field_id])
+				);
+		}
+		
 		// Remove dupe watchers
 		$watcher_ids = array_unique($watchers);
 		

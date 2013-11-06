@@ -138,6 +138,8 @@
 					<div class="options" style="">
 						<textarea cols="35" rows="6" name="params[{$field_id}][options]" style="width:100%;" placeholder="Enter choices (one per line)">{foreach from=$f->params.options item=opt}{$opt|cat:"\r\n"}{/foreach}</textarea>
 					</div>
+				{elseif $type_code == 'W'}
+					<label><input type="checkbox" name="params[{$field_id}][send_notifications]" value="1" {if $f->params.send_notifications}checked="checked"{/if}> Send watcher notifications</label>
 				{/if}
 			</td>
 			<td width="1%" valign="top" nowrap="nowrap">
@@ -162,6 +164,8 @@
 			<div class="params params-D params-X" style="display:none;">
 				<textarea cols="35" rows="6" name="params[new_##id##][options]" style="width:100%;" placeholder="Enter choices (one per line)"></textarea>
 			</div>
+			<div class="params params-W" style="display:none;">
+				<label><input type="checkbox" name="params[new_##id##][send_notifications]" value="1"> Send watcher notifications</label>
 			</div>
 		</td>
 		<td width="1%" valign="top" nowrap="nowrap">
