@@ -68,6 +68,15 @@
 					</select>
 					<button type="button" onclick="$(this).siblings('select').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
 					<button type="button" onclick="$(this).siblings('select').val('');">{'common.nobody'|devblocks_translate|lower}</button>
+				{elseif $f->type==Model_CustomField::TYPE_LINK}
+					<button type="button" field_name="{$field_name}" class="chooser-abstract" context="{$f->params.context}"><span class="cerb-sprite sprite-view"></span></button>
+					
+					<ul class="bubbles chooser-container">
+						{if $custom_field_values.$f_id}
+							{CerberusContexts::getContext($f->params.context, $custom_field_values.$f_id, $cf_link_labels, $cf_link_values, null, true)}
+							<li><input type="hidden" name="{$field_name}" value="{$custom_field_values.$f_id}">{$cf_link_values._label} <a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+						{/if}
+					</ul>
 				{elseif $f->type==Model_CustomField::TYPE_FILE}
 					<button type="button" id="{$field_name}" class="chooser_file">{'common.upload'|devblocks_translate|lower}</button>
 					
@@ -115,6 +124,38 @@ $cfields.find('button.chooser_file').each(function() {
 
 $cfields.find('button.chooser_files').each(function() {
 	ajax.chooserFile(this,$(this).attr('id'));
+});
+
+// Abstract choosers
+$cfields.find('button.chooser-abstract').each(function() {
+	$(this).click(function() {
+		var $button = $(this);
+		var ctx = $button.attr('context');
+		
+		$chooser = genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=chooserOpen&context=' + encodeURIComponent(ctx) + '&single=1',null,true,'750');
+		$chooser.one('chooser_save', function(event) {
+			if(typeof event.values == "object" && event.values.length > 0) {
+				var context_label = event.labels[0];
+				var context_id = event.values[0];
+				
+				var $ul = $button.siblings('ul.chooser-container');
+				var context = $button.attr('context');
+				var field_name = $button.attr('field_name');
+				
+				// Clear previous selections
+				$ul.find('li').remove();
+				
+				// Add new bubble
+				for(i in event.labels) {
+					$li = $('<li>' + event.labels[i] + '</li>'); // + ' (' + $context_name + ')
+					$li.append($('<input type="hidden" name="' + field_name + '" value="' + event.values[i] + '">'));
+					$li.append($('<span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;pointer:middle;" onclick="$(this).closest(\'li\').remove();"></span>'));
+					
+					$ul.append($li);
+				}
+			}
+		});
+	});
 });
 </script>
 {/if}

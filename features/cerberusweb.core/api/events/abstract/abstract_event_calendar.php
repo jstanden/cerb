@@ -108,11 +108,8 @@ abstract class AbstractEvent_Calendar extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		$types = $this->getTypes();
 		
-		$types = array(
-			'calendar_name' => Model_CustomField::TYPE_SINGLE_LINE,
-		);
-
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 
 		return $conditions;

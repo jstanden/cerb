@@ -140,6 +140,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		$types = $this->getTypes();
 		
 		$labels['opp_link'] = 'Opportunity is linked';
 		$labels['opp_email_link'] = 'Lead is linked';
@@ -149,40 +150,14 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 		$labels['opp_email_watcher_count'] = 'Lead watcher count';
 		$labels['opp_watcher_count'] = 'Opportunity watcher count';
 		
-		$types = array(
-			'opp_email_num_nonspam' => Model_CustomField::TYPE_NUMBER,
-			'opp_email_num_spam' => Model_CustomField::TYPE_NUMBER,
-			'opp_email_address' => Model_CustomField::TYPE_SINGLE_LINE,
-			'opp_email_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'opp_email_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'opp_email_is_banned' => Model_CustomField::TYPE_CHECKBOX,
-			'opp_email_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'opp_email_org_city' => Model_CustomField::TYPE_SINGLE_LINE,
-			'opp_email_org_country' => Model_CustomField::TYPE_SINGLE_LINE,
-			'opp_email_org_created' => Model_CustomField::TYPE_DATE,
-			'opp_email_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'opp_email_org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
-			'opp_email_org_postal' => Model_CustomField::TYPE_SINGLE_LINE,
-			'opp_email_org_province' => Model_CustomField::TYPE_SINGLE_LINE,
-			'opp_email_org_street' => Model_CustomField::TYPE_SINGLE_LINE,
-			'opp_email_org_website' => Model_CustomField::TYPE_SINGLE_LINE,
-			'opp_amount' => Model_CustomField::TYPE_NUMBER,
-			'opp_is_closed' => Model_CustomField::TYPE_CHECKBOX,
-			'opp_created' => Model_CustomField::TYPE_DATE,
-			'opp_status' => Model_CustomField::TYPE_SINGLE_LINE,
-			'opp_title' => Model_CustomField::TYPE_SINGLE_LINE,
-			'opp_updated' => Model_CustomField::TYPE_DATE,
-			'opp_is_won' => Model_CustomField::TYPE_CHECKBOX,
-			
-			'opp_link' => null,
-			'opp_email_link' => null,
-			'opp_email_org_link' => null,
-			
-			'opp_email_org_watcher_count' => null,
-			'opp_email_watcher_count' => null,
-			'opp_watcher_count' => null,
-		);
-
+		$types['opp_link'] = null;
+		$types['opp_email_link'] = null;
+		$types['opp_email_org_link'] = null;
+		
+		$types['opp_email_org_watcher_count'] = null;
+		$types['opp_email_watcher_count'] = null;
+		$types['opp_watcher_count'] = null;
+		
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
 		return $conditions;

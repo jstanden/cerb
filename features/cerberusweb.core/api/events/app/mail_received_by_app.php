@@ -154,6 +154,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		$types = $this->getTypes();
 		
 		$labels['attachment_name'] = 'Message attachment name';
 		$labels['attachment_mimetype'] = 'Message attachment MIME type';
@@ -164,31 +165,18 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$labels['recipients'] = 'Message recipients';
 		$labels['sender_is_worker'] = 'Sender is worker';
 		
-		$types = array(
-			'subject' => Model_CustomField::TYPE_SINGLE_LINE,
-			'body' => Model_CustomField::TYPE_MULTI_LINE,
-			'encoding' => Model_CustomField::TYPE_SINGLE_LINE,
-		
-			'sender_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_address' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_num_spam' => Model_CustomField::TYPE_NUMBER,
-			'sender_num_nonspam' => Model_CustomField::TYPE_NUMBER,
-			'sender_is_defunct' => Model_CustomField::TYPE_CHECKBOX,
-			'sender_is_banned' => Model_CustomField::TYPE_CHECKBOX,
-			'sender_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_org_created' => Model_CustomField::TYPE_DATE,
-		
-			'attachment_mimetype' => null,
-			'attachment_name' => null,
-			'attachment_size' => null,
-			'attachment_count' => Model_CustomField::TYPE_NUMBER,
-			'header' => null,
-			'is_new' => Model_CustomField::TYPE_CHECKBOX,
-			'recipients' => null,
-			'sender_is_worker' => Model_CustomField::TYPE_CHECKBOX,
-		);
+		$types['subject'] = Model_CustomField::TYPE_SINGLE_LINE;
+		$types['body'] = Model_CustomField::TYPE_MULTI_LINE;
+		$types['encoding'] = Model_CustomField::TYPE_SINGLE_LINE;
+	
+		$types['attachment_mimetype'] = null;
+		$types['attachment_name'] = null;
+		$types['attachment_size'] = null;
+		$types['attachment_count'] = Model_CustomField::TYPE_NUMBER;
+		$types['header'] = null;
+		$types['is_new'] = Model_CustomField::TYPE_CHECKBOX;
+		$types['recipients'] = null;
+		$types['sender_is_worker'] = Model_CustomField::TYPE_CHECKBOX;
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		

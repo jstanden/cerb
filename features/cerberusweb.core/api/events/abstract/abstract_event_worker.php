@@ -99,33 +99,12 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		$types = $this->getTypes();
 		
 		$labels['worker_calendar'] = 'Worker availability';
 		
-		$types = array(
-			'worker_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'worker_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'worker_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'worker_title' => Model_CustomField::TYPE_SINGLE_LINE,
-			
-			'worker_address_address' => Model_CustomField::TYPE_SINGLE_LINE,
-			'worker_address_is_banned' => Model_CustomField::TYPE_CHECKBOX,
-			'worker_address_num_nonspam' => Model_CustomField::TYPE_NUMBER,
-			'worker_address_num_spam' => Model_CustomField::TYPE_NUMBER,
-			
-			'worker_address_org_city' => Model_CustomField::TYPE_SINGLE_LINE,
-			'worker_address_org_country' => Model_CustomField::TYPE_SINGLE_LINE,
-			'worker_address_org_created' => Model_CustomField::TYPE_DATE,
-			'worker_address_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'worker_address_org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
-			'worker_address_org_postal' => Model_CustomField::TYPE_SINGLE_LINE,
-			'worker_address_org_province' => Model_CustomField::TYPE_SINGLE_LINE,
-			'worker_address_org_street' => Model_CustomField::TYPE_SINGLE_LINE,
-			'worker_address_org_website' => Model_CustomField::TYPE_URL,
-				
-			'worker_calendar' => null,
-		);
-
+		$types['worker_calendar'] = null;
+		
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 
 		return $conditions;

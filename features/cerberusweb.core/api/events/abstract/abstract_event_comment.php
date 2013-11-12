@@ -120,19 +120,13 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		$types = $this->getTypes();
 
 		$labels['comment_context'] = 'Comment record type';
 		$labels['comment_owner_context'] = 'Comment author type';
 		
-		$types = array(
-			'comment_created' => Model_CustomField::TYPE_DATE,
-			'comment_comment' => Model_CustomField::TYPE_MULTI_LINE,
-		);
-
 		$types['comment_context'] = null;
 		$types['comment_owner_context'] = null;
-		$types['comment_record_label'] = Model_CustomField::TYPE_SINGLE_LINE;
-		$types['comment_author_label'] = Model_CustomField::TYPE_SINGLE_LINE;
 		
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 

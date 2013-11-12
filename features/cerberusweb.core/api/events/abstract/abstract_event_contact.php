@@ -104,37 +104,14 @@ abstract class AbstractEvent_ContactPerson extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		$types = $this->getTypes();
 		
 		$labels['contact_link'] = 'Contact is linked';
 		$labels['contact_watcher_count'] = 'Contact watcher count';
 		
-		$types = array(
-			'contact_created' => Model_CustomField::TYPE_DATE,
-			'contact_last_login' => Model_CustomField::TYPE_DATE,
-				
-			'contact_email_address' => Model_CustomField::TYPE_SINGLE_LINE,
-			'contact_email_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'contact_email_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'contact_email_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'contact_email_is_banned' => Model_CustomField::TYPE_CHECKBOX,
-			'contact_email_is_defunct' => Model_CustomField::TYPE_CHECKBOX,
-			'contact_email_num_nonspam' => Model_CustomField::TYPE_NUMBER,
-			'contact_email_num_spam' => Model_CustomField::TYPE_NUMBER,
-				
-			'contact_email_org_city' => Model_CustomField::TYPE_SINGLE_LINE,
-			'contact_email_org_country' => Model_CustomField::TYPE_SINGLE_LINE,
-			'contact_email_org_created' => Model_CustomField::TYPE_DATE,
-			'contact_email_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'contact_email_org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
-			'contact_email_org_postal' => Model_CustomField::TYPE_SINGLE_LINE,
-			'contact_email_org_province' => Model_CustomField::TYPE_SINGLE_LINE,
-			'contact_email_org_street' => Model_CustomField::TYPE_SINGLE_LINE,
-			'contact_email_org_website' => Model_CustomField::TYPE_URL,
-			
-			'contact_link' => null,
-			'contact_watcher_count' => null,
-		);
-
+		$types['contact_link'] = null;
+		$types['contact_watcher_count'] = null;
+		
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
 		return $conditions;

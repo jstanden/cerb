@@ -138,6 +138,11 @@
 					<div class="options" style="">
 						<textarea cols="35" rows="6" name="params[{$field_id}][options]" style="width:100%;" placeholder="Enter choices (one per line)">{foreach from=$f->params.options item=opt}{$opt|cat:"\r\n"}{/foreach}</textarea>
 					</div>
+				{elseif $type_code == 'L'}
+					of type 
+					<input type="hidden" name="params[{$field_id}][context]" value="{$f->params.context}">
+					{$link_ctx_ext = Extension_DevblocksContext::get($f->params.context)}
+					<b>{$link_ctx_ext->manifest->name}</b>
 				{elseif $type_code == 'W'}
 					<label><input type="checkbox" name="params[{$field_id}][send_notifications]" value="1" {if $f->params.send_notifications}checked="checked"{/if}> Send watcher notifications</label>
 				{/if}
@@ -163,6 +168,14 @@
 			<input type="text" name="names[]" value="" placeholder="Enter a name for this custom field" size="35" style="width:100%;">
 			<div class="params params-D params-X" style="display:none;">
 				<textarea cols="35" rows="6" name="params[new_##id##][options]" style="width:100%;" placeholder="Enter choices (one per line)"></textarea>
+			</div>
+			<div class="params params-L" style="display:none;">
+				of type 
+				<select name="params[new_##id##][context]">
+					{foreach from=$link_contexts item=link_context}
+					<option value="{$link_context->id}">{$link_context->name}</option>
+					{/foreach}
+				</select>
 			</div>
 			<div class="params params-W" style="display:none;">
 				<label><input type="checkbox" name="params[new_##id##][send_notifications]" value="1"> Send watcher notifications</label>

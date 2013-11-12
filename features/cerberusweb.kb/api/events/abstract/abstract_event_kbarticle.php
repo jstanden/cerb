@@ -113,21 +113,14 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		$types = $this->getTypes();
 		
 		$labels['article_link'] = 'Article is linked';
 		$labels['article_watcher_count'] = 'Article watcher count';
 		
-		$types = array(
-			'article_content' => Model_CustomField::TYPE_MULTI_LINE,
-			'article_title' => Model_CustomField::TYPE_SINGLE_LINE,
-			'article_updated' => Model_CustomField::TYPE_DATE,
-			'article_views' => Model_CustomField::TYPE_NUMBER,
-			
-			'article_link' => null,
-			
-			'article_watcher_count' => null,
-		);
-
+		$types['article_link'] = null;
+		$types['article_watcher_count'] = null;
+		
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
 		return $conditions;

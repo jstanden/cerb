@@ -472,6 +472,10 @@ abstract class C4_AbstractView {
 			case Model_CustomField::TYPE_DATE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
+			case Model_CustomField::TYPE_LINK:
+				$tpl->assign('field', $field);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__cfield_link.tpl');
+				break;
 			case Model_CustomField::TYPE_NUMBER:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
@@ -843,12 +847,15 @@ abstract class C4_AbstractView {
 					$criteria = new DevblocksSearchCriteria($token,DevblocksSearchCriteria::OPER_IS_NULL);
 				}
 				break;
+				
 			case Model_CustomField::TYPE_CHECKBOX:
 				$criteria = new DevblocksSearchCriteria($token,$oper,!empty($value) ? 1 : 0);
 				break;
+				
 			case Model_CustomField::TYPE_NUMBER:
 				$criteria = new DevblocksSearchCriteria($token,$oper,intval($value));
 				break;
+				
 			case Model_CustomField::TYPE_DATE:
 				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
 				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
@@ -867,6 +874,7 @@ abstract class C4_AbstractView {
 				}
 				
 				break;
+				
 			case Model_CustomField::TYPE_WORKER:
 				@$oper = DevblocksPlatform::importGPC($_REQUEST['oper'],'string','eq');
 				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',array());
@@ -886,6 +894,12 @@ abstract class C4_AbstractView {
 				
 				$criteria = new DevblocksSearchCriteria($token,$oper,$worker_ids);
 				break;
+				
+			case Model_CustomField::TYPE_LINK:
+				@$context_id = DevblocksPlatform::importGPC($_POST['context_id'],'integer','');
+				$criteria = new DevblocksSearchCriteria($token,$oper,$context_id);
+				break;
+				
 			default: // TYPE_SINGLE_LINE || TYPE_MULTI_LINE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {
@@ -1300,6 +1314,9 @@ abstract class C4_AbstractView {
 			
 			$translate = DevblocksPlatform::getTranslationService();
 			
+			if(!isset($custom_fields[$field_id]))
+				return;
+			
 			switch($custom_fields[$field_id]->type) {
 				case Model_CustomField::TYPE_CHECKBOX:
 					foreach($vals as $idx => $val) {
@@ -1309,6 +1326,21 @@ abstract class C4_AbstractView {
 					
 				case Model_CustomField::TYPE_DATE:
 					$implode_token = ' to ';
+					break;
+					
+				case Model_CustomField::TYPE_LINK:
+					@$context = $custom_fields[$field_id]->params['context'];
+					
+					if(empty($context) || empty($vals))
+						break;
+					
+					if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+						break;
+					
+					if(false == ($meta = $context_ext->getMeta($vals[0])))
+						break;
+					
+					$vals[0] = $meta['name'];
 					break;
 					
 				case Model_CustomField::TYPE_WORKER:

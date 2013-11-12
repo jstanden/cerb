@@ -108,11 +108,8 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		$types = $this->getTypes();
 		
-		$types = array(
-			'group_name' => Model_CustomField::TYPE_SINGLE_LINE,
-		);
-
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 
 		return $conditions;

@@ -113,26 +113,13 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		$types = $this->getTypes();
 		
 		$labels['org_link'] = 'Org is linked';
-		
 		$labels['org_watcher_count'] = 'Org watcher count';
 		
-		$types = array(
-			'org_city' => Model_CustomField::TYPE_SINGLE_LINE,
-			'org_country' => Model_CustomField::TYPE_SINGLE_LINE,
-			'org_created' => Model_CustomField::TYPE_DATE,
-			'org_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
-			'org_postal' => Model_CustomField::TYPE_SINGLE_LINE,
-			'org_province' => Model_CustomField::TYPE_SINGLE_LINE,
-			'org_street' => Model_CustomField::TYPE_SINGLE_LINE,
-			'org_website' => Model_CustomField::TYPE_URL,
-			
-			'org_link' => null,
-			
-			'org_watcher_count' => null,
-		);
+		$types['org_link'] = null;
+		$types['org_watcher_count'] = null;
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		

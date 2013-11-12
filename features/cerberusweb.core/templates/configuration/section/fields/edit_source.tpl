@@ -38,6 +38,21 @@
 								(one option per line)
 							</div>
 						</div>
+					{elseif $type_code == 'L'}
+						<div>
+							{if $f->params.context}
+								<input type="hidden" name="params[{$field_id}][context]" value="{$f->params.context}">
+								{$context = $contexts.{$f->params.context}}
+								{if $context->name}
+									{$context->name}
+								{/if}
+							{else}
+							<select name="params[{$field_id}][context]">
+								{foreach from=$contexts item=context}
+								<option value="{$context->id}" {if $f->params.context == $context->id}selected="selected"{/if}>{$context->name}</option>
+								{/foreach}
+							</select>
+							{/if}
 						</div>
 					{elseif $type_code == 'W'}
 						<label><input type="checkbox" name="params[{$field_id}][send_notifications]" value="1" {if $f->params.send_notifications}checked="checked"{/if}> Send watcher notifications</label>

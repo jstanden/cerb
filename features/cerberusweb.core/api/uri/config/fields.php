@@ -69,6 +69,9 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 		$fieldsets = DAO_CustomFieldset::getByContext($ext_id);
 		$tpl->assign('fieldsets', $fieldsets);
 		
+		$contexts = Extension_DevblocksContext::getAll(false, array('workspace'));
+		$tpl->assign('contexts', $contexts);
+		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/fields/edit_source.tpl');
 	}
 	

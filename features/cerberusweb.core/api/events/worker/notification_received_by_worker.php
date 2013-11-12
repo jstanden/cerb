@@ -121,32 +121,8 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		$types = $this->getTypes();
 		
-		// [TODO] Move this into snippets somehow
-		$types = array(
-			'created' => Model_CustomField::TYPE_DATE,
-			'message' => Model_CustomField::TYPE_SINGLE_LINE,
-			'is_read' => Model_CustomField::TYPE_CHECKBOX,
-			'url' => Model_CustomField::TYPE_SINGLE_LINE,
-			'assignee_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'assignee_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'assignee_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'assignee_title' => Model_CustomField::TYPE_SINGLE_LINE,
-			'assignee_address_address' => Model_CustomField::TYPE_SINGLE_LINE,
-			'assignee_address_num_nonspam' => Model_CustomField::TYPE_NUMBER,
-			'assignee_address_num_spam' => Model_CustomField::TYPE_NUMBER,
-			'assignee_address_is_banned' => Model_CustomField::TYPE_CHECKBOX,
-			'assignee_address_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'assignee_address_org_created' => Model_CustomField::TYPE_DATE,
-			'assignee_address_org_city' => Model_CustomField::TYPE_SINGLE_LINE,
-			'assignee_address_org_country' => Model_CustomField::TYPE_SINGLE_LINE,
-			'assignee_address_org_province' => Model_CustomField::TYPE_SINGLE_LINE,
-			'assignee_address_org_postal' => Model_CustomField::TYPE_SINGLE_LINE,
-			'assignee_address_org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
-			'assignee_address_org_street' => Model_CustomField::TYPE_SINGLE_LINE,
-			'assignee_address_org_website' => Model_CustomField::TYPE_SINGLE_LINE,
-		);
-
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
 		return $conditions;

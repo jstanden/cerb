@@ -1616,7 +1616,7 @@ class Context_Application extends Extension_DevblocksContext {
 		switch($token) {
 			default:
 				if(substr($token,0,7) == 'custom_') {
-					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}
 				break;
@@ -2019,6 +2019,7 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 				case Model_CustomField::TYPE_DATE:
 				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_FILES:
+				case Model_CustomField::TYPE_LINK:
 				case Model_CustomField::TYPE_NUMBER:
 				case Model_CustomField::TYPE_WORKER:
 					$value_table = 'custom_field_numbervalue';

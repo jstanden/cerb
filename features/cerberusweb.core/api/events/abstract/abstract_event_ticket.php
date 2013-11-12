@@ -214,6 +214,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		$types = $this->getTypes();
 		
 		$labels['ticket_has_owner'] = 'Ticket has owner';
 		$labels['ticket_initial_message_header'] = 'Ticket initial message email header';
@@ -236,128 +237,26 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		$labels['ticket_org_watcher_count'] = 'Ticket org watcher count';
 		$labels['ticket_watcher_count'] = 'Ticket watcher count';
 		
-		$types = array(
-			// First wrote
-			'ticket_initial_message_content' => Model_CustomField::TYPE_MULTI_LINE,
-			'ticket_initial_message_created' => Model_CustomField::TYPE_DATE,
-			'ticket_initial_message_is_outgoing' => Model_CustomField::TYPE_CHECKBOX,
-			'ticket_initial_message_sender_address' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_initial_message_sender_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_initial_message_sender_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_initial_message_sender_is_banned' => Model_CustomField::TYPE_CHECKBOX,
-			'ticket_initial_message_sender_is_defunct' => Model_CustomField::TYPE_CHECKBOX,
-			'ticket_initial_message_sender_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_initial_message_sender_num_nonspam' => Model_CustomField::TYPE_NUMBER,
-			'ticket_initial_message_sender_num_spam' => Model_CustomField::TYPE_NUMBER,
-			'ticket_initial_message_sender_org_city' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_initial_message_sender_org_country' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_initial_message_sender_org_created' => Model_CustomField::TYPE_DATE,
-			'ticket_initial_message_sender_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_initial_message_sender_org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_initial_message_sender_org_postal' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_initial_message_sender_org_province' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_initial_message_sender_org_street' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_initial_message_sender_org_website' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_initial_message_storage_size' => Model_CustomField::TYPE_NUMBER,
+		$types['ticket_has_owner'] = null;
+		$types['ticket_initial_message_header'] = null;
+		$types['ticket_latest_message_header'] = null;
+		$types['ticket_latest_incoming_activity'] = null;
+		$types['ticket_latest_outgoing_activity'] = null;
 		
-			// Last wrote
-			'ticket_latest_message_content' => Model_CustomField::TYPE_MULTI_LINE,
-			'ticket_latest_message_created' => Model_CustomField::TYPE_DATE,
-			'ticket_latest_message_is_outgoing' => Model_CustomField::TYPE_CHECKBOX,
-			'ticket_latest_message_sender_address' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_latest_message_sender_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_latest_message_sender_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_latest_message_sender_is_banned' => Model_CustomField::TYPE_CHECKBOX,
-			'ticket_latest_message_sender_is_defunct' => Model_CustomField::TYPE_CHECKBOX,
-			'ticket_latest_message_sender_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_latest_message_sender_num_nonspam' => Model_CustomField::TYPE_NUMBER,
-			'ticket_latest_message_sender_num_spam' => Model_CustomField::TYPE_NUMBER,
-			'ticket_latest_message_sender_org_city' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_latest_message_sender_org_country' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_latest_message_sender_org_created' => Model_CustomField::TYPE_DATE,
-			'ticket_latest_message_sender_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_latest_message_sender_org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_latest_message_sender_org_postal' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_latest_message_sender_org_province' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_latest_message_sender_org_street' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_latest_message_sender_org_website' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_latest_message_storage_size' => Model_CustomField::TYPE_NUMBER,
+		$types['group_id'] = null;
+		$types['group_and_bucket'] = null;
 		
-			// Group
-			'group_id' => null,
-			"group_name" => Model_CustomField::TYPE_SINGLE_LINE,
-			'group_and_bucket' => null,
+		$types['group_link'] = null;
+		$types['owner_link'] = null;
+		$types['ticket_initial_message_sender_link'] = null;
+		$types['ticket_initial_message_sender_org_link'] = null;
+		$types['ticket_latest_message_sender_link'] = null;
+		$types['ticket_latest_message_sender_org_link'] = null;
+		$types['ticket_link'] = null;
 		
-			// Owner
-			'ticket_owner_address_address' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_owner_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_owner_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_owner_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_owner_title' => Model_CustomField::TYPE_SINGLE_LINE,
-		
-			// Org
-			'ticket_org_city' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_org_country' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_org_created' => Model_CustomField::TYPE_DATE,
-			'ticket_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_org_postal' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_org_province' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_org_street' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_org_website' => Model_CustomField::TYPE_SINGLE_LINE,
-
-			// Ticket
-			"ticket_bucket_name" => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_created' => Model_CustomField::TYPE_DATE,
-			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_num_messages' => Model_CustomField::TYPE_NUMBER,
-			'ticket_reopen_date' => Model_CustomField::TYPE_DATE,
-			'ticket_spam_score' => null,
-			'ticket_spam_training' => null,
-			'ticket_status' => null,
-			'ticket_subject' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_updated' => Model_CustomField::TYPE_DATE,
-			'ticket_url' => Model_CustomField::TYPE_URL,
-		
-			// Virtual
-			'ticket_has_owner' => null,
-			'ticket_initial_message_header' => null,
-			'ticket_latest_message_header' => null,
-			'ticket_latest_incoming_activity' => null,
-			'ticket_latest_outgoing_activity' => null,
-			
-			// Links
-			'group_link' => null,
-			'owner_link' => null,
-			'ticket_initial_message_sender_link' => null,
-			'ticket_initial_message_sender_org_link' => null,
-			'ticket_latest_message_sender_link' => null,
-			'ticket_latest_message_sender_org_link' => null,
-			'ticket_link' => null,
-			
-			// Watchers
-			'group_watcher_count' => null,
-			'ticket_org_watcher_count' => null,
-			'ticket_watcher_count' => null,
-		);
-		
-		if(get_class($this) == 'Event_CommentOnTicketInGroup') {
-			$types['comment_address_num_nonspam'] = Model_CustomField::TYPE_NUMBER;
-			$types['comment_address_num_spam'] = Model_CustomField::TYPE_NUMBER;
-			$types['comment_address_address'] = Model_CustomField::TYPE_SINGLE_LINE;
-			$types['comment_address_first_name'] = Model_CustomField::TYPE_SINGLE_LINE;
-			$types['comment_address_full_name'] = Model_CustomField::TYPE_SINGLE_LINE;
-			$types['comment_address_is_banned'] = Model_CustomField::TYPE_CHECKBOX;
-			$types['comment_address_is_defunct'] = Model_CustomField::TYPE_CHECKBOX;
-			$types['comment_address_last_name'] = Model_CustomField::TYPE_SINGLE_LINE;
-			$types['comment_address_updated'] = Model_CustomField::TYPE_DATE;
-			
-			$types['comment_address_org_created'] = Model_CustomField::TYPE_DATE;
-			$types['comment_address_org_name'] = Model_CustomField::TYPE_SINGLE_LINE;
-			
-			$types['comment_created'] = Model_CustomField::TYPE_DATE;
-			$types['comment_comment'] = Model_CustomField::TYPE_MULTI_LINE;
-		}
+		$types['group_watcher_count'] = null;
+		$types['ticket_org_watcher_count'] = null;
+		$types['ticket_watcher_count'] = null;
 		
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		return $conditions;

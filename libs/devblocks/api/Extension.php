@@ -301,7 +301,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	abstract function getView($context=null, $context_id=null, $options=array());
 	function lazyLoadContextValues($token, $dictionary) { return array(); }
 	
-	protected function _lazyLoadCustomFields($context, $context_id) {
+	protected function _lazyLoadCustomFields($token, $context, $context_id) {
 		$fields = DAO_CustomField::getByContext($context);
 		$token_values['custom'] = array();
 		$field_values = array();
@@ -325,6 +325,19 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 					$token_values['custom_'.$cf_id] = $field_values[$cf_id];
 				}
 			}
+			
+			switch($fields[$cf_id]->type) {
+				case Model_CustomField::TYPE_LINK:
+					@$token_values['custom_' . $cf_id . '_id'] = $field_values[$cf_id];
+					@$token_values['custom_' . $cf_id . '__context'] = $fields[$cf_id]->params['context'];
+					
+					if(!isset($token_values[$token])) {
+						$dict = new DevblocksDictionaryDelegate($token_values);
+						$dict->$token;
+						$token_values = $dict->getDictionary();
+					}
+					break;
+			}
 		}
 		
 		return $token_values;
@@ -338,11 +351,33 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		foreach($fields as $cf_id => $field) {
 			$fieldset = $field->custom_fieldset_id ? @$fieldsets[$field->custom_fieldset_id] : null;
 		
+			switch($field->type) {
+				case Model_CustomField::TYPE_LINK:
+					if(!isset($field->params['context']))
+						break;
+					
+					// [TODO] This infinitely recurses if you do task->task
+					/*
+					CerberusContexts::getContext($field->params['context'], null, $merge_labels, $merge_values, null, true);
+
+					foreach($merge_labels as $label_key => $label) {
+						$labels['custom_'.$cf_id.'_'.$label_key] = sprintf("%s%s%s",
+							$prefix,
+							($fieldset ? ($fieldset->name . ':') : ''),
+							$label
+						);
+					}
+					*/
+					
+					break;
+			}
+			
 			$labels['custom_'.$cf_id] = sprintf("%s%s%s",
 				$prefix,
 				($fieldset ? ($fieldset->name . ':') : ''),
 				$field->name
 			);
+			
 		}
 		
 		return $labels;
@@ -357,6 +392,23 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 			$fieldset = $field->custom_fieldset_id ? @$fieldsets[$field->custom_fieldset_id] : null;
 		
 			$types['custom_'.$cf_id] = $field->type;
+			
+			switch($field->type) {
+				case Model_CustomField::TYPE_LINK:
+					if(!isset($field->params['context']))
+						break;
+					
+					// [TODO] This infinitely recurses if you do task->task
+					/*
+					CerberusContexts::getContext($field->params['context'], null, $merge_labels, $merge_values, null, true);
+
+					foreach($merge_values['_types'] as $type_key => $type) {
+						$types['custom_'.$cf_id.'_'.$type_key] = $type;
+					}
+					*/
+					
+					break;
+			}
 		}
 		
 		return $types;
@@ -385,6 +437,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	const POINT = 'devblocks.event';
 	
 	private $_labels = array();
+	private $_types = array();
 	private $_values = array();
 	
 	public static function getAll($as_instances=false) {
@@ -422,6 +475,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			if(!isset($labels[$token]))
 				continue;
 			
+			// [TODO] This could be implemented
+			if($type == 'context_url')
+				continue;
+			
 			$label = $labels[$token];
 			
 			// Strip any modifiers
@@ -432,16 +489,12 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		}
 		
 		foreach($labels as $token => $label) {
-			if(preg_match("#.*?_{0,1}custom_(\d+)#", $token, $matches)) {
+			if(preg_match('#.*?_{0,1}custom_(\d+)$#', $token, $matches)) {
 				
 				if(null == ($cfield = DAO_CustomField::get($matches[1])))
 					continue;
 				
-				$conditions[$token] = array(
-					'label' => $label,
-					'type' => $cfield->type,
-				);
-				
+				// [TODO] Can we load these option a different way so this foreach isn't needed?
 				switch($cfield->type) {
 					case Model_CustomField::TYPE_DROPDOWN:
 					case Model_CustomField::TYPE_MULTI_CHECKBOX:
@@ -463,6 +516,11 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	
 	function setValues($values) {
 		$this->_values = $values;
+		$this->_setTypes($values['_types']);
+	}
+	
+	function getValues() {
+		return $this->_values;
 	}
 	
 	function getLabels($trigger = null) {
@@ -482,8 +540,12 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return $this->_labels;
 	}
 	
-	function getValues() {
-		return $this->_values;
+	private function _setTypes($types) {
+		$this->_types = $types;
+	}
+	
+	function getTypes() {
+		return $this->_values['_types'];
 	}
 	
 	function getValuesContexts($trigger) {
@@ -498,9 +560,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		
 		// cfields
 		$labels = $this->getLabels($trigger);
+		
 		if(is_array($labels))
 		foreach($labels as $token => $label) {
-			if(preg_match("#.*?_{0,1}custom_(\d+)#", $token, $matches)) {
+			if(preg_match('#.*?_{0,1}custom_(\d+)$#', $token, $matches)) {
 				@$cfield_id = $matches[1];
 				
 				if(empty($cfield_id))
@@ -510,12 +573,45 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					continue;
 				
 				switch($custom_fields[$cfield_id]->type) {
+					case Model_CustomField::TYPE_LINK:
+						@$link_context = $custom_fields[$cfield_id]->params['context'];
+						
+						if(empty($link_context))
+							break;
+						
+						$cfields[$token] = array(
+							'label' => $label,
+							'context' => $link_context,
+						);
+						
+						// Include deep context links from this custom field link
+						CerberusContexts::getContext($link_context, null, $link_labels, $link_values, null, true);
+						
+						foreach($labels as $link_token => $link_label) {
+							if(preg_match('#^'.$token.'_(.*?)__label$#', $link_token, $link_matches)) {
+								@$link_key = $link_matches[1];
+								
+								if(empty($link_key))
+									continue;
+								
+								if(isset($link_values[$link_key.'__context'])) {
+									$cfields[$token . '_' . $link_key . '_id'] = array(
+										'label' => $link_label,
+										'context' => $link_values[$link_key.'__context'],
+									);
+								}
+							}
+						}
+						
+						break;
+						
 					case Model_CustomField::TYPE_WORKER:
 						$cfields[$token] = array(
 							'label' => $label,
 							'context' => CerberusContexts::CONTEXT_WORKER,
 						);
 						break;
+						
 					default:
 						continue;
 						break;

@@ -96,22 +96,14 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		$types = $this->getTypes();
 		
 		$labels['task_link'] = 'Task is linked';
 		$labels['task_watcher_count'] = 'Task watcher count';
-		
-		$types = array(
-			'task_is_completed' => Model_CustomField::TYPE_CHECKBOX,
-			'task_completed' => Model_CustomField::TYPE_DATE,
-			'task_due' => Model_CustomField::TYPE_DATE,
-			'task_updated' => Model_CustomField::TYPE_DATE,
-			'task_status' => Model_CustomField::TYPE_SINGLE_LINE,
-			'task_title' => Model_CustomField::TYPE_SINGLE_LINE,
-			
-			'task_link' => null,
-			'task_watcher_count' => null,
-		);
 
+		$types['task_link'] = null;
+		$types['task_watcher_count'] = null;
+		
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
 		return $conditions;

@@ -212,6 +212,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			case Model_CustomField::TYPE_DATE:
 			case Model_CustomField::TYPE_FILE:
 			case Model_CustomField::TYPE_FILES:
+			case Model_CustomField::TYPE_LINK:
 			case Model_CustomField::TYPE_NUMBER:
 			case Model_CustomField::TYPE_WORKER:
 				$table = 'custom_field_numbervalue';
@@ -473,6 +474,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					break;
 
 				case Model_CustomField::TYPE_FILE:
+				case Model_CustomField::TYPE_LINK:
 				case Model_CustomField::TYPE_NUMBER:
 				case Model_CustomField::TYPE_WORKER:
 					$value = intval($value);
@@ -508,6 +510,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					$value = substr($value,0,255);
 				break;
 			case Model_CustomField::TYPE_FILE:
+			case Model_CustomField::TYPE_LINK:
 			case Model_CustomField::TYPE_NUMBER:
 			case Model_CustomField::TYPE_WORKER:
 				$value = intval($value);
@@ -607,6 +610,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					break;
 					
 				case Model_CustomField::TYPE_FILE:
+				case Model_CustomField::TYPE_LINK:
 				case Model_CustomField::TYPE_NUMBER:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					$field_value = (0==strlen($field_value)) ? '' : intval($field_value);
@@ -671,6 +675,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				case Model_CustomField::TYPE_DROPDOWN:
 				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_MULTI_LINE:
+				case Model_CustomField::TYPE_LINK:
 				case Model_CustomField::TYPE_NUMBER:
 				case Model_CustomField::TYPE_SINGLE_LINE:
 				case Model_CustomField::TYPE_URL:
@@ -900,6 +905,7 @@ class Model_CustomField {
 	const TYPE_DROPDOWN = 'D';
 	const TYPE_FILE = 'F';
 	const TYPE_FILES = 'I';
+	const TYPE_LINK = 'L';
 	const TYPE_NUMBER = 'N';
 	const TYPE_SINGLE_LINE = 'S';
 	const TYPE_MULTI_CHECKBOX = 'X';
@@ -926,6 +932,7 @@ class Model_CustomField {
 			self::TYPE_FILES => 'Files: Multiple',
 			self::TYPE_MULTI_CHECKBOX => 'Multi-Checkbox',
 			self::TYPE_MULTI_LINE => 'Text: Multi-Line',
+			self::TYPE_LINK => 'Record Link',
 			self::TYPE_NUMBER => 'Number',
 			self::TYPE_SINGLE_LINE => 'Text: Single Line',
 			self::TYPE_URL => 'URL',
@@ -1042,7 +1049,7 @@ class Context_CustomField extends Extension_DevblocksContext {
 		switch($token) {
 			default:
 				if(substr($token,0,7) == 'custom_') {
-					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}
 				break;

@@ -537,6 +537,7 @@ class Model_TriggerEvent {
 				$value = !empty($value) ? 1 : 0;
 				break;
 				
+			case Model_CustomField::TYPE_LINK:
 			case Model_CustomField::TYPE_NUMBER:
 				settype($value, 'integer');
 				break;

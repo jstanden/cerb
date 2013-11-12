@@ -272,47 +272,19 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		$types = $this->getTypes();
 		
 		$labels['ticket_org_watcher_count'] = 'Ticket org watcher count';
 		$labels['ticket_watcher_count'] = 'Ticket watcher count';
 		
-		$types = array(
-			'bcc' => Model_CustomField::TYPE_SINGLE_LINE,
-			'cc' => Model_CustomField::TYPE_SINGLE_LINE,
-			'content' => Model_CustomField::TYPE_MULTI_LINE,
-			'subject' => Model_CustomField::TYPE_SINGLE_LINE,
-			'to' => Model_CustomField::TYPE_SINGLE_LINE,
-		
-			'group_name' => Model_CustomField::TYPE_SINGLE_LINE,
-		
-			'ticket_owner_address_address' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_owner_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_owner_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_owner_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_owner_title' => Model_CustomField::TYPE_SINGLE_LINE,
-		
-			'ticket_bucket_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_created' => Model_CustomField::TYPE_DATE,
-			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_spam_score' => null,
-			'ticket_spam_training' => null,
-			'ticket_status' => null,
-			'ticket_subject' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_updated' => Model_CustomField::TYPE_DATE,
-			'ticket_url' => Model_CustomField::TYPE_URL,
-		
-			'worker_address_address' => Model_CustomField::TYPE_SINGLE_LINE,
-			'worker_address_num_nonspam' => Model_CustomField::TYPE_NUMBER,
-			'worker_address_num_spam' => Model_CustomField::TYPE_NUMBER,
-			'worker_address_is_banned' => Model_CustomField::TYPE_CHECKBOX,
-			'worker_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'worker_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'worker_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'worker_title' => Model_CustomField::TYPE_SINGLE_LINE,
-			
-			'ticket_org_watcher_count' => null,
-			'ticket_watcher_count' => null,
-		);
+		$types['bcc'] = Model_CustomField::TYPE_SINGLE_LINE;
+		$types['cc'] = Model_CustomField::TYPE_SINGLE_LINE;
+		$types['content'] = Model_CustomField::TYPE_MULTI_LINE;
+		$types['subject'] = Model_CustomField::TYPE_SINGLE_LINE;
+		$types['to'] = Model_CustomField::TYPE_SINGLE_LINE;
+	
+		$types['ticket_org_watcher_count'] = null;
+		$types['ticket_watcher_count'] = null;
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		

@@ -60,6 +60,9 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		$contexts = Extension_DevblocksContext::getAll(false, array('custom_fields'));
 		$tpl->assign('contexts', $contexts);
 		
+		$link_contexts = Extension_DevblocksContext::getAll(false, array('workspace'));
+		$tpl->assign('link_contexts', $link_contexts);
+		
 		// Owners
 		
 		$roles = DAO_WorkerRole::getAll();
