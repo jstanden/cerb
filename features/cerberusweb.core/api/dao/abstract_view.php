@@ -933,12 +933,19 @@ abstract class C4_AbstractView {
 				if(strlen($query) == 0)
 					break;
 					
-				$oper = DevblocksSearchCriteria::OPER_LIKE;
+				$oper = DevblocksSearchCriteria::OPER_EQ;
 				$value = $query;
+				
+				if(false !== strpos($value, '*'))
+					$oper = DevblocksSearchCriteria::OPER_LIKE;
 				
 				// Parse operator hints
 				if(preg_match('#\"(.*)\"#', $value, $matches)) {
 					$oper = DevblocksSearchCriteria::OPER_EQ;
+					$value = trim($matches[1]);
+					
+				} elseif(preg_match('#\~(.*)#', $value, $matches)) {
+					$oper = DevblocksSearchCriteria::OPER_LIKE;
 					$value = trim($matches[1]);
 					
 				} elseif(preg_match('#([\<\>\!\=]+)(.*)#', $value, $matches)) {
@@ -955,14 +962,6 @@ abstract class C4_AbstractView {
 							}
 							break;
 					}
-				}
-				
-				switch($oper) {
-					case DevblocksSearchCriteria::OPER_LIKE:
-					case DevblocksSearchCriteria::OPER_NOT_LIKE:
-						if(false === strpos($value, '*'))
-							$value = '*' . $value . '*';
-						break;
 				}
 				
 				break;
