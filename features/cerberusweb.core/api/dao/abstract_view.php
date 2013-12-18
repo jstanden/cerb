@@ -998,7 +998,7 @@ abstract class C4_AbstractView {
 					}
 				}
 				
-				$value = intval($query);
+				$value = @is_numeric($query) ? $query : intval($query);
 				break;
 				
 			case Model_CustomField::TYPE_DATE:
