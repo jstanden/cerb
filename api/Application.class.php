@@ -46,8 +46,8 @@
  \* - Jeff Standen, Darren Sugita, Dan Hildebrandt
  *	 Webgroup Media LLC - Developers of Cerb
  */
-define("APP_BUILD", 2013102801);
-define("APP_VERSION", '6.5.2');
+define("APP_BUILD", 2013121801);
+define("APP_VERSION", '6.5.3');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
@@ -2044,7 +2044,8 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 			
 			// If we have multiple values but we don't need to WHERE the JOIN, be efficient and don't GROUP BY
 			if(!Cerb_ORMHelper::paramExistsInSet('cf_'.$field_id, $params)) {
-				$select_sql .= sprintf(",(SELECT GROUP_CONCAT(field_value SEPARATOR \"\\n\") FROM %s WHERE %s=context_id AND field_id=%d ORDER BY field_value) AS %s ",
+				$select_sql .= sprintf(",(SELECT %s FROM %s WHERE %s=context_id AND field_id=%d ORDER BY field_value) AS %s ",
+					($has_multiple_values ? 'GROUP_CONCAT(field_value SEPARATOR "\n")' : 'field_value'),
 					$value_table,
 					$field_key,
 					$field_id,

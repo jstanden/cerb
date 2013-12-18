@@ -411,6 +411,13 @@ class DevblocksPlatform extends DevblocksEngine {
 			trim($str)
 		);
 		
+		// Convert Unicode nbsp to space
+		$str = preg_replace(
+			'#\xc2\xa0#',
+			' ',
+			$str
+		);
+		
 		// Handle XHTML variations
 		$str = preg_replace(
 			'@<br[^>]*?>@si',
