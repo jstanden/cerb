@@ -995,7 +995,8 @@ class CerberusMail {
 		);
 		CerberusContexts::logActivity('ticket.message.outbound', CerberusContexts::CONTEXT_TICKET, $ticket_id, $entry);
 		
-		return $message_id;
+		if(isset($message_id))
+			return $message_id;
 	}
 	
 	static function reflect(CerberusParserModel $model, $to) {

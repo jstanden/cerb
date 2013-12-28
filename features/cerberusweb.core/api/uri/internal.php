@@ -2906,6 +2906,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		$dictionary = array();
 		
 		foreach($conditions as $k => $v) {
+			// [TODO] Test when this is possible (e.g. custom fields)
+			if(!isset($v['label']) || !isset($v['type']))
+				continue;
+			
 			if(isset($dict->$k)) {
 				$dictionary[$k] = array(
 					'label' => $v['label'],

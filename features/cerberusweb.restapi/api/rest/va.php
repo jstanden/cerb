@@ -135,6 +135,7 @@ class ChRest_VirtualAttendants extends Extension_RestController {
 					continue;
 				
 				// Complain if we're not given all the public vars
+				// [TODO] This will fail when a checkbox isn't ticked, or a list variable has no items
 				
 				if(!isset($_REQUEST[$var_key]))
 					$this->error(self::ERRNO_CUSTOM, sprintf("The public variable '%s' is required.", $var_key));

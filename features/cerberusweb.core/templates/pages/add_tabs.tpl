@@ -23,7 +23,7 @@
 {/if}
 
 {$uniq_id = uniqid()}
-<form id="{$uniq_id}" action="{devblocks_url}{/devblocks_url}" method="post">
+<form id="{$uniq_id}" action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
 <input type="hidden" name="c" value="pages">
 <input type="hidden" name="a" value="doAddCustomTabJson">
 <input type="hidden" name="page_id" value="{$page->id}">

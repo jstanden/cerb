@@ -619,6 +619,9 @@ class CerberusParser {
 		
 		$ignore_mime_prefixes = array();
 		
+		$message_counter_attached = 0;
+		$message_counter_delivery_status = 0;
+		
 		foreach($struct as $st) {
 			// Are we ignoring specific nested mime parts?
 			$skip = false;
@@ -718,7 +721,7 @@ class CerberusParser {
 						 
 					case 'message/delivery-status':
 						@$message_content = mailparse_msg_extract_part_file($section, $full_filename, NULL);
-						$message_counter = empty($message_counter) ? 1 : $message_counter++;
+						$message_counter_delivery_status++;
 
 						$tmpname = ParserFile::makeTempFilename();
 						$bounce_attach = new ParserFile();
@@ -726,8 +729,8 @@ class CerberusParser {
 						@file_put_contents($tmpname, $message_content);
 						$bounce_attach->file_size = filesize($tmpname);
 						$bounce_attach->mime_type = 'message/delivery-status';
-						$bounce_attach_filename = sprintf("delivery_status%s.txt",
-								(($message_counter > 1) ? ('_'.$message_counter) : '')
+						$bounce_attach_filename = sprintf("delivery_status_%03d.txt",
+							$message_counter_delivery_status
 						);
 						$message->files[$bounce_attach_filename] = $bounce_attach;
 						unset($bounce_attach);
@@ -739,7 +742,7 @@ class CerberusParser {
 
 					case 'message/rfc822':
 						@$message_content = mailparse_msg_extract_part_file($section, $full_filename, NULL);
-						$message_counter = empty($message_counter) ? 1 : $message_counter++;
+						$message_counter_attached++;
 
 						$tmpname = ParserFile::makeTempFilename();
 						$rfc_attach = new ParserFile();
@@ -747,8 +750,8 @@ class CerberusParser {
 						@file_put_contents($tmpname,$message_content);
 						$rfc_attach->file_size = filesize($tmpname);
 						$rfc_attach->mime_type = 'text/plain';
-						$rfc_attach_filename = sprintf("attached_message%s.txt",
-							(($message_counter > 1) ? ('_'.$message_counter) : '')
+						$rfc_attach_filename = sprintf("attached_message_%03d.txt",
+							$message_counter_attached
 						);
 						$message->files[$rfc_attach_filename] = $rfc_attach;
 						unset($rfc_attach);

@@ -31,6 +31,7 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 		@$id = intval($id);
 		
 		if(null == ($virtual_attendant = DAO_VirtualAttendant::get($id))) {
+			DevblocksPlatform::redirect(new DevblocksHttpRequest(array('search','virtual_attendant')));
 			return;
 		}
 		$tpl->assign('virtual_attendant', $virtual_attendant);

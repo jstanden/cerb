@@ -464,21 +464,25 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		// Params
+		$src_profile = DAO_DevblocksStorageProfile::get(DAO_DevblocksExtensionPropertyStore::get(self::ID, 'active_storage_profile'));
 		$dst_profile = DAO_DevblocksStorageProfile::get(DAO_DevblocksExtensionPropertyStore::get(self::ID, 'archive_storage_profile'));
 		$archive_after_days = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'archive_after_days');
 		
-		if(empty($dst_profile))
+		if(empty($src_profile) || empty($dst_profile))
+			return;
+		
+		if(json_encode($src_profile) == json_encode($dst_profile))
 			return;
 		
 		// Find inactive attachments
 		$sql = sprintf("SELECT attachment.id, attachment.storage_extension, attachment.storage_key, attachment.storage_profile_id, attachment.storage_size ".
 			"FROM attachment ".
 			"WHERE attachment.updated < %d ".
-			"AND NOT (attachment.storage_extension = %s AND attachment.storage_profile_id = %d) ".
+			"AND (attachment.storage_extension = %s AND attachment.storage_profile_id = %d) ".
 			"ORDER BY attachment.id ASC ",
 				time()-(86400*$archive_after_days),
-				$db->qstr($dst_profile->extension_id),
-				$dst_profile->id
+				$db->qstr($src_profile->extension_id),
+				$src_profile->id
 		);
 		$rs = $db->Execute($sql);
 		
@@ -491,6 +495,8 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 	}
 	
 	public static function unarchive($stop_time=null) {
+		// We don't want to unarchive message content under any condition
+		/*
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Params
@@ -518,6 +524,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 			if(time() > $stop_time)
 				return;
 		}
+		*/
 	}
 	
 	private static function _migrate($dst_profile, $row, $is_unarchive=false) {
