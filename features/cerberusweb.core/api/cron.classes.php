@@ -1072,7 +1072,11 @@ class Pop3Cron extends CerberusCronPageExtension {
 			return;
 		}
 
-		imap_timeout(IMAP_OPENTIMEOUT, 20);
+		imap_timeout(IMAP_OPENTIMEOUT, 30);
+		imap_timeout(IMAP_READTIMEOUT, 30);
+		imap_timeout(IMAP_CLOSETIMEOUT, 30);
+		
+		$imap_timeout_read_ms = imap_timeout(IMAP_READTIMEOUT) * 1000; // ms
 		
 		$runtime = microtime(true);
 		$mailboxes_checked = 0;
@@ -1186,19 +1190,8 @@ class Pop3Cron extends CerberusCronPageExtension {
 
 			$mailbox_runtime = microtime(true);
 
-			for($i=1;$i<=$total;$i++) {
-				/*
-				 * [TODO] Logic for max message size (>1MB, etc.) handling.  If over a
-				 * threshold then use the attachment parser (imap_fetchstructure) to toss
-				 * non-plaintext until the message fits.
-				 */
-				 
-				$msgno = $i;
-				 
+			for($msgno=1; $msgno <= $total; $msgno++) {
 				$time = microtime(true);
-				 
-				$headers = imap_fetchheader($mailbox, $msgno);
-				$body = imap_body($mailbox, $msgno);
 
 				do {
 					$unique = sprintf("%s.%04d",
@@ -1211,24 +1204,29 @@ class Pop3Cron extends CerberusCronPageExtension {
 				$fp = fopen($filename,'w');
 
 				if($fp) {
-					fwrite($fp,"X-Cerberus-Mailbox: " . $account->nickname . "\r\n");
-					fwrite($fp,$headers,strlen($headers));
-					fwrite($fp,"\r\n\r\n");
-					fwrite($fp,$body,strlen($body));
+					$mailbox_xheader = "X-Cerberus-Mailbox: " . $account->nickname . "\r\n";
+					fwrite($fp, $mailbox_xheader);
+					$result = imap_savebody($mailbox, $fp, $msgno); // Write the message directly to the file handle
 					@fclose($fp);
 				}
 
+				$time = microtime(true) - $time;
+				
+				// If this message took a really long time to download, skip it and retry later
+				// [TODO] We may want to keep track if the same message does this repeatedly
+				if(($time*1000) > (0.95 * $imap_timeout_read_ms)) {
+					$logger->warn("[POP3] This message took more than 95% of the IMAP_READTIMEOUT value to download. We probably timed out. Aborting to retry later...");
+					unlink($filename);
+					break;
+				}
+				
 				/*
 				 * [JAS]: We don't add the .msg extension until we're done with the file,
 				 * since this will safely be ignored by the parser until we're ready
 				 * for it.
 				 */
-				rename($filename, dirname($filename) .DIRECTORY_SEPARATOR . basename($filename) . '.msg');
+				rename($filename, dirname($filename) . DIRECTORY_SEPARATOR . basename($filename) . '.msg');
 
-				unset($headers);
-				unset($body);
-
-				$time = microtime(true) - $time;
 				$logger->info("[POP3] Downloaded message ".$msgno." (".sprintf("%d",($time*1000))." ms)");
 				
 				imap_delete($mailbox, $msgno);
