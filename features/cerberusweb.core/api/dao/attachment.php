@@ -1290,7 +1290,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$id = intval($row[SearchFields_AttachmentLink::ID]);
+			$id = $row[SearchFields_AttachmentLink::GUID];
 			$results[$id] = $result;
 		}
 
