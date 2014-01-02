@@ -75,6 +75,15 @@
 					{$storage_extensions.{$result.$column}->name}
 				{/if}
 			</td>
+			{elseif $column=="a_storage_profile_id"}
+			<td>
+				{if $result.$column}
+					{$storage_profile_id = $result.a_storage_profile_id}
+					{if isset($storage_profiles.$storage_profile_id)}
+						{$storage_profiles.{$result.a_storage_profile_id}->name}
+					{/if}
+				{/if}
+			</td>
 			{elseif $column=="a_updated"}
 			<td title="{$result.a_updated|devblocks_date}">{$result.a_updated|devblocks_prettytime}&nbsp;</td>
 			{elseif $column=="al_context"}

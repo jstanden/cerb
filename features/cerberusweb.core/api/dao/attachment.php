@@ -769,6 +769,10 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 		$storage_extensions = DevblocksPlatform::getExtensions('devblocks.storage.engine', false);
 		$tpl->assign('storage_extensions', $storage_extensions);
 		
+		// Storage profiles
+		$storage_profiles = DAO_DevblocksStorageProfile::getAll();
+		$tpl->assign('storage_profiles', $storage_profiles);
+		
 		// [TODO] Move
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::configuration/section/storage_attachments/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
