@@ -89,7 +89,15 @@
 			{elseif $column=="al_context"}
 			<td>
 				{if isset($contexts.{$result.$column})}
-					{$contexts.{$result.$column}->name}
+					{$owner_context = Extension_DevblocksContext::get($result.al_context)}
+					{if $owner_context}
+						{$owner_meta = $owner_context->getMeta($result.al_context_id)}
+						{if $owner_meta.permalink}
+						<a href="{$owner_meta.permalink}">{$owner_meta.name} ({$owner_context->manifest->name})</a>
+						{elseif $owner_meta.name}
+						{$owner_meta.name} ({$owner_context->manifest->name})
+						{/if}
+					{/if}
 				{/if}
 			</td>
 			{else}
