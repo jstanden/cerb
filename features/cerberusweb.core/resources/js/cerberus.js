@@ -700,6 +700,8 @@ var cAjaxCalls = function() {
 							$li.addClass(options.style);
 						$ul.append($li);
 					}
+				
+				$button.focus();
 			});
 		});
 	}
