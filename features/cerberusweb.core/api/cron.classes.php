@@ -753,17 +753,25 @@ class ImportCron extends CerberusCronPageExtension {
 					$sFileContent = base64_decode($sFileContentB64);
 					unset($sFileContentB64);
 					
-					$fields = array(
-						DAO_Attachment::DISPLAY_NAME => $sFileName,
-						DAO_Attachment::MIME_TYPE => $sMimeType,
-					);
-					$file_id = DAO_Attachment::create($fields);
+					// Dupe detection
+					$sha1_hash = sha1($sFileContent, false);
 					
-					// Link
-					DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $email_id);
+					if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $sFileName))) {
+						$fields = array(
+							DAO_Attachment::DISPLAY_NAME => $sFileName,
+							DAO_Attachment::MIME_TYPE => $sMimeType,
+							DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
+						);
+						
+						$file_id = DAO_Attachment::create($fields);
+						
+						// Write file to storage
+						Storage_Attachments::put($file_id, $sFileContent);
+					}
+
+					if(!empty($file_id))
+						DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $email_id);
 					
-					// Write file to storage
-					Storage_Attachments::put($file_id, $sFileContent);
 					unset($sFileContent);
 				}
 				
@@ -1201,7 +1209,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 					$filename = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR . $unique;
 				} while(file_exists($filename));
 
-				$fp = fopen($filename,'w');
+				$fp = fopen($filename,'w+');
 
 				if($fp) {
 					$mailbox_xheader = "X-Cerberus-Mailbox: " . $account->nickname . "\r\n";

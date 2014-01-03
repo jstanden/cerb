@@ -218,16 +218,26 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 			default:
 				break;
 		}
-		
-		$fields = array(
-			DAO_Attachment::DISPLAY_NAME => $file_name,
-			DAO_Attachment::MIME_TYPE => $mime_type,
-			DAO_Attachment::UPDATED => time(),
-		);
-		
-		$file_id = DAO_Attachment::create($fields);
 
-		Storage_Attachments::put($file_id, $content);
+		// Detect duplicate file uploads via API
+		
+		$sha1_hash = sha1($content, false);
+		
+		if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file_name))) {
+			$fields = array(
+				DAO_Attachment::DISPLAY_NAME => $file_name,
+				DAO_Attachment::MIME_TYPE => $mime_type,
+				DAO_Attachment::UPDATED => time(),
+				DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
+			);
+			
+			$file_id = DAO_Attachment::create($fields);
+			
+			Storage_Attachments::put($file_id, $content);
+		}
+
+		if(empty($file_id))
+			return array();
 		
 		return array(
 			'file_id' => $file_id,

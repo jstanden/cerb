@@ -425,22 +425,30 @@ class CerberusMail {
 			foreach ($files['tmp_name'] as $idx => $file) {
 				if(empty($file) || empty($files['name'][$idx]) || !file_exists($file))
 					continue;
+
+				// Dupe detection
+				@$sha1_hash = sha1_file($file, false);
+				
+				if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $files['name'][$idx]))) {
+					$fields = array(
+						DAO_Attachment::DISPLAY_NAME => $files['name'][$idx],
+						DAO_Attachment::MIME_TYPE => $files['type'][$idx],
+						DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
+					);
+					$file_id = DAO_Attachment::create($fields);
 					
-				$fields = array(
-					DAO_Attachment::DISPLAY_NAME => $files['name'][$idx],
-					DAO_Attachment::MIME_TYPE => $files['type'][$idx],
-				);
-				$file_id = DAO_Attachment::create($fields);
+					// Content
+					if(null !== ($fp = fopen($file, 'rb'))) {
+						Storage_Attachments::put($file_id, $fp);
+						fclose($fp);
+					}
+				}
 
 				// Link
-				DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $message_id);
+				if($file_id)
+					DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $message_id);
 				
-				// Content
-				if(null !== ($fp = fopen($file, 'rb'))) {
-					Storage_Attachments::put($file_id, $fp);
-					fclose($fp);
-					unlink($file);
-				}
+				@unlink($file);
 			}
 		}
 
@@ -870,22 +878,30 @@ class CerberusMail {
 					if(empty($file) || empty($files['name'][$idx]) || !file_exists($file))
 						continue;
 
-					// Create record
-					$fields = array(
-						DAO_Attachment::DISPLAY_NAME => $files['name'][$idx],
-						DAO_Attachment::MIME_TYPE => $files['type'][$idx],
-					);
-					$file_id = DAO_Attachment::create($fields);
+					// Dupe detection
+					@$sha1_hash = sha1_file($file, false);
+					
+					if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $files['name'][$idx]))) {
+						// Create record
+						$fields = array(
+							DAO_Attachment::DISPLAY_NAME => $files['name'][$idx],
+							DAO_Attachment::MIME_TYPE => $files['type'][$idx],
+							DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
+						);
+						$file_id = DAO_Attachment::create($fields);
+						
+						// Content
+						if(null !== ($fp = fopen($file, 'rb'))) {
+							Storage_Attachments::put($file_id, $fp);
+							fclose($fp);
+						}
+					}
+					
+					@unlink($file);
 
 					// Link
-					DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $message_id);
-					
-					// Content
-					if(null !== ($fp = fopen($file, 'rb'))) {
-						Storage_Attachments::put($file_id, $fp);
-						fclose($fp);
-						unlink($file);
-					}
+					if($file_id)
+						DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $message_id);
 				}
 			}
 			

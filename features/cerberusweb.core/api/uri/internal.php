@@ -754,19 +754,25 @@ class ChInternalController extends DevblocksControllerExtension {
 			if(empty($file_tmp_name) || empty($file_name))
 				continue;
 			
-			// Create a record w/ timestamp + ID
-			$fields = array(
-				DAO_Attachment::DISPLAY_NAME => $file_name,
-				DAO_Attachment::MIME_TYPE => $file_type,
-			);
-			$file_id = DAO_Attachment::create($fields);
-	
-			// Save the file
-			if(null !== ($fp = fopen($file_tmp_name, 'rb'))) {
-				Storage_Attachments::put($file_id, $fp);
-				fclose($fp);
-				unlink($file_tmp_name);
+			@$sha1_hash = sha1_file($file_tmp_name, false);
+			
+			if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file_name, $file_size))) {
+				// Create a record w/ timestamp + ID
+				$fields = array(
+					DAO_Attachment::DISPLAY_NAME => $file_name,
+					DAO_Attachment::MIME_TYPE => $file_type,
+					DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
+				);
+				$file_id = DAO_Attachment::create($fields);
 				
+				// Save the file
+				if(null !== ($fp = fopen($file_tmp_name, 'rb'))) {
+					Storage_Attachments::put($file_id, $fp);
+					fclose($fp);
+				}
+			}
+			
+			if($file_id) {
 				$results[] = array(
 					'id' => $file_id,
 					'name' => $file_name,
@@ -774,9 +780,9 @@ class ChInternalController extends DevblocksControllerExtension {
 					'size' => $file_size,
 				);
 			}
+			
+			@unlink($file_tmp_name);
 		}
-
-		// [TODO] Unlinked records should expire
 
 		echo json_encode($results);
 	}

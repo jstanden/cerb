@@ -975,23 +975,29 @@ class CerberusParser {
 						if(0 == strcasecmp($filename, 'original_message.html'))
 							continue;
 
-						$fields = array(
-							DAO_Attachment::DISPLAY_NAME => $filename,
-							DAO_Attachment::MIME_TYPE => $file->mime_type,
-						);
-							
-						if(null == ($file_id = DAO_Attachment::create($fields))) {
-							@unlink($file->tmpname); // remove our temp file
-							continue;
+						// Dupe detection
+						$sha1_hash = sha1_file($file->tmpname, false);
+						
+						if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $filename))) {
+							$fields = array(
+								DAO_Attachment::DISPLAY_NAME => $filename,
+								DAO_Attachment::MIME_TYPE => $file->mime_type,
+								DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
+							);
+								
+							$file_id = DAO_Attachment::create($fields);
 						}
 
-						$attachment_file_ids[] = $file_id;
+						if($file_id) {
+							$attachment_file_ids[] = $file_id;
+						}
 							
 						if(null !== ($fp = fopen($file->getTempFile(), 'rb'))) {
 							Storage_Attachments::put($file_id, $fp);
 							fclose($fp);
-							unlink($file->getTempFile());
 						}
+						
+						@unlink($file->getTempFile());
 					}
 					
 					// Properties
@@ -1244,31 +1250,31 @@ class CerberusParser {
 			}
 			
 			if(!$handled) {
-				$fields = array(
-					DAO_Attachment::DISPLAY_NAME => $filename,
-					DAO_Attachment::MIME_TYPE => $file->mime_type,
-				);
-				$file_id = DAO_Attachment::create($fields);
+				$sha1_hash = sha1_file($file->tmpname, false);
+
+				// Dupe detection
+				if(null == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $filename))) {
+					$fields = array(
+						DAO_Attachment::DISPLAY_NAME => $filename,
+						DAO_Attachment::MIME_TYPE => $file->mime_type,
+						DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
+					);
+					$file_id = DAO_Attachment::create($fields);
+
+					// Store the content in the new file
+					if(null !== ($fp = fopen($file->getTempFile(), 'rb'))) {
+						Storage_Attachments::put($file_id, $fp);
+						fclose($fp);
+					}
+				}
 				
 				// Link
-				DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId());
-				
-				// Content
-				if(empty($file_id)) {
-					@unlink($file->tmpname); // remove our temp file
-					continue;
-				}
-	
-				if(null !== ($fp = fopen($file->getTempFile(), 'rb'))) {
-					Storage_Attachments::put($file_id, $fp);
-					fclose($fp);
-					unlink($file->getTempFile());
-				}
-				
-			} else {
-				@unlink($file->tmpname); // remove our temp file
-				
+				if($file_id)
+					DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId());
 			}
+			
+			// Remove the temp file
+			@unlink($file->tmpname);
 		}
 		
 		// Pre-load custom fields

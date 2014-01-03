@@ -37,6 +37,20 @@ if(isset($columns['options'])) {
 }
 
 // ===========================================================================
+// Add `attachment.storage_sha1hash`
+
+if(!isset($tables['attachment'])) {
+	$logger->error("The 'attachment' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('attachment');
+
+if(!isset($columns['storage_sha1hash'])) {
+	$db->Execute("ALTER TABLE attachment ADD COLUMN storage_sha1hash VARCHAR(40) DEFAULT '', ADD INDEX storage_sha1hash (storage_sha1hash(4))");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

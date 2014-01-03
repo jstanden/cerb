@@ -23,6 +23,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 	const STORAGE_KEY = 'storage_key';
 	const STORAGE_SIZE = 'storage_size';
 	const STORAGE_PROFILE_ID = 'storage_profile_id';
+	const STORAGE_SHA1HASH = 'storage_sha1hash';
 	const UPDATED = 'updated';
 	
 	public static function create($fields) {
@@ -69,7 +70,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id,display_name,mime_type,storage_size,storage_extension,storage_key,storage_profile_id,updated ".
+		$sql = "SELECT id,display_name,mime_type,storage_size,storage_extension,storage_key,storage_profile_id,storage_sha1hash,updated ".
 			"FROM attachment ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "");
 		$rs = $db->Execute($sql);
@@ -89,6 +90,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 			$object->storage_extension = $row['storage_extension'];
 			$object->storage_key = $row['storage_key'];
 			$object->storage_profile_id = $row['storage_profile_id'];
+			$object->storage_sha1hash = $row['storage_sha1hash'];
 			$object->updated = intval($row['updated']);
 			$objects[$object->id] = $object;
 		}
@@ -108,7 +110,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT id,display_name,mime_type,storage_size,storage_extension,storage_key,storage_profile_id,updated ".
+		$sql = sprintf("SELECT id,display_name,mime_type,storage_size,storage_extension,storage_key,storage_profile_id,storage_sha1hash,updated ".
 			"FROM attachment ".
 			"INNER JOIN attachment_link ON (attachment.id=attachment_link.attachment_id) ".
 			"WHERE attachment_link.context = %s AND attachment_link.context_id IN (%s) ",
@@ -118,6 +120,24 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$rs = $db->Execute($sql);
 		
 		return self::_getObjectsFromResult($rs);
+	}
+	
+	static function getBySha1Hash($sha1_hash, $file_name=null, $file_size=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT id ".
+			"FROM attachment ".
+			"WHERE storage_sha1hash=%s ".
+			"%s ".
+			"%s ".
+			"ORDER BY id ".
+			"LIMIT 1",
+			$db->qstr($sha1_hash),
+			(!empty($file_name) ? (sprintf("AND display_name=%s", $db->qstr($file_name))) : ''),
+			(!empty($file_size) ? (sprintf("AND storage_size=%d", $file_size)) : '')
+		);
+		
+		return $db->GetOne($sql);
 	}
 	
 	static function maint() {
@@ -182,6 +202,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 			"a.storage_extension as %s, ".
 			"a.storage_key as %s, ".
 			"a.storage_profile_id as %s, ".
+			"a.storage_sha1hash as %s, ".
 			"a.updated as %s ".
 			"",
 				SearchFields_Attachment::ID,
@@ -191,6 +212,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 				SearchFields_Attachment::STORAGE_EXTENSION,
 				SearchFields_Attachment::STORAGE_KEY,
 				SearchFields_Attachment::STORAGE_PROFILE_ID,
+				SearchFields_Attachment::STORAGE_SHA1HASH,
 				SearchFields_Attachment::UPDATED
 		);
 		
@@ -280,6 +302,7 @@ class SearchFields_Attachment implements IDevblocksSearchFields {
 	const STORAGE_EXTENSION = 'a_storage_extension';
 	const STORAGE_KEY = 'a_storage_key';
 	const STORAGE_PROFILE_ID = 'a_storage_profile_id';
+	const STORAGE_SHA1HASH = 'a_storage_sha1hash';
 	const UPDATED = 'a_updated';
 	
 	const LINK_CONTEXT = 'al_context';
@@ -299,6 +322,7 @@ class SearchFields_Attachment implements IDevblocksSearchFields {
 			self::STORAGE_EXTENSION => new DevblocksSearchField(self::STORAGE_EXTENSION, 'a', 'storage_extension', $translate->_('attachment.storage_extension')),
 			self::STORAGE_KEY => new DevblocksSearchField(self::STORAGE_KEY, 'a', 'storage_key', $translate->_('attachment.storage_key')),
 			self::STORAGE_PROFILE_ID => new DevblocksSearchField(self::STORAGE_PROFILE_ID, 'a', 'storage_profile_id', $translate->_('attachment.storage_profile_id')),
+			self::STORAGE_SHA1HASH => new DevblocksSearchField(self::STORAGE_SHA1HASH, 'a', 'storage_sha1hash', $translate->_('attachment.storage_sha1hash')),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'a', 'updated', $translate->_('common.updated')),
 
 			self::LINK_CONTEXT => new DevblocksSearchField(self::LINK_CONTEXT, 'al', 'context', $translate->_('common.context')),
@@ -320,6 +344,7 @@ class Model_Attachment {
 	public $storage_key;
 	public $storage_size = 0;
 	public $storage_profile_id;
+	public $storage_sha1hash;
 	public $updated;
 
 	public function getFileContents(&$fp=null) {
@@ -1218,6 +1243,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 			"a.storage_extension as %s, ".
 			"a.storage_key as %s, ".
 			"a.storage_profile_id as %s, ".
+			"a.storage_sha1hash as %s, ".
 			"a.updated as %s ".
 			"",
 				SearchFields_AttachmentLink::ID,
@@ -1230,6 +1256,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 				SearchFields_AttachmentLink::ATTACHMENT_STORAGE_EXTENSION,
 				SearchFields_AttachmentLink::ATTACHMENT_STORAGE_KEY,
 				SearchFields_AttachmentLink::ATTACHMENT_STORAGE_PROFILE_ID,
+				SearchFields_AttachmentLink::ATTACHMENT_STORAGE_SHA1HASH,
 				SearchFields_AttachmentLink::ATTACHMENT_UPDATED
 		);
 		
@@ -1324,6 +1351,7 @@ class SearchFields_AttachmentLink implements IDevblocksSearchFields {
 	const ATTACHMENT_STORAGE_EXTENSION = 'a_storage_extension';
 	const ATTACHMENT_STORAGE_KEY = 'a_storage_key';
 	const ATTACHMENT_STORAGE_PROFILE_ID = 'a_storage_profile_id';
+	const ATTACHMENT_STORAGE_SHA1HASH = 'a_storage_sha1hash';
 	const ATTACHMENT_UPDATED = 'a_updated';
 	
 	/**
@@ -1343,6 +1371,7 @@ class SearchFields_AttachmentLink implements IDevblocksSearchFields {
 			self::ATTACHMENT_STORAGE_EXTENSION => new DevblocksSearchField(self::ATTACHMENT_STORAGE_EXTENSION, 'a', 'storage_extension', $translate->_('attachment.storage_extension'), null),
 			self::ATTACHMENT_STORAGE_KEY => new DevblocksSearchField(self::ATTACHMENT_STORAGE_KEY, 'a', 'storage_key', $translate->_('attachment.storage_key'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::ATTACHMENT_STORAGE_PROFILE_ID => new DevblocksSearchField(self::ATTACHMENT_STORAGE_PROFILE_ID, 'a', 'storage_profile_id', $translate->_('attachment.storage_profile_id'), null),
+			self::ATTACHMENT_STORAGE_SHA1HASH => new DevblocksSearchField(self::ATTACHMENT_STORAGE_SHA1HASH, 'a', 'storage_sha1hash', $translate->_('attachment.storage_sha1hash'), null),
 			self::ATTACHMENT_UPDATED => new DevblocksSearchField(self::ATTACHMENT_UPDATED, 'a', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 		);
 		
