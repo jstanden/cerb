@@ -1037,6 +1037,8 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 			$context_id,
 			$db->qstr($uuid)
 		));
+		
+		return $uuid;
 	}
 	
 	static function addLinks($context, $context_id, $attachment_ids) {

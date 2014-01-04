@@ -484,6 +484,8 @@ class ParserFile {
 	public $tmpname = null;
 	public $mime_type = '';
 	public $file_size = 0;
+	public $parsed_attachment_id = 0;
+	public $parsed_attachment_guid = '';
 
 	function __destruct() {
 		if(file_exists($this->tmpname)) {
@@ -510,9 +512,9 @@ class ParserFile {
 };
 
 class ParseFileBuffer extends ParserFile {
-	private $mime_filename = '';
-	private $section = null;
-	private $info = array();
+	public $mime_filename = '';
+	public $section = null;
+	public $info = array();
 	private $fp = null;
 
 	function __construct($section, $info, $mime_filename) {
@@ -707,15 +709,6 @@ class CerberusParser {
 						$message->htmlbody .= $text;
 						unset($text);
 						
-						// Add the html part as an attachment
-						// [TODO] Make attaching the HTML part an optional config option (off by default)
-						$tmpname = ParserFile::makeTempFilename();
-						$html_attach = new ParserFile();
-						$html_attach->setTempFile($tmpname,'text/html');
-						@file_put_contents($tmpname,$message->htmlbody);
-						$html_attach->file_size = filesize($tmpname);
-						$message->files["original_message.html"] = $html_attach;
-						unset($html_attach);
 						$handled = true;
 						break;
 						 
@@ -865,7 +858,7 @@ class CerberusParser {
 				break;
 			}
 		}
-
+		
 		// Parse headers into $model
 		$model = new CerberusParserModel($message);
 		
@@ -1013,7 +1006,8 @@ class CerberusParser {
 					$body = '';
 					$lines = DevblocksPlatform::parseCrlfString($message->body, true);
 					$is_cut = false;
-					 
+					
+					if(is_array($lines))
 					foreach($lines as $line) {
 						if(preg_match('/[\s\>]*\s*##/', $line))
 							continue;
@@ -1269,12 +1263,34 @@ class CerberusParser {
 				}
 				
 				// Link
-				if($file_id)
-					DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId());
+				if($file_id) {
+					$file->parsed_attachment_id = $file_id;
+					$file->parsed_attachment_guid = DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId());
+				}
 			}
 			
 			// Remove the temp file
 			@unlink($file->tmpname);
+		}
+		
+		// Save the HTML part as an 'original_message.html' attachment
+		// [TODO] Make attaching the HTML part an optional config option (off by default)
+		if(!empty($message->htmlbody)) {
+			$sha1_hash = sha1($message->htmlbody, false);
+			
+			if(null == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, 'original_message.html'))) {
+				$fields = array(
+					DAO_Attachment::DISPLAY_NAME => 'original_message.html',
+					DAO_Attachment::MIME_TYPE => 'text/html',
+					DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
+				);
+				$file_id = DAO_Attachment::create($fields);
+				
+				Storage_Attachments::put($file_id, $message->htmlbody);
+			}
+			
+			if(!empty($file_id))
+				DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId());
 		}
 		
 		// Pre-load custom fields
