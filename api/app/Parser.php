@@ -833,6 +833,7 @@ class CerberusParser {
 		 * 'no_autoreply'
 		 */
 		$logger = DevblocksPlatform::getConsoleLog();
+		$url_writer = DevblocksPlatform::getUrlService();
 		
 		$headers =& $message->headers;
 
@@ -1266,6 +1267,12 @@ class CerberusParser {
 				if($file_id) {
 					$file->parsed_attachment_id = $file_id;
 					$file->parsed_attachment_guid = DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId());
+				}
+				
+				// Rewrite any inline content-id images in the HTML part
+				if(isset($file->info) && isset($file->info['content-id'])) {
+					$inline_cid_url = $url_writer->write('c=files&guid=' . $file->parsed_attachment_guid . '&name=' . urlencode($filename), true);
+					$message->htmlbody = str_replace('cid:' . $file->info['content-id'], $inline_cid_url, $message->htmlbody);
 				}
 			}
 			
