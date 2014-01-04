@@ -535,13 +535,16 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $purifier->purify($dirty_html);
 	}
 	
-	static function parseMarkdown($text) {
-		static $parser = null;
-		
-		if(is_null($parser))
-			$parser = new markdown();
+	static function parseMarkdown($text, $use_parsedown=false) {
+		if($use_parsedown) {
+			$parser = new Parsedown();
+			$parser->set_breaks_enabled(true);
+			return $parser->parse($text);
 			
-		return $parser->parse($text);
+		} else {
+			$parser = new markdown();
+			return $parser->parse($text);
+		}
 	}
 	
 	static function parseRss($url) {
