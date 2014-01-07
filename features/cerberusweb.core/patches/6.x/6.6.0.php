@@ -51,6 +51,12 @@ if(!isset($columns['storage_sha1hash'])) {
 }
 
 // ===========================================================================
+// Fix S3 namespace prefixes in storage keys
+
+$db->Execute("UPDATE attachment SET storage_key = REPLACE(storage_key, 'attachments/', '') WHERE storage_extension = 'devblocks.storage.engine.s3'");
+$db->Execute("UPDATE message SET storage_key = REPLACE(storage_key, 'message_content/', '') WHERE storage_extension = 'devblocks.storage.engine.s3'");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

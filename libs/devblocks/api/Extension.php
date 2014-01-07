@@ -1529,7 +1529,7 @@ abstract class Extension_DevblocksStorageEngine extends DevblocksExtension {
 
 	abstract function renderConfig(Model_DevblocksStorageProfile $profile);
 	abstract function saveConfig(Model_DevblocksStorageProfile $profile);
-	abstract function testConfig();
+	abstract function testConfig(Model_DevblocksStorageProfile $profile);
 	
 	abstract function exists($namespace, $key);
 	abstract function put($namespace, $id, $data);

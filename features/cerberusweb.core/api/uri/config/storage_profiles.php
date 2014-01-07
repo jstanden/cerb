@@ -92,15 +92,19 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 	
 	function testProfileJsonAction() {
 		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string','');
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 
 		try {
+			if(null == ($profile = DAO_DevblocksStorageProfile::get($id)))
+				$profile = new Model_DevblocksStorageProfile();
+			
 			if(empty($extension_id)
 				|| null == ($ext = $ext = DevblocksPlatform::getExtension($extension_id, true)))
 				throw new Exception("Can't load extension.");
 				
 			/* @var $ext Extension_DevblocksStorageEngine */
-				
-			if(!$ext->testConfig()) {
+			
+			if(!$ext->testConfig($profile)) {
 				throw new Exception('Your storage profile is not configured properly.');
 			}
 			
