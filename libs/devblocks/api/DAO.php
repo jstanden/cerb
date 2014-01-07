@@ -1232,6 +1232,60 @@ class SearchFields_Translation implements IDevblocksSearchFields {
 	}
 };
 
+class DAO_DevblocksStorageQueue {
+	static function getPendingProfiles() {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		return $db->GetArray("SELECT DISTINCT storage_extension, storage_profile_id, storage_namespace FROM devblocks_storage_queue_delete");
+	}
+	
+	static function getKeys($storage_namespace, $storage_extension, $storage_profile_id=0, $limit=500) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$keys = $db->GetArray(sprintf("SELECT storage_key FROM devblocks_storage_queue_delete WHERE storage_namespace = %s AND storage_extension = %s AND storage_profile_id = %d LIMIT %d",
+			$db->qstr($storage_namespace),
+			$db->qstr($storage_extension),
+			$storage_profile_id,
+			$limit
+		));
+		
+		return array_map(function($e) {
+			return $e['storage_key'];
+		}, $keys);
+	}
+	
+	static function enqueueDelete($storage_namespace, $storage_key, $storage_extension, $storage_profile_id=0) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$db->Execute(sprintf("INSERT IGNORE INTO devblocks_storage_queue_delete (storage_namespace, storage_key, storage_extension, storage_profile_id) ".
+			"VALUES (%s, %s, %s, %d)",
+			$db->qstr($storage_namespace),
+			$db->qstr($storage_key),
+			$db->qstr($storage_extension),
+			$storage_profile_id
+		));
+		
+		return TRUE;
+	}
+	
+	static function purgeKeys($keys, $storage_namespace, $storage_extension, $storage_profile_id=0) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$escaped_keys = array_map(function($e) use ($db) {
+			return $db->qstr($e);
+		}, $keys);
+		
+		$db->Execute(sprintf("DELETE FROM devblocks_storage_queue_delete WHERE storage_namespace = %s AND storage_extension = %s AND storage_profile_id = %d AND storage_key IN (%s)",
+			$db->qstr($storage_namespace),
+			$db->qstr($storage_extension),
+			$storage_profile_id,
+			implode(',', $escaped_keys)
+		));
+		
+		return TRUE;
+	}
+};
+
 class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 	const ID = 'id';
 	const NAME = 'name';

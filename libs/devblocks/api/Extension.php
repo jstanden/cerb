@@ -1535,6 +1535,7 @@ abstract class Extension_DevblocksStorageEngine extends DevblocksExtension {
 	abstract function put($namespace, $id, $data);
 	abstract function get($namespace, $key, &$fp=null);
 	abstract function delete($namespace, $key);
+	function batchDelete($namespace, $keys) { return FALSE; } /* override */
 	
 	public function setOptions($options=array()) {
 		if(is_array($options))

@@ -1143,6 +1143,56 @@ class S3
 
 
 	/**
+	* Delete multiple objects in one request
+	*
+	* @param string $bucket Bucket name
+	* @param array $uris Object URIs
+	* @return boolean
+	*/
+	public static function deleteObjects($bucket, $uris)
+	{
+		$dom = new DOMDocument;
+		$dom->formatOutput = true;
+		$delete = $dom->createElement('Delete');
+		
+		$quiet = $dom->createElement('Quiet', 'true');
+		$delete->appendChild($quiet);
+		
+		// [TODO] Version IDs
+		if(is_array($uris))
+		foreach($uris as $uri) {
+			$object = $dom->createElement('Object');
+			$key = $dom->createElement('Key', $uri);
+			
+			$object->appendChild($key);
+			$delete->appendChild($object);
+		}
+		
+		$dom->appendChild($delete);
+		
+		$rest = new S3Request('POST', $bucket, '', self::$endpoint);
+		$rest->setParameter('delete', null);
+		$rest->data = $dom->saveXML();
+		$rest->size = strlen($rest->data);
+		$rest->setHeader('Content-MD5', base64_encode(md5($rest->data, true)));
+		$rest->setHeader('Content-Type', 'application/xml');
+		//$rest->setHeader('Content-Length', $rest->size);
+		$rest = $rest->getResponse();
+		if ($rest->error === false && $rest->code !== 200)
+			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
+		if ($rest->error !== false)
+		{
+			self::__triggerError(sprintf("S3::deleteObjects(): [%s] %s",
+			$rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
+			return false;
+		}
+		
+		return $rest->body;
+		//return json_decode(json_encode($rest->body), true);
+	}
+
+
+	/**
 	* Get a query string authenticated URL
 	*
 	* @param string $bucket Bucket name

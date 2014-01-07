@@ -601,7 +601,39 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 	
 	public function delete($namespace, $key) {
 		@$bucket = $this->_options['bucket'];
+		
+		// Queue up batch DELETEs
+		$profile_id = isset($this->_options['_profile_id']) ? $this->_options['_profile_id'] : 0;
+		DAO_DevblocksStorageQueue::enqueueDelete($namespace, $key, $this->manifest->id, $profile_id);
+	}
+	
+	public function batchDelete($namespace, $keys) {
+		@$bucket = $this->_options['bucket'];
+		
+		$ns = $this->escapeNamespace($namespace);
+		$path_prefix = $this->_options['path_prefix'];
+		
+		$paths = array_map(function($e) use ($ns, $path_prefix) {
+			return $path_prefix . $ns . '/'. $e;
+		}, $keys);
+		
+		
+		if(false === ($xml = $this->_s3->deleteObjects($bucket, $paths)))
+			return false;
 
-		return $this->_s3->deleteObject($bucket, $key);
+		// Handle the case where some objects fail to delete (e.g. AccessDenied)
+		
+		$errors = array();
+		
+		if(isset($xml->Error))
+		foreach($xml->Error as $error) {
+			$errors[] = str_replace($path_prefix . $ns . '/', '', $error->Key);
+		}
+		
+		// Return the keys that were actually deleted, ignoring any errors
+		if(is_array($errors))
+			return array_diff($keys, $errors);
+		
+		return $keys;
 	}
 };
