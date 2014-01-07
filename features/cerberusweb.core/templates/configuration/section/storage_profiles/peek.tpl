@@ -1,7 +1,7 @@
 {if !empty($profile->id) && !empty($storage_schema_stats)}
 <div class="ui-state-error ui-corner-all" style="margin: 0 0 .5em 0; padding: 0 .7em;"> 
 	<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-	Warning!  You are changing the configuration of a live storage profile that contains content.  Unless you are very careful you may lose content.  You cannot delete this profile until you've moved all its content.
+	<b>Warning!</b>  You are changing the configuration of an active storage profile.  Unless you are very careful you may lose content.  You cannot delete this profile until you've migrated its content to another location.
 	</p>
 </div>
 {/if}
@@ -19,30 +19,34 @@
 <input type="text" name="name" value="{$profile->name}" style="width:98%;"><br>
 <br>
 
+<fieldset>
+
 {if empty($profile->id)}
-<select name="extension_id" onchange="genericAjaxGet('divStorageEngineSettings','c=config&a=handleSectionAction&section=storage_profiles&action=showStorageProfileConfig&ext_id='+escape(selectValue(this))+'&id='+escape(this.form.id.value));">
-	{foreach from=$engines item=engine_mft key=engine_id}
-	<option value="{$engine_id}" {if $profile->extension_id==$engine_id}selected="selected"{/if}>{$engine_mft->name}</option>
-	{/foreach}
-</select>
+	<legend>Create a new storage profile</legend>
+	
+	<b>Storage Engine:</b> 
+	<select name="extension_id" onchange="genericAjaxGet('divStorageEngineSettings','c=config&a=handleSectionAction&section=storage_profiles&action=showStorageProfileConfig&ext_id='+escape(selectValue(this))+'&id='+escape(this.form.id.value));">
+		{foreach from=$engines item=engine_mft key=engine_id}
+		<option value="{$engine_id}" {if $profile->extension_id==$engine_id}selected="selected"{/if}>{$engine_mft->name}</option>
+		{/foreach}
+	</select>
 {else}
 	{$profile_extid = $profile->extension_id}
 	{if isset($engines.$profile_extid)}
-		{$engines.$profile_extid->name} ({$profile->extension_id})
+		<legend>{$engines.$profile_extid->name} ({$profile->extension_id})</legend>
 	{else}
-		{$profile->extension_id}
+		<legend>{$profile->extension_id}</legend>
 	{/if}
 	<input type="hidden" name="extension_id" value="{$profile->extension_id}">
 {/if}
-<br>
 
-<blockquote id="divStorageEngineSettings" style="margin:5px;background-color:rgb(255,255,255);padding:5px;border:1px dotted rgb(120,120,120);display:{if 1}block{else}none{/if};">
+<div id="divStorageEngineSettings" style="margin:5px 0px 0px 10px;display:{if 1}block{else}none{/if};">
 	{if !empty($storage_engine) && $storage_engine instanceof Extension_DevblocksStorageEngine}
 		{$storage_engine->renderConfig($profile)}
 	{/if}
-</blockquote>
-			
-<br>
+</div>
+
+</fieldset>
 
 {if !empty($storage_schema_stats)}
 Used by:<br>
@@ -55,8 +59,8 @@ Used by:<br>
 <div class="status"></div>
 
 {if $active_worker->is_superuser}
-	<button type="button" value="saveStorageProfilePeek" onclick="$(this.form).find('input:hidden[name=action]').val($(this).val());genericAjaxPopupPostCloseReloadView(null,'formStorageProfilePeek', '{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
-	{if !empty($profile->id) && empty($storage_schema_stats)}<button type="button" onclick="if(confirm('Are you sure you want to delete this storage profile?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView(null,'formStorageProfilePeek', '{$view_id}'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" value="saveStorageProfilePeek" onclick="$(this.form).find('input:hidden[name=action]').val($(this).val());genericAjaxPopupPostCloseReloadView(null,'formStorageProfilePeek', '{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button> 
+	{if !empty($profile->id) && empty($storage_schema_stats)}<button type="button" onclick="if(confirm('Are you sure you want to delete this storage profile?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView(null,'formStorageProfilePeek', '{$view_id}'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if} 
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>	
 {/if}
