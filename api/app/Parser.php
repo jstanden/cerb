@@ -1023,7 +1023,18 @@ class CerberusParser {
 							$group = DAO_Group::get($proxy_ticket->group_id);
 							$sig = $group->getReplySignature($proxy_ticket->bucket_id, $proxy_worker);
 							$body .= $sig . PHP_EOL;
-								
+						
+						} elseif(preg_match('/^#start (.*)/', $line, $matches)) {
+							switch(@$matches[1]) {
+								case 'comment':
+									$state = '#comment_block';
+									$comment_ptr =& $comments[];
+									break;
+							}
+							
+						} elseif(preg_match('/^#end/', $line, $matches)) {
+							$state = '';
+							
 						} elseif(preg_match('/^#cut/', $line, $matches)) {
 							$state = '#cut';
 							
@@ -1077,6 +1088,9 @@ class CerberusParser {
 									}
 									break;
 									
+								case '#comment_block':
+									$comment_ptr .= $line . "\n";
+									break;
 							}
 							
 							if(!in_array($state, array('#cut', '#comment', '#comment_block'))) {
