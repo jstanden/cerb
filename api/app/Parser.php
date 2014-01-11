@@ -1006,33 +1006,42 @@ class CerberusParser {
 					// Clean the reply body
 					$body = '';
 					$lines = DevblocksPlatform::parseCrlfString($message->body, true);
-					$is_cut = false;
+					
+					$state = '';
+					$comments = array();
+					$comment_ptr = null;
 					
 					if(is_array($lines))
 					foreach($lines as $line) {
+						
 						if(preg_match('/[\s\>]*\s*##/', $line))
 							continue;
 
 						// Insert worker sig for this bucket
 						if(preg_match('/^#sig/', $line, $matches)) {
+							$state = '#sig';
 							$group = DAO_Group::get($proxy_ticket->group_id);
 							$sig = $group->getReplySignature($proxy_ticket->bucket_id, $proxy_worker);
 							$body .= $sig . PHP_EOL;
 								
 						} elseif(preg_match('/^#cut/', $line, $matches)) {
-							$is_cut = true;
+							$state = '#cut';
 							
 						} elseif(preg_match('/^#watch/', $line, $matches)) {
+							$state = '#watch';
 							CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $proxy_ticket->id, $proxy_worker->id);
 							
 						} elseif(preg_match('/^#unwatch/', $line, $matches)) {
+							$state = '#unwatch';
 							CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TICKET, $proxy_ticket->id, $proxy_worker->id);
 							
 						} elseif(preg_match('/^#noreply/', $line, $matches)) {
+							$state = '#noreply';
 							$properties['dont_send'] = 1;
 							$properties['dont_keep_copy'] = 1;
 							
 						} elseif(preg_match('/^#status (.*)/', $line, $matches)) {
+							$state = '#status';
 							switch(strtolower($matches[1])) {
 								case 'o':
 								case 'open':
@@ -1049,25 +1058,43 @@ class CerberusParser {
 							}
 							
 						} elseif(preg_match('/^#reopen (.*)/', $line, $matches)) {
+							$state = '#reopen';
 							$properties['ticket_reopen'] = $matches[1];
 							
-						} elseif(preg_match('/^#comment (.*)/', $line, $matches)) {
-							if(!isset($matches[1]) || empty($matches[1]))
-								continue;
-
-							DAO_Comment::create(array(
-								DAO_Comment::CREATED => time(),
-								DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-								DAO_Comment::OWNER_CONTEXT_ID => $proxy_worker->id,
-								DAO_Comment::COMMENT => $matches[1],
-								DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
-								DAO_Comment::CONTEXT_ID => $proxy_ticket->id,
-							));
+						} elseif(preg_match('/^#comment(.*)/', $line, $matches)) {
+							$state = '#comment';
+							$comment_ptr =& $comments[];
+							$comment_ptr = @$matches[1] ? ltrim($matches[1]) : '';
 							
 						} else {
-							if(!$is_cut)
+							
+							switch($state) {
+								case '#comment':
+									if(empty($line)) {
+										$state = '';
+									} else {
+										$comment_ptr .= ' ' . ltrim($line);
+									}
+									break;
+									
+							}
+							
+							if(!in_array($state, array('#cut', '#comment', '#comment_block'))) {
 								$body .= $line . PHP_EOL;
+							}
 						}
+					}
+
+					if(is_array($comments))
+					foreach($comments as $comment) {
+						DAO_Comment::create(array(
+							DAO_Comment::CREATED => time(),
+							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+							DAO_Comment::OWNER_CONTEXT_ID => $proxy_worker->id,
+							DAO_Comment::COMMENT => $comment,
+							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
+							DAO_Comment::CONTEXT_ID => $proxy_ticket->id,
+						));
 					}
 					
 					$properties['content'] = $body;
