@@ -924,6 +924,13 @@ if(isset($tables['group_inbox_filter'])) {
 							'oper' => 'contains',
 							'value' => $email,
 						);
+						
+						$conds[] = array(
+							'condition' => 'ticket_latest_message_header',
+							'header' => 'cc',
+							'oper' => 'contains',
+							'value' => $email,
+						);
 					}
 					
 					if(!empty($conds)) {
