@@ -895,50 +895,50 @@ if(isset($tables['group_inbox_filter'])) {
 				
 			} // end criterion
 			
+			$groups = array();
+			
+			// Start with the default conditions
 			if(!empty($conditions)) {
-				$parent_id = $group_filters_node_id;
-				
-				$extra_group = null;
-				
-				// Nest decision if multiple addresses
-				if(isset($criterion['tocc'])) {
-					$data = $criterion['tocc'];
-					@$val = $data['value'];
-					
-					if(!empty($val)) {
-						$vals = DevblocksPlatform::parseCsvString($val);
-						$conds = array();
-						
-						foreach($vals as $email) {
-							$email = trim($email, '*'); // strip leading or trailing wild
-							
-							$conds[] = array(
-								'condition' => 'ticket_latest_message_header',
-								'header' => 'to',
-								'oper' => 'contains',
-								'value' => $email,
-							);
-						}
-						
-						if(!empty($conds)) {
-							$extra_group = array(
-								'any' => 1,
-								'conditions' => $conds,
-							);
-						}
-					}
-				} // end tocc nest check
-				
-				$groups = array();
-				
-				if(!empty($extra_group))
-					$groups[] = $extra_group;
-				
 				$groups[] = array(
 					'any' => 0,
 					'conditions' => $conditions,
 				);
+			}
+			
+			// Check for To/Cc and nest decision if multiple addresses
+			if(isset($criterion['tocc'])) {
+				$data = $criterion['tocc'];
+				@$val = $data['value'];
 				
+				if(!empty($val)) {
+					$vals = DevblocksPlatform::parseCsvString($val);
+					$conds = array();
+					
+					if(is_array($vals))
+					foreach($vals as $email) {
+						$email = trim($email, '*'); // strip leading or trailing wild
+						
+						$conds[] = array(
+							'condition' => 'ticket_latest_message_header',
+							'header' => 'to',
+							'oper' => 'contains',
+							'value' => $email,
+						);
+					}
+					
+					if(!empty($conds)) {
+						$groups[] = array(
+							'any' => 1,
+							'conditions' => $conds,
+						);
+					}
+				}
+			} // end tocc nest check
+			
+			$parent_id = $group_filters_node_id;
+			
+			// If we have conditions as groups, add them as outcomes
+			if(!empty($groups)) {
 				// Outcome: Rule
 				$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
 					"VALUES (%d, %d, %s, %s, %s, %d)",
