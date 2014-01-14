@@ -136,12 +136,14 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 	}
 	
 	static function getAll($nocache=false, $with_disabled=false) {
-		// [TODO] Cache? getAllActive?
-		
 		$workers = DAO_Worker::getAll();
+		
+		// [TODO] Cache? getAllActive?
 		$addresses = self::getWhere();
+		
 		$results = array();
 		
+		if(is_array($addresses))
 		foreach($addresses as $address) {
 			@$worker = $workers[$address->worker_id];
 			if(empty($worker) || $worker->is_disabled)

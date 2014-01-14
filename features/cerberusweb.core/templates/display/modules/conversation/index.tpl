@@ -88,7 +88,7 @@
 		});
 	});
 	
-	function displayReply(msgid, is_forward, draft_id, is_quoted, is_confirmed) {
+	var displayReply = function(msgid, is_forward, draft_id, is_quoted, is_confirmed) {
 		var msgid = parseInt(msgid);
 		var $div = $('#reply' + msgid);
 		
@@ -126,7 +126,7 @@
 		);
 	}
 	
-	function displayAddNote(msgid) {
+	var displayAddNote = function(msgid) {
 		var div = document.getElementById('reply' + msgid);
 		if(null == div) return;
 		
