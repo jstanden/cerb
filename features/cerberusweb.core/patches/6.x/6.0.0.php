@@ -390,7 +390,10 @@ function upgrade_580_convert_to_ctx_url($url) {
 				case 'worker':
 					$id = intval(@$url_parts[2]);
 	
-					if(!empty($id)) {
+					if(empty($id)) {
+						$url = '';
+						
+					} else {
 						$url = sprintf("ctx://%s:%d",
 							'cerberusweb.contexts.worker',
 							$id
@@ -446,70 +449,81 @@ if(!isset($tables['context_activity_log'])) {
 $url_writer = DevblocksPlatform::getUrlService();
 $url_prefix = $url_writer->write('', true, false);
 
-$sql = sprintf("SELECT id, activity_point, actor_context, actor_context_id, entry_json FROM context_activity_log");
-$rs = $db->Execute($sql);
+$max_id = 0;
+$finished = false;
 
-while($row = mysql_fetch_assoc($rs)) {
-	$entry = json_decode($row['entry_json'], true);
+while(!$finished) {
+	$sql = sprintf("SELECT id, activity_point, actor_context, actor_context_id, entry_json FROM context_activity_log WHERE id > %d LIMIT 5000", $max_id);
+	$rs = $db->Execute($sql);
+
+	if(mysql_num_rows($rs) == 0) {
+		$finished = true;
+		continue;
+	}
 	
-	// Replace URLs
-	if(isset($entry['urls'])) {
-		$changed = false;
+	while($row = mysql_fetch_assoc($rs)) {
+		$max_id = $row['id'];
+		$entry = json_decode($row['entry_json'], true);
 		
-		foreach($entry['urls'] as $k => $v) {
-			$url = null;
+		// Replace URLs
+		if(isset($entry['urls'])) {
+			$changed = false;
 			
-			if(empty($v))
-				continue;			
-			
-			if(substr($v,0,6) == 'ctx://')
-				continue;
-			
-			// Fix the issue with SC links in activity log 
-			if(
-				$row['activity_point'] == 'ticket.message.inbound'
-				&& $row['actor_context'] == 'cerberusweb.contexts.address'
-			) {
-				$old_url = $v;
-				$v = "c=contacts&a=addresses&p=display&id=";
+			foreach($entry['urls'] as $k => $v) {
+				$url = null;
 				
-				$find = '/' . $row['actor_context_id'] . '-';
-				if(false !== ($pos = strpos($old_url, $find))) {
-					$v .= substr($old_url,$pos+1);
-				} else {
-					$v .= $row['actor_context_id'];
+				if(empty($v))
+					continue;
+				
+				if(substr($v,0,6) == 'ctx://')
+					continue;
+				
+				// Fix the issue with SC links in activity log
+				if(
+					$row['activity_point'] == 'ticket.message.inbound'
+					&& $row['actor_context'] == 'cerberusweb.contexts.address'
+				) {
+					$old_url = $v;
+					$v = "c=contacts&a=addresses&p=display&id=";
+					
+					$find = '/' . $row['actor_context_id'] . '-';
+					if(false !== ($pos = strpos($old_url, $find))) {
+						$v .= substr($old_url,$pos+1);
+					} else {
+						$v .= $row['actor_context_id'];
+					}
+				}
+				
+				if(substr($v,0,2) == 'c=') {
+					$v = $url_writer->write($v, true, false);
+				}
+				
+				if($url_writer->isSSL() && substr($url,0,7) == 'http://')
+					$url = str_replace('http://', 'https://', $url);
+				
+				if(0 == strcasecmp(substr($v,0,strlen($url_prefix)), $url_prefix)) {
+					$url = substr($v, strlen($url_prefix));
+					
+				} elseif(0 == strcasecmp(substr($v,0,4), 'http')) {
+					$url_split = explode('/', $v, 5);
+					$url = $url_split[4];
+				}
+	
+				$url = upgrade_580_convert_to_ctx_url($url);
+				
+				if(substr($url,0,6) == 'ctx://') {
+					$entry['urls'][$k] = $url;
+					$changed = true;
 				}
 			}
 			
-			if(substr($v,0,2) == 'c=') {
-				$v = $url_writer->write($v, true, false);
+			if($changed) {
+				$sql = sprintf("UPDATE context_activity_log SET entry_json = %s WHERE id = %d",
+					$db->qstr(json_encode($entry)),
+					$row['id']
+				);
+				$db->Execute($sql);
 			}
-			
-			if($url_writer->isSSL() && substr($url,0,7) == 'http://')
-				$url = str_replace('http://', 'https://', $url);
-			
-			if(0 == strcasecmp(substr($v,0,strlen($url_prefix)), $url_prefix)) {
-				$url = substr($v, strlen($url_prefix));
-				
-			} elseif(0 == strcasecmp(substr($v,0,4), 'http')) {
-				$url_split = explode('/', $v, 5);
-				$url = $url_split[4];
-			}
-
-			$url = upgrade_580_convert_to_ctx_url($url);
-			
-			if(substr($url,0,6) == 'ctx://') {
-				$entry['urls'][$k] = $url;
-				$changed = true;
-			}
-		}
-		
-		if($changed) {
-			$sql = sprintf("UPDATE context_activity_log SET entry_json = %s WHERE id = %d",
-				$db->qstr(json_encode($entry)),
-				$row['id']
-			);
-			$db->Execute($sql);
 		}
 	}
 }
@@ -628,7 +642,7 @@ if(isset($tables['workspace']) && !isset($tables['workspace_tab'])) {
 		$db->Execute("ALTER TABLE workspace_tab ADD COLUMN pos TINYINT UNSIGNED NOT NULL DEFAULT 0");
 	}
 	
-	// migrate workspace_tab.owner_context to workspace_page.owner_context 
+	// migrate workspace_tab.owner_context to workspace_page.owner_context
 	if(isset($columns['owner_context'])) {
 		// Roles
 		
