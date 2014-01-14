@@ -294,6 +294,19 @@ function upgrade_580_convert_to_ctx_url($url) {
 				$friendly = substr(@$url_parts[2], strlen($id)+1);
 			}
 			break;
+			
+		case 'kb':
+			if(@$url_parts[1] == 'article') {
+				$id = intval(@$url_parts[2]);
+	
+				$url = sprintf("ctx://%s:%d",
+					'cerberusweb.contexts.kb_article',
+					$id
+				);
+	
+				$friendly = substr(@$url_parts[2], strlen($id)+1);
+			}
+			break;
 				
 		case 'profiles':
 			switch(@$url_parts[1]) {
