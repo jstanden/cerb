@@ -38,7 +38,7 @@ if(isset($columns['last_updated_by'])) {
  
 if(isset($columns['is_private'])) {
 	$db->Execute("ALTER TABLE snippet DROP COLUMN is_private");
-} 
+}
 
 // ===========================================================================
 // Worker roles refactor
@@ -174,7 +174,7 @@ if(!isset($columns['worker_id'])) {
 }
 
 // If the primary key is compounding 2 fields instead of 3
-$diff = array_diff(array('workspace_id','endpoint'), array_keys($indexes['PRIMARY']['columns'])); 
+$diff = array_diff(array('workspace_id','endpoint'), array_keys($indexes['PRIMARY']['columns']));
 if(empty($diff)) {
 	$db->Execute('ALTER TABLE workspace_to_endpoint DROP PRIMARY KEY');
 	$db->Execute('ALTER TABLE workspace_to_endpoint ADD PRIMARY KEY (workspace_id, worker_id, endpoint)');
@@ -386,7 +386,7 @@ if(is_array($results) && !empty($results)) {
 			$db->qstr(json_encode($params)),
 			$id
 		));
-	}	
+	}
 }
 
 unset($results);
