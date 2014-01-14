@@ -1288,7 +1288,7 @@ class CerberusContexts {
 				&& $ctx instanceof Extension_DevblocksContext) {
 				$meta = $ctx->getMeta($actor_context_id);
 				$actor_name = $meta['name'];
-				$actor_url = $meta['permalink'];
+				$actor_url = sprintf("ctx://%s:%d", $actor_context, $actor_context_id);
 			}
 		}
 		
