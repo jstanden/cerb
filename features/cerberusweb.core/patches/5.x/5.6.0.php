@@ -288,6 +288,12 @@ foreach($replacements as $replace_from => $replace_to) {
 }
 
 // ===========================================================================
+// Update references in workspace_list
+
+$db->Execute("UPDATE workspace_list SET list_view=REPLACE(list_view,';s:9:\"t_team_id\"',';s:10:\"t_group_id\"') WHERE context = 'cerberusweb.contexts.ticket'");
+$db->Execute("UPDATE workspace_list SET list_view=REPLACE(list_view,';s:13:\"t_category_id\"',';s:11:\"t_bucket_id\"') WHERE context = 'cerberusweb.contexts.ticket'");
+
+// ===========================================================================
 // Pref cleanup
 
 $db->Execute("DELETE FROM worker_pref WHERE setting = 'mail_status_create'");
