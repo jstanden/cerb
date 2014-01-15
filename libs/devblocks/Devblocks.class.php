@@ -1104,11 +1104,11 @@ class DevblocksPlatform extends DevblocksEngine {
 		return empty($tables);
 	}
 	
-	static function getDatabaseTables() {
+	static function getDatabaseTables($nocache=false) {
 		$cache = self::getCacheService();
 		$tables = array();
 		
-		if(null === ($tables = $cache->load(self::CACHE_TABLES))) {
+		if($nocache || null === ($tables = $cache->load(self::CACHE_TABLES))) {
 			$db = self::getDatabaseService();
 			
 			// Make sure the database connection is valid or error out.
@@ -1116,7 +1116,9 @@ class DevblocksPlatform extends DevblocksEngine {
 				return array();
 			
 			$tables = $db->metaTables();
-			$cache->save($tables, self::CACHE_TABLES);
+			
+			if(!$nocache)
+				$cache->save($tables, self::CACHE_TABLES);
 		}
 		return $tables;
 	}
