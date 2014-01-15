@@ -93,6 +93,9 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(!is_resource($rs))
+			return array();
+		
 		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_PluginLibrary();
 			$object->id = $row['id'];
@@ -269,6 +272,11 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 	static function syncManifestsWithRepository() {
 		$url = 'http://plugins.cerb6.com/plugins/list?version=' . DevblocksPlatform::strVersionToInt(APP_VERSION);
 		
+		$tables = DevblocksPlatform::getDatabaseTables(true);
+		
+		if(!isset($tables['plugin_library']))
+			return false;
+		
 		try {
 			if(!extension_loaded("curl"))
 				throw new Exception("The cURL PHP extension is not installed");
@@ -317,7 +325,14 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 		if(!extension_loaded("curl") || false == ($count = DAO_PluginLibrary::syncManifestsWithRepository()))
 			return false;
 		
-		$plugin_library = DAO_PluginLibrary::getWhere();
+		$tables = DevblocksPlatform::getDatabaseTables(true);
+		
+		if(!isset($tables['plugin_library']))
+			return false;
+		
+		if(false == ($plugin_library = DAO_PluginLibrary::getWhere()))
+			return false;
+		
 		$plugins = DevblocksPlatform::getPluginRegistry();
 		
 		$updated = 0;

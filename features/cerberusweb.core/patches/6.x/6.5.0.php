@@ -118,6 +118,18 @@ if(isset($columns['owner_context'])) {
 }
 
 // ===========================================================================
+// Convert workspace_list keys for t_team_id and t_category_id
+
+$db->Execute("UPDATE workspace_list SET list_view=REPLACE(list_view,';s:9:\"t_team_id\"',';s:10:\"t_group_id\"') WHERE context = 'cerberusweb.contexts.ticket'");
+$db->Execute("UPDATE workspace_list SET list_view=REPLACE(list_view,';s:13:\"t_category_id\"',';s:11:\"t_bucket_id\"') WHERE context = 'cerberusweb.contexts.ticket'");
+
+// ===========================================================================
+// Convert worker_view_model keys for t_team_id and t_category_id
+
+$db->Execute("UPDATE worker_view_model SET columns_json=REPLACE(columns_json,'\"t_team_id\"','\"t_group_id\"'), columns_hidden_json=REPLACE(columns_hidden_json,'\"t_team_id\"','\"t_group_id\"'), params_editable_json=REPLACE(params_editable_json,'\"t_team_id\"','\"t_group_id\"'), params_default_json=REPLACE(params_default_json,'\"t_team_id\"','\"t_group_id\"'), params_required_json=REPLACE(params_required_json,'\"t_team_id\"','\"t_group_id\"'), params_hidden_json=REPLACE(params_hidden_json,'\"t_team_id\"','\"t_group_id\"') WHERE class_name IN ('View_Ticket','View_Message')");
+$db->Execute("UPDATE worker_view_model SET columns_json=REPLACE(columns_json,'\"t_category_id\"','\"t_bucket_id\"'), columns_hidden_json=REPLACE(columns_hidden_json,'\"t_category_id\"','\"t_bucket_id\"'), params_editable_json=REPLACE(params_editable_json,'\"t_category_id\"','\"t_bucket_id\"'), params_default_json=REPLACE(params_default_json,'\"t_category_id\"','\"t_bucket_id\"'), params_required_json=REPLACE(params_required_json,'\"t_category_id\"','\"t_bucket_id\"'), params_hidden_json=REPLACE(params_hidden_json,'\"t_category_id\"','\"t_bucket_id\"') WHERE class_name IN ('View_Ticket','View_Message')");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

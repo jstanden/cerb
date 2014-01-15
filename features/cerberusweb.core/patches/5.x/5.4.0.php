@@ -12,7 +12,7 @@ if(isset($tables['trigger_event'])) {
 }
 
 // ===========================================================================
-// trigger_event 
+// trigger_event
 
 if(!isset($tables['trigger_event'])) {
 	$sql = sprintf("
@@ -76,7 +76,7 @@ if(!isset($tables['context_merge_history'])) {
 			PRIMARY KEY (context, from_context_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->Execute($sql);
 }
 
 // ===========================================================================
@@ -93,16 +93,16 @@ if(!isset($tables['community_tool'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->Execute($sql);
 	
 } else { // update community_tool
 	if($tables['community_tool']) {
 		list($columns, $indexes) = $db->metaTable('community_tool');
 		
-		if(isset($columns['id']) 
-			&& ('int(10) unsigned' != $columns['id']['type'] 
-			|| 'auto_increment' != $columns['id']['extra']))	
-				$db->Execute("ALTER TABLE community_tool MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT");	
+		if(isset($columns['id'])
+			&& ('int(10) unsigned' != $columns['id']['type']
+			|| 'auto_increment' != $columns['id']['extra']))
+				$db->Execute("ALTER TABLE community_tool MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT");
 		
 		if(isset($columns['community_id']))
 			$db->Execute("ALTER TABLE community_tool DROP COLUMN community_id");
@@ -124,7 +124,7 @@ if(!isset($tables['community_tool_property'])) {
 			PRIMARY KEY (tool_code, property_key)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->Execute($sql);
 	
 } else { // update community_tool_property
 	list($columns, $indexes) = $db->metaTable('community_tool_property');
@@ -146,7 +146,7 @@ if(!isset($tables['community_session'])) {
 			PRIMARY KEY (session_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->Execute($sql);
 	
 } else { // update community_session
 	list($columns, $indexes) = $db->metaTable('community_session');
@@ -263,7 +263,7 @@ if(!isset($tables['address_outgoing'])) {
 	// Import from group addresses
 	$db->Execute("INSERT IGNORE INTO address_outgoing (address_id,is_default) SELECT DISTINCT reply_address_id, 0 FROM team WHERE reply_address_id != 0");
 	
-}	
+}
 
 // ===========================================================================
 // Migrate group settings to Virtual Attendants
@@ -282,7 +282,7 @@ if(!empty($todo)) {
 			$settings[$row['setting']] = $row['value'];
 		
 		// Migrate open auto-reply
-		if(isset($settings['auto_reply_enabled']) 
+		if(isset($settings['auto_reply_enabled'])
 			&& !empty($settings['auto_reply_enabled'])) {
 				@$content = $settings['auto_reply'];
 				
@@ -367,7 +367,7 @@ if(!empty($todo)) {
 			}
 			
 		// Migrate close auto-reply
-		if(isset($settings['close_reply_enabled']) 
+		if(isset($settings['close_reply_enabled'])
 			&& !empty($settings['close_reply_enabled'])) {
 				@$content = $settings['close_reply'];
 				
@@ -483,7 +483,7 @@ if(!empty($todo)) {
 							$db->qstr('action'),
 							2
 						));
-						$parent_id = $db->LastInsertId();				
+						$parent_id = $db->LastInsertId();
 						break;
 						
 					// Move
@@ -497,7 +497,7 @@ if(!empty($todo)) {
 							$db->qstr('action'),
 							2
 						));
-						$parent_id = $db->LastInsertId();				
+						$parent_id = $db->LastInsertId();
 						break;
 				}
 			}
@@ -895,50 +895,57 @@ if(isset($tables['group_inbox_filter'])) {
 				
 			} // end criterion
 			
+			$groups = array();
+			
+			// Start with the default conditions
 			if(!empty($conditions)) {
-				$parent_id = $group_filters_node_id;
-				
-				$extra_group = null;
-				
-				// Nest decision if multiple addresses
-				if(isset($criterion['tocc'])) {
-					$data = $criterion['tocc'];
-					@$val = $data['value'];
-					
-					if(!empty($val)) {
-						$vals = DevblocksPlatform::parseCsvString($val);
-						$conds = array();
-						
-						foreach($vals as $email) {
-							$email = trim($email, '*'); // strip leading or trailing wild
-							
-							$conds[] = array(
-								'condition' => 'ticket_latest_message_header',
-								'header' => 'to',
-								'oper' => 'contains',
-								'value' => $email,
-							);
-						}
-						
-						if(!empty($conds)) {
-							$extra_group = array(
-								'any' => 1,
-								'conditions' => $conds,
-							);
-						}
-					}
-				} // end tocc nest check					
-				
-				$groups = array();
-				
-				if(!empty($extra_group))
-					$groups[] = $extra_group;
-				
 				$groups[] = array(
 					'any' => 0,
 					'conditions' => $conditions,
 				);
+			}
+			
+			// Check for To/Cc and nest decision if multiple addresses
+			if(isset($criterion['tocc'])) {
+				$data = $criterion['tocc'];
+				@$val = $data['value'];
 				
+				if(!empty($val)) {
+					$vals = DevblocksPlatform::parseCsvString($val);
+					$conds = array();
+					
+					if(is_array($vals))
+					foreach($vals as $email) {
+						$email = trim($email, '*'); // strip leading or trailing wild
+						
+						$conds[] = array(
+							'condition' => 'ticket_latest_message_header',
+							'header' => 'to',
+							'oper' => 'contains',
+							'value' => $email,
+						);
+						
+						$conds[] = array(
+							'condition' => 'ticket_latest_message_header',
+							'header' => 'cc',
+							'oper' => 'contains',
+							'value' => $email,
+						);
+					}
+					
+					if(!empty($conds)) {
+						$groups[] = array(
+							'any' => 1,
+							'conditions' => $conds,
+						);
+					}
+				}
+			} // end tocc nest check
+			
+			$parent_id = $group_filters_node_id;
+			
+			// If we have conditions as groups, add them as outcomes
+			if(!empty($groups)) {
 				// Outcome: Rule
 				$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
 					"VALUES (%d, %d, %s, %s, %s, %d)",
@@ -1070,7 +1077,7 @@ if(isset($tables['group_inbox_filter'])) {
 							break;
 							
 						default:
-							// Custom fields							
+							// Custom fields
 							if('cf_' != substr($key,0,3))
 								break;
 							
@@ -1096,7 +1103,7 @@ if(isset($tables['group_inbox_filter'])) {
 									
 									$action = array(
 										'action' => 'set_cf_'.$cfield_id,
-										'value' => $value, 
+										'value' => $value,
 									);
 									break;
 								case 'W':
@@ -1106,7 +1113,7 @@ if(isset($tables['group_inbox_filter'])) {
 									
 									$action = array(
 										'action' => 'set_cf_'.$cfield_id,
-										'worker_id' => $value, 
+										'worker_id' => $value,
 									);
 									break;
 								case 'X':
@@ -1120,7 +1127,7 @@ if(isset($tables['group_inbox_filter'])) {
 										
 									$action = array(
 										'action' => 'set_cf_'.$cfield_id,
-										'values' => $value, 
+										'values' => $value,
 									);
 									break;
 							}
@@ -1171,7 +1178,7 @@ if(isset($tables['group_inbox_filter'])) {
 }
 
 // ===========================================================================
-// context_activity_log 
+// context_activity_log
 
 if(!isset($tables['context_activity_log'])) {
 	$sql = sprintf("
