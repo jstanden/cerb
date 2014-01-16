@@ -748,6 +748,14 @@ DIV.block {
 	border-radius: 5px;
 }
 
+DIV.block.hover-underline A {
+	text-decoration: none;
+}
+
+DIV.block.hover-underline A:hover {
+	text-decoration: underline;
+}
+
 DIV.block H2 {
 	font-weight: bold;
 	font-size: 18px;

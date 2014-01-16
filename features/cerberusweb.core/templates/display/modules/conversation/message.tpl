@@ -1,5 +1,5 @@
 {assign var=headers value=$message->getHeaders()}
-<div class="block">
+<div class="block" style="margin-bottom:10px;">
 <table style="text-align: left; width: 98%;table-layout: fixed;" border="0" cellpadding="2" cellspacing="0">
   <tbody>
 	<tr>
@@ -161,7 +161,6 @@
 	{include file="devblocks:cerberusweb.core::display/modules/conversation/notes.tpl"}
 </div>
 <div id="reply{$message->id}"></div>
-<br>
 
 <script type="text/javascript">
 $('#{$message->id}t').hover(

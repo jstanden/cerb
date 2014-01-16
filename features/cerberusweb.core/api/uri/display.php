@@ -1113,6 +1113,43 @@ class ChDisplayPage extends CerberusPageExtension {
 			}
 		}
 		
+		// Inline activity log
+		
+		if(DAO_WorkerPref::get($active_worker->id, 'mail_display_inline_log', 0)) {
+			$activity_log = DAO_ContextActivityLog::getWhere(
+				sprintf("%s = %s AND %s = %d",
+					DAO_ContextActivityLog::TARGET_CONTEXT,
+					Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET),
+					DAO_ContextActivityLog::TARGET_CONTEXT_ID,
+					$ticket->id
+				),
+				DAO_ContextActivityLog::CREATED,
+				true
+			);
+			
+			$activity_log = array_filter($activity_log, function($entry) {
+				// Filter these events out
+				switch($entry->activity_point) {
+					case 'comment.create':
+					case 'ticket.message.outbound':
+					case 'ticket.message.inbound':
+						return false;
+						break;
+				}
+				
+				return true;
+			});
+			
+			if(!empty($activity_log)) {
+				foreach($activity_log as $activity_entry) { /* @var $activity_entry Model_ContextActivityLog */
+					$key = $activity_entry->created . '_l' . $activity_entry->id;
+					$convo_timeline[$key] = array('l', $activity_entry->id);
+				}
+			}
+			
+			$tpl->assign('activity_log', $activity_log);
+		}
+		
 		// sort the timeline
 		if(!$expand_all) {
 			krsort($convo_timeline);

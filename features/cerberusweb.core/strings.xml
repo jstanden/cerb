@@ -1338,10 +1338,10 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 			<tuv xml:lang="en_US"><seg>No messages on ticket.</seg></tuv>
 		</tu>
 		<tu tuid='display.convo.order_oldest'>
-			<tuv xml:lang="en_US"><seg>Starting with the oldest message:</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Starting from the oldest activity:</seg></tuv>
 		</tu>
 		<tu tuid='display.convo.order_newest'>
-			<tuv xml:lang="en_US"><seg>Starting with the newest message:</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Starting from the most recent activity:</seg></tuv>
 		</tu>
 		<tu tuid='display.convo.set_org'>
 			<tuv xml:lang="en_US"><seg>set organization</seg></tuv>
@@ -2064,6 +2064,12 @@ For example: *receipt*</seg></tuv>
 		</tu>
 		<tu tuid='preferences.account.mail.comments'>
 			<tuv xml:lang="en_US"><seg>Show comments in the conversation</seg></tuv>
+		</tu>
+		<tu tuid='preferences.account.mail.display'>
+			<tuv xml:lang="en_US"><seg>When I view a mail conversation:</seg></tuv>
+		</tu>
+		<tu tuid='preferences.account.mail.display.inline_log'>
+			<tuv xml:lang="en_US"><seg>Include activity log entries in the timeline</seg></tuv>
 		</tu>
 		<tu tuid='preferences.account.mail.readall'>
 			<tuv xml:lang="en_US"><seg>Always use 'read all' mode (expand messages and sort chronologically)</seg></tuv>
