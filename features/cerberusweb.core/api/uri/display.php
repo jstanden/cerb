@@ -752,6 +752,153 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 	}
 	
+	function showRelayMessagePopupAction() {
+		@$message_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(false == ($message = DAO_Message::get($message_id)))
+			return;
+		
+		$tpl->assign('message', $message);
+		
+		if(false == ($ticket = DAO_Ticket::get($message->ticket_id)))
+			return;
+		
+		$tpl->assign('ticket', $ticket);
+		
+		if(false == ($sender = $message->getSender()))
+			return;
+		
+		$tpl->assign('sender', $sender);
+		
+		$workers_with_relays = DAO_AddressToWorker::getByWorkers();
+		$tpl->assign('workers_with_relays', $workers_with_relays);
+		
+		$tpl->display('devblocks:cerberusweb.core::display/rpc/relay_message.tpl');
+	}
+	
+	function saveRelayMessagePopupAction() {
+		@$message_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$emails = DevblocksPlatform::importGPC($_REQUEST['emails'],'array',array());
+		@$content = DevblocksPlatform::importGPC($_REQUEST['content'], 'string', '');
+		@$include_attachments = DevblocksPlatform::importGPC($_REQUEST['include_attachments'], 'integer', 0);
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$mail_service = DevblocksPlatform::getMailService();
+		$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
+
+		$workers = DAO_Worker::getAll();
+		
+		if(false == ($message = DAO_Message::get($message_id)))
+			return;
+		
+		if(false == ($ticket = DAO_Ticket::get($message->ticket_id)))
+			return;
+
+		if(false == ($group = DAO_Group::get($ticket->group_id)))
+			return;
+		
+		if(false == ($sender = $message->getSender()))
+			return;
+
+		$url_writer = DevblocksPlatform::getUrlService();
+		$ticket_url = $url_writer->write(sprintf('c=profiles&w=ticket&mask=%s', $ticket->mask), true);
+		
+		$replyto = $group->getReplyTo($ticket->bucket_id);
+		
+		$attachment_data = ($include_attachments)
+			? DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_MESSAGE, $message->id)
+			: array()
+			;
+		
+		if(empty($content))
+			$content = sprintf("## Relayed from %s\r\n".
+				"## Your reply to this message will be sent to the requesters.\r\n".
+				"## Instructions: http://wiki.cerbweb.com/Email_Relay\r\n".
+				"##\r\n".
+				"%s",
+				$ticket_url,
+				$message->getContent()
+			);
+		
+		if(is_array($emails))
+		foreach($emails as $to) {
+			try {
+				if(false == ($to_model = DAO_AddressToWorker::getByAddress($to)))
+					continue;
+				
+				if(false == ($worker = $workers[$to_model->worker_id]))
+					continue;
+				
+				$mail = $mail_service->createMessage();
+				
+				$mail->setTo(array($to));
+	
+				$headers = $mail->getHeaders(); /* @var $headers Swift_Mime_Header */
+	
+				$sender_name = $sender->getName();
+				
+				if(!empty($sender_name)) {
+					$mail->setFrom($sender->email, $sender_name);
+				} else {
+					$mail->setFrom($sender->email);
+				}
+			
+				$replyto_personal = $replyto->getReplyPersonal($worker);
+				if(!empty($replyto_personal)) {
+					$mail->setReplyTo($replyto->email, $replyto_personal);
+				} else {
+					$mail->setReplyTo($replyto->email);
+				}
+
+				// Subject
+				$subject = sprintf("[relay #%s] %s", $ticket->mask, $ticket->subject);
+				$mail->setSubject($subject);
+	
+				// Find the owner of this ticket and sign it.
+				$sign = substr(md5(CerberusContexts::CONTEXT_TICKET.$ticket->id.$worker->pass),8,8);
+				
+				$headers->removeAll('message-id');
+				$headers->addTextHeader('Message-Id', sprintf("<%s_%d_%d_%s@cerb>", CerberusContexts::CONTEXT_TICKET, $ticket->id, time(), $sign));
+				$headers->addTextHeader('X-CerberusRedirect','1');
+	
+				// [TODO] HTML body?
+				
+				$mail->setBody($content);
+				
+				// Files
+				if(!empty($attachment_data) && isset($attachment_data['attachments']) && !empty($attachment_data['attachments'])) {
+					foreach($attachment_data['attachments'] as $file_id => $file) { /* @var $file Model_Attachment */
+						//if('original_message.html' == $file->display_name)
+						//	continue;
+						
+						if(false !== ($fp = DevblocksPlatform::getTempFile())) {
+							if(false !== $file->getFileContents($fp)) {
+								$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $file->mime_type);
+								$attach->setFilename($file->display_name);
+								$mail->attach($attach);
+								fclose($fp);
+							}
+						}
+					}
+				}
+				
+				$result = $mailer->send($mail);
+				unset($mail);
+				
+				if(!$result)
+					return false;
+				
+			} catch (Exception $e) {
+				return false;
+				
+			}
+		}
+	}
+	
 	function showMacroReplyPopupAction() {
 		@$macro_id = DevblocksPlatform::importGPC($_REQUEST['macro'],'integer',0);
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);

@@ -112,6 +112,26 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 		return $addresses;
 	}
 	
+	static function getByWorkers() {
+		$workers = DAO_Worker::getAll(false, false);
+		$addys = DAO_AddressToWorker::getAll(false, false);
+		
+		array_walk($addys, function($addy) use ($workers) {
+			if(!$addy->is_confirmed)
+				return;
+			
+			if(!isset($workers[$addy->worker_id]))
+				return;
+			
+			if(!isset($workers[$addy->worker_id]->relay_emails))
+				$workers[$addy->worker_id]->relay_emails = array();
+				
+			$workers[$addy->worker_id]->relay_emails[] = $addy->address;
+		});
+		
+		return $workers;
+	}
+	
 	/**
 	 * Enter description here...
 	 *

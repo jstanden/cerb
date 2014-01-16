@@ -111,6 +111,7 @@
 					  			<li><a href="javascript:;" onclick="displayReply('{$message->id}',0,0,1);">{'display.reply.quote'|devblocks_translate}</a></li>
 					  			<li><a href="javascript:;" onclick="displayReply('{$message->id}',0,0,0);">{'display.reply.no_quote'|devblocks_translate}</a></li>
 					  			{if $active_worker->hasPriv('core.display.actions.forward')}<li><a href="javascript:;" onclick="displayReply('{$message->id}',1);">{'display.ui.forward'|devblocks_translate|capitalize}</a></li>{/if}
+					  			<li><a href="javascript:;" class="relay" data-message-id="{$message->id}">Relay to worker email</a></li>
 					  		</ul>
 					  	{/if}
 					  	
@@ -192,6 +193,14 @@ $('#{$message->id}act')
 		$(this).find('a').trigger('click');
 	})
 ;
+
+$('#{$message->id}act')
+	.find('li a.relay')
+	.click(function() {
+		genericAjaxPopup('relay', 'c=display&a=showRelayMessagePopup&id={$message->id}', null, false, '500');
+	})
+	;
+
 </script>
 {/if}
 
