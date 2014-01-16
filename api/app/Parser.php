@@ -669,21 +669,10 @@ class CerberusParser {
 						
 						if(isset($info['charset']) && !empty($info['charset'])) {
 							$message->body_encoding = $info['charset'];
-							
-							if(@mb_check_encoding($text, $info['charset'])) {
-								$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['charset']);
-							} else {
-								mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1');
-								
-								if(false !== ($charset = mb_detect_encoding($text))) {
-									$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset);
-								} else {
-									$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
-								}
-							}
+							$text = self::convertEncoding($text, $info['charset']);
 						}
 						
-						@$message->body .= $text;
+						$message->body .= $text;
 						
 						unset($text);
 						$handled = true;
@@ -693,22 +682,12 @@ class CerberusParser {
 						@$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
 						
 						if(isset($info['charset']) && !empty($info['charset'])) {
-							if(@mb_check_encoding($text, $info['charset'])) {
-								$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['charset']);
-							} else {
-								mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1');
-								
-								if(false !== ($charset = mb_detect_encoding($text))) {
-									$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset);
-								} else {
-									$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
-								}
-							}
+							$text = self::convertEncoding($text, $info['charset']);
 						}
 						
 						$message->htmlbody .= $text;
-						unset($text);
 						
+						unset($text);
 						$handled = true;
 						break;
 						 
@@ -1450,6 +1429,43 @@ class CerberusParser {
 		return CerberusUtils::parseRfcAddressList($address_string);
 	}
 	
+	static function convertEncoding($text, $charset) {
+		$charset = strtolower($charset);
+		
+		// Normalize charsets
+		switch($charset) {
+			case 'us-ascii':
+				$charset = 'ascii';
+				break;
+		}
+		
+		if(@mb_check_encoding($text, $charset)) {
+			if(false !== ($out = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset)))
+				return $out;
+			
+		} else {
+			$has_iconv = extension_loaded('iconv') ? true : false;
+			
+			// If we can use iconv, do so.
+			if($has_iconv && false !== ($out = iconv($charset, LANG_CHARSET_CODE, $text)))
+				return $out;
+			
+			// Otherwise, fall back to mbstring's auto-detection
+			mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1');
+			
+			if(false !== ($charset = mb_detect_encoding($text))) {
+				if(false !== ($out = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset)))
+					return $out;
+				
+			} else {
+				if(false !== ($out = mb_convert_encoding($text, LANG_CHARSET_CODE)))
+					return $out;
+			}
+		}
+		
+		return $text;
+	}
+	
 	static function fixQuotePrintableString($input, $encoding=null) {
 		$out = '';
 		
@@ -1470,18 +1486,7 @@ class CerberusParser {
 					if(empty($charset))
 						$charset = 'auto';
 
-					if(@mb_check_encoding($part->text, $charset)) {
-						@$out .= mb_convert_encoding($part->text, LANG_CHARSET_CODE, $charset);
-						
-					} else {
-						mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, auto');
-						
-						if(false !== ($charset = mb_detect_encoding($part->text))) {
-							$out .= mb_convert_encoding($part->text, LANG_CHARSET_CODE, $charset);
-						} else {
-							$out .= mb_convert_encoding($part->text, LANG_CHARSET_CODE);
-						}
-					}
+					$out .= self::convertEncoding($part->text, $charset);
 					
 				} catch(Exception $e) {}
 			}
