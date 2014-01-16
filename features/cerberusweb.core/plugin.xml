@@ -619,6 +619,9 @@
 		<activity point="ticket.message.outbound">
 			<param key="label_key" value="Ticket Message Outbound" />
 		</activity>
+		<activity point="ticket.message.relay">
+			<param key="label_key" value="Ticket Message Relayed" />
+		</activity>
 		<activity point="ticket.moved">
 			<param key="label_key" value="Ticket Moved" />
 		</activity>

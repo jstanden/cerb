@@ -889,6 +889,24 @@ class ChDisplayPage extends CerberusPageExtension {
 				$result = $mailer->send($mail);
 				unset($mail);
 				
+				/*
+				 * Log activity (ticket.message.relay)
+				 */
+				$entry = array(
+					//{{actor}} relayed ticket {{target}} to {{worker}} ({{worker_email}})
+					'message' => 'activities.ticket.message.relay',
+					'variables' => array(
+						'target' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
+						'worker' => $worker->getName(),
+						'worker_email' => $to_model->address,
+						),
+					'urls' => array(
+						'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_TICKET, $ticket->id),
+						'worker' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_WORKER, $worker->id),
+						)
+				);
+				CerberusContexts::logActivity('ticket.message.relay', CerberusContexts::CONTEXT_TICKET, $ticket->id, $entry, CerberusContexts::CONTEXT_WORKER, $active_worker->id);
+				
 				if(!$result)
 					return false;
 				

@@ -75,6 +75,9 @@
 		<tu tuid='activities.ticket.message.outbound'>
 			<tuv xml:lang="en_US"><seg>{{actor}} responded to ticket {{target}}</seg></tuv>
 		</tu>
+		<tu tuid='activities.ticket.message.relay'>
+			<tuv xml:lang="en_US"><seg>{{actor}} relayed ticket {{target}} to {{worker}} ({{worker_email}})</seg></tuv>
+		</tu>
 		<tu tuid='activities.ticket.moved'>
 			<tuv xml:lang="en_US"><seg>{{actor}} moved ticket {{target}} to {{group}}: {{bucket}}</seg></tuv>
 		</tu>
