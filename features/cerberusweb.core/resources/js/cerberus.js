@@ -113,7 +113,7 @@ $.fn.cerbDateInputHelper = function(options) {
 					return false;
 				}
 			})
-			.data('autocomplete')
+			.data('uiAutocomplete')
 				._renderItem = function(ul, item) {
 					var $li = $('<li></li>')
 						.data('item.autocomplete', item)
