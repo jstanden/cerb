@@ -94,7 +94,7 @@
 	{foreach from=$properties item=v key=k name=props}
 		<div class="property">
 			{if $k == 'mask'}
-				<b>{'ticket.mask'|devblocks_translate|capitalize}:</b>
+				<b id="tour-profile-ticket-mask">{'ticket.mask'|devblocks_translate|capitalize}:</b>
 				{$ticket->mask} 
 				(#{$ticket->id})
 			{elseif $k == 'status'}

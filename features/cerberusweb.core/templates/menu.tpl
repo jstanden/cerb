@@ -28,7 +28,7 @@
 	</li>
 	{/if}
 
-	<li class="{if $page->id=='core.page.search'}selected{/if}" style="float:right;">
+	<li class="tour-navmenu-search{if $page->id=='core.page.search'} selected{/if}" style="float:right;">
 		<a href="javascript:;" class="submenu">{'common.search'|devblocks_translate|lower} <span class="cerb-sprite {if $page->id=='core.page.search'}sprite-arrow-down-white{else}sprite-arrow-down-black{/if}" style="height:12px;width:12px;"></span></a>
 		<ul class="cerb-popupmenu cerb-float">
 			{foreach from=$contexts item=context key=context_id}

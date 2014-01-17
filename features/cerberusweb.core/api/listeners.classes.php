@@ -44,9 +44,18 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 								0
 							),
 							new DevblocksTourCallout(
+								'UL.navmenu:first LI.tour-navmenu-search',
+								'Search page',
+								'Use this page to search for any kind of record from anywhere.',
+								'bottomRight',
+								'topLeft',
+								5,
+								5
+								),
+							new DevblocksTourCallout(
 								'body fieldset:nth(1)',
 								'Social',
-								'These resources will help you get the most out of Cerb6.',
+								'These resources will help you get the most out of Cerb.',
 								'bottomLeft',
 								'topLeft',
 								20,
@@ -57,34 +66,98 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 				break;
 
 			case 'pages':
-				$tour = array(
-					'title' => 'Workspace Pages',
-					'body' =>
-<<< EOF
-Pages give you the freedom to build a completely personalized interface based on how you use the software. You can add as many new pages as you want, and your favorites can be added to the navigation menu for quick access.
-EOF
-					,
-					'callouts' => array(
-						new DevblocksTourCallout(
-							'#tourHeaderMenu',
-							'Navigation Bar',
-							'The navigation bar is located at the top of your browser window. It displays a list of shortcuts to pages.',
-							'bottomLeft',
-							'topLeft',
-							10,
-							5
-							),
-						new DevblocksTourCallout(
-							'UL.navmenu:first LI.add',
-							'Pages Menu',
-							'You can add pages by clicking on the downward-pointing arrow in the menu',
-							'topLeft',
-							'bottomLeft',
-							10,
-							-5
-							),
-					)
-				);
+				switch(array_shift($path)) {
+					case null:
+						$tour = array(
+							'title' => 'Workspace Pages',
+							'body' =>"Pages give you the freedom to build a completely personalized interface based on how you use the software. You can add as many new pages as you want, and your favorites can be added to the navigation menu for quick access.",
+							'callouts' => array(
+								new DevblocksTourCallout(
+									'#tourHeaderMenu',
+									'Navigation Bar',
+									'The navigation bar is located at the top of your browser window. It displays a list of shortcuts to pages.',
+									'bottomLeft',
+									'topLeft',
+									10,
+									5
+									),
+								new DevblocksTourCallout(
+									'#viewpages TABLE.worklist A > SPAN.sprite-plus-circle-frame',
+									'Add Pages',
+									'You can add a page by clicking on the (+) icon in the pages worklist.',
+									'bottomRight',
+									'topLeft',
+									10,
+									5
+									),
+								new DevblocksTourCallout(
+									'#viewpages TABLE.worklistBody > THEAD TH:nth(0) A',
+									'Add to Menu',
+									'You can add or remove a page from your navigation bar by clicking the icon in this column.',
+									'bottomLeft',
+									'topMiddle',
+									0,
+									5
+									),
+								new DevblocksTourCallout(
+									'#viewpages TABLE.worklistBody > THEAD TH:nth(1) A',
+									'View Page',
+									'You can view a page by clicking the link in this column.',
+									'bottomLeft',
+									'topMiddle',
+									0,
+									5
+									),
+							)
+						);
+						break;
+						
+					default:
+						$tour = array(
+							'title' => 'Workspace Page',
+							'body' =>"Pages give you the freedom to build a completely personalized interface based on how you use the software. You can add as many new pages as you want, and your favorites can be added to the navigation menu for quick access.",
+							'callouts' => array(
+								new DevblocksTourCallout(
+									'#pageTabs LI[role=tab]:last',
+									'Add a workspace tab',
+									'Click this tab to add new tabs to this workspace.',
+									'bottomLeft',
+									'topMiddle',
+									0,
+									5
+									),
+								new DevblocksTourCallout(
+									'FORM BUTTON.add:first',
+									'Add a page shortcut',
+									'Click this button to add or remove the page from your shortcuts.',
+									'bottomRight',
+									'topMiddle',
+									0,
+									5
+									),
+								new DevblocksTourCallout(
+									'FORM BUTTON.config-page:first',
+									'Edit pages and tabs',
+									'Click this button to edit pages and tabs.',
+									'bottomRight',
+									'topMiddle',
+									0,
+									5
+									),
+								new DevblocksTourCallout(
+									'FORM BUTTON.config-page:first',
+									'Export pages and tabs',
+									'Click this button to export pages and tabs so you can import them elsewhere.',
+									'bottomRight',
+									'topMiddle',
+									0,
+									5
+									),
+							)
+						);
+						break;
+						
+				}
 				break;
 			
 				case 'search':
@@ -92,22 +165,57 @@ EOF
 						'title' => 'Search',
 						'body' => 'The search menu provides quick access to a worklist of any kind of object from anywhere in the application. You can find the search menu at the top of the screen in the far right side of the navigation menu.',
 						'callouts' => array(
-							//$callouts['tourDashboardSearchCriteria']
-						)
+							new DevblocksTourCallout(
+								'UL.navmenu:first LI.tour-navmenu-search',
+								'Search page',
+								'Use this page to search for any kind of record from anywhere.',
+								'bottomRight',
+								'topLeft',
+								5,
+								5
+								),
+							new DevblocksTourCallout(
+								'FORM.quick-search:first',
+								'Quick search',
+								'Use this widget to quickly add search filters to the worklist.',
+								'bottomRight',
+								'topLeft',
+								5,
+								5
+								),
+							new DevblocksTourCallout(
+								'#pageSearch FORM:nth(1)',
+								'Add filters',
+								'Use this menu to add advanced filters to the worklist.',
+								'bottomLeft',
+								'topLeft',
+								25,
+								10
+								),
+							new DevblocksTourCallout(
+								'TABLE.worklist:first',
+								'Worklist',
+								'This worklist displays your current search results.',
+								'bottomLeft',
+								'topLeft',
+								5,
+								5
+								),
+					)
 					);
 					break;
 				
 			case 'preferences':
 				$tour = array(
 			 	   'title' => 'Preferences',
-					'body' => 'This screen allows you to change the personal preferences on your helpdesk account.',
+					'body' => 'Use this page to configure your account preferences.',
 				);
 				break;
 
 			case 'groups':
 				$tour = array(
 			 	   'title' => 'Group Setup',
-			  	  'body' => 'This screen allows you to administer and configure groups for which you are a manager.  This includes members, buckets, mail routing rules, and other group-specific preferences.',
+			  	  'body' => 'This page enables you to configure groups for which you are a manager.  This includes members, buckets, mail routing rules, and other group-specific preferences.',
 				);
 				break;
 
@@ -116,7 +224,7 @@ EOF
 					default:
 						$tour = array(
 							'title' => 'Setup',
-							'body' => 'This page is where you configure and customize Cerb6.',
+							'body' => 'This page is where you configure and customize Cerb.',
 							'callouts' => array(
 								new DevblocksTourCallout(
 									'DIV.cerb-menu',
@@ -128,9 +236,9 @@ EOF
 									10
 									),
 								new DevblocksTourCallout(
-									'DIV.cerb-menu > UL > LI:nth(5)',
+									'DIV.cerb-menu > UL > LI:nth(4)',
 									'Plugins',
-									'Use this menu to install and configure optional plugins that enhance Cerb6 functionality. You can also download third-party plugins from the community.',
+									'Use this menu to install and configure optional plugins that enhance Cerb functionality. You can also download third-party plugins from the community.',
 									'bottomLeft',
 									'topLeft',
 									20,
@@ -142,8 +250,8 @@ EOF
 						
 					case 'branding':
 						$tour = array(
-							'title' => 'Logo & Title',
-							'body' => 'This setup page provides options for personalizing your copy of Cerb6 with your own logo and browser title.',
+							'title' => 'Branding',
+							'body' => 'This setup page provides options for personalizing your copy of Cerb with your own logo and browser title.',
 						);
 						break;
 						
@@ -171,7 +279,7 @@ EOF
 					case 'license':
 						$tour = array(
 							'title' => 'License',
-							'body' => "This setup page manages your Cerb6 license.  If you don't have a license, one can be <a href='http://www.cerberusweb.com/buy' target='_blank'>purchased from the project website</a>.",
+							'body' => "This setup page manages your Cerb license.  If you don't have a license, one can be <a href='http://www.cerberusweb.com/buy' target='_blank'>purchased from the project website</a>.",
 						);
 						break;
 						
@@ -179,6 +287,45 @@ EOF
 						$tour = array(
 							'title' => 'Scheduler',
 							'body' => 'The scheduler is where you can set up tasks that will periodically run behind-the-scenes.',
+						);
+						break;
+
+					case 'snippets':
+						$tour = array(
+							'title' => 'Snippets',
+							'body' => 'This setup page provides a place to globally manage snippets.',
+						);
+						break;
+						
+					case 'sessions':
+						$tour = array(
+							'title' => 'Sessions',
+							'body' => 'This setup page provides a place to globally manage worker sessions.',
+						);
+						break;
+
+					case 'attendants':
+						$tour = array(
+							'title' => 'Virtual Attendants',
+							'body' => 'This setup page provides a place to globally manage Virtual Attendants.',
+							'callouts' => array(
+								new DevblocksTourCallout(
+									'#viewsetup_virtual_attendants TABLE.worklist A > SPAN.sprite-plus-circle-frame',
+									'Add Virtual Attendant',
+									'You can add a Virtual Attendant by clicking on the (+) icon in this worklist.',
+									'bottomRight',
+									'topLeft',
+									10,
+									5
+									),
+							),
+						);
+						break;
+
+					case 'scheduled_behavior':
+						$tour = array(
+							'title' => 'Scheduled Behavior',
+							'body' => 'This setup page provides a place to globally manage Virtual Attendant scheduled behavior.',
 						);
 						break;
 
@@ -191,7 +338,7 @@ EOF
 						
 					case 'acl':
 						$tour = array(
-							'title' => 'Worker Permissions',
+							'title' => 'Worker Roles',
 							'body' => "This setup page provides a way to restrict the access rights of workers by role.",
 						);
 						break;
@@ -213,7 +360,7 @@ EOF
 					case 'mail_pop3':
 						$tour = array(
 							'title' => 'POP3 Accounts',
-							'body' => "Here is where you specify the mailboxes that should be checked for new mail to import into Cerb6.",
+							'body' => "Here is where you specify the mailboxes that should be checked for new mail to import into Cerb.",
 						);
 						break;
 						
@@ -231,6 +378,27 @@ EOF
 						);
 						break;
 						
+					case 'mail_failed':
+						$tour = array(
+							'title' => 'Failed Messages',
+							'body' => "This page displays messages that were received by the system but failed to process.",
+						);
+						break;
+						
+					case 'mail_import':
+						$tour = array(
+							'title' => 'Import Message',
+							'body' => "This page provides an easy way to import raw RFC-2822 message sources.  This is particularly useful for evaluations, development, and troubleshooting.",
+						);
+						break;
+						
+					case 'mail_relay':
+						$tour = array(
+							'title' => 'External Mail Relay',
+							'body' => "This page configures the external mail relay.",
+						);
+						break;
+						
 					case 'mail_smtp':
 						$tour = array(
 							'title' => 'SMTP Server',
@@ -241,7 +409,7 @@ EOF
 					case 'mail_from':
 						$tour = array(
 							'title' => 'Reply-To Addresses',
-							'body' => "Each group or bucket can specify a reply-to address.  This is where you configure all the available reply-to email addresses.  It is <b>very important</b> that these addresses deliver to one of the mailboxes that Cerb6 checks for new mail, otherwise you won't receive correspondence from your audience.",
+							'body' => "Each group or bucket can specify a reply-to address.  This is where you configure all the available reply-to email addresses.  It is <b>very important</b> that these addresses deliver to one of the mailboxes that Cerb checks for new mail, otherwise you won't receive correspondence from your audience.",
 						);
 						break;
 
@@ -282,9 +450,27 @@ EOF
 						
 					case 'plugins':
 						$tour = array(
-							'title' => 'Manage Plugins',
-							'body' => "This is where you can extend Cerb6 by installing new functionality through plugins.",
+							'title' => 'Plugins',
+							'body' => "This is where you can add new functionality to Cerb through plugins.",
 							'callouts' => array(
+								new DevblocksTourCallout(
+									'#pluginTabs > UL > LI:nth(0)',
+									'Installed plugins',
+									'This tab displays the plugins that have been installed.',
+									'bottomLeft',
+									'topLeft',
+									10,
+									5
+									),
+								new DevblocksTourCallout(
+									'#pluginTabs > UL > LI:nth(1)',
+									'Plugin Library',
+									'This tab provides access to the Plugin Library, where you can discover and install new plugins through your web browser.',
+									'bottomLeft',
+									'topLeft',
+									10,
+									5
+									),
 							)
 						);
 						break;
@@ -292,43 +478,30 @@ EOF
 				}
 				break;
 
-			case 'kb':
-				$tour = array(
-					'title' => 'Knowledgebase',
-					'body' =>
-<<< EOF
-The knowledgebase is a collection of informative articles organized into categories.  Categories can be based on anything: product lines, languages, etc.
-EOF
-					,
-					'callouts' => array(
-					),
-				);
-				break;
-				
 			case 'profiles':
 				switch(array_shift($path)) {
 					default:
 						$tour = array(
 							'title' => 'Profiles',
-							'body' =>
-<<< EOF
-A profile displays all the information related to a particular record.
-EOF
-							,
+							'body' => "A profile displays all the information related to a particular record.",
+							'callouts' => array(
+							),
+						);
+						break;
+					
+					case 'kb':
+						$tour = array(
+							'title' => 'Knowledgebase Article',
+							'body' => "The knowledgebase is a collection of informative articles organized into categories.  Categories can be based on anything: product lines, languages, etc.",
 							'callouts' => array(
 							),
 						);
 						break;
 						
-						
 					case 'ticket':
 						$tour = array(
 							'title' => 'Ticket Profile',
-							'body' =>
-<<< EOF
-This is a detailed profile page for an email conversation.
-EOF
-							,
+							'body' => "This is a detailed profile page for an email conversation.",
 							'callouts' => array(
 								new DevblocksTourCallout(
 									'SPAN#spanWatcherToolbar BUTTON:first',
@@ -340,7 +513,7 @@ EOF
 									5
 									),
 								new DevblocksTourCallout(
-									'FIELDSET.properties > DIV.property:nth(2)',
+									'FIELDSET.properties #tour-profile-ticket-mask',
 									'Mask',
 									'Each conversation is identified by a "mask" that may be used as a reference number in future conversations, or over the phone.',
 									'bottomRight',
@@ -360,11 +533,11 @@ EOF
 								new DevblocksTourCallout(
 									'#displayTabs',
 									'Conversation Timeline',
-									'This is where all email replies will be displayed for this ticket. Your responses will be sent to all requesters.',
+									'This is where all email replies will be displayed for this ticket. Your responses will be sent to all recipients.',
 									'bottomLeft',
 									'topLeft',
-									10,
-									10
+									30,
+									5
 									),
 								new DevblocksTourCallout(
 									'#displayTabs DIV#ui-tabs-1 BUTTON#btnComment:first',
@@ -393,6 +566,15 @@ EOF
 									0,
 									10
 									),
+								new DevblocksTourCallout(
+									'#displayTabs > UL > li:nth(3)',
+									'Recipient History',
+									'This tab displays prior conversations involving any of these recipients.',
+									'bottomLeft',
+									'topMiddle',
+									0,
+									10
+									),
 							)
 						);
 						break;
@@ -400,11 +582,7 @@ EOF
 					case 'worker':
 						$tour = array(
 							'title' => 'Worker Profiles',
-							'body' =>
-<<< EOF
-You can think of your profile as your homepage within Cerb6.  It provides quick access to your notifications, activity history, calendar, virtual attendant, and watchlist.
-EOF
-							,
+							'body' => "You can think of your profile as your homepage within Cerb.  It provides quick access to your notifications, activity history, calendar, virtual attendant, and watchlist.",
 							'callouts' => array(
 							),
 						);
@@ -412,23 +590,10 @@ EOF
 				}
 				break;
 				
-			case 'reports':
-				$tour = array(
-					'title' => 'Reports',
-					'body' =>
-<<< EOF
-This page helps you to run detailed reports about the metrics collected by Cerb6.
-EOF
-					,
-					'callouts' => array(
-					),
-				);
-				break;
-				
 		}
 
 		if(!empty($tour))
-		$tpl->assign('tour', $tour);
+			$tpl->assign('tour', $tour);
 	}
 };
 
