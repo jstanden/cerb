@@ -1015,6 +1015,139 @@ class CerberusMail {
 			return $message_id;
 	}
 	
+	static function relay($message_id, $emails, $include_attachments = false, $content = null, $actor_context = null, $actor_context_id = null) {
+		$mail_service = DevblocksPlatform::getMailService();
+		$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
+
+		$workers = DAO_Worker::getAll();
+		
+		if(false == ($message = DAO_Message::get($message_id)))
+			return;
+		
+		if(false == ($ticket = DAO_Ticket::get($message->ticket_id)))
+			return;
+
+		if(false == ($group = DAO_Group::get($ticket->group_id)))
+			return;
+		
+		if(false == ($sender = $message->getSender()))
+			return;
+
+		$url_writer = DevblocksPlatform::getUrlService();
+		$ticket_url = $url_writer->write(sprintf('c=profiles&w=ticket&mask=%s', $ticket->mask), true);
+		
+		$replyto = $group->getReplyTo($ticket->bucket_id);
+		
+		$attachment_data = ($include_attachments)
+			? DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_MESSAGE, $message->id)
+			: array()
+			;
+		
+		if(empty($content))
+			$content = sprintf("## Relayed from %s\r\n".
+				"## Your reply to this message will be sent to the requesters.\r\n".
+				"## Instructions: http://wiki.cerbweb.com/Email_Relay\r\n".
+				"##\r\n".
+				"%s",
+				$ticket_url,
+				$message->getContent()
+			);
+		
+		if(is_array($emails))
+		foreach($emails as $to) {
+			try {
+				if(false == ($to_model = DAO_AddressToWorker::getByAddress($to)))
+					continue;
+				
+				if(false == ($worker = $workers[$to_model->worker_id]))
+					continue;
+				
+				$mail = $mail_service->createMessage();
+				
+				$mail->setTo(array($to));
+	
+				$headers = $mail->getHeaders(); /* @var $headers Swift_Mime_Header */
+	
+				$sender_name = $sender->getName();
+				
+				if(!empty($sender_name)) {
+					$mail->setFrom($sender->email, $sender_name);
+				} else {
+					$mail->setFrom($sender->email);
+				}
+			
+				$replyto_personal = $replyto->getReplyPersonal($worker);
+				if(!empty($replyto_personal)) {
+					$mail->setReplyTo($replyto->email, $replyto_personal);
+				} else {
+					$mail->setReplyTo($replyto->email);
+				}
+
+				// Subject
+				$subject = sprintf("[relay #%s] %s", $ticket->mask, $ticket->subject);
+				$mail->setSubject($subject);
+	
+				// Find the owner of this ticket and sign it.
+				$sign = substr(md5(CerberusContexts::CONTEXT_TICKET.$ticket->id.$worker->pass),8,8);
+				
+				$headers->removeAll('message-id');
+				$headers->addTextHeader('Message-Id', sprintf("<%s_%d_%d_%s@cerb>", CerberusContexts::CONTEXT_TICKET, $ticket->id, time(), $sign));
+				$headers->addTextHeader('X-CerberusRedirect','1');
+	
+				// [TODO] HTML body?
+				
+				$mail->setBody($content);
+				
+				// Files
+				if(!empty($attachment_data) && isset($attachment_data['attachments']) && !empty($attachment_data['attachments'])) {
+					foreach($attachment_data['attachments'] as $file_id => $file) { /* @var $file Model_Attachment */
+						//if('original_message.html' == $file->display_name)
+						//	continue;
+						
+						if(false !== ($fp = DevblocksPlatform::getTempFile())) {
+							if(false !== $file->getFileContents($fp)) {
+								$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $file->mime_type);
+								$attach->setFilename($file->display_name);
+								$mail->attach($attach);
+								fclose($fp);
+							}
+						}
+					}
+				}
+				
+				$result = $mailer->send($mail);
+				unset($mail);
+				
+				/*
+				 * Log activity (ticket.message.relay)
+				 */
+				$entry = array(
+					//{{actor}} relayed ticket {{target}} to {{worker}} ({{worker_email}})
+					'message' => 'activities.ticket.message.relay',
+					'variables' => array(
+						'target' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
+						'worker' => $worker->getName(),
+						'worker_email' => $to_model->address,
+						),
+					'urls' => array(
+						'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_TICKET, $ticket->id),
+						'worker' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_WORKER, $worker->id),
+						)
+				);
+				CerberusContexts::logActivity('ticket.message.relay', CerberusContexts::CONTEXT_TICKET, $ticket->id, $entry, $actor_context, $actor_context_id);
+				
+				if(!$result)
+					return false;
+				
+			} catch (Exception $e) {
+				return false;
+				
+			}
+		}
+		
+		return true;
+	}
+	
 	static function reflect(CerberusParserModel $model, $to) {
 		try {
 			$message = $model->getMessage(); /* @var $message CerberusParserMessage */
