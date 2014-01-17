@@ -12,3 +12,4 @@ $.fn.setCursorLocation = function(loc) {
 		}
 	});
 };
+
