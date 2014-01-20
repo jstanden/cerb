@@ -278,6 +278,8 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		
 		$db->Execute(sprintf("DELETE FROM trigger_event_history WHERE trigger_id IN (%s)", $ids_list));
 		
+		DAO_ContextScheduledBehavior::deleteByBehavior($ids);
+		
 		self::clearCache();
 		return true;
 	}
