@@ -130,6 +130,11 @@ $db->Execute("UPDATE worker_view_model SET columns_json=REPLACE(columns_json,'\"
 $db->Execute("UPDATE worker_view_model SET columns_json=REPLACE(columns_json,'\"t_category_id\"','\"t_bucket_id\"'), columns_hidden_json=REPLACE(columns_hidden_json,'\"t_category_id\"','\"t_bucket_id\"'), params_editable_json=REPLACE(params_editable_json,'\"t_category_id\"','\"t_bucket_id\"'), params_default_json=REPLACE(params_default_json,'\"t_category_id\"','\"t_bucket_id\"'), params_required_json=REPLACE(params_required_json,'\"t_category_id\"','\"t_bucket_id\"'), params_hidden_json=REPLACE(params_hidden_json,'\"t_category_id\"','\"t_bucket_id\"') WHERE class_name IN ('View_Ticket','View_Message')");
 
 // ===========================================================================
+// Clean up missing scheduled behaviors
+
+$db->Execute("DELETE context_scheduled_behavior FROM context_scheduled_behavior LEFT JOIN trigger_event ON (trigger_event.id=context_scheduled_behavior.behavior_id) WHERE trigger_event.id IS NULL");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
