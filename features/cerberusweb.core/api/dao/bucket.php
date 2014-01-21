@@ -26,6 +26,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 	const REPLY_PERSONAL = 'reply_personal';
 	const REPLY_SIGNATURE = 'reply_signature';
 	const IS_ASSIGNABLE = 'is_assignable';
+	const REPLY_HTML_TEMPLATE_ID = 'reply_html_template_id';
 	
 	static function getGroups() {
 		$buckets = self::getAll();
@@ -81,7 +82,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 	static function getList($ids=array()) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT bucket.id, bucket.pos, bucket.name, bucket.group_id, bucket.is_assignable, bucket.reply_address_id, bucket.reply_personal, bucket.reply_signature ".
+		$sql = "SELECT bucket.id, bucket.pos, bucket.name, bucket.group_id, bucket.is_assignable, bucket.reply_address_id, bucket.reply_personal, bucket.reply_signature, bucket.reply_html_template_id ".
 			"FROM bucket ".
 			"INNER JOIN worker_group ON (bucket.group_id=worker_group.id) ".
 			(!empty($ids) ? sprintf("WHERE bucket.id IN (%s) ", implode(',', $ids)) : "").
@@ -101,6 +102,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 			$bucket->reply_address_id = $row['reply_address_id'];
 			$bucket->reply_personal = $row['reply_personal'];
 			$bucket->reply_signature = $row['reply_signature'];
+			$bucket->reply_html_template_id = $row['reply_html_template_id'];
 			$buckets[$bucket->id] = $bucket;
 		}
 		
@@ -158,8 +160,8 @@ class DAO_Bucket extends DevblocksORMHelper {
 
 		$next_pos = self::getNextPos($group_id);
 		
-		$sql = sprintf("INSERT INTO bucket (pos,name,group_id,is_assignable) ".
-			"VALUES (%d,%s,%d,1)",
+		$sql = sprintf("INSERT INTO bucket (pos,name,group_id,is_assignable,reply_html_template_id) ".
+			"VALUES (%d,%s,%d,1,0)",
 			$next_pos,
 			$db->qstr($name),
 			$group_id
@@ -236,9 +238,10 @@ class Model_Bucket {
 	public $name = '';
 	public $group_id = 0;
 	public $is_assignable = 1;
-	public $reply_address_id;
+	public $reply_address_id = 0;
 	public $reply_personal;
 	public $reply_signature;
+	public $reply_html_template_id = 0;
 	
 	/**
 	 *
@@ -376,6 +379,19 @@ class Model_Bucket {
 		}
 		
 		return $signature;
+	}
+	
+	public function getReplyHtmlTemplate() {
+		if(empty($this->reply_html_template_id)) {
+			if(false !== ($group = DAO_Group::get($this->group_id)))
+				return $group->getReplyHtmlTemplate();
+			
+		} else {
+			return DAO_MailHtmlTemplate::get($this->reply_html_template_id);
+			
+		}
+		
+		return null;
 	}
 };
 

@@ -3704,6 +3704,11 @@ class ChInternalController extends DevblocksControllerExtension {
 			case 'markdown':
 				$body = DevblocksPlatform::parseMarkdown($data);
 				break;
+				
+			case 'parsedown':
+				$body = DevblocksPlatform::parseMarkdown($data, true);
+				break;
+				
 			case 'html':
 			default:
 				$body = $data;

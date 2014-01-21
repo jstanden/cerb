@@ -25,6 +25,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	const REPLY_PERSONAL = 'reply_personal';
 	const REPLY_SIGNATURE = 'reply_signature';
 	const IS_DEFAULT = 'is_default';
+	const REPLY_HTML_TEMPLATE_ID = 'reply_html_template_id';
 	
 	// Groups
 	
@@ -56,7 +57,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, is_default, reply_address_id, reply_personal, reply_signature ".
+		$sql = "SELECT id, name, is_default, reply_address_id, reply_personal, reply_signature, reply_html_template_id ".
 			"FROM worker_group ".
 			$where_sql.
 			$sort_sql.
@@ -81,7 +82,7 @@ class DAO_Group extends Cerb_ORMHelper {
 
 		$groups = array();
 		
-		$sql = sprintf("SELECT id, name, is_default, reply_address_id, reply_personal, reply_signature ".
+		$sql = sprintf("SELECT id, name, is_default, reply_address_id, reply_personal, reply_signature, reply_html_template_id ".
 			"FROM worker_group ".
 			((is_array($ids) && !empty($ids)) ? sprintf("WHERE id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY name ASC"
@@ -116,6 +117,7 @@ class DAO_Group extends Cerb_ORMHelper {
 			$object->reply_address_id = $row['reply_address_id'];
 			$object->reply_personal = $row['reply_personal'];
 			$object->reply_signature = $row['reply_signature'];
+			$object->reply_html_template_id = $row['reply_html_template_id'];
 			$objects[$object->id] = $object;
 		}
 		
@@ -570,9 +572,10 @@ class Model_Group {
 	public $name;
 	public $count;
 	public $is_default = 0;
-	public $reply_address_id;
+	public $reply_address_id = 0;
 	public $reply_personal;
 	public $reply_signature;
+	public $reply_html_template_id = 0;
 	
 	public function getMembers() {
 		return DAO_Group::getGroupMembers($this->id);
@@ -724,6 +727,18 @@ class Model_Group {
 		}
 		
 		return $signature;
+	}
+	
+	public function getReplyHtmlTemplate($bucket_id=0) {
+		if(!empty($bucket_id)) {
+			if(null != ($bucket = DAO_Bucket::get($bucket_id)))
+				return $bucket->getReplyHtmlTemplate();
+		}
+		
+		if(!empty($this->reply_html_template_id))
+			return DAO_MailHtmlTemplate::get($this->reply_html_template_id);
+		
+		return null;
 	}
 };
 

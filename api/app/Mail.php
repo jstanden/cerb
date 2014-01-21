@@ -517,16 +517,17 @@ class CerberusMail {
 		'cc'
 		'bcc'
 		'content'
+		'content_format' // markdown, parsedown, html
 		'headers'
 		'files'
 		'closed'
 		'ticket_reopen'
 		'bucket_id'
 		'owner_id'
-		'worker_id',
-		'is_autoreply',
-		'custom_fields',
-		'dont_send',
+		'worker_id'
+		'is_autoreply'
+		'custom_fields'
+		'dont_send'
 		'dont_keep_copy'
 		*/
 
@@ -557,6 +558,7 @@ class CerberusMail {
 			
 			// Re-read properties
 			@$content = $properties['content'];
+			@$content_format = $properties['content_format'];
 			@$files = $properties['files'];
 			@$is_forward = $properties['is_forward'];
 			@$is_broadcast = $properties['is_broadcast'];
@@ -720,7 +722,22 @@ class CerberusMail {
 			}
 			
 			// Body
-			$mail->setBody($content);
+			
+			switch($content_format) {
+				case 'parsedown':
+					// Generate an HTML part using Parsedown
+					if(false !== ($html_body = DevblocksPlatform::parseMarkdown($content, true))) {
+						$mail->addPart($html_body, 'text/html');
+					}
+						
+					$mail->addPart($content, 'text/plain');
+					
+					break;
+					
+				default:
+					$mail->setBody($content);
+					break;
+			}
 	
 			// Mime Attachments
 			if (is_array($files) && !empty($files)) {

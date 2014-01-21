@@ -76,6 +76,16 @@
 	
 </fieldset>
 
+<fieldset class="peek">
+	<legend>Send HTML replies using template:</legend>
+	<select name="reply_html_template_id">
+		<option value="0"> - default - </option>
+		{foreach from=$html_templates item=html_template}
+		<option value="{$html_template->id}" {if $object->reply_html_template_id==$html_template->id}selected="selected"{/if}>{$html_template->name}</option>
+		{/foreach}
+	</select>
+</fieldset>
+
 {if '0' != $bucket_id}
 <fieldset>
 	<legend>Workflow</legend>

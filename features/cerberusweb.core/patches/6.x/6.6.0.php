@@ -57,6 +57,55 @@ $db->Execute("UPDATE attachment SET storage_key = REPLACE(storage_key, 'attachme
 $db->Execute("UPDATE message SET storage_key = REPLACE(storage_key, 'message_content/', '') WHERE storage_extension = 'devblocks.storage.engine.s3'");
 
 // ===========================================================================
+// mail_html_template
+
+if(!isset($tables['mail_html_template'])) {
+	$sql = sprintf("
+		CREATE TABLE IF NOT EXISTS mail_html_template (
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+			name VARCHAR(255) DEFAULT '',
+			updated_at INT UNSIGNED NOT NULL DEFAULT 0,
+			owner_context varchar(128) NOT NULL DEFAULT '',
+			owner_context_id int(11) NOT NULL DEFAULT '0',
+			content mediumtext,
+			PRIMARY KEY (id),
+			INDEX owner (owner_context, owner_context_id)
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->Execute($sql);
+
+	$tables['mail_html_template'] = 'mail_html_template';
+}
+
+// ===========================================================================
+// Add HTML template support to groups
+
+if(!isset($tables['worker_group'])) {
+	$logger->error("The 'worker_group' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('worker_group');
+
+if(!isset($columns['reply_html_template_id'])) {
+	$db->Execute("ALTER TABLE worker_group ADD COLUMN reply_html_template_id INT UNSIGNED NOT NULL DEFAULT 0");
+}
+
+// ===========================================================================
+// Add HTML template support to buckets
+
+if(!isset($tables['bucket'])) {
+	$logger->error("The 'bucket' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('bucket');
+
+if(!isset($columns['reply_html_template_id'])) {
+	$db->Execute("ALTER TABLE bucket ADD COLUMN reply_html_template_id INT UNSIGNED NOT NULL DEFAULT 0");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

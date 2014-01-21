@@ -443,6 +443,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 
 		// Suggested recipients
+		
 		if(!$is_forward) {
 			$requesters = $ticket->getRequesters();
 			$tpl->assign('requesters', $requesters);
@@ -555,6 +556,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			'bcc' => DevblocksPlatform::importGPC(@$_REQUEST['bcc']),
 			'subject' => DevblocksPlatform::importGPC(@$_REQUEST['subject'],'string'),
 			'content' => DevblocksPlatform::importGPC(@$_REQUEST['content']),
+			'content_format' => DevblocksPlatform::importGPC(@$_REQUEST['format'],'string',''),
 			'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
 			'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
 			'owner_id' => DevblocksPlatform::importGPC(@$_REQUEST['owner_id'],'integer',0),

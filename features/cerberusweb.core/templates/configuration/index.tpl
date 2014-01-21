@@ -58,6 +58,7 @@
 					<li><a href="{devblocks_url}c=config&a=mail_smtp{/devblocks_url}">SMTP Server</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_from{/devblocks_url}">Reply-To Addresses</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_queue{/devblocks_url}">Queue</a></li>
+					<li><a href="{devblocks_url}c=config&a=mail_html{/devblocks_url}">HTML Templates</a></li>
 					
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.mail')}
 					{if !empty($exts)}
