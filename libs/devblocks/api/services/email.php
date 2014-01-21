@@ -86,7 +86,7 @@ class _DevblocksEmailManager {
 			$smtp = Swift_SmtpTransport::newInstance($smtp_host, $smtp_port, $smtp_enc);
 			$smtp->setTimeout($smtp_timeout);
 			
-			if(!empty($smtp_user) && !empty($smtp_pass)) {
+			if(!empty($smtp_user)) {
 				$smtp->setUsername($smtp_user);
 				$smtp->setPassword($smtp_pass);
 			}
