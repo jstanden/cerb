@@ -1,4 +1,13 @@
-var markitupMarkdownSettings = {
+var markitupPlaintextDefaults = {
+	resizeHandle: false,
+	nameSpace:'markItUpPlaintext',
+	onShiftEnter:		{keepDefault:false, openWith:'\n\n'},
+	markupSet: [
+	]
+}
+
+var markitupMarkdownDefaults = {
+	resizeHandle: false,
 	previewParserPath:	DevblocksAppPath + 'ajax.php?c=internal&a=transformMarkupToHTML&format=markdown',
 	onShiftEnter:		{keepDefault:false, openWith:'\n\n'},
 	markupSet: [
@@ -17,18 +26,42 @@ var markitupMarkdownSettings = {
 			return markItUp.line+'. ';
 		}},
 		{separator:'---------------', className:'sep' },
-		{name:'Picture', key:'P', replaceWith:'![[![Alternative text]!]]([![Url:!:http://]!] "[![Title]!]")', className:'img'},
+		{name:'Link to an External Image', key:'E', replaceWith:'![[![Alternative text]!]]([![Url:!:http://]!] "[![Title]!]")', className:'img'},
 		{name:'Link', key:'L', openWith:'[', closeWith:']([![Url:!:http://]!] "[![Title]!]")', placeHolder:'Your text to link here...', className:'a' },
 		{separator:'---------------', className:'sep'},	
 		{name:'Quotes', openWith:'> ', className:'blockquote'},
-		{name:'Code Format (Class / Variable / File)', openWith:'`', closeWith:'`', className:'code'},
+		{name:'Code Format', openWith:'`', closeWith:'`', className:'code'},
 		//{name:'Code Block / Code', openWith:'(!(\t|!|`)!)', closeWith:'(!(`)!)'},
 		{separator:'---------------'},
-		{name:'Preview', call:'preview', className:"preview"}
+		{name:'Preview', key: 'P', call:'preview', className:"preview"}
 	]
 }
 
-var markitupHTMLSettings = {
+var markitupParsedownDefaults = {
+	nameSpace:'markItUpParsedown',
+	resizeHandle: false,
+	previewParserPath:	DevblocksAppPath + 'ajax.php?c=internal&a=transformMarkupToHTML&format=parsedown',
+	previewAutoRefresh: true,
+	previewInWindow: 'width=800, height=600, titlebar=no, location=no, menubar=no, status=no, toolbar=no, resizable=yes, scrollbars=yes',
+	onShiftEnter:		{keepDefault:false, openWith:'\n\n'},
+	markupSet: [
+		{name:'Bold', key:'B', openWith:'**', closeWith:'**', className:'b'},
+		{name:'Italic', key:'I', openWith:'_', closeWith:'_', className:'i'},
+		{name:'Bulleted List', openWith:'- ', className:'ul' },
+		{name:'Numeric List', className:'ol', openWith:function(markItUp) {
+			return markItUp.line+'. ';
+		}},
+		{name:'Link to an External Image', key:'E', openWith:'![Image](', closeWith:')', placeHolder:'http://www.example.com/path/to/image.png', className:'img'},
+		{name:'Link', key:'L', openWith:'[', closeWith:'](http://www.example.com/)', placeHolder:'link text', className:'a' },
+		{name:'Quotes', openWith:'> ', className:'blockquote'},
+		{name:'Code Format', openWith:'`', closeWith:'`', placeHolder:'code', className:'code'},
+		{separator:'---------------'},
+		{name:'Preview', key: 'P', call:'preview', className:"preview"}
+	]
+}
+
+var markitupHTMLDefaults = {
+	resizeHandle: false,
 	previewParserPath:	DevblocksAppPath + 'ajax.php?c=internal&a=transformMarkupToHTML&format=html',
 	onShiftEnter:	{keepDefault:false, replaceWith:'<br />\n'},
 	onCtrlEnter:	{keepDefault:false, openWith:'\n<p>', closeWith:'</p>\n'},
@@ -50,11 +83,11 @@ var markitupHTMLSettings = {
 		{name:'Ol', openWith:'<ol>\n', closeWith:'</ol>\n', className:'ol' },
 		{name:'Li', openWith:'<li>', closeWith:'</li>', className:'li' },
 		{separator:'---------------', className:'sep' },
-		{name:'Picture', key:'P', replaceWith:'<img src="[![Source:!:http://]!]" alt="[![Alternative text]!]" />', className:'img' },
+		{name:'Link to an External Image', key:'E', replaceWith:'<img src="[![Source:!:http://]!]" alt="[![Alternative text]!]" />', className:'img' },
 		{name:'Link', key:'L', openWith:'<a href="[![Link:!:http://]!]"(!( title="[![Title]!]")!)>', closeWith:'</a>', placeHolder:'Your text to link...', className:'a' },
 		{separator:'---------------', className:'sep' },
 		{name:'Clean', className:'clean', replaceWith:function(markitup) { return markitup.selection.replace(/<(.*?)>/g, "") } },
-		{name:'Preview', className:'preview', call:'preview' }
+		{name:'Preview', key: 'P', className:'preview', call:'preview' }
 	]
 } 
 

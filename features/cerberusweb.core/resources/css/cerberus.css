@@ -1556,6 +1556,32 @@ span.plugin_icon_overlay_disabled {
 	background-image:url(markitup/toolbar/paragraph.png?v=2012111201);
 }
 
+/* markItUp overrides */
+
+.markItUpPlaintext .parsedown a {
+	background-image:url(markitup/toolbar/cerb/edit-image.png?v=2014012101);
+}
+
+.markItUpParsedown .plaintext a {
+	background-image:url(markitup/toolbar/cerb/edit-alignment-justify.png?v=2014012101);
+}
+
+.markItUpParsedown .blockquote a {
+	background-image:url(markitup/toolbar/cerb/edit-quotation.png?v=2014012101);
+}
+
+.markItUpParsedown .code a {
+	background-image:url(markitup/toolbar/cerb/edit-code.png?v=2014012101);
+}
+
+.markItUpParsedown .img a {
+	background-image:url(markitup/toolbar/cerb/image--pencil.png?v=2014012101);
+}
+
+.markItUpParsedown .image-inline a {
+	background-image:url(markitup/toolbar/cerb/image-sunset.png?v=2014012101);
+}
+
 /* jQueryUI (Redmond theme) */
 
 .ui-widget,

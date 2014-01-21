@@ -63,7 +63,7 @@
 			<div id="divDraftStatus{$message->id}"></div>
 			
 			<div>
-				<fieldset style="display:inline-block;">
+				<fieldset style="display:inline-block;margin-bottom:0;">
 					<legend>Actions</legend>
 					{assign var=headers value=$message->getHeaders()}
 					<button name="saveDraft" type="button"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
@@ -126,7 +126,7 @@
 					{/if}
 				</fieldset>
 				
-				<fieldset style="display:inline-block;">
+				<fieldset style="display:inline-block;margin-bottom:0;">
 					<legend>{'common.snippets'|devblocks_translate|capitalize}</legend>
 					<div>
 						Insert: 
@@ -157,6 +157,7 @@
 <input type="hidden" name="draft_id" value="{$draft->id}">
 <input type="hidden" name="reply_mode" value="">
 {if $is_forward}<input type="hidden" name="is_forward" value="1">{/if}
+<input type="hidden" name="format" value="">
 
 <!-- {* Copy these dynamically so a plugin dev doesn't need to conflict with the reply <form> *} -->
 <input type="hidden" name="to" value="{if !empty($draft)}{$draft->params.to}{else}{if $is_forward}{else}{foreach from=$requesters item=req_addy name=reqs}{$req_addy->email}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}">
@@ -342,8 +343,8 @@
 		var draftAutoSaveInterval = null;
 	
 	$(function(e) {
-		$frm = $('#reply{$message->id}_part1');
-		$frm2 = $('#reply{$message->id}_part2');
+		var $frm = $('#reply{$message->id}_part1');
+		var $frm2 = $('#reply{$message->id}_part2');
 		
 		// Disable ENTER submission on the FORM text input
 		$frm2
@@ -370,6 +371,70 @@
 		
 		var $content = $('#reply_{$message->id}');
 		
+		// Text editor
+		
+		var markitupPlaintextSettings = $.extend(true, { }, markitupPlaintextDefaults);
+		var markitupParsedownSettings = $.extend(true, { }, markitupParsedownDefaults);
+		
+		markitupPlaintextSettings.markupSet.unshift(
+			{ name:'Switch to Markdown', openWith: 
+				function(markItUp) { 
+					var $editor = $(markItUp.textarea);
+					$editor.markItUpRemove().markItUp(markitupParsedownSettings);
+					{if empty($mail_reply_textbox_size_inelastic)}
+					$editor.elastic();
+					{/if}
+					$editor.closest('form').find('input:hidden[name=format]').val('parsedown');
+				},
+				key: 'H',
+				className:'parsedown'
+			}
+		);
+		
+		markitupParsedownSettings.previewParserPath = DevblocksAppPath + 'ajax.php?c=display&a=getReplyMarkdownPreview&group_id={$ticket->group_id}&bucket_id={$ticket->bucket_id}';
+		
+		markitupParsedownSettings.markupSet.unshift(
+			{ name:'Switch to Plaintext', openWith: 
+				function(markItUp) { 
+					var $editor = $(markItUp.textarea);
+					$editor.markItUpRemove().markItUp(markitupPlaintextSettings);
+					{if empty($mail_reply_textbox_size_inelastic)}
+					$editor.elastic();
+					{/if}
+					$editor.closest('form').find('input:hidden[name=format]').val('');
+				},
+				key: 'H',
+				className:'plaintext'
+			},
+			{ separator:'---------------' }
+		);
+		
+		markitupParsedownSettings.markupSet.splice(
+			6,
+			0,
+			{ name:'Upload an Image', openWith: 
+				function(markItUp) {
+					$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
+					
+					$chooser.one('chooser_save', function(event) {
+						$content.insertAtCursor("![inline-image](" + event.response[0].url + ")");
+					});
+				},
+				key: 'U',
+				className:'image-inline'
+			}
+			//{ separator:'---------------' }
+		);
+		try {
+			$content.markItUp(markitupPlaintextSettings);
+			
+		} catch(e) {
+			if(window.console)
+				console.log(e);
+		}
+		
+		// Elastic
+
 		{if empty($mail_reply_textbox_size_inelastic)}
 		$content.elastic();
 		{/if}
@@ -382,6 +447,7 @@
 			})
 		
 		// Insert suggested on click
+		
 		$('#reply{$message->id}_suggested').find('a.suggested').click(function(e) {
 			$this = $(this);
 			$sug = $this.text();

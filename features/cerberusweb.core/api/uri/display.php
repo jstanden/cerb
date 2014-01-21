@@ -381,6 +381,24 @@ class ChDisplayPage extends CerberusPageExtension {
 		return $activities;
 	}
 	
+	function getReplyMarkdownPreviewAction() {
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
+		@$content = DevblocksPlatform::importGPC($_REQUEST['data'],'string','');
+
+		$output = DevblocksPlatform::parseMarkdown($content, true);
+
+		if(false != ($group = DAO_Group::get($group_id))
+			&& false != ($html_template = $group->getReplyHtmlTemplate($bucket_id))) {
+			
+			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			echo $tpl_builder->build($html_template->content, array('message_body' => $output));
+			return;
+		}
+		
+		echo $output;
+	}
+	
 	function replyAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['forward'],'integer',0);
