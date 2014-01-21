@@ -2,7 +2,7 @@
 /**
  * Devblocks DAO
  * @author Jeff Standen, Webgroup Media LLC <jeff@webgroupmedia.com>
- * @version 2013-08-13
+ * @version 2014-01-18
  */
 
 $plugin_id = 'example.plugin';
@@ -1472,7 +1472,7 @@ $frm.bind('keyboard_shortcut',function(event) {
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -1571,7 +1571,6 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -1580,6 +1579,8 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 			DAO_<?php echo $class_name; ?>::delete($id);
 			
 		} else {
+			@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+			
 			if(empty($id)) { // New
 				$fields = array(
 					DAO_<?php echo $class_name; ?>::UPDATED_AT => time(),
