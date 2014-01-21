@@ -87,7 +87,7 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title','{'kb.common.knowledgebase_article'|devblocks_translate}');
+		$(this).dialog('option','title','{'kb.common.knowledgebase_article'|devblocks_translate|escape:'javascript' nofilter}');
 		$("#kbArticleTabs").tabs();
 		$('#frmKbEditPanel :input:text:first').focus().select();
 		

@@ -51,7 +51,7 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{'feedback.button.capture'|devblocks_translate|capitalize}");
+		$(this).dialog('option','title',"{'feedback.button.capture'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		ajax.emailAutoComplete('#frmFeedbackEntry input:text[name=email]', { multiple: false } );
 	});
 </script>

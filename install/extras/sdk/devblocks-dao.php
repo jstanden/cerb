@@ -1232,7 +1232,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{'<?php echo $object_name; ?>'}");
+		$(this).dialog('option','title',"{'<?php echo $object_name; ?>'|escape:'javascript' nofilter}");
 		
 		$(this).find('button.chooser_watcher').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
@@ -1843,7 +1843,7 @@ $(document).keypress(function(event) {
 			try {
 				idx = event.which-49;
 				$tabs = $("#<?php echo $table_name; ?>Tabs").tabs();
-				$tabs.tabs('select', idx);
+				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { }
 			break;
 		case 101:  // (E) edit

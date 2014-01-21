@@ -117,7 +117,7 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title', '{'Opportunity'|devblocks_translate}');
+		$(this).dialog('option','title', '{'Opportunity'|devblocks_translate|escape:'javascript' nofilter}');
 		
 		$(this).find('button.chooser_watcher').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });

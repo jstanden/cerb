@@ -14,6 +14,6 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{$schema->manifest->name}");
+		$(this).dialog('option','title',"{$schema->manifest->name|escape:'javascript' nofilter}");
 	} );
 </script>

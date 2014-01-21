@@ -43,7 +43,7 @@
 			<tr>
 				<td width="0%" nowrap="nowrap" align="right">Subject: </td>
 				<td width="100%">
-					<input type="text" name="subject" size="45" maxlength="255" style="width:98%;" value="{$ticket->subject}">
+					<input type="text" name="subject" size="45" maxlength="255" style="width:98%;" autofocus="true" value="{$ticket->subject}">
 				</td>
 			</tr>
 			
@@ -179,7 +179,7 @@
 	// Popups
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title',"{$ticket->subject}");
+		$(this).dialog('option','title',"{$ticket->subject|escape:'javascript' nofilter}");
 		$("#ticketPeekContent").css('width','100%');
 		
 		ajax.orgAutoComplete('#ticketPeekProps input:text[name=org_name]');

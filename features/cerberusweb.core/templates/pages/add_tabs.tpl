@@ -110,11 +110,7 @@ $frm.find('button.add').click(function(e) {
 	var $frm = $this.closest('form');
 	var $tabs = $('#pageTabs');
 	
-	var len = $tabs.tabs('length');
-
-	// Second to last tab
-	if(len > 0)
-		len--;
+	var len = $tabs.find('.ui-tabs-nav > li').length;
 	
 	$frm.find('> input:hidden[name=len]').val(len);
 	
@@ -123,11 +119,12 @@ $frm.find('button.add').click(function(e) {
 		if(!json || !json.success)
 			return;
 		
-		$tabs.tabs('option', 'tabTemplate', '<li class="drag" tab_id="'+json.tab_id+'"><a href="#{literal}{href}{/literal}"><span>#{literal}{label}{/literal}</span></a></li>');
-		$tabs.tabs('add', json.tab_url, json.tab_name, len);
+		var $new_tab = $('<li class="drag" tab_id="' + json.tab_id + '"><a href="' + json.tab_url + '"><span>' + json.tab_name + '</span></a></li>');
+		$new_tab.insertBefore($tabs.find('.ui-tabs-nav > li:last'));
 		
-		$this.effect('transfer', { to:$tabs.find('ul.ui-tabs-nav li:nth(' + len + ')'), className:'effects-transfer' }, 500, function() {
-		});
+		$tabs.tabs('refresh');
+		
+		$this.effect('transfer', { to:$new_tab, className:'effects-transfer' }, 500, function() { });
 		
 		$input.val('').focus();
 		$frm.find('textarea[name=import]').val('');

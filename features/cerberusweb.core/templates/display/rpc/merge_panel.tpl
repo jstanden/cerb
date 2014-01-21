@@ -15,7 +15,7 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title','{'mail.merge'|devblocks_translate}');
+		$(this).dialog('option','title','{'mail.merge'|devblocks_translate|escape:'javascript' nofilter}');
 	});
 	$('#frmDisplayMerge button.chooser_ticket').each(function() {
 		ajax.chooser(this,'cerberusweb.contexts.ticket','dst_ticket_id');

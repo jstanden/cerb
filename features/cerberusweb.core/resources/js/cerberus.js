@@ -116,7 +116,7 @@ $.fn.cerbDateInputHelper = function(options) {
 			.data('uiAutocomplete')
 				._renderItem = function(ul, item) {
 					var $li = $('<li></li>')
-						.data('item.autocomplete', item)
+						.data('ui-autocomplete-item', item)
 						.append($('<a></a>').html(item.label))
 						.appendTo(ul);
 					

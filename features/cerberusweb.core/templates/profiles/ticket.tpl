@@ -241,7 +241,7 @@ $(document).keypress(function(event) {
 			try {
 				idx = event.which-49;
 				$tabs = $("#displayTabs").tabs();
-				$tabs.tabs('select', idx);
+				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { } 
 			break;
 		case 97:  // (A) read all

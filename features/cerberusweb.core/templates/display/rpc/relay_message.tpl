@@ -67,7 +67,7 @@
 
 				// Reload the selected tab
 				var $tabs = $('#displayTabs');
-				$tabs.tabs('load', $tabs.tabs('option','selected'));
+				$tabs.tabs('load', $tabs.tabs('option','active'));
 				
 				// Close the popup
 				genericAjaxPopupClose('relay');

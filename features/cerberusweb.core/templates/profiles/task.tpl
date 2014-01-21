@@ -145,7 +145,7 @@ $(document).keypress(function(event) {
 			try {
 				idx = event.which-49;
 				$tabs = $("#tasksTabs").tabs();
-				$tabs.tabs('select', idx);
+				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { } 
 			break;
 		case 101:  // (E) edit

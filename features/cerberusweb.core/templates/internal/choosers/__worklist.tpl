@@ -15,7 +15,7 @@
 	
 	$popup.one('popup_open',function(event,ui) {
 		event.stopPropagation();
-		$(this).dialog('option','title','{$context->manifest->name} Worklist');
+		$(this).dialog('option','title','{$context->manifest->name|escape:'javascript' nofilter} Worklist');
 		
 		var on_refresh = function() {
 			$worklist = $('#view{$view->id}').find('TABLE.worklist');

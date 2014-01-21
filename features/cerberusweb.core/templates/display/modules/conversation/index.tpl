@@ -118,7 +118,7 @@
 		$popup.one('comment_save', function(event) {
 			$tabs = $('#btnComment').closest('div.ui-tabs');
 			if(0 != $tabs) {
-				$tabs.tabs('load', $tabs.tabs('option','selected'));
+				$tabs.tabs('load', $tabs.tabs('option','active'));
 			}
 		});
 	});

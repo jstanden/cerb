@@ -120,7 +120,7 @@
 	$popup = genericAjaxPopupFind('#orgPeekProps');
 	$popup.one('popup_open',function(event,ui) {
 		// Title
-		$(this).dialog('option','title', "{'contact_org.name'|devblocks_translate|capitalize}");
+		$(this).dialog('option','title', "{'contact_org.name'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
 		// Tabs
 		$("#peekTabs").tabs();

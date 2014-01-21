@@ -61,7 +61,7 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title','Plugin: {$plugin->name}');
+		$(this).dialog('option','title','Plugin: {$plugin->name|escape:'javascript' nofilter}');
 		
 		{if !empty($config_exts)}
 			$('#pluginConfigTabs').tabs();

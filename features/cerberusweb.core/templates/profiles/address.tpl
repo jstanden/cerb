@@ -136,9 +136,9 @@ $(document).keypress(function(event) {
 		case 57:  // (9) tab cycle
 		case 58:  // (0) tab cycle
 			try {
-				idx = event.which-49;
-				$tabs = $("#contactTabs").tabs();
-				$tabs.tabs('select', idx);
+				var idx = event.which-49;
+				var $tabs = $("#contactTabs").tabs();
+				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { } 
 			break;
 		case 101:  // (E) edit

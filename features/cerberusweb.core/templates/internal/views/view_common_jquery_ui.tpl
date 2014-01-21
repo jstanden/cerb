@@ -6,10 +6,10 @@ $view_actions = $view_frm.find('#{$view->id}_actions');
 // Row selection and hover effect
 $view_frm.find('TABLE.worklistBody TBODY')
 	.click(function(e) {
-		$target = $(e.target);
+		var $target = $(e.target);
 	
 		// Are any of our parents an anchor tag?
-		$parents = $target.parents('a');
+		var $parents = $target.parents('a');
 		if($parents.length > 0) {
 			$target = $parents[$parents.length-1]; // 0-based
 		}
@@ -21,32 +21,34 @@ $view_frm.find('TABLE.worklistBody TBODY')
 		} else {
 			e.stopPropagation();
 			
-			$this = $(this);
+			var $this = $(this);
 			
 			e.preventDefault();
-			$this.disableSelection();
 			
-			$chk = $this.find('input:checkbox:first');
-			if(!$chk)
+			var $chk = $this.find('input:checkbox:first');
+			
+			if(0 == $chk.length)
 				return;
 			
-			is_checked = !$chk.is(':checked');
+			var is_checked = !($chk.attr('checked') ? true : false);
 			
-			$chk.attr('checked', is_checked);
-	
 			if(is_checked) {
+				$chk.attr('checked', is_checked);
 				$this.find('tr').addClass('selected').removeClass('hover');
+				
 			} else {
+				$chk.removeAttr('checked');
 				$this.find('tr').removeClass('selected');
 			}
-
+	
 			// Count how many selected rows we have left and adjust the toolbar actions
-			$frm = $this.closest('form');
-			$selected_rows = $frm.find('TR.selected').closest('tbody');
-			$view_actions = $frm.find('#{$view->id}_actions');
+			var $frm = $this.closest('form');
+			var $selected_rows = $frm.find('TR.selected').closest('tbody');
+			var $view_actions = $frm.find('#{$view->id}_actions');
 			
 			if(0 == $selected_rows.length) {
 				$view_actions.find('button,.action-on-select').not('.action-always-show').fadeOut('fast');
+				
 			} else if(1 == $selected_rows.length) {
 				$view_actions.find('button,.action-on-select').not('.action-always-show').fadeIn('fast');
 			}

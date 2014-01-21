@@ -25,7 +25,7 @@
 
 		$popup = $(this);
 		
-		$(this).dialog('option','title','{$context->manifest->name} Chooser');
+		$(this).dialog('option','title','{$context->manifest->name|escape:'javascript' nofilter} Chooser');
 		
 		$popup.find('input:text:first').focus();
 

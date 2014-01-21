@@ -110,7 +110,7 @@
 				$popup.one('workspace_save',function(json) {
 					$tabs = $("#pageTabs");
 					if(0 != $tabs) {
-						selected_idx = $tabs.tabs('option','selected');
+						selected_idx = $tabs.tabs('option','active');
 						$tabs.tabs('load', selected_idx);
 						
 						if(null != json.name) {
@@ -122,8 +122,11 @@
 				
 				$popup.one('workspace_delete',function(e) {
 					$tabs = $("#pageTabs");
-					if(0 != $tabs) {
-						$tabs.tabs('remove', $tabs.tabs('option','selected'));
+					if(0 != $tabs.length) {
+						var tab = $tabs.find('.ui-tabs-nav li:eq(' + $tabs.tabs('option','active') + ')').remove();
+						var panelId = tab.attr('aria-controls');
+						$('#' + panelId).remove();
+						$tabs.tabs('refresh');
 					}
 				});
 			});

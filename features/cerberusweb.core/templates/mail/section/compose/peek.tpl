@@ -188,7 +188,7 @@
 
 	var $popup = genericAjaxPopupFind('#frmComposePeek{$random}');
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title','{'mail.send_mail'|devblocks_translate|capitalize}');
+		$(this).dialog('option','title','{'mail.send_mail'|devblocks_translate|capitalize|escape:'javascript' nofilter}');
 		
 		var $frm = $('#frmComposePeek{$random}');
 
