@@ -1311,7 +1311,7 @@ button span.cerb-sprite { display:inline-block; }
 .sprite-warning_gray{ background-position: -150px -583px; width: 16px; height: 16px; } 
 
 .cerb-sprite2 { 
-	background:url(cerb_sprites.png?v=2013042301);
+	background:url(cerb_sprites.png?v=2014012101);
 	background-repeat:no-repeat;
 	background-position:top left;
 	display:inline-block;
@@ -1331,28 +1331,32 @@ button span.cerb-sprite2 { display:inline-block; }
 .sprite-cross-circle-gray{ background-position: 0 -594px; width: 16px; height: 16px; } 
 .sprite-cross-circle{ background-position: 0 -660px; width: 16px; height: 16px; } 
 .sprite-document-search-result{ background-position: 0 -726px; width: 16px; height: 16px; } 
-.sprite-exclamation-red{ background-position: 0 -792px; width: 16px; height: 16px; } 
-.sprite-exclamation{ background-position: 0 -858px; width: 16px; height: 16px; } 
-.sprite-folder-cross-circle{ background-position: 0 -924px; width: 16px; height: 16px; } 
-.sprite-folder-gear{ background-position: 0 -990px; width: 16px; height: 16px; } 
-.sprite-folder-tick-circle{ background-position: 0 -1056px; width: 16px; height: 16px; } 
-.sprite-gear{ background-position: 0 -1122px; width: 16px; height: 16px; } 
-.sprite-keyboard{ background-position: 0 -1188px; width: 16px; height: 16px; } 
-.sprite-layout-select-sidebar{ background-position: 0 -1254px; width: 16px; height: 16px; } 
-.sprite-mail-send{ background-position: 0 -1320px; width: 16px; height: 16px; } 
-.sprite-minus-circle-frame{ background-position: 0 -1386px; width: 16px; height: 16px; } 
-.sprite-minus-circle{ background-position: 0 -1452px; width: 16px; height: 16px; } 
-.sprite-plus-circle-frame{ background-position: 0 -1518px; width: 16px; height: 16px; } 
-.sprite-plus-circle{ background-position: 0 -1584px; width: 16px; height: 16px; } 
-.sprite-robot{ background-position: 0 -1650px; width: 16px; height: 16px; } 
-.sprite-sort-price{ background-position: 0 -1716px; width: 16px; height: 16px; } 
-.sprite-tick-circle-frame-gray{ background-position: 0 -1782px; width: 16px; height: 16px; } 
-.sprite-tick-circle-frame{ background-position: 0 -1848px; width: 16px; height: 16px; } 
-.sprite-tick-circle-gray{ background-position: 0 -1914px; width: 16px; height: 16px; } 
-.sprite-tick-circle{ background-position: -66px 0; width: 16px; height: 16px; } 
-.sprite-ui-tab-content-gear{ background-position: -66px -66px; width: 16px; height: 16px; } 
-.sprite-ui-tab-gear{ background-position: -66px -132px; width: 16px; height: 16px; } 
-.sprite-user-silhouette{ background-position: -66px -198px; width: 16px; height: 16px; } 
+.sprite-edit-alignment-justify{ background-position: 0 -792px; width: 16px; height: 16px; } 
+.sprite-edit-code{ background-position: 0 -858px; width: 16px; height: 16px; } 
+.sprite-edit-image{ background-position: 0 -924px; width: 16px; height: 16px; } 
+.sprite-edit-quotation{ background-position: 0 -990px; width: 16px; height: 16px; } 
+.sprite-exclamation-red{ background-position: 0 -1056px; width: 16px; height: 16px; } 
+.sprite-exclamation{ background-position: 0 -1122px; width: 16px; height: 16px; } 
+.sprite-folder-cross-circle{ background-position: 0 -1188px; width: 16px; height: 16px; } 
+.sprite-folder-gear{ background-position: 0 -1254px; width: 16px; height: 16px; } 
+.sprite-folder-tick-circle{ background-position: 0 -1320px; width: 16px; height: 16px; } 
+.sprite-gear{ background-position: 0 -1386px; width: 16px; height: 16px; } 
+.sprite-keyboard{ background-position: 0 -1452px; width: 16px; height: 16px; } 
+.sprite-layout-select-sidebar{ background-position: 0 -1518px; width: 16px; height: 16px; } 
+.sprite-mail-send{ background-position: 0 -1584px; width: 16px; height: 16px; } 
+.sprite-minus-circle-frame{ background-position: 0 -1650px; width: 16px; height: 16px; } 
+.sprite-minus-circle{ background-position: 0 -1716px; width: 16px; height: 16px; } 
+.sprite-plus-circle-frame{ background-position: 0 -1782px; width: 16px; height: 16px; } 
+.sprite-plus-circle{ background-position: 0 -1848px; width: 16px; height: 16px; } 
+.sprite-robot{ background-position: 0 -1914px; width: 16px; height: 16px; } 
+.sprite-sort-price{ background-position: -66px 0; width: 16px; height: 16px; } 
+.sprite-tick-circle-frame-gray{ background-position: -66px -66px; width: 16px; height: 16px; } 
+.sprite-tick-circle-frame{ background-position: -66px -132px; width: 16px; height: 16px; } 
+.sprite-tick-circle-gray{ background-position: -66px -198px; width: 16px; height: 16px; } 
+.sprite-tick-circle{ background-position: -66px -264px; width: 16px; height: 16px; } 
+.sprite-ui-tab-content-gear{ background-position: -66px -330px; width: 16px; height: 16px; } 
+.sprite-ui-tab-gear{ background-position: -66px -396px; width: 16px; height: 16px; } 
+.sprite-user-silhouette{ background-position: -66px -462px; width: 16px; height: 16px; } 
 
 span.plugin_icon_overlay_disabled {
 	background:url(plugin_overlay_disabled.png?v=2012091301);
