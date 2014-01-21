@@ -30,7 +30,7 @@
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $('#objectTabs').tabs( { selected:{$tab_selected_idx} } );
+		var tabs = $('#objectTabs').tabs( { active:{$tab_selected_idx} } );
 		
 		$('#btnExObProfileEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=example.objects&a=showPeekPopup&id={$model->id}',null,false,'550');

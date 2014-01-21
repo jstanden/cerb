@@ -189,7 +189,7 @@
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#displayTabs").tabs( { selected:{$selected_tab_idx} } );
+		var tabs = $("#displayTabs").tabs( { active:{$selected_tab_idx} } );
 		
 		$('#btnDisplayTicketEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}&edit=1',null,false,'650');

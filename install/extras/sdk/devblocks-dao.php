@@ -1803,7 +1803,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#<?php echo $table_name; ?>Tabs").tabs( { selected:{$tab_selected_idx} } );
+		var tabs = $("#<?php echo $table_name; ?>Tabs").tabs( { active:{$tab_selected_idx} } );
 		
 		$('#btnDisplay<?php echo $class_name; ?>Edit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');

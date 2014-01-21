@@ -27,7 +27,7 @@
 		var $tabs = $("#pageTabs");
 		
 		var tabs = $tabs.tabs( { 
-			selected: {$tab_selected_idx}
+			active: {$tab_selected_idx}
 		});
 		
 		$tabs.find('> ul').sortable({

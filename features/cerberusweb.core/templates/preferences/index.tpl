@@ -50,6 +50,6 @@
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#prefTabs").tabs( { selected:{$selected_tab_idx} } );
+		var tabs = $("#prefTabs").tabs( { active:{$selected_tab_idx} } );
 	});
 </script>

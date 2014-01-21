@@ -100,7 +100,7 @@
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#calendar_recurring_profileTabs").tabs( { selected:{$tab_selected_idx} } );
+		var tabs = $("#calendar_recurring_profileTabs").tabs( { active:{$tab_selected_idx} } );
 		
 		$('#btnDisplayCalendarRecurringProfileEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');

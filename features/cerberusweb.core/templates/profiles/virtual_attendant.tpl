@@ -117,7 +117,7 @@
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#virtual_attendantTabs").tabs( { selected:{$tab_selected_idx} } );
+		var tabs = $("#virtual_attendantTabs").tabs( { active:{$tab_selected_idx} } );
 		
 		$('#btnDisplayVirtualAttendantEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');

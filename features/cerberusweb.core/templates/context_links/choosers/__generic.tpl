@@ -7,7 +7,7 @@
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
 
 <form action="#" method="POST" id="chooser{$view->id}" style="{if $single}display:none;{/if}}">
-	<b>Selected:</b>
+	<b>active:</b>
 	<ul class="buffer bubbles"></ul>
 	<br>
 	<br>

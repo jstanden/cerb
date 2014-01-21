@@ -94,7 +94,7 @@
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#calendarTabs").tabs( { selected:{$tab_selected_idx} } );
+		var tabs = $("#calendarTabs").tabs( { active:{$tab_selected_idx} } );
 		
 		$('#btnDisplayCalendarEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');

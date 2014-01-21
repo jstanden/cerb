@@ -18,7 +18,7 @@
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#pluginTabs").tabs( { selected:{$selected_tab_idx} } );
+		var tabs = $("#pluginTabs").tabs( { active:{$selected_tab_idx} } );
 	});
 </script>
 
