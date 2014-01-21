@@ -1,17 +1,17 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmAddyOutgoingPeek">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmBucketPeek">
 <input type="hidden" name="c" value="groups">
 <input type="hidden" name="a" value="saveBucketPeek">
 <input type="hidden" name="group_id" value="{$group_id}">
 <input type="hidden" name="bucket_id" value="{$bucket_id}">
 
-<b>{'common.name'|devblocks_translate|capitalize}:</b><br>
-{if '0' == $bucket_id}
-{'common.inbox'|devblocks_translate|capitalize}
-{else}
-<input type="text" name="name" value="{$bucket->name}" maxlength="64" style="width:100%;">
-{/if}
-<br>
-<br>
+<fieldset class="peek">
+	<legend>{'common.name'|devblocks_translate|capitalize}</legend>
+	{if '0' == $bucket_id}
+	{'common.inbox'|devblocks_translate|capitalize}
+	{else}
+	<input type="text" name="name" value="{$bucket->name}" maxlength="64" autofocus="true" style="width:100%;">
+	{/if}
+</fieldset>
 
 {if !empty($group)}
 {$group_replyto = $group->getReplyTo()}
@@ -32,48 +32,48 @@
 	{$object = $bucket} 
 {/if}
 
-<fieldset>
-	<legend>Outgoing Mail</legend>
+<fieldset class="peek">
+	<legend>Send worker replies as:</legend>
 	
-	<b>Send replies as e-mail:</b><br>
-	<select name="reply_address_id">
-		<option value="">default: {$replyto_default->email} {if !empty($replyto_default->reply_personal)}({$replyto_default->getReplyPersonal($active_worker)}){/if}</option>
-		{foreach from=$replyto_addresses item=addy}
-		<optgroup label="{$personal = $addy->getReplyPersonal($active_worker)}{if !empty($personal)}{$personal}{else}(blank){/if}">
-			<option value="{$addy->address_id}" {if $object->reply_address_id == $addy->address_id}selected="selected"{/if}>{$addy->email}</option>
-		</optgroup>
-		{/foreach}
-	</select>
-	<br>
-	<br>
+	<p>
+		<b>{'common.email'|devblocks_translate|capitalize}:</b><br>
+		<select name="reply_address_id">
+			<option value="">default: {$replyto_default->email} {if !empty($replyto_default->reply_personal)}({$replyto_default->getReplyPersonal($active_worker)}){/if}</option>
+			{foreach from=$replyto_addresses item=addy}
+			<optgroup label="{$personal = $addy->getReplyPersonal($active_worker)}{if !empty($personal)}{$personal}{else}(blank){/if}">
+				<option value="{$addy->address_id}" {if $object->reply_address_id == $addy->address_id}selected="selected"{/if}>{$addy->email}</option>
+			</optgroup>
+			{/foreach}
+		</select>
+	</p>
 	
-	<b>Send replies as name:</b> (leave blank for default)<br>
-	<input type="text" name="reply_personal" value="{$object->reply_personal}" size="65" style="width:100%;"><br>
-	<button type="button" onclick="genericAjaxPost('frmAddyOutgoingPeek','divSnippetBucketFromTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_personal');">{'common.test'|devblocks_translate|capitalize}</button>
-	<select name="personal_token">
-		<option value="">-- insert at cursor --</option>
-		{foreach from=$worker_token_labels key=k item=v}
-		<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
-		{/foreach}
-	</select>
-	<br>
-	<div id="divSnippetBucketFromTester"></div>
+	<p>
+		<b>{'common.name'|devblocks_translate|capitalize}:</b><br>
+		<input type="text" name="reply_personal" value="{$object->reply_personal}" placeholder="(leave blank for default)" size="65" style="width:100%;"><br>
+		<button type="button" onclick="genericAjaxPost('frmBucketPeek','divSnippetBucketFromTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_personal');">{'common.test'|devblocks_translate|capitalize}</button>
+		<select name="personal_token">
+			<option value="">-- insert at cursor --</option>
+			{foreach from=$worker_token_labels key=k item=v}
+			<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
+			{/foreach}
+		</select>
+		<div id="divSnippetBucketFromTester"></div>
+	</p>
+</fieldset>
+
+<fieldset class="peek">
+	<legend>Bucket signature:</legend>
 	
-	<br>
-	
-	<b>Bucket email signature:</b> (leave blank for default)<br>
-	<textarea name="reply_signature" rows="10" cols="76" style="width:100%;" wrap="off">{$object->reply_signature}</textarea><br>
-	<button type="button" onclick="genericAjaxPost('frmAddyOutgoingPeek','divSnippetBucketSigTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_signature');">{'common.test'|devblocks_translate|capitalize}</button>
-	<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&raw=1&group_id={$group_id}&bucket_id={$bucket_id}',function(txt) { $('#frmAddyOutgoingPeek textarea').text(txt); } );">{'common.default'|devblocks_translate|capitalize}</button>
+	<textarea name="reply_signature" rows="5" cols="76" style="width:100%;" placeholder="(leave blank for default)" wrap="off">{$object->reply_signature}</textarea><br>
+	<button type="button" onclick="genericAjaxPost('frmBucketPeek','divSnippetBucketSigTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_signature');">{'common.test'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&raw=1&group_id={$group_id}&bucket_id={$bucket_id}',function(txt) { $('#frmBucketPeek textarea').text(txt); } );">{'common.default'|devblocks_translate|capitalize}</button>
 	<select name="sig_token">
 		<option value="">-- insert at cursor --</option>
 		{foreach from=$worker_token_labels key=k item=v}
 		<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
 		{/foreach}
 	</select>
-	<br>
 	<div id="divSnippetBucketSigTester"></div>
-	
 </fieldset>
 
 <fieldset class="peek">
@@ -87,10 +87,9 @@
 </fieldset>
 
 {if '0' != $bucket_id}
-<fieldset>
+<fieldset class="peek">
 	<legend>Workflow</legend>
-
-	<label><input type="checkbox" name="is_hidden" value="1" {if !empty($bucket) && empty($bucket->is_assignable)}checked="checked"{/if}> This bucket is <b>hidden</b> in Mail Workflow.</label>
+	<label><input type="checkbox" name="is_hidden" value="1" {if !empty($bucket) && empty($bucket->is_assignable)}checked="checked"{/if}> This bucket <b>does not</b> contain assignable work.</label>
 </fieldset>
 {/if}
 
@@ -154,5 +153,7 @@
 			
 			$select.val('');
 		});
+		
+		$this.find('textarea[name=reply_signature]').elastic();
 	});
 </script>
