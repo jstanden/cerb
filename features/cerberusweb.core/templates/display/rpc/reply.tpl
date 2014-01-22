@@ -210,7 +210,7 @@
 	</tr>
 	<tr>
 		<td>
-			<fieldset class="peek">
+			<fieldset class="peek reply-attachments">
 				<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
 				
 				<button type="button" class="chooser_file"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
@@ -417,6 +417,9 @@
 					$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
 					
 					$chooser.one('chooser_save', function(event) {
+						if(!event.response || 0 == event.response)
+							return;
+						
 						$content.insertAtCursor("![inline-image](" + event.response[0].url + ")");
 					});
 				},
