@@ -742,6 +742,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 	function chooserOpenFileUploadAction() {
 		@$files = $_FILES['file_data'];
+		$url_writer = DevblocksPlatform::getUrlService();
 		$results = array();
 
 		if(is_array($files) && isset($files['tmp_name']))
@@ -778,6 +779,8 @@ class ChInternalController extends DevblocksControllerExtension {
 					'name' => $file_name,
 					'type' => $file_type,
 					'size' => $file_size,
+					'sha1_hash' => $sha1_hash,
+					'url' => $url_writer->write(sprintf("c=files&hash=%s&name=%s", $sha1_hash, urlencode($file_name)), true),
 				);
 			}
 			

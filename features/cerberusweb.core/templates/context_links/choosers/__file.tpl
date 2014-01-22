@@ -37,6 +37,7 @@
 		
 			// Trigger event
 			event = jQuery.Event('chooser_save');
+			event.response = $json;
 			event.labels = $labels;
 			event.values = $values;
 			$popup.trigger(event);
