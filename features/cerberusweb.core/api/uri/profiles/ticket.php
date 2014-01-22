@@ -30,17 +30,11 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		@$id_string = array_shift($stack);
 		
 		// Translate masks to IDs
-		if(!is_numeric($id_string)) {
-			$id = DAO_Ticket::getTicketIdByMask($id_string);
-			
-			if(empty($id))
-				$id = intval($id_string);
-			
-		} else {
-			$id = intval($id_string);
+		if(null == ($ticket = DAO_Ticket::getTicketByMask($id_string))) {
+			$ticket = DAO_Ticket::get(intval($id_string));
 		}
 		
-		if(null == ($ticket = DAO_Ticket::get($id))) {
+		if(empty($ticket)) {
 			DevblocksPlatform::redirect(new DevblocksHttpRequest());
 			return;
 		}

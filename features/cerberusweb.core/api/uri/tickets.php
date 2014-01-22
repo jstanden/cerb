@@ -439,6 +439,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			'forward_files' => $file_ids,
 			'closed' => $closed,
 			'ticket_reopen' => $ticket_reopen,
+			'link_forward_files' => true,
 			'worker_id' => $active_worker->id,
 		);
 		
@@ -482,14 +483,8 @@ class ChTicketsPage extends CerberusPageExtension {
 				DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TICKET, $ticket_id, $link_context, $link_context_id);
 			}
 			
-			// Attachments
+			// View marquee
 			
-			if(is_array($file_ids) && !empty($file_ids)) {
-				if(null != ($ticket = DAO_Ticket::get($ticket_id))) {
-					DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_MESSAGE, $ticket->first_message_id, $file_ids);
-				}
-			}
-
 			if(!empty($ticket_id) && !empty($view_id)) {
 				C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_TICKET, $ticket_id);
 			}

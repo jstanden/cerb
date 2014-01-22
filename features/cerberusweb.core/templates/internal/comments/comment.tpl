@@ -35,7 +35,7 @@
 		{/foreach}
 		<br>
 		
-		{if isset($comment->created)}<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$comment->created|devblocks_date} (<abbr title="{$comment->created|devblocks_date}">{$comment->created|devblocks_prettytime}</abbr>)<br>{/if}
+		{if isset($comment->created)}<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$comment->created|devblocks_date} ({$comment->created|devblocks_prettytime})<br>{/if}
 		
 		<pre class="emailbody" style="padding-top:10px;">{$comment->comment|trim|escape|devblocks_hyperlinks nofilter}</pre>
 		<br clear="all">
