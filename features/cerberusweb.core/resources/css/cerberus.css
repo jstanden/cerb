@@ -1722,6 +1722,7 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item a.ui-state-focus {
 	-moz-box-shadow: 0 0 10px 3px rgb(175,175,175);
 	-webkit-box-shadow: 0 0 10px 3px rgb(175,175,175);
 	box-shadow: 0 0 10px 3px rgb(175,175,175);
+	position: fixed;
 }
 
 .ui-dialog .ui-dialog-titlebar { 
