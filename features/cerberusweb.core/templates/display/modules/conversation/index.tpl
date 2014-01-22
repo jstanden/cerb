@@ -92,13 +92,6 @@
 		var msgid = parseInt(msgid);
 		var $div = $('#reply' + msgid);
 		
-		// If the reply window is already open, just focus it
-		if($div.contents().length > 0) {
-			$div.find('input:text:first').first().focus();
-			return;
-		}
-		
-		// 
 		if(0 == $div.length)
 			return;
 		
@@ -106,6 +99,12 @@
 		var draft_id = (null == draft_id) ? 0 : parseInt(draft_id);
 		var is_quoted = (null == is_quoted) ? 1 : parseInt(is_quoted);
 		var is_confirmed = (null == is_confirmed) ? 0 : parseInt(is_confirmed);
+
+		// If the reply window is already open, just focus it
+		if($div.find('> div.reply_frame').length > 0) {
+			$div.find('input:text:first').first().focus();
+			return;
+		}
 		
 		showLoadingPanel();
 		
