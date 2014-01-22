@@ -248,14 +248,15 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	// Ajax
-	function savePreviewAction() {
+	function savePeekAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
 		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
 		@$org_name = DevblocksPlatform::importGPC($_REQUEST['org_name'],'string','');
 		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
 		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'integer',0);
-		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string','');
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
 		@$spam_training = DevblocksPlatform::importGPC($_REQUEST['spam_training'],'string','');
 		@$ticket_reopen = DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string','');
 		@$comment = DevblocksPlatform::importGPC(@$_REQUEST['comment'],'string','');
@@ -304,13 +305,9 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 		// Group/Bucket
-		if(!empty($bucket)) {
-			list($group_id, $bucket_id) = CerberusApplication::translateGroupBucketCode($bucket);
-
-			if(!empty($group_id)) {
-				$fields[DAO_Ticket::GROUP_ID] = $group_id;
-				$fields[DAO_Ticket::BUCKET_ID] = $bucket_id;
-			}
+		if(!empty($group_id)) {
+			$fields[DAO_Ticket::GROUP_ID] = $group_id;
+			$fields[DAO_Ticket::BUCKET_ID] = $bucket_id;
 		}
 		
 		// Org

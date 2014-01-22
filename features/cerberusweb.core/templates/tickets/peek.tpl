@@ -1,6 +1,6 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmTicketPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="tickets">
-<input type="hidden" name="a" value="savePreview">
+<input type="hidden" name="a" value="savePeek">
 <input type="hidden" name="id" value="{$ticket->id}">
 {if !empty($link_context)}
 <input type="hidden" name="link_context" value="{$link_context}">
@@ -101,25 +101,27 @@
 			<tr>
 				<td width="0%" nowrap="nowrap" align="right">Bucket: </td>
 				<td width="100%">
-					<select name="bucket_id">
-					<option value="">-- move to --</option>
-					{if empty($ticket->bucket_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
-					<optgroup label="Inboxes">
-					{foreach from=$groups item=group}
-						<option value="t{$group->id}">{$group->name}{if $t_or_c=='t' && $ticket->group_id==$group->id} (*){/if}</option>
-					{/foreach}
-					</optgroup>
-					{foreach from=$group_buckets item=buckets key=groupId}
-						{assign var=group value=$groups.$groupId}
-						{if !empty($active_worker_memberships.$groupId)}
-							<optgroup label="-- {$group->name} --">
-							{foreach from=$buckets item=bucket}
-							<option value="c{$bucket->id}">{$bucket->name}{if $t_or_c=='c' && $ticket->bucket_id==$bucket->id} (current bucket){/if}</option>
+					<div>
+						<select name="group_id">
+							{foreach from=$groups item=group key=group_id}
+							<option value="{$group_id}" {if $active_worker->isGroupMember($group_id)}member="true"{/if} {if $ticket->group_id == $group_id}selected="selected"{/if}>{$group->name}</option>
 							{/foreach}
-							</optgroup>
-						{/if}
-					{/foreach}
-					</select>
+						</select>
+						<select class="ticket-peek-bucket-options" style="display:none;">
+							<option value="0" group_id="*">{'common.inbox'|devblocks_translate|capitalize}</option>
+							{foreach from=$buckets item=bucket key=bucket_id}
+							<option value="{$bucket_id}" group_id="{$bucket->group_id}">{$bucket->name}</option>
+							{/foreach}
+						</select>
+						<select name="bucket_id">
+							<option value="0">{'common.inbox'|devblocks_translate|capitalize}</option>
+							{foreach from=$buckets item=bucket key=bucket_id}
+								{if $bucket->group_id == $ticket->group_id}
+								<option value="{$bucket_id}" {if $ticket->bucket_id == $bucket_id}selected="selected"{/if}>{$bucket->name}</option>
+								{/if}
+							{/foreach}
+						</select>
+					</div>
 				</td>
 			</tr>
 			{/if}
@@ -197,6 +199,24 @@
 	});
 	
 	var $frm = $('form#frmTicketPeek');
+	
+	// Group and bucket
+	$frm.find('select[name=group_id]').on('change', function(e) {
+		var $select = $(this);
+		var group_id = $select.val();
+		var $bucket_options = $select.siblings('select.ticket-peek-bucket-options').find('option')
+		var $bucket = $select.siblings('select[name=bucket_id]');
+		
+		$bucket.children().remove();
+		
+		$bucket_options.each(function() {
+			var parent_id = $(this).attr('group_id');
+			if(parent_id == '*' || parent_id == group_id)
+				$(this).clone().appendTo($bucket);
+		});
+		
+		$bucket.focus();
+	});
 	
 	// Choosers
 	$frm.find('button.chooser_notify_worker').each(function() {

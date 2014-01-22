@@ -3792,8 +3792,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
-		$group_buckets = DAO_Bucket::getGroups();
-		$tpl->assign('group_buckets', $group_buckets);
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
 		
 		// Watchers
 		$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($ticket->id), CerberusContexts::CONTEXT_WORKER);
