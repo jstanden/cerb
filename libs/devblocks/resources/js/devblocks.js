@@ -315,9 +315,6 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 				}
 			}
 			
-			if(null == options.position)
-				options.position = { my: 'center top', at: 'center top' };
-			
 			// Max height
 			var max_height = Math.round($(window).height() * 0.85);
 			$popup.css('max-height', max_height + 'px');
@@ -331,6 +328,9 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			$popup.html(html);
 			
 			$popup.trigger('popup_open');
+			
+			if(null == options.position)
+				$popup.dialog('option', 'position', { my: 'top center', at: 'center' } );
 			
 			// Callback
 			try { cb(html); } catch(e) { }
