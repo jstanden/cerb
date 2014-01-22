@@ -33,7 +33,7 @@ class ChFilesController extends DevblocksControllerExtension {
 		array_shift($stack);					// files
 		$file_guid = array_shift($stack);		// GUID
 		$file_name = array_shift($stack);		// plaintext.txt
-
+		
 		// Security
 		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
 			die($translate->_('common.access_denied'));
@@ -41,20 +41,32 @@ class ChFilesController extends DevblocksControllerExtension {
 		if(empty($file_guid) || empty($file_name))
 			die($translate->_('files.not_found'));
 		
-		$link = DAO_AttachmentLink::getByGUID($file_guid);
-		
-		if(empty($link))
-			die("Error reading link.");
-		
-		if(null == ($context = $link->getContext()))
-			die($translate->_('common.access_denied'));
-		
-		// Security
-		if(!$context->authorize($link->context_id, $active_worker))
-			die($translate->_('common.access_denied'));
+		// Are we being asked for the direct SHA1 hash of a file?
+		if(strlen($file_guid) == 40) {
+			if(null == ($file_id = DAO_Attachment::getBySha1Hash($file_guid, urldecode($file_name))))
+				die($translate->_('common.access_denied'));
 			
-		$file = $link->getAttachment();
+			$file = DAO_Attachment::get($file_id);
+			
+		// If not SHA1, then look for a link with this GUID
+		} else {
+			$link = DAO_AttachmentLink::getByGUID($file_guid);
+			
+			if(empty($link))
+				die("Error reading link.");
+			
+			if(null == ($context = $link->getContext()))
+				die($translate->_('common.access_denied'));
+			
+			// Security
+			if(!$context->authorize($link->context_id, $active_worker))
+				die($translate->_('common.access_denied'));
+			
+			$file = $link->getAttachment();
+		}
 		
+		if(empty($file))
+			die("File not found.");
 		if(false === ($fp = DevblocksPlatform::getTempFile()))
 			die("Could not open a temporary file.");
 		if(false === $file->getFileContents($fp))
