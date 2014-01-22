@@ -70,32 +70,10 @@ class DAO_Group extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
-	/**
-	 * Enter description here...
-	 *
-	 * @param array $ids
-	 * @return Model_Group[]
-	 */
-	static function getGroups($ids=array()) {
-		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$groups = array();
-		
-		$sql = sprintf("SELECT id, name, is_default, reply_address_id, reply_personal, reply_signature, reply_html_template_id ".
-			"FROM worker_group ".
-			((is_array($ids) && !empty($ids)) ? sprintf("WHERE id IN (%s) ",implode(',',$ids)) : " ").
-			"ORDER BY name ASC"
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-
-		return self::_getObjectsFromResultSet($rs);
-	}
-	
 	static function getAll($nocache=false) {
 		$cache = DevblocksPlatform::getCacheService();
 		if($nocache || null === ($groups = $cache->load(self::CACHE_ALL))) {
-			$groups = DAO_Group::getGroups();
+			$groups = DAO_Group::getWhere(null, DAO_Group::NAME, true);
 			$cache->save($groups, self::CACHE_ALL);
 		}
 		
