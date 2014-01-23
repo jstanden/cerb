@@ -47,13 +47,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$point = 'cerberusweb.profiles.ticket';
 		$tpl->assign('point', $point);
 		
-		/*
-		 * Disabled for #CHD-2966
- 		if(null == $selected_tab) {
- 			$selected_tab = $visit->get($point, '');
- 		}
- 		*/
-		
 		if(empty($selected_tab))
 			$selected_tab = 'conversation';
 		

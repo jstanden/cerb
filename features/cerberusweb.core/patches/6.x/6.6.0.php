@@ -57,6 +57,11 @@ $db->Execute("UPDATE attachment SET storage_key = REPLACE(storage_key, 'attachme
 $db->Execute("UPDATE message SET storage_key = REPLACE(storage_key, 'message_content/', '') WHERE storage_extension = 'devblocks.storage.engine.s3'");
 
 // ===========================================================================
+// Clean up missing scheduled behaviors
+
+$db->Execute("DELETE context_scheduled_behavior FROM context_scheduled_behavior LEFT JOIN trigger_event ON (trigger_event.id=context_scheduled_behavior.behavior_id) WHERE trigger_event.id IS NULL");
+
+// ===========================================================================
 // mail_html_template
 
 if(!isset($tables['mail_html_template'])) {
