@@ -169,6 +169,14 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 		
 		$db->Execute(sprintf("DELETE FROM mail_html_template WHERE id IN (%s)", $ids_list));
 		
+		// Clear the template setting if used on a group or bucket
+
+		$db->Execute(sprintf("UPDATE worker_group SET reply_html_template_id=0 WHERE reply_html_template_id IN (%s)", $ids_list));
+		DAO_Group::clearCache();
+		
+		$db->Execute(sprintf("UPDATE bucket SET reply_html_template_id=0 WHERE reply_html_template_id IN (%s)", $ids_list));
+		DAO_Bucket::clearCache();
+		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
 		$eventMgr->trigger(
