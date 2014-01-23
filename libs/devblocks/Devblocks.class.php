@@ -502,8 +502,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $str;
 	}
 	
-	static function purifyHTML($dirty_html, $options=array()) {
-		// Register HTMLPurifier
+	static function purifyHTML($dirty_html, $inline_css=false, $options=array()) {
 		require_once(DEVBLOCKS_PATH . 'libs/htmlpurifier/HTMLPurifier.standalone.php');
 		
 		// If we're passed a file pointer, load the literal string
@@ -513,6 +512,17 @@ class DevblocksPlatform extends DevblocksEngine {
 			while(!feof($fp))
 				$dirty_html .= fread($fp, 4096);
 		}
+
+		// Handle inlining CSS
+		
+		if($inline_css) {
+			$css_converter = new CssToInlineStyles();
+			$css_converter->setHTML($dirty_html);
+			$css_converter->setUseInlineStylesBlock(true);
+			$dirty_html = $css_converter->convert();
+		}
+		
+		// Purify
 		
 		$config = HTMLPurifier_Config::createDefault();
 		$config->set('HTML.Doctype', 'HTML 4.01 Transitional');
@@ -531,7 +541,6 @@ class DevblocksPlatform extends DevblocksEngine {
 			$config->set($k, $v);
 		
 		$purifier = new HTMLPurifier($config);
-		
 		return $purifier->purify($dirty_html);
 	}
 	

@@ -392,7 +392,9 @@ class ChDisplayPage extends CerberusPageExtension {
 			&& false != ($html_template = $group->getReplyHtmlTemplate($bucket_id))) {
 			
 			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-			echo $tpl_builder->build($html_template->content, array('message_body' => $output));
+			$dirty_html = $tpl_builder->build($html_template->content, array('message_body' => $output));
+			
+			echo DevblocksPlatform::purifyHTML($dirty_html, true);
 			return;
 		}
 		

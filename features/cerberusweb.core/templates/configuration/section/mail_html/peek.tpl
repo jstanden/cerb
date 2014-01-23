@@ -52,10 +52,12 @@
 {if $model->content}
 {$model->content}
 {else}
+&lt;div id="body"&gt;
 {literal}{{message_body}}{/literal}
+&lt;/div&gt;
 
 &lt;style type="text/css"&gt;
-body {
+#body {
   font-family: Arial, Verdana, sans-serif;
   font-size: 10pt;
 }
@@ -75,9 +77,7 @@ blockquote {
 blockquote a {
   color: rgb(0, 128, 255);
 }
-&lt;/style&gt;
-{/if}
-</textarea>
+&lt;/style&gt;{/if}</textarea>
 	
 </fieldset>
 

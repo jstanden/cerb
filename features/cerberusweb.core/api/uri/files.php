@@ -111,7 +111,7 @@ class ChFilesController extends DevblocksControllerExtension {
 						'Attr.EnableID' => true,
 					);
 					
-					$clean_html = DevblocksPlatform::purifyHTML($fp, $purify_config);
+					$clean_html = DevblocksPlatform::purifyHTML($fp, true, $purify_config);
 					
 					header("Content-Length: " . strlen($clean_html));
 					echo $clean_html;

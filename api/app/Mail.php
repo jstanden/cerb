@@ -1257,9 +1257,17 @@ class CerberusMail {
 		// Generate an HTML part using Parsedown
 		if(false !== ($html_body = DevblocksPlatform::parseMarkdown($content, true))) {
 			
-			try {
+			// If this group has an HTML template, use it.
+			if($group && null != ($html_template = $group->getReplyHtmlTemplate($bucket_id))) {
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$html_body = $tpl_builder->build($html_template->content, array('message_body' => $html_body));
+			}
 			
-				// Replace links with cid: in HTML part
+			// Purify the HTML and inline the CSS
+			$html_body = DevblocksPlatform::purifyHTML($html_body, true);
+			
+			// Replace links with cid: in HTML part
+			try {
 				$html_body = preg_replace_callback(
 					sprintf('|(\"%s(.*)\")|', preg_quote($base_url)),
 					function($matches) use ($base_url, $mail, &$embedded_files) {
@@ -1282,17 +1290,11 @@ class CerberusMail {
 					},
 					$html_body
 				);
-			
-				// If this group has an HTML template, use it.
-				if($group && null != ($html_template = $group->getReplyHtmlTemplate($bucket_id))) {
-					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-					$html_body = $tpl_builder->build($html_template->content, array('message_body' => $html_body));
-				}
 				
 			} catch(Exception $e) {
 				error_log($e->getMessage());
 			}
-			
+
 			$mail->addPart($html_body, 'text/html');
 		}
 			
