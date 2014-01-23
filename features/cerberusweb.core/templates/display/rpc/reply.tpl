@@ -144,6 +144,11 @@
 
 <div id="replyToolbarOptions{$message->id}"></div>
 
+{$message_content = $message->getContent()}
+{$mail_reply_html = DAO_WorkerPref::get($active_worker->id, 'mail_reply_html', 0)}
+{$mail_reply_textbox_size_inelastic = DAO_WorkerPref::get($active_worker->id, 'mail_reply_textbox_size_inelastic', 0)}
+{$mail_reply_textbox_size_px = DAO_WorkerPref::get($active_worker->id, 'mail_reply_textbox_size_px', 300)}
+
 <form id="reply{$message->id}_part2" action="{devblocks_url}{/devblocks_url}" method="POST" enctype="multipart/form-data">
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
@@ -159,17 +164,13 @@
 {if $is_forward}<input type="hidden" name="is_forward" value="1">{/if}
 <input type="hidden" name="group_id" value="{$ticket->group_id}">
 <input type="hidden" name="bucket_id" value="{$ticket->bucket_id}">
-<input type="hidden" name="format" value="">
+<input type="hidden" name="format" value="{if $mail_reply_html}parsedown{/if}">
 
 <!-- {* Copy these dynamically so a plugin dev doesn't need to conflict with the reply <form> *} -->
 <input type="hidden" name="to" value="{if !empty($draft)}{$draft->params.to}{else}{if $is_forward}{else}{foreach from=$requesters item=req_addy name=reqs}{$req_addy->email}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}">
 <input type="hidden" name="cc" value="{$draft->params.cc}">
 <input type="hidden" name="bcc" value="{$draft->params.bcc}">
 <input type="hidden" name="subject" value="{if !empty($draft)}{$draft->params.subject}{else}{if $is_forward}Fwd: {/if}{$ticket->subject}{/if}">
-
-{$message_content = $message->getContent()}
-{$mail_reply_textbox_size_inelastic = DAO_WorkerPref::get($active_worker->id, 'mail_reply_textbox_size_inelastic', 0)}
-{$mail_reply_textbox_size_px = DAO_WorkerPref::get($active_worker->id, 'mail_reply_textbox_size_px', 300)}
 
 {if $is_forward}
 <textarea name="content" id="reply_{$message->id}" class="reply" style="width:98%;height:{$mail_reply_textbox_size_px|default:300}px;border:1px solid rgb(180,180,180);padding:5px;">
@@ -444,8 +445,13 @@
 			}
 			//{ separator:'---------------' }
 		);
+		
 		try {
+			{if $mail_reply_html}
+			$content.markItUp(markitupParsedownSettings);
+			{else}
 			$content.markItUp(markitupPlaintextSettings);
+			{/if}
 			
 		} catch(e) {
 			if(window.console)

@@ -2086,6 +2086,9 @@ For example: *receipt*</seg></tuv>
 		<tu tuid='preferences.account.mail.reply_button'>
 			<tuv xml:lang="en_US"><seg>When I click the reply button:</seg></tuv>
 		</tu>
+		<tu tuid='preferences.account.mail.reply.html'>
+			<tuv xml:lang="en_US"><seg>Always switch to HTML mode</seg></tuv>
+		</tu>
 		<tu tuid='preferences.account.mail.signature'>
 			<tuv xml:lang="en_US"><seg>Insert my signature:</seg></tuv>
 		</tu>

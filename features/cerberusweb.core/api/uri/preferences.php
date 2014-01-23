@@ -474,6 +474,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$prefs['availability_calendar_id'] = intval(DAO_WorkerPref::get($worker->id, 'availability_calendar_id', 0));
 		$prefs['mail_always_show_all'] = DAO_WorkerPref::get($worker->id,'mail_always_show_all',0);
 		$prefs['mail_display_inline_log'] = DAO_WorkerPref::get($worker->id,'mail_display_inline_log',0);
+		$prefs['mail_reply_html'] = DAO_WorkerPref::get($worker->id,'mail_reply_html',0);
 		$prefs['mail_reply_textbox_size_inelastic'] = DAO_WorkerPref::get($worker->id,'mail_reply_textbox_size_inelastic',0);
 		$prefs['mail_reply_textbox_size_px'] = DAO_WorkerPref::get($worker->id,'mail_reply_textbox_size_px',300);
 		$prefs['mail_reply_button'] = DAO_WorkerPref::get($worker->id,'mail_reply_button',0);
@@ -637,6 +638,9 @@ class ChPreferencesPage extends CerberusPageExtension {
 		@$mail_display_inline_log = DevblocksPlatform::importGPC($_REQUEST['mail_display_inline_log'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'mail_display_inline_log', $mail_display_inline_log);
 
+		@$mail_reply_html = DevblocksPlatform::importGPC($_REQUEST['mail_reply_html'],'integer',0);
+		DAO_WorkerPref::set($worker->id, 'mail_reply_html', $mail_reply_html);
+		
 		@$mail_reply_textbox_size_px = DevblocksPlatform::importGPC($_REQUEST['mail_reply_textbox_size_px'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'mail_reply_textbox_size_px', max(100, min(2000, $mail_reply_textbox_size_px)));
 		
