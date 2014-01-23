@@ -16,15 +16,22 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right"><b>From:</b>&nbsp;</td>
 			<td width="100%">
-				<input type="hidden" name="group_id" value="{$defaults.group_id}">
-				<input type="hidden" name="bucket_id" value="{$defaults.bucket_id}">
-				<select name="group_or_bucket_id" class="required" style="border:1px solid rgb(180,180,180);padding:2px;">
-					{foreach from=$groups item=group key=groupId}
-						{if !empty($active_worker_memberships.$groupId)}
-							<option value="{$group->id}_0" {if $defaults.group_id==$group->id && empty($defaults.bucket_id)}selected="selected"{/if}>{$group->name}</option>
-							{foreach from=$group_buckets.$groupId item=bucket key=bucket_id}
-								<option value="{$group->id}_{$bucket->id}" {if $defaults.group_id==$group->id && $defaults.bucket_id==$bucket->id}selected="selected"{/if}>{$group->name}: {$bucket->name}</option>
-							{/foreach}
+				<select name="group_id">
+					{foreach from=$groups item=group key=group_id}
+					<option value="{$group_id}" {if $active_worker->isGroupMember($group_id)}member="true"{/if} {if $defaults.group_id == $group_id}selected="selected"{/if}>{$group->name}</option>
+					{/foreach}
+				</select>
+				<select class="ticket-peek-bucket-options" style="display:none;">
+					<option value="0" group_id="*">{'common.inbox'|devblocks_translate|capitalize}</option>
+					{foreach from=$buckets item=bucket key=bucket_id}
+					<option value="{$bucket_id}" group_id="{$bucket->group_id}">{$bucket->name}</option>
+					{/foreach}
+				</select>
+				<select name="bucket_id">
+					<option value="0">{'common.inbox'|devblocks_translate|capitalize}</option>
+					{foreach from=$buckets item=bucket key=bucket_id}
+						{if $bucket->group_id == $defaults.group_id}
+						<option value="{$bucket_id}" {if $defaults.bucket_id == $bucket_id}selected="selected"{/if}>{$bucket->name}</option>
 						{/if}
 					{/foreach}
 				</select>
@@ -210,30 +217,29 @@
 			ajax.chooserFile(this,'file_ids');
 		});
 		
-		$frm.find('textarea').elastic();
 		
+		var $content = $frm.find('textarea');
+		
+			
 		$frm.validate();
 		
-		$frm.find('select[name=group_or_bucket_id]').change(function(e) {
-			var $div = $('#compose_cfields{$random}');
+		// Group and bucket
+		$frm.find('select[name=group_id]').on('change', function(e) {
+			var $select = $(this);
+			var group_id = $select.val();
+			var $bucket_options = $select.siblings('select.ticket-peek-bucket-options').find('option')
+			var $bucket = $select.siblings('select[name=bucket_id]');
 			
-			var $frm = $(this).closest('form');
+			$bucket.children().remove();
 			
-			// Regexp the group_bucket pattern
-			var sep = /(\d+)_(\d+)/;
-			var hits = sep.exec($(this).val());
+			$bucket_options.each(function() {
+				var parent_id = $(this).attr('group_id');
+				if(parent_id == '*' || parent_id == group_id)
+					$(this).clone().appendTo($bucket);
+			});
 			
-			if(hits < 3)
-				return;
-			
-			var group_id = hits[1];
-			var bucket_id = hits[2];
-			
-			$frm.find('input:hidden[name=group_id]').val(group_id);
-			$frm.find('input:hidden[name=bucket_id]').val(bucket_id);
+			$bucket.focus();
 		});
-		
-		$frm.find('select[name=group_or_bucket_id]').trigger('change');
 		
 		$frm.find('input:text[name=to], input:text[name=cc], input:text[name=bcc]').focus(function(event) {
 			$('#compose_suggested{$random}').appendTo($(this).closest('td'));
@@ -301,12 +307,12 @@
 		$('#btnComposeInsertSig{$random}').click(function(e) {
 			var $this = $(this);
 			var $frm = $this.closest('form');
-			var $input_group = $frm.find('input:hidden[name=group_id]');
-			var $input_bucket = $frm.find('input:hidden[name=bucket_id]');
+			var $select_group = $frm.find('select[name=group_id]');
+			var $select_bucket = $frm.find('select[name=bucket_id]');
 			
 			genericAjaxGet(
 				'',
-				'c=tickets&a=getComposeSignature&group_id='+$input_group.val()+'&bucket_id='+$input_bucket.val(),
+				'c=tickets&a=getComposeSignature&group_id='+$select_group.val()+'&bucket_id='+$select_bucket.val(),
 				function(text) {
 					var $textarea = $('#divComposeContent{$random}');
 					

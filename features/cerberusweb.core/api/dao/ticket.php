@@ -3675,9 +3675,9 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
-		// Groups+Buckets
-		$group_buckets = DAO_Bucket::getGroups();
-		$tpl->assign('group_buckets', $group_buckets);
+		// Buckets
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
 
 		// Workers
 		$workers = DAO_Worker::getAll();
