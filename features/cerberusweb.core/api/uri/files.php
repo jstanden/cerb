@@ -29,10 +29,10 @@ class ChFilesController extends DevblocksControllerExtension {
 	function handleRequest(DevblocksHttpRequest $request) {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$stack = $request->path;				// URLS like: /files/10000/plaintext.txt
-		array_shift($stack);					// files
-		$file_guid = array_shift($stack);		// GUID
-		$file_name = array_shift($stack);		// plaintext.txt
+		$stack = $request->path; // URLS like: /files/10000/plaintext.txt
+		array_shift($stack); // files
+		$file_guid = array_shift($stack); // GUID
+		$file_name = array_shift($stack); // plaintext.txt
 		
 		// Security
 		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
@@ -77,11 +77,11 @@ class ChFilesController extends DevblocksControllerExtension {
 		$is_download = isset($request->query['download']) ? true : false;
 
 		// Set headers
-		header("Expires: Mon, 26 Nov 1979 00:00:00 GMT");
-		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-		header("Accept-Ranges: bytes");
-//		header("Keep-Alive: timeout=5, max=100");
-//		header("Connection: Keep-Alive");
+		header('Pragma: cache');
+		header('Cache-control: max-age=604800', true); // 1 wk // , must-revalidate
+		header('Expires: ' . gmdate('D, d M Y H:i:s',time()+604800) . ' GMT'); // 1 wk
+		header('Accept-Ranges: bytes');
+// 		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 
 		if($is_download) {
 			header('Content-Disposition: attachment; filename=' . urlencode($file->display_name));
