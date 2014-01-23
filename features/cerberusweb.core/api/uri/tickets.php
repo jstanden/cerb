@@ -382,6 +382,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$bcc = rtrim(DevblocksPlatform::importGPC($_POST['bcc'],'string',''),' ,;');
 		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','(no subject)');
 		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
+		@$content_format = DevblocksPlatform::importGPC($_POST['format'],'string','');
 
 		// Properties
 		
@@ -430,6 +431,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			'bcc' => $bcc,
 			'subject' => $subject,
 			'content' => $content,
+			'content_format' => $content_format,
 			'forward_files' => $file_ids,
 			'closed' => $closed,
 			'ticket_reopen' => $ticket_reopen,

@@ -161,6 +161,7 @@ class CerberusMail {
 		 'bcc'
 		 'subject'
 		 'content'
+		 'content_format'
 		 'files'
 		 'forward_files'
 		 'closed'
@@ -198,7 +199,9 @@ class CerberusMail {
 		@$bcc = $properties['bcc'];
 		@$subject = $properties['subject'];
 		@$content = $properties['content'];
+		@$content_format = $properties['content_format'];
 		@$files = $properties['files'];
+		@$embedded_files = array();
 		@$forward_files = $properties['forward_files'];
 		
 		@$closed = $properties['closed'];
@@ -283,7 +286,17 @@ class CerberusMail {
 			
 			$headers->addTextHeader('X-Mailer','Cerb ' . APP_VERSION . ' (Build '.APP_BUILD.')');
 			
-			$email->setBody($content);
+			// Body
+			
+			switch($content_format) {
+				case 'parsedown':
+					$embedded_files = self::_generateBodyMarkdown($email, $content, $group_id, $bucket_id);
+					break;
+					
+				default:
+					$email->setBody($content);
+					break;
+			}
 			
 			// Mime Attachments
 			if (is_array($files) && !empty($files)) {
@@ -458,6 +471,11 @@ class CerberusMail {
 			if(is_array($forward_files) && !empty($forward_files)) {
 				DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $forward_files);
 			}
+		}
+		
+		// Link embedded files
+		if(isset($embedded_files) && is_array($embedded_files) && !empty($embedded_files)) {
+			DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $embedded_files);
 		}
 		
 		// Finalize ticket
@@ -726,75 +744,7 @@ class CerberusMail {
 			
 			switch($content_format) {
 				case 'parsedown':
-					$url_writer = DevblocksPlatform::getUrlService();
-					$base_url = $url_writer->write('c=files', true) . '/';
-					
-					// Generate an HTML part using Parsedown
-					if(false !== ($html_body = DevblocksPlatform::parseMarkdown($content, true))) {
-						
-						try {
-						
-							// Replace links with cid: in HTML part
-							$html_body = preg_replace_callback(
-								sprintf('|(\"%s(.*)\")|', preg_quote($base_url)),
-								function($matches) use ($base_url, $mail, &$embedded_files) {
-									if(3 == count($matches)) {
-										$file_parts = explode('/', $matches[2]);
-										@list($file_hash, $file_name) = explode('/', $matches[2], 2);
-										
-										if($file_hash && $file_name) {
-											if($file_id = DAO_Attachment::getBySha1Hash($file_hash, urldecode($file_name))) {
-												if($file = DAO_Attachment::get($file_id)) {
-													$embedded_files[] = $file_id;
-													$cid = $mail->embed(Swift_Image::newInstance($file->getFileContents(), $file->display_name, $file->mime_type));
-													return sprintf('"%s"', $cid);
-												}
-											}
-										}
-									}
-									
-									return $matches[0];
-								},
-								$html_body
-							);
-						
-							// If this group has an HTML template, use it.
-							if(null != ($html_template = $group->getReplyHtmlTemplate($ticket->bucket_id))) {
-								$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-								$html_body = $tpl_builder->build($html_template->content, array('message_body' => $html_body));
-							}
-							
-						} catch(Exception $e) {
-							error_log($e->getMessage());
-						}
-						
-						$mail->addPart($html_body, 'text/html');
-					}
-						
-					// Strip some Markdown in the plaintext version
-					
-					try {
-						$content = preg_replace_callback(
-							sprintf('|(\!\[inline-image\]\(%s(.*)\))|', preg_quote($base_url)),
-							function($matches) use ($base_url) {
-								if(3 == count($matches)) {
-									@list($file_hash, $file_name) = explode('/', $matches[2], 2);
-									
-									if($file_hash && $file_name)
-										return sprintf("[Image %s]", urldecode($file_name));
-								}
-								
-								return $matches[0];
-							},
-							$content
-						);
-						
-					} catch (Exception $e) {
-						error_log($e->getMessage());
-					}
-					
-					$mail->addPart($content, 'text/plain');
-					
+					$embedded_files = self::_generateBodyMarkdown($mail, $content, $ticket->group_id, $ticket->bucket_id);
 					break;
 					
 				default:
@@ -995,7 +945,7 @@ class CerberusMail {
 			}
 			
 			// Link embedded files
-			if(is_array($embedded_files) && !empty($embedded_files)) {
+			if(isset($embedded_files) && is_array($embedded_files) && !empty($embedded_files)) {
 				DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $embedded_files);
 			}
 		}
@@ -1295,4 +1245,81 @@ class CerberusMail {
 		}
 	}
 	
+	static private function _generateBodyMarkdown(&$mail, &$content, $group_id=0, $bucket_id=0) {
+		$embedded_files = array();
+		
+		$url_writer = DevblocksPlatform::getUrlService();
+		$base_url = $url_writer->write('c=files', true) . '/';
+		
+		if($group_id)
+			$group = DAO_Group::get($group_id);
+		
+		// Generate an HTML part using Parsedown
+		if(false !== ($html_body = DevblocksPlatform::parseMarkdown($content, true))) {
+			
+			try {
+			
+				// Replace links with cid: in HTML part
+				$html_body = preg_replace_callback(
+					sprintf('|(\"%s(.*)\")|', preg_quote($base_url)),
+					function($matches) use ($base_url, $mail, &$embedded_files) {
+						if(3 == count($matches)) {
+							$file_parts = explode('/', $matches[2]);
+							@list($file_hash, $file_name) = explode('/', $matches[2], 2);
+							
+							if($file_hash && $file_name) {
+								if($file_id = DAO_Attachment::getBySha1Hash($file_hash, urldecode($file_name))) {
+									if($file = DAO_Attachment::get($file_id)) {
+										$embedded_files[] = $file_id;
+										$cid = $mail->embed(Swift_Image::newInstance($file->getFileContents(), $file->display_name, $file->mime_type));
+										return sprintf('"%s"', $cid);
+									}
+								}
+							}
+						}
+						
+						return $matches[0];
+					},
+					$html_body
+				);
+			
+				// If this group has an HTML template, use it.
+				if($group && null != ($html_template = $group->getReplyHtmlTemplate($bucket_id))) {
+					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+					$html_body = $tpl_builder->build($html_template->content, array('message_body' => $html_body));
+				}
+				
+			} catch(Exception $e) {
+				error_log($e->getMessage());
+			}
+			
+			$mail->addPart($html_body, 'text/html');
+		}
+			
+		// Strip some Markdown in the plaintext version
+		
+		try {
+			$content = preg_replace_callback(
+				sprintf('|(\!\[inline-image\]\(%s(.*)\))|', preg_quote($base_url)),
+				function($matches) use ($base_url) {
+					if(3 == count($matches)) {
+						@list($file_hash, $file_name) = explode('/', $matches[2], 2);
+						
+						if($file_hash && $file_name)
+							return sprintf("[Image %s]", urldecode($file_name));
+					}
+					
+					return $matches[0];
+				},
+				$content
+			);
+			
+		} catch (Exception $e) {
+			error_log($e->getMessage());
+		}
+		
+		$mail->addPart($content, 'text/plain');
+		
+		return $embedded_files;
+	}
 };

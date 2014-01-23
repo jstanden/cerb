@@ -8,6 +8,7 @@
 <input type="hidden" name="link_context" value="{$link_context}">
 <input type="hidden" name="link_context_id" value="{$link_context_id}">
 {/if}
+<input type="hidden" name="format" value="">
 
 <fieldset class="peek">
 	<legend>{'common.message'|devblocks_translate|capitalize}</legend>
@@ -217,10 +218,87 @@
 			ajax.chooserFile(this,'file_ids');
 		});
 		
+		// Text editor
 		
-		var $content = $frm.find('textarea');
+		var $content = $frm.find('textarea[name=content]');
 		
+		var markitupPlaintextSettings = $.extend(true, { }, markitupPlaintextDefaults);
+		var markitupParsedownSettings = $.extend(true, { }, markitupParsedownDefaults);
+		
+		markitupPlaintextSettings.markupSet.unshift(
+			{ name:'Switch to Markdown', openWith: 
+				function(markItUp) { 
+					var $editor = $(markItUp.textarea);
+					$editor.markItUpRemove().markItUp(markitupParsedownSettings);
+					{if empty($mail_reply_textbox_size_inelastic)}
+					$editor.elastic();
+					{/if}
+					$editor.closest('form').find('input:hidden[name=format]').val('parsedown');
+				},
+				className:'parsedown'
+			}
+		);
+		
+		markitupParsedownSettings.previewParser = function(content) {
+			genericAjaxPost(
+				'frmComposePeek{$random}',
+				'',
+				'c=display&a=getReplyMarkdownPreview',
+				function(o) {
+					content = o;
+				},
+				{
+					async: false
+				}
+			);
 			
+			return content;
+		};
+		
+		markitupParsedownSettings.markupSet.unshift(
+			{ name:'Switch to Plaintext', openWith: 
+				function(markItUp) { 
+					var $editor = $(markItUp.textarea);
+					$editor.markItUpRemove().markItUp(markitupPlaintextSettings);
+					{if empty($mail_reply_textbox_size_inelastic)}
+					$editor.elastic();
+					{/if}
+					$editor.closest('form').find('input:hidden[name=format]').val('');
+				},
+				className:'plaintext'
+			},
+			{ separator:'---------------' }
+		);
+		
+		markitupParsedownSettings.markupSet.splice(
+			6,
+			0,
+			{ name:'Upload an Image', openWith: 
+				function(markItUp) {
+					$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
+					
+					$chooser.one('chooser_save', function(event) {
+						if(!event.response || 0 == event.response)
+							return;
+						
+						$content.insertAtCursor("![inline-image](" + event.response[0].url + ")");
+					});
+				},
+				key: 'U',
+				className:'image-inline'
+			}
+			//{ separator:'---------------' }
+		);
+		
+		try {
+			$content.markItUp(markitupPlaintextSettings);
+			$content.elastic();
+			
+		} catch(e) {
+			if(window.console)
+				console.log(e);
+		}
+		
 		$frm.validate();
 		
 		// Group and bucket

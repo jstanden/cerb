@@ -384,7 +384,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	function getReplyMarkdownPreviewAction() {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
 		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
-		@$content = DevblocksPlatform::importGPC($_REQUEST['data'],'string','');
+		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 
 		$output = DevblocksPlatform::parseMarkdown($content, true);
 

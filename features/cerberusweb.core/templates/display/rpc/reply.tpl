@@ -157,6 +157,8 @@
 <input type="hidden" name="draft_id" value="{$draft->id}">
 <input type="hidden" name="reply_mode" value="">
 {if $is_forward}<input type="hidden" name="is_forward" value="1">{/if}
+<input type="hidden" name="group_id" value="{$ticket->group_id}">
+<input type="hidden" name="bucket_id" value="{$ticket->bucket_id}">
 <input type="hidden" name="format" value="">
 
 <!-- {* Copy these dynamically so a plugin dev doesn't need to conflict with the reply <form> *} -->
@@ -391,7 +393,21 @@
 			}
 		);
 		
-		markitupParsedownSettings.previewParserPath = DevblocksAppPath + 'ajax.php?c=display&a=getReplyMarkdownPreview&group_id={$ticket->group_id}&bucket_id={$ticket->bucket_id}';
+		markitupParsedownSettings.previewParser = function(content) {
+			genericAjaxPost(
+				$frm2,
+				'',
+				'c=display&a=getReplyMarkdownPreview',
+				function(o) {
+					content = o;
+				},
+				{
+					async: false
+				}
+			);
+			
+			return content;
+		};
 		
 		markitupParsedownSettings.markupSet.unshift(
 			{ name:'Switch to Plaintext', openWith: 
