@@ -99,8 +99,8 @@ class ChExplorerController extends DevblocksControllerExtension {
 				}
 			}
 			
-			// 20% of the time, update our timestamp
-			if(3==mt_rand(1, 5)) {
+			// Update the access time on the first request, and no more often than every 30 seconds thereafter
+			if(!isset($meta->params['last_accessed']) || $meta->params['last_accessed'] < (time()-30)) {
 				$meta->params['last_accessed'] = time();
 				DAO_ExplorerSet::update($hashset, $meta->params);
 			}
