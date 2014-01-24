@@ -164,7 +164,7 @@
 {if $is_forward}<input type="hidden" name="is_forward" value="1">{/if}
 <input type="hidden" name="group_id" value="{$ticket->group_id}">
 <input type="hidden" name="bucket_id" value="{$ticket->bucket_id}">
-<input type="hidden" name="format" value="{if $mail_reply_html}parsedown{/if}">
+<input type="hidden" name="format" value="{if ($draft && $draft->params.format == 'parsedown') || $mail_reply_html}parsedown{/if}">
 
 <!-- {* Copy these dynamically so a plugin dev doesn't need to conflict with the reply <form> *} -->
 <input type="hidden" name="to" value="{if !empty($draft)}{$draft->params.to}{else}{if $is_forward}{else}{foreach from=$requesters item=req_addy name=reqs}{$req_addy->email}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}">
@@ -447,7 +447,7 @@
 		);
 		
 		try {
-			{if $mail_reply_html}
+			{if ($draft && $draft->params.format == 'parsedown') || $mail_reply_html}
 			$content.markItUp(markitupParsedownSettings);
 			{else}
 			$content.markItUp(markitupPlaintextSettings);
