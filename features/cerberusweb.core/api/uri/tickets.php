@@ -1240,12 +1240,14 @@ class ChTicketsPage extends CerberusPageExtension {
 		if($active_worker->hasPriv('core.ticket.view.actions.broadcast_reply')) {
 			@$do_broadcast = DevblocksPlatform::importGPC($_REQUEST['do_broadcast'],'string',null);
 			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
+			@$broadcast_format = DevblocksPlatform::importGPC($_REQUEST['broadcast_format'],'string',null);
 			@$broadcast_file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['broadcast_file_ids'],'array',array()), 'integer', array('nonzero','unique'));
 			@$broadcast_is_queued = DevblocksPlatform::importGPC($_REQUEST['broadcast_is_queued'],'integer',0);
 			
 			if(0 != strlen($do_broadcast) && !empty($broadcast_message)) {
 				$do['broadcast'] = array(
 					'message' => $broadcast_message,
+					'format' => $broadcast_format,
 					'is_queued' => $broadcast_is_queued,
 					'file_ids' => $broadcast_file_ids,
 					'worker_id' => $active_worker->id,
@@ -1303,6 +1305,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		if($active_worker->hasPriv('core.ticket.view.actions.broadcast_reply')) {
 			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
+			@$broadcast_format = DevblocksPlatform::importGPC($_REQUEST['broadcast_format'],'string',null);
 
 			@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 			@$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'string','');
@@ -1337,18 +1340,44 @@ class ChTicketsPage extends CerberusPageExtension {
 				if(false === ($out = $tpl_builder->build($broadcast_message, $token_values))) {
 					// If we failed, show the compile errors
 					$errors = $tpl_builder->getErrors();
-					$success= false;
+					$success = false;
 					$output = @array_shift($errors);
+					
 				} else {
 					// If successful, return the parsed template
 					$success = true;
 					$output = $out;
+					
+					switch($broadcast_format) {
+						case 'parsedown':
+							// Markdown
+							$output = DevblocksPlatform::parseMarkdown($output, true);
+							
+							// HTML Template
+							if(false != ($group = DAO_Group::get($token_values['group_id']))) {
+								if(false != ($html_template = $group->getReplyHtmlTemplate($token_values['bucket_id']))) {
+									$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
+								}
+							}
+							
+							// HTML Purify
+							$output = DevblocksPlatform::purifyHTML($output, true);
+							break;
+					}
 				}
 			}
 			
-			$tpl->assign('success', $success);
-			$tpl->assign('output', $output);
-			$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
+			if($success) {
+				header("Content-Type: text/html; charset=" . LANG_CHARSET_CODE);
+				echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body>',
+					LANG_CHARSET_CODE
+				);
+				echo $output;
+				echo '</body></html>';
+				
+			} else {
+				echo $output;
+			}
 		}
 	}
 	

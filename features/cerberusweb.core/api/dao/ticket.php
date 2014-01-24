@@ -3016,6 +3016,9 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 							'is_broadcast' => 1,
 						);
 						
+						if(isset($broadcast_params['format']))
+							$params_json['format'] = $broadcast_params['format'];
+						
 						$fields = array(
 							DAO_MailQueue::TYPE => Model_MailQueue::TYPE_TICKET_REPLY,
 							DAO_MailQueue::TICKET_ID => $ticket_id,
