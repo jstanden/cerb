@@ -368,8 +368,12 @@ class Model_MailQueue {
 		// Message body
 		if(empty($this->body))
 			return false;
+		
 		$properties['content'] = $this->body;
 
+		if(isset($this->params['format']))
+			$properties['content_format'] = $this->params['format'];
+			
 		// Next action
 		$properties['closed'] = isset($this->params['next_is_closed']) ? intval($this->params['next_is_closed']) : 0;
 
@@ -380,9 +384,6 @@ class Model_MailQueue {
 		
 		// Worker
 		$properties['worker_id'] = !empty($this->worker_id) ? $this->worker_id : 0;
-		
-		// Files + Next step
-		//'files' => $files,
 		
 		// Attachments
 		if(isset($this->params['file_ids'])) {
@@ -450,8 +451,12 @@ class Model_MailQueue {
 		// Content
 		if(empty($this->body))
 			return false;
+		
 		$properties['content'] = $this->body;
 
+		if(isset($this->params['format']))
+			$properties['content_format'] = $this->params['format'];
+		
 		// Worker
 		$properties['worker_id'] = !empty($this->worker_id) ? $this->worker_id : 0;
 		
