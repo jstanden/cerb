@@ -386,6 +386,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 
+		header("Content-Type: text/html; charset=" . LANG_CHARSET_CODE);
+		
 		$output = DevblocksPlatform::parseMarkdown($content, true);
 
 		if(false != ($group = DAO_Group::get($group_id))
@@ -394,7 +396,12 @@ class ChDisplayPage extends CerberusPageExtension {
 			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 			$dirty_html = $tpl_builder->build($html_template->content, array('message_body' => $output));
 			
+			echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body>',
+				LANG_CHARSET_CODE
+			);
 			echo DevblocksPlatform::purifyHTML($dirty_html, true);
+			echo '</body></html>';
+			
 			return;
 		}
 		

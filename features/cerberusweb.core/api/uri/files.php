@@ -89,7 +89,7 @@ class ChFilesController extends DevblocksControllerExtension {
 		
 		switch(strtolower($file->mime_type)) {
 			case 'text/html':
-				header("Content-Type: " . $file->mime_type . '; charset=UTF-8');
+				header("Content-Type: text/html; charset=" . LANG_CHARSET_CODE);
 				
 				// If we're downloading the HTML, just pass the raw bytes
 				if($is_download) {
