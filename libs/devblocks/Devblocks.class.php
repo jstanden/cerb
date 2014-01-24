@@ -517,7 +517,8 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		if($inline_css) {
 			$css_converter = new CssToInlineStyles();
-			$css_converter->setHTML($dirty_html);
+			$css_converter->setEncoding(LANG_CHARSET_CODE);
+			$css_converter->setHTML(sprintf('<?xml encoding="%s">', LANG_CHARSET_CODE) . $dirty_html);
 			$css_converter->setUseInlineStylesBlock(true);
 			$dirty_html = $css_converter->convert();
 		}
