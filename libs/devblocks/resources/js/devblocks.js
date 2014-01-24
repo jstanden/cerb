@@ -284,6 +284,13 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			} catch(e) { }
 		}
 		target = null;
+		
+	} else if(target && typeof target == "object" && null != target.my && null != target.at) {
+		options.position = {
+			my: target.my,
+			at: target.at
+		};
+		
 	}
 	
 	// Reset (if exists)
