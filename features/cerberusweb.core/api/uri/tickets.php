@@ -1363,6 +1363,10 @@ class ChTicketsPage extends CerberusPageExtension {
 							// HTML Purify
 							$output = DevblocksPlatform::purifyHTML($output, true);
 							break;
+							
+						default:
+							$output = nl2br(htmlentities($output));
+							break;
 					}
 				}
 			}
