@@ -419,6 +419,34 @@ class DevblocksPlatform extends DevblocksEngine {
 			},
 			$str
 		);
+		
+		$quote_blockquotes_regexp = '{<blockquote[^>]*?>((?:(?:(?!<blockquote[^>]*>|</blockquote>).)++|<blockquote[^>]*>(?1)</blockquote>)*)</blockquote>}si';
+		
+		$quote_blockquotes = function($matches) use ($quote_blockquotes_regexp, &$quote_blockquotes) {
+			if(isset($matches[1])) {
+				$out = $matches[1];
+				
+				$out = preg_replace_callback(
+					$quote_blockquotes_regexp,
+					$quote_blockquotes,
+					$out
+				);
+				
+				$out = explode("\n", trim(strip_tags($out)));
+				
+				array_walk($out, function(&$line) {
+					$line = '&gt; ' . $line . "<br>";
+				});
+				$out = implode('', $out);
+				return $out;
+			}
+		};
+		
+		// Convert blockquotes to '>' prefixed lines
+		$str = preg_replace_callback(
+			$quote_blockquotes_regexp,
+			$quote_blockquotes,
+			$str
 		);
 		
 		// Strip all CRLF and tabs, spacify </TD>
@@ -505,6 +533,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		// Translate HTML entities into text
 		$str = html_entity_decode($str, ENT_COMPAT, LANG_CHARSET_CODE);
 
+		// Wrap quoted lines
+		// [TODO] This should be more reusable
+		$str = _DevblocksTemplateManager::modifier_devblocks_email_quote($str);
 		
 		// Clean up bytes (needed after HTML entities)
 		$str = mb_convert_encoding($str, LANG_CHARSET_CODE, LANG_CHARSET_CODE);
