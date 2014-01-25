@@ -499,33 +499,17 @@ class DevblocksPlatform extends DevblocksEngine {
 		// Flatten multiple spaces into a single
 		$str = preg_replace('# +#', ' ', $str);
 
+		// Flatten multiple linefeeds into a single
+		$str = preg_replace("#\n{2,}#", "\n\n", $str);
+		
 		// Translate HTML entities into text
 		$str = html_entity_decode($str, ENT_COMPAT, LANG_CHARSET_CODE);
 
-		// Loop through each line, ltrim, and concat if not empty
-		$lines = explode("\n", $str);
-		if(is_array($lines)) {
-			$str = '';
-			$blanks = 0;
-			foreach($lines as $idx => $line) {
-				$lines[$idx] = ltrim($line);
-				
-				if(empty($lines[$idx])) {
-					if(++$blanks >= 2)
-						unset($lines[$idx]);
-						//continue; // skip more than 2 blank lines in a row
-				} else {
-					$blanks = 0;
-				}
-			}
-			$str = implode("\n", $lines);
-		}
-		unset($lines);
 		
 		// Clean up bytes (needed after HTML entities)
 		$str = mb_convert_encoding($str, LANG_CHARSET_CODE, LANG_CHARSET_CODE);
 		
-		return $str;
+		return ltrim($str);
 	}
 	
 	static function purifyHTML($dirty_html, $inline_css=false, $options=array()) {
