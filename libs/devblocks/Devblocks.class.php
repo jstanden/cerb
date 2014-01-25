@@ -397,9 +397,25 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	static function stripHTML($str) {
 		$str = preg_replace_callback(
+			'@<code[^>]*?>(.*?)</code>@siu',
+			function($matches) {
+				if(isset($matches[1])) {
+					$out = $matches[1];
+					$out = str_replace(" ","&nbsp;", $out);
+					return $out;
+				}
+			},
+			$str
+		);
+		
+		$str = preg_replace_callback(
 			'#<pre.*?/pre\>#s',
 			function($matches) {
-				return str_replace("\n","<br>",@$matches[0]);
+				if(isset($matches[0])) {
+					$out = $matches[0];
+					$out = str_replace("\n","<br>", trim($out));
+					return '<br>' . $out . '<br>';
+				}
 			},
 			$str
 		);
