@@ -395,7 +395,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $output;
 	}
 	
-	static function stripHTML($str) {
+	static function stripHTML($str, $strip_whitespace=true) {
 		$str = preg_replace_callback(
 			'@<code[^>]*?>(.*?)</code>@siu',
 			function($matches) {
@@ -419,13 +419,23 @@ class DevblocksPlatform extends DevblocksEngine {
 			},
 			$str
 		);
-			
-		// Strip all CRLF and tabs, spacify </TD>
-		$str = str_ireplace(
-			array("\r","\n","\t","</td>"),
-			array('','',' ',' '),
-			trim($str)
 		);
+		
+		// Strip all CRLF and tabs, spacify </TD>
+		if($strip_whitespace) {
+			$str = str_ireplace(
+				array("\r","\n","\t","</td>"),
+				array('','',' ',' '),
+				trim($str)
+			);
+			
+		} else {
+			$str = str_ireplace(
+				array("\t","</td>"),
+				array(' ',' '),
+				trim($str)
+			);
+		}
 		
 		// Convert Unicode nbsp to space
 		$str = preg_replace(
