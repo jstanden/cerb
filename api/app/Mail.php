@@ -1320,6 +1320,14 @@ class CerberusMail {
 			error_log($e->getMessage());
 		}
 		
+		try {
+			$content = DevblocksPlatform::parseMarkdown($content, true);
+			$content = DevblocksPlatform::stripHTML($content);
+			
+		} catch (Exception $e) {
+			error_log($e->getMessage());
+		}
+			
 		$mail->addPart($content, 'text/plain');
 		
 		return $embedded_files;
