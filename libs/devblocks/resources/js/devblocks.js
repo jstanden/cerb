@@ -337,7 +337,7 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			$popup.trigger('popup_open');
 			
 			if(null == options.position)
-				$popup.dialog('option', 'position', { my: 'top center', at: 'center' } );
+				$popup.dialog('option', 'position', { my: 'top', at: 'top+20px' } ); // { my: 'top center', at: 'center' }
 			
 			// Callback
 			try { cb(html); } catch(e) { }
