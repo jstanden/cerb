@@ -1042,6 +1042,9 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 						'is_broadcast' => 1,
 					);
 					
+					if(isset($params['format']))
+						$json_params['format'] = $params['format'];
+					
 					if(isset($params['file_ids']))
 						$json_params['file_ids'] = $params['file_ids'];
 					

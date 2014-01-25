@@ -60,6 +60,7 @@
 <fieldset class="peek">
 	<legend>Send Broadcast</legend>
 	<label><input type="checkbox" name="do_broadcast" id="chkMassReply" onclick="$('#bulkAddyBroadcast').toggle();"> {'common.enabled'|devblocks_translate|capitalize}</label>
+	<input type="hidden" name="broadcast_format" value="">
 
 	<blockquote id="bulkAddyBroadcast" style="display:none;margin:10px;">
 		<b>From:</b>
@@ -84,17 +85,16 @@
 		
 		<div style="margin:0px 0px 5px 10px;">
 			<textarea name="broadcast_message" style="width:100%;height:200px;"></textarea>
-			<br>
-			<button type="button" onclick="ajax.chooserSnippet('snippets',$('#bulkAddyBroadcast textarea[name=broadcast_message]'), { '{CerberusContexts::CONTEXT_ADDRESS}':'', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
-			<button type="button" onclick="genericAjaxPost('formBatchUpdate','bulkAddyBroadcastTest','c=contacts&a=doAddressBulkUpdateBroadcastTest');"><span class="cerb-sprite2 sprite-gear"></span> Test</button><!--
-			--><select class="insert-placeholders">
-				<option value="">-- insert at cursor --</option>
-				{foreach from=$token_labels key=k item=v}
-				<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
-				{/foreach}
-			</select>
-			<br>
-			<div id="bulkAddyBroadcastTest"></div>
+			
+			<div>
+				<button type="button" onclick="ajax.chooserSnippet('snippets',$('#bulkAddyBroadcast textarea[name=broadcast_message]'), { '{CerberusContexts::CONTEXT_ADDRESS}':'', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
+				<select class="insert-placeholders">
+					<option value="">-- insert at cursor --</option>
+					{foreach from=$token_labels key=k item=v}
+					<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
+					{/foreach}
+				</select>
+			</div>
 		</div>
 		
 		<b>{'common.attachments'|devblocks_translate|capitalize}:</b>
@@ -135,6 +135,8 @@
 		
 		ajax.orgAutoComplete('#orginput');
 		
+		var $content = $this.find('textarea[name=broadcast_message]');
+		
 		$this.find('select.insert-placeholders').change(function(e) {
 			var $select = $(this);
 			var $val = $select.val();
@@ -142,9 +144,7 @@
 			if($val.length == 0)
 				return;
 			
-			var $textarea = $select.siblings('textarea[name=broadcast_message]');
-			
-			$textarea.insertAtCursor($val).focus();
+			$content.insertAtCursor($val).focus();
 			
 			$select.val('');
 		});
@@ -152,5 +152,95 @@
 		$this.find('button.chooser_file').each(function() {
 			ajax.chooserFile(this,'broadcast_file_ids');
 		});
+		
+		// Text editor
+		
+		var markitupPlaintextSettings = $.extend(true, { }, markitupPlaintextDefaults);
+		var markitupParsedownSettings = $.extend(true, { }, markitupParsedownDefaults);
+		
+		markitupPlaintextSettings.markupSet.unshift(
+			{ name:'Switch to Markdown', openWith: 
+				function(markItUp) { 
+					var $editor = $(markItUp.textarea);
+					$editor.markItUpRemove().markItUp(markitupParsedownSettings);
+					{if empty($mail_reply_textbox_size_inelastic)}
+					$editor.elastic();
+					{/if}
+					$editor.closest('form').find('input:hidden[name=broadcast_format]').val('parsedown');
+				},
+				className:'parsedown'
+			}
+		);
+		
+		markitupPlaintextSettings.markupSet.push(
+			{ separator:'---------------' },
+			{ name:'Preview', key: 'P', call:'preview', className:"preview" }
+		);
+		
+		var previewParser = function(content) {
+			genericAjaxPost(
+				'formBatchUpdate',
+				'',
+				'c=contacts&a=doAddressBulkUpdateBroadcastTest',
+				function(o) {
+					content = o;
+				},
+				{
+					async: false
+				}
+			);
+			
+			return content;
+		};
+		
+		markitupPlaintextSettings.previewParser = previewParser;
+		markitupPlaintextSettings.previewAutoRefresh = false;
+		
+		markitupParsedownSettings.previewParser = previewParser;
+		markitupParsedownSettings.previewAutoRefresh = false;
+		delete markitupParsedownSettings.previewInWindow;
+		
+		markitupParsedownSettings.markupSet.unshift(
+			{ name:'Switch to Plaintext', openWith: 
+				function(markItUp) { 
+					var $editor = $(markItUp.textarea);
+					$editor.markItUpRemove().markItUp(markitupPlaintextSettings);
+					{if empty($mail_reply_textbox_size_inelastic)}
+					$editor.elastic();
+					{/if}
+					$editor.closest('form').find('input:hidden[name=broadcast_format]').val('');
+				},
+				className:'plaintext'
+			},
+			{ separator:'---------------' }
+		);
+		
+		markitupParsedownSettings.markupSet.splice(
+			6,
+			0,
+			{ name:'Upload an Image', openWith: 
+				function(markItUp) {
+					$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
+					
+					$chooser.one('chooser_save', function(event) {
+						if(!event.response || 0 == event.response)
+							return;
+						
+						$content.insertAtCursor("![inline-image](" + event.response[0].url + ")");
+					});
+				},
+				key: 'U',
+				className:'image-inline'
+			}
+		);
+		
+		try {
+			$content.markItUp(markitupPlaintextSettings);
+			
+		} catch(e) {
+			if(window.console)
+				console.log(e);
+		}
+		
 	});
 </script>

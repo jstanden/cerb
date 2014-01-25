@@ -305,7 +305,7 @@ var cAjaxCalls = function() {
 		
 		var row_ids = ids.join(','); // [TODO] Encode?
 	
-		genericAjaxPopup('bulk','c=contacts&a=showAddressBatchPanel&view_id=' + view_id + '&ids=' + row_ids,null,false,'500');
+		genericAjaxPopup('bulk','c=contacts&a=showAddressBatchPanel&view_id=' + view_id + '&ids=' + row_ids, { my: 'top', at: 'top' }, false, '650');
 	}
 	
 	// [TODO] This is not necessary
