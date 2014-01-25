@@ -254,6 +254,7 @@ class CrmPage extends CerberusPageExtension {
 			@$broadcast_group_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_group_id'],'integer',0);
 			@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);
 			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
+			@$broadcast_format = DevblocksPlatform::importGPC($_REQUEST['broadcast_format'],'string',null);
 			@$broadcast_is_queued = DevblocksPlatform::importGPC($_REQUEST['broadcast_is_queued'],'integer',0);
 			@$broadcast_is_closed = DevblocksPlatform::importGPC($_REQUEST['broadcast_next_is_closed'],'integer',0);
 			@$broadcast_file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['broadcast_file_ids'],'array',array()), 'integer', array('nonzero','unique'));
@@ -262,6 +263,7 @@ class CrmPage extends CerberusPageExtension {
 				$do['broadcast'] = array(
 					'subject' => $broadcast_subject,
 					'message' => $broadcast_message,
+					'format' => $broadcast_format,
 					'is_queued' => $broadcast_is_queued,
 					'next_is_closed' => $broadcast_is_closed,
 					'group_id' => $broadcast_group_id,
@@ -307,6 +309,8 @@ class CrmPage extends CerberusPageExtension {
 		if($active_worker->hasPriv('crm.opp.view.actions.broadcast')) {
 			@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);
 			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
+			@$broadcast_format = DevblocksPlatform::importGPC($_REQUEST['broadcast_format'],'string',null);
+			@$broadcast_group_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_group_id'],'integer',0);
 
 			@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 			@$opp_ids = DevblocksPlatform::importGPC($_REQUEST['opp_ids'],'string','');
@@ -340,18 +344,47 @@ class CrmPage extends CerberusPageExtension {
 						$errors = $tpl_builder->getErrors();
 						$success= false;
 						$output = @array_shift($errors);
+						
 					} else {
 						// If successful, return the parsed template
 						$success = true;
 						$output = $out;
+						
+						switch($broadcast_format) {
+							case 'parsedown':
+								// Markdown
+								$output = DevblocksPlatform::parseMarkdown($output, true);
+								
+								// HTML Template
+								if(false != ($group = DAO_Group::get($broadcast_group_id))) {
+									if(false != ($html_template = $group->getReplyHtmlTemplate(0))) {
+										$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
+									}
+								}
+								
+								// HTML Purify
+								$output = DevblocksPlatform::purifyHTML($output, true);
+								break;
+								
+							default:
+								$output = nl2br(htmlentities($output));
+								break;
+						}
 					}
 				}
 			}
 			
-			$tpl->assign('success', $success);
-			$tpl->assign('output', $output);
-			
-			$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
+			if($success) {
+				header("Content-Type: text/html; charset=" . LANG_CHARSET_CODE);
+				echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body>',
+					LANG_CHARSET_CODE
+				);
+				echo $output;
+				echo '</body></html>';
+				
+			} else {
+				echo $output;
+			}
 		}
 	}
 	
