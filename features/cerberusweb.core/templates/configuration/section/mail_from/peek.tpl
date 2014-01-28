@@ -5,58 +5,75 @@
 <input type="hidden" name="action" value="savePeek">
 <input type="hidden" name="id" value="{$address->address_id}">
 
-<b>Send replies as email:</b> {if empty($address->address_id)}(e.g. support@example.com){/if}
-<br>
-{if !empty($address->address_id)}
-{$address->email}
-{else}
-<input type="text" name="reply_from" value="" style="width:100%;">
-<br>
-<span style="color:rgb(0,120,0);">(Make sure the above address delivers to the helpdesk or you won't receive replies!)</span>
-{/if}
-<br>
-<br>
+<fieldset class="peek">
+	<legend>Send worker replies as:</legend>
+	
+	<div style="margin-bottom:5px;">
+		<b>{'common.email'|devblocks_translate|capitalize}:</b>
+		<div>
+			{if !empty($address->address_id)}
+			{$address->email}
+			{else}
+			<input type="text" name="reply_from" value="" style="width:100%;" placeholder="support@example.com">
+			<br>
+			<span style="color:rgb(0,120,0);">(Make sure the above address delivers to the helpdesk or you won't receive replies!)</span>
+			{/if}
+		</div>
+	</div>
+	
+	<div>
+		<b>{'common.name'|devblocks_translate|capitalize}:</b>
+		<div>
+			<input type="text" name="reply_personal" value="{$address->reply_personal}" style="width:100%;" placeholder="Example, Inc.">
+			<br>
+			<button type="button" onclick="genericAjaxPost('frmAddyOutgoingPeek','divFromTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_personal');">{'common.test'|devblocks_translate|capitalize}</button>
+			<select name="sig_from_token">
+				<option value="">-- insert at cursor --</option>
+				{foreach from=$worker_token_labels key=k item=v}
+				<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
+				{/foreach}
+			</select>
+			<div id="divFromTester"></div>
+		</div>
+	</div>
+</fieldset>
 
-<b>Send replies as name:</b> (e.g. "Example, Inc.")
-<br>
-<input type="text" name="reply_personal" value="{$address->reply_personal}" style="width:100%;">
-<br>
-<button type="button" onclick="genericAjaxPost('frmAddyOutgoingPeek','divFromTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_personal');">{'common.test'|devblocks_translate|capitalize}</button>
-<select name="sig_from_token">
-	<option value="">-- insert at cursor --</option>
-	{foreach from=$worker_token_labels key=k item=v}
-	<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
-	{/foreach}
-</select>
-<br>
-<div id="divFromTester"></div>
+<fieldset class="peek">
+	<legend>Default signature:</legend>
+	
+	<textarea name="reply_signature" rows="10" cols="76" style="width:100%;">{$address->reply_signature}</textarea>
+	<br>
+	<button type="button" onclick="genericAjaxPost('frmAddyOutgoingPeek','divSigTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_signature');">{'common.test'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&raw=1&group_id=0',function(txt) { $('#frmAddyOutgoingPeek textarea').text(txt); } );">{'common.default'|devblocks_translate|capitalize}</button>
+	<select name="sig_token">
+		<option value="">-- insert at cursor --</option>
+		{foreach from=$worker_token_labels key=k item=v}
+		<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
+		{/foreach}
+	</select>
+	<br>
+	<div id="divSigTester"></div>
+</fieldset>
 
-<br>
+<fieldset class="peek">
+	<legend>Send HTML replies using template:</legend>
+	
+	<select name="reply_html_template_id">
+		<option value="0"> - {'common.default'|devblocks_translate|lower} -</option>
+		{foreach from=$html_templates item=html_template}
+		<option value="{$html_template->id}" {if $html_template->id==$address->reply_html_template_id}selected="selected"{/if}>{$html_template->name}</option>
+		{/foreach}
+	</select>
+</fieldset>
 
-<b>Default signature template:</b>
-<br>
-<textarea name="reply_signature" rows="10" cols="76" style="width:100%;">{$address->reply_signature}</textarea>
-<br>
-<button type="button" onclick="genericAjaxPost('frmAddyOutgoingPeek','divSigTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_signature');">{'common.test'|devblocks_translate|capitalize}</button>
-<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&raw=1&group_id=0',function(txt) { $('#frmAddyOutgoingPeek textarea').text(txt); } );">{'common.default'|devblocks_translate|capitalize}</button>
-<select name="sig_token">
-	<option value="">-- insert at cursor --</option>
-	{foreach from=$worker_token_labels key=k item=v}
-	<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
-	{/foreach}
-</select>
-<br>
-<div id="divSigTester"></div>
-
-<br>
-
-<label>
-	<input type="checkbox" name="is_default" value="1" {if $address->is_default}checked="checked"{/if}> 
-	<b>Make default.</b>  
-	This will be used as the reply-to address for outgoing mail when no other preference exists.
-</label>
-<br>
-<br>
+<fieldset class="peek">
+	<legend>Make default:</legend>
+	
+	<label>
+		<input type="checkbox" name="is_default" value="1" {if $address->is_default}checked="checked"{/if}> 
+		This will be used as the reply-to address for outgoing mail when no other preference exists.
+	</label>
+</fieldset>
 
 <fieldset class="delete" style="display:none;">
 	<legend>Are you sure you want to delete this reply-to address?</legend>

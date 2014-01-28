@@ -111,6 +111,20 @@ if(!isset($columns['reply_html_template_id'])) {
 }
 
 // ===========================================================================
+// Add HTML template support on reply-to addresses
+
+if(!isset($tables['address_outgoing'])) {
+	$logger->error("The 'address_outgoing' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('address_outgoing');
+
+if(!isset($columns['reply_html_template_id'])) {
+	$db->Execute("ALTER TABLE address_outgoing ADD COLUMN reply_html_template_id INT UNSIGNED NOT NULL DEFAULT 0");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
