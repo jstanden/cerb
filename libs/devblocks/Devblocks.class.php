@@ -569,6 +569,16 @@ class DevblocksPlatform extends DevblocksEngine {
 		$config = HTMLPurifier_Config::createDefault();
 		$config->set('HTML.Doctype', 'HTML 4.01 Transitional');
 		
+		$config->set('URI.AllowedSchemes', array(
+			'http' => true,
+			'https' => true,
+			'mailto' => true,
+			'ftp' => true,
+			'nntp' => true,
+			'news' => true,
+			'data' => true,
+		));
+		
 		$dir_htmlpurifier_cache = APP_TEMP_PATH . '/cache/htmlpurifier/';
 		
 		if(!is_dir($dir_htmlpurifier_cache)) {
