@@ -3675,10 +3675,65 @@ class ChInternalController extends DevblocksControllerExtension {
 				$errors = $tpl_builder->getErrors();
 				$success = false;
 				$output = @array_shift($errors);
+				
 			} else {
 				// If successful, return the parsed template
 				$success = true;
 				$output = $out;
+				
+				if(isset($_REQUEST['is_editor'])) {
+					@$is_editor = DevblocksPlatform::importGPC($_REQUEST['is_editor'],'string','');
+					@$format = DevblocksPlatform::importGPC($_REQUEST[$prefix][$is_editor],'string','');
+					
+					switch($format) {
+						case 'parsedown':
+							if(false != ($output = DevblocksPlatform::parseMarkdown($output, true))) {
+
+								// HTML template
+
+								@$html_template_id = DevblocksPlatform::importGPC($_REQUEST[$prefix]['html_template_id'],'integer',0);
+								$html_template = null;
+								
+								// Field mapping
+								
+								@$_replyto_field = DevblocksPlatform::importGPC($_REQUEST['_replyto_field'],'string','');
+								@$_replyto_id = DevblocksPlatform::importGPC($_REQUEST[$prefix][$_replyto_field],'integer',0);
+
+								// Try the given HTML template
+								if($html_template_id) {
+									$html_template = DAO_MailHtmlTemplate::get($html_template_id);
+								}
+								
+								// Cascade to current reply-to
+								if($_replyto_id && !$html_template && false != ($replyto = DAO_AddressOutgoing::get($_replyto_id))) {
+									$html_template = $replyto->getReplyHtmlTemplate();
+								}
+								
+								// Cascade to default reply-to
+								if(!$html_template && false != ($replyto = DAO_AddressOutgoing::getDefault())) {
+									$html_template = $replyto->getReplyHtmlTemplate();
+								}
+								
+								if($html_template) {
+									$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+									$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
+								}
+							}
+							break;
+							
+						default:
+							// [TODO] Default stylesheet for previews?
+							$output = nl2br(htmlentities($output, ENT_COMPAT, LANG_CHARSET_CODE));
+							break;
+					}
+					
+					echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body>',
+						LANG_CHARSET_CODE
+					);
+					echo DevblocksPlatform::purifyHTML($output, true);
+					echo '</body></html>';
+					return;
+				}
 			}
 		}
 

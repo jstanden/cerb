@@ -1375,7 +1375,6 @@ span.plugin_icon_overlay_disabled {
 // ------------------------------------------------------------------*/
 .markItUp * {
 	margin:0px; padding:0px;
-	outline:none;
 }
 .markItUp a:link,
 .markItUp a:visited {
@@ -1387,16 +1386,8 @@ span.plugin_icon_overlay_disabled {
 	margin:5px 0 5px 0;
 }
 .markItUpContainer {
-	/*font:11px Verdana, Arial, Helvetica, sans-serif;*/
 }
 .markItUpEditor {
-	/*font:12px 'Courier New', Courier, monospace;*/
-	padding:5px;
-	width:98%;
-	height:320px;
-	clear:both; display:block;
-	line-height:18px;
-	overflow:auto;
 }
 .markItUpPreviewFrame {
 	overflow:auto;

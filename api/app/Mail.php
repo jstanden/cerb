@@ -91,7 +91,7 @@ class CerberusMail {
 		return $results;
 	}
 	
-	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null, $custom_headers=array()) {
+	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null, $custom_headers=array(), $format=null, $html_template_id=null) {
 		try {
 			$mail_service = DevblocksPlatform::getMailService();
 			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
@@ -136,7 +136,15 @@ class CerberusMail {
 			
 			// Body
 			
-			$mail->setBody($body);
+			switch($format) {
+				case 'parsedown':
+					self::_generateBodyMarkdown($mail, $body, null, null, $html_template_id);
+					break;
+					
+				default:
+					$mail->setBody($body);
+					break;
+			}
 		
 			// [TODO] Report when the message wasn't sent.
 			if(!$mailer->send($mail)) {
@@ -1245,22 +1253,23 @@ class CerberusMail {
 		}
 	}
 	
-	static private function _generateBodyMarkdown(&$mail, &$content, $group_id=0, $bucket_id=0) {
+	static private function _generateBodyMarkdown(&$mail, &$content, $group_id=0, $bucket_id=0, $html_template_id=0) {
 		$embedded_files = array();
 		
 		$url_writer = DevblocksPlatform::getUrlService();
 		$base_url = $url_writer->write('c=files', true) . '/';
 		
-		if($group_id)
-			$group = DAO_Group::get($group_id);
-		
 		// Generate an HTML part using Parsedown
 		if(false !== ($html_body = DevblocksPlatform::parseMarkdown($content, true))) {
 			
-			// If this group has an HTML template, use it.
-			if($group && null != ($html_template = $group->getReplyHtmlTemplate($bucket_id))) {
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$html_body = $tpl_builder->build($html_template->content, array('message_body' => $html_body));
+			// Use an HTML template if we have one (or can discern it)
+			if(
+				($html_template_id && null != ($html_template = DAO_MailHtmlTemplate::get($html_template_id)))
+				|| (false != ($group = DAO_Group::get($group_id)) && null != ($html_template = $group->getReplyHtmlTemplate($bucket_id)))
+				) {
+				
+					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+					$html_body = $tpl_builder->build($html_template->content, array('message_body' => $html_body));
 			}
 			
 			// Purify the HTML and inline the CSS

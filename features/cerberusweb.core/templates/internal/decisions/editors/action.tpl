@@ -141,42 +141,62 @@
 		// Placeholders
 		
 		$popup.delegate(':text.placeholders, textarea.placeholders', 'focus', function(e) {
-			$toolbar = $('#divDecisionActionToolbar{$id}');
-			src = (null==e.srcElement) ? e.target : e.srcElement;
-			if(0 == $(src).nextAll('#divDecisionActionToolbar{$id}').length) {
+			var $toolbar = $('#divDecisionActionToolbar{$id}');
+			var $src = $((null==e.srcElement) ? e.target : e.srcElement);
+			if(0 == $src.nextAll('#divDecisionActionToolbar{$id}').length) {
 				$toolbar.find('div.tester').html('');
 				$toolbar.find('ul.cerb-popupmenu').hide();
-				$toolbar.show().insertAfter(src);
+				
+				$toolbar.data('src', $src);
+				
+				// If a markItUp editor, move to parent
+				if($src.is('.markItUpEditor')) {
+					$src = $src.closest('.markItUp').parent();
+					$toolbar.find('button.tester').hide();
+					
+				} else {
+					$toolbar.find('button.tester').show();
+				}
+				
+				$toolbar.show().insertAfter($src);
 			}
 		});
 		
 		// Placeholder menu
 		
-		$divPlaceholderMenu = $('#divDecisionActionToolbar{$id}');
+		var $divPlaceholderMenu = $('#divDecisionActionToolbar{$id}');
 		
-		$ph_menu_trigger = $divPlaceholderMenu.find('button.cerb-popupmenu-trigger');
-		$ph_menu = $divPlaceholderMenu.find('ul.cerb-popupmenu');
+		var $ph_menu_trigger = $divPlaceholderMenu.find('button.cerb-popupmenu-trigger');
+		var $ph_menu = $divPlaceholderMenu.find('ul.cerb-popupmenu');
 		$ph_menu_trigger.data('menu', $ph_menu);
 		
 		$divPlaceholderMenu.find('button.tester').click(function(e) {
 			var divTester = $(this).nextAll('div.tester').first();
 			
-			$toolbar = $('DIV#divDecisionActionToolbar{$id}');
-			$field = $toolbar.prev(':text, textarea');
+			var $toolbar = $('DIV#divDecisionActionToolbar{$id}');
+			
+			var $field = null;
+			
+			if($toolbar.data('src')) {
+				$field = $toolbar.data('src');
+			
+			} else {
+				$field = $toolbar.prev(':text, textarea');
+			}
 			
 			if(null == $field)
 				return;
 			
-			regexpName = /^(.*?)\[(.*?)\]$/;
-			hits = regexpName.exec($field.attr('name'));
+			var regexpName = /^(.*?)\[(.*?)\]$/;
+			var hits = regexpName.exec($field.attr('name'));
 			
 			if(null == hits || hits.length < 3)
 				return;
 			
-			strNamespace = hits[1];
-			strName = hits[2];
+			var strNamespace = hits[1];
+			var strName = hits[2];
 			
-			genericAjaxPost($(this).closest('form').attr('id'), divTester, 'c=internal&a=testDecisionEventSnippets&prefix=' + strNamespace + '&field=' + strName);			
+			genericAjaxPost($(this).closest('form').attr('id'), divTester, 'c=internal&a=testDecisionEventSnippets&prefix=' + strNamespace + '&field=' + strName);
 		});
 		
 		$ph_menu_trigger
@@ -228,8 +248,14 @@
 		});
 		
 		$ph_menu.find('> li > a').click(function() {
-			$toolbar = $('DIV#divDecisionActionToolbar{$id}');
-			$field = $toolbar.prev(':text, textarea');
+			var $toolbar = $('DIV#divDecisionActionToolbar{$id}');
+			
+			if($toolbar.data('src')) {
+				$field = $toolbar.data('src');
+			
+			} else {
+				$field = $toolbar.prev(':text, textarea');
+			}
 			
 			if(null == $field)
 				return;
