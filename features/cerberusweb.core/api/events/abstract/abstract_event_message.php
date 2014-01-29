@@ -693,6 +693,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 			case 'send_email_recipients':
 				$tpl->assign('workers', DAO_Worker::getAll());
+				
+				$html_templates = DAO_MailHtmlTemplate::getAll();
+				$tpl->assign('html_templates', $html_templates);
+				
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_owner/action_send_email_recipients.tpl');
 				break;
 				
@@ -931,12 +935,16 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				// Translate message tokens
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 
-				$content = $tpl_builder->build($params['content'], $dict);
+				@$content = $tpl_builder->build($params['content'], $dict);
+				@$format = $params['format'];
+				@$html_template_id = $params['html_template_id'];
 
 				$properties = array(
 					'ticket_id' => $ticket_id,
 					'message_id' => $message_id,
 					'content' => $content,
+					'content_format' => $format,
+					'html_template_id' => $html_template_id,
 					'worker_id' => 0,
 				);
 				

@@ -170,6 +170,7 @@ class CerberusMail {
 		 'subject'
 		 'content'
 		 'content_format'
+		 'html_template_id'
 		 'files'
 		 'forward_files'
 		 'closed'
@@ -208,6 +209,7 @@ class CerberusMail {
 		@$subject = $properties['subject'];
 		@$content = $properties['content'];
 		@$content_format = $properties['content_format'];
+		@$html_template_id = $properties['html_template_id'];
 		@$files = $properties['files'];
 		@$embedded_files = array();
 		@$forward_files = $properties['forward_files'];
@@ -298,7 +300,7 @@ class CerberusMail {
 			
 			switch($content_format) {
 				case 'parsedown':
-					$embedded_files = self::_generateBodyMarkdown($email, $content, $group_id, $bucket_id);
+					$embedded_files = self::_generateBodyMarkdown($email, $content, $group_id, $bucket_id, $html_template_id);
 					break;
 					
 				default:
@@ -544,6 +546,7 @@ class CerberusMail {
 		'bcc'
 		'content'
 		'content_format' // markdown, parsedown, html
+		'html_template_id'
 		'headers'
 		'files'
 		'closed'
@@ -585,6 +588,7 @@ class CerberusMail {
 			// Re-read properties
 			@$content = $properties['content'];
 			@$content_format = $properties['content_format'];
+			@$html_template_id = intval($properties['html_template_id']);
 			@$files = $properties['files'];
 			@$is_forward = $properties['is_forward'];
 			@$is_broadcast = $properties['is_broadcast'];
@@ -752,7 +756,7 @@ class CerberusMail {
 			
 			switch($content_format) {
 				case 'parsedown':
-					$embedded_files = self::_generateBodyMarkdown($mail, $content, $ticket->group_id, $ticket->bucket_id);
+					$embedded_files = self::_generateBodyMarkdown($mail, $content, $ticket->group_id, $ticket->bucket_id, $html_template_id);
 					break;
 					
 				default:

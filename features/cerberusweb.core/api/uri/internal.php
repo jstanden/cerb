@@ -3699,9 +3699,22 @@ class ChInternalController extends DevblocksControllerExtension {
 								@$_replyto_field = DevblocksPlatform::importGPC($_REQUEST['_replyto_field'],'string','');
 								@$_replyto_id = DevblocksPlatform::importGPC($_REQUEST[$prefix][$_replyto_field],'integer',0);
 
+								// Key mapping
+								
+								@$_group_key = DevblocksPlatform::importGPC($_REQUEST['_group_key'],'string','');
+								@$_group_id = intval($values[$_group_key]);
+
+								@$_bucket_key = DevblocksPlatform::importGPC($_REQUEST['_bucket_key'],'string','');
+								@$_bucket_id = intval($values[$_bucket_key]);
+								
 								// Try the given HTML template
 								if($html_template_id) {
 									$html_template = DAO_MailHtmlTemplate::get($html_template_id);
+								}
+								
+								// Cascade to group/bucket
+								if($_group_id && !$html_template && false != ($_group = DAO_Group::get($_group_id))) {
+									$html_template = $_group->getReplyHtmlTemplate($_bucket_id);
 								}
 								
 								// Cascade to current reply-to
