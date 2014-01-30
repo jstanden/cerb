@@ -135,6 +135,18 @@
 		</extension>
 
 		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.context</id>
+			<name>Contexts</name>
+			<class>
+				<file>api/rest/contexts.php</file>
+				<name>ChRest_Contexts</name>
+			</class>
+			<params>
+				<param key="uri" value="contexts" />
+			</params>
+		</extension>
+
+		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.custom_fields</id>
 			<name>Custom Fields</name>
 			<class>
