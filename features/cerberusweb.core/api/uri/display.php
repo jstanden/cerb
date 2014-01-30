@@ -385,27 +385,37 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
 		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
+		@$html_template_id = DevblocksPlatform::importGPC($_REQUEST['html_template_id'],'integer',0);
 
 		header("Content-Type: text/html; charset=" . LANG_CHARSET_CODE);
-		
-		$output = DevblocksPlatform::parseMarkdown($content, true);
 
-		if(false != ($group = DAO_Group::get($group_id))
-			&& false != ($html_template = $group->getReplyHtmlTemplate($bucket_id))) {
-			
-			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-			$dirty_html = $tpl_builder->build($html_template->content, array('message_body' => $output));
-			
-			echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body>',
-				LANG_CHARSET_CODE
-			);
-			echo DevblocksPlatform::purifyHTML($dirty_html, true);
-			echo '</body></html>';
-			
-			return;
-		}
+		$output = DevblocksPlatform::parseMarkdown($content, true);
 		
-		echo $output;
+		$html_template = null;
+		
+		// Use an override template if given
+		if($html_template_id)
+			$html_template = DAO_MailHtmlTemplate::get($html_template_id);
+		
+		// Cascade to group/bucket template
+		if(!$html_template && false != ($group = DAO_Group::get($group_id)))
+			$html_template = $group->getReplyHtmlTemplate($bucket_id);
+		
+		// Cascade to default reply-to
+		if(!$html_template && false != ($replyto = DAO_AddressOutgoing::getDefault()))
+			$html_template = $replyto->getReplyHtmlTemplate();
+
+		// Wrap the reply in a template if we have one
+		if($html_template) {
+			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
+		}
+			
+		echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body>',
+			LANG_CHARSET_CODE
+		);
+		echo DevblocksPlatform::purifyHTML($output, true);
+		echo '</body></html>';
 	}
 	
 	function replyAction() {
@@ -524,6 +534,11 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(isset($custom_field_values[$ticket->id]))
 			$tpl->assign('custom_field_values', $custom_field_values[$ticket->id]);
 		
+		// HTML templates
+		
+		$html_templates = DAO_MailHtmlTemplate::getAll();
+		$tpl->assign('html_templates', $html_templates);
+		
 		// VA macros
 		
 		// [TODO] Filter by $ticket->group_id
@@ -584,6 +599,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			'subject' => DevblocksPlatform::importGPC(@$_REQUEST['subject'],'string'),
 			'content' => DevblocksPlatform::importGPC(@$_REQUEST['content']),
 			'content_format' => DevblocksPlatform::importGPC(@$_REQUEST['format'],'string',''),
+			'html_template_id' => DevblocksPlatform::importGPC(@$_REQUEST['html_template_id'],'integer',0),
 			'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
 			'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
 			'owner_id' => DevblocksPlatform::importGPC(@$_REQUEST['owner_id'],'integer',0),

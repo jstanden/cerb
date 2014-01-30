@@ -379,19 +379,45 @@
 		var markitupPlaintextSettings = $.extend(true, { }, markitupPlaintextDefaults);
 		var markitupParsedownSettings = $.extend(true, { }, markitupParsedownDefaults);
 		
-		markitupPlaintextSettings.markupSet.unshift(
-			{ name:'Switch to Markdown', openWith: 
-				function(markItUp) { 
-					var $editor = $(markItUp.textarea);
-					$editor.markItUpRemove().markItUp(markitupParsedownSettings);
-					{if empty($mail_reply_textbox_size_inelastic)}
-					$editor.elastic();
-					{/if}
-					$editor.closest('form').find('input:hidden[name=format]').val('parsedown');
-				},
-				key: 'H',
-				className:'parsedown'
+		var markitupReplyFunctions = {
+			switchToMarkdown: function(markItUp) { 
+				$content.markItUpRemove().markItUp(markitupParsedownSettings);
+				{if empty($mail_reply_textbox_size_inelastic)}
+				$content.elastic();
+				{/if}
+				$content.closest('form').find('input:hidden[name=format]').val('parsedown');
+
+				// Template chooser
+				
+				var $ul = $content.closest('.markItUpContainer').find('.markItUpHeader UL');
+				var $li = $('<li style="margin-left:10px;"></li>');
+				
+				var $select = $('<select name="html_template_id"></select>');
+				$select.append($('<option value="0"> - {'common.default'|devblocks_translate|lower|escape:'javascript'} -</option>'));
+				
+				{foreach from=$html_templates item=html_template}
+				var $option = $('<option value="{$html_template->id}">{$html_template->name|escape:'javascript'}</option>');
+				{if $draft && $draft->params.html_template_id == $html_template->id}
+				$option.attr('selected', 'selected');
+				{/if}
+				$select.append($option);
+				{/foreach}
+				
+				$li.append($select);
+				$ul.append($li);
+			},
+			
+			switchToPlaintext: function(markItUp) { 
+				$content.markItUpRemove().markItUp(markitupPlaintextSettings);
+				{if empty($mail_reply_textbox_size_inelastic)}
+				$content.elastic();
+				{/if}
+				$content.closest('form').find('input:hidden[name=format]').val('');
 			}
+		};
+		
+		markitupPlaintextSettings.markupSet.unshift(
+			{ name:'Switch to Markdown', openWith: markitupReplyFunctions.switchToMarkdown, key: 'H', className:'parsedown' }
 		);
 		
 		markitupParsedownSettings.previewParser = function(content) {
@@ -411,18 +437,7 @@
 		};
 		
 		markitupParsedownSettings.markupSet.unshift(
-			{ name:'Switch to Plaintext', openWith: 
-				function(markItUp) { 
-					var $editor = $(markItUp.textarea);
-					$editor.markItUpRemove().markItUp(markitupPlaintextSettings);
-					{if empty($mail_reply_textbox_size_inelastic)}
-					$editor.elastic();
-					{/if}
-					$editor.closest('form').find('input:hidden[name=format]').val('');
-				},
-				key: 'H',
-				className:'plaintext'
-			},
+			{ name:'Switch to Plaintext', openWith: markitupReplyFunctions.switchToPlaintext, key: 'H', className:'plaintext' },
 			{ separator:'---------------' }
 		);
 		
@@ -447,10 +462,10 @@
 		);
 		
 		try {
-			{if ($draft && $draft->params.format == 'parsedown') || $mail_reply_html}
-			$content.markItUp(markitupParsedownSettings);
-			{else}
 			$content.markItUp(markitupPlaintextSettings);
+			
+			{if ($draft && $draft->params.format == 'parsedown') || $mail_reply_html}
+			markitupReplyFunctions.switchToMarkdown();
 			{/if}
 			
 		} catch(e) {
