@@ -49,10 +49,7 @@
 	</table>
 	
 <textarea name="content" style="width:98%;height:200px;border:1px solid rgb(180,180,180);padding:2px;" spellcheck="false">
-{if $model->content}
-{$model->content}
-{else}
-&lt;div id="body"&gt;
+{if $model->content}{$model->content}{else}&lt;div id="body"&gt;
 {literal}{{message_body}}{/literal}
 &lt;/div&gt;
 
