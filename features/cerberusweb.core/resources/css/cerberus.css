@@ -12,7 +12,7 @@ optgroup {
 }
 
 a {
-	color: rgb(80, 80, 80);
+	color: rgb(34, 34, 34);
 }
 
 a.no-underline {
@@ -1585,6 +1585,7 @@ span.plugin_icon_overlay_disabled {
 }
 
 .ui-widget-content { background: #ffffff none; } /* #fcfdfd none; */
+.ui-widget-content a { color: inherit; }
 .ui-widget-header { background: #5c9ccc none; }
 .ui-state-default, .ui-widget-content .ui-state-default { background: rgb(232,242,254) none; font-weight: normal; }
 .ui-state-hover, .ui-widget-content .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus { background: #d0e5f5 none; }
