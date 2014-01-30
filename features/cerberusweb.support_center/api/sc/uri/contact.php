@@ -372,15 +372,19 @@ class UmScContactController extends Extension_UmScController {
 			// field[]
 			if(is_array($files['name'])) {
 				foreach($files['name'] as $idx => $name) {
+					$mime_type = @$files['type'][$idx] ?: 'application/octet-stream';
+					
 					$attach = new ParserFile();
-					$attach->setTempFile($files['tmp_name'][$idx],'application/octet-stream');
+					$attach->setTempFile($files['tmp_name'][$idx],$mime_type);
 					$attach->file_size = filesize($files['tmp_name'][$idx]);
 					$message->files[$name] = $attach;
 				}
 				
 			} else {
+				@$mime_type = $files['type'] ?: 'application/octet-stream';
+				
 				$attach = new ParserFile();
-				$attach->setTempFile($files['tmp_name'],'application/octet-stream');
+				$attach->setTempFile($files['tmp_name'], $mime_type);
 				$attach->file_size = filesize($files['tmp_name']);
 				$message->files[$files['name']] = $attach;
 			}
