@@ -1430,10 +1430,19 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				
 			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
 				$member = DAO_Worker::get($param->value);
+				$all_groups = DAO_Group::getAll();
 				$roster = $member->getMemberships();
 				
 				if(empty($roster))
 					$roster = array(0 => 0);
+				
+				$restricted_groups = array_diff(array_keys($all_groups), array_keys($roster));
+				
+				// If the worker is in every group, ignore this filter entirely
+				if(empty($restricted_groups))
+					break;
+				
+				// [TODO] If the worker is in most of the groups, possibly try a NOT IN instead
 				
 				$args['where_sql'] .= sprintf("AND t.group_id IN (%s) ", implode(',', array_keys($roster)));
 				break;
