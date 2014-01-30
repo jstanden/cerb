@@ -1118,6 +1118,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Broadcast
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, null, $token_labels, $token_values);
 		
+		// HTML templates
+		$html_templates = DAO_MailHtmlTemplate::getAll();
+		$tpl->assign('html_templates', $html_templates);
+		
 		// Signature
 		$translate = DevblocksPlatform::getTranslationService();
 		$token_labels['signature'] = mb_convert_case($translate->_('common.signature'), MB_CASE_TITLE);
@@ -1243,6 +1247,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			@$do_broadcast = DevblocksPlatform::importGPC($_REQUEST['do_broadcast'],'string',null);
 			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
 			@$broadcast_format = DevblocksPlatform::importGPC($_REQUEST['broadcast_format'],'string',null);
+			@$broadcast_html_template_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_html_template_id'],'integer',0);
 			@$broadcast_file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['broadcast_file_ids'],'array',array()), 'integer', array('nonzero','unique'));
 			@$broadcast_is_queued = DevblocksPlatform::importGPC($_REQUEST['broadcast_is_queued'],'integer',0);
 			
@@ -1250,6 +1255,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				$do['broadcast'] = array(
 					'message' => $broadcast_message,
 					'format' => $broadcast_format,
+					'html_template_id' => $broadcast_html_template_id,
 					'is_queued' => $broadcast_is_queued,
 					'file_ids' => $broadcast_file_ids,
 					'worker_id' => $active_worker->id,
@@ -1308,6 +1314,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		if($active_worker->hasPriv('core.ticket.view.actions.broadcast_reply')) {
 			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
 			@$broadcast_format = DevblocksPlatform::importGPC($_REQUEST['broadcast_format'],'string',null);
+			@$broadcast_html_template_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_html_template_id'],'integer',0);
 
 			@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 			@$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'string','');
@@ -1356,11 +1363,20 @@ class ChTicketsPage extends CerberusPageExtension {
 							$output = DevblocksPlatform::parseMarkdown($output, true);
 							
 							// HTML Template
-							if(false != ($group = DAO_Group::get($token_values['group_id']))) {
-								if(false != ($html_template = $group->getReplyHtmlTemplate($token_values['bucket_id']))) {
-									$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
-								}
-							}
+							
+							$html_template = null;
+							
+							if($broadcast_html_template_id)
+								$html_template = DAO_MailHtmlTemplate::get($broadcast_html_template_id);
+							
+							if(!$html_template && false != ($group = DAO_Group::get($token_values['group_id'])))
+								$html_template = $group->getReplyHtmlTemplate($token_values['bucket_id']);
+							
+							if(!$html_template && false != ($replyto = DAO_AddressOutgoing::getDefault()))
+								$html_template = $replyto->getReplyHtmlTemplate();
+							
+							if($html_template)
+								$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
 							
 							// HTML Purify
 							$output = DevblocksPlatform::purifyHTML($output, true);

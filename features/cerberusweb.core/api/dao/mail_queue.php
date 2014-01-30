@@ -373,6 +373,9 @@ class Model_MailQueue {
 
 		if(isset($this->params['format']))
 			$properties['content_format'] = $this->params['format'];
+		
+		if(isset($this->params['html_template_id']))
+			$properties['html_template_id'] = intval($this->params['html_template_id']);
 			
 		// Next action
 		$properties['closed'] = isset($this->params['next_is_closed']) ? intval($this->params['next_is_closed']) : 0;
@@ -456,6 +459,9 @@ class Model_MailQueue {
 
 		if(isset($this->params['format']))
 			$properties['content_format'] = $this->params['format'];
+		
+		if(isset($this->params['html_template_id']))
+			$properties['html_template_id'] = intval($this->params['html_template_id']);
 		
 		// Worker
 		$properties['worker_id'] = !empty($this->worker_id) ? $this->worker_id : 0;
