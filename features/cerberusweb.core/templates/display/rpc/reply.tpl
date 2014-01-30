@@ -263,27 +263,27 @@
 							{if $active_worker->hasPriv('core.ticket.actions.move')}
 							<b>{'display.reply.next.move'|devblocks_translate}</b>
 							<br>
-							<select name="bucket_id">
-								{$ticket_group_id = $ticket->group_id}
-								{$ticket_bucket_id = $ticket->bucket_id}
-								<option value="">-- No, leave it in the <b>{if $ticket_bucket_id}{$group_buckets.{$ticket_group_id}.{$ticket_bucket_id}->name} bucket{else}{'common.inbox'|devblocks_translate|lower}{/if}</b> of <b>{$groups.{$ticket_group_id}->name}</b> --</option>
-								{if empty($ticket->bucket_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
-								<optgroup label="{'common.inboxes'|devblocks_translate|capitalize}">
-								{foreach from=$groups item=group}
-									<option value="t{$group->id}" {if $draft->params.bucket_id=="t{$group->id}"}selected="selected"{/if}>{$group->name}{if $t_or_c=='t' && $ticket->group_id==$group->id} {'display.reply.next.move.current'|devblocks_translate}{/if}</option>
+							
+							<select name="group_id">
+								{foreach from=$groups item=group key=group_id}
+								<option value="{$group_id}" {if $active_worker->isGroupMember($group_id)}member="true"{/if} {if $ticket->group_id == $group_id}selected="selected"{/if}>{$group->name}</option>
 								{/foreach}
-								</optgroup>
-								{foreach from=$group_buckets item=buckets key=groupId}
-									{assign var=group value=$groups.$groupId}
-									{if !empty($active_worker_memberships.$groupId)}
-										<optgroup label="-- {$group->name} --">
-										{foreach from=$buckets item=bucket}
-											<option value="c{$bucket->id}" {if $draft->params.bucket_id=="c{$bucket->id}"}selected="selected"{/if}>{$bucket->name}{if $t_or_c=='c' && $ticket->bucket_id==$bucket->id} {'display.reply.next.move.current'|devblocks_translate}{/if}</option>
-										{/foreach}
-										</optgroup>
+							</select>
+							<select class="ticket-reply-bucket-options" style="display:none;">
+								<option value="0" group_id="*">{'common.inbox'|devblocks_translate|capitalize}</option>
+								{foreach from=$buckets item=bucket key=bucket_id}
+								<option value="{$bucket_id}" group_id="{$bucket->group_id}">{$bucket->name}</option>
+								{/foreach}
+							</select>
+							<select name="bucket_id">
+								<option value="0">{'common.inbox'|devblocks_translate|capitalize}</option>
+								{foreach from=$buckets item=bucket key=bucket_id}
+									{if $bucket->group_id == $ticket->group_id}
+									<option value="{$bucket_id}" {if $ticket->bucket_id == $bucket_id}selected="selected"{/if}>{$bucket->name}</option>
 									{/if}
 								{/foreach}
-							</select><br>
+							</select>
+							<br>
 							<br>
 							{/if}
 							
@@ -370,6 +370,25 @@
 		
 		$frm.find('input:text[name=to], input:text[name=cc], input:text[name=bcc]').focus(function(event) {
 			$('#reply{$message->id}_suggested').appendTo($(this).closest('td'));
+		});
+		
+		// Group and bucket
+		
+		$frm2.find('select[name=group_id]').on('change', function(e) {
+			var $select = $(this);
+			var group_id = $select.val();
+			var $bucket_options = $select.siblings('select.ticket-reply-bucket-options').find('option')
+			var $bucket = $select.siblings('select[name=bucket_id]');
+			
+			$bucket.children().remove();
+			
+			$bucket_options.each(function() {
+				var parent_id = $(this).attr('group_id');
+				if(parent_id == '*' || parent_id == group_id)
+					$(this).clone().appendTo($bucket);
+			});
+			
+			$bucket.focus();
 		});
 		
 		var $content = $('#reply_{$message->id}');
@@ -722,7 +741,7 @@
 							case 79: // open
 								$radio.filter('.status_open').click();
 								$reply_status
-									.find('select[name=bucket_id]')
+									.find('select[name=group_id]')
 										.select()
 										.focus()
 									;

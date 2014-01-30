@@ -551,6 +551,7 @@ class CerberusMail {
 		'files'
 		'closed'
 		'ticket_reopen'
+		'group_id'
 		'bucket_id'
 		'owner_id'
 		'worker_id'
@@ -1003,11 +1004,23 @@ class CerberusMail {
 		}
 
 		// Move
-		if(!empty($properties['bucket_id'])) {
-			// [TODO] Use API to move, or fire event
-			list($group_id, $bucket_id) = CerberusApplication::translateGroupBucketCode($properties['bucket_id']);
-			$change_fields[DAO_Ticket::GROUP_ID] = $group_id;
-			$change_fields[DAO_Ticket::BUCKET_ID] = $bucket_id;
+		if(isset($properties['group_id']) || isset($properties['bucket_id'])) {
+			@$move_to_group_id = intval($properties['group_id']);
+			@$move_to_bucket_id = intval($properties['bucket_id']);
+			
+			// Move to the new group if it exists
+			if($move_to_group_id && false != ($move_to_group = DAO_Group::get($move_to_group_id)))
+				$change_fields[DAO_Ticket::GROUP_ID] = $move_to_group_id;
+			
+			// Move to the new bucket if it is an inbox, or it belongs to the group
+			if(
+				empty($move_to_bucket_id)
+				|| (
+					false != ($move_to_bucket = DAO_Bucket::get($move_to_bucket_id))
+					&& $move_to_bucket->group_id == $move_to_group_id
+					)
+				)
+				$change_fields[DAO_Ticket::BUCKET_ID] = $move_to_bucket_id;
 		}
 			
 		if(!empty($ticket_id) && !empty($change_fields)) {

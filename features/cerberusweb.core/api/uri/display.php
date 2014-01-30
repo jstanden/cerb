@@ -507,9 +507,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
-		$group_buckets = DAO_Bucket::getGroups();
-		$tpl->assign('group_buckets', $group_buckets);
-
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
+		
 		if(null != $active_worker) {
 			// Signatures
 			@$ticket_group = $groups[$ticket->group_id]; /* @var $ticket_group Model_Group */
@@ -601,7 +601,8 @@ class ChDisplayPage extends CerberusPageExtension {
 			'content_format' => DevblocksPlatform::importGPC(@$_REQUEST['format'],'string',''),
 			'html_template_id' => DevblocksPlatform::importGPC(@$_REQUEST['html_template_id'],'integer',0),
 			'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
-			'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
+			'group_id' => DevblocksPlatform::importGPC(@$_REQUEST['group_id'],'integer',0),
+			'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'integer',0),
 			'owner_id' => DevblocksPlatform::importGPC(@$_REQUEST['owner_id'],'integer',0),
 			'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
 			'worker_id' => @$worker->id,
