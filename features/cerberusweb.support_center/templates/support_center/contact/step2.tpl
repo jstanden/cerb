@@ -108,7 +108,7 @@
 		{if 0==$attachments_mode || (1==$attachments_mode && !empty($active_contact))}
 		<fieldset>
 			<legend>Attachments:</legend>
-			<input type="file" name="attachments[]" class="multi"><br>
+			<input type="file" name="attachments[]" multiple="multiple"><br>
 		</fieldset>
 		{/if}
 		
