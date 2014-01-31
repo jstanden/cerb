@@ -21,7 +21,7 @@ class DAO_ContextLink {
 	const TO_CONTEXT = 'to_context';
 	const TO_CONTEXT_ID = 'to_context_id';
 
-	static public function setLink($src_context, $src_context_id, $dst_context, $dst_context_id) {
+	static public function setLink($src_context, $src_context_id, $dst_context, $dst_context_id, $src_context_meta=null, $dst_context_meta=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$event = DevblocksPlatform::getEventService();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -33,8 +33,12 @@ class DAO_ContextLink {
 		
 		$ext_src_context = DevblocksPlatform::getExtension($src_context, true); /* @var $context Extension_DevblocksContext */
 		$ext_dst_context = DevblocksPlatform::getExtension($dst_context, true); /* @var $context Extension_DevblocksContext */
-		$meta_src_context = $ext_src_context->getMeta($src_context_id);
-		$meta_dst_context = $ext_dst_context->getMeta($dst_context_id);
+		
+		if(false == $src_context_meta)
+			@$src_context_meta = $ext_src_context->getMeta($src_context_id);
+		
+		if(false == $dst_context_meta)
+			@$dst_context_meta = $ext_dst_context->getMeta($dst_context_id);
 		
 		// [TODO] Verify contexts on both sides prior to linking, or return false
 		
@@ -101,10 +105,10 @@ class DAO_ContextLink {
 					'message' => 'activities.watcher.follow',
 					'variables' => array(
 						'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
-						'target' => $meta_src_context['name'],
+						'target' => $src_context_meta['name'],
 						),
 					'urls' => array(
-						'target' => sprintf("ctx://%s:%d/%s", $src_context, $src_context_id, DevblocksPlatform::strToPermalink($meta_src_context['name'])),
+						'target' => sprintf("ctx://%s:%d/%s", $src_context, $src_context_id, DevblocksPlatform::strToPermalink($src_context_meta['name'])),
 						)
 				);
 				CerberusContexts::logActivity('watcher.follow', $src_context, $src_context_id, $entry);
@@ -117,10 +121,10 @@ class DAO_ContextLink {
 					'variables' => array(
 						'watcher' => $watcher_worker->getName(),
 						'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
-						'target' => $meta_src_context['name'],
+						'target' => $src_context_meta['name'],
 						),
 					'urls' => array(
-						'target' => sprintf("ctx://%s:%d/%s", $src_context, $src_context_id, DevblocksPlatform::strToPermalink($meta_src_context['name'])),
+						'target' => sprintf("ctx://%s:%d/%s", $src_context, $src_context_id, DevblocksPlatform::strToPermalink($src_context_meta['name'])),
 						'watcher' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_WORKER, $watcher_worker->id, DevblocksPlatform::strToPermalink($watcher_worker->getName())),
 						)
 				);
@@ -134,13 +138,13 @@ class DAO_ContextLink {
 				'message' => 'activities.connection.link',
 				'variables' => array(
 					'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
-					'target' => $meta_src_context['name'],
+					'target' => $src_context_meta['name'],
 					'link_object' => mb_convert_case($ext_dst_context->manifest->name, MB_CASE_LOWER),
-					'link' => $meta_dst_context['name'],
+					'link' => $dst_context_meta['name'],
 					),
 				'urls' => array(
-					'target' => sprintf("ctx://%s:%d/%s", $src_context, $src_context_id, DevblocksPlatform::strToPermalink($meta_src_context['name'])),
-					'link' => sprintf("ctx://%s:%d/%s", $dst_context, $dst_context_id, DevblocksPlatform::strToPermalink($meta_dst_context['name'])),
+					'target' => sprintf("ctx://%s:%d/%s", $src_context, $src_context_id, DevblocksPlatform::strToPermalink($src_context_meta['name'])),
+					'link' => sprintf("ctx://%s:%d/%s", $dst_context, $dst_context_id, DevblocksPlatform::strToPermalink($dst_context_meta['name'])),
 					)
 			);
 			CerberusContexts::logActivity('connection.link', $src_context, $src_context_id, $entry);
@@ -150,13 +154,13 @@ class DAO_ContextLink {
 				'message' => 'activities.connection.link',
 				'variables' => array(
 					'target_object' => mb_convert_case($ext_dst_context->manifest->name, MB_CASE_LOWER),
-					'target' => $meta_dst_context['name'],
+					'target' => $dst_context_meta['name'],
 					'link_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
-					'link' => $meta_src_context['name'],
+					'link' => $src_context_meta['name'],
 					),
 				'urls' => array(
-					'target' => sprintf("ctx://%s:%d/%s", $dst_context, $dst_context_id, DevblocksPlatform::strToPermalink($meta_dst_context['name'])),
-					'link' => sprintf("ctx://%s:%d/%s", $src_context, $src_context_id, DevblocksPlatform::strToPermalink($meta_src_context['name'])),
+					'target' => sprintf("ctx://%s:%d/%s", $dst_context, $dst_context_id, DevblocksPlatform::strToPermalink($dst_context_meta['name'])),
+					'link' => sprintf("ctx://%s:%d/%s", $src_context, $src_context_id, DevblocksPlatform::strToPermalink($src_context_meta['name'])),
 					)
 			);
 			CerberusContexts::logActivity('connection.link', $dst_context, $dst_context_id, $entry);
@@ -426,14 +430,18 @@ class DAO_ContextLink {
 		$db->Execute($sql);
 	}
 	
-	static public function deleteLink($src_context, $src_context_id, $dst_context, $dst_context_id) {
+	static public function deleteLink($src_context, $src_context_id, $dst_context, $dst_context_id, $src_context_meta=null, $dst_context_meta=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$ext_src_context = DevblocksPlatform::getExtension($src_context, true); /* @var $context Extension_DevblocksContext */
 		$ext_dst_context = DevblocksPlatform::getExtension($dst_context, true); /* @var $context Extension_DevblocksContext */
-		$meta_src_context = $ext_src_context->getMeta($src_context_id);
-		$meta_dst_context = $ext_dst_context->getMeta($dst_context_id);
+		
+		if(false == $src_context_meta)
+			@$src_context_meta = $ext_src_context->getMeta($src_context_id);
+		
+		if(false == $dst_context_meta)
+			@$dst_context_meta = $ext_dst_context->getMeta($dst_context_id);
 		
 		/*
 		 * Delete from source side
@@ -471,7 +479,7 @@ class DAO_ContextLink {
 					'message' => 'activities.watcher.unfollow',
 					'variables' => array(
 						'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
-						'target' => $meta_src_context['name'],
+						'target' => $src_context_meta['name'],
 						),
 					'urls' => array(
 						'target' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
@@ -487,7 +495,7 @@ class DAO_ContextLink {
 					'variables' => array(
 						'watcher' => $watcher_worker->getName(),
 						'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
-						'target' => $meta_src_context['name'],
+						'target' => $src_context_meta['name'],
 						),
 					'urls' => array(
 						'target' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
@@ -504,9 +512,9 @@ class DAO_ContextLink {
 				'message' => 'activities.connection.unlink',
 				'variables' => array(
 					'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
-					'target' => $meta_src_context['name'],
+					'target' => $src_context_meta['name'],
 					'link_object' => mb_convert_case($ext_dst_context->manifest->name, MB_CASE_LOWER),
-					'link' => $meta_dst_context['name'],
+					'link' => $dst_context_meta['name'],
 					),
 				'urls' => array(
 					'target' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
@@ -520,9 +528,9 @@ class DAO_ContextLink {
 				'message' => 'activities.connection.unlink',
 				'variables' => array(
 					'target_object' => mb_convert_case($ext_dst_context->manifest->name, MB_CASE_LOWER),
-					'target' => $meta_dst_context['name'],
+					'target' => $dst_context_meta['name'],
 					'link_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
-					'link' => $meta_src_context['name'],
+					'link' => $src_context_meta['name'],
 					),
 				'urls' => array(
 					'target' => sprintf("ctx://%s:%d", $dst_context, $dst_context_id),
