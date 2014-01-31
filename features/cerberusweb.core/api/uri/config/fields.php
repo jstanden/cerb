@@ -137,7 +137,7 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 					$fields[DAO_CustomField::PARAMS_JSON] = json_encode(array());
 				
 				// Handle moves to fieldset
-				$move_to_fieldset_id = DevblocksPlatform::importGPC($_POST['move_to_fieldset_id'],'integer',0);
+				@$move_to_fieldset_id = DevblocksPlatform::importGPC($_POST['move_to_fieldset_id'],'integer',0);
 				
 				if($submit == 'move' && $move_to_fieldset_id && in_array($id, $selected)) {
 					$fields[DAO_CustomField::CUSTOM_FIELDSET_ID] = $move_to_fieldset_id;
