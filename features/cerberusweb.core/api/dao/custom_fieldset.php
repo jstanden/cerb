@@ -251,9 +251,14 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		return true;
 	}
 	
-	static function deleteByOwner($owner_context, $owner_context_id) {
-		$fieldsets = DAO_CustomFieldset::getByOwner($owner_context, $owner_context_id);
-		DAO_CustomFieldset::delete(array_keys($fieldsets));
+	static function deleteByOwner($owner_context, $owner_context_ids) {
+		if(!is_array($owner_context_ids))
+			$owner_context_ids = array($owner_context_ids);
+		
+		foreach($owner_context_ids as $owner_context_id) {
+			$fieldsets = DAO_CustomFieldset::getByOwner($owner_context, $owner_context_id);
+			DAO_CustomFieldset::delete(array_keys($fieldsets));
+		}
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
