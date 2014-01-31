@@ -434,7 +434,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 	 *
 	 * @param array $array
 	 */
-	protected function success($array) {
+	protected function success($array=array()) {
 		if(!is_array($array))
 			return false;
 
