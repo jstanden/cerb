@@ -121,7 +121,7 @@
 <div id="{$status_div}" style="display:none;"></div>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('node_outcome{$id}');
+	var $popup = genericAjaxPopupFetch('node_outcome{$id}');
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{if empty($id)}New {/if}Outcome");
 		$(this).find('input:text').first().focus();
@@ -135,7 +135,7 @@
 			;
 
 		var $funcGroupAnyToggle = function(e) {
-			$any = $(this).closest('fieldset').find('input:hidden:first');
+			var $any = $(this).closest('fieldset').find('input:hidden:first');
 			
 			if("any" == $any.val()) {
 				$(this).html("all&#x25be;");
@@ -149,16 +149,16 @@
 		$legend.find('a').click($funcGroupAnyToggle);
 
 		$popup.find('BUTTON.chooser_worker.unbound').each(function() {
-			seq = $(this).closest('fieldset').find('input:hidden[name="conditions[]"]').val();
+			var seq = $(this).closest('fieldset').find('input:hidden[name="conditions[]"]').val();
 			ajax.chooser(this,'cerberusweb.contexts.worker','condition'+seq+'[worker_id]', { autocomplete:true });
 			$(this).removeClass('unbound');
 		});
 
-		$frmAdd = $popup.find('#frmDecisionOutcomeAdd{$id}');
+		var $frmAdd = $popup.find('#frmDecisionOutcomeAdd{$id}');
 
 		$frmAdd.find('button.group')
 			.click(function(e) {
-				$group = $('<fieldset></fieldset>');
+				var $group = $('<fieldset></fieldset>');
 				$group.append('<legend>If <a href="javascript:;">all&#x25be;</a> of these conditions are satisfied <a href="javascript:;" onclick="$(this).closest(\'fieldset\').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></a></legend>');
 				$group.append('<input type="hidden" name="nodes[]" value="all">');
 				$group.append('<ul class="rules" style="margin:0px;list-style:none;padding:0px;padding-bottom:5px;"></ul>');
@@ -174,8 +174,8 @@
 		// Placeholders
 		
 		$popup.delegate(':text.placeholders, textarea.placeholders', 'focus', function(e) {
-			$toolbar = $('#divDecisionOutcomeToolbar{$id}');
-			src = (null==e.srcElement) ? e.target : e.srcElement;
+			var $toolbar = $('#divDecisionOutcomeToolbar{$id}');
+			var src = (null==e.srcElement) ? e.target : e.srcElement;
 			if(0 == $(src).nextAll('#divDecisionOutcomeToolbar{$id}').length) {
 				$toolbar.find('div.tester').html('');
 				$toolbar.find('ul.cerb-popupmenu').hide();
@@ -185,29 +185,29 @@
 		
 		// Placeholder menu
 		
-		$divPlaceholderMenu = $('#divDecisionOutcomeToolbar{$id}');
+		var $divPlaceholderMenu = $('#divDecisionOutcomeToolbar{$id}');
 		
-		$ph_menu_trigger = $divPlaceholderMenu.find('button.cerb-popupmenu-trigger');
-		$ph_menu = $divPlaceholderMenu.find('ul.cerb-popupmenu');
+		var $ph_menu_trigger = $divPlaceholderMenu.find('button.cerb-popupmenu-trigger');
+		var $ph_menu = $divPlaceholderMenu.find('ul.cerb-popupmenu');
 		$ph_menu_trigger.data('menu', $ph_menu);
 		
 		$divPlaceholderMenu.find('button.tester').click(function(e) {
 			var divTester = $(this).nextAll('div.tester').first();
 			
-			$toolbar = $('DIV#divDecisionOutcomeToolbar{$id}');
-			$field = $toolbar.prev(':text, textarea');
+			var $toolbar = $('DIV#divDecisionOutcomeToolbar{$id}');
+			var $field = $toolbar.prev(':text, textarea');
 			
 			if(null == $field)
 				return;
 			
-			regexpName = /^(.*?)\[(.*?)\]$/;
-			hits = regexpName.exec($field.attr('name'));
+			var regexpName = /^(.*?)\[(.*?)\]$/;
+			var hits = regexpName.exec($field.attr('name'));
 			
 			if(null == hits || hits.length < 3)
 				return;
 			
-			strNamespace = hits[1];
-			strName = hits[2];
+			var strNamespace = hits[1];
+			var strName = hits[2];
 			
 			genericAjaxPost($(this).closest('form').attr('id'), divTester, 'c=internal&a=testDecisionEventSnippets&prefix=' + strNamespace + '&field=' + strName);
 		});
@@ -215,7 +215,7 @@
 		$ph_menu_trigger
 			.click(
 				function(e) {
-					$ph_menu = $(this).data('menu');
+					var $ph_menu = $(this).data('menu');
 					
 					if($ph_menu.is(':visible')) {
 						$ph_menu.hide();
@@ -232,7 +232,7 @@
 			)
 			.bind('remove',
 				function(e) {
-					$ph_menu = $(this).data('menu');
+					var $ph_menu = $(this).data('menu');
 					$ph_menu.remove();
 				}
 			)
@@ -240,8 +240,8 @@
 		
 		$ph_menu.find('> li > input.filter').keyup(
 			function(e) {
-				term = $(this).val().toLowerCase();
-				$ph_menu = $(this).closest('ul.cerb-popupmenu');
+				var term = $(this).val().toLowerCase();
+				var $ph_menu = $(this).closest('ul.cerb-popupmenu');
 				$ph_menu.find('> li a').each(function(e) {
 					if(-1 != $(this).html().toLowerCase().indexOf(term)) {
 						$(this).parent().show();
@@ -261,27 +261,27 @@
 		});
 		
 		$ph_menu.find('> li > a').click(function() {
-			$toolbar = $('DIV#divDecisionOutcomeToolbar{$id}');
-			$field = $toolbar.prev(':text, textarea');
+			var $toolbar = $('DIV#divDecisionOutcomeToolbar{$id}');
+			var $field = $toolbar.prev(':text, textarea');
 			
 			if(null == $field)
 				return;
 			
-			strtoken = $(this).attr('token');
+			var strtoken = $(this).attr('token');
 			
 			$field.focus().insertAtCursor('{literal}{{{/literal}' + strtoken + '{literal}}}{/literal}');
 		});
 
 		// Quick insert condition menu
 
-		$menu_trigger = $frmAdd.find('button.condition.cerb-popupmenu-trigger');
-		$menu = $frmAdd.find('ul.cerb-popupmenu');
+		var $menu_trigger = $frmAdd.find('button.condition.cerb-popupmenu-trigger');
+		var $menu = $frmAdd.find('ul.cerb-popupmenu');
 		$menu_trigger.data('menu', $menu);
 
 		$menu_trigger
 			.click(
 				function(e) {
-					$menu = $(this).data('menu');
+					var $menu = $(this).data('menu');
 
 					if($menu.is(':visible')) {
 						$menu.hide();
@@ -300,8 +300,8 @@
 
 		$menu.find('> li > input.filter').keyup(
 			function(e) {
-				term = $(this).val().toLowerCase();
-				$menu = $(this).closest('ul.cerb-popupmenu');
+				var term = $(this).val().toLowerCase();
+				var $menu = $(this).closest('ul.cerb-popupmenu');
 				$menu.find('> li a').each(function(e) {
 					if(-1 != $(this).html().toLowerCase().indexOf(term)) {
 						$(this).parent().show();
@@ -321,21 +321,21 @@
 		});
 
 		$menu.find('> li > a').click(function() {
-			token = $(this).attr('token');
-			$frmDecAdd = $('#frmDecisionOutcomeAdd{$id}');
+			var token = $(this).attr('token');
+			var $frmDecAdd = $('#frmDecisionOutcomeAdd{$id}');
 			$frmDecAdd.find('input[name=condition]').val(token);
-			$this = $(this);
+			var $this = $(this);
 			
 			genericAjaxPost('frmDecisionOutcomeAdd{$id}','','c=internal&a=doDecisionAddCondition',function(html) {
-				$ul = $('#frmDecisionOutcome{$id} UL.rules:last');
+				var $ul = $('#frmDecisionOutcome{$id} UL.rules:last');
 				
-				seq = parseInt($frmDecAdd.find('input[name=seq]').val());
+				var seq = parseInt($frmDecAdd.find('input[name=seq]').val());
 				if(null == seq)
 					seq = 0;
 
-				$html = $('<div style="margin-left:20px;">' + html + '</div>');
+				var $html = $('<div style="margin-left:20px;">' + html + '</div>');
 				
-				$container = $('<li style="padding-bottom:5px;" id="condition'+seq+'"></li>');
+				var $container = $('<li style="padding-bottom:5px;" id="condition'+seq+'"></li>');
 				$container.append('<input type="hidden" name="nodes[]" value="' + seq + '">');
 				$container.append('<input type="hidden" name="condition'+seq+'[condition]" value="' + token + '">');
 				$container.append('<a href="javascript:;" onclick="$(this).closest(\'li\').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></a> ');
@@ -351,6 +351,7 @@
 				
 				$menu.find('input:text:first').focus().select();
 
+				// [TODO] This can take too long to increment when packets are arriving quickly
 				$frmDecAdd.find('input[name=seq]').val(1+seq);
 			});
 		});

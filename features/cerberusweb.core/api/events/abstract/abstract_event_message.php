@@ -261,10 +261,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		$labels['sender_watcher_count'] = 'Message sender watcher count';
 		
 		$types['header'] = null;
-		$types['is_first'] = null;
-		$types['sender_is_worker'] = null;
-		$types['ticket_has_owner'] = null;
-		$types['ticket_watcher_count'] = null;
+		$types['is_first'] = Model_CustomField::TYPE_CHECKBOX;
+		$types['sender_is_worker'] = Model_CustomField::TYPE_CHECKBOX;
+		$types['ticket_has_owner'] = Model_CustomField::TYPE_CHECKBOX;
+		$types['ticket_watcher_count'] = Model_CustomField::TYPE_NUMBER;
 		
 		$types['group_id'] = null;
 		$types['group_and_bucket'] = null;
@@ -291,12 +291,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
-			case 'ticket_has_owner':
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_bool.tpl');
-				break;
-			case 'ticket_watcher_count':
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
-				break;
 			case 'ticket_spam_score':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_spam_score.tpl');
 				break;

@@ -3224,7 +3224,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$token_labels = array(
 			'_label' => $prefix,
 			'created' => $prefix.$translate->_('common.created'),
-			'id' => $prefix.$translate->_('ticket.id'),
+			'id' => $prefix.$translate->_('common.id'),
 			'mask' => $prefix.$translate->_('ticket.mask'),
 			'num_messages' => $prefix.$translate->_('ticket.num_messages'),
 			'elapsed_response_first' => $prefix.$translate->_('ticket.elapsed_response_first'),

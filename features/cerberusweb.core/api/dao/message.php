@@ -1915,7 +1915,7 @@ class Context_Message extends Extension_DevblocksContext {
 
 		CerberusContexts::merge(
 			'worker_',
-			'Message:Sender:Worker',
+			'Message:Sender:Worker:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,

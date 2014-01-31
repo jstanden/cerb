@@ -718,9 +718,15 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						case Model_CustomField::TYPE_MULTI_LINE:
 						case Model_CustomField::TYPE_SINGLE_LINE:
 						case Model_CustomField::TYPE_URL:
+						case 'phone':
 							return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_string.tpl');
 							break;
 						case Model_CustomField::TYPE_NUMBER:
+						//case 'percent':
+						case 'id':
+						case 'size_bytes':
+						case 'time_mins':
+						case 'time_secs':
 							return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
 							break;
 						case Model_CustomField::TYPE_DROPDOWN:
