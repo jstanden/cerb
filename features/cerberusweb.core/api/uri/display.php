@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -381,6 +381,43 @@ class ChDisplayPage extends CerberusPageExtension {
 		return $activities;
 	}
 	
+	function getReplyMarkdownPreviewAction() {
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
+		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
+		@$html_template_id = DevblocksPlatform::importGPC($_REQUEST['html_template_id'],'integer',0);
+
+		header("Content-Type: text/html; charset=" . LANG_CHARSET_CODE);
+
+		$output = DevblocksPlatform::parseMarkdown($content, true);
+		
+		$html_template = null;
+		
+		// Use an override template if given
+		if($html_template_id)
+			$html_template = DAO_MailHtmlTemplate::get($html_template_id);
+		
+		// Cascade to group/bucket template
+		if(!$html_template && false != ($group = DAO_Group::get($group_id)))
+			$html_template = $group->getReplyHtmlTemplate($bucket_id);
+		
+		// Cascade to default reply-to
+		if(!$html_template && false != ($replyto = DAO_AddressOutgoing::getDefault()))
+			$html_template = $replyto->getReplyHtmlTemplate();
+
+		// Wrap the reply in a template if we have one
+		if($html_template) {
+			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
+		}
+			
+		echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body>',
+			LANG_CHARSET_CODE
+		);
+		echo DevblocksPlatform::purifyHTML($output, true);
+		echo '</body></html>';
+	}
+	
 	function replyAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['forward'],'integer',0);
@@ -443,6 +480,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 
 		// Suggested recipients
+		
 		if(!$is_forward) {
 			$requesters = $ticket->getRequesters();
 			$tpl->assign('requesters', $requesters);
@@ -469,9 +507,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
-		$group_buckets = DAO_Bucket::getGroups();
-		$tpl->assign('group_buckets', $group_buckets);
-
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
+		
 		if(null != $active_worker) {
 			// Signatures
 			@$ticket_group = $groups[$ticket->group_id]; /* @var $ticket_group Model_Group */
@@ -495,6 +533,11 @@ class ChDisplayPage extends CerberusPageExtension {
 		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id);
 		if(isset($custom_field_values[$ticket->id]))
 			$tpl->assign('custom_field_values', $custom_field_values[$ticket->id]);
+		
+		// HTML templates
+		
+		$html_templates = DAO_MailHtmlTemplate::getAll();
+		$tpl->assign('html_templates', $html_templates);
 		
 		// VA macros
 		
@@ -555,8 +598,11 @@ class ChDisplayPage extends CerberusPageExtension {
 			'bcc' => DevblocksPlatform::importGPC(@$_REQUEST['bcc']),
 			'subject' => DevblocksPlatform::importGPC(@$_REQUEST['subject'],'string'),
 			'content' => DevblocksPlatform::importGPC(@$_REQUEST['content']),
+			'content_format' => DevblocksPlatform::importGPC(@$_REQUEST['format'],'string',''),
+			'html_template_id' => DevblocksPlatform::importGPC(@$_REQUEST['html_template_id'],'integer',0),
 			'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
-			'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
+			'group_id' => DevblocksPlatform::importGPC(@$_REQUEST['group_id'],'integer',0),
+			'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'integer',0),
 			'owner_id' => DevblocksPlatform::importGPC(@$_REQUEST['owner_id'],'integer',0),
 			'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
 			'worker_id' => @$worker->id,
@@ -750,6 +796,44 @@ class ChDisplayPage extends CerberusPageExtension {
 		} else {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket->mask)));
 		}
+	}
+	
+	function showRelayMessagePopupAction() {
+		@$message_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(false == ($message = DAO_Message::get($message_id)))
+			return;
+		
+		$tpl->assign('message', $message);
+		
+		if(false == ($ticket = DAO_Ticket::get($message->ticket_id)))
+			return;
+		
+		$tpl->assign('ticket', $ticket);
+		
+		if(false == ($sender = $message->getSender()))
+			return;
+		
+		$tpl->assign('sender', $sender);
+		
+		$workers_with_relays = DAO_AddressToWorker::getByWorkers();
+		$tpl->assign('workers_with_relays', $workers_with_relays);
+		
+		$tpl->display('devblocks:cerberusweb.core::display/rpc/relay_message.tpl');
+	}
+	
+	function saveRelayMessagePopupAction() {
+		@$message_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$emails = DevblocksPlatform::importGPC($_REQUEST['emails'],'array',array());
+		@$content = DevblocksPlatform::importGPC($_REQUEST['content'], 'string', '');
+		@$include_attachments = DevblocksPlatform::importGPC($_REQUEST['include_attachments'], 'integer', 0);
+
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		CerberusMail::relay($message_id, $emails, $include_attachments, $content, CerberusContexts::CONTEXT_WORKER, $active_worker->id);
 	}
 	
 	function showMacroReplyPopupAction() {
@@ -946,6 +1030,43 @@ class ChDisplayPage extends CerberusPageExtension {
 				}
 				$convo_timeline[$key] = array('d', $draft_id);
 			}
+		}
+		
+		// Inline activity log
+		
+		if(DAO_WorkerPref::get($active_worker->id, 'mail_display_inline_log', 0)) {
+			$activity_log = DAO_ContextActivityLog::getWhere(
+				sprintf("%s = %s AND %s = %d",
+					DAO_ContextActivityLog::TARGET_CONTEXT,
+					Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET),
+					DAO_ContextActivityLog::TARGET_CONTEXT_ID,
+					$ticket->id
+				),
+				DAO_ContextActivityLog::CREATED,
+				true
+			);
+			
+			$activity_log = array_filter($activity_log, function($entry) {
+				// Filter these events out
+				switch($entry->activity_point) {
+					case 'comment.create':
+					case 'ticket.message.outbound':
+					case 'ticket.message.inbound':
+						return false;
+						break;
+				}
+				
+				return true;
+			});
+			
+			if(!empty($activity_log)) {
+				foreach($activity_log as $activity_entry) { /* @var $activity_entry Model_ContextActivityLog */
+					$key = $activity_entry->created . '_l' . $activity_entry->id;
+					$convo_timeline[$key] = array('l', $activity_entry->id);
+				}
+			}
+			
+			$tpl->assign('activity_log', $activity_log);
 		}
 		
 		// sort the timeline

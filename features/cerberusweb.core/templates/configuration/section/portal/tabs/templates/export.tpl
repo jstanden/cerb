@@ -25,6 +25,6 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{'common.export'|devblocks_translate|capitalize}");
+		$(this).dialog('option','title',"{'common.export'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 	} );
 </script>

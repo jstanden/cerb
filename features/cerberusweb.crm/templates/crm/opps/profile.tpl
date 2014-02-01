@@ -114,7 +114,7 @@
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#oppTabs").tabs( { selected:{$selected_tab_idx} } );
+		var tabs = $("#oppTabs").tabs( { active:{$selected_tab_idx} } );
 		
 		$('#btnDisplayOppEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_OPPORTUNITY}&context_id={$page_context_id}',null,false,'550');
@@ -154,7 +154,7 @@ $(document).keypress(function(event) {
 			try {
 				idx = event.which-49;
 				$tabs = $("#oppTabs").tabs();
-				$tabs.tabs('select', idx);
+				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { } 
 			break;
 		case 97:  // (A) Email Peek

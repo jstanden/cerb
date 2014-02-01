@@ -164,13 +164,13 @@ class DevblocksEventHelper {
 				break;
 				
 			case Model_CustomField::TYPE_DROPDOWN:
-				$tpl->assign('options', $custom_field->options);
+				$tpl->assign('options', @$custom_field->params['options']);
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_dropdown.tpl');
 				$tpl->clearAssign('options');
 				break;
 				
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
-				$tpl->assign('options', $custom_field->options);
+				$tpl->assign('options', @$custom_field->params['options']);
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_multi_checkbox.tpl');
 				$tpl->clearAssign('options');
 				break;
@@ -2996,12 +2996,17 @@ class DevblocksEventHelper {
 		
 		$tpl->assign('placeholders', $placeholders);
 		
+		$html_templates = DAO_MailHtmlTemplate::getAll();
+		$tpl->assign('html_templates', $html_templates);
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_send_email.tpl');
 	}
 	
 	static function simulateActionSendEmail($params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 
+		// [TODO] Format (HTML template)
+		
 		@$trigger = $dict->_trigger;
 		@$to_vars = @$params['to_var'];
 		$to = array();
@@ -3187,12 +3192,28 @@ class DevblocksEventHelper {
 
 		// Properties
 		
-		$subject = $tpl_builder->build($params['subject'], $dict);
-		$content = $tpl_builder->build($params['content'], $dict);
+		@$subject = $tpl_builder->build($params['subject'], $dict);
+		@$content = $tpl_builder->build($params['content'], $dict);
+		@$format = $params['format'];
+		@$html_template_id = intval($params['html_template_id']);
 
 		// Headers
 		
 		@$headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['headers'], $dict));
+		
+		// Format
+		switch($format) {
+			case 'parsedown':
+				
+				// HTML template
+				
+				// Default to reply-to if empty
+				if(!$html_template_id && false != ($replyto = $replyto_addresses[$from_address_id])) {
+					$html_template = $replyto->getReplyHtmlTemplate();
+					$html_template_id = $html_template->id;
+				}
+				break;
+		}
 		
 		// Send
 		
@@ -3202,7 +3223,9 @@ class DevblocksEventHelper {
 			$content,
 			$replyto_addresses[$from_address_id]->email,
 			$replyto_addresses[$from_address_id]->reply_personal,
-			$headers
+			$headers,
+			$format,
+			$html_template_id
 		);
 	}
 	
@@ -3391,6 +3414,26 @@ class DevblocksEventHelper {
 				
 				$result = $mailer->send($mail);
 				unset($mail);
+				
+				/*
+				 * Log activity (ticket.message.relay)
+				 */
+				if($context == CerberusContexts::CONTEXT_TICKET) {
+					$entry = array(
+						//{{actor}} relayed ticket {{target}} to {{worker}} ({{worker_email}})
+						'message' => 'activities.ticket.message.relay',
+						'variables' => array(
+							'target' => sprintf("[%s] %s", $dict->ticket_mask, $dict->ticket_subject),
+							'worker' => $worker->getName(),
+							'worker_email' => $worker_address->address,
+							),
+						'urls' => array(
+							'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_TICKET, $context_id),
+							'worker' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_WORKER, $worker->id),
+							)
+					);
+					CerberusContexts::logActivity('ticket.message.relay', CerberusContexts::CONTEXT_TICKET, $context_id, $entry);
+				}
 				
 				if(!$result) {
 					return false;

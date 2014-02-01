@@ -2,7 +2,7 @@
 /***********************************************************************
  | Cerb(tm) developed by Webgroup Media, LLC.
  |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2013, Webgroup Media LLC
+ | All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
  |   unless specifically noted otherwise.
  |
  | This source code is released under the Devblocks Public License.
@@ -21,7 +21,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 	const TYPE = 'type';
 	const CONTEXT = 'context';
 	const POS = 'pos';
-	const OPTIONS = 'options';
+	const PARAMS_JSON = 'params_json';
 	const CUSTOM_FIELDSET_ID = 'custom_fieldset_id';
 	
 	const CACHE_ALL = 'ch_customfields';
@@ -100,7 +100,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 		
 		if(null === ($objects = $cache->load(self::CACHE_ALL))) {
 			$db = DevblocksPlatform::getDatabaseService();
-			$sql = "SELECT id, name, type, context, custom_fieldset_id, pos, options ".
+			$sql = "SELECT id, name, type, context, custom_fieldset_id, pos, params_json ".
 				"FROM custom_field ".
 				"ORDER BY custom_fieldset_id ASC, pos ASC "
 			;
@@ -127,7 +127,15 @@ class DAO_CustomField extends DevblocksORMHelper {
 			$object->context = $row['context'];
 			$object->custom_fieldset_id = intval($row['custom_fieldset_id']);
 			$object->pos = intval($row['pos']);
-			$object->options = DevblocksPlatform::parseCrlfString($row['options']);
+			$object->params = array();
+			
+			// JSON params
+			if(!empty($row['params_json'])) {
+				@$params = json_decode($row['params_json'], true);
+				if(!empty($params))
+					$object->params = $params;
+			}
+			
 			$objects[$object->id] = $object;
 		}
 		
@@ -204,6 +212,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			case Model_CustomField::TYPE_DATE:
 			case Model_CustomField::TYPE_FILE:
 			case Model_CustomField::TYPE_FILES:
+			case Model_CustomField::TYPE_LINK:
 			case Model_CustomField::TYPE_NUMBER:
 			case Model_CustomField::TYPE_WORKER:
 				$table = 'custom_field_numbervalue';
@@ -250,7 +259,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 
 					// Protect from injection in cases where it's not desireable (controlled above)
 					foreach($values as $idx => $v) {
-						if(!in_array($v, $field->options))
+						if(!isset($field->params['options']) || !in_array($v, $field->params['options']))
 							continue;
 
 						$is_unset = ('-'==substr($v,0,1)) ? true : false;
@@ -332,7 +341,6 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					? $delta
 					: false
 					;
-
 			// if the field is blank
 			if(
 				(is_array($value) && empty($value))
@@ -360,13 +368,20 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 
 				case Model_CustomField::TYPE_DROPDOWN:
 					// If we're setting a field that doesn't exist yet, add it.
-					if($autoadd_options && !in_array($value, $field->options) && !empty($value)) {
-						$field->options[] = $value;
-						DAO_CustomField::update($field_id, array(DAO_CustomField::OPTIONS => implode("\n",$field->options)));
+					@$options = $field->params['options'] ?: array();
+					
+					if($autoadd_options && !in_array($value, $options) && !empty($value)) {
+						$field->params['options'][] = $value;
+						
+						DAO_CustomField::update($field_id,
+							array(
+								DAO_CustomField::PARAMS_JSON => json_encode($field->params)
+							)
+						);
 					}
 					
 					// If we're allowed to add/remove fields without touching the rest
-					if(in_array($value, $field->options))
+					if(in_array($value, $options))
 						self::setFieldValue($context, $context_id, $field_id, $value);
 					
 					break;
@@ -397,11 +412,25 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					if(!is_array($value))
 						$value = array($value);
 
+					@$options = $field->params['options'] ?: array();
+					
 					// If we're setting a field that doesn't exist yet, add it.
-					foreach($value as $v) {
-						if($autoadd_options && !in_array($v, $field->options) && !empty($v)) {
-							$field->options[] = $v;
-							DAO_CustomField::update($field_id, array(DAO_CustomField::OPTIONS => implode("\n",$field->options)));
+					if($autoadd_options) {
+						$added = false;
+						
+						foreach($value as $v) {
+							if($autoadd_options && !in_array($v, $options) && !empty($v)) {
+								$field->params['options'][] = $v;
+								$added = true;
+							}
+						}
+						
+						if($added) {
+							DAO_CustomField::update($field_id,
+								array(
+									DAO_CustomField::PARAMS_JSON => json_encode($field->params)
+								)
+							);
 						}
 					}
 
@@ -417,7 +446,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 						$is_unset = ('-'==substr($v,0,1)) ? true : false;
 						$v = ltrim($v,'+-');
 						
-						if(!in_array($v, $field->options))
+						if(!isset($field->params['options']) || !in_array($v, $field->params['options']))
 							continue;
 						
 						if($is_unset) {
@@ -445,6 +474,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					break;
 
 				case Model_CustomField::TYPE_FILE:
+				case Model_CustomField::TYPE_LINK:
 				case Model_CustomField::TYPE_NUMBER:
 				case Model_CustomField::TYPE_WORKER:
 					$value = intval($value);
@@ -480,6 +510,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					$value = substr($value,0,255);
 				break;
 			case Model_CustomField::TYPE_FILE:
+			case Model_CustomField::TYPE_LINK:
 			case Model_CustomField::TYPE_NUMBER:
 			case Model_CustomField::TYPE_WORKER:
 				$value = intval($value);
@@ -579,6 +610,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					break;
 					
 				case Model_CustomField::TYPE_FILE:
+				case Model_CustomField::TYPE_LINK:
 				case Model_CustomField::TYPE_NUMBER:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					$field_value = (0==strlen($field_value)) ? '' : intval($field_value);
@@ -643,6 +675,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				case Model_CustomField::TYPE_DROPDOWN:
 				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_MULTI_LINE:
+				case Model_CustomField::TYPE_LINK:
 				case Model_CustomField::TYPE_NUMBER:
 				case Model_CustomField::TYPE_SINGLE_LINE:
 				case Model_CustomField::TYPE_URL:
@@ -872,6 +905,7 @@ class Model_CustomField {
 	const TYPE_DROPDOWN = 'D';
 	const TYPE_FILE = 'F';
 	const TYPE_FILES = 'I';
+	const TYPE_LINK = 'L';
 	const TYPE_NUMBER = 'N';
 	const TYPE_SINGLE_LINE = 'S';
 	const TYPE_MULTI_CHECKBOX = 'X';
@@ -885,7 +919,7 @@ class Model_CustomField {
 	public $custom_fieldset_id = 0;
 	public $context = '';
 	public $pos = 0;
-	public $options = array();
+	public $params = array();
 	
 	static function getTypes() {
 		// [TODO] Extension provided custom field types
@@ -898,6 +932,7 @@ class Model_CustomField {
 			self::TYPE_FILES => 'Files: Multiple',
 			self::TYPE_MULTI_CHECKBOX => 'Multi-Checkbox',
 			self::TYPE_MULTI_LINE => 'Text: Multi-Line',
+			self::TYPE_LINK => 'Record Link',
 			self::TYPE_NUMBER => 'Number',
 			self::TYPE_SINGLE_LINE => 'Text: Single Line',
 			self::TYPE_URL => 'URL',
@@ -1014,7 +1049,7 @@ class Context_CustomField extends Extension_DevblocksContext {
 		switch($token) {
 			default:
 				if(substr($token,0,7) == 'custom_') {
-					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}
 				break;

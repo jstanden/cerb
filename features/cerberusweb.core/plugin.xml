@@ -4,7 +4,7 @@
 	<name>Cerb6 Core</name>
 	<description>The core functionality of Cerb6.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>6.5.0</version>
+	<version>6.6.0</version>
 	<link>http://wiki.cerb4.com/wiki/New_Changes</link>
 	
 	<!-- Plugin Dependencies -->
@@ -50,7 +50,8 @@
 		<patch version="6.2.0" revision="1016" file="patches/6.x/6.2.0.php" />
 		<patch version="6.3.0" revision="1030" file="patches/6.x/6.3.0.php" />
 		<patch version="6.4.0" revision="1046" file="patches/6.x/6.4.0.php" />
-		<patch version="6.5.0" revision="1060" file="patches/6.x/6.5.0.php" />
+		<patch version="6.5.0" revision="1059" file="patches/6.x/6.5.0.php" />
+		<patch version="6.6.0" revision="1075" file="patches/6.x/6.6.0.php" />
 	</patches>
 
 	<!-- Controller Routing -->
@@ -258,6 +259,14 @@
 			<class name="SearchFields_Group" />
 			<class name="View_Group" />
 			<class name="Model_GroupMember" />
+		</file>
+		
+		<file path="api/dao/mail_html_template.php">
+			<class name="Context_MailHtmlTemplate" />
+			<class name="DAO_MailHtmlTemplate" />
+			<class name="Model_MailHtmlTemplate" />
+			<class name="SearchFields_MailHtmlTemplate" />
+			<class name="View_MailHtmlTemplate" />
 		</file>
 		
 		<file path="api/dao/mail_queue.php">
@@ -617,6 +626,9 @@
 		</activity>
 		<activity point="ticket.message.outbound">
 			<param key="label_key" value="Ticket Message Outbound" />
+		</activity>
+		<activity point="ticket.message.relay">
+			<param key="label_key" value="Ticket Message Relayed" />
 		</activity>
 		<activity point="ticket.moved">
 			<param key="label_key" value="Ticket Moved" />
@@ -1064,6 +1076,32 @@
 						<!--<data key="snippets" />-->
 						<data key="va_variable" />
 						<data key="workspace" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.mail.html_template</id>
+			<name>HTML Template</name>
+			<class>
+				<file>api/dao/mail_html_template.php</file>
+				<name>Context_MailHtmlTemplate</name>
+			</class>
+			<params>
+				<param key="alias" value="html_template" />
+				<param key="dao_class" value="DAO_MailHtmlTemplate" />
+				<param key="view_class" value="View_MailHtmlTemplate" />
+				<param key="options">
+					<value>
+						<!-- 
+						<data key="custom_fields" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="workspace" />
+						-->
+						<data key="create" />
+						<data key="find" />
 					</value>
 				</param>
 			</params>
@@ -2478,6 +2516,19 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.mail_html</id>
+				<name>HTML Mail Templates Section</name>
+				<class>
+					<file>api/uri/config/mail_html.php</file>
+					<name>PageSection_SetupMailHtml</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="mail_html" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.mail_import</id>
 				<name>Import Messages Section</name>
 				<class>
@@ -2830,6 +2881,19 @@
 				</params>
 			</extension>
 			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.mail_html_template</id>
+				<name>HTML Template Section</name>
+				<class>
+					<file>api/uri/profiles/mail_html_template.php</file>
+					<name>PageSection_ProfilesMailHtmlTemplate</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="html_template" />
+				</params>
+			</extension>
+
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.organization</id>
 				<name>Organization Section</name>

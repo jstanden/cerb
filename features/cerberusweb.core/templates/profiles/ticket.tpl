@@ -94,7 +94,7 @@
 	{foreach from=$properties item=v key=k name=props}
 		<div class="property">
 			{if $k == 'mask'}
-				<b>{'ticket.mask'|devblocks_translate|capitalize}:</b>
+				<b id="tour-profile-ticket-mask">{'ticket.mask'|devblocks_translate|capitalize}:</b>
 				{$ticket->mask} 
 				(#{$ticket->id})
 			{elseif $k == 'status'}
@@ -189,7 +189,7 @@
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#displayTabs").tabs( { selected:{$selected_tab_idx} } );
+		var tabs = $("#displayTabs").tabs( { active:{$selected_tab_idx} } );
 		
 		$('#btnDisplayTicketEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}&edit=1',null,false,'650');
@@ -241,7 +241,7 @@ $(document).keypress(function(event) {
 			try {
 				idx = event.which-49;
 				$tabs = $("#displayTabs").tabs();
-				$tabs.tabs('select', idx);
+				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { } 
 			break;
 		case 97:  // (A) read all

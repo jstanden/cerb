@@ -3,7 +3,6 @@
 	<meta content="text/html; charset={$smarty.const.LANG_CHARSET_CODE}" http-equiv="content-type">
 	<title>{$page_title}</title>
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/jquery.js{/devblocks_url}"></script>
-	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/jquery.MultiFile.pack.js{/devblocks_url}"></script>
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/jquery.validate.pack.js{/devblocks_url}"></script>
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/devblocks.common.js{/devblocks_url}"></script>
 	

@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -229,6 +229,10 @@ class ChGroupsPage extends CerberusPageExtension  {
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $worker_token_labels, $worker_token_values);
 		$tpl->assign('worker_token_labels', $worker_token_labels);
 
+		// HTML templates
+		$html_templates = DAO_MailHtmlTemplate::getAll();
+		$tpl->assign('html_templates', $html_templates);
+		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::groups/manage/buckets/peek.tpl');
 	}
@@ -242,6 +246,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		@$reply_address_id = DevblocksPlatform::importGPC($_REQUEST['reply_address_id'],'integer',0);
 		@$reply_personal = DevblocksPlatform::importGPC($_REQUEST['reply_personal'],'string','');
 		@$reply_signature = DevblocksPlatform::importGPC($_REQUEST['reply_signature'],'string','');
+		@$reply_html_template_id = DevblocksPlatform::importGPC($_REQUEST['reply_html_template_id'],'integer',0);
 		
 		// ACL
 		@$active_worker = CerberusApplication::getActiveWorker();
@@ -269,6 +274,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 						DAO_Group::REPLY_ADDRESS_ID => $reply_address_id,
 						DAO_Group::REPLY_PERSONAL => $reply_personal,
 						DAO_Group::REPLY_SIGNATURE => $reply_signature,
+						DAO_Group::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
 					);
 					DAO_Group::update($group_id, $fields);
 					
@@ -279,6 +285,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 						DAO_Bucket::REPLY_ADDRESS_ID => $reply_address_id,
 						DAO_Bucket::REPLY_PERSONAL => $reply_personal,
 						DAO_Bucket::REPLY_SIGNATURE => $reply_signature,
+						DAO_Bucket::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
 					);
 		
 					// Create?

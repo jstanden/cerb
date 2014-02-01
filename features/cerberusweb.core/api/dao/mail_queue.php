@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -368,8 +368,15 @@ class Model_MailQueue {
 		// Message body
 		if(empty($this->body))
 			return false;
+		
 		$properties['content'] = $this->body;
 
+		if(isset($this->params['format']))
+			$properties['content_format'] = $this->params['format'];
+		
+		if(isset($this->params['html_template_id']))
+			$properties['html_template_id'] = intval($this->params['html_template_id']);
+			
 		// Next action
 		$properties['closed'] = isset($this->params['next_is_closed']) ? intval($this->params['next_is_closed']) : 0;
 
@@ -380,9 +387,6 @@ class Model_MailQueue {
 		
 		// Worker
 		$properties['worker_id'] = !empty($this->worker_id) ? $this->worker_id : 0;
-		
-		// Files + Next step
-		//'files' => $files,
 		
 		// Attachments
 		if(isset($this->params['file_ids'])) {
@@ -450,8 +454,15 @@ class Model_MailQueue {
 		// Content
 		if(empty($this->body))
 			return false;
+		
 		$properties['content'] = $this->body;
 
+		if(isset($this->params['format']))
+			$properties['content_format'] = $this->params['format'];
+		
+		if(isset($this->params['html_template_id']))
+			$properties['html_template_id'] = intval($this->params['html_template_id']);
+		
 		// Worker
 		$properties['worker_id'] = !empty($this->worker_id) ? $this->worker_id : 0;
 		

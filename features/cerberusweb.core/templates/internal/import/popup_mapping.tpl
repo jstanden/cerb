@@ -100,7 +100,7 @@
  	
 	$popup.one('popup_open',function(event,ui) {
 		event.stopPropagation();
-		$(this).dialog('option','title',"{'common.import'|devblocks_translate|capitalize}");
+		$(this).dialog('option','title',"{'common.import'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 	});
 	
 	$popup.one('dialogclose', function(event) {

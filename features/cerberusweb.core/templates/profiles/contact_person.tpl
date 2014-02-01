@@ -85,7 +85,7 @@
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#contactPersonTabs").tabs( { selected:{$tab_selected_idx} } );
+		var tabs = $("#contactPersonTabs").tabs( { active:{$tab_selected_idx} } );
 		
 		$('#btnDisplayContactEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'600');
@@ -123,7 +123,7 @@ $(document).keypress(function(event) {
 			try {
 				idx = event.which-49;
 				$tabs = $("#contactPersonTabs").tabs();
-				$tabs.tabs('select', idx);
+				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { } 
 			break;
 		case 101:  // (E) edit

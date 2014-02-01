@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -99,8 +99,8 @@ class ChExplorerController extends DevblocksControllerExtension {
 				}
 			}
 			
-			// 20% of the time, update our timestamp
-			if(3==mt_rand(1, 5)) {
+			// Update the access time on the first request, and no more often than every 30 seconds thereafter
+			if(!isset($meta->params['last_accessed']) || $meta->params['last_accessed'] < (time()-30)) {
 				$meta->params['last_accessed'] = time();
 				DAO_ExplorerSet::update($hashset, $meta->params);
 			}

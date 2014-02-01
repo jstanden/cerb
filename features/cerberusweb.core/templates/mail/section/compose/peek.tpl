@@ -8,6 +8,7 @@
 <input type="hidden" name="link_context" value="{$link_context}">
 <input type="hidden" name="link_context_id" value="{$link_context_id}">
 {/if}
+<input type="hidden" name="format" value="">
 
 <fieldset class="peek">
 	<legend>{'common.message'|devblocks_translate|capitalize}</legend>
@@ -16,15 +17,22 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right"><b>From:</b>&nbsp;</td>
 			<td width="100%">
-				<input type="hidden" name="group_id" value="{$defaults.group_id}">
-				<input type="hidden" name="bucket_id" value="{$defaults.bucket_id}">
-				<select name="group_or_bucket_id" class="required" style="border:1px solid rgb(180,180,180);padding:2px;">
-					{foreach from=$groups item=group key=groupId}
-						{if !empty($active_worker_memberships.$groupId)}
-							<option value="{$group->id}_0" {if $defaults.group_id==$group->id && empty($defaults.bucket_id)}selected="selected"{/if}>{$group->name}</option>
-							{foreach from=$group_buckets.$groupId item=bucket key=bucket_id}
-								<option value="{$group->id}_{$bucket->id}" {if $defaults.group_id==$group->id && $defaults.bucket_id==$bucket->id}selected="selected"{/if}>{$group->name}: {$bucket->name}</option>
-							{/foreach}
+				<select name="group_id">
+					{foreach from=$groups item=group key=group_id}
+					<option value="{$group_id}" {if $active_worker->isGroupMember($group_id)}member="true"{/if} {if $defaults.group_id == $group_id}selected="selected"{/if}>{$group->name}</option>
+					{/foreach}
+				</select>
+				<select class="ticket-peek-bucket-options" style="display:none;">
+					<option value="0" group_id="*">{'common.inbox'|devblocks_translate|capitalize}</option>
+					{foreach from=$buckets item=bucket key=bucket_id}
+					<option value="{$bucket_id}" group_id="{$bucket->group_id}">{$bucket->name}</option>
+					{/foreach}
+				</select>
+				<select name="bucket_id">
+					<option value="0">{'common.inbox'|devblocks_translate|capitalize}</option>
+					{foreach from=$buckets item=bucket key=bucket_id}
+						{if $bucket->group_id == $defaults.group_id}
+						<option value="{$bucket_id}" {if $defaults.bucket_id == $bucket_id}selected="selected"{/if}>{$bucket->name}</option>
 						{/if}
 					{/foreach}
 				</select>
@@ -188,7 +196,7 @@
 
 	var $popup = genericAjaxPopupFind('#frmComposePeek{$random}');
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title','{'mail.send_mail'|devblocks_translate|capitalize}');
+		$(this).dialog('option','title','{'mail.send_mail'|devblocks_translate|capitalize|escape:'javascript' nofilter}');
 		
 		var $frm = $('#frmComposePeek{$random}');
 
@@ -210,30 +218,124 @@
 			ajax.chooserFile(this,'file_ids');
 		});
 		
-		$frm.find('textarea').elastic();
+		// Text editor
+		
+		var $content = $frm.find('textarea[name=content]');
+		
+		var markitupPlaintextSettings = $.extend(true, { }, markitupPlaintextDefaults);
+		var markitupParsedownSettings = $.extend(true, { }, markitupParsedownDefaults);
+		
+		var markitupReplyFunctions = {
+			switchToMarkdown: function(markItUp) { 
+				$content.markItUpRemove().markItUp(markitupParsedownSettings);
+				{if empty($mail_reply_textbox_size_inelastic)}
+				$content.elastic();
+				{/if}
+				$content.closest('form').find('input:hidden[name=format]').val('parsedown');
+
+				// Template chooser
+				
+				var $ul = $content.closest('.markItUpContainer').find('.markItUpHeader UL');
+				var $li = $('<li style="margin-left:10px;"></li>');
+				
+				var $select = $('<select name="html_template_id"></select>');
+				$select.append($('<option value="0"> - {'common.default'|devblocks_translate|lower|escape:'javascript'} -</option>'));
+				
+				{foreach from=$html_templates item=html_template}
+				var $option = $('<option value="{$html_template->id}">{$html_template->name|escape:'javascript'}</option>');
+				{if $draft && $draft->params.html_template_id == $html_template->id}
+				$option.attr('selected', 'selected');
+				{/if}
+				$select.append($option);
+				{/foreach}
+				
+				$li.append($select);
+				$ul.append($li);
+			},
+			
+			switchToPlaintext: function(markItUp) { 
+				$content.markItUpRemove().markItUp(markitupPlaintextSettings);
+				{if empty($mail_reply_textbox_size_inelastic)}
+				$content.elastic();
+				{/if}
+				$content.closest('form').find('input:hidden[name=format]').val('');
+			}
+		};
+		
+		markitupPlaintextSettings.markupSet.unshift(
+			{ name:'Switch to Markdown', openWith: markitupReplyFunctions.switchToMarkdown, className:'parsedown' }
+		);
+		
+		markitupParsedownSettings.previewParser = function(content) {
+			genericAjaxPost(
+				'frmComposePeek{$random}',
+				'',
+				'c=display&a=getReplyMarkdownPreview',
+				function(o) {
+					content = o;
+				},
+				{
+					async: false
+				}
+			);
+			
+			return content;
+		};
+		
+		markitupParsedownSettings.markupSet.unshift(
+			{ name:'Switch to Plaintext', openWith: markitupReplyFunctions.switchToPlaintext, className:'plaintext' },
+			{ separator:'---------------' }
+		);
+		
+		markitupParsedownSettings.markupSet.splice(
+			6,
+			0,
+			{ name:'Upload an Image', openWith: 
+				function(markItUp) {
+					$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
+					
+					$chooser.one('chooser_save', function(event) {
+						if(!event.response || 0 == event.response)
+							return;
+						
+						$content.insertAtCursor("![inline-image](" + event.response[0].url + ")");
+					});
+				},
+				key: 'U',
+				className:'image-inline'
+			}
+			//{ separator:'---------------' }
+		);
+		
+		{* [TODO] Load the worker preference for formatting *}
+		try {
+			$content.markItUp(markitupPlaintextSettings);
+			$content.elastic();
+			
+		} catch(e) {
+			if(window.console)
+				console.log(e);
+		}
 		
 		$frm.validate();
 		
-		$frm.find('select[name=group_or_bucket_id]').change(function(e) {
-			var $div = $('#compose_cfields{$random}');
+		// Group and bucket
+		$frm.find('select[name=group_id]').on('change', function(e) {
+			var $select = $(this);
+			var group_id = $select.val();
+			var $bucket_options = $select.siblings('select.ticket-peek-bucket-options').find('option')
+			var $bucket = $select.siblings('select[name=bucket_id]');
 			
-			var $frm = $(this).closest('form');
+			$bucket.children().remove();
 			
-			// Regexp the group_bucket pattern
-			var sep = /(\d+)_(\d+)/;
-			var hits = sep.exec($(this).val());
+			$bucket_options.each(function() {
+				var parent_id = $(this).attr('group_id');
+				if(parent_id == '*' || parent_id == group_id)
+					$(this).clone().appendTo($bucket);
+			});
 			
-			if(hits < 3)
-				return;
-			
-			var group_id = hits[1];
-			var bucket_id = hits[2];
-			
-			$frm.find('input:hidden[name=group_id]').val(group_id);
-			$frm.find('input:hidden[name=bucket_id]').val(bucket_id);
+			$bucket.focus();
 		});
-		
-		$frm.find('select[name=group_or_bucket_id]').trigger('change');
 		
 		$frm.find('input:text[name=to], input:text[name=cc], input:text[name=bcc]').focus(function(event) {
 			$('#compose_suggested{$random}').appendTo($(this).closest('td'));
@@ -301,12 +403,12 @@
 		$('#btnComposeInsertSig{$random}').click(function(e) {
 			var $this = $(this);
 			var $frm = $this.closest('form');
-			var $input_group = $frm.find('input:hidden[name=group_id]');
-			var $input_bucket = $frm.find('input:hidden[name=bucket_id]');
+			var $select_group = $frm.find('select[name=group_id]');
+			var $select_bucket = $frm.find('select[name=bucket_id]');
 			
 			genericAjaxGet(
 				'',
-				'c=tickets&a=getComposeSignature&group_id='+$input_group.val()+'&bucket_id='+$input_bucket.val(),
+				'c=tickets&a=getComposeSignature&group_id='+$select_group.val()+'&bucket_id='+$select_bucket.val(),
 				function(text) {
 					var $textarea = $('#divComposeContent{$random}');
 					

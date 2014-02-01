@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -25,6 +25,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	const REPLY_PERSONAL = 'reply_personal';
 	const REPLY_SIGNATURE = 'reply_signature';
 	const IS_DEFAULT = 'is_default';
+	const REPLY_HTML_TEMPLATE_ID = 'reply_html_template_id';
 	
 	// Groups
 	
@@ -56,7 +57,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, is_default, reply_address_id, reply_personal, reply_signature ".
+		$sql = "SELECT id, name, is_default, reply_address_id, reply_personal, reply_signature, reply_html_template_id ".
 			"FROM worker_group ".
 			$where_sql.
 			$sort_sql.
@@ -69,32 +70,10 @@ class DAO_Group extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
-	/**
-	 * Enter description here...
-	 *
-	 * @param array $ids
-	 * @return Model_Group[]
-	 */
-	static function getGroups($ids=array()) {
-		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$groups = array();
-		
-		$sql = sprintf("SELECT id, name, is_default, reply_address_id, reply_personal, reply_signature ".
-			"FROM worker_group ".
-			((is_array($ids) && !empty($ids)) ? sprintf("WHERE id IN (%s) ",implode(',',$ids)) : " ").
-			"ORDER BY name ASC"
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-
-		return self::_getObjectsFromResultSet($rs);
-	}
-	
 	static function getAll($nocache=false) {
 		$cache = DevblocksPlatform::getCacheService();
 		if($nocache || null === ($groups = $cache->load(self::CACHE_ALL))) {
-			$groups = DAO_Group::getGroups();
+			$groups = DAO_Group::getWhere(null, DAO_Group::NAME, true);
 			$cache->save($groups, self::CACHE_ALL);
 		}
 		
@@ -116,6 +95,7 @@ class DAO_Group extends Cerb_ORMHelper {
 			$object->reply_address_id = $row['reply_address_id'];
 			$object->reply_personal = $row['reply_personal'];
 			$object->reply_signature = $row['reply_signature'];
+			$object->reply_html_template_id = $row['reply_html_template_id'];
 			$objects[$object->id] = $object;
 		}
 		
@@ -570,9 +550,10 @@ class Model_Group {
 	public $name;
 	public $count;
 	public $is_default = 0;
-	public $reply_address_id;
+	public $reply_address_id = 0;
 	public $reply_personal;
 	public $reply_signature;
+	public $reply_html_template_id = 0;
 	
 	public function getMembers() {
 		return DAO_Group::getGroupMembers($this->id);
@@ -724,6 +705,24 @@ class Model_Group {
 		}
 		
 		return $signature;
+	}
+	
+	public function getReplyHtmlTemplate($bucket_id=0) {
+		// Cascade to bucket
+		if($bucket_id && null != ($bucket = DAO_Bucket::get($bucket_id)))
+			return $bucket->getReplyHtmlTemplate();
+		
+		// Cascade to group
+		if($this->reply_html_template_id && false != ($html_template = DAO_MailHtmlTemplate::get($this->reply_html_template_id)))
+			return $html_template;
+		
+		// Finally, cascade to reply-to
+		if(false != ($replyto = $this->getReplyTo())) {
+			if(false != ($html_template = $replyto->getReplyHtmlTemplate()))
+				return $html_template;
+		}
+		
+		return null;
 	}
 };
 
@@ -1261,7 +1260,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 				
 			default:
 				if(substr($token,0,7) == 'custom_') {
-					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}
 				break;

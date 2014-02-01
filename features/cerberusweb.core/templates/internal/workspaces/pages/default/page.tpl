@@ -27,7 +27,7 @@
 		var $tabs = $("#pageTabs");
 		
 		var tabs = $tabs.tabs( { 
-			selected: {$tab_selected_idx}
+			active: {$tab_selected_idx}
 		});
 		
 		$tabs.find('> ul').sortable({
@@ -86,13 +86,13 @@
 			// [TODO] Intercept 91,93 ([] -- tabs prev/next)
 			
 			// How many tabs are we showing?
-			num_tabs = $tabs.tabs('length');
+			var num_tabs = $tabs.find('> ul > li').length;
 			
 			if(0 == num_tabs)
 				return;
 			
 			// Which tab is selected?
-			tab_id = $tabs.tabs('option','selected') + 1;
+			tab_id = $tabs.tabs('option','active') + 1;
 			
 			// Find the worklists on this tab
 			$worklists = $('#ui-tabs-' + tab_id).find('TABLE.worklistBody').closest('FORM');

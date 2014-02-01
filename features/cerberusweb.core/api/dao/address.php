@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -1042,6 +1042,12 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 						'is_broadcast' => 1,
 					);
 					
+					if(isset($params['format']))
+						$json_params['format'] = $params['format'];
+					
+					if(isset($params['html_template_id']))
+						$json_params['html_template_id'] = intval($params['html_template_id']);
+					
 					if(isset($params['file_ids']))
 						$json_params['file_ids'] = $params['file_ids'];
 					
@@ -1326,7 +1332,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 				
 			default:
 				if(substr($token,0,7) == 'custom_') {
-					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}
 				break;

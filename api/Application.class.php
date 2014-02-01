@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -46,8 +46,8 @@
  \* - Jeff Standen, Darren Sugita, Dan Hildebrandt
  *	 Webgroup Media LLC - Developers of Cerb
  */
-define("APP_BUILD", 2014012201);
-define("APP_VERSION", '6.5.5');
+define("APP_BUILD", 2014013101);
+define("APP_VERSION", '6.6.0');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
@@ -1398,6 +1398,26 @@ class CerberusContexts {
 			$also_notify_worker_ids
 		);
 		
+		// And include any worker-based custom fields with the 'send watcher notifications' option
+		$target_custom_fields = DAO_CustomField::getByContext($target_context, true);
+		
+		if(is_array($target_custom_fields))
+		foreach($target_custom_fields as $target_custom_field_id => $target_custom_field) {
+			if($target_custom_field->type != Model_CustomField::TYPE_WORKER)
+				continue;
+			
+			if(!isset($target_custom_field->params['send_notifications']) || empty($target_custom_field->params['send_notifications']))
+				continue;
+			
+			$values = DAO_CustomFieldValue::getValuesByContextIds($target_context, $target_context_id);
+			
+			if(isset($values[$target_context_id]) && isset($values[$target_context_id][$target_custom_field_id]))
+				$watchers = array_merge(
+					$watchers,
+					array($values[$target_context_id][$target_custom_field_id])
+				);
+		}
+		
 		// Remove dupe watchers
 		$watcher_ids = array_unique($watchers);
 		
@@ -1596,7 +1616,7 @@ class Context_Application extends Extension_DevblocksContext {
 		switch($token) {
 			default:
 				if(substr($token,0,7) == 'custom_') {
-					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}
 				break;
@@ -1669,7 +1689,7 @@ class CerberusLicense {
 	}
 	
 	public static function getReleases() {
-		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000,'5.6.0'=>1317686400,'5.7.0'=>1326067200,'6.0.0'=>1338163200,'6.1.0'=>1346025600,'6.2.0'=>1353888000,'6.3.0'=>1364169600,'6.4.0'=>1370217600,'6.5.0'=>1379289600);/*
+		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000,'5.6.0'=>1317686400,'5.7.0'=>1326067200,'6.0.0'=>1338163200,'6.1.0'=>1346025600,'6.2.0'=>1353888000,'6.3.0'=>1364169600,'6.4.0'=>1370217600,'6.5.0'=>1379289600,'6.6.0'=>1391126400);/*
 		 * Major versions by release date in GMT
 		 */
 		return array(
@@ -1687,6 +1707,7 @@ class CerberusLicense {
 			'6.3.0' => gmmktime(0,0,0,3,25,2013),
 			'6.4.0' => gmmktime(0,0,0,6,3,2013),
 			'6.5.0' => gmmktime(0,0,0,9,16,2013),
+			'6.6.0' => gmmktime(0,0,0,1,31,2014),
 		);
 	}
 	
@@ -1999,6 +2020,7 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 				case Model_CustomField::TYPE_DATE:
 				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_FILES:
+				case Model_CustomField::TYPE_LINK:
 				case Model_CustomField::TYPE_NUMBER:
 				case Model_CustomField::TYPE_WORKER:
 					$value_table = 'custom_field_numbervalue';

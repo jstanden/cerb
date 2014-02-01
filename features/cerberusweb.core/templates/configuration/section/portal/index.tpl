@@ -37,6 +37,6 @@
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#communityToolTabs").tabs( { selected:{$tab_selected_idx} } );
+		var tabs = $("#communityToolTabs").tabs( { active:{$tab_selected_idx} } );
 	});
 </script>

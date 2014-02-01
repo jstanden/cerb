@@ -53,7 +53,7 @@
 <script type="text/javascript">
 $popup = genericAjaxPopupFind('#frmWidgetAddTabs');
 $popup.one('popup_open', function(event,ui) {
-	$(this).dialog('option','title',"{'Add Widget'}");
+	$(this).dialog('option','title',"{'Add Widget'|escape:'javascript' nofilter}");
 	
 	$('#frmWidgetAddTabs').tabs();
 	

@@ -105,7 +105,7 @@
 
 <script type="text/javascript">
 $(function() {
-	var tabs = $("#tasksTabs").tabs( { selected:{$selected_tab_idx} } );
+	var tabs = $("#tasksTabs").tabs( { active:{$selected_tab_idx} } );
 
 	$('#btnDisplayTaskEdit').bind('click', function() {
 		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'500');
@@ -145,7 +145,7 @@ $(document).keypress(function(event) {
 			try {
 				idx = event.which-49;
 				$tabs = $("#tasksTabs").tabs();
-				$tabs.tabs('select', idx);
+				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { } 
 			break;
 		case 101:  // (E) edit

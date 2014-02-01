@@ -10,7 +10,7 @@
 
 <H3>Welcome to the community!</H3>
 
-Cerb6 is the culmination of over 10 years of R&amp;D.  As with any innovation, there may be some 
+Cerb is the culmination of over 12 years of R&amp;D.  As with any innovation, there may be some 
 concepts introduced that are completely new to you and your team.<br>
 <br>
 The best places to become familiar with Cerb concepts are the <a href="https://vimeo.com/channels/cerb" target="_blank">training videos</a> and the <a href="http://www.cerberusweb.com/book/" target="_blank">online documentation</a>.<br>

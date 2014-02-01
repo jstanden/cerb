@@ -99,7 +99,7 @@
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#contactTabs").tabs( { selected:{$tab_selected_idx} } );
+		var tabs = $("#contactTabs").tabs( { active:{$tab_selected_idx} } );
 	
 		$('#btnDisplayAddyEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$page_context_id}',null,false,'550');
@@ -136,9 +136,9 @@ $(document).keypress(function(event) {
 		case 57:  // (9) tab cycle
 		case 58:  // (0) tab cycle
 			try {
-				idx = event.which-49;
-				$tabs = $("#contactTabs").tabs();
-				$tabs.tabs('select', idx);
+				var idx = event.which-49;
+				var $tabs = $("#contactTabs").tabs();
+				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { } 
 			break;
 		case 101:  // (E) edit

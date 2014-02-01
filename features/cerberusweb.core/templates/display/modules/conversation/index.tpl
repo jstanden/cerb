@@ -26,28 +26,63 @@
 <div id="conversation">
 {if !empty($ticket)}
 	{if !empty($convo_timeline)}
+		{$state = ''}
+	
 		{foreach from=$convo_timeline item=convo_set name=items}
+			{$last_state = $state}
+		
 			{if $convo_set.0=='m'}
+				{$state = 'message'}
+			{elseif $convo_set.0=='c'}
+				{$state = 'comment'}
+			{elseif $convo_set.0=='d'}
+				{$state = 'draft'}
+			{elseif $convo_set.0=='l'}
+				{$state = 'log'}
+			{/if}
+			
+			{if $last_state == 'log' && $state != 'log'}
+				</div>
+			{/if}
+			
+			{if $state == 'message'}
 				{assign var=message_id value=$convo_set.1}
 				{assign var=message value=$messages.$message_id}
-				<div id="{$message->id}t" style="background-color:rgb(255,255,255);">
+				
+				<div id="{$message->id}t">
 					{assign var=expanded value=false}
 					{if $expand_all || ($focus_ctx == CerberusContexts::CONTEXT_MESSAGE && $focus_ctx_id==$message_id) || $latest_message_id==$message_id || isset($message_notes.$message_id)}{assign var=expanded value=true}{/if}
 					{include file="devblocks:cerberusweb.core::display/modules/conversation/message.tpl" expanded=$expanded}
 				</div>
 				
-			{elseif $convo_set.0=='c'}
+			{elseif $state == 'comment'}
 				{assign var=comment_id value=$convo_set.1}
 				{assign var=comment value=$comments.$comment_id}
-				<div id="comment{$comment->id}" style="background-color:rgb(255,255,255);">
+				
+				<div id="comment{$comment->id}">
 					{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl"}
 				</div>
 				
-			{elseif $convo_set.0=='d'}
+			{elseif $state == 'draft'}
 				{assign var=draft_id value=$convo_set.1}
 				{assign var=draft value=$drafts.$draft_id}
-				<div id="draft{$draft->id}" style="background-color:rgb(255,255,255);">
+				
+				<div id="draft{$draft->id}">
 					{include file="devblocks:cerberusweb.core::display/modules/conversation/draft.tpl"}
+				</div>
+				
+			{elseif $state == 'log'}
+				{assign var=entry_id value=$convo_set.1}
+				{assign var=entry value=$activity_log.$entry_id}
+				
+				{if $last_state != 'log'}
+					{$last_entry_timestamp = null}
+					<div class="block hover-underline" style="margin-bottom:10px;">
+				{/if}
+				
+				<div id="log{$entry->id}" style="margin-bottom:5px;">
+					{include file="devblocks:cerberusweb.core::display/modules/conversation/activity_log_entry.tpl"}
+					{$last_entry_timestamp = $entry->created|devblocks_prettytime}
 				</div>
 			{/if}
 			
@@ -83,12 +118,12 @@
 		$popup.one('comment_save', function(event) {
 			$tabs = $('#btnComment').closest('div.ui-tabs');
 			if(0 != $tabs) {
-				$tabs.tabs('load', $tabs.tabs('option','selected'));
+				$tabs.tabs('load', $tabs.tabs('option','active'));
 			}
 		});
 	});
 	
-	function displayReply(msgid, is_forward, draft_id, is_quoted, is_confirmed) {
+	var displayReply = function(msgid, is_forward, draft_id, is_quoted, is_confirmed) {
 		var msgid = parseInt(msgid);
 		var $div = $('#reply' + msgid);
 		
@@ -125,7 +160,7 @@
 		);
 	}
 	
-	function displayAddNote(msgid) {
+	var displayAddNote = function(msgid) {
 		var div = document.getElementById('reply' + msgid);
 		if(null == div) return;
 		

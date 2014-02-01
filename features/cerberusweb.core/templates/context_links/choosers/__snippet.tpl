@@ -13,7 +13,7 @@
 	
 	$popup.one('popup_open',function(event,ui) {
 		event.stopPropagation();
-		$(this).dialog('option','title','{$context->manifest->name} Chooser');
+		$(this).dialog('option','title','{$context->manifest->name|escape:'javascript' nofilter} Chooser');
 		
 		// Quick search
 		

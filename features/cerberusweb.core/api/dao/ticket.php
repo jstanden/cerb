@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Cerberus Public License.
@@ -1430,9 +1430,20 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				
 			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
 				$member = DAO_Worker::get($param->value);
+				$all_groups = DAO_Group::getAll();
 				$roster = $member->getMemberships();
+				
 				if(empty($roster))
+					$roster = array(0 => 0);
+				
+				$restricted_groups = array_diff(array_keys($all_groups), array_keys($roster));
+				
+				// If the worker is in every group, ignore this filter entirely
+				if(empty($restricted_groups))
 					break;
+				
+				// [TODO] If the worker is in most of the groups, possibly try a NOT IN instead
+				
 				$args['where_sql'] .= sprintf("AND t.group_id IN (%s) ", implode(',', array_keys($roster)));
 				break;
 				
@@ -3014,6 +3025,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 							'is_broadcast' => 1,
 						);
 						
+						if(isset($broadcast_params['format']))
+							$params_json['format'] = $broadcast_params['format'];
+						
+						if(isset($broadcast_params['html_template_id']))
+							$params_json['html_template_id'] = intval($broadcast_params['html_template_id']);
+						
 						$fields = array(
 							DAO_MailQueue::TYPE => Model_MailQueue::TYPE_TICKET_REPLY,
 							DAO_MailQueue::TICKET_ID => $ticket_id,
@@ -3114,9 +3131,12 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	
 	function getMeta($context_id) {
 		if(is_numeric($context_id)) {
-			$ticket = DAO_Ticket::get($context_id);
+			if(false == ($ticket = DAO_Ticket::get($context_id)))
+				return false;
+			
 		} else {
-			$ticket = DAO_Ticket::getTicketByMask($context_id);
+			if(false == ($ticket = DAO_Ticket::getTicketByMask($context_id)))
+				return false;
 		}
 
 		$friendly = DevblocksPlatform::strToPermalink($ticket->mask);
@@ -3124,6 +3144,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		if(!empty($friendly)) {
 			$url_writer = DevblocksPlatform::getUrlService();
 			$url = $url_writer->writeNoProxy('c=profiles&type=ticket&mask='.$ticket->mask, true);
+			
 		} else {
 			$url = $this->profileGetUrl($context_id);
 		}
@@ -3203,7 +3224,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$token_labels = array(
 			'_label' => $prefix,
 			'created' => $prefix.$translate->_('common.created'),
-			'id' => $prefix.$translate->_('ticket.id'),
+			'id' => $prefix.$translate->_('common.id'),
 			'mask' => $prefix.$translate->_('ticket.mask'),
 			'num_messages' => $prefix.$translate->_('ticket.num_messages'),
 			'elapsed_response_first' => $prefix.$translate->_('ticket.elapsed_response_first'),
@@ -3559,7 +3580,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				
 			default:
 				if(substr($token,0,7) == 'custom_') {
-					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}
 				break;
@@ -3573,8 +3594,9 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(null != ($view = parent::getSearchView($view_id))) {
-			$view->addParamsRequired(array(
-				SearchFields_Ticket::TICKET_GROUP_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID,'in',array_keys($active_worker->getMemberships())),
+			$view->addParamsDefault(array(
+				SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,'in',array('open', 'waiting')),
+				SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,'=',$active_worker->id),
 			), true);
 		}
 		return $view;
@@ -3605,14 +3627,11 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,'in',array('open','waiting')),
 		);
 		
+		if($active_worker)
+			$params[SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER] = new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,'=',$active_worker->id);
+		
 		$view->addParams($params, true);
 		$view->addParamsDefault($params, true);
-		
-		if($active_worker) {
-			$view->addParamsRequired(array(
-				SearchFields_Ticket::TICKET_GROUP_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID,'in',array_keys($active_worker->getMemberships())),
-			), true);
-		}
 		
 		$view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 		$view->renderSortAsc = false;
@@ -3675,9 +3694,9 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
-		// Groups+Buckets
-		$group_buckets = DAO_Bucket::getGroups();
-		$tpl->assign('group_buckets', $group_buckets);
+		// Buckets
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
 
 		// Workers
 		$workers = DAO_Worker::getAll();
@@ -3720,6 +3739,10 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, false);
 		$tpl->assign('custom_fields', $custom_fields);
 
+		// HTML templates
+		$html_templates = DAO_MailHtmlTemplate::getAll();
+		$tpl->assign('html_templates', $html_templates);
+		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::mail/section/compose/peek.tpl');
 	}
@@ -3792,8 +3815,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
-		$group_buckets = DAO_Bucket::getGroups();
-		$tpl->assign('group_buckets', $group_buckets);
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
 		
 		// Watchers
 		$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($ticket->id), CerberusContexts::CONTEXT_WORKER);

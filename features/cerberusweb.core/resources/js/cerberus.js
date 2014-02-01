@@ -1,4 +1,13 @@
-var markitupMarkdownSettings = {
+var markitupPlaintextDefaults = {
+	resizeHandle: false,
+	nameSpace:'markItUpPlaintext',
+	onShiftEnter:		{keepDefault:false, openWith:'\n\n'},
+	markupSet: [
+	]
+}
+
+var markitupMarkdownDefaults = {
+	resizeHandle: false,
 	previewParserPath:	DevblocksAppPath + 'ajax.php?c=internal&a=transformMarkupToHTML&format=markdown',
 	onShiftEnter:		{keepDefault:false, openWith:'\n\n'},
 	markupSet: [
@@ -17,18 +26,42 @@ var markitupMarkdownSettings = {
 			return markItUp.line+'. ';
 		}},
 		{separator:'---------------', className:'sep' },
-		{name:'Picture', key:'P', replaceWith:'![[![Alternative text]!]]([![Url:!:http://]!] "[![Title]!]")', className:'img'},
+		{name:'Link to an External Image', key:'E', replaceWith:'![[![Alternative text]!]]([![Url:!:http://]!] "[![Title]!]")', className:'img'},
 		{name:'Link', key:'L', openWith:'[', closeWith:']([![Url:!:http://]!] "[![Title]!]")', placeHolder:'Your text to link here...', className:'a' },
 		{separator:'---------------', className:'sep'},	
 		{name:'Quotes', openWith:'> ', className:'blockquote'},
-		{name:'Code Format (Class / Variable / File)', openWith:'`', closeWith:'`', className:'code'},
+		{name:'Code Format', openWith:'`', closeWith:'`', className:'code'},
 		//{name:'Code Block / Code', openWith:'(!(\t|!|`)!)', closeWith:'(!(`)!)'},
 		{separator:'---------------'},
-		{name:'Preview', call:'preview', className:"preview"}
+		{name:'Preview', key: 'P', call:'preview', className:"preview"}
 	]
 }
 
-var markitupHTMLSettings = {
+var markitupParsedownDefaults = {
+	nameSpace:'markItUpParsedown',
+	resizeHandle: false,
+	previewParserPath:	DevblocksAppPath + 'ajax.php?c=internal&a=transformMarkupToHTML&format=parsedown',
+	previewAutoRefresh: true,
+	previewInWindow: 'width=800, height=600, titlebar=no, location=no, menubar=no, status=no, toolbar=no, resizable=yes, scrollbars=yes',
+	onShiftEnter:		{keepDefault:false, openWith:'\n\n'},
+	markupSet: [
+		{name:'Bold', key:'B', openWith:'**', closeWith:'**', className:'b'},
+		{name:'Italic', key:'I', openWith:'_', closeWith:'_', className:'i'},
+		{name:'Bulleted List', openWith:'- ', className:'ul' },
+		{name:'Numeric List', className:'ol', openWith:function(markItUp) {
+			return markItUp.line+'. ';
+		}},
+		{name:'Link to an External Image', key:'E', openWith:'![Image](', closeWith:')', placeHolder:'http://www.example.com/path/to/image.png', className:'img'},
+		{name:'Link', key:'L', openWith:'[', closeWith:'](http://www.example.com/)', placeHolder:'link text', className:'a' },
+		{name:'Quotes', openWith:'> ', className:'blockquote'},
+		{name:'Code Format', openWith:'`', closeWith:'`', placeHolder:'code', className:'code'},
+		{separator:'---------------'},
+		{name:'Preview', key: 'P', call:'preview', className:"preview"}
+	]
+}
+
+var markitupHTMLDefaults = {
+	resizeHandle: false,
 	previewParserPath:	DevblocksAppPath + 'ajax.php?c=internal&a=transformMarkupToHTML&format=html',
 	onShiftEnter:	{keepDefault:false, replaceWith:'<br />\n'},
 	onCtrlEnter:	{keepDefault:false, openWith:'\n<p>', closeWith:'</p>\n'},
@@ -50,11 +83,11 @@ var markitupHTMLSettings = {
 		{name:'Ol', openWith:'<ol>\n', closeWith:'</ol>\n', className:'ol' },
 		{name:'Li', openWith:'<li>', closeWith:'</li>', className:'li' },
 		{separator:'---------------', className:'sep' },
-		{name:'Picture', key:'P', replaceWith:'<img src="[![Source:!:http://]!]" alt="[![Alternative text]!]" />', className:'img' },
+		{name:'Link to an External Image', key:'E', replaceWith:'<img src="[![Source:!:http://]!]" alt="[![Alternative text]!]" />', className:'img' },
 		{name:'Link', key:'L', openWith:'<a href="[![Link:!:http://]!]"(!( title="[![Title]!]")!)>', closeWith:'</a>', placeHolder:'Your text to link...', className:'a' },
 		{separator:'---------------', className:'sep' },
 		{name:'Clean', className:'clean', replaceWith:function(markitup) { return markitup.selection.replace(/<(.*?)>/g, "") } },
-		{name:'Preview', className:'preview', call:'preview' }
+		{name:'Preview', key: 'P', className:'preview', call:'preview' }
 	]
 } 
 
@@ -113,10 +146,10 @@ $.fn.cerbDateInputHelper = function(options) {
 					return false;
 				}
 			})
-			.data('autocomplete')
+			.data('uiAutocomplete')
 				._renderItem = function(ul, item) {
 					var $li = $('<li></li>')
-						.data('item.autocomplete', item)
+						.data('ui-autocomplete-item', item)
 						.append($('<a></a>').html(item.label))
 						.appendTo(ul);
 					
@@ -187,7 +220,7 @@ $.fn.cerbDateInputHelper = function(options) {
 
 var cAjaxCalls = function() {
 	// [TODO] We don't really need all this
-	this.showBatchPanel = function(view_id,target) {
+	this.showBatchPanel = function(view_id, target) {
 		var viewForm = document.getElementById('viewForm'+view_id);
 		if(null == viewForm) return;
 		var elements = viewForm.elements['ticket_id[]'];
@@ -208,8 +241,8 @@ var cAjaxCalls = function() {
 		}
 		
 		var ticket_ids = ids.join(','); // [TODO] Encode?
-	
-		genericAjaxPopup('peek','c=tickets&a=showBatchPanel&view_id=' + view_id + '&ids=' + ticket_ids,target,false,'500');
+		
+		genericAjaxPopup('peek','c=tickets&a=showBatchPanel&view_id=' + view_id + '&ids=' + ticket_ids, { my: 'top', at: 'top' }, false, '650');
 	}
 
 	// [TODO] This isn't necessary with *any* other bulk update panel
@@ -272,7 +305,7 @@ var cAjaxCalls = function() {
 		
 		var row_ids = ids.join(','); // [TODO] Encode?
 	
-		genericAjaxPopup('bulk','c=contacts&a=showAddressBatchPanel&view_id=' + view_id + '&ids=' + row_ids,null,false,'500');
+		genericAjaxPopup('bulk','c=contacts&a=showAddressBatchPanel&view_id=' + view_id + '&ids=' + row_ids, { my: 'top', at: 'top' }, false, '650');
 	}
 	
 	// [TODO] This is not necessary
@@ -700,6 +733,8 @@ var cAjaxCalls = function() {
 							$li.addClass(options.style);
 						$ul.append($li);
 					}
+				
+				$button.focus();
 			});
 		});
 	}

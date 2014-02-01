@@ -58,9 +58,10 @@
 <fieldset class="peek">
 	<legend>{'common.mail'|devblocks_translate|capitalize}</legend>
 	
-	<b>{'common.options'|devblocks_translate|capitalize}:</b>
+	<b>{'preferences.account.mail.display'|devblocks_translate}:</b>
 	<div style="margin:0px 0px 10px 10px;">
 		<label><input type="checkbox" name="mail_always_show_all" value="1" {if $prefs.mail_always_show_all}checked{/if}> {'preferences.account.mail.readall'|devblocks_translate}</label><br>
+		<label><input type="checkbox" name="mail_display_inline_log" value="1" {if $prefs.mail_display_inline_log}checked{/if}> {'preferences.account.mail.display.inline_log'|devblocks_translate}</label><br>
 	</div>
 
 	<b>{'preferences.account.mail.reply_button'|devblocks_translate}</b>
@@ -71,6 +72,8 @@
 
 	<b>{'preferences.account.mail.reply_textbox_size'|devblocks_translate}</b>
 	<div style="margin:0px 0px 10px 10px;">
+		<label><input type="checkbox" name="mail_reply_html" value="1" {if $prefs.mail_reply_html}checked{/if}> {'preferences.account.mail.reply.html'|devblocks_translate}</label><br>
+		
 		{'preferences.account.mail.reply_textbox_size.pixels'|devblocks_translate} <input type="text" name="mail_reply_textbox_size_px" size="4" maxlength=4" value="{$prefs.mail_reply_textbox_size_px|default:'500'}" onfocus="$(this).prev().find('input:radio').click();"> pixels<br>
 		<div style="margin:0px 0px 10px 10px;">
 			<label><input type="checkbox" name="mail_reply_textbox_size_inelastic" value="1" {if !empty($prefs.mail_reply_textbox_size_inelastic)}checked{/if}> {'preferences.account.mail.reply_textbox_size.inelastic'|devblocks_translate}</label><br>

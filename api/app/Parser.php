@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -484,6 +484,8 @@ class ParserFile {
 	public $tmpname = null;
 	public $mime_type = '';
 	public $file_size = 0;
+	public $parsed_attachment_id = 0;
+	public $parsed_attachment_guid = '';
 
 	function __destruct() {
 		if(file_exists($this->tmpname)) {
@@ -510,9 +512,9 @@ class ParserFile {
 };
 
 class ParseFileBuffer extends ParserFile {
-	private $mime_filename = '';
-	private $section = null;
-	private $info = array();
+	public $mime_filename = '';
+	public $section = null;
+	public $info = array();
 	private $fp = null;
 
 	function __construct($section, $info, $mime_filename) {
@@ -667,21 +669,10 @@ class CerberusParser {
 						
 						if(isset($info['charset']) && !empty($info['charset'])) {
 							$message->body_encoding = $info['charset'];
-							
-							if(@mb_check_encoding($text, $info['charset'])) {
-								$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['charset']);
-							} else {
-								mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1');
-								
-								if(false !== ($charset = mb_detect_encoding($text))) {
-									$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset);
-								} else {
-									$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
-								}
-							}
+							$text = self::convertEncoding($text, $info['charset']);
 						}
 						
-						@$message->body .= $text;
+						$message->body .= $text;
 						
 						unset($text);
 						$handled = true;
@@ -691,31 +682,12 @@ class CerberusParser {
 						@$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
 						
 						if(isset($info['charset']) && !empty($info['charset'])) {
-							if(@mb_check_encoding($text, $info['charset'])) {
-								$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['charset']);
-							} else {
-								mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1');
-								
-								if(false !== ($charset = mb_detect_encoding($text))) {
-									$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset);
-								} else {
-									$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
-								}
-							}
+							$text = self::convertEncoding($text, $info['charset']);
 						}
 						
 						$message->htmlbody .= $text;
-						unset($text);
 						
-						// Add the html part as an attachment
-						// [TODO] Make attaching the HTML part an optional config option (off by default)
-						$tmpname = ParserFile::makeTempFilename();
-						$html_attach = new ParserFile();
-						$html_attach->setTempFile($tmpname,'text/html');
-						@file_put_contents($tmpname,$message->htmlbody);
-						$html_attach->file_size = filesize($tmpname);
-						$message->files["original_message.html"] = $html_attach;
-						unset($html_attach);
+						unset($text);
 						$handled = true;
 						break;
 						 
@@ -840,6 +812,7 @@ class CerberusParser {
 		 * 'no_autoreply'
 		 */
 		$logger = DevblocksPlatform::getConsoleLog();
+		$url_writer = DevblocksPlatform::getUrlService();
 		
 		$headers =& $message->headers;
 
@@ -865,7 +838,7 @@ class CerberusParser {
 				break;
 			}
 		}
-
+		
 		// Parse headers into $model
 		$model = new CerberusParserModel($message);
 		
@@ -975,23 +948,29 @@ class CerberusParser {
 						if(0 == strcasecmp($filename, 'original_message.html'))
 							continue;
 
-						$fields = array(
-							DAO_Attachment::DISPLAY_NAME => $filename,
-							DAO_Attachment::MIME_TYPE => $file->mime_type,
-						);
-							
-						if(null == ($file_id = DAO_Attachment::create($fields))) {
-							@unlink($file->tmpname); // remove our temp file
-							continue;
+						// Dupe detection
+						$sha1_hash = sha1_file($file->tmpname, false);
+						
+						if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $filename))) {
+							$fields = array(
+								DAO_Attachment::DISPLAY_NAME => $filename,
+								DAO_Attachment::MIME_TYPE => $file->mime_type,
+								DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
+							);
+								
+							$file_id = DAO_Attachment::create($fields);
 						}
 
-						$attachment_file_ids[] = $file_id;
+						if($file_id) {
+							$attachment_file_ids[] = $file_id;
+						}
 							
 						if(null !== ($fp = fopen($file->getTempFile(), 'rb'))) {
 							Storage_Attachments::put($file_id, $fp);
 							fclose($fp);
-							unlink($file->getTempFile());
 						}
+						
+						@unlink($file->getTempFile());
 					}
 					
 					// Properties
@@ -1006,32 +985,53 @@ class CerberusParser {
 					// Clean the reply body
 					$body = '';
 					$lines = DevblocksPlatform::parseCrlfString($message->body, true);
-					$is_cut = false;
-					 
+					
+					$state = '';
+					$comments = array();
+					$comment_ptr = null;
+					
+					if(is_array($lines))
 					foreach($lines as $line) {
+						
 						if(preg_match('/[\s\>]*\s*##/', $line))
 							continue;
 
 						// Insert worker sig for this bucket
 						if(preg_match('/^#sig/', $line, $matches)) {
+							$state = '#sig';
 							$group = DAO_Group::get($proxy_ticket->group_id);
 							$sig = $group->getReplySignature($proxy_ticket->bucket_id, $proxy_worker);
 							$body .= $sig . PHP_EOL;
-								
+						
+						} elseif(preg_match('/^#start (.*)/', $line, $matches)) {
+							switch(@$matches[1]) {
+								case 'comment':
+									$state = '#comment_block';
+									$comment_ptr =& $comments[];
+									break;
+							}
+							
+						} elseif(preg_match('/^#end/', $line, $matches)) {
+							$state = '';
+							
 						} elseif(preg_match('/^#cut/', $line, $matches)) {
-							$is_cut = true;
+							$state = '#cut';
 							
 						} elseif(preg_match('/^#watch/', $line, $matches)) {
+							$state = '#watch';
 							CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $proxy_ticket->id, $proxy_worker->id);
 							
 						} elseif(preg_match('/^#unwatch/', $line, $matches)) {
+							$state = '#unwatch';
 							CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TICKET, $proxy_ticket->id, $proxy_worker->id);
 							
 						} elseif(preg_match('/^#noreply/', $line, $matches)) {
+							$state = '#noreply';
 							$properties['dont_send'] = 1;
 							$properties['dont_keep_copy'] = 1;
 							
 						} elseif(preg_match('/^#status (.*)/', $line, $matches)) {
+							$state = '#status';
 							switch(strtolower($matches[1])) {
 								case 'o':
 								case 'open':
@@ -1048,25 +1048,46 @@ class CerberusParser {
 							}
 							
 						} elseif(preg_match('/^#reopen (.*)/', $line, $matches)) {
+							$state = '#reopen';
 							$properties['ticket_reopen'] = $matches[1];
 							
-						} elseif(preg_match('/^#comment (.*)/', $line, $matches)) {
-							if(!isset($matches[1]) || empty($matches[1]))
-								continue;
-
-							DAO_Comment::create(array(
-								DAO_Comment::CREATED => time(),
-								DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-								DAO_Comment::OWNER_CONTEXT_ID => $proxy_worker->id,
-								DAO_Comment::COMMENT => $matches[1],
-								DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
-								DAO_Comment::CONTEXT_ID => $proxy_ticket->id,
-							));
+						} elseif(preg_match('/^#comment(.*)/', $line, $matches)) {
+							$state = '#comment';
+							$comment_ptr =& $comments[];
+							$comment_ptr = @$matches[1] ? ltrim($matches[1]) : '';
 							
 						} else {
-							if(!$is_cut)
+							
+							switch($state) {
+								case '#comment':
+									if(empty($line)) {
+										$state = '';
+									} else {
+										$comment_ptr .= ' ' . ltrim($line);
+									}
+									break;
+									
+								case '#comment_block':
+									$comment_ptr .= $line . "\n";
+									break;
+							}
+							
+							if(!in_array($state, array('#cut', '#comment', '#comment_block'))) {
 								$body .= $line . PHP_EOL;
+							}
 						}
+					}
+
+					if(is_array($comments))
+					foreach($comments as $comment) {
+						DAO_Comment::create(array(
+							DAO_Comment::CREATED => time(),
+							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+							DAO_Comment::OWNER_CONTEXT_ID => $proxy_worker->id,
+							DAO_Comment::COMMENT => $comment,
+							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
+							DAO_Comment::CONTEXT_ID => $proxy_ticket->id,
+						));
 					}
 					
 					$properties['content'] = $body;
@@ -1244,31 +1265,59 @@ class CerberusParser {
 			}
 			
 			if(!$handled) {
+				$sha1_hash = sha1_file($file->tmpname, false);
+
+				// Dupe detection
+				if(null == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $filename))) {
+					$fields = array(
+						DAO_Attachment::DISPLAY_NAME => $filename,
+						DAO_Attachment::MIME_TYPE => $file->mime_type,
+						DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
+					);
+					$file_id = DAO_Attachment::create($fields);
+
+					// Store the content in the new file
+					if(null !== ($fp = fopen($file->getTempFile(), 'rb'))) {
+						Storage_Attachments::put($file_id, $fp);
+						fclose($fp);
+					}
+				}
+				
+				// Link
+				if($file_id) {
+					$file->parsed_attachment_id = $file_id;
+					$file->parsed_attachment_guid = DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId());
+				}
+				
+				// Rewrite any inline content-id images in the HTML part
+				if(isset($file->info) && isset($file->info['content-id'])) {
+					$inline_cid_url = $url_writer->write('c=files&guid=' . $file->parsed_attachment_guid . '&name=' . urlencode($filename), true);
+					$message->htmlbody = str_replace('cid:' . $file->info['content-id'], $inline_cid_url, $message->htmlbody);
+				}
+			}
+			
+			// Remove the temp file
+			@unlink($file->tmpname);
+		}
+		
+		// Save the HTML part as an 'original_message.html' attachment
+		// [TODO] Make attaching the HTML part an optional config option (off by default)
+		if(!empty($message->htmlbody)) {
+			$sha1_hash = sha1($message->htmlbody, false);
+			
+			if(null == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, 'original_message.html'))) {
 				$fields = array(
-					DAO_Attachment::DISPLAY_NAME => $filename,
-					DAO_Attachment::MIME_TYPE => $file->mime_type,
+					DAO_Attachment::DISPLAY_NAME => 'original_message.html',
+					DAO_Attachment::MIME_TYPE => 'text/html',
+					DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
 				);
 				$file_id = DAO_Attachment::create($fields);
 				
-				// Link
-				DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId());
-				
-				// Content
-				if(empty($file_id)) {
-					@unlink($file->tmpname); // remove our temp file
-					continue;
-				}
-	
-				if(null !== ($fp = fopen($file->getTempFile(), 'rb'))) {
-					Storage_Attachments::put($file_id, $fp);
-					fclose($fp);
-					unlink($file->getTempFile());
-				}
-				
-			} else {
-				@unlink($file->tmpname); // remove our temp file
-				
+				Storage_Attachments::put($file_id, $message->htmlbody);
 			}
+			
+			if(!empty($file_id))
+				DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId());
 		}
 		
 		// Pre-load custom fields
@@ -1380,6 +1429,43 @@ class CerberusParser {
 		return CerberusUtils::parseRfcAddressList($address_string);
 	}
 	
+	static function convertEncoding($text, $charset) {
+		$charset = strtolower($charset);
+		
+		// Normalize charsets
+		switch($charset) {
+			case 'us-ascii':
+				$charset = 'ascii';
+				break;
+		}
+		
+		if(@mb_check_encoding($text, $charset)) {
+			if(false !== ($out = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset)))
+				return $out;
+			
+		} else {
+			$has_iconv = extension_loaded('iconv') ? true : false;
+			
+			// If we can use iconv, do so.
+			if($has_iconv && false !== ($out = iconv($charset, LANG_CHARSET_CODE, $text)))
+				return $out;
+			
+			// Otherwise, fall back to mbstring's auto-detection
+			mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1');
+			
+			if(false !== ($charset = mb_detect_encoding($text))) {
+				if(false !== ($out = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset)))
+					return $out;
+				
+			} else {
+				if(false !== ($out = mb_convert_encoding($text, LANG_CHARSET_CODE)))
+					return $out;
+			}
+		}
+		
+		return $text;
+	}
+	
 	static function fixQuotePrintableString($input, $encoding=null) {
 		$out = '';
 		
@@ -1400,18 +1486,7 @@ class CerberusParser {
 					if(empty($charset))
 						$charset = 'auto';
 
-					if(@mb_check_encoding($part->text, $charset)) {
-						@$out .= mb_convert_encoding($part->text, LANG_CHARSET_CODE, $charset);
-						
-					} else {
-						mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, auto');
-						
-						if(false !== ($charset = mb_detect_encoding($part->text))) {
-							$out .= mb_convert_encoding($part->text, LANG_CHARSET_CODE, $charset);
-						} else {
-							$out .= mb_convert_encoding($part->text, LANG_CHARSET_CODE);
-						}
-					}
+					$out .= self::convertEncoding($part->text, $charset);
 					
 				} catch(Exception $e) {}
 			}

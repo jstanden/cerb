@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -126,6 +126,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					"[PHP:Extension] PCRE: %s\n".
 					"[PHP:Extension] GD: %s\n".
 					"[PHP:Extension] mbstring: %s\n".
+					"[PHP:Extension] iconv: %s\n".
 					"[PHP:Extension] XML: %s\n".
 					"[PHP:Extension] SimpleXML: %s\n".
 					"[PHP:Extension] DOM: %s\n".
@@ -160,6 +161,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					(extension_loaded("pcre") ? 'YES' : 'NO'),
 					(extension_loaded("gd") ? 'YES' : 'NO'),
 					(extension_loaded("mbstring") ? 'YES' : 'NO'),
+					(extension_loaded("iconv") ? 'YES' : 'NO'),
 					(extension_loaded("xml") ? 'YES' : 'NO'),
 					(extension_loaded("simplexml") ? 'YES' : 'NO'),
 					(extension_loaded("dom") ? 'YES' : 'NO'),

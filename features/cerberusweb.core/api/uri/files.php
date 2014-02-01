@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -29,11 +29,11 @@ class ChFilesController extends DevblocksControllerExtension {
 	function handleRequest(DevblocksHttpRequest $request) {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$stack = $request->path;				// URLS like: /files/10000/plaintext.txt
-		array_shift($stack);					// files
-		$file_guid = array_shift($stack);		// GUID
-		$file_name = array_shift($stack);		// plaintext.txt
-
+		$stack = $request->path; // URLS like: /files/10000/plaintext.txt
+		array_shift($stack); // files
+		$file_guid = array_shift($stack); // GUID
+		$file_name = array_shift($stack); // plaintext.txt
+		
 		// Security
 		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
 			die($translate->_('common.access_denied'));
@@ -41,20 +41,32 @@ class ChFilesController extends DevblocksControllerExtension {
 		if(empty($file_guid) || empty($file_name))
 			die($translate->_('files.not_found'));
 		
-		$link = DAO_AttachmentLink::getByGUID($file_guid);
-		
-		if(empty($link))
-			die("Error reading link.");
-		
-		if(null == ($context = $link->getContext()))
-			die($translate->_('common.access_denied'));
-		
-		// Security
-		if(!$context->authorize($link->context_id, $active_worker))
-			die($translate->_('common.access_denied'));
+		// Are we being asked for the direct SHA1 hash of a file?
+		if(strlen($file_guid) == 40) {
+			if(null == ($file_id = DAO_Attachment::getBySha1Hash($file_guid, urldecode($file_name))))
+				die($translate->_('common.access_denied'));
 			
-		$file = $link->getAttachment();
+			$file = DAO_Attachment::get($file_id);
+			
+		// If not SHA1, then look for a link with this GUID
+		} else {
+			$link = DAO_AttachmentLink::getByGUID($file_guid);
+			
+			if(empty($link))
+				die("Error reading link.");
+			
+			if(null == ($context = $link->getContext()))
+				die($translate->_('common.access_denied'));
+			
+			// Security
+			if(!$context->authorize($link->context_id, $active_worker))
+				die($translate->_('common.access_denied'));
+			
+			$file = $link->getAttachment();
+		}
 		
+		if(empty($file))
+			die("File not found.");
 		if(false === ($fp = DevblocksPlatform::getTempFile()))
 			die("Could not open a temporary file.");
 		if(false === $file->getFileContents($fp))
@@ -65,11 +77,11 @@ class ChFilesController extends DevblocksControllerExtension {
 		$is_download = isset($request->query['download']) ? true : false;
 
 		// Set headers
-		header("Expires: Mon, 26 Nov 1979 00:00:00 GMT");
-		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-		header("Accept-Ranges: bytes");
-//		header("Keep-Alive: timeout=5, max=100");
-//		header("Connection: Keep-Alive");
+		header('Pragma: cache');
+		header('Cache-control: max-age=604800', true); // 1 wk // , must-revalidate
+		header('Expires: ' . gmdate('D, d M Y H:i:s',time()+604800) . ' GMT'); // 1 wk
+		header('Accept-Ranges: bytes');
+// 		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 
 		if($is_download) {
 			header('Content-Disposition: attachment; filename=' . urlencode($file->display_name));
@@ -77,7 +89,7 @@ class ChFilesController extends DevblocksControllerExtension {
 		
 		switch(strtolower($file->mime_type)) {
 			case 'text/html':
-				header("Content-Type: " . $file->mime_type . '; charset=UTF-8');
+				header("Content-Type: text/html; charset=" . LANG_CHARSET_CODE);
 				
 				// If we're downloading the HTML, just pass the raw bytes
 				if($is_download) {
@@ -99,7 +111,7 @@ class ChFilesController extends DevblocksControllerExtension {
 						'Attr.EnableID' => true,
 					);
 					
-					$clean_html = DevblocksPlatform::purifyHTML($fp, $purify_config);
+					$clean_html = DevblocksPlatform::purifyHTML($fp, true, $purify_config);
 					
 					header("Content-Length: " . strlen($clean_html));
 					echo $clean_html;

@@ -37,7 +37,7 @@
 <script type="text/javascript">
 $popup = genericAjaxPopupFind('#frmWidgetEdit');
 $popup.one('popup_open', function(event,ui) {
-	$(this).dialog('option','title',"{'Widget'}");
+	$(this).dialog('option','title',"{'Widget'|escape:'javascript' nofilter}");
 	
 	var $frm = $(this).find('form');
 	

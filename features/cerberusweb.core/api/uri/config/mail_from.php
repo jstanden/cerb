@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -42,7 +42,11 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 		$worker_token_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $worker_token_labels, $worker_token_values);
 		$tpl->assign('worker_token_labels', $worker_token_labels);
-			
+		
+		// HTML templates
+		$html_templates = DAO_MailHtmlTemplate::getAll();
+		$tpl->assign('html_templates', $html_templates);
+		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_from/peek.tpl');
 	}
 	
@@ -53,6 +57,7 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 		@$reply_from = DevblocksPlatform::importGPC($_REQUEST['reply_from'], 'string', '');
 		@$reply_personal = DevblocksPlatform::importGPC($_REQUEST['reply_personal'], 'string', '');
 		@$reply_signature = DevblocksPlatform::importGPC($_REQUEST['reply_signature'], 'string', '');
+		@$reply_html_template_id = DevblocksPlatform::importGPC($_REQUEST['reply_html_template_id'], 'integer', 0);
 
 		$worker = CerberusApplication::getActiveWorker();
 	
@@ -75,6 +80,7 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 						DAO_AddressOutgoing::ADDRESS_ID => $id,
 						DAO_AddressOutgoing::REPLY_PERSONAL => $reply_personal,
 						DAO_AddressOutgoing::REPLY_SIGNATURE => $reply_signature,
+						DAO_AddressOutgoing::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
 					);
 					DAO_AddressOutgoing::create($fields);
 					
@@ -82,6 +88,7 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 					$fields = array(
 						DAO_AddressOutgoing::REPLY_PERSONAL => $reply_personal,
 						DAO_AddressOutgoing::REPLY_SIGNATURE => $reply_signature,
+						DAO_AddressOutgoing::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
 					);
 					DAO_AddressOutgoing::update($id, $fields);
 					

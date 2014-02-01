@@ -15,6 +15,21 @@
 	{/if}
 {elseif $v.type == Model_CustomField::TYPE_MULTI_CHECKBOX}
 	{$v.value|implode:', '}
+{elseif $v.type == Model_CustomField::TYPE_LINK}
+	{$link_cfield = DAO_CustomField::get($v.id)}
+	{$link_context_ext = Extension_DevblocksContext::get($link_cfield->params.context)}
+	
+	{if $link_context_ext && $v.value}
+		{$link_meta = $link_context_ext->getMeta($v.value)}
+		
+		{if $link_meta}
+			{if $link_meta.permalink}
+				<a href="{$link_meta.permalink}">{$link_meta.name}</a>
+			{else}
+				{$link_meta.name}
+			{/if}
+		{/if}
+	{/if}
 {elseif $v.type == Model_CustomField::TYPE_FILE}
 	{$file_id = $v.value}
 	{$file = DAO_Attachment::get($file_id)}

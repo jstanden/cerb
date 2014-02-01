@@ -46,7 +46,7 @@
 	// Popups
 	$popup = genericAjaxPopupFetch('watchers');
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title',"{'common.watchers'|devblocks_translate|capitalize}");
+		$(this).dialog('option','title',"{'common.watchers'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 
 		{if $active_worker->hasPriv('core.watchers.assign')}
 			// Choosers

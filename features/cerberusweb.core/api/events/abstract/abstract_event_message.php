@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -240,6 +240,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		$types = $this->getTypes();
 		
 		$labels['header'] = 'Message header';
 		$labels['is_first'] = 'Message is first in conversation';
@@ -259,84 +260,24 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		$labels['sender_org_watcher_count'] = 'Message sender org watcher count';
 		$labels['sender_watcher_count'] = 'Message sender watcher count';
 		
-		$types = array(
-			'content' => Model_CustomField::TYPE_MULTI_LINE,
-			'created' => Model_CustomField::TYPE_DATE,
-			'is_first' => Model_CustomField::TYPE_CHECKBOX,
-			'is_outgoing' => Model_CustomField::TYPE_CHECKBOX,
-			'sender_address' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_is_banned' => Model_CustomField::TYPE_CHECKBOX,
-			'sender_is_defunct' => Model_CustomField::TYPE_CHECKBOX,
-			'sender_is_worker' => Model_CustomField::TYPE_CHECKBOX,
-			'sender_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_num_nonspam' => Model_CustomField::TYPE_NUMBER,
-			'sender_num_spam' => Model_CustomField::TYPE_NUMBER,
-			'sender_org_city' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_org_country' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_org_created' => Model_CustomField::TYPE_DATE,
-			'sender_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_org_postal' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_org_province' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_org_street' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_org_website' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_worker_address_address' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_worker_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'storage_size' => Model_CustomField::TYPE_NUMBER,
+		$types['header'] = null;
+		$types['is_first'] = Model_CustomField::TYPE_CHECKBOX;
+		$types['sender_is_worker'] = Model_CustomField::TYPE_CHECKBOX;
+		$types['ticket_has_owner'] = Model_CustomField::TYPE_CHECKBOX;
+		$types['ticket_watcher_count'] = Model_CustomField::TYPE_NUMBER;
 		
-			// Group
-			'group_id' => null,
-			"group_name" => Model_CustomField::TYPE_SINGLE_LINE,
-			'group_and_bucket' => null,
-
-			// Org
-			'ticket_org_city' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_org_country' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_org_created' => Model_CustomField::TYPE_DATE,
-			'ticket_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_org_postal' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_org_province' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_org_street' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_org_website' => Model_CustomField::TYPE_SINGLE_LINE,
-			
-			// Owner
-			'ticket_owner_address_address' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_owner_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_owner_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_owner_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_owner_title' => Model_CustomField::TYPE_SINGLE_LINE,
-			
-			// Ticket
-			"ticket_bucket_name" => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_created' => Model_CustomField::TYPE_DATE,
-			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_num_messages' => Model_CustomField::TYPE_NUMBER,
-			'ticket_reopen_date' => Model_CustomField::TYPE_DATE,
-			'ticket_spam_score' => null,
-			'ticket_spam_training' => null,
-			'ticket_status' => null,
-			'ticket_subject' => Model_CustomField::TYPE_SINGLE_LINE,
-			'ticket_updated' => Model_CustomField::TYPE_DATE,
-			'ticket_url' => Model_CustomField::TYPE_URL,
+		$types['group_id'] = null;
+		$types['group_and_bucket'] = null;
 		
-			'ticket_has_owner' => null,
-			'ticket_watcher_count' => null,
+		$types['sender_link'] = null;
+		$types['sender_org_link'] = null;
+		$types['ticket_link'] = null;
 		
-			'sender_link' => null,
-			'sender_org_link' => null,
-			'ticket_link' => null,
-			
-			'sender_org_watcher_count' => null,
-			'sender_watcher_count' => null,
-			'ticket_org_watcher_count' => null,
-			'ticket_watcher_count' => null,
-			
-			'header' => null,
-		);
-
+		$types['ticket_org_watcher_count'] = null;
+		$types['ticket_watcher_count'] = null;
+		$types['sender_org_watcher_count'] = null;
+		$types['sender_watcher_count'] = null;
+		
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
 		return $conditions;
@@ -350,12 +291,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
-			case 'ticket_has_owner':
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_bool.tpl');
-				break;
-			case 'ticket_watcher_count':
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
-				break;
 			case 'ticket_spam_score':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_spam_score.tpl');
 				break;
@@ -752,6 +687,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 			case 'send_email_recipients':
 				$tpl->assign('workers', DAO_Worker::getAll());
+				
+				$html_templates = DAO_MailHtmlTemplate::getAll();
+				$tpl->assign('html_templates', $html_templates);
+				
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_owner/action_send_email_recipients.tpl');
 				break;
 				
@@ -990,12 +929,16 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				// Translate message tokens
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 
-				$content = $tpl_builder->build($params['content'], $dict);
+				@$content = $tpl_builder->build($params['content'], $dict);
+				@$format = $params['format'];
+				@$html_template_id = $params['html_template_id'];
 
 				$properties = array(
 					'ticket_id' => $ticket_id,
 					'message_id' => $message_id,
 					'content' => $content,
+					'content_format' => $format,
+					'html_template_id' => $html_template_id,
 					'worker_id' => 0,
 				);
 				

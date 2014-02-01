@@ -2,7 +2,7 @@
 /***********************************************************************
  | Cerb(tm) developed by Webgroup Media, LLC.
  |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2013, Webgroup Media LLC
+ | All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
  |   unless specifically noted otherwise.
  |
  | This source code is released under the Devblocks Public License.
@@ -60,6 +60,9 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		$contexts = Extension_DevblocksContext::getAll(false, array('custom_fields'));
 		$tpl->assign('contexts', $contexts);
 		
+		$link_contexts = Extension_DevblocksContext::getAll(false, array('workspace'));
+		$tpl->assign('link_contexts', $link_contexts);
+		
 		// Owners
 		
 		$roles = DAO_WorkerRole::getAll();
@@ -107,7 +110,7 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids'], 'array', array());
 		@$types = DevblocksPlatform::importGPC($_REQUEST['types'], 'array', array());
 		@$names = DevblocksPlatform::importGPC($_REQUEST['names'], 'array', array());
-		@$options = DevblocksPlatform::importGPC($_REQUEST['options'], 'array', array());
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
 		@$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'], 'array', array());
 		
 		// Check permissions
@@ -186,7 +189,6 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 				!isset($types[$idx])
 				|| !isset($names[$idx])
 				|| empty($names[$idx])
-				|| !isset($options[$idx])
 			)
 				continue;
 			
@@ -211,25 +213,29 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 				}
 			}
 			
+			$fields = array(
+				DAO_CustomField::NAME => $names[$idx],
+				DAO_CustomField::POS => $idx,
+			);
+			
+			if(isset($params[$id]['options']))
+				$params[$id]['options'] = DevblocksPlatform::parseCrlfString($params[$id]['options']);
+			
+			if(isset($params[$id]))
+				$fields[DAO_CustomField::PARAMS_JSON] = json_encode($params[$id]);
+			else
+				$fields[DAO_CustomField::PARAMS_JSON] = json_encode(array());
+			
 			// Create field
-			if(empty($id)) {
-				$fields = array(
-					DAO_CustomField::CONTEXT => $context,
-					DAO_CustomField::NAME => $names[$idx],
-					DAO_CustomField::CUSTOM_FIELDSET_ID => $custom_fieldset_id,
-					DAO_CustomField::OPTIONS => $options[$idx],
-					DAO_CustomField::TYPE => $types[$idx],
-					DAO_CustomField::POS => $idx,
-				);
+			if(empty($id) || !is_numeric($id)) {
+				$fields[DAO_CustomField::CONTEXT] = $context;
+				$fields[DAO_CustomField::CUSTOM_FIELDSET_ID] = $custom_fieldset_id;
+				$fields[DAO_CustomField::TYPE] = $types[$idx];
+				
 				DAO_CustomField::create($fields);
 				
 			// Modify field
 			} else {
-				$fields = array(
-					DAO_CustomField::NAME => $names[$idx],
-					DAO_CustomField::OPTIONS => $options[$idx],
-					DAO_CustomField::POS => $idx,
-				);
 				DAO_CustomField::update($id, $fields);
 			}
 		}

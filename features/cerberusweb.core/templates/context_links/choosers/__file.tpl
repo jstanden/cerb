@@ -2,7 +2,7 @@
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="chooserOpenFileUpload">
 
-<fieldset>
+<fieldset class="peek">
 	<legend>Upload File</legend>
 	<input type="file" name="file_data[]" {if !$single}multiple="multiple"{/if}>
 </fieldset>
@@ -20,14 +20,14 @@
 	$popup.find('UL.buffer').sortable({ placeholder: 'ui-state-highlight' });
 	
 	$frm.submit(function(event) {
-		$frm = $(this);
+		var $frm = $(this);
 		$iframe = $frm.parent().find('IFRAME[name=iframe_file_post]');
-		$iframe.load(function(event) {
-			data = $(this).contents().find('body').html();
-			$json = $.parseJSON(data);
+		$iframe.one('load', function(event) {
+			var data = $(this).contents().find('body').text();
+			var $json = $.parseJSON(data);
 			
-			$labels = [];
-			$values = [];
+			var $labels = [];
+			var $values = [];
 			
 			if(typeof $json == 'object')
 			for(file_idx in $json) {
@@ -36,7 +36,8 @@
 			}
 		
 			// Trigger event
-			event = jQuery.Event('chooser_save');
+			var event = jQuery.Event('chooser_save');
+			event.response = $json;
 			event.labels = $labels;
 			event.values = $values;
 			$popup.trigger(event);

@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -112,6 +112,26 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 		return $addresses;
 	}
 	
+	static function getByWorkers() {
+		$workers = DAO_Worker::getAll(false, false);
+		$addys = DAO_AddressToWorker::getAll(false, false);
+		
+		array_walk($addys, function($addy) use ($workers) {
+			if(!$addy->is_confirmed)
+				return;
+			
+			if(!isset($workers[$addy->worker_id]))
+				return;
+			
+			if(!isset($workers[$addy->worker_id]->relay_emails))
+				$workers[$addy->worker_id]->relay_emails = array();
+				
+			$workers[$addy->worker_id]->relay_emails[] = $addy->address;
+		});
+		
+		return $workers;
+	}
+	
 	/**
 	 * Enter description here...
 	 *
@@ -136,12 +156,14 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 	}
 	
 	static function getAll($nocache=false, $with_disabled=false) {
-		// [TODO] Cache? getAllActive?
-		
 		$workers = DAO_Worker::getAll();
+		
+		// [TODO] Cache? getAllActive?
 		$addresses = self::getWhere();
+		
 		$results = array();
 		
+		if(is_array($addresses))
 		foreach($addresses as $address) {
 			@$worker = $workers[$address->worker_id];
 			if(empty($worker) || $worker->is_disabled)

@@ -244,7 +244,6 @@
 		
 		$frm.find('TABLE.toggle_grid TR TD').click(function(e) {
 			$td = $(this).closest('td');
-			$td.disableSelection();
 			
 			if($td.is('.selected')) {
 				$td.find('input:checkbox').removeAttr('checked');

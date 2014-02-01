@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -95,20 +95,13 @@ abstract class AbstractEvent_VirtualAttendant extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		$types = $this->getTypes();
 		
 		$labels['va_link'] = 'Virtual attendant is linked';
 		$labels['va_watcher_count'] = 'Virtual attendant watcher count';
 		
-		$types = array(
-			'va_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'va_is_disabled' => Model_CustomField::TYPE_CHECKBOX,
-			'va_created' => Model_CustomField::TYPE_DATE,
-			'va_updated' => Model_CustomField::TYPE_DATE,
-				
-			'va_link' => null,
-			
-			'va_watcher_count' => null,
-		);
+		$types['va_link'] = null;
+		$types['va_watcher_count'] = null;
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 

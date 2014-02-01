@@ -34,16 +34,20 @@
 	
 	{if $is_writeable}
 	$('#frmTrigger{$tab_uniqid} BUTTON.add').click(function() {
-		$popup = genericAjaxPopup('node_trigger','c=internal&a=showDecisionPopup&trigger_id=0&va_id={$va->id}{if isset($only_event_ids)}&only_event_ids={$only_event_ids}{/if}',null,false,'500');
+		var $popup = genericAjaxPopup('node_trigger','c=internal&a=showDecisionPopup&trigger_id=0&va_id={$va->id}{if isset($only_event_ids)}&only_event_ids={$only_event_ids}{/if}',null,false,'500');
 		
 		$popup.one('trigger_create',function(event) {
 			if(null == event.event_point || null == event.trigger_id)
 				return;
 			
-			$event = $('#event_' + event.event_point.replace(/\./g,'_') + '_{$tab_uniqid}');
-			$tree = $('<form id="decisionTree'+event.trigger_id+'"></form>');
+			var $event = $('#event_' + event.event_point.replace(/\./g,'_') + '_{$tab_uniqid}');
+			var $tree = $('<form id="decisionTree'+event.trigger_id+'"></form>');
 			$event.show().append($tree);
-			$(window).scrollTop($tree.position().top);
+			
+			setTimeout(function($tree) {
+				$(window).scrollTop($tree.position().top);
+				$tree.find('legend').effect('highlight', { }, 1000);
+			}, 250, $tree);
 			
 			genericAjaxGet('decisionTree'+event.trigger_id, 'c=internal&a=showDecisionTree&id='+event.trigger_id);
 		});
@@ -52,16 +56,16 @@
 	
 	{if $is_writeable}
 	function decisionNodeMenu(element) {
-		$this = $(element);
+		var $this = $(element);
 		
-		node_id = $this.attr('node_id');
-		trigger_id = $this.attr('trigger_id');
+		var node_id = $this.attr('node_id');
+		var trigger_id = $this.attr('trigger_id');
 		
 		if($this.closest('div.node').hasClass('dragged'))
 			return;
 		
 		genericAjaxGet('', 'c=internal&a=showDecisionNodeMenu&id='+node_id+'&trigger_id='+trigger_id, function(html) {
-			$position = $(element).offset();
+			var $position = $(element).offset();
 			$('#nodeMenu{$tab_uniqid}')
 				.appendTo('body')
 				.unbind()
@@ -86,7 +90,7 @@
 				})
 				.find('ul li')
 				.click(function(e) {
-					$target = $(e.target);
+					var $target = $(e.target);
 					if(!$target.is('li'))
 						return;
 					

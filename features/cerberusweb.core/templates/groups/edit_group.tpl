@@ -32,6 +32,6 @@
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#groupTabs").tabs( { selected:{$selected_tab_idx} } );
+		var tabs = $("#groupTabs").tabs( { active:{$selected_tab_idx} } );
 	});
 </script>

@@ -96,7 +96,7 @@ $frm.find('button.calendar-edit').click(function() {
 		var $tabs = $frm.closest('div.ui-tabs');
 		
 		if(0 != $tabs) {
-			$tabs.tabs('load', $tabs.tabs('option','selected'));
+			$tabs.tabs('load', $tabs.tabs('option','active'));
 		}
 	});
 });

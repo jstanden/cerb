@@ -87,14 +87,14 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title','{'kb.common.knowledgebase_article'|devblocks_translate}');
+		$(this).dialog('option','title','{'kb.common.knowledgebase_article'|devblocks_translate|escape:'javascript' nofilter}');
 		$("#kbArticleTabs").tabs();
 		$('#frmKbEditPanel :input:text:first').focus().select();
 		
 		{if 1==$article->format}
-		$("#content").markItUp(markitupHTMLSettings);
+		$("#content").markItUp(markitupHTMLDefaults);
 		{else}
-		$("#content").markItUp(markitupMarkdownSettings);
+		$("#content").markItUp(markitupMarkdownDefaults);
 		{/if}
 
 		$frm = $('#frmKbEditPanel');	
@@ -102,9 +102,9 @@
 		$frm.find('input[name=format]').bind('click', function(event) {
 			$("#content").markItUpRemove();
 			if(2==$(event.target).val()) {
-				$("#content").markItUp(markitupMarkdownSettings);
+				$("#content").markItUp(markitupMarkdownDefaults);
 			} else if(1==$(event.target).val()) {
-				$("#content").markItUp(markitupHTMLSettings);
+				$("#content").markItUp(markitupHTMLDefaults);
 			} 
 		} );
 		

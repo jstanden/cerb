@@ -76,7 +76,7 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize}");
+		$(this).dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
 		$('#formBatchUpdate button.chooser-worker').each(function() {
 			$button = $(this);

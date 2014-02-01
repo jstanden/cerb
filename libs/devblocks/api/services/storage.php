@@ -37,7 +37,7 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 			$this->_options['storage_path'] = APP_STORAGE_PATH . '/';
 	}
 	
-	function testConfig() {
+	function testConfig(Model_DevblocksStorageProfile $profile) {
 		@$path = DevblocksPlatform::importGPC($_POST['path'],'string','');
 		
 		if(empty($path))
@@ -204,7 +204,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 		return true;
 	}
 
-	function testConfig() {
+	function testConfig(Model_DevblocksStorageProfile $profile) {
 		@$host = DevblocksPlatform::importGPC($_POST['host'],'string','');
 		@$user = DevblocksPlatform::importGPC($_POST['user'],'string','');
 		@$password = DevblocksPlatform::importGPC($_POST['password'],'string','');
@@ -454,16 +454,48 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		}
 	}
 	
-	function testConfig() {
+	function testConfig(Model_DevblocksStorageProfile $profile) {
 		// Test S3 connection info
-		@$access_key = DevblocksPlatform::importGPC($_POST['access_key'],'string','');
-		@$secret_key = DevblocksPlatform::importGPC($_POST['secret_key'],'string','');
+		@$access_key = DevblocksPlatform::importGPC($_POST['access_key'],'string', null);
+		@$secret_key = DevblocksPlatform::importGPC($_POST['secret_key'],'string', null);
 		@$bucket = DevblocksPlatform::importGPC($_POST['bucket'],'string','');
-		@$host = DevblocksPlatform::importGPC($_POST['host'], 'string', '');
+		@$path_prefix = DevblocksPlatform::importGPC($_POST['path_prefix'],'string','');
+		@$host = DevblocksPlatform::importGPC($_POST['host'], 'string', 's3.amazonaws.com');
+		
+		// If blank, try using a previously saved copy.
+		if(empty($secret_key) && isset($profile->params['secret_key']))
+			$secret_key = $profile->params['secret_key'];
+		
+		$path_prefix =
+			0 == strlen(trim($path_prefix, '/'))
+			? ''
+			: (trim($path_prefix, '/') . '/')
+			;
+		
 		try {
-			$s3 = new S3($access_key, $secret_key, true, $host);
-			if(@!$s3->listBuckets())
+			if(!empty($host))
+				$s3 = new S3($access_key, $secret_key, true, $host);
+			else
+				$s3 = new S3($access_key, $secret_key, true);
+			
+			// Test a PUT, GET, and DELETE to verify the AWS credentials
+			
+			$uri = $path_prefix . '.cerb_s3_test';
+			
+			// PUT
+			if(false == $s3->putObject("CERB", $bucket, $uri))
 				return false;
+			
+			// GET
+			if(false == ($result = $s3->getObject($bucket, $uri))
+				|| !isset($result->body)
+				|| $result->body != 'CERB')
+				return false;
+			
+			// DELETE
+			if(false == $s3->deleteObject($bucket, $uri))
+				return false;
+			
 		} catch(Exception $e) {
 			return false;
 		}
@@ -479,10 +511,21 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 	}
 	
 	function saveConfig(Model_DevblocksStorageProfile $profile) {
-		@$access_key = DevblocksPlatform::importGPC($_POST['access_key'],'string','');
-		@$secret_key = DevblocksPlatform::importGPC($_POST['secret_key'],'string','');
-		@$bucket = DevblocksPlatform::importGPC($_POST['bucket'],'string','');
+		@$access_key = DevblocksPlatform::importGPC($_POST['access_key'],'string', null);
+		@$secret_key = DevblocksPlatform::importGPC($_POST['secret_key'],'string', null);
+		@$bucket = DevblocksPlatform::importGPC($_POST['bucket'],'string', '');
+		@$path_prefix = DevblocksPlatform::importGPC($_POST['path_prefix'],'string', '');
 		@$host = DevblocksPlatform::importGPC($_POST['host'], 'string', '');
+		
+		// If blank, try using a previously saved copy.
+		if(empty($secret_key) && isset($profile->params['secret_key']))
+			$secret_key = $profile->params['secret_key'];
+
+		$path_prefix =
+			0 == strlen(trim($path_prefix, '/'))
+			? ''
+			: (trim($path_prefix, '/') . '/')
+			;
 		
 		$fields = array(
 			DAO_DevblocksStorageProfile::PARAMS_JSON => json_encode(array(
@@ -490,6 +533,7 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 				'secret_key' => $secret_key,
 				'host' => $host,
 				'bucket' => $bucket,
+				'path_prefix' => $path_prefix,
 			)),
 		);
 		
@@ -498,7 +542,9 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 	
 	public function exists($namespace, $key) {
 		@$bucket = $this->_options['bucket'];
-		return false !== ($info = $this->_s3->getObjectInfo($bucket, $key));
+		$path = $this->_options['path_prefix'] . $this->escapeNamespace($namespace) . '/' . $key;
+		
+		return false !== ($info = $this->_s3->getObjectInfo($bucket, $path));
 	}
 	
 	public function put($namespace, $id, $data) {
@@ -506,12 +552,14 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		
 		// Get a unique hash path for this namespace+id
 		$hash = base_convert(sha1($this->escapeNamespace($namespace).$id), 16, 32);
-		$path = sprintf("%s/%s/%s/%d",
-			$this->escapeNamespace($namespace),
+		
+		$key = sprintf("%s/%s/%d",
 			substr($hash,0,1),
 			substr($hash,1,1),
 			$id
 		);
+		
+		$path = $this->_options['path_prefix'] . $this->escapeNamespace($namespace) . '/' . $key;
 		
 		if(is_resource($data)) {
 			// Write the content from stream
@@ -519,6 +567,7 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 			if(false === $this->_s3->putObject($this->_s3->inputResource($data, $stat['size']), $bucket, $path, S3::ACL_PRIVATE)) {
 				return false;
 			}
+			
 		} else {
 			// Write the content from string
 			if(false === $this->_s3->putObject($data, $bucket, $path, S3::ACL_PRIVATE)) {
@@ -526,22 +575,23 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 			}
 		}
 		
-		return $path;
+		return $key;
 	}
 
 	public function get($namespace, $key, &$fp=null) {
 		@$bucket = $this->_options['bucket'];
+		$path = $this->_options['path_prefix'] . $this->escapeNamespace($namespace) . '/' . $key;
 		
 		if($fp && is_resource($fp)) {
 			// Use the filename rather than $fp because the S3 lib will fclose($fp)
 			$tmpfile = DevblocksPlatform::getTempFileInfo($fp);
-			if(false !== ($tmp = $this->_s3->getObject($bucket, $key, $tmpfile))) {
+			if(false !== ($tmp = $this->_s3->getObject($bucket, $path, $tmpfile))) {
 				fseek($fp, 0);
 				return true;
 			}
 			
 		} else {
-			if(false !== ($object = $this->_s3->getObject($bucket, $key))
+			if(false !== ($object = $this->_s3->getObject($bucket, $path))
 				&& isset($object->body))
 				return $object->body;
 		}
@@ -551,7 +601,39 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 	
 	public function delete($namespace, $key) {
 		@$bucket = $this->_options['bucket'];
+		
+		// Queue up batch DELETEs
+		$profile_id = isset($this->_options['_profile_id']) ? $this->_options['_profile_id'] : 0;
+		DAO_DevblocksStorageQueue::enqueueDelete($namespace, $key, $this->manifest->id, $profile_id);
+	}
+	
+	public function batchDelete($namespace, $keys) {
+		@$bucket = $this->_options['bucket'];
+		
+		$ns = $this->escapeNamespace($namespace);
+		$path_prefix = $this->_options['path_prefix'];
+		
+		$paths = array_map(function($e) use ($ns, $path_prefix) {
+			return $path_prefix . $ns . '/'. $e;
+		}, $keys);
+		
+		
+		if(false === ($xml = $this->_s3->deleteObjects($bucket, $paths)))
+			return false;
 
-		return $this->_s3->deleteObject($bucket, $key);
+		// Handle the case where some objects fail to delete (e.g. AccessDenied)
+		
+		$errors = array();
+		
+		if(isset($xml->Error))
+		foreach($xml->Error as $error) {
+			$errors[] = str_replace($path_prefix . $ns . '/', '', $error->Key);
+		}
+		
+		// Return the keys that were actually deleted, ignoring any errors
+		if(is_array($errors))
+			return array_diff($keys, $errors);
+		
+		return $keys;
 	}
 };

@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -46,13 +46,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		$point = 'cerberusweb.profiles.ticket';
 		$tpl->assign('point', $point);
-		
-		/*
-		 * Disabled for #CHD-2966
- 		if(null == $selected_tab) {
- 			$selected_tab = $visit->get($point, '');
- 		}
- 		*/
 		
 		if(empty($selected_tab))
 			$selected_tab = 'conversation';

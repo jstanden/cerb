@@ -71,7 +71,7 @@
 			  		{elseif $field->type=='D'}
 			  			<select name="followup_a_{$idx}" class="{if $required}required{/if}">
 			  				<option value=""></option>
-			  				{foreach from=$field->options item=opt}
+			  				{foreach from=$field->params.options item=opt}
 			  				<option value="{$opt}" {if $last_followup_a.$idx==$opt}selected="selected"{/if}>{$opt}
 			  				{/foreach}
 			  			</select>
@@ -88,7 +88,7 @@
 			  		{elseif $field->type=='E'}
 			  			<input type="text" name="followup_a_{$idx}" value="{$last_followup_a.$idx}" autocomplete="off" class="date {if $required}required{/if}">
 					{elseif $field->type=='X'}
-						{foreach from=$field->options item=opt}
+						{foreach from=$field->params.options item=opt}
 						<label><input type="checkbox" name="followup_a_{$idx}[]" value="{$opt}"> {$opt}</label><br>
 						{/foreach}
 			  		{elseif $field->type=='C'}
@@ -108,7 +108,7 @@
 		{if 0==$attachments_mode || (1==$attachments_mode && !empty($active_contact))}
 		<fieldset>
 			<legend>Attachments:</legend>
-			<input type="file" name="attachments[]" class="multi"><br>
+			<input type="file" name="attachments[]" multiple="multiple"><br>
 		</fieldset>
 		{/if}
 		

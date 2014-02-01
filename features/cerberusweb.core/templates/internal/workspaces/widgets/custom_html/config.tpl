@@ -7,5 +7,5 @@
 </fieldset>
 
 <script type="text/javascript">
-	$('#widget{$widget->id}Config textarea').markItUp(markitupHTMLSettings);
+	$('#widget{$widget->id}Config textarea').markItUp(markitupHTMLDefaults);
 </script>

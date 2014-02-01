@@ -31,12 +31,23 @@
 		</tr>
 		
 		<tr>
+			<td valign="top" style="min-width:75px;">
+				<b>HTML Template:</b>
+			</td>
+			<td>
+				{$html_template = $address->getReplyHtmlTemplate()}
+				{if $html_template}
+				<a href="{devblocks_url}c=profiles&a=html_template&id={$html_template->id}-{$html_template->name|devblocks_permalink}{/devblocks_url}">{$html_template->name}</a>
+				{/if}
+			</td>
+		</tr>
+		
+		<tr>
 			<td valign="top">
 				<b>Signature:</b>
 			</td>
 			<td>
-				{if empty($address->reply_signature)}<i>({'common.default'|devblocks_translate|lower})</i><br>{/if}
-				<div style="display:inline-block;padding:10px;border:1px solid rgb(200,200,200);background-color:rgb(245,245,245);">
+				<div style="display:inline-block;padding:10px;border:1px {if empty($address->reply_signature)}dashed{else}solid{/if} rgb(200,200,200);background-color:rgb(245,245,245);">
 				{$address->getReplySignature($active_worker)|escape:'html'|devblocks_hyperlinks|nl2br nofilter}
 				</div>
 			</td>

@@ -47,7 +47,7 @@
 		$('#frmPageWizard :input:text:first').focus().select();
 		
 		$(this).find('div.tabs').tabs({
-			selected:0
+			active:0
 		});
 	});
 </script>

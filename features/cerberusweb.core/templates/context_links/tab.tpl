@@ -41,7 +41,7 @@ function linkAddContext(ref) {
 		if(0==$view.length) {
 			$tabs = $form.closest('div.ui-tabs');
 			if(0 != $tabs) {
-				$tabs.tabs('load', $tabs.tabs('option','selected'));
+				$tabs.tabs('load', $tabs.tabs('option','active'));
 			}
 		} else {
 			genericAjaxGet($view.attr('id'), 'c=internal&a=viewRefresh&id=' + $id);
@@ -100,7 +100,7 @@ function chooserOpen(ref) {
 		if(0==$view.length) {
 			$tabs = $form.closest('div.ui-tabs');
 			if(0 != $tabs) {
-				$tabs.tabs('load', $tabs.tabs('option','selected'));
+				$tabs.tabs('load', $tabs.tabs('option','active'));
 			} else {
 				//$form.submit();
 			}

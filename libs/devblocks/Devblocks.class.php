@@ -395,21 +395,46 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $output;
 	}
 	
-	static function stripHTML($str) {
+	static function stripHTML($str, $strip_whitespace=true) {
 		$str = preg_replace_callback(
-			'#<pre.*?/pre\>#s',
+			'@<code[^>]*?>(.*?)</code>@siu',
 			function($matches) {
-				return str_replace("\n","<br>",@$matches[0]);
+				if(isset($matches[1])) {
+					$out = $matches[1];
+					$out = str_replace(" ","&nbsp;", $out);
+					return $out;
+				}
 			},
 			$str
 		);
-			
-		// Strip all CRLF and tabs, spacify </TD>
-		$str = str_ireplace(
-			array("\r","\n","\t","</td>"),
-			array('','',' ',' '),
-			trim($str)
+		
+		$str = preg_replace_callback(
+			'#<pre.*?/pre\>#s',
+			function($matches) {
+				if(isset($matches[0])) {
+					$out = $matches[0];
+					$out = str_replace("\n","<br>", trim($out));
+					return '<br>' . $out . '<br>';
+				}
+			},
+			$str
 		);
+		
+		// Strip all CRLF and tabs, spacify </TD>
+		if($strip_whitespace) {
+			$str = str_ireplace(
+				array("\r","\n","\t","</td>"),
+				array('','',' ',' '),
+				trim($str)
+			);
+			
+		} else {
+			$str = str_ireplace(
+				array("\t","</td>"),
+				array(' ',' '),
+				trim($str)
+			);
+		}
 		
 		// Convert Unicode nbsp to space
 		$str = preg_replace(
@@ -441,8 +466,6 @@ class DevblocksPlatform extends DevblocksEngine {
 				'</H5>',
 				'</H6>',
 				'</DIV>',
-				'<BLOCKQUOTE>',
-				'</BLOCKQUOTE>',
 				'</UL>',
 				'</OL>',
 				'</LI>',
@@ -468,42 +491,60 @@ class DevblocksPlatform extends DevblocksEngine {
 		);
 		$str = preg_replace($search, '', $str);
 		
+		// Handle blockquotes
+		
+		$quote_blockquotes_regexp = '{<blockquote[^>]*?>((?:(?:(?!<blockquote[^>]*>|</blockquote>).)++|<blockquote[^>]*>(?1)</blockquote>)*)</blockquote>}si';
+		
+		$quote_blockquotes = function($matches) use ($quote_blockquotes_regexp, &$quote_blockquotes) {
+			if(isset($matches[1])) {
+				$out = $matches[1];
+				
+				$out = preg_replace_callback(
+					$quote_blockquotes_regexp,
+					$quote_blockquotes,
+					$out
+				);
+				
+				$out = explode("\n", trim(strip_tags($out)));
+				
+				array_walk($out, function(&$line) {
+					$line = '&gt; ' . $line . "\n";
+				});
+				$out = implode('', $out);
+				return $out;
+			}
+		};
+		
+		// Convert blockquotes to '>' prefixed lines
+		$str = preg_replace_callback(
+			$quote_blockquotes_regexp,
+			$quote_blockquotes,
+			$str
+		);
+
+		// Strip tags
 		$str = strip_tags($str);
 		
 		// Flatten multiple spaces into a single
 		$str = preg_replace('# +#', ' ', $str);
 
+		// Flatten multiple linefeeds into a single
+		$str = preg_replace("#\n{2,}#", "\n\n", $str);
+		
 		// Translate HTML entities into text
 		$str = html_entity_decode($str, ENT_COMPAT, LANG_CHARSET_CODE);
 
-		// Loop through each line, ltrim, and concat if not empty
-		$lines = explode("\n", $str);
-		if(is_array($lines)) {
-			$str = '';
-			$blanks = 0;
-			foreach($lines as $idx => $line) {
-				$lines[$idx] = ltrim($line);
-				
-				if(empty($lines[$idx])) {
-					if(++$blanks >= 2)
-						unset($lines[$idx]);
-						//continue; // skip more than 2 blank lines in a row
-				} else {
-					$blanks = 0;
-				}
-			}
-			$str = implode("\n", $lines);
-		}
-		unset($lines);
+		// Wrap quoted lines
+		// [TODO] This should be more reusable
+		$str = _DevblocksTemplateManager::modifier_devblocks_email_quote($str);
 		
 		// Clean up bytes (needed after HTML entities)
 		$str = mb_convert_encoding($str, LANG_CHARSET_CODE, LANG_CHARSET_CODE);
 		
-		return $str;
+		return ltrim($str);
 	}
 	
-	static function purifyHTML($dirty_html, $options=array()) {
-		// Register HTMLPurifier
+	static function purifyHTML($dirty_html, $inline_css=false, $options=array()) {
 		require_once(DEVBLOCKS_PATH . 'libs/htmlpurifier/HTMLPurifier.standalone.php');
 		
 		// If we're passed a file pointer, load the literal string
@@ -513,9 +554,31 @@ class DevblocksPlatform extends DevblocksEngine {
 			while(!feof($fp))
 				$dirty_html .= fread($fp, 4096);
 		}
+
+		// Handle inlining CSS
+		
+		if($inline_css) {
+			$css_converter = new CssToInlineStyles();
+			$css_converter->setEncoding(LANG_CHARSET_CODE);
+			$css_converter->setHTML(sprintf('<?xml encoding="%s">', LANG_CHARSET_CODE) . $dirty_html);
+			$css_converter->setUseInlineStylesBlock(true);
+			$dirty_html = $css_converter->convert();
+		}
+		
+		// Purify
 		
 		$config = HTMLPurifier_Config::createDefault();
 		$config->set('HTML.Doctype', 'HTML 4.01 Transitional');
+		
+		$config->set('URI.AllowedSchemes', array(
+			'http' => true,
+			'https' => true,
+			'mailto' => true,
+			'ftp' => true,
+			'nntp' => true,
+			'news' => true,
+			'data' => true,
+		));
 		
 		$dir_htmlpurifier_cache = APP_TEMP_PATH . '/cache/htmlpurifier/';
 		
@@ -531,17 +594,19 @@ class DevblocksPlatform extends DevblocksEngine {
 			$config->set($k, $v);
 		
 		$purifier = new HTMLPurifier($config);
-		
 		return $purifier->purify($dirty_html);
 	}
 	
-	static function parseMarkdown($text) {
-		static $parser = null;
-		
-		if(is_null($parser))
-			$parser = new markdown();
+	static function parseMarkdown($text, $use_parsedown=false) {
+		if($use_parsedown) {
+			$parser = new Parsedown();
+			$parser->set_breaks_enabled(true);
+			return $parser->parse($text);
 			
-		return $parser->parse($text);
+		} else {
+			$parser = new markdown();
+			return $parser->parse($text);
+		}
 	}
 	
 	static function parseRss($url) {
@@ -1740,16 +1805,21 @@ class DevblocksPlatform extends DevblocksEngine {
 		// Handle $profile polymorphism
 		if($profile instanceof Model_DevblocksStorageProfile) {
 			$extension = $profile->extension_id;
-			$params = $profile->params;
+			$params['_profile_id'] = $profile->id;
+			$params = array_merge($params, $profile->params);
+			
 		} else if(is_numeric($profile)) {
 			$storage_profile = DAO_DevblocksStorageProfile::get($profile);
 			$extension = $storage_profile->extension_id;
-			$params = $storage_profile->params;
+			$params['_profile_id'] = $storage_profile->id;
+			$params = array_merge($params, $storage_profile->params);
+			
 		} else if(is_string($profile)) {
 			$extension = $profile;
+			$params['_profile_id'] = 0;
 			
 			if(isset($args[1]) && is_array($args[1]))
-				$params = $args[1];
+				$params = array_merge($params, $args[1]);
 		}
 		
 		return _DevblocksStorageManager::getEngine($extension, $params);

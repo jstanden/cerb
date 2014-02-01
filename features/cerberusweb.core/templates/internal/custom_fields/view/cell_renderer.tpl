@@ -25,6 +25,22 @@
 	<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
 {elseif $col->type==Model_CustomField::TYPE_CHECKBOX}
 	<td>{if '1'==$result.$column}Yes{elseif '0'==$result.$column}No{/if}</td>
+{elseif $col->type==Model_CustomField::TYPE_LINK}
+	<td>
+		{if $col->params.context && $result.$column}
+			{$link_ctx = Extension_DevblocksContext::get($col->params.context)}
+			{if $link_ctx}
+				{$link_ctx_meta = $link_ctx->getMeta($result.$column)}
+				{if $link_ctx_meta}
+					{if $link_ctx_meta.permalink}
+						<a href="{$link_ctx_meta.permalink}">{$link_ctx_meta.name}</a>
+					{else}
+						{$link_ctx_meta.name}
+					{/if}
+				{/if}
+			{/if}
+		{/if}
+	</td>
 {elseif $col->type==Model_CustomField::TYPE_FILE}
 	<td>
 		{$file_id = $result.$column}
@@ -53,7 +69,7 @@
 		{$workers = DAO_Worker::getAll()}
 	{/if}
 	{if !empty($worker_id) && isset($workers.$worker_id)}
-		{$workers.$worker_id->getName()}
+		<a href="{devblocks_url}c=profiles&what=worker&id={$worker_id}{/devblocks_url}" target="_blank">{$workers.$worker_id->getName()}</a>
 	{/if}
 	</td>
 {else}

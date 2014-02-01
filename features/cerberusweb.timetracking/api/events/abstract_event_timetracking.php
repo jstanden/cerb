@@ -97,19 +97,14 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		$types = $this->getTypes();
 		
 		$labels['time_link'] = 'Time entry is linked';
 		$labels['time_watcher_count'] = 'Time entry watcher count';
 		
-		$types = array(
-			'time_log_date' => Model_CustomField::TYPE_DATE,
-			'time_mins' => Model_CustomField::TYPE_NUMBER,
-			'time_summary' => Model_CustomField::TYPE_SINGLE_LINE,
-			
-			'time_link' => null,
-			'time_watcher_count' => null,
-		);
-
+		$types['time_link'] = null;
+		$types['time_watcher_count'] = null;
+		
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
 		return $conditions;

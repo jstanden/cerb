@@ -1,4 +1,7 @@
 {if !empty($tour)}
+<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=devblocks.core&f=js/jquery/jquery.qtip.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+<link rel="stylesheet" type="text/css" href="{devblocks_url}c=resource&plugin=devblocks.core&f=css/jquery.qtip.min.css{/devblocks_url}?v={$smarty.const.APP_BUILD}" />
+
 <div id="tourDiv" class="help-box">
 <table width="100%">
 	<tr>
@@ -19,9 +22,6 @@
 			
 			{if !empty($tour.callouts)}
 				<b>Points of Interest:</b>
-				{if !empty($tour.callouts)}
-					&nbsp; <a href="javascript:;" onclick="$links=$(this).next('div').find('a');$links.removeClass('on');$links.click();">show all</a>
-				{/if}
 				<div style="margin:5px;">
 				{foreach from=$tour.callouts item=callout key=callout_id name=callouts}
 					<span class="cerb-sprite sprite-help"></span> <a href="javascript:;" id="callout{$callout_id}">{$callout->title}</a>
@@ -37,50 +37,45 @@
 {foreach from=$tour.callouts item=callout key=callout_id name=callouts}
 $('#tourDiv A#callout{$callout_id}')
 	.click(function() {
-		$sel = $('{$callout->selector nofilter}');
+		var $sel = $('{$callout->selector nofilter}');
+		
 		try {
 			$sel.qtip("destroy");
 		} catch(e){}
 		
-		if($(this).hasClass('on')) {
-			$(this).removeClass('on');
-		} else {
-			$(this).addClass('on');
-			$target = $sel
-				.qtip({
-					content:"{$callout->body}",
-					position:{
-						corner:{
-							tooltip:'{$callout->tipCorner}',
-							target:'{$callout->targetCorner}'
-						},
-						adjust:{
-							x:{$callout->xOffset},
-							y:{$callout->yOffset},
-						}
-					},
-					show:{
-						when:false,
-						ready:true
-					},
-					hide:false,
-					style:{
-						name:'dark',
-						tip:true,
-						border:{
-							radius:3,
-							width:5
-						}
+		$sel
+			.qtip({
+				content: {
+					text: "{$callout->body}"
+				},
+				position:{
+					my:'{$callout->tipCorner}',
+					at:'{$callout->targetCorner}',
+					adjust: {
+						x:{$callout->xOffset},
+						y:{$callout->yOffset}
 					}
-				})
-				;
-			var $this = $(this);
-			$target.qtip("api").elements.tooltip.click(function(e) {
-				$(this).qtip("destroy");
-				$this.removeClass('on');
+				},
+				show: {
+					ready: true
+				},
+				hide: {
+					event: "unfocus"
+				},
+				style: {
+					classes: 'qtip-dark qtip-shadow qtip-rounded',
+					tip: {
+						corner: true
+					}
+				},
+				events: {
+					hide: function(event, api) {
+						api.destroy();
+					}
+				}
 			})
 			;
-		}
+		
 	});
 {/foreach}
 </script>

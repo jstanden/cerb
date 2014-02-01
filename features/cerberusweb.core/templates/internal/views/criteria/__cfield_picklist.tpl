@@ -10,7 +10,7 @@
 
 <b>{'common.options'|devblocks_translate|capitalize}:</b><br>
 <blockquote style="margin:5px;">
-	{foreach from=$field->options item=opt}
+	{foreach from=$field->params.options item=opt}
 		<label><input type="checkbox" name="options[]" value="{$opt}"  {if is_array($param->value) && in_array($opt,$param->value)}checked="checked"{/if}>{$opt}</label><br>
 	{/foreach}
 </blockquote>

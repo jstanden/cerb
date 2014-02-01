@@ -75,12 +75,29 @@
 					{$storage_extensions.{$result.$column}->name}
 				{/if}
 			</td>
+			{elseif $column=="a_storage_profile_id"}
+			<td>
+				{if $result.$column}
+					{$storage_profile_id = $result.a_storage_profile_id}
+					{if isset($storage_profiles.$storage_profile_id)}
+						{$storage_profiles.{$result.a_storage_profile_id}->name}
+					{/if}
+				{/if}
+			</td>
 			{elseif $column=="a_updated"}
 			<td title="{$result.a_updated|devblocks_date}">{$result.a_updated|devblocks_prettytime}&nbsp;</td>
 			{elseif $column=="al_context"}
 			<td>
 				{if isset($contexts.{$result.$column})}
-					{$contexts.{$result.$column}->name}
+					{$owner_context = Extension_DevblocksContext::get($result.al_context)}
+					{if $owner_context}
+						{$owner_meta = $owner_context->getMeta($result.al_context_id)}
+						{if $owner_meta.permalink}
+						<a href="{$owner_meta.permalink}">{$owner_meta.name} ({$owner_context->manifest->name})</a>
+						{elseif $owner_meta.name}
+						{$owner_meta.name} ({$owner_context->manifest->name})
+						{/if}
+					{/if}
 				{/if}
 			</td>
 			{else}

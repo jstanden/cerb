@@ -2,7 +2,7 @@
 /**
  * Devblocks DAO
  * @author Jeff Standen, Webgroup Media LLC <jeff@webgroupmedia.com>
- * @version 2013-08-13
+ * @version 2014-01-18
  */
 
 $plugin_id = 'example.plugin';
@@ -994,7 +994,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 				
 			default:
 				if(substr($token,0,7) == 'custom_') {
-					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}
 				break;
@@ -1232,7 +1232,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{'<?php echo $object_name; ?>'}");
+		$(this).dialog('option','title',"{'<?php echo $object_name; ?>'|escape:'javascript' nofilter}");
 		
 		$(this).find('button.chooser_watcher').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
@@ -1472,7 +1472,7 @@ $frm.bind('keyboard_shortcut',function(event) {
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -1571,7 +1571,6 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -1580,6 +1579,8 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 			DAO_<?php echo $class_name; ?>::delete($id);
 			
 		} else {
+			@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+			
 			if(empty($id)) { // New
 				$fields = array(
 					DAO_<?php echo $class_name; ?>::UPDATED_AT => time(),
@@ -1803,7 +1804,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#<?php echo $table_name; ?>Tabs").tabs( { selected:{$tab_selected_idx} } );
+		var tabs = $("#<?php echo $table_name; ?>Tabs").tabs( { active:{$tab_selected_idx} } );
 		
 		$('#btnDisplay<?php echo $class_name; ?>Edit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');
@@ -1842,7 +1843,7 @@ $(document).keypress(function(event) {
 			try {
 				idx = event.which-49;
 				$tabs = $("#<?php echo $table_name; ?>Tabs").tabs();
-				$tabs.tabs('select', idx);
+				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { }
 			break;
 		case 101:  // (E) edit

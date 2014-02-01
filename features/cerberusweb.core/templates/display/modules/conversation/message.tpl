@@ -1,5 +1,5 @@
 {assign var=headers value=$message->getHeaders()}
-<div class="block">
+<div class="block" style="margin-bottom:10px;">
 <table style="text-align: left; width: 98%;table-layout: fixed;" border="0" cellpadding="2" cellspacing="0">
   <tbody>
 	<tr>
@@ -111,6 +111,7 @@
 					  			<li><a href="javascript:;" onclick="displayReply('{$message->id}',0,0,1);">{'display.reply.quote'|devblocks_translate}</a></li>
 					  			<li><a href="javascript:;" onclick="displayReply('{$message->id}',0,0,0);">{'display.reply.no_quote'|devblocks_translate}</a></li>
 					  			{if $active_worker->hasPriv('core.display.actions.forward')}<li><a href="javascript:;" onclick="displayReply('{$message->id}',1);">{'display.ui.forward'|devblocks_translate|capitalize}</a></li>{/if}
+					  			<li><a href="javascript:;" class="relay" data-message-id="{$message->id}">Relay to worker email</a></li>
 					  		</ul>
 					  	{/if}
 					  	
@@ -160,7 +161,6 @@
 	{include file="devblocks:cerberusweb.core::display/modules/conversation/notes.tpl"}
 </div>
 <div id="reply{$message->id}"></div>
-<br>
 
 <script type="text/javascript">
 $('#{$message->id}t').hover(
@@ -192,6 +192,14 @@ $('#{$message->id}act')
 		$(this).find('a').trigger('click');
 	})
 ;
+
+$('#{$message->id}act')
+	.find('li a.relay')
+	.click(function() {
+		genericAjaxPopup('relay', 'c=display&a=showRelayMessagePopup&id={$message->id}', null, false, '500');
+	})
+	;
+
 </script>
 {/if}
 

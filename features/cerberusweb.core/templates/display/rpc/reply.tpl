@@ -63,7 +63,7 @@
 			<div id="divDraftStatus{$message->id}"></div>
 			
 			<div>
-				<fieldset style="display:inline-block;">
+				<fieldset style="display:inline-block;margin-bottom:0;">
 					<legend>Actions</legend>
 					{assign var=headers value=$message->getHeaders()}
 					<button name="saveDraft" type="button"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
@@ -126,7 +126,7 @@
 					{/if}
 				</fieldset>
 				
-				<fieldset style="display:inline-block;">
+				<fieldset style="display:inline-block;margin-bottom:0;">
 					<legend>{'common.snippets'|devblocks_translate|capitalize}</legend>
 					<div>
 						Insert: 
@@ -144,6 +144,11 @@
 
 <div id="replyToolbarOptions{$message->id}"></div>
 
+{$message_content = $message->getContent()}
+{$mail_reply_html = DAO_WorkerPref::get($active_worker->id, 'mail_reply_html', 0)}
+{$mail_reply_textbox_size_inelastic = DAO_WorkerPref::get($active_worker->id, 'mail_reply_textbox_size_inelastic', 0)}
+{$mail_reply_textbox_size_px = DAO_WorkerPref::get($active_worker->id, 'mail_reply_textbox_size_px', 300)}
+
 <form id="reply{$message->id}_part2" action="{devblocks_url}{/devblocks_url}" method="POST" enctype="multipart/form-data">
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
@@ -157,16 +162,15 @@
 <input type="hidden" name="draft_id" value="{$draft->id}">
 <input type="hidden" name="reply_mode" value="">
 {if $is_forward}<input type="hidden" name="is_forward" value="1">{/if}
+<input type="hidden" name="group_id" value="{$ticket->group_id}">
+<input type="hidden" name="bucket_id" value="{$ticket->bucket_id}">
+<input type="hidden" name="format" value="{if ($draft && $draft->params.format == 'parsedown') || $mail_reply_html}parsedown{/if}">
 
 <!-- {* Copy these dynamically so a plugin dev doesn't need to conflict with the reply <form> *} -->
 <input type="hidden" name="to" value="{if !empty($draft)}{$draft->params.to}{else}{if $is_forward}{else}{foreach from=$requesters item=req_addy name=reqs}{$req_addy->email}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}">
 <input type="hidden" name="cc" value="{$draft->params.cc}">
 <input type="hidden" name="bcc" value="{$draft->params.bcc}">
 <input type="hidden" name="subject" value="{if !empty($draft)}{$draft->params.subject}{else}{if $is_forward}Fwd: {/if}{$ticket->subject}{/if}">
-
-{$message_content = $message->getContent()}
-{$mail_reply_textbox_size_inelastic = DAO_WorkerPref::get($active_worker->id, 'mail_reply_textbox_size_inelastic', 0)}
-{$mail_reply_textbox_size_px = DAO_WorkerPref::get($active_worker->id, 'mail_reply_textbox_size_px', 300)}
 
 {if $is_forward}
 <textarea name="content" id="reply_{$message->id}" class="reply" style="width:98%;height:{$mail_reply_textbox_size_px|default:300}px;border:1px solid rgb(180,180,180);padding:5px;">
@@ -209,7 +213,7 @@
 	</tr>
 	<tr>
 		<td>
-			<fieldset class="peek">
+			<fieldset class="peek reply-attachments">
 				<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
 				
 				<button type="button" class="chooser_file"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
@@ -259,27 +263,27 @@
 							{if $active_worker->hasPriv('core.ticket.actions.move')}
 							<b>{'display.reply.next.move'|devblocks_translate}</b>
 							<br>
-							<select name="bucket_id">
-								{$ticket_group_id = $ticket->group_id}
-								{$ticket_bucket_id = $ticket->bucket_id}
-								<option value="">-- No, leave it in the <b>{if $ticket_bucket_id}{$group_buckets.{$ticket_group_id}.{$ticket_bucket_id}->name} bucket{else}{'common.inbox'|devblocks_translate|lower}{/if}</b> of <b>{$groups.{$ticket_group_id}->name}</b> --</option>
-								{if empty($ticket->bucket_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
-								<optgroup label="{'common.inboxes'|devblocks_translate|capitalize}">
-								{foreach from=$groups item=group}
-									<option value="t{$group->id}" {if $draft->params.bucket_id=="t{$group->id}"}selected="selected"{/if}>{$group->name}{if $t_or_c=='t' && $ticket->group_id==$group->id} {'display.reply.next.move.current'|devblocks_translate}{/if}</option>
+							
+							<select name="group_id">
+								{foreach from=$groups item=group key=group_id}
+								<option value="{$group_id}" {if $active_worker->isGroupMember($group_id)}member="true"{/if} {if $ticket->group_id == $group_id}selected="selected"{/if}>{$group->name}</option>
 								{/foreach}
-								</optgroup>
-								{foreach from=$group_buckets item=buckets key=groupId}
-									{assign var=group value=$groups.$groupId}
-									{if !empty($active_worker_memberships.$groupId)}
-										<optgroup label="-- {$group->name} --">
-										{foreach from=$buckets item=bucket}
-											<option value="c{$bucket->id}" {if $draft->params.bucket_id=="c{$bucket->id}"}selected="selected"{/if}>{$bucket->name}{if $t_or_c=='c' && $ticket->bucket_id==$bucket->id} {'display.reply.next.move.current'|devblocks_translate}{/if}</option>
-										{/foreach}
-										</optgroup>
+							</select>
+							<select class="ticket-reply-bucket-options" style="display:none;">
+								<option value="0" group_id="*">{'common.inbox'|devblocks_translate|capitalize}</option>
+								{foreach from=$buckets item=bucket key=bucket_id}
+								<option value="{$bucket_id}" group_id="{$bucket->group_id}">{$bucket->name}</option>
+								{/foreach}
+							</select>
+							<select name="bucket_id">
+								<option value="0">{'common.inbox'|devblocks_translate|capitalize}</option>
+								{foreach from=$buckets item=bucket key=bucket_id}
+									{if $bucket->group_id == $ticket->group_id}
+									<option value="{$bucket_id}" {if $ticket->bucket_id == $bucket_id}selected="selected"{/if}>{$bucket->name}</option>
 									{/if}
 								{/foreach}
-							</select><br>
+							</select>
+							<br>
 							<br>
 							{/if}
 							
@@ -342,8 +346,8 @@
 		var draftAutoSaveInterval = null;
 	
 	$(function(e) {
-		$frm = $('#reply{$message->id}_part1');
-		$frm2 = $('#reply{$message->id}_part2');
+		var $frm = $('#reply{$message->id}_part1');
+		var $frm2 = $('#reply{$message->id}_part2');
 		
 		// Disable ENTER submission on the FORM text input
 		$frm2
@@ -368,8 +372,128 @@
 			$('#reply{$message->id}_suggested').appendTo($(this).closest('td'));
 		});
 		
+		// Group and bucket
+		
+		$frm2.find('select[name=group_id]').on('change', function(e) {
+			var $select = $(this);
+			var group_id = $select.val();
+			var $bucket_options = $select.siblings('select.ticket-reply-bucket-options').find('option')
+			var $bucket = $select.siblings('select[name=bucket_id]');
+			
+			$bucket.children().remove();
+			
+			$bucket_options.each(function() {
+				var parent_id = $(this).attr('group_id');
+				if(parent_id == '*' || parent_id == group_id)
+					$(this).clone().appendTo($bucket);
+			});
+			
+			$bucket.focus();
+		});
+		
 		var $content = $('#reply_{$message->id}');
 		
+		// Text editor
+		
+		var markitupPlaintextSettings = $.extend(true, { }, markitupPlaintextDefaults);
+		var markitupParsedownSettings = $.extend(true, { }, markitupParsedownDefaults);
+		
+		var markitupReplyFunctions = {
+			switchToMarkdown: function(markItUp) { 
+				$content.markItUpRemove().markItUp(markitupParsedownSettings);
+				{if empty($mail_reply_textbox_size_inelastic)}
+				$content.elastic();
+				{/if}
+				$content.closest('form').find('input:hidden[name=format]').val('parsedown');
+
+				// Template chooser
+				
+				var $ul = $content.closest('.markItUpContainer').find('.markItUpHeader UL');
+				var $li = $('<li style="margin-left:10px;"></li>');
+				
+				var $select = $('<select name="html_template_id"></select>');
+				$select.append($('<option value="0"> - {'common.default'|devblocks_translate|lower|escape:'javascript'} -</option>'));
+				
+				{foreach from=$html_templates item=html_template}
+				var $option = $('<option value="{$html_template->id}">{$html_template->name|escape:'javascript'}</option>');
+				{if $draft && $draft->params.html_template_id == $html_template->id}
+				$option.attr('selected', 'selected');
+				{/if}
+				$select.append($option);
+				{/foreach}
+				
+				$li.append($select);
+				$ul.append($li);
+			},
+			
+			switchToPlaintext: function(markItUp) { 
+				$content.markItUpRemove().markItUp(markitupPlaintextSettings);
+				{if empty($mail_reply_textbox_size_inelastic)}
+				$content.elastic();
+				{/if}
+				$content.closest('form').find('input:hidden[name=format]').val('');
+			}
+		};
+		
+		markitupPlaintextSettings.markupSet.unshift(
+			{ name:'Switch to Markdown', openWith: markitupReplyFunctions.switchToMarkdown, key: 'H', className:'parsedown' }
+		);
+		
+		markitupParsedownSettings.previewParser = function(content) {
+			genericAjaxPost(
+				$frm2,
+				'',
+				'c=display&a=getReplyMarkdownPreview',
+				function(o) {
+					content = o;
+				},
+				{
+					async: false
+				}
+			);
+			
+			return content;
+		};
+		
+		markitupParsedownSettings.markupSet.unshift(
+			{ name:'Switch to Plaintext', openWith: markitupReplyFunctions.switchToPlaintext, key: 'H', className:'plaintext' },
+			{ separator:'---------------' }
+		);
+		
+		markitupParsedownSettings.markupSet.splice(
+			6,
+			0,
+			{ name:'Upload an Image', openWith: 
+				function(markItUp) {
+					$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
+					
+					$chooser.one('chooser_save', function(event) {
+						if(!event.response || 0 == event.response)
+							return;
+						
+						$content.insertAtCursor("![inline-image](" + event.response[0].url + ")");
+					});
+				},
+				key: 'U',
+				className:'image-inline'
+			}
+			//{ separator:'---------------' }
+		);
+		
+		try {
+			$content.markItUp(markitupPlaintextSettings);
+			
+			{if ($draft && $draft->params.format == 'parsedown') || $mail_reply_html}
+			markitupReplyFunctions.switchToMarkdown();
+			{/if}
+			
+		} catch(e) {
+			if(window.console)
+				console.log(e);
+		}
+		
+		// Elastic
+
 		{if empty($mail_reply_textbox_size_inelastic)}
 		$content.elastic();
 		{/if}
@@ -382,6 +506,7 @@
 			})
 		
 		// Insert suggested on click
+		
 		$('#reply{$message->id}_suggested').find('a.suggested').click(function(e) {
 			$this = $(this);
 			$sug = $this.text();
@@ -616,7 +741,7 @@
 							case 79: // open
 								$radio.filter('.status_open').click();
 								$reply_status
-									.find('select[name=bucket_id]')
+									.find('select[name=group_id]')
 										.select()
 										.focus()
 									;

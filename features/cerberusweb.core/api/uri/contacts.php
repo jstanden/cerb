@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -573,6 +573,10 @@ class ChContactsPage extends CerberusPageExtension {
 		// Broadcast
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $token_labels, $token_values);
 		$tpl->assign('token_labels', $token_labels);
+		
+		// HTML templates
+		$html_templates = DAO_MailHtmlTemplate::getAll();
+		$tpl->assign('html_templates', $html_templates);
 		
 		// Macros
 		
@@ -1171,6 +1175,8 @@ class ChContactsPage extends CerberusPageExtension {
 			@$broadcast_group_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_group_id'],'integer',0);
 			@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);
 			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
+			@$broadcast_format = DevblocksPlatform::importGPC($_REQUEST['broadcast_format'],'string',null);
+			@$broadcast_html_template_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_html_template_id'],'integer',0);
 			@$broadcast_is_queued = DevblocksPlatform::importGPC($_REQUEST['broadcast_is_queued'],'integer',0);
 			@$broadcast_is_closed = DevblocksPlatform::importGPC($_REQUEST['broadcast_next_is_closed'],'integer',0);
 			@$broadcast_file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['broadcast_file_ids'],'array',array()), 'integer', array('nonzero','unique'));
@@ -1179,6 +1185,8 @@ class ChContactsPage extends CerberusPageExtension {
 				$do['broadcast'] = array(
 					'subject' => $broadcast_subject,
 					'message' => $broadcast_message,
+					'format' => $broadcast_format,
+					'html_template_id' => $broadcast_html_template_id,
 					'is_queued' => $broadcast_is_queued,
 					'next_is_closed' => $broadcast_is_closed,
 					'group_id' => $broadcast_group_id,
@@ -1224,7 +1232,10 @@ class ChContactsPage extends CerberusPageExtension {
 		if($active_worker->hasPriv('core.addybook.addy.view.actions.broadcast')) {
 			@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);
 			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
-
+			@$broadcast_format = DevblocksPlatform::importGPC($_REQUEST['broadcast_format'],'string',null);
+			@$broadcast_html_template_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_html_template_id'],'integer',0);
+			@$broadcast_group_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_group_id'],'integer',0);
+			
 			@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 			@$ids = DevblocksPlatform::importGPC($_REQUEST['address_ids'],'string','');
 			
@@ -1257,18 +1268,56 @@ class ChContactsPage extends CerberusPageExtension {
 						$errors = $tpl_builder->getErrors();
 						$success= false;
 						$output = @array_shift($errors);
+						
 					} else {
 						// If successful, return the parsed template
 						$success = true;
 						$output = $out;
+						
+						switch($broadcast_format) {
+							case 'parsedown':
+								// Markdown
+								$output = DevblocksPlatform::parseMarkdown($output, true);
+								
+								// HTML Template
+								
+								$html_template = null;
+								
+								if($broadcast_html_template_id)
+									$html_template = DAO_MailHtmlTemplate::get($broadcast_html_template_id);
+								
+								if(!$html_template && false != ($group = DAO_Group::get($broadcast_group_id)))
+									$html_template = $group->getReplyHtmlTemplate(0);
+								
+								if(!$html_template && false != ($replyto = DAO_AddressOutgoing::getDefault()))
+									$html_template = $replyto->getReplyHtmlTemplate();
+								
+								if($html_template)
+									$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
+								
+								// HTML Purify
+								$output = DevblocksPlatform::purifyHTML($output, true);
+								break;
+								
+							default:
+								$output = nl2br(htmlentities($output));
+								break;
+						}
 					}
 				}
 			}
 			
-			$tpl->assign('success', $success);
-			$tpl->assign('output', $output);
-			
-			$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
+			if($success) {
+				header("Content-Type: text/html; charset=" . LANG_CHARSET_CODE);
+				echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body>',
+					LANG_CHARSET_CODE
+				);
+				echo $output;
+				echo '</body></html>';
+				
+			} else {
+				echo $output;
+			}
 		}
 	}
 	

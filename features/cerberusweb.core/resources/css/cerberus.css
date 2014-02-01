@@ -12,7 +12,7 @@ optgroup {
 }
 
 a {
-	color: rgb(80, 80, 80);
+	color: rgb(34, 34, 34);
 }
 
 a.no-underline {
@@ -43,7 +43,7 @@ form {
 
 fieldset {
 	background-color: rgb(255,255,255);
-	background-image: url(bg_block.jpg?v=2012111201);
+	background-image: url(bg_block.jpg?v=2014012801);
 	background-repeat: repeat-x;
 	border-width: 1px;
 	border-style: double;
@@ -112,67 +112,67 @@ input[type=text]:focus, input[type=password]:focus {
 }
 
 input[type=text].input_add {
-	background:url(input_icons/add.png?v=2012111201) no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/add.png?v=2014012801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_color {
-	background:url(input_icons/colors.png?v=2012111201) no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/colors.png?v=2014012801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_date {
-	background:url(input_icons/date.png?v=2012111201) no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/date.png?v=2014012801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_email {
-	background:url(input_icons/mail.png?v=2012111201) no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/mail.png?v=2014012801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_location {
-	background:url(input_icons/location.png?v=2012111201) no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/location.png?v=2014012801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_money {
-	background:url(input_icons/money.png?v=2012111201) no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/money.png?v=2014012801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_number {
-	background:url(input_icons/number.png?v=2012111201) no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/number.png?v=2014012801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_openid {
-	background:url(input_icons/openid.gif?v=2012111201) no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/openid.gif?v=2014012801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_password, input[type=password] {
-	background:url(input_icons/lock.png?v=2012111201) no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/lock.png?v=2014012801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_percent {
-	background:url(input_icons/percent.png?v=2012111201) no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/percent.png?v=2014012801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_phone {
-	background:url(input_icons/phone.png?v=2012111201) no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/phone.png?v=2014012801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_remove {
-	background:url(input_icons/forbidden.png?v=2012111201) no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/forbidden.png?v=2014012801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_rss {
-	background:url(input_icons/rss.png?v=2012111201) no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/rss.png?v=2014012801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_search {
-	background:url(input_icons/view.png?v=2012111201) no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/view.png?v=2014012801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_tags {
-	background:url(input_icons/tag.png?v=2012111201) no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/tag.png?v=2014012801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_url {
-	background:url(input_icons/link.png?v=2012111201) no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/link.png?v=2014012801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 
@@ -722,7 +722,7 @@ DIV.help-box SPAN.help.callout-worklist {
 
 DIV.message_note {
 	padding: 5px;
-	background-image: url(bg_yellow.jpg?v=2012111201);
+	background-image: url(bg_yellow.jpg?v=2014012801);
 	background-position: left top;
 	background-repeat: repeat-x;
 	background-color: rgb(252,242,191);
@@ -739,13 +739,21 @@ DIV.message_note H3 {
 
 DIV.block {
 	padding: 5px;
-	background-image: url(bg_block.jpg?v=2012111201);
+	background-image: url(bg_block.jpg?v=2014012801);
 	background-repeat: repeat-x;
 	background-color: rgb(255, 255, 255);
 	border: 1px solid rgb(230, 230, 230);
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
+}
+
+DIV.block.hover-underline A {
+	text-decoration: none;
+}
+
+DIV.block.hover-underline A:hover {
+	text-decoration: underline;
 }
 
 DIV.block H2 {
@@ -1253,7 +1261,7 @@ DIV.cerb-menu .cerb-popupmenu {
 /* Sprite container */
 
 .cerb-sprite { 
-	background:url(cerb_icons.png?v=2012111201);
+	background:url(cerb_icons.png?v=2014012801);
 	background-repeat:no-repeat;
 	background-position:top left;
 	display:inline-block;
@@ -1303,7 +1311,7 @@ button span.cerb-sprite { display:inline-block; }
 .sprite-warning_gray{ background-position: -150px -583px; width: 16px; height: 16px; } 
 
 .cerb-sprite2 { 
-	background:url(cerb_sprites.png?v=2013042301);
+	background:url(cerb_sprites.png?v=2014012101);
 	background-repeat:no-repeat;
 	background-position:top left;
 	display:inline-block;
@@ -1323,28 +1331,32 @@ button span.cerb-sprite2 { display:inline-block; }
 .sprite-cross-circle-gray{ background-position: 0 -594px; width: 16px; height: 16px; } 
 .sprite-cross-circle{ background-position: 0 -660px; width: 16px; height: 16px; } 
 .sprite-document-search-result{ background-position: 0 -726px; width: 16px; height: 16px; } 
-.sprite-exclamation-red{ background-position: 0 -792px; width: 16px; height: 16px; } 
-.sprite-exclamation{ background-position: 0 -858px; width: 16px; height: 16px; } 
-.sprite-folder-cross-circle{ background-position: 0 -924px; width: 16px; height: 16px; } 
-.sprite-folder-gear{ background-position: 0 -990px; width: 16px; height: 16px; } 
-.sprite-folder-tick-circle{ background-position: 0 -1056px; width: 16px; height: 16px; } 
-.sprite-gear{ background-position: 0 -1122px; width: 16px; height: 16px; } 
-.sprite-keyboard{ background-position: 0 -1188px; width: 16px; height: 16px; } 
-.sprite-layout-select-sidebar{ background-position: 0 -1254px; width: 16px; height: 16px; } 
-.sprite-mail-send{ background-position: 0 -1320px; width: 16px; height: 16px; } 
-.sprite-minus-circle-frame{ background-position: 0 -1386px; width: 16px; height: 16px; } 
-.sprite-minus-circle{ background-position: 0 -1452px; width: 16px; height: 16px; } 
-.sprite-plus-circle-frame{ background-position: 0 -1518px; width: 16px; height: 16px; } 
-.sprite-plus-circle{ background-position: 0 -1584px; width: 16px; height: 16px; } 
-.sprite-robot{ background-position: 0 -1650px; width: 16px; height: 16px; } 
-.sprite-sort-price{ background-position: 0 -1716px; width: 16px; height: 16px; } 
-.sprite-tick-circle-frame-gray{ background-position: 0 -1782px; width: 16px; height: 16px; } 
-.sprite-tick-circle-frame{ background-position: 0 -1848px; width: 16px; height: 16px; } 
-.sprite-tick-circle-gray{ background-position: 0 -1914px; width: 16px; height: 16px; } 
-.sprite-tick-circle{ background-position: -66px 0; width: 16px; height: 16px; } 
-.sprite-ui-tab-content-gear{ background-position: -66px -66px; width: 16px; height: 16px; } 
-.sprite-ui-tab-gear{ background-position: -66px -132px; width: 16px; height: 16px; } 
-.sprite-user-silhouette{ background-position: -66px -198px; width: 16px; height: 16px; } 
+.sprite-edit-alignment-justify{ background-position: 0 -792px; width: 16px; height: 16px; } 
+.sprite-edit-code{ background-position: 0 -858px; width: 16px; height: 16px; } 
+.sprite-edit-image{ background-position: 0 -924px; width: 16px; height: 16px; } 
+.sprite-edit-quotation{ background-position: 0 -990px; width: 16px; height: 16px; } 
+.sprite-exclamation-red{ background-position: 0 -1056px; width: 16px; height: 16px; } 
+.sprite-exclamation{ background-position: 0 -1122px; width: 16px; height: 16px; } 
+.sprite-folder-cross-circle{ background-position: 0 -1188px; width: 16px; height: 16px; } 
+.sprite-folder-gear{ background-position: 0 -1254px; width: 16px; height: 16px; } 
+.sprite-folder-tick-circle{ background-position: 0 -1320px; width: 16px; height: 16px; } 
+.sprite-gear{ background-position: 0 -1386px; width: 16px; height: 16px; } 
+.sprite-keyboard{ background-position: 0 -1452px; width: 16px; height: 16px; } 
+.sprite-layout-select-sidebar{ background-position: 0 -1518px; width: 16px; height: 16px; } 
+.sprite-mail-send{ background-position: 0 -1584px; width: 16px; height: 16px; } 
+.sprite-minus-circle-frame{ background-position: 0 -1650px; width: 16px; height: 16px; } 
+.sprite-minus-circle{ background-position: 0 -1716px; width: 16px; height: 16px; } 
+.sprite-plus-circle-frame{ background-position: 0 -1782px; width: 16px; height: 16px; } 
+.sprite-plus-circle{ background-position: 0 -1848px; width: 16px; height: 16px; } 
+.sprite-robot{ background-position: 0 -1914px; width: 16px; height: 16px; } 
+.sprite-sort-price{ background-position: -66px 0; width: 16px; height: 16px; } 
+.sprite-tick-circle-frame-gray{ background-position: -66px -66px; width: 16px; height: 16px; } 
+.sprite-tick-circle-frame{ background-position: -66px -132px; width: 16px; height: 16px; } 
+.sprite-tick-circle-gray{ background-position: -66px -198px; width: 16px; height: 16px; } 
+.sprite-tick-circle{ background-position: -66px -264px; width: 16px; height: 16px; } 
+.sprite-ui-tab-content-gear{ background-position: -66px -330px; width: 16px; height: 16px; } 
+.sprite-ui-tab-gear{ background-position: -66px -396px; width: 16px; height: 16px; } 
+.sprite-user-silhouette{ background-position: -66px -462px; width: 16px; height: 16px; } 
 
 span.plugin_icon_overlay_disabled {
 	background:url(plugin_overlay_disabled.png?v=2012091301);
@@ -1363,7 +1375,6 @@ span.plugin_icon_overlay_disabled {
 // ------------------------------------------------------------------*/
 .markItUp * {
 	margin:0px; padding:0px;
-	outline:none;
 }
 .markItUp a:link,
 .markItUp a:visited {
@@ -1375,16 +1386,8 @@ span.plugin_icon_overlay_disabled {
 	margin:5px 0 5px 0;
 }
 .markItUpContainer {
-	/*font:11px Verdana, Arial, Helvetica, sans-serif;*/
 }
 .markItUpEditor {
-	/*font:12px 'Courier New', Courier, monospace;*/
-	padding:5px;
-	width:98%;
-	height:320px;
-	clear:both; display:block;
-	line-height:18px;
-	overflow:auto;
 }
 .markItUpPreviewFrame {
 	overflow:auto;
@@ -1402,7 +1405,7 @@ span.plugin_icon_overlay_disabled {
 	width:22px; height:5px;
 	margin-left:auto;
 	margin-right:auto;
-	background-image:url(markitup/handle.png?v=2012111201);
+	background-image:url(markitup/handle.png?v=2014012801);
 	cursor:n-resize;
 }
 /***************************************************************************************/
@@ -1479,74 +1482,110 @@ span.plugin_icon_overlay_disabled {
 
 /* MarkItUp Markdown */
 .markItUp .h1 a {
-	background-image:url(markitup/toolbar/h1.png?v=2012111201); 
+	background-image:url(markitup/toolbar/h1.png?v=2014012801); 
 }
 .markItUp .h2 a {
-	background-image:url(markitup/toolbar/h2.png?v=2012111201); 
+	background-image:url(markitup/toolbar/h2.png?v=2014012801); 
 }
 .markItUp .h3 a {
-	background-image:url(markitup/toolbar/h3.png?v=2012111201); 
+	background-image:url(markitup/toolbar/h3.png?v=2014012801); 
 }
 .markItUp .h4 a {
-	background-image:url(markitup/toolbar/h4.png?v=2012111201); 
+	background-image:url(markitup/toolbar/h4.png?v=2014012801); 
 }
 .markItUp .h5 a {
-	background-image:url(markitup/toolbar/h5.png?v=2012111201); 
+	background-image:url(markitup/toolbar/h5.png?v=2014012801); 
 }
 .markItUp .h6 a {
-	background-image:url(markitup/toolbar/h6.png?v=2012111201); 
+	background-image:url(markitup/toolbar/h6.png?v=2014012801); 
 }
 
 .markItUp .b a {
-	background-image:url(markitup/toolbar/bold.png?v=2012111201);
+	background-image:url(markitup/toolbar/bold.png?v=2014012801);
 }
 .markItUp .i a {
-	background-image:url(markitup/toolbar/italic.png?v=2012111201);
+	background-image:url(markitup/toolbar/italic.png?v=2014012801);
 }
 .markItUp .strike a {
-	background-image:url(markitup/toolbar/stroke.png?v=2012111201);
+	background-image:url(markitup/toolbar/stroke.png?v=2014012801);
 }
 
 .markItUp .ul a {
-	background-image:url(markitup/toolbar/list-bullet.png?v=2012111201);
+	background-image:url(markitup/toolbar/list-bullet.png?v=2014012801);
 }
 .markItUp .ol a {
-	background-image:url(markitup/toolbar/list-numeric.png?v=2012111201);
+	background-image:url(markitup/toolbar/list-numeric.png?v=2014012801);
 }
 .markItUp .li a {
-	background-image:url(markitup/toolbar/list-item.png?v=2012111201);
+	background-image:url(markitup/toolbar/list-item.png?v=2014012801);
 }
 
 .markItUp .img a {
-	background-image:url(markitup/toolbar/picture.png?v=2012111201); 
+	background-image:url(markitup/toolbar/picture.png?v=2014012801); 
 }
 .markItUp .a a {
-	background-image:url(markitup/toolbar/link.png?v=2012111201);
+	background-image:url(markitup/toolbar/link.png?v=2014012801);
 }
 
 .markItUp .blockquote a	{
-	background-image:url(markitup/toolbar/quotes.png?v=2012111201);
+	background-image:url(markitup/toolbar/quotes.png?v=2014012801);
 }
 
 .markItUp .code a	{
-	background-image:url(markitup/toolbar/code.png?v=2012111201);
+	background-image:url(markitup/toolbar/code.png?v=2014012801);
 }
 
 .markItUp .preview a {
-	background-image:url(markitup/toolbar/document_view.png?v=2012111201);
+	background-image:url(markitup/toolbar/document_view.png?v=2014012801);
 }
 
 .markItUp .clean a {
-	background-image:url(markitup/toolbar/clean.png?v=2012111201);
+	background-image:url(markitup/toolbar/clean.png?v=2014012801);
 }
 
 .markItUp .p a {
-	background-image:url(markitup/toolbar/paragraph.png?v=2012111201);
+	background-image:url(markitup/toolbar/paragraph.png?v=2014012801);
+}
+
+/* markItUp overrides */
+
+.markItUpPlaintext .parsedown a {
+	background-image:url(markitup/toolbar/cerb/edit-image.png?v=2014012101);
+}
+
+.markItUpParsedown .plaintext a {
+	background-image:url(markitup/toolbar/cerb/edit-alignment-justify.png?v=2014012101);
+}
+
+.markItUpParsedown .blockquote a {
+	background-image:url(markitup/toolbar/cerb/edit-quotation.png?v=2014012101);
+}
+
+.markItUpParsedown .code a {
+	background-image:url(markitup/toolbar/cerb/edit-code.png?v=2014012101);
+}
+
+.markItUpParsedown .img a {
+	background-image:url(markitup/toolbar/cerb/image--pencil.png?v=2014012101);
+}
+
+.markItUpParsedown .image-inline a {
+	background-image:url(markitup/toolbar/cerb/image-sunset.png?v=2014012101);
 }
 
 /* jQueryUI (Redmond theme) */
 
+.ui-widget,
+.ui-widget input,
+.ui-widget select,
+.ui-widget textarea,
+.ui-widget button {
+	font-family: inherit;
+	font-size: inherit;
+}
+
 .ui-widget-content { background: #ffffff none; } /* #fcfdfd none; */
+.ui-widget-content a { color: inherit; }
 .ui-widget-header { background: #5c9ccc none; }
 .ui-state-default, .ui-widget-content .ui-state-default { background: rgb(232,242,254) none; font-weight: normal; }
 .ui-state-hover, .ui-widget-content .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus { background: #d0e5f5 none; }
@@ -1675,6 +1714,7 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item a.ui-state-focus {
 	-moz-box-shadow: 0 0 10px 3px rgb(175,175,175);
 	-webkit-box-shadow: 0 0 10px 3px rgb(175,175,175);
 	box-shadow: 0 0 10px 3px rgb(175,175,175);
+	position: fixed;
 }
 
 .ui-dialog .ui-dialog-titlebar { 

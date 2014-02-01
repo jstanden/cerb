@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -92,15 +92,19 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 	
 	function testProfileJsonAction() {
 		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string','');
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 
 		try {
+			if(null == ($profile = DAO_DevblocksStorageProfile::get($id)))
+				$profile = new Model_DevblocksStorageProfile();
+			
 			if(empty($extension_id)
 				|| null == ($ext = $ext = DevblocksPlatform::getExtension($extension_id, true)))
 				throw new Exception("Can't load extension.");
 				
 			/* @var $ext Extension_DevblocksStorageEngine */
-				
-			if(!$ext->testConfig()) {
+			
+			if(!$ext->testConfig($profile)) {
 				throw new Exception('Your storage profile is not configured properly.');
 			}
 			

@@ -22,6 +22,6 @@
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#cfTabs").tabs( { selected:{$selected_tab_idx} } );
+		var tabs = $("#cfTabs").tabs( { active:{$selected_tab_idx} } );
 	});
 </script>

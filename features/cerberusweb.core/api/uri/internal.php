@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -742,6 +742,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 	function chooserOpenFileUploadAction() {
 		@$files = $_FILES['file_data'];
+		$url_writer = DevblocksPlatform::getUrlService();
 		$results = array();
 
 		if(is_array($files) && isset($files['tmp_name']))
@@ -754,29 +755,37 @@ class ChInternalController extends DevblocksControllerExtension {
 			if(empty($file_tmp_name) || empty($file_name))
 				continue;
 			
-			// Create a record w/ timestamp + ID
-			$fields = array(
-				DAO_Attachment::DISPLAY_NAME => $file_name,
-				DAO_Attachment::MIME_TYPE => $file_type,
-			);
-			$file_id = DAO_Attachment::create($fields);
-	
-			// Save the file
-			if(null !== ($fp = fopen($file_tmp_name, 'rb'))) {
-				Storage_Attachments::put($file_id, $fp);
-				fclose($fp);
-				unlink($file_tmp_name);
+			@$sha1_hash = sha1_file($file_tmp_name, false);
+			
+			if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file_name, $file_size))) {
+				// Create a record w/ timestamp + ID
+				$fields = array(
+					DAO_Attachment::DISPLAY_NAME => $file_name,
+					DAO_Attachment::MIME_TYPE => $file_type,
+					DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
+				);
+				$file_id = DAO_Attachment::create($fields);
 				
+				// Save the file
+				if(null !== ($fp = fopen($file_tmp_name, 'rb'))) {
+					Storage_Attachments::put($file_id, $fp);
+					fclose($fp);
+				}
+			}
+			
+			if($file_id) {
 				$results[] = array(
 					'id' => $file_id,
 					'name' => $file_name,
 					'type' => $file_type,
 					'size' => $file_size,
+					'sha1_hash' => $sha1_hash,
+					'url' => $url_writer->write(sprintf("c=files&hash=%s&name=%s", $sha1_hash, urlencode($file_name)), true),
 				);
 			}
+			
+			@unlink($file_tmp_name);
 		}
-
-		// [TODO] Unlinked records should expire
 
 		echo json_encode($results);
 	}
@@ -3666,10 +3675,78 @@ class ChInternalController extends DevblocksControllerExtension {
 				$errors = $tpl_builder->getErrors();
 				$success = false;
 				$output = @array_shift($errors);
+				
 			} else {
 				// If successful, return the parsed template
 				$success = true;
 				$output = $out;
+				
+				if(isset($_REQUEST['is_editor'])) {
+					@$is_editor = DevblocksPlatform::importGPC($_REQUEST['is_editor'],'string','');
+					@$format = DevblocksPlatform::importGPC($_REQUEST[$prefix][$is_editor],'string','');
+					
+					switch($format) {
+						case 'parsedown':
+							if(false != ($output = DevblocksPlatform::parseMarkdown($output, true))) {
+
+								// HTML template
+
+								@$html_template_id = DevblocksPlatform::importGPC($_REQUEST[$prefix]['html_template_id'],'integer',0);
+								$html_template = null;
+								
+								// Field mapping
+								
+								@$_replyto_field = DevblocksPlatform::importGPC($_REQUEST['_replyto_field'],'string','');
+								@$_replyto_id = DevblocksPlatform::importGPC($_REQUEST[$prefix][$_replyto_field],'integer',0);
+
+								// Key mapping
+								
+								@$_group_key = DevblocksPlatform::importGPC($_REQUEST['_group_key'],'string','');
+								@$_group_id = intval($values[$_group_key]);
+
+								@$_bucket_key = DevblocksPlatform::importGPC($_REQUEST['_bucket_key'],'string','');
+								@$_bucket_id = intval($values[$_bucket_key]);
+								
+								// Try the given HTML template
+								if($html_template_id) {
+									$html_template = DAO_MailHtmlTemplate::get($html_template_id);
+								}
+								
+								// Cascade to group/bucket
+								if($_group_id && !$html_template && false != ($_group = DAO_Group::get($_group_id))) {
+									$html_template = $_group->getReplyHtmlTemplate($_bucket_id);
+								}
+								
+								// Cascade to current reply-to
+								if($_replyto_id && !$html_template && false != ($replyto = DAO_AddressOutgoing::get($_replyto_id))) {
+									$html_template = $replyto->getReplyHtmlTemplate();
+								}
+								
+								// Cascade to default reply-to
+								if(!$html_template && false != ($replyto = DAO_AddressOutgoing::getDefault())) {
+									$html_template = $replyto->getReplyHtmlTemplate();
+								}
+								
+								if($html_template) {
+									$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+									$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
+								}
+							}
+							break;
+							
+						default:
+							// [TODO] Default stylesheet for previews?
+							$output = nl2br(htmlentities($output, ENT_COMPAT, LANG_CHARSET_CODE));
+							break;
+					}
+					
+					echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body>',
+						LANG_CHARSET_CODE
+					);
+					echo DevblocksPlatform::purifyHTML($output, true);
+					echo '</body></html>';
+					return;
+				}
 			}
 		}
 
@@ -3698,6 +3775,11 @@ class ChInternalController extends DevblocksControllerExtension {
 			case 'markdown':
 				$body = DevblocksPlatform::parseMarkdown($data);
 				break;
+				
+			case 'parsedown':
+				$body = DevblocksPlatform::parseMarkdown($data, true);
+				break;
+				
 			case 'html':
 			default:
 				$body = $data;

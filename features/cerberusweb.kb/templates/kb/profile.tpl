@@ -107,7 +107,7 @@
 <script type="text/javascript">
 $(function() {
 	var tabs = $("#kbTabs").tabs({
-		selected:{$selected_tab_idx}
+		active:{$selected_tab_idx}
 	});
 	
 	$('#btnDisplayKbEdit').bind('click', function() {

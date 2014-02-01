@@ -64,12 +64,26 @@
 
 <!--[if IE]><script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/excanvas.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script><![endif]-->
 <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/jquery.jqplot.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/plugins/jqplot.highlighter.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/plugins/jqplot.barRenderer.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/plugins/jqplot.canvasTextRenderer.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/plugins/jqplot.categoryAxisRenderer.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 <link rel="stylesheet" type="text/css" href="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=css/jqplot/jquery.jqplot.min.css{/devblocks_url}?v={$smarty.const.APP_BUILD}" />
+
+<style type="text/css">
+.jqplot-highlighter-tooltip,.jqplot-canvasOverlay-tooltip {
+	border: 5px solid rgb(249,233,142);
+	border-radius: 5px;
+	color: rgb(164,125,50);
+	font-size: 1.2em;
+	white-space: nowrap;
+	background: rgb(251,247,170);
+	padding: 5px;
+	margin-bottom:3px;
+}
+</style>
 
 <div id="reportLegend" style="margin:5px;"></div>
 <div id="reportChart" style="width:98%;height:350px;"></div>
@@ -176,7 +190,15 @@ chartOptions = {
 			fontSize: '8pt'
 		  }
 		}
-    }
+	},
+	highlighter:{
+		show: true,
+		showMarket: true,
+		tooltipLocation: 'n',
+		tooltipContentEditor: function(str, seriesIndex, pointIndex, plot) {
+			return plot.series[seriesIndex]["label"] + ": " + plot.data[seriesIndex][pointIndex] + "<br>" + plot.axes.xaxis.ticks[pointIndex];
+		}
+	}
 };
 
 $('#reportChart').bind('jqplotPostDraw',function(event, plot) {
@@ -193,51 +215,7 @@ $('#reportChart').bind('jqplotPostDraw',function(event, plot) {
 	}
 });
 
-var reportTooltip = $('#reportChart').qtip({
-	show: {
-		when:{ event:'jqplotDataHighlight' }
-	},
-	hide:{
-		when:{ event:'jqplotDataUnhighlight' }
-	},
-	style:{
-		name:'cream',
-		tip:{ corner:'bottomLeft' },
-		border:{
-			radius:3,
-			width:5
-		}
-	},
-	position:{
-		target:'mouse',
-		corner:{
-			tooltip:'bottomLeft',
-			target:'topMiddle'
-		},
-		adjust:{
-			x:-5
-		}
-	}
-});
-
-$('#reportChart').bind('jqplotDataHighlight',function(event, seriesIndex, pointIndex, data) {
-	tooltip = $('#reportChart').qtip("api");
-	
-	str = "";
-	
-	if(!plot1 || !plot1.series || !plot1.series[seriesIndex])
-		return;
-	
-	if(plot1.series[seriesIndex].label)
-		str += plot1.series[seriesIndex].label;
-	
-	if(plot1.axes.xaxis.ticks[pointIndex])
-		str += "<br>(" + plot1.axes.xaxis.ticks[pointIndex] + ")";
-	
-	tooltip.updateContent(str, true);
-});
-
-plot1 = $.jqplot('reportChart', chartData, chartOptions);	
+var plot1 = $.jqplot('reportChart', chartData, chartOptions);
 </script>
 
 {include file="devblocks:cerberusweb.reports::reports/_shared/chart_selector.tpl"}

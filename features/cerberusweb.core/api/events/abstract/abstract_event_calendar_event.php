@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2013, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2014, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -102,14 +102,8 @@ abstract class AbstractEvent_CalendarEvent extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		$types = $this->getTypes();
 		
-		$types = array(
-			'event_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'event_is_available' => Model_CustomField::TYPE_CHECKBOX,
-			'event_date_start' => Model_CustomField::TYPE_DATE,
-			'event_date_end' => Model_CustomField::TYPE_DATE,
-		);
-
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 
 		return $conditions;

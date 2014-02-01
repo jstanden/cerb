@@ -111,7 +111,7 @@
 	$popup = genericAjaxPopupFind('#formAddressPeek');
 	$popup.one('popup_open',function(event,ui) {
 		// Title
-		$(this).dialog('option','title', '{'addy_book.peek.title'|devblocks_translate}');
+		$(this).dialog('option','title', '{'addy_book.peek.title'|devblocks_translate|escape:'javascript' nofilter}');
 		
 		// Worker chooser
 		$(this).find('button.chooser_watcher').each(function() {
