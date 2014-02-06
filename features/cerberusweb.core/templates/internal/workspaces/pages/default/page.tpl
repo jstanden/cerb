@@ -36,7 +36,7 @@
 			forcePlaceholderWidth:true,
 			update:function(e) {
 				$tabs = $("#pageTabs");
-				$page_tabs = $tabs.find('ul.ui-tabs-nav > li.drag[tab_id=*]');
+				$page_tabs = $tabs.find('ul.ui-tabs-nav > li.drag[tab_id]');
 				page_tab_ids = $page_tabs.map(function(e) {
 					return $(this).attr('tab_id');
 				}).get().join(',');
