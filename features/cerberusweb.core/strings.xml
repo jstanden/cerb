@@ -1019,6 +1019,9 @@
 		<tu tuid='attachment.storage_profile_id'>
 			<tuv xml:lang="en_US"><seg>Storage Profile</seg></tuv>
 		</tu>
+		<tu tuid='attachment.storage_sha1hash'>
+			<tuv xml:lang="en_US"><seg>SHA-1 Hash</seg></tuv>
+		</tu>
 		<tu tuid='attachment.storage_size'>
 			<tuv xml:lang="en_US"><seg>Size (bytes)</seg></tuv>
 		</tu>
