@@ -228,6 +228,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		$types = $this->getTypes();
 		
 		$labels['is_first'] = 'Message is first in conversation';
 		$labels['sender_is_worker'] = 'Message sender is a worker';
@@ -243,11 +244,11 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 		$labels['ticket_org_watcher_count'] = 'Ticket org watcher count';
 		$labels['ticket_watcher_count'] = 'Ticket watcher count';
 		
-		$types['is_first'] = null;
-		$types['sender_is_worker'] = null;
-		$types['sender_is_me'] = null;
+		$types['is_first'] = Model_CustomField::TYPE_CHECKBOX;
+		$types['sender_is_worker'] = Model_CustomField::TYPE_CHECKBOX;
+		$types['sender_is_me'] = Model_CustomField::TYPE_CHECKBOX;
 		
-		$types['ticket_has_owner'] = null;
+		$types['ticket_has_owner'] = Model_CustomField::TYPE_CHECKBOX;
 		
 		$types['group_id'] = null;
 		$types['group_and_bucket'] = null;
@@ -270,10 +271,6 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
-			case 'ticket_has_owner':
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_bool.tpl');
-				break;
-			
 			case 'group_id':
 				$groups = DAO_Group::getAll();
 				$tpl->assign('groups', $groups);
