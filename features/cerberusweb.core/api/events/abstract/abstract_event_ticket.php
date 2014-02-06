@@ -237,7 +237,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		$labels['ticket_org_watcher_count'] = 'Ticket org watcher count';
 		$labels['ticket_watcher_count'] = 'Ticket watcher count';
 		
-		$types['ticket_has_owner'] = null;
+		$types['ticket_has_owner'] = Model_CustomField::TYPE_CHECKBOX;
 		$types['ticket_initial_message_header'] = null;
 		$types['ticket_latest_message_header'] = null;
 		$types['ticket_latest_incoming_activity'] = null;
@@ -270,10 +270,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
-			case 'ticket_has_owner':
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_bool.tpl');
-				break;
-				
 			case 'ticket_spam_score':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_spam_score.tpl');
 				break;

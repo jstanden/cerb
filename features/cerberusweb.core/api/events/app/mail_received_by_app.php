@@ -169,9 +169,9 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$types['body'] = Model_CustomField::TYPE_MULTI_LINE;
 		$types['encoding'] = Model_CustomField::TYPE_SINGLE_LINE;
 	
-		$types['attachment_mimetype'] = null;
-		$types['attachment_name'] = null;
-		$types['attachment_size'] = null;
+		$types['attachment_mimetype'] = Model_CustomField::TYPE_SINGLE_LINE;
+		$types['attachment_name'] = Model_CustomField::TYPE_SINGLE_LINE;
+		$types['attachment_size'] = 'size_bytes';
 		$types['attachment_count'] = Model_CustomField::TYPE_NUMBER;
 		$types['header'] = null;
 		$types['is_new'] = Model_CustomField::TYPE_CHECKBOX;
@@ -191,13 +191,6 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
-			case 'attachment_mimetype':
-			case 'attachment_name':
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_string.tpl');
-				break;
-			case 'attachment_size':
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
-				break;
 			// [TODO] Internalize
 			case 'header':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_header.tpl');
