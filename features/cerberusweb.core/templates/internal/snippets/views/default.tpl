@@ -92,6 +92,10 @@
 						({$owner_context_ext->manifest->name})
 					{/if}
 				</td>
+			{elseif $column=="s_updated_at"}
+			<td>
+				<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
+			</td>
 			{else}
 			<td>{$result.$column}</td>
 			{/if}
