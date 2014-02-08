@@ -1265,7 +1265,7 @@ class CerberusParser {
 			}
 			
 			if(!$handled) {
-				$sha1_hash = sha1_file($file->tmpname, false);
+				$sha1_hash = sha1_file($file->getTempFile(), false);
 
 				// Dupe detection
 				if(null == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $filename))) {
