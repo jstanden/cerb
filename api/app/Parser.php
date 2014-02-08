@@ -1265,7 +1265,7 @@ class CerberusParser {
 			}
 			
 			if(!$handled) {
-				$sha1_hash = sha1_file($file->tmpname, false);
+				$sha1_hash = sha1_file($file->getTempFile(), false);
 
 				// Dupe detection
 				if(null == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $filename))) {
@@ -1321,24 +1321,31 @@ class CerberusParser {
 		}
 		
 		// Pre-load custom fields
+		
+		$cf_values = array();
+		
 		if(isset($message->custom_fields) && !empty($message->custom_fields))
 		foreach($message->custom_fields as $cf_data) {
 			if(!is_array($cf_data))
 				continue;
 		
-			$cf_id = $cf_data['field_id'];
-			$cf_context = $cf_data['context'];
-			$cf_context_id = $cf_data['context_id'];
-			$cf_val = $cf_data['value'];
+			@$cf_id = $cf_data['field_id'];
+			@$cf_context = $cf_data['context'];
+			@$cf_context_id = $cf_data['context_id'];
+			@$cf_val = $cf_data['value'];
 			
 			// If we're setting fields on the ticket, find the ticket ID
 			if($cf_context == CerberusContexts::CONTEXT_TICKET && empty($cf_context_id))
 				$cf_context_id = $model->getTicketId();
 			
 			if((is_array($cf_val) && !empty($cf_val))
-				|| (!is_array($cf_val) && 0 != strlen($cf_val)))
-				DAO_CustomFieldValue::setFieldValue($cf_context, $cf_context_id, $cf_id, $cf_val);
+				|| (!is_array($cf_val) && 0 != strlen($cf_val))) {
+					$cf_values[$cf_id] = $cf_val;
+			}
 		}
+		
+		if(!empty($cf_values))
+			DAO_CustomFieldValue::formatAndSetFieldValues($cf_context, $cf_context_id, $cf_values);
 
 		// If the sender was previously defunct, remove the flag
 		

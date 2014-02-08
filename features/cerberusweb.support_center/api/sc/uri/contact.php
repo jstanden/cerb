@@ -372,6 +372,9 @@ class UmScContactController extends Extension_UmScController {
 			// field[]
 			if(is_array($files['name'])) {
 				foreach($files['name'] as $idx => $name) {
+					if(empty($files['tmpname'][$idx]) || empty($files['name'][$idx]))
+						continue;
+					
 					$mime_type = @$files['type'][$idx] ?: 'application/octet-stream';
 					
 					$attach = new ParserFile();
@@ -381,6 +384,9 @@ class UmScContactController extends Extension_UmScController {
 				}
 				
 			} else {
+				if(empty($files['tmpname']) || empty($files['name']))
+					continue;
+				
 				@$mime_type = $files['type'] ?: 'application/octet-stream';
 				
 				$attach = new ParserFile();
