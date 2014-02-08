@@ -341,7 +341,7 @@ class CerberusMail {
 				}
 			}
 			
-			if(empty($dont_send)) {
+			if(!empty($toList) && empty($dont_send)) {
 				if(!@$mailer->send($email)) {
 					throw new Exception('Mail failed to send: unknown reason');
 				}

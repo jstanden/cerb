@@ -45,9 +45,9 @@
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'message.header.to'|devblocks_translate|capitalize}:</b>&nbsp;</td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right">{'message.header.to'|devblocks_translate|capitalize}:&nbsp;</td>
 			<td width="100%">
-				<input type="text" name="to" id="emailinput{$random}" value="{if !empty($to)}{$to}{else}{$draft->params.to}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence" required>
+				<input type="text" name="to" id="emailinput{$random}" value="{if !empty($to)}{$to}{else}{$draft->params.to}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence">
 				
 				<div id="compose_suggested{$random}" style="display:none;">
 					<a href="javascript:;" onclick="$(this).closest('div').hide();">x</a>

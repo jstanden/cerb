@@ -105,6 +105,18 @@
 				$(this).find('ul:first').hide();
 			}
 		})
+		.click(function(e) {
+			$menu = $(this).find('ul:first');
+			$menu
+				.show()
+				.css('position','absolute')
+				.css('top',$(this).offset().top+7+($(this).height())+'px')
+				.css('left',$(this).offset().left+10-($menu.width()-$(this).width())+'px')
+			;
+			$menu.find('li:first a')
+				.focus()
+				;
+		})
 		.find('.cerb-popupmenu > li')
 			.click(function(e) {
 				e.stopPropagation();

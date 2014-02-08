@@ -139,6 +139,21 @@ if(!isset($columns['reply_html_template_id'])) {
 }
 
 // ===========================================================================
+// Add an updated field to snippet records
+
+if(!isset($tables['snippet'])) {
+	$logger->error("The 'snippet' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('snippet');
+
+if(!isset($columns['updated_at'])) {
+	$db->Execute("ALTER TABLE snippet ADD COLUMN updated_at INT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX updated_at (updated_at)");
+	$db->Execute("UPDATE snippet SET updated_at = UNIX_TIMESTAMP()");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

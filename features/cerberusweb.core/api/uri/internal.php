@@ -1327,6 +1327,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_Snippet::TITLE => $title,
 			DAO_Snippet::CONTEXT => $context,
 			DAO_Snippet::CONTENT => $content,
+			DAO_Snippet::UPDATED_AT => time(),
 		);
 
 		if($do_delete) {

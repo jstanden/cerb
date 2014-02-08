@@ -262,7 +262,7 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 		closeOnEscape : true,
 		draggable : true,
 		modal : false,
-		resizable : false,
+		resizable : true,
 		width : '600px',
 		close: function(event, ui) {
 			$(this).unbind().find(':focus').blur();

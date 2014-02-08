@@ -400,12 +400,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$file_ids = DevblocksPlatform::importGPC($_POST['file_ids'],'array',array());
 		$file_ids = DevblocksPlatform::sanitizeArray($file_ids, 'integer', array('unique', 'nonzero'));
 		
-		// No destination?
-		
-		if(empty($to)) {
-			return;
-		}
-		
 		// Org
 		
 		$org_id = 0;

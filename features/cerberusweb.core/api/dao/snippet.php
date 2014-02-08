@@ -23,6 +23,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 	const CONTEXT = 'context';
 	const CONTENT = 'content';
 	const TOTAL_USES = 'total_uses';
+	const UPDATED_AT = 'updated_at';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -41,6 +42,9 @@ class DAO_Snippet extends Cerb_ORMHelper {
 	static function update($ids, $fields) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		if(!isset($fields[DAO_Snippet::UPDATED_AT]))
+			$fields[DAO_Snippet::UPDATED_AT] = time();
 		
 		// Make a diff for the requested objects in batches
 		
@@ -114,7 +118,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, title, context, owner_context, owner_context_id, content, total_uses ".
+		$sql = "SELECT id, title, context, owner_context, owner_context_id, content, total_uses, updated_at ".
 			"FROM snippet ".
 			$where_sql.
 			$sort_sql.
@@ -157,6 +161,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			$object->owner_context_id = $row['owner_context_id'];
 			$object->content = $row['content'];
 			$object->total_uses = intval($row['total_uses']);
+			$object->updated_at = intval($row['updated_at']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -232,14 +237,16 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			"snippet.owner_context as %s, ".
 			"snippet.owner_context_id as %s, ".
 			"snippet.content as %s, ".
-			"snippet.total_uses as %s",
+			"snippet.total_uses as %s, ".
+			"snippet.updated_at as %s",
 				SearchFields_Snippet::ID,
 				SearchFields_Snippet::TITLE,
 				SearchFields_Snippet::CONTEXT,
 				SearchFields_Snippet::OWNER_CONTEXT,
 				SearchFields_Snippet::OWNER_CONTEXT_ID,
 				SearchFields_Snippet::CONTENT,
-				SearchFields_Snippet::TOTAL_USES
+				SearchFields_Snippet::TOTAL_USES,
+				SearchFields_Snippet::UPDATED_AT
 			);
 		
 		if(isset($tables['snippet_use_history'])) {
@@ -419,6 +426,7 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 	const OWNER_CONTEXT_ID = 's_owner_context_id';
 	const CONTENT = 's_content';
 	const TOTAL_USES = 's_total_uses';
+	const UPDATED_AT = 's_updated_at';
 	
 	const USE_HISTORY_MINE = 'suh_my_uses';
 	
@@ -443,6 +451,7 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'snippet', 'owner_context_id', $translate->_('dao.snippet.owner_context_id')),
 			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'snippet', 'content', $translate->_('common.content'), Model_CustomField::TYPE_MULTI_LINE),
 			self::TOTAL_USES => new DevblocksSearchField(self::TOTAL_USES, 'snippet', 'total_uses', $translate->_('dao.snippet.total_uses'), Model_CustomField::TYPE_NUMBER),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'snippet', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 			
 			self::USE_HISTORY_MINE => new DevblocksSearchField(self::USE_HISTORY_MINE, 'snippet_use_history', 'uses', $translate->_('dao.snippet_use_history.uses.mine'), Model_CustomField::TYPE_NUMBER),
 			
@@ -478,6 +487,7 @@ class Model_Snippet {
 	public $owner_context_id;
 	public $content;
 	public $total_uses;
+	public $updated_at;
 	
 	public function incrementUse($worker_id) {
 		return DAO_Snippet::incrementUse($this->id, $worker_id);
@@ -571,6 +581,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Snippet::CONTEXT,
 			SearchFields_Snippet::VIRTUAL_OWNER,
 			SearchFields_Snippet::TOTAL_USES,
+			SearchFields_Snippet::UPDATED_AT,
 		);
 		
 		$this->addColumnsHidden(array(
@@ -739,6 +750,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
+			case SearchFields_Snippet::UPDATED_AT:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
+				break;
+				
 			case SearchFields_Snippet::CONTEXT:
 				$contexts = Extension_DevblocksContext::getAll(false);
 				
@@ -851,6 +866,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
+			case SearchFields_Snippet::UPDATED_AT:
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
+				break;
+				
 			case SearchFields_Snippet::CONTEXT:
 				@$in_contexts = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$in_contexts);
@@ -889,7 +908,9 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 		@set_time_limit(600); // 10m
 		
 		$change_fields = array();
-		$custom_fields = array();
+		$custom_fields = array(
+			DAO_Snippet::UPDATED_AT => time(),
+		);
 
 		// Make sure we have actions
 		if(empty($do))
@@ -998,6 +1019,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 			'owner__label',
 			'context',
 			'total_uses',
+			'updated_at',
 		);
 	}
 	
@@ -1025,6 +1047,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 			'content' => $prefix.$translate->_('common.content'),
 			'owner__label' => $prefix.$translate->_('common.owner'),
 			'total_uses' => $prefix.$translate->_('dao.snippet.total_uses'),
+			'updated_at' => $prefix.$translate->_('common.updated'),
 		);
 		
 		// Token types
@@ -1035,6 +1058,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
 			'owner__label' => 'context_url',
 			'total_uses' => Model_CustomField::TYPE_NUMBER,
+			'updated_at' => Model_CustomField::TYPE_DATE,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1061,6 +1085,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 			$token_values['owner_id'] = $snippet->owner_context_id;
 			$token_values['title'] = $snippet->title;
 			$token_values['total_uses'] = $snippet->total_uses;
+			$token_values['updated_at'] = $snippet->updated_at;
 		}
 
 		return true;
@@ -1112,6 +1137,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 			SearchFields_Snippet::VIRTUAL_OWNER,
 			SearchFields_Snippet::USE_HISTORY_MINE,
 			SearchFields_Snippet::TOTAL_USES,
+			SearchFields_Snippet::UPDATED_AT,
 		);
 		
 		$params_required = array();
