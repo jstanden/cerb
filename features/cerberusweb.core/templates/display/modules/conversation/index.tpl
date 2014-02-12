@@ -108,7 +108,7 @@
 			var offset = $anchor.offset();
 			window.scrollTo(offset.left, offset.top);
 			
-			$anchor.find('> div.block').effect('highlight');
+			$anchor.find('> div.block').effect('highlight', { }, 750);
 		}
 	});
 	{/if}
