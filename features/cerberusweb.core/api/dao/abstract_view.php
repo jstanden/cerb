@@ -545,7 +545,7 @@ abstract class C4_AbstractView {
 		
 		if(count($strings) > 2) {
 			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d people)</abbr>",
-				htmlentities(strip_tags($list_of_strings)),
+				htmlentities(strip_tags($list_of_strings), ENT_QUOTES, LANG_CHARSET_CODE),
 				count($strings)
 			);
 		}
@@ -604,7 +604,7 @@ abstract class C4_AbstractView {
 		
 		if(count($strings) > 2) {
 			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d %s)</abbr>",
-				htmlentities(strip_tags($list_of_strings)),
+				htmlentities(strip_tags($list_of_strings), ENT_QUOTES, LANG_CHARSET_CODE),
 				count($strings),
 				strtolower($label_plural)
 			);
@@ -652,7 +652,7 @@ abstract class C4_AbstractView {
 		
 		if(count($strings) > 2) {
 			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d %s)</abbr>",
-				htmlentities(strip_tags($list_of_strings)),
+				htmlentities(strip_tags($list_of_strings), ENT_QUOTES, LANG_CHARSET_CODE),
 				count($strings),
 				strtolower($label_plural)
 			);
@@ -721,7 +721,7 @@ abstract class C4_AbstractView {
 		
 		if(count($strings) > 2) {
 			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d people)</abbr>",
-				htmlentities(strip_tags($list_of_strings)),
+				htmlentities(strip_tags($list_of_strings), ENT_QUOTES, LANG_CHARSET_CODE),
 				count($strings)
 			);
 		}
