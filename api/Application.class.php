@@ -2039,6 +2039,7 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 			$has_multiple_values = false;
 			switch($custom_fields[$field_id]->type) {
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+				case Model_CustomField::TYPE_FILES:
 					$has_multiple_values = true;
 					break;
 			}
