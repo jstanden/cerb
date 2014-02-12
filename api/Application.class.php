@@ -1966,15 +1966,16 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 	}
 	
 	static protected function paramExistsInSet($key, $params) {
-		foreach($params as $k => $param) {
-			if(!is_object($param))
-				continue;
-			
-			if(0==strcasecmp($param->field,$key))
-				return true;
-		}
+		$exists = false;
 		
-		return false;
+		if(is_array($params))
+		array_walk_recursive($params, function($param) use ($key, &$exists) {
+			if($param instanceof DevblocksSearchCriteria
+				&& 0 == strcasecmp($param->field, $key))
+					$exists = true;
+		});
+		
+		return $exists;
 	}
 	
 	static protected function _getRandom($table, $pkey='id') {
