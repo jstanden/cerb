@@ -42,6 +42,11 @@ class ParseCron extends CerberusCronPageExtension {
 			$logger->err("[Parser] The 'mailparse' extension is not loaded.  Aborting!");
 			return false;
 		}
+		
+		if (!extension_loaded("mbstring")) {
+			$logger->err("[Parser] The 'mbstring' extension is not loaded.  Aborting!");
+			return false;
+		}
 
 		$timeout = ini_get('max_execution_time');
 		$runtime = microtime(true);

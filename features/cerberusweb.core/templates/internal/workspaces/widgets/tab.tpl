@@ -119,11 +119,12 @@ DIV.dashboard-widget DIV.updated {
 		$dashboard = $(this);
 		
 		// [TODO] Number of columns
-		$col1 = $dashboard.find('TR > TD:nth(0)').find('input:hidden[name="widget_pos[]"]').map(function() { return $(this).val(); }).get().join(',');
-		$col2 = $dashboard.find('TR > TD:nth(1)').find('input:hidden[name="widget_pos[]"]').map(function() { return $(this).val(); }).get().join(',');
-		$col3 = $dashboard.find('TR > TD:nth(2)').find('input:hidden[name="widget_pos[]"]').map(function() { return $(this).val(); }).get().join(',');
+		var $tr = $dashboard.find('TBODY > TR');
+		var $col1 = $tr.find('> TD:nth(0)').find('input:hidden[name="widget_pos[]"]').map(function() { return $(this).val(); }).get().join(',');
+		var $col2 = $tr.find('> TD:nth(1)').find('input:hidden[name="widget_pos[]"]').map(function() { return $(this).val(); }).get().join(',');
+		var $col3 = $tr.find('> TD:nth(2)').find('input:hidden[name="widget_pos[]"]').map(function() { return $(this).val(); }).get().join(',');
 		
-		widget_positions = '&column[]=' + $col1 + '&column[]=' + $col2 + '&column[]=' + $col3;
+		var widget_positions = '&column[]=' + $col1 + '&column[]=' + $col2 + '&column[]=' + $col3;
 
 		genericAjaxGet('', 'c=internal&a=handleSectionAction&section=dashboards&action=setWidgetPositions&workspace_tab_id={$workspace_tab->id}' + widget_positions)
 	});

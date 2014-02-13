@@ -91,6 +91,7 @@ var $frm = $('#{$uniqid}').each(function(e) {
 				$bubbles.append($('<li><tt>-2 weeks to now</tt></li>'));
 				$bubbles.append($('<li><tt>last Monday to next Monday</tt></li>'));
 				$bubbles.append($('<li><tt>blank</tt></li>'));
+				$bubbles.append($('<li><tt>last Monday to last Friday 23:59 OR today to now</tt></li>'));
 				
 			} else if (field_type == 'W' || field_type == 'WS') {
 				$bubbles.append($('<li><tt>jeff</tt></li>'));
@@ -107,6 +108,7 @@ var $frm = $('#{$uniqid}').each(function(e) {
 				$bubbles.append($('<li><tt>prefix*</tt></li>'));
 				$bubbles.append($('<li><tt>*suffix</tt></li>'));
 				$bubbles.append($('<li><tt>!text</tt></li>'));
+				$bubbles.append($('<li><tt>term1 OR term2</tt></li>'));
 				
 			} else if (field_type == 'D' || field_type == 'X') {
 				$bubbles.append($('<li><tt>option</tt></li>'));
@@ -125,6 +127,7 @@ var $frm = $('#{$uniqid}').each(function(e) {
 				$bubbles.append($('<li><tt>&lt; 100</tt></li>'));
 				$bubbles.append($('<li><tt>= 5</tt></li>'));
 				$bubbles.append($('<li><tt>!= 20</tt></li>'));
+				$bubbles.append($('<li><tt>0 OR &gt; 10</tt></li>'));
 				
 			} else if (field_type == 'C') {
 				$bubbles.append($('<li><tt>yes</tt></li>'));

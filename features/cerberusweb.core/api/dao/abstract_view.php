@@ -545,7 +545,7 @@ abstract class C4_AbstractView {
 		
 		if(count($strings) > 2) {
 			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d people)</abbr>",
-				htmlentities(strip_tags($list_of_strings)),
+				htmlentities(strip_tags($list_of_strings), ENT_QUOTES, LANG_CHARSET_CODE),
 				count($strings)
 			);
 		}
@@ -604,7 +604,7 @@ abstract class C4_AbstractView {
 		
 		if(count($strings) > 2) {
 			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d %s)</abbr>",
-				htmlentities(strip_tags($list_of_strings)),
+				htmlentities(strip_tags($list_of_strings), ENT_QUOTES, LANG_CHARSET_CODE),
 				count($strings),
 				strtolower($label_plural)
 			);
@@ -652,7 +652,7 @@ abstract class C4_AbstractView {
 		
 		if(count($strings) > 2) {
 			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d %s)</abbr>",
-				htmlentities(strip_tags($list_of_strings)),
+				htmlentities(strip_tags($list_of_strings), ENT_QUOTES, LANG_CHARSET_CODE),
 				count($strings),
 				strtolower($label_plural)
 			);
@@ -721,7 +721,7 @@ abstract class C4_AbstractView {
 		
 		if(count($strings) > 2) {
 			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d people)</abbr>",
-				htmlentities(strip_tags($list_of_strings)),
+				htmlentities(strip_tags($list_of_strings), ENT_QUOTES, LANG_CHARSET_CODE),
 				count($strings)
 			);
 		}
@@ -930,6 +930,8 @@ abstract class C4_AbstractView {
 			return false;
 		}
 		
+		$handled = false;
+		
 		$field = $fields[$token];
 		$oper = DevblocksSearchCriteria::OPER_EQ;
 		$value = null;
@@ -946,36 +948,59 @@ abstract class C4_AbstractView {
 			case Model_CustomField::TYPE_URL:
 				if(strlen($query) == 0)
 					break;
-					
-				$oper = DevblocksSearchCriteria::OPER_EQ;
-				$value = $query;
+
+				$filters = array();
+				$values = explode(' OR ', $query);
 				
-				if(false !== strpos($value, '*'))
-					$oper = DevblocksSearchCriteria::OPER_LIKE;
-				
-				// Parse operator hints
-				if(preg_match('#\"(.*)\"#', $value, $matches)) {
+				if(is_array($values))
+				foreach($values as $value) {
 					$oper = DevblocksSearchCriteria::OPER_EQ;
-					$value = trim($matches[1]);
 					
-				} elseif(preg_match('#\~(.*)#', $value, $matches)) {
-					$oper = DevblocksSearchCriteria::OPER_LIKE;
-					$value = trim($matches[1]);
+					if(false !== strpos($value, '*'))
+						$oper = DevblocksSearchCriteria::OPER_LIKE;
 					
-				} elseif(preg_match('#([\<\>\!\=]+)(.*)#', $value, $matches)) {
-					$oper_hint = trim($matches[1]);
-					$value = trim($matches[2]);
-					
-					switch($oper_hint) {
-						case '!':
-						case '!=':
-							if($oper == DevblocksSearchCriteria::OPER_LIKE) {
-								$oper = DevblocksSearchCriteria::OPER_NOT_LIKE;
-							} else {
-								$oper = DevblocksSearchCriteria::OPER_NEQ;
-							}
-							break;
+					// Parse operator hints
+					if(preg_match('#\"(.*)\"#', $value, $matches)) {
+						$oper = DevblocksSearchCriteria::OPER_EQ;
+						$value = trim($matches[1]);
+						
+					} elseif(preg_match('#\~(.*)#', $value, $matches)) {
+						$oper = DevblocksSearchCriteria::OPER_LIKE;
+						$value = trim($matches[1]);
+						
+					} elseif(preg_match('#([\<\>\!\=]+)(.*)#', $value, $matches)) {
+						$oper_hint = trim($matches[1]);
+						$value = trim($matches[2]);
+						
+						switch($oper_hint) {
+							case '!':
+							case '!=':
+								if($oper == DevblocksSearchCriteria::OPER_LIKE) {
+									$oper = DevblocksSearchCriteria::OPER_NOT_LIKE;
+								} else {
+									$oper = DevblocksSearchCriteria::OPER_NEQ;
+								}
+								break;
+						}
 					}
+					
+					$filters[] = new DevblocksSearchCriteria($token, $oper, $value);
+				}
+				
+				// This prevents the default code below from adding another criteria
+				$handled = true;
+				
+				if(empty($filters))
+					break;
+				
+				if(count($filters) == 1) {
+					$this->addParam(array_shift($filters), $token);
+					
+				} else {
+					$this->addParam(array_merge(
+						array(DevblocksSearchCriteria::GROUP_OR),
+						$filters
+					), $token);
 				}
 				
 				break;
@@ -984,61 +1009,111 @@ abstract class C4_AbstractView {
 				if(strlen($query) == 0)
 					break;
 				
-				// Parse operator hints
-				if(preg_match('#([\<\>\!\=]+)(.*)#', $query, $matches)) {
-					$oper_hint = trim($matches[1]);
-					$query = trim($matches[2]);
-					
-					switch($oper_hint) {
-						case '!':
-						case '!=':
-							$oper = DevblocksSearchCriteria::OPER_NEQ;
-							break;
-						case '>':
-							$oper = DevblocksSearchCriteria::OPER_GT;
-							break;
-						case '<':
-							$oper = DevblocksSearchCriteria::OPER_LT;
-							break;
-						case '>=':
-							$oper = DevblocksSearchCriteria::OPER_GTE;
-							break;
-						case '<=':
-							$oper = DevblocksSearchCriteria::OPER_LTE;
-							break;
-						default:
-							$oper = DevblocksSearchCriteria::OPER_EQ;
-							break;
+				$filters = array();
+				$values = explode(' OR ', $query);
+				
+				if(is_array($values))
+				foreach($values as $value) {
+				
+					// Parse operator hints
+					if(preg_match('#([\<\>\!\=]+)(.*)#', $value, $matches)) {
+						$oper_hint = trim($matches[1]);
+						$query = trim($matches[2]);
+						
+						switch($oper_hint) {
+							case '!':
+							case '!=':
+								$oper = DevblocksSearchCriteria::OPER_NEQ;
+								break;
+							case '>':
+								$oper = DevblocksSearchCriteria::OPER_GT;
+								break;
+							case '<':
+								$oper = DevblocksSearchCriteria::OPER_LT;
+								break;
+							case '>=':
+								$oper = DevblocksSearchCriteria::OPER_GTE;
+								break;
+							case '<=':
+								$oper = DevblocksSearchCriteria::OPER_LTE;
+								break;
+							default:
+								$oper = DevblocksSearchCriteria::OPER_EQ;
+								break;
+						}
 					}
+					
+					$value = @is_numeric($value) ? $value : intval($value);
+					$filters[] = new DevblocksSearchCriteria($token, $oper, $value);
 				}
 				
-				$value = @is_numeric($query) ? $query : intval($query);
+				// This prevents the default code below from adding another criteria
+				$handled = true;
+				
+				if(empty($filters))
+					break;
+				
+				if(count($filters) == 1) {
+					$this->addParam(array_shift($filters), $token);
+					
+				} else {
+					$this->addParam(array_merge(
+						array(DevblocksSearchCriteria::GROUP_OR),
+						$filters
+					), $token);
+				}
+				
 				break;
 				
 			case Model_CustomField::TYPE_DATE:
 				if(strlen($query) == 0)
 					break;
 				
-				if(in_array(strtolower($query), array('blank', 'null', 'empty', 'is blank', 'is null', 'is empty'))) {
-					$oper = DevblocksSearchCriteria::OPER_EQ_OR_NULL;
-					$value = '0';
+				$filters = array();
+				$values = explode(' OR ', $query);
+				
+				if(is_array($values))
+				foreach($values as $value) {
+				
+					if(in_array(strtolower($value), array('blank', 'null', 'empty', 'is blank', 'is null', 'is empty'))) {
+						$oper = DevblocksSearchCriteria::OPER_EQ_OR_NULL;
+						$value = '0';
+						
+					} else {
+						$oper = DevblocksSearchCriteria::OPER_BETWEEN;
+						$value = explode(' to ', $value);
+		
+						if(count($value) > 2) {
+							$value = array_slice($value, 0, 2);
+						}
+						
+						if(count($value) != 2) {
+							$from = @intval(strtotime($value));
+							
+							if($from > time())
+								array_unshift($value, 'now');
+							else
+								$value[] = 'now';
+						}
+					}
+					
+					$filters[] = new DevblocksSearchCriteria($token, $oper, $value);
+				}
+				
+				// This prevents the default code below from adding another criteria
+				$handled = true;
+				
+				if(empty($filters))
+					break;
+				
+				if(count($filters) == 1) {
+					$this->addParam(array_shift($filters), $token);
 					
 				} else {
-					$oper = DevblocksSearchCriteria::OPER_BETWEEN;
-					$value = explode(' to ', $query);
-	
-					if(count($value) > 2) {
-						$value = array_slice($value, 0, 2);
-					}
-					
-					if(count($value) != 2) {
-						$from = @intval(strtotime($query));
-						
-						if($from > time())
-							array_unshift($value, 'now');
-						else
-							$value[] = 'now';
-					}
+					$this->addParam(array_merge(
+						array(DevblocksSearchCriteria::GROUP_OR),
+						$filters
+					), $token);
 				}
 				
 				break;
@@ -1072,53 +1147,79 @@ abstract class C4_AbstractView {
 				if(strlen($query) == 0)
 					break;
 				
-				$oper = DevblocksSearchCriteria::OPER_IN;
-					
-				// Parse operator hints
-				if(preg_match('#([\<\>\!\=]+)(.*)#', $query, $matches)) {
-					$oper_hint = trim($matches[1]);
-					$query = trim($matches[2]);
-					
-					switch($oper_hint) {
-						case '!':
-						case '!=':
-							$oper = DevblocksSearchCriteria::OPER_NIN;
-							break;
-						default:
-							$oper = DevblocksSearchCriteria::OPER_IN;
-							break;
-					}
-				}
-					
-				$custom_fields = DAO_CustomField::getAll();
-				$patterns = DevblocksPlatform::parseCsvString($query);
+				$filters = array();
+				$values = explode(' OR ', $query);
 				
-				list($null, $cf_id) = explode('_', $token);
+				if(is_array($values))
+				foreach($values as $value) {
 				
-				if(empty($cf_id) || !isset($custom_fields[$cf_id]))
-					break;
-				
-				@$options = $custom_fields[$cf_id]->params['options'] ?: array();
-				
-				if(empty($options))
-					break;
-				
-				$results = array();
-				
-				foreach($options as $option) {
-					foreach($patterns as $pattern) {
-						if(isset($results[$option]))
-							continue;
+					$oper = DevblocksSearchCriteria::OPER_IN;
 						
-						if(0 == strcasecmp(substr($option,0,strlen($pattern)), $pattern)) {
-							$results[$option] = true;
+					// Parse operator hints
+					if(preg_match('#([\<\>\!\=]+)(.*)#', $value, $matches)) {
+						$oper_hint = trim($matches[1]);
+						$value = trim($matches[2]);
+						
+						switch($oper_hint) {
+							case '!':
+							case '!=':
+								$oper = DevblocksSearchCriteria::OPER_NIN;
+								break;
+							default:
+								$oper = DevblocksSearchCriteria::OPER_IN;
+								break;
 						}
 					}
+						
+					$custom_fields = DAO_CustomField::getAll();
+					$patterns = DevblocksPlatform::parseCsvString($value);
+					
+					list($null, $cf_id) = explode('_', $token);
+					
+					if(empty($cf_id) || !isset($custom_fields[$cf_id]))
+						break;
+					
+					@$options = $custom_fields[$cf_id]->params['options'] ?: array();
+					
+					if(empty($options))
+						break;
+					
+					$results = array();
+					
+					foreach($options as $option) {
+						foreach($patterns as $pattern) {
+							if(isset($results[$option]))
+								continue;
+							
+							if(0 == strcasecmp(substr($option,0,strlen($pattern)), $pattern)) {
+								$results[$option] = true;
+							}
+						}
+					}
+					
+					if(!empty($results)) {
+						$value = array_keys($results);
+					}
+					
+					$filters[] = new DevblocksSearchCriteria($token, $oper, $value);
 				}
 				
-				if(!empty($results)) {
-					$value = array_keys($results);
+				// This prevents the default code below from adding another criteria
+				$handled = true;
+				
+				if(empty($filters))
+					break;
+				
+				if(count($filters) == 1) {
+					$this->addParam(array_shift($filters), $token);
+					
+				} else {
+					$this->addParam(array_merge(
+						array(DevblocksSearchCriteria::GROUP_OR),
+						$filters
+					), $token);
 				}
+				
 				break;
 				
 			case Model_CustomField::TYPE_WORKER:
@@ -1215,11 +1316,14 @@ abstract class C4_AbstractView {
 				break;
 		}
 		
-		if(!is_null($value)) {
-			$criteria = new DevblocksSearchCriteria($token,$oper,$value);
-			$this->addParam($criteria, $token);
-		} else {
-			$this->removeParam($token);
+		if(!$handled) {
+			if(!is_null($value)) {
+				$criteria = new DevblocksSearchCriteria($token,$oper,$value);
+				$this->addParam($criteria, $token);
+				
+			} else {
+				$this->removeParam($token);
+			}
 		}
 		
 		$this->renderPage = 0;

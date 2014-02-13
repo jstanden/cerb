@@ -46,7 +46,7 @@
  \* - Jeff Standen, Darren Sugita, Dan Hildebrandt
  *	 Webgroup Media LLC - Developers of Cerb
  */
-define("APP_BUILD", 2014020702);
+define("APP_BUILD", 2014021201);
 define("APP_VERSION", '6.6.1');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
@@ -1966,15 +1966,16 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 	}
 	
 	static protected function paramExistsInSet($key, $params) {
-		foreach($params as $k => $param) {
-			if(!is_object($param))
-				continue;
-			
-			if(0==strcasecmp($param->field,$key))
-				return true;
-		}
+		$exists = false;
 		
-		return false;
+		if(is_array($params))
+		array_walk_recursive($params, function($param) use ($key, &$exists) {
+			if($param instanceof DevblocksSearchCriteria
+				&& 0 == strcasecmp($param->field, $key))
+					$exists = true;
+		});
+		
+		return $exists;
 	}
 	
 	static protected function _getRandom($table, $pkey='id') {
@@ -2039,6 +2040,7 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 			$has_multiple_values = false;
 			switch($custom_fields[$field_id]->type) {
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+				case Model_CustomField::TYPE_FILES:
 					$has_multiple_values = true;
 					break;
 			}
