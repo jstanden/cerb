@@ -154,6 +154,11 @@ if(!isset($columns['updated_at'])) {
 }
 
 // ===========================================================================
+// Reset Search->Snippet worklists to fix an issue with old cached filters
+
+$db->Execute("DELETE FROM worker_view_model WHERE view_id = 'search_cerberusweb_contexts_snippet'");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
