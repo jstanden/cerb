@@ -1436,17 +1436,24 @@ class CerberusParser {
 		return CerberusUtils::parseRfcAddressList($address_string);
 	}
 	
-	static function convertEncoding($text, $charset) {
+	static function convertEncoding($text, $charset=null) {
 		$charset = strtolower($charset);
+		
+		// Otherwise, fall back to mbstring's auto-detection
+		mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1, win-1252');
 		
 		// Normalize charsets
 		switch($charset) {
 			case 'us-ascii':
 				$charset = 'ascii';
 				break;
+				
+			case NULL:
+				$charset = mb_detect_encoding($text);
+				break;
 		}
 		
-		if(@mb_check_encoding($text, $charset)) {
+		if($charset && @mb_check_encoding($text, $charset)) {
 			if(false !== ($out = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset)))
 				return $out;
 			
@@ -1457,8 +1464,6 @@ class CerberusParser {
 			if($has_iconv && false !== ($out = iconv($charset, LANG_CHARSET_CODE, $text)))
 				return $out;
 			
-			// Otherwise, fall back to mbstring's auto-detection
-			mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1');
 			
 			if(false !== ($charset = mb_detect_encoding($text))) {
 				if(false !== ($out = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset)))
