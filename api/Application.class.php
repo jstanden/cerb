@@ -46,8 +46,8 @@
  \* - Jeff Standen, Darren Sugita, Dan Hildebrandt
  *	 Webgroup Media LLC - Developers of Cerb
  */
-define("APP_BUILD", 2014021301);
-define("APP_VERSION", '6.6.1');
+define("APP_BUILD", 2014021401);
+define("APP_VERSION", '6.6.2');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
@@ -1342,7 +1342,7 @@ class CerberusContexts {
 		}
 		
 		if(empty($actor_context)) {
-			$actor_name = 'The system';
+			$actor_name = 'Cerb';
 		}
 		
 		$entry_array['variables']['actor'] = $actor_name;
@@ -2047,11 +2047,12 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 			
 			// If we have multiple values but we don't need to WHERE the JOIN, be efficient and don't GROUP BY
 			if(!Cerb_ORMHelper::paramExistsInSet('cf_'.$field_id, $params)) {
-				$select_sql .= sprintf(",(SELECT %s FROM %s WHERE %s=context_id AND field_id=%d ORDER BY field_value) AS %s ",
+				$select_sql .= sprintf(",(SELECT %s FROM %s WHERE %s=context_id AND field_id=%d ORDER BY field_value%s) AS %s ",
 					($has_multiple_values ? 'GROUP_CONCAT(field_value SEPARATOR "\n")' : 'field_value'),
 					$value_table,
 					$field_key,
 					$field_id,
+					($has_multiple_values ? '' : ' LIMIT 1'),
 					$field_table
 				);
 				

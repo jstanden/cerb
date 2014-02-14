@@ -241,6 +241,14 @@ class DevblocksDictionaryDelegate {
 		
 		return $new_dict;
 	}
+	
+	public function scrubKeys($prefix) {
+		if(is_array($this->_dictionary))
+		foreach(array_keys($this->_dictionary) as $key) {
+			if($prefix == substr($key, 0, strlen($prefix)))
+				unset($this->_dictionary[$key]);
+		}
+	}
 };
 
 class _DevblocksTwigExpressionVisitor implements Twig_NodeVisitorInterface {

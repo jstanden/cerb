@@ -2125,34 +2125,23 @@ class DevblocksEventHelper {
 		}
 		
 		/**
-		 * Re-update org values
+		 * Re-update org values in dictionary
 		 */
-		// [TODO] Redo with DevblocksDictionaryDelegate
-		/*
-		$worker_labels = array();
-		$worker_values = array();
-		$labels = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $owner_id, $worker_labels, $worker_values, NULL, true);
-				
-			// Clear dupe content
-			CerberusContexts::scrubTokensWithRegexp(
-				$worker_labels,
-				$worker_values,
-				array(
-					"#^address_org_#",
-				)
-			);
+
+		// Clear values in dictionary using $values_prefix
 		
-			// Merge
-			CerberusContexts::merge(
-				$values_prefix,
-				'',
-				$worker_labels,
-				$worker_values,
-				$labels,
-				$values
-			);
-		*/
+		$dict->scrubKeys($values_prefix);
+		
+		// Insert the new owner context
+		
+		$key = $values_prefix . '_context';
+		$dict->$key = CerberusContexts::CONTEXT_ORG;
+		
+		$key = $values_prefix . 'id';
+		$dict->$key = $org_id;
+		
+		$key = $values_prefix . '_label';
+		$dict->$key;
 	}
 	
 	/*
@@ -2206,34 +2195,23 @@ class DevblocksEventHelper {
 		}
 		
 		/**
-		 * Re-update owner values
+		 * Re-update owner values in dictionary
 		 */
-		// [TODO] Redo with DevblocksDictionaryDelegate
-		/*
-		$worker_labels = array();
-		$worker_values = array();
-		$labels = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $owner_id, $worker_labels, $worker_values, NULL, true);
-				
-			// Clear dupe content
-			CerberusContexts::scrubTokensWithRegexp(
-				$worker_labels,
-				$worker_values,
-				array(
-					"#^address_org_#",
-				)
-			);
+
+		// Clear values in dictionary using $values_prefix
 		
-			// Merge
-			CerberusContexts::merge(
-				$values_prefix,
-				'',
-				$worker_labels,
-				$worker_values,
-				$labels,
-				$values
-			);
-		*/
+		$dict->scrubKeys($values_prefix);
+		
+		// Insert the new owner context
+		
+		$key = $values_prefix . '_context';
+		$dict->$key = CerberusContexts::CONTEXT_WORKER;
+		
+		$key = $values_prefix . 'id';
+		$dict->$key = $owner_id;
+		
+		$key = $values_prefix . '_label';
+		$dict->$key;
 	}
 
 	/*

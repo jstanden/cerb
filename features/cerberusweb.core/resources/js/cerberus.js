@@ -30,8 +30,21 @@ var markitupMarkdownDefaults = {
 		{name:'Link', key:'L', openWith:'[', closeWith:']([![Url:!:http://]!] "[![Title]!]")', placeHolder:'Your text to link here...', className:'a' },
 		{separator:'---------------', className:'sep'},	
 		{name:'Quotes', openWith:'> ', className:'blockquote'},
-		{name:'Code Format', openWith:'`', closeWith:'`', className:'code'},
-		//{name:'Code Block / Code', openWith:'(!(\t|!|`)!)', closeWith:'(!(`)!)'},
+		{
+			name:'Code Format', 
+			openWith:function(markitup) {
+				if(markitup.selection.split("\n").length > 1)
+					return "```\n";
+				return "`";
+			},
+			closeWith:function(markitup) {
+				if(markitup.selection.split("\n").length > 1)
+					return "\n```\n";
+				return "`";
+			},
+			placeHolder:'code',
+			className:'code'
+		},
 		{separator:'---------------'},
 		{name:'Preview', key: 'P', call:'preview', className:"preview"}
 	]
@@ -54,7 +67,21 @@ var markitupParsedownDefaults = {
 		{name:'Link to an External Image', key:'E', openWith:'![Image](', closeWith:')', placeHolder:'http://www.example.com/path/to/image.png', className:'img'},
 		{name:'Link', key:'L', openWith:'[', closeWith:'](http://www.example.com/)', placeHolder:'link text', className:'a' },
 		{name:'Quotes', openWith:'> ', className:'blockquote'},
-		{name:'Code Format', openWith:'`', closeWith:'`', placeHolder:'code', className:'code'},
+		{
+			name:'Code Format', 
+			openWith:function(markitup) {
+				if(markitup.selection.split("\n").length > 1)
+					return "```\n";
+				return "`";
+			},
+			closeWith:function(markitup) {
+				if(markitup.selection.split("\n").length > 1)
+					return "\n```\n";
+				return "`";
+			},
+			placeHolder:'code',
+			className:'code'
+		},
 		{separator:'---------------'},
 		{name:'Preview', key: 'P', call:'preview', className:"preview"}
 	]
