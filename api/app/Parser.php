@@ -668,6 +668,30 @@ class CerberusParser {
 						$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
 						
 						if(isset($info['charset']) && !empty($info['charset'])) {
+							
+							// Extract inline bounces as attachments
+							
+							$bounce_token = '------ This is a copy of the message, including all the headers. ------';
+							
+							if(false !== ($bounce_pos = mb_strpos($text, $bounce_token, 0, $info['charset']))) {
+								$bounce_text = mb_substr($text, $bounce_pos + strlen($bounce_token), strlen($text), $info['charset']);
+								$text = mb_substr($text, 0, $bounce_pos, $info['charset']);
+								
+								$bounce_text = self::convertEncoding($bounce_text);
+								
+								$tmpname = ParserFile::makeTempFilename();
+								$rfc_attach = new ParserFile();
+								$rfc_attach->setTempFile($tmpname,'message/rfc822');
+								@file_put_contents($tmpname, $bounce_text);
+								$rfc_attach->file_size = filesize($tmpname);
+								$rfc_attach->mime_type = 'text/plain';
+								$rfc_attach_filename = sprintf("attached_message_%03d.txt",
+									++$message_counter_attached
+								);
+								$message->files[$rfc_attach_filename] = $rfc_attach;
+								unset($rfc_attach);
+							}
+							
 							$message->body_encoding = $info['charset'];
 							$text = self::convertEncoding($text, $info['charset']);
 						}
