@@ -466,7 +466,9 @@ class DevblocksPlatform extends DevblocksEngine {
 				'</H5>',
 				'</H6>',
 				'</DIV>',
+				'<UL>',
 				'</UL>',
+				'<OL>',
 				'</OL>',
 				'</LI>',
 				'</OPTION>',
@@ -474,6 +476,14 @@ class DevblocksPlatform extends DevblocksEngine {
 				'</TABLE>',
 			),
 			"\n",
+			$str
+		);
+
+		$str = str_ireplace(
+			array(
+				'<LI>',
+			),
+			"<LI>* ",
 			$str
 		);
 		
