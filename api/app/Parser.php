@@ -668,6 +668,30 @@ class CerberusParser {
 						$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
 						
 						if(isset($info['charset']) && !empty($info['charset'])) {
+							
+							// Extract inline bounces as attachments
+							
+							$bounce_token = '------ This is a copy of the message, including all the headers. ------';
+							
+							if(false !== ($bounce_pos = mb_strpos($text, $bounce_token, 0, $info['charset']))) {
+								$bounce_text = mb_substr($text, $bounce_pos + strlen($bounce_token), strlen($text), $info['charset']);
+								$text = mb_substr($text, 0, $bounce_pos, $info['charset']);
+								
+								$bounce_text = self::convertEncoding($bounce_text);
+								
+								$tmpname = ParserFile::makeTempFilename();
+								$rfc_attach = new ParserFile();
+								$rfc_attach->setTempFile($tmpname,'message/rfc822');
+								@file_put_contents($tmpname, $bounce_text);
+								$rfc_attach->file_size = filesize($tmpname);
+								$rfc_attach->mime_type = 'text/plain';
+								$rfc_attach_filename = sprintf("attached_message_%03d.txt",
+									++$message_counter_attached
+								);
+								$message->files[$rfc_attach_filename] = $rfc_attach;
+								unset($rfc_attach);
+							}
+							
 							$message->body_encoding = $info['charset'];
 							$text = self::convertEncoding($text, $info['charset']);
 						}
@@ -1436,17 +1460,24 @@ class CerberusParser {
 		return CerberusUtils::parseRfcAddressList($address_string);
 	}
 	
-	static function convertEncoding($text, $charset) {
+	static function convertEncoding($text, $charset=null) {
 		$charset = strtolower($charset);
+		
+		// Otherwise, fall back to mbstring's auto-detection
+		mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1, win-1252');
 		
 		// Normalize charsets
 		switch($charset) {
 			case 'us-ascii':
 				$charset = 'ascii';
 				break;
+				
+			case NULL:
+				$charset = mb_detect_encoding($text);
+				break;
 		}
 		
-		if(@mb_check_encoding($text, $charset)) {
+		if($charset && @mb_check_encoding($text, $charset)) {
 			if(false !== ($out = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset)))
 				return $out;
 			
@@ -1454,11 +1485,9 @@ class CerberusParser {
 			$has_iconv = extension_loaded('iconv') ? true : false;
 			
 			// If we can use iconv, do so.
-			if($has_iconv && false !== ($out = iconv($charset, LANG_CHARSET_CODE, $text)))
+			if($has_iconv && $charset && false !== ($out = iconv($charset, LANG_CHARSET_CODE . '//IGNORE//TRANSLIT', $text)))
 				return $out;
 			
-			// Otherwise, fall back to mbstring's auto-detection
-			mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1');
 			
 			if(false !== ($charset = mb_detect_encoding($text))) {
 				if(false !== ($out = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset)))

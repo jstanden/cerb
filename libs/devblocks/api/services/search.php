@@ -67,6 +67,11 @@ class _DevblocksSearchEngineMysqlFulltext {
 		return $ids;
 	}
 	
+	public function removeStopWords($words) {
+		$stop_words = $this->_getStopWords();
+		return array_diff($words, array_keys($stop_words));
+	}
+	
 	private function _getStopWords() {
 		// English
 		$words = array(
@@ -114,7 +119,7 @@ class _DevblocksSearchEngineMysqlFulltext {
 			'it\'s' => true,
 			'its' => true,
 			'may' => true,
-			'me' => true,
+			//'me' => true,
 			'my' => true,
 			'not' => true,
 			'of' => true,
@@ -194,8 +199,7 @@ class _DevblocksSearchEngineMysqlFulltext {
 		unset($text);
 
 		// Remove common words
-		$stop_words = $this->_getStopWords();
-		$words = array_diff($words, array_keys($stop_words));
+		$words = $this->removeStopWords($words);
 
 		// Reassemble
 		$text = implode(' ', $words);

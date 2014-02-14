@@ -310,11 +310,13 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		switch($param_key) {
 			case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
 				$args['has_multiple_values'] = true;
-				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				if(is_array($args) && isset($args['join_sql']) && isset($args['where_sql']))
+					self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
 				
 			case SearchFields_Snippet::VIRTUAL_HAS_FIELDSET:
-				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				if(is_array($args) && isset($args['join_sql']) && isset($args['where_sql']))
+					self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
 			
 			case SearchFields_Snippet::VIRTUAL_OWNER:

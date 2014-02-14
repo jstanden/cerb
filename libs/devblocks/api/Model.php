@@ -288,8 +288,52 @@ class DevblocksSearchCriteria {
 						break;
 					default:
 					case 'expert':
-						$value = DevblocksPlatform::strUnidecode($value);
 						// We don't want to strip punctuation in expert mode
+						$value = DevblocksPlatform::strUnidecode($value);
+						
+						// Left-hand wildcards aren't supported in MySQL fulltext
+						$value = ltrim($value, '*');
+						
+						// If this is a single term
+						if(false === strpos($value, ' ')) {
+							// If without quotes or wildcards, quote it (email addy, URL)
+							if(false === strpos($value, '"') && false === strpos($value, '*')) {
+								if(preg_match('#([\+\-]*)(\S*)#ui', $value, $matches))
+									$value = sprintf('%s"%s"', $matches[1], $matches[2]);
+							}
+							
+						} else {
+							
+							// If the user provided their own quotes
+							if(false !== strpos($value, '"')) {
+
+								// Extract quotes and remove stop words
+								$value = preg_replace_callback(
+									'#"(.*?)"#',
+									function($matches) use ($search) {
+										return sprintf('"%s"', implode(' ', $search->removeStopWords(explode(' ', $matches[1]))));
+									},
+									$value
+								);
+									
+							// If the user didn't provide their own quotes
+							} else {
+								// Split terms on spaces
+								$terms = explode(' ', $value);
+								
+								foreach($terms as $term_idx => $term) {
+									if(false === strpos($term, '*'))
+										$matches = null;
+										if(preg_match('#([\+\-]*)(\S*)#ui', $term, $matches)) {
+											$terms[$term_idx] = sprintf('%s"%s"', $matches[1], $matches[2]);
+										}
+								}
+								
+								$value = implode(' ', $terms);
+								
+							}
+						}
+						
 						break;
 				}
 				
