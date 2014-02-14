@@ -305,6 +305,17 @@ class DevblocksSearchCriteria {
 						} else {
 							
 							// If the user provided their own quotes
+							if(false !== strpos($value, '"')) {
+
+								// Extract quotes and remove stop words
+								$value = preg_replace_callback(
+									'#"(.*?)"#',
+									function($matches) use ($search) {
+										return sprintf('"%s"', implode(' ', $search->removeStopWords(explode(' ', $matches[1]))));
+									},
+									$value
+								);
+									
 							// If the user didn't provide their own quotes
 							} else {
 								// Split terms on spaces
