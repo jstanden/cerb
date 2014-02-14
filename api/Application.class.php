@@ -1342,7 +1342,7 @@ class CerberusContexts {
 		}
 		
 		if(empty($actor_context)) {
-			$actor_name = 'The system';
+			$actor_name = 'Cerb';
 		}
 		
 		$entry_array['variables']['actor'] = $actor_name;
