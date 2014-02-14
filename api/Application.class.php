@@ -2047,11 +2047,12 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 			
 			// If we have multiple values but we don't need to WHERE the JOIN, be efficient and don't GROUP BY
 			if(!Cerb_ORMHelper::paramExistsInSet('cf_'.$field_id, $params)) {
-				$select_sql .= sprintf(",(SELECT %s FROM %s WHERE %s=context_id AND field_id=%d ORDER BY field_value) AS %s ",
+				$select_sql .= sprintf(",(SELECT %s FROM %s WHERE %s=context_id AND field_id=%d ORDER BY field_value%s) AS %s ",
 					($has_multiple_values ? 'GROUP_CONCAT(field_value SEPARATOR "\n")' : 'field_value'),
 					$value_table,
 					$field_key,
 					$field_id,
+					($has_multiple_values ? '' : ' LIMIT 1'),
 					$field_table
 				);
 				
