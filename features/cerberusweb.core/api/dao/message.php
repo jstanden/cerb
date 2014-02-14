@@ -633,6 +633,10 @@ class Search_MessageContent {
 					// Truncate to 10KB
 					$content = $search->truncateOnWhitespace($content, 10000);
 					
+					// Prepend per-message subject
+					if(false !== ($subject = DAO_MessageHeader::getOne($id, 'subject')))
+						$content = $subject . ' ' . $content;
+					
 					$search->index($ns, $id, $content, true);
 				}
 
