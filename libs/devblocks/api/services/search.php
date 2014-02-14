@@ -114,7 +114,7 @@ class _DevblocksSearchEngineMysqlFulltext {
 			'it\'s' => true,
 			'its' => true,
 			'may' => true,
-			'me' => true,
+			//'me' => true,
 			'my' => true,
 			'not' => true,
 			'of' => true,
