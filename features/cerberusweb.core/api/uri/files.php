@@ -101,8 +101,16 @@ class ChFilesController extends DevblocksControllerExtension {
 					// If the 'tidy' extension exists, and the file size is less than 5MB
 					if(extension_loaded('tidy') && $file_stats['size'] < 1024000 * 5) {
 						$tidy = new tidy();
+						
+						$config = array (
+							'clean' => true,
+							'indent' => false,
+							'output-xhtml' => true,
+							'wrap' => '0',
+						);
+						
 						if(null != ($fp_filename = DevblocksPlatform::getTempFileInfo($fp))) {
-							file_put_contents($fp_filename, $tidy->repairFile($fp_filename));
+							file_put_contents($fp_filename, $tidy->repairFile($fp_filename, $config, DB_CHARSET_CODE));
 							fseek($fp, 0);
 						}
 					}

@@ -367,32 +367,19 @@ class UmScContactController extends Extension_UmScController {
 		$attachments_mode = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_ATTACHMENTS_MODE, 0);
 
 		if(0==$attachments_mode || (1==$attachments_mode && !empty($active_contact)))
-		if(is_array($_FILES) && !empty($_FILES))
-		foreach($_FILES as $name => $files) {
-			// field[]
-			if(is_array($files['name'])) {
-				foreach($files['name'] as $idx => $name) {
-					if(empty($files['tmpname'][$idx]) || empty($files['name'][$idx]))
-						continue;
-					
-					$mime_type = @$files['type'][$idx] ?: 'application/octet-stream';
-					
-					$attach = new ParserFile();
-					$attach->setTempFile($files['tmp_name'][$idx],$mime_type);
-					$attach->file_size = filesize($files['tmp_name'][$idx]);
-					$message->files[$name] = $attach;
-				}
-				
-			} else {
-				if(empty($files['tmpname']) || empty($files['name']))
+		if(is_array($_FILES) && isset($_FILES['attachments']) && !empty($_FILES['attachments'])) {
+			$files = $_FILES['attachments'];
+			
+			foreach($files['name'] as $idx => $name) {
+				if(empty($files['tmp_name'][$idx]) || empty($files['name'][$idx]))
 					continue;
 				
-				@$mime_type = $files['type'] ?: 'application/octet-stream';
+				$mime_type = @$files['type'][$idx] ?: 'application/octet-stream';
 				
 				$attach = new ParserFile();
-				$attach->setTempFile($files['tmp_name'], $mime_type);
-				$attach->file_size = filesize($files['tmp_name']);
-				$message->files[$files['name']] = $attach;
+				$attach->setTempFile($files['tmp_name'][$idx], $mime_type);
+				$attach->file_size = filesize($files['tmp_name'][$idx]);
+				$message->files[$name] = $attach;
 			}
 		}
 		
