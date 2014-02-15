@@ -109,7 +109,7 @@ class DAO_TimeTrackingActivity extends DevblocksORMHelper {
 		
 		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_TimeTrackingActivity();
-			$object->id = $row['id'];
+			$object->id = intval($row['id']);
 			$object->name = $row['name'];
 			$objects[$object->id] = $object;
 		}
@@ -1152,6 +1152,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		return array(
 			'log_date',
 			'mins',
+			'is_closed',
 			'worker__label',
 		);
 	}
@@ -1177,6 +1178,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			'_label' => $prefix,
 			'log_date' => $prefix.$translate->_('timetracking_entry.log_date'),
 			'summary' => $prefix.$translate->_('common.summary'),
+			'is_closed' => $prefix.$translate->_('common.is_closed'),
 			'mins' => $prefix.$translate->_('timetracking_entry.time_actual_mins'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -1186,6 +1188,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			'_label' => 'context_url',
 			'log_date' => Model_CustomField::TYPE_DATE,
 			'summary' => Model_CustomField::TYPE_SINGLE_LINE,
+			'is_closed' => Model_CustomField::TYPE_CHECKBOX,
 			'mins' => 'time_mins',
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
@@ -1212,6 +1215,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			$token_values['id'] = $timeentry->id;
 			$token_values['mins'] = $timeentry->time_actual_mins;
 			$token_values['summary'] = $timeentry->getSummary();
+			$token_values['is_closed'] = $timeentry->is_closed;
 			$token_values['activity_id'] = $timeentry->activity_id;
 			
 			// URL

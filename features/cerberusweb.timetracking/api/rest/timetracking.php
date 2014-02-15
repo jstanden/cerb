@@ -27,6 +27,9 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 		@$action = array_shift($stack);
 		
 		switch($action) {
+			case 'create':
+				$this->postCreate();
+				break;
 			case 'search':
 				$this->postSearch();
 				break;
@@ -82,13 +85,19 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 		
 		if('dao'==$type) {
 			$tokens = array(
-//				'example' => DAO_Example::PROPERTY,
+				'activity_id' => DAO_TimeTrackingEntry::ACTIVITY_ID,
+				'created' => DAO_TimeTrackingEntry::LOG_DATE,
+				'id' => DAO_TimeTrackingEntry::ID,
+				'is_closed' => DAO_TimeTrackingEntry::IS_CLOSED,
+				'mins' => DAO_TimeTrackingEntry::TIME_ACTUAL_MINS,
+				'worker_id' => DAO_TimeTrackingEntry::WORKER_ID,
 			);
 		} else {
 			$tokens = array(
 				'activity_id' => SearchFields_TimeTrackingEntry::ACTIVITY_ID,
 				'created' => SearchFields_TimeTrackingEntry::LOG_DATE,
 				'id' => SearchFields_TimeTrackingEntry::ID,
+				'is_closed' => SearchFields_TimeTrackingEntry::IS_CLOSED,
 				'mins' => SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS,
 				'worker_id' => SearchFields_TimeTrackingEntry::WORKER_ID,
 			);
@@ -155,5 +164,79 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 		$container = $this->_handlePostSearch();
 		
 		$this->success($container);
+	}
+	function postCreate() {
+		$worker = CerberusApplication::getActiveWorker();
+		
+		// ACL
+		if(!$worker->hasPriv('timetracking.actions.create'))
+			$this->error(self::ERRNO_ACL);
+		
+		$postfields = array(
+			'activity_id' => 'integer',
+			'created' => 'timestamp',
+			'is_closed' => 'bit',
+			'mins' => 'integer',
+			'worker_id' => 'integer',
+		);
+
+		$fields = array();
+		
+		foreach($postfields as $postfield => $type) {
+			if(!isset($_POST[$postfield]))
+				continue;
+				
+			@$value = DevblocksPlatform::importGPC($_POST[$postfield], 'string', '');
+				
+			if(null == ($field = self::translateToken($postfield, 'dao'))) {
+				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $postfield));
+			}
+
+			// Sanitize
+			$value = DevblocksPlatform::importVar($value, $type);
+			
+			switch($postfield) {
+				// Verify that activity_id exists
+				case 'activity_id':
+					if(!empty($value))
+						if(false == ($activity = DAO_TimeTrackingActivity::get($value)))
+							$this->error(self::ERRNO_CUSTOM, sprintf("'%d' is not a valid %s.", $value, $postfield));
+					break;
+					
+				// Verify that worker_id exists
+				case 'worker_id':
+					if(!empty($value))
+						if(false == ($lookup = DAO_Worker::get($value)))
+							$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid worker id.", $postfield));
+					break;
+			}
+			
+			$fields[$field] = $value;
+		}
+
+		// Defaults
+		if(!isset($fields[DAO_TimeTrackingEntry::LOG_DATE]))
+			$fields[DAO_TimeTrackingEntry::LOG_DATE] = time();
+		
+		// Check required fields
+		$reqfields = array(
+			DAO_TimeTrackingEntry::TIME_ACTUAL_MINS,
+			DAO_TimeTrackingEntry::WORKER_ID,
+		);
+		$this->_handleRequiredFields($reqfields, $fields);
+		
+		// Create
+		if(false != ($id = DAO_TimeTrackingEntry::create($fields))) {
+			// Custom fields
+			
+			$custom_fields = $this->_handleCustomFields($_POST);
+			
+			if(is_array($custom_fields))
+				DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TIMETRACKING, $id, $custom_fields, true, true, true);
+			
+			// Result
+			
+			$this->getId($id);
+		}
 	}
 };
