@@ -20,6 +20,17 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 	}
 	
 	function putAction($stack) {
+		@$action = array_shift($stack);
+		
+		// Looking up a single ID?
+		if(is_numeric($action)) {
+			$this->putId(intval($action));
+			
+		} else { // actions
+			switch($action) {
+			}
+		}
+		
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
@@ -165,6 +176,70 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 		
 		$this->success($container);
 	}
+	
+	function putId($id) {
+		$worker = CerberusApplication::getActiveWorker();
+		
+		// Validate the ID
+		if(null == ($time_entry = DAO_TimeTrackingEntry::get($id)))
+			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid time tracking ID '%d'", $id));
+			
+		// ACL
+		if(!($worker->hasPriv('timetracking.actions.update_all') || $time_entry->worker_id == $worker->id))
+			$this->error(self::ERRNO_ACL);
+			
+		$putfields = array(
+			'activity_id' => 'integer',
+			'created' => 'timestamp',
+			'is_closed' => 'bit',
+			'mins' => 'integer',
+			'worker_id' => 'integer',
+		);
+
+		$fields = array();
+
+		foreach($putfields as $putfield => $type) {
+			if(!isset($_POST[$putfield]))
+				continue;
+			
+			@$value = DevblocksPlatform::importGPC($_POST[$putfield], 'string', '');
+			
+			if(null == ($field = self::translateToken($putfield, 'dao'))) {
+				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $putfield));
+			}
+			
+			// Sanitize
+			$value = DevblocksPlatform::importVar($value, $type);
+
+			switch($putfield) {
+				// Verify that activity_id exists
+				case 'activity_id':
+					if(!empty($value))
+						if(false == ($activity = DAO_TimeTrackingActivity::get($value)))
+							$this->error(self::ERRNO_CUSTOM, sprintf("'%d' is not a valid %s.", $value, $putfield));
+					break;
+					
+				// Verify that worker_id exists
+				case 'worker_id':
+					if(!empty($value))
+						if(false == ($lookup = DAO_Worker::get($value)))
+							$this->error(self::ERRNO_CUSTOM, sprintf("'%d' is not a valid %s.", $value, $putfield));
+					break;
+			}
+			
+			$fields[$field] = $value;
+		}
+		
+		// Handle custom fields
+		$customfields = $this->_handleCustomFields($_POST);
+		if(is_array($customfields))
+			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TIMETRACKING, $id, $customfields, true, true, true);
+		
+		// Update
+		DAO_TimeTrackingEntry::update($id, $fields);
+		$this->getId($id);
+	}
+	
 	function postCreate() {
 		$worker = CerberusApplication::getActiveWorker();
 		
