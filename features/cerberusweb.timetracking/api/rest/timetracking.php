@@ -9,6 +9,9 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 			
 		} else { // actions
 			switch($action) {
+				case 'activities':
+					$this->getActivities();
+					break;
 				default:
 					$this->error(self::ERRNO_NOT_IMPLEMENTED);
 					break;
@@ -54,6 +57,26 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 		$this->error(self::ERRNO_CUSTOM, sprintf("Invalid time entry id '%d'", $id));
 	}
 
+	private function getActivities() {
+		$none = new Model_TimeTrackingActivity();
+		$none->id = 0;
+		$none->name = '(none)';
+		
+		$activities = DAO_TimeTrackingActivity::getWhere();
+		$activities = array_merge(array(0 => $none), $activities);
+
+		$results = array();
+		
+		foreach($activities as $id => $activity) {
+			$results[$id] = array(
+				'id' => $id,
+				'name' => $activity->name,
+			);
+		}
+		
+		$this->success(array('results' => $results));
+	}
+	
 	function translateToken($token, $type='dao') {
 		$tokens = array();
 		
