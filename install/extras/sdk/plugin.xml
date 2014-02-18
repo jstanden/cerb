@@ -5,7 +5,7 @@
 	<description>This explains what your plugin does.</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>0.0.0</version>
-	<link>http://www.cerberusweb.com/</link>
+	<link>http://cerbweb.com/book/latest/developer_guide/plugins/plugin.xml</link>
 	<!--<image>plugin.png</image>-->
 
 	<!-- Requirements -->
@@ -28,8 +28,16 @@
 		<patch version="6.4.0" revision="1" file="patches/6.4.0.php" />
 		-->
 	</patches>
+
+	<!-- Controller Routing -->
+
+	<!--
+	<uri_routing>
+		<uri name="dostuff" controller="example.controller" />
+	</uri_routing>
+	-->
 	
-	<!-- Exported Classes -->
+	<!-- Classloader -->
 	
 	<class_loader>
 		<!--
@@ -44,13 +52,16 @@
 		-->
 	</class_loader>
 
-	<!-- Templates -->
-	
+	<!-- Event Points -->
+
 	<!--
-	<templates set="example.template.namespace">
-		<template path="path/to/template.tpl" />
-	</templates>
-	-->	
+	<event_points>
+		<event id="example.event">
+			<name>Example Event</name>
+			<param key="field_name" />
+		</event>
+	</event_points>
+	-->
 
 	<!-- Permissions -->
 	
@@ -71,6 +82,14 @@
 		</activity>
 	</activity_points>
 	-->
+	
+	<!-- User-Editable Templates -->
+	
+	<!--
+	<templates set="example.template.namespace">
+		<template path="path/to/template.tpl" />
+	</templates>
+	-->	
 
 	<!-- Extensions -->
 
