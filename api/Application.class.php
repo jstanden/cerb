@@ -1273,7 +1273,7 @@ class CerberusContexts {
 		}
 	}
 	
-	static public function logActivity($activity_point, $target_context, $target_context_id, $entry_array, $actor_context=null, $actor_context_id=null, $also_notify_worker_ids=array()) {
+	static public function logActivity($activity_point, $target_context, $target_context_id, &$entry_array, $actor_context=null, $actor_context_id=null, $also_notify_worker_ids=array()) {
 		// Target meta
 		if(!isset($target_meta)) {
 			if(null != ($target_ctx = DevblocksPlatform::getExtension($target_context, true))
@@ -1351,7 +1351,7 @@ class CerberusContexts {
 			$entry_array['urls']['actor'] = $actor_url;
 		
 		// Activity Log
-		DAO_ContextActivityLog::create(array(
+		$activity_entry_id = DAO_ContextActivityLog::create(array(
 			DAO_ContextActivityLog::ACTIVITY_POINT => $activity_point,
 			DAO_ContextActivityLog::CREATED => time(),
 			DAO_ContextActivityLog::ACTOR_CONTEXT => $actor_context,
@@ -1465,6 +1465,7 @@ class CerberusContexts {
 			}
 		}
 		
+		return $activity_entry_id;
 	}
 	
 	private static function _getAttachmentContext($attachment, &$token_labels, &$token_values, $prefix=null) {
