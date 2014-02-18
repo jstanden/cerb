@@ -5,7 +5,17 @@ class ChRest_Contexts extends Extension_RestController {
 		
 		switch($action) {
 			case 'list':
-				$this->getList();
+				$this->getContextList();
+				break;
+				
+			case 'activity':
+				@$subaction = array_shift($stack);
+				
+				switch($subaction) {
+					case 'events':
+						$this->getActivityEventsList();
+						break;
+				}
 				break;
 		}
 		
@@ -60,7 +70,7 @@ class ChRest_Contexts extends Extension_RestController {
 		);
 	}
 	
-	private function getList() {
+	private function getContextList() {
 		$results = array();
 		
 		$contexts = Extension_DevblocksContext::getAll();
@@ -69,8 +79,47 @@ class ChRest_Contexts extends Extension_RestController {
 			$results[$context->id] = array(
 				'id' => $context->id,
 				'name' => $context->name,
-				'plugin_id' => $context->id,
+				'plugin_id' => $context->plugin_id,
 			);
+		}
+		
+		$this->success(array('results' => $results));
+	}
+	
+	private function getActivityEventsList() {
+		$results = array();
+
+		$translate = DevblocksPlatform::getTranslationService();
+		$activities = DevblocksPlatform::getActivityPointRegistry();
+
+		foreach($activities as $activity) {
+			if(isset($activity['point'])
+				&& isset($activity['params'])
+				&& isset($activity['params'])) {
+					if(!isset($activity['params']['label_key']))
+						continue;
+				
+					$result = array(
+						'id' => $activity['point'],
+						'name' => $translate->_($activity['params']['label_key']),
+						'options' => array(),
+						'text' => array(
+							'key' => '',
+							'value' => '',
+						)
+					);
+					
+					if(isset($activity['params']['string_key'])) {
+						$result['text']['key'] = isset($activity['params']['string_key']) ? $activity['params']['string_key'] : '';
+						$result['text']['value'] = isset($activity['params']['string_key']) ? $translate->_($activity['params']['string_key']) : '';
+					}
+					
+					if(isset($activity['params']['options'])) {
+						$result['options'] = DevblocksPlatform::parseCsvString($activity['params']['options']);
+					}
+					
+					$results[] = $result;
+			}
 		}
 		
 		$this->success(array('results' => $results));
