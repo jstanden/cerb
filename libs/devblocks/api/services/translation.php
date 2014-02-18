@@ -24,6 +24,10 @@ class _DevblocksTranslationManager {
 			$this->_locale = $locale;
 	}
 	
+	public function getLocale() {
+		return $this->_locale;
+	}
+	
 	public function _($token) {
 		if(isset($this->_locales[$this->_locale][$token]))
 			return $this->_locales[$this->_locale][$token];
