@@ -780,6 +780,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(empty($string))
 			return '';
 		
+		// Unidecode
+		$string = DevblocksPlatform::strUnidecode($string, LANG_CHARSET_CODE);
+		
 		// Remove certain marks
 		$string = preg_replace('#[\'\"]#', '', $string);
 		
