@@ -18,7 +18,7 @@
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="6.4.0" />
+		<require plugin_id="cerberusweb.core" version="6.6.0" />
 	</dependencies>
 
 	<!-- Patches -->
@@ -58,6 +58,18 @@
 	<acl>
 		<priv id="example.permission" label="acl.example.permission" />
 	</acl>
+	-->
+
+	<!-- Activity Points -->
+	
+	<!--
+	<activity_points>
+		<activity point="example.event">
+			<param key="label_key" value="Example Event" />
+			<param key="string_key" value="activities.example_event" />
+			<param key="options" value="api_create, notifications" />
+		</activity>
+	</activity_points>
 	-->
 
 	<!-- Extensions -->
