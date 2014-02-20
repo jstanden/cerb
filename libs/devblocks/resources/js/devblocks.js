@@ -180,7 +180,7 @@ function showLoadingPanel() {
 
 	// Set the content
 	// [TODO] Is this bugged with URL rewriting off?
-	$("#loadingPanel").html('<img src="' + DevblocksAppPath + 'resource/cerberusweb.core/images/wgm/ajax-loader.gif"><h3>Loading, please wait...</h3>');
+	$("#loadingPanel").html('<span class="cerb-ajax-spinner"></span><h3>Loading, please wait...</h3>');
 	
 	// Render
 	loadingPanel = $("#loadingPanel").dialog(options);
