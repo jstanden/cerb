@@ -60,27 +60,52 @@ class CerberusUtils {
 			$input = array($input);
 		
 		foreach($input as $string) {
-			@$addy_rows = imap_rfc822_parse_adrlist($string, '');
+			$addy_rows = self::_parseRfcAddress($string);
 			
-			if(is_array($addy_rows))
-			foreach($addy_rows as $idx => $addy_row) {
-				if(empty($addy_row->host))
-					continue;
-			
-				if(strlen($addy_row->mailbox) == 1 && preg_match('/[^a-zA-Z0-9]/', $addy_row->mailbox))
-					continue;
-				
-				if($addy_row->host == '.SYNTAX-ERROR.')
-					continue;
-				
-				$addys[] = $addy_row;
+			if(!empty($addy_rows))
+				$addys = array_merge($addys, $addy_rows);
+		}
+		
+		// If we failed to find any content, try a regexp parse
+		if(empty($addys)) {
+			foreach($input as $string) {
+				if(preg_match('/[\\w\\.\\-+=*_]*@[\\w\\.\\-+=*_]*/', $string, $matches)) {
+					if(is_array($matches))
+					foreach($matches as $match) {
+						$addy_rows = self::_parseRfcAddress($match);
+						
+						if(!empty($addy_rows))
+							$addys = array_merge($addys, $addy_rows);
+						
+					}
+				}
 			}
-			
 		}
 
 		@imap_errors();
 		
 		return $addys;
+	}
+	
+	static private function _parseRfcAddress($string) {
+		@$addy_rows = imap_rfc822_parse_adrlist($string, '');
+		$results = array();
+		
+		if(is_array($addy_rows))
+		foreach($addy_rows as $idx => $addy_row) {
+			if(empty($addy_row->host))
+				continue;
+		
+			if($addy_row->host == '.SYNTAX-ERROR.')
+				continue;
+			
+			if(strlen($addy_row->mailbox) == 1 && preg_match('/[^a-zA-Z0-9]/', $addy_row->mailbox))
+				continue;
+			
+			$results[] = $addy_row;
+		}
+		
+		return $results;
 	}
 	
 }
