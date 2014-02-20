@@ -99,6 +99,11 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 		$labels['view_id'] = 'Worklist ID';
 		$values['view_id'] = $view_id;
 		
+		$values['_types'] = array(
+			'context' => null,
+			'view_id' => Model_CustomField::TYPE_SINGLE_LINE,
+		);
+		
 		/**
 		 * Caller actions
 		 */
