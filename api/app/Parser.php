@@ -674,7 +674,7 @@ class CerberusParser {
 							
 							$bounce_token = '------ This is a copy of the message, including all the headers. ------';
 							
-							if(false !== ($bounce_pos = mb_strpos($text, $bounce_token, 0, $info['charset']))) {
+							if(false !== ($bounce_pos = @mb_strpos($text, $bounce_token, 0, $info['charset']))) {
 								$bounce_text = mb_substr($text, $bounce_pos + strlen($bounce_token), strlen($text), $info['charset']);
 								$text = mb_substr($text, 0, $bounce_pos, $info['charset']);
 								
