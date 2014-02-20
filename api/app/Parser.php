@@ -114,13 +114,14 @@ class CerberusParserModel {
 			
 			$from = array();
 			
-			if(!empty($sReplyTo)) {
+			if(empty($from) && !empty($sReplyTo))
 				$from = CerberusParser::parseRfcAddress($sReplyTo);
-			} elseif(!empty($sFrom)) {
+			
+			if(empty($from) && !empty($sFrom))
 				$from = CerberusParser::parseRfcAddress($sFrom);
-			} elseif(!empty($sReturnPath)) {
+			
+			if(empty($from) && !empty($sReturnPath))
 				$from = CerberusParser::parseRfcAddress($sReturnPath);
-			}
 			
 			if(empty($from) || !is_array($from))
 				throw new Exception('No sender headers found.');
