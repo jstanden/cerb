@@ -66,7 +66,7 @@ class CerberusMail {
 	static function parseRfcAddresses($string) {
 		$results = array();
 		$string = rtrim(str_replace(';',',',$string),' ,');
-		$parsed = imap_rfc822_parse_adrlist($string, 'localhost');
+		@$parsed = imap_rfc822_parse_adrlist($string, 'localhost');
 		
 		if(is_array($parsed))
 		foreach($parsed as $parsed_addy) {
@@ -76,7 +76,11 @@ class CerberusMail {
 			
 			if(empty($mailbox) || empty($host))
 				continue;
-			if($mailbox == 'INVALID_ADDRESS')
+			
+			if(0 == strcasecmp($mailbox, 'invalid_address'))
+				continue;
+			
+			if(0 == strcasecmp($host, '.syntax-error.'))
 				continue;
 			
 			$results[$mailbox . '@' . $host] = array(
@@ -87,6 +91,8 @@ class CerberusMail {
 				'personal' => $personal,
 			);
 		}
+		
+		@imap_errors();
 		
 		return $results;
 	}
