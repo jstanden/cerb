@@ -10,10 +10,11 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 		} else { // actions
 			switch($action) {
 				default:
-					$this->error(self::ERRNO_NOT_IMPLEMENTED);
 					break;
 			}
 		}
+		
+		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
 	function putAction($stack) {
@@ -34,16 +35,6 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 	
 	function deleteAction($stack) {
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
-//		$worker = CerberusApplication::getActiveWorker();
-//
-//		$id = array_shift($stack);
-//
-//		if(null == ($group = DAO_Group::get($id)))
-//			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid group ID %d", $id));
-//
-//		DAO_Group::delete($id);
-//		$result = array('id' => $id);
-//		$this->success($result);
 	}
 	
 	private function getId($id) {
