@@ -257,6 +257,10 @@ class _DevblocksTwigExpressionVisitor implements Twig_NodeVisitorInterface {
 	public function enterNode(Twig_NodeInterface $node, Twig_Environment $env) {
 		if($node instanceof Twig_Node_Expression_Name) {
 			$this->_tokens[$node->getAttribute('name')] = true;
+			
+		} elseif($node instanceof Twig_Node_SetTemp) {
+			$this->_tokens[$node->getAttribute('name')] = true;
+			
 		}
 		return $node;
 	}

@@ -5,7 +5,17 @@ class ChRest_Contexts extends Extension_RestController {
 		
 		switch($action) {
 			case 'list':
-				$this->getList();
+				$this->getContextList();
+				break;
+				
+			case 'activity':
+				@$subaction = array_shift($stack);
+				
+				switch($subaction) {
+					case 'events':
+						$this->getActivityEventsList();
+						break;
+				}
 				break;
 		}
 		
@@ -26,6 +36,16 @@ class ChRest_Contexts extends Extension_RestController {
 				
 			case 'unlink':
 				$this->postUnlink();
+				break;
+				
+			case 'activity':
+				@$subaction = array_shift($stack);
+				
+				switch($subaction) {
+					case 'create':
+						$this->postActivityCreate();
+						break;
+				}
 				break;
 		}
 		
@@ -60,7 +80,7 @@ class ChRest_Contexts extends Extension_RestController {
 		);
 	}
 	
-	private function getList() {
+	private function getContextList() {
 		$results = array();
 		
 		$contexts = Extension_DevblocksContext::getAll();
@@ -69,8 +89,47 @@ class ChRest_Contexts extends Extension_RestController {
 			$results[$context->id] = array(
 				'id' => $context->id,
 				'name' => $context->name,
-				'plugin_id' => $context->id,
+				'plugin_id' => $context->plugin_id,
 			);
+		}
+		
+		$this->success(array('results' => $results));
+	}
+	
+	private function getActivityEventsList() {
+		$results = array();
+
+		$translate = DevblocksPlatform::getTranslationService();
+		$activities = DevblocksPlatform::getActivityPointRegistry();
+
+		foreach($activities as $activity) {
+			if(isset($activity['point'])
+				&& isset($activity['params'])
+				&& isset($activity['params'])) {
+					if(!isset($activity['params']['label_key']))
+						continue;
+				
+					$result = array(
+						'id' => $activity['point'],
+						'name' => $translate->_($activity['params']['label_key']),
+						'options' => array(),
+						'text' => array(
+							'key' => '',
+							'value' => '',
+						)
+					);
+					
+					if(isset($activity['params']['string_key'])) {
+						$result['text']['key'] = isset($activity['params']['string_key']) ? $activity['params']['string_key'] : '';
+						$result['text']['value'] = isset($activity['params']['string_key']) ? $translate->_($activity['params']['string_key']) : '';
+					}
+					
+					if(isset($activity['params']['options'])) {
+						$result['options'] = DevblocksPlatform::parseCsvString($activity['params']['options']);
+					}
+					
+					$results[] = $result;
+			}
 		}
 		
 		$this->success(array('results' => $results));
@@ -142,5 +201,83 @@ class ChRest_Contexts extends Extension_RestController {
 			'on' => $result_on,
 			'targets' => $result_targets,
 		));
+	}
+	
+	private function postActivityCreate() {
+		@$on = DevblocksPlatform::importGPC($_POST['on'], 'string', '');
+		@$activity_point = strtolower(DevblocksPlatform::importGPC($_POST['activity_point'], 'string', ''));
+		@$variables_json = DevblocksPlatform::importGPC($_POST['variables'], 'string', '');
+		@$urls_json = DevblocksPlatform::importGPC($_POST['urls'], 'string', '');
+
+		// [TODO] Actor impersonation
+		
+		$activities = DevblocksPlatform::getActivityPointRegistry();
+		$translate = DevblocksPlatform::getTranslationService();
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		// Verify the 'on' context and accessibility by active worker
+		if(false == ($result_on = $this->_verifyContextString($on)))
+			$this->error(self::ERRNO_CUSTOM, sprintf("The 'on' value of '%s' is not valid.", $on));
+		
+		// Verify the activity point
+		if(!isset($activities[$activity_point]))
+			$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid activity point.", $activity_point));
+
+		@$activity = $activities[$activity_point];
+		@$activity_params = $activity['params'];
+		@$activity_options = DevblocksPlatform::parseCsvString($activity_params['options']);
+		$variables = array();
+		$urls = array();
+		
+		// Verify that we have a translation for this activity point
+		if(!is_array($activity_params) || !isset($activity_params['string_key']))
+			$this->error(self::ERRNO_CUSTOM, sprintf("The '%s' event doesn't have any translation data set.", $activity_point));
+		
+		// Verify that the activity is API createable
+		if(!is_array($activity_options) || !in_array('api_create', $activity_options))
+			$this->error(self::ERRNO_CUSTOM, sprintf("Creation of '%s' events are not permitted through the API.", $activity_point));
+		
+		// Verify variables
+		if(!empty($variables_json) && (false == ($variables = json_decode($variables_json, true)) || !is_array($variables)))
+			$this->error(self::ERRNO_CUSTOM, "The 'variables' parameter should be a JSON formatted array.");
+		
+		// Verify URLs
+		if(!empty($urls_json) && (false == ($urls = json_decode($urls_json, true)) || !is_array($urls)))
+			$this->error(self::ERRNO_CUSTOM, "The 'urls' parameter should be a JSON formatted array.");
+		
+		// Check for missing variables in the activity log text
+		
+		$tokens = $tpl_builder->tokenize($translate->_($activity_params['string_key']));
+		
+		if(is_array($tokens))
+		foreach($tokens as $token) {
+			if(in_array($token, array('actor')))
+				continue;
+			
+			if(!is_array($variables) || !isset($variables[$token]))
+				$this->error(self::ERRNO_CUSTOM, sprintf("The 'variables' parameter doesn't contain a value for '%s'.", $token));
+		}
+		
+		// Log it
+		
+		$entry = array(
+			'message' => $activity_params['string_key'],
+			'variables' => $variables,
+			'urls' => $urls
+		);
+		$entry_id = CerberusContexts::logActivity($activity_point, $result_on['context'], $result_on['context_id'], $entry, null, null);
+
+		$entry['id'] = $entry_id;
+		$entry['activity_point'] = $activity_point;
+		$entry['message'] = array(
+			'plaintext' => CerberusContexts::formatActivityLogEntry($entry, 'plaintext'),
+			'html' => CerberusContexts::formatActivityLogEntry($entry, 'html'),
+		);
+		
+		$result = array(
+			'entry' => $entry,
+		);
+		
+		$this->success($result);
 	}
 };

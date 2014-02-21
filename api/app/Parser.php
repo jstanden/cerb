@@ -114,13 +114,14 @@ class CerberusParserModel {
 			
 			$from = array();
 			
-			if(!empty($sReplyTo)) {
+			if(empty($from) && !empty($sReplyTo))
 				$from = CerberusParser::parseRfcAddress($sReplyTo);
-			} elseif(!empty($sFrom)) {
+			
+			if(empty($from) && !empty($sFrom))
 				$from = CerberusParser::parseRfcAddress($sFrom);
-			} elseif(!empty($sReturnPath)) {
+			
+			if(empty($from) && !empty($sReturnPath))
 				$from = CerberusParser::parseRfcAddress($sReturnPath);
-			}
 			
 			if(empty($from) || !is_array($from))
 				throw new Exception('No sender headers found.');
@@ -673,7 +674,7 @@ class CerberusParser {
 							
 							$bounce_token = '------ This is a copy of the message, including all the headers. ------';
 							
-							if(false !== ($bounce_pos = mb_strpos($text, $bounce_token, 0, $info['charset']))) {
+							if(false !== ($bounce_pos = @mb_strpos($text, $bounce_token, 0, $info['charset']))) {
 								$bounce_text = mb_substr($text, $bounce_pos + strlen($bounce_token), strlen($text), $info['charset']);
 								$text = mb_substr($text, 0, $bounce_pos, $info['charset']);
 								
@@ -1017,6 +1018,7 @@ class CerberusParser {
 					if(is_array($lines))
 					foreach($lines as $line) {
 						
+						// Ignore quoted relay comments
 						if(preg_match('/[\s\>]*\s*##/', $line))
 							continue;
 
@@ -1114,7 +1116,7 @@ class CerberusParser {
 						));
 					}
 					
-					$properties['content'] = $body;
+					$properties['content'] = ltrim($body);
 					
 					CerberusMail::sendTicketMessage($properties);
 					return $proxy_ticket->id;

@@ -3403,7 +3403,7 @@ class DevblocksEventHelper {
 						'variables' => array(
 							'target' => sprintf("[%s] %s", $dict->ticket_mask, $dict->ticket_subject),
 							'worker' => $worker->getName(),
-							'worker_email' => $worker_address->address,
+							'worker_email' => $to_address,
 							),
 						'urls' => array(
 							'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_TICKET, $context_id),

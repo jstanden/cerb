@@ -57,12 +57,18 @@
 	<activity_points>
 		<activity point="opp.status.closed_lost">
 			<param key="label_key" value="Opportunity Closed/Lost" />
+			<param key="string_key" value="activities.opp.status" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="opp.status.closed_won">
 			<param key="label_key" value="Opportunity Closed/Won" />
+			<param key="string_key" value="activities.opp.status" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="opp.status.open">
 			<param key="label_key" value="Opportunity Opened" />
+			<param key="string_key" value="activities.opp.status" />
+			<param key="options" value="" />
 		</activity>
 	</activity_points>
 	

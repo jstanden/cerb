@@ -596,81 +596,133 @@
 	<activity_points>
 		<activity point="calendar_event.created">
 			<param key="label_key" value="Calendar Event Created" />
+			<param key="string_key" value="activities.calendar_event.created" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="calendar_event_recurring.created">
 			<param key="label_key" value="Calendar Recurring Event Created" />
+			<param key="string_key" value="activities.calendar_event_recurring.created" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="comment.create">
 			<param key="label_key" value="Comment Created" />
+			<param key="string_key" value="activities.comment.create" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="connection.link">
 			<param key="label_key" value="Connection Linked" />
+			<param key="string_key" value="activities.connection.link" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="connection.unlink">
 			<param key="label_key" value="Connection Unlinked" />
+			<param key="string_key" value="activities.connection.unlink" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="org.merge">
 			<param key="label_key" value="Organization Merged" />
+			<param key="string_key" value="activities.org.merge" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="task.created">
 			<param key="label_key" value="Task Created" />
+			<param key="string_key" value="activities.task.created" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="task.status.completed">
 			<param key="label_key" value="Task Completed" />
+			<param key="string_key" value="activities.task.status.completed" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="ticket.merge">
 			<param key="label_key" value="Ticket Merged" />
+			<param key="string_key" value="activities.ticket.merge" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="ticket.message.inbound">
 			<param key="label_key" value="Ticket Message Inbound" />
+			<param key="string_key" value="activities.ticket.message.inbound" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="ticket.message.outbound">
 			<param key="label_key" value="Ticket Message Outbound" />
+			<param key="string_key" value="activities.ticket.message.outbound" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="ticket.message.relay">
 			<param key="label_key" value="Ticket Message Relayed" />
+			<param key="string_key" value="activities.ticket.message.relay" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="ticket.moved">
 			<param key="label_key" value="Ticket Moved" />
+			<param key="string_key" value="activities.ticket.moved" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="ticket.owner.assigned">
 			<param key="label_key" value="Ticket Assigned" />
+			<param key="string_key" value="activities.ticket.assigned" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="ticket.owner.unassigned">
 			<param key="label_key" value="Ticket Unassigned" />
+			<param key="string_key" value="activities.ticket.unassigned" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="ticket.status.closed">
 			<param key="label_key" value="Ticket Closed" />
+			<param key="string_key" value="activities.ticket.status" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="ticket.status.deleted">
 			<param key="label_key" value="Ticket Deleted" />
+			<param key="string_key" value="activities.ticket.status" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="ticket.status.open">
 			<param key="label_key" value="Ticket Opened" />
+			<param key="string_key" value="activities.ticket.status" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="ticket.status.waiting">
 			<param key="label_key" value="Ticket Waiting" />
+			<param key="string_key" value="activities.ticket.status" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="watcher.assigned">
 			<param key="label_key" value="Watcher Assigned" />
+			<param key="string_key" value="activities.watcher.assigned" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="watcher.follow">
 			<param key="label_key" value="Watcher Followed" />
+			<param key="string_key" value="activities.watcher.follow" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="watcher.unassigned">
 			<param key="label_key" value="Watcher Unassigned" />
+			<param key="string_key" value="activities.watcher.unassigned" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="watcher.unfollow">
 			<param key="label_key" value="Watcher Unfollowed" />
+			<param key="string_key" value="activities.watcher.unfollow" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="worker.impersonated">
 			<param key="label_key" value="Worker Impersonated" />
+			<param key="string_key" value="activities.worker.impersonated" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="worker.logged_in">
 			<param key="label_key" value="Worker Logged In" />
+			<param key="string_key" value="activities.worker.logged_in" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="worker.logged_out">
 			<param key="label_key" value="Worker Logged Out" />
+			<param key="string_key" value="activities.worker.logged_out" />
+			<param key="options" value="" />
 		</activity>
 	</activity_points>
 	

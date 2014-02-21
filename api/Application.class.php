@@ -46,8 +46,8 @@
  \* - Jeff Standen, Darren Sugita, Dan Hildebrandt
  *	 Webgroup Media LLC - Developers of Cerb
  */
-define("APP_BUILD", 2014021402);
-define("APP_VERSION", '6.6.2');
+define("APP_BUILD", 2014022001);
+define("APP_VERSION", '6.6.3');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
@@ -1273,7 +1273,7 @@ class CerberusContexts {
 		}
 	}
 	
-	static public function logActivity($activity_point, $target_context, $target_context_id, $entry_array, $actor_context=null, $actor_context_id=null, $also_notify_worker_ids=array()) {
+	static public function logActivity($activity_point, $target_context, $target_context_id, &$entry_array, $actor_context=null, $actor_context_id=null, $also_notify_worker_ids=array()) {
 		// Target meta
 		if(!isset($target_meta)) {
 			if(null != ($target_ctx = DevblocksPlatform::getExtension($target_context, true))
@@ -1351,7 +1351,7 @@ class CerberusContexts {
 			$entry_array['urls']['actor'] = $actor_url;
 		
 		// Activity Log
-		DAO_ContextActivityLog::create(array(
+		$activity_entry_id = DAO_ContextActivityLog::create(array(
 			DAO_ContextActivityLog::ACTIVITY_POINT => $activity_point,
 			DAO_ContextActivityLog::CREATED => time(),
 			DAO_ContextActivityLog::ACTOR_CONTEXT => $actor_context,
@@ -1363,108 +1363,129 @@ class CerberusContexts {
 		
 		// Tell target watchers about the activity
 		
-		$watchers = array();
+		$do_notifications = true;
 		
-		// Merge in the record owner if defined
-		if(isset($target_meta) && isset($target_meta['owner_id']) && !empty($target_meta['owner_id'])) {
-			$watchers = array_merge(
-				$watchers,
-				array($target_meta['owner_id'])
-			);
+		// Only fire notifications if supported by the activity options (!no_notifications)
+		
+		$activity_points = DevblocksPlatform::getActivityPointRegistry();
+		
+		if(isset($activity_points[$activity_point])) {
+			$activity_mft = $activity_points[$activity_point];
+			if(
+				isset($activity_mft['params'])
+				&& isset($activity_mft['params']['options'])
+				&& in_array('no_notifications', DevblocksPlatform::parseCsvString($activity_mft['params']['options']))
+				)
+				$do_notifications = false;
 		}
 		
-		// Merge in watchers of the actor (if not a worker)
-		if(CerberusContexts::CONTEXT_WORKER != $actor_context) {
-			$watchers = array_merge(
-				$watchers,
-				array_keys(CerberusContexts::getWatchers($actor_context, $actor_context_id))
-			);
-		}
+		// Send notifications
 		
-		// And watchers of the target (if not a worker)
-		if(CerberusContexts::CONTEXT_WORKER != $target_context) {
-			$watchers = array_merge(
-				$watchers,
-				array_keys(CerberusContexts::getWatchers($target_context, $target_context_id))
-			);
-		}
-		
-		// Include the 'also notify' list
-		if(!is_array($also_notify_worker_ids))
-			$also_notify_worker_ids = array();
-		
-		$watchers = array_merge(
-			$watchers,
-			$also_notify_worker_ids
-		);
-		
-		// And include any worker-based custom fields with the 'send watcher notifications' option
-		$target_custom_fields = DAO_CustomField::getByContext($target_context, true);
-		
-		if(is_array($target_custom_fields))
-		foreach($target_custom_fields as $target_custom_field_id => $target_custom_field) {
-			if($target_custom_field->type != Model_CustomField::TYPE_WORKER)
-				continue;
+		if($do_notifications) {
+			$watchers = array();
 			
-			if(!isset($target_custom_field->params['send_notifications']) || empty($target_custom_field->params['send_notifications']))
-				continue;
-			
-			$values = DAO_CustomFieldValue::getValuesByContextIds($target_context, $target_context_id);
-			
-			if(isset($values[$target_context_id]) && isset($values[$target_context_id][$target_custom_field_id]))
+			// Merge in the record owner if defined
+			if(isset($target_meta) && isset($target_meta['owner_id']) && !empty($target_meta['owner_id'])) {
 				$watchers = array_merge(
 					$watchers,
-					array($values[$target_context_id][$target_custom_field_id])
+					array($target_meta['owner_id'])
 				);
-		}
-		
-		// Remove dupe watchers
-		$watcher_ids = array_unique($watchers);
-		
-		$url_writer = DevblocksPlatform::getUrlService();
-		
-		// Fire off notifications
-		if(is_array($watcher_ids)) {
-			$message = CerberusContexts::formatActivityLogEntry($entry_array, 'plaintext');
-			@$url = reset($entry_array['urls']);
-			
-			if(0 == strcasecmp('ctx://',substr($url,0,6))) {
-				$url = self::parseContextUrl($url);
-			} elseif(0 != strcasecmp('http',substr($url,0,4))) {
-				$url = $url_writer->writeNoProxy($url, true);
 			}
 			
-			foreach($watcher_ids as $watcher_id) {
-				// If not inside a VA
-				if(0 == EventListener_Triggers::getDepth()) {
-					// Skip a watcher if they are the actor
-					if($actor_context == CerberusContexts::CONTEXT_WORKER
-						&& $actor_context_id == $watcher_id) {
-							// If they explicitly added themselves to the notify, allow it.
-							// Otherwise, don't tell them what they just did.
-							if(!in_array($watcher_id, $also_notify_worker_ids))
-								continue;
-					}
+			// Merge in watchers of the actor (if not a worker)
+			if(CerberusContexts::CONTEXT_WORKER != $actor_context) {
+				$watchers = array_merge(
+					$watchers,
+					array_keys(CerberusContexts::getWatchers($actor_context, $actor_context_id))
+				);
+			}
+			
+			// And watchers of the target (if not a worker)
+			if(CerberusContexts::CONTEXT_WORKER != $target_context) {
+				$watchers = array_merge(
+					$watchers,
+					array_keys(CerberusContexts::getWatchers($target_context, $target_context_id))
+				);
+			}
+			
+			// Include the 'also notify' list
+			if(!is_array($also_notify_worker_ids))
+				$also_notify_worker_ids = array();
+			
+			$watchers = array_merge(
+				$watchers,
+				$also_notify_worker_ids
+			);
+			
+			// And include any worker-based custom fields with the 'send watcher notifications' option
+			$target_custom_fields = DAO_CustomField::getByContext($target_context, true);
+			
+			if(is_array($target_custom_fields))
+			foreach($target_custom_fields as $target_custom_field_id => $target_custom_field) {
+				if($target_custom_field->type != Model_CustomField::TYPE_WORKER)
+					continue;
+				
+				if(!isset($target_custom_field->params['send_notifications']) || empty($target_custom_field->params['send_notifications']))
+					continue;
+				
+				$values = DAO_CustomFieldValue::getValuesByContextIds($target_context, $target_context_id);
+				
+				if(isset($values[$target_context_id]) && isset($values[$target_context_id][$target_custom_field_id]))
+					$watchers = array_merge(
+						$watchers,
+						array($values[$target_context_id][$target_custom_field_id])
+					);
+			}
+			
+			// Remove dupe watchers
+			$watcher_ids = array_unique($watchers);
+			
+			$url_writer = DevblocksPlatform::getUrlService();
+			
+			// Fire off notifications
+			if(is_array($watcher_ids)) {
+				$message = CerberusContexts::formatActivityLogEntry($entry_array, 'plaintext');
+				@$url = reset($entry_array['urls']);
+				
+				if(0 == strcasecmp('ctx://',substr($url,0,6))) {
+					$url = self::parseContextUrl($url);
+				} elseif(0 != strcasecmp('http',substr($url,0,4))) {
+					$url = $url_writer->writeNoProxy($url, true);
 				}
 				
-				// Does the worker want this kind of notification?
-				$dont_notify_on_activities = WorkerPrefs::getDontNotifyOnActivities($watcher_id);
-				if(in_array($activity_point, $dont_notify_on_activities))
-					continue;
+				foreach($watcher_ids as $watcher_id) {
+					// If not inside a VA
+					if(0 == EventListener_Triggers::getDepth()) {
+						// Skip a watcher if they are the actor
+						if($actor_context == CerberusContexts::CONTEXT_WORKER
+							&& $actor_context_id == $watcher_id) {
+								// If they explicitly added themselves to the notify, allow it.
+								// Otherwise, don't tell them what they just did.
+								if(!in_array($watcher_id, $also_notify_worker_ids))
+									continue;
+						}
+					}
 					
-				// If yes, send it
-				DAO_Notification::create(array(
-					DAO_Notification::CONTEXT => $target_context,
-					DAO_Notification::CONTEXT_ID => $target_context_id,
-					DAO_Notification::CREATED_DATE => time(),
-					DAO_Notification::IS_READ => 0,
-					DAO_Notification::WORKER_ID => $watcher_id,
-					DAO_Notification::MESSAGE => $message,
-					DAO_Notification::URL => $url,
-				));
+					// Does the worker want this kind of notification?
+					$dont_notify_on_activities = WorkerPrefs::getDontNotifyOnActivities($watcher_id);
+					if(in_array($activity_point, $dont_notify_on_activities))
+						continue;
+						
+					// If yes, send it
+					DAO_Notification::create(array(
+						DAO_Notification::CONTEXT => $target_context,
+						DAO_Notification::CONTEXT_ID => $target_context_id,
+						DAO_Notification::CREATED_DATE => time(),
+						DAO_Notification::IS_READ => 0,
+						DAO_Notification::WORKER_ID => $watcher_id,
+						DAO_Notification::MESSAGE => $message,
+						DAO_Notification::URL => $url,
+					));
+				}
 			}
-		}
+		} // end if($do_notifications)
 		
+		return $activity_entry_id;
 	}
 	
 	private static function _getAttachmentContext($attachment, &$token_labels, &$token_values, $prefix=null) {

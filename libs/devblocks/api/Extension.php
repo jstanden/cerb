@@ -516,7 +516,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	
 	function setValues($values) {
 		$this->_values = $values;
-		$this->_setTypes($values['_types']);
+		
+		if(isset($values['_types']))
+			$this->_setTypes($values['_types']);
 	}
 	
 	function getValues() {
@@ -545,6 +547,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 	
 	function getTypes() {
+		if(!isset($this->_values['_types']))
+			return array();
+		
 		return $this->_values['_types'];
 	}
 	

@@ -252,6 +252,43 @@ class MaintCron extends CerberusCronPageExtension {
 			}
 		}
 		$logger->info('[Maint] Cleaned up import directories.');
+		
+		// Clean up /tmp/php* files if ctime > 12 hours ago
+		
+		$tmp_dir = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
+		$tmp_deletes = 0;
+		$tmp_ctime_max = time() - (60*60*12);
+		
+		if(false !== ($php_tmpfiles = glob($tmp_dir . 'php*', GLOB_NOSORT))) {
+			// If created more than 12 hours ago
+			foreach($php_tmpfiles as $php_tmpfile) {
+				if(filectime($php_tmpfile) < $tmp_ctime_max) {
+					unlink($php_tmpfile);
+					$tmp_deletes++;
+				}
+			}
+			
+			$logger->info(sprintf('[Maint] Cleaned up %d temporary PHP files.', $tmp_deletes));
+		}
+		
+		// Clean up /tmp/mime* files if ctime > 12 hours ago
+		
+		$tmp_dir = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
+		$tmp_deletes = 0;
+		$tmp_ctime_max = time() - (60*60*12);
+		
+		if(false !== ($php_tmpmimes = glob($tmp_dir . 'mime*', GLOB_NOSORT))) {
+			foreach($php_tmpmimes as $php_tmpmime) {
+				// If created more than 12 hours ago
+				if(filectime($php_tmpmime) < $tmp_ctime_max) {
+					unlink($php_tmpmime);
+					$tmp_deletes++;
+				}
+			}
+			
+			$logger->info(sprintf('[Maint] Cleaned up %d temporary MIME files.', $tmp_deletes));
+		}
+		
 	}
 
 	function configure($instance) {

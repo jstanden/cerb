@@ -52,9 +52,13 @@
 	<activity_points>
 		<activity point="timetracking.status.closed">
 			<param key="label_key" value="Time Tracking Entry Closed" />
+			<param key="string_key" value="activities.timetracking.status" />
+			<param key="options" value="" />
 		</activity>
 		<activity point="timetracking.status.open">
 			<param key="label_key" value="Time Tracking Entry Opened" />
+			<param key="string_key" value="activities.timetracking.status" />
+			<param key="options" value="" />
 		</activity>
 	</activity_points>
 	

@@ -638,7 +638,36 @@ abstract class Extension_RestController extends DevblocksExtension {
 				$filters[$field] = array($field, $oper, $value);
 		}
 		
-		return $this->search($filters, $sortToken, $sortAsc, $page, $limit);
+		$results = $this->search($filters, $sortToken, $sortAsc, $page, $limit);
+		
+		if(isset($results['results']) && is_array($results['results']) && !empty($results)) {
+			$_labels = null;
+			$_types = null;
+			
+			array_walk($results['results'], function(&$result) use (&$_labels, &$_types) {
+				if(null == $_labels && isset($result['_labels']))
+					$_labels = $result['_labels'];
+				
+				if(null == $_types && isset($result['_types']))
+					$_types = $result['_types'];
+				
+				unset($result['_labels']);
+				unset($result['_types']);
+			});
+			
+			$results['results_meta'] = array();
+			
+			if(!empty($_labels))
+				$results['results_meta']['labels'] = $_labels;
+			
+			if(!empty($_types))
+				$results['results_meta']['types'] = $_types;
+			
+			if(empty($results['results_meta']))
+				unset($results['results_meta']);
+		}
+		
+		return $results;
 	}
 	
 	protected function _handleRequiredFields($required, $fields) {

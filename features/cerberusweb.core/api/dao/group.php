@@ -1203,6 +1203,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'_label' => 'context_url',
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
+			'reply_address_id' => Model_CustomField::TYPE_NUMBER,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1251,6 +1252,133 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		}
 		
 		switch($token) {
+			case 'buckets':
+				$values = $dictionary;
+
+				if(!isset($values['buckets']))
+					$values['buckets'] = array(
+						'results_meta' => array(
+							'labels' => null,
+							'types' => null,
+						),
+						'results' => array(),
+					);
+				
+				$buckets = DAO_Bucket::getByGroup($context_id);
+				
+				if(is_array($buckets))
+				foreach($buckets as $bucket) { /* @var $bucket Model_Bucket */
+					$bucket_labels = array();
+					$bucket_values = array();
+					CerberusContexts::getContext(CerberusContexts::CONTEXT_BUCKET, $bucket, $bucket_labels, $bucket_values, null, true);
+					
+					// Results meta
+					if(is_null($values['buckets']['results_meta']['labels']))
+						$values['buckets']['results_meta']['labels'] = $bucket_values['_labels'];
+					
+					if(is_null($values['buckets']['results_meta']['types']))
+						$values['buckets']['results_meta']['types'] = $bucket_values['_types'];
+					
+					// Remove redundancy
+					$bucket_values = array_filter($bucket_values, function($values) use (&$bucket_values) {
+						$key = key($bucket_values);
+						next($bucket_values);
+						
+						switch($key) {
+							case '_labels':
+							case '_types':
+								return false;
+								break;
+								
+							default:
+								if(preg_match('#^(.*)_loaded$#', $key))
+									return false;
+								break;
+						}
+						
+						return true;
+					});
+					
+					$values['buckets']['results'][] = $bucket_values;
+				}
+				break;
+				
+			case 'members':
+				$values = $dictionary;
+
+				if(!isset($values['members']))
+					$values['members'] = array(
+						'results_meta' => array(
+							'labels' => null,
+							'types' => null,
+						),
+						'results' => array(),
+					);
+				
+				$rosters = DAO_Group::getRosters();
+				
+				@$roster = $rosters[$context_id];
+				
+				if(!is_array($roster) || empty($roster))
+					break;
+				
+				if(is_array($roster))
+				foreach($roster as $member) { /* @var $member Model_GroupMember */
+					$member_labels = array();
+					$member_values = array();
+					CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $member->id, $member_labels, $member_values, null, true);
+					
+					if(empty($member_values))
+						continue;
+					
+					// Ignore disabled
+					if(isset($member_values['is_disabled']) && $member_values['is_disabled'])
+						continue;
+					
+					// Add a manager value
+					$member_values['is_manager'] = $member->is_manager ? true : false;
+					$member_values['_types']['is_manager'] = Model_CustomField::TYPE_CHECKBOX;
+					
+					// Results meta
+					if(is_null($values['members']['results_meta']['labels']))
+						$values['members']['results_meta']['labels'] = $member_values['_labels'];
+					
+					if(is_null($values['members']['results_meta']['types']))
+						$values['members']['results_meta']['types'] = $member_values['_types'];
+					
+					// Lazy load
+					$member_dict = new DevblocksDictionaryDelegate($member_values);
+					$member_dict->address_;
+					$member_dict->custom_;
+					$member_values = $member_dict->getDictionary();
+					unset($member_dict);
+					
+					// Remove redundancy
+					$member_values = array_filter($member_values, function($values) use (&$member_values) {
+						$key = key($member_values);
+						next($member_values);
+						
+						switch($key) {
+							case '_labels':
+							case '_types':
+							case 'address_':
+							case 'custom_':
+								return false;
+								break;
+								
+							default:
+								if(preg_match('#^(.*)_loaded$#', $key))
+									return false;
+								break;
+						}
+						
+						return true;
+					});
+					
+					$values['members']['results'][] = $member_values;
+				}
+				break;
+			
 			case 'watchers':
 				$watchers = array(
 					$token => CerberusContexts::getWatchers($context, $context_id, true),
