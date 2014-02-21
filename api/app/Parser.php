@@ -1018,6 +1018,7 @@ class CerberusParser {
 					if(is_array($lines))
 					foreach($lines as $line) {
 						
+						// Ignore quoted relay comments
 						if(preg_match('/[\s\>]*\s*##/', $line))
 							continue;
 
@@ -1115,7 +1116,7 @@ class CerberusParser {
 						));
 					}
 					
-					$properties['content'] = $body;
+					$properties['content'] = ltrim($body);
 					
 					CerberusMail::sendTicketMessage($properties);
 					return $proxy_ticket->id;
