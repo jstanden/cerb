@@ -1,26 +1,3 @@
-<style type="text/css">
-DIV.dashboard-widget {
-	margin:5px 5px 10px 5px;
-}
-
-DIV.dashboard-widget DIV.dashboard-widget-title {
-	background-color:rgb(220,220,220);
-	padding:5px 10px;
-	font-size:120%;
-	font-weight:bold;
-	cursor:move;
-	border-radius:10px;
-	-webkit-border-radius:10px;
-	-moz-border-radius:10px;
-	-o-border-radius:10px;
-}
-
-DIV.dashboard-widget DIV.updated {
-	text-align:left;
-	color:rgb(200,200,200);
-	display:none;
-}
-</style>
 
 <form id="frmAddWidget{$workspace_tab->id}" action="#">
 <button type="button" class="add_widget"><span class="cerb-sprite2 sprite-plus-circle"></span> Add Widget</button>
