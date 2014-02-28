@@ -34,7 +34,7 @@
 			items:'> li.drag',
 			distance: 20,
 			forcePlaceholderWidth:true,
-			update:function(e) {
+			stop:function(e) {
 				$tabs = $("#pageTabs");
 				$page_tabs = $tabs.find('ul.ui-tabs-nav > li.drag[tab_id]');
 				page_tab_ids = $page_tabs.map(function(e) {
