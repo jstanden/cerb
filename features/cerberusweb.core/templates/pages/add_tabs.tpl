@@ -126,6 +126,8 @@ $frm.find('button.add').click(function(e) {
 		
 		$this.effect('transfer', { to:$new_tab, className:'effects-transfer' }, 500, function() { });
 		
+		$tabs.tabs('option', 'active', -2);
+		
 		$input.val('').focus();
 		$frm.find('textarea[name=import]').val('');
 	});
