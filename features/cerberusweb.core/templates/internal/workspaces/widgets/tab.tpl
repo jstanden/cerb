@@ -115,7 +115,7 @@ DIV.dashboard-widget DIV.updated {
 		}
 	);
 	
-	$dashboard.bind('reorder', function(e) {
+	$dashboard.on('reorder', function(e) {
 		$dashboard = $(this);
 		
 		// [TODO] Number of columns
@@ -138,7 +138,7 @@ DIV.dashboard-widget DIV.updated {
 		'tolerance': 'pointer',
 		'cursorAt': { 'top':0, 'left':0 },
 		'connectWith': 'table#dashboard{$workspace_tab->id} td.column',
-		'update':function(e) {
+		'stop':function(e) {
 			$('table#dashboard{$workspace_tab->id}').trigger('reorder');
 		}
 	});
