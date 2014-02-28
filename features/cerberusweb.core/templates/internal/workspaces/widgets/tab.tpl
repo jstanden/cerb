@@ -37,14 +37,20 @@ DIV.dashboard-widget DIV.updated {
 		{if $smarty.foreach.columns.last}{$column_width=$column_width_remaining}{else}{$column_width=floor(100/$column_count)}{$column_width_remaining = $column_width_remaining - $column_width}{/if}
 		<td width="{$column_width}%" valign="top" class="column">
 			{foreach from=$columns.$column_id item=widget key=widget_id name=widgets}
+			{capture name=widget_content}{$widget_is_preloaded = Extension_WorkspaceWidget::renderWidgetFromCache($widget, false)}{/capture}
 			
 			<div class="dashboard-widget{if $widget_is_preloaded} widget-preloaded{/if}" id="widget{$widget_id}">
+				{if $widget_is_preloaded}
+					{$smarty.capture.widget_content nofilter}
+					
+				{else}
 					<div class="dashboard-widget-title" style="margin-bottom:5px;">
 						{$widget->label}
 					</div>
 					<div style="text-align:center;">
 						<span class="cerb-ajax-spinner"></span>
 					</div>
+				{/if}
 			</div>
 			{/foreach}
 		</td>
@@ -53,6 +59,56 @@ DIV.dashboard-widget DIV.updated {
 </table>
 
 <script type="text/javascript">
+	$.widgetAjaxLoader = function() {
+		this.widget_ids = [];
+		this.is_running = false;
+	};
+	
+	$.widgetAjaxLoader.prototype = {
+		add: function(widget_id) {
+			this.widget_ids.push(widget_id);
+			this.next();
+		},
+		
+		next: function() {
+			if(this.widget_ids.length == 0)
+				return;
+			
+			if(this.is_running == true)
+				return;
+			
+			var widget_id = this.widget_ids.shift();
+			var loader = this;
+			var $div = $('#widget' + widget_id);
+			
+			var cb = function(html) {
+				if(null != $div) {
+					$div.html(html);
+					$div.fadeTo("fast", 1.0);
+					
+					if($div.is('DIV[id^=view]'))
+						$div.trigger('view_refresh');
+				}
+				
+				loader.is_running = false;
+				loader.next();
+			}
+
+			$div.fadeTo("fast", 0.2);
+			
+			this.is_running = true;
+			genericAjaxGet('widget' + widget_id,'c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id=' + widget_id, cb);
+		},
+	};
+	
+	var $widgetAjaxLoader = new $.widgetAjaxLoader();
+	
+	{foreach from=$columns item=widgets}
+		{foreach from=$widgets item=widget key=widget_id}
+			if(!$('#widget{$widget_id}').is('.widget-preloaded'))
+				$widgetAjaxLoader.add({$widget_id});
+		{/foreach}
+	{/foreach}
 	
 	try {
 		clearInterval(window.dashboardTimer{$workspace_tab->id});

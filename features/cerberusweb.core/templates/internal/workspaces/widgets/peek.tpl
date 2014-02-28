@@ -62,7 +62,7 @@ $popup.one('popup_open', function(event,ui) {
 			$popup = genericAjaxPopupFind('#frmWidgetEdit');
 			widget_id = $popup.find('form input:hidden[name=id]').val();
 			// Reload the widget
-			genericAjaxGet('widget' + widget_id,'c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id=' + widget_id);
+			genericAjaxGet('widget' + widget_id,'c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id=' + widget_id + '&nocache=1');
 			// Close the popup
 			$popup.dialog('close');
 		});

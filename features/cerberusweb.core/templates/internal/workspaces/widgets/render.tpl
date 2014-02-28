@@ -7,7 +7,7 @@
 		
 		<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;margin-left:-180px;">
 			<li><a href="javascript:;" class="dashboard-widget-edit" onclick="genericAjaxPopup('widget_edit','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetPopup&widget_id={$widget->id}',null,false,'550');">Configure</a></li>
-			<li><a href="javascript:;" class="dashboard-widget-refresh" onclick="genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}');">Refresh</a></li>
+			<li><a href="javascript:;" class="dashboard-widget-refresh" onclick="genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1');">Refresh</a></li>
 			
 			<li><a href="javascript:;" class="dashboard-widget-export" onclick="genericAjaxPopup('widget_export','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetExportPopup&widget_id={$widget->id}',null,false,'650');">Export Widget</a></li>
 			

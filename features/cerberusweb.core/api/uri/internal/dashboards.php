@@ -21,13 +21,8 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 	
 	function renderWidgetAction() {
 		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'], 'integer', 0);
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-				
-		if(!empty($widget_id) && null != ($widget = DAO_WorkspaceWidget::get($widget_id))) {
-			$tpl->assign('widget', $widget);
-			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl');
-		}
+		@$nocache = DevblocksPlatform::importGPC($_REQUEST['nocache'], 'boolean', false);
+		Extension_WorkspaceWidget::renderWidgetFromCache($widget_id, true, $nocache);
 	}
 	
 	function showWidgetPopupAction() {

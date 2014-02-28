@@ -26,9 +26,9 @@
 		
 			<button type="button" class="calendar-edit"><span class="cerb-sprite2 sprite-gear"></span></button>
 		</span>
-		<button type="button" onclick="genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&month={$calendar_properties.prev_month}&year={$calendar_properties.prev_year}');">&lt;</button>
-		<button type="button" onclick="genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&month=&year=');">Today</button>
-		<button type="button" onclick="genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&month={$calendar_properties.next_month}&year={$calendar_properties.next_year}');">&gt;</button>
+		<button type="button" onclick="genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1&month={$calendar_properties.prev_month}&year={$calendar_properties.prev_year}');">&lt;</button>
+		<button type="button" onclick="genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1&month=&year=');">Today</button>
+		<button type="button" onclick="genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1&month={$calendar_properties.next_month}&year={$calendar_properties.next_year}');">&gt;</button>
 	</div>
 	
 	<br clear="all">
@@ -126,7 +126,7 @@ $frm.find('button.calendar-edit').click(function() {
 		var month = (event.month) ? event.month : '{$calendar_properties.month}';
 		var year = (event.year) ? event.year : '{$calendar_properties.year}';
 		
-		genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&month=' + month + '&year=' + year);
+		genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1&month=' + month + '&year=' + year);
 	});
 });
 
@@ -156,7 +156,7 @@ $openEvtPopupEvent = function(e) {
 			var month = (event.month) ? event.month : '{$calendar_properties.month}';
 			var year = (event.year) ? event.year : '{$calendar_properties.year}';
 			
-			genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&month=' + month + '&year=' + year);
+			genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1&month=' + month + '&year=' + year);
 		
 			event.stopPropagation();
 		});
