@@ -339,6 +339,46 @@ endif;
 
 if(class_exists('Extension_WorkspaceTab')):
 class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
+	public function renderTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('workspace_page', $page);
+		$tpl->assign('workspace_tab', $tab);
+		
+		// Render template
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/tabs/dashboard/config.tpl');
+	}
+	
+	function saveTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array');
+
+		@$prev_column_count = intval($tab->params['num_columns']);
+		@$new_column_count = DevblocksPlatform::intClamp(intval($params['num_columns']), 1, 4);
+
+		// Rebalance widgets if we're reducing the columns
+		if($new_column_count < $prev_column_count) {
+			$widgets = DAO_WorkspaceWidget::getByTab($tab->id);
+			$columns_left = $new_column_count;
+			
+			for($col_idx = 0; $col_idx < $new_column_count; $col_idx++) {
+				$idx = 0;
+				$items = array_splice($widgets, 0, ceil(count($widgets)/$columns_left));
+				
+				foreach($items as $item) {
+					$pos = sprintf("%d%03d", $col_idx, $idx++);
+					DAO_WorkspaceWidget::update($item->id, array(DAO_WorkspaceWidget::POS => $pos));
+				}
+				
+				$columns_left--;
+			}
+		}
+		
+		DAO_WorkspaceTab::update($tab->id, array(
+			DAO_WorkspaceTab::PARAMS_JSON => json_encode($params),
+		));
+	}
+	
 	public function renderTab(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		

@@ -26,29 +26,29 @@ DIV.dashboard-widget DIV.updated {
 <button type="button" class="add_widget"><span class="cerb-sprite2 sprite-plus-circle"></span> Add Widget</button>
 </form>
 
+{$column_count = DevblocksPlatform::intClamp($workspace_tab->params.num_columns, 1, 4)}
+{$column_ids = range(0, $column_count-1)}
+
 <table cellpadding="0" cellspacing="0" border="0" width="100%" id="dashboard{$workspace_tab->id}">
 	<tr>
-		<td width="33%" valign="top" class="column">
-			{foreach from=$columns.0 item=widget key=widget_id}
-			<div class="dashboard-widget" id="widget{$widget_id}">
-				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
+		{$column_width_remaining = 100}
+		
+		{foreach from=$column_ids item=column_id name=columns}
+		{if $smarty.foreach.columns.last}{$column_width=$column_width_remaining}{else}{$column_width=floor(100/$column_count)}{$column_width_remaining = $column_width_remaining - $column_width}{/if}
+		<td width="{$column_width}%" valign="top" class="column">
+			{foreach from=$columns.$column_id item=widget key=widget_id name=widgets}
+			
+			<div class="dashboard-widget{if $widget_is_preloaded} widget-preloaded{/if}" id="widget{$widget_id}">
+					<div class="dashboard-widget-title" style="margin-bottom:5px;">
+						{$widget->label}
+					</div>
+					<div style="text-align:center;">
+						<span class="cerb-ajax-spinner"></span>
+					</div>
 			</div>
 			{/foreach}
 		</td>
-		<td width="34%" valign="top" class="column">
-			{foreach from=$columns.1 item=widget key=widget_id}
-			<div class="dashboard-widget" id="widget{$widget_id}">
-				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
-			</div>
-			{/foreach}
-		</td>
-		<td width="33%" valign="top" class="column">
-			{foreach from=$columns.2 item=widget key=widget_id}
-			<div class="dashboard-widget" id="widget{$widget_id}">
-				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
-			</div>
-			{/foreach}
-		</td>
+		{/foreach}
 	</tr>
 </table>
 
@@ -69,7 +69,6 @@ DIV.dashboard-widget DIV.updated {
 			$dashboard.find('DIV.dashboard-widget').trigger('dashboard_heartbeat');
 		};
 		
-		//tick();
 		window.dashboardTimer{$workspace_tab->id} = setInterval(tick, 1000);
 		
 	} catch(e) {
@@ -118,14 +117,14 @@ DIV.dashboard-widget DIV.updated {
 	$dashboard.on('reorder', function(e) {
 		$dashboard = $(this);
 		
-		// [TODO] Number of columns
 		var $tr = $dashboard.find('TBODY > TR');
-		var $col1 = $tr.find('> TD:nth(0)').find('input:hidden[name="widget_pos[]"]').map(function() { return $(this).val(); }).get().join(',');
-		var $col2 = $tr.find('> TD:nth(1)').find('input:hidden[name="widget_pos[]"]').map(function() { return $(this).val(); }).get().join(',');
-		var $col3 = $tr.find('> TD:nth(2)').find('input:hidden[name="widget_pos[]"]').map(function() { return $(this).val(); }).get().join(',');
+		var widget_positions = '';
 		
-		var widget_positions = '&column[]=' + $col1 + '&column[]=' + $col2 + '&column[]=' + $col3;
-
+		{foreach from=$column_ids item=column_id}
+		var $col_widgets = $tr.find('> TD:nth({$column_id})').find('input:hidden[name="widget_pos[]"]').map(function() { return $(this).val(); }).get().join(',');
+		widget_positions += '&column[]=' + $col_widgets;
+		{/foreach}
+		
 		genericAjaxGet('', 'c=internal&a=handleSectionAction&section=dashboards&action=setWidgetPositions&workspace_tab_id={$workspace_tab->id}' + widget_positions)
 	});
 	
