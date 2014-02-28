@@ -404,7 +404,7 @@ class CerberusApplication extends DevblocksApplication {
 
 		do {
 			$mask = "";
-			$bytes = preg_split('//', $pattern, -1, PREG_SPLIT_NO_EMPTY);
+			$bytes = str_split($pattern, 1);
 			$literal = false;
 			
 			if(is_array($bytes))
@@ -467,7 +467,7 @@ class CerberusApplication extends DevblocksApplication {
 			$pattern = CerberusSettingsDefaults::TICKET_MASK_FORMAT;
 		
 		$combinations = 1;
-		$bytes = preg_split('//', $pattern, -1, PREG_SPLIT_NO_EMPTY);
+		$bytes = str_split($pattern, 1);
 		$literal = false;
 		
 		if(is_array($bytes))

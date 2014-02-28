@@ -47,8 +47,8 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			
 			$cardinality = CerberusApplication::generateTicketMaskCardinality($ticket_mask_format);
 			if($cardinality < 10000000)
-				throw new Exception(sprintf("<b>Error!</b> There are only %0.0f ticket mask combinations.",
-					$cardinality
+				throw new Exception(sprintf("<b>Error!</b> There are only %s ticket mask combinations.",
+					strrev(implode(',',str_split(strrev($cardinality),3)))
 				));
 			
 			// Save
@@ -77,8 +77,8 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		try {
 			$cardinality = CerberusApplication::generateTicketMaskCardinality($ticket_mask_format);
 			if($cardinality < 10000000)
-				throw new Exception(sprintf("<b>Error!</b> There are only %0.0f ticket mask combinations.",
-					$cardinality
+				throw new Exception(sprintf("<b>Error!</b> There are only %s ticket mask combinations.",
+					strrev(implode(',',str_split(strrev($cardinality),3)))
 				));
 			
 			$sample_mask = CerberusApplication::generateTicketMask($ticket_mask_format);
