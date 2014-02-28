@@ -107,11 +107,8 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 		$tpl->assign('workspace_page', $page);
 		$tpl->assign('workspace_tab', $tab);
 		
-		$lists = $tab->getWorklists();
-		$list_ids = array_keys($lists);
-		unset($lists);
-		
-		$tpl->assign('list_ids', $list_ids);
+		$worklists = $tab->getWorklists();
+		$tpl->assign('worklists', $worklists);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/tabs/worklists/tab.tpl');
 	}

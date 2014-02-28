@@ -1,4 +1,4 @@
-{if empty($list_ids)}
+{if empty($worklists)}
 <form action="#" onsubmit="return false;">
 <div class="help-box" style="padding:5px;border:0;">
 	<h1 style="margin-bottom:5px;text-align:left;">Let's put this workspace to good use</h1>
@@ -12,85 +12,70 @@
 </form>
 {/if}
 
-<div id="divWorklistsTab{$tab->id}"></div>
+<div id="divWorklistsTab{$tab->id}">
+{foreach from=$worklists item=worklist key=worklist_id}
+	<div id="worklistPlaceholder{$worklist_id}" style="margin-bottom:10px;">
+		<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;">
+			Loading: {$worklist->list_view->title}<br>
+			<span class="cerb-ajax-spinner"></span>
+		</div>
+	</div>
+{/foreach}
+</div>
 
 <script type="text/javascript">
-	// Lazy loading
-	$workspace = $('#divWorklistsTab{$tab->id}');
-	$ajaxQueue = $({});
+$.worklistAjaxLoader = function() {
+	this.worklist_ids = [];
+	this.is_running = false;
+};
+
+$.worklistAjaxLoader.prototype = {
+	add: function(worklist_id) {
+		this.worklist_ids.push(worklist_id);
+		this.next();
+	},
 	
-	{foreach from=$list_ids item=list_id}
-	$ajaxQueue.queue(function(next) {
-		$div = $('<div style="margin-bottom:10px;" tab_id="{$tab->id}"></div>');
-		$div
-			.appendTo($workspace)
-			.html($('<div class="lazy" style="font-size:18pt;text-align:center;padding:50px;margin:20px;background-color:rgb(232,242,255);">Loading...</div>'))
-			;
-		
-		window_fold = $(window).height() + $(window).scrollTop();
-		div_top = $div.offset().top;
-
-		if(div_top > window_fold + 100) {
-			$div.one('appear',function(event) {
-				var $this = $(this);
-				$ajaxQueue.queue(function(next) {	
-					genericAjaxGet(
-						$this,
-						'c=pages&a=initWorkspaceList&list_id={$list_id}',
-						function(html) {
-							if($this.attr('tab_id') != {$tab->id}) {
-								return;
-							}
-							
-							$this
-								.html(html)
-								;
-							next();
-						}
-					);
-				});
-			});
-			next();
-			
-		} else {
-			genericAjaxGet(
-				$div,
-				'c=pages&a=initWorkspaceList&list_id={$list_id}',
-				function(html) {
-					if($div.attr('tab_id') != {$tab->id}) {
-						return;
-					}
-					
-					$div
-						.html(html)
-						;
-					next();
-				}
-			);
-		}
-	});
-	{/foreach}
-
-	$(window).scroll(function(event) {
-		window_fold = $(window).height() + $(window).scrollTop();
-		
-		$lazies = $workspace.find('DIV.lazy');
-
-		// If we have nothing else to load, unbind
-		if(0 == $lazies.length) {
-			$(window).unbind(event);
+	next: function() {
+		if(this.worklist_ids.length == 0)
 			return;
-		}
 		
-		$lazies.each(function() {
-			div_top = $(this).offset().top;
-			if(div_top < window_fold + 50) {
-				$(this)
-					.removeClass('lazy')
-					.parent()
-					.trigger('appear')
+		if(this.is_running == true)
+			return;
+		
+		var worklist_id = this.worklist_ids.shift();
+		var loader = this;
+		var $div = $('#worklistPlaceholder' + worklist_id);
+		
+		var cb = function(html) {
+			if(null != $div) {
+				$div.fadeOut();
+				
+				var $worklist = 
+					$('<div style="margin-bottom:10px;"></div>')
+					.fadeTo("fast", 0.2)
+					.html(html)
+					.insertAfter($div)
+					.fadeTo("fast", 1.0)
 					;
+				
+				$div.remove();
 			}
-		});
-	});
+			
+			loader.is_running = false;
+			loader.next();
+		}
+
+		$div.fadeTo("fast", 0.2);
+		
+		this.is_running = true;
+		
+		genericAjaxGet('', 'c=pages&a=initWorkspaceList&list_id=' + worklist_id, cb);
+	},
+};
+
+var $worklistAjaxLoader = new $.worklistAjaxLoader();
+
+{foreach from=$worklists item=worklist key=worklist_id}
+$worklistAjaxLoader.add({$worklist_id});
+{/foreach}
 </script>
