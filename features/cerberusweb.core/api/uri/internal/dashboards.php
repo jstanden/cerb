@@ -55,6 +55,7 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 	function saveWidgetPopupAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		@$label = DevblocksPlatform::importGPC($_REQUEST['label'], 'string', 'Widget');
+		@$cache_ttl = DevblocksPlatform::importGPC($_REQUEST['cache_ttl'], 'integer', 0);
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'integer', 0);
 
 		if(!empty($id) && !empty($do_delete)) {
@@ -63,6 +64,7 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 		} else {
 			$fields = array(
 				DAO_WorkspaceWidget::LABEL => $label,
+				DAO_WorkspaceWidget::CACHE_TTL => DevblocksPlatform::intClamp($cache_ttl, 0, 604800),
 			);
 			
 			if(null != ($widget = DAO_WorkspaceWidget::get($id))) {
@@ -96,6 +98,7 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 			DAO_WorkspaceWidget::EXTENSION_ID => $extension_id,
 			DAO_WorkspaceWidget::WORKSPACE_TAB_ID => $workspace_tab_id,
 			DAO_WorkspaceWidget::POS => '0000',
+			DAO_WorkspaceWidget::CACHE_TTL => 60,
 		));
 		
 		echo json_encode(array(
@@ -171,6 +174,7 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 				DAO_WorkspaceWidget::EXTENSION_ID => $extension_id,
 				DAO_WorkspaceWidget::WORKSPACE_TAB_ID => $workspace_tab_id,
 				DAO_WorkspaceWidget::POS => '0000',
+				DAO_WorkspaceWidget::CACHE_TTL => @$widget_json['widget']['cache_ttl'] ?: 60,
 				DAO_WorkspaceWidget::PARAMS_JSON => json_encode($widget_json['widget']['params'])
 			));
 			
@@ -200,6 +204,7 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 			'widget' => array(
 				'label' => $widget->label,
 				'extension_id' => $widget->extension_id,
+				'cache_ttl' => $widget->cache_ttl,
 				'params' => $widget->params,
 			),
 		));

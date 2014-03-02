@@ -12,6 +12,21 @@ $db->Execute(sprintf("UPDATE workspace_tab SET params_json = %s WHERE extension_
 ));
 
 // ===========================================================================
+// Add `cache_ttl` to `workspace_widget`
+
+if(!isset($tables['workspace_widget'])) {
+	$logger->error("The 'workspace_widget' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('workspace_widget');
+
+if(!isset($columns['cache_ttl'])) {
+	$db->Execute("ALTER TABLE workspace_widget ADD COLUMN cache_ttl MEDIUMINT UNSIGNED NOT NULL DEFAULT 0");
+	$db->Execute("UPDATE workspace_widget SET cache_ttl = 60");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

@@ -6,15 +6,34 @@
 {if !empty($widget) && !empty($widget->id)}<input type="hidden" name="id" value="{$widget->id}">{/if}
 <input type="hidden" name="do_delete" value="0">
 
-{if $extension instanceof Extension_WorkspaceWidget}
-<b>Type:</b>
-{$extension->manifest->name} 
-<br>
-{/if}
-
-<b>Label:</b>
-<input type="text" name="label" value="{$widget->label}" size="45">
-<br>
+<table width="100%" cellpadding="0" cellspacing="2">
+	{if $extension instanceof Extension_WorkspaceWidget}
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top">
+			<b>Type:</b>
+		</td>
+		<td width="99%" valign="top">
+			{$extension->manifest->name} 
+		</td>
+	</tr>
+	{/if}
+	<tr>
+		<td width="1%" nowrap="nowrap">
+			<b>Label:</b>
+		</td>
+		<td width="99%">
+			<input type="text" name="label" value="{$widget->label}" size="45">
+		</td>
+	</tr>
+	<tr>
+		<td width="1%" nowrap="nowrap">
+			<b>Cache:</b>
+		</td>
+		<td width="99%">
+			<input type="text" name="cache_ttl" value="{$widget->cache_ttl}" size="10"> seconds
+		</td>
+	</tr>
+</table>
 
 {* The rest of config comes from the widget *}
 {if $extension instanceof Extension_WorkspaceWidget}

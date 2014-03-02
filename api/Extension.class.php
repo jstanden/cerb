@@ -520,14 +520,13 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 			$cache_key = sprintf("widget%d_render", $widget->id);
 			
 			// Fetch and cache
-			if($nocache || false == ($widget_contents = $cache->load($cache_key))) {
+			if($nocache || empty($widget->cache_ttl) || false == ($widget_contents = $cache->load($cache_key))) {
 				if($autoload) {
 					$tpl = DevblocksPlatform::getTemplateService();
 					$tpl->assign('widget', $widget);
 					$widget_contents = $tpl->fetch('devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl');
 					
-					// [TODO] Invalidation, TTL per widget manifest (some should disable, allow force no-cache)
-					$cache->save($widget_contents, $cache_key, null, 60);
+					$cache->save($widget_contents, $cache_key, null, $widget->cache_ttl);
 				}
 				
 			} else {
