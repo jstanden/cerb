@@ -1949,6 +1949,11 @@ class Context_Message extends Extension_DevblocksContext {
 				$values['content'] = Storage_MessageContent::get($context_id);
 				break;
 				
+			case 'headers':
+				$headers = DAO_MessageHeader::getAll($context_id);
+				$values['headers'] = $headers;
+				break;
+				
 			default:
 				if(substr($token,0,7) == 'custom_') {
 					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
