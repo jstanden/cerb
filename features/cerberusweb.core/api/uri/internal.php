@@ -2915,17 +2915,43 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$dictionary = array();
 		
-		foreach($conditions as $k => $v) {
-			// [TODO] Test when this is possible (e.g. custom fields)
-			if(!isset($v['label']) || !isset($v['type']))
-				continue;
+		// Find all nodes on the behavior
+		$nodes = DAO_DecisionNode::getByTriggerParent($trigger->id);
+		
+		// Filter to outcomes
+		$outcomes = array_filter($nodes, function($node) {
+			if($node->node_type == 'outcome')
+				return true;
 			
-			if(isset($dict->$k)) {
-				$dictionary[$k] = array(
-					'label' => $v['label'],
-					'type' => $v['type'],
-					'value' => $dict->$k,
-				);
+			return false;
+		});
+		
+		// Build a list of the tokens used in outcomes, and only show those
+		if(is_array($outcomes))
+		foreach($outcomes as $outcome) {
+			if(isset($outcome->params['groups']))
+			foreach($outcome->params['groups'] as $group) {
+				if(isset($group['conditions']))
+				foreach($group['conditions'] as $condition_obj) {
+					if(null == (@$condition_token = $condition_obj['condition']))
+						continue;
+					
+					if(null == (@$condition = $conditions[$condition_token]))
+						continue;
+					
+					if(empty($condition['label']) || empty($condition['type']))
+						continue;
+					
+					// [TODO] List variables
+					// [TODO] Some types have options, like picklists
+					if(!isset($dictionary[$condition_token])) {
+						$dictionary[$condition_token] = array(
+							'label' => $condition['label'],
+							'type' => $condition['type'],
+							'value' => $dict->$condition_token,
+						);
+					}
+				}
 			}
 		}
 		

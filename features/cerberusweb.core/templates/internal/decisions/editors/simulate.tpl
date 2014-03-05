@@ -19,7 +19,7 @@
 <div id="simulatorTabs">
 	<ul>
 		{if $has_public_vars}<li><a href="#simulatorParams">Parameters</a></li>{/if}
-		<li><a href="#simulatorValues">Values</a></li>
+		<li><a href="#simulatorValues">Conditions</a></li>
 	</ul>
 	
 	{if $has_public_vars}
