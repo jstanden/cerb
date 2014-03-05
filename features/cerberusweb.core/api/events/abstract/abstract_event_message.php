@@ -242,7 +242,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		$labels = $this->getLabels();
 		$types = $this->getTypes();
 		
-		$labels['header'] = 'Message header';
 		$labels['is_first'] = 'Message is first in conversation';
 		$labels['sender_is_worker'] = 'Message sender is a worker';
 		$labels['ticket_has_owner'] = 'Ticket has owner';
@@ -260,7 +259,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		$labels['sender_org_watcher_count'] = 'Message sender org watcher count';
 		$labels['sender_watcher_count'] = 'Message sender watcher count';
 		
-		$types['header'] = null;
 		$types['is_first'] = Model_CustomField::TYPE_CHECKBOX;
 		$types['sender_is_worker'] = Model_CustomField::TYPE_CHECKBOX;
 		$types['ticket_has_owner'] = Model_CustomField::TYPE_CHECKBOX;
@@ -331,8 +329,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
 				break;
 				
-			// [TODO] Internalize
-			case 'header':
+			case 'headers':
+			case 'ticket_initial_message_headers':
+			case 'ticket_initial_response_message_headers':
+			case 'ticket_latest_message_headers':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_header.tpl');
 				break;
 		}
@@ -419,19 +419,23 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				$pass = ($not) ? !$pass : $pass;
 				break;
 				
-			case 'header':
+			case 'headers':
+			case 'ticket_initial_message_headers':
+			case 'ticket_initial_response_message_headers':
+			case 'ticket_latest_message_headers':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
-				@$header = $params['header'];
+				@$header = strtolower($params['header']);
 				@$param_value = $params['value'];
 				
 				// Lazy load
-				$value = DAO_MessageHeader::getOne($dict->id, $header);
-				
+				@$header_values = $dict->$token;
+				@$value = (is_array($header_values) && isset($header_values[$header])) ? $header_values[$header] : '';
+
 				// Operators
 				switch($oper) {
 					case 'is':
-						$pass = (0==strcasecmp($value,$param_value));
+						$pass = (0==strcasecmp($value, $param_value));
 						break;
 					case 'like':
 						$regexp = DevblocksPlatform::strToRegExp($param_value);

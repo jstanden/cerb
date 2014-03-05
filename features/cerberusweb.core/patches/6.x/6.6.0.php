@@ -159,6 +159,16 @@ if(!isset($columns['updated_at'])) {
 $db->Execute("DELETE FROM worker_view_model WHERE view_id = 'search_cerberusweb_contexts_snippet'");
 
 // ===========================================================================
+// Convert old built-in mail header conditions to the newer variation
+
+// Ticket events
+$db->Execute("UPDATE decision_node SET params_json = REPLACE(params_json, '\"condition\":\"ticket_initial_message_header\"', '\"condition\":\"ticket_initial_message_headers\"') WHERE node_type = 'outcome' AND trigger_id in (SELECT id FROM trigger_event WHERE event_point IN ('event.comment.ticket.group','event.macro.ticket','event.ticket.viewed.worker','event.mail.assigned.group','event.mail.closed.group','event.mail.moved.group'))");
+$db->Execute("UPDATE decision_node SET params_json = REPLACE(params_json, '\"condition\":\"ticket_latest_message_header\"', '\"condition\":\"ticket_latest_message_headers\"') WHERE node_type = 'outcome' AND trigger_id in (SELECT id FROM trigger_event WHERE event_point IN ('event.comment.ticket.group','event.macro.ticket','event.ticket.viewed.worker','event.mail.assigned.group','event.mail.closed.group','event.mail.moved.group'))");
+
+// Message events
+$db->Execute("UPDATE decision_node SET params_json = REPLACE(params_json, '\"condition\":\"header\"', '\"condition\":\"headers\"') WHERE node_type = 'outcome' AND trigger_id IN (SELECT id FROM trigger_event WHERE event_point IN ('event.mail.after.sent','event.mail.after.sent.group','event.mail.received.group','event.mail.reply.pre.ui.worker','event.mail.reply.during.ui.worker'))");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

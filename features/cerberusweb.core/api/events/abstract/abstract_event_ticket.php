@@ -217,8 +217,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		$types = $this->getTypes();
 		
 		$labels['ticket_has_owner'] = 'Ticket has owner';
-		$labels['ticket_initial_message_header'] = 'Ticket initial message email header';
-		$labels['ticket_latest_message_header'] = 'Ticket latest message email header';
 		$labels['ticket_latest_incoming_activity'] = 'Ticket latest incoming activity';
 		$labels['ticket_latest_outgoing_activity'] = 'Ticket latest outgoing activity';
 		
@@ -282,8 +280,9 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_status.tpl');
 				break;
 				
-			case 'ticket_initial_message_header':
-			case 'ticket_latest_message_header':
+			case 'ticket_initial_message_headers':
+			case 'ticket_initial_response_message_headers':
+			case 'ticket_latest_message_headers':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_header.tpl');
 				break;
 				
@@ -392,21 +391,22 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				$pass = ($not) ? !$pass : $pass;
 				break;
 				
-			case 'ticket_initial_message_header':
-			case 'ticket_latest_message_header':
+			case 'ticket_initial_response_message_headers':
+			case 'ticket_initial_message_headers':
+			case 'ticket_latest_message_headers':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
-				@$header = $params['header'];
+				@$header = strtolower($params['header']);
 				@$param_value = $params['value'];
 				
 				// Lazy load
-				$token_msgid = str_replace('_header', '_id', $token);
-				$value = DAO_MessageHeader::getOne($dict->$token_msgid, $header);
+				$header_values = $dict->$token;
+				@$value = (is_array($header_values) && isset($header_values[$header])) ? $header_values[$header] : '';
 				
 				// Operators
 				switch($oper) {
 					case 'is':
-						$pass = (0==strcasecmp($value,$param_value));
+						$pass = (0==strcasecmp($value, $param_value));
 						break;
 					case 'like':
 						$regexp = DevblocksPlatform::strToRegExp($param_value);
