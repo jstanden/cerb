@@ -93,8 +93,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				$ticket_labels,
 				$ticket_values,
 				array(
-					"#^initial_message_#",
-					"#^latest_message_#",
+					//"#^initial_message_#",
+					//"#^latest_message_#",
 					"#^group_#",
 					"#^id$#",
 				)
