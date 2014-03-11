@@ -162,16 +162,17 @@ class _DevblocksTemplateManager {
 		foreach($bins as $i => $bin) {
 			$prefix = $bin['prefix'];
 			$l = 0;
-			$bail = 75000; // prevent infinite loops
+			$bail = 25000; // prevent infinite loops
 		
 			if(mb_strlen($prefix) == 0)
 				continue;
 		
 			while(isset($bins[$i]['lines'][$l]) && $bail > 0) {
 				$line = $bins[$i]['lines'][$l];
-				$boundary = $wrap_to - mb_strlen($prefix);
+				$line_len = mb_strlen($line);
+				$boundary = max(0, $wrap_to - mb_strlen($prefix));
 				
-				if(mb_strlen($line) > $boundary) {
+				if($line_len && $boundary && $line_len > $boundary) {
 					// Try to split on a space
 					$pos = mb_strrpos($line, ' ', -1 * (mb_strlen($line)-$boundary));
 					$break_word = (false === $pos);
