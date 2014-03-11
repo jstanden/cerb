@@ -820,16 +820,16 @@
 						for(i in bins) {
 							prefix = bins[i].prefix;
 							l = 0;
-							bail = 75000; // prevent infinite loops
+							bail = 25000; // prevent infinite loops
 							
 							if(prefix.length == 0)
 								continue;
 							
 							while(undefined != bins[i].lines[l] && bail > 0) {
 								line = bins[i].lines[l];
-								boundary = wrap_to-prefix.length;
+								boundary = Math.max(0, wrap_to-prefix.length);
 								
-								if(line.length > boundary) {
+								if(line.length > 0 && boundary > 0 && line.length > boundary) {
 									// Try to split on a space
 									pos = line.lastIndexOf(' ', boundary);
 									break_word = (-1 == pos);
