@@ -509,13 +509,13 @@ class DevblocksPlatform extends DevblocksEngine {
 			if(isset($matches[1])) {
 				$out = $matches[1];
 				
-				$out = preg_replace_callback(
+				$str = preg_replace_callback(
 					$quote_blockquotes_regexp,
 					$quote_blockquotes,
 					$out
 				);
 				
-				$out = explode("\n", trim(strip_tags($out)));
+				$out = explode("\n", trim(strip_tags($str)));
 				
 				array_walk($out, function(&$line) {
 					$line = '&gt; ' . $line . "\n";

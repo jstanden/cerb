@@ -179,7 +179,6 @@ function showLoadingPanel() {
 	}
 
 	// Set the content
-	// [TODO] Is this bugged with URL rewriting off?
 	$("#loadingPanel").html('<span class="cerb-ajax-spinner"></span><h3>Loading, please wait...</h3>');
 	
 	// Render

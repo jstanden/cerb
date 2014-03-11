@@ -1836,6 +1836,7 @@ class Context_Message extends Extension_DevblocksContext {
 			'response_time' => $prefix.$translate->_('message.response_time'),
 			'storage_size' => $prefix.$translate->_('message.storage_size'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+			'headers' => $prefix.$translate->_('message.headers'),
 		);
 		
 		// Token types
@@ -1848,6 +1849,7 @@ class Context_Message extends Extension_DevblocksContext {
 			'response_time' => 'time_secs',
 			'storage_size' => 'size_bytes',
 			'record_url' => Model_CustomField::TYPE_URL,
+			'headers' => null,
 		);
 		
 		// Token values
@@ -1947,6 +1949,11 @@ class Context_Message extends Extension_DevblocksContext {
 		switch($token) {
 			case 'content':
 				$values['content'] = Storage_MessageContent::get($context_id);
+				break;
+				
+			case 'headers':
+				$headers = DAO_MessageHeader::getAll($context_id);
+				$values['headers'] = $headers;
 				break;
 				
 			default:
