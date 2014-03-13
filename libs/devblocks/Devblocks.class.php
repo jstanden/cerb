@@ -400,7 +400,17 @@ class DevblocksPlatform extends DevblocksEngine {
 		// Pre-process blockquotes
 		if(!$skip_blockquotes) {
 			$dom = new DOMDocument('1.0', LANG_CHARSET_CODE);
+			$dom->strictErrorChecking = false;
+			$dom->recover = true;
+			$dom->validateOnParse = false;
+			
+			libxml_use_internal_errors(true);
+			
 			$dom->loadHTML(sprintf('<?xml encoding="%s">', LANG_CHARSET_CODE) . $str);
+			
+			$errors = libxml_get_errors();
+			libxml_clear_errors();
+			
 			$xpath = new DOMXPath($dom);
 			
 			while(($blockquotes = $xpath->query('//blockquote')) && $blockquotes->length) {
@@ -429,11 +439,17 @@ class DevblocksPlatform extends DevblocksEngine {
 				}
 			}
 			
-			$str = $dom->saveXML();
-		}
+			$html = $dom->saveXML();
 			
+			// Make sure it's not blank before trusting it.
+			if(!empty($html)) {
+				$str = $html;
+				unset($html);
+			}
+		}
+		
 		$str = preg_replace_callback(
-			'@<code[^>]*?>(.*?)</code>@siu',
+			'@<code[^>]*?>(.*?)</code>@si',
 			function($matches) {
 				if(isset($matches[1])) {
 					$out = $matches[1];
@@ -445,7 +461,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		);
 		
 		$str = preg_replace_callback(
-			'#<pre.*?/pre\>#s',
+			'#<pre.*?/pre\>#si',
 			function($matches) {
 				if(isset($matches[0])) {
 					$out = $matches[0];
@@ -525,15 +541,15 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Strip non-content tags
 		$search = array(
-			'@<head[^>]*?>.*?</head>@siu',
-			'@<style[^>]*?>.*?</style>@siu',
-			'@<script[^>]*?.*?</script>@siu',
-			'@<object[^>]*?.*?</object>@siu',
-			'@<embed[^>]*?.*?</embed>@siu',
-			'@<applet[^>]*?.*?</applet>@siu',
-			'@<noframes[^>]*?.*?</noframes>@siu',
-			'@<noscript[^>]*?.*?</noscript>@siu',
-			'@<noembed[^>]*?.*?</noembed>@siu',
+			'@<head[^>]*?>.*?</head>@si',
+			'@<style[^>]*?>.*?</style>@si',
+			'@<script[^>]*?.*?</script>@si',
+			'@<object[^>]*?.*?</object>@si',
+			'@<embed[^>]*?.*?</embed>@si',
+			'@<applet[^>]*?.*?</applet>@si',
+			'@<noframes[^>]*?.*?</noframes>@si',
+			'@<noscript[^>]*?.*?</noscript>@si',
+			'@<noembed[^>]*?.*?</noembed>@si',
 		);
 		$str = preg_replace($search, '', $str);
 		
