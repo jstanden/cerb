@@ -116,11 +116,10 @@ var $frm = $('#{$uniqid}').each(function(e) {
 				$bubbles.append($('<li><tt>!option3</tt></li>'));
 				
 			} else if (field_type == 'FT') {
-				$bubbles.append($('<li><tt>word</tt></li>'));
-				$bubbles.append($('<li><tt>multiple words</tt></li>'));
-				$bubbles.append($('<li><tt>"exact phrase"</tt></li>'));
-				$bubbles.append($('<li><tt>-not -these -words</tt></li>'));
-				$bubbles.append($('<li><tt>+required +words</tt></li>'));
+				$bubbles.append($('<li><tt>a multiple word phrase</tt></li>'));
+				$bubbles.append($('<li><tt>"any" "of" "these" "words"</tt></li>'));
+				$bubbles.append($('<li><tt>"this phrase" or any of these words</tt></li>'));
+				$bubbles.append($('<li><tt>person@example.com</tt></li>'));
 				
 			} else if (field_type == 'N') {
 				$bubbles.append($('<li><tt>&gt; 0</tt></li>'));

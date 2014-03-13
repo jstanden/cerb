@@ -318,18 +318,28 @@ class DevblocksSearchCriteria {
 									
 							// If the user didn't provide their own quotes
 							} else {
-								// Split terms on spaces
-								$terms = explode(' ', $value);
 								
-								foreach($terms as $term_idx => $term) {
-									if(false === strpos($term, '*'))
-										$matches = null;
-										if(preg_match('#([\+\-]*)(\S*)#ui', $term, $matches)) {
-											$terms[$term_idx] = sprintf('%s"%s"', $matches[1], $matches[2]);
-										}
+								// And they didn't use wildcards
+								if(false === strpos($value, '*')) {
+									// Wrap the entire text in quotes
+									$value = '"' . implode(' ', $search->removeStopWords(explode(' ', $value))) . '"';
+									
+								// Or they did use wildcards
+								} else {
+									// Split terms on spaces
+									$terms = explode(' ', $value);
+									
+									// Quote each term if it doesn't contain wildcards
+									foreach($terms as $term_idx => $term) {
+										if(false === strpos($term, '*'))
+											$matches = null;
+											if(preg_match('#([\+\-]*)(\S*)#ui', $term, $matches)) {
+												$terms[$term_idx] = sprintf('%s"%s"', $matches[1], $matches[2]);
+											}
+									}
+									
+									$value = implode(' ', $terms);
 								}
-								
-								$value = implode(' ', $terms);
 								
 							}
 						}

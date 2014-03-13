@@ -48,7 +48,8 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 
 		// If this is the 'new comment on convo in group' event, simulate a comment
 		if(empty($comment_id) && get_class($this) == 'Event_CommentOnTicketInGroup') {
-			$comment_id = DAO_Comment::random();
+			if(!empty($ticket_id))
+				$comment_id = DAO_Comment::random(CerberusContexts::CONTEXT_TICKET, $ticket_id);
 		}
 		
 		return new Model_DevblocksEvent(
