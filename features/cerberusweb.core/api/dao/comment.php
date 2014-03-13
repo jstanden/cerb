@@ -244,7 +244,14 @@ class DAO_Comment extends Cerb_ORMHelper {
 		return true;
 	}
 	
-	public static function random() {
+	public static function random($context=null, $context_id=null) {
+		if(!empty($context)) {
+			$comments = DAO_Comment::getByContext($context, $context_id);
+			
+			if(!empty($comments))
+				return array_shift($comments);
+		}
+		
 		return self::_getRandom('comment');
 	}
 	
