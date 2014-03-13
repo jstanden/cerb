@@ -2988,9 +2988,9 @@ class DevblocksEventHelper {
 		@$trigger = $dict->_trigger;
 		@$to_vars = @$params['to_var'];
 		$to = array();
-		
+
 		if(isset($params['to']) && !empty($params['to'])) {
-			if(false == ($to_string = $tpl_builder->build($params['to'], $dict)))
+			if(false === ($to_string = $tpl_builder->build($params['to'], $dict)))
 				return "[ERROR] The 'to' field has invalid placeholders.";
 			
 			$to = DevblocksPlatform::parseCsvString($to_string);
