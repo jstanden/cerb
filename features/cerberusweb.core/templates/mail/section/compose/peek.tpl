@@ -187,7 +187,7 @@
 	</ul>
 </fieldset>
 
-<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
+<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'display.ui.send_message'|devblocks_translate}</button>
 </form>
 
 <script type="text/javascript">
