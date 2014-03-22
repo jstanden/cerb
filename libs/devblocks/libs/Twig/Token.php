@@ -13,8 +13,7 @@
 /**
  * Represents a Token.
  *
- * @package twig
- * @author  Fabien Potencier <fabien@symfony.com>
+ * @author Fabien Potencier <fabien@symfony.com>
  */
 class Twig_Token
 {
@@ -57,7 +56,7 @@ class Twig_Token
      */
     public function __toString()
     {
-        return sprintf('%s(%s)', self::typeToString($this->type, true, $this->lineno), $this->value);
+        return sprintf('%s(%s)', self::typeToString($this->type, true), $this->value);
     }
 
     /**
@@ -122,11 +121,10 @@ class Twig_Token
      *
      * @param integer $type  The type as an integer
      * @param Boolean $short Whether to return a short representation or not
-     * @param integer $line  The code line
      *
      * @return string The string representation
      */
-    static public function typeToString($type, $short = false, $line = -1)
+    public static function typeToString($type, $short = false)
     {
         switch ($type) {
             case self::EOF_TYPE:
@@ -169,7 +167,7 @@ class Twig_Token
                 $name = 'INTERPOLATION_END_TYPE';
                 break;
             default:
-                throw new Twig_Error_Syntax(sprintf('Token of type "%s" does not exist.', $type), $line);
+                throw new LogicException(sprintf('Token of type "%s" does not exist.', $type));
         }
 
         return $short ? $name : 'Twig_Token::'.$name;
@@ -179,11 +177,10 @@ class Twig_Token
      * Returns the english representation of a given type.
      *
      * @param integer $type The type as an integer
-     * @param integer $line The code line
      *
      * @return string The string representation
      */
-    static public function typeToEnglish($type, $line = -1)
+    public static function typeToEnglish($type)
     {
         switch ($type) {
             case self::EOF_TYPE:
@@ -213,7 +210,7 @@ class Twig_Token
             case self::INTERPOLATION_END_TYPE:
                 return 'end of string interpolation';
             default:
-                throw new Twig_Error_Syntax(sprintf('Token of type "%s" does not exist.', $type), $line);
+                throw new LogicException(sprintf('Token of type "%s" does not exist.', $type));
         }
     }
 }
