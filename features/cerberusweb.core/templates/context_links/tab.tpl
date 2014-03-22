@@ -161,20 +161,20 @@ $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function()
 </script>
 
 <script type="text/javascript">
-	$connections = $('#divConnections');
+	var $connections = $('#divConnections');
 	
-	$ajaxQueue = $({});
+	var $ajaxQueue = $({});
 
 	{foreach from=$contexts item=to_context}
 	$ajaxQueue.queue(function(next) {
-		$div = $('<div style="margin-bottom:10px;"></div>');
+		var $div = $('<div style="margin-bottom:10px;"></div>');
 		$div
 			.appendTo($connections)
 			.html($('<div class="lazy" style="font-size:18pt;text-align:center;padding:50px;margin:20px;background-color:rgb(232,242,255);">Loading...</div>'))
 			;
 		
-		window_fold = $(window).height() + $(window).scrollTop();
-		div_top = $div.offset().top;
+		var window_fold = $(window).height() + $(window).scrollTop();
+		var div_top = $div.offset().top;
 
 		if(div_top > window_fold + 100) {
 			$div.one('appear',function(event) {
@@ -222,9 +222,9 @@ $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function()
 	{/foreach}
 
 	$(window).scroll(function(event) {
-		window_fold = $(window).height() + $(window).scrollTop();
+		var window_fold = $(window).height() + $(window).scrollTop();
 		
-		$lazies = $connections.find('DIV.lazy');
+		var $lazies = $connections.find('DIV.lazy');
 
 		// If we have nothing else to load, unbind
 		if(0 == $lazies.length) {
@@ -233,7 +233,7 @@ $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function()
 		}
 		
 		$lazies.each(function() {
-			div_top = $(this).offset().top;
+			var div_top = $(this).offset().top;
 			if(div_top < window_fold + 50) {
 				$(this)
 					.removeClass('lazy')

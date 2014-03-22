@@ -457,7 +457,7 @@ $.fn.extend({
 			
 			// Loop through multiple series
 			for(series_idx in params.series) {
-				series = params.series[series_idx];
+				var series = params.series[series_idx];
 				
 				if(null == series.data)
 					continue;
@@ -660,7 +660,7 @@ $.fn.extend({
 						if(null == series.data || 0 == series.data.length)
 							continue;
 						
-						val = series.data[idx].y;
+						var val = series.data[idx].y;
 						
 						stack_data[idx].total += val;
 						
@@ -705,7 +705,7 @@ $.fn.extend({
 					else
 						color = '#455460';
 			
-					x = 0;
+					var x = 0;
 					
 					for(idx in series.data) {
 						try {
