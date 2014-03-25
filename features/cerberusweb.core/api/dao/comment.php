@@ -134,6 +134,30 @@ class DAO_Comment extends Cerb_ORMHelper {
 		return self::_getObjectsFromResult($rs);
 	}
 	
+	static function getContextIdsByContextAndIds($context, $ids) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(!is_array($ids))
+			$ids = array($ids);
+		
+		if(empty($ids))
+			return array();
+		
+		$sql = sprintf("SELECT DISTINCT context_id FROM comment WHERE context = %s AND id IN (%s)",
+			$db->qstr($context),
+			implode(',', $ids)
+		);
+		$rows = $db->GetArray($sql);
+		
+		$ids = array();
+		
+		foreach($rows as $row) {
+			$ids[] = intval($row['context_id']);
+		}
+		
+		return $ids;
+	}
+	
 	static function getByContext($context, $context_ids) {
 		if(!is_array($context_ids))
 			$context_ids = array($context_ids);

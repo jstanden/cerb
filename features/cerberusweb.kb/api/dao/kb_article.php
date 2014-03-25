@@ -296,10 +296,6 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			$join_sql .= "LEFT JOIN kb_article_to_category katc ON (kb.id=katc.kb_article_id) ";
 		}
 		
-		if(isset($tables['ftkb'])) {
-			$join_sql .= 'LEFT JOIN fulltext_kb_article ftkb ON (ftkb.id=kb.id) ';
-		}
-		
 		// [JAS]: Dynamic table joins
 		if(isset($tables['context_link']))
 			$join_sql .= "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.kb_article' AND context_link.to_context_id = kb.id) ";
@@ -356,6 +352,20 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		settype($param_key, 'string');
 		
 		switch($param_key) {
+			case SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT:
+				$search = DevblocksPlatform::getSearchService();
+				$query = $search->getQueryFromParam($param);
+				$ids = $search->query('kb_article', $query, array(), 250, true);
+				
+				if(empty($ids))
+					$ids = array(-1);
+				
+				$args['where_sql'] .= sprintf('AND %s IN (%s) ',
+					$from_index,
+					implode(', ', $ids)
+				);
+				break;
+			
 			case SearchFields_KbArticle::VIRTUAL_CONTEXT_LINK:
 				$args['has_multiple_values'] = true;
 				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
@@ -464,14 +474,10 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
+				
+			self::FULLTEXT_ARTICLE_CONTENT => new DevblocksSearchField(self::FULLTEXT_ARTICLE_CONTENT, 'ftkb', 'content', $translate->_('kb_article.content'), 'FT'),
 		);
 
-		// Fulltext
-		$tables = DevblocksPlatform::getDatabaseTables();
-		if(isset($tables['fulltext_kb_article'])) {
-			$columns[self::FULLTEXT_ARTICLE_CONTENT] = new DevblocksSearchField(self::FULLTEXT_ARTICLE_CONTENT, 'ftkb', 'content', $translate->_('kb_article.content'), 'FT');
-		}
-		
 		// Custom fields with fieldsets
 		
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(

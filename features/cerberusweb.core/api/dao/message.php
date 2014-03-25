@@ -299,9 +299,9 @@ class DAO_Message extends Cerb_ORMHelper {
 		$join_sql = "FROM message m ".
 			"INNER JOIN ticket t ON (m.ticket_id = t.id) ".
 			"INNER JOIN address a ON (m.address_id = a.id) ".
-			(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=m.id)" : " ").
-			(isset($tables['ftmc']) ? "INNER JOIN fulltext_message_content ftmc ON (ftmc.id=m.id)" : " ");
-			
+			(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=m.id)" : " ")
+			;
+		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
@@ -347,6 +347,20 @@ class DAO_Message extends Cerb_ORMHelper {
 		settype($param_key, 'string');
 
 		switch($param_key) {
+			case SearchFields_Message::MESSAGE_CONTENT:
+				$search = DevblocksPlatform::getSearchService();
+				$query = $search->getQueryFromParam($param);
+				$ids = $search->query(Search_MessageContent::getNamespace(), $query, array(), 250);
+				
+				if(empty($ids))
+					$ids = array(-1);
+				
+				$args['where_sql'] .= sprintf('AND %s IN (%s) ',
+					$from_index,
+					implode(', ', $ids)
+				);
+				break;
+			
 			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
 				$values = $param->value;
 				if(!is_array($values))
@@ -521,10 +535,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::VIRTUAL_TICKET_STATUS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_STATUS, '*', 'ticket_status', $translate->_('ticket.status')),
 		);
 	
-		$tables = DevblocksPlatform::getDatabaseTables();
-		if(isset($tables['fulltext_message_content'])) {
-			$columns[SearchFields_Message::MESSAGE_CONTENT] = new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('common.content'), 'FT');
-		}
+		$columns[SearchFields_Message::MESSAGE_CONTENT] = new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('common.content'), 'FT');
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');

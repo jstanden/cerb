@@ -1325,11 +1325,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			((isset($tables['r']) || isset($tables['ra'])) ? "INNER JOIN requester r ON (r.ticket_id=t.id) " : " ").
 			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 			(isset($tables['msg']) || isset($tables['ftmc']) || isset($tables['ftnc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
-			(isset($tables['ftcc']) ? "INNER JOIN comment ON (comment.context = 'cerberusweb.contexts.ticket' AND comment.context_id = t.id) " : " ").
-			(isset($tables['ftcc']) ? "INNER JOIN fulltext_comment_content ftcc ON (ftcc.id=comment.id) " : " ").
-			(isset($tables['ftmc']) ? "INNER JOIN fulltext_message_content ftmc ON (ftmc.id=msg.id) " : " ").
-			(isset($tables['ftnc']) ? "INNER JOIN comment AS note ON (note.context = 'cerberusweb.contexts.message' AND note.context_id = msg.id) " : " ").
-			(isset($tables['ftnc']) ? "INNER JOIN fulltext_comment_content AS ftnc ON (ftnc.id=note.id) " : " ").
 			(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
 			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.ticket' AND context_link.to_context_id = t.id) " : " ")
 			;
@@ -1403,6 +1398,45 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		settype($param_key, 'string');
 
 		switch($param_key) {
+			case SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT:
+				$search = DevblocksPlatform::getSearchService();
+				$query = $search->getQueryFromParam($param);
+				$ids = Search_CommentContent::query($query, array('context' => $from_context), 250);
+				
+				$from_ids = DAO_Comment::getContextIdsByContextAndIds($from_context, $ids);
+				
+				$args['where_sql'] .= sprintf('AND %s IN (%s) ',
+					$from_index,
+					implode(', ', (!empty($from_ids) ? $from_ids : array(-1)))
+				);
+				break;
+				
+			case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
+				$search = DevblocksPlatform::getSearchService();
+				$query = $search->getQueryFromParam($param);
+				$ids = $search->query(Search_MessageContent::getNamespace(), $query, array(), 250);
+				
+				if(empty($ids))
+					$ids = array(-1);
+				
+				$args['where_sql'] .= sprintf('AND msg.id IN (%s) ',
+					implode(', ', $ids)
+				);
+				break;
+				
+			case SearchFields_Ticket::FULLTEXT_NOTE_CONTENT:
+				$search = DevblocksPlatform::getSearchService();
+				$query = $search->getQueryFromParam($param);
+				$ids = Search_CommentContent::query($query, array('context' => CerberusContexts::CONTEXT_MESSAGE), 250);
+				
+				$from_ids = DAO_Comment::getContextIdsByContextAndIds(CerberusContexts::CONTEXT_MESSAGE, $ids);
+				
+				// [TODO] This approach doesn't stack with comment searching, because they're "id in (1,2,3) AND id IN (4,5,6)"
+				$args['where_sql'] .= sprintf('AND msg.id IN (%s) ',
+					implode(', ', (!empty($from_ids) ? $from_ids : array(-1)))
+				);
+				break;
+			
 			case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
 				$args['has_multiple_values'] = true;
 				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
@@ -1680,18 +1714,11 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_STATUS, '*', 'status', $translate->_('ticket.status')),
 			SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
+				
+			SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT'),
+			SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT => new DevblocksSearchField(self::FULLTEXT_MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('message.content'), 'FT'),
+			SearchFields_Ticket::FULLTEXT_NOTE_CONTENT => new DevblocksSearchField(self::FULLTEXT_NOTE_CONTENT, 'ftnc', 'content', $translate->_('message.note.content'), 'FT'),
 		);
-
-		$tables = DevblocksPlatform::getDatabaseTables();
-		if(isset($tables['fulltext_comment_content'])) {
-			$columns[self::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT');
-		}
-		if(isset($tables['fulltext_message_content'])) {
-			$columns[self::FULLTEXT_MESSAGE_CONTENT] = new DevblocksSearchField(self::FULLTEXT_MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('message.content'), 'FT');
-		}
-		if(isset($tables['fulltext_comment_content'])) {
-			$columns[self::FULLTEXT_NOTE_CONTENT] = new DevblocksSearchField(self::FULLTEXT_NOTE_CONTENT, 'ftnc', 'content', $translate->_('message.note.content'), 'FT');
-		}
 		
 		// Custom fields with fieldsets
 		
