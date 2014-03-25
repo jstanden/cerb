@@ -34,16 +34,25 @@ class _DevblocksSearchEngineMysqlFulltext extends _DevblocksSearchEngine {
 		$escaped_query = mysql_real_escape_string($query);
 		$where_sql = null;
 		
+		// [TODO] Attributes
+		if(is_array($attributes))
+		foreach($attributes as $attr => $attr_val) {
+			$where_sql[] = sprintf("%s = '%s'",
+				mysql_real_escape_string($attr),
+				mysql_real_escape_string($attr_val)
+			);
 		}
 		
 		$sql = sprintf("SELECT id, MATCH content AGAINST ('%s' IN BOOLEAN MODE) AS score ".
 			"FROM fulltext_%s ".
 			"WHERE MATCH content AGAINST ('%s' IN BOOLEAN MODE) ".
+			"%s ".
 			"ORDER BY score DESC ".
 			"LIMIT 0,%d ",
 			$escaped_query,
 			$this->escapeNamespace($ns),
 			$escaped_query,
+			!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : '',
 			$limit
 		);
 		
@@ -308,6 +317,7 @@ class _DevblocksSearchEngineMysqlFulltext extends _DevblocksSearchEngine {
 		return $value;
 	}
 	
+	private function _index($class, $id, $content, $attributes=array()) {
 		$ns = call_user_func(array($class, 'getNamespace'));
 		$content = $this->prepareText($content);
 		
@@ -315,6 +325,12 @@ class _DevblocksSearchEngineMysqlFulltext extends _DevblocksSearchEngine {
 			'id' => intval($id),
 			'content' => sprintf("'%s'", mysql_real_escape_string($content)),
 		);
+		
+		// Attributes
+		if(is_array($attributes))
+		foreach($attributes as $k => $v) {
+			$fields[mysql_real_escape_string($k)] = sprintf("'%s'", mysql_real_escape_string($v));
+		}
 		
 		$sql = sprintf("REPLACE INTO fulltext_%s (%s) VALUES (%s) ",
 			$this->escapeNamespace($ns),
@@ -326,11 +342,11 @@ class _DevblocksSearchEngineMysqlFulltext extends _DevblocksSearchEngine {
 		return (false !== $result) ? true : false;
 	}
 	
-	public function index($ns, $id, $content, $replace=true) {
-		if(false === ($ids = $this->_index($ns, $id, $content, $replace))) {
+	public function index($class, $id, $content, $attributes=array()) {
+		if(false === ($ids = $this->_index($class, $id, $content, $attributes))) {
 			// Create the table dynamically
-			if($this->_createTable($ns)) {
-				return $this->_index($ns, $id, $content, $replace);
+			if($this->_createTable($class)) {
+				return $this->_index($class, $id, $content, $attributes);
 			}
 			return false;
 		}
@@ -338,7 +354,50 @@ class _DevblocksSearchEngineMysqlFulltext extends _DevblocksSearchEngine {
 		return true;
 	}
 	
-	private function _createTable($namespace) {
+	private function _createTable($class) {
+		$namespace = call_user_func(array($class, 'getNamespace'));
+		
+		$attributes_sql = array();
+		
+		if(method_exists($class, 'getAttributes')) {
+			$attributes = call_user_func(array($class, 'getAttributes'));
+			
+			if(is_array($attributes))
+			foreach($attributes as $attr => $type) {
+				$field_type = null;
+				
+				switch($type) {
+					case 'text':
+					case 'string':
+						$field_type = 'varchar(255)';
+						break;
+						
+					case 'int':
+						$field_type = 'integer default 0';
+						break;
+						
+					case 'uint4':
+						$field_type = 'int unsigned default 0';
+						break;
+						
+					case 'uint8':
+						$field_type = 'bigint unsigned default 0';
+						break;
+						
+					default:
+						break;
+				}
+				
+				if(null == $field_type)
+					return false;
+				
+				$attributes_sql[] = sprintf("%s %s,",
+					mysql_real_escape_string($attr),
+					mysql_real_escape_string($field_type)
+				);
+			}
+		}
+		
 		$rs = mysql_query("SHOW TABLES", $this->_db);
 
 		$tables = array();
@@ -355,11 +414,12 @@ class _DevblocksSearchEngineMysqlFulltext extends _DevblocksSearchEngine {
 			"CREATE TABLE IF NOT EXISTS fulltext_%s (
 				id INT UNSIGNED NOT NULL DEFAULT 0,
 				content LONGTEXT,
+				%s
 				PRIMARY KEY (id),
 				FULLTEXT content (content)
 			) ENGINE=MyISAM CHARACTER SET=utf8;", // MUST stay ENGINE=MyISAM
-			$this->escapeNamespace($namespace)
-		), $this->_db);
+			$this->escapeNamespace($namespace),
+			(!empty($attributes_sql) ? implode(",\n", $attributes_sql) : '')
 		);
 		
 		$result = mysql_query($sql, $this->_db);

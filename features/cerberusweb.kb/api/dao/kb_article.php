@@ -501,6 +501,10 @@ class Search_KbArticle {
 		return 'kb_article';
 	}
 	
+	public static function getAttributes() {
+		return array();
+	}
+	
 	public static function query($query, $attributes=array(), $limit=250) {
 		$logger = DevblocksPlatform::getConsoleLog();
 		

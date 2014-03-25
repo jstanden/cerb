@@ -559,6 +559,12 @@ class Search_CommentContent {
 		return 'comment_content';
 	}
 	
+	public static function getAttributes() {
+		return array(
+			'context' => 'string',
+		);
+	}
+	
 	public static function query($query, $attributes=array(), $limit=250) {
 		$logger = DevblocksPlatform::getConsoleLog();
 		

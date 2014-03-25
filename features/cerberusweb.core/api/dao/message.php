@@ -608,6 +608,10 @@ class Search_MessageContent {
 		return 'message_content';
 	}
 	
+	public static function getAttributes() {
+		return array();
+	}
+	
 	public static function query($query, $attributes=array(), $limit=250) {
 		$logger = DevblocksPlatform::getConsoleLog();
 		
