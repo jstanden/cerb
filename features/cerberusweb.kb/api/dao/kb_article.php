@@ -491,6 +491,23 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 class Search_KbArticle {
 	const ID = 'cerberusweb.search.schema.kb_article';
 	
+	public static function getNamespace() {
+		return 'kb_article';
+	}
+	
+	public static function query($query, $attributes=array(), $limit=250) {
+		$logger = DevblocksPlatform::getConsoleLog();
+		
+		if(false == ($search = DevblocksPlatform::getSearchService())) {
+			$logger->error("[Search] The search engine is misconfigured.");
+			return;
+		}
+		
+		$ids = $search->query(self::getNamespace(), $query, $attributes, $limit);
+		
+		return $ids;
+	}
+	
 	public static function index($stop_time=null) {
 		$logger = DevblocksPlatform::getConsoleLog();
 		
@@ -499,7 +516,7 @@ class Search_KbArticle {
 			return;
 		}
 		
-		$ns = 'kb_article';
+		$ns = self::getNamespace();
 		$id = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'last_indexed_id', 0);
 		$ptr_time = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'last_indexed_time', 0);
 		$ptr_id = $id;
@@ -533,7 +550,7 @@ class Search_KbArticle {
 					$id
 				));
 				
-				$search->index($ns, $id, $article->title . ' ' . strip_tags($article->content), true);
+				$search->index(__CLASS__, $id, $article->title . ' ' . strip_tags($article->content));
 				
 				flush();
 			}
@@ -547,6 +564,15 @@ class Search_KbArticle {
 		
 		DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_id', $ptr_id);
 		DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_time', $ptr_time);
+	}
+	
+	public static function delete($ids) {
+		if(false == ($search = DevblocksPlatform::getSearchService())) {
+			$logger->error("[Search] The search engine is misconfigured.");
+			return;
+		}
+		
+		return $search->delete(self::getNamespace(), $ids);
 	}
 };
 

@@ -593,6 +593,23 @@ class Model_Message {
 class Search_MessageContent {
 	const ID = 'cerberusweb.search.schema.message_content';
 	
+	public static function getNamespace() {
+		return 'message_content';
+	}
+	
+	public static function query($query, $attributes=array(), $limit=250) {
+		$logger = DevblocksPlatform::getConsoleLog();
+		
+		if(false == ($search = DevblocksPlatform::getSearchService())) {
+			$logger->error("[Search] The search engine is misconfigured.");
+			return;
+		}
+		
+		$ids = $search->query(self::getNamespace(), $query, $attributes, $limit);
+		
+		return $ids;
+	}
+	
 	public static function index($stop_time=null) {
 		$logger = DevblocksPlatform::getConsoleLog();
 		
@@ -601,7 +618,7 @@ class Search_MessageContent {
 			return;
 		}
 		
-		$ns = 'message_content';
+		$ns = self::getNamespace();
 		$id = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'last_indexed_id', 0);
 		$done = false;
 		
@@ -637,7 +654,7 @@ class Search_MessageContent {
 					if(false !== ($subject = DAO_MessageHeader::getOne($id, 'subject')))
 						$content = $subject . ' ' . $content;
 					
-					$search->index($ns, $id, $content, true);
+					$search->index(__CLASS__, $id, $content);
 				}
 
 				// Record our progress every 10th index
@@ -661,8 +678,7 @@ class Search_MessageContent {
 			return;
 		}
 		
-		$ns = 'message_content';
-		return $search->delete($ns, $ids);
+		return $search->delete(self::getNamespace(), $ids);
 	}
 };
 

@@ -531,6 +531,23 @@ class SearchFields_Comment implements IDevblocksSearchFields {
 class Search_CommentContent {
 	const ID = 'cerberusweb.search.schema.comment_content';
 	
+	public static function getNamespace() {
+		return 'comment_content';
+	}
+	
+	public static function query($query, $attributes=array(), $limit=250) {
+		$logger = DevblocksPlatform::getConsoleLog();
+		
+		if(false == ($search = DevblocksPlatform::getSearchService())) {
+			$logger->error("[Search] The search engine is misconfigured.");
+			return;
+		}
+		
+		$ids = $search->query(self::getNamespace(), $query, $attributes, $limit);
+		
+		return $ids;
+	}
+	
 	public static function index($stop_time=null) {
 		$logger = DevblocksPlatform::getConsoleLog();
 		
@@ -539,7 +556,7 @@ class Search_CommentContent {
 			return;
 		}
 		
-		$ns = 'comment_content';
+		$ns = self::getNamespace();
 		$id = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'last_indexed_id', 0);
 		$done = false;
 		
@@ -567,7 +584,7 @@ class Search_CommentContent {
 				
 				if(!empty($content)) {
 					$content = $search->truncateOnWhitespace($content, 10000);
-					$search->index($ns, $id, $content, true);
+					$search->index(__CLASS__, $id, $content, array('context' => $comment->context));
 				}
 
 				// Record our progress every 10th index
@@ -591,8 +608,7 @@ class Search_CommentContent {
 			return;
 		}
 		
-		$ns = 'comment_content';
-		return $search->delete($ns, $ids);
+		return $search->delete(self::getNamespace(), $ids);
 	}
 };
 
