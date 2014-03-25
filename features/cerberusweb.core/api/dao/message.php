@@ -350,7 +350,7 @@ class DAO_Message extends Cerb_ORMHelper {
 			case SearchFields_Message::MESSAGE_CONTENT:
 				$search = DevblocksPlatform::getSearchService();
 				$query = $search->getQueryFromParam($param);
-				$ids = $search->query(Search_MessageContent::getNamespace(), $query, array(), 250);
+				$ids = Search_MessageContent::query($query, array(), 250);
 				
 				if(empty($ids))
 					$ids = array(-1);
@@ -620,7 +620,7 @@ class Search_MessageContent {
 			return;
 		}
 		
-		$ids = $search->query(self::getNamespace(), $query, $attributes, $limit);
+		$ids = $search->query(__CLASS__, $query, $attributes, $limit);
 		
 		return $ids;
 	}
@@ -665,15 +665,16 @@ class Search_MessageContent {
 					// Truncate to 10KB
 					$content = $search->truncateOnWhitespace($content, 10000);
 					
-					// Prepend per-message subject
-					if(false !== ($subject = DAO_MessageHeader::getOne($id, 'subject')))
-						$content = $subject . ' ' . $content;
+					// Prepend subject
+					if(false !== ($ticket = DAO_Ticket::get($message->ticket_id))) {
+						$content = $ticket->subject . ' ' . $content;
+					}
 					
 					$search->index(__CLASS__, $id, $content);
 				}
 
-				// Record our progress every 10th index
-				if(++$count % 10 == 0) {
+				// Record our progress every 25th index
+				if(++$count % 25 == 0) {
 					if(!empty($id))
 						DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_id', $id);
 				}

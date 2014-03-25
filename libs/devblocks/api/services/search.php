@@ -15,7 +15,37 @@ class _DevblocksSearchManager {
 	}
 };
 
-class _DevblocksSearchEngine {
+
+interface IDevblocksSearchEngine {
+	public function getQueryFromParam($param);
+	public function query($class, $query, array $attributes=array(), $limit=250);
+	public function index($class, $id, $content, array $attributes=array());
+	public function delete($class, $ids);
+}
+
+abstract class _DevblocksSearchEngine implements IDevblocksSearchEngine {
+	protected function escapeNamespace($namespace) {
+		return strtolower(DevblocksPlatform::strAlphaNum($namespace, '\_'));
+	}
+	
+	public function truncateOnWhitespace($content, $length) {
+		$start = 0;
+		$len = mb_strlen($content);
+		$end = $start + $length;
+		$next_ws = $end;
+		
+		// If our offset is past EOS, use the last pos
+		if($end > $len) {
+			$next_ws = $len;
+			
+		} else {
+			if(false === ($next_ws = mb_strpos($content, ' ', $end)))
+				if(false === ($next_ws = mb_strpos($content, "\n", $end)))
+					$next_ws = $end;
+		}
+		
+		return mb_substr($content, $start, $next_ws-$start);
+	}
 }
 
 class _DevblocksSearchEngineMysqlFulltext extends _DevblocksSearchEngine {
@@ -26,21 +56,48 @@ class _DevblocksSearchEngineMysqlFulltext extends _DevblocksSearchEngine {
 		$this->_db = $db->getConnection();
 	}
 	
-	protected function escapeNamespace($namespace) {
-		return strtolower(DevblocksPlatform::strAlphaNum($namespace, '\_'));
-	}
-	
-	public function query($ns, $query, $attributes=array(), $limit=25) {
+	public function query($class, $query, array $attributes=array(), $limit=250) {
+		$ns = call_user_func(array($class, 'getNamespace'));
+		
 		$escaped_query = mysql_real_escape_string($query);
 		$where_sql = null;
 		
-		// [TODO] Attributes
-		if(is_array($attributes))
-		foreach($attributes as $attr => $attr_val) {
-			$where_sql[] = sprintf("%s = '%s'",
-				mysql_real_escape_string($attr),
-				mysql_real_escape_string($attr_val)
-			);
+		if(method_exists($class, 'getAttributes')) {
+			$schema_attributes = call_user_func(array($class, 'getAttributes'));
+			
+			if(is_array($attributes))
+			foreach($attributes as $attr => $attr_val) {
+				@$attr_type = $schema_attributes[$attr];
+				
+				if(empty($attr_type))
+					continue;
+				
+				switch($attr_type) {
+					case 'string':
+						$where_sql[] = sprintf("%s = '%s'",
+							mysql_real_escape_string($attr),
+							mysql_real_escape_string($attr_val)
+						);
+						break;
+					
+					case 'int':
+					case 'int4':
+					case 'int8':
+						$where_sql[] = sprintf("%s = %d",
+							mysql_real_escape_string($attr),
+							$attr_val
+						);
+						break;
+						
+					case 'uint4':
+					case 'uint8':
+						$where_sql[] = sprintf("%s = %u",
+							mysql_real_escape_string($attr),
+							$attr_val
+						);
+						break;
+				}
+			}
 		}
 		
 		$sql = sprintf("SELECT id, MATCH content AGAINST ('%s' IN BOOLEAN MODE) AS score ".
@@ -68,6 +125,116 @@ class _DevblocksSearchEngineMysqlFulltext extends _DevblocksSearchEngine {
 		}
 		
 		return $ids;
+	}
+	
+	public function getQueryFromParam($param) {
+		$values = array();
+		$value = null;
+		$scope = null;
+
+		if(!is_array($param->value) && !is_string($param->value))
+			break;
+		
+		if(!is_array($param->value) && preg_match('#^\[.*\]$#', $param->value)) {
+			$values = json_decode($param->value, true);
+			
+		} elseif(is_array($param->value)) {
+			$values = $param->value;
+			
+		} else {
+			$values = $param->value;
+			
+		}
+		
+		if(!is_array($values)) {
+			$value = $values;
+			$scope = 'expert';
+		} else {
+			$value = $values[0];
+			$scope = $values[1];
+		}
+		
+		switch($scope) {
+			case 'all':
+				$value = $this->prepareText($value);
+				$value = '+'.str_replace(' ', ' +', $value);
+				break;
+				
+			case 'any':
+				$value = $this->prepareText($value);
+				break;
+				
+			case 'phrase':
+				$value = '"'.$this->prepareText($value).'"';
+				break;
+				
+			default:
+			case 'expert':
+				// We don't want to strip punctuation in expert mode
+				$value = DevblocksPlatform::strUnidecode($value);
+				
+				// Left-hand wildcards aren't supported in MySQL fulltext
+				$value = ltrim($value, '*');
+				
+				// If this is a single term
+				if(false === strpos($value, ' ')) {
+					// If without quotes, wildcards, or plus, quote it (email addy, URL)
+					if(false === strpos($value, '"')
+						&& false === strpos($value, '*')
+						&& false === strpos($value, '+')
+						) {
+						if(preg_match('#([\+\-]*)(\S*)#ui', $value, $matches))
+							$value = sprintf('%s"%s"', $matches[1], $matches[2]);
+					}
+					
+				} else {
+					$search = $this;
+					
+					// If the user provided their own quotes
+					if(false !== strpos($value, '"')) {
+						
+						// Extract quotes and remove stop words
+						$value = preg_replace_callback(
+							'#"(.*?)"#',
+							function($matches) use ($search) {
+								return sprintf('"%s"', implode(' ', $search->removeStopWords(explode(' ', $matches[1]))));
+							},
+							$value
+						);
+							
+					// If the user didn't provide their own quotes
+					} else {
+						
+						// And they didn't use wildcards or booleans
+						if(false === strpos($value, '*') && false === strpos($value, '+')) {
+							// Wrap the entire text in quotes
+							$value = '"' . implode(' ', $search->removeStopWords(explode(' ', $value))) . '"';
+							
+						// Or they did use wildcards
+						} else if (false !== strpos($value, '*')) {
+							// Split terms on spaces
+							$terms = explode(' ', $value);
+							
+							// Quote each term if it doesn't contain wildcards
+							foreach($terms as $term_idx => $term) {
+								if(false === strpos($term, '*')) {
+									$matches = null;
+									if(preg_match('#([\+\-]*)(\S*)#ui', $term, $matches)) {
+										$terms[$term_idx] = sprintf('%s"%s"', $matches[1], $matches[2]);
+									}
+								}
+							}
+							
+							$value = implode(' ', $terms);
+						}
+						
+					}
+				}
+				
+				break;
+		}
+		
+		return $value;
 	}
 	
 	public function removeStopWords($words) {
@@ -167,25 +334,6 @@ class _DevblocksSearchEngineMysqlFulltext extends _DevblocksSearchEngine {
 		return $words;
 	}
 	
-	public function truncateOnWhitespace($content, $length) {
-		$start = 0;
-		$len = mb_strlen($content);
-		$end = $start + $length;
-		$next_ws = $end;
-		
-		// If our offset is past EOS, use the last pos
-		if($end > $len) {
-			$next_ws = $len;
-			
-		} else {
-			if(false === ($next_ws = mb_strpos($content, ' ', $end)))
-				if(false === ($next_ws = mb_strpos($content, "\n", $end)))
-					$next_ws = $end;
-		}
-			
-		return mb_substr($content, $start, $next_ws-$start);
-	}
-	
 	public function prepareText($text) {
 		$text = DevblocksPlatform::strUnidecode($text);
 
@@ -211,112 +359,6 @@ class _DevblocksSearchEngineMysqlFulltext extends _DevblocksSearchEngine {
 		return $text;
 	}
 	
-	public function getQueryFromParam($param) {
-		$values = array();
-		$value = null;
-		$scope = null;
-
-		if(!is_array($param->value) && !is_string($param->value))
-			break;
-		
-		if(!is_array($param->value) && preg_match('#^\[.*\]$#', $param->value)) {
-			$values = json_decode($param->value, true);
-			
-		} elseif(is_array($param->value)) {
-			$values = $param->value;
-			
-		} else {
-			$values = $param->value;
-			
-		}
-		
-		if(!is_array($values)) {
-			$value = $values;
-			$scope = 'expert';
-		} else {
-			$value = $values[0];
-			$scope = $values[1];
-		}
-		
-		switch($scope) {
-			case 'all':
-				$value = $this->prepareText($value);
-				$value = '+'.str_replace(' ', ' +', $value);
-				break;
-				
-			case 'any':
-				$value = $this->prepareText($value);
-				break;
-				
-			case 'phrase':
-				$value = '"'.$this->prepareText($value).'"';
-				break;
-				
-			default:
-			case 'expert':
-				// We don't want to strip punctuation in expert mode
-				$value = DevblocksPlatform::strUnidecode($value);
-				
-				// Left-hand wildcards aren't supported in MySQL fulltext
-				$value = ltrim($value, '*');
-				
-				// If this is a single term
-				if(false === strpos($value, ' ')) {
-					// If without quotes or wildcards, quote it (email addy, URL)
-					if(false === strpos($value, '"') && false === strpos($value, '*')) {
-						if(preg_match('#([\+\-]*)(\S*)#ui', $value, $matches))
-							$value = sprintf('%s"%s"', $matches[1], $matches[2]);
-					}
-					
-				} else {
-					$search = $this;
-					
-					// If the user provided their own quotes
-					if(false !== strpos($value, '"')) {
-						
-						// Extract quotes and remove stop words
-						$value = preg_replace_callback(
-							'#"(.*?)"#',
-							function($matches) use ($search) {
-								return sprintf('"%s"', implode(' ', $search->removeStopWords(explode(' ', $matches[1]))));
-							},
-							$value
-						);
-							
-					// If the user didn't provide their own quotes
-					} else {
-						
-						// And they didn't use wildcards
-						if(false === strpos($value, '*')) {
-							// Wrap the entire text in quotes
-							$value = '"' . implode(' ', $search->removeStopWords(explode(' ', $value))) . '"';
-							
-						// Or they did use wildcards
-						} else {
-							// Split terms on spaces
-							$terms = explode(' ', $value);
-							
-							// Quote each term if it doesn't contain wildcards
-							foreach($terms as $term_idx => $term) {
-								if(false === strpos($term, '*'))
-									$matches = null;
-									if(preg_match('#([\+\-]*)(\S*)#ui', $term, $matches)) {
-										$terms[$term_idx] = sprintf('%s"%s"', $matches[1], $matches[2]);
-									}
-							}
-							
-							$value = implode(' ', $terms);
-						}
-						
-					}
-				}
-				
-				break;
-		}
-		
-		return $value;
-	}
-	
 	private function _index($class, $id, $content, $attributes=array()) {
 		$ns = call_user_func(array($class, 'getNamespace'));
 		$content = $this->prepareText($content);
@@ -327,9 +369,33 @@ class _DevblocksSearchEngineMysqlFulltext extends _DevblocksSearchEngine {
 		);
 		
 		// Attributes
-		if(is_array($attributes))
-		foreach($attributes as $k => $v) {
-			$fields[mysql_real_escape_string($k)] = sprintf("'%s'", mysql_real_escape_string($v));
+		if(method_exists($class, 'getAttributes')) {
+			$schema_attributes = call_user_func(array($class, 'getAttributes'));
+			
+			if(is_array($attributes))
+			foreach($attributes as $attr => $attr_val) {
+				@$attr_type = $schema_attributes[$attr];
+				
+				if(empty($attr_type))
+					continue;
+				
+				switch($attr_type) {
+					case 'string':
+						$fields[mysql_real_escape_string($attr)] = sprintf("'%s'", mysql_real_escape_string($attr_val));
+						break;
+					
+					case 'int':
+					case 'int4':
+					case 'int8':
+						$fields[mysql_real_escape_string($attr)] = sprintf("%d", $attr_val);
+						break;
+						
+					case 'uint4':
+					case 'uint8':
+						$fields[mysql_real_escape_string($attr)] = sprintf("%u", $attr_val);
+						break;
+				}
+			}
 		}
 		
 		$sql = sprintf("REPLACE INTO fulltext_%s (%s) VALUES (%s) ",
@@ -342,7 +408,7 @@ class _DevblocksSearchEngineMysqlFulltext extends _DevblocksSearchEngine {
 		return (false !== $result) ? true : false;
 	}
 	
-	public function index($class, $id, $content, $attributes=array()) {
+	public function index($class, $id, $content, array $attributes=array()) {
 		if(false === ($ids = $this->_index($class, $id, $content, $attributes))) {
 			// Create the table dynamically
 			if($this->_createTable($class)) {
@@ -373,7 +439,12 @@ class _DevblocksSearchEngineMysqlFulltext extends _DevblocksSearchEngine {
 						break;
 						
 					case 'int':
-						$field_type = 'integer default 0';
+					case 'int4':
+						$field_type = 'int default 0';
+						break;
+						
+					case 'int8':
+						$field_type = 'bigint default 0';
 						break;
 						
 					case 'uint4':

@@ -513,7 +513,7 @@ class Search_KbArticle {
 			return;
 		}
 		
-		$ids = $search->query(self::getNamespace(), $query, $attributes, $limit);
+		$ids = $search->query(__CLASS__, $query, $attributes, $limit);
 		
 		return $ids;
 	}

@@ -27,14 +27,14 @@ if(!isset($columns['cache_ttl'])) {
 }
 
 // ===========================================================================
-// Add `context` to `fulltext_comment_content`
+// Add `context_crc32` to `fulltext_comment_content`
 
 if(isset($tables['fulltext_comment_content'])) {
 	list($columns, $indexes) = $db->metaTable('fulltext_comment_content');
 
-	if(!isset($columns['context'])) {
-		$db->Execute("ALTER TABLE fulltext_comment_content ADD COLUMN context VARCHAR(255)");
-		$db->Execute("UPDATE fulltext_comment_content INNER JOIN comment ON (fulltext_comment_content.id=comment.id) SET fulltext_comment_content.context = comment.context");
+	if(!isset($columns['context_crc32'])) {
+		$db->Execute("ALTER TABLE fulltext_comment_content ADD COLUMN context_crc32 INT UNSIGNED");
+		$db->Execute("UPDATE fulltext_comment_content INNER JOIN comment ON (fulltext_comment_content.id=comment.id) SET fulltext_comment_content.context_crc32 = CRC32(comment.context)");
 	}
 }
 

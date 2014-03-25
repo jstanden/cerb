@@ -561,7 +561,7 @@ class Search_CommentContent {
 	
 	public static function getAttributes() {
 		return array(
-			'context' => 'string',
+			'context_crc32' => 'uint4',
 		);
 	}
 	
@@ -573,7 +573,7 @@ class Search_CommentContent {
 			return;
 		}
 		
-		$ids = $search->query(self::getNamespace(), $query, $attributes, $limit);
+		$ids = $search->query(__CLASS__, $query, $attributes, $limit);
 		
 		return $ids;
 	}
@@ -614,11 +614,11 @@ class Search_CommentContent {
 				
 				if(!empty($content)) {
 					$content = $search->truncateOnWhitespace($content, 10000);
-					$search->index(__CLASS__, $id, $content, array('context' => $comment->context));
+					$search->index(__CLASS__, $id, $content, array('context_crc32' => sprintf("%u", crc32($comment->context))));
 				}
 
-				// Record our progress every 10th index
-				if(++$count % 10 == 0) {
+				// Record our progress every 25th index
+				if(++$count % 25 == 0) {
 					if(!empty($id))
 						DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_id', $id);
 				}

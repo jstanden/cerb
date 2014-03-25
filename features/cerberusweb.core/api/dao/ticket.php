@@ -1401,7 +1401,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			case SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT:
 				$search = DevblocksPlatform::getSearchService();
 				$query = $search->getQueryFromParam($param);
-				$ids = Search_CommentContent::query($query, array('context' => $from_context), 250);
+				$ids = Search_CommentContent::query($query, array('context_crc32' => sprintf("%u", crc32($from_context))), 250);
 				
 				$from_ids = DAO_Comment::getContextIdsByContextAndIds($from_context, $ids);
 				
