@@ -361,6 +361,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			'json_pretty' => new Twig_Filter_Method($this, 'filter_json_pretty'),
 			'md5' => new Twig_Filter_Method($this, 'filter_md5'),
 			'regexp' => new Twig_Filter_Method($this, 'filter_regexp'),
+			'secs_pretty' => new Twig_Filter_Method($this, 'filter_secs_pretty'),
 			'truncate' => new Twig_Filter_Method($this, 'filter_truncate'),
 		);
 	}
@@ -392,6 +393,10 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		}
 		
 		return $string;
+	}
+	
+	function filter_secs_pretty($string, $precision=0) {
+		return DevblocksPlatform::strSecsToString($string, $precision);
 	}
 	
 	/**
