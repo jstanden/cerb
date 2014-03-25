@@ -552,7 +552,7 @@ class SearchFields_Comment implements IDevblocksSearchFields {
 	}
 };
 
-class Search_CommentContent {
+class Search_CommentContent extends Extension_DevblocksSearchSchema {
 	const ID = 'cerberusweb.search.schema.comment_content';
 	
 	public static function getNamespace() {

@@ -601,7 +601,7 @@ class Model_Message {
 	}
 };
 
-class Search_MessageContent {
+class Search_MessageContent extends Extension_DevblocksSearchSchema {
 	const ID = 'cerberusweb.search.schema.message_content';
 	
 	public static function getNamespace() {

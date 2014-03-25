@@ -1535,6 +1535,23 @@ abstract class DevblocksHttpResponseListenerExtension extends DevblocksExtension
 	}
 };
 
+interface IDevblocksSearchSchema {
+	static function getAttributes();
+	static function query($query, $attributes=array(), $limit=250);
+	static function index($stop_time=null);
+}
+
+abstract class Extension_DevblocksSearchSchema extends DevblocksExtension implements IDevblocksSearchSchema {
+	public static function getAll($as_instances=false) {
+		$schemas = DevblocksPlatform::getExtensions('devblocks.search.schema', $as_instances);
+		if($as_instances)
+			DevblocksPlatform::sortObjects($schemas, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($schemas, 'name');
+		return $schemas;
+	}
+};
+
 abstract class Extension_DevblocksStorageEngine extends DevblocksExtension {
 	protected $_options = array();
 
@@ -1590,7 +1607,6 @@ abstract class Extension_DevblocksStorageSchema extends DevblocksExtension {
 		
 		return $stats;
 	}
-	
 };
 
 abstract class DevblocksControllerExtension extends DevblocksExtension implements DevblocksHttpRequestHandler {

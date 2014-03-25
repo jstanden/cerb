@@ -494,7 +494,7 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 	}
 };
 
-class Search_KbArticle {
+class Search_KbArticle extends Extension_DevblocksSearchSchema {
 	const ID = 'cerberusweb.search.schema.kb_article';
 	
 	public static function getNamespace() {
