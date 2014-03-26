@@ -16,39 +16,18 @@ class _DevblocksSearchManager {
 };
 
 
-interface IDevblocksSearchEngine {
-	public function getQueryFromParam($param);
-	public function query($class, $query, array $attributes=array(), $limit=250);
-	public function index($class, $id, $content, array $attributes=array());
-	public function delete($class, $ids);
-}
 
-abstract class _DevblocksSearchEngine implements IDevblocksSearchEngine {
-	protected function escapeNamespace($namespace) {
-		return strtolower(DevblocksPlatform::strAlphaNum($namespace, '\_'));
 	}
 	
-	public function truncateOnWhitespace($content, $length) {
-		$start = 0;
-		$len = mb_strlen($content);
-		$end = $start + $length;
-		$next_ws = $end;
-		
-		// If our offset is past EOS, use the last pos
-		if($end > $len) {
-			$next_ws = $len;
 			
 		} else {
-			if(false === ($next_ws = mb_strpos($content, ' ', $end)))
-				if(false === ($next_ws = mb_strpos($content, "\n", $end)))
-					$next_ws = $end;
 		}
 		
-		return mb_substr($content, $start, $next_ws-$start);
 	}
-}
 
-class _DevblocksSearchEngineMysqlFulltext extends _DevblocksSearchEngine {
+class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine {
+	const ID = 'devblocks.search.engine.mysql_fulltext';
+	
 	private $_db = null;
 	
 	public function __construct() {

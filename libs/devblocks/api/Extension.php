@@ -1535,6 +1535,47 @@ abstract class DevblocksHttpResponseListenerExtension extends DevblocksExtension
 	}
 };
 
+interface IDevblocksSearchEngine {
+	public function getQueryFromParam($param);
+	public function query($class, $query, array $attributes=array(), $limit=250);
+	public function index($class, $id, $content, array $attributes=array());
+	public function delete($class, $ids);
+}
+
+abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implements IDevblocksSearchEngine {
+	public static function getAll($as_instances=false) {
+		$engines = DevblocksPlatform::getExtensions('devblocks.search.engine', $as_instances);
+		if($as_instances)
+			DevblocksPlatform::sortObjects($engines, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($engines, 'name');
+		return $engines;
+	}
+	
+	protected function escapeNamespace($namespace) {
+		return strtolower(DevblocksPlatform::strAlphaNum($namespace, '\_'));
+	}
+	
+	public function truncateOnWhitespace($content, $length) {
+		$start = 0;
+		$len = mb_strlen($content);
+		$end = $start + $length;
+		$next_ws = $end;
+		
+		// If our offset is past EOS, use the last pos
+		if($end > $len) {
+			$next_ws = $len;
+			
+		} else {
+			if(false === ($next_ws = mb_strpos($content, ' ', $end)))
+				if(false === ($next_ws = mb_strpos($content, "\n", $end)))
+					$next_ws = $end;
+		}
+		
+		return mb_substr($content, $start, $next_ws-$start);
+	}
+};
+
 interface IDevblocksSearchSchema {
 	static function getAttributes();
 	static function query($query, $attributes=array(), $limit=250);
