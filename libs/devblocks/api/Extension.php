@@ -1536,10 +1536,12 @@ abstract class DevblocksHttpResponseListenerExtension extends DevblocksExtension
 };
 
 interface IDevblocksSearchEngine {
+	public function setConfig(array $config);
 	public function getQueryFromParam($param);
-	public function query($class, $query, array $attributes=array(), $limit=250);
-	public function index($class, $id, $content, array $attributes=array());
-	public function delete($class, $ids);
+	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=250);
+	public function index(Extension_DevblocksSearchSchema $schema, $id, $content, array $attributes=array());
+	public function delete(Extension_DevblocksSearchSchema $schema, $ids);
+	public function getCount(Extension_DevblocksSearchSchema $schema);
 }
 
 abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implements IDevblocksSearchEngine {
@@ -1550,6 +1552,28 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 		else
 			DevblocksPlatform::sortObjects($engines, 'name');
 		return $engines;
+	}
+	
+	/**
+	 * @param string $id
+	 * @return Extension_DevblocksSearchEngine
+	 */
+	public static function get($id) {
+		static $extensions = null;
+		
+		if(isset($extensions[$id]))
+			return $extensions[$id];
+		
+		if(!isset($extensions[$id])) {
+			if(null == ($ext = DevblocksPlatform::getExtension($id, true)))
+				return;
+			
+			if(!($ext instanceof Extension_DevblocksSearchEngine))
+				return;
+			
+			$extensions[$id] = $ext;
+			return $ext;
+		}
 	}
 	
 	protected function escapeNamespace($namespace) {
@@ -1576,13 +1600,7 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 	}
 };
 
-interface IDevblocksSearchSchema {
-	static function getAttributes();
-	static function query($query, $attributes=array(), $limit=250);
-	static function index($stop_time=null);
-}
-
-abstract class Extension_DevblocksSearchSchema extends DevblocksExtension implements IDevblocksSearchSchema {
+abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 	public static function getAll($as_instances=false) {
 		$schemas = DevblocksPlatform::getExtensions('devblocks.search.schema', $as_instances);
 		if($as_instances)
@@ -1591,6 +1609,73 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension implem
 			DevblocksPlatform::sortObjects($schemas, 'name');
 		return $schemas;
 	}
+	
+	/**
+	 * @param string $id
+	 * @return Extension_DevblocksSearchSchema
+	 */
+	public static function get($id) {
+		static $extensions = null;
+		
+		if(isset($extensions[$id]))
+			return $extensions[$id];
+		
+		if(!isset($extensions[$id])) {
+			if(null == ($ext = DevblocksPlatform::getExtension($id, true)))
+				return;
+			
+			if(!($ext instanceof Extension_DevblocksSearchSchema))
+				return;
+			
+			$extensions[$id] = $ext;
+			return $ext;
+		}
+	}
+	
+	/**
+	 *
+	 * @return Extension_DevblocksSearchEngine
+	 */
+	public function getEngine() {
+		static $_engine = null; // Static cache
+		
+		if(!is_null($_engine))
+			return $_engine;
+		
+		$logger = DevblocksPlatform::getConsoleLog();
+		
+		if(false == ($engine_json = $this->getParam('search_engine_json', false))) {
+			$engine_json = '{"extension_id":"devblocks.search.engine.mysql_fulltext", "config":{}}';
+		}
+		
+		if(false == ($engine_properties = json_decode($engine_json, true))) {
+			return false;
+		}
+		
+		if(false == ($_engine = Extension_DevblocksSearchEngine::get($engine_properties['extension_id'], true)))
+			return false;
+		
+		$_engine->setConfig($engine_properties['config']);
+		
+		return $_engine;
+	}
+	
+	public function getQueryFromParam($param) {
+		if(false !== ($engine = $this->getEngine()))
+			return $engine->getQueryFromParam($param);
+		
+		return null;
+	}
+	
+	public function getCount() {
+		$engine = $this->getEngine();
+		return $engine->getCount($this);
+	}
+	
+	abstract function getNamespace();
+	abstract function getAttributes();
+	abstract function query($query, $attributes=array(), $limit=250);
+	abstract function index($stop_time=null);
 };
 
 abstract class Extension_DevblocksStorageEngine extends DevblocksExtension {

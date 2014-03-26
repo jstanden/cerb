@@ -555,36 +555,29 @@ class SearchFields_Comment implements IDevblocksSearchFields {
 class Search_CommentContent extends Extension_DevblocksSearchSchema {
 	const ID = 'cerberusweb.search.schema.comment_content';
 	
-	public static function getNamespace() {
+	public function getNamespace() {
 		return 'comment_content';
 	}
 	
-	public static function getAttributes() {
+	public function getAttributes() {
 		return array(
 			'context_crc32' => 'uint4',
 		);
 	}
 	
-	public static function query($query, $attributes=array(), $limit=250) {
-		$logger = DevblocksPlatform::getConsoleLog();
+	public function query($query, $attributes=array(), $limit=250) {
+		if(false == ($engine = $this->getEngine()))
+			return false;
 		
-		if(false == ($search = DevblocksPlatform::getSearchService())) {
-			$logger->error("[Search] The search engine is misconfigured.");
-			return;
-		}
-		
-		$ids = $search->query(__CLASS__, $query, $attributes, $limit);
-		
+		$ids = $engine->query($this, $query, $attributes, $limit);
 		return $ids;
 	}
 	
-	public static function index($stop_time=null) {
+	public function index($stop_time=null) {
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		if(false == ($search = DevblocksPlatform::getSearchService())) {
-			$logger->error("[Search] The search engine is misconfigured.");
-			return;
-		}
+		if(false == ($engine = $this->getEngine()))
+			return false;
 		
 		$ns = self::getNamespace();
 		$id = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'last_indexed_id', 0);
@@ -613,8 +606,8 @@ class Search_CommentContent extends Extension_DevblocksSearchSchema {
 				$content = $comment->comment;
 				
 				if(!empty($content)) {
-					$content = $search->truncateOnWhitespace($content, 10000);
-					$search->index(__CLASS__, $id, $content, array('context_crc32' => sprintf("%u", crc32($comment->context))));
+					$content = $engine->truncateOnWhitespace($content, 10000);
+					$engine->index($this, $id, $content, array('context_crc32' => sprintf("%u", crc32($comment->context))));
 				}
 
 				// Record our progress every 25th index
@@ -632,13 +625,11 @@ class Search_CommentContent extends Extension_DevblocksSearchSchema {
 		}
 	}
 	
-	public static function delete($ids) {
-		if(false == ($search = DevblocksPlatform::getSearchService())) {
-			$logger->error("[Search] The search engine is misconfigured.");
-			return;
-		}
+	public function delete($ids) {
+		if(false == ($engine = $this->getEngine()))
+			return false;
 		
-		return $search->delete(self::getNamespace(), $ids);
+		return $engine->delete($this, $ids);
 	}
 };
 

@@ -348,9 +348,9 @@ class DAO_Message extends Cerb_ORMHelper {
 
 		switch($param_key) {
 			case SearchFields_Message::MESSAGE_CONTENT:
-				$search = DevblocksPlatform::getSearchService();
+				$search = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID);
 				$query = $search->getQueryFromParam($param);
-				$ids = Search_MessageContent::query($query, array(), 250);
+				$ids = $search->query($query, array(), 250);
 				
 				if(empty($ids))
 					$ids = array(-1);
@@ -604,34 +604,27 @@ class Model_Message {
 class Search_MessageContent extends Extension_DevblocksSearchSchema {
 	const ID = 'cerberusweb.search.schema.message_content';
 	
-	public static function getNamespace() {
+	public function getNamespace() {
 		return 'message_content';
 	}
 	
-	public static function getAttributes() {
+	public function getAttributes() {
 		return array();
 	}
 	
-	public static function query($query, $attributes=array(), $limit=250) {
-		$logger = DevblocksPlatform::getConsoleLog();
+	public function query($query, $attributes=array(), $limit=250) {
+		if(false == ($engine = $this->getEngine()))
+			return false;
 		
-		if(false == ($search = DevblocksPlatform::getSearchService())) {
-			$logger->error("[Search] The search engine is misconfigured.");
-			return;
-		}
-		
-		$ids = $search->query(__CLASS__, $query, $attributes, $limit);
-		
+		$ids = $engine->query($this, $query, $attributes, $limit);
 		return $ids;
 	}
 	
-	public static function index($stop_time=null) {
+	public function index($stop_time=null) {
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		if(false == ($search = DevblocksPlatform::getSearchService())) {
-			$logger->error("[Search] The search engine is misconfigured.");
-			return;
-		}
+		if(false == ($engine = $this->getEngine()))
+			return false;
 		
 		$ns = self::getNamespace();
 		$id = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'last_indexed_id', 0);
@@ -663,14 +656,14 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 					$content = preg_replace("/[\r\n]+/", "\n", $content);
 					
 					// Truncate to 10KB
-					$content = $search->truncateOnWhitespace($content, 10000);
+					$content = $engine->truncateOnWhitespace($content, 10000);
 					
 					// Prepend subject
 					if(false !== ($ticket = DAO_Ticket::get($message->ticket_id))) {
 						$content = $ticket->subject . ' ' . $content;
 					}
 					
-					$search->index(__CLASS__, $id, $content);
+					$engine->index($this, $id, $content);
 				}
 
 				// Record our progress every 25th index
@@ -688,13 +681,11 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 		}
 	}
 	
-	public static function delete($ids) {
-		if(false == ($search = DevblocksPlatform::getSearchService())) {
-			$logger->error("[Search] The search engine is misconfigured.");
-			return;
-		}
+	public function delete($ids) {
+		if(false == ($engine = $this->getEngine()))
+			return false;
 		
-		return $search->delete(self::getNamespace(), $ids);
+		return $engine->delete($this, $ids);
 	}
 };
 

@@ -110,8 +110,8 @@ class _DevblocksClassLoadManager {
 			'_DevblocksSanitizationManager',
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/search.php', array(
-			'_DevblocksSearchManager',
 			'_DevblocksSearchEngineMysqlFulltext',
+			'_DevblocksSearchEngineSphinx',
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/session.php', array(
 			'_DevblocksSessionManager',

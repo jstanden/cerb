@@ -1,20 +1,7 @@
 <?php
-class _DevblocksSearchManager {
-	static $_instance = null;
 	
-	/**
-	 * @return _DevblocksSearchEngine
-	 */
-	static public function getInstance() {
-		if(null == self::$_instance) {
-			self::$_instance = new _DevblocksSearchEngineMysqlFulltext();
-			return self::$_instance;
-		}
 		
-		return self::$_instance;
 	}
-};
-
 
 
 	}
@@ -30,52 +17,62 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	
 	private $_db = null;
 	
-	public function __construct() {
+	public function setConfig(array $config) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$this->_db = $db->getConnection();
 	}
 	
-	public function query($class, $query, array $attributes=array(), $limit=250) {
-		$ns = call_user_func(array($class, 'getNamespace'));
+	public function getCount(Extension_DevblocksSearchSchema $schema) {
+		$ns = $schema->getNamespace();
+		$rs = mysql_query(sprintf("SELECT COUNT(id) FROM fulltext_%s", mysql_real_escape_string($ns)), $this->_db);
+		
+		$row = mysql_fetch_row($rs);
+		
+		if(isset($row[0]))
+			return intval($row[0]);
+		
+		return false;
+	}
+	
+	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=250) {
+		$ns = $schema->getNamespace();
 		
 		$escaped_query = mysql_real_escape_string($query);
 		$where_sql = null;
 		
-		if(method_exists($class, 'getAttributes')) {
-			$schema_attributes = call_user_func(array($class, 'getAttributes'));
+		$schema_attributes = $schema->getAttributes();
+		
+		if(is_array($attributes))
+		foreach($attributes as $attr => $attr_val) {
+			@$attr_type = $schema_attributes[$attr];
 			
-			if(is_array($attributes))
-			foreach($attributes as $attr => $attr_val) {
-				@$attr_type = $schema_attributes[$attr];
+			if(empty($attr_type))
+				continue;
+			
+			switch($attr_type) {
+				case 'string':
+					$where_sql[] = sprintf("%s = '%s'",
+						mysql_real_escape_string($attr),
+						mysql_real_escape_string($attr_val)
+					);
+					break;
 				
-				if(empty($attr_type))
-					continue;
-				
-				switch($attr_type) {
-					case 'string':
-						$where_sql[] = sprintf("%s = '%s'",
-							mysql_real_escape_string($attr),
-							mysql_real_escape_string($attr_val)
-						);
-						break;
+				case 'int':
+				case 'int4':
+				case 'int8':
+					$where_sql[] = sprintf("%s = %d",
+						mysql_real_escape_string($attr),
+						$attr_val
+					);
+					break;
 					
-					case 'int':
-					case 'int4':
-					case 'int8':
-						$where_sql[] = sprintf("%s = %d",
-							mysql_real_escape_string($attr),
-							$attr_val
-						);
-						break;
-						
-					case 'uint4':
-					case 'uint8':
-						$where_sql[] = sprintf("%s = %u",
-							mysql_real_escape_string($attr),
-							$attr_val
-						);
-						break;
-				}
+				case 'uint4':
+				case 'uint8':
+					$where_sql[] = sprintf("%s = %u",
+						mysql_real_escape_string($attr),
+						$attr_val
+					);
+					break;
 			}
 		}
 		
@@ -338,8 +335,8 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		return $text;
 	}
 	
-	private function _index($class, $id, $content, $attributes=array()) {
-		$ns = call_user_func(array($class, 'getNamespace'));
+	private function _index(Extension_DevblocksSearchSchema $schema, $id, $content, $attributes=array()) {
+		$ns = $schema->getNamespace();
 		$content = $this->prepareText($content);
 		
 		$fields = array(
@@ -348,32 +345,30 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		);
 		
 		// Attributes
-		if(method_exists($class, 'getAttributes')) {
-			$schema_attributes = call_user_func(array($class, 'getAttributes'));
+		$schema_attributes = $schema->getAttributes();
+		
+		if(is_array($attributes))
+		foreach($attributes as $attr => $attr_val) {
+			@$attr_type = $schema_attributes[$attr];
 			
-			if(is_array($attributes))
-			foreach($attributes as $attr => $attr_val) {
-				@$attr_type = $schema_attributes[$attr];
+			if(empty($attr_type))
+				continue;
+			
+			switch($attr_type) {
+				case 'string':
+					$fields[mysql_real_escape_string($attr)] = sprintf("'%s'", mysql_real_escape_string($attr_val));
+					break;
 				
-				if(empty($attr_type))
-					continue;
-				
-				switch($attr_type) {
-					case 'string':
-						$fields[mysql_real_escape_string($attr)] = sprintf("'%s'", mysql_real_escape_string($attr_val));
-						break;
+				case 'int':
+				case 'int4':
+				case 'int8':
+					$fields[mysql_real_escape_string($attr)] = sprintf("%d", $attr_val);
+					break;
 					
-					case 'int':
-					case 'int4':
-					case 'int8':
-						$fields[mysql_real_escape_string($attr)] = sprintf("%d", $attr_val);
-						break;
-						
-					case 'uint4':
-					case 'uint8':
-						$fields[mysql_real_escape_string($attr)] = sprintf("%u", $attr_val);
-						break;
-				}
+				case 'uint4':
+				case 'uint8':
+					$fields[mysql_real_escape_string($attr)] = sprintf("%u", $attr_val);
+					break;
 			}
 		}
 		
@@ -387,11 +382,11 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		return (false !== $result) ? true : false;
 	}
 	
-	public function index($class, $id, $content, array $attributes=array()) {
-		if(false === ($ids = $this->_index($class, $id, $content, $attributes))) {
+	public function index(Extension_DevblocksSearchSchema $schema, $id, $content, array $attributes=array()) {
+		if(false === ($ids = $this->_index($schema, $id, $content, $attributes))) {
 			// Create the table dynamically
-			if($this->_createTable($class)) {
-				return $this->_index($class, $id, $content, $attributes);
+			if($this->_createTable($schema)) {
+				return $this->_index($schema, $id, $content, $attributes);
 			}
 			return false;
 		}
@@ -399,53 +394,50 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		return true;
 	}
 	
-	private function _createTable($class) {
-		$namespace = call_user_func(array($class, 'getNamespace'));
+	private function _createTable(Extension_DevblocksSearchSchema $schema) {
+		$namespace = $schema->getNamespace();
+		$attributes = $schema->getAttributes();
 		
 		$attributes_sql = array();
 		
-		if(method_exists($class, 'getAttributes')) {
-			$attributes = call_user_func(array($class, 'getAttributes'));
+		if(is_array($attributes))
+		foreach($attributes as $attr => $type) {
+			$field_type = null;
 			
-			if(is_array($attributes))
-			foreach($attributes as $attr => $type) {
-				$field_type = null;
-				
-				switch($type) {
-					case 'text':
-					case 'string':
-						$field_type = 'varchar(255)';
-						break;
-						
-					case 'int':
-					case 'int4':
-						$field_type = 'int default 0';
-						break;
-						
-					case 'int8':
-						$field_type = 'bigint default 0';
-						break;
-						
-					case 'uint4':
-						$field_type = 'int unsigned default 0';
-						break;
-						
-					case 'uint8':
-						$field_type = 'bigint unsigned default 0';
-						break;
-						
-					default:
-						break;
-				}
-				
-				if(null == $field_type)
-					return false;
-				
-				$attributes_sql[] = sprintf("%s %s,",
-					mysql_real_escape_string($attr),
-					mysql_real_escape_string($field_type)
-				);
+			switch($type) {
+				case 'text':
+				case 'string':
+					$field_type = 'varchar(255)';
+					break;
+					
+				case 'int':
+				case 'int4':
+					$field_type = 'int default 0';
+					break;
+					
+				case 'int8':
+					$field_type = 'bigint default 0';
+					break;
+					
+				case 'uint4':
+					$field_type = 'int unsigned default 0';
+					break;
+					
+				case 'uint8':
+					$field_type = 'bigint unsigned default 0';
+					break;
+					
+				default:
+					break;
 			}
+			
+			if(null == $field_type)
+				return false;
+			
+			$attributes_sql[] = sprintf("%s %s,",
+				mysql_real_escape_string($attr),
+				mysql_real_escape_string($field_type)
+			);
 		}
 		
 		$rs = mysql_query("SHOW TABLES", $this->_db);
@@ -479,7 +471,9 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		return (false !== $result) ? true : false;
 	}
 	
-	public function delete($ns, $ids) {
+	public function delete(Extension_DevblocksSearchSchema $schema, $ids) {
+		$ns = $schema->getNamespace();
+		
 		if(!is_array($ids))
 			$ids = array($ids);
 			

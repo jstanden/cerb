@@ -1817,13 +1817,6 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
-	 * @return _DevblocksSearchEngineMysqlFulltext
-	 */
-	static function getSearchService() {
-		return _DevblocksSearchManager::getInstance();
-	}
-	
-	/**
 	 * @param $profile_id | $extension_id, $options
 	 * @return Extension_DevblocksStorageEngine
 	 */

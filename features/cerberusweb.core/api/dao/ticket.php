@@ -1399,9 +1399,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 
 		switch($param_key) {
 			case SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT:
-				$search = DevblocksPlatform::getSearchService();
+				$search = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID);
 				$query = $search->getQueryFromParam($param);
-				$ids = Search_CommentContent::query($query, array('context_crc32' => sprintf("%u", crc32($from_context))), 250);
+				$ids = $search->query($query, array('context_crc32' => sprintf("%u", crc32($from_context))), 250);
 				
 				$from_ids = DAO_Comment::getContextIdsByContextAndIds($from_context, $ids);
 				
@@ -1412,9 +1412,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				break;
 				
 			case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
-				$search = DevblocksPlatform::getSearchService();
+				$search = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID);
 				$query = $search->getQueryFromParam($param);
-				$ids = $search->query(Search_MessageContent::getNamespace(), $query, array(), 250);
+				$ids = $search->query($query, array(), 250);
 				
 				if(empty($ids))
 					$ids = array(-1);
@@ -1425,9 +1425,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				break;
 				
 			case SearchFields_Ticket::FULLTEXT_NOTE_CONTENT:
-				$search = DevblocksPlatform::getSearchService();
+				$search = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID);
 				$query = $search->getQueryFromParam($param);
-				$ids = Search_CommentContent::query($query, array('context' => CerberusContexts::CONTEXT_MESSAGE), 250);
+				$ids = $search->query($query, array('context_crc32' => sprintf("%u", crc32(CerberusContexts::CONTEXT_MESSAGE))), 250);
 				
 				$from_ids = DAO_Comment::getContextIdsByContextAndIds(CerberusContexts::CONTEXT_MESSAGE, $ids);
 				
