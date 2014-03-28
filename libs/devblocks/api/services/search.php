@@ -695,6 +695,8 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	public function prepareText($text) {
 		$text = DevblocksPlatform::strUnidecode($text);
 
+		$text = str_replace("'", '', $text);
+		
 		if(function_exists('mb_ereg_replace')) {
 			$text = mb_ereg_replace("[^[:alnum:]]", ' ', mb_convert_case($text, MB_CASE_LOWER));
 		} else {
