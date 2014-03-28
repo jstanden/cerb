@@ -455,6 +455,56 @@ $.fn.extend({
 			
 			context.lineWidth = 1;
 			
+			var default_line_colors = [
+				'rgba(87, 151, 10, 1)',
+				'rgba(0, 124, 189, 1)',
+				'rgba(112, 71, 186, 1)',
+				'rgba(139, 15, 152, 1)',
+				'rgba(207, 44, 29, 1)',
+				'rgba(233, 117, 20, 1)',
+				'rgba(255, 161, 0, 1)',
+				'rgba(62, 109, 7, 1)',
+				'rgba(52, 92, 5, 1)',
+				'rgba(0, 89, 136, 1)',
+				'rgba(0, 75, 115, 1)',
+				'rgba(80, 51, 134, 1)',
+				'rgba(68, 43, 113, 1)',
+				'rgba(100, 10, 109, 1)',
+				'rgba(85, 8, 92, 1)',
+				'rgba(149, 31, 20, 1)',
+				'rgba(126, 26, 17, 1)',
+				'rgba(168, 84, 14, 1)',
+				'rgba(142, 71, 11, 1)',
+				'rgba(184, 116, 0, 1)',
+				'rgba(156, 98, 0, 1)',
+				'rgba(204, 204, 204, 1)'
+			];
+			
+			var default_fill_colors = [
+				'rgba(87, 151, 10, 0.35)',
+				'rgba(0, 124, 189, 0.35)',
+				'rgba(112, 71, 186, 0.35)',
+				'rgba(139, 15, 152, 0.35)',
+				'rgba(207, 44, 29, 0.35)',
+				'rgba(233, 117, 20, 0.35)',
+				'rgba(255, 161, 0, 0.35)',
+				'rgba(62, 109, 7, 0.35)',
+				'rgba(52, 92, 5, 0.35)',
+				'rgba(0, 89, 136, 0.35)',
+				'rgba(0, 75, 115, 0.35)',
+				'rgba(80, 51, 134, 0.35)',
+				'rgba(68, 43, 113, 0.35)',
+				'rgba(100, 10, 109, 0.35)',
+				'rgba(85, 8, 92, 0.35)',
+				'rgba(149, 31, 20, 0.35)',
+				'rgba(126, 26, 17, 0.35)',
+				'rgba(168, 84, 14, 0.35)',
+				'rgba(142, 71, 11, 0.35)',
+				'rgba(184, 116, 0, 0.35)',
+				'rgba(156, 98, 0, 0.35)',
+				'rgba(204, 204, 204, 0.35)'
+			];
+			
 			// Loop through multiple series
 			for(series_idx in params.series) {
 				var series = params.series[series_idx];
@@ -462,8 +512,23 @@ $.fn.extend({
 				if(null == series.data)
 					continue;
 				
-				if(null == series.options.line_color)
-					params.series[series_idx].options.line_color = 'rgba(5,141,199,1)';
+				if(null == series.options.line || series.options.line) {
+					if(null != series.options.line_color)
+						params.series[series_idx].options.line_color = series.options.line_color;
+					else if(null != default_line_colors[series_idx])
+						params.series[series_idx].options.line_color = default_line_colors[series_idx];
+					else
+						params.series[series_idx].options.line_color = 'rgba(5,141,199,1)';
+				}
+				
+				if(null == series.options.fill || series.options.fill) {
+					if(null != series.options.fill_color)
+						params.series[series_idx].options.fill_color = series.options.fill_color;
+					else if(null != default_fill_colors[series_idx])
+						params.series[series_idx].options.fill_color = default_fill_colors[series_idx];
+					else
+						params.series[series_idx].options.fill_color = 'rgba(5,141,199,0.15)';
+				}
 				
 				context.beginPath();
 
@@ -506,32 +571,35 @@ $.fn.extend({
 				}
 
 				// Stroke
-
-				context.beginPath();
-				context.strokeStyle = series.options.line_color;
-				context.lineWidth = 3;
 				
-				tick = 0;
-				
-				for(idx in series.data) {
-					value = series.data[idx].y;
+				if(series.options.line_color) {
+					context.beginPath();
+					context.strokeStyle = series.options.line_color;
+					context.lineJoin = 'round';
+					context.lineWidth = 3;
 					
-					x = tick;
-					value_yheight = Math.floor(ytick_height * Math.abs(value));
+					tick = 0;
 					
-					if(value >= 0) {
-						y = zero_ypos - value_yheight;
+					for(idx in series.data) {
+						value = series.data[idx].y;
 						
-					} else {
-						y = zero_ypos + value_yheight;
+						x = tick;
+						value_yheight = Math.floor(ytick_height * Math.abs(value));
 						
+						if(value >= 0) {
+							y = zero_ypos - value_yheight;
+							
+						} else {
+							y = zero_ypos + value_yheight;
+							
+						}
+						
+						context.lineTo(x, y);
+						tick += xtick_width;
 					}
-					
-					context.lineTo(x, y);
-					tick += xtick_width;
+	
+					context.stroke();
 				}
-
-				context.stroke();
 				
 			} // end series
 			
@@ -582,9 +650,9 @@ $.fn.extend({
 			});
 		};
 		
-		var drawBarChart = function($canvas, options) {
+		var drawBarChart = function($canvas, params) {
 			$canvas
-				.data('model', options)
+				.data('model', params)
 				// [TODO] This could be handled on the main pass through below
 				.each(function(e) {
 					var canvas = $(this).get(0);
@@ -634,7 +702,7 @@ $.fn.extend({
 				var canvas = $canvas.get(0);
 				var context = canvas.getContext('2d');
 				
-				var default_colors = ['#455460','#6BA81E','#F9BE28','#D23E2E','#DDDDDD','#F67A3A','#D9E14B','#BBBBBB','#5896C3','#55C022','#8FB933'];
+				var default_colors = ['#57970A', '#007CBD', '#7047BA', '#8B0F98', '#CF2C1D', '#E97514', '#FFA100', '#3E6D07', '#345C05', '#005988', '#004B73', '#503386', '#442B71', '#640A6D', '#55085C', '#951F14', '#7E1A11', '#A8540E', '#8E470B', '#B87400', '#9C6200', '#CCCCCC'];
 				
 				if(null == options.series[0].data)
 					return;
@@ -654,8 +722,8 @@ $.fn.extend({
 				for(idx=0; idx < count; idx++) {
 					stack_data[idx] = { total: 0, pos: 0, neg: 0, pos_drawn: 0, neg_drawn: 0 };
 					
-					for(series_idx in options.series) {
-						series = options.series[series_idx];
+					for(series_idx in params.series) {
+						var series = params.series[series_idx];
 						
 						if(null == series.data || 0 == series.data.length)
 							continue;
@@ -692,24 +760,24 @@ $.fn.extend({
 				context.fillStyle = '#BBBBBB';
 				context.fill();
 				
-				for(series_idx in options.series) {
-					series = options.series[series_idx];
+				for(series_idx in params.series) {
+					var series = params.series[series_idx];
 			
 					if(null == series.data || 0 == series.data.length)
 						continue;
 					
 					if(null != series.options.color)
-						color = series.options.color;
+						params.series[series_idx].options.color = series.options.color;
 					else if(null != default_colors[series_idx])
-						color = default_colors[series_idx];
+						params.series[series_idx].options.color = default_colors[series_idx];
 					else
-						color = '#455460';
+						params.series[series_idx].options.color = '#455460';
 			
 					var x = 0;
 					
 					for(idx in series.data) {
 						try {
-							context.fillStyle = color;
+							context.fillStyle = params.series[series_idx].options.color;
 							
 							value = series.data[idx].y;
 				
@@ -998,6 +1066,33 @@ $.fn.extend({
 			// [TODO] If we're not using independent axes, find the biggest/smallest values
 			//		among all the series
 			
+			var default_colors = [
+				'rgba(87, 151, 10, 1)',
+				'rgba(0, 124, 189, 1)',
+				'rgba(112, 71, 186, 1)',
+				'rgba(139, 15, 152, 1)',
+				'rgba(207, 44, 29, 1)',
+				'rgba(233, 117, 20, 1)',
+				'rgba(255, 161, 0, 1)',
+				'rgba(62, 109, 7, 1)',
+				'rgba(52, 92, 5, 1)',
+				'rgba(0, 89, 136, 1)',
+				'rgba(0, 75, 115, 1)',
+				'rgba(80, 51, 134, 1)',
+				'rgba(68, 43, 113, 1)',
+				'rgba(100, 10, 109, 1)',
+				'rgba(85, 8, 92, 1)',
+				'rgba(149, 31, 20, 1)',
+				'rgba(126, 26, 17, 1)',
+				'rgba(168, 84, 14, 1)',
+				'rgba(142, 71, 11, 1)',
+				'rgba(184, 116, 0, 1)',
+				'rgba(156, 98, 0, 1)',
+				'rgba(204, 204, 204, 1)'
+			];
+			
+			var is_zeroline_drawn = false;
+			
 			// Plot
 			
 			for(series_idx in options.series) {
@@ -1015,8 +1110,29 @@ $.fn.extend({
 				var xaxis_tick = (stat.x_range != 0) ? (chart_width / stat.x_range) : chart_width;
 				var yaxis_tick = (stat.y_range != 0) ? (chart_height / stat.y_range) : chart_height;
 
-				context.fillStyle = series.options.color;
-				context.strokeStyle = series.options.color;
+				// Draw a zero line if we have dependent axes
+				if(options.y_line_zero && !options.axes_independent && !is_zeroline_drawn) {
+					var zero_ypos = Math.floor(chart_height * (stats.y_max/stats.y_range)) + margin + 2 - (0 == margin % 2 ? 0 : 0.5);
+					context.lineWidth = 1;
+					
+					context.beginPath();
+					context.moveTo(0, zero_ypos);
+					context.lineTo(0, zero_ypos-1);
+					context.lineTo(canvas.width, zero_ypos-1);
+					context.lineTo(canvas.width, zero_ypos);
+					context.strokeStyle = '#BBBBBB';
+					context.stroke();
+				}
+				
+				if(series.options.color)
+					options.series[series_idx].options.color = series.options.color;
+				else if(null != default_colors[series_idx])
+					options.series[series_idx].options.color = default_colors[series_idx];
+				else
+					options.series[series_idx].options.color = 'rgba(75,75,75,1)';
+				
+				context.fillStyle = options.series[series_idx].options.color;
+				context.strokeStyle = options.series[series_idx].options.color;
 				
 				for(idx in series.data) {
 					var data = series.data[idx];
@@ -1026,6 +1142,8 @@ $.fn.extend({
 					var chart_x = (xaxis_tick * x) + margin;
 					var chart_y = chart_height - (yaxis_tick * y) + margin;
 					
+					/*
+					// [TODO] Make this configurable
 					if(series_idx == 1) {
 						label = '+';
 						
@@ -1039,6 +1157,9 @@ $.fn.extend({
 						label = 'o';
 						
 					}
+					*/
+					
+					label = 'o';
 					
 					context.font = '12px Courier';
 					var measure = context.measureText(label);
