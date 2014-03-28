@@ -616,6 +616,45 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 		return array();
 	}
 	
+	public function reindex() {
+		$engine = $this->getEngine();
+		$meta = $engine->getIndexMeta($this);
+		
+		// If the engine can tell us where the index left off
+		if(isset($meta['max_id']) && $meta['max_id']) {
+			$this->setParam('last_indexed_id', $meta['max_id']);
+		
+		// If the index has a delta, start from the current record
+		} elseif($meta['is_indexed_externally']) {
+			// Do nothing (let the remote tool update the DB)
+			
+		// Otherwise, start over
+		} else {
+			$this->setIndexPointer(self::INDEX_POINTER_RESET);
+		}
+	}
+	
+	public function setIndexPointer($pointer) {
+		switch($pointer) {
+			case self::INDEX_POINTER_RESET:
+				$this->setParam('last_indexed_id', 0);
+				$this->setParam('last_indexed_time', 0);
+				break;
+				
+			case self::INDEX_POINTER_CURRENT:
+				if(null != ($last_msgs = DAO_Message::getWhere('id is not null', 'id', false, 1))
+					&& is_array($last_msgs)
+					&& null != ($last_msg = array_shift($last_msgs))) {
+						$this->setParam('last_indexed_id', $last_msg->id);
+						$this->setParam('last_indexed_time', $last_msg->created_date);
+				} else {
+					$this->setParam('last_indexed_id', 0);
+					$this->setParam('last_indexed_time', 0);
+				}
+				break;
+		}
+	}
+	
 	public function query($query, $attributes=array(), $limit=250) {
 		if(false == ($engine = $this->getEngine()))
 			return false;

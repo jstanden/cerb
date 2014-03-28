@@ -1544,12 +1544,12 @@ interface IDevblocksSearchEngine {
 	public function renderConfigForSchema(Extension_DevblocksSearchSchema $schema);
 	
 	public function getQuickSearchExamples(Extension_DevblocksSearchSchema $schema);
+	public function getIndexMeta(Extension_DevblocksSearchSchema $schema);
 	public function getQueryFromParam($param);
 	
 	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=250);
 	public function index(Extension_DevblocksSearchSchema $schema, $id, $content, array $attributes=array());
 	public function delete(Extension_DevblocksSearchSchema $schema, $ids);
-	public function getCount(Extension_DevblocksSearchSchema $schema);
 }
 
 abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implements IDevblocksSearchEngine {
@@ -1608,7 +1608,11 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 	}
 };
 
+
 abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
+	const INDEX_POINTER_RESET = 'reset';
+	const INDEX_POINTER_CURRENT = 'current';
+	
 	public static function getAll($as_instances=false) {
 		$schemas = DevblocksPlatform::getExtensions('devblocks.search.schema', $as_instances);
 		if($as_instances)
@@ -1677,7 +1681,16 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 		if(!is_array($params))
 			$params = array();
 		
+		// Detect if the engine changed
+		$previous_engine_params = $this->getEngineParams();
+		$reindex = (@$previous_engine_params['engine_extension_id'] != @$params['engine_extension_id']);
+		
+		// Save new new engine params
 		$this->setParam('engine_params_json', json_encode($params));
+		
+		// If our engine changed
+		if($reindex)
+			$this->reindex();
 	}
 	
 	public function getQueryFromParam($param) {
@@ -1687,15 +1700,16 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 		return null;
 	}
 	
-	public function getCount() {
+	public function getIndexMeta() {
 		$engine = $this->getEngine();
-		return $engine->getCount($this);
+		return $engine->getIndexMeta($this);
 	}
 	
 	abstract function getNamespace();
 	abstract function getAttributes();
 	abstract function query($query, $attributes=array(), $limit=250);
 	abstract function index($stop_time=null);
+	abstract function reindex();
 };
 
 abstract class Extension_DevblocksStorageEngine extends DevblocksExtension {

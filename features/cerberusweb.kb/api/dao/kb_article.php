@@ -509,6 +509,34 @@ class Search_KbArticle extends Extension_DevblocksSearchSchema {
 		return array();
 	}
 	
+	public function reindex() {
+		$engine = $this->getEngine();
+		$meta = $engine->getIndexMeta($this);
+		
+		// If the index has a delta, start from the current record
+		if($meta['is_indexed_externally']) {
+			// Do nothing (let the remote tool update the DB)
+			
+		// Otherwise, start over
+		} else {
+			$this->setIndexPointer(self::INDEX_POINTER_RESET);
+		}
+	}
+
+	public function setIndexPointer($pointer) {
+		switch($pointer) {
+			case self::INDEX_POINTER_RESET:
+				$this->setParam('last_indexed_id', 0);
+				$this->setParam('last_indexed_time', 0);
+				break;
+				
+			case self::INDEX_POINTER_CURRENT:
+				$this->setParam('last_indexed_id', 0);
+				$this->setParam('last_indexed_time', time());
+				break;
+		}
+	}
+	
 	public function query($query, $attributes=array(), $limit=250) {
 		if(false == ($engine = $this->getEngine()))
 			return false;
@@ -525,8 +553,8 @@ class Search_KbArticle extends Extension_DevblocksSearchSchema {
 			return false;
 		
 		$ns = self::getNamespace();
-		$id = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'last_indexed_id', 0);
-		$ptr_time = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'last_indexed_time', 0);
+		$id = $this->getParam('last_indexed_id', 0);
+		$ptr_time = $this->getParam('last_indexed_time', 0);
 		$ptr_id = $id;
 		$done = false;
 
@@ -570,8 +598,8 @@ class Search_KbArticle extends Extension_DevblocksSearchSchema {
 			$ptr_time = time();
 		}
 		
-		DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_id', $ptr_id);
-		DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_time', $ptr_time);
+		$this->setParam('last_indexed_id', $ptr_id);
+		$this->setParam('last_indexed_time', $ptr_time);
 	}
 	
 	public function delete($ids) {

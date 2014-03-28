@@ -7,10 +7,10 @@
 	</legend>
 	
 	{if $engine}
-	{$count = $schema->getCount()}
+	{$schema_meta = $schema->getIndexMeta()}
 	<div>
-		{if !empty($count)}
-		<b>{$count|number_format}</b> records indexed in <b>{$engine->manifest->name}</b>.
+		{if $schema_meta.count}
+		<b>{$schema_meta.count|number_format}</b> records indexed in <b>{$engine->manifest->name}</b>.
 		{else}
 		Records indexed in <b>{$engine->manifest->name}</b>.
 		{/if}

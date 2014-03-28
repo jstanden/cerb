@@ -86,6 +86,17 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 		$tpl->display('devblocks:devblocks.core::search_engine/sphinx.tpl');
 	}
 	
+	public function getIndexMeta(Extension_DevblocksSearchSchema $schema) {
+		@$index = $this->_config['index'];
+		@$index_rt = $this->_config['index_rt'];
+		
+		return array(
+			'count' => false, // Sphinx can't always count rows (if no attributes, non-extern-docinfo)
+			'max_id' => false, // Sphinx can't tell us the max ID w/o attributes
+			'is_indexed_externally' => empty($index_rt) || ($index_rt != $index),
+		);
+	}
+	
 	public function getQuickSearchExamples(Extension_DevblocksSearchSchema $schema) {
 		$engine_params = $schema->getEngineParams();
 		
@@ -101,10 +112,6 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 		);
 	}
 	
-	public function getCount(Extension_DevblocksSearchSchema $schema) {
-		// Sphinx can't always count rows (if no attributes, non-extern-docinfo)
-		return null;
-	}
 	
 	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=250) {
 		@$index = $this->_config['index'];
@@ -361,9 +368,36 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		$tpl->display('devblocks:devblocks.core::search_engine/mysql_fulltext.tpl');
 	}
 	
-	public function getCount(Extension_DevblocksSearchSchema $schema) {
+	public function getIndexMeta(Extension_DevblocksSearchSchema $schema) {
+		return array(
+			'count' => $this->_getCount($schema),
+			'max_id' => $this->_getMaxId($schema),
+			'is_indexed_externally' => false,
+		);
+	}
+	
+	private function _getMaxId(Extension_DevblocksSearchSchema $schema) {
+		$ns = $schema->getNamespace();
+		
+		$rs = mysql_query(sprintf("SELECT MAX(id) FROM fulltext_%s", mysql_real_escape_string($ns)), $this->db);
+		
+		if(!is_resource($rs))
+			return false;
+		
+		$row = mysql_fetch_row($rs);
+		
+		if(isset($row[0]))
+			return intval($row[0]);
+		
+		return false;
+	}
+	
+	private function _getCount(Extension_DevblocksSearchSchema $schema) {
 		$ns = $schema->getNamespace();
 		$rs = mysql_query(sprintf("SELECT COUNT(id) FROM fulltext_%s", mysql_real_escape_string($ns)), $this->db);
+		
+		if(!is_resource($rs))
+			return false;
 		
 		$row = mysql_fetch_row($rs);
 		

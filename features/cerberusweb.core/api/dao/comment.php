@@ -565,6 +565,45 @@ class Search_CommentContent extends Extension_DevblocksSearchSchema {
 		);
 	}
 	
+	public function reindex() {
+		$engine = $this->getEngine();
+		$meta = $engine->getIndexMeta($this);
+		
+		// If the engine can tell us where the index left off
+		if(isset($meta['max_id']) && $meta['max_id']) {
+			$this->setParam('last_indexed_id', $meta['max_id']);
+		
+		// If the index has a delta, start from the current record
+		} elseif($meta['is_indexed_externally']) {
+			// Do nothing (let the remote tool update the DB)
+			
+		// Otherwise, start over
+		} else {
+			$this->setIndexPointer(self::INDEX_POINTER_RESET);
+		}
+	}
+	
+	public function setIndexPointer($pointer) {
+		switch($pointer) {
+			case self::INDEX_POINTER_RESET:
+				$this->setParam('last_indexed_id', 0);
+				$this->setParam('last_indexed_time', 0);
+				break;
+				
+			case self::INDEX_POINTER_CURRENT:
+				if(null != ($last_comments = DAO_Comment::getWhere('id is not null', 'id', false, 1))
+					&& is_array($last_comments)
+					&& null != ($last_comment = array_shift($last_comments))) {
+						$this->setParam('last_indexed_id', $last_comment->id);
+						$this->setParam('last_indexed_time', $last_comment->created);
+				} else {
+					$this->setParam('last_indexed_id', 0);
+					$this->setParam('last_indexed_time', 0);
+				}
+				break;
+		}
+	}
+	
 	public function query($query, $attributes=array(), $limit=250) {
 		if(false == ($engine = $this->getEngine()))
 			return false;
@@ -580,7 +619,7 @@ class Search_CommentContent extends Extension_DevblocksSearchSchema {
 			return false;
 		
 		$ns = self::getNamespace();
-		$id = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'last_indexed_id', 0);
+		$id = $this->getParam('last_indexed_id', 0);
 		$done = false;
 		
 		while(!$done && time() < $stop_time) {
@@ -613,7 +652,7 @@ class Search_CommentContent extends Extension_DevblocksSearchSchema {
 				// Record our progress every 25th index
 				if(++$count % 25 == 0) {
 					if(!empty($id))
-						DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_id', $id);
+						$this->setParam('last_indexed_id', $id);
 				}
 			}
 			
@@ -621,7 +660,7 @@ class Search_CommentContent extends Extension_DevblocksSearchSchema {
 			
 			// Record our index every batch
 			if(!empty($id))
-				DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_id', $id);
+				$this->setParam('last_indexed_id', $id);
 		}
 	}
 	
