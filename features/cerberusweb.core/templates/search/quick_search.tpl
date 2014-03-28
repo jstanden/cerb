@@ -18,7 +18,7 @@
 	
 	<select name="field">
 		{$smarty.capture.options nofilter}
-	</select><input type="text" name="query" class="input_search" size="32" value="" autocomplete="off">
+	</select><input type="text" name="query" class="input_search" size="32" value="" autocomplete="off" spellcheck="false">
 	
 	<div class="hints{if !$is_popup} hints-float{/if} hints-shadow">
 		<b>examples:</b> 
@@ -44,6 +44,24 @@ var $frm = $('#{$uniqid}').each(function(e) {
 		
 {capture "field_hints"}
 {foreach from=$view->getParamsAvailable() item=field key=token}
+
+{if $field->type == 'FT' && $field->ft_schema}
+	{$schema = Extension_DevblocksSearchSchema::get($field->ft_schema)}
+	{if $schema}
+	{$engine = $schema->getEngine()}
+	{if $engine}
+	{$examples = $engine->getQuickSearchExamples($schema)}
+	{if $examples}
+	else if (token == '{$token}') {
+		{foreach from=$examples item=example}
+		$bubbles.append($('<li><tt>{$example|escape:'javascript'}</tt></li>'));
+		{/foreach}
+	}
+	{/if}
+	{/if}
+	{/if}
+{/if}
+
 {$cf_id = substr($token,3)}
 {if substr($token,0,3) == 'cf_' && !empty($cf_id)}
 {$cf = DAO_CustomField::get($cf_id)}

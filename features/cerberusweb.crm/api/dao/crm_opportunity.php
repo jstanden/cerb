@@ -518,6 +518,11 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 				
 			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT'),
 		);
+		
+		// Fulltext indexes
+		
+		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
+		
 		// Custom fields with fieldsets
 		
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(

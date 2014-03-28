@@ -43,6 +43,8 @@
 			is {if empty($param->value)}blank{/if}
 		{elseif $param->operator=='is not null'}
 			is not {if empty($param->value)}blank{/if}
+		{elseif $param->operator=='fulltext'}
+			search
 		{else} 
 			{$param->operator}
 		{/if}

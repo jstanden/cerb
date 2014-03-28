@@ -1720,6 +1720,12 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::FULLTEXT_NOTE_CONTENT => new DevblocksSearchField(self::FULLTEXT_NOTE_CONTENT, 'ftnc', 'content', $translate->_('message.note.content'), 'FT'),
 		);
 		
+		// Fulltext indexes
+		
+		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
+		$columns[self::FULLTEXT_MESSAGE_CONTENT]->ft_schema = Search_MessageContent::ID;
+		$columns[self::FULLTEXT_NOTE_CONTENT]->ft_schema = Search_CommentContent::ID;
+		
 		// Custom fields with fieldsets
 		
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(

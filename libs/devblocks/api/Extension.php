@@ -1537,6 +1537,7 @@ abstract class DevblocksHttpResponseListenerExtension extends DevblocksExtension
 
 interface IDevblocksSearchEngine {
 	public function setConfig(array $config);
+	public function getQuickSearchExamples(Extension_DevblocksSearchSchema $schema);
 	public function getQueryFromParam($param);
 	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=250);
 	public function index(Extension_DevblocksSearchSchema $schema, $id, $content, array $attributes=array());

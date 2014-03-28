@@ -533,9 +533,13 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Message::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject'), Model_CustomField::TYPE_SINGLE_LINE),
 			
 			SearchFields_Message::VIRTUAL_TICKET_STATUS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_STATUS, '*', 'ticket_status', $translate->_('ticket.status')),
+				
+			SearchFields_Message::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('common.content'), 'FT'),
 		);
-	
-		$columns[SearchFields_Message::MESSAGE_CONTENT] = new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('common.content'), 'FT');
+
+		// Fulltext indexes
+		
+		$columns[self::MESSAGE_CONTENT]->ft_schema = Search_MessageContent::ID;
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');

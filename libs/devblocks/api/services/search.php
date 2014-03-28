@@ -34,6 +34,15 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		return false;
 	}
 	
+	public function getQuickSearchExamples(Extension_DevblocksSearchSchema $schema) {
+		return array(
+			'a multiple word phrase',
+			'"any" "of" "these" "words"',
+			'"this phrase" or any of these words',
+			'person@example.com',
+		);
+	}
+	
 	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=250) {
 		$ns = $schema->getNamespace();
 		

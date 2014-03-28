@@ -477,6 +477,10 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 				
 			self::FULLTEXT_ARTICLE_CONTENT => new DevblocksSearchField(self::FULLTEXT_ARTICLE_CONTENT, 'ftkb', 'content', $translate->_('kb_article.content'), 'FT'),
 		);
+		
+		// Fulltext indexes
+		
+		$columns[self::FULLTEXT_ARTICLE_CONTENT]->ft_schema = Search_KbArticle::ID;
 
 		// Custom fields with fieldsets
 		
