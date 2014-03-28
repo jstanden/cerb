@@ -42,6 +42,9 @@ class DevblocksExtension {
 	}
 };
 
+class Exception_Devblocks extends Exception {};
+class Exception_DevblocksAjaxError extends Exception_Devblocks {};
+
 interface IDevblocksHandler_Session {
 	static function open($save_path, $session_name);
 	static function close();
@@ -1537,8 +1540,12 @@ abstract class DevblocksHttpResponseListenerExtension extends DevblocksExtension
 
 interface IDevblocksSearchEngine {
 	public function setConfig(array $config);
+	public function testConfig(array $config);
+	public function renderConfigForSchema(Extension_DevblocksSearchSchema $schema);
+	
 	public function getQuickSearchExamples(Extension_DevblocksSearchSchema $schema);
 	public function getQueryFromParam($param);
+	
 	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=250);
 	public function index(Extension_DevblocksSearchSchema $schema, $id, $content, array $attributes=array());
 	public function delete(Extension_DevblocksSearchSchema $schema, $ids);
@@ -1633,6 +1640,18 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 		}
 	}
 	
+	public function getEngineParams() {
+		if(false == ($engine_json = $this->getParam('engine_params_json', false))) {
+			$engine_json = '{"engine_extension_id":"devblocks.search.engine.mysql_fulltext", "config":{}}';
+		}
+		
+		if(false == ($engine_properties = json_decode($engine_json, true))) {
+			return false;
+		}
+		
+		return $engine_properties;
+	}
+	
 	/**
 	 *
 	 * @return Extension_DevblocksSearchEngine
@@ -1643,22 +1662,22 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 		if(!is_null($_engine))
 			return $_engine;
 		
-		$logger = DevblocksPlatform::getConsoleLog();
+		$engine_params = $this->getEngineParams();
 		
-		if(false == ($engine_json = $this->getParam('search_engine_json', false))) {
-			$engine_json = '{"extension_id":"devblocks.search.engine.mysql_fulltext", "config":{}}';
-		}
-		
-		if(false == ($engine_properties = json_decode($engine_json, true))) {
-			return false;
-		}
-		
-		if(false == ($_engine = Extension_DevblocksSearchEngine::get($engine_properties['extension_id'], true)))
+		if(false == ($_engine = Extension_DevblocksSearchEngine::get($engine_params['engine_extension_id'], true)))
 			return false;
 		
-		$_engine->setConfig($engine_properties['config']);
+		if(isset($engine_params['config']))
+			$_engine->setConfig($engine_params['config']);
 		
 		return $_engine;
+	}
+	
+	public function saveConfig(array $params) {
+		if(!is_array($params))
+			$params = array();
+		
+		$this->setParam('engine_params_json', json_encode($params));
 	}
 	
 	public function getQueryFromParam($param) {

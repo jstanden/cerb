@@ -16,15 +16,51 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	const ID = 'devblocks.search.engine.mysql_fulltext';
 	
 	private $_db = null;
+	private $_config = array();
+	
+	public function __get($name) {
+		switch($name) {
+			case 'db':
+				if(!is_null($this->_db))
+					return $this->_db;
+				
+				if(false != ($this->_db = $this->_connect()))
+					return $this->_db;
+				
+				break;
+		}
+	}
+	
+	private function _connect() {
+		$db = DevblocksPlatform::getDatabaseService();
+		return $db->getConnection();
+	}
 	
 	public function setConfig(array $config) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$this->_db = $db->getConnection();
+		$this->_config = $config;
+	}
+	
+	public function testConfig(array $config) {
+		// There's nothing to test yet
+		return true;
+	}
+	
+	public function renderConfigForSchema(Extension_DevblocksSearchSchema $schema) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('engine', $this);
+		
+		$engine_params = $schema->getEngineParams();
+		@$engine_extension_id = $engine_params['engine_extension_id'];
+		
+		if($engine_extension_id == $this->id & isset($engine_params['config']))
+			$tpl->assign('engine_params', $engine_params['config']);
+		
+		$tpl->display('devblocks:devblocks.core::search_engine/mysql_fulltext.tpl');
 	}
 	
 	public function getCount(Extension_DevblocksSearchSchema $schema) {
 		$ns = $schema->getNamespace();
-		$rs = mysql_query(sprintf("SELECT COUNT(id) FROM fulltext_%s", mysql_real_escape_string($ns)), $this->_db);
+		$rs = mysql_query(sprintf("SELECT COUNT(id) FROM fulltext_%s", mysql_real_escape_string($ns)), $this->db);
 		
 		$row = mysql_fetch_row($rs);
 		
@@ -98,7 +134,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			$limit
 		);
 		
-		$result = mysql_query($sql, $this->_db);
+		$result = mysql_query($sql, $this->db);
 		
 		if(false == $result)
 			return false;
@@ -386,7 +422,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			implode(',', array_keys($fields)),
 			implode(',', $fields)
 		);
-		$result = mysql_query($sql, $this->_db);
+		$result = mysql_query($sql, $this->db);
 		
 		return (false !== $result) ? true : false;
 	}
@@ -449,7 +485,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			);
 		}
 		
-		$rs = mysql_query("SHOW TABLES", $this->_db);
+		$rs = mysql_query("SHOW TABLES", $this->db);
 
 		$tables = array();
 		while($row = mysql_fetch_row($rs)) {
@@ -473,7 +509,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			(!empty($attributes_sql) ? implode(",\n", $attributes_sql) : '')
 		);
 		
-		$result = mysql_query($sql, $this->_db);
+		$result = mysql_query($sql, $this->db);
 		
 		DevblocksPlatform::clearCache(DevblocksPlatform::CACHE_TABLES);
 		
@@ -492,7 +528,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		$result = mysql_query(sprintf("DELETE FROM fulltext_%s WHERE id IN (%s) ",
 			$this->escapeNamespace($ns),
 			implode(',', $ids)
-		), $this->_db);
+		), $this->db);
 		
 		return (false !== $result) ? true : false;
 	}
