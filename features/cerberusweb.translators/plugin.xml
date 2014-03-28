@@ -4,14 +4,14 @@
 	<name>Translation Editor</name>
 	<description>A GUI for translating the Cerb interface into other languages.  This adds a 'Translations' tab to Configuration.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>6.6.4</version>
+	<version>6.7.0</version>
 	<link>http://wiki.cerbweb.com/Features:Translation_Editor</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="6.6" max="6.6.99" />
+		<app_version min="6.7" max="6.7.99" />
 		<php_extension name="mbstring" />
 	</requires>
 	
