@@ -36,12 +36,12 @@ class ChReportWorkerHistory extends Extension_Report {
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
 		$rs = $db->Execute($sql);
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$years[] = intval($row['year']);
 		}
 		$tpl->assign('years', $years);
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		// Dates
 		
@@ -195,7 +195,7 @@ class ChReportWorkerHistory extends Extension_Report {
 		$rs = $db->Execute($sql);
 		
 		$data = array();
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$worker_id = intval($row['worker_id']);
 			$date_plot = $row['date_plot'];
 			
@@ -214,7 +214,7 @@ class ChReportWorkerHistory extends Extension_Report {
 		$tpl->assign('xaxis_ticks', array_keys($ticks));
 		$tpl->assign('data', $data);
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		// Template
 		

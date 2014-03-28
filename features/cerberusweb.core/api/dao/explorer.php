@@ -86,7 +86,7 @@ class DAO_ExplorerSet {
 		$objects = array();
 		
 		if(false !== $rs)
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_ExplorerSet();
 			$object->hash = $row['hash'];
 			$object->pos = $row['pos'];
@@ -118,7 +118,7 @@ class DAO_ExplorerSet {
 		$rs = $db->Execute("SELECT hash, params_json FROM explorer_set WHERE pos = 0");
 		
 		if(false !== $rs)
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			if(false !== ($params = @json_decode($row['params_json'], true))) {
 				if(!isset($params['last_accessed']) || $params['last_accessed'] < time()-86400) { // idle for 24 hours
 					$db->Execute(sprintf("DELETE FROM explorer_set WHERE hash = %s",

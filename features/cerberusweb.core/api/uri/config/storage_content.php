@@ -45,7 +45,7 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 		
 		// [TODO] This would likely be helpful to the /debug controller
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$table_size_data = floatval($row['Data_length']);
 			$table_size_indexes = floatval($row['Index_length']);
 			$table_size_slack = floatval($row['Data_free']);
@@ -56,7 +56,7 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 			$total_db_slack += $table_size_slack;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		$tpl->assign('total_db_size', $total_db_size);
 		$tpl->assign('total_db_data', $total_db_data);

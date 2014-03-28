@@ -135,7 +135,7 @@ abstract class C4_AbstractView {
 		$rs = $db->Execute($sql);
 		
 		$objects = array();
-		while($row = mysql_fetch_row($rs)) {
+		while($row = mysqli_fetch_row($rs)) {
 			$objects[] = $row[0];
 		}
 		
@@ -2862,8 +2862,8 @@ class DAO_WorkerViewModel {
 			(!empty($where) ? ('WHERE ' . $where) : '')
 		));
 		
-		if(is_resource($rs))
-		while($row = mysql_fetch_array($rs)) {
+		if($rs instanceof mysqli_result)
+		while($row = mysqli_fetch_array($rs)) {
 			$model = new C4_AbstractViewModel();
 			$model->id = $row['view_id'];
 			$model->worker_id = $row['worker_id'];

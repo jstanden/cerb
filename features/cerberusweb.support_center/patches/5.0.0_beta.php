@@ -10,7 +10,7 @@ if(isset($tables['community_tool_property']) && isset($tables['community_tool'])
 	$sql = "SELECT ctp.tool_code, ctp.property_key, ctp.property_value FROM community_tool_property ctp INNER JOIN community_tool ct ON (ct.code=ctp.tool_code) WHERE ct.extension_id='sc.tool'";
 	$rs = $db->Execute($sql);
 	
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$code = $row['tool_code'];
 		$key = $row['property_key'];
 		$value = $row['property_value'];
@@ -30,7 +30,7 @@ if(isset($tables['community_tool_property']) && isset($tables['community_tool'])
 		}
 	}
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 }
 
 if(!empty($portals))

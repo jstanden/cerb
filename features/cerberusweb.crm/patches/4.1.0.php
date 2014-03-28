@@ -12,11 +12,11 @@ if(isset($tables['crm_opportunity'])) {
 		$campaigns = array();
 		$sql = "SELECT id, name FROM crm_campaign ORDER BY name";
 		$rs = $db->Execute($sql);
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$campaigns[$row['id']] = $row['name'];
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 	
 		if(!empty($campaigns)) { // Move to a custom field before dropping
 			// Create the new custom field
@@ -96,7 +96,7 @@ if(isset($tables['crm_opportunity'])) {
 if(isset($tables['crm_opp_comment'])) {
 	$sql = "SELECT id, opportunity_id, created_date, worker_id, content FROM crm_opp_comment";
 	$rs = $db->Execute($sql);
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$sql = sprintf("INSERT INTO note (source_extension_id, source_id, created, worker_id, content) ".
 			"VALUES ('%s',%d,%d,%d,%s)",
 			'crm.notes.source.opportunity',
@@ -108,7 +108,7 @@ if(isset($tables['crm_opp_comment'])) {
 		$db->Execute($sql); // insert
 	}
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 }
 
 // ===========================================================================

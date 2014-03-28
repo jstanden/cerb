@@ -118,7 +118,7 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 	static private function _getObjectsFromResultSet($rs) {
 		$objects = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_AddressOutgoing();
 			$object->address_id = intval($row['address_id']);
 			$object->email = $row['email'];
@@ -129,7 +129,7 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 			$objects[$object->address_id] = $object;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $objects;
 	}

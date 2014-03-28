@@ -28,7 +28,7 @@ if(isset($tables['bayes_words'])) {
 	// Flatten duplicates
 	$rs = $db->Execute("SELECT count(id) AS hits, SUM(spam) AS spam, SUM(nonspam) AS nonspam, LOWER(word) AS word FROM bayes_words GROUP BY LOWER(word) HAVING hits > 1");
 	
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$word = $row['word'];
 		$spam = intval($row['spam']);
 		$nonspam = intval($row['nonspam']);
@@ -45,7 +45,7 @@ if(isset($tables['bayes_words'])) {
 		));
 	}
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 }
 
 // ===========================================================================

@@ -33,7 +33,7 @@ if(isset($tables['address_auth'])) {
 	$rs = $db->Execute($sql);
 	
 	// Loop through 'address_auth' records and inject them into 'address'
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$address_id = $row['address_id'];
 		$pass = $row['pass'];
 		
@@ -43,7 +43,7 @@ if(isset($tables['address_auth'])) {
 		));
 	}
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 	
 	// Drop 'address_auth'
 	$db->Execute('DROP TABLE address_auth');

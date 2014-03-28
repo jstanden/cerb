@@ -132,11 +132,11 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
-		if($row = mysql_fetch_assoc($rs)) {
+		if($row = mysqli_fetch_assoc($rs)) {
 			$ticket_id = intval($row['ticket_id']);
 			$message_id = intval($row['message_id']);
 			
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 			
 			return array(
 				'ticket_id' => $ticket_id,
@@ -603,7 +603,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	static private function _createObjectsFromResultSet($rs=null) {
 		$objects = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Ticket();
 			$object->id = intval($row['id']);
 			$object->mask = $row['mask'];
@@ -633,7 +633,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$objects[$object->id] = $object;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $objects;
 	}
@@ -881,7 +881,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		 
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$address = new Model_Address();
 			$address->id = intval($row['id']);
 			$address->email = $row['email'];
@@ -892,7 +892,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$addresses[$address->id] = $address;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 
 		return $addresses;
 	}
@@ -1036,13 +1036,13 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$rs = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			
 			$domains = array(); // [TODO] Temporary
-			while($row = mysql_fetch_assoc($rs)) {
+			while($row = mysqli_fetch_assoc($rs)) {
 				$hash = md5('domain'.$row['domain']);
 				$domains[] = $row['domain']; // [TODO] Temporary
 				$tops[$hash] = array('domain',$row['domain'],$row['hits']);
 			}
 			
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 			
 			// [JAS]: Most common senders in work pile
 			$sql = "SELECT count(*) AS hits, a1.email ".
@@ -1055,12 +1055,12 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				"ORDER BY hits DESC ";
 			$rs = $db->SelectLimit($sql, $limit*2, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			
-			while($row = mysql_fetch_assoc($rs)) {
+			while($row = mysqli_fetch_assoc($rs)) {
 				$hash = md5('sender'.$row['email']);
 				$senders[$hash] = array('sender',$row['email'],$row['hits']);
 			}
 			
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 			
 			uasort($senders, array('DAO_Ticket','sortByCount'));
 			
@@ -1097,11 +1097,11 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			
 			$prefixes = array(); // [TODO] Temporary
 
-			while($row = mysql_fetch_assoc($rs)) {
+			while($row = mysqli_fetch_assoc($rs)) {
 				$prefixes[] = $row['prefix'];
 			}
 			
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 
 			foreach($prefixes as $prefix_idx => $prefix) {
 				// [JAS]: Most common subjects in work pile
@@ -1115,10 +1115,10 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					"ORDER BY hits DESC ";
 				
 				$rs = $db->SelectLimit($sql, 15, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-				$num_rows = mysql_num_rows($rs);
+				$num_rows = mysqli_num_rows($rs);
 
 				$lines = array();
-				while($row = mysql_fetch_assoc($rs)) {
+				while($row = mysqli_fetch_assoc($rs)) {
 					$lines[$row['subject']] = $row['hits'];
 				}
 				
@@ -1141,7 +1141,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					$tops[$tophash] = array('subject',key($prefix),current($prefix));
 				}
 				
-				mysql_free_result($rs);
+				mysqli_free_result($rs);
 			}
 
 		} elseif ($mode=="headers") {
@@ -1166,12 +1166,12 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			
 			$rs = $db->SelectLimit($sql, 25, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
-			while($row = mysql_fetch_assoc($rs)) {
+			while($row = mysqli_fetch_assoc($rs)) {
 				$hash = md5('header'.$row['header_value']);
 				$tops[$hash] = array('header',$row['header_value'],$row['hits'],array(),$mode_param);
 			}
 			
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 		}
 
 		uasort($tops, array('DAO_Ticket','sortByCount'));
@@ -1549,7 +1549,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		$results = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$result = array();
 			foreach($row as $f => $v) {
 				$result[$f] = $v;
@@ -1568,7 +1568,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$total = $db->GetOne($count_sql);
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return array($results, $total);
 	}

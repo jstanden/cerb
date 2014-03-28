@@ -277,7 +277,7 @@ if(!isset($tables['worker_view_model'])) {
 	$rs = $db->Execute("SELECT worker_id, SUBSTRING(setting,5) AS view_id, value AS model FROM worker_pref WHERE setting LIKE 'view%%'");
 	
 	if(false !== $rs)
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$worker_id = $row['worker_id'];
 		$view_id = $row['view_id'];
 		
@@ -312,7 +312,7 @@ if(!isset($tables['worker_view_model'])) {
 		}
 	}
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 	
 	$db->Execute("DELETE FROM worker_pref WHERE setting LIKE 'view%'");
 }
@@ -376,7 +376,7 @@ $sql = "SELECT id, actions_ser FROM group_inbox_filter";
 $rs = $db->Execute($sql);
 
 if(false !== $rs)
-while($row = mysql_fetch_assoc($rs)) {
+while($row = mysqli_fetch_assoc($rs)) {
 	$filter_id = $row['id'];
 	$filter_actions_ser = $row['actions_ser'];
 	
@@ -404,7 +404,7 @@ while($row = mysql_fetch_assoc($rs)) {
 	}
 }
 
-mysql_free_result($rs);
+mysqli_free_result($rs);
 
 
 // ===========================================================================

@@ -82,7 +82,7 @@ class DAO_MailToGroupRule extends DevblocksORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_MailToGroupRule();
 			$object->id = $row['id'];
 			$object->pos = $row['pos'];
@@ -99,7 +99,7 @@ class DAO_MailToGroupRule extends DevblocksORMHelper {
 			$objects[$object->id] = $object;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $objects;
 	}

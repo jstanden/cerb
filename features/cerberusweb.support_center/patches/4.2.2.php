@@ -8,7 +8,7 @@ $tables = $db->metaTables();
 if(isset($tables['community_tool_property'])) {
 	$rs = $db->Execute("SELECT tool_code, property_value FROM community_tool_property WHERE property_key = 'common.logo_url'");
 	
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$tool_code = $row['tool_code'];
 		$logo_url = $row['property_value'];
 		
@@ -38,7 +38,7 @@ if(isset($tables['community_tool_property'])) {
 		));
 	}
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 }
 
 return TRUE;

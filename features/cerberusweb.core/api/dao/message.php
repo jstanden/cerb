@@ -96,7 +96,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		if(empty($rs))
 			return $objects;
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Message();
 			$object->id = $row['id'];
 			$object->ticket_id = $row['ticket_id'];
@@ -113,7 +113,7 @@ class DAO_Message extends Cerb_ORMHelper {
 			$objects[$object->id] = $object;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $objects;
 	}
@@ -193,7 +193,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		$ids_buffer = array();
 		$count = 0;
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$ids_buffer[$count++] = $row['id'];
 			
 			// Flush buffer every 50
@@ -203,7 +203,7 @@ class DAO_Message extends Cerb_ORMHelper {
 				$count = 0;
 			}
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 
 		// Any remainder
 		if(!empty($ids_buffer)) {
@@ -440,7 +440,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		
 		$results = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$result = array();
 			foreach($row as $f => $v) {
 				$result[$f] = $v;
@@ -459,7 +459,7 @@ class DAO_Message extends Cerb_ORMHelper {
 			$total = $db->GetOne($count_sql);
 		}
 
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return array($results,$total);
 	}
@@ -858,13 +858,13 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		
 		// Delete the physical files
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$profile = !empty($row['storage_profile_id']) ? $row['storage_profile_id'] : $row['storage_extension'];
 			if(null != ($storage = DevblocksPlatform::getStorageService($profile)))
 				$storage->delete('message_content', $row['storage_key']);
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return true;
 	}
@@ -901,7 +901,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		);
 		$rs = $db->Execute($sql);
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			self::_migrate($dst_profile, $row);
 
 			if(time() > $stop_time)
@@ -935,7 +935,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		);
 		$rs = $db->Execute($sql);
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			self::_migrate($dst_profile, $row, true);
 			
 			if(time() > $stop_time)
@@ -1098,11 +1098,11 @@ class DAO_MessageHeader {
 
 		$headers = array();
 
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$headers[$row['header_name']] = $row['header_value'];
 		}
 
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 
 		return $headers;
 	}
@@ -1127,11 +1127,11 @@ class DAO_MessageHeader {
 		$sql = "SELECT header_name FROM message_header GROUP BY header_name";
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$headers[] = $row['header_name'];
 		}
 
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 
 		sort($headers);
 

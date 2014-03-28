@@ -456,12 +456,12 @@ while(!$finished) {
 	$sql = sprintf("SELECT id, activity_point, actor_context, actor_context_id, entry_json FROM context_activity_log WHERE id > %d LIMIT 5000", $max_id);
 	$rs = $db->Execute($sql);
 
-	if(mysql_num_rows($rs) == 0) {
+	if(mysqli_num_rows($rs) == 0) {
 		$finished = true;
 		continue;
 	}
 	
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$max_id = $row['id'];
 		$entry = json_decode($row['entry_json'], true);
 		
@@ -528,7 +528,7 @@ while(!$finished) {
 	}
 }
 
-mysql_free_result($rs);
+mysqli_free_result($rs);
 
 // ===========================================================================
 // Update `notification` URLs to ctx:// format
@@ -544,7 +544,7 @@ $url_prefix = $url_writer->write('', true, false);
 $sql = sprintf("SELECT id, context, context_id, url FROM notification");
 $rs = $db->Execute($sql);
 
-while($row = mysql_fetch_assoc($rs)) {
+while($row = mysqli_fetch_assoc($rs)) {
 	$context = $row['context'];
 	$context_id = $row['context_id'];
 	$url = $row['url'];
@@ -581,7 +581,7 @@ while($row = mysql_fetch_assoc($rs)) {
 	}
 }
 
-mysql_free_result($rs);
+mysqli_free_result($rs);
 
 // ===========================================================================
 // Fix worker_pref.setting max length
@@ -648,7 +648,7 @@ if(isset($tables['workspace']) && !isset($tables['workspace_tab'])) {
 		
 		$rs = $db->Execute("SELECT DISTINCT worker_role.name AS name, workspace_tab.owner_context, workspace_tab.owner_context_id FROM workspace_tab inner join worker_role ON (workspace_tab.owner_context = 'cerberusweb.contexts.role' and worker_role.id=workspace_tab.owner_context_id)");
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$db->Execute(sprintf("INSERT INTO workspace_page (name, owner_context, owner_context_id) VALUES (%s, %s, %d)",
 				$db->qstr($row['name']),
 				$db->qstr($row['owner_context']),
@@ -663,13 +663,13 @@ if(isset($tables['workspace']) && !isset($tables['workspace_tab'])) {
 			));
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 
 		// Groups
 		
 		$rs = $db->Execute("SELECT DISTINCT worker_group.name AS name, workspace_tab.owner_context, workspace_tab.owner_context_id FROM workspace_tab inner join worker_group ON (workspace_tab.owner_context = 'cerberusweb.contexts.group' and worker_group.id=workspace_tab.owner_context_id)");
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$db->Execute(sprintf("INSERT INTO workspace_page (name, owner_context, owner_context_id) VALUES (%s, %s, %d)",
 				$db->qstr($row['name']),
 				$db->qstr($row['owner_context']),
@@ -684,13 +684,13 @@ if(isset($tables['workspace']) && !isset($tables['workspace_tab'])) {
 			));
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		// Workers
 		
 		$rs = $db->Execute("SELECT DISTINCT concat(worker.first_name,' ',worker.last_name) AS name, workspace_tab.owner_context, workspace_tab.owner_context_id FROM workspace_tab inner join worker ON (workspace_tab.owner_context = 'cerberusweb.contexts.worker' and worker.id=workspace_tab.owner_context_id)");
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$db->Execute(sprintf("INSERT INTO workspace_page (name, owner_context, owner_context_id) VALUES (%s, %s, %d)",
 				$db->qstr($row['name']),
 				$db->qstr($row['owner_context']),
@@ -705,7 +705,7 @@ if(isset($tables['workspace']) && !isset($tables['workspace_tab'])) {
 			));
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		// Drop owner cols
 		$db->Execute("ALTER TABLE workspace_tab DROP COLUMN owner_context, DROP COLUMN owner_context_id");

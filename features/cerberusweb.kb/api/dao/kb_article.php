@@ -74,7 +74,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 	static private function _createObjectsFromResultSet($rs=null) {
 		$objects = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_KbArticle();
 			$object->id = intval($row['id']);
 			$object->title = $row['title'];
@@ -85,7 +85,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			$objects[$object->id] = $object;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $objects;
 	}
@@ -190,12 +190,12 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			$article_id
 		));
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$cat_id = intval($row['kb_category_id']);
 			$categories[$cat_id] = $cat_id;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $categories;
 	}
@@ -405,7 +405,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		
 		$results = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$result = array();
 			foreach($row as $f => $v) {
 				$result[$f] = $v;
@@ -424,7 +424,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			$total = $db->GetOne($count_sql);
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return array($results,$total);
 	}

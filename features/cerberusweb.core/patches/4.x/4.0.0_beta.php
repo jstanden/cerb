@@ -36,13 +36,13 @@ if(!isset($columns['num_spam'])) {
 	$sql = "SELECT count(id) as hits,first_wrote_address_id FROM ticket WHERE spam_training = 'S' GROUP BY first_wrote_address_id,spam_training";
 	$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$hits = intval($row['hits']);
 		$address_id = intval($row['first_wrote_address_id']);
 		$db->Execute(sprintf("UPDATE address SET num_spam = %d WHERE id = %d", $hits, $address_id));
 	}
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 }
 
 if(!isset($columns['num_nonspam'])) {
@@ -52,13 +52,13 @@ if(!isset($columns['num_nonspam'])) {
 	$sql = "SELECT count(id) as hits,first_wrote_address_id FROM ticket WHERE spam_training = 'N' GROUP BY first_wrote_address_id,spam_training";
 	$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$hits = intval($row['hits']);
 		$address_id = intval($row['first_wrote_address_id']);
 		$db->Execute(sprintf("UPDATE address SET num_nonspam = %d WHERE id = %d", $hits, $address_id));
 	}
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 }
 
 if(!isset($columns['is_banned'])) {
@@ -135,7 +135,7 @@ if(!isset($tables['address_to_worker'])) {
     // Migrate any existing workers
 	$rs = $db->Execute("SELECT id, email FROM worker");
 	
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$db->Execute(sprintf("INSERT INTO address_to_worker (address, worker_id, is_confirmed, code_expire) ".
 			"VALUES (%s,%d,1,0)",
 			$db->qstr($row['email']),
@@ -143,7 +143,7 @@ if(!isset($tables['address_to_worker'])) {
 		));
 	}
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 }
 
 // `contact_org` =============================
@@ -264,7 +264,7 @@ if(!isset($tables['mail_template'])) {
 if(isset($tables['mail_template_reply'])) {
 	$rs = $db->Execute("SELECT id,title,description,folder,owner_id,content FROM mail_template_reply");
 	
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$db->Execute(sprintf("INSERT INTO mail_template (id,title,description,folder,template_type,owner_id,content) ".
 			"VALUES (%d,%s,%s,%s,%d,%d,%s)",
 			$row['id'],
@@ -277,7 +277,7 @@ if(isset($tables['mail_template_reply'])) {
 		));
 	}
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 	
 	$db->Execute("DROP TABLE mail_template_reply");
 }
@@ -373,7 +373,7 @@ if(!isset($columns['is_outgoing'])) {
 		
 		$rs = $db->Execute("SELECT group_id, setting, value FROM group_setting ORDER BY group_id, setting");
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			if('reply_from' != $row['setting'])
 				continue;
 			if(empty($row['value']))
@@ -388,14 +388,14 @@ if(!isset($columns['is_outgoing'])) {
 			);
 			$rs = $db->Execute($sql);
 			
-			while($row = mysql_fetch_assoc($rs)) {
+			while($row = mysqli_fetch_assoc($rs)) {
    				$address_id = intval($row['id']);
 				$db->Execute(sprintf("UPDATE message SET is_outgoing = 1 WHERE address_id = %d",
 		    		$address_id
 		    	));
 			}
 			
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 		}
 		
 	} catch(Exception $e) {}
@@ -408,7 +408,7 @@ if(!isset($columns['worker_id'])) {
     $sql = "SELECT a.id as address_id,w.id as worker_id FROM address a INNER JOIN worker w ON (a.email=w.email)";
     $rs = $db->Execute($sql);
     
-    while($row = mysql_fetch_assoc($rs)) {
+    while($row = mysqli_fetch_assoc($rs)) {
     	$address_id = intval($row['address_id']);
     	$worker_id = intval($row['worker_id']);
     	$db->Execute(sprintf("UPDATE message SET is_outgoing = 1 AND worker_id = %d WHERE address_id = %d",
@@ -417,7 +417,7 @@ if(!isset($columns['worker_id'])) {
     	));
     }
     
-    mysql_free_result($rs);
+    mysqli_free_result($rs);
 }
 
 if(isset($columns['message_type'])) {
@@ -465,7 +465,7 @@ if(0 != strcasecmp(@$columns['value']['type'],'blob')) {
 	$sql = "SELECT setting, value_old FROM setting ";
 	$rs = $db->Execute($sql);
 	
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$db->Execute(sprintf("UPDATE setting SET value=%s WHERE setting=%s",
 			$db->qstr($row['value_old']),
 			$db->qstr($row['setting'])
@@ -474,7 +474,7 @@ if(0 != strcasecmp(@$columns['value']['type'],'blob')) {
 
 	$db->Execute("ALTER TABLE setting DROP COLUMN value_old");
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 }
 
 // `sla` ========================
@@ -603,7 +603,7 @@ $sql = "SELECT m.ticket_id, min(m.id) as first_message_id ".
 	"GROUP BY ticket_id";
 $rs = $db->Execute($sql);
  
-while($row = mysql_fetch_assoc($rs)) {
+while($row = mysqli_fetch_assoc($rs)) {
 	if(empty($row['first_message_id'])) {
 		continue;
 	}
@@ -615,7 +615,7 @@ while($row = mysql_fetch_assoc($rs)) {
 	$db->Execute($sql);
 }
  
-mysql_free_result($rs);
+mysqli_free_result($rs);
 
 if(!isset($indexes['first_message_id'])) {
 	$db->Execute('ALTER TABLE ticket ADD INDEX first_message_id (first_message_id)');
@@ -830,14 +830,14 @@ $sql = "SELECT DISTINCT atw.worker_id ".
 	"WHERE w.id IS NULL";
 $rs = $db->Execute($sql);
 
-while($row = mysql_fetch_assoc($rs)) {
+while($row = mysqli_fetch_assoc($rs)) {
 	$sql = sprintf("DELETE FROM address_to_worker WHERE worker_id = %d",
 		$row['worker_id']
 	);
 	$db->Execute($sql);
 }
 
-mysql_free_result($rs);
+mysqli_free_result($rs);
 
 // Remove any group settings from deleted groups
 $sql = "SELECT DISTINCT gs.group_id ".
@@ -846,14 +846,14 @@ $sql = "SELECT DISTINCT gs.group_id ".
 	"WHERE t.id IS NULL";
 $rs = $db->Execute($sql);
 
-while($row = mysql_fetch_assoc($rs)) {
+while($row = mysqli_fetch_assoc($rs)) {
 	$sql = sprintf("DELETE FROM group_setting WHERE group_id = %d",
 		$row['group_id']
 	);
 	$db->Execute($sql);
 }
 
-mysql_free_result($rs);
+mysqli_free_result($rs);
 
 // Recover any tickets assigned to a NULL bucket
 $sql = "SELECT DISTINCT t.category_id as id ".
@@ -862,19 +862,19 @@ $sql = "SELECT DISTINCT t.category_id as id ".
 	"WHERE c.id IS NULL AND t.category_id > 0";
 $rs = $db->Execute($sql);
 
-while($row = mysql_fetch_assoc($rs)) {
+while($row = mysqli_fetch_assoc($rs)) {
 	$sql = sprintf("UPDATE ticket SET category_id = 0 WHERE category_id = %d",
 		$row['id']
 	);
 	$db->Execute($sql);
 }
 
-mysql_free_result($rs);
+mysqli_free_result($rs);
 
 // Merge any addresses that managed to get into the DB mixed case
 $rs = $db->Execute("SELECT count(id) AS hits, lower(email) AS email FROM address GROUP BY lower(email) HAVING count(id) > 1"); 
 
-while($row = mysql_fetch_assoc($rs)) {
+while($row = mysqli_fetch_assoc($rs)) {
 	$rs2 = $db->Execute(sprintf("SELECT id,email,lower(email) as orig_email FROM address WHERE lower(email) = %s",
 		$db->qstr($row['email'])
 	));
@@ -883,7 +883,7 @@ while($row = mysql_fetch_assoc($rs)) {
 	$best_id = 0;
 	$ids_not_best = array();
 	
-	while($row2 = mysql_fetch_assoc($rs2)) {
+	while($row2 = mysqli_fetch_assoc($rs2)) {
 		$ids[] = intval($row2['id']);
 		if(0==strcmp($row2['orig_email'], $row2['email'])) {
 			$best_id = intval($row2['id']);
@@ -892,7 +892,7 @@ while($row = mysql_fetch_assoc($rs)) {
 		}
 	}
 	
-	mysql_free_result($rs2);
+	mysqli_free_result($rs2);
 	
 	if(empty($ids_not_best))
 		$best_id = array_shift($ids_not_best);
@@ -943,18 +943,18 @@ while($row = mysql_fetch_assoc($rs)) {
 	}
 }
 	
-mysql_free_result($rs);
+mysqli_free_result($rs);
 
 // Fix blank ticket.first_message_id links (compose)
 $rs = $db->Execute('select t.id,max(m.id) as max_id,min(m.id) as min_id from ticket t inner join message m on (m.ticket_id=t.id) where t.first_message_id = 0 group by t.id;');
-while($row = mysql_fetch_assoc($rs)) {
+while($row = mysqli_fetch_assoc($rs)) {
 	$db->Execute(sprintf("UPDATE ticket SET first_message_id = %d WHERE id = %d",
 		$row['max_id'],
 		$row['id']
 	));
 }
 
-mysql_free_result($rs);
+mysqli_free_result($rs);
 
 // [TODO] This should probably be checked (though MySQL needs special BINARY syntax)
 $db->Execute("UPDATE address SET email = LOWER(email)");

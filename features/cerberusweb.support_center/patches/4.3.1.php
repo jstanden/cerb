@@ -9,7 +9,7 @@ if(isset($tables['community_tool_property'])) {
 	$sql = "SELECT tool_code, property_value FROM community_tool_property WHERE property_key = 'common.allow_logins'";
 	$rs = $db->Execute($sql);
 	
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$tool_code = $row['tool_code'];
 		$property_value = $row['property_value'];
 		
@@ -31,7 +31,7 @@ if(isset($tables['community_tool_property'])) {
 		));
 	}
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 }
 
 return TRUE;

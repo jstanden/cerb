@@ -34,12 +34,12 @@ class ChReportOrgSharedEmailDomains extends Extension_Report {
 		
 		$top_domains = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$top_domains[$row['domain']] = intval($row['num_orgs']);
 		}
 		$tpl->assign('top_domains', $top_domains);
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		$tpl->display('devblocks:cerberusweb.reports::reports/org/shared_email_domains/index.tpl');
 	}

@@ -213,10 +213,10 @@ class CerberusApplication extends DevblocksApplication {
 			}
 		}
 		
-		// Extension: MySQL
-		if(extension_loaded("mysql")) {
+		// Extension: MySQLi
+		if(extension_loaded("mysqli")) {
 		} else {
-			$errors[] = "The 'MySQL' PHP extension is required.  Please enable it.";
+			$errors[] = "The 'MySQLi' PHP extension is required.  Please enable it.";
 		}
 		
 		// Extension: Sessions

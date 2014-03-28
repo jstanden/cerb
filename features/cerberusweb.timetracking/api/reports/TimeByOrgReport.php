@@ -138,7 +138,7 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		
 		$data = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$org_id = intval($row['org_id']);
 			$date_plot = $row['date_plot'];
 			
@@ -183,7 +183,7 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		$tpl->assign('chart_data', $chart_data);
 		$tpl->assign('data', $data);
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		// Table
 		

@@ -25,12 +25,12 @@ class ChReportTopTicketsByContact extends Extension_Report {
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
 		$rs = $db->Execute($sql);
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$years[] = intval($row['year']);
 		}
 		$tpl->assign('years', $years);
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 
 		// Dates
 		
@@ -138,7 +138,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 		$max_orgs = 100;
 		$current_orgs = 0;
 		
-		while(($row = mysql_fetch_assoc($rs)) && $current_orgs <= $max_orgs) {
+		while(($row = mysqli_fetch_assoc($rs)) && $current_orgs <= $max_orgs) {
 			$org_id = intval($row['contact_id']);
 			$org_name = $row['contact_name'];
 			$group_id = intval($row['group_id']);
@@ -166,7 +166,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 			@$group_counts[$org_id]['total'] = intval($group_counts[$org_id]['total']) + $hits;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		uasort($group_counts, array("ChReportTopTicketsByContact", "sortCountsArrayByHits"));
 		
@@ -270,7 +270,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 		$data = array();
 		$labels = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$id = intval($row['id']);
 			$date_plot = $row['date_plot'];
 			
@@ -290,7 +290,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 		$tpl->assign('labels', $labels);
 		$tpl->assign('data', $data);
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 
 		$tpl->display('devblocks:cerberusweb.reports::reports/ticket/top_contacts_tickets/index.tpl');
 	}

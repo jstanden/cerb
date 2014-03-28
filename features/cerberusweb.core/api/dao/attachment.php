@@ -81,7 +81,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 	private static function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Attachment();
 			$object->id = intval($row['id']);
 			$object->display_name = $row['display_name'];
@@ -95,7 +95,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 			$objects[$object->id] = $object;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $objects;
 	}
@@ -157,10 +157,10 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$count = $db->GetOne("SELECT FOUND_ROWS();");
 		
 		if(!empty($count)) {
-			while($row = mysql_fetch_row($rs)) {
+			while($row = mysqli_fetch_row($rs)) {
 				DAO_Attachment::delete($row[0]);
 			}
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 		}
 		
 		$logger->info('[Maint] Purged ' . $count . ' attachment records.');
@@ -271,7 +271,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$results = array();
 		$total = -1;
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$result = array();
 			foreach($row as $f => $v) {
 				$result[$f] = $v;
@@ -288,7 +288,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 			$total = $db->GetOne($count_sql);
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return array($results,$total);
 	}
@@ -468,7 +468,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		
 		// Delete the physical files
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$profile = !empty($row['storage_profile_id']) ? $row['storage_profile_id'] : $row['storage_extension'];
 			
 			if(null != ($storage = DevblocksPlatform::getStorageService($profile)))
@@ -476,7 +476,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 					return FALSE;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return true;
 	}
@@ -511,7 +511,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		);
 		$rs = $db->Execute($sql);
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			self::_migrate($dst_profile, $row);
 
 			if(time() > $stop_time)
@@ -543,7 +543,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		);
 		$rs = $db->Execute($sql);
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			self::_migrate($dst_profile, $row, true);
 
 			if(time() > $stop_time)
@@ -1211,7 +1211,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 	private static function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_AttachmentLink();
 			$object->guid = $row['guid'];
 			$object->attachment_id = intval($row['attachment_id']);
@@ -1220,7 +1220,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 			$objects[$object->guid] = $object;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $objects;
 	}
@@ -1318,7 +1318,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 		$results = array();
 		$total = -1;
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$result = array();
 			foreach($row as $f => $v) {
 				$result[$f] = $v;
@@ -1335,7 +1335,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 			$total = $db->GetOne($count_sql);
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return array($results,$total);
 	}

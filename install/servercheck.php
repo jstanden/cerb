@@ -84,11 +84,11 @@ if ($memory_limit == '') { // empty string means failure or not defined, assume 
 }
 
 
-// Extension: MySQL
-if(extension_loaded("mysql")) {
-	$results['ext_mysql'] = true;
+// Extension: MySQLi
+if(extension_loaded("mysqli")) {
+	$results['ext_mysqli'] = true;
 } else {
-	$results['ext_mysql'] = false;
+	$results['ext_mysqli'] = false;
 	$fails++;
 }
 
@@ -211,8 +211,8 @@ if($fails) {
 	if(!$results['memory_limit'])
 		echo '<li>memory_limit must be 16M or larger (32M recommended) in your php.ini file.  Please increase it.</li>';
 		
-	if(!$results['ext_mysql'])
-		echo "<li>The 'MySQL' PHP extension is required.  Please enable it.</li>";
+	if(!$results['ext_mysqli'])
+		echo "<li>The 'MySQLi' PHP extension is required.  Please enable it.</li>";
 		
 	if(!$results['ext_session'])
 		echo "<li>The 'Session' PHP extension is required.  Please enable it.</li>";

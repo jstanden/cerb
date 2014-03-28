@@ -48,7 +48,7 @@ class DAO_Bayes {
 		
 		// Existing Words
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$w = new Model_BayesWord();
 			$w->id = intval($row['id']);
 			$w->word = mb_convert_case($row['word'], MB_CASE_LOWER);
@@ -59,7 +59,7 @@ class DAO_Bayes {
 			unset($tmp[$w->word]); // check off we've indexed this word
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		// Insert new words
 		if(is_array($tmp))
@@ -89,7 +89,7 @@ class DAO_Bayes {
 		$sql = "SELECT spam, nonspam FROM bayes_stats";
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
-		if($row = mysql_fetch_assoc($rs)) {
+		if($row = mysqli_fetch_assoc($rs)) {
 			$spam = intval($row['spam']);
 			$nonspam = intval($row['nonspam']);
 		} else {

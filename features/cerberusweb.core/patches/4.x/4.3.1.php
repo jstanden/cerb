@@ -25,7 +25,7 @@ if(isset($columns['content'])) {
 	$rs = $db->Execute("SELECT id, updated_date, content FROM task WHERE content != '' ORDER BY id");
 	
 	// Move 'content' blocks to anonymous notes on each task record
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$sql = sprintf('INSERT INTO note (source_extension_id, source_id, created, worker_id, content) '.
 			'VALUES (%s, %d, %d, %d, %s)',
 			$db->qstr('cerberusweb.notes.source.task'),
@@ -37,7 +37,7 @@ if(isset($columns['content'])) {
 		$db->Execute($sql);
 	}
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 	
 	// Drop the deprecated 'content' column from 'task'
 	$db->Execute('ALTER TABLE task DROP COLUMN content');

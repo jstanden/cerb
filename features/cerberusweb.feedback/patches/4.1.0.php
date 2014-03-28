@@ -76,11 +76,11 @@ if(isset($tables['feedback_entry'])) {
 		$lists = array();
 		$sql = "SELECT id, name FROM feedback_list ORDER BY name";
 		$rs = $db->Execute($sql);
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$lists[$row['id']] = $row['name'];
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 	
 		if(!empty($lists)) { // Move to a custom field before dropping
 			// Create the new custom field

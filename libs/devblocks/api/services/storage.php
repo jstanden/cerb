@@ -190,12 +190,12 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 			
 		// Use the provided connection details
 		} else {
-			if(false == ($this->_db = mysql_connect($this->_options['host'], $this->_options['user'], $this->_options['password'], true))) {
+			if(false == ($this->_db = mysqli_connect($this->_options['host'], $this->_options['user'], $this->_options['password']))) {
 				$this->_db = null;
 				return false;
 			}
 				
-			if(false == mysql_select_db($this->_options['database'], $this->_db)) {
+			if(false == mysqli_select_db($this->_options['database'], $this->_db)) {
 				$this->_db = null;
 				return false;
 			}
@@ -218,11 +218,11 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 		}
 		
 		// Test connection
-		if(false == (@$this->_db = mysql_connect($host, $user, $password)))
+		if(false == (@$this->_db = mysqli_connect($host, $user, $password)))
 			return false;
 			
 		// Test switching DB
-		if(false == @mysql_select_db($database, $this->_db))
+		if(false == @mysqli_select_db($database, $this->_db))
 			return false;
 		
 		return true;
@@ -254,10 +254,10 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 	}
 	
 	private function _createTable($namespace) {
-		$rs = mysql_query("SHOW TABLES", $this->_db);
+		$rs = mysqli_query($this->_db, "SHOW TABLES");
 
 		$tables = array();
-		while($row = mysql_fetch_row($rs)) {
+		while($row = mysqli_fetch_row($rs)) {
 			$tables[$row[0]] = true;
 		}
 		
@@ -266,7 +266,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 		if(isset($tables['storage_'.$namespace]))
 			return true;
 		
-		$result = mysql_query(sprintf(
+		$result = mysqli_query($this->_db, sprintf(
 			"CREATE TABLE IF NOT EXISTS storage_%s (
 				id INT UNSIGNED NOT NULL DEFAULT 0,
 				data BLOB,
@@ -276,7 +276,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 			) ENGINE=%s;",
 			$this->escapeNamespace($namespace),
 			APP_DB_ENGINE
-		), $this->_db);
+		));
 		
 		DevblocksPlatform::clearCache(DevblocksPlatform::CACHE_TABLES);
 		
@@ -284,12 +284,12 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 	}
 	
 	public function exists($namespace, $key) {
-		$result = mysql_query(sprintf("SELECT id FROM storage_%s WHERE id=%d",
+		$result = mysqli_query($this->_db, sprintf("SELECT id FROM storage_%s WHERE id=%d",
 			$this->escapeNamespace($namespace),
 			$key
-		), $this->_db);
+		));
 		
-		return (mysql_num_rows($result)) ? true : false;
+		return (mysqli_num_rows($result)) ? true : false;
 	}
 
 	private function _writeChunksFromString($data, $namespace, $id) {
@@ -304,16 +304,16 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 			$sql = sprintf("INSERT INTO storage_%s (id, data, chunk) VALUES (%d, '%s', %d)",
 				$this->escapeNamespace($namespace),
 				$id,
-				mysql_real_escape_string($chunk, $this->_db),
+				mysqli_real_escape_string($this->_db, $chunk),
 				$chunks
 			);
-			if(false === ($result = mysql_query($sql, $this->_db))) {
+			if(false === ($result = mysqli_query($this->_db, $sql))) {
 				// Rollback
 				$sql = sprintf("DELETE QUICK FROM storage_%s WHERE id = %d",
 					$this->escapeNamespace($namespace),
 					$id
 				);
-				mysql_query($sql, $this->_db);
+				mysqli_query($this->_db, $sql);
 				return false;
 			}
 			
@@ -336,16 +336,16 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 			$sql = sprintf("INSERT INTO storage_%s (id, data, chunk) VALUES (%d, '%s', %d)",
 				$this->escapeNamespace($namespace),
 				$id,
-				mysql_real_escape_string($chunk, $this->_db),
+				mysqli_real_escape_string($this->_db, $chunk),
 				$chunks
 			);
-			if(false === ($result = mysql_query($sql, $this->_db))) {
+			if(false === ($result = mysqli_query($this->_db, $sql))) {
 				// Rollback
 				$sql = sprintf("DELETE QUICK FROM storage_%s WHERE id = %d",
 					$this->escapeNamespace($namespace),
 					$id
 				);
-				mysql_query($sql, $this->_db);
+				mysqli_query($this->_db, $sql);
 				return false;
 			}
 			
@@ -360,7 +360,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 			$this->escapeNamespace($namespace),
 			$id
 		);
-		mysql_query($sql, $this->_db);
+		mysqli_query($this->_db, $sql);
 
 		if(is_resource($data)) {
 			if($this->_writeChunksFromFile($data, $namespace, $id))
@@ -389,41 +389,41 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 
 	// Pass an optional file pointer to write the response to (by reference)
 	public function get($namespace, $key, &$fp=null) {
-		if(false === ($result = mysql_query(sprintf("SELECT data FROM storage_%s WHERE id=%d ORDER BY chunk ASC",
+		if(false === ($result = mysqli_query($this->_db, sprintf("SELECT data FROM storage_%s WHERE id=%d ORDER BY chunk ASC",
 				$this->escapeNamespace($namespace),
 				$key
-			), $this->_db)))
+			))))
 			return false;
 
 		if($fp && is_resource($fp)) {
-			while($row = mysql_fetch_row($result)) {
+			while($row = mysqli_fetch_row($result)) {
 				if(false === fwrite($fp, $row[0], strlen($row[0]))) {
-					mysql_free_result($result);
+					mysqli_free_result($result);
 					return false;
 				}
 			}
 			
-			mysql_free_result($result);
+			mysqli_free_result($result);
 			fseek($fp, 0);
 			return true;
 			
 		} else {
 			$contents = '';
 			
-			while($row = mysql_fetch_row($result)) {
+			while($row = mysqli_fetch_row($result)) {
 				$contents .= $row[0];
 			}
 			
-			mysql_free_result($result);
+			mysqli_free_result($result);
 			return $contents;
 		}
 	}
 
 	public function delete($namespace, $key) {
-		$result = mysql_query(sprintf("DELETE FROM storage_%s WHERE id=%d",
+		$result = mysqli_query($this->_db, sprintf("DELETE FROM storage_%s WHERE id=%d",
 			$this->escapeNamespace($namespace),
 			$key
-		), $this->_db);
+		));
 		
 		return $result ? true : false;
 	}

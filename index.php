@@ -61,8 +61,8 @@ if('' == APP_DB_DRIVER
 		DevblocksPlatform::init();
 		$url_writer = DevblocksPlatform::getUrlService();
 		$base_url = rtrim(preg_replace("/index\.php\/$/i",'',$url_writer->write('',true)),"/");
-   		header('Location: '.$base_url.'/install/index.php');
-   		exit;
+		header('Location: '.$base_url.'/install/index.php');
+		exit;
 	}
 
 require(APP_PATH . '/api/Application.class.php');

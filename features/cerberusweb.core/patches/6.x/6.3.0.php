@@ -125,7 +125,7 @@ if(!isset($tables['decision_node'])) {
 
 $rs = $db->Execute("SELECT decision_node.id, decision_node.params_json, trigger_event.event_point FROM decision_node INNER JOIN trigger_event ON (trigger_event.id=decision_node.trigger_id) WHERE decision_node.node_type = 'action'");
 
-while($row = mysql_fetch_assoc($rs)) {
+while($row = mysqli_fetch_assoc($rs)) {
 	$event_point = $row['event_point'];
 	$json = $row['params_json'];
 	$params = json_decode($json, true);

@@ -53,7 +53,7 @@ class DAO_Pop3Account {
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$pop3 = new Model_Pop3Account();
 			$pop3->id = intval($row['id']);
 			$pop3->enabled = intval($row['enabled']);
@@ -68,7 +68,7 @@ class DAO_Pop3Account {
 			$pop3accounts[$pop3->id] = $pop3;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $pop3accounts;
 	}

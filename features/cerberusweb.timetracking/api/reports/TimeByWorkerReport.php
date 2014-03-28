@@ -161,7 +161,7 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		$rs = $db->Execute($sql);
 		
 		$data = array();
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$worker_id = intval($row['worker_id']);
 			$date_plot = $row['date_plot'];
 			
@@ -180,7 +180,7 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		$tpl->assign('xaxis_ticks', array_keys($ticks));
 		$tpl->assign('data', $data);
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		// Template
 		

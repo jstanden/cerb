@@ -114,7 +114,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 	private static function _getObjectsFromResults($rs) {
 		$objects = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_ViewRss();
 			$object->id = intval($row['id']);
 			$object->title = $row['title'];
@@ -131,7 +131,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 			$objects[$object->id] = $object;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $objects;
 	}

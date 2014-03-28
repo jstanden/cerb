@@ -621,7 +621,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		$sql = "SELECT count(*) AS hits, kb_category_id FROM kb_article_to_category GROUP BY kb_category_id";
 		$rs = $db->Execute($sql);
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$count_cat = intval($row['kb_category_id']);
 			$count_hits = intval($row['hits']);
 			
@@ -635,7 +635,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		
 		// [TODO] Filter out empty categories on public
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $tree;
 	}
@@ -722,7 +722,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_KbCategory();
 			$object->id = $row['id'];
 			$object->parent_id = $row['parent_id'];
@@ -730,7 +730,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 			$objects[$object->id] = $object;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $objects;
 	}
@@ -830,7 +830,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		
 		$results = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$result = array();
 			foreach($row as $f => $v) {
 				$result[$f] = $v;
@@ -849,7 +849,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 			$total = $db->GetOne($count_sql);
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return array($results,$total);
 	}

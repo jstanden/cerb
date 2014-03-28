@@ -92,7 +92,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 		
 		$buckets = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$bucket = new Model_Bucket();
 			$bucket->id = intval($row['id']);
 			$bucket->pos = intval($row['pos']);
@@ -106,7 +106,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 			$buckets[$bucket->id] = $bucket;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $buckets;
 	}

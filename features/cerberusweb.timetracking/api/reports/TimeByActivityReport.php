@@ -161,7 +161,7 @@ class ChReportTimeSpentActivity extends Extension_Report {
 		$data = array();
 		$activities = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$activity_id = intval($row['activity_id']);
 			$date_plot = $row['date_plot'];
 			
@@ -181,7 +181,7 @@ class ChReportTimeSpentActivity extends Extension_Report {
 		$tpl->assign('activities', $activities);
 		$tpl->assign('data', $data);
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		// Template
 		

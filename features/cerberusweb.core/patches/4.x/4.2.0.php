@@ -36,7 +36,7 @@ if(isset($tables['mail_routing'])) {
 	$rs = $db->Execute($sql);
 	
 	// Migrate data out of the table and drop it
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		// Turn 'pattern' into a criteria on 'TO/CC'
 		$criteria = array(
 			'tocc' => array('value' => $row['pattern']),
@@ -58,7 +58,7 @@ if(isset($tables['mail_routing'])) {
 		$db->Execute($sql);
 	}
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 	
 	// Drop it
 	$db->Execute('DROP TABLE mail_routing');
@@ -90,7 +90,7 @@ if(isset($columns['criteria_ser'])) {
 	$sql = "SELECT id, criteria_ser FROM preparse_rule";
 	$rs = $db->Execute($sql);
 	
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$criteria_ser = $row['criteria_ser'];
 		if(!empty($criteria_ser) && false !== (@$criteria = unserialize($criteria_ser))) {
 			if(isset($criteria['to'])) {
@@ -103,7 +103,7 @@ if(isset($columns['criteria_ser'])) {
 		}
 	}
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 }
 
 // ===========================================================================

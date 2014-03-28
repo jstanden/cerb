@@ -14,7 +14,7 @@ if(!isset($tables['workspace_widget'])) {
 $sql = "SELECT id, extension_id, params_json FROM workspace_widget";
 $rs = $db->Execute($sql);
 
-while($row = mysql_fetch_assoc($rs)) {
+while($row = mysqli_fetch_assoc($rs)) {
 	$changes = 0;
 	
 	$params = json_decode($row['params_json'], true);

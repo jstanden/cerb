@@ -196,7 +196,7 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 	private static function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_AddressToWorker();
 			$object->worker_id = intval($row['worker_id']);
 			$object->address = strtolower($row['address']);
@@ -206,7 +206,7 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 			$objects[$object->address] = $object;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $objects;
 	}

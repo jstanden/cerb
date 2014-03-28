@@ -180,12 +180,12 @@ class DAO_ContextLink {
 			$context_id
 		));
 		
-		if(is_resource($rs))
-		while($row = mysql_fetch_assoc($rs)) {
+		if($rs instanceof mysqli_result)
+		while($row = mysqli_fetch_assoc($rs)) {
 			$rows[] = $row['context'];
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $rows;
 	}
@@ -205,12 +205,12 @@ class DAO_ContextLink {
 		
 		$objects = array();
 		
-		if(is_resource($rs))
-		while($row = mysql_fetch_assoc($rs)) {
+		if($rs instanceof mysqli_result)
+		while($row = mysqli_fetch_assoc($rs)) {
 			$objects[$row['context']] = intval($row['hits']);
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $objects;
 	}
@@ -251,15 +251,15 @@ class DAO_ContextLink {
 		
 		$objects = array();
 		
-		if(is_resource($rs))
-		while($row = mysql_fetch_assoc($rs)) {
+		if($rs instanceof mysqli_result)
+		while($row = mysqli_fetch_assoc($rs)) {
 			$to_context = $row['to_context'];
 			$to_context_id = $row['to_context_id'];
 			$object = new Model_ContextLink($row['to_context'], $row['to_context_id']);
 			$objects[$to_context.':'.$to_context_id] = $object;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $objects;
 	}
@@ -290,8 +290,8 @@ class DAO_ContextLink {
 		
 		$objects = array();
 		
-		if(is_resource($rs))
-		while($row = mysql_fetch_assoc($rs)) {
+		if($rs instanceof mysqli_result)
+		while($row = mysqli_fetch_assoc($rs)) {
 			$from_context_id = $row['from_context_id'];
 			$to_context_id = $row['to_context_id'];
 			$object = new Model_ContextLink($row['to_context'], $row['to_context_id']);
@@ -302,7 +302,7 @@ class DAO_ContextLink {
 			$objects[$from_context_id][$to_context_id] = $object;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $objects;
 	}

@@ -44,11 +44,11 @@ if(isset($columns['sla_id'])) {
 		$sql = "SELECT id, name FROM sla ORDER BY name";
 		$rs = $db->Execute($sql);
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$slas[$row['id']] = $row['name'];
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 	}
 	
 	if(!empty($count) && !empty($slas)) { // Move to a custom field before dropping
@@ -327,20 +327,20 @@ if(!isset($columns['actions_ser'])) {
     	$buckets = array();
     	$sql = sprintf("SELECT id,name,team_id FROM category");
     	$rs = $db->Execute($sql);
-    	while($row = mysql_fetch_assoc($rs)) {
+    	while($row = mysqli_fetch_assoc($rs)) {
     		$buckets[intval($row['id'])] = array(
     			'name' => $row['name'],
     			'group_id' => intval($row['team_id'])
     		);
     	}
     	
-    	mysql_free_result($rs);
+    	mysqli_free_result($rs);
     	
     	// Loop through the old style values
     	$sql = "SELECT id, do_assign, do_move, do_spam, do_status FROM group_inbox_filter";
     	$rs = $db->Execute($sql);
     	
-    	while($row = mysql_fetch_assoc($rs)) {
+    	while($row = mysqli_fetch_assoc($rs)) {
     		$actions = array();
     		
     		$rule_id = intval($row['id']);
@@ -376,7 +376,7 @@ if(!isset($columns['actions_ser'])) {
     		$db->Execute($sql);
     	}
     	
-    	mysql_free_result($rs);
+    	mysqli_free_result($rs);
     	
     	unset($buckets);
     }

@@ -1466,7 +1466,7 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$list = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$first = $row['first_name'];
 			$last = $row['last_name'];
 			$email = strtolower($row['email']);
@@ -1491,7 +1491,7 @@ class ChContactsPage extends CerberusPageExtension {
 			$list[] = $entry;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 
 		echo sprintf("%s%s%s",
 			!empty($callback) ? ($callback.'(') : '',
@@ -1519,11 +1519,11 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$list = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$list[] = $row['country'];
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		echo sprintf("%s%s%s",
 			!empty($callback) ? ($callback.'(') : '',

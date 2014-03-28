@@ -233,6 +233,14 @@ switch($step) {
 			$fails++;
 		}
 		
+		// Extension: MySQLi
+		if(extension_loaded("mysqli")) {
+			$results['ext_mysqli'] = true;
+		} else {
+			$results['ext_mysqli'] = false;
+			$fails++;
+		}
+		
 		// Extension: DOM
 		if(extension_loaded("dom")) {
 			$results['ext_dom'] = true;
@@ -309,9 +317,7 @@ switch($step) {
 		$drivers = array();
 		
 		if(extension_loaded('mysqli'))
-			$drivers['mysqli'] = 'MySQLi (Recommended)';
-		if(extension_loaded('mysql'))
-			$drivers['mysql'] = 'MySQL';
+			$drivers['mysqli'] = 'MySQLi';
 		
 		$tpl->assign('drivers', $drivers);
 		
@@ -328,21 +334,21 @@ switch($step) {
 			$db_passed = false;
 			$errors = array();
 			
-			if(false !== (@$_db = mysql_connect($db_server, $db_user, $db_pass))) {
-				if(false !== mysql_select_db($db_name, $_db)) {
+			if(false !== (@$_db = mysqli_connect($db_server, $db_user, $db_pass))) {
+				if(false !== mysqli_select_db($db_name, $_db)) {
 					$db_passed = true;
 				} else {
 					$db_passed = false;
-					$errors[] = mysql_error($_db);
+					$errors[] = mysqli_error($_db);
 				}
 				
 				// Check if the engine we want exists, otherwise default
-				$rs = mysql_query("SHOW ENGINES", $_db);
+				$rs = mysqli_query($_db, "SHOW ENGINES");
 				$discovered_engines = array();
-				while($row = mysql_fetch_assoc($rs)) {
+				while($row = mysqli_fetch_assoc($rs)) {
 					$discovered_engines[] = strtolower($row['Engine']);
 				}
-				mysql_free_result($rs);
+				mysqli_free_result($rs);
 
 				// Check the preferred DB engine
 				if(!in_array($db_engine, $discovered_engines)) {
@@ -359,46 +365,46 @@ switch($step) {
 				// Check user privileges
 				if($db_passed) {
 					// CREATE TABLE
-					if($db_passed && false === mysql_query("CREATE TABLE IF NOT EXISTS _installer_test_suite (id int)", $_db)) {
+					if($db_passed && false === mysqli_query($_db, "CREATE TABLE IF NOT EXISTS _installer_test_suite (id int)")) {
 						$db_passed = false;
 						$errors[] = sprintf("The database user lacks the CREATE privilege.");
 					}
 					// INSERT
-					if($db_passed && false === mysql_query("INSERT INTO _installer_test_suite (id) values(1)", $_db)) {
+					if($db_passed && false === mysqli_query($_db, "INSERT INTO _installer_test_suite (id) values(1)")) {
 						$db_passed = false;
 						$errors[] = sprintf("The database user lacks the INSERT privilege.");
 					}
 					// SELECT
-					if($db_passed && false === mysql_query("SELECT id FROM _installer_test_suite", $_db)) {
+					if($db_passed && false === mysqli_query($_db, "SELECT id FROM _installer_test_suite")) {
 						$db_passed = false;
 						$errors[] = sprintf("The database user lacks the SELECT privilege.");
 					}
 					// UPDATE
-					if($db_passed && false === mysql_query("UPDATE _installer_test_suite SET id = 2", $_db)) {
+					if($db_passed && false === mysqli_query($_db, "UPDATE _installer_test_suite SET id = 2")) {
 						$db_passed = false;
 						$errors[] = sprintf("The database user lacks the UPDATE privilege.");
 					}
 					// DELETE
-					if($db_passed && false === mysql_query("DELETE FROM _installer_test_suite WHERE id > 0", $_db)) {
+					if($db_passed && false === mysqli_query($_db, "DELETE FROM _installer_test_suite WHERE id > 0")) {
 						$db_passed = false;
 						$errors[] = sprintf("The database user lacks the DELETE privilege.");
 					}
 					// ALTER TABLE
-					if($db_passed && false === mysql_query("ALTER TABLE _installer_test_suite MODIFY COLUMN id int unsigned", $_db)) {
+					if($db_passed && false === mysqli_query($_db, "ALTER TABLE _installer_test_suite MODIFY COLUMN id int unsigned")) {
 						$db_passed = false;
 						$errors[] = sprintf("The database user lacks the ALTER privilege.");
 					}
 					// DROP TABLE
-					if($db_passed && false === mysql_query("DROP TABLE IF EXISTS _installer_test_suite", $_db)) {
+					if($db_passed && false === mysqli_query($_db, "DROP TABLE IF EXISTS _installer_test_suite")) {
 						$db_passed = false;
 						$errors[] = sprintf("The database user lacks the DROP privilege.");
 					}
 					// CREATE TEMPORARY TABLES
-					if($db_passed && false === mysql_query("CREATE TEMPORARY TABLE IF NOT EXISTS _installer_test_suite_tmp (id int)", $_db)) {
+					if($db_passed && false === mysqli_query($_db, "CREATE TEMPORARY TABLE IF NOT EXISTS _installer_test_suite_tmp (id int)")) {
 						$db_passed = false;
 						$errors[] = sprintf("The database user lacks the CREATE TEMPORARY TABLES privilege.");
 					}
-					if($db_passed && false === mysql_query("DROP TABLE IF EXISTS _installer_test_suite_tmp", $_db)) {
+					if($db_passed && false === mysqli_query($_db, "DROP TABLE IF EXISTS _installer_test_suite_tmp")) {
 						$db_passed = false;
 					}
 					
@@ -423,7 +429,7 @@ switch($step) {
 			
 			// If passed, write config file and continue
 			if($db_passed) {
-				@$row = mysql_fetch_row(mysql_query("SHOW VARIABLES LIKE 'character_set_database'"));
+				@$row = mysqli_fetch_row(mysqli_query($_db, "SHOW VARIABLES LIKE 'character_set_database'"));
 				$encoding = (is_array($row) && 0==strcasecmp($row[1],'utf8')) ? 'utf8' : 'latin1';
 				
 				// Write database settings to framework.config.php

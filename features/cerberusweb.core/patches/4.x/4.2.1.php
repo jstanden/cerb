@@ -9,7 +9,7 @@ if(isset($tables['worker_workspace_list'])) {
 	$sql = "SELECT id, list_view FROM worker_workspace_list WHERE source_extension = 'core.workspace.source.ticket'";
 	$rs = $db->Execute($sql);
 	
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		if(!empty($row['list_view'])) {
 			$updated_list_view = '';
 			
@@ -37,7 +37,7 @@ if(isset($tables['worker_workspace_list'])) {
 		}
 	}
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 }
 
 // ===========================================================================

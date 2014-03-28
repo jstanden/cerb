@@ -554,8 +554,8 @@ if(!isset($columns['context_id'])) {
 		$base_url_noprotocol
 	));
 	
-	if(is_resource($rs))
-	while($row = mysql_fetch_array($rs)) {
+	if($rs instanceof mysqli_result)
+	while($row = mysqli_fetch_array($rs)) {
 		$url = preg_replace(sprintf("#^(http|https)://%s#", $base_url_noprotocol),'',$row['url']);
 		$stack = explode('/', $url);
 		

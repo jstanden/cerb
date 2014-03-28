@@ -12,7 +12,7 @@ $tables = $db->metaTables();
 
 $rs = $db->Execute("SELECT id, extension_id, params_json FROM workspace_widget");
 
-while($row = mysql_fetch_assoc($rs)) {
+while($row = mysqli_fetch_assoc($rs)) {
 	$changed = false;
 	
 	$widget_id = $row['id'];
@@ -133,7 +133,7 @@ while($row = mysql_fetch_assoc($rs)) {
 
 $rs = $db->Execute("SELECT id, params_json FROM workspace_tab WHERE extension_id = 'core.workspace.tab.calendar'");
 
-while($row = mysql_fetch_assoc($rs)) {
+while($row = mysqli_fetch_assoc($rs)) {
 	$tab_id = $row['id'];
 	$params_json = $row['params_json'];
 	
@@ -177,7 +177,7 @@ while($row = mysql_fetch_assoc($rs)) {
 
 $rs = $db->Execute("SELECT decision_node.id, decision_node.params_json, trigger_event.variables_json FROM decision_node INNER JOIN trigger_event ON (trigger_event.id = decision_node.trigger_id) WHERE decision_node.node_type = 'action'");
 
-while($row = mysql_fetch_assoc($rs)) {
+while($row = mysqli_fetch_assoc($rs)) {
 	$changed = false;
 	
 	$node_id = $row['id'];
@@ -287,15 +287,15 @@ if(isset($columns['group_id'])) {
 	$rs = $db->Execute("SELECT DISTINCT custom_field.group_id, worker_group.name AS group_name, custom_field.context FROM custom_field INNER JOIN worker_group ON (custom_field.group_id=worker_group.id) WHERE custom_field.group_id > 0");
 	
 	// Migrate group-based custom fields to custom fieldset records
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$group_id = $row['group_id'];
 		$group_name = $row['group_name'];
 		$context = $row['context'];
 		
-		$sql = sprintf("INSERT INTO custom_fieldset (name, context, owner_context, owner_context_id) VALUES ('%s', '%s', '%s', %d)",
-			mysql_real_escape_string($group_name),
-			mysql_real_escape_string($context),
-			mysql_real_escape_string('cerberusweb.contexts.group'),
+		$sql = sprintf("INSERT INTO custom_fieldset (name, context, owner_context, owner_context_id) VALUES (%s, %s, %s, %d)",
+			$db->qstr($group_name),
+			$db->qstr($context),
+			$db->qstr('cerberusweb.contexts.group'),
 			$group_id
 		);
 		$db->Execute($sql);
@@ -374,7 +374,7 @@ if(!isset($columns['calendar_id'])) {
 if(isset($columns['owner_context'])) {
 	$rs = $db->Execute("SELECT DISTINCT calendar_event.owner_context, calendar_event.owner_context_id, CONCAT(worker.first_name,' ',worker.last_name) as worker_name FROM calendar_event INNER JOIN worker ON (worker.id=owner_context_id) WHERE calendar_event.calendar_id = 0");
 	
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		// Create calendar
 		$calendar_name = $row['worker_name'] . "'s Schedule";
 		$owner_context = $row['owner_context'];
@@ -453,7 +453,7 @@ $sql = "SELECT workspace_tab.id, workspace_tab.name, workspace_tab.params_json, 
 	;
 $rs = $db->Execute($sql);
 
-while($row = mysql_fetch_assoc($rs)) {
+while($row = mysqli_fetch_assoc($rs)) {
 	$calendar_name = $row['name'];
 	$owner_context = $row['owner_context'];
 	$owner_context_id = $row['owner_context_id'];
@@ -554,7 +554,7 @@ if(isset($columns['params_json'])) {
 	$sql = "SELECT r.id, r.date_start, r.date_end, r.tz, r.params_json, c.owner_context, c.owner_context_id FROM calendar_recurring_profile AS r INNER JOIN calendar AS c ON (c.id=r.calendar_id)";
 	$rs = $db->Execute($sql);
 	
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$event_start = 0;
 		$event_end = 0;
 		$recur_end = 0;

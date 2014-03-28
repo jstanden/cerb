@@ -1005,10 +1005,10 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			$context_index
 		));
 		
-		if(is_resource($rs)) {
+		if($rs instanceof mysqli_result) {
 			$deletes = 0;
 			
-			while($row = mysql_fetch_row($rs)) {
+			while($row = mysqli_fetch_row($rs)) {
 				DAO_VirtualAttendant::delete($row[0]);
 				$deletes++;
 			}

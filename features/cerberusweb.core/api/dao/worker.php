@@ -164,7 +164,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	static private function _createObjectsFromResultSet($rs=null) {
 		$objects = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Worker();
 			$object->id = intval($row['id']);
 			$object->first_name = $row['first_name'];
@@ -186,7 +186,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$objects[$object->id] = $object;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $objects;
 	}
@@ -716,13 +716,13 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		} else {
 			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-			$total = mysql_num_rows($rs);
+			$total = mysqli_num_rows($rs);
 		}
 		
 		$results = array();
 		$total = -1;
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$result = array();
 			foreach($row as $f => $v) {
 				$result[$f] = $v;
@@ -740,7 +740,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$total = $db->GetOne($count_sql);
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return array($results,$total);
 	}
@@ -1412,11 +1412,11 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 			
 			$objects = array();
 			
-			while($row = mysql_fetch_assoc($rs)) {
+			while($row = mysqli_fetch_assoc($rs)) {
 				$objects[$row['setting']] = $row['value'];
 			}
 			
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 			
 			$cache->save($objects, self::CACHE_PREFIX.$worker_id);
 		}

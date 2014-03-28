@@ -119,7 +119,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 		
 		$objects = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_CustomField();
 			$object->id = intval($row['id']);
 			$object->name = $row['name'];
@@ -139,7 +139,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 			$objects[$object->id] = $object;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $objects;
 	}
@@ -831,7 +831,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		$sql = implode(' UNION ALL ', $sqls);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$context_id = intval($row['context_id']);
 			$field_id = intval($row['field_id']);
 			$field_value = $row['field_value'];
@@ -860,7 +860,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			}
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $results;
 	}

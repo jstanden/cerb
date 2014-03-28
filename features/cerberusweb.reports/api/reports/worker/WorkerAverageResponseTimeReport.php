@@ -74,7 +74,7 @@ class ChReportAverageResponseTime extends Extension_Report {
 	   	$group_responses = array();
 	   	$worker_responses = array();
 	   	$prev = array();
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			// load current data
 			$id = intval($row['id']);
 			$ticket_id = intval($row['ticket_id']);
@@ -117,7 +117,7 @@ class ChReportAverageResponseTime extends Extension_Report {
 		$tpl->assign('group_responses', $group_responses);
 		$tpl->assign('worker_responses', $worker_responses);
 
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		$tpl->display('devblocks:cerberusweb.reports::reports/worker/average_response_time/index.tpl');
 	}

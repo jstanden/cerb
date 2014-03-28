@@ -20,8 +20,8 @@ class DAO_SupportCenterAddressShare extends DevblocksORMHelper {
 		);
 		$rs = $db->Execute($sql);
 		
-		if(is_resource($rs))
-		while($row = mysql_fetch_array($rs)) {
+		if($rs instanceof mysqli_result)
+		while($row = mysqli_fetch_array($rs)) {
 			$id = intval($row['id']);
 			$ids[$id] = $id;
 		}
@@ -97,8 +97,8 @@ class DAO_SupportCenterAddressShare extends DevblocksORMHelper {
 	private static function getObjectsFromResultSet($rs) {
 		$objects = array();
 		
-		if(is_resource($rs))
-		while($row = mysql_fetch_assoc($rs)) {
+		if($rs instanceof mysqli_result)
+		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_SupportCenterAddressShare();
 			$object->share_address_id = $row['share_address_id'];
 			$object->share_address = $row['share_address'];

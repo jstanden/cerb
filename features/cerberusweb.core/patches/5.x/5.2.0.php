@@ -60,7 +60,7 @@ if(isset($columns['is_registered']) && isset($columns['pass'])) {
 	$sql = "SELECT id,pass FROM address WHERE is_registered=1";
 	$rs = $db->Execute($sql);
 	
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$salt = CerberusApplication::generatePassword(8);
 		
 		// Insert the contact
@@ -73,7 +73,7 @@ if(isset($columns['is_registered']) && isset($columns['pass'])) {
 		$db->Execute($sql);
 	}
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 	
 	// Link created dates from ticket table
 	$sql = "UPDATE contact_person SET contact_person.created = (SELECT min(ticket.created_date) FROM ticket WHERE ticket.first_wrote_address_id = contact_person.email_id) WHERE contact_person.created = 0";

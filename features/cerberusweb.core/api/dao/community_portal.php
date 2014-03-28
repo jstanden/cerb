@@ -129,7 +129,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	static private function _createObjectsFromResultSet($rs) {
 		$objects = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_CommunityTool();
 			$object->id = intval($row['id']);
 			$object->name = $row['name'];
@@ -138,7 +138,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 			$objects[$object->id] = $object;
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $objects;
 	}
@@ -253,13 +253,13 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		} else {
 			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-			$total = mysql_num_rows($rs);
+			$total = mysqli_num_rows($rs);
 		}
 		
 		$results = array();
 		$total = -1;
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$result = array();
 			foreach($row as $f => $v) {
 				$result[$f] = $v;
@@ -277,7 +277,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 			$total = $db->GetOne($count_sql);
 		}
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return array($results,$total);
 	}
@@ -343,13 +343,13 @@ class DAO_CommunityToolProperty {
 			
 			$props = array();
 			
-			while($row = mysql_fetch_assoc($rs)) {
+			while($row = mysqli_fetch_assoc($rs)) {
 				$k = $row['property_key'];
 				$v = $row['property_value'];
 				$props[$k] = $v;
 			}
 			
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 			
 			$cache->save($props, self::_CACHE_PREFIX.$tool_code);
 		}

@@ -7,7 +7,7 @@ class _DevblocksDatabaseManager {
 		// [TODO] Implement proper pconnect abstraction for mysqli
 		$persistent = (defined('APP_DB_PCONNECT') && APP_DB_PCONNECT) ? true : false;
 		
-		if(false == ($conn = $this->Connect(APP_DB_HOST, APP_DB_USER, APP_DB_PASS, APP_DB_DATABASE, $persistent))) {
+		if(false == ($conn = $this->connect(APP_DB_HOST, APP_DB_USER, APP_DB_PASS, APP_DB_DATABASE, $persistent))) {
 			die("[Cerb] Error connecting to the database.  Please check MySQL and the framework.config.php settings.");
 		}
 	}
@@ -24,16 +24,15 @@ class _DevblocksDatabaseManager {
 		return self::$instance;
 	}
 	
-	function Connect($host, $user, $pass, $database, $persistent=false) {
-		if(false === ($this->_db = @mysql_pconnect($host, $user, $pass, !$persistent)))
+	function connect($host, $user, $pass, $database, $persistent=false) {
+		if($persistent)
+			$host = 'p:' . $host;
+		
+		if(false === ($this->_db = @mysqli_connect($host, $user, $pass, $database)))
 			return false;
 
-		if(false === @mysql_select_db($database, $this->_db)) {
-			return false;
-		}
-		
 		// Encoding
-		//mysql_set_charset(DB_CHARSET_CODE, $this->_db);
+		//mysqli_set_charset(DB_CHARSET_CODE, $this->_db);
 		$this->Execute('SET NAMES ' . DB_CHARSET_CODE);
 		
 		return true;
@@ -44,11 +43,11 @@ class _DevblocksDatabaseManager {
 	}
 	
 	function isConnected() {
-		if(!is_resource($this->_db)) {
+		if(!($this->_db instanceof mysqli)) {
 			$this->_db = null;
 			return false;
 		}
-		return mysql_ping($this->_db);
+		return mysqli_ping($this->_db);
 	}
 	
 	function metaTables() {
@@ -111,15 +110,15 @@ class _DevblocksDatabaseManager {
 	}
 	
 	function Execute($sql) {
-		if(false === ($rs = mysql_query($sql, $this->_db))) {
+		if(false === ($rs = mysqli_query($this->_db, $sql))) {
 			error_log(sprintf("[%d] %s ::SQL:: %s",
-				mysql_errno(),
-				mysql_error(),
+				mysqli_errno(),
+				mysqli_error(),
 				$sql
 			));
 			return false;
 		}
-			
+		
 		return $rs;
 	}
 	
@@ -134,21 +133,21 @@ class _DevblocksDatabaseManager {
 	}
 	
 	function escape($string) {
-		return mysql_real_escape_string($string, $this->_db);
+		return mysqli_real_escape_string($this->_db, $string);
 	}
 	
 	function qstr($string) {
-		return "'".mysql_real_escape_string($string, $this->_db)."'";
+		return "'".mysqli_real_escape_string($this->_db, $string)."'";
 	}
 	
 	function GetArray($sql) {
 		$results = array();
 		
 		if(false !== ($rs = $this->Execute($sql))) {
-			while($row = mysql_fetch_assoc($rs)) {
+			while($row = mysqli_fetch_assoc($rs)) {
 				$results[] = $row;
 			}
-			mysql_free_result($rs);
+			mysqli_free_result($rs);
 		}
 		
 		return $results;
@@ -156,8 +155,8 @@ class _DevblocksDatabaseManager {
 	
 	function GetRow($sql) {
 		if($rs = $this->Execute($sql)) {
-			$row = mysql_fetch_assoc($rs);
-			mysql_free_result($rs);
+			$row = mysqli_fetch_assoc($rs);
+			mysqli_free_result($rs);
 			return $row;
 		}
 		return false;
@@ -165,8 +164,8 @@ class _DevblocksDatabaseManager {
 
 	function GetOne($sql) {
 		if(false !== ($rs = $this->Execute($sql))) {
-			$row = mysql_fetch_row($rs);
-			mysql_free_result($rs);
+			$row = mysqli_fetch_row($rs);
+			mysqli_free_result($rs);
 			return $row[0];
 		}
 		
@@ -174,14 +173,14 @@ class _DevblocksDatabaseManager {
 	}
 
 	function LastInsertId() {
-		return mysql_insert_id($this->_db);
+		return mysqli_insert_id($this->_db);
 	}
 	
 	function Affected_Rows() {
-		return mysql_affected_rows($this->_db);
+		return mysqli_affected_rows($this->_db);
 	}
 	
 	function ErrorMsg() {
-		return mysql_error($this->_db);
+		return mysqli_error($this->_db);
 	}
 };

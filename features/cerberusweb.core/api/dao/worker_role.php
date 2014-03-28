@@ -189,7 +189,7 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_WorkerRole();
 			$object->id = $row['id'];
 			$object->name = $row['name'];
@@ -199,7 +199,7 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 			
 			$objects[$object->id] = $object;
 		}
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		return $objects;
 	}

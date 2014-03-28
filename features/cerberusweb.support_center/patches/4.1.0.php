@@ -37,7 +37,7 @@ if(isset($tables['community_tool'])) {
 	$sql = "SELECT id,code,extension_id FROM community_tool WHERE extension_id IN ('support.tool','kb.tool')";
 	$rs = $db->Execute($sql);
 	
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$code = $row['code'];
 		$tool_extension_id = $row['extension_id'];
 		
@@ -49,13 +49,13 @@ if(isset($tables['community_tool'])) {
 		$props = array();
 
 		// Create a hash of properties
-		while($row2 = mysql_fetch_assoc($rs2)) {
+		while($row2 = mysqli_fetch_assoc($rs2)) {
 			$k = $row2['property_key'];
 			$v = $row2['property_value'];
 			$props[$k] = $v;
 		}
 		
-		mysql_free_result($rs2);
+		mysqli_free_result($rs2);
 		
 		// Drop existing properies to replace
 		$db->Execute(sprintf("DELETE FROM community_tool_property WHERE tool_code = '%s'",$code));
@@ -97,7 +97,7 @@ if(isset($tables['community_tool'])) {
 		unset($props);
 	}
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 }
 
 // ===========================================================================
@@ -107,7 +107,7 @@ if(isset($tables['community_tool'])) {
 	$sql = "SELECT c.code, p.property_key FROM community_tool c LEFT JOIN community_tool_property p ON (c.code=p.tool_code AND p.property_key = 'common.enabled_modules') WHERE c.extension_id='sc.tool' AND p.property_key IS NULL";
 	$rs = $db->Execute($sql);
 	
-	while($row = mysql_fetch_assoc($rs)) {
+	while($row = mysqli_fetch_assoc($rs)) {
 		$code = $row['code'];
 		$db->Execute(sprintf("INSERT INTO community_tool_property (tool_code, property_key, property_value) ".
 			"VALUES (%s,%s,%s)",
@@ -117,7 +117,7 @@ if(isset($tables['community_tool'])) {
 		));
 	}
 	
-	mysql_free_result($rs);
+	mysqli_free_result($rs);
 }
 
 return TRUE;

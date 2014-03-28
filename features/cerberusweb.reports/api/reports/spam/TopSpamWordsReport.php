@@ -36,22 +36,22 @@ class ChReportSpamWords extends Extension_Report {
 		$sql = "SELECT word,spam,nonspam FROM bayes_words ORDER BY spam desc LIMIT 0,100";
 		$rs = $db->Execute($sql);
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$top_spam_words[$row['word']] = array($row['spam'], $row['nonspam']);
 		}
 		$tpl->assign('top_spam_words', $top_spam_words);
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		$sql = "SELECT word,spam,nonspam FROM bayes_words ORDER BY nonspam desc LIMIT 0,100";
 		$rs = $db->Execute($sql);
 		
-		while($row = mysql_fetch_assoc($rs)) {
+		while($row = mysqli_fetch_assoc($rs)) {
 			$top_nonspam_words[$row['word']] = array($row['spam'], $row['nonspam']);
 		}
 		$tpl->assign('top_nonspam_words', $top_nonspam_words);
 		
-		mysql_free_result($rs);
+		mysqli_free_result($rs);
 		
 		$tpl->display('devblocks:cerberusweb.reports::reports/spam/spam_words/index.tpl');
 	}
