@@ -72,7 +72,7 @@
 			<name>Sphinx</name>
 			<class>
 				<file>api/services/search.php</file>
-				<name>DevblocksStorageEngineSphinx</name>
+				<name>DevblocksSearchEngineSphinx</name>
 			</class>
 			<params>
 			</params>

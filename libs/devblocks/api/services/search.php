@@ -1,16 +1,319 @@
 <?php
+class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
+	const ID = 'devblocks.search.engine.sphinx';
 	
-		
-	}
-
-
-	}
+	private $_db = null;
+	private $_config = array();
 	
-			
-		} else {
+	public function __get($name) {
+		switch($name) {
+			case 'db':
+				if(!is_null($this->_db))
+					return $this->_db;
+				
+				if(false != ($this->_db = $this->_connect()))
+					return $this->_db;
+					
+				break;
 		}
 		
+		return null;
 	}
+	
+	private function _connect() {
+		$db = null;
+		@$host = $this->_config['host'];
+		$port = isset($this->_config['port']) ? intval($this->_config['port']) : 9306;
+
+		if(empty($host))
+			return false;
+		
+		// Don't allow port 3306 to prevent malicious connections to MySQL
+		if($port == 3306)
+			return false;
+		
+		return mysql_connect(sprintf("%s:%d", $host, $port));
+	}
+	
+	public function testConfig(array $config) {
+		@$host = $config['host'];
+		$port = isset($config['port']) ? intval($config['port']) : 9306;
+		@$index = $config['index'];
+		@$index_rt = $config['index_rt'];
+
+		if(empty($host))
+			return "A hostname is required.";
+		
+		if($port == 3306)
+			return "Port 3306 is not allowed for security reasons.";
+		
+		if(empty($index))
+			return "A search index is required.";
+		
+		if(!empty($host))
+			@$db = mysql_connect(sprintf("%s:%d", $host, $port));
+		
+		if(!is_resource($db))
+			return "Failed to connect to Sphinx.  Check your host and port settings.";
+		
+		// Check if the search index exists
+		if(false === ($rs = mysql_query(sprintf("DESCRIBE %s", $index), $db)))
+			return sprintf("The index '%s' does not exist.", $index);
+		
+		// Check if the real-time index exists
+		if($index_rt) {
+			if(false === ($rs = mysql_query(sprintf("DESCRIBE %s", $index_rt), $db)))
+				return sprintf("The real-time index '%s' does not exist.", $index_rt);
+		}
+		
+		return true;
+	}
+	
+	public function setConfig(array $config) {
+		$this->_config = $config;
+	}
+	
+	public function renderConfigForSchema(Extension_DevblocksSearchSchema $schema) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('engine', $this);
+		
+		$engine_params = $schema->getEngineParams();
+		@$engine_extension_id = $engine_params['engine_extension_id'];
+		
+		if($engine_extension_id == $this->id & isset($engine_params['config']))
+			$tpl->assign('engine_params', $engine_params['config']);
+		
+		$tpl->display('devblocks:devblocks.core::search_engine/sphinx.tpl');
+	}
+	
+	public function getQuickSearchExamples(Extension_DevblocksSearchSchema $schema) {
+		$engine_params = $schema->getEngineParams();
+		
+		if(isset($engine_params['config']) && isset($engine_params['config']['quick_search_examples']))
+			return DevblocksPlatform::parseCrlfString($engine_params['config']['quick_search_examples']);
+		
+		return array(
+			"all of these words",
+			'"this exact phrase"',
+			'(this | that)',
+			'wildcard*',
+			'"a quorum of at least three of these words"/3',
+		);
+	}
+	
+	public function getCount(Extension_DevblocksSearchSchema $schema) {
+		// Sphinx can't always count rows (if no attributes, non-extern-docinfo)
+		return null;
+	}
+	
+	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=250) {
+		@$index = $this->_config['index'];
+		
+		if(empty($index))
+			return false;
+		
+		$where_sql = array();
+		$field_sql = array();
+
+		$schema_attributes = $schema->getAttributes();
+		
+		if(is_array($attributes))
+		foreach($attributes as $attr => $attr_val) {
+			@$attr_type = $schema_attributes[$attr];
+			
+			if(empty($attr_type))
+				continue;
+			
+			switch($attr_type) {
+				case 'string':
+					$field_sql[] = sprintf("(@%s \"%s\")",
+						mysql_real_escape_string($attr),
+						mysql_real_escape_string($attr_val)
+					);
+					break;
+				
+				case 'int':
+				case 'int4':
+				case 'int8':
+					$where_sql[] = sprintf("%s = %d",
+						mysql_real_escape_string($attr),
+						$attr_val
+					);
+					break;
+					
+				case 'uint4':
+				case 'uint8':
+					$where_sql[] = sprintf("%s = %u",
+						mysql_real_escape_string($attr),
+						$attr_val
+					);
+					break;
+			}
+		}
+		
+		$sql = sprintf("SELECT id ".
+			"FROM %s ".
+			"WHERE MATCH ('(%s)%s') ".
+			"%s ".
+			"LIMIT 0,%d ",
+			$this->escapeNamespace($index),
+			mysql_real_escape_string($query),
+			!empty($field_sql) ? (' ' . implode(' ', $field_sql)) : '',
+			!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : '',
+			$limit
+		);
+		
+		$result = mysql_query($sql, $this->db);
+
+		if(false == $result)
+			return false;
+			
+		$ids = array();
+		
+		while($row = mysql_fetch_row($result)) {
+			$ids[] = intval($row[0]);
+		}
+		
+		return $ids;
+	}
+	
+	public function getQueryFromParam($param) {
+		$values = array();
+		$value = null;
+		$scope = null;
+
+		if(!is_array($param->value) && !is_string($param->value))
+			break;
+		
+		if(!is_array($param->value) && preg_match('#^\[.*\]$#', $param->value)) {
+			$values = json_decode($param->value, true);
+			
+		} elseif(is_array($param->value)) {
+			$values = $param->value;
+			
+		} else {
+			$values = $param->value;
+			
+		}
+		
+		if(!is_array($values)) {
+			$value = $values;
+			$scope = 'expert';
+		} else {
+			$value = $values[0];
+			$scope = $values[1];
+		}
+		
+		switch($scope) {
+			case 'all':
+				$value = $this->prepareText($value);
+				break;
+				
+			// OR
+			case 'any':
+				$words = explode(' ', $value);
+				$value = $this->prepareText(implode(' | ', $words));
+				break;
+				
+			case 'phrase':
+				$value = '"'.$this->prepareText($value).'"';
+				break;
+				
+			default:
+			case 'expert':
+				// Left-hand wildcards aren't supported in Sphinx
+				$value = ltrim($value, '*');
+				
+				// If this is a single term
+				if(false === strpos($value, ' ')) {
+					// If without quotes or wildcards, quote it (email addy, URL)
+					if(false === strpos($value, '"') && false === strpos($value, '*')) {
+						if(preg_match('#([\+\-]*)(\S*)#ui', $value, $matches))
+							$value = sprintf('%s"%s"', $matches[1], $matches[2]);
+					}
+				}
+				
+				break;
+		}
+		
+		return $value;
+	}
+	
+	private function _index(Extension_DevblocksSearchSchema $schema, $id, $content, $attributes=array()) {
+		@$index_rt = $this->_config['index_rt'];
+		
+		if(empty($index_rt))
+			return false;
+		
+		$fields = array(
+			'id' => intval($id),
+			'content' => sprintf("'%s'", mysql_real_escape_string($content)),
+		);
+		
+		// Attributes
+		$schema_attributes = $schema->getAttributes();
+		
+		if(is_array($attributes))
+		foreach($attributes as $attr => $attr_val) {
+			@$attr_type = $schema_attributes[$attr];
+			
+			if(empty($attr_type))
+				continue;
+			
+			switch($attr_type) {
+				case 'string':
+					$fields[mysql_real_escape_string($attr)] = sprintf("'%s'", mysql_real_escape_string($attr_val));
+					break;
+				
+				case 'int':
+				case 'int4':
+				case 'int8':
+					$fields[mysql_real_escape_string($attr)] = sprintf("%d", $attr_val);
+					break;
+					
+				case 'uint4':
+				case 'uint8':
+					$fields[mysql_real_escape_string($attr)] = sprintf("%u", $attr_val);
+					break;
+			}
+		}
+		
+		$sql = sprintf("REPLACE INTO %s (%s) VALUES (%s) ",
+			$this->escapeNamespace($index_rt),
+			implode(',', array_keys($fields)),
+			implode(',', $fields)
+		);
+		$result = mysql_query($sql, $this->db);
+		
+		return (false !== $result) ? true : false;
+	}
+	
+	public function index(Extension_DevblocksSearchSchema $schema, $id, $content, array $attributes=array()) {
+		if(false === ($ids = $this->_index($schema, $id, $content, $attributes)))
+			return false;
+		
+		return true;
+	}
+
+	public function delete(Extension_DevblocksSearchSchema $schema, $ids) {
+		@$index_rt = $this->_config['index_rt'];
+		
+		if(empty($index_rt))
+			return false;
+		
+		if(!is_array($ids))
+			$ids = array($ids);
+			
+		foreach($ids as $id) {
+			$result = mysql_query(sprintf("DELETE FROM %s WHERE id = %d",
+				$this->escapeNamespace($index_rt),
+				$id
+			), $this->db);
+		}
+		
+		return true;
+	}
+};
 
 class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine {
 	const ID = 'devblocks.search.engine.mysql_fulltext';
