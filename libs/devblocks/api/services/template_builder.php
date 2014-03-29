@@ -290,6 +290,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			'json_decode' => new Twig_Function_Method($this, 'function_json_decode'),
 			'jsonpath_set' => new Twig_Function_Method($this, 'function_jsonpath_set'),
 			'xml_decode' => new Twig_Function_Method($this, 'function_xml_decode'),
+			'xml_xpath' => new Twig_Function_Method($this, 'function_xml_xpath'),
 		);
 	}
 	
@@ -352,6 +353,18 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		$str = str_replace('xmlns=','ns=', $str);
 		$xml = simplexml_load_string($str);
 		return $xml;
+	}
+	
+	function function_xml_xpath($xml, $path, $element=null) {
+		if(!($xml instanceof SimpleXMLElement))
+			return false;
+		
+		$result = $xml->xpath($path);
+		
+		if(!is_null($element) && isset($result[$element]))
+			return $result[$element];
+		
+		return $result;
 	}
 	
 	public function getFilters() {
