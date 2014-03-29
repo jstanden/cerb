@@ -148,7 +148,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$sql = "DELETE QUICK address_to_worker FROM address_to_worker LEFT JOIN worker ON address_to_worker.worker_id=worker.id WHERE worker.id IS NULL";
+		$sql = "DELETE FROM address_to_worker WHERE worker_id NOT IN (SELECT id FROM worker)";
 		$db->Execute($sql);
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' address_to_worker records.');
 
@@ -177,7 +177,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		$address_ids = implode(',', $ids);
 		
 		// Addresses
-		$sql = sprintf("DELETE QUICK FROM address WHERE id IN (%s)", $address_ids);
+		$sql = sprintf("DELETE FROM address WHERE id IN (%s)", $address_ids);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	
 		// Fire event

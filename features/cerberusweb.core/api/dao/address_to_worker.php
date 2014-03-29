@@ -47,7 +47,7 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 		if(empty($address))
 			return NULL;
 			
-		$sql = sprintf("DELETE QUICK FROM address_to_worker WHERE address = %s",
+		$sql = sprintf("DELETE FROM address_to_worker WHERE address = %s",
 			$db->qstr($address)
 		);
 		$db->Execute($sql);
@@ -59,7 +59,7 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 		if(empty($worker_id))
 			return NULL;
 			
-		$sql = sprintf("DELETE QUICK FROM address_to_worker WHERE worker_id = %d",
+		$sql = sprintf("DELETE FROM address_to_worker WHERE worker_id = %d",
 			$worker_id
 		);
 		$db->Execute($sql);

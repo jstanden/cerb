@@ -873,33 +873,37 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		$logger->info(sprintf("Running maintenance on context: %s", $context));
 		
 		// ===========================================================================
-		// Comments
+		// Attachment links
 
-		$db->Execute(sprintf("DELETE QUICK ctx ".
-			"FROM comment AS ctx ".
-			"LEFT JOIN %s ON ctx.context_id=%s ".
-			"WHERE ctx.context = %s ".
-			"AND %s IS NULL",
-			$context_table,
-			$context_index,
+		$db->Execute(sprintf("DELETE FROM attachment_link WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
 			$db->qstr($context),
-			$context_index
+			$db->escape($context_index),
+			$db->escape($context_table)
 		));
 		if(null != ($deletes = $db->Affected_Rows()))
-			$logger->info(sprintf("Purged %d %s comments.", $deletes, $context));
+			$logger->info(sprintf("Purged %d %s attachment links.", $deletes, $context));
+		
+		// ===========================================================================
+		// Comments
+		
+		if($context != CerberusContexts::CONTEXT_COMMENT) {
+			$db->Execute(sprintf("DELETE FROM comment WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
+				$db->qstr($context),
+				$db->escape($context_index),
+				$db->escape($context_table)
+			));
+			
+			if(null != ($deletes = $db->Affected_Rows()))
+				$logger->info(sprintf("Purged %d %s comments.", $deletes, $context));
+		}
 		
 		// ===========================================================================
 		// Context Activity Log
 
-		$db->Execute(sprintf("DELETE QUICK ctx ".
-			"FROM context_activity_log AS ctx ".
-			"LEFT JOIN %s ON ctx.target_context_id=%s ".
-			"WHERE ctx.target_context = %s ".
-			"AND %s IS NULL",
-			$context_table,
-			$context_index,
+		$db->Execute(sprintf("DELETE FROM context_activity_log WHERE target_context = %s AND target_context_id NOT IN (SELECT %s FROM %s)",
 			$db->qstr($context),
-			$context_index
+			$db->escape($context_index),
+			$db->escape($context_table)
 		));
 		if(null != ($deletes = $db->Affected_Rows()))
 			$logger->info(sprintf("Purged %d %s activity log entries.", $deletes, $context));
@@ -907,28 +911,18 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		// ===========================================================================
 		// Context Links
 		
-		$db->Execute(sprintf("DELETE QUICK ctx ".
-			"FROM context_link AS ctx ".
-			"LEFT JOIN %s ON ctx.from_context_id=%s ".
-			"WHERE ctx.from_context = %s ".
-			"AND %s IS NULL",
-			$context_table,
-			$context_index,
+		$db->Execute(sprintf("DELETE FROM context_link WHERE from_context = %s AND from_context_id NOT IN (SELECT %s FROM %s)",
 			$db->qstr($context),
-			$context_index
+			$db->escape($context_index),
+			$db->escape($context_table)
 		));
 		if(null != ($deletes = $db->Affected_Rows()))
 			$logger->info(sprintf("Purged %d %s context link sources.", $deletes, $context));
 		
-		$db->Execute(sprintf("DELETE QUICK ctx ".
-			"FROM context_link AS ctx ".
-			"LEFT JOIN %s ON ctx.to_context_id=%s ".
-			"WHERE ctx.to_context = %s ".
-			"AND %s IS NULL",
-			$context_table,
-			$context_index,
+		$db->Execute(sprintf("DELETE FROM context_link WHERE to_context = %s AND to_context_id NOT IN (SELECT %s FROM %s)",
 			$db->qstr($context),
-			$context_index
+			$db->escape($context_index),
+			$db->escape($context_table)
 		));
 		if(null != ($deletes = $db->Affected_Rows()))
 			$logger->info(sprintf("Purged %d %s context link targets.", $deletes, $context));
@@ -936,41 +930,26 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		// ===========================================================================
 		// Custom fields
 		
-		$db->Execute(sprintf("DELETE QUICK ctx ".
-			"FROM custom_field_stringvalue AS ctx ".
-			"LEFT JOIN %s ON (%s=ctx.context_id) ".
-			"WHERE ctx.context = %s ".
-			"AND %s IS NULL",
-			$context_table,
-			$context_index,
+		$db->Execute(sprintf("DELETE FROM custom_field_stringvalue WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
 			$db->qstr($context),
-			$context_index
+			$db->escape($context_index),
+			$db->escape($context_table)
 		));
 		if(null != ($deletes = $db->Affected_Rows()))
 			$logger->info(sprintf("Purged %d %s custom field strings.", $deletes, $context));
 		
-		$db->Execute(sprintf("DELETE QUICK ctx ".
-			"FROM custom_field_numbervalue AS ctx ".
-			"LEFT JOIN %s ON (%s=ctx.context_id) ".
-			"WHERE ctx.context = %s ".
-			"AND %s IS NULL",
-			$context_table,
-			$context_index,
+		$db->Execute(sprintf("DELETE FROM custom_field_numbervalue WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
 			$db->qstr($context),
-			$context_index
+			$db->escape($context_index),
+			$db->escape($context_table)
 		));
 		if(null != ($deletes = $db->Affected_Rows()))
 			$logger->info(sprintf("Purged %d %s custom field numbers.", $deletes, $context));
 		
-		$db->Execute(sprintf("DELETE QUICK ctx ".
-			"FROM custom_field_clobvalue AS ctx ".
-			"LEFT JOIN %s ON (%s=ctx.context_id) ".
-			"WHERE ctx.context = %s ".
-			"AND %s IS NULL",
-			$context_table,
-			$context_index,
+		$db->Execute(sprintf("DELETE FROM custom_field_clobvalue WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
 			$db->qstr($context),
-			$context_index
+			$db->escape($context_index),
+			$db->escape($context_table)
 		));
 		if(null != ($deletes = $db->Affected_Rows()))
 			$logger->info(sprintf("Purged %d %s custom field clobs.", $deletes, $context));
@@ -978,43 +957,38 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		// ===========================================================================
 		// Notifications
 		
-		$db->Execute(sprintf("DELETE QUICK ctx ".
-			"FROM notification AS ctx ".
-			"LEFT JOIN %s ON ctx.context_id=%s ".
-			"WHERE ctx.context = %s ".
-			"AND %s IS NULL",
-			$context_table,
-			$context_index,
-			$db->qstr($context),
-			$context_index
-		));
-		if(null != ($deletes = $db->Affected_Rows()))
-			$logger->info(sprintf("Purged %d %s notifications.", $deletes, $context));
+		if($context != CerberusContexts::CONTEXT_NOTIFICATION) {
+			$db->Execute(sprintf("DELETE FROM notification WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
+				$db->qstr($context),
+				$db->escape($context_index),
+				$db->escape($context_table)
+			));
+			
+			if(null != ($deletes = $db->Affected_Rows()))
+				$logger->info(sprintf("Purged %d %s notifications.", $deletes, $context));
+		}
 		
 		// ===========================================================================
 		// Virtual Attendants
 		
-		$rs = $db->Execute(sprintf("SELECT ctx.id ".
-			"FROM virtual_attendant AS ctx ".
-			"LEFT JOIN %s ON ctx.owner_context_id=%s ".
-			"WHERE ctx.owner_context = %s ".
-			"AND %s IS NULL",
-			$context_table,
-			$context_index,
-			$db->qstr($context),
-			$context_index
-		));
-		
-		if($rs instanceof mysqli_result) {
-			$deletes = 0;
+		if($context != CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT) {
+			$rs = $db->Execute(sprintf("SELECT id FROM virtual_attendant WHERE owner_context = %s AND owner_context_id NOT IN (SELECT %s FROM %s)",
+				$db->qstr($context),
+				$db->escape($context_index),
+				$db->escape($context_table)
+			));
 			
-			while($row = mysqli_fetch_row($rs)) {
-				DAO_VirtualAttendant::delete($row[0]);
-				$deletes++;
+			if($rs instanceof mysqli_result) {
+				$deletes = 0;
+				
+				while($row = mysqli_fetch_row($rs)) {
+					DAO_VirtualAttendant::delete($row[0]);
+					$deletes++;
+				}
+				
+				if(null != ($deletes = $db->Affected_Rows()))
+					$logger->info(sprintf("Purged %d %s virtual attendants.", $deletes, $context));
 			}
-			
-			if(null != ($deletes = $db->Affected_Rows()))
-				$logger->info(sprintf("Purged %d %s virtual attendants.", $deletes, $context));
 		}
 	}
 	
@@ -1023,6 +997,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		DAO_Bucket::maint();
 		DAO_Comment::maint();
 		DAO_ConfirmationCode::maint();
+		DAO_CustomField::maint();
 		DAO_ExplorerSet::maint();
 		DAO_Group::maint();
 		DAO_Task::maint();

@@ -122,19 +122,18 @@ class DAO_ExampleObject extends Cerb_ORMHelper {
 	}
 	
 	static function maint() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$logger = DevblocksPlatform::getConsoleLog();
-
-		// Context Links
-		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN example_object ON context_link.from_context_id=example_object WHERE context_link.from_context = %s AND example_object.id IS NULL",
-			$db->qstr(Context_ExampleObject::ID)
-		));
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' example_object context link sources.');
-		
-		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN example_object ON context_link.to_context_id=example_object.id WHERE context_link.to_context = %s AND example_object IS NULL",
-			$db->qstr(Context_ExampleObject::ID)
-		));
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' example_object context link targets.');
+		// Fire event
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.maint',
+				array(
+					'context' => Context_ExampleObject::ID,
+					'context_table' => 'example_object',
+					'context_key' => 'id',
+				)
+			)
+		);
 	}
 	
 	static function delete($ids) {

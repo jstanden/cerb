@@ -247,7 +247,7 @@ class DAO_Notification extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$db->Execute("DELETE QUICK FROM notification WHERE is_read = 1");
+		$db->Execute("DELETE FROM notification WHERE is_read = 1");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' notification records.');
 		
 		// Fire event

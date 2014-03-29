@@ -187,7 +187,9 @@ class DAO_Message extends Cerb_ORMHelper {
 		$tables = $db->metaTables();
 		
 		// Purge message content (storage)
-		$sql = "SELECT message.id FROM message LEFT JOIN ticket ON message.ticket_id = ticket.id WHERE ticket.id IS NULL";
+		$db->Execute("CREATE TEMPORARY TABLE _tmp_maint_message SELECT id FROM message WHERE ticket_id NOT IN (SELECT id FROM ticket)");
+		
+		$sql = "SELECT id FROM _tmp_maint_message";
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		$ids_buffer = array();
@@ -213,26 +215,24 @@ class DAO_Message extends Cerb_ORMHelper {
 		}
 
 		// Purge messages without linked tickets
-		$sql = "DELETE QUICK message FROM message LEFT JOIN ticket ON message.ticket_id = ticket.id WHERE ticket.id IS NULL";
-		$db->Execute($sql);
+		$db->Execute("DELETE message FROM message INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=message.id)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message records.');
 		
 		// Headers
-		$sql = "DELETE QUICK message_header FROM message_header LEFT JOIN message ON message_header.message_id = message.id WHERE message.id IS NULL";
-		$db->Execute($sql);
+		$db->Execute("DELETE message_header FROM message_header INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=message_header.message_id)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message_header records.');
 
 		// Attachments
-		$sql = "DELETE QUICK attachment_link FROM attachment_link LEFT JOIN message ON (attachment_link.context_id=message.id) WHERE attachment_link.context = 'cerberusweb.contexts.message' AND message.id IS NULL";
-		$db->Execute($sql);
+		$db->Execute("DELETE attachment_link FROM attachment_link INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=attachment_link.context_id AND attachment_link.context = 'cerberusweb.contexts.message')");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message attachment_links.');
 		
 		// Search indexes
 		if(isset($tables['fulltext_message_content'])) {
-			$sql = "DELETE QUICK fulltext_message_content FROM fulltext_message_content LEFT JOIN message ON fulltext_message_content.id = message.id WHERE message.id IS NULL";
-			$db->Execute($sql);
+			$db->Execute("DELETE fulltext_message_content FROM fulltext_message_content INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=fulltext_message_content.id)");
 			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_message_content records.');
 		}
+		
+		$db->Execute("DROP TABLE _tmp_maint_message");
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();

@@ -192,7 +192,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		$id_list = implode(',', $ids);
 		
 		// Orgs
-		$sql = sprintf("DELETE QUICK FROM contact_org WHERE id IN (%s)",
+		$sql = sprintf("DELETE FROM contact_org WHERE id IN (%s)",
 			$id_list
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());

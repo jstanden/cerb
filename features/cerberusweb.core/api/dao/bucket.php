@@ -200,7 +200,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 			)
 		);
 		
-		$sql = sprintf("DELETE QUICK FROM bucket WHERE id IN (%s)", implode(',',$ids));
+		$sql = sprintf("DELETE FROM bucket WHERE id IN (%s)", implode(',',$ids));
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		// Reset any tickets using this bucket

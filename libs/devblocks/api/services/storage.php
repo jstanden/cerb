@@ -309,7 +309,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 			);
 			if(false === ($result = mysqli_query($this->_db, $sql))) {
 				// Rollback
-				$sql = sprintf("DELETE QUICK FROM storage_%s WHERE id = %d",
+				$sql = sprintf("DELETE FROM storage_%s WHERE id = %d",
 					$this->escapeNamespace($namespace),
 					$id
 				);
@@ -341,7 +341,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 			);
 			if(false === ($result = mysqli_query($this->_db, $sql))) {
 				// Rollback
-				$sql = sprintf("DELETE QUICK FROM storage_%s WHERE id = %d",
+				$sql = sprintf("DELETE FROM storage_%s WHERE id = %d",
 					$this->escapeNamespace($namespace),
 					$id
 				);
@@ -356,7 +356,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 	}
 	
 	private function _put($namespace, $id, $data) {
-		$sql = sprintf("DELETE QUICK FROM storage_%s WHERE id = %d",
+		$sql = sprintf("DELETE FROM storage_%s WHERE id = %d",
 			$this->escapeNamespace($namespace),
 			$id
 		);

@@ -140,13 +140,13 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		$id_string = implode(',', $ids);
 		
 		// Articles
-		$db->Execute(sprintf("DELETE QUICK FROM kb_article WHERE id IN (%s)", $id_string));
+		$db->Execute(sprintf("DELETE FROM kb_article WHERE id IN (%s)", $id_string));
 		
 		// Categories
-		$db->Execute(sprintf("DELETE QUICK FROM kb_article_to_category WHERE kb_article_id IN (%s)", $id_string));
+		$db->Execute(sprintf("DELETE FROM kb_article_to_category WHERE kb_article_id IN (%s)", $id_string));
 		
 		// Search indexes
-		$db->Execute(sprintf("DELETE QUICK FROM fulltext_kb_article WHERE id IN (%s)", $id_string));
+		$db->Execute(sprintf("DELETE FROM fulltext_kb_article WHERE id IN (%s)", $id_string));
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -210,7 +210,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			$category_ids = array($category_ids);
 		
 		if($replace) {
-			$db->Execute(sprintf("DELETE QUICK FROM kb_article_to_category WHERE kb_article_id IN (%s)",
+			$db->Execute(sprintf("DELETE FROM kb_article_to_category WHERE kb_article_id IN (%s)",
 				implode(',', $article_ids)
 			));
 		}

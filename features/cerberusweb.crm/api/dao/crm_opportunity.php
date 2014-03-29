@@ -227,7 +227,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		// Opps
-		$db->Execute(sprintf("DELETE QUICK FROM crm_opportunity WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE FROM crm_opportunity WHERE id IN (%s)", $ids_list));
 
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();

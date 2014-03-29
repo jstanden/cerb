@@ -219,16 +219,16 @@ class DAO_Group extends Cerb_ORMHelper {
 			)
 		);
 		
-		$sql = sprintf("DELETE QUICK FROM worker_group WHERE id = %d", $id);
+		$sql = sprintf("DELETE FROM worker_group WHERE id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
-		$sql = sprintf("DELETE QUICK FROM bucket WHERE group_id = %d", $id);
+		$sql = sprintf("DELETE FROM bucket WHERE group_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
-		$sql = sprintf("DELETE QUICK FROM group_setting WHERE group_id = %d", $id);
+		$sql = sprintf("DELETE FROM group_setting WHERE group_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
-		$sql = sprintf("DELETE QUICK FROM worker_to_group WHERE group_id = %d", $id);
+		$sql = sprintf("DELETE FROM worker_to_group WHERE group_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		// Fire event
@@ -251,17 +251,11 @@ class DAO_Group extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$sql = "DELETE QUICK bucket FROM bucket LEFT JOIN worker_group ON bucket.group_id = worker_group.id WHERE worker_group.id IS NULL";
-		$db->Execute($sql);
+		$db->Execute("DELETE FROM bucket WHERE group_id NOT IN (SELECT id FROM worker_group)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' bucket records.');
 		
-		$sql = "DELETE QUICK group_setting FROM group_setting LEFT JOIN worker_group ON group_setting.group_id = worker_group.id WHERE worker_group.id IS NULL";
-		$db->Execute($sql);
+		$db->Execute("DELETE FROM group_setting WHERE group_id NOT IN (SELECT id FROM worker_group)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' group_setting records.');
-		
-		$sql = "DELETE QUICK custom_field FROM custom_field LEFT JOIN custom_fieldset ON custom_field.custom_fieldset_id = custom_fieldset.id WHERE custom_field.custom_fieldset_id > 0 AND custom_fieldset.id IS NULL";
-		$db->Execute($sql);
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' custom_field records.');
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -299,7 +293,7 @@ class DAO_Group extends Cerb_ORMHelper {
 			
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE QUICK FROM worker_to_group WHERE group_id = %d AND worker_id IN (%d)",
+		$sql = sprintf("DELETE FROM worker_to_group WHERE group_id = %d AND worker_id IN (%d)",
 			$group_id,
 			$worker_id
 		);

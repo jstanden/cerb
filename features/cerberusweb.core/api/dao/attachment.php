@@ -146,22 +146,20 @@ class DAO_Attachment extends DevblocksORMHelper {
 		
 		// Delete attachments where links=0 and created > 1h
 		// This also cleans up temporary attachment uploads from the file chooser.
-		$rs = $db->Execute(sprintf("SELECT SQL_CALC_FOUND_ROWS attachment.id ".
-			"FROM attachment ".
-			"LEFT JOIN attachment_link ON (attachment.id = attachment_link.attachment_id) ".
-			"WHERE attachment_link.attachment_id IS NULL ".
-			"AND attachment.updated <= %d",
-			(time()-86400)
-		));
-		
+		$db->Execute("CREATE TEMPORARY TABLE _tmp_maint_attachment SELECT id, updated FROM attachment");
+		$db->Execute("DELETE FROM _tmp_maint_attachment WHERE id IN (SELECT attachment_id FROM attachment_link)");
+		$db->Execute("DELETE FROM _tmp_maint_attachment WHERE updated >= UNIX_TIMESTAMP() - 86400 AND updated != 2147483647");
+		$rs = $db->Execute("SELECT SQL_CALC_FOUND_ROWS id FROM _tmp_maint_attachment");
 		$count = $db->GetOne("SELECT FOUND_ROWS();");
-		
+
 		if(!empty($count)) {
 			while($row = mysqli_fetch_row($rs)) {
 				DAO_Attachment::delete($row[0]);
 			}
 			mysqli_free_result($rs);
 		}
+
+		$db->Execute("DROP TABLE _tmp_maint_attachment");
 		
 		$logger->info('[Maint] Purged ' . $count . ' attachment records.');
 	}

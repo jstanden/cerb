@@ -333,20 +333,16 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$sql = "DELETE QUICK view_rss FROM view_rss LEFT JOIN worker ON view_rss.worker_id = worker.id WHERE worker.id IS NULL";
-		$db->Execute($sql);
+		$db->Execute("DELETE FROM view_rss WHERE worker_id NOT IN (SELECT id FROM worker)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' view_rss records.');
 		
-		$sql = "DELETE QUICK worker_pref FROM worker_pref LEFT JOIN worker ON worker_pref.worker_id = worker.id WHERE worker.id IS NULL";
-		$db->Execute($sql);
+		$db->Execute("DELETE FROM worker_pref WHERE worker_id NOT IN (SELECT id FROM worker)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_pref records.');
-
-		$sql = "DELETE QUICK worker_view_model FROM worker_view_model LEFT JOIN worker ON worker_view_model.worker_id = worker.id WHERE worker.id IS NULL";
-		$db->Execute($sql);
+		
+		$db->Execute("DELETE FROM worker_view_model WHERE worker_id NOT IN (SELECT id FROM worker)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_view_model records.');
 		
-		$sql = "DELETE QUICK worker_to_group FROM worker_to_group LEFT JOIN worker ON worker_to_group.worker_id = worker.id WHERE worker.id IS NULL";
-		$db->Execute($sql);
+		$db->Execute("DELETE FROM worker_to_group WHERE worker_id NOT IN (SELECT id FROM worker)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_to_group records.');
 		
 		// Fire event
@@ -383,16 +379,16 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE QUICK FROM worker WHERE id = %d", $id);
+		$sql = sprintf("DELETE FROM worker WHERE id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
-		$sql = sprintf("DELETE QUICK FROM address_to_worker WHERE worker_id = %d", $id);
+		$sql = sprintf("DELETE FROM address_to_worker WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
-		$sql = sprintf("DELETE QUICK FROM worker_to_group WHERE worker_id = %d", $id);
+		$sql = sprintf("DELETE FROM worker_to_group WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
-		$sql = sprintf("DELETE QUICK FROM view_rss WHERE worker_id = %d", $id);
+		$sql = sprintf("DELETE FROM view_rss WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$sql = sprintf("DELETE FROM snippet_use_history WHERE worker_id = %d", $id);

@@ -165,7 +165,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE QUICK FROM view_rss WHERE id = %d",
+		$sql = sprintf("DELETE FROM view_rss WHERE id = %d",
 			$id
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());

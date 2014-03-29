@@ -227,7 +227,7 @@ class DAO_Task extends Cerb_ORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		// Tasks
-		$db->Execute(sprintf("DELETE QUICK FROM task WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE FROM task WHERE id IN (%s)", $ids_list));
 
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();

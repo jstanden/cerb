@@ -592,11 +592,8 @@ class DevblocksPluginManifest {
 			$prefix,
 			$db->qstr($this->id)
 		));
-		$db->Execute(sprintf("DELETE %1\$sproperty_store FROM %1\$sproperty_store ".
-			"LEFT JOIN %1\$sextension ON (%1\$sproperty_store.extension_id=%1\$sextension.id) ".
-			"WHERE %1\$sextension.id IS NULL",
-			$prefix
-		));
+		
+		$db->Execute(sprintf("DELETE FROM %1\$sproperty_store WHERE extension_id NOT IN (SELECT id FROM %1\$sextension)", $prefix));
 	}
 	
 	function uninstall() {

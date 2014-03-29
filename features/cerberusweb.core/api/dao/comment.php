@@ -134,6 +134,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 		return self::_getObjectsFromResult($rs);
 	}
 	
+	// [TODO] Cache
 	static function getContextIdsByContextAndIds($context, $ids) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -485,15 +486,9 @@ class DAO_Comment extends Cerb_ORMHelper {
 		$logger = DevblocksPlatform::getConsoleLog();
 		$tables = $db->metaTables();
 
-		// Attachments
-		$sql = "DELETE QUICK attachment_link FROM attachment_link LEFT JOIN comment ON (attachment_link.context_id=comment.id) WHERE attachment_link.context = 'cerberusweb.contexts.comment' AND comment.id IS NULL";
-		$db->Execute($sql);
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' comment attachment_links.');
-		
 		// Search indexes
 		if(isset($tables['fulltext_comment_content'])) {
-			$sql = "DELETE QUICK fulltext_comment_content FROM fulltext_comment_content LEFT JOIN comment ON fulltext_comment_content.id = comment.id WHERE comment.id IS NULL";
-			$db->Execute($sql);
+			$db->Execute("DELETE FROM fulltext_comment_content WHERE id NOT IN (SELECT id FROM comment)");
 			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_comment_content records.');
 		}
 		

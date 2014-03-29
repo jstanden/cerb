@@ -174,10 +174,11 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$sql = "DELETE snippet_use_history FROM snippet_use_history LEFT JOIN worker ON snippet_use_history.worker_id = worker.id WHERE worker.id IS NULL";
-		$db->Execute($sql);
-		
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' snippet_use_history records.');
+		$db->Execute("DELETE FROM snippet_use_history WHERE worker_id NOT IN (SELECT id FROM worker)");
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' snippet_use_history records by worker.');
+
+		$db->Execute("DELETE FROM snippet_use_history WHERE snippet_id NOT IN (SELECT id FROM snippet)");
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' snippet_use_history records by snippet.');
 	}
 	
 	static function delete($ids) {

@@ -115,7 +115,7 @@ class DAO_Pop3Account {
 			
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE QUICK FROM pop3_account WHERE id = %d",
+		$sql = sprintf("DELETE FROM pop3_account WHERE id = %d",
 			$id
 		);
 		

@@ -744,9 +744,9 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE QUICK FROM kb_category WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE FROM kb_category WHERE id IN (%s)", $ids_list));
 
-		$db->Execute(sprintf("DELETE QUICK FROM kb_article_to_category WHERE kb_category_id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE FROM kb_article_to_category WHERE kb_category_id IN (%s)", $ids_list));
 		
 		self::clearCache();
 		

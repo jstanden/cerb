@@ -359,8 +359,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 
-		$sql = "DELETE QUICK workspace_tab FROM workspace_tab LEFT JOIN workspace_page ON (workspace_tab.workspace_page_id = workspace_page.id) WHERE workspace_page.id IS NULL";
-		$db->Execute($sql);
+		$db->Execute("DELETE FROM workspace_tab WHERE workspace_page_id NOT IN (SELECT id FROM workspace_page)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' workspace_tab records.');
 	}
 
@@ -643,8 +642,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$sql = "DELETE QUICK workspace_list FROM workspace_list LEFT JOIN workspace_tab ON (workspace_list.workspace_tab_id = workspace_tab.id) WHERE workspace_tab.id IS NULL";
-		$db->Execute($sql);
+		$db->Execute("DELETE FROM workspace_list WHERE workspace_tab_id NOT IN (SELECT id FROM workspace_tab)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' workspace_list records.');
 	}
 
@@ -973,7 +971,7 @@ class DAO_WorkspaceList extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE QUICK FROM workspace_list WHERE id IN (%s)", $ids_list)) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->Execute(sprintf("DELETE FROM workspace_list WHERE id IN (%s)", $ids_list)) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		// Delete worker view prefs
 		foreach($ids as $id) {

@@ -112,8 +112,8 @@ class _DevblocksDatabaseManager {
 	function Execute($sql) {
 		if(false === ($rs = mysqli_query($this->_db, $sql))) {
 			error_log(sprintf("[%d] %s ::SQL:: %s",
-				mysqli_errno(),
-				mysqli_error(),
+				mysqli_errno($this->_db),
+				mysqli_error($this->_db),
 				$sql
 			));
 			return false;

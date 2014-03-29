@@ -178,6 +178,14 @@ class DAO_CustomField extends DevblocksORMHelper {
 		self::clearCache();
 	}
 	
+	public static function maint() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$logger = DevblocksPlatform::getConsoleLog();
+		
+		$db->Execute("DELETE FROM custom_field WHERE custom_fieldset_id != 0 AND custom_fieldset_id NOT IN (SELECT id FROM custom_fieldset)");
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' custom_field records.');
+	}
+	
 	public static function clearCache() {
 		// Invalidate cache on changes
 		$cache = DevblocksPlatform::getCacheService();
@@ -574,6 +582,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		}
 		
 		// We need to remove context links on file attachments
+		// [TODO] Optimize
 		switch($field->type) {
 			case Model_CustomField::TYPE_FILE:
 			case Model_CustomField::TYPE_FILES:

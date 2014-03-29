@@ -248,17 +248,14 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$sql = "DELETE QUICK ticket_mask_forward FROM ticket_mask_forward LEFT JOIN ticket ON ticket_mask_forward.new_ticket_id=ticket.id WHERE ticket.id IS NULL";
-		$db->Execute($sql);
+		$db->Execute("DELETE FROM ticket_mask_forward WHERE new_ticket_id NOT IN (SELECT id FROM ticket)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' ticket_mask_forward records.');
 
-		$sql = "DELETE QUICK requester FROM requester LEFT JOIN ticket ON requester.ticket_id = ticket.id WHERE ticket.id IS NULL";
-		$db->Execute($sql);
+		$db->Execute("DELETE FROM requester WHERE ticket_id NOT IN (SELECT id FROM ticket)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' requester records.');
 		
 		// Recover any tickets assigned to a NULL bucket
-		$sql = "UPDATE ticket LEFT JOIN bucket ON ticket.bucket_id = bucket.id SET ticket.bucket_id = 0 WHERE ticket.bucket_id > 0 AND bucket.id IS NULL";
-		$db->Execute($sql);
+		$db->Execute("UPDATE ticket SET bucket_id = 0 WHERE bucket_id != 0 AND bucket_id NOT IN (SELECT id FROM bucket)");
 		$logger->info('[Maint] Fixed ' . $db->Affected_Rows() . ' tickets in missing buckets.');
 		
 		// Fire event
@@ -1001,7 +998,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			
 		$db = DevblocksPlatform::getDatabaseService();
 
-		$sql = sprintf("DELETE QUICK FROM requester WHERE ticket_id = %d AND address_id = %d",
+		$sql = sprintf("DELETE FROM requester WHERE ticket_id = %d AND address_id = %d",
 			$id,
 			$address_id
 		);
