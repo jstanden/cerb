@@ -948,7 +948,8 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(!is_numeric($string))
 			return '';
 			
-		$bytes = floatval($string);
+		$is_negative = (intval($string) < 0) ? true : false;
+		$bytes = abs(intval($string));
 		$precision = floatval($precision);
 		$out = '';
 		
@@ -964,7 +965,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			$out = $bytes . ' bytes';
 		}
 		
-		return $out;
+		return (($is_negative) ? '-' : '') . $out;
 	}
 	
 	/**
