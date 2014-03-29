@@ -350,8 +350,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	function function_xml_decode($str) {
 		$xml = simplexml_load_string($str);
-		$array = json_decode(json_encode($xml), true);
-		return $array;
+		return $xml;
 	}
 	
 	public function getFilters() {
