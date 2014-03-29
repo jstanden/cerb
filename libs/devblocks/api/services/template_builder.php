@@ -349,6 +349,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	}
 	
 	function function_xml_decode($str) {
+		$str = str_replace('xmlns=','ns=', $str);
 		$xml = simplexml_load_string($str);
 		return $xml;
 	}
