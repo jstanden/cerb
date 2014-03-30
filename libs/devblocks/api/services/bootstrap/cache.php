@@ -280,9 +280,9 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 		
 		if(is_array($files))
 		foreach($files as $file) {
-			if(0==strcmp('devblocks_cache',substr($file,0,15))) {
-				if(file_exists($path . $file) && is_writeable($path . $file))
-					@unlink($path . $file);
+			if(0==strcmp('cache--', substr($file, 0, 7))) {
+				if(file_exists($cache_dir . $file) && is_writeable($cache_dir . $file))
+					@unlink($cache_dir . $file);
 			}
 		}
 		
