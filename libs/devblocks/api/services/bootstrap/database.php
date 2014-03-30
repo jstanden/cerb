@@ -15,7 +15,7 @@ class _DevblocksDatabaseManager {
 	static function getInstance() {
 		if(null == self::$instance) {
 			// Bail out early for pre-install
-			if('' == APP_DB_DRIVER || '' == APP_DB_HOST)
+			if('' == APP_DB_HOST)
 				return null;
 			
 			self::$instance = new _DevblocksDatabaseManager();

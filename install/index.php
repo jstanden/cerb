@@ -471,7 +471,6 @@ switch($step) {
 		
 		// Check to make sure our constants match our input
 		if(
-			0 == strcasecmp($db_driver,APP_DB_DRIVER) &&
 			0 == strcasecmp($db_engine,APP_DB_ENGINE) &&
 			0 == strcasecmp($db_server,APP_DB_HOST) &&
 			0 == strcasecmp($db_name,APP_DB_DATABASE) &&

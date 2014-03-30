@@ -1,7 +1,4 @@
 <?php
-if(!defined('APP_DB_DRIVER'))
-	define('APP_DB_DRIVER','mysql');
-
 if(!defined('APP_DB_HOST'))
 	define('APP_DB_HOST','localhost');
 

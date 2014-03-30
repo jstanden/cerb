@@ -73,9 +73,6 @@ class CerberusInstaller {
 				$token = $matches[1];
 				
 				switch(strtoupper($token)) {
-					case "APP_DB_DRIVER":
-						$value = $db_driver;
-						break;
 					case "APP_DB_ENGINE":
 						$value = $db_engine;
 						break;

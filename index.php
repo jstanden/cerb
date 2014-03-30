@@ -54,8 +54,7 @@ require(getcwd() . '/framework.config.php');
 require(DEVBLOCKS_PATH . 'Devblocks.class.php');
 
 // If this is our first run, redirect to the installer
-if('' == APP_DB_DRIVER
-	|| '' == APP_DB_HOST
+if('' == APP_DB_HOST
 	|| '' == APP_DB_DATABASE
 	|| DevblocksPlatform::isDatabaseEmpty()) {
 		DevblocksPlatform::init();
