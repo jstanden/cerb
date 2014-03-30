@@ -58,7 +58,7 @@ if(!isset($tables['devblocks_setting'])) {
 if(!isset($tables['devblocks_template'])) {
 	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS devblocks_template (
-	    	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+	    	id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	    	plugin_id VARCHAR(255) DEFAULT '' NOT NULL,
 			path VARCHAR(255) DEFAULT '' NOT NULL,
 			tag VARCHAR(255) DEFAULT '' NOT NULL,
@@ -77,7 +77,7 @@ if(isset($columns['id'])
 	&& ('int(10) unsigned' != $columns['id']['type'] 
 	|| 'auto_increment' != $columns['id']['extra'])
 ) {
-	$db->Execute("ALTER TABLE devblocks_template MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE");
+	$db->Execute("ALTER TABLE devblocks_template MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT");
 }
 
 // ===========================================================================
@@ -151,7 +151,7 @@ if(isset($columns['params'])
 if(!isset($tables['devblocks_storage_profile'])) {
 	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS devblocks_storage_profile (
-			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			name varchar(128) NOT NULL DEFAULT '',
 			extension_id varchar(255) NOT NULL DEFAULT '',
 			params_json longtext,

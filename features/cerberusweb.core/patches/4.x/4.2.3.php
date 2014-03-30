@@ -13,7 +13,7 @@ if(isset($tables['bayes_words'])) {
 		&& ('int(10) unsigned' != $columns['id']['type'] 
 		|| 'auto_increment' != $columns['id']['extra'])
 	) {
-		$db->Execute("ALTER TABLE bayes_words MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE");
+		$db->Execute("ALTER TABLE bayes_words MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT");
 	}
 	
 	// Delete empty words

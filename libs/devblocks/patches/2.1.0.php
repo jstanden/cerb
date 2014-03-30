@@ -2,7 +2,7 @@
 $db = DevblocksPlatform::getDatabaseService();
 $tables = $db->metaTables();
 
-// Convert tables to ID = INT4 UNSIGNED AUTO_INCREMENT UNIQUE
+// Convert tables to ID = INT4 UNSIGNED AUTO_INCREMENT
 $tables_autoinc = array(
 	'devblocks_storage_profile',
 	'devblocks_template',

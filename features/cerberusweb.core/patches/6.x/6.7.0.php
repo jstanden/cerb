@@ -39,6 +39,36 @@ if(isset($tables['fulltext_comment_content'])) {
 }
 
 // ===========================================================================
+// Drop redundant indexes (id vs pkey)
+
+$check_tables = array(
+	'address',
+	'attachment',
+	'bayes_words',
+	'bucket',
+	'custom_field',
+	'devblocks_storage_profile',
+	'devblocks_template',
+	'kb_category',
+	'mail_to_group_rule',
+	'message',
+	'pop3_account',
+	'snippet',
+	'ticket',
+	'worker',
+	'worker_group',
+);
+
+foreach($check_tables as $check_table) {
+	if(isset($tables[$check_table])) {
+		list($columns, $indexes) = $db->metaTable($check_table);
+		
+		if(isset($indexes['id']))
+			$db->Execute(sprintf('ALTER TABLE %s DROP INDEX id', $db->escape($check_table)));
+	}
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

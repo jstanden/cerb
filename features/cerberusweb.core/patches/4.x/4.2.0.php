@@ -8,7 +8,7 @@ $tables = $db->metaTables();
 if(!isset($tables['mail_to_group_rule'])) {
 	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS mail_to_group_rule (
-			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			pos SMALLINT UNSIGNED DEFAULT 0 NOT NULL,
 			created INT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(128) DEFAULT '' NOT NULL,
@@ -28,7 +28,7 @@ if(isset($columns['id'])
 	&& ('int(10) unsigned' != $columns['id']['type'] 
 	|| 'auto_increment' != $columns['id']['extra'])
 ) {
-	$db->Execute("ALTER TABLE mail_to_group_rule MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE");
+	$db->Execute("ALTER TABLE mail_to_group_rule MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT");
 }
 
 if(isset($tables['mail_routing'])) {

@@ -13,7 +13,7 @@ if(!isset($indexes['message_id'])) {
 if(!isset($tables['kb_category'])) {
 	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS kb_category (
-			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			parent_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(64) DEFAULT '' NOT NULL,
 			PRIMARY KEY (id)
@@ -33,7 +33,7 @@ if(isset($columns['id'])
 	&& ('int(10) unsigned' != $columns['id']['type'] 
 	|| 'auto_increment' != $columns['id']['extra'])
 ) {
-	$db->Execute("ALTER TABLE kb_category MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE");
+	$db->Execute("ALTER TABLE kb_category MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT");
 }
 
 // `kb_article_to_category` =============================
@@ -182,7 +182,7 @@ if(!isset($indexes['message_id'])) {
 if(!isset($tables['note'])) {
 	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS note (
-			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			source_extension_id VARCHAR(128) DEFAULT '' NOT NULL,
 			source_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			created INT UNSIGNED DEFAULT 0 NOT NULL,
@@ -200,7 +200,7 @@ if(isset($columns['id'])
 	&& ('int(10) unsigned' != $columns['id']['type'] 
 	|| 'auto_increment' != $columns['id']['extra'])
 ) {
-	$db->Execute("ALTER TABLE note MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE");
+	$db->Execute("ALTER TABLE note MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT");
 }
 
 if(!isset($indexes['source_extension_id'])) {
@@ -396,7 +396,7 @@ if(isset($columns['id'])
 	&& ('int(10) unsigned' != $columns['id']['type'] 
 	|| 'auto_increment' != $columns['id']['extra'])
 ) {
-	$db->Execute("ALTER TABLE custom_field MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE");
+	$db->Execute("ALTER TABLE custom_field MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT");
 }
 
 // `custom_field_value` ========================

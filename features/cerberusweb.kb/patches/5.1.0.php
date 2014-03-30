@@ -16,7 +16,7 @@ foreach($tables_seq as $table) {
 	}
 }
 
-// Convert tables to ID = INT4 UNSIGNED AUTO_INCREMENT UNIQUE
+// Convert tables to ID = INT4 UNSIGNED AUTO_INCREMENT
 $tables_autoinc = array(
 	'kb_article',
 	'kb_category',
