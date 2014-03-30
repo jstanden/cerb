@@ -459,7 +459,7 @@ class DevblocksCacheEngine_Redis extends Extension_DevblocksCacheEngine {
 		
 		$val = $this->_driver->get($key);
 		
-		if(!$val || false == ($val = unserialize($val)))
+		if(!$val || false === ($val = unserialize($val)))
 			$val = null;
 		
 		return $val;
