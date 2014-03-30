@@ -290,3 +290,93 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 		
 	}
 };
+
+class DevblocksCacheEngine_Memcache extends Extension_DevblocksCacheEngine {
+	const ID = 'devblocks.cache.engine.memcache';
+	
+	private $_driver = null;
+	
+	function setConfig(array $config) {
+		if(true !== ($result = $this->testConfig($config))) {
+			trigger_error($result, E_USER_WARNING);
+			return false;
+		}
+		
+		$this->_config = $config;
+		return true;
+	}
+	
+	function testConfig(array $config) {
+		if(extension_loaded('memcached')) {
+			$this->_driver = new Memcached();
+			
+		} elseif(extension_loaded('memcache')) {
+			$this->_driver = new Memcache();
+			
+		} else {
+			return "The 'Memcache' or 'Memcached' PHP extension is not loaded.";
+		}
+		
+		if(empty($config['host']))
+			return "The 'host' setting is required.";
+		
+		if(empty($config['port']))
+			return "The 'port' setting is required.";
+		
+		$this->_driver->addServer($config['host'], $config['port']);
+		
+		if(false == @$this->_driver->getVersion())
+			return sprintf("Failed to connect to the Memcached server at %s:%d.", $config['host'], $config['port']);
+		
+		return true;
+	}
+	
+	function renderConfig() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('cacher', $this);
+		$tpl->assign('cacher_config', $this->getConfig());
+		$tpl->display('devblocks:devblocks.core::cache_engine/memcached/config.tpl');
+	}
+	
+	function renderStatus() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('cacher', $this);
+		$tpl->assign('cacher_config', $this->getConfig());
+		$tpl->display('devblocks:devblocks.core::cache_engine/memcached/status.tpl');
+	}
+	
+	function save($data, $key, $tags=array(), $lifetime=0) {
+		@$key_prefix = $this->_config['key_prefix'];
+		
+		$key = $key_prefix . $key;
+		
+		if($this->_driver instanceof Memcached) {
+			return $this->_driver->set($key, $data, $lifetime);
+		} else {
+			return $this->_driver->set($key, $data, 0, $lifetime);
+		}
+	}
+	
+	function load($key) {
+		@$key_prefix = $this->_config['key_prefix'];
+		
+		$key = $key_prefix . $key;
+		
+		@$val = $this->_driver->get($key);
+		return $val;
+	}
+	
+	function remove($key) {
+		if(empty($key))
+			return;
+		
+		@$key_prefix = $this->_config['key_prefix'];
+		
+		$key = $key_prefix . $key;
+		$this->_driver->delete($key);
+	}
+
+	function clean() {
+		$this->_driver->flush();
+	}
+};

@@ -30,6 +30,7 @@
 		</file>
 		<file path="api/services/cache.php">
 			<class name="DevblocksCacheEngine_Disk" />
+			<class name="DevblocksCacheEngine_Memcache" />
 		</file>
 		<file path="api/services/search.php">
 			<class name="DevblocksSearchEngineMysqlFulltext" />
@@ -70,6 +71,16 @@
 			</params>
 		</extension>
 
+		<extension point="devblocks.cache.engine">
+			<id>devblocks.cache.engine.memcache</id>
+			<name>Memcached</name>
+			<class>
+				<file>api/services/cache.php</file>
+				<name>DevblocksCacheEngine_Memcache</name>
+			</class>
+			<params>
+			</params>
+		</extension>
 		<!-- Search Engines -->
 
 		<extension point="devblocks.search.engine">
