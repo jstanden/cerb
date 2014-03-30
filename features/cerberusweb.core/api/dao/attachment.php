@@ -267,7 +267,6 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$results = array();
-		$total = -1;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$result = array();
@@ -278,12 +277,17 @@ class DAO_Attachment extends DevblocksORMHelper {
 			$results[$id] = $result;
 		}
 
+		$total = count($results);
+		
 		if($withCounts) {
-			$count_sql =
-				"SELECT COUNT(a.id) ".
-				$join_sql.
-				$where_sql;
-			$total = $db->GetOne($count_sql);
+			// We can skip counting if we have a less-than-full single page
+			if(!(0 == $page && $total < $limit)) {
+				$count_sql =
+					"SELECT COUNT(a.id) ".
+					$join_sql.
+					$where_sql;
+				$total = $db->GetOne($count_sql);
+			}
 		}
 		
 		mysqli_free_result($rs);
@@ -1314,7 +1318,6 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		$results = array();
-		$total = -1;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$result = array();
@@ -1324,13 +1327,18 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 			$id = $row[SearchFields_AttachmentLink::GUID];
 			$results[$id] = $result;
 		}
+		
+		$total = count($results);
 
 		if($withCounts) {
-			$count_sql =
-				"SELECT COUNT(al.attachment_id) ".
-				$join_sql.
-				$where_sql;
-			$total = $db->GetOne($count_sql);
+			// We can skip counting if we have a less-than-full single page
+			if(!(0 == $page && $total < $limit)) {
+				$count_sql =
+					"SELECT COUNT(al.attachment_id) ".
+					$join_sql.
+					$where_sql;
+				$total = $db->GetOne($count_sql);
+			}
 		}
 		
 		mysqli_free_result($rs);

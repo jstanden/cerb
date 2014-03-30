@@ -448,15 +448,18 @@ class DAO_Message extends Cerb_ORMHelper {
 			$ticket_id = intval($row[SearchFields_Message::ID]);
 			$results[$ticket_id] = $result;
 		}
+
+		$total = count($results);
 		
-		// [JAS]: Count all
-		$total = -1;
 		if($withCounts) {
-			$count_sql =
-				($has_multiple_values ? "SELECT COUNT(DISTINCT m.id) " : "SELECT COUNT(m.id) ").
-				$join_sql.
-				$where_sql;
-			$total = $db->GetOne($count_sql);
+			// We can skip counting if we have a less-than-full single page
+			if(!(0 == $page && $total < $limit)) {
+				$count_sql =
+					($has_multiple_values ? "SELECT COUNT(DISTINCT m.id) " : "SELECT COUNT(m.id) ").
+					$join_sql.
+					$where_sql;
+				$total = $db->GetOne($count_sql);
+			}
 		}
 
 		mysqli_free_result($rs);
