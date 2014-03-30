@@ -256,6 +256,8 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 		
 		file_put_contents($full_path_to_cache_file, serialize($wrapper));
 		
+		// Set the permissions more securely
+		chmod($full_path_to_cache_file, 0640);
 		
 		return true;
 	}
