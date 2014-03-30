@@ -2,78 +2,85 @@
 class _DevblocksCacheManager {
 	private static $instance = null;
 	private static $_cacher = null;
+	private static $_bootstrap_cacher = null;
 	private $_registry = array();
 	private $_statistics = array();
 	private $_io_reads_long = 0;
 	private $_io_reads_short = 0;
 	private $_io_writes = 0;
 
-	private function __construct() {}
-
 	/**
 	* @return _DevblocksCacheManager
 	*/
 	public static function getInstance() {
-		if(null == self::$instance) {
+		if(null == self::$instance)
 			self::$instance = new _DevblocksCacheManager();
-			
-			$options = array(
-				'key_prefix' => ((defined('DEVBLOCKS_CACHE_PREFIX') && DEVBLOCKS_CACHE_PREFIX) ? DEVBLOCKS_CACHE_PREFIX : null),
-			);
-			
-			// Shared-memory cache
-			if((extension_loaded('memcache') || extension_loaded('memcached'))
-				&& defined('DEVBLOCKS_MEMCACHED_SERVERS') && DEVBLOCKS_MEMCACHED_SERVERS) {
-				$pairs = DevblocksPlatform::parseCsvString(DEVBLOCKS_MEMCACHED_SERVERS);
-				$servers = array();
-				
-				if(is_array($pairs) && !empty($pairs))
-				foreach($pairs as $server) {
-					list($host,$port) = explode(':',$server);
-					
-					if(empty($host) || empty($port))
-						continue;
-						
-					$servers[] = array(
-						'host'=>$host,
-						'port'=>$port,
-//						'persistent'=>true
-					);
-				}
-				
-				$options['servers'] = $servers;
-				
-				self::$_cacher = new _DevblocksCacheManagerMemcached($options);
-				
-				// Test
-				if(false == (self::$_cacher->test())) {
-					self::$_cacher = null;
-				}
-			}
-
-			// Disk-based cache (default)
-			if(null == self::$_cacher) {
-				$options['cache_dir'] = APP_TEMP_PATH;
-				
-				self::$_cacher = new _DevblocksCacheManagerDisk($options);
-			}
-		}
 		
 		return self::$instance;
 	}
 	
+	public function setEngine($extension_id) {
+		// If it's the same, ignore.
+		if(self::$_cacher->id == $extension_id)
+			return;
+		
+		if(false !== ($ext = Extension_DevblocksCacheEngine::get($extension_id))) {
+			if($ext->init())
+				self::$_cacher = $ext;
+		}
+	}
+	
+	private function __construct() {
+		// Default to disk, and load directly without platform (bootstrap)
+		$manifest = new DevblocksExtensionManifest();
+		$manifest->id = DevblocksCacheEngine_Disk::ID;
+		$manifest->point = 'devblocks.cache.engine';
+		$manifest->plugin_id = 'devblocks.core';
+		$manifest->class = 'DevblocksCacheEngine_Disk';
+		$manifest->file = __FILE__;
+		$manifest->name = 'Disk';
+		$manifest->params = array();
+		
+		$class_file = APP_PATH . '/' . $manifest->file;
+		$class_name = $manifest->class;
+
+		if(!class_exists($class_name, true)) {
+			return null;
+		}
+		
+		if(false == ($ext = new $class_name($manifest))
+			|| false == ($ext->init()))
+				die("[ERROR] Can't initialize the Devblocks cache.");
+			
+		// Always keep the disk cacher around, since we'll need it for the bootstrap caches
+		self::$_bootstrap_cacher = $ext;
+		self::$_cacher = self::$_bootstrap_cacher;
+	}
+
 	public function save($data, $key, $tags=array(), $lifetime=0) {
+		if(!$this->_isCacheableByExtension($key)) {
+			$engine = self::$_bootstrap_cacher;
+		} else {
+			$engine = self::$_cacher;
+		}
+		
 		// Monitor short-term cache memory usage
 		@$this->_statistics[$key] = intval($this->_statistics[$key]);
 		$this->_io_writes++;
-		self::$_cacher->save($data, $key, $tags, $lifetime);
 		$this->_registry[$key] = $data;
+		return $engine->save($data, $key, $tags, $lifetime);
 	}
 	
 	public function load($key, $nocache=false) {
+		if(!$this->_isCacheableByExtension($key)) {
+			$engine = self::$_bootstrap_cacher;
+		} else {
+			$engine = self::$_cacher;
+		}
+		
 		// Retrieving the long-term cache
 		if($nocache || !isset($this->_registry[$key])) {
-			if(false === ($this->_registry[$key] = self::$_cacher->load($key)))
+			if(false === ($this->_registry[$key] = $engine->load($key)))
 				return NULL;
 			
 			@$this->_statistics[$key] = intval($this->_statistics[$key]) + 1;
@@ -92,16 +99,31 @@ class _DevblocksCacheManager {
 	}
 	
 	public function remove($key) {
+		if(!$this->_isCacheableByExtension($key)) {
+			$engine = self::$_bootstrap_cacher;
+		} else {
+			$engine = self::$_cacher;
+		}
+		
 		if(empty($key))
 			return;
 		unset($this->_registry[$key]);
 		unset($this->_statistics[$key]);
-		self::$_cacher->remove($key);
+		$engine->remove($key);
 	}
 	
 	public function clean() { // $mode=null
 		$this->_registry = array();
 		$this->_statistics = array();
+
+		// If we have a non-bootstrap cacher, wipe the bootstrap keys too
+		if(self::$_bootstrap_cacher->id != self::$_cacher->id) {
+			self::remove('devblocks_classloader_map');
+			self::remove('devblocks_extensions');
+			self::remove('devblocks_plugins');
+			self::remove('devblocks_settings');
+			self::remove('devblocks_tables');
+		}
 		
 		self::$_cacher->clean();
 	}
@@ -114,117 +136,80 @@ class _DevblocksCacheManager {
 		echo "Reads (long): ",$this->_io_reads_long,"<BR>";
 		echo "Writes: ",$this->_io_writes,"<BR>";
 	}
-};
-
-abstract class _DevblocksCacheManagerAbstract {
-	protected $_options;
-	protected $_prefix = 'devblocks_cache---';
 	
-	function __construct($options) {
-		if(is_array($options))
-			$this->_options = $options;
+	private function _isCacheableByExtension($key) {
+		// These should always come from disk:
+		switch($key) {
+			case 'devblocks_classloader_map':
+			case 'devblocks_extensions':
+			case 'devblocks_plugins':
+			case 'devblocks_settings':
+			case 'devblocks_tables':
+				return false;
+				break;
+				
+			default:
+				break;
+		}
 		
-		// Key prefix
-		if(!isset($this->_options['key_prefix']))
-			$this->_options['key_prefix'] = '';
+		return true;
 	}
-	
-	function save($data, $key, $tags=array(), $lifetime=0) {}
-	function load($key) {}
-	function remove($key) {}
-	function test() {}
-	function clean() {} // $mode=null
 };
 
-class _DevblocksCacheManagerMemcached extends _DevblocksCacheManagerAbstract {
-	private $_driver;
+class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
+	const ID = 'devblocks.cache.engine.disk';
 	
-	function __construct($options) {
-		parent::__construct($options);
+	private $_config = array();
+	
+	public function __get($var) {
+		if(isset($this->_config[$var]))
+			return $this->_config[$var];
 		
-		if(extension_loaded('memcached'))
-			$this->_driver = new Memcached();
-		elseif(extension_loaded('memcache'))
-			$this->_driver = new Memcache();
-		else
-			die("PECL/Memcache or PECL/Memcached is not loaded.");
-			
-		// Check servers option
-		if(!isset($this->_options['servers']) || !is_array($this->_options['servers']))
-			die("_DevblocksCacheManagerMemcached requires the 'servers' option.");
-			
-		if(is_array($this->_options['servers']))
-		foreach($this->_options['servers'] as $params) {
-			$this->_driver->addServer($params['host'], $params['port']);
+		// Lazy load variables
+		switch($var) {
+			case '_cache_dir':
+				// Default to temp path
+				$path = APP_TEMP_PATH;
+				
+				// Ensure we have a trailing slash
+				$cache_dir = rtrim($path, "\\/") . DIRECTORY_SEPARATOR;
+				$this->_config[$var] = $cache_dir;
+				
+				return $cache_dir;
+				break;
+				
+			case '_key_prefix':
+				$key_prefix = 'devblocks_cache---';
+				$this->_config[$var] = $key_prefix;
+				return $key_prefix;
+				break;
 		}
 	}
 	
-	function save($data, $key, $tags=array(), $lifetime=0) {
-		$key = $this->_options['key_prefix'] . $key;
+	// [TODO] It's probably okay for this one to die()
+	public function init() {
+		$cache_dir = $this->_cache_dir;
 		
-		if($this->_driver instanceof Memcached)
-			return $this->_driver->set($key, $data, $lifetime);
-		else
-			return $this->_driver->set($key, $data, 0, $lifetime);
-	}
-	
-	function load($key) {
-		$key = $this->_options['key_prefix'] . $key;
-		@$val = $this->_driver->get($key);
-		return $val;
-	}
-	
-	function remove($key) {
-		if(empty($key))
-			return;
-		
-		$key = $this->_options['key_prefix'] . $key;
-		$this->_driver->delete($key);
-	}
-
-	function test() {
-		try {
-			@$version = $this->_driver->getVersion();
-			return !empty($version);
-		} catch(Exception $e) {
+		if(null == $cache_dir) {
+			trigger_error("DevblocksCacheEngine_Disk requires the 'cache_dir' option.", E_USER_WARNING);
 			return false;
 		}
-	}
-	
-	function clean() {
-		$this->_driver->flush();
-	}
-};
 
-class _DevblocksCacheManagerDisk extends _DevblocksCacheManagerAbstract {
-	function __construct($options) {
-		parent::__construct($options);
-
-		$path = $this->_getPath();
+		if(!is_writeable($cache_dir)) {
+			trigger_error(sprintf("DevblocksCacheEngine_Disk requires write access to the 'path' directory (%s)", $cache_dir), E_USER_WARNING);
+			return false;
+		}
 		
-		if(null == $path)
-			die("_DevblocksCacheManagerDisk requires the 'cache_dir' option.");
-
-		// Ensure we have a trailing slash
-		$this->_options['cache_dir'] = rtrim($path,"\\/") . DIRECTORY_SEPARATOR;
-			
-		if(!is_writeable($path))
-			die("_DevblocksCacheManagerDisk requires write access to the 'path' directory ($path)");
-	}
-	
-	private function _getPath() {
-		return $this->_options['cache_dir'];
+		return true;
 	}
 	
 	private function _getFilename($key) {
 		$safe_key = preg_replace("/[^A-Za-z0-9_\-]/",'_', $key);
-		return $this->_prefix . $safe_key;
+		return $this->_key_prefix . $safe_key;
 	}
 	
 	function load($key) {
-		$key = $this->_options['key_prefix'] . $key;
-		
-		$wrapper = @unserialize(file_get_contents($this->_getPath() . $this->_getFilename($key)));
+		$wrapper = @unserialize(file_get_contents($this->_cache_dir . $this->_getFilename($key)));
 		
 		// If this is wrapped data, check the cache expiration
 		if(is_array($wrapper) && isset($wrapper['data'])) {
@@ -245,8 +230,6 @@ class _DevblocksCacheManagerDisk extends _DevblocksCacheManagerAbstract {
 	}
 	
 	function save($data, $key, $tags=array(), $lifetime=0) {
-		$key = $this->_options['key_prefix'] . $key;
-		
 		$wrapper = array(
 			'data' => $data,
 		);
@@ -256,22 +239,17 @@ class _DevblocksCacheManagerDisk extends _DevblocksCacheManagerAbstract {
 			$wrapper['cache_until'] = time() + $lifetime;
 		}
 		
-		return file_put_contents($this->_getPath() . $this->_getFilename($key), serialize($wrapper));
+		return file_put_contents($this->_cache_dir . $this->_getFilename($key), serialize($wrapper));
 	}
 	
 	function remove($key) {
-		$key = $this->_options['key_prefix'] . $key;
-		$file = $this->_getPath() . $this->_getFilename($key);
+		$file = $this->_cache_dir . $this->_getFilename($key);
 		if(file_exists($file) && is_writeable($file))
 			@unlink($file);
 	}
 	
-	function test() {
-		return is_writeable($this->_options['cache_dir']);
-	}
-	
 	function clean() {
-		$path = $this->_getPath();
+		$path = $this->_cache_dir;
 		
 		$files = scandir($path);
 		unset($files['.']);

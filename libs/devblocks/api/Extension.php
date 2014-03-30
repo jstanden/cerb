@@ -1538,6 +1538,45 @@ abstract class DevblocksHttpResponseListenerExtension extends DevblocksExtension
 	}
 };
 
+abstract class Extension_DevblocksCacheEngine extends DevblocksExtension {
+	public static function getAll($as_instances=false) {
+		$engines = DevblocksPlatform::getExtensions('devblocks.cache.engine', $as_instances);
+		if($as_instances)
+			DevblocksPlatform::sortObjects($engines, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($engines, 'name');
+		return $engines;
+	}
+	
+	/**
+	 * @param string $id
+	 * @return Extension_DevblocksCacheEngine
+	 */
+	public static function get($id) {
+		static $extensions = null;
+		
+		if(isset($extensions[$id]))
+			return $extensions[$id];
+		
+		if(!isset($extensions[$id])) {
+			if(null == ($ext = DevblocksPlatform::getExtension($id, true)))
+				return;
+			
+			if(!($ext instanceof Extension_DevblocksCacheEngine))
+				return;
+			
+			$extensions[$id] = $ext;
+			return $ext;
+		}
+	}
+	
+	abstract function init();
+	abstract function save($data, $key, $tags=array(), $lifetime=0);
+	abstract function load($key);
+	abstract function remove($key);
+	abstract function clean();
+};
+
 interface IDevblocksSearchEngine {
 	public function setConfig(array $config);
 	public function testConfig(array $config);
@@ -1550,7 +1589,7 @@ interface IDevblocksSearchEngine {
 	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=250);
 	public function index(Extension_DevblocksSearchSchema $schema, $id, $content, array $attributes=array());
 	public function delete(Extension_DevblocksSearchSchema $schema, $ids);
-}
+};
 
 abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implements IDevblocksSearchEngine {
 	public static function getAll($as_instances=false) {
@@ -1607,7 +1646,6 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 		return mb_substr($content, $start, $next_ws-$start);
 	}
 };
-
 
 abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 	const INDEX_POINTER_RESET = 'reset';

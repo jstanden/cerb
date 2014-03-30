@@ -26,9 +26,6 @@ if(!defined('DEVBLOCKS_LANGUAGE'))
 if(!defined('DEVBLOCKS_REWRITE'))
 	define('DEVBLOCKS_REWRITE',false);
 
-if(!defined('DEVBLOCKS_CACHE_PREFIX'))
-	define('DEVBLOCKS_CACHE_PREFIX','');
-
 if(!defined('APP_DEFAULT_CONTROLLER'))
 	define('APP_DEFAULT_CONTROLLER',''); // 404?
 

@@ -4,7 +4,7 @@
 	<name>[Devblocks] Core</name>
 	<description>Devblocks: PHP5 Application Framework</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>2.2.0</version>
+	<version>2.2.1</version>
 	<link>http://wiki.devblocks.com/</link>
 	
 	<!-- Patches -->
@@ -27,6 +27,9 @@
 		</file>
 		<file path="api/dao/devblocks_template.php">
 			<class name="View_DevblocksTemplate" />
+		</file>
+		<file path="api/services/cache.php">
+			<class name="DevblocksCacheEngine_Disk" />
 		</file>
 		<file path="api/services/search.php">
 			<class name="DevblocksSearchEngineMysqlFulltext" />
@@ -54,6 +57,19 @@
 	
 	<extensions>
 	
+		<!-- Cache Engines -->
+
+		<extension point="devblocks.cache.engine">
+			<id>devblocks.cache.engine.disk</id>
+			<name>Disk</name>
+			<class>
+				<file>api/services/cache.php</file>
+				<name>DevblocksCacheEngine_Disk</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<!-- Search Engines -->
 
 		<extension point="devblocks.search.engine">
@@ -77,7 +93,7 @@
 			<params>
 			</params>
 		</extension>
-
+		
 		<!-- Storage Engines -->
 
 		<extension point="devblocks.storage.engine">
