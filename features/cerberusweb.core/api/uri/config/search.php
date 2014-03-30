@@ -30,17 +30,6 @@ class PageSection_SetupSearch extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/search/index.tpl');
 	}
 	
-	function getSearchSchemaStatusAction() {
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		$schema = Extension_DevblocksSearchSchema::get($ext_id);
-		$tpl->assign('schema', $schema);
-		
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/search/schema.tpl');
-	}
-	
 	function showSearchSchemaPeekAction() {
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
