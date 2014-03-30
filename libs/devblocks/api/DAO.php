@@ -488,7 +488,11 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 	const PROPERTY = 'property';
 	const VALUE = 'value';
 	
-	const _CACHE_ALL = 'devblocks_property_store';
+	static private function _getCacheKey($extension_id) {
+		return sprintf("devblocks:ext:%s:params",
+			DevblocksPlatform::strAlphaNum($extension_id, '_.')
+		);
+	}
 	
 	static function getAll() {
 		$extensions = DevblocksPlatform::getExtensionRegistry(true);
@@ -524,12 +528,34 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 	}
 	
 	static function getByExtension($extension_id) {
-		$params = self::getAll();
+		$cache = DevblocksPlatform::getCacheService();
+		$cache_key = self::_getCacheKey($extension_id);
 		
-		if(isset($params[$extension_id]))
-			return $params[$extension_id];
+		if(null === ($params = $cache->load($cache_key))) {
+			$db = DevblocksPlatform::getDatabaseService();
+			$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
+			$params = array();
 			
-		return array();
+			if(false != ($extension = DevblocksPlatform::getExtension($extension_id, false, true))) {
+				$params = $extension->params;
+			}
+			
+			$sql = sprintf("SELECT property, value ".
+				"FROM %sproperty_store ".
+				"WHERE extension_id = %s",
+				$prefix,
+				$db->qstr($extension_id)
+			);
+			$results = $db->GetArray($sql);
+			
+			if(is_array($results))
+			foreach($results as $row)
+				$params[$row['property']] = $row['value'];
+			
+			$cache->save($params, $cache_key);
+		}
+		
+		return $params;
 	}
 
 	static function get($extension_id, $key, $default=null) {
@@ -540,6 +566,7 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 	static function put($extension_id, $key, $value) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
+		$cache_key = self::_getCacheKey($extension_id);
 
 		$db->Execute(sprintf(
 			"REPLACE INTO ${prefix}property_store (extension_id, property, value) ".
@@ -550,8 +577,7 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 		));
 
 		$cache = DevblocksPlatform::getCacheService();
-		// [TODO] [CHD-2955] This may be deleting the cache too quickly when doing multiple PUTs
-		$cache->remove(self::_CACHE_ALL);
+		$cache->remove($cache_key);
 		return true;
 	}
 };
