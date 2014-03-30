@@ -1120,8 +1120,8 @@ class DevblocksPlatform extends DevblocksEngine {
 			$cache->remove(self::CACHE_EVENTS);
 			$cache->remove(self::CACHE_EXTENSIONS);
 			$cache->remove(self::CACHE_POINTS);
-			$cache->remove(self::CACHE_SETTINGS);
 			$cache->remove(self::CACHE_TABLES);
+			$cache->remove('devblocks:plugin:devblocks.core:settings');
 			$cache->remove(_DevblocksClassLoadManager::CACHE_CLASS_MAP);
 			
 			// Flush template cache

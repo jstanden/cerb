@@ -439,47 +439,23 @@ class DAO_DevblocksSetting extends DevblocksORMHelper {
 				$db->qstr($key),
 				$db->qstr($value)
 		));
-		
-//		$cache = DevblocksPlatform::getCacheService();
-//		$cache->remove(DevblocksPlatform::CACHE_SETTINGS);
 	}
 	
-	static function get($plugin_id, $key) {
+	// This doesn't need to cache because it's handled by the platform
+	static function getSettings($plugin_id) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$sql = sprintf("SELECT value FROM devblocks_setting WHERE plugin_id = %s AND setting = %s",
-			$db->qstr($plugin_id),
-			$db->qstr($key)
-		);
-		$value = $db->GetOne($sql) or die(__CLASS__ . ':' . $db->ErrorMsg());
+		$settings = array();
 		
-		return $value;
-	}
-	
-	static function getSettings($plugin_id=null) {
-		$cache = DevblocksPlatform::getCacheService();
-		if(null === ($plugin_settings = $cache->load(DevblocksPlatform::CACHE_SETTINGS))) {
-			$db = DevblocksPlatform::getDatabaseService();
-			$plugin_settings = array();
-			
-			$sql = sprintf("SELECT plugin_id,setting,value FROM devblocks_setting");
-			$results = $db->GetArray($sql);
-			
-			foreach($results as $row) {
-				$plugin_id = $row['plugin_id'];
-				$k = $row['setting'];
-				$v = $row['value'];
-				
-				if(!isset($plugin_settings[$plugin_id]))
-					$plugin_settings[$plugin_id] = array();
-				
-				$plugin_settings[$plugin_id][$k] = $v;
-			}
-			
-			if(!empty($plugin_settings))
-				$cache->save($plugin_settings, DevblocksPlatform::CACHE_SETTINGS);
+		$results = $db->GetArray(sprintf("SELECT setting, value FROM devblocks_setting WHERE plugin_id = %s",
+			$db->qstr($plugin_id)
+		));
+		
+		if(is_array($results))
+		foreach($results as $row) {
+			$settings[$row['setting']] = $row['value'];
 		}
 		
-		return $plugin_settings;
+		return $settings;
 	}
 };
 

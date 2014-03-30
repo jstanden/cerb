@@ -15,7 +15,6 @@ abstract class DevblocksEngine {
 	const CACHE_EXTENSIONS = 'devblocks_extensions';
 	const CACHE_PLUGINS = 'devblocks_plugins';
 	const CACHE_POINTS = 'devblocks_points';
-	const CACHE_SETTINGS = 'devblocks_settings';
 	const CACHE_STORAGE_PROFILES = 'devblocks_storage_profiles';
 	const CACHE_TABLES = 'devblocks_tables';
 	const CACHE_TAG_TRANSLATIONS = 'devblocks_translations';
