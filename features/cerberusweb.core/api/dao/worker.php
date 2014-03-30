@@ -191,21 +191,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
-	static function getList($ids=array()) {
-		if(!is_array($ids)) $ids = array($ids);
-
-		$workers = self::getWhere(
-			sprintf("%s IN (%s)",
-				DAO_Worker::ID,
-				(!empty($ids) ? implode(',', $ids) : '0')
-			),
-			array(DAO_Worker::FIRST_NAME, DAO_Worker::LAST_NAME),
-			array(true, true)
-		);
-		
-		return $workers;
-	}
-	
 	/**
 	 * @return Model_Worker
 	 */
