@@ -31,6 +31,7 @@
 		<file path="api/services/cache.php">
 			<class name="DevblocksCacheEngine_Disk" />
 			<class name="DevblocksCacheEngine_Memcache" />
+			<class name="DevblocksCacheEngine_Redis" />
 		</file>
 		<file path="api/services/search.php">
 			<class name="DevblocksSearchEngineMysqlFulltext" />
@@ -81,6 +82,18 @@
 			<params>
 			</params>
 		</extension>
+
+		<extension point="devblocks.cache.engine">
+			<id>devblocks.cache.engine.redis</id>
+			<name>Redis</name>
+			<class>
+				<file>api/services/cache.php</file>
+				<name>DevblocksCacheEngine_Redis</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
 		<!-- Search Engines -->
 
 		<extension point="devblocks.search.engine">

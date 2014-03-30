@@ -380,3 +380,106 @@ class DevblocksCacheEngine_Memcache extends Extension_DevblocksCacheEngine {
 		$this->_driver->flush();
 	}
 };
+
+class DevblocksCacheEngine_Redis extends Extension_DevblocksCacheEngine {
+	const ID = 'devblocks.cache.engine.redis';
+	
+	private $_driver = null;
+	
+	function setConfig(array $config) {
+		if(true !== ($result = $this->testConfig($config))) {
+			trigger_error($result, E_USER_WARNING);
+			return false;
+		}
+		
+		$this->_config = $config;
+		return true;
+	}
+	
+	function testConfig(array $config) {
+		if(!extension_loaded('redis'))
+			return "The 'Redis' PHP extension is not loaded.";
+			
+		if(empty($config['host']))
+			return "The 'host' setting is required.";
+		
+		if(empty($config['port']))
+			return "The 'port' setting is required.";
+		
+		if(!empty($config['database']) && !is_numeric($config['database']))
+			return "The 'database' setting must be a number.";
+		
+		$this->_driver = new Redis();
+		
+		if(false == @$this->_driver->connect($config['host'], $config['port']))
+			return sprintf("Failed to connect to the Redis server at %s:%d.", $config['host'], $config['port']);
+		
+		if(!empty($config['auth']))
+			if(false == $this->_driver->auth($config['auth']))
+				return 'Failed to authenticate with the Redis server.';
+		
+		if(0 != strlen($config['database']))
+			if(false == ($this->_driver->select($config['database'])))
+				return sprintf('Failed to connect to database %d.', $config['database']);
+		
+		return true;
+	}
+	
+	function renderConfig() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('cacher', $this);
+		$tpl->assign('cacher_config', $this->getConfig());
+		$tpl->display('devblocks:devblocks.core::cache_engine/redis/config.tpl');
+	}
+
+	function renderStatus() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('cacher', $this);
+		$tpl->assign('cacher_config', $this->getConfig());
+		$tpl->display('devblocks:devblocks.core::cache_engine/redis/status.tpl');
+	}
+	
+	function save($data, $key, $tags=array(), $lifetime=0) {
+		@$key_prefix = $this->_config['key_prefix'];
+		
+		$key = $key_prefix . $key;
+		
+		$this->_driver->set($key, serialize($data));
+		
+		// [TODO] Add the key to a SET
+		
+		if($lifetime)
+			$this->_driver->expire($key, $lifetime);
+	}
+	
+	function load($key) {
+		@$key_prefix = $this->_config['key_prefix'];
+		
+		$key = $key_prefix . $key;
+		
+		$val = $this->_driver->get($key);
+		
+		if(!$val || false == ($val = unserialize($val)))
+			$val = null;
+		
+		return $val;
+	}
+	
+	function remove($key) {
+		@$key_prefix = $this->_config['key_prefix'];
+		
+		$key = $key_prefix . $key;
+		
+		// [TODO] Drop the key from a SET
+		
+		$this->_driver->del($key);
+		
+		return true;
+	}
+
+	function clean() {
+		// [TODO] Every key we store should end up in a SET, so we can wipe them all
+		// [TODO] Pipeline
+		$this->_driver->flushDB();
+	}
+};
