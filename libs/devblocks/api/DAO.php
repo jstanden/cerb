@@ -42,6 +42,33 @@ abstract class DevblocksORMHelper {
 	 * @param integer $id
 	 * @param array $fields
 	 */
+	static protected function _insert($table, $fields, $idcol='id') {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(!is_array($fields) || empty($fields))
+			return;
+		
+		foreach($fields as $k => &$v) {
+			if(is_null($v))
+				$v = 'NULL';
+			else
+				$v = $db->qstr($v);
+		}
+
+		$sql = sprintf("INSERT INTO %s (%s) VALUES (%s)",
+			$table,
+			implode(', ', array_keys($fields)),
+			implode(', ', array_values($fields))
+		);
+		$db->Execute($sql);
+		
+		return $db->LastInsertId();
+	}
+	
+	/**
+	 * @param integer $id
+	 * @param array $fields
+	 */
 	static protected function _update($ids=array(), $table, $fields, $idcol='id') {
 		if(!is_array($ids))
 			$ids = array($ids);
