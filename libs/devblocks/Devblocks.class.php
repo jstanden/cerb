@@ -1695,14 +1695,14 @@ class DevblocksPlatform extends DevblocksEngine {
 		return _DevblocksPluginSettingsManager::getInstance();
 	}
 	
-	static function getPluginSetting($plugin_id, $key, $default=null) {
+	static function getPluginSetting($plugin_id, $key, $default=null, $json_decode=false) {
 		$settings = self::getPluginSettingsService();
-		return $settings->get($plugin_id, $key, $default);
+		return $settings->get($plugin_id, $key, $default, $json_decode);
 	}
 	
-	static function setPluginSetting($plugin_id, $key, $value) {
+	static function setPluginSetting($plugin_id, $key, $value, $json_encode=false) {
 		$settings = self::getPluginSettingsService();
-		return $settings->set($plugin_id,  $key, $value);
+		return $settings->set($plugin_id, $key, $value, $json_encode);
 	}
 
 	/**
