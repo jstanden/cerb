@@ -1539,6 +1539,8 @@ abstract class DevblocksHttpResponseListenerExtension extends DevblocksExtension
 };
 
 abstract class Extension_DevblocksCacheEngine extends DevblocksExtension {
+	protected $_config = array();
+	
 	public static function getAll($as_instances=false) {
 		$engines = DevblocksPlatform::getExtensions('devblocks.cache.engine', $as_instances);
 		if($as_instances)
@@ -1570,7 +1572,15 @@ abstract class Extension_DevblocksCacheEngine extends DevblocksExtension {
 		}
 	}
 	
-	abstract function init();
+	function getConfig() {
+		return $this->_config;
+	}
+	
+	abstract function setConfig(array $config);
+	abstract function testConfig(array $config);
+	abstract function renderConfig();
+	abstract function renderStatus();
+	
 	abstract function save($data, $key, $tags=array(), $lifetime=0);
 	abstract function load($key);
 	abstract function remove($key);

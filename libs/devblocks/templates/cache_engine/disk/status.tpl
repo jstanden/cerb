@@ -1,0 +1,1 @@
+Objects are cached in the local filesystem at <b>storage/tmp/</b> with the files named <b>cache--*</b>

@@ -61,7 +61,7 @@
 
 		<extension point="devblocks.cache.engine">
 			<id>devblocks.cache.engine.disk</id>
-			<name>Disk</name>
+			<name>Filesystem</name>
 			<class>
 				<file>api/services/cache.php</file>
 				<name>DevblocksCacheEngine_Disk</name>

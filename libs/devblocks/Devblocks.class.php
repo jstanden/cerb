@@ -2062,6 +2062,15 @@ class DevblocksPlatform extends DevblocksEngine {
 		@define('DEVBLOCKS_WEBPATH',$context_self);
 		@define('DEVBLOCKS_APP_WEBPATH',$app_self);
 		
+		// Enable the second-level cache
+		
+		$cache = DevblocksPlatform::getCacheService();
+		
+		if(null !== ($cacher_extension_id = DevblocksPlatform::getPluginSetting('devblocks.core', 'cacher.extension_id', null))) {
+			$cacher_params = DevblocksPlatform::getPluginSetting('devblocks.core', 'cacher.params_json', array(), true);
+			$cache->setEngine($cacher_extension_id, $cacher_params);
+		}
+		
 		// Register shutdown function
 		register_shutdown_function(array('DevblocksPlatform','shutdown'));
 	}
