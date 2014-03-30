@@ -77,13 +77,13 @@ class _DevblocksRegistryManager {
 			if($var->delta) {
 				// If we've been adding to an initial value, find the delta
 				if(!empty($var->initial_value)) {
-					$value = intval($var->value) - intval($var->initial_value);
+					$var->value = intval($var->value) - intval($var->initial_value);
 				} else {
-					$value = intval($var->value);
+					$var->value = intval($var->value);
 				}
 			}
 			
-			DAO_DevblocksRegistry::set($var->key, $value, $var->as, $var->delta);
+			DAO_DevblocksRegistry::set($var->key, $var->value, $var->as, $var->delta);
 		}
 	}
 	
