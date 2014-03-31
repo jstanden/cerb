@@ -1135,23 +1135,12 @@ class CerberusParser {
 
 		// New Ticket
 		if($model->getIsNew()) {
-			// [JAS] It's important to not set the group_id on the ticket until the messages exist
-			// or inbox filters will just abort.
+			// Insert a bare minimum record so we can get a ticket ID back
 			$fields = array(
-				DAO_Ticket::MASK => CerberusApplication::generateTicketMask(),
-				DAO_Ticket::SUBJECT => $model->getSubject(),
-				DAO_Ticket::IS_CLOSED => 0,
-				DAO_Ticket::FIRST_WROTE_ID => intval($model->getSenderAddressModel()->id),
-				DAO_Ticket::LAST_WROTE_ID => intval($model->getSenderAddressModel()->id),
 				DAO_Ticket::CREATED_DATE => time(),
 				DAO_Ticket::UPDATED_DATE => time(),
-				DAO_Ticket::ORG_ID => intval($model->getSenderAddressModel()->contact_org_id),
-				DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
 			);
 			$model->setTicketId(DAO_Ticket::create($fields));
-
-			$ticket_id = $model->getTicketId();
-			if(empty($ticket_id)) {
 			
 			if(null == $model->getTicketId()) {
 				$logger->error("Problem saving ticket...");
@@ -1376,14 +1365,18 @@ class CerberusParser {
 		// Finalize our new ticket details (post-message creation)
 		/* @var $model CerberusParserModel */
 		if($model->getIsNew()) {
-			// First thread (needed for anti-spam)
-			DAO_Ticket::update($model->getTicketId(), array(
-				 DAO_Ticket::FIRST_MESSAGE_ID => $model->getMessageId(),
-				 DAO_Ticket::LAST_MESSAGE_ID => $model->getMessageId(),
-			));
-			
-			// Prime the change fields (which a few things like anti-spam might change before we commit)
 			$change_fields = array(
+				DAO_Ticket::MASK => CerberusApplication::generateTicketMask(),
+				DAO_Ticket::SUBJECT => $model->getSubject(),
+				DAO_Ticket::IS_CLOSED => 0,
+				DAO_Ticket::FIRST_WROTE_ID => intval($model->getSenderAddressModel()->id),
+				DAO_Ticket::LAST_WROTE_ID => intval($model->getSenderAddressModel()->id),
+				DAO_Ticket::CREATED_DATE => time(),
+				DAO_Ticket::UPDATED_DATE => time(),
+				DAO_Ticket::ORG_ID => intval($model->getSenderAddressModel()->contact_org_id),
+				DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
+				DAO_Ticket::FIRST_MESSAGE_ID => $model->getMessageId(),
+				DAO_Ticket::LAST_MESSAGE_ID => $model->getMessageId(),
 				DAO_Ticket::GROUP_ID => $model->getGroupId(), // this triggers move rules
 			);
 			

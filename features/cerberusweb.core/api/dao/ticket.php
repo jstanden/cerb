@@ -239,7 +239,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		$id = $db->LastInsertId();
 		
-		self::update($id, $fields);
+		self::update($id, $fields, false);
 		
 		return $id;
 	}
@@ -639,7 +639,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		parent::_updateWhere('ticket', $fields, $where);
 	}
 	
-	static function update($ids, $fields) {
+	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
@@ -651,13 +651,15 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				continue;
 			
 			// Get state before changes
-			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
-
+			if($check_deltas) {
+				$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
+			}
+			
 			// Make changes
 			parent::_update($batch_ids, 'ticket', $fields);
 			
 			// Send events
-			if(!empty($object_changes)) {
+			if($check_deltas && !empty($object_changes)) {
 				// Local events
 				self::_processUpdateEvents($object_changes);
 				
