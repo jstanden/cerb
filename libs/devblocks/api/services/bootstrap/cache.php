@@ -52,7 +52,7 @@ class _DevblocksCacheManager {
 		}
 		
 		if(false == ($ext = new $class_name($manifest))
-			|| false == ($ext->setConfig(array())))
+			|| false === ($ext->setConfig(array())))
 				die("[ERROR] Can't initialize the Devblocks cache.");
 			
 		// Always keep the disk cacher around, since we'll need it for the bootstrap caches
@@ -60,21 +60,30 @@ class _DevblocksCacheManager {
 		self::$_cacher = self::$_bootstrap_cacher;
 	}
 
-	public function save($data, $key, $tags=array(), $lifetime=0) {
+	public function save($data, $key, $tags=array(), $lifetime=0, $local_only=false) {
+		// Monitor short-term cache memory usage
+		@$this->_statistics[$key] = intval($this->_statistics[$key]);
+		$this->_io_writes++;
+		$this->_registry[$key] = $data;
+		
+		if($local_only)
+			return true;
+		
 		if(!$this->_isCacheableByExtension($key)) {
 			$engine = self::$_bootstrap_cacher;
 		} else {
 			$engine = self::$_cacher;
 		}
 		
-		// Monitor short-term cache memory usage
-		@$this->_statistics[$key] = intval($this->_statistics[$key]);
-		$this->_io_writes++;
-		$this->_registry[$key] = $data;
 		return $engine->save($data, $key, $tags, $lifetime);
 	}
 	
-	public function load($key, $nocache=false) {
+	public function load($key, $nocache=false, $local_only=false) {
+		// If this is a local request, only try the registry, not cache
+		if($local_only) {
+			return $this->_loadFromLocalRegistry($key);
+		}
+		
 		if(!$this->_isCacheableByExtension($key)) {
 			$engine = self::$_bootstrap_cacher;
 		} else {
@@ -91,6 +100,11 @@ class _DevblocksCacheManager {
 			return $this->_registry[$key];
 		}
 		
+		// Try the request cache
+		return $this->_loadFromLocalRegistry($key);
+	}
+	
+	private function _loadFromLocalRegistry($key) {
 		// Retrieving the short-term cache
 		if(isset($this->_registry[$key])) {
 			@$this->_statistics[$key] = intval($this->_statistics[$key]) + 1;
