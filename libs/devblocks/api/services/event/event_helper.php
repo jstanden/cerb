@@ -3328,7 +3328,6 @@ class DevblocksEventHelper {
 					$to_address = $worker->email;
 					
 				} else {
-					// [TODO] Cache
 					if(null == ($worker_address = DAO_AddressToWorker::getByAddress($to)))
 						continue;
 						

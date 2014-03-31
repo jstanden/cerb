@@ -16,6 +16,8 @@
 ***********************************************************************/
 
 class DAO_AddressToWorker { // extends DevblocksORMHelper
+	const _CACHE_ALL = 'cerb:dao:address_to_worker:all';
+	
 	const ADDRESS = 'address';
 	const WORKER_ID = 'worker_id';
 	const IS_CONFIRMED = 'is_confirmed';
@@ -38,6 +40,8 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 		);
 		$db->Execute($sql);
 
+		self::clearCache();
+		
 		return $address;
 	}
 
@@ -51,6 +55,8 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 			$db->qstr($address)
 		);
 		$db->Execute($sql);
+		
+		self::clearCache();
 	}
 	
 	static function unassignAll($worker_id) {
@@ -63,6 +69,8 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 			$worker_id
 		);
 		$db->Execute($sql);
+		
+		self::clearCache();
 	}
 	
 	static function update($addresses, $fields) {
@@ -92,7 +100,9 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 			self::ADDRESS,
 			implode("','", $addresses)
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->Execute($sql);
+		
+		self::clearCache();
 	}
 	
 	/**
@@ -102,19 +112,18 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 	 * @return Model_AddressToWorker[]
 	 */
 	static function getByWorker($worker_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$addresses = self::getAll();
 		
-		$addresses = self::getWhere(sprintf("%s = %d",
-			DAO_AddressToWorker::WORKER_ID,
-			$worker_id
-		));
+		$addresses = array_filter($addresses, function($address) use ($worker_id) {
+			return ($address->worker_id == $worker_id);
+		});
 		
 		return $addresses;
 	}
 	
 	static function getByWorkers() {
-		$workers = DAO_Worker::getAll(false, false);
-		$addys = DAO_AddressToWorker::getAll(false, false);
+		$addys = self::getAll();
+		$workers = DAO_Worker::getAll();
 		
 		array_walk($addys, function($addy) use ($workers) {
 			if(!$addy->is_confirmed)
@@ -139,15 +148,8 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 	 * @return Model_AddressToWorker
 	 */
 	static function getByAddress($address) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		// Force lower
+		$addresses = self::getAll(); // Use the cache
 		$address = strtolower($address);
-		
-		$addresses = self::getWhere(sprintf("%s = %s",
-			DAO_AddressToWorker::ADDRESS,
-			$db->qstr($address)
-		));
 		
 		if(isset($addresses[$address]))
 			return $addresses[$address];
@@ -156,20 +158,27 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 	}
 	
 	static function getAll($nocache=false, $with_disabled=false) {
-		$workers = DAO_Worker::getAll();
+		$cache = DevblocksPlatform::getCacheService();
 		
-		// [TODO] Cache? getAllActive?
-		$addresses = self::getWhere();
+		if($nocache || null === ($results = $cache->load(self::_CACHE_ALL))) {
+			$addresses = self::getWhere();
+			$results = array();
+			
+			if(is_array($addresses))
+			foreach($addresses as $address) {
+				$results[$address->address] = $address;
+			}
+			
+			$cache->save($results, self::_CACHE_ALL);
+		}
 		
-		$results = array();
-		
-		if(is_array($addresses))
-		foreach($addresses as $address) {
-			@$worker = $workers[$address->worker_id];
-			if(empty($worker) || $worker->is_disabled)
-				continue;
-
-			$results[$address->address] = $address;
+		if(!$with_disabled) {
+			$workers = DAO_Worker::getAll();
+			
+			$results = array_filter($results, function($address) use ($workers) {
+				@$worker = $workers[$address->worker_id];
+				return !(empty($worker) || $worker->is_disabled);
+			});
 		}
 		
 		return $results;
@@ -209,6 +218,11 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 		mysqli_free_result($rs);
 		
 		return $objects;
+	}
+	
+	public static function clearCache() {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::_CACHE_ALL);
 	}
 };
 
