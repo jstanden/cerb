@@ -231,7 +231,19 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 		if(empty($cache_dir))
 			return NULL;
 		
-		$wrapper = @unserialize(file_get_contents($cache_dir . $this->_getFilename($key)));
+		$cache_file_path = $cache_dir . $this->_getFilename($key);
+		
+		if(!file_exists($cache_file_path))
+			return NULL;
+		
+		if(false === ($fp = fopen($cache_file_path, 'r')))
+			return NULL;
+		
+		flock($fp, LOCK_SH);
+		
+		$wrapper = @unserialize(file_get_contents($cache_file_path));
+		
+		fclose($fp);
 		
 		// If this is wrapped data, check the cache expiration
 		if(is_array($wrapper) && isset($wrapper['data'])) {
@@ -257,6 +269,8 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 		if(empty($cache_dir))
 			return false;
 		
+		$cache_file = $cache_dir . $this->_getFilename($key);
+		
 		$wrapper = array(
 			'data' => $data,
 		);
@@ -266,12 +280,21 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 			$wrapper['cache_until'] = time() + $lifetime;
 		}
 		
-		$full_path_to_cache_file = $cache_dir . $this->_getFilename($key);
+		if(false === ($fp = fopen($cache_file, 'a+')))
+			return false;
 		
-		file_put_contents($full_path_to_cache_file, serialize($wrapper));
+		// Lock for writing
+		flock($fp, LOCK_EX);
+		fseek($fp, 0);
+		ftruncate($fp, 0);
+		
+		if(false === fwrite($fp, serialize($wrapper)))
+			return false;
 		
 		// Set the permissions more securely
-		chmod($full_path_to_cache_file, 0640);
+		chmod($cache_file, 0640);
+		
+		fclose($fp);
 		
 		return true;
 	}
