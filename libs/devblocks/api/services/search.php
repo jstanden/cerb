@@ -169,16 +169,25 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 			!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : '',
 			$limit
 		);
-		
-		$result = mysqli_query($this->db, $sql);
 
-		if(false == $result)
-			return false;
-			
-		$ids = array();
+		$cache = DevblocksPlatform::getCacheService();
+		$cache_key = sprintf("search:%s", md5($sql));
+		$is_only_cached_for_request = !$cache->isVolatile();
 		
-		while($row = mysqli_fetch_row($result)) {
-			$ids[] = intval($row[0]);
+		if(null === ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
+			$ids = array();
+			
+			$result = mysqli_query($this->db, $sql);
+			
+			if($result instanceof mysqli_result) {
+				while($row = mysqli_fetch_row($result)) {
+					$ids[] = intval($row[0]);
+				}
+				
+				mysqli_free_result($result);
+			}
+			
+			$cache->save($ids, $cache_key, array(), 300, $is_only_cached_for_request);
 		}
 		
 		return $ids;
@@ -386,6 +395,9 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		
 		$row = mysqli_fetch_row($rs);
 		
+		if($result instanceof mysqli_result)
+			mysqli_free_result($rs);
+		
 		if(isset($row[0]))
 			return intval($row[0]);
 		
@@ -400,6 +412,9 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			return false;
 		
 		$row = mysqli_fetch_row($rs);
+		
+		if($result instanceof mysqli_result)
+			mysqli_free_result($rs);
 		
 		if(isset($row[0]))
 			return intval($row[0]);
@@ -471,15 +486,24 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			$limit
 		);
 		
-		$result = mysqli_query($this->db, $sql);
+		$cache = DevblocksPlatform::getCacheService();
+		$cache_key = sprintf("search:%s", md5($sql));
+		$is_only_cached_for_request = !$cache->isVolatile();
 		
-		if(false == $result)
-			return false;
+		if(null === ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
+			$ids = array();
 			
-		$ids = array();
-		
-		while($row = mysqli_fetch_row($result)) {
-			$ids[] = intval($row[0]);
+			$result = mysqli_query($this->db, $sql);
+			
+			if($result instanceof mysqli_result) {
+				while($row = mysqli_fetch_row($result)) {
+					$ids[] = intval($row[0]);
+				}
+				
+				mysqli_free_result($result);
+			}
+			
+			$cache->save($ids, $cache_key, array(), 300, $is_only_cached_for_request);
 		}
 		
 		return $ids;
@@ -763,7 +787,12 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		);
 		$result = mysqli_query($this->db, $sql);
 		
-		return (false !== $result) ? true : false;
+		$return = (false !== $result) ? true : false;
+		
+		if($result instanceof mysqli_result)
+			mysqli_free_result($result);
+		
+		return $return;
 	}
 	
 	public function index(Extension_DevblocksSearchSchema $schema, $id, $content, array $attributes=array()) {
@@ -850,9 +879,14 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		
 		$result = mysqli_query($this->db, $sql);
 		
+		$return = (false !== $result) ? true : false;
+		
+		if($result instanceof mysqli_result)
+			mysqli_free_result($result);
+		
 		DevblocksPlatform::clearCache(DevblocksPlatform::CACHE_TABLES);
 		
-		return (false !== $result) ? true : false;
+		return $return;
 	}
 	
 	public function delete(Extension_DevblocksSearchSchema $schema, $ids) {
@@ -869,6 +903,11 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			implode(',', $ids)
 		));
 		
-		return (false !== $result) ? true : false;
+		$return = (false !== $result) ? true : false;
+		
+		if($result instanceof mysqli_result)
+			mysqli_free_result($result);
+		
+		return $return;
 	}
 };
