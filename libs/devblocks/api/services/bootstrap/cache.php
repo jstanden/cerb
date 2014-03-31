@@ -341,6 +341,35 @@ class DevblocksCacheEngine_Memcache extends Extension_DevblocksCacheEngine {
 	const ID = 'devblocks.cache.engine.memcache';
 	
 	private $_driver = null;
+	private $_iteration = null;
+
+	private function _getIteration($new=false) {
+		// First, check the class for our iteration
+		if(!$new && !is_null($this->_iteration))
+			return $this->_iteration;
+		
+		@$key_prefix = $this->_config['key_prefix'];
+		$cache_key = $key_prefix . 'cacher:iteration';
+		
+		// Then check the Redis cache
+		if($new || null == ($this->_iteration = $this->_driver->get($cache_key))) {
+			// If not found, generate a new one and save it
+			$this->_iteration = dechex(mt_rand());
+			$this->_set($cache_key, $this->_iteration, 0);
+		}
+		
+		return $this->_iteration;
+	}
+	
+	private function _getCacheKey($key) {
+		@$key_prefix = $this->_config['key_prefix'];
+		
+		return sprintf("%s%s:%s",
+			$key_prefix,
+			$this->_getIteration(),
+			$key
+		);
+	}
 	
 	function setConfig(array $config) {
 		if(true !== ($result = $this->testConfig($config))) {
@@ -349,6 +378,7 @@ class DevblocksCacheEngine_Memcache extends Extension_DevblocksCacheEngine {
 		}
 		
 		$this->_config = $config;
+		$this->_iteration = $this->_getIteration();
 		return true;
 	}
 	
@@ -395,39 +425,40 @@ class DevblocksCacheEngine_Memcache extends Extension_DevblocksCacheEngine {
 		return true;
 	}
 	
-	function save($data, $key, $tags=array(), $lifetime=0) {
-		@$key_prefix = $this->_config['key_prefix'];
-		
-		$key = $key_prefix . $key;
-		
+	private function _set($cache_key, $data, $ttl) {
 		if($this->_driver instanceof Memcached) {
-			return $this->_driver->set($key, $data, $lifetime);
+			return $this->_driver->set($cache_key, $data, $ttl);
 		} else {
-			return $this->_driver->set($key, $data, 0, $lifetime);
+			return $this->_driver->set($cache_key, $data, 0, $ttl);
 		}
 	}
 	
+	function save($data, $key, $tags=array(), $ttl=0) {
+		$cache_key = $this->_getCacheKey($key);
+		
+		if(empty($ttl))
+			$ttl = 86400; // 1 day (any value is needed for LRU)
+
+		$this->_set($cache_key, $data, $ttl);
+	}
+	
 	function load($key) {
-		@$key_prefix = $this->_config['key_prefix'];
+		$cache_key = $this->_getCacheKey($key);
 		
-		$key = $key_prefix . $key;
-		
-		@$val = $this->_driver->get($key);
+		@$val = $this->_driver->get($cache_key);
 		return $val;
 	}
 	
 	function remove($key) {
 		if(empty($key))
 			return;
-		
-		@$key_prefix = $this->_config['key_prefix'];
-		
-		$key = $key_prefix . $key;
-		$this->_driver->delete($key);
+
+		$cache_key = $this->_getCacheKey($key);
+		$this->_driver->delete($cache_key);
 	}
 
 	function clean() {
-		$this->_driver->flush();
+		$this->_getIteration(true);
 	}
 };
 
