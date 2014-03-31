@@ -138,6 +138,7 @@ class ChDisplayPage extends CerberusPageExtension {
 				$score = CerberusBayes::calculateTicketSpamProbability($id);
 				$properties[DAO_Ticket::SPAM_SCORE] = $score['probability'];
 				$properties[DAO_Ticket::SPAM_TRAINING] = CerberusTicketSpamTraining::BLANK;
+				$properties[DAO_Ticket::INTERESTING_WORDS] = $score['interesting_words'];
 		}
 		
 		// Don't double set the closed property (auto-close replies)

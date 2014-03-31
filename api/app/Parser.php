@@ -1397,8 +1397,11 @@ class CerberusParser {
 				DAO_Ticket::GROUP_ID => $model->getGroupId(), // this triggers move rules
 			);
 			
-			// [TODO] Benchmark anti-spam
-			$out = CerberusBayes::calculateTicketSpamProbability($model->getTicketId());
+			// Spam probabilities
+			if(false !== ($spam_data = CerberusBayes::calculateContentSpamProbability($model->getSubject() . ' ' . $message->body))) {
+				$change_fields[DAO_Ticket::SPAM_SCORE] = $spam_data['probability'];
+				$change_fields[DAO_Ticket::INTERESTING_WORDS] = $spam_data['interesting_words'];
+			}
 		
 			// Save properties
 			if(!empty($change_fields))

@@ -901,8 +901,6 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		if(is_array($ticket_ids))
 		foreach($ticket_ids as $ticket_id) {
-//			CerberusBayes::calculateTicketSpamProbability($ticket_id); // [TODO] Ugly (optimize -- use the 'interesting_words' to do a word bayes spam score?
-			
 			$last_action->ticket_ids[$ticket_id] = array(
 				DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
 				DAO_Ticket::SPAM_SCORE => 0.0001, // [TODO] Fix
@@ -945,8 +943,6 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		if(is_array($ticket_ids))
 		foreach($ticket_ids as $ticket_id) {
-//			CerberusBayes::calculateTicketSpamProbability($ticket_id); // [TODO] Ugly (optimize -- use the 'interesting_words' to do a word bayes spam score?
-			
 			$last_action->ticket_ids[$ticket_id] = array(
 				DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
 				DAO_Ticket::SPAM_SCORE => 0.5000, // [TODO] Fix

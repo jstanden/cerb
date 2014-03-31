@@ -1012,7 +1012,27 @@ class CerberusBayes {
 		return array('probability' => $combined, 'words' => $interesting_words);
 	}
 	
-	static function calculateTicketSpamProbability($ticket_id, $readonly=false) {
+	static function calculateContentSpamProbability($content) {
+		// Only check the first 15000 characters for spam, rounded to a sentence
+		if(strlen($content) > self::MAX_BODY_LENGTH)
+			$content = substr($content, 0, strrpos(substr($content, 0, self::MAX_BODY_LENGTH), ' '));
+		
+		$words = self::processText($content);
+		$spam_data = self::_calculateSpamProbability($words);
+		
+		// Make a word list
+		$raw_words = array();
+		if(isset($spam_data['words']) && is_array($spam_data['words']))
+		foreach($spam_data['words'] as $k=>$v) { /* @var $v Model_BayesWord */
+			$raw_words[] = $v->word;
+		}
+		
+		$spam_data['interesting_words'] = substr(implode(',',array_reverse($raw_words)),0,255);
+		
+		return $spam_data;
+	}
+	
+	static function calculateTicketSpamProbability($ticket_id) {
 		// pull up text of first ticket message
 		$messages = DAO_Message::getMessagesByTicket($ticket_id);
 		$first_message = array_shift($messages);
@@ -1021,39 +1041,10 @@ class CerberusBayes {
 		if(empty($ticket) || empty($first_message) || !($first_message instanceOf Model_Message))
 			return FALSE;
 		
-		// Pass text to analyze() to get back interesting words
-		$content = '';
-		if(!empty($ticket->subject)) {
-			// SplitCamelCapsSubjects
-			$hits = preg_split("{(?<=[a-z])(?=[A-Z])}x", $ticket->subject);
-			if(is_array($hits) && !empty($hits)) {
-				$content .= implode(' ',$hits);
-			}
-		}
-		$content .= ' ' . $first_message->getContent();
+		$content = $ticket->subject . ' ' . $first_message->getContent();
 		
-		// Only check the first 15000 characters for spam, rounded to a sentence
-		if(strlen($content) > self::MAX_BODY_LENGTH)
-			$content = substr($content, 0, strrpos(substr($content, 0, self::MAX_BODY_LENGTH), ' '));
+		$spam_data = self::calculateContentSpamProbability($content);
 		
-		$words = self::processText($content);
-		$out = self::_calculateSpamProbability($words);
-
-		// Make a word list
-		$rawwords = array();
-		foreach($out['words'] as $k=>$v) { /* @var $v Model_BayesWord */
-			$rawwords[] = $v->word;
-		}
-		
-		// Cache probability
-		if(!$readonly) {
-			$fields = array(
-				DAO_Ticket::SPAM_SCORE => $out['probability'],
-				DAO_Ticket::INTERESTING_WORDS => substr(implode(',',array_reverse($rawwords)),0,255),
-			);
-			DAO_Ticket::update($ticket_id, $fields);
-		}
-		
-		return $out;
+		return $spam_data;
 	}
 };
