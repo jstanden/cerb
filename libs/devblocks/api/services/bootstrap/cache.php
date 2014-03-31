@@ -422,14 +422,43 @@ class DevblocksCacheEngine_Redis extends Extension_DevblocksCacheEngine {
 	const ID = 'devblocks.cache.engine.redis';
 	
 	private $_driver = null;
+	private $_iteration = null;
+
+	private function _getIteration($new=false) {
+		// First, check the class for our iteration
+		if(!$new && !is_null($this->_iteration))
+			return $this->_iteration;
+		
+		@$key_prefix = $this->_config['key_prefix'];
+		$cache_key = $key_prefix . 'cacher:iteration';
+		
+		// Then check the Redis cache
+		if($new || null == ($this->_iteration = $this->_driver->get($cache_key))) {
+			// If not found, generate a new one and save it
+			$this->_iteration = dechex(mt_rand());
+			$this->_driver->set($cache_key, $this->_iteration);
+		}
+		
+		return $this->_iteration;
+	}
+	
+	private function _getCacheKey($key) {
+		@$key_prefix = $this->_config['key_prefix'];
+		
+		return sprintf("%s%s:%s",
+			$key_prefix,
+			$this->_getIteration(),
+			$key
+		);
+	}
 	
 	function setConfig(array $config) {
 		if(true !== ($result = $this->testConfig($config))) {
 			trigger_error($result, E_USER_WARNING);
 			return false;
 		}
-		
 		$this->_config = $config;
+		$this->_iteration = $this->_getIteration();
 		return true;
 	}
 	
@@ -476,25 +505,23 @@ class DevblocksCacheEngine_Redis extends Extension_DevblocksCacheEngine {
 		$tpl->display('devblocks:devblocks.core::cache_engine/redis/status.tpl');
 	}
 	
-	function save($data, $key, $tags=array(), $lifetime=0) {
-		@$key_prefix = $this->_config['key_prefix'];
+	function isVolatile() {
+		return true;
+	}
+	
+	function save($data, $key, $tags=array(), $ttl=0) {
+		$cache_key = $this->_getCacheKey($key);
 		
-		$key = $key_prefix . $key;
-		
-		$this->_driver->set($key, serialize($data));
-		
-		// [TODO] Add the key to a SET
-		
-		if($lifetime)
-			$this->_driver->expire($key, $lifetime);
+		if(empty($ttl))
+			$ttl = 86400; // 1 day (any value is needed for LRU)
+			
+		$this->_driver->setex($cache_key, $ttl, serialize($data));
 	}
 	
 	function load($key) {
-		@$key_prefix = $this->_config['key_prefix'];
+		$cache_key = $this->_getCacheKey($key);
 		
-		$key = $key_prefix . $key;
-		
-		$val = $this->_driver->get($key);
+		$val = $this->_driver->get($cache_key);
 		
 		if(!$val || false === ($val = unserialize($val)))
 			$val = null;
@@ -503,20 +530,14 @@ class DevblocksCacheEngine_Redis extends Extension_DevblocksCacheEngine {
 	}
 	
 	function remove($key) {
-		@$key_prefix = $this->_config['key_prefix'];
+		$cache_key = $this->_getCacheKey($key);
 		
-		$key = $key_prefix . $key;
-		
-		// [TODO] Drop the key from a SET
-		
-		$this->_driver->del($key);
+		$this->_driver->del($cache_key);
 		
 		return true;
 	}
 
 	function clean() {
-		// [TODO] Every key we store should end up in a SET, so we can wipe them all
-		// [TODO] Pipeline
-		$this->_driver->flushDB();
+		$this->_getIteration(true);
 	}
 };
