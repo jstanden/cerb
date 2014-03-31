@@ -446,55 +446,30 @@ class Model_MailToGroupRule {
 	}
 	
 	/**
-	 * @param integer[] $ticket_ids
+	 * @param CerberusParserModel $model
 	 */
-	function run($ticket_ids) {
-		if(!is_array($ticket_ids)) $ticket_ids = array($ticket_ids);
+	function run(CerberusParserModel &$model) {
+		if(null == $model->getTicketId())
+			return;
 		
-		$fields = array();
-		$field_values = array();
-
 		$groups = DAO_Group::getAll();
 		$buckets = DAO_Bucket::getAll();
-//		$workers = DAO_Worker::getAll();
 		$custom_fields = DAO_CustomField::getAll();
 		
-		// actions
+		// Update the model using actions
 		if(is_array($this->actions))
 		foreach($this->actions as $action => $params) {
 			switch($action) {
-//				case 'status':
-//					if(isset($params['is_waiting']))
-//						$fields[DAO_Ticket::IS_WAITING] = intval($params['is_waiting']);
-//					if(isset($params['is_closed']))
-//						$fields[DAO_Ticket::IS_CLOSED] = intval($params['is_closed']);
-//					if(isset($params['is_deleted']))
-//						$fields[DAO_Ticket::IS_DELETED] = intval($params['is_deleted']);
-//					break;
-
 				case 'move':
 					if(isset($params['group_id']) && isset($params['bucket_id'])) {
 						$g_id = intval($params['group_id']);
 						$b_id = intval($params['bucket_id']);
+						
 						if(isset($groups[$g_id]) && (0==$b_id || isset($buckets[$b_id]))) {
-							$fields[DAO_Ticket::GROUP_ID] = $g_id;
-							$fields[DAO_Ticket::BUCKET_ID] = $b_id;
+							$model->setGroupId($g_id);
 						}
 					}
-					break;
 					
-//				case 'spam':
-//					if(isset($params['is_spam'])) {
-//						if(intval($params['is_spam'])) {
-//							foreach($ticket_ids as $ticket_id)
-//								CerberusBayes::markTicketAsSpam($ticket_id);
-//						} else {
-//							foreach($ticket_ids as $ticket_id)
-//								CerberusBayes::markTicketAsNotSpam($ticket_id);
-//						}
-//					}
-//					break;
-
 				default:
 					// Custom fields
 					if(substr($action,0,3)=="cf_") {
@@ -503,19 +478,16 @@ class Model_MailToGroupRule {
 						if(!isset($custom_fields[$field_id]) || !isset($params['value']))
 							break;
 
-						$field_values[$field_id] = $params;
+						// Persist in the model
+						$model->getMessage()->custom_fields[] = array(
+							'field_id' => $field_id,
+							'context' => CerberusContexts::CONTEXT_TICKET,
+							'context_id' => $model->getTicketId(),
+							'value' => $params['value'],
+						);
 					}
 					break;
 			}
 		}
-
-		if(!empty($ticket_ids)) {
-			if(!empty($fields))
-				DAO_Ticket::update($ticket_ids, $fields);
-			
-			// Custom Fields
-			C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_TICKET, $field_values, $ticket_ids);
-		}
 	}
-	
 };

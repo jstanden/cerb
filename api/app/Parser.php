@@ -1135,38 +1135,6 @@ class CerberusParser {
 
 		// New Ticket
 		if($model->getIsNew()) {
-			// Routing new tickets
-			if(null != ($routing_rules = Model_MailToGroupRule::getMatches(
-				$model->getSenderAddressModel(),
-				$message
-			))) {
-				if(is_array($routing_rules))
-				foreach($routing_rules as $rule) {
-					// Only end up with the last 'move' action (ignore the previous)
-					if(isset($rule->actions['move'])) {
-						$model->setGroupId($rule->actions['move']['group_id']);
-						
-						// We don't need to move again when running rule actions
-						unset($rule->actions['move']);
-					}
-				}
-			}
-			
-			// Last ditch effort to check for a default group to deliver to
-			$group_id = $model->getGroupId();
-			if(empty($group_id)) {
-				if(null != ($default_group = DAO_Group::getDefaultGroup())) {
-					$model->setGroupId($default_group->id);
-				}
-			}
-
-			// Bounce if we can't set the group id
-			$group_id = $model->getGroupId();
-			if(empty($group_id)) {
-				$logger->error("[Parser] Can't determine a default group to deliver to.");
-				return FALSE;
-			}
-			
 			// [JAS] It's important to not set the group_id on the ticket until the messages exist
 			// or inbox filters will just abort.
 			$fields = array(
@@ -1184,6 +1152,8 @@ class CerberusParser {
 
 			$ticket_id = $model->getTicketId();
 			if(empty($ticket_id)) {
+			
+			if(null == $model->getTicketId()) {
 				$logger->error("Problem saving ticket...");
 				return false;
 			}
@@ -1204,10 +1174,30 @@ class CerberusParser {
 				}
 			}
 			
-			// Apply routing actions to our new ticket ID
-			if(isset($routing_rules) && is_array($routing_rules))
-			foreach($routing_rules as $rule) {
-				$rule->run($model->getTicketId());
+			// Routing new tickets
+			if(null != ($routing_rules = Model_MailToGroupRule::getMatches(
+				$model->getSenderAddressModel(),
+				$message
+			))) {
+				
+				// Update our model with the results of the routing rules
+				if(is_array($routing_rules))
+				foreach($routing_rules as $rule) {
+					$rule->run($model);
+				}
+			}
+			
+			// Last ditch effort to check for a default group to deliver to
+			if(null == $model->getGroupId()) {
+				if(null != ($default_group = DAO_Group::getDefaultGroup())) {
+					$model->setGroupId($default_group->id);
+				}
+			}
+
+			// Bounce if we can't set the group id
+			if(null == $model->getGroupId()) {
+				$logger->error("[Parser] Can't determine a default group to deliver to.");
+				return FALSE;
 			}
 
 		} // endif ($model->getIsNew())
