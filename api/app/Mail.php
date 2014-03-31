@@ -444,9 +444,7 @@ class CerberusMail {
 		}
 		
 		// Headers
-		foreach($mail_headers as $hdr_key => $hdr_val) {
-			DAO_MessageHeader::create($message_id, $hdr_key, $hdr_val);
-		}
+		DAO_MessageHeader::creates($message_id, $mail_headers);
 		
 		// add files to ticket
 		if (is_array($files) && !empty($files)) {
@@ -914,11 +912,7 @@ class CerberusMail {
 			Storage_MessageContent::put($message_id, $content);
 
 			// Save cached headers
-			foreach($send_headers as $hdr_key => $hdr_val) {
-				if(empty($hdr_key) || empty($hdr_val))
-					continue;
-				DAO_MessageHeader::create($message_id, $hdr_key, $hdr_val);
-			}
+			DAO_MessageHeader::creates($message_id, $send_headers);
 			
 			// Attachments
 			if (is_array($files) && !empty($files)) {

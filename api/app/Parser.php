@@ -1230,9 +1230,8 @@ class CerberusParser {
 		Storage_MessageContent::put($model->getMessageId(), $message->body);
 		
 		// Save headers
-		foreach($headers as $hk => $hv) {
-			DAO_MessageHeader::create($model->getMessageId(), $hk, $hv);
-		}
+		if(is_array($headers))
+			DAO_MessageHeader::creates($model->getMessageId(), $headers);
 		
 		// [mdf] Loop through files to insert attachment records in the db, and move temporary files
 		foreach ($message->files as $filename => $file) { /* @var $file ParserFile */

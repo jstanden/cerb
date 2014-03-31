@@ -1087,6 +1087,45 @@ class DAO_MessageHeader {
 				$db->qstr($value)
 		));
 	}
+	
+	/**
+	 * Insert multiple headers.
+	 *
+	 * @param integer $message_id
+	 * @param string $header
+	 * @param string $value
+	 */
+	static function creates($message_id, $headers) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($message_id) || empty($headers) || !is_array($headers))
+			return;
+		
+		$values = array();
+		
+		foreach($headers as $k => $v) {
+			if(empty($k))
+				continue;
+			
+			if(is_string($v) && empty($v))
+				continue;
+			
+			if(is_array($v) && empty($v))
+				continue;
+			
+			$values[] = sprintf("(%d, %s, %s)",
+				$message_id,
+				$db->qstr($k),
+				$db->qstr(is_array($v) ? implode("\r\n", $v) : $v)
+			);
+		}
+		
+		unset($headers);
+		
+		$db->Execute(sprintf("INSERT INTO message_header (message_id, header_name, header_value) VALUES %s",
+			implode(',', $values)
+		));
+	}
 
 	static function getAll($message_id) {
 		$db = DevblocksPlatform::getDatabaseService();
