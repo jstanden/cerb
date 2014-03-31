@@ -520,7 +520,7 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 			$cache_key = sprintf("widget%d_render", $widget->id);
 			
 			// Fetch and cache
-			if($nocache || empty($widget->cache_ttl) || false == ($widget_contents = $cache->load($cache_key))) {
+			if($nocache || empty($widget->cache_ttl) || null === ($widget_contents = $cache->load($cache_key))) {
 				if($autoload) {
 					$tpl = DevblocksPlatform::getTemplateService();
 					$tpl->assign('widget', $widget);
@@ -641,17 +641,16 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 	 * runs scheduled task
 	 *
 	 */
-	function run() {
-		// Overloaded by child
-	}
+	abstract function run();
 	
 	function _run() {
-		$this->setParam(self::PARAM_LOCKED,time());
-		$this->run();
-		
 		$duration = $this->getParam(self::PARAM_DURATION, 5);
 		$term = $this->getParam(self::PARAM_TERM, 'm');
 		$lastrun = $this->getParam(self::PARAM_LASTRUN, time());
+		
+		$this->setParam(self::PARAM_LOCKED, time());
+		
+		$this->run();
 
 		$secs = self::getIntervalAsSeconds($duration, $term);
 		$ran_at = time();
@@ -662,8 +661,8 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 			$ran_at = time() - $extra; // go back in time and lie
 		}
 		
-		$this->setParam(self::PARAM_LASTRUN,$ran_at);
-		$this->setParam(self::PARAM_LOCKED,0);
+		$this->setParam(self::PARAM_LASTRUN, $ran_at);
+		$this->setParam(self::PARAM_LOCKED, 0);
 	}
 	
 	/**

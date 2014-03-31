@@ -865,7 +865,7 @@ class CerberusParser {
 		}
 		
 		// Parse headers into $model
-		$model = new CerberusParserModel($message);
+		$model = new CerberusParserModel($message); /* @var $model CerberusParserModel */
 		
 		if(false == ($validated = $model->validate()))
 			return $validated; // false or null
@@ -1385,6 +1385,7 @@ class CerberusParser {
 		}
 		
 		// Finalize our new ticket details (post-message creation)
+		/* @var $model CerberusParserModel */
 		if($model->getIsNew()) {
 			// First thread (needed for anti-spam)
 			DAO_Ticket::update($model->getTicketId(), array(
