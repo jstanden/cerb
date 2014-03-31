@@ -34,6 +34,11 @@ class _DevblocksCacheManager {
 		}
 	}
 	
+	// This describes whether the cache manages its own TTL/LRU/LFU ejection
+	public function isVolatile() {
+		return self::$_cacher->isVolatile();
+	}
+	
 	private function __construct() {
 		// Default to disk, and load directly without platform (bootstrap)
 		$manifest = new DevblocksExtensionManifest();
@@ -129,7 +134,7 @@ class _DevblocksCacheManager {
 		$engine->remove($key);
 	}
 	
-	public function clean() { // $mode=null
+	public function clean() {
 		$this->_registry = array();
 		$this->_statistics = array();
 
@@ -216,6 +221,10 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 		$tpl->assign('cacher', $this);
 		$tpl->assign('cacher_config', $this->getConfig());
 		$tpl->display('devblocks:devblocks.core::cache_engine/disk/status.tpl');
+	}
+	
+	function isVolatile() {
+		return false;
 	}
 	
 	private function _getFilename($key) {
@@ -380,6 +389,10 @@ class DevblocksCacheEngine_Memcache extends Extension_DevblocksCacheEngine {
 		$tpl->assign('cacher', $this);
 		$tpl->assign('cacher_config', $this->getConfig());
 		$tpl->display('devblocks:devblocks.core::cache_engine/memcached/status.tpl');
+	}
+	
+	function isVolatile() {
+		return true;
 	}
 	
 	function save($data, $key, $tags=array(), $lifetime=0) {

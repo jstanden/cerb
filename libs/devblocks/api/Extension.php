@@ -1581,6 +1581,7 @@ abstract class Extension_DevblocksCacheEngine extends DevblocksExtension {
 	abstract function renderConfig();
 	abstract function renderStatus();
 	
+	abstract function isVolatile();
 	abstract function save($data, $key, $tags=array(), $lifetime=0);
 	abstract function load($key);
 	abstract function remove($key);
