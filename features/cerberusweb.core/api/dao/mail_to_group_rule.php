@@ -16,6 +16,8 @@
  ***********************************************************************/
 
 class DAO_MailToGroupRule extends DevblocksORMHelper {
+	const _CACHE_ALL = 'cerb:dao:mail_to_group_rule:all';
+	
 	const ID = 'id';
 	const POS = 'pos';
 	const CREATED = 'created';
@@ -42,6 +44,19 @@ class DAO_MailToGroupRule extends DevblocksORMHelper {
 	
 	static function update($ids, $fields) {
 		parent::_update($ids, 'mail_to_group_rule', $fields);
+		
+		self::clearCache();
+	}
+	
+	static function getAll($nocache=false) {
+		$cache = DevblocksPlatform::getCacheService();
+		
+		if($nocache || null === ($results = $cache->load(self::_CACHE_ALL))) {
+			$results = self::getWhere();
+			$cache->save($results, self::_CACHE_ALL, array(), 1200); // 20 mins
+		}
+		
+		return $results;
 	}
 	
 	/**
@@ -62,12 +77,10 @@ class DAO_MailToGroupRule extends DevblocksORMHelper {
 
 	/**
 	 * @param integer $id
-	 * @return Model_MailToGroupRule	 */
+	 * @return Model_MailToGroupRule
+	 */
 	static function get($id) {
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
+		$objects = self::getAll();
 		
 		if(isset($objects[$id]))
 			return $objects[$id];
@@ -116,6 +129,8 @@ class DAO_MailToGroupRule extends DevblocksORMHelper {
 		
 		$db->Execute(sprintf("DELETE FROM mail_to_group_rule WHERE id IN (%s)", $ids_list));
 		
+		self::clearCache();
+		
 		return true;
 	}
 
@@ -124,13 +139,18 @@ class DAO_MailToGroupRule extends DevblocksORMHelper {
 	 *
 	 * @param integer $id
 	 */
-	static function increment($id) {
+	static function increment($id, $by=1) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute(sprintf("UPDATE mail_to_group_rule SET pos = pos + 1 WHERE id = %d",
+		$db->Execute(sprintf("UPDATE mail_to_group_rule SET pos = pos + %d WHERE id = %d",
+			$by,
 			$id
 		));
 	}
-
+	
+	static function clearCache() {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::_CACHE_ALL);
+	}
 };
 
 class Model_MailToGroupRule {
@@ -145,7 +165,7 @@ class Model_MailToGroupRule {
 	
 	static function getMatches(Model_Address $fromAddress, CerberusParserMessage $message) {
 		$matches = array();
-		$rules = DAO_MailToGroupRule::getWhere();
+		$rules = DAO_MailToGroupRule::getAll();
 		$message_headers = $message->headers;
 		$custom_fields = DAO_CustomField::getAll();
 		

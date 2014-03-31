@@ -22,7 +22,7 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 		
 		$visit->set(ChConfigurationPage::ID, 'mail_routing');
 		
-		$rules = DAO_MailToGroupRule::getWhere();
+		$rules = DAO_MailToGroupRule::getAll();
 		$tpl->assign('rules', $rules);
 
 		$groups = DAO_Group::getAll();
