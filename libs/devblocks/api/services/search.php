@@ -113,7 +113,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 	}
 	
 	
-	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=250) {
+	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=500) {
 		@$index = $this->_config['index'];
 		
 		if(empty($index))
@@ -416,7 +416,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		);
 	}
 	
-	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=250) {
+	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=500) {
 		$ns = $schema->getNamespace();
 		
 		$escaped_query = mysqli_real_escape_string($this->db, $query);

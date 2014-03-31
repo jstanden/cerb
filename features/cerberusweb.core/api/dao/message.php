@@ -350,7 +350,7 @@ class DAO_Message extends Cerb_ORMHelper {
 			case SearchFields_Message::MESSAGE_CONTENT:
 				$search = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID);
 				$query = $search->getQueryFromParam($param);
-				$ids = $search->query($query, array(), 250);
+				$ids = $search->query($query, array());
 				
 				if(empty($ids))
 					$ids = array(-1);
@@ -658,7 +658,7 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 		}
 	}
 	
-	public function query($query, $attributes=array(), $limit=250) {
+	public function query($query, $attributes=array(), $limit=500) {
 		if(false == ($engine = $this->getEngine()))
 			return false;
 		

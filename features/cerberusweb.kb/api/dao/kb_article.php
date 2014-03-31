@@ -355,7 +355,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			case SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT:
 				$search = Extension_DevblocksSearchSchema::get(Search_KbArticle::ID);
 				$query = $search->getQueryFromParam($param);
-				$ids = $search->query($query, array(), 250);
+				$ids = $search->query($query, array());
 				
 				if(empty($ids))
 					$ids = array(-1);
@@ -540,7 +540,7 @@ class Search_KbArticle extends Extension_DevblocksSearchSchema {
 		}
 	}
 	
-	public function query($query, $attributes=array(), $limit=250) {
+	public function query($query, $attributes=array(), $limit=500) {
 		if(false == ($engine = $this->getEngine()))
 			return false;
 
