@@ -714,7 +714,6 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			}
 		}
 		
-		// [TODO] This could be cached in a runtime registry too
 		if(null == ($mft = DevblocksPlatform::getExtension($event->id, false)))
 			return;
 		
@@ -722,13 +721,8 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			|| !$event_ext instanceof Extension_DevblocksEvent)  /* @var $event_ext Extension_DevblocksEvent */
 				return;
 		
-		// Load the intermediate data ONCE!
-		
-		$event_ext->setEvent($event);
-		$values = $event_ext->getValues();
-
-		// Lazy-loader dictionary
-		$dict = new DevblocksDictionaryDelegate($values);
+		// Load only if needed
+		$dict = null;
 		
 		// We're preloading some variable values
 		if(isset($event->params['_variables']) && is_array($event->params['_variables'])) {
@@ -774,6 +768,20 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 				$trigger_va->name,
 				$trigger->virtual_attendant_id
 			));
+			
+			// Load the intermediate data ONCE! (if at least one VA is responding)
+			if(is_null($dict)) {
+				$event_ext->setEvent($event);
+				$values = $event_ext->getValues();
+		
+				// Lazy-loader dictionary
+				$dict = new DevblocksDictionaryDelegate($values);
+				
+				// [TODO] Cache the dict we're left with by context:id
+				//var_dump(array('pre_cache', $values));
+				
+				unset($values);
+			}
 			
 			$trigger->runDecisionTree($dict);
 
