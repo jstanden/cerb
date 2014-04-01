@@ -674,6 +674,10 @@ class CerberusContexts {
 	const CONTEXT_WORKSPACE_WIDGET = 'cerberusweb.contexts.workspace.widget';
 	
 	public static function getContext($context, $context_object, &$labels, &$values, $prefix=null, $nested=false) {
+		// Consistency for cache hash
+		if(empty($prefix))
+			$prefix = null;
+		
 		switch($context) {
 			case 'cerberusweb.contexts.attachment':
 				self::_getAttachmentContext($context_object, $labels, $values, $prefix);
@@ -683,7 +687,34 @@ class CerberusContexts {
 				// Migrated
 				if(null != ($ctx = DevblocksPlatform::getExtension($context, true))
 					&& $ctx instanceof Extension_DevblocksContext) {
-						$ctx->getContext($context_object, $labels, $values, $prefix);
+						$cache = DevblocksPlatform::getCacheService();
+						
+						// If blank, check the cache for a prebuilt context object
+						if(is_null($context_object)) {
+							$hash = md5(serialize(array($context, $prefix, $nested)));
+							$cache_key = sprintf("cerb:ctx:%s", $hash);
+							
+							// Cache hit
+							if(null !== ($data = $cache->load($cache_key, false, true))) {
+								$loaded_labels = $data['labels'];
+								$loaded_values = $data['values'];
+								
+							// Cache miss
+							} else {
+								$loaded_labels = array();
+								$loaded_values = array();
+								$ctx->getContext($context_object, $loaded_labels, $loaded_values, $prefix);
+								
+								$cache->save(array('labels' => $loaded_labels, 'values' => $loaded_values), $cache_key, array(), 0, true);
+							}
+							
+							$labels = $loaded_labels;
+							$values = $loaded_values;
+							
+						} else {
+							$ctx->getContext($context_object, $labels, $values, $prefix);
+							
+						}
 				}
 				break;
 		}
