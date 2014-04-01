@@ -105,7 +105,10 @@
 
 <script type="text/javascript">
 $(function() {
-	var tabs = $("#tasksTabs").tabs( { active:{$selected_tab_idx} } );
+	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+	tabOptions.active = {$selected_tab_idx};
+	
+	var tabs = $("#tasksTabs").tabs(tabOptions);
 
 	$('#btnDisplayTaskEdit').bind('click', function() {
 		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'500');

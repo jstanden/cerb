@@ -90,14 +90,17 @@
 </div>
 <br>
 
-{$tab_selected_idx=0}
+{$selected_tab_idx=0}
 {foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$tab_selected}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
+	{if $tab_label==$tab_selected}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
 {/foreach}
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#mail_html_templateTabs").tabs( { active:{$tab_selected_idx} } );
+		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+		tabOptions.active = {$selected_tab_idx};
+		
+		var tabs = $("#mail_html_templateTabs").tabs(tabOptions);
 		
 		$('#btnDisplayMailHtmlTemplateEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');

@@ -18,7 +18,10 @@
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#pluginTabs").tabs( { active:{$selected_tab_idx} } );
+		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+		tabOptions.active = {$selected_tab_idx};
+		
+		var tabs = $("#pluginTabs").tabs(tabOptions);
 	});
 </script>
 

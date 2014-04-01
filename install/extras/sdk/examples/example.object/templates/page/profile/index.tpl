@@ -23,14 +23,17 @@
 </div> 
 <br>
 
-{$tab_selected_idx=0}
+{$selected_tab_idx=0}
 {foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$tab_selected}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
+	{if $tab_label==$tab_selected}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
 {/foreach}
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $('#objectTabs').tabs( { active:{$tab_selected_idx} } );
+		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+		tabOptions.active = {$selected_tab_idx};
+		
+		var tabs = $('#objectTabs').tabs(tabOptions);
 		
 		$('#btnExObProfileEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=example.objects&a=showPeekPopup&id={$model->id}',null,false,'550');

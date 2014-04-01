@@ -114,7 +114,10 @@
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#oppTabs").tabs( { active:{$selected_tab_idx} } );
+		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+		tabOptions.active = {$selected_tab_idx};
+		
+		var tabs = $("#oppTabs").tabs(tabOptions);
 		
 		$('#btnDisplayOppEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_OPPORTUNITY}&context_id={$page_context_id}',null,false,'550');

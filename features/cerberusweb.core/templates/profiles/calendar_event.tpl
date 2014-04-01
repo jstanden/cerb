@@ -97,7 +97,10 @@
 
 <script type="text/javascript">
 $(function() {
-	var tabs = $("#profileTabs").tabs( { active:{$selected_tab_idx} } );
+	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+	tabOptions.active = {$selected_tab_idx};
+	
+	var tabs = $("#profileTabs").tabs(tabOptions);
 
 	{if $active_worker->is_superuser}
 	$('#btnProfileEventEdit').bind('click', function() {

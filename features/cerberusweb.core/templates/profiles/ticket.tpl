@@ -189,7 +189,10 @@
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#displayTabs").tabs( { active:{$selected_tab_idx} } );
+		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+		tabOptions.active = {$selected_tab_idx};
+		
+		var tabs = $("#displayTabs").tabs(tabOptions);
 		
 		$('#btnDisplayTicketEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}&edit=1',null,false,'650');

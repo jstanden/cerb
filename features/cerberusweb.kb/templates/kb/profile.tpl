@@ -106,9 +106,10 @@
 
 <script type="text/javascript">
 $(function() {
-	var tabs = $("#kbTabs").tabs({
-		active:{$selected_tab_idx}
-	});
+	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+	tabOptions.active = {$selected_tab_idx};
+	
+	var tabs = $("#kbTabs").tabs(tabOptions);
 	
 	$('#btnDisplayKbEdit').bind('click', function() {
 		$popup = genericAjaxPopup('peek', 'c=kb.ajax&a=showArticleEditPanel&id={$page_context_id}&view_id={$view_id}',null,false,'700');
