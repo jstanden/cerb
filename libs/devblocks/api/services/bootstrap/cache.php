@@ -65,7 +65,7 @@ class _DevblocksCacheManager {
 		self::$_cacher = self::$_bootstrap_cacher;
 	}
 
-	public function save($data, $key, $tags=array(), $lifetime=0, $local_only=false) {
+	public function save($data, $key, $tags=array(), $ttl=0, $local_only=false) {
 		// Monitor short-term cache memory usage
 		@$this->_statistics[$key] = intval($this->_statistics[$key]);
 		$this->_io_writes++;
@@ -80,7 +80,7 @@ class _DevblocksCacheManager {
 			$engine = self::$_cacher;
 		}
 		
-		return $engine->save($data, $key, $tags, $lifetime);
+		return $engine->save($data, $key, $tags, $ttl);
 	}
 	
 	public function load($key, $nocache=false, $local_only=false) {
@@ -120,18 +120,23 @@ class _DevblocksCacheManager {
 		return NULL;
 	}
 	
-	public function remove($key) {
+	public function remove($key, $local_only=false) {
+		if(empty($key))
+			return;
+		
+		unset($this->_registry[$key]);
+		unset($this->_statistics[$key]);
+
+		if($local_only)
+			return true;
+		
 		if(!$this->_isCacheableByExtension($key)) {
 			$engine = self::$_bootstrap_cacher;
 		} else {
 			$engine = self::$_cacher;
 		}
 		
-		if(empty($key))
-			return;
-		unset($this->_registry[$key]);
-		unset($this->_statistics[$key]);
-		$engine->remove($key);
+		return $engine->remove($key);
 	}
 	
 	public function clean() {
@@ -272,7 +277,7 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 		return $wrapper;
 	}
 	
-	function save($data, $key, $tags=array(), $lifetime=0) {
+	function save($data, $key, $tags=array(), $ttl=0) {
 		@$cache_dir = $this->_config['cache_dir'];
 		
 		if(empty($cache_dir))
@@ -284,9 +289,9 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 			'data' => $data,
 		);
 		
-		// Are we setting a lifetime?
-		if(!empty($lifetime)) {
-			$wrapper['cache_until'] = time() + $lifetime;
+		// Are we setting a TTL?
+		if(!empty($ttl)) {
+			$wrapper['cache_until'] = time() + $ttl;
 		}
 		
 		if(false === ($fp = fopen($cache_file, 'a+')))
