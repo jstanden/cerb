@@ -31,6 +31,15 @@
 var $frm = $('#{$uniqid}').each(function(e) {
 	var $frm = $(this);
 	var $select = $frm.find('select[name=field]');
+	var $input = $frm.find('input:text');
+
+	var $bubbles = $select.siblings('div.hints').find('ul.bubbles');
+	$bubbles.css('cursor', 'pointer');
+	
+	$bubbles.on('click', function(e) {
+		var txt = $(e.target).text();
+		$input.insertAtCursor(txt).select();
+	});
 	
 	$select.bind('load_hints', function(e) {
 		var $this = $(this);
@@ -39,7 +48,6 @@ var $frm = $('#{$uniqid}').each(function(e) {
 		var cf_id = $token.attr('cf_id');
 		var field_type = $token.attr('field_type');
 		
-		var $bubbles = $this.siblings('div.hints').find('ul.bubbles');
 		$bubbles.find('li').remove();
 		
 {capture "field_hints"}
@@ -157,7 +165,6 @@ var $frm = $('#{$uniqid}').each(function(e) {
 				$bubbles.append($('<li><tt>1</tt></li>'));
 			
 			}
-			
 		}
 	});
 	
@@ -169,8 +176,6 @@ var $frm = $('#{$uniqid}').each(function(e) {
 	});
 	
 	$select.trigger('load_hints');
-	
-	var $input = $frm.find('input:text');
 	
 	$input.keydown(function(e) {
 		if(e.which == 13) {
