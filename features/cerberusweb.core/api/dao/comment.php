@@ -252,7 +252,8 @@ class DAO_Comment extends Cerb_ORMHelper {
 		$db->Execute(sprintf("DELETE FROM comment WHERE id IN (%s)", $ids_list));
 		
 		// Search index
-		Search_CommentContent::delete($ids);
+		$search = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID, true);
+		$search->delete($ids);
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();

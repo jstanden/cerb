@@ -155,11 +155,12 @@ class DAO_Message extends Cerb_ORMHelper {
 		Storage_MessageContent::delete($ids);
 		
 		// Search indexes
-		Search_MessageContent::delete($ids);
+		$search = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID, true);
+		$search->delete($ids);
 		
 		// Messages
 		$sql = sprintf("DELETE FROM message WHERE id IN (%s)",
-				$ids_list
+			$ids_list
 		);
 		$db->Execute($sql);
 		
@@ -1073,8 +1074,6 @@ class DAO_MessageHeader {
 		if(empty($header) || empty($value) || empty($message_id))
 			return;
 		
-		$header = strtolower($header);
-
 		// Handle stacked headers
 		if(is_array($value)) {
 			$value = implode("\r\n",$value);
@@ -1083,7 +1082,7 @@ class DAO_MessageHeader {
 		$db->Execute(sprintf("INSERT INTO message_header (message_id, header_name, header_value) ".
 				"VALUES (%d, %s, %s)",
 				$message_id,
-				$db->qstr($header),
+				$db->qstr(strtolower($header)),
 				$db->qstr($value)
 		));
 	}
@@ -1115,7 +1114,7 @@ class DAO_MessageHeader {
 			
 			$values[] = sprintf("(%d, %s, %s)",
 				$message_id,
-				$db->qstr($k),
+				$db->qstr(strtolower($k)),
 				$db->qstr(is_array($v) ? implode("\r\n", $v) : $v)
 			);
 		}
