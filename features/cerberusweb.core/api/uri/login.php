@@ -111,8 +111,10 @@ class ChSignInPage extends CerberusPageExtension {
 				break;
 
 			case 'authenticate':
+				// Always wait a little while
+				sleep(2);
+				
 				if(empty($worker)) {
-					sleep(2); // delay brute force
 					$query = array(
 						'email' => $email,
 						'error' => 'Invalid password.',
