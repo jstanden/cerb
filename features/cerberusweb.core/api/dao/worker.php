@@ -210,15 +210,16 @@ class DAO_Worker extends Cerb_ORMHelper {
 	 * @return integer $id
 	 */
 	static function getByEmail($email) {
-		if(empty($email)) return null;
-		$db = DevblocksPlatform::getDatabaseService();
+		if(empty($email))
+			return null;
 		
-		$sql = sprintf("SELECT a.id FROM worker a WHERE a.email = %s",
-			$db->qstr($email)
-		);
+		$workers = DAO_Worker::getAll();
 		
-		if(null != ($id = $db->GetOne($sql)))
-			return $id;
+		if(is_array($workers))
+		foreach($workers as $worker) {
+			if(0 == strcasecmp($worker->email, $email))
+				return $worker;
+		}
 		
 		return null;
 	}
