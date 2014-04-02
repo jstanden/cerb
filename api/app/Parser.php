@@ -238,16 +238,14 @@ class CerberusParserModel {
 				
 				// Only consider the watcher auth header to be a reply if it validates
 				if($senderWorker instanceof Model_Worker
-						&& @preg_match('#\<(.*)\_(\d*)\_(\d*)\_([a-f0-9]{8})\@cerb\d{0,1}\>#', $ref, $hits)
-						&& $this->isValidAuthHeader($ref, $senderWorker)) {
+						&& @preg_match('#\<([a-f0-9]+)\@cerb\d{0,1}\>#', $ref, $hits)
+						&& false != ($relay_message_id = $this->isValidAuthHeader($ref, $senderWorker))) {
 				
-					$ticket_id = $hits[2];
-					
-					if(null != ($ticket = DAO_Ticket::get($ticket_id))) {
+					if(null != ($ticket = DAO_Ticket::getTicketByMessageId($relay_message_id))) {
 						$this->_is_new = false;
 						$this->_ticket_id = $ticket_id;
 						$this->_ticket_model = $ticket;
-						$this->_message_id = $ticket->last_message_id;
+						$this->_message_id = $relay_message_id;
 						return;
 					}
 				}
@@ -330,7 +328,7 @@ class CerberusParserModel {
 	public function isWorkerRelayReply() {
 		@$in_reply_to = trim($this->_message->headers['in-reply-to']);
 		
-		if(!empty($in_reply_to) && @preg_match('#\<(.*)\_(\d*)\_(\d*)\_([a-f0-9]{8})\@cerb\d{0,1}\>#', $in_reply_to))
+		if(!empty($in_reply_to) && @preg_match('#\<[a-f0-9]+\@cerb\d{0,1}\>#', $in_reply_to))
 			return true;
 		
 		return false;
@@ -340,16 +338,17 @@ class CerberusParserModel {
 		if(empty($worker) || !($worker instanceof Model_Worker))
 			return false;
 		
-		if(@preg_match('#\<(.*)\_(\d*)\_(\d*)\_([a-f0-9]{8})\@cerb\d{0,1}\>#', $in_reply_to, $hits)) {
-			$proxy_context = $hits[1];
-			$proxy_context_id = $hits[2];
-			$signed = $hits[4];
+		// See if we can trust the given message_id
+		if(@preg_match('#\<([a-f0-9]+)\@cerb\d{0,1}\>#', $in_reply_to, $hits)) {
+			@$hash = $hits[1];
+			@$signed = substr($hash, 4, 40);
+			@$message_id = hexdec(substr($hash, 44));
 			
-			$signed_compare = substr(md5($proxy_context.$proxy_context_id.$worker->pass),8,8);
+			$signed_compare = sha1($message_id . $worker->id . APP_DB_PASS);
 			
 			$is_authenticated = ($signed_compare == $signed);
 			
-			return $is_authenticated;
+			return $message_id;
 		}
 		
 		return false;
@@ -1001,7 +1000,7 @@ class CerberusParser {
 					// Properties
 					$properties = array(
 						'ticket_id' => $proxy_ticket->id,
-						'message_id' => $proxy_ticket->last_message_id,
+						'message_id' => is_numeric($is_authenticated) ? $is_authenticated : $proxy_ticket->last_message_id,
 						'forward_files' => $attachment_file_ids,
 						'link_forward_files' => true,
 						'worker_id' => $proxy_worker->id,

@@ -1148,11 +1148,12 @@ class CerberusMail {
 				$subject = sprintf("[relay #%s] %s", $ticket->mask, $ticket->subject);
 				$mail->setSubject($subject);
 	
-				// Find the owner of this ticket and sign it.
-				$sign = substr(md5(CerberusContexts::CONTEXT_TICKET.$ticket->id.$worker->pass),8,8);
-				
 				$headers->removeAll('message-id');
-				$headers->addTextHeader('Message-Id', sprintf("<%s_%d_%d_%s@cerb>", CerberusContexts::CONTEXT_TICKET, $ticket->id, time(), $sign));
+
+				// Sign the message so we can verify that a future relay reply is genuine
+				$sign = sha1($message->id . $worker->id . APP_DB_PASS);
+				$headers->addTextHeader('Message-Id', sprintf("<%s%s%s@cerb>", dechex(mt_rand(255,65535)), $sign, dechex($message->id)));
+				
 				$headers->addTextHeader('X-CerberusRedirect','1');
 	
 				// [TODO] HTML body?

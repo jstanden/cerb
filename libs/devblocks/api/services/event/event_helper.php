@@ -3363,11 +3363,12 @@ class DevblocksEventHelper {
 					$mail->setSubject($subject);
 				}
 	
-				// Find the owner of this address and sign it.
-				$sign = substr(md5($context.$context_id.$worker->pass),8,8);
-				
 				$headers->removeAll('message-id');
-				$headers->addTextHeader('Message-Id', sprintf("<%s_%d_%d_%s@cerb>", $context, $context_id, time(), $sign));
+
+				// Sign the message so we can verify a future relay response
+				$sign = sha1($message_id . $worker->id . APP_DB_PASS);
+				$headers->addTextHeader('Message-Id', sprintf("<%s%s%s@cerb>", dechex(mt_rand(255,65535)), $sign, dechex($message_id)));
+				
 				$headers->addTextHeader('X-CerberusRedirect','1');
 	
 				$content = $tpl_builder->build($params['content'], $dict);
