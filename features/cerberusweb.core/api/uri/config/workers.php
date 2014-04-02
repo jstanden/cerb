@@ -194,10 +194,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 			
 			// Addresses
 			if(null == DAO_AddressToWorker::getByAddress($email)) {
-				DAO_AddressToWorker::assign($email, $id);
-				DAO_AddressToWorker::update($email, array(
-					DAO_AddressToWorker::IS_CONFIRMED => 1
-				));
+				DAO_AddressToWorker::assign($email, $id, true);
 			}
 			
 			// Custom field saves

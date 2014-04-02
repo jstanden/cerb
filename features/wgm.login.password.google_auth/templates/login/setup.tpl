@@ -50,7 +50,7 @@
 	<input type="text" name="otp_code" size="8" maxlength="6" autocomplete="off">
 </fieldset>
 
-{if empty($worker->pass)}
+{if !$worker_has_auth}
 <fieldset>
 	<legend>Step 4: Choose a password</legend>
 

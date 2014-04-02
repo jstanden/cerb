@@ -754,10 +754,9 @@ switch($step) {
 				}
 				
 				// If this worker doesn't exist, create them
-				if(null === ($lookup = DAO_Worker::getByEmail($worker_email))) {
+				if(null == ($lookup = DAO_Worker::getByEmail($worker_email))) {
 					$fields = array(
 						DAO_Worker::EMAIL => $worker_email,
-						DAO_Worker::PASSWORD => md5($worker_pass),
 						DAO_Worker::FIRST_NAME => 'Super',
 						DAO_Worker::LAST_NAME => 'User',
 						DAO_Worker::TITLE => 'Administrator',
@@ -766,16 +765,15 @@ switch($step) {
 					);
 					
 					$worker_id = DAO_Worker::create($fields);
+					
+					DAO_Worker::setAuth($worker_id, $worker_pass);
 	
 					// Add the worker e-mail to the addresses table
 					if(!empty($worker_email))
 						DAO_Address::lookupAddress($worker_email, true);
 					
 					// Authorize this e-mail address (watchers, etc.)
-					DAO_AddressToWorker::assign($worker_email, $worker_id);
-					DAO_AddressToWorker::update($worker_email, array(
-						DAO_AddressToWorker::IS_CONFIRMED => 1
-					));
+					DAO_AddressToWorker::assign($worker_email, $worker_id, true);
 					
 					// Default group memberships
 					if(!empty($dispatch_gid))

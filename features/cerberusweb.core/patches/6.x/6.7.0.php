@@ -69,6 +69,30 @@ foreach($check_tables as $check_table) {
 }
 
 // ===========================================================================
+// Add a more secure worker hash table for passwords
+
+if(!isset($tables['worker_auth_hash'])) {
+	$sql = sprintf("
+		CREATE TABLE IF NOT EXISTS worker_auth_hash (
+			worker_id INT UNSIGNED NOT NULL,
+			pass_hash VARCHAR(128),
+			pass_salt VARCHAR(64),
+			method TINYINT UNSIGNED NOT NULL DEFAULT 0,
+			PRIMARY KEY (worker_id)
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->Execute($sql);
+
+	$tables['worker_auth_hash'] = 'worker_auth_hash';
+
+	// Insert newly salted rows for workers with existing passwords
+	$db->Execute("INSERT INTO worker_auth_hash (worker_id, pass_salt, pass_hash, method) SELECT id, @salt := substr(sha1(rand()),1,12) AS salt, sha1(concat(@salt,pass)) AS hash, 0 AS method FROM worker WHERE pass != ''");
+	
+	// Drop the `pass` field on `worker`'
+	$db->Execute("ALTER TABLE worker DROP column pass");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

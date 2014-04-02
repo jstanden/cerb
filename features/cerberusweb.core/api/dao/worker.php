@@ -25,7 +25,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 	const LAST_NAME = 'last_name';
 	const TITLE = 'title';
 	const EMAIL = 'email';
-	const PASSWORD = 'pass';
 	const IS_SUPERUSER = 'is_superuser';
 	const IS_DISABLED = 'is_disabled';
 	const LAST_ACTIVITY = 'last_activity';
@@ -145,7 +144,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
-		$sql = "SELECT id, first_name, last_name, email, pass, title, is_superuser, is_disabled, last_activity_date, last_activity, last_activity_ip, auth_extension_id ".
+		$sql = "SELECT id, first_name, last_name, email, title, is_superuser, is_disabled, last_activity_date, last_activity, last_activity_ip, auth_extension_id ".
 			"FROM worker ".
 			$where_sql.
 			$sort_sql.
@@ -170,7 +169,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$object->first_name = $row['first_name'];
 			$object->last_name = $row['last_name'];
 			$object->email = $row['email'];
-			$object->pass = $row['pass'];
 			$object->title = $row['title'];
 			$object->is_superuser = intval($row['is_superuser']);
 			$object->is_disabled = intval($row['is_disabled']);
@@ -397,22 +395,54 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$cache->remove(DAO_Group::CACHE_ROSTERS);
 	}
 	
+	static function hasAuth($worker_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$worker_auth = $db->GetRow(sprintf("SELECT pass_hash, pass_salt, method FROM worker_auth_hash WHERE worker_id = %d", $worker_id));
+		return (is_array($worker_auth) && isset($worker_auth['pass_hash']));
+	}
+	
+	static function setAuth($worker_id, $password) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(is_null($password)) {
+			return $db->Execute(sprintf("DELETE FROM worker_auth_hash WHERE worker_id = %d",
+				$worker_id
+			));
+			
+		} else {
+			$salt = CerberusApplication::generatePassword(12);
+			
+			return $db->Execute(sprintf("REPLACE INTO worker_auth_hash (worker_id, pass_hash, pass_salt, method) ".
+				"VALUES (%d, %s, %s, %d)",
+				$worker_id,
+				$db->qstr(sha1($salt.md5($password))),
+				$db->qstr($salt),
+				0
+			));
+		}
+	}
+	
 	static function login($email, $password) {
 		$db = DevblocksPlatform::getDatabaseService();
 
-		// [TODO] Uniquely salt hashes
-		$sql = sprintf("SELECT id ".
-			"FROM worker ".
-			"WHERE is_disabled = 0 ".
-			"AND email = %s ".
-			"AND pass = MD5(%s)",
-				$db->qstr($email),
-				$db->qstr($password)
-		);
-		$worker_id = $db->GetOne($sql); // or die(__CLASS__ . ':' . $db->ErrorMsg());
-
-		if(!empty($worker_id)) {
-			return self::get($worker_id);
+		if(null == ($worker = DAO_Worker::getByEmail($email)) || $worker->is_disabled)
+			return null;
+		
+		$worker_auth = $db->GetRow(sprintf("SELECT pass_hash, pass_salt, method FROM worker_auth_hash WHERE worker_id = %d", $worker->id));
+		
+		if(!isset($worker_auth['pass_hash']) || !isset($worker_auth['pass_salt']))
+			return null;
+		
+		if(empty($worker_auth['pass_hash']) || empty($worker_auth['pass_salt']))
+			return null;
+		
+		switch(@$worker_auth['method']) {
+			default:
+				$given_hash = sha1($worker_auth['pass_salt'] . md5($password));
+				
+				if($given_hash == $worker_auth['pass_hash'])
+					return $worker;
+				break;
 		}
 		
 		return null;
@@ -804,7 +834,6 @@ class Model_Worker {
 	public $first_name;
 	public $last_name;
 	public $email;
-	public $pass;
 	public $title;
 	public $is_superuser=0;
 	public $is_disabled=0;

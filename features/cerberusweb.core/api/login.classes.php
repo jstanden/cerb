@@ -20,8 +20,7 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email']);
 		
 		// We allow invalid workers to get this far as a diversion to finding real accounts
-		@$worker_id = DAO_Worker::getByEmail($email);
-		@$worker = DAO_Worker::get($worker_id);
+		@$worker = DAO_Worker::getByEmail($email);
 		
 		$request = DevblocksPlatform::getHttpRequest();
 		$stack = $request->path;
@@ -44,7 +43,7 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 				break;
 				
 			default:
-				if(!empty($worker) && empty($worker->pass)) {
+				if($worker instanceof Model_Worker && !DAO_Worker::hasAuth($worker->id)) {
 					$query = array(
 						'email' => $worker->email,
 					);
@@ -151,7 +150,7 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 			@$password_confirm = DevblocksPlatform::importGPC($_REQUEST['password_confirm']);
 			
 			// Make sure the passwords match, if required
-			if(empty($worker->pass)) {
+			if(!DAO_Worker::hasAuth($worker->id)) {
 				
 				if(empty($password) || empty($password_confirm)) {
 					throw new CerbException("Passwords cannot be blank.");
@@ -161,13 +160,8 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 					throw new CerbException("The given passwords don't match.");
 				}
 				
-				// [TODO] Use DAO_Worker::setPassword() for strong hashing
-				DAO_Worker::update($worker->id, array(
-					DAO_Worker::PASSWORD => md5($password),
-				));
+				DAO_Worker::setAuth($worker->id, $password);
 			}
-			
-			DAO_WorkerPref::set($worker->id, 'login.password.google_auth.seed', $_SESSION['recovery_seed']);
 			
 			// If successful, clear the session data
 			unset($_SESSION['recovery_code']);
@@ -190,9 +184,7 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 	}
 	
 	function resetCredentials($worker) {
-		DAO_Worker::update($worker->id, array(
-			DAO_Worker::PASSWORD => '',
-		));
+		DAO_Worker::setAuth($worker->id, $null);
 	}
 	
 	function authenticate() {
@@ -202,7 +194,7 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 
 		$worker = DAO_Worker::login($email, $password);
 		
-		if(!is_null($worker)) {
+		if($worker instanceof Model_Worker) {
 			return $worker;
 			
 		} else {

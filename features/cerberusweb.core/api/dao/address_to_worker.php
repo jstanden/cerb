@@ -24,7 +24,7 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 	const CODE = 'code';
 	const CODE_EXPIRE = 'code_expire';
 
-	static function assign($address, $worker_id) {
+	static function assign($address, $worker_id, $is_confirmed=false) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(empty($address) || empty($worker_id))
@@ -34,8 +34,9 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 		$address = strtolower($address);
 
 		$sql = sprintf("INSERT INTO address_to_worker (address, worker_id, is_confirmed, code, code_expire) ".
-			"VALUES (%s, %d, 0, '', 0)",
+			"VALUES (%s, %d, %d, '', 0)",
 			$db->qstr($address),
+			($is_confirmed ? 1 : 0),
 			$worker_id
 		);
 		$db->Execute($sql);

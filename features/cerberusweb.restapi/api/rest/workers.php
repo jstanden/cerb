@@ -91,7 +91,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'is_disabled' => DAO_Worker::IS_DISABLED,
 				'is_superuser' => DAO_Worker::IS_SUPERUSER,
 				'last_name' => DAO_Worker::LAST_NAME,
-				'password' => DAO_Worker::PASSWORD,
+				'password' => 'password',
 				'title' => DAO_Worker::TITLE,
 			);
 		} else {
@@ -194,12 +194,10 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid worker ID '%d'", $id));
 			
 		$putfields = array(
-//			'email' => 'string',
 			'first_name' => 'string',
 			'is_disabled' => 'bit',
 			'is_superuser' => 'bit',
 			'last_name' => 'string',
-			'password' => 'string',
 			'title' => 'string',
 		);
 
@@ -217,12 +215,6 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			
 			// Sanitize
 			$value = DevblocksPlatform::importVar($value, $type);
-						
-			switch($field) {
-				case DAO_Worker::PASSWORD:
-					$value = md5($value);
-					break;
-			}
 			
 			$fields[$field] = $value;
 		}
@@ -232,12 +224,12 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		if(is_array($customfields))
 			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_WORKER, $id, $customfields, true, true, true);
 		
-		// Check required fields
-//		$reqfields = array(DAO_Address::EMAIL);
-//		$this->_handleRequiredFields($reqfields, $fields);
-
 		// Update
 		DAO_Worker::update($id, $fields);
+		
+		// Password change?
+		if(isset($putfields['password']) && !empty($putfields['password']))
+			DAO_Worker::setAuth($id, $putfields['password']);
 		
 		$this->getId($id);
 	}
@@ -255,7 +247,6 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'is_disabled' => 'bit',
 			'is_superuser' => 'bit',
 			'last_name' => 'string',
-			'password' => 'string',
 			'title' => 'string',
 		);
 
@@ -274,19 +265,12 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			// Sanitize
 			$value = DevblocksPlatform::importVar($value, $type);
 			
-			switch($field) {
-				case DAO_Worker::PASSWORD:
-					$value = md5($value);
-					break;
-			}
-			
 			$fields[$field] = $value;
 		}
 		
 		// Check required fields
 		$reqfields = array(
 			DAO_Worker::EMAIL,
-			DAO_Worker::PASSWORD,
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
 		
@@ -301,11 +285,12 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			
 			// Addresses
 			if(null == DAO_AddressToWorker::getByAddress($email)) {
-				DAO_AddressToWorker::assign($email, $id);
-				DAO_AddressToWorker::update($email, array(
-					DAO_AddressToWorker::IS_CONFIRMED => 1
-				));
+				DAO_AddressToWorker::assign($email, $id, true);
 			}
+			
+			// Password (optional)
+			if(isset($postfields['password']) && !empty($postfields['password']))
+				DAO_Worker::setAuth($id, $postfields['password']);
 			
 			// Handle custom fields
 			$customfields = $this->_handleCustomFields($_POST);

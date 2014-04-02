@@ -3,10 +3,7 @@ class Login_PasswordAndGoogleAuth extends Extension_LoginAuthenticator {
 	function render() {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email']);
 		
-		if(null == ($worker_id = DAO_Worker::getByEmail($email)))
-			return;
-		
-		if(null == ($worker = DAO_Worker::get($worker_id)))
+		if(null == ($worker = DAO_Worker::getByEmail($email)))
 			return;
 		
 		// Verify that this is a legitimate login extension for this worker
@@ -36,9 +33,9 @@ class Login_PasswordAndGoogleAuth extends Extension_LoginAuthenticator {
 				
 			default:
 				// Check the worker pref for a seed
-				$seed = DAO_WorkerPref::get($worker_id, 'login.password.google_auth.seed');
+				$seed = DAO_WorkerPref::get($worker->id, 'login.password.google_auth.seed');
 				
-				if(empty($seed) || empty($worker->pass)) {
+				if(empty($seed) || !DAO_Worker::hasAuth($worker->id)) {
 					$query = array();
 					
 					if(!empty($email))
@@ -129,6 +126,7 @@ class Login_PasswordAndGoogleAuth extends Extension_LoginAuthenticator {
 		}
 		
 		$tpl->assign('seed', $seed);
+		$tpl->assign('worker_has_auth', DAO_Worker::hasAuth($worker->id));
 		
 		$tpl->display('devblocks:wgm.login.password.google_auth::login/setup.tpl');
 	}
@@ -168,11 +166,10 @@ class Login_PasswordAndGoogleAuth extends Extension_LoginAuthenticator {
 			@$password_confirm = DevblocksPlatform::importGPC($_REQUEST['password_confirm']);
 			
 			// Make sure the passwords match, if required
-			if(empty($worker->pass)) {
+			if(!DAO_Worker::hasAuth($worker->id)) {
 				
 				if(empty($password) || empty($password_confirm)) {
 					throw new CerbException("Passwords cannot be blank.");
-					
 				}
 				
 				if($password != $password_confirm) {
@@ -180,9 +177,7 @@ class Login_PasswordAndGoogleAuth extends Extension_LoginAuthenticator {
 				}
 				
 				// Update the password when correct, even if Google Auth fails
-				DAO_Worker::update($worker->id, array(
-					DAO_Worker::PASSWORD => md5($password),
-				));
+				DAO_Worker::setAuth($worker->id, $password);
 			}
 			
 			DAO_WorkerPref::set($worker->id, 'login.password.google_auth.seed', $_SESSION['recovery_seed']);
@@ -231,10 +226,7 @@ class Login_PasswordAndGoogleAuth extends Extension_LoginAuthenticator {
 	}
 	
 	function resetCredentials($worker) {
-		DAO_Worker::update($worker->id, array(
-			DAO_Worker::PASSWORD => '',
-		));
-		
+		DAO_Worker::setAuth($worker->id, null);
 		DAO_WorkerPref::delete($worker->id, 'login.password.google_auth.seed');
 	}
 	
@@ -244,14 +236,11 @@ class Login_PasswordAndGoogleAuth extends Extension_LoginAuthenticator {
 		@$password = DevblocksPlatform::importGPC($_POST['password']);
 		@$access_code = DevblocksPlatform::importGPC($_POST['access_code']);
 
-		if(null == ($worker_id = DAO_Worker::getByEmail($email)))
-			return;
-		
-		if(null == ($worker = DAO_Worker::get($worker_id)))
+		if(null == ($worker = DAO_Worker::getByEmail($email)))
 			return;
 		
 		// Load OTP seed from worker prefs
-		$seed = DAO_WorkerPref::get($worker_id, 'login.password.google_auth.seed');
+		$seed = DAO_WorkerPref::get($worker->id, 'login.password.google_auth.seed');
 		
 		if(empty($seed))
 			return false;
@@ -264,7 +253,7 @@ class Login_PasswordAndGoogleAuth extends Extension_LoginAuthenticator {
 		
 		$worker = DAO_Worker::login($email, $password);
 		
-		if(!is_null($worker)) {
+		if($worker instanceof Model_Worker) {
 			return $worker;
 			
 		} else {

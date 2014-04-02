@@ -906,18 +906,18 @@ class ImportCron extends CerberusCronPageExtension {
 		$sFirstName = (string) $xml->first_name;
 		$sLastName = (string) $xml->last_name;
 		$sEmail = (string) $xml->email;
-		$sPassword = (string) $xml->password;
 		$isSuperuser = (integer) $xml->is_superuser;
 		
 		// Dupe check worker email
-		if(null != ($worker_id = DAO_Worker::getByEmail($sEmail))) {
-			$logger->info('[Importer] Avoiding creating duplicate worker #'.$worker_id.' ('.$sEmail.')');
+		if(null != ($worker = DAO_Worker::getByEmail($sEmail))) {
+			$logger->info('[Importer] Avoiding creating duplicate worker #'.$worker->id.' ('.$sEmail.')');
 			return true;
 		}
 		
+		// Don't import passwords, just require workers to authenticate again
+		
 		$fields = array(
 			DAO_Worker::EMAIL => $sEmail,
-			DAO_Worker::PASSWORD => $sPassword, // pre-MD5'd
 			DAO_Worker::FIRST_NAME => $sFirstName,
 			DAO_Worker::LAST_NAME => $sLastName,
 			DAO_Worker::IS_SUPERUSER => intval($isSuperuser),
@@ -926,10 +926,7 @@ class ImportCron extends CerberusCronPageExtension {
 		$worker_id = DAO_Worker::create($fields);
 		
 		// Address to Worker
-		DAO_AddressToWorker::assign($sEmail, $worker_id);
-		DAO_AddressToWorker::update($sEmail,array(
-			DAO_AddressToWorker::IS_CONFIRMED => 1
-		));
+		DAO_AddressToWorker::assign($sEmail, $worker_id, true);
 		
 		$logger->info('[Importer] Imported worker #'.$worker_id.' ('.$sEmail.')');
 		
