@@ -271,13 +271,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 			if(null == ($field = self::translateToken($putfield, 'dao'))) {
 				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $putfield));
 			}
-						
-//			switch($field) {
-//				case DAO_Worker::PASSWORD:
-//					$value = md5($value);
-//					break;
-//			}
-			
+
 			$fields[$field] = $value;
 		}
 		
@@ -286,10 +280,6 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 		if(is_array($customfields))
 			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_FEEDBACK, $id, $customfields, true, true, true);
 		
-		// Check required fields
-//		$reqfields = array(DAO_Address::EMAIL);
-//		$this->_handleRequiredFields($reqfields, $fields);
-
 		// Update
 		DAO_FeedbackEntry::update($id, $fields);
 		$this->getId($id);
@@ -356,12 +346,6 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 			if(null == ($field = self::translateToken($postfield, 'dao'))) {
 				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $postfield));
 			}
-			
-//			switch($field) {
-//				case DAO_Worker::PASSWORD:
-//					$value = md5($value);
-//					break;
-//			}
 			
 			$fields[$field] = $value;
 		}

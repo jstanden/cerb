@@ -310,12 +310,6 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $postfield));
 			}
 			
-//			switch($field) {
-//				case DAO_Worker::PASSWORD:
-//					$value = md5($value);
-//					break;
-//			}
-			
 			$fields[$field] = $value;
 		}
 		

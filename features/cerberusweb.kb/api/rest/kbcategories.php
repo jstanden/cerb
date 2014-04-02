@@ -207,12 +207,6 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 			
 			// Sanitize
 			$value = DevblocksPlatform::importVar($value, $type);
-						
-//			switch($field) {
-//				case DAO_Worker::PASSWORD:
-//					$value = md5($value);
-//					break;
-//			}
 			
 			$fields[$field] = $value;
 		}
@@ -222,10 +216,6 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 		if(is_array($customfields))
 			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_KB_CATEGORY, $id, $customfields, true, true, true);
 		
-		// Check required fields
-//		$reqfields = array(DAO_Address::EMAIL);
-//		$this->_handleRequiredFields($reqfields, $fields);
-
 		// Update
 		DAO_KbCategory::update($id, $fields);
 
@@ -259,12 +249,6 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 			
 			// Sanitize
 			$value = DevblocksPlatform::importVar($value, $type);
-			
-//			switch($field) {
-//				case DAO_Worker::PASSWORD:
-//					$value = md5($value);
-//					break;
-//			}
 			
 			$fields[$field] = $value;
 		}
