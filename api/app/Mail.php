@@ -1301,12 +1301,11 @@ class CerberusMail {
 			// Replace links with cid: in HTML part
 			try {
 				$html_body = preg_replace_callback(
-					sprintf('|(\"%s(.*)\")|', preg_quote($base_url)),
+					sprintf('|(\"%s(.*?)\")|', preg_quote($base_url)),
 					function($matches) use ($base_url, $mail, &$embedded_files) {
 						if(3 == count($matches)) {
 							$file_parts = explode('/', $matches[2]);
 							@list($file_hash, $file_name) = explode('/', $matches[2], 2);
-							
 							if($file_hash && $file_name) {
 								if($file_id = DAO_Attachment::getBySha1Hash($file_hash, urldecode($file_name))) {
 									if($file = DAO_Attachment::get($file_id)) {
@@ -1329,12 +1328,11 @@ class CerberusMail {
 
 			$mail->addPart($html_body, 'text/html');
 		}
-			
-		// Strip some Markdown in the plaintext version
 		
+		// Strip some Markdown in the plaintext version
 		try {
 			$content = preg_replace_callback(
-				sprintf('|(\!\[inline-image\]\(%s(.*)\))|', preg_quote($base_url)),
+				sprintf('|(\!\[inline-image\]\(%s(.*?)\))|', preg_quote($base_url)),
 				function($matches) use ($base_url) {
 					if(3 == count($matches)) {
 						@list($file_hash, $file_name) = explode('/', $matches[2], 2);
