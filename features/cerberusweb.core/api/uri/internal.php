@@ -1925,74 +1925,93 @@ class ChInternalController extends DevblocksControllerExtension {
 			return;
 		$tpl->assign('view', $view);
 
-		$model_columns = $view->getColumnsAvailable();
-		$tpl->assign('model_columns', $model_columns);
-
-		$view_columns = $view->view_columns;
-		$tpl->assign('view_columns', $view_columns);
-
+		$context_mft = Extension_DevblocksContext::getByViewClass(get_class($view));
+		
+		$labels = array();
+		$values = array();
+		CerberusContexts::getContext($context_mft->id, null, $labels, $values, null, true);
+		
+		$tpl->assign('context_labels', $labels);
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/views/view_export.tpl');
 	}
 
 	function viewDoExportAction() {
+		@set_time_limit(300);
+		
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
-		@$columns = DevblocksPlatform::importGPC($_REQUEST['columns'],'array',array());
+		@$tokens = DevblocksPlatform::importGPC($_REQUEST['tokens'],'array',array());
 		@$export_as = DevblocksPlatform::importGPC($_REQUEST['export_as'],'string','csv');
-
-		// Scan through the columns and remove any blanks
-		if(is_array($columns))
-		foreach($columns as $idx => $col) {
-			if(empty($col))
-				unset($columns[$idx]);
-		}
 
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
 			return;
 		
-		$column_manifests = $view->getColumnsAvailable();
+		if(null == ($context_mft = Extension_DevblocksContext::getByViewClass(get_class($view))))
+			return;
 
+		$global_labels = array();
+		$global_values = array();
+		CerberusContexts::getContext($context_mft->id, null, $global_labels, $global_values, null, true);
+		
 		// Override display
-		$view->view_columns = $columns;
+		$view->view_columns = array();
 		$view->renderPage = 0;
-		$view->renderLimit = -1;
-
+		$view->renderLimit = 250; // [TODO] LIMIT
+		
 		if('csv' == $export_as) {
 			header("Pragma: public");
 			header("Expires: 0");
 			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-			header("Content-Type: text/plain; charset=".LANG_CHARSET_CODE);
+			header("Content-Type: text/plain; charset=".LANG_CHARSET_CODE); // 'text/csv' forces download
 
-			// Column headers
-			if(is_array($columns)) {
-				$cols = array();
-				foreach($columns as $col) {
-					$cols[] = sprintf("\"%s\"",
-						str_replace('"','\"',mb_convert_case($column_manifests[$col]->db_label,MB_CASE_TITLE))
-					);
-				}
-				echo implode(',', $cols) . "\r\n";
+			$fp = fopen("php://output", "w");
+			
+			// Headings
+			
+			$csv_labels = array();
+			
+			if(is_array($tokens))
+			foreach($tokens as $token) {
+				$csv_labels[] = $global_labels[$token];
 			}
-
-			// Get data
+			
+			fputcsv($fp, $csv_labels);
+			
+			unset($csv_labels);
+			
+			// Rows
+			
 			list($results, $null) = $view->getData();
+			
 			if(is_array($results))
-			foreach($results as $row) {
-				if(is_array($row)) {
-					$cols = array();
-					if(is_array($columns))
-					foreach($columns as $col) {
+			foreach($results as $row_id => $row) {
+				$labels = array();
+				$values = array();
+				CerberusContexts::getContext($context_mft->id, $row_id, $labels, $values, null, true);
+				
+				$dict = new DevblocksDictionaryDelegate($values);
+				
+				$fields = array();
+				
+				if(is_array($tokens))
+				foreach($tokens as $token) {
+					$value = $dict->$token;
+					
+					if(is_array($value))
+						$value = json_encode($value);
+					
+					if(!is_string($value) && !is_numeric($value))
 						$value = '';
-						
-						if(isset($row[$col]))
-							$value = sprintf("\"%s\"",
-								str_replace('"','\"',$row[$col])
-							);
-						
-						$cols[] = $value;
-					}
-					echo implode(',', $cols) . "\r\n";
+					
+					$fields[] = $value;
 				}
+				
+				fputcsv($fp, $fields);
+				
+				unset($fields);
 			}
+
+			fclose($fp);
 
 		} elseif('json' == $export_as) {
 			header("Pragma: public");
@@ -2000,52 +2019,97 @@ class ChInternalController extends DevblocksControllerExtension {
 			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 			header("Content-Type: text/plain; charset=".LANG_CHARSET_CODE);
 
-			$objects = array();
+			$objects = array(
+				'labels' => array(),
+				'results' => array(),
+			);
 			
-			// Get data
-			list($results, $null) = $view->getData();
-			if(is_array($results))
-			foreach($results as $row) {
-				$object = array();
-				if(is_array($columns))
-				foreach($columns as $col) {
-					$value = '';
-					
-					if(isset($row[$col]))
-						$value = $row[$col];
-						
-					$object[$col] = $value;
-				}
-				
-				$objects[] = $object;
+			// Labels
+			
+			if(is_array($global_labels))
+			foreach($tokens as $token) {
+				$objects['labels'][$token] = @$global_labels[$token];
 			}
 			
+			// Results
+			
+			list($results, $null) = $view->getData();
+			
+			if(is_array($results))
+			foreach($results as $row_id => $row) {
+				$labels = array();
+				$values = array();
+				CerberusContexts::getContext($context_mft->id, $row_id, $labels, $values, null, true);
+				
+				unset($labels);
+				
+				$dict = new DevblocksDictionaryDelegate($values);
+				
+				$object = array();
+				
+				if(is_array($tokens))
+				foreach($tokens as $token) {
+					$value = $dict->$token;
+					$object[$token] = $value;
+				}
+				
+				$objects['results'][] = $object;
+			}
+
 			echo json_encode($objects);
 			
 		} elseif('xml' == $export_as) {
 			header("Pragma: public");
 			header("Expires: 0");
 			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-			header("Content-Type: text/plain; charset=".LANG_CHARSET_CODE);
+			header("Content-Type: text/xml; charset=".LANG_CHARSET_CODE);
 
-			$xml = simplexml_load_string("<results/>"); /* @var $xml SimpleXMLElement */
+			$xml = simplexml_load_string("<export/>"); /* @var $xml SimpleXMLElement */
 
-			// Get data
 			list($results, $null) = $view->getData();
+			
+			// Labels
+			$xml_labels = $xml->addChild('labels');
+			
+			foreach($tokens as $token) {
+				$label = $xml_labels->addChild("label", @$global_labels[$token]);
+				$label->addAttribute('key', $token);
+			}
+			
+			$xml_results = $xml->addChild('results');
+			
+			// Content
+			
 			if(is_array($results))
-			foreach($results as $row) {
-				$result = $xml->addChild("result");
-				if(is_array($columns))
-				foreach($columns as $col) {
-					if(isset($row[$col])) {
-						$field = $result->addChild("field",htmlspecialchars($row[$col],null,LANG_CHARSET_CODE));
-						$field->addAttribute("id", $col);
-					}
+			foreach($results as $row_id => $row) {
+				$labels = array();
+				$values = array();
+				CerberusContexts::getContext($context_mft->id, $row_id, $labels, $values, null, true);
+				
+				unset($labels);
+				
+				$dict = new DevblocksDictionaryDelegate($values);
+				
+				$result = $xml_results->addChild("result");
+				$result->addAttribute('id', $row_id);
+				
+				if(is_array($tokens))
+				foreach($tokens as $token) {
+					$value = $dict->$token;
+
+					if(is_array($value))
+						$value = json_encode($value);
+					
+					if(!is_string($value) && !is_numeric($value))
+						$value = '';
+					
+					$field = $result->addChild("field", htmlspecialchars($value, ENT_QUOTES, LANG_CHARSET_CODE));
+					$field->addAttribute("key", $token);
 				}
 			}
 
 			// Pretty format and output
-			$doc = new DOMDocument('1.0');
+			$doc = new DOMDocument('1.0', LANG_CHARSET_CODE);
 			$doc->preserveWhiteSpace = false;
 			$doc->loadXML($xml->asXML());
 			$doc->formatOutput = true;

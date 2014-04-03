@@ -6,53 +6,52 @@
 <h1>{'common.export'|devblocks_translate|capitalize}</h1>
 <br>
 
-<b>Columns:</b>
- &nbsp; 
-<a href="javascript:;" onclick="Devblocks.resetSelectElements('frm{$view_id}_export','columns[]');">{'common.clear'|devblocks_translate|capitalize}</a>
-<br>
-{section start=0 step=1 loop=15 name=columns}
-{assign var=index value=$smarty.section.columns.index}
-{math equation="x+1" x=$index format="%02d"}: 
-<select name="columns[]">
-	<option value=""></option>
-	
-	{foreach from=$model_columns item=model_column}
-		{if substr($model_column->token,0,3) != "cf_"}
-			{if !empty($model_column->db_label) && !empty($model_column->token)}
-				<option value="{$model_column->token}" {if $view->view_columns.$index==$model_column->token}selected{/if}>{$model_column->db_label|capitalize}</option>
-			{/if}
-		{else}
-			{assign var=has_custom value=1}
-		{/if}
-	{/foreach}
-	
-	{if $has_custom}
-	<optgroup label="Custom Fields">
-	{foreach from=$model_columns item=model_column}
-		{if substr($model_column->token,0,3) == "cf_"}
-			{if !empty($model_column->db_label) && !empty($model_column->token)}
-			<option value="{$model_column->token}" {if $view->view_columns.$index==$model_column->token}selected{/if}>{$model_column->db_label|capitalize}</option>
-			{/if}
-		{/if}
-	{/foreach}
-	</optgroup>
-	{/if}
-	
-</select>
-<br>
-{/section}
-<br>
+<div style="margin-bottom:10px;">
+	<b>Fields:</b>
+	 &nbsp; 
+	<a href="javascript:;" class="check-all">select all</a>
+	 | 
+	<a href="javascript:;" class="check-none">select none</a>
+ </div>
 
-<b>Export List As:</b><br>
-<select name="export_as">
-	<option value="csv" selected="selected">Comma-separated values (.csv)</option>
-	<option value="xml">XML (.xml)</option>
-	<option value="json">JSON (.json)</option>
-</select>
-<br>
+<div class="sortable" style="margin:0px 0px 10px 10px;">
+{foreach from=$context_labels item=label key=token}
+	<div class="drag">
+		<label><input type="checkbox" name="tokens[]" value="{$token}"> {$label}</label>
+	</div>
+{/foreach}
+</div>
 
-<br>
+<div style="margin-bottom:10px;">
+	<b>Export List As:</b><br>
+	<select name="export_as">
+		<option value="csv" selected="selected">Comma-separated values (.csv)</option>
+		<option value="json">JSON (.json)</option>
+		<option value="xml">XML (.xml)</option>
+	</select>
+</div>
+
 <button type="button" onclick="this.form.submit();" style=""><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.export'|devblocks_translate|capitalize}</button>
-<button type="button" onclick="toggleDiv('{$view_id}_tips','none');$('#{$view_id}_tips').html('');" style=""><span class="cerb-sprite2 sprite-cross-circle"></span> Cancel</button>
+<button type="button" onclick="$('#{$view_id}_tips').html('').hide();" style=""><span class="cerb-sprite2 sprite-cross-circle"></span> Cancel</button>
 
 </form>
+
+<script type="text/javascript">
+$(function() {
+	var $frm = $('#frm{$view_id}_export');
+	
+	$frm.find('div.sortable').sortable({
+		placeholder: 'ui-state-highlight',
+		items: 'div.drag',
+		distance: 10
+	});
+	
+	$frm.find('a.check-all').on('click', function() {
+		$frm.find('div.sortable input:checkbox').prop('checked', true);
+	});
+	
+	$frm.find('a.check-none').on('click', function() {
+		$frm.find('div.sortable input:checkbox').prop('checked', false);
+	});
+});
+</script>
