@@ -674,10 +674,6 @@ class CerberusContexts {
 	const CONTEXT_WORKSPACE_WIDGET = 'cerberusweb.contexts.workspace.widget';
 	
 	public static function getContext($context, $context_object, &$labels, &$values, $prefix=null, $nested=false) {
-		// Consistency for cache hash
-		if(empty($prefix))
-			$prefix = null;
-		
 		switch($context) {
 			case 'cerberusweb.contexts.attachment':
 				self::_getAttachmentContext($context_object, $labels, $values, $prefix);

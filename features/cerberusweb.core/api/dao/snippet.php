@@ -1048,7 +1048,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
-			'title' => $prefix.$translate->_('dao.common.title'),
+			'title' => $prefix.$translate->_('common.title'),
 			'context' => $prefix.$translate->_('common.context'),
 			'content' => $prefix.$translate->_('common.content'),
 			'owner__label' => $prefix.$translate->_('common.owner'),
