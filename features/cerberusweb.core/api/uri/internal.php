@@ -1952,6 +1952,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$global_labels = array();
 		$global_values = array();
 		CerberusContexts::getContext($context_mft->id, null, $global_labels, $global_values, null, true);
+		$global_types = $global_values['_types'];
 		
 		// Override display
 		$view->view_columns = array();
@@ -2020,15 +2021,18 @@ class ChInternalController extends DevblocksControllerExtension {
 			header("Content-Type: text/plain; charset=".LANG_CHARSET_CODE);
 
 			$objects = array(
-				'labels' => array(),
+				'fields' => array(),
 				'results' => array(),
 			);
 			
-			// Labels
+			// Fields
 			
 			if(is_array($global_labels))
 			foreach($tokens as $token) {
-				$objects['labels'][$token] = @$global_labels[$token];
+				$objects['fields'][$token] = array(
+					'label' => @$global_labels[$token],
+					'type' => @$global_types[$token],
+				);
 			}
 			
 			// Results
@@ -2068,17 +2072,20 @@ class ChInternalController extends DevblocksControllerExtension {
 
 			list($results, $null) = $view->getData();
 			
-			// Labels
-			$xml_labels = $xml->addChild('labels');
+			// Meta
+			
+			$xml_fields = $xml->addChild('fields');
 			
 			foreach($tokens as $token) {
-				$label = $xml_labels->addChild("label", @$global_labels[$token]);
-				$label->addAttribute('key', $token);
+				$field = $xml_fields->addChild("field");
+				$field->addAttribute('key', $token);
+				$field->addChild('label', @$global_labels[$token]);
+				$field->addChild('type', @$global_types[$token]);
 			}
 			
-			$xml_results = $xml->addChild('results');
-			
 			// Content
+			
+			$xml_results = $xml->addChild('results');
 			
 			if(is_array($results))
 			foreach($results as $row_id => $row) {
@@ -2105,6 +2112,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					
 					$field = $result->addChild("field", htmlspecialchars($value, ENT_QUOTES, LANG_CHARSET_CODE));
 					$field->addAttribute("key", $token);
+					
 				}
 			}
 
