@@ -2815,7 +2815,6 @@ class C4_AbstractViewLoader {
 
 		// [TODO] This needs a bit more logic
 		$active_worker = CerberusApplication::getActiveWorker();
-		//$view->setPlaceholderLabels(array('current_worker_id', 'Current Worker'));
 		$view->setPlaceholderValues(array('current_worker_id' => !empty($active_worker) ? $active_worker->id : 0));
 		
 		return $view;

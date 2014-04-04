@@ -1978,13 +1978,10 @@ class Context_Message extends Extension_DevblocksContext {
 			$token_values['is_broadcast'] = $message->is_broadcast;
 			$token_values['is_outgoing'] = $message->is_outgoing;
 			$token_values['response_time'] = $message->response_time;
+			$token_values['sender_id'] = $message->address_id;
 			$token_values['storage_size'] = $message->storage_size;
 			$token_values['ticket_id'] = $message->ticket_id;
 			$token_values['worker_id'] = $message->worker_id;
-			
-			// Sender
-			@$address_id = $message->address_id;
-			$token_values['sender_id'] = $address_id;
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();

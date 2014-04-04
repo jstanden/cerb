@@ -8,10 +8,6 @@
 
 <div style="margin-bottom:10px;">
 	<b>Fields:</b>
-	 &nbsp; 
-	<a href="javascript:;" class="check-all">select all</a>
-	 | 
-	<a href="javascript:;" class="check-none">select none</a>
  </div>
 
 <div class="sortable" style="margin:0px 0px 10px 10px;">
@@ -44,14 +40,6 @@ $(function() {
 		placeholder: 'ui-state-highlight',
 		items: 'div.drag',
 		distance: 10
-	});
-	
-	$frm.find('a.check-all').on('click', function() {
-		$frm.find('div.sortable input:checkbox').prop('checked', true);
-	});
-	
-	$frm.find('a.check-none').on('click', function() {
-		$frm.find('div.sortable input:checkbox').prop('checked', false);
 	});
 });
 </script>
