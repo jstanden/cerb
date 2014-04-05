@@ -1997,6 +1997,11 @@ class CerberusVisit extends DevblocksVisit {
 };
 
 class Cerb_ORMHelper extends DevblocksORMHelper {
+	static public function escape($str) {
+		$db = DevblocksPlatform::getDatabaseService();
+		return $db->escape($str);
+	}
+	
 	static public function qstr($str) {
 		$db = DevblocksPlatform::getDatabaseService();
 		return $db->qstr($str);

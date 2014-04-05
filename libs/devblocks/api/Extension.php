@@ -297,11 +297,15 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		
 		return $view;
 	}
+	
 	abstract function getChooserView($view_id=null);
+	
 	function getViewClass() {
 		return @$this->manifest->params['view_class'];
 	}
+	
 	abstract function getView($context=null, $context_id=null, $options=array());
+	
 	function lazyLoadContextValues($token, $dictionary) { return array(); }
 	
 	protected function _lazyLoadCustomFields($token, $context, $context_id) {

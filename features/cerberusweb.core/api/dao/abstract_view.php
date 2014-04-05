@@ -52,7 +52,7 @@ abstract class C4_AbstractView {
 				return array();
 			
 			$data = call_user_func_array(
-				array($dao_class,'search'),
+				array($dao_class, 'search'),
 				array(
 					$this->view_columns,
 					$this->getParams(),
@@ -76,13 +76,13 @@ abstract class C4_AbstractView {
 			implode(',', $ids)
 		);
 
-		if(!method_exists($dao_class,'getWhere'))
+		if(!method_exists($dao_class, 'getWhere'))
 			return array();
 		
 		$results = array();
 		
 		$models = call_user_func_array(
-			array($dao_class,'getWhere'),
+			array($dao_class, 'getWhere'),
 			array(
 				$sql,
 			)
