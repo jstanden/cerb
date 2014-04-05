@@ -1967,12 +1967,7 @@ class Context_Message extends Extension_DevblocksContext {
 		
 		// Message token values
 		if($message) {
-			// [TODO] Cache these in a request registry
-			$sender = DAO_Address::get($message->address_id);
-			$ticket = DAO_Ticket::get($message->ticket_id);
-			
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = sprintf("%s wrote on [%s] %s", $sender->email, $ticket->mask, $ticket->subject);
 			$token_values['created'] = $message->created_date;
 			$token_values['id'] = $message->id;
 			$token_values['is_broadcast'] = $message->is_broadcast;
@@ -2048,9 +2043,21 @@ class Context_Message extends Extension_DevblocksContext {
 		if(!$is_loaded) {
 			$labels = array();
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			$dictionary = $values;
 		}
 		
 		switch($token) {
+			case '_label':
+				$dict = DevblocksDictionaryDelegate::instance($dictionary);
+				
+				$sender_address = $dict->sender_address;
+				$ticket_label = $dict->ticket__label;
+				
+				$values = array_merge($dict->getDictionary(), $values);
+				
+				$values['_label'] = sprintf("%s wrote on %s", $sender_address, $ticket_label);
+				break;
+				
 			case 'content':
 				$values['content'] = Storage_MessageContent::get($context_id);
 				break;
