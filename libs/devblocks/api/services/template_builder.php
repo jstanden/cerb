@@ -272,6 +272,71 @@ class DevblocksDictionaryDelegate {
 				unset($this->_dictionary[$key]);
 		}
 	}
+	
+	public static function bulkLazyLoad(array $dicts, $token) {
+		// Examine contexts on the first dictionary
+		$first_dict = reset($dicts);
+
+		// Get the list of embedded contexts
+		$contexts = $first_dict->getContextsForName($token);
+
+		foreach($contexts as $context_prefix => $context_data) {
+			// The top-level context is always loaded
+			if(empty($context_prefix))
+				continue;
+			
+			// If the context is already loaded, skip it
+			$loaded_key = $context_prefix . '__loaded';
+			if($first_dict->exists($loaded_key))
+				continue;
+			
+			$id_counts = array();
+			
+			foreach($dicts as $dict) {
+				$id_key = $context_prefix . '_id';
+				$id = $dict->$id_key;
+				
+				if(!isset($id_counts[$id])) {
+					$id_counts[$id] = 1;
+					
+				} else {
+					$id_counts[$id]++;
+				}
+			}
+			
+			// Preload the contexts before lazy loading
+			if(false != ($context_ext = Extension_DevblocksContext::get($context_data['context']))) {
+				
+				// Load model objects from the context
+				$models = $context_ext->getModelObjects(array_keys($id_counts));
+				
+				CerberusContexts::setCacheLoads(true);
+				
+				// These context loads will be cached
+				if(is_array($models))
+				foreach($models as $model_id => $model) {
+					$labels = array();
+					$values = array();
+					CerberusContexts::getContext($context_data['context'], $model, $labels, $values, null, true);
+				}
+				
+				$prefix_key = $context_prefix . '_';
+				
+				// Load the contexts from the cache
+				foreach($dicts as $dict) {
+					$dict->$prefix_key;
+				}
+				
+				// Flush the temporary cache
+				CerberusContexts::setCacheLoads(false);
+			}
+		}
+		
+		// Now load the tokens, since we probably already lazy loaded the contexts
+		foreach($dicts as $dict) { /* @var $dict DevblocksDictionaryDelegate */
+			$dict->$token;
+		}
+	}
 };
 
 class _DevblocksTwigExpressionVisitor implements Twig_NodeVisitorInterface {

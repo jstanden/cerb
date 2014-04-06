@@ -629,6 +629,9 @@ interface IContextToken {
 };
 
 class CerberusContexts {
+	private static $_is_caching_loads = false;
+	private static $_cache_loads = array();
+	
 	private static $_default_actor_context = null;
 	private static $_default_actor_context_id = null;
 	
@@ -673,6 +676,15 @@ class CerberusContexts {
 	const CONTEXT_WORKSPACE_TAB = 'cerberusweb.contexts.workspace.tab';
 	const CONTEXT_WORKSPACE_WIDGET = 'cerberusweb.contexts.workspace.widget';
 	
+	public static function setCacheLoads($state) {
+		self::$_is_caching_loads = ($state ? true : false);
+		
+		// Clear the cache when disabled
+		if(!self::$_is_caching_loads) {
+			self::$_cache_loads = array();
+		}
+	}
+	
 	public static function getContext($context, $context_object, &$labels, &$values, $prefix=null, $nested=false, $skip_labels=false) {
 		switch($context) {
 			case 'cerberusweb.contexts.attachment':
@@ -681,36 +693,62 @@ class CerberusContexts {
 				
 			default:
 				// Migrated
-				if(null != ($ctx = DevblocksPlatform::getExtension($context, true))
-					&& $ctx instanceof Extension_DevblocksContext) {
+				
+				if(null != ($ctx = Extension_DevblocksContext::get($context))) {
+					// If blank, check the cache for a prebuilt context object
+					if(is_null($context_object)) {
 						$cache = DevblocksPlatform::getCacheService();
 						
-						// If blank, check the cache for a prebuilt context object
-						if(is_null($context_object)) {
-							$hash = md5(serialize(array($context, $prefix, $nested)));
-							$cache_key = sprintf("cerb:ctx:%s", $hash);
+						$hash = md5(serialize(array($context, $prefix, $nested)));
+						$cache_key = sprintf("cerb:ctx:%s", $hash);
+						
+						// Cache hit
+						if(null !== ($data = $cache->load($cache_key, false, true))) {
+							$loaded_labels = $data['labels'];
+							$loaded_values = $data['values'];
 							
-							// Cache hit
-							if(null !== ($data = $cache->load($cache_key, false, true))) {
-								$loaded_labels = $data['labels'];
-								$loaded_values = $data['values'];
-								
-							// Cache miss
-							} else {
-								$loaded_labels = array();
-								$loaded_values = array();
-								$ctx->getContext($context_object, $loaded_labels, $loaded_values, $prefix);
-								
-								$cache->save(array('labels' => $loaded_labels, 'values' => $loaded_values), $cache_key, array(), 0, true);
+						// Cache miss
+						} else {
+							$loaded_labels = array();
+							$loaded_values = array();
+							$ctx->getContext($context_object, $loaded_labels, $loaded_values, $prefix);
+							
+							$cache->save(array('labels' => $loaded_labels, 'values' => $loaded_values), $cache_key, array(), 0, true);
+						}
+						
+						$labels = $loaded_labels;
+						$values = $loaded_values;
+						
+					} else {
+						
+						// If instance caching is enabled
+						if(self::$_is_caching_loads) {
+							$hash_context_id = $context_object;
+							
+							// Hash uniformly (if we have a model, hash as its ID, so an ID only request uses cache)
+							if(is_object($context_object) && isset($context_object->id)) {
+								$hash_context_id = $context_object->id;
 							}
 							
-							$labels = $loaded_labels;
-							$values = $loaded_values;
+							if(is_numeric($hash_context_id))
+								$hash_context_id = intval($hash_context_id);
+							
+							$hash = md5(serialize(array($context, $hash_context_id, $prefix, $nested)));
+							
+							if(isset(self::$_cache_loads[$hash])) {
+								$values = self::$_cache_loads[$hash];
+								
+							} else {
+								$ctx->getContext($context_object, $labels, $values, $prefix);
+								self::$_cache_loads[$hash] = $values;
+							}
 							
 						} else {
 							$ctx->getContext($context_object, $labels, $values, $prefix);
 							
 						}
+						
+					}
 				}
 				break;
 		}

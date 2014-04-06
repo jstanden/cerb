@@ -201,6 +201,28 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	abstract function getMeta($context_id);
 	abstract function getContext($object, &$token_labels, &$token_values, $prefix=null);
 	
+	function getDaoClass() {
+		return @$this->manifest->params['dao_class'];
+	}
+	
+	function getModelObjects(array $ids) {
+		if(null == ($dao_class = $this->getDaoClass()))
+			return array();
+		
+		if(!method_exists($dao_class, 'getWhere'))
+			return false;
+		
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'integer');
+		
+		$where = sprintf("%s IN (%s)",
+			Cerb_ORMHelper::escape('id'),
+			implode(',', $ids)
+		);
+		
+		// Get without sorting (optimization, no file sort)
+		return $dao_class::getWhere($where, null);
+	}
+	
 	public function formatDictionaryValue($key, DevblocksDictionaryDelegate $dict) {
 		$translate = DevblocksPlatform::getTranslationService();
 		
@@ -313,6 +335,10 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		$token_values['custom'] = array();
 		$field_values = array();
 
+		// If (0 == $context_id), we need to null out all the fields and return w/o queries
+		if(empty($context_id))
+			return $token_values;
+		
 		$results = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
 		if(is_array($results))
 			$field_values = array_shift($results);
