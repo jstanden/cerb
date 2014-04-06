@@ -1937,8 +1937,6 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 
 	function viewDoExportAction() {
-		@set_time_limit(300);
-		
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 		@$tokens = DevblocksPlatform::importGPC($_REQUEST['tokens'],'array',array());
 		@$export_as = DevblocksPlatform::importGPC($_REQUEST['export_as'],'string','csv');
@@ -1956,8 +1954,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		// Override display
 		$view->view_columns = array();
-		$view->renderPage = 0;
-		$view->renderLimit = 250; // [TODO] LIMIT
+		$view->renderPage = 0; // [TODO] Allow pages to resume (ajax)
+		$view->renderLimit = 200;
+		$page_max = 1;
 		
 		if('csv' == $export_as) {
 			header("Pragma: public");
@@ -1981,35 +1980,51 @@ class ChInternalController extends DevblocksControllerExtension {
 			unset($csv_labels);
 			
 			// Rows
-			
-			list($results, $null) = $view->getData();
-			
-			if(is_array($results))
-			foreach($results as $row_id => $row) {
-				$labels = array();
-				$values = array();
-				CerberusContexts::getContext($context_mft->id, $row_id, $labels, $values, null, true);
+			while($results = $view->getDataAsObjects()) {
+				$count = count($results);
+				$dicts = array();
 				
-				$dict = new DevblocksDictionaryDelegate($values);
-				
-				$fields = array();
-				
-				if(is_array($tokens))
-				foreach($tokens as $token) {
-					$value = $dict->$token;
+				foreach($results as $row_id => $result) {
+					$labels = array(); // ignore
+					$values = array();
+					CerberusContexts::getContext($context_mft->id, $result, $labels, $values, null, true, true);
 					
-					if(is_array($value))
-						$value = json_encode($value);
-					
-					if(!is_string($value) && !is_numeric($value))
-						$value = '';
-					
-					$fields[] = $value;
+					$dicts[$row_id] = DevblocksDictionaryDelegate::instance($values);
+					unset($labels);
+					unset($values);
 				}
 				
-				fputcsv($fp, $fields);
+				unset($results);
 				
-				unset($fields);
+				// Bulk lazy load the tokens across all the dictionaries with a temporary cache
+				foreach($tokens as $token) {
+					DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
+				}
+				
+				foreach($dicts as $dict) {
+					$fields = array();
+					
+					foreach($tokens as $token) {
+						$value = $dict->$token;
+						
+						if(is_array($value))
+							$value = json_encode($value);
+						
+						if(!is_string($value) && !is_numeric($value))
+							$value = '';
+						
+						$fields[] = $value;
+					}
+					
+					fputcsv($fp, $fields);
+				}
+				
+				// If our page isn't full, we're done
+				if($count < $view->renderLimit)
+					break;
+				
+				if(++$view->renderPage >= $page_max)
+					break;
 			}
 
 			fclose($fp);
