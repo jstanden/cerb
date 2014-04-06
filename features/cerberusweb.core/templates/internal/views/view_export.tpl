@@ -21,6 +21,12 @@
 	<li><a href="javascript:;" token="{$token}">{$label}</a></li>
 	{/foreach}
 </ul>
+
+<div style="margin-bottom:10px;">
+	<b>Format dates as:</b>
+	<div style="margin-left:10px;">
+		<label><input type="radio" name="format_timestamps" value="1" checked="checked"> Text</label>
+		<label><input type="radio" name="format_timestamps" value="0"> Unix Timestamps</label>
 	</div>
 </div>
 

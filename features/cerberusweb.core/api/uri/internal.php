@@ -1940,6 +1940,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 		@$tokens = DevblocksPlatform::importGPC($_REQUEST['tokens'],'array',array());
 		@$export_as = DevblocksPlatform::importGPC($_REQUEST['export_as'],'string','csv');
+		@$format_timestamps = DevblocksPlatform::importGPC($_REQUEST['format_timestamps'],'integer',0);
 
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
 			return;
@@ -2006,6 +2007,9 @@ class ChInternalController extends DevblocksControllerExtension {
 					
 					foreach($tokens as $token) {
 						$value = $dict->$token;
+						
+						if($global_types[$token] == Model_CustomField::TYPE_DATE && $format_timestamps)
+							$value = date('r', $value);
 						
 						if(is_array($value))
 							$value = json_encode($value);
@@ -2089,6 +2093,9 @@ class ChInternalController extends DevblocksControllerExtension {
 					foreach($tokens as $token) {
 						$value = $dict->$token;
 						
+						if($global_types[$token] == Model_CustomField::TYPE_DATE && $format_timestamps)
+							$value = date('r', $value);
+						
 						$object[$token] = $value;
 					}
 					
@@ -2166,6 +2173,9 @@ class ChInternalController extends DevblocksControllerExtension {
 					foreach($tokens as $token) {
 						$value = $dict->$token;
 	
+						if($global_types[$token] == Model_CustomField::TYPE_DATE && $format_timestamps)
+							$value = date('r', $value);
+						
 						if(is_array($value))
 							$value = json_encode($value);
 						
