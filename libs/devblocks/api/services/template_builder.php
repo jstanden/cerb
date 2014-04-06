@@ -236,13 +236,18 @@ class DevblocksDictionaryDelegate {
 		return $this->$name;
 	}
 	
-	public function getDictionary($with_prefix=null) {
+	public function getDictionary($with_prefix=null, $with_meta=true) {
 		$dict = $this->_dictionary;
-
+		
+		if(!$with_meta) {
+			unset($dict['_labels']);
+			unset($dict['_types']);
+		}
+		
 		// Convert any nested dictionaries to arrays
 		array_walk_recursive($dict, function(&$v) {
 			if($v instanceof DevblocksDictionaryDelegate)
-				$v = $v->getDictionary();
+				$v = $v->getDictionary(null, $with_meta);
 		});
 		
 		if(empty($with_prefix))

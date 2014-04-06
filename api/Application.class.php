@@ -673,7 +673,7 @@ class CerberusContexts {
 	const CONTEXT_WORKSPACE_TAB = 'cerberusweb.contexts.workspace.tab';
 	const CONTEXT_WORKSPACE_WIDGET = 'cerberusweb.contexts.workspace.widget';
 	
-	public static function getContext($context, $context_object, &$labels, &$values, $prefix=null, $nested=false) {
+	public static function getContext($context, $context_object, &$labels, &$values, $prefix=null, $nested=false, $skip_labels=false) {
 		switch($context) {
 			case 'cerberusweb.contexts.attachment':
 				self::_getAttachmentContext($context_object, $labels, $values, $prefix);
@@ -777,13 +777,19 @@ class CerberusContexts {
 
 		// [TODO] Phase out $labels
 		
-		foreach($labels as $idx => $label) {
-			$labels[$idx] = trim(ucfirst(strtolower(strtr($label,':',' '))));
+		if($skip_labels) {
+			unset($values['_labels']);
+			unset($values['_types']);
+			
+		} else {
+			foreach($labels as $idx => $label) {
+				$labels[$idx] = trim(ucfirst(strtolower(strtr($label,':',' '))));
+			}
+			
+			asort($labels);
+			
+			$values['_labels'] = $labels;
 		}
-		
-		asort($labels);
-		
-		$values['_labels'] = $labels;
 		
 		return null;
 	}
