@@ -2033,49 +2033,81 @@ class ChInternalController extends DevblocksControllerExtension {
 			header("Pragma: public");
 			header("Expires: 0");
 			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-			header("Content-Type: text/plain; charset=".LANG_CHARSET_CODE);
+			header("Content-Type: application/json; charset=".LANG_CHARSET_CODE);
 
-			$objects = array(
-				'fields' => array(),
-				'results' => array(),
-			);
+			echo "{\n\"fields\":";
+			
+			$fields = array();
 			
 			// Fields
 			
 			if(is_array($global_labels))
 			foreach($tokens as $token) {
-				$objects['fields'][$token] = array(
+				$fields[$token] = array(
 					'label' => @$global_labels[$token],
 					'type' => @$global_types[$token],
 				);
 			}
 			
+			echo json_encode($fields);
+			
+			echo ",\n\"results\": [\n";
+			
 			// Results
 			
-			list($results, $null) = $view->getData();
-			
-			if(is_array($results))
-			foreach($results as $row_id => $row) {
-				$labels = array();
-				$values = array();
-				CerberusContexts::getContext($context_mft->id, $row_id, $labels, $values, null, true);
+			while($results = $view->getDataAsObjects()) {
+				$count = count($results);
+				$dicts = array();
 				
-				unset($labels);
+				if($view->renderPage > 0)
+					echo ",\n";
+
+				$objects = array();
 				
-				$dict = new DevblocksDictionaryDelegate($values);
-				
-				$object = array();
-				
-				if(is_array($tokens))
-				foreach($tokens as $token) {
-					$value = $dict->$token;
-					$object[$token] = $value;
+				if(is_array($results))
+				foreach($results as $row_id => $result) {
+					$labels = array(); // ignore
+					$values = array();
+					CerberusContexts::getContext($context_mft->id, $result, $labels, $values, null, true, true);
+					
+					$dicts[$row_id] = DevblocksDictionaryDelegate::instance($values);
+					unset($labels);
+					unset($values);
 				}
 				
-				$objects['results'][] = $object;
+				unset($results);
+				
+				// Bulk lazy load the tokens across all the dictionaries with a temporary cache
+				foreach($tokens as $token) {
+					DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
+				}
+				
+				foreach($dicts as $dict) {
+					$object = array();
+					
+					if(is_array($tokens))
+					foreach($tokens as $token) {
+						$value = $dict->$token;
+						
+						$object[$token] = $value;
+					}
+					
+					$objects[] = $object;
+					
+				}
+				
+				$json = trim(json_encode($objects),'[]');
+				echo $json;
+				
+				// If our page isn't full, we're done
+				if($count < $view->renderLimit)
+					break;
+				
+				if(++$view->renderPage >= $page_max)
+					break;
 			}
-
-			echo json_encode($objects);
+			
+			echo "]\n}";
 			
 		} elseif('xml' == $export_as) {
 			header("Pragma: public");
