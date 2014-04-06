@@ -85,6 +85,7 @@ abstract class C4_AbstractView {
 			array($dao_class, 'getWhere'),
 			array(
 				$sql,
+				null,
 			)
 		);
 		

@@ -1348,7 +1348,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 					$member_dict = new DevblocksDictionaryDelegate($member_values);
 					$member_dict->address_;
 					$member_dict->custom_;
-					$member_values = $member_dict->getDictionary();
+					$member_values = $member_dict->getDictionary(null, false);
 					unset($member_dict);
 					
 					// Remove redundancy
