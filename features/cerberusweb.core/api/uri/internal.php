@@ -2115,13 +2115,12 @@ class ChInternalController extends DevblocksControllerExtension {
 			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 			header("Content-Type: text/xml; charset=".LANG_CHARSET_CODE);
 
-			$xml = simplexml_load_string("<export/>"); /* @var $xml SimpleXMLElement */
-
-			list($results, $null) = $view->getData();
+			echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
+			echo "<export>\n";
 			
 			// Meta
 			
-			$xml_fields = $xml->addChild('fields');
+			$xml_fields = simplexml_load_string("<fields/>"); /* @var $xml SimpleXMLElement */
 			
 			foreach($tokens as $token) {
 				$field = $xml_fields->addChild("field");
@@ -2130,45 +2129,68 @@ class ChInternalController extends DevblocksControllerExtension {
 				$field->addChild('type', @$global_types[$token]);
 			}
 			
+			$dom = dom_import_simplexml($xml_fields);
+			echo $dom->ownerDocument->saveXML($dom->ownerDocument->documentElement);
+			unset($dom);
+			
 			// Content
 			
-			$xml_results = $xml->addChild('results');
+			echo "\n<results>\n";
 			
-			if(is_array($results))
-			foreach($results as $row_id => $row) {
-				$labels = array();
-				$values = array();
-				CerberusContexts::getContext($context_mft->id, $row_id, $labels, $values, null, true);
+			while($results = $view->getDataAsObjects()) {
+				$count = count($results);
+				$dicts = array();
 				
-				unset($labels);
-				
-				$dict = new DevblocksDictionaryDelegate($values);
-				
-				$result = $xml_results->addChild("result");
-				$result->addAttribute('id', $row_id);
-				
-				if(is_array($tokens))
-				foreach($tokens as $token) {
-					$value = $dict->$token;
-
-					if(is_array($value))
-						$value = json_encode($value);
+				if(is_array($results))
+				foreach($results as $row_id => $result) {
+					$labels = array(); // ignore
+					$values = array();
+					CerberusContexts::getContext($context_mft->id, $result, $labels, $values, null, true, true);
 					
-					if(!is_string($value) && !is_numeric($value))
-						$value = '';
-					
-					$field = $result->addChild("field", htmlspecialchars($value, ENT_QUOTES, LANG_CHARSET_CODE));
-					$field->addAttribute("key", $token);
-					
+					$dicts[$row_id] = DevblocksDictionaryDelegate::instance($values);
+					unset($labels);
+					unset($values);
 				}
+				
+				unset($results);
+				
+				// Bulk lazy load the tokens across all the dictionaries with a temporary cache
+				foreach($tokens as $token) {
+					DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
+				}
+				
+				foreach($dicts as $dict) {
+					$xml_result = simplexml_load_string("<result/>"); /* @var $xml SimpleXMLElement */
+					
+					if(is_array($tokens))
+					foreach($tokens as $token) {
+						$value = $dict->$token;
+	
+						if(is_array($value))
+							$value = json_encode($value);
+						
+						if(!is_string($value) && !is_numeric($value))
+							$value = '';
+						
+						$field = $xml_result->addChild("field", htmlspecialchars($value, ENT_QUOTES, LANG_CHARSET_CODE));
+						$field->addAttribute("key", $token);
+					}
+					
+					$dom = dom_import_simplexml($xml_result);
+					echo $dom->ownerDocument->saveXML($dom->ownerDocument->documentElement);
+				}
+				
+				// If our page isn't full, we're done
+				if($count < $view->renderLimit)
+					break;
+				
+				if(++$view->renderPage >= $page_max)
+					break;
 			}
+			
+			echo "</results>\n";
 
-			// Pretty format and output
-			$doc = new DOMDocument('1.0', LANG_CHARSET_CODE);
-			$doc->preserveWhiteSpace = false;
-			$doc->loadXML($xml->asXML());
-			$doc->formatOutput = true;
-			echo $doc->saveXML();
+			echo "</export>\n";
 		}
 
 		exit;
