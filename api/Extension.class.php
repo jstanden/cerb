@@ -648,6 +648,8 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 		$term = $this->getParam(self::PARAM_TERM, 'm');
 		$lastrun = $this->getParam(self::PARAM_LASTRUN, time());
 		
+		// [TODO] By setting the locks directly on these extensions, we're invalidating them during the same /cron
+		//	and causing redundant retrievals of the params from the DB
 		$this->setParam(self::PARAM_LOCKED, time());
 		
 		$this->run();

@@ -1160,6 +1160,7 @@ class CerberusContexts {
 		return false;
 	}
 	
+	// [TODO] This could also cache for request until new links are set involving the source/target
 	static public function getWatchers($context, $context_id, $as_contexts=false) {
 		$links = DAO_ContextLink::getContextLinks($context, $context_id, CerberusContexts::CONTEXT_WORKER);
 		
@@ -1192,6 +1193,7 @@ class CerberusContexts {
 		return $workers;
 	}
 	
+	// [TODO] Are these the only methods that set watcher links?
 	static public function addWatchers($context, $context_id, $worker_ids) {
 		$workers = DAO_Worker::getAll();
 		
@@ -1205,6 +1207,7 @@ class CerberusContexts {
 		}
 	}
 	
+	// [TODO] Are these the only methods that set watcher links?
 	static public function removeWatchers($context, $context_id, $worker_ids) {
 		if(!is_array($worker_ids))
 			$worker_ids = array($worker_ids);

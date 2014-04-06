@@ -1250,6 +1250,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		
 		switch($token) {
 			case 'buckets':
+				// [TODO] Can't $values clobber the lazy load above here?
 				$values = $dictionary;
 
 				if(!isset($values['buckets']))

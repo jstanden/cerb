@@ -37,6 +37,7 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 		if(is_null($target_context_id))
 			$fields[DAO_ContextActivityLog::TARGET_CONTEXT_ID] = 0;
 		
+		// [TODO] This should be an example for insertion of other immutable records
 		$id = parent::_insert('context_activity_log', $fields);
 		
 		return $id;

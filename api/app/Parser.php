@@ -1156,6 +1156,7 @@ class CerberusParser {
 			if(DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ, CerberusSettingsDefaults::PARSER_AUTO_REQ)) {
 				$destinations = $model->getRecipients();
 				
+				// [TODO] Multiple values in one insert
 				if(is_array($destinations))
 				foreach($destinations as $dest) {
 					DAO_Ticket::createRequester($dest, $model->getTicketId());
@@ -1380,6 +1381,7 @@ class CerberusParser {
 			);
 			
 			// Spam probabilities
+			// [TODO] Check headers?
 			if(false !== ($spam_data = CerberusBayes::calculateContentSpamProbability($model->getSubject() . ' ' . $message->body))) {
 				$change_fields[DAO_Ticket::SPAM_SCORE] = $spam_data['probability'];
 				$change_fields[DAO_Ticket::INTERESTING_WORDS] = $spam_data['interesting_words'];

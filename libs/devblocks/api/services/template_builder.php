@@ -215,6 +215,7 @@ class DevblocksDictionaryDelegate {
 				$this->_dictionary[$context_data['prefix'] . $k] = $v;
 			}
 			
+			// [TODO] Is there a better way to test that we loaded new contexts?
 			$this->_cached_contexts = null;
 		}
 		

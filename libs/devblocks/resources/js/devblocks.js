@@ -1,5 +1,6 @@
 var DevblocksClass = function() {
 	/* Source: http://bytes.com/forum/thread90068.html */
+	// [TODO] Does this matter with caret.js anymore?
 	this.getSelectedText = function() {
 		if (window.getSelection) { // recent Mozilla
 			var selectedString = window.getSelection();
