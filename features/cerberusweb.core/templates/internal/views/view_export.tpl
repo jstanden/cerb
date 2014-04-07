@@ -2,6 +2,9 @@
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="viewDoExport">
 <input type="hidden" name="view_id" value="{$view_id}">
+<input type="hidden" name="cursor_key" value="">
+
+<div class="export-settings">
 
 <h1>{'common.export'|devblocks_translate|capitalize}</h1>
 <br>
@@ -41,8 +44,12 @@
 	</div>
 </div>
 
-<button type="button" onclick="this.form.submit();" style=""><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.export'|devblocks_translate|capitalize}</button>
-<button type="button" onclick="$('#{$view_id}_tips').html('').hide();" style=""><span class="cerb-sprite2 sprite-cross-circle"></span> Cancel</button>
+<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.export'|devblocks_translate|capitalize}</button>
+<button type="button" onclick="$('#{$view_id}_tips').html('').hide();" style="cancel"><span class="cerb-sprite2 sprite-cross-circle"></span> Cancel</button>
+
+</div>
+
+<div class="export-status"></div>
 
 </form>
 
@@ -52,11 +59,43 @@ $(function() {
 	var $menu = $frm.find('ul.cerb-popupmenu');
 	var $fields_menu = $frm.find('ul.cerb-popupmenu');
 	var $input = $frm.find('input.filter');
+
+	var $settings = $frm.find('div.export-settings');
+	var $status = $frm.find('div.export-status');
 	
 	$frm.find('ul.bubbles.sortable').sortable({
 		placeholder: 'ui-state-highlight',
 		items: 'li',
 		distance: 10
+	});
+	
+	$frm.on('export_increment', function() {
+		genericAjaxPost('frm{$view_id}_export', null, 'c=internal&a=doViewExport', function(json) {
+			
+			// If complete, display the download link
+			if(json.completed) {
+				$frm.find('input:hidden[name=cursor_key]').val('');
+				
+				$status.html('<a href="javascript:;" class="close"><span class="cerb-sprite2 sprite-cross-circle" style="position:relative;float:right;"></span></a><div style="font-size:18px;font-weight:bold;text-align:center;">Download: <a href="' + json.attachment_url + '" target="_blank">' + json.attachment_name + '</a></div>').fadeIn();
+				$status.find('a.close').click(function() {
+					$('#{$view_id}_tips').html('').hide();
+				});
+				return;
+			}
+			
+			$frm.find('input:hidden[name=cursor_key]').val(json.key);
+			
+			// If in progress, continue looping pages
+			$status.html('<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;">Exported ' + json.rows_exported + ' records<br><span class="cerb-ajax-spinner"></span></div>').fadeIn();
+			$frm.trigger('export_increment');
+			
+		});
+		
+	})
+	
+	$frm.find('button.submit').click(function() {
+		$settings.hide();
+		$frm.trigger('export_increment');
 	});
 	
 	// Menu
