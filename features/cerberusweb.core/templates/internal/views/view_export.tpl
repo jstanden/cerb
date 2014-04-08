@@ -34,7 +34,7 @@
 </div>
 
 <div style="margin-bottom:10px;">
-	<b>Export List As:</b>
+	<b>Export list as:</b>
 	<div style="margin-left:10px;">
 		<select name="export_as">
 			<option value="csv" selected="selected">Comma-separated values (.csv)</option>
