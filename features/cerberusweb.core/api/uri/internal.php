@@ -2027,6 +2027,8 @@ class ChInternalController extends DevblocksControllerExtension {
 			fclose($fp);
 			unlink($cursor['temp_file']);
 			
+			unset($_SESSION['view_export_cursors'][$cursor_key]);
+			
 			$cursor['attachment_name'] = $file_name;
 			$cursor['attachment_url'] = $url_writer->write('c=files&a=' . $sha1_hash . '&name=' . $file_name);
 		}
