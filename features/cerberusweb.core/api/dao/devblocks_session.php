@@ -177,33 +177,37 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids))
+			$ids = array($ids);
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(empty($ids))
 			return;
 
-		foreach($ids as $k => $v) {
-			$ids[$k] = Cerb_ORMHelper::qstr($v);
-		}
+		DevblocksPlatform::sanitizeArray($ids, 'integer');
 		
 		$ids_list = implode(',', $ids);
 		
 		$db->Execute(sprintf("DELETE FROM devblocks_session WHERE session_key IN (%s)", $ids_list));
 		
-		// Fire event
-		/*
-		$eventMgr = DevblocksPlatform::getEventService();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => 'cerberusweb.contexts.',
-					'context_ids' => $ids
-				)
-			)
-		);
-		*/
+		return true;
+	}
+	
+	static function deleteByUserIds($ids) {
+		if(!is_array($ids))
+			$ids = array($ids);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($ids))
+			return;
+		
+		DevblocksPlatform::sanitizeArray($ids, 'integer');
+		
+		$ids_list = implode(',', $ids);
+		
+		$db->Execute(sprintf("DELETE FROM devblocks_session WHERE user_id IN (%s)", $ids_list));
 		
 		return true;
 	}

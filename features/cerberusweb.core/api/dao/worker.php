@@ -346,8 +346,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 	static function delete($id) {
 		if(empty($id)) return;
 		
-		// [TODO] Delete worker notes, comments, etc.
-		
 		/* This event fires before the delete takes place in the db,
 		 * so we can denote what is actually changing against the db state
 		 */
@@ -366,6 +364,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$sql = sprintf("DELETE FROM worker WHERE id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
+		$sql = sprintf("DELETE FROM worker_auth_hash WHERE worker_id = %d", $id);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		
 		$sql = sprintf("DELETE FROM address_to_worker WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
@@ -377,7 +378,10 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		$sql = sprintf("DELETE FROM snippet_use_history WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-
+		
+		// Sessions
+		DAO_DevblocksSession::deleteByUserIds($id);
+		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
 		$eventMgr->trigger(
