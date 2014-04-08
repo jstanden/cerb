@@ -8,7 +8,7 @@
 <input type="hidden" name="do_delete" value="0">
 
 <fieldset class="peek">
-	<legend>Contact Information</legend>
+	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
@@ -26,6 +26,30 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top"><b>{'common.email'|devblocks_translate}</b>: </td>
 			<td width="100%"><input type="text" name="email" value="{$worker->email}" class="required" style="width:98%;"></td>
+		</tr>
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right">{'common.status'|devblocks_translate|capitalize}: </td>
+			<td width="100%">
+				{if $active_worker->id == $worker->id}
+					<input type="hidden" name="is_disabled" value="{$worker->is_disabled}">
+					{if $worker->is_disabled}{'common.inactive'|devblocks_translate|capitalize}{else}{'common.active'|devblocks_translate|capitalize}{/if}
+				{else}
+					<label><input type="radio" name="is_disabled" value="0" {if !$worker->is_disabled}checked="checked"{/if}>{'common.active'|devblocks_translate|capitalize}</label>
+					<label><input type="radio" name="is_disabled" value="1" {if $worker->is_disabled}checked="checked"{/if}>{'common.inactive'|devblocks_translate|capitalize}</label>
+				{/if}
+			</td>
+		</tr>
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right">{'common.privileges'|devblocks_translate|capitalize}: </td>
+			<td width="100%">
+				{if $active_worker->id == $worker->id}
+					<input type="hidden" name="is_superuser" value="{$worker->is_superuser}">
+					{if !$worker->is_superuser}{'common.worker'|devblocks_translate|capitalize}{else}{'worker.is_superuser'|devblocks_translate|capitalize}{/if}
+				{else}
+					<label><input type="radio" name="is_superuser" value="0" {if !$worker->is_superuser}checked="checked"{/if}>{'common.worker'|devblocks_translate|capitalize}</label>
+					<label><input type="radio" name="is_superuser" value="1" {if $worker->is_superuser}checked="checked"{/if}>{'worker.is_superuser'|devblocks_translate|capitalize}</label>
+				{/if}
+			</td>
 		</tr>
 	</table>
 </fieldset>
@@ -45,32 +69,17 @@
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'worker.is_superuser'|devblocks_translate|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">New Password: </td>
 			<td width="100%">
-				{if $active_worker->id == $worker->id}
-					<input type="hidden" name="is_superuser" value="{$worker->is_superuser}">
-					{if !$worker->is_superuser}{'common.no'|devblocks_translate|capitalize}{else}{'common.yes'|devblocks_translate|capitalize}{/if}
-				{else}
-					<select name="is_superuser">
-						<option value="0" {if !$worker->is_superuser}selected{/if}>{'common.no'|devblocks_translate|capitalize}</option>
-						<option value="1" {if $worker->is_superuser}selected{/if}>{'common.yes'|devblocks_translate|capitalize}</option>
-					</select>
-				{/if}
+				<input type="password" name="password_new" value=""  style="width:90%;" placeholder="{if $worker->id}(leave blank for unchanged){else}(leave blank to send a random password by email){/if}">
 			</td>
 		</tr>
-		{if $active_worker->id == $worker->id}
-			<input type="hidden" name="is_disabled" value="{$worker->is_disabled}">
-		{else}
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'common.disabled'|devblocks_translate|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">Verify Password: </td>
 			<td width="100%">
-				<select name="is_disabled">
-					<option value="0" {if !$worker->is_disabled}selected{/if}>{'common.no'|devblocks_translate|capitalize}</option>
-					<option value="1" {if $worker->is_disabled}selected{/if}>{'common.yes'|devblocks_translate|capitalize}</option>
-				</select>
+				<input type="password" name="password_verify" value="" style="width:90%;">
 			</td>
 		</tr>
-		{/if}
 	</table>
 </fieldset>
 

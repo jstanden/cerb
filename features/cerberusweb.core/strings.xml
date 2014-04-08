@@ -114,6 +114,9 @@
 		<tu tuid='common.access_denied'>
 			<tuv xml:lang="en_US"><seg>Access denied.</seg></tuv>
 		</tu>
+		<tu tuid='common.active'>
+			<tuv xml:lang="en_US"><seg>active</seg></tuv>
+		</tu>
 		<tu tuid='common.activity_log'>
 			<tuv xml:lang="en_US"><seg>Activity Log</seg></tuv>
 		</tu>
@@ -333,6 +336,9 @@
 		<tu tuid='common.import.upload_csv.tip'>
 			<tuv xml:lang="en_US"><seg>(any column order; the next step will let you choose where the data goes)</seg></tuv>
 		</tu>
+		<tu tuid='common.inactive'>
+			<tuv xml:lang="en_US"><seg>inactive</seg></tuv>
+		</tu>
 		<tu tuid='common.inbox'>
 			<tuv xml:lang="en_US"><seg>inbox</seg></tuv>
 		</tu>
@@ -482,6 +488,9 @@
 		</tu>
 		<tu tuid='common.private'>
 			<tuv xml:lang="en_US"><seg>private</seg></tuv>
+		</tu>
+		<tu tuid='common.privileges'>
+			<tuv xml:lang="en_US"><seg>privileges</seg></tuv>
 		</tu>
 		<tu tuid='common.profiles'>
 			<tuv xml:lang="en_US"><seg>Profiles</seg></tuv>
