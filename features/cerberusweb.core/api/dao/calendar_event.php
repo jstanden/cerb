@@ -415,7 +415,7 @@ class Model_CalendarEvent {
 	public $date_end;
 };
 
-class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtotals {
+class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
 	const DEFAULT_ID = 'calendar_events';
 
 	function __construct() {
@@ -544,6 +544,59 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		}
 		
 		return $counts;
+	}
+	
+	function isQuickSearchField($token) {
+		switch($token) {
+			case SearchFields_CalendarEvent::CALENDAR_ID:
+				return true;
+			break;
+		}
+		
+		return false;
+	}
+	
+	function quickSearch($token, $query, &$oper, &$value) {
+		switch($token) {
+			case SearchFields_CalendarEvent::CALENDAR_ID:
+				$search_ids = array();
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				
+				if(preg_match('#([\!\=]+)(.*)#', $query, $matches)) {
+					$oper_hint = trim($matches[1]);
+					$query = trim($matches[2]);
+					
+					switch($oper_hint) {
+						case '!':
+						case '!=':
+							$oper = DevblocksSearchCriteria::OPER_NIN;
+							break;
+					}
+				}
+				
+				$calendars = DAO_Calendar::getAll();
+				$inputs = DevblocksPlatform::parseCsvString($query);
+
+				if(is_array($inputs))
+				foreach($inputs as $input) {
+					foreach($calendars as $calendar_id => $calendar) {
+						if(0 == strcasecmp($input, substr($calendar->name,0,strlen($input))))
+							$search_ids[$calendar_id] = true;
+					}
+				}
+				
+				if(!empty($search_ids)) {
+					$value = array_keys($search_ids);
+				} else {
+					$value = null;
+				}
+				
+				return true;
+				break;
+				
+		}
+		
+		return false;
 	}
 	
 	function render() {
