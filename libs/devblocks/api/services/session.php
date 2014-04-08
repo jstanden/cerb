@@ -59,27 +59,6 @@ class _DevblocksSessionManager {
 		return $instance;
 	}
 	
-	/*
-	function decodeSession($data) {
-		$vars=preg_split(
-			'/([a-zA-Z_\.\x7f-\xff][a-zA-Z0-9_\.\x7f-\xff^|]*)\|/',
-			$data,
-			-1,
-			PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
-		);
-		
-		$scope = array();
-		
-		while(!empty($vars)) {
-			@$key = array_shift($vars);
-			@$value = unserialize(array_shift($vars));
-			$scope[$key] = $value;
-		}
-		
-		return $scope;
-	}
-	*/
-	
 	/**
 	 * Returns the current session or NULL if no session exists.
 	 *
@@ -118,7 +97,6 @@ class _DevblocksSessionManager {
 	
 	function clearAll() {
 		self::clear();
-		// [TODO] Allow subclasses to be cleared here too
 		call_user_func(array($this->_handler_class, 'destroyAll'));
 	}
 };

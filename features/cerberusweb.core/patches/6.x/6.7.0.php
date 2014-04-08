@@ -109,6 +109,20 @@ foreach($files as $file) {
 }
 
 // ===========================================================================
+// Modify `devblocks_session` to include `refreshed_at`
+
+if(!isset($tables['devblocks_session'])) {
+	$logger->error("The 'devblocks_session' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('devblocks_session');
+
+if(!isset($columns['refreshed_at'])) {
+	$db->Execute("ALTER TABLE devblocks_session ADD COLUMN refreshed_at INT UNSIGNED NOT NULL DEFAULT 0");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

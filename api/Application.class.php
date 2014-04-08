@@ -1865,9 +1865,27 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 	
 	static function read($id) {
 		$db = DevblocksPlatform::getDatabaseService();
-		if(null != (self::$_data = $db->GetOne(sprintf("SELECT session_data FROM devblocks_session WHERE session_key = %s", $db->qstr($id)))))
-			return self::$_data;
+		
+		if(null != ($session = $db->GetRow(sprintf("SELECT session_data, refreshed_at, user_ip, user_agent FROM devblocks_session WHERE session_key = %s", $db->qstr($id))))) {
+			$maxlifetime = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
+			$is_ajax = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest');
 			
+			// Refresh the session cookie (move expiraiton forward) after 5 minutes have elapsed
+			if($maxlifetime && !$is_ajax && (time() - $session['refreshed_at'] >= 300)) {
+				$url_writer = DevblocksPlatform::getUrlService();
+				
+				setcookie('Devblocks', $id, time()+$maxlifetime, '/', NULL, $url_writer->isSSL(), true);
+				
+				$db->Execute(sprintf("UPDATE devblocks_session SET refreshed_at=%d WHERE session_key = %s",
+					time(),
+					$db->qstr($id)
+				));
+			}
+			
+			self::$_data = $session['session_data'];
+			return self::$_data;
+		}
+		
 		return false;
 	}
 	
@@ -1896,9 +1914,10 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		
 		if(0==$db->Affected_Rows()) {
 			// Insert
-			$sql = sprintf("INSERT INTO devblocks_session (session_key, created, updated, user_id, user_ip, user_agent, session_data) ".
-				"VALUES (%s, %d, %d, %d, %s, %s, %s)",
+			$sql = sprintf("INSERT INTO devblocks_session (session_key, created, updated, refreshed_at, user_id, user_ip, user_agent, session_data) ".
+				"VALUES (%s, %d, %d, %d, %d, %s, %s, %s)",
 				$db->qstr($id),
+				time(),
 				time(),
 				time(),
 				!is_null($active_worker) ? $active_worker->id : 0,
