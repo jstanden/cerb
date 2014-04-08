@@ -93,6 +93,22 @@ if(!isset($tables['worker_auth_hash'])) {
 }
 
 // ===========================================================================
+// Clean up the old style cache files in temp filesystem
+
+$cache_dir = APP_TEMP_PATH . '/';
+$files = scandir($cache_dir);
+unset($files['.']);
+unset($files['..']);
+
+if(is_array($files))
+foreach($files as $file) {
+	if(0==strcmp('devblocks_cache---', substr($file, 0, 18))) {
+		if(file_exists($cache_dir . $file) && is_writeable($cache_dir . $file))
+			@unlink($cache_dir . $file);
+	}
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
