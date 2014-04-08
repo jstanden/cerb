@@ -1405,6 +1405,7 @@ class CerberusContexts {
 		}
 		
 		if(empty($actor_context)) {
+			$actor_context = CerberusContexts::CONTEXT_APPLICATION;
 			$actor_name = 'Cerb';
 		}
 		
