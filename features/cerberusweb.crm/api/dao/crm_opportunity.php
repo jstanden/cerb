@@ -1177,6 +1177,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'id' => $prefix.$translate->_('common.id'),
 			'amount' => $prefix.$translate->_('crm.opportunity.amount'),
 			'created' => $prefix.$translate->_('common.created'),
 			'is_closed' => $prefix.$translate->_('crm.opportunity.is_closed'),
@@ -1190,6 +1191,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'id' => Model_CustomField::TYPE_NUMBER,
 			'amount' => Model_CustomField::TYPE_NUMBER,
 			'created' => Model_CustomField::TYPE_DATE,
 			'is_closed' => Model_CustomField::TYPE_CHECKBOX,

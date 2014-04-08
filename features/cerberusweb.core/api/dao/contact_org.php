@@ -1074,6 +1074,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'city' => $prefix.$translate->_('contact_org.city'),
 			'country' => $prefix.$translate->_('contact_org.country'),
@@ -1089,6 +1090,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'city' => Model_CustomField::TYPE_SINGLE_LINE,
 			'country' => Model_CustomField::TYPE_SINGLE_LINE,

@@ -1468,15 +1468,17 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
-			'name' => $prefix.$translate->_('common.name'),
 			'extension_id' => $prefix.$translate->_('common.extension'),
+			'id' => $prefix.$translate->_('common.id'),
+			'name' => $prefix.$translate->_('common.name'),
 		);
 		
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
-			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 		);
 		
 		// Custom field/fieldset token labels

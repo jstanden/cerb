@@ -1191,20 +1191,24 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
-			'log_date' => $prefix.$translate->_('timetracking_entry.log_date'),
-			'summary' => $prefix.$translate->_('common.summary'),
+			'id' => $prefix.$translate->_('common.id'),
 			'is_closed' => $prefix.$translate->_('common.is_closed'),
+			'log_date' => $prefix.$translate->_('timetracking_entry.log_date'),
 			'mins' => $prefix.$translate->_('timetracking_entry.time_actual_mins'),
+			'summary' => $prefix.$translate->_('common.summary'),
+				
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
-			'log_date' => Model_CustomField::TYPE_DATE,
-			'summary' => Model_CustomField::TYPE_SINGLE_LINE,
+			'id' => Model_CustomField::TYPE_NUMBER,
 			'is_closed' => Model_CustomField::TYPE_CHECKBOX,
+			'log_date' => Model_CustomField::TYPE_DATE,
 			'mins' => 'time_mins',
+			'summary' => Model_CustomField::TYPE_SINGLE_LINE,
+				
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		

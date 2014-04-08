@@ -436,6 +436,7 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 		$token_labels = array(
 			'_label' => $prefix,
 			'extension_id' => $prefix.$translate->_('common.extension'),
+			'id' => $prefix.$translate->_('common.id'),
 			'label' => $prefix.$translate->_('common.label'),
 		);
 		
@@ -443,6 +444,7 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 		$token_types = array(
 			'_label' => 'context_url',
 			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
+			'id' => Model_CustomField::TYPE_NUMBER,
 			'label' => Model_CustomField::TYPE_SINGLE_LINE,
 		);
 		

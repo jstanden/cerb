@@ -1048,6 +1048,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'id' => $prefix.$translate->_('common.id'),
 			'title' => $prefix.$translate->_('common.title'),
 			'context' => $prefix.$translate->_('common.context'),
 			'content' => $prefix.$translate->_('common.content'),
@@ -1059,6 +1060,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'id' => Model_CustomField::TYPE_NUMBER,
 			'title' => Model_CustomField::TYPE_SINGLE_LINE,
 			'context' => Model_CustomField::TYPE_SINGLE_LINE,
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
