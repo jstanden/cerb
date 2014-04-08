@@ -234,9 +234,10 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 	
 	private function _getFilename($key) {
 		@$key_prefix = $this->_config['key_prefix'];
+		@$salt_suffix = '--' . substr(sha1(APP_DB_PASS),-8);
 		
 		$safe_key = preg_replace("/[^A-Za-z0-9_\-]/",'_', $key);
-		return $key_prefix . $safe_key;
+		return $key_prefix . $safe_key . $salt_suffix;
 	}
 	
 	function load($key) {
