@@ -32,7 +32,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 		if($port == 3306)
 			return false;
 		
-		return mysqli_connect(sprintf("%s:%d", $host, $port));
+		return mysqli_connect($host, null, null, null, $port);
 	}
 	
 	public function testConfig(array $config) {
@@ -51,18 +51,27 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 			return "A search index is required.";
 		
 		if(!empty($host))
-			@$db = mysqli_connect(sprintf("%s:%d", $host, $port));
+			@$db = mysqli_connect($host, null, null, null, $port);
 		
 		if(!($db instanceof mysqli))
 			return "Failed to connect to Sphinx.  Check your host and port settings.";
 		
+		$rs = mysqli_query($db, "SHOW TABLES");
+		$indexes = array();
+		
+		while($row = mysqli_fetch_assoc($rs)) {
+			$indexes[strtolower($row['Index'])] = strtolower($row['Type']);
+		}
+		
+		mysqli_free_result($rs);
+		
 		// Check if the search index exists
-		if(false === ($rs = mysqli_query($db, sprintf("DESCRIBE %s", $index))))
+		if(!isset($indexes[$index]))
 			return sprintf("The index '%s' does not exist.", $index);
 		
 		// Check if the real-time index exists
 		if($index_rt) {
-			if(false === ($rs = mysqli_query($db, sprintf("DESCRIBE %s", $index_rt))))
+			if(!isset($indexes[$index_rt]))
 				return sprintf("The real-time index '%s' does not exist.", $index_rt);
 		}
 		
