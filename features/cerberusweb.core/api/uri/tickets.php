@@ -811,7 +811,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function viewCloseTicketsAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array:integer');
 		
 		$fields = array(
 			DAO_Ticket::IS_CLOSED => CerberusTicketStatus::CLOSED,
@@ -851,7 +851,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function viewWaitingTicketsAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array:integer');
 
 		$fields = array(
 			DAO_Ticket::IS_WAITING => 1,
@@ -891,7 +891,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function viewNotWaitingTicketsAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array:integer');
 
 		$fields = array(
 			DAO_Ticket::IS_WAITING => 0,
@@ -931,7 +931,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function viewNotSpamTicketsAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array:integer');
 
 		$fields = array(
 			DAO_Ticket::IS_CLOSED => 0,
@@ -981,7 +981,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function viewSpamTicketsAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array:integer');
 
 		$fields = array(
 			DAO_Ticket::IS_CLOSED => 1,
@@ -1031,7 +1031,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function viewDeleteTicketsAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
+		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array:integer');
 
 		$fields = array(
 			DAO_Ticket::IS_CLOSED => 1,

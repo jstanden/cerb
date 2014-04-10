@@ -109,10 +109,18 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(is_null($value) && !is_null($default))
 			$value = $default;
 		
+		if(substr($type,0,6) == 'array:') {
+			list($type, $array_cast) = explode(':', $type, 2);
+		}
+		
 		// Sanitize input
 		switch($type) {
 			case 'array':
-				@settype($value,$type);
+				if(!is_array($value))
+					$value = array($value);
+				
+				if(isset($array_cast))
+					$value = DevblocksPlatform::sanitizeArray($value, $array_cast);
 				break;
 				
 			case 'bit':
@@ -1796,6 +1804,17 @@ class DevblocksPlatform extends DevblocksEngine {
 			return array();
 		
 		switch($type) {
+			case 'bit':
+				$array = _DevblocksSanitizationManager::arrayAs($array, 'bit');
+				return $array;
+				break;
+				
+			case 'bool':
+			case 'boolean':
+				$array = _DevblocksSanitizationManager::arrayAs($array, 'boolean');
+				return $array;
+				break;
+				
 			case 'integer':
 				$array = _DevblocksSanitizationManager::arrayAs($array, 'integer');
 				

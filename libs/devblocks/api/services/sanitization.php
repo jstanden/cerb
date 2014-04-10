@@ -7,6 +7,19 @@ class _DevblocksSanitizationManager {
 	}
 	
 	private static function _castArrayAs(&$value, $key, $type) {
-		settype($value, $type);
+		switch($type) {
+			case 'bit':
+				$value = @intval($value) ? 1 : 0;
+				break;
+				
+			case 'bool':
+			case 'boolean':
+				$value = $value ? true : false;
+				break;
+				
+			default:
+				settype($value, $type);
+				break;
+		}
 	}
 }
