@@ -597,7 +597,14 @@ class Model_Calendar {
 		$results = $db->GetArray($sql);
 
 		foreach($results as $row) {
-			$day_range = range(strtotime('midnight', $row['date_start']), strtotime('midnight', $row['date_end']), 86400);
+			// If the event spans multiple days, split them up into distinct events
+			$ts_pointer = strtotime('midnight', $row['date_start']);
+			$day_range = array();
+			
+			while($ts_pointer < $row['date_end']) {
+				$day_range[] = $ts_pointer;
+				$ts_pointer = strtotime('tomorrow', $ts_pointer);
+			}
 			
 			foreach($day_range as $epoch) {
 				// If the day segment is outside of our desired range, skip

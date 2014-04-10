@@ -131,8 +131,14 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 							$ts_end = $ts;
 						
 						// If the worklist-fed event spans multiple days, split them up into distinct events
-						$day_range = range(strtotime('midnight', $ts), strtotime('midnight', $ts_end), 86400);
-
+						$ts_pointer = strtotime('midnight', $ts);
+						$day_range = array();
+						
+						while($ts_pointer < $ts_end) {
+							$day_range[] = $ts_pointer;
+							$ts_pointer = strtotime('tomorrow', $ts_pointer);
+						}
+						
 						foreach($day_range as $epoch) {
 							$day_start = strtotime('midnight', $epoch);
 							$day_end = strtotime('23:59:59', $epoch);
