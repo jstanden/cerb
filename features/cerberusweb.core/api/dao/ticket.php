@@ -640,6 +640,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields, $check_deltas=true) {
+		if(empty($fields))
+			return;
+		
 		if(!is_array($ids))
 			$ids = array($ids);
 		
@@ -856,6 +859,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	
 	static function updateMessageCount($id) {
 		$db = DevblocksPlatform::getDatabaseService();
+		
 		$db->Execute(sprintf("UPDATE ticket ".
 			"SET num_messages = (SELECT count(id) FROM message WHERE message.ticket_id = ticket.id) ".
 			"WHERE ticket.id = %d",

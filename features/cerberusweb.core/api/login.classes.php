@@ -184,7 +184,7 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 	}
 	
 	function resetCredentials($worker) {
-		DAO_Worker::setAuth($worker->id, $null);
+		DAO_Worker::setAuth($worker->id, null);
 	}
 	
 	function authenticate() {

@@ -178,7 +178,7 @@
 		<td>
 			{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}
 			{if empty($result.t_spam_training)}
-			{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" onclick="$(this).closest('tbody').remove();genericAjaxGet('{$view->id}_output_container','c=tickets&a=reportSpam&id={$result.t_id}&viewId={$view->id}');">{/if}
+			{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" onclick="$(this).closest('tbody').remove();genericAjaxGet('{$view->id}_output_container','c=tickets&a=reportSpam&id={$result.t_id}&view_id={$view->id}');">{/if}
 			<span class="cerb-sprite sprite-{if $result.t_spam_score >= 0.90}warning{else}warning_gray{/if}" title="Report Spam ({$score})"></span>
 			{if $active_worker->hasPriv('core.ticket.actions.spam')}</a>{/if}
 			{/if}

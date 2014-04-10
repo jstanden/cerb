@@ -177,14 +177,13 @@ class ChTicketsPage extends CerberusPageExtension {
 	// Ajax
 	function reportSpamAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['viewId'],'string');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		if(empty($id)) return;
 
 		$fields = array(
-				DAO_Ticket::IS_CLOSED => 1,
-				DAO_Ticket::IS_DELETED => 1,
+			DAO_Ticket::IS_CLOSED => 1,
+			DAO_Ticket::IS_DELETED => 1,
 		);
-		
 		
 		//====================================
 		// Undo functionality
@@ -192,10 +191,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		$last_action->action = Model_TicketViewLastAction::ACTION_SPAM;
 
 		$last_action->ticket_ids[$id] = array(
-				DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
-				DAO_Ticket::SPAM_SCORE => 0.5000, // [TODO] Fix
-				DAO_Ticket::IS_CLOSED => 0,
-				DAO_Ticket::IS_DELETED => 0
+			DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
+			DAO_Ticket::SPAM_SCORE => 0.5000, // [TODO] Fix
+			DAO_Ticket::IS_CLOSED => 0,
+			DAO_Ticket::IS_DELETED => 0
 		);
 
 		$last_action->action_params = $fields;
@@ -205,7 +204,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		CerberusBayes::markTicketAsSpam($id);
 		
-		// [TODO] Move buckets (according to config)
 		$fields = array(
 			DAO_Ticket::IS_DELETED => 1,
 			DAO_Ticket::IS_CLOSED => CerberusTicketStatus::CLOSED

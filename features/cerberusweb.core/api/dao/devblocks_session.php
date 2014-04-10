@@ -87,8 +87,6 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 			
 			// Send events
 			if(!empty($object_changes)) {
-				// Local events
-				//self::_processUpdateEvents($object_changes);
 				
 				// Trigger an event about the changes
 				$eventMgr = DevblocksPlatform::getEventService();

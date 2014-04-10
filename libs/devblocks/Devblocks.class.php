@@ -105,7 +105,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	static function importVar($value,$type=null,$default=null) {
+	static function importVar($value, $type=null, $default=null) {
 		if(is_null($value) && !is_null($default))
 			$value = $default;
 		
@@ -114,21 +114,27 @@ class DevblocksPlatform extends DevblocksEngine {
 			case 'array':
 				@settype($value,$type);
 				break;
+				
 			case 'bit':
 				$value = !empty($value) ? 1 : 0;
 				break;
+				
 			case 'boolean':
 				$value = !empty($value) ? true : false;
 				break;
+				
 			case 'float':
 				$value = floatval($value);
 				break;
+				
 			case 'integer':
 				$value = intval($value);
 				break;
+				
 			case 'string':
 				$value = (string) $value;
 				break;
+				
 			case 'timestamp':
 				if(!is_numeric($value)) {
 					try {
@@ -138,6 +144,7 @@ class DevblocksPlatform extends DevblocksEngine {
 					$value = abs(intval($value));
 				}
 				break;
+				
 			default:
 				@settype($value,$type);
 				break;
@@ -152,7 +159,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	static function importGPC($var,$cast=null,$default=null) {
+	static function importGPC($var, $cast=null, $default=null) {
 		@$magic_quotes = (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) ? true : false;
 
 		if(!is_null($var)) {
