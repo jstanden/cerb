@@ -145,6 +145,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(isset($properties[DAO_Ticket::IS_CLOSED]) && $properties[DAO_Ticket::IS_CLOSED]==$ticket->is_closed)
 			unset($properties[DAO_Ticket::IS_CLOSED]);
 		
+		// Only update fields that changed
+		$properties = Cerb_ORMHelper::uniqueFields($properties, $ticket);
+		
 		DAO_Ticket::update($id, $properties);
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket->mask)));
@@ -1149,7 +1152,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Create a new ticket
 		$new_ticket_mask = CerberusApplication::generateTicketMask();
 		
-		$new_ticket_id = DAO_Ticket::create(array(
+		$fields = array(
 			DAO_Ticket::CREATED_DATE => $orig_message->created_date,
 			DAO_Ticket::UPDATED_DATE => $orig_message->created_date,
 			DAO_Ticket::BUCKET_ID => $orig_ticket->bucket_id,
@@ -1164,7 +1167,9 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_Ticket::SUBJECT => (isset($orig_headers['subject']) ? $orig_headers['subject'] : $orig_ticket->subject),
 			DAO_Ticket::GROUP_ID => $orig_ticket->group_id,
 			DAO_Ticket::ORG_ID => $orig_ticket->org_id,
-		));
+		);
+
+		$new_ticket_id = DAO_Ticket::create($fields);
 
 		// Copy all the original tickets requesters
 		$orig_requesters = DAO_Ticket::getRequestersByTicket($orig_ticket->id);
@@ -1182,10 +1187,12 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Reindex the original ticket (last wrote, etc.)
 		$last_message = end($messages); /* @var Model_Message $last_message */
 		
-		DAO_Ticket::update($orig_ticket->id, array(
+		$fields = array(
 			DAO_Ticket::LAST_MESSAGE_ID => $last_message->id,
 			DAO_Ticket::LAST_WROTE_ID => $last_message->address_id
-		));
+		);
+		
+		DAO_Ticket::update($orig_ticket->id, $fields, false);
 		
 		DAO_Ticket::updateMessageCount($new_ticket_id);
 		DAO_Ticket::updateMessageCount($orig_ticket->id);
@@ -1272,9 +1279,11 @@ class ChDisplayPage extends CerberusPageExtension {
 			return;
 		
 		if($ticket->owner_id == $active_worker->id) {
-			DAO_Ticket::update($ticket_id, array(
+			$fields = array(
 				DAO_Ticket::OWNER_ID => 0,
-			));
+			);
+			
+			DAO_Ticket::update($ticket_id, $fields);
 		}
 	}
 	

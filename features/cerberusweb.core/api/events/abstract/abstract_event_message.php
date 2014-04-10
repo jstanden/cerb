@@ -973,9 +973,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			case 'set_reopen_date':
 				DevblocksEventHelper::runActionSetDate('ticket_reopen_date', $params, $dict);
 				
-				DAO_Ticket::update($ticket_id, array(
+				$fields = array(
 					DAO_Ticket::REOPEN_AT => intval($dict->ticket_reopen_date),
-				));
+				);
+				DAO_Ticket::update($ticket_id, $fields);
 				break;
 			
 			case 'set_spam_training':

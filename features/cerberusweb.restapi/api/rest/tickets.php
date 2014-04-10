@@ -168,12 +168,10 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			$fields[DAO_Ticket::IS_DELETED] = !empty($is_deleted) ? 1 : 0;
 		}
 			
-		// Assign
-		// [TODO] Redo w/ owners + contexts
-			// ACL
-//			if(!$worker->hasPriv('core.ticket.actions.assign'))
-//				$this->error(self::ERRNO_ACL, 'Access denied to assign tickets.');
+		// Only update fields that changed
+		$fields = Cerb_ORMHelper::uniqueFields($fields, $ticket);
 		
+		// Update
 		if(!empty($fields))
 			DAO_Ticket::update($id, $fields);
 			
@@ -182,8 +180,6 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(is_array($customfields))
 			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TICKET, $id, $customfields, true, true, true);
 
-		// Update
-		DAO_Ticket::update($id, $fields);
 		$this->getId($id);
 	}
 	
@@ -218,13 +214,20 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			
 		// Check group memberships
 		$memberships = $worker->getMemberships();
+		
 		if(!$worker->is_superuser && !isset($memberships[$ticket->group_id]))
 			$this->error(self::ERRNO_ACL, 'Access denied to delete tickets in this group.');
-			
-		DAO_Ticket::update($ticket->id, array(
+
+		$fields = array(
 			DAO_Ticket::IS_CLOSED => 1,
 			DAO_Ticket::IS_DELETED => 1,
-		));
+		);
+		
+		// Only update fields that changed
+		$fields = Cerb_ORMHelper::uniqueFields($fields, $ticket);
+		
+		if(!empty($fields))
+			DAO_Ticket::update($ticket->id, $fields);
 		
 		$result = array('id'=> $id);
 		

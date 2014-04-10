@@ -1039,20 +1039,27 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_REOPEN_AT,DevblocksSearchCriteria::OPER_LT,time()),
 				),
 			),
-			100,
+			200,
 			0,
 			DAO_Ticket::ID,
 			true,
 			false
 		);
 		
-		if(!empty($results)) {
-			$fields = array(
-				DAO_Ticket::IS_CLOSED => 0,
-				DAO_Ticket::IS_WAITING => 0,
-				DAO_Ticket::REOPEN_AT => 0
-			);
-			DAO_Ticket::update(array_keys($results), $fields);
+		$fields = array(
+			DAO_Ticket::IS_CLOSED => 0,
+			DAO_Ticket::IS_WAITING => 0,
+			DAO_Ticket::REOPEN_AT => 0
+		);
+		
+		// Only update records with fields that changed
+		$models = DAO_Ticket::getIds(array_keys($results));
+		
+		foreach($models as $model_id => $model) {
+			$update_fields = Cerb_ORMHelper::uniqueFields($fields, $model);
+			
+			if(!empty($update_fields))
+				DAO_Ticket::update($model_id, $update_fields);
 		}
 	}
 	
@@ -1065,14 +1072,17 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		// Context-specific behavior for comments
 		switch($fields[DAO_Comment::CONTEXT]) {
 			case CerberusContexts::CONTEXT_TASK:
-				DAO_Task::update($fields[DAO_Comment::CONTEXT_ID], array(
+				$update_fields = array(
 					DAO_Task::UPDATED_DATE => time(),
-				));
+				);
+				DAO_Task::update($fields[DAO_Comment::CONTEXT_ID], $update_fields);
 				break;
+				
 			case CerberusContexts::CONTEXT_TICKET:
-				DAO_Ticket::update($fields[DAO_Comment::CONTEXT_ID], array(
+				$update_fields = array(
 					DAO_Ticket::UPDATED_DATE => time(),
-				));
+				);
+				DAO_Ticket::update($fields[DAO_Comment::CONTEXT_ID], $update_fields, false);
 				break;
 		}
 	}

@@ -2075,6 +2075,21 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 		return $db->qstr($str);
 	}
 	
+	static function uniqueFields($fields, $model) {
+		if(is_object($model))
+			$model = (array) $model;
+		
+		if(!is_array($model))
+			return false;
+		
+		foreach($fields as $k => $v) {
+			if(isset($model[$k]) && $model[$k] == $v)
+				unset($fields[$k]);
+		}
+		
+		return $fields;
+	}
+	
 	static protected function paramExistsInSet($key, $params) {
 		$exists = false;
 		
