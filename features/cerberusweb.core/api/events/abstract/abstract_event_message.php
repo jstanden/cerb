@@ -20,12 +20,12 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 	
 	/**
 	 *
-	 * @param integer $message_id
+	 * @param integer $context_id
 	 * @param integer $group_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel(Model_TriggerEvent $trigger, $message_id=null, $group_id=null) {
-		if(empty($message_id)) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $context_id=null, $group_id=null) {
+		if(empty($context_id)) {
 			// Pull the latest ticket
 			list($results) = DAO_Ticket::search(
 				array(),
@@ -43,14 +43,14 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			
 			$result = array_shift($results);
 			
-			$message_id = $result[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID];
+			$context_id = $result[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID];
 			$group_id = $result[SearchFields_Ticket::TICKET_GROUP_ID];
 		}
 		
 		return new Model_DevblocksEvent(
 			$this->_event_id,
 			array(
-				'message_id' => $message_id,
+				'context_id' => $context_id,
 				'group_id' => $group_id,
 			)
 		);
@@ -61,10 +61,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		 * Message
 		 */
 		
-		@$message_id = $event_model->params['message_id'];
+		@$context_id = $event_model->params['context_id'];
 		$labels = array();
 		$values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $message_id, $labels, $values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $context_id, $labels, $values, null, true);
 
 		// Fill in some custom values
 		$values['sender_is_worker'] = (!empty($values['worker_id'])) ? 1 : 0;
@@ -172,7 +172,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 	
 	function renderSimulatorTarget($trigger, $event_model) {
 		$context = CerberusContexts::CONTEXT_MESSAGE;
-		$context_id = $event_model->params['message_id'];
+		$context_id = $event_model->params['context_id'];
 		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
 	}
 	

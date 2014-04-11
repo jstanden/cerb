@@ -20,19 +20,19 @@ abstract class AbstractEvent_ContactPerson extends Extension_DevblocksEvent {
 
 	/**
 	 *
-	 * @param integer $contact_id
+	 * @param integer $context_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel(Model_TriggerEvent $trigger, $contact_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $context_id=null) {
 		
-		if(empty($contact_id)) {
-			$contact_id = DAO_ContactPerson::random();
+		if(empty($context_id)) {
+			$context_id = DAO_ContactPerson::random();
 		}
 		
 		return new Model_DevblocksEvent(
 			$this->_event_id,
 			array(
-				'contact_id' => $contact_id,
+				'context_id' => $context_id,
 			)
 		);
 	}
@@ -45,10 +45,10 @@ abstract class AbstractEvent_ContactPerson extends Extension_DevblocksEvent {
 		 * Contact Person
 		 */
 		
-		@$contact_id = $event_model->params['contact_id'];
+		@$context_id = $event_model->params['context_id'];
 		$contact_labels = array();
 		$contact_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_CONTACT_PERSON, $contact_id, $contact_labels, $contact_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_CONTACT_PERSON, $context_id, $contact_labels, $contact_values, null, true);
 
 			// Merge
 			CerberusContexts::merge(
@@ -70,7 +70,7 @@ abstract class AbstractEvent_ContactPerson extends Extension_DevblocksEvent {
 	
 	function renderSimulatorTarget($trigger, $event_model) {
 		$context = CerberusContexts::CONTEXT_CONTACT_PERSON;
-		$context_id = $event_model->params['contact_id'];
+		$context_id = $event_model->params['context_id'];
 		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
 	}
 	

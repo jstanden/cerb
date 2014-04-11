@@ -20,18 +20,18 @@ abstract class AbstractEvent_VirtualAttendant extends Extension_DevblocksEvent {
 
 	/**
 	 *
-	 * @param integer $virtual_attendant_id
+	 * @param integer $context_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel(Model_TriggerEvent $trigger, $virtual_attendant_id=null) {
-		if(empty($virtual_attendant_id)) {
-			$virtual_attendant_id = $trigger->virtual_attendant_id;
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $context_id=null) {
+		if(empty($context_id)) {
+			$context_id = $trigger->virtual_attendant_id;
 		}
 		
 		return new Model_DevblocksEvent(
 			$this->_event_id,
 			array(
-				'virtual_attendant_id' => $virtual_attendant_id,
+				'context_id' => $context_id,
 			)
 		);
 	}
@@ -44,10 +44,10 @@ abstract class AbstractEvent_VirtualAttendant extends Extension_DevblocksEvent {
 		 * Virtual Attendant
 		 */
 		
-		@$virtual_attendant_id = $event_model->params['virtual_attendant_id'];
+		@$context_id = $event_model->params['context_id'];
 		$merge_labels = array();
 		$merge_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $virtual_attendant_id, $merge_labels, $merge_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $context_id, $merge_labels, $merge_values, null, true);
 
 			// Merge
 			CerberusContexts::merge(
@@ -69,7 +69,7 @@ abstract class AbstractEvent_VirtualAttendant extends Extension_DevblocksEvent {
 	
 	function renderSimulatorTarget($trigger, $event_model) {
 		$context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
-		$context_id = $event_model->params['virtual_attendant_id'];
+		$context_id = $event_model->params['context_id'];
 		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
 	}
 	

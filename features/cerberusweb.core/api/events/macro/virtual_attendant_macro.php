@@ -23,13 +23,13 @@ class Event_VirtualAttendantMacro extends AbstractEvent_VirtualAttendant {
 		$this->_event_id = self::ID;
 	}
 	
-	static function trigger($trigger_id, $virtual_attendant_id, $variables=array()) {
+	static function trigger($trigger_id, $context_id, $variables=array()) {
 		$events = DevblocksPlatform::getEventService();
 		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
 				array(
-					'virtual_attendant_id' => $virtual_attendant_id,
+					'context_id' => $context_id,
 					'_variables' => $variables,
 					'_whisper' => array(
 						'_trigger_id' => array($trigger_id),

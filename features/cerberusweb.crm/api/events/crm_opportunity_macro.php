@@ -19,13 +19,13 @@
 class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 	const ID = 'event.macro.crm.opportunity';
 	
-	static function trigger($trigger_id, $opp_id, $variables=array()) {
+	static function trigger($trigger_id, $context_id, $variables=array()) {
 		$events = DevblocksPlatform::getEventService();
 		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
 				array(
-					'opp_id' => $opp_id,
+					'context_id' => $context_id,
 					'_variables' => $variables,
 					'_whisper' => array(
 						'_trigger_id' => array($trigger_id),
@@ -37,12 +37,12 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 	
 	/**
 	 *
-	 * @param integer $opp_id
+	 * @param integer $context_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel(Model_TriggerEvent $trigger, $opp_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $context_id=null) {
 		
-		if(empty($opp_id)) {
+		if(empty($context_id)) {
 			// Pull the latest record
 			list($results) = DAO_CrmOpportunity::search(
 				array(),
@@ -60,13 +60,13 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 			
 			$result = array_shift($results);
 			
-			$opp_id = $result[SearchFields_CrmOpportunity::ID];
+			$context_id = $result[SearchFields_CrmOpportunity::ID];
 		}
 		
 		return new Model_DevblocksEvent(
 			self::ID,
 			array(
-				'opp_id' => $opp_id,
+				'context_id' => $context_id,
 			)
 		);
 	}
@@ -79,10 +79,10 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 		 * Opportunity
 		 */
 		
-		@$opp_id = $event_model->params['opp_id'];
+		@$context_id = $event_model->params['context_id'];
 		$opp_labels = array();
 		$opp_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $opp_labels, $opp_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $context_id, $opp_labels, $opp_values, null, true);
 
 			// Merge
 			CerberusContexts::merge(

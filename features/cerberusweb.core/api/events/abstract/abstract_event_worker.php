@@ -20,18 +20,18 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 
 	/**
 	 *
-	 * @param integer $worker_id
+	 * @param integer $context_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel(Model_TriggerEvent $trigger, $worker_id=null) {
-		if(empty($worker_id)) {
-			$worker_id = DAO_Worker::random();
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $context_id=null) {
+		if(empty($context_id)) {
+			$context_id = DAO_Worker::random();
 		}
 		
 		return new Model_DevblocksEvent(
 			$this->_event_id,
 			array(
-				'worker_id' => $worker_id,
+				'context_id' => $context_id,
 			)
 		);
 	}
@@ -44,10 +44,10 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 		 * Worker
 		 */
 		
-		@$worker_id = $event_model->params['worker_id'];
+		@$context_id = $event_model->params['context_id'];
 		$merge_labels = array();
 		$merge_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $merge_labels, $merge_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $context_id, $merge_labels, $merge_values, null, true);
 
 			// Merge
 			CerberusContexts::merge(
@@ -69,7 +69,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 	
 	function renderSimulatorTarget($trigger, $event_model) {
 		$context = CerberusContexts::CONTEXT_WORKER;
-		$context_id = $event_model->params['worker_id'];
+		$context_id = $event_model->params['context_id'];
 		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
 	}
 	

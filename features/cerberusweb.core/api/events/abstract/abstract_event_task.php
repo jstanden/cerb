@@ -20,19 +20,19 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 
 	/**
 	 *
-	 * @param integer $task_id
+	 * @param integer $context_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel(Model_TriggerEvent $trigger, $task_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $context_id=null) {
 		
-		if(empty($task_id)) {
-			$task_id = DAO_Task::random();
+		if(empty($context_id)) {
+			$context_id = DAO_Task::random();
 		}
 		
 		return new Model_DevblocksEvent(
 			$this->_event_id,
 			array(
-				'task_id' => $task_id,
+				'context_id' => $context_id,
 			)
 		);
 	}
@@ -45,10 +45,10 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 		 * Task
 		 */
 		
-		@$task_id = $event_model->params['task_id'];
+		@$context_id = $event_model->params['context_id'];
 		$task_labels = array();
 		$task_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_TASK, $task_id, $task_labels, $task_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_TASK, $context_id, $task_labels, $task_values, null, true);
 
 			// Merge
 			CerberusContexts::merge(
@@ -70,7 +70,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 	
 	function renderSimulatorTarget($trigger, $event_model) {
 		$context = CerberusContexts::CONTEXT_TASK;
-		$context_id = $event_model->params['task_id'];
+		$context_id = $event_model->params['context_id'];
 		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
 	}
 	

@@ -20,12 +20,12 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 
 	/**
 	 *
-	 * @param integer $comment_id
+	 * @param integer $context_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel(Model_TriggerEvent $trigger, $comment_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $context_id=null) {
 		
-		if(empty($comment_id)) {
+		if(empty($context_id)) {
 			// Pull the latest record
 			list($results) = DAO_Comment::search(
 				array(),
@@ -42,13 +42,13 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 			
 			$result = array_shift($results);
 			
-			$comment_id = $result[SearchFields_Comment::ID];
+			$context_id = $result[SearchFields_Comment::ID];
 		}
 		
 		return new Model_DevblocksEvent(
 			$this->_event_id,
 			array(
-				'comment_id' => $comment_id,
+				'context_id' => $context_id,
 			)
 		);
 	}
@@ -61,10 +61,10 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 		 * Comment
 		 */
 		
-		@$comment_id = $event_model->params['comment_id'];
+		@$context_id = $event_model->params['context_id'];
 		$merge_labels = array();
 		$merge_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_COMMENT, $comment_id, $merge_labels, $merge_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_COMMENT, $context_id, $merge_labels, $merge_values, null, true);
 
 			// Merge
 			CerberusContexts::merge(
@@ -86,7 +86,7 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 	
 	function renderSimulatorTarget($trigger, $event_model) {
 		$context = CerberusContexts::CONTEXT_COMMENT;
-		$context_id = $event_model->params['comment_id'];
+		$context_id = $event_model->params['context_id'];
 		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
 	}
 	

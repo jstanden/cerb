@@ -20,12 +20,12 @@ abstract class AbstractEvent_CalendarEvent extends Extension_DevblocksEvent {
 
 	/**
 	 *
-	 * @param integer $calendar_event_id
+	 * @param integer $context_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel(Model_TriggerEvent $trigger, $calendar_event_id=null) {
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $context_id=null) {
 		
-		if(empty($calendar_event_id)) {
+		if(empty($context_id)) {
 			// Pull the latest record
 			list($results) = DAO_CalendarEvent::search(
 				array(),
@@ -42,13 +42,13 @@ abstract class AbstractEvent_CalendarEvent extends Extension_DevblocksEvent {
 			
 			$result = array_shift($results);
 			
-			$calendar_event_id = $result[SearchFields_CalendarEvent::ID];
+			$context_id = $result[SearchFields_CalendarEvent::ID];
 		}
 		
 		return new Model_DevblocksEvent(
 			$this->_event_id,
 			array(
-				'calendar_event_id' => $calendar_event_id,
+				'context_id' => $context_id,
 			)
 		);
 	}
@@ -61,10 +61,10 @@ abstract class AbstractEvent_CalendarEvent extends Extension_DevblocksEvent {
 		 * Calendar Event
 		 */
 		
-		@$calendar_event_id = $event_model->params['calendar_event_id'];
+		@$context_id = $event_model->params['context_id'];
 		$merge_labels = array();
 		$merge_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_CALENDAR_EVENT, $calendar_event_id, $merge_labels, $merge_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_CALENDAR_EVENT, $context_id, $merge_labels, $merge_values, null, true);
 
 			// Merge
 			CerberusContexts::merge(
