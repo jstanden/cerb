@@ -2090,6 +2090,25 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 		return $fields;
 	}
 	
+	static function getIds($ids) {
+		if(!is_array($ids))
+			$ids = array($ids);
+
+		if(empty($ids))
+			return array();
+		
+		if(!method_exists(get_called_class(), 'getWhere'))
+			return array();
+		
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
+		
+		return self::getWhere(sprintf("id IN (%s)",
+			implode(',', $ids)
+		));
+	}
+	
 	static protected function paramExistsInSet($key, $params) {
 		$exists = false;
 		

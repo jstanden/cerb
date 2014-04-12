@@ -195,7 +195,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Load and filter by the current worker permissions
 		$active_worker_memberships = $active_worker->getMemberships();
 		
-		$dst_tickets = DAO_Ticket::getTickets($dst_ticket_ids);
+		$dst_tickets = DAO_Ticket::getIds($dst_ticket_ids);
 		foreach($dst_tickets as $dst_ticket_id => $dst_ticket) {
 			if($active_worker->is_superuser
 				|| (isset($active_worker_memberships[$dst_ticket->group_id]))) {

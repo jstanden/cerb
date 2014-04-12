@@ -750,7 +750,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		//====================================
 		// Undo functionality
-		$orig_tickets = DAO_Ticket::getTickets($ticket_ids);
+		$orig_tickets = DAO_Ticket::getIds($ticket_ids);
 		
 		$last_action = new Model_TicketViewLastAction();
 		$last_action->action = Model_TicketViewLastAction::ACTION_MOVE;
@@ -1114,7 +1114,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			if(empty($ticket_ids))
 				break;
 			
-			$tickets = DAO_Ticket::getTickets($ticket_ids);
+			$tickets = DAO_Ticket::getIds($ticket_ids);
 			if(is_array($tickets))
 			foreach($tickets as $ticket) { /* @var $ticket Model_Ticket */
 				$ptr =& $unique_sender_ids[$ticket->first_wrote_address_id];

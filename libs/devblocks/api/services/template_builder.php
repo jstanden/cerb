@@ -123,6 +123,7 @@ class _DevblocksTemplateBuilder {
 class DevblocksDictionaryDelegate {
 	private $_dictionary = null;
 	private $_cached_contexts = null;
+	private $_null = null;
 	
 	function __construct($dictionary) {
 		$this->_dictionary = $dictionary;
@@ -180,16 +181,12 @@ class DevblocksDictionaryDelegate {
 	}
 	
 	public function &__get($name) {
-		if($this->exists($name)) {
+		if($this->exists($name))
 			return $this->_dictionary[$name];
-		}
 		
 		// Lazy load
 		
 		$contexts = $this->getContextsForName($name);
-		
-		if(empty($contexts))
-			return null;
 		
 		while(null != ($context_data = array_shift($contexts))) {
 			$context_ext = $this->_dictionary[$context_data['key']];
@@ -219,11 +216,15 @@ class DevblocksDictionaryDelegate {
 			$this->_cached_contexts = null;
 		}
 		
+		if(!$this->exists($name))
+			return $this->_null;
+		
 		return $this->_dictionary[$name];
 	}
 	
+	// This lazy loads, and 'exists' doesn't.
 	public function __isset($name) {
-		if(null !== ($this->__get($name)))
+		if(null !== (@$this->__get($name)))
 			return true;
 		
 		return false;

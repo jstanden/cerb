@@ -554,43 +554,12 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	static function get($id) {
 		if(empty($id)) return NULL;
 		
-		$tickets = self::getTickets(array($id));
+		$tickets = self::getIds(array($id));
 		
 		if(isset($tickets[$id]))
 			return $tickets[$id];
 			
 		return NULL;
-	}
-	
-	static function getIds($ids) {
-		if(!is_array($ids))
-			$ids = array($ids);
-
-		if(empty($ids))
-			return array();;
-		
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
-		
-		return DAO_Ticket::getWhere(sprintf("id IN (%s)",
-			implode(',', $ids)
-		));
-	}
-	
-	/**
-	 * Enter description here...
-	 *
-	 * @param array $ids
-	 * @return Model_Ticket[]
-	 */
-	static function getTickets($ids=array()) {
-		if(!is_array($ids))
-			$ids = array($ids);
-		
-		return self::getWhere(
-			(!empty($ids) ? sprintf("id IN (%s) ",implode(',',$ids)) : " ")
-		);
 	}
 	
 	static function getWhere($where=null, $sortBy='updated_date', $sortAsc=true, $limit=null) {
