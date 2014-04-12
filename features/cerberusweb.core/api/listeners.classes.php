@@ -684,6 +684,26 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			$triggers = DAO_TriggerEvent::getByEvent($event->id, false);
 		}
 		
+		// Filter by matching event params on triggers
+		if(isset($event->params['_whisper']['event_params']) && isset($event->params['_whisper']['event_params'])) {
+			foreach($triggers as $trigger_id => $trigger) {
+				$pass = true;
+				
+				foreach($event->params['_whisper']['event_params'] as $k => $v) {
+					if(!$pass)
+						continue;
+					
+					if(!(isset($trigger->event_params[$k]) && $trigger->event_params[$k] == $v))
+						$pass = false;
+				}
+				
+				if(!$pass)
+					unset($triggers[$trigger_id]);
+			}
+			
+			unset($event->params['_whisper']['event_params']);
+		}
+		
 		// We're restricting the scope of the event
 		if(isset($event->params['_whisper']) && is_array($event->params['_whisper']) && !empty($event->params['_whisper'])) {
 			foreach($triggers as $trigger_id => $trigger) { /* @var $trigger Model_TriggerEvent */
