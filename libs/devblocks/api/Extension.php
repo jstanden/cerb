@@ -206,21 +206,25 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	}
 	
 	function getModelObjects(array $ids) {
+		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
+		$models = array();
+		
 		if(null == ($dao_class = $this->getDaoClass()))
-			return array();
+			return $models;
 		
-		if(!method_exists($dao_class, 'getWhere'))
-			return false;
+		if(method_exists($dao_class, 'getIds')) {
+			$models = $dao_class::getIds($ids);
+			
+		} elseif(method_exists($dao_class, 'getWhere')) {
+			$where = sprintf("id IN (%s)",
+				implode(',', $ids)
+			);
+			
+			// Get without sorting (optimization, no file sort)
+			$models = $dao_class::getWhere($where, null);
+		}
 		
-		$ids = DevblocksPlatform::sanitizeArray($ids, 'integer');
-		
-		$where = sprintf("%s IN (%s)",
-			Cerb_ORMHelper::escape('id'),
-			implode(',', $ids)
-		);
-		
-		// Get without sorting (optimization, no file sort)
-		return $dao_class::getWhere($where, null);
+		return $models;
 	}
 	
 	public function formatDictionaryValue($key, DevblocksDictionaryDelegate $dict) {
