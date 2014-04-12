@@ -669,7 +669,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 			if(method_exists($event,'generateSampleEventModel')) {
 				$event_model = $event->generateSampleEventModel($trigger);
-				$event->setEvent($event_model);
+				$event->setEvent($event_model, $trigger);
 				$values = $event->getValues();
 				$view->setPlaceholderValues($values);
 			}
@@ -2555,7 +2555,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 			$event = $macro->getEvent();
 			$event_model = $event->generateSampleEventModel($macro, $context_id);
-			$event->setEvent($event_model);
+			$event->setEvent($event_model, $macro);
 			$values = $event->getValues();
 			
 			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
@@ -2738,7 +2738,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			return;
 		
 		$event_model = $event->generateSampleEventModel($trigger, $job->context_id);
-		$event->setEvent($event_model);
+		$event->setEvent($event_model, $trigger);
 		$values = $event->getValues();
 		
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
@@ -3108,7 +3108,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			case 'outcome':
 				if(null != ($evt = $trigger->getEvent()))
 					$tpl->assign('conditions', $evt->getConditions($trigger));
-					
+				
 				// Action labels
 				$labels = $evt->getLabels($trigger);
 				$tpl->assign('labels', $labels);
@@ -3181,7 +3181,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			return;
 
 		$event_model = $ext_event->generateSampleEventModel($trigger, $context_id);
-		$ext_event->setEvent($event_model);
+		$ext_event->setEvent($event_model, $trigger);
 		
 		$event_params_json = json_encode($event_model->params);
 		$tpl->assign('event_params_json', $event_params_json);
@@ -3281,7 +3281,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 		}
 		
-		$ext_event->setEvent($event_model);
+		$ext_event->setEvent($event_model, $trigger);
 
 		$tpl->assign('event', $ext_event);
 		
@@ -3339,7 +3339,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$behavior_path = $trigger->runDecisionTree($dict, true);
 		$tpl->assign('behavior_path', $behavior_path);
 		
-		if(isset($dict->_simulator_output))
+		if($dict->exists('_simulator_output'))
 			$tpl->assign('simulator_output', $dict->_simulator_output);
 		
 		$logger->setLogLevel(0);
@@ -3716,6 +3716,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', '');
 			@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'],'integer', 0);
 			@$is_private = DevblocksPlatform::importGPC($_REQUEST['is_private'],'integer', 0);
+			@$event_params = DevblocksPlatform::importGPC($_REQUEST['event_params'],'array', array());
 			@$json = DevblocksPlatform::importGPC($_REQUEST['json'],'integer', 0);
 
 			// Variables
@@ -3788,6 +3789,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
 					DAO_TriggerEvent::IS_PRIVATE => !empty($is_private) ? 1 : 0,
 					DAO_TriggerEvent::POS => $pos,
+					DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($event_params),
 					DAO_TriggerEvent::VARIABLES_JSON => json_encode($variables),
 				));
 				
@@ -3831,6 +3833,7 @@ class ChInternalController extends DevblocksControllerExtension {
 						DAO_TriggerEvent::TITLE => $title,
 						DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
 						DAO_TriggerEvent::IS_PRIVATE => !empty($is_private) ? 1 : 0,
+						DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($event_params),
 						DAO_TriggerEvent::VARIABLES_JSON => json_encode($variables),
 					));
 				}
@@ -3968,7 +3971,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 		$event = $trigger->getEvent();
 		$event_model = $event->generateSampleEventModel($trigger);
-		$event->setEvent($event_model);
+		$event->setEvent($event_model, $trigger);
 		$values = $event->getValues();
 		
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();

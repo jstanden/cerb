@@ -31,7 +31,7 @@ abstract class AbstractEvent_ApiRequest extends Extension_DevblocksEvent {
 		);
 	}
 	
-	function setEvent(Model_DevblocksEvent $event_model=null) {
+	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
 		$labels = array();
 		$values = array();
 
@@ -90,8 +90,8 @@ abstract class AbstractEvent_ApiRequest extends Extension_DevblocksEvent {
 		return $vals_to_ctx;
 	}
 	
-	function getConditionExtensions() {
-		$labels = $this->getLabels();
+	function getConditionExtensions(Model_TriggerEvent $trigger) {
+		$labels = $this->getLabels($trigger);
 		$types = $this->getTypes();
 		
 		$labels['va_link'] = 'Virtual attendant is linked';
@@ -210,7 +210,7 @@ abstract class AbstractEvent_ApiRequest extends Extension_DevblocksEvent {
 		return $pass;
 	}
 	
-	function getActionExtensions() {
+	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
 			array(
 				'add_watchers' => array('label' =>'Add watchers'),
@@ -222,7 +222,7 @@ abstract class AbstractEvent_ApiRequest extends Extension_DevblocksEvent {
 				'set_links' => array('label' => 'Set links'),
 				'add_api_response' => array('label' => '(Add to API response message)'),
 			)
-			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
+			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 			
 		return $actions;

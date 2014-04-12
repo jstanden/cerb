@@ -683,12 +683,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		} else {
 			$triggers = DAO_TriggerEvent::getByEvent($event->id, false);
 		}
-
-		// Allowed
 		
-		if(empty($triggers))
-			return;
-
 		// We're restricting the scope of the event
 		if(isset($event->params['_whisper']) && is_array($event->params['_whisper']) && !empty($event->params['_whisper'])) {
 			foreach($triggers as $trigger_id => $trigger) { /* @var $trigger Model_TriggerEvent */
@@ -713,6 +708,9 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 				}
 			}
 		}
+		
+		if(empty($triggers))
+			return;
 		
 		if(null == ($mft = DevblocksPlatform::getExtension($event->id, false)))
 			return;
@@ -771,7 +769,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			
 			// Load the intermediate data ONCE! (if at least one VA is responding)
 			if(is_null($dict)) {
-				$event_ext->setEvent($event);
+				$event_ext->setEvent($event, $trigger);
 				$values = $event_ext->getValues();
 		
 				// Lazy-loader dictionary

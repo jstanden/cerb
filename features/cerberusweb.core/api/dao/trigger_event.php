@@ -25,6 +25,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	const EVENT_POINT = 'event_point';
 	const VIRTUAL_ATTENDANT_ID = 'virtual_attendant_id';
 	const POS = 'pos';
+	const EVENT_PARAMS_JSON = 'event_params_json';
 	const VARIABLES_JSON = 'variables_json';
 
 	static function create($fields) {
@@ -205,7 +206,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, title, is_disabled, is_private, event_point, virtual_attendant_id, pos, variables_json ".
+		$sql = "SELECT id, title, is_disabled, is_private, event_point, virtual_attendant_id, pos, event_params_json, variables_json ".
 			"FROM trigger_event ".
 			$where_sql.
 			$sort_sql.
@@ -235,6 +236,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			$object->event_point = $row['event_point'];
 			$object->virtual_attendant_id = $row['virtual_attendant_id'];
 			$object->pos = intval($row['pos']);
+			$object->event_params = @json_decode($row['event_params_json'], true);
 			$object->variables = @json_decode($row['variables_json'], true);
 			$objects[$object->id] = $object;
 		}
@@ -495,6 +497,7 @@ class Model_TriggerEvent {
 	public $event_point;
 	public $virtual_attendant_id;
 	public $pos;
+	public $event_params = array();
 	public $variables = array();
 	
 	private $_nodes = array();

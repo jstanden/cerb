@@ -123,6 +123,20 @@ if(!isset($columns['refreshed_at'])) {
 }
 
 // ===========================================================================
+// Modify `trigger_event` to include `event_params_json`
+
+if(!isset($tables['trigger_event'])) {
+	$logger->error("The 'trigger_event' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('trigger_event');
+
+if(!isset($columns['event_params_json'])) {
+	$db->Execute("ALTER TABLE trigger_event ADD COLUMN event_params_json TEXT");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

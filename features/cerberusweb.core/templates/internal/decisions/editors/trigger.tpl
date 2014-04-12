@@ -47,6 +47,12 @@
 	</tr>
 </table>
 
+<div class="event-params" style="margin-top:10px;">
+{if $trigger->id && $event}
+{$event->renderEventParams($trigger)}
+{/if}
+</div>
+
 <h3>Variables</h3>
 
 <div id="divBehaviorVariables{$trigger->id}">

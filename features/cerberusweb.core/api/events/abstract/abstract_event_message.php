@@ -56,7 +56,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		);
 	}
 	
-	function setEvent(Model_DevblocksEvent $event_model=null) {
+	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
 		/**
 		 * Message
 		 */
@@ -238,8 +238,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		return $vals_to_ctx;
 	}
 	
-	function getConditionExtensions() {
-		$labels = $this->getLabels();
+	function getConditionExtensions(Model_TriggerEvent $trigger) {
+		$labels = $this->getLabels($trigger);
 		$types = $this->getTypes();
 		
 		$labels['is_first'] = 'Message is first in conversation';
@@ -579,7 +579,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		return $pass;
 	}
 	
-	function getActionExtensions() {
+	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
 			array(
 				'add_recipients' => array('label' =>'Add recipients'),
@@ -601,7 +601,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				'set_subject' => array('label' => 'Set ticket subject'),
 				'set_links' => array('label' => 'Set links'),
 			)
-			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
+			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 		
 		return $actions;
@@ -1097,7 +1097,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				if($to_group_id != $current_group_id) {
 					$merge_token_labels = array();
 					$merge_token_values = array();
-					$labels = $this->getLabels();
+					$labels = $this->getLabels($trigger);
 					CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $to_group_id, $merge_token_labels, $merge_token_values, '', true);
 			
 					CerberusContexts::merge(
@@ -1113,7 +1113,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				if(!empty($to_bucket_id)) {
 					$merge_token_labels = array();
 					$merge_token_values = array();
-					$labels = $this->getLabels();
+					$labels = $this->getLabels($trigger);
 					CerberusContexts::getContext(CerberusContexts::CONTEXT_BUCKET, $to_bucket_id, $merge_token_labels, $merge_token_values, '', true);
 			
 					CerberusContexts::merge(

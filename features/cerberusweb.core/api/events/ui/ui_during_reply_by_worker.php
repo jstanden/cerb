@@ -40,7 +40,7 @@ class Event_MailDuringUiReplyByWorker extends AbstractEvent_Message {
 		);
 	}
 	
-	function getActionExtensions() {
+	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
 			array(
 				'exec_jquery' => array('label' =>'Execute jQuery script'),

@@ -71,7 +71,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 		);
 	}
 	
-	function setEvent(Model_DevblocksEvent $event_model=null) {
+	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
 		$labels = array();
 		$values = array();
 
@@ -138,8 +138,8 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 		return $vals_to_ctx;
 	}
 	
-	function getConditionExtensions() {
-		$labels = $this->getLabels();
+	function getConditionExtensions(Model_TriggerEvent $trigger) {
+		$labels = $this->getLabels($trigger);
 		$types = $this->getTypes();
 		
 		$labels['opp_link'] = 'Opportunity is linked';
@@ -289,7 +289,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 		return $pass;
 	}
 	
-	function getActionExtensions() {
+	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
 			array(
 				'add_watchers' => array('label' =>'Add watchers'),
@@ -301,7 +301,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				'set_links' => array('label' => 'Set links'),
 				'set_status' => array('label' => 'Set status'),
 			)
-			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
+			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 			
 		return $actions;

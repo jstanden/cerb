@@ -74,7 +74,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		);
 	}
 	
-	function setEvent(Model_DevblocksEvent $event_model=null) {
+	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
 		@$notification_id = $event_model->params['notification_id'];
 		
 		$labels = array();
@@ -119,8 +119,8 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		return $vals_to_ctx;
 	}
 	
-	function getConditionExtensions() {
-		$labels = $this->getLabels();
+	function getConditionExtensions(Model_TriggerEvent $trigger) {
+		$labels = $this->getLabels($trigger);
 		$types = $this->getTypes();
 		
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -152,7 +152,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		return $pass;
 	}
 	
-	function getActionExtensions() {
+	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions = array(
 			'send_email_owner' => array('label' => 'Send email to notified worker'),
 			'create_task' => array('label' =>'Create a task'),

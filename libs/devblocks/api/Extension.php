@@ -540,7 +540,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return $conditions;
 	}
 	
-	abstract function setEvent(Model_DevblocksEvent $event_model=null);
+	abstract function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger);
 	
 	function setLabels($labels) {
 		asort($labels);
@@ -558,11 +558,11 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return $this->_values;
 	}
 	
-	function getLabels($trigger = null) {
+	function getLabels(Model_TriggerEvent $trigger = null) {
 		// Lazy load
 		if(empty($this->_labels))
-			$this->setEvent(null);
-			
+			$this->setEvent(null, $trigger);
+		
 		if(null != $trigger && !empty($trigger->variables)) {
 			foreach($trigger->variables as $k => $var) {
 				$this->_labels[$k] = '(variable) ' . $var['label'];
@@ -666,7 +666,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return array_merge($cfields, $vars);
 	}
 	
-	// [TODO] Cache results for this request
+	function renderEventParams(Model_TriggerEvent $trigger) {}
+	
 	function getConditions($trigger) {
 		$conditions = array(
 			'_calendar_availability' => array('label' => '(Calendar availability)', 'type' => ''),
@@ -675,7 +676,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			'_day_of_week' => array('label' => '(Day of week)', 'type' => ''),
 			'_time_of_day' => array('label' => '(Time of day)', 'type' => ''),
 		);
-		$custom = $this->getConditionExtensions();
+		$custom = $this->getConditionExtensions($trigger);
 		
 		if(!empty($custom) && is_array($custom))
 			$conditions = array_merge($conditions, $custom);
@@ -704,13 +705,13 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return $conditions;
 	}
 	
-	abstract function getConditionExtensions();
+	abstract function getConditionExtensions(Model_TriggerEvent $trigger);
 	abstract function renderConditionExtension($token, $trigger, $params=array(), $seq=null);
 	abstract function runConditionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict);
 	
 	function renderCondition($token, $trigger, $params=array(), $seq=null) {
 		$conditions = $this->getConditions($trigger);
-		$condition_extensions = $this->getConditionExtensions();
+		$condition_extensions = $this->getConditionExtensions($trigger);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
@@ -804,7 +805,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	function runCondition($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$logger = DevblocksPlatform::getConsoleLog('Attendant');
 		$conditions = $this->getConditions($trigger);
-		$extensions = $this->getConditionExtensions();
+		$extensions = $this->getConditionExtensions($trigger);
 		$not = false;
 		$pass = true;
 		
@@ -1188,7 +1189,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			'_set_custom_var' => array('label' => '(Set a custom placeholder)'),
 			'_unschedule_behavior' => array('label' => '(Unschedule behavior)'),
 		);
-		$custom = $this->getActionExtensions();
+		$custom = $this->getActionExtensions($trigger);
 		
 		if(!empty($custom) && is_array($custom))
 			$actions = array_merge($actions, $custom);
@@ -1222,14 +1223,14 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return $actions;
 	}
 	
-	abstract function getActionExtensions();
+	abstract function getActionExtensions(Model_TriggerEvent $trigger);
 	abstract function renderActionExtension($token, $trigger, $params=array(), $seq=null);
 	abstract function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict);
 	protected function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {}
 	function renderSimulatorTarget($trigger, $event_model) {}
 	
 	function renderAction($token, $trigger, $params=array(), $seq=null) {
-		$actions = $this->getActionExtensions();
+		$actions = $this->getActionExtensions($trigger);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('trigger', $trigger);
@@ -1292,7 +1293,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 								return $tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_number.tpl');
 								break;
 							case Model_CustomField::TYPE_SINGLE_LINE:
-								return DevblocksEventHelper::renderActionSetVariableString($this->getLabels());
+								return DevblocksEventHelper::renderActionSetVariableString($this->getLabels($trigger));
 								break;
 							case Model_CustomField::TYPE_WORKER:
 								return DevblocksEventHelper::renderActionSetVariableWorker($token, $trigger, $params);
@@ -1321,7 +1322,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	
 	// Are we doing a dry run?
 	function simulateAction($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
-		$actions = $this->getActionExtensions();
+		$actions = $this->getActionExtensions($trigger);
 
 		if(null != (@$action = $actions[$token])) {
 			if(method_exists($this, 'simulateActionExtension'))
@@ -1375,7 +1376,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 	
 	function runAction($token, $trigger, $params, DevblocksDictionaryDelegate $dict, $dry_run=false) {
-		$actions = $this->getActionExtensions();
+		$actions = $this->getActionExtensions($trigger);
 		
 		$out = '';
 		

@@ -72,7 +72,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 			
 			$event = $macro->getEvent();
 			$event_model = $event->generateSampleEventModel($macro, $object->context_id);
-			$event->setEvent($event_model);
+			$event->setEvent($event_model, $macro);
 			$values = $event->getValues();
 			
 			$tpl_builder = DevblocksPlatform::getTemplateBuilder();

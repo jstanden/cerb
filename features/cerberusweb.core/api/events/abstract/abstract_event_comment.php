@@ -53,7 +53,7 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 		);
 	}
 	
-	function setEvent(Model_DevblocksEvent $event_model=null) {
+	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
 		$labels = array();
 		$values = array();
 
@@ -118,8 +118,8 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 		return $vals_to_ctx;
 	}
 	
-	function getConditionExtensions() {
-		$labels = $this->getLabels();
+	function getConditionExtensions(Model_TriggerEvent $trigger) {
+		$labels = $this->getLabels($trigger);
 		$types = $this->getTypes();
 
 		$labels['comment_context'] = 'Comment record type';
@@ -196,7 +196,7 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 		return $pass;
 	}
 	
-	function getActionExtensions() {
+	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
 			array(
 				'create_comment' => array('label' =>'Create a comment'),
@@ -205,7 +205,7 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'send_email' => array('label' => 'Send email'),
 			)
-			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
+			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 			
 		return $actions;

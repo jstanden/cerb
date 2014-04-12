@@ -86,7 +86,7 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 		);
 	}
 	
-	function setEvent(Model_DevblocksEvent $event_model=null) {
+	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
 		@$context = $event_model->params['context'];
 		@$view_id = $event_model->params['view_id'];
 		
@@ -126,8 +126,8 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 		return $vars;
 	}
 	
-	function getConditionExtensions() {
-		$labels = $this->getLabels();
+	function getConditionExtensions(Model_TriggerEvent $trigger) {
+		$labels = $this->getLabels($trigger);
 		
 		
 		$labels['context'] = 'Worklist Type';
@@ -201,7 +201,7 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 		return $pass;
 	}
 	
-	function getActionExtensions() {
+	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
 			array(
 				'exec_jquery' => array('label' =>'Execute jQuery script'),

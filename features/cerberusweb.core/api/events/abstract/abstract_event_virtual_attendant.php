@@ -36,7 +36,7 @@ abstract class AbstractEvent_VirtualAttendant extends Extension_DevblocksEvent {
 		);
 	}
 	
-	function setEvent(Model_DevblocksEvent $event_model=null) {
+	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
 		$labels = array();
 		$values = array();
 
@@ -93,8 +93,8 @@ abstract class AbstractEvent_VirtualAttendant extends Extension_DevblocksEvent {
 		return $vals_to_ctx;
 	}
 	
-	function getConditionExtensions() {
-		$labels = $this->getLabels();
+	function getConditionExtensions(Model_TriggerEvent $trigger) {
+		$labels = $this->getLabels($trigger);
 		$types = $this->getTypes();
 		
 		$labels['va_link'] = 'Virtual attendant is linked';
@@ -213,7 +213,7 @@ abstract class AbstractEvent_VirtualAttendant extends Extension_DevblocksEvent {
 		return $pass;
 	}
 	
-	function getActionExtensions() {
+	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
 			array(
 				'add_watchers' => array('label' =>'Add watchers'),
@@ -224,7 +224,7 @@ abstract class AbstractEvent_VirtualAttendant extends Extension_DevblocksEvent {
 				'send_email' => array('label' => 'Send email'),
 				'set_links' => array('label' => 'Set links'),
 			)
-			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels())
+			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 			
 		return $actions;
