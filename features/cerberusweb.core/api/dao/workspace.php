@@ -1230,6 +1230,8 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 			$page = DAO_WorkspacePage::get($page);
 		} elseif($page instanceof Model_WorkspacePage) {
 			// It's what we want already.
+		} elseif(is_array($page)) {
+			$page = Cerb_ORMHelper::recastArrayToModel($page, 'Model_WorkspacePage');
 		} else {
 			$page = null;
 		}
@@ -1461,6 +1463,8 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 			$tab = DAO_WorkspaceTab::get($tab);
 		} elseif($tab instanceof Model_WorkspaceTab) {
 			// It's what we want already.
+		} elseif(is_array($tab)) {
+			$tab = Cerb_ORMHelper::recastArrayToModel($tab, 'Model_WorkspaceTab');
 		} else {
 			$tab = null;
 		}

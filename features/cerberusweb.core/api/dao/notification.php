@@ -847,6 +847,8 @@ class Context_Notification extends Extension_DevblocksContext {
 			$notification = DAO_Notification::get($notification);
 		} elseif($notification instanceof Model_Notification) {
 			// It's what we want already.
+		} elseif(is_array($notification)) {
+			$notification = Cerb_ORMHelper::recastArrayToModel($notification, 'Model_Notification');
 		} else {
 			$notification = null;
 		}

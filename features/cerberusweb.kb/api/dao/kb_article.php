@@ -768,6 +768,8 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 			$article = DAO_KbArticle::get($article);
 		} elseif($article instanceof Model_KbArticle) {
 			// It's what we want already.
+		} elseif(is_array($article)) {
+			$article = Cerb_ORMHelper::recastArrayToModel($article, 'Model_KbArticle');
 		} else {
 			$article = null;
 		}

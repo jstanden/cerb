@@ -1184,6 +1184,8 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			$timeentry = DAO_TimeTrackingEntry::get($timeentry);
 		} elseif($timeentry instanceof Model_TimeTrackingEntry) {
 			// It's what we want already.
+		} elseif(is_array($timeentry)) {
+			$timeentry = Cerb_ORMHelper::recastArrayToModel($timeentry, 'Model_TimeTrackingEntry');
 		} else {
 			$timeentry = null;
 		}

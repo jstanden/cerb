@@ -1563,6 +1563,8 @@ class CerberusContexts {
 			$attachment = DAO_Attachment::get($attachment);
 		} elseif($attachment instanceof Model_Attachment) {
 			// It's what we want already.
+		} elseif(is_array($attachment)) {
+			$attachment = Cerb_ORMHelper::recastArrayToModel($attachment, 'Model_Attachment');
 		} else {
 			$attachment = null;
 		}
@@ -1634,7 +1636,7 @@ class Context_Application extends Extension_DevblocksContext {
 		);
 	}
 	
-	function getContext($app, &$token_labels, &$token_values, $prefix=null) {
+	function getContext($object, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Application:';
 			
@@ -1642,15 +1644,20 @@ class Context_Application extends Extension_DevblocksContext {
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_APPLICATION);
 		
 		// Polymorph
-		if(is_numeric($app)) {
-			$app = new Model_Application();
-			$app->name = 'Application';
- 		} elseif($app instanceof Model_Application) {
-			// It's what we want already.
-		} else {
-			$app = null;
-		}
+		if(is_numeric($object)) {
+			$object = new Model_Application();
+			$object->name = 'Application';
 			
+ 		} elseif($object instanceof Model_Application) {
+			// It's what we want already.
+			
+ 		} elseif(is_array($object)) {
+ 			$object = Cerb_ORMHelper::recastArrayToModel($object, 'Model_Application');
+			
+		} else {
+			$object = null;
+		}
+		
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
@@ -1674,7 +1681,7 @@ class Context_Application extends Extension_DevblocksContext {
 		$token_values['_types'] = $token_types;
 		
 		// Worker token values
-		if(null != $app) {
+		if(null != $object) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = 'Application';
 			$token_values['name'] = 'Application';
@@ -2075,6 +2082,17 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 		return $db->qstr($str);
 	}
 	
+	static function recastArrayToModel($array, $model_class) {
+		if(false == ($model = new $model_class))
+			return false;
+		
+		foreach($array as $k => $v) {
+			$model->$k = $v;
+		}
+		
+		return $model;
+	}
+	
 	static function uniqueFields($fields, $model) {
 		if(is_object($model))
 			$model = (array) $model;
@@ -2104,7 +2122,7 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 		
-		return self::getWhere(sprintf("id IN (%s)",
+		return static::getWhere(sprintf("id IN (%s)",
 			implode(',', $ids)
 		));
 	}

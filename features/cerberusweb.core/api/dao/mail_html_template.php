@@ -832,6 +832,8 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 			$mail_html_template = DAO_MailHtmlTemplate::get($mail_html_template);
 		} elseif($mail_html_template instanceof Model_MailHtmlTemplate) {
 			// It's what we want already.
+		} elseif(is_array($mail_html_template)) {
+			$mail_html_template = Cerb_ORMHelper::recastArrayToModel($mail_html_template, 'Model_MailHtmlTemplate');
 		} else {
 			$mail_html_template = null;
 		}

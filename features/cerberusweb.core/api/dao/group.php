@@ -1182,6 +1182,8 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$group = DAO_Group::get($group);
 		} elseif($group instanceof Model_Group) {
 			// It's what we want already.
+		} elseif(is_array($group)) {
+			$group = Cerb_ORMHelper::recastArrayToModel($group, 'Model_Group');
 		} else {
 			$group = null;
 		}

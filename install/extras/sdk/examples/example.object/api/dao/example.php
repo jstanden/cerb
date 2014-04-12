@@ -689,6 +689,8 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 			$object = DAO_ExampleObject::get($object);
 		} elseif($object instanceof Model_ExampleObject) {
 			// It's what we want already.
+		} elseif(is_array($object)) {
+			$object = Cerb_ORMHelper::recastArrayToModel($object, 'Model_ExampleObject');
 		} else {
 			$object = null;
 		}

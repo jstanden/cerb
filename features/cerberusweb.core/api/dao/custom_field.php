@@ -995,6 +995,8 @@ class Context_CustomField extends Extension_DevblocksContext {
 			$cfield = DAO_CustomField::get($cfield);
  		} elseif($cfield instanceof Model_CustomField) {
 			// It's what we want already.
+		} elseif(is_array($cfield)) {
+			$cfield = Cerb_ORMHelper::recastArrayToModel($cfield, 'Model_CustomField');
 		} else {
 			$cfield = null;
 		}

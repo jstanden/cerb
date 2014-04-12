@@ -190,7 +190,7 @@ class DAO_Address extends Cerb_ORMHelper {
 			)
 		);
 	}
-		
+	
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -1224,10 +1224,16 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		// Polymorph
 		if(is_numeric($address)) {
 			$address = DAO_Address::get($address);
+			
+		} elseif(is_array($address)) {
+			$address = Cerb_ORMHelper::recastArrayToModel($address, 'Model_Address');
+			
 		} elseif($address instanceof Model_Address) {
 			// It's what we want already.
+			
 		} elseif(is_string($address)) {
 			$address = DAO_Address::getByEmail($address);
+			
 		} else {
 			$address = null;
 		}

@@ -1030,6 +1030,8 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 			$virtual_attendant = DAO_VirtualAttendant::get($virtual_attendant);
 		} elseif($virtual_attendant instanceof Model_VirtualAttendant) {
 			// It's what we want already.
+		} elseif(is_array($virtual_attendant)) {
+			$virtual_attendant = Cerb_ORMHelper::recastArrayToModel($virtual_attendant, 'Model_VirtualAttendant');
 		} else {
 			$virtual_attendant = null;
 		}

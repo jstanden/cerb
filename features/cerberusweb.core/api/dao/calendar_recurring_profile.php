@@ -1096,6 +1096,8 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			$calendar_recurring_profile = DAO_CalendarRecurringProfile::get($calendar_recurring_profile);
 		} elseif($calendar_recurring_profile instanceof Model_CalendarRecurringProfile) {
 			// It's what we want already.
+		} elseif(is_array($calendar_recurring_profile)) {
+			$calendar_recurring_profile = Cerb_ORMHelper::recastArrayToModel($calendar_recurring_profile, 'Model_CalendarRecurringProfile');
 		} else {
 			$calendar_recurring_profile = null;
 		}

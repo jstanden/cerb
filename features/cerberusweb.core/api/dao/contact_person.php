@@ -959,6 +959,8 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 			$person = DAO_ContactPerson::get($person);
 		} elseif($person instanceof Model_ContactPerson) {
 			// It's what we want already.
+		} elseif(is_array($person)) {
+			$person = Cerb_ORMHelper::recastArrayToModel($person, 'Model_ContactPerson');
 		} else {
 			$person = null;
 		}

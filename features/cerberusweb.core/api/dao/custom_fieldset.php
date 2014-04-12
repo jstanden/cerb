@@ -1002,6 +1002,8 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 			$cfieldset = DAO_CustomFieldset::get($cfieldset);
 		} elseif($cfieldset instanceof Model_CustomFieldset) {
 			// It's what we want already.
+		} elseif(is_array($cfieldset)) {
+			$cfieldset = Cerb_ORMHelper::recastArrayToModel($cfieldset, 'Model_CustomFieldset');
 		} else {
 			$cfieldset = null;
 		}

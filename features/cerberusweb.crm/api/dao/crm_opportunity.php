@@ -1170,6 +1170,8 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			$opp = DAO_CrmOpportunity::get($opp);
 		} elseif($opp instanceof Model_CrmOpportunity) {
 			// It's what we want already.
+		} elseif(is_array($opp)) {
+			$opp = Cerb_ORMHelper::recastArrayToModel($opp, 'Model_CrmOpportunity');
 		} else {
 			$opp = null;
 		}

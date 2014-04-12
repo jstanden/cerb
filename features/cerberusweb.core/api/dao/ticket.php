@@ -680,7 +680,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	static function _processUpdateEvents($ids, $change_fields) {
 
 		// We only care about these fields, so abort if they aren't referenced
-		
+
 		$observed_fields = array(
 			DAO_Ticket::OWNER_ID,
 			DAO_Ticket::GROUP_ID,
@@ -3268,6 +3268,9 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$ticket = DAO_Ticket::get($ticket);
 		} elseif($ticket instanceof Model_Ticket) {
 			// It's what we want
+		} elseif(is_array($ticket)) {
+			// [TODO] Cfields?
+			$ticket = Cerb_ORMHelper::recastArrayToModel($ticket, 'Model_Ticket');
 		} else {
 			$ticket = null;
 		}

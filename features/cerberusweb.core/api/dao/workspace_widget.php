@@ -426,6 +426,8 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 			$widget = DAO_WorkspaceWidget::get($widget);
 		} elseif($widget instanceof Model_WorkspaceWidget) {
 			// It's what we want already.
+		} elseif(is_array($widget)) {
+			$widget = Cerb_ORMHelper::recastArrayToModel($widget, 'Model_WorkspaceWidget');
 		} else {
 			$widget = null;
 		}

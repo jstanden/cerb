@@ -1091,6 +1091,8 @@ class Context_Comment extends Extension_DevblocksContext {
 			$comment = DAO_Comment::get($comment);
 		} elseif($comment instanceof Model_Comment) {
 			// It's what we want already.
+		} elseif(is_array($comment)) {
+			$comment = Cerb_ORMHelper::recastArrayToModel($comment, 'Model_Comment');
 		} else {
 			$comment = null;
 		}

@@ -726,6 +726,8 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 			$entry = DAO_ContextActivityLog::get($entry);
 		} elseif($entry instanceof Model_ContextActivityLog) {
 			// It's what we want already.
+		} elseif(is_array($entry)) {
+			$entry = Cerb_ORMHelper::recastArrayToModel($entry, 'Model_ContextActivityLog');
 		} else {
 			$entry = null;
 		}

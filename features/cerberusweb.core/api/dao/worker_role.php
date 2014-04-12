@@ -363,6 +363,8 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 			$role = DAO_WorkerRole::get($role);
 		} elseif($role instanceof Model_WorkerRole) {
 			// It's what we want already.
+		} elseif(is_array($role)) {
+			$role = Cerb_ORMHelper::recastArrayToModel($role, 'Model_WorkerRole');
 		} else {
 			$role = null;
 		}

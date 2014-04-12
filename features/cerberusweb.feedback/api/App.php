@@ -1083,6 +1083,8 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 			$feedback = DAO_FeedbackEntry::get($feedback);
 		} elseif($feedback instanceof Model_FeedbackEntry) {
 			// It's what we want already.
+		} elseif(is_array($feedback)) {
+			$feedback = Cerb_ORMHelper::recastArrayToModel($feedback, 'Model_FeedbackEntry');
 		} else {
 			$feedback = null;
 		}

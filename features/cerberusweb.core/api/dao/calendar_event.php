@@ -897,6 +897,8 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 			$calendar_event = DAO_CalendarEvent::get($calendar_event);
 		} elseif($calendar_event instanceof Model_CalendarEvent) {
 			// It's what we want already.
+		} elseif(is_array($calendar_event)) {
+			$calendar_event = Cerb_ORMHelper::recastArrayToModel($calendar_event, 'Model_CalendarEvent');
 		} else {
 			$calendar_event = null;
 		}

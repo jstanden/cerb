@@ -930,6 +930,8 @@ class Context_KbCategory extends Extension_DevblocksContext {
 			$category = DAO_KbCategory::get($category);
 		} elseif($category instanceof Model_KbCategory) {
 			// It's what we want already.
+		} elseif(is_array($category)) {
+			$category = Cerb_ORMHelper::recastArrayToModel($category, 'Model_KbCategory');
 		} else {
 			$category = null;
 		}

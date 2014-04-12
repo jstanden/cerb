@@ -172,7 +172,7 @@ class DAO_Task extends Cerb_ORMHelper {
 		
 		return self::_getObjectsFromResult($rs);
 	}
-
+	
 	/**
 	 * @param integer $id
 	 * @return Model_Task	 */
@@ -1009,6 +1009,8 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			$task = DAO_Task::get($task);
 		} elseif($task instanceof Model_Task) {
 			// It's what we want already.
+		} elseif(is_array($task)) {
+			$task = Cerb_ORMHelper::recastArrayToModel($task, 'Model_Task');
 		} else {
 			$task = null;
 		}

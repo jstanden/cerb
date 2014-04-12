@@ -869,6 +869,8 @@ class Context_Draft extends Extension_DevblocksContext {
 			$object = DAO_MailQueue::get($object);
 		} elseif($object instanceof Model_MailQueue) {
 			// It's what we want already.
+		} elseif(is_array($object)) {
+			$object = Cerb_ORMHelper::recastArrayToModel($object, 'Model_MailQueue');
 		} else {
 			$object = null;
 		}

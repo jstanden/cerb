@@ -1065,6 +1065,8 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			$org = DAO_ContactOrg::get($org);
 		} elseif($org instanceof Model_ContactOrg) {
 			// It's what we want already.
+		} elseif(is_array($org)) {
+			$org = Cerb_ORMHelper::recastArrayToModel($org, 'Model_ContactOrg');
 		} else {
 			$org = null;
 		}

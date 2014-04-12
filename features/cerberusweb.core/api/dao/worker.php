@@ -1534,6 +1534,8 @@ class Context_Worker extends Extension_DevblocksContext {
 			$worker = DAO_Worker::get($worker);
 		} elseif($worker instanceof Model_Worker) {
 			// It's what we want already.
+		} elseif(is_array($worker)) {
+			$worker = Cerb_ORMHelper::recastArrayToModel($worker, 'Model_Worker');
 		} else {
 			$worker = null;
 		}

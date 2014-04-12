@@ -467,6 +467,10 @@ class Context_Bucket extends Extension_DevblocksContext {
 			
 		} elseif($bucket instanceof Model_Bucket) {
 			// It's what we want already.
+			
+		} elseif(is_array($bucket)) {
+			$bucket = Cerb_ORMHelper::recastArrayToModel($bucket, 'Model_Bucket');
+			
 		} else {
 			$bucket = null;
 		}

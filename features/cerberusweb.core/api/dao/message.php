@@ -1928,6 +1928,8 @@ class Context_Message extends Extension_DevblocksContext {
 			$message = DAO_Message::get($message);
 		} elseif($message instanceof Model_Message) {
 			// It's what we want already.
+		} elseif(is_array($message)) {
+			$message = Cerb_ORMHelper::recastArrayToModel($message, 'Model_Message');
 		} else {
 			$message = null;
 		}

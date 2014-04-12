@@ -126,7 +126,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		
 		return self::_getObjectsFromResult($rs);
 	}
-
+	
 	/**
 	 * @param integer $id
 	 * @return Model_Snippet
@@ -1039,6 +1039,8 @@ class Context_Snippet extends Extension_DevblocksContext {
 			$snippet = DAO_Snippet::get($snippet);
 		} elseif($snippet instanceof Model_Snippet) {
 			// It's what we want already.
+		} elseif(is_array($snippet)) {
+			$snippet = Cerb_ORMHelper::recastArrayToModel($snippet, 'Model_Snippet');
 		} else {
 			$snippet = null;
 		}

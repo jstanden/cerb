@@ -1274,6 +1274,8 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			$calendar = DAO_Calendar::get($calendar);
 		} elseif($calendar instanceof Model_Calendar) {
 			// It's what we want already.
+		} elseif(is_array($calendar)) {
+			$calendar = Cerb_ORMHelper::recastArrayToModel($calendar, 'Model_Calendar');
 		} else {
 			$calendar = null;
 		}
