@@ -1591,6 +1591,80 @@ class CerberusContexts {
 		
 		return true;
 	}
+	
+	static function getModels($context, array $ids) {
+		$ids = DevblocksPlatform::importVar($ids, 'array:integer', array());
+
+		$models = array();
+		
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return $models;
+		
+		if(false == ($dao_class = $context_ext->getDaoClass()))
+			return $models;
+
+		if(method_exists($dao_class, 'getIds')) {
+			$models = $dao_class::getIds($ids);
+			
+		} elseif(method_exists($dao_class, 'getWhere')) {
+			$models = $dao_class::getWhere(sprintf("id IN (%s)", implode(',', $ids)), null);
+		}
+		
+		return $models;
+	}
+	
+	static private $_context_checkpoints = array();
+	
+	static function checkpointChanges($context, $ids, $change_fields) {
+		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
+		
+		if(!isset(self::$_context_checkpoints[$context]))
+			self::$_context_checkpoints[$context] = array();
+		
+		// Cache full model objects the first time we encounter an ID (before persisting any changes)
+
+		$load_ids = array_diff($ids, array_keys(self::$_context_checkpoints[$context]));
+		
+		$models = CerberusContexts::getModels($context, $load_ids);
+		
+		foreach($models as $model_id => $model) {
+			self::$_context_checkpoints[$context][$model_id] = array(
+				json_decode(json_encode($model), true)
+			);
+		}
+		
+		unset($load_ids);
+		unset($models);
+		
+		// Cache the deltas
+		foreach($ids as $id) {
+			self::$_context_checkpoints[$context][$id][] = $change_fields;
+		}
+	}
+	
+	static function shutdown() {
+		if(empty(self::$_context_checkpoints))
+			return;
+		
+		foreach(self::$_context_checkpoints as $context => $checkpoints) {
+			foreach($checkpoints as $context_id => $changesets) {
+				$old_model = reset($changesets);
+				$new_model = $old_model;
+				
+				// Start with the first revision on top of the base
+				while($changes = next($changesets)) {
+					$new_model = array_merge($new_model, $changes);
+				}
+				
+				// $change_fields
+				Event_RecordChanged::trigger($context, $new_model, $old_model);
+				
+				unset($current);
+				unset($baseline);
+			}
+		}
+		
+	}
 };
 
 class Model_Application {

@@ -445,6 +445,10 @@
 			<class name="AbstractEvent_Org" />
 		</file>
 		
+		<file path="api/events/abstract/abstract_event_record.php">
+			<class name="AbstractEvent_Record" />
+		</file>
+		
 		<file path="api/events/abstract/abstract_event_task.php">
 			<class name="AbstractEvent_Task" />
 		</file>
@@ -471,6 +475,10 @@
 		
 		<file path="api/events/app/comment_created_by_worker.php">
 			<class name="Event_CommentCreatedByWorker" />
+		</file>
+		
+		<file path="api/events/app/record_changed.php">
+			<class name="Event_RecordChanged" />
 		</file>
 		
 		<file path="api/events/app/task_created_by_worker.php">
@@ -1659,6 +1667,24 @@
 		</extension>
 		
 		<extension point="devblocks.event">
+			<id>event.record.changed</id>
+			<name>Record changed</name>
+			<class>
+				<file>api/events/app/record_changed.php</file>
+				<name>Event_RecordChanged</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.group" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
 			<id>event.macro.address</id>
 			<name>Custom address behavior</name>
 			<class>
@@ -1945,7 +1971,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.comment.created.worker</id>
-			<name>New comment on a record</name>
+			<name>Record commented on</name>
 			<class>
 				<file>api/events/app/comment_created_by_worker.php</file>
 				<name>Event_CommentCreatedByWorker</name>
