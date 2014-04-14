@@ -38,7 +38,7 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 		return $id;
 	}
 	
-	static function update($ids, $fields) {
+	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
@@ -49,14 +49,16 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 			if(empty($batch_ids))
 				continue;
 			
-			// Get state before changes
-			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
-
+			// Send events
+			if($check_deltas) {
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_ROLE, $batch_ids, $fields);
+			}
+			
 			// Make changes
 			parent::_update($batch_ids, 'worker_role', $fields);
 			
 			// Send events
-			if(!empty($object_changes)) {
+			if($check_deltas) {
 				
 				// Trigger an event about the changes
 				$eventMgr = DevblocksPlatform::getEventService();
@@ -64,7 +66,7 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 					new Model_DevblocksEvent(
 						'dao.role.update',
 						array(
-							'objects' => $object_changes,
+							'fields' => $fields,
 						)
 					)
 				);

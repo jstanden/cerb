@@ -69,7 +69,7 @@ foreach($fields as $field_name => $field_type) {
 		return $id;
 	}
 	
-	static function update($ids, $fields) {
+	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
@@ -79,25 +79,24 @@ foreach($fields as $field_name => $field_type) {
 		while($batch_ids = array_shift($chunks)) {
 			if(empty($batch_ids))
 				continue;
+				
+			// Send events
+			if($check_deltas) {
+				//CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_, $batch_ids, $fields);
+			}
 			
-			// Get state before changes
-			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
-
 			// Make changes
 			parent::_update($batch_ids, '<?php echo $table_name; ?>', $fields);
 			
 			// Send events
-			if(!empty($object_changes)) {
-				// Local events
-				//self::_processUpdateEvents($object_changes);
-				
+			if($check_deltas) {
 				// Trigger an event about the changes
 				$eventMgr = DevblocksPlatform::getEventService();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.<?php echo $table_name; ?>.update',
 						array(
-							'objects' => $object_changes,
+							'fields' => $fields,
 						)
 					)
 				);

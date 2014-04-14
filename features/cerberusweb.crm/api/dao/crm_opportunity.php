@@ -52,7 +52,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		return $id;
 	}
 	
-	static function update($ids, $fields) {
+	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
@@ -62,17 +62,19 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		while($batch_ids = array_shift($chunks)) {
 			if(empty($batch_ids))
 				continue;
-			
-			// Get state before changes
-			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
 
+			// Send events
+			if($check_deltas) {
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_OPPORTUNITY, $batch_ids, $fields);
+			}
+			
 			// Make changes
 			parent::_update($batch_ids, 'crm_opportunity', $fields);
 			
 			// Send events
-			if(!empty($object_changes)) {
+			if($check_deltas) {
 				// Local events
-				self::_processUpdateEvents($object_changes);
+				self::_processUpdateEvents($batch_ids, $fields);
 				
 				// Trigger an event about the changes
 				$eventMgr = DevblocksPlatform::getEventService();
@@ -80,7 +82,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 					new Model_DevblocksEvent(
 						'dao.crm_opportunity.update',
 						array(
-							'objects' => $object_changes,
+							'fields' => $fields,
 						)
 					)
 				);
@@ -91,29 +93,44 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		}
 	}
 	
-	static function _processUpdateEvents($objects) {
-		if(is_array($objects))
-		foreach($objects as $object_id => $object) {
-			@$model = $object['model'];
-			@$changes = $object['changes'];
+	static function _processUpdateEvents($ids, $change_fields) {
+		// We only care about these fields, so abort if they aren't referenced
+
+		$observed_fields = array(
+			DAO_CrmOpportunity::IS_CLOSED,
+			DAO_CrmOpportunity::IS_WON,
+		);
+		
+		$used_fields = array_intersect($observed_fields, array_keys($change_fields));
+		
+		if(empty($used_fields))
+			return;
+		
+		// Load records only if they're needed
+		
+		if(false == ($models = DAO_CrmOpportunity::getIds($ids)))
+			return;
+		
+		foreach($models as $model) {
+			/*
+			 * Opp status changed
+			 */
 			
-			if(empty($model) || empty($changes))
-				continue;
+			if(
+				isset($change_fields[DAO_CrmOpportunity::IS_CLOSED])
+				|| isset($change_fields[DAO_CrmOpportunity::IS_WON])
+			) {
 				
-			if(!empty($changes[DAO_CrmOpportunity::IS_CLOSED])
-				|| !empty($changes[DAO_CrmOpportunity::IS_WON])) {
-				
-				// We only care about things that are closed.
-				if(empty($model[DAO_CrmOpportunity::IS_CLOSED])) {
+				if(!$model->is_closed) {
 					$activity_point = 'opp.status.open';
 					$status_to = 'open';
 					
 				} else {
-					if(!empty($model[DAO_CrmOpportunity::IS_WON])) {
+					if($model->is_won) {
 						$activity_point = 'opp.status.closed_won';
 						$status_to = 'closed/won';
 						
-					} else { // closed_lost
+					} else {
 						$activity_point = 'opp.status.closed_lost';
 						$status_to = 'closed/lost';
 					}
@@ -126,16 +143,17 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 					//{{actor}} changed opportunity {{target}} to status {{status}}
 					'message' => 'activities.opp.status',
 					'variables' => array(
-						'target' => sprintf("%s", $model[DAO_CrmOpportunity::NAME]),
+						'target' => sprintf("%s", $model->name),
 						'status' => $status_to,
 						),
 					'urls' => array(
-						'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_OPPORTUNITY, $object_id, $model[DAO_CrmOpportunity::NAME]),
+						'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_OPPORTUNITY, $model->id, $model->name),
 						)
 				);
-				CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_OPPORTUNITY, $object_id, $entry);
+				CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_OPPORTUNITY, $model->id, $entry);
 			}
 		}
+		
 	}
 	
 	static function updateWhere($fields, $where) {

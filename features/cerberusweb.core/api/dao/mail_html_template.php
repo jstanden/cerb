@@ -48,29 +48,8 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 			if(empty($batch_ids))
 				continue;
 			
-			// Get state before changes
-			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
-
 			// Make changes
 			parent::_update($batch_ids, 'mail_html_template', $fields);
-			
-			// Send events
-			if(!empty($object_changes)) {
-				
-				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
-				$eventMgr->trigger(
-					new Model_DevblocksEvent(
-						'dao.mail_html_template.update',
-						array(
-							'objects' => $object_changes,
-						)
-					)
-				);
-				
-				// Log the context update
-				//DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_, $batch_ids);
-			}
 		}
 		
 		self::clearCache();

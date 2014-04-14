@@ -72,7 +72,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	 * @param array $fields
 	 * @return Model_ContactOrg
 	 */
-	static function update($ids, $fields) {
+	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
@@ -83,14 +83,16 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			if(empty($batch_ids))
 				continue;
 			
-			// Get state before changes
-			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
-
+			// Send events
+			if($check_deltas) {
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_ORG, $batch_ids, $fields);
+			}
+			
 			// Make changes
 			parent::_update($batch_ids, 'contact_org', $fields);
 			
 			// Send events
-			if(!empty($object_changes)) {
+			if($check_deltas) {
 				
 				// Trigger an event about the changes
 				$eventMgr = DevblocksPlatform::getEventService();
@@ -98,7 +100,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 					new Model_DevblocksEvent(
 						'dao.contact_org.update',
 						array(
-							'objects' => $object_changes,
+							'fields' => $fields,
 						)
 					)
 				);

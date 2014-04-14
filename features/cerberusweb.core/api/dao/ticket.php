@@ -640,39 +640,33 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		while($batch_ids = array_shift($chunks)) {
 			if(empty($batch_ids))
 				continue;
+
+			// Send events
+			if($check_deltas) {
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TICKET, $batch_ids, $fields);
+			}
 			
 			// Make changes
 			parent::_update($batch_ids, 'ticket', $fields);
 			
-			// Send events
 			if($check_deltas) {
+				// Trigger local events
+				self::_processUpdateEvents($batch_ids, $fields);
 				
-				// Ignore these fields
-				
-				$ignore_fields = array(
-					DAO_Ticket::CREATED_DATE,
-					DAO_Ticket::ELAPSED_RESOLUTION_FIRST,
-					DAO_Ticket::ELAPSED_RESPONSE_FIRST,
-					DAO_Ticket::FIRST_MESSAGE_ID,
-					DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID,
-					DAO_Ticket::FIRST_WROTE_ID,
-					DAO_Ticket::INTERESTING_WORDS,
-					DAO_Ticket::ID,
-					DAO_Ticket::LAST_MESSAGE_ID,
-					DAO_Ticket::LAST_WROTE_ID,
-					DAO_Ticket::NUM_MESSAGES,
-					DAO_Ticket::UPDATED_DATE,
+				// Trigger an event about the changes
+				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr->trigger(
+					new Model_DevblocksEvent(
+						'dao.ticket.update',
+						array(
+							'ids' => $batch_ids,
+							'fields' => $fields,
+						)
+					)
 				);
 				
-				$change_fields = array_diff_key($fields, $ignore_fields);
-				
-				if(!empty($change_fields)) {
-					// Trigger local events
-					self::_processUpdateEvents($batch_ids, $change_fields);
-					
-					// Log the context update
-					DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TICKET, $batch_ids);
-				}
+				// Log the context update
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TICKET, $batch_ids);
 			}
 		}
 	}

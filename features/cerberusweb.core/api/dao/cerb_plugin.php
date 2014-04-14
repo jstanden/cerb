@@ -26,26 +26,6 @@ class DAO_CerbPlugin extends Cerb_ORMHelper {
 	const LINK = 'link';
 	const MANIFEST_CACHE_JSON = 'manifest_cache_json';
 
-// 	static function create($fields) {
-// 		$db = DevblocksPlatform::getDatabaseService();
-		
-// 		$sql = "INSERT INTO cerb_plugin () VALUES ()";
-// 		$db->Execute($sql);
-// 		$id = $db->LastInsertId();
-		
-// 		self::update($id, $fields);
-		
-// 		return $id;
-// 	}
-	
-// 	static function update($ids, $fields) {
-// 		parent::_update($ids, 'cerb_plugin', $fields);
-// 	}
-	
-// 	static function updateWhere($fields, $where) {
-// 		parent::_updateWhere('cerb_plugin', $fields, $where);
-// 	}
-	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy

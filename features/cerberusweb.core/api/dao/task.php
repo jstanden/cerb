@@ -80,7 +80,7 @@ class DAO_Task extends Cerb_ORMHelper {
 		return $id;
 	}
 	
-	static function update($ids, $fields) {
+	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
@@ -91,16 +91,18 @@ class DAO_Task extends Cerb_ORMHelper {
 			if(empty($batch_ids))
 				continue;
 			
-			// Get state before changes
-			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
-
+			// Send events
+			if($check_deltas) {
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TASK, $batch_ids, $fields);
+			}
+			
 			// Make changes
 			parent::_update($batch_ids, 'task', $fields);
 			
 			// Send events
-			if(!empty($object_changes)) {
+			if($check_deltas) {
 				// Local events
-				self::_processUpdateEvents($object_changes);
+				self::_processUpdateEvents($batch_ids, $fields);
 				
 				// Trigger an event about the changes
 				$eventMgr = DevblocksPlatform::getEventService();
@@ -108,7 +110,7 @@ class DAO_Task extends Cerb_ORMHelper {
 					new Model_DevblocksEvent(
 						'dao.task.update',
 						array(
-							'objects' => $object_changes,
+							'fields' => $fields,
 						)
 					)
 				);
@@ -119,21 +121,30 @@ class DAO_Task extends Cerb_ORMHelper {
 		}
 	}
 	
-	static function _processUpdateEvents($objects) {
-		if(is_array($objects))
-		foreach($objects as $object_id => $object) {
-			@$model = $object['model'];
-			@$changes = $object['changes'];
-			
-			if(empty($model) || empty($changes))
-				continue;
+	static function _processUpdateEvents($ids, $change_fields) {
+		// We only care about these fields, so abort if they aren't referenced
+
+		$observed_fields = array(
+			DAO_Task::IS_COMPLETED,
+		);
+		
+		$used_fields = array_intersect($observed_fields, array_keys($change_fields));
+		
+		if(empty($used_fields))
+			return;
+		
+		// Load records only if they're needed
+		
+		if(false == ($models = DAO_Task::getIds($ids)))
+			return;
+		
+		foreach($models as $model) {
 			
 			/*
 			 * Task completed
 			 */
-			@$is_completed = $changes[DAO_Task::IS_COMPLETED];
 			
-			if(!empty($is_completed) && !empty($model[DAO_Task::IS_COMPLETED])) {
+			if(isset($change_fields[DAO_Task::IS_COMPLETED]) && $model->is_completed) {
 				/*
 				 * Log activity (task.status.*)
 				 */
@@ -141,16 +152,16 @@ class DAO_Task extends Cerb_ORMHelper {
 					//{{actor}} completed task {{target}}
 					'message' => 'activities.task.status.completed',
 					'variables' => array(
-						'target' => sprintf("%s", $model[DAO_Task::TITLE]),
+						'target' => sprintf("%s", $model->title),
 						),
 					'urls' => array(
-						'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_TASK, $object_id)
+						'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_TASK, $model->id)
 						)
 				);
-				CerberusContexts::logActivity('task.status.completed', CerberusContexts::CONTEXT_TASK, $object_id, $entry);
+				CerberusContexts::logActivity('task.status.completed', CerberusContexts::CONTEXT_TASK, $model->id, $entry);
 			}
-			
-		} // foreach
+		}
+		
 	}
 	
 	static function updateWhere($fields, $where) {

@@ -246,7 +246,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		return $results;
 	}
 	
-	static function update($ids, $fields, $option_bits=0) {
+	static function update($ids, $fields, $option_bits=0, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
@@ -257,17 +257,19 @@ class DAO_Worker extends Cerb_ORMHelper {
 			if(empty($batch_ids))
 				continue;
 			
-			// Get state before changes
-			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
-
+			// Send events
+			if($check_deltas) {
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_WORKER, $batch_ids, $fields);
+			}
+			
 			// Make changes
 			parent::_update($batch_ids, 'worker', $fields);
 			
 			// Send events
 			if(0 == ($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_EVENTS)) {
-				if(!empty($object_changes)) {
+				if($check_deltas) {
 					// Local events
-					self::_processUpdateEvents($object_changes);
+					self::_processUpdateEvents($batch_ids, $fields);
 					
 					// Trigger an event about the changes
 					$eventMgr = DevblocksPlatform::getEventService();
@@ -275,7 +277,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 						new Model_DevblocksEvent(
 							'dao.worker.update',
 							array(
-								'objects' => $object_changes,
+								'fields' => $fields,
 							)
 						)
 					);
@@ -292,25 +294,31 @@ class DAO_Worker extends Cerb_ORMHelper {
 		}
 	}
 	
-	static function _processUpdateEvents($objects) {
-		if(is_array($objects))
-		foreach($objects as $object_id => $object) {
-			@$model = $object['model'];
-			@$changes = $object['changes'];
-			
-			if(empty($model) || empty($changes))
-				continue;
-			
+	static function _processUpdateEvents($ids, $change_fields) {
+		// We only care about these fields, so abort if they aren't referenced
+
+		$observed_fields = array(
+			DAO_Worker::IS_DISABLED,
+		);
+		
+		$used_fields = array_intersect($observed_fields, array_keys($change_fields));
+		
+		if(empty($used_fields))
+			return;
+		
+		// Load records only if they're needed
+		
+		if(false == ($models = DAO_Worker::getIds($ids)))
+			return;
+		
+		foreach($models as $model) {
 			/*
 			 * Worker deactivated
 			 */
-			@$is_disabled = $changes[DAO_Worker::IS_DISABLED];
-			
-			if(!empty($is_disabled) && !empty($model[DAO_Worker::IS_DISABLED])) {
-				Cerb_DevblocksSessionHandler::destroyByWorkerIds($model[DAO_Worker::ID]);
+			if(isset($change_fields[DAO_Worker::IS_DISABLED]) && $model->is_disabled) {
+				Cerb_DevblocksSessionHandler::destroyByWorkerIds($model->id);
 			}
-			
-		} // foreach
+		}
 	}
 	
 	static function maint() {

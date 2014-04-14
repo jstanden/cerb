@@ -2996,7 +2996,7 @@ Brea, CA 92822 USA&lt;br&gt;&#13;
     </tu>
     <tu tuid="activities.datacenter.sensor.status">
       <tuv xml:lang="pt_PT">
-        <seg>Estado do sensor {{sensor}} mudou de {{status_from}} para {{status_to}}</seg>
+        <seg>Estado do sensor {{sensor}} mudou para {{status_to}}</seg>
       </tuv>
     </tu>
     <tu tuid="activities.opp.status">

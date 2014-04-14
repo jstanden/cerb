@@ -155,7 +155,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @param array $fields
 	 */
-	static function update($ids, $fields) {
+	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
@@ -165,15 +165,17 @@ class DAO_Group extends Cerb_ORMHelper {
 		while($batch_ids = array_shift($chunks)) {
 			if(empty($batch_ids))
 				continue;
-			
-			// Get state before changes
-			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
+
+			// Send events
+			if($check_deltas) {
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_GROUP, $batch_ids, $fields);
+			}
 
 			// Make changes
 			parent::_update($batch_ids, 'worker_group', $fields);
 			
 			// Send events
-			if(!empty($object_changes)) {
+			if($check_deltas) {
 				
 				// Trigger an event about the changes
 				$eventMgr = DevblocksPlatform::getEventService();
@@ -181,7 +183,7 @@ class DAO_Group extends Cerb_ORMHelper {
 					new Model_DevblocksEvent(
 						'dao.group.update',
 						array(
-							'objects' => $object_changes,
+							'fields' => $fields,
 						)
 					)
 				);
