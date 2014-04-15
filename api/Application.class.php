@@ -638,6 +638,7 @@ class CerberusContexts {
 	const CONTEXT_APPLICATION = 'cerberusweb.contexts.app';
 	const CONTEXT_ACTIVITY_LOG = 'cerberusweb.contexts.activity_log';
 	const CONTEXT_ADDRESS = 'cerberusweb.contexts.address';
+	const CONTEXT_ASSET = 'cerberusweb.contexts.asset';
 	const CONTEXT_ATTACHMENT = 'cerberusweb.contexts.attachment';
 	const CONTEXT_BUCKET = 'cerberusweb.contexts.bucket';
 	const CONTEXT_CALENDAR = 'cerberusweb.contexts.calendar';
@@ -2160,6 +2161,7 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 		if(false == ($model = new $model_class))
 			return false;
 		
+		if(is_array($array))
 		foreach($array as $k => $v) {
 			$model->$k = $v;
 		}

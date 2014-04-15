@@ -168,7 +168,7 @@
 			
 			genericAjaxGet('', 'c=internal&a=addTriggerVariable&type=' +  encodeURIComponent(field_type), function(o) {
 				var $container = $('#divBehaviorVariables{$trigger->id}');
-				var $html = $(o).appendTo($container);
+				$container.html(o);
 			});
 			
 			$menu.hide();

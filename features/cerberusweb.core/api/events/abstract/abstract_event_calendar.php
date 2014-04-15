@@ -94,7 +94,7 @@ abstract class AbstractEvent_Calendar extends Extension_DevblocksEvent {
 	
 	function getValuesContexts($trigger) {
 		$vals = array(
-			'event_id' => array(
+			'calendar_id' => array(
 				'label' => 'Calendar',
 				'context' => CerberusContexts::CONTEXT_CALENDAR,
 			),
@@ -209,23 +209,23 @@ abstract class AbstractEvent_Calendar extends Extension_DevblocksEvent {
 	}
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
-		@$event_id = $dict->event_id;
+		@$calendar_id = $dict->calendar_id;
 
-		if(empty($event_id))
+		if(empty($calendar_id))
 			return;
 		
 		switch($token) {
 // 			case 'add_watchers':
-// 				return DevblocksEventHelper::simulateActionAddWatchers($params, $dict, 'event_id');
+// 				return DevblocksEventHelper::simulateActionAddWatchers($params, $dict, 'calendar_id');
 // 				break;
 			case 'create_comment':
-				return DevblocksEventHelper::simulateActionCreateComment($params, $dict, 'event_id');
+				return DevblocksEventHelper::simulateActionCreateComment($params, $dict, 'calendar_id');
 				break;
 			case 'create_notification':
-				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict, 'event_id');
+				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict, 'calendar_id');
 				break;
 			case 'create_task':
-				return DevblocksEventHelper::simulateActionCreateTask($params, $dict, 'event_id');
+				return DevblocksEventHelper::simulateActionCreateTask($params, $dict, 'calendar_id');
 				break;
 			case 'create_ticket':
 				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict);
@@ -241,26 +241,26 @@ abstract class AbstractEvent_Calendar extends Extension_DevblocksEvent {
 	}
 	
 	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
-		@$event_id = $dict->event_id;
+		@$calendar_id = $dict->calendar_id;
 
-		if(empty($event_id))
+		if(empty($calendar_id))
 			return;
 		
 		switch($token) {
 // 			case 'add_watchers':
-// 				DevblocksEventHelper::runActionAddWatchers($params, $dict, 'event_id');
+// 				DevblocksEventHelper::runActionAddWatchers($params, $dict, 'calendar_id');
 // 				break;
 			
 			case 'create_comment':
-				DevblocksEventHelper::runActionCreateComment($params, $dict, 'event_id');
+				DevblocksEventHelper::runActionCreateComment($params, $dict, 'calendar_id');
 				break;
 				
 			case 'create_notification':
-				DevblocksEventHelper::runActionCreateNotification($params, $dict, 'event_id');
+				DevblocksEventHelper::runActionCreateNotification($params, $dict, 'calendar_id');
 				break;
 				
 			case 'create_task':
-				DevblocksEventHelper::runActionCreateTask($params, $dict, 'event_id');
+				DevblocksEventHelper::runActionCreateTask($params, $dict, 'calendar_id');
 				break;
 
 			case 'create_ticket':

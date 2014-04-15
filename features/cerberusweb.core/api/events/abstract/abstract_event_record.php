@@ -26,22 +26,29 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 	function generateSampleEventModel(Model_TriggerEvent $trigger, $context_id=null) {
 		@$context = $trigger->event_params['context'];
 		$change_fields = array();
+
+		$old_model = null;
+		$new_model = null;
 		
 		if(empty($context_id)) {
 			if(null == ($context_ext = Extension_DevblocksContext::get($context)))
 				return;
 			
-			if(false != ($dao_class = $context_ext->getDaoClass()))
-				if(false != ($id = $dao_class::random())) {
-					$old_model = $id;
-					$new_model = $id;
-				}
+			if(false != ($dao_class = $context_ext->getDaoClass())) {
+				$context_id = $dao_class::random();
+			}
+		}
+		
+		if(!empty($context_id)) {
+			$old_model = $context_id;
+			$new_model = $context_id;
 		}
 		
 		return new Model_DevblocksEvent(
 			$this->_event_id,
 			array(
 				'context' => @$trigger->event_params['context'],
+				'context_id' => $context_id,
 				'old_model' => $old_model,
 				'new_model' => $new_model,
 				'_trigger' => $trigger,
@@ -190,7 +197,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		return $vals_to_ctx;
 	}
 	
-	function renderEventParams(Model_TriggerEvent $trigger) {
+	function renderEventParams(Model_TriggerEvent $trigger=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		// [TODO] Formal watched change fields

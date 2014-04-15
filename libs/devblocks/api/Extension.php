@@ -486,6 +486,16 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return $events;
 	}
 	
+	public static function get($id, $as_instance=true) {
+		$events = self::getAll(false);
+		
+		if(isset($events[$id])) {
+			return $events[$id]->createInstance();
+		}
+		
+		return null;
+	}
+	
 	public static function getByContext($context, $as_instances=false) {
 		$events = self::getAll(false);
 		
@@ -670,7 +680,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return array_merge($cfields, $vars);
 	}
 	
-	function renderEventParams(Model_TriggerEvent $trigger) {}
+	function renderEventParams(Model_TriggerEvent $trigger=null) {}
 	
 	function getConditions($trigger) {
 		$conditions = array(

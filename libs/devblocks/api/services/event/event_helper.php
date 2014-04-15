@@ -1956,6 +1956,8 @@ class DevblocksEventHelper {
 			DAO_Comment::COMMENT => $content,
 		);
 		
+		$comment_id = null;
+		
 		// On: Are we linking these comments to something else?
 		
 		@$on = DevblocksPlatform::importVar($params['on'],'string',$default_on);

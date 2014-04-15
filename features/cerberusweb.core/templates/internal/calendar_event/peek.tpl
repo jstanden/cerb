@@ -3,7 +3,7 @@
 
 <form action="#" method="POST" id="frmCalEvtPeek" name="frmCalEvtPeek" onsubmit="return false;" class="calendar_popup">
 <input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="saveCalendarEventPopup">
+<input type="hidden" name="a" value="saveCalendarEventPopupJson">
 <input type="hidden" name="event_id" value="{$event->id}">
 {if !empty($view_id)}
 <input type="hidden" name="view_id" value="{$view_id}">
