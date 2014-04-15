@@ -288,6 +288,13 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::events/model/ticket/condition_group_and_bucket.tpl');
 				break;
 				
+			case 'headers':
+			case 'ticket_initial_message_headers':
+			case 'ticket_initial_response_message_headers':
+			case 'ticket_latest_message_headers':
+				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_header.tpl');
+				break;
+				
 			case 'sender_org_watcher_count':
 			case 'sender_watcher_count':
 			case 'ticket_org_watcher_count':
@@ -331,6 +338,42 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				@$bucket_id = intval($dict->ticket_bucket_id);
 				
 				$pass = ($group_id==$in_group_id) && in_array($bucket_id, $in_bucket_ids);
+				$pass = ($not) ? !$pass : $pass;
+				break;
+				
+			case 'headers':
+			case 'ticket_initial_response_message_headers':
+			case 'ticket_initial_message_headers':
+			case 'ticket_latest_message_headers':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				@$header = strtolower($params['header']);
+				@$param_value = $params['value'];
+				
+				// Lazy load
+				$header_values = $dict->$token;
+				@$value = (is_array($header_values) && isset($header_values[$header])) ? $header_values[$header] : '';
+				
+				// Operators
+				switch($oper) {
+					case 'is':
+						$pass = (0==strcasecmp($value, $param_value));
+						break;
+					case 'like':
+						$regexp = DevblocksPlatform::strToRegExp($param_value);
+						$pass = @preg_match($regexp, $value);
+						break;
+					case 'contains':
+						$pass = (false !== stripos($value, $param_value)) ? true : false;
+						break;
+					case 'regexp':
+						$pass = @preg_match($param_value, $value);
+						break;
+					default:
+						$pass = false;
+						break;
+				}
+				
 				$pass = ($not) ? !$pass : $pass;
 				break;
 			
