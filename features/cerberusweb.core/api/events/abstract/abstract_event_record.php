@@ -205,7 +205,20 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		$tpl->assign('trigger', $trigger);
 		
 		$contexts = Extension_DevblocksContext::getAll();
-		$tpl->assign('contexts', $contexts);
+		$events = Extension_DevblocksEvent::getAll();
+		
+		$macro_contexts = array();
+		
+		foreach($events as $event) {
+			@$event_context = $event->params['macro_context'];
+			
+			if(!empty($event_context) && isset($contexts[$event_context]))
+				$macro_contexts[] = $contexts[$event_context];
+		}
+		
+		DevblocksPlatform::sortObjects($macro_contexts, 'name');
+		
+		$tpl->assign('contexts', $macro_contexts);
 		
 		$tpl->display('devblocks:cerberusweb.core::events/record/params_record_changed.tpl');
 	}
