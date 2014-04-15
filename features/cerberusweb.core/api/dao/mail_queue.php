@@ -122,6 +122,10 @@ class DAO_MailQueue extends DevblocksORMHelper {
 		return $objects;
 	}
 	
+	static function random() {
+		return self::_getRandom('mail_queue');
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
@@ -823,7 +827,7 @@ class Context_Draft extends Extension_DevblocksContext {
 	}
 	
 	function getRandom() {
-		//return DAO_MailQueue::random();
+		return DAO_MailQueue::random();
 	}
 	
 	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {

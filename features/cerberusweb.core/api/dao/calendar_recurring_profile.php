@@ -181,6 +181,10 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
+	static function random() {
+		return self::_getRandom('calendar_recurring_profile');
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
@@ -1022,7 +1026,7 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 
 class Context_CalendarRecurringProfile extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	function getRandom() {
-		//return DAO_CalendarRecurringProfile::random();
+		return DAO_CalendarRecurringProfile::random();
 	}
 	
 	function profileGetUrl($context_id) {

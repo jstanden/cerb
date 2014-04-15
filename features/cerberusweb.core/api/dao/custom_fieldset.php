@@ -210,6 +210,10 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
+	static function random() {
+		return self::_getRandom('custom_fieldset');
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids))
 			$ids = array($ids);
@@ -947,7 +951,7 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 
 class Context_CustomFieldset extends Extension_DevblocksContext {
 	function getRandom() {
-		//return DAO_CustomFieldset::random();
+		return DAO_CustomFieldset::random();
 	}
 	
 	function getMeta($context_id) {

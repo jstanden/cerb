@@ -89,7 +89,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		return null;
 	}
 
-	static function getRandom() {
+	static function random() {
 		return parent::_getRandom('virtual_attendant');
 	}
 	
@@ -958,7 +958,7 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 
 class Context_VirtualAttendant extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	function getRandom() {
-		//return DAO_VirtualAttendant::random();
+		return DAO_VirtualAttendant::random();
 	}
 	
 	function profileGetUrl($context_id) {

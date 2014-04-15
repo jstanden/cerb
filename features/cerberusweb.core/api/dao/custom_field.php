@@ -144,6 +144,10 @@ class DAO_CustomField extends DevblocksORMHelper {
 		return $objects;
 	}
 	
+	static function random() {
+		return self::_getRandom('custom_field');
+	}
+	
 	public static function delete($ids) {
 		if(!is_array($ids))
 			$ids = array($ids);
@@ -968,7 +972,7 @@ class Context_CustomField extends Extension_DevblocksContext {
 	}
 	
 	function getRandom() {
-		//return DAO_WorkerRole::random();
+		return DAO_CustomField::random();
 	}
 	
 	function getMeta($context_id) {

@@ -494,6 +494,10 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
+	static function random() {
+		return self::_getRandom('workspace_tab');
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids))
 			$ids = array($ids);
@@ -968,6 +972,10 @@ class DAO_WorkspaceList extends DevblocksORMHelper {
 		parent::_updateWhere('workspace_list', $fields, $where);
 	}
 	
+	static function random() {
+		return self::_getRandom('workspace_list');
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		
@@ -1192,7 +1200,7 @@ class View_WorkspacePage extends C4_AbstractView {
 
 class Context_WorkspacePage extends Extension_DevblocksContext {
 	function getRandom() {
-		//return DAO_Address::random();
+		return DAO_WorkspacePage::random();
 	}
 	
 	function getMeta($context_id) {
@@ -1431,7 +1439,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 
 class Context_WorkspaceTab extends Extension_DevblocksContext {
 	function getRandom() {
-		//return DAO_WorkspaceTab::random();
+		return DAO_WorkspaceTab::random();
 	}
 	
 	function getMeta($context_id) {

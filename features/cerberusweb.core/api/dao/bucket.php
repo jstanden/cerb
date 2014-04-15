@@ -179,6 +179,10 @@ class DAO_Bucket extends DevblocksORMHelper {
 
 		self::clearCache();
 	}
+
+	static function random() {
+		return self::_getRandom('bucket');
+	}
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
@@ -417,9 +421,7 @@ class Context_Bucket extends Extension_DevblocksContext {
 	}
 	
 	function getRandom() {
-		// [TODO]
-		//return DAO_Bucket::random();
-		return null;
+		return DAO_Bucket::random();
 	}
 	
 	function getMeta($context_id) {

@@ -137,6 +137,10 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
+	static function random() {
+		return self::_getRandom('workspace_widget');
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
@@ -371,7 +375,7 @@ class Model_WorkspaceWidget {
 
 class Context_WorkspaceWidget extends Extension_DevblocksContext {
 	function getRandom() {
-		//return DAO_WorkspaceTab::random();
+		return DAO_WorkspaceTab::random();
 	}
 	
 	function getMeta($context_id) {

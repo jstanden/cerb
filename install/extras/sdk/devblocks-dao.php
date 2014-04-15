@@ -176,6 +176,10 @@ foreach($fields as $field_name => $field_type) {
 		return $objects;
 	}
 	
+	static function random() {
+		return self::_getRandom('<?php echo $table_name; ?>');
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
@@ -872,7 +876,7 @@ foreach($fields as $field_name => $field_type) {
 <textarea style="width:98%;height:200px;">
 class Context_<?php echo $class_name;?> extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	function getRandom() {
-		//return DAO_<?php echo $class_name; ?>::random();
+		return DAO_<?php echo $class_name; ?>::random();
 	}
 	
 	function profileGetUrl($context_id) {

@@ -1690,7 +1690,7 @@ class Context_Application extends Extension_DevblocksContext {
 	}
 	
 	function getRandom() {
-		//return DAO_WorkerRole::random();
+		return 0;
 	}
 	
 	function getMeta($context_id) {

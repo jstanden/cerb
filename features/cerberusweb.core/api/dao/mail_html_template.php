@@ -135,6 +135,10 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
+	static function random() {
+		return self::_getRandom('mail_html_template');
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
@@ -763,7 +767,7 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 
 class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	function getRandom() {
-		//return DAO_MailHtmlTemplate::random();
+		return DAO_MailHtmlTemplate::random();
 	}
 	
 	function profileGetUrl($context_id) {

@@ -34,7 +34,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_ADDRESS, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CALENDAR, $batch_ids, $fields);
 			}
 			
 			// Make changes
@@ -187,6 +187,10 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		mysqli_free_result($rs);
 		
 		return $objects;
+	}
+	
+	static function random() {
+		return self::_getRandom('calendar');
 	}
 	
 	static function delete($ids) {
@@ -1205,7 +1209,7 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals {
 
 class Context_Calendar extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	function getRandom() {
-		//return DAO_Calendar::random();
+		return DAO_Calendar::random();
 	}
 	
 	function profileGetUrl($context_id) {

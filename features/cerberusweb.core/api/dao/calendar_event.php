@@ -72,7 +72,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_ADDRESS, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CALENDAR_EVENT, $batch_ids, $fields);
 			}
 			
 			// Make changes
@@ -161,6 +161,10 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 		mysqli_free_result($rs);
 		
 		return $objects;
+	}
+	
+	static function random() {
+		return self::_getRandom('calendar_event');
 	}
 	
 	static function delete($ids) {
@@ -848,9 +852,7 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 	}
 	
 	function getRandom() {
-		// [TODO]
-		//return DAO_CalendarEvent::random();
-		return null;
+		return DAO_CalendarEvent::random();
 	}
 	
 	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {

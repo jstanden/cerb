@@ -106,6 +106,10 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 		
 		return $objects;
 	}
+
+	static function random() {
+		return self::_getRandom('context_activity_log');
+	}
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
@@ -668,7 +672,7 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 
 class Context_ContextActivityLog extends Extension_DevblocksContext {
 	function getRandom() {
-		return null;
+		return DAO_ContextActivityLog::random();
 	}
 	
 	function getMeta($context_id) {

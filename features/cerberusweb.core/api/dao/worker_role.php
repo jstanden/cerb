@@ -204,6 +204,10 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 		return $objects;
 	}
 	
+	static function random() {
+		return self::_getRandom('worker_role');
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
@@ -326,7 +330,7 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 	}
 	
 	function getRandom() {
-		//return DAO_WorkerRole::random();
+		return DAO_WorkerRole::random();
 	}
 	
 	function getMeta($context_id) {
