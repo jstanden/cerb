@@ -75,14 +75,16 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 		$labels = array();
 		$values = array();
 
+		// We can accept a model object or a context_id
+		@$model = $event_model->params['context_model'] ?: $event_model->params['context_id'];
+		
 		/**
 		 * Opportunity
 		 */
 		
-		@$context_id = $event_model->params['context_id'];
 		$opp_labels = array();
 		$opp_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $context_id, $opp_labels, $opp_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $model, $opp_labels, $opp_values, null, true);
 
 			// Merge
 			CerberusContexts::merge(

@@ -41,14 +41,16 @@ abstract class AbstractEvent_ContactPerson extends Extension_DevblocksEvent {
 		$labels = array();
 		$values = array();
 
+		// We can accept a model object or a context_id
+		@$model = $event_model->params['context_model'] ?: $event_model->params['context_id'];
+		
 		/**
 		 * Contact Person
 		 */
 		
-		@$context_id = $event_model->params['context_id'];
 		$contact_labels = array();
 		$contact_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_CONTACT_PERSON, $context_id, $contact_labels, $contact_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_CONTACT_PERSON, $model, $contact_labels, $contact_values, null, true);
 
 			// Merge
 			CerberusContexts::merge(

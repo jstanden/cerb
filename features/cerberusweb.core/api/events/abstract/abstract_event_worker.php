@@ -40,6 +40,9 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 		$labels = array();
 		$values = array();
 
+		// We can accept a model object or a context_id
+		@$model = $event_model->params['context_model'] ?: $event_model->params['context_id'];
+		
 		/**
 		 * Worker
 		 */
@@ -47,7 +50,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 		@$context_id = $event_model->params['context_id'];
 		$merge_labels = array();
 		$merge_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $context_id, $merge_labels, $merge_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $model, $merge_labels, $merge_values, null, true);
 
 			// Merge
 			CerberusContexts::merge(

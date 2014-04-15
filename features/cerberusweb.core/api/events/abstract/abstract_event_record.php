@@ -28,7 +28,6 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		$change_fields = array();
 		
 		if(empty($context_id)) {
-			
 			if(null == ($context_ext = Extension_DevblocksContext::get($context)))
 				return;
 			
@@ -60,6 +59,9 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		if(!is_null($this->_delegate))
 			return $this->_delegate;
 		
+		if(empty($context))
+			return false;
+		
 		// Load the VA of the current macro
 		$macros = Extension_DevblocksEvent::getAll();
 		
@@ -68,7 +70,11 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 			return ($event_context == $context);
 		});
 		
+		if(empty($macros))
+			return false;
+		
 		$mft = array_shift($macros); /* @var $mft DevblocksExtensionManifest */
+		
 		$delegate = $mft->createInstance();
 		
 		$event_model = new Model_DevblocksEvent(
@@ -97,7 +103,8 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		 * Delegate to the custom behavior for this context type
 		 */
 		
-		$delegate = $this->_getCustomContextBehavior($context, $new_model);
+		if(false == ($delegate = $this->_getCustomContextBehavior($context, $new_model)))
+			return;
 		
 		$macro_labels = $delegate->getLabels($trigger);
 		$macro_values = $delegate->getValues();
@@ -112,11 +119,6 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 			$values
 		);
 		
-		// [TODO] Move this to the parent so it's shared everywhere
-		
-		var_dump($old_model);
-		var_dump($new_model);
-
 		if(is_array($old_model) && !empty($old_model)) {
 			if(null == ($context_ext = Extension_DevblocksContext::get($context)))
 				return;
@@ -144,11 +146,6 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 			$values
 		);
 		
-		unset($values['_labels']);
-		unset($values['_types']);
-		
-		var_dump($values);
-		
 		/**
 		 * Return
 		 */
@@ -164,8 +161,9 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 	}
 	
 	function getValuesContexts($trigger) {
-		// [TODO] Test what trigger does here
-		$delegate = $this->_getCustomContextBehavior($trigger->event_params['context']);
+		// [TODO] Test what trigger vars do here
+		if(false == ($delegate = $this->_getCustomContextBehavior($trigger->event_params['context'])))
+			return;
 		
 		$vals_to_ctx = $delegate->getValuesContexts($trigger);
 		
@@ -235,16 +233,12 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 	function runConditionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$pass = true;
 		
-		// [TODO] strip old_ and new_ and feed to the delegate
-		var_dump($token);
-		var_dump($dict->id);
-		
 		switch($token) {
 			default:
-				$delegate = $this->_getCustomContextBehavior($trigger->event_params['context'], $dict->id);
-				var_dump($delegate);
+				if(false == ($delegate = $this->_getCustomContextBehavior($trigger->event_params['context'], $dict->id)))
+					break;
+				
 				$pass = $delegate->runConditionExtension($token, $trigger, $params, $dict);
-				var_dump($pass);
 				break;
 		}
 		
@@ -252,7 +246,9 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
-		$delegate = $this->_getCustomContextBehavior($trigger->event_params['context']);
+		if(false == ($delegate = $this->_getCustomContextBehavior($trigger->event_params['context'])))
+			return;
+		
 		$actions = $delegate->getActionExtensions($trigger);
 		return $actions;
 	}
@@ -269,7 +265,9 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		
 		switch($token) {
 			default:
-				$delegate = $this->_getCustomContextBehavior($trigger->event_params['context']);
+				if(false == ($delegate = $this->_getCustomContextBehavior($trigger->event_params['context'])))
+					break;
+				
 				return $delegate->renderActionExtension($token, $trigger, $params, $seq);
 				break;
 		}
@@ -283,7 +281,9 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 
 		switch($token) {
 			default:
-				$delegate = $this->_getCustomContextBehavior($trigger->event_params['context'], $dict->id);
+				if(false == ($delegate = $this->_getCustomContextBehavior($trigger->event_params['context'], $dict->id)))
+					break;
+				
 				$delegate->simulateAction($token, $trigger, $params, $dict);
 				break;
 		}
@@ -293,7 +293,9 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		
 		switch($token) {
 			default:
-				$delegate = $this->_getCustomContextBehavior($trigger->event_params['context'], $dict->id);
+				if(false == ($delegate = $this->_getCustomContextBehavior($trigger->event_params['context'], $dict->id)))
+					break;
+				
 				$delegate->runActionExtension($token, $trigger, $params, $dict);
 				break;
 		}

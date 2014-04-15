@@ -57,14 +57,17 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
+		
+		// We can accept a model object or a context_id
+		@$model = $event_model->params['context_model'] ?: $event_model->params['context_id'];
+		
 		/**
 		 * Message
 		 */
 		
-		@$context_id = $event_model->params['context_id'];
 		$labels = array();
 		$values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $context_id, $labels, $values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $model, $labels, $values, null, true);
 
 		// Fill in some custom values
 		$values['sender_is_worker'] = (!empty($values['worker_id'])) ? 1 : 0;

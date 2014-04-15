@@ -41,14 +41,16 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 		$labels = array();
 		$values = array();
 
+		// We can accept a model object or a context_id
+		@$model = $event_model->params['context_model'] ?: $event_model->params['context_id'];
+		
 		/**
 		 * Task
 		 */
 		
-		@$context_id = $event_model->params['context_id'];
 		$task_labels = array();
 		$task_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_TASK, $context_id, $task_labels, $task_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_TASK, $model, $task_labels, $task_values, null, true);
 
 			// Merge
 			CerberusContexts::merge(

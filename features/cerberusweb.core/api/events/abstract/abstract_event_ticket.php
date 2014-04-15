@@ -97,7 +97,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				$labels,
 				$values
 			);
-
+			
 		/**
 		 * Group
 		 */
