@@ -242,6 +242,9 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CALENDAR, $id);
 				
 			} else { // Edit
+				if(false == ($calendar = DAO_Calendar::get($id)))
+					return;
+				
 				$fields = array(
 					DAO_Calendar::UPDATED_AT => time(),
 					DAO_Calendar::NAME => $name,
@@ -249,8 +252,10 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 					DAO_Calendar::OWNER_CONTEXT_ID => $owner_ctx_id,
 					DAO_Calendar::PARAMS_JSON => json_encode($params),
 				);
-				DAO_Calendar::update($id, $fields);
 				
+				$change_fields = Cerb_ORMHelper::uniqueFields($fields, $calendar);
+				
+				DAO_Calendar::update($id, $change_fields);
 			}
 
 			// Custom fields
@@ -343,7 +348,13 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 			}
 			
 		} else {
-			DAO_CalendarEvent::update($event_id, $fields);
+			if(false == ($calendar_event = DAO_CalendarEvent::get($event_id)))
+				return;
+			
+			$changed_fields = Cerb_ORMHelper::uniqueFields($fields, $calendar_event);
+			
+			if(!empty($changed_fields))
+				DAO_CalendarEvent::update($event_id, $changed_fields);
 		}
 		
 		// Custom fields
