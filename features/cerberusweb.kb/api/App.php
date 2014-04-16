@@ -367,9 +367,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 				
 			}
 			
-			// Search index
-			$search->index('Search_KbArticle', $id, $title . ' ' . strip_tags($content));
-			
 			// Categories
 			DAO_KbArticle::setCategories($id, $category_ids, true);
 			
