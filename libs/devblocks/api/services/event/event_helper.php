@@ -1,14 +1,16 @@
 <?php
 class DevblocksEventHelper {
-	public static function getVarValueToContextMap($trigger) {
+	public static function getVarValueToContextMap($trigger) { /* @var $trigger Model_TriggerEvent */
 		$values_to_contexts = array();
 		
 		// Virtual Attendant
 		
-		$values_to_contexts['va_id'] = array(
-			'label' => 'Virtual Attendant',
+		$va = $trigger->getVirtualAttendant();
+		
+		$values_to_contexts['_trigger_va_id'] = array(
+			'label' => '(Self) ' . $va->name,
 			'context' => CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
-			'context_id' => $trigger->virtual_attendant_id,
+			'context_id' => $va->id,
 		);
 		
 		// Behavior variables
