@@ -82,7 +82,7 @@ foreach($fields as $field_name => $field_type) {
 				
 			// Send events
 			if($check_deltas) {
-				//CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_, $batch_ids, $fields);
+				//CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_, $batch_ids);
 			}
 			
 			// Make changes
@@ -968,6 +968,9 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 			$token_values['id'] = $<?php echo $ctx_var_model; ?>->id;
 			$token_values['name'] = $<?php echo $ctx_var_model; ?>->name;
 			$token_values['updated_at'] = $<?php echo $ctx_var_model; ?>->updated_at;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($<?php echo $ctx_var_model; ?>, $token_values);
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();

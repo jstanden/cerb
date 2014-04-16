@@ -63,7 +63,7 @@ class DAO_Notification extends DevblocksORMHelper {
 
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_NOTIFICATION, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_NOTIFICATION, $batch_ids);
 			}
 
 			// Make changes
@@ -905,6 +905,10 @@ class Context_Notification extends Extension_DevblocksContext {
 			$token_values['target__context'] = $notification->context;
 			$token_values['target_id'] = $notification->context_id;
 			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($notification, $token_values);
+			
+			// Url
 			$redirect_url = $url_writer->writeNoProxy(sprintf("c=preferences&a=redirectRead&id=%d", $notification->id), true);
 			$token_values['url_markread'] = $redirect_url;
 			

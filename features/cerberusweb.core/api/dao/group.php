@@ -168,7 +168,7 @@ class DAO_Group extends Cerb_ORMHelper {
 
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_GROUP, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_GROUP, $batch_ids);
 			}
 
 			// Make changes
@@ -1228,6 +1228,9 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values['id'] = $group->id;
 			$token_values['name'] = $group->name;
 			$token_values['reply_address_id'] = $group->reply_address_id;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($group, $token_values);
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();

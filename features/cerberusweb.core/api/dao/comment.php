@@ -1153,6 +1153,9 @@ class Context_Comment extends Extension_DevblocksContext {
 			$token_values['record__context'] = $comment->context;
 			$token_values['record_id'] = $comment->context_id;
 			$token_values['comment'] = $comment->comment;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($comment, $token_values);
 		}
 		
 		return true;

@@ -83,7 +83,7 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_FEEDBACK, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_FEEDBACK, $batch_ids);
 			}
 			
 			// Make changes
@@ -1144,6 +1144,9 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 			// Created by worker
 			@$assignee_id = $feedback->worker_id;
 			$token_values['worker_id'] = $assignee_id;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($feedback, $token_values);
 		}
 
 		// Author

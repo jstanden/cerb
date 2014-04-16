@@ -76,7 +76,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $batch_ids);
 			}
 			
 			// Make changes
@@ -1165,6 +1165,9 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			$token_values['tz'] = $calendar_recurring_profile->tz;
 			$token_values['patterns'] = $calendar_recurring_profile->patterns;
 
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($calendar_recurring_profile, $token_values);
+			
 			// Calendar
 			$merge_token_labels = array();
 			$merge_token_values = array();

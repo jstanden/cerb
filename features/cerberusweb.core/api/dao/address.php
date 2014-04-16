@@ -114,7 +114,7 @@ class DAO_Address extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_ADDRESS, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_ADDRESS, $batch_ids);
 			}
 			
 			// Make changes
@@ -1303,6 +1303,9 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['is_defunct'] = $address->is_defunct;
 			$token_values['updated'] = $address->updated;
 
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($address, $token_values);
+			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=address&id=%d-%s",$address->id, DevblocksPlatform::strToPermalink($address->email)), true);

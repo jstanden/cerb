@@ -55,7 +55,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $batch_ids);
 			}
 			
 			// Make changes
@@ -1121,6 +1121,9 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 			$token_values['name'] = $virtual_attendant->name;
 			$token_values['is_disabled'] = $virtual_attendant->is_disabled;
 			$token_values['updated_at'] = $virtual_attendant->updated_at;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($virtual_attendant, $token_values);
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();

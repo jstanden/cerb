@@ -85,7 +85,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_ORG, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_ORG, $batch_ids);
 			}
 			
 			// Make changes
@@ -1133,6 +1133,9 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			$token_values['province'] = $org->province;
 			$token_values['street'] = $org->street;
 			$token_values['website'] = $org->website;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($org, $token_values);
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();

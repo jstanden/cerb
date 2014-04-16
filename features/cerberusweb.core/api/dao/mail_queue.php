@@ -913,6 +913,9 @@ class Context_Draft extends Extension_DevblocksContext {
 			$token_values['subject'] = $object->subject;
 			$token_values['to'] = $object->hint_to;
 			$token_values['updated'] = $object->updated;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($object, $token_values);
 		}
 
 		return true;

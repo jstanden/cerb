@@ -65,7 +65,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_OPPORTUNITY, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_OPPORTUNITY, $batch_ids);
 			}
 			
 			// Make changes
@@ -1254,6 +1254,9 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			} else {
 				$token_values['status'] = 'open';
 			}
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($opp, $token_values);
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();

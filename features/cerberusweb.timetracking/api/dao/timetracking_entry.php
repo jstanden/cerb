@@ -174,7 +174,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TIMETRACKING, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TIMETRACKING, $batch_ids);
 			}
 			
 			// Make changes
@@ -1236,6 +1236,9 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			$token_values['summary'] = $timeentry->getSummary();
 			$token_values['is_closed'] = $timeentry->is_closed;
 			$token_values['activity_id'] = $timeentry->activity_id;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($timeentry, $token_values);
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();

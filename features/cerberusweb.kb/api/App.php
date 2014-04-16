@@ -974,6 +974,9 @@ class Context_KbCategory extends Extension_DevblocksContext {
 			$token_values['id'] = $category->id;
 			$token_values['name'] = $category->name;
 			$token_values['parent_id'] = $category->parent_id;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($category, $token_values);
 		}
 		
 		return TRUE;

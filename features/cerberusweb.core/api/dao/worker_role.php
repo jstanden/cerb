@@ -51,7 +51,7 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_ROLE, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_ROLE, $batch_ids);
 			}
 			
 			// Make changes
@@ -409,6 +409,9 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 			$token_values['_label'] = $role->name;
 			$token_values['id'] = $role->id;
 			$token_values['name'] = $role->name;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($role, $token_values);
 			
 			// URL
 // 			$url_writer = DevblocksPlatform::getUrlService();

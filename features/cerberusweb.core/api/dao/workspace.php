@@ -1286,6 +1286,9 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 			$token_values['name'] = $page->name;
 			$token_values['extension_id'] = $page->extension_id;
 
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($page, $token_values);
+			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=pages&id=%d-%s",$page->id, DevblocksPlatform::strToPermalink($page->name)), true);
@@ -1510,6 +1513,9 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 			$token_values['id'] = $tab->id;
 			$token_values['name'] = $tab->name;
 			$token_values['extension_id'] = $tab->extension_id;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($tab, $token_values);
 		}
 		
 		return true;

@@ -72,7 +72,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CALENDAR_EVENT, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CALENDAR_EVENT, $batch_ids);
 			}
 			
 			// Make changes
@@ -952,6 +952,9 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 			$token_values['is_available'] = $calendar_event->is_available;
 			$token_values['name'] = $calendar_event->name;
 
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($calendar_event, $token_values);
+			
 			// Calendar
 			$merge_token_labels = array();
 			$merge_token_values = array();

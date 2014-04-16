@@ -1982,6 +1982,9 @@ class Context_Message extends Extension_DevblocksContext {
 			$token_values['ticket_id'] = $message->ticket_id;
 			$token_values['worker_id'] = $message->worker_id;
 			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($message, $token_values);
+			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=ticket&id=%d/message/%d", $message->ticket_id, $message->id), true);

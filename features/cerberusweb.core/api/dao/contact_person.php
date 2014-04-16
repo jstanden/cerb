@@ -51,7 +51,7 @@ class DAO_ContactPerson extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CONTACT_PERSON, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CONTACT_PERSON, $batch_ids);
 			}
 			
 			// Make changes
@@ -1010,6 +1010,9 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 				$token_values['created'] = $person->created;
 			if(!empty($person->last_login))
 				$token_values['last_login'] = $person->last_login;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($person, $token_values);
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();

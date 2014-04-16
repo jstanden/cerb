@@ -334,18 +334,37 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	
 	function lazyLoadContextValues($token, $dictionary) { return array(); }
 	
-	protected function _lazyLoadCustomFields($token, $context, $context_id) {
+	protected function _importModelCustomFieldsAsValues($model, $token_values) {
+		@$custom_fields = $model->custom_fields;
+		
+		if($custom_fields) {
+			$custom_values = $this->_lazyLoadCustomFields(
+				'custom_',
+				$token_values['_context'],
+				$token_values['id'],
+				$custom_fields
+			);
+			$token_values = array_merge($token_values, $custom_values);
+		}
+		
+		return $token_values;
+	}
+	
+	protected function _lazyLoadCustomFields($token, $context, $context_id, $field_values=null) {
 		$fields = DAO_CustomField::getByContext($context);
 		$token_values['custom'] = array();
-		$field_values = array();
 
 		// If (0 == $context_id), we need to null out all the fields and return w/o queries
 		if(empty($context_id))
 			return $token_values;
 		
-		$results = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
-		if(is_array($results))
-			$field_values = array_shift($results);
+		// If we weren't passed values
+		if(is_null($field_values)) {
+			$results = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
+			if(is_array($results))
+				$field_values = array_shift($results);
+			unset($results);
+		}
 		
 		foreach(array_keys($fields) as $cf_id) {
 			$token_values['custom'][$cf_id] = '';

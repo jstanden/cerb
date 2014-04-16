@@ -93,7 +93,7 @@ class DAO_Task extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TASK, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TASK, $batch_ids);
 			}
 			
 			// Make changes
@@ -1085,9 +1085,11 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			} else {
 				$token_values['status'] = 'active';
 			}
+
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($task, $token_values);
 			
 			// URL
-			
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=task&id=%d-%s",$task->id, DevblocksPlatform::strToPermalink($task->title)), true);
 		}

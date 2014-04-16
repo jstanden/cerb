@@ -339,7 +339,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		
 		if(empty($context) || empty($context_id) || !is_array($values))
 			return;
-
+		
 		self::_linkCustomFieldsets($context, $context_id, $values);
 		
 		$fields = DAO_CustomField::getByContext($context);
@@ -494,11 +494,11 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					break;
 			}
 		}
-		
-		DevblocksPlatform::markContextChanged($context, $context_id);
 	}
 	
 	public static function setFieldValue($context, $context_id, $field_id, $value, $delta=false) {
+		CerberusContexts::checkpointChanges($context, array($context_id));
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(null == ($field = DAO_CustomField::get($field_id)))
@@ -558,10 +558,14 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				break;
 		}
 		
+		DevblocksPlatform::markContextChanged($context, $context_id);
+		
 		return TRUE;
 	}
 	
 	public static function unsetFieldValue($context, $context_id, $field_id, $value=null) {
+		CerberusContexts::checkpointChanges($context, array($context_id));
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(null == ($field = DAO_CustomField::get($field_id)))

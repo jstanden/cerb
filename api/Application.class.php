@@ -1616,30 +1616,26 @@ class CerberusContexts {
 	
 	static private $_context_checkpoints = array();
 	
-	static function checkpointChanges($context, $ids, $change_fields) {
+	static function checkpointChanges($context, $ids) {
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 		
 		if(!isset(self::$_context_checkpoints[$context]))
 			self::$_context_checkpoints[$context] = array();
 		
 		// Cache full model objects the first time we encounter an ID (before persisting any changes)
-
+		// [TODO] If events could tell us what fields we're watching, we could lazy load ahead of time (custom_, deeply_nested_field_key)
+		
 		$load_ids = array_diff($ids, array_keys(self::$_context_checkpoints[$context]));
 		
 		$models = CerberusContexts::getModels($context, $load_ids);
 		
+		$values = DAO_CustomFieldValue::getValuesByContextIds($context, $load_ids);
+		
 		foreach($models as $model_id => $model) {
-			self::$_context_checkpoints[$context][$model_id] = array(
-				json_decode(json_encode($model), true)
-			);
-		}
-		
-		unset($load_ids);
-		unset($models);
-		
-		// Cache the deltas
-		foreach($ids as $id) {
-			self::$_context_checkpoints[$context][$id][] = $change_fields;
+			$model->custom_fields = @$values[$model_id] ?: array();
+			
+			self::$_context_checkpoints[$context][$model_id] =
+				json_decode(json_encode($model), true);
 		}
 	}
 	
@@ -1647,21 +1643,23 @@ class CerberusContexts {
 		if(empty(self::$_context_checkpoints))
 			return;
 		
-		foreach(self::$_context_checkpoints as $context => $checkpoints) {
-			foreach($checkpoints as $context_id => $changesets) {
-				$old_model = reset($changesets);
-				$new_model = $old_model;
+		foreach(self::$_context_checkpoints as $context => &$old_models) {
+
+			// Do this in batches of 100 in order to save memory
+			
+			$ids = array_keys($old_models);
+			
+			foreach(array_chunk($ids, 100) as $context_ids) {
+				$new_models = CerberusContexts::getModels($context, $context_ids);
 				
-				// Start with the first revision on top of the base
-				while($changes = next($changesets)) {
-					$new_model = array_merge($new_model, $changes);
+				$values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_ids);
+				
+				foreach($new_models as $context_id => $new_model) {
+					$old_model = $old_models[$context_id];
+					$new_model->custom_fields = @$values[$context_id] ?: array();
+					
+					Event_RecordChanged::trigger($context, $new_model, $old_model);
 				}
-				
-				// $change_fields
-				Event_RecordChanged::trigger($context, $new_model, $old_model);
-				
-				unset($current);
-				unset($baseline);
 			}
 		}
 		

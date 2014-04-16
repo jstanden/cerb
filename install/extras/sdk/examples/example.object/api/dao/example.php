@@ -32,7 +32,7 @@ class DAO_ExampleObject extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				//CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_, $batch_ids, $fields);
+				//CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_, $batch_ids);
 			}
 			
 			// Make changes
@@ -735,6 +735,9 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 			$token_values['created'] = $object->created;
 			$token_values['id'] = $object->id;
 			$token_values['name'] = $object->name;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($object, $token_values);
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();

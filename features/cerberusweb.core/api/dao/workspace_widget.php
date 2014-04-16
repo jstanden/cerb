@@ -448,6 +448,9 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 			$token_values['id'] = $widget->id;
 			$token_values['extension_id'] = $widget->extension_id;
 			$token_values['label'] = $widget->label;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($widget, $token_values);
 		}
 		
 		return true;

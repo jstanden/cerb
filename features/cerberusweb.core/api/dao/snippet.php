@@ -55,7 +55,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_SNIPPET, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_SNIPPET, $batch_ids);
 			}
 			
 			// Make changes
@@ -1096,6 +1096,9 @@ class Context_Snippet extends Extension_DevblocksContext {
 			$token_values['title'] = $snippet->title;
 			$token_values['total_uses'] = $snippet->total_uses;
 			$token_values['updated_at'] = $snippet->updated_at;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($snippet, $token_values);
 		}
 
 		return true;

@@ -860,6 +860,9 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 			$token_values['name'] = $mail_html_template->name;
 			$token_values['updated_at'] = $mail_html_template->updated_at;
 			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($mail_html_template, $token_values);
+			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=html_template&id=%d-%s",$mail_html_template->id, DevblocksPlatform::strToPermalink($mail_html_template->name)), true);

@@ -103,7 +103,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_KB_ARTICLE, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_KB_ARTICLE, $batch_ids);
 			}
 			
 			// Make changes
@@ -821,6 +821,9 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 			$token_values['title'] = $article->title;
 			$token_values['updated'] = $article->updated;
 			$token_values['views'] = $article->views;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($article, $token_values);
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();

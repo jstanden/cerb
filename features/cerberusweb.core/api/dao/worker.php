@@ -259,7 +259,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_WORKER, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_WORKER, $batch_ids);
 			}
 			
 			// Make changes
@@ -1604,6 +1604,9 @@ class Context_Worker extends Extension_DevblocksContext {
 			$token_values['last_activity_date'] = $worker->last_activity_date;
 			$token_values['title'] = $worker->title;
 
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($worker, $token_values);
+			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=worker&id=%d-%s",$worker->id, DevblocksPlatform::strToPermalink($worker->getName())), true);

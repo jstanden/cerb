@@ -643,7 +643,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TICKET, $batch_ids, $fields);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TICKET, $batch_ids);
 			}
 			
 			// Make changes
@@ -3351,7 +3351,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				$token_values['status'] = 'open';
 			}
 			
-			$token_values['custom'] = array();
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($ticket, $token_values);
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();

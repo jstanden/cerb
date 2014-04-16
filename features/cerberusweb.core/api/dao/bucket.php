@@ -514,6 +514,9 @@ class Context_Bucket extends Extension_DevblocksContext {
 			$token_values['name'] = $bucket->name;
 			$token_values['reply_address_id'] = $bucket->reply_address_id;
 			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($bucket, $token_values);
+			
 			// URL
 			//$url_writer = DevblocksPlatform::getUrlService();
 			//$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=group&id=%d-%s",$group->id, DevblocksPlatform::strToPermalink($group->name)), true);
