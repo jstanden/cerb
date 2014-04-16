@@ -3946,6 +3946,18 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 	}
 	
+	function getTriggerEventParamsAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string', '');
+		
+		if(empty($id))
+			return;
+		
+		if(false == ($ext = Extension_DevblocksEvent::get($id))) /* @var $ext Extension_DevblocksEvent */
+			return;
+		
+		$ext->renderEventParams(null);
+	}
+	
 	function testDecisionEventSnippetsAction() {
 		@$prefix = DevblocksPlatform::importGPC($_REQUEST['prefix'],'string','');
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer',0);

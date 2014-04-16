@@ -148,13 +148,19 @@
 			;
 		
 		$this.find("SELECT[name=event_point]").change(function() {
-			var $li = $(this).find('option:selected');
-			var $frm = $(this).closest('form');
+			var $select = $(this);
+			var $li = $select.find('option:selected');
+			var $frm = $select.closest('form');
 			
 			if($li.attr('is_macro'))
 				$frm.find('DIV.behavior-visibility').fadeIn();
 			else
 				$frm.find('DIV.behavior-visibility').fadeOut();
+			
+			genericAjaxGet('', 'c=internal&a=getTriggerEventParams&id=' + encodeURIComponent($select.val()), function(o) {
+				var $params = $frm.find('div.event-params');
+				$params.html(o);
+			});
 		});
 		
 		$this.find('BUTTON.add-variable').click(function() {
