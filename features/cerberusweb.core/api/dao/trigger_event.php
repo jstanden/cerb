@@ -851,6 +851,9 @@ class Model_TriggerEvent {
 			),
 		);
 		
+		if(isset($this->event_params) && !empty($this->event_params))
+			$array['behavior']['event']['params'] = $this->event_params;
+		
 		if(!empty($this->variables))
 			$array['behavior']['variables'] = $this->variables;
 		

@@ -3469,6 +3469,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				DAO_TriggerEvent::EVENT_POINT => $event_point,
 				DAO_TriggerEvent::IS_PRIVATE => @$json['behavior']['is_private'] ? 1 : 0,
 				DAO_TriggerEvent::VARIABLES_JSON => isset($json['behavior']['variables']) ? json_encode($json['behavior']['variables']) : '',
+				DAO_TriggerEvent::EVENT_PARAMS_JSON => isset($json['behavior']['event']['params']) ? json_encode($json['behavior']['event']['params']) : '',
 				DAO_TriggerEvent::VIRTUAL_ATTENDANT_ID => $va->id,
 				DAO_TriggerEvent::POS => DAO_TriggerEvent::getNextPosByVirtualAttendantAndEvent($va->id, $event_point),
 				DAO_TriggerEvent::IS_DISABLED => 1, // default to disabled until successfully imported
