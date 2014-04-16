@@ -146,7 +146,8 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		$db->Execute(sprintf("DELETE FROM kb_article_to_category WHERE kb_article_id IN (%s)", $id_string));
 		
 		// Search indexes
-		$db->Execute(sprintf("DELETE FROM fulltext_kb_article WHERE id IN (%s)", $id_string));
+		$search = Extension_DevblocksSearchSchema::get(Search_KbArticle::ID, true);
+		$search->delete($ids);
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
