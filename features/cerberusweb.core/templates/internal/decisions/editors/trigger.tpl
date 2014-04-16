@@ -48,7 +48,7 @@
 </table>
 
 <div class="event-params" style="margin-top:10px;">
-{if $trigger->id && $event}
+{if $event && method_exists($event,'renderEventParams')}
 {$event->renderEventParams($trigger)}
 {/if}
 </div>
