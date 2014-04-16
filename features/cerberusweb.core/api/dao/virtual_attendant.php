@@ -42,8 +42,43 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		return $id;
 	}
 	
-	static function update($ids, $fields) {
-		parent::_update($ids, 'virtual_attendant', $fields);
+	static function update($ids, $fields, $check_deltas=true) {
+		if(!is_array($ids))
+			$ids = array($ids);
+		
+		// Make a diff for the requested objects in batches
+		
+		$chunks = array_chunk($ids, 100, true);
+		while($batch_ids = array_shift($chunks)) {
+			if(empty($batch_ids))
+				continue;
+			
+			// Send events
+			if($check_deltas) {
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $batch_ids, $fields);
+			}
+			
+			// Make changes
+			parent::_update($batch_ids, 'virtual_attendant', $fields);
+			
+			// Send events
+			if($check_deltas) {
+				
+				// Trigger an event about the changes
+				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr->trigger(
+					new Model_DevblocksEvent(
+						'dao.virtual_attendant.update',
+						array(
+							'fields' => $fields,
+						)
+					)
+				);
+				
+				// Log the context update
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $batch_ids);
+			}
+		}
 		
 		self::clearCache();
 	}
