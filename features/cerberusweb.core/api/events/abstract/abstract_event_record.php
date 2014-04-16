@@ -145,7 +145,17 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 			
 			$macro_labels = $delegate->getLabels($trigger);
 			$macro_values = $delegate->getValues();
+			
 		}
+		
+		// Strip variables from the old_ placeholders (they aren't tracked)
+		CerberusContexts::scrubTokensWithRegexp(
+			$macro_labels,
+			$macro_values,
+			array(
+				"#^var_#",
+			)
+		);
 		
 		// Old values
 		CerberusContexts::merge(
