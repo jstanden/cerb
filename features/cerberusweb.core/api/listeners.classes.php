@@ -801,7 +801,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 				unset($values);
 			}
 			
-			$trigger->runDecisionTree($dict);
+			$trigger->runDecisionTree($dict, false, $event_ext);
 
 			// Snapshot the dictionary of the behavior at conclusion
 			$runners[$trigger->id] = $dict;

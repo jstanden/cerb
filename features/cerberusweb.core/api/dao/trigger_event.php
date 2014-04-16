@@ -664,13 +664,14 @@ class Model_TriggerEvent {
 		}
 	}
 	
-	public function runDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false) {
+	public function runDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false, Extension_DevblocksEvent $event=null) {
 		$nodes = $this->_getNodes();
 		$tree = $this->_getTree();
 		$path = array();
-		
-		// [TODO] This could be more efficient
-		$event = DevblocksPlatform::getExtension($this->event_point, true); /* @var $event Extension_DevblocksEvent */
+
+		// Lazy load the event if necessary (otherwise reuse a passed scope)
+		if(is_null($event))
+			$event = $this->getEvent();
 		
 		// Add a convenience pointer
 		$dict->_trigger = $this;
