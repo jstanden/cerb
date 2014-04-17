@@ -22,3 +22,65 @@
 		</select>
 	</div>
 </div>
+<br>
+
+{$uniq_id = uniqid()}
+
+<div id="{$uniq_id}" style="margin-left:10px;">
+	<div>
+		<b>Worklist columns:</b> (leave blank for default)
+	</div>
+	
+	{foreach from=$kb_params.columns item=selected_token}
+	<div style="margin:3px;" class="column">
+		<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;" title="Click and drag to rearrange"></span>
+	
+		<select name="kb_columns[]">
+		<option value=""></option>
+		{foreach from=$kb_columns item=column key=token}
+			<option value="{$token}" {if $token==$selected_token}selected="selected"{/if}>{$column->db_label|capitalize}</option>
+		{/foreach}
+		</select>
+		
+		<button type="button" onclick="$(this).closest('div').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></button>
+	</div>
+	{/foreach}
+	
+	<div style="margin:3px;display:none;" class="column template">
+		<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;" title="Click and drag to rearrange"></span>
+	
+		<select name="kb_columns[]">
+		<option value=""></option>
+		{foreach from=$kb_columns item=column key=token}
+			<option value="{$token}">{$column->db_label|capitalize}</option>
+		{/foreach}
+		</select>
+		
+		<button type="button" onclick="$(this).closest('div').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></button>
+	</div>
+	
+	<button type="button" class="add-column"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+	
+</div>
+
+<script type="text/javascript">
+$(function(e) {
+	var $container = $('#{$uniq_id}');
+		
+	$container
+		.sortable({
+			items: 'DIV.column',
+			handle: 'span.ui-icon-arrowthick-2-n-s',
+			placeholder:'ui-state-highlight'
+		})
+		;
+	
+	$container
+		.find('button.add-column')
+		.click(function(e) {
+			var $template = $container.find('div.template');
+			$template.clone().removeClass('template').insertBefore($template).focus().fadeIn();
+		})
+		;
+});
+</script>

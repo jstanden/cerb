@@ -41,19 +41,54 @@
 
 	{$tableRowClass = ($smarty.foreach.results.iteration % 2) ? "tableRowBg" : "tableRowAltBg"}
 	<tbody style="cursor:pointer;">
+		{if !in_array('kb_title', $view->view_columns)}
+		<tr class="{$tableRowClass}">
+			<td colspan="{$view->view_columns|count}">
+				{$smarty.capture.kb_title_block nofilter}
+			</td>
+		</tr>
+		{/if}
+	
 		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
-			{if $column=="kb_title"}
-			<td>
-				{if !empty($result.kb_title)}
-				<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/document.gif{/devblocks_url}" align="absmiddle">
-				<a href="{devblocks_url}c=kb&a=article&id={$result.kb_id}-{$result.kb_title|devblocks_permalink}{/devblocks_url}" class="record-link"><span id="subject_{$result.kb_id}_{$view->id}">{$result.kb_title}</span></a>				
-				{/if}
-			</td>
+			{if substr($column,0,3)=="cf_"}
+				{include file="devblocks:cerberusweb.support_center::support_center/internal/view/cell_renderer.tpl"}
+
+			{elseif $column=="kb_title"}
+				<td>
+					{$smarty.capture.kb_title_block nofilter}
+				</td>
+				
 			{elseif $column=="kb_updated"}
-			<td><abbr title="{$result.kb_updated|devblocks_date}">{$result.kb_updated|devblocks_prettytime}</abbr>&nbsp;</td>
+				<td><abbr title="{$result.kb_updated|devblocks_date}">{$result.kb_updated|devblocks_prettytime}</abbr>&nbsp;</td>
+				
+			{elseif $column=="kb_format"}
+				<td>
+					{if 0==$result.$column}
+						Plaintext
+					{elseif 1==$result.$column}
+						HTML
+					{elseif 2==$result.$column}
+						Markdown
+					{/if}
+					&nbsp;
+				</td>
+				
+			{elseif $column=="katc_top_category_id"}
+				{if !isset($categories)}{$categories = DAO_KbCategory::getAll()}{/if}
+				<td>
+					{if !empty($result.$column)}
+						{assign var=topic_id value=$result.$column}
+						{if isset($categories.$topic_id)}
+							{$categories.$topic_id->name}
+						{/if}
+					{/if}
+					&nbsp;
+				</td>
+				
 			{else}
-			<td>{$result.$column}</td>
+				<td>{$result.$column}</td>
+				
 			{/if}
 		{/foreach}
 		</tr>

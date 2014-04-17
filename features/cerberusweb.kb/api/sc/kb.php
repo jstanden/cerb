@@ -18,6 +18,8 @@
 class UmScKbController extends Extension_UmScController {
 	const PARAM_KB_ROOTS = 'kb.roots';
 	const PARAM_KB_VIEW_NUMROWS = 'kb.view.num_rows';
+	const PARAM_WORKLIST_COLUMNS_JSON = 'kb.worklist.columns';
+	
 	const SESSION_ARTICLE_LIST = 'kb_article_list';
 	
 	function isVisible() {
@@ -52,6 +54,19 @@ class UmScKbController extends Extension_UmScController {
 		if(!empty($kb_roots))
 			$kb_roots_str = implode(',', array_keys($kb_roots));
 		
+		// KB worklist
+		
+		@$params_columns = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_WORKLIST_COLUMNS_JSON, '[]', true);
+		
+		if(empty($params_columns))
+			$params_columns = array(
+				SearchFields_KbArticle::TITLE,
+				SearchFields_KbArticle::UPDATED,
+				SearchFields_KbArticle::VIEWS,
+			);
+		
+		// Actions
+		
 		switch(array_shift($stack)) {
 			case 'search':
 				@$q = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
@@ -76,6 +91,7 @@ class UmScKbController extends Extension_UmScController {
 
 				$params[SearchFields_KbArticle::TOP_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots));
 				
+				$view->view_columns = $params_columns;
 				$view->addParams($params, true);
 				$view->renderPage = 0;
 				$view->renderLimit = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_KB_VIEW_NUMROWS, 10);
@@ -223,10 +239,13 @@ class UmScKbController extends Extension_UmScController {
 				// View
 				
 				$view->name = "";
+				$view->view_columns = $params_columns;
 				$view->renderSortBy = SearchFields_KbArticle::UPDATED;
 				$view->renderSortAsc = false;
 				$view->renderPage = 0;
 				$view->renderLimit = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_KB_VIEW_NUMROWS, 10);
+				
+				// Render
 
 				UmScAbstractViewLoader::setView($view->id, $view);
 				$tpl->assign('view', $view);
@@ -241,6 +260,7 @@ class UmScKbController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		// Knowledgebase
+		
 		$tree_map = DAO_KbCategory::getTreeMap();
 		$tpl->assign('tree_map', $tree_map);
 		
@@ -257,17 +277,52 @@ class UmScKbController extends Extension_UmScController {
 		$prop_kb_view_numrows = DAO_CommunityToolProperty::get($instance->code,self::PARAM_KB_VIEW_NUMROWS, 10);
 		$tpl->assign('kb_view_numrows', max(intval($prop_kb_view_numrows), 5));
 		
+		// Worklist columns
+		
+		$params = array(
+			'columns' => DAO_CommunityToolProperty::get($instance->code, self::PARAM_WORKLIST_COLUMNS_JSON, '[]', true),
+		);
+		$tpl->assign('kb_params', $params);
+		
+		$view = new View_KbArticle();
+		
+		$columns = array_filter(
+			$view->getColumnsAvailable(),
+			function($column) {
+				return !empty($column->db_label);
+			}
+		);
+		
+		DevblocksPlatform::sortObjects($columns, 'db_label');
+		
+		$tpl->assign('kb_columns', $columns);
+		
+		// Template
+		
 		$tpl->display("devblocks:cerberusweb.kb::portal/sc/config/kb.tpl");
 	}
 	
 	function saveConfiguration(Model_CommunityTool $instance) {
-		// KB
+		// KB topics
+		
 		@$aKbRoots = DevblocksPlatform::importGPC($_POST['category_ids'],'array',array());
 		$aKbRoots = array_flip($aKbRoots);
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_KB_ROOTS, serialize($aKbRoots));
 		
+		// Worklist num rows
+		
 		@$prop_kb_view_numrows = DevblocksPlatform::importGPC($_POST['kb_view_numrows'],'integer',10);
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_KB_VIEW_NUMROWS, max($prop_kb_view_numrows, 5));
+		
+		// Worklist columns
+		
+		@$columns = DevblocksPlatform::importGPC($_POST['kb_columns'],'array',array());
+
+		$columns = array_filter($columns, function($column) {
+			return !empty($column);
+		});
+		
+		DAO_CommunityToolProperty::set($instance->code, self::PARAM_WORKLIST_COLUMNS_JSON, $columns, true);
 	}
 };
 
@@ -295,8 +350,10 @@ class UmSc_KbArticleView extends C4_AbstractView {
 	}
 
 	function getData() {
+		$columns = array_merge($this->view_columns, array($this->renderSortBy));
+		
 		$objects = DAO_KbArticle::search(
-			$this->view_columns,
+			$columns,
 			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
