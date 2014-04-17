@@ -1,5 +1,7 @@
 <?php
 class UmScHistoryController extends Extension_UmScController {
+	const PARAM_WORKLIST_COLUMNS_JSON = 'history.worklist.columns';
+	
 	function isVisible() {
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
@@ -38,6 +40,16 @@ class UmScHistoryController extends Extension_UmScController {
 					new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,'in',array('open','waiting')),
 				), true);
 			}
+			
+			@$params_columns = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_WORKLIST_COLUMNS_JSON, '[]', true);
+			
+			if(empty($params_columns))
+				$params_columns = array(
+					SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+					SearchFields_Ticket::TICKET_UPDATED_DATE,
+				);
+				
+			$history_view->view_columns = $params_columns;
 			
 			// Lock to current visitor
 			$history_view->addParamsRequired(array(
@@ -113,7 +125,40 @@ class UmScHistoryController extends Extension_UmScController {
 				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/history/display.tpl");
 			}
 		}
-				
+	}
+	
+	function configure(Model_CommunityTool $instance) {
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		$params = array(
+			'columns' => DAO_CommunityToolProperty::get($instance->code, self::PARAM_WORKLIST_COLUMNS_JSON, '[]', true),
+		);
+		$tpl->assign('history_params', $params);
+		
+		$view = new View_Ticket();
+		
+		$columns = array_filter(
+			$view->getColumnsAvailable(),
+			function($column) {
+				return !empty($column->db_label);
+			}
+		);
+		
+		DevblocksPlatform::sortObjects($columns, 'db_label');
+		
+		$tpl->assign('history_columns', $columns);
+		
+		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/config/module/history.tpl");
+	}
+	
+	function saveConfiguration(Model_CommunityTool $instance) {
+		@$columns = DevblocksPlatform::importGPC($_POST['history_columns'],'array',array());
+
+		$columns = array_filter($columns, function($column) {
+			return !empty($column);
+		});
+		
+		DAO_CommunityToolProperty::set($instance->code, self::PARAM_WORKLIST_COLUMNS_JSON, $columns, true);
 	}
 	
 	function saveTicketPropertiesAction() {
@@ -238,9 +283,9 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 		$this->renderSortAsc = false;
 
 		$this->view_columns = array(
-			SearchFields_Ticket::TICKET_SUBJECT,
-			SearchFields_Ticket::TICKET_LAST_WROTE,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
+			SearchFields_Ticket::TICKET_SUBJECT,
+			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 		);
 		
 		$this->addParamsHidden(array(
@@ -251,10 +296,10 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 	}
 
 	function getData() {
+		$columns = array_merge($this->view_columns, array($this->renderSortBy));
+		
 		$objects = DAO_Ticket::search(
-			array(
-				$this->renderSortBy
-			),
+			$columns,
 			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
