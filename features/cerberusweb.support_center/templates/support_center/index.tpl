@@ -2,6 +2,13 @@
 <head>
 	<meta content="text/html; charset={$smarty.const.LANG_CHARSET_CODE}" http-equiv="content-type">
 	<title>{$page_title}</title>
+	
+	{if empty($favicon_url)}
+	<link type="image/x-icon" rel="shortcut icon" href="{devblocks_url}c=resource&p=cerberusweb.support_center&f=favicon.ico{/devblocks_url}">
+	{else}
+	<link type="image/x-icon" rel="shortcut icon" href="{$favicon_url}">
+	{/if}
+	
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/jquery.js{/devblocks_url}"></script>
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/jquery.validate.pack.js{/devblocks_url}"></script>
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/devblocks.common.js{/devblocks_url}"></script>

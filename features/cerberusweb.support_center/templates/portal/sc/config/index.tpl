@@ -6,6 +6,10 @@
 <input type="text" name="logo_url" value="{$logo_url}" size="64"><br>
 <br>
 
+<b>{'portal.cfg.favicon_url'|devblocks_translate}</b> {'portal.cfg.default_if_blank'|devblocks_translate}<br>
+<input type="text" name="favicon_url" value="{$favicon_url}" size="64"><br>
+<br>
+
 <b>{'portal.cfg.language'|devblocks_translate}</b><br>
 <select name="default_locale">
 	{foreach from=$locales item=loc key=code}

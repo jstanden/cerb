@@ -36,6 +36,9 @@
 		<tu tuid='portal.cfg.enabled'>
 			<tuv xml:lang="en_US"><seg>Enabled</seg></tuv>
 		</tu>
+		<tu tuid='portal.cfg.favicon_url'>
+			<tuv xml:lang="en_US"><seg>Favicon URL:</seg></tuv>
+		</tu>
 		<tu tuid='portal.cfg.followup_questions'>
 			<tuv xml:lang="en_US"><seg>Follow-up Questions:</seg></tuv>
 		</tu>
