@@ -62,6 +62,7 @@ class UmScEventListener extends DevblocksEventListenerExtension {
 
 class UmScApp extends Extension_UsermeetTool {
 	const PARAM_PAGE_TITLE = 'common.page_title';
+	const PARAM_LOGO_URL = 'common.logo_url';
 	const PARAM_DEFAULT_LOCALE = 'common.locale';
 	const PARAM_LOGIN_EXTENSIONS = 'common.login_extensions';
 	const PARAM_VISIBLE_MODULES = 'common.visible_modules';
@@ -216,8 +217,11 @@ class UmScApp extends Extension_UsermeetTool {
 		
 		$page_title = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_PAGE_TITLE, 'Support Center');
 		$tpl->assign('page_title', $page_title);
+		
+		$logo_url = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_LOGO_URL, null);
+		$tpl->assign('logo_url', $logo_url);
 
-	   	@$visible_modules = unserialize(DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
+		@$visible_modules = unserialize(DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
 		$tpl->assign('visible_modules', $visible_modules);
 		
 		@$active_contact = $umsession->getProperty('sc_login',null);
@@ -339,6 +343,9 @@ class UmScApp extends Extension_UsermeetTool {
 
 		$page_title = DAO_CommunityToolProperty::get($instance->code, self::PARAM_PAGE_TITLE, 'Support Center');
 		$tpl->assign('page_title', $page_title);
+		
+		$logo_url = DAO_CommunityToolProperty::get($instance->code, self::PARAM_LOGO_URL, null);
+		$tpl->assign('logo_url', $logo_url);
 
 		// Modules
 
@@ -374,6 +381,7 @@ class UmScApp extends Extension_UsermeetTool {
 		@$aVisibleModules = DevblocksPlatform::importGPC($_POST['visible_modules'],'array',array());
 		@$aIdxModules = DevblocksPlatform::importGPC($_POST['idx_modules'],'array',array());
 		@$sPageTitle = DevblocksPlatform::importGPC($_POST['page_title'],'string','Contact Us');
+		@$logo_url = DevblocksPlatform::importGPC($_POST['logo_url'],'string',null);
 
 		// Modules (toggle + sort)
 		$aEnabledModules = array();
@@ -385,6 +393,9 @@ class UmScApp extends Extension_UsermeetTool {
 			
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_VISIBLE_MODULES, serialize($aEnabledModules));
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_PAGE_TITLE, $sPageTitle);
+		
+		// [TODO] Validate these URLs
+		DAO_CommunityToolProperty::set($instance->code, self::PARAM_LOGO_URL, $logo_url);
 
 		// Default Locale
 		@$sDefaultLocale = DevblocksPlatform::importGPC($_POST['default_locale'],'string','en_US');

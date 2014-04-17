@@ -17,7 +17,7 @@
 	<input type="text" name="favicon" value="{$settings->get('cerberusweb.core','helpdesk_favicon_url')}" size="64"><br>
 	<br>
 
-	<b>Helpdesk Title:</b><br>
+	<b>Browser Title:</b><br>
 	<input type="text" name="title" value="{$settings->get('cerberusweb.core','helpdesk_title')}" size="64"><br>
 	<br>
 	

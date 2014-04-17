@@ -42,8 +42,11 @@
 		<tu tuid='portal.cfg.language'>
 			<tuv xml:lang="en_US"><seg>Language:</seg></tuv>
 		</tu>
+		<tu tuid='portal.cfg.logo_url'>
+			<tuv xml:lang="en_US"><seg>Logo URL:</seg></tuv>
+		</tu>
 		<tu tuid='portal.cfg.page_title'>
-			<tuv xml:lang="en_US"><seg>Page Title:</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Browser Title:</seg></tuv>
 		</tu>
 		<tu tuid='portal.cfg.send_to'>
 			<tuv xml:lang="en_US"><seg>Send to:</seg></tuv>
