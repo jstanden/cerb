@@ -360,15 +360,26 @@ class DAO_CommunityToolProperty {
 		return $props;
 	}
 	
-	static function get($tool_code, $key, $default=null) {
+	static function get($tool_code, $key, $default=null, $json_decode=false) {
 		$props = self::getAllByTool($tool_code);
 		@$val = $props[$key];
 		
-		return (is_null($val) || (!is_numeric($val) && empty($val))) ? $default : $val;
+		$val = (is_null($val) || (!is_numeric($val) && empty($val))) ? $default : $val;
+		
+		if($json_decode)
+			$val = @json_decode($val, true);
+		
+		if(false === $val)
+			$val = $default;
+		
+		return $val;
 	}
 	
-	static function set($tool_code, $key, $value) {
+	static function set($tool_code, $key, $value, $json_encode=false) {
 		$db = DevblocksPlatform::getDatabaseService();
+		
+		if($json_encode)
+			$value = json_encode($value);
 		
 		$db->Execute(sprintf("REPLACE INTO community_tool_property (tool_code, property_key, property_value) ".
 			"VALUES (%s, %s, %s)",
