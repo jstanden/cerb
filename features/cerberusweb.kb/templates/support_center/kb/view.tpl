@@ -39,6 +39,13 @@
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
 
+	{capture name=kb_title_block}
+		{if !empty($result.kb_title)}
+		<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/document.gif{/devblocks_url}" align="absmiddle">
+		<a href="{devblocks_url}c=kb&a=article&id={$result.kb_id}-{$result.kb_title|devblocks_permalink}{/devblocks_url}" class="record-link"><span id="subject_{$result.kb_id}_{$view->id}">{$result.kb_title}</span></a>				
+		{/if}
+	{/capture}
+
 	{$tableRowClass = ($smarty.foreach.results.iteration % 2) ? "tableRowBg" : "tableRowAltBg"}
 	<tbody style="cursor:pointer;">
 		{if !in_array('kb_title', $view->view_columns)}
