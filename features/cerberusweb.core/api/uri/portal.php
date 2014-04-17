@@ -77,6 +77,7 @@ class Controller_Portal extends DevblocksControllerExtension {
 class ChPortalHelper {
 	static private $_code = null;
 	static private $_fingerprint = null;
+	static private $_sessions_cache = array();
 	
 	public static function getCode() {
 		return self::$_code;
@@ -92,7 +93,16 @@ class ChPortalHelper {
 	public static function getSession() {
 		$fingerprint = self::getFingerprint();
 		$session_id = md5($fingerprint['ip'] . self::getCode() . $fingerprint['local_sessid']);
-		return DAO_CommunitySession::get($session_id);
+		
+		// Did we cache the lookup?
+		if(!isset(self::$_sessions_cache[$session_id])) {
+			$session = DAO_CommunitySession::get($session_id);
+		
+			// Cache it
+			self::$_sessions_cache[$session_id] = $session;
+		}
+			
+		return self::$_sessions_cache[$session_id];
 	}
 	
 	public static function getFingerprint() {
