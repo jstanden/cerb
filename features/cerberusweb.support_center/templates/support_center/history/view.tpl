@@ -40,8 +40,32 @@
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
 
+	{capture name=subject_block}
+		{if $result.t_is_closed == 0}{* Active *}
+			{if $result.t_is_waiting == 0}{* Open *}
+				<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/clock_gray.png{/devblocks_url}" border="0" align="top">
+			{else}{* Waiting *}
+				<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/information.png{/devblocks_url}" border="0" align="top">
+			{/if}
+		{else}{* Closed *}
+			<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check_gray.png{/devblocks_url}" border="0" align="top">
+		{/if}
+		
+		{if !empty($result.t_subject)}
+		<a href="{devblocks_url}c=history&mask={$result.t_mask}{/devblocks_url}" class="record-link">{$result.t_subject}</a>
+		{/if}
+	{/capture}
+
 	{$tableRowClass = ($smarty.foreach.results.iteration % 2) ? "tableRowBg" : "tableRowAltBg"}
 	<tbody style="cursor:pointer;">
+		{if !in_array('t_subject', $view->view_columns)}
+		<tr class="{$tableRowClass}">
+			<td colspan="{$view->view_columns|count}">
+				{$smarty.capture.subject_block nofilter}
+			</td>
+		</tr>
+		{/if}
+		
 		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
