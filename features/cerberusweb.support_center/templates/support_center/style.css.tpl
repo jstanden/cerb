@@ -1,5 +1,5 @@
 BODY, TD {
-	font-family: Tahoma, Verdana, Arial;
+	font-family: Arial, Helvetica, sans-serif;
 	font-size:12px;
 	color: rgb(60,60,60);
 }
@@ -8,10 +8,14 @@ FORM {
 	margin:0px;
 }
 
+A {
+	color:rgb(50,50,50);
+}
+
 H1 {
 	font-size:20px;
 	font-weight:bold;
-	color: rgb(8,90,173);
+	color: rgb(0, 120, 0);
 	margin-top:0px;
 	margin-bottom:3px;
 }
@@ -24,19 +28,36 @@ H2 {
 }
 
 BUTTON {
-	background-color: rgb(238, 238, 238);
-	color: rgb(30, 30, 30);
-	border: 1px solid rgb(150, 150, 150);
+	background-color:rgb(230,230,230);
+	background: linear-gradient(top, rgb(240,240,240), rgb(210,210,210));
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(240,240,240)), to(rgb(210,210,210)));
+	background: -moz-linear-gradient(top, rgb(240,240,240), rgb(210,210,210));
+	background: -o-linear-gradient(top, rgb(240,240,240), rgb(210,210,210));
+	background: -ms-linear-gradient(top, rgb(240,240,240), rgb(210,210,210));
+	cursor:pointer;
+	
+	color:rgb(50,50,50);
+	border:0;
+	
 	margin-right:1px;
+	vertical-align:middle;
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
+	
+	padding:5px;
+	margin:0px;
 }
 
 BUTTON:hover {
-	background-color: rgb(160,198,254);
-	border: 1px solid rgb(36,111,223);
-	cursor: hand;
+	background:none;
+	background-color:rgb(160,198,254);
+	background: linear-gradient(top, rgb(238,242,245), rgb(160,198,254));
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(238,242,245)), to(rgb(160,198,254)));
+	background: -moz-linear-gradient(top, rgb(238,242,245), rgb(160,198,254));
+	background: -o-linear-gradient(top, rgb(238,242,245), rgb(160,198,254));
+	background: -ms-linear-gradient(top, rgb(238,242,245), rgb(160,198,254));
+	cursor:pointer;
 }
 
 INPUT[type=text], INPUT[type=password], SELECT, TEXTAREA {
@@ -55,17 +76,28 @@ INPUT[type=text]:focus, INPUT[type=password]:focus {
 FIELDSET {
 	border:1px solid rgb(230,230,230);
 	margin-bottom:10px;
+	
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
 }
 
 FIELDSET LEGEND {
-	color:rgb(0,150,0);
+	color:rgb(0,120,0);
 	font-size:120%;
 	font-weight:bold;
 }
 
+FIELDSET LEGEND A {
+	color:rgb(0,120,0);
+}
+
+FIELDSET.minimal {
+	border: 0;
+	border-top: 1px solid rgb(230,230,230);
+}
+
 DIV.header {
-	border-bottom:1px solid rgb(180,180,180);
-	margin-bottom:5px;
 }
 
 DIV.header H1 {
@@ -79,7 +111,7 @@ UL.menu {
 }
 
 UL.menu LI {
-	padding:5px 8px;
+	padding:8px 8px;
 	margin:0px 2px;
 	float:left;
 	background-color:rgb(240,240,240);
@@ -88,15 +120,19 @@ UL.menu LI {
 	border-radius: 5px 5px 0px 0px;
 }
 
+UL.menu LI:hover {
+	background-color:rgb(220,220,220);
+}
+
 UL.menu LI A {
 	color:rgb(80,80,80);
 	padding:5px 0px 5px 0px;
-	text-decoration:underline;
+	text-decoration:none;
 	font-weight:normal;
 }
 
 UL.menu LI.selected {
-	background-color:rgb(8,90,173);
+	background-color:rgb(69,85,96);
 }
 
 UL.menu LI.selected A {
@@ -105,40 +141,77 @@ UL.menu LI.selected A {
 	text-decoration:none;
 }
 
-#content {
-}
-
-#content A {
-	color:rgb(50,50,50);
-}
+/* Sidebar */
 
 TABLE.sidebar {
 	width:220px;
-	border: 1px solid rgb(8,90,173);
+	border-radius: 5px;
 }
 
 TABLE.sidebar TH {
-	background-color: rgb(8,90,173);
+	background-color:rgb(140,140,140);
 	font-size:10pt;
 	font-weight:bold;
 	line-height: 22px;
 	padding-left: 6px;
 	text-align: left;
 	color: rgb(255,255,255);
+	border-radius: 5px 5px 0px 0px;
 }
 
 TABLE.sidebar TD {
 	background-color: rgb(240,240,240);
-	padding: 3px;
+	padding: 5px;
 }
 
 TABLE.sidebar TD A {
-	color: rgb(7,39,115);
 }
 
 TABLE.sidebar TD INPUT {
 	border:1px solid rgb(200,200,200);
 	margin-bottom:1px;
+}
+
+/* Worklists */
+
+TABLE.worklistBody TH {
+	background-color: rgb(200,200,200);
+	background: linear-gradient(top, rgb(240,240,240), rgb(200,200,200));
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(240,240,240)), to(rgb(200,200,200)));
+	background: -moz-linear-gradient(top, rgb(240,240,240), rgb(200,200,200));
+	background: -o-linear-gradient(top, rgb(240,240,240), rgb(200,200,200));
+	background: -ms-linear-gradient(top, rgb(240,240,240), rgb(200,200,200));
+	padding:2px 0px 2px 5px;
+	border-right:1px solid rgb(175,175,175);
+	text-align: left;
+	cursor:pointer;
+}
+
+TABLE.worklistBody TH:hover {
+	background-color: rgb(150,150,150);
+	background: linear-gradient(top, rgb(200,200,200), rgb(150,150,150));
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(200,200,200)), to(rgb(150,150,150)));
+	background: -moz-linear-gradient(top, rgb(200,200,200), rgb(150,150,150));
+	background: -o-linear-gradient(top, rgb(200,200,200), rgb(150,150,150));
+	background: -ms-linear-gradient(top, rgb(200,200,200), rgb(150,150,150));
+	border-right:1px solid rgb(175,175,175);
+}
+
+TABLE.worklistBody TH A {
+	font-size: 12px;
+	vertical-align:middle;
+	font-weight: bold;
+	text-decoration:none;
+	color: rgb(80,80,80);
+}
+
+TABLE.worklistBody TH:hover A {
+	text-decoration:none;
+	color:white;
+}
+
+TABLE.worklistBody TD A.record-link {
+	font-weight: bold;
 }
 
 #footer {
@@ -165,6 +238,10 @@ TABLE.sidebar TD INPUT {
 	background-color: rgb(255, 255, 206);
 }
 
+#content {
+	padding-top: 5px;
+}
+
 /* Modules */
 #account {
 	border:1px solid rgb(204,204,204);
@@ -175,11 +252,16 @@ TABLE.sidebar TD INPUT {
 	padding:5px;
 }
 
+#account_sidebar UL LI {
+	padding: 3px;
+}
+
 #history DIV.message {
 	margin:5px;
 	margin-bottom:10px;
-	border:1px solid rgb(200,200,200);
+	border:1px solid rgb(230,230,230);
 	padding:5px;
+	border-radius: 5px;
 }
 
 #history DIV.message SPAN.header {
@@ -218,10 +300,11 @@ TABLE.sidebar TD INPUT {
 	font-weight: bold;
 	text-align: left;
 	border: none;
-	margin:0px 0px 20px 0px;
+	margin:0;
 }
 
 #kb div.content {
+	margin: 10px 5px 10px 5px;
 }
 
 #kb div.content { 
@@ -234,17 +317,20 @@ TABLE.sidebar TD INPUT {
 #kb div.content h1, #kb div.content h2, #kb div.content h3, #kb div.content h4, #kb div.content h5, #kb div.content h6 { 
 	font-weight: bold;
 	color: rgb(0,120,0);
-	margin:10px 0px;
+	margin:20px 0px;
 }
 
 #kb div.content h1 {
 	font-size: 190%;
 	color: rgb(0,120,0);
 	border-bottom: 1px solid rgb(180,180,180);
+	padding-bottom: 5px;
+	margin-bottom: 5px;
 }
 
 #kb div.content h2 {
 	font-size: 170%;
+	margin-bottom: 5px;
 	color: rgb(50,50,50);
 }
 
@@ -252,6 +338,7 @@ TABLE.sidebar TD INPUT {
 	font-size: 145%;
 	color: rgb(74,110,158);
 	border-bottom: 1px solid rgb(180,180,180);
+	padding-bottom: 5px;
 }
 
 #kb div.content h4 {
@@ -295,6 +382,18 @@ TABLE.sidebar TD INPUT {
 	margin-left:20px;
 	border-left:solid 5px rgb(240,240,240);
 	padding-left:5px;
+}
+
+#kb div.content ul li {
+	margin: 5px 0px 10px 0px;
+}
+
+#kb div.content ol li {
+	margin: 5px 0px 10px 0px;
+}
+
+#kb div.content li img {
+	margin-top: 10px;
 }
 
 /* Labels */

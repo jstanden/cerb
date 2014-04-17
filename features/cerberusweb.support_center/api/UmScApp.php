@@ -80,6 +80,7 @@ class UmScApp extends Extension_UsermeetTool {
 			$modules = DevblocksPlatform::getExtensions('usermeet.sc.controller', true);
 			@$visible_modules = unserialize(DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
 			
+			if(is_array($visible_modules))
 			uasort($modules, function($a, $b) use ($visible_modules) {
 				$a_idx = array_search($a->id, array_keys($visible_modules));
 				$b_idx = array_search($b->id, array_keys($visible_modules));

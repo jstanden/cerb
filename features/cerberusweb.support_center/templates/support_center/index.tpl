@@ -32,7 +32,7 @@
 {/if}
 {/foreach}
 </ul>
-<div style="clear:both;border-top:2px solid rgb(8,90,173);">
+<div style="clear:both;border-top:2px solid rgb(69,85,96);">
 </div>
 
 <table cellpadding="5" cellspacing="0" border="0" width="100%" align="center">

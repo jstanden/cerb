@@ -52,7 +52,7 @@ class UmScContactController extends Extension_UmScController {
 				$tpl->assign('last_followup_a', $aLastFollowupA);
 				$tpl->assign('last_error', $sError);
 				
-   				$sDispatch = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, '');
+				$sDispatch = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, '');
 				$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
 				
 				// Remove hidden contact situations

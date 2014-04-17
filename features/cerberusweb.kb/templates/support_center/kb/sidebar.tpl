@@ -13,11 +13,10 @@
 				</select>
 				<button type="submit">{'common.search'|devblocks_translate|lower}</button>
 			</form>
-			
-			<div style="padding:2px;"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/feed-icon-16x16.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=rss&m=kb&a=most_popular{/devblocks_url}">Most Popular</a></div>
-			<div style="padding:2px;"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/feed-icon-16x16.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=rss&m=kb&a=new_articles{/devblocks_url}">Recently Added</a></div>
-			<div style="padding:2px;"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/feed-icon-16x16.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=rss&m=kb&a=recent_changes{/devblocks_url}">Recently Updated</a></div>
 		</td>
 	</tr>
 </table>
-<br>
+
+<div style="padding:2px;"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/feed-icon-16x16.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=rss&m=kb&a=most_popular{/devblocks_url}">Most Popular</a></div>
+<div style="padding:2px;"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/feed-icon-16x16.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=rss&m=kb&a=new_articles{/devblocks_url}">Recently Added</a></div>
+<div style="padding:2px;"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/feed-icon-16x16.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=rss&m=kb&a=recent_changes{/devblocks_url}">Recently Updated</a></div>

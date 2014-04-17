@@ -1,4 +1,4 @@
-<table cellpadding="0" cellspacing="0" border="0" class="sidebar" id="history_sidebar">
+<table cellpadding="0" cellspacing="0" border="0" class="sidebar" id="account_sidebar">
 	<tr>
 		<th>{'portal.sc.public.my_account'|devblocks_translate|capitalize}</th>
 	</tr>

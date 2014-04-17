@@ -2,7 +2,7 @@
 {assign var=results value=$view->getData()}
 {assign var=total value=$results[1]}
 {assign var=data value=$results[0]}
-<table cellpadding="0" cellspacing="0" border="0" width="100%">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" class="worklist">
 	<tr>
 		<td nowrap="nowrap"><h2>{$view->name}</h2></td>
 	</tr>
@@ -14,13 +14,13 @@
 <input type="hidden" name="a" value="">
 
 {if !empty($total)}
-<table cellpadding="1" cellspacing="0" border="0" width="100%">
+<table cellpadding="3" cellspacing="0" border="0" width="100%" class="worklistBody">
 	{* Column Headers *}
 	<thead>
 	<tr>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
-			<td nowrap="nowrap">
+			<th nowrap="nowrap">
 			<a href="javascript:;" style="font-weight:bold;" onclick="ajaxHtmlGet('#view{$view->id}','{devblocks_url}c=ajax&a=viewSortBy{/devblocks_url}?id={$view->id}&sort_by={$header}');">{$view_fields.$header->db_label|capitalize}</a>
 			
 			{* add arrow if sorting by this column, finish table header tag *}
@@ -31,7 +31,7 @@
 					<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/sort_descending.png{/devblocks_url}" align="absmiddle">
 				{/if}
 			{/if}
-			</td>
+			</th>
 		{/foreach}
 	</tr>
 	</thead>
@@ -47,7 +47,7 @@
 			<td>
 				{if !empty($result.kb_title)}
 				<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/document.gif{/devblocks_url}" align="absmiddle">
-				<a href="{devblocks_url}c=kb&a=article&id={$result.kb_id}-{$result.kb_title|devblocks_permalink}{/devblocks_url}"><span id="subject_{$result.kb_id}_{$view->id}">{$result.kb_title}</span></a>				
+				<a href="{devblocks_url}c=kb&a=article&id={$result.kb_id}-{$result.kb_title|devblocks_permalink}{/devblocks_url}" class="record-link"><span id="subject_{$result.kb_id}_{$view->id}">{$result.kb_title}</span></a>				
 				{/if}
 			</td>
 			{elseif $column=="kb_updated"}
