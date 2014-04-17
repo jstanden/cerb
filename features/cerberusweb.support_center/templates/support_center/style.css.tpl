@@ -98,10 +98,15 @@ FIELDSET.minimal {
 }
 
 DIV.header {
+	font-size: 14px;
 }
 
 DIV.header H1 {
 	margin-bottom:0px;
+}
+
+DIV.header B {
+	color: rgb(0,120,0);
 }
 
 UL.menu {

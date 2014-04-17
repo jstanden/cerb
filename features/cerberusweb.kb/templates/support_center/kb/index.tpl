@@ -54,9 +54,9 @@
 </fieldset>
 
 {if !empty($root_id)}
-	<div class="header"><h1>Articles in {$categories.$root_id->name}</h1></div>
+	<div class="header"><b>Articles in {$categories.$root_id->name}</b></div>
 {elseif empty($root) && !empty($view)}
-	<div class="header"><h1>All Articles</h1></div>
+	<div class="header"><b>All Articles</b></div>
 {/if}
 
 {if !empty($view)}

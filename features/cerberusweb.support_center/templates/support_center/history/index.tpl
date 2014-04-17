@@ -6,7 +6,7 @@
 
 {if !empty($view)}
 	<div class="header">
-		<h1>Ticket History</h1>
+		<b>Ticket History</b>
 	</div>
 	<div id="view{$view->id}">
 	{$view->render()}

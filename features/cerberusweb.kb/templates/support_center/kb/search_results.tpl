@@ -1,6 +1,6 @@
 <div id="kb">
 
-<div class="header"><h1>Search results{if !empty($q)}: {$q}{/if}</h1></div>
+<div class="header"><b>Search results{if !empty($q)}: {$q}{/if}</b></div>
 
 <div id="view{$view->id}">
 {$view->render()}
