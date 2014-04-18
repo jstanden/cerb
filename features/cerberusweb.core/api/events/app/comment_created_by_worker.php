@@ -23,13 +23,13 @@ class Event_CommentCreatedByWorker extends AbstractEvent_Comment {
 		$this->_event_id = self::ID;
 	}
 	
-	static function trigger($comment_id) {
+	static function trigger($context_id) {
 		$events = DevblocksPlatform::getEventService();
 		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
 				array(
-					'comment_id' => $comment_id,
+					'context_id' => $context_id,
 //				 	'_whisper' => array(
 //				 		CerberusContexts::CONTEXT_GROUP => array($group_id),
 //				 	),

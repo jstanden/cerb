@@ -23,13 +23,13 @@ class Event_MailDuringUiReplyByWorker extends AbstractEvent_Message {
 		$this->_event_id = self::ID;
 	}
 	
-	static function trigger($trigger_id, $message_id, &$actions, $variables=array()) {
+	static function trigger($trigger_id, $context_id, &$actions, $variables=array()) {
 		$events = DevblocksPlatform::getEventService();
 		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
 				array(
-					'message_id' => $message_id,
+					'context_id' => $context_id,
 					'_caller_actions' => &$actions,
 					'_variables' => $variables,
 					'_whisper' => array(

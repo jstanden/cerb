@@ -23,13 +23,13 @@ class Event_TicketViewedByWorker extends AbstractEvent_Ticket {
 		$this->_event_id = self::ID;
 	}
 	
-	static function trigger($ticket_id, $worker_id) {
+	static function trigger($context_id, $worker_id) {
 		$events = DevblocksPlatform::getEventService();
 		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
 				array(
-					'ticket_id' => $ticket_id,
+					'context_id' => $context_id,
 					'worker_id' => $worker_id,
 //				 	'_whisper' => array(
 //				 		CerberusContexts::CONTEXT_GROUP => array($group_id),
