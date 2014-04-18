@@ -742,13 +742,6 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		// Load only if needed
 		$dict = null;
 		
-		// We're preloading some variable values
-		if(isset($event->params['_variables']) && is_array($event->params['_variables'])) {
-			foreach($event->params['_variables'] as $var_key => $var_val) {
-				$dict->$var_key = $var_val;
-			}
-		}
-		
 		// Registry (trigger variables, etc)
 		$registry = DevblocksPlatform::getRegistryService();
 		
@@ -797,6 +790,13 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 				
 				// [TODO] Cache the dict we're left with by context:id
 				//var_dump(array('pre_cache', $values));
+				
+				// We're preloading some variable values
+				if(isset($event->params['_variables']) && is_array($event->params['_variables'])) {
+					foreach($event->params['_variables'] as $var_key => $var_val) {
+						$dict->$var_key = $var_val;
+					}
+				}
 				
 				unset($values);
 			}

@@ -247,7 +247,7 @@ class DevblocksDictionaryDelegate {
 		}
 		
 		// Convert any nested dictionaries to arrays
-		array_walk_recursive($dict, function(&$v) {
+		array_walk_recursive($dict, function(&$v) use ($with_meta) {
 			if($v instanceof DevblocksDictionaryDelegate)
 				$v = $v->getDictionary(null, $with_meta);
 		});
