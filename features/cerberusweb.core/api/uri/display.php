@@ -1155,7 +1155,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		$fields = array(
 			DAO_Ticket::CREATED_DATE => $orig_message->created_date,
 			DAO_Ticket::UPDATED_DATE => $orig_message->created_date,
-			DAO_Ticket::BUCKET_ID => $orig_ticket->bucket_id,
 			DAO_Ticket::FIRST_MESSAGE_ID => $orig_message->id,
 			DAO_Ticket::LAST_MESSAGE_ID => $orig_message->id,
 			DAO_Ticket::FIRST_WROTE_ID => $orig_message->address_id,
@@ -1166,6 +1165,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_Ticket::MASK => $new_ticket_mask,
 			DAO_Ticket::SUBJECT => (isset($orig_headers['subject']) ? $orig_headers['subject'] : $orig_ticket->subject),
 			DAO_Ticket::GROUP_ID => $orig_ticket->group_id,
+			DAO_Ticket::BUCKET_ID => $orig_ticket->bucket_id,
 			DAO_Ticket::ORG_ID => $orig_ticket->org_id,
 		);
 

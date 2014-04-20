@@ -34,6 +34,8 @@
 
 <h3 style="margin-top:10px;">Log</h3>
 
+{if !empty($conditions_output)}
 <fieldset>
 <pre class="emailbody">{$conditions_output}</pre>
 </fieldset>
+{/if}

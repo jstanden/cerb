@@ -688,8 +688,8 @@ var cAjaxCalls = function() {
 		$chooser.bind('snippet_select', function(event) {
 			event.stopPropagation();
 			
-			snippet_id = event.snippet_id;
-			context = event.context;
+			var snippet_id = event.snippet_id;
+			var context = event.context;
 			
 			if(null == snippet_id || null == context)
 				return;
