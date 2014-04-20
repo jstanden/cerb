@@ -234,6 +234,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		
 		@$http_verb = $params['http_verb'];
 		@$http_url = $tpl_builder->build($params['http_url'], $dict);
+		@$http_headers = $tpl_builder->build($params['http_headers'], $dict);
 		@$http_body = $tpl_builder->build($params['http_body'], $dict);
 		@$run_in_simulator = $params['run_in_simulator'];
 		@$response_placeholder = $params['response_placeholder'];
@@ -248,9 +249,10 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 			return "[ERROR] No result placeholder given.";
 		
 		// Output
-		$out = sprintf(">>> Sending HTTP request:\n%s %s\n%s\n",
+		$out = sprintf(">>> Sending HTTP request:\n%s %s\n%s\n%s\n",
 			mb_convert_case($http_verb, MB_CASE_UPPER),
 			$http_url,
+			!empty($http_headers) ? ($http_headers) : '',
 			(in_array($http_verb, array('post','put')) ? ("\n" . $http_body. "\n") : "")
 		);
 		
@@ -272,6 +274,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 
 		@$http_verb = $params['http_verb'];
 		@$http_url = $tpl_builder->build($params['http_url'], $dict);
+		@$http_headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['http_headers'], $dict));
 		@$http_body = $tpl_builder->build($params['http_body'], $dict);
 		@$response_placeholder = $params['response_placeholder'];
 		
@@ -281,19 +284,19 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		if(empty($response_placeholder))
 			return false;
 		
-		$response = $this->_execute($http_verb, $http_url, array(), $http_body);
+		$response = $this->_execute($http_verb, $http_url, array(), $http_body, $http_headers);
 		$dict->$response_placeholder = $response;
 	}
 	
-	private function _execute($verb, $url, $params=array(), $body=null) {
+	private function _execute($verb, $url, $params=array(), $body=null, $headers=array()) {
 		switch($verb) {
 			case 'get':
-				return $this->_get($url, $params);
+				return $this->_get($url, $params, $headers);
 				break;
 				
 			case 'post':
 			case 'put':
-				return $this->_post($url, $params, $body, $verb);
+				return $this->_post($url, $params, $body, $verb, $headers);
 				break;
 				
 			case 'delete':
@@ -303,18 +306,14 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		
 	}
 	
-	private function _post($url, $params=array(), $body=null, $verb='post') {
+	private function _post($url, $params=array(), $body=null, $verb='post', $headers=array()) {
 		if(!empty($params) && is_array($params))
 			$url .= '?' . http_build_query($params);
 		
 		$ch = curl_init($url);
-		
-		$headers = array();
-		
-		//$headers[] = 'Content-Type: application/json';
-		
+
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		
+
 		switch($verb) {
 			case 'post':
 				curl_setopt($ch, CURLOPT_POST, 1);
@@ -325,12 +324,12 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 				curl_setopt($ch, CURLOPT_POST, 1);
 				break;
 		}
-		
-		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(json_decode($body, true)));
-		
+
 		if(!empty($headers))
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+		
 		$out = curl_exec($ch);
 		
 		$info = curl_getinfo($ch);
@@ -354,13 +353,17 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		);
 	}
 	
-	private function _get($url, $params=array()) {
+	private function _get($url, $params=array(), $headers=array()) {
 		if(!empty($params) && is_array($params))
 			$url .= '?' . http_build_query($params);
 		
 		$ch = curl_init($url);
 		
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		
+		if(!empty($headers))
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		
 		$out = curl_exec($ch);
 
 		$info = curl_getinfo($ch);
