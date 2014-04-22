@@ -246,6 +246,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		return $results;
 	}
 	
+	// [TODO] Fix 'option_bits'
 	static function update($ids, $fields, $option_bits=0, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);

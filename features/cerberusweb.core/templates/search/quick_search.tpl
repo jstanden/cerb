@@ -181,6 +181,12 @@ var $frm = $('#{$uniqid}').each(function(e) {
 		if(e.which == 13) {
 			var $txt = $(this);
 			
+			// [TODO] Store quick search history in HTML localStorage and use it as new hints?
+			// [TODO] Adapt examples as text is entered?
+			// [TODO] Convert this to autocomplete instead?
+			// [TODO] Make them with with TAB focus
+			// [TODO] Don't hide the popup until we actually intend to (e.g. not on blur from textbox to popup or SELECT)
+			
 			genericAjaxPost('{$uniqid}','',null,function(json) {
 				if(json.status == true) {
 					{if !empty($return_url)}

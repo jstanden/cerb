@@ -15,6 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
+// [TODO] Can we extend a generic message event instead of being redundant?
 class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 	const ID = 'event.mail.received.watcher';
 	

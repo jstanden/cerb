@@ -344,6 +344,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		DAO_Ticket::update($id, $fields);
 		
 		// Custom field saves
+		// [TODO] Log these to the context_changeset table
+		// [TODO] Bundle with the DAO::update() call?
 		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
 		DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TICKET, $id, $field_ids);
 
@@ -1083,6 +1085,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			return;
 		}
 
+		// [TODO] Check for changes
 		if(is_array($last_action->ticket_ids) && !empty($last_action->ticket_ids))
 		foreach($last_action->ticket_ids as $ticket_id => $fields) {
 			DAO_Ticket::update($ticket_id, $fields);

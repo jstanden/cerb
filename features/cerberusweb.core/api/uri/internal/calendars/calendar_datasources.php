@@ -122,6 +122,7 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 						$ts = strtotime($ts_offset, $row[$field_start_date]);
 
 						// [TODO] This should be more efficient
+						// [TODO] It can be with the new lazy loader (we can preload the requested tokens)
 						CerberusContexts::getContext($context_ext->id, $id, $labels, $values);
 						
 						$ts_end_offset = @$params['field_end_date_offset'] ?: 'now';

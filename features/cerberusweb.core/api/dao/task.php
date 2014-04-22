@@ -144,6 +144,7 @@ class DAO_Task extends Cerb_ORMHelper {
 			 * Task completed
 			 */
 			
+			// [TODO] We can merge this with 'Record changed'
 			if(isset($change_fields[DAO_Task::IS_COMPLETED]) && $model->is_completed) {
 				/*
 				 * Log activity (task.status.*)

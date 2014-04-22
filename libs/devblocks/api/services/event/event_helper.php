@@ -3587,6 +3587,7 @@ class DevblocksEventHelper {
 		$dict->$var_view_id_key = $view->id;
 		
 		// [TODO] Iterate through pages if over a certain list length?
+		// [TODO] I believe we solved this by just setting ctx:id rows first
 		//$view->renderLimit = (isset($params['limit']) && is_numeric($params['limit'])) ? intval($params['limit']) : 100;
 		$view->renderLimit = 100;
 		$view->renderPage = 0;

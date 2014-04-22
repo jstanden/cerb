@@ -1934,6 +1934,7 @@ class CerberusSettingsDefaults {
 	const TIME_FORMAT = 'D, d M Y h:i a';
 };
 
+// [TODO] Implement our own session handler w/o PHP 'session'
 class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 	static $_data = null;
 	
@@ -1947,6 +1948,12 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 	
 	static function read($id) {
 		$db = DevblocksPlatform::getDatabaseService();
+		
+		// [TODO] Don't set a cookie until logging in (redo session code)
+		// [TODO] Security considerations in book (don't allow non-SSL connections)
+		// [TODO] Allow Cerb to configure sticky IP sessions (or by subnet) as setting
+		// [TODO] Allow Cerb to enable user-agent comparisons as setting
+		// [TODO] Limit the IPs a worker can log in from (per-worker?)
 		
 		if(null != ($session = $db->GetRow(sprintf("SELECT session_data, refreshed_at, user_ip, user_agent FROM devblocks_session WHERE session_key = %s", $db->qstr($id))))) {
 			$maxlifetime = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);

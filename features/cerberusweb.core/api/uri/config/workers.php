@@ -203,6 +203,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				DAO_Address::lookupAddress($email, true);
 			
 			// Addresses
+			// [TODO] This can insert dupe rows under some conditions
 			if(null == DAO_AddressToWorker::getByAddress($email)) {
 				DAO_AddressToWorker::assign($email, $id, true);
 			}

@@ -2066,6 +2066,7 @@ class Context_Message extends Extension_DevblocksContext {
 				break;
 				
 			case 'content':
+				// [TODO] Allow an array with storage meta here?  It removes an extra (n) SELECT in dictionaries for content
 				$values['content'] = Storage_MessageContent::get($context_id);
 				break;
 				

@@ -111,6 +111,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		if(false == ($models = DAO_CrmOpportunity::getIds($ids)))
 			return;
 		
+		// [TODO] These can be merged with 'Record changed' now
 		foreach($models as $model) {
 			/*
 			 * Opp status changed
