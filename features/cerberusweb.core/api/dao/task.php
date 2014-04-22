@@ -135,16 +135,29 @@ class DAO_Task extends Cerb_ORMHelper {
 		
 		// Load records only if they're needed
 		
+		if(false == ($before_models = CerberusContexts::getCheckpoints(CerberusContexts::CONTEXT_TASK, $ids)))
+			return;
+		
 		if(false == ($models = DAO_Task::getIds($ids)))
 			return;
 		
-		foreach($models as $model) {
+		foreach($models as $id => $model) {
+			if(!isset($before_models[$id]))
+				continue;
+			
+			$before_model = (object) $before_models[$id];
 			
 			/*
 			 * Task completed
 			 */
 			
 			// [TODO] We can merge this with 'Record changed'
+			
+			@$is_completed = $change_fields[DAO_Task::IS_COMPLETED];
+			
+			if($is_completed == $before_model->is_completed)
+				unset($change_fields[DAO_Task::IS_COMPLETED]);
+			
 			if(isset($change_fields[DAO_Task::IS_COMPLETED]) && $model->is_completed) {
 				/*
 				 * Log activity (task.status.*)

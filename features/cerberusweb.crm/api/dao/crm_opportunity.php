@@ -108,14 +108,31 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		
 		// Load records only if they're needed
 		
+		if(false == ($before_models = CerberusContexts::getCheckpoints(CerberusContexts::CONTEXT_OPPORTUNITY, $ids)))
+			return;
+		
 		if(false == ($models = DAO_CrmOpportunity::getIds($ids)))
 			return;
 		
 		// [TODO] These can be merged with 'Record changed' now
-		foreach($models as $model) {
+		foreach($models as $id => $model) {
+			if(!isset($before_models[$id]))
+				continue;
+			
+			$before_model = (object) $before_models[$id];
+			
 			/*
 			 * Opp status changed
 			 */
+			
+			@$is_closed = $change_fields[DAO_CrmOpportunity::IS_CLOSED];
+			@$is_won = $change_fields[DAO_CrmOpportunity::IS_WON];
+			
+			if($is_closed == $before_model->is_closed)
+				unset($change_fields[DAO_CrmOpportunity::IS_CLOSED]);
+			
+			if($is_won == $before_model->is_won)
+				unset($change_fields[DAO_CrmOpportunity::IS_WON]);
 			
 			if(
 				isset($change_fields[DAO_CrmOpportunity::IS_CLOSED])

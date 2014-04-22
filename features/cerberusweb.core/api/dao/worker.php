@@ -309,15 +309,23 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		// Load records only if they're needed
 		
-		if(false == ($models = DAO_Worker::getIds($ids)))
+		if(false == ($before_models = CerberusContexts::getCheckpoints(CerberusContexts::CONTEXT_WORKER, $ids)))
 			return;
 		
-		foreach($models as $model) {
+		foreach($before_models as $id => $before_model) {
+			$before_model = (object) $before_model;
+			
 			/*
 			 * Worker deactivated
 			 */
-			if(isset($change_fields[DAO_Worker::IS_DISABLED]) && $model->is_disabled) {
-				Cerb_DevblocksSessionHandler::destroyByWorkerIds($model->id);
+			
+			@$is_disabled = $change_fields[DAO_Worker::IS_DISABLED];
+			
+			if($is_disabled == $before_model->is_disabled)
+				unset($change_fields[DAO_Worker::IS_DISABLED]);
+			
+			if(isset($change_fields[DAO_Worker::IS_DISABLED]) && $is_disabled) {
+				Cerb_DevblocksSessionHandler::destroyByWorkerIds($before_model->id);
 			}
 		}
 	}

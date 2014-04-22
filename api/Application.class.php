@@ -1639,6 +1639,18 @@ class CerberusContexts {
 		}
 	}
 	
+	static function getCheckpoints($context, $ids) {
+		$models = array();
+		
+		if(isset(self::$_context_checkpoints[$context]))
+		foreach($ids as $id) {
+			if(isset(self::$_context_checkpoints[$context][$id]))
+				$models[$id] = self::$_context_checkpoints[$context][$id];
+		}
+		
+		return $models;
+	}
+	
 	static function shutdown() {
 		if(empty(self::$_context_checkpoints))
 			return;

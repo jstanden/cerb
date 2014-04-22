@@ -691,17 +691,28 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		// Load records only if they're needed
 		
+		if(false == ($before_models = CerberusContexts::getCheckpoints(CerberusContexts::CONTEXT_TICKET, $ids)))
+			return;
+		
 		if(false == ($models = DAO_Ticket::getIds($ids)))
 			return;
 		
-		foreach($models as $model) {
-		
+		foreach($models as $id => $model) {
+			if(!isset($before_models[$id]))
+				continue;
+			
+			$before_model = (object) $before_models[$id];
+			
 			/*
 			 * Owner changed
 			 */
 			
+			@$owner_id = $change_fields[DAO_Ticket::OWNER_ID];
+			
+			if($owner_id == $before_model->owner_id)
+				unset($change_fields[DAO_Ticket::OWNER_ID]);
+			
 			if(isset($change_fields[DAO_Ticket::OWNER_ID])) {
-				$owner_id = $change_fields[DAO_Ticket::OWNER_ID];
 				
 				// Mail assigned in group
 				
@@ -709,7 +720,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				
 				// Log activity (ticket.unassigned)
 				
-				if(empty($owner_id['to'])) {
+				if(empty($model->owner_id)) {
 					$activity_point = 'ticket.owner.unassigned';
 					
 					$entry = array(
@@ -727,9 +738,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				
 				// Log activity (ticket.assigned)
 				
-				if($owner_id) {
+				elseif($model->owner_id) {
 					$activity_point = 'ticket.owner.assigned';
-					$target_worker = DAO_Worker::get($owner_id);
+					$target_worker = DAO_Worker::get($model->owner_id);
 	
 					$entry = array(
 						//{{actor}} assigned ticket {{target}} to worker {{worker}}
@@ -754,16 +765,21 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			@$group_id = $change_fields[DAO_Ticket::GROUP_ID];
 			@$bucket_id = $change_fields[DAO_Ticket::BUCKET_ID];
 			
-			if(!empty($group_id) || !empty($bucket_id)) {
-				
+			if($group_id == $before_model->group_id)
+				unset($change_fields[DAO_Ticket::GROUP_ID]);
+			
+			if($bucket_id == $before_model->bucket_id)
+				unset($change_fields[DAO_Ticket::BUCKET_ID]);
+			
+			if(isset($change_fields[DAO_Ticket::GROUP_ID]) || isset($change_fields[DAO_Ticket::BUCKET_ID])) {
 				// VAs
 
 				Event_MailMovedToGroup::trigger($model->id, $model->group_id);
 
 				// Activity log
 				
-				@$to_group = DAO_Group::get($group_id);
-				@$to_bucket = DAO_Bucket::get($bucket_id);
+				@$to_group = DAO_Group::get($model->group_id);
+				@$to_bucket = DAO_Bucket::get($model->bucket_id);
 				
 				if(empty($to_group))
 					$to_group = DAO_Group::get($model->group_id);
@@ -788,14 +804,24 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			 * Ticket status change
 			 */
 
+			@$waiting = $change_fields[DAO_Ticket::IS_WAITING];
+			@$closed = $change_fields[DAO_Ticket::IS_CLOSED];
+			@$deleted = $change_fields[DAO_Ticket::IS_DELETED];
+			
+			if($waiting == $before_model->is_waiting)
+				unset($change_fields[DAO_Ticket::IS_WAITING]);
+			
+			if($closed == $before_model->is_closed)
+				unset($change_fields[DAO_Ticket::IS_CLOSED]);
+			
+			if($deleted == $before_model->is_deleted)
+				unset($change_fields[DAO_Ticket::IS_DELETED]);
+			
 			if(
 				isset($change_fields[DAO_Ticket::IS_WAITING])
 				|| isset($change_fields[DAO_Ticket::IS_CLOSED])
 				|| isset($change_fields[DAO_Ticket::IS_DELETED])
 			) {
-				@$waiting = $change_fields[DAO_Ticket::IS_WAITING];
-				@$closed = $change_fields[DAO_Ticket::IS_CLOSED];
-				@$deleted = $change_fields[DAO_Ticket::IS_DELETED];
 
 				/*
 				 * If closing for the first time, record the date and elapsed time
