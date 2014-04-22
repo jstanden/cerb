@@ -116,8 +116,12 @@ class DevblocksPlatform extends DevblocksEngine {
 		// Sanitize input
 		switch($type) {
 			case 'array':
-				if(!is_array($value))
-					$value = array($value);
+				if(!is_array($value)) {
+					if(is_null($value))
+						$value = array();
+					else
+						$value = array($value);
+				}
 				
 				if(isset($array_cast))
 					$value = DevblocksPlatform::sanitizeArray($value, $array_cast);
