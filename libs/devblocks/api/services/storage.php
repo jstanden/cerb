@@ -195,7 +195,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 				return false;
 			}
 				
-			if(false == mysqli_select_db($this->_options['database'], $this->_db)) {
+			if(false == mysqli_select_db($this->_db, $this->_options['database'])) {
 				$this->_db = null;
 				return false;
 			}
@@ -222,7 +222,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 			return false;
 			
 		// Test switching DB
-		if(false == @mysqli_select_db($database, $this->_db))
+		if(false == @mysqli_select_db($this->_db, $database))
 			return false;
 		
 		return true;

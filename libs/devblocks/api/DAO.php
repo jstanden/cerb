@@ -423,7 +423,8 @@ class DAO_Platform {
 
 class DAO_DevblocksSetting extends DevblocksORMHelper {
 	static function set($plugin_id, $key, $value) {
-		$db = DevblocksPlatform::getDatabaseService();
+		if(false == ($db = DevblocksPlatform::getDatabaseService()))
+			return;
 		
 		$db->Execute(sprintf(
 			"REPLACE INTO devblocks_setting (plugin_id, setting, value) ".
@@ -436,7 +437,9 @@ class DAO_DevblocksSetting extends DevblocksORMHelper {
 	
 	// This doesn't need to cache because it's handled by the platform
 	static function getSettings($plugin_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		if(false == ($db = DevblocksPlatform::getDatabaseService()))
+			return;
+		
 		$settings = array();
 		
 		$results = $db->GetArray(sprintf("SELECT setting, value FROM devblocks_setting WHERE plugin_id = %s",

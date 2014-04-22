@@ -335,7 +335,7 @@ switch($step) {
 			$errors = array();
 			
 			if(false !== (@$_db = mysqli_connect($db_server, $db_user, $db_pass))) {
-				if(false !== mysqli_select_db($db_name, $_db)) {
+				if(false !== mysqli_select_db($_db, $db_name)) {
 					$db_passed = true;
 				} else {
 					$db_passed = false;
