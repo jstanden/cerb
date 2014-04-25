@@ -165,16 +165,16 @@
 		
 		$this.find('BUTTON.add-variable').click(function() {
 			var $button = $(this);
-			$button.next('ul.cerb-popupmenu').toggle();
+			$button.next('ul.add-variable-menu').toggle();
 		});
 		
 		$this.find('UL.add-variable-menu LI').click(function(e) {
-			var $menu = $(this).closest('ul.cerb-popupmenu');
+			var $menu = $(this).closest('ul.add-variable-menu');
 			var field_type = $(this).find('a').attr('field_type');
 			
 			genericAjaxGet('', 'c=internal&a=addTriggerVariable&type=' +  encodeURIComponent(field_type), function(o) {
 				var $container = $('#divBehaviorVariables{$trigger->id}');
-				$container.html(o);
+				var $html = $(o).appendTo($container);
 			});
 			
 			$menu.hide();
