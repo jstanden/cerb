@@ -125,6 +125,8 @@
 		
 		<div class="config"></div>
 		
+		<div class="status"></div>
+		
 		<div style="margin-top:10px;">
 			<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.continue'|devblocks_translate|capitalize}</button>
 		</div>
@@ -187,15 +189,19 @@
 			
 			$frm_import.find('button.submit').click(function() {
 				genericAjaxPost('frmBehaviorImport','','c=internal&a=saveBehaviorImportJson', function(json) {
+					var $status = $frm_import.find('div.status');
 					
-					$popup = genericAjaxPopupFetch('node_trigger');
-					
-					if(json.config_html) {
-						var $frm_import = $('#frmBehaviorImport');
+					if(json.error) {
+						Devblocks.showError($status, json.error);
+						
+					} else if(json.config_html) {
+						$status.html('').hide();
 						$frm_import.find('div.import').hide();
 						$frm_import.find('div.config').hide().html(json.config_html).fadeIn();
 						
 					} else {
+						$status.html('').hide();
+						
 						event = jQuery.Event('trigger_create');
 						event.trigger_id = json.trigger_id;
 						event.event_point = json.event_point;
