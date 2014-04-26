@@ -137,6 +137,12 @@ if(!isset($columns['event_params_json'])) {
 }
 
 // ===========================================================================
+// Fix incorrectly created worker addresses
+
+$sql = "UPDATE address_to_worker SET worker_id=is_confirmed, is_confirmed=1 WHERE is_confirmed > 1";
+$db->Execute($sql);
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

@@ -36,8 +36,8 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 		$sql = sprintf("INSERT INTO address_to_worker (address, worker_id, is_confirmed, code, code_expire) ".
 			"VALUES (%s, %d, %d, '', 0)",
 			$db->qstr($address),
-			($is_confirmed ? 1 : 0),
-			$worker_id
+			$worker_id,
+			($is_confirmed ? 1 : 0)
 		);
 		$db->Execute($sql);
 
