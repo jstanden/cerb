@@ -3490,6 +3490,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			));
 			
 			echo json_encode(array(
+				'success' => true,
 				'trigger_id' => $trigger_id,
 				'event_point' => $event_point,
 			));
@@ -3499,7 +3500,10 @@ class ChInternalController extends DevblocksControllerExtension {
 			if(!empty($trigger_id))
 				DAO_TriggerEvent::delete($trigger_id);
 			
-			echo json_encode(array(false, $e->getMessage()));
+			echo json_encode(array(
+				'success' => false,
+				'error' => $e->getMessage()
+			));
 			return;
 		}
 	}
