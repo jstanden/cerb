@@ -143,6 +143,12 @@ $sql = "UPDATE address_to_worker SET worker_id=is_confirmed, is_confirmed=1 WHER
 $db->Execute($sql);
 
 // ===========================================================================
+// Fix VA 'On:' targets in behavior actions
+
+$sql = "UPDATE decision_node SET params_json=replace(params_json, '\"on\":\"va_id\"', '\"on\":\"_trigger_va_id\"') WHERE params_json LIKE '%\"on\":\"va_id\"%' AND trigger_id IN (SELECT id FROM trigger_event WHERE event_point != 'event.macro.virtual_attendant')";
+$db->Execute($sql);
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
