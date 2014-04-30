@@ -15,9 +15,11 @@
 	<br>
 	<textarea name="content" rows="15" cols="60" style="width:98%;">
 ## Relayed from {devblocks_url full=true}c=profiles&w=ticket&mask={$ticket->mask}{/devblocks_url}
+## 
 ## Your reply to this message will be sent to the requesters.
 ## Instructions: http://wiki.cerbweb.com/Email_Relay
 ##
+## {if !empty($sender_name)}{$sender->getName()} &lt;{$sender->email}&gt;{else}{$sender->email}{/if} wrote:
 {$message->getContent()}</textarea>
 
 	<label><input type="checkbox" name="include_attachments" value="1"> Include attachments</label>

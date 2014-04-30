@@ -1104,15 +1104,21 @@ class CerberusMail {
 			: array()
 			;
 		
-		if(empty($content))
+		if(empty($content)) {
+			$sender_name = $sender->getName();
+
 			$content = sprintf("## Relayed from %s\r\n".
 				"## Your reply to this message will be sent to the requesters.\r\n".
 				"## Instructions: http://wiki.cerbweb.com/Email_Relay\r\n".
 				"##\r\n".
+				"## %s%s wrote:\r\n".
 				"%s",
 				$ticket_url,
+				(!empty($sender_name) ? ($sender_name . ' ') : ''),
+				$sender->email,
 				$message->getContent()
 			);
+		}
 		
 		if(is_array($emails))
 		foreach($emails as $to) {
@@ -1129,18 +1135,14 @@ class CerberusMail {
 	
 				$headers = $mail->getHeaders(); /* @var $headers Swift_Mime_Header */
 	
-				$sender_name = $sender->getName();
-				
-				if(!empty($sender_name)) {
-					$mail->setFrom($sender->email, $sender_name);
-				} else {
-					$mail->setFrom($sender->email);
-				}
-			
 				$replyto_personal = $replyto->getReplyPersonal($worker);
+			
 				if(!empty($replyto_personal)) {
+					$mail->setFrom($replyto->email, $replyto_personal);
 					$mail->setReplyTo($replyto->email, $replyto_personal);
+					
 				} else {
+					$mail->setFrom($replyto->email, $replyto_personal);
 					$mail->setReplyTo($replyto->email);
 				}
 
