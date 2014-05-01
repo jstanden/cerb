@@ -221,6 +221,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		$fields = array(
 			DAO_Ticket::IS_CLOSED => 1,
 			DAO_Ticket::IS_DELETED => 1,
+			DAO_Ticket::IS_WAITING => 0,
 		);
 		
 		// Only update fields that changed
@@ -266,6 +267,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 				'id' => DAO_Ticket::ID,
 				'is_closed' => DAO_Ticket::IS_CLOSED,
 				'is_deleted' => DAO_Ticket::IS_DELETED,
+				'is_waiting' => DAO_Ticket::IS_WAITING,
 				'mask' => DAO_Ticket::MASK,
 				'subject' => DAO_Ticket::SUBJECT,
 			);
@@ -277,6 +279,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 				'id' => SearchFields_Ticket::TICKET_ID,
 				'is_closed' => SearchFields_Ticket::TICKET_CLOSED,
 				'is_deleted' => SearchFields_Ticket::TICKET_DELETED,
+				'is_waiting' => SearchFields_Ticket::TICKET_WAITING,
 				'last_wrote' => SearchFields_Ticket::TICKET_LAST_WROTE,
 				'mask' => SearchFields_Ticket::TICKET_MASK,
 				'requester' => SearchFields_Ticket::REQUESTER_ADDRESS,
