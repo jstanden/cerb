@@ -619,14 +619,17 @@ abstract class Extension_RestController extends DevblocksExtension {
 		@$page = DevblocksPlatform::importGPC($_REQUEST['page'],'integer',1);
 		@$limit = DevblocksPlatform::importGPC($_REQUEST['limit'],'integer',10);
 
-		@$show_meta = DevblocksPlatform::importGPC($_REQUEST['show_meta'],'string',null);
-		$show_meta = (0 == strlen($show_meta) || empty($show_meta)) ? false : true;
+		@$show_meta = DevblocksPlatform::importGPC($_REQUEST['show_meta'],'string','');
+		$show_meta = (0 == strlen($show_meta) || !empty($show_meta)) ? true : false;
+		
+		@$show_results = DevblocksPlatform::importGPC($_REQUEST['show_results'],'string','');
+		$show_results = (0 == strlen($show_results) || !empty($show_results)) ? true: false;
 		
 		@$subtotals = DevblocksPlatform::importGPC($_REQUEST['subtotals'],'array',array());
 		
 		@$sortToken = DevblocksPlatform::importGPC($_REQUEST['sortBy'],'string',null);
 		@$sortAsc = DevblocksPlatform::importGPC($_REQUEST['sortAsc'],'integer',1);
-
+		
 		if(count($criteria) != count($opers) || count($criteria) != count($values))
 			$this->error(self::ERRNO_SEARCH_FILTERS_INVALID);
 		
@@ -644,6 +647,8 @@ abstract class Extension_RestController extends DevblocksExtension {
 		}
 		
 		$options = array(
+			'show_meta' => $show_meta,
+			'show_results' => $show_results,
 			'subtotals' => $subtotals,
 		);
 		

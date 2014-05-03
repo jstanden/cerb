@@ -145,6 +145,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 	}
 	
 	function search($filters=array(), $sortToken='email', $sortAsc=1, $page=1, $limit=10, $options=array()) {
+		@$show_results = DevblocksPlatform::importVar($options['show_results'], 'boolean', true);
 		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
 		
 		$worker = CerberusApplication::getActiveWorker();
