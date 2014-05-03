@@ -127,15 +127,15 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 		return NULL;
 	}
 	
-	function getContext($id) {
+	function getContext($model) {
 		$labels = array();
 		$values = array();
-		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, $id, $labels, $values, null, true);
+		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, $model, $labels, $values, null, true);
 
 		return $values;
 	}
 	
-	function search($filters=array(), $sortToken='name', $sortAsc=1, $page=1, $limit=10) {
+	function search($filters=array(), $sortToken='name', $sortAsc=1, $page=1, $limit=10, $options=array()) {
 		$worker = CerberusApplication::getActiveWorker();
 
 		$params = $this->_handleSearchBuildParams($filters);

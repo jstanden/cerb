@@ -537,7 +537,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 		$this->error('DELETE not implemented.');
 	}
 	
-//	protected function _search($filters, $sortToken, $sortAsc, $page, $limit) {
+//	protected function _search($filters, $sortToken, $sortAsc, $page, $limit, $options) {
 // [TODO] Overload
 //	}
 
@@ -699,7 +699,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 };
 
 interface IExtensionRestController {
-	function getContext($id);
-	function search($filters=array(), $sortToken='', $sortAsc=1, $page=1, $limit=10);
+	function getContext($model);
+	function search($filters=array(), $sortToken='', $sortAsc=1, $page=1, $limit=10, $options=array());
 	function translateToken($token, $type='dao');
 };

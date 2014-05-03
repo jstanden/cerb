@@ -71,10 +71,10 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 //		$this->success($result);
 	}
 	
-	function getContext($id) {
+	function getContext($model) {
 		$labels = array();
 		$values = array();
-		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $id, $labels, $values, null, true);
+		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $model, $labels, $values, null, true);
 
 //		unset($values['initial_message_content']);
 
@@ -136,7 +136,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		$this->success($container);
 	}
 	
-	function search($filters=array(), $sortToken='first_name', $sortAsc=1, $page=1, $limit=10) {
+	function search($filters=array(), $sortToken='first_name', $sortAsc=1, $page=1, $limit=10, $options=array()) {
 		$worker = CerberusApplication::getActiveWorker();
 		
 		$params = $this->_handleSearchBuildParams($filters);

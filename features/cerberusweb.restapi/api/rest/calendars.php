@@ -81,11 +81,11 @@ class ChRest_Calendars extends Extension_RestController implements IExtensionRes
 		return NULL;
 	}
 
-	function getContext($id) {
+	function getContext($model) {
 		$labels = array();
 		$values = array();
 		
-		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_CALENDAR, $id, $labels, $values, null, true);
+		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_CALENDAR, $model, $labels, $values, null, true);
 
 		@$month = DevblocksPlatform::importGPC($_REQUEST['month'], 'integer', date('m'));
 		@$year = DevblocksPlatform::importGPC($_REQUEST['year'], 'integer', date('Y'));
@@ -143,7 +143,7 @@ class ChRest_Calendars extends Extension_RestController implements IExtensionRes
 		$this->success($container);
 	}
 	
-	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10) {
+	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10, $options=array()) {
 		$worker = CerberusApplication::getActiveWorker();
 
 		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_CALENDAR);

@@ -94,10 +94,10 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
-	function getContext($id) {
+	function getContext($model) {
 		$labels = array();
 		$values = array();
-		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $id, $labels, $values, null, true);
+		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $model, $labels, $values, null, true);
 
 		unset($values['initial_message_content']);
 		unset($values['latest_message_content']);
@@ -299,7 +299,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		return NULL;
 	}
 	
-	function search($filters=array(), $sortToken='updated', $sortAsc=0, $page=1, $limit=10) {
+	function search($filters=array(), $sortToken='updated', $sortAsc=0, $page=1, $limit=10, $options=array()) {
 		$worker = CerberusApplication::getActiveWorker();
 
 		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_TICKET);

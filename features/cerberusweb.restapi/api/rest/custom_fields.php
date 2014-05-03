@@ -115,7 +115,7 @@ class ChRest_CustomFields extends Extension_RestController implements IExtension
 		return NULL;
 	}
 	
-	function search($filters=array(), $sortToken='email', $sortAsc=1, $page=1, $limit=10) {
+	function search($filters=array(), $sortToken='email', $sortAsc=1, $page=1, $limit=10, $options=array()) {
 		return NULL;
 	}
 	

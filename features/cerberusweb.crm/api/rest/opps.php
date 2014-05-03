@@ -77,10 +77,10 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
-	function getContext($id) {
+	function getContext($model) {
 		$labels = array();
 		$values = array();
-		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $id, $labels, $values, null, true);
+		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $model, $labels, $values, null, true);
 
 //		unset($dict->initial_message_content);
 		
@@ -93,7 +93,6 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 		if('dao'==$type) {
 			$tokens = array(
 				'amount' => DAO_CrmOpportunity::AMOUNT,
-//				'assignee_id' => DAO_CrmOpportunity::WORKER_ID,
 				'created' => DAO_CrmOpportunity::CREATED_DATE,
 				'email_id' => DAO_CrmOpportunity::PRIMARY_EMAIL_ID,
 				'is_closed' => DAO_CrmOpportunity::IS_CLOSED,
@@ -140,7 +139,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 		$this->error(self::ERRNO_CUSTOM, sprintf("Invalid opportunity id '%d'", $id));
 	}
 	
-	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10) {
+	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10, $options=array()) {
 		$worker = CerberusApplication::getActiveWorker();
 
 		$params = $this->_handleSearchBuildParams($filters);

@@ -108,12 +108,12 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 		return NULL;
 	}
 	
-	function getContext($id) {
+	function getContext($model) {
 		$labels = array();
 		$values = array();
-		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_FEEDBACK, $id, $labels, $values, null, true);
+		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_FEEDBACK, $model, $labels, $values, null, true);
 
-		unset($dict->quote_mood_id);
+		unset($values['quote_mood_id']);
 
 		return $values;
 	}
@@ -136,7 +136,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 		$this->error(self::ERRNO_CUSTOM, sprintf("Invalid feedback id '%d'", $id));
 	}
 	
-	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10) {
+	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10, $options=array()) {
 		$worker = CerberusApplication::getActiveWorker();
 
 		foreach($filters as $k => $filter) {

@@ -97,10 +97,10 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 		return NULL;
 	}
 
-	function getContext($id) {
+	function getContext($model) {
 		$labels = array();
 		$values = array();
-		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_TASK, $id, $labels, $values, null, true);
+		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_TASK, $model, $labels, $values, null, true);
 
 		return $values;
 	}
@@ -123,7 +123,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 		$this->error(self::ERRNO_CUSTOM, sprintf("Invalid task id '%d'", $id));
 	}
 	
-	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10) {
+	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10, $options=array()) {
 		$worker = CerberusApplication::getActiveWorker();
 
 		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_TASK);
