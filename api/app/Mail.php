@@ -1097,7 +1097,8 @@ class CerberusMail {
 		$url_writer = DevblocksPlatform::getUrlService();
 		$ticket_url = $url_writer->write(sprintf('c=profiles&w=ticket&mask=%s', $ticket->mask), true);
 		
-		$replyto = $group->getReplyTo($ticket->bucket_id);
+		// Use the default so our 'From:' is always consistent
+		$replyto = DAO_AddressOutgoing::getDefault();
 		
 		$attachment_data = ($include_attachments)
 			? DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_MESSAGE, $message->id)
@@ -1142,7 +1143,7 @@ class CerberusMail {
 					$mail->setReplyTo($replyto->email, $replyto_personal);
 					
 				} else {
-					$mail->setFrom($replyto->email, $replyto_personal);
+					$mail->setFrom($replyto->email);
 					$mail->setReplyTo($replyto->email);
 				}
 

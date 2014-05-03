@@ -3289,7 +3289,8 @@ class DevblocksEventHelper {
 			return;
 		}
 		
-		$replyto = $group->getReplyTo($bucket_id);
+		$replyto = DAO_AddressOutgoing::getDefault();
+
 		$relay_list = isset($params['to']) ? $params['to'] : array();
 		
 		// Attachments
