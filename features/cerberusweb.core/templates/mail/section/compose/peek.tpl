@@ -1,3 +1,5 @@
+{$mail_reply_html = DAO_WorkerPref::get($active_worker->id, 'mail_reply_html', 0)}
+
 {$random = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmComposePeek{$random}" onsubmit="return false;">
 <input type="hidden" name="c" value="tickets">
@@ -8,7 +10,7 @@
 <input type="hidden" name="link_context" value="{$link_context}">
 <input type="hidden" name="link_context_id" value="{$link_context_id}">
 {/if}
-<input type="hidden" name="format" value="">
+<input type="hidden" name="format" value="{if ($draft && $draft->params.format == 'parsedown') || $mail_reply_html}parsedown{/if}">
 
 <fieldset class="peek">
 	<legend>{'common.message'|devblocks_translate|capitalize}</legend>
@@ -307,9 +309,13 @@
 			//{ separator:'---------------' }
 		);
 		
-		{* [TODO] Load the worker preference for formatting *}
 		try {
 			$content.markItUp(markitupPlaintextSettings);
+			
+			{if ($draft && $draft->params.format == 'parsedown') || $mail_reply_html}
+			markitupReplyFunctions.switchToMarkdown();
+			{/if}
+			
 			$content.elastic();
 			
 		} catch(e) {
