@@ -1327,7 +1327,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			$token_values['updated_at'] = $calendar->updated_at;
 			
 			// Custom fields
-			$token_values = $this->_mergeModelCustomFields($calendar, $token_values);
+			$token_values = $this->_importModelCustomFieldsAsValues($calendar, $token_values);
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
