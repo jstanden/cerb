@@ -1649,6 +1649,7 @@ abstract class C4_AbstractView {
 		
 		foreach($results as $result) {
 			$label = $result['label'];
+			$key = $label;
 			$hits = $result['hits'];
 
 			if(isset($label_map[$result['label']]))
@@ -1657,8 +1658,8 @@ abstract class C4_AbstractView {
 			// Null strings
 			if(empty($label)) {
 				$label = '(none)';
-				if(!isset($counts[$label]))
-					$counts[$label] = array(
+				if(!isset($counts[$key]))
+					$counts[$key] = array(
 						'hits' => $hits,
 						'label' => $label,
 						'filter' =>
@@ -1672,15 +1673,15 @@ abstract class C4_AbstractView {
 				
 			// Anything else
 			} else {
-				if(!isset($counts[$label]))
-					$counts[$label] = array(
+				if(!isset($counts[$key]))
+					$counts[$key] = array(
 						'hits' => $hits,
 						'label' => $label,
 						'filter' =>
 							array(
 								'field' => $field_key,
 								'oper' => $value_oper,
-								'values' => array($value_key => $result['label']),
+								'values' => array($value_key => $key),
 							),
 						'children' => array()
 					);
@@ -1698,6 +1699,7 @@ abstract class C4_AbstractView {
 		
 		foreach($results as $result) {
 			$label = $result['label'];
+			$key = $label;
 			$hits = $result['hits'];
 
 			if(isset($label_map[$result['label']]))
@@ -1706,8 +1708,8 @@ abstract class C4_AbstractView {
 			// Null strings
 			if(empty($label)) {
 				$label = '(none)';
-				if(!isset($counts[$label]))
-					$counts[$label] = array(
+				if(!isset($counts[$key]))
+					$counts[$key] = array(
 						'hits' => $hits,
 						'label' => $label,
 						'filter' =>
@@ -1721,15 +1723,15 @@ abstract class C4_AbstractView {
 				
 			// Anything else
 			} else {
-				if(!isset($counts[$label]))
-					$counts[$label] = array(
+				if(!isset($counts[$key]))
+					$counts[$key] = array(
 						'hits' => $hits,
 						'label' => $label,
 						'filter' =>
 							array(
 								'field' => $field_key,
 								'oper' => $value_oper,
-								'values' => array($value_key => $result['label']),
+								'values' => array($value_key => $key),
 							),
 						'children' => array()
 					);
@@ -1754,6 +1756,7 @@ abstract class C4_AbstractView {
 			if(!empty($label)) {
 				$label = $translate->_('common.yes');
 				$value = 1;
+				
 			} else {
 				$label = $translate->_('common.no');
 				$value = 0;
@@ -1838,7 +1841,7 @@ abstract class C4_AbstractView {
 		$results = $this->_getSubtotalDataForWatcherColumn($dao_class, $field_key);
 		
 		foreach($results as $result) {
-			$watcher_id = $result['watcher_id'];
+			$watcher_id = intval($result['watcher_id']);
 			$hits = $result['hits'];
 			$label = '';
 
@@ -1846,14 +1849,15 @@ abstract class C4_AbstractView {
 				$label = $workers[$watcher_id]->getName();
 				$oper = DevblocksSearchCriteria::OPER_IN;
 				$values = array('worker_id[]' => $watcher_id);
+				
 			} else {
 				$label = '(nobody)';
 				$oper = DevblocksSearchCriteria::OPER_IS_NULL;
 				$values = array('');
 			}
 			
-			if(!isset($counts[$label]))
-				$counts[$label] = array(
+			if(!isset($counts[$watcher_id]))
+				$counts[$watcher_id] = array(
 					'hits' => $hits,
 					'label' => $label,
 					'filter' =>
@@ -2185,7 +2189,7 @@ abstract class C4_AbstractView {
 			if(empty($custom_fieldset))
 				continue;
 			
-			$counts[] = array(
+			$counts[$custom_fieldset->id] = array(
 				'hits' => $row['hits'],
 				'label' => $custom_fieldset->name,
 				'filter' => array(
