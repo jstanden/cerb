@@ -635,6 +635,8 @@ class CerberusContexts {
 	private static $_default_actor_context = null;
 	private static $_default_actor_context_id = null;
 	
+	private static $_stack = array();
+	
 	const CONTEXT_APPLICATION = 'cerberusweb.contexts.app';
 	const CONTEXT_ACTIVITY_LOG = 'cerberusweb.contexts.activity_log';
 	const CONTEXT_ADDRESS = 'cerberusweb.contexts.address';
@@ -686,7 +688,14 @@ class CerberusContexts {
 		}
 	}
 	
+	public static function getStack() {
+		return self::$_stack;
+	}
+	
 	public static function getContext($context, $context_object, &$labels, &$values, $prefix=null, $nested=false, $skip_labels=false) {
+		// Push the stack
+		self::$_stack[] = $context;
+		
 		switch($context) {
 			case 'cerberusweb.contexts.attachment':
 				self::_getAttachmentContext($context_object, $labels, $values, $prefix);
@@ -829,6 +838,9 @@ class CerberusContexts {
 			
 			$values['_labels'] = $labels;
 		}
+		
+		// Pop the stack
+		array_pop(self::$_stack);
 		
 		return null;
 	}

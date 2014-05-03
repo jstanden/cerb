@@ -400,6 +400,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	}
 	
 	protected function _getTokenLabelsFromCustomFields($fields, $prefix) {
+		$context_stack = CerberusContexts::getStack();
+
 		$labels = array();
 		$fieldsets = DAO_CustomFieldset::getAll();
 		
@@ -407,31 +409,37 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		foreach($fields as $cf_id => $field) {
 			$fieldset = $field->custom_fieldset_id ? @$fieldsets[$field->custom_fieldset_id] : null;
 		
+			$suffix = '';
+			
+			// Control infinite recursion
+			if(count($context_stack) > 1 && $field->type == Model_CustomField::TYPE_LINK)
+				continue;
+			
 			switch($field->type) {
 				case Model_CustomField::TYPE_LINK:
 					if(!isset($field->params['context']))
 						break;
 					
-					// [TODO] This infinitely recurses if you do task->task
-					/*
-					CerberusContexts::getContext($field->params['context'], null, $merge_labels, $merge_values, null, true);
+					$field_prefix = $prefix . ($fieldset ? ($fieldset->name . ' ') : '') . $field->name . ' ';
+					$suffix = ' ID';
+					
+					CerberusContexts::getContext($field->params['context'], null, $merge_labels, $merge_values, $field_prefix, true);
 
+					// Unset redundant id
+					unset($merge_labels['id']);
+					
 					foreach($merge_labels as $label_key => $label) {
-						$labels['custom_'.$cf_id.'_'.$label_key] = sprintf("%s%s%s",
-							$prefix,
-							($fieldset ? ($fieldset->name . ':') : ''),
-							$label
-						);
+						$labels['custom_'.$cf_id.'_'.$label_key] = $label;
 					}
-					*/
 					
 					break;
 			}
 			
-			$labels['custom_'.$cf_id] = sprintf("%s%s%s",
+			$labels['custom_'.$cf_id] = sprintf("%s%s%s%s",
 				$prefix,
 				($fieldset ? ($fieldset->name . ':') : ''),
-				$field->name
+				$field->name,
+				$suffix
 			);
 			
 		}
@@ -440,6 +448,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	}
 	
 	protected function _getTokenTypesFromCustomFields($fields, $prefix) {
+		$context_stack = CerberusContexts::getStack();
+		
 		$types = array();
 		$fieldsets = DAO_CustomFieldset::getAll();
 		
@@ -447,6 +457,10 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		foreach($fields as $cf_id => $field) {
 			$fieldset = $field->custom_fieldset_id ? @$fieldsets[$field->custom_fieldset_id] : null;
 		
+			// Control infinite recursion
+			if(count($context_stack) > 1 && $field->type == Model_CustomField::TYPE_LINK)
+				continue;
+			
 			$types['custom_'.$cf_id] = $field->type;
 			
 			switch($field->type) {
@@ -455,13 +469,11 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 						break;
 					
 					// [TODO] This infinitely recurses if you do task->task
-					/*
 					CerberusContexts::getContext($field->params['context'], null, $merge_labels, $merge_values, null, true);
 
 					foreach($merge_values['_types'] as $type_key => $type) {
 						$types['custom_'.$cf_id.'_'.$type_key] = $type;
 					}
-					*/
 					
 					break;
 			}
