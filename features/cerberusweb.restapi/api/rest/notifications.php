@@ -45,6 +45,10 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 			case 'create':
 				$this->postCreate();
 				break;
+				
+			case 'search':
+				$this->postSearch();
+				break;
 		}
 		
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
@@ -60,9 +64,9 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		if('dao'==$type) {
 			$tokens = array(
 				'assignee_id' => DAO_Notification::WORKER_ID,
-				'message' => DAO_Notification::MESSAGE,
 				'created' => DAO_Notification::CREATED_DATE,
 				'is_read' => DAO_Notification::IS_READ,
+				'message' => DAO_Notification::MESSAGE,
 				'url' => DAO_Notification::URL,
 			);
 			
@@ -79,8 +83,10 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 			
 		} else {
 			$tokens = array(
+				'created' => SearchFields_Notification::CREATED_DATE,
 				'id' => SearchFields_Notification::ID,
 				'is_read' => SearchFields_Notification::IS_READ,
+				'message' => SearchFields_Notification::MESSAGE,
 				'url' => SearchFields_Notification::URL,
 				'worker_id' => SearchFields_Notification::WORKER_ID,
 			);
