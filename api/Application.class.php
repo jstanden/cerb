@@ -1578,6 +1578,9 @@ class CerberusContexts {
 			// It's what we want already.
 		} elseif(is_array($attachment)) {
 			$attachment = Cerb_ORMHelper::recastArrayToModel($attachment, 'Model_Attachment');
+		} elseif(strlen($attachment) == 36) { // GUID
+			$attachment_link = DAO_AttachmentLink::getByGUID($attachment);
+			$attachment = $attachment_link->getAttachment();
 		} else {
 			$attachment = null;
 		}
