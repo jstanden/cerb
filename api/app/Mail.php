@@ -1349,6 +1349,23 @@ class CerberusMail {
 		}
 		
 		try {
+			$content = preg_replace_callback(
+				sprintf('|(\!\[Image\]\((.*?)\))|'),
+				function($matches) {
+					if(3 == count($matches)) {
+						return sprintf("%s", $matches[2]);
+					}
+					
+					return $matches[0];
+				},
+				$content
+			);
+			
+		} catch (Exception $e) {
+			error_log($e->getMessage());
+		}
+		
+		try {
 			$content = DevblocksPlatform::parseMarkdown($content, true);
 			$content = DevblocksPlatform::stripHTML($content);
 			
