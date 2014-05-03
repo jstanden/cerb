@@ -66,7 +66,10 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 		
 		if('dao'==$type) {
 			$tokens = array(
-//				'example' => DAO_Example::PROPERTY,
+				'is_broadcast' => DAO_Message::IS_BROADCAST,
+				'is_outgoing' => DAO_Message::IS_OUTGOING,
+				'ticket_id' => DAO_Message::TICKET_ID,
+				'worker_id' => DAO_Message::WORKER_ID,
 			);
 			
 		} elseif ('subtotal'==$type) {
@@ -89,8 +92,11 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 				'created' => SearchFields_Message::CREATED_DATE,
 				'content' => SearchFields_Message::MESSAGE_CONTENT,
 				'id' => SearchFields_Message::ID,
+				'is_broadcast' => SearchFields_Message::IS_BROADCAST,
+				'is_outgoing' => SearchFields_Message::IS_OUTGOING,
 				'sender_id' => SearchFields_Message::ADDRESS_ID,
 				'ticket_id' => SearchFields_Message::TICKET_ID,
+				'worker_id' => SearchFields_Message::WORKER_ID,
 			);
 		}
 		
