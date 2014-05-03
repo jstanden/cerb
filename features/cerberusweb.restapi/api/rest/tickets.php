@@ -271,6 +271,29 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 				'mask' => DAO_Ticket::MASK,
 				'subject' => DAO_Ticket::SUBJECT,
 			);
+			
+		} elseif ('subtotal'==$type) {
+			$tokens = array(
+				'fieldsets' => SearchFields_Ticket::VIRTUAL_HAS_FIELDSET,
+				'links' => SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,
+				'watchers' => SearchFields_Ticket::VIRTUAL_WATCHERS,
+				
+				'first_wrote' => SearchFields_Ticket::TICKET_FIRST_WROTE,
+				'group' => SearchFields_Ticket::TICKET_GROUP_ID,
+				'last_action' => SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+				'last_wrote' => SearchFields_Ticket::TICKET_LAST_WROTE,
+				'org_name' => SearchFields_Ticket::ORG_NAME,
+				'owner' => SearchFields_Ticket::TICKET_OWNER_ID,
+				'spam_training' => SearchFields_Ticket::TICKET_SPAM_TRAINING,
+				'status' => SearchFields_Ticket::VIRTUAL_STATUS,
+				'subject' => SearchFields_Ticket::TICKET_SUBJECT,
+			);
+			
+			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_TICKET);
+			
+			if(is_array($tokens_cfields))
+				$tokens = array_merge($tokens, $tokens_cfields);
+			
 		} else {
 			$tokens = array(
 				'content' => SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT,
@@ -300,6 +323,8 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	}
 	
 	function search($filters=array(), $sortToken='updated', $sortAsc=0, $page=1, $limit=10, $options=array()) {
+		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
+		
 		$worker = CerberusApplication::getActiveWorker();
 
 		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_TICKET);
@@ -337,6 +362,9 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		foreach($results as $id => $result) {
 			$values = $this->getContext($id);
 			$objects[$id] = $values;
+		// Get subtotal data, if provided
+		if(!empty($subtotals))
+			$subtotal_data = $this->_handleSearchSubtotals($view, $subtotals);
 		}
 		
 		$container = array(
@@ -345,6 +373,9 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			'page' => $page,
 			'results' => $objects,
 		);
+		if(!empty($subtotals)) {
+			$container['subtotals'] = $subtotal_data;
+		}
 		
 		return $container;
 	}

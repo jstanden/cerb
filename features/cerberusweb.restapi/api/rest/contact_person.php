@@ -90,6 +90,23 @@ class ChRest_ContactPerson extends Extension_RestController implements IExtensio
 				'created' => DAO_ContactPerson::CREATED,
 				'email_id' => DAO_ContactPerson::EMAIL_ID,
 			);
+			
+		} elseif ('subtotal'==$type) {
+			$tokens = array(
+				'fieldsets' => SearchFields_ContactPerson::VIRTUAL_HAS_FIELDSET,
+				'links' => SearchFields_ContactPerson::VIRTUAL_CONTEXT_LINK,
+				'watchers' => SearchFields_ContactPerson::VIRTUAL_WATCHERS,
+					
+				'email_address' => SearchFields_ContactPerson::ADDRESS_EMAIL,
+				'email_first_name' => SearchFields_ContactPerson::ADDRESS_FIRST_NAME,
+				'email_last_name' => SearchFields_ContactPerson::ADDRESS_LAST_NAME,
+			);
+			
+			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_CONTACT_PERSON);
+			
+			if(is_array($tokens_cfields))
+				$tokens = array_merge($tokens, $tokens_cfields);
+			
 		} else {
 			$tokens = array(
 				'created' => SearchFields_ContactPerson::CREATED,
@@ -117,6 +134,8 @@ class ChRest_ContactPerson extends Extension_RestController implements IExtensio
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10, $options=array()) {
+		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
+		
 		$worker = CerberusApplication::getActiveWorker();
 
 		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_CONTACT_PERSON);
@@ -151,6 +170,9 @@ class ChRest_ContactPerson extends Extension_RestController implements IExtensio
 			'page' => $page,
 			'results' => $objects,
 		);
+		if(!empty($subtotals)) {
+			$container['subtotals'] = $subtotal_data;
+		}
 		
 		return $container;
 	}

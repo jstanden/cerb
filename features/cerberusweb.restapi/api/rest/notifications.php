@@ -65,6 +65,18 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 				'is_read' => DAO_Notification::IS_READ,
 				'url' => DAO_Notification::URL,
 			);
+			
+		} elseif ('subtotal'==$type) {
+			$tokens = array(
+				'is_read' => SearchFields_Notification::IS_READ,
+				'url' => SearchFields_Notification::URL,
+			);
+			
+			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_NOTIFICATION);
+			
+			if(is_array($tokens_cfields))
+				$tokens = array_merge($tokens, $tokens_cfields);
+			
 		} else {
 			$tokens = array(
 				'id' => SearchFields_Notification::ID,
@@ -130,6 +142,8 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 	}
 
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10, $options=array()) {
+		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
+		
 		$worker = CerberusApplication::getActiveWorker();
 
 		$params = $this->_handleSearchBuildParams($filters);
@@ -163,6 +177,9 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		foreach($results as $id => $result) {
 			$values = $this->getContext($id);
 			$objects[$id] = $values;
+		// Get subtotal data, if provided
+		if(!empty($subtotals))
+			$subtotal_data = $this->_handleSearchSubtotals($view, $subtotals);
 		}
 		
 		$container = array(
@@ -171,6 +188,9 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 			'page' => $page,
 			'results' => $objects,
 		);
+		if(!empty($subtotals)) {
+			$container['subtotals'] = $subtotal_data;
+		}
 		
 		return $container;
 	}

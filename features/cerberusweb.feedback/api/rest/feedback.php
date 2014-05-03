@@ -90,6 +90,21 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 				'url' => DAO_FeedbackEntry::SOURCE_URL,
 				'worker_id' => DAO_FeedbackEntry::WORKER_ID,
 			);
+			
+		} elseif ('subtotal'==$type) {
+			$tokens = array(
+				'fieldsets' => SearchFields_FeedbackEntry::VIRTUAL_HAS_FIELDSET,
+				'watchers' => SearchFields_FeedbackEntry::VIRTUAL_WATCHERS,
+					
+				'author_address' => SearchFields_FeedbackEntry::ADDRESS_EMAIL,
+				'quote_mood' => SearchFields_FeedbackEntry::QUOTE_MOOD,
+			);
+			
+			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_FEEDBACK);
+			
+			if(is_array($tokens_cfields))
+				$tokens = array_merge($tokens, $tokens_cfields);
+			
 		} else {
 			$tokens = array(
 				'author_address' => SearchFields_FeedbackEntry::ADDRESS_EMAIL,
@@ -137,6 +152,8 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10, $options=array()) {
+		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
+		
 		$worker = CerberusApplication::getActiveWorker();
 
 		foreach($filters as $k => $filter) {
@@ -179,6 +196,9 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 		);
 		
 		$objects = array();
+		// Get subtotal data, if provided
+		if(!empty($subtotals))
+			$subtotal_data = $this->_handleSearchSubtotals($view, $subtotals);
 		
 		foreach($results as $id => $result) {
 			$values = $this->getContext($id);
@@ -191,6 +211,9 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 			'page' => $page,
 			'results' => $objects,
 		);
+		if(!empty($subtotals)) {
+			$container['subtotals'] = $subtotal_data;
+		}
 		
 		return $container;
 	}

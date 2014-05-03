@@ -106,6 +106,18 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 				'parent_id' => DAO_KbCategory::PARENT_ID,
 				'name' => DAO_KbCategory::NAME,
 			);
+			
+		} elseif ('subtotal'==$type) {
+			$tokens = array(
+				'fieldsets' => SearchFields_KbCategory::VIRTUAL_HAS_FIELDSET,
+				'watchers' => SearchFields_KbCategory::VIRTUAL_WATCHERS,
+			);
+			
+			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_KB_CATEGORY);
+			
+			if(is_array($tokens_cfields))
+				$tokens = array_merge($tokens, $tokens_cfields);
+			
 		} else {
 			$tokens = array(
 				'id' => SearchFields_KbCategory::ID,
@@ -129,6 +141,8 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10, $options=array()) {
+		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
+		
 		$worker = CerberusApplication::getActiveWorker();
 
 		$params = $this->_handleSearchBuildParams($filters);
@@ -149,6 +163,9 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 		);
 		
 		$objects = array();
+		// Get subtotal data, if provided
+		if(!empty($subtotals))
+			$subtotal_data = $this->_handleSearchSubtotals($view, $subtotals);
 		
 		foreach($results as $id => $result) {
 			$values = $this->getContext($id);
@@ -161,6 +178,9 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 			'page' => $page,
 			'results' => $objects,
 		);
+		if(!empty($subtotals)) {
+			$container['subtotals'] = $subtotal_data;
+		}
 		
 		return $container;
 	}

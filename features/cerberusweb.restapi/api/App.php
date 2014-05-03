@@ -622,6 +622,8 @@ abstract class Extension_RestController extends DevblocksExtension {
 		@$show_meta = DevblocksPlatform::importGPC($_REQUEST['show_meta'],'string',null);
 		$show_meta = (0 == strlen($show_meta) || empty($show_meta)) ? false : true;
 		
+		@$subtotals = DevblocksPlatform::importGPC($_REQUEST['subtotals'],'array',array());
+		
 		@$sortToken = DevblocksPlatform::importGPC($_REQUEST['sortBy'],'string',null);
 		@$sortAsc = DevblocksPlatform::importGPC($_REQUEST['sortAsc'],'integer',1);
 
@@ -641,7 +643,11 @@ abstract class Extension_RestController extends DevblocksExtension {
 				$filters[$field] = array($field, $oper, $value);
 		}
 		
-		$results = $this->search($filters, $sortToken, $sortAsc, $page, $limit);
+		$options = array(
+			'subtotals' => $subtotals,
+		);
+		
+		$results = $this->search($filters, $sortToken, $sortAsc, $page, $limit, $options);
 		
 		if(isset($results['results']) && is_array($results['results']) && !empty($results)) {
 			$_labels = null;
@@ -695,6 +701,94 @@ abstract class Extension_RestController extends DevblocksExtension {
 		}
 		
 		return $fields;
+	}
+	
+	protected function _handleSearchTokensCustomFields($context) {
+		$tokens = array();
+		$cfields = DAO_CustomField::getByContext($context, true);
+		
+		if(is_array($cfields))
+		foreach($cfields as $cfield) {
+			switch($cfield->type) {
+				case Model_CustomField::TYPE_CHECKBOX:
+				case Model_CustomField::TYPE_DROPDOWN:
+				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+				case Model_CustomField::TYPE_NUMBER:
+				case Model_CustomField::TYPE_SINGLE_LINE:
+				case Model_CustomField::TYPE_WORKER:
+					$tokens['custom_' . $cfield->id] = 'cf_' . $cfield->id;
+					break;
+					
+				default:
+					break;
+			}
+		}
+		
+		return $tokens;
+	}
+	
+	protected function _handleSearchSubtotals($view, $subtotals) {
+		$subtotal_data = array();
+		
+		if(is_array($subtotals) && !empty($subtotals)) {
+			foreach($subtotals as $subtotal) {
+				if(null === ($field = $this->translateToken($subtotal, 'subtotal')))
+					$this->error(self::ERRNO_SEARCH_FILTERS_INVALID, sprintf("'%s' is not a valid subtotal token.", $subtotal));
+				
+				// [TODO] Can we nest this with arbitrary subtotals?  (worker replies -> group)
+				$counts = $view->getSubtotalCounts($field);
+				
+				$subtotal_data[$subtotal] = array();
+				
+				foreach($counts as $key => $count) {
+					$data = array(
+						'label' => $count['label'],
+						'hits' => intval($count['hits']),
+					);
+					
+					if(0 != strcasecmp($count['label'], $key))
+						$data['key'] = $key;
+					
+					if(isset($count['children']) && !empty($count['children'])) {
+						$data['distribution'] = array();
+						
+						foreach($count['children'] as $child_key => $child) {
+							$child_data = array(
+								'label' => $child['label'],
+								'hits' => intval($child['hits']),
+							);
+							
+							if(0 != strcasecmp($child['label'], $child_key))
+								$child_data['key'] = $child_key;
+							
+							$data['distribution'][] = $child_data;
+						}
+					}
+					
+					$subtotal_data[$subtotal][] = $data;
+				}
+			}
+		}
+		
+		return $subtotal_data;
+	}
+	
+	protected function _getSearchView($context, $params=array(), $limit=10, $page=0, $sort_by=null, $sort_asc=null) {
+		$context_ext = Extension_DevblocksContext::get($context);
+		$view = $context_ext->getSearchView(DevblocksPlatform::strAlphaNum('api_search_'.$context, '_', '_')); /* @var $view C4_AbstractView */
+		
+		$view->is_ephemeral = true;
+		$view->addParams($params, true);
+		$view->renderLimit = $limit;
+		$view->renderPage = max(0,$page-1);
+		$view->renderSortBy = $sort_by;
+		$view->renderSortAsc = $sort_asc;
+		$view->renderTotal = true;
+		
+		// [TODO] Cursors? (ephemeral view id, paging, sort, etc)
+		C4_AbstractViewLoader::setView($view->id, $view);
+		
+		return $view;
 	}
 };
 

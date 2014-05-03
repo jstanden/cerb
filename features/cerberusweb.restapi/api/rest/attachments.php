@@ -111,6 +111,17 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 			$tokens = array(
 //				'example' => DAO_Example::PROPERTY,
 			);
+			
+		} elseif ('subtotal'==$type) {
+			$tokens = array(
+				//'fieldsets' => SearchFields_AttachmentLink::VIRTUAL_HAS_FIELDSET,
+			);
+			
+			//$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_ATTACHMENT);
+			
+			//if(is_array($tokens_cfields))
+			//	$tokens = array_merge($tokens, $tokens_cfields);
+			
 		} else {
 			$tokens = array(
 				'id' => SearchFields_AttachmentLink::ID,
@@ -134,6 +145,8 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 	}
 	
 	function search($filters=array(), $sortToken='email', $sortAsc=1, $page=1, $limit=10, $options=array()) {
+		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
+		
 		$worker = CerberusApplication::getActiveWorker();
 
 		$params = $this->_handleSearchBuildParams($filters);

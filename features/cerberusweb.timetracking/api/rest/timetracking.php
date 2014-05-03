@@ -103,6 +103,23 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 				'mins' => DAO_TimeTrackingEntry::TIME_ACTUAL_MINS,
 				'worker_id' => DAO_TimeTrackingEntry::WORKER_ID,
 			);
+			
+		} elseif ('subtotal'==$type) {
+			$tokens = array(
+				'fieldsets' => SearchFields_TimeTrackingEntry::VIRTUAL_HAS_FIELDSET,
+				'links' => SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK,
+				'watchers' => SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS,
+					
+				'activity' => SearchFields_TimeTrackingEntry::ACTIVITY_ID,
+				'is_closed' => SearchFields_TimeTrackingEntry::IS_CLOSED,
+				'worker_id' => SearchFields_TimeTrackingEntry::WORKER_ID,
+			);
+			
+			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_TIMETRACKING);
+			
+			if(is_array($tokens_cfields))
+				$tokens = array_merge($tokens, $tokens_cfields);
+			
 		} else {
 			$tokens = array(
 				'activity_id' => SearchFields_TimeTrackingEntry::ACTIVITY_ID,
@@ -129,6 +146,8 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10, $options=array()) {
+		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
+		
 		$worker = CerberusApplication::getActiveWorker();
 
 		$params = $this->_handleSearchBuildParams($filters);
@@ -149,6 +168,9 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 		);
 		
 		$objects = array();
+		// Get subtotal data, if provided
+		if(!empty($subtotals))
+			$subtotal_data = $this->_handleSearchSubtotals($view, $subtotals);
 		
 		foreach($results as $id => $result) {
 			$values = $this->getContext($id);
@@ -161,6 +183,9 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 			'page' => $page,
 			'results' => $objects,
 		);
+		if(!empty($subtotals)) {
+			$container['subtotals'] = $subtotal_data;
+		}
 		
 		return $container;
 	}

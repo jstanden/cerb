@@ -68,6 +68,22 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 			$tokens = array(
 //				'example' => DAO_Example::PROPERTY,
 			);
+			
+		} elseif ('subtotal'==$type) {
+			$tokens = array(
+				'ticket_status' => SearchFields_Message::VIRTUAL_TICKET_STATUS,
+				'sender_address' => SearchFields_Message::ADDRESS_EMAIL,
+				'is_broadcast' => SearchFields_Message::IS_BROADCAST,
+				'is_outgoing' => SearchFields_Message::IS_OUTGOING,
+				'ticket_group' => SearchFields_Message::TICKET_GROUP_ID,
+				'worker' => SearchFields_Message::WORKER_ID,
+			);
+			
+			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_MESSAGE);
+			
+			if(is_array($tokens_cfields))
+				$tokens = array_merge($tokens, $tokens_cfields);
+			
 		} else {
 			$tokens = array(
 				'created' => SearchFields_Message::CREATED_DATE,
@@ -93,6 +109,8 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10, $options=array()) {
+		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
+		
 		$worker = CerberusApplication::getActiveWorker();
 
 		$params = $this->_handleSearchBuildParams($filters);
@@ -123,6 +141,9 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 		);
 		
 		$objects = array();
+		// Get subtotal data, if provided
+		if(!empty($subtotals))
+			$subtotal_data = $this->_handleSearchSubtotals($view, $subtotals);
 		
 		foreach($results as $id => $result) {
 			$values = $this->getContext($id);
@@ -135,6 +156,9 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 			'page' => $page,
 			'results' => $objects,
 		);
+		if(!empty($subtotals)) {
+			$container['subtotals'] = $subtotal_data;
+		}
 		
 		return $container;
 	}

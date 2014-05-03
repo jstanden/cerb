@@ -67,6 +67,20 @@ class ChRest_Calendars extends Extension_RestController implements IExtensionRes
 				'name' => DAO_Calendar::NAME,
 				'updated' => DAO_Calendar::UPDATED_AT,
 			);
+			
+		} elseif ('subtotal'==$type) {
+			$tokens = array(
+				'fieldsets' => SearchFields_Calendar::VIRTUAL_HAS_FIELDSET,
+				'links' => SearchFields_Calendar::VIRTUAL_CONTEXT_LINK,
+				'owner' => SearchFields_Calendar::VIRTUAL_OWNER,
+				'watchers' => SearchFields_Calendar::VIRTUAL_WATCHERS,
+			);
+			
+			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_CALENDAR);
+			
+			if(is_array($tokens_cfields))
+				$tokens = array_merge($tokens, $tokens_cfields);
+			
 		} else {
 			$tokens = array(
 				'id' => SearchFields_Calendar::ID,
@@ -144,6 +158,8 @@ class ChRest_Calendars extends Extension_RestController implements IExtensionRes
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10, $options=array()) {
+		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
+		
 		$worker = CerberusApplication::getActiveWorker();
 
 		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_CALENDAR);
@@ -166,6 +182,9 @@ class ChRest_Calendars extends Extension_RestController implements IExtensionRes
 		);
 		
 		$objects = array();
+		// Get subtotal data, if provided
+		if(!empty($subtotals))
+			$subtotal_data = $this->_handleSearchSubtotals($view, $subtotals);
 		
 		foreach($results as $id => $result) {
 			$values = $this->getContext($id);
@@ -178,6 +197,9 @@ class ChRest_Calendars extends Extension_RestController implements IExtensionRes
 			'page' => $page,
 			'results' => $objects,
 		);
+		if(!empty($subtotals)) {
+			$container['subtotals'] = $subtotal_data;
+		}
 		
 		return $container;
 	}

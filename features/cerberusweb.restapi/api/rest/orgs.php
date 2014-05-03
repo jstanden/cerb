@@ -106,6 +106,23 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 				'website' => DAO_ContactOrg::WEBSITE,
 				'created' => DAO_ContactOrg::CREATED,
 			);
+			
+		} elseif ('subtotal'==$type) {
+			$tokens = array(
+				'fieldsets' => SearchFields_ContactOrg::VIRTUAL_HAS_FIELDSET,
+				'links' => SearchFields_ContactOrg::VIRTUAL_CONTEXT_LINK,
+				'watchers' => SearchFields_ContactOrg::VIRTUAL_WATCHERS,
+					
+				'country' => SearchFields_ContactOrg::COUNTRY,
+				'province' => SearchFields_ContactOrg::PROVINCE,
+				'postal' => SearchFields_ContactOrg::POSTAL,
+			);
+			
+			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_ORG);
+			
+			if(is_array($tokens_cfields))
+				$tokens = array_merge($tokens, $tokens_cfields);
+			
 		} else {
 			$tokens = array(
 				'id' => SearchFields_ContactOrg::ID,
@@ -136,6 +153,8 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 	}
 	
 	function search($filters=array(), $sortToken='name', $sortAsc=1, $page=1, $limit=10, $options=array()) {
+		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
+		
 		$worker = CerberusApplication::getActiveWorker();
 
 		$params = $this->_handleSearchBuildParams($filters);
@@ -156,6 +175,9 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 		);
 		
 		$objects = array();
+		// Get subtotal data, if provided
+		if(!empty($subtotals))
+			$subtotal_data = $this->_handleSearchSubtotals($view, $subtotals);
 		
 		foreach($results as $id => $result) {
 			$values = $this->getContext($id);
@@ -168,6 +190,10 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 			'page' => $page,
 			'results' => $objects,
 		);
+		
+		if(!empty($subtotals)) {
+			$container['subtotals'] = $subtotal_data;
+		}
 		
 		return $container;
 	}

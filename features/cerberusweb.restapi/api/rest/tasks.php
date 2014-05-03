@@ -80,6 +80,21 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 				'title' => DAO_Task::TITLE,
 				'updated' => DAO_Task::UPDATED_DATE,
 			);
+			
+		} elseif ('subtotal'==$type) {
+			$tokens = array(
+				'fieldsets' => SearchFields_Task::VIRTUAL_HAS_FIELDSET,
+				'links' => SearchFields_Task::VIRTUAL_CONTEXT_LINK,
+				'watchers' => SearchFields_Task::VIRTUAL_WATCHERS,
+					
+				'is_completed' => SearchFields_Task::IS_COMPLETED,
+			);
+			
+			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_TASK);
+			
+			if(is_array($tokens_cfields))
+				$tokens = array_merge($tokens, $tokens_cfields);
+			
 		} else {
 			$tokens = array(
 				'completed' => SearchFields_Task::COMPLETED_DATE,
@@ -124,6 +139,8 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10, $options=array()) {
+		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
+		
 		$worker = CerberusApplication::getActiveWorker();
 
 		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_TASK);
@@ -146,6 +163,9 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 		);
 		
 		$objects = array();
+		// Get subtotal data, if provided
+		if(!empty($subtotals))
+			$subtotal_data = $this->_handleSearchSubtotals($view, $subtotals);
 		
 		foreach($results as $id => $result) {
 			$values = $this->getContext($id);
@@ -158,6 +178,9 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			'page' => $page,
 			'results' => $objects,
 		);
+		if(!empty($subtotals)) {
+			$container['subtotals'] = $subtotal_data;
+		}
 		
 		return $container;
 	}

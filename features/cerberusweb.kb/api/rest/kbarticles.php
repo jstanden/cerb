@@ -107,6 +107,22 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 				'updated' => DAO_KbArticle::UPDATED,
 				'views' => DAO_KbArticle::VIEWS,
 			);
+			
+		} elseif ('subtotal'==$type) {
+			$tokens = array(
+				'links' => SearchFields_KbArticle::VIRTUAL_CONTEXT_LINK,
+				'fieldsets' => SearchFields_KbArticle::VIRTUAL_HAS_FIELDSET,
+				'watchers' => SearchFields_KbArticle::VIRTUAL_WATCHERS,
+					
+				'topic' => SearchFields_KbArticle::TOP_CATEGORY_ID,
+				'format' => SearchFields_KbArticle::FORMAT,
+			);
+			
+			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_KB_ARTICLE);
+			
+			if(is_array($tokens_cfields))
+				$tokens = array_merge($tokens, $tokens_cfields);
+		
 		} else {
 			$tokens = array(
 				'category_id' => SearchFields_KbArticle::CATEGORY_ID,
@@ -135,6 +151,8 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10, $options=array()) {
+		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
+		
 		$worker = CerberusApplication::getActiveWorker();
 
 		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_KB_ARTICLE);
@@ -157,6 +175,9 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 		);
 		
 		$objects = array();
+		// Get subtotal data, if provided
+		if(!empty($subtotals))
+			$subtotal_data = $this->_handleSearchSubtotals($view, $subtotals);
 		
 		foreach($results as $id => $result) {
 			$values = $this->getContext($id);
@@ -169,6 +190,9 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 			'page' => $page,
 			'results' => $objects,
 		);
+		if(!empty($subtotals)) {
+			$container['subtotals'] = $subtotal_data;
+		}
 		
 		return $container;
 	}

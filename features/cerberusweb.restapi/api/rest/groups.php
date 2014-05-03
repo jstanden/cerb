@@ -63,6 +63,18 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 			$tokens = array(
 //				'example' => DAO_Example::PROPERTY,
 			);
+			
+		} elseif ('subtotal'==$type) {
+			$tokens = array(
+				'fieldsets' => SearchFields_Group::VIRTUAL_HAS_FIELDSET,
+				'links' => SearchFields_Group::VIRTUAL_CONTEXT_LINK,
+			);
+			
+			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_GROUP);
+			
+			if(is_array($tokens_cfields))
+				$tokens = array_merge($tokens, $tokens_cfields);
+			
 		} else {
 			$tokens = array(
 				'id' => SearchFields_Group::ID,
@@ -85,6 +97,8 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10, $options=array()) {
+		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
+		
 		$worker = CerberusApplication::getActiveWorker();
 
 		$params = $this->_handleSearchBuildParams($filters);
@@ -115,10 +129,15 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 		);
 		
 		$objects = array();
+		// Get subtotal data, if provided
+		if(!empty($subtotals))
+			$subtotal_data = $this->_handleSearchSubtotals($view, $subtotals);
 		
 		foreach($results as $id => $result) {
 			$values = $this->getContext($id);
 			$objects[$id] = $values;
+		if(!empty($subtotals)) {
+			$container['subtotals'] = $subtotal_data;
 		}
 
 		$container = array(

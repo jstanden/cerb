@@ -98,6 +98,24 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 				'org_id' => DAO_Address::CONTACT_ORG_ID,
 				'updated' => DAO_Address::UPDATED,
 			);
+			
+		} elseif ('subtotal'==$type) {
+			$tokens = array(
+				'fieldsets' => SearchFields_Address::VIRTUAL_HAS_FIELDSET,
+				'links' => SearchFields_Address::VIRTUAL_CONTEXT_LINK,
+				'watchers' => SearchFields_Address::VIRTUAL_WATCHERS,
+					
+				'first_name' => SearchFields_Address::FIRST_NAME,
+				'is_banned' => SearchFields_Address::IS_BANNED,
+				'is_defunct' => SearchFields_Address::IS_DEFUNCT,
+				'org_name' => SearchFields_Address::ORG_NAME,
+			);
+			
+			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_ADDRESS);
+			
+			if(is_array($tokens_cfields))
+				$tokens = array_merge($tokens, $tokens_cfields);
+			
 		} else {
 			$tokens = array(
 				'id' => SearchFields_Address::ID,
@@ -128,6 +146,8 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 	}
 	
 	function search($filters=array(), $sortToken='email', $sortAsc=1, $page=1, $limit=10, $options=array()) {
+		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
+		
 		$worker = CerberusApplication::getActiveWorker();
 
 		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_ADDRESS);
@@ -150,6 +170,10 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 		);
 		
 		$objects = array();
+		// Get subtotal data, if provided
+		if(!empty($subtotals))
+			$subtotal_data = $this->_handleSearchSubtotals($view, $subtotals);
+		
 		
 		foreach($results as $id => $result) {
 			$values = $this->getContext($id);
@@ -162,6 +186,9 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 			'page' => $page,
 			'results' => $objects,
 		);
+		if(!empty($subtotals)) {
+			$container['subtotals'] = $subtotal_data;
+		}
 		
 		return $container;
 	}
