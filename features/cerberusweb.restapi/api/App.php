@@ -618,6 +618,9 @@ abstract class Extension_RestController extends DevblocksExtension {
 
 		@$page = DevblocksPlatform::importGPC($_REQUEST['page'],'integer',1);
 		@$limit = DevblocksPlatform::importGPC($_REQUEST['limit'],'integer',10);
+
+		@$show_meta = DevblocksPlatform::importGPC($_REQUEST['show_meta'],'string',null);
+		$show_meta = (0 == strlen($show_meta) || empty($show_meta)) ? false : true;
 		
 		@$sortToken = DevblocksPlatform::importGPC($_REQUEST['sortBy'],'string',null);
 		@$sortAsc = DevblocksPlatform::importGPC($_REQUEST['sortAsc'],'integer',1);
@@ -655,16 +658,18 @@ abstract class Extension_RestController extends DevblocksExtension {
 				unset($result['_types']);
 			});
 			
-			$results['results_meta'] = array();
-			
-			if(!empty($_labels))
-				$results['results_meta']['labels'] = $_labels;
-			
-			if(!empty($_types))
-				$results['results_meta']['types'] = $_types;
-			
-			if(empty($results['results_meta']))
-				unset($results['results_meta']);
+			if($show_meta) {
+				$results['results_meta'] = array();
+				
+				if(!empty($_labels))
+					$results['results_meta']['labels'] = $_labels;
+				
+				if(!empty($_types))
+					$results['results_meta']['types'] = $_types;
+				
+				if(empty($results['results_meta']))
+					unset($results['results_meta']);
+			}
 		}
 		
 		return $results;
