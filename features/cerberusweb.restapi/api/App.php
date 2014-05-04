@@ -439,7 +439,10 @@ abstract class Extension_RestController extends DevblocksExtension {
 			return false;
 
 		@$expand = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['expand'],'string',null));
-
+		
+		@$show_meta = DevblocksPlatform::importGPC($_REQUEST['show_meta'],'string','');
+		$show_meta = (0 == strlen($show_meta) || !empty($show_meta)) ? true : false;
+		
 		// Do we need to lazy load some fields to be helpful?
 		if(is_array($expand) && !empty($expand)) {
 			if(isset($array['results'])) {
@@ -458,9 +461,6 @@ abstract class Extension_RestController extends DevblocksExtension {
 		// Results meta
 		
 		if(isset($array['results']) && is_array($array['results'])) {
-			@$show_meta = DevblocksPlatform::importGPC($_REQUEST['show_meta'],'string','');
-			$show_meta = (0 == strlen($show_meta) || !empty($show_meta)) ? true : false;
-			
 			$_labels = null;
 			$_types = null;
 
@@ -501,6 +501,10 @@ abstract class Extension_RestController extends DevblocksExtension {
 		// Scrub lazy-loaded labels and types on a single object
 		} else if(is_array($array)) {
 			$scrubs = array('_loaded', '__labels', '__types');
+			
+			if(!$show_meta) {
+				array_push($scrubs, '_labels', '_types');
+			}
 			
 			foreach($array as $k => $v) {
 				foreach($scrubs as $scrub)
