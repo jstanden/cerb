@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.5.30, for osx10.8 (i386)
+-- MySQL dump 10.13  Distrib 5.5.33, for osx10.8 (i386)
 --
 -- Host: localhost    Database: cerb6
 -- ------------------------------------------------------
--- Server version	5.5.28
+-- Server version	5.5.33
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -35,7 +35,6 @@ CREATE TABLE `address` (
   `is_defunct` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `updated` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`),
   UNIQUE KEY `email` (`email`),
   KEY `contact_org_id` (`contact_org_id`),
   KEY `num_spam` (`num_spam`),
@@ -46,7 +45,7 @@ CREATE TABLE `address` (
   KEY `contact_person_id` (`contact_person_id`),
   KEY `is_defunct` (`is_defunct`),
   KEY `updated` (`updated`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -61,6 +60,7 @@ CREATE TABLE `address_outgoing` (
   `is_default` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `reply_personal` varchar(128) NOT NULL DEFAULT '',
   `reply_signature` text,
+  `reply_html_template_id` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`address_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -98,10 +98,11 @@ CREATE TABLE `attachment` (
   `storage_extension` varchar(255) NOT NULL DEFAULT '',
   `storage_profile_id` int(10) unsigned NOT NULL DEFAULT '0',
   `updated` int(10) unsigned NOT NULL DEFAULT '0',
+  `storage_sha1hash` varchar(40) DEFAULT '',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`),
   KEY `storage_profile_id` (`storage_profile_id`),
-  KEY `updated` (`updated`)
+  KEY `updated` (`updated`),
+  KEY `storage_sha1hash` (`storage_sha1hash`(4))
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -151,9 +152,8 @@ CREATE TABLE `bayes_words` (
   `spam` int(10) unsigned DEFAULT '0',
   `nonspam` int(10) unsigned DEFAULT '0',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`),
   KEY `word` (`word`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=68 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -172,8 +172,8 @@ CREATE TABLE `bucket` (
   `reply_address_id` int(10) unsigned NOT NULL DEFAULT '0',
   `reply_personal` varchar(128) NOT NULL DEFAULT '',
   `reply_signature` text,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`)
+  `reply_html_template_id` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -233,6 +233,7 @@ CREATE TABLE `calendar_recurring_profile` (
   `tz` varchar(128) NOT NULL DEFAULT '',
   `event_start` varchar(128) NOT NULL DEFAULT '',
   `event_end` varchar(128) NOT NULL DEFAULT '',
+  `recur_start` int(10) unsigned NOT NULL DEFAULT '0',
   `recur_end` int(10) unsigned NOT NULL DEFAULT '0',
   `patterns` text,
   PRIMARY KEY (`id`),
@@ -537,7 +538,7 @@ CREATE TABLE `context_activity_log` (
   KEY `actor` (`actor_context`,`actor_context_id`),
   KEY `target` (`target_context`,`target_context_id`),
   KEY `created` (`created`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -637,15 +638,14 @@ CREATE TABLE `custom_field` (
   `name` varchar(128) NOT NULL DEFAULT '',
   `type` varchar(1) NOT NULL DEFAULT 'S',
   `pos` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `options` text,
+  `params_json` text,
   `context` varchar(255) NOT NULL DEFAULT '',
   `custom_fieldset_id` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`),
   KEY `pos` (`pos`),
   KEY `context` (`context`),
   KEY `custom_fieldset_id` (`custom_fieldset_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -738,7 +738,7 @@ CREATE TABLE `decision_node` (
   PRIMARY KEY (`id`),
   KEY `parent_id` (`parent_id`),
   KEY `trigger_id` (`trigger_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -771,6 +771,7 @@ CREATE TABLE `devblocks_session` (
   `user_id` int(10) unsigned NOT NULL DEFAULT '0',
   `user_ip` varchar(32) NOT NULL DEFAULT '',
   `user_agent` varchar(255) NOT NULL DEFAULT '',
+  `refreshed_at` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`session_key`),
   KEY `created` (`created`),
   KEY `updated` (`updated`)
@@ -805,8 +806,23 @@ CREATE TABLE `devblocks_storage_profile` (
   `extension_id` varchar(255) NOT NULL DEFAULT '',
   `params_json` longtext,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`),
   KEY `extension_id` (`extension_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `devblocks_storage_queue_delete`
+--
+
+DROP TABLE IF EXISTS `devblocks_storage_queue_delete`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `devblocks_storage_queue_delete` (
+  `storage_namespace` varchar(64) NOT NULL DEFAULT '',
+  `storage_key` varchar(255) NOT NULL DEFAULT '',
+  `storage_extension` varchar(128) NOT NULL DEFAULT '',
+  `storage_profile_id` int(10) unsigned NOT NULL DEFAULT '0',
+  KEY `ns_ext_profile` (`storage_namespace`,`storage_extension`,`storage_profile_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -824,8 +840,7 @@ CREATE TABLE `devblocks_template` (
   `tag` varchar(255) NOT NULL DEFAULT '',
   `last_updated` int(10) unsigned NOT NULL DEFAULT '0',
   `content` mediumtext,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -865,6 +880,36 @@ CREATE TABLE `feedback_entry` (
   KEY `worker_id` (`worker_id`),
   KEY `quote_address_id` (`quote_address_id`),
   KEY `quote_mood` (`quote_mood`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `fnr_external_resource`
+--
+
+DROP TABLE IF EXISTS `fnr_external_resource`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `fnr_external_resource` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) NOT NULL DEFAULT '',
+  `url` varchar(255) NOT NULL DEFAULT '',
+  `topic_id` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `fnr_topic`
+--
+
+DROP TABLE IF EXISTS `fnr_topic`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `fnr_topic` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -932,9 +977,27 @@ CREATE TABLE `kb_category` (
   `parent_id` int(10) unsigned NOT NULL DEFAULT '0',
   `name` varchar(64) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`),
   KEY `parent_id` (`parent_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `mail_html_template`
+--
+
+DROP TABLE IF EXISTS `mail_html_template`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `mail_html_template` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT '',
+  `updated_at` int(10) unsigned NOT NULL DEFAULT '0',
+  `owner_context` varchar(128) NOT NULL DEFAULT '',
+  `owner_context_id` int(11) NOT NULL DEFAULT '0',
+  `content` mediumtext,
+  PRIMARY KEY (`id`),
+  KEY `owner` (`owner_context`,`owner_context_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -982,8 +1045,7 @@ CREATE TABLE `mail_to_group_rule` (
   `actions_ser` mediumtext,
   `is_sticky` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `sticky_order` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1008,14 +1070,13 @@ CREATE TABLE `message` (
   `response_time` int(10) unsigned NOT NULL DEFAULT '0',
   `is_broadcast` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`),
   KEY `created_date` (`created_date`),
   KEY `ticket_id` (`ticket_id`),
   KEY `is_outgoing` (`is_outgoing`),
   KEY `worker_id` (`worker_id`),
   KEY `storage_extension` (`storage_extension`),
   KEY `storage_profile_id` (`storage_profile_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1120,8 +1181,7 @@ CREATE TABLE `pop3_account` (
   `port` smallint(5) unsigned NOT NULL DEFAULT '110',
   `num_fails` tinyint(4) NOT NULL DEFAULT '0',
   `delay_until` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1156,10 +1216,11 @@ CREATE TABLE `snippet` (
   `owner_context` varchar(128) NOT NULL DEFAULT '',
   `owner_context_id` int(11) NOT NULL DEFAULT '0',
   `total_uses` int(10) unsigned NOT NULL DEFAULT '0',
+  `updated_at` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`),
   KEY `owner_compound` (`owner_context`,`owner_context_id`),
-  KEY `owner_context` (`owner_context`)
+  KEY `owner_context` (`owner_context`),
+  KEY `updated_at` (`updated_at`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1270,7 +1331,6 @@ CREATE TABLE `ticket` (
   `elapsed_response_first` int(10) unsigned NOT NULL DEFAULT '0',
   `elapsed_resolution_first` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`),
   KEY `first_message_id` (`first_message_id`),
   KEY `mask` (`mask`),
   KEY `is_waiting` (`is_waiting`),
@@ -1288,7 +1348,7 @@ CREATE TABLE `ticket` (
   KEY `last_message_id` (`last_message_id`),
   KEY `owner_id` (`owner_id`),
   KEY `org_id` (`org_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1360,7 +1420,7 @@ CREATE TABLE `translation` (
   PRIMARY KEY (`id`),
   KEY `string_id` (`string_id`),
   KEY `lang_code` (`lang_code`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=915 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1374,14 +1434,17 @@ CREATE TABLE `trigger_event` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL DEFAULT '',
   `is_disabled` tinyint(4) NOT NULL DEFAULT '0',
-  `owner_context` varchar(255) NOT NULL DEFAULT '',
-  `owner_context_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `is_private` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `event_point` varchar(255) NOT NULL DEFAULT '',
+  `virtual_attendant_id` int(10) unsigned NOT NULL DEFAULT '0',
   `pos` smallint(5) unsigned NOT NULL DEFAULT '0',
   `variables_json` text,
+  `event_params_json` text,
   PRIMARY KEY (`id`),
-  KEY `event_point` (`event_point`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  KEY `event_point` (`event_point`),
+  KEY `virtual_attendant_id` (`virtual_attendant_id`),
+  KEY `is_private` (`is_private`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1440,6 +1503,27 @@ CREATE TABLE `view_rss` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `virtual_attendant`
+--
+
+DROP TABLE IF EXISTS `virtual_attendant`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `virtual_attendant` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT '',
+  `owner_context` varchar(255) DEFAULT '',
+  `owner_context_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `is_disabled` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `params_json` mediumtext,
+  `created_at` int(10) unsigned NOT NULL DEFAULT '0',
+  `updated_at` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `owner` (`owner_context`,`owner_context_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `worker`
 --
 
@@ -1452,7 +1536,6 @@ CREATE TABLE `worker` (
   `last_name` varchar(64) DEFAULT '',
   `title` varchar(64) DEFAULT '',
   `email` varchar(128) DEFAULT '',
-  `pass` varchar(32) DEFAULT '',
   `is_superuser` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `last_activity_date` int(10) unsigned DEFAULT NULL,
   `last_activity` mediumtext,
@@ -1460,8 +1543,23 @@ CREATE TABLE `worker` (
   `last_activity_ip` bigint(20) unsigned NOT NULL DEFAULT '0',
   `auth_extension_id` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`),
   KEY `last_activity_date` (`last_activity_date`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `worker_auth_hash`
+--
+
+DROP TABLE IF EXISTS `worker_auth_hash`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `worker_auth_hash` (
+  `worker_id` int(10) unsigned NOT NULL,
+  `pass_hash` varchar(128) DEFAULT NULL,
+  `pass_salt` varchar(64) DEFAULT NULL,
+  `method` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`worker_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1479,9 +1577,9 @@ CREATE TABLE `worker_group` (
   `is_default` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `reply_address_id` int(10) unsigned NOT NULL DEFAULT '0',
   `reply_personal` varchar(128) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  `reply_html_template_id` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1511,7 +1609,7 @@ CREATE TABLE `worker_role` (
   `name` varchar(128) NOT NULL DEFAULT '',
   `params_json` text,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1648,6 +1746,7 @@ CREATE TABLE `workspace_widget` (
   `updated_at` int(10) unsigned NOT NULL DEFAULT '0',
   `params_json` text,
   `pos` char(4) NOT NULL DEFAULT '',
+  `cache_ttl` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1661,4 +1760,4 @@ CREATE TABLE `workspace_widget` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-06-11 19:45:51
+-- Dump completed on 2014-05-04  4:26:26
