@@ -1017,6 +1017,28 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 		return array();
 	}
 	
+	/**
+	 * ...
+	 *
+	 * @param string $guid
+	 * @return Model_AttachmentLink
+	 */
+	static function getByGUIDs($guids) {
+		array_walk(
+			$guids,
+			function(&$e) {
+				$e = Cerb_ORMHelper::qstr($e);
+			}
+		);
+		
+		$links = self::getWhere(sprintf("%s IN (%s)",
+			self::GUID,
+			implode(', ', $guids)
+		));
+		
+		return $links;
+	}
+	
 	static function getByAttachmentId($id) {
 		$links = self::getWhere(sprintf("%s = %d",
 			self::ATTACHMENT_ID,
@@ -1408,5 +1430,401 @@ class Model_AttachmentLink {
 	 */
 	public function getContext() {
 		return DevblocksPlatform::getExtension($this->context, true, true);
+	}
+};
+
+class Context_Attachment extends Extension_DevblocksContext {
+	function getMeta($context_id) {
+		$attachment = DAO_Attachment::get($context_id);
+
+		return array(
+			'id' => $attachment->id,
+			'name' => $attachment->display_name,
+			'permalink' => null,
+		);
+	}
+	
+	function getRandom() {
+		// [TODO]
+		//return DAO_Attachment::random();
+		return null;
+	}
+	
+	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {
+		$labels = $dict->_labels;
+		$prefix = $labels['_label'];
+		
+		if(!empty($prefix)) {
+			array_walk($labels, function(&$label, $key) use ($prefix) {
+				$label = preg_replace(sprintf("#^%s #", preg_quote($prefix)), '', $label);
+				
+				switch($key) {
+				}
+				
+				$label = mb_convert_case($label, MB_CASE_LOWER);
+				$label[0] = mb_convert_case($label[0], MB_CASE_UPPER);
+			});
+		}
+		
+		asort($labels);
+		
+		return $labels;
+	}
+	
+	function getDefaultProperties() {
+		return array(
+			'mime_type',
+			'size',
+			'updated',
+		);
+	}
+	
+	function getContext($attachment, &$token_labels, &$token_values, $prefix=null) {
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ATTACHMENT);
+
+		if(is_null($prefix))
+			$prefix = 'Attachment:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		// Polymorph
+		if(is_numeric($attachment)) {
+			$attachment = DAO_Attachment::get($attachment);
+		} elseif($attachment instanceof Model_Attachment) {
+			// It's what we want already.
+		} elseif(is_array($attachment)) {
+			$attachment = Cerb_ORMHelper::recastArrayToModel($attachment, 'Model_Attachment');
+		} elseif(strlen($attachment) == 36) { // GUID
+			$attachment_link = DAO_AttachmentLink::getByGUID($attachment);
+			$attachment = $attachment_link->getAttachment();
+		} else {
+			$attachment = null;
+		}
+			
+		// Token labels
+		$token_labels = array(
+			'id' => $prefix.$translate->_('common.id'),
+			'mime_type' => $prefix.$translate->_('attachment.mime_type'),
+			'name' => $prefix.$translate->_('attachment.display_name'),
+			'size' => $prefix.$translate->_('attachment.storage_size'),
+			'updated' => $prefix.$translate->_('common.updated'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'id' => 'id',
+			'mime_type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'size' => 'size_bytes',
+			'updated' => Model_CustomField::TYPE_DATE,
+		);
+		
+		// Custom field/fieldset token labels
+		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+			$token_labels = array_merge($token_labels, $custom_field_labels);
+		
+		// Custom field/fieldset token types
+		if(false !== ($custom_field_types = $this->_getTokenTypesFromCustomFields($fields, $prefix)) && is_array($custom_field_types))
+			$token_types = array_merge($token_types, $custom_field_types);
+		
+		// Token values
+		$token_values = array();
+		
+		$token_values['_context'] = CerberusContexts::CONTEXT_ATTACHMENT;
+		$token_values['_types'] = $token_types;
+		
+		if(null != $attachment) {
+			$token_values['_loaded'] = true;
+			$token_values['_label'] = $attachment->display_name;
+			
+			$token_values['id'] = $attachment->id;
+			$token_values['mime_type'] = $attachment->mime_type;
+			$token_values['name'] = $attachment->display_name;
+			$token_values['size'] = $attachment->storage_size;
+			$token_values['updated'] = $attachment->updated;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($attachment, $token_values);
+		}
+		
+		return true;
+	}
+
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+
+		$context = CerberusContexts::CONTEXT_ATTACHMENT;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+		}
+		
+		switch($token) {
+			case 'watchers':
+				$watchers = array(
+					$token => CerberusContexts::getWatchers($context, $context_id, true),
+				);
+				$values = array_merge($values, $watchers);
+				break;
+				
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}
+	
+	function getChooserView($view_id=null) {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(empty($view_id))
+			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		
+		// View
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Attachment Links';
+		$view->view_columns = array(
+			SearchFields_AttachmentLink::ATTACHMENT_MIME_TYPE,
+			SearchFields_AttachmentLink::ATTACHMENT_STORAGE_SIZE,
+			SearchFields_AttachmentLink::LINK_CONTEXT,
+			SearchFields_AttachmentLink::ATTACHMENT_UPDATED,
+		);
+		$view->addParams(array(), true);
+		$view->renderSortBy = SearchFields_AttachmentLink::ATTACHMENT_UPDATED;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderFilters = false;
+		$view->renderTemplate = 'contextlinks_chooser';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+	
+	function getView($context=null, $context_id=null, $options=array()) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Attachment Links';
+		
+		$params_req = array();
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params_req = array(
+				new DevblocksSearchCriteria(SearchFields_AttachmentLink::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_AttachmentLink::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
+		
+		$view->addParamsRequired($params_req, true);
+		
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+};
+
+class Context_AttachmentLink extends Extension_DevblocksContext {
+	function getMeta($context_id) {
+		$link = DAO_AttachmentLink::getByGUID($context_id);
+
+		return array(
+			'id' => $link->guid,
+			'name' => $link->guid,
+			'permalink' => null,
+		);
+	}
+	
+	function getRandom() {
+		// [TODO]
+		//return DAO_AttachmentLink::random();
+		return null;
+	}
+	
+	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {
+		$labels = $dict->_labels;
+		$prefix = $labels['_label'];
+		
+		if(!empty($prefix)) {
+			array_walk($labels, function(&$label, $key) use ($prefix) {
+				$label = preg_replace(sprintf("#^%s #", preg_quote($prefix)), '', $label);
+				
+				switch($key) {
+				}
+				
+				$label = mb_convert_case($label, MB_CASE_LOWER);
+				$label[0] = mb_convert_case($label[0], MB_CASE_UPPER);
+			});
+		}
+		
+		asort($labels);
+		
+		return $labels;
+	}
+	
+	function getDefaultProperties() {
+		return array(
+			'guid',
+			'attachment_name',
+			'context',
+			'context_id',
+		);
+	}
+	
+	function getContext($model, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Attachment Link:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		// Polymorph
+		if(is_string($model) && strlen($model) == 36) { // GUID
+			$model = DAO_AttachmentLink::getByGUID($model);
+		} elseif($model instanceof Model_AttachmentLink) {
+			// It's what we want already.
+		} elseif(is_array($model)) {
+			$model = Cerb_ORMHelper::recastArrayToModel($model, 'Model_AttachmentLink');
+		} else {
+			$model = null;
+		}
+			
+		// Token labels
+		$token_labels = array(
+			'_label' => $prefix,
+			'guid' => $prefix.$translate->_('common.guid'),
+			'context' => $prefix.$translate->_('common.context'),
+			'context_id' => $prefix.$translate->_('common.context_id'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'guid' => Model_CustomField::TYPE_SINGLE_LINE,
+			'context' => Model_CustomField::TYPE_SINGLE_LINE,
+			'context_id' => Model_CustomField::TYPE_NUMBER,
+		);
+		
+		// Token values
+		
+		$token_values = array();
+		
+		$token_values['_context'] = CerberusContexts::CONTEXT_ATTACHMENT_LINK;
+		$token_values['_types'] = $token_types;
+		
+		if(null != $model) {
+			$token_values['_loaded'] = true;
+			$token_values['_label'] = $model->guid;
+			
+			$token_values['guid'] = $model->guid;
+			$token_values['attachment_id'] = $model->attachment_id;
+			$token_values['context'] = $model->context;
+			$token_values['context_id'] = $model->context_id;
+		}
+		
+		// Attachment
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ATTACHMENT, null, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'attachment_',
+			'Attachment:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
+		return true;
+	}
+
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+
+		$context = CerberusContexts::CONTEXT_ATTACHMENT_LINK;
+		$context_id = $dictionary['guid'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+		}
+		
+		switch($token) {
+		}
+		
+		return $values;
+	}
+	
+	function getChooserView($view_id=null) {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(empty($view_id))
+			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		
+		// View
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Attachment Links';
+		$view->view_columns = array(
+			SearchFields_AttachmentLink::ATTACHMENT_MIME_TYPE,
+			SearchFields_AttachmentLink::ATTACHMENT_STORAGE_SIZE,
+			SearchFields_AttachmentLink::LINK_CONTEXT,
+			SearchFields_AttachmentLink::ATTACHMENT_UPDATED,
+		);
+		$view->addParams(array(), true);
+		$view->renderSortBy = SearchFields_AttachmentLink::ATTACHMENT_UPDATED;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderFilters = false;
+		$view->renderTemplate = 'contextlinks_chooser';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+	
+	function getView($context=null, $context_id=null, $options=array()) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Attachment Links';
+		
+		$params_req = array();
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params_req = array(
+				new DevblocksSearchCriteria(SearchFields_AttachmentLink::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_AttachmentLink::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
+		
+		$view->addParamsRequired($params_req, true);
+		
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
 	}
 };

@@ -642,6 +642,7 @@ class CerberusContexts {
 	const CONTEXT_ADDRESS = 'cerberusweb.contexts.address';
 	const CONTEXT_ASSET = 'cerberusweb.contexts.asset';
 	const CONTEXT_ATTACHMENT = 'cerberusweb.contexts.attachment';
+	const CONTEXT_ATTACHMENT_LINK = 'cerberusweb.contexts.attachment_link';
 	const CONTEXT_BUCKET = 'cerberusweb.contexts.bucket';
 	const CONTEXT_CALENDAR = 'cerberusweb.contexts.calendar';
 	const CONTEXT_CALENDAR_EVENT = 'cerberusweb.contexts.calendar_event';
@@ -697,10 +698,6 @@ class CerberusContexts {
 		self::$_stack[] = $context;
 		
 		switch($context) {
-			case 'cerberusweb.contexts.attachment':
-				self::_getAttachmentContext($context_object, $labels, $values, $prefix);
-				break;
-				
 			default:
 				// Migrated
 				
@@ -1563,49 +1560,6 @@ class CerberusContexts {
 		} // end if($do_notifications)
 		
 		return $activity_entry_id;
-	}
-	
-	private static function _getAttachmentContext($attachment, &$token_labels, &$token_values, $prefix=null) {
-		if(is_null($prefix))
-			$prefix = 'Attachment:';
-		
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		// Polymorph
-		if(is_numeric($attachment)) {
-			$attachment = DAO_Attachment::get($attachment);
-		} elseif($attachment instanceof Model_Attachment) {
-			// It's what we want already.
-		} elseif(is_array($attachment)) {
-			$attachment = Cerb_ORMHelper::recastArrayToModel($attachment, 'Model_Attachment');
-		} elseif(strlen($attachment) == 36) { // GUID
-			$attachment_link = DAO_AttachmentLink::getByGUID($attachment);
-			$attachment = $attachment_link->getAttachment();
-		} else {
-			$attachment = null;
-		}
-			
-		// Token labels
-		$token_labels = array(
-			'id' => $prefix.$translate->_('common.id'),
-			'mime_type' => $prefix.$translate->_('attachment.mime_type'),
-			'name' => $prefix.$translate->_('attachment.display_name'),
-			'size' => $prefix.$translate->_('attachment.storage_size'),
-			'updated' => $prefix.$translate->_('common.updated'),
-		);
-		
-		// Token values
-		$token_values = array();
-		
-		if(null != $attachment) {
-			$token_values['id'] = $attachment->id;
-			$token_values['mime_type'] = $attachment->mime_type;
-			$token_values['name'] = $attachment->display_name;
-			$token_values['size'] = $attachment->storage_size;
-			$token_values['updated'] = $attachment->updated;
-		}
-		
-		return true;
 	}
 	
 	static function getModels($context, array $ids) {

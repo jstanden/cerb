@@ -883,6 +883,54 @@
 		</extension>
 		
 		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.attachment</id>
+			<name>Attachment</name>
+			<class>
+				<file>api/dao/attachment.php</file>
+				<name>Context_Attachment</name>
+			</class>
+			<params>
+				<param key="alias" value="attachment" />
+				<param key="dao_class" value="DAO_Attachment" />
+				<param key="view_class" value="" />
+				<param key="options">
+					<!--
+					<value>
+						<data key="create" />
+						<data key="find" />
+						<data key="snippets" />
+						<data key="workspace" />
+					</value>
+					-->
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.attachment_link</id>
+			<name>Attachment Link</name>
+			<class>
+				<file>api/dao/attachment_link.php</file>
+				<name>Context_AttachmentLink</name>
+			</class>
+			<params>
+				<param key="alias" value="attachment_link" />
+				<param key="dao_class" value="DAO_AttachmentLink" />
+				<param key="view_class" value="View_AttachmentLink" />
+				<param key="options">
+					<!--
+					<value>
+						<data key="create" />
+						<data key="find" />
+						<data key="snippets" />
+						<data key="workspace" />
+					</value>
+					-->
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.contact_person</id>
 			<name>Contact Person</name>
 			<class>
