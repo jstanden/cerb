@@ -201,7 +201,13 @@ class DevblocksDictionaryDelegate {
 	
 			$local = $this->getDictionary($context_data['prefix'], false);
 			
+			// Push our current context into the stack so the lazy loader can tell if it's nested
+			CerberusContexts::pushStack($this->_dictionary['_context']);
+			
 			$loaded_values = $context->lazyLoadContextValues($token, $local);
+			
+			// Pop our current context off the stack
+			CerberusContexts::popStack();
 			
 			if(empty($loaded_values))
 				continue;

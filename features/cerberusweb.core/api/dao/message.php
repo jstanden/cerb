@@ -1990,8 +1990,10 @@ class Context_Message extends Extension_DevblocksContext {
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=ticket&id=%d/message/%d", $message->ticket_id, $message->id), true);
 		}
 
-		// Ticket (only if message is the top of the context chain)
-		if(!$is_nested) {
+		$context_stack = CerberusContexts::getStack();
+		
+		// Only link ticket placeholders if the message isn't nested under a ticket already
+		if(1 == count($context_stack) || !in_array(CerberusContexts::CONTEXT_TICKET, $context_stack)) {
 			$merge_token_labels = array();
 			$merge_token_values = array();
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, null, $merge_token_labels, $merge_token_values, '', true);

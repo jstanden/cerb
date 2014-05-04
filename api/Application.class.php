@@ -693,6 +693,15 @@ class CerberusContexts {
 		return self::$_stack;
 	}
 	
+	public static function pushStack($context) {
+		self::$_stack[] = $context;
+		return self::$_stack;
+	}
+	
+	public static function popStack() {
+		return array_pop(self::$_stack);
+	}
+	
 	public static function getContext($context, $context_object, &$labels, &$values, $prefix=null, $nested=false, $skip_labels=false) {
 		// Push the stack
 		self::$_stack[] = $context;
