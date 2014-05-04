@@ -455,14 +455,65 @@ abstract class Extension_RestController extends DevblocksExtension {
 			}
 		}
 		
+		// Results meta
+		
+		if(isset($array['results']) && is_array($array['results'])) {
+			@$show_meta = DevblocksPlatform::importGPC($_REQUEST['show_meta'],'string','');
+			$show_meta = (0 == strlen($show_meta) || !empty($show_meta)) ? true : false;
+			
+			$_labels = null;
+			$_types = null;
+
+			// Scrub nested lazy-loaded labels and types
+			array_walk($array['results'], function(&$result) use (&$_labels, &$_types) {
+				if(null == $_labels && isset($result['_labels']))
+					$_labels = $result['_labels'];
+				
+				if(null == $_types && isset($result['_types']))
+					$_types = $result['_types'];
+				
+				unset($result['_labels']);
+				unset($result['_types']);
+				
+				$scrubs = array('_loaded', '__labels', '__types');
+				
+				foreach($result as $k => $v) {
+					foreach($scrubs as $scrub)
+						if(substr($k, -strlen($scrub)) == $scrub)
+							unset($result[$k]);
+				}
+			});
+			
+			// If the client wants to see the meta on resultsets
+			if($show_meta) {
+				$array['results_meta'] = array();
+				
+				if(!empty($_labels))
+					$array['results_meta']['labels'] = $_labels;
+				
+				if(!empty($_types))
+					$array['results_meta']['types'] = $_types;
+				
+				if(empty($array['results_meta']))
+					unset($array['results_meta']);
+			}
+		
+		// Scrub lazy-loaded labels and types on a single object
+		} else if(is_array($array)) {
+			$scrubs = array('_loaded', '__labels', '__types');
+			
+			foreach($array as $k => $v) {
+				foreach($scrubs as $scrub)
+					if(substr($k, -strlen($scrub)) == $scrub)
+						unset($array[$k]);
+			}
+		}
+		
 		$out = array(
 			'__status' => 'success',
 			'__version' => APP_VERSION,
 			'__build' => APP_BUILD,
 		) + $array;
-		
-		// These keys aren't needed
-		unset($out['_loaded']);
 		
 		// Sort by key
 		ksort($out);
@@ -619,9 +670,6 @@ abstract class Extension_RestController extends DevblocksExtension {
 		@$page = DevblocksPlatform::importGPC($_REQUEST['page'],'integer',1);
 		@$limit = DevblocksPlatform::importGPC($_REQUEST['limit'],'integer',10);
 
-		@$show_meta = DevblocksPlatform::importGPC($_REQUEST['show_meta'],'string','');
-		$show_meta = (0 == strlen($show_meta) || !empty($show_meta)) ? true : false;
-		
 		@$show_results = DevblocksPlatform::importGPC($_REQUEST['show_results'],'string','');
 		$show_results = (0 == strlen($show_results) || !empty($show_results)) ? true: false;
 		
@@ -647,41 +695,11 @@ abstract class Extension_RestController extends DevblocksExtension {
 		}
 		
 		$options = array(
-			'show_meta' => $show_meta,
 			'show_results' => $show_results,
 			'subtotals' => $subtotals,
 		);
 		
 		$results = $this->search($filters, $sortToken, $sortAsc, $page, $limit, $options);
-		
-		if(isset($results['results']) && is_array($results['results']) && !empty($results)) {
-			$_labels = null;
-			$_types = null;
-			
-			array_walk($results['results'], function(&$result) use (&$_labels, &$_types) {
-				if(null == $_labels && isset($result['_labels']))
-					$_labels = $result['_labels'];
-				
-				if(null == $_types && isset($result['_types']))
-					$_types = $result['_types'];
-				
-				unset($result['_labels']);
-				unset($result['_types']);
-			});
-			
-			if($show_meta) {
-				$results['results_meta'] = array();
-				
-				if(!empty($_labels))
-					$results['results_meta']['labels'] = $_labels;
-				
-				if(!empty($_types))
-					$results['results_meta']['types'] = $_types;
-				
-				if(empty($results['results_meta']))
-					unset($results['results_meta']);
-			}
-		}
 		
 		return $results;
 	}
