@@ -48,6 +48,15 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
+	private function _findAttachmentIdInContainer($id, $container) {
+		foreach($container['results'] as $result) {
+			if(is_array($result) && $result['attachment_id'] == $id)
+				return $result;
+		}
+		
+		return null;
+	}
+	
 	private function getId($id) {
 		// ACL
 //		$worker = CerberusApplication::getActiveWorker();
@@ -58,8 +67,11 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 			array('id', '=', $id),
 		));
 		
-		if(is_array($container) && isset($container['results']) && isset($container['results'][$id]))
-			$this->success($container);
+		if(is_array($container) && isset($container['results'])) {
+			if(false != ($result = $this->_findAttachmentIdInContainer($id, $container))) {
+				$this->success($result);
+			}
+		}
 
 		// Error
 		$this->error(self::ERRNO_CUSTOM, sprintf("Invalid attachment id '%d'", $id));
@@ -76,8 +88,8 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 		));
 		
 		if(
-			null == (@$result = $container['results'][$id])
-			|| null == ($file = DAO_Attachment::get($result['id']))
+			null == (@$result = $this->_findAttachmentIdInContainer($id, $container))
+			|| null == ($file = DAO_Attachment::get($result['attachment_id']))
 		)
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid attachment id '%d'", $id));
 			
@@ -114,19 +126,25 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 			
 		} elseif ('subtotal'==$type) {
 			$tokens = array(
-				//'fieldsets' => SearchFields_AttachmentLink::VIRTUAL_HAS_FIELDSET,
+				'display_name' => SearchFields_AttachmentLink::ATTACHMENT_DISPLAY_NAME,
+				'mime_type' => SearchFields_AttachmentLink::ATTACHMENT_MIME_TYPE,
+				'storage_extension' => SearchFields_AttachmentLink::ATTACHMENT_STORAGE_EXTENSION,
 			);
-			
-			//$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_ATTACHMENT);
-			
-			//if(is_array($tokens_cfields))
-			//	$tokens = array_merge($tokens, $tokens_cfields);
 			
 		} else {
 			$tokens = array(
+				'guid' => SearchFields_AttachmentLink::GUID,
 				'id' => SearchFields_AttachmentLink::ID,
 				'context' => SearchFields_AttachmentLink::LINK_CONTEXT,
 				'context_id' => SearchFields_AttachmentLink::LINK_CONTEXT_ID,
+				'display_name' => SearchFields_AttachmentLink::ATTACHMENT_DISPLAY_NAME,
+				'mime_type' => SearchFields_AttachmentLink::ATTACHMENT_MIME_TYPE,
+				'sha1_hash' => SearchFields_AttachmentLink::ATTACHMENT_STORAGE_SHA1HASH,
+				'size' => SearchFields_AttachmentLink::ATTACHMENT_STORAGE_SIZE,
+				'storage_extension' => SearchFields_AttachmentLink::ATTACHMENT_STORAGE_EXTENSION,
+				'storage_key' => SearchFields_AttachmentLink::ATTACHMENT_STORAGE_KEY,
+				'storage_profile_id' => SearchFields_AttachmentLink::ATTACHMENT_STORAGE_PROFILE_ID,
+				'updated' => SearchFields_AttachmentLink::ATTACHMENT_UPDATED,
 			);
 		}
 		
@@ -167,6 +185,53 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 		// Sort
 		$sortBy = $this->translateToken($sortToken, 'search');
 		$sortAsc = !empty($sortAsc) ? true : false;
+		
+		// Search
+		
+		$view = new View_AttachmentLink();
+		$view->id = 'api_search_attachment_link';
+		$view->is_ephemeral = true;
+		$view->addParams($params, true);
+		$view->renderLimit = $limit;
+		$view->renderPage = $page;
+		$view->renderSortBy = $sortBy;
+		$view->renderSortAsc = $sortAsc;
+		
+		if($show_results)
+			list($results, $total) = $view->getData();
+		
+		// Get subtotal data, if provided
+		if(!empty($subtotals))
+			$subtotal_data = $this->_handleSearchSubtotals($view, $subtotals);
+		
+		if($show_results) {
+			$objects = array();
+
+			$models = DAO_AttachmentLink::getByGUIDs(array_keys($results));
+			
+			unset($results);
+			
+			foreach($models as $id => $model) {
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_ATTACHMENT_LINK, $model, $labels, $values, null, true);
+				
+				$objects[$id] = $values;
+			}
+		}
+		
+		$container = array();
+		
+		if($show_results) {
+			$container['results'] = $objects;
+			$container['total'] = $total;
+			$container['count'] = count($objects);
+			$container['page'] = $page;
+		}
+		
+		if(!empty($subtotals)) {
+			$container['subtotals'] = $subtotal_data;
+		}
+		
+		return $container;
 		
 		// Search
 		list($results, $total) = DAO_AttachmentLink::search(
