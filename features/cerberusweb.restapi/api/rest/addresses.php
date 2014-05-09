@@ -104,6 +104,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 				'first_name' => SearchFields_Address::FIRST_NAME,
 				'is_banned' => SearchFields_Address::IS_BANNED,
 				'is_defunct' => SearchFields_Address::IS_DEFUNCT,
+				'last_name' => SearchFields_Address::LAST_NAME,
 				'links' => SearchFields_Address::VIRTUAL_CONTEXT_LINK,
 				'org_name' => SearchFields_Address::ORG_NAME,
 				'watchers' => SearchFields_Address::VIRTUAL_WATCHERS,
