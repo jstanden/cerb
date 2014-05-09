@@ -85,6 +85,8 @@ class ChRest_Calendars extends Extension_RestController implements IExtensionRes
 			$tokens = array(
 				'id' => SearchFields_Calendar::ID,
 				'name' => SearchFields_Calendar::NAME,
+				'owner_context' => SearchFields_Calendar::OWNER_CONTEXT,
+				'owner_context_id' => SearchFields_Calendar::OWNER_CONTEXT_ID,
 				'updated' => SearchFields_Calendar::UPDATED_AT,
 			);
 		}
