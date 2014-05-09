@@ -193,9 +193,10 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 		$view->is_ephemeral = true;
 		$view->addParams($params, true);
 		$view->renderLimit = $limit;
-		$view->renderPage = $page;
+		$view->renderPage = max(0,$page-1);
 		$view->renderSortBy = $sortBy;
 		$view->renderSortAsc = $sortAsc;
+		$view->renderTotal = true;
 		
 		if($show_results)
 			list($results, $total) = $view->getData();
@@ -210,7 +211,8 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 			$models = DAO_AttachmentLink::getByGUIDs(array_keys($results));
 			
 			unset($results);
-			
+
+			if(is_array($models))
 			foreach($models as $id => $model) {
 				CerberusContexts::getContext(CerberusContexts::CONTEXT_ATTACHMENT_LINK, $model, $labels, $values, null, true);
 				

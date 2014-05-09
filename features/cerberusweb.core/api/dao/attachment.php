@@ -1024,12 +1024,18 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 	 * @return Model_AttachmentLink
 	 */
 	static function getByGUIDs($guids) {
+		if(!is_array($guids) || empty($guids))
+			return array();
+		
 		array_walk(
 			$guids,
 			function(&$e) {
 				$e = Cerb_ORMHelper::qstr($e);
 			}
 		);
+		
+		if(empty($guids))
+			return array();
 		
 		$links = self::getWhere(sprintf("%s IN (%s)",
 			self::GUID,
