@@ -1067,6 +1067,23 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 		}
 		
 		switch($token) {
+			case 'custom_fields':
+				$custom_fieldset = DAO_CustomFieldset::get($context_id);
+				$custom_fields = $custom_fieldset->getCustomFields();
+				$cfield_values = array(
+					'custom_fields' => array(),
+				);
+				
+				foreach($custom_fields as $cfield) {
+					CerberusContexts::getContext(CerberusContexts::CONTEXT_CUSTOM_FIELD, $cfield, $merge_labels, $merge_values, null, true, true);
+					$cfield_values['custom_fields'][] = $merge_values;
+				}
+				
+				if(!empty($cfield_values['custom_fields']))
+					$values = array_merge($values, $cfield_values);
+				
+				break;
+				
 			default:
 				/*
 				if(substr($token,0,7) == 'custom_') {

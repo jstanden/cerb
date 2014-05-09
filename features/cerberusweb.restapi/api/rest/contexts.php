@@ -86,11 +86,96 @@ class ChRest_Contexts extends Extension_RestController {
 		$contexts = Extension_DevblocksContext::getAll();
 		
 		foreach($contexts as $context) {
-			$results[$context->id] = array(
+			$result = array(
 				'id' => $context->id,
 				'name' => $context->name,
 				'plugin_id' => $context->plugin_id,
 			);
+			
+			$custom_fieldsets = DAO_CustomFieldset::getByContext($context->id);
+			$custom_fields = DAO_CustomField::getByContext($context->id, false);
+			
+			$labels = array();
+			
+			$result_fields = array();
+			$result_fieldsets = array();
+			
+			foreach($custom_fields as $cfield) {
+				$merge_labels = array();
+				$merge_values = array();
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_CUSTOM_FIELD, $cfield, $merge_labels, $merge_values, null, true, true);
+				
+				CerberusContexts::scrubTokensWithRegexp(
+					$merge_labels,
+					$merge_values,
+					array(
+						'#^_context$#',
+						'#^_label$#',
+						'#^_loaded$#',
+						'#^custom_fieldset_id$#',
+						'#^context$#',
+						'#^pos$#',
+					)
+				);
+				
+				if(!empty($merge_values))
+					$result_fields[] = $merge_values;
+			}
+			
+			if(!empty($result_fields))
+				$result['custom_fields'] = $result_fields;
+			
+			foreach($custom_fieldsets as $fieldset_id => $fieldset) {
+				$merge_labels = array();
+				$merge_values = array();
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $fieldset, $merge_labels, $merge_values, null, true, true);
+				
+				if(!empty($merge_values)) {
+					$merge_dict = new DevblocksDictionaryDelegate($merge_values);
+					$merge_dict->custom_fields;
+					
+					$merge_values = $merge_dict->getDictionary();
+					
+					CerberusContexts::scrubTokensWithRegexp(
+						$merge_labels,
+						$merge_values,
+						array(
+							'#^_context$#',
+							'#^_types#',
+							'#^_labels$#',
+							'#^_label$#',
+							'#^_loaded$#',
+							'#^custom_fieldset_id$#',
+							'#^context$#',
+						)
+					);
+					
+					if(isset($merge_values['custom_fields']))
+					foreach($merge_values['custom_fields'] as &$merge_cfields_values) {
+						$merge_cfields_labels = array();
+						
+						CerberusContexts::scrubTokensWithRegexp(
+							$merge_cfields_labels,
+							$merge_cfields_values,
+							array(
+								'#^_context$#',
+								'#^_label$#',
+								'#^_loaded$#',
+								'#^custom_fieldset_id$#',
+								'#^context$#',
+								'#^pos$#',
+							)
+						);
+					}
+					
+					$result_fieldsets[] = $merge_values;
+				}
+				
+			}
+			
+			$result['custom_fieldsets'] = $result_fieldsets;
+			
+			$results[$context->id] = $result;
 		}
 		
 		$this->success(array('results' => $results));
