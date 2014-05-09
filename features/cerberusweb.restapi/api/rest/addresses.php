@@ -220,6 +220,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 		$putfields = array(
 			'first_name' => 'string',
 			'is_banned' => 'bit',
+			'is_defunct' => 'bit',
 			'last_name' => 'string',
 			'org_id' => 'integer',
 			'updated' => 'integer',
