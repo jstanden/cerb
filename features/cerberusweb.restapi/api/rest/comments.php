@@ -252,7 +252,7 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 			$fields[DAO_Comment::CREATED] = time();
 		
 		// Check required fields
-		$reqfields = array(DAO_Comment::CONTEXT, DAO_Comment::CONTEXT_ID, DAO_Comment::OWNER_CONTEXT, DAO_Comment::OWNER_CONTEXT_ID, DAO_Comment::COMMENT, DAO_Comment::CREATED);
+		$reqfields = array(DAO_Comment::CONTEXT, DAO_Comment::CONTEXT_ID, DAO_Comment::OWNER_CONTEXT, DAO_Comment::OWNER_CONTEXT_ID, DAO_Comment::COMMENT);
 		$this->_handleRequiredFields($reqfields, $fields);
 		
 		// Create

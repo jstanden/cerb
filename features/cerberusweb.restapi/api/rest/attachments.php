@@ -133,11 +133,11 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 			
 		} else {
 			$tokens = array(
-				'guid' => SearchFields_AttachmentLink::GUID,
-				'id' => SearchFields_AttachmentLink::ID,
 				'context' => SearchFields_AttachmentLink::LINK_CONTEXT,
 				'context_id' => SearchFields_AttachmentLink::LINK_CONTEXT_ID,
 				'display_name' => SearchFields_AttachmentLink::ATTACHMENT_DISPLAY_NAME,
+				'guid' => SearchFields_AttachmentLink::GUID,
+				'id' => SearchFields_AttachmentLink::ID,
 				'mime_type' => SearchFields_AttachmentLink::ATTACHMENT_MIME_TYPE,
 				'sha1_hash' => SearchFields_AttachmentLink::ATTACHMENT_STORAGE_SHA1HASH,
 				'size' => SearchFields_AttachmentLink::ATTACHMENT_STORAGE_SIZE,

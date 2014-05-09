@@ -1,4 +1,7 @@
 <?php
+/**
+ * @deprecated
+ */
 class ChRest_CustomFields extends Extension_RestController implements IExtensionRestController {
 	function getAction($stack) {
 		@$context = array_shift($stack);
@@ -46,8 +49,9 @@ class ChRest_CustomFields extends Extension_RestController implements IExtension
 							'id' => $field->id,
 							'name' => $field->name,
 							'type' => $field->type,
+							'pos' => $field->pos,
 							'context' => $field->context,
-							'group_id' => $field->group_id,
+							'custom_fieldset_id' => $field->custom_fieldset_id,
 							'options' => @$field->params['options'],
 						);
 				break;
@@ -60,7 +64,9 @@ class ChRest_CustomFields extends Extension_RestController implements IExtension
 							'id' => $field->id,
 							'name' => $field->name,
 							'type' => $field->type,
+							'pos' => $field->pos,
 							'context' => $field->context,
+							'custom_fieldset_id' => $field->custom_fieldset_id,
 							'options' => @$field->params['options'],
 						);
 				break;

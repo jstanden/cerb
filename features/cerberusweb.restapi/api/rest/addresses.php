@@ -94,8 +94,6 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 				'is_banned' => DAO_Address::IS_BANNED,
 				'is_defunct' => DAO_Address::IS_DEFUNCT,
 				'last_name' => DAO_Address::LAST_NAME,
-//				'num_nonspam' => DAO_Address::NUM_NONSPAM,
-//				'num_spam' => DAO_Address::NUM_SPAM,
 				'org_id' => DAO_Address::CONTACT_ORG_ID,
 				'updated' => DAO_Address::UPDATED,
 			);
@@ -103,13 +101,12 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 		} elseif ('subtotal'==$type) {
 			$tokens = array(
 				'fieldsets' => SearchFields_Address::VIRTUAL_HAS_FIELDSET,
-				'links' => SearchFields_Address::VIRTUAL_CONTEXT_LINK,
-				'watchers' => SearchFields_Address::VIRTUAL_WATCHERS,
-					
 				'first_name' => SearchFields_Address::FIRST_NAME,
 				'is_banned' => SearchFields_Address::IS_BANNED,
 				'is_defunct' => SearchFields_Address::IS_DEFUNCT,
+				'links' => SearchFields_Address::VIRTUAL_CONTEXT_LINK,
 				'org_name' => SearchFields_Address::ORG_NAME,
+				'watchers' => SearchFields_Address::VIRTUAL_WATCHERS,
 			);
 			
 			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_ADDRESS);
