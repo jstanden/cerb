@@ -664,6 +664,10 @@ class CerberusParser {
 			
 			if(empty($content_filename)) {
 				switch(strtolower($content_type)) {
+					case 'text/calendar':
+						$content_filename = 'calendar.ics';
+						break;
+						
 					case 'text/plain':
 						$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
 						
