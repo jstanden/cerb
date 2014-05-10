@@ -27,11 +27,11 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 	static function assign($address, $worker_id, $is_confirmed=false) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		// Force lowercase
+		$address = trim(strtolower($address));
+
 		if(empty($address) || empty($worker_id))
 			return NULL;
-
-		// Force lowercase
-		$address = strtolower($address);
 
 		$sql = sprintf("INSERT INTO address_to_worker (address, worker_id, is_confirmed, code, code_expire) ".
 			"VALUES (%s, %d, %d, '', 0)",
@@ -48,6 +48,8 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 
 	static function unassign($address) {
 		$db = DevblocksPlatform::getDatabaseService();
+		
+		$address = trim(strtolower($address));
 		
 		if(empty($address))
 			return NULL;
