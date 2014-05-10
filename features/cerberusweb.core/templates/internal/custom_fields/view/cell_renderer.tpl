@@ -4,13 +4,13 @@
 {$col = $custom_fields[$col_id]}
 
 {if $col->type==Model_CustomField::TYPE_SINGLE_LINE}
-	<td>{$result.$column}</td>
+	<td>{$result.$column|escape|devblocks_hyperlinks nofilter}</td>
 {elseif $col->type==Model_CustomField::TYPE_URL}
-	<td>{if !empty($result.$column)}<a href="{$result.$column}" target="_blank">{$result.$column}</a>{/if}</td>
+	<td>{$result.$column|escape|devblocks_hyperlinks nofilter}</td>
 {elseif $col->type==Model_CustomField::TYPE_NUMBER}
 	<td>{$result.$column}</td>
 {elseif $col->type==Model_CustomField::TYPE_MULTI_LINE}
-	<td title="{$result.$column}">{$result.$column|truncate:32}</td>
+	<td title="{$result.$column}">{$result.$column|escape|devblocks_hyperlinks nofilter}</td>
 {elseif $col->type==Model_CustomField::TYPE_DROPDOWN}
 	<td>{$result.$column}</td>
 {elseif $col->type==Model_CustomField::TYPE_MULTI_CHECKBOX}

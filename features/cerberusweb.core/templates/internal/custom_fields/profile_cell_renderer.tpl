@@ -5,7 +5,9 @@
 {elseif $v.type == Model_CustomField::TYPE_DATE}
 	<abbr title="{$v.value|devblocks_date}">{$v.value|devblocks_prettytime}</abbr>
 {elseif $v.type == Model_CustomField::TYPE_SINGLE_LINE}
-	{$v.value|truncate:128}
+	{$v.value|escape|devblocks_hyperlinks nofilter}
+{elseif $v.type == Model_CustomField::TYPE_MULTI_LINE}
+	{$v.value|escape|devblocks_hyperlinks nofilter}
 {elseif $v.type == Model_CustomField::TYPE_URL}
 	<a href="{$v.value}" target="_blank">{$v.value}</a>
 {elseif $v.type == Model_CustomField::TYPE_WORKER}
