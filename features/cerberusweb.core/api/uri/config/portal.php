@@ -415,7 +415,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		$url_parts = parse_url($url);
 		
 		$host = $url_parts['host'];
-		@$port = $_SERVER['SERVER_PORT'];
+		$port = isset($url_parts['port']) ? $url_parts['port'] : ($url_writer->isSSL() ? 443 : 80);
 		$base = substr(DEVBLOCKS_WEBPATH,0,-1); // consume trailing
 		$path = substr($url_parts['path'],strlen(DEVBLOCKS_WEBPATH)-1); // consume trailing slash
 
