@@ -482,11 +482,11 @@
 			},
 			autoFocus:true,
 			select:function(event, ui) {
-				$this = $(this);
-				$textarea = $('#divComposeContent{$random}');
+				var $this = $(this);
+				var $textarea = $('#divComposeContent{$random}');
 				
-				$label = ui.item.label.replace("<","&lt;").replace(">","&gt;");
-				$value = ui.item.value;
+				var $label = ui.item.label.replace("<","&lt;").replace(">","&gt;");
+				var $value = ui.item.value;
 				
 				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
 				var url = 'c=internal&a=snippetPaste&id=' + $value;
@@ -496,10 +496,10 @@
 					url += "&context_id={$active_worker->id}";
 				}
 
-				genericAjaxGet('',url,function(txt) {
+				genericAjaxGet('',url,function(json) {
 					// If the content has placeholders, use that popup instead
-					if(txt.match(/\(__(.*?)__\)/)) {
-						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&text=' + encodeURIComponent(txt),null,false,'600');
+					if(json.has_custom_placeholders) {
+						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '600');
 					
 						$popup_paste.bind('snippet_paste', function(event) {
 							if(null == event.text)
@@ -509,7 +509,7 @@
 						});
 						
 					} else {
-						$textarea.insertAtCursor(txt).focus();
+						$textarea.insertAtCursor(json.text).focus();
 					}
 					
 				}, { async: false });

@@ -24,6 +24,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 	const CONTENT = 'content';
 	const TOTAL_USES = 'total_uses';
 	const UPDATED_AT = 'updated_at';
+	const CUSTOM_PLACEHOLDERS_JSON = 'custom_placeholders_json';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -118,7 +119,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, title, context, owner_context, owner_context_id, content, total_uses, updated_at ".
+		$sql = "SELECT id, title, context, owner_context, owner_context_id, content, total_uses, updated_at, custom_placeholders_json ".
 			"FROM snippet ".
 			$where_sql.
 			$sort_sql.
@@ -162,6 +163,11 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			$object->content = $row['content'];
 			$object->total_uses = intval($row['total_uses']);
 			$object->updated_at = intval($row['updated_at']);
+			
+			$custom_placeholders = null;
+			if(false != (@$custom_placeholders = json_decode($row['custom_placeholders_json'], true)) && is_array($custom_placeholders))
+				$object->custom_placeholders = $custom_placeholders;
+			
 			$objects[$object->id] = $object;
 		}
 		
@@ -239,7 +245,8 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			"snippet.owner_context_id as %s, ".
 			"snippet.content as %s, ".
 			"snippet.total_uses as %s, ".
-			"snippet.updated_at as %s",
+			"snippet.updated_at as %s, ".
+			"snippet.custom_placeholders_json as %s",
 				SearchFields_Snippet::ID,
 				SearchFields_Snippet::TITLE,
 				SearchFields_Snippet::CONTEXT,
@@ -247,7 +254,8 @@ class DAO_Snippet extends Cerb_ORMHelper {
 				SearchFields_Snippet::OWNER_CONTEXT_ID,
 				SearchFields_Snippet::CONTENT,
 				SearchFields_Snippet::TOTAL_USES,
-				SearchFields_Snippet::UPDATED_AT
+				SearchFields_Snippet::UPDATED_AT,
+				SearchFields_Snippet::CUSTOM_PLACEHOLDERS_JSON
 			);
 		
 		if(isset($tables['snippet_use_history'])) {
@@ -433,6 +441,7 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 	const CONTENT = 's_content';
 	const TOTAL_USES = 's_total_uses';
 	const UPDATED_AT = 's_updated_at';
+	const CUSTOM_PLACEHOLDERS_JSON = 's_custom_placeholders_json';
 	
 	const USE_HISTORY_MINE = 'suh_my_uses';
 	
@@ -494,6 +503,7 @@ class Model_Snippet {
 	public $content;
 	public $total_uses;
 	public $updated_at;
+	public $custom_placeholders;
 	
 	public function incrementUse($worker_id) {
 		return DAO_Snippet::incrementUse($this->id, $worker_id);

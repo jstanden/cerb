@@ -1,20 +1,20 @@
-	<button type="button" class="cerb-popupmenu-trigger">Insert at cursor &#x25be;</button>
+	{if !empty($token_labels)}<button type="button" class="cerb-popupmenu-trigger">Insert at cursor &#x25be;</button>{/if}
 	<button type="button" onclick="genericAjaxPost('formSnippetsPeek','peekTemplateTest','c=internal&a=snippetTest&snippet_context={$context}{if !empty($context_id)}&snippet_context_id={$context_id}{/if}&snippet_field=content');">Test</button>
+
 	<div id="peekTemplateTest"></div>
+	
+	{if !empty($token_labels)}
 	<ul class="cerb-popupmenu" style="border:0;">
 		<li style="background:none;">
 			<input type="text" size="16" class="input_search filter">
 		</li>
-		<li><a href="javascript:;" token="((__type placeholder here__))">(input) Prompt worker to enter text (with hint)</a></li>
-		<li><a href="javascript:;" token="((___type default value here___))">(input) Prompt worker to enter text (with default value)</a></li>
-		<li><a href="javascript:;" token="((____type multi-line placeholder here____))">(input) Prompt worker to enter multiple lines of text</a></li>
-		{if !empty($token_labels)}
 		{foreach from=$token_labels key=token item=label}
 		<li><a href="javascript:;" token="{$token}">{$label}</a></li>
 		{/foreach}
-		{/if}
 	</ul>
+	{/if}
 
+{if !empty($token_labels)}
 <script type="text/javascript">
 var $popup = genericAjaxPopupFind('#peekTemplateTest');
 
@@ -78,3 +78,4 @@ $menu.find('> li > a').click(function() {
 	$content.focus();
 });
 </script>
+{/if}

@@ -556,7 +556,7 @@ var cAjaxCalls = function() {
 	}
 	
 	this.chooserSnippet = function(layer, $textarea, contexts) {
-		ctx = [];
+		var ctx = [];
 		for(x in contexts)
 			ctx.push(x + ":" + contexts[x]);
 		
@@ -571,16 +571,16 @@ var cAjaxCalls = function() {
 				return;
 			
 			// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
-			url = 'c=internal&a=snippetPaste&id='+encodeURIComponent(snippet_id);
+			var url = 'c=internal&a=snippetPaste&id='+encodeURIComponent(snippet_id);
 			
 			// Context-dependent arguments
 			if(null != contexts[context])
 				url += "&context_id=" + encodeURIComponent(contexts[context]);
 			
 			// Ajax the content (synchronously)
-			genericAjaxGet('',url,function(txt) {
-				if(txt.match(/\(__(.*?)__\)/)) {
-					var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&text=' + encodeURIComponent(txt),null,false,'600');
+			genericAjaxGet('',url,function(json) {
+				if(json.has_custom_placeholders) {
+					var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id),null,false,'600');
 					
 					$popup_paste.bind('snippet_paste', function(event) {
 						if(null == event.text)
@@ -590,7 +590,7 @@ var cAjaxCalls = function() {
 					});
 					
 				} else {
-					$textarea.insertAtCursor(txt).focus();
+					$textarea.insertAtCursor(json.text).focus();
 				}
 				
 			}, { async: false });

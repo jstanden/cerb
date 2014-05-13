@@ -54,19 +54,23 @@
 
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
+	{$custom_placeholders = $result.s_custom_placeholders_json|json_decode:true}
 
 	{if $smarty.foreach.results.iteration % 2}
 		{assign var=tableRowClass value="even"}
 	{else}
 		{assign var=tableRowClass value="odd"}
 	{/if}
+	
+	{$dict = null}
+	
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="s_title"}
-			<td context="{$result.s_context}" id="{$result.s_id}">
+			<td context="{$result.s_context}" id="{$result.s_id}" has_custom_placeholders="{if !empty($custom_placeholders)}true{else}false{/if}">
 				<input type="checkbox" name="row_id[]" value="{$result.s_id}" style="display:none;">
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showSnippetsPeek&view_id={$view->id}&id={$result.s_id}', null, false, '550');" class="subject">{if empty($result.$column)}(no title){else}{$result.$column}{/if}</a>
 			</td>
@@ -108,16 +112,19 @@
 				
 				{if isset($dicts.{$result.s_context}) && isset($tpl_builder)}
 					{$dict = $dicts.{$result.s_context}}
+					
+					{foreach from=$custom_placeholders item=placeholder key=placeholder_key}
+					{$dict.$placeholder_key = '{{'|cat:$placeholder.key|cat:'}}'}
+					{/foreach}
+					
 					{$snippet_content = $tpl_builder->build($snippet_content, $dict)}
 				{/if}
 				
 				{$snippet_content = $snippet_content|escape:'htmlall'}
-				{$snippet_content = $snippet_content|regex_replace:'#(\(\((_+)\[ph\](.*?)\[/ph\]_+\)\))#':'((\2\3\2))'}
 				{$snippet_content = $snippet_content|regex_replace:'#(\[ph\](.*?)\[/ph\])#':'<div class="bubble">\2</div>'}
+				{*{$snippet_content = $snippet_content|regex_replace:'#(\(\(_+(.*?)_+\)\))#':'<span class="placeholder placeholder-input">(\2)</span>'}*}
 				
-				{$snippet_content = $snippet_content|regex_replace:'#(\(\(_+(.*?)_+\)\))#':'<span class="placeholder placeholder-input">(\2)</span>'}
-				
-				<div class="emailbody" style="max-height:100px;overflow-y:auto;border-left:2px solid rgb(220,220,220);font-size:12px;margin-left:15px;color:rgb(75,75,75);padding:5px 10px;">{$snippet_content nofilter}</div>
+				<div class="emailbody" style="border-left:2px solid rgb(220,220,220);font-size:12px;margin-left:15px;color:rgb(75,75,75);padding:5px 10px;">{$snippet_content nofilter}</div>
 			</td>
 		</tr>
 	</tbody>

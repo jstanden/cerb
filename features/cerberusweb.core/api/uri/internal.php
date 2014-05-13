@@ -1372,8 +1372,43 @@ class ChInternalController extends DevblocksControllerExtension {
 				$owner_context_id = $active_worker->id;
 			}
 			
+			// Owner
+			
 			$fields[DAO_Snippet::OWNER_CONTEXT] = $owner_context;
 			$fields[DAO_Snippet::OWNER_CONTEXT_ID] = $owner_context_id;
+			
+			// Custom placeholders
+			
+			$placeholders = array();
+			@$placeholder_keys = DevblocksPlatform::importGPC($_REQUEST['placeholder_keys'],'array',array());
+			
+			if(is_array($placeholder_keys) && !empty($placeholder_keys)) {
+				@$placeholder_types = DevblocksPlatform::importGPC($_REQUEST['placeholder_types'],'array',array());
+				@$placeholder_labels = DevblocksPlatform::importGPC($_REQUEST['placeholder_labels'],'array',array());
+				@$placeholder_defaults = DevblocksPlatform::importGPC($_REQUEST['placeholder_defaults'],'array',array());
+				@$placeholder_deletes = DevblocksPlatform::importGPC($_REQUEST['placeholder_deletes'],'array',array());
+				
+				foreach($placeholder_keys as $placeholder_idx => $placeholder_key) {
+					@$placeholder_type = $placeholder_types[$placeholder_idx];
+					@$placeholder_label = $placeholder_labels[$placeholder_idx];
+					@$placeholder_default = $placeholder_defaults[$placeholder_idx];
+					@$placeholder_delete = $placeholder_deletes[$placeholder_idx];
+					
+					if(empty($placeholder_key) || !empty($placeholder_delete))
+						continue;
+					
+					$placeholders[$placeholder_key] = array(
+						'type' => $placeholder_type,
+						'key' => $placeholder_key,
+						'label' => $placeholder_label,
+						'default' => $placeholder_default,
+					);
+				}
+				
+				$fields[DAO_Snippet::CUSTOM_PLACEHOLDERS_JSON] = json_encode($placeholders);
+			}
+			
+			// Create / Update
 			
 			if(empty($id)) {
 				if($active_worker->hasPriv('core.snippets.actions.create')) {
@@ -1400,6 +1435,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					}
 				}
 			}
+
 		}
 		
 		
@@ -1414,14 +1450,18 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$token_labels = array();
+		$token_values = array();
 
 		if(null != ($snippet = DAO_Snippet::get($id))) {
 			// Make sure the worker is allowed to view this context+ID
 			if(!empty($snippet->context)) {
 				if(null == ($context = Extension_DevblocksContext::get($snippet->context))) /* @var $context Extension_DevblocksContext */
-					exit;
+					return;
+				
 				if(!$context->authorize($context_id, $active_worker))
-					exit;
+					return;
 			}
 			
 			CerberusContexts::getContext($snippet->context, $context_id, $token_labels, $token_values);
@@ -1436,19 +1476,90 @@ class ChInternalController extends DevblocksControllerExtension {
 		} else {
 			$output = $snippet->content;
 		}
-
-		if(!empty($output))
-			echo rtrim($output,"\r\n"),"\n";
+		
+		header('Content-Type: application/json');
+		
+		echo json_encode(array(
+			'id' => $id,
+			'context_id' => $context_id,
+			'has_custom_placeholders' => !empty($snippet->custom_placeholders),
+			'text' => rtrim($output,"\r\n") . "\n",
+		));
 	}
 	
 	function snippetPlaceholdersAction() {
-		@$text = DevblocksPlatform::importGPC($_REQUEST['text'],'string','');
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$id || false == ($snippet = DAO_Snippet:: get($id)))
+			return;
+		
+		if(!($snippet->isReadableByWorker($active_worker)))
+			return;
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('snippet', $snippet);
+		$tpl->assign('context_id', $context_id);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/snippets/paste_placeholders.tpl');
+	}
+	
+	function snippetPlaceholdersPreviewAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$placeholders = DevblocksPlatform::importGPC($_REQUEST['placeholders'],'array',array());
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$id || false == ($snippet = DAO_Snippet:: get($id)))
+			return;
+		
+		if(!($snippet->isReadableByWorker($active_worker)))
+			return;
+
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$custom_placeholders = $snippet->custom_placeholders;
+		
+		$text = $snippet->content;
+		
+		$labels = array();
+		$values = array();
+		
+		if($context_id) {
+			CerberusContexts::getContext($snippet->context, $context_id, $labels, $values, null, true, false);
+		}
+		
+		if(is_array($custom_placeholders))
+		foreach($custom_placeholders as $placeholder_key => $placeholder) {
+			$value = null;
+			
+			if(!isset($placeholders[$placeholder_key]))
+				$placeholders[$placeholder_key] = '{{' . $placeholder_key . '}}';
+			
+			switch($placeholder['type']) {
+				case Model_CustomField::TYPE_CHECKBOX:
+					@$value = $placeholders[$placeholder_key] ? true : false;
+					break;
+					
+				case Model_CustomField::TYPE_SINGLE_LINE:
+				case Model_CustomField::TYPE_MULTI_LINE:
+					@$value = $placeholders[$placeholder_key];
+					break;
+			}
+			
+			$values[$placeholder_key] = $value;
+		}
+		
+		$text = $tpl_builder->build($text, $values);
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$tpl->assign('text', $text);
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/snippets/paste_placeholders.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/snippets/paste_placeholders_preview.tpl');
 	}
 
 	function snippetTestAction() {
@@ -1473,6 +1584,19 @@ class ChInternalController extends DevblocksControllerExtension {
 			$snippet_context_id = $ctx->getRandom();
 		
 		CerberusContexts::getContext($snippet_context, $snippet_context_id, $token_labels, $token_values);
+
+		// Add prompted placeholders to the valid tokens
+		
+		@$placeholder_keys = DevblocksPlatform::importGPC($_REQUEST['placeholder_keys'], 'array', array());
+		@$placeholder_defaults = DevblocksPlatform::importGPC($_REQUEST['placeholder_defaults'], 'array', array());
+		
+		foreach($placeholder_keys as $idx => $v) {
+			@$placeholder_default = $placeholder_defaults[$idx];
+			$token_values[$v] =  (!empty($placeholder_default) ? $placeholder_default : ('{{' . $v . '}}'));
+			$token_labels[$v] =  $token_values[$v];
+		}
+		
+		// Tester
 		
 		$success = false;
 		$output = '';
