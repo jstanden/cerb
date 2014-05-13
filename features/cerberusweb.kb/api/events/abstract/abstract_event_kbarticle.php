@@ -102,6 +102,7 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 			'article_watchers' => array(
 				'label' => 'Article watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 		);
 		

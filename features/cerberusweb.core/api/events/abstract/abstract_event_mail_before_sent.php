@@ -243,6 +243,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			'ticket_org_watchers' => array(
 				'label' => 'Ticket org watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 			'ticket_owner_id' => array(
 				'label' => 'Ticket owner',
@@ -251,6 +252,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			'ticket_watchers' => array(
 				'label' => 'Ticket watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 			'worker_id' => array(
 				'label' => 'Worker',

@@ -194,6 +194,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			'sender_watchers' => array(
 				'label' => 'Message sender watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 			'sender_org' => array(
 				'label' => 'Message sender org',
@@ -202,6 +203,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			'sender_org_watchers' => array(
 				'label' => 'Message sender org watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 			'ticket_id' => array(
 				'label' => 'Ticket',
@@ -210,10 +212,12 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			'ticket_watchers' => array(
 				'label' => 'Ticket watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 			'group_watchers' => array(
 				'label' => 'Group watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 			'ticket_org_id' => array(
 				'label' => 'Ticket org',
@@ -222,6 +226,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			'ticket_org_watchers' => array(
 				'label' => 'Ticket org watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 			'ticket_owner_id' => array(
 				'label' => 'Ticket owner',

@@ -161,6 +161,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			'ticket_watchers' => array(
 				'label' => 'Ticket watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 			'group_id' => array(
 				'label' => 'Group',
@@ -169,6 +170,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			'group_watchers' => array(
 				'label' => 'Group watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 			/*
 			'bucket_id' => array(
@@ -203,6 +205,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			'ticket_org_watchers' => array(
 				'label' => 'Ticket org watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 		);
 		

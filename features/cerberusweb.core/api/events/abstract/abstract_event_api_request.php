@@ -79,6 +79,7 @@ abstract class AbstractEvent_ApiRequest extends Extension_DevblocksEvent {
 			'va_watchers' => array(
 				'label' => 'Virtual Attendant Watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 		);
 		

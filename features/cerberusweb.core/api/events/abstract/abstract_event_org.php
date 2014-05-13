@@ -102,6 +102,7 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 			'org_watchers' => array(
 				'label' => 'Organization watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 		);
 		

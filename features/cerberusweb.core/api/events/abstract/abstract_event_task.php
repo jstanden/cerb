@@ -85,6 +85,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 			'task_watchers' => array(
 				'label' => 'Task watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 		);
 		

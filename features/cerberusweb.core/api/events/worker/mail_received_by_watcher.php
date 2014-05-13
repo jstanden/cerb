@@ -188,6 +188,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			'sender_watchers' => array(
 				'label' => 'Sender watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 			'sender_org_id' => array(
 				'label' => 'Sender org',
@@ -196,6 +197,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			'sender_org_watchers' => array(
 				'label' => 'Sender org_watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 			'ticket_id' => array(
 				'label' => 'Ticket',
@@ -208,6 +210,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			'ticket_org_watchers' => array(
 				'label' => 'Ticket org watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 			'ticket_owner_id' => array(
 				'label' => 'Ticket owner',
@@ -216,6 +219,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			'ticket_watchers' => array(
 				'label' => 'Ticket watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 		);
 		

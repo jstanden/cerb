@@ -93,6 +93,7 @@ abstract class AbstractEvent_ContactPerson extends Extension_DevblocksEvent {
 			'contact_watchers' => array(
 				'label' => 'Contact watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 		);
 		

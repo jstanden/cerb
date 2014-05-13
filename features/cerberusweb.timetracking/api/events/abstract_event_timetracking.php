@@ -86,6 +86,7 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 			'time_watchers' => array(
 				'label' => 'Time entry watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 		);
 		
