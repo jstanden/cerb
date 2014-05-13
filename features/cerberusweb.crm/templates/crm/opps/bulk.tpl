@@ -148,7 +148,7 @@
 	$popup.one('popup_open', function(event,ui) {
 		var $this = $(this);
 		
-		$this.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize}");
+		$this.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 	
 		var $content = $this.find('textarea[name=broadcast_message]');
 		

@@ -23,7 +23,7 @@
 	$popup.one('popup_open', function(event,ui) {
 		var $this = $(this);
 		
-		$this.dialog('option','title',"{'mail.merge'|devblocks_translate|capitalize}");
+		$this.dialog('option','title',"{'mail.merge'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
 		$this.find('button.submit')
 			.click(function() {

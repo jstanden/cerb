@@ -124,7 +124,7 @@
 	$popup.one('popup_open',function(event,ui) {
 		var $this = $(this);
 		
-		$this.dialog('option','title', '{'common.bucket'|devblocks_translate|capitalize}');
+		$this.dialog('option','title', '{'common.bucket'|devblocks_translate|capitalize|escape:'javascript' nofilter}');
 		
 		$this.find('select[name=personal_token]').change(function(e) {
 			var $select = $(this);

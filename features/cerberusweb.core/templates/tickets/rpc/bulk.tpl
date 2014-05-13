@@ -204,7 +204,7 @@
 		var $this = $(this);
 		var $frm = $('#formBatchUpdate');
 		
-		$this.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize}");
+		$this.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
 		ajax.orgAutoComplete('#formBatchUpdate input:text[name=do_org]');
 		

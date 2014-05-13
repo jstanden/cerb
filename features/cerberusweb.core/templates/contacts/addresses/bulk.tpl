@@ -131,7 +131,7 @@
 	var $panel = genericAjaxPopupFind('#formBatchUpdate');
 	$panel.one('popup_open',function(event,ui) {
 		var $this = $(this);
-		$panel.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize}");
+		$panel.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
 		ajax.orgAutoComplete('#orginput');
 		
