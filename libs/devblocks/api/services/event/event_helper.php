@@ -2152,15 +2152,18 @@ class DevblocksEventHelper {
 	 * Action: Set Ticket Owner
 	 */
 	
-	static function renderActionSetTicketOwner() {
+	static function renderActionSetTicketOwner($trigger) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('workers', DAO_Worker::getAllActive());
+		
+		$event = $trigger->getEvent();
+		$tpl->assign('values_to_contexts', $event->getValuesContexts($trigger));
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_worker.tpl');
 	}
 	
 	static function simulateActionSetTicketOwner($params, DevblocksDictionaryDelegate $dict, $default_on) {
-		@$owner_id = intval($params['worker_id']);
+		@$owner_id = $params['worker_id'];
 		@$ticket_id = $dict->$default_on;
 		
 		if(empty($ticket_id))
@@ -2168,6 +2171,11 @@ class DevblocksEventHelper {
 		
 		$out = ">>> Setting owner to:\n";
 
+		// Placeholder?
+		if(!is_numeric($owner_id) && $dict->exists($owner_id)) {
+			@$owner_id = intval($dict->$owner_id);
+		}
+		
 		if(empty($owner_id)) {
 			$out .= "(nobody)\n";
 			
@@ -2187,8 +2195,8 @@ class DevblocksEventHelper {
 		if(empty($ticket_id))
 			return;
 		
-		// Variable?
-		if(substr($owner_id,0,4) == 'var_') {
+		// Placeholder?
+		if(!is_numeric($owner_id) && $dict->exists($owner_id)) {
 			@$owner_id = intval($dict->$owner_id);
 		}
 		

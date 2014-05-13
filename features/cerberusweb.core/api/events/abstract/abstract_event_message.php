@@ -686,7 +686,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_owner':
-				DevblocksEventHelper::renderActionSetTicketOwner();
+				DevblocksEventHelper::renderActionSetTicketOwner($trigger);
 				break;
 			
 			case 'set_reopen_date':
