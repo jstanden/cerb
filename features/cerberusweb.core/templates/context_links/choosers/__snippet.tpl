@@ -81,6 +81,7 @@
 				var $td_first = $tr.find('> td:first');
 				
 				var attr_id = $td.attr('id');
+				var attr_label = $(this).text();
 				var attr_context = $td.attr('context');
 				var attr_context_id = $td.attr('context_id');
 				var attr_has_custom_placeholders = $td.attr('has_custom_placeholders');
@@ -94,9 +95,9 @@
 				$btn.click(function(e) {
 					e.stopPropagation();
 					
-					var $this = $(this);
+					var $btn = $(this);
 
-					$this.find('span.cerb-sprite2')
+					$btn.find('span.cerb-sprite2')
 						.removeClass('sprite-plus-circle')
 						.addClass('sprite-tick-circle-gray')
 						;
@@ -106,9 +107,15 @@
 					event=jQuery.Event('snippet_select');
 					event.snippet_id = attr_id
 					event.context = attr_context;
+					event.context_id = attr_context_id;
+					event.label = attr_label;
 					event.has_custom_placeholders = attr_has_custom_placeholders;
 					
 					$popup.trigger(event);
+					
+					{if $single}
+					$popup.dialog('close');
+					{/if}
 				});
 				
 				$td_first.prepend($btn);

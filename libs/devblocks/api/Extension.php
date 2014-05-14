@@ -1234,6 +1234,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			'_run_behavior' => array('label' => '(Run behavior)'),
 			'_schedule_behavior' => array('label' => '(Schedule behavior)'),
 			'_set_custom_var' => array('label' => '(Set a custom placeholder)'),
+			'_set_custom_var_snippet' => array('label' => '(Set a custom placeholder using a snippet)'),
 			'_unschedule_behavior' => array('label' => '(Unschedule behavior)'),
 		);
 		$custom = $this->getActionExtensions($trigger);
@@ -1299,6 +1300,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					
 				case '_set_custom_var':
 					$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_custom_var.tpl');
+					break;
+					
+				case '_set_custom_var_snippet':
+					DevblocksEventHelper::renderActionSetPlaceholderUsingSnippet($trigger, $params);
 					break;
 					
 				case '_run_behavior':
@@ -1393,6 +1398,17 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					);
 					break;
 					
+				case '_set_custom_var_snippet':
+					@$var = $params['var'];
+					
+					$value = $dict->$var;
+					
+					return sprintf(">>> Setting custom placeholder {{%s}}:\n%s\n\n",
+						$var,
+						$value
+					);
+					break;
+					
 				case '_run_behavior':
 					return DevblocksEventHelper::simulateActionRunBehavior($params, $dict);
 					break;
@@ -1460,6 +1476,70 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						$value = $tpl_builder->build($value, $dict);
 						$dict->$var = ($format == 'json') ? @json_decode($value, true) : $value;
 					}
+					
+					if($dry_run) {
+						$out = $this->simulateAction($token, $trigger, $params, $dict);
+					} else {
+						return;
+					}
+					break;
+					
+				case '_set_custom_var_snippet':
+					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+					$cache = DevblocksPlatform::getCacheService();
+					
+					@$on = $params['on'];
+					@$snippet_id = $params['snippet_id'];
+					@$var = $params['var'];
+					@$placeholder_values = $params['placeholders'];
+
+					if(empty($on) || empty($var) || empty($snippet_id))
+						return;
+					
+					// Cache the snippet in the request (multiple runs of the VA; parser, etc)
+					$cache_key = sprintf('snippet_%d', $snippet_id);
+					if(false == ($snippet = $cache->load($cache_key, false, true))) {
+						if(false == ($snippet = DAO_Snippet::get($snippet_id)))
+							return;
+						
+						$cache->save($snippet, $cache_key, array(), 0, true);
+					}
+					
+					if(empty($var))
+						return;
+					
+					$values_to_contexts = $this->getValuesContexts($trigger);
+					
+					@$on_context = $values_to_contexts[$on];
+
+					if(empty($on) || !is_array($on_context))
+						return;
+					
+					$snippet_labels = array();
+					$snippet_values = array();
+					
+					// Load snippet target dictionary
+					if(!empty($snippet->context) && $snippet->context == $on_context['context']) {
+						CerberusContexts::getContext($on_context['context'], $dict->$on, $snippet_labels, $snippet_values, '', true, false);
+					}
+					
+					// Prompted placeholders
+					
+					// [TODO] If a required prompted placeholder is missing, abort
+					
+					if(is_array($snippet->custom_placeholders) && is_array($placeholder_values))
+					foreach($snippet->custom_placeholders as $placeholder_key => $placeholder) {
+						if(!isset($placeholder_values[$placeholder_key])) {
+							$snippet_values[$placeholder_key] = $placeholder['default'];
+							
+						} else {
+							// Convert placeholders
+							$snippet_values[$placeholder_key] = $tpl_builder->build($placeholder_values[$placeholder_key], $dict);
+						}
+					}
+					
+					$value = $tpl_builder->build($snippet->content, $snippet_values);
+					$dict->$var = $value;
 					
 					if($dry_run) {
 						$out = $this->simulateAction($token, $trigger, $params, $dict);

@@ -200,7 +200,7 @@
 			if(null == $field)
 				return;
 			
-			var regexpName = /^(.*?)\[(.*?)\]$/;
+			var regexpName = /^(.*?)(\[.*?\])$/;
 			var hits = regexpName.exec($field.attr('name'));
 			
 			if(null == hits || hits.length < 3)

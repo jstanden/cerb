@@ -1156,6 +1156,30 @@ class DevblocksEventHelper {
 	}
 	
 	/*
+	 * Action: Set a custom placeholder using snippet
+	 */
+	
+	static function renderActionSetPlaceholderUsingSnippet($trigger, $params) { /* @var $trigger Model_TriggerEvent */
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('trigger', $trigger);
+
+		$event = $trigger->getEvent();
+		
+		$values_to_contexts = $event->getValuesContexts($trigger);
+		$tpl->assign('values_to_contexts', $values_to_contexts);
+		
+		$context_exts = Extension_DevblocksContext::getAll(false);
+		$tpl->assign('context_exts', $context_exts);
+		
+		if(false != (@$snippet_id = $params['snippet_id'])) {
+			$tpl->assign('snippet', DAO_Snippet::get($snippet_id));
+		}
+		
+		$tpl->display('devblocks:cerberusweb.core::events/action_set_placeholder_using_snippet.tpl');
+	}
+	
+	/*
 	 * Action: Get links
 	 */
 	

@@ -583,6 +583,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$contexts = DevblocksPlatform::importGPC($_REQUEST['contexts'],'string');
 		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
+		@$single = DevblocksPlatform::importGPC($_REQUEST['single'], 'integer', 0);
 
 		if(null != ($context_extension = DevblocksPlatform::getExtension($context, true))) {
 			$tpl = DevblocksPlatform::getTemplateService();
@@ -601,12 +602,14 @@ class ChInternalController extends DevblocksControllerExtension {
 				foreach($target_contexts as $target_context_pair) {
 					@list($target_context, $target_context_id) = explode(':', $target_context_pair);
 
-					// Load the context dictionary for scope
-					$labels = array();
-					$values = array();
-					CerberusContexts::getContext($target_context, $target_context_id, $labels, $values);
-
-					$dicts[$target_context] = $values;
+					if(!empty($target_context_id)) {
+						// Load the context dictionary for scope
+						$labels = array();
+						$values = array();
+						CerberusContexts::getContext($target_context, $target_context_id, $labels, $values);
+	
+						$dicts[$target_context] = $values;
+					}
 					
 					// Stack filters for the view
 					if(!empty($target_context))
@@ -630,6 +633,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			C4_AbstractViewLoader::setView($view->id, $view);
 			
 			$tpl->assign('view', $view);
+			$tpl->assign('single', $single);
 			
 			$tpl->display('devblocks:cerberusweb.core::context_links/choosers/__snippet.tpl');
 		}
@@ -4091,6 +4095,33 @@ class ChInternalController extends DevblocksControllerExtension {
 		$ext->renderEventParams(null);
 	}
 	
+	function showSnippetPlaceholdersAction() {
+		@$name_prefix = DevblocksPlatform::importGPC($_REQUEST['name_prefix'],'string', '');
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('namePrefix', $name_prefix);
+		
+		if(null != ($snippet = DAO_Snippet::get($id)))
+			$tpl->assign('snippet', $snippet);
+		
+		$tpl->display('devblocks:cerberusweb.core::events/action_set_placeholder_using_snippet_params.tpl');
+	}
+	
+	// Convert [nested][string] $path to array
+	private function _getValueFromNestedArray($path, array $array) {
+		$keys = explode('][', trim($path, '[]'));
+		
+		$ptr =& $array;
+		
+		while($key = array_shift($keys)) {
+			$ptr =& $ptr[$key];
+		}
+		
+		return $ptr;
+	}
+	
 	function testDecisionEventSnippetsAction() {
 		@$prefix = DevblocksPlatform::importGPC($_REQUEST['prefix'],'string','');
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer',0);
@@ -4102,13 +4133,14 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 			if(is_array($fields))
 			foreach($fields as $field) {
+				@$append = $this->_getValueFromNestedArray($field, $_REQUEST[$prefix]);
 				@$append = DevblocksPlatform::importGPC($_REQUEST[$prefix][$field],'string','');
 				$content .= !empty($append) ? ('[' . $field . ']: ' . PHP_EOL . $append . PHP_EOL . PHP_EOL) : '';
 			}
 			
 		} else {
 			@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'string','');
-			@$content = DevblocksPlatform::importGPC($_REQUEST[$prefix][$field],'string','');
+			@$content = $this->_getValueFromNestedArray($field, $_REQUEST[$prefix]);
 		}
 		
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
