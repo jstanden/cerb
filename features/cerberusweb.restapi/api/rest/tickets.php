@@ -43,7 +43,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	
 	function postAction($stack) {
 		@$action = array_shift($stack);
-
+		
 		if(is_numeric($action) && !empty($stack)) {
 			$id = intval($action);
 			$action = array_shift($stack);
@@ -58,6 +58,10 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			switch($action) {
 				case 'compose':
 					$this->postCompose();
+					break;
+					
+				case 'reply':
+					$this->postReply();
 					break;
 					
 				case 'search':
@@ -486,6 +490,162 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			$this->error(self::ERRNO_ACL, 'Access denied to compose mail.');
 		
 		$ticket_id = $this->_handlePostCompose();
+		$this->getId($ticket_id);
+	}
+	
+	private function _handlePostReply() {
+		$worker = CerberusApplication::getActiveWorker();
+		
+		/*
+		'html_template_id'
+		'headers'
+		*/
+		
+		// Required
+		@$message_id = DevblocksPlatform::importGPC($_REQUEST['message_id'],'integer',0);
+		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
+
+		// Optional
+		@$bcc = DevblocksPlatform::importGPC($_REQUEST['bcc'],'string','');
+		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string',null);
+		@$cc = DevblocksPlatform::importGPC($_REQUEST['cc'],'string','');
+		@$content_format = DevblocksPlatform::importGPC($_REQUEST['content_format'],'string','');
+		@$dont_keep_copy = DevblocksPlatform::importGPC($_REQUEST['dont_keep_copy'],'integer',0);
+		@$dont_send = DevblocksPlatform::importGPC($_REQUEST['dont_send'],'integer',0);
+		@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_id'],'array',array());
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+		@$is_autoreply = DevblocksPlatform::importGPC($_REQUEST['is_autoreply'],'integer',0);
+		@$is_broadcast = DevblocksPlatform::importGPC($_REQUEST['is_broadcast'],'integer',0);
+		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
+		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'string',null);
+		@$reopen_at = DevblocksPlatform::importGPC($_REQUEST['reopen_at'],'integer',0);
+		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
+		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
+		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
+		
+		$properties = array();
+
+		if(empty($content))
+			$this->error(self::ERRNO_CUSTOM, "The 'content' parameter is required");
+		
+		if(empty($message_id))
+			$this->error(self::ERRNO_CUSTOM, "The 'message_id' parameter is required");
+		
+		if(false == ($message = DAO_Message::get($message_id)))
+			$this->error(self::ERRNO_CUSTOM, "The given 'message_id' is invalid");
+
+		if(null == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_TICKET)))
+			$this->error(self::ERRNO_CUSTOM, "The ticket context could not be loaded");
+		
+		if(false === $context_ext->authorize($message->id, $worker))
+			$this->error(self::ERRNO_CUSTOM, "You do not have write access to this ticket");
+		
+		if(!empty($file_ids))
+			$file_ids = DevblocksPlatform::sanitizeArray($file_ids, 'integer', array('nonzero','unique'));
+		
+		$properties = array(
+			'message_id' => $message_id,
+			'content' => $content,
+		);
+
+		// [TODO] Tell the activity log we're impersonating?
+		if($worker->is_superuser && !empty($worker_id)) {
+			if(false != ($sender_worker = DAO_Worker::get($worker_id)))
+				$properties['worker_id'] = $sender_worker->id;
+		}
+		
+		// Default to current worker
+		if(!isset($properties['worker_id']))
+			$properties['worker_id'] = $worker->id;
+		
+		// Bucket
+		if(strlen($bucket_id) > 0 && (empty($bucket_id) || false != ($bucket = DAO_Bucket::get($bucket_id)))) {
+			$properties['bucket_id'] = $bucket_id;
+			
+			// Always set the group_id in unison with the bucket_id
+			if(isset($bucket))
+				$properties['group_id'] = $bucket->group_id;
+		}
+		
+		// Group
+		if(!isset($properties['group_id']) && !empty($group_id) && false != ($group = DAO_Group::get($group_id))) {
+			$properties['group_id'] = $group->id;
+			$properties['bucket_id'] = 0;
+		}
+
+		// Owner
+		if(strlen($owner_id) > 0 && (empty($owner_id) || false != ($owner = DAO_Worker::get($owner_id)))) {
+			if(isset($owner))
+				$properties['owner_id'] = $owner->id;
+			else
+				$properties['owner_id'] = 0;
+		}
+		
+		if(!empty($subject))
+			$properties['subject'] = $subject;
+		
+		if(!empty($to))
+			$properties['to'] = $to;
+		
+		if(!empty($cc))
+			$properties['cc'] = $cc;
+		
+		if(!empty($bcc))
+			$properties['bcc'] = $bcc;
+		
+		if(!empty($content_format) && in_array($content_format, array('markdown','parsedown','html')))
+			$properties['content_format'] = $content_format;
+		
+		if(!empty($status) && in_array($status, array(0,1,2)))
+			$properties['closed'] = $status;
+		
+		if(!empty($reopen_at))
+			$properties['reopen_at'] = $reopen_at;
+		
+		//Files
+		
+		if(!empty($file_ids)) {
+			$properties['link_forward_files'] = true;
+			$properties['forward_files'] = $file_ids;
+		}
+
+		// Flags
+		
+		if(!empty($dont_keep_copy))
+			$properties['dont_keep_copy'] = $dont_keep_copy ? 1 : 0;
+		
+		if(!empty($dont_send))
+			$properties['dont_send'] = $dont_send ? 1 : 0;
+		
+		if(!empty($is_autoreply))
+			$properties['is_autoreply'] = $is_autoreply ? 1 : 0;
+		
+		if(!empty($is_broadcast))
+			$properties['is_broadcast'] = $is_broadcast ? 1 : 0;
+		
+		if(!empty($is_forward))
+			$properties['is_forward'] = $is_forward ? 1 : 0;
+		
+		// Custom fields
+		
+		$custom_fields = $this->_handleCustomFields($_POST);
+		
+		if(!empty($custom_fields))
+			$properties['custom_fields'] = $custom_fields;
+
+		// Send the message
+		
+		if(false == ($message_id = CerberusMail::sendTicketMessage($properties)))
+			$this->error(self::ERRNO_CUSTOM, "Failed to create a reply message.");
+		
+		return $message->ticket_id;
+	}
+	
+	private function postReply() {
+		$worker = CerberusApplication::getActiveWorker();
+
+		$ticket_id = $this->_handlePostReply();
 		$this->getId($ticket_id);
 	}
 	
