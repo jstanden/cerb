@@ -327,13 +327,14 @@ class CerberusMail {
 			// Forward Attachments
 			if(!empty($forward_files) && is_array($forward_files)) {
 				foreach($forward_files as $file_id) {
-					$attachment = DAO_Attachment::get($file_id);
-					if(false !== ($fp = DevblocksPlatform::getTempFile())) {
-						if(false !== $attachment->getFileContents($fp)) {
-							$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
-							$attach->setFilename($attachment->display_name);
-							$email->attach($attach);
-							fclose($fp);
+					if(false != ($attachment = DAO_Attachment::get($file_id))) {
+						if(false !== ($fp = DevblocksPlatform::getTempFile())) {
+							if(false !== $attachment->getFileContents($fp)) {
+								$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
+								$attach->setFilename($attachment->display_name);
+								$email->attach($attach);
+								fclose($fp);
+							}
 						}
 					}
 				}
@@ -784,13 +785,14 @@ class CerberusMail {
 			if(!empty($forward_files) && is_array($forward_files)) {
 				foreach($forward_files as $file_id) {
 					// Attach the file
-					$attachment = DAO_Attachment::get($file_id);
-					if(false !== ($fp = DevblocksPlatform::getTempFile())) {
-						if(false !== $attachment->getFileContents($fp)) {
-							$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
-							$attach->setFilename($attachment->display_name);
-							$mail->attach($attach);
-							fclose($fp);
+					if(false != ($attachment = DAO_Attachment::get($file_id))) {
+						if(false !== ($fp = DevblocksPlatform::getTempFile())) {
+							if(false !== $attachment->getFileContents($fp)) {
+								$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
+								$attach->setFilename($attachment->display_name);
+								$mail->attach($attach);
+								fclose($fp);
+							}
 						}
 					}
 				}
