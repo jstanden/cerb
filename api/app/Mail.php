@@ -223,8 +223,6 @@ class CerberusMail {
 		@$closed = $properties['closed'];
 		@$ticket_reopen = $properties['ticket_reopen'];
 		
-		@$dont_send = $properties['dont_send'];
-		
 		$from_replyto = $group->getReplyTo($bucket_id);
 		$personal = $group->getReplyPersonal($bucket_id, $worker);
 		
@@ -348,7 +346,7 @@ class CerberusMail {
 				}
 			}
 			
-			if(!empty($toList) && empty($dont_send)) {
+			if(!empty($toList) && (!isset($properties['dont_send']) || empty($properties['dont_send']))) {
 				if(!@$mailer->send($email)) {
 					throw new Exception('Mail failed to send: unknown reason');
 				}
@@ -433,6 +431,7 @@ class CerberusMail {
 			DAO_Message::IS_OUTGOING => 1,
 			DAO_Message::WORKER_ID => intval($worker_id),
 			DAO_Message::IS_BROADCAST => $is_broadcast ? 1 : 0,
+			DAO_Message::IS_NOT_SENT => @$properties['dont_send'] ? 1 : 0,
 		);
 		$message_id = DAO_Message::create($fields);
 		
@@ -898,6 +897,7 @@ class CerberusMail {
 				DAO_Message::WORKER_ID => (!empty($worker_id) ? $worker_id : 0),
 				DAO_Message::RESPONSE_TIME => $response_time,
 				DAO_Message::IS_BROADCAST => $is_broadcast ? 1 : 0,
+				DAO_Message::IS_NOT_SENT => @$properties['dont_send'] ? 1 : 0,
 			);
 			$message_id = DAO_Message::create($fields);
 			

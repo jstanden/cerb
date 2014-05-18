@@ -1540,6 +1540,9 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='mail.received'>
 			<tuv xml:lang="en_US"><seg>Received</seg></tuv>
 		</tu>
+		<tu tuid='mail.saved'>
+			<tuv xml:lang="en_US"><seg>Saved</seg></tuv>
+		</tu>
 		<tu tuid='mail.send_mail'>
 			<tuv xml:lang="en_US"><seg>Compose</seg></tuv>
 		</tu>
@@ -1641,6 +1644,9 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		</tu>
 		<tu tuid='message.is_broadcast'>
 			<tuv xml:lang="en_US"><seg>Is Broadcast</seg></tuv>
+		</tu>
+		<tu tuid='message.is_not_sent'>
+			<tuv xml:lang="en_US"><seg>Is Not Sent</seg></tuv>
 		</tu>
 		<tu tuid='message.is_outgoing'>
 			<tuv xml:lang="en_US"><seg>Is Outgoing</seg></tuv>

@@ -10,6 +10,7 @@
 			{assign var=sender_org_id value=$sender->contact_org_id}
 			{assign var=sender_org value=$message_sender_orgs.$sender_org_id}
 			{assign var=is_outgoing value=$message->is_outgoing}
+			{assign var=is_not_sent value=$message->is_not_sent}
 
 			<div class="toolbar-minmax" style="display:none;float:right;">
 				<button id="btnMsgMax{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}');"></button>
@@ -21,7 +22,7 @@
 			{/if}
 			</div>
 		
-			<span class="tag" style="{if !$is_outgoing}color:rgb(185,50,40);{else}color:rgb(100,140,25);{/if}">{if $is_outgoing}{'mail.sent'|devblocks_translate|lower}{else}{'mail.received'|devblocks_translate|lower}{/if}</span>
+			<span class="tag" style="{if !$is_outgoing}color:rgb(185,50,40);{else}color:rgb(100,140,25);{/if}">{if $is_outgoing}{if $is_not_sent}{'mail.saved'|devblocks_translate|lower}{else}{'mail.sent'|devblocks_translate|lower}{/if}{else}{'mail.received'|devblocks_translate|lower}{/if}</span>
 			
 			{if $expanded}
 			<b style="font-size:1.3em;">

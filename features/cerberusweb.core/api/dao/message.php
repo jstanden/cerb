@@ -22,6 +22,7 @@ class DAO_Message extends Cerb_ORMHelper {
 	const ADDRESS_ID = 'address_id';
 	const IS_BROADCAST = 'is_broadcast';
 	const IS_OUTGOING = 'is_outgoing';
+	const IS_NOT_SENT = 'is_not_sent';
 	const WORKER_ID = 'worker_id';
 	const STORAGE_EXTENSION = 'storage_extension';
 	const STORAGE_KEY = 'storage_key';
@@ -59,7 +60,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, ticket_id, created_date, is_outgoing, worker_id, address_id, storage_extension, storage_key, storage_profile_id, storage_size, response_time, is_broadcast ".
+		$sql = "SELECT id, ticket_id, created_date, is_outgoing, worker_id, address_id, storage_extension, storage_key, storage_profile_id, storage_size, response_time, is_broadcast, is_not_sent ".
 			"FROM message ".
 			$where_sql.
 			$sort_sql.
@@ -110,6 +111,7 @@ class DAO_Message extends Cerb_ORMHelper {
 			$object->storage_size = $row['storage_size'];
 			$object->response_time = $row['response_time'];
 			$object->is_broadcast = intval($row['is_broadcast']);
+			$object->is_not_sent = intval($row['is_not_sent']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -275,6 +277,7 @@ class DAO_Message extends Cerb_ORMHelper {
 			"m.storage_size as %s, ".
 			"m.response_time as %s, ".
 			"m.is_broadcast as %s, ".
+			"m.is_not_sent as %s, ".
 			"t.group_id as %s, ".
 			"t.mask as %s, ".
 			"t.subject as %s, ".
@@ -291,6 +294,7 @@ class DAO_Message extends Cerb_ORMHelper {
 			SearchFields_Message::STORAGE_SIZE,
 			SearchFields_Message::RESPONSE_TIME,
 			SearchFields_Message::IS_BROADCAST,
+			SearchFields_Message::IS_NOT_SENT,
 			SearchFields_Message::TICKET_GROUP_ID,
 			SearchFields_Message::TICKET_MASK,
 			SearchFields_Message::TICKET_SUBJECT,
@@ -479,6 +483,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	const WORKER_ID = 'm_worker_id';
 	const RESPONSE_TIME = 'm_response_time';
 	const IS_BROADCAST = 'm_is_broadcast';
+	const IS_NOT_SENT = 'm_is_not_sent';
 	
 	// Storage
 	const STORAGE_EXTENSION = 'm_storage_extension';
@@ -520,6 +525,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::WORKER_ID => new DevblocksSearchField(SearchFields_Message::WORKER_ID, 'm', 'worker_id', $translate->_('common.worker'), Model_CustomField::TYPE_WORKER),
 			SearchFields_Message::RESPONSE_TIME => new DevblocksSearchField(SearchFields_Message::RESPONSE_TIME, 'm', 'response_time', $translate->_('message.response_time'), Model_CustomField::TYPE_NUMBER),
 			SearchFields_Message::IS_BROADCAST => new DevblocksSearchField(SearchFields_Message::IS_BROADCAST, 'm', 'is_broadcast', $translate->_('message.is_broadcast'), Model_CustomField::TYPE_CHECKBOX),
+			SearchFields_Message::IS_NOT_SENT => new DevblocksSearchField(SearchFields_Message::IS_NOT_SENT, 'm', 'is_not_sent', $translate->_('message.is_not_sent'), Model_CustomField::TYPE_CHECKBOX),
 			
 			SearchFields_Message::STORAGE_EXTENSION => new DevblocksSearchField(SearchFields_Message::STORAGE_EXTENSION, 'm', 'storage_extension'),
 			SearchFields_Message::STORAGE_KEY => new DevblocksSearchField(SearchFields_Message::STORAGE_KEY, 'm', 'storage_key'),
@@ -565,6 +571,7 @@ class Model_Message {
 	public $storage_size;
 	public $response_time;
 	public $is_broadcast;
+	public $is_not_sent;
 	
 	private $_sender_object = null;
 
@@ -1258,6 +1265,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			switch($field_key) {
 				case SearchFields_Message::ADDRESS_EMAIL:
 				case SearchFields_Message::IS_BROADCAST:
+				case SearchFields_Message::IS_NOT_SENT:
 				case SearchFields_Message::IS_OUTGOING:
 				case SearchFields_Message::TICKET_GROUP_ID:
 				case SearchFields_Message::TICKET_IS_DELETED:
@@ -1309,6 +1317,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 
 			case SearchFields_Message::IS_BROADCAST:
+			case SearchFields_Message::IS_NOT_SENT:
 			case SearchFields_Message::IS_OUTGOING:
 			case SearchFields_Message::TICKET_IS_DELETED:
 				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Message', $column);
@@ -1610,6 +1619,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Message::IS_BROADCAST:
+			case SearchFields_Message::IS_NOT_SENT:
 			case SearchFields_Message::IS_OUTGOING:
 			case SearchFields_Message::TICKET_IS_DELETED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
@@ -1662,6 +1672,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 		switch($field) {
 			case SearchFields_Message::IS_BROADCAST:
+			case SearchFields_Message::IS_NOT_SENT:
 			case SearchFields_Message::IS_OUTGOING:
 			case SearchFields_Message::TICKET_IS_DELETED:
 				$this->_renderCriteriaParamBoolean($param);
@@ -1722,6 +1733,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Message::IS_BROADCAST:
+			case SearchFields_Message::IS_NOT_SENT:
 			case SearchFields_Message::IS_OUTGOING:
 			case SearchFields_Message::TICKET_IS_DELETED:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
@@ -1942,6 +1954,7 @@ class Context_Message extends Extension_DevblocksContext {
 			'content' => $prefix.$translate->_('common.content'),
 			'created' => $prefix.$translate->_('common.created'),
 			'is_broadcast' => $prefix.$translate->_('message.is_broadcast'),
+			'is_not_sent' => $prefix.$translate->_('message.is_not_sent'),
 			'is_outgoing' => $prefix.$translate->_('message.is_outgoing'),
 			'response_time' => $prefix.$translate->_('message.response_time'),
 			'storage_size' => $prefix.$translate->_('message.storage_size'),
@@ -1956,6 +1969,7 @@ class Context_Message extends Extension_DevblocksContext {
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
 			'created' => Model_CustomField::TYPE_DATE,
 			'is_broadcast' => Model_CustomField::TYPE_CHECKBOX,
+			'is_not_sent' => Model_CustomField::TYPE_CHECKBOX,
 			'is_outgoing' => Model_CustomField::TYPE_CHECKBOX,
 			'response_time' => 'time_secs',
 			'storage_size' => 'size_bytes',
@@ -1975,6 +1989,7 @@ class Context_Message extends Extension_DevblocksContext {
 			$token_values['created'] = $message->created_date;
 			$token_values['id'] = $message->id;
 			$token_values['is_broadcast'] = $message->is_broadcast;
+			$token_values['is_not_sent'] = $message->is_not_sentt;
 			$token_values['is_outgoing'] = $message->is_outgoing;
 			$token_values['response_time'] = $message->response_time;
 			$token_values['sender_id'] = $message->address_id;

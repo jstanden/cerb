@@ -149,6 +149,20 @@ $sql = "UPDATE decision_node SET params_json=replace(params_json, '\"on\":\"va_i
 $db->Execute($sql);
 
 // ===========================================================================
+// Add an `is_not_sent` bit to `message`
+
+if(!isset($tables['message'])) {
+	$logger->error("The 'message' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('message');
+
+if(!isset($columns['is_not_sent'])) {
+	$db->Execute("ALTER TABLE message ADD COLUMN is_not_sent TINYINT UNSIGNED NOT NULL DEFAULT 0");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
