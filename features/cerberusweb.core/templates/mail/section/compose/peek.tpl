@@ -189,6 +189,8 @@
 	</ul>
 </fieldset>
 
+<div class="status"></div>
+
 <button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'display.ui.send_message'|devblocks_translate}</button>
 </form>
 
@@ -637,6 +639,17 @@
 		$frm.find('button.submit').click(function() {
 			var $frm = $(this).closest('form');
 			var $input = $frm.find('input#emailinput{$random}');
+			var $status = $frm.find('div.status').html('').hide();
+			
+			var $to = $frm.find('input[name=to]');
+			var $cc = $frm.find('input[name=cc]');
+			var $bcc = $frm.find('input[name=bcc]');
+			
+			// If we have a Cc:/Bcc: but no To:
+			if($to.val().length == 0 && ($cc.val().length > 0 || $bcc.val().length > 0)) {
+				$status.html("A 'To:' address is required when using 'Cc:' and 'Bcc:'.").addClass('error').fadeIn();
+				return false;
+			}
 			
 			if($frm.validate().form()) {
 				if(null != draftComposeAutoSaveInterval) { 
