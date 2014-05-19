@@ -1989,7 +1989,7 @@ class Context_Message extends Extension_DevblocksContext {
 			$token_values['created'] = $message->created_date;
 			$token_values['id'] = $message->id;
 			$token_values['is_broadcast'] = $message->is_broadcast;
-			$token_values['is_not_sent'] = $message->is_not_sentt;
+			$token_values['is_not_sent'] = $message->is_not_sent;
 			$token_values['is_outgoing'] = $message->is_outgoing;
 			$token_values['response_time'] = $message->response_time;
 			$token_values['sender_id'] = $message->address_id;
