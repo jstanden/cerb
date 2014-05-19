@@ -27,7 +27,7 @@
 
 <div style="width:90%;height:200px;border:1px solid rgb(160,160,160);overflow:auto;margin:5px;padding:5px;">
 	<p
-	>Cerb - Copyright &copy; 2013 Webgroup Media LLC.</p
+	>Cerb - Copyright &copy; 2002-2014 Webgroup Media LLC.</p
 	><h1 id="devblocks-public-license-1.0-dpl"
 	>Devblocks Public License 1.0 (DPL)</h1
 	><p
