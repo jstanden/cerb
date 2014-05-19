@@ -198,9 +198,20 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				}
 			}
 
-			// Add the worker e-mail to the addresses table
-			if(!empty($email))
-				DAO_Address::lookupAddress($email, true);
+			// Set the name on the worker email address
+			
+			if(false != ($worker_address = DAO_Address::lookupAddress($email, true))) {
+				$addy_fields = array();
+				
+				if(empty($worker_address->first_name) && !empty($first_name))
+					$addy_fields[DAO_Address::FIRST_NAME] = $first_name;
+				
+				if(empty($worker_address->last_name) && !empty($last_name))
+					$addy_fields[DAO_Address::LAST_NAME] = $last_name;
+				
+				if(!empty($addy_fields))
+					DAO_Address::update($worker_address->id, $addy_fields);
+			}
 			
 			// Addresses
 			// [TODO] This can insert dupe rows under some conditions
