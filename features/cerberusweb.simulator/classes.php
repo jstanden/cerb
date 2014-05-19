@@ -16,31 +16,31 @@
 ***********************************************************************/
 /*
  * IMPORTANT LICENSING NOTE from your friends on the Cerb Development Team
- * 
- * Sure, it would be so easy to just cheat and edit this file to use the 
- * software without paying for it.  But we trust you anyway.  In fact, we're 
- * writing this software for you! 
- * 
- * Quality software backed by a dedicated team takes money to develop.  We 
- * don't want to be out of the office bagging groceries when you call up 
- * needing a helping hand.  We'd rather spend our free time coding your 
- * feature requests than mowing the neighbors' lawns for rent money. 
- * 
- * We've never believed in hiding our source code out of paranoia over not 
- * getting paid.  We want you to have the full source code and be able to 
- * make the tweaks your organization requires to get more done -- despite 
- * having less of everything than you might need (time, people, money, 
+ *
+ * Sure, it would be so easy to just cheat and edit this file to use the
+ * software without paying for it.  But we trust you anyway.  In fact, we're
+ * writing this software for you!
+ *
+ * Quality software backed by a dedicated team takes money to develop.  We
+ * don't want to be out of the office bagging groceries when you call up
+ * needing a helping hand.  We'd rather spend our free time coding your
+ * feature requests than mowing the neighbors' lawns for rent money.
+ *
+ * We've never believed in hiding our source code out of paranoia over not
+ * getting paid.  We want you to have the full source code and be able to
+ * make the tweaks your organization requires to get more done -- despite
+ * having less of everything than you might need (time, people, money,
  * energy).  We shouldn't be your bottleneck.
- * 
- * We've been building our expertise with this project since January 2002.  We 
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to 
- * let us take over your shared e-mail headache is a worthwhile investment.  
- * It will give you a sense of control over your inbox that you probably 
- * haven't had since spammers found you in a game of 'E-mail Battleship'. 
+ *
+ * We've been building our expertise with this project since January 2002.  We
+ * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to
+ * let us take over your shared e-mail headache is a worthwhile investment.
+ * It will give you a sense of control over your inbox that you probably
+ * haven't had since spammers found you in a game of 'E-mail Battleship'.
  * Miss. Miss. You sunk my inbox!
- * 
- * A legitimate license entitles you to support from the developers,  
- * and the warm fuzzy feeling of feeding a couple of obsessed developers 
+ *
+ * A legitimate license entitles you to support from the developers,
+ * and the warm fuzzy feeling of feeding a couple of obsessed developers
  * who want to help you get more done.
  *
  \* - Jeff Standen, Darren Sugita, Dan Hildebrandt
@@ -79,7 +79,7 @@ class PageSection_SetupSimulator extends Extension_PageSection {
 		require_once(dirname(__FILE__) . '/api/API.class.php');
 		
 		try {
-			@$address = DevblocksPlatform::importGPC($_POST['address'],'string'); 
+			@$address = DevblocksPlatform::importGPC($_POST['address'],'string');
 			@$dataset = DevblocksPlatform::importGPC($_POST['dataset'],'string');
 			@$how_many = DevblocksPlatform::importGPC($_POST['how_many'],'integer',0);
 			
@@ -252,120 +252,122 @@ class PageSection_SetupSimulator extends Extension_PageSection {
 			
 			$variables = array(
 				'intro' => array(
-					'hi',
+					'ba',
+					'bi',
+					'bra',
+					'do',
 					'en',
 					'er',
-					'je',
-					'twi',
-					'ri',
-					'lo',
-					'ire',
+					'fa',
 					'fi',
-					'do',
+					'ge',
+					'go',
+					'gri',
+					'hi',
+					'hu',
+					'ire',
+					'je',
+					'kra',
+					'ku',
+					'li',
+					'lo',
+					'lo',
+					'ne',
+					'ri',
 					'sta',
 					'sti',
-					'gho',
-					'we',
-					'ba',
-					'bra',
-					'hu',
-					'ge',
-					'bi',
-					'zo',
-					'ze',
-					'zu',
-					'li',
-					'fa',
-					'gro',
-					'ne',
+					'twi',
 					'vi',
 					'via',
-					'gri',
-					'lo',
 					'wa',
-					'go',
+					'we',
+					'ya',
+					'ze',
+					'zo',
+					'zu',
 				),
 				'vowel' => array(
-					'i',
-					'e',
-					'u',
-					'y',
 					'a',
-					'ee',
-					'ie',
-					'ri',
-					'ilo',
-					'ilio',
-					'io',
-					'int',
-					'ist',
-					'ily',
-					'ux',
-					'us',
-					'er',
 					'ard',
+					'e',
+					'ee',
+					'er',
+					'i',
+					'ie',
 					'ii',
-					'oo',
+					'ilio',
+					'ilo',
+					'ily',
+					'int',
+					'io',
 					'ious',
+					'ist',
 					'on',
+					'oo',
 					'ou',
+					'ri',
+					'u',
+					'us',
+					'ux',
+					'y',
 					'',
 					'',
 					'',
 				),
 				'consonant' => array(
-					'fu',
-					'fi',
-					'ld',
-					'cr',
-					'ch',
-					'st',
-					'rst',
-					'gh',
+					'b',
 					'bb',
 					'br',
-					'b',
-					'z',
-					'nt',
+					'ch',
+					'cr',
+					'fi',
+					'fu',
+					'gh',
 					'gr',
-					'rd',
 					'l',
+					'ld',
 					'nd',
+					'nt',
+					'rd',
+					'rst',
+					'st',
+					'z',
 					'',
 					'',
 					'',
 				),
 				'industry' => array(
-					'Media',
-					'Institute',
-					'Loans',
-					'Online',
-					'Mobile',
+					'Aerospace',
+					'Airways',
+					'Collective',
 					'Defense',
 					'Education',
-					'Pharmaceuticals',
+					'Events',
 					'Finance',
+					'Games',
+					'Institute',
+					'Loans',
+					'Logistics',
+					'Media',
+					'Mobile',
+					'Music',
+					'Online',
+					'Pharmaceuticals',
+					'Republic',
+					'Software',
 					'United',
 					'Ventures',
-					'Airways',
-					'Aerospace',
-					'Events',
-					'Music',
-					'Software',
-					'Games',
-					'Collective',
-					'Republic',
 					'',
 				),
 				'suffix' => array(
-					' LLC',
-					', Inc.',
-					' Ltd.',
+					' Corp.',
 					' GmbH',
-					'',
-					'',
-					'.com',
 					' Incorporated',
+					' LLC',
+					' Ltd.',
+					', Inc.',
+					'',
+					'',
 				),
 			);
 		
@@ -382,25 +384,25 @@ class PageSection_SetupSimulator extends Extension_PageSection {
 			);
 			
 			$countries = array(
-				'USA',
-				'United Kingdom',
 				'Australia',
-				'Canada',
-				'Netherlands',
-				'Germany',
-				'Brazil',
-				'Spain',
-				'India',
-				'Norway',
-				'France',
-				'Russia',
 				'Belgium',
-				'South Africa',
+				'Brazil',
+				'Canada',
+				'France',
+				'Germany',
+				'India',
 				'Italy',
-				'Singapore',
-				'Sweden',
-				'Poland',
 				'Mexico',
+				'Netherlands',
+				'Norway',
+				'Poland',
+				'Russia',
+				'Singapore',
+				'South Africa',
+				'Spain',
+				'Sweden',
+				'United Kingdom',
+				'United States',
 			);
 			
 			for($x=0;$x<$how_many;$x++) {
