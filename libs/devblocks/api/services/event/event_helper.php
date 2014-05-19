@@ -3288,6 +3288,9 @@ class DevblocksEventHelper {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$mail_service = DevblocksPlatform::getMailService();
 		$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
+		$settings = DevblocksPlatform::getPluginSettingsService();
+		
+		$relay_spoof_from = $settings->get('cerberusweb.core', CerberusSettings::RELAY_SPOOF_FROM, CerberusSettingsDefaults::RELAY_SPOOF_FROM);
 		
 		// Our main record can either be a comment or a message
 		$comment_id = (isset($dict->comment_id) && !empty($dict->comment_id)) ? $dict->comment_id : null;
@@ -3297,7 +3300,11 @@ class DevblocksEventHelper {
 			return;
 		}
 		
-		$replyto = DAO_AddressOutgoing::getDefault();
+		if($relay_spoof_from) {
+			$replyto = $group->getReplyTo($bucket_id);
+		} else {
+			$replyto = DAO_AddressOutgoing::getDefault();
+		}
 
 		$relay_list = isset($params['to']) ? $params['to'] : array();
 		
@@ -3356,15 +3363,21 @@ class DevblocksEventHelper {
 	
 				$headers = $mail->getHeaders(); /* @var $headers Swift_Mime_Header */
 
-				$replyto_personal = $replyto->getReplyPersonal($worker);
-				
-				if(!empty($replyto_personal)) {
-					$mail->setFrom($replyto->email, $replyto_personal);
-					$mail->setReplyTo($replyto->email, $replyto_personal);
+				if($relay_spoof_from) {
+					$mail->setFrom($sender_email, $sender_name);
+					$mail->setReplyTo($replyto->email);
 					
 				} else {
-					$mail->setFrom($replyto->email);
-					$mail->setReplyTo($replyto->email);
+					$replyto_personal = $replyto->getReplyPersonal($worker);
+					
+					if(!empty($replyto_personal)) {
+						$mail->setFrom($replyto->email, $replyto_personal);
+						$mail->setReplyTo($replyto->email, $replyto_personal);
+						
+					} else {
+						$mail->setFrom($replyto->email);
+						$mail->setReplyTo($replyto->email);
+					}
 				}
 				
 				if(!isset($params['subject']) || empty($params['subject'])) {

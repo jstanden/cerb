@@ -43,6 +43,30 @@ This process protects the privacy of personal worker email addresses, while stil
 		<label><input type="radio" name="relay_disable_auth" value="0" {if empty($relay_disable_auth)}checked="checked"{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
 		<label><input type="radio" name="relay_disable_auth" value="1" {if $relay_disable_auth}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label>
 	</p>
+	<br>
+	
+	<b>The 'From:' address on relay messages is:</b>
+	{$relay_spoof_from = $settings->get('cerberusweb.core','relay_spoof_from',CerberusSettingsDefaults::RELAY_SPOOF_FROM)}
+	<div style="margin-left:10px;">
+		<div style="margin:5px 0px 5px 0px;">
+			<label><input type="radio" name="relay_spoof_from" value="0" {if !$relay_spoof_from}checked="checked"{/if}> {$replyto_default->email}</label>
+			<div style="margin-left:30px;">
+				<i>This is the recommended option for the best compatibility with most mail reader applications.  The original sender can still be included as part of the relay template.</i>
+			</div>
+		</div>
+		
+		<div style="margin-bottom:5px;">
+			<label><input type="radio" name="relay_spoof_from" value="1" {if $relay_spoof_from}checked="checked"{/if}> The original sender</label>
+			<div style="margin-left:30px;">
+				<i>"Spoofed" senders may be flagged as spam or rejected by workers' mail servers.  Additionally, this may break conversation threading in mail readers.</i>
+			</div>
+		</div>
+	</div>
+	
+	<div style="margin-top:10px;">
+		<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
+	</div>
+	
 </fieldset>
 
 <div class="status"></div>
@@ -50,12 +74,14 @@ This process protects the privacy of personal worker email addresses, while stil
 </form>
 
 <script type="text/javascript">
-	$('#frmSetupMailRelay INPUT:radio')
+	$('#frmSetupMailRelay button.submit')
 		.click(function(e) {
 			genericAjaxPost('frmSetupMailRelay','',null,function(json) {
 				$o = $.parseJSON(json);
 				if(false == $o || false == $o.status) {
 					Devblocks.showError('#frmSetupMailRelay div.status',$o.error);
+				} else {
+					Devblocks.showSuccess('#frmSetupMailRelay div.status','Saved!', true);
 				}
 			});
 		})

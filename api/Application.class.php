@@ -1899,6 +1899,7 @@ class CerberusSettings {
 	const AUTHORIZED_IPS = 'authorized_ips';
 	const LICENSE = 'license_json';
 	const RELAY_DISABLE_AUTH = 'relay_disable_auth';
+	const RELAY_SPOOF_FROM = 'relay_spoof_from';
 	const SESSION_LIFESPAN = 'session_lifespan';
 	const TIME_FORMAT = 'time_format';
 };
@@ -1920,6 +1921,7 @@ class CerberusSettingsDefaults {
 	const TICKET_MASK_FORMAT = 'LLL-NNNNN-NNN';
 	const AUTHORIZED_IPS = "127.0.0.1\n::1\n";
 	const RELAY_DISABLE_AUTH = 0;
+	const RELAY_SPOOF_FROM = 0;
 	const SESSION_LIFESPAN = 0;
 	const TIME_FORMAT = 'D, d M Y h:i a';
 };

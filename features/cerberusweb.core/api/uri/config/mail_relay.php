@@ -22,6 +22,9 @@ class PageSection_SetupMailRelay extends Extension_PageSection {
 
 		$visit->set(ChConfigurationPage::ID, 'mail_relay');
 		
+		$replyto_default = DAO_AddressOutgoing::getDefault();
+		$tpl->assign('replyto_default', $replyto_default);
+
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_relay/index.tpl');
 	}
 	
@@ -34,11 +37,13 @@ class PageSection_SetupMailRelay extends Extension_PageSection {
 				throw new Exception("You are not an administrator.");
 			
 			@$relay_disable_auth = DevblocksPlatform::importGPC($_POST['relay_disable_auth'],'integer',0);
+			@$relay_spoof_from = DevblocksPlatform::importGPC($_POST['relay_spoof_from'],'integer',0);
 			
 			// Save
 			
 			$settings = DevblocksPlatform::getPluginSettingsService();
 			$settings->set('cerberusweb.core',CerberusSettings::RELAY_DISABLE_AUTH, $relay_disable_auth);
+			$settings->set('cerberusweb.core',CerberusSettings::RELAY_SPOOF_FROM, $relay_spoof_from);
 			
 			echo json_encode(array('status'=>true));
 			return;
