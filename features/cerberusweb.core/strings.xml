@@ -858,6 +858,9 @@
 		</tu>
 
 			<!-- Mail page -->
+		<tu tuid='acl.core.mail.save_without_sending'>
+			<tuv xml:lang="en_US"><seg>[Mail] Can save replies to the ticket history without sending mail</seg></tuv>
+		</tu>
 		<tu tuid='acl.core.mail.send'>
 			<tuv xml:lang="en_US"><seg>[Mail] Can compose new messages</seg></tuv>
 		</tu>

@@ -820,6 +820,7 @@
 		<priv id="core.display.message.actions.delete" label="acl.core.display.message.actions.delete" />
 
 		<!-- Mail page -->
+		<priv id="core.mail.save_without_sending" label="acl.core.mail.save_without_sending" />
 		<priv id="core.mail.send" label="acl.core.mail.send" />
 		<priv id="core.mail.draft.delete_all" label="acl.core.mail.draft.delete_all" />
 
