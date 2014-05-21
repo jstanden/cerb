@@ -507,7 +507,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
 		// Time Tracking fields
-		@$activity = DevblocksPlatform::importGPC($_POST['activity_id'], 'string', '');
+		@$activity = DevblocksPlatform::importGPC($_POST['activity_id'],'string','');
 		@$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'],'string','');
 
 		// Scheduled behavior
@@ -530,7 +530,8 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 			);
 		}
 		
-		$do['activity_id'] = $activity;
+		if(strlen($activity) > 0)
+			$do['activity_id'] = $activity;
 		
 		// Watchers
 		$watcher_params = array();
