@@ -164,6 +164,10 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 
 		DevblocksPlatform::sanitizeArray($ids, 'integer');
 		
+		array_walk($ids, function(&$id) use ($db) {
+			$id = $db->qstr($id);
+		});
+		
 		$ids_list = implode(',', $ids);
 		
 		$db->Execute(sprintf("DELETE FROM devblocks_session WHERE session_key IN (%s)", $ids_list));
