@@ -1,4 +1,6 @@
 <?php
+// [TODO] Calendar events via API
+// [TODO] Recurring events via API
 class ChRest_Calendars extends Extension_RestController implements IExtensionRestController {
 	function getAction($stack) {
 		@$action = array_shift($stack);

@@ -92,6 +92,8 @@ class ChRest_Contexts extends Extension_RestController {
 				'plugin_id' => $context->plugin_id,
 			);
 			
+			// [TODO] Filter custom fieldsets by owner?  (API worker?)
+			
 			$custom_fieldsets = DAO_CustomFieldset::getByContext($context->id);
 			$custom_fields = DAO_CustomField::getByContext($context->id, false);
 			

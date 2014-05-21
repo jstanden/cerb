@@ -154,6 +154,7 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 		
 		// Search
 		
+		// [TODO] This isn't implemented
 		$view = $this->_getSearchView(
 			CerberusContexts::CONTEXT_KB_CATEGORY,
 			$params,

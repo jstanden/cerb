@@ -443,6 +443,8 @@ abstract class Extension_RestController extends DevblocksExtension {
 		@$show_meta = DevblocksPlatform::importGPC($_REQUEST['show_meta'],'string','');
 		$show_meta = (0 == strlen($show_meta) || !empty($show_meta)) ? true : false;
 		
+		// [TODO] Bulk load expands (e.g. ticket->org, ticket->sender->org)
+		
 		// Do we need to lazy load some fields to be helpful?
 		if(is_array($expand) && !empty($expand)) {
 			if(isset($array['results'])) {
