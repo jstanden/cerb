@@ -1457,7 +1457,7 @@ class CerberusParser {
 		$charset = strtolower($charset);
 		
 		// Otherwise, fall back to mbstring's auto-detection
-		mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1, win-1252');
+		mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1, windows-1252');
 		
 		// Normalize charsets
 		switch($charset) {
@@ -1465,9 +1465,24 @@ class CerberusParser {
 				$charset = 'ascii';
 				break;
 				
+			case 'win-1252':
+				$charset = 'windows-1252';
+				break;
+				
 			case NULL:
 				$charset = mb_detect_encoding($text);
 				break;
+		}
+		
+		// If we're starting with Windows-1252, convert some special characters
+		if(0 == strcasecmp($charset, 'windows-1252')) {
+		
+			// http://www.toao.net/48-replacing-smart-quotes-and-em-dashes-in-mysql
+			$text = str_replace(
+				array(chr(145), chr(146), chr(147), chr(148), chr(150), chr(151), chr(133)),
+				array("'", "'", '"', '"', '-', '--', '...'),
+				$text
+			);
 		}
 		
 		if($charset && @mb_check_encoding($text, $charset)) {
