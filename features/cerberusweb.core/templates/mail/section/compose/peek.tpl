@@ -21,7 +21,9 @@
 			<td width="100%">
 				<select name="group_id">
 					{foreach from=$groups item=group key=group_id}
-					<option value="{$group_id}" {if $active_worker->isGroupMember($group_id)}member="true"{/if} {if $defaults.group_id == $group_id}selected="selected"{/if}>{$group->name}</option>
+					{if $active_worker->isGroupMember($group_id)}
+					<option value="{$group_id}" member="true" {if $defaults.group_id == $group_id}selected="selected"{/if}>{$group->name}</option>
+					{/if}
 					{/foreach}
 				</select>
 				<select class="ticket-peek-bucket-options" style="display:none;">
