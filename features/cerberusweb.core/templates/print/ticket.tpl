@@ -15,15 +15,15 @@
 
 <h2 style="margin-bottom:0px;">{$ticket->subject}</h2>
 
-{assign var=ticket_team_id value=$ticket->team_id}
-{assign var=ticket_team value=$teams.$ticket_team_id}
-{assign var=ticket_category_id value=$ticket->category_id}
-{assign var=ticket_team_category_set value=$team_categories.$ticket_team_id}
-{assign var=ticket_category value=$ticket_team_category_set.$ticket_category_id}
+{assign var=ticket_group_id value=$ticket->group_id}
+{assign var=ticket_group value=$groups.$ticket_group_id}
+{assign var=ticket_bucket_id value=$ticket->bucket_id}
+{assign var=ticket_group_bucket_set value=$team_buckets.$ticket_group_id}
+{assign var=ticket_bucket value=$ticket_group_bucket_set.$ticket_bucket_id}
 
 <b>Status:</b> {if $ticket->is_deleted}{'status.deleted'|devblocks_translate}{elseif $ticket->is_closed}{'status.closed'|devblocks_translate}{elseif $ticket->is_waiting}{'status.waiting'|devblocks_translate}{else}{'status.open'|devblocks_translate}{/if} &nbsp; 
-<b>Team:</b> {$teams.$ticket_team_id->name} &nbsp; 
-<b>Bucket:</b> {if !empty($ticket_category_id)}{$buckets.$ticket_category_id->name}{else}Inbox{/if} &nbsp; 
+<b>Group:</b> {$groups.$ticket_group_id->name} &nbsp; 
+<b>Bucket:</b> {if !empty($ticket_bucket_id)}{$buckets.$ticket_bucket_id->name}{else}Inbox{/if} &nbsp; 
 <b>Mask:</b> {$ticket->mask} &nbsp; 
 <b>Internal ID:</b> {$ticket->id} &nbsp; 
 <br>
