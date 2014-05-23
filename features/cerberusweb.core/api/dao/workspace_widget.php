@@ -371,6 +371,31 @@ class Model_WorkspaceWidget {
 	public $pos = '0000';
 	public $cache_ttl = 60;
 	public $params = array();
+	
+	function getWorkspaceTab() {
+		return DAO_WorkspaceTab::get($this->workspace_tab_id);
+	}
+	
+	function getWorkspacePage() {
+		if(false == ($tab = $this->getWorkspaceTab()))
+			return;
+		
+		return $tab->getWorkspacePage();
+	}
+	
+	function isReadableByWorker(Model_Worker $worker) {
+		if(false == ($page = $this->getWorkspacePage()))
+			return false;
+		
+		return $page->isReadableByWorker($worker);
+	}
+	
+	function isWriteableByWorker(Model_Worker $worker) {
+		if(false == ($page = $this->getWorkspacePage()))
+			return false;
+		
+		return $page->isWriteableByWorker($worker);
+	}
 };
 
 class Context_WorkspaceWidget extends Extension_DevblocksContext {

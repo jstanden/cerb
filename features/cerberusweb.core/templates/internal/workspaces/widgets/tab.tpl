@@ -12,9 +12,11 @@
 </form>
 {/if}
 
+{if $page->isWriteableByWorker($active_worker)}
 <form id="frmAddWidget{$workspace_tab->id}" action="#">
 <button type="button" class="add_widget"><span class="cerb-sprite2 sprite-plus-circle"></span> Add Widget</button>
 </form>
+{/if}
 
 {$column_count = DevblocksPlatform::intClamp($workspace_tab->params.num_columns, 1, 4)}
 {$column_ids = range(0, $column_count-1)}
