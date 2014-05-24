@@ -1019,7 +1019,7 @@ abstract class C4_AbstractView {
 					// Parse operator hints
 					if(preg_match('#([\<\>\!\=]+)(.*)#', $value, $matches)) {
 						$oper_hint = trim($matches[1]);
-						$query = trim($matches[2]);
+						$value = trim($matches[2]);
 						
 						switch($oper_hint) {
 							case '!':
