@@ -1546,6 +1546,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				$oper_sql = array();
 				$status_sql = array();
 				
+				$and_or = ' OR ';
+				
 				switch($param->operator) {
 					default:
 					case DevblocksSearchCriteria::OPER_IN:
@@ -1555,6 +1557,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					case DevblocksSearchCriteria::OPER_NIN:
 					case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
 						$oper = 'NOT ';
+						$and_or = ' AND ';
 						break;
 				}
 				
@@ -1578,7 +1581,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				if(empty($status_sql))
 					break;
 				
-				$args['where_sql'] .= 'AND (' . implode(' OR ', $status_sql) . ') ';
+				$args['where_sql'] .= 'AND (' . implode($and_or, $status_sql) . ') ';
 				break;
 		}
 	}
