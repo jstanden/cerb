@@ -58,24 +58,32 @@
 <div style="clear:both;background-color:rgb(100,135,225);height:5px;"></div>
 
 <script type="text/javascript">
-	$menu = $('UL.navmenu');
+$(function() {
+	var $menu = $('UL.navmenu');
+	var is_dragging_page = false;
 
 	$menu.sortable({
 		items:'> li.drag',
 		distance: 20,
+		start:function(e) {
+			is_dragging_page = true;
+		},
 		stop:function(e) {
 			$pages = $(this).find('li.drag[page_id]');
 			page_ids = $pages.map(function(e) {
 				return $(this).attr('page_id');
 			}).get().join(',');
 
-			genericAjaxGet('', 'c=pages&a=setPageOrder&pages=' + page_ids);
+			genericAjaxGet('', 'c=pages&a=setPageOrder&pages=' + page_ids, function() { 
+				is_dragging_page = false;
+			});
 		}
 	});
 
 	// Allow clicking anywhere in the menu item cell
 	$menu.find('> li').click(function(e) {
-		e.stopPropagation();
+		if(is_dragging_page)
+			return false;
 		
 		if(!$(e.target).is('li'))
 			return;
@@ -84,6 +92,13 @@
 
 		if($link.length > 0)
 			window.location.href = $link.attr('href');
+	});
+
+	$menu.find('> li a').click(function(e) {
+		if(is_dragging_page)
+			return false;
+		
+		return true;
 	});
 	
 	$menu.find('> LI A.submenu')
@@ -131,5 +146,6 @@
 				$(this).closest('.cerb-popupmenu').hide();
 			})
 		;
+});
 </script>
 {/if}
