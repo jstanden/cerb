@@ -1291,7 +1291,11 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 		$tpl->assign('owner_roles', $owner_roles);
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/snippets/peek.tpl');
+		if($snippet->isWriteableByWorker($active_worker)) {
+			$tpl->display('devblocks:cerberusweb.core::internal/snippets/peek.tpl');
+		} else {
+			$tpl->display('devblocks:cerberusweb.core::internal/snippets/peek_readonly.tpl');
+		}
 	}
 	
 	function showSnippetsPeekToolbarAction() {
