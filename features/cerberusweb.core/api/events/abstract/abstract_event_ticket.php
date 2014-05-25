@@ -350,11 +350,11 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
 				
-				if(!is_numeric($dict->token)) {
-					@$dict->token = intval($dict->$token);
+				if(!is_numeric($dict->$token)) {
+					@$dict->$token = intval($dict->$token);
 				}
 				
-				$value = $dict->token * 100;
+				$value = $dict->$token * 100;
 
 				switch($oper) {
 					case 'is':
