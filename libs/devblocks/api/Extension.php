@@ -751,8 +751,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 	
 	abstract function getConditionExtensions(Model_TriggerEvent $trigger);
-	abstract function renderConditionExtension($token, $trigger, $params=array(), $seq=null);
-	abstract function runConditionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict);
+	abstract function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null);
+	abstract function runConditionExtension($token, $as_token, $trigger, $params, DevblocksDictionaryDelegate $dict);
 	
 	function renderCondition($token, $trigger, $params=array(), $seq=null) {
 		$conditions = $this->getConditions($trigger);
@@ -829,7 +829,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							} else {
 								// Custom
 								if(isset($condition_extensions[$token])) {
-									return $this->renderConditionExtension($token, $trigger, $params, $seq);
+									return $this->renderConditionExtension($token, $token, $trigger, $params, $seq);
 								
 								} else {
 									// Plugins
@@ -1203,7 +1203,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							
 							} else {
 								if(isset($extensions[$token])) {
-									$pass = $this->runConditionExtension($token, $trigger, $params, $dict);
+									$pass = $this->runConditionExtension($token, $token, $trigger, $params, $dict);
 								} else {
 									if(null != ($ext = DevblocksPlatform::getExtension($token, true))
 										&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */

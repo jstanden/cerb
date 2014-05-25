@@ -143,14 +143,14 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 		return $conditions;
 	}
 	
-	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
+	function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
 			$tpl->assign('namePrefix','condition'.$seq);
 		
-		switch($token) {
+		switch($as_token) {
 			case 'context':
 				$contexts = Extension_DevblocksContext::getAll(false, array('workspace'));
 				$options = array();
@@ -169,10 +169,10 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 		$tpl->clearAssign('params');
 	}
 
-	function runConditionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+	function runConditionExtension($token, $as_token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$pass = true;
 
-		switch($token) {
+		switch($as_token) {
 			case 'context':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');

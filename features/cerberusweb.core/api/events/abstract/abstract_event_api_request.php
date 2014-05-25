@@ -106,14 +106,14 @@ abstract class AbstractEvent_ApiRequest extends Extension_DevblocksEvent {
 		return $conditions;
 	}
 	
-	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
+	function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
 			$tpl->assign('namePrefix','condition'.$seq);
 		
-		switch($token) {
+		switch($as_token) {
 			case 'va_link':
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
@@ -132,10 +132,10 @@ abstract class AbstractEvent_ApiRequest extends Extension_DevblocksEvent {
 		$tpl->clearAssign('params');
 	}
 	
-	function runConditionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+	function runConditionExtension($token, $as_token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$pass = true;
 		
-		switch($token) {
+		switch($as_token) {
 			case 'va_link':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
@@ -143,7 +143,7 @@ abstract class AbstractEvent_ApiRequest extends Extension_DevblocksEvent {
 				$from_context = null;
 				$from_context_id = null;
 
-				switch($token) {
+				switch($as_token) {
 					case 'email_link':
 						$from_context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
 						@$from_context_id = $dict->va_id;
@@ -182,7 +182,7 @@ abstract class AbstractEvent_ApiRequest extends Extension_DevblocksEvent {
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
 
-				switch($token) {
+				switch($as_token) {
 					default:
 						$value = count($dict->va_watchers);
 						break;

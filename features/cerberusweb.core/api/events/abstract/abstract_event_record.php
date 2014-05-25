@@ -246,19 +246,23 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		return $conditions;
 	}
 	
-	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
+	function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 
+		// 'old_' prefixed tokens should use the standard conditions in the delegate
+		if(substr($token,0,4) == 'old_')
+			$as_token = substr($token, 4);
+		
 		if(!is_null($seq))
 			$tpl->assign('namePrefix','condition'.$seq);
 		
-		switch($token) {
+		switch($as_token) {
 			default:
 				if(false == ($delegate = $this->_getCustomContextBehavior($trigger->event_params['context'], $this->_model)))
 					break;
 				
-				return $delegate->renderConditionExtension($token, $trigger, $params, $seq);
+				return $delegate->renderConditionExtension($token, $as_token, $trigger, $params, $seq);
 				break;
 		}
 
@@ -266,15 +270,20 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		$tpl->clearAssign('params');
 	}
 	
-	function runConditionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+	function runConditionExtension($token, $as_token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$pass = true;
 		
-		switch($token) {
+		// 'old_' prefixed tokens should use the standard conditions in the delegate
+		if(substr($token,0,4) == 'old_') {
+			$as_token = substr($token, 4);
+		}
+		
+		switch($as_token) {
 			default:
 				if(false == ($delegate = $this->_getCustomContextBehavior($trigger->event_params['context'], $this->_model)))
 					break;
 				
-				$pass = $delegate->runConditionExtension($token, $trigger, $params, $dict);
+				$pass = $delegate->runConditionExtension($token, $as_token, $trigger, $params, $dict);
 				break;
 		}
 		
