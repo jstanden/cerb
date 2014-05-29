@@ -428,6 +428,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 					// Unset redundant id
 					unset($merge_labels['id']);
 					
+					if(is_array($merge_labels))
 					foreach($merge_labels as $label_key => $label) {
 						$labels['custom_'.$cf_id.'_'.$label_key] = $label;
 					}
@@ -471,6 +472,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 					// [TODO] This infinitely recurses if you do task->task
 					CerberusContexts::getContext($field->params['context'], null, $merge_labels, $merge_values, null, true);
 
+					if(is_array($merge_values['_types']))
 					foreach($merge_values['_types'] as $type_key => $type) {
 						$types['custom_'.$cf_id.'_'.$type_key] = $type;
 					}

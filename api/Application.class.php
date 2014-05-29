@@ -836,13 +836,15 @@ class CerberusContexts {
 			unset($values['_types']);
 			
 		} else {
-			foreach($labels as $idx => $label) {
-				$labels[$idx] = trim(ucfirst(strtolower(strtr($label,':',' '))));
+			if(is_array($labels)) {
+				foreach($labels as $idx => $label) {
+					$labels[$idx] = trim(ucfirst(strtolower(strtr($label,':',' '))));
+				}
+				
+				asort($labels);
+				
+				$values['_labels'] = $labels;
 			}
-			
-			asort($labels);
-			
-			$values['_labels'] = $labels;
 		}
 		
 		// Pop the stack
