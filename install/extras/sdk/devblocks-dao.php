@@ -925,7 +925,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		} elseif($<?php echo $ctx_var_model; ?> instanceof Model_<?php echo $class_name; ?>) {
 			// It's what we want already.
 		} elseif(is_array($<?php echo $ctx_var_model; ?>)) {
-			$<?php echo $ctx_var_model; ?> = Cerb_ORMHelper::recastArrayToModel($<?php echo $ctx_var_model; ?>, 'Model_<?php echo $class_name; ?>'); ?>;
+			$<?php echo $ctx_var_model; ?> = Cerb_ORMHelper::recastArrayToModel($<?php echo $ctx_var_model; ?>, 'Model_<?php echo $class_name; ?>');
 		} else {
 			$<?php echo $ctx_var_model; ?> = null;
 		}
