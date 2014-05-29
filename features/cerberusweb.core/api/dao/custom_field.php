@@ -941,7 +941,7 @@ class Model_CustomField {
 	static function getTypes() {
 		// [TODO] Extension provided custom field types
 		
-		return array(
+		$fields = array(
 			self::TYPE_CHECKBOX => 'Checkbox',
 			self::TYPE_DATE => 'Date',
 			self::TYPE_DROPDOWN => 'Picklist',
@@ -955,6 +955,10 @@ class Model_CustomField {
 			self::TYPE_URL => 'URL',
 			self::TYPE_WORKER => 'Worker',
 		);
+		
+		asort($fields);
+		
+		return $fields;
 	}
 };
 
