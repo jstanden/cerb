@@ -130,6 +130,10 @@ class DevblocksEventHelper {
 				
 				$field = $custom_fields[$matches[2]];
 				
+				// [TODO] Block nested cfields (from links) in 6.7.6, fully imp in 6.8?
+				if($field->type == Model_CustomField::TYPE_LINK)
+					continue;
+				
 				$actions[sprintf("set_cf_%s", $key)] = array(
 					'label' => 'Set ' . mb_convert_case($label, MB_CASE_LOWER),
 					'type' => $field->type,
