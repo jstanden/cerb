@@ -188,11 +188,12 @@ class DevblocksDictionaryDelegate {
 		
 		$contexts = $this->getContextsForName($name);
 		
-		while(null != ($context_data = array_shift($contexts))) {
+		if(is_array($contexts))
+		foreach($contexts as $context_data) {
 			$context_ext = $this->_dictionary[$context_data['key']];
 			
 			$token = substr($name, strlen($context_data['prefix']));
-	
+			
 			if(null == ($context = Extension_DevblocksContext::get($context_ext)))
 				continue;
 			
@@ -201,16 +202,10 @@ class DevblocksDictionaryDelegate {
 	
 			$local = $this->getDictionary($context_data['prefix'], false);
 			
-			// Push our current context into the stack so the lazy loader can tell if it's nested
-			// [TODO] It'd be nice to detect when the dictionary prefixes this
-			if(isset($this->_dictionary['_context']))
-				CerberusContexts::pushStack($this->_dictionary['_context']);
-			
 			$loaded_values = $context->lazyLoadContextValues($token, $local);
-			
-			// Pop our current context off the stack
-			if(isset($this->_dictionary['_context']))
-				CerberusContexts::popStack();
+
+			// Push the context into the stack so we can track ancestry
+			CerberusContexts::pushStack($context_data['context']);
 			
 			if(empty($loaded_values))
 				continue;
@@ -224,6 +219,10 @@ class DevblocksDictionaryDelegate {
 			// [TODO] Is there a better way to test that we loaded new contexts?
 			$this->_cached_contexts = null;
 		}
+		
+		if(is_array($contexts))
+		for($n=0; $n < count($contexts); $n++)
+			CerberusContexts::popStack();
 		
 		if(!$this->exists($name))
 			return $this->_null;
