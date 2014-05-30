@@ -1175,7 +1175,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 	
 			CerberusContexts::merge(
 				'calendar_',
-				'Calendar:',
+				$prefix.'Calendar:',
 				$merge_token_labels,
 				$merge_token_values,
 				$token_labels,

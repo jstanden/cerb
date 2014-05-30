@@ -49,7 +49,7 @@ class DAO_Address extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Creates a new e-mail address record.
+	 * Creates a new email address record.
 	 *
 	 * @param array $fields An array of fields=>values
 	 * @return integer The new address ID
@@ -1322,7 +1322,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 
 		CerberusContexts::merge(
 			'org_',
-			'',
+			$prefix,
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,
@@ -1408,7 +1408,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'E-mail Addresses';
+		$view->name = 'Email Addresses';
 		
 		$params_req = array();
 		

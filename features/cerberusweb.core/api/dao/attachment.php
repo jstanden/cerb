@@ -1749,7 +1749,7 @@ class Context_AttachmentLink extends Extension_DevblocksContext {
 
 		CerberusContexts::merge(
 			'attachment_',
-			'Attachment:',
+			$prefix.'Attachment:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,

@@ -100,11 +100,11 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				'context' => CerberusContexts::CONTEXT_ADDRESS,
 			),
 			'email_org_id' => array(
-				'label' => 'Org',
+				'label' => 'Email org',
 				'context' => CerberusContexts::CONTEXT_ORG,
 			),
 			'email_org_watchers' => array(
-				'label' => 'Org watchers',
+				'label' => 'Email org watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
 				'is_multiple' => true,
 			),
@@ -128,8 +128,8 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 		$types = $this->getTypes();
 		
 		$labels['email_link'] = 'Email is linked';
-		$labels['email_org_link'] = 'Org is linked';
-		$labels['email_org_watcher_count'] = 'Org watcher count';
+		$labels['email_org_link'] = 'Email org is linked';
+		$labels['email_org_watcher_count'] = 'Email org watcher count';
 		$labels['email_watcher_count'] = 'Email watcher count';
 		
 		$types['email_link'] = null;

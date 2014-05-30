@@ -924,7 +924,7 @@ class Context_Notification extends Extension_DevblocksContext {
 
 		CerberusContexts::merge(
 			'assignee_',
-			'Assignee:',
+			$prefix.'Assignee:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,

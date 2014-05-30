@@ -2015,7 +2015,7 @@ class Context_Message extends Extension_DevblocksContext {
 	
 			CerberusContexts::merge(
 				'ticket_',
-				'Ticket:',
+				$prefix.'Ticket:',
 				$merge_token_labels,
 				$merge_token_values,
 				$token_labels,
@@ -2030,7 +2030,7 @@ class Context_Message extends Extension_DevblocksContext {
 
 		CerberusContexts::merge(
 			'sender_',
-			'Message:Sender:',
+			$prefix.'Sender:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,
@@ -2044,7 +2044,7 @@ class Context_Message extends Extension_DevblocksContext {
 
 		CerberusContexts::merge(
 			'worker_',
-			'Message:Sender:Worker:',
+			$prefix.'Sender:Worker:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,

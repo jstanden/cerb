@@ -1292,7 +1292,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 
 		CerberusContexts::merge(
 			'email_',
-			'Lead:',
+			$prefix.'Lead:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,

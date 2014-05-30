@@ -104,7 +104,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $merge_token_labels, $merge_token_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $merge_token_labels, $merge_token_values, 'Ticket:Group:', true);
 				
 			// Merge
 			CerberusContexts::merge(
@@ -125,7 +125,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		if(get_class($this) == 'Event_CommentOnTicketInGroup') {
 			$merge_token_labels = array();
 			$merge_token_values = array();
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_COMMENT, $comment_id, $merge_token_labels, $merge_token_values, null, true);
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_COMMENT, $comment_id, $merge_token_labels, $merge_token_values, 'Ticket:Comment:', true);
 				
 				// Merge
 				CerberusContexts::merge(
@@ -164,11 +164,11 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				'is_multiple' => true,
 			),
 			'group_id' => array(
-				'label' => 'Group',
+				'label' => 'Ticket group',
 				'context' => CerberusContexts::CONTEXT_GROUP,
 			),
 			'group_watchers' => array(
-				'label' => 'Group watchers',
+				'label' => 'Ticket group watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
 				'is_multiple' => true,
 			),
@@ -225,10 +225,10 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		$labels['ticket_latest_incoming_activity'] = 'Ticket latest incoming activity';
 		$labels['ticket_latest_outgoing_activity'] = 'Ticket latest outgoing activity';
 		
-		$labels['group_id'] = 'Group';
-		$labels['group_and_bucket'] = 'Group and bucket';
+		$labels['group_id'] = 'Ticket group';
+		$labels['group_and_bucket'] = 'Ticket group and bucket';
 		
-		$labels['group_link'] = 'Group is linked';
+		$labels['group_link'] = 'Ticket group is linked';
 		$labels['owner_link'] = 'Ticket owner is linked';
 		$labels['ticket_initial_message_sender_link'] = 'Ticket initial message sender is linked';
 		$labels['ticket_initial_message_sender_org_link'] = 'Ticket initial message sender org is linked';
@@ -236,7 +236,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		$labels['ticket_latest_message_sender_org_link'] = 'Ticket latest message sender org is linked';
 		$labels['ticket_link'] = 'Ticket is linked';
 		
-		$labels['group_watcher_count'] = 'Group watcher count';
+		$labels['group_watcher_count'] = 'Ticket group watcher count';
 		$labels['ticket_org_watcher_count'] = 'Ticket org watcher count';
 		$labels['ticket_watcher_count'] = 'Ticket watcher count';
 		

@@ -1156,7 +1156,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 
 		CerberusContexts::merge(
 			'author_',
-			'Author:',
+			$prefix.'Author:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,
@@ -1170,7 +1170,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 
 		CerberusContexts::merge(
 			'worker_',
-			'Worker:',
+			$prefix.'Worker:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,

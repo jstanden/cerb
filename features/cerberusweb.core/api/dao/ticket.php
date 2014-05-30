@@ -3437,7 +3437,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 
 		CerberusContexts::merge(
 			'group_',
-			'Group:',
+			$prefix.'Group:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,
@@ -3451,7 +3451,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 
 		CerberusContexts::merge(
 			'bucket_',
-			'Bucket:',
+			$prefix.'Bucket:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,
@@ -3461,11 +3461,11 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		// First message
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, null, $merge_token_labels, $merge_token_values, 'Message:', true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, null, $merge_token_labels, $merge_token_values, '', true);
 		
 		CerberusContexts::merge(
 			'initial_message_',
-			$prefix.'Initial:',
+			$prefix.'Initial:Message:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,
@@ -3476,11 +3476,11 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		// First response
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, null, $merge_token_labels, $merge_token_values, 'Message:', true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, null, $merge_token_labels, $merge_token_values, '', true);
 		
 		CerberusContexts::merge(
 			'initial_response_message_',
-			$prefix.'Initial:Response:',
+			$prefix.'Initial:Response:Message:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,
@@ -3491,11 +3491,11 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		// Last message
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, null, $merge_token_labels, $merge_token_values, 'Message:', true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, null, $merge_token_labels, $merge_token_values, '', true);
 		
 		CerberusContexts::merge(
 			'latest_message_',
-			$prefix.'Latest:',
+			$prefix.'Latest:Message:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,

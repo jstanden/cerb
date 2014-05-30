@@ -1281,7 +1281,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		
 			CerberusContexts::merge(
 				'worker_',
-				'',
+				$prefix,
 				$merge_token_labels,
 				$merge_token_values,
 				$token_labels,

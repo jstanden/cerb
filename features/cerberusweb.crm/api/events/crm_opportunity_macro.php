@@ -148,11 +148,11 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 		$types = $this->getTypes();
 		
 		$labels['opp_link'] = 'Opportunity is linked';
-		$labels['opp_email_link'] = 'Lead is linked';
-		$labels['opp_email_org_link'] = 'Lead org is linked';
+		$labels['opp_email_link'] = 'Opportunity lead is linked';
+		$labels['opp_email_org_link'] = 'Opportunity lead org is linked';
 		
-		$labels['opp_email_org_watcher_count'] = 'Lead org watcher count';
-		$labels['opp_email_watcher_count'] = 'Lead watcher count';
+		$labels['opp_email_org_watcher_count'] = 'Opportunity lead org watcher count';
+		$labels['opp_email_watcher_count'] = 'Opportunity lead watcher count';
 		$labels['opp_watcher_count'] = 'Opportunity watcher count';
 		
 		$types['opp_link'] = null;
@@ -304,7 +304,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'send_email' => array('label' => 'Send email'),
 				'set_links' => array('label' => 'Set links'),
-				'set_status' => array('label' => 'Set status'),
+				'set_status' => array('label' => 'Set opportunity status'),
 			)
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;

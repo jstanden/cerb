@@ -962,7 +962,7 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 	
 			CerberusContexts::merge(
 				'calendar_',
-				'Calendar:',
+				$prefix.'Calendar:',
 				$merge_token_labels,
 				$merge_token_values,
 				$token_labels,
