@@ -284,6 +284,7 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 	function getCustomFieldSetAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		@$bulk = DevblocksPlatform::importGPC($_REQUEST['bulk'], 'integer', 0);
+		@$field_wrapper = DevblocksPlatform::importGPC($_REQUEST['field_wrapper'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -292,6 +293,9 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		
 		if(empty($id))
 			return;
+		
+		if(!empty($field_wrapper))
+			$tpl->assign('field_wrapper', $field_wrapper);
 		
 		if(null == ($custom_fieldset = DAO_CustomFieldset::get($id)))
 			return;

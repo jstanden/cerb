@@ -91,6 +91,7 @@ class DevblocksEventHelper {
 	/*
 	 * Action: Custom Fields
 	 */
+	
 	public static function getCustomFieldValuesFromParams($params) {
 		$custom_fields = DAO_CustomField::getAll();
 		$custom_field_values = array();
@@ -116,6 +117,29 @@ class DevblocksEventHelper {
 		}
 
 		return $custom_field_values;
+	}
+
+	public static function getCustomFieldsetsFromParams($params) {
+		$custom_fieldsets = DAO_CustomFieldset::getAll();
+		$custom_fields = DAO_CustomField::getAll();
+		$results = array();
+		
+		if(is_array($params))
+		foreach($params as $key => $val) {
+			if(substr($key,0,6) == 'field_') {
+				$cf_id = substr($key, 6);
+				
+				if(!isset($custom_fields[$cf_id]))
+					continue;
+				
+				@$custom_fieldset_id = $custom_fields[$cf_id]->custom_fieldset_id;
+				
+				if($custom_fieldset_id && isset($custom_fieldsets[$custom_fieldset_id]))
+					$results[$custom_fieldset_id] = $custom_fieldsets[$custom_fieldset_id];
+			}
+		}
+
+		return $results;
 	}
 	
 	static function getActionCustomFieldsFromLabels($labels) {
@@ -2553,13 +2577,17 @@ class DevblocksEventHelper {
 		$values_to_contexts = $event->getValuesContexts($trigger);
 		$tpl->assign('values_to_contexts', $values_to_contexts);
 		
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK, false);
 		$tpl->assign('custom_fields', $custom_fields);
 
 		if(false != ($params = $tpl->getVariable('params'))) {
 			$params = $params->value;
+
 			$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 			$tpl->assign('custom_field_values', $custom_field_values);
+			
+			$custom_fieldsets_linked = DevblocksEventHelper::getCustomFieldsetsFromParams($params);
+			$tpl->assign('custom_fieldsets_linked', $custom_fieldsets_linked);
 		}
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_task.tpl');
@@ -2768,13 +2796,17 @@ class DevblocksEventHelper {
 		$values_to_contexts = $event->getValuesContexts($trigger);
 		$tpl->assign('values_to_contexts', $values_to_contexts);
 		
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, false);
 		$tpl->assign('custom_fields', $custom_fields);
 
 		if(false != ($params = $tpl->getVariable('params'))) {
 			$params = $params->value;
+			
 			$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 			$tpl->assign('custom_field_values', $custom_field_values);
+			
+			$custom_fieldsets_linked = DevblocksEventHelper::getCustomFieldsetsFromParams($params);
+			$tpl->assign('custom_fieldsets_linked', $custom_fieldsets_linked);
 		}
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_ticket.tpl');

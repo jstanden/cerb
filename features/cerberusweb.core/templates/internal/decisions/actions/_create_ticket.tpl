@@ -29,6 +29,8 @@
 </div>
 {/if}
 
+{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_add_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET field_wrapper="{$namePrefix}"}
+
 <b>{'common.watchers'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_var_worker_picker.tpl" param_name="worker_id" values_to_contexts=$values_to_contexts}
@@ -42,6 +44,8 @@
 {/if}
 
 <script type="text/javascript">
-$action = $('fieldset#{$namePrefix}');
-$action.find('textarea').elastic();
+$(function() {
+	var $action = $('fieldset#{$namePrefix}');
+	$action.find('textarea').elastic();
+});
 </script>

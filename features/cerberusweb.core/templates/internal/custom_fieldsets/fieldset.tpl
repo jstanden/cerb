@@ -3,13 +3,15 @@
 	<legend>{$custom_fieldset->name}</legend>
 	<span class="cerb-sprite2 sprite-cross-circle delete" style="cursor:pointer;float:right;margin-top:-20px;display:none;"></span>
 	
+	{if empty($field_wrapper)}
 	{if $custom_fieldset_is_new}
 	<input type="hidden" name="custom_fieldset_adds[]" value="{$custom_fieldset->id}">
 	{else}{* We can only delete fieldsets that existed first *}
 	<input type="hidden" name="custom_fieldset_deletes[]" value="">
 	{/if}
+	{/if}
 	
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=$bulk custom_fields=$custom_fieldset->getCustomFields()}
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=$bulk field_wrapper=$field_wrapper custom_fields=$custom_fieldset->getCustomFields()}
 </fieldset>
 
 <script type="text/javascript">

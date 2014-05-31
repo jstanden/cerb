@@ -26,6 +26,8 @@
 </div>
 {/if}
 
+{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_add_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TASK field_wrapper="{$namePrefix}"}
+
 <b>{'common.comment'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<textarea name="{$namePrefix}[comment]" cols="45" rows="5" style="width:100%;" class="placeholders">{$params.comment}</textarea>
@@ -42,6 +44,8 @@
 </div>
 
 <script type="text/javascript">
-$action = $('fieldset#{$namePrefix}');
-$action.find('textarea').elastic();
+$(function() {
+	var $action = $('fieldset#{$namePrefix}');
+	$action.find('textarea').elastic();
+});
 </script>
