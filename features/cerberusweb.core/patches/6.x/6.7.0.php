@@ -163,6 +163,16 @@ if(!isset($columns['is_not_sent'])) {
 }
 
 // ===========================================================================
+// Drop unused worker_view_model records
+
+$db->Execute("DELETE FROM worker_view_model where view_id = 'mail_messages'");
+
+// ===========================================================================
+// Fix worker_view_model records for ticket searches forcing a required group_id
+
+$db->Execute("DELETE FROM worker_view_model WHERE view_id IN ('search_cerberusweb_contexts_ticket','search_cerberusweb_contexts_message') AND params_required_json LIKE '%t_group_id%'");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
