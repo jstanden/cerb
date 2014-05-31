@@ -15,7 +15,7 @@
 
 <div id="{$menu_button}" class="badge badge-lightgray" style="cursor:pointer;"><a href="javascript:;" style="text-decoration:none;color:rgb(50,50,50);">Add &#x25be;</a></div>
 
-<ul class="cerb-popupmenu" style="max-height:200px;overflow-y:auto;">
+<ul class="cerb-popupmenu" style="max-height:200px;overflow-y:auto;border:0;">
 	<li class="filter"><input type="text" class="input_search" size="45"></li>
 
 	<li><b>Placeholders</b></li>
