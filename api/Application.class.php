@@ -632,6 +632,7 @@ class CerberusContexts {
 	private static $_is_caching_loads = false;
 	private static $_cache_loads = array();
 	
+	private static $_default_actor_stack = array();
 	private static $_default_actor_context = null;
 	private static $_default_actor_context_id = null;
 	
@@ -1347,13 +1348,29 @@ class CerberusContexts {
 		return $url;
 	}
 	
-	static public function setActivityDefaultActor($context, $context_id=null) {
+	static public function pushActivityDefaultActor($context=null, $context_id=null) {
 		if(empty($context) || empty($context_id)) {
 			self::$_default_actor_context = null;
 			self::$_default_actor_context_id = null;
 		} else {
 			self::$_default_actor_context = $context;
 			self::$_default_actor_context_id = $context_id;
+			self::$_default_actor_stack[] = array($context, $context_id);
+		}
+	}
+	
+	static public function popActivityDefaultActor() {
+		array_pop(self::$_default_actor_stack);
+		
+		if(empty(self::$_default_actor_stack)) {
+			$context = null;
+			$context_id = null;
+			
+		} else {
+			$context_pair = end(self::$_default_actor_stack);
+			
+			$context = $context_pair['context'];
+			$context_id = $context_pair['context_id'];
 		}
 	}
 	

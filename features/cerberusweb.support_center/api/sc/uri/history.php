@@ -172,6 +172,8 @@ class UmScHistoryController extends Extension_UmScController {
 		if(empty($shared_address_ids))
 			$shared_address_ids = array(-1);
 		
+		CerberusContexts::pushActivityDefaultActor(CerberusContexts::CONTEXT_ADDRESS, $active_contact->id);
+		
 		if(false == ($ticket = DAO_Ticket::getTicketByMask($mask)))
 			return;
 		
@@ -186,6 +188,8 @@ class UmScHistoryController extends Extension_UmScController {
 			DAO_Ticket::IS_CLOSED => ($closed) ? 1 : 0
 		);
 		DAO_Ticket::update($ticket->id, $fields);
+		
+		CerberusContexts::popActivityDefaultActor();
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'history', $ticket->mask)));
 	}

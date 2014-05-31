@@ -966,9 +966,11 @@ class CerberusParser {
 			if($is_authenticated) {
 				$logger->info("[Worker Relay] Worker authentication successful. Proceeding.");
 
-				CerberusContexts::setActivityDefaultActor(CerberusContexts::CONTEXT_WORKER, $proxy_worker->id);
-
 				if(!empty($proxy_ticket)) {
+					
+					// Log activity as the worker
+					CerberusContexts::pushActivityDefaultActor(CerberusContexts::CONTEXT_WORKER, $proxy_worker->id);
+					
 					$parser_message = $model->getMessage();
 					$attachment_file_ids = array();
 					
@@ -1121,12 +1123,14 @@ class CerberusParser {
 					
 					$properties['content'] = ltrim($body);
 					
+					
 					CerberusMail::sendTicketMessage($properties);
+
+					// Stop logging activity as the worker
+					CerberusContexts::popActivityDefaultActor();
+					
 					return $proxy_ticket->id;
 				}
-
-				// Clear temporary worker session
-				CerberusContexts::setActivityDefaultActor(null);
 
 			} else { // failed worker auth
 				// [TODO] Bounce
