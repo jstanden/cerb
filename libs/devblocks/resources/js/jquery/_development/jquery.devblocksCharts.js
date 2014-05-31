@@ -28,7 +28,7 @@ $.fn.extend({
 				
 			} else if(null != e.originalEvent && undefined != e.originalEvent.layerX) {
 				pos.x = e.originalEvent.layerX;
-				posy = e.originalEvent.layerY;
+				pos.y = e.originalEvent.layerY;
 			}
 			
 			return pos;
