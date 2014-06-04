@@ -237,13 +237,14 @@ class CerberusParserModel {
 					continue;
 				
 				// Only consider the watcher auth header to be a reply if it validates
+				
 				if($senderWorker instanceof Model_Worker
 						&& @preg_match('#\<([a-f0-9]+)\@cerb\d{0,1}\>#', $ref, $hits)
 						&& false != ($relay_message_id = $this->isValidAuthHeader($ref, $senderWorker))) {
-				
+					
 					if(null != ($ticket = DAO_Ticket::getTicketByMessageId($relay_message_id))) {
 						$this->_is_new = false;
-						$this->_ticket_id = $ticket_id;
+						$this->_ticket_id = $ticket->id;
 						$this->_ticket_model = $ticket;
 						$this->_message_id = $relay_message_id;
 						return;
@@ -251,7 +252,7 @@ class CerberusParserModel {
 				}
 				
 				// Otherwise, look up the normal header
-				if(null != ($ids = DAO_Ticket::getTicketByMessageId($ref))) {
+				if(null != ($ids = DAO_Ticket::getTicketByMessageIdHeader($ref))) {
 					$this->_is_new = false;
 					$this->_ticket_id = $ids['ticket_id'];
 					$this->_ticket_model = DAO_Ticket::get($this->_ticket_id);
@@ -263,6 +264,7 @@ class CerberusParserModel {
 		
 		// Try matching the subject line
 		// [TODO] This should only happen if the destination has subject masks enabled
+		
 		if(!is_array($aSubject))
 			$aSubject = array($aSubject);
 			
@@ -438,6 +440,9 @@ class CerberusParserModel {
 		if(!empty($this->_ticket_model))
 			return $this->_ticket_model;
 
+		if(empty($this->_ticket_id))
+			return null;
+		
 		// Lazy-load
 		if(!empty($this->_ticket_id)) {
 			$this->_ticket_model = DAO_Ticket::get($this->_ticket_id);

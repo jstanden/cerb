@@ -119,9 +119,24 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	/**
 	 *
 	 * @param string $message_id
-	 * @return array
+	 * @return integer
 	 */
 	static function getTicketByMessageId($message_id) {
+		if(false == ($message = DAO_Message::get($message_id)))
+			return null;
+		
+		if(false == ($ticket = DAO_Ticket::get($message->ticket_id)))
+			return null;
+		
+		return $ticket;
+	}
+	
+	/**
+	 *
+	 * @param string $message_id
+	 * @return array
+	 */
+	static function getTicketByMessageIdHeader($message_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT m.ticket_id AS ticket_id, mh.message_id AS message_id ".
