@@ -1169,7 +1169,7 @@ class CerberusMail {
 
 				// Sign the message so we can verify that a future relay reply is genuine
 				$sign = sha1($message->id . $worker->id . APP_DB_PASS);
-				$headers->addTextHeader('Message-Id', sprintf("<%s%s%s@cerb>", dechex(mt_rand(255,65535)), $sign, dechex($message->id)));
+				$headers->addTextHeader('Message-Id', sprintf("<%s%s%s@cerb>", mt_rand(1000,9999), $sign, dechex($message->id)));
 				
 				$headers->addTextHeader('X-CerberusRedirect','1');
 	

@@ -3427,7 +3427,7 @@ class DevblocksEventHelper {
 
 				// Sign the message so we can verify a future relay response
 				$sign = sha1($message_id . $worker->id . APP_DB_PASS);
-				$headers->addTextHeader('Message-Id', sprintf("<%s%s%s@cerb>", dechex(mt_rand(255,65535)), $sign, dechex($message_id)));
+				$headers->addTextHeader('Message-Id', sprintf("<%s%s%s@cerb>", mt_rand(1000,9999), $sign, dechex($message_id)));
 				
 				$headers->addTextHeader('X-CerberusRedirect','1');
 	
