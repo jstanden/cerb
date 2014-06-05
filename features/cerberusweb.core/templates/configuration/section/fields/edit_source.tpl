@@ -115,13 +115,8 @@ var $frm = $('#frmConfigFieldSource');
 $frm.find('input:checkbox.check-all').click(function() {
 	var checked = $(this).is(':checked');
 	
-	var $checkboxes = $(this).closest('form').find('input:checkbox[name="selected[]"]');
-	
-	if(checked) {
-		$checkboxes.attr('checked', 'checked');
-	} else {
-		$checkboxes.removeAttr('checked');
-	}
+	var $checkboxes = $frm.find('input:checkbox[name="selected[]"]');
+	$checkboxes.prop('checked', checked);
 });
 
 $frm.find('table').sortable({ 
