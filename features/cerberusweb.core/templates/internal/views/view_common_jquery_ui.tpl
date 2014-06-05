@@ -30,14 +30,14 @@ $view_frm.find('TABLE.worklistBody TBODY')
 			if(0 == $chk.length)
 				return;
 			
-			var is_checked = !($chk.attr('checked') ? true : false);
+			var is_checked = !($chk.prop('checked') ? true : false);
 			
 			if(is_checked) {
-				$chk.attr('checked', is_checked);
+				$chk.prop('checked', is_checked);
 				$this.find('tr').addClass('selected').removeClass('hover');
 				
 			} else {
-				$chk.removeAttr('checked');
+				$chk.prop('checked', is_checked);
 				$this.find('tr').removeClass('selected');
 			}
 	
@@ -115,14 +115,14 @@ $view.bind('select_all', function(e) {
 	$view_actions = $('#' + e.view_id + '_actions');
 	
 	if(e.checked) {
-		$checkbox.attr('checked', 'checked');
+		$checkbox.prop('checked', e.checked);
+		$(this).prop('checked', e.checked);
 		$rows.addClass('selected'); 
-		$(this).attr('checked','checked');
 		$view_actions.find('button,.action-on-select').not('.action-always-show').fadeIn('fast');	
 	} else {
-		$checkbox.removeAttr('checked');
+		$checkbox.prop('checked', e.checked);
+		$(this).prop('checked', e.checked);
 		$rows.removeClass('selected');
-		$(this).removeAttr('checked');
 		$view_actions.find('button,.action-on-select').not('.action-always-show').fadeOut('fast');
 	}
 });
