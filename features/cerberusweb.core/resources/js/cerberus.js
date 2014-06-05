@@ -26,7 +26,7 @@ var markitupMarkdownDefaults = {
 			return markItUp.line+'. ';
 		}},
 		{separator:'---------------', className:'sep' },
-		{name:'Link to an External Image', key:'E', replaceWith:'![[![Alternative text]!]]([![Url:!:http://]!] "[![Title]!]")', className:'img'},
+		{name:'Link to an External Image', replaceWith:'![[![Alternative text]!]]([![Url:!:http://]!] "[![Title]!]")', className:'img'},
 		{name:'Link', key:'L', openWith:'[', closeWith:']([![Url:!:http://]!] "[![Title]!]")', placeHolder:'Your text to link here...', className:'a' },
 		{separator:'---------------', className:'sep'},	
 		{name:'Quotes', openWith:'> ', className:'blockquote'},
@@ -64,7 +64,7 @@ var markitupParsedownDefaults = {
 		{name:'Numeric List', className:'ol', openWith:function(markItUp) {
 			return markItUp.line+'. ';
 		}},
-		{name:'Link to an External Image', key:'E', openWith:'![Image](', closeWith:')', placeHolder:'http://www.example.com/path/to/image.png', className:'img'},
+		{name:'Link to an External Image', openWith:'![Image](', closeWith:')', placeHolder:'http://www.example.com/path/to/image.png', className:'img'},
 		{name:'Link', key:'L', openWith:'[', closeWith:'](http://www.example.com/)', placeHolder:'link text', className:'a' },
 		{name:'Quotes', openWith:'> ', className:'blockquote'},
 		{
@@ -110,7 +110,7 @@ var markitupHTMLDefaults = {
 		{name:'Ol', openWith:'<ol>\n', closeWith:'</ol>\n', className:'ol' },
 		{name:'Li', openWith:'<li>', closeWith:'</li>', className:'li' },
 		{separator:'---------------', className:'sep' },
-		{name:'Link to an External Image', key:'E', replaceWith:'<img src="[![Source:!:http://]!]" alt="[![Alternative text]!]" />', className:'img' },
+		{name:'Link to an External Image', replaceWith:'<img src="[![Source:!:http://]!]" alt="[![Alternative text]!]" />', className:'img' },
 		{name:'Link', key:'L', openWith:'<a href="[![Link:!:http://]!]"(!( title="[![Title]!]")!)>', closeWith:'</a>', placeHolder:'Your text to link...', className:'a' },
 		{separator:'---------------', className:'sep' },
 		{name:'Clean', className:'clean', replaceWith:function(markitup) { return markitup.selection.replace(/<(.*?)>/g, "") } },
