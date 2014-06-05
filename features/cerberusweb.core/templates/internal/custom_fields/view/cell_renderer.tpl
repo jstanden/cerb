@@ -47,7 +47,7 @@
 		{$file = DAO_Attachment::get($file_id)}
 		{$links = DAO_AttachmentLink::getByAttachmentId($file_id)}
 		{foreach from=$links item=link}
-			<a href="{devblocks_url}c=files&guid={$link->guid}&file={$file->display_name}{/devblocks_url}" title="{$file->display_name}" target="_blank">{$file->storage_size|devblocks_prettybytes}</a>
+			<a href="{devblocks_url}c=files&guid={$link->guid}&file={$file->display_name}{/devblocks_url}" title="{$file->display_name} ({$file->storage_size|devblocks_prettybytes})" target="_blank">{$file->display_name}</a>
 		{/foreach}
 	</td>
 {elseif $col->type==Model_CustomField::TYPE_FILES}
@@ -58,7 +58,7 @@
 			{$file = DAO_Attachment::get($file_id)}
 			{$links = DAO_AttachmentLink::getByAttachmentId($file_id)}
 			{foreach from=$links item=link}
-				<a href="{devblocks_url}c=files&guid={$link->guid}&file={$file->display_name}{/devblocks_url}" title="{$file->display_name}" target="_blank">{$file->storage_size|devblocks_prettybytes}</a>{if !$smarty.foreach.files.last}, {/if}
+				<a href="{devblocks_url}c=files&guid={$link->guid}&file={$file->display_name}{/devblocks_url}" title="{$file->display_name} ({$file->storage_size|devblocks_prettybytes})" target="_blank">{$file->display_name}</a>{if !$smarty.foreach.files.last}, {/if}
 			{/foreach}
 		{/foreach}
 	</td>
