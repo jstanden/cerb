@@ -32,7 +32,7 @@ $('#frmWatcherPrefs')
 	.find('input:checkbox')
 	.change(
 		function(e) {
-			if(false != $(this).attr('checked'))
+			if(false != $(this).prop('checked'))
 				$(this).closest('label').css('font-weight','bold');
 			else
 				$(this).closest('label').css('font-weight','');
