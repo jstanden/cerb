@@ -2,17 +2,17 @@
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="doBulkUpdate">
 <input type="hidden" name="view_id" value="{$view_id}">
-<input type="hidden" name="ticket_ids" value="">
+<input type="hidden" name="ids" value="{$ids}">
 
 <fieldset class="peek">
 	<legend>{'common.bulk_update.with'|devblocks_translate|capitalize}</legend>
-	<label><input type="radio" name="filter" value="" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if empty($ticket_ids)}checked{/if}> {'common.bulk_update.filter.all'|devblocks_translate}</label> 
-	{if !empty($ticket_ids)}
-		<label><input type="radio" name="filter" value="checks" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if !empty($ticket_ids)}checked{/if}> {'common.bulk_update.filter.checked'|devblocks_translate}</label> 
+	<label><input type="radio" name="filter" value="" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if empty($ids)}checked{/if}> {'common.bulk_update.filter.all'|devblocks_translate}</label> 
+	{if !empty($ids)}
+		<label><input type="radio" name="filter" value="checks" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if !empty($ids)}checked{/if}> {'common.bulk_update.filter.checked'|devblocks_translate}</label> 
 	{/if}
 	<label><input type="radio" name="filter" value="sender" onclick="toggleDiv('categoryFilterPanelSender','block');toggleDiv('categoryFilterPanelSubject','none');"> Similar senders</label>
 	<label><input type="radio" name="filter" value="subject" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','block');"> Similar subjects</label>
-	{if empty($ticket_ids)}
+	{if empty($ids)}
 		<label><input type="radio" name="filter" value="sample" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');"> {'common.bulk_update.filter.random'|devblocks_translate} </label><input type="text" name="filter_sample_size" size="5" maxlength="4" value="100" class="input_number">
 	{/if}
 	
@@ -194,7 +194,7 @@
 </fieldset>
 {/if}
 	
-<button type="button" onclick="ajax.saveBatchPanel('{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 <br>
 </form>
 

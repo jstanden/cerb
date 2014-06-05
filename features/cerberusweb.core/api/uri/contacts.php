@@ -558,8 +558,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('view_id', $view_id);
 
 		if(!empty($ids)) {
-			$address_ids = DevblocksPlatform::parseCsvString($ids);
-			$tpl->assign('address_ids', $address_ids);
+			$tpl->assign('ids', $ids);
 		}
 		
 		// Custom fields
@@ -1202,7 +1201,7 @@ class ChContactsPage extends CerberusPageExtension {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-				@$address_id_str = DevblocksPlatform::importGPC($_REQUEST['address_ids'],'string');
+				@$address_id_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($address_id_str);
 				break;
 			case 'sample':

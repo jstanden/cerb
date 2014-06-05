@@ -2,14 +2,14 @@
 <input type="hidden" name="c" value="contacts">
 <input type="hidden" name="a" value="doAddressBatchUpdate">
 <input type="hidden" name="view_id" value="{$view_id}">
-<input type="hidden" name="address_ids" value="{if is_array($address_ids)}{$address_ids|implode:','}{/if}">
+<input type="hidden" name="ids" value="{$ids}">
 
 <fieldset class="peek">
 	<legend>{'common.bulk_update.with'|devblocks_translate|capitalize}</legend>
-	<label><input type="radio" name="filter" value="" {if empty($address_ids)}checked{/if}> {'common.bulk_update.filter.all'|devblocks_translate}</label> 
+	<label><input type="radio" name="filter" value="" {if empty($ids)}checked{/if}> {'common.bulk_update.filter.all'|devblocks_translate}</label> 
 	
- 	{if !empty($address_ids)}
-		<label><input type="radio" name="filter" value="checks" {if !empty($address_ids)}checked{/if}> {'common.bulk_update.filter.checked'|devblocks_translate}</label>
+ 	{if !empty($ids)}
+		<label><input type="radio" name="filter" value="checks" {if !empty($ids)}checked{/if}> {'common.bulk_update.filter.checked'|devblocks_translate}</label>
 	{else}
 		<label><input type="radio" name="filter" value="sample"> {'common.bulk_update.filter.random'|devblocks_translate} </label><input type="text" name="filter_sample_size" size="5" maxlength="4" value="100" class="input_number">
 	{/if}
@@ -122,7 +122,7 @@
 {/if}
 
 {if $active_worker->hasPriv('core.addybook.addy.actions.update')}
-	<button type="button" onclick="ajax.saveAddressBatchPanel('{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 {/if}
 <br>
 </form>

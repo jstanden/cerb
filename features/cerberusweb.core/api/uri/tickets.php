@@ -1144,7 +1144,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			unset($senders);
 			unset($unique_sender_ids);
 			
-			@$tpl->assign('ticket_ids', $ticket_ids);
+			@$tpl->assign('ids', $ids);
 			@$tpl->assign('unique_senders', $unique_senders);
 			@$tpl->assign('unique_subjects', $unique_subjects);
 		}
@@ -1193,7 +1193,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	function doBulkUpdateAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$ticket_id_str = DevblocksPlatform::importGPC($_REQUEST['ticket_ids'],'string');
+		@$ticket_id_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 		@$shortcut_name = DevblocksPlatform::importGPC($_REQUEST['shortcut_name'],'string','');
 
 		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
