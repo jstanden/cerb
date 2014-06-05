@@ -246,9 +246,9 @@
 			$td = $(this).closest('td');
 			
 			if($td.is('.selected')) {
-				$td.find('input:checkbox').removeAttr('checked');
+				$td.find('input:checkbox').prop('checked', false);
 			} else {
-				$td.find('input:checkbox').attr('checked', 'checked');
+				$td.find('input:checkbox').prop('checked', true);
 			}
 			
 			$td.toggleClass('selected');
