@@ -441,6 +441,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	}
 	
 	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=500) {
+		$db = DevblocksPlatform::getDatabaseService();
 		$ns = $schema->getNamespace();
 		
 		$escaped_query = mysqli_real_escape_string($this->db, $query);
@@ -481,41 +482,25 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 					break;
 			}
 		}
+
+		// Our temp table name is consistently named because we may keep it around for the duration of the request
+		$temp_table = sprintf("_search_%s", sha1($ns.$query));
 		
-		$sql = sprintf("SELECT id, MATCH content AGAINST ('%s' IN BOOLEAN MODE) AS score ".
+		$sql = sprintf("CREATE TEMPORARY TABLE IF NOT EXISTS %s SELECT id, MATCH content AGAINST ('%s' IN BOOLEAN MODE) AS score ".
 			"FROM fulltext_%s ".
 			"WHERE MATCH content AGAINST ('%s' IN BOOLEAN MODE) ".
 			"%s ".
 			"ORDER BY score DESC ".
-			"LIMIT 0,%d ",
+			$temp_table,
 			$escaped_query,
 			$this->escapeNamespace($ns),
 			$escaped_query,
-			!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : '',
-			$limit
+			!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : ''
 		);
 		
-		$cache = DevblocksPlatform::getCacheService();
-		$cache_key = sprintf("search:%s", md5($sql));
-		$is_only_cached_for_request = !$cache->isVolatile();
+		$db->Execute($sql);
 		
-		if(null === ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
-			$ids = array();
-			
-			$result = mysqli_query($this->db, $sql);
-			
-			if($result instanceof mysqli_result) {
-				while($row = mysqli_fetch_row($result)) {
-					$ids[] = intval($row[0]);
-				}
-				
-				mysqli_free_result($result);
-			}
-			
-			$cache->save($ids, $cache_key, array(), 300, $is_only_cached_for_request);
-		}
-		
-		return $ids;
+		return $temp_table;
 	}
 	
 	public function getQueryFromParam($param) {
