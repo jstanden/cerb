@@ -343,25 +343,11 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine {
 	const ID = 'devblocks.search.engine.mysql_fulltext';
 	
-	private $_db = null;
 	private $_config = array();
 	
 	public function __get($name) {
 		switch($name) {
-			case 'db':
-				if(!is_null($this->_db))
-					return $this->_db;
-				
-				if(false != ($this->_db = $this->_connect()))
-					return $this->_db;
-				
-				break;
 		}
-	}
-	
-	private function _connect() {
-		$db = DevblocksPlatform::getDatabaseService();
-		return $db->getConnection();
 	}
 	
 	public function setConfig(array $config) {
@@ -395,40 +381,17 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	}
 	
 	private function _getMaxId(Extension_DevblocksSearchSchema $schema) {
+		$db = DevblocksPlatform::getDatabaseService();
 		$ns = $schema->getNamespace();
 		
-		$rs = mysqli_query($this->db, sprintf("SELECT MAX(id) FROM fulltext_%s", mysqli_real_escape_string($this->db, $ns)));
-		
-		if(!($rs instanceof mysqli_result))
-			return false;
-		
-		$row = mysqli_fetch_row($rs);
-		
-		if($result instanceof mysqli_result)
-			mysqli_free_result($rs);
-		
-		if(isset($row[0]))
-			return intval($row[0]);
-		
-		return false;
+		return intval($db->GetOne(sprintf("SELECT MAX(id) FROM fulltext_%s", $db->escape($ns))));
 	}
 	
 	private function _getCount(Extension_DevblocksSearchSchema $schema) {
+		$db = DevblocksPlatform::getDatabaseService();
 		$ns = $schema->getNamespace();
-		$rs = mysqli_query($this->db, sprintf("SELECT COUNT(id) FROM fulltext_%s", mysqli_real_escape_string($this->db, $ns)));
 		
-		if(!($rs instanceof mysqli_result))
-			return false;
-		
-		$row = mysqli_fetch_row($rs);
-		
-		if($result instanceof mysqli_result)
-			mysqli_free_result($rs);
-		
-		if(isset($row[0]))
-			return intval($row[0]);
-		
-		return false;
+		return intval($db->GetOne(sprintf("SELECT COUNT(id) FROM fulltext_%s", $db->escape($ns))));
 	}
 	
 	public function getQuickSearchExamples(Extension_DevblocksSearchSchema $schema) {
@@ -444,7 +407,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		$db = DevblocksPlatform::getDatabaseService();
 		$ns = $schema->getNamespace();
 		
-		$escaped_query = mysqli_real_escape_string($this->db, $query);
+		$escaped_query = $db->escape($query);
 		$where_sql = null;
 		
 		$schema_attributes = $schema->getAttributes();
@@ -459,8 +422,8 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			switch($attr_type) {
 				case 'string':
 					$where_sql[] = sprintf("%s = '%s'",
-						mysqli_real_escape_string($this->db, $attr),
-						mysqli_real_escape_string($this->db, $attr_val)
+						$db->escape($attr),
+						$db->escape($attr_val)
 					);
 					break;
 				
@@ -468,7 +431,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 				case 'int4':
 				case 'int8':
 					$where_sql[] = sprintf("%s = %d",
-						mysqli_real_escape_string($this->db, $attr),
+						$db->escape($attr),
 						$attr_val
 					);
 					break;
@@ -476,7 +439,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 				case 'uint4':
 				case 'uint8':
 					$where_sql[] = sprintf("%s = %u",
-						mysqli_real_escape_string($this->db, $attr),
+						$db->escape($attr),
 						$attr_val
 					);
 					break;
@@ -742,12 +705,13 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	}
 	
 	private function _index(Extension_DevblocksSearchSchema $schema, $id, $content, $attributes=array()) {
+		$db = DevblocksPlatform::getDatabaseService();
 		$ns = $schema->getNamespace();
 		$content = $this->prepareText($content);
 		
 		$fields = array(
 			'id' => intval($id),
-			'content' => sprintf("'%s'", mysqli_real_escape_string($this->db, $content)),
+			'content' => sprintf("'%s'", $db->escape($content)),
 		);
 		
 		// Attributes
@@ -762,18 +726,18 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			
 			switch($attr_type) {
 				case 'string':
-					$fields[mysqli_real_escape_string($this->db, $attr)] = sprintf("'%s'", mysqli_real_escape_string($this->db, $attr_val));
+					$fields[$db->escape($attr)] = sprintf("'%s'", $db->escape($attr_val));
 					break;
 				
 				case 'int':
 				case 'int4':
 				case 'int8':
-					$fields[mysqli_real_escape_string($this->db, $attr)] = sprintf("%d", $attr_val);
+					$fields[$db->escape($attr)] = sprintf("%d", $attr_val);
 					break;
 					
 				case 'uint4':
 				case 'uint8':
-					$fields[mysqli_real_escape_string($this->db, $attr)] = sprintf("%u", $attr_val);
+					$fields[$db->escape($attr)] = sprintf("%u", $attr_val);
 					break;
 			}
 		}
@@ -783,7 +747,8 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			implode(',', array_keys($fields)),
 			implode(',', $fields)
 		);
-		$result = mysqli_query($this->db, $sql);
+		
+		$result = $db->Execute($sql);
 		
 		$return = (false !== $result) ? true : false;
 		
@@ -806,6 +771,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	}
 	
 	private function _createTable(Extension_DevblocksSearchSchema $schema) {
+		$db = DevblocksPlatform::getDatabaseService();
 		$namespace = $schema->getNamespace();
 		$attributes = $schema->getAttributes();
 		
@@ -846,16 +812,21 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 				return false;
 			
 			$attributes_sql[] = sprintf("%s %s,",
-				mysqli_real_escape_string($this->db, $attr),
-				mysqli_real_escape_string($this->db, $field_type)
+				$db->escape($attr),
+				$db->escape($field_type)
 			);
 		}
 		
-		$rs = mysqli_query($this->db, "SHOW TABLES");
+		$rs = $db->Execute("SHOW TABLES");
 
 		$tables = array();
-		while($row = mysqli_fetch_row($rs)) {
-			$tables[$row[0]] = true;
+		
+		if($rs instanceof mysqli_result) {
+			while($row = mysqli_fetch_row($rs)) {
+				$tables[$row[0]] = true;
+			}
+			
+			mysqli_free_result($rs);
 		}
 		
 		$namespace = $this->escapeNamespace($namespace);
@@ -875,7 +846,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			(!empty($attributes_sql) ? implode(",\n", $attributes_sql) : '')
 		);
 		
-		$result = mysqli_query($this->db, $sql);
+		$result = $db->Execute($sql);
 		
 		$return = (false !== $result) ? true : false;
 		
@@ -888,6 +859,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	}
 	
 	public function delete(Extension_DevblocksSearchSchema $schema, $ids) {
+		$db = DevblocksPlatform::getDatabaseService();
 		$ns = $schema->getNamespace();
 		
 		if(!is_array($ids))
@@ -896,7 +868,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(empty($ns) || empty($ids))
 			return;
 			
-		$result = mysqli_query($this->db, sprintf("DELETE FROM fulltext_%s WHERE id IN (%s) ",
+		$result = $db->Execute(sprintf("DELETE FROM fulltext_%s WHERE id IN (%s) ",
 			$this->escapeNamespace($ns),
 			implode(',', $ids)
 		));
