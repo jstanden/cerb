@@ -5,8 +5,9 @@
 	consider using a specialized search engine like Sphinx instead.
 </div>
 
-{*
 <div style="padding:5px 10px;">
-	<label><input type="checkbox" name="reset" value="1"> Re-index these records.</label>
+	<b>Max results:</b> <i>(blank for unlimited)</i>
+	<p style="margin-left:5px;">
+		<input type="text" name="params[{$engine->id}][max_results]" value="{$engine_params.max_results}" size="45" style="width:100%;" placeholder="unlimited">
+	</p>
 </div>
-*}

@@ -483,6 +483,9 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			}
 		}
 
+		// The max desired results (blank for unlimited)
+		$max_results = intval($this->_config['max_results']);
+
 		// Our temp table name is consistently named because we may keep it around for the duration of the request
 		$temp_table = sprintf("_search_%s", sha1($ns.$query));
 		
@@ -491,6 +494,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			"WHERE MATCH content AGAINST ('%s' IN BOOLEAN MODE) ".
 			"%s ".
 			"ORDER BY score DESC ".
+			($max_results ? sprintf("LIMIT 0,%d ", $max_results) : ''),
 			$temp_table,
 			$escaped_query,
 			$this->escapeNamespace($ns),

@@ -84,6 +84,15 @@ if(!isset($columns['custom_placeholders_json'])) {
 }
 
 // ===========================================================================
+// Set a default for 'max_results' in search indexes using the MySQL Fulltext engine
+
+$db->Execute(sprintf("UPDATE cerb_property_store SET value = %s WHERE property = 'engine_params_json' AND value = %s",
+	$db->qstr('{"engine_extension_id":"devblocks.search.engine.mysql_fulltext","config":{"max_results":"500"}}'),
+	$db->qstr('{"engine_extension_id":"devblocks.search.engine.mysql_fulltext","config":[]}')
+));
+
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
