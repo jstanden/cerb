@@ -79,7 +79,9 @@
 			{elseif $column=="w_name"}
 			<td>
 				<a href="{devblocks_url}c=pages&page={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}" class="subject">{if !empty($result.w_name)}{$result.w_name}{else}New Page{/if}</a>
-				{*<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="$popup = genericAjaxPopup('peek','c=pages&a=showEditWorkspacePage&id={$result.w_id}',null,true,'550');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{'views.peek'|devblocks_translate}"></span></button>*}
+				{if CerberusContexts::isWriteableByActor($result.w_owner_context, $result.w_owner_context_id, $active_worker)}
+				<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=pages&a=showEditWorkspacePage&id={$result.w_id}&view_id={$view->id}',null,true,'550');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{'views.peek'|devblocks_translate}"></span></button>
+				{/if}
 			</td>
 			{elseif $column=="*_owner"}
 				{$owner_context = $result.w_owner_context}

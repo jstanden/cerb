@@ -90,7 +90,7 @@
 		This will also delete all of the page's tabs and worklists.
 	</p>
 	
-	<button type="button" class="red" onclick="$('#frmEditWorkspacePage').find('input:hidden[name=do_delete]').val('1');genericAjaxPopupPostCloseReloadView(null,'frmEditWorkspacePage','',false,'workspace_delete');">{'common.yes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="red" onclick="$('#frmEditWorkspacePage').find('input:hidden[name=do_delete]').val('1');genericAjaxPopupPostCloseReloadView(null,'frmEditWorkspacePage','{$view_id}',false,'workspace_delete');">{'common.yes'|devblocks_translate|capitalize}</button>
 	<button type="button" onclick="$(this).closest('fieldset').fadeOut().siblings('div.toolbar').fadeIn();">{'common.no'|devblocks_translate|capitalize}</button>
 </fieldset>
 
@@ -189,10 +189,10 @@
 					$frm_import.find('div.config').hide().html(json.config_html).fadeIn();
 					
 				} else {
-					genericAjaxPopupDestroy('peek');
-					
 					if(json.page_url) {
 						document.location.href = json.page_url;
+					} else {
+						genericAjaxPopupPostCloseReloadView(null,'frmEditWorkspacePage','{$view_id}', false, 'workspace_import');
 					}
 				}
 				
