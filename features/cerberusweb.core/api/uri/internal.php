@@ -858,7 +858,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				$params = array(
 					array(
 						DevblocksSearchCriteria::GROUP_OR,
-						
 						array(
 							DevblocksSearchCriteria::GROUP_AND,
 							SearchFields_ContextActivityLog::TARGET_CONTEXT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT,'=',$context),
@@ -1006,6 +1005,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				// Restrict owners
 				$param_ownership = array(
 					DevblocksSearchCriteria::GROUP_OR,
+					SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_APPLICATION),
 					array(
 						DevblocksSearchCriteria::GROUP_AND,
 						SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_WORKER),
@@ -1346,32 +1346,22 @@ class ChInternalController extends DevblocksControllerExtension {
 			}
 			
 		} else { // Create || Update
-			@list($owner_type, $owner_id) = explode('_', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
+			@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
 		
-			switch($owner_type) {
-				// Role
-				case 'r':
-					$owner_context = CerberusContexts::CONTEXT_ROLE;
-					$owner_context_id = $owner_id;
+			switch($owner_context) {
+				case CerberusContexts::CONTEXT_APPLICATION:
+				case CerberusContexts::CONTEXT_ROLE:
+				case CerberusContexts::CONTEXT_GROUP:
+				case CerberusContexts::CONTEXT_WORKER:
 					break;
-				// Group
-				case 'g':
-					$owner_context = CerberusContexts::CONTEXT_GROUP;
-					$owner_context_id = $owner_id;
-					break;
-				// Worker
-				case 'w':
-					$owner_context = CerberusContexts::CONTEXT_WORKER;
-					$owner_context_id = $owner_id;
-					break;
-				// Default
+					
 				default:
 					$owner_context = null;
 					$owner_context_id = null;
 					break;
 			}
 			
-			if(empty($owner_context) || empty($owner_context_id)) {
+			if(empty($owner_context)) {
 				$owner_context = CerberusContexts::CONTEXT_WORKER;
 				$owner_context_id = $active_worker->id;
 			}

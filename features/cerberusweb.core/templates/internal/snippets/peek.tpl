@@ -42,45 +42,37 @@
 						<option value=""> - transfer - </option>
 					{/if}
 					
-					<option value="w_{$active_worker->id}" {if $snippet->owner_context==CerberusContexts::CONTEXT_WORKER && $active_worker->id==$snippet->owner_context_id}selected="selected"{/if}>me</option>
+					<option value="{CerberusContexts::CONTEXT_WORKER}:{$active_worker->id}" {if $snippet->owner_context==CerberusContexts::CONTEXT_WORKER && $active_worker->id==$snippet->owner_context_id}selected="selected"{/if}>me</option>
+
+					<option value="{CerberusContexts::CONTEXT_APPLICATION}:0"  context="{CerberusContexts::CONTEXT_APPLICATION}" {if $snippet->owner_context==CerberusContexts::CONTEXT_APPLICATION}selected="selected"{/if}>Application: Cerb</option>
 
 					{if !empty($owner_roles)}
 					{foreach from=$owner_roles item=role key=role_id}
-						<option value="r_{$role_id}" {if $snippet->owner_context==CerberusContexts::CONTEXT_ROLE && $role_id==$snippet->owner_context_id}selected="selected"{/if}>Role: {$role->name}</option>
+						<option value="{CerberusContexts::CONTEXT_ROLE}:{$role_id}" {if $snippet->owner_context==CerberusContexts::CONTEXT_ROLE && $role_id==$snippet->owner_context_id}selected="selected"{/if}>Role: {$role->name}</option>
 					{/foreach}
 					{/if}
 					
 					{if !empty($owner_groups)}
 					{foreach from=$owner_groups item=group key=group_id}
-						<option value="g_{$group_id}" {if $snippet->owner_context==CerberusContexts::CONTEXT_GROUP && $group_id==$snippet->owner_context_id}selected="selected"{/if}>Group: {$group->name}</option>
+						<option value="{CerberusContexts::CONTEXT_GROUP}:{$group_id}" {if $snippet->owner_context==CerberusContexts::CONTEXT_GROUP && $group_id==$snippet->owner_context_id}selected="selected"{/if}>Group: {$group->name}</option>
 					{/foreach}
 					{/if}
 					
 					{if $active_worker->is_superuser}
 					{foreach from=$workers item=worker key=worker_id}
 						{if empty($worker->is_disabled)}
-						<option value="w_{$worker_id}" {if $snippet->owner_context==CerberusContexts::CONTEXT_WORKER && $worker_id==$snippet->owner_context_id && $active_worker->id != $worker_id}selected="selected"{/if}>Worker: {$worker->getName()}</option>
+						<option value="{CerberusContexts::CONTEXT_WORKER}:{$worker_id}" {if $snippet->owner_context==CerberusContexts::CONTEXT_WORKER && $worker_id==$snippet->owner_context_id && $active_worker->id != $worker_id}selected="selected"{/if}>Worker: {$worker->getName()}</option>
 						{/if}
 					{/foreach}
 					{/if}
 				</select>
 				
 				{if !empty($snippet->id)}
-				<ul class="bubbles">
-					<li>
-					{if $snippet->owner_context==CerberusContexts::CONTEXT_ROLE && isset($roles.{$snippet->owner_context_id})}
-					<b>{$roles.{$snippet->owner_context_id}->name}</b> (Role)
+					{$context = Extension_DevblocksContext::get($snippet->owner_context)}
+					{if !empty($context)}
+						{$meta = $context->getMeta({$snippet->owner_context_id})}
+						<div class="bubble"><b>{$meta.name}</b> ({$context->manifest->name})</div>
 					{/if}
-					
-					{if $snippet->owner_context==CerberusContexts::CONTEXT_GROUP && isset($groups.{$snippet->owner_context_id})}
-					<b>{$groups.{$snippet->owner_context_id}->name}</b> (Group)
-					{/if}
-					
-					{if $snippet->owner_context==CerberusContexts::CONTEXT_WORKER && isset($workers.{$snippet->owner_context_id})}
-					<b>{$workers.{$snippet->owner_context_id}->getName()}</b> (Worker)
-					{/if}
-					</li>
-				</ul>
 				{/if}
 			</td>
 		</tr>

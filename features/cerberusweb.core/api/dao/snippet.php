@@ -524,6 +524,11 @@ class Model_Snippet {
 			return true;
 		
 		switch($this->owner_context) {
+			case CerberusContexts::CONTEXT_APPLICATION:
+				if($worker->is_superuser)
+					return true;
+				break;
+				
 			case CerberusContexts::CONTEXT_GROUP:
 				if(in_array($this->owner_context_id, array_keys($worker->getMemberships())))
 					return true;
@@ -558,15 +563,16 @@ class Model_Snippet {
 			return true;
 		
 		switch($this->owner_context) {
+			case CerberusContexts::CONTEXT_APPLICATION:
+			case CerberusContexts::CONTEXT_ROLE:
+				if($worker->is_superuser)
+					return true;
+				break;
+				
 			case CerberusContexts::CONTEXT_GROUP:
 				if(in_array($this->owner_context_id, array_keys($worker->getMemberships())))
 					if($worker->isGroupManager($this->owner_context_id))
 						return true;
-				break;
-				
-			case CerberusContexts::CONTEXT_ROLE:
-				if($worker->is_superuser)
-					return true;
 				break;
 				
 			case CerberusContexts::CONTEXT_WORKER:
@@ -1171,6 +1177,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 		// Restrict owners
 		$param_ownership = array(
 			DevblocksSearchCriteria::GROUP_OR,
+			SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_APPLICATION),
 			array(
 				DevblocksSearchCriteria::GROUP_AND,
 				SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_WORKER),

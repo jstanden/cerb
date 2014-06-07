@@ -91,6 +91,10 @@ $db->Execute(sprintf("UPDATE cerb_property_store SET value = %s WHERE property =
 	$db->qstr('{"engine_extension_id":"devblocks.search.engine.mysql_fulltext","config":[]}')
 ));
 
+// ===========================================================================
+// Reset snippet searches
+
+$db->Execute(sprintf("DELETE FROM worker_view_model WHERE view_id = 'search_cerberusweb_contexts_snippet'"));
 
 // ===========================================================================
 // Finish up

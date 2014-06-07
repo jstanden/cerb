@@ -34,21 +34,11 @@
 			</td>
 			<td width="99%">
 				{if !empty($snippet->id)}
-				<ul class="bubbles">
-					<li>
-					{if $snippet->owner_context==CerberusContexts::CONTEXT_ROLE && isset($roles.{$snippet->owner_context_id})}
-					<b>{$roles.{$snippet->owner_context_id}->name}</b> (Role)
+					{$context = Extension_DevblocksContext::get($snippet->owner_context)}
+					{if !empty($context)}
+						{$meta = $context->getMeta({$snippet->owner_context_id})}
+						<div class="bubble"><b>{$meta.name}</b> ({$context->manifest->name})</div>
 					{/if}
-					
-					{if $snippet->owner_context==CerberusContexts::CONTEXT_GROUP && isset($groups.{$snippet->owner_context_id})}
-					<b>{$groups.{$snippet->owner_context_id}->name}</b> (Group)
-					{/if}
-					
-					{if $snippet->owner_context==CerberusContexts::CONTEXT_WORKER && isset($workers.{$snippet->owner_context_id})}
-					<b>{$workers.{$snippet->owner_context_id}->getName()}</b> (Worker)
-					{/if}
-					</li>
-				</ul>
 				{/if}
 			</td>
 		</tr>
