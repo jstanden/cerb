@@ -214,7 +214,7 @@ abstract class DevblocksORMHelper {
 						$tables[$fields[$p->field]->db_table] = $fields[$p->field]->db_table;
 						$group_wheres[] = $p->getWhereSQL($fields);
 						
-						$where = sprintf("(%s)",
+						$where = sprintf("%s",
 							implode(" $group_oper ", $group_wheres)
 						);
 					}
@@ -223,16 +223,14 @@ abstract class DevblocksORMHelper {
 				break;
 		}
 		
-		if(!empty($outer_wheres)) {
-			return sprintf("(%s)",
-				implode(" $group_oper ", $outer_wheres)
-			);
-			
-		} else {
-			return $where;
-			
-		}
+		if(!empty($where))
+			$outer_wheres[] = $where;
 		
+		$sql = sprintf("(%s)",
+			implode(" $group_oper ", $outer_wheres)
+		);
+		
+		return $sql;
 	}
 };
 
