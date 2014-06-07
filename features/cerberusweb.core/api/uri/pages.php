@@ -108,6 +108,7 @@ class Page_Custom extends CerberusPageExtension {
 			// Restrict owners
 			$params = array( '_ownership' => array(
 					DevblocksSearchCriteria::GROUP_OR,
+					SearchFields_WorkspacePage::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_WorkspacePage::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_APPLICATION),
 					array(
 						DevblocksSearchCriteria::GROUP_AND,
 						SearchFields_WorkspacePage::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_WorkspacePage::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_WORKER),
@@ -789,31 +790,19 @@ class Page_Custom extends CerberusPageExtension {
 			);
 			
 			// Owner
-			@list($owner_type, $owner_id) = explode('_', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
+			@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
 				
-			switch($owner_type) {
-				// Group
-				case 'g':
-					$owner_context = CerberusContexts::CONTEXT_GROUP;
-					$owner_context_id = $owner_id;
+			switch($owner_context) {
+				case CerberusContexts::CONTEXT_APPLICATION:
+				case CerberusContexts::CONTEXT_ROLE:
+				case CerberusContexts::CONTEXT_GROUP:
+				case CerberusContexts::CONTEXT_WORKER:
 					break;
-					// Role
-				case 'r':
-					$owner_context = CerberusContexts::CONTEXT_ROLE;
-					$owner_context_id = $owner_id;
-					break;
-					// Worker
-				case 'w':
-					$owner_context = CerberusContexts::CONTEXT_WORKER;
-					$owner_context_id = $owner_id;
-					break;
-					// Default
+					
 				default:
 					$owner_context = null;
-					$owner_context_id = null;
-					break;
 			}
-
+			
 			if(!empty($owner_context)) {
 				$fields[DAO_WorkspacePage::OWNER_CONTEXT] = $owner_context;
 				$fields[DAO_WorkspacePage::OWNER_CONTEXT_ID] = $owner_context_id;
@@ -867,25 +856,15 @@ class Page_Custom extends CerberusPageExtension {
 			// Owner
 			// [TODO] This could be cleaner
 			
-			@list($owner_type, $owner_id) = explode('_', $owner);
+			@list($owner_context, $owner_context_id) = explode(':', $owner);
 				
-			switch($owner_type) {
-				// Group
-				case 'g':
-					$owner_context = CerberusContexts::CONTEXT_GROUP;
-					$owner_context_id = $owner_id;
+			switch($owner_context) {
+				case CerberusContexts::CONTEXT_APPLICATION:
+				case CerberusContexts::CONTEXT_ROLE:
+				case CerberusContexts::CONTEXT_GROUP:
+				case CerberusContexts::CONTEXT_WORKER:
 					break;
-					// Role
-				case 'r':
-					$owner_context = CerberusContexts::CONTEXT_ROLE;
-					$owner_context_id = $owner_id;
-					break;
-					// Worker
-				case 'w':
-					$owner_context = CerberusContexts::CONTEXT_WORKER;
-					$owner_context_id = $owner_id;
-					break;
-					// Default
+				
 				default:
 					$owner_context = null;
 					$owner_context_id = null;
