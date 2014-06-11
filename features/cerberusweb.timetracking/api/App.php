@@ -259,7 +259,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 							"%s %s\n".
 							"%s %d\n".
 							"%s %s\n".
-							(!empty($comment) ? sprintf("%s: %s\n", $translate->_('common.comment'), $comment) : '').
+							"%s".
 							"\n".
 							"%s\n",
 							$translate->_('timetracking.ui.timetracking'),
@@ -269,6 +269,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 							$time_actual_mins,
 							$translate->_('timetracking.ui.comment.activity'),
 							(!empty($activity) ? $activity->name : ''),
+							(!empty($comment) ? sprintf("%s: %s\n", $translate->_('common.comment'), $comment) : ''),
 							$url_writer->writeNoProxy(sprintf("c=profiles&type=time_tracking&id=%d", $id), true)
 						);
 						$fields = array(
