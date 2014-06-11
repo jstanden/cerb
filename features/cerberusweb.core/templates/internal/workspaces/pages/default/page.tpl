@@ -1,3 +1,12 @@
+{if !$page->isWriteableByWorker($active_worker) && empty($page_tabs)}
+	<div class="help-box" style="padding:5px;border:0;">
+		<h1 style="margin-bottom:5px;text-align:left;">This workspace is empty</h1>
+		
+		<p>
+			This page has no content, and you don't have permission to modify it.  You'll have to wait until someone else adds something.
+		</p>
+	</div>
+{else}
 <div id="pageTabs">
 	<ul>
 		{$tabs = []}
@@ -12,6 +21,7 @@
 		{/if}
 	</ul>
 </div>
+{/if}
 	
 <div style="margin-top:10px;">
 	{include file="devblocks:cerberusweb.core::internal/whos_online.tpl"}
