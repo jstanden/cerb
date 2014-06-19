@@ -791,7 +791,7 @@ switch($step) {
 					$message = new CerberusParserMessage();
 						$message->headers['from'] = '"Webgroup Media, LLC." <support@webgroupmedia.com>';
 						$message->headers['to'] = $replyto_default->email;
-						$message->headers['subject'] = "Welcome to Cerb6!";
+						$message->headers['subject'] = "Welcome to Cerb!";
 						$message->headers['date'] = date('r');
 						$message->headers['message-id'] = CerberusApplication::generateMessageId();
 						$message->body = <<< EOF
@@ -812,7 +812,7 @@ For project news, training resources, sneak peeks of development progress, tips 
 http://www.facebook.com/cerbapp
 http://twitter.com/cerb6
 https://vimeo.com/channels/cerb
-http://cerberusweb.com/book/6.0/worker_guide/
+http://cerbweb.com/book/latest/worker_guide/
 
 Thanks!
 ---

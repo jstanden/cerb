@@ -2989,13 +2989,13 @@ class DevblocksEventHelper {
 		);
 		
 		// Watchers
+		
 		if(is_array($watcher_worker_ids) && !empty($watcher_worker_ids)) {
 			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $watcher_worker_ids);
 		}
-		
-		CerberusMail::sendTicketMessage($properties);
-		
+
 		// Custom fields
+		
 		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 		
 		if(is_array($custom_field_values))
@@ -3023,6 +3023,8 @@ class DevblocksEventHelper {
 				}
 			}
 		}
+		
+		CerberusMail::sendTicketMessage($properties);
 		
 		return $ticket_id;
 	}

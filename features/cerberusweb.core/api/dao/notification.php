@@ -181,21 +181,23 @@ class DAO_Notification extends DevblocksORMHelper {
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
-		
-		while($row = mysqli_fetch_assoc($rs)) {
-			$object = new Model_Notification();
-			$object->id = $row['id'];
-			$object->context = $row['context'];
-			$object->context_id = $row['context_id'];
-			$object->created_date = $row['created_date'];
-			$object->worker_id = $row['worker_id'];
-			$object->message = $row['message'];
-			$object->url = $row['url'];
-			$object->is_read = $row['is_read'];
-			$objects[$object->id] = $object;
+
+		if($rs instanceof mysqli_result) {
+			while($row = mysqli_fetch_assoc($rs)) {
+				$object = new Model_Notification();
+				$object->id = $row['id'];
+				$object->context = $row['context'];
+				$object->context_id = $row['context_id'];
+				$object->created_date = $row['created_date'];
+				$object->worker_id = $row['worker_id'];
+				$object->message = $row['message'];
+				$object->url = $row['url'];
+				$object->is_read = $row['is_read'];
+				$objects[$object->id] = $object;
+			}
+			
+			mysqli_free_result($rs);
 		}
-		
-		mysqli_free_result($rs);
 		
 		return $objects;
 	}
