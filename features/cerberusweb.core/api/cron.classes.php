@@ -781,7 +781,7 @@ class ImportCron extends CerberusCronPageExtension {
 				}
 	
 				// Create attachments
-				if(!is_null($eMessage->attachments))
+				if(!is_null($eMessage->attachments) && is_array($eMessage->attachments))
 				foreach($eMessage->attachments->attachment as $eAttachment) { /* @var $eAttachment SimpleXMLElement */
 					$sFileName = (string) $eAttachment->name;
 					$sMimeType = (string) $eAttachment->mimetype;
@@ -843,7 +843,7 @@ class ImportCron extends CerberusCronPageExtension {
 		}
 		
 		// Create comments
-		if(!is_null($xml->comments))
+		if(!is_null($xml->comments) && is_array($xml->comments))
 		foreach($xml->comments->comment as $eComment) { /* @var $eMessage SimpleXMLElement */
 			$iCommentDate = (integer) $eComment->created_date;
 			$sCommentAuthor = (string) $eComment->author; // [TODO] Address Hash Lookup
