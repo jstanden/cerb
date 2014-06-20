@@ -234,7 +234,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		
 		@$http_verb = $params['http_verb'];
 		@$http_url = $tpl_builder->build($params['http_url'], $dict);
-		@$http_headers = $tpl_builder->build($params['http_headers'], $dict);
+		@$http_headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['http_headers'], $dict));
 		@$http_body = $tpl_builder->build($params['http_body'], $dict);
 		@$run_in_simulator = $params['run_in_simulator'];
 		@$response_placeholder = $params['response_placeholder'];
@@ -252,7 +252,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		$out = sprintf(">>> Sending HTTP request:\n%s %s\n%s\n%s\n",
 			mb_convert_case($http_verb, MB_CASE_UPPER),
 			$http_url,
-			!empty($http_headers) ? ($http_headers) : '',
+			!empty($http_headers) ? (implode("\n", $http_headers)) : '',
 			(in_array($http_verb, array('post','put')) ? ("\n" . $http_body. "\n") : "")
 		);
 		
@@ -262,7 +262,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 
 		// If set to run in simulator as well
 		if($run_in_simulator) {
-			$response = $this->_execute($http_verb, $http_url, array(), $http_body);
+			$response = $this->_execute($http_verb, $http_url, array(), $http_body, $http_headers);
 			$dict->$response_placeholder = $response;
 		}
 		
