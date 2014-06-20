@@ -447,9 +447,16 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		return array();
 	}
 	
-	function function_xml_decode($str) {
-		$str = str_replace('xmlns=','ns=', $str);
+	function function_xml_decode($str, $namespaces=array()) {
 		$xml = simplexml_load_string($str);
+		
+		if(!($xml instanceof SimpleXMLElement))
+			return false;
+		
+		if(is_array($namespaces))
+		foreach($namespaces as $prefix => $ns)
+			$xml->registerXPathNamespace($prefix, $ns);
+		
 		return $xml;
 	}
 	
