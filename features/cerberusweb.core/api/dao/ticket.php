@@ -1423,6 +1423,13 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$join_sql
 		);
 		
+		// If we're filtering by requesters, we can have dupe rows
+		if(
+			parent::paramExistsInSet(SearchFields_Ticket::REQUESTER_ADDRESS, $params)
+			|| parent::paramExistsInSet(SearchFields_Ticket::REQUESTER_ID, $params)
+			)
+			$has_multiple_values = true;
+		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
