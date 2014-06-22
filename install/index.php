@@ -16,7 +16,10 @@
 ***********************************************************************/
 
 if(version_compare(PHP_VERSION, "5.3", "<"))
-	die("Cerb6 requires PHP 5.3 or later.");
+	die("Cerb requires PHP 5.3 or later.");
+
+if(!extension_loaded('mysqli'))
+	die("Cerb requires the 'mysqli' PHP extension.  Please enable it.");
 
 @set_time_limit(3600); // 1hr
 require('../framework.config.php');

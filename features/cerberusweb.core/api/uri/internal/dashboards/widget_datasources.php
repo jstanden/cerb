@@ -170,6 +170,11 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 	}
 	
 	private function _getDataSeries(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
+		$date = DevblocksPlatform::getDateService();
+		
+		// Use the worker's timezone for MySQL date functions
+		$db->Execute(sprintf("SET time_zone = %s", $db->qstr($date->formatTime('P', time()))));
+		
 		$series_idx = $this->_getSeriesIdxFromPrefix($params_prefix);
 		
 		$view_id = sprintf("widget%d_worklist%s",

@@ -19,6 +19,12 @@ class ChReportWorkerHistory extends Extension_Report {
 	function render() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$tpl = DevblocksPlatform::getTemplateService();
+		$date = DevblocksPlatform::getDateService();
+		
+		// Use the worker's timezone for MySQL date functions
+		$db->Execute(sprintf("SET time_zone = %s", $db->qstr($date->formatTime('P', time()))));
+		
+		// Filters
 		
 		@$filter_worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 		$tpl->assign('filter_worker_ids', $filter_worker_ids);
