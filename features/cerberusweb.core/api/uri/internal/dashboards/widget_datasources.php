@@ -171,6 +171,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 	
 	private function _getDataSeries(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
 		$date = DevblocksPlatform::getDateService();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		// Use the worker's timezone for MySQL date functions
 		$db->Execute(sprintf("SET time_zone = %s", $db->qstr($date->formatTime('P', time()))));
@@ -203,8 +204,6 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		$view->renderPage = 0;
 		$view->renderLimit = 30;
 			
-		$db = DevblocksPlatform::getDatabaseService();
-
 		// Initial query planner
 		
 		$query_parts = $dao_class::getSearchQueryComponents(
