@@ -508,12 +508,8 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		$results = array();
 		
 		while($row = mysqli_fetch_assoc($rs)) {
-			$result = array();
-			foreach($row as $f => $v) {
-				$result[$f] = $v;
-			}
-			$ticket_id = intval($row[SearchFields_ContactOrg::ID]);
-			$results[$ticket_id] = $result;
+			$object_id = intval($row[SearchFields_ContactOrg::ID]);
+			$results[$object_id] = $row;
 		}
 
 		$total = count($results);

@@ -1606,7 +1606,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.received.group</id>
-			<name>New message on a group conversation</name>
+			<name>Message added to a group conversation</name>
 			<class>
 				<file>api/events/group/mail_received_by_group.php</file>
 				<name>Event_MailReceivedByGroup</name>
@@ -1933,7 +1933,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.received.watcher</id>
-			<name>New message on a watched conversation</name>
+			<name>Message added to a watched conversation</name>
 			<class>
 				<file>api/events/worker/mail_received_by_watcher.php</file>
 				<name>Event_MailReceivedByWatcher</name>

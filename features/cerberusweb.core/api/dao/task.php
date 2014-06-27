@@ -456,12 +456,8 @@ class DAO_Task extends Cerb_ORMHelper {
 		$results = array();
 		
 		while($row = mysqli_fetch_assoc($rs)) {
-			$result = array();
-			foreach($row as $f => $v) {
-				$result[$f] = $v;
-			}
-			$id = intval($row[SearchFields_Task::ID]);
-			$results[$id] = $result;
+			$object_id = intval($row[SearchFields_Task::ID]);
+			$results[$object_id] = $row;
 		}
 
 		$total = count($results);

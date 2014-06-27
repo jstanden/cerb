@@ -269,12 +269,8 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$results = array();
 		
 		while($row = mysqli_fetch_assoc($rs)) {
-			$result = array();
-			foreach($row as $f => $v) {
-				$result[$f] = $v;
-			}
 			$id = intval($row[SearchFields_Attachment::ID]);
-			$results[$id] = $result;
+			$results[$id] = $row;
 		}
 
 		$total = count($results);
@@ -1348,12 +1344,8 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 		$results = array();
 		
 		while($row = mysqli_fetch_assoc($rs)) {
-			$result = array();
-			foreach($row as $f => $v) {
-				$result[$f] = $v;
-			}
 			$id = $row[SearchFields_AttachmentLink::GUID];
-			$results[$id] = $result;
+			$results[$id] = $row;
 		}
 		
 		$total = count($results);
