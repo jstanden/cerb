@@ -55,7 +55,24 @@
 				{if $calendar_events.{$day.timestamp}}
 					{foreach from=$calendar_events.{$day.timestamp} item=event}
 						<div class="event" style="background-color:{$event.color|default:'#C8C8C8'};" link="{$event.link}">
-							<a href="javascript:;" style="color:rgb(0,0,0);" title="{$event.label}">{$event.label}</a>
+							<a href="javascript:;" style="color:rgb(0,0,0);" title="{$event.label}">
+							
+							{$worker_prefs = DAO_WorkerPref::getByWorker($active_worker->id)}
+							{$time_format = $worker_prefs.time_format|default:'D, d M Y h:i a'}
+							{if $time_format = 'D, d M Y h:i a'}{$hour_format = 'g'}{else}{$hour_format = 'H'}{/if}
+							
+							{if !$calendar->params.hide_start_time}
+							<b>
+							{if $event.ts|devblocks_date:'i' == '00'}
+								{$event.ts|devblocks_date:$hour_format}{if $hour_format=='g'}{$event.ts|devblocks_date:'a'|substr:0:1}{/if}
+							{else}
+								{$event.ts|devblocks_date:"{$hour_format}:i"}{if $hour_format=='g'}{$event.ts|devblocks_date:'a'|substr:0:1}{/if}
+							{/if}
+							</b>
+							{/if}
+							
+							{$event.label}
+							</a>
 						</div>
 					{/foreach}
 				{/if}
