@@ -44,7 +44,7 @@ class _DevblocksDateManager {
 };
 
 class DevblocksCalendarHelper {
-	static function getCalendar($month=null, $year=null) {
+	static function getCalendar($month=null, $year=null, $start_on_mon=false) {
 		if(empty($month) || empty($year)) {
 			$month = date('m');
 			$year = date('Y');
@@ -53,7 +53,8 @@ class DevblocksCalendarHelper {
 		$calendar_date = mktime(0,0,0,$month,1,$year);
 		
 		$num_days = date('t', $calendar_date);
-		$first_dow = date('w', $calendar_date);
+		
+		$first_dow = $start_on_mon ? (date('N', $calendar_date)-1) : date('w', $calendar_date);
 		
 		$prev_month_date = mktime(0,0,0,$month,0,$year);
 		$prev_month = date('m', $prev_month_date);

@@ -32,6 +32,16 @@
 
 <table cellspacing="0" cellpadding="0" border="0" class="calendar">
 <tr class="heading">
+{* [TODO] Localize *}
+{if $calendar->params.start_on_mon}
+	<th>Mon</th>
+	<th>Tue</th>
+	<th>Wed</th>
+	<th>Thu</th>
+	<th>Fri</th>
+	<th>Sat</th>
+	<th>Sun</th>
+{else}
 	<th>Sun</th>
 	<th>Mon</th>
 	<th>Tue</th>
@@ -39,6 +49,7 @@
 	<th>Thu</th>
 	<th>Fri</th>
 	<th>Sat</th>
+{/if}
 </tr>
 {foreach from=$calendar_properties.calendar_weeks item=week name=weeks}
 <tr class="week">

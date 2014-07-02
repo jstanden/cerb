@@ -37,7 +37,9 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		if(null == ($calendar = DAO_Calendar::get($calendar_id))) /* @var Model_Calendar $calendar */
 			return;
 		
-		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year);
+		$start_on_mon = @$calendar->params['start_on_mon'] ? true : false;
+		
+		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
 		
 		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
 
@@ -125,13 +127,17 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		if(!empty($point))
 			$visit->set($point, 'calendar');
 
+		$calendar = DAO_Calendar::get($calendar_id);
+		
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
 		
-		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year);
+		$start_on_mon = @$calendar->params['start_on_mon'] ? true : false;
+		
+		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
 		$tpl->assign('calendar_properties', $calendar_properties);
 		
-		if(null != ($calendar = DAO_Calendar::get($calendar_id))) {
+		if($calendar) {
 			$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
 			
 			$availability = $calendar->computeAvailability($calendar_properties['date_range_from'], $calendar_properties['date_range_to'], $calendar_events);
