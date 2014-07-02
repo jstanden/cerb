@@ -3649,6 +3649,25 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		}
 		
 		switch($token) {
+			case 'requester_emails':
+				if(!isset($dictionary['requesters'])) {
+					$result = $this->lazyLoadContextValues('requesters', $dictionary);
+					$emails = array();
+					
+					if(isset($result['requesters'])) {
+						$values['requesters'] = $result['requesters'];
+						
+						
+						if(is_array($result['requesters']))
+						foreach($result['requesters'] as $req) {
+							$emails[] = $req['email'];
+						}
+						
+						$values['requester_emails'] = implode(', ', $emails);
+					}
+				}
+				break;
+				
 			case 'requesters':
 				$values['requesters'] = array();
 				$reqs = DAO_Ticket::getRequestersByTicket($context_id);
