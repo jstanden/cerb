@@ -128,6 +128,8 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 				'is_closed' => SearchFields_TimeTrackingEntry::IS_CLOSED,
 				'mins' => SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS,
 				'worker_id' => SearchFields_TimeTrackingEntry::WORKER_ID,
+					
+				'links' => SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK,
 			);
 		}
 		

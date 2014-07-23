@@ -21,7 +21,6 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 	}
 	
 	private function _connect() {
-		$db = null;
 		@$host = $this->_config['host'];
 		$port = isset($this->_config['port']) ? intval($this->_config['port']) : 9306;
 
@@ -32,7 +31,10 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 		if($port == 3306)
 			return false;
 		
-		return mysqli_connect($host, null, null, null, $port);
+		if(false == ($db = @mysqli_connect($host, null, null, null, $port)))
+			return null;
+		
+		return $db;
 	}
 	
 	public function testConfig(array $config) {
@@ -123,6 +125,9 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 	
 	
 	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=500) {
+		if(is_null($this->db))
+			return false;
+		
 		@$index = $this->_config['index'];
 		
 		if(empty($index))
@@ -265,6 +270,9 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 	}
 	
 	private function _index(Extension_DevblocksSearchSchema $schema, $id, $content, $attributes=array()) {
+		if(is_null($this->db))
+			return false;
+		
 		@$index_rt = $this->_config['index_rt'];
 		
 		if(empty($index_rt))
@@ -321,6 +329,9 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 	}
 
 	public function delete(Extension_DevblocksSearchSchema $schema, $ids) {
+		if(is_null($this->db))
+			return false;
+		
 		@$index_rt = $this->_config['index_rt'];
 		
 		if(empty($index_rt))

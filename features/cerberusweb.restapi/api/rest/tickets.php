@@ -316,7 +316,9 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 				'group_id' => SearchFields_Ticket::TICKET_GROUP_ID,
 				'bucket_id' => SearchFields_Ticket::TICKET_BUCKET_ID,
 				'org_id' => SearchFields_Ticket::TICKET_ORG_ID,
-				'org_name' => SearchFields_Ticket::ORG_NAME
+				'org_name' => SearchFields_Ticket::ORG_NAME,
+					
+				'links' => SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,
 			);
 		}
 		
