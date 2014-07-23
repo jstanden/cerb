@@ -70,7 +70,7 @@
 		<li><a href="javascript:;" field_type="D">Picklist</a></li>
 		<li><a href="javascript:;" field_type="N">Number</a></li>
 		<li><a href="javascript:;" field_type="E">Date</a></li>
-		<li><a href="javascript:;" field_type="C">True/False</a></li>
+		<li><a href="javascript:;" field_type="C">Yes/No</a></li>
 		<li><a href="javascript:;" field_type="W">Worker</a></li>
 		{foreach from=$list_contexts item=list_context key=list_context_id}
 		<li><a href="javascript:;" field_type="ctx_{$list_context_id}">(List) {$list_context->name}</a></li>

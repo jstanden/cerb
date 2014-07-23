@@ -7,7 +7,7 @@
 {elseif $var.type == 'E'}
 {$var_type_label = 'Date'}
 {elseif $var.type == 'C'}
-{$var_type_label = 'True/False'}
+{$var_type_label = 'Yes/No'}
 {elseif $var.type == 'W'}
 {$var_type_label = 'Worker'}
 {elseif substr($var.type,0,4)=='ctx_'}
@@ -52,6 +52,11 @@
 				{elseif $var.type == 'N'}
 				{elseif $var.type == 'E'}
 				{elseif $var.type == 'C'}
+				<div>
+					Default input to 
+					<label><input type="radio" name="var_params{$seq}[checkbox_default_on]" value="1" {if $var.params.checkbox_default_on}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
+					<label><input type="radio" name="var_params{$seq}[checkbox_default_on]" value="0" {if empty($var.params.checkbox_default_on)}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label>
+				</div>
 				{elseif $var.type == 'W'}
 				{elseif substr($var.type,0,4)=='ctx_'}
 				{/if}
