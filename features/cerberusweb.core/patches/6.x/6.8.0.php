@@ -97,6 +97,12 @@ $db->Execute(sprintf("UPDATE cerb_property_store SET value = %s WHERE property =
 $db->Execute(sprintf("DELETE FROM worker_view_model WHERE view_id = 'search_cerberusweb_contexts_snippet'"));
 
 // ===========================================================================
+// Fix worker_view_model records for ticket searches forcing a required group_id
+
+$db->Execute("DELETE FROM worker_view_model WHERE view_id IN ('search_cerberusweb_contexts_ticket','search_cerberusweb_contexts_message') AND params_required_json LIKE '%t_group_id%'");
+$db->Execute("DELETE FROM worker_view_model WHERE view_id LIKE 'api_search_%' AND params_required_json LIKE '%t_group_id%'");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
