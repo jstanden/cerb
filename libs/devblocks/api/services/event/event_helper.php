@@ -2841,6 +2841,8 @@ class DevblocksEventHelper {
 		
 		if(null == ($group = DAO_Group::get($group_id)))
 			return;
+
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		$group_replyto = $group->getReplyTo();
 
@@ -2852,6 +2854,9 @@ class DevblocksEventHelper {
 		$subject = $tpl_builder->build($params['subject'], $dict);
 		$content = $tpl_builder->build($params['content'], $dict);
 		
+		@$is_closed = $params['status'];
+		@$reopen_at = $params['reopen_at'];
+		
 		$out = sprintf(">>> Creating ticket\n".
 			"Group: %s <%s>\n".
 			"Requesters: %s\n".
@@ -2862,6 +2867,13 @@ class DevblocksEventHelper {
 			$requesters,
 			$subject
 		);
+		
+		$out .= sprintf("Status: %s\n",
+			(1==$is_closed) ? $translate->_('status.closed') : ((2 == $is_closed) ? $translate->_('status.waiting') : $translate->_('status.open'))
+		);
+		
+		if(!empty($is_closed) && !empty($reopen_at))
+			$out .= sprintf("Reopen at: %s\n", $reopen_at);
 
 		// Custom fields
 		
@@ -2930,6 +2942,8 @@ class DevblocksEventHelper {
 	
 	static function runActionCreateTicket($params, DevblocksDictionaryDelegate $dict) {
 		@$group_id = $params['group_id'];
+		@$is_closed = $params['is_closed'];
+		@$reopen_at = $params['reopen_at'];
 		
 		if(null == ($group = DAO_Group::get($group_id)))
 			return;
@@ -2964,8 +2978,6 @@ class DevblocksEventHelper {
 			"(... This message was manually created by a virtual attendant on behalf of the requesters ...)\r\n"
 		);
 
-		// [TODO] Custom fields
-		
 		// Parse
 		$ticket_id = CerberusParser::parseMessage($message);
 		$ticket = DAO_Ticket::get($ticket_id);
@@ -2986,6 +2998,8 @@ class DevblocksEventHelper {
 			'subject' => $subject,
 			'content' => $content,
 			'worker_id' => 0, //$active_worker->id,
+			'closed' => $is_closed,
+			'ticket_reopen' => $reopen_at,
 		);
 		
 		// Watchers
