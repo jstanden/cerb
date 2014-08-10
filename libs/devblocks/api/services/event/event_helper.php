@@ -2942,7 +2942,7 @@ class DevblocksEventHelper {
 	
 	static function runActionCreateTicket($params, DevblocksDictionaryDelegate $dict) {
 		@$group_id = $params['group_id'];
-		@$is_closed = $params['is_closed'];
+		@$is_closed = $params['status'];
 		@$reopen_at = $params['reopen_at'];
 		
 		if(null == ($group = DAO_Group::get($group_id)))
