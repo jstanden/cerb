@@ -43,7 +43,7 @@ class ChFilesController extends DevblocksControllerExtension {
 		
 		// Are we being asked for the direct SHA1 hash of a file?
 		if(strlen($file_guid) == 40) {
-			if(null == ($file_id = DAO_Attachment::getBySha1Hash($file_guid, urldecode($file_name))))
+			if(null == ($file_id = DAO_Attachment::getBySha1Hash($file_guid)))
 				die($translate->_('common.access_denied'));
 			
 			$file = DAO_Attachment::get($file_id);

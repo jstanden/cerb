@@ -45,7 +45,7 @@
 			{foreach from=$links item=link}
 			{$attachment = $files.{$link->attachment_id}}
 			<li>
-				<a href="{devblocks_url}c=ajax&a=downloadFile&guid={$link->guid}&name={$attachment->display_name}{/devblocks_url}" target="_blank">{$attachment->display_name}</a>
+				<a href="{devblocks_url}c=ajax&a=downloadFile&guid={$link->guid}&name={$attachment->display_name|escape:'url'}{/devblocks_url}" target="_blank">{$attachment->display_name}</a>
 				( 
 					{$attachment->storage_size|devblocks_prettybytes}
 					- 
