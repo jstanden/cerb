@@ -158,7 +158,20 @@
 			</td>
 			<td width="99%">
 				<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
-				<ul class="chooser-container bubbles" style="display:block;"></ul>
+				<ul class="chooser-container bubbles" style="display:block;">
+					{if $draft->params.add_watcher_ids && is_array($draft->params.add_watcher_ids)}
+					{foreach from=$draft->params.add_watcher_ids item=watcher_id}
+						{$watcher = DAO_Worker::get($watcher_id)}
+						{if $watcher}
+						<li>
+							<input type="hidden" name="add_watcher_ids[]" value="{$watcher_id}">
+							{$watcher->getName()}
+							<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>
+						</li>
+						{/if}
+					{/foreach}
+					{/if}
+				</ul>
 			</td>
 		</tr>
 	</table>
