@@ -440,6 +440,9 @@ class ChPreferencesPage extends CerberusPageExtension {
 		if(null != ($notification = DAO_Notification::get($id))) {
 			switch($notification->context) {
 				case '':
+				case CerberusContexts::CONTEXT_APPLICATION:
+				case CerberusContexts::CONTEXT_CUSTOM_FIELD:
+				case CerberusContexts::CONTEXT_CUSTOM_FIELDSET:
 				case CerberusContexts::CONTEXT_MESSAGE:
 					// Mark as read before we redirect
 					if(empty($notification->is_read)) {
