@@ -3402,15 +3402,15 @@ class DevblocksEventHelper {
 				$headers = $mail->getHeaders(); /* @var $headers Swift_Mime_Header */
 
 				if($relay_spoof_from) {
-					$mail->setFrom($sender_email, $sender_name);
+					$mail->setFrom($sender_email, !empty($sender_name) ? $sender_name : null);
 					$mail->setReplyTo($replyto->email);
 					
 				} else {
 					$replyto_personal = $replyto->getReplyPersonal($worker);
 					
 					if(!empty($replyto_personal)) {
-						$mail->setFrom($replyto->email, $replyto_personal);
-						$mail->setReplyTo($replyto->email, $replyto_personal);
+						$mail->setFrom($replyto->email, !empty($replyto_personal) ? $replyto_personal : null);
+						$mail->setReplyTo($replyto->email, !empty($replyto_personal) ? $replyto_personal : null);
 						
 					} else {
 						$mail->setFrom($replyto->email);
