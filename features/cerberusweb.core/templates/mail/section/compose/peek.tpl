@@ -144,7 +144,7 @@
 					<option value="0"></option>
 					{foreach from=$workers item=v key=k}
 					{if !$v->is_disabled}
-					<option value="{$k}">{$v->getName()}</option>
+					<option value="{$k}" {if $draft->params.owner_id==$k}selected="selected"{/if}>{$v->getName()}</option>
 					{/if}
 					{/foreach}
 				</select>
