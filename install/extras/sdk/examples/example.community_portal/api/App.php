@@ -31,8 +31,8 @@ class ExCommunityPortal extends Extension_UsermeetTool {
 		$tpl->display('devblocks:example.community_portal::config.tpl');
 	}
 	
-	public function saveConfiguration() {
-		$portal_id = ChPortalHelper::getCode();
+	public function saveConfiguration(Model_CommunityTool $instance) {
+		$portal_id = $instance->code;
 		
 		// This demonstrates how to save portal settings
 		@$property = DevblocksPlatform::importGPC($_POST['property'],'string','');
