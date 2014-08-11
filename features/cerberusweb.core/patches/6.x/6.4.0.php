@@ -309,8 +309,18 @@ if(isset($columns['group_id'])) {
 	}
 	
 	// Set up context_link records between custom_fieldset records and tickets
-	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.ticket', cfv.context_id, 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id from custom_field_stringvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0");
-	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id, 'cerberusweb.contexts.ticket', cfv.context_id from custom_field_stringvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0");
+	
+	// String values
+	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT cfv.context, cfv.context_id, 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id from custom_field_stringvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
+	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id, cfv.context, cfv.context_id from custom_field_stringvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
+	
+	// Number values
+	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT cfv.context, cfv.context_id, 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id from custom_field_numbervalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
+	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id, cfv.context, cfv.context_id from custom_field_numbervalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
+	
+	// Clob values
+	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT cfv.context, cfv.context_id, 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id from custom_field_clobvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
+	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id, cfv.context, cfv.context_id from custom_field_clobvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
 
 	// Drop the old column
 	$db->Execute("ALTER TABLE custom_field DROP COLUMN group_id");
