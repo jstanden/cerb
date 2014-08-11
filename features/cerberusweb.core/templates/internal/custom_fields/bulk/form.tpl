@@ -78,7 +78,7 @@
 						{/if}
 					</ul>
 				{elseif $f->type==Model_CustomField::TYPE_FILE}
-					<button type="button" field_name="{$field_name}" class="chooser_file">{'common.upload'|devblocks_translate|lower}</button>
+					<button type="button" field_name="{$field_name}" class="chooser-cfield-file">{'common.upload'|devblocks_translate|lower}</button>
 					
 					<ul class="bubbles chooser-container">
 					{if $custom_field_values.$f_id}
@@ -88,7 +88,7 @@
 					{/if}
 					</ul>
 				{elseif $f->type==Model_CustomField::TYPE_FILES}
-					<button type="button" field_name="{$field_name}" class="chooser_files">{'common.upload'|devblocks_translate|lower}</button>
+					<button type="button" field_name="{$field_name}" class="chooser-cfield-files">{'common.upload'|devblocks_translate|lower}</button>
 					<ul class="bubbles chooser-container">
 					{foreach from=$custom_field_values.$f_id item=file_id}
 						{$file = DAO_Attachment::get($file_id)}
@@ -109,14 +109,14 @@ var $cfields = $('#cfields{$uniqid}');
 
 $cfields.find('input.input_date').cerbDateInputHelper();
 
-$cfields.find('button.chooser_file').each(function() {
+$cfields.find('button.chooser-cfield-file').each(function() {
 	var options = {
 		single: true,
 	};
 	ajax.chooserFile(this,$(this).attr('field_name'),options);
 });
 
-$cfields.find('button.chooser_files').each(function() {
+$cfields.find('button.chooser-cfield-files').each(function() {
 	ajax.chooserFile(this,$(this).attr('field_name'));
 });
 
