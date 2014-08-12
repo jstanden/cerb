@@ -1,6 +1,16 @@
 {$page_context = CerberusContexts::CONTEXT_TICKET}
 {$page_context_id = $ticket->id}
 
+{if $merge_parent}
+	<div class="help-box">
+	<h1>This ticket was merged</h1>
+	
+	<p>
+	You can find the new ticket here: <a href="{devblocks_url}c=profiles&w=ticket&mask={$merge_parent->mask}{/devblocks_url}"><b>[#{$merge_parent->mask}] {$merge_parent->subject}</b></a>
+	</p>
+	</div>
+{/if}
+
 <div style="float:left">
 	<h1>{$ticket->subject}</h1>
 </div>

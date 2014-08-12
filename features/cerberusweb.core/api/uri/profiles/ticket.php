@@ -228,6 +228,14 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			true
 		);
 		
+		// If deleted, check for a new merge parent URL
+		if($ticket->is_deleted) {
+			if(false !== ($new_mask = DAO_Ticket::getMergeParentByMask($ticket->mask))) {
+				if(false !== ($merge_parent = DAO_Ticket::getTicketByMask($new_mask)))
+					$tpl->assign('merge_parent', $merge_parent);
+			}
+		}
+		
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_TICKET);
 		$tpl->assign('tab_manifests', $tab_manifests);

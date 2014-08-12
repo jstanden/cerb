@@ -174,6 +174,21 @@ $db->Execute("DELETE FROM worker_view_model WHERE view_id IN ('search_cerberuswe
 $db->Execute("DELETE FROM worker_view_model WHERE view_id LIKE 'api_search_%' AND params_required_json LIKE '%t_group_id%'");
 
 // ===========================================================================
+// Fix improperly linked custom fieldsets
+
+// String values
+$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT cfv.context, cfv.context_id, 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id from custom_field_stringvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
+$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id, cfv.context, cfv.context_id from custom_field_stringvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
+
+// Number values
+$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT cfv.context, cfv.context_id, 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id from custom_field_numbervalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
+$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id, cfv.context, cfv.context_id from custom_field_numbervalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
+
+// Clob values
+$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT cfv.context, cfv.context_id, 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id from custom_field_clobvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
+$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id, cfv.context, cfv.context_id from custom_field_clobvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

@@ -102,6 +102,21 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		return null;
 	}
 	
+	static function getMergeParentByMask($old_mask) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT new_mask from ticket_mask_forward WHERE old_mask = %s",
+			$db->qstr($old_mask)
+		);
+		
+		$new_mask = $db->GetOne($sql);
+		
+		if(empty($new_mask))
+			return null;
+		
+		return $new_mask;
+	}
+	
 	/**
 	 * Enter description here...
 	 *

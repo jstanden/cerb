@@ -27,12 +27,8 @@
 	
 	<b>Limit </b> to the top 
 	
-	<select name="params[limit_to]">
-		{$limit_to = $widget->params.limit_to|default:20}
-		{section start=3 loop=21 step=1 name=increments}
-		<option value="{$smarty.section.increments.index}" {if $smarty.section.increments.index==$limit_to}selected="selected"{/if}>{$smarty.section.increments.index}</option>
-		{/section}
-	</select>
+	{$limit_to = $widget->params.limit_to|default:20}
+	<input type="text" name="params[limit_to]" size="4" value="{$limit_to}" placeholder="20">
 	
 	subtotals
 	
