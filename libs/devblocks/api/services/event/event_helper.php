@@ -1203,6 +1203,7 @@ class DevblocksEventHelper {
 		@$on = DevblocksPlatform::importVar($params['on'],'string','');
 		@$links_context = DevblocksPlatform::importVar($params['links_context'],'string','');
 		@$var = DevblocksPlatform::importVar($params['var'],'string','');
+		@$behavior_var = DevblocksPlatform::importVar($params['behavior_var'],'string','');
 		
 		$out = '';
 		
@@ -1242,6 +1243,14 @@ class DevblocksEventHelper {
 			$var
 		);
 		
+		// Save to variable
+		
+		if(!empty($behavior_var)) {
+			$out .= sprintf(">>> Save links to variable:\n  %s\n",
+				$behavior_var
+			);
+		}
+		
 		// Run it in the simulator too
 		
 		self::runActionGetLinks($params, $dict);
@@ -1253,6 +1262,7 @@ class DevblocksEventHelper {
 		@$on = DevblocksPlatform::importVar($params['on'],'string','');
 		@$links_context = DevblocksPlatform::importVar($params['links_context'],'string','');
 		@$var = DevblocksPlatform::importVar($params['var'],'string','');
+		@$behavior_var = DevblocksPlatform::importVar($params['behavior_var'],'string','');
 		
 		if(false == ($trigger = $dict->_trigger))
 			return;
@@ -1280,6 +1290,7 @@ class DevblocksEventHelper {
 					$results = DAO_ContextLink::getContextLinks($context, $keys, $links_context);
 					$data = array();
 					
+					if(is_array($results))
 					foreach($results as $links) {
 						foreach($links as $link_pair) {
 							$values = array(
@@ -1291,7 +1302,19 @@ class DevblocksEventHelper {
 						}
 					}
 					
-					$dict->$var = $data;
+					if(!empty($var))
+						$dict->$var = $data;
+					
+					if(!empty($behavior_var)) {
+						if(!isset($dict->$behavior_var))
+							$dict->$behavior_var = array();
+						
+						$ptr =& $dict->$behavior_var;
+						
+						if(is_array($data))
+						foreach($data as $key => $val)
+							$ptr[$key] = $val;
+					}
 				}
 				
 			}
