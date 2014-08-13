@@ -377,6 +377,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			
 			unset($results);
 			
+			if(is_array($models))
 			foreach($models as $id => $model) {
 				$values = $this->getContext($model);
 				$objects[$id] = $values;
