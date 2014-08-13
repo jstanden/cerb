@@ -814,6 +814,15 @@ abstract class Extension_RestController extends DevblocksExtension {
 		$view->renderSortAsc = $sort_asc;
 		$view->renderTotal = true;
 		
+		if(!empty($sort_by) && !in_array($sort_by, $view->view_columns))
+			$view->view_columns[] = $sort_by;
+		
+		if(is_array($params))
+		foreach(array_keys($params) as $k) {
+			if(!in_array($k, $view->view_columns))
+				$view->view_columns[] = $k;
+		}
+		
 		// [TODO] Cursors? (ephemeral view id, paging, sort, etc)
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
