@@ -488,8 +488,17 @@ class ChContactsPage extends CerberusPageExtension {
 	
 		@$view->name = $translate->_('ticket.requesters') . ": " . intval(count($ids)) . ' contact(s)';
 		
-		$view->addParamsRequired(array(
+		$org_filters = array(
+			DevblocksSearchCriteria::GROUP_OR,
 			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$ids),
+		);
+		
+		if(!empty($org_id)) {
+			$org_filters[SearchFields_Ticket::TICKET_ORG_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ORG_ID,'=',$org_id);
+		}
+		
+		$view->addParamsRequired(array(
+			$org_filters,
 			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
 		), true);
 		$tpl->assign('view', $view);
