@@ -19,7 +19,7 @@ class UmScAnnouncementsController extends Extension_UmScController {
 					$feed['title'] = $title;
 			} catch(Exception $e) {}
 			if(!empty($feed) && isset($feed['items']) && !empty($feed['items'])) {
-   				$feeds[] = $feed;
+				$feeds[] = $feed;
 			}
 		}
 
