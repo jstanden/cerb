@@ -76,7 +76,7 @@ class UmScAccountController extends Extension_UmScController {
 					// Addy
 					$tpl->assign('address',$address);
 			
-					$address_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
+					$address_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS, true, true);
 					$tpl->assign('address_custom_fields', $address_fields);
 			
 					if(null != ($address_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ADDRESS, $address->id))
@@ -87,7 +87,7 @@ class UmScAccountController extends Extension_UmScController {
 					if(!empty($address->contact_org_id) && null != ($org = DAO_ContactOrg::get($address->contact_org_id))) {
 						$tpl->assign('org',$org);
 						
-						$org_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
+						$org_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG, true, true);
 						$tpl->assign('org_custom_fields', $org_fields);
 						
 						if(null != ($org_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $org->id))
@@ -645,10 +645,10 @@ class UmScAccountController extends Extension_UmScController {
 			$tpl->assign('show_fields', @json_decode($show_fields, true));
 		}
 		
-		$address_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
+		$address_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS, true, true);
 		$tpl->assign('address_custom_fields', $address_fields);
 
-		$org_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
+		$org_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG, true, true);
 		$tpl->assign('org_custom_fields', $org_fields);
 		
 		$types = Model_CustomField::getTypes();
