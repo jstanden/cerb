@@ -529,6 +529,9 @@ class CerberusMail {
 			// After message sent in group
 			Event_MailAfterSentByGroup::trigger($message_id, $group_id);
 
+			// Mail received
+			Event_MailReceived::trigger($message_id);
+			
 			// Mail received by group
 			Event_MailReceivedByGroup::trigger($message_id, $group_id);
 		}
@@ -1042,6 +1045,9 @@ class CerberusMail {
 			
 			// After message sent in group
 			Event_MailAfterSentByGroup::trigger($message_id, $group->id);
+			
+			// Mail received
+			Event_MailReceived::trigger($message_id);
 			
 			// New message for group
 			Event_MailReceivedByGroup::trigger($message_id, $group->id);

@@ -1434,6 +1434,9 @@ class CerberusParser {
 		);
 		CerberusContexts::logActivity('ticket.message.inbound', CerberusContexts::CONTEXT_TICKET, $model->getTicketId(), $entry, CerberusContexts::CONTEXT_ADDRESS, $model->getSenderAddressModel()->id);
 
+		// Trigger Mail Received
+		Event_MailReceived::trigger($model->getMessageId());
+		
 		// Trigger Group Mail Received
 		Event_MailReceivedByGroup::trigger($model->getMessageId(), $model->getGroupId());
 		
