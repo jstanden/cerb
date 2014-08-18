@@ -123,7 +123,7 @@ class UmScContactController extends Extension_UmScController {
 		$tpl->assign('replyto_default', $replyto_default);
 		
 		// Contact: Fields
-		$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
+		$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, true, true);
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
 		// Custom field types

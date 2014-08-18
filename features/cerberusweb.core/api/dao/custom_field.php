@@ -69,8 +69,9 @@ class DAO_CustomField extends DevblocksORMHelper {
 	* @return array
 	*/
 	
-	static function getByContext($context, $with_fieldsets=true) {
+	static function getByContext($context, $with_fieldsets=true, $with_fieldset_names=false) {
 		$fields = self::getAll();
+		$fieldsets = DAO_CustomFieldset::getAll();
 		$results = array();
 
 		// [TODO] Filter to the fieldsets the active worker is allowed to see
@@ -84,8 +85,15 @@ class DAO_CustomField extends DevblocksORMHelper {
 			if(!$with_fieldsets && !empty($field->custom_fieldset_id))
 				continue;
 			
+			if($with_fieldset_names && !empty($field->custom_fieldset_id)) {
+				if(isset($fieldsets[$field->custom_fieldset_id]))
+					$field->name = $fieldsets[$field->custom_fieldset_id]->name . ' ' . $field->name;
+			}
+			
 			$results[$idx] = $field;
 		}
+		
+		DevblocksPlatform::sortObjects($results, 'name');
 		
 		return $results;
 	}
