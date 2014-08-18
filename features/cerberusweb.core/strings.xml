@@ -956,6 +956,9 @@
 		<tu tuid='address.is_banned'>
 			<tuv xml:lang="en_US"><seg>Is Banned</seg></tuv>
 		</tu>
+		<tu tuid='address.is_contact'>
+			<tuv xml:lang="en_US"><seg>Is Contact</seg></tuv>
+		</tu>
 		<tu tuid='address.is_defunct'>
 			<tuv xml:lang="en_US"><seg>Is Defunct</seg></tuv>
 		</tu>

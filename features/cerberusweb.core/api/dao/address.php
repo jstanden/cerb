@@ -1264,6 +1264,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'num_spam' => $prefix.$translate->_('address.num_spam'),
 			'num_nonspam' => $prefix.$translate->_('address.num_nonspam'),
 			'is_banned' => $prefix.$translate->_('address.is_banned'),
+			'is_contact' => $prefix.$translate->_('address.is_contact'),
 			'is_defunct' => $prefix.$translate->_('address.is_defunct'),
 			'updated' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
@@ -1280,6 +1281,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'num_spam' => Model_CustomField::TYPE_NUMBER,
 			'num_nonspam' => Model_CustomField::TYPE_NUMBER,
 			'is_banned' => Model_CustomField::TYPE_CHECKBOX,
+			'is_contact' => Model_CustomField::TYPE_CHECKBOX,
 			'is_defunct' => Model_CustomField::TYPE_CHECKBOX,
 			'updated' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
@@ -1314,6 +1316,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['num_spam'] = $address->num_spam;
 			$token_values['num_nonspam'] = $address->num_nonspam;
 			$token_values['is_banned'] = $address->is_banned;
+			$token_values['is_contact'] = !empty($address->contact_person_id);
 			$token_values['is_defunct'] = $address->is_defunct;
 			$token_values['updated'] = $address->updated;
 
