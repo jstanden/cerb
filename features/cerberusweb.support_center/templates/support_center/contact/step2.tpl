@@ -93,6 +93,12 @@
 						{/foreach}
 					{elseif $field->type=='C'}
 						<label><input name="followup_a_{$idx}" type="checkbox" value="Yes" {if $last_followup_a.$idx}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
+					{elseif $field->type=='F'}
+						<input type="file" name="followup_a_{$idx}">
+					{elseif $field->type=='I'}
+						<input type="file" name="followup_a_{$idx}[]" multiple="multiple">
+					{elseif $field->type=='L'}
+						{* N/A *}
 					{/if}
 					
 				{else}

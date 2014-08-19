@@ -619,6 +619,63 @@ class CerberusApplication extends DevblocksApplication {
 		}
 		return $ticket_id;
 	}
+
+	/**
+	 * Save form-uploaded files as Cerb attachments, with dupe detection.
+	 *
+	 * @param array $files
+	 * @return array
+	 */
+	static function saveHttpUploadedFiles($files) {
+		$file_ids = array();
+		
+		// Sanitize
+		if(!isset($files['name']) || !isset($files['tmp_name']))
+			return false;
+		
+		// Convert a single file upload into an array
+		if(!is_array($files['name'])) {
+			$files['name'] = array($files['name']);
+			$files['type'] = array($files['type']);
+			$files['tmp_name'] = array($files['tmp_name']);
+			$files['error'] = array($files['error']);
+			$files['size'] = array($files['size']);
+		}
+		
+		if (is_array($files) && !empty($files)) {
+			reset($files);
+			foreach($files['tmp_name'] as $idx => $file) {
+				if(empty($file) || empty($files['name'][$idx]) || !file_exists($file))
+					continue;
+
+				// Dupe detection
+				@$sha1_hash = sha1_file($file, false);
+				
+				if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $files['name'][$idx]))) {
+					$fields = array(
+						DAO_Attachment::DISPLAY_NAME => $files['name'][$idx],
+						DAO_Attachment::MIME_TYPE => $files['type'][$idx],
+						DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
+					);
+					$file_id = DAO_Attachment::create($fields);
+					
+					// Content
+					if(null !== ($fp = fopen($file, 'rb'))) {
+						Storage_Attachments::put($file_id, $fp);
+						fclose($fp);
+					}
+				}
+
+				// Save results
+				if($file_id)
+					$file_ids[] = intval($file_id);
+				
+				@unlink($file);
+			}
+		}
+		
+		return $file_ids;
+	}
 };
 
 class CerbException extends DevblocksException {

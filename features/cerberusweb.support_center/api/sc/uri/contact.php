@@ -424,6 +424,22 @@ class UmScContactController extends Extension_UmScController {
 					case Model_CustomField::TYPE_WORKER:
 						@$value = DevblocksPlatform::importGPC($_POST['followup_a_'.$iIdx],'integer',0);
 						break;
+						
+					case Model_CustomField::TYPE_FILE:
+						@$file = $_FILES['followup_a_'.$iIdx];
+						$file_ids = CerberusApplication::saveHttpUploadedFiles($file);
+						
+						if(is_array($file_ids) && !empty($file_ids))
+							$value = array_shift($file_ids);
+						break;
+						
+					case Model_CustomField::TYPE_FILES:
+						@$files = $_FILES['followup_a_'.$iIdx];
+						$file_ids = CerberusApplication::saveHttpUploadedFiles($files);
+						
+						if(is_array($file_ids) && !empty($file_ids))
+							$value = $file_ids;
+						break;
 				}
 				
 				if((is_array($value) && !empty($value))
