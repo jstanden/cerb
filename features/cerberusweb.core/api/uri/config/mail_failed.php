@@ -69,29 +69,36 @@ class PageSection_SetupMailFailed extends Extension_PageSection {
 		
 		// Resolve any symbolic links
 		
-		if(false == ($full_path = realpath(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file)))
-			return false;
+		try {
 
-		// Make sure our requested file is in the same directory
-		
-		if(false == (dirname(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . 'test.msg') == dirname($full_path)))
-			return false;
-		
-		// If the extension isn't .msg, abort.
-		if(false == ($pathinfo = pathinfo($file)) || !isset($pathinfo['extension']) && $pathinfo['extension'] != 'msg')
-			return false;
-		
-		if(null != ($mime = mailparse_msg_parse_file($full_path))) {
-			$struct = mailparse_msg_get_structure($mime);
-			$msginfo = mailparse_msg_get_part_data($mime);
-	
-			$message_encoding = strtolower($msginfo['charset']);
+			if(false == ($full_path = realpath(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file)))
+				throw new Exception("Path not found.");
 			
-			header('Content-Type: text/plain; charset=' . $message_encoding);
+			// Make sure our requested file is in the same directory
 			
-			@$message_source = file_get_contents($full_path);
-			echo $message_source;
+			if(false == (dirname(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . 'test.msg') == dirname($full_path)))
+				throw new Exception("File not found.");
+			
+			// If the extension isn't .msg, abort.
+			if(false == ($pathinfo = pathinfo($file)) || !isset($pathinfo['extension']) && $pathinfo['extension'] != 'msg')
+				throw new Exception("File not valid.");
+			
+			if(null != ($mime = mailparse_msg_parse_file($full_path))) {
+				$struct = mailparse_msg_get_structure($mime);
+				$msginfo = mailparse_msg_get_part_data($mime);
+		
+				$message_encoding = strtolower($msginfo['charset']);
+
+				header('Content-Type: text/plain; charset=' . $message_encoding);
+
+				$message_source = file_get_contents($full_path);
+				echo $message_source;
+			}
+			
+		} catch (Exception $e) {
 		}
+		
+		exit;
 	}
 	
 	function parseMessageJsonAction() {

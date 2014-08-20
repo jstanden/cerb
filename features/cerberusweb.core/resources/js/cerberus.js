@@ -258,7 +258,7 @@ var cAjaxCalls = function() {
 
 		switch(action) {
 			case 'merge_popup':
-				$popup=genericAjaxPopup('merge','c=tickets&a=viewMergeTicketsPopup&view_id=' + view_id,null,true,'550');
+				genericAjaxPopup('merge','c=tickets&a=viewMergeTicketsPopup&view_id=' + view_id,null,true,'550');
 				break;
 			case 'merge':
 				showLoadingPanel();

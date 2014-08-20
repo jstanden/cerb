@@ -1480,6 +1480,7 @@ class CerberusContexts {
 				if(empty($actor_context) && !empty(self::$_default_actor_context)) {
 					$actor_context = self::$_default_actor_context;
 					$actor_context_id = self::$_default_actor_context_id;
+					
 					if(null != ($ctx = DevblocksPlatform::getExtension($actor_context, true))
 						&& $ctx instanceof Extension_DevblocksContext) {
 						$meta = $ctx->getMeta($actor_context_id);
