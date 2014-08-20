@@ -117,7 +117,7 @@
 </div><!-- tabs -->
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFind('#orgPeekProps');
+	var $popup = genericAjaxPopupFind('#orgPeekProps');
 	$popup.one('popup_open',function(event,ui) {
 		// Title
 		$(this).dialog('option','title', "{'contact_org.name'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
@@ -134,7 +134,7 @@
 		ajax.countryAutoComplete('#org_country_input');
 		
 		// Form validation
-	    $("#formOrgPeek").validate();
+		$("#formOrgPeek").validate();
 		$(this).find('textarea[name=comment]').keyup(function() {
 			if($(this).val().length > 0) {
 				$(this).next('DIV.notify').show();
