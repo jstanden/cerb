@@ -232,7 +232,8 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		if($ticket->is_deleted) {
 			if(false !== ($new_mask = DAO_Ticket::getMergeParentByMask($ticket->mask))) {
 				if(false !== ($merge_parent = DAO_Ticket::getTicketByMask($new_mask)))
-					$tpl->assign('merge_parent', $merge_parent);
+					if(!empty($merge_parent->mask))
+						$tpl->assign('merge_parent', $merge_parent);
 			}
 		}
 		
