@@ -1171,6 +1171,9 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		$new_ticket_id = DAO_Ticket::create($fields);
 
+		if(null == ($new_ticket = DAO_Ticket::get($new_ticket_id)))
+			return false;
+		
 		// Copy all the original tickets requesters
 		$orig_requesters = DAO_Ticket::getRequestersByTicket($orig_ticket->id);
 		foreach($orig_requesters as $orig_req_addy) {
@@ -1197,6 +1200,42 @@ class ChDisplayPage extends CerberusPageExtension {
 		DAO_Ticket::updateMessageCount($new_ticket_id);
 		DAO_Ticket::updateMessageCount($orig_ticket->id);
 			
+		/*
+		 * Log activity (Ticket Split)
+		 */
+		
+		$entry = array(
+			//{{actor}} split from ticket {{target}} into ticket {{source}}
+			'message' => 'activities.ticket.split',
+			'variables' => array(
+				'target' => sprintf("[%s] %s", $orig_ticket->mask, $orig_ticket->subject),
+				'source' => sprintf("[%s] %s", $new_ticket->mask, $new_ticket->subject),
+				),
+			'urls' => array(
+				'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $orig_ticket->mask),
+				'source' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $new_ticket->mask),
+				)
+		);
+		CerberusContexts::logActivity('ticket.split', CerberusContexts::CONTEXT_TICKET, $orig_ticket->id, $entry);
+		
+		/*
+		 * Log activity (Ticket Split From)
+		 */
+		
+		$entry = array(
+			//{{actor}} split into ticket {{target}} from ticket {{source}}
+			'message' => 'activities.ticket.split.from',
+			'variables' => array(
+				'target' => sprintf("[%s] %s", $new_ticket->mask, $new_ticket->subject),
+				'source' => sprintf("[%s] %s", $orig_ticket->mask, $orig_ticket->subject),
+				),
+			'urls' => array(
+				'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $new_ticket->mask),
+				'source' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $orig_ticket->mask),
+				)
+		);
+		CerberusContexts::logActivity('ticket.split', CerberusContexts::CONTEXT_TICKET, $new_ticket->id, $entry);
+		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$new_ticket_mask)));
 	}
 	

@@ -81,6 +81,12 @@
 		<tu tuid='activities.ticket.moved'>
 			<tuv xml:lang="en_US"><seg>{{actor}} moved ticket {{target}} to {{group}}: {{bucket}}</seg></tuv>
 		</tu>
+		<tu tuid='activities.ticket.split'>
+			<tuv xml:lang="en_US"><seg>{{actor}} split from ticket {{target}} into ticket {{source}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.ticket.split.from'>
+			<tuv xml:lang="en_US"><seg>{{actor}} split into ticket {{target}} from ticket {{source}}</seg></tuv>
+		</tu>
 		<tu tuid='activities.ticket.status'>
 			<tuv xml:lang="en_US"><seg>{{actor}} changed ticket {{target}} to status {{status}}</seg></tuv>
 		</tu>

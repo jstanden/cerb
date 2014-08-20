@@ -683,6 +683,16 @@
 			<param key="string_key" value="activities.ticket.unassigned" />
 			<param key="options" value="" />
 		</activity>
+		<activity point="ticket.split">
+			<param key="label_key" value="Ticket Split" />
+			<param key="string_key" value="activities.ticket.split" />
+			<param key="options" value="" />
+		</activity>
+		<activity point="ticket.split.from">
+			<param key="label_key" value="Ticket Split From" />
+			<param key="string_key" value="activities.ticket.split.from" />
+			<param key="options" value="" />
+		</activity>
 		<activity point="ticket.status.closed">
 			<param key="label_key" value="Ticket Closed" />
 			<param key="string_key" value="activities.ticket.status" />
