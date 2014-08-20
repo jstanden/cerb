@@ -189,6 +189,7 @@ $.fn.cerbDateInputHelper = function(options) {
 		$this
 			.on('send', function(e) {
 				var $input_date = $(this);
+				var val = $input_date.val();
 				
 				if(!$input_date.is('.changed')) {
 					if(e.keydown_event_caller && e.keydown_event_caller.shiftKey && e.keydown_event_caller.ctrlKey && e.keydown_event_caller.which == 13)
@@ -200,7 +201,12 @@ $.fn.cerbDateInputHelper = function(options) {
 				
 				$input_date.autocomplete('close');
 				
-				genericAjaxGet('', 'c=internal&a=handleSectionAction&section=calendars&action=parseDateJson&date=' + encodeURIComponent($input_date.val()), function(json) {
+				// If the date contains any placeholders, don't auto-parse it
+				if(-1 != val.indexOf('{'))
+					return;
+				
+				// Send the text to the server for translation
+				genericAjaxGet('', 'c=internal&a=handleSectionAction&section=calendars&action=parseDateJson&date=' + encodeURIComponent(val), function(json) {
 					if(json == false) {
 						// [TODO] Color it red for failed, and display an error somewhere
 						$input_date.val('');
