@@ -1,7 +1,7 @@
 {$page_context = CerberusContexts::CONTEXT_TICKET}
 {$page_context_id = $ticket->id}
 
-{if $merge_parent}
+{if !empty($merge_parent)}
 	<div class="help-box">
 	<h1>This ticket was merged</h1>
 	

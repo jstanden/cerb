@@ -4,7 +4,7 @@
 	<name>Cerb Core</name>
 	<description>The core functionality of Cerb6.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>6.7.9</version>
+	<version>6.7.10</version>
 	<link>http://wiki.cerb4.com/wiki/New_Changes</link>
 	
 	<!-- Plugin Dependencies -->
@@ -52,7 +52,7 @@
 		<patch version="6.4.0" revision="1046" file="patches/6.x/6.4.0.php" />
 		<patch version="6.5.0" revision="1059" file="patches/6.x/6.5.0.php" />
 		<patch version="6.6.0" revision="1082" file="patches/6.x/6.6.0.php" />
-		<patch version="6.7.0" revision="1096" file="patches/6.x/6.7.0.php" />
+		<patch version="6.7.0" revision="1097" file="patches/6.x/6.7.0.php" />
 		<patch version="6.8.0" revision="1102" file="patches/6.x/6.8.0.php" />
 	</patches>
 

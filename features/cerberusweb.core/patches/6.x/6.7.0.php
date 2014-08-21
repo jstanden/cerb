@@ -189,6 +189,32 @@ $db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to
 $db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id, cfv.context, cfv.context_id from custom_field_clobvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
 
 // ===========================================================================
+// Fix improperly attributed activity log entries from Support Center
+
+$rs = $db->Execute("SELECT al.id, al.actor_context_id, al.entry_json, a.id AS address_id, a.email AS address_email FROM context_activity_log al INNER JOIN contact_person cp ON (al.actor_context_id=cp.id) INNER JOIN address a ON (a.id=cp.email_id) WHERE al.actor_context = 'cerberusweb.contexts.address' AND al.activity_point LIKE 'ticket.status.%'");
+
+while($row = mysqli_fetch_assoc($rs)) {
+	$id = intval($row['id']);
+	$address_id = intval($row['address_id']);
+	
+	if(false == ($entry = json_decode($row['entry_json'], true)))
+		continue;
+	
+	if(isset($entry['patched']))
+		continue;
+	
+	$entry['variables']['actor'] = $row['address_email'];
+	$entry['urls']['actor'] = sprintf("ctx://cerberusweb.contexts.address:%d", $address_id);
+	$entry['patched'] = true;
+	
+	$db->Execute(sprintf("UPDATE context_activity_log SET actor_context_id = %d, entry_json = %s WHERE id = %d",
+		$address_id,
+		$db->qstr(json_encode($entry)),
+		$id
+	));
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
