@@ -199,6 +199,8 @@
 
 <script type="text/javascript">
 	$(function() {
+		// Tabs
+		
 		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
 		tabOptions.active = {$selected_tab_idx};
 		
@@ -212,6 +214,11 @@
 			});
 		})
 	});
+	
+	// Page title
+	document.title = "[#{$ticket->mask|escape:'javascript'}] {$ticket->subject|escape:'javascript'} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript'}";
+	
+	// Menu
 
 	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 </script>
