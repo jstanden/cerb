@@ -51,7 +51,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 	 * Request Overload
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
-		@set_time_limit(1200); // 20m
+		@set_time_limit(3600); // 1h
 
 		$translate = DevblocksPlatform::getTranslationService();
 		

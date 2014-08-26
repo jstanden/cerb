@@ -1186,7 +1186,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 								$logger->info(sprintf("Count: %d %s%s %d",
 									$count,
-									$not,
+									(!empty($not) ? 'not ' : ''),
 									$oper,
 									$desired_count
 								));
