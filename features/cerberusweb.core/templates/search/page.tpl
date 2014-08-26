@@ -12,6 +12,9 @@
 
 <script type="text/javascript">
 $(function() {
+	// Page title
+	document.title = "{'common.search'|devblocks_translate|capitalize|escape:'javascript'} {$context_ext->manifest->name|escape:'javascript'} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript'}";
+	
 	// Keyboard shortcuts
 	$(document).keypress(function(event) {
 		is_control_character = (event.which == 9 || event.which == 10 || event.which == 13 || event.which == 32);
