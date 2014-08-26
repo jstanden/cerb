@@ -90,6 +90,19 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_ADDRESS context_id=$address.a_id}
 
+{* Comment *}
+{include file="devblocks:cerberusweb.core::internal/peek/peek_comments_pager.tpl" comments=$comments}
+
+<fieldset class="peek">
+	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
+	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea>
+	<div class="notify" style="display:none;">
+		<b>{'common.notify_watchers_and'|devblocks_translate}:</b>
+		<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
+		<ul class="chooser-container bubbles" style="display:block;"></ul>
+	</div>
+</fieldset>
+
 {if $active_worker->hasPriv('core.addybook.addy.actions.update')}
 	<button type="button" onclick="if($('#formAddressPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formAddressPeek', '{$view_id}', false, 'address_save'); } "><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
 {else}
@@ -110,11 +123,22 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFind('#formAddressPeek');
 	$popup.one('popup_open',function(event,ui) {
+		var $this = $(this);
+		
 		// Title
-		$(this).dialog('option','title', '{'addy_book.peek.title'|devblocks_translate|escape:'javascript' nofilter}');
+		$this.dialog('option','title', '{'addy_book.peek.title'|devblocks_translate|escape:'javascript' nofilter}');
+		
+		// Notify
+		$this.find('textarea[name=comment]').keyup(function() {
+			if($(this).val().length > 0) {
+				$(this).next('DIV.notify').show();
+			} else {
+				$(this).next('DIV.notify').hide();
+			}
+		});
 		
 		// Worker chooser
-		$(this).find('button.chooser_watcher').each(function() {
+		$this.find('button.chooser_watcher').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
 		});
 
@@ -124,5 +148,9 @@
 		// Form validation
 		$("#formAddressPeek").validate();
 		$('#formAddressPeek :input:text:first').focus();
-	} );
+		
+		$this.find('button.chooser_notify_worker').each(function() {
+			ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
+		});
+	});
 </script>

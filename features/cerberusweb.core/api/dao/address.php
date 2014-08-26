@@ -1515,6 +1515,12 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
 		
+		// Comments
+		
+		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_ADDRESS, $context_id);
+		$comments = array_reverse($comments, true);
+		$tpl->assign('comments', $comments);
+		
 		// Display
 		$tpl->assign('id', $context_id);
 		$tpl->assign('view_id', $view_id);

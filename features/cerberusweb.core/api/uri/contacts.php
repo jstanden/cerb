@@ -1034,6 +1034,24 @@ class ChContactsPage extends CerberusPageExtension {
 			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
 			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_ADDRESS, $id, $field_ids);
 			
+			// Comment
+			
+			@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
+			
+			if(!empty($comment) && !empty($id)) {
+				@$also_notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+			
+				$fields = array(
+						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_ADDRESS,
+						DAO_Comment::CONTEXT_ID => $id,
+						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+						DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
+						DAO_Comment::CREATED => time(),
+						DAO_Comment::COMMENT => $comment,
+				);
+				$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+			}
+			
 			/*
 			 * Notify anything that wants to know when Address Peek saves.
 			 */
