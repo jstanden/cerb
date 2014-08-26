@@ -1119,12 +1119,6 @@ class Pop3Cron extends CerberusCronPageExtension {
 			return;
 		}
 
-		imap_timeout(IMAP_OPENTIMEOUT, 30);
-		imap_timeout(IMAP_READTIMEOUT, 30);
-		imap_timeout(IMAP_CLOSETIMEOUT, 30);
-		
-		$imap_timeout_read_ms = imap_timeout(IMAP_READTIMEOUT) * 1000; // ms
-		
 		$runtime = microtime(true);
 		$mailboxes_checked = 0;
 		
@@ -1137,6 +1131,15 @@ class Pop3Cron extends CerberusCronPageExtension {
 				$logger->info(sprintf("[POP3] Delaying failing mailbox '%s' check for %d more seconds (%s)", $account->nickname, $account->delay_until - time(), date("h:i a", $account->delay_until)));
 				continue;
 			}
+			
+			// Per-account IMAP timeouts
+			$imap_timeout = !empty($account->timeout_secs) ? $account->timeout_secs : 30;
+			
+			imap_timeout(IMAP_OPENTIMEOUT, $imap_timeout);
+			imap_timeout(IMAP_READTIMEOUT, $imap_timeout);
+			imap_timeout(IMAP_CLOSETIMEOUT, $imap_timeout);
+			
+			$imap_timeout_read_ms = imap_timeout(IMAP_READTIMEOUT) * 1000; // ms
 			
 			$mailboxes_checked++;
 

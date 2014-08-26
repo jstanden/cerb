@@ -103,6 +103,21 @@ $db->Execute("DELETE FROM worker_view_model WHERE view_id IN ('search_cerberuswe
 $db->Execute("DELETE FROM worker_view_model WHERE view_id LIKE 'api_search_%' AND params_required_json LIKE '%t_group_id%'");
 
 // ===========================================================================
+// Add `timeout_secs` to `pop3_account`
+
+if(!isset($tables['pop3_account'])) {
+	$logger->error("The 'pop3_account' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('pop3_account');
+
+if(!isset($columns['timeout_secs'])) {
+	$db->Execute("ALTER TABLE pop3_account ADD COLUMN timeout_secs MEDIUMINT UNSIGNED NOT NULL DEFAULT 0");
+	$db->Execute("UPDATE pop3_account SET timeout_secs = 30");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

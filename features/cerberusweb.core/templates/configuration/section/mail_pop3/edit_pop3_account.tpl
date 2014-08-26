@@ -65,6 +65,10 @@
 			<td width="100%"><input type="text" name="port" value="{$pop3_account->port}" size="5"> (leave blank for default)</td>
 		</tr>
 		<tr>
+			<td width="0%" nowrap="nowrap"><b>Timeout:</b></td>
+			<td width="100%"><input type="text" name="timeout_secs" value="{$pop3_account->timeout_secs|default:30}" size="5"> seconds
+		</tr>
+		<tr>
 			<td colspan="2" style="padding-top:10px;">
 				<b>Note:</b> Messages in this mailbox will be deleted once they are downloaded. If this is not desirable 
 				behavior (e.g. IMAP), please create a disposible mailbox to use instead and have copies of your incoming 
