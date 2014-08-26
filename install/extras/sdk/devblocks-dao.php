@@ -1082,9 +1082,8 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 
 		// Comments
 		$comments = DAO_Comment::getByContext('<?php echo $ctx_ext_id; ?>', $context_id);
-		$last_comment = array_shift($comments);
-		unset($comments);
-		$tpl->assign('last_comment', $last_comment);
+		$comments = array_reverse($comments, true);
+		$tpl->assign('comments', $comments);
 		
 		$tpl->display('devblocks:<?php echo $plugin_id; ?>::<?php echo $table_name; ?>/peek.tpl');
 	}
@@ -1195,10 +1194,8 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context='<?php echo $ctx_ext_id; ?>' context_id=$model->id}
 
-{* Comment *}
-{if !empty($last_comment)}
-	{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl" readonly=true comment=$last_comment}
-{/if}
+{* Comments *}
+{include file="devblocks:cerberusweb.core::internal/peek/peek_comments_pager.tpl" comments=$comments}
 
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>

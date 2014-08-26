@@ -1433,9 +1433,8 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		
 		// Comments
 		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY, $context_id);
-		$last_comment = array_shift($comments);
-		unset($comments);
-		$tpl->assign('last_comment', $last_comment);
+		$comments = array_reverse($comments, true);
+		$tpl->assign('comments', $comments);
 		
 		$tpl->display('devblocks:cerberusweb.crm::crm/opps/peek.tpl');
 	}

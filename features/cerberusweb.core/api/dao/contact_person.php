@@ -1146,10 +1146,10 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 		$tpl->assign('types', $types);
 		
 		// Comments
+		
 		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_CONTACT_PERSON, $context_id);
-		$last_comment = array_shift($comments);
-		unset($comments);
-		$tpl->assign('last_comment', $last_comment);
+		$comments = array_reverse($comments, true);
+		$tpl->assign('comments', $comments);
 		
 		// View
 		$tpl->assign('view_id', $view_id);

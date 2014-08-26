@@ -1233,10 +1233,10 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		$tpl->assign('types', $types);
 
 		// Comments
+		
 		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TASK, $context_id);
-		$last_comment = array_shift($comments);
-		unset($comments);
-		$tpl->assign('last_comment', $last_comment);
+		$comments = array_reverse($comments, true);
+		$tpl->assign('comments', $comments);
 
 		// View
 		$tpl->assign('id', $context_id);

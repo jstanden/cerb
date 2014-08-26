@@ -4028,11 +4028,11 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$tpl->assign('custom_field_values', $custom_field_values[$ticket->id]);
 		
 		// Comments
+		
 		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $ticket->id);
-		$last_comment = array_shift($comments);
-		unset($comments);
-		$tpl->assign('last_comment', $last_comment);
-			
+		$comments = array_reverse($comments, true);
+		$tpl->assign('comments', $comments);
+		
 		// Display
 		$tpl->display('devblocks:cerberusweb.core::tickets/peek.tpl');
 	}
