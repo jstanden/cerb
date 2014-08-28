@@ -1032,6 +1032,9 @@ class CerberusContexts {
 		if(false == ($actor = CerberusContexts::polymorphActor($actor)))
 			return false;
 		
+		if($actor instanceof Model_Application)
+			return true;
+		
 		switch($owner_context) {
 			// Everyone can see app-owned content
 			case CerberusContexts::CONTEXT_APPLICATION:
@@ -1117,6 +1120,9 @@ class CerberusContexts {
 		// Polymorph actor from context array
 		if(false == ($actor = CerberusContexts::polymorphActor($actor)))
 			return false;
+		
+		if($actor instanceof Model_Application)
+			return true;
 		
 		switch($owner_context) {
 			case CerberusContexts::CONTEXT_APPLICATION:
