@@ -825,7 +825,7 @@ class Model_CalendarAvailability {
 					continue;
 				
 				$at = ceil(($event['ts'] - $this->_start)/60);
-				$for = ceil(($event['ts_end'] - $event['ts'])/60);
+				$for = max(1, ceil(($event['ts_end'] - $event['ts'])/60));
 				$mins = substr($this->_mins, $at, $for);
 				
 				if(false === strpos($mins, '1'))
