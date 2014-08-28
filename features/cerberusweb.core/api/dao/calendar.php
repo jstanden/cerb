@@ -125,6 +125,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	static function getReadableByActor($actor) {
 		$calendars = DAO_Calendar::getAll();
 		
+		if(is_array($calendars))
 		foreach($calendars as $calendar_id => $calendar) { /* @var $calendar Model_Calendar */
 			if(!CerberusContexts::isReadableByActor($calendar->owner_context, $calendar->owner_context_id, $actor)) {
 				unset($calendars[$calendar_id]);
@@ -138,6 +139,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	static function getWriteableByActor($actor) {
 		$calendars = DAO_Calendar::getAll();
 		
+		if(is_array($calendars))
 		foreach($calendars as $calendar_id => $calendar) { /* @var $calendar Model_Calendar */
 			@$manual_disabled = $calendar->params['manual_disabled'];
 			
@@ -153,6 +155,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	static function getOwnedByWorker($worker) {
 		$calendars = DAO_Calendar::getAll();
 
+		if(is_array($calendars))
 		foreach($calendars as $calendar_id => $calendar) { /* @var $calendar Model_Calendar */
 			if($calendar->owner_context == CerberusContexts::CONTEXT_WORKER && $calendar->owner_context_id == $worker->id)
 				continue;
@@ -654,11 +657,13 @@ class Model_Calendar {
 		
 		$mins_bits = str_pad('', $mins_len, '*', STR_PAD_LEFT);
 
+		if(is_array($events))
 		foreach($events as $ts => $schedule) {
+			if(is_array($schedule))
 			foreach($schedule as $event) {
 				$start = $event['ts'];
 				$end = @$event['ts_end'] ?: $start;
-
+				
 				$start_mins = intval(ceil(($start - $date_from)/60));
 				$end_mins = intval(ceil(($end - $date_from)/60));
 				
@@ -812,12 +817,13 @@ class Model_CalendarAvailability {
 	}
 	
 	function occludeCalendarEvents(&$calendar_events) {
+		if(is_array($calendar_events))
 		foreach($calendar_events as $ts => $day_schedule) {
+			if(is_array($day_schedule))
 			foreach($day_schedule as $idx => $event) {
 				if(empty($event['is_available']))
 					continue;
 				
-				//var_dump($event['label']);
 				$at = ceil(($event['ts'] - $this->_start)/60);
 				$for = ceil(($event['ts_end'] - $event['ts'])/60);
 				$mins = substr($this->_mins, $at, $for);

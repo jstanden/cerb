@@ -1115,30 +1115,10 @@ class CerberusContexts {
 
 	public static function isWriteableByActor($owner_context, $owner_context_id, $actor) {
 		// Polymorph actor from context array
-		if(is_array($actor)) {
-			@list($actor_context, $actor_context_id) = $actor;
-			
-			switch($actor_context) {
-				case CerberusContexts::CONTEXT_ROLE:
-					$actor = DAO_WorkerRole::get($actor_context_id);
-					break;
-				case CerberusContexts::CONTEXT_GROUP:
-					$actor = DAO_Group::get($actor_context_id);
-					break;
-				case CerberusContexts::CONTEXT_WORKER:
-					$actor = DAO_Worker::get($actor_context_id);
-					break;
-				case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
-					$actor = DAO_VirtualAttendant::get($actor_context_id);
-					break;
-			}
-		}
-		
-		if(!is_object($actor))
+		if(false == ($actor = CerberusContexts::polymorphActor($actor)))
 			return false;
 		
 		switch($owner_context) {
-			// Everyone can see app-owned content
 			case CerberusContexts::CONTEXT_APPLICATION:
 				switch(get_class($actor)) {
 					case 'Model_WorkerRole': /* @var $actor Model_WorkerRole */
