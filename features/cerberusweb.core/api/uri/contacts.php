@@ -377,12 +377,27 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('view', $view);
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
-		
-		$tpl->assign('contacts_page', 'orgs');
+
+		$tpl->assign('org_id', $org);
 		$tpl->assign('search_columns', SearchFields_Address::getFields());
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::profiles/organization/tab_people.tpl');
 		exit;
+	}
+	
+	function saveOrgAddPeoplePopupAction() {
+		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'], 'integer');
+		@$address_ids = DevblocksPlatform::importGPC($_REQUEST['address_ids'], 'array:integer');
+		
+		if(empty($org_id) || empty($address_ids))
+			return;
+		
+		if(false == ($org = DAO_ContactOrg::get($org_id)))
+			return;
+		
+		DAO_Address::update($address_ids, array(
+			DAO_Address::CONTACT_ORG_ID => $org_id,
+		));
 	}
 	
 	function showTabPeopleAddressesAction() {

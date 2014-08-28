@@ -113,7 +113,7 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFind('#formOppPeek');
 	$popup.one('popup_open',function(event,ui) {
 		$(this).dialog('option','title', '{'Opportunity'|devblocks_translate|escape:'javascript' nofilter}');
 		
