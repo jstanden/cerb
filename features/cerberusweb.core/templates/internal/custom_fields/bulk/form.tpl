@@ -65,6 +65,16 @@
 						{foreach from=$workers item=worker}
 						<option value="{$worker->id}" {if $worker->id==$custom_field_values.$f_id}selected="selected"{/if}>{$worker->getName()}</option>
 						{/foreach}
+						{foreach from=$values_to_contexts item=context_data key=val_key}
+							{if $context_data.context == CerberusContexts::CONTEXT_WORKER && !$context_data.is_multiple}
+							<option value="{$val_key}" {if $val_key==$custom_field_values.$f_id}selected="selected"{/if}>(placeholder) {$context_data.label}</option>
+							{/if}
+						{/foreach}
+						{foreach from=$trigger->variables item=var key=var_key}
+							{if $var.type == Model_CustomField::TYPE_WORKER}
+							<option value="{$var_key}" {if $var_key==$custom_field_values.$f_id}selected="selected"{/if}>(variable) {$var.label}</option>
+							{/if}
+						{/foreach}
 					</select>
 					<button type="button" onclick="$(this).siblings('select').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
 					<button type="button" onclick="$(this).siblings('select').val('');">{'common.nobody'|devblocks_translate|lower}</button>
