@@ -2795,15 +2795,15 @@ class DevblocksEventHelper {
 			
 			@$on_objects = $on_result['objects'];
 
-			if(is_array($on_objects)) {
-				foreach($on_objects as $on_object) {
+			if(is_array($on_objects))
+			foreach($on_objects as $on_object) {
 					$notify_contexts[] = array($on_object->_context, $on_object->id);
-				}
 			}
 		}
 		
 		// Send notifications
 		
+		if(is_array($notify_worker_ids))
 		foreach($notify_worker_ids as $notify_worker_id) {
 			if(!empty($notify_contexts)) {
 				if(is_array($notify_contexts))
@@ -2835,6 +2835,137 @@ class DevblocksEventHelper {
 		}
 		
 		return isset($notification_id) ? $notification_id : false;
+	}
+	
+	/*
+	 * Action: Create Message Sticky Note
+	 */
+	
+	static function renderActionCreateMessageStickyNote($trigger) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('workers', DAO_Worker::getAll());
+
+		$event = $trigger->getEvent();
+		$values_to_contexts = $event->getValuesContexts($trigger);
+		
+		// Only keep message contextx
+		if(is_array($values_to_contexts))
+		foreach($values_to_contexts as $value_key => $value_data) {
+			if(!isset($value_data['context'])
+				|| !in_array($value_data['context'], array(CerberusContexts::CONTEXT_MESSAGE)))
+					unset($values_to_contexts[$value_key]);
+		}
+		
+		$tpl->assign('values_to_contexts', $values_to_contexts);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_message_sticky_note.tpl');
+	}
+	
+	static function simulateActionCreateMessageStickyNote($params, DevblocksDictionaryDelegate $dict, $default_on) {
+		// Translate message tokens
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$content = $tpl_builder->build($params['content'], $dict);
+
+		$trigger = $dict->_trigger;
+		$event = $trigger->getEvent();
+		
+		$out = sprintf(">>> Creating a message sticky note:\n".
+			"\n".
+			"%s\n".
+			""
+			,
+			rtrim($content)
+		);
+		
+		// On
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string',$default_on);
+		
+		if(!empty($on)) {
+			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
+			@$on_objects = $on_result['objects'];
+			
+			if(is_array($on_objects)) {
+				$out .= "\n>>> On:\n";
+				
+				foreach($on_objects as $on_object) {
+					$on_object_context = Extension_DevblocksContext::get($on_object->_context);
+					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";
+				}
+			}
+		}
+		
+		// Notify
+		
+		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
+		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
+
+		if(!empty($notify_worker_ids)) {
+			$out .= "\n>>> Notifying:\n";
+			
+			foreach($notify_worker_ids as $worker_id) {
+				if(null != ($worker = DAO_Worker::get($worker_id))) {
+					$out .= " * " . $worker->getName() . "\n";
+				}
+			}
+		}
+		
+		return $out;
+	}
+	
+	static function runActionCreateMessageStickyNote($params, DevblocksDictionaryDelegate $dict, $default_on=null) {
+		$trigger = $dict->_trigger;
+		$event = $trigger->getEvent();
+		
+		// Notifications
+		
+		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
+		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
+				
+		// Only notify an individual worker once
+		
+		$notify_worker_ids = array_unique($notify_worker_ids);
+		
+		// Template
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$content = $tpl_builder->build($params['content'], $dict);
+		
+		$notify_contexts = array();
+		
+		// On: Are we notifying about something else?
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string',$default_on);
+
+		if(!empty($on)) {
+			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
+			
+			@$on_objects = $on_result['objects'];
+
+			if(is_array($on_objects)) {
+				foreach($on_objects as $on_object) {
+					$notify_contexts[] = array($on_object->_context, $on_object->id);
+				}
+			}
+		}
+		
+		if(!empty($notify_contexts)) {
+			if(is_array($notify_contexts))
+			foreach($notify_contexts as $notify_context_data) {
+				$fields = array(
+					DAO_Comment::COMMENT => $content,
+					DAO_Comment::CONTEXT => $notify_context_data[0],
+					DAO_Comment::CONTEXT_ID => $notify_context_data[1],
+					DAO_Comment::CREATED => time(),
+					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
+					DAO_Comment::OWNER_CONTEXT_ID => $trigger->virtual_attendant_id,
+				);
+				$note_id = DAO_Comment::create($fields, $notify_worker_ids);
+			}
+		}
+		
+		return isset($note_id) ? $note_id : false;
 	}
 	
 	/*

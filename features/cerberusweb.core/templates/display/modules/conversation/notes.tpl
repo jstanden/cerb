@@ -8,15 +8,17 @@
 			{if empty($owner_meta)}
 				(system)
 			{else}
-				{if $owner_meta.context_ext instanceof IDevblocksContextPeek} 
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$comment->owner_context}&context_id={$comment->owner_context_id}', null, false, '500');">{$owner_meta.name}</a>
-				{elseif !empty($owner_meta.permalink)} 
+				{if !empty($owner_meta.permalink)} 
 				<a href="{$owner_meta.permalink}" target="_blank">{$owner_meta.name}</a>
 				{else}
 				{$owner_meta.name}
 				{/if}
 			{/if}
 			</b>
+			
+			{if $owner_meta.context_ext->manifest->name}
+			({$owner_meta.context_ext->manifest->name|lower})
+			{/if}
 			
 			<div class="toolbar" style="display:none;float:right;margin-right:20px;">
 				{if $note->context == CerberusContexts::CONTEXT_MESSAGE}

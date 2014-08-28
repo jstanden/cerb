@@ -187,6 +187,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				'context' => CerberusContexts::CONTEXT_GROUP,
 			),
 			*/
+			'id' => array(
+				'label' => 'Message',
+				'context' => CerberusContexts::CONTEXT_MESSAGE,
+			),
 			'sender_id' => array(
 				'label' => 'Message sender email',
 				'context' => CerberusContexts::CONTEXT_ADDRESS,
@@ -594,6 +598,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				'add_watchers' => array('label' =>'Add watchers'),
 				'create_comment' => array('label' =>'Create a comment'),
 				'create_notification' => array('label' =>'Send a notification'),
+				'create_message_note' => array('label' =>'Create a message sticky note'),
 				'create_task' => array('label' =>'Create a task'),
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'move_to' => array('label' => 'Move to'),
@@ -640,6 +645,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 			case 'create_notification':
 				DevblocksEventHelper::renderActionCreateNotification($trigger);
+				break;
+				
+			case 'create_message_note':
+				DevblocksEventHelper::renderActionCreateMessageStickyNote($trigger);
 				break;
 				
 			case 'create_task':
@@ -772,6 +781,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict, 'ticket_id');
 				break;
 				
+			case 'create_message_note':
+				return DevblocksEventHelper::simulateActionCreateMessageStickyNote($params, $dict, 'id');
+				break;
+
 			case 'create_task':
 				return DevblocksEventHelper::simulateActionCreateTask($params, $dict, 'ticket_id');
 				break;
@@ -897,6 +910,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				DevblocksEventHelper::runActionCreateNotification($params, $dict, 'ticket_id');
 				break;
 				
+			case 'create_message_note':
+				DevblocksEventHelper::runActionCreateMessageStickyNote($params, $dict, 'id');
+				break;
+
 			case 'create_task':
 				DevblocksEventHelper::runActionCreateTask($params, $dict, 'ticket_id');
 				break;
