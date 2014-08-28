@@ -2032,6 +2032,7 @@ class DevblocksEventHelper {
 			(!empty($params['is_available']) ? 'Available' : 'Busy')
 		);
 
+		$workers = DAO_Worker::getAll();
 		$custom_fields = DAO_CustomField::getAll();
 		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 		
@@ -2045,8 +2046,25 @@ class DevblocksEventHelper {
 			if(is_array($val))
 				$val = implode('; ', $val);
 			
-			$val = $tpl_builder->build($val, $dict);
+			switch($custom_fields[$cf_id]->type) {
+				case Model_CustomField::TYPE_WORKER:
+					if(!empty($val) && !is_numeric($val)) {
+						if(isset($dict->$val)) {
+							$val = $dict->$val;
+						}
+					}
 			
+					if(isset($workers[$val])) {
+						$set_worker = $workers[$val];
+						$val = $set_worker->getName();
+					}
+					break;
+						
+				default:
+					$val = $tpl_builder->build($val, $dict);
+					break;
+			}
+				
 			$out .= $custom_fields[$cf_id]->name . ': ' . $val . "\n";
 		}
 		
@@ -2135,12 +2153,26 @@ class DevblocksEventHelper {
 		$calendar_event_id = DAO_CalendarEvent::create($fields);
 			
 		// Custom fields
+		$workers = DAO_Worker::getAll();
+		$custom_fields = DAO_CustomField::getAll();
 		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 			
 		if(is_array($custom_field_values))
 			foreach($custom_field_values as $cf_id => $val) {
-				if(is_string($val))
-					$val = $tpl_builder->build($val, $dict);
+				switch($custom_fields[$cf_id]->type) {
+					case Model_CustomField::TYPE_WORKER:
+						if(!empty($val) && !is_numeric($val)) {
+							if(isset($dict->$val)) {
+								$val = $dict->$val;
+							}
+						}
+						break;
+							
+					default:
+						if(is_string($val))
+							$val = $tpl_builder->build($val, $dict);
+							break;
+				}
 					
 				DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_CALENDAR_EVENT, $calendar_event_id, array($cf_id => $val));
 			}

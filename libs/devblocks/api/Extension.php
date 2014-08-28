@@ -1463,7 +1463,11 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		} else {
 			switch($token) {
 				case '_create_calendar_event':
-					DevblocksEventHelper::runActionCreateCalendarEvent($params, $dict);
+					if($dry_run)
+						$out = $this->simulateAction($token, $trigger, $params, $dict);
+					else
+						DevblocksEventHelper::runActionCreateCalendarEvent($params, $dict);
+						
 					break;
 				
 				case '_get_links':
