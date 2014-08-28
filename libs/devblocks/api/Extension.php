@@ -1230,6 +1230,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	
 	function getActions($trigger) { /* @var $trigger Model_TriggerEvent */
 		$actions = array(
+			'_create_calendar_event' => array('label' => '(Create a calendar event)'),
 			'_get_links' => array('label' => '(Get links)'),
 			'_run_behavior' => array('label' => '(Run behavior)'),
 			'_schedule_behavior' => array('label' => '(Schedule behavior)'),
@@ -1294,6 +1295,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		// Nope, it's a global action
 		} else {
 			switch($token) {
+				case '_create_calendar_event':
+					DevblocksEventHelper::renderActionCreateCalendarEvent($trigger);
+					break;
+				
 				case '_get_links':
 					DevblocksEventHelper::renderActionGetLinks($trigger);
 					break;
@@ -1382,6 +1387,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			
 		} else {
 			switch($token) {
+				case '_create_calendar_event':
+					return DevblocksEventHelper::simulateActionCreateCalendarEvent($params, $dict);
+					break;
+				
 				case '_get_links':
 					return DevblocksEventHelper::simulateActionGetLinks($params, $dict);
 					break;
@@ -1453,6 +1462,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			
 		} else {
 			switch($token) {
+				case '_create_calendar_event':
+					DevblocksEventHelper::runActionCreateCalendarEvent($params, $dict);
+					break;
+				
 				case '_get_links':
 					if($dry_run)
 						$out = $this->simulateAction($token, $trigger, $params, $dict);
