@@ -64,6 +64,20 @@ class _DevblocksDatabaseManager {
 		return $tables;
 	}
 	
+	function metaTablesDetailed() {
+		$tables = array();
+		
+		$sql = "SHOW TABLE STATUS";
+		$rs = $this->GetArray($sql);
+		
+		foreach($rs as $row) {
+			$table = $row['Name'];
+			$tables[$table] = $row;
+		}
+		
+		return $tables;
+	}
+	
 	function metaTable($table_name) {
 		$columns = array();
 		$indexes = array();

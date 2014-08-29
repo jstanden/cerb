@@ -93,7 +93,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 				@$db = DevblocksPlatform::getDatabaseService();
 				@$settings = DevblocksPlatform::getPluginSettingsService();
 				
-				@$tables = $db->MetaTables('TABLE',false);
+				@$tables = $db->metaTablesDetailed();
 				
 				$report_output = sprintf(
 					"[Cerb] App Version: %s\n".
@@ -194,16 +194,23 @@ class ChDebugController extends DevblocksControllerExtension  {
 						"[Stats] # Tickets: %s\n".
 						"[Stats] # Messages: %s\n".
 						"\n".
-						"[Database] Tables:\n * %s\n".
-						"\n".
-						'%s',
+						"[Database] Tables:\n",
 						intval($db->getOne('SELECT count(id) FROM worker')),
 						intval($db->getOne('SELECT count(id) FROM worker_group')),
 						intval($db->getOne('SELECT count(id) FROM ticket')),
 						intval($db->getOne('SELECT count(id) FROM message')),
-						implode("\n * ",array_values($tables)),
 						''
 					);
+					
+					foreach($tables as $table_name => $table_data) {
+						$report_output .= sprintf(" * %s - %s - %d records\n",
+							$table_name,
+							$table_data['Engine'],
+							$table_data['Rows']
+						);
+					}
+					
+					$report_output .= "\n";
 				}
 				
 				echo sprintf(
