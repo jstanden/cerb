@@ -1668,6 +1668,34 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		}
 	}
 	
+	// [TODO] Utilize Sphinx when it exists?
+	static function autocomplete($term) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$objects = array();
+		
+		$results = $db->GetArray(sprintf("SELECT id ".
+			"FROM ticket ".
+			"WHERE ticket.is_deleted = 0 ".
+			"AND (".
+			"mask LIKE %s ".
+			"OR subject LIKE %s ".
+			") ".
+			"ORDER BY id DESC ".
+			"LIMIT 25 ",
+			$db->qstr($term.'%'),
+			$db->qstr($term.'%')
+		));
+		
+		if(is_array($results))
+		foreach($results as $row) {
+			$objects[$row['id']] = null;
+		}
+		
+		$objects = DAO_Ticket::getIds(array_keys($objects));
+		
+		return $objects;
+	}
+
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		

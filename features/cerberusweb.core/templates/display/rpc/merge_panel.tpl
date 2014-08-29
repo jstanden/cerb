@@ -18,6 +18,6 @@
 		$(this).dialog('option','title','{'mail.merge'|devblocks_translate|escape:'javascript' nofilter}');
 	});
 	$('#frmDisplayMerge button.chooser_ticket').each(function() {
-		ajax.chooser(this,'cerberusweb.contexts.ticket','dst_ticket_id');
+		ajax.chooser(this,'cerberusweb.contexts.ticket','dst_ticket_id', { autocomplete: true} );
 	});
 </script>
