@@ -31,6 +31,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	const LAST_ACTIVITY_DATE = 'last_activity_date';
 	const LAST_ACTIVITY_IP = 'last_activity_ip';
 	const AUTH_EXTENSION_ID = 'auth_extension_id';
+	const AT_MENTION_NAME = 'at_mention_name';
 	
 	static function create($fields) {
 		if(empty($fields[DAO_Worker::EMAIL]))
@@ -144,7 +145,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
-		$sql = "SELECT id, first_name, last_name, email, title, is_superuser, is_disabled, last_activity_date, last_activity, last_activity_ip, auth_extension_id ".
+		$sql = "SELECT id, first_name, last_name, email, title, is_superuser, is_disabled, last_activity_date, last_activity, last_activity_ip, auth_extension_id, at_mention_name ".
 			"FROM worker ".
 			$where_sql.
 			$sort_sql.
@@ -153,6 +154,18 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$rs = $db->Execute($sql);
 		
 		return self::_createObjectsFromResultSet($rs);
+	}
+	
+	static function getByAtMentions($at_mentions) {
+		$workers = DAO_Worker::getAllActive();
+		
+		if(is_array($workers))
+		foreach($workers as $worker_id => $worker) {
+			if(!in_array('@' . $worker->at_mention_name, $at_mentions))
+				unset($workers[$worker_id]);
+		}
+		
+		return $workers;
 	}
 	
 	/**
@@ -174,6 +187,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$object->is_disabled = intval($row['is_disabled']);
 			$object->last_activity_date = intval($row['last_activity_date']);
 			$object->auth_extension_id = $row['auth_extension_id'];
+			$object->at_mention_name = $row['at_mention_name'];
 			
 			if(!empty($row['last_activity']))
 				$object->last_activity = unserialize($row['last_activity']);
@@ -541,6 +555,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			"w.is_superuser as %s, ".
 			"w.last_activity_date as %s, ".
 			"w.auth_extension_id as %s, ".
+			"w.at_mention_name as %s, ".
 			"w.is_disabled as %s ",
 				SearchFields_Worker::ID,
 				SearchFields_Worker::FIRST_NAME,
@@ -550,6 +565,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 				SearchFields_Worker::IS_SUPERUSER,
 				SearchFields_Worker::LAST_ACTIVITY_DATE,
 				SearchFields_Worker::AUTH_EXTENSION_ID,
+				SearchFields_Worker::AT_MENTION_NAME,
 				SearchFields_Worker::IS_DISABLED
 			);
 			
@@ -794,6 +810,7 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 	const LAST_ACTIVITY = 'w_last_activity';
 	const LAST_ACTIVITY_DATE = 'w_last_activity_date';
 	const AUTH_EXTENSION_ID = 'w_auth_extension_id';
+	const AT_MENTION_NAME = 'w_at_mention_name';
 	const IS_DISABLED = 'w_is_disabled';
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -819,7 +836,8 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 			self::IS_SUPERUSER => new DevblocksSearchField(self::IS_SUPERUSER, 'w', 'is_superuser', $translate->_('worker.is_superuser'), Model_CustomField::TYPE_CHECKBOX),
 			self::LAST_ACTIVITY => new DevblocksSearchField(self::LAST_ACTIVITY, 'w', 'last_activity', $translate->_('worker.last_activity')),
 			self::LAST_ACTIVITY_DATE => new DevblocksSearchField(self::LAST_ACTIVITY_DATE, 'w', 'last_activity_date', $translate->_('worker.last_activity_date'), Model_CustomField::TYPE_DATE),
-			self::AUTH_EXTENSION_ID => new DevblocksSearchField(self::AUTH_EXTENSION_ID, 'w', 'auth_extension_id', 'Login Auth', Model_CustomField::TYPE_SINGLE_LINE),
+			self::AUTH_EXTENSION_ID => new DevblocksSearchField(self::AUTH_EXTENSION_ID, 'w', 'auth_extension_id', $translate->_('worker.auth_extension_id'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::AT_MENTION_NAME => new DevblocksSearchField(self::AT_MENTION_NAME, 'w', 'at_mention_name', $translate->_('worker.at_mention_name'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'w', 'is_disabled', ucwords($translate->_('common.disabled')), Model_CustomField::TYPE_CHECKBOX),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
@@ -859,6 +877,7 @@ class Model_Worker {
 	public $last_activity_date;
 	public $last_activity_ip;
 	public $auth_extension_id;
+	public $at_mention_name;
 
 	/**
 	 * @return Model_GroupMember[]
@@ -986,6 +1005,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Worker::LAST_ACTIVITY_DATE,
 			SearchFields_Worker::AUTH_EXTENSION_ID,
 			SearchFields_Worker::IS_SUPERUSER,
+			SearchFields_Worker::AT_MENTION_NAME,
 		);
 		
 		$this->addColumnsHidden(array(
@@ -1038,6 +1058,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 			
 			switch($field_key) {
 				// DAO
+				case SearchFields_Worker::AT_MENTION_NAME:
 				case SearchFields_Worker::FIRST_NAME:
 				case SearchFields_Worker::IS_DISABLED:
 				case SearchFields_Worker::IS_SUPERUSER:
@@ -1073,6 +1094,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 			return array();
 		
 		switch($column) {
+			case SearchFields_Worker::AT_MENTION_NAME:
 			case SearchFields_Worker::FIRST_NAME:
 			case SearchFields_Worker::LAST_NAME:
 			case SearchFields_Worker::TITLE:
@@ -1177,6 +1199,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
+			case SearchFields_Worker::AT_MENTION_NAME:
 			case SearchFields_Worker::EMAIL:
 			case SearchFields_Worker::FIRST_NAME:
 			case SearchFields_Worker::LAST_NAME:
@@ -1245,6 +1268,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 		$criteria = null;
 
 		switch($field) {
+			case SearchFields_Worker::AT_MENTION_NAME:
 			case SearchFields_Worker::EMAIL:
 			case SearchFields_Worker::FIRST_NAME:
 			case SearchFields_Worker::LAST_NAME:

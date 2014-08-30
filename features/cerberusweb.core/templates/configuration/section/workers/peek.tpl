@@ -28,6 +28,10 @@
 			<td width="100%"><input type="text" name="email" value="{$worker->email}" class="required" style="width:98%;"></td>
 		</tr>
 		<tr>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{'worker.at_mention_name'|devblocks_translate}: </td>
+			<td width="100%"><input type="text" name="at_mention_name" value="{$worker->at_mention_name}" style="width:98%;" placeholder="UserNickname"></td>
+		</tr>
+		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'common.status'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				{if $active_worker->id == $worker->id}

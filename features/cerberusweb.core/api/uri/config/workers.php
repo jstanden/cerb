@@ -82,6 +82,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		@$title = DevblocksPlatform::importGPC($_POST['title'],'string');
 		@$email = trim(DevblocksPlatform::importGPC($_POST['email'],'string'));
 		@$auth_extension_id = DevblocksPlatform::importGPC($_POST['auth_extension_id'],'string');
+		@$at_mention_name = DevblocksPlatform::strToPermalink(DevblocksPlatform::importGPC($_POST['at_mention_name'],'string'));
 		@$password_new = DevblocksPlatform::importGPC($_POST['password_new'],'string');
 		@$password_verify = DevblocksPlatform::importGPC($_POST['password_verify'],'string');
 		@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'integer', 0);
@@ -158,6 +159,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 					DAO_Worker::IS_DISABLED => $disabled,
 					DAO_Worker::EMAIL => $email,
 					DAO_Worker::AUTH_EXTENSION_ID => $auth_extension_id,
+					DAO_Worker::AT_MENTION_NAME => $at_mention_name,
 				);
 				
 				$id = DAO_Worker::create($fields);
@@ -177,7 +179,8 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				DAO_Worker::EMAIL => $email,
 				DAO_Worker::IS_SUPERUSER => $is_superuser,
 				DAO_Worker::IS_DISABLED => $disabled,
-				DAO_Worker::AUTH_EXTENSION_ID => $auth_extension_id
+				DAO_Worker::AUTH_EXTENSION_ID => $auth_extension_id,
+				DAO_Worker::AT_MENTION_NAME => $at_mention_name,
 			);
 			
 			// Update worker

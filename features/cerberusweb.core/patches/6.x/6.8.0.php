@@ -118,6 +118,26 @@ if(!isset($columns['timeout_secs'])) {
 }
 
 // ===========================================================================
+// Set up defaults for mobile mail preferences
+
+$db->Execute("INSERT IGNORE INTO worker_pref (worker_id, setting, value) SELECT id, 'mobile_mail_signature_pos', '2' FROM worker");
+
+// ===========================================================================
+// Add @mention nicknames to worker records
+
+if(!isset($tables['worker'])) {
+	$logger->error("The 'worker' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('worker');
+
+if(!isset($columns['at_mention_name'])) {
+	$db->Execute("ALTER TABLE worker ADD COLUMN at_mention_name VARCHAR(64)");
+	$db->Execute("UPDATE worker SET at_mention_name = CONCAT(first_name,last_name)");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
