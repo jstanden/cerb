@@ -1140,6 +1140,9 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 
 		<!-- Comment -->
 
+		<tu tuid='comment.notify.at_mention'>
+			<tuv xml:lang="en_US"><seg>Use @mentions to notify workers about this comment.</seg></tuv>
+		</tu>
 		<tu tuid='comment.filters.content'>
 			<tuv xml:lang="en_US"><seg>Comment Content</seg></tuv>
 		</tu>

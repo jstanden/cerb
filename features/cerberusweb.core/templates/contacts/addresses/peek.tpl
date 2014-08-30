@@ -96,7 +96,7 @@
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
 	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea>
-	<div style="float:right;color:rgb(120,120,120);">Use <b>@mentions</b> to notify workers about this comment.</div>
+	<div style="float:right;color:rgb(120,120,120);">{'comment.notify.at_mention'|devblocks_translate}</div>
 </fieldset>
 
 {if $active_worker->hasPriv('core.addybook.addy.actions.update')}

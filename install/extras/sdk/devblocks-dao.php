@@ -1200,7 +1200,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
 	&lt;textarea name="comment" rows="5" cols="45" style="width:98%;"&gt;&lt;/textarea&gt;
-	<div style="float:right;color:rgb(120,120,120);">Use <b>@mentions</b> to notify workers about this comment.</div>
+	<div style="float:right;color:rgb(120,120,120);">{'comment.notify.at_mention'|devblocks_translate}</div>
 </fieldset>
 
 {if !empty($model->id)}
