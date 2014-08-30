@@ -162,11 +162,7 @@
 	<fieldset class="peek">
 		<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
 		<textarea name="comment" rows="5" cols="60" style="width:98%;"></textarea>
-		<div class="notify" style="display:none;">
-			<b>{'common.notify_watchers_and'|devblocks_translate}:</b>
-			<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
-			<ul class="chooser-container bubbles" style="display:block;"></ul>
-		</div>
+		<div style="float:right;color:rgb(120,120,120);">Use <b>@mentions</b> to notify workers about this comment.</div>
 	</fieldset>
 	
 	<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmTicketPeek','{$view_id}',false,'ticket_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
@@ -176,51 +172,52 @@
 </form>
 
 <script type="text/javascript">
-	// Popups
-	$popup = genericAjaxPopupFetch('peek');
+	var $popup = genericAjaxPopupFetch('peek');
+	
 	$popup.one('popup_open',function(event,ui) {
+		var $frm = $('form#frmTicketPeek');
+		
 		$(this).dialog('option','title',"{$ticket->subject|escape:'javascript' nofilter}");
 		$("#ticketPeekContent").css('width','100%');
 		
 		ajax.orgAutoComplete('#ticketPeekProps input:text[name=org_name]');
-		$(this).find('textarea[name=comment]')
-			.elastic()
-			.keyup(function() {
-				if($(this).val().length > 0) {
-					$(this).next('DIV.notify').show();
-				} else {
-					$(this).next('DIV.notify').hide();
-				}
-			})
-			;
-		$(this).focus();
-	});
-	
-	var $frm = $('form#frmTicketPeek');
-	
-	// Group and bucket
-	$frm.find('select[name=group_id]').on('change', function(e) {
-		var $select = $(this);
-		var group_id = $select.val();
-		var $bucket_options = $select.siblings('select.ticket-peek-bucket-options').find('option')
-		var $bucket = $select.siblings('select[name=bucket_id]');
 		
-		$bucket.children().remove();
+		// Comments
 		
-		$bucket_options.each(function() {
-			var parent_id = $(this).attr('group_id');
-			if(parent_id == '*' || parent_id == group_id)
-				$(this).clone().appendTo($bucket);
+		var $textarea = $(this).find('textarea[name=comment]');
+			
+		$textarea.elastic();
+		
+		// @mentions
+		
+		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
+
+		$textarea.atwho({
+			at: '@',
+			{literal}tpl: '<li data-value="@${at_mention}">${name} <small style="margin-left:10px;">${title}</small></li>',{/literal}
+			data: atwho_workers,
+			limit: 10
 		});
 		
-		$bucket.focus();
+		// Group and bucket
+		$frm.find('select[name=group_id]').on('change', function(e) {
+			var $select = $(this);
+			var group_id = $select.val();
+			var $bucket_options = $select.siblings('select.ticket-peek-bucket-options').find('option')
+			var $bucket = $select.siblings('select[name=bucket_id]');
+			
+			$bucket.children().remove();
+			
+			$bucket_options.each(function() {
+				var parent_id = $(this).attr('group_id');
+				if(parent_id == '*' || parent_id == group_id)
+					$(this).clone().appendTo($bucket);
+			});
+			
+			$bucket.focus();
+		});
+		
+		// Dates
+		$frm.find('div#ticketPeekProps > fieldset:first input.input_date').cerbDateInputHelper();
 	});
-	
-	// Choosers
-	$frm.find('button.chooser_notify_worker').each(function() {
-		ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
-	});
-	
-	// Dates
-	$frm.find('div#ticketPeekProps > fieldset:first input.input_date').cerbDateInputHelper();
 </script>

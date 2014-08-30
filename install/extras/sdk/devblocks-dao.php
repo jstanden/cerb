@@ -1200,11 +1200,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
 	&lt;textarea name="comment" rows="5" cols="45" style="width:98%;"&gt;&lt;/textarea&gt;
-	<div class="notify" style="display:none;">
-		<b>{'common.notify_watchers_and'|devblocks_translate}:</b>
-		<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
-		<ul class="chooser-container bubbles" style="display:block;"></ul>
-	</div>
+	<div style="float:right;color:rgb(120,120,120);">Use <b>@mentions</b> to notify workers about this comment.</div>
 </fieldset>
 
 {if !empty($model->id)}
@@ -1234,28 +1230,30 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+	var $popup = genericAjaxPopupFetch('peek');
+	
 	$popup.one('popup_open', function(event,ui) {
+		var $textarea = $(this).find('textarea[name=comment]');
+		
 		$(this).dialog('option','title',"{'<?php echo $object_name; ?>'|escape:'javascript' nofilter}");
 		
 		$(this).find('button.chooser_watcher').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
 		});
 		
-		$(this).find('textarea[name=comment]').keyup(function() {
-			if($(this).val().length > 0) {
-				$(this).next('DIV.notify').show();
-			} else {
-				$(this).next('DIV.notify').hide();
-			}
-		});
-		
-		$('#frm<?php echo $class_name; ?>Peek button.chooser_notify_worker').each(function() {
-			ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
-		});
-		
 		$(this).find('input:text:first').focus();
-	} );
+		
+		// @mentions
+		
+		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
+
+		$textarea.atwho({
+			at: '@',
+			{literal}tpl: '<li data-value="@${at_mention}">${name} <small style="margin-left:10px;">${title}</small></li>',{/literal}
+			data: atwho_workers,
+			limit: 10
+		});
+	});
 </script>
 </textarea>
 
@@ -1618,7 +1616,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 
 			// If we're adding a comment
 			if(!empty($comment)) {
-				@$also_notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+				$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
 				
 				$fields = array(
 					DAO_Comment::CREATED => time(),

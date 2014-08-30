@@ -281,7 +281,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$worker = CerberusApplication::getActiveWorker();
 		
-		@$also_notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+		$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($content));
 
 		// Get watchers
 		$watcher_ids = array_keys(CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id));

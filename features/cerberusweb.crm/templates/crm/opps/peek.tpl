@@ -87,11 +87,7 @@
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
 	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea>
-	<div class="notify" style="display:none;">
-		<b>{'common.notify_watchers_and'|devblocks_translate}:</b>
-		<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
-		<ul class="chooser-container bubbles" style="display:block;"></ul>
-	</div>
+	<div style="float:right;color:rgb(120,120,120);">Use <b>@mentions</b> to notify workers about this comment.</div>
 </fieldset>
 
 {if (empty($opp) && $active_worker->hasPriv('crm.opp.actions.create')) || (!empty($opp) && $active_worker->hasPriv('crm.opp.actions.update_all'))}
@@ -113,9 +109,15 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFind('#formOppPeek');
+	var $popup = genericAjaxPopupFind('#formOppPeek');
+	
 	$popup.one('popup_open',function(event,ui) {
+		var $textarea = $(this).find('textarea[name=comment]');
+		var $frm = $('#formOppPeek');
+		
 		$(this).dialog('option','title', '{'Opportunity'|devblocks_translate|escape:'javascript' nofilter}');
+		
+		// Watchers
 		
 		$(this).find('button.chooser_watcher').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
@@ -124,15 +126,6 @@
 		ajax.emailAutoComplete('#emailinput');
 		
 		$("#formOppPeek").validate();
-		$(this).find('textarea[name=comment]').keyup(function() {
-			if($(this).val().length > 0) {
-				$(this).next('DIV.notify').show();
-			} else {
-				$(this).next('DIV.notify').hide();
-			}
-		});
-		
-		var $frm = $('#formOppPeek');
 		
 		$frm.find(':input:text:first').focus();
 		
@@ -142,8 +135,15 @@
 			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
 		});
 		
-		$frm.find('button.chooser_notify_worker').each(function() {
-			ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
+		// @mentions
+		
+		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
+
+		$textarea.atwho({
+			at: '@',
+			{literal}tpl: '<li data-value="@${at_mention}">${name} <small style="margin-left:10px;">${title}</small></li>',{/literal}
+			data: atwho_workers,
+			limit: 10
 		});
 	});
 </script>

@@ -4354,7 +4354,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(empty($context) || empty($context_id) || empty($comment))
 			return;
 
-		@$also_notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+		$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
 		
 		$fields = array(
 			DAO_Comment::CONTEXT => $context,

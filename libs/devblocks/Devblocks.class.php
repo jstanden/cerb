@@ -256,6 +256,16 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $parts;
 	}
 	
+	static function parseAtMentionString($string) {
+		//$string = "@Hildy Do you have time for this today?  If not, ask @Jeff, or @Darren.";
+		preg_match_all('#(\@[A-Za-z0-9_]+)([^A-Za-z0-9_]|$)#', $string, $matches);
+		
+		if(is_array($matches) && isset($matches[1]))
+			return $matches[1];
+		
+		return false;
+	}
+	
 	static function intVersionToStr($version, $sections=3) {
 		$version = str_pad($version, $sections*2, '0', STR_PAD_LEFT);
 		$parts = str_split($version, 2);

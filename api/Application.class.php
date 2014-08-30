@@ -109,6 +109,34 @@ class CerberusApplication extends DevblocksApplication {
 			;
 	}
 	
+	static function getWorkersByAtMentionsText($text) {
+		$workers = array();
+		
+		if(false !== ($at_mentions = DevblocksPlatform::parseAtMentionString($text))) {
+			$workers = DAO_Worker::getByAtMentions($at_mentions);
+		}
+		
+		return $workers;
+	}
+	
+	static function getAtMentionsWorkerDictionaryJson() {
+		$workers = DAO_Worker::getAllActive();
+		
+		$list = array();
+		
+		foreach($workers as $worker) {
+			$list[] = array(
+				'id' => $worker->id,
+				'name' => $worker->getName(),
+				'email' => $worker->email,
+				'title' => $worker->title,
+				'at_mention' => $worker->at_mention_name,
+			);
+		}
+		
+		return json_encode($list);
+	}
+	
 	/**
 	 *
 	 * @param string $uri
