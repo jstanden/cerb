@@ -621,6 +621,13 @@ class Model_Message {
 	function getLinksAndAttachments() {
 		return DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_MESSAGE, $this->id);
 	}
+	
+	/**
+	 * @return Model_Ticket
+	 */
+	function getTicket() {
+		return DAO_Ticket::get($this->ticket_id);
+	}
 };
 
 class Search_MessageContent extends Extension_DevblocksSearchSchema {

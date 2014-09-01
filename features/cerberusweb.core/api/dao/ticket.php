@@ -1977,6 +1977,13 @@ class Model_Ticket {
 		
 		return $this->_org;
 	}
+	
+	/**
+	 * @return Model_Group
+	 */
+	function getGroup() {
+		return DAO_Group::get($this->group_id);
+	}
 };
 
 class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
