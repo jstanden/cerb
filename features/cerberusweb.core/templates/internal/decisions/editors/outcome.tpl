@@ -122,7 +122,9 @@
 <div id="{$status_div}" style="display:none;"></div>
 
 <script type="text/javascript">
+$(function() {
 	var $popup = genericAjaxPopupFetch('node_outcome{$id}');
+	
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{if empty($id)}New {/if}Outcome");
 		$(this).find('input:text').first().focus();
@@ -358,4 +360,6 @@
 		});
 
 	}); // end popup_open
+	
+});
 </script>

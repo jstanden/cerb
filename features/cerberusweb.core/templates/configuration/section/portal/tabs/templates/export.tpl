@@ -7,7 +7,7 @@
 <input type="hidden" name="portal" value="{$portal}">
 
 <b>Filename:</b> (.xml)<br>
-<input type="text" name="filename" size="45" value="cerb5_portal_templates_{$smarty.const.APP_BUILD}.xml"><br>
+<input type="text" name="filename" size="45" value="cerb_portal_templates_{$smarty.const.APP_BUILD}.xml"><br>
 <br>
 
 <b>Author:</b><br>
@@ -23,8 +23,11 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $popup = genericAjaxPopupFetch('peek');
+	
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{'common.export'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
-	} );
+	});
+});
 </script>

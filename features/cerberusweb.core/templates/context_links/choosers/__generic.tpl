@@ -16,6 +16,7 @@
 <br>
 
 <script type="text/javascript">
+$(function() {
 	var $popup = genericAjaxPopupFetch('{$layer}');
 	
 	$popup.find('UL.buffer').sortable({ placeholder: 'ui-state-highlight' });
@@ -115,4 +116,6 @@
 		event.stopPropagation();
 		genericAjaxPopupDestroy('{$layer}');
 	});
+	
+});
 </script>

@@ -57,7 +57,9 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('relay');
+$(function() {
+	var $popup = genericAjaxPopupFetch('relay');
+	
 	$popup.one('popup_open',function(event,ui) {
 		var $this = $(this);
 		
@@ -80,13 +82,13 @@
 			genericAjaxPopupClose('relay');
 		});
 		
-		$menu = $('#{$menu_divid}');
-		$input = $menu.prevAll('input.filter');
+		var $menu = $('#{$menu_divid}');
+		var $input = $menu.prevAll('input.filter');
 		$input.focus();
 
 		$input.keypress(
 			function(e) {
-				code = (e.keyCode ? e.keyCode : e.which);
+				var code = (e.keyCode ? e.keyCode : e.which);
 				if(code == 13) {
 					e.preventDefault();
 					e.stopPropagation();
@@ -98,8 +100,8 @@
 			
 		$input.keyup(
 			function(e) {
-				term = $(this).val().toLowerCase();
-				$menu = $(this).nextAll('ul.cerb-popupmenu');
+				var term = $(this).val().toLowerCase();
+				var $menu = $(this).nextAll('ul.cerb-popupmenu');
 				$menu.find('> li > div.item').each(function(e) {
 					if(-1 != $(this).html().toLowerCase().indexOf(term)) {
 						$(this).parent().show();
@@ -119,20 +121,20 @@
 		});
 
 		$menu.find('> li > div.item a').click(function() {
-			$li = $(this).closest('li');
-			$frm = $(this).closest('form');
+			var $li = $(this).closest('li');
+			var $frm = $(this).closest('form');
 			
-			$ul = $li.closest('ul');
-			$bubbles = $ul.siblings('ul.bubbles');
+			var $ul = $li.closest('ul');
+			var $bubbles = $ul.siblings('ul.bubbles');
 			
-			email = $li.attr('email');
-			label = $li.attr('label');
+			var email = $li.attr('email');
+			var label = $li.attr('label');
 
 			// Check for dupe context pair
 			if($bubbles.find('li input:hidden[value="'+email+'"]').length > 0)
 				return;
 			
-			$bubble = $('<li></li>');
+			var $bubble = $('<li></li>');
 			$bubble.append($('<input type="hidden" name="emails[]" value="'+email+'">'));
 			$bubble.append(label);
 			$bubble.append('<a href="javascript:;" onclick="$li=$(this).closest(\'li\');$li.remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>');
@@ -141,4 +143,5 @@
 		});
 		
 	});
+});
 </script>

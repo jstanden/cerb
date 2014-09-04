@@ -25,7 +25,9 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $popup = genericAjaxPopupFetch('peek');
+	
 	$popup.one('popup_open',function(event,ui) {
 		$(this).dialog('option','title','Recipients');
 		
@@ -47,4 +49,5 @@
 	$('#formDisplayReq button.chooser_address').each(function() {
 		ajax.chooser(this,'cerberusweb.contexts.address','address_id');
 	});
+});
 </script>

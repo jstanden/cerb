@@ -114,7 +114,9 @@ blockquote a {
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $popup = genericAjaxPopupFetch('peek');
+	
 	$popup.one('popup_open', function(event,ui) {
 		var $this = $(this);
 		
@@ -145,5 +147,6 @@ blockquote a {
 			if(window.console)
 				console.log(e);
 		}
-	} );
+	});
+});
 </script>

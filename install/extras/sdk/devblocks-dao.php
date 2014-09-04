@@ -1484,7 +1484,7 @@ $frm.bind('keyboard_shortcut',function(event) {
 | By using this software, you acknowledge having read this license
 | and agree to be bound thereby.
 | ______________________________________________________________________
-|	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
+|	http://www.cerbweb.com	    http://www.webgroupmedia.com/
 ***********************************************************************/
 
 class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSection {

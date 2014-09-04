@@ -8,13 +8,15 @@
 {/foreach}
 
 <script type="text/javascript">
+$(function() {
 	$('#btnComment').click(function(event) {
-		$popup = genericAjaxPopup('peek', 'c=internal&a=commentShowPopup&context={$context}&context_id={$context_id}', null, false, '550');
+		var $popup = genericAjaxPopup('peek', 'c=internal&a=commentShowPopup&context={$context}&context_id={$context_id}', null, false, '550');
 		$popup.one('comment_save', function(event) {
-			$tabs = $('#btnComment').closest('div.ui-tabs');
+			var $tabs = $('#btnComment').closest('div.ui-tabs');
 			if(0 != $tabs) {
 				$tabs.tabs('load', $tabs.tabs('option','active'));
 			}
 		});
 	});
+});
 </script>

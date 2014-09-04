@@ -24,6 +24,7 @@
 </form>
 
 <script type="text/javascript">
+$(function() {
 	var $popup = genericAjaxPopupFetch('peek');
 	
 	$popup.one('popup_open',function(event,ui) {
@@ -32,7 +33,7 @@
 		$(this).dialog('option','title','Comment');
 		
 		$frm.find('button.submit').click(function() {
-			$popup = genericAjaxPopupFetch('peek');
+			var $popup = genericAjaxPopupFetch('peek');
 			genericAjaxPost('internalCommentPopup','','', null, { async: false } );
 			$popup.trigger('comment_save');
 			genericAjaxPopupClose('peek');
@@ -57,4 +58,5 @@
 			})			
 			;
 	});
+});
 </script>

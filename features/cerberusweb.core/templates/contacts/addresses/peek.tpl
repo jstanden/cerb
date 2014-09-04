@@ -117,7 +117,9 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFind('#formAddressPeek');
+$(function() {
+	var $popup = genericAjaxPopupFind('#formAddressPeek');
+	
 	$popup.one('popup_open',function(event,ui) {
 		var $this = $(this);
 		var $textarea = $this.find('textarea[name=comment]');
@@ -152,4 +154,5 @@
 			ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
 		});
 	});
+});
 </script>

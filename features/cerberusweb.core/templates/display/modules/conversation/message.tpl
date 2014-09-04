@@ -209,7 +209,7 @@ $('#{$message->id}act')
 		if(null==expanded)
 			expanded=false;
 		
-		$popup = genericAjaxPopupFetch('peek');
+		var $popup = genericAjaxPopupFetch('peek');
 		$popup.one('popup_saved',function(e) {
 			if(expanded) 
 				$('#btnMsgMax' + msgid).click();

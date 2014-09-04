@@ -27,6 +27,7 @@
 			<input type="text" name="reply_personal" value="{$address->reply_personal}" style="width:100%;" placeholder="Example, Inc." class="placeholders">
 			<br>
 			<button type="button" onclick="genericAjaxPost('frmAddyOutgoingPeek','divFromTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_personal');">{'common.test'|devblocks_translate|capitalize}</button>
+			<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
 			<select name="sig_from_token">
 				<option value="">-- insert at cursor --</option>
 				{foreach from=$worker_token_labels key=k item=v}
@@ -91,6 +92,7 @@
 </form>
 
 <script type="text/javascript">
+$(function() {
 	var $popup = genericAjaxPopupFetch('peek');
 	
 	$popup.one('popup_open',function(event,ui) {
@@ -142,4 +144,5 @@
 			})
 			;
 	});
+});
 </script>

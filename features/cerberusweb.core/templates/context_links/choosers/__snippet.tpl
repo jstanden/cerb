@@ -9,7 +9,8 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFind('#chooser{$view->id}');
+$(function() {
+	var $popup = genericAjaxPopupFind('#chooser{$view->id}');
 	
 	$popup.one('popup_open',function(event,ui) {
 		event.stopPropagation();
@@ -140,4 +141,5 @@
 		event.stopPropagation();
 		genericAjaxPopupDestroy('{$layer}');
 	});
+});
 </script>

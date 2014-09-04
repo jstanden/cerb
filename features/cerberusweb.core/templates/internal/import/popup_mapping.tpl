@@ -59,17 +59,18 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFind('#frmImport');
-	$frm = $popup.find('FORM#frmImport');
+$(function() {
+	var $popup = genericAjaxPopupFind('#frmImport');
+	var $frm = $popup.find('FORM#frmImport');
 	
  	$frm.find('button.submit').click(function(event) {
- 		$frm = $(this).closest('form');
+ 		var $frm = $(this).closest('form');
  		if(!$frm.validate().form())
  			return;
 
  		$('#divImportPreview').html('Importing... please wait');
 
- 		$div = $(this).closest('div');
+ 		var $div = $(this).closest('div');
  		$div.fadeOut();
  		
  		genericAjaxPost('frmImport', '', null, function(o) {
@@ -79,7 +80,7 @@
  	});
  	
  	$frm.find('button.preview').click(function() {
- 		$frm = $(this).closest('form');
+ 		var $frm = $(this).closest('form');
  		if(!$frm.validate().form())
 			return;
  		
@@ -107,4 +108,6 @@
 		event.stopPropagation();
 		genericAjaxPopupDestroy('{$layer}');
 	});
+	
+});
 </script>

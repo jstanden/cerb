@@ -30,6 +30,55 @@
 <div id="nodeMenu{$tab_uniqid}" style="display:none;position:absolute;z-index:5;"></div>
 
 <script type="text/javascript">
+{if $is_writeable}
+function decisionNodeMenu(element) {
+	var $this = $(element);
+	
+	var node_id = $this.attr('node_id');
+	var trigger_id = $this.attr('trigger_id');
+	
+	if($this.closest('div.node').hasClass('dragged'))
+		return;
+	
+	genericAjaxGet('', 'c=internal&a=showDecisionNodeMenu&id='+node_id+'&trigger_id='+trigger_id, function(html) {
+		var $position = $(element).offset();
+		$('#nodeMenu{$tab_uniqid}')
+			.appendTo('body')
+			.unbind()
+			.hide()
+			.html('')
+			.css('position','absolute')
+			.css('top',$position.top+$(element).height())
+			.css('left',$position.left)
+			.html(html)
+			.fadeIn('fast')
+			;
+		$('#nodeMenu{$tab_uniqid}')
+			.hover(
+				function() {
+				},
+				function() {
+					$(this).hide();
+				}
+			)
+			.click(function(e) {
+				$(this).hide();
+			})
+			.find('ul li')
+			.click(function(e) {
+				var $target = $(e.target);
+				if(!$target.is('li'))
+					return;
+				
+				e.stopPropagation();
+				$target.find('A').first().click();
+			})
+		;
+	});
+}
+{/if}
+
+$(function() {
 	$('#nodeMenu{$tab_uniqid}').appendTo('body');
 	
 	{if $is_writeable}
@@ -55,54 +104,6 @@
 	{/if}
 	
 	{if $is_writeable}
-	function decisionNodeMenu(element) {
-		var $this = $(element);
-		
-		var node_id = $this.attr('node_id');
-		var trigger_id = $this.attr('trigger_id');
-		
-		if($this.closest('div.node').hasClass('dragged'))
-			return;
-		
-		genericAjaxGet('', 'c=internal&a=showDecisionNodeMenu&id='+node_id+'&trigger_id='+trigger_id, function(html) {
-			var $position = $(element).offset();
-			$('#nodeMenu{$tab_uniqid}')
-				.appendTo('body')
-				.unbind()
-				.hide()
-				.html('')
-				.css('position','absolute')
-				.css('top',$position.top+$(element).height())
-				.css('left',$position.left)
-				.html(html)
-				.fadeIn('fast')
-				;
-			$('#nodeMenu{$tab_uniqid}')
-				.hover(
-					function() {
-					},
-					function() {
-						$(this).hide();
-					}
-				)
-				.click(function(e) {
-					$(this).hide();
-				})
-				.find('ul li')
-				.click(function(e) {
-					var $target = $(e.target);
-					if(!$target.is('li'))
-						return;
-					
-					e.stopPropagation();
-					$target.find('A').first().click();
-				})
-			;
-		});
-	}
-	{/if}
-	
-	{if $is_writeable}
 	$('#triggers_by_event{$tab_uniqid}').find('> DIV')
 		.sortable({
 			items: '> FORM',
@@ -120,4 +121,6 @@
 		})
 		;
 	{/if}
+});
+	
 </script>

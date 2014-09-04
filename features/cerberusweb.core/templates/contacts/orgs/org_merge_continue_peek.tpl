@@ -59,7 +59,9 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $popup = genericAjaxPopupFetch('peek');
+	
 	$popup.one('popup_open',function(event,ui) {
 		$(this).dialog('option','title', "Merge Organizations");
 		
@@ -69,4 +71,5 @@
 	$('#frm{$uniq_id} button.chooser_orgs').each(function() {
 		ajax.chooser(this,'cerberusweb.contexts.org','org_id', { autocomplete:true });
 	});
+});
 </script>

@@ -138,7 +138,9 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $popup = genericAjaxPopupFetch('peek');
+	
 	$popup.one('popup_open', function(event,ui) {
 		var $this = $(this);
 		
@@ -162,11 +164,11 @@
 		
 		$frm.find('button.submit').click(function() {
 			genericAjaxPost('frmCalendarRecurringProfilePeek','','c=profiles&a=handleSectionAction&section=calendar_recurring_profile&action=savePeekPopupJson',function(json) {
-				$popup = genericAjaxPopupFind('#frmCalendarRecurringProfilePeek');
+				var $popup = genericAjaxPopupFind('#frmCalendarRecurringProfilePeek');
 				if(null != $popup) {
-					$layer = $popup.prop('id').substring(5);
+					var $layer = $popup.prop('id').substring(5);
 					
-					$event = jQuery.Event('calendar_event_save');
+					var $event = jQuery.Event('calendar_event_save');
 					if(json.month)
 						$event.month = json.month;
 					if(json.year)
@@ -183,11 +185,11 @@
 		
 		$frm.find('button.delete').click(function() {
 			genericAjaxPost('frmCalendarRecurringProfilePeek','','c=profiles&a=handleSectionAction&section=calendar_recurring_profile&action=savePeekPopupJson&do_delete=1',function(json) {
-				$popup = genericAjaxPopupFind('#frmCalendarRecurringProfilePeek');
+				var $popup = genericAjaxPopupFind('#frmCalendarRecurringProfilePeek');
 				if(null != $popup) {
-					$layer = $popup.prop('id').substring(5);
+					var $layer = $popup.prop('id').substring(5);
 
-					$event = jQuery.Event('calendar_event_delete');
+					var $event = jQuery.Event('calendar_event_delete');
 					
 					genericAjaxPopupClose($layer, $event);
 					
@@ -198,5 +200,6 @@
 			});
 		});
 		
-	} );
+	});
+});
 </script>

@@ -188,10 +188,12 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $popup = genericAjaxPopupFetch('peek');
+	
 	$popup.one('popup_open', function(event,ui) {
-		$this = $(this);
-		$frm = $this.find('form');
+		var $this = $(this);
+		var $frm = $this.find('form');
 		
 		$this.dialog('option','title',"Schedule Behavior");
 		$this.find('input:text').first().select();
@@ -199,10 +201,10 @@
 		// Repeat freq
 		
 		$frm.find('input:radio[name=repeat_freq]').click(function(e) {
-			$td = $(this).closest('td');
-			$table = $td.closest('table');
-			$terms = $td.find('div.terms');
-			$val = $(this).val();
+			var $td = $(this).closest('td');
+			var $table = $td.closest('table');
+			var $terms = $td.find('div.terms');
+			var $val = $(this).val();
 			
 			$terms.find('> div').hide();
 
@@ -217,8 +219,8 @@
 		// Repeat end
 		
 		$frm.find('input:radio[name=repeat_end]').click(function(e) {
-			$ends=$(this).closest('td').find('div.ends');
-			$val = $(this).val();
+			var $ends=$(this).closest('td').find('div.ends');
+			var $val = $(this).val();
 			
 			$ends.find('> div').hide();
 
@@ -230,8 +232,8 @@
 		// Modify recurring event
 		
 		$frm.find('DIV.buttons INPUT:radio[name=edit_scope]').change(function(e) {
-			$frm = $(this).closest('form');
-			$val = $(this).val();
+			var $frm = $(this).closest('form');
+			var $val = $(this).val();
 			
 			if($val == 'this') {
 				$frm.find('tbody.repeat, tbody.end').hide();
@@ -243,7 +245,7 @@
 		// Toggle grids
 		
 		$frm.find('TABLE.toggle_grid TR TD').click(function(e) {
-			$td = $(this).closest('td');
+			var $td = $(this).closest('td');
 			
 			if($td.is('.selected')) {
 				$td.find('input:checkbox').prop('checked', false);
@@ -257,4 +259,5 @@
 		});
 		
 	});
+});
 </script>

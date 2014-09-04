@@ -112,6 +112,7 @@
 <div id="{$status_div}" style="display:none;"></div>
 
 <script type="text/javascript">
+$(function() {
 	var $popup = genericAjaxPopupFetch('node_action{$id}');
 	
 	$popup.one('popup_open', function(event,ui) {
@@ -250,7 +251,7 @@
 		
 		$ph_menu.find('> li > input.filter').keyup(
 			function(e) {
-				term = $(this).val().toLowerCase();
+				var term = $(this).val().toLowerCase();
 				$ph_menu = $(this).closest('ul.cerb-popupmenu');
 				$ph_menu.find('> li a').each(function(e) {
 					if(-1 != $(this).html().toLowerCase().indexOf(term)) {
@@ -283,7 +284,7 @@
 			if(null == $field)
 				return;
 			
-			strtoken = $(this).attr('token');
+			var strtoken = $(this).attr('token');
 			
 			$field.focus().insertAtCursor('{literal}{{{/literal}' + strtoken + '{literal}}}{/literal}');
 		});
@@ -316,7 +317,7 @@
 
 		$act_menu.find('> li > input.filter').keyup(
 			function(e) {
-				term = $(this).val().toLowerCase();
+				var term = $(this).val().toLowerCase();
 				$act_menu = $(this).closest('ul.cerb-popupmenu');
 				$act_menu.find('> li a').each(function(e) {
 					if(-1 != $(this).html().toLowerCase().indexOf(term)) {
@@ -337,25 +338,25 @@
 		});
 	
 		$act_menu.find('> li > a').click(function() {
-			token = $(this).attr('token');
-			$frmDecAdd = $('#frmDecisionActionAdd{$id}');
+			var token = $(this).attr('token');
+			var $frmDecAdd = $('#frmDecisionActionAdd{$id}');
 			$frmDecAdd.find('input[name=action]').val(token);
-			$this = $(this);
+			var $this = $(this);
 			
 			genericAjaxPost('frmDecisionActionAdd{$id}','','c=internal&a=doDecisionAddAction',function(html) {
-				$ul = $('#frmDecisionAction{$id}Action DIV.actions');
+				var $ul = $('#frmDecisionAction{$id}Action DIV.actions');
 				
-				seq = parseInt($frmDecAdd.find('input[name=seq]').val());
+				var seq = parseInt($frmDecAdd.find('input[name=seq]').val());
 				if(null == seq)
 					seq = 0;
 	
-				$container = $('<fieldset id="action' + seq + '"></fieldset>');
+				var $container = $('<fieldset id="action' + seq + '"></fieldset>');
 				$container.prepend('<legend style="cursor:move;"><a href="javascript:;" onclick="$(this).closest(\'fieldset\').find(\'#divDecisionActionToolbar{$id}\').hide().appendTo($(\'#frmDecisionAction{$id}Action\'));$(this).closest(\'fieldset\').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></a> ' + $this.text() + '</legend>');
 				$container.append('<input type="hidden" name="actions[]" value="' + seq + '">');
 				$container.append('<input type="hidden" name="action'+seq+'[action]" value="' + token + '">');
 				$ul.append($container);
 	
-				$html = $('<div>' + html + '</div>');
+				var $html = $('<div>' + html + '</div>');
 				$container.append($html);
 				
 				$html.find('BUTTON.chooser_group.unbound').each(function() {
@@ -398,4 +399,6 @@
 		});
 		
 	}); // popup_open
+	
+});
 </script>

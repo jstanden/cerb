@@ -138,7 +138,9 @@
 {/if}
 
 <script type="text/javascript">
+$(function() {
 	var $popup = genericAjaxPopupFetch('node_trigger{$trigger->id}');
+	
 	$popup.one('popup_open', function(event,ui) {
 		var $this = $(this);
 		
@@ -214,4 +216,6 @@
 			});
 		{/if}
 	});
+	
+});
 </script>

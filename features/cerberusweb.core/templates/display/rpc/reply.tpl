@@ -97,7 +97,7 @@
 											{$event->name}
 										{/if}
 									</a>
-								</div
+								</div>
 							</li>
 							{/if}
 							{/foreach}
@@ -465,7 +465,7 @@
 			0,
 			{ name:'Upload an Image', openWith: 
 				function(markItUp) {
-					$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
+					var $chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
 					
 					$chooser.one('chooser_save', function(event) {
 						if(!event.response || 0 == event.response)

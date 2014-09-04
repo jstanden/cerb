@@ -77,112 +77,114 @@
 </div>
 
 <script type="text/javascript">
-$('#container_{$random}').find('ul.cerb-popupmenu > li.chooser').click(function(e) {
-	$this = $(this);
-	$val = $this.attr('key');
-	
-	$container = $('#container_{$random}');
-	$container.data('context', $val);
-	$container.data('context_name', $this.find('a').text());
-	
-	if($val.length > 0) {
-		$popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context='+encodeURIComponent($val),null,true,'750');
-		$popup.one('chooser_save',function(event) {
-			event.stopPropagation();
-			
-			$container = $('#container_{$random}');
-			$ul = $container.find('ul.chooser-container');
-			$context = $container.data('context');
-			$context_name = $container.data('context_name');
-			
-			for(i in event.labels) {
-				// Look for dupes
-				if(0 == $ul.find('input:hidden[value="' + $context + ':' + event.values[i] + '"]').length) {
-					$li = $('<li>' + event.labels[i] + ' (' + $context_name + ')</li>');
-					$li.append($('<input type="hidden" name="{$namePrefix}[context_objects][]" value="' + $context + ':' + event.values[i] + '">'));
-					$li.append($('<span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;pointer:middle;" onclick="$(this).closest(\'li\').remove();"></span>'));
-					
-					$ul.append($li);
+$(function() {
+	$('#container_{$random}').find('ul.cerb-popupmenu > li.chooser').click(function(e) {
+		var $this = $(this);
+		var $val = $this.attr('key');
+		
+		var $container = $('#container_{$random}');
+		$container.data('context', $val);
+		$container.data('context_name', $this.find('a').text());
+		
+		if($val.length > 0) {
+			var $popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context='+encodeURIComponent($val),null,true,'750');
+			$popup.one('chooser_save',function(event) {
+				event.stopPropagation();
+				
+				var $container = $('#container_{$random}');
+				var $ul = $container.find('ul.chooser-container');
+				var $context = $container.data('context');
+				var $context_name = $container.data('context_name');
+				
+				for(i in event.labels) {
+					// Look for dupes
+					if(0 == $ul.find('input:hidden[value="' + $context + ':' + event.values[i] + '"]').length) {
+						var $li = $('<li>' + event.labels[i] + ' (' + $context_name + ')</li>');
+						$li.append($('<input type="hidden" name="{$namePrefix}[context_objects][]" value="' + $context + ':' + event.values[i] + '">'));
+						$li.append($('<span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;pointer:middle;" onclick="$(this).closest(\'li\').remove();"></span>'));
+						
+						$ul.append($li);
+					}
 				}
+			});
+		}
+	});
+	
+	// Menu
+	var $menu_trigger = $('#{$menu_button}');
+	var $menu = $menu_trigger.nextAll('ul.cerb-popupmenu');
+	$menu_trigger.data('menu', $menu);
+	
+	$menu_trigger
+		.click(
+			function(e) {
+				var $menu = $(this).data('menu');
+	
+				if($menu.is(':visible')) {
+					$menu.hide();
+					return;
+				}
+	
+				$menu
+					.show()
+					.find('> li.filter > input.input_search')
+					.focus()
+					.select()
+					;
 			}
-		});
-	}
-});
-
-// Menu
-$menu_trigger = $('#{$menu_button}');
-$menu = $menu_trigger.nextAll('ul.cerb-popupmenu');
-$menu_trigger.data('menu', $menu);
-
-$menu_trigger
-	.click(
+		)
+	;
+	
+	$menu.find('> li.filter > input.input_search').keypress(
 		function(e) {
-			$menu = $(this).data('menu');
-
-			if($menu.is(':visible')) {
-				$menu.hide();
-				return;
+			var code = (e.keyCode ? e.keyCode : e.which);
+			if(code == 13) {
+				e.preventDefault();
+				e.stopPropagation();
+				$(this).select().focus();
+				return false;
 			}
-
-			$menu
-				.show()
-				.find('> li.filter > input.input_search')
-				.focus()
-				.select()
-				;
 		}
-	)
-;
-
-$menu.find('> li.filter > input.input_search').keypress(
-	function(e) {
-		code = (e.keyCode ? e.keyCode : e.which);
-		if(code == 13) {
-			e.preventDefault();
-			e.stopPropagation();
-			$(this).select().focus();
-			return false;
+	);
+		
+	$menu.find('> li > input.input_search').keyup(
+		function(e) {
+			var term = $(this).val().toLowerCase();
+			var $menu = $(this).closest('ul.cerb-popupmenu');
+			$menu.find('> li.item, > li.chooser').each(function(e) {
+				if(-1 != $(this).html().toLowerCase().indexOf(term)) {
+					$(this).show();
+				} else {
+					$(this).hide();
+				}
+			});
 		}
-	}
-);
+	);
 	
-$menu.find('> li > input.input_search').keyup(
-	function(e) {
-		term = $(this).val().toLowerCase();
-		$menu = $(this).closest('ul.cerb-popupmenu');
-		$menu.find('> li.item, > li.chooser').each(function(e) {
-			if(-1 != $(this).html().toLowerCase().indexOf(term)) {
-				$(this).show();
-			} else {
-				$(this).hide();
-			}
-		});
-	}
-);
-
-$menu.find('> li.item').click(function(e) {
-	e.stopPropagation();
-	if($(e.target).is('a'))
-		return;
-
-	$(this).find('a').trigger('click');
-});
-
-$menu.find('> li.item > a').click(function() {
-	$li = $(this).closest('li');
-	$menu = $(this).closest('ul.cerb-popupmenu')
-	$bubbles = $menu.prevAll('ul.chooser-container.bubbles');
+	$menu.find('> li.item').click(function(e) {
+		e.stopPropagation();
+		if($(e.target).is('a'))
+			return;
 	
-	$key = $li.attr('key');
+		$(this).find('a').trigger('click');
+	});
 	
-	if($bubbles.find('li input:hidden[value="' + $key + '"]').length > 0)
-		return;
-	
-	$bubble = $('<li></li>');
-	$bubble.append($li.find('a').text());
-	$bubble.append($('<input type="hidden" name="{$namePrefix}[{$param_name}][]" value="' + $key + '">'));
-	$bubble.append($('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>'));
-	
-	$bubbles.append($bubble);
+	$menu.find('> li.item > a').click(function() {
+		var $li = $(this).closest('li');
+		var $menu = $(this).closest('ul.cerb-popupmenu')
+		var $bubbles = $menu.prevAll('ul.chooser-container.bubbles');
+		
+		var $key = $li.attr('key');
+		
+		if($bubbles.find('li input:hidden[value="' + $key + '"]').length > 0)
+			return;
+		
+		var $bubble = $('<li></li>');
+		$bubble.append($li.find('a').text());
+		$bubble.append($('<input type="hidden" name="{$namePrefix}[{$param_name}][]" value="' + $key + '">'));
+		$bubble.append($('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>'));
+		
+		$bubbles.append($bubble);
+	});
 });
 </script>

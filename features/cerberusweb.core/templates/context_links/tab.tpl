@@ -24,22 +24,22 @@
 
 <script type="text/javascript">
 function linkAddContext(ref) {
-	$select = $(ref);
-	$form = $select.closest('form');
+	var $select = $(ref);
+	var $form = $select.closest('form');
 
 	if(0==$select.val().length)
 		return;
 
-	$context = $select.val();
+	var $context = $select.val();
 
-	reload_action = function(event) {
+	var reload_action = function(event) {
 		// Reload the tab
 		event.stopPropagation();
-		$id = $context.replace(/\./g,'_');
-		$view = $('#view' + encodeURIComponent($id));
+		var $id = $context.replace(/\./g,'_');
+		var $view = $('#view' + encodeURIComponent($id));
 	
 		if(0==$view.length) {
-			$tabs = $form.closest('div.ui-tabs');
+			var $tabs = $form.closest('div.ui-tabs');
 			if(0 != $tabs) {
 				$tabs.tabs('load', $tabs.tabs('option','active'));
 			}
@@ -48,22 +48,22 @@ function linkAddContext(ref) {
 		}
 	}
 	
-	$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context=' + $context + '&context_id=0&link_context={$context}&link_context_id={$context_id}',null,false,'500');
+	var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context=' + $context + '&context_id=0&link_context={$context}&link_context_id={$context_id}',null,false,'500');
 	$popup.one('dialogclose', reload_action);
 	
 	$select.val('');
 }
 	
 function chooserOpen(ref) {
-	$select = $(ref);
-	$form = $select.closest('form');
+	var $select = $(ref);
+	var $form = $select.closest('form');
 	
 	if(0==$select.val().length)
 		return;
 		
-	$context = $select.val();
+	var $context = $select.val();
 	
-	$popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context='+encodeURIComponent($context) + '&link_context={$context}&link_context_id={$context_id}',null,true,'750');
+	var $popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context='+encodeURIComponent($context) + '&link_context={$context}&link_context_id={$context_id}',null,true,'750');
 	$popup.one('chooser_save', function(event) {
 		event.stopPropagation();
 		$id = $context.replace(/\./g,'_');
@@ -81,7 +81,7 @@ function chooserOpen(ref) {
 			$data.push('context_id[]='+encodeURIComponent(event.values[idx]));
 		
 		// [TODO] Switch to genericAjaxPost(), polymorph 'data/form'
-		options = { };
+		var options = { };
 		options.async = false;	
 		options.type = 'POST';
 		options.data = $data.join('&');
@@ -113,26 +113,27 @@ function chooserOpen(ref) {
 }
 
 function removeSelectedContextLinks(ref) {
-	view_id = $(ref).closest('form').find('input:hidden[name=view_id]').val();
+	var view_id = $(ref).closest('form').find('input:hidden[name=view_id]').val();
 	
-	$view = $('#view' + view_id);
-	context = $view.find('FORM input:hidden[name=context_id]').val();
+	var $view = $('#view' + view_id);
+	var context = $view.find('FORM input:hidden[name=context_id]').val();
 	
-	$data = [ 
+	var $data = [ 
 		'c=internal',
 		'a=contextDeleteLinksJson',
 		'from_context={$context}',
 		'from_context_id={$context_id}', 
 		'context='+context
 	];
-	$checks = $view.find('input:checkbox:checked').each(function() {
+	
+	var $checks = $view.find('input:checkbox:checked').each(function() {
 		$id = $(this).val();
 		if(null != $id && $id > 0)
 			$data.push('context_id[]='+$id);
 	});
 	
 	// [TODO] Switch to genericAjaxPost(), polymorph 'data/form'
-	options = { };
+	var options = { };
 	options.async = false;	
 	options.type = 'POST';
 	options.data = $data.join('&');
@@ -152,7 +153,7 @@ function removeSelectedContextLinks(ref) {
 }
 
 $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function() {
-	$actions = $(this).find('DIV[id$=_actions]');
+	var $actions = $(this).find('DIV[id$=_actions]');
 	
 	if(0 == $actions.find('button.unlink').length) {
 		$actions.prepend($('<button type="button" class="unlink" style="display:none;" onclick="removeSelectedContextLinks(this);">Unlink</button>&nbsp;'));

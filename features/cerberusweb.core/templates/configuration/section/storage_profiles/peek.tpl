@@ -16,7 +16,7 @@
 <input type="hidden" name="do_delete" value="0">
 
 <b>{'common.name'|devblocks_translate|capitalize}:</b><br>
-<input type="text" name="name" value="{$profile->name}" style="width:98%;"><br>
+<input type="text" name="name" value="{$profile->name}" style="width:98%;" autofocus="true"><br>
 <br>
 
 <fieldset>
@@ -69,7 +69,9 @@ Used by:<br>
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $popup = genericAjaxPopupFetch('peek');
+	
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"Storage Profile");
 
@@ -90,7 +92,6 @@ Used by:<br>
 			});			
 		})
 		;
-		
 	});
+});
 </script>
-

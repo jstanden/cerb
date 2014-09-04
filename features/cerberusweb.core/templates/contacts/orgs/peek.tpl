@@ -111,6 +111,7 @@
 </div><!-- tabs -->
 
 <script type="text/javascript">
+$(function() {
 	var $popup = genericAjaxPopupFind('#orgPeekProps');
 
 	$popup.one('popup_open',function(event,ui) {
@@ -146,4 +147,5 @@
 
 		$('#formOrgPeek :input:text:first').focus();
 	});
+});
 </script>

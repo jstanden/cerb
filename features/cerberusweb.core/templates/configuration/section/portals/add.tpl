@@ -6,7 +6,7 @@
 	<input type="hidden" name="action" value="saveAddPortalPeek">
 	
 	<b>Portal Name:</b> ("Support Portal", "Contact Form", "ProductX FAQ")<br>
-	<input type="text" name="name" value="" style="width:98%;"><br>
+	<input type="text" name="name" value="" style="width:98%;" autofocus="true"><br>
 	<br>
 	
 	<b>Type:</b><br>
@@ -28,8 +28,11 @@
 </div>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $popup = genericAjaxPopupFetch('peek');
+	
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"Add Community Portal");
-	} );
+	});
+});
 </script>

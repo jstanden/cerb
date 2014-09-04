@@ -85,6 +85,7 @@
 </form>
 
 <script type="text/javascript">
+$(function() {
 	var $popup = genericAjaxPopupFetch('peek');
 	
 	$popup.one('popup_open',function(event,ui) {
@@ -117,4 +118,5 @@
 			limit: 10
 		});
 	});
+});
 </script>

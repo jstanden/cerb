@@ -19,5 +19,33 @@
 	<natures>
 		<nature>org.eclipse.php.core.PHPNature</nature>
 	</natures>
+	<filteredResources>
+		<filter>
+			<id>1409901665057</id>
+			<name>storage/tmp</name>
+			<type>30</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-templates_c/*</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1409901665059</id>
+			<name>storage/tmp</name>
+			<type>30</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-cache*</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1409901665060</id>
+			<name>storage/tmp</name>
+			<type>30</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-templates_c*</arguments>
+			</matcher>
+		</filter>
+	</filteredResources>
 </projectDescription>
-

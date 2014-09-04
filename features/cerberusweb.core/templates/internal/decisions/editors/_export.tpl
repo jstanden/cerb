@@ -15,17 +15,19 @@
 </form>
 
 <script type="text/javascript">
-var $popup = genericAjaxPopupFind('#frmBehaviorExport');
-$popup.one('popup_open', function(event,ui) {
-	var $this = $(this);
+$(function() {
+	var $popup = genericAjaxPopupFind('#frmBehaviorExport');
 	
-	$this.dialog('option','title',"{'Export Behavior'}");
-	
-	var $frm = $(this).find('form');
-	
-	$frm.find('button.submit').click(function(e) {
-		var $popup = genericAjaxPopupFind($(this));
-		$popup.dialog('close');
+	$popup.one('popup_open', function(event,ui) {
+		var $this = $(this);
+		
+		$this.dialog('option','title',"{'Export Behavior'}");
+		
+		var $frm = $(this).find('form');
+		
+		$frm.find('button.submit').click(function(e) {
+			$popup.dialog('close');
+		});
 	});
 });
 </script>

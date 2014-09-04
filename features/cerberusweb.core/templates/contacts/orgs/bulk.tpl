@@ -59,7 +59,9 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $popup = genericAjaxPopupFetch('peek');
+	
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{'common.bulk_update'|devblocks_translate|escape:'javascript' nofilter}");
 		
@@ -73,4 +75,5 @@
 				ajax.chooser(this, context, 'do_watcher_add_ids', { autocomplete: true, autocomplete_class:'input_add'} );
 		});
 	});
+});
 </script>

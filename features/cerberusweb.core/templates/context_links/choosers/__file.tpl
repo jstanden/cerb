@@ -14,8 +14,9 @@
 <br>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFind('#chooserFileUploadForm');
-	$frm = $popup.find('FORM#chooserFileUploadForm');
+$(function() {
+	var $popup = genericAjaxPopupFind('#chooserFileUploadForm');
+	var $frm = $popup.find('FORM#chooserFileUploadForm');
 	
 	$popup.find('UL.buffer').sortable({ placeholder: 'ui-state-highlight' });
 	
@@ -55,4 +56,6 @@
 		event.stopPropagation();
 		genericAjaxPopupDestroy('{$layer}');
 	});
+	
+});
 </script>

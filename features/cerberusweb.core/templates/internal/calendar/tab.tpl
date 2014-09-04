@@ -95,53 +95,55 @@
 </table>
 
 <script type="text/javascript">
-$frm = $('#frm{$guid}');
-$tab = $frm.closest('div.ui-tabs-panel');
-
-$openEvtPopupEvent = function(e) {
-	e.stopPropagation();
+$(function() {
+	var $frm = $('#frm{$guid}');
+	var $tab = $frm.closest('div.ui-tabs-panel');
 	
-	var $this = $(this);
-	var link = '';
-
-	if($this.is('.create-event')) {
-		$this.closest('div').find('ul.cerb-popupmenu').hide();
-		context = $this.attr('context');
-		link = 'ctx://' + context + ':0';
-	
-	} else if($this.is('div.event')) {
-		link = $this.attr('link');
-	}
-	
-	if(link.substring(0,6) == 'ctx://') {
-		var context_parts = link.substring(6).split(':');
-		var context = context_parts[0];
-		var context_id = context_parts[1];
+	$openEvtPopupEvent = function(e) {
+		e.stopPropagation();
 		
-		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context=' + context + '&context_id=' + context_id  + '&calendar_id={$calendar->id}',null,false,'600');
+		var $this = $(this);
+		var link = '';
+	
+		if($this.is('.create-event')) {
+			$this.closest('div').find('ul.cerb-popupmenu').hide();
+			var context = $this.attr('context');
+			link = 'ctx://' + context + ':0';
 		
-		$popup.one('popup_saved calendar_event_save calendar_event_delete', function(event) {
-			var month = (event.month) ? event.month : '{$calendar_properties.month}';
-			var year = (event.year) ? event.year : '{$calendar_properties.year}';
+		} else if($this.is('div.event')) {
+			link = $this.attr('link');
+		}
+		
+		if(link.substring(0,6) == 'ctx://') {
+			var context_parts = link.substring(6).split(':');
+			var context = context_parts[0];
+			var context_id = context_parts[1];
 			
-			genericAjaxGet($('#frm{$guid}').closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month=' + month + '&year=' + year);
-			event.stopPropagation();
-		});
-		
-	} else {
-		// [TODO] Regular link
+			var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context=' + context + '&context_id=' + context_id  + '&calendar_id={$calendar->id}',null,false,'600');
+			
+			$popup.one('popup_saved calendar_event_save calendar_event_delete', function(event) {
+				var month = (event.month) ? event.month : '{$calendar_properties.month}';
+				var year = (event.year) ? event.year : '{$calendar_properties.year}';
+				
+				genericAjaxGet($('#frm{$guid}').closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month=' + month + '&year=' + year);
+				event.stopPropagation();
+			});
+			
+		} else {
+			// [TODO] Regular link
+		}
 	}
-}
-
-{if !empty($create_contexts)}
-$frm.find('ul.cerb-popupmenu > li').click(function(e) {
-	e.stopPropagation();
-	e.preventDefault();
-	$(this).find('a.create-event').click();
+	
+	{if !empty($create_contexts)}
+	$frm.find('ul.cerb-popupmenu > li').click(function(e) {
+		e.stopPropagation();
+		e.preventDefault();
+		$(this).find('a.create-event').click();
+	});
+	
+	$frm.find('button.create-event, a.create-event').click($openEvtPopupEvent);
+	{/if}
+	
+	$tab.find('TABLE.calendar TR.week div.day_contents').find('div.event').click($openEvtPopupEvent);
 });
-
-$frm.find('button.create-event, a.create-event').click($openEvtPopupEvent);
-{/if}
-
-$tab.find('TABLE.calendar TR.week div.day_contents').find('div.event').click($openEvtPopupEvent);
 </script>

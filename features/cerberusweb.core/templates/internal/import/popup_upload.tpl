@@ -17,12 +17,13 @@
 <br>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFind('#frmImportPopup');
-	$frm = $popup.find('FORM#frmImportPopup');
+$(function() {
+	var $popup = genericAjaxPopupFind('#frmImportPopup');
+	var $frm = $popup.find('FORM#frmImportPopup');
 	
 	$frm.submit(function(event) {
-		$frm = $(this);
-		$iframe = $frm.siblings('IFRAME[name=iframe_file_post]');
+		var $frm = $(this);
+		var $iframe = $frm.siblings('IFRAME[name=iframe_file_post]');
 		$iframe.one('load', function(event) {
 			//data = $(this).contents().find('body').text();
 			//$json = $.parseJSON(data);
@@ -57,4 +58,5 @@
 		event.stopPropagation();
 		genericAjaxPopupDestroy('{$layer}');
 	});
+});
 </script>

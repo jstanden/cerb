@@ -101,10 +101,12 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFind('#frmCalEvtPeek');
+$(function() {
+	var $popup = genericAjaxPopupFind('#frmCalEvtPeek');
+	
 	$popup.one('popup_open',function(event,ui) {
-		$this = $(this);
-		$frm = $this.find('form');
+		var $this = $(this);
+		var $frm = $this.find('form');
 		
 		// Title
 		
@@ -115,11 +117,11 @@
 		
 		$frm.find('button.save').click(function() {
 			genericAjaxPost('frmCalEvtPeek','','c=internal&a=handleSectionAction&section=calendars&action=saveCalendarEventPopupJson',function(json) {
-				$popup = genericAjaxPopupFind('#frmCalEvtPeek');
+				var $popup = genericAjaxPopupFind('#frmCalEvtPeek');
 				if(null != $popup) {
-					$layer = $popup.prop('id').substring(5);
+					var $layer = $popup.prop('id').substring(5);
 					
-					$event = jQuery.Event('calendar_event_save');
+					var $event = jQuery.Event('calendar_event_save');
 					if(json.month)
 						$event.month = json.month;
 					if(json.year)
@@ -136,11 +138,11 @@
 		
 		$frm.find('button.delete').click(function() {
 			genericAjaxPost('frmCalEvtPeek','','c=internal&a=handleSectionAction&section=calendars&action=saveCalendarEventPopupJson&do_delete=1',function(json) {
-				$popup = genericAjaxPopupFind('#frmCalEvtPeek');
+				var $popup = genericAjaxPopupFind('#frmCalEvtPeek');
 				if(null != $popup) {
-					$layer = $popup.prop('id').substring(5);
+					var $layer = $popup.prop('id').substring(5);
 
-					$event = jQuery.Event('calendar_event_delete');
+					var $event = jQuery.Event('calendar_event_delete');
 					
 					genericAjaxPopupClose($layer, $event);
 					
@@ -151,4 +153,5 @@
 			});
 		});
 	});
+});
 </script>

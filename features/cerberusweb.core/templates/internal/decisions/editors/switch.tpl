@@ -34,9 +34,12 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('node_switch{$id}');
+$(function() {
+	var $popup = genericAjaxPopupFetch('node_switch{$id}');
+	
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{if empty($id)}New {/if}Decision");
 		$(this).find('input:text').first().focus();
 	});
+});
 </script>

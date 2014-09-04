@@ -36,40 +36,42 @@
 </div>
 
 <script type="text/javascript">
-$('#container_{$random}').find('select.chooser').change(function(e) {
-	$this = $(this);
-	$val = $this.val();
-	
-	if($val.length > 0) {
-		$popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context='+encodeURIComponent($val),null,true,'750');
-		$popup.one('popup_close',function(event) {
-			event.stopPropagation();
-			$container = $('#container_{$random}');
-			$chooser = $container.find('select.chooser');
-			$chooser.val('');
-		});
-		$popup.one('chooser_save',function(event) {
-			event.stopPropagation();
-			
-			$container = $('#container_{$random}');
-			$chooser = $container.find('select.chooser');
-			$ul = $container.find('ul.chooser-container');
-			$context_name = $chooser.find(':selected').text();
-			$context = $chooser.val();
-			
-			for(i in event.labels) {
-				// Look for dupes
-				if(0 == $ul.find('input:hidden[value="' + $context + ':' + event.values[i] + '"]').length) {
-					$li = $('<li>' + event.labels[i] + ' (' + $context_name + ')</li>');
-					$li.append($('<input type="hidden" name="{$namePrefix}[context_objects][]" value="' + $context + ':' + event.values[i] + '">'));
-					$li.append($('<span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;" onclick="$(this).closest(\'li\').remove();"></span>'));
-					
-					$ul.append($li);
+$(function() {
+	$('#container_{$random}').find('select.chooser').change(function(e) {
+		var $this = $(this);
+		var $val = $this.val();
+		
+		if($val.length > 0) {
+			var $popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context='+encodeURIComponent($val),null,true,'750');
+			$popup.one('popup_close',function(event) {
+				event.stopPropagation();
+				var $container = $('#container_{$random}');
+				var $chooser = $container.find('select.chooser');
+				$chooser.val('');
+			});
+			$popup.one('chooser_save',function(event) {
+				event.stopPropagation();
+				
+				var $container = $('#container_{$random}');
+				var $chooser = $container.find('select.chooser');
+				var $ul = $container.find('ul.chooser-container');
+				var $context_name = $chooser.find(':selected').text();
+				var $context = $chooser.val();
+				
+				for(i in event.labels) {
+					// Look for dupes
+					if(0 == $ul.find('input:hidden[value="' + $context + ':' + event.values[i] + '"]').length) {
+						var $li = $('<li>' + event.labels[i] + ' (' + $context_name + ')</li>');
+						$li.append($('<input type="hidden" name="{$namePrefix}[context_objects][]" value="' + $context + ':' + event.values[i] + '">'));
+						$li.append($('<span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;" onclick="$(this).closest(\'li\').remove();"></span>'));
+						
+						$ul.append($li);
+					}
 				}
-			}
-			
-			$chooser.val('');
-		});
-	}
+				
+				$chooser.val('');
+			});
+		}
+	});
 });
 </script>

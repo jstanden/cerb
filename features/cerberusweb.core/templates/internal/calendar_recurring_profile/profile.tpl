@@ -99,72 +99,74 @@
 {/foreach}
 
 <script type="text/javascript">
-	$(function() {
-		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-		tabOptions.active = {$selected_tab_idx};
-		
-		var tabs = $("#calendar_recurring_profileTabs").tabs(tabOptions);
-		
-		$('#btnDisplayCalendarRecurringProfileEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');
-			$popup.one('calendar_recurring_profile_save', function(event) {
-				event.stopPropagation();
-				document.location.reload();
-			});
+$(function() {
+	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+	tabOptions.active = {$selected_tab_idx};
+	
+	var tabs = $("#calendar_recurring_profileTabs").tabs(tabOptions);
+	
+	$('#btnDisplayCalendarRecurringProfileEdit').bind('click', function() {
+		var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');
+		$popup.one('calendar_recurring_profile_save', function(event) {
+			event.stopPropagation();
+			document.location.reload();
 		});
-
-		{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 	});
+
+	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
+});
 </script>
 
 <script type="text/javascript">
-{if $pref_keyboard_shortcuts}
-$(document).keypress(function(event) {
-	if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
-		return;
+$(function() {
+	{if $pref_keyboard_shortcuts}
+	$(document).keypress(function(event) {
+		if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
+			return;
+		
+		if($(event.target).is(':input'))
+			return;
 	
-	if($(event.target).is(':input'))
-		return;
-
-	hotkey_activated = true;
-	
-	switch(event.which) {
-		case 49:  // (1) tab cycle
-		case 50:  // (2) tab cycle
-		case 51:  // (3) tab cycle
-		case 52:  // (4) tab cycle
-		case 53:  // (5) tab cycle
-		case 54:  // (6) tab cycle
-		case 55:  // (7) tab cycle
-		case 56:  // (8) tab cycle
-		case 57:  // (9) tab cycle
-		case 58:  // (0) tab cycle
-			try {
-				idx = event.which-49;
-				$tabs = $("#calendar_recurring_profileTabs").tabs();
-				$tabs.tabs('option', 'active', idx);
-			} catch(ex) { }
-			break;
-		case 101:  // (E) edit
-			try {
-				$('#btnDisplayCalendarRecurringProfileEdit').click();
-			} catch(ex) { }
-			break;
-		case 109:  // (M) macros
-			try {
-				$('#btnDisplayMacros').click();
-			} catch(ex) { }
-			break;
-		default:
-			// We didn't find any obvious keys, try other codes
-			hotkey_activated = false;
-			break;
-	}
-	
-	if(hotkey_activated)
-		event.preventDefault();
+		hotkey_activated = true;
+		
+		switch(event.which) {
+			case 49:  // (1) tab cycle
+			case 50:  // (2) tab cycle
+			case 51:  // (3) tab cycle
+			case 52:  // (4) tab cycle
+			case 53:  // (5) tab cycle
+			case 54:  // (6) tab cycle
+			case 55:  // (7) tab cycle
+			case 56:  // (8) tab cycle
+			case 57:  // (9) tab cycle
+			case 58:  // (0) tab cycle
+				try {
+					idx = event.which-49;
+					$tabs = $("#calendar_recurring_profileTabs").tabs();
+					$tabs.tabs('option', 'active', idx);
+				} catch(ex) { }
+				break;
+			case 101:  // (E) edit
+				try {
+					$('#btnDisplayCalendarRecurringProfileEdit').click();
+				} catch(ex) { }
+				break;
+			case 109:  // (M) macros
+				try {
+					$('#btnDisplayMacros').click();
+				} catch(ex) { }
+				break;
+			default:
+				// We didn't find any obvious keys, try other codes
+				hotkey_activated = false;
+				break;
+		}
+		
+		if(hotkey_activated)
+			event.preventDefault();
+	});
+	{/if}
 });
-{/if}
 </script>
 
 {$profile_scripts = Extension_ContextProfileScript::getExtensions(true, $page_context)}

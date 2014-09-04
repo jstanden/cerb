@@ -216,7 +216,9 @@
 </form>
 
 <script type="text/javascript">
+$(function() {
 	var $popup = genericAjaxPopupFetch('{$layer}');
+	
 	$popup.one('popup_open',function(event,ui) {
 		var $popup = genericAjaxPopupFetch('{$layer}');
 		var $this = $(this);
@@ -273,10 +275,10 @@
 		
 		// Custom field deletion
 		$this.find('fieldset.cfields table').on('click', 'span.delete', function() {
-			$tr = $(this).closest('tr');
+			var $tr = $(this).closest('tr');
 			
 			// Check if the row is being deleted, and if so, undelete
-			$del = $tr.find('input:hidden[name^=deletes]');
+			var $del = $tr.find('input:hidden[name^=deletes]');
 
 			if($del.length == 0)
 				return;
@@ -299,5 +301,6 @@
 				}
 			}
 		});
-	} );
+	});
+});
 </script>
