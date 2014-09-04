@@ -1202,6 +1202,11 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	// Snippets
+	
+	function showSnippetHelpPopupAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->display('devblocks:cerberusweb.core::internal/snippets/help_popup.tpl');
+	}
 
 	function showTabSnippetsAction() {
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');

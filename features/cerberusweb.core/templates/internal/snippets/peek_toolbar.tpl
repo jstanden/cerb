@@ -1,5 +1,6 @@
 	{if !empty($token_labels)}<button type="button" class="cerb-popupmenu-trigger">Insert at cursor &#x25be;</button>{/if}
 	<button type="button" onclick="genericAjaxPost('formSnippetsPeek','peekTemplateTest','c=internal&a=snippetTest&snippet_context={$context}{if !empty($context_id)}&snippet_context_id={$context_id}{/if}&snippet_field=content');">Test</button>
+	<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
 
 	<div id="peekTemplateTest"></div>
 	

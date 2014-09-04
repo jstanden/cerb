@@ -51,6 +51,7 @@
 		<b>{'common.name'|devblocks_translate|capitalize}:</b><br>
 		<input type="text" name="reply_personal" value="{$object->reply_personal}" placeholder="(leave blank for default)" size="65" style="width:100%;"><br>
 		<button type="button" onclick="genericAjaxPost('frmBucketPeek','divSnippetBucketFromTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_personal');">{'common.test'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
 		<select name="personal_token">
 			<option value="">-- insert at cursor --</option>
 			{foreach from=$worker_token_labels key=k item=v}
@@ -67,6 +68,7 @@
 	<textarea name="reply_signature" rows="5" cols="76" style="width:100%;" placeholder="(leave blank for default)" wrap="off">{$object->reply_signature}</textarea><br>
 	<button type="button" onclick="genericAjaxPost('frmBucketPeek','divSnippetBucketSigTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_signature');">{'common.test'|devblocks_translate|capitalize}</button>
 	<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&raw=1&group_id={$group_id}&bucket_id={$bucket_id}',function(txt) { $('#frmBucketPeek textarea').text(txt); } );">{'common.default'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
 	<select name="sig_token">
 		<option value="">-- insert at cursor --</option>
 		{foreach from=$worker_token_labels key=k item=v}
