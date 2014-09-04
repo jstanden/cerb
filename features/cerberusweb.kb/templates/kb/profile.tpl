@@ -27,6 +27,7 @@
 		{'common.keyboard'|devblocks_translate|lower}:
 		{if $active_worker->hasPriv('core.kb.articles.modify')}(<b>e</b>) {'common.edit'|devblocks_translate|lower}{/if}
 		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
+		(<b>1-9</b>) change tab 
 	</small> 
 	{/if}
 </div>
@@ -112,7 +113,8 @@ $(function() {
 	var tabs = $("#kbTabs").tabs(tabOptions);
 	
 	$('#btnDisplayKbEdit').bind('click', function() {
-		$popup = genericAjaxPopup('peek', 'c=kb.ajax&a=showArticleEditPanel&id={$page_context_id}&view_id={$view_id}',null,false,'700');
+		var $popup = genericAjaxPopup('peek', 'c=kb.ajax&a=showArticleEditPanel&id={$page_context_id}&view_id={$view_id}',null,false,'700');
+		
 		$popup.one('article_save', function(event) {
 			event.stopPropagation();
 			document.location.href = '{devblocks_url}c=profiles&type=kb&id={$page_context_id}-{$article->title|devblocks_permalink}{/devblocks_url}';
@@ -131,6 +133,22 @@ $(document).keypress(function(event) {
 	hotkey_activated = true;
 	
 	switch(event.which) {
+		case 49:  // (1) tab cycle
+		case 50:  // (2) tab cycle
+		case 51:  // (3) tab cycle
+		case 52:  // (4) tab cycle
+		case 53:  // (5) tab cycle
+		case 54:  // (6) tab cycle
+		case 55:  // (7) tab cycle
+		case 56:  // (8) tab cycle
+		case 57:  // (9) tab cycle
+		case 58:  // (0) tab cycle
+			try {
+				idx = event.which-49;
+				$tabs = $("#kbTabs").tabs();
+				$tabs.tabs('option', 'active', idx);
+			} catch(ex) { } 
+			break;
 		{if $active_worker->hasPriv('core.kb.articles.modify')}
 		case 101:  // (E) edit
 			try {
