@@ -116,7 +116,52 @@ var markitupHTMLDefaults = {
 		{name:'Clean', className:'clean', replaceWith:function(markitup) { return markitup.selection.replace(/<(.*?)>/g, "") } },
 		{name:'Preview', key: 'P', className:'preview', call:'preview' }
 	]
-} 
+}
+
+var atwho_twig_commands = [
+	{ name: "{% if placeholder %}{% else %}{% endif %}", content: "If...else" },
+	{ name: "{% for placeholder in array %}\n{% endfor %}", content: "For loop" },
+	{ name: "{% set var = 'Value' %}", content: "Set temporary variable" },
+	{ name: "{% spaceless%}\n{% endspaceless %}\n", content: "Ignore whitespace" },
+];
+
+var atwho_twig_modifiers = [
+	{ name: "capitalize", content: "Capitalize text" },
+	{ name: "date('F d, Y')", content: "Format timestamp as a date" },
+	{ name: "date_pretty", content: "Format text as relative date" },
+	{ name: "default('text')", content: "Set a default value for an empty placeholder" },
+	{ name: "lower", content: "Convert text to lowercase" },
+	{ name: "secs_pretty", content: "Format a number of seconds as a time elapsed" },
+	{ name: "title", content: "Titlecase text by capitalizing each word" },
+	{ name: "upper", content: "Convert text to uppercase" },
+	
+	{ name: "abs", content: "Return the absolute value of a number" },
+	{ name: "bytes_pretty(2)", content: "Format a number as human-readable bytes" },
+	{ name: "date_modify('+1 day')", content: "Modify a date or timestamp" },
+	{ name: "escape", content: "Escape text for html, js, css, or url" },
+	{ name: "first", content: "Return the first element of an array or text" },
+	{ name: "format", content: "Replace %s in formatted text with placeholders" },
+	{ name: "join(',')", content: "Join array elements into one string" },
+	{ name: "json_encode", content: "Encode text as JSON" },
+	{ name: "keys", content: "Return the keys of an array" },
+	{ name: "last", content: "Return the last element of an array or text" },
+	{ name: "length", content: "Calculate the length of an array or text" },
+	{ name: "md5", content: "Convert text to an MD5 hash" },
+	{ name: "merge", content: "Merge multiple arrays together" },
+	{ name: "nl2br", content: "Convert newlines to HTML breaks" },
+	{ name: "number_format(2, '.', ',')", content: "Format a number" },
+	{ name: "regexp", content: "Match a regular expression" },
+	{ name: "replace('this', 'that')", content: "Replace text" },
+	{ name: "reverse", content: "Reverse an array or text" },
+	{ name: "round(0, 'common')", content: "Round a number: common, ceil, floor" },
+	{ name: "slice", content: "Extract a slice of an array or text" },
+	{ name: "sort", content: "Sort an array" },
+	{ name: "split(',')", content: "Split text into an array by delimiter" },
+	{ name: "striptags", content: "Strip HTML/XML tags in text" },
+	{ name: "trim", content: "Remove whitespace or given characters from the ends of text" },
+	{ name: "truncate(10)", content: "Truncate text" },
+	{ name: "url_encode", content: "Encode an array or text for use in a URL" },
+];
 
 $.fn.cerbDateInputHelper = function(options) {
 	var options = (typeof options == 'object') ? options : {};

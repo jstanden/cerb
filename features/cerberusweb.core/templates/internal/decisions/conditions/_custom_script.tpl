@@ -15,6 +15,29 @@
 <input type="text" name="{$namePrefix}[value]" value="{$params.value}" size="45">
 
 <script type="text/javascript">
-$condition = $('li#{$namePrefix}');
-$condition.find('textarea').elastic();
+$(function() {
+	var $condition = $('li#{$namePrefix}');
+	var $textarea = $condition.find('textarea');
+	$textarea.elastic();
+	
+	// Snippet syntax
+	$textarea
+		.atwho({
+			{literal}at: '{%',{/literal}
+			limit: 20,
+			{literal}tpl: '<li data-value="${name}">${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+			data: atwho_twig_commands,
+			suffix: ''
+		})
+		.atwho({
+			{literal}at: '|',{/literal}
+			limit: 20,
+			start_with_space: false,
+			search_key: "content",
+			{literal}tpl: '<li data-value="|${name}">${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+			data: atwho_twig_modifiers,
+			suffix: ''
+		})
+		;
+})
 </script>

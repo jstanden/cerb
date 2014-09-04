@@ -53,7 +53,7 @@
 {/if}
 
 <div id="divDecisionOutcomeToolbar{$id}" style="display:none;">
-	<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert &#x25be;</button>
+	<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
 	<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
 	<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
 	<div class="tester"></div>

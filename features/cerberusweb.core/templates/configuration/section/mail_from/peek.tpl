@@ -24,7 +24,7 @@
 	<div>
 		<b>{'common.name'|devblocks_translate|capitalize}:</b>
 		<div>
-			<input type="text" name="reply_personal" value="{$address->reply_personal}" style="width:100%;" placeholder="Example, Inc.">
+			<input type="text" name="reply_personal" value="{$address->reply_personal}" style="width:100%;" placeholder="Example, Inc." class="placeholders">
 			<br>
 			<button type="button" onclick="genericAjaxPost('frmAddyOutgoingPeek','divFromTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_personal');">{'common.test'|devblocks_translate|capitalize}</button>
 			<select name="sig_from_token">
@@ -41,7 +41,7 @@
 <fieldset class="peek">
 	<legend>Default signature:</legend>
 	
-	<textarea name="reply_signature" rows="10" cols="76" style="width:100%;">{$address->reply_signature}</textarea>
+	<textarea name="reply_signature" rows="10" cols="76" style="width:100%;" class="placeholders">{$address->reply_signature}</textarea>
 	<br>
 	<button type="button" onclick="genericAjaxPost('frmAddyOutgoingPeek','divSigTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_signature');">{'common.test'|devblocks_translate|capitalize}</button>
 	<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&raw=1&group_id=0',function(txt) { $('#frmAddyOutgoingPeek textarea').text(txt); } );">{'common.default'|devblocks_translate|capitalize}</button>
@@ -91,7 +91,8 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+	var $popup = genericAjaxPopupFetch('peek');
+	
 	$popup.one('popup_open',function(event,ui) {
 		$(this).dialog('option','title', 'Reply-To Address');
 		
@@ -121,5 +122,24 @@
 			$select.val('');
 			;
 		});
+		
+		$popup.find('.placeholders')
+			.atwho({
+				{literal}at: '{%',{/literal}
+				limit: 20,
+				{literal}tpl: '<li data-value="${name}">${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+				data: atwho_twig_commands,
+				suffix: ''
+			})
+			.atwho({
+				{literal}at: '|',{/literal}
+				limit: 20,
+				start_with_space: false,
+				search_key: "content",
+				{literal}tpl: '<li data-value="|${name}">${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+				data: atwho_twig_modifiers,
+				suffix: ''
+			})
+			;
 	});
 </script>

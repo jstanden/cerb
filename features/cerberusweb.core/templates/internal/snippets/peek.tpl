@@ -230,8 +230,10 @@
 
 <script type="text/javascript">
 	var $popup = genericAjaxPopupFetch('{$layer}');
+	
 	$popup.one('popup_open',function(event,ui) {
 		var $popup = $(this);
+		var $textarea = $popup.find('textarea[name=content]');
 		
 		{if empty($snippet->id)}
 		$(this).dialog('option','title', 'Create Snippet');
@@ -267,6 +269,26 @@
 			forceHelperSize: true,
 			handle: 'span.ui-icon-arrowthick-2-n-s'
 		});
+		
+		// Snippet syntax
+		$textarea
+			.atwho({
+				{literal}at: '{%',{/literal}
+				limit: 20,
+				{literal}tpl: '<li data-value="${name}">${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+				data: atwho_twig_commands,
+				suffix: ''
+			})
+			.atwho({
+				{literal}at: '|',{/literal}
+				limit: 20,
+				start_with_space: false,
+				search_key: "content",
+				{literal}tpl: '<li data-value="|${name}">${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+				data: atwho_twig_modifiers,
+				suffix: ''
+			})
+			;
 		
 		// Placeholder deletion
 		$popup.find('fieldset.placeholders table').on('click', 'span.delete', function() {

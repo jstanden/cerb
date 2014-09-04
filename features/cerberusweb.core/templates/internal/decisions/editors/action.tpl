@@ -41,7 +41,7 @@
 </div>
 
 <div id="divDecisionActionToolbar{$id}" style="display:none;">
-	<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert &#x25be;</button>
+	<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
 	<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
 	<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
 	
@@ -112,7 +112,8 @@
 <div id="{$status_div}" style="display:none;"></div>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('node_action{$id}');
+	var $popup = genericAjaxPopupFetch('node_action{$id}');
+	
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{if empty($id)}New {/if}Actions");
 		$(this).find('input:text').first().focus();
@@ -142,9 +143,29 @@
 
 		// Placeholders
 		
+		$popup.find(':text.placeholders, textarea.placeholders')
+			.atwho({
+				{literal}at: '{%',{/literal}
+				limit: 20,
+				{literal}tpl: '<li data-value="${name}">${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+				data: atwho_twig_commands,
+				suffix: ''
+			})
+			.atwho({
+				{literal}at: '|',{/literal}
+				limit: 20,
+				start_with_space: false,
+				search_key: "content",
+				{literal}tpl: '<li data-value="|${name}">${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+				data: atwho_twig_modifiers,
+				suffix: ''
+			})
+			;
+		
 		$popup.delegate(':text.placeholders, textarea.placeholders', 'focus', function(e) {
 			var $toolbar = $('#divDecisionActionToolbar{$id}');
 			var $src = $((null==e.srcElement) ? e.target : e.srcElement);
+			
 			if(0 == $src.nextAll('#divDecisionActionToolbar{$id}').length) {
 				$toolbar.find('div.tester').html('');
 				$toolbar.find('ul.cerb-popupmenu').hide();
@@ -350,6 +371,25 @@
 					ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[notify_worker_id]', { autocomplete:true });
 					$(this).removeClass('unbound');
 				});
+				
+				$html.find(':text.placeholders, textarea.placeholders')
+					.atwho({
+						{literal}at: '{%',{/literal}
+						limit: 20,
+						{literal}tpl: '<li data-value="${name}">${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+						data: atwho_twig_commands,
+						suffix: ''
+					})
+					.atwho({
+						{literal}at: '|',{/literal}
+						limit: 20,
+						start_with_space: false,
+						search_key: "content",
+						{literal}tpl: '<li data-value="|${name}">${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+						data: atwho_twig_modifiers,
+						suffix: ''
+					})
+					;
 				
 				$act_menu.find('input:text:first').focus().select();
 	
