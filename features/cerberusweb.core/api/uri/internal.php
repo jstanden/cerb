@@ -1615,11 +1615,13 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(!empty($token_values)) {
 			// Tokenize
 			$tokens = $tpl_builder->tokenize($content);
-			$valid_tokens = $tpl_builder->stripModifiers(array_keys($token_labels));
+			$unknown_tokens = array();
+			
+			//$valid_tokens = $tpl_builder->stripModifiers(array_keys($token_labels));
 			
 			// Test legal values
-			$unknown_tokens = array_diff($tokens, $valid_tokens);
-			$matching_tokens = array_intersect($tokens, $valid_tokens);
+			//$unknown_tokens = array_diff($tokens, $valid_tokens);
+			//$matching_tokens = array_intersect($tokens, $valid_tokens);
 			
 			if(!empty($unknown_tokens)) {
 				$success = false;
