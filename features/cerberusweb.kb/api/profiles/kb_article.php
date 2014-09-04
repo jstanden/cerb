@@ -34,17 +34,17 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		}
 		$tpl->assign('article', $article);	/* @var $article Model_KbArticle */
 		
-		// Remember the last tab/URL
+		// Default the last tab
 		
 		@$selected_tab = array_shift($stack);
 		
 		$point = 'cerberusweb.profiles.kb';
 		$tpl->assign('point', $point);
 		
-		if(null == $selected_tab) {
-			$selected_tab = $visit->get($point, '');
-		}
+		$selected_tab = 'article';
 		$tpl->assign('selected_tab', $selected_tab);
+		
+		// Categories
 		
 		$categories = DAO_KbCategory::getAll();
 		$tpl->assign('categories', $categories);
