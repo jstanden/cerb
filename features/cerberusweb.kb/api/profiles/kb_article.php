@@ -104,6 +104,35 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_KB_ARTICLE);
 		$tpl->assign('tab_manifests', $tab_manifests);
+		
+		// Attachments
+		
+		$attachments_map = DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_KB_ARTICLE, $article->id);
+		
+		$internal_urls = $article->extractInternalURLsFromContent();
+		
+		// Filter out inline URLs
+		
+		foreach($internal_urls as $internal_url => $internal_url_parts) {
+			@list($attachment_sha1hash, $attachment_name) = explode('/', $internal_url_parts['path'], 2);
+			
+			if(40 == strlen($attachment_sha1hash)) {
+				foreach($attachments_map['attachments'] as $attachment_id => $attachment_model) {
+					if($attachment_model->storage_sha1hash == $attachment_sha1hash) {
+						unset($attachments_map['attachments'][$attachment_id]);
+					}
+				}
+			}
+		}
+		
+		// Filter out attachment links with no content
+		 
+		foreach($attachments_map['links'] as $attachment_guid => $attachment_link) {
+			if(!isset($attachments_map['attachments'][$attachment_link->attachment_id]))
+				unset($attachments_map['links'][$attachment_guid]);
+		}
+		
+		$tpl->assign('attachments_map', $attachments_map);
 
 		// Template
 		$tpl->display('devblocks:cerberusweb.kb::kb/profile.tpl');

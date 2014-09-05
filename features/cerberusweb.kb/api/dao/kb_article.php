@@ -700,6 +700,34 @@ class Model_KbArticle {
 		
 		return $breadcrumbs;
 	}
+	
+	function extractInternalURLsFromContent() {
+		$url_writer = DevblocksPlatform::getUrlService();
+		$img_baseurl = $url_writer->write('c=files', true, false);
+		$img_baseurl_parts = parse_url($img_baseurl);
+		
+		$results = array();
+		
+		// Extract URLs
+		$matches = array();
+			preg_match_all(
+				sprintf('#\"(https*://%s%s/(.*?))\"#i',
+				preg_quote($img_baseurl_parts['host']),
+				preg_quote($img_baseurl_parts['path'])
+			),
+			$this->content,
+			$matches
+		);
+
+		if(isset($matches[1]))
+		foreach($matches[1] as $idx => $replace_url) {
+			$results[$replace_url] = array(
+				'path' => $matches[2][$idx],
+			);
+		}
+		
+		return $results;
+	}
 };
 
 class Context_KbArticle extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {

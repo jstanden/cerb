@@ -91,11 +91,11 @@
 	</ul>
 	
 	<div id="article">
-		<div id="kbArticleContent">
+		<div id="kbArticleContent" style="margin-bottom:20px;">
 			{$article->getContent() nofilter}
 		</div>
 		
-		{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context={$page_context} context_id={$page_context_id}}
+		{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context={$page_context} context_id={$page_context_id} attachments_map=$attachments_map}
 	</div>
 </div> 
 <br>

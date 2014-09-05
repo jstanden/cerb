@@ -1,6 +1,8 @@
-{$a_map = DAO_AttachmentLink::getLinksAndAttachments($context, $context_id)}
-{$links = $a_map.links}
-{$attachments = $a_map.attachments}
+{if empty($attachments_map) || !is_array($attachments_map)}
+{$attachments_map = DAO_AttachmentLink::getLinksAndAttachments($context, $context_id)}
+{/if}
+{$links = $attachments_map.links}
+{$attachments = $attachments_map.attachments}
 {$uniq_id = uniqid()}
 
 {if !empty($links) && !empty($attachments)}
