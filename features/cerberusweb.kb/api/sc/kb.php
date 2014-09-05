@@ -126,6 +126,59 @@ class UmScKbController extends Extension_UmScController {
 				
 				$article = DAO_KbArticle::get($id);
 				$tpl->assign('article', $article);
+				
+				// Attachments
+				$attachments_map = DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_KB_ARTICLE, $id);
+				$attachments_id_to_guid = array();
+				
+				if(isset($attachments_map['links']))
+				foreach($attachments_map['links'] as $attachment_guid => $attachment_link) {
+					$attachments_id_to_guid[$attachment_link->attachment_id] = $attachment_guid;
+				}
+				
+				// Rewrite internal URLs to use the SC files controller
+				
+				$article_inline_attachment_ids = array();
+				
+				$url_writer = DevblocksPlatform::getUrlService();
+
+				$internal_urls = $article->extractInternalURLsFromContent();
+				
+				if(is_array($internal_urls)) {
+					$attachments = $attachments_map['attachments'];
+
+					foreach($internal_urls as $replace_url => $replace_data) {
+						@list($attachment_sha1hash, $attachment_name) = explode('/', $replace_data['path'], 2);
+
+						if(40 != strlen($attachment_sha1hash))
+							continue;
+						
+						if(is_array($attachments))
+						foreach($attachments as $attachment_id => $attachment_model) {
+							if($attachment_sha1hash == $attachment_model->storage_sha1hash) {
+								$article_inline_attachment_ids[] = $attachment_id;
+								
+								if(false != ($attachment_guid = $attachments_id_to_guid[$attachment_id])) {
+									$new_url = $url_writer->write(sprintf('c=ajax&a=downloadFile&guid=%s&name=%s', $attachment_guid, urlencode($attachment_name)), true, true);
+									$article->content = str_replace($replace_url, $new_url, $article->content);
+								}
+								break;
+							}
+						}
+					}
+				}
+				
+				// Remove any attachment links that were already used inline
+				foreach($attachments_map['links'] as $attachment_guid => $attachment_link) {
+					if(in_array($attachment_link->attachment_id, $article_inline_attachment_ids)) {
+						unset($attachments_map['links'][$attachment_guid]);
+						unset($attachments_map['attachments'][$attachment_link->attachment_id]);
+					}
+				}
+
+				$tpl->assign('attachments_map', $attachments_map);
+				
+				// Article list
 
 				@$article_list = $umsession->getProperty(self::SESSION_ARTICLE_LIST, array());
 				if(!empty($article) && !isset($article_list[$id])) {
@@ -169,10 +222,7 @@ class UmScKbController extends Extension_UmScController {
 				
 				$tpl->assign('breadcrumbs',$trails);
 				
-				// Attachments
-				$attachments_map = DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_KB_ARTICLE, $id);
-				$tpl->assign('attachments_map', $attachments_map);
-				
+				// Template
 				$tpl->display("devblocks:cerberusweb.kb:portal_".ChPortalHelper::getCode() . ":support_center/kb/article.tpl");
 				break;
 			
