@@ -58,7 +58,7 @@
 		
 		<b>{'common.attachments'|devblocks_translate}:</b><br>
 		<button type="button" class="chooser_file"><span class="cerb-sprite sprite-view"></span></button>
-		<ul class="chooser-container bubbles" style="display:block;">
+		<ul class="chooser-container bubbles cerb-attachments-container" style="display:block;">
 		{if !empty($links) && !empty($attachments)}
 			{foreach from=$links item=link name=links}
 			{$attachment = $attachments.{$link->attachment_id}}
@@ -85,26 +85,110 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $popup = genericAjaxPopupFetch('peek');
+	var $content = $popup.find("#content");
+	
 	$popup.one('popup_open',function(event,ui) {
 		$(this).dialog('option','title','{'kb.common.knowledgebase_article'|devblocks_translate|escape:'javascript' nofilter}');
 		$("#kbArticleTabs").tabs();
 		$('#frmKbEditPanel :input:text:first').focus().select();
 		
+		var $attachments_container = $popup.find('UL.cerb-attachments-container');
+		
+		var markitupHTMLSettings = $.extend(true, { }, markitupHTMLDefaults);
+		var markitupMarkdownSettings = $.extend(true, { }, markitupMarkdownDefaults);
+		
+		markitupMarkdownSettings.markupSet.splice(
+			13,
+			0,
+			{ name:'Upload an Image', openWith: 
+				function(markItUp) {
+					var $chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
+					
+					$chooser.one('chooser_save', function(event) {
+						if(!event.response || 0 == event.response)
+							return;
+						
+						$content.insertAtCursor("![inline-image](" + event.response[0].url + ")");
+
+						// Add an attachment link
+						
+						if(0 == $attachments_container.find('input:hidden[value=' + event.response[0].id + ']').length) {
+							var $li = $('<li></li>');
+							$li.html(event.response[0].name + ' ( ' + event.response[0].size + ' bytes - ' + event.response[0].type + ' )');
+							
+							var $hidden = $('<input type="hidden" name="file_ids[]" value="">');
+							$hidden.val(event.response[0].id);
+							$hidden.appendTo($li);
+							
+							var $a = $('<a href="javascript:;"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>');
+							$a.click(function() {
+								$(this).parent().remove();
+							});
+							$a.appendTo($li);
+							
+							$attachments_container.append($li);
+						}
+					});
+				},
+				key: 'U',
+				className:'image-inline'
+			}
+		);
+		
+		markitupHTMLSettings.markupSet.splice(
+			16,
+			0,
+			{ name:'Upload an Image', openWith: 
+				function(markItUp) {
+					var $chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
+					
+					$chooser.one('chooser_save', function(event) {
+						if(!event.response || 0 == event.response)
+							return;
+						
+						$content.insertAtCursor("<img src=\"" + event.response[0].url + "\" alt=\"\">");
+						
+						// Add an attachment link
+						
+						if(0 == $attachments_container.find('input:hidden[value=' + event.response[0].id + ']').length) {
+							var $li = $('<li></li>');
+							$li.html(event.response[0].name + ' ( ' + event.response[0].size + ' bytes - ' + event.response[0].type + ' )');
+							
+							var $hidden = $('<input type="hidden" name="file_ids[]" value="">');
+							$hidden.val(event.response[0].id);
+							$hidden.appendTo($li);
+							
+							var $a = $('<a href="javascript:;"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>');
+							$a.click(function() {
+								$(this).parent().remove();
+							});
+							$a.appendTo($li);
+							
+							$attachments_container.append($li);
+						}
+					});
+				},
+				key: 'U',
+				className:'image-inline'
+			}
+		);
+		
 		{if 1==$article->format}
-		$("#content").markItUp(markitupHTMLDefaults);
+		$content.markItUp(markitupHTMLSettings);
 		{else}
-		$("#content").markItUp(markitupMarkdownDefaults);
+		$content.markItUp(markitupMarkdownSettings);
 		{/if}
 
 		$frm = $('#frmKbEditPanel');	
 
 		$frm.find('input[name=format]').bind('click', function(event) {
-			$("#content").markItUpRemove();
+			$content.markItUpRemove();
 			if(2==$(event.target).val()) {
-				$("#content").markItUp(markitupMarkdownDefaults);
+				$content.markItUp(markitupMarkdownSettings);
 			} else if(1==$(event.target).val()) {
-				$("#content").markItUp(markitupHTMLDefaults);
+				$content.markItUp(markitupHTMLSettings);
 			} 
 		} );
 		
@@ -120,5 +204,7 @@
 		$frm.find('button.chooser_file').each(function() {
 			ajax.chooserFile(this,'file_ids');
 		});
-	} );
+	});
+	
+});
 </script>

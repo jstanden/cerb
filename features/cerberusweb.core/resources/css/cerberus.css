@@ -1599,11 +1599,11 @@ span.plugin_icon_overlay_disabled {
 	background-image:url(markitup/toolbar/cerb/edit-code.png?v=2014012101);
 }
 
-.markItUpParsedown .img a {
+.markItUp .img a, .markItUpParsedown .img a {
 	background-image:url(markitup/toolbar/cerb/image--pencil.png?v=2014012101);
 }
 
-.markItUpParsedown .image-inline a {
+.markItUp .image-inline a, .markItUpParsedown .image-inline a {
 	background-image:url(markitup/toolbar/cerb/image-sunset.png?v=2014012101);
 }
 

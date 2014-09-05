@@ -348,6 +348,10 @@ class Model_Attachment {
 	public function getFileContents(&$fp=null) {
 		return Storage_Attachments::get($this, $fp);
 	}
+	
+	public function getLinks() {
+		return DAO_AttachmentLink::getByAttachmentId($this->id);
+	}
 };
 
 class Storage_Attachments extends Extension_DevblocksStorageSchema {
