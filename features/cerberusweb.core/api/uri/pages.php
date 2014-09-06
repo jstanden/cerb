@@ -187,10 +187,52 @@ class Page_Custom extends CerberusPageExtension {
 				$this->_createWizardMailPage();
 				break;
 				
+			case 'kb':
+				$this->_createWizardKbPage();
+				break;
 		}
 	}
 	
+	private function _createWizardKbPage() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!DevblocksPlatform::isPluginEnabled('cerberusweb.kb'))
+			return;
+		
+		$view_id = 'pages';
+		$page_name = 'Knowledgebase';
+		
 		$page_id = DAO_WorkspacePage::create(array(
+			DAO_WorkspacePage::NAME => $page_name,
+			DAO_WorkspacePage::EXTENSION_ID => 'core.workspace.page.workspace',
+			DAO_WorkspacePage::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+			DAO_WorkspacePage::OWNER_CONTEXT_ID => $active_worker->id,
+		));
+		
+		$pos = 0;
+		
+		// Knowledgebase browser
+		
+		$tab_id = DAO_WorkspaceTab::create(array(
+			DAO_WorkspaceTab::NAME => 'Topics',
+			DAO_WorkspaceTab::EXTENSION_ID => 'cerberusweb.kb.tab.browse',
+			DAO_WorkspaceTab::POS => $pos++,
+			DAO_WorkspaceTab::WORKSPACE_PAGE_ID => $page_id,
+		));
+		
+		// Marquee
+		
+		if(!empty($page_id) && !empty($view_id)) {
+			$url_writer = DevblocksPlatform::getUrlService();
+			C4_AbstractView::setMarquee($view_id, sprintf("New page created: <a href='%s'><b>%s</b></a>",
+				$url_writer->write(sprintf("c=pages&a=%d-%s",
+					$page_id,
+					DevblocksPlatform::strToPermalink($page_name))
+				),
+				htmlspecialchars($page_name, ENT_QUOTES, LANG_CHARSET_CODE)
+			));
+		}
+	}
 	
 	private function _createWizardMailPage() {
 		$active_worker = CerberusApplication::getActiveWorker();
