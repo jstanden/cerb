@@ -1084,9 +1084,9 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 	/**
 	 * ...
 	 *
-	 * @param unknown_type $context
-	 * @param unknown_type $context_id
-	 * @param unknown_type $attachment_ids
+	 * @param string $context
+	 * @param integer $context_id
+	 * @param array $attachment_ids
 	 */
 	static function setLinks($context, $context_id, $attachment_ids) {
 		if(!is_array($attachment_ids))
@@ -1103,7 +1103,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 		// Remove those that are missing
 		if(!empty($deleted_ids))
 		foreach($deleted_ids as $deleted_id)
-			DAO_AttachmentLink::deleteByAttachment($deleted_id);
+			DAO_AttachmentLink::deleteByAttachmentAndContext($deleted_id, $context, $context_id);
 			
 		// Add those that are new
 		if(!empty($new_ids))
@@ -1221,6 +1221,15 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 		$db->Execute(sprintf("DELETE FROM attachment_link WHERE context = %s AND context_id IN (%s)",
 			$db->qstr($context),
 			implode(',', $context_ids)
+		));
+	}
+	
+	static function deleteByAttachmentAndContext($attachment_id, $context, $context_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Execute(sprintf("DELETE FROM attachment_link WHERE attachment_id = %d AND context = %s AND context_id = %d",
+			$attachment_id,
+			$db->qstr($context),
+			$context_id
 		));
 	}
 	
