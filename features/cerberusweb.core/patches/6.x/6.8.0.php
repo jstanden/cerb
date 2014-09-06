@@ -138,6 +138,26 @@ if(!isset($columns['at_mention_name'])) {
 }
 
 // ===========================================================================
+// Add the `file_bundle` table
+
+if(!isset($tables['file_bundle'])) {
+	$sql = sprintf("
+		CREATE TABLE IF NOT EXISTS file_bundle (
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+			name VARCHAR(255) DEFAULT '',
+			tag VARCHAR(128) DEFAULT '',
+			updated_at INT UNSIGNED NOT NULL DEFAULT 0,
+			owner_context VARCHAR(255) DEFAULT '',
+			owner_context_id INT UNSIGNED NOT NULL DEFAULT 0,
+			PRIMARY KEY (id)
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->Execute($sql);
+
+	$tables['file_bundle'] = 'file_bundle';
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

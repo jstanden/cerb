@@ -306,6 +306,12 @@
 		<tu tuid='common.fieldsets'>
 			<tuv xml:lang="en_US"><seg>Fieldsets</seg></tuv>
 		</tu>
+		<tu tuid='common.file_bundle'>
+			<tuv xml:lang="en_US"><seg>File Bundle</seg></tuv>
+		</tu>
+		<tu tuid='common.file_bundles'>
+			<tuv xml:lang="en_US"><seg>File Bundles</seg></tuv>
+		</tu>
 		<tu tuid='common.filter'>
 			<tuv xml:lang="en_US"><seg>filter</seg></tuv>
 		</tu>
