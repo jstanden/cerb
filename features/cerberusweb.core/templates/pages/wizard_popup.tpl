@@ -6,9 +6,9 @@
 <fieldset class="peek">
 	<legend style="color:rgb(80,80,80);">What kind of page would you like to create?</legend>
 	
-	<div>
+	<div style="margin-bottom:10px;">
 		<label>
-			<input type="radio" name="" value="" checked="checked"> 
+			<input type="radio" name="page_type" value="mail" checked="checked"> 
 			<h2 style="display:inline;">Mail</h2>
 		</label>
 		<div style="margin-left:20px;">

@@ -182,8 +182,24 @@ class Page_Custom extends CerberusPageExtension {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 
+		switch($page_type) {
+			case 'mail':
+				$this->_createWizardMailPage();
+				break;
+				
+		}
+	}
+	
 		$page_id = DAO_WorkspacePage::create(array(
-			DAO_WorkspacePage::NAME => 'Mail',
+	
+	private function _createWizardMailPage() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$view_id = 'pages';
+		$page_name = 'Mail';
+		
+		$page_id = DAO_WorkspacePage::create(array(
+			DAO_WorkspacePage::NAME => $page_name,
 			DAO_WorkspacePage::EXTENSION_ID => 'core.workspace.page.workspace',
 			DAO_WorkspacePage::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
 			DAO_WorkspacePage::OWNER_CONTEXT_ID => $active_worker->id,
@@ -386,7 +402,20 @@ class Page_Custom extends CerberusPageExtension {
 				DAO_WorkspaceList::LIST_POS => $list_pos++,
 				DAO_WorkspaceList::LIST_VIEW => serialize($list_view),
 				DAO_WorkspaceList::WORKSPACE_TAB_ID => $tab_id,
+			));	
+
+		// Marquee
+			
+		if(!empty($page_id) && !empty($view_id)) {
+			$url_writer = DevblocksPlatform::getUrlService();
+			C4_AbstractView::setMarquee($view_id, sprintf("New page created: <a href='%s'><b>%s</b></a>",
+				$url_writer->write(sprintf("c=pages&a=%d-%s",
+					$page_id,
+					DevblocksPlatform::strToPermalink($page_name))
+				),
+				htmlspecialchars($page_name, ENT_QUOTES, LANG_CHARSET_CODE)
 			));
+		}
 	}
 	
 	function setPageOrderAction() {
