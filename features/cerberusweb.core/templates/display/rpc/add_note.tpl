@@ -14,9 +14,8 @@
 	</tr>
 	<tr>
 		<td>
-			<textarea name="content" rows="8" cols="80" id="note_content" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;"></textarea>
+			<textarea name="content" rows="8" cols="80" id="note_content" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;" title="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
 			<button type="button" onclick="ajax.chooserSnippet('snippets',$('#note_content'), { '{CerberusContexts::CONTEXT_TICKET}':'{$message->ticket_id}', '{CerberusContexts::CONTEXT_MESSAGE}':'{$message->id}', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
-			<div style="float:right;color:rgb(120,120,120);">{'comment.notify.at_mention'|devblocks_translate}</div>
 		</td>
 	</tr>
 	<tr>
@@ -33,6 +32,15 @@
 $(function() {
 	var $frm = $('#reply{$message->id}_form');
 	var $textarea = $frm.find('textarea[name=content]');
+	
+	// Tooltips
+	
+	$frm.find(':input[title], textarea[title]').tooltip({
+		position: {
+			my: 'left top',
+			at: 'left+10 bottom+5'
+		}
+	});
 	
 	// @mentions
 	

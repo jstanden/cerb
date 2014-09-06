@@ -59,8 +59,8 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.options'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
-				<label><input type="checkbox" name="is_banned" value="1" {if $address.a_is_banned}checked="checked"{/if}> {'address.is_banned'|devblocks_translate|capitalize}</label>
-				<label><input type="checkbox" name="is_defunct" value="1" {if $address.a_is_defunct}checked="checked"{/if}> {'address.is_defunct'|devblocks_translate|capitalize}</label>
+				<label><input type="checkbox" name="is_banned" value="1" title="Check this box if new messages from this email address should be rejected." {if $address.a_is_banned}checked="checked"{/if}> {'address.is_banned'|devblocks_translate|capitalize}</label>
+				<label><input type="checkbox" name="is_defunct" value="1" title="Check this box if the email address is no longer active." {if $address.a_is_defunct}checked="checked"{/if}> {'address.is_defunct'|devblocks_translate|capitalize}</label>
 			</td>
 		</tr>
 		
@@ -95,8 +95,7 @@
 
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea>
-	<div style="float:right;color:rgb(120,120,120);">{'comment.notify.at_mention'|devblocks_translate}</div>
+	<textarea name="comment" rows="5" cols="45" style="width:98%;" title="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
 </fieldset>
 
 {if $active_worker->hasPriv('core.addybook.addy.actions.update')}
@@ -126,6 +125,15 @@ $(function() {
 		
 		// Title
 		$this.dialog('option','title', '{'addy_book.peek.title'|devblocks_translate|escape:'javascript' nofilter}');
+		
+		// Tooltips
+		
+		$popup.find(':input[title], textarea[title]').tooltip({
+			position: {
+				my: 'left top',
+				at: 'left+10 bottom+5'
+			}
+		});
 		
 		// @mentions
 		

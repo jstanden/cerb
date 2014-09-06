@@ -6,11 +6,10 @@
 
 <b>Author:</b> {$active_worker->getName()}
 <div>
-	<textarea name="comment" rows="5" cols="60" style="width:98%;"></textarea>
+	<textarea name="comment" rows="5" cols="60" style="width:98%;" title="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
 </div>
 <div>
 	<button type="button" onclick="ajax.chooserSnippet('snippets',$('#internalCommentPopup textarea[name=comment]'), { '{$context}':'{$context_id}', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
-	<div style="float:right;color:rgb(120,120,120);">{'comment.notify.at_mention'|devblocks_translate}</div>
 </div>
 <br clear="all">
 
@@ -44,6 +43,17 @@ $(function() {
 		});
 		
 		var $textarea = $frm.find('textarea');
+		
+		// Tooltips
+		
+		$popup.find(':input[title], textarea[title]').tooltip({
+			position: {
+				my: 'left top',
+				at: 'left+10 bottom+5'
+			}
+		});
+		
+		// @ mentions
 		
 		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
 		

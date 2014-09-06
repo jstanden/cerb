@@ -89,8 +89,7 @@
 	
 	<fieldset class="peek">
 		<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-		<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea>
-		<div style="float:right;color:rgb(120,120,120);">{'comment.notify.at_mention'|devblocks_translate}</div>
+		<textarea name="comment" rows="5" cols="45" style="width:98%;" title="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
 	</fieldset>
 	
 	{if $active_worker->hasPriv('core.addybook.org.actions.update')}
@@ -118,10 +117,21 @@ $(function() {
 		var $textarea = $(this).find('textarea[name=comment]');
 		
 		// Title
+		
 		$(this).dialog('option','title', "{'contact_org.name'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
 		// Tabs
+		
 		$("#peekTabs").tabs();
+		
+		// Tooltips
+		
+		$popup.find(':input[title], textarea[title]').tooltip({
+			position: {
+				my: 'left top',
+				at: 'left+10 bottom+5'
+			}
+		});
 		
 		// @mentions
 		
@@ -135,14 +145,17 @@ $(function() {
 		});
 		
 		// Worker autocomplete
+		
 		$(this).find('button.chooser_watcher').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
 		});
 		
 		// Country autocomplete
+		
 		ajax.countryAutoComplete('#org_country_input');
 		
 		// Form validation
+		
 		$("#formOrgPeek").validate();
 
 		$('#formOrgPeek :input:text:first').focus();

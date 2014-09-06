@@ -27,10 +27,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.password'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
-				<input type="text" name="password" value="" style="width:98%;">
-				{if !empty($contact)}
-				<div><i>(leave blank to remain unchanged)</i></div>
-				{/if}
+				<input type="text" name="password" value="" style="width:98%;" {if !empty($contact)}title="Leave blank to keep the current password unchanged."{/if}>
 			</td>
 		</tr>
 		
@@ -65,8 +62,7 @@
 
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea>
-	<div style="float:right;color:rgb(120,120,120);">{'comment.notify.at_mention'|devblocks_translate}</div>
+	<textarea name="comment" rows="5" cols="45" style="width:98%;" title="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
 </fieldset>
 
 {if $active_worker->hasPriv('core.addybook.person.actions.update')}
@@ -93,19 +89,32 @@ $(function() {
 		var $textarea = $this.find('textarea[name=comment]');
 		
 		// Title
+		
 		$this.dialog('option','title', 'Contact');
 
 		// Autocomplete
+		
 		ajax.emailAutoComplete('#formContactPeek input[name=email]:text');
 		
 		// Worker chooser
+		
 		$this.find('button.chooser_watcher').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
 		});
 		
 		// Form validation
+		
 		$("#formContactPeek").validate();
 		$('#formContactPeek :input:text:first').focus();
+		
+		// Tooltips
+		
+		$popup.find(':input[title], textarea[title]').tooltip({
+			position: {
+				my: 'left top',
+				at: 'left+10 bottom+5'
+			}
+		});
 		
 		// @mentions
 		

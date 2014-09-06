@@ -1199,8 +1199,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-	&lt;textarea name="comment" rows="5" cols="45" style="width:98%;"&gt;&lt;/textarea&gt;
-	<div style="float:right;color:rgb(120,120,120);">{'comment.notify.at_mention'|devblocks_translate}</div>
+	&lt;textarea name="comment" rows="5" cols="45" style="width:98%; title="{'comment.notify.at_mention'|devblocks_translate}"&gt;&lt;/textarea&gt;
 </fieldset>
 
 {if !empty($model->id)}
@@ -1242,6 +1241,15 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		});
 		
 		$(this).find('input:text:first').focus();
+		
+		// Tooltips
+		
+		$popup.find(':input[title], textarea[title]').tooltip({
+			position: {
+				my: 'left top',
+				at: 'left+10 bottom+5'
+			}
+		});
 		
 		// @mentions
 		
