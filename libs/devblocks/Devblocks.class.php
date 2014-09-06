@@ -139,6 +139,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				$value = floatval($value);
 				break;
 				
+			case 'int':
 			case 'integer':
 				$value = intval($value);
 				break;

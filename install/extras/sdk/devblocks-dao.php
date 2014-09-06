@@ -239,7 +239,7 @@ foreach($fields as $field_name => $field_type) {
 			);
 			
 		$join_sql = "FROM <?php echo $table_name; ?> ".
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = '<?php echo $ctx_ext_id; ?>' AND context_link.to_context_id = <?php echo $table_name; ?>.id) " : " ").
+			(isset($tables['context_link']) ? sprintf("INNER JOIN context_link ON (context_link.to_context = %s AND context_link.to_context_id = <?php echo $table_name; ?>.id) ", Cerb_ORMHelper::qstr('<?php echo $ctx_ext_id; ?>')) : " ").
 			'';
 		
 		// Custom field joins

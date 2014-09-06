@@ -1276,6 +1276,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('contexts', $contexts);
 
 		// Custom fields
+		
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SNIPPET, false);
 		$tpl->assign('custom_fields', $custom_fields);
 
@@ -1288,7 +1289,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
 		
-		// Owners
+		// Ownership
+		
 		$roles = DAO_WorkerRole::getAll();
 		$tpl->assign('roles', $roles);
 		
@@ -1311,6 +1313,8 @@ class ChInternalController extends DevblocksControllerExtension {
 				$owner_roles[$k] = $v;
 		}
 		$tpl->assign('owner_roles', $owner_roles);
+		
+		// Template
 		
 		if($snippet->isWriteableByWorker($active_worker)) {
 			$tpl->display('devblocks:cerberusweb.core::internal/snippets/peek.tpl');
