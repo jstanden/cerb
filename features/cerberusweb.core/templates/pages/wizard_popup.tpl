@@ -51,6 +51,24 @@
 	</div>
 	{/if}
 	
+	{if DevblocksPlatform::isPluginEnabled('cerberusweb.reports')}
+	<div style="margin-bottom:10px;">
+		<label>
+			<input type="radio" name="page_type" value="reports"> 
+			<h2 style="display:inline;">Reports</h2>
+		</label>
+		<div style="margin-left:20px;">
+			<div class="tabs">
+				<ul>
+					<li><a href="#reports_tab">Reports</a></li>
+				</ul>
+				
+				<div id="reports_tab"></div>
+			</div>
+		</div>
+	</div>
+	{/if}
+	
 </fieldset>
 
 <div>

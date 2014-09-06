@@ -190,6 +190,10 @@ class Page_Custom extends CerberusPageExtension {
 			case 'kb':
 				$this->_createWizardKbPage();
 				break;
+				
+			case 'reports':
+				$this->_createWizardReportsPage();
+				break;
 		}
 	}
 	
@@ -218,6 +222,38 @@ class Page_Custom extends CerberusPageExtension {
 			DAO_WorkspaceTab::EXTENSION_ID => 'cerberusweb.kb.tab.browse',
 			DAO_WorkspaceTab::POS => $pos++,
 			DAO_WorkspaceTab::WORKSPACE_PAGE_ID => $page_id,
+		));
+		
+		// Marquee
+		
+		if(!empty($page_id) && !empty($view_id)) {
+			$url_writer = DevblocksPlatform::getUrlService();
+			C4_AbstractView::setMarquee($view_id, sprintf("New page created: <a href='%s'><b>%s</b></a>",
+				$url_writer->write(sprintf("c=pages&a=%d-%s",
+					$page_id,
+					DevblocksPlatform::strToPermalink($page_name))
+				),
+				htmlspecialchars($page_name, ENT_QUOTES, LANG_CHARSET_CODE)
+			));
+		}
+	}
+	
+	private function _createWizardReportsPage() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!DevblocksPlatform::isPluginEnabled('cerberusweb.reports'))
+			return;
+		
+		$view_id = 'pages';
+		$page_name = 'Reports';
+		
+		// Reports page
+		
+		$page_id = DAO_WorkspacePage::create(array(
+			DAO_WorkspacePage::NAME => $page_name,
+			DAO_WorkspacePage::EXTENSION_ID => 'reports.workspace.page',
+			DAO_WorkspacePage::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+			DAO_WorkspacePage::OWNER_CONTEXT_ID => $active_worker->id,
 		));
 		
 		// Marquee
