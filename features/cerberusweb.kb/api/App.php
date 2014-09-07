@@ -133,8 +133,43 @@ class ChKbPage extends CerberusPageExtension {
 
 if (class_exists('Extension_WorkspaceTab')):
 class WorkspaceTab_KbBrowse extends Extension_WorkspaceTab {
+	public function renderTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('workspace_page', $page);
+		$tpl->assign('workspace_tab', $tab);
+		
+		// Categories
+		
+		$categories = DAO_KbCategory::getAll();
+		$tpl->assign('categories', $categories);
+		
+		$levels = DAO_KbCategory::getTree(0);
+		$tpl->assign('levels',$levels);
+		
+		// Render template
+		
+		$tpl->display('devblocks:cerberusweb.kb::kb/tabs/articles/config.tpl');
+	}
+	
+	function saveTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array');
+
+		@$topic_id = intval($params['topic_id']);
+		
+		// Make sure it's a valid topic
+		if(false == ($topic = DAO_KbCategory::get($topic_id)))
+			$topic_id = 0;
+		
+		DAO_WorkspaceTab::update($tab->id, array(
+			DAO_WorkspaceTab::PARAMS_JSON => json_encode($params),
+		));
+	}	
+	
 	public function renderTab(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
-		$this->_renderCategory(0, $tab->id);
+		@$root_category_id = intval($tab->params['topic_id']);
+		
+		$this->_renderCategory($root_category_id, $tab->id);
 	}
 	
 	public function changeCategoryAction() {
@@ -647,6 +682,18 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		if($nocache || null === ($categories = $cache->load(self::CACHE_ALL))) {
 			$categories = self::getWhere();
 			$cache->save($categories, self::CACHE_ALL);
+		}
+		
+		return $categories;
+	}
+	
+	static function getTopics() {
+		$categories = self::getAll();
+		
+		if(is_array($categories))
+		foreach($categories as $key => $category) { /* @var $category Model_KbCategory */
+			if(0 != $category->parent_id)
+				unset($categories[$key]);
 		}
 		
 		return $categories;
