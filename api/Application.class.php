@@ -1072,7 +1072,7 @@ class CerberusContexts {
 
 		if(is_array($groups))
 		foreach($groups as $k => $group) { /* @var $group Model_Group */
-			if($as_worker->is_superuser || $active_worker->isGroupManager($k)) {
+			if($as_worker->is_superuser || $as_worker->isGroupManager($k)) {
 				$owners[] = array(
 					'label' => 'Group: ' . $group->name,
 					'context' => CerberusContexts::CONTEXT_GROUP,

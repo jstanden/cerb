@@ -22,7 +22,7 @@ $(function() {
 	
 	$frm.submit(function(event) {
 		var $frm = $(this);
-		$iframe = $frm.parent().find('IFRAME[name=iframe_file_post]');
+		var $iframe = $frm.parent().find('IFRAME[name=iframe_file_post]');
 		$iframe.one('load', function(event) {
 			var data = $(this).contents().find('body').text();
 			var $json = $.parseJSON(data);
@@ -42,7 +42,7 @@ $(function() {
 			event.labels = $labels;
 			event.values = $values;
 			$popup.trigger(event);
-			
+
 			genericAjaxPopupDestroy('{$layer}');
 		});
 	});

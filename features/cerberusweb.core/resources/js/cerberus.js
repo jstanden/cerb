@@ -17,18 +17,18 @@ var markitupMarkdownDefaults = {
 		{name:'Heading 4', key:'4', openWith:'#### ', placeHolder:'Your title here...', className:'h4' },
 		{name:'Heading 5', key:'5', openWith:'##### ', placeHolder:'Your title here...', className:'h5' },
 		{name:'Heading 6', key:'6', openWith:'###### ', placeHolder:'Your title here...', className:'h6' },
-		{separator:'---------------', className:'sep' },		
+		{separator:' ', className:'sep' },		
 		{name:'Bold', key:'B', openWith:'**', closeWith:'**', className:'b'},
 		{name:'Italic', key:'I', openWith:'_', closeWith:'_', className:'i'},
-		{separator:'---------------', className:'sep' },
+		{separator:' ', className:'sep' },
 		{name:'Bulleted List', openWith:'- ', className:'ul' },
 		{name:'Numeric List', className:'ol', openWith:function(markItUp) {
 			return markItUp.line+'. ';
 		}},
-		{separator:'---------------', className:'sep' },
+		{separator:' ', className:'sep' },
 		{name:'Link to an External Image', replaceWith:'![[![Alternative text]!]]([![Url:!:http://]!] "[![Title]!]")', className:'img'},
 		{name:'Link', key:'L', openWith:'[', closeWith:']([![Url:!:http://]!] "[![Title]!]")', placeHolder:'Your text to link here...', className:'a' },
-		{separator:'---------------', className:'sep'},	
+		{separator:' ', className:'sep'},	
 		{name:'Quotes', openWith:'> ', className:'blockquote'},
 		{
 			name:'Code Format', 
@@ -45,7 +45,7 @@ var markitupMarkdownDefaults = {
 			placeHolder:'code',
 			className:'code'
 		},
-		{separator:'---------------'},
+		{separator:' '},
 		{name:'Preview', key: 'P', call:'preview', className:"preview"}
 	]
 }
@@ -82,7 +82,7 @@ var markitupParsedownDefaults = {
 			placeHolder:'code',
 			className:'code'
 		},
-		{separator:'---------------'},
+		{separator:' '},
 		{name:'Preview', key: 'P', call:'preview', className:"preview"}
 	]
 }
@@ -101,18 +101,18 @@ var markitupHTMLDefaults = {
 		{name:'Heading 5', key:'5', openWith:'<h5(!( class="[![Class]!]")!)>', closeWith:'</h5>', placeHolder:'Your title here...', className:'h5' },
 		{name:'Heading 6', key:'6', openWith:'<h6(!( class="[![Class]!]")!)>', closeWith:'</h6>', placeHolder:'Your title here...', className:'h6' },
 		{name:'Paragraph', openWith:'<p(!( class="[![Class]!]")!)>', closeWith:'</p>', className:'p' },
-		{separator:'---------------', className:'sep' },
+		{separator:' ', className:'sep' },
 		{name:'Bold', key:'B', openWith:'(!(<strong>|!|<b>)!)', closeWith:'(!(</strong>|!|</b>)!)', className:'b' },
 		{name:'Italic', key:'I', openWith:'(!(<em>|!|<i>)!)', closeWith:'(!(</em>|!|</i>)!)', className:'i' },
 		{name:'Stroke through', key:'S', openWith:'<del>', closeWith:'</del>', className:'strike' },
-		{separator:'---------------', className:'sep' },
+		{separator:' ', className:'sep' },
 		{name:'Ul', openWith:'<ul>\n', closeWith:'</ul>\n', className:'ul' },
 		{name:'Ol', openWith:'<ol>\n', closeWith:'</ol>\n', className:'ol' },
 		{name:'Li', openWith:'<li>', closeWith:'</li>', className:'li' },
-		{separator:'---------------', className:'sep' },
+		{separator:' ', className:'sep' },
 		{name:'Link to an External Image', replaceWith:'<img src="[![Source:!:http://]!]" alt="[![Alternative text]!]" />', className:'img' },
 		{name:'Link', key:'L', openWith:'<a href="[![Link:!:http://]!]"(!( title="[![Title]!]")!)>', closeWith:'</a>', placeHolder:'Your text to link...', className:'a' },
-		{separator:'---------------', className:'sep' },
+		{separator:' ', className:'sep' },
 		{name:'Clean', className:'clean', replaceWith:function(markitup) { return markitup.selection.replace(/<(.*?)>/g, "") } },
 		{name:'Preview', key: 'P', className:'preview', call:'preview' }
 	]
@@ -367,9 +367,9 @@ var cAjaxCalls = function() {
 	}
 	
 	this.viewAddFilter = function(view_id, field, oper, values) {
-		$view = $('#view'+view_id);
+		var $view = $('#view'+view_id);
 		
-		post_str = 'c=internal' +
+		var post_str = 'c=internal' +
 			'&a=viewAddFilter' + 
 			'&id=' + view_id +
 			'&field=' + encodeURIComponent(field) +
@@ -377,8 +377,8 @@ var cAjaxCalls = function() {
 			'&' + $.param(values, true)  
 			;
 		
-		cb = function(o) {
-			$view_filters = $('#viewCustomFilters'+view_id);
+		var cb = function(o) {
+			var $view_filters = $('#viewCustomFilters'+view_id);
 			
 			if(0 != $view_filters.length) {
 				$view_filters.html(o);
@@ -386,7 +386,7 @@ var cAjaxCalls = function() {
 			}
 		}
 		
-		options = {};
+		var options = {};
 		options.type = 'POST';
 		options.data = post_str; //$('#'+formName).serialize();
 		options.url = DevblocksAppPath+'ajax.php';//+(null!=args?('?'+args):''),
@@ -397,9 +397,9 @@ var cAjaxCalls = function() {
 	}
 	
 	this.viewRemoveFilter = function(view_id, fields) {
-		$view = $('#view'+view_id);
+		var $view = $('#view'+view_id);
 		
-		post_str = 'c=internal' +
+		var post_str = 'c=internal' +
 			'&a=viewAddFilter' + 
 			'&id=' + view_id
 			;
@@ -409,7 +409,7 @@ var cAjaxCalls = function() {
 		}
 		
 		cb = function(o) {
-			$view_filters = $('#viewCustomFilters'+view_id);
+			var $view_filters = $('#viewCustomFilters'+view_id);
 			
 			if(0 != $view_filters.length) {
 				$view_filters.html(o);
@@ -417,7 +417,7 @@ var cAjaxCalls = function() {
 			}
 		}
 		
-		options = {};
+		var options = {};
 		options.type = 'POST';
 		options.data = post_str; //$('#'+formName).serialize();
 		options.url = DevblocksAppPath+'ajax.php';//+(null!=args?('?'+args):''),
@@ -538,28 +538,28 @@ var cAjaxCalls = function() {
 		if(null == options) 
 			options = { };
 		
-		$button = $(button);
+		var $button = $(button);
 
 		// The <ul> buffer
-		$ul = $button.siblings('ul.chooser-container');
+		var $ul = $button.siblings('ul.chooser-container');
 		
 		// Add the container if it doesn't exist
 		if(0==$ul.length) {
-			$ul = $('<ul class="bubbles chooser-container"></ul>');
+			var $ul = $('<ul class="bubbles chooser-container"></ul>');
 			$ul.insertAfter($button);
 		}
 		
 		// The chooser search button
 		$button.click(function(event) {
-			$button = $(this);
+			var $button = $(this);
 			var $ul = $(this).siblings('ul.chooser-container:first');
 			
-			$chooser=genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=chooserOpen&context=' + context,null,true,'750');
+			var $chooser=genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=chooserOpen&context=' + context,null,true,'750');
 			$chooser.one('chooser_save', function(event) {
 				// Add the labels
 				for(var idx in event.labels)
 					if(0==$ul.find('input:hidden[value="'+event.values[idx]+'"]').length) {
-						$li = $('<li>'+event.labels[idx]+'<input type="hidden" name="' + field_name + '[]" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
+						var $li = $('<li>'+event.labels[idx]+'<input type="hidden" name="' + field_name + '[]" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
 						if(null != options.style)
 							$li.addClass(options.style);
 						$ul.append($li);
@@ -574,7 +574,7 @@ var cAjaxCalls = function() {
 				options.autocomplete_class = ''; //'input_search';
 			}
 			
-			$autocomplete = $('<input type="text" class="'+options.autocomplete_class+'" size="45">');
+			var $autocomplete = $('<input type="text" class="'+options.autocomplete_class+'" size="45">');
 			$autocomplete.insertBefore($button);
 			
 			$autocomplete.autocomplete({
@@ -585,16 +585,15 @@ var cAjaxCalls = function() {
 				},
 				autoFocus:true,
 				select:function(event, ui) {
-					$this = $(this);
-					$label = ui.item.label;
-					$labelEscaped = $label.replace("<","&lt;");
-					$labelEscaped = $labelEscaped.replace(">","&gt;");
-					$value = ui.item.value;
-					$ul = $(this).siblings('button:first').siblings('ul.chooser-container:first');
+					var $this = $(this);
+					var $label = ui.item.label;
+					var $labelEscaped = $label.replace("<","&lt;").replace(">","&gt;");
+					var $value = ui.item.value;
+					var $ul = $this.siblings('button:first').siblings('ul.chooser-container:first');
 					
-					if($label.length > 0 && $value.length > 0) {
-						if(0==$ul.find('input:hidden[value="'+$value+'"]').length) {
-							$li = $('<li>'+$labelEscaped+'<input type="hidden" name="' + field_name + '[]" title="'+$labelEscaped+'" value="'+$value+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
+					if(undefined != $labelEscaped && undefined != $value) {
+						if(0 == $ul.find('input:hidden[value="'+$value+'"]').length) {
+							var $li = $('<li>'+$labelEscaped+'<input type="hidden" name="' + field_name + '[]" title="'+$labelEscaped+'" value="'+$value+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
 							$ul.append($li);
 						}
 					}
@@ -611,7 +610,7 @@ var cAjaxCalls = function() {
 		for(x in contexts)
 			ctx.push(x + ":" + contexts[x]);
 		
-		$chooser=genericAjaxPopup(layer,'c=internal&a=chooserOpenSnippet&context=cerberusweb.contexts.snippet&contexts=' + ctx.join(','),null,false,'600');
+		var $chooser=genericAjaxPopup(layer,'c=internal&a=chooserOpenSnippet&context=cerberusweb.contexts.snippet&contexts=' + ctx.join(','),null,false,'600');
 		$chooser.bind('snippet_select', function(event) {
 			event.stopPropagation();
 			
@@ -655,25 +654,26 @@ var cAjaxCalls = function() {
 		if(null == options) 
 			options = { };
 		
-		$button = $(button);
+		var $button = $(button);
 
 		// The <ul> buffer
-		$ul = $button.next('ul.chooser-container');
+		var $ul = $button.next('ul.chooser-container');
 		
 		if(null == options.single)
 			options.single = false;
 		
 		// Add the container if it doesn't exist
 		if(0==$ul.length) {
-			$ul = $('<ul class="bubbles chooser-container"></ul>');
+			var $ul = $('<ul class="bubbles chooser-container"></ul>');
 			$ul.insertAfter($button);
 		}
 		
 		// The chooser search button
 		$button.click(function(event) {
-			$button = $(this);
-			$ul = $(this).nextAll('ul.chooser-container:first');
-			$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=' + (options.single ? '1' : '0'),null,true,'750');
+			var $button = $(button);
+			var $ul = $button.nextAll('ul.chooser-container:first');
+			var $chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=' + (options.single ? '1' : '0'),null,true,'750');
+			
 			$chooser.one('chooser_save', function(event) {
 				// If in single-selection mode
 				if(options.single)
@@ -682,7 +682,7 @@ var cAjaxCalls = function() {
 				// Add the labels
 				for(var idx in event.labels)
 					if(0==$ul.find('input:hidden[value="'+event.values[idx]+'"]').length) {
-						$li = $('<li>'+event.labels[idx]+'<input type="hidden" name="' + field_name + (options.single ? '' : '[]') + '" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
+						var $li = $('<li>'+event.labels[idx]+'<input type="hidden" name="' + field_name + (options.single ? '' : '[]') + '" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
 						if(null != options.style)
 							$li.addClass(options.style);
 						$ul.append($li);

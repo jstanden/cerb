@@ -86,7 +86,7 @@ $(function() {
 			key: 'H',
 			className:'parsedown'
 		},
-		{ separator:'---------------' },
+		{ separator:' ' },
 		{ name:'Preview', key: 'P', call:'preview', className:"preview" }
 	);
 	
@@ -127,7 +127,7 @@ $(function() {
 			key: 'H',
 			className:'plaintext'
 		},
-		{ separator:'---------------' }
+		{ separator:' ' }
 	);
 	
 	markitupParsedownSettings.markupSet.splice(

@@ -303,7 +303,7 @@
 		
 		markitupParsedownSettings.markupSet.unshift(
 			{ name:'Switch to Plaintext', openWith: markitupReplyFunctions.switchToPlaintext, className:'plaintext' },
-			{ separator:'---------------' }
+			{ separator:' ' }
 		);
 		
 		markitupParsedownSettings.markupSet.splice(
@@ -323,7 +323,7 @@
 				key: 'U',
 				className:'image-inline'
 			}
-			//{ separator:'---------------' }
+			//{ separator:' ' }
 		);
 		
 		try {

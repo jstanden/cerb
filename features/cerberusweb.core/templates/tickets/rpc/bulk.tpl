@@ -274,7 +274,7 @@
 		);
 		
 		markitupPlaintextSettings.markupSet.push(
-			{ separator:'---------------' },
+			{ separator:' ' },
 			{ name:'Preview', key: 'P', call:'preview', className:"preview" }
 		);
 		
@@ -303,7 +303,7 @@
 		
 		markitupParsedownSettings.markupSet.unshift(
 			{ name:'Switch to Plaintext', openWith: markitupBroadcastFunctions.switchToPlaintext, className:'plaintext' },
-			{ separator:'---------------' }
+			{ separator:' ' }
 		);
 		
 		markitupParsedownSettings.markupSet.splice(

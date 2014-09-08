@@ -556,6 +556,8 @@ class CerberusMail {
 		'html_template_id'
 		'headers'
 		'files'
+		'forward_files'
+		'link_forward_files'
 		'closed'
 		'ticket_reopen'
 		'group_id'

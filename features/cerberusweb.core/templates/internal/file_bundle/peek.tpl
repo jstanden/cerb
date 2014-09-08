@@ -21,7 +21,7 @@
 		<tr>
 			<td width="1%" nowrap="nowrap"><b>{'common.tag'|devblocks_translate}:</b></td>
 			<td width="99%">
-				<input type="text" name="tag" value="{$model->tag}" style="width:50%;" placeholder="example" title="This tag can be used in snippets and other text commands to quickly attach these files. The tag name can contain letters, numbers, and underscores, without spaces.">
+				<input type="text" name="tag" value="{$model->tag}" style="width:50%;" placeholder="example" title="This tag can be used in snippets and other text commands to quickly attach these files. The tag name can contain letters, numbers, dashes, and underscores, without spaces.">
 			</td>
 		</tr>
 		
@@ -111,6 +111,7 @@
 </form>
 
 <script type="text/javascript">
+$(function() {
 	var $popup = genericAjaxPopupFetch('peek');
 	
 	$popup.one('popup_open', function(event,ui) {
@@ -148,4 +149,5 @@
 			limit: 10
 		});
 	});
+});	
 </script>
