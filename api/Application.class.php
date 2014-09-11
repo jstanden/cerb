@@ -119,6 +119,28 @@ class CerberusApplication extends DevblocksApplication {
 		return $workers;
 	}
 	
+	static function getFileBundleDictionaryJson() {
+		$file_bundles = DAO_FileBundle::getAll();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$list = array();
+		
+		if(is_array($file_bundles))
+		foreach($file_bundles as $file_bundle) { /* @var $file_bundle Model_FileBundle */
+			// Filter by owner/readable
+			if($active_worker && !$file_bundle->isReadableByActor($active_worker))
+				continue;
+			
+			$list[] = array(
+				'id' => $file_bundle->id,
+				'name' => $file_bundle->name,
+				'tag' => $file_bundle->tag,
+			);
+		}
+		
+		return json_encode($list);
+	}
+	
 	static function getAtMentionsWorkerDictionaryJson() {
 		$workers = DAO_Worker::getAllActive();
 		
