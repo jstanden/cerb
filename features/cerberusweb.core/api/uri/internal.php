@@ -746,9 +746,14 @@ class ChInternalController extends DevblocksControllerExtension {
 
 	function chooserOpenFileUploadAction() {
 		@$files = $_FILES['file_data'];
+		@$bundle_ids = DevblocksPlatform::importGPC($_REQUEST['bundle_ids'], 'array:integer', array());
+		
 		$url_writer = DevblocksPlatform::getUrlService();
+		
 		$results = array();
 
+		// File uploads
+		
 		if(is_array($files) && isset($files['tmp_name']))
 		foreach(array_keys($files['tmp_name']) as $file_idx) {
 			$file_name = $files['name'][$file_idx];
@@ -790,7 +795,32 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 			@unlink($file_tmp_name);
 		}
+		
+		// Bundles
+		
+		if(is_array($bundle_ids) && !empty($bundle_ids)) {
+			$bundles = DAO_FileBundle::getIds($bundle_ids);
 
+			if(is_array($bundles))
+			foreach($bundles as $bundle) {
+				$attachments = $bundle->getAttachments();
+				
+				if(is_array($attachments))
+				foreach($attachments as $attachment) { /* @var $attachment Model_Attachment */
+					$results[] = array(
+						'id' => $attachment->id,
+						'name' => $attachment->display_name,
+						'type' => $attachment->mime_type,
+						'size' => $attachment->storage_size,
+						'sha1_hash' => $attachment->storage_sha1hash,
+						'url' => $url_writer->write(sprintf("c=files&hash=%s&name=%s", $attachment->storage_sha1hash, urlencode($attachment->display_name)), true),
+					);
+				}
+			}
+		}
+
+		// JSON
+		
 		echo json_encode($results);
 	}
 
@@ -952,6 +982,32 @@ class ChInternalController extends DevblocksControllerExtension {
 					$entry->value = $row[SearchFields_Address::ID];
 					$list[] = $entry;
 				}
+				break;
+				
+			case CerberusContexts::CONTEXT_FILE_BUNDLE:
+				$bundles = DAO_FileBundle::getAll();
+				
+				$results = array_filter($bundles, function($bundle) use ($active_worker, $term) { /* @var $bundle Model_FileBundle */
+					// Check if the term exists
+					if(false === stristr($bundle->name . ' ' . $bundle->tag, $term))
+						return false;
+					
+					// Check if the record is readable by the actor 
+					if(!CerberusContexts::isReadableByActor($bundle->owner_context, $bundle->owner_context_id, $active_worker))
+						return false;
+					
+					return true;
+				});
+				
+				// [TODO] Rank results?
+				
+				foreach($results as $bundle) { /* @var $bundle Model_FileBundle */
+					$entry = new stdClass();
+					$entry->label = $bundle->name;
+					$entry->value = intval($bundle->id);
+					$list[] = $entry;
+				}
+				
 				break;
 
 			case CerberusContexts::CONTEXT_GROUP:

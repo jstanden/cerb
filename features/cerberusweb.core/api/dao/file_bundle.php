@@ -1023,12 +1023,37 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		$defaults->is_ephemeral = true;
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'File Bundle';
-		/*
-		$view->addParams(array(
-			SearchFields_FileBundle::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_FileBundle::UPDATED_AT,'=',0),
-		), true);
-		*/
+		$view->name = 'File Bundles';
+
+		$params_required = array();
+		
+		$worker_group_ids = array_keys($active_worker->getMemberships());
+		$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($active_worker->id));
+		
+		// Restrict owners
+		$param_ownership = array(
+			DevblocksSearchCriteria::GROUP_OR,
+			SearchFields_FileBundle::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_FileBundle::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_APPLICATION),
+			array(
+				DevblocksSearchCriteria::GROUP_AND,
+				SearchFields_FileBundle::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_FileBundle::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_WORKER),
+				SearchFields_FileBundle::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_FileBundle::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_EQ,$active_worker->id),
+			),
+			array(
+				DevblocksSearchCriteria::GROUP_AND,
+				SearchFields_FileBundle::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_FileBundle::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_GROUP),
+				SearchFields_FileBundle::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_FileBundle::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,$worker_group_ids),
+			),
+			array(
+				DevblocksSearchCriteria::GROUP_AND,
+				SearchFields_FileBundle::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_FileBundle::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_ROLE),
+				SearchFields_FileBundle::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_FileBundle::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,$worker_role_ids),
+			),
+		);
+		$params_required['_ownership'] = $param_ownership;
+		
+		$view->addParamsRequired($params_required, true);
+		
 		$view->renderSortBy = SearchFields_FileBundle::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;

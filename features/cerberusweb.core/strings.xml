@@ -645,6 +645,12 @@
 		<tu tuid='common.upload'>
 			<tuv xml:lang="en_US"><seg>upload</seg></tuv>
 		</tu>
+		<tu tuid='common.upload.file'>
+			<tuv xml:lang="en_US"><seg>upload file</seg></tuv>
+		</tu>
+		<tu tuid='common.upload.files'>
+			<tuv xml:lang="en_US"><seg>upload files</seg></tuv>
+		</tu>
 		<tu tuid='common.url'>
 			<tuv xml:lang="en_US"><seg>URL</seg></tuv>
 		</tu>
