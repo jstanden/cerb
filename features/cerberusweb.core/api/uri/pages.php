@@ -181,19 +181,27 @@ class Page_Custom extends CerberusPageExtension {
 		@$page_type = DevblocksPlatform::importGPC($_REQUEST['page_type'],'string',null);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		$page_id = null;
 
 		switch($page_type) {
 			case 'mail':
-				$this->_createWizardMailPage();
+				$page_id = $this->_createWizardMailPage();
 				break;
 				
 			case 'kb':
-				$this->_createWizardKbPage();
+				$page_id = $this->_createWizardKbPage();
 				break;
 				
 			case 'reports':
-				$this->_createWizardReportsPage();
+				$page_id = $this->_createWizardReportsPage();
 				break;
+		}
+		
+		// Add to the current worker's menu pref
+		if(!empty($page_id)) {
+			$menu_json = json_decode(DAO_WorkerPref::get($active_worker->id, 'menu_json'), true);
+			$menu_json[] = $page_id;
+			DAO_WorkerPref::set($active_worker->id, 'menu_json', json_encode($menu_json));
 		}
 	}
 	
@@ -236,6 +244,8 @@ class Page_Custom extends CerberusPageExtension {
 				htmlspecialchars($page_name, ENT_QUOTES, LANG_CHARSET_CODE)
 			));
 		}
+		
+		return $page_id;
 	}
 	
 	private function _createWizardReportsPage() {
@@ -268,6 +278,8 @@ class Page_Custom extends CerberusPageExtension {
 				htmlspecialchars($page_name, ENT_QUOTES, LANG_CHARSET_CODE)
 			));
 		}
+		
+		return $page_id;
 	}
 	
 	private function _createWizardMailPage() {
@@ -494,6 +506,8 @@ class Page_Custom extends CerberusPageExtension {
 				htmlspecialchars($page_name, ENT_QUOTES, LANG_CHARSET_CODE)
 			));
 		}
+		
+		return $page_id;
 	}
 	
 	function setPageOrderAction() {
