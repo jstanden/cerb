@@ -110,7 +110,15 @@ $(function() {
 	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
 	tabOptions.active = {$selected_tab_idx};
 	
+	// Tabs
+	
 	var tabs = $("#kbTabs").tabs(tabOptions);
+	
+	// Page title
+	
+	document.title = "KB - {$article->title|escape:'javascript'} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript'}";
+	
+	// Edit button
 	
 	$('#btnDisplayKbEdit').bind('click', function() {
 		var $popup = genericAjaxPopup('peek', 'c=kb.ajax&a=showArticleEditPanel&id={$page_context_id}&view_id={$view_id}',null,false,'700');
