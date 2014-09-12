@@ -101,7 +101,12 @@
 					</fieldset>
 				</div>
 				
-				<textarea id="divComposeContent{$random}" name="content" style="width:98%;height:150px;border:1px solid rgb(180,180,180);padding:2px;">{$draft->body}</textarea>
+				<textarea id="divComposeContent{$random}" name="content" style="width:98%;height:150px;border:1px solid rgb(180,180,180);padding:2px;" title="Use #commands to perform additional actions">{if !empty($draft)}{$draft->body}{else}
+
+
+
+#signature
+#cut{/if}</textarea>
 			</td>
 		</tr>
 	</table>
@@ -282,8 +287,29 @@
 		};
 		
 		markitupPlaintextSettings.markupSet.unshift(
-			{ name:'Switch to Markdown', openWith: markitupReplyFunctions.switchToMarkdown, className:'parsedown' }
+			{ name:'Switch to Markdown', openWith: markitupReplyFunctions.switchToMarkdown, className:'parsedown' },
+			{ separator:' ' },
+			{ name:'Preview', key: 'P', call:'preview', className:"preview" }
 		);
+		
+		markitupPlaintextSettings.previewAutoRefresh = true;
+		markitupPlaintextSettings.previewInWindow = 'width=800, height=600, titlebar=no, location=no, menubar=no, status=no, toolbar=no, resizable=yes, scrollbars=yes';
+		
+		markitupPlaintextSettings.previewParser = function(content) {
+			genericAjaxPost(
+				$frm,
+				'',
+				'c=display&a=getReplyPreview',
+				function(o) {
+					content = o;
+				},
+				{
+					async: false
+				}
+			);
+			
+			return content;
+		};
 		
 		markitupParsedownSettings.previewParser = function(content) {
 			genericAjaxPost(
@@ -341,6 +367,64 @@
 		}
 		
 		$frm.validate();
+		
+		// @who and #command
+		
+		var atwho_file_bundles = {CerberusApplication::getFileBundleDictionaryJson() nofilter};
+		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
+		
+		$content
+			.atwho({
+				at: '#attach ',
+				{literal}tpl: '<li data-value="#attach ${tag}\n">${name} <small style="margin-left:10px;">${tag}</small></li>',{/literal}
+				suffix: '',
+				data: atwho_file_bundles,
+				limit: 10
+			})
+			.atwho({
+				at: '#',
+				data: [
+					'attach',
+					'comment',
+					'comment @',
+					'cut\n',
+					'signature\n',
+					'unwatch\n',
+					'watch\n'
+				],
+				limit: 10,
+				suffix: '',
+				hide_without_suffix: true,
+				callbacks: {
+					before_insert: function(value, $li) {
+						if(value.substr(-1) != '\n' && value.substr(-1) != '@')
+							value += ' ';
+						
+						return value;
+					}
+				}
+			})
+			.atwho({
+				at: '@',
+				{literal}tpl: '<li data-value="@${at_mention}">${name} <small style="margin-left:10px;">${title}</small></li>',{/literal}
+				data: atwho_workers,
+				limit: 10
+			})
+			;
+		
+		$content.on('inserted.atwho', function(event, $li) {
+			//if($li.text() == 'delete quote from here\n')
+			//	$(this).trigger('delete_quote_from_cursor');
+		});
+		
+		// Tooltips
+		
+		$frm.find(':input[title], textarea[title], a[title]').tooltip({
+			position: {
+				my: 'left top',
+				at: 'left+10 bottom+5'
+			}
+		});
 		
 		// Group and bucket
 		$frm.find('select[name=group_id]').on('change', function(e) {
@@ -424,23 +508,8 @@
 		// Insert Sig
 		
 		$('#btnComposeInsertSig{$random}').click(function(e) {
-			var $this = $(this);
-			var $frm = $this.closest('form');
-			var $select_group = $frm.find('select[name=group_id]');
-			var $select_bucket = $frm.find('select[name=bucket_id]');
-			
-			genericAjaxGet(
-				'',
-				'c=tickets&a=getComposeSignature&group_id='+$select_group.val()+'&bucket_id='+$select_bucket.val(),
-				function(text) {
-					var $textarea = $('#divComposeContent{$random}');
-					
-					if(text.slice(-1) != "\n")
-						text += "\n";
-					
-					$textarea.insertAtCursor(text).focus();
-				}
-			);
+			var $textarea = $('#divComposeContent{$random}');
+			$textarea.insertAtCursor('#signature\n').focus();
 		});
 		
 		// Drafts

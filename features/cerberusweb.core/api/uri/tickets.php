@@ -450,6 +450,12 @@ class ChTicketsPage extends CerberusPageExtension {
 			'link_forward_files' => true,
 			'worker_id' => $active_worker->id,
 		);
+
+		// #commands
+		
+		$hash_commands = array();
+		
+		$this->_parseComposeHashCommands($active_worker, $properties, $hash_commands);
 		
 		// Custom fields
 		
@@ -473,6 +479,10 @@ class ChTicketsPage extends CerberusPageExtension {
 			if(!empty($draft_id))
 				DAO_MailQueue::delete($draft_id);
 
+			// Run hash commands
+			if(!empty($hash_commands))
+				$this->_handleComposeHashCommands($hash_commands, $ticket_id, $active_worker);
+			
 			// Watchers
 			@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
 			if(!empty($add_watcher_ids))
@@ -500,6 +510,106 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		exit;
 	}
+	
+	private function _parseComposeHashCommands(Model_Worker $worker, array &$message_properties, array &$commands) {
+		$lines_in = DevblocksPlatform::parseCrlfString($message_properties['content'], true);
+		$lines_out = array();
+		
+		$is_cut = false;
+		
+		foreach($lines_in as $line) {
+			$handled = false;
+			
+			if(preg_match('/^\#([A-Za-z0-9_]+)(.*)$/', $line, $matches)) {
+				@$command = $matches[1];
+				@$args = ltrim($matches[2]);
+				
+				switch($command) {
+					case 'attach':
+						@$bundle_tag = $args;
+						$handled = true;
+						
+						if(empty($bundle_tag))
+							break;
+						
+						if(false == ($bundle = DAO_FileBundle::getByTag($bundle_tag)))
+							break;
+						
+						$attachments = $bundle->getAttachments();
+						
+						$message_properties['link_forward_files'] = true;
+						
+						if(!isset($message_properties['forward_files']))
+							$message_properties['forward_files'] = array();
+						
+						$message_properties['forward_files'] = array_merge($message_properties['forward_files'], array_keys($attachments));
+						break;
+					
+					case 'cut':
+						$is_cut = true;
+						$handled = true;
+						break;
+						
+					case 'signature':
+						$group = DAO_Group::get($message_properties['group_id']);
+						$line = $group->getReplySignature($message_properties['bucket_id'], $worker);
+						break;
+						
+					case 'comment':
+					case 'watch':
+					case 'unwatch':
+						$handled = true;
+						$commands[] = array(
+							'command' => $command,
+							'args' => $args,
+						);
+						break;	
+						
+					default:
+						$handled = false;
+						break;
+				}
+			}
+			
+			if(!$handled && !$is_cut) {
+				$lines_out[] = $line;
+			}
+		}
+		
+		$message_properties['content'] = implode("\n", $lines_out);
+	}
+	
+	private function _handleComposeHashCommands(array $commands, $ticket_id, Model_Worker $worker) {
+		foreach($commands as $command_data) {
+			switch($command_data['command']) {
+				case 'comment':
+					@$comment = $command_data['args'];
+					
+					if(!empty($comment)) {
+						$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
+						
+						$fields = array(
+							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
+							DAO_Comment::CONTEXT_ID => $ticket_id,
+							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+							DAO_Comment::OWNER_CONTEXT_ID => $worker->id,
+							DAO_Comment::CREATED => time()+2,
+							DAO_Comment::COMMENT => $comment,
+						);
+						$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+					}
+					break;
+		
+				case 'watch':
+					CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, array($worker->id));
+					break;
+		
+				case 'unwatch':
+					CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, array($worker->id));
+					break;
+			}
+		}
+	}	
 	
 	function getComposeSignatureAction() {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
