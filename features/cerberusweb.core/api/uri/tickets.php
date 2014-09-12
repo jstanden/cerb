@@ -434,9 +434,9 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		$properties = array(
 			'draft_id' => $draft_id,
-			'group_id' => $group_id,
-			'bucket_id' => $bucket_id,
-			'org_id' => $org_id,
+			'group_id' => intval($group_id),
+			'bucket_id' => intval($bucket_id),
+			'org_id' => intval($org_id),
 			'to' => $to,
 			'cc' => $cc,
 			'bcc' => $bcc,

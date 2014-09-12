@@ -536,7 +536,7 @@ class CerberusMail {
 			Event_MailReceivedByGroup::trigger($message_id, $group_id);
 		}
 		
-		return $ticket_id;
+		return intval($ticket_id);
 	}
 	
 	static function sendTicketMessage($properties=array()) {
