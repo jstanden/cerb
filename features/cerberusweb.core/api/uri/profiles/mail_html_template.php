@@ -58,17 +58,17 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 	
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.mail.html_template', $mail_html_template->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $mail_html_template->id)) or array();
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields('cerberusweb.contexts.mail.html_template', $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets('cerberusweb.contexts.mail.html_template', $mail_html_template->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $mail_html_template->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Properties
@@ -84,7 +84,7 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		$tpl->assign('macros', $macros);
 
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, 'cerberusweb.contexts.mail.html_template');
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Template
@@ -153,11 +153,11 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
 				@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
 				if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
-					DAO_ContextLink::setLink('cerberusweb.contexts.mail.html_template', $id, $link_context, $link_context_id);
+					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id, $link_context, $link_context_id);
 				}
 				
 				if(!empty($view_id) && !empty($id))
-					C4_AbstractView::setMarqueeContextCreated($view_id, 'cerberusweb.contexts.mail.html_template', $id);
+					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id);
 				
 			} else { // Edit
 				DAO_MailHtmlTemplate::update($id, $fields);
@@ -166,7 +166,7 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 
 			// Custom fields
 			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost('cerberusweb.contexts.mail.html_template', $id, $field_ids);
+			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id, $field_ids);
 		}
 	}
 	

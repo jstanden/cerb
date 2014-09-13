@@ -1,4 +1,4 @@
-{$view_context = 'cerberusweb.contexts.mail.html_template'}
+{$view_context = CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}
 {$view_fields = $view->getColumnsAvailable()}
 {assign var=results value=$view->getData()}
 {assign var=total value=$results[1]}

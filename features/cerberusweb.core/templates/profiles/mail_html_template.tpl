@@ -1,4 +1,4 @@
-{$page_context = 'cerberusweb.contexts.mail.html_template'}
+{$page_context = CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}
 {$page_context_id = $mail_html_template->id}
 
 <div style="float:left">
