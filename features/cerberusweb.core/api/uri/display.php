@@ -395,48 +395,51 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
 		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
+		@$format = DevblocksPlatform::importGPC($_REQUEST['format'],'string','');
 		@$html_template_id = DevblocksPlatform::importGPC($_REQUEST['html_template_id'],'integer',0);
 
+		if(false == ($group = DAO_Group::get($group_id)))
+			return;
+		
 		header("Content-Type: text/html; charset=" . LANG_CHARSET_CODE);
 
-		// Parse #commands
-		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$ticket = new Model_Ticket();
-		$ticket->group_id = $group_id;
-		$ticket->bucket_id = $bucket_id;
+		// Determine if we have an HTML template
+		
+		if(!$html_template_id || false == ($html_template = DAO_MailHtmlTemplate::get($html_template_id))) {
+			if(false == ($html_template = $group->getReplyHtmlTemplate($bucket_id)))
+				$html_template = null;
+		}
+		
+		// Parse #commands
 		
 		$message_properties = array(
+			'group_id' => $group_id,
+			'bucket_id' => $bucket_id,
 			'content' => $content,
+			'content_format' => $format,
+			'html_template_id' => ($html_template) ? $html_template->id : 0,
 		);
 		
 		$hash_commands = array();
 		
-		$this->_parseReplyHashCommands($ticket, $active_worker, $message_properties, $hash_commands);
+		$this->_parseReplyHashCommands($active_worker, $message_properties, $hash_commands);
 		
 		// Markdown
 		
 		$output = DevblocksPlatform::parseMarkdown($message_properties['content'], true);
 		
-		$html_template = null;
-		
-		// Use an override template if given
-		if($html_template_id)
-			$html_template = DAO_MailHtmlTemplate::get($html_template_id);
-		
-		// Cascade to group/bucket template
-		if(!$html_template && false != ($group = DAO_Group::get($group_id)))
-			$html_template = $group->getReplyHtmlTemplate($bucket_id);
-		
-		// Cascade to default reply-to
-		if(!$html_template && false != ($replyto = DAO_AddressOutgoing::getDefault()))
-			$html_template = $replyto->getReplyHtmlTemplate();
-
 		// Wrap the reply in a template if we have one
+		
 		if($html_template) {
-			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-			$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
+			$output = $tpl_builder->build(
+				$html_template->content,
+				array(
+					'message_body' => $output,
+				)
+			);
 		}
 			
 		echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body>',
@@ -457,17 +460,15 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$ticket = new Model_Ticket();
-		$ticket->group_id = $group_id;
-		$ticket->bucket_id = $bucket_id;
-		
 		$message_properties = array(
+			'group_id' => $group_id,
+			'bucket_id' => $bucket_id,
 			'content' => $content,
 		);
 		
 		$hash_commands = array();
 		
-		$this->_parseReplyHashCommands($ticket, $active_worker, $message_properties, $hash_commands);
+		$this->_parseReplyHashCommands($active_worker, $message_properties, $hash_commands);
 		
 		echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body>',
 			LANG_CHARSET_CODE
@@ -674,7 +675,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$hash_commands = array();
 		
-		$this->_parseReplyHashCommands($ticket, $worker, $properties, $hash_commands);
+		$this->_parseReplyHashCommands($worker, $properties, $hash_commands);
 		
 		// Custom fields
 		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
@@ -723,7 +724,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket_uri)));
 	}
 	
-	private function _parseReplyHashCommands(Model_Ticket $ticket, Model_worker $worker, array &$message_properties, array &$commands) {
+	private function _parseReplyHashCommands(Model_worker $worker, array &$message_properties, array &$commands) {
 		$lines_in = DevblocksPlatform::parseCrlfString($message_properties['content'], true);
 		$lines_out = array();
 		
@@ -763,8 +764,37 @@ class ChDisplayPage extends CerberusPageExtension {
 						break;
 						
 					case 'signature':
-						$group = $ticket->getGroup();
-						$line = $group->getReplySignature($ticket->bucket_id, $worker);
+						@$group_id = $message_properties['group_id'];
+						@$bucket_id = $message_properties['bucket_id'];
+						@$content_format = $message_properties['content_format'];
+						@$html_template_id = $message_properties['html_template_id'];
+						
+						$group = DAO_Group::get($group_id);
+						
+						switch($content_format) {
+							case 'parsedown':
+								// Determine if we have an HTML template
+								
+								if(!$html_template_id || false == ($html_template = DAO_MailHtmlTemplate::get($html_template_id))) {
+									if(false == ($html_template = $group->getReplyHtmlTemplate($bucket_id)))
+										$html_template = null;
+								}
+								
+								// Determine signature
+								
+								if(!$html_template || false == ($signature = $html_template->getSignature())) {
+									$signature = $group->getReplySignature($bucket_id, $worker);
+								}
+								
+								// Replace signature
+								
+								$line = $signature;
+								break;
+								
+							default:
+								$line = $group->getReplySignature($bucket_id, $worker);
+								break;
+						}
 						break;
 						
 					case 'comment':

@@ -551,8 +551,37 @@ class ChTicketsPage extends CerberusPageExtension {
 						break;
 						
 					case 'signature':
-						$group = DAO_Group::get($message_properties['group_id']);
-						$line = $group->getReplySignature($message_properties['bucket_id'], $worker);
+						@$group_id = $message_properties['group_id'];
+						@$bucket_id = $message_properties['bucket_id'];
+						@$content_format = $message_properties['content_format'];
+						@$html_template_id = $message_properties['html_template_id'];
+						
+						$group = DAO_Group::get($group_id);
+						
+						switch($content_format) {
+							case 'parsedown':
+								// Determine if we have an HTML template
+								
+								if(!$html_template_id || false == ($html_template = DAO_MailHtmlTemplate::get($html_template_id))) {
+									if(false == ($html_template = $group->getReplyHtmlTemplate($bucket_id)))
+										$html_template = null;
+								}
+								
+								// Determine signature
+								
+								if(!$html_template || false == ($signature = $html_template->getSignature())) {
+									$signature = $group->getReplySignature($bucket_id, $worker);
+								}
+								
+								// Replace signature
+								
+								$line = $signature;
+								break;
+								
+							default:
+								$line = $group->getReplySignature($bucket_id, $worker);
+								break;
+						}
 						break;
 						
 					case 'comment':

@@ -78,6 +78,11 @@ blockquote a {
 	
 </fieldset>
 
+<fieldset class="peek">
+	<legend>Signature</legend>
+	<textarea name="signature" style="width:98%;height:75px;border:1px solid rgb(180,180,180);padding:2px;" spellcheck="false">{$model->signature}</textarea>
+</fieldset>
+
 {if !empty($custom_fields)}
 <fieldset class="peek">
 	<legend>{'common.custom_fields'|devblocks_translate}</legend>
@@ -123,9 +128,11 @@ $(function() {
 		$this.dialog('option','title',"{'HTML Template'}");
 
 		var $content = $this.find('textarea[name=content]');
+		var $signature = $this.find('textarea[name=signature]');
 		
 		try {
 			var markitupHTMLSettings = $.extend(true, { }, markitupHTMLDefaults);
+			var markitupParsedownSettings = $.extend(true, { }, markitupParsedownDefaults);
 			
 			delete markitupHTMLSettings.previewParserPath;
 			delete markitupHTMLSettings.previewTemplatePath;
@@ -137,6 +144,7 @@ $(function() {
 			};
 			
 			$content.markItUp(markitupHTMLSettings);
+			$signature.markItUp(markitupParsedownSettings);
 			
 			var $preview = $this.find('.markItUpHeader a[title="Preview"]');
 

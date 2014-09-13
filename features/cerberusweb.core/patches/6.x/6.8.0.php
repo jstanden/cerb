@@ -158,6 +158,20 @@ if(!isset($tables['file_bundle'])) {
 }
 
 // ===========================================================================
+// Add signature overrides to HTML templates
+
+if(!isset($tables['mail_html_template'])) {
+	$logger->error("The 'mail_html_template' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('mail_html_template');
+
+if(!isset($columns['signature'])) {
+	$db->Execute("ALTER TABLE mail_html_template ADD COLUMN signature mediumtext");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

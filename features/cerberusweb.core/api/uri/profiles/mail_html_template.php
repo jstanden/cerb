@@ -106,6 +106,7 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 			@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 			@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
 			@$content = DevblocksPlatform::importGPC($_REQUEST['content'], 'string', '');
+			@$signature = DevblocksPlatform::importGPC($_REQUEST['signature'], 'string', '');
 			
 			if(empty($name))
 				$name = 'New HTML Template';
@@ -142,6 +143,7 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 				DAO_MailHtmlTemplate::OWNER_CONTEXT => $owner_ctx,
 				DAO_MailHtmlTemplate::OWNER_CONTEXT_ID => $owner_ctx_id,
 				DAO_MailHtmlTemplate::CONTENT => $content,
+				DAO_MailHtmlTemplate::SIGNATURE => $signature,
 			);
 			
 			if(empty($id)) { // New

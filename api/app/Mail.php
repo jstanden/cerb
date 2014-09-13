@@ -1305,14 +1305,22 @@ class CerberusMail {
 		// Generate an HTML part using Parsedown
 		if(false !== ($html_body = DevblocksPlatform::parseMarkdown($content, true))) {
 			
-			// Use an HTML template if we have one (or can discern it)
-			if(
-				($html_template_id && null != ($html_template = DAO_MailHtmlTemplate::get($html_template_id)))
-				|| (false != ($group = DAO_Group::get($group_id)) && null != ($html_template = $group->getReplyHtmlTemplate($bucket_id)))
-				) {
+			// Determine if we have an HTML template
+			if(!$html_template_id || false == ($html_template = DAO_MailHtmlTemplate::get($html_template_id))) {
+				if(false == ($group = DAO_Group::get($group_id)) || false == ($html_template = $group->getReplyHtmlTemplate($bucket_id)))
+					$html_template = null;
+			}
+			
+			// Use an HTML template wrapper if we have one
+			if($html_template instanceof Model_MailHtmlTemplate) {
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 				
-					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-					$html_body = $tpl_builder->build($html_template->content, array('message_body' => $html_body));
+				$html_body = $tpl_builder->build(
+					$html_template->content,
+					array(
+						'message_body' => $html_body
+					)
+				);
 			}
 			
 			// Purify the HTML and inline the CSS

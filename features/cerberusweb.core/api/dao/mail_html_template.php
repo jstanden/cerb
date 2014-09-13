@@ -24,6 +24,7 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
 	const CONTENT = 'content';
+	const SIGNATURE = 'signature';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -73,7 +74,7 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, updated_at, owner_context, owner_context_id, content ".
+		$sql = "SELECT id, name, updated_at, owner_context, owner_context_id, content, signature ".
 			"FROM mail_html_template ".
 			$where_sql.
 			$sort_sql.
@@ -127,6 +128,7 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 			$object->owner_context = $row['owner_context'];
 			$object->owner_context_id = $row['owner_context_id'];
 			$object->content = $row['content'];
+			$object->signature = $row['signature'];
 			$objects[$object->id] = $object;
 		}
 		
@@ -193,13 +195,15 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 			"mail_html_template.updated_at as %s, ".
 			"mail_html_template.owner_context as %s, ".
 			"mail_html_template.owner_context_id as %s, ".
-			"mail_html_template.content as %s ",
+			"mail_html_template.content as %s, ".
+			"mail_html_template.signature as %s ",
 				SearchFields_MailHtmlTemplate::ID,
 				SearchFields_MailHtmlTemplate::NAME,
 				SearchFields_MailHtmlTemplate::UPDATED_AT,
 				SearchFields_MailHtmlTemplate::OWNER_CONTEXT,
 				SearchFields_MailHtmlTemplate::OWNER_CONTEXT_ID,
-				SearchFields_MailHtmlTemplate::CONTENT
+				SearchFields_MailHtmlTemplate::CONTENT,
+				SearchFields_MailHtmlTemplate::SIGNATURE
 			);
 			
 		$join_sql = "FROM mail_html_template ".
@@ -349,6 +353,7 @@ class SearchFields_MailHtmlTemplate implements IDevblocksSearchFields {
 	const OWNER_CONTEXT = 'm_owner_context';
 	const OWNER_CONTEXT_ID = 'm_owner_context_id';
 	const CONTENT = 'm_content';
+	const SIGNATURE = 'm_signature';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
@@ -370,6 +375,7 @@ class SearchFields_MailHtmlTemplate implements IDevblocksSearchFields {
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'mail_html_template', 'owner_context', $translate->_('common.owner_context')),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'mail_html_template', 'owner_context_id', $translate->_('common.owner_context_id')),
 			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'mail_html_template', 'content', $translate->_('common.content')),
+			self::SIGNATURE => new DevblocksSearchField(self::SIGNATURE, 'mail_html_template', 'signature', $translate->_('common.signature')),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
@@ -401,6 +407,11 @@ class Model_MailHtmlTemplate {
 	public $owner_context;
 	public $owner_context_id;
 	public $content;
+	public $signature;
+	
+	function getSignature() {
+		return $this->signature;
+	}
 };
 
 class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Subtotals {
@@ -423,6 +434,7 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 			SearchFields_MailHtmlTemplate::OWNER_CONTEXT,
 			SearchFields_MailHtmlTemplate::OWNER_CONTEXT_ID,
 			SearchFields_MailHtmlTemplate::CONTENT,
+			SearchFields_MailHtmlTemplate::SIGNATURE,
 		);
 		// [TODO] Filter fields
 		$this->addColumnsHidden(array(
@@ -554,19 +566,16 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 
-		// [TODO] Move the fields into the proper data type
 		switch($field) {
-			case SearchFields_MailHtmlTemplate::ID:
 			case SearchFields_MailHtmlTemplate::NAME:
-			case SearchFields_MailHtmlTemplate::UPDATED_AT:
 			case SearchFields_MailHtmlTemplate::OWNER_CONTEXT:
-			case SearchFields_MailHtmlTemplate::OWNER_CONTEXT_ID:
 			case SearchFields_MailHtmlTemplate::CONTENT:
-			case 'placeholder_string':
+			case SearchFields_MailHtmlTemplate::SIGNATURE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
-			case 'placeholder_number':
+			case SearchFields_MailHtmlTemplate::ID:
+			case SearchFields_MailHtmlTemplate::OWNER_CONTEXT_ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
@@ -574,7 +583,7 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
-			case 'placeholder_date':
+			case SearchFields_MailHtmlTemplate::UPDATED_AT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
@@ -641,23 +650,20 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
-		// [TODO] Move fields into the right data type
 		switch($field) {
-			case SearchFields_MailHtmlTemplate::ID:
 			case SearchFields_MailHtmlTemplate::NAME:
-			case SearchFields_MailHtmlTemplate::UPDATED_AT:
 			case SearchFields_MailHtmlTemplate::OWNER_CONTEXT:
-			case SearchFields_MailHtmlTemplate::OWNER_CONTEXT_ID:
 			case SearchFields_MailHtmlTemplate::CONTENT:
-			case 'placeholder_string':
+			case SearchFields_MailHtmlTemplate::SIGNATURE:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
-			case 'placeholder_number':
+			case SearchFields_MailHtmlTemplate::ID:
+			case SearchFields_MailHtmlTemplate::OWNER_CONTEXT_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
-			case 'placeholder_date':
+			case SearchFields_MailHtmlTemplate::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
@@ -967,6 +973,7 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 			$mail_html_template = new Model_MailHtmlTemplate();
 			$mail_html_template->name = "New HTML Template";
 			$mail_html_template->content = null;
+			$mail_html_template->signature = null;
 			$tpl->assign('model', $mail_html_template);
 		}
 

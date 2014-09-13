@@ -53,7 +53,7 @@
 		<patch version="6.5.0" revision="1059" file="patches/6.x/6.5.0.php" />
 		<patch version="6.6.0" revision="1082" file="patches/6.x/6.6.0.php" />
 		<patch version="6.7.0" revision="1097" file="patches/6.x/6.7.0.php" />
-		<patch version="6.8.0" revision="1106" file="patches/6.x/6.8.0.php" />
+		<patch version="6.8.0" revision="1107" file="patches/6.x/6.8.0.php" />
 	</patches>
 
 	<!-- Controller Routing -->
