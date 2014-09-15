@@ -1298,6 +1298,7 @@ class CerberusMail {
 	
 	static private function _generateBodyMarkdown(&$mail, &$content, $group_id=0, $bucket_id=0, $html_template_id=0) {
 		$embedded_files = array();
+		$exclude_files = array();
 		
 		$url_writer = DevblocksPlatform::getUrlService();
 		$base_url = $url_writer->write('c=files', true) . '/';
@@ -1321,6 +1322,9 @@ class CerberusMail {
 						'message_body' => $html_body
 					)
 				);
+				
+				// Load the attachment links from the HTML template
+				$exclude_files = array_keys($html_template->getAttachments());
 			}
 			
 			// Purify the HTML and inline the CSS
@@ -1330,14 +1334,17 @@ class CerberusMail {
 			try {
 				$html_body = preg_replace_callback(
 					sprintf('|(\"%s(.*?)\")|', preg_quote($base_url)),
-					function($matches) use ($base_url, $mail, &$embedded_files) {
+					function($matches) use ($base_url, $mail, &$embedded_files, $exclude_files) {
 						if(3 == count($matches)) {
 							$file_parts = explode('/', $matches[2]);
 							@list($file_hash, $file_name) = explode('/', $matches[2], 2);
 							if($file_hash && $file_name) {
 								if($file_id = DAO_Attachment::getBySha1Hash($file_hash, urldecode($file_name))) {
 									if($file = DAO_Attachment::get($file_id)) {
-										$embedded_files[] = $file_id;
+										
+										if(!in_array($file_id, $exclude_files))
+											$embedded_files[] = $file_id;
+										
 										$cid = $mail->embed(Swift_Image::newInstance($file->getFileContents(), $file->display_name, $file->mime_type));
 										return sprintf('"%s"', $cid);
 									}

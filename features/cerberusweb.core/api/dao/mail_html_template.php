@@ -412,6 +412,10 @@ class Model_MailHtmlTemplate {
 	function getSignature() {
 		return $this->signature;
 	}
+	
+	function getAttachments() {
+		return DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $this->id);		
+	}
 };
 
 class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Subtotals {

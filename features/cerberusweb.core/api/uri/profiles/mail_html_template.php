@@ -167,6 +167,11 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 			// Custom fields
 			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
 			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id, $field_ids);
+			
+			// Files
+			@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_ids'], 'array', array());
+			if(is_array($file_ids))
+				DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id, $file_ids);
 		}
 	}
 	
