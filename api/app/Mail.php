@@ -483,13 +483,13 @@ class CerberusMail {
 		if(isset($properties['link_forward_files']) && !empty($properties['link_forward_files'])) {
 			// Attachments
 			if(is_array($forward_files) && !empty($forward_files)) {
-				DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $forward_files);
+				DAO_AttachmentLink::addLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $forward_files);
 			}
 		}
 		
 		// Link embedded files
 		if(isset($embedded_files) && is_array($embedded_files) && !empty($embedded_files)) {
-			DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $embedded_files);
+			DAO_AttachmentLink::addLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $embedded_files);
 		}
 		
 		// Finalize ticket
@@ -960,13 +960,13 @@ class CerberusMail {
 			if(isset($properties['link_forward_files']) && !empty($properties['link_forward_files'])) {
 				// Attachments
 				if(is_array($forward_files) && !empty($forward_files)) {
-					DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $forward_files);
+					DAO_AttachmentLink::addLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $forward_files);
 				}
 			}
 			
 			// Link embedded files
 			if(isset($embedded_files) && is_array($embedded_files) && !empty($embedded_files)) {
-				DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $embedded_files);
+				DAO_AttachmentLink::addLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $embedded_files);
 			}
 		}
 		
