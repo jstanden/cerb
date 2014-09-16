@@ -175,6 +175,30 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		}
 	}
 	
+	function getSignatureParsedownPreviewAction() {
+		@$signature = DevblocksPlatform::importGPC($_REQUEST['data'],'string', '');
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		header('Content-Type: text/html; charset=' . LANG_CHARSET_CODE);
+		
+		// Token substitution
+		
+		$labels = array();
+		$values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $labels, $values, null, true, true);
+		$dict = new DevblocksDictionaryDelegate($values);
+		
+		$signature = $tpl_builder->build($signature, $dict);
+		
+		// Parsedown
+		
+		$output = DevblocksPlatform::parseMarkdown($signature, true);
+		
+		echo $output;
+	}
+	
 	function viewExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		

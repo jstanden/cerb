@@ -88,7 +88,16 @@ blockquote a {
 		
 		<fieldset class="peek">
 			<legend>Signature</legend>
-			<textarea name="signature" style="width:98%;height:75px;border:1px solid rgb(180,180,180);padding:2px;" spellcheck="false" placeholder="Leave blank to use the default group signature.">{$model->signature}</textarea>
+			<textarea name="signature" style="width:98%;height:150px;border:1px solid rgb(180,180,180);padding:2px;" spellcheck="false" placeholder="Leave blank to use the default group signature.">{$model->signature}</textarea>
+			
+			<div>
+				<select name="sig_token">
+					<option value="">-- insert at cursor --</option>
+					{foreach from=$worker_token_labels key=k item=v}
+					<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
+					{/foreach}
+				</select>
+			</div>
 		</fieldset>		
 	</div>
 	
@@ -268,6 +277,12 @@ $(function() {
 				return content;
 			};
 			
+			delete markitupParsedownSettings.previewParserPath;
+			delete markitupParsedownSettings.previewTemplatePath;
+			delete markitupParsedownSettings.previewInWindow;
+			
+			markitupParsedownSettings.previewParserPath = DevblocksAppPath + 'ajax.php?c=profiles&a=handleSectionAction&section=html_template&action=getSignatureParsedownPreview';
+			
 			$content.markItUp(markitupHTMLSettings);
 			$signature.markItUp(markitupParsedownSettings);
 			
@@ -280,6 +295,20 @@ $(function() {
 			if(window.console)
 				console.log(e);
 		}
+		
+		// Placeholders
+		
+		$popup.find('select[name=sig_token]').change(function(e) {
+			var $select = $(this);
+			var $val = $select.val();
+			
+			if($val.length == 0)
+				return;
+			
+			$signature.insertAtCursor($val).focus();
+			
+			$select.val('');
+		});
 	});
 });
 </script>

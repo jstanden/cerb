@@ -782,7 +782,7 @@ class ChDisplayPage extends CerberusPageExtension {
 								
 								// Determine signature
 								
-								if(!$html_template || false == ($signature = $html_template->getSignature())) {
+								if(!$html_template || false == ($signature = $html_template->getSignature($worker))) {
 									$signature = $group->getReplySignature($bucket_id, $worker);
 								}
 								

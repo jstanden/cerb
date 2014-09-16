@@ -409,8 +409,21 @@ class Model_MailHtmlTemplate {
 	public $content;
 	public $signature;
 	
-	function getSignature() {
-		return $this->signature;
+	function getSignature($worker=null) {
+		$signature = $this->signature;
+		
+		if(!empty($worker)) {
+			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $labels, $values, null, true, true);
+			$dict = new DevblocksDictionaryDelegate($values);
+			
+			$signature = $tpl_builder->build($signature, $dict);
+		}
+		
+		return $signature;
 	}
 	
 	function getAttachments() {
@@ -1015,6 +1028,15 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 				$owner_roles[$k] = $v;
 		}
 		$tpl->assign('owner_roles', $owner_roles);
+		
+		// Tokens
+		
+		$worker_token_labels = array();
+		$worker_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $worker_token_labels, $worker_token_values);
+		$tpl->assign('worker_token_labels', $worker_token_labels);
+		
+		// Template
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_html/peek.tpl');
 	}

@@ -1607,6 +1607,10 @@ span.plugin_icon_overlay_disabled {
 	background-image:url(markitup/toolbar/cerb/image-sunset.png?v=2014012101);
 }
 
+iframe.markItUpPreviewFrame {
+	height: 200px;
+}
+
 /* jQueryUI (Redmond theme) */
 
 .ui-widget,
