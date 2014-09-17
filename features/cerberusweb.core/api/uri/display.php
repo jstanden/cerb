@@ -792,7 +792,10 @@ class ChDisplayPage extends CerberusPageExtension {
 								break;
 								
 							default:
-								$line = $group->getReplySignature($bucket_id, $worker);
+								if($group instanceof Model_Group)
+									$line = $group->getReplySignature($bucket_id, $worker);
+								else
+									$line = '';
 								break;
 						}
 						break;

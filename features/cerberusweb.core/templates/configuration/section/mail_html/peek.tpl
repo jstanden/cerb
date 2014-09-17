@@ -231,7 +231,7 @@ $(function() {
 			);
 			
 			markitupHTMLSettings.markupSet.splice(
-				14,
+				13,
 				0,
 				{ name:'Upload an Image', openWith: 
 					function(markItUp) {

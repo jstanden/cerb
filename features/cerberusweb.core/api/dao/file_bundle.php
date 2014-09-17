@@ -1096,13 +1096,12 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		$tpl->assign('view_id', $view_id);
 		
 		if(!empty($context_id) && null != ($file_bundle = DAO_FileBundle::get($context_id))) {
+			// ACL
+			if(!$file_bundle->isWriteableByActor($active_worker))
+				return;
+			
 			$tpl->assign('model', $file_bundle);
 		}
-		
-		// ACL
-		
-		if(!$file_bundle->isWriteableByActor($active_worker))
-			return;
 		
 		// Custom fields
 		
