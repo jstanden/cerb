@@ -216,7 +216,7 @@
 	});
 	
 	// Page title
-	document.title = "[#{$ticket->mask|escape:'javascript'}] {$ticket->subject|escape:'javascript'} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript'}";
+	document.title = "[#{$ticket->mask|escape:'javascript' nofilter}] {$ticket->subject|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
 	
 	// Menu
 

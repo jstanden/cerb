@@ -63,7 +63,7 @@
 <script type="text/javascript">
 	// Page title
 	
-	document.title = "{$workspace_tab->name|escape:'javascript'} - {$page->name|escape:'javascript'} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript'}";
+	document.title = "{$workspace_tab->name|escape:'javascript' nofilter} - {$page->name|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
 
 	// Widget loader
 	

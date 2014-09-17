@@ -26,7 +26,7 @@
 <script type="text/javascript">
 // Page title
 
-document.title = "{$tab->name|escape:'javascript'} - {$page->name|escape:'javascript'} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript'}";
+document.title = "{$tab->name|escape:'javascript' nofilter} - {$page->name|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
 
 // Worklist loader
 

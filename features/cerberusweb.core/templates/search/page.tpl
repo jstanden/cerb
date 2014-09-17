@@ -13,7 +13,7 @@
 <script type="text/javascript">
 $(function() {
 	// Page title
-	document.title = "{'common.search'|devblocks_translate|capitalize|escape:'javascript'} {$context_ext->manifest->name|escape:'javascript'} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript'}";
+	document.title = "{'common.search'|devblocks_translate|capitalize|escape:'javascript' nofilter} {$context_ext->manifest->name|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
 	
 	// Keyboard shortcuts
 	$(document).keypress(function(event) {

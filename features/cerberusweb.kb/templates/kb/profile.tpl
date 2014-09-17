@@ -116,7 +116,7 @@ $(function() {
 	
 	// Page title
 	
-	document.title = "KB - {$article->title|escape:'javascript'} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript'}";
+	document.title = "KB - {$article->title|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
 	
 	// Edit button
 	
