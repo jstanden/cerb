@@ -2146,6 +2146,9 @@ For example: *receipt*</seg></tuv>
 		<tu tuid='preferences.account.mail.signature.above'>
 			<tuv xml:lang="en_US"><seg>Above the quoted message</seg></tuv>
 		</tu>
+		<tu tuid='preferences.account.mail.signature.above.cut'>
+			<tuv xml:lang="en_US"><seg>Above the quoted message with #cut</seg></tuv>
+		</tu>
 		<tu tuid='preferences.account.mail.signature.below'>
 			<tuv xml:lang="en_US"><seg>Below the quoted message</seg></tuv>
 		</tu>

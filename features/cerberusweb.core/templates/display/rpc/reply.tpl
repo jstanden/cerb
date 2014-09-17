@@ -194,11 +194,12 @@
 {else}
 <textarea name="content" id="reply_{$message->id}" class="reply" style="width:98%;height:{$mail_reply_textbox_size_px|default:300}px;border:1px solid rgb(180,180,180);padding:5px;" title="Use #commands to perform additional actions">
 {if !empty($draft)}{$draft->body}{else}
-{if !empty($signature) && 1==$signature_pos}
+{if !empty($signature) && (1==$signature_pos || 3==$signature_pos)}
 
 
-#signature
-#cut{if $is_quoted}{*Sig above*}
+#signature{if 1==$signature_pos}
+
+#cut{/if}{if $is_quoted}{*Sig above*}
 
 
 {/if}
