@@ -42,6 +42,18 @@ class _DevblocksDatabaseManager {
 		return $this->_db;
 	}
 	
+	function isEmpty() {
+		if(!$this->isConnected())
+			return true;
+
+		$tables = $this->metaTables();
+		
+		if(empty($tables))
+			return true;
+		
+		return false;
+	}
+	
 	function isConnected() {
 		if(!($this->_db instanceof mysqli)) {
 			$this->_db = null;

@@ -1227,8 +1227,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return boolean
 	 */
 	static function isDatabaseEmpty() {
-		$tables = self::getDatabaseTables();
-		return empty($tables);
+		$db = DevblocksPlatform::getDatabaseService();
+		return $db->isEmpty();
 	}
 	
 	static function getDatabaseTables($nocache=false) {
@@ -1545,7 +1545,8 @@ class DevblocksPlatform extends DevblocksEngine {
 			return $plugins;
 
 		$db = DevblocksPlatform::getDatabaseService();
-		if(is_null($db))
+		
+		if(is_null($db) || !$db->isConnected() || $db->isEmpty())
 			return;
 
 		$plugins = array();

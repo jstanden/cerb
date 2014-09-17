@@ -148,14 +148,15 @@ abstract class DevblocksEngine {
 				'params' => $params,
 			);
 		}
-			
+
 		if(!$persist)
 			return $manifest;
 		
 		$db = DevblocksPlatform::getDatabaseService();
-		if(is_null($db))
-			return;
-			
+		
+		if(is_null($db) || !$db->isConnected() || $db->isEmpty())
+			return $manifest;
+		
 		// Persist manifest
 		if($db->GetOne(sprintf("SELECT id FROM ${prefix}plugin WHERE id = %s", $db->qstr($manifest->id)))) { // update
 			$db->Execute(sprintf(
@@ -624,7 +625,7 @@ abstract class DevblocksEngine {
 	static function update() {
 		if(null == ($manifest = self::_readPluginManifest('libs/devblocks', false)))
 			return FALSE;
-
+		
 		if(!isset($manifest->manifest_cache['patches']))
 			return TRUE;
 		
@@ -635,6 +636,7 @@ abstract class DevblocksEngine {
 				return FALSE;
 			
 			$patch = new DevblocksPatch($manifest->id, $mft_patch['version'], $mft_patch['revision'], $path);
+			
 			if(!$patch->run())
 				return FALSE;
 		}
