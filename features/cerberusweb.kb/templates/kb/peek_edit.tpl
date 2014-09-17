@@ -100,7 +100,7 @@ $(function() {
 		var markitupMarkdownSettings = $.extend(true, { }, markitupMarkdownDefaults);
 		
 		markitupMarkdownSettings.markupSet.splice(
-			13,
+			10,
 			0,
 			{ name:'Upload an Image', openWith: 
 				function(markItUp) {
@@ -138,7 +138,7 @@ $(function() {
 		);
 		
 		markitupHTMLSettings.markupSet.splice(
-			16,
+			13,
 			0,
 			{ name:'Upload an Image', openWith: 
 				function(markItUp) {
