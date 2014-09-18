@@ -14,9 +14,9 @@
 				<label><input type="radio" name="placeholders[{$placeholder_key}]" class="placeholder" required="required" value="1" {if $placeholder.default}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
 				<label><input type="radio" name="placeholders[{$placeholder_key}]" class="placeholder" required="required" value="0" {if !$placeholder.default}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label>
 			{elseif $placeholder.type == Model_CustomField::TYPE_SINGLE_LINE}
-				<input type="text" name="placeholders[{$placeholder_key}]" class="placeholder" required="required" value="{$placeholder.default}">
+				<input type="text" name="placeholders[{$placeholder_key}]" class="placeholder" required="required" value="{$placeholder.default}" style="width:98%;">
 			{elseif $placeholder.type == Model_CustomField::TYPE_MULTI_LINE}
-				<textarea name="placeholders[{$placeholder_key}]" class="placeholder" rows="3" cols="45" required="required" style="width:98%%;">{$placeholder.default}</textarea>
+				<textarea name="placeholders[{$placeholder_key}]" class="placeholder" rows="3" cols="45" required="required" style="width:98%;">{$placeholder.default}</textarea>
 			{/if}
 		</div>
 	{/foreach}
@@ -32,7 +32,9 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('snippet_paste');
+$(function() {
+	var $popup = genericAjaxPopupFetch('snippet_paste');
+	
 	$popup.one('popup_open',function(event,ui) {
 		var $popup = $(this);
 		var $preview = $popup.find('div.preview');
@@ -43,18 +45,6 @@
 
 		$popup.find('textarea').elastic();
 		
-		$popup.find('input:text').keyup(function() {
-			var $val = $(this).val();
-			
-			if($val.length == 0 && null != $(this).attr('placeholder'))
-				$val = $(this).attr('placeholder');
-			
-			var $span = $('<span style="visibility:hidden;">'+$val+'</span>').appendTo('body');
-			var px = Math.max(25, $span.width() + 10);
-			$(this).width(px);
-			$span.remove();
-		}).trigger('keyup');
-		
 		$popup.find('div.buttons button.preview').click(function() {
 			genericAjaxPost('formSnippetsPaste', '', null, function(html) {
 				$preview.html(html);
@@ -62,7 +52,7 @@
 		});
 		
 		$popup.find('div.buttons button.paste').click(function() {
-			$elements = $popup
+			var $elements = $popup
 				.find('input:text.placeholder,textarea.placeholder')
 				.filter(function() {
 					if($(this).val().length == 0)
@@ -85,7 +75,7 @@
 				var text = $preview.text();
 				
 				// Fire event
-				event=jQuery.Event('snippet_paste');
+				var event = jQuery.Event('snippet_paste');
 				event.text=text;
 				
 				$popup.trigger(event);
@@ -96,4 +86,5 @@
 		});
 		
 	});
+});
 </script>
