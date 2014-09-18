@@ -93,8 +93,6 @@ class DAO_CustomField extends DevblocksORMHelper {
 			$results[$idx] = $field;
 		}
 		
-		DevblocksPlatform::sortObjects($results, 'name');
-		
 		return $results;
 	}
 	
