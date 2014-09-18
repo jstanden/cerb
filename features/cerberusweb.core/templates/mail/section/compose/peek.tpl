@@ -419,10 +419,17 @@
 		
 		// Tooltips
 		
-		$frm.find(':input[title], textarea[title], a[title]').tooltip({
+		$frm.find(':input[title], a[title]').tooltip({
 			position: {
 				my: 'left top',
 				at: 'left+10 bottom+5'
+			}
+		});
+		
+		$content.tooltip({
+			position: {
+				my: 'right bottom',
+				at: 'right top'
 			}
 		});
 		

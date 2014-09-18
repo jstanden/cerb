@@ -93,10 +93,17 @@
 		
 		// Tooltips
 		
-		$popup.find(':input[title], textarea[title]').tooltip({
+		$popup.find(':input[title]').tooltip({
 			position: {
 				my: 'left top',
 				at: 'left+10 bottom+5'
+			}
+		});
+		
+		$textarea.tooltip({
+			position: {
+				my: 'right bottom',
+				at: 'right top'
 			}
 		});
 		
