@@ -179,7 +179,6 @@
 
 
 #signature
-#cut
 {/if}
 
 {'display.reply.forward.banner'|devblocks_translate}
