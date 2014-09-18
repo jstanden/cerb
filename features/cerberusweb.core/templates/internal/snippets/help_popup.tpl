@@ -27,7 +27,7 @@
 	{/literal}
 	
 	<p>
-		For example, "{literal}<b><tt>{{first_name|upper}}</tt></b>{/literal}" would become "Hi {$active_worker->first_name|upper}".
+		For example, "Hi {literal}<b><tt>{{first_name|upper}}</tt></b>{/literal}" would become "Hi {$active_worker->first_name|upper}".
 	</p>
 </fieldset>
 
