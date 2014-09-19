@@ -149,12 +149,20 @@ abstract class DevblocksEngine {
 			);
 		}
 
+		// If we're not persisting, return
 		if(!$persist)
 			return $manifest;
 		
 		$db = DevblocksPlatform::getDatabaseService();
-		
+
+		// If the database is empty, return
 		if(is_null($db) || !$db->isConnected() || $db->isEmpty())
+			return $manifest;
+		
+		list($columns, $indexes) = $db->metaTable($prefix . 'plugin');
+		
+		// If this is a 4.x upgrade
+		if(!isset($columns['version']))
 			return $manifest;
 		
 		// Persist manifest

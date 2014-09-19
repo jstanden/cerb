@@ -2106,8 +2106,20 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		return true;
 	}
 	
+	static function isReady() {
+		$tables = DevblocksPlatform::getDatabaseTables();
+		
+		if(!isset($tables['devblocks_session']))
+			return false;
+			
+		return true;
+	}
+	
 	static function read($id) {
 		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(!self::isReady())
+			return false;
 		
 		// [TODO] Don't set a cookie until logging in (redo session code)
 		// [TODO] Security considerations in book (don't allow non-SSL connections)
@@ -2149,6 +2161,9 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		$user_agent = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '';
 		
 		$db = DevblocksPlatform::getDatabaseService();
+
+		if(!self::isReady())
+			return false;
 		
 		// Update
 		$sql = sprintf("UPDATE devblocks_session SET updated=%d, session_data=%s, user_id=%d, user_ip=%s, user_agent=%s WHERE session_key=%s",
@@ -2182,11 +2197,18 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 	
 	static function destroy($id) {
 		$db = DevblocksPlatform::getDatabaseService();
+
+		if(!self::isReady())
+			return false;
+		
 		$db->Execute(sprintf("DELETE FROM devblocks_session WHERE session_key = %s", $db->qstr($id)));
 		return true;
 	}
 	
 	static function gc($maxlifetime) {
+		if(!self::isReady())
+			return false;
+		
 		// We ignore caller's $maxlifetime (session.gc_maxlifetime) on purpose.
 		// Look up Cerb's session max lifetime
 		$maxlifetime = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
@@ -2201,15 +2223,26 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 	
 	static function getAll() {
 		$db = DevblocksPlatform::getDatabaseService();
+
+		if(!self::isReady())
+			return false;
+		
 		return $db->GetArray("SELECT session_key, created, updated, user_id, user_ip, user_agent, session_data FROM devblocks_session");
 	}
 	
 	static function destroyAll() {
 		$db = DevblocksPlatform::getDatabaseService();
+
+		if(!self::isReady())
+			return false;
+		
 		$db->Execute("DELETE FROM devblocks_session");
 	}
 	
 	static function destroyByWorkerIds($ids) {
+		if(!self::isReady())
+			return false;
+		
 		if(!is_array($ids)) $ids = array($ids);
 		
 		$ids_list = implode(',', $ids);

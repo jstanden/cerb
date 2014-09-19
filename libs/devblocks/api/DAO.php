@@ -435,10 +435,15 @@ class DAO_DevblocksSetting extends DevblocksORMHelper {
 	
 	// This doesn't need to cache because it's handled by the platform
 	static function getSettings($plugin_id) {
+		$tables = DevblocksPlatform::getDatabaseTables();
+		
 		if(false == ($db = DevblocksPlatform::getDatabaseService()))
 			return;
 		
 		$settings = array();
+		
+		if(!isset($tables['devblocks_setting']))
+			return $settings;
 		
 		$results = $db->GetArray(sprintf("SELECT setting, value FROM devblocks_setting WHERE plugin_id = %s",
 			$db->qstr($plugin_id)
