@@ -1372,7 +1372,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		// Template
 		
-		if($snippet->isWriteableByWorker($active_worker)) {
+		if(empty($snippet_id) || $snippet->isWriteableByWorker($active_worker)) {
 			$tpl->display('devblocks:cerberusweb.core::internal/snippets/peek.tpl');
 		} else {
 			$tpl->display('devblocks:cerberusweb.core::internal/snippets/peek_readonly.tpl');

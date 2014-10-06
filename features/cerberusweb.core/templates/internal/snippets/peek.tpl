@@ -44,7 +44,9 @@
 					
 					<option value="{CerberusContexts::CONTEXT_WORKER}:{$active_worker->id}" {if $snippet->owner_context==CerberusContexts::CONTEXT_WORKER && $active_worker->id==$snippet->owner_context_id}selected="selected"{/if}>me</option>
 
+					{if $active_worker->is_superuser}
 					<option value="{CerberusContexts::CONTEXT_APPLICATION}:0"  context="{CerberusContexts::CONTEXT_APPLICATION}" {if $snippet->owner_context==CerberusContexts::CONTEXT_APPLICATION}selected="selected"{/if}>Application: Cerb</option>
+					{/if}
 
 					{if !empty($owner_roles)}
 					{foreach from=$owner_roles item=role key=role_id}
