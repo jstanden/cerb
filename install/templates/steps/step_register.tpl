@@ -7,7 +7,7 @@
 
 <H3>You are now running in Evaluation mode</H3>
 
-Each new Cerb6 installation defaults to Evaluation mode,
+Each new Cerb installation defaults to Evaluation mode,
 which provides full functionality for this version with no expiration. Without a license you are currently limited to one 
 simultaneous worker (a "seat").<br>
 <br>
@@ -28,7 +28,7 @@ options</a>.<br>
 	We respect the fact that you likely have
 	a pile of things to do, and we'd like to make a small part of your day
 	easier by helping you quickly find useful information during your
-	Cerb6 evaluation.<br>
+	Cerb evaluation.<br>
 	<br>
 	If you can take a couple minutes to answer these quick
 	questions we'll be able to focus our conversation on your most important
@@ -51,7 +51,7 @@ options</a>.<br>
 <input size="64" name="contact_email"><br>
 <br>
 
-<b>How did you hear about Cerb6?</b><br>
+<b>How did you hear about Cerb?</b><br>
 <input size="64" name="contact_refer"><br>
 <br>
 
@@ -73,10 +73,10 @@ options</a>.<br>
 	<label><input name="q3" value="Only Paid" type="radio"> No, only commercial solutions</label><br>
 </p>
 
-<h3>#4: What will be your first important milestone to measure the success of your Cerb6 implementation?</h3>
+<h3>#4: What will be your first important milestone to measure the success of your Cerb implementation?</h3>
 <textarea cols="65" rows="3" name="q4"></textarea><br>
 
-<h3>#5: How many workers do you expect to use Cerb6 simultaneously?</h3>
+<h3>#5: How many workers do you expect to use Cerb simultaneously?</h3>
 <label><input type="radio" name="q5" value="1-3" checked="checked"> 1-3</label><br>
 <label><input type="radio" name="q5" value="4-7"> 4-7</label><br>
 <label><input type="radio" name="q5" value="8-15"> 8-15</label><br>
