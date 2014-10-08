@@ -1537,7 +1537,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					
 					// Load snippet target dictionary
 					if(!empty($snippet->context) && $snippet->context == $on_context['context']) {
-						CerberusContexts::getContext($on_context['context'], $dict->$on, $snippet_labels, $snippet_values, '', true, false);
+						CerberusContexts::getContext($on_context['context'], $dict->$on, $snippet_labels, $snippet_values, '', false, false);
 					}
 					
 					// Prompted placeholders

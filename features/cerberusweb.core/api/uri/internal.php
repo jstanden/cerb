@@ -1600,7 +1600,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$values = array();
 		
 		if($context_id) {
-			CerberusContexts::getContext($snippet->context, $context_id, $labels, $values, null, true, false);
+			CerberusContexts::getContext($snippet->context, $context_id, $labels, $values);
 		}
 		
 		if(is_array($custom_placeholders))
