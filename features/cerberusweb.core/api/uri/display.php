@@ -940,9 +940,6 @@ class ChDisplayPage extends CerberusPageExtension {
 			
 		// Fields
 		$fields = array(
-			DAO_MailQueue::TYPE => empty($is_forward) ? Model_MailQueue::TYPE_TICKET_REPLY : Model_MailQueue::TYPE_TICKET_FORWARD,
-			DAO_MailQueue::TICKET_ID => $ticket_id,
-			DAO_MailQueue::WORKER_ID => $active_worker->id,
 			DAO_MailQueue::UPDATED => time(),
 			DAO_MailQueue::HINT_TO => $hint_to,
 			DAO_MailQueue::SUBJECT => $subject,
@@ -954,11 +951,18 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Make sure the current worker is the draft author
 		if(!empty($draft_id)) {
-			$draft = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s = %d",
+			$visit = CerberusApplication::getVisit();
+			$valid_worker_ids = array($active_worker->id);
+			
+			if($visit->isImposter()) {
+				$valid_worker_ids[] = $visit->getImposter()->id;
+			}
+			
+			$draft = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s IN (%s)",
 				DAO_MailQueue::ID,
 				$draft_id,
 				DAO_MailQueue::WORKER_ID,
-				$active_worker->id
+				implode(',', $valid_worker_ids)
 			));
 			
 			if(!isset($draft[$draft_id]))
@@ -967,7 +971,12 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Save
 		if(empty($draft_id)) {
+			$fields[DAO_MailQueue::TYPE] = empty($is_forward) ? Model_MailQueue::TYPE_TICKET_REPLY : Model_MailQueue::TYPE_TICKET_FORWARD;
+			$fields[DAO_MailQueue::TICKET_ID] = $ticket_id;
+			$fields[DAO_MailQueue::WORKER_ID] = $active_worker->id;
+			
 			$draft_id = DAO_MailQueue::create($fields);
+			
 		} else {
 			DAO_MailQueue::update($draft_id, $fields);
 		}
