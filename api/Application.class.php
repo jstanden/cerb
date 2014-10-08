@@ -46,8 +46,8 @@
  \* - Jeff Standen, Darren Sugita, Dan Hildebrandt
  *	 Webgroup Media LLC - Developers of Cerb
  */
-define("APP_BUILD", 2014100601);
-define("APP_VERSION", '6.8.1');
+define("APP_BUILD", 2014100801);
+define("APP_VERSION", '6.8.2');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
