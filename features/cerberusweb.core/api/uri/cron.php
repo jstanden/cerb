@@ -52,8 +52,8 @@ class ChCronController extends DevblocksControllerExtension {
 		$stack = $request->path;
 		
 		array_shift($stack); // cron
-		$job_id = array_shift($stack);
-
+		$job_ids = array_shift($stack);
+		
 		@set_time_limit(600); // 10 mins
 		
 		$url = DevblocksPlatform::getUrlService();
@@ -63,7 +63,7 @@ class ChCronController extends DevblocksControllerExtension {
 		
 		if($reload) {
 			$reload_url = sprintf("%s?reload=%d&loglevel=%d&ignore_wait=%d",
-				$url->write('c=cron' . ($job_id ? ("&a=".$job_id) : "")),
+				$url->write('c=cron' . ($job_ids ? ("&a=".$job_ids) : "")),
 				intval($reload),
 				intval($loglevel),
 				intval($is_ignoring_wait)
@@ -80,20 +80,22 @@ class ChCronController extends DevblocksControllerExtension {
 		$cron_manifests = DevblocksPlatform::getExtensions('cerberusweb.cron', true, true);
 		$jobs = array();
 		
-		if(empty($job_id)) { // do everything
+		if(empty($job_ids)) { // do everything
 			if(is_array($cron_manifests))
 			foreach($cron_manifests as $idx => $instance) { /* @var $instance CerberusCronPageExtension */
 				if($instance->isReadyToRun($is_ignoring_wait)) {
-					$jobs[] =& $cron_manifests[$idx];
+					$jobs[] = $cron_manifests[$idx];
 				}
 			}
 			
-		} else { // single job
-			if(isset($cron_manifests[$job_id])) {
-				$instance = $cron_manifests[$job_id];
-				
-				if($instance->isReadyToRun($is_ignoring_wait))
-					$jobs[0] =& $instance;
+		} else { // do named jobs
+			foreach(DevblocksPlatform::parseCsvString($job_ids) as $job_id) {
+				if(isset($cron_manifests[$job_id])) {
+					$instance = $cron_manifests[$job_id];
+					
+					if($instance->isReadyToRun($is_ignoring_wait))
+						$jobs[] = $instance;
+				}
 			}
 		}
 
