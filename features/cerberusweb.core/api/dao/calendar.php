@@ -716,8 +716,8 @@ class Model_CalendarAvailability {
 	function scheduleInRelativeTime($starting_at, $for) {
 		$at = ceil(($starting_at - $this->_start)/60);
 		$for = ceil((strtotime($for) - time())/60);
-		$left = $for;
-		$offset = $at;
+		$left = intval($for);
+		$offset = intval($at);
 		
 		while($left) {
 			$bit = $this->_mins[$offset];
