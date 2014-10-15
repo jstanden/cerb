@@ -1481,6 +1481,13 @@ class CerberusParser {
 				$charset = 'windows-1252';
 				break;
 				
+			case 'ks_c_5601-1987':
+			case 'ks_c_5601-1992':
+			case 'ks_c_5601-1998':
+			case 'ks_c_5601-2002':
+				$charset = 'cp949';
+				break;
+				
 			case NULL:
 				$charset = mb_detect_encoding($text);
 				break;
