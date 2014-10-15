@@ -49,133 +49,142 @@
 	</div>
 </div>
 <script type="text/javascript">
-	{* [TODO] Convert this to jQuery *}
-	var timeTrackingTimerClass = function() {
-		this.counter = 0;
-		this.enabled = false;
-	
-		this.increment = function() {
-			if(!this.enabled) return;
-	
-			++this.counter;
-			this.redraw();	
-			
-			if(this.enabled) {
-				var _self = this;
-				setTimeout(function(ms) {
-					_self.increment();
-				} ,1000);
-			}
-		}
-	
-		this.redraw = function() {
-			var counterDiv = document.getElementById('divTimeTrackingCounter');
-			if(null == counterDiv) return;
-			
-			var strTime = "";
-			var iSecs = this.counter;
-			var iMins = Math.floor(iSecs/60);
-			iSecs -= iMins * 60;
-			
-			if(iMins > 0) strTime = strTime + iMins + "m ";
-			if(iSecs > 0) strTime = strTime + iSecs + "s ";
-			
-			counterDiv.innerHTML = strTime;
-		}
+var timeTrackingTimerClass = function() {
+	this.counter = 0;
+	this.enabled = false;
 
-		this.show = function() {
-			var timerDiv = document.getElementById('divTimeTrackingBox');
-			if(null == timerDiv) return;
-			timerDiv.style.display = 'block';
-			
-			btn = document.getElementById('btnTimeTrackingPlay');
-			if(null != btn) btn.style.display = (this.enabled) ? 'none' : 'inline';
-			btn = document.getElementById('btnTimeTrackingPause');
-			if(null != btn) btn.style.display = (this.enabled) ? 'inline' : 'none';
-			btn = document.getElementById('btnTimeTrackingStop');
-			if(null != btn) btn.style.display = 'inline';
-			
-			this.redraw();
-			
+	this.increment = function() {
+		if(!this.enabled) return;
+
+		++this.counter;
+		this.redraw();	
+		
+		if(this.enabled) {
 			var _self = this;
 			setTimeout(function(ms) {
 				_self.increment();
-			} ,10);
+			} ,1000);
 		}
+	}
+
+	this.redraw = function() {
+		var $counterDiv = $('#divTimeTrackingCounter');
 		
-		this.play = function(context, context_id) {
-			if(this.enabled) return; // don't start twice
-			if(null == context) context = '';
-			if(null == context_id) context_id = '';
-			genericAjaxGet('','c=timetracking&a=startTimer&context=' + context + '&context_id=' + context_id);
-			this.enabled = true;
-	
-			this.show();
-		}
+		if($counterDiv.length == 0)
+			return;
 		
-		this.pause = function() {
-			this.enabled = false;
-			genericAjaxGet('','c=timetracking&a=pauseTimerJson');
-	
-			var timerDiv = document.getElementById('divTimeTrackingBox');
-			if(null == timerDiv) return;
-			timerDiv.style.display = 'block';
+		var strTime = "";
+		var iSecs = this.counter;
+		var iMins = Math.floor(iSecs/60);
+		iSecs -= iMins * 60;
+		
+		if(iMins > 0) strTime = strTime + iMins + "m ";
+		if(iSecs > 0) strTime = strTime + iSecs + "s ";
+		
+		$counterDiv.html(strTime);
+	}
+
+	this.show = function() {
+		var $timerDiv = $('#divTimeTrackingBox').show();
+
+		if($timerDiv.length == 0)
+			return;
+		
+		var $playBtn = $('#btnTimeTrackingPlay');
+		var $pauseBtn = $('#btnTimeTrackingPause');
+		var $stopBtn = $('#btnTimeTrackingStop').show();
+		
+		if(this.enabled) {
+			$playBtn.hide();
+			$pauseBtn.show();
 			
-			btn = document.getElementById('btnTimeTrackingPlay');
-			if(null != btn) btn.style.display = 'inline';
-			btn = document.getElementById('btnTimeTrackingPause');
-			if(null != btn) btn.style.display = 'none';
-			btn = document.getElementById('btnTimeTrackingStop');
-			if(null != btn) btn.style.display = 'inline';
+		} else {
+			$playBtn.show();
+			$pauseBtn.hide();
 		}
 		
-		this.stop = function() {
-			this.enabled = false;
-
-			var timerDiv = document.getElementById('divTimeTrackingBox');
-			if(null == timerDiv) return;
-			timerDiv.style.display = 'block';
-
-			btn = document.getElementById('btnTimeTrackingPlay');
-			if(null != btn) btn.style.display = 'none';
-			btn = document.getElementById('btnTimeTrackingPause');
-			if(null != btn) btn.style.display = 'none';
-			btn = document.getElementById('btnTimeTrackingStop');
-			if(null != btn) btn.style.display = 'none';
-
-			genericAjaxGet('','c=timetracking&a=pauseTimerJson', function(json) {
-				if(json.status) {
-					genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TIMETRACKING}&context_id=0&mins=' + json.total_mins,null,false,'500');
-				}
-			} );
-		}
+		this.redraw();
 		
-		this.finish = function() {
-			var timerDiv = document.getElementById('divTimeTrackingBox');
-			if(null == timerDiv) return;
-			timerDiv.style.display = 'none';
+		var _self = this;
+		setTimeout(function(ms) {
+			_self.increment();
+		} ,10);
+	}
+	
+	this.play = function(context, context_id) {
+		if(this.enabled) return; // don't start twice
+		if(null == context) context = '';
+		if(null == context_id) context_id = '';
+		genericAjaxGet('','c=timetracking&a=startTimer&context=' + context + '&context_id=' + context_id);
+		this.enabled = true;
+
+		this.show();
+	}
+	
+	this.pause = function() {
+		this.enabled = false;
+		genericAjaxGet('','c=timetracking&a=pauseTimerJson');
+
+		var $timerDiv = $('#divTimeTrackingBox').show();
 		
-			this.counter = 0;
-			genericAjaxGet('','c=timetracking&a=clearEntry');
-		}
-	};
+		if($timerDiv.length == 0)
+			return;
+		
+		var $playBtn = $('#btnTimeTrackingPlay').show();
+		var $pauseBtn = $('#btnTimeTrackingPause').hide();
+		var $stopBtn = $('#btnTimeTrackingStop').show();
+	}
 	
-	timeTrackingTimer = new timeTrackingTimerClass();
+	this.stop = function() {
+		this.enabled = false;
+
+		var $timerDiv = $('#divTimeTrackingBox').show();
+		
+		if($timerDiv.length == 0)
+			return;
+		
+		var $playBtn = $('#btnTimeTrackingPlay').hide();
+		var $pauseBtn = $('#btnTimeTrackingPause').hide();
+		var $stopBtn = $('#btnTimeTrackingStop').hide();
+		
+		genericAjaxGet('','c=timetracking&a=pauseTimerJson', function(json) {
+			if(json.status) {
+				var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TIMETRACKING}&context_id=0&mins=' + json.total_mins,null,false,'500');
+				$popup.one('dialogclose', function() {
+					$playBtn.show();
+					$stopBtn.show();
+				});
+			}
+		} );
+	}
 	
-	{if isset($session.timetracking_started) && $current_timestamp} {* timer is running *}
-		{* Recover the total from any pause/unpause segments *}
-		timeTrackingTimer.counter = {if isset($session.timetracking_total)}{$session.timetracking_total}{else}0{/if};
-		{* Append the current runtime *}
-		timeTrackingTimer.counter += {math equation="(x-y)" x=$current_timestamp y=$session.timetracking_started};
-		timeTrackingTimer.enabled = true;
-	{elseif isset($session.timetracking_total)} {* timer is paused *}
-		timeTrackingTimer.counter = {$session.timetracking_total};
-	{else}
-		timeTrackingTimer.counter = 0;
-	{/if}
-	
-	{if isset($session.timetracking_total) || isset($session.timetracking_started)}
-		timeTrackingTimer.show();
-	{/if} 
+	this.finish = function() {
+		var $timerDiv = $('#divTimeTrackingBox').hide();
+		
+		if($timerDiv.length == 0)
+			return;
+		
+		this.counter = 0;
+		genericAjaxGet('','c=timetracking&a=clearEntry');
+	}
+};
+
+var timeTrackingTimer = new timeTrackingTimerClass();
+
+{if isset($session.timetracking_started) && $current_timestamp} {* timer is running *}
+	{* Recover the total from any pause/unpause segments *}
+	timeTrackingTimer.counter = {if isset($session.timetracking_total)}{$session.timetracking_total}{else}0{/if};
+	{* Append the current runtime *}
+	timeTrackingTimer.counter += {math equation="(x-y)" x=$current_timestamp y=$session.timetracking_started};
+	timeTrackingTimer.enabled = true;
+{elseif isset($session.timetracking_total)} {* timer is paused *}
+	timeTrackingTimer.counter = {$session.timetracking_total};
+{else}
+	timeTrackingTimer.counter = 0;
+{/if}
+
+{if isset($session.timetracking_total) || isset($session.timetracking_started)}
+	timeTrackingTimer.show();
+{/if} 
 </script>
 {* end time tracking *}
