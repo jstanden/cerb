@@ -24,6 +24,10 @@
 				<select name="owner">
 					<option value=""></option>
 					
+					{if $active_worker->is_superuser}
+					<option value="{CerberusContexts::CONTEXT_APPLICATION}:0">Application: Cerb</option>
+					{/if}
+					
 					{if !empty($roles)}
 					{foreach from=$roles item=role key=role_id}
 						<option value="{CerberusContexts::CONTEXT_ROLE}:{$role_id}">Role: {$role->name}</option>
