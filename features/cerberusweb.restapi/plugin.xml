@@ -171,6 +171,18 @@
 		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.mail_html_templates</id>
+			<name>Mail HTML Templates</name>
+			<class>
+				<file>api/rest/mail_html_templates.php</file>
+				<name>ChRest_MailHtmlTemplates</name>
+			</class>
+			<params>
+				<param key="uri" value="mail_html_templates" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.messages</id>
 			<name>Messages</name>
 			<class>

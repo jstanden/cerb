@@ -844,7 +844,9 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		$token_labels = array(
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
+			'content' => $prefix.$translate->_('common.content'),
 			'name' => $prefix.$translate->_('common.name'),
+			'signature' => $prefix.$translate->_('common.signature'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -853,7 +855,9 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		$token_types = array(
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
+			'content' => Model_CustomField::TYPE_SINGLE_LINE,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'signature' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
@@ -875,8 +879,10 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		if($mail_html_template) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $mail_html_template->name;
+			$token_values['content'] = $mail_html_template->content;
 			$token_values['id'] = $mail_html_template->id;
 			$token_values['name'] = $mail_html_template->name;
+			$token_values['signature'] = $mail_html_template->signature;
 			$token_values['updated_at'] = $mail_html_template->updated_at;
 			
 			// Custom fields
