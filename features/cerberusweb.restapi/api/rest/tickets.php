@@ -452,6 +452,8 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		@$bcc = DevblocksPlatform::importGPC($_REQUEST['bcc'],'string','');
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
+		@$content_format = DevblocksPlatform::importGPC($_REQUEST['content_format'],'string','');
+		@$html_template_id = DevblocksPlatform::importGPC($_REQUEST['html_template_id'],'integer',0);
 		
 		@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_id'],'array',array());
 		
@@ -459,9 +461,6 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		@$reopen_at = DevblocksPlatform::importGPC($_REQUEST['reopen_at'],'integer',0);
 		
 		$properties = array();
-		
-		if(empty($group_id))
-			$this->error(self::ERRNO_CUSTOM, "The 'group_id' parameter is required");
 		
 		if(empty($to))
 			$this->error(self::ERRNO_CUSTOM, "The 'to' parameter is required");
@@ -474,6 +473,21 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 
 		if(!empty($file_ids))
 			$file_ids = DevblocksPlatform::sanitizeArray($file_ids, 'integer', array('nonzero','unique'));
+		
+		if(empty($group_id))
+			$this->error(self::ERRNO_CUSTOM, "The 'group_id' parameter is required");
+		
+		if(false == ($group = DAO_Group::get($group_id)))
+			$this->error(self::ERRNO_CUSTOM, "The given 'group_id' parameter is invalid");
+		
+		if(!empty($bucket_id) && false == ($bucket = DAO_Bucket::get($bucket_id)))
+			$this->error(self::ERRNO_CUSTOM, "The given 'bucket_id' parameter is invalid");
+
+		if(!empty($html_template_id) && false == ($html_template = DAO_MailHtmlTemplate::get($html_template_id)))
+			$this->error(self::ERRNO_CUSTOM, "The given 'html_template_id' parameter is invalid");
+		
+		if(isset($bucket) && $bucket->group_id != $group_id)
+			$group_id = $bucket->group_id;
 		
 		$properties = array(
 			'group_id' => $group_id,
@@ -501,6 +515,12 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			$properties['link_forward_files'] = true;
 			$properties['forward_files'] = $file_ids;
 		}
+		
+		if(!empty($content_format) && in_array($content_format, array('markdown','parsedown','html')))
+			$properties['content_format'] = 'parsedown';
+		
+		if(isset($html_template))
+			$properties['html_template_id'] = $html_template->id;
 		
 		if(false == ($ticket_id = CerberusMail::compose($properties)))
 			$this->error(self::ERRNO_CUSTOM, "Failed to create a new message.");
@@ -555,6 +575,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
 		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
 		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
+		@$html_template_id = DevblocksPlatform::importGPC($_REQUEST['html_template_id'],'integer',0);
 		
 		$properties = array();
 
@@ -575,6 +596,9 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		
 		if(!empty($file_ids))
 			$file_ids = DevblocksPlatform::sanitizeArray($file_ids, 'integer', array('nonzero','unique'));
+		
+		if(!empty($html_template_id) && false == ($html_template = DAO_MailHtmlTemplate::get($html_template_id)))
+			$this->error(self::ERRNO_CUSTOM, "The given 'html_template_id' parameter is invalid");
 		
 		$properties = array(
 			'message_id' => $message_id,
@@ -627,7 +651,10 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			$properties['bcc'] = $bcc;
 		
 		if(!empty($content_format) && in_array($content_format, array('markdown','parsedown','html')))
-			$properties['content_format'] = $content_format;
+			$properties['content_format'] = 'parsedown';
+		
+		if(isset($html_template))
+			$properties['html_template_id'] = $html_template->id;
 		
 		if(!empty($status) && in_array($status, array(0,1,2)))
 			$properties['closed'] = $status;
