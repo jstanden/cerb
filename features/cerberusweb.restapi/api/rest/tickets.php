@@ -129,10 +129,12 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		$worker = CerberusApplication::getActiveWorker();
 		$workers = DAO_Worker::getAll();
 		
-		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
+		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string', '');
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'string', '');
 		@$is_waiting = DevblocksPlatform::importGPC($_REQUEST['is_waiting'],'string','');
 		@$is_closed = DevblocksPlatform::importGPC($_REQUEST['is_closed'],'string','');
 		@$is_deleted = DevblocksPlatform::importGPC($_REQUEST['is_deleted'],'string','');
+		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
 		
 		if(null == ($ticket = DAO_Ticket::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid ticket ID %d", $id));
@@ -154,7 +156,31 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(0 != strlen($is_waiting))
 			$fields[DAO_Ticket::IS_WAITING] = !empty($is_waiting) ? 1 : 0;
 		
+		// Group + Bucket
+		
+		if(0 != strlen($group_id) || 0 != strlen($bucket_id)) {
+			$group_id = intval($group_id);
+			$bucket_id = intval($bucket_id);
+			
+			if(empty($group_id))
+				$this->error(self::ERRNO_ACL, "The 'group_id' field is required.");
+			
+			if(false == ($group = DAO_Group::get($group_id)))
+				$this->error(self::ERRNO_ACL, "The given 'group_id' is invalid.");
+
+			if(!empty($bucket_id) && false == ($bucket = DAO_Bucket::get($bucket_id)))
+				$this->error(self::ERRNO_ACL, "The given 'bucket_id' is invalid.");
+			
+			if(isset($bucket) && $bucket->group_id != $group_id)
+				$group_id = $bucket->group_id;
+				//$this->error(self::ERRNO_ACL, "The group of given 'bucket_id' does not match given 'group_id'.");
+				
+			$fields[DAO_Ticket::GROUP_ID] = intval($group_id);
+			$fields[DAO_Ticket::BUCKET_ID] = intval($bucket_id);
+		}
+		
 		// Close
+		
 		if(0 != strlen($is_closed)) {
 			// ACL
 			if(!$worker->hasPriv('core.ticket.actions.close'))
@@ -162,8 +188,9 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			
 			$fields[DAO_Ticket::IS_CLOSED] = !empty($is_closed) ? 1 : 0;
 		}
-			
+		
 		// Delete
+		
 		if(0 != strlen($is_deleted)) {
 			// ACL
 			if(!$worker->hasPriv('core.ticket.actions.delete'))
@@ -268,6 +295,8 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		
 		if('dao'==$type) {
 			$tokens = array(
+				'bucket_id' => DAO_Ticket::BUCKET_ID,
+				'group_id' => DAO_Ticket::GROUP_ID,
 				'id' => DAO_Ticket::ID,
 				'is_closed' => DAO_Ticket::IS_CLOSED,
 				'is_deleted' => DAO_Ticket::IS_DELETED,
@@ -300,23 +329,23 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			
 		} else {
 			$tokens = array(
+				'bucket_id' => SearchFields_Ticket::TICKET_BUCKET_ID,
 				'content' => SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT,
 				'created' => SearchFields_Ticket::TICKET_CREATED_DATE,
 				'first_wrote' => SearchFields_Ticket::TICKET_FIRST_WROTE,
+				'group' => SearchFields_Ticket::TICKET_GROUP_ID,
+				'group_id' => SearchFields_Ticket::TICKET_GROUP_ID,
 				'id' => SearchFields_Ticket::TICKET_ID,
 				'is_closed' => SearchFields_Ticket::TICKET_CLOSED,
 				'is_deleted' => SearchFields_Ticket::TICKET_DELETED,
 				'is_waiting' => SearchFields_Ticket::TICKET_WAITING,
 				'last_wrote' => SearchFields_Ticket::TICKET_LAST_WROTE,
 				'mask' => SearchFields_Ticket::TICKET_MASK,
+				'org_id' => SearchFields_Ticket::TICKET_ORG_ID,
+				'org_name' => SearchFields_Ticket::ORG_NAME,
 				'requester' => SearchFields_Ticket::REQUESTER_ADDRESS,
 				'subject' => SearchFields_Ticket::TICKET_SUBJECT,
 				'updated' => SearchFields_Ticket::TICKET_UPDATED_DATE,
-				'group' => SearchFields_Ticket::TICKET_GROUP_ID,
-				'group_id' => SearchFields_Ticket::TICKET_GROUP_ID,
-				'bucket_id' => SearchFields_Ticket::TICKET_BUCKET_ID,
-				'org_id' => SearchFields_Ticket::TICKET_ORG_ID,
-				'org_name' => SearchFields_Ticket::ORG_NAME,
 					
 				'links' => SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,
 			);

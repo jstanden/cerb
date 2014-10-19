@@ -1259,12 +1259,12 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 				if(!isset($values['buckets']))
 					$values['buckets'] = array(
 						'results_meta' => array(
-							'labels' => null,
-							'types' => null,
+							'labels' => array(),
+							'types' => array(),
 						),
 						'results' => array(),
 					);
-				
+					
 				$buckets = DAO_Bucket::getByGroup($context_id);
 				
 				if(is_array($buckets))
@@ -1310,8 +1310,8 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 				if(!isset($values['members']))
 					$values['members'] = array(
 						'results_meta' => array(
-							'labels' => null,
-							'types' => null,
+							'labels' => array(),
+							'types' => array(),
 						),
 						'results' => array(),
 					);
