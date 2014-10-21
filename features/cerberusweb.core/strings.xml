@@ -162,6 +162,12 @@
 		<tu tuid='common.behavior'>
 			<tuv xml:lang="en_US"><seg>Behavior</seg></tuv>
 		</tu>
+		<tu tuid='common.broadcast'>
+			<tuv xml:lang="en_US"><seg>Broadcast</seg></tuv>
+		</tu>
+		<tu tuid='common.broadcasts'>
+			<tuv xml:lang="en_US"><seg>Broadcasts</seg></tuv>
+		</tu>
 		<tu tuid='common.bucket'>
 			<tuv xml:lang="en_US"><seg>Bucket</seg></tuv>
 		</tu>
@@ -467,6 +473,9 @@
 		</tu>
 		<tu tuid='common.links'>
 			<tuv xml:lang="en_US"><seg>Links</seg></tuv>
+		</tu>
+		<tu tuid='common.list'>
+			<tuv xml:lang="en_US"><seg>List</seg></tuv>
 		</tu>
 		<tu tuid='common.load'>
 			<tuv xml:lang="en_US"><seg>Load</seg></tuv>
