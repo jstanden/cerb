@@ -27,7 +27,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.password'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
-				<input type="text" name="password" value="" style="width:98%;" {if !empty($contact)}title="Leave blank to keep the current password unchanged."{/if}>
+				<input type="text" name="password" value="" style="width:98%;" {if !empty($contact)}placeholder="Leave blank to keep the current password unchanged."{/if}>
 			</td>
 		</tr>
 		
@@ -62,7 +62,8 @@
 
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-	<textarea name="comment" rows="5" cols="45" style="width:98%;" title="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
+	<div class="cerb-form-hint">{'comment.notify.at_mention'|devblocks_translate}</div>
+	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea>
 </fieldset>
 
 {if $active_worker->hasPriv('core.addybook.person.actions.update')}
@@ -107,21 +108,16 @@ $(function() {
 		$("#formContactPeek").validate();
 		$('#formContactPeek :input:text:first').focus();
 		
-		// Tooltips
+		// Form hints
 		
-		$popup.find(':input[title]').tooltip({
-			position: {
-				my: 'left top',
-				at: 'left+10 bottom+5'
-			}
-		});
-		
-		$textarea.tooltip({
-			position: {
-				my: 'right bottom',
-				at: 'right top'
-			}
-		});
+		$textarea
+			.focusin(function() {
+				$(this).siblings('div.cerb-form-hint').fadeIn();
+			})
+			.focusout(function() {
+				$(this).siblings('div.cerb-form-hint').fadeOut();
+			})
+			;
 		
 		// @mentions
 		

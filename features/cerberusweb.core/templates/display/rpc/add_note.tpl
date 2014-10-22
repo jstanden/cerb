@@ -14,7 +14,8 @@
 	</tr>
 	<tr>
 		<td>
-			<textarea name="content" rows="8" cols="80" id="note_content" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;" title="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
+			<div class="cerb-form-hint">{'comment.notify.at_mention'|devblocks_translate}</div>
+			<textarea name="content" rows="8" cols="80" id="note_content" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;"></textarea>
 			<button type="button" onclick="ajax.chooserSnippet('snippets',$('#note_content'), { '{CerberusContexts::CONTEXT_TICKET}':'{$message->ticket_id}', '{CerberusContexts::CONTEXT_MESSAGE}':'{$message->id}', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
 		</td>
 	</tr>
@@ -33,21 +34,16 @@ $(function() {
 	var $frm = $('#reply{$message->id}_form');
 	var $textarea = $frm.find('textarea[name=content]');
 	
-	// Tooltips
+	// Form hints
 	
-	$frm.find(':input[title]').tooltip({
-		position: {
-			my: 'left top',
-			at: 'left+10 bottom+5'
-		}
-	});
-	
-	$textarea.tooltip({
-		position: {
-			my: 'right bottom',
-			at: 'right top'
-		}
-	});
+	$textarea
+		.focusin(function() {
+			$(this).siblings('div.cerb-form-hint').fadeIn();
+		})
+		.focusout(function() {
+			$(this).siblings('div.cerb-form-hint').fadeOut();
+		})
+		;
 	
 	// @mentions
 	

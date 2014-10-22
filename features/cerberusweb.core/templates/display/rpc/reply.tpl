@@ -173,7 +173,7 @@
 <input type="hidden" name="subject" value="{if !empty($draft)}{$draft->params.subject}{else}{if $is_forward}Fwd: {/if}{$ticket->subject}{/if}">
 
 {if $is_forward}
-<textarea name="content" id="reply_{$message->id}" class="reply" style="width:98%;height:{$mail_reply_textbox_size_px|default:300}px;border:1px solid rgb(180,180,180);padding:5px;" title="Use #commands to perform additional actions">
+<textarea name="content" id="reply_{$message->id}" class="reply" style="width:98%;height:{$mail_reply_textbox_size_px|default:300}px;border:1px solid rgb(180,180,180);padding:5px;">
 {if !empty($draft)}{$draft->body}{else}
 {if !empty($signature)}
 
@@ -191,7 +191,7 @@
 {/if}
 </textarea>
 {else}
-<textarea name="content" id="reply_{$message->id}" class="reply" style="width:98%;height:{$mail_reply_textbox_size_px|default:300}px;border:1px solid rgb(180,180,180);padding:5px;" title="Use #commands to perform additional actions">
+<textarea name="content" id="reply_{$message->id}" class="reply" style="width:98%;height:{$mail_reply_textbox_size_px|default:300}px;border:1px solid rgb(180,180,180);padding:5px;">
 {if !empty($draft)}{$draft->body}{else}
 {if !empty($signature) && (1==$signature_pos || 3==$signature_pos)}
 
@@ -212,6 +212,8 @@
 {/if}{*Sig below*}{/if}
 </textarea>
 {/if}
+
+			<div class="cerb-form-hint" style="display:block;">(Use #commands to perform additional actions)</div>
 		</td>
 	</tr>
 	<tr>
@@ -800,22 +802,6 @@
 				$(this).find('a').trigger('click');
 			})
 		;
-		
-		// Tooltips
-		
-		$('#reply{$message->id}').find(':input[title], a[title]').tooltip({
-			position: {
-				my: 'left top',
-				at: 'left+10 bottom+5'
-			}
-		});
-		
-		$content.tooltip({
-			position: {
-				my: 'right bottom',
-				at: 'right top'
-			}
-		});
 		
 		// Shortcuts
 		

@@ -101,12 +101,14 @@
 					</fieldset>
 				</div>
 				
-				<textarea id="divComposeContent{$random}" name="content" style="width:98%;height:150px;border:1px solid rgb(180,180,180);padding:2px;" title="Use #commands to perform additional actions">{if !empty($draft)}{$draft->body}{else}
+				<textarea id="divComposeContent{$random}" name="content" style="width:98%;height:150px;border:1px solid rgb(180,180,180);padding:2px;">{if !empty($draft)}{$draft->body}{else}
 
 
 
 #signature
 #cut{/if}</textarea>
+
+				<div class="cerb-form-hint" style="display:block;">(Use #commands to perform additional actions)</div>
 			</td>
 		</tr>
 	</table>
@@ -415,22 +417,6 @@
 		$content.on('inserted.atwho', function(event, $li) {
 			//if($li.text() == 'delete quote from here\n')
 			//	$(this).trigger('delete_quote_from_cursor');
-		});
-		
-		// Tooltips
-		
-		$frm.find(':input[title], a[title]').tooltip({
-			position: {
-				my: 'left top',
-				at: 'left+10 bottom+5'
-			}
-		});
-		
-		$content.tooltip({
-			position: {
-				my: 'right bottom',
-				at: 'right top'
-			}
 		});
 		
 		// Group and bucket

@@ -999,6 +999,14 @@ SPAN.tag.tag-orange {
 	color:rgb(255,255,255);
 }
 
+/* Form hints */
+
+DIV.cerb-form-hint {
+	margin: 0px 0px 5px 0px;
+	display: none;
+	font-weight: bold;
+}
+
 /* Property List */
 
 DIV.cerb-properties {

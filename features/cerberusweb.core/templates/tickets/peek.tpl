@@ -161,7 +161,8 @@
 	
 	<fieldset class="peek">
 		<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-		<textarea name="comment" rows="5" cols="60" style="width:98%;" title="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
+		<div class="cerb-form-hint">{'comment.notify.at_mention'|devblocks_translate}</div>
+		<textarea name="comment" rows="5" cols="60" style="width:98%;"></textarea>
 	</fieldset>
 	
 	<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmTicketPeek','{$view_id}',false,'ticket_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
@@ -184,24 +185,19 @@
 		// Comments
 		
 		var $textarea = $(this).find('textarea[name=comment]');
-			
+		
 		$textarea.elastic();
 		
-		// Tooltips
+		// Form hints
 		
-		$popup.find(':input[title]').tooltip({
-			position: {
-				my: 'left top',
-				at: 'left+10 bottom+5'
-			}
-		});
-		
-		$textarea.tooltip({
-			position: {
-				my: 'right bottom',
-				at: 'right top'
-			}
-		});
+		$textarea
+			.focusin(function() {
+				$(this).siblings('div.cerb-form-hint').fadeIn();
+			})
+			.focusout(function() {
+				$(this).siblings('div.cerb-form-hint').fadeOut();
+			})
+			;
 		
 		// @mentions
 		

@@ -86,7 +86,8 @@
 
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-	<textarea name="comment" rows="5" cols="45" style="width:98%;" title="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
+	<div class="cerb-form-hint">{'comment.notify.at_mention'|devblocks_translate}</div>
+	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea>
 </fieldset>
 
 {if (empty($opp) && $active_worker->hasPriv('crm.opp.actions.create')) || (!empty($opp) && $active_worker->hasPriv('crm.opp.actions.update_all'))}
@@ -134,21 +135,16 @@
 			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
 		});
 		
-		// Tooltips
+		// Form hints
 		
-		$popup.find(':input[title]').tooltip({
-			position: {
-				my: 'left top',
-				at: 'left+10 bottom+5'
-			}
-		});
-		
-		$textarea.tooltip({
-			position: {
-				my: 'right bottom',
-				at: 'right top'
-			}
-		});
+		$textarea
+			.focusin(function() {
+				$(this).siblings('div.cerb-form-hint').fadeIn();
+			})
+			.focusout(function() {
+				$(this).siblings('div.cerb-form-hint').fadeOut();
+			})
+			;
 		
 		// @mentions
 		

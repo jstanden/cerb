@@ -6,7 +6,8 @@
 
 <b>Author:</b> {$active_worker->getName()}
 <div>
-	<textarea name="comment" rows="5" cols="60" style="width:98%;" title="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
+	<div class="cerb-form-hint">{'comment.notify.at_mention'|devblocks_translate}</div>
+	<textarea name="comment" rows="5" cols="60" style="width:98%;"></textarea>
 </div>
 <div>
 	<button type="button" onclick="ajax.chooserSnippet('snippets',$('#internalCommentPopup textarea[name=comment]'), { '{$context}':'{$context_id}', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
@@ -43,22 +44,17 @@ $(function() {
 		});
 		
 		var $textarea = $frm.find('textarea');
+
+		// Form hints
 		
-		// Tooltips
-		
-		$popup.find(':input[title]').tooltip({
-			position: {
-				my: 'left top',
-				at: 'left+10 bottom+5'
-			}
-		});
-		
-		$textarea.tooltip({
-			position: {
-				my: 'right bottom',
-				at: 'right top'
-			}
-		});
+		$textarea
+			.focusin(function() {
+				$(this).siblings('div.cerb-form-hint').fadeIn();
+			})
+			.focusout(function() {
+				$(this).siblings('div.cerb-form-hint').fadeOut();
+			})
+			;
 		
 		// @ mentions
 		
