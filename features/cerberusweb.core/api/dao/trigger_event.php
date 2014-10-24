@@ -558,6 +558,9 @@ class Model_TriggerEvent {
 				break;
 				
 			case Model_CustomField::TYPE_DATE:
+				if(is_numeric($value))
+					break;
+				
 				settype($value, 'string');
 				
 				if(false == ($value = strtotime($value))) {
