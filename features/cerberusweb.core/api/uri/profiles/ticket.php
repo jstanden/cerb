@@ -30,11 +30,15 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		@$id_string = array_shift($stack);
 		
 		// Translate masks to IDs
-		if(null == ($ticket = DAO_Ticket::getTicketByMask($id_string))) {
-			$ticket = DAO_Ticket::get(intval($id_string));
+		if(null == ($ticket_id = DAO_Ticket::getTicketIdByMask($id_string))) {
+			$ticket_id = intval($id_string);
 		}
 		
-		if(empty($ticket)) {
+		// Trigger ticket view event (before we load it, in case we change it)
+		Event_TicketViewedByWorker::trigger($ticket_id, $active_worker->id);
+		
+		// Load the record
+		if(false == ($ticket = DAO_Ticket::get($ticket_id))) {
 			DevblocksPlatform::redirect(new DevblocksHttpRequest());
 			return;
 		}
@@ -91,9 +95,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		}
 		
 		$tpl->assign('selected_tab', $selected_tab);
-		
-		// Trigger ticket view event
-		Event_TicketViewedByWorker::trigger($ticket->id, $active_worker->id);
 		
 		// Properties
 		
