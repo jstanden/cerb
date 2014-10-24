@@ -114,16 +114,18 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		
 		// Find all en_US strings that aren't translated
 		if(is_array($strings_en) && is_array($lang_codes) && !empty($lang_codes))
-		foreach($strings_en as $key => $string) {
+		foreach($strings_en as $key => $model) { /* @var $model Model_Translation */
 			foreach($lang_codes as $idx => $lang_code) {
 				@$lang_action = $lang_actions[$idx];
+				
 				if(!isset($hash[$lang_code.'_'.$key])) {
 					$fields = array(
 						DAO_Translation::STRING_ID => $key,
 						DAO_Translation::LANG_CODE => $lang_code,
 						DAO_Translation::STRING_DEFAULT => '',
-						DAO_Translation::STRING_OVERRIDE => (('en_US'==$lang_action) ? $string : ''),
+						DAO_Translation::STRING_OVERRIDE => (('en_US'==$lang_action) ? $model->string_default : ''),
 					);
+					
 					DAO_Translation::create($fields);
 				}
 			}
