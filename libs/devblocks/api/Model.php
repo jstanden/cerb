@@ -200,10 +200,30 @@ class DevblocksSearchCriteria {
 				if(empty($vals))
 					$vals = array(-1);
 				
-				$where = sprintf("%s NOT IN (%s)",
-					$db_field_name,
-					implode(",",$vals)
-				);
+				$has_multiple_values = false;
+				
+				if(substr($this->field, 0, 3) == 'cf_') {
+					$field_id = substr($this->field, 3);
+					$custom_field = DAO_CustomField::get($field_id);
+					$has_multiple_values = Model_CustomField::hasMultipleValues($custom_field->type);
+				}
+					
+				if($has_multiple_values) {
+					$field_db_table = $fields[$this->field]->db_table;
+					
+					$where = sprintf("(%s.field_id, %s.context_id) NOT IN (SELECT field_id, context_id FROM custom_field_stringvalue WHERE field_value IN (%s))",
+						$field_db_table,
+						$field_db_table,
+						implode(",",$vals)
+					);
+					
+				} else {
+					$where = sprintf("%s NOT IN (%s)",
+						$db_field_name,
+						implode(",",$vals)
+					);
+				}
+				
 				break;
 				
 			case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
@@ -234,10 +254,30 @@ class DevblocksSearchCriteria {
 					$where_in = '';
 					
 				} else {
-					$where_in = sprintf("%s NOT IN (%s) OR ",
-						$db_field_name,
-						implode(",",$vals)
-					);
+					$has_multiple_values = false;
+					
+					if(substr($this->field, 0, 3) == 'cf_') {
+						$field_id = substr($this->field, 3);
+						$custom_field = DAO_CustomField::get($field_id);
+						$has_multiple_values = Model_CustomField::hasMultipleValues($custom_field->type);
+					}
+						
+					if($has_multiple_values) {
+						$field_db_table = $fields[$this->field]->db_table;
+						
+						$where_in = sprintf("(%s.field_id, %s.context_id) NOT IN (SELECT field_id, context_id FROM custom_field_stringvalue WHERE field_value IN (%s)) OR ",
+							$field_db_table,
+							$field_db_table,
+							implode(",",$vals)
+						);
+						
+					} else {
+						$where_in = sprintf("%s NOT IN (%s) OR ",
+							$db_field_name,
+							implode(",",$vals)
+						);
+						
+					}
 				}
 				
 				$where = sprintf("(%s%s IS NULL)",
