@@ -300,6 +300,19 @@ class CerberusMail {
 			
 			$headers->addTextHeader('X-Mailer','Cerb ' . APP_VERSION . ' (Build '.APP_BUILD.')');
 			
+			// Custom headers
+			
+			if(isset($properties['headers']) && is_array($properties['headers']))
+			foreach($properties['headers'] as $header_key => $header_val) {
+				if(!empty($header_key) && is_string($header_key) && is_string($header_val)) {
+					if(NULL == ($header = $headers->get($header_key))) {
+						$headers->addTextHeader($header_key, $header_val);
+					} else {
+						$header->setValue($header_val);
+					}
+				}
+			}
+			
 			// Body
 			
 			switch($content_format) {
