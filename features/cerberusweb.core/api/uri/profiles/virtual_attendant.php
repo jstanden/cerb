@@ -180,7 +180,9 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 					DAO_VirtualAttendant::OWNER_CONTEXT_ID => $owner_ctx_id,
 					DAO_VirtualAttendant::PARAMS_JSON => json_encode($params),
 				);
-				$id = DAO_VirtualAttendant::create($fields);
+				
+				if(false == ($id = DAO_VirtualAttendant::create($fields)))
+					return false;
 				
 				// Context Link (if given)
 				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');

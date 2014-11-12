@@ -78,7 +78,9 @@ class ChTasksPage extends CerberusPageExtension {
 				
 			} else {
 				$custom_fields = DAO_CustomFieldValue::parseFormPost(CerberusContexts::CONTEXT_TASK, $field_ids);
-				$id = DAO_Task::create($fields, $custom_fields);
+				
+				if(false == ($id = DAO_Task::create($fields, $custom_fields)))
+					return false;
 
 				@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
 				if(!empty($add_watcher_ids))

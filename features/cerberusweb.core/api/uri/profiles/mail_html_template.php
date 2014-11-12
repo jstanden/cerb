@@ -147,7 +147,8 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 			);
 			
 			if(empty($id)) { // New
-				$id = DAO_MailHtmlTemplate::create($fields);
+				if(false == ($id = DAO_MailHtmlTemplate::create($fields)))
+					return false;
 				
 				// Context Link (if given)
 				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');

@@ -162,7 +162,8 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 					DAO_Worker::AT_MENTION_NAME => $at_mention_name,
 				);
 				
-				$id = DAO_Worker::create($fields);
+				if(false == ($id = DAO_Worker::create($fields)))
+					return false;
 				
 				// View marquee
 				if(!empty($id) && !empty($view_id)) {

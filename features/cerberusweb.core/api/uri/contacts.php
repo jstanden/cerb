@@ -1023,7 +1023,9 @@ class ChContactsPage extends CerberusPageExtension {
 			
 			if($id==0) {
 				$fields = $fields + array(DAO_Address::EMAIL => $email);
-				$id = DAO_Address::create($fields);
+				
+				if(false == ($id = DAO_Address::create($fields)))
+					return false;
 				
 				@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
 				if(!empty($add_watcher_ids))
@@ -1117,7 +1119,8 @@ class ChContactsPage extends CerberusPageExtension {
 				);
 		
 				if($id==0) {
-					$id = DAO_ContactOrg::create($fields);
+					if(false == ($id = DAO_ContactOrg::create($fields)))
+						return false;
 					
 					// Watchers
 					@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
@@ -1617,7 +1620,8 @@ class ChContactsPage extends CerberusPageExtension {
 					$fields[DAO_ContactPerson::EMAIL_ID] = $address->id;
 					$fields[DAO_ContactPerson::CREATED] = time();
 					
-					$id = DAO_ContactPerson::create($fields);
+					if(false == ($id = DAO_ContactPerson::create($fields)))
+						return false;
 					
 					// Link address to contact person
 					DAO_Address::update($address->id, array(

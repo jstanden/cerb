@@ -156,7 +156,8 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 			$fields[DAO_FileBundle::OWNER_CONTEXT_ID] = $owner_context_id;
 			
 			if(empty($id)) { // New
-				$id = DAO_FileBundle::create($fields);
+				if(false == ($id = DAO_FileBundle::create($fields)))
+					return false;
 				
 				// Watchers
 				@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));

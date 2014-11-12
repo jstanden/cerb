@@ -176,7 +176,9 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 					DAO_CalendarRecurringProfile::IS_AVAILABLE => $is_available ? 1 : 0,
 					DAO_CalendarRecurringProfile::PATTERNS => $patterns,
 				);
-				$id = DAO_CalendarRecurringProfile::create($fields);
+				
+				if(false == ($id = DAO_CalendarRecurringProfile::create($fields)))
+					return false;
 				
 				// Context Link (if given)
 				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');

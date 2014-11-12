@@ -230,7 +230,9 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 					DAO_Calendar::OWNER_CONTEXT_ID => $owner_ctx_id,
 					DAO_Calendar::PARAMS_JSON => json_encode($params),
 				);
-				$id = DAO_Calendar::create($fields);
+				
+				if(false == ($id = DAO_Calendar::create($fields)))
+					return false;
 				
 				// Watchers
 				@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));

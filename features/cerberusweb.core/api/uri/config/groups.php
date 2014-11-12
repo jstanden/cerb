@@ -122,7 +122,9 @@ class PageSection_SetupGroups extends Extension_PageSection {
 			$fields = array(
 				DAO_Group::NAME => $name,
 			);
-			$id = DAO_Group::create($fields);
+			
+			if(false == ($id = DAO_Group::create($fields)))
+				return false;
 		}
 		
 		// Members

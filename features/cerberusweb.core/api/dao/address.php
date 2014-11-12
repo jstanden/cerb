@@ -306,11 +306,15 @@ class DAO_Address extends Cerb_ORMHelper {
 		
 		if(is_array($addresses) && !empty($addresses)) {
 			$address = array_shift($addresses);
+			
 		} elseif($create_if_null) {
 			$fields = array(
 				self::EMAIL => $email
 			);
-			$id = DAO_Address::create($fields);
+			
+			if(false == ($id = DAO_Address::create($fields)))
+				return false;
+			
 			$address = DAO_Address::get($id);
 		}
 		
