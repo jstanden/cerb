@@ -56,7 +56,7 @@ var markitupParsedownDefaults = {
 	onShiftEnter:		{keepDefault:false, openWith:'\n\n'},
 	markupSet: [
 		{name:'Bold', key:'B', openWith:'**', closeWith:'**', className:'b'},
-		{name:'Italic', key:'I', openWith:'_', closeWith:'_', className:'i'},
+		{name:'Italic', openWith:'_', closeWith:'_', className:'i'},
 		{name:'Bulleted List', openWith:'- ', className:'ul' },
 		{name:'Numeric List', className:'ol', openWith:function(markItUp) {
 			return markItUp.line+'. ';
