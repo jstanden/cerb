@@ -1831,6 +1831,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				return $array;
 				break;
 				
+			case 'int':
 			case 'integer':
 				$array = _DevblocksSanitizationManager::arrayAs($array, 'integer');
 				

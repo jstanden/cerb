@@ -534,6 +534,12 @@
 		<tu tuid='common.quick_search'>
 			<tuv xml:lang="en_US"><seg>Quick Search</seg></tuv>
 		</tu>
+		<tu tuid='common.recipient'>
+			<tuv xml:lang="en_US"><seg>recipient</seg></tuv>
+		</tu>
+		<tu tuid='common.recipients'>
+			<tuv xml:lang="en_US"><seg>recipients</seg></tuv>
+		</tu>
 		<tu tuid='common.refresh'>
 			<tuv xml:lang="en_US"><seg>refresh</seg></tuv>
 		</tu>
