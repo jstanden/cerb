@@ -427,6 +427,40 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	static function stripHTML($str, $strip_whitespace=true, $skip_blockquotes=false) {
 		
+		// Pre-process some HTML entities that confuse UTF-8
+		
+		$str = str_ireplace(
+			array(
+				'&rsquo;',     // '
+				'&#8217;',
+				'&#x2019;',
+				'&hellip;',    // ...
+				'&#8230;',
+				'&#x2026;',
+				'&ldquo;',     // "
+				'&#8220;',
+				'&#x201c;',
+				'&rdquo;',     // "
+				'&#8221;',
+				'&#x201d;',
+			),
+			array(
+				"'",
+				"'",
+				"'",
+				'...',
+				'...',
+				'...',
+				'"',
+				'"',
+				'"',
+				'"',
+				'"',
+				'"',
+			),
+			$str
+		);
+		
 		// Pre-process blockquotes
 		if(!$skip_blockquotes) {
 			$dom = new DOMDocument('1.0', LANG_CHARSET_CODE);
