@@ -25,7 +25,7 @@
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top"><b>{'common.email'|devblocks_translate}</b>: </td>
-			<td width="100%"><input type="text" name="email" value="{$worker->email}" class="required" style="width:98%;"></td>
+			<td width="100%"><input type="text" name="email" value="{$worker->email}" class="required email" style="width:98%;"></td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{'worker.at_mention_name'|devblocks_translate}: </td>

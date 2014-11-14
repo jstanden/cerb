@@ -102,6 +102,10 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				DAO_Worker::delete($id);
 			
 		} else {
+			// Validate the email address
+			if(false == ($worker_address = DAO_Address::lookupAddress($email, true)))
+				return false;
+			
 			if(empty($id) && null == DAO_Worker::getByEmail($email)) {
 				if(empty($password_new)) {
 					// Creating new worker.  If password is empty, email it to them
@@ -204,7 +208,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 
 			// Set the name on the worker email address
 			
-			if(false != ($worker_address = DAO_Address::lookupAddress($email, true))) {
+			if($worker_address instanceof Model_Address) {
 				$addy_fields = array();
 				
 				if(empty($worker_address->first_name) && !empty($first_name))
