@@ -48,7 +48,7 @@ function linkAddContext(ref) {
 		}
 	}
 	
-	var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context=' + $context + '&context_id=0&link_context={$context}&link_context_id={$context_id}',null,false,'500');
+	var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context=' + $context + '&context_id=0&link_context={$context}&link_context_id={$context_id}',null,false,'750');
 	$popup.one('dialogclose', reload_action);
 	
 	$select.val('');
