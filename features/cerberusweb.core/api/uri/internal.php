@@ -1555,7 +1555,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			'id' => $id,
 			'context_id' => $context_id,
 			'has_custom_placeholders' => !empty($snippet->custom_placeholders),
-			'text' => rtrim($output,"\r\n") . "\n",
+			'text' => rtrim(str_replace("\r","",$output),"\r\n") . "\n",
 		));
 	}
 	
