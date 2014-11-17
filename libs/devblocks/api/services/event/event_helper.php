@@ -631,6 +631,20 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
 	}
 	
+	static function renderActionSetVariablePicklist($token, $trigger, $params) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		//$tpl->assign('token_labels', $labels);
+		
+		if(isset($trigger->variables[$token])) {
+			@$options = $trigger->variables[$token]['params']['options'];
+			
+			if(isset($options) && !empty($options))
+				$tpl->assign('options', DevblocksPlatform::parseCrlfString($options));
+		}
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_picklist.tpl');
+	}
+	
 	static function renderActionSetVariableWorker($token, $trigger, $params) {
 		$tpl = DevblocksPlatform::getTemplateService();
 

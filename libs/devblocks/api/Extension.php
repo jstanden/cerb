@@ -1352,6 +1352,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							case Model_CustomField::TYPE_SINGLE_LINE:
 								return DevblocksEventHelper::renderActionSetVariableString($this->getLabels($trigger));
 								break;
+							case Model_CustomField::TYPE_DROPDOWN:
+								return DevblocksEventHelper::renderActionSetVariablePicklist($token, $trigger, $params);
+								break;
 							case Model_CustomField::TYPE_WORKER:
 								return DevblocksEventHelper::renderActionSetVariableWorker($token, $trigger, $params);
 								break;
