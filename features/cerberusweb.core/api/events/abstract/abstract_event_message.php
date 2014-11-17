@@ -237,7 +237,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
 			'worker_id' => array(
-				'label' => 'Message ender worker',
+				'label' => 'Message sender worker',
 				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
 		);
