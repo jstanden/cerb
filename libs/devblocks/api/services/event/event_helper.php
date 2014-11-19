@@ -1484,8 +1484,14 @@ class DevblocksEventHelper {
 					}
 					
 					if($run_in_simulator) {
-						$behavior->runDecisionTree($on_object, true);
-						$dict->$var = $on_object;
+						$runners = call_user_func(array($ext->manifest->class, 'trigger'), $behavior->id, $on_object->id, $vars);
+						
+						// Capture results
+						
+						if(isset($runners[$behavior->id]))
+							$dict->$var = $runners[$behavior->id];
+						
+						// [TODO] We could show this dictionary in the simulator
 						
 						// Merge simulator output
 
