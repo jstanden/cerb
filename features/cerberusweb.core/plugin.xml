@@ -3227,7 +3227,7 @@
 				<name>WorkspaceTab_Dashboards</name>
 			</class>
 			<params>
-				<param key="label" value="core.workspace.dashboard" />
+				<param key="label" value="dashboard" />
 			</params>
 		</extension>
 		
