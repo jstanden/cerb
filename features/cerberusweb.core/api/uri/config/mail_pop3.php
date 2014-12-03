@@ -59,6 +59,7 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 			@$password = DevblocksPlatform::importGPC($_POST['password'],'string');
 			@$port = DevblocksPlatform::importGPC($_POST['port'],'integer');
 			@$timeout_secs = DevblocksPlatform::importGPC($_POST['timeout_secs'],'integer');
+			@$max_msg_size_kb = DevblocksPlatform::importGPC($_POST['max_msg_size_kb'],'integer');
 			@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 	
 			if(empty($nickname))
@@ -100,6 +101,7 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 				DAO_Pop3Account::NUM_FAILS => 0,
 				DAO_Pop3Account::DELAY_UNTIL => 0,
 				DAO_Pop3Account::TIMEOUT_SECS => $timeout_secs,
+				DAO_Pop3Account::MAX_MSG_SIZE_KB => $max_msg_size_kb,
 			);
 			
 			if(!empty($id) && !empty($delete)) {
@@ -135,6 +137,8 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 			@$port = DevblocksPlatform::importGPC($_REQUEST['port'],'integer',110);
 			@$user = DevblocksPlatform::importGPC($_REQUEST['username'],'string','');
 			@$pass = DevblocksPlatform::importGPC($_REQUEST['password'],'string','');
+			@$timeout_secs = DevblocksPlatform::importGPC($_REQUEST['timeout_secs'],'integer',0);
+			@$max_msg_size_kb = DevblocksPlatform::importGPC($_REQUEST['max_msg_size_kb'],'integer',25600);
 			
 			// Defaults
 			if(empty($port)) {
@@ -158,7 +162,7 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 			if(!empty($host)) {
 				$mail_service = DevblocksPlatform::getMailService();
 				
-				if(false == $mail_service->testImap($host, $port, $protocol, $user, $pass))
+				if(false == $mail_service->testMailbox($host, $port, $protocol, $user, $pass, $timeout_secs, $max_msg_size_kb))
 					throw new Exception($translate->_('config.mail.pop3.failed'));
 				
 			} else {

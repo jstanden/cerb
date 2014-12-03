@@ -100,7 +100,7 @@ class _DevblocksEmailManager {
 		return $this->mailers[$hash];
 	}
 	
-	function testImap($server, $port, $service, $username, $password) {
+	function testMailbox($server, $port, $service, $username, $password, $timeout_secs=30, $max_msg_size_kb=0) {
 		if (!extension_loaded("imap"))
 			throw new Exception("PHP 'imap' extension is not loaded!");
 		

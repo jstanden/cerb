@@ -1148,40 +1148,11 @@ class Pop3Cron extends CerberusCronPageExtension {
 
 			$logger->info('[POP3] Account being parsed is '. $account->nickname);
 			 
-			switch($account->protocol) {
-				default:
-				case 'pop3': // 110
-					$connect = sprintf("{%s:%d/pop3/notls}INBOX",
-					$account->host,
-					$account->port
-					);
-					break;
-					 
-				case 'pop3-ssl': // 995
-					$connect = sprintf("{%s:%d/pop3/ssl/novalidate-cert}INBOX",
-					$account->host,
-					$account->port
-					);
-					break;
-					 
-				case 'imap': // 143
-					$connect = sprintf("{%s:%d/notls}INBOX",
-					$account->host,
-					$account->port
-					);
-					break;
-
-				case 'imap-ssl': // 993
-					$connect = sprintf("{%s:%d/imap/ssl/novalidate-cert}INBOX",
-					$account->host,
-					$account->port
-					);
-					break;
-			}
+			$imap_connect = $account->getImapConnectString();
 
 			$mailbox_runtime = microtime(true);
 			 
-			if(false === ($mailbox = @imap_open($connect,
+			if(false === ($mailbox = @imap_open($imap_connect,
 				!empty($account->username)?$account->username:"",
 				!empty($account->password)?$account->password:"",
 				null,
@@ -1234,16 +1205,18 @@ class Pop3Cron extends CerberusCronPageExtension {
 			}
 			 
 			$messages = array();
-			$check = imap_check($mailbox);
+			$mailbox_stats = imap_check($mailbox);
 			 
 			// [TODO] Make this an account setting?
-			$total = min($max_downloads, $check->Nmsgs);
+			$total = min($max_downloads, $mailbox_stats->Nmsgs);
 			 
 			$logger->info("[POP3] Connected to mailbox '".$account->nickname."' (".number_format((microtime(true)-$mailbox_runtime)*1000,2)." ms)");
 
 			$mailbox_runtime = microtime(true);
-
-			for($msgno=1; $msgno <= $total; $msgno++) {
+			
+			$msgs_stats = imap_fetch_overview($mailbox, sprintf("1:%d", $total));
+			
+			foreach($msgs_stats as &$msg_stats) {
 				$time = microtime(true);
 
 				do {
@@ -1259,10 +1232,48 @@ class Pop3Cron extends CerberusCronPageExtension {
 				if($fp) {
 					$mailbox_xheader = "X-Cerberus-Mailbox: " . $account->nickname . "\r\n";
 					fwrite($fp, $mailbox_xheader);
-					$result = imap_savebody($mailbox, $fp, $msgno); // Write the message directly to the file handle
+
+					// If the message is too big, save a message stating as much
+					if($account->max_msg_size_kb && $msg_stats->size >= $account->max_msg_size_kb * 1000) {
+						$logger->warn(sprintf("[POP3] This message is %s which exceeds the mailbox limit of %s",
+							DevblocksPlatform::strPrettyBytes($msg_stats->size),
+							DevblocksPlatform::strPrettyBytes($account->max_msg_size_kb*1000)
+						));
+						
+						$error_msg = sprintf("This %s message exceeded the mailbox limit of %s",
+							DevblocksPlatform::strPrettyBytes($msg_stats->size),
+							DevblocksPlatform::strPrettyBytes($account->max_msg_size_kb*1000)
+						);
+						
+						$truncated_message = sprintf(
+							"X-Cerb-Parser-Error: message-size-limit-exceeded\r\n".
+							"X-Cerb-Parser-ErrorMsg: %s\r\n".
+							"From: %s\r\n".
+							"To: %s\r\n".
+							"Subject: %s\r\n".
+							"Date: %s\r\n".
+							"Message-Id: %s\r\n".
+							"\r\n".
+							"(%s)\r\n",
+							$error_msg,
+							$msg_stats->from,
+							$msg_stats->to,
+							$msg_stats->subject,
+							$msg_stats->date,
+							$msg_stats->message_id,
+							$error_msg
+						);
+						
+						fwrite($fp, $truncated_message);
+						
+					// Otherwise, save the message like normal
+					} else {
+						$result = imap_savebody($mailbox, $fp, $msg_stats->msgno); // Write the message directly to the file handle
+					}
+
 					@fclose($fp);
 				}
-
+				
 				$time = microtime(true) - $time;
 				
 				// If this message took a really long time to download, skip it and retry later
@@ -1280,9 +1291,9 @@ class Pop3Cron extends CerberusCronPageExtension {
 				 */
 				rename($filename, dirname($filename) . DIRECTORY_SEPARATOR . basename($filename) . '.msg');
 
-				$logger->info("[POP3] Downloaded message ".$msgno." (".sprintf("%d",($time*1000))." ms)");
+				$logger->info("[POP3] Downloaded message ".$msg_stats->msgno." (".sprintf("%d",($time*1000))." ms)");
 				
-				imap_delete($mailbox, $msgno);
+				imap_delete($mailbox, $msg_stats->msgno);
 			}
 			
 			// Clear the fail count if we had past fails
