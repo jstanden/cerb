@@ -134,6 +134,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		@$is_waiting = DevblocksPlatform::importGPC($_REQUEST['is_waiting'],'string','');
 		@$is_closed = DevblocksPlatform::importGPC($_REQUEST['is_closed'],'string','');
 		@$is_deleted = DevblocksPlatform::importGPC($_REQUEST['is_deleted'],'string','');
+		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'string', '');
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
 		
 		if(null == ($ticket = DAO_Ticket::get($id)))
@@ -177,6 +178,22 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 				
 			$fields[DAO_Ticket::GROUP_ID] = intval($group_id);
 			$fields[DAO_Ticket::BUCKET_ID] = intval($bucket_id);
+		}
+		
+		// Owner
+		
+		if(0 != strlen($owner_id) || 0 != strlen($owner_id)) {
+			$owner_id = intval($owner_id);
+			
+			if(!empty($owner_id)) {
+				if(false == ($worker = DAO_Worker::get($owner_id)))
+					$this->error(self::ERRNO_ACL, "The given 'owner_id' is invalid.");
+				
+				if($worker->is_disabled)
+					$this->error(self::ERRNO_ACL, "The given 'owner_id' is disabled.");
+			}
+			
+			$fields[DAO_Ticket::OWNER_ID] = $owner_id;
 		}
 		
 		// Close
@@ -302,6 +319,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 				'is_deleted' => DAO_Ticket::IS_DELETED,
 				'is_waiting' => DAO_Ticket::IS_WAITING,
 				'mask' => DAO_Ticket::MASK,
+				'owner_id' => DAO_Ticket::OWNER_ID,
 				'subject' => DAO_Ticket::SUBJECT,
 			);
 			
