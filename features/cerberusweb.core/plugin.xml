@@ -4,7 +4,7 @@
 	<name>Cerb Core</name>
 	<description>The core functionality of Cerb6.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>6.8.0</version>
+	<version>6.8.5</version>
 	<link>http://wiki.cerb4.com/wiki/New_Changes</link>
 	
 	<!-- Plugin Dependencies -->
