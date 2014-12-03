@@ -134,6 +134,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		@$is_waiting = DevblocksPlatform::importGPC($_REQUEST['is_waiting'],'string','');
 		@$is_closed = DevblocksPlatform::importGPC($_REQUEST['is_closed'],'string','');
 		@$is_deleted = DevblocksPlatform::importGPC($_REQUEST['is_deleted'],'string','');
+		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'string', '');
 		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'string', '');
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
 		
@@ -194,6 +195,19 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			}
 			
 			$fields[DAO_Ticket::OWNER_ID] = $owner_id;
+		}
+		
+		// Org
+		
+		if(0 != strlen($org_id) || 0 != strlen($org_id)) {
+			$org_id = intval($org_id);
+			
+			if(!empty($org_id)) {
+				if(false == ($org = DAO_ContactOrg::get($org_id)))
+					$this->error(self::ERRNO_ACL, "The given 'org_id' is invalid.");
+			}
+			
+			$fields[DAO_Ticket::ORG_ID] = $org_id;
 		}
 		
 		// Close
@@ -319,6 +333,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 				'is_deleted' => DAO_Ticket::IS_DELETED,
 				'is_waiting' => DAO_Ticket::IS_WAITING,
 				'mask' => DAO_Ticket::MASK,
+				'org_id' => DAO_Ticket::ORG_ID,
 				'owner_id' => DAO_Ticket::OWNER_ID,
 				'subject' => DAO_Ticket::SUBJECT,
 			);
