@@ -512,7 +512,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	private function _parseComposeHashCommands(Model_Worker $worker, array &$message_properties, array &$commands) {
-		$lines_in = DevblocksPlatform::parseCrlfString($message_properties['content'], true);
+		$lines_in = DevblocksPlatform::parseCrlfString($message_properties['content'], true, false);
 		$lines_out = array();
 		
 		$is_cut = false;
