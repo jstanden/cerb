@@ -398,7 +398,8 @@ class ChPreferencesPage extends CerberusPageExtension {
 				$models[] = $model;
 			}
 			
-			DAO_ExplorerSet::createFromModels($models);
+			if(!empty($models))
+				DAO_ExplorerSet::createFromModels($models);
 
 			$view->renderPage++;
 
@@ -418,6 +419,9 @@ class ChPreferencesPage extends CerberusPageExtension {
 			),
 			0
 		);
+		
+		// Clamp the starting position based on dupe key folding
+		$orig_pos = DevblocksPlatform::intClamp($orig_pos, 1, count($keys));
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
