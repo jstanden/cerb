@@ -100,7 +100,7 @@ class _DevblocksEmailManager {
 		return $this->mailers[$hash];
 	}
 	
-	function testMailbox($server, $port, $service, $username, $password, $timeout_secs=30, $max_msg_size_kb=0) {
+	function testMailbox($server, $port, $service, $username, $password, $ssl_ignore_validation=false, $timeout_secs=30, $max_msg_size_kb=0) {
 		if (!extension_loaded("imap"))
 			throw new Exception("PHP 'imap' extension is not loaded!");
 		
@@ -116,29 +116,31 @@ class _DevblocksEmailManager {
 			default:
 			case 'pop3': // 110
 				$connect = sprintf("{%s:%d/pop3/notls}INBOX",
-				$server,
-				$port
+					$server,
+					$port
 				);
 				break;
 				 
 			case 'pop3-ssl': // 995
-				$connect = sprintf("{%s:%d/pop3/ssl/novalidate-cert}INBOX",
-				$server,
-				$port
+				$connect = sprintf("{%s:%d/pop3/ssl%s}INBOX",
+					$server,
+					$port,
+					$ssl_ignore_validation ? '/novalidate-cert' : ''
 				);
 				break;
 				 
 			case 'imap': // 143
 				$connect = sprintf("{%s:%d/notls}INBOX",
-				$server,
-				$port
+					$server,
+					$port
 				);
 				break;
 				
 			case 'imap-ssl': // 993
-				$connect = sprintf("{%s:%d/imap/ssl/novalidate-cert}INBOX",
-				$server,
-				$port
+				$connect = sprintf("{%s:%d/imap/ssl%s}INBOX",
+					$server,
+					$port,
+					$ssl_ignore_validation ? '/novalidate-cert' : ''
 				);
 				break;
 		}

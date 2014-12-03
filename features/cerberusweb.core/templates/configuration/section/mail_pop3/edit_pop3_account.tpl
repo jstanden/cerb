@@ -87,6 +87,13 @@
 			</td>
 		</tr>
 		<tr>
+			<td width="0%" nowrap="nowrap"><b>SSL Validation:</b></td>
+			<td width="100%">
+				<label><input type="radio" name="ssl_ignore_validation" value="0" {if empty($pop3_account->ssl_ignore_validation)}checked="checked"{/if}> Enforce</label>
+				<label><input type="radio" name="ssl_ignore_validation" value="1" {if $pop3_account->ssl_ignore_validation}checked="checked"{/if}> Ignore</label>
+			</td>
+		</tr>
+		<tr>
 			<td colspan="2" style="padding-top:10px;">
 				<b>Note:</b> Messages in this mailbox will be deleted once they are downloaded. If this is not desirable 
 				behavior (e.g. IMAP), please create a disposible mailbox to use instead and have copies of your incoming 

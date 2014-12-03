@@ -172,7 +172,7 @@ if(!isset($columns['signature'])) {
 }
 
 // ===========================================================================
-// Add `max_msg_size_kb` to `pop3_account`
+// Add `max_msg_size_kb` and `ssl_ignore_validation` to `pop3_account`
 
 if(!isset($tables['pop3_account'])) {
 	$logger->error("The 'pop3_account' table does not exist.");
@@ -184,6 +184,11 @@ list($columns, $indexes) = $db->metaTable('pop3_account');
 if(!isset($columns['max_msg_size_kb'])) {
 	$db->Execute("ALTER TABLE pop3_account ADD COLUMN max_msg_size_kb INT UNSIGNED NOT NULL DEFAULT 0");
 	$db->Execute("UPDATE pop3_account SET max_msg_size_kb = 25600");
+}
+
+if(!isset($columns['ssl_ignore_validation'])) {
+	$db->Execute("ALTER TABLE pop3_account ADD COLUMN ssl_ignore_validation TINYINT UNSIGNED NOT NULL DEFAULT 0");
+	$db->Execute("UPDATE pop3_account SET ssl_ignore_validation = 0");
 }
 
 // ===========================================================================

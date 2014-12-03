@@ -28,6 +28,7 @@ class DAO_Pop3Account {
 	const DELAY_UNTIL = 'delay_until';
 	const TIMEOUT_SECS = 'timeout_secs';
 	const MAX_MSG_SIZE_KB = 'max_msg_size_kb';
+	const SSL_IGNORE_VALIDATION = 'ssl_ignore_validation';
 	
 	static function createPop3Account($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -48,7 +49,7 @@ class DAO_Pop3Account {
 		$db = DevblocksPlatform::getDatabaseService();
 		$pop3accounts = array();
 		
-		$sql = "SELECT id, enabled, nickname, protocol, host, username, password, port, num_fails, delay_until, timeout_secs, max_msg_size_kb ".
+		$sql = "SELECT id, enabled, nickname, protocol, host, username, password, port, num_fails, delay_until, timeout_secs, max_msg_size_kb, ssl_ignore_validation ".
 			"FROM pop3_account ".
 			((!empty($ids) ? sprintf("WHERE id IN (%s)", implode(',', $ids)) : " ").
 			"ORDER BY nickname "
@@ -69,6 +70,7 @@ class DAO_Pop3Account {
 			$pop3->delay_until = intval($row['delay_until']);
 			$pop3->timeout_secs = intval($row['timeout_secs']);
 			$pop3->max_msg_size_kb = intval($row['max_msg_size_kb']);
+			$pop3->ssl_ignore_validation = intval($row['ssl_ignore_validation']);
 			$pop3accounts[$pop3->id] = $pop3;
 		}
 		
@@ -140,6 +142,7 @@ class Model_Pop3Account {
 	public $delay_until = 0;
 	public $timeout_secs = 30;
 	public $max_msg_size_kb = 25600;
+	public $ssl_ignore_validation = 0;
 	
 	function getImapConnectString() {
 		$connect = null;
@@ -154,9 +157,10 @@ class Model_Pop3Account {
 				break;
 				 
 			case 'pop3-ssl': // 995
-				$connect = sprintf("{%s:%d/pop3/ssl/novalidate-cert}INBOX",
+				$connect = sprintf("{%s:%d/pop3/ssl%s}INBOX",
 					$this->host,
-					$this->port
+					$this->port,
+					$this->ssl_ignore_validation ? '/novalidate-cert' : ''
 				);
 				break;
 				 
@@ -168,9 +172,10 @@ class Model_Pop3Account {
 				break;
 	
 			case 'imap-ssl': // 993
-				$connect = sprintf("{%s:%d/imap/ssl/novalidate-cert}INBOX",
+				$connect = sprintf("{%s:%d/imap/ssl%s}INBOX",
 					$this->host,
-					$this->port
+					$this->port,
+					$this->ssl_ignore_validation ? '/novalidate-cert' : ''
 				);
 				break;
 		}
