@@ -104,9 +104,13 @@ class _DevblocksEmailManager {
 		if (!extension_loaded("imap"))
 			throw new Exception("PHP 'imap' extension is not loaded!");
 		
+		$imap_timeout = !empty($timeout_secs) ? $timeout_secs : 30;
+		
 		// Clear error stack
 		imap_errors();
-		imap_timeout(IMAP_OPENTIMEOUT, 20);
+		imap_timeout(IMAP_OPENTIMEOUT, $imap_timeout);
+		imap_timeout(IMAP_READTIMEOUT, $imap_timeout);
+		imap_timeout(IMAP_CLOSETIMEOUT, $imap_timeout);
 		
 		switch($service) {
 			default:
