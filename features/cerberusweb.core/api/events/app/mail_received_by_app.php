@@ -790,7 +790,11 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				} else {
 					$headers[$header] = $value;
 				}
-					
+				
+				// Are we changing any threading headers?
+				if(in_array(strtolower($header), array('subject', 'in-reply-to', 'references')))
+					$dict->pre_actions['headers_dirty'] = true;
+				
 				break;
 				
 			case 'set_sender_is_banned':

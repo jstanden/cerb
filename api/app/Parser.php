@@ -188,6 +188,11 @@ class CerberusParserModel {
 		$this->_date = $timestamp;
 	}
 	
+	public function updateThreadHeaders() {
+		$this->_parseHeadersSubject();
+		return $this->_parseHeadersIsNew();
+	}
+	
 	/**
 	 * First we check the references and in-reply-to headers to find a
 	 * historical match in the database. If those don't match we check
@@ -888,6 +893,11 @@ class CerberusParser {
 		if(isset($pre_actions['reject'])) {
 			$logger->warn('Rejecting based on Virtual Attendant filtering.');
 			return NULL;
+		}
+		
+		// Rewrote threading headers?
+		if(isset($pre_actions['headers_dirty'])) {
+			$model->updateThreadHeaders();
 		}
 		
 		// Filter attachments?
