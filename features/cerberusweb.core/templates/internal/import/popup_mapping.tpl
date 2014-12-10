@@ -10,7 +10,7 @@
 
 	<table cellpadding="2" cellspacing="0" border="0">
 	<tr>
-		<td><b>Match</b></td>
+		<td><b><abbr title="Checking fields here will match the imported fields against existing records rather than setting new values.  Any existing records that match all the checked fields will have the other field values set on them.">Match</abbr></b></td>
 		<td style="padding-left:10px;"><b>Field</b></td>
 		<td style="padding-left:10px;"><b>Set value from file column</b></td>
 	</tr>
