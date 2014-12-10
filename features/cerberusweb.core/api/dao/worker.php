@@ -1147,6 +1147,13 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	function quickSearch($token, $query, &$oper, &$value) {
 		switch($token) {
 			case SearchFields_Worker::VIRTUAL_GROUPS:
+				// Placeholders
+				if(false !== strpos($query, '{{')) {
+					$oper = DevblocksSearchCriteria::OPER_IN;
+					$value = DevblocksPlatform::parseCsvString($query);
+					return true;
+				}
+				
 				$search_ids = array();
 				$oper = DevblocksSearchCriteria::OPER_IN;
 				
@@ -1226,6 +1233,15 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				if(empty($param->value)) {
 					echo "<b>Not</b> a member of any groups";
 					
+				// Placeholders
+				} elseif(false !== (strpos($param->value, '{{'))) {
+					$strings = array();
+					foreach($param->value as $k) {
+						$strings[] = sprintf("<b>%s</b>", $k);
+					}
+					echo sprintf("Group member of %s", implode(' or ', $strings));
+					
+				// Group IDs array
 				} elseif(is_array($param->value)) {
 					$groups = DAO_Group::getAll();
 					$strings = array();
