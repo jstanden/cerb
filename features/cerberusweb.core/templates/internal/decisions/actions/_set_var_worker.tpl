@@ -37,6 +37,13 @@
 </div>
 {/if}
 
+<b>Where:</b>
+<div style="margin-left:10px;">
+	<label><input type="checkbox" name="{$namePrefix}[opt_is_available]" value="1" {if $params.opt_is_available}checked="checked"{/if}>The worker is available</label>
+	<br>
+	<label><input type="checkbox" name="{$namePrefix}[opt_logged_in]" value="1" {if $params.opt_logged_in}checked="checked"{/if}>The worker is currently logged in</label>
+</div>
+
 <b>Pick:</b>
 <div style="margin-left:10px;">
 	<select name="{$namePrefix}[mode]">
@@ -44,11 +51,4 @@
 		<option value="seq" {if $params.mode=='seq'}selected='selected'{/if}>Each worker sequentially (i.e. round robin)</option>
 		<option value="load_balance" {if $params.mode=='load_balance'}selected='selected'{/if}>The worker with the fewest open assignments (i.e. load balance)</option>
 	</select>
-</div>
-
-<b>Where:</b>
-<div style="margin-left:10px;">
-	<label><input type="checkbox" name="{$namePrefix}[opt_is_available]" value="1" {if $params.opt_is_available}checked="checked"{/if}>The worker is available</label>
-	<br>
-	<label><input type="checkbox" name="{$namePrefix}[opt_logged_in]" value="1" {if $params.opt_logged_in}checked="checked"{/if}>The worker is currently logged in</label>
 </div>
