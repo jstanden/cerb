@@ -96,7 +96,7 @@ var $frm = $('#{$uniqid}').each(function(e) {
 		}
 		
 		// [TODO] This should come from IAbstractView_QuickSearch
-		else if(token == 't_group_id') {
+		else if(token == 't_group_id' || token == '*_groups') {
 			{$groups = DAO_Group::getAll()}
 			{foreach $groups as $group}
 			$bubbles.append($('<li><tt>{$group->name|lower|escape:'javascript'}</tt></li>'));

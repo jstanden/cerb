@@ -637,10 +637,16 @@ class DAO_Worker extends Cerb_ORMHelper {
 				break;
 			
 			case SearchFields_Worker::VIRTUAL_GROUPS:
+				if(is_array($param->value))
+					$param->value = array_filter($param->value, function($v) {
+						return !empty($v);
+					});
+				
 				$args['has_multiple_values'] = true;
 				if(empty($param->value)) { // empty
 					$args['join_sql'] .= "LEFT JOIN worker_to_group ON (worker_to_group.worker_id = w.id) ";
 					$args['where_sql'] .= "AND worker_to_group.worker_id IS NULL ";
+					
 				} else {
 					$args['join_sql'] .= sprintf("INNER JOIN worker_to_group ON (worker_to_group.worker_id = w.id AND worker_to_group.group_id IN (%s)) ",
 						implode(',', $param->value)
@@ -762,7 +768,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY w.id ' : '').
 			$sort_sql;
-			
+
 		if($limit > 0) {
 			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		} else {
@@ -846,7 +852,7 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
-			self::VIRTUAL_GROUPS => new DevblocksSearchField(self::VIRTUAL_GROUPS, '*', 'groups', $translate->_('common.groups')),
+			self::VIRTUAL_GROUPS => new DevblocksSearchField(self::VIRTUAL_GROUPS, '*', 'groups', $translate->_('common.groups'), null),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
 			self::VIRTUAL_CALENDAR_AVAILABILITY => new DevblocksSearchField(self::VIRTUAL_CALENDAR_AVAILABILITY, '*', 'calendar_availability', 'Calendar Availability'),
 		);
@@ -989,7 +995,7 @@ class WorkerPrefs {
 	}
 };
 
-class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
+class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
 	const DEFAULT_ID = 'workers';
 
 	function __construct() {
@@ -1128,6 +1134,59 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 		return $counts;
 	}
 	
+	function isQuickSearchField($token) {
+		switch($token) {
+			case SearchFields_Worker::VIRTUAL_GROUPS:
+				return true;
+			break;
+		}
+		
+		return false;
+	}
+	
+	function quickSearch($token, $query, &$oper, &$value) {
+		switch($token) {
+			case SearchFields_Worker::VIRTUAL_GROUPS:
+				$search_ids = array();
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				
+				if(preg_match('#([\!\=]+)(.*)#', $query, $matches)) {
+					$oper_hint = trim($matches[1]);
+					$query = trim($matches[2]);
+					
+					switch($oper_hint) {
+						case '!':
+						case '!=':
+							$oper = DevblocksSearchCriteria::OPER_NIN;
+							break;
+					}
+				}
+				
+				$groups = DAO_Group::getAll();
+				$inputs = DevblocksPlatform::parseCsvString($query);
+
+				if(is_array($inputs))
+				foreach($inputs as $input) {
+					foreach($groups as $group_id => $group) {
+						if(0 == strcasecmp($input, substr($group->name,0,strlen($input))))
+							$search_ids[$group_id] = true;
+					}
+				}
+				
+				if(!empty($search_ids)) {
+					$value = array_keys($search_ids);
+				} else {
+					$value = null;
+				}
+				
+				return true;
+				break;
+				
+		}
+		
+		return false;
+	}
+	
 	function render() {
 		$this->_sanitize();
 		
@@ -1163,6 +1222,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 			
 			case SearchFields_Worker::VIRTUAL_GROUPS:
+				// Empty
 				if(empty($param->value)) {
 					echo "<b>Not</b> a member of any groups";
 					
@@ -1177,6 +1237,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 					
 					echo sprintf("Group member of %s", implode(' or ', $strings));
 				}
+				
 				break;
 				
 			case SearchFields_Worker::VIRTUAL_HAS_FIELDSET:
