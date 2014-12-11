@@ -57,6 +57,13 @@
 {/if}
 <br>
 
+<b>{'reports.ui.filters.ticket.status'|devblocks_translate}</b>
+<label><input type="checkbox" name="filter_statuses[]" value="open" {if in_array('open', $filter_statuses)}checked="checked"{/if}> {'status.open'|devblocks_translate}</label>
+<label><input type="checkbox" name="filter_statuses[]" value="waiting" {if in_array('waiting', $filter_statuses)}checked="checked"{/if}> {'status.waiting'|devblocks_translate}</label>
+<label><input type="checkbox" name="filter_statuses[]" value="closed" {if in_array('closed', $filter_statuses)}checked="checked"{/if}> {'status.closed'|devblocks_translate}</label>
+<label><input type="checkbox" name="filter_statuses[]" value="deleted" {if in_array('deleted', $filter_statuses)}checked="checked"{/if}> {'status.deleted'|devblocks_translate}</label>
+<br> 
+
 <button type="submit" id="btnSubmit">{'reports.common.run_report'|devblocks_translate|capitalize}</button>
 </form>
 </fieldset>
