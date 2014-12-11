@@ -236,17 +236,17 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 		
 		switch($scope) {
 			case 'all':
-				$value = $this->prepareText($value);
+				$value = $value;
 				break;
 				
 			// OR
 			case 'any':
 				$words = explode(' ', $value);
-				$value = $this->prepareText(implode(' | ', $words));
+				$value = implode(' | ', $words);
 				break;
 				
 			case 'phrase':
-				$value = '"'.$this->prepareText($value).'"';
+				$value = '"'.$value.'"';
 				break;
 				
 			default:
