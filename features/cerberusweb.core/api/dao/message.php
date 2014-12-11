@@ -281,6 +281,9 @@ class DAO_Message extends Cerb_ORMHelper {
 			"t.group_id as %s, ".
 			"t.mask as %s, ".
 			"t.subject as %s, ".
+			"t.is_waiting as %s, ".
+			"t.is_closed as %s, ".
+			"t.is_deleted as %s, ".
 			"a.email as %s ",
 			SearchFields_Message::ID,
 			SearchFields_Message::ADDRESS_ID,
@@ -298,6 +301,9 @@ class DAO_Message extends Cerb_ORMHelper {
 			SearchFields_Message::TICKET_GROUP_ID,
 			SearchFields_Message::TICKET_MASK,
 			SearchFields_Message::TICKET_SUBJECT,
+			SearchFields_Message::TICKET_IS_WAITING,
+			SearchFields_Message::TICKET_IS_CLOSED,
+			SearchFields_Message::TICKET_IS_DELETED,
 			SearchFields_Message::ADDRESS_EMAIL
 		);
 		
@@ -510,7 +516,9 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	
 	// Ticket
 	const TICKET_GROUP_ID = 't_group_id';
+	const TICKET_IS_CLOSED = 't_is_closed';
 	const TICKET_IS_DELETED = 't_is_deleted';
+	const TICKET_IS_WAITING = 't_is_waiting';
 	const TICKET_MASK = 't_mask';
 	const TICKET_SUBJECT = 't_subject';
 	
@@ -545,7 +553,9 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::ADDRESS_EMAIL => new DevblocksSearchField(SearchFields_Message::ADDRESS_EMAIL, 'a', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE),
 			
 			SearchFields_Message::TICKET_GROUP_ID => new DevblocksSearchField(SearchFields_Message::TICKET_GROUP_ID, 't', 'group_id', $translate->_('common.group')),
+			SearchFields_Message::TICKET_IS_CLOSED => new DevblocksSearchField(SearchFields_Message::TICKET_IS_CLOSED, 't', 'is_closed', $translate->_('status.closed'), Model_CustomField::TYPE_CHECKBOX),
 			SearchFields_Message::TICKET_IS_DELETED => new DevblocksSearchField(SearchFields_Message::TICKET_IS_DELETED, 't', 'is_deleted', $translate->_('status.deleted'), Model_CustomField::TYPE_CHECKBOX),
+			SearchFields_Message::TICKET_IS_WAITING => new DevblocksSearchField(SearchFields_Message::TICKET_IS_WAITING, 't', 'is_waiting', $translate->_('status.waiting'), Model_CustomField::TYPE_CHECKBOX),
 			SearchFields_Message::TICKET_MASK => new DevblocksSearchField(SearchFields_Message::TICKET_MASK, 't', 'mask', $translate->_('ticket.mask'), Model_CustomField::TYPE_SINGLE_LINE),
 			SearchFields_Message::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Message::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject'), Model_CustomField::TYPE_SINGLE_LINE),
 			
@@ -1243,9 +1253,16 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::STORAGE_PROFILE_ID,
 			SearchFields_Message::STORAGE_SIZE,
 			SearchFields_Message::VIRTUAL_TICKET_STATUS,
+			SearchFields_Message::TICKET_IS_CLOSED,
+			SearchFields_Message::TICKET_IS_DELETED,
+			SearchFields_Message::TICKET_IS_WAITING,
 		));
+		
 		$this->addParamsHidden(array(
 			SearchFields_Message::ID,
+			SearchFields_Message::TICKET_IS_CLOSED,
+			SearchFields_Message::TICKET_IS_DELETED,
+			SearchFields_Message::TICKET_IS_WAITING,
 		));
 		
 		$this->doResetCriteria();
