@@ -1252,7 +1252,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::STORAGE_KEY,
 			SearchFields_Message::STORAGE_PROFILE_ID,
 			SearchFields_Message::STORAGE_SIZE,
-			SearchFields_Message::VIRTUAL_TICKET_STATUS,
 			SearchFields_Message::TICKET_IS_CLOSED,
 			SearchFields_Message::TICKET_IS_DELETED,
 			SearchFields_Message::TICKET_IS_WAITING,

@@ -94,6 +94,18 @@
 				<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="m_response_time"}
 				<td>{if !empty($result.$column)}{$result.$column|devblocks_prettysecs:2}{/if}</td>
+			{elseif $column=="*_ticket_status"}
+				<td>
+					{if $result.t_is_deleted}
+						{'status.deleted'|devblocks_translate|lower}
+					{elseif $result.t_is_closed}
+						{'status.closed'|devblocks_translate|lower}
+					{elseif $result.t_is_waiting}
+						{'status.waiting'|devblocks_translate|lower}
+					{else}
+						{'status.open'|devblocks_translate|lower}
+					{/if}
+				</td>
 			{else}
 				<td>{$result.$column}</td>
 			{/if}
