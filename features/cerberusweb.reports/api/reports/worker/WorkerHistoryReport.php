@@ -156,6 +156,7 @@ class ChReportWorkerHistory extends Extension_Report {
 				SearchFields_Message::TICKET_GROUP_ID,
 				SearchFields_Message::CREATED_DATE,
 				SearchFields_Message::WORKER_ID,
+				SearchFields_Message::RESPONSE_TIME,
 			);
 			
 			$params = array(
