@@ -3,6 +3,17 @@
 	{if in_array('owner',$show)}<li><label><input type="checkbox" name="{$namePrefix}[to_owner][]" value="owner" {if $params.to_owner}checked="checked"{/if}> {'common.owner'|devblocks_translate|capitalize}</label></li>{/if}
 	{if in_array('watchers',$show)}<li><label><input type="checkbox" name="{$namePrefix}[to_watchers][]" value="watchers" {if $params.to_watchers}checked="checked"{/if}> {'common.watchers'|devblocks_translate|capitalize}</label></li>{/if}
 	
+	{foreach from=$trigger->variables item=var key=var_key}
+	{if in_array($var.type, ['W', 'ctx_cerberusweb.contexts.worker'])}
+	<li>
+		<label>
+		<input type="checkbox" name="{$namePrefix}[to][]" value="{$var_key}" {if in_array($var_key,$params.to)}checked="checked"{/if}>
+		(variable) {$var.label}
+		</label>
+	</li>
+	{/if}
+	{/foreach}
+	
 	{if in_array('workers',$show)}
 	{foreach from=$addresses item=address key=address_key}
 	<li>
