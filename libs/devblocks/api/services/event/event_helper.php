@@ -3851,8 +3851,72 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_relay_email.tpl');
 	}
 	
-	static function simulateActionRelayEmail($params, DevblocksDictionaryDelegate $dict, $context, $context_id, $group_id, $bucket_id, $message_id, $owner_id, $sender_email, $sender_name, $subject) {
+	private static function _getActionRelayEmailListTo($params, DevblocksDictionaryDelegate $dict, $context, $context_id, $owner_id) {
+		$relay_list = isset($params['to']) ? $params['to'] : array();
+		$to_list = array();
+		
+		// Owner
+		if(isset($params['to_owner']) && !empty($params['to_owner'])) {
+			if(!empty($owner_id)) {
+				$relay_list[] = DAO_Worker::get($owner_id);
+			}
+		}
+		
+		// Watchers
+		if(isset($params['to_watchers']) && !empty($params['to_watchers'])) {
+			$watchers = CerberusContexts::getWatchers($context, $context_id);
+			foreach($watchers as $watcher) { /* @var $watcher Model_Worker */
+				if(!in_array($watcher, $relay_list))
+				$relay_list[] = $watcher;
+			}
+		}
+		
+		// Convert relay list to email addresses
+		
+		$trigger = $dict->_trigger; /* @var $trigger Model_TriggerEvent */
+		
+		if(is_array($relay_list))
+		foreach($relay_list as $to) {
+			// Worker models
+			} elseif($to instanceof Model_Worker) {
+				$to_list[] = $to->email;
+				
+			// Email address strings
+			} elseif (is_string($to)) {
+				if(null == ($worker_address = DAO_AddressToWorker::getByAddress($to)))
+					continue;
+					
+				if(null == ($worker = DAO_Worker::get($worker_address->worker_id)))
+					continue;
+				
+				$to_list[$worker_address->address] = $worker;
+			}
+		}
+		
+		return $to_list;
 	}
+	
+	static function simulateActionRelayEmail($params, DevblocksDictionaryDelegate $dict, $context, $context_id, $group_id, $bucket_id, $message_id, $owner_id, $sender_email, $sender_name, $subject) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		$subject = $tpl_builder->build($params['subject'], $dict);
+		$content = $tpl_builder->build($params['content'], $dict);
+		
+		$to_list = self::_getActionRelayEmailListTo($params, $dict, $context, $context_id, $owner_id);
+		
+		$out = sprintf(">>> Relaying email\n".
+			"To: %s\n".
+			"Subject: %s\n".
+			"\n".
+			"%s",
+			(!empty($to_list) ? (implode("; ", array_keys($to_list))) : ''),
+			$subject,
+			$content
+		);
+		
+		return $out;
+	}
+	
 	
 	static function runActionRelayEmail($params, DevblocksDictionaryDelegate $dict, $context, $context_id, $group_id, $bucket_id, $message_id, $owner_id, $sender_email, $sender_name, $subject) {
 		$logger = DevblocksPlatform::getConsoleLog('Attendant');
