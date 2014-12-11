@@ -327,6 +327,14 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$keys = $context_ext->importGetKeys();
 
+		// Use the context to validate sync options, if available
+		if(method_exists($context_ext, 'importValidateSync')) {
+			if(true !== ($result = $context_ext->importValidateSync($sync_dupes))) {
+				echo $result;
+				return;
+			}
+		}
+		
 		// Counters
 		$line_number = 0;
 		
@@ -521,7 +529,7 @@ class ChInternalController extends DevblocksControllerExtension {
 						}
 					}
 				}
-				
+
 				if(isset($keys[$key]['force_match']) || in_array($key, $sync_dupes)) {
 					$sync_fields[] = new DevblocksSearchCriteria($keys[$key]['param'], '=', $val);
 				}

@@ -4072,14 +4072,25 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$tpl->display('devblocks:cerberusweb.core::tickets/peek.tpl');
 	}
 	
+	function importValidateSync($sync_fields) {
+		if(!in_array('_id', $sync_fields) && !in_array('_mask', $sync_fields)) {
+			return "ERROR: Either the 'ID' or 'Mask' field must be matched.";
+		}
+		
+		return true;
+	}
+	
 	function importGetKeys() {
 		$keys = array(
+			'_id' => array(
+				'label' => 'ID',
+				'type' => Model_CustomField::TYPE_NUMBER,
+				'param' => SearchFields_Ticket::TICKET_ID,
+			),
 			'_mask' => array(
 				'label' => 'Mask',
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'param' => SearchFields_Ticket::TICKET_MASK,
-				'required' => true,
-				'force_match' => true,
 			),
 			'org_id' => array(
 				'label' => 'Organization',
