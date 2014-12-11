@@ -770,6 +770,31 @@ class CerberusParser {
 						// Skip any nested parts in this message/rfc822 parent
 						$ignore_mime_prefixes[] = $st . '.';
 						break;
+						
+					case 'image/gif':
+					case 'image/jpg':
+					case 'image/jpeg':
+					case 'image/png':
+						if(isset($info['content-id'])) {
+							$content_filename = DevblocksPlatform::strToPermalink($info['content-id']);
+						} else {
+							$content_filename = 'untitled';
+						}
+						
+						switch(strtolower($content_type)) {
+							case 'image/gif':
+								$content_filename .= ".gif";
+								break;
+							case 'image/jpg':
+							case 'image/jpeg':
+								$content_filename .= ".jpg";
+								break;
+							case 'image/png':
+								$content_filename .= ".png";
+								break;
+						}
+						
+						break;
 				}
 			}
 
@@ -787,9 +812,9 @@ class CerberusParser {
 						@unlink($attach->tmpname);
 						break;
 					}
-
+					
 					// content-name is not necessarily unique...
-					if (isset($message->files[$content_filename])) {
+					if(isset($message->files[$content_filename])) {
 						$j=1;
 						while (isset($message->files[$content_filename . '(' . $j . ')'])) {
 							$j++;
