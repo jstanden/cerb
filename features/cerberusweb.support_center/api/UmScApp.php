@@ -709,9 +709,12 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			// Find the address
 			if(null == ($addy = DAO_Address::lookupAddress($email, FALSE)))
 				throw new Exception("Login failed.");
-				
+			
 			// Not registered
 			if(empty($addy->contact_person_id) || null == ($contact = DAO_ContactPerson::get($addy->contact_person_id)))
+				throw new Exception("Login failed.");
+			
+			if($addy->is_banned)
 				throw new Exception("Login failed.");
 			
 			// Compare salt
