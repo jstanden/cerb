@@ -450,9 +450,14 @@ class UmScAccountController extends Extension_UmScController {
 				throw new Exception("The email address you provided is invalid.");
 	
 			// Is this address already assigned
-			if(null != ($address = DAO_Address::lookupAddress($add_email, false)) && !empty($address->contact_person_id)) {
+			if(null != ($address = DAO_Address::lookupAddress($add_email, false))) {
+				if(!empty($address->contact_person_id))
+					throw new Exception("The email address you provided is already assigned to an account.");
+				
 				// [TODO] Or awaiting confirmation
-				throw new Exception("The email address you provided is already assigned to an account.");
+				
+				if($address->is_banned)
+					throw new Exception("The email address you provided is not available.");
 			}
 			
 			// If available, send confirmation email w/ link
