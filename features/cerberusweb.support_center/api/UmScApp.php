@@ -612,6 +612,9 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				throw new Exception("The email address you provided is not registered.");
 			}
 			
+			if($address->is_banned)
+				throw new Exception("The email address you provided is not available.");
+			
 			if(empty($address->contact_person_id) || null == ($contact = DAO_ContactPerson::get($address->contact_person_id))) {
 				throw new Exception("The email address you provided is not registered.");
 			}
@@ -926,6 +929,9 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			if(null == ($address = DAO_Address::lookupAddress($email, false))) {
 				throw new Exception("The email address you provided is not registered.");
 			}
+			
+			if($address->is_banned)
+				throw new Exception("The email address you provided is not available.");
 			
 			if(empty($address->contact_person_id) || null == ($contact = DAO_ContactPerson::get($address->contact_person_id))) {
 				throw new Exception("The email address you provided is not registered.");
