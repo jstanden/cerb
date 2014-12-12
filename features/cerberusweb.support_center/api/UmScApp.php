@@ -471,6 +471,9 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			if(null != ($address = DAO_Address::lookupAddress($email, false)) && !empty($address->contact_person_id))
 				throw new Exception("The provided email address is already associated with an account.");
 				
+			if($address->is_banned)
+				throw new Exception("The provided email address is not available.");
+			
 			// Update the preferred email address
 			$umsession->setProperty('register.email', $email);
 				
@@ -805,6 +808,9 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			// Check to see if the address is currently assigned to an account
 			if(null != ($address = DAO_Address::lookupAddress($email, false)) && !empty($address->contact_person_id))
 				throw new Exception("The provided email address is already associated with an account.");
+			
+			if($address->is_banned)
+				throw new Exception("The provided email address is not available.");
 			
 			// Update the preferred email address
 			$umsession->setProperty('register.email', $email);
