@@ -15,27 +15,13 @@
 {if !empty($label)}
 
 {$metric_value = $widget->params['wedge_values'][$idx]}
-
-{if $widget->params.metric_type == 'decimal'}{$decimals=2}{else}{$decimals=0}{/if}
-{if $widget->params.metric_type == 'percent'}{$metric_value = floatval($metric_value)}{/if}
-
-{$metric_label = $metric_value}
-
-{if $widget->params.metric_type == 'number' || $widget->params.metric_type == 'decimal'}
-	{$metric_value = floatval($metric_value)}
-	{$metric_label = $metric_value|number_format:$decimals}
-{elseif $widget->params.metric_type == 'seconds'}
-	{$metric_value = intval($metric_value)}
-	{$metric_label = DevblocksPlatform::strSecsToString($metric_value,2)}
-{elseif $widget->params.metric_type == 'bytes'}
-	{$metric_label = DevblocksPlatform::strPrettyBytes($metric_value, 2)}
-{/if}
+{$metric_label = DevblocksPlatform::formatNumberAs($metric_value, $widget->params.metric_type)}
 
 <div class="subtotal" style="display:{if !$show_legend}none{else}inline-block{/if};">
 	{$color = $widget->params['wedge_colors'][$idx]}
 	{if empty($color)}{$color = end($widget->params['wedge_colors'])}{/if}
 	<span style="width:10px;height:10px;display:inline-block;background-color:{$color};margin:2px;vertical-align:middle;border-radius:10px;-moz-border-radius:10px;-webkit-border-radius:10px;-o-border-radius:10px;"></span>
-	<span class="label" style="font-weight:bold;vertical-align:middle;">{$label}</span> <small>({$widget->params.metric_prefix}{$metric_label}{if $widget->params.metric_type=='percent'}%{/if}{$widget->params.metric_suffix})</small>
+	<span class="label" style="font-weight:bold;vertical-align:middle;">{$label}</span> <small>({$widget->params.metric_prefix}{$widget->params.metric_suffix})</small>
 </div>
 {/if}
 {/foreach}
