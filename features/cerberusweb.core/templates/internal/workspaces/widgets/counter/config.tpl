@@ -36,7 +36,7 @@
 			</tr>
 			<tr>
 				<td>
-					{$types = [['number','number'], ['decimal','decimal'], ['percent','percentage'], ['bytes','bytes'], ['seconds','time elapsed']]}
+					{$types = [['number','number'], ['decimal','decimal'], ['percent','percentage'], ['bytes','bytes'], ['seconds','secs elapsed'], ['minutes','mins elapsed']]}
 					<select name="params[metric_type]">
 						{foreach from=$types item=type}
 						<option value="{$type[0]}" {if $widget->params.metric_type==$type[0]}selected="selected"{/if}>{$type[1]}</option>
@@ -58,15 +58,15 @@
 </fieldset>
 
 <script type="text/javascript">
-	$config = $('#widget{$widget->id}Config');
+	var $config = $('#widget{$widget->id}Config');
 	
 	$config.find('input:hidden.color-picker').miniColors({
 		color_favorites: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#D5D5D5','#ADADAD','#34434E']
 	});
 	
 	$config.find('select.datasource-selector').change(function() {
-		datasource=$(this).val();
-		$div_params=$(this).next('DIV.datasource-params');
+		var datasource=$(this).val();
+		var $div_params=$(this).next('DIV.datasource-params');
 		
 		if(datasource.length==0) { 
 			$div_params.html(''); 
