@@ -533,11 +533,14 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 					foreach($results as $result) {
 						$x = ($params['xaxis_field'] == '_id') ? $counter++ : (float)$result['xaxis'];
 
+						$xaxis_label = DevblocksPlatform::formatNumberAs((float)$result['xaxis'], @$params['xaxis_format']);
+						$yaxis_label = DevblocksPlatform::formatNumberAs((float)$result['yaxis'], @$params['yaxis_format']);
+						
 						$data[] = array(
 							'x' => $x,
 							'y' => (float)$result['yaxis'],
-							'x_label' => (float)$result['xaxis'],
-							'y_label' => (float)$result['yaxis'],
+							'x_label' => $xaxis_label,
+							'y_label' => $yaxis_label,
 						);
 					}
 

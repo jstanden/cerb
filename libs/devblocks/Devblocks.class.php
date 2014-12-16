@@ -1062,6 +1062,43 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $tokens;
 	}
 	
+	static function formatNumberAs($number, $as) {
+		$label = $number;
+		
+		switch($as) {
+			case 'bytes':
+				$label = DevblocksPlatform::strPrettyBytes(intval($number));
+				break;
+				
+			case 'seconds':
+				$label = DevblocksPlatform::strSecsToString(intval($number));
+				break;
+				
+			case 'minutes':
+				$label = DevblocksPlatform::strSecsToString(intval($number) * 60);
+				break;
+				
+			case 'number':
+				$label = number_format($number, 0);
+				break;
+				
+			case 'decimal':
+				$label = number_format($number, 2);
+				break;
+			
+			case 'percent':
+				$label = number_format($number) . '%';
+				break;
+			
+			// [TODO] Currency
+				
+			default:
+				break;
+		}
+		
+		return $label;
+	}
+	
 	/**
 	 * Indents a flat JSON string to make it more human-readable.
 	 *

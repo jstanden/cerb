@@ -56,6 +56,18 @@
 	{/foreach}
 </select>
 
+ as 
+ 
+<select name="params{$params_prefix}[xaxis_format]">
+	<option value="" {if empty($params.xaxis_format)}selected="selected"{/if}></option>
+	<option value="number" {if 'number'==$params.xaxis_format}selected="selected"{/if}>number</option>
+	<option value="decimal" {if 'decimal'==$params.xaxis_format}selected="selected"{/if}>decimal</option>
+	<option value="percent" {if 'percent'==$params.xaxis_format}selected="selected"{/if}>percentage</option>
+	<option value="bytes" {if 'bytes'==$params.xaxis_format}selected="selected"{/if}>bytes</option>
+	<option value="seconds" {if 'seconds'==$params.xaxis_format}selected="selected"{/if}>secs elapsed</option>
+	<option value="minutes" {if 'minutes'==$params.xaxis_format}selected="selected"{/if}>mins elapsed</option>
+</select>
+
 <br>
 
 <abbr title="vertical axis" style="font-weight:bold;">Y-axis</abbr> is 
@@ -84,7 +96,17 @@
 	{/if}
 </select>
 
-<br>
+ as 
+ 
+<select name="params{$params_prefix}[yaxis_format]">
+	<option value="" {if empty($params.yaxis_format)}selected="selected"{/if}></option>
+	<option value="number" {if 'number'==$params.yaxis_format}selected="selected"{/if}>number</option>
+	<option value="decimal" {if 'decimal'==$params.yaxis_format}selected="selected"{/if}>decimal</option>
+	<option value="percent" {if 'percent'==$params.yaxis_format}selected="selected"{/if}>percentage</option>
+	<option value="bytes" {if 'bytes'==$params.yaxis_format}selected="selected"{/if}>bytes</option>
+	<option value="seconds" {if 'seconds'==$params.yaxis_format}selected="selected"{/if}>secs elapsed</option>
+	<option value="minutes" {if 'minutes'==$params.yaxis_format}selected="selected"{/if}>mins elapsed</option>
+</select>
 
 <script type="text/javascript">
 	// [TODO] Limit to the series we're adding now
