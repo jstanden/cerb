@@ -293,17 +293,6 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 			false
 		);
 		
-		// Build TMX outline
-		$xml = simplexml_load_string(
-			'<?xml version="1.0" encoding="' . LANG_CHARSET_CODE . '"?>'.
-			'<!DOCTYPE tmx>'.
-			'<tmx version="1.4">'.
-			'<body></body>'.
-			'</tmx>'
-		); /* @var $xml SimpleXMLElement */
-		
-		$namespaces = $xml->getNamespaces(true);
-		
 		$codes = array();
 		
 		// Loop translated strings
@@ -323,16 +312,27 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 			
 			// [TODO] Nest multiple <tuv> in a single <tu> parent
 			$eTu =& $xml->body->addChild('tu'); /* @var $eTu SimpleXMLElement */
+		
+		// Build TMX outline
+		$xml = simplexml_load_string(
+			'<?xml version="1.0" encoding="' . LANG_CHARSET_CODE . '"?>'.
+			'<tmx version="1.4">'.
+			'<header creationtool="Cerb" creationtoolversion="' . APP_VERSION . '" srclang="en_US" adminlang="en" datatype="unknown" o-tmf="unknown" segtype="sentence" creationid="" creationdate=""></header>'.
+			'<body></body>'.
+			'</tmx>'
+		); /* @var $xml SimpleXMLElement */
+		
+		$namespaces = $xml->getNamespaces(true);
 			$eTu->addAttribute('tuid', $string_id);
 			$eTuv =& $eTu->addChild('tuv'); /* @var $eTuv SimpleXMLElement */
 			$eTuv->addAttribute('xml:lang', $lang_code, 'http://www.w3.org/XML/1998/namespace');
 			$eSeg =& $eTuv->addChild('seg', htmlspecialchars($string)); /* @var $eSeg SimpleXMLElement */
 		}
 		
-		$imp = new DOMImplementation;
-//		$dtd = $imp->createDocumentType('tmx', '', 'tmx14.dtd');
-//		$doc = $imp->createDocument("", "", $dtd);
-		$doc = $imp->createDocument("", "");
+		$imp = new DOMImplementation();
+		$dtd = $imp->createDocumentType('tmx', '-//LISA OSCAR:1998//DTD for Translation Memory eXchange//EN', 'tmx14.dtd');
+
+		$doc = $imp->createDocument('', '', $dtd);
 		$doc->encoding = LANG_CHARSET_CODE;
 		$doc->formatOutput = true;
 		
@@ -340,9 +340,9 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		$simplexml = $doc->importNode($simplexml, true);
 		$simplexml = $doc->appendChild($simplexml);
 
-		$filename = "cerb5_lang_" . implode('_', array_keys($codes)) . ".xml";
+		$filename = "cerb_lang_" . implode('_', array_keys($codes)) . ".tmx";
 		
-		header("Content-type: text/xml");
+		header("Content-Type: text/xml");
 		header("Content-Disposition: attachment; filename=\"$filename\"");
 		
 		echo $doc->saveXML();
