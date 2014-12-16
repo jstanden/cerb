@@ -19,24 +19,13 @@
 $(function() {
 try {
 	{$metric_value = $widget->params.metric_value}
-	{if $widget->params.metric_type == 'decimal'}{$decimals=2}{else}{$decimals=0}{/if}
-	{if $widget->params.metric_type == 'percent'}{$metric_value = floatval($metric_value)}{/if}
-	
-	{$metric_label = $metric_value}
-	
-	{if $widget->params.metric_type == 'number' || $widget->params.metric_type == 'decimal'}
-		{$metric_label = $metric_value|number_format:$decimals}
-	{elseif $widget->params.metric_type == 'seconds'}
-		{$metric_label = DevblocksPlatform::strSecsToString($metric_value,2)}
-	{elseif $widget->params.metric_type == 'bytes'}
-		{$metric_label = DevblocksPlatform::strPrettyBytes($metric_value, 2)}
-	{/if}
+	{$metric_label = DevblocksPlatform::formatNumberAs($metric_value, $widget->params.metric_type)}	
 	
 	var options = {
 		{if !empty($widget->params.threshold_values)}'threshold_values': {json_encode($widget->params.threshold_values) nofilter},{/if}
 		{if !empty($widget->params.threshold_colors)}'threshold_colors': {json_encode($widget->params.threshold_colors) nofilter},{/if}
 		{if !empty($metric_value)}'metric': {floatval($metric_value)},{/if}
-		'metric_label': "{$widget->params.metric_prefix}{$metric_label}{if $widget->params.metric_type=='percent'}%{/if}{$widget->params.metric_suffix}",
+		'metric_label': "{$widget->params.metric_prefix}{$metric_label}{$widget->params.metric_suffix}",
 		/*'metric_compare': 173,*/
 		'legend': false,
 		'radius': 90

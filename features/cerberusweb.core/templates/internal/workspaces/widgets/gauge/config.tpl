@@ -61,7 +61,7 @@
 				</tr>
 				<tr>
 					<td>
-						{$types = [['number','number'], ['decimal','decimal'], ['percent','percentage'], ['bytes','bytes'], ['seconds','time elapsed']]}
+						{$types = [['number','number'], ['decimal','decimal'], ['percent','percentage'], ['bytes','bytes'], ['seconds','secs elapsed'], ['minutes','mins elapsed']]}
 						<select name="params[metric_type]">
 							{foreach from=$types item=type}
 							<option value="{$type[0]}" {if $widget->params.metric_type==$type[0]}selected="selected"{/if}>{$type[1]}</option>
@@ -81,16 +81,16 @@
 </div>
 
 <script type="text/javascript">
-	$tabs = $('#widget{$widget->id}ConfigTabs').tabs();
+	var $tabs = $('#widget{$widget->id}ConfigTabs').tabs();
 	
 	$tabs.find('input:hidden.color-picker').miniColors({
 		color_favorites: ['#CF2C1D','#FEAF03','#57970A','#D5D5D5','#ADADAD','#34434E']
 	});
 	
-	$datasource_tab = $('#widget{$widget->id}ConfigTabDatasource');
+	var $datasource_tab = $('#widget{$widget->id}ConfigTabDatasource');
 	
 	$datasource_tab.find('select.datasource-selector').change(function() {
-		datasource=$(this).val();
+		var datasource=$(this).val();
 		$div_params=$(this).next('DIV.datasource-params');
 		
 		if(datasource.length==0) { 
