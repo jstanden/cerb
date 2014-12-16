@@ -352,10 +352,10 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		// Build XML file
 		$xml = simplexml_load_string(
 			'<?xml version="1.0" encoding="' . LANG_CHARSET_CODE . '"?>'.
-			'<cerb5>'.
+			'<cerb>'.
 			'<templates>'.
 			'</templates>'.
-			'</cerb5>'
+			'</cerb>'
 		); /* @var $xml SimpleXMLElement */
 		
 		// Author
