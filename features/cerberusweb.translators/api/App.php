@@ -294,6 +294,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		);
 		
 		$codes = array();
+		$strings = array();
 		
 		// Loop translated strings
 		if(is_array($results))
@@ -303,15 +304,19 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 			$string_default = $result[SearchFields_Translation::STRING_DEFAULT];
 			$string_override = $result[SearchFields_Translation::STRING_OVERRIDE];
 			
-			$codes[$lang_code] = 1;
+			if(!isset($codes[$lang_code]))
+				$codes[$lang_code] = true;
 			
 			$string = (!empty($string_override))
 				? $string_override
 				: $string_default
 				;
-			
-			// [TODO] Nest multiple <tuv> in a single <tu> parent
-			$eTu =& $xml->body->addChild('tu'); /* @var $eTu SimpleXMLElement */
+				
+			if(!isset($strings[$string_id]))
+				$strings[$string_id] = array();
+				
+			$strings[$string_id][$lang_code] = $string;
+		}
 		
 		// Build TMX outline
 		$xml = simplexml_load_string(
@@ -323,10 +328,23 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		); /* @var $xml SimpleXMLElement */
 		
 		$namespaces = $xml->getNamespaces(true);
+		
+		// Loop translated strings
+		foreach($strings as $string_id => $langs) {
+			$eTu = $xml->body->addChild('tu'); /* @var $eTu SimpleXMLElement */
 			$eTu->addAttribute('tuid', $string_id);
-			$eTuv =& $eTu->addChild('tuv'); /* @var $eTuv SimpleXMLElement */
-			$eTuv->addAttribute('xml:lang', $lang_code, 'http://www.w3.org/XML/1998/namespace');
-			$eSeg =& $eTuv->addChild('seg', htmlspecialchars($string)); /* @var $eSeg SimpleXMLElement */
+			
+			// Fill in blanks
+			foreach(array_diff(array_keys($codes), array_keys($langs)) as $lang_code) {
+				$langs[$lang_code] = '';
+			}
+			
+			// Create tuple nodes
+			foreach($langs as $lang_code => $string) {
+				$eTuv = $eTu->addChild('tuv'); /* @var $eTuv SimpleXMLElement */
+				$eTuv->addAttribute('xml:lang', $lang_code, 'http://www.w3.org/XML/1998/namespace');
+				$eSeg = $eTuv->addChild('seg', htmlspecialchars($string)); /* @var $eSeg SimpleXMLElement */
+			}
 		}
 		
 		$imp = new DOMImplementation();
