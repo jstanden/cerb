@@ -36,6 +36,18 @@
 </div>
 </div>
 
+<b>{'common.owner'|devblocks_translate|capitalize}:</b>
+<div style="margin-left:10px;margin-bottom:0.5em;">
+	{$available_workers = DAO_Worker::getAllActive()}
+
+	<select name="{$namePrefix}[owner_id]">
+		<option value="0"></option>
+		{foreach from=$available_workers item=worker}
+		<option value="{$worker->id}" {if $worker->id == $params.owner_id}selected="selected"{/if}>{$worker->getName()}</option>
+		{/foreach}
+	</select>
+</div>
+
 {if !empty($custom_fields)}
 <b>{'common.custom_fields'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">

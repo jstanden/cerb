@@ -3306,6 +3306,7 @@ class DevblocksEventHelper {
 			return;
 
 		$translate = DevblocksPlatform::getTranslationService();
+		$workers = DAO_Worker::getAll();
 		
 		$group_replyto = $group->getReplyTo();
 
@@ -3319,6 +3320,7 @@ class DevblocksEventHelper {
 		
 		@$is_closed = $params['status'];
 		@$reopen_at = $params['reopen_at'];
+		@$owner_id = $params['owner_id'];
 		
 		$out = sprintf(">>> Creating ticket\n".
 			"Group: %s <%s>\n".
@@ -3335,12 +3337,17 @@ class DevblocksEventHelper {
 			(1==$is_closed) ? $translate->_('status.closed') : ((2 == $is_closed) ? $translate->_('status.waiting') : $translate->_('status.open'))
 		);
 		
+		if(!empty($owner_id) && isset($workers[$owner_id])) {
+			$out .= sprintf("Owner: %s\n",
+				$workers[$owner_id]->getName()
+			);
+		}
+		
 		if(!empty($is_closed) && !empty($reopen_at))
 			$out .= sprintf("Reopen at: %s\n", $reopen_at);
 
 		// Custom fields
 		
-		$workers = DAO_Worker::getAll();
 		$custom_fields = DAO_CustomField::getAll();
 		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 		
@@ -3425,11 +3432,14 @@ class DevblocksEventHelper {
 		@$group_id = $params['group_id'];
 		@$is_closed = $params['status'];
 		@$reopen_at = $params['reopen_at'];
+		@$owner_id = $params['owner_id'];
 		
 		if(null == ($group = DAO_Group::get($group_id)))
 			return;
 		
 		$group_replyto = $group->getReplyTo();
+		
+		$workers = DAO_Worker::getAll();
 			
 		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
 		$watcher_worker_ids = DevblocksEventHelper::mergeWorkerVars($watcher_worker_ids, $dict);
@@ -3480,6 +3490,7 @@ class DevblocksEventHelper {
 			'content' => $content,
 			'worker_id' => 0, //$active_worker->id,
 			'closed' => $is_closed,
+			'owner_id' => $owner_id,
 			'ticket_reopen' => $reopen_at,
 		);
 		
@@ -3491,7 +3502,6 @@ class DevblocksEventHelper {
 
 		// Custom fields
 		
-		$workers = DAO_Worker::getAll();
 		$custom_fields = DAO_CustomField::getAll();
 		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 		
