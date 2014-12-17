@@ -475,15 +475,6 @@ class ChContactsPage extends CerberusPageExtension {
 			$ids = DevblocksPlatform::parseCsvString($address_ids_str, false, 'integer');
 		}
 		
-		if(empty($ids) && !empty($org_id)) {
-			// All org contacts
-			$people = DAO_Address::getWhere(sprintf("%s = %d",
-				DAO_Address::CONTACT_ORG_ID,
-				$org_id
-			));
-			$ids = array_keys($people);
-		}
-		
 		// Build the view
 		
 		if(null == $view) {
@@ -502,20 +493,23 @@ class ChContactsPage extends CerberusPageExtension {
 		}
 	
 		@$view->name = $translate->_('ticket.requesters') . ": " . intval(count($ids)) . ' contact(s)';
-		
-		$org_filters = array(
-			DevblocksSearchCriteria::GROUP_OR,
-			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$ids),
+
+		$params_required = array(
+			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
 		);
 		
-		if(!empty($org_id)) {
-			$org_filters[SearchFields_Ticket::TICKET_ORG_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ORG_ID,'=',$org_id);
+		if(empty($ids)) {
+			$params_required[SearchFields_Ticket::VIRTUAL_ORG_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ORG_ID,'=',$org_id);
+			
+		} else {
+			$params_required['req_addys'] = array(
+				DevblocksSearchCriteria::GROUP_OR,
+				SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$ids),
+				SearchFields_Ticket::TICKET_FIRST_WROTE_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'in',$ids),
+			);
 		}
 		
-		$view->addParamsRequired(array(
-			$org_filters,
-			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
-		), true);
+		$view->addParamsRequired($params_required, true);
 		$tpl->assign('view', $view);
 	
 		C4_AbstractViewLoader::setView($view->id, $view);

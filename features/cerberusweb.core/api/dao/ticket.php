@@ -221,7 +221,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		switch($scope) {
 			case 'org':
 				$view->addParamsRequired(array(
-					SearchFields_Ticket::TICKET_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ORG_ID,'=',$ticket->org_id),
+					SearchFields_Ticket::VIRTUAL_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ORG_ID,'=',$ticket->org_id),
 					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
 				), true);
 				$view->name = ucwords($translate->_('contact_org.name'));
@@ -1490,7 +1490,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		$param_key = $param->field;
 		settype($param_key, 'string');
-
+		
 		switch($param_key) {
 			case SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT:
 				$search = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID);
@@ -1618,6 +1618,16 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				// [TODO] If the worker is in most of the groups, possibly try a NOT IN instead
 				
 				$args['where_sql'] .= sprintf("AND t.group_id IN (%s) ", implode(',', array_keys($roster)));
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_ORG_ID:
+				$org_id = $param->value;
+				
+				$args['where_sql'] .= sprintf("AND (t.org_id = %d OR a1.contact_org_id = %d OR t.id IN (SELECT requester.ticket_id FROM requester WHERE requester.address_id IN (SELECT id FROM address WHERE contact_org_id = %d))) ",
+					$org_id,
+					$org_id,
+					$org_id
+				);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
@@ -1813,6 +1823,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_GROUPS_OF_WORKER = '*_groups_of_worker';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
+	const VIRTUAL_ORG_ID = '*_org_id';
 	const VIRTUAL_STATUS = '*_status';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
@@ -1881,6 +1892,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '*', 'groups_of_worker', $translate->_('ticket.groups_of_worker')),
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
+			SearchFields_Ticket::VIRTUAL_ORG_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ORG_ID, '*', 'org_id', null, null), // org ID
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_STATUS, '*', 'status', $translate->_('ticket.status')),
 			SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
 				
@@ -2022,6 +2034,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET,
+			SearchFields_Ticket::VIRTUAL_ORG_ID,
 			SearchFields_Ticket::VIRTUAL_STATUS,
 			SearchFields_Ticket::VIRTUAL_WATCHERS,
 		));
@@ -2035,6 +2048,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::TICKET_DELETED,
 			SearchFields_Ticket::TICKET_ORG_ID,
 			SearchFields_Ticket::TICKET_WAITING,
+			SearchFields_Ticket::VIRTUAL_ORG_ID,
 		));
 		
 		$this->doResetCriteria();
@@ -2737,6 +2751,9 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				}
 					
 				echo sprintf("In <b>%s</b>'s groups", $worker_name);
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_ORG_ID:
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
