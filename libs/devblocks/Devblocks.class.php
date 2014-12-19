@@ -470,7 +470,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			
 			libxml_use_internal_errors(true);
 			
-			$dom->loadHTML(sprintf('<?xml encoding="%s">', LANG_CHARSET_CODE) . $str);
+			$dom->loadHTML(sprintf('<?xml version="1.0" encoding="%s">', LANG_CHARSET_CODE) . $str);
 			
 			$errors = libxml_get_errors();
 			libxml_clear_errors();
@@ -512,6 +512,45 @@ class DevblocksPlatform extends DevblocksEngine {
 			}
 		}
 		
+		// Convert hyperlinks to plaintext
+		
+		$str = preg_replace_callback(
+			'@<a[^>]*?>(.*?)</a>@si',
+			function($matches) {
+				if(!isset($matches[0]))
+					return false;
+				
+				$out = '';
+				
+				if(false == ($dom = simplexml_load_string($matches[0])))
+					return false;
+				
+				@$href_link = $dom['href'];
+				@$href_label = (string) $dom;
+				
+				// Skip if there is no label text (images, etc)
+				if(empty($href_label)) {
+					$out = null;
+					
+				// If the link and label are the same, ignore label
+				} elseif($href_label == $href_link) {
+					$out = $href_link;
+					
+				// Otherwise, format like Markdown
+				} else {
+					$out = sprintf("[%s](%s)",
+						$href_label,
+						$href_link
+					);
+				}
+				
+				return $out;
+			},
+			$str
+		);
+		
+		// Code blocks to plaintext
+		
 		$str = preg_replace_callback(
 			'@<code[^>]*?>(.*?)</code>@si',
 			function($matches) {
@@ -523,6 +562,8 @@ class DevblocksPlatform extends DevblocksEngine {
 			},
 			$str
 		);
+		
+		// Preformatted blocks to plaintext
 		
 		$str = preg_replace_callback(
 			'#<pre.*?/pre\>#si',
