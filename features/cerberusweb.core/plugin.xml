@@ -10,7 +10,7 @@
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="devblocks.core" version="2.0.0" />
+		<require plugin_id="devblocks.core" version="2.3.0" />
 	</dependencies>
 
 	<!-- Patches -->
