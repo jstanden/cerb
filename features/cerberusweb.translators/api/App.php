@@ -52,8 +52,6 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 	const ID = 'translators.setup.section.translations';
 	
 	function render() {
-		$settings = DevblocksPlatform::getPluginSettingsService();
-		
 		$tpl = DevblocksPlatform::getTemplateService();
 	
 		$defaults = new C4_AbstractViewModel();

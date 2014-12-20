@@ -73,6 +73,7 @@ $(function() {
  		var $div = $(this).closest('div');
  		$div.fadeOut();
  		
+ 		// [TODO] This should allow error reporting via JSON
  		genericAjaxPost('frmImport', '', null, function(o) {
  			genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');
  			genericAjaxPopupDestroy('{$layer}');

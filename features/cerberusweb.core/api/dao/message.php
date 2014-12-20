@@ -1570,9 +1570,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-//		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);
-//		$tpl->assign('custom_fields', $custom_fields);
-
 		switch($this->renderTemplate) {
 			default:
 				$tpl->assign('view_template', 'devblocks:cerberusweb.core::messages/view.tpl');
@@ -2146,17 +2143,15 @@ class Context_Message extends Extension_DevblocksContext {
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Messages';
-//		$view->view_columns = array(
-//			SearchFields_Message::UPDATED_DATE,
-//		);
-		$view->addParams(array(
-//			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
-			//SearchFields_Task::VIRTUAL_WATCHERS => new DevblocksSearchCriteria(SearchFields_Task::VIRTUAL_WATCHERS,'in',array($active_worker->id)),
-		), true);
+		$view->addParams(array(), true);
 		
-		$view->addParamsRequired(array(
-			SearchFields_Message::TICKET_GROUP_ID => new DevblocksSearchCriteria(SearchFields_Message::TICKET_GROUP_ID,'in',array_keys($active_worker->getMemberships())),
-		), true);
+		$params_required = array();
+		
+		if(!empty($active_worker)) {
+			$params_required[SearchFields_Message::TICKET_GROUP_ID] = new DevblocksSearchCriteria(SearchFields_Message::TICKET_GROUP_ID,'in',array_keys($active_worker->getMemberships()));
+		}
+		
+		$view->addParamsRequired($params_required, true);
 		
 		$view->renderSortBy = SearchFields_Message::CREATED_DATE;
 		$view->renderSortAsc = false;

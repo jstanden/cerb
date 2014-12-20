@@ -91,6 +91,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			if(isset($ticket_values['group_id']))
 				$group_id = $ticket_values['group_id'];
 			
+			// [TODO] ticket_group_id and group_id are redundant here
+			
 			// Clear dupe content
 			CerberusContexts::scrubTokensWithRegexp(
 				$ticket_labels,

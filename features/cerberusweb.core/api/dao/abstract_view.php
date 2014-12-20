@@ -367,11 +367,20 @@ abstract class C4_AbstractView {
 			
 		} elseif(is_array($param->value)) {
 			foreach($param->value as $k => $v) {
-				if(!is_string($v))
-					continue;
-				
-				if(false !== ($value = $tpl_builder->build($v, $args['placeholder_values']))) {
-					$param->value[$k] = $value;
+				if(is_string($v)) {
+					if(false !== ($value = $tpl_builder->build($v, $args['placeholder_values']))) {
+						$param->value[$k] = $value;
+					}
+					
+				} elseif(is_array($v)) {
+					foreach($v as $idx => $nested_v) {
+						if(!is_string($nested_v))
+							continue;
+						
+						if(false !== ($value = $tpl_builder->build($nested_v, $args['placeholder_values']))) {
+							$param->value[$k][$idx] = $value;
+						}
+					}
 				}
 			}
 		}
