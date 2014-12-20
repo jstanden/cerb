@@ -1536,6 +1536,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 	function isQuickSearchField($token) {
 		switch($token) {
 			case SearchFields_Message::TICKET_GROUP_ID:
+			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:
 			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
 				return true;
 			break;
@@ -1580,6 +1581,64 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				}
 				
 				return true;
+				break;
+				
+			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:
+				$sets = explode(' OR ', $query);
+				$values = array();
+				
+				if(is_array($sets))
+				foreach($sets as $set) {
+					$tuple = explode(' ', $set, 3);
+					
+					@$header_name = $tuple[0];
+					@$header_oper = $tuple[1];
+					@$header_value = $tuple[2];
+					
+					if(empty($header_name) || empty($header_oper))
+						continue;
+					
+					switch($header_oper) {
+						case '=':
+						case 'is':
+							if(0 == strcasecmp('null', $header_value)) {
+								$values[] = array($header_name, DevblocksSearchCriteria::OPER_IS_NULL, null);
+							} else {
+								$values[] = array($header_name, DevblocksSearchCriteria::OPER_EQ, $header_value);
+							}
+							break;
+							
+						case '!=':
+						case 'not':
+							if(0 == strcasecmp('null', $header_value)) {
+								$values[] = array($header_name, DevblocksSearchCriteria::OPER_IS_NOT_NULL, null);
+							} else {
+								$values[] = array($header_name, DevblocksSearchCriteria::OPER_NEQ, $header_value);
+							}
+							break;
+							
+						case 'like':
+							$oper = DevblocksSearchCriteria::OPER_LIKE;
+							$values[] = array($header_name, $oper, $header_value);
+							break;
+							
+						case '!like':
+							$oper = DevblocksSearchCriteria::OPER_NOT_LIKE;
+							$values[] = array($header_name, $oper, $header_value);
+							break;
+							
+						case 'null':
+							$oper = DevblocksSearchCriteria::OPER_IS_NULL;
+							$values[] = array($header_name, $oper, null);
+							break;
+					}
+				}
+				
+				if(!empty($values)) {
+					$value = $values;
+					return true;
+				}
+				
 				break;
 				
 			case SearchFields_Message::VIRTUAL_TICKET_STATUS:

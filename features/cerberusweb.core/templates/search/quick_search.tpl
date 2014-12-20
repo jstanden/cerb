@@ -105,6 +105,12 @@ var $frm = $('#{$uniqid}').each(function(e) {
 			$bubbles.append($('<li><i>!group</i></li>'));
 		}
 		
+		// [TODO] This should come from IAbstractView_QuickSearch
+		else if(token == '*_message_header') {
+			$bubbles.append($('<li><tt>message-id = &lt;...&gt;</tt></li>'));
+			$bubbles.append($('<li><tt>x-mailer like cerb* OR <br>x-mailer like salesforce*</tt></li>'));
+		}
+		
 		{if !empty($smarty.capture.field_hints)}
 		{$smarty.capture.field_hints nofilter}
 		{/if}
