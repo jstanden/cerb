@@ -299,6 +299,38 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
+	 * 
+	 * @param string $a
+	 * @param string $b
+	 * @param string $oper
+	 * @return bool
+	 */
+	public static function compareStrings($a, $b, $oper) {
+		@$not = (substr($oper, 0, 1) == '!');
+		@$oper = ltrim($oper, '!');
+		
+		$pass = false;
+		
+		switch($oper) {
+			case 'is':
+				$pass = (0==strcasecmp($a, $b));
+				break;
+			case 'like':
+				$regexp = DevblocksPlatform::strToRegExp($b);
+				$pass = @preg_match($regexp, $a);
+				break;
+			case 'contains':
+				$pass = (false !== stripos($a, $b)) ? true : false;
+				break;
+			case 'regexp':
+				$pass = @preg_match($b, $a);
+				break;
+		}
+		
+		return ($not) ? !$pass : $pass;;
+	}
+	
+	/**
 	 * Return a string as a regular expression, parsing * into a non-greedy
 	 * wildcard, etc.
 	 *
