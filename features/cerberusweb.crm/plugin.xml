@@ -4,14 +4,14 @@
 	<name>Opportunity Tracking</name>
 	<description>Create opportunities (sales leads) linked to e-mail addresses. Opportunity records can be created from the Activity menu or while reading tickets.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>6.8.7</version>
+	<version>6.9.0</version>
 	<link>http://wiki.cerbweb.com/Features:Opportunity_Tracking</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="6.8" max="6.8.99" />
+		<app_version min="6.9" max="6.9.99" />
 	</requires>
 	
 	<!-- Plugin Dependencies -->
