@@ -3313,6 +3313,11 @@
 				<seg>In Attesa</seg>
 			</tuv>
 		</tu>
+		<tu tuid="mail.worklist.draft_in_progress">
+			<tuv xml:lang="it_IT">
+				<seg></seg>
+			</tuv>
+		</tu>
 		<tu tuid="mail.workflow">
 			<tuv xml:lang="it_IT">
 				<seg/>

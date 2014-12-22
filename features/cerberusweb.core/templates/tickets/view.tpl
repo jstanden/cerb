@@ -67,6 +67,8 @@
 
 	{* Column Data *}
 	{$object_watchers = DAO_ContextLink::getContextLinks($view_context, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
+	{$ticket_drafts = DAO_MailQueue::getDraftsByTicketIds(array_keys($data))} 
+	
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
@@ -77,6 +79,7 @@
 	
 	{* This is used in two places depending on if the row is one or two lines *}
 	{capture name="ticket_subject_content"}
+		{if isset($ticket_drafts.{$result.t_id})}{$ticket_draft = $ticket_drafts.{$result.t_id}}<span class="cerb-sprite2 sprite-mail--pencil" title="({$ticket_draft->updated|devblocks_prettytime}) {'mail.worklist.draft_in_progress'|devblocks_translate:{$workers.{$ticket_draft->worker_id}->getName()}}"></span>{/if}
 		{if $result.t_is_deleted}<span class="cerb-sprite2 sprite-cross-circle-gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite2 sprite-tick-circle-gray" title="{'status.closed'|devblocks_translate}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span>{/if}
 		<a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_mask}{/devblocks_url}" class="subject">{$result.t_subject|default:'(no subject)'}</a> 
 		<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.t_id}&view_id={$view->id}', null, false, '650');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{'views.peek'|devblocks_translate}"></span></button>

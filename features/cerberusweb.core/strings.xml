@@ -2577,6 +2577,11 @@ For example: http://www.cerberusweb.com/support/</seg>
 				<seg>Waiting</seg>
 			</tuv>
 		</tu>
+		<tu tuid="mail.worklist.draft_in_progress">
+			<tuv xml:lang="en_US">
+				<seg>%s is currently responding to this ticket</seg>
+			</tuv>
+		</tu>
 		<tu tuid="mail.workflow">
 			<tuv xml:lang="en_US">
 				<seg>Workflow</seg>

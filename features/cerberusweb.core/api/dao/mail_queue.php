@@ -88,6 +88,48 @@ class DAO_MailQueue extends DevblocksORMHelper {
 		return null;
 	}
 	
+	static function getDraftsByTicketIds($ids, $max_age=600, $ignore_worker_ids=array()) {
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int', array('unique','nonzero'));
+		$ignore_worker_ids = DevblocksPlatform::sanitizeArray($ignore_worker_ids, 'int', array('unique','nonzero'));
+		
+		if(empty($ids))
+			return array();
+
+		$results = self::getWhere(sprintf("%s != %d AND %s = %d AND %s in (%s) AND %s >= %d %s",
+			DAO_MailQueue::TICKET_ID,
+			0, // ticket_id exists
+			DAO_MailQueue::IS_QUEUED,
+			0, // is a draft
+			DAO_MailQueue::TICKET_ID,
+			implode(',', $ids), // is for one of these tickets
+			DAO_MailQueue::UPDATED,
+			time() - $max_age, // is no older than $max_age in secs
+			(!empty($ignore_worker_ids) // doesn't include one of these workers (optional) 
+				? sprintf("AND %s NOT IN (%s) ", DAO_MailQueue::WORKER_ID, implode(',', $ignore_worker_ids)) 
+				: ''
+			)
+		));
+		
+		$out = array();
+		
+		if(is_array($results))
+		foreach($results as $draft) {
+			if(!isset($out[$draft->ticket_id]))
+				$out[$draft->ticket_id] = array();
+			
+			// Only use the newest draft per ticket
+			if(isset($out[$draft->ticket_id]) && $out[$draft->ticket_id]->updated > $draft->updated)
+				continue;
+			
+			unset($draft->body);
+			unset($draft->params);
+			
+			$out[$draft->ticket_id] = $draft;
+		}
+		
+		return $out;
+	}
+	
 	/**
 	 * @param resource $rs
 	 * @return Model_MailQueue[]

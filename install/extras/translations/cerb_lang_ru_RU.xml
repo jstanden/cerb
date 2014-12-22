@@ -3313,6 +3313,11 @@
 				<seg>Ожидают</seg>
 			</tuv>
 		</tu>
+		<tu tuid="mail.worklist.draft_in_progress">
+			<tuv xml:lang="ru_RU">
+				<seg></seg>
+			</tuv>
+		</tu>
 		<tu tuid="mail.workflow">
 			<tuv xml:lang="ru_RU">
 				<seg>Поток</seg>
