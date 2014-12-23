@@ -767,7 +767,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	static function parseMarkdown($text) {
 		$parser = new Parsedown();
-		$parser->set_breaks_enabled(true);
+		$parser->setBreaksEnabled(true);
+		$parser->setMarkupEscaped(false);
 		return $parser->parse($text);
 	}
 	
