@@ -388,6 +388,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			'json_decode' => new Twig_Function_Method($this, 'function_json_decode'),
 			'jsonpath_set' => new Twig_Function_Method($this, 'function_jsonpath_set'),
 			'xml_decode' => new Twig_Function_Method($this, 'function_xml_decode'),
+			'xml_encode' => new Twig_Function_Method($this, 'function_xml_encode'),
 			'xml_xpath_ns' => new Twig_Function_Method($this, 'function_xml_xpath_ns'),
 			'xml_xpath' => new Twig_Function_Method($this, 'function_xml_xpath'),
 		);
@@ -446,6 +447,13 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		}
 		
 		return array();
+	}
+	
+	function function_xml_encode($xml) {
+		if(!($xml instanceof SimpleXMLElement))
+			return false;
+		
+		return $xml->asXML();
 	}
 	
 	function function_xml_decode($str, $namespaces=array()) {
