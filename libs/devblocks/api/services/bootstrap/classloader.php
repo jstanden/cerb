@@ -55,9 +55,6 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/csstoinlinestyles/CssToInlineStyles.php', array(
 			'CssToInlineStyles'
 		));
-		$this->registerClasses(DEVBLOCKS_PATH . 'libs/markdown/markdown.php', array(
-			'markdown'
-		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/parsedown/Parsedown.php', array(
 			'Parsedown'
 		));

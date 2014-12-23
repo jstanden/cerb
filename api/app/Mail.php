@@ -1317,7 +1317,7 @@ class CerberusMail {
 		$base_url = $url_writer->write('c=files', true) . '/';
 		
 		// Generate an HTML part using Parsedown
-		if(false !== ($html_body = DevblocksPlatform::parseMarkdown($content, true))) {
+		if(false !== ($html_body = DevblocksPlatform::parseMarkdown($content))) {
 			
 			// Determine if we have an HTML template
 			if(!$html_template_id || false == ($html_template = DAO_MailHtmlTemplate::get($html_template_id))) {
@@ -1416,7 +1416,7 @@ class CerberusMail {
 		}
 		
 		try {
-			$content = DevblocksPlatform::parseMarkdown($content, true);
+			$content = DevblocksPlatform::parseMarkdown($content);
 			$content = DevblocksPlatform::stripHTML($content);
 			
 		} catch (Exception $e) {

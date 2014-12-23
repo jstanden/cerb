@@ -4259,7 +4259,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					
 					switch($format) {
 						case 'parsedown':
-							if(false != ($output = DevblocksPlatform::parseMarkdown($output, true))) {
+							if(false != ($output = DevblocksPlatform::parseMarkdown($output))) {
 
 								// HTML template
 
@@ -4345,11 +4345,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		switch($format) {
 			case 'markdown':
-				$body = DevblocksPlatform::parseMarkdown($data);
-				break;
-				
 			case 'parsedown':
-				$body = DevblocksPlatform::parseMarkdown($data, true);
+				$body = DevblocksPlatform::parseMarkdown($data);
 				break;
 				
 			case 'html':

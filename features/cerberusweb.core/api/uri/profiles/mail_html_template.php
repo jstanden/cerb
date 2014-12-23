@@ -195,7 +195,7 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		
 		// Parsedown
 		
-		$output = DevblocksPlatform::parseMarkdown($signature, true);
+		$output = DevblocksPlatform::parseMarkdown($signature);
 		
 		echo $output;
 	}

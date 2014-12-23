@@ -429,7 +429,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Markdown
 		
-		$output = DevblocksPlatform::parseMarkdown($message_properties['content'], true);
+		$output = DevblocksPlatform::parseMarkdown($message_properties['content']);
 		
 		// Wrap the reply in a template if we have one
 		

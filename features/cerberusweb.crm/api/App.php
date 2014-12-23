@@ -360,7 +360,7 @@ class CrmPage extends CerberusPageExtension {
 						switch($broadcast_format) {
 							case 'parsedown':
 								// Markdown
-								$output = DevblocksPlatform::parseMarkdown($output, true);
+								$output = DevblocksPlatform::parseMarkdown($output);
 								
 								// HTML Template
 								
