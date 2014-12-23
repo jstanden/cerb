@@ -282,7 +282,7 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 
 	// Restore position from previous dialog?
 	if(target == 'reuse') {
-		$popup = genericAjaxPopupFetch($layer);
+		var $popup = genericAjaxPopupFetch($layer);
 		if(null != $popup) {
 			try {
 				var offset = $popup.closest('div.ui-dialog').offset();
@@ -293,6 +293,12 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 					at: 'left+' + left + ' top+' + top 
 				};
 			} catch(e) { }
+			
+		} else {
+			options.position = {
+				my: "center top",
+				at: "center top+20"
+			};
 		}
 		target = null;
 		
@@ -302,6 +308,11 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			at: target.at
 		};
 		
+	} else {
+		options.position = {
+			my: "center top",
+			at: "center top+20"
+		};
 	}
 	
 	// Reset (if exists)
