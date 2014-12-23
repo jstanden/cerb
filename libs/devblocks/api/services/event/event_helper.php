@@ -3888,8 +3888,12 @@ class DevblocksEventHelper {
 		if(is_array($relay_list))
 		foreach($relay_list as $to) {
 			
+			// Worker models
+			if($to instanceof Model_Worker) {
+				$to_list[$to->email] = $to;
+			
 			// Variables
-			if('var_' == substr($to, 0, 4) && isset($trigger->variables[$to])) {
+			} else if(is_string($to) && 'var_' == substr($to, 0, 4) && isset($trigger->variables[$to])) {
 				switch(@$trigger->variables[$to]['type']) {
 					case 'ctx_' . CerberusContexts::CONTEXT_WORKER:
 						foreach($dict->$to as $also_to) {
@@ -3914,10 +3918,6 @@ class DevblocksEventHelper {
 						$to_list[$worker->email] = $worker;
 						break;
 				}
-
-			// Worker models
-			} elseif($to instanceof Model_Worker) {
-				$to_list[] = $to->email;
 				
 			// Email address strings
 			} elseif (is_string($to)) {
