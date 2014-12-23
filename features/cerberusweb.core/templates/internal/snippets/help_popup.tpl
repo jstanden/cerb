@@ -163,9 +163,52 @@ in it.
 {% set text = "Your Amazon Order #Z-1234-5678-9 has shipped!" %}
 {% set order_id = text|regexp("/Amazon Order #([A-Z0-9\-]+)/", 1) %}
 Amazon Order #: {{order_id}}</pre>
+</fieldset>
 {/literal}
 
+{literal}
+<fieldset class="peek">
+	<legend>JSON Decoding</legend>
+	
+	<pre style="margin:0.5em 1em;">
+{% set json_string = "{\"name\":\"Joe Customer\",\"order_id\":12345}" %}
+{% set json = json_decode(json_string) %}
+Customer: {{json.name}}
+Order #: {{json.order_id}}	
+</pre>
 </fieldset>
+{/literal}
+
+{literal}
+<fieldset class="peek">
+	<legend>JSON Modification</legend>
+	
+	<pre style="margin:0.5em 1em;">
+{% set json = {'name': 'Joe Customer', 'order_id': 12345} %}
+{% set json = jsonpath_set(json, 'order_id', 54321) %}
+{% set json = jsonpath_set(json, 'status.text', 'shipped') %}
+{% set json = jsonpath_set(json, 'status.tracking_id', 'Z1F238') %}
+Customer: {{json.name}}
+Order #: {{json.order_id}}
+Status: {{json.status.text}}
+Tracking #: {{json.status.tracking_id}}
+</pre>
+</fieldset>
+{/literal}
+
+{literal}
+<fieldset class="peek">
+	<legend>JSON Encoding</legend>
+	
+	<pre style="margin:0.5em 1em;">
+{% set json = {'name': 'Joe Customer'} %}
+{% set json = jsonpath_set(json, 'order_id', 54321) %}
+{% set json = jsonpath_set(json, 'status.text', 'shipped') %}
+{% set json = jsonpath_set(json, 'status.tracking_id', 'Z1F238') %}
+{{json|json_encode}}	
+</pre>
+</fieldset>
+{/literal}
 
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('help');
