@@ -210,6 +210,64 @@ Tracking #: {{json.status.tracking_id}}
 </fieldset>
 {/literal}
 
+{literal}
+<fieldset class="peek">
+	<legend>XML Decoding</legend>
+	
+	<pre style="margin:0.5em 1em;">
+{% set string_of_xml = 
+"&lt;response&gt;
+  &lt;client_id&gt;1&lt;/client_id&gt;
+  &lt;invoice_id&gt;123&lt;/invoice_id&gt;
+&lt;/response&gt;"
+-%}
+{% set xml = xml_decode(string_of_xml) %}
+{% set client_id = xml_xpath(xml, '//client_id')|first %}
+{% set invoice_id = xml_xpath(xml, '//invoice_id')|first %}
+Client ID: {{client_id}}
+Invoice ID: {{invoice_id}}
+</pre>
+</fieldset>
+{/literal}
+
+{literal}
+<fieldset class="peek">
+	<legend>XML Encoding</legend>
+	
+	<pre style="margin:0.5em 1em;">
+{% set string_of_xml = 
+"&lt;response xmlns=\"http://www.example.com/api/\"&gt;
+  &lt;client_id&gt;1&lt;/client_id&gt;
+  &lt;invoice_id&gt;123&lt;/invoice_id&gt;
+&lt;/response&gt;"
+-%}
+{% set xml = xml_decode(string_of_xml) %}
+{{xml_encode(xml.client_id)}}	
+</pre>
+</fieldset>
+{/literal}
+
+{literal}
+<fieldset class="peek">
+	<legend>XML Namespaces</legend>
+	
+	<pre style="margin:0.5em 1em;">
+{% set string_of_xml = 
+"&lt;response xmlns=\"http://www.example.com/api/\"&gt;
+  &lt;client_id&gt;1&lt;/client_id&gt;
+  &lt;invoice_id&gt;123&lt;/invoice_id&gt;
+&lt;/response&gt;"
+-%}
+{% set xml = xml_decode(string_of_xml) %}
+{% set xml = xml_xpath_ns(xml, 'ns', 'http://www.example.com/api/') %}
+{% set client_id = xml_xpath(xml, '//ns:client_id')|first %}
+{% set invoice_id = xml_xpath(xml, '//ns:invoice_id')|first %}
+Client ID: {{client_id}}
+Invoice ID: {{invoice_id}}
+</pre>
+</fieldset>
+{/literal}
+
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('help');
 	$popup.one('popup_open', function(event,ui) {
