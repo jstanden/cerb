@@ -152,6 +152,17 @@ This text
 
 in it.
 </pre>
+</fieldset>
+{/literal}
+
+{literal}
+<fieldset class="peek">
+	<legend>Regular Expressions</legend>
+	
+	<pre style="margin:0.5em 1em;">
+{% set text = "Your Amazon Order #Z-1234-5678-9 has shipped!" %}
+{% set order_id = text|regexp("/Amazon Order #([A-Z0-9\-]+)/", 1) %}
+Amazon Order #: {{order_id}}</pre>
 {/literal}
 
 </fieldset>
