@@ -1954,7 +1954,7 @@ class Context_Application extends Extension_DevblocksContext {
 		return null;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array()) {
+	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
 		return null;
 	}
 };

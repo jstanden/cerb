@@ -1101,10 +1101,10 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array()) {
+	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$view_id = str_replace('.','_',$this->id);
+		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id;

@@ -330,7 +330,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		return @$this->manifest->params['view_class'];
 	}
 	
-	abstract function getView($context=null, $context_id=null, $options=array());
+	abstract function getView($context=null, $context_id=null, $options=array(), $view_id=null);
 	
 	function lazyLoadContextValues($token, $dictionary) { return array(); }
 	
