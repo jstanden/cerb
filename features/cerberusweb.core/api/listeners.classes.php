@@ -540,7 +540,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 									5
 									),
 								new DevblocksTourCallout(
-									'#displayTabs DIV#ui-tabs-1 BUTTON#btnComment:first',
+									'BUTTON#btnComment:first',
 									'Comments',
 									'Comments are a private way to leave messages for other workers regarding this conversation.  They are not visible to recipients.',
 									'topLeft',

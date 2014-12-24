@@ -1,184 +1,136 @@
 <script type="text/javascript">
-$view = $('div#view{$view->id}');
-$view_frm = $('form#viewForm{$view->id}');
-$view_actions = $view_frm.find('#{$view->id}_actions');
-
-// Row selection and hover effect
-$view_frm.find('TABLE.worklistBody TBODY')
-	.click(function(e) {
-		var $target = $(e.target);
+$(function() {
+	var $view = $('div#view{$view->id}');
+	var $view_frm = $('form#viewForm{$view->id}');
+	var $view_actions = $view_frm.find('#{$view->id}_actions');
 	
-		// Are any of our parents an anchor tag?
-		var $parents = $target.parents('a');
-		if($parents.length > 0) {
-			$target = $parents[$parents.length-1]; // 0-based
-		}
+	// Row selection and hover effect
+	$view_frm.find('TABLE.worklistBody TBODY')
+		.click(function(e) {
+			var $target = $(e.target);
 		
-		if (false == $target instanceof jQuery) {
-			// Not a jQuery object
-		} else if($target.is(':input,:button,a,img,span.cerb-sprite,span.cerb-sprite2,span.cerb-label')) {
-			// Ignore form elements and links
-		} else {
-			e.stopPropagation();
+			// Are any of our parents an anchor tag?
+			var $parents = $target.parents('a');
+			if($parents.length > 0) {
+				$target = $parents[$parents.length-1]; // 0-based
+			}
 			
-			var $this = $(this);
-			
-			e.preventDefault();
-			
-			var $chk = $this.find('input:checkbox:first');
-			
-			if(0 == $chk.length)
+			if (false == $target instanceof jQuery) {
+				// Not a jQuery object
+			} else if($target.is(':input,:button,a,img,span.cerb-sprite,span.cerb-sprite2,span.cerb-label')) {
+				// Ignore form elements and links
+			} else {
+				e.stopPropagation();
+				
+				var $this = $(this);
+				
+				e.preventDefault();
+				
+				var $chk = $this.find('input:checkbox:first');
+				
+				if(0 == $chk.length)
+					return;
+				
+				var is_checked = !($chk.prop('checked') ? true : false);
+				
+				if(is_checked) {
+					$chk.prop('checked', is_checked);
+					$this.find('tr').addClass('selected').removeClass('hover');
+					
+				} else {
+					$chk.prop('checked', is_checked);
+					$this.find('tr').removeClass('selected');
+				}
+		
+				// Count how many selected rows we have left and adjust the toolbar actions
+				var $frm = $this.closest('form');
+				var $selected_rows = $frm.find('TR.selected').closest('tbody');
+				var $view_actions = $frm.find('#{$view->id}_actions');
+				
+				if(0 == $selected_rows.length) {
+					$view_actions.find('button,.action-on-select').not('.action-always-show').fadeOut('fast');
+					
+				} else if(1 == $selected_rows.length) {
+					$view_actions.find('button,.action-on-select').not('.action-always-show').fadeIn('fast');
+				}
+				
+				$chk.trigger('check');
+			}
+		})
+		.hover(
+			function() {
+				$(this).find('tr')
+					.addClass('hover')
+					.find('BUTTON.peek').css('visibility','visible')
+					;
+			},
+			function() {
+				$(this).find('tr').
+					removeClass('hover')
+					.find('BUTTON.peek').css('visibility','hidden')
+					;
+			}
+		)
+		;
+	
+	// Header clicks
+	$view_frm.find('table.worklistBody thead th, table.worklistBody tbody th')
+		.click(function(e) {
+			$target = $(e.target);
+			if(!$target.is('th'))
 				return;
 			
-			var is_checked = !($chk.prop('checked') ? true : false);
-			
-			if(is_checked) {
-				$chk.prop('checked', is_checked);
-				$this.find('tr').addClass('selected').removeClass('hover');
-				
-			} else {
-				$chk.prop('checked', is_checked);
-				$this.find('tr').removeClass('selected');
-			}
+			e.stopPropagation();
+			$target.find('A').first().click();
+		})
+		;
 	
-			// Count how many selected rows we have left and adjust the toolbar actions
-			var $frm = $this.closest('form');
-			var $selected_rows = $frm.find('TR.selected').closest('tbody');
-			var $view_actions = $frm.find('#{$view->id}_actions');
-			
-			if(0 == $selected_rows.length) {
-				$view_actions.find('button,.action-on-select').not('.action-always-show').fadeOut('fast');
-				
-			} else if(1 == $selected_rows.length) {
-				$view_actions.find('button,.action-on-select').not('.action-always-show').fadeIn('fast');
-			}
-			
-			$chk.trigger('check');
-		}
-	})
-	.hover(
-		function() {
-			$(this).find('tr')
-				.addClass('hover')
-				.find('BUTTON.peek').css('visibility','visible')
-				;
-		},
-		function() {
-			$(this).find('tr').
-				removeClass('hover')
-				.find('BUTTON.peek').css('visibility','hidden')
-				;
-		}
-	)
-	;
-
-// Header clicks
-$view_frm.find('table.worklistBody thead th, table.worklistBody tbody th')
-	.click(function(e) {
-		$target = $(e.target);
-		if(!$target.is('th'))
-			return;
+	// Subtotals
+	$view.find('table.worklist A.subtotals').click(function(event) {
+		genericAjaxGet('view{$view->id}_sidebar','c=internal&a=viewSubtotal&view_id={$view->id}&toggle=1');
 		
-		e.stopPropagation();
-		$target.find('A').first().click();
-	})
-	;
-
-// Subtotals
-$view.find('table.worklist A.subtotals').click(function(event) {
-	genericAjaxGet('view{$view->id}_sidebar','c=internal&a=viewSubtotal&view_id={$view->id}&toggle=1');
+		$sidebar = $('#view{$view->id}_sidebar');
+		if(0 == $sidebar.html().length) {
+			$sidebar.css('padding-right','5px');
+		} else {
+			$sidebar.css('padding-right','0px');
+		}
+	});
 	
-	$sidebar = $('#view{$view->id}_sidebar');
-	if(0 == $sidebar.html().length) {
-		$sidebar.css('padding-right','5px');
-	} else {
-		$sidebar.css('padding-right','0px');
-	}
-});
-
-// Select all
-
-$view.find('table.worklist input:checkbox.select-all').click(function(e) {
-	// Trigger event
-	e = jQuery.Event('select_all');
-	e.view_id = '{$view->id}';
-	e.checked = $(this).is(':checked');
-	$('div#view{$view->id}').trigger(e);
-});
-
-$view.bind('select_all', function(e) {
-	$view = $('div#view' + e.view_id);
-	$view_form = $view.find('#viewForm' + e.view_id);
-	$checkbox = $view.find('table.worklist input:checkbox.select-all');
-	checkAll('viewForm' + e.view_id, e.checked);
-	$rows = $view_form.find('table.worklistBody').find('tbody > tr');
-	$view_actions = $('#' + e.view_id + '_actions');
+	// Select all
 	
-	if(e.checked) {
-		$checkbox.prop('checked', e.checked);
-		$(this).prop('checked', e.checked);
-		$rows.addClass('selected'); 
-		$view_actions.find('button,.action-on-select').not('.action-always-show').fadeIn('fast');	
-	} else {
-		$checkbox.prop('checked', e.checked);
-		$(this).prop('checked', e.checked);
-		$rows.removeClass('selected');
-		$view_actions.find('button,.action-on-select').not('.action-always-show').fadeOut('fast');
-	}
-});
-
-// View actions
-$view_actions.find('button,.action-on-select').not('.action-always-show').hide();
-</script>
-
-{* Run custom jQuery scripts from VA behavior *}
-{$va_actions = []}
-{$va_behaviors = []}
-{Event_UiWorklistRenderByWorker::triggerForWorker($active_worker, $view_context, $view->id, $va_actions, $va_behaviors)}
-
-{if !empty($va_behaviors)}
-	<script type="text/javascript">
-	{if $va_actions.jquery_scripts}
-	{
-		{foreach from=$va_actions.jquery_scripts item=jquery_script}
-		try {
-			{$jquery_script nofilter}
-		} catch(e) { }
-		{/foreach}
-
-		var $va_button = $('<a href="javascript:;" title="This worklist was modified by Virtual Attendants"><span class="cerb-sprite2 sprite-robot" style="vertical-align:bottom;"></span></a>');
-		$va_button.click(function() {
-			var $va_action_log = $('#view{$view->id}_va_actions');
-			if($va_action_log.is(':hidden')) {
-				$va_action_log.fadeIn();
-			} else {
-				$va_action_log.fadeOut();
-			}
-		});
-		$va_button.insertAfter($view.find('TABLE.worklist SPAN.title'));
-		$('#view{$view->id}_va_actions').insertAfter($view.find('TABLE.worklist'));
-	}
-	{/if}
-	</script>
+	$view.find('table.worklist input:checkbox.select-all').click(function(e) {
+		// Trigger event
+		e = jQuery.Event('select_all');
+		e.view_id = '{$view->id}';
+		e.checked = $(this).is(':checked');
+		$('div#view{$view->id}').trigger(e);
+	});
 	
-	<div class="block" style="display:none;margin:5px;" id="view{$view->id}_va_actions">
-		<b>This worklist was modified by Virtual Attendants:</b>
-		<ul style="margin:0;">
-			{foreach from=$va_behaviors item=va_behavior name=va_behaviors}
-			<li>
-				{$va = $va_behavior->getVirtualAttendant()}
-				{$va_behavior->title} ({$va->name})
-			</li>
-			{/foreach}
-		</ul>
+	$view.bind('select_all', function(e) {
+		$view = $('div#view' + e.view_id);
+		$view_form = $view.find('#viewForm' + e.view_id);
+		$checkbox = $view.find('table.worklist input:checkbox.select-all');
+		checkAll('viewForm' + e.view_id, e.checked);
+		$rows = $view_form.find('table.worklistBody').find('tbody > tr');
+		$view_actions = $('#' + e.view_id + '_actions');
 		
-		<button type="button" onclick="$(this).closest('div.block').fadeOut();">{'common.ok'|devblocks_translate|upper}</button>
-	</div>
-{/if}
+		if(e.checked) {
+			$checkbox.prop('checked', e.checked);
+			$(this).prop('checked', e.checked);
+			$rows.addClass('selected'); 
+			$view_actions.find('button,.action-on-select').not('.action-always-show').fadeIn('fast');	
+		} else {
+			$checkbox.prop('checked', e.checked);
+			$(this).prop('checked', e.checked);
+			$rows.removeClass('selected');
+			$view_actions.find('button,.action-on-select').not('.action-always-show').fadeOut('fast');
+		}
+	});
+	
 
-<script type="text/javascript">
-//Condense the TH headers
-{
+	//Condense the TH headers
+	
 	var $view_thead = $view_frm.find('TABLE.worklistBody THEAD');
 	
 	// Remove the heading labels to let the browser find the content-based widths
@@ -228,5 +180,53 @@ $view_actions.find('button,.action-on-select').not('.action-always-show').hide()
 		var $a = $(this);
 		$a.html($a.attr('title'));
 	});
-}
+		
+	// View actions
+	$view_actions.find('button,.action-on-select').not('.action-always-show').hide();
+});
 </script>
+
+{* Run custom jQuery scripts from VA behavior *}
+{$va_actions = []}
+{$va_behaviors = []}
+{Event_UiWorklistRenderByWorker::triggerForWorker($active_worker, $view_context, $view->id, $va_actions, $va_behaviors)}
+
+{if !empty($va_behaviors)}
+	<script type="text/javascript">
+	{if $va_actions.jquery_scripts}
+	{
+		{foreach from=$va_actions.jquery_scripts item=jquery_script}
+		try {
+			{$jquery_script nofilter}
+		} catch(e) { }
+		{/foreach}
+
+		var $va_button = $('<a href="javascript:;" title="This worklist was modified by Virtual Attendants"><span class="cerb-sprite2 sprite-robot" style="vertical-align:bottom;"></span></a>');
+		$va_button.click(function() {
+			var $va_action_log = $('#view{$view->id}_va_actions');
+			if($va_action_log.is(':hidden')) {
+				$va_action_log.fadeIn();
+			} else {
+				$va_action_log.fadeOut();
+			}
+		});
+		$va_button.insertAfter($view.find('TABLE.worklist SPAN.title'));
+		$('#view{$view->id}_va_actions').insertAfter($view.find('TABLE.worklist'));
+	}
+	{/if}
+	</script>
+	
+	<div class="block" style="display:none;margin:5px;" id="view{$view->id}_va_actions">
+		<b>This worklist was modified by Virtual Attendants:</b>
+		<ul style="margin:0;">
+			{foreach from=$va_behaviors item=va_behavior name=va_behaviors}
+			<li>
+				{$va = $va_behavior->getVirtualAttendant()}
+				{$va_behavior->title} ({$va->name})
+			</li>
+			{/foreach}
+		</ul>
+		
+		<button type="button" onclick="$(this).closest('div.block').fadeOut();">{'common.ok'|devblocks_translate|upper}</button>
+	</div>
+{/if}
