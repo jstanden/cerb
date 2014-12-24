@@ -59,6 +59,13 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 
 		$properties = array();
 
+		$properties['calendar_id'] = array(
+			'label' => ucfirst($translate->_('common.calendar')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'params' => array('context' => CerberusContexts::CONTEXT_CALENDAR),
+			'value' => $event->calendar_id,
+		);
+		
 		$properties['date_start'] = array(
 			'label' => ucfirst($translate->_('dao.calendar_event.date_start')),
 			'type' => null,
