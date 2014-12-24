@@ -111,6 +111,16 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 			),
 		);
 		
+		if(isset($address->contact_org_id)) {
+			$properties_links[CerberusContexts::CONTEXT_ORG] = array(
+				$address->contact_org_id => 
+					DAO_ContextLink::getContextLinkCounts(
+						CerberusContexts::CONTEXT_ORG,
+						$address->contact_org_id,
+						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+					),
+			);
+		}
 		
 		$tpl->assign('properties_links', $properties_links);
 		
