@@ -355,6 +355,8 @@ class SearchFields_MailHtmlTemplate implements IDevblocksSearchFields {
 	const CONTENT = 'm_content';
 	const SIGNATURE = 'm_signature';
 
+	// [TODO] Virtual owner
+	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WATCHERS = '*_workers';
@@ -438,29 +440,22 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 		$translate = DevblocksPlatform::getTranslationService();
 	
 		$this->id = self::DEFAULT_ID;
-		// [TODO] Name the worklist view
-		$this->name = $translate->_('MailHtmlTemplate');
+		$this->name = $translate->_('Mail HTML Templates');
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_MailHtmlTemplate::ID;
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_MailHtmlTemplate::ID,
 			SearchFields_MailHtmlTemplate::NAME,
 			SearchFields_MailHtmlTemplate::UPDATED_AT,
-			SearchFields_MailHtmlTemplate::OWNER_CONTEXT,
-			SearchFields_MailHtmlTemplate::OWNER_CONTEXT_ID,
-			SearchFields_MailHtmlTemplate::CONTENT,
-			SearchFields_MailHtmlTemplate::SIGNATURE,
 		);
-		// [TODO] Filter fields
+		
 		$this->addColumnsHidden(array(
 			SearchFields_MailHtmlTemplate::VIRTUAL_CONTEXT_LINK,
 			SearchFields_MailHtmlTemplate::VIRTUAL_HAS_FIELDSET,
 			SearchFields_MailHtmlTemplate::VIRTUAL_WATCHERS,
 		));
 		
-		// [TODO] Filter fields
 		$this->addParamsHidden(array(
 		));
 		

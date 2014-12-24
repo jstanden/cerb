@@ -53,13 +53,6 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		
 		$properties = array();
 				
-// 				$properties['email'] = array(
-// 					'label' => ucfirst($translate->_('common.email')),
-// 					'type' => Model_CustomField::TYPE_SINGLE_LINE,
-// 					'value' => $worker->email,
-// 				);
-				
-
 		// Custom Fields
 
 		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_GROUP, $group->id)) or array();

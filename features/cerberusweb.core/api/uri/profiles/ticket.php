@@ -45,6 +45,16 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		$tpl->assign('ticket', $ticket);
 		
+		// Permissions
+		
+		$active_worker_memberships = $active_worker->getMemberships();
+		
+		// Check group membership ACL
+		if(!isset($active_worker_memberships[$ticket->group_id])) {
+			DevblocksPlatform::redirect(new DevblocksHttpRequest());
+			exit;
+		}
+		
 		// Remember the last tab/URL
 		@$selected_tab = array_shift($stack);
 		
@@ -166,14 +176,8 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		$tpl->assign('properties', $properties);
 		
-		// Permissions
 		
-		$active_worker_memberships = $active_worker->getMemberships();
 		
-		// Check group membership ACL
-		if(!isset($active_worker_memberships[$ticket->group_id])) {
-			DevblocksPlatform::redirect(new DevblocksHttpRequest());
-			exit;
 		}
 		
 		// Groups

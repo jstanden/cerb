@@ -167,23 +167,15 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(empty($context) || empty($context_id) || empty($to_context))
 			return;
 			
-		if(null == ($ext_context = DevblocksPlatform::getExtension($to_context, true)))
+		if(null == ($ext_context = Extension_DevblocksContext::get($to_context)))
 			return;
-
-		if(!$ext_context instanceof Extension_DevblocksContext)
-			return;
-
-		$tpl = DevblocksPlatform::getTemplateService();
-		$active_worker = CerberusApplication::getActiveWorker();
 			
 		if(null != ($view = $ext_context->getView($context, $context_id))) {
+			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl->assign('view', $view);
 			$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 			$tpl->clearAssign('view');
 		}
-
-		unset($view);
-		unset($ext_content);
 	}
 	
 	/*

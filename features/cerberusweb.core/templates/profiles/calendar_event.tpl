@@ -44,7 +44,7 @@
 		{/if}
 	
 		{if $active_worker->is_superuser}
-			<button type="button" id="btnProfileEventEdit"><span class="cerb-sprite sprite-document_edit"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+			<button type="button" id="btnProfileEventEdit">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
 		{/if}
 	</form>
 	

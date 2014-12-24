@@ -69,13 +69,18 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 			'value' => $time_entry->log_date,
 		);
 		
+		$properties['worker_id'] = array(
+			'label' => ucfirst($translate->_('common.worker')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'params' => array('context' => CerberusContexts::CONTEXT_WORKER),
+			'value' => $time_entry->worker_id,
+		);
+		
 		$properties['time_spent'] = array(
 			'label' => 'Time spent',
 			'type' => null,
 			'value' => $time_entry->time_actual_mins * 60,
 		);
-		
-		// [TODO] Worker?
 		
 		// Custom Fields
 
@@ -91,6 +96,32 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 
 		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_TIMETRACKING, $time_entry->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
+		
+		// Link counts
+		
+		$properties_links = array(
+			CerberusContexts::CONTEXT_TIMETRACKING => array(
+				$time_entry->id => 
+					DAO_ContextLink::getContextLinkCounts(
+						CerberusContexts::CONTEXT_TIMETRACKING,
+						$time_entry->id,
+						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+					),
+			),
+		);
+		
+		if(isset($time_entry->worker_id)) {
+			$properties_links[CerberusContexts::CONTEXT_WORKER] = array(
+				$time_entry->worker_id => 
+					DAO_ContextLink::getContextLinkCounts(
+						CerberusContexts::CONTEXT_WORKER,
+						$time_entry->worker_id,
+						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+					),
+			);
+		}
+		
+		$tpl->assign('properties_links', $properties_links);
 		
 		// Properties
 		
