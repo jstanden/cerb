@@ -130,6 +130,16 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 			),
 		);
 		
+		if(isset($opp->primary_email_id)) {
+			$properties_links[CerberusContexts::CONTEXT_ADDRESS] = array(
+				$opp->primary_email_id => 
+					DAO_ContextLink::getContextLinkCounts(
+						CerberusContexts::CONTEXT_ADDRESS,
+						$opp->primary_email_id,
+						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+					),
+			);
+		}
 		
 		$tpl->assign('properties_links', $properties_links);
 		
