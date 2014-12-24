@@ -176,9 +176,23 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		$tpl->assign('properties', $properties);
 		
+		// Link counts
+		
+		$properties_links = array(
+			CerberusContexts::CONTEXT_TICKET => array(
+				$ticket->id => 
+					DAO_ContextLink::getContextLinkCounts(
+						CerberusContexts::CONTEXT_TICKET,
+						$ticket->id,
+						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+					),
+			),
+		);
 		
 		
 		}
+		
+		$tpl->assign('properties_links', $properties_links);
 		
 		// Groups
 		$groups = DAO_Group::getAll();

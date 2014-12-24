@@ -71,6 +71,32 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $mail_html_template->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
+		// Link counts
+		
+		$properties_links = array(
+			CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE => array(
+				$mail_html_template->id => 
+					DAO_ContextLink::getContextLinkCounts(
+						CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE,
+						$mail_html_template->id,
+						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+					),
+			),
+		);
+		
+		if(isset($mail_html_template->owner_context)) {
+			$properties_links[$mail_html_template->owner_context] = array(
+				$mail_html_template->owner_context_id => 
+					DAO_ContextLink::getContextLinkCounts(
+						$mail_html_template->owner_context,
+						$mail_html_template->owner_context_id,
+						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+					),
+			);
+		}
+		
+		$tpl->assign('properties_links', $properties_links);
+		
 		// Properties
 		
 		$tpl->assign('properties', $properties);

@@ -1560,6 +1560,21 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets('<?php echo $ctx_ext_id; ?>', $<?php echo $table_name; ?>->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
+		// Link counts
+		
+		$properties_links = array(
+			'<?php echo $ctx_ext_id; ?>' => array(
+				$<?php echo $table_name; ?>->id => 
+					DAO_ContextLink::getContextLinkCounts(
+						'<?php echo $ctx_ext_id; ?>',
+						$<?php echo $table_name; ?>->id,
+						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+					),
+			),
+		);
+		
+		$tpl->assign('properties_links', $properties_links);
+		
 		// Properties
 		
 		$tpl->assign('properties', $properties);
@@ -1785,6 +1800,8 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$properties_custom_fieldsets}
+
+{include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties=$properties_links}
 
 <div>
 {include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}

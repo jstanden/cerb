@@ -561,6 +561,31 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	/*
+	 * Links
+	 */
+	
+	function linksOpenAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer');
+		@$to_context = DevblocksPlatform::importGPC($_REQUEST['to_context'],'string');
+
+		if(null == ($to_context_extension = Extension_DevblocksContext::get($to_context))
+			|| null == ($from_context_extension = Extension_DevblocksContext::get($context)))
+				return;
+		
+		$view_id = 'links_' . DevblocksPlatform::strAlphaNum($to_context_extension->id, '_', '_');
+			
+		if(false != ($view = $to_context_extension->getView($context, $context_id, null, $view_id))) {
+			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl->assign('from_context_extension', $from_context_extension);
+			$tpl->assign('to_context_extension', $to_context_extension);
+			$tpl->assign('view', $view);
+			$tpl->display('devblocks:cerberusweb.core::internal/profiles/profile_links_popup.tpl');
+			$tpl->clearAssign('view');
+		}
+	}
+	
+	/*
 	 * Choosers
 	 */
 	
