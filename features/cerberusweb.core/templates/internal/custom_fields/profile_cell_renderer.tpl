@@ -25,8 +25,7 @@
 {elseif $v.type == Model_CustomField::TYPE_MULTI_CHECKBOX}
 	{$v.value|implode:', '}
 {elseif $v.type == Model_CustomField::TYPE_LINK}
-	{$link_cfield = DAO_CustomField::get($v.id)}
-	{$link_context_ext = Extension_DevblocksContext::get($link_cfield->params.context)}
+	{$link_context_ext = Extension_DevblocksContext::get($v.params.context)}
 	
 	{if $link_context_ext && $v.value}
 		{$link_meta = $link_context_ext->getMeta($v.value)}

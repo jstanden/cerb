@@ -125,6 +125,10 @@ class Page_Profiles extends CerberusPageExtension {
 					'type' => $cf_group_field->type,
 					'value' => isset($values[$cf_group_field->id]) ? $values[$cf_group_field->id] : null,
 				);
+				
+				// Include parameters for abstract handling
+				if(!empty($cf_group_field->params))
+					$cf_group_props['cf_' . $cf_group_field_id]['params'] = $cf_group_field->params;
 			}
 			
 			$properties[$custom_fieldset->id] = array(

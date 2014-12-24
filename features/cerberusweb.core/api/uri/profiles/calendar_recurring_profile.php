@@ -51,8 +51,9 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 			
 		$properties['calendar_id'] = array(
 			'label' => ucfirst($translate->_('common.calendar')),
-			'type' => null,
-			'value' => DAO_Calendar::get($calendar_recurring_profile->calendar_id),
+			'type' => Model_CustomField::TYPE_LINK,
+			'params' => array('context' => CerberusContexts::CONTEXT_CALENDAR),
+			'value' => $calendar_recurring_profile->calendar_id,
 		);
 		
 		$properties['event_start'] = array(
