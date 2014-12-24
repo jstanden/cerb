@@ -1580,6 +1580,24 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				$args['has_multiple_values'] = true;
 				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
+				
+			case SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS:
+				if(!empty($param->value)) {
+					$args['join_sql'] .= sprintf("INNER JOIN (".
+						"SELECT DISTINCT message.ticket_id ".
+						"FROM attachment_link ".
+						"INNER JOIN message ON (attachment_link.context='cerberusweb.contexts.message' and attachment_link.context_id = message.id) ".
+						") virt_has_attachments ON (virt_has_attachments.ticket_id = t.id) "
+					);
+				} else {
+					$args['where_sql'] .= sprintf("AND t.id NOT IN (".
+						"SELECT DISTINCT message.ticket_id ".
+						"FROM attachment_link ".
+						"INNER JOIN message ON (attachment_link.context='cerberusweb.contexts.message' and attachment_link.context_id = message.id) ".
+						") "
+					);
+				}
+				break;				
 			
 			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
 				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
@@ -1822,6 +1840,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const VIRTUAL_ASSIGNABLE = '*_assignable';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_GROUPS_OF_WORKER = '*_groups_of_worker';
+	const VIRTUAL_HAS_ATTACHMENTS = '*_has_attachments';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_ORG_ID = '*_org_id';
 	const VIRTUAL_STATUS = '*_status';
@@ -1891,6 +1910,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_ASSIGNABLE => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ASSIGNABLE, '*', 'assignable', $translate->_('ticket.assignable')),
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '*', 'groups_of_worker', $translate->_('ticket.groups_of_worker')),
+			SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS, '*', 'has_attachments', $translate->_('message.search.has_attachments'), Model_CustomField::TYPE_CHECKBOX),
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
 			SearchFields_Ticket::VIRTUAL_ORG_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ORG_ID, '*', 'org_id', null, null), // org ID
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_STATUS, '*', 'status', $translate->_('ticket.status')),
@@ -2033,6 +2053,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_ASSIGNABLE,
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,
+			SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS,
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Ticket::VIRTUAL_ORG_ID,
 			SearchFields_Ticket::VIRTUAL_STATUS,
@@ -2409,6 +2430,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	function isQuickSearchField($token) {
 		switch($token) {
 			case SearchFields_Ticket::TICKET_GROUP_ID:
+			case SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS:
 			case SearchFields_Ticket::VIRTUAL_STATUS:
 				return true;
 			break;
@@ -2608,6 +2630,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_DELETED:
 			case SearchFields_Ticket::TICKET_CLOSED:
 			case SearchFields_Ticket::VIRTUAL_ASSIGNABLE:
+			case SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 					
@@ -2730,6 +2753,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS:
+				if($param->value)
+					echo "<b>Has</b> attachments";
+				else
+					echo "<b>Doesn't</b> have attachments";
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
@@ -2921,6 +2951,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_DELETED:
 			case SearchFields_Ticket::TICKET_CLOSED:
 			case SearchFields_Ticket::VIRTUAL_ASSIGNABLE:
+			case SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
