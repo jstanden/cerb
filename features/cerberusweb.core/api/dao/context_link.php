@@ -190,7 +190,7 @@ class DAO_ContextLink {
 		return $rows;
 	}
 	
-	static public function getContextLinkCounts($context, $context_id) {
+	static public function getContextLinkCounts($context, $context_id, $ignore_contexts=array()) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$rs = $db->Execute(sprintf("SELECT count(to_context_id) AS hits, to_context as context ".
@@ -207,6 +207,9 @@ class DAO_ContextLink {
 		
 		if($rs instanceof mysqli_result)
 		while($row = mysqli_fetch_assoc($rs)) {
+			if(is_array($ignore_contexts) && in_array($row['context'], $ignore_contexts))
+				continue;
+			
 			$objects[$row['context']] = intval($row['hits']);
 		}
 		
