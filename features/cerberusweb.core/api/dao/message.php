@@ -382,6 +382,24 @@ class DAO_Message extends Cerb_ORMHelper {
 				}
 				
 				break;
+				
+			case SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS:
+				if(!empty($param->value)) {
+					$args['join_sql'] .= sprintf("INNER JOIN (".
+						"SELECT DISTINCT message.id AS message_id ".
+						"FROM attachment_link ".
+						"INNER JOIN message ON (attachment_link.context='cerberusweb.contexts.message' and attachment_link.context_id = message.id) ".
+						") virt_has_attachments ON (virt_has_attachments.message_id = m.id) "
+					);
+				} else {
+					$args['where_sql'] .= sprintf("AND m.id NOT IN (".
+						"SELECT DISTINCT message.id ".
+						"FROM attachment_link ".
+						"INNER JOIN message ON (attachment_link.context='cerberusweb.contexts.message' and attachment_link.context_id = message.id) ".
+						") "
+					);
+				}
+				break;				
 			
 			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:
 				$header_wheres = array();
@@ -590,6 +608,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	const TICKET_SUBJECT = 't_subject';
 	
 	// Virtuals
+	const VIRTUAL_HAS_ATTACHMENTS = '*_has_attachments';
 	const VIRTUAL_MESSAGE_HEADER = '*_message_header';
 	const VIRTUAL_TICKET_STATUS = '*_ticket_status';
 
@@ -627,6 +646,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::TICKET_MASK => new DevblocksSearchField(SearchFields_Message::TICKET_MASK, 't', 'mask', $translate->_('ticket.mask'), Model_CustomField::TYPE_SINGLE_LINE),
 			SearchFields_Message::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Message::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject'), Model_CustomField::TYPE_SINGLE_LINE),
 			
+			SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS, '*', 'has_attachments', $translate->_('message.search.has_attachments'), Model_CustomField::TYPE_CHECKBOX),
 			SearchFields_Message::VIRTUAL_MESSAGE_HEADER => new DevblocksSearchField(SearchFields_Message::VIRTUAL_MESSAGE_HEADER, '*', 'message_header', $translate->_('message.header')),
 			SearchFields_Message::VIRTUAL_TICKET_STATUS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_STATUS, '*', 'ticket_status', $translate->_('ticket.status')),
 				
@@ -1324,6 +1344,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::TICKET_IS_CLOSED,
 			SearchFields_Message::TICKET_IS_DELETED,
 			SearchFields_Message::TICKET_IS_WAITING,
+			SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS,
 			SearchFields_Message::VIRTUAL_MESSAGE_HEADER,
 		));
 		
@@ -1536,6 +1557,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 	function isQuickSearchField($token) {
 		switch($token) {
 			case SearchFields_Message::TICKET_GROUP_ID:
+			case SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS:
 			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:
 			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
 				return true;
@@ -1712,6 +1734,13 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
+			case SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS:
+				if($param->value)
+					echo "<b>Has</b> attachments";
+				else
+					echo "<b>Doesn't</b> have attachments";
+				break;
+			
 			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:
 				$strings = array();
 				
@@ -1826,6 +1855,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::IS_NOT_SENT:
 			case SearchFields_Message::IS_OUTGOING:
 			case SearchFields_Message::TICKET_IS_DELETED:
+			case SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
@@ -1944,6 +1974,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::IS_NOT_SENT:
 			case SearchFields_Message::IS_OUTGOING:
 			case SearchFields_Message::TICKET_IS_DELETED:
+			case SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
