@@ -126,6 +126,16 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 			),
 		);
 		
+		if(isset($calendar_recurring_profile->calendar_id)) {
+			$properties_links[CerberusContexts::CONTEXT_CALENDAR] = array(
+				$calendar_recurring_profile->calendar_id => 
+					DAO_ContextLink::getContextLinkCounts(
+						CerberusContexts::CONTEXT_CALENDAR,
+						$calendar_recurring_profile->calendar_id,
+						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+					),
+			);
+		}
 		
 		$tpl->assign('properties_links', $properties_links);
 		

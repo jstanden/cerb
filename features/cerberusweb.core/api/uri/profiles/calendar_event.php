@@ -105,6 +105,16 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 			),
 		);
 		
+		if(isset($event->calendar_id)) {
+			$properties_links[CerberusContexts::CONTEXT_CALENDAR] = array(
+				$event->calendar_id => 
+					DAO_ContextLink::getContextLinkCounts(
+						CerberusContexts::CONTEXT_CALENDAR,
+						$event->calendar_id,
+						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+					),
+			);
+		}
 		
 		$tpl->assign('properties_links', $properties_links);
 		
