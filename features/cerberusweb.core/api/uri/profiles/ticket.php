@@ -189,7 +189,15 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			),
 		);
 		
-		
+		if(isset($ticket->org_id)) {
+			$properties_links[CerberusContexts::CONTEXT_ORG] = array(
+				$ticket->org_id => 
+					DAO_ContextLink::getContextLinkCounts(
+						CerberusContexts::CONTEXT_ORG,
+						$ticket->org_id,
+						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+					),
+			);
 		}
 		
 		$tpl->assign('properties_links', $properties_links);
