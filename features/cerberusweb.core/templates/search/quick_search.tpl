@@ -111,6 +111,12 @@ var $frm = $('#{$uniqid}').each(function(e) {
 			$bubbles.append($('<li><tt>x-mailer like cerb* OR <br>x-mailer like salesforce*</tt></li>'));
 		}
 		
+		// [TODO] This should come from IAbstractView_QuickSearch
+		else if(token == '*_attachment_name') {
+			$bubbles.append($('<li><tt>filename.ext</tt></li>'));
+			$bubbles.append($('<li><tt>*.zip OR *.txt</tt></li>'));
+		}
+		
 		{if !empty($smarty.capture.field_hints)}
 		{$smarty.capture.field_hints nofilter}
 		{/if}

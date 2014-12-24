@@ -383,6 +383,57 @@ class DAO_Message extends Cerb_ORMHelper {
 				
 				break;
 				
+			case SearchFields_Message::VIRTUAL_ATTACHMENT_NAME:
+				$attachment_wheres = array();
+				
+				// Multiple tuples
+				foreach($param->value as $param_value) {
+				
+					switch($param->operator) {
+						default:
+						case DevblocksSearchCriteria::OPER_EQ:
+							$attachment_wheres[] = sprintf("attachment.display_name = %s",
+								Cerb_ORMHelper::qstr($param_value)
+							);
+							break;
+							
+						case DevblocksSearchCriteria::OPER_NEQ:
+							$attachment_wheres[] = sprintf("attachment.display_name != %s",
+								Cerb_ORMHelper::qstr($param_value)
+							);
+							break;
+							
+						case DevblocksSearchCriteria::OPER_LIKE:
+							$attachment_wheres[] = sprintf("attachment.display_name like %s",
+								Cerb_ORMHelper::qstr(str_replace('*','%',$param_value))
+							);
+							break;
+							
+						case DevblocksSearchCriteria::OPER_NOT_LIKE:
+							$attachment_wheres[] = sprintf("attachment.display_name not like %s",
+								Cerb_ORMHelper::qstr(str_replace('*','%',$param_value))
+							);
+							break;
+							
+						case DevblocksSearchCriteria::OPER_IS_NULL:
+							$attachment_wheres[] = sprintf("attachment.display_name is null");
+							break;
+					}
+				}
+				
+				if(!empty($attachment_wheres)) {
+					$args['join_sql'] .= sprintf("INNER JOIN (".
+						"SELECT DISTINCT message.id AS message_id ".
+						"FROM attachment_link ".
+						"INNER JOIN attachment ON (attachment_link.attachment_id = attachment.id) ".
+						"INNER JOIN message ON (attachment_link.context='cerberusweb.contexts.message' and attachment_link.context_id = message.id) ".
+						"WHERE %s ".
+						") virt_attachment_names ON (virt_attachment_names.message_id = m.id) ",
+						implode(' OR ', $attachment_wheres)
+					);
+				}
+				break;
+				
 			case SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS:
 				if(!empty($param->value)) {
 					$args['join_sql'] .= sprintf("INNER JOIN (".
@@ -608,6 +659,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	const TICKET_SUBJECT = 't_subject';
 	
 	// Virtuals
+	const VIRTUAL_ATTACHMENT_NAME = '*_attachment_name';
 	const VIRTUAL_HAS_ATTACHMENTS = '*_has_attachments';
 	const VIRTUAL_MESSAGE_HEADER = '*_message_header';
 	const VIRTUAL_TICKET_STATUS = '*_ticket_status';
@@ -646,6 +698,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::TICKET_MASK => new DevblocksSearchField(SearchFields_Message::TICKET_MASK, 't', 'mask', $translate->_('ticket.mask'), Model_CustomField::TYPE_SINGLE_LINE),
 			SearchFields_Message::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Message::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject'), Model_CustomField::TYPE_SINGLE_LINE),
 			
+			SearchFields_Message::VIRTUAL_ATTACHMENT_NAME => new DevblocksSearchField(SearchFields_Message::VIRTUAL_ATTACHMENT_NAME, '*', 'attachment_name', $translate->_('message.search.attachment_name'), null),
 			SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS, '*', 'has_attachments', $translate->_('message.search.has_attachments'), Model_CustomField::TYPE_CHECKBOX),
 			SearchFields_Message::VIRTUAL_MESSAGE_HEADER => new DevblocksSearchField(SearchFields_Message::VIRTUAL_MESSAGE_HEADER, '*', 'message_header', $translate->_('message.header')),
 			SearchFields_Message::VIRTUAL_TICKET_STATUS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_STATUS, '*', 'ticket_status', $translate->_('ticket.status')),
@@ -1344,6 +1397,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::TICKET_IS_CLOSED,
 			SearchFields_Message::TICKET_IS_DELETED,
 			SearchFields_Message::TICKET_IS_WAITING,
+			SearchFields_Message::VIRTUAL_ATTACHMENT_NAME,
 			SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS,
 			SearchFields_Message::VIRTUAL_MESSAGE_HEADER,
 		));
@@ -1557,6 +1611,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 	function isQuickSearchField($token) {
 		switch($token) {
 			case SearchFields_Message::TICKET_GROUP_ID:
+			case SearchFields_Message::VIRTUAL_ATTACHMENT_NAME:
 			case SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS:
 			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:
 			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
@@ -1604,6 +1659,18 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				
 				return true;
 				break;
+				
+			case SearchFields_Message::VIRTUAL_ATTACHMENT_NAME:
+				if(empty($query))
+					return false;
+				
+				if(false !== strpos($query, '*')) {
+					$oper = DevblocksSearchCriteria::OPER_LIKE;
+				} else {
+					$oper = DevblocksSearchCriteria::OPER_EQ;
+				}
+				$value = explode(' OR ', $query);
+				return true;
 				
 			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:
 				$sets = explode(' OR ', $query);
@@ -1734,6 +1801,42 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
+			case SearchFields_Message::VIRTUAL_ATTACHMENT_NAME:
+				$strings_or = array();
+
+				switch($param->operator) {
+					case DevblocksSearchCriteria::OPER_EQ:
+					case DevblocksSearchCriteria::OPER_LIKE:
+						$oper = 'is';
+						break;
+					case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+						$oper = 'is blank or';
+						break;
+					case DevblocksSearchCriteria::OPER_NEQ:
+					case DevblocksSearchCriteria::OPER_NOT_LIKE:
+						$oper = 'is not';
+						break;
+					case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+						$oper = 'is blank or not';
+						break;
+					default:
+						$oper = $param->operator;
+						break;
+				}
+				
+				if(is_array($param->value))
+				foreach($param->value as $param_value) {
+					$strings_or[] = sprintf("<b>%s</b>",
+						$param_value 
+					);
+				}
+				
+				echo sprintf("Attachment name %s %s",
+					$oper,
+					implode(' OR ', $strings_or)
+				);
+				break;
+				
 			case SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS:
 				if($param->value)
 					echo "<b>Has</b> attachments";
@@ -1840,6 +1943,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::ADDRESS_EMAIL:
 			case SearchFields_Message::TICKET_MASK:
 			case SearchFields_Message::TICKET_SUBJECT:
+			case SearchFields_Message::VIRTUAL_ATTACHMENT_NAME:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
@@ -1992,6 +2096,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::MESSAGE_CONTENT:
 				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
+				break;
+				
+			case SearchFields_Message::VIRTUAL_ATTACHMENT_NAME:
+				$criteria = new DevblocksSearchCriteria($field,$oper,explode(' OR ', $value));
 				break;
 				
 			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:

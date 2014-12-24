@@ -2743,6 +2743,16 @@ For example: http://www.cerberusweb.com/support/</seg>
 				<seg>Note Content</seg>
 			</tuv>
 		</tu>
+		<tu tuid="message.search.attachment_name">
+			<tuv xml:lang="en_US">
+				<seg>Attachment Name</seg>
+			</tuv>
+		</tu>
+		<tu tuid="message.search.attachment_size">
+			<tuv xml:lang="en_US">
+				<seg>Attachment Size</seg>
+			</tuv>
+		</tu>
 		<tu tuid="message.search.has_attachments">
 			<tuv xml:lang="en_US">
 				<seg>Has Attachments</seg>
