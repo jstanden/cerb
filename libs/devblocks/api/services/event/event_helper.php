@@ -1754,6 +1754,9 @@ class DevblocksEventHelper {
 		if(empty($behavior_id))
 			return FALSE;
 		
+		if(null == ($behavior = DAO_TriggerEvent::get($behavior_id)))
+			return FALSE;
+		
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$run_date = $tpl_builder->build($run_date, $dict);
 		
