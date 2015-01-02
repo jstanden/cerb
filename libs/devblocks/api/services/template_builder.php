@@ -384,16 +384,15 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	public function getFunctions() {
 		return array(
-			'regexp_match_all' => new Twig_Function_Method($this, 'function_regexp_match_all'),
 			'json_decode' => new Twig_Function_Method($this, 'function_json_decode'),
 			'jsonpath_set' => new Twig_Function_Method($this, 'function_jsonpath_set'),
+			'regexp_match_all' => new Twig_Function_Method($this, 'function_regexp_match_all'),
 			'xml_decode' => new Twig_Function_Method($this, 'function_xml_decode'),
 			'xml_encode' => new Twig_Function_Method($this, 'function_xml_encode'),
 			'xml_xpath_ns' => new Twig_Function_Method($this, 'function_xml_xpath_ns'),
 			'xml_xpath' => new Twig_Function_Method($this, 'function_xml_xpath'),
 		);
 	}
-	
 	
 	function function_json_decode($str) {
 		return json_decode($str, true);
