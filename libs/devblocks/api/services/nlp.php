@@ -142,11 +142,11 @@ class _DevblocksNaturalLanguageManager {
 		
 		if(in_array($word, array('morning', 'afternoon', 'evening', 'night', 'tonight')))
 			return true;
-		
-		// Check prefixes as a bigram
+
+		// Check bigrams
 		
 		if($idx + 1 < count($words)) {
-			$next_word = $words[$idx+1];
+			$next_word = strtolower($words[$idx+1]);
 		
 			// e.g. 15 mins, +2 days
 			if(is_numeric(ltrim($word, '+-')) && $this->_isTemporalWord($idx+1, $words, true))
@@ -154,7 +154,7 @@ class _DevblocksNaturalLanguageManager {
 		
 			if(
 				// is a prefix word
-				in_array($word, array('in', 'on', 'until', 'from', 'to', 'at', 'of', 'next', 'last', 'this'))
+				in_array($word, array('a', 'an', 'at', 'in', 'from', 'of', 'on', 'last', 'next', 'this', 'to', 'until'))
 				// followed by a strong temporal word
 				&& $this->_isTemporalWord($idx+1, $words, true)
 				) {
