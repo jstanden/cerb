@@ -100,6 +100,9 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/logging.php', array(
 			'_DevblocksLogManager',
 		));
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/nlp.php', array(
+			'_DevblocksNaturalLanguageManager',
+		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/openid.php', array(
 			'_DevblocksOpenIDManager',
 		));

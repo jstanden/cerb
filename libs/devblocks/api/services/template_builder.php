@@ -496,6 +496,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			'date_pretty' => new Twig_Filter_Method($this, 'filter_date_pretty'),
 			'json_pretty' => new Twig_Filter_Method($this, 'filter_json_pretty'),
 			'md5' => new Twig_Filter_Method($this, 'filter_md5'),
+			'nlp_parse' => new Twig_Filter_Method($this, 'filter_nlp_parse'),
 			'regexp' => new Twig_Filter_Method($this, 'filter_regexp'),
 			'secs_pretty' => new Twig_Filter_Method($this, 'filter_secs_pretty'),
 			'truncate' => new Twig_Filter_Method($this, 'filter_truncate'),
@@ -516,6 +517,24 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	function filter_md5($string) {
 		return md5($string);
+	}
+	
+	function filter_nlp_parse($string, $patterns) {
+		if(!is_array($patterns))
+			$patterns = array($patterns);
+		
+		$nlp = DevblocksPlatform::getNaturalLanguageService();
+		
+		if(is_array($patterns))
+		foreach($patterns as $pattern) {
+			if(!is_string($pattern))
+				continue;
+
+			if(false !== ($json = $nlp->parseTextWithPattern($string, $pattern)))
+				return json_encode($json);
+		}
+		 
+		return null;
 	}
 	
 	function filter_regexp($string, $pattern, $group = 0) {

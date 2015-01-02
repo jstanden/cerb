@@ -268,6 +268,25 @@ Invoice ID: {{invoice_id}}
 </fieldset>
 {/literal}
 
+{literal}
+<fieldset class="peek">
+	<legend>Natural Language Processing</legend>
+	
+	<pre style="margin:0.5em 1em;">
+{% set patterns = [
+  "Remind me about [what] [when]", 
+  "Remind me to [what] [when]",
+  "Remind me [what] [when]"
+] %}
+{% set json = json_decode(
+  "remind me to run server maint tomorrow at 10am"|nlp_parse(patterns)
+) %}
+What: {{json.what|first}}
+When: {{json.when|first}}
+</pre>
+</fieldset>
+{/literal}
+
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('help');
 	$popup.one('popup_open', function(event,ui) {

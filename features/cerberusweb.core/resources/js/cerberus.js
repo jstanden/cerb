@@ -143,6 +143,7 @@ var atwho_twig_modifiers = [
 	{ name: "md5", content: "Convert text to an MD5 hash" },
 	{ name: "merge", content: "Merge multiple arrays together" },
 	{ name: "nl2br", content: "Convert newlines to HTML breaks" },
+	{ name: "nlp_parse(patterns)", content: "Parse natural language with patterns" },
 	{ name: "number_format(2, '.', ',')", content: "Format a number" },
 	{ name: "regexp", content: "Match a regular expression" },
 	{ name: "replace('this', 'that')", content: "Replace text" },

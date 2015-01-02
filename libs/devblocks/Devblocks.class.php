@@ -1899,6 +1899,13 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 
 	/**
+	 * @return _DevblocksNaturalLanguageManager
+	 */
+	static function getNaturalLanguageService() {
+		return _DevblocksNaturalLanguageManager::getInstance();
+	}
+	
+	/**
 	 * @return _DevblocksUrlManager
 	 */
 	static function getUrlService() {
