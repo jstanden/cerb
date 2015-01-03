@@ -100,8 +100,7 @@ class _DevblocksNaturalLanguageManager {
 		
 		// [TODO] Month names, years
 		
-		// 00:00, 02:30p, 17:45, 6:45am
-		if(in_array($word, array('yesterday','today','now', 'tomorrow'))) {
+		if(in_array($word, array('yesterday','today','noon','now','midnight','tomorrow'))) {
 			return true;
 		} elseif(in_array($word, array('mon', 'tue', 'tues', 'wed', 'weds', 'thu', 'thurs', 'fri', 'sat', 'sun'))) {
 			// [TODO] Normalize the day names to full length
@@ -124,6 +123,7 @@ class _DevblocksNaturalLanguageManager {
 			return true;
 		} elseif(preg_match('#\d{1,2}(st|nd|rd|th)?#i', $word)) {
 			return true;
+		// 00:00, 02:30p, 17:45, 6:45am
 		} elseif(preg_match('#\d{1,2}\:\d{2}(am|pm|a|p)?#i', $word)) {
 			return true;
 		// 1pm, 12a 
