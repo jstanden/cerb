@@ -76,14 +76,51 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		
 		$properties['email'] = array(
 			'label' => ucfirst($translate->_('common.email')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'params' => array('context' => CerberusContexts::CONTEXT_ADDRESS),
+			'value' => $worker->getAddress()->id,
+		);
+		
+		$properties['title'] = array(
+			'label' => ucfirst($translate->_('worker.title')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $worker->email,
+			'value' => $worker->title,
 		);
 		
 		$properties['is_superuser'] = array(
 			'label' => ucfirst($translate->_('worker.is_superuser')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $worker->is_superuser,
+		);
+		
+		$properties['is_disabled'] = array(
+			'label' => ucfirst($translate->_('common.disabled')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $worker->is_disabled,
+		);
+		
+		$properties['language'] = array(
+			'label' => ucfirst($translate->_('worker.language')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $worker->language,
+		);
+		
+		$properties['timezone'] = array(
+			'label' => ucfirst($translate->_('worker.timezone')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $worker->timezone,
+		);
+		
+		$properties['at_mention_name'] = array(
+			'label' => ucfirst($translate->_('worker.at_mention_name')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $worker->at_mention_name,
+		);
+		
+		$properties['auth_extension'] = array(
+			'label' => ucfirst($translate->_('worker.auth_extension_id')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $worker->auth_extension_id,
 		);
 		
 		// Custom Fields
