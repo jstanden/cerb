@@ -113,7 +113,7 @@
 		<li style="padding-bottom:10px;">
 			<input type="hidden" name="worker_emails[]" value="{$address->address}">
 
-			{if $address->address==$active_worker->email}
+			{if 0 == strcasecmp($address->address, $active_worker->email)}
 			<button type="button"><span class="cerb-sprite2 sprite-tick-circle-gray"></span></button>
 			{else}
 			<button type="button" onclick="if(confirm('Are you sure you want to delete this email address?')) { $(this).closest('li').remove(); }" class="delete"><span class="cerb-sprite2 sprite-minus-circle"></span></button>
@@ -122,7 +122,7 @@
 			<b>{$address->address}</b>
 
 			{if $address->is_confirmed}
-				{if $address->address==$active_worker->email}
+				{if 0 == strcasecmp($address->address, $active_worker->email)}
 				(Primary)
 				{/if}
 			{else}
