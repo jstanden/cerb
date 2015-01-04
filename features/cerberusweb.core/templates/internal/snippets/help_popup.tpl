@@ -168,6 +168,57 @@ Amazon Order #: {{order_id}}</pre>
 
 {literal}
 <fieldset class="peek">
+	<legend>Date/Time</legend>
+	
+	<pre style="margin:0.5em 1em;">
+{{'now'|date('F d, Y h:ia T')}}
+{{'tomorrow 5pm'|date('D, d F Y H:i T')}}
+{{'+2 weeks 08:00'|date('Y-m-d h:ia T')}}
+</pre>
+</fieldset>
+{/literal}
+
+{literal}
+<fieldset class="peek">
+	<legend>Date/Time Manipulation</legend>
+	
+	<pre style="margin:0.5em 1em;">
+{% set timestamp = date('now')|date_modify('-2 days') %}
+{{timestamp|date('D, d M Y T')}}
+</pre>
+</fieldset>
+{/literal}
+
+{literal}
+<fieldset class="peek">
+	<legend>Timezones</legend>
+	
+	<pre style="margin:0.5em 1em;">
+{% set time_format = 'D, d M Y H:i T' %}
+
+{#- Set the timezone in the date variable -#}
+
+{% set ts_london = date('now', 'Europe/London') %}
+{% set ts_losangeles = date('now', 'America/Los_Angeles') %}
+{% set ts_tokyo = date('now', 'Asia/Tokyo') -%}
+
+London: {{ts_london|date(time_format, false)}}
+Los Angeles: {{ts_losangeles|date(time_format, false)}}
+Tokyo: {{ts_tokyo|date(time_format, false)}}
+
+{# Set the timezone in the date filter -#}
+
+{% set ts_now = date() -%}
+
+Bangalore: {{ts_now|date(time_format, 'Asia/Calcutta')}}
+Berlin: {{ts_now|date(time_format, 'Europe/Berlin')}}
+New York: {{ts_now|date(time_format, 'America/New_York')}}
+</pre>
+</fieldset>
+{/literal}
+
+{literal}
+<fieldset class="peek">
 	<legend>JSON Decoding</legend>
 	
 	<pre style="margin:0.5em 1em;">
