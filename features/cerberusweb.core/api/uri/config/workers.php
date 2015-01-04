@@ -99,7 +99,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		@$first_name = DevblocksPlatform::importGPC($_POST['first_name'],'string');
 		@$last_name = DevblocksPlatform::importGPC($_POST['last_name'],'string');
 		@$title = DevblocksPlatform::importGPC($_POST['title'],'string');
-		@$email = trim(DevblocksPlatform::importGPC($_POST['email'],'string'));
+		@$email = trim(strtolower(DevblocksPlatform::importGPC($_POST['email'],'string')));
 		@$auth_extension_id = DevblocksPlatform::importGPC($_POST['auth_extension_id'],'string');
 		@$at_mention_name = DevblocksPlatform::strToPermalink(DevblocksPlatform::importGPC($_POST['at_mention_name'],'string'));
 		@$language = DevblocksPlatform::importGPC($_POST['lang_code'],'string');
