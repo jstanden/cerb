@@ -12,23 +12,54 @@
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top"><b>{'worker.first_name'|devblocks_translate|capitalize}:</b> </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="middle"><b>{'worker.first_name'|devblocks_translate|capitalize}:</b> </td>
 			<td width="100%"><input type="text" name="first_name" value="{$worker->first_name}" class="required" style="width:98%;"></td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'worker.last_name'|devblocks_translate|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'worker.last_name'|devblocks_translate|capitalize}: </td>
 			<td width="100%"><input type="text" name="last_name" value="{$worker->last_name}" style="width:98%;"></td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'worker.title'|devblocks_translate|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'worker.title'|devblocks_translate|capitalize}: </td>
 			<td width="100%"><input type="text" name="title" value="{$worker->title}" style="width:98%;"></td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top"><b>{'common.email'|devblocks_translate}</b>: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="middle"><b>{'common.email'|devblocks_translate}</b>: </td>
 			<td width="100%"><input type="text" name="email" value="{$worker->email}" class="required email" style="width:98%;"></td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'worker.at_mention_name'|devblocks_translate}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'worker.language'|devblocks_translate}: </td>
+			<td width="100%">
+				<select name="lang_code">
+					{foreach from=$languages key=lang_code item=lang_name}
+					<option value="{$lang_code}" {if $worker->language==$lang_code}selected="selected"{/if}>{$lang_name}</option>
+					{/foreach}
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'worker.timezone'|devblocks_translate}: </td>
+			<td width="100%">
+				<select name="timezone">
+					{foreach from=$timezones item=timezone}
+					<option value="{$timezone}" {if $worker->timezone==$timezone}selected="selected"{/if}>{$timezone}</option>
+					{/foreach}
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'worker.time_format'|devblocks_translate}: </td>
+			<td width="100%">
+				<select name="time_format">
+					{$timeformats = ['D, d M Y h:i a', 'D, d M Y H:i']}
+					{foreach from=$timeformats item=timeformat}
+						<option value="{$timeformat}" {if $worker->time_format==$timeformat}selected{/if}>{time()|devblocks_date:$timeformat}</option>
+					{/foreach}
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'worker.at_mention_name'|devblocks_translate}: </td>
 			<td width="100%"><input type="text" name="at_mention_name" value="{$worker->at_mention_name}" style="width:98%;" placeholder="UserNickname"></td>
 		</tr>
 		<tr>
@@ -115,7 +146,7 @@
 {if $active_worker->is_superuser}
 	<button type="button" onclick="if($('#formWorkerPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formWorkerPeek', '{$view_id}', false, 'worker_save'); } "><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
 	{if !$disabled}
-		{if !empty($worker)}{if $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" onclick="if(confirm('Are you sure you want to delete this worker and their history?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView(null,'formWorkerPeek', '{$view_id}'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}{/if}
+		{if !empty($worker->id)}{if $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" onclick="if(confirm('Are you sure you want to delete this worker and their history?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView(null,'formWorkerPeek', '{$view_id}'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}{/if}
 	{/if}
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>	

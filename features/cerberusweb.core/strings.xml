@@ -3245,6 +3245,11 @@ For example: *receipt*</seg>
 				<seg>Administrator</seg>
 			</tuv>
 		</tu>
+		<tu tuid="worker.language">
+			<tuv xml:lang="en_US">
+				<seg>Language</seg>
+			</tuv>
+		</tu>
 		<tu tuid="worker.last_activity">
 			<tuv xml:lang="en_US">
 				<seg>Last Activity</seg>
@@ -3258,6 +3263,16 @@ For example: *receipt*</seg>
 		<tu tuid="worker.last_name">
 			<tuv xml:lang="en_US">
 				<seg>Last Name</seg>
+			</tuv>
+		</tu>
+		<tu tuid="worker.time_format">
+			<tuv xml:lang="en_US">
+				<seg>Time Format</seg>
+			</tuv>
+		</tu>
+		<tu tuid="worker.timezone">
+			<tuv xml:lang="en_US">
+				<seg>Timezone</seg>
 			</tuv>
 		</tu>
 		<tu tuid="worker.title">

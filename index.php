@@ -73,9 +73,10 @@ DevblocksPlatform::init();
 DevblocksPlatform::setExtensionDelegate('Cerb_DevblocksExtensionDelegate');
 DevblocksPlatform::setHandlerSession('Cerb_DevblocksSessionHandler');
 
+$request = DevblocksPlatform::readRequest();
+
 // Do we need an update first?
 if(!DevblocksPlatform::versionConsistencyCheck()) {
-	$request = DevblocksPlatform::readRequest();
 	if(0 != strcasecmp(@$request->path[0],"update")) {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('update','locked')));
 		exit;
@@ -84,20 +85,15 @@ if(!DevblocksPlatform::versionConsistencyCheck()) {
 
 // Request
 
-$request = DevblocksPlatform::readRequest();
 $session = DevblocksPlatform::getSessionService();
 
 // Localization
 
-DevblocksPlatform::setLocale((isset($_SESSION['locale']) && !empty($_SESSION['locale'])) ? $_SESSION['locale'] : 'en_US');
-if(isset($_SESSION['timezone'])) @date_default_timezone_set($_SESSION['timezone']);
-
 DevblocksPlatform::setDateTimeFormat(DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::TIME_FORMAT, CerberusSettingsDefaults::TIME_FORMAT));
 
-if(null != ($active_worker = CerberusApplication::getActiveWorker())) {
-	if(null != ($time_format = DAO_WorkerPref::get($active_worker->id, 'time_format', null)))
-		DevblocksPlatform::setDateTimeFormat($time_format);
-}
+DevblocksPlatform::setLocale((isset($_SESSION['locale']) && !empty($_SESSION['locale'])) ? $_SESSION['locale'] : 'en_US');
+if(isset($_SESSION['timezone'])) @date_default_timezone_set($_SESSION['timezone']);
+if(isset($_SESSION['time_format'])) DevblocksPlatform::setDateTimeFormat($_SESSION['time_format']);
 
 // Initialize Logging
 

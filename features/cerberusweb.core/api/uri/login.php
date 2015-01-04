@@ -294,7 +294,7 @@ class ChSignInPage extends CerberusPageExtension {
 		}
 	}
 	
-	private function _processAuthenticated($worker) {
+	private function _processAuthenticated($worker) { /* @var $worker Model_Worker */
 		$this->_checkSeats($worker);
 
 		$session = DevblocksPlatform::getSessionService();
@@ -318,16 +318,22 @@ class ChSignInPage extends CerberusPageExtension {
 		
 		$devblocks_response = new DevblocksHttpResponse($redirect_path);
 		
-		// Timezone
-		if(null != ($timezone = DAO_WorkerPref::get($worker->id,'timezone'))) {
-			$_SESSION['timezone'] = $timezone;
-			@date_default_timezone_set($timezone);
+		// Language
+		if($worker->language) {
+			$_SESSION['locale'] = $worker->language;
+			DevblocksPlatform::setLocale($worker->language);
 		}
 		
-		// Language
-		if(null != ($lang_code = DAO_WorkerPref::get($worker->id,'locale'))) {
-			$_SESSION['locale'] = $lang_code;
-			DevblocksPlatform::setLocale($lang_code);
+		// Timezone
+		if($worker->timezone) {
+			$_SESSION['timezone'] = $worker->timezone;
+			@date_default_timezone_set($worker->timezone);
+		}
+		
+		// Time format
+		if($worker->time_format) {
+			$_SESSION['time_format'] = $worker->time_format;
+			DevblocksPlatform::setDateTimeFormat($worker->time_format);
 		}
 		
 		// Flush views

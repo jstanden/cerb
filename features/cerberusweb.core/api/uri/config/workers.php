@@ -43,10 +43,18 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
+		$date = DevblocksPlatform::getDateService();
 		
 		$tpl->assign('view_id', $view_id);
 		
-		$worker = DAO_Worker::get($id);
+		if(false == ($worker = DAO_Worker::get($id))) {
+			$worker = new Model_Worker();
+			$worker->id = 0;
+			$worker->timezone = $_SESSION['timezone'];
+			$worker->time_format = $_SESSION['time_format'];
+			$worker->language = $_SESSION['locale'];
+		}
+		
 		$tpl->assign('worker', $worker);
 		
 		$groups = DAO_Group::getAll();
@@ -63,6 +71,17 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		// Authenticators
 		$auth_extensions = Extension_LoginAuthenticator::getAll(false);
 		$tpl->assign('auth_extensions', $auth_extensions);
+		
+		// Languages
+		$languages = DAO_Translation::getDefinedLangCodes();
+		$tpl->assign('languages', $languages);
+		
+		// Timezones
+		$timezones = $date->getTimezones();
+		$tpl->assign('timezones', $timezones);
+		
+		// Time Format
+		$tpl->assign('time_format', DevblocksPlatform::getDateTimeFormat());
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/workers/peek.tpl');
 	}
@@ -83,6 +102,9 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		@$email = trim(DevblocksPlatform::importGPC($_POST['email'],'string'));
 		@$auth_extension_id = DevblocksPlatform::importGPC($_POST['auth_extension_id'],'string');
 		@$at_mention_name = DevblocksPlatform::strToPermalink(DevblocksPlatform::importGPC($_POST['at_mention_name'],'string'));
+		@$language = DevblocksPlatform::importGPC($_POST['lang_code'],'string');
+		@$timezone = DevblocksPlatform::importGPC($_POST['timezone'],'string');
+		@$time_format = DevblocksPlatform::importGPC($_POST['time_format'],'string');
 		@$password_new = DevblocksPlatform::importGPC($_POST['password_new'],'string');
 		@$password_verify = DevblocksPlatform::importGPC($_POST['password_verify'],'string');
 		@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'integer', 0);
@@ -164,6 +186,9 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 					DAO_Worker::EMAIL => $email,
 					DAO_Worker::AUTH_EXTENSION_ID => $auth_extension_id,
 					DAO_Worker::AT_MENTION_NAME => $at_mention_name,
+					DAO_Worker::LANGUAGE => $language,
+					DAO_Worker::TIMEZONE => $timezone,
+					DAO_Worker::TIME_FORMAT => $time_format,
 				);
 				
 				if(false == ($id = DAO_Worker::create($fields)))
@@ -186,6 +211,9 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				DAO_Worker::IS_DISABLED => $disabled,
 				DAO_Worker::AUTH_EXTENSION_ID => $auth_extension_id,
 				DAO_Worker::AT_MENTION_NAME => $at_mention_name,
+				DAO_Worker::LANGUAGE => $language,
+				DAO_Worker::TIMEZONE => $timezone,
+				DAO_Worker::TIME_FORMAT => $time_format,
 			);
 			
 			// Update worker

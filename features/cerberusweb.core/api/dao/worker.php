@@ -32,6 +32,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 	const LAST_ACTIVITY_IP = 'last_activity_ip';
 	const AUTH_EXTENSION_ID = 'auth_extension_id';
 	const AT_MENTION_NAME = 'at_mention_name';
+	const TIMEZONE = 'timezone';
+	const TIME_FORMAT = 'time_format';
+	const LANGUAGE = 'language';
 	
 	static function create($fields) {
 		if(empty($fields[DAO_Worker::EMAIL]))
@@ -145,7 +148,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
-		$sql = "SELECT id, first_name, last_name, email, title, is_superuser, is_disabled, last_activity_date, last_activity, last_activity_ip, auth_extension_id, at_mention_name ".
+		$sql = "SELECT id, first_name, last_name, email, title, is_superuser, is_disabled, last_activity_date, last_activity, last_activity_ip, auth_extension_id, at_mention_name, timezone, time_format, language ".
 			"FROM worker ".
 			$where_sql.
 			$sort_sql.
@@ -188,6 +191,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$object->last_activity_date = intval($row['last_activity_date']);
 			$object->auth_extension_id = $row['auth_extension_id'];
 			$object->at_mention_name = $row['at_mention_name'];
+			$object->timezone = $row['timezone'];
+			$object->time_format = $row['time_format'];
+			$object->language = $row['language'];
 			
 			if(!empty($row['last_activity']))
 				$object->last_activity = unserialize($row['last_activity']);
@@ -558,6 +564,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 			"w.last_activity_date as %s, ".
 			"w.auth_extension_id as %s, ".
 			"w.at_mention_name as %s, ".
+			"w.timezone as %s, ".
+			"w.time_format as %s, ".
+			"w.language as %s, ".
 			"w.is_disabled as %s ",
 				SearchFields_Worker::ID,
 				SearchFields_Worker::FIRST_NAME,
@@ -568,6 +577,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 				SearchFields_Worker::LAST_ACTIVITY_DATE,
 				SearchFields_Worker::AUTH_EXTENSION_ID,
 				SearchFields_Worker::AT_MENTION_NAME,
+				SearchFields_Worker::TIMEZONE,
+				SearchFields_Worker::TIME_FORMAT,
+				SearchFields_Worker::LANGUAGE,
 				SearchFields_Worker::IS_DISABLED
 			);
 			
@@ -819,6 +831,9 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 	const LAST_ACTIVITY_DATE = 'w_last_activity_date';
 	const AUTH_EXTENSION_ID = 'w_auth_extension_id';
 	const AT_MENTION_NAME = 'w_at_mention_name';
+	const TIMEZONE = 'w_timezone';
+	const TIME_FORMAT = 'w_time_format';
+	const LANGUAGE = 'w_language';
 	const IS_DISABLED = 'w_is_disabled';
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -846,6 +861,9 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 			self::LAST_ACTIVITY_DATE => new DevblocksSearchField(self::LAST_ACTIVITY_DATE, 'w', 'last_activity_date', $translate->_('worker.last_activity_date'), Model_CustomField::TYPE_DATE),
 			self::AUTH_EXTENSION_ID => new DevblocksSearchField(self::AUTH_EXTENSION_ID, 'w', 'auth_extension_id', $translate->_('worker.auth_extension_id'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::AT_MENTION_NAME => new DevblocksSearchField(self::AT_MENTION_NAME, 'w', 'at_mention_name', $translate->_('worker.at_mention_name'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::TIMEZONE => new DevblocksSearchField(self::TIMEZONE, 'w', 'timezone', $translate->_('worker.timezone'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::TIME_FORMAT => new DevblocksSearchField(self::TIME_FORMAT, 'w', 'time_format', $translate->_('worker.time_format'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::LANGUAGE => new DevblocksSearchField(self::LANGUAGE, 'w', 'language', $translate->_('worker.language'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'w', 'is_disabled', ucwords($translate->_('common.disabled')), Model_CustomField::TYPE_CHECKBOX),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
@@ -874,18 +892,21 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 };
 
 class Model_Worker {
-	public $id;
-	public $first_name;
-	public $last_name;
+	public $at_mention_name;
+	public $auth_extension_id;
 	public $email;
-	public $title;
+	public $first_name;
+	public $id;
 	public $is_superuser=0;
 	public $is_disabled=0;
+	public $language;
 	public $last_activity;
 	public $last_activity_date;
 	public $last_activity_ip;
-	public $auth_extension_id;
-	public $at_mention_name;
+	public $last_name;
+	public $time_format;
+	public $timezone;
+	public $title;
 
 	/**
 	 * @return Model_GroupMember[]
@@ -1011,9 +1032,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Worker::TITLE,
 			SearchFields_Worker::EMAIL,
 			SearchFields_Worker::LAST_ACTIVITY_DATE,
-			SearchFields_Worker::AUTH_EXTENSION_ID,
 			SearchFields_Worker::IS_SUPERUSER,
 			SearchFields_Worker::AT_MENTION_NAME,
+			SearchFields_Worker::LANGUAGE,
+			SearchFields_Worker::TIMEZONE,
 		);
 		
 		$this->addColumnsHidden(array(
@@ -1070,7 +1092,9 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				case SearchFields_Worker::FIRST_NAME:
 				case SearchFields_Worker::IS_DISABLED:
 				case SearchFields_Worker::IS_SUPERUSER:
+				case SearchFields_Worker::LANGUAGE:
 				case SearchFields_Worker::LAST_NAME:
+				case SearchFields_Worker::TIMEZONE:
 				case SearchFields_Worker::TITLE:
 					$pass = true;
 					break;
@@ -1104,7 +1128,9 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		switch($column) {
 			case SearchFields_Worker::AT_MENTION_NAME:
 			case SearchFields_Worker::FIRST_NAME:
+			case SearchFields_Worker::LANGUAGE:
 			case SearchFields_Worker::LAST_NAME:
+			case SearchFields_Worker::TIMEZONE:
 			case SearchFields_Worker::TITLE:
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_Worker', $column);
 				break;
@@ -1281,7 +1307,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Worker::AT_MENTION_NAME:
 			case SearchFields_Worker::EMAIL:
 			case SearchFields_Worker::FIRST_NAME:
+			case SearchFields_Worker::LANGUAGE:
 			case SearchFields_Worker::LAST_NAME:
+			case SearchFields_Worker::TIME_FORMAT:
+			case SearchFields_Worker::TIMEZONE:
 			case SearchFields_Worker::TITLE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
@@ -1350,7 +1379,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Worker::AT_MENTION_NAME:
 			case SearchFields_Worker::EMAIL:
 			case SearchFields_Worker::FIRST_NAME:
+			case SearchFields_Worker::LANGUAGE:
 			case SearchFields_Worker::LAST_NAME:
+			case SearchFields_Worker::TIME_FORMAT:
+			case SearchFields_Worker::TIMEZONE:
 			case SearchFields_Worker::TITLE:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
@@ -1634,6 +1666,8 @@ class Context_Worker extends Extension_DevblocksContext {
 			'address_org__label',
 			'is_disabled',
 			'is_superuser',
+			'timezone',
+			'language',
 			'last_activity_date',
 		);
 	}
@@ -1664,8 +1698,11 @@ class Context_Worker extends Extension_DevblocksContext {
 			'id' => $prefix.$translate->_('common.id'),
 			'is_disabled' => $prefix.$translate->_('common.disabled'),
 			'is_superuser' => $prefix.$translate->_('worker.is_superuser'),
+			'language' => $prefix.$translate->_('worker.language'),
 			'last_name' => $prefix.$translate->_('worker.last_name'),
 			'last_activity_date' => $prefix.$translate->_('worker.last_activity_date'),
+			'time_format' => $prefix.$translate->_('worker.time_format'),
+			'timezone' => $prefix.$translate->_('worker.timezone'),
 			'title' => $prefix.$translate->_('worker.title'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -1678,8 +1715,11 @@ class Context_Worker extends Extension_DevblocksContext {
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'is_disabled' => Model_CustomField::TYPE_CHECKBOX,
 			'is_superuser' => Model_CustomField::TYPE_CHECKBOX,
+			'language' => Model_CustomField::TYPE_SINGLE_LINE,
 			'last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'last_activity_date' => Model_CustomField::TYPE_DATE,
+			'time_format' => Model_CustomField::TYPE_SINGLE_LINE,
+			'timezone' => Model_CustomField::TYPE_SINGLE_LINE,
 			'title' => Model_CustomField::TYPE_SINGLE_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
@@ -1708,8 +1748,11 @@ class Context_Worker extends Extension_DevblocksContext {
 			$token_values['full_name'] = $worker->getName();
 			$token_values['is_disabled'] = $worker->is_disabled;
 			$token_values['is_superuser'] = $worker->is_superuser;
+			$token_values['language'] = $worker->language;
 			$token_values['last_name'] = $worker->last_name;
 			$token_values['last_activity_date'] = $worker->last_activity_date;
+			$token_values['time_format'] = $worker->time_format;
+			$token_values['timezone'] = $worker->timezone;
 			$token_values['title'] = $worker->title;
 
 			// Custom fields

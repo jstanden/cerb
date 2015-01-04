@@ -488,7 +488,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$prefs['mail_status_compose'] = DAO_WorkerPref::get($worker->id,'compose.status','waiting');
 		$prefs['mail_status_reply'] = DAO_WorkerPref::get($worker->id,'mail_status_reply','waiting');
 		$prefs['mail_signature_pos'] = DAO_WorkerPref::get($worker->id,'mail_signature_pos',2);
-		$prefs['time_format'] = DAO_WorkerPref::get($worker->id,'time_format',DevblocksPlatform::getDateTimeFormat());
+		$prefs['time_format'] = $worker->time_format ?: DevblocksPlatform::getDateTimeFormat();
 		$tpl->assign('prefs', $prefs);
 		
 		// Alternate addresses
@@ -503,7 +503,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		// Languages
 		$langs = DAO_Translation::getDefinedLangCodes();
 		$tpl->assign('langs', $langs);
-		$tpl->assign('selected_language', DAO_WorkerPref::get($worker->id,'locale','en_US'));
+		$tpl->assign('selected_language', $worker->language ?: 'en_US');
 
 		// Availability
 		$calendars = DAO_Calendar::getAll();
@@ -617,19 +617,28 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$pref_errors = array();
 
+		$worker_fields = array();
+		
 		// Time
+		
 		$_SESSION['timezone'] = $timezone;
 		@date_default_timezone_set($timezone);
-		DAO_WorkerPref::set($worker->id,'timezone',$timezone);
-
+		$worker_fields[DAO_Worker::TIMEZONE] = $timezone;
+		
 		@$time_format = DevblocksPlatform::importGPC($_REQUEST['time_format'],'string',null);
-		DAO_WorkerPref::set($worker->id, 'time_format', $time_format);
+		$worker_fields[DAO_Worker::TIME_FORMAT] = $time_format;
 
 		// Language
+		
 		$_SESSION['locale'] = $lang_code;
 		DevblocksPlatform::setLocale($lang_code);
-		DAO_WorkerPref::set($worker->id,'locale',$lang_code);
+		$worker_fields[DAO_Worker::LANGUAGE] = $lang_code;
 
+		if(!empty($worker_fields))
+			DAO_Worker::update($worker->id, $worker_fields);
+		
+		// Prefs
+		
 		@$assist_mode = DevblocksPlatform::importGPC($_REQUEST['assist_mode'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'assist_mode', $assist_mode);
 
