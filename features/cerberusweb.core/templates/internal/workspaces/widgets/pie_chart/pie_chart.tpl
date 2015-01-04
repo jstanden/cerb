@@ -21,7 +21,7 @@
 	{$color = $widget->params['wedge_colors'][$idx]}
 	{if empty($color)}{$color = end($widget->params['wedge_colors'])}{/if}
 	<span style="width:10px;height:10px;display:inline-block;background-color:{$color};margin:2px;vertical-align:middle;border-radius:10px;-moz-border-radius:10px;-webkit-border-radius:10px;-o-border-radius:10px;"></span>
-	<span class="label" style="font-weight:bold;vertical-align:middle;">{$label}</span> <small>({$widget->params.metric_prefix}{$widget->params.metric_suffix})</small>
+	<span class="label" style="font-weight:bold;vertical-align:middle;">{$label}</span> <small>({$widget->params.metric_prefix}{$metric_label}{$widget->params.metric_suffix})</small>
 </div>
 {/if}
 {/foreach}
