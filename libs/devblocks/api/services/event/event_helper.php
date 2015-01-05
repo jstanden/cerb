@@ -2004,22 +2004,37 @@ class DevblocksEventHelper {
 	}
 	
 	static function simulateActionCreateCalendarEvent($params, DevblocksDictionaryDelegate $dict) {
-		@$calendar_id = $params['calendar_id'];
-
-		// [TODO] Calendar vars
-		
-		if(empty($calendar_id) || false == ($calendar = DAO_Calendar::get($calendar_id)))
-			return;
-		
 		$trigger = $dict->_trigger;
 		$event = $trigger->getEvent();
 		
-		if(@!empty($calendar->params['manual_disabled']))
+		$calendars = array();
+		
+		@$calendar_key = DevblocksPlatform::importVar($params['calendar_id'], 'string', null);
+		
+		if(is_numeric($calendar_key)) {
+			if(false != ($calendar = DAO_Calendar::get($calendar_key)))
+				$calendars[$calendar->id] = $calendar;
+			
+		} elseif('var_' == substr($calendar_key,0,4)) {
+			$calendar_ids = array_keys($dict->$calendar_key);
+			
+			if(is_array($calendar_ids))
+				$calendars = CerberusContexts::getModels(CerberusContexts::CONTEXT_CALENDAR, $calendar_ids);
+		}
+
+		$calendars = array_filter($calendars, function($calendar) use ($trigger) {
+			if(@!empty($calendar->params['manual_disabled']))
+				return false;
+			
+			if(!$calendar->isWriteableByActor(array(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id)))
+				return false;
+			
+			return true;
+		});
+		
+		if(empty($calendars))
 			return;
 		
-		if(!$calendar->isWriteableByActor(array(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id)))
-			return;
-				
 		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
 		$watcher_worker_ids = DevblocksEventHelper::mergeWorkerVars($watcher_worker_ids, $dict);
 		
@@ -2042,13 +2057,11 @@ class DevblocksEventHelper {
 		$comment = $tpl_builder->build($params['comment'], $dict);
 
 		$out = sprintf(">>> Creating calendar event\n".
-			"Calendar: %s\n".
 			"Title: %s\n".
 			"When: %s (%s)\n".
 			"Until: %s (%s)\n".
 			"Status: %s\n".
 			"",
-			$calendar->name,
 			$title,
 			(!empty($when) ? date("Y-m-d h:ia", $when) : 'none'),
 			$params['when'],
@@ -2094,9 +2107,15 @@ class DevblocksEventHelper {
 		}
 		
 		$out .= "\n";
-		
-		$trigger = $dict->_trigger;
-		$event = $trigger->getEvent();
+
+		if(is_array($calendars)) {
+			$out .= ">>> On:\n";
+			
+			foreach($calendars as $calendar) {
+				$out .= ' * ' . $calendar->name . "\n";
+			}
+			$out .= "\n";
+		}
 		
 		// Watchers
 		if(is_array($watcher_worker_ids) && !empty($watcher_worker_ids)) {
@@ -2131,20 +2150,35 @@ class DevblocksEventHelper {
 	}
 	
 	static function runActionCreateCalendarEvent($params, DevblocksDictionaryDelegate $dict) {
-		@$calendar_id = $params['calendar_id'];
-		
 		$trigger = $dict->_trigger;
 		$event = $trigger->getEvent();
 
-		// [TODO] Calendar vars
+		$calendars = array();
 		
-		if(empty($calendar_id) || false == ($calendar = DAO_Calendar::get($calendar_id)))
-			return;
+		@$calendar_key = DevblocksPlatform::importVar($params['calendar_id'], 'string', null);
 		
-		if(@!empty($calendar->params['manual_disabled']))
-			return;
+		if(is_numeric($calendar_key)) {
+			if(false != ($calendar = DAO_Calendar::get($calendar_key)))
+				$calendars[$calendar->id] = $calendar;
+			
+		} elseif('var_' == substr($calendar_key,0,4)) {
+			$calendar_ids = array_keys($dict->$calendar_key);
+			
+			if(is_array($calendar_ids))
+				$calendars = CerberusContexts::getModels(CerberusContexts::CONTEXT_CALENDAR, $calendar_ids);
+		}
+
+		$calendars = array_filter($calendars, function($calendar) use ($trigger) {
+			if(@!empty($calendar->params['manual_disabled']))
+				return false;
+			
+			if(!$calendar->isWriteableByActor(array(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id)))
+				return false;
+			
+			return true;
+		});
 		
-		if(!$calendar->isWriteableByActor(array(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id)))
+		if(empty($calendars))
 			return;
 		
 		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
@@ -2168,59 +2202,65 @@ class DevblocksEventHelper {
 		
 		$comment = $tpl_builder->build($params['comment'], $dict);
 		
-		$fields = array(
-			DAO_CalendarEvent::NAME => $title,
-			DAO_CalendarEvent::DATE_START => $when,
-			DAO_CalendarEvent::DATE_END => $until,
-			DAO_CalendarEvent::CALENDAR_ID => $calendar_id,
-			DAO_CalendarEvent::IS_AVAILABLE => !empty($is_available),
-		);
-		$calendar_event_id = DAO_CalendarEvent::create($fields);
+		if(is_array($calendars))
+		foreach($calendars as $calendar_id => $calendar) {
+			if(!($calendar instanceof Model_Calendar))
+				continue;
 			
-		// Custom fields
-		$workers = DAO_Worker::getAll();
-		$custom_fields = DAO_CustomField::getAll();
-		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
-			
-		if(is_array($custom_field_values))
-			foreach($custom_field_values as $cf_id => $val) {
-				switch($custom_fields[$cf_id]->type) {
-					case Model_CustomField::TYPE_WORKER:
-						if(!empty($val) && !is_numeric($val)) {
-							if(isset($dict->$val)) {
-								$val = $dict->$val;
-							}
-						}
-						break;
-							
-					default:
-						if(is_string($val))
-							$val = $tpl_builder->build($val, $dict);
-							break;
-				}
-					
-				DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_CALENDAR_EVENT, $calendar_event_id, array($cf_id => $val));
-			}
-			
-		// Watchers
-		if(is_array($watcher_worker_ids) && !empty($watcher_worker_ids)) {
-			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_CALENDAR_EVENT, $calendar_event_id, $watcher_worker_ids);
-		}
-			
-		// Comment content
-		if(!empty($comment)) {
 			$fields = array(
-				DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
-				DAO_Comment::OWNER_CONTEXT_ID => $trigger->virtual_attendant_id,
-				DAO_Comment::COMMENT => $comment,
-				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_CALENDAR_EVENT,
-				DAO_Comment::CONTEXT_ID => $calendar_event_id,
-				DAO_Comment::CREATED => time(),
+				DAO_CalendarEvent::NAME => $title,
+				DAO_CalendarEvent::DATE_START => $when,
+				DAO_CalendarEvent::DATE_END => $until,
+				DAO_CalendarEvent::CALENDAR_ID => $calendar_id,
+				DAO_CalendarEvent::IS_AVAILABLE => !empty($is_available),
 			);
-			DAO_Comment::create($fields, $notify_worker_ids);
+			$calendar_event_id = DAO_CalendarEvent::create($fields);
+				
+			// Custom fields
+			$workers = DAO_Worker::getAll();
+			$custom_fields = DAO_CustomField::getAll();
+			$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
+				
+			if(is_array($custom_field_values))
+				foreach($custom_field_values as $cf_id => $val) {
+					switch($custom_fields[$cf_id]->type) {
+						case Model_CustomField::TYPE_WORKER:
+							if(!empty($val) && !is_numeric($val)) {
+								if(isset($dict->$val)) {
+									$val = $dict->$val;
+								}
+							}
+							break;
+								
+						default:
+							if(is_string($val))
+								$val = $tpl_builder->build($val, $dict);
+								break;
+					}
+						
+					DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_CALENDAR_EVENT, $calendar_event_id, array($cf_id => $val));
+				}
+				
+			// Watchers
+			if(is_array($watcher_worker_ids) && !empty($watcher_worker_ids)) {
+				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_CALENDAR_EVENT, $calendar_event_id, $watcher_worker_ids);
+			}
+				
+			// Comment content
+			if(!empty($comment)) {
+				$fields = array(
+					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
+					DAO_Comment::OWNER_CONTEXT_ID => $trigger->virtual_attendant_id,
+					DAO_Comment::COMMENT => $comment,
+					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_CALENDAR_EVENT,
+					DAO_Comment::CONTEXT_ID => $calendar_event_id,
+					DAO_Comment::CREATED => time(),
+				);
+				DAO_Comment::create($fields, $notify_worker_ids);
+			}
 		}
 			
-		return $calendar_event_id;
+		return true;
 	}
 	
 	/*

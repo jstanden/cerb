@@ -1,6 +1,12 @@
 <b>{'common.calendar'|devblocks_translate|capitalize}</b>:
 <div style="margin-left:10px;margin-bottom:0.5em;">
 <select name="{$namePrefix}[calendar_id]">
+	{foreach from=$trigger->variables item=var key=var_key}
+	{if $var.type == "ctx_{CerberusContexts::CONTEXT_CALENDAR}"}
+	<option value="{$var_key}" {if $params.calendar_id==$var_key}selected="selected"{/if}>(variable) {$var.label}</option>
+	{/if}
+	{/foreach}
+
 	{foreach from=$calendars item=calendar key=calendar_id}
 	<option value="{$calendar_id}" {if $params.calendar_id==$calendar_id}selected="selected"{/if}>{$calendar->name}</option>
 	{/foreach}
