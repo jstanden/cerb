@@ -478,7 +478,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$prefs = array();
 		$prefs['assist_mode'] = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
 		$prefs['keyboard_shortcuts'] = intval(DAO_WorkerPref::get($worker->id, 'keyboard_shortcuts', 1));
-		$prefs['availability_calendar_id'] = intval(DAO_WorkerPref::get($worker->id, 'availability_calendar_id', 0));
+		$prefs['availability_calendar_id'] = intval($worker->calendar_id);
 		$prefs['mail_always_show_all'] = DAO_WorkerPref::get($worker->id,'mail_always_show_all',0);
 		$prefs['mail_display_inline_log'] = DAO_WorkerPref::get($worker->id,'mail_display_inline_log',0);
 		$prefs['mail_reply_html'] = DAO_WorkerPref::get($worker->id,'mail_reply_html',0);
@@ -634,6 +634,11 @@ class ChPreferencesPage extends CerberusPageExtension {
 		DevblocksPlatform::setLocale($lang_code);
 		$worker_fields[DAO_Worker::LANGUAGE] = $lang_code;
 
+		// Availability calendar
+		
+		@$availability_calendar_id = DevblocksPlatform::importGPC($_REQUEST['availability_calendar_id'],'integer',0);
+		$worker_fields[DAO_Worker::CALENDAR_ID] = $availability_calendar_id;
+		
 		if(!empty($worker_fields))
 			DAO_Worker::update($worker->id, $worker_fields);
 		
@@ -642,9 +647,6 @@ class ChPreferencesPage extends CerberusPageExtension {
 		@$assist_mode = DevblocksPlatform::importGPC($_REQUEST['assist_mode'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'assist_mode', $assist_mode);
 
-		@$availability_calendar_id = DevblocksPlatform::importGPC($_REQUEST['availability_calendar_id'],'integer',0);
-		DAO_WorkerPref::set($worker->id, 'availability_calendar_id', $availability_calendar_id);
-		
 		@$keyboard_shortcuts = DevblocksPlatform::importGPC($_REQUEST['keyboard_shortcuts'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'keyboard_shortcuts', $keyboard_shortcuts);
 

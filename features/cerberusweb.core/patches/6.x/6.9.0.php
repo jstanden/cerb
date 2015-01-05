@@ -4,7 +4,7 @@ $logger = DevblocksPlatform::getConsoleLog();
 $tables = $db->metaTables();
 
 // ===========================================================================
-// Add `timezone`, `time_format` and `language` to `worker`
+// Add `timezone`, `time_format`, `language`, and `calendar_id` to `worker`
 
 if(!isset($tables['worker'])) {
 	$logger->error("The 'worker' table does not exist.");
@@ -44,6 +44,16 @@ if(!isset($columns['language'])) {
 	
 	// Remove the old worker pref
 	$db->Execute("DELETE FROM worker_pref WHERE setting = 'locale'");
+}
+
+if(!isset($columns['calendar_id'])) {
+	$db->Execute("ALTER TABLE worker ADD COLUMN calendar_id INT UNSIGNED NOT NULL DEFAULT 0");
+
+	// Move the worker preference to the worker record
+	$db->Execute("UPDATE worker INNER JOIN worker_pref ON (worker_pref.worker_id=worker.id AND worker_pref.setting = 'availability_calendar_id') SET worker.calendar_id = worker_pref.value");
+	
+	// Remove the old worker pref
+	$db->Execute("DELETE FROM worker_pref WHERE setting = 'availability_calendar_id'");
 }
 
 // ===========================================================================

@@ -206,7 +206,10 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		}
 		
 		if(!empty($availability_calendar_id)) {
-			DAO_WorkerPref::set($active_worker->id, 'availability_calendar_id', $availability_calendar_id);
+			$fields = array(
+				DAO_Worker::CALENDAR_ID => $availability_calendar_id,
+			);
+			DAO_Worker::update($active_worker->id, $fields);
 		}
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','worker','me','availability')));

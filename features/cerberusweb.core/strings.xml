@@ -792,6 +792,11 @@
 				<seg>Load</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.localization">
+			<tuv xml:lang="en_US">
+				<seg>Localization</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.next">
 			<tuv xml:lang="en_US">
 				<seg>next</seg>

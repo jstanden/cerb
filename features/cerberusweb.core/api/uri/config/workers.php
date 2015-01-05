@@ -72,6 +72,10 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		$auth_extensions = Extension_LoginAuthenticator::getAll(false);
 		$tpl->assign('auth_extensions', $auth_extensions);
 		
+		// Calendars
+		$calendars = DAO_Calendar::getOwnedByWorker($worker);
+		$tpl->assign('calendars', $calendars);
+		
 		// Languages
 		$languages = DAO_Translation::getDefinedLangCodes();
 		$tpl->assign('languages', $languages);
@@ -105,6 +109,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		@$language = DevblocksPlatform::importGPC($_POST['lang_code'],'string');
 		@$timezone = DevblocksPlatform::importGPC($_POST['timezone'],'string');
 		@$time_format = DevblocksPlatform::importGPC($_POST['time_format'],'string');
+		@$calendar_id = DevblocksPlatform::importGPC($_POST['calendar_id'],'string');
 		@$password_new = DevblocksPlatform::importGPC($_POST['password_new'],'string');
 		@$password_verify = DevblocksPlatform::importGPC($_POST['password_verify'],'string');
 		@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'integer', 0);
@@ -214,6 +219,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				DAO_Worker::LANGUAGE => $language,
 				DAO_Worker::TIMEZONE => $timezone,
 				DAO_Worker::TIME_FORMAT => $time_format,
+				DAO_Worker::CALENDAR_ID => $calendar_id,
 			);
 			
 			// Update worker

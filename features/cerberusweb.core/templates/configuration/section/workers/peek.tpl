@@ -28,6 +28,41 @@
 			<td width="100%"><input type="text" name="email" value="{$worker->email}" class="required email" style="width:98%;"></td>
 		</tr>
 		<tr>
+			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'worker.at_mention_name'|devblocks_translate}: </td>
+			<td width="100%"><input type="text" name="at_mention_name" value="{$worker->at_mention_name}" style="width:98%;" placeholder="UserNickname"></td>
+		</tr>
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right">{'common.status'|devblocks_translate|capitalize}: </td>
+			<td width="100%">
+				{if $active_worker->id == $worker->id}
+					<input type="hidden" name="is_disabled" value="{$worker->is_disabled}">
+					{if $worker->is_disabled}{'common.inactive'|devblocks_translate|capitalize}{else}{'common.active'|devblocks_translate|capitalize}{/if}
+				{else}
+					<label><input type="radio" name="is_disabled" value="0" {if !$worker->is_disabled}checked="checked"{/if}>{'common.active'|devblocks_translate|capitalize}</label>
+					<label><input type="radio" name="is_disabled" value="1" {if $worker->is_disabled}checked="checked"{/if}>{'common.inactive'|devblocks_translate|capitalize}</label>
+				{/if}
+			</td>
+		</tr>
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right">{'common.privileges'|devblocks_translate|capitalize}: </td>
+			<td width="100%">
+				{if $active_worker->id == $worker->id}
+					<input type="hidden" name="is_superuser" value="{$worker->is_superuser}">
+					{if !$worker->is_superuser}{'common.worker'|devblocks_translate|capitalize}{else}{'worker.is_superuser'|devblocks_translate|capitalize}{/if}
+				{else}
+					<label><input type="radio" name="is_superuser" value="0" {if !$worker->is_superuser}checked="checked"{/if}>{'common.worker'|devblocks_translate|capitalize}</label>
+					<label><input type="radio" name="is_superuser" value="1" {if $worker->is_superuser}checked="checked"{/if}>{'worker.is_superuser'|devblocks_translate|capitalize}</label>
+				{/if}
+			</td>
+		</tr>
+	</table>
+</fieldset>
+
+<fieldset class="peek">
+	<legend>{'common.localization'|devblocks_translate|capitalize}</legend>
+	
+	<table cellpadding="0" cellspacing="2" border="0" width="98%">
+		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'worker.language'|devblocks_translate}: </td>
 			<td width="100%">
 				<select name="lang_code">
@@ -56,34 +91,6 @@
 						<option value="{$timeformat}" {if $worker->time_format==$timeformat}selected{/if}>{time()|devblocks_date:$timeformat}</option>
 					{/foreach}
 				</select>
-			</td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'worker.at_mention_name'|devblocks_translate}: </td>
-			<td width="100%"><input type="text" name="at_mention_name" value="{$worker->at_mention_name}" style="width:98%;" placeholder="UserNickname"></td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'common.status'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
-				{if $active_worker->id == $worker->id}
-					<input type="hidden" name="is_disabled" value="{$worker->is_disabled}">
-					{if $worker->is_disabled}{'common.inactive'|devblocks_translate|capitalize}{else}{'common.active'|devblocks_translate|capitalize}{/if}
-				{else}
-					<label><input type="radio" name="is_disabled" value="0" {if !$worker->is_disabled}checked="checked"{/if}>{'common.active'|devblocks_translate|capitalize}</label>
-					<label><input type="radio" name="is_disabled" value="1" {if $worker->is_disabled}checked="checked"{/if}>{'common.inactive'|devblocks_translate|capitalize}</label>
-				{/if}
-			</td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'common.privileges'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
-				{if $active_worker->id == $worker->id}
-					<input type="hidden" name="is_superuser" value="{$worker->is_superuser}">
-					{if !$worker->is_superuser}{'common.worker'|devblocks_translate|capitalize}{else}{'worker.is_superuser'|devblocks_translate|capitalize}{/if}
-				{else}
-					<label><input type="radio" name="is_superuser" value="0" {if !$worker->is_superuser}checked="checked"{/if}>{'common.worker'|devblocks_translate|capitalize}</label>
-					<label><input type="radio" name="is_superuser" value="1" {if $worker->is_superuser}checked="checked"{/if}>{'worker.is_superuser'|devblocks_translate|capitalize}</label>
-				{/if}
 			</td>
 		</tr>
 	</table>
@@ -116,6 +123,23 @@
 			</td>
 		</tr>
 	</table>
+</fieldset>
+
+<fieldset class="peek">
+	<legend>{'common.availability'|devblocks_translate|capitalize}</legend>
+	
+	<b>{'preferences.account.availability.calendar_id'|devblocks_translate}</b><br>
+	
+	<div style="margin-left:10px;">
+		<select name="calendar_id">
+			<option value="">- always unavailable -</option>
+			{foreach from=$calendars item=calendar}
+			<option value="{$calendar->id}" {if $calendar->id==$worker->calendar_id}selected="selected"{/if}>{$calendar->name}</option>
+			{foreachelse}
+			<option value="new" {if empty($worker->id)}selected="selected"{/if}>Create a new calendar</option>
+			{/foreach}
+		</select>
+	</div>
 </fieldset>
 
 <fieldset class="peek">

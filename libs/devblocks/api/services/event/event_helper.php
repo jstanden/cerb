@@ -897,7 +897,7 @@ class DevblocksEventHelper {
 					}
 					
 					if(!empty($opt_is_available)) {
-						@$availability_calendar_id = DAO_WorkerPref::get($k, 'availability_calendar_id', 0);
+						@$availability_calendar_id = $worker->calendar_id;
 					
 						if(empty($availability_calendar_id)) {
 							unset($possible_workers[$k]);

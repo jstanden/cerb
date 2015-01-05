@@ -48,7 +48,7 @@
 			<option value="">- always unavailable -</option>
 			{foreach from=$calendars item=calendar}
 			{if $calendar->owner_context == CerberusContexts::CONTEXT_WORKER && $calendar->owner_context_id == $active_worker->id}
-			<option value="{$calendar->id}" {if $calendar->id==$prefs.availability_calendar_id}selected="selected"{/if}>{$calendar->name}</option>
+			<option value="{$calendar->id}" {if $calendar->id==$active_worker->calendar_id}selected="selected"{/if}>{$calendar->name}</option>
 			{/if}
 			{/foreach}
 		</select>

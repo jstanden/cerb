@@ -202,6 +202,9 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		// Sanitize
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int', array('unique','nonzero'));
+		
 		if(empty($ids))
 			return;
 		
@@ -214,7 +217,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		DAO_CalendarRecurringProfile::deleteByCalendarIds($ids);
 		
 		// Delete worker prefs
-		DAO_WorkerPref::deleteByKeyValues('availability_calendar_id', $ids);
+		DAO_Worker::updateWhere(array(DAO_Worker::CALENDAR_ID => 0), sprintf("%s IN (%s)", DAO_Worker::CALENDAR_ID, $ids_list));
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
