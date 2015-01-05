@@ -1763,6 +1763,7 @@ class Context_Worker extends Extension_DevblocksContext {
 		if(null != $worker) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $worker->getName();
+			$token_values['calendar_id'] = $worker->calendar_id;
 			$token_values['id'] = $worker->id;
 			$token_values['first_name'] = $worker->first_name;
 			$token_values['full_name'] = $worker->getName();
@@ -1798,6 +1799,21 @@ class Context_Worker extends Extension_DevblocksContext {
 
 		CerberusContexts::merge(
 			'address_',
+			$prefix,
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
+		// Worker availability calendar
+		
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_CALENDAR, null, $merge_token_labels, $merge_token_values, null, true);
+
+		CerberusContexts::merge(
+			'calendar_',
 			$prefix,
 			$merge_token_labels,
 			$merge_token_values,
