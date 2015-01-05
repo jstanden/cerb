@@ -117,6 +117,15 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 			'value' => $worker->at_mention_name,
 		);
 		
+		if(!empty($worker->calendar_id)) {
+			$properties['calendar_id'] = array(
+				'label' => ucfirst($translate->_('common.calendar')),
+				'type' => Model_CustomField::TYPE_LINK,
+				'params' => array('context' => CerberusContexts::CONTEXT_CALENDAR),
+				'value' => $worker->calendar_id,
+			);
+		}
+		
 		$properties['auth_extension'] = array(
 			'label' => ucfirst($translate->_('worker.auth_extension_id')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,

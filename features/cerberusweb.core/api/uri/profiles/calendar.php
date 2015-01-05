@@ -55,15 +55,13 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 			'value' => $calendar->name,
 		);
 		
-		$context_ext = Extension_DevblocksContext::get($calendar->owner_context);
-		$context_meta = $context_ext->getMeta($calendar->owner_context_id);
-		
 		$properties['owner'] = array(
 			'label' => ucfirst($translate->_('common.owner')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => sprintf("%s (%s)", $context_meta['name'], $context_ext->manifest->name)
+			'type' => Model_CustomField::TYPE_LINK,
+			'params' => array('context' => $calendar->owner_context),
+			'value' => $calendar->owner_context_id,
 		);
-			
+		
 		$properties['updated'] = array(
 			'label' => ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,

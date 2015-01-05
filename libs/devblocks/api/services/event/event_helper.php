@@ -883,12 +883,14 @@ class DevblocksEventHelper {
 					$workers_online = DAO_Worker::getAllOnline();
 				}
 				
-				foreach($possible_workers as $k => $worker) {
+				foreach(array_keys($possible_workers) as $k) {
 					// Remove non-existent workers
 					if(!isset($workers[$k])) {
 						unset($possible_workers[$k]);
 						continue;
 					}
+					
+					$worker = $workers[$k];
 		
 					// Filter to online workers
 					if(!empty($opt_logged_in) && !isset($workers_online[$k])) {
