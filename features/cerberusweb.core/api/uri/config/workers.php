@@ -206,6 +206,36 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				
 			} // end create worker
 			
+			// Calendar
+			
+			// Create a calendar for this worker
+			if('new' == $calendar_id) {
+				$fields = array(
+					DAO_Calendar::NAME => sprintf("%s%s's Calendar", $first_name, $last_name ? (' ' . $last_name) : ''),
+					DAO_Calendar::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+					DAO_Calendar::OWNER_CONTEXT_ID => $id,
+					DAO_Calendar::PARAMS_JSON => json_encode(array(
+						"manual_disabled" => "0",
+						"sync_enabled" => "0",
+						"start_on_mon" => "1",
+						"hide_start_time" => "0",
+						"color_available" => "#A0D95B",
+						"color_busy" => "#C8C8C8",
+						"series" => array(
+							array("datasource"=>""),
+							array("datasource"=>""),
+							array("datasource"=>""),
+						)
+					)),
+					DAO_Calendar::UPDATED_AT => time(),
+				);
+				$calendar_id = DAO_Calendar::create($fields);
+				
+			} else {
+				// [TODO] Validate calendar id
+				$calendar_id = intval($calendar_id);
+			}
+			
 			// Update
 			$fields = array(
 				DAO_Worker::FIRST_NAME => $first_name,
