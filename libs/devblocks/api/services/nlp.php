@@ -167,8 +167,13 @@ class _DevblocksNaturalLanguageManager {
 	
 	private function _normalizeTemporalText($text) {
 		$text = preg_replace("/[^A-Z0-9\: ]/i", '', $text);
-		
+
 		$words = explode(' ', $text);
+		
+		// Replace articles with discrete ints
+		foreach(array('a', 'an') as $article)
+		foreach(array_keys($words, $article) as $idx)
+			$words[$idx] = '1';
 		
 		// Only keep strong temporal words
 		foreach($words as $idx => $word) {
