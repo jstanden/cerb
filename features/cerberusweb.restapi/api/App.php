@@ -290,16 +290,31 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		if(!$permitted) {
 			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (You are not authorized to make this request)"));
 		}
+
+		// Controller
 		
 		@$controller_uri = array_shift($stack); // e.g. tickets
 		
-		// Look up the subcontroller for this URI
 		$controllers = $this->_getRestControllers();
 
 		if(isset($controllers[$controller_uri])
 			&& null != ($controller = DevblocksPlatform::getExtension($controllers[$controller_uri]->id, true, true))) {
 			/* @var $controller Extension_RestController */
+			
+			// Set the active worker
 			CerberusApplication::setActiveWorker($worker);
+			
+			// Set worker language
+			DevblocksPlatform::setLocale(!empty($worker->language) ? $worker->language : 'en_US');
+			
+			// Set worker timezone
+			if(!empty($worker->timezone)) @date_default_timezone_set($worker->timezone);
+			
+			// Set worker time format
+			$default_time_format = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::TIME_FORMAT, CerberusSettingsDefaults::TIME_FORMAT);
+			DevblocksPlatform::setDateTimeFormat(!empty($worker->time_format) ? $worker->time_format : $default_time_format);
+			
+			// Handle the request
 			$controller->setPayload($this->_payload);
 			array_unshift($stack, $verb);
 			$controller->handleRequest(new DevblocksHttpRequest($stack));
