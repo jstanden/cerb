@@ -59,18 +59,55 @@ Hi {{name|default('there')}}
 </fieldset>
 
 <fieldset class="peek">
-	<legend>Conditional Logic</legend>
-	
-	Conditional logic can display different content based on the value of a placeholder:
+	<legend>Arrays and objects</legend>
 	
 	{literal}
 	<pre style="margin:0.5em 1em;">
-{% set sla_expiration = '+2 weeks'|date('U') %}
-{% if sla_expiration >= 'now'|date('U') %}
-Your SLA coverage is active.
-{% else %}
-Your SLA coverage has expired.
-{% endif %}
+{# Associative array #}
+{% set var = <b>{"first_name": "William", "last_name":"Portcullis"}</b> %}
+{{var.first_name}} {{var.last_name}}
+
+{# Iterative arrays #}
+{% set var = <b>['red','green','blue']</b> %}
+{{var.1}} or {{var[2]}}
+
+{# Dynamic indices #}
+{% set var = ['one','two','three'] %}
+{% set idx = 2 %}
+<b>{{attribute(var,idx-1)}}</b> is after <b>{{var[idx-2]}}</b> and before <b>{{var[idx]}}</b>
+</pre>
+	{/literal}
+</fieldset>
+
+<fieldset class="peek">
+	<legend>Modifying objects and arrays</legend>
+	
+	{literal}
+	<pre style="margin:0.5em 1em;">
+{# Mixed objects and arrays #}
+{% set var = {"name":"..."} %}
+{% set var = <b>dict_set</b>(var, 'name', {}) %}
+{% set var = <b>dict_set</b>(var, 'name.first', 'Kina') %}
+{% set var = <b>dict_set</b>(var, 'name.last', 'Halpue') %}
+{% set var = <b>dict_set</b>(var, 'title', 'Support Master') %}
+{% set var = <b>dict_set</b>(var, 'skills.[]', 'PHP') %}
+{% set var = <b>dict_set</b>(var, 'skills.[]', 'MySQL') %}
+{{var|json_encode|json_pretty}}
+
+{# Assoc arrays #}
+{% set var = {"group": {}} %}
+{% set var = <b>dict_set</b>(var, 'group.name', 'Support') %}
+{% set var = <b>dict_set</b>(var, 'group.members.[]', 'Kina Halpue') %}
+{% set var = <b>dict_set</b>(var, 'group.members.[]', 'William Portcullis') %}
+{% set var = <b>dict_set</b>(var, 'group.members.[]', 'Steven Emplois') %}
+{{var|json_encode|json_pretty}}
+
+{# Iterative arrays #}
+{% set var = [1,2,[3,4,[5,6]]] %}
+{% set var = <b>dict_set</b>(var, '2.2.[]', 7) %}
+{% set var = <b>dict_set</b>(var, '2.2.[]', 8) %}
+{% set var = <b>dict_set</b>(var, '2.3', 9) %}
+{{var|json_encode|json_pretty}}	
 </pre>
 	{/literal}
 </fieldset>
@@ -89,6 +126,23 @@ Your SLA coverage has expired.
 </pre>
 	{/literal}
 	
+</fieldset>
+
+<fieldset class="peek">
+	<legend>Conditional Logic</legend>
+	
+	Conditional logic can display different content based on the value of a placeholder:
+	
+	{literal}
+	<pre style="margin:0.5em 1em;">
+{% set sla_expiration = '+2 weeks'|date('U') %}
+<b>{% if sla_expiration >= 'now'|date('U') %}</b>
+Your SLA coverage is active.
+<b>{% else %}</b>
+Your SLA coverage has expired.
+<b>{% endif %}</b>
+</pre>
+	{/literal}
 </fieldset>
 
 {literal}
@@ -253,10 +307,24 @@ Tracking #: {{json.status.tracking_id}}
 	
 	<pre style="margin:0.5em 1em;">
 {% set json = {'name': 'Joe Customer'} %}
-{% set json = jsonpath_set(json, 'order_id', 54321) %}
-{% set json = jsonpath_set(json, 'status.text', 'shipped') %}
-{% set json = jsonpath_set(json, 'status.tracking_id', 'Z1F238') %}
-{{json|json_encode}}	
+{% set json = dict_set(json, 'order_id', 54321) %}
+{% set json = dict_set(json, 'status.text', 'shipped') %}
+{% set json = dict_set(json, 'status.tracking_id', 'Z1F238') %}
+{{json<b>|json_encode</b>}}	
+</pre>
+</fieldset>
+{/literal}
+
+{literal}
+<fieldset class="peek">
+	<legend>JSON Prettification</legend>
+	
+	<pre style="margin:0.5em 1em;">
+{% set json = {'name': 'Joe Customer'} %}
+{% set json = dict_set(json, 'order_id', 54321) %}
+{% set json = dict_set(json, 'status.text', 'shipped') %}
+{% set json = dict_set(json, 'status.tracking_id', 'Z1F238') %}
+{{json|json_encode<b>|json_pretty}}</b>
 </pre>
 </fieldset>
 {/literal}
