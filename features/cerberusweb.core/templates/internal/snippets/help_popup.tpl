@@ -54,8 +54,10 @@ Hi {{name|default('there')}}
 	You can set temporary variables and use them as placeholders:
 	
 	<pre style="margin:0.5em 1em;">
-{literal}{%{/literal} set name = '{$active_worker->first_name}' {literal}%}{/literal}
-{literal}{{name}}{/literal}</pre>
+{literal}{%{/literal} <b>set</b> name = "{$active_worker->first_name}" {literal}%}
+{% <b>set</b> quantity = 5 %}
+{{name}} has {{quantity}} gold stars
+{/literal}</pre>
 </fieldset>
 
 <fieldset class="peek">
@@ -120,9 +122,9 @@ Hi {{name|default('there')}}
 	{literal}
 	<pre style="margin:0.5em 1em;">
 {% set list_of_names = ["Jeff", "Dan", "Darren"] %}
-{% for name in list_of_names %}
+<b>{% for name in list_of_names %}</b>
 {{name}}
-{% endfor %}
+<b>{% endfor %}</b>
 </pre>
 	{/literal}
 	
@@ -154,27 +156,27 @@ Your SLA coverage has expired.
 {% set that = 1 %}
 {% set those = [1,2,3] %}
 
-{% if this == that %}
+{% if this <b>==</b> that %}
 {{this}} equals {{that}}
 {% endif -%}
 
-{% if this != that %}
+{% if this <b>!=</b> that %}
 {{this}} doesn't equal {{that}}
 {% endif -%}
 
-{% if this < that %}
+{% if this <b>&lt;</b> that %}
 {{this}} is less than {{that}}
 {% endif -%}
 
-{% if this > that %}
+{% if this <b>&gt;</b> that %}
 {{this}} is greater than {{that}}
 {% endif -%}
 
-{% if that in those %}
+{% if that <b>in</b> those %}
 {{that}} is in {{those|join(',')}}
 {% endif -%}
 
-{% if this not in those %}
+{% if this <b>not in</b> those %}
 {{this}} is not in {{those|join(',')}}
 {% endif -%}</pre>
 
@@ -187,7 +189,7 @@ Your SLA coverage has expired.
 	<pre style="margin:0.5em 1em;">
 {literal}{%{/literal} set first_name = "{$active_worker->first_name}" {literal}%}{/literal}
 {literal}{%{/literal} set last_name = "{$active_worker->last_name}" {literal}%}{/literal}
-{literal}{% set full_name = first_name ~ ' ' ~ last_name %}{/literal}
+{literal}{% set full_name = first_name <b>~ " " ~</b> last_name %}{/literal}
 {literal}{{full_name}}{/literal}
 </pre>
 
@@ -215,7 +217,7 @@ in it.
 	
 	<pre style="margin:0.5em 1em;">
 {% set text = "Your Amazon Order #Z-1234-5678-9 has shipped!" %}
-{% set order_id = text|regexp("/Amazon Order #([A-Z0-9\-]+)/", 1) %}
+{% set order_id = text<b>|regexp</b>("/Amazon Order #([A-Z0-9\-]+)/", 1) %}
 Amazon Order #: {{order_id}}</pre>
 </fieldset>
 {/literal}
@@ -225,9 +227,9 @@ Amazon Order #: {{order_id}}</pre>
 	<legend>Date/Time</legend>
 	
 	<pre style="margin:0.5em 1em;">
-{{'now'|date('F d, Y h:ia T')}}
-{{'tomorrow 5pm'|date('D, d F Y H:i T')}}
-{{'+2 weeks 08:00'|date('Y-m-d h:ia T')}}
+{{'now'<b>|date</b>('F d, Y h:ia T')}}
+{{'tomorrow 5pm'<b>|date</b>('D, d F Y H:i T')}}
+{{'+2 weeks 08:00'<b>|date</b>('Y-m-d h:ia T')}}
 </pre>
 </fieldset>
 {/literal}
@@ -237,7 +239,7 @@ Amazon Order #: {{order_id}}</pre>
 	<legend>Date/Time Manipulation</legend>
 	
 	<pre style="margin:0.5em 1em;">
-{% set timestamp = date('now')|date_modify('-2 days') %}
+{% set timestamp = date('now')<b>|date_modify</b>('-2 days') %}
 {{timestamp|date('D, d M Y T')}}
 </pre>
 </fieldset>
@@ -252,21 +254,21 @@ Amazon Order #: {{order_id}}</pre>
 
 {#- Set the timezone in the date variable -#}
 
-{% set ts_london = date('now', 'Europe/London') %}
-{% set ts_losangeles = date('now', 'America/Los_Angeles') %}
-{% set ts_tokyo = date('now', 'Asia/Tokyo') -%}
+{% set ts_london = date('now', <b>'Europe/London'</b>) %}
+{% set ts_losangeles = date('now', <b>'America/Los_Angeles'</b>) %}
+{% set ts_tokyo = date('now', <b>'Asia/Tokyo'</b>) -%}
 
-London: {{ts_london|date(time_format, false)}}
-Los Angeles: {{ts_losangeles|date(time_format, false)}}
-Tokyo: {{ts_tokyo|date(time_format, false)}}
+London: {{ts_london|date(time_format, <b>false</b>)}}
+Los Angeles: {{ts_losangeles|date(time_format, <b>false</b>)}}
+Tokyo: {{ts_tokyo|date(time_format, <b>false</b>)}}
 
 {# Set the timezone in the date filter -#}
 
 {% set ts_now = date() -%}
 
-Bangalore: {{ts_now|date(time_format, 'Asia/Calcutta')}}
-Berlin: {{ts_now|date(time_format, 'Europe/Berlin')}}
-New York: {{ts_now|date(time_format, 'America/New_York')}}
+Bangalore: {{ts_now|date(time_format, <b>'Asia/Calcutta'</b>)}}
+Berlin: {{ts_now|date(time_format, <b>'Europe/Berlin'</b>)}}
+New York: {{ts_now|date(time_format, <b>'America/New_York'</b>)}}
 </pre>
 </fieldset>
 {/literal}
@@ -277,7 +279,7 @@ New York: {{ts_now|date(time_format, 'America/New_York')}}
 	
 	<pre style="margin:0.5em 1em;">
 {% set json_string = "{\"name\":\"Joe Customer\",\"order_id\":12345}" %}
-{% set json = json_decode(json_string) %}
+{% set json = <b>json_decode</b>(json_string) %}
 Customer: {{json.name}}
 Order #: {{json.order_id}}	
 </pre>
@@ -290,9 +292,9 @@ Order #: {{json.order_id}}
 	
 	<pre style="margin:0.5em 1em;">
 {% set json = {'name': 'Joe Customer', 'order_id': 12345} %}
-{% set json = jsonpath_set(json, 'order_id', 54321) %}
-{% set json = jsonpath_set(json, 'status.text', 'shipped') %}
-{% set json = jsonpath_set(json, 'status.tracking_id', 'Z1F238') %}
+{% set json = <b>dict_set</b>(json, 'order_id', 54321) %}
+{% set json = <b>dict_set</b>(json, 'status.text', 'shipped') %}
+{% set json = <b>dict_set</b>(json, 'status.tracking_id', 'Z1F238') %}
 Customer: {{json.name}}
 Order #: {{json.order_id}}
 Status: {{json.status.text}}
@@ -340,7 +342,7 @@ Tracking #: {{json.status.tracking_id}}
   &lt;invoice_id&gt;123&lt;/invoice_id&gt;
 &lt;/response&gt;"
 -%}
-{% set xml = xml_decode(string_of_xml) %}
+{% set xml = <b>xml_decode</b>(string_of_xml) %}
 {% set client_id = xml_xpath(xml, '//client_id')|first %}
 {% set invoice_id = xml_xpath(xml, '//invoice_id')|first %}
 Client ID: {{client_id}}
@@ -361,7 +363,7 @@ Invoice ID: {{invoice_id}}
 &lt;/response&gt;"
 -%}
 {% set xml = xml_decode(string_of_xml) %}
-{{xml_encode(xml.client_id)}}	
+{{<b>xml_encode</b>(xml.client_id)}}	
 </pre>
 </fieldset>
 {/literal}
@@ -378,9 +380,9 @@ Invoice ID: {{invoice_id}}
 &lt;/response&gt;"
 -%}
 {% set xml = xml_decode(string_of_xml) %}
-{% set xml = xml_xpath_ns(xml, 'ns', 'http://www.example.com/api/') %}
-{% set client_id = xml_xpath(xml, '//ns:client_id')|first %}
-{% set invoice_id = xml_xpath(xml, '//ns:invoice_id')|first %}
+{% set xml = <b>xml_xpath_ns</b>(xml, 'ns', 'http://www.example.com/api/') %}
+{% set client_id = <b>xml_xpath</b>(xml, '//ns:client_id')|first %}
+{% set invoice_id = <b>xml_xpath</b>(xml, '//ns:invoice_id')|first %}
 Client ID: {{client_id}}
 Invoice ID: {{invoice_id}}
 </pre>
@@ -389,7 +391,7 @@ Invoice ID: {{invoice_id}}
 
 {literal}
 <fieldset class="peek">
-	<legend>Natural Language Processing</legend>
+	<legend>Simple Natural Language Processing</legend>
 	
 	<pre style="margin:0.5em 1em;">
 {% set patterns = [
@@ -398,7 +400,7 @@ Invoice ID: {{invoice_id}}
   "Remind me [what] [when]"
 ] %}
 {% set json = json_decode(
-  "remind me to run server maint tomorrow at 10am"|nlp_parse(patterns)
+  "remind me to run server maint tomorrow at 10am"|<b>nlp_parse(patterns)</b>
 ) %}
 What: {{json.what|first}}
 When: {{json.when|first}}
