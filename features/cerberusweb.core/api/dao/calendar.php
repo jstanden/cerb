@@ -1407,6 +1407,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 				break;
 			
 			case 'events':
+			case 'events_occluded':
 				if(!isset($dictionary['scope'])) {
 					$values = self::lazyLoadContextValues('scope', $dictionary);
 					@$calendar_scope = $values['scope'];
@@ -1419,6 +1420,11 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 
 				$calendar_events = $calendar->getEvents($calendar_scope['date_range_from'], $calendar_scope['date_range_to']);
 				$events = array();
+				
+				if("events_occluded" == $token) {
+					$availability = $calendar->computeAvailability($calendar_scope['date_range_from'], $calendar_scope['date_range_to'], $calendar_events);
+					$availability->occludeCalendarEvents($calendar_events);
+				}
 				
 				if(is_array($calendar_events))
 				foreach($calendar_events as $day_ts => $day_events) {
