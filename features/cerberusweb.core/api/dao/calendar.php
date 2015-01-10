@@ -1445,6 +1445,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 				break;
 				
 			case 'weeks_events':
+			case 'weeks_events_occluded':
 				if(!isset($dictionary['weeks'])) {
 					$values = self::lazyLoadContextValues('weeks', $dictionary);
 					$calendar_scope = $values['scope'];
@@ -1460,6 +1461,11 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 				$calendar = DAO_Calendar::get($context_id);
 				
 				$calendar_events = $calendar->getEvents($calendar_scope['date_range_from'], $calendar_scope['date_range_to']);
+				
+				if("weeks_events_occluded" == $token) {
+					$availability = $calendar->computeAvailability($calendar_scope['date_range_from'], $calendar_scope['date_range_to'], $calendar_events);
+					$availability->occludeCalendarEvents($calendar_events);
+				}
 				
 				foreach($values['weeks'] as $week_idx => $week) {
 					foreach($week as $day_ts => $day) {
