@@ -279,7 +279,7 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			$(this).unbind().find(':focus').blur();
 		}
 	};
-
+	
 	// Restore position from previous dialog?
 	if(target == 'reuse') {
 		var $popup = genericAjaxPopupFetch($layer);
@@ -336,12 +336,11 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			
 			// Target
 			if(null != target) {
-				var offset = $(target).offset();
-				if(null != offset) {
-					var left = offset.left - $(document).scrollLeft();
-					var top = offset.top - $(document).scrollTop();
-					options.position = [left, top];
-				}
+				options.position = {
+					my: "right bottom",
+					at: "left top",
+					of: target
+				};
 			}
 			
 			// Max height

@@ -1547,9 +1547,8 @@ class CerberusParser {
 			$has_iconv = extension_loaded('iconv') ? true : false;
 			
 			// If we can use iconv, do so.
-			if($has_iconv && $charset && false !== ($out = iconv($charset, LANG_CHARSET_CODE . '//IGNORE//TRANSLIT', $text)))
+			if($has_iconv && $charset && false !== ($out = iconv($charset, LANG_CHARSET_CODE . '//TRANSLIT//IGNORE', $text)))
 				return $out;
-			
 			
 			if(false !== ($charset = mb_detect_encoding($text))) {
 				if(false !== ($out = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset)))
