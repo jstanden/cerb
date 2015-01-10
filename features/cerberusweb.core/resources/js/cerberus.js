@@ -137,6 +137,7 @@ var atwho_twig_modifiers = [
 	{ name: "format", content: "Replace %s in formatted text with placeholders" },
 	{ name: "join(',')", content: "Join array elements into one string" },
 	{ name: "json_encode", content: "Encode text as JSON" },
+	{ name: "json_pretty", content: "Prettify JSON formatted text" },
 	{ name: "keys", content: "Return the keys of an array" },
 	{ name: "last", content: "Return the last element of an array or text" },
 	{ name: "length", content: "Calculate the length of an array or text" },
@@ -153,7 +154,7 @@ var atwho_twig_modifiers = [
 	{ name: "sort", content: "Sort an array" },
 	{ name: "split(',')", content: "Split text into an array by delimiter" },
 	{ name: "striptags", content: "Strip HTML/XML tags in text" },
-	{ name: "trim", content: "Remove whitespace or given characters from the ends of text" },
+	{ name: "trim", content: "Trim whitespace or given characters from the ends of text" },
 	{ name: "truncate(10)", content: "Truncate text" },
 	{ name: "url_encode", content: "Encode an array or text for use in a URL" },
 ];
