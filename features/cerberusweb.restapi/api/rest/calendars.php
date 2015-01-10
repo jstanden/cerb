@@ -111,12 +111,10 @@ class ChRest_Calendars extends Extension_RestController implements IExtensionRes
 		// Sanitize
 		$month = DevblocksPlatform::intClamp($month, 1, 12);
 		$year = DevblocksPlatform::intClamp($year, 1970, 3000);
-		
-		$calendar_scope = DevblocksCalendarHelper::getCalendar($month, $year);
-		
-		unset($calendar_scope['calendar_weeks']);
-		
-		$values['calendar_scope'] = $calendar_scope;
+
+		// Set some variables to affect the scope in lazy loading
+		$values['__scope_month'] = $month;
+		$values['__scope_year'] = $year;
 		
 		return $values;
 	}
