@@ -384,6 +384,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	public function getFunctions() {
 		return array(
+			'dict_set' => new Twig_Function_Method($this, 'function_dict_set'),
 			'json_decode' => new Twig_Function_Method($this, 'function_json_decode'),
 			'jsonpath_set' => new Twig_Function_Method($this, 'function_jsonpath_set'),
 			'regexp_match_all' => new Twig_Function_Method($this, 'function_regexp_match_all'),
@@ -422,6 +423,38 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 				
 			} else {
 				$ptr =& $ptr[$part];
+			}
+		}
+		
+		$ptr = $val;
+		
+		return $var;
+	}
+	
+	function function_dict_set($var, $path, $val) {
+		if(empty($var))
+			$var = new stdClass();
+		
+		$parts = explode('.', $path);
+		$ptr =& $var;
+		
+		if(is_array($parts))
+		foreach($parts as $part) {
+			if('[]' == $part) {
+				if(is_array($ptr))
+					$ptr =& $ptr[];
+				
+			} elseif(is_array($ptr)) {
+				if(!isset($ptr[$part]))
+					$ptr[$part] = array();
+
+				$ptr =& $ptr[$part];
+				
+			} elseif(is_object($ptr)) {
+				if(!isset($ptr->$part))
+					$ptr->$part = array();
+				
+				$ptr =& $ptr->$part;
 			}
 		}
 		
