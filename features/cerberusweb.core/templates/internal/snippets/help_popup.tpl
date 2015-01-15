@@ -409,8 +409,11 @@ When: {{json.when|first}}
 {/literal}
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('help');
+$(function() {
+	var $popup = genericAjaxPopupFetch('help');
+	
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"Help: Placeholders \x26 Scripting");
 	});
+});
 </script>

@@ -322,10 +322,11 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 	if(null != modal) options.modal = modal;
 	
 	// Load the popup content
-	$options = { async: false }
-	genericAjaxGet('',request + '&layer=' + $layer,
+	var $options = {}
+	genericAjaxGet('', request + '&layer=' + $layer,
 		function(html) {
-			$popup = $("#popup"+$layer);
+			var $popup = $("#popup"+$layer);
+			
 			if(0 == $popup.length) {
 				$("body").append("<div id='popup"+$layer+"' class='devblocks-popup' style='display:none;'></div>");
 				$popup = $('#popup'+$layer);
@@ -335,7 +336,7 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			genericAjaxPopupRegister($layer, $popup);
 			
 			// Target
-			if(null != target) {
+			if(null != target && null == target.at) {
 				options.position = {
 					my: "right bottom",
 					at: "left top",
