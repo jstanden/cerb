@@ -1018,7 +1018,6 @@ class View_WorkspacePage extends C4_AbstractView {
 		$translate = DevblocksPlatform::getTranslationService();
 
 		$this->id = self::DEFAULT_ID;
-		// [TODO] Name the worklist view
 		$this->name = $translate->_('Pages');
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_WorkspacePage::ID;

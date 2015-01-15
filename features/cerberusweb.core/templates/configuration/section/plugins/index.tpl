@@ -17,11 +17,11 @@
 {/foreach}
 
 <script type="text/javascript">
-	$(function() {
-		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-		tabOptions.active = {$selected_tab_idx};
-		
-		var tabs = $("#pluginTabs").tabs(tabOptions);
-	});
+$(function() {
+	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+	tabOptions.active = {$selected_tab_idx};
+	
+	var tabs = $("#pluginTabs").tabs(tabOptions);
+});
 </script>
 

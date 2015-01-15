@@ -78,6 +78,7 @@ class View_DevblocksStorageProfile extends C4_AbstractView {
 
 	function getData() {
 		$objects = DAO_DevblocksStorageProfile::search(
+			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,

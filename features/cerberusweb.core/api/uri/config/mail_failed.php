@@ -426,7 +426,7 @@ class View_MailParseFail extends C4_AbstractView {
 		$key = $param->field;
 		
 		switch($key) {
-			//case SearchFields_CallEntry::VIRTUAL_CONTEXT_LINK:
+			//case SearchFields_MailParseFail::VIRTUAL_CONTEXT_LINK:
 			//	$this->_renderVirtualContextLinks($param);
 			//	break;
 		}
@@ -553,7 +553,7 @@ class View_MailParseFail extends C4_AbstractView {
 				$this->getParams(),
 				100,
 				$pg++,
-				SearchFields_CallEntry::ID,
+				SearchFields_MailParseFail::ID,
 				true,
 				false
 			);

@@ -97,7 +97,6 @@ class View_DevblocksTemplate extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
-			case SearchFields_DevblocksTemplate::CONTENT:
 			case SearchFields_DevblocksTemplate::PATH:
 			case SearchFields_DevblocksTemplate::PLUGIN_ID:
 			case SearchFields_DevblocksTemplate::TAG:
@@ -106,13 +105,8 @@ class View_DevblocksTemplate extends C4_AbstractView {
 			case SearchFields_DevblocksTemplate::LAST_UPDATED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
-			default:
-				// Custom Fields
-//				if('cf_' == substr($field,0,3)) {
-//					$this->_renderCriteriaCustomField($tpl, substr($field,3));
-//				} else {
-//					echo ' ';
-//				}
+			case SearchFields_DevblocksTemplate::ID:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 		}
 	}
@@ -136,22 +130,21 @@ class View_DevblocksTemplate extends C4_AbstractView {
 		$criteria = null;
 
 		switch($field) {
-			case SearchFields_DevblocksTemplate::CONTENT:
+			// String
 			case SearchFields_DevblocksTemplate::PATH:
 			case SearchFields_DevblocksTemplate::PLUGIN_ID:
 			case SearchFields_DevblocksTemplate::TAG:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
+			// Date
 			case SearchFields_DevblocksTemplate::LAST_UPDATED:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			default:
-				// Custom Fields
-//				if(substr($field,0,3)=='cf_') {
-//					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
-//				}
+			// Number
+			case SearchFields_DevblocksTemplate::ID:
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 		}
 

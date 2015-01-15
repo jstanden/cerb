@@ -58,7 +58,7 @@ class DevblocksSearchCriteria {
 	 * @param mixed $value
 	 * @return DevblocksSearchCriteria
 	 */
-	 public function DevblocksSearchCriteria($field,$oper,$value=null) {
+	public function DevblocksSearchCriteria($field,$oper,$value=null) {
 		$this->field = $field;
 		$this->operator = $oper;
 		$this->value = $value;
