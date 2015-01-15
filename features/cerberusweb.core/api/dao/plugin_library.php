@@ -538,7 +538,7 @@ class Model_PluginLibrary {
 	}
 };
 
-class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtotals {
+class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
 	const DEFAULT_ID = 'plugin_library';
 
 	function __construct() {
@@ -627,6 +627,96 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 		return $counts;
 	}
 	
+	function getQuickSearchFields() {
+		$fields = array(
+			'_fulltext' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_PluginLibrary::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'author' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_PluginLibrary::AUTHOR, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'description' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_PluginLibrary::DESCRIPTION, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'pluginId' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_PluginLibrary::PLUGIN_ID, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'name' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_PluginLibrary::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'updated' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_PluginLibrary::UPDATED),
+				),
+			'url' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_PluginLibrary::LINK, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'version' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_PluginLibrary::LATEST_VERSION),
+					'examples' => array(
+						'<=1.0',
+						'2.0',
+					),
+				),
+		);
+		
+		// Sort by keys
+		
+		ksort($fields);
+		
+		return $fields;
+	}	
+	
+	function getParamsFromQuickSearchFields($fields) {
+		$search_fields = $this->getQuickSearchFields();
+		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
+
+		// Handle virtual fields and overrides
+		if(is_array($fields))
+		foreach($fields as $k => $v) {
+			switch($k) {
+				case 'version':
+					$field_keys = array(
+						'version' => SearchFields_PluginLibrary::LATEST_VERSION,
+					);
+					
+					@$field_key = $field_keys[$k];
+					$oper_hint = 0;
+					
+					if(preg_match('#^([\!\=\>\<]+)(.*)#', $v, $matches)) {
+						$oper_hint = trim($matches[1]);
+						$v = trim($matches[2]);
+					}
+					
+					$value = $oper_hint . DevblocksPlatform::strVersionToInt($v, 3);
+					
+					if($field_key && false != ($param = DevblocksSearchCriteria::getNumberParamFromQuery($field_key, $value)))
+						$params[$field_key] = $param;
+					break;
+			}
+		}
+		
+		$this->renderPage = 0;
+		$this->addParams($params, true);
+		
+		return $params;
+	}
+	
 	function render() {
 		$this->_sanitize();
 		
@@ -672,6 +762,9 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_PluginLibrary::LATEST_VERSION:
+				echo DevblocksPlatform::intVersionToStr($param->value);
+				break;
 			default:
 				parent::renderCriteriaParam($param);
 				break;

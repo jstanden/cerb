@@ -1608,177 +1608,360 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $counts;
 	}
 	
-	function isQuickSearchField($token) {
-		switch($token) {
-			case SearchFields_Message::TICKET_GROUP_ID:
-			case SearchFields_Message::VIRTUAL_ATTACHMENT_NAME:
-			case SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS:
-			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:
-			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
-				return true;
-			break;
-		}
-		
-		return false;
-	}
 	
-	function quickSearch($token, $query, &$oper, &$value) {
-		switch($token) {
-			case SearchFields_Message::TICKET_GROUP_ID:
-				$search_ids = array();
-				$oper = DevblocksSearchCriteria::OPER_IN;
-				
-				if(preg_match('#([\!\=]+)(.*)#', $query, $matches)) {
-					$oper_hint = trim($matches[1]);
-					$query = trim($matches[2]);
-					
-					switch($oper_hint) {
-						case '!':
-						case '!=':
-							$oper = DevblocksSearchCriteria::OPER_NIN;
-							break;
-					}
-				}
-				
-				$groups = DAO_Group::getAll();
-				$inputs = DevblocksPlatform::parseCsvString($query);
+	function getQuickSearchFields() {
+		$fields = array(
+			'_fulltext' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
+					'options' => array('param_key' => SearchFields_Message::MESSAGE_CONTENT),
+				),
+			'attachments.exist' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS),
+				),
+			'attachments.name' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Message::VIRTUAL_ATTACHMENT_NAME),
+					'examples' => array(
+						'(*.png OR *.jpg)',
+						'*.html',
+					),
+				),
+			'content' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
+					'options' => array('param_key' => SearchFields_Message::MESSAGE_CONTENT),
+				),
+			'created' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_Message::CREATED_DATE),
+				),
+			'from' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Message::ADDRESS_EMAIL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+				),
+			'group' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Message::TICKET_GROUP_ID),
+				),
+			'headers' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Message::VIRTUAL_MESSAGE_HEADER),
+				),
+			'isBroadcast' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_Message::IS_BROADCAST),
+				),
+			'isNotSent' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_Message::IS_NOT_SENT),
+				),
+			'isOutgoing' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_Message::IS_OUTGOING),
+				),
+			'responseTime' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Message::RESPONSE_TIME),
+				),
+			'ticket.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Message::TICKET_ID),
+				),
+			'ticket.mask' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Message::TICKET_MASK, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+					'examples' => array(
+						'ABC',
+						'XYZ-12345-678',
+					),
+				),
+			'ticket.status' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Message::VIRTUAL_TICKET_STATUS),
+					'examples' => array(
+						'open',
+						'waiting',
+						'closed',
+						'deleted',
+						'open,waiting',
+						'!deleted',
+					),
+				),
+			'ticket.subject' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Message::TICKET_SUBJECT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'worker' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'options' => array('param_key' => SearchFields_Message::WORKER_ID),
+				),
+		);
+		
+		// Add searchable custom fields
+		
+		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_MESSAGE, $fields, null);
+		//$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_ORG, $fields, 'org');
+		//$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_TICKET, $fields, 'ticket');
+		
+		// Sort by keys
+		
+		ksort($fields);
+		
+		return $fields;
+	}	
+	
+	function getParamsFromQuickSearchFields($fields) {
+		$search_fields = $this->getQuickSearchFields();
+		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
 
-				if(is_array($inputs))
-				foreach($inputs as $input) {
-					foreach($groups as $group_id => $group) {
-						if(0 == strcasecmp($input, substr($group->name,0,strlen($input))))
-							$search_ids[$group_id] = true;
+		// Handle virtual fields and overrides
+		if(is_array($fields))
+		foreach($fields as $k => $v) {
+			switch($k) {
+				case 'attachments.name':
+					$field_key = SearchFields_Message::VIRTUAL_ATTACHMENT_NAME;
+					
+					if(empty($v))
+						return false;
+					
+					if(false !== strpos($v, '*')) {
+						$oper = DevblocksSearchCriteria::OPER_LIKE;
+					} else {
+						$oper = DevblocksSearchCriteria::OPER_EQ;
 					}
-				}
+					$value = explode(' OR ', $v);
+					
+					$params[$field_key] = new DevblocksSearchCriteria(
+						$field_key,
+						$oper,
+						$value
+					);
+					break;
+					
+				case 'group':
+					$field_key = SearchFields_Message::TICKET_GROUP_ID;
+					
+					$oper = DevblocksSearchCriteria::OPER_IN;
+					
+					if(preg_match('#^([\!\=]+)(.*)#', $v, $matches)) {
+						$oper_hint = trim($matches[1]);
+						$v = trim($matches[2]);
+						
+						switch($oper_hint) {
+							case '!':
+							case '!=':
+								$oper = DevblocksSearchCriteria::OPER_NIN;
+								break;
+								
+							default:
+								$oper = DevblocksSearchCriteria::OPER_IN;
+								break;
+						}
+					}
+					
+					$groups = DAO_Group::getAll();
+					$patterns = DevblocksPlatform::parseCsvString($v);
+					
+					if(!is_array($patterns))
+						break;
+					
+					$group_ids = array();
+					
+					foreach($patterns as $pattern) {
+						foreach($groups as $group_id => $group) {
+							if(isset($group_ids[$group_id]))
+								continue;
+							
+							if(false !== stristr($group->name, $pattern)) {
+								$group_ids[$group_id] = true;
+							}
+						}
+					}
+					
+					if(!empty($group_ids)) {
+						$params[$field_key] = new DevblocksSearchCriteria(
+							$field_key,
+							$oper,
+							array_keys($group_ids)
+						);
+					}
+					break;
+					
+				case 'headers':
+					$field_key = SearchFields_Message::VIRTUAL_MESSAGE_HEADER;
+					
+					$sets = explode(' OR ', $v);
+					$values = array();
 				
-				if(!empty($search_ids)) {
-					$value = array_keys($search_ids);
-				} else {
-					$value = null;
-				}
-				
-				return true;
-				break;
-				
-			case SearchFields_Message::VIRTUAL_ATTACHMENT_NAME:
-				if(empty($query))
-					return false;
-				
-				if(false !== strpos($query, '*')) {
-					$oper = DevblocksSearchCriteria::OPER_LIKE;
-				} else {
+					if(is_array($sets))
+					foreach($sets as $set) {
+						$tuple = explode(' ', $set, 3);
+						
+						@$header_name = $tuple[0];
+						@$header_oper = $tuple[1];
+						@$header_value = $tuple[2];
+						
+						if(empty($header_name) || empty($header_oper))
+							continue;
+						
+						switch($header_oper) {
+							case '=':
+							case 'is':
+								if(0 == strcasecmp('null', $header_value)) {
+									$values[] = array($header_name, DevblocksSearchCriteria::OPER_IS_NULL, null);
+								} else {
+									$values[] = array($header_name, DevblocksSearchCriteria::OPER_EQ, $header_value);
+								}
+								break;
+								
+							case '!=':
+							case 'not':
+								if(0 == strcasecmp('null', $header_value)) {
+									$values[] = array($header_name, DevblocksSearchCriteria::OPER_IS_NOT_NULL, null);
+								} else {
+									$values[] = array($header_name, DevblocksSearchCriteria::OPER_NEQ, $header_value);
+								}
+								break;
+								
+							case 'like':
+								$oper = DevblocksSearchCriteria::OPER_LIKE;
+								$values[] = array($header_name, $oper, $header_value);
+								break;
+								
+							case '!like':
+								$oper = DevblocksSearchCriteria::OPER_NOT_LIKE;
+								$values[] = array($header_name, $oper, $header_value);
+								break;
+								
+							case 'null':
+								$oper = DevblocksSearchCriteria::OPER_IS_NULL;
+								$values[] = array($header_name, $oper, null);
+								break;
+						}
+					}					
+					
+					$params[$field_key] = new DevblocksSearchCriteria(
+						$field_key,
+						null,
+						$values
+					);
+					break;
+
+				case 'responseTime':
+					$field_key = SearchFields_Message::RESPONSE_TIME;
+					
 					$oper = DevblocksSearchCriteria::OPER_EQ;
-				}
-				$value = explode(' OR ', $query);
-				return true;
-				
-			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:
-				$sets = explode(' OR ', $query);
-				$values = array();
-				
-				if(is_array($sets))
-				foreach($sets as $set) {
-					$tuple = explode(' ', $set, 3);
 					
-					@$header_name = $tuple[0];
-					@$header_oper = $tuple[1];
-					@$header_value = $tuple[2];
-					
-					if(empty($header_name) || empty($header_oper))
-						continue;
-					
-					switch($header_oper) {
-						case '=':
-						case 'is':
-							if(0 == strcasecmp('null', $header_value)) {
-								$values[] = array($header_name, DevblocksSearchCriteria::OPER_IS_NULL, null);
-							} else {
-								$values[] = array($header_name, DevblocksSearchCriteria::OPER_EQ, $header_value);
-							}
-							break;
-							
-						case '!=':
-						case 'not':
-							if(0 == strcasecmp('null', $header_value)) {
-								$values[] = array($header_name, DevblocksSearchCriteria::OPER_IS_NOT_NULL, null);
-							} else {
-								$values[] = array($header_name, DevblocksSearchCriteria::OPER_NEQ, $header_value);
-							}
-							break;
-							
-						case 'like':
-							$oper = DevblocksSearchCriteria::OPER_LIKE;
-							$values[] = array($header_name, $oper, $header_value);
-							break;
-							
-						case '!like':
-							$oper = DevblocksSearchCriteria::OPER_NOT_LIKE;
-							$values[] = array($header_name, $oper, $header_value);
-							break;
-							
-						case 'null':
-							$oper = DevblocksSearchCriteria::OPER_IS_NULL;
-							$values[] = array($header_name, $oper, null);
-							break;
+					if(preg_match('#^([\!\=\>\<]+)(.*)#', $v, $matches)) {
+						$oper_hint = trim($matches[1]);
+						$v = trim($matches[2]);
+						
+						switch($oper_hint) {
+							case '!=':
+								$oper = DevblocksSearchCriteria::OPER_NEQ;
+								break;
+								
+							case '>':
+								$oper = DevblocksSearchCriteria::OPER_GT;
+								break;
+								
+							case '>=':
+								$oper = DevblocksSearchCriteria::OPER_GTE;
+								break;
+								
+							case '<':
+								$oper = DevblocksSearchCriteria::OPER_LT;
+								break;
+								
+							case '<=':
+								$oper = DevblocksSearchCriteria::OPER_LTE;
+								break;
+								
+							default:
+								$oper = DevblocksSearchCriteria::OPER_EQ;
+								break;
+						}
 					}
-				}
-				
-				if(!empty($values)) {
-					$value = $values;
-					return true;
-				}
-				
-				break;
-				
-			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
-				$statuses = array();
-				$oper = DevblocksSearchCriteria::OPER_IN;
-				
-				if(preg_match('#([\!\=]+)(.*)#', $query, $matches)) {
-					$oper_hint = trim($matches[1]);
-					$query = trim($matches[2]);
 					
-					switch($oper_hint) {
-						case '!':
-						case '!=':
-							$oper = DevblocksSearchCriteria::OPER_NIN;
-							break;
-					}
-				}
+					$params[$field_key] = new DevblocksSearchCriteria(
+						$field_key,
+						$oper,
+						$v
+					);
+					break;					
 				
-				$inputs = DevblocksPlatform::parseCsvString($query);
-				
-				if(is_array($inputs))
-				foreach($inputs as $v) {
-					switch(strtolower(substr($v,0,1))) {
-						case 'o':
-							$statuses['open'] = true;
-							break;
-						case 'w':
-							$statuses['waiting'] = true;
-							break;
-						case 'c':
-							$statuses['closed'] = true;
-							break;
-						case 'd':
-							$statuses['deleted'] = true;
-							break;
-					}
-				}
-				
-				if(empty($statuses)) {
-					$value = null;
+				case 'ticket.status':
+					$field_key = SearchFields_Message::VIRTUAL_TICKET_STATUS;
 					
-				} else {
-					$value = array_keys($statuses);
-				}
-				
-				return true;
-				break;
-				
+					$oper = DevblocksSearchCriteria::OPER_IN;
+					
+					if(preg_match('#^([\!\=]+)(.*)#', $v, $matches)) {
+						$oper_hint = trim($matches[1]);
+						$v = trim($matches[2]);
+						
+						switch($oper_hint) {
+							case '!':
+							case '!=':
+								$oper = DevblocksSearchCriteria::OPER_NIN;
+								break;
+								
+							default:
+								$oper = DevblocksSearchCriteria::OPER_IN;
+								break;
+						}
+					}
+					
+					$statuses = DevblocksPlatform::parseCsvString($v);
+					$values = array();
+					
+					// Normalize status labels
+					foreach($statuses as $idx => $status) {
+						switch(substr(strtolower($status), 0, 1)) {
+							case 'o':
+								$values['open'] = true;
+								break;
+							case 'w':
+								$values['waiting'] = true;
+								break;
+							case 'c':
+								$values['closed'] = true;
+								break;
+							case 'd':
+								$values['deleted'] = true;
+								break;
+						}
+					}
+					
+					$params[$field_key] = new DevblocksSearchCriteria(
+						$field_key,
+						$oper,
+						array_keys($values)
+					);
+					break;
+			}
 		}
 		
-		return false;
+		$this->renderPage = 0;
+		$this->addParams($params, true);
+		
+		return $params;
 	}
 	
 	function render() {

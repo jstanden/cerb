@@ -564,7 +564,7 @@ class Model_ContextScheduledBehavior {
 	}
 };
 
-class View_ContextScheduledBehavior extends C4_AbstractView {
+class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstractView_QuickSearch {
 	const DEFAULT_ID = 'contextscheduledbehavior';
 
 	function __construct() {
@@ -624,6 +624,83 @@ class View_ContextScheduledBehavior extends C4_AbstractView {
 		return $this->_doGetDataSample('DAO_ContextScheduledBehavior', $size);
 	}
 
+	function getQuickSearchFields() {
+		$fields = array(
+			'_fulltext' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'behavior' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'runDate' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::RUN_DATE),
+				),
+			'va' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID),
+				),
+		);
+		
+		// Sort by keys
+		
+		ksort($fields);
+		
+		return $fields;
+	}	
+	
+	function getParamsFromQuickSearchFields($fields) {
+		$search_fields = $this->getQuickSearchFields();
+		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
+
+		// Handle virtual fields and overrides
+		if(is_array($fields))
+		foreach($fields as $k => $v) {
+			switch($k) {
+				case 'va':
+					$field_keys = array(
+						'va' => SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID,
+					);
+					
+					@$field_key = $field_keys[$k];
+					
+					$oper = DevblocksSearchCriteria::OPER_IN;
+					
+					$vas = DAO_VirtualAttendant::getAll();
+					$patterns = DevblocksPlatform::parseCsvString($v);
+					$values = array();
+					
+					if(is_array($values))
+					foreach($patterns as $pattern) {
+						foreach($vas as $va_id => $va) {
+							if(false !== stripos($va->name, $pattern))
+								$values[$va_id] = true;
+						}
+					}
+					
+					if(!empty($values)) {
+						$params[$field_key] = new DevblocksSearchCriteria(
+							$field_key,
+							$oper,
+							array_keys($values)
+						);
+					}
+					break;
+			}
+		}
+		
+		$this->renderPage = 0;
+		$this->addParams($params, true);
+		
+		return $params;
+	}
+	
 	function render() {
 		$this->_sanitize();
 

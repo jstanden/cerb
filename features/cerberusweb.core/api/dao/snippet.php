@@ -582,7 +582,7 @@ class Model_Snippet {
 	
 };
 
-class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
+class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
 	const DEFAULT_ID = 'snippet';
 
 	function __construct() {
@@ -719,6 +719,107 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 		}
 		
 		return $counts;
+	}
+	
+	function getQuickSearchFields() {
+		$fields = array(
+			'_fulltext' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Snippet::TITLE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'content' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Snippet::CONTENT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'title' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Snippet::TITLE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'totalUses' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Snippet::TITLE),
+				),
+			'type' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Snippet::CONTEXT),
+					'examples' => array(
+						'plaintext',
+						'ticket',
+						'plaintext,ticket',
+					),
+				),
+			'updated' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_Snippet::UPDATED_AT),
+				),
+		);
+		
+		// Add searchable custom fields
+		
+		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_SNIPPET, $fields, null);
+		
+		// Sort by keys
+		
+		ksort($fields);
+		
+		return $fields;
+	}
+	
+	function getParamsFromQuickSearchFields($fields) {
+		$search_fields = $this->getQuickSearchFields();
+		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
+
+		// Handle virtual fields and overrides
+		if(is_array($fields))
+		foreach($fields as $k => $v) {
+			switch($k) {
+				case 'type':
+					$field_keys = array(
+						'type' => SearchFields_Snippet::CONTEXT,
+					);
+					
+					@$field_key = $field_keys[$k];
+					
+					$oper = DevblocksSearchCriteria::OPER_IN;
+					
+					$patterns = DevblocksPlatform::parseCsvString($v);
+					$contexts = Extension_DevblocksContext::getAll(false);
+					$values = array();
+					
+					if(is_array($patterns))
+					foreach($patterns as $pattern) {
+						if(in_array($pattern, array('plain', 'plaintext'))) {
+							$values[''] = true;
+							continue;
+						}
+						
+						foreach($contexts as $context_id => $context) {
+							if(false !== stripos($context->name, $pattern))
+								$values[$context_id] = true;
+						}
+					}
+					
+					$param = new DevblocksSearchCriteria(
+						$field_key,
+						$oper,
+						array_keys($values)
+					);
+					$params[$field_key] = $param;					
+					break;
+					
+			}
+		}
+		
+		$this->renderPage = 0;
+		$this->addParams($params, true);
+		
+		return $params;
 	}
 	
 	function render() {

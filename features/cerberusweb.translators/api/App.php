@@ -395,7 +395,7 @@ class ChTranslators_SetupPluginsMenuItem extends Extension_PageMenuItem {
 }
 endif;
 
-class View_Translation extends C4_AbstractView implements IAbstractView_Subtotals {
+class View_Translation extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
 	const DEFAULT_ID = 'translations';
 
 	function __construct() {
@@ -486,6 +486,86 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 		}
 		
 		return $counts;
+	}
+	
+	function getQuickSearchFields() {
+		$fields = array(
+			'_fulltext' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Translation::STRING_DEFAULT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Translation::STRING_ID, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'lang' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Translation::LANG_CODE),
+				),
+			'myTranslation' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Translation::STRING_OVERRIDE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'text' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Translation::STRING_DEFAULT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+		);
+		
+		// Sort by keys
+		
+		ksort($fields);
+		
+		return $fields;
+	}	
+	
+	function getParamsFromQuickSearchFields($fields) {
+		$search_fields = $this->getQuickSearchFields();
+		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
+
+		// Handle virtual fields and overrides
+		if(is_array($fields))
+		foreach($fields as $k => $v) {
+			switch($k) {
+				case 'lang':
+					$lang_codes = DAO_Translation::getDefinedLangCodes();
+					
+					$field_keys = array(
+						'lang' => SearchFields_Translation::LANG_CODE,
+					);
+					
+					@$field_key = $field_keys[$k];
+					$oper = DevblocksSearchCriteria::OPER_IN;
+					$patterns = DevblocksPlatform::parseCsvString($v);
+					
+					$values = array();
+					
+					foreach($patterns as $pattern) {
+						foreach($lang_codes as $lang_code => $lang_label) {
+							if(false !== stripos($lang_code . ' ' . $lang_label, $pattern))
+								$values[$lang_code] = true;
+						}
+					}
+
+					$param = new DevblocksSearchCriteria(
+						$field_key,
+						$oper,
+						array_keys($values)
+					);
+					$params[$field_key] = $param;
+					break;
+			}
+		}
+		
+		$this->renderPage = 0;
+		$this->addParams($params, true);
+		
+		return $params;
 	}
 	
 	function render() {

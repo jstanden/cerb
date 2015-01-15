@@ -1,4 +1,12 @@
-<h2>{'translators.common'|devblocks_translate|capitalize}</h2>
+<div style="float:left;">
+	<h2>{'translators.common'|devblocks_translate|capitalize}</h2>
+</div>
+
+<div style="float:right;">
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null reset=false}
+</div>
+
+<br clear="all">
 
 <form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
 	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=translations&action=showAddLanguagePanel',null,false,'500' );"><img src="{devblocks_url}c=resource&p=cerberusweb.translators&f=images/16x16/dictionary.png{/devblocks_url}" align="top"> {'translators.languages'|devblocks_translate|capitalize}</button>

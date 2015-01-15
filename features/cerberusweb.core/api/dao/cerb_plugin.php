@@ -255,7 +255,7 @@ class Model_CerbPlugin {
 	public $manifest_cache_json;
 };
 
-class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals {
+class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
 	const DEFAULT_ID = 'cerb5_plugins';
 
 	function __construct() {
@@ -347,6 +347,96 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 		
 		return $counts;
 	}
+	
+	function getQuickSearchFields() {
+		$fields = array(
+			'_fulltext' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_CerbPlugin::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'author' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_CerbPlugin::AUTHOR, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'description' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_CerbPlugin::DESCRIPTION, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'enabled' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_CerbPlugin::ENABLED),
+				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_CerbPlugin::ID),
+				),
+			'name' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_CerbPlugin::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'url' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_CerbPlugin::LINK, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'version' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_CerbPlugin::VERSION),
+					'examples' => array(
+						'<=1.0',
+						'2.0',
+					),
+				),
+		);
+		
+		// Sort by keys
+		
+		ksort($fields);
+		
+		return $fields;
+	}	
+	
+	function getParamsFromQuickSearchFields($fields) {
+		$search_fields = $this->getQuickSearchFields();
+		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
+
+		// Handle virtual fields and overrides
+		if(is_array($fields))
+		foreach($fields as $k => $v) {
+			switch($k) {
+				case 'version':
+					$field_keys = array(
+						'version' => SearchFields_CerbPlugin::VERSION,
+					);
+					
+					@$field_key = $field_keys[$k];
+					$oper_hint = 0;
+					
+					if(preg_match('#^([\!\=\>\<]+)(.*)#', $v, $matches)) {
+						$oper_hint = trim($matches[1]);
+						$v = trim($matches[2]);
+					}
+					
+					$value = $oper_hint . DevblocksPlatform::strVersionToInt($v, 3);
+					
+					if($field_key && false != ($param = DevblocksSearchCriteria::getNumberParamFromQuery($field_key, $value)))
+						$params[$field_key] = $param;
+					break;
+			}
+		}
+		
+		$this->renderPage = 0;
+		$this->addParams($params, true);
+		
+		return $params;
+	}
 
 	function render() {
 		$this->_sanitize();
@@ -396,6 +486,10 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 		switch($field) {
 			case SearchFields_CerbPlugin::ENABLED:
 				$this->_renderCriteriaParamBoolean($param);
+				break;
+				
+			case SearchFields_CerbPlugin::VERSION:
+				echo DevblocksPlatform::intVersionToStr($param->value);
 				break;
 			
 			default:
