@@ -26,6 +26,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	const PHONE = 'phone';
 	const WEBSITE = 'website';
 	const CREATED = 'created';
+	const UPDATED = 'updated';
 	
 	private function __construct() {}
 	
@@ -42,6 +43,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			'phone' => $translate->_('contact_org.phone'),
 			'website' => $translate->_('contact_org.website'),
 			'created' => $translate->_('contact_org.created'),
+			'updated' => $translate->_('common.updated'),
 		);
 	}
 	
@@ -75,6 +77,9 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		if(!isset($fields[self::UPDATED]))
+			$fields[self::UPDATED] = time();
 		
 		// Make a diff for the requested objects in batches
 		
@@ -244,7 +249,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, street, city, province, postal, country, phone, website, created ".
+		$sql = "SELECT id, name, street, city, province, postal, country, phone, website, created, updated ".
 			"FROM contact_org ".
 			$where_sql.
 			$sort_sql.
@@ -272,6 +277,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			$object->phone = $row['phone'];
 			$object->website = $row['website'];
 			$object->created = intval($row['created']);
+			$object->updated = intval($row['updated']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -350,6 +356,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			"c.country as %s, ".
 			"c.phone as %s, ".
 			"c.website as %s, ".
+			"c.updated as %s, ".
 			"c.created as %s ",
 				SearchFields_ContactOrg::ID,
 				SearchFields_ContactOrg::NAME,
@@ -360,6 +367,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 				SearchFields_ContactOrg::COUNTRY,
 				SearchFields_ContactOrg::PHONE,
 				SearchFields_ContactOrg::WEBSITE,
+				SearchFields_ContactOrg::UPDATED,
 				SearchFields_ContactOrg::CREATED
 			);
 
@@ -542,6 +550,7 @@ class SearchFields_ContactOrg {
 	const PHONE = 'c_phone';
 	const WEBSITE = 'c_website';
 	const CREATED = 'c_created';
+	const UPDATED = 'c_updated';
 
 	// Virtuals
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -572,6 +581,7 @@ class SearchFields_ContactOrg {
 			self::PHONE => new DevblocksSearchField(self::PHONE, 'c', 'phone', $translate->_('contact_org.phone'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::WEBSITE => new DevblocksSearchField(self::WEBSITE, 'c', 'website', $translate->_('contact_org.website'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'c', 'created', $translate->_('contact_org.created'), Model_CustomField::TYPE_DATE),
+			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'c', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
@@ -614,6 +624,7 @@ class Model_ContactOrg {
 	public $phone;
 	public $website;
 	public $created;
+	public $updated;
 	public $sync_id = '';
 };
 
@@ -629,7 +640,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_ContactOrg::CREATED,
+			SearchFields_ContactOrg::UPDATED,
 			SearchFields_ContactOrg::COUNTRY,
 			SearchFields_ContactOrg::PHONE,
 			SearchFields_ContactOrg::WEBSITE,
@@ -801,6 +812,11 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_ContactOrg::STREET, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'updated' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_ContactOrg::UPDATED),
+				),
 			'watchers' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_WORKER,
@@ -875,6 +891,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 				break;
 				
 			case SearchFields_ContactOrg::CREATED:
+			case SearchFields_ContactOrg::UPDATED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
@@ -956,6 +973,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 				break;
 				
 			case SearchFields_ContactOrg::CREATED:
+			case SearchFields_ContactOrg::UPDATED:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
@@ -1181,6 +1199,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			'postal' => $prefix.$translate->_('contact_org.postal'),
 			'province' => $prefix.$translate->_('contact_org.province'),
 			'street' => $prefix.$translate->_('contact_org.street'),
+			'updated' => $prefix.$translate->_('common.updated'),
 			'website' => $prefix.$translate->_('contact_org.website'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -1197,6 +1216,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			'postal' => Model_CustomField::TYPE_SINGLE_LINE,
 			'province' => Model_CustomField::TYPE_SINGLE_LINE,
 			'street' => Model_CustomField::TYPE_SINGLE_LINE,
+			'updated' => Model_CustomField::TYPE_DATE,
 			'website' => Model_CustomField::TYPE_URL,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
@@ -1228,6 +1248,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			$token_values['postal'] = $org->postal;
 			$token_values['province'] = $org->province;
 			$token_values['street'] = $org->street;
+			$token_values['updated'] = $org->updated;
 			$token_values['website'] = $org->website;
 			
 			// Custom fields
@@ -1412,6 +1433,11 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'param' => SearchFields_ContactOrg::STREET,
 			),
+			'updated' => array(
+				'label' => 'Updated Date',
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_ContactOrg::UPDATED,
+			),
 			'website' => array(
 				'label' => 'Website',
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1445,6 +1471,10 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			// Default the created date to now
 			if(!isset($fields[DAO_ContactOrg::CREATED]))
 				$fields[DAO_ContactOrg::CREATED] = time();
+			
+			// Default the updated date to now
+			if(!isset($fields[DAO_ContactOrg::UPDATED]))
+				$fields[DAO_ContactOrg::UPDATED] = time();
 	
 			// Create
 			$meta['object_id'] = DAO_ContactOrg::create($fields);

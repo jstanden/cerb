@@ -105,6 +105,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 				'phone' => DAO_ContactOrg::PHONE,
 				'website' => DAO_ContactOrg::WEBSITE,
 				'created' => DAO_ContactOrg::CREATED,
+				'updated' => DAO_ContactOrg::UPDATED,
 			);
 			
 		} elseif ('subtotal'==$type) {
@@ -135,6 +136,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 				'phone' => SearchFields_ContactOrg::PHONE,
 				'website' => SearchFields_ContactOrg::WEBSITE,
 				'created' => SearchFields_ContactOrg::CREATED,
+				'updated' => SearchFields_ContactOrg::UPDATED,
 			);
 		}
 		
@@ -238,10 +240,12 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 			'name' => 'string',
 			'street' => 'string',
 			'city' => 'string',
+			'created' => 'timestamp',
 			'province' => 'string',
 			'postal' => 'string',
 			'country' => 'string',
 			'phone' => 'string',
+			'updated' => 'timestamp',
 			'website' => 'string',
 		);
 
@@ -290,6 +294,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 			'phone' => 'string',
 			'website' => 'string',
 			'created' => 'timestamp',
+			'updated' => 'timestamp',
 		);
 
 		$fields = array();

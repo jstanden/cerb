@@ -62,6 +62,20 @@ if(!isset($columns['updated'])) {
 }
 
 // ===========================================================================
+// Add `updated` columns to records that lack them
+
+list($columns, $indexes) = $db->metaTable('contact_org');
+
+if(!isset($tables['contact_org'])) {
+	$logger->error("The 'contact_org' table does not exist.");
+	return FALSE;
+}
+
+if(!isset($columns['updated'])) {
+	$db->Execute("ALTER TABLE contact_org ADD COLUMN updated INT UNSIGNED NOT NULL DEFAULT 0");
+}
+
+// ===========================================================================
 // Clean up unused worker prefs
 
 $db->Execute("DELETE FROM worker_pref WHERE setting LIKE 'quicksearch_%'");

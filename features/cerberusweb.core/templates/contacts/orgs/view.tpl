@@ -88,8 +88,8 @@
 			<td>{$result.c_id}&nbsp;</td>
 			{elseif $column=="c_website"}
 			<td><a href="{$result.c_website}" target="_blank">{$result.c_website|truncate:45:'...':true}</a>&nbsp;</td>
-			{elseif $column=="c_created"}
-			<td title="{$result.c_created|devblocks_date}">{$result.c_created|devblocks_prettytime}&nbsp;</td>
+			{elseif in_array($column, ["c_created", "c_updated"])}
+			<td title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}&nbsp;</td>
 			{else}
 			<td>{$result.$column}</td>
 			{/if}
