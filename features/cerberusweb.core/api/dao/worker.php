@@ -36,6 +36,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	const TIME_FORMAT = 'time_format';
 	const TIMEZONE = 'timezone';
 	const TITLE = 'title';
+	const UPDATED = 'updated';
 	
 	static function create($fields) {
 		if(empty($fields[DAO_Worker::EMAIL]))
@@ -149,7 +150,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
-		$sql = "SELECT id, first_name, last_name, email, title, is_superuser, is_disabled, last_activity_date, last_activity, last_activity_ip, auth_extension_id, at_mention_name, timezone, time_format, language, calendar_id ".
+		$sql = "SELECT id, first_name, last_name, email, title, is_superuser, is_disabled, last_activity_date, last_activity, last_activity_ip, auth_extension_id, at_mention_name, timezone, time_format, language, calendar_id, updated ".
 			"FROM worker ".
 			$where_sql.
 			$sort_sql.
@@ -196,6 +197,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$object->time_format = $row['time_format'];
 			$object->timezone = $row['timezone'];
 			$object->title = $row['title'];
+			$object->updated = intval($row['updated']);
 			
 			if(!empty($row['last_activity']))
 				$object->last_activity = unserialize($row['last_activity']);
@@ -273,10 +275,12 @@ class DAO_Worker extends Cerb_ORMHelper {
 		self::clearCache();
 	}
 	
-	// [TODO] Fix 'option_bits'
 	static function update($ids, $fields, $option_bits=0, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		if(!isset($fields[self::UPDATED]) && !($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_EVENTS))
+			$fields[self::UPDATED] = time();
 		
 		// Make a diff for the requested objects in batches
 		
@@ -575,6 +579,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			"w.time_format as %s, ".
 			"w.language as %s, ".
 			"w.calendar_id as %s, ".
+			"w.updated as %s, ".
 			"w.is_disabled as %s ",
 				SearchFields_Worker::ID,
 				SearchFields_Worker::FIRST_NAME,
@@ -589,6 +594,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 				SearchFields_Worker::TIME_FORMAT,
 				SearchFields_Worker::LANGUAGE,
 				SearchFields_Worker::CALENDAR_ID,
+				SearchFields_Worker::UPDATED,
 				SearchFields_Worker::IS_DISABLED
 			);
 			
@@ -844,6 +850,7 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 	const TIME_FORMAT = 'w_time_format';
 	const LANGUAGE = 'w_language';
 	const CALENDAR_ID = 'w_calendar_id';
+	const UPDATED = 'w_updated';
 	const IS_DISABLED = 'w_is_disabled';
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -875,6 +882,7 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 			self::TIME_FORMAT => new DevblocksSearchField(self::TIME_FORMAT, 'w', 'time_format', $translate->_('worker.time_format'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::LANGUAGE => new DevblocksSearchField(self::LANGUAGE, 'w', 'language', $translate->_('worker.language'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::CALENDAR_ID => new DevblocksSearchField(self::CALENDAR_ID, 'w', 'calendar_id', $translate->_('common.calendar'), null),
+			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'w', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'w', 'is_disabled', ucwords($translate->_('common.disabled')), Model_CustomField::TYPE_CHECKBOX),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
@@ -919,6 +927,7 @@ class Model_Worker {
 	public $time_format;
 	public $timezone;
 	public $title;
+	public $updated;
 
 	/**
 	 * @return Model_GroupMember[]
@@ -1231,6 +1240,11 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Worker::TITLE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'updated' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_Worker::UPDATED),
+				),
 		);
 		
 		// Add searchable custom fields
@@ -1363,6 +1377,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Worker::LAST_ACTIVITY_DATE:
+			case SearchFields_Worker::UPDATED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
@@ -1434,6 +1449,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Worker::LAST_ACTIVITY_DATE:
+			case SearchFields_Worker::UPDATED:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
@@ -1718,6 +1734,7 @@ class Context_Worker extends Extension_DevblocksContext {
 			'timezone',
 			'language',
 			'last_activity_date',
+			'updated',
 		);
 	}
 	
@@ -1753,6 +1770,7 @@ class Context_Worker extends Extension_DevblocksContext {
 			'time_format' => $prefix.$translate->_('worker.time_format'),
 			'timezone' => $prefix.$translate->_('worker.timezone'),
 			'title' => $prefix.$translate->_('worker.title'),
+			'updated' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
@@ -1770,6 +1788,7 @@ class Context_Worker extends Extension_DevblocksContext {
 			'time_format' => Model_CustomField::TYPE_SINGLE_LINE,
 			'timezone' => Model_CustomField::TYPE_SINGLE_LINE,
 			'title' => Model_CustomField::TYPE_SINGLE_LINE,
+			'updated' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
@@ -1804,6 +1823,7 @@ class Context_Worker extends Extension_DevblocksContext {
 			$token_values['time_format'] = $worker->time_format;
 			$token_values['timezone'] = $worker->timezone;
 			$token_values['title'] = $worker->title;
+			$token_values['updated'] = $worker->updated;
 
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($worker, $token_values);

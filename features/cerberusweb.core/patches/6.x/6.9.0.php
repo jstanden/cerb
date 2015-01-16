@@ -56,6 +56,11 @@ if(!isset($columns['calendar_id'])) {
 	$db->Execute("DELETE FROM worker_pref WHERE setting = 'availability_calendar_id'");
 }
 
+if(!isset($columns['updated'])) {
+	$db->Execute("ALTER TABLE worker ADD COLUMN updated INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->Execute(sprintf("UPDATE worker SET updated = %d", time()));
+}
+
 // ===========================================================================
 // Clean up unused worker prefs
 

@@ -88,9 +88,9 @@
 					{/if}
 				{/if}
 				</td>
-			{elseif $column=="w_last_activity_date"}
-				{if !empty($result.w_last_activity_date)}
-				<td title="{$result.w_last_activity_date|devblocks_date}">{$result.w_last_activity_date|devblocks_prettytime}</td>
+			{elseif in_array($column, ['w_last_activity_date', 'w_updated'])}
+				{if !empty($result.$column)}
+				<td title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</td>
 				{else}
 				<td>never</td>
 				{/if}

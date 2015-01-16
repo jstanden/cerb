@@ -93,6 +93,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'last_name' => DAO_Worker::LAST_NAME,
 				'password' => 'password',
 				'title' => DAO_Worker::TITLE,
+				'updated' => DAO_Worker::UPDATED,
 			);
 			
 		} elseif ('subtotal'==$type) {
@@ -121,6 +122,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'is_superuser' => SearchFields_Worker::IS_SUPERUSER,
 				'last_name' => SearchFields_Worker::LAST_NAME,
 				'title' => SearchFields_Worker::TITLE,
+				'updated' => SearchFields_Worker::UPDATED,
 			);
 		}
 		
@@ -239,6 +241,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'is_superuser' => 'bit',
 			'last_name' => 'string',
 			'title' => 'string',
+			'updated' => 'timestamp',
 		);
 
 		$fields = array();
@@ -288,6 +291,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'is_superuser' => 'bit',
 			'last_name' => 'string',
 			'title' => 'string',
+			'updated' => 'timestamp',
 		);
 
 		$fields = array();
