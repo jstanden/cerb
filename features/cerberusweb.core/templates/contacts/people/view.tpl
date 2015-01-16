@@ -102,7 +102,7 @@
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=='a_email'}
 				<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$result.a_email|escape:'url'}&view_id={$view->id}',null,false,'550');">{$result.$column}</a></td>
-			{elseif $column=="c_created" || $column=="c_last_login"}
+			{elseif in_array($column, ["c_created", "c_last_login", "c_updated"])}
 				<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
 			{else}
 				<td>{$result.$column}</td>

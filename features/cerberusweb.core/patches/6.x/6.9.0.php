@@ -75,6 +75,17 @@ if(!isset($columns['updated'])) {
 	$db->Execute("ALTER TABLE contact_org ADD COLUMN updated INT UNSIGNED NOT NULL DEFAULT 0");
 }
 
+list($columns, $indexes) = $db->metaTable('contact_person');
+
+if(!isset($tables['contact_person'])) {
+	$logger->error("The 'contact_person' table does not exist.");
+	return FALSE;
+}
+
+if(!isset($columns['updated'])) {
+	$db->Execute("ALTER TABLE contact_person ADD COLUMN updated INT UNSIGNED NOT NULL DEFAULT 0");
+}
+
 // ===========================================================================
 // Clean up unused worker prefs
 

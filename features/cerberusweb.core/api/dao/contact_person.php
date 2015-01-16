@@ -19,6 +19,7 @@ class DAO_ContactPerson extends Cerb_ORMHelper {
 	const ID = 'id';
 	const EMAIL_ID = 'email_id';
 	const CREATED = 'created';
+	const UPDATED = 'updated';
 	const LAST_LOGIN = 'last_login';
 	const AUTH_SALT = 'auth_salt';
 	const AUTH_PASSWORD = 'auth_password';
@@ -41,6 +42,9 @@ class DAO_ContactPerson extends Cerb_ORMHelper {
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		if(!isset($fields[self::UPDATED]))
+			$fields[self::UPDATED] = time();
 		
 		// Make a diff for the requested objects in batches
 		
@@ -93,7 +97,7 @@ class DAO_ContactPerson extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, email_id, created, last_login, auth_salt, auth_password ".
+		$sql = "SELECT id, email_id, created, last_login, auth_salt, auth_password, updated ".
 			"FROM contact_person ".
 			$where_sql.
 			$sort_sql.
@@ -135,6 +139,7 @@ class DAO_ContactPerson extends Cerb_ORMHelper {
 			$object->last_login = intval($row['last_login']);
 			$object->auth_salt = $row['auth_salt'];
 			$object->auth_password = $row['auth_password'];
+			$object->updated = intval($row['updated']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -212,6 +217,7 @@ class DAO_ContactPerson extends Cerb_ORMHelper {
 			"contact_person.last_login as %s, ".
 			"contact_person.auth_salt as %s, ".
 			"contact_person.auth_password as %s, ".
+			"contact_person.updated as %s, ".
 			"address.first_name as %s, ".
 			"address.last_name as %s, ".
 			"address.email as %s ",
@@ -221,6 +227,7 @@ class DAO_ContactPerson extends Cerb_ORMHelper {
 				SearchFields_ContactPerson::LAST_LOGIN,
 				SearchFields_ContactPerson::AUTH_SALT,
 				SearchFields_ContactPerson::AUTH_PASSWORD,
+				SearchFields_ContactPerson::UPDATED,
 				SearchFields_ContactPerson::ADDRESS_FIRST_NAME,
 				SearchFields_ContactPerson::ADDRESS_LAST_NAME,
 				SearchFields_ContactPerson::ADDRESS_EMAIL
@@ -387,6 +394,7 @@ class SearchFields_ContactPerson implements IDevblocksSearchFields {
 	const LAST_LOGIN = 'c_last_login';
 	const AUTH_SALT = 'c_auth_salt';
 	const AUTH_PASSWORD = 'c_auth_password';
+	const UPDATED = 'c_updated';
 	
 	const ADDRESS_EMAIL = 'a_email';
 	const ADDRESS_FIRST_NAME = 'a_first_name';
@@ -412,6 +420,7 @@ class SearchFields_ContactPerson implements IDevblocksSearchFields {
 			self::LAST_LOGIN => new DevblocksSearchField(self::LAST_LOGIN, 'contact_person', 'last_login', $translate->_('dao.contact_person.last_login'), Model_CustomField::TYPE_DATE),
 			self::AUTH_SALT => new DevblocksSearchField(self::AUTH_SALT, 'contact_person', 'auth_salt', $translate->_('dao.contact_person.auth_salt')),
 			self::AUTH_PASSWORD => new DevblocksSearchField(self::AUTH_PASSWORD, 'contact_person', 'auth_password', $translate->_('dao.contact_person.auth_password')),
+			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'contact_person', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 			
 			self::ADDRESS_EMAIL => new DevblocksSearchField(self::ADDRESS_EMAIL, 'address', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::ADDRESS_FIRST_NAME => new DevblocksSearchField(self::ADDRESS_FIRST_NAME, 'address', 'first_name', $translate->_('address.first_name'), Model_CustomField::TYPE_SINGLE_LINE),
@@ -449,6 +458,7 @@ class Model_ContactPerson {
 	public $last_login;
 	public $auth_salt;
 	public $auth_password;
+	public $updated;
 	
 	private $_addresses = array();
 	
@@ -491,8 +501,8 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_ContactPerson::ADDRESS_FIRST_NAME,
 			SearchFields_ContactPerson::ADDRESS_LAST_NAME,
 			SearchFields_ContactPerson::ADDRESS_EMAIL,
-			SearchFields_ContactPerson::CREATED,
 			SearchFields_ContactPerson::LAST_LOGIN,
+			SearchFields_ContactPerson::UPDATED,
 		);
 		
 		// Filter fields
@@ -643,6 +653,11 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_ContactPerson::ADDRESS_LAST_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
+			'updated' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_ContactPerson::UPDATED),
+				),
 			'watchers' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_WORKER,
@@ -723,6 +738,7 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 				
 			case SearchFields_ContactPerson::CREATED:
 			case SearchFields_ContactPerson::LAST_LOGIN:
+			case SearchFields_ContactPerson::UPDATED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
@@ -805,6 +821,7 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 				
 			case SearchFields_ContactPerson::CREATED:
 			case SearchFields_ContactPerson::LAST_LOGIN:
+			case SearchFields_ContactPerson::UPDATED:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
@@ -1009,6 +1026,7 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 			'email_org__label',
 			'created',
 			'last_login',
+			'updated',
 		);
 	}
 	
@@ -1036,6 +1054,7 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 			'created' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
 			'last_login' => $prefix.$translate->_('dao.contact_person.last_login'),
+			'updated' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
@@ -1045,6 +1064,7 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 			'created' => Model_CustomField::TYPE_DATE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'last_login' => Model_CustomField::TYPE_DATE,
+			'updated' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
@@ -1074,6 +1094,8 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 				$token_values['created'] = $person->created;
 			if(!empty($person->last_login))
 				$token_values['last_login'] = $person->last_login;
+			if(!empty($person->updated))
+				$token_values['updated'] = $person->updated;
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($person, $token_values);
@@ -1245,6 +1267,11 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 				'param' => SearchFields_ContactPerson::EMAIL_ID,
 				'force_match' => true,
 				'required' => true,
+			),
+			'updated' => array(
+				'label' => 'Updated Date',
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_ContactPerson::UPDATED,
 			),
 				
 			// Virtual fields

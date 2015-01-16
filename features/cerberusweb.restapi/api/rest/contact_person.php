@@ -89,6 +89,7 @@ class ChRest_ContactPerson extends Extension_RestController implements IExtensio
 				'auth_password' => DAO_ContactPerson::AUTH_PASSWORD,
 				'created' => DAO_ContactPerson::CREATED,
 				'email_id' => DAO_ContactPerson::EMAIL_ID,
+				'updated' => DAO_ContactPerson::UPDATED,
 			);
 			
 		} elseif ('subtotal'==$type) {
@@ -116,6 +117,7 @@ class ChRest_ContactPerson extends Extension_RestController implements IExtensio
 				'email_last_name' => SearchFields_ContactPerson::ADDRESS_LAST_NAME,
 				'id' => SearchFields_ContactPerson::ID,
 				'last_login' => SearchFields_ContactPerson::LAST_LOGIN,
+				'updated' => SearchFields_ContactPerson::UPDATED,
 			);
 		}
 		
@@ -207,6 +209,7 @@ class ChRest_ContactPerson extends Extension_RestController implements IExtensio
 			
 		$putfields = array(
 			'password' => 'string',
+			'updated' => 'timestamp',
 		);
 
 		$fields = array();
@@ -263,8 +266,10 @@ class ChRest_ContactPerson extends Extension_RestController implements IExtensio
 			$this->error(self::ERRNO_ACL);
 		
 		$postfields = array(
+			'created' => 'timestamp',
 			'email' => 'string',
 			'password' => 'string',
+			'updated' => 'timestamp',
 		);
 
 		$fields = array();
