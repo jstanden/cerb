@@ -61,7 +61,9 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 		
 		if('dao'==$type) {
 			$tokens = array(
-//				'example' => DAO_Example::PROPERTY,
+				'created' => DAO_Group::CREATED,
+				'name' => DAO_Group::NAME,
+				'updated' => DAO_Group::UPDATED,
 			);
 			
 		} elseif ('subtotal'==$type) {
@@ -77,8 +79,10 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 			
 		} else {
 			$tokens = array(
+				'created' => SearchFields_Group::CREATED,
 				'id' => SearchFields_Group::ID,
 				'name' => SearchFields_Group::NAME,
+				'updated' => SearchFields_Group::UPDATED,
 			);
 		}
 		

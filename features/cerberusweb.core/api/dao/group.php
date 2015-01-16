@@ -26,6 +26,8 @@ class DAO_Group extends Cerb_ORMHelper {
 	const REPLY_SIGNATURE = 'reply_signature';
 	const IS_DEFAULT = 'is_default';
 	const REPLY_HTML_TEMPLATE_ID = 'reply_html_template_id';
+	const CREATED = 'created';
+	const UPDATED = 'updated';
 	
 	// Groups
 	
@@ -57,7 +59,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, is_default, reply_address_id, reply_personal, reply_signature, reply_html_template_id ".
+		$sql = "SELECT id, name, is_default, reply_address_id, reply_personal, reply_signature, reply_html_template_id, created, updated ".
 			"FROM worker_group ".
 			$where_sql.
 			$sort_sql.
@@ -96,6 +98,8 @@ class DAO_Group extends Cerb_ORMHelper {
 			$object->reply_personal = $row['reply_personal'];
 			$object->reply_signature = $row['reply_signature'];
 			$object->reply_html_template_id = $row['reply_html_template_id'];
+			$object->created = intval($row['created']);
+			$object->updated = intval($row['updated']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -142,6 +146,9 @@ class DAO_Group extends Cerb_ORMHelper {
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		$id = $db->LastInsertId();
 		
+		if(!isset($fields[self::CREATED]))
+			$fields[self::CREATED] = time();
+		
 		self::update($id, $fields);
 
 		self::clearCache();
@@ -158,6 +165,9 @@ class DAO_Group extends Cerb_ORMHelper {
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		if(!isset($fields[self::UPDATED]))
+			$fields[self::UPDATED] = time();
 		
 		// Make a diff for the requested objects in batches
 		
@@ -370,9 +380,13 @@ class DAO_Group extends Cerb_ORMHelper {
 		
 		$select_sql = sprintf("SELECT ".
 			"g.id as %s, ".
-			"g.name as %s ",
+			"g.name as %s, ".
+			"g.created as %s, ".
+			"g.updated as %s ",
 				SearchFields_Group::ID,
-				SearchFields_Group::NAME
+				SearchFields_Group::NAME,
+				SearchFields_Group::CREATED,
+				SearchFields_Group::UPDATED
 			);
 			
 		$join_sql = "FROM worker_group g ".
@@ -498,6 +512,8 @@ class SearchFields_Group implements IDevblocksSearchFields {
 	// Worker
 	const ID = 'g_id';
 	const NAME = 'g_name';
+	const CREATED = 'g_created';
+	const UPDATED = 'g_updated';
 	
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
@@ -514,6 +530,8 @@ class SearchFields_Group implements IDevblocksSearchFields {
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'g', 'id', $translate->_('common.id')),
 			self::NAME => new DevblocksSearchField(self::NAME, 'g', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::CREATED => new DevblocksSearchField(self::CREATED, 'g', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE),
+			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'g', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
@@ -547,6 +565,8 @@ class Model_Group {
 	public $reply_personal;
 	public $reply_signature;
 	public $reply_html_template_id = 0;
+	public $created;
+	public $updated;
 	
 	public function getMembers() {
 		return DAO_Group::getGroupMembers($this->id);
@@ -807,6 +827,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 
 		$this->view_columns = array(
 			SearchFields_Group::NAME,
+			SearchFields_Group::UPDATED,
 		);
 		
 		$this->addColumnsHidden(array(
@@ -906,10 +927,20 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Group::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'created' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_Group::CREATED),
+				),
 			'name' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Group::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'updated' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_Group::UPDATED),
 				),
 		);
 		
@@ -974,7 +1005,8 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
-			case 'placeholder_date':
+			case SearchFields_Group::CREATED:
+			case SearchFields_Group::UPDATED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
@@ -1036,7 +1068,8 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
-			case 'placeholder_date':
+			case SearchFields_Group::CREATED:
+			case SearchFields_Group::UPDATED:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
@@ -1178,7 +1211,9 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		
 		return array(
 			'id' => $group->id,
+			'created' => $group->created,
 			'name' => $group->name,
+			'updated' => $group->updated,
 			'permalink' => $url,
 		);
 	}
@@ -1233,7 +1268,9 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$token_labels = array(
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
+			'created' => $prefix.$translate->_('common.created'),
 			'name' => $prefix.$translate->_('common.name'),
+			'updated' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
@@ -1241,7 +1278,9 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$token_types = array(
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
+			'created' => Model_CustomField::TYPE_DATE,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'updated' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 			'reply_address_id' => Model_CustomField::TYPE_NUMBER,
 		);
@@ -1265,7 +1304,9 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $group->name;
 			$token_values['id'] = $group->id;
+			$token_values['created'] = $group->created;
 			$token_values['name'] = $group->name;
+			$token_values['updated'] = $group->updated;
 			$token_values['reply_address_id'] = $group->reply_address_id;
 			
 			// Custom fields
@@ -1454,11 +1495,9 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$view->name = 'Groups';
 		$view->view_columns = array(
 			SearchFields_Group::NAME,
-//			SearchFields_Worker::LAST_NAME,
-//			SearchFields_Worker::TITLE,
+			SearchFields_Group::UPDATED,
 		);
 		$view->addParams(array(
-//			SearchFields_Worker::IS_DISABLED => new DevblocksSearchCriteria(SearchFields_Worker::IS_DISABLED,'=',0),
 		), true);
 //		$view->renderSortBy = SearchFields_Group::NAME;
 //		$view->renderSortAsc = true;

@@ -64,6 +64,8 @@ if(!isset($columns['updated'])) {
 // ===========================================================================
 // Add `updated` columns to records that lack them
 
+// Orgs
+
 list($columns, $indexes) = $db->metaTable('contact_org');
 
 if(!isset($tables['contact_org'])) {
@@ -75,6 +77,8 @@ if(!isset($columns['updated'])) {
 	$db->Execute("ALTER TABLE contact_org ADD COLUMN updated INT UNSIGNED NOT NULL DEFAULT 0");
 }
 
+// Contacts
+
 list($columns, $indexes) = $db->metaTable('contact_person');
 
 if(!isset($tables['contact_person'])) {
@@ -84,6 +88,24 @@ if(!isset($tables['contact_person'])) {
 
 if(!isset($columns['updated'])) {
 	$db->Execute("ALTER TABLE contact_person ADD COLUMN updated INT UNSIGNED NOT NULL DEFAULT 0");
+}
+
+// Groups
+
+list($columns, $indexes) = $db->metaTable('worker_group');
+
+if(!isset($tables['worker_group'])) {
+	$logger->error("The 'worker_group' table does not exist.");
+	return FALSE;
+}
+
+if(!isset($columns['created'])) {
+	$db->Execute("ALTER TABLE worker_group ADD COLUMN created INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->Execute(sprintf("UPDATE worker_group SET created = %d", time()));
+}
+
+if(!isset($columns['updated'])) {
+	$db->Execute("ALTER TABLE worker_group ADD COLUMN updated INT UNSIGNED NOT NULL DEFAULT 0");
 }
 
 // ===========================================================================
