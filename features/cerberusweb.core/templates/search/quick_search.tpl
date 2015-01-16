@@ -1,231 +1,138 @@
-{$pref_token = DAO_WorkerPref::get($active_worker->id, "quicksearch_{get_class($view)|lower}", "")}
-
-{capture "options"}
-{foreach from=$view->getParamsAvailable() item=field key=token}
-{if !empty($field->db_label) && (!empty($field->type) || ($view instanceof IAbstractView_QuickSearch && $view->isQuickSearchField($token)))}
-<option value="{$token}" {if $pref_token==$token}selected="selected"{/if} field_type="{$field->type}">{$field->db_label|capitalize}</option>
-{/if}
-{/foreach}
-{/capture}
-
 {$uniqid = uniqid()}
+{if $view instanceof IAbstractView_QuickSearch}{$search_fields = $view->getQuickSearchFields()}{/if}
 
-{if !empty($smarty.capture.options)}
 <form action="javascript:;" method="post" id="{$uniqid}" class="quick-search">
 	<input type="hidden" name="c" value="search">
 	<input type="hidden" name="a" value="ajaxQuickSearch">
 	<input type="hidden" name="view_id" value="{$view->id}">
-	
-	<select name="field">
-		{$smarty.capture.options nofilter}
-	</select><input type="text" name="query" class="input_search" size="32" value="" autocomplete="off" spellcheck="false">
-	
-	<div class="hints{if !$is_popup} hints-float{/if} hints-shadow">
-		<b>examples:</b> 
-		<ul class="bubbles"></ul>
+
+	<div style="border:1px solid rgb(200,200,200);border-radius:10px;display:inline-block;">
+		<input type="text" name="query" class="input_search cerb-input-quicksearch" style="border:0;" size="50" value="" autocomplete="off" spellcheck="false" placeholder="{'common.search'|devblocks_translate|lower}">
+		<a href="javascript:;" class="cerb-quick-search-menu-trigger" style="position:relative;top:5px;padding:0px 10px;"><span class="cerb-sprite sprite-arrow-down-black" style="height:12px;width:12px;"></span></a>
 	</div>
+	
+	<ul class="cerb-quick-search-menu" style="position:absolute;float:right;margin-right:10px;z-index:5;">
+		{if !empty($search_fields)}
+		{foreach from=$search_fields key=field_key item=field}
+		<li field="{$field_key}">
+			<b>{$field_key}</b>
+			
+			{if $field.examples}
+				<ul style="width:200px;">
+					{foreach from=$field.examples item=example}
+					<li>{$example}</li>
+					{/foreach}
+				</ul>
+			{else}
+				{if $field.type == DevblocksSearchCriteria::TYPE_BOOL}
+				<ul style="width:200px;">
+					<li>yes</li>
+					<li>no</li>
+				</ul>
+				{elseif $field.type == DevblocksSearchCriteria::TYPE_DATE}
+				<ul style="width:200px;">
+					<li>never</li>
+					<li>"-1 day"</li>
+					<li>"-2 weeks"</li>
+					<li>"big bang to now"</li>
+					<li>"yesterday to today"</li>
+					<li>"last Monday to next Monday"</li>
+					<li>"Jan 1 to Dec 31 23:59:59"</li>
+				</ul>
+				{elseif $field.type == DevblocksSearchCriteria::TYPE_FULLTEXT}
+				<ul style="width:200px;">
+					<li>word</li>
+					<li>"a multiple word phrase"</li>
+					<li>("any" "of" "these" "words")</li>
+					<li>person@example.com</li>
+				</ul>
+				{elseif $field.type == DevblocksSearchCriteria::TYPE_NUMBER}
+				<ul style="width:200px;">
+					<li>1</li>
+					<li>!=42</li>
+					<li>&gt;0</li>
+					<li>&gt;=5</li>
+					<li>&lt;50</li>
+					<li>&lt;=100</li>
+				</ul>
+				{elseif $field.type == DevblocksSearchCriteria::TYPE_TEXT}
+				<ul style="width:200px;">
+					<li>word</li>
+					<li>prefix*</li>
+					<li>*wildcard*</li>
+					<li>"a several word phrase"</li>
+					<li>("an exact match")</li>
+				</ul>
+				{elseif $field.type == DevblocksSearchCriteria::TYPE_WORKER}
+				<ul style="width:200px;">
+					<li>me</li>
+					<li>any</li>
+					<li>none</li>
+					<li>no</li>
+					<li>jeff,dan,darren</li>
+				</ul>
+				{/if}
+			{/if}
+		</li>
+		{/foreach}
+		{/if}
+	</ul>
+	
 </form>
-{/if}
 
 <script type="text/javascript">
 var $frm = $('#{$uniqid}').each(function(e) {
 	var $frm = $(this);
-	var $select = $frm.find('select[name=field]');
 	var $input = $frm.find('input:text');
-
-	var $bubbles = $select.siblings('div.hints').find('ul.bubbles');
-	$bubbles.css('cursor', 'pointer');
 	
-	$bubbles.on('click', function(e) {
-		var txt = $(e.target).text();
-		$input.insertAtCursor(txt).select();
-	});
-	
-	$select.bind('load_hints', function(e) {
-		var $this = $(this);
-		var $token = $this.find('option:selected');
-		var token = $token.val();
-		var cf_id = $token.attr('cf_id');
-		var field_type = $token.attr('field_type');
-		
-		$bubbles.find('li').remove();
-		
-{capture "field_hints"}
-{foreach from=$view->getParamsAvailable() item=field key=token}
-
-{if $field->type == 'FT' && $field->ft_schema}
-	{$schema = Extension_DevblocksSearchSchema::get($field->ft_schema)}
-	{if $schema}
-	{$engine = $schema->getEngine()}
-	{if $engine}
-	{$examples = $engine->getQuickSearchExamples($schema)}
-	{if $examples}
-	else if (token == '{$token}') {
-		{foreach from=$examples item=example}
-		$bubbles.append($('<li><tt>{$example|escape:'javascript'}</tt></li>'));
-		{/foreach}
-	}
-	{/if}
-	{/if}
-	{/if}
-{/if}
-
-{$cf_id = substr($token,3)}
-{if substr($token,0,3) == 'cf_' && !empty($cf_id)}
-{$cf = DAO_CustomField::get($cf_id)}
-{if $cf->type == 'D' || $cf->type == 'X'}
-	else if (token == '{$token}') { 
-		{foreach $cf->params.options as $opt}
-		$bubbles.append($('<li><tt>{$opt|lower|escape:'javascript'}</tt></li>'));
-		{/foreach}
-		$bubbles.append($('<li><i>option1,option2</i></li>'));
-		$bubbles.append($('<li><i>!option3</i></li>'));
-	}
-{/if}
-{/if}
-{/foreach}
-{/capture}
-	
-		// [TODO] This should come from IAbstractView_QuickSearch
-		if(token == '*_status' || token == '*_ticket_status') {
-			$bubbles.append($('<li><tt>open,waiting</tt></li>'));
-			$bubbles.append($('<li><tt>closed</tt></li>'));
-			$bubbles.append($('<li><tt>!deleted</tt></li>'));
-			$bubbles.append($('<li><tt>o,w</tt></li>'));
-			$bubbles.append($('<li><tt>!c,d</tt></li>'));
-		}
-		
-		// [TODO] This should come from IAbstractView_QuickSearch
-		else if(token == 't_group_id' || token == '*_groups') {
-			{$groups = DAO_Group::getAll()}
-			{foreach $groups as $group}
-			$bubbles.append($('<li><tt>{$group->name|lower|escape:'javascript'}</tt></li>'));
-			{/foreach}
-			$bubbles.append($('<li><i>group1, group2</i></li>'));
-			$bubbles.append($('<li><i>!group</i></li>'));
-		}
-		
-		// [TODO] This should come from IAbstractView_QuickSearch
-		else if(token == '*_message_header') {
-			$bubbles.append($('<li><tt>message-id = &lt;...&gt;</tt></li>'));
-			$bubbles.append($('<li><tt>x-mailer like cerb* OR <br>x-mailer like salesforce*</tt></li>'));
-		}
-		
-		// [TODO] This should come from IAbstractView_QuickSearch
-		else if(token == '*_attachment_name') {
-			$bubbles.append($('<li><tt>filename.ext</tt></li>'));
-			$bubbles.append($('<li><tt>*.zip OR *.txt</tt></li>'));
-		}
-		
-		{if !empty($smarty.capture.field_hints)}
-		{$smarty.capture.field_hints nofilter}
-		{/if}
-		
-		else {
-			if (field_type == 'E') {
-				$bubbles.append($('<li><tt>today to +5 days</tt></li>'));
-				$bubbles.append($('<li><tt>big bang to now</tt></li>'));
-				$bubbles.append($('<li><tt>Jan 1 2010 to +1 year</tt></li>'));
-				$bubbles.append($('<li><tt>-2 weeks to now</tt></li>'));
-				$bubbles.append($('<li><tt>last Monday to next Monday</tt></li>'));
-				$bubbles.append($('<li><tt>blank</tt></li>'));
-				$bubbles.append($('<li><tt>last Monday to last Friday 23:59 OR today to now</tt></li>'));
+	var $menu = $frm.find('ul.cerb-quick-search-menu')
+		.menu({
+			items: "> :not(.ui-widget-header)",
+			select: function(event, ui) {
+				var val = $input.val();
 				
-			} else if (field_type == 'W' || field_type == 'WS') {
-				$bubbles.append($('<li><tt>jeff</tt></li>'));
-				$bubbles.append($('<li><tt>darren,dan,scott</tt></li>'));
-				$bubbles.append($('<li><tt>!jeff</tt></li>'));
-				$bubbles.append($('<li><tt>me</tt></li>'));
-				$bubbles.append($('<li><tt>any</tt></li>'));
-				$bubbles.append($('<li><tt>none</tt></li>'));
-				
-			} else if (field_type == 'S' || field_type == 'T' || field_type == 'U') {
-				$bubbles.append($('<li><tt>some words</tt></li>'));
-				$bubbles.append($('<li><tt>"exact phrase"</tt></li>'));
-				$bubbles.append($('<li><tt>*substring*</tt></li>'));
-				$bubbles.append($('<li><tt>prefix*</tt></li>'));
-				$bubbles.append($('<li><tt>*suffix</tt></li>'));
-				$bubbles.append($('<li><tt>!text</tt></li>'));
-				$bubbles.append($('<li><tt>term1 OR term2</tt></li>'));
-				
-			} else if (field_type == 'D' || field_type == 'X') {
-				$bubbles.append($('<li><tt>option</tt></li>'));
-				$bubbles.append($('<li><tt>option1,option2</tt></li>'));
-				$bubbles.append($('<li><tt>!option3</tt></li>'));
-				
-			} else if (field_type == 'FT') {
-				$bubbles.append($('<li><tt>a multiple word phrase</tt></li>'));
-				$bubbles.append($('<li><tt>"any" "of" "these" "words"</tt></li>'));
-				$bubbles.append($('<li><tt>"this phrase" or any of these words</tt></li>'));
-				$bubbles.append($('<li><tt>person@example.com</tt></li>'));
-				
-			} else if (field_type == 'N') {
-				$bubbles.append($('<li><tt>&gt; 0</tt></li>'));
-				$bubbles.append($('<li><tt>&lt; 100</tt></li>'));
-				$bubbles.append($('<li><tt>= 5</tt></li>'));
-				$bubbles.append($('<li><tt>!= 20</tt></li>'));
-				$bubbles.append($('<li><tt>0 OR &gt; 10</tt></li>'));
-				
-			} else if (field_type == 'C') {
-				$bubbles.append($('<li><tt>yes</tt></li>'));
-				$bubbles.append($('<li><tt>no</tt></li>'));
-				$bubbles.append($('<li><tt>y</tt></li>'));
-				$bubbles.append($('<li><tt>n</tt></li>'));
-				$bubbles.append($('<li><tt>true</tt></li>'));
-				$bubbles.append($('<li><tt>false</tt></li>'));
-				$bubbles.append($('<li><tt>0</tt></li>'));
-				$bubbles.append($('<li><tt>1</tt></li>'));
-			
-			}
-		}
-	});
-	
-	$select.change(function(e) {
-		$(this)
-			.trigger('load_hints')
-			.next('input:text[name=query]')
-			.focus();
-	});
-	
-	$select.trigger('load_hints');
-	
-	$input.keydown(function(e) {
-		if(e.which == 13) {
-			var $txt = $(this);
-			
-			// [TODO] Store quick search history in HTML localStorage and use it as new hints?
-			// [TODO] Adapt examples as text is entered?
-			// [TODO] Convert this to autocomplete instead?
-			// [TODO] Make them with with TAB focus
-			// [TODO] Don't hide the popup until we actually intend to (e.g. not on blur from textbox to popup or SELECT)
-			
-			genericAjaxPost('{$uniqid}','',null,function(json) {
-				if(json.status == true) {
-					{if !empty($return_url)}
-						window.location.href = '{$return_url}';
-					{else}
-						$view_filters = $('#viewCustomFilters{$view->id}');
-						
-						if(0 != $view_filters.length) {
-							$view_filters.html(json.html);
-							$view_filters.trigger('view_refresh')
-						}
-					{/if}
+				if(undefined == ui.item.attr('field')) {
+					var field_key = ui.item.parent().closest('li').attr('field');
+					var field_value = ui.item.text();
+					var insert_txt = field_key + ':' + field_value;
+					
+				} else {
+					var insert_txt = ui.item.attr('field') + ':';
+					
 				}
 				
-				$txt.select().focus();
-			});
-		}
+				if(val.length > 0 && val.substr(-1) != " ")
+					insert_txt = " " + insert_txt;
+				
+				$input.insertAtCursor(insert_txt).scrollLeft(2000);
+			}
+		})
+		.hide()
+		;
+	
+	var $menu_trigger = $frm.find('a.cerb-quick-search-menu-trigger').click(function() {
+		$menu.toggle();
+		$input.insertAtCursor('').scrollLeft(2000);
 	});
 	
-	$input.focus(function(e) {
-		$('#{$uniqid} div.hints').fadeIn();
-	});
-	
-	$input.blur(function(e) {
-		$('#{$uniqid} div.hints').fadeOut();
+	$frm.submit(function() {
+		genericAjaxPost('{$uniqid}','',null,function(json) {
+			if(json.status == true) {
+				{if !empty($return_url)}
+					window.location.href = '{$return_url}';
+				{else}
+					var $view_filters = $('#viewCustomFilters{$view->id}');
+					
+					if(0 != $view_filters.length) {
+						$view_filters.html(json.html);
+						$view_filters.trigger('view_refresh')
+					}
+				{/if}
+			}
+			
+			$input.focus();
+		});
 	});
 });
-
 
 </script>

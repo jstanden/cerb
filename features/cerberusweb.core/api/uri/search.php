@@ -57,7 +57,8 @@ class Page_Search extends CerberusPageExtension {
 		
 		$tpl->assign('context_ext', $context_ext);
 		
-		$view = $context_ext->getSearchView();
+		if(false == ($view = $context_ext->getSearchView()))
+			return;
 		
 		// Placeholders
 		
@@ -85,20 +86,16 @@ class Page_Search extends CerberusPageExtension {
 	
 	function ajaxQuickSearchAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$token = DevblocksPlatform::importGPC($_REQUEST['field'],'string','');
 		@$query = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
-		
+
 		header("Content-type: application/json");
-		
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id))) { /* @var $view C4_AbstractView */
 			echo json_encode(null);
 			return;
 		}
-		DAO_WorkerPref::set($active_worker->id, 'quicksearch_' . strtolower(get_class($view)), $token);
 		
-		$view->doQuickSearch($token, $query);
+		$view->addParamsWithQuickSearch($query);
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 		

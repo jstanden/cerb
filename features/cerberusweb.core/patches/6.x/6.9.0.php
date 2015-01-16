@@ -57,6 +57,11 @@ if(!isset($columns['calendar_id'])) {
 }
 
 // ===========================================================================
+// Clean up unused worker prefs
+
+$db->Execute("DELETE FROM worker_pref WHERE setting LIKE 'quicksearch_%'");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

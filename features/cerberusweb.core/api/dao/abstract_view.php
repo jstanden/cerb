@@ -261,6 +261,19 @@ abstract class C4_AbstractView {
 		}
 	}
 	
+	function addParamsWithQuickSearch($query, $replace=true) {
+		$fields = $this->_getFieldsFromQuickSearchQuery($query);
+
+		$params = array();
+		
+		if($this instanceof IAbstractView_QuickSearch) {
+			$params = $this->getParamsFromQuickSearchFields($fields);
+		}
+		
+		$this->addParams($params, $replace);
+		$this->renderPage = 0;
+	}
+	
 	function removeParam($key) {
 		if(isset($this->_paramsEditable[$key]))
 			unset($this->_paramsEditable[$key]);
@@ -922,423 +935,221 @@ abstract class C4_AbstractView {
 		return $criteria;
 	}
 	
-	function doQuickSearch($token, $query) {
-		$active_worker = CerberusApplication::getActiveWorker();
-		$reset = false;
+	protected function _getFieldsFromQuickSearchQuery($query) {
+		$tokens = array();
 		
-		if(preg_match('/^\#reset(.*)/', $query, $matches)) {
-			$reset = true;
-			$query = trim($matches[1]);
+		// Tokens for lexer
+		$token_map = array(
+			'[^\s][a-zA-Z0-9\.]+\:' => 'T_FIELD',
+			'\([^\)\\\\]*(?:\\\\.[^\(\)\\\\]*)*\)' => 'T_PARENTHETIC_TEXT',
+			'\[[^\]\\\\]*(?:\\\\.[^\[\]\\\\]*)*\]' => 'T_BRACKET_TEXT',
+			'"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"' => 'T_QUOTED_TEXT',
+			'\s+' => 'T_WHITESPACE',
+			'[^\s]+' => 'T_TEXT',
+		);
+		
+		$token_offsets = array_values($token_map);
+		
+		// Compile the regexp
+		$regexp = '((' . implode(')|(', array_keys($token_map)) . '))A';
+		
+		$offset = 0;
+		
+		while(isset($query[$offset])) {
+			if(!preg_match($regexp, $query, $matches, null, $offset))
+				break;
+			
+			if('' == $matches[0])
+				break;
+			
+			$match = $matches[0];
+			array_shift($matches);
+			
+			if(false === ($idx = array_search($match, $matches)))
+				break;
+			
+			if(!isset($token_offsets[$idx]))
+				break;
+			
+			$tokens[] = array($match, $token_offsets[$idx]);
+			$offset += strlen($match);
 		}
 		
-		if(!empty($reset))
-			$this->doResetCriteria();
+		$fields = array();
 		
-		$fields = $this->getParamsAvailable();
+		$text = '';
 		
-		if(!isset($fields[$token])) {
-			return false;
-		}
-		
-		$handled = false;
-		
-		$field = $fields[$token];
-		$oper = DevblocksSearchCriteria::OPER_EQ;
-		$value = null;
-		
-		if($this instanceof IAbstractView_QuickSearch) {
-			if(false == ($this->quickSearch($token, $query, $oper, $value)))
-				$value = null;
-		}
-		
-		if(null == $value)
-		switch($field->type) {
-			case Model_CustomField::TYPE_SINGLE_LINE:
-			case Model_CustomField::TYPE_MULTI_LINE:
-			case Model_CustomField::TYPE_URL:
-				if(strlen($query) == 0)
-					break;
-
-				$filters = array();
-				$values = explode(' OR ', $query);
-				
-				if(is_array($values))
-				foreach($values as $value) {
-					$oper = DevblocksSearchCriteria::OPER_EQ;
+		while(list($v, $token_type) = current($tokens)) {
+			
+			switch($token_type) {
+				case 'T_FIELD':
+					$field = rtrim($v, ':');
 					
-					if(false !== strpos($value, '*'))
-						$oper = DevblocksSearchCriteria::OPER_LIKE;
+					// Look ahead
+					if(list($arg_v, $arg_k) = next($tokens)) {
 					
-					// Parse operator hints
-					if(preg_match('#\"(.*)\"#', $value, $matches)) {
-						$oper = DevblocksSearchCriteria::OPER_EQ;
-						$value = trim($matches[1]);
-						
-					} elseif(preg_match('#\~(.*)#', $value, $matches)) {
-						$oper = DevblocksSearchCriteria::OPER_LIKE;
-						$value = trim($matches[1]);
-						
-					} elseif(preg_match('#([\<\>\!\=]+)(.*)#', $value, $matches)) {
-						$oper_hint = trim($matches[1]);
-						$value = trim($matches[2]);
-						
-						switch($oper_hint) {
-							case '!':
-							case '!=':
-								if($oper == DevblocksSearchCriteria::OPER_LIKE) {
-									$oper = DevblocksSearchCriteria::OPER_NOT_LIKE;
-								} else {
-									$oper = DevblocksSearchCriteria::OPER_NEQ;
-								}
+						// Handle known arguments
+						switch($arg_k) {
+							case 'T_BRACKET_TEXT':
+								$arg = str_replace(array('\[','\]'), array('[', ']'), trim($arg_v, '[]'));
+								$fields[$field] = $arg;
 								break;
-						}
-					}
-					
-					$filters[] = new DevblocksSearchCriteria($token, $oper, $value);
-				}
-				
-				// This prevents the default code below from adding another criteria
-				$handled = true;
-				
-				if(empty($filters))
-					break;
-				
-				if(count($filters) == 1) {
-					$this->addParam(array_shift($filters), $token);
-					
-				} else {
-					$this->addParam(array_merge(
-						array(DevblocksSearchCriteria::GROUP_OR),
-						$filters
-					), $token);
-				}
-				
-				break;
-				
-			case Model_CustomField::TYPE_NUMBER:
-				if(strlen($query) == 0)
-					break;
-				
-				$filters = array();
-				$values = explode(' OR ', $query);
-				
-				if(is_array($values))
-				foreach($values as $value) {
-				
-					// Parse operator hints
-					if(preg_match('#([\<\>\!\=]+)(.*)#', $value, $matches)) {
-						$oper_hint = trim($matches[1]);
-						$value = trim($matches[2]);
-						
-						switch($oper_hint) {
-							case '!':
-							case '!=':
-								$oper = DevblocksSearchCriteria::OPER_NEQ;
-								break;
-							case '>':
-								$oper = DevblocksSearchCriteria::OPER_GT;
-								break;
-							case '<':
-								$oper = DevblocksSearchCriteria::OPER_LT;
-								break;
-							case '>=':
-								$oper = DevblocksSearchCriteria::OPER_GTE;
-								break;
-							case '<=':
-								$oper = DevblocksSearchCriteria::OPER_LTE;
-								break;
-							default:
-								$oper = DevblocksSearchCriteria::OPER_EQ;
-								break;
-						}
-					}
-					
-					$value = @is_numeric($value) ? $value : intval($value);
-					$filters[] = new DevblocksSearchCriteria($token, $oper, $value);
-				}
-				
-				// This prevents the default code below from adding another criteria
-				$handled = true;
-				
-				if(empty($filters))
-					break;
-				
-				if(count($filters) == 1) {
-					$this->addParam(array_shift($filters), $token);
-					
-				} else {
-					$this->addParam(array_merge(
-						array(DevblocksSearchCriteria::GROUP_OR),
-						$filters
-					), $token);
-				}
-				
-				break;
-				
-			case Model_CustomField::TYPE_DATE:
-				if(strlen($query) == 0)
-					break;
-				
-				$filters = array();
-				$values = explode(' OR ', $query);
-				
-				if(is_array($values))
-				foreach($values as $value) {
-				
-					if(in_array(strtolower($value), array('blank', 'null', 'empty', 'is blank', 'is null', 'is empty'))) {
-						$oper = DevblocksSearchCriteria::OPER_EQ_OR_NULL;
-						$value = '0';
-						
-					} else {
-						$oper = DevblocksSearchCriteria::OPER_BETWEEN;
-						$value = explode(' to ', $value);
-		
-						if(count($value) > 2) {
-							$value = array_slice($value, 0, 2);
-						}
-						
-						if(count($value) != 2) {
-							$from = @intval(strtotime($value));
-							
-							if($from > time())
-								array_unshift($value, 'now');
-							else
-								$value[] = 'now';
-						}
-					}
-					
-					$filters[] = new DevblocksSearchCriteria($token, $oper, $value);
-				}
-				
-				// This prevents the default code below from adding another criteria
-				$handled = true;
-				
-				if(empty($filters))
-					break;
-				
-				if(count($filters) == 1) {
-					$this->addParam(array_shift($filters), $token);
-					
-				} else {
-					$this->addParam(array_merge(
-						array(DevblocksSearchCriteria::GROUP_OR),
-						$filters
-					), $token);
-				}
-				
-				break;
-				
-			case Model_CustomField::TYPE_CHECKBOX:
-				if(strlen($query) == 0)
-					break;
-				
-				// Attempt to interpret bool values
-				if(
-					false !== stristr($query, 'yes')
-					|| false !== stristr($query, 'y')
-					|| false !== stristr($query, 'true')
-					|| false !== stristr($query, 't')
-					|| intval($query) > 0
-				) {
-					$oper = DevblocksSearchCriteria::OPER_EQ;
-					$value = true;
-				} else {
-					if(substr($token,0,3) == 'cf_') {
-						$oper = DevblocksSearchCriteria::OPER_EQ_OR_NULL;
-					} else {
-						$oper = DevblocksSearchCriteria::OPER_EQ;
-					}
-					$value = false;
-				}
-				break;
-				
-			case Model_CustomField::TYPE_DROPDOWN:
-			case Model_CustomField::TYPE_MULTI_CHECKBOX:
-				if(strlen($query) == 0)
-					break;
-				
-				$filters = array();
-				$values = explode(' OR ', $query);
-				
-				if(is_array($values))
-				foreach($values as $value) {
-				
-					$oper = DevblocksSearchCriteria::OPER_IN;
-						
-					// Parse operator hints
-					if(preg_match('#([\<\>\!\=]+)(.*)#', $value, $matches)) {
-						$oper_hint = trim($matches[1]);
-						$value = trim($matches[2]);
-						
-						switch($oper_hint) {
-							case '!':
-							case '!=':
-								$oper = DevblocksSearchCriteria::OPER_NIN;
-								break;
-							default:
-								$oper = DevblocksSearchCriteria::OPER_IN;
-								break;
-						}
-					}
-						
-					$custom_fields = DAO_CustomField::getAll();
-					$patterns = DevblocksPlatform::parseCsvString($value);
-					
-					list($null, $cf_id) = explode('_', $token);
-					
-					if(empty($cf_id) || !isset($custom_fields[$cf_id]))
-						break;
-					
-					@$options = $custom_fields[$cf_id]->params['options'] ?: array();
-					
-					if(empty($options))
-						break;
-					
-					$results = array();
-					
-					foreach($options as $option) {
-						foreach($patterns as $pattern) {
-							if(isset($results[$option]))
-								continue;
-							
-							if(0 == strcasecmp(substr($option,0,strlen($pattern)), $pattern)) {
-								$results[$option] = true;
-							}
-						}
-					}
-					
-					if(!empty($results)) {
-						$value = array_keys($results);
-					}
-					
-					$filters[] = new DevblocksSearchCriteria($token, $oper, $value);
-				}
-				
-				// This prevents the default code below from adding another criteria
-				$handled = true;
-				
-				if(empty($filters))
-					break;
-				
-				if(count($filters) == 1) {
-					$this->addParam(array_shift($filters), $token);
-					
-				} else {
-					$this->addParam(array_merge(
-						array(DevblocksSearchCriteria::GROUP_OR),
-						$filters
-					), $token);
-				}
-				
-				break;
-				
-			case Model_CustomField::TYPE_WORKER:
-			case 'WS': // Watchers
-				$oper = DevblocksSearchCriteria::OPER_IN;
-				$oper_hint = '';
-				
-				// Parse operator hints
-				if(preg_match('#([\<\>\!\=]+)(.*)#', $query, $matches)) {
-					$oper_hint = trim($matches[1]);
-					$query = trim($matches[2]);
-					
-					switch($oper_hint) {
-						case '!':
-						case '!=':
-							$oper = DevblocksSearchCriteria::OPER_NIN_OR_NULL;
-							
-							if(empty($query)) {
-								$oper = DevblocksSearchCriteria::OPER_IS_NOT_NULL;
-								$value = true;
-							}
-							
-							break;
-							
-						default:
-							$oper = DevblocksSearchCriteria::OPER_IN;
-							
-							if(empty($query)) {
-								$oper = DevblocksSearchCriteria::OPER_IS_NULL;
-								$value = true;
-							}
-							
-							break;
-					}
-				}
-
-				if(!empty($query)) {
-					switch(strtolower($query)) {
-						case 'any':
-						case 'anyone':
-						case 'anybody':
-							$oper = DevblocksSearchCriteria::OPER_NIN;
-							$value = array(0);
-							break;
-							
-						case 'none':
-						case 'noone':
-						case 'nobody':
-							$oper = DevblocksSearchCriteria::OPER_IN_OR_NULL;
-							$value = array(0);
-							break;
-							
-						default:
-							$workers = DAO_Worker::getAllActive();
-							$patterns = DevblocksPlatform::parseCsvString($query);
-							
-							$worker_names = array();
-							$worker_ids = array();
-							
-							foreach($patterns as $pattern) {
-								if(0 == strcasecmp($pattern, 'me')) {
-									$worker_ids[$active_worker->id] = true;
-									continue;
-								}
 								
-								foreach($workers as $worker_id => $worker) {
-									$worker_name = $worker->getName();
+							case 'T_PARENTHETIC_TEXT':
+								$arg = str_replace(array('\(','\)'), array('(', ')'), trim($arg_v, '()'));
+								$fields[$field] = $arg;
+								break;
 								
-									if(isset($workers_ids[$worker_id]))
-										continue;
-									
-									if(false !== stristr($worker_name, $pattern)) {
-										$worker_ids[$worker_id] = true;
-									}
-								}
-							}
-							
-							if(!empty($worker_ids)) {
-								$value = array_keys($worker_ids);
-							}
-							
-							break;
+							case 'T_QUOTED_TEXT':
+								$arg = str_replace(array('\"','\"'), array('"', '"'), trim($arg_v, '"'));
+								$fields[$field] = $arg;
+								break;
+								
+							case 'T_TEXT':
+								$fields[$field] = $arg_v;
+								break;
+								
+							// Otherwise, back up.
+							default:
+								prev($tokens);
+								break;
+						}
 					}
-
-				}
-				
-				break;
-				
-			case 'FT':
-				if(!empty($query)) {
-					$oper = DevblocksSearchCriteria::OPER_FULLTEXT;
-					$value = array($query, 'expert');
-				}
-				break;
-		}
-		
-		if(!$handled) {
-			if(!is_null($value)) {
-				$criteria = new DevblocksSearchCriteria($token,$oper,$value);
-				$this->addParam($criteria, $token);
-				
-			} else {
-				$this->removeParam($token);
+					
+					break;
+					
+				case 'T_QUOTED_TEXT':
+				case 'T_TEXT':
+					$text .= $v;
+					break;
+					
+				case 'T_WHITESPACE':
+					// Look ahead to see if the next token is text
+					if(list($next_v, $next_k) = next($tokens)) {
+						// If so, append the space
+						switch($next_k) {
+							case 'T_QUOTED_TEXT':
+							case 'T_TEXT':
+								if(!empty($text) && ' ' != substr($text,-1))
+									$text .= ' ';
+						}
+						
+						// Then rewind
+						prev($tokens);
+					}
+					break;
 			}
+			
+			next($tokens);
 		}
 		
-		$this->renderPage = 0;
+		if(!empty($text))
+			$fields['_fulltext'] = $text;
+		
+		return $fields;
 	}
 	
+	protected function _appendFieldsFromQuickSearchContext($context, $fields=array(), $prefix=null) {
+		$custom_fields = DAO_CustomField::getByContext($context, true, false);
+		$custom_fieldsets = DAO_CustomFieldset::getAll();
+		
+		foreach($custom_fields as $cf_id => $cfield) {
+			$search_field_meta = array(
+				'type' => null,
+				'options' => array(
+					'cf_ctx' => $cfield->context,
+					'cf_id' => $cf_id,
+					'param_key' => sprintf("cf_%d", $cf_id),
+				),
+			);
+			
+			switch($cfield->type) {
+				case Model_CustomField::TYPE_CHECKBOX:
+					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_BOOL;
+					break;
+					
+				case Model_CustomField::TYPE_DATE:
+					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_DATE;
+					break;
+					
+				case Model_CustomField::TYPE_DROPDOWN:
+					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_TEXT;
+					$search_field_meta['options']['match'] = DevblocksSearchCriteria::OPTION_TEXT_PARTIAL;
+					if(isset($cfield->params['options']))
+						$search_field_meta['examples'] = array_slice(
+								array_map(function($e) { 
+									return sprintf('("%s")', str_replace(array('(',')'),array('\(','\)'),$e));
+								},
+								$cfield->params['options']
+							),
+							0,
+							20
+						);
+					break;
+					
+				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_TEXT;
+					$search_field_meta['options']['match'] = DevblocksSearchCriteria::OPTION_TEXT_PARTIAL;
+					if(isset($cfield->params['options']))
+						$search_field_meta['examples'] = array_slice(
+								array_map(function($e) { 
+									return sprintf('("%s")', str_replace(array('(',')'),array('\(','\)'),$e));
+								},
+								$cfield->params['options']
+							),
+							0,
+							20
+						);
+					break;
+					
+				case Model_CustomField::TYPE_MULTI_LINE:
+					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_TEXT;
+					$search_field_meta['options']['match'] = DevblocksSearchCriteria::OPTION_TEXT_PARTIAL;
+					break;
+					
+				case Model_CustomField::TYPE_NUMBER:
+					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_NUMBER;
+					break;
+					
+				case Model_CustomField::TYPE_SINGLE_LINE:
+					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_TEXT;
+					$search_field_meta['options']['match'] = DevblocksSearchCriteria::OPTION_TEXT_PARTIAL;
+					break;
+					
+				case Model_CustomField::TYPE_URL:
+					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_TEXT;
+					$search_field_meta['options']['match'] = DevblocksSearchCriteria::OPTION_TEXT_PARTIAL;
+					break;
+					
+				case Model_CustomField::TYPE_WORKER:
+					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_WORKER;
+					break;
+			}
+			
+			// Skip custom field types we can't quick search easily
+			if(empty($search_field_meta['type']))
+				continue;
+			
+			@$custom_fieldset = $custom_fieldsets[$cfield->custom_fieldset_id];
+			
+			// Prefix the custom fieldset namespace
+			$field_key = sprintf("%s%s%s",
+				!empty($prefix) ? ($prefix . '.') : '',
+				$custom_fieldset ? (DevblocksPlatform::strAlphaNum(lcfirst(mb_convert_case($custom_fieldset->name, MB_CASE_TITLE))) . '.') : '',
+				DevblocksPlatform::strAlphaNum(lcfirst(mb_convert_case($cfield->name, MB_CASE_TITLE)))
+			);
+			
+			// Make sure the field key is unique by appending the cf_id when it already exists
+			if(isset($fields[$field_key])) {
+				$field_key .= $cf_id;
+			}
+			
+			$fields[$field_key] = $search_field_meta;
+		}
+		
+		return $fields;
+	}
+
 	/**
 	 * This method automatically fixes any cached strange options, like
 	 * deleted custom fields.
@@ -2563,8 +2374,8 @@ abstract class C4_AbstractView {
 };
 
 interface IAbstractView_QuickSearch {
-	function isQuickSearchField($token);
-	function quickSearch($token, $query, &$oper, &$value);
+	function getQuickSearchFields();
+	function getParamsFromQuickSearchFields($fields);
 };
 
 interface IAbstractView_Subtotals {

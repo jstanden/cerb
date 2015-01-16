@@ -46,6 +46,17 @@ class DevblocksSearchCriteria {
 	const GROUP_OR = 'OR';
 	const GROUP_AND = 'AND';
 	
+	const TYPE_BOOL = 'bool';
+	const TYPE_DATE = 'date';
+	const TYPE_FULLTEXT = 'fulltext';
+	const TYPE_NUMBER = 'number';
+	const TYPE_TEXT = 'text';
+	const TYPE_VIRTUAL = 'virtual';
+	const TYPE_WORKER = 'worker';
+	
+	const OPTION_TEXT_PARTIAL = 1;
+	const OPTION_TEXT_PREFIX = 2;
+	
 	public $field;
 	public $operator;
 	public $value;
@@ -62,6 +73,287 @@ class DevblocksSearchCriteria {
 		$this->field = $field;
 		$this->operator = $oper;
 		$this->value = $value;
+	}
+	
+	public static function getParamsFromQueryFields($fields, $meta) {
+		$search_fields = $meta;
+		$params = array();
+		
+		if(is_array($fields))
+		foreach($fields as $k => $v) {
+			@$search_field = $search_fields[$k];
+			
+			// Only parse valid fields
+			if(!$search_field || !isset($search_field['type']))
+				continue;
+
+			@$param_key = $search_fields[$k]['options']['param_key'];
+			
+			switch($search_field['type']) {
+				case DevblocksSearchCriteria::TYPE_BOOL:
+					if($param_key && false != ($param = DevblocksSearchCriteria::getBooleanParamFromQuery($param_key, $v)))
+						$params[$param_key] = $param;
+					continue;
+					
+				case DevblocksSearchCriteria::TYPE_DATE:
+					if($param_key && false != ($param = DevblocksSearchCriteria::getDateParamFromQuery($param_key, $v)))
+						$params[$param_key] = $param;
+					continue;
+					
+				case DevblocksSearchCriteria::TYPE_FULLTEXT:
+					if($param_key && false != ($param = DevblocksSearchCriteria::getFulltextParamFromQuery($param_key, $v)))
+						$params[$param_key] = $param;
+					continue;
+					
+				case DevblocksSearchCriteria::TYPE_NUMBER:
+					if($param_key && false != ($param = DevblocksSearchCriteria::getNumberParamFromQuery($param_key, $v)))
+						$params[$param_key] = $param;
+					continue;
+					
+				case DevblocksSearchCriteria::TYPE_TEXT:
+					@$match_type = $search_field['options']['match'];
+					
+					if($param_key && false != ($param = DevblocksSearchCriteria::getTextParamFromQuery($param_key, $v, $match_type)))
+						$params[$param_key] = $param;
+					continue;
+					
+				case DevblocksSearchCriteria::TYPE_WORKER:
+					if($param_key && false != ($param = DevblocksSearchCriteria::getWorkerParamFromQuery($param_key, $v)))
+						$params[$param_key] = $param;
+					continue;
+			}
+		}
+		
+		return $params;
+	}
+	
+	public static function getDateParamFromQuery($field_key, $query) {
+		$oper = DevblocksSearchCriteria::OPER_BETWEEN;
+		$values = null;
+		
+		if(0 == strcasecmp(trim($query), 'never') || empty($query)) {
+			$oper = DevblocksSearchCriteria::OPER_EQ;
+			$values = 'never';
+			
+		} else {
+			$values = explode(' to ', strtolower($query), 2);
+			
+			if(1 == count($values))
+				$values[] = 'now';
+		}
+		
+		return new DevblocksSearchCriteria(
+			$field_key,
+			$oper,
+			$values
+		);
+	}
+	
+	public static function getBooleanParamFromQuery($field_key, $query) {
+		// Attempt to interpret bool values
+		if(
+			false !== stristr($query, 'yes')
+			|| false !== stristr($query, 'y')
+			|| false !== stristr($query, 'true')
+			|| false !== stristr($query, 't')
+			|| intval($query) > 0
+		) {
+			$oper = DevblocksSearchCriteria::OPER_EQ;
+			$value = true;
+			
+		} else {
+			$oper = DevblocksSearchCriteria::OPER_EQ_OR_NULL;
+			$value = false;
+		}
+		
+		return new DevblocksSearchCriteria(
+			$field_key,
+			$oper,
+			$value
+		);
+	}
+	
+	public static function getNumberParamFromQuery($field_key, $query) {
+		$oper = self::OPER_EQ;
+		
+		if(preg_match('#^([\<\>\!\=]+)(.*)#', $query, $matches)) {
+			$oper_hint = trim($matches[1]);
+			$query = trim($matches[2]);
+			
+			switch($oper_hint) {
+				case '!':
+				case '!=':
+					$oper = self::OPER_NEQ;
+					break;
+					
+				case '>':
+					$oper = self::OPER_GT;
+					break;
+					
+				case '>=':
+					$oper = self::OPER_GTE;
+					break;
+					
+				case '<':
+					$oper = self::OPER_LT;
+					break;
+					
+				case '<=':
+					$oper = self::OPER_LTE;
+					break;
+					
+				default:
+					break;
+			}
+		}
+		
+		$value = $query;
+		
+		return new DevblocksSearchCriteria(
+			$field_key,
+			$oper,
+			$value
+		);
+	}
+	
+	public static function getWorkerParamFromQuery($field_key, $query) {
+		$oper = self::OPER_IN;
+		$value = null;
+		
+		// Parse operator hints
+		if(preg_match('#^([\!\=]+)(.*)#', $query, $matches)) {
+			$oper_hint = trim($matches[1]);
+			$query = trim($matches[2]);
+			
+			switch($oper_hint) {
+				case '!':
+				case '!=':
+					$oper = self::OPER_NIN_OR_NULL;
+					
+					if(empty($query)) {
+						$oper = self::OPER_IS_NOT_NULL;
+						$value = true;
+					}
+					break;
+					
+				default:
+					$oper = self::OPER_IN;
+					
+					if(empty($query)) {
+						$oper = self::OPER_IS_NULL;
+						$value = true;
+					}
+					break;
+			}
+		}
+
+		if(!empty($query)) {
+			switch(strtolower($query)) {
+				case 'any':
+				case 'anyone':
+				case 'anybody':
+					$oper = self::OPER_NIN;
+					$value = array(0);
+					break;
+					
+				case 'none':
+				case 'noone':
+				case 'nobody':
+					$oper = self::OPER_IN_OR_NULL;
+					$value = array(0);
+					break;
+					
+				default:
+					$active_worker = CerberusApplication::getActiveWorker();
+					$workers = DAO_Worker::getAllActive();
+					$patterns = DevblocksPlatform::parseCsvString($query);
+					
+					if(!is_array($patterns))
+						break;
+					
+					$worker_ids = array();
+					
+					foreach($patterns as $pattern) {
+						if($active_worker && 0 == strcasecmp($pattern, 'me')) {
+							$worker_ids[$active_worker->id] = true;
+							continue;
+						}
+						
+						foreach($workers as $worker_id => $worker) {
+							if(isset($workers_ids[$worker_id]))
+								continue;
+							
+							if(false !== stristr($worker->getName(), $pattern)) {
+								$worker_ids[$worker_id] = true;
+							}
+						}
+					}
+					
+					if(!empty($worker_ids)) {
+						$value = array_keys($worker_ids);
+					}
+					break;
+			}
+		}
+		
+		return new DevblocksSearchCriteria(
+			$field_key,
+			$oper,
+			$value
+		);
+	}
+	
+	public static function getFulltextParamFromQuery($field_key, $query) {
+		return new DevblocksSearchCriteria(
+			$field_key,
+			DevblocksSearchCriteria::OPER_FULLTEXT,
+			array(
+				$query,
+				'expert'
+			)
+		);		
+	}
+	
+	public static function getTextParamFromQuery($field_key, $query, $options=0) {
+		$oper = self::OPER_EQ;
+		
+		// If blank
+		if(empty($query)) {
+			$oper = self::OPER_EQ;
+			$value = "";
+		
+		// If quoted
+		} elseif(preg_match('#^"(.*)"$#', $query)) {
+			$value = trim($query,'"');
+			
+		// Otherwise, handle as a fuzzy search
+		} else {
+			
+			if(false !== strpos($query, '*')) {
+				$oper = self::OPER_LIKE;
+				$value = $query;
+				
+			} else {
+				if($options & self::OPTION_TEXT_PARTIAL) {
+					$oper = self::OPER_LIKE;
+					$value = sprintf('*%s*', $query);
+					
+				} elseif($options & self::OPTION_TEXT_PREFIX) {
+					$oper = self::OPER_LIKE;
+					$value = sprintf('%s*', $query);
+					
+				} else {
+					$oper = self::OPER_EQ;
+					$value = $query;
+				}
+			}
+		}
+		
+		return new DevblocksSearchCriteria(
+			$field_key,
+			$oper,
+			$value
+		);
 	}
 	
 	public function getWhereSQL($fields) {

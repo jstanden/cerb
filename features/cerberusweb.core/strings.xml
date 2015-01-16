@@ -482,6 +482,16 @@
 				<seg>event</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.example">
+			<tuv xml:lang="en_US">
+				<seg>example</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.examples">
+			<tuv xml:lang="en_US">
+				<seg>examples</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.explore">
 			<tuv xml:lang="en_US">
 				<seg>explore</seg>
