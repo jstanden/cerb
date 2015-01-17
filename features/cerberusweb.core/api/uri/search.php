@@ -40,6 +40,9 @@ class Page_Search extends CerberusPageExtension {
 		$response = DevblocksPlatform::getHttpResponse();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		// Allow quick search queries to be sent in the URL
+		@$query = DevblocksPlatform::importGPC($_REQUEST['q'], 'string', '');
+		
 		$stack = $response->path;
 		@array_shift($stack); // search
 		@$context_extid = array_shift($stack); // context
@@ -57,8 +60,15 @@ class Page_Search extends CerberusPageExtension {
 		
 		$tpl->assign('context_ext', $context_ext);
 		
-		if(false == ($view = $context_ext->getSearchView()))
+		if(false == ($view = $context_ext->getSearchView())) /* @var $view C4_AbstractView */
 			return;
+		
+		// Quick search initialization
+		
+		if(!empty($query)) {
+			$view->addParamsWithQuickSearch($query, true);
+			$tpl->assign('quick_search_query', $query);
+		}
 		
 		// Placeholders
 		

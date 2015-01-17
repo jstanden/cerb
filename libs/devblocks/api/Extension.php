@@ -304,6 +304,11 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		return $value;
 	}
 	
+	/**
+	 * 
+	 * @param string $view_id
+	 * @return C4_AbstractView
+	 */
 	public function getSearchView($view_id=null) {
 		if(empty($view_id)) {
 			$view_id = sprintf("search_%s",
