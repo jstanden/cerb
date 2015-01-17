@@ -375,6 +375,7 @@
 			<class name="DAO_Worker" />
 			<class name="DAO_WorkerPref" />
 			<class name="Model_Worker" />
+			<class name="Search_Worker" />
 			<class name="SearchFields_Worker" />
 			<class name="View_Worker" />
 			<class name="WorkerPrefs" />
@@ -2405,6 +2406,17 @@
 			<class>
 				<file>api/dao/message.php</file>
 				<name>Search_MessageContent</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
+		<extension point="devblocks.search.schema">
+			<id>cerb.search.schema.worker</id>
+			<name>Workers</name>
+			<class>
+				<file>api/dao/worker.php</file>
+				<name>Search_Worker</name>
 			</class>
 			<params>
 			</params>
