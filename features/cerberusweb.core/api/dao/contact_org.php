@@ -33,8 +33,8 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	public static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		return array(
-			'id' => $translate->_('contact_org.id'),
-			'name' => $translate->_('contact_org.name'),
+			'id' => $translate->_('common.id'),
+			'name' => $translate->_('common.name'),
 			'street' => $translate->_('contact_org.street'),
 			'city' => $translate->_('contact_org.city'),
 			'province' => $translate->_('contact_org.province'),
@@ -42,7 +42,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			'country' => $translate->_('contact_org.country'),
 			'phone' => $translate->_('contact_org.phone'),
 			'website' => $translate->_('contact_org.website'),
-			'created' => $translate->_('contact_org.created'),
+			'created' => $translate->_('common.created'),
 			'updated' => $translate->_('common.updated'),
 		);
 	}
@@ -571,8 +571,8 @@ class SearchFields_ContactOrg {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'c', 'id', $translate->_('contact_org.id')),
-			self::NAME => new DevblocksSearchField(self::NAME, 'c', 'name', $translate->_('contact_org.name'),Model_CustomField::TYPE_SINGLE_LINE),
+			self::ID => new DevblocksSearchField(self::ID, 'c', 'id', $translate->_('common.id')),
+			self::NAME => new DevblocksSearchField(self::NAME, 'c', 'name', $translate->_('common.name'),Model_CustomField::TYPE_SINGLE_LINE),
 			self::STREET => new DevblocksSearchField(self::STREET, 'c', 'street', $translate->_('contact_org.street'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::CITY => new DevblocksSearchField(self::CITY, 'c', 'city', $translate->_('contact_org.city'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::PROVINCE => new DevblocksSearchField(self::PROVINCE, 'c', 'province', $translate->_('contact_org.province'), Model_CustomField::TYPE_SINGLE_LINE),
@@ -580,7 +580,7 @@ class SearchFields_ContactOrg {
 			self::COUNTRY => new DevblocksSearchField(self::COUNTRY, 'c', 'country', $translate->_('contact_org.country'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::PHONE => new DevblocksSearchField(self::PHONE, 'c', 'phone', $translate->_('contact_org.phone'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::WEBSITE => new DevblocksSearchField(self::WEBSITE, 'c', 'website', $translate->_('contact_org.website'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::CREATED => new DevblocksSearchField(self::CREATED, 'c', 'created', $translate->_('contact_org.created'), Model_CustomField::TYPE_DATE),
+			self::CREATED => new DevblocksSearchField(self::CREATED, 'c', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'c', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
@@ -1194,7 +1194,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			'name' => $prefix.$translate->_('common.name'),
 			'city' => $prefix.$translate->_('contact_org.city'),
 			'country' => $prefix.$translate->_('contact_org.country'),
-			'created' => $prefix.$translate->_('contact_org.created'),
+			'created' => $prefix.$translate->_('common.created'),
 			'phone' => $prefix.$translate->_('contact_org.phone'),
 			'postal' => $prefix.$translate->_('contact_org.postal'),
 			'province' => $prefix.$translate->_('contact_org.province'),

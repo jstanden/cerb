@@ -558,11 +558,6 @@
 				<seg>Organisatie ID</seg>
 			</tuv>
 		</tu>
-		<tu tuid="address.email">
-			<tuv xml:lang="nl_NL">
-				<seg>E-mail</seg>
-			</tuv>
-		</tu>
 		<tu tuid="address.first_name">
 			<tuv xml:lang="nl_NL">
 				<seg>Voornaam</seg>
@@ -571,11 +566,6 @@
 		<tu tuid="address.full_name">
 			<tuv xml:lang="nl_NL">
 				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="address.id">
-			<tuv xml:lang="nl_NL">
-				<seg>ID</seg>
 			</tuv>
 		</tu>
 		<tu tuid="address.is_banned">
@@ -1813,16 +1803,6 @@
 				<seg>Profiel ID</seg>
 			</tuv>
 		</tu>
-		<tu tuid="community_portal.extension_id">
-			<tuv xml:lang="nl_NL">
-				<seg>Extensie</seg>
-			</tuv>
-		</tu>
-		<tu tuid="community_portal.name">
-			<tuv xml:lang="nl_NL">
-				<seg>Naam</seg>
-			</tuv>
-		</tu>
 		<tu tuid="config.mail.pop3.error_hostname">
 			<tuv xml:lang="nl_NL">
 				<seg>Error: Geen hostname opgegeven.</seg>
@@ -1846,16 +1826,6 @@
 		<tu tuid="contact_org.country">
 			<tuv xml:lang="nl_NL">
 				<seg>Land</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.created">
-			<tuv xml:lang="nl_NL">
-				<seg>Aangemaakt</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.id">
-			<tuv xml:lang="nl_NL">
-				<seg>ID</seg>
 			</tuv>
 		</tu>
 		<tu tuid="contact_org.name">
@@ -3383,11 +3353,6 @@
 				<seg>Bericht inhoud</seg>
 			</tuv>
 		</tu>
-		<tu tuid="message.created_date">
-			<tuv xml:lang="nl_NL">
-				<seg>Gecreëerd</seg>
-			</tuv>
-		</tu>
 		<tu tuid="message.header">
 			<tuv xml:lang="nl_NL">
 				<seg/>
@@ -3476,16 +3441,6 @@
 		<tu tuid="mobile.common">
 			<tuv xml:lang="nl_NL">
 				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="notification.created_date">
-			<tuv xml:lang="nl_NL">
-				<seg>Gemaakt</seg>
-			</tuv>
-		</tu>
-		<tu tuid="notification.id">
-			<tuv xml:lang="nl_NL">
-				<seg>ID</seg>
 			</tuv>
 		</tu>
 		<tu tuid="notification.is_read">

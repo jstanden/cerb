@@ -1597,16 +1597,6 @@
 				<seg>Address</seg>
 			</tuv>
 		</tu>
-		<tu tuid="address.id">
-			<tuv xml:lang="en_US">
-				<seg>ID</seg>
-			</tuv>
-		</tu>
-		<tu tuid="address.email">
-			<tuv xml:lang="en_US">
-				<seg>Email</seg>
-			</tuv>
-		</tu>
 		<tu tuid="address.first_name">
 			<tuv xml:lang="en_US">
 				<seg>First Name</seg>
@@ -1776,16 +1766,6 @@
 				<seg>Profile ID</seg>
 			</tuv>
 		</tu>
-		<tu tuid="community_portal.extension_id">
-			<tuv xml:lang="en_US">
-				<seg>Extension</seg>
-			</tuv>
-		</tu>
-		<tu tuid="community_portal.name">
-			<tuv xml:lang="en_US">
-				<seg>Name</seg>
-			</tuv>
-		</tu>
 
 		<!-- Community -->
 		
@@ -1812,7 +1792,7 @@
 		<tu tuid="portal.cfg.installation_instructions">
 			<tuv xml:lang="en_US">
 				<seg>Place the index.php file in a new directory on the appropriate public website.  This directory can be named anything but will usually describe the portal.
-For example: http://www.cerberusweb.com/support/</seg>
+For example: http://www.cerbweb.com/support/</seg>
 			</tuv>
 		</tu>
 		<tu tuid="portal.cfg.profile_id">
@@ -1862,16 +1842,6 @@ For example: http://www.cerberusweb.com/support/</seg>
 		<tu tuid="contact_org.country">
 			<tuv xml:lang="en_US">
 				<seg>Country</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.created">
-			<tuv xml:lang="en_US">
-				<seg>Created</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.id">
-			<tuv xml:lang="en_US">
-				<seg>ID</seg>
 			</tuv>
 		</tu>
 		<tu tuid="contact_org.name">
@@ -2723,11 +2693,6 @@ For example: http://www.cerberusweb.com/support/</seg>
 				<seg>Message Content</seg>
 			</tuv>
 		</tu>
-		<tu tuid="message.created_date">
-			<tuv xml:lang="en_US">
-				<seg>Created</seg>
-			</tuv>
-		</tu>
 		<tu tuid="message.is_broadcast">
 			<tuv xml:lang="en_US">
 				<seg>Is Broadcast</seg>
@@ -3298,16 +3263,6 @@ For example: *receipt*</seg>
 
 		<!-- Worker Event -->
 		
-		<tu tuid="notification.id">
-			<tuv xml:lang="en_US">
-				<seg>ID</seg>
-			</tuv>
-		</tu>
-		<tu tuid="notification.created_date">
-			<tuv xml:lang="en_US">
-				<seg>Created</seg>
-			</tuv>
-		</tu>
 		<tu tuid="notification.is_read">
 			<tuv xml:lang="en_US">
 				<seg>Is Read</seg>

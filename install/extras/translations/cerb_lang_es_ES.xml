@@ -558,11 +558,6 @@
 				<seg>ID de la organización</seg>
 			</tuv>
 		</tu>
-		<tu tuid="address.email">
-			<tuv xml:lang="es_ES">
-				<seg>Correo electrónico</seg>
-			</tuv>
-		</tu>
 		<tu tuid="address.first_name">
 			<tuv xml:lang="es_ES">
 				<seg>Nombre</seg>
@@ -571,11 +566,6 @@
 		<tu tuid="address.full_name">
 			<tuv xml:lang="es_ES">
 				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="address.id">
-			<tuv xml:lang="es_ES">
-				<seg>ID</seg>
 			</tuv>
 		</tu>
 		<tu tuid="address.is_banned">
@@ -1813,16 +1803,6 @@
 				<seg>ID Perfil</seg>
 			</tuv>
 		</tu>
-		<tu tuid="community_portal.extension_id">
-			<tuv xml:lang="es_ES">
-				<seg>Extensión</seg>
-			</tuv>
-		</tu>
-		<tu tuid="community_portal.name">
-			<tuv xml:lang="es_ES">
-				<seg>Nombre</seg>
-			</tuv>
-		</tu>
 		<tu tuid="config.mail.pop3.error_hostname">
 			<tuv xml:lang="es_ES">
 				<seg>Error: No se ha proporcionado un nombre de host.</seg>
@@ -1846,16 +1826,6 @@
 		<tu tuid="contact_org.country">
 			<tuv xml:lang="es_ES">
 				<seg>País</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.created">
-			<tuv xml:lang="es_ES">
-				<seg>Creado</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.id">
-			<tuv xml:lang="es_ES">
-				<seg>ID</seg>
 			</tuv>
 		</tu>
 		<tu tuid="contact_org.name">
@@ -3383,11 +3353,6 @@
 				<seg>Contenido del Mensaje</seg>
 			</tuv>
 		</tu>
-		<tu tuid="message.created_date">
-			<tuv xml:lang="es_ES">
-				<seg>Creado</seg>
-			</tuv>
-		</tu>
 		<tu tuid="message.header">
 			<tuv xml:lang="es_ES">
 				<seg/>
@@ -3474,16 +3439,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="mobile.common">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="notification.created_date">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="notification.id">
 			<tuv xml:lang="es_ES">
 				<seg/>
 			</tuv>

@@ -10,7 +10,7 @@
 	{$tool_extid = $tool->extension_id}
 	{if isset($tool_manifests.$tool_extid)}
 		<div>
-			<label>{'community_portal.extension_id'|devblocks_translate|capitalize}:</label> {$tool_manifests.$tool_extid->name}
+			<label>{'common.extension'|devblocks_translate|capitalize}:</label> {$tool_manifests.$tool_extid->name}
 		</div>
 	{/if}
 	

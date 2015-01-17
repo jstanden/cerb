@@ -558,11 +558,6 @@
 				<seg>%s sta consultando %s tickets </seg>
 			</tuv>
 		</tu>
-		<tu tuid="address.email">
-			<tuv xml:lang="it_IT">
-				<seg>email</seg>
-			</tuv>
-		</tu>
 		<tu tuid="address.first_name">
 			<tuv xml:lang="it_IT">
 				<seg>nome</seg>
@@ -571,11 +566,6 @@
 		<tu tuid="address.full_name">
 			<tuv xml:lang="it_IT">
 				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="address.id">
-			<tuv xml:lang="it_IT">
-				<seg>id</seg>
 			</tuv>
 		</tu>
 		<tu tuid="address.is_banned">
@@ -1813,16 +1803,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="community_portal.extension_id">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="community_portal.name">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="config.mail.pop3.error_hostname">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -1846,16 +1826,6 @@
 		<tu tuid="contact_org.country">
 			<tuv xml:lang="it_IT">
 				<seg>paese</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.created">
-			<tuv xml:lang="it_IT">
-				<seg>creato</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.id">
-			<tuv xml:lang="it_IT">
-				<seg>id</seg>
 			</tuv>
 		</tu>
 		<tu tuid="contact_org.name">
@@ -3383,11 +3353,6 @@
 				<seg>Contenuto Messaggio</seg>
 			</tuv>
 		</tu>
-		<tu tuid="message.created_date">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="message.header">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -3474,16 +3439,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="mobile.common">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="notification.created_date">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="notification.id">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>

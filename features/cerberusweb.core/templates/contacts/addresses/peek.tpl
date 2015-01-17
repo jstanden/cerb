@@ -13,7 +13,7 @@
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{'address.email'|devblocks_translate|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.email'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				{if $id == 0}
 					{if !empty($email)}

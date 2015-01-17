@@ -558,11 +558,6 @@
 				<seg>Идентификатор компании</seg>
 			</tuv>
 		</tu>
-		<tu tuid="address.email">
-			<tuv xml:lang="ru_RU">
-				<seg>Адрес электронной почты</seg>
-			</tuv>
-		</tu>
 		<tu tuid="address.first_name">
 			<tuv xml:lang="ru_RU">
 				<seg>Имя</seg>
@@ -571,11 +566,6 @@
 		<tu tuid="address.full_name">
 			<tuv xml:lang="ru_RU">
 				<seg>Полное имя</seg>
-			</tuv>
-		</tu>
-		<tu tuid="address.id">
-			<tuv xml:lang="ru_RU">
-				<seg>Идентификатор</seg>
 			</tuv>
 		</tu>
 		<tu tuid="address.is_banned">
@@ -1813,16 +1803,6 @@
 				<seg>Идентификатор профайла</seg>
 			</tuv>
 		</tu>
-		<tu tuid="community_portal.extension_id">
-			<tuv xml:lang="ru_RU">
-				<seg>Расширение</seg>
-			</tuv>
-		</tu>
-		<tu tuid="community_portal.name">
-			<tuv xml:lang="ru_RU">
-				<seg>Имя</seg>
-			</tuv>
-		</tu>
 		<tu tuid="config.mail.pop3.error_hostname">
 			<tuv xml:lang="ru_RU">
 				<seg>Ошибка: Не указано имя хоста.</seg>
@@ -1846,16 +1826,6 @@
 		<tu tuid="contact_org.country">
 			<tuv xml:lang="ru_RU">
 				<seg>Страна</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.created">
-			<tuv xml:lang="ru_RU">
-				<seg>Создано</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.id">
-			<tuv xml:lang="ru_RU">
-				<seg>Идентификатор</seg>
 			</tuv>
 		</tu>
 		<tu tuid="contact_org.name">
@@ -3383,11 +3353,6 @@
 				<seg>Содержимое сообщения</seg>
 			</tuv>
 		</tu>
-		<tu tuid="message.created_date">
-			<tuv xml:lang="ru_RU">
-				<seg>Создано</seg>
-			</tuv>
-		</tu>
 		<tu tuid="message.header">
 			<tuv xml:lang="ru_RU">
 				<seg/>
@@ -3476,16 +3441,6 @@
 		<tu tuid="mobile.common">
 			<tuv xml:lang="ru_RU">
 				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="notification.created_date">
-			<tuv xml:lang="ru_RU">
-				<seg>Создано</seg>
-			</tuv>
-		</tu>
-		<tu tuid="notification.id">
-			<tuv xml:lang="ru_RU">
-				<seg>ID</seg>
 			</tuv>
 		</tu>
 		<tu tuid="notification.is_read">
