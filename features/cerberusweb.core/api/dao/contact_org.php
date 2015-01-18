@@ -222,6 +222,15 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	}
 	
 	static function maint() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$tables = $db->metaTables();
+		
+		// Search indexes
+		if(isset($tables['fulltext_org'])) {
+			$db->Execute("DELETE FROM fulltext_org WHERE id NOT IN (SELECT id FROM contact_org)");
+			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_org records.');
+		}
+		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
 		$eventMgr->trigger(
@@ -459,6 +468,27 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 					);
 				}
 				break;
+				
+			case SearchFields_ContactOrg::FULLTEXT_ORG:
+				$search = Extension_DevblocksSearchSchema::get(Search_Org::ID);
+				$query = $search->getQueryFromParam($param);
+				$ids = $search->query($query, array());
+				
+				if(is_array($ids)) {
+					if(empty($ids))
+						$ids = array(-1);
+					
+					$args['where_sql'] .= sprintf('AND c.id IN (%s) ',
+						implode(', ', $ids)
+					);
+					
+				} elseif(is_string($ids)) {
+					$args['join_sql'] .= sprintf("INNER JOIN %s ON (%s.id=c.id) ",
+						$ids,
+						$ids
+					);
+				}
+				break;
 			
 			case SearchFields_ContactOrg::VIRTUAL_CONTEXT_LINK:
 				$args['has_multiple_values'] = true;
@@ -552,14 +582,15 @@ class SearchFields_ContactOrg {
 	const CREATED = 'c_created';
 	const UPDATED = 'c_updated';
 
+	// Fulltexts
+	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
+	const FULLTEXT_ORG = 'ft_org';
+
 	// Virtuals
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
-	// Comment Content
-	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
-
 	// Context links
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
@@ -583,19 +614,21 @@ class SearchFields_ContactOrg {
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'c', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'c', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 
+			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT'),
+			self::FULLTEXT_ORG => new DevblocksSearchField(self::FULLTEXT_ORG, 'ft', 'org', $translate->_('common.search.fulltext'), 'FT'),
+
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
-				
-			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT'),
 		);
 		
 		// Fulltext indexes
 		
 		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
+		$columns[self::FULLTEXT_ORG]->ft_schema = Search_Org::ID;
 		
 		// Custom fields with fieldsets
 		
@@ -613,6 +646,125 @@ class SearchFields_ContactOrg {
 	}
 };
 
+class Search_Org extends Extension_DevblocksSearchSchema {
+	const ID = 'cerb.search.schema.org';
+	
+	public function getNamespace() {
+		return 'org';
+	}
+	
+	public function getAttributes() {
+		return array();
+	}
+	
+	public function query($query, $attributes=array(), $limit=500) {
+		if(false == ($engine = $this->getEngine()))
+			return false;
+		
+		$ids = $engine->query($this, $query, $attributes, $limit);
+		
+		return $ids;
+	}
+	
+	public function reindex() {
+		$engine = $this->getEngine();
+		$meta = $engine->getIndexMeta($this);
+		
+		// If the index has a delta, start from the current record
+		if($meta['is_indexed_externally']) {
+			// Do nothing (let the remote tool update the DB)
+			
+		// Otherwise, start over
+		} else {
+			$this->setIndexPointer(self::INDEX_POINTER_RESET);
+		}
+	}
+	
+	public function setIndexPointer($pointer) {
+		switch($pointer) {
+			case self::INDEX_POINTER_RESET:
+				$this->setParam('last_indexed_id', 0);
+				$this->setParam('last_indexed_time', 0);
+				break;
+				
+			case self::INDEX_POINTER_CURRENT:
+				$this->setParam('last_indexed_id', 0);
+				$this->setParam('last_indexed_time', time());
+				break;
+		}
+	}
+	
+	public function index($stop_time=null) {
+		$logger = DevblocksPlatform::getConsoleLog();
+		
+		if(false == ($engine = $this->getEngine()))
+			return false;
+		
+		$ns = self::getNamespace();
+		$id = $this->getParam('last_indexed_id', 0);
+		$ptr_time = $this->getParam('last_indexed_time', 0);
+		$ptr_id = $id;
+		$done = false;
+
+		while(!$done && time() < $stop_time) {
+			$where = sprintf('(%1$s = %2$d AND %3$s > %4$d) OR (%1$s > %2$d)',
+				DAO_ContactOrg::UPDATED,
+				$ptr_time,
+				DAO_ContactOrg::ID,
+				$id
+			);
+			$orgs = DAO_ContactOrg::getWhere($where, array(DAO_ContactOrg::UPDATED, DAO_ContactOrg::ID), array(true, true), 100);
+
+			if(empty($orgs)) {
+				$done = true;
+				continue;
+			}
+			
+			$last_time = $ptr_time;
+			
+			foreach($orgs as $org) { /* @var $org Model_ContactOrg */
+				$id = $org->id;
+				$ptr_time = $org->updated;
+				
+				$ptr_id = ($last_time == $ptr_time) ? $id : 0;
+				
+				$logger->info(sprintf("[Search] Indexing %s %d...",
+					$ns,
+					$id
+				));
+				
+				$engine->index(
+					$this,
+					$id,
+					sprintf("%s %s %s",
+						$org->name,
+						$org->getMailingAddress(),
+						$org->website						
+					)
+				);
+				
+				flush();
+			}
+		}
+		
+		// If we ran out of records, always reset the ID and use the current time
+		if($done) {
+			$ptr_id = 0;
+			$ptr_time = time();
+		}
+		
+		$this->setParam('last_indexed_id', $ptr_id);
+		$this->setParam('last_indexed_time', $ptr_time);
+	}
+	
+	public function delete($ids) {
+		if(false == ($engine = $this->getEngine()))
+			return false;
+		
+		return $engine->delete($this, $ids);
+	}
+};
+
 class Model_ContactOrg {
 	public $id;
 	public $name;
@@ -626,6 +778,34 @@ class Model_ContactOrg {
 	public $created;
 	public $updated;
 	public $sync_id = '';
+	
+	function getMailingAddress() {
+		$out = '';
+		
+		if(!empty($this->street))
+			$out .= rtrim($this->street) . "\n";
+		
+		$parts = array();
+		
+		if(!empty($this->city))
+			$parts[] = $this->city;
+		
+		if(!empty($this->state))
+			$parts[] = $this->state;
+		
+		if(!empty($this->province))
+			$parts[] = $this->province;
+		
+		if(!empty($this->postal))
+			$parts[] = $this->postal;
+		
+		if(!empty($this->country))
+			$parts[] = $this->country;
+		
+		$out .= implode(' ', $parts);
+		
+		return $out;
+	}
 };
 
 class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
@@ -649,6 +829,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_ContactOrg::CONTEXT_LINK,
 			SearchFields_ContactOrg::CONTEXT_LINK_ID,
 			SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT,
+			SearchFields_ContactOrg::FULLTEXT_ORG,
 			SearchFields_ContactOrg::VIRTUAL_CONTEXT_LINK,
 			SearchFields_ContactOrg::VIRTUAL_HAS_FIELDSET,
 			SearchFields_ContactOrg::VIRTUAL_WATCHERS,
@@ -764,8 +945,8 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 		return array(
 			'_fulltext' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_ContactOrg::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
+					'options' => array('param_key' => SearchFields_ContactOrg::FULLTEXT_ORG),
 				),
 			'city' => 
 				array(
@@ -896,6 +1077,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 				break;
 				
 			case SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT:
+			case SearchFields_ContactOrg::FULLTEXT_ORG:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
 				break;
 
@@ -993,6 +1175,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 				break;
 				
 			case SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT:
+			case SearchFields_ContactOrg::FULLTEXT_ORG:
 				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
