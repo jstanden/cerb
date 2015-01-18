@@ -64,6 +64,10 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 			try {
 				CerberusApplication::update();
 				
+				$schema = Extension_DevblocksSearchSchema::get(Search_PluginLibrary::ID);
+				$schema->reindex();
+				$schema->index(time() + 30);
+				
 			} catch (Exception $e) {}
 	
 			DevblocksPlatform::clearCache();

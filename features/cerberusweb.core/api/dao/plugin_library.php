@@ -122,7 +122,13 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 	
 	static function flush() {
 		$db = DevblocksPlatform::getDatabaseService();
+		$tables = $db->metaTables();
+		
 		$db->Execute("DELETE FROM plugin_library");
+		
+		if(isset($tables['fulltext_plugin_library']))
+			$db->Execute("DELETE FROM fulltext_plugin_library");
+		
 		return true;
 	}
 	
@@ -136,20 +142,6 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		$db->Execute(sprintf("DELETE FROM plugin_library WHERE id IN (%s)", $ids_list));
-		
-		// Fire event
-		/*
-		$eventMgr = DevblocksPlatform::getEventService();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'context.delete',
-				array(
-					'context' => 'cerberusweb.contexts.',
-					'context_ids' => $ids
-				)
-			)
-		);
-		*/
 		
 		return true;
 	}
@@ -195,7 +187,20 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 	
-		return array(
+		$args = array(
+			'join_sql' => &$join_sql,
+			'where_sql' => &$where_sql,
+			'tables' => &$tables,
+			'has_multiple_values' => &$has_multiple_values
+		);
+		
+		array_walk_recursive(
+			$params,
+			array('DAO_PluginLibrary', '_translateVirtualParameters'),
+			$args
+		);
+		
+		$result = array(
 			'primary_table' => 'plugin_library',
 			'select' => $select_sql,
 			'join' => $join_sql,
@@ -203,7 +208,42 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 			'has_multiple_values' => $has_multiple_values,
 			'sort' => $sort_sql,
 		);
+		
+		return $result; 
 	}
+	
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+		
+		$param_key = $param->field;
+		settype($param_key, 'string');
+		
+		$from_index = 'plugin_library.id';
+		
+		switch($param_key) {
+			case SearchFields_PluginLibrary::FULLTEXT_PLUGIN_LIBRARY:
+				$search = Extension_DevblocksSearchSchema::get(Search_PluginLibrary::ID);
+				$query = $search->getQueryFromParam($param);
+				$ids = $search->query($query, array());
+				
+				if(is_array($ids)) {
+					if(empty($ids))
+						$ids = array(-1);
+					
+					$args['where_sql'] .= sprintf('AND plugin_library.id IN (%s) ',
+						implode(', ', $ids)
+					);
+					
+				} elseif(is_string($ids)) {
+					$args['join_sql'] .= sprintf("INNER JOIN %s ON (%s.id=plugin_library.id) ",
+						$ids,
+						$ids
+					);
+				}
+				break;
+		}
+	}	
 	
 	/**
 	 * Enter description here...
@@ -449,6 +489,9 @@ class SearchFields_PluginLibrary implements IDevblocksSearchFields {
 	const REQUIREMENTS_JSON = 'p_requirements_json';
 	const UPDATED = 'p_updated';
 	
+	// Fulltexts
+	const FULLTEXT_PLUGIN_LIBRARY = 'ft_plugin_library';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -466,12 +509,139 @@ class SearchFields_PluginLibrary implements IDevblocksSearchFields {
 			self::ICON_URL => new DevblocksSearchField(self::ICON_URL, 'plugin_library', 'icon_url', $translate->_('dao.plugin_library.icon_url'), null),
 			self::REQUIREMENTS_JSON => new DevblocksSearchField(self::REQUIREMENTS_JSON, 'plugin_library', 'requirements_json', $translate->_('dao.plugin_library.requirements_json'), null),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'plugin_library', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
+				
+			self::FULLTEXT_PLUGIN_LIBRARY => new DevblocksSearchField(self::FULLTEXT_PLUGIN_LIBRARY, 'ft', 'plugin_library', $translate->_('common.search.fulltext'), 'FT'),
 		);
+		
+		// Fulltext indexes
+		
+		$columns[self::FULLTEXT_PLUGIN_LIBRARY]->ft_schema = Search_PluginLibrary::ID;
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;
+	}
+};
+
+class Search_PluginLibrary extends Extension_DevblocksSearchSchema {
+	const ID = 'cerb.search.schema.plugin_library';
+	
+	public function getNamespace() {
+		return 'plugin_library';
+	}
+	
+	public function getAttributes() {
+		return array();
+	}
+	
+	public function query($query, $attributes=array(), $limit=500) {
+		if(false == ($engine = $this->getEngine()))
+			return false;
+		
+		$ids = $engine->query($this, $query, $attributes, $limit);
+		
+		return $ids;
+	}
+	
+	public function reindex() {
+		$engine = $this->getEngine();
+		$meta = $engine->getIndexMeta($this);
+		
+		// If the index has a delta, start from the current record
+		if($meta['is_indexed_externally']) {
+			// Do nothing (let the remote tool update the DB)
+			
+		// Otherwise, start over
+		} else {
+			$this->setIndexPointer(self::INDEX_POINTER_RESET);
+		}
+	}
+	
+	public function setIndexPointer($pointer) {
+		switch($pointer) {
+			case self::INDEX_POINTER_RESET:
+				$this->setParam('last_indexed_id', 0);
+				$this->setParam('last_indexed_time', 0);
+				break;
+				
+			case self::INDEX_POINTER_CURRENT:
+				$this->setParam('last_indexed_id', 0);
+				$this->setParam('last_indexed_time', time());
+				break;
+		}
+	}
+	
+	public function index($stop_time=null) {
+		$logger = DevblocksPlatform::getConsoleLog();
+		
+		if(false == ($engine = $this->getEngine()))
+			return false;
+		
+		$ns = self::getNamespace();
+		$id = $this->getParam('last_indexed_id', 0);
+		$ptr_time = $this->getParam('last_indexed_time', 0);
+		$ptr_id = $id;
+		$done = false;
+
+		while(!$done && time() < $stop_time) {
+			$where = sprintf('(%1$s = %2$d AND %3$s > %4$d) OR (%1$s > %2$d)',
+				DAO_PluginLibrary::UPDATED,
+				$ptr_time,
+				DAO_PluginLibrary::ID,
+				$id
+			);
+			$plugins = DAO_PluginLibrary::getWhere($where, array(DAO_PluginLibrary::UPDATED, DAO_PluginLibrary::ID), array(true, true), 100);
+
+			if(empty($plugins)) {
+				$done = true;
+				continue;
+			}
+			
+			$last_time = $ptr_time;
+			
+			foreach($plugins as $plugin) { /* @var $plugin Model_PluginLibrary */
+				$id = $plugin->id;
+				$ptr_time = $plugin->updated;
+				
+				$ptr_id = ($last_time == $ptr_time) ? $id : 0;
+				
+				$logger->info(sprintf("[Search] Indexing %s %d...",
+					$ns,
+					$id
+				));
+				
+				$engine->index(
+					$this,
+					$id,
+					sprintf("%s %s %s %s %s",
+						$plugin->plugin_id,
+						$plugin->name,
+						$plugin->author,
+						$plugin->description,
+						$plugin->link
+					)
+				);
+				
+				flush();
+			}
+		}
+		
+		// If we ran out of records, always reset the ID and use the current time
+		if($done) {
+			$ptr_id = 0;
+			$ptr_time = time();
+		}
+		
+		$this->setParam('last_indexed_id', $ptr_id);
+		$this->setParam('last_indexed_time', $ptr_time);
+	}
+	
+	public function delete($ids) {
+		if(false == ($engine = $this->getEngine()))
+			return false;
+		
+		return $engine->delete($this, $ids);
 	}
 };
 
@@ -560,6 +730,7 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_PluginLibrary::ICON_URL,
 			SearchFields_PluginLibrary::ID,
 			SearchFields_PluginLibrary::REQUIREMENTS_JSON,
+			SearchFields_PluginLibrary::FULLTEXT_PLUGIN_LIBRARY,
 		));
 		
 		$this->addParamsHidden(array(
@@ -631,8 +802,8 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 		$fields = array(
 			'_fulltext' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_PluginLibrary::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
+					'options' => array('param_key' => SearchFields_PluginLibrary::FULLTEXT_PLUGIN_LIBRARY),
 				),
 			'author' => 
 				array(
@@ -754,6 +925,9 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 			case SearchFields_PluginLibrary::UPDATED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
+			case SearchFields_PluginLibrary::FULLTEXT_PLUGIN_LIBRARY:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
+				break;
 		}
 	}
 
@@ -800,6 +974,11 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 			case 'placeholder_bool':
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_PluginLibrary::FULLTEXT_PLUGIN_LIBRARY:
+				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 		}
 

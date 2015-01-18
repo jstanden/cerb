@@ -314,6 +314,7 @@
 		<file path="api/dao/plugin_library.php">
 			<class name="DAO_PluginLibrary" />
 			<class name="Model_PluginLibrary" />
+			<class name="Search_PluginLibrary" />
 			<class name="SearchFields_PluginLibrary" />
 			<class name="View_PluginLibrary" />
 		</file>
@@ -2443,6 +2444,17 @@
 			<class>
 				<file>api/dao/contact_org.php</file>
 				<name>Search_Org</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.search.schema">
+			<id>cerb.search.schema.plugin_library</id>
+			<name>Plugin Library</name>
+			<class>
+				<file>api/dao/plugin_library.php</file>
+				<name>Search_PluginLibrary</name>
 			</class>
 			<params>
 			</params>
