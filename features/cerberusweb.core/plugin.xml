@@ -326,6 +326,7 @@
 		<file path="api/dao/snippet.php">
 			<class name="DAO_Snippet" />
 			<class name="Model_Snippet" />
+			<class name="Search_Snippet" />
 			<class name="SearchFields_Snippet" />
 			<class name="View_Snippet" />
 		</file>
@@ -2442,6 +2443,17 @@
 			<class>
 				<file>api/dao/contact_org.php</file>
 				<name>Search_Org</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.search.schema">
+			<id>cerb.search.schema.snippet</id>
+			<name>Snippets</name>
+			<class>
+				<file>api/dao/snippet.php</file>
+				<name>Search_Snippet</name>
 			</class>
 			<params>
 			</params>
