@@ -11,7 +11,7 @@
 	<input type="text" name="{$namePrefix}[http_url]" value="{$params.http_url|default:""}" class="placeholders" spellcheck="false" size="45" style="width:100%;" placeholder="e.g. http://example.com/api/request.json">
 </div>
 
-<div class="cerb-httprequest-headers" style="{if !in_array($params.http_verb,[get,post,put,delete])}display:none;{/if}">
+<div class="cerb-httprequest-headers">
 	<b>Request headers:</b>
 	<div style="margin-left:10px;margin-bottom:10px;">
 		<textarea rows="3" cols="60" name="{$namePrefix}[http_headers]" style="width:100%;white-space:pre;word-wrap:normal;" class="placeholders" spellcheck="false">{$params.http_headers}</textarea>
