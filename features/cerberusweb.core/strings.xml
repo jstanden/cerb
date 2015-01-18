@@ -962,6 +962,11 @@
 				<seg>search</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.search.fulltext">
+			<tuv xml:lang="en_US">
+				<seg>fulltext</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.search_results">
 			<tuv xml:lang="en_US">
 				<seg>Search Results</seg>

@@ -570,7 +570,7 @@ class Search_KbArticle extends Extension_DevblocksSearchSchema {
 		$done = false;
 
 		while(!$done && time() < $stop_time) {
-			$where = sprintf("%s >= %d AND %s > %d",
+			$where = sprintf('(%1$s = %2$d AND %3$s > %4$d) OR (%1$s > %2$d)',
 				DAO_KbArticle::UPDATED,
 				$ptr_time,
 				DAO_KbArticle::ID,
@@ -1121,6 +1121,9 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 		
 		return $counts;
 	}
+	
+	// [TODO] Fulltext: Comments
+	// [TODO] Virtual: Topic
 	
 	function getQuickSearchFields() {
 		$fields = array(
