@@ -179,7 +179,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 	static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
-		$tables = $db->metaTables();
+		$tables = DevblocksPlatform::getDatabaseTables();
 		
 		// Search indexes
 		if(isset($tables['fulltext_snippet'])) {
@@ -617,14 +617,13 @@ class Search_Snippet extends Extension_DevblocksSearchSchema {
 					$id
 				));
 				
-				$engine->index(
-					$this,
-					$id,
-					sprintf("%s %s",
-						$snippet->title,
-						$snippet->content						
-					)
+				$content = sprintf("%s %s",
+					$snippet->title,
+					$snippet->content						
 				);
+				
+				if(false === ($engine->index($this, $id, $content)))
+					return false;
 				
 				flush();
 			}

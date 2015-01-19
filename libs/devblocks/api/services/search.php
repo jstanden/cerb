@@ -721,8 +721,14 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	
 	private function _index(Extension_DevblocksSearchSchema $schema, $id, $content, $attributes=array()) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$tables = DevblocksPlatform::getDatabaseTables();
 		$ns = $schema->getNamespace();
 		$content = $this->prepareText($content);
+		
+		// If the table doesn't exist, create it at index time
+		if(!isset($tables['fulltext_' . $this->escapeNamespace($ns)]))
+			if(false === $this->_createTable($schema))
+				return false;
 		
 		$fields = array(
 			'id' => intval($id),
@@ -774,15 +780,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	}
 	
 	public function index(Extension_DevblocksSearchSchema $schema, $id, $content, array $attributes=array()) {
-		if(false === ($ids = $this->_index($schema, $id, $content, $attributes))) {
-			// Create the table dynamically
-			if($this->_createTable($schema)) {
-				return $this->_index($schema, $id, $content, $attributes);
-			}
-			return false;
-		}
-		
-		return true;
+		return $this->_index($schema, $id, $content, $attributes);
 	}
 	
 	private function _createTable(Extension_DevblocksSearchSchema $schema) {

@@ -484,7 +484,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 	static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
-		$tables = $db->metaTables();
+		$tables = DevblocksPlatform::getDatabaseTables();
 
 		// Search indexes
 		if(isset($tables['fulltext_comment_content'])) {
@@ -641,7 +641,9 @@ class Search_CommentContent extends Extension_DevblocksSearchSchema {
 				
 				if(!empty($content)) {
 					$content = $engine->truncateOnWhitespace($content, 10000);
-					$engine->index($this, $id, $content, array('context_crc32' => sprintf("%u", crc32($comment->context))));
+					
+					if(false === ($engine->index($this, $id, $content, array('context_crc32' => sprintf("%u", crc32($comment->context))))))
+						return false;
 				}
 
 				// Record our progress every 25th index

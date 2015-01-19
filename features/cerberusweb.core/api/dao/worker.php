@@ -364,7 +364,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
-		$tables = $db->metaTables();
+		$tables = DevblocksPlatform::getDatabaseTables();
 		
 		$db->Execute("DELETE FROM view_rss WHERE worker_id NOT IN (SELECT id FROM worker)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' view_rss records.');
@@ -1035,16 +1035,15 @@ class Search_Worker extends Extension_DevblocksSearchSchema {
 					$id
 				));
 				
-				$engine->index(
-					$this,
-					$id,
-					sprintf("%s %s %s %s",
-						$worker->getName(),
-						$worker->email,						
-						$worker->title,						
-						$worker->at_mention_name						
-					)
+				$content = sprintf("%s %s %s %s",
+					$worker->getName(),
+					$worker->email,						
+					$worker->title,						
+					$worker->at_mention_name						
 				);
+				
+				if(false === ($engine->index($this, $id, $content)))
+					return false;
 				
 				flush();
 			}

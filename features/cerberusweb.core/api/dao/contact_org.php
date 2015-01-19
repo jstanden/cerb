@@ -224,7 +224,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
-		$tables = $db->metaTables();
+		$tables = DevblocksPlatform::getDatabaseTables();
 		
 		// Search indexes
 		if(isset($tables['fulltext_org'])) {
@@ -738,15 +738,14 @@ class Search_Org extends Extension_DevblocksSearchSchema {
 					$id
 				));
 				
-				$engine->index(
-					$this,
-					$id,
-					sprintf("%s %s %s",
-						$org->name,
-						$org->getMailingAddress(),
-						$org->website						
-					)
-				);
+				$content = sprintf("%s %s %s",
+					$org->name,
+					$org->getMailingAddress(),
+					$org->website						
+					);
+				
+				if(false === ($engine->index($this, $id, $content)))
+					return false;
 				
 				flush();
 			}

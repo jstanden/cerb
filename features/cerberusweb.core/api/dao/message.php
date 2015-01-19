@@ -187,7 +187,7 @@ class DAO_Message extends Cerb_ORMHelper {
 	static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
-		$tables = $db->metaTables();
+		$tables = DevblocksPlatform::getDatabaseTables();
 		
 		// Purge message content (storage)
 		$db->Execute("CREATE TEMPORARY TABLE _tmp_maint_message SELECT id FROM message WHERE ticket_id NOT IN (SELECT id FROM ticket)");
@@ -920,7 +920,8 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 						$content = $ticket->subject . ' ' . $content;
 					}
 					
-					$engine->index($this, $id, $content);
+					if(false === ($engine->index($this, $id, $content)))
+						return false;
 				}
 
 				// Record our progress every 25th index

@@ -146,7 +146,7 @@ class DAO_Address extends Cerb_ORMHelper {
 	static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
-		$tables = $db->metaTables();
+		$tables = DevblocksPlatform::getDatabaseTables();
 		
 		$sql = "DELETE FROM address_to_worker WHERE worker_id NOT IN (SELECT id FROM worker)";
 		$db->Execute($sql);
@@ -747,14 +747,13 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 					$id
 				));
 				
-				$engine->index(
-					$this,
-					$id,
-					sprintf("%s %s",
-						$address->email,
-						$address->getName()						
-					)
+				$content = sprintf("%s %s",
+					$address->email,
+					$address->getName()						
 				);
+				
+				if(false === ($engine->index($this, $id, $content)))
+					return false;
 				
 				flush();
 			}

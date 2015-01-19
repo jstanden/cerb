@@ -122,7 +122,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 	
 	static function flush() {
 		$db = DevblocksPlatform::getDatabaseService();
-		$tables = $db->metaTables();
+		$tables = DevblocksPlatform::getDatabaseTables();
 		
 		$db->Execute("DELETE FROM plugin_library");
 		
@@ -613,17 +613,16 @@ class Search_PluginLibrary extends Extension_DevblocksSearchSchema {
 					$id
 				));
 				
-				$engine->index(
-					$this,
-					$id,
-					sprintf("%s %s %s %s %s",
-						$plugin->plugin_id,
-						$plugin->name,
-						$plugin->author,
-						$plugin->description,
-						$plugin->link
-					)
+				$content = sprintf("%s %s %s %s %s",
+					$plugin->plugin_id,
+					$plugin->name,
+					$plugin->author,
+					$plugin->description,
+					$plugin->link
 				);
+				
+				if(false === ($engine->index($this, $id, $content)))
+					return false;
 				
 				flush();
 			}
