@@ -421,6 +421,7 @@ class DAO_ContactPerson extends Cerb_ORMHelper {
 	
 	static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
+		$logger = DevblocksPlatform::getConsoleLog();
 		$tables = $db->metaTables();
 		
 		$db->Execute("UPDATE address SET contact_person_id = 0 WHERE contact_person_id != 0 AND contact_person_id NOT IN (SELECT id FROM contact_person)");

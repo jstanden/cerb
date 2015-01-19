@@ -223,6 +223,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	
 	static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
+		$logger = DevblocksPlatform::getConsoleLog();
 		$tables = $db->metaTables();
 		
 		// Search indexes
