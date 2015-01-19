@@ -940,7 +940,7 @@ abstract class C4_AbstractView {
 		
 		// Tokens for lexer
 		$token_map = array(
-			'[^\s][a-zA-Z0-9\.]+\:' => 'T_FIELD',
+			'[a-zA-Z0-9\.]+\:' => 'T_FIELD',
 			'\([^\)\\\\]*(?:\\\\.[^\(\)\\\\]*)*\)' => 'T_PARENTHETIC_TEXT',
 			'\[[^\]\\\\]*(?:\\\\.[^\[\]\\\\]*)*\]' => 'T_BRACKET_TEXT',
 			'"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"' => 'T_QUOTED_TEXT',
