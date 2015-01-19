@@ -380,7 +380,37 @@ class DAO_Message extends Cerb_ORMHelper {
 						$ids
 					);
 				}
+				break;
 				
+			case SearchFields_Message::FULLTEXT_NOTE_CONTENT:
+				$search = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID);
+				$query = $search->getQueryFromParam($param);
+				$ids = $search->query($query, array('context_crc32' => sprintf("%u", crc32(CerberusContexts::CONTEXT_MESSAGE))), 250);
+				
+				if(is_array($ids)) {
+					// [TODO] This approach doesn't stack with comment searching, because they're "id in (1,2,3) AND id IN (4,5,6)"
+					$args['where_sql'] .= sprintf('AND %s IN (%s) ',
+						$from_index,
+						implode(', ', $ids)
+					);
+					
+				} elseif(is_string($ids)) {
+					$db = DevblocksPlatform::getDatabaseService();
+					$temp_table = sprintf("_tmp_%s", uniqid());
+					
+					$db->Execute(sprintf("CREATE TEMPORARY TABLE %s SELECT DISTINCT context_id AS id FROM comment INNER JOIN %s ON (%s.id=comment.id)",
+						$temp_table,
+						$ids,
+						$ids
+					));
+					
+					$args['join_sql'] .= sprintf("INNER JOIN %s ON (%s.id=%s) ",
+						$temp_table,
+						$temp_table,
+						$from_index
+					);
+					
+				}
 				break;
 				
 			case SearchFields_Message::VIRTUAL_ATTACHMENT_NAME:
@@ -644,8 +674,9 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	const MESSAGE_HEADER_NAME = 'mh_header_name';
 	const MESSAGE_HEADER_VALUE = 'mh_header_value';
 
-	// Content
+	// Fulltexts
 	const MESSAGE_CONTENT = 'ftmc_content';
+	const FULLTEXT_NOTE_CONTENT = 'ftnc_content';
 	
 	// Address
 	const ADDRESS_EMAIL = 'a_email';
@@ -704,11 +735,13 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::VIRTUAL_TICKET_STATUS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_STATUS, '*', 'ticket_status', $translate->_('ticket.status')),
 				
 			SearchFields_Message::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('common.content'), 'FT'),
+			SearchFields_Message::FULLTEXT_NOTE_CONTENT => new DevblocksSearchField(self::FULLTEXT_NOTE_CONTENT, 'ftnc', 'content', $translate->_('message.note.content'), 'FT'),
 		);
 
 		// Fulltext indexes
 		
 		$columns[self::MESSAGE_CONTENT]->ft_schema = Search_MessageContent::ID;
+		$columns[self::FULLTEXT_NOTE_CONTENT]->ft_schema = Search_CommentContent::ID;
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
@@ -1386,6 +1419,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		);
 		
 		$this->addColumnsHidden(array(
+			SearchFields_Message::FULLTEXT_NOTE_CONTENT,
 			SearchFields_Message::ID,
 			SearchFields_Message::MESSAGE_CONTENT,
 			SearchFields_Message::MESSAGE_HEADER_NAME,
@@ -1608,7 +1642,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $counts;
 	}
 	
-	
 	function getQuickSearchFields() {
 		$fields = array(
 			'_fulltext' => 
@@ -1669,6 +1702,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_Message::IS_OUTGOING),
+				),
+			'notes' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
+					'options' => array('param_key' => SearchFields_Message::FULLTEXT_NOTE_CONTENT),
 				),
 			'responseTime' => 
 				array(
@@ -2158,6 +2196,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 				
+			case SearchFields_Message::FULLTEXT_NOTE_CONTENT:
 			case SearchFields_Message::MESSAGE_CONTENT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
 				break;
@@ -2276,6 +2315,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
+			case SearchFields_Message::FULLTEXT_NOTE_CONTENT:
 			case SearchFields_Message::MESSAGE_CONTENT:
 				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
