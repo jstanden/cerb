@@ -1654,6 +1654,74 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
 				
+			case SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER:
+				$header_wheres = array();
+				
+				// Multiple tuples
+				foreach($param->value as $param_value) {
+				
+					// Sanitize
+					if(!is_array($param_value) || 3 != count($param_value))
+						break;
+					
+					@$header_name = strtolower($param_value[0]);
+					@$header_oper = $param_value[1];
+					@$header_value = $param_value[2];
+					
+					if(empty($header_name))
+						break;
+					
+					switch($header_oper) {
+						default:
+						case DevblocksSearchCriteria::OPER_EQ:
+							$header_wheres[] = sprintf("message_header.header_name = %s AND message_header.header_value = %s",
+								Cerb_ORMHelper::qstr($header_name),
+								Cerb_ORMHelper::qstr($header_value)
+							);
+							break;
+							
+						case DevblocksSearchCriteria::OPER_NEQ:
+							$header_wheres[] = sprintf("message_header.header_name = %s AND message_header.header_value != %s",
+								Cerb_ORMHelper::qstr($header_name),
+								Cerb_ORMHelper::qstr($header_value)
+							);
+							break;
+							
+						case DevblocksSearchCriteria::OPER_LIKE:
+							$header_wheres[] = sprintf("message_header.header_name = %s AND message_header.header_value like %s",
+								Cerb_ORMHelper::qstr($header_name),
+								Cerb_ORMHelper::qstr(str_replace('*','%',$header_value))
+							);
+							break;
+							
+						case DevblocksSearchCriteria::OPER_NOT_LIKE:
+							$header_wheres[] = sprintf("message_header.header_name = %s AND message_header.header_value not like %s",
+								Cerb_ORMHelper::qstr($header_name),
+								Cerb_ORMHelper::qstr(str_replace('*','%',$header_value))
+							);
+							break;
+							
+						case DevblocksSearchCriteria::OPER_IS_NULL:
+							$header_wheres[] = sprintf("message_header.header_name = %s AND message_header.header_value is null",
+								Cerb_ORMHelper::qstr($header_name)
+							);
+							break;
+					}
+				}
+				
+				if(!empty($header_wheres)) {
+					$args['join_sql'] .= sprintf("INNER JOIN (".
+						"SELECT DISTINCT message.ticket_id ".
+							"FROM message_header ".
+							"INNER JOIN message ON (message.id=message_header.message_id) ".
+							"WHERE %s".
+						") virt_msg_header ON (virt_msg_header.ticket_id = t.id) ",
+						implode(' OR ', $header_wheres)
+					);
+				}
+				
+				break;
+				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
 				$args['has_multiple_values'] = true;
 				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql'], $args['tables']);
@@ -1894,6 +1962,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const VIRTUAL_GROUPS_OF_WORKER = '*_groups_of_worker';
 	const VIRTUAL_HAS_ATTACHMENTS = '*_has_attachments';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
+	const VIRTUAL_MESSAGE_HEADER = '*_message_header';
 	const VIRTUAL_ORG_ID = '*_org_id';
 	const VIRTUAL_STATUS = '*_status';
 	const VIRTUAL_WATCHERS = '*_workers';
@@ -1965,6 +2034,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '*', 'groups_of_worker', $translate->_('ticket.groups_of_worker')),
 			SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS, '*', 'has_attachments', $translate->_('message.search.has_attachments'), Model_CustomField::TYPE_CHECKBOX),
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
+			SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER => new DevblocksSearchField(SearchFields_Message::VIRTUAL_MESSAGE_HEADER, '*', 'message_header', $translate->_('message.header')),				
 			SearchFields_Ticket::VIRTUAL_ORG_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ORG_ID, '*', 'org_id', null, null), // org ID
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_STATUS, '*', 'status', $translate->_('ticket.status')),
 			SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
@@ -2109,6 +2179,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,
 			SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS,
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET,
+			SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER,
 			SearchFields_Ticket::VIRTUAL_ORG_ID,
 			SearchFields_Ticket::VIRTUAL_STATUS,
 			SearchFields_Ticket::VIRTUAL_WATCHERS,
@@ -2550,6 +2621,16 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_NUM_MESSAGES),
 				),
+			'msgs.headers' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER),
+					'examples' => array(
+						"(content-type like text/html*)",
+						"(message-id = <...>)",
+						"(x-mailer like cerb* OR x-mailer like salesforce*)",
+					),
+				),
 			'notes' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
@@ -2739,6 +2820,66 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 							array_keys($group_ids)
 						);
 					}
+					break;
+					
+				case 'msgs.headers':
+					$field_key = SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER;
+					
+					$sets = explode(' OR ', $v);
+					$values = array();
+				
+					if(is_array($sets))
+					foreach($sets as $set) {
+						$tuple = explode(' ', $set, 3);
+						
+						@$header_name = $tuple[0];
+						@$header_oper = $tuple[1];
+						@$header_value = $tuple[2];
+						
+						if(empty($header_name) || empty($header_oper))
+							continue;
+						
+						switch($header_oper) {
+							case '=':
+							case 'is':
+								if(0 == strcasecmp('null', $header_value)) {
+									$values[] = array($header_name, DevblocksSearchCriteria::OPER_IS_NULL, null);
+								} else {
+									$values[] = array($header_name, DevblocksSearchCriteria::OPER_EQ, $header_value);
+								}
+								break;
+								
+							case '!=':
+							case 'not':
+								if(0 == strcasecmp('null', $header_value)) {
+									$values[] = array($header_name, DevblocksSearchCriteria::OPER_IS_NOT_NULL, null);
+								} else {
+									$values[] = array($header_name, DevblocksSearchCriteria::OPER_NEQ, $header_value);
+								}
+								break;
+								
+							case 'like':
+								$oper = DevblocksSearchCriteria::OPER_LIKE;
+								$values[] = array($header_name, $oper, $header_value);
+								break;
+								
+							case '!like':
+								$oper = DevblocksSearchCriteria::OPER_NOT_LIKE;
+								$values[] = array($header_name, $oper, $header_value);
+								break;
+								
+							case 'null':
+								$oper = DevblocksSearchCriteria::OPER_IS_NULL;
+								$values[] = array($header_name, $oper, null);
+								break;
+						}
+					}					
+					
+					$params[$field_key] = new DevblocksSearchCriteria(
+						$field_key,
+						null,
+						$values
+					);
 					break;
 
 				case 'spam.training':
@@ -3025,6 +3166,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_TICKET);
 				break;
 				
+			case SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER:
+				$tpl->display('devblocks:cerberusweb.core::messages/criteria_message_header.tpl');
+				break;
+				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
@@ -3117,6 +3262,54 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
 				$this->_renderVirtualHasFieldset($param);
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER:
+				$strings = array();
+				
+				if(is_array($param->value))
+				foreach($param->value as $param_value) {
+				
+					if(!is_array($param_value) && 3 != count($param_value))
+						break;
+						
+					@$header_name = strtolower($param_value[0]);
+					@$header_oper = $param_value[1];
+					@$header_value = $param_value[2];
+					
+					if(empty($header_name) || empty($header_oper))
+						break;
+					
+					switch($header_oper) {
+						case DevblocksSearchCriteria::OPER_EQ:
+						case DevblocksSearchCriteria::OPER_LIKE:
+							$oper = 'is';
+							break;
+						case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+							$oper = 'is blank or';
+							break;
+						case DevblocksSearchCriteria::OPER_NEQ:
+						case DevblocksSearchCriteria::OPER_NOT_LIKE:
+							$oper = 'is not';
+							break;
+						case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+							$oper = 'is blank or not';
+							break;
+						default:
+							$oper = $header_oper;
+							break;
+					}
+					
+					$strings[] = sprintf("(<b>%s</b> %s <b>%s</b>)",
+						$header_name,
+						$header_oper,
+						$header_value 
+					);
+				}
+				
+				echo sprintf("Header %s",
+					implode(' OR ', $strings) 
+				);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
@@ -3392,6 +3585,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
 				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
+				break;
+				
+			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:
+				@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
+				@$value = DevblocksPlatform::importGPC($_REQUEST['value'],'string','');
+				$criteria = new DevblocksSearchCriteria($field, $oper, array(array($name,$oper,$value)));
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:

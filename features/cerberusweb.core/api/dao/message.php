@@ -2337,7 +2337,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
 				@$value = DevblocksPlatform::importGPC($_REQUEST['value'],'string','');
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($name,$value));
+				$criteria = new DevblocksSearchCriteria($field, $oper, array(array($name,$oper,$value)));
 				break;
 				
 			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
