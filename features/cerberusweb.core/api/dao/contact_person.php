@@ -288,6 +288,37 @@ class DAO_ContactPerson extends Cerb_ORMHelper {
 		$from_index = 'contact_person.id';
 		
 		switch($param_key) {
+			case SearchFields_ContactPerson::FULLTEXT_COMMENT_CONTENT:
+				$search = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID);
+				$query = $search->getQueryFromParam($param);
+				$ids = $search->query($query, array('context_crc32' => sprintf("%u", crc32($from_context))));
+				
+				if(is_array($ids)) {
+					$from_ids = DAO_Comment::getContextIdsByContextAndIds($from_context, $ids);
+					
+					$args['where_sql'] .= sprintf('AND %s IN (%s) ',
+						$from_index,
+						implode(', ', (!empty($from_ids) ? $from_ids : array(-1)))
+					);
+					
+				} elseif(is_string($ids)) {
+					$db = DevblocksPlatform::getDatabaseService();
+					$temp_table = sprintf("_tmp_%s", uniqid());
+					
+					$db->Execute(sprintf("CREATE TEMPORARY TABLE %s SELECT DISTINCT context_id AS id FROM comment INNER JOIN %s ON (%s.id=comment.id)",
+						$temp_table,
+						$ids,
+						$ids
+					));
+					
+					$args['join_sql'] .= sprintf("INNER JOIN %s ON (%s.id=%s) ",
+						$temp_table,
+						$temp_table,
+						$from_index
+					);
+				}
+				break;
+			
 			case SearchFields_ContactPerson::FULLTEXT_CONTACT:
 				$search = Extension_DevblocksSearchSchema::get(Search_Contact::ID);
 				$query = $search->getQueryFromParam($param);
@@ -395,6 +426,7 @@ class DAO_ContactPerson extends Cerb_ORMHelper {
 		$db->Execute("UPDATE address SET contact_person_id = 0 WHERE contact_person_id != 0 AND contact_person_id NOT IN (SELECT id FROM contact_person)");
 
 		// Search indexes
+		
 		if(isset($tables['fulltext_contact'])) {
 			$db->Execute("DELETE FROM fulltext_contact WHERE id NOT IN (SELECT id FROM contact_person)");
 			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_contact records.');
@@ -430,6 +462,7 @@ class SearchFields_ContactPerson implements IDevblocksSearchFields {
 	const ADDRESS_LAST_NAME = 'a_last_name';
 	
 	// Fulltexts
+	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
 	const FULLTEXT_CONTACT = 'ft_contact';
 	
 	// Virtuals
@@ -459,6 +492,7 @@ class SearchFields_ContactPerson implements IDevblocksSearchFields {
 			self::ADDRESS_FIRST_NAME => new DevblocksSearchField(self::ADDRESS_FIRST_NAME, 'address', 'first_name', $translate->_('address.first_name'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::ADDRESS_LAST_NAME => new DevblocksSearchField(self::ADDRESS_LAST_NAME, 'address', 'last_name', $translate->_('address.last_name'), Model_CustomField::TYPE_SINGLE_LINE),
 			
+			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT'),
 			self::FULLTEXT_CONTACT => new DevblocksSearchField(self::FULLTEXT_CONTACT, 'ft', 'contact', $translate->_('common.search.fulltext'), 'FT'),
 				
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
@@ -471,6 +505,7 @@ class SearchFields_ContactPerson implements IDevblocksSearchFields {
 		
 		// Fulltext indexes
 		
+		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
 		$columns[self::FULLTEXT_CONTACT]->ft_schema = Search_Contact::ID;
 		
 		// Custom fields with fieldsets
@@ -673,6 +708,7 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_ContactPerson::EMAIL_ID,
 			SearchFields_ContactPerson::AUTH_PASSWORD,
 			SearchFields_ContactPerson::AUTH_SALT,
+			SearchFields_ContactPerson::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_ContactPerson::FULLTEXT_CONTACT,
 			SearchFields_ContactPerson::VIRTUAL_CONTEXT_LINK,
 			SearchFields_ContactPerson::VIRTUAL_HAS_FIELDSET,
@@ -792,6 +828,11 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_ContactPerson::FULLTEXT_CONTACT),
 				),
+			'comments' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
+					'options' => array('param_key' => SearchFields_ContactPerson::FULLTEXT_COMMENT_CONTENT),
+				),
 			'created' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -906,6 +947,7 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
+			case SearchFields_ContactPerson::FULLTEXT_COMMENT_CONTENT:
 			case SearchFields_ContactPerson::FULLTEXT_CONTACT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
 				break;
@@ -998,6 +1040,7 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
+			case SearchFields_ContactPerson::FULLTEXT_COMMENT_CONTENT:
 			case SearchFields_ContactPerson::FULLTEXT_CONTACT:
 				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
