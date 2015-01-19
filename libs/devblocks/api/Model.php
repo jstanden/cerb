@@ -256,6 +256,9 @@ class DevblocksSearchCriteria {
 					$value = array(0);
 					break;
 					
+				case 'blank':
+				case 'empty':
+				case 'no':
 				case 'none':
 				case 'noone':
 				case 'nobody':
@@ -277,6 +280,11 @@ class DevblocksSearchCriteria {
 						if($active_worker && 0 == strcasecmp($pattern, 'me')) {
 							$worker_ids[$active_worker->id] = true;
 							continue;
+						}
+						
+						if(in_array(strtolower($pattern), array('none','noone','nobody'))) {
+							$oper = self::OPER_IN_OR_NULL;
+							$worker_ids[0] = true;
 						}
 						
 						foreach($workers as $worker_id => $worker) {
