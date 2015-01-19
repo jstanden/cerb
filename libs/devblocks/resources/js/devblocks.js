@@ -280,9 +280,11 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 		}
 	};
 	
+	var $popup = null;
+	
 	// Restore position from previous dialog?
 	if(target == 'reuse') {
-		var $popup = genericAjaxPopupFetch($layer);
+		$popup = genericAjaxPopupFetch($layer);
 		if(null != $popup) {
 			try {
 				var offset = $popup.closest('div.ui-dialog').offset();
@@ -322,10 +324,10 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 	if(null != modal) options.modal = modal;
 	
 	// Load the popup content
-	var $options = {}
+	var $options = { async: false }
 	genericAjaxGet('', request + '&layer=' + $layer,
 		function(html) {
-			var $popup = $("#popup"+$layer);
+			$popup = $("#popup"+$layer);
 			
 			if(0 == $popup.length) {
 				$("body").append("<div id='popup"+$layer+"' class='devblocks-popup' style='display:none;'></div>");
