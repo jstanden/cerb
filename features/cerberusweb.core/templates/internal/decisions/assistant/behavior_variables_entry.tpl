@@ -56,6 +56,9 @@
 </div>
 
 <script type="text/javascript">
+// Elastic textareas
+$('#{$vars_uniqid} textarea').elastic();
+
 // Choosers
 $('#{$vars_uniqid} button.chooser').each(function() {
 	var $this = $(this);
