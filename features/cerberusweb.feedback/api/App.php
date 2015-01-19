@@ -579,6 +579,11 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_FeedbackEntry::ADDRESS_EMAIL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
+			'mood' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_FeedbackEntry::QUOTE_MOOD),
+				),
 			'quote' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -614,8 +619,33 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 		// Handle virtual fields and overrides
 		if(is_array($fields))
 		foreach($fields as $k => $v) {
+			
 			switch($k) {
-				// ...
+				case 'mood':
+					$field_key = SearchFields_FeedbackEntry::QUOTE_MOOD;
+					$oper = DevblocksSearchCriteria::OPER_IN;
+					$patterns = DevblocksPlatform::parseCsvString($v);
+					
+					$values = array();
+					
+					foreach($patterns as $pattern) {
+						switch(strtolower(substr($pattern,0,1))) {
+							case 'n':
+								$values[0] = true;
+								break;
+							case 'p':
+								$values[1] = true;
+								break;
+							case 'c':
+								$values[2] = true;
+								break;
+						}
+					}
+					
+					if(!empty($values))
+						$params[$field_key] = new DevblocksSearchCriteria($field_key, $oper, array_keys($values));
+						
+					break;
 			}
 		}
 		
