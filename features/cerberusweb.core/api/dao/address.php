@@ -470,9 +470,10 @@ class DAO_Address extends Cerb_ORMHelper {
 						$ids
 					));
 					
-					$args['join_sql'] .= sprintf("INNER JOIN %s ON (%s.id=a.id) ",
+					$args['join_sql'] .= sprintf("INNER JOIN %s ON (%s.id=%s) ",
 						$temp_table,
-						$temp_table
+						$temp_table,
+						$from_index
 					);
 				}
 				break;
@@ -623,6 +624,7 @@ class SearchFields_Address implements IDevblocksSearchFields {
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', $translate->_('contact_org.name'), Model_CustomField::TYPE_SINGLE_LINE),
 			
 			self::FULLTEXT_ADDRESS => new DevblocksSearchField(self::FULLTEXT_ADDRESS, 'ft', 'address', $translate->_('common.search.fulltext'), 'FT'),				
+			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT'),
 				
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
@@ -630,8 +632,6 @@ class SearchFields_Address implements IDevblocksSearchFields {
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null, null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null, null),
-				
-			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT'),
 		);
 		
 		// Fulltext indexes
