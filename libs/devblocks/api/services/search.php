@@ -416,7 +416,11 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	
 	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=500) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$tables = $db->metaTables();
 		$ns = $schema->getNamespace();
+		
+		if(!isset($tables['fulltext_' . $ns]))
+			return false;
 		
 		$escaped_query = $db->escape($query);
 		$where_sql = null;

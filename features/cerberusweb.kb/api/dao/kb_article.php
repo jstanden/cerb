@@ -356,9 +356,11 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			case SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT:
 				$search = Extension_DevblocksSearchSchema::get(Search_KbArticle::ID);
 				$query = $search->getQueryFromParam($param);
-				$ids = $search->query($query, array());
 				
-				if(is_array($ids)) {
+				if(false === ($ids = $search->query($query, array()))) {
+					$args['where_sql'] .= 'AND 0 ';
+				
+				} elseif(is_array($ids)) {
 					if(empty($ids))
 						$ids = array(-1);
 					
