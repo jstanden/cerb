@@ -85,6 +85,12 @@ var $frm = $('#{$uniqid}').each(function(e) {
 	var $frm = $(this);
 	var $input = $frm.find('input:text');
 	
+	$input.keyup(function(e) {
+		if(e.keyCode == 27) {
+			$menu.hide();
+		}
+	});
+	
 	var $menu = $frm.find('ul.cerb-quick-search-menu')
 		.menu({
 			items: "> :not(.ui-widget-header)",
