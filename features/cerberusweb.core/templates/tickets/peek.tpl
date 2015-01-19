@@ -230,5 +230,9 @@
 		
 		// Dates
 		$frm.find('div#ticketPeekProps > fieldset:first input.input_date').cerbDateInputHelper();
+		
+		// CSS overrides
+		$popup.closest('.ui-dialog').css('overflow', 'visible');
+		$popup.css('overflow', 'inherit');
 	});
 </script>
