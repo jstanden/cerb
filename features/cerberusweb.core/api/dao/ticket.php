@@ -2482,6 +2482,9 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 	
 	function getQuickSearchFields() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$group_names = DAO_Group::getNames($active_worker);
+		
 		$fields = array(
 			'_fulltext' => 
 				array(
@@ -2521,10 +2524,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_GROUP_ID),
-					'examples' => array(
-						'support',
-						'billing,sales',
-					),
+					'examples' => array_slice($group_names, 0, 15),
 			),
 			'id' =>
 				array(
@@ -2616,6 +2616,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_SPAM_TRAINING),
+					'examples' => array(
+						'"not spam"',
+						'spam',
+						'untrained',
+					)
 				),
 			'status' =>
 				array(

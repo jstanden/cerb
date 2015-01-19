@@ -82,6 +82,18 @@ class DAO_Group extends Cerb_ORMHelper {
 		return $groups;
 	}
 	
+	static function getNames(Model_Worker $for_worker=null) {
+		$groups = DAO_Group::getAll();
+		$names = array();
+		
+		foreach($groups as $group) {
+			if(is_null($for_worker) || $for_worker->isGroupMember($group->id))
+				$names[$group->id] = $group->name;
+		}
+		
+		return $names;
+	}
+	
 	/**
 	 * @param resource $rs
 	 * @return Model_Notification[]
