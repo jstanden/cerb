@@ -1781,7 +1781,7 @@ interface IDevblocksSearchEngine {
 	public function getQueryFromParam($param);
 	
 	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=250);
-	public function index(Extension_DevblocksSearchSchema $schema, $id, $content, array $attributes=array());
+	public function index(Extension_DevblocksSearchSchema $schema, $id, array $doc, array $attributes=array());
 	public function delete(Extension_DevblocksSearchSchema $schema, $ids);
 };
 
@@ -1819,6 +1819,18 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 	
 	protected function escapeNamespace($namespace) {
 		return strtolower(DevblocksPlatform::strAlphaNum($namespace, '\_'));
+	}
+	
+	public function _getTextFromDoc(array $doc) {
+		$output = array();
+		
+		// Find all text content and append it together
+		array_walk_recursive($doc, function($e) use (&$output) {
+			if(is_string($e))
+				$output[] = $e;
+		});
+		
+		return implode(' ', $output);
 	}
 	
 	public function truncateOnWhitespace($content, $length) {

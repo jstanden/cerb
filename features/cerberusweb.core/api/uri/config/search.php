@@ -46,9 +46,9 @@ class PageSection_SetupSearch extends Extension_PageSection {
 	}
 	
 	function saveSearchSchemaPeekAction() {
-		@$schema_extension_id = DevblocksPlatform::importGPC($_POST['schema_extension_id'],'string','');
-		@$engine_extension_id = DevblocksPlatform::importGPC($_POST['engine_extension_id'],'string','');
-		@$params = DevblocksPlatform::importGPC($_POST['params'],'array',array());
+		@$schema_extension_id = DevblocksPlatform::importGPC($_REQUEST['schema_extension_id'],'string','');
+		@$engine_extension_id = DevblocksPlatform::importGPC($_REQUEST['engine_extension_id'],'string','');
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'],'array',array());
 
 		header('Content-Type: application/json');
 		
@@ -60,7 +60,7 @@ class PageSection_SetupSearch extends Extension_PageSection {
 				throw new Exception_DevblocksAjaxError("Failed to load the search engine.");
 			
 			$engine_params = @$params[$engine_extension_id] ?: array();
-			
+
 			if(true !== ($test_output = $engine->testConfig($engine_params)))
 				throw new Exception_DevblocksAjaxError($test_output);
 			

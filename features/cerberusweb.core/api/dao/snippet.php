@@ -617,12 +617,12 @@ class Search_Snippet extends Extension_DevblocksSearchSchema {
 					$id
 				));
 				
-				$content = sprintf("%s %s",
-					$snippet->title,
-					$snippet->content						
+				$doc = array(
+					'title' => $snippet->title,
+					'content' => $snippet->content,						
 				);
 				
-				if(false === ($engine->index($this, $id, $content)))
+				if(false === ($engine->index($this, $id, $doc)))
 					return false;
 				
 				flush();

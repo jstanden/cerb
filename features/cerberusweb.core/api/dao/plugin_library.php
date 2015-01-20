@@ -613,15 +613,15 @@ class Search_PluginLibrary extends Extension_DevblocksSearchSchema {
 					$id
 				));
 				
-				$content = sprintf("%s %s %s %s %s",
-					$plugin->plugin_id,
-					$plugin->name,
-					$plugin->author,
-					$plugin->description,
-					$plugin->link
+				$doc = array(
+					'id' => $plugin->plugin_id,
+					'name' => $plugin->name,
+					'author' => $plugin->author,
+					'description' => $plugin->description,
+					'url' => $plugin->link,
 				);
 				
-				if(false === ($engine->index($this, $id, $content)))
+				if(false === ($engine->index($this, $id, $doc)))
 					return false;
 				
 				flush();

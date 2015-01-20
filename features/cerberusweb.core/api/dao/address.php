@@ -747,12 +747,13 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 					$id
 				));
 				
-				$content = sprintf("%s %s",
-					$address->email,
-					$address->getName()						
+				$doc = array(
+					'email' => $address->email,
+					'firstName' => $address->first_name,
+					'lastName' => $address->last_name,
 				);
 				
-				if(false === ($engine->index($this, $id, $content)))
+				if(false === ($engine->index($this, $id, $doc)))
 					return false;
 				
 				flush();

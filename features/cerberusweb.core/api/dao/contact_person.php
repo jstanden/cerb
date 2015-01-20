@@ -620,13 +620,19 @@ class Search_Contact extends Extension_DevblocksSearchSchema {
 					$id
 				));
 				
-				$content = '';
+				$doc = array(
+					'emails' => array(),
+				);
 				
 				foreach($contact->getAddresses() as $address) {
-					$content .= $address->getNameWithEmail() . ' ';
+					$doc['emails'][] = array(
+						'email' => $address->email,
+						'firstName' => $address->first_name,
+						'lastName' => $address->last_name,
+					);
 				}
 				
-				if(false === ($engine->index($this, $id, $content)))
+				if(false === ($engine->index($this, $id, $doc)))
 					return false;
 				
 				flush();

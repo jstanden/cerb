@@ -917,11 +917,15 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 					
 					// Prepend subject
 					if(false !== ($ticket = DAO_Ticket::get($message->ticket_id))) {
-						$content = $ticket->subject . ' ' . $content;
+						$doc = array(
+							'mask' => $ticket->mask,
+							'subject' => $ticket->subject,
+							'content' => $content,
+						);
+						
+						if(false === ($engine->index($this, $id, $doc)))
+							return false;
 					}
-					
-					if(false === ($engine->index($this, $id, $content)))
-						return false;
 				}
 
 				// Record our progress every 25th index

@@ -269,7 +269,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 		return $value;
 	}
 	
-	private function _index(Extension_DevblocksSearchSchema $schema, $id, $content, $attributes=array()) {
+	private function _index(Extension_DevblocksSearchSchema $schema, $id, array $doc, $attributes=array()) {
 		if(is_null($this->db))
 			return false;
 		
@@ -277,6 +277,8 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 		
 		if(empty($index_rt))
 			return false;
+		
+		$content = $this->_getTextFromDoc($doc);
 		
 		$fields = array(
 			'id' => intval($id),
@@ -321,8 +323,8 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 		return (false !== $result) ? true : false;
 	}
 	
-	public function index(Extension_DevblocksSearchSchema $schema, $id, $content, array $attributes=array()) {
-		if(false === ($ids = $this->_index($schema, $id, $content, $attributes)))
+	public function index(Extension_DevblocksSearchSchema $schema, $id, array $doc, array $attributes=array()) {
+		if(false === ($ids = $this->_index($schema, $id, $doc, $attributes)))
 			return false;
 		
 		return true;
@@ -393,14 +395,22 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	
 	private function _getMaxId(Extension_DevblocksSearchSchema $schema) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$tables = DevblocksPlatform::getDatabaseTables();
 		$ns = $schema->getNamespace();
+		
+		if(!isset($tables['fulltext_' . $ns]))
+			return false;
 		
 		return intval($db->GetOne(sprintf("SELECT MAX(id) FROM fulltext_%s", $db->escape($ns))));
 	}
 	
 	private function _getCount(Extension_DevblocksSearchSchema $schema) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$tables = DevblocksPlatform::getDatabaseTables();
 		$ns = $schema->getNamespace();
+
+		if(!isset($tables['fulltext_' . $ns]))
+			return false;
 		
 		return intval($db->GetOne(sprintf("SELECT COUNT(id) FROM fulltext_%s", $db->escape($ns))));
 	}
@@ -416,7 +426,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	
 	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=500) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$tables = $db->metaTables();
+		$tables = DevblocksPlatform::getDatabaseTables();
 		$ns = $schema->getNamespace();
 		
 		if(!isset($tables['fulltext_' . $ns]))
@@ -719,10 +729,13 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		return $text;
 	}
 	
-	private function _index(Extension_DevblocksSearchSchema $schema, $id, $content, $attributes=array()) {
+	private function _index(Extension_DevblocksSearchSchema $schema, $id, array $doc, $attributes=array()) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$tables = DevblocksPlatform::getDatabaseTables();
 		$ns = $schema->getNamespace();
+		
+		$content = $this->_getTextFromDoc($doc);
+		
 		$content = $this->prepareText($content);
 		
 		// If the table doesn't exist, create it at index time
@@ -779,8 +792,8 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		return $return;
 	}
 	
-	public function index(Extension_DevblocksSearchSchema $schema, $id, $content, array $attributes=array()) {
-		return $this->_index($schema, $id, $content, $attributes);
+	public function index(Extension_DevblocksSearchSchema $schema, $id, array $doc, array $attributes=array()) {
+		return $this->_index($schema, $id, $doc, $attributes);
 	}
 	
 	private function _createTable(Extension_DevblocksSearchSchema $schema) {

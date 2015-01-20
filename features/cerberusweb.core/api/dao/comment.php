@@ -642,7 +642,11 @@ class Search_CommentContent extends Extension_DevblocksSearchSchema {
 				if(!empty($content)) {
 					$content = $engine->truncateOnWhitespace($content, 10000);
 					
-					if(false === ($engine->index($this, $id, $content, array('context_crc32' => sprintf("%u", crc32($comment->context))))))
+					$doc = array(
+						'content' => $content,
+					);
+					
+					if(false === ($engine->index($this, $id, $doc, array('context_crc32' => sprintf("%u", crc32($comment->context))))))
 						return false;
 				}
 

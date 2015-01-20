@@ -599,9 +599,12 @@ class Search_KbArticle extends Extension_DevblocksSearchSchema {
 					$id
 				));
 				
-				$content = $article->title . ' ' . strip_tags($article->content);
+				$doc = array(
+					'title' => $article->title,
+					'content' => strip_tags($article->content),
+				);
 				
-				if(false === ($engine->index($this, $id, $content)))
+				if(false === ($engine->index($this, $id, $doc)))
 					return false;
 				
 				flush();

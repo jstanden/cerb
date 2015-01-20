@@ -738,13 +738,18 @@ class Search_Org extends Extension_DevblocksSearchSchema {
 					$id
 				));
 				
-				$content = sprintf("%s %s %s",
-					$org->name,
-					$org->getMailingAddress(),
-					$org->website						
-					);
+				$doc = array(
+					'name' => $org->name,
+					'street' => $org->street,
+					'city' => $org->city,
+					'state' => $org->province,
+					'postal' => $org->postal,
+					'country' => $org->country,
+					'phone' => $org->phone,
+					'website' => $org->website,
+				);
 				
-				if(false === ($engine->index($this, $id, $content)))
+				if(false === ($engine->index($this, $id, $doc)))
 					return false;
 				
 				flush();

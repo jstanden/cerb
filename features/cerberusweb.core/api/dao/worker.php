@@ -1035,14 +1035,15 @@ class Search_Worker extends Extension_DevblocksSearchSchema {
 					$id
 				));
 				
-				$content = sprintf("%s %s %s %s",
-					$worker->getName(),
-					$worker->email,						
-					$worker->title,						
-					$worker->at_mention_name						
+				$doc = array(
+					'firstName' => $worker->first_name,
+					'lastName' => $worker->last_name,
+					'email' => $worker->email,
+					'title' => $worker->title,
+					'atMentionName' => $worker->at_mention_name,
 				);
 				
-				if(false === ($engine->index($this, $id, $content)))
+				if(false === ($engine->index($this, $id, $doc)))
 					return false;
 				
 				flush();
