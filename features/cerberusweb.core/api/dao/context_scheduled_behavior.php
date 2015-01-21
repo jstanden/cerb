@@ -594,6 +594,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 
 		$this->addParamsHidden(array(
 			SearchFields_ContextScheduledBehavior::BEHAVIOR_ID,
+			SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID,
 			SearchFields_ContextScheduledBehavior::CONTEXT,
 			SearchFields_ContextScheduledBehavior::CONTEXT_ID,
 			SearchFields_ContextScheduledBehavior::ID,
@@ -641,11 +642,13 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::RUN_DATE),
 				),
+			/*
 			'va' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID),
 				),
+			*/
 		);
 		
 		// Sort by keys
@@ -733,6 +736,9 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 			case SearchFields_ContextScheduledBehavior::RUN_DATE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
+			// [TODO]
+			case SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID:
+				break;
 		}
 	}
 
@@ -741,6 +747,10 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			// [TODO]
+			case SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID:
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -770,6 +780,10 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 			case 'placeholder_bool':
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			// [TODO]
+			case SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID:
 				break;
 		}
 

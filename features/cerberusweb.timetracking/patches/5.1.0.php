@@ -62,6 +62,7 @@ if(!isset($tables['timetracking_entry']))
 
 list($columns, $indexes) = $db->metaTable('timetracking_entry');
 
+// [TODO] This no longer works on upgrades from 5.x -> 6.x
 if(isset($columns['notes'])) {
 	$db->Execute("INSERT INTO comment (context, context_id, created, address_id, comment) ".
 		"SELECT 'cerberusweb.contexts.timetracking', timetracking_entry.id, timetracking_entry.log_date, address.id, timetracking_entry.notes ".

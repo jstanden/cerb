@@ -879,6 +879,8 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $counts;
 	}
 	
+	// [TODO] My uses? owner?
+	
 	function getQuickSearchFields() {
 		$fields = array(
 			'_fulltext' => 

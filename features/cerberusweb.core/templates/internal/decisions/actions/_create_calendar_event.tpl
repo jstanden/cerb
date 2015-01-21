@@ -29,6 +29,7 @@
 </div>
 
 <b>{'common.status'|devblocks_translate|capitalize}:</b>
+{* [TODO] Text *}
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<select name="{$namePrefix}[is_available]">
 		<option value="1" {if $params.is_available}selected="selected"{/if}>Available</option>
