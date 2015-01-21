@@ -24,6 +24,8 @@ $(function() {
 		$('#frmDisplayMerge button.chooser_ticket').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.ticket','dst_ticket_id', { autocomplete: true} );
 		});
+		
+		$popup.find('input:text:first').focus();
 	});
 });
 </script>
