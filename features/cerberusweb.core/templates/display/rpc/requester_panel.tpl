@@ -45,9 +45,10 @@ $(function() {
 		});
 		
 		$(this).find('input:text:first').focus();
-	});
-	$('#formDisplayReq button.chooser_address').each(function() {
-		ajax.chooser(this,'cerberusweb.contexts.address','address_id');
+		
+		$('#formDisplayReq button.chooser_address').each(function() {
+			ajax.chooser(this,'cerberusweb.contexts.address','address_id');
+		});
 	});
 });
 </script>

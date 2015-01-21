@@ -19,7 +19,7 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('merge');
+	var $popup = genericAjaxPopupFetch('merge');
 	$popup.one('popup_open', function(event,ui) {
 		var $this = $(this);
 		

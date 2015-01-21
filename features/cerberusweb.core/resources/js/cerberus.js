@@ -496,7 +496,10 @@ var cAjaxCalls = function() {
 			options.source = url;
 		}
 		
-		$(sel).autocomplete(options);
+		var $sel = $(sel);
+		
+		$sel.autocomplete(options);
+		$sel.autocomplete('widget').css('max-width', $sel.closest('form').width());
 	}
 
 	this.orgAutoComplete = function(sel, options) {
@@ -510,7 +513,10 @@ var cAjaxCalls = function() {
 		if(null == options.autoFocus)
 			options.autoFocus = true;
 
-		$(sel).autocomplete(options);
+		var $sel = $(sel);
+		
+		$sel.autocomplete(options);
+		$sel.autocomplete('widget').css('max-width', $sel.closest('form').width());
 	}
 	
 	this.countryAutoComplete = function(sel, options) {
@@ -524,7 +530,10 @@ var cAjaxCalls = function() {
 		if(null == options.autoFocus)
 			options.autoFocus = true;
 		
-		$(sel).autocomplete(options);
+		var $sel = $(sel);
+		
+		$sel.autocomplete(options);
+		$sel.autocomplete('widget').css('max-width', $sel.closest('form').width());
 	}
 
 	this.chooser = function(button, context, field_name, options) {
@@ -598,6 +607,8 @@ var cAjaxCalls = function() {
 					return false;
 				}
 			});
+			
+			$autocomplete.autocomplete('widget').css('max-width', $autocomplete.closest('form').width());
 		}
 	}
 	

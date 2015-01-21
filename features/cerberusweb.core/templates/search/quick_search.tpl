@@ -81,13 +81,26 @@
 </form>
 
 <script type="text/javascript">
+$(function() {
 var $frm = $('#{$uniqid}').each(function(e) {
 	var $frm = $(this);
 	var $input = $frm.find('input:text');
+	var $popup = $input.closest('.ui-dialog');
+	var isInPopup = ($popup.length > 0);
 	
 	$input.keyup(function(e) {
 		if(e.keyCode == 27) {
-			$menu.hide();
+			if(!isInPopup) {
+				$menu.hide();
+				
+			} else {
+				if($menu.is(':visible')) {
+					$menu.hide();
+					
+				} else {
+					$popup.find('.devblocks-popup').dialog('close');
+				}
+			}
 		}
 	});
 	
@@ -113,6 +126,7 @@ var $frm = $('#{$uniqid}').each(function(e) {
 				$input.insertAtCursor(insert_txt).scrollLeft(2000);
 			}
 		})
+		.css('width', $input.width())
 		.hide()
 		;
 	
@@ -140,5 +154,5 @@ var $frm = $('#{$uniqid}').each(function(e) {
 		});
 	});
 });
-
+});
 </script>

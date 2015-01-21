@@ -1770,7 +1770,8 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 	-moz-box-shadow: 0 0 10px 3px rgb(175,175,175);
 	-webkit-box-shadow: 0 0 10px 3px rgb(175,175,175);
 	box-shadow: 0 0 10px 3px rgb(175,175,175);
-	position: fixed;
+	/*position: fixed;*/
+	overflow:visible;
 }
 
 .ui-dialog .ui-dialog-titlebar { 
@@ -1779,6 +1780,10 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 	font-size: 15px;
 	font-weight:bold;
 	padding:5px 5px 5px 10px;
+}
+
+.ui-dialog .ui-dialog-content {
+	overflow: inherit;
 }
 
 /* jQuery Validation */

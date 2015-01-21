@@ -412,8 +412,14 @@ When: {{json.when|first}}
 $(function() {
 	var $popup = genericAjaxPopupFetch('help');
 	
-	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"Help: Placeholders \x26 Scripting");
+	$popup.one('popup_open', function(event, ui) {
+		$popup.dialog('option','title',"Help: Placeholders \x26 Scripting");
+		$popup.dialog('option', 'resizeable', false);
+
+		var max_height = Math.round($(window).height() * 0.85);
+		$popup.css('max-height', max_height + 'px');
+		
+		$popup.css('overflow', 'auto');
 	});
 });
 </script>

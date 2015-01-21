@@ -61,10 +61,6 @@ $(function() {
 				genericAjaxPopupDestroy('{$layer}');
 			});
 		});
-		
-		// CSS overrides
-		$popup.closest('.ui-dialog').css('overflow', 'visible');
-		$popup.css('overflow', 'inherit');
 	});
 	
 	$popup.one('dialogclose', function(event) {

@@ -347,12 +347,14 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			}
 			
 			// Max height
-			var max_height = Math.round($(window).height() * 0.85);
-			$popup.css('max-height', max_height + 'px');
+			//var max_height = Math.round($(window).height() * 0.85);
+			//$popup.css('max-height', max_height + 'px');
+			//options.maxHeight = max_height + 75;
 			
 			// Render
-			options.maxHeight = max_height + 75;
 			$popup.dialog(options);
+			
+			// Open
 			$popup.dialog('open');
 			
 			// Set the content
