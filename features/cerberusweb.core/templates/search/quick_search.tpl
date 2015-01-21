@@ -11,7 +11,7 @@
 		<a href="javascript:;" class="cerb-quick-search-menu-trigger" style="position:relative;top:5px;padding:0px 10px;"><span class="cerb-sprite sprite-arrow-down-black" style="height:12px;width:12px;"></span></a>
 	</div>
 	
-	<ul class="cerb-quick-search-menu" style="position:absolute;float:right;margin-right:10px;z-index:5;">
+	<ul class="cerb-quick-search-menu" style="position:absolute;float:right;margin-right:10px;z-index:5;display:none;">
 		{if !empty($search_fields)}
 		{foreach from=$search_fields key=field_key item=field}
 		<li field="{$field_key}">
