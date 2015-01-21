@@ -45,14 +45,16 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$date = DevblocksPlatform::getDateService();
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl->assign('view_id', $view_id);
 		
 		if(false == ($worker = DAO_Worker::get($id))) {
 			$worker = new Model_Worker();
 			$worker->id = 0;
-			$worker->timezone = $_SESSION['timezone'];
-			$worker->time_format = $_SESSION['time_format'];
-			$worker->language = $_SESSION['locale'];
+			$worker->timezone = $active_worker->timezone;
+			$worker->time_format = $active_worker->time_format;
+			$worker->language = $active_worker->language;
 		}
 		
 		$tpl->assign('worker', $worker);
