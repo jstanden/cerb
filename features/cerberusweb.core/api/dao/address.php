@@ -729,16 +729,29 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 			);
 			$addresses = DAO_Address::getWhere($where, array(DAO_Address::UPDATED, DAO_Address::ID), array(true, true), 100);
 
+			$dicts = array();
+			
 			if(empty($addresses)) {
 				$done = true;
 				continue;
 			}
 			
+			foreach($addresses as $address_id => $address) {
+				$labels = array();
+				$values = array();
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $address, $labels, $values, null, true, true);
+				$dicts[$address_id] = DevblocksDictionaryDelegate::instance($values);
+			}
+			
+			// Batch load org names
+			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'org_name');
+			
 			$last_time = $ptr_time;
 			
-			foreach($addresses as $address) { /* @var $address Model_Address */
-				$id = $address->id;
-				$ptr_time = $address->updated;
+			// Loop dictionaries
+			foreach($dicts as $dict) {
+				$id = $dict->id;
+				$ptr_time = $dict->updated;
 				
 				$ptr_id = ($last_time == $ptr_time) ? $id : 0;
 				
@@ -748,9 +761,10 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 				));
 				
 				$doc = array(
-					'email' => $address->email,
-					'firstName' => $address->first_name,
-					'lastName' => $address->last_name,
+					'email' => $dict->address,
+					'firstName' => $dict->first_name,
+					'lastName' => $dict->last_name,
+					'org' => $dict->org_name,
 				);
 				
 				if(false === ($engine->index($this, $id, $doc)))
