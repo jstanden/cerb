@@ -940,9 +940,9 @@ abstract class C4_AbstractView {
 		
 		// Tokens for lexer
 		$token_map = array(
-			'[a-zA-Z0-9\.]+\:' => 'T_FIELD',
-			'\([^\)\\\\]*(?:\\\\.[^\(\)\\\\]*)*\)' => 'T_PARENTHETIC_TEXT',
-			'\[[^\]\\\\]*(?:\\\\.[^\[\]\\\\]*)*\]' => 'T_BRACKET_TEXT',
+			'[a-zA-Z0-9\_\.]+\:' => 'T_FIELD',
+			'\( (?: (?: (?>[^()]+) | (?R) )* ) \)' => 'T_PARENTHETIC_TEXT',
+			'\[ (?: (?: (?>[^\[\]]+) | (?R) )* ) \]' => 'T_BRACKET_TEXT',
 			'"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"' => 'T_QUOTED_TEXT',
 			'\s+' => 'T_WHITESPACE',
 			'[^\s]+' => 'T_TEXT',
@@ -951,7 +951,7 @@ abstract class C4_AbstractView {
 		$token_offsets = array_values($token_map);
 		
 		// Compile the regexp
-		$regexp = '((' . implode(')|(', array_keys($token_map)) . '))A';
+		$regexp = '((' . implode(')|(', array_keys($token_map)) . '))Ax';
 		
 		$offset = 0;
 		
