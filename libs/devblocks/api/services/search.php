@@ -112,14 +112,15 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 		$engine_params = $schema->getEngineParams();
 		
 		if(isset($engine_params['config']) && isset($engine_params['config']['quick_search_examples']))
-			return DevblocksPlatform::parseCrlfString($engine_params['config']['quick_search_examples']);
+			if(!empty($engine_params['config']['quick_search_examples']))
+				return DevblocksPlatform::parseCrlfString($engine_params['config']['quick_search_examples']);
 		
 		return array(
-			"all of these words",
-			'"this exact phrase"',
+			"(all of these words)",
+			'("this exact phrase")',
 			'(this | that)',
 			'wildcard*',
-			'"a quorum of at least three of these words"/3',
+			'("a quorum of at least three of these words"/3)',
 		);
 	}
 	
@@ -501,15 +502,16 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		$engine_params = $schema->getEngineParams();
 		
 		if(isset($engine_params['config']) && isset($engine_params['config']['quick_search_examples']))
-			return DevblocksPlatform::parseCrlfString($engine_params['config']['quick_search_examples']);
+			if(!empty($engine_params['config']['quick_search_examples']))
+				return DevblocksPlatform::parseCrlfString($engine_params['config']['quick_search_examples']);
 		
-		// [TODO] This has to change
 		return array(
-			"all of these words",
-			'"this exact phrase"',
-			'this OR that',
-			'wildcard*',
-			'"a quorum of at least three of these words"/3',
+			"(all of these words)",
+			'("this exact phrase")',
+			'(this OR that)',
+			'[(this OR that) NOT (this OR that)]',
+			'(wildcard*)',
+			'(person@example.com)',
 		);
 	}
 	
@@ -759,9 +761,10 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	
 	public function getQuickSearchExamples(Extension_DevblocksSearchSchema $schema) {
 		return array(
-			'a multiple word phrase',
-			'"any" "of" "these" "words"',
-			'"this phrase" or any of these words',
+			'(+all +of +these +terms)',
+			'(+this -that)',
+			'"a multiple word phrase"',
+			'("any" "of" "these terms")',
 			'person@example.com',
 		);
 	}

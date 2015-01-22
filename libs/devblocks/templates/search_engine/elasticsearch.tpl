@@ -26,7 +26,7 @@
 	<b>Quick search examples:</b> (optional)
 	{$examples = implode("\n", $engine->getQuickSearchExamples($schema))}
 	<p style="margin-left:5px;">
-		<textarea name="params[{$engine->id}][quick_search_examples]" rows="4" cols="45" style="height:75px;width:100%;" placeholder="subject:(this | that)">{$engine_params.quick_search_examples|default:$examples}</textarea>
+		<textarea name="params[{$engine->id}][quick_search_examples]" rows="4" cols="45" style="height:75px;width:100%;" placeholder="(leave blank for Elasticsearch defaults)">{$engine_params.quick_search_examples|default:$examples}</textarea>
 		<br>
 		<i>(one per line)</i>
 	</p>
