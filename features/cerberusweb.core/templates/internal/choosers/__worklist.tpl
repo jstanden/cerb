@@ -18,6 +18,8 @@ $(function() {
 		event.stopPropagation();
 		$popup.dialog('option','title','{$context->manifest->name|escape:'javascript' nofilter} Worklist');
 		
+		$popup.find('input:text:first').focus();
+		
 		var on_refresh = function() {
 			var $worklist = $('#view{$view->id}').find('TABLE.worklist');
 			$worklist.css('background','none');

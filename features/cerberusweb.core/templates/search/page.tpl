@@ -132,5 +132,7 @@ $(function() {
 			});
 		}
 	});
+	
+	$(document).find('INPUT.cerb-input-quicksearch:first').focus();
 });
 </script>
