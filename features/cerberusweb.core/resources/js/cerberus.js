@@ -153,6 +153,8 @@ var atwho_twig_modifiers = [
 	{ name: "slice", content: "Extract a slice of an array or text" },
 	{ name: "sort", content: "Sort an array" },
 	{ name: "split(',')", content: "Split text into an array by delimiter" },
+	{ name: "split_crlf", content: "Split text into an array by linefeeds" },
+	{ name: "split_csv", content: "Split text into an array by commas" },
 	{ name: "striptags", content: "Strip HTML/XML tags in text" },
 	{ name: "trim", content: "Trim whitespace or given characters from the ends of text" },
 	{ name: "truncate(10)", content: "Truncate text" },

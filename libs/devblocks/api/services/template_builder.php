@@ -539,6 +539,8 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			'nlp_parse' => new Twig_Filter_Method($this, 'filter_nlp_parse'),
 			'regexp' => new Twig_Filter_Method($this, 'filter_regexp'),
 			'secs_pretty' => new Twig_Filter_Method($this, 'filter_secs_pretty'),
+			'split_crlf' => new Twig_Filter_Method($this, 'filter_split_crlf'),
+			'split_csv' => new Twig_Filter_Method($this, 'filter_split_csv'),
 			'truncate' => new Twig_Filter_Method($this, 'filter_truncate'),
 		);
 	}
@@ -592,6 +594,14 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	function filter_secs_pretty($string, $precision=0) {
 		return DevblocksPlatform::strSecsToString($string, $precision);
+	}
+	
+	function filter_split_crlf($string) {
+		return DevblocksPlatform::parseCrlfString($string);
+	}
+	
+	function filter_split_csv($string) {
+		return DevblocksPlatform::parseCsvString($string);
 	}
 	
 	/**
