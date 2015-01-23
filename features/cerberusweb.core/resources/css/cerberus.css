@@ -1786,6 +1786,12 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 
 .ui-dialog .ui-dialog-content {
 	overflow: inherit;
+	overflow-x:auto;
+	overflow-y:visible;
+}
+
+.ui-dialog fieldset select {
+	width: 100%;
 }
 
 /* jQuery Validation */
