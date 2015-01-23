@@ -1773,7 +1773,7 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 	-webkit-box-shadow: 0 0 10px 3px rgb(175,175,175);
 	box-shadow: 0 0 10px 3px rgb(175,175,175);
 	/*position: fixed;*/
-	overflow:visible;
+	overflow: visible;
 }
 
 .ui-dialog .ui-dialog-titlebar { 
@@ -1786,12 +1786,10 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 
 .ui-dialog .ui-dialog-content {
 	overflow: inherit;
-	overflow-x:auto;
-	overflow-y:visible;
 }
 
 .ui-dialog fieldset select {
-	width: 100%;
+	max-width: 450px;
 }
 
 /* jQuery Validation */
