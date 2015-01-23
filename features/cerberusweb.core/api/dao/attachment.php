@@ -669,7 +669,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 	}
 };
 
-class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subtotals {
+class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
 	const DEFAULT_ID = 'attachment_links';
 
 	function __construct() {
@@ -780,6 +780,83 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 		
 		return $counts;
 	}
+	
+	function getQuickSearchFields() {
+		$fields = array(
+			'_fulltext' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_AttachmentLink::ATTACHMENT_DISPLAY_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'fileName' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_AttachmentLink::ATTACHMENT_DISPLAY_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'fileSize' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_AttachmentLink::ATTACHMENT_STORAGE_SIZE),
+					'examples' => array(
+						'=25000',
+						'>=50000',
+						'<=100000'
+					),
+				),
+			'guid' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_AttachmentLink::GUID, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_AttachmentLink::ID),
+				),
+			'mimeType' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_AttachmentLink::ATTACHMENT_MIME_TYPE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'examples' => array(
+						'application/octet-stream',
+						'application/pdf',
+						'application/zip',
+						'image/jpeg',
+						'image/png',
+						'text/html',
+					),
+				),
+			'updated' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_AttachmentLink::ATTACHMENT_UPDATED),
+				),
+		);
+		
+		// Sort by keys
+		
+		ksort($fields);
+		
+		return $fields;
+	}	
+	
+	function getParamsFromQuickSearchFields($fields) {
+		$search_fields = $this->getQuickSearchFields();
+		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
+
+		// Handle virtual fields and overrides
+		if(is_array($fields))
+		foreach($fields as $k => $v) {
+			switch($k) {
+				// ...
+			}
+		}
+		
+		$this->renderPage = 0;
+		$this->addParams($params, true);
+		
+		return $params;
+	}	
 	
 	function render() {
 		$this->_sanitize();
