@@ -20,7 +20,7 @@
 		</td>
 		<td width="1%" nowrap="nowrap" align="right">
 			{$ctx = Extension_DevblocksContext::get($page_context)}
-			{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}" reset=true}
+			{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
 		</td>
 	</tr>
 	<tr>
