@@ -402,11 +402,11 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		
 		// (ACL) Add worker group privs
 		if(!$worker->is_superuser) {
-			$memberships = $worker->getMemberships();
-			$params['tmp_worker_memberships'] = new DevblocksSearchCriteria(
-				SearchFields_Ticket::TICKET_GROUP_ID,
-				'in',
-				(!empty($memberships) ? array_keys($memberships) : array(0))
+			//$memberships = $worker->getMemberships();
+			$params[SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER] = new DevblocksSearchCriteria(
+				SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,
+				'=',
+				$worker->id
 			);
 		}
 		

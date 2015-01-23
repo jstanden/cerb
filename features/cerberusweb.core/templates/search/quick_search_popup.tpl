@@ -1,4 +1,4 @@
-{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view is_popup=true}
+{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view}
 
 <script type="text/javascript">
 $(function() {

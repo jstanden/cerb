@@ -114,6 +114,11 @@ if(!isset($columns['updated'])) {
 $db->Execute("DELETE FROM worker_pref WHERE setting LIKE 'quicksearch_%'");
 
 // ===========================================================================
+// Clean up API searches
+
+$db->Execute("DELETE FROM worker_view_model WHERE view_id LIKE 'api_search%'");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
