@@ -109,7 +109,13 @@ Hi {{name|default('there')}}
 {% set var = <b>dict_set</b>(var, '2.2.[]', 7) %}
 {% set var = <b>dict_set</b>(var, '2.2.[]', 8) %}
 {% set var = <b>dict_set</b>(var, '2.3', 9) %}
-{{var|json_encode|json_pretty}}	
+{{var|json_encode|json_pretty}}
+
+{# Array diffs #}
+{% set arr1 = ['Apple', 'Google', 'Microsoft'] %}
+{% set arr2 = ['Apple', 'Microsoft', 'Cerb'] %}
+{% set diff = <b>array_diff</b>(arr2, arr1) %}
+These are new: {{diff|join(', ')}}
 </pre>
 	{/literal}
 </fieldset>
