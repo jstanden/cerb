@@ -1,7 +1,8 @@
-<div>
-	<b>{'common.search'|devblocks_translate|capitalize}:</b>
-	<input type="text" class="search" size="45">
+<div style="float:right;">
+{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null}
 </div>
+
+<div style="clear:both;"></div>
 
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
 
