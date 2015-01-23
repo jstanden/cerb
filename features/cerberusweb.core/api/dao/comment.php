@@ -354,6 +354,38 @@ class DAO_Comment extends Cerb_ORMHelper {
 		settype($param_key, 'string');
 		
 		switch($param_key) {
+			case SearchFields_Comment::FULLTEXT_COMMENT_CONTENT:
+				$search = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID);
+				$query = $search->getQueryFromParam($param);
+				
+				if(false === ($ids = $search->query($query))) {
+					$args['where_sql'] .= 'AND 0 ';
+					
+				} elseif(is_array($ids)) {
+					$args['where_sql'] .= sprintf('AND %s IN (%s) ',
+						$from_index,
+						implode(', ', (!empty($ids) ? $ids : array(-1)))
+					);
+					
+				} elseif(is_string($ids)) {
+					$db = DevblocksPlatform::getDatabaseService();
+					$temp_table = sprintf("_tmp_%s", uniqid());
+					
+					$db->Execute(sprintf("CREATE TEMPORARY TABLE %s SELECT DISTINCT id FROM comment INNER JOIN %s ON (%s.id=%s)",
+						$temp_table,
+						$ids,
+						$ids,
+						$from_index
+					));
+					
+					$args['join_sql'] .= sprintf("INNER JOIN %s ON (%s.id=%s) ",
+						$temp_table,
+						$temp_table,
+						$from_index
+					);
+				}
+				break;
+			
 			case SearchFields_Comment::VIRTUAL_OWNER:
 				if(!is_array($param->value))
 					break;
@@ -516,6 +548,8 @@ class SearchFields_Comment implements IDevblocksSearchFields {
 	const OWNER_CONTEXT_ID = 'c_owner_context_id';
 	const COMMENT = 'c_comment';
 	
+	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
+	
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_OWNER = '*_owner';
 	const VIRTUAL_TARGET = '*_target';
@@ -538,6 +572,8 @@ class SearchFields_Comment implements IDevblocksSearchFields {
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
 			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'), null),
 			self::VIRTUAL_TARGET => new DevblocksSearchField(self::VIRTUAL_TARGET, '*', 'target', $translate->_('common.target'), null),
+				
+			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT'),
 		);
 		
 		// Sort by label (translation-conscious)
@@ -719,6 +755,7 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals {
 		$this->addColumnsHidden(array(
 			SearchFields_Comment::COMMENT,
 			SearchFields_Comment::CONTEXT_ID,
+			SearchFields_Comment::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Comment::OWNER_CONTEXT,
 			SearchFields_Comment::OWNER_CONTEXT_ID,
 			SearchFields_Comment::VIRTUAL_HAS_FIELDSET,
@@ -851,6 +888,10 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals {
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context.tpl');
 				break;
 				
+			case SearchFields_Comment::FULLTEXT_COMMENT_CONTENT:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
+				break;
+				
 			case SearchFields_Comment::VIRTUAL_HAS_FIELDSET:
 				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_COMMENT);
 				break;
@@ -945,6 +986,11 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Comment::OWNER_CONTEXT:
 				@$contexts = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$contexts);
+				break;
+				
+			case SearchFields_Comment::FULLTEXT_COMMENT_CONTENT:
+				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			case SearchFields_Comment::VIRTUAL_HAS_FIELDSET:
