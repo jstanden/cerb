@@ -371,7 +371,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		
 		switch($verb) {
 			case 'PUT':
-				//$headers[] = 'Content-Type: application/json';
+				$headers[] = 'Content-Type: application/json';
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
 				curl_setopt($ch, CURLOPT_POST, true);
 				curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
@@ -380,8 +380,15 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		
 		$out = curl_exec($ch);
 		
+		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
 		
-		return json_decode($out, true);
+		curl_close($ch);
+		
+		if($status != 200 || false == (@$json = json_decode($out, true)))
+			return false; 
+		
+		return $json;
 	}
 	
 	private function _putRecord($type, $id, $doc) {
@@ -398,13 +405,13 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 			$id
 		);
 		
-		
-		$json = $this->_execute('PUT', $url, $doc);
+		if(false == ($json = $this->_execute('PUT', $url, $doc)))
+			return false;
 		
 		return $json;
 	}
 	
-	private function _getSearch($type, $query) {
+	private function _getSearch($type, $query, $limit=500) {
 		@$base_url = rtrim($this->_config['base_url'], '/');
 		@$index = trim($this->_config['index'], '/');
 		
@@ -412,14 +419,16 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 			return false;
 		
 		
-		$url = sprintf("%s/%s/%s/_search?q=%s&_source=false&size=500&default_operator=AND",
+		$url = sprintf("%s/%s/%s/_search?q=%s&_source=false&size=%d&default_operator=AND",
 			$base_url,
 			urlencode($index),
 			urlencode($type),
-			urlencode($query)
+			urlencode($query),
+			$limit
 		);
 		
-		$json = $this->_execute('GET', $url);
+		if(false == ($json = $this->_execute('GET', $url)))
+			return false;
 		
 		return $json;
 	}
@@ -437,7 +446,8 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 			urlencode($type)
 		);
 		
-		$json = $this->_execute('GET', $url);
+		if(false == ($json = $this->_execute('GET', $url)))
+			return false;
 		
 		if(!is_array($json) || !isset($json['count']))
 			return false;
@@ -563,7 +573,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		
 		if(null === ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
 			$ids = array();
-			$json = $this->_getSearch($type, $query);
+			$json = $this->_getSearch($type, $query, $limit);
 			
 			if(is_array($json) && isset($json['hits']))
 			foreach($json['hits']['hits'] as $hit) {
