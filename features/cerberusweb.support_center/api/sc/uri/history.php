@@ -200,17 +200,20 @@ class UmScHistoryController extends Extension_UmScController {
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 		
 		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null);
-
+		if(false == ($active_contact = $umsession->getProperty('sc_login', null)))
+			return false;
+		
 		// Load contact addresses
 		$shared_address_ids = DAO_SupportCenterAddressShare::getContactAddressesWithShared($active_contact->id, true);
 		if(empty($shared_address_ids))
 			$shared_address_ids = array(-1);
 		
 		// Validate FROM address
-		if(null == ($from_address = DAO_Address::lookupAddress($from, false))
-			|| $from_address->contact_person_id != $active_contact->id)
-			return FALSE;
+		if(null == ($from_address = DAO_Address::lookupAddress($from, false)))
+			return false;
+		
+		if($from_address->contact_person_id != $active_contact->id)
+			return false;
 		
 		if(false == ($ticket = DAO_Ticket::getTicketByMask($mask)))
 			return;

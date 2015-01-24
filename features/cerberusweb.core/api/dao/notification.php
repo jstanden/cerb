@@ -97,16 +97,23 @@ class DAO_Notification extends DevblocksORMHelper {
 	 * @param string $where
 	 * @return Model_Notification[]
 	 */
-	static function getWhere($where=null) {
+	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
+		
+		// SQL
 		$sql = "SELECT id, context, context_id, created_date, worker_id, message, is_read, url ".
 			"FROM notification ".
-			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
-			"ORDER BY id desc";
+			$where_sql.
+			$sort_sql.
+			$limit_sql
+		;
 		$rs = $db->Execute($sql);
-		
-		return self::_getObjectsFromResult($rs);
+
+		$objects = self::_getObjectsFromResult($rs);
+
+		return $objects;
 	}
 
 	/**

@@ -1746,6 +1746,9 @@ class CerberusContexts {
 
 		$models = array();
 		
+		if(empty($ids))
+			return $models;
+		
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return $models;
 		
