@@ -180,21 +180,19 @@ class ChReportGroupReplies extends Extension_Report {
 		}
 		
 		// Chart
+				
+		$query_parts = DAO_Message::getSearchQueryComponents($view->view_columns, $view->getParams());
+		
 		$sql = sprintf("SELECT t.group_id as group_id, DATE_FORMAT(FROM_UNIXTIME(m.created_date),'%s') as date_plot, ".
-			"count(m.id) AS hits ".
-			"FROM message m ".
-			"INNER JOIN ticket t ON (m.ticket_id=t.id) ".
-			"WHERE m.created_date BETWEEN %d AND %d ".
+			"count(DISTINCT m.id) AS hits ".
 			"%s ".
-			"AND m.worker_id != 0 ".
-			"AND m.is_outgoing = 1 ".
-			"AND t.group_id != 0 " .
+			"%s ".
 			"GROUP BY group_id, date_plot ",
 			$date_group,
-			$start_time,
-			$end_time,
-			(is_array($filter_group_ids) && !empty($filter_group_ids) ? sprintf("AND t.group_id IN (%s)", implode(',', $filter_group_ids)) : "")
+			$query_parts['join'],
+			$query_parts['where']
 		);
+		
 		$rs = $db->Execute($sql);
 		
 		$data = array();
