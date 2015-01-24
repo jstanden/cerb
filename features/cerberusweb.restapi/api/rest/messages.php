@@ -115,22 +115,13 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10, $options=array()) {
+		@$query = DevblocksPlatform::importVar($options['query'], 'string', null);
 		@$show_results = DevblocksPlatform::importVar($options['show_results'], 'boolean', true);
 		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
 		
 		$worker = CerberusApplication::getActiveWorker();
 
-		$params = $this->_handleSearchBuildParams($filters);
-		
-		// (ACL) Add worker group privs
-		if(!$worker->is_superuser) {
-			$memberships = $worker->getMemberships();
-			$params['tmp_worker_memberships'] = new DevblocksSearchCriteria(
-				SearchFields_Message::TICKET_GROUP_ID,
-				'in',
-				(!empty($memberships) ? array_keys($memberships) : array(0))
-			);
-		}
+		$params = array();
 		
 		// Sort
 		$sortBy = $this->translateToken($sortToken, 'search');
@@ -146,6 +137,31 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 			$sortBy,
 			$sortAsc
 		);
+		
+		if(!empty($query) && $view instanceof IAbstractView_QuickSearch)
+			$view->addParamsWithQuickSearch($query, true);
+
+		// If we're given explicit filters, merge them in to our quick search
+		if(!empty($filters)) {
+			if(!empty($query))
+				$params = $view->getParams(false);
+			
+			$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_MESSAGE);
+			$new_params = $this->_handleSearchBuildParams($filters);
+			$params = array_merge($params, $new_params, $custom_field_params);
+			
+			$view->addParams($params, true);
+		}
+		
+		// (ACL) Add worker group privs
+		if(!$worker->is_superuser) {
+			$memberships = $worker->getMemberships();
+			$params['tmp_worker_memberships'] = new DevblocksSearchCriteria(
+				SearchFields_Message::TICKET_GROUP_ID,
+				'in',
+				(!empty($memberships) ? array_keys($memberships) : array(0))
+			);
+		}
 		
 		if($show_results)
 			list($results, $total) = $view->getData();

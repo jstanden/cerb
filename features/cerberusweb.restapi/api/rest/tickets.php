@@ -391,24 +391,13 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	}
 	
 	function search($filters=array(), $sortToken='updated', $sortAsc=0, $page=1, $limit=10, $options=array()) {
+		@$query = DevblocksPlatform::importVar($options['query'], 'string', null);
 		@$show_results = DevblocksPlatform::importVar($options['show_results'], 'boolean', true);
 		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
 		
 		$worker = CerberusApplication::getActiveWorker();
 
-		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_TICKET);
-		$params = $this->_handleSearchBuildParams($filters);
-		$params = array_merge($params, $custom_field_params);
-		
-		// (ACL) Add worker group privs
-		if(!$worker->is_superuser) {
-			//$memberships = $worker->getMemberships();
-			$params[SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER] = new DevblocksSearchCriteria(
-				SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,
-				'=',
-				$worker->id
-			);
-		}
+		$params = array();
 		
 		// Sort
 		$sortBy = $this->translateToken($sortToken, 'search');
@@ -424,6 +413,33 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			$sortBy,
 			$sortAsc
 		);
+		
+		if(!empty($query) && $view instanceof IAbstractView_QuickSearch)
+			$view->addParamsWithQuickSearch($query, true);
+
+		// If we're given explicit filters, merge them in to our quick search
+		if(!empty($filters)) {
+			if(!empty($query))
+				$params = $view->getParams(false);
+			
+			$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_TICKET);
+			$new_params = $this->_handleSearchBuildParams($filters);
+			$params = array_merge($params, $new_params, $custom_field_params);
+			
+			$view->addParams($params, true);
+		}
+		
+		// (ACL) Add worker group privs
+		if(!$worker->is_superuser) {
+			$view->addParam(
+				new DevblocksSearchCriteria(
+					SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,
+					'=',
+					$worker->id
+				),
+				SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER
+			);
+		}
 		
 		if($show_results)
 			list($results, $total) = $view->getData();

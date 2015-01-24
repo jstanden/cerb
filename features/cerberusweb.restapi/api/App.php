@@ -684,6 +684,8 @@ abstract class Extension_RestController extends DevblocksExtension {
 	}
 	
 	protected function _handlePostSearch() {
+		@$query = DevblocksPlatform::importGPC($_REQUEST['q'],'string',null);
+		
 		@$criteria = DevblocksPlatform::importGPC($_REQUEST['criteria'],'array',array());
 		@$opers = DevblocksPlatform::importGPC($_REQUEST['oper'],'array',array());
 		@$values = DevblocksPlatform::importGPC($_REQUEST['value'],'array',array());
@@ -716,6 +718,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 		}
 		
 		$options = array(
+			'query' => $query,
 			'show_results' => $show_results,
 			'subtotals' => $subtotals,
 		);

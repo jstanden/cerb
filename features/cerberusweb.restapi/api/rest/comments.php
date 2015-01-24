@@ -114,12 +114,11 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 	}
 	
 	function search($filters=array(), $sortToken='email', $sortAsc=1, $page=1, $limit=10, $options=array()) {
+		@$query = DevblocksPlatform::importVar($options['query'], 'string', null);
 		@$show_results = DevblocksPlatform::importVar($options['show_results'], 'boolean', true);
 		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
 		
-		$worker = CerberusApplication::getActiveWorker();
-
-		$params = $this->_handleSearchBuildParams($filters);
+		$params = array();
 		
 		// Sort
 		$sortBy = $this->translateToken($sortToken, 'search');
@@ -135,6 +134,20 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 			$sortBy,
 			$sortAsc
 		);
+		
+		if(!empty($query) && $view instanceof IAbstractView_QuickSearch)
+			$view->addParamsWithQuickSearch($query, true);
+
+		// If we're given explicit filters, merge them in to our quick search
+		if(!empty($filters)) {
+			if(!empty($query))
+				$params = $view->getParams(false);
+			
+			$new_params = $this->_handleSearchBuildParams($filters);
+			$params = array_merge($params, $new_params);
+			
+			$view->addParams($params, true);
+		}
 		
 		if($show_results)
 			list($results, $total) = $view->getData();
