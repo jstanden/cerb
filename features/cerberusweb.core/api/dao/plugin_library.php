@@ -470,6 +470,11 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 			DevblocksPlatform::readPlugins(false);
 			DevblocksPlatform::clearCache();
 		}
+
+		// Update the full-text index every time we sync
+		$schema = Extension_DevblocksSearchSchema::get(Search_PluginLibrary::ID);
+		$schema->reindex();
+		$schema->index(time() + 30);
 		
 		return array(
 			'count' => $count,
