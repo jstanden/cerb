@@ -92,13 +92,20 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 		}
 		
 		// If we got this far, it means we don't have a default. Use the first address.
-		return reset($froms);
+		$from = reset($froms); /* @var $from Model_AddressOutgoing */
+		$from->is_default = 1;
+		
+		DAO_AddressOutgoing::setDefault($from->address_id);
+		
+		return $from;
 	}
 	
 	static public function setDefault($address_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$db->Execute("UPDATE address_outgoing SET is_default = 0");
 		$db->Execute(sprintf("UPDATE address_outgoing SET is_default = 1 WHERE address_id = %d", $address_id));
+		
+		self::clearCache();
 	}
 	
 	/**
