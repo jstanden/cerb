@@ -867,6 +867,9 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 					($bucket_id ? $buckets[$bucket_id]->name : $translate->_('common.inbox'))
 				);
 				
+				$dict->group_id = $to_group_id;
+				$dict->ticket_bucket_id = $to_bucket_id;
+				
 				return $out;
 				break;
 			

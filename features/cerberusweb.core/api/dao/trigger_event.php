@@ -75,7 +75,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			if(!$with_disabled && $va->is_disabled)
 				continue;
 		
-			$behaviors = $va->getBehaviors($event_point, $with_disabled);
+			$behaviors = $va->getBehaviors($event_point, $with_disabled, 'name');
 			
 			if(empty($behaviors))
 				continue;
@@ -171,7 +171,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		$behaviors = array();
 
 		foreach($vas as $va) { /* @var $va Model_VirtualAttendant */
-			$va_behaviors = $va->getBehaviors($event_id, $with_disabled);
+			$va_behaviors = $va->getBehaviors($event_id, $with_disabled, 'pos');
 			
 			if(!empty($va_behaviors))
 				$behaviors += $va_behaviors;

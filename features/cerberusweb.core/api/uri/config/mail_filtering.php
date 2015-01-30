@@ -37,7 +37,7 @@ class PageSection_SetupMailFiltering extends Extension_PageSection {
 		foreach($vas as $va_id => $va) {
 			$vas[$va_id]->behaviors = array();
 			
-			$behaviors = $va->getBehaviors('event.mail.received.app', true);
+			$behaviors = $va->getBehaviors('event.mail.received.app', true, 'pos');
 			
 			if(!empty($behaviors))
 				$vas[$va_id]->behaviors['event.mail.received.app'] = $behaviors;

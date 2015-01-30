@@ -538,7 +538,7 @@ class Model_VirtualAttendant {
 		}
 	}
 	
-	function getBehaviors($event_point=null, $with_disabled=false, $sort_by=null) {
+	function getBehaviors($event_point=null, $with_disabled=false, $sort_by='pos') {
 		return DAO_TriggerEvent::getByVirtualAttendant($this->id, $event_point, $with_disabled, $sort_by);
 	}
 	
@@ -1224,7 +1224,7 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 
 				$values['behaviors'] = array();
 
-				$behaviors = $va->getBehaviors(null, true);
+				$behaviors = $va->getBehaviors(null, true, 'pos');
 
 				foreach($behaviors as $behavior) { /* @var $behavior Model_TriggerEvent */
 					if(false == ($behavior_json = $behavior->exportToJson()))
