@@ -1139,7 +1139,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				break;
 				
 			case 'seconds':
-				$label = DevblocksPlatform::strSecsToString(intval($number));
+				$label = DevblocksPlatform::strSecsToString(intval($number), 2);
 				break;
 				
 			case 'minutes':
