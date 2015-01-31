@@ -1366,7 +1366,9 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return boolean
 	 */
 	static function isDatabaseEmpty() {
-		$db = DevblocksPlatform::getDatabaseService();
+		if(false == ($db = DevblocksPlatform::getDatabaseService()))
+			return true;
+		
 		return $db->isEmpty();
 	}
 	
