@@ -42,8 +42,8 @@ abstract class DevblocksEngine {
 	 * @param string $dir
 	 * @return DevblocksPluginManifest
 	 */
-	static protected function _readPluginManifest($rel_dir, $is_update=true) {
-		$manifest_file = APP_PATH . '/' . $rel_dir . '/plugin.xml';
+	static protected function _readPluginManifest($plugin_path, $is_update=true) {
+		$manifest_file = rtrim($plugin_path, '/') . '/plugin.xml';
 		$persist = true;
 		
 		if(!file_exists($manifest_file))
@@ -51,7 +51,18 @@ abstract class DevblocksEngine {
 		
 		$plugin = simplexml_load_file($manifest_file);
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
-				
+
+		$rel_dir = trim(substr($plugin_path, strlen(APP_PATH)), DIRECTORY_SEPARATOR);
+		
+		if($rel_dir == 'libs/devblocks') {
+			// It's what we want
+		} elseif(substr($rel_dir, 0, 9) == 'features/') {
+			// It's what we want
+		} else {
+			// Get rid of the storage prefix in the dir
+			$rel_dir = 'plugins/' . $plugin->id;
+		}
+		
 		$manifest = new DevblocksPluginManifest();
 		$manifest->id = (string) $plugin->id;
 		$manifest->dir = $rel_dir;
@@ -182,7 +193,7 @@ abstract class DevblocksEngine {
 			));
 			
 		} else { // insert
-			$enabled = ('devblocks.core'==$manifest->id) ? 1 : 0;
+			$enabled = (in_array($manifest->id, array('devblocks.core', 'cerberusweb.core')) ? 1 : 0);
 			$db->Execute(sprintf(
 				"INSERT INTO ${prefix}plugin (id,enabled,name,description,author,version,link,dir,manifest_cache_json) ".
 				"VALUES (%s,%d,%s,%s,%s,%s,%s,%s,%s)",
@@ -493,7 +504,7 @@ abstract class DevblocksEngine {
 					break;
 				
 				$file = implode(DIRECTORY_SEPARATOR, $path); // combine path
-				$dir = APP_PATH . '/' . $plugin->dir . '/' . 'resources';
+				$dir = $plugin->getStoragePath() . '/' . 'resources';
 				if(!is_dir($dir)) die(""); // basedir Security
 				$resource = $dir . '/' . $file;
 				if(0 != strstr($dir,$resource)) die("");
@@ -631,14 +642,14 @@ abstract class DevblocksEngine {
 	}
 	
 	static function update() {
-		if(null == ($manifest = self::_readPluginManifest('libs/devblocks', false)))
+		if(null == ($manifest = self::_readPluginManifest(DEVBLOCKS_PATH, false)))
 			return FALSE;
 		
 		if(!isset($manifest->manifest_cache['patches']))
 			return TRUE;
 		
 		foreach($manifest->manifest_cache['patches'] as $mft_patch) {
-			$path = APP_PATH . '/' . $manifest->dir . '/' . $mft_patch['file'];
+			$path = $manifest->getStoragePath() . '/' . $mft_patch['file'];
 			
 			if(!file_exists($path))
 				return FALSE;

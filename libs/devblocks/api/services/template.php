@@ -311,7 +311,7 @@ class _DevblocksSmartyTemplateResource {
 		}
 			
 		// If not in DB, check plugin's relative path on disk
-		$path = APP_PATH . '/' . $plugin->dir . '/templates/' . $tpl_path;
+		$path = $plugin->getStoragePath() . '/templates/' . $tpl_path;
 		
 		if(!file_exists($path))
 			return false;
@@ -354,7 +354,7 @@ class _DevblocksSmartyTemplateResource {
 		}
 			
 		// If not in DB, check plugin's relative path on disk
-		$path = APP_PATH . '/' . $plugin->dir . '/templates/' . $tpl_path;
+		$path = $plugin->getStoragePath() . '/templates/' . $tpl_path;
 		
 		if(!file_exists($path))
 			return false;

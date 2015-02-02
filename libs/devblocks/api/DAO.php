@@ -255,7 +255,7 @@ class DAO_Platform {
 			@$plugin->id = $row['id'];
 			@$plugin->dir = $row['dir'];
 			
-			if(!file_exists(APP_PATH . '/' . $plugin->dir)) {
+			if(!file_exists($plugin->getStoragePath())) {
 				$plugin->purge();
 			}
 		}
@@ -385,7 +385,7 @@ class DAO_Platform {
 			// Make sure the plugin is valid
 			if(isset($plugins[$plugin_id])) {
 				// Build an absolute path
-				$path = APP_PATH . DIRECTORY_SEPARATOR . $plugins[$plugin_id]->dir . DIRECTORY_SEPARATOR . $rel_path;
+				$path = $plugins[$plugin_id]->getStoragePath() . '/' . $rel_path;
 				
 				// Init the array
 				if(!isset($class_loader_map[$path]))
@@ -970,7 +970,7 @@ class DAO_Translation extends DevblocksORMHelper {
 		if(is_array($plugins))
 		foreach($plugins as $plugin_id => $plugin) { /* @var $plugin DevblocksPluginManifest */
 			if($plugin->enabled) {
-				$strings_xml = APP_PATH . '/' . $plugin->dir . '/strings.xml';
+				$strings_xml = $plugin->getStoragePath() . '/strings.xml';
 				if(file_exists($strings_xml)) {
 					self::importTmxFile($strings_xml);
 				}

@@ -426,7 +426,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 
 			// Don't auto-update any development plugin
 			
-			$plugin_path = APP_PATH . '/' . $local_plugin->dir;
+			$plugin_path = $local_plugin->getStoragePath();
 			if(file_exists($plugin_path . '/.git')) {
 				continue;
 			}
@@ -459,7 +459,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 				$updated++;
 				
 				// Reload plugin translations
-				$strings_xml = APP_PATH . '/' . $local_plugin->dir . '/strings.xml';
+				$strings_xml = $local_plugin->getStoragePath() . '/strings.xml';
 				if(file_exists($strings_xml)) {
 					DAO_Translation::importTmxFile($strings_xml);
 				}

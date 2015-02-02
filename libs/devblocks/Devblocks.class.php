@@ -16,7 +16,11 @@ class DevblocksPlatform extends DevblocksEngine {
 	private function __construct() { return false; }
 
 	static function installPluginZip($zip_filename) {
-		// [TODO] Check write access in storage/plugins/
+		$plugin_path = APP_STORAGE_PATH . '/plugins/';
+		
+		// Check write access
+		if(!(is_dir($plugin_path) && is_writeable($plugin_path)))
+			return false;
 		
 		// Unzip (Devblocks ZipArchive or pclzip)
 		if(extension_loaded('zip')) {
@@ -36,7 +40,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				}
 			}
 			
-			$zip->extractTo(APP_STORAGE_PATH . '/plugins/');
+			$zip->extractTo($plugin_path);
 	
 		} else {
 			$zip = new PclZip($zip_filename);
@@ -47,7 +51,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			$xml = simplexml_load_string($manifest_data);
 			$plugin_id = (string) $xml->id;
 
-			$list = $zip->extract(PCLZIP_OPT_PATH, APP_STORAGE_PATH . '/plugins/', PCLZIP_OPT_REPLACE_NEWER);
+			$list = $zip->extract(PCLZIP_OPT_PATH, $plugin_path, PCLZIP_OPT_REPLACE_NEWER);
 		}
 		
 		if(empty($plugin_id))
@@ -1718,7 +1722,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				$plugin->manifest_cache = json_decode($manifest_cache_json, true);
 			}
 
-			if(file_exists(APP_PATH . DIRECTORY_SEPARATOR . $plugin->dir . DIRECTORY_SEPARATOR . 'plugin.xml'))
+			if(file_exists($plugin->getStoragePath() . '/' . 'plugin.xml'))
 				$plugins[$plugin->id] = $plugin;
 		}
 
@@ -1822,17 +1826,29 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @static
 	 * @return DevblocksPluginManifest[]
 	 */
-	static function readPlugins($is_update=true, $scan_dirs = array('features', 'storage/plugins')) {
+	static function readPlugins($is_update=true, $scan_dirs = array('features', 'plugins')) {
 		$plugins = array();
 
 		// Devblocks
-		if(null !== ($manifest = self::_readPluginManifest('libs/devblocks', $is_update)))
+		if(null !== ($manifest = self::_readPluginManifest(DEVBLOCKS_PATH, $is_update)))
 			$plugin[] = $manifest;
 			
 		// Application
 		if(is_array($scan_dirs))
 		foreach($scan_dirs as $scan_dir) {
-			$scan_path = APP_PATH . '/' . $scan_dir;
+			switch($scan_dir) {
+				case 'features':
+					$scan_path = APP_PATH . '/features';
+					break;
+					
+				case 'plugins':
+					$scan_path = APP_STORAGE_PATH . '/plugins';
+					break;
+					
+				default:
+					continue;
+			}
+			
 			if (is_dir($scan_path)) {
 				if ($dh = opendir($scan_path)) {
 					while (($file = readdir($dh)) !== false) {
@@ -1840,10 +1856,9 @@ class DevblocksPlatform extends DevblocksEngine {
 							continue;
 							
 						$plugin_path = $scan_path . '/' . $file;
-						$rel_path = $scan_dir . '/' . $file;
 						
-						if(is_dir($plugin_path) && file_exists($plugin_path.'/plugin.xml')) {
-							$manifest = self::_readPluginManifest($rel_path, $is_update); /* @var $manifest DevblocksPluginManifest */
+						if(is_dir($plugin_path) && file_exists($plugin_path . '/plugin.xml')) {
+							$manifest = self::_readPluginManifest($plugin_path, $is_update); /* @var $manifest DevblocksPluginManifest */
 	
 							if(null != $manifest) {
 								$plugins[$manifest->id] = $manifest;
