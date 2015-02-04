@@ -2321,8 +2321,27 @@ class CerberusVisit extends DevblocksVisit {
 	public function setWorker(Model_Worker $worker=null) {
 		if(is_null($worker)) {
 			$this->worker_id = null;
+			
 		} else {
 			$this->worker_id = $worker->id;
+			
+			// Language
+			if($worker->language) {
+				$_SESSION['locale'] = $worker->language;
+				DevblocksPlatform::setLocale($worker->language);
+			}
+			
+			// Timezone
+			if($worker->timezone) {
+				$_SESSION['timezone'] = $worker->timezone;
+				@date_default_timezone_set($worker->timezone);
+			}
+			
+			// Time format
+			if($worker->time_format) {
+				$_SESSION['time_format'] = $worker->time_format;
+				DevblocksPlatform::setDateTimeFormat($worker->time_format);
+			}
 		}
 	}
 	

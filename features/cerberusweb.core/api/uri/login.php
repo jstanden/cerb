@@ -318,24 +318,6 @@ class ChSignInPage extends CerberusPageExtension {
 		
 		$devblocks_response = new DevblocksHttpResponse($redirect_path);
 		
-		// Language
-		if($worker->language) {
-			$_SESSION['locale'] = $worker->language;
-			DevblocksPlatform::setLocale($worker->language);
-		}
-		
-		// Timezone
-		if($worker->timezone) {
-			$_SESSION['timezone'] = $worker->timezone;
-			@date_default_timezone_set($worker->timezone);
-		}
-		
-		// Time format
-		if($worker->time_format) {
-			$_SESSION['time_format'] = $worker->time_format;
-			DevblocksPlatform::setDateTimeFormat($worker->time_format);
-		}
-		
 		// Flush views
 		DAO_WorkerViewModel::flush($worker->id);
 		
