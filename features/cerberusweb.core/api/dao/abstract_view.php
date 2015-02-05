@@ -2425,9 +2425,9 @@ class C4_AbstractViewLoader {
 	/**
 	 * Enter description here...
 	 *
-	 * @param string $class C4_AbstractView
-	 * @param string $view_label ID
-	 * @return C4_AbstractView or null
+	 * @param string $view_id
+	 * @param C4_AbstractViewModel $defaults
+	 * @return C4_AbstractView | null
 	 */
 	static function getView($view_id, C4_AbstractViewModel $defaults=null) {
 		$worker_id = 0;
@@ -2462,8 +2462,19 @@ class C4_AbstractViewLoader {
 		
 		if(null !== ($active_worker = CerberusApplication::getActiveWorker()))
 			$worker_id = $active_worker->id;
-
+		
+		// Is the view dirty? (do we need to persist it?)
+		if(false != ($_init_checksum = @$view->_init_checksum)) {
+			unset($view->_init_checksum);
+			$_exit_checksum = sha1(serialize($view));
+			
+			// If the view model is not dirty (we wouldn't end up changing anything in the database)
+			if($_init_checksum == $_exit_checksum)
+				return;
+		}
+		
 		$model = self::serializeAbstractView($view);
+		
 		DAO_WorkerViewModel::setView($worker_id, $view_id, $model);
 	}
 
@@ -2569,6 +2580,8 @@ class C4_AbstractViewLoader {
 		$inst->addColumnsHidden($parent->getColumnsHidden());
 		$inst->addParamsHidden($parent->getParamsHidden());
 		$inst->addParamsRequired($parent->getParamsRequired());
+		
+		$inst->_init_checksum = sha1(serialize($inst));
 		
 		return $inst;
 	}
