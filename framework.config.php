@@ -7,7 +7,6 @@ define('APP_DB_USER','');
 define('APP_DB_PASS','');
 define('APP_DB_PCONNECT',false);
 
-define('LANG_CHARSET_CODE','iso-8859-1'); // iso-8859-1, utf-8
 define('DB_CHARSET_CODE','latin1'); // latin1, utf8
 
 // Memcached (high-performance shared memory cache)
@@ -15,6 +14,7 @@ define('DB_CHARSET_CODE','latin1'); // latin1, utf8
 // list multiple servers comma-delimited: host1:port,host2:port
 //define('DEVBLOCKS_CACHE_PREFIX',''); // ONLY A-Z, a-z, 0-9 and underscore
 //define('DEVBLOCKS_MEMCACHED_SERVERS','127.0.0.1:11211');
+define('LANG_CHARSET_CODE','utf-8'); // utf-8, iso-8859-1
 
 //@ini_set('memory_limit', '64M');
 

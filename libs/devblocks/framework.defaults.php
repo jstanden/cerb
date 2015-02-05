@@ -45,7 +45,7 @@ if(!defined('LANG_CHARSET_MAIL_CONTENT_TYPE'))
 	define('LANG_CHARSET_MAIL_CONTENT_TYPE','text/plain');
 
 if(!defined('LANG_CHARSET_CODE'))
-	define('LANG_CHARSET_CODE','iso-8859-1');
+	define('LANG_CHARSET_CODE','utf-8');
 
 if(!defined('DB_CHARSET_CODE'))
 	define('DB_CHARSET_CODE','latin1'); // latin1, utf8
