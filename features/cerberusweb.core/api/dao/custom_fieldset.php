@@ -119,6 +119,9 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	 * @return Model_CustomFieldset
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = DAO_CustomFieldset::getAll();
 		
 		if(isset($objects[$id]))

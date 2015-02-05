@@ -603,7 +603,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	 * @return Model_Ticket
 	 */
 	static function get($id) {
-		if(empty($id)) return NULL;
+		if(empty($id))
+			return null;
 		
 		$tickets = self::getIds(array($id));
 		

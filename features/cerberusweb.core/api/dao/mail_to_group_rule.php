@@ -80,6 +80,9 @@ class DAO_MailToGroupRule extends DevblocksORMHelper {
 	 * @return Model_MailToGroupRule
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getAll();
 		
 		if(isset($objects[$id]))

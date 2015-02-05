@@ -129,6 +129,9 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 	 * @param integer $id
 	 * @return Model_FeedbackEntry	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id

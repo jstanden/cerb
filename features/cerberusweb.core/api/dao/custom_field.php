@@ -53,6 +53,9 @@ class DAO_CustomField extends DevblocksORMHelper {
 	 * @return Model_CustomField|null
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$fields = self::getAll();
 		
 		if(isset($fields[$id]))

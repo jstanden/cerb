@@ -217,7 +217,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 	 * @return Model_Worker
 	 */
 	static function get($id) {
-		if(empty($id)) return null;
+		if(empty($id))
+			return null;
 		
 		$workers = self::getAllWithDisabled();
 		

@@ -60,6 +60,9 @@ class DAO_Bucket extends DevblocksORMHelper {
 	 * @return Model_Bucket
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$buckets = self::getAll();
 	
 		if(isset($buckets[$id]))

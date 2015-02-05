@@ -73,6 +73,9 @@ class DAO_ConfirmationCode extends DevblocksORMHelper {
 	 * @param integer $id
 	 * @return Model_ConfirmationCode	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id

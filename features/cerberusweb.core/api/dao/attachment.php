@@ -52,6 +52,9 @@ class DAO_Attachment extends DevblocksORMHelper {
 	 * @return Model_Attachment
 	 */
 	public static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$items = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id

@@ -76,6 +76,9 @@ class DAO_Message extends Cerb_ORMHelper {
 	 * @return Model_Message
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id

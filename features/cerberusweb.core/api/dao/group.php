@@ -38,6 +38,9 @@ class DAO_Group extends Cerb_ORMHelper {
 	 * @return Model_Group
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$groups = DAO_Group::getAll();
 		
 		if(isset($groups[$id]))

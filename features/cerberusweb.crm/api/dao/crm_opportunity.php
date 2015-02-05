@@ -199,6 +199,9 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	 * @return Model_CrmOpportunity
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id

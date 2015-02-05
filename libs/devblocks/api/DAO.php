@@ -608,6 +608,9 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	 * @param integer $id
 	 * @return Model_DevblocksTemplate	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id
@@ -890,6 +893,9 @@ class DAO_Translation extends DevblocksORMHelper {
 	 * @param integer $id
 	 * @return Model_TranslationDefault	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id
@@ -1344,7 +1350,6 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 	 * @return Model_DevblocksStorageProfile
 	 **/
 	static function get($id) {
-		
 		if(is_numeric($id)) {
 			$profiles = self::getAll();
 			if(isset($profiles[$id]))

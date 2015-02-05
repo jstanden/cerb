@@ -279,7 +279,8 @@ class DAO_Address extends Cerb_ORMHelper {
 	 * @return Model_Address
 	 */
 	static function get($id) {
-		if(empty($id)) return null;
+		if(empty($id))
+			return null;
 		
 		$addresses = DAO_Address::getWhere(
 			sprintf("%s = %d",

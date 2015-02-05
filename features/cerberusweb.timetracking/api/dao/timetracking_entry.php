@@ -89,6 +89,9 @@ class DAO_TimeTrackingActivity extends DevblocksORMHelper {
 	 * @param integer $id
 	 * @return Model_TimeTrackingActivity	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id
@@ -299,6 +302,9 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 	 * @param integer $id
 	 * @return Model_TimeTrackingEntry	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id

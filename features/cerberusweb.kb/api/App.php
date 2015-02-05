@@ -748,6 +748,9 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	 * @param integer $id
 	 * @return Model_KbCategory	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id

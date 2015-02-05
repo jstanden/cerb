@@ -202,6 +202,9 @@ class DAO_Task extends Cerb_ORMHelper {
 	 * @param integer $id
 	 * @return Model_Task	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id

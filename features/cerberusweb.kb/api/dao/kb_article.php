@@ -39,6 +39,9 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 	}
 	
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id

@@ -101,6 +101,9 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 	 * @return Model_DecisionNode
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$nodes = self::getAll();
 
 		if(isset($nodes[$id]))

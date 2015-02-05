@@ -178,6 +178,9 @@ class DAO_Comment extends Cerb_ORMHelper {
 	 * @param integer $id
 	 * @return Model_Comment	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id

@@ -143,6 +143,9 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	 * @return Model_WorkspacePage
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getAll();
 		
 		if(isset($objects[$id]))
@@ -444,6 +447,9 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	 * @return Model_WorkspaceTab
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getAll();
 		
 		if(isset($objects[$id]))
@@ -906,6 +912,9 @@ class DAO_WorkspaceList extends DevblocksORMHelper {
 	 * @return Model_WorkspaceList
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id

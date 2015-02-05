@@ -185,6 +185,9 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	 * @return Model_TriggerEvent
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$behaviors = self::getAll();
 		
 		if(isset($behaviors[$id]))

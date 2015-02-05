@@ -56,6 +56,9 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 	 * @return Model_WebApiCredentials
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getAll();
 		
 		if(isset($objects[$id]))

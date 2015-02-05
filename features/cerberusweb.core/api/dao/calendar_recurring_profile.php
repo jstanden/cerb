@@ -134,6 +134,9 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 	 * @return Model_CalendarRecurringProfile
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id

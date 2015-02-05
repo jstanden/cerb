@@ -127,6 +127,9 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 	 * @return Model_FileBundle
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$bundles = DAO_FileBundle::getAll();
 		
 		if(isset($bundles[$id]))

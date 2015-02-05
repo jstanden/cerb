@@ -115,6 +115,9 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	 * @return Model_Calendar
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$calendars = self::getAll();
 
 		if(isset($calendars[$id]))

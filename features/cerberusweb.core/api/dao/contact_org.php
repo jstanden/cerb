@@ -301,6 +301,9 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	 * @return Model_ContactOrg
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$where = sprintf("%s = %d",
 			self::ID,
 			$id

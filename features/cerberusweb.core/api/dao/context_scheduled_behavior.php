@@ -117,6 +117,9 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 	 * @param integer $id
 	 * @return Model_ContextScheduledBehavior	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id

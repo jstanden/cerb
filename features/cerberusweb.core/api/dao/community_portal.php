@@ -63,6 +63,9 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	 * @return Model_CommunityTool
 	 */
 	public static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$items = self::getList(array($id));
 		
 		if(isset($items[$id]))

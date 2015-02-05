@@ -77,6 +77,9 @@ class DAO_MailQueue extends DevblocksORMHelper {
 	 * @param integer $id
 	 * @return Model_MailQueue	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id

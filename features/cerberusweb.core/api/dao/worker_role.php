@@ -174,6 +174,9 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 	 * @param integer $id
 	 * @return Model_WorkerRole	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = DAO_WorkerRole::getAll();
 		
 		if(isset($objects[$id]))

@@ -120,6 +120,9 @@ class DAO_Notification extends DevblocksORMHelper {
 	 * @param integer $id
 	 * @return Model_Notification	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id

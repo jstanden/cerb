@@ -116,6 +116,9 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 	 * @return Model_VirtualAttendant
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = DAO_VirtualAttendant::getAll();
 		
 		if(isset($objects[$id]))

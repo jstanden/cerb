@@ -90,6 +90,9 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 	 * @return Model_MailHtmlTemplate
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = DAO_MailHtmlTemplate::getAll();
 		
 		if(isset($objects[$id]))

@@ -73,6 +73,9 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 	 * @param integer $id
 	 * @return Model_ViewFiltersPreset	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id

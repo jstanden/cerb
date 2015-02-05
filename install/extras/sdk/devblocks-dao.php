@@ -140,6 +140,9 @@ foreach($fields as $field_name => $field_type) {
 	 * @return Model_<?php echo $class_name,"\n"; ?>
 	 */
 	static function get($id) {
+		if(empty($id))
+			return null;
+		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id
