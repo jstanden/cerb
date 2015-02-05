@@ -92,9 +92,6 @@ class _DevblocksDatabaseManager {
 	}
 	
 	function isEmpty() {
-		if(!$this->isConnected())
-			return true;
-
 		$tables = DevblocksPlatform::getDatabaseTables();
 		
 		if(empty($tables))
@@ -104,11 +101,15 @@ class _DevblocksDatabaseManager {
 	}
 	
 	function isConnected() {
-		if(!($this->_db instanceof mysqli)) {
-			$this->_db = null;
+		if(empty($this->_connections))
 			return false;
+		
+		foreach($this->_connections as $conn) {
+			if(!$conn instanceof mysqli || !mysqli_ping($conn))
+				return false;
 		}
-		return mysqli_ping($this->_db);
+		
+		return true;
 	}
 	
 	// Always master

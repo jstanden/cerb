@@ -23,12 +23,7 @@ class _DevblocksSessionManager {
 	static function getInstance() {
 		static $instance = null;
 		if(null == $instance) {
-			$db = DevblocksPlatform::getDatabaseService();
 			$url_writer = DevblocksPlatform::getUrlService();
-			
-			if(is_null($db) || !$db->isConnected()) {
-				return null;
-			}
 			
 			$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 			

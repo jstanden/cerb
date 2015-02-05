@@ -164,12 +164,10 @@ abstract class DevblocksEngine {
 		if(!$persist)
 			return $manifest;
 		
-		$db = DevblocksPlatform::getDatabaseService();
-
 		// If the database is empty, return
-		if(is_null($db) || !$db->isConnected() || $db->isEmpty())
+		if(null == ($db = DevblocksPlatform::getDatabaseService()) || $db->isEmpty())
 			return $manifest;
-		
+
 		list($columns, $indexes) = $db->metaTable($prefix . 'plugin');
 		
 		// If this is a 4.x upgrade

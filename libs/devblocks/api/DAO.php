@@ -363,7 +363,7 @@ class DAO_Platform {
 	}
 	
 	static function getClassLoaderMap() {
-		if(null == ($db = DevblocksPlatform::getDatabaseService()) || !$db->isConnected())
+		if(null == ($db = DevblocksPlatform::getDatabaseService()))
 			return array();
 			
 		$tables = DevblocksPlatform::getDatabaseTables();

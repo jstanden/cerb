@@ -307,7 +307,7 @@ switch($step) {
 		@$db_pass = DevblocksPlatform::importGPC($_POST['db_pass'],'string');
 
 		@$db = DevblocksPlatform::getDatabaseService();
-		if(!is_null($db) && @$db->isConnected()) {
+		if(!is_null($db)) {
 			// If we've been to this step, skip past framework.config.php
 			$tpl->assign('step', STEP_INIT_DB);
 			$tpl->display('steps/redirect.tpl');
@@ -502,11 +502,16 @@ switch($step) {
 
 	// Initialize the database
 	case STEP_INIT_DB:
+		$db = DevblocksPlatform::getDatabaseService();
+		
 		// [TODO] Add current user to patcher/upgrade authorized IPs
 		
-		if(DevblocksPlatform::isDatabaseEmpty()) { // install
+		$tables = $db->metaTables();
+		
+		if(empty($tables)) { // install
 			try {
 				DevblocksPlatform::update();
+				
 			} catch(Exception $e) {
 				$tpl->assign('error', $e->getMessage());
 				$tpl->assign('template', 'steps/step_init_db.tpl');

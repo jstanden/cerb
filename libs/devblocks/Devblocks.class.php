@@ -1381,10 +1381,8 @@ class DevblocksPlatform extends DevblocksEngine {
 		$tables = array();
 		
 		if($nocache || null === ($tables = $cache->load(self::CACHE_TABLES))) {
-			$db = self::getDatabaseService();
-			
 			// Make sure the database connection is valid or error out.
-			if(is_null($db) || !$db->isConnected())
+			if(false == ($db = self::getDatabaseService()))
 				return array();
 			
 			$tables = $db->metaTables();
@@ -1689,9 +1687,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(null !== ($plugins = $cache->load(self::CACHE_PLUGINS)))
 			return $plugins;
 
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		if(is_null($db) || !$db->isConnected() || $db->isEmpty())
+		if(false == ($db = DevblocksPlatform::getDatabaseService()) || $db->isEmpty());
 			return;
 
 		$plugins = array();
