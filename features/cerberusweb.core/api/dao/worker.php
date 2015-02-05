@@ -544,8 +544,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if('::1' == $ip)
 			$ip = '127.0.0.1';
 
-		// Update activity once per 30 seconds
-		if($ignore_wait || $worker->last_activity_date < (time()-30)) {
+		// Update activity once per minute
+		if($ignore_wait || $worker->last_activity_date < (time()-60)) {
 			$worker->last_activity_date = time();
 			
 			DAO_Worker::update(
