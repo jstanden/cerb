@@ -27,7 +27,8 @@ class _DevblocksLogManager {
 			self::$_instance = new _DevblocksLogManager();
 		}
 		
-		self::$_instance->setPrefix($prefix);
+		if(!is_null($prefix))
+			self::$_instance->setPrefix($prefix);
 		
 		return self::$_instance;
 	}
