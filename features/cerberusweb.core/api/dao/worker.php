@@ -546,6 +546,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 
 		// Update activity once per 30 seconds
 		if($ignore_wait || $worker->last_activity_date < (time()-30)) {
+			$worker->last_activity_date = time();
+			
 			DAO_Worker::update(
 				$worker->id,
 				array(
