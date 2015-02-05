@@ -7,12 +7,12 @@ define('APP_DB_HOST','');
 define('APP_DB_USER','');
 define('APP_DB_PASS','');
 
-define('DB_CHARSET_CODE','latin1'); // latin1, utf8
 define('APP_DB_SLAVE_HOST','');
 define('APP_DB_SLAVE_USER','');
 define('APP_DB_SLAVE_PASS','');
 
 define('LANG_CHARSET_CODE','utf-8'); // utf-8, iso-8859-1
+define('DB_CHARSET_CODE','utf8'); // utf8, latin1
 
 //@ini_set('memory_limit', '64M');
 
