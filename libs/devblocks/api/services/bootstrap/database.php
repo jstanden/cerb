@@ -77,9 +77,8 @@ class _DevblocksDatabaseManager {
 		if(false === ($db = @mysqli_connect($host, $user, $pass, $database)))
 			return false;
 
-		// Encoding
-		//mysqli_set_charset(DB_CHARSET_CODE, $this->_db);
-		$this->Execute('SET NAMES ' . DB_CHARSET_CODE);
+		// Set the character encoding for this connection
+		mysqli_set_charset($db, DB_CHARSET_CODE);
 		
 		return $db;
 	}
