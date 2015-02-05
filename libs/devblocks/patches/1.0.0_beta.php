@@ -9,33 +9,33 @@ list($columns, $indexes) = $db->metaTable($prefix.'plugin');
 
 if(!isset($columns['file'])) {
 	$sql = "ALTER TABLE ${prefix}plugin ADD COLUMN file VARCHAR(128) DEFAULT '' NOT NULL";
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 }
 
 if(!isset($columns['class'])) {
 	$sql = "ALTER TABLE ${prefix}plugin ADD COLUMN class VARCHAR(128) DEFAULT '' NOT NULL";
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 }
 
 if(!isset($columns['link'])) {
 	$sql = "ALTER TABLE ${prefix}plugin ADD COLUMN link VARCHAR(128) DEFAULT '' NOT NULL";
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 }
 
 if(isset($columns['is_configurable'])) {
 	$sql = "ALTER TABLE ${prefix}plugin DROP COLUMN is_configurable";
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 }
 
 // `property_store` ========================
 list($columns, $indexes) = $db->metaTable($prefix.'property_store');
 
 if(isset($columns['value']) && 0==strcasecmp('varchar',substr($columns['value']['type'],0,7))) {
-	$db->Execute("ALTER TABLE ${prefix}property_store CHANGE COLUMN value value_old VARCHAR(255) DEFAULT '' NOT NULL");
-	$db->Execute("ALTER TABLE ${prefix}property_store ADD COLUMN value MEDIUMBLOB");
+	$db->ExecuteMaster("ALTER TABLE ${prefix}property_store CHANGE COLUMN value value_old VARCHAR(255) DEFAULT '' NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE ${prefix}property_store ADD COLUMN value MEDIUMBLOB");
 	
 	$sql = "SELECT extension_id, instance_id, property, value_old FROM ${prefix}property_store ";
-	$rs = $db->GetArray($sql);
+	$rs = $db->GetArrayMaster($sql);
 	
 	foreach($rs as $row) {
 		$sql = sprintf(
@@ -51,7 +51,7 @@ if(isset($columns['value']) && 0==strcasecmp('varchar',substr($columns['value'][
 		);
 	}
 	
-	$db->Execute("ALTER TABLE ${prefix}property_store DROP COLUMN value_old");
+	$db->ExecuteMaster("ALTER TABLE ${prefix}property_store DROP COLUMN value_old");
 }
 
 // `translation` ========================
@@ -68,7 +68,7 @@ if(!isset($tables['translation'])) {
 			INDEX lang_code (lang_code)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 }
 
 // ============================================================================
@@ -83,7 +83,7 @@ if(!isset($tables[$prefix.'acl'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }	
 
 return TRUE;

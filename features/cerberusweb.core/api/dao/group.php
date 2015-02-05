@@ -65,7 +65,7 @@ class DAO_Group extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 
 		$objects = self::_getObjectsFromResultSet($rs);
 
@@ -139,8 +139,8 @@ class DAO_Group extends Cerb_ORMHelper {
 	static function setDefaultGroup($group_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute("UPDATE worker_group SET is_default = 0");
-		$db->Execute(sprintf("UPDATE worker_group SET is_default = 1 WHERE id = %d", $group_id));
+		$db->ExecuteMaster("UPDATE worker_group SET is_default = 0");
+		$db->ExecuteMaster(sprintf("UPDATE worker_group SET is_default = 1 WHERE id = %d", $group_id));
 		
 		self::clearCache();
 	}
@@ -155,7 +155,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = "INSERT INTO worker_group () VALUES ()";
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		$id = $db->LastInsertId();
 		
 		if(!isset($fields[self::CREATED]))
@@ -242,16 +242,16 @@ class DAO_Group extends Cerb_ORMHelper {
 		);
 		
 		$sql = sprintf("DELETE FROM worker_group WHERE id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		$sql = sprintf("DELETE FROM bucket WHERE group_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$sql = sprintf("DELETE FROM group_setting WHERE group_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$sql = sprintf("DELETE FROM worker_to_group WHERE group_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -273,10 +273,10 @@ class DAO_Group extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$db->Execute("DELETE FROM bucket WHERE group_id NOT IN (SELECT id FROM worker_group)");
+		$db->ExecuteMaster("DELETE FROM bucket WHERE group_id NOT IN (SELECT id FROM worker_group)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' bucket records.');
 		
-		$db->Execute("DELETE FROM group_setting WHERE group_id NOT IN (SELECT id FROM worker_group)");
+		$db->ExecuteMaster("DELETE FROM group_setting WHERE group_id NOT IN (SELECT id FROM worker_group)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' group_setting records.');
 		
 		// Fire event
@@ -299,7 +299,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute(sprintf("REPLACE INTO worker_to_group (worker_id, group_id, is_manager) ".
+		$db->ExecuteMaster(sprintf("REPLACE INTO worker_to_group (worker_id, group_id, is_manager) ".
 			"VALUES (%d, %d, %d)",
 			$worker_id,
 			$group_id,
@@ -319,7 +319,7 @@ class DAO_Group extends Cerb_ORMHelper {
 			$group_id,
 			$worker_id
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 
 		self::clearCache();
 	}
@@ -335,7 +335,7 @@ class DAO_Group extends Cerb_ORMHelper {
 				"INNER JOIN worker w ON (w.id=wt.worker_id) ".
 				"ORDER BY g.name ASC, w.first_name ASC "
 			);
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			
 			$objects = array();
 			
@@ -490,7 +490,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		if($limit > 0) {
 			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		} else {
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			$total = mysqli_num_rows($rs);
 		}
 		
@@ -510,7 +510,7 @@ class DAO_Group extends Cerb_ORMHelper {
 					($has_multiple_values ? "SELECT COUNT(DISTINCT g.id) " : "SELECT COUNT(g.id) ").
 					$join_sql.
 					$where_sql;
-				$total = $db->GetOne($count_sql);
+				$total = $db->GetOneSlave($count_sql);
 			}
 		}
 		
@@ -760,7 +760,7 @@ class DAO_GroupSettings {
 	static function set($group_id, $key, $value) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute(sprintf("REPLACE INTO group_setting (group_id, setting, value) ".
+		$db->ExecuteMaster(sprintf("REPLACE INTO group_setting (group_id, setting, value) ".
 			"VALUES (%d, %s, %s)",
 			$group_id,
 			$db->qstr($key),
@@ -793,7 +793,7 @@ class DAO_GroupSettings {
 			$groups = array();
 			
 			$sql = "SELECT group_id, setting, value FROM group_setting";
-			$rs = $db->Execute($sql) or die(__CLASS__ . ':' . $db->ErrorMsg());
+			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . ':' . $db->ErrorMsg());
 			
 			while($row = mysqli_fetch_assoc($rs)) {
 				$gid = intval($row['group_id']);

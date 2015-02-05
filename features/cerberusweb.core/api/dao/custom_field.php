@@ -32,7 +32,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 		$sql = sprintf("INSERT INTO custom_field () ".
 			"VALUES ()"
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		$id = $db->LastInsertId();
 
 		self::update($id, $fields);
@@ -110,7 +110,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 				"FROM custom_field ".
 				"ORDER BY custom_fieldset_id ASC, pos ASC "
 			;
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			
 			$objects = self::_createObjectsFromResultSet($rs);
 			
@@ -166,7 +166,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 		$id_string = implode(',', $ids);
 		
 		$sql = sprintf("DELETE FROM custom_field WHERE id IN (%s)",$id_string);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		if(is_array($ids))
 		foreach($ids as $id) {
@@ -192,7 +192,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$db->Execute("DELETE FROM custom_field WHERE custom_fieldset_id != 0 AND custom_fieldset_id NOT IN (SELECT id FROM custom_fieldset)");
+		$db->ExecuteMaster("DELETE FROM custom_field WHERE custom_fieldset_id != 0 AND custom_fieldset_id NOT IN (SELECT id FROM custom_fieldset)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' custom_field records.');
 	}
 	
@@ -551,7 +551,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				$context_id,
 				$db->qstr($v)
 			);
-			$db->Execute($sql);
+			$db->ExecuteMaster($sql);
 		}
 		
 		DevblocksPlatform::markContextChanged($context, $context_id);
@@ -592,7 +592,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				$field_id,
 				(!is_null($v) ? sprintf("AND field_value = %s ",$db->qstr($v)) : "")
 			);
-			$db->Execute($sql);
+			$db->ExecuteMaster($sql);
 		}
 		
 		// We need to remove context links on file attachments
@@ -605,7 +605,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					$field_id,
 					$field_id
 				);
-				$db->Execute($sql);
+				$db->ExecuteMaster($sql);
 				break;
 		}
 		
@@ -852,7 +852,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		 */
 		
 		$sql = implode(' UNION ALL ', $sqls);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$context_id = intval($row['context_id']);
@@ -903,7 +903,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				$db->qstr($context),
 				implode(',', $context_ids)
 			);
-			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		}
 	}
 	
@@ -917,7 +917,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				$table,
 				$field_id
 			);
-			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		}
 	}
 };

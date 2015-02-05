@@ -6,103 +6,103 @@ $tables = $db->metaTables();
 list($columns, $indexes) = $db->metaTable('address');
 
 if(isset($columns['contact_id'])) {
-	$db->Execute("ALTER TABLE address DROP COLUMN contact_id");
+	$db->ExecuteMaster("ALTER TABLE address DROP COLUMN contact_id");
 }
 
 if(isset($columns['personal'])) {
-	$db->Execute("ALTER TABLE address DROP COLUMN personal");
+	$db->ExecuteMaster("ALTER TABLE address DROP COLUMN personal");
 }
 
 if(!isset($columns['first_name'])) {
-	$db->Execute("ALTER TABLE address ADD COLUMN first_name VARCHAR(32) DEFAULT '' NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE address ADD COLUMN first_name VARCHAR(32) DEFAULT '' NOT NULL");
 }
 
 if(!isset($columns['last_name'])) {
-	$db->Execute("ALTER TABLE address ADD COLUMN last_name VARCHAR(32) DEFAULT '' NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE address ADD COLUMN last_name VARCHAR(32) DEFAULT '' NOT NULL");
 }
 
 if(!isset($columns['phone'])) {
-	$db->Execute("ALTER TABLE address ADD COLUMN phone VARCHAR(32) DEFAULT '' NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE address ADD COLUMN phone VARCHAR(32) DEFAULT '' NOT NULL");
 }
 
 if(!isset($columns['contact_org_id'])) {
-	$db->Execute("ALTER TABLE address ADD COLUMN contact_org_id INT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE address ADD COLUMN contact_org_id INT UNSIGNED DEFAULT 0 NOT NULL");
 }
 
 if(!isset($columns['num_spam'])) {
-	$db->Execute("ALTER TABLE address ADD COLUMN num_spam INT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE address ADD COLUMN num_spam INT UNSIGNED DEFAULT 0 NOT NULL");
     
     // Update totals
 	$sql = "SELECT count(id) as hits,first_wrote_address_id FROM ticket WHERE spam_training = 'S' GROUP BY first_wrote_address_id,spam_training";
-	$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+	$rs = $db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		$hits = intval($row['hits']);
 		$address_id = intval($row['first_wrote_address_id']);
-		$db->Execute(sprintf("UPDATE address SET num_spam = %d WHERE id = %d", $hits, $address_id));
+		$db->ExecuteMaster(sprintf("UPDATE address SET num_spam = %d WHERE id = %d", $hits, $address_id));
 	}
 	
 	mysqli_free_result($rs);
 }
 
 if(!isset($columns['num_nonspam'])) {
-	$db->Execute("ALTER TABLE address ADD COLUMN num_nonspam INT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE address ADD COLUMN num_nonspam INT UNSIGNED DEFAULT 0 NOT NULL");
     
     // Update totals
 	$sql = "SELECT count(id) as hits,first_wrote_address_id FROM ticket WHERE spam_training = 'N' GROUP BY first_wrote_address_id,spam_training";
-	$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+	$rs = $db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		$hits = intval($row['hits']);
 		$address_id = intval($row['first_wrote_address_id']);
-		$db->Execute(sprintf("UPDATE address SET num_nonspam = %d WHERE id = %d", $hits, $address_id));
+		$db->ExecuteMaster(sprintf("UPDATE address SET num_nonspam = %d WHERE id = %d", $hits, $address_id));
 	}
 	
 	mysqli_free_result($rs);
 }
 
 if(!isset($columns['is_banned'])) {
-	$db->Execute("ALTER TABLE address ADD COLUMN is_banned TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE address ADD COLUMN is_banned TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL");
 }
 
 if(!isset($columns['sla_id'])) {
-	$db->Execute("ALTER TABLE address ADD COLUMN sla_id INT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE address ADD COLUMN sla_id INT UNSIGNED DEFAULT 0 NOT NULL");
 }
 
 if(!isset($columns['sla_expires'])) {
-	$db->Execute("ALTER TABLE address ADD COLUMN sla_expires INT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE address ADD COLUMN sla_expires INT UNSIGNED DEFAULT 0 NOT NULL");
 }
 
 if(!isset($columns['last_autoreply'])) {
-    $db->Execute("ALTER TABLE address ADD COLUMN last_autoreply INT UNSIGNED DEFAULT 0 NOT NULL");
+    $db->ExecuteMaster("ALTER TABLE address ADD COLUMN last_autoreply INT UNSIGNED DEFAULT 0 NOT NULL");
 }
 
 if(!isset($indexes['email'])) {
-    $db->Execute("ALTER TABLE address ADD UNIQUE email (email)");
+    $db->ExecuteMaster("ALTER TABLE address ADD UNIQUE email (email)");
 }
 
 if(!isset($indexes['contact_org_id'])) {
-    $db->Execute("ALTER TABLE address ADD INDEX contact_org_id (contact_org_id)");
+    $db->ExecuteMaster("ALTER TABLE address ADD INDEX contact_org_id (contact_org_id)");
 }
 
 if(!isset($indexes['sla_id'])) {
-    $db->Execute("ALTER TABLE address ADD INDEX sla_id (sla_id)");
+    $db->ExecuteMaster("ALTER TABLE address ADD INDEX sla_id (sla_id)");
 }
 
 if(!isset($indexes['num_spam'])) {
-    $db->Execute("ALTER TABLE address ADD INDEX num_spam (num_spam)");
+    $db->ExecuteMaster("ALTER TABLE address ADD INDEX num_spam (num_spam)");
 }
 
 if(!isset($indexes['num_nonspam'])) {
-    $db->Execute("ALTER TABLE address ADD INDEX num_nonspam (num_nonspam)");
+    $db->ExecuteMaster("ALTER TABLE address ADD INDEX num_nonspam (num_nonspam)");
 }
 
 if(!isset($indexes['is_banned'])) {
-    $db->Execute("ALTER TABLE address ADD INDEX is_banned (is_banned)");
+    $db->ExecuteMaster("ALTER TABLE address ADD INDEX is_banned (is_banned)");
 }
 
 if(!isset($indexes['last_autoreply'])) {
-    $db->Execute("ALTER TABLE address ADD INDEX last_autoreply (last_autoreply)");
+    $db->ExecuteMaster("ALTER TABLE address ADD INDEX last_autoreply (last_autoreply)");
 }
 
 // `address_auth` =============================
@@ -115,7 +115,7 @@ if(!isset($tables['address_auth'])) {
 			PRIMARY KEY (address_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `address_to_worker` =============================
@@ -130,13 +130,13 @@ if(!isset($tables['address_to_worker'])) {
 			PRIMARY KEY (address)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 	
     // Migrate any existing workers
-	$rs = $db->Execute("SELECT id, email FROM worker");
+	$rs = $db->ExecuteMaster("SELECT id, email FROM worker");
 	
 	while($row = mysqli_fetch_assoc($rs)) {
-		$db->Execute(sprintf("INSERT INTO address_to_worker (address, worker_id, is_confirmed, code_expire) ".
+		$db->ExecuteMaster(sprintf("INSERT INTO address_to_worker (address, worker_id, is_confirmed, code_expire) ".
 			"VALUES (%s,%d,1,0)",
 			$db->qstr($row['email']),
 			intval($row['id'])
@@ -170,16 +170,16 @@ if(!isset($tables['contact_org'])) {
 			INDEX sla_id (sla_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `contact_person` =============================
 if(isset($tables['contact_person'])) {
-	$db->Execute("DROP TABLE contact_person");
+	$db->ExecuteMaster("DROP TABLE contact_person");
 }
 
 if(isset($tables['contact_person_seq'])) {
-	$db->Execute("DROP TABLE contact_person_seq");
+	$db->ExecuteMaster("DROP TABLE contact_person_seq");
 }
 
 // `fnr_external_resource` =======================
@@ -193,7 +193,7 @@ if(!isset($tables['fnr_external_resource'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `fnr_topic` =======================
@@ -205,7 +205,7 @@ if(!isset($tables['fnr_topic'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `fnr_query` =======================
@@ -220,14 +220,14 @@ if(!isset($tables['fnr_query'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `category` ========================
 list($columns, $indexes) = $db->metaTable('category');
 
 if(!isset($columns['response_hrs'])) {
-	$db->Execute("ALTER TABLE category ADD COLUMN response_hrs SMALLINT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE category ADD COLUMN response_hrs SMALLINT UNSIGNED DEFAULT 0 NOT NULL");
 }
 
 // `group_setting` =======================
@@ -240,7 +240,7 @@ if(!isset($tables['group_setting'])) {
 			PRIMARY KEY (group_id, setting)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `mail_template` =======================
@@ -257,15 +257,15 @@ if(!isset($tables['mail_template'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `mail_template_reply` =======================
 if(isset($tables['mail_template_reply'])) {
-	$rs = $db->Execute("SELECT id,title,description,folder,owner_id,content FROM mail_template_reply");
+	$rs = $db->ExecuteMaster("SELECT id,title,description,folder,owner_id,content FROM mail_template_reply");
 	
 	while($row = mysqli_fetch_assoc($rs)) {
-		$db->Execute(sprintf("INSERT INTO mail_template (id,title,description,folder,template_type,owner_id,content) ".
+		$db->ExecuteMaster(sprintf("INSERT INTO mail_template (id,title,description,folder,template_type,owner_id,content) ".
 			"VALUES (%d,%s,%s,%s,%d,%d,%s)",
 			$row['id'],
 			$db->qstr($row['title']),
@@ -279,7 +279,7 @@ if(isset($tables['mail_template_reply'])) {
 	
 	mysqli_free_result($rs);
 	
-	$db->Execute("DROP TABLE mail_template_reply");
+	$db->ExecuteMaster("DROP TABLE mail_template_reply");
 }
 
 // `message_content` =====================
@@ -291,7 +291,7 @@ if(!isset($tables['message_content'])) {
 			PRIMARY KEY (message_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `message_header` =====================
@@ -305,17 +305,17 @@ if(!isset($tables['message_header'])) {
 			PRIMARY KEY (message_id, header_name)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 list($columns, $indexes) = $db->metaTable('message_header');
 
 if(!isset($indexes['header_name'])) {
-	$db->Execute("ALTER TABLE message_header ADD INDEX header_name (header_name)");
+	$db->ExecuteMaster("ALTER TABLE message_header ADD INDEX header_name (header_name)");
 }
 
 if(!isset($indexes['ticket_id'])) {
-	$db->Execute("ALTER TABLE message_header ADD INDEX header_value (header_value(10))");
+	$db->ExecuteMaster("ALTER TABLE message_header ADD INDEX header_value (header_value(10))");
 }
 
 // `message_note` ==================
@@ -330,36 +330,36 @@ if(!isset($tables['message_note'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 list($columns, $indexes) = $db->metaTable('message_note');
 
 if(!isset($columns['type'])) {
-    $db->Execute("ALTER TABLE message_note ADD COLUMN type TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL");
+    $db->ExecuteMaster("ALTER TABLE message_note ADD COLUMN type TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL");
 }
 
 if(!isset($indexes['type'])) {
-	$db->Execute("ALTER TABLE message_note ADD INDEX type (type)");
+	$db->ExecuteMaster("ALTER TABLE message_note ADD INDEX type (type)");
 }
 
 // `message` ========================
 list($columns, $indexes) = $db->metaTable('message');
 
 if(isset($columns['headers'])) {
-	$db->Execute("ALTER TABLE message DROP COLUMN headers");
+	$db->ExecuteMaster("ALTER TABLE message DROP COLUMN headers");
 }
 
 if(isset($columns['message_id'])) {
-	$db->Execute("ALTER TABLE message DROP COLUMN message_id");
+	$db->ExecuteMaster("ALTER TABLE message DROP COLUMN message_id");
 }
 
 if(isset($columns['is_admin'])) {
-	$db->Execute("ALTER TABLE message DROP COLUMN is_admin");
+	$db->ExecuteMaster("ALTER TABLE message DROP COLUMN is_admin");
 }
 
 if(!isset($columns['is_outgoing'])) {
-	$db->Execute("ALTER TABLE message ADD COLUMN is_outgoing TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE message ADD COLUMN is_outgoing TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL");
     
     // Gather Helpdesk/Group addresses
 	try {
@@ -367,11 +367,11 @@ if(!isset($columns['is_outgoing'])) {
 		
 		$sql = "SELECT value FROM setting WHERE setting = 'default_reply_from'";
 		
-		if(null != ($default_from = $db->GetOne($sql))) {
+		if(null != ($default_from = $db->GetOneMaster($sql))) {
 			$froms[$default_from] = 1;
 		}
 		
-		$rs = $db->Execute("SELECT group_id, setting, value FROM group_setting ORDER BY group_id, setting");
+		$rs = $db->ExecuteMaster("SELECT group_id, setting, value FROM group_setting ORDER BY group_id, setting");
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			if('reply_from' != $row['setting'])
@@ -386,11 +386,11 @@ if(!isset($columns['is_outgoing'])) {
 			$sql = sprintf("SELECT id FROM address WHERE email IN ('%s')",
 				implode("','", $froms)
 			);
-			$rs = $db->Execute($sql);
+			$rs = $db->ExecuteMaster($sql);
 			
 			while($row = mysqli_fetch_assoc($rs)) {
    				$address_id = intval($row['id']);
-				$db->Execute(sprintf("UPDATE message SET is_outgoing = 1 WHERE address_id = %d",
+				$db->ExecuteMaster(sprintf("UPDATE message SET is_outgoing = 1 WHERE address_id = %d",
 		    		$address_id
 		    	));
 			}
@@ -402,16 +402,16 @@ if(!isset($columns['is_outgoing'])) {
 }
 
 if(!isset($columns['worker_id'])) {
-	$db->Execute('ALTER TABLE message ADD COLUMN worker_id INT UNSIGNED DEFAULT 0 NOT NULL');
+	$db->ExecuteMaster('ALTER TABLE message ADD COLUMN worker_id INT UNSIGNED DEFAULT 0 NOT NULL');
     
     // Link direct replies from worker addresses as outgoing messages (Cerb 1,2,3.x)
     $sql = "SELECT a.id as address_id,w.id as worker_id FROM address a INNER JOIN worker w ON (a.email=w.email)";
-    $rs = $db->Execute($sql);
+    $rs = $db->ExecuteMaster($sql);
     
     while($row = mysqli_fetch_assoc($rs)) {
     	$address_id = intval($row['address_id']);
     	$worker_id = intval($row['worker_id']);
-    	$db->Execute(sprintf("UPDATE message SET is_outgoing = 1 AND worker_id = %d WHERE address_id = %d",
+    	$db->ExecuteMaster(sprintf("UPDATE message SET is_outgoing = 1 AND worker_id = %d WHERE address_id = %d",
     		$worker_id,
     		$address_id
     	));
@@ -421,58 +421,58 @@ if(!isset($columns['worker_id'])) {
 }
 
 if(isset($columns['message_type'])) {
-	$db->Execute('ALTER TABLE message DROP COLUMN message_type');
+	$db->ExecuteMaster('ALTER TABLE message DROP COLUMN message_type');
 }
 
 if(isset($columns['content'])) {
-	$db->Execute('ALTER TABLE message DROP COLUMN content');
+	$db->ExecuteMaster('ALTER TABLE message DROP COLUMN content');
 }
 
 if(!isset($indexes['created_date'])) {
-	$db->Execute('ALTER TABLE message ADD INDEX created_date (created_date)');
+	$db->ExecuteMaster('ALTER TABLE message ADD INDEX created_date (created_date)');
 }
 
 if(!isset($indexes['ticket_id'])) {
-	$db->Execute('ALTER TABLE message ADD INDEX ticket_id (ticket_id)');
+	$db->ExecuteMaster('ALTER TABLE message ADD INDEX ticket_id (ticket_id)');
 }
 
 if(!isset($indexes['is_outgoing'])) {
-	$db->Execute('ALTER TABLE message ADD INDEX is_outgoing (is_outgoing)');
+	$db->ExecuteMaster('ALTER TABLE message ADD INDEX is_outgoing (is_outgoing)');
 }
 
 if(!isset($indexes['worker_id'])) {
-	$db->Execute('ALTER TABLE message ADD INDEX worker_id (worker_id)');
+	$db->ExecuteMaster('ALTER TABLE message ADD INDEX worker_id (worker_id)');
 }
 
 // `requester` ========================
 list($columns, $indexes) = $db->metaTable('requester');
 
 if(!isset($indexes['address_id'])) {
-	$db->Execute('ALTER TABLE requester ADD INDEX address_id (address_id)');
+	$db->ExecuteMaster('ALTER TABLE requester ADD INDEX address_id (address_id)');
 }
 
 if(!isset($indexes['ticket_id'])) {
-	$db->Execute('ALTER TABLE requester ADD INDEX ticket_id (ticket_id)');
+	$db->ExecuteMaster('ALTER TABLE requester ADD INDEX ticket_id (ticket_id)');
 }
 
 // `setting` ==================================
 list($columns, $indexes) = $db->metaTable('setting');
 
 if(0 != strcasecmp(@$columns['value']['type'],'blob')) {
-	$db->Execute("ALTER TABLE setting CHANGE COLUMN value value_old VARCHAR(255) DEFAULT '' NOT NULL");
-	$db->Execute("ALTER TABLE setting ADD COLUMN value BLOB");
+	$db->ExecuteMaster("ALTER TABLE setting CHANGE COLUMN value value_old VARCHAR(255) DEFAULT '' NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE setting ADD COLUMN value BLOB");
 	
 	$sql = "SELECT setting, value_old FROM setting ";
-	$rs = $db->Execute($sql);
+	$rs = $db->ExecuteMaster($sql);
 	
 	while($row = mysqli_fetch_assoc($rs)) {
-		$db->Execute(sprintf("UPDATE setting SET value=%s WHERE setting=%s",
+		$db->ExecuteMaster(sprintf("UPDATE setting SET value=%s WHERE setting=%s",
 			$db->qstr($row['value_old']),
 			$db->qstr($row['setting'])
 		));
 	}
 
-	$db->Execute("ALTER TABLE setting DROP COLUMN value_old");
+	$db->ExecuteMaster("ALTER TABLE setting DROP COLUMN value_old");
 	
 	mysqli_free_result($rs);
 }
@@ -487,7 +487,7 @@ if(!isset($tables['sla'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `task` =============================
@@ -507,92 +507,92 @@ if(!isset($tables['task'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 list($columns, $indexes) = $db->metaTable('task');
 
 if(!isset($indexes['is_completed'])) {
-	$db->Execute('ALTER TABLE task ADD INDEX is_completed (is_completed)');
+	$db->ExecuteMaster('ALTER TABLE task ADD INDEX is_completed (is_completed)');
 }
 
 if(!isset($indexes['completed_date'])) {
-	$db->Execute('ALTER TABLE task ADD INDEX completed_date (completed_date)');
+	$db->ExecuteMaster('ALTER TABLE task ADD INDEX completed_date (completed_date)');
 }
 
 if(!isset($indexes['priority'])) {
-	$db->Execute('ALTER TABLE task ADD INDEX priority (priority)');
+	$db->ExecuteMaster('ALTER TABLE task ADD INDEX priority (priority)');
 }
 
 if(!isset($indexes['worker_id'])) {
-	$db->Execute('ALTER TABLE task ADD INDEX worker_id (worker_id)');
+	$db->ExecuteMaster('ALTER TABLE task ADD INDEX worker_id (worker_id)');
 }
 
 if(!isset($indexes['source_extension'])) {
-	$db->Execute('ALTER TABLE task ADD INDEX source_extension (source_extension)');
+	$db->ExecuteMaster('ALTER TABLE task ADD INDEX source_extension (source_extension)');
 }
 
 if(!isset($indexes['source_id'])) {
-	$db->Execute('ALTER TABLE task ADD INDEX source_id (source_id)');
+	$db->ExecuteMaster('ALTER TABLE task ADD INDEX source_id (source_id)');
 }
 
 // `team_routing_rule` ========================
 list($columns, $indexes) = $db->metaTable('team_routing_rule');
 
 if(!isset($columns['do_assign'])) {
-    $db->Execute("ALTER TABLE team_routing_rule ADD COLUMN do_assign BIGINT UNSIGNED DEFAULT 0 NOT NULL");
+    $db->ExecuteMaster("ALTER TABLE team_routing_rule ADD COLUMN do_assign BIGINT UNSIGNED DEFAULT 0 NOT NULL");
 }
 
 if(!isset($indexes['team_id'])) {
-	$db->Execute('ALTER TABLE team_routing_rule ADD INDEX team_id (team_id)');
+	$db->ExecuteMaster('ALTER TABLE team_routing_rule ADD INDEX team_id (team_id)');
 }
 
 if(!isset($indexes['pos'])) {
-	$db->Execute('ALTER TABLE team_routing_rule ADD INDEX pos (pos)');
+	$db->ExecuteMaster('ALTER TABLE team_routing_rule ADD INDEX pos (pos)');
 }
 
 // `ticket` ========================
 list($columns, $indexes) = $db->metaTable('ticket');
 
 if(isset($columns['owner_id'])) {
-    $db->Execute("ALTER TABLE ticket DROP COLUMN owner_id");
+    $db->ExecuteMaster("ALTER TABLE ticket DROP COLUMN owner_id");
 }
 
 if(isset($columns['priority'])) {
-    $db->Execute("ALTER TABLE ticket DROP COLUMN priority");
+    $db->ExecuteMaster("ALTER TABLE ticket DROP COLUMN priority");
 }
 
 if(!isset($columns['is_waiting'])) {
-    $db->Execute('ALTER TABLE ticket ADD COLUMN is_waiting TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
+    $db->ExecuteMaster('ALTER TABLE ticket ADD COLUMN is_waiting TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
 }
 
 if(isset($columns['import_pile'])) {
-	$db->Execute("ALTER TABLE ticket DROP COLUMN import_pile");
+	$db->ExecuteMaster("ALTER TABLE ticket DROP COLUMN import_pile");
 }
 
 if(!isset($columns['last_worker_id'])) {
-    $db->Execute('ALTER TABLE ticket ADD COLUMN last_worker_id INT UNSIGNED DEFAULT 0 NOT NULL');
+    $db->ExecuteMaster('ALTER TABLE ticket ADD COLUMN last_worker_id INT UNSIGNED DEFAULT 0 NOT NULL');
 }
 
 if(!isset($columns['last_action_code'])) {
-    $db->Execute("ALTER TABLE ticket ADD COLUMN last_action_code VARCHAR(1) DEFAULT 'O' NOT NULL");
+    $db->ExecuteMaster("ALTER TABLE ticket ADD COLUMN last_action_code VARCHAR(1) DEFAULT 'O' NOT NULL");
 }
 
 if(!isset($columns['next_worker_id'])) {
-    $db->Execute('ALTER TABLE ticket ADD COLUMN next_worker_id INT UNSIGNED DEFAULT 0 NOT NULL');
-    $db->Execute("UPDATE ticket SET next_worker_id = last_worker_id");
+    $db->ExecuteMaster('ALTER TABLE ticket ADD COLUMN next_worker_id INT UNSIGNED DEFAULT 0 NOT NULL');
+    $db->ExecuteMaster("UPDATE ticket SET next_worker_id = last_worker_id");
 }
 
 if(!isset($columns['sla_id'])) {
-    $db->Execute('ALTER TABLE ticket ADD COLUMN sla_id INT UNSIGNED DEFAULT 0 NOT NULL');
+    $db->ExecuteMaster('ALTER TABLE ticket ADD COLUMN sla_id INT UNSIGNED DEFAULT 0 NOT NULL');
 }
 
 if(!isset($columns['sla_priority'])) {
-    $db->Execute('ALTER TABLE ticket ADD COLUMN sla_priority TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
+    $db->ExecuteMaster('ALTER TABLE ticket ADD COLUMN sla_priority TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
 }
 
 if(!isset($columns['first_message_id'])) {
-    $db->Execute('ALTER TABLE ticket ADD COLUMN first_message_id INT UNSIGNED DEFAULT 0 NOT NULL');
+    $db->ExecuteMaster('ALTER TABLE ticket ADD COLUMN first_message_id INT UNSIGNED DEFAULT 0 NOT NULL');
 }
 
 // [JAS]: Populate our new foreign key
@@ -601,7 +601,7 @@ $sql = "SELECT m.ticket_id, min(m.id) as first_message_id ".
 	"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
 	"WHERE t.first_message_id = 0 ".
 	"GROUP BY ticket_id";
-$rs = $db->Execute($sql);
+$rs = $db->ExecuteMaster($sql);
  
 while($row = mysqli_fetch_assoc($rs)) {
 	if(empty($row['first_message_id'])) {
@@ -612,65 +612,65 @@ while($row = mysqli_fetch_assoc($rs)) {
 		intval($row['first_message_id']),
 		intval($row['ticket_id'])
 	);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 }
  
 mysqli_free_result($rs);
 
 if(!isset($indexes['first_message_id'])) {
-	$db->Execute('ALTER TABLE ticket ADD INDEX first_message_id (first_message_id)');
+	$db->ExecuteMaster('ALTER TABLE ticket ADD INDEX first_message_id (first_message_id)');
 }
 
 if(!isset($indexes['mask'])) {
-	$db->Execute('ALTER TABLE ticket ADD INDEX mask (mask)');
+	$db->ExecuteMaster('ALTER TABLE ticket ADD INDEX mask (mask)');
 }
 
 if(!isset($indexes['is_waiting'])) {
-	$db->Execute('ALTER TABLE ticket ADD INDEX is_waiting (is_waiting)');
+	$db->ExecuteMaster('ALTER TABLE ticket ADD INDEX is_waiting (is_waiting)');
 }
 
 if(!isset($indexes['sla_id'])) {
-	$db->Execute('ALTER TABLE ticket ADD INDEX sla_id (sla_id)');
+	$db->ExecuteMaster('ALTER TABLE ticket ADD INDEX sla_id (sla_id)');
 }
 
 if(!isset($indexes['sla_priority'])) {
-	$db->Execute('ALTER TABLE ticket ADD INDEX sla_priority (sla_priority)');
+	$db->ExecuteMaster('ALTER TABLE ticket ADD INDEX sla_priority (sla_priority)');
 }
 
 if(!isset($indexes['team_id'])) {
-	$db->Execute('ALTER TABLE ticket ADD INDEX team_id (team_id)');
+	$db->ExecuteMaster('ALTER TABLE ticket ADD INDEX team_id (team_id)');
 }
 
 if(!isset($indexes['created_date'])) {
-	$db->Execute('ALTER TABLE ticket ADD INDEX created_date (created_date)');
+	$db->ExecuteMaster('ALTER TABLE ticket ADD INDEX created_date (created_date)');
 }
 
 if(!isset($indexes['updated_date'])) {
-	$db->Execute('ALTER TABLE ticket ADD INDEX updated_date (updated_date)');
+	$db->ExecuteMaster('ALTER TABLE ticket ADD INDEX updated_date (updated_date)');
 }
 
 if(!isset($indexes['first_wrote_address_id'])) {
-	$db->Execute('ALTER TABLE ticket ADD INDEX first_wrote_address_id (first_wrote_address_id)');
+	$db->ExecuteMaster('ALTER TABLE ticket ADD INDEX first_wrote_address_id (first_wrote_address_id)');
 }
 
 if(!isset($indexes['last_wrote_address_id'])) {
-	$db->Execute('ALTER TABLE ticket ADD INDEX last_wrote_address_id (last_wrote_address_id)');
+	$db->ExecuteMaster('ALTER TABLE ticket ADD INDEX last_wrote_address_id (last_wrote_address_id)');
 }
 
 if(!isset($indexes['is_closed'])) {
-	$db->Execute('ALTER TABLE ticket ADD INDEX is_closed (is_closed)');
+	$db->ExecuteMaster('ALTER TABLE ticket ADD INDEX is_closed (is_closed)');
 }
 
 if(!isset($indexes['category_id'])) {
-	$db->Execute('ALTER TABLE ticket ADD INDEX category_id (category_id)');
+	$db->ExecuteMaster('ALTER TABLE ticket ADD INDEX category_id (category_id)');
 }
 
 if(!isset($indexes['last_worker_id'])) {
-	$db->Execute('ALTER TABLE ticket ADD INDEX last_worker_id (last_worker_id)');
+	$db->ExecuteMaster('ALTER TABLE ticket ADD INDEX last_worker_id (last_worker_id)');
 }
 
 if(!isset($indexes['next_worker_id'])) {
-	$db->Execute('ALTER TABLE ticket ADD INDEX next_worker_id (next_worker_id)');
+	$db->ExecuteMaster('ALTER TABLE ticket ADD INDEX next_worker_id (next_worker_id)');
 }
 
 // `ticket_comment` =============================
@@ -685,7 +685,7 @@ if(!isset($tables['ticket_comment'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `ticket_field` ==================
@@ -701,13 +701,13 @@ if(!isset($tables['ticket_field'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 list($columns, $indexes) = $db->metaTable('ticket_field');
 
 if(!isset($indexes['group_id'])) {
-	$db->Execute('ALTER TABLE ticket_field ADD INDEX group_id (group_id)');
+	$db->ExecuteMaster('ALTER TABLE ticket_field ADD INDEX group_id (group_id)');
 }
 
 // `ticket_field_value` ==================
@@ -720,13 +720,13 @@ if(!isset($tables['ticket_field_value'])) {
 			PRIMARY KEY (field_id, ticket_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 list($columns, $indexes) = $db->metaTable('ticket_field_value');
 
 if(!isset($indexes['ticket_id'])) {
-	$db->Execute('ALTER TABLE ticket_field_value ADD INDEX ticket_id (ticket_id)');
+	$db->ExecuteMaster('ALTER TABLE ticket_field_value ADD INDEX ticket_id (ticket_id)');
 }
 
 // `ticket_rss` ========================
@@ -742,21 +742,21 @@ if(!isset($tables['ticket_rss'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `worker`
 list($columns, $indexes) = $db->metaTable('worker');
 
 if(!isset($columns['can_delete'])) {
-    $db->Execute('ALTER TABLE worker ADD COLUMN can_delete TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
+    $db->ExecuteMaster('ALTER TABLE worker ADD COLUMN can_delete TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
 }
 
 // `worker_to_team`
 list($columns, $indexes) = $db->metaTable('worker_to_team');
 
 if(!isset($columns['is_manager'])) {
-    $db->Execute('ALTER TABLE worker_to_team ADD COLUMN is_manager TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
+    $db->ExecuteMaster('ALTER TABLE worker_to_team ADD COLUMN is_manager TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
 }
 
 // `worker_workspace_list` =============================
@@ -770,21 +770,21 @@ if(!isset($tables['worker_workspace_list'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 list($columns, $indexes) = $db->metaTable('worker_workspace_list');
 
 if(!isset($columns['list_pos'])) {
-	$db->Execute('ALTER TABLE worker_workspace_list ADD COLUMN list_pos SMALLINT UNSIGNED DEFAULT 0');
+	$db->ExecuteMaster('ALTER TABLE worker_workspace_list ADD COLUMN list_pos SMALLINT UNSIGNED DEFAULT 0');
 }
 
 if(!isset($indexes['worker_id'])) {
-	$db->Execute('ALTER TABLE worker_workspace_list ADD INDEX worker_id (worker_id)');
+	$db->ExecuteMaster('ALTER TABLE worker_workspace_list ADD INDEX worker_id (worker_id)');
 }
 
 if(!isset($indexes['workspace'])) {
-	$db->Execute('ALTER TABLE worker_workspace_list ADD INDEX workspace (workspace)');
+	$db->ExecuteMaster('ALTER TABLE worker_workspace_list ADD INDEX workspace (workspace)');
 }
 
 // ***** CloudGlue
@@ -798,7 +798,7 @@ if(!isset($tables['tag_to_content'])) {
 			PRIMARY KEY (index_id, tag_id, content_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 if(!isset($tables['tag_index'])) {
@@ -809,7 +809,7 @@ if(!isset($tables['tag_index'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 if(!isset($tables['tag'])) {
@@ -820,7 +820,7 @@ if(!isset($tables['tag'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // Remove any worker addresses from deleted workers
@@ -828,13 +828,13 @@ $sql = "SELECT DISTINCT atw.worker_id ".
 	"FROM address_to_worker atw ".
 	"LEFT JOIN worker w ON (w.id=atw.worker_id) ".
 	"WHERE w.id IS NULL";
-$rs = $db->Execute($sql);
+$rs = $db->ExecuteMaster($sql);
 
 while($row = mysqli_fetch_assoc($rs)) {
 	$sql = sprintf("DELETE FROM address_to_worker WHERE worker_id = %d",
 		$row['worker_id']
 	);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 }
 
 mysqli_free_result($rs);
@@ -844,13 +844,13 @@ $sql = "SELECT DISTINCT gs.group_id ".
 	"FROM group_setting gs ".
 	"LEFT JOIN team t ON (t.id=gs.group_id) ".
 	"WHERE t.id IS NULL";
-$rs = $db->Execute($sql);
+$rs = $db->ExecuteMaster($sql);
 
 while($row = mysqli_fetch_assoc($rs)) {
 	$sql = sprintf("DELETE FROM group_setting WHERE group_id = %d",
 		$row['group_id']
 	);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 }
 
 mysqli_free_result($rs);
@@ -860,22 +860,22 @@ $sql = "SELECT DISTINCT t.category_id as id ".
 	"FROM ticket t ".
 	"LEFT JOIN category c ON (t.category_id=c.id) ".
 	"WHERE c.id IS NULL AND t.category_id > 0";
-$rs = $db->Execute($sql);
+$rs = $db->ExecuteMaster($sql);
 
 while($row = mysqli_fetch_assoc($rs)) {
 	$sql = sprintf("UPDATE ticket SET category_id = 0 WHERE category_id = %d",
 		$row['id']
 	);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 }
 
 mysqli_free_result($rs);
 
 // Merge any addresses that managed to get into the DB mixed case
-$rs = $db->Execute("SELECT count(id) AS hits, lower(email) AS email FROM address GROUP BY lower(email) HAVING count(id) > 1"); 
+$rs = $db->ExecuteMaster("SELECT count(id) AS hits, lower(email) AS email FROM address GROUP BY lower(email) HAVING count(id) > 1"); 
 
 while($row = mysqli_fetch_assoc($rs)) {
-	$rs2 = $db->Execute(sprintf("SELECT id,email,lower(email) as orig_email FROM address WHERE lower(email) = %s",
+	$rs2 = $db->ExecuteMaster(sprintf("SELECT id,email,lower(email) as orig_email FROM address WHERE lower(email) = %s",
 		$db->qstr($row['email'])
 	));
 
@@ -899,45 +899,45 @@ while($row = mysqli_fetch_assoc($rs)) {
 
 	if(!empty($best_id) && !empty($ids_not_best)) {
 		// Address Auth (remove dupes)
-		$db->Execute(sprintf("DELETE FROM address_auth WHERE address_id IN (%s)",
+		$db->ExecuteMaster(sprintf("DELETE FROM address_auth WHERE address_id IN (%s)",
 			implode(',', $ids_not_best)
 		));
 
 		// Messages (merge dupe senders)
-		$db->Execute(sprintf("UPDATE message SET address_id = %d WHERE address_id IN (%s)",
+		$db->ExecuteMaster(sprintf("UPDATE message SET address_id = %d WHERE address_id IN (%s)",
 			$best_id,
 			implode(',', $ids_not_best)
 		));
 		
 		// Requester (merge dupe reqs)
-		$db->Execute(sprintf("UPDATE requester SET address_id = %d WHERE address_id IN (%s)",
+		$db->ExecuteMaster(sprintf("UPDATE requester SET address_id = %d WHERE address_id IN (%s)",
 			$best_id,
 			implode(',', $ids_not_best)
 		));
-		$db->Execute(sprintf("DELETE FROM requester WHERE address_id IN (%s)",
+		$db->ExecuteMaster(sprintf("DELETE FROM requester WHERE address_id IN (%s)",
 			implode(',', $ids_not_best)
 		));
 		
 		// Ticket: First Wrote (merge dupe reqs)
-		$db->Execute(sprintf("UPDATE ticket SET first_wrote_address_id = %d WHERE first_wrote_address_id IN (%s)",
+		$db->ExecuteMaster(sprintf("UPDATE ticket SET first_wrote_address_id = %d WHERE first_wrote_address_id IN (%s)",
 			$best_id,
 			implode(',', $ids_not_best)
 		));
-		$db->Execute(sprintf("DELETE FROM ticket WHERE first_wrote_address_id IN (%s)",
+		$db->ExecuteMaster(sprintf("DELETE FROM ticket WHERE first_wrote_address_id IN (%s)",
 			implode(',', $ids_not_best)
 		));
 
 		// Ticket: Last Wrote (merge dupe reqs)
-		$db->Execute(sprintf("UPDATE ticket SET last_wrote_address_id = %d WHERE last_wrote_address_id IN (%s)",
+		$db->ExecuteMaster(sprintf("UPDATE ticket SET last_wrote_address_id = %d WHERE last_wrote_address_id IN (%s)",
 			$best_id,
 			implode(',', $ids_not_best)
 		));
-		$db->Execute(sprintf("DELETE FROM ticket WHERE last_wrote_address_id IN (%s)",
+		$db->ExecuteMaster(sprintf("DELETE FROM ticket WHERE last_wrote_address_id IN (%s)",
 			implode(',', $ids_not_best)
 		));
 
 		// Addresses
-		$db->Execute(sprintf("DELETE FROM address WHERE id IN (%s)",
+		$db->ExecuteMaster(sprintf("DELETE FROM address WHERE id IN (%s)",
 			implode(',', $ids_not_best)
 		));
 	}
@@ -946,9 +946,9 @@ while($row = mysqli_fetch_assoc($rs)) {
 mysqli_free_result($rs);
 
 // Fix blank ticket.first_message_id links (compose)
-$rs = $db->Execute('select t.id,max(m.id) as max_id,min(m.id) as min_id from ticket t inner join message m on (m.ticket_id=t.id) where t.first_message_id = 0 group by t.id;');
+$rs = $db->ExecuteMaster('select t.id,max(m.id) as max_id,min(m.id) as min_id from ticket t inner join message m on (m.ticket_id=t.id) where t.first_message_id = 0 group by t.id;');
 while($row = mysqli_fetch_assoc($rs)) {
-	$db->Execute(sprintf("UPDATE ticket SET first_message_id = %d WHERE id = %d",
+	$db->ExecuteMaster(sprintf("UPDATE ticket SET first_message_id = %d WHERE id = %d",
 		$row['max_id'],
 		$row['id']
 	));
@@ -957,7 +957,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 mysqli_free_result($rs);
 
 // [TODO] This should probably be checked (though MySQL needs special BINARY syntax)
-$db->Execute("UPDATE address SET email = LOWER(email)");
+$db->ExecuteMaster("UPDATE address SET email = LOWER(email)");
 
 // Enable heartbeat cron
 if(null != ($cron_mf = DevblocksPlatform::getExtension('cron.heartbeat'))) {

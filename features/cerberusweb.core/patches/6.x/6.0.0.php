@@ -20,7 +20,7 @@ if(!isset($tables['calendar_recurring_profile'])) {
 		INDEX owner (owner_context, owner_context_id)
 	) ENGINE=%s", APP_DB_ENGINE);
 	
-	if(false === $db->Execute($sql))
+	if(false === $db->ExecuteMaster($sql))
 		return FALSE;
 		
 	$tables['calendar_recurring_profile'] = 'calendar_recurring_profile';
@@ -47,7 +47,7 @@ if(!isset($tables['calendar_event'])) {
 		INDEX (date_end)
 	) ENGINE=%s", APP_DB_ENGINE);
 	
-	if(false === $db->Execute($sql))
+	if(false === $db->ExecuteMaster($sql))
 		return FALSE;
 		
 	$tables['calendar_event'] = 'calendar_event';
@@ -74,11 +74,11 @@ if(!isset($tables['worker_view_model'])) {
 list($columns, $indexes) = $db->metaTable('worker_view_model');
 
 if(!isset($columns['placeholder_labels_json'])) {
-	$db->Execute("ALTER TABLE worker_view_model ADD COLUMN placeholder_labels_json TEXT");
+	$db->ExecuteMaster("ALTER TABLE worker_view_model ADD COLUMN placeholder_labels_json TEXT");
 }
 
 if(!isset($columns['placeholder_values_json'])) {
-	$db->Execute("ALTER TABLE worker_view_model ADD COLUMN placeholder_values_json TEXT");
+	$db->ExecuteMaster("ALTER TABLE worker_view_model ADD COLUMN placeholder_values_json TEXT");
 }
 
 // ===========================================================================
@@ -92,15 +92,15 @@ if(!isset($tables['context_scheduled_behavior'])) {
 list($columns, $indexes) = $db->metaTable('context_scheduled_behavior');
 
 if(!isset($columns['run_relative'])) {
-	$db->Execute("ALTER TABLE context_scheduled_behavior ADD COLUMN run_relative VARCHAR(255) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("ALTER TABLE context_scheduled_behavior ADD COLUMN run_relative VARCHAR(255) NOT NULL DEFAULT ''");
 }
 
 if(!isset($columns['run_literal'])) {
-	$db->Execute("ALTER TABLE context_scheduled_behavior ADD COLUMN run_literal VARCHAR(255) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("ALTER TABLE context_scheduled_behavior ADD COLUMN run_literal VARCHAR(255) NOT NULL DEFAULT ''");
 }
 
 if(!isset($columns['repeat_json'])) {
-	$db->Execute("ALTER TABLE context_scheduled_behavior ADD COLUMN repeat_json TEXT");
+	$db->ExecuteMaster("ALTER TABLE context_scheduled_behavior ADD COLUMN repeat_json TEXT");
 }
 
 // ===========================================================================
@@ -114,10 +114,10 @@ if(!isset($tables['ticket'])) {
 list($columns, $indexes) = $db->metaTable('ticket');
 
 if(!isset($columns['num_messages'])) {
-	$db->Execute("ALTER TABLE ticket ADD COLUMN num_messages INT UNSIGNED NOT NULL DEFAULT 0"); // ~13.5s
-	$db->Execute("CREATE TEMPORARY TABLE _tmp_ticket_msgcount SELECT ticket_id, count(id) AS hits FROM message GROUP BY ticket_id"); // ~0.94s
-	$db->Execute("UPDATE ticket INNER JOIN _tmp_ticket_msgcount ON (ticket.id=_tmp_ticket_msgcount.ticket_id) SET ticket.num_messages=_tmp_ticket_msgcount.hits"); // ~5.93s
-	$db->Execute("DROP TABLE _tmp_ticket_msgcount");
+	$db->ExecuteMaster("ALTER TABLE ticket ADD COLUMN num_messages INT UNSIGNED NOT NULL DEFAULT 0"); // ~13.5s
+	$db->ExecuteMaster("CREATE TEMPORARY TABLE _tmp_ticket_msgcount (PRIMARY KEY (ticket_id)) SELECT ticket_id, count(id) AS hits FROM message GROUP BY ticket_id"); // ~0.94s
+	$db->ExecuteMaster("UPDATE ticket INNER JOIN _tmp_ticket_msgcount ON (ticket.id=_tmp_ticket_msgcount.ticket_id) SET ticket.num_messages=_tmp_ticket_msgcount.hits"); // ~5.93s
+	$db->ExecuteMaster("DROP TABLE _tmp_ticket_msgcount");
 }
 
 // ===========================================================================
@@ -454,7 +454,7 @@ $finished = false;
 
 while(!$finished) {
 	$sql = sprintf("SELECT id, activity_point, actor_context, actor_context_id, entry_json FROM context_activity_log WHERE id > %d LIMIT 5000", $max_id);
-	$rs = $db->Execute($sql);
+	$rs = $db->ExecuteMaster($sql);
 
 	if(mysqli_num_rows($rs) == 0) {
 		$finished = true;
@@ -522,7 +522,7 @@ while(!$finished) {
 					$db->qstr(json_encode($entry)),
 					$row['id']
 				);
-				$db->Execute($sql);
+				$db->ExecuteMaster($sql);
 			}
 		}
 	}
@@ -542,7 +542,7 @@ $url_writer = DevblocksPlatform::getUrlService();
 $url_prefix = $url_writer->write('', true, false);
 
 $sql = sprintf("SELECT id, context, context_id, url FROM notification");
-$rs = $db->Execute($sql);
+$rs = $db->ExecuteMaster($sql);
 
 while($row = mysqli_fetch_assoc($rs)) {
 	$context = $row['context'];
@@ -577,7 +577,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 			$db->qstr($url),
 			$row['id']
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 }
 
@@ -594,7 +594,7 @@ if(!isset($tables['worker_pref'])) {
 list($columns, $indexes) = $db->metaTable('worker_pref');
 
 if(isset($columns['setting'])) {
-	$db->Execute("ALTER TABLE worker_pref MODIFY COLUMN setting VARCHAR(255) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("ALTER TABLE worker_pref MODIFY COLUMN setting VARCHAR(255) NOT NULL DEFAULT ''");
 }
 
 // ===========================================================================
@@ -610,7 +610,7 @@ if(!isset($tables['workspace_page'])) {
 		INDEX owner (owner_context, owner_context_id)
 	) ENGINE=%s", APP_DB_ENGINE);
 
-	if(false === $db->Execute($sql))
+	if(false === $db->ExecuteMaster($sql))
 		return FALSE;
 
 	$tables['workspace_page'] = 'workspace_page';
@@ -625,7 +625,7 @@ if(!isset($tables['workspace']) && !isset($tables['workspace_tab'])) {
 }
 
 if(isset($tables['workspace']) && !isset($tables['workspace_tab'])) {
-	$db->Execute("RENAME TABLE workspace TO workspace_tab");
+	$db->ExecuteMaster("RENAME TABLE workspace TO workspace_tab");
 	
 	unset($tables['workspace']);
 	$tables['workspace_tab'] = 'workspace_tab';
@@ -634,29 +634,29 @@ if(isset($tables['workspace']) && !isset($tables['workspace_tab'])) {
 	
 	// workspace_tab.workspace_page_id
 	if(!isset($columns['workspace_page_id'])) {
-		$db->Execute("ALTER TABLE workspace_tab ADD COLUMN workspace_page_id INT UNSIGNED NOT NULL DEFAULT 0");
+		$db->ExecuteMaster("ALTER TABLE workspace_tab ADD COLUMN workspace_page_id INT UNSIGNED NOT NULL DEFAULT 0");
 	}
 	
 	// workspace_tab.pos
 	if(!isset($columns['pos'])) {
-		$db->Execute("ALTER TABLE workspace_tab ADD COLUMN pos TINYINT UNSIGNED NOT NULL DEFAULT 0");
+		$db->ExecuteMaster("ALTER TABLE workspace_tab ADD COLUMN pos TINYINT UNSIGNED NOT NULL DEFAULT 0");
 	}
 	
 	// migrate workspace_tab.owner_context to workspace_page.owner_context
 	if(isset($columns['owner_context'])) {
 		// Roles
 		
-		$rs = $db->Execute("SELECT DISTINCT worker_role.name AS name, workspace_tab.owner_context, workspace_tab.owner_context_id FROM workspace_tab inner join worker_role ON (workspace_tab.owner_context = 'cerberusweb.contexts.role' and worker_role.id=workspace_tab.owner_context_id)");
+		$rs = $db->ExecuteMaster("SELECT DISTINCT worker_role.name AS name, workspace_tab.owner_context, workspace_tab.owner_context_id FROM workspace_tab inner join worker_role ON (workspace_tab.owner_context = 'cerberusweb.contexts.role' and worker_role.id=workspace_tab.owner_context_id)");
 		
 		while($row = mysqli_fetch_assoc($rs)) {
-			$db->Execute(sprintf("INSERT INTO workspace_page (name, owner_context, owner_context_id) VALUES (%s, %s, %d)",
+			$db->ExecuteMaster(sprintf("INSERT INTO workspace_page (name, owner_context, owner_context_id) VALUES (%s, %s, %d)",
 				$db->qstr($row['name']),
 				$db->qstr($row['owner_context']),
 				$row['owner_context_id']
 			));
 			$workspace_page_id = $db->LastInsertId();
 			
-			$db->Execute(sprintf("UPDATE workspace_tab SET workspace_page_id = %d WHERE owner_context = %s AND owner_context_id = %d",
+			$db->ExecuteMaster(sprintf("UPDATE workspace_tab SET workspace_page_id = %d WHERE owner_context = %s AND owner_context_id = %d",
 				$workspace_page_id,
 				$db->qstr($row['owner_context']),
 				$row['owner_context_id']
@@ -667,17 +667,17 @@ if(isset($tables['workspace']) && !isset($tables['workspace_tab'])) {
 
 		// Groups
 		
-		$rs = $db->Execute("SELECT DISTINCT worker_group.name AS name, workspace_tab.owner_context, workspace_tab.owner_context_id FROM workspace_tab inner join worker_group ON (workspace_tab.owner_context = 'cerberusweb.contexts.group' and worker_group.id=workspace_tab.owner_context_id)");
+		$rs = $db->ExecuteMaster("SELECT DISTINCT worker_group.name AS name, workspace_tab.owner_context, workspace_tab.owner_context_id FROM workspace_tab inner join worker_group ON (workspace_tab.owner_context = 'cerberusweb.contexts.group' and worker_group.id=workspace_tab.owner_context_id)");
 		
 		while($row = mysqli_fetch_assoc($rs)) {
-			$db->Execute(sprintf("INSERT INTO workspace_page (name, owner_context, owner_context_id) VALUES (%s, %s, %d)",
+			$db->ExecuteMaster(sprintf("INSERT INTO workspace_page (name, owner_context, owner_context_id) VALUES (%s, %s, %d)",
 				$db->qstr($row['name']),
 				$db->qstr($row['owner_context']),
 				$row['owner_context_id']
 			));
 			$workspace_page_id = $db->LastInsertId();
 
-			$db->Execute(sprintf("UPDATE workspace_tab SET workspace_page_id = %d WHERE owner_context = %s AND owner_context_id = %d",
+			$db->ExecuteMaster(sprintf("UPDATE workspace_tab SET workspace_page_id = %d WHERE owner_context = %s AND owner_context_id = %d",
 				$workspace_page_id,
 				$db->qstr($row['owner_context']),
 				$row['owner_context_id']
@@ -688,17 +688,17 @@ if(isset($tables['workspace']) && !isset($tables['workspace_tab'])) {
 		
 		// Workers
 		
-		$rs = $db->Execute("SELECT DISTINCT concat(worker.first_name,' ',worker.last_name) AS name, workspace_tab.owner_context, workspace_tab.owner_context_id FROM workspace_tab inner join worker ON (workspace_tab.owner_context = 'cerberusweb.contexts.worker' and worker.id=workspace_tab.owner_context_id)");
+		$rs = $db->ExecuteMaster("SELECT DISTINCT concat(worker.first_name,' ',worker.last_name) AS name, workspace_tab.owner_context, workspace_tab.owner_context_id FROM workspace_tab inner join worker ON (workspace_tab.owner_context = 'cerberusweb.contexts.worker' and worker.id=workspace_tab.owner_context_id)");
 		
 		while($row = mysqli_fetch_assoc($rs)) {
-			$db->Execute(sprintf("INSERT INTO workspace_page (name, owner_context, owner_context_id) VALUES (%s, %s, %d)",
+			$db->ExecuteMaster(sprintf("INSERT INTO workspace_page (name, owner_context, owner_context_id) VALUES (%s, %s, %d)",
 				$db->qstr($row['name']),
 				$db->qstr($row['owner_context']),
 				$row['owner_context_id']
 			));
 			$workspace_page_id = $db->LastInsertId();
 			
-			$db->Execute(sprintf("UPDATE workspace_tab SET workspace_page_id = %d WHERE owner_context = %s AND owner_context_id = %d",
+			$db->ExecuteMaster(sprintf("UPDATE workspace_tab SET workspace_page_id = %d WHERE owner_context = %s AND owner_context_id = %d",
 				$workspace_page_id,
 				$db->qstr($row['owner_context']),
 				$row['owner_context_id']
@@ -708,7 +708,7 @@ if(isset($tables['workspace']) && !isset($tables['workspace_tab'])) {
 		mysqli_free_result($rs);
 		
 		// Drop owner cols
-		$db->Execute("ALTER TABLE workspace_tab DROP COLUMN owner_context, DROP COLUMN owner_context_id");
+		$db->ExecuteMaster("ALTER TABLE workspace_tab DROP COLUMN owner_context, DROP COLUMN owner_context_id");
 	}
 }
 
@@ -723,14 +723,14 @@ if(!isset($tables['workspace_list'])) {
 list($columns, $indexes) = $db->metaTable('workspace_list');
 
 if(isset($columns['workspace_id'])) {
-	$db->Execute("ALTER TABLE workspace_list CHANGE COLUMN workspace_id workspace_tab_id INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("ALTER TABLE workspace_list CHANGE COLUMN workspace_id workspace_tab_id INT UNSIGNED NOT NULL DEFAULT 0");
 }
 
 // ===========================================================================
 // Drop workspace_to_endpoint
 
 if(isset($tables['workspace_to_endpoint'])) {
-	$db->Execute("DROP TABLE workspace_to_endpoint");
+	$db->ExecuteMaster("DROP TABLE workspace_to_endpoint");
 	unset($tables['workspace_to_endpoint']);
 }
 
@@ -745,7 +745,7 @@ if(!isset($tables['workspace_page'])) {
 list($columns, $indexes) = $db->metaTable('workspace_page');
 
 if(!isset($columns['extension_id'])) {
-	$db->Execute("ALTER TABLE workspace_page ADD COLUMN extension_id VARCHAR(255) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("ALTER TABLE workspace_page ADD COLUMN extension_id VARCHAR(255) NOT NULL DEFAULT ''");
 }
 
 // ===========================================================================
@@ -759,24 +759,24 @@ if(!isset($tables['workspace_tab'])) {
 list($columns, $indexes) = $db->metaTable('workspace_tab');
 
 if(!isset($columns['extension_id'])) {
-	$db->Execute("ALTER TABLE workspace_tab ADD COLUMN extension_id VARCHAR(255) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("ALTER TABLE workspace_tab ADD COLUMN extension_id VARCHAR(255) NOT NULL DEFAULT ''");
 }
 
 // ===========================================================================
 // Clear view prefs
 
-$db->Execute("DELETE FROM worker_view_model where view_id LIKE 'activity_%'");
-$db->Execute("DELETE FROM worker_view_model where view_id LIKE 'cerberuswebcontact%'");
-$db->Execute("DELETE FROM worker_view_model where view_id LIKE 'cerberuswebprofiles%'");
-$db->Execute("DELETE FROM worker_view_model where view_id LIKE 'datacenter_%'");
-$db->Execute("DELETE FROM worker_view_model where view_id = 'contact_history'");
-$db->Execute("DELETE FROM worker_view_model where view_id = 'contact_person_addresses'");
-$db->Execute("DELETE FROM worker_view_model where view_id = 'display_kb_search'");
-$db->Execute("DELETE FROM worker_view_model where view_id = 'mail_workflow'");
-$db->Execute("DELETE FROM worker_view_model where view_id = 'org_contacts'");
-$db->Execute("DELETE FROM worker_view_model where view_id = 'org_opps'");
-$db->Execute("DELETE FROM worker_view_model where view_id = 'search'");
-$db->Execute("DELETE FROM worker_view_model where view_id = 'ticket_opps'");
-$db->Execute("DELETE FROM worker_view_model where view_id = 'wgmcerb5_licensestab'");
+$db->ExecuteMaster("DELETE FROM worker_view_model where view_id LIKE 'activity_%'");
+$db->ExecuteMaster("DELETE FROM worker_view_model where view_id LIKE 'cerberuswebcontact%'");
+$db->ExecuteMaster("DELETE FROM worker_view_model where view_id LIKE 'cerberuswebprofiles%'");
+$db->ExecuteMaster("DELETE FROM worker_view_model where view_id LIKE 'datacenter_%'");
+$db->ExecuteMaster("DELETE FROM worker_view_model where view_id = 'contact_history'");
+$db->ExecuteMaster("DELETE FROM worker_view_model where view_id = 'contact_person_addresses'");
+$db->ExecuteMaster("DELETE FROM worker_view_model where view_id = 'display_kb_search'");
+$db->ExecuteMaster("DELETE FROM worker_view_model where view_id = 'mail_workflow'");
+$db->ExecuteMaster("DELETE FROM worker_view_model where view_id = 'org_contacts'");
+$db->ExecuteMaster("DELETE FROM worker_view_model where view_id = 'org_opps'");
+$db->ExecuteMaster("DELETE FROM worker_view_model where view_id = 'search'");
+$db->ExecuteMaster("DELETE FROM worker_view_model where view_id = 'ticket_opps'");
+$db->ExecuteMaster("DELETE FROM worker_view_model where view_id = 'wgmcerb5_licensestab'");
 
 return TRUE;

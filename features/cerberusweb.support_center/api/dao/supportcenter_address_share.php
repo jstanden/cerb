@@ -18,7 +18,7 @@ class DAO_SupportCenterAddressShare extends DevblocksORMHelper {
 			$contact_id,
 			$contact_id
 		);
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		if($rs instanceof mysqli_result)
 		while($row = mysqli_fetch_array($rs)) {
@@ -52,7 +52,7 @@ class DAO_SupportCenterAddressShare extends DevblocksORMHelper {
 				$with_address_id,
 				0
 			);
-			$db->Execute($sql);
+			$db->ExecuteMaster($sql);
 		}
 		
 		return TRUE;
@@ -71,7 +71,7 @@ class DAO_SupportCenterAddressShare extends DevblocksORMHelper {
 			implode(',', $address_ids),
 			($only_enabled ? sprintf("AND sas.is_enabled=1 ") : "")
 		);
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::getObjectsFromResultSet($rs);
 	}
@@ -89,7 +89,7 @@ class DAO_SupportCenterAddressShare extends DevblocksORMHelper {
 			implode(',', $address_ids),
 			($only_enabled ? sprintf("AND sas.is_enabled=1 ") : "")
 		);
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::getObjectsFromResultSet($rs);
 	}
@@ -127,7 +127,7 @@ class DAO_SupportCenterAddressShare extends DevblocksORMHelper {
 			$share_id,
 			implode(',', $share_with_ids)
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 	
 	public static function delete($share_id, $with_id) {
@@ -139,14 +139,14 @@ class DAO_SupportCenterAddressShare extends DevblocksORMHelper {
 			$share_id,
 			$with_id
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 	
 	public static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		// Clear orphaned address share rows
-		$db->Execute("DELETE FROM supportcenter_address_share ".
+		$db->ExecuteMaster("DELETE FROM supportcenter_address_share ".
 			"WHERE (share_address_id NOT IN (SELECT id FROM address WHERE contact_person_id != 0)) ".
 			"OR (with_address_id NOT IN (SELECT id FROM address WHERE contact_person_id != 0)) "
 		);

@@ -14,9 +14,9 @@ if(!isset($tables['custom_field'])) {
 list($columns, $indexes) = $db->metaTable('custom_field');
 
 if(!isset($columns['params_json'])) {
-	$db->Execute("ALTER TABLE custom_field ADD COLUMN params_json TEXT AFTER pos");
+	$db->ExecuteMaster("ALTER TABLE custom_field ADD COLUMN params_json TEXT AFTER pos");
 	
-	$results = $db->GetArray("SELECT id, options FROM custom_field WHERE options != ''");
+	$results = $db->GetArrayMaster("SELECT id, options FROM custom_field WHERE options != ''");
 	
 	foreach($results as $result) {
 		$params = array(
@@ -24,7 +24,7 @@ if(!isset($columns['params_json'])) {
 		);
 		
 		// Migrate the `options` field on `custom_field` to `params_json`
-		$db->Execute(sprintf("UPDATE custom_field SET params_json = %s WHERE id = %d",
+		$db->ExecuteMaster(sprintf("UPDATE custom_field SET params_json = %s WHERE id = %d",
 			$db->qstr(json_encode($params)),
 			$result['id']
 		));
@@ -33,7 +33,7 @@ if(!isset($columns['params_json'])) {
 
 // Drop the `options` field on `custom_field`
 if(isset($columns['options'])) {
-	$db->Execute("ALTER TABLE custom_field DROP COLUMN options");
+	$db->ExecuteMaster("ALTER TABLE custom_field DROP COLUMN options");
 }
 
 // ===========================================================================
@@ -47,19 +47,19 @@ if(!isset($tables['attachment'])) {
 list($columns, $indexes) = $db->metaTable('attachment');
 
 if(!isset($columns['storage_sha1hash'])) {
-	$db->Execute("ALTER TABLE attachment ADD COLUMN storage_sha1hash VARCHAR(40) DEFAULT '', ADD INDEX storage_sha1hash (storage_sha1hash(4))");
+	$db->ExecuteMaster("ALTER TABLE attachment ADD COLUMN storage_sha1hash VARCHAR(40) DEFAULT '', ADD INDEX storage_sha1hash (storage_sha1hash(4))");
 }
 
 // ===========================================================================
 // Fix S3 namespace prefixes in storage keys
 
-$db->Execute("UPDATE attachment SET storage_key = REPLACE(storage_key, 'attachments/', '') WHERE storage_extension = 'devblocks.storage.engine.s3'");
-$db->Execute("UPDATE message SET storage_key = REPLACE(storage_key, 'message_content/', '') WHERE storage_extension = 'devblocks.storage.engine.s3'");
+$db->ExecuteMaster("UPDATE attachment SET storage_key = REPLACE(storage_key, 'attachments/', '') WHERE storage_extension = 'devblocks.storage.engine.s3'");
+$db->ExecuteMaster("UPDATE message SET storage_key = REPLACE(storage_key, 'message_content/', '') WHERE storage_extension = 'devblocks.storage.engine.s3'");
 
 // ===========================================================================
 // Clean up missing scheduled behaviors
 
-$db->Execute("DELETE context_scheduled_behavior FROM context_scheduled_behavior LEFT JOIN trigger_event ON (trigger_event.id=context_scheduled_behavior.behavior_id) WHERE trigger_event.id IS NULL");
+$db->ExecuteMaster("DELETE context_scheduled_behavior FROM context_scheduled_behavior LEFT JOIN trigger_event ON (trigger_event.id=context_scheduled_behavior.behavior_id) WHERE trigger_event.id IS NULL");
 
 // ===========================================================================
 // mail_html_template
@@ -77,12 +77,12 @@ if(!isset($tables['mail_html_template'])) {
 			INDEX owner (owner_context, owner_context_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['mail_html_template'] = 'mail_html_template';
 
 	// Insert a default HTML template
-	$db->Execute(sprintf("INSERT INTO mail_html_template (name, updated_at, owner_context, owner_context_id, content) VALUES (%s, %d, %s, %d, %s)",
+	$db->ExecuteMaster(sprintf("INSERT INTO mail_html_template (name, updated_at, owner_context, owner_context_id, content) VALUES (%s, %d, %s, %d, %s)",
 		$db->qstr('Default'),
 		time(),
 		$db->qstr('cerberusweb.contexts.app'),
@@ -102,7 +102,7 @@ if(!isset($tables['worker_group'])) {
 list($columns, $indexes) = $db->metaTable('worker_group');
 
 if(!isset($columns['reply_html_template_id'])) {
-	$db->Execute("ALTER TABLE worker_group ADD COLUMN reply_html_template_id INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("ALTER TABLE worker_group ADD COLUMN reply_html_template_id INT UNSIGNED NOT NULL DEFAULT 0");
 }
 
 // ===========================================================================
@@ -116,7 +116,7 @@ if(!isset($tables['bucket'])) {
 list($columns, $indexes) = $db->metaTable('bucket');
 
 if(!isset($columns['reply_html_template_id'])) {
-	$db->Execute("ALTER TABLE bucket ADD COLUMN reply_html_template_id INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("ALTER TABLE bucket ADD COLUMN reply_html_template_id INT UNSIGNED NOT NULL DEFAULT 0");
 }
 
 // ===========================================================================
@@ -130,11 +130,11 @@ if(!isset($tables['address_outgoing'])) {
 list($columns, $indexes) = $db->metaTable('address_outgoing');
 
 if(!isset($columns['reply_html_template_id'])) {
-	$db->Execute("ALTER TABLE address_outgoing ADD COLUMN reply_html_template_id INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("ALTER TABLE address_outgoing ADD COLUMN reply_html_template_id INT UNSIGNED NOT NULL DEFAULT 0");
 	
 	// Add the default HTML template to the default reply-to addy
-	if(false != ($default_html_template_id = $db->GetOne("SELECT id FROM mail_html_template WHERE name = 'Default'"))) {
-		$db->Execute(sprintf("UPDATE address_outgoing SET reply_html_template_id = %d WHERE is_default = 1", $default_html_template_id));
+	if(false != ($default_html_template_id = $db->GetOneMaster("SELECT id FROM mail_html_template WHERE name = 'Default'"))) {
+		$db->ExecuteMaster(sprintf("UPDATE address_outgoing SET reply_html_template_id = %d WHERE is_default = 1", $default_html_template_id));
 	}
 }
 
@@ -149,24 +149,24 @@ if(!isset($tables['snippet'])) {
 list($columns, $indexes) = $db->metaTable('snippet');
 
 if(!isset($columns['updated_at'])) {
-	$db->Execute("ALTER TABLE snippet ADD COLUMN updated_at INT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX updated_at (updated_at)");
-	$db->Execute("UPDATE snippet SET updated_at = UNIX_TIMESTAMP()");
+	$db->ExecuteMaster("ALTER TABLE snippet ADD COLUMN updated_at INT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX updated_at (updated_at)");
+	$db->ExecuteMaster("UPDATE snippet SET updated_at = UNIX_TIMESTAMP()");
 }
 
 // ===========================================================================
 // Reset Search->Snippet worklists to fix an issue with old cached filters
 
-$db->Execute("DELETE FROM worker_view_model WHERE view_id = 'search_cerberusweb_contexts_snippet'");
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id = 'search_cerberusweb_contexts_snippet'");
 
 // ===========================================================================
 // Convert old built-in mail header conditions to the newer variation
 
 // Ticket events
-$db->Execute("UPDATE decision_node SET params_json = REPLACE(params_json, '\"condition\":\"ticket_initial_message_header\"', '\"condition\":\"ticket_initial_message_headers\"') WHERE node_type = 'outcome' AND trigger_id in (SELECT id FROM trigger_event WHERE event_point IN ('event.comment.ticket.group','event.macro.ticket','event.ticket.viewed.worker','event.mail.assigned.group','event.mail.closed.group','event.mail.moved.group'))");
-$db->Execute("UPDATE decision_node SET params_json = REPLACE(params_json, '\"condition\":\"ticket_latest_message_header\"', '\"condition\":\"ticket_latest_message_headers\"') WHERE node_type = 'outcome' AND trigger_id in (SELECT id FROM trigger_event WHERE event_point IN ('event.comment.ticket.group','event.macro.ticket','event.ticket.viewed.worker','event.mail.assigned.group','event.mail.closed.group','event.mail.moved.group'))");
+$db->ExecuteMaster("UPDATE decision_node SET params_json = REPLACE(params_json, '\"condition\":\"ticket_initial_message_header\"', '\"condition\":\"ticket_initial_message_headers\"') WHERE node_type = 'outcome' AND trigger_id in (SELECT id FROM trigger_event WHERE event_point IN ('event.comment.ticket.group','event.macro.ticket','event.ticket.viewed.worker','event.mail.assigned.group','event.mail.closed.group','event.mail.moved.group'))");
+$db->ExecuteMaster("UPDATE decision_node SET params_json = REPLACE(params_json, '\"condition\":\"ticket_latest_message_header\"', '\"condition\":\"ticket_latest_message_headers\"') WHERE node_type = 'outcome' AND trigger_id in (SELECT id FROM trigger_event WHERE event_point IN ('event.comment.ticket.group','event.macro.ticket','event.ticket.viewed.worker','event.mail.assigned.group','event.mail.closed.group','event.mail.moved.group'))");
 
 // Message events
-$db->Execute("UPDATE decision_node SET params_json = REPLACE(params_json, '\"condition\":\"header\"', '\"condition\":\"headers\"') WHERE node_type = 'outcome' AND trigger_id IN (SELECT id FROM trigger_event WHERE event_point IN ('event.mail.after.sent','event.mail.after.sent.group','event.mail.received.group','event.mail.reply.pre.ui.worker','event.mail.reply.during.ui.worker'))");
+$db->ExecuteMaster("UPDATE decision_node SET params_json = REPLACE(params_json, '\"condition\":\"header\"', '\"condition\":\"headers\"') WHERE node_type = 'outcome' AND trigger_id IN (SELECT id FROM trigger_event WHERE event_point IN ('event.mail.after.sent','event.mail.after.sent.group','event.mail.received.group','event.mail.reply.pre.ui.worker','event.mail.reply.during.ui.worker'))");
 
 // ===========================================================================
 // Finish up

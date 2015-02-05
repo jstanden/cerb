@@ -33,7 +33,7 @@ class DAO_Notification extends DevblocksORMHelper {
 		$sql = sprintf("INSERT INTO notification () ".
 			"VALUES ()"
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
@@ -109,7 +109,7 @@ class DAO_Notification extends DevblocksORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 
 		$objects = self::_getObjectsFromResult($rs);
 
@@ -175,7 +175,7 @@ class DAO_Notification extends DevblocksORMHelper {
 				$worker_id
 			);
 			
-			$count = intval($db->GetOne($sql));
+			$count = intval($db->GetOneSlave($sql));
 			$cache->save($count, self::CACHE_COUNT_PREFIX.$worker_id);
 		}
 		
@@ -218,7 +218,7 @@ class DAO_Notification extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM notification WHERE id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM notification WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -244,7 +244,7 @@ class DAO_Notification extends DevblocksORMHelper {
 			
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute(sprintf("DELETE FROM notification WHERE context = %s AND context_id IN (%s) ",
+		$db->ExecuteMaster(sprintf("DELETE FROM notification WHERE context = %s AND context_id IN (%s) ",
 			$db->qstr($context),
 			implode(',', $context_ids)
 		));
@@ -256,7 +256,7 @@ class DAO_Notification extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$db->Execute("DELETE FROM notification WHERE is_read = 1");
+		$db->ExecuteMaster("DELETE FROM notification WHERE is_read = 1");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' notification records.');
 		
 		// Fire event
@@ -363,7 +363,7 @@ class DAO_Notification extends DevblocksORMHelper {
 		if($limit > 0) {
 			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		} else {
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			$total = mysqli_num_rows($rs);
 		}
 		
@@ -383,7 +383,7 @@ class DAO_Notification extends DevblocksORMHelper {
 					($has_multiple_values ? "SELECT COUNT(DISTINCT we.id) " : "SELECT COUNT(we.id) ").
 					$join_sql.
 					$where_sql;
-				$total = $db->GetOne($count_sql);
+				$total = $db->GetOneSlave($count_sql);
 			}
 		}
 		

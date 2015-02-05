@@ -16,7 +16,7 @@ if(!isset($tables['feedback_entry'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 	
 	$tables['feedback_entry'] = 'feedback_entry';
 }
@@ -24,26 +24,26 @@ if(!isset($tables['feedback_entry'])) {
 list($columns, $indexes) = $db->metaTable('feedback_entry');
 
 if(!isset($columns['source_url'])) {
-	$db->Execute("ALTER TABLE feedback_entry ADD COLUMN source_url VARCHAR(255) DEFAULT '' NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE feedback_entry ADD COLUMN source_url VARCHAR(255) DEFAULT '' NOT NULL");
 }
 
 if(!isset($indexes['log_date'])) {
-	$db->Execute('ALTER TABLE feedback_entry ADD INDEX log_date (log_date)');
+	$db->ExecuteMaster('ALTER TABLE feedback_entry ADD INDEX log_date (log_date)');
 }
 if(!isset($indexes['list_id'])) {
-	$db->Execute('ALTER TABLE feedback_entry ADD INDEX list_id (list_id)');
+	$db->ExecuteMaster('ALTER TABLE feedback_entry ADD INDEX list_id (list_id)');
 }
 
 if(!isset($indexes['worker_id'])) {
-	$db->Execute('ALTER TABLE feedback_entry ADD INDEX worker_id (worker_id)');
+	$db->ExecuteMaster('ALTER TABLE feedback_entry ADD INDEX worker_id (worker_id)');
 }
 
 if(!isset($indexes['quote_address_id'])) {
-	$db->Execute('ALTER TABLE feedback_entry ADD INDEX quote_address_id (quote_address_id)');
+	$db->ExecuteMaster('ALTER TABLE feedback_entry ADD INDEX quote_address_id (quote_address_id)');
 }
 
 if(!isset($indexes['quote_mood'])) {
-	$db->Execute('ALTER TABLE feedback_entry ADD INDEX quote_mood (quote_mood)');
+	$db->ExecuteMaster('ALTER TABLE feedback_entry ADD INDEX quote_mood (quote_mood)');
 }
 
 // `feedback_list` ========================
@@ -55,16 +55,16 @@ if(!isset($tables['feedback_list'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 	
 	$tables['feedback_list'] = 'feedback_list';
 }
 
 // ===========================================================================
 // Ophaned feedback_entry custom fields
-$db->Execute("DELETE custom_field_stringvalue FROM custom_field_stringvalue LEFT JOIN feedback_entry ON (feedback_entry.id=custom_field_stringvalue.source_id) WHERE custom_field_stringvalue.source_extension = 'feedback.fields.source.feedback_entry' AND feedback_entry.id IS NULL");
-$db->Execute("DELETE custom_field_numbervalue FROM custom_field_numbervalue LEFT JOIN feedback_entry ON (feedback_entry.id=custom_field_numbervalue.source_id) WHERE custom_field_numbervalue.source_extension = 'feedback.fields.source.feedback_entry' AND feedback_entry.id IS NULL");
-$db->Execute("DELETE custom_field_clobvalue FROM custom_field_clobvalue LEFT JOIN feedback_entry ON (feedback_entry.id=custom_field_clobvalue.source_id) WHERE custom_field_clobvalue.source_extension = 'feedback.fields.source.feedback_entry' AND feedback_entry.id IS NULL");
+$db->ExecuteMaster("DELETE custom_field_stringvalue FROM custom_field_stringvalue LEFT JOIN feedback_entry ON (feedback_entry.id=custom_field_stringvalue.source_id) WHERE custom_field_stringvalue.source_extension = 'feedback.fields.source.feedback_entry' AND feedback_entry.id IS NULL");
+$db->ExecuteMaster("DELETE custom_field_numbervalue FROM custom_field_numbervalue LEFT JOIN feedback_entry ON (feedback_entry.id=custom_field_numbervalue.source_id) WHERE custom_field_numbervalue.source_extension = 'feedback.fields.source.feedback_entry' AND feedback_entry.id IS NULL");
+$db->ExecuteMaster("DELETE custom_field_clobvalue FROM custom_field_clobvalue LEFT JOIN feedback_entry ON (feedback_entry.id=custom_field_clobvalue.source_id) WHERE custom_field_clobvalue.source_extension = 'feedback.fields.source.feedback_entry' AND feedback_entry.id IS NULL");
 
 // ===========================================================================
 // Migrate the Feedback.List to a custom field
@@ -75,7 +75,7 @@ if(isset($tables['feedback_entry'])) {
 		// Load the campaign hash
 		$lists = array();
 		$sql = "SELECT id, name FROM feedback_list ORDER BY name";
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteMaster($sql);
 		while($row = mysqli_fetch_assoc($rs)) {
 			$lists[$row['id']] = $row['name'];
 		}
@@ -89,7 +89,7 @@ if(isset($tables['feedback_entry'])) {
 				$db->qstr(implode("\n",$lists)),
 				$db->qstr('feedback.fields.source.feedback_entry')
 			);
-			$db->Execute($sql);
+			$db->ExecuteMaster($sql);
 			$field_id = $db->LastInsertId();
 			
 			// Populate the custom field from opp records
@@ -98,16 +98,16 @@ if(isset($tables['feedback_entry'])) {
 				$field_id,
 				$db->qstr('feedback.fields.source.feedback_entry')
 			);
-			$db->Execute($sql);
+			$db->ExecuteMaster($sql);
 		}
 		
-		$db->Execute('ALTER TABLE feedback_entry DROP COLUMN list_id');
+		$db->ExecuteMaster('ALTER TABLE feedback_entry DROP COLUMN list_id');
 	}
 }
 
 // Drop the feedback_list table
 if(isset($tables['feedback_list'])) {
-	$db->Execute('DROP TABLE feedback_list');
+	$db->ExecuteMaster('DROP TABLE feedback_list');
 }
 
 return TRUE;

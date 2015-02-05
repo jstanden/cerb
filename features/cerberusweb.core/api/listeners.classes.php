@@ -901,7 +901,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		// ===========================================================================
 		// Attachment links
 
-		$db->Execute(sprintf("DELETE FROM attachment_link WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
+		$db->ExecuteMaster(sprintf("DELETE FROM attachment_link WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
 			$db->qstr($context),
 			$db->escape($context_index),
 			$db->escape($context_table)
@@ -913,7 +913,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		// Comments
 		
 		if($context != CerberusContexts::CONTEXT_COMMENT) {
-			$db->Execute(sprintf("DELETE FROM comment WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
+			$db->ExecuteMaster(sprintf("DELETE FROM comment WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
 				$db->qstr($context),
 				$db->escape($context_index),
 				$db->escape($context_table)
@@ -926,7 +926,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		// ===========================================================================
 		// Context Activity Log
 
-		$db->Execute(sprintf("DELETE FROM context_activity_log WHERE target_context = %s AND target_context_id NOT IN (SELECT %s FROM %s)",
+		$db->ExecuteMaster(sprintf("DELETE FROM context_activity_log WHERE target_context = %s AND target_context_id NOT IN (SELECT %s FROM %s)",
 			$db->qstr($context),
 			$db->escape($context_index),
 			$db->escape($context_table)
@@ -937,7 +937,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		// ===========================================================================
 		// Context Links
 		
-		$db->Execute(sprintf("DELETE FROM context_link WHERE from_context = %s AND from_context_id NOT IN (SELECT %s FROM %s)",
+		$db->ExecuteMaster(sprintf("DELETE FROM context_link WHERE from_context = %s AND from_context_id NOT IN (SELECT %s FROM %s)",
 			$db->qstr($context),
 			$db->escape($context_index),
 			$db->escape($context_table)
@@ -945,7 +945,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		if(null != ($deletes = $db->Affected_Rows()))
 			$logger->info(sprintf("Purged %d %s context link sources.", $deletes, $context));
 		
-		$db->Execute(sprintf("DELETE FROM context_link WHERE to_context = %s AND to_context_id NOT IN (SELECT %s FROM %s)",
+		$db->ExecuteMaster(sprintf("DELETE FROM context_link WHERE to_context = %s AND to_context_id NOT IN (SELECT %s FROM %s)",
 			$db->qstr($context),
 			$db->escape($context_index),
 			$db->escape($context_table)
@@ -956,7 +956,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		// ===========================================================================
 		// Custom fields
 		
-		$db->Execute(sprintf("DELETE FROM custom_field_stringvalue WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
+		$db->ExecuteMaster(sprintf("DELETE FROM custom_field_stringvalue WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
 			$db->qstr($context),
 			$db->escape($context_index),
 			$db->escape($context_table)
@@ -964,7 +964,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		if(null != ($deletes = $db->Affected_Rows()))
 			$logger->info(sprintf("Purged %d %s custom field strings.", $deletes, $context));
 		
-		$db->Execute(sprintf("DELETE FROM custom_field_numbervalue WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
+		$db->ExecuteMaster(sprintf("DELETE FROM custom_field_numbervalue WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
 			$db->qstr($context),
 			$db->escape($context_index),
 			$db->escape($context_table)
@@ -972,7 +972,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		if(null != ($deletes = $db->Affected_Rows()))
 			$logger->info(sprintf("Purged %d %s custom field numbers.", $deletes, $context));
 		
-		$db->Execute(sprintf("DELETE FROM custom_field_clobvalue WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
+		$db->ExecuteMaster(sprintf("DELETE FROM custom_field_clobvalue WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
 			$db->qstr($context),
 			$db->escape($context_index),
 			$db->escape($context_table)
@@ -984,7 +984,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		// Notifications
 		
 		if($context != CerberusContexts::CONTEXT_NOTIFICATION) {
-			$db->Execute(sprintf("DELETE FROM notification WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
+			$db->ExecuteMaster(sprintf("DELETE FROM notification WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
 				$db->qstr($context),
 				$db->escape($context_index),
 				$db->escape($context_table)
@@ -998,7 +998,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		// Virtual Attendants
 		
 		if($context != CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT) {
-			$rs = $db->Execute(sprintf("SELECT id FROM virtual_attendant WHERE owner_context = %s AND owner_context_id NOT IN (SELECT %s FROM %s)",
+			$rs = $db->ExecuteSlave(sprintf("SELECT id FROM virtual_attendant WHERE owner_context = %s AND owner_context_id NOT IN (SELECT %s FROM %s)",
 				$db->qstr($context),
 				$db->escape($context_index),
 				$db->escape($context_table)

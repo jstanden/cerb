@@ -7,7 +7,7 @@ class ChReportTimeSpentActivity extends Extension_Report {
 		$date = DevblocksPlatform::getDateService();
 		
 		// Use the worker's timezone for MySQL date functions
-		$db->Execute(sprintf("SET time_zone = %s", $db->qstr($date->formatTime('P', time()))));
+		$db->ExecuteSlave(sprintf("SET time_zone = %s", $db->qstr($date->formatTime('P', time()))));
 		
 		// Filters
 		
@@ -162,7 +162,7 @@ class ChReportTimeSpentActivity extends Extension_Report {
 			$end_time,
 			(is_array($filter_worker_ids) && !empty($filter_worker_ids) ? sprintf("AND tte.worker_id IN (%s)", implode(',', $filter_worker_ids)) : "")
 		);
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		$data = array();
 		$activities = array();

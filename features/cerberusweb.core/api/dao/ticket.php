@@ -81,7 +81,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT t.id FROM ticket t WHERE t.mask = %s",
 			$db->qstr($mask)
 		);
-		$ticket_id = $db->GetOne($sql);
+		$ticket_id = $db->GetOneSlave($sql);
 
 		// If we found a hit on a ticket record, return the ID
 		if(!empty($ticket_id)) {
@@ -92,7 +92,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$sql = sprintf("SELECT new_ticket_id FROM ticket_mask_forward WHERE old_mask = %s",
 				$db->qstr($mask)
 			);
-			$ticket_id = $db->GetOne($sql);
+			$ticket_id = $db->GetOneSlave($sql);
 			
 			if(!empty($ticket_id))
 				return $ticket_id;
@@ -109,7 +109,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$db->qstr($old_mask)
 		);
 		
-		$new_mask = $db->GetOne($sql);
+		$new_mask = $db->GetOneSlave($sql);
 		
 		if(empty($new_mask))
 			return null;
@@ -160,7 +160,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			"WHERE mh.header_name = 'message-id' AND mh.header_value = %s",
 			$db->qstr($message_id)
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		if($row = mysqli_fetch_assoc($rs)) {
 			$ticket_id = intval($row['ticket_id']);
@@ -266,7 +266,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			time(),
 			time()
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields, false);
@@ -278,14 +278,14 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$db->Execute("DELETE FROM ticket_mask_forward WHERE new_ticket_id NOT IN (SELECT id FROM ticket)");
+		$db->ExecuteMaster("DELETE FROM ticket_mask_forward WHERE new_ticket_id NOT IN (SELECT id FROM ticket)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' ticket_mask_forward records.');
 
-		$db->Execute("DELETE FROM requester WHERE ticket_id NOT IN (SELECT id FROM ticket)");
+		$db->ExecuteMaster("DELETE FROM requester WHERE ticket_id NOT IN (SELECT id FROM ticket)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' requester records.');
 		
 		// Recover any tickets assigned to a NULL bucket
-		$db->Execute("UPDATE ticket SET bucket_id = 0 WHERE bucket_id != 0 AND bucket_id NOT IN (SELECT id FROM bucket)");
+		$db->ExecuteMaster("UPDATE ticket SET bucket_id = 0 WHERE bucket_id != 0 AND bucket_id NOT IN (SELECT id FROM bucket)");
 		$logger->info('[Maint] Fixed ' . $db->Affected_Rows() . ' tickets in missing buckets.');
 		
 		// Fire event
@@ -336,14 +336,14 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				$oldest_id,
 				implode(',', $merge_ticket_ids)
 			);
-			$db->Execute($sql);
+			$db->ExecuteMaster($sql);
 			
 			// Mail queue
 			$sql = sprintf("UPDATE mail_queue SET ticket_id = %d WHERE ticket_id IN (%s)",
 				$oldest_id,
 				implode(',', $merge_ticket_ids)
 			);
-			$db->Execute($sql);
+			$db->ExecuteMaster($sql);
 			
 			// Requesters (merge)
 			$sql = sprintf("INSERT IGNORE INTO requester (address_id, ticket_id) ".
@@ -351,51 +351,51 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				$oldest_id,
 				implode(',', $merge_ticket_ids)
 			);
-			$db->Execute($sql);
+			$db->ExecuteMaster($sql);
 			
 			$sql = sprintf("DELETE FROM requester WHERE ticket_id IN (%s)",
 				implode(',', $merge_ticket_ids)
 			);
-			$db->Execute($sql);
+			$db->ExecuteMaster($sql);
 
 			// Context Links
 			
-			$db->Execute(sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+			$db->ExecuteMaster(sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
 				"SELECT 'cerberusweb.contexts.ticket', %d, to_context, to_context_id ".
 				"FROM context_link WHERE from_context = 'cerberusweb.contexts.ticket' AND from_context_id IN (%s)",
 				$oldest_id,
 				implode(',', $merge_ticket_ids)
 			));
 			
-			$db->Execute(sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+			$db->ExecuteMaster(sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
 				"SELECT from_context, from_context_id, 'cerberusweb.contexts.ticket', %d ".
 				"FROM context_link WHERE to_context = 'cerberusweb.contexts.ticket' AND to_context_id IN (%s)",
 				$oldest_id,
 				implode(',', $merge_ticket_ids)
 			));
 			
-			$db->Execute(sprintf("DELETE FROM context_link ".
+			$db->ExecuteMaster(sprintf("DELETE FROM context_link ".
 				"WHERE (from_context = 'cerberusweb.contexts.ticket' AND from_context_id IN (%s)) ".
 				"OR (to_context = 'cerberusweb.contexts.ticket' AND to_context_id IN (%s))",
 				implode(',', $merge_ticket_ids),
 				implode(',', $merge_ticket_ids)
 			));
 			
-			$db->Execute(sprintf("DELETE FROM context_link WHERE from_context=to_context AND from_context_id=to_context_id ".
+			$db->ExecuteMaster(sprintf("DELETE FROM context_link WHERE from_context=to_context AND from_context_id=to_context_id ".
 				"AND from_context = 'cerberusweb.contexts.ticket' AND from_context_id = %d",
 				$oldest_id
 			));
 			
 			// Activity log
 			
-			$db->Execute(sprintf("UPDATE IGNORE context_activity_log ".
+			$db->ExecuteMaster(sprintf("UPDATE IGNORE context_activity_log ".
 				"SET target_context_id = %d ".
 				"WHERE target_context = 'cerberusweb.contexts.ticket' AND target_context_id IN (%s) ",
 				$oldest_id,
 				implode(',', $merge_ticket_ids)
 			));
 			
-			$db->Execute(sprintf("DELETE FROM context_activity_log ".
+			$db->ExecuteMaster(sprintf("DELETE FROM context_activity_log ".
 				"WHERE target_context = 'cerberusweb.contexts.ticket' AND target_context_id IN (%s) ",
 				implode(',', $merge_ticket_ids)
 			));
@@ -407,7 +407,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				$db->qstr(CerberusContexts::CONTEXT_TICKET),
 				implode(',', $merge_ticket_ids)
 			);
-			$db->Execute($sql);
+			$db->ExecuteMaster($sql);
 			
 			// Comments
 			
@@ -416,7 +416,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				$db->qstr(CerberusContexts::CONTEXT_TICKET),
 				implode(',', $merge_ticket_ids)
 			);
-			$db->Execute($sql);
+			$db->ExecuteMaster($sql);
 			
 			// Clear old ticket meta
 			$fields = array(
@@ -483,7 +483,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					$db->qstr($new_mask),
 					$oldest_id
 				);
-				$db->Execute($sql);
+				$db->ExecuteMaster($sql);
 				
 				// If the old mask was a new_mask in a past life, change to its new destination
 				$sql = sprintf("UPDATE ticket_mask_forward SET new_mask = %s, new_ticket_id = %d WHERE new_mask = %s",
@@ -491,7 +491,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					$oldest_id,
 					$db->qstr($ticket[SearchFields_Ticket::TICKET_MASK])
 				);
-				$db->Execute($sql);
+				$db->ExecuteMaster($sql);
 			}
 			
 			if(is_array($merged_tickets))
@@ -579,7 +579,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 
 		// Reindex the earliest close date from activity log
 		$sql = sprintf("SELECT MIN(created) FROM context_activity_log WHERE activity_point = 'ticket.status.closed' AND target_context = 'cerberusweb.contexts.ticket' AND target_context_id = %d", $id);
-		$closed_at = intval($db->GetOne($sql));
+		$closed_at = intval($db->GetOneMaster($sql));
 		$fields[DAO_Ticket::CLOSED_AT] = $closed_at;
 		
 		if(!empty($closed_at))
@@ -626,7 +626,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_createObjectsFromResultSet($rs);
 	}
@@ -944,7 +944,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	static function updateMessageCount($id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute(sprintf("UPDATE ticket ".
+		$db->ExecuteMaster(sprintf("UPDATE ticket ".
 			"SET num_messages = (SELECT count(id) FROM message WHERE message.ticket_id = ticket.id) ".
 			"WHERE ticket.id = %d",
 			$id
@@ -966,7 +966,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			"ORDER BY a.email ASC ",
 			$ticket_id
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		 
 		while($row = mysqli_fetch_assoc($rs)) {
 			$address = new Model_Address();
@@ -1073,7 +1073,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			}
 		}
 		
-		$db->Execute(sprintf("REPLACE INTO requester (address_id, ticket_id) ".
+		$db->ExecuteMaster(sprintf("REPLACE INTO requester (address_id, ticket_id) ".
 			"VALUES (%d, %d)",
 			$address->id,
 			$ticket_id
@@ -1092,7 +1092,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$id,
 			$address_id
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
 	static function analyze($params, $limit=15, $mode="senders", $mode_param=null) { // or "subjects"
@@ -1511,7 +1511,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					$db = DevblocksPlatform::getDatabaseService();
 					$temp_table = sprintf("_tmp_%s", uniqid());
 					
-					$db->Execute(sprintf("CREATE TEMPORARY TABLE %s SELECT DISTINCT context_id AS id FROM comment INNER JOIN %s ON (%s.id=comment.id)",
+					$db->ExecuteSlave(sprintf("CREATE TEMPORARY TABLE %s (PRIMARY KEY (id)) SELECT DISTINCT context_id AS id FROM comment INNER JOIN %s ON (%s.id=comment.id)",
 						$temp_table,
 						$ids,
 						$ids
@@ -1568,7 +1568,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					$db = DevblocksPlatform::getDatabaseService();
 					$temp_table = sprintf("_tmp_%s", uniqid());
 					
-					$db->Execute(sprintf("CREATE TEMPORARY TABLE %s SELECT DISTINCT context_id AS id FROM comment INNER JOIN %s ON (%s.id=comment.id)",
+					$db->ExecuteSlave(sprintf("CREATE TEMPORARY TABLE %s (PRIMARY KEY (id)) SELECT DISTINCT context_id AS id FROM comment INNER JOIN %s ON (%s.id=comment.id)",
 						$temp_table,
 						$ids,
 						$ids
@@ -1826,7 +1826,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$objects = array();
 		
-		$results = $db->GetArray(sprintf("SELECT id ".
+		$results = $db->GetArraySlave(sprintf("SELECT id ".
 			"FROM ticket ".
 			"WHERE ticket.is_deleted = 0 ".
 			"AND (".
@@ -1886,7 +1886,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					(($has_multiple_values) ? "SELECT COUNT(DISTINCT t.id) " : "SELECT COUNT(t.id) ").
 					$join_sql.
 					$where_sql;
-				$total = $db->GetOne($count_sql);
+				$total = $db->GetOneSlave($count_sql);
 			}
 		}
 		
@@ -2399,7 +2399,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			"GROUP BY group_id, bucket_id "
 		;
 		
-		$results = $db->GetArray($sql);
+		$results = $db->GetArraySlave($sql);
 
 		return $results;
 	}
@@ -2500,7 +2500,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			$where_sql
 		;
 		
-		$results = $db->GetArray($sql);
+		$results = $db->GetArraySlave($sql);
 
 		return $results;
 	}

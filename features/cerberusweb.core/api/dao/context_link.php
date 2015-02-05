@@ -49,7 +49,7 @@ class DAO_ContextLink {
 			$db->qstr($dst_context),
 			$dst_context_id
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 
 		// Fire an event
 		if($db->Affected_Rows()) {
@@ -77,7 +77,7 @@ class DAO_ContextLink {
 			$db->qstr($src_context),
 			$src_context_id
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		
 		// Fire an event
 		$event->trigger(
@@ -175,7 +175,7 @@ class DAO_ContextLink {
 		
 		$rows = array();
 		
-		$rs = $db->Execute(sprintf("SELECT DISTINCT to_context AS context FROM context_link WHERE from_context = %s AND from_context_id = %d",
+		$rs = $db->ExecuteSlave(sprintf("SELECT DISTINCT to_context AS context FROM context_link WHERE from_context = %s AND from_context_id = %d",
 			$db->qstr($context),
 			$context_id
 		));
@@ -193,7 +193,7 @@ class DAO_ContextLink {
 	static public function getContextLinkCounts($context, $context_id, $ignore_contexts=array()) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$rs = $db->Execute(sprintf("SELECT count(to_context_id) AS hits, to_context as context ".
+		$rs = $db->ExecuteSlave(sprintf("SELECT count(to_context_id) AS hits, to_context as context ".
 			"FROM context_link ".
 			"WHERE from_context = %s ".
 			"AND from_context_id = %d ".
@@ -250,7 +250,7 @@ class DAO_ContextLink {
 			self::FROM_CONTEXT_ID,
 			$from_context_id
 		);
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		$objects = array();
 		
@@ -289,7 +289,7 @@ class DAO_ContextLink {
 			self::FROM_CONTEXT_ID,
 			implode(',', $from_context_ids)
 		);
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		$objects = array();
 		
@@ -312,7 +312,7 @@ class DAO_ContextLink {
 	
 	static public function count($from_context, $from_context_id, $ignore_internal=true) {
 		$db = DevblocksPlatform::getDatabaseService();
-		return $db->GetOne(sprintf("SELECT count(*) FROM context_link ".
+		return $db->GetOneSlave(sprintf("SELECT count(*) FROM context_link ".
 			"WHERE from_context = %s AND from_context_id = %d ".
 			"%s",
 			$db->qstr($from_context),
@@ -381,7 +381,7 @@ class DAO_ContextLink {
 				implode(' OR ', $wheres)
 			);
 			
-			$results = $db->GetArray($sql);
+			$results = $db->GetArraySlave($sql);
 			
 			$out = array();
 			
@@ -430,7 +430,7 @@ class DAO_ContextLink {
 			$db->qstr($context),
 			$ids
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 	
 	static public function deleteLink($src_context, $src_context_id, $dst_context, $dst_context_id, $src_context_meta=null, $dst_context_meta=null) {
@@ -456,7 +456,7 @@ class DAO_ContextLink {
 			$db->qstr($dst_context),
 			$dst_context_id
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 
 		/*
 		 * Delete from destination side
@@ -468,7 +468,7 @@ class DAO_ContextLink {
 			$db->qstr($src_context),
 			$src_context_id
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		
 		/*
 		 * Activities

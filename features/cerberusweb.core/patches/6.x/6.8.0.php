@@ -14,10 +14,10 @@ if(!isset($tables['snippet'])) {
 list($columns, $indexes) = $db->metaTable('snippet');
 
 if(!isset($columns['custom_placeholders_json'])) {
-	$db->Execute("ALTER TABLE snippet ADD COLUMN custom_placeholders_json MEDIUMTEXT");
+	$db->ExecuteMaster("ALTER TABLE snippet ADD COLUMN custom_placeholders_json MEDIUMTEXT");
 	
 	// Migrate old style snippet placeholders to JSON (single, w/default, multiple)
-	$rs = $db->Execute("SELECT id, content FROM snippet");
+	$rs = $db->ExecuteMaster("SELECT id, content FROM snippet");
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		$content = $row['content'];
@@ -73,7 +73,7 @@ if(!isset($columns['custom_placeholders_json'])) {
 			}
 			
 			if(!empty($placeholders)) {
-				$db->Execute(sprintf("UPDATE snippet SET content = %s, custom_placeholders_json = %s WHERE id = %d",
+				$db->ExecuteMaster(sprintf("UPDATE snippet SET content = %s, custom_placeholders_json = %s WHERE id = %d",
 					$db->qstr($content),
 					$db->qstr(json_encode($placeholders)),
 					$row['id']
@@ -86,7 +86,7 @@ if(!isset($columns['custom_placeholders_json'])) {
 // ===========================================================================
 // Set a default for 'max_results' in search indexes using the MySQL Fulltext engine
 
-$db->Execute(sprintf("UPDATE cerb_property_store SET value = %s WHERE property = 'engine_params_json' AND value = %s",
+$db->ExecuteMaster(sprintf("UPDATE cerb_property_store SET value = %s WHERE property = 'engine_params_json' AND value = %s",
 	$db->qstr('{"engine_extension_id":"devblocks.search.engine.mysql_fulltext","config":{"max_results":"500"}}'),
 	$db->qstr('{"engine_extension_id":"devblocks.search.engine.mysql_fulltext","config":[]}')
 ));
@@ -94,13 +94,13 @@ $db->Execute(sprintf("UPDATE cerb_property_store SET value = %s WHERE property =
 // ===========================================================================
 // Reset snippet searches
 
-$db->Execute(sprintf("DELETE FROM worker_view_model WHERE view_id = 'search_cerberusweb_contexts_snippet'"));
+$db->ExecuteMaster(sprintf("DELETE FROM worker_view_model WHERE view_id = 'search_cerberusweb_contexts_snippet'"));
 
 // ===========================================================================
 // Fix worker_view_model records for ticket searches forcing a required group_id
 
-$db->Execute("DELETE FROM worker_view_model WHERE view_id IN ('search_cerberusweb_contexts_ticket','search_cerberusweb_contexts_message') AND params_required_json LIKE '%t_group_id%'");
-$db->Execute("DELETE FROM worker_view_model WHERE view_id LIKE 'api_search_%' AND params_required_json LIKE '%t_group_id%'");
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id IN ('search_cerberusweb_contexts_ticket','search_cerberusweb_contexts_message') AND params_required_json LIKE '%t_group_id%'");
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id LIKE 'api_search_%' AND params_required_json LIKE '%t_group_id%'");
 
 // ===========================================================================
 // Add `timeout_secs` to `pop3_account`
@@ -113,14 +113,14 @@ if(!isset($tables['pop3_account'])) {
 list($columns, $indexes) = $db->metaTable('pop3_account');
 
 if(!isset($columns['timeout_secs'])) {
-	$db->Execute("ALTER TABLE pop3_account ADD COLUMN timeout_secs MEDIUMINT UNSIGNED NOT NULL DEFAULT 0");
-	$db->Execute("UPDATE pop3_account SET timeout_secs = 30");
+	$db->ExecuteMaster("ALTER TABLE pop3_account ADD COLUMN timeout_secs MEDIUMINT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("UPDATE pop3_account SET timeout_secs = 30");
 }
 
 // ===========================================================================
 // Set up defaults for mobile mail preferences
 
-$db->Execute("INSERT IGNORE INTO worker_pref (worker_id, setting, value) SELECT id, 'mobile_mail_signature_pos', '2' FROM worker");
+$db->ExecuteMaster("INSERT IGNORE INTO worker_pref (worker_id, setting, value) SELECT id, 'mobile_mail_signature_pos', '2' FROM worker");
 
 // ===========================================================================
 // Add @mention nicknames to worker records
@@ -133,8 +133,8 @@ if(!isset($tables['worker'])) {
 list($columns, $indexes) = $db->metaTable('worker');
 
 if(!isset($columns['at_mention_name'])) {
-	$db->Execute("ALTER TABLE worker ADD COLUMN at_mention_name VARCHAR(64)");
-	$db->Execute("UPDATE worker SET at_mention_name = CONCAT(first_name,last_name)");
+	$db->ExecuteMaster("ALTER TABLE worker ADD COLUMN at_mention_name VARCHAR(64)");
+	$db->ExecuteMaster("UPDATE worker SET at_mention_name = CONCAT(first_name,last_name)");
 }
 
 // ===========================================================================
@@ -152,7 +152,7 @@ if(!isset($tables['file_bundle'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['file_bundle'] = 'file_bundle';
 }
@@ -168,7 +168,7 @@ if(!isset($tables['mail_html_template'])) {
 list($columns, $indexes) = $db->metaTable('mail_html_template');
 
 if(!isset($columns['signature'])) {
-	$db->Execute("ALTER TABLE mail_html_template ADD COLUMN signature mediumtext");
+	$db->ExecuteMaster("ALTER TABLE mail_html_template ADD COLUMN signature mediumtext");
 }
 
 // ===========================================================================
@@ -182,13 +182,13 @@ if(!isset($tables['pop3_account'])) {
 list($columns, $indexes) = $db->metaTable('pop3_account');
 
 if(!isset($columns['max_msg_size_kb'])) {
-	$db->Execute("ALTER TABLE pop3_account ADD COLUMN max_msg_size_kb INT UNSIGNED NOT NULL DEFAULT 0");
-	$db->Execute("UPDATE pop3_account SET max_msg_size_kb = 25600");
+	$db->ExecuteMaster("ALTER TABLE pop3_account ADD COLUMN max_msg_size_kb INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("UPDATE pop3_account SET max_msg_size_kb = 25600");
 }
 
 if(!isset($columns['ssl_ignore_validation'])) {
-	$db->Execute("ALTER TABLE pop3_account ADD COLUMN ssl_ignore_validation TINYINT UNSIGNED NOT NULL DEFAULT 0");
-	$db->Execute("UPDATE pop3_account SET ssl_ignore_validation = 0");
+	$db->ExecuteMaster("ALTER TABLE pop3_account ADD COLUMN ssl_ignore_validation TINYINT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("UPDATE pop3_account SET ssl_ignore_validation = 0");
 }
 
 // ===========================================================================

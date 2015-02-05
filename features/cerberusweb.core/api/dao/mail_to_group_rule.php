@@ -34,7 +34,7 @@ class DAO_MailToGroupRule extends DevblocksORMHelper {
 			"VALUES (%d)",
 			time()
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
@@ -70,7 +70,7 @@ class DAO_MailToGroupRule extends DevblocksORMHelper {
 			"FROM mail_to_group_rule ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY is_sticky DESC, sticky_order ASC, pos DESC";
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -127,7 +127,7 @@ class DAO_MailToGroupRule extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM mail_to_group_rule WHERE id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM mail_to_group_rule WHERE id IN (%s)", $ids_list));
 		
 		self::clearCache();
 		
@@ -141,7 +141,7 @@ class DAO_MailToGroupRule extends DevblocksORMHelper {
 	 */
 	static function increment($id, $by=1) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute(sprintf("UPDATE mail_to_group_rule SET pos = pos + %d WHERE id = %d",
+		$db->ExecuteMaster(sprintf("UPDATE mail_to_group_rule SET pos = pos + %d WHERE id = %d",
 			$by,
 			$id
 		));

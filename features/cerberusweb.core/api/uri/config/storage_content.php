@@ -36,7 +36,7 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 		// Totals
 		
 		$db = DevblocksPlatform::getDatabaseService();
-		$rs = $db->Execute("SHOW TABLE STATUS");
+		$rs = $db->ExecuteMaster("SHOW TABLE STATUS");
 
 		$total_db_size = 0;
 		$total_db_data = 0;

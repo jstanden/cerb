@@ -1519,7 +1519,7 @@ class DevblocksPlatform extends DevblocksEngine {
 					$prefix,
 					($with_disabled ? '' : 'AND p.enabled = 1')
 				);
-			$results = $db->GetArray($sql);
+			$results = $db->GetArrayMaster($sql);
 				
 			foreach($results as $row) {
 				$extension = new DevblocksExtensionManifest();
@@ -1634,7 +1634,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			$prefix,
 			$prefix
 		);
-		$results = $db->GetArray($sql);
+		$results = $db->GetArrayMaster($sql);
 		
 		foreach($results as $row) {
 			$priv = new DevblocksAclPrivilege();
@@ -1703,7 +1703,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			"ORDER BY p.enabled DESC, p.name ASC ",
 			$prefix
 		);
-		$results = $db->GetArray($sql);
+		$results = $db->GetArrayMaster($sql);
 
 		foreach($results as $row) {
 			$plugin = new DevblocksPluginManifest();
@@ -1730,7 +1730,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			"FROM %sevent_point p ",
 			$prefix
 		);
-		$results = $db->GetArray($sql);
+		$results = $db->GetArrayMaster($sql);
 
 		foreach($results as $row) {
 			$point = new DevblocksEventPoint();

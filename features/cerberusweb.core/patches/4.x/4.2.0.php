@@ -19,7 +19,7 @@ if(!isset($tables['mail_to_group_rule'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 list($columns, $indexes) = $db->metaTable('mail_to_group_rule');
@@ -28,12 +28,12 @@ if(isset($columns['id'])
 	&& ('int(10) unsigned' != $columns['id']['type'] 
 	|| 'auto_increment' != $columns['id']['extra'])
 ) {
-	$db->Execute("ALTER TABLE mail_to_group_rule MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT");
+	$db->ExecuteMaster("ALTER TABLE mail_to_group_rule MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT");
 }
 
 if(isset($tables['mail_routing'])) {
 	$sql = "SELECT id,pattern,team_id,pos FROM mail_routing";
-	$rs = $db->Execute($sql);
+	$rs = $db->ExecuteMaster($sql);
 	
 	// Migrate data out of the table and drop it
 	while($row = mysqli_fetch_assoc($rs)) {
@@ -55,13 +55,13 @@ if(isset($tables['mail_routing'])) {
 			$db->qstr(serialize($criteria)),
 			$db->qstr(serialize($actions))
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 	
 	mysqli_free_result($rs);
 	
 	// Drop it
-	$db->Execute('DROP TABLE mail_routing');
+	$db->ExecuteMaster('DROP TABLE mail_routing');
 }
 
 // ===========================================================================
@@ -70,15 +70,15 @@ if(isset($tables['mail_routing'])) {
 list($columns, $indexes) = $db->metaTable('preparse_rule');
 
 if(!isset($columns['created'])) {
-    $db->Execute('ALTER TABLE preparse_rule ADD COLUMN created INT UNSIGNED DEFAULT 0 NOT NULL');
+    $db->ExecuteMaster('ALTER TABLE preparse_rule ADD COLUMN created INT UNSIGNED DEFAULT 0 NOT NULL');
 }
 
 if(!isset($columns['is_sticky'])) {
-    $db->Execute('ALTER TABLE preparse_rule ADD COLUMN is_sticky TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
+    $db->ExecuteMaster('ALTER TABLE preparse_rule ADD COLUMN is_sticky TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
 }
 
 if(!isset($columns['sticky_order'])) {
-    $db->Execute('ALTER TABLE preparse_rule ADD COLUMN sticky_order TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
+    $db->ExecuteMaster('ALTER TABLE preparse_rule ADD COLUMN sticky_order TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
 }
 
 // ===========================================================================
@@ -88,14 +88,14 @@ list($columns, $indexes) = $db->metaTable('preparse_rule');
 
 if(isset($columns['criteria_ser'])) {
 	$sql = "SELECT id, criteria_ser FROM preparse_rule";
-	$rs = $db->Execute($sql);
+	$rs = $db->ExecuteMaster($sql);
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		$criteria_ser = $row['criteria_ser'];
 		if(!empty($criteria_ser) && false !== (@$criteria = unserialize($criteria_ser))) {
 			if(isset($criteria['to'])) {
 				unset($criteria['to']);
-				$db->Execute(sprintf("UPDATE preparse_rule SET criteria_ser= %s WHERE id = %d",
+				$db->ExecuteMaster(sprintf("UPDATE preparse_rule SET criteria_ser= %s WHERE id = %d",
 					$db->qstr(serialize($criteria)),
 					$row['id']
 				));
@@ -113,21 +113,21 @@ if(isset($columns['criteria_ser'])) {
 list($columns, $indexes) = $db->metaTable('mail_to_group_rule');
 
 if(isset($columns['pos']) && 0 != strcasecmp('int',substr($columns['pos']['type'],0,3))) {
-	$db->Execute('ALTER TABLE mail_to_group_rule CHANGE COLUMN pos pos int unsigned DEFAULT 0 NOT NULL');
+	$db->ExecuteMaster('ALTER TABLE mail_to_group_rule CHANGE COLUMN pos pos int unsigned DEFAULT 0 NOT NULL');
 }
 
 // Pre-Parser
 list($columns, $indexes) = $db->metaTable('preparse_rule');
 
 if(isset($columns['pos']) && 0 != strcasecmp('int',substr($columns['pos']['type'],0,3))) {
-	$db->Execute("ALTER TABLE preparse_rule CHANGE COLUMN pos pos int unsigned DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE preparse_rule CHANGE COLUMN pos pos int unsigned DEFAULT 0 NOT NULL");
 }
 
 // Group Inbox Filters
 list($columns, $indexes) = $db->metaTable('group_inbox_filter');
 
 if(isset($columns['pos']) && 0 != strcasecmp('int',substr($columns['pos']['type'],0,3))) {
-	$db->Execute("ALTER TABLE group_inbox_filter CHANGE COLUMN pos pos int unsigned DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE group_inbox_filter CHANGE COLUMN pos pos int unsigned DEFAULT 0 NOT NULL");
 }
 
 return TRUE;

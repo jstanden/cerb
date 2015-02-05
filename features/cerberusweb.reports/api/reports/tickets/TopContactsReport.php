@@ -22,12 +22,12 @@ class ChReportTopTicketsByContact extends Extension_Report {
 		$date = DevblocksPlatform::getDateService();
 		
 		// Use the worker's timezone for MySQL date functions
-		$db->Execute(sprintf("SET time_zone = %s", $db->qstr($date->formatTime('P', time()))));
+		$db->ExecuteSlave(sprintf("SET time_zone = %s", $db->qstr($date->formatTime('P', time()))));
 		
 		// Year shortcuts
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$years[] = intval($row['year']);
@@ -136,7 +136,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 				$end_time
 			);
 		}
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 	
 		$group_counts = array();
 		$max_orgs = 100;
@@ -194,7 +194,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 				$start_time,
 				$end_time
 			);
-			$top_results = $db->GetArray($sql);
+			$top_results = $db->GetArraySlave($sql);
 			
 			$top_ids = array();
 			
@@ -239,7 +239,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 				$start_time,
 				$end_time
 			);
-			$top_results = $db->GetArray($sql);
+			$top_results = $db->GetArraySlave($sql);
 			
 			$top_ids = array();
 			
@@ -269,7 +269,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 				implode(',', $top_ids)
 			);
 		};
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		$data = array();
 		$labels = array();

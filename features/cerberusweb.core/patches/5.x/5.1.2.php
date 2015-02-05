@@ -12,6 +12,6 @@ if(!isset($tables['comment']))
 list($columns, $indexes) = $db->metaTable('comment');
 	
 // Enforce autoincrement
-$db->Execute("ALTER TABLE comment MODIFY COLUMN id int unsigned NOT NULL AUTO_INCREMENT");
+$db->ExecuteMaster("ALTER TABLE comment MODIFY COLUMN id int unsigned NOT NULL AUTO_INCREMENT");
 	
 return TRUE;

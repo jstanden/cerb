@@ -30,7 +30,7 @@ class ChReportOrgSharedEmailDomains extends Extension_Report {
 			"ORDER BY num_orgs desc ".
 			"LIMIT 0,100"
 		);
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		$top_domains = array();
 		

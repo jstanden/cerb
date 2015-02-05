@@ -34,7 +34,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 			$fields[DAO_VirtualAttendant::CREATED_AT] = time();
 		
 		$sql = "INSERT INTO virtual_attendant () VALUES ()";
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
@@ -106,7 +106,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -221,7 +221,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM virtual_attendant WHERE id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM virtual_attendant WHERE id IN (%s)", $ids_list));
 
 		// Cascade
 		if(is_array($ids))
@@ -423,9 +423,9 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 			$sort_sql;
 			
 		if($limit > 0) {
-			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs mysqli_result */
 		} else {
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs mysqli_result */
 			$total = mysqli_num_rows($rs);
 		}
 		
@@ -445,7 +445,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 					($has_multiple_values ? "SELECT COUNT(DISTINCT virtual_attendant.id) " : "SELECT COUNT(virtual_attendant.id) ").
 					$join_sql.
 					$where_sql;
-				$total = $db->GetOne($count_sql);
+				$total = $db->GetOneSlave($count_sql);
 			}
 		}
 		

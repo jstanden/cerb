@@ -68,7 +68,7 @@ class ChReportAverageResponseTime extends Extension_Report {
 			$start_time,
 			$end_time
 		);
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		// process and count results
 	   	$group_responses = array();

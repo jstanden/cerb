@@ -619,7 +619,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		$sql = sprintf("INSERT INTO kb_category () ".
 			"VALUES ()"
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
@@ -651,7 +651,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		
 		// Add counts (and bubble up)
 		$sql = "SELECT count(*) AS hits, kb_category_id FROM kb_article_to_category GROUP BY kb_category_id";
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$count_cat = intval($row['kb_category_id']);
@@ -739,7 +739,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 			"FROM kb_category ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY name asc";
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -788,9 +788,9 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM kb_category WHERE id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM kb_category WHERE id IN (%s)", $ids_list));
 
-		$db->Execute(sprintf("DELETE FROM kb_article_to_category WHERE kb_category_id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM kb_article_to_category WHERE kb_category_id IN (%s)", $ids_list));
 		
 		self::clearCache();
 		
@@ -888,7 +888,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 					($has_multiple_values ? "SELECT COUNT(DISTINCT kbc.id) " : "SELECT COUNT(kbc.id) ").
 					$join_sql.
 					$where_sql;
-				$total = $db->GetOne($count_sql);
+				$total = $db->GetOneSlave($count_sql);
 			}
 		}
 		

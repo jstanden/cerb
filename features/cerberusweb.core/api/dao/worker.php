@@ -47,7 +47,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$sql = sprintf("INSERT INTO worker () ".
 			"VALUES ()"
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		$id = $db->LastInsertId();
 
 		self::update($id, $fields);
@@ -156,7 +156,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 			;
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_createObjectsFromResultSet($rs);
 	}
@@ -366,21 +366,21 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$logger = DevblocksPlatform::getConsoleLog();
 		$tables = DevblocksPlatform::getDatabaseTables();
 		
-		$db->Execute("DELETE FROM view_rss WHERE worker_id NOT IN (SELECT id FROM worker)");
+		$db->ExecuteMaster("DELETE FROM view_rss WHERE worker_id NOT IN (SELECT id FROM worker)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' view_rss records.');
 		
-		$db->Execute("DELETE FROM worker_pref WHERE worker_id NOT IN (SELECT id FROM worker)");
+		$db->ExecuteMaster("DELETE FROM worker_pref WHERE worker_id NOT IN (SELECT id FROM worker)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_pref records.');
 		
-		$db->Execute("DELETE FROM worker_view_model WHERE worker_id NOT IN (SELECT id FROM worker)");
+		$db->ExecuteMaster("DELETE FROM worker_view_model WHERE worker_id NOT IN (SELECT id FROM worker)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_view_model records.');
 		
-		$db->Execute("DELETE FROM worker_to_group WHERE worker_id NOT IN (SELECT id FROM worker)");
+		$db->ExecuteMaster("DELETE FROM worker_to_group WHERE worker_id NOT IN (SELECT id FROM worker)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_to_group records.');
 		
 		// Search indexes
 		if(isset($tables['fulltext_worker'])) {
-			$db->Execute("DELETE FROM fulltext_worker WHERE id NOT IN (SELECT id FROM worker)");
+			$db->ExecuteMaster("DELETE FROM fulltext_worker WHERE id NOT IN (SELECT id FROM worker)");
 			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_worker records.');
 		}
 		
@@ -417,22 +417,22 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("DELETE FROM worker WHERE id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$sql = sprintf("DELETE FROM worker_auth_hash WHERE worker_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$sql = sprintf("DELETE FROM address_to_worker WHERE worker_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$sql = sprintf("DELETE FROM worker_to_group WHERE worker_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		$sql = sprintf("DELETE FROM view_rss WHERE worker_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$sql = sprintf("DELETE FROM snippet_use_history WHERE worker_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		// Sessions
 		DAO_DevblocksSession::deleteByUserIds($id);
@@ -457,7 +457,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	
 	static function hasAuth($worker_id) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$worker_auth = $db->GetRow(sprintf("SELECT pass_hash, pass_salt, method FROM worker_auth_hash WHERE worker_id = %d", $worker_id));
+		$worker_auth = $db->GetRowSlave(sprintf("SELECT pass_hash, pass_salt, method FROM worker_auth_hash WHERE worker_id = %d", $worker_id));
 		return (is_array($worker_auth) && isset($worker_auth['pass_hash']));
 	}
 	
@@ -465,7 +465,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(is_null($password)) {
-			return $db->Execute(sprintf("DELETE FROM worker_auth_hash WHERE worker_id = %d",
+			return $db->ExecuteMaster(sprintf("DELETE FROM worker_auth_hash WHERE worker_id = %d",
 				$worker_id
 			));
 			
@@ -474,7 +474,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			
 			$password_hash = ($asMd5) ? $password : md5($password);
 			
-			return $db->Execute(sprintf("REPLACE INTO worker_auth_hash (worker_id, pass_hash, pass_salt, method) ".
+			return $db->ExecuteMaster(sprintf("REPLACE INTO worker_auth_hash (worker_id, pass_hash, pass_salt, method) ".
 				"VALUES (%d, %s, %s, %d)",
 				$worker_id,
 				$db->qstr(sha1($salt.$password_hash)),
@@ -490,7 +490,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if(null == ($worker = DAO_Worker::getByEmail($email)) || $worker->is_disabled)
 			return null;
 		
-		$worker_auth = $db->GetRow(sprintf("SELECT pass_hash, pass_salt, method FROM worker_auth_hash WHERE worker_id = %d", $worker->id));
+		$worker_auth = $db->GetRowSlave(sprintf("SELECT pass_hash, pass_salt, method FROM worker_auth_hash WHERE worker_id = %d", $worker->id));
 		
 		if(!isset($worker_auth['pass_hash']) || !isset($worker_auth['pass_salt']))
 			return null;
@@ -539,7 +539,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	static function logActivity(Model_Activity $activity, $ignore_wait=false) {
 		if(null === ($worker = CerberusApplication::getActiveWorker()))
 			return;
-			
+
 		$ip = $_SERVER['REMOTE_ADDR'];
 		if('::1' == $ip)
 			$ip = '127.0.0.1';
@@ -560,7 +560,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 
 	public static function random() {
 		$db = DevblocksPlatform::getDatabaseService();
-		return $db->GetOne("SELECT id FROM worker WHERE is_disabled=0 ORDER BY rand() LIMIT 1");
+		return $db->GetOneSlave("SELECT id FROM worker WHERE is_disabled=0 ORDER BY rand() LIMIT 1");
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
@@ -768,7 +768,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$workers = DAO_Worker::getAll();
 		$objects = array();
 		
-		$results = $db->GetArray(sprintf("SELECT id ".
+		$results = $db->GetArraySlave(sprintf("SELECT id ".
 			"FROM worker ".
 			"WHERE is_disabled = 0 ".
 			"AND (".
@@ -829,7 +829,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if($limit > 0) {
 			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		} else {
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			$total = mysqli_num_rows($rs);
 		}
 		
@@ -849,7 +849,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 					($has_multiple_values ? "SELECT COUNT(DISTINCT w.id) " : "SELECT COUNT(w.id) ").
 					$join_sql.
 					$where_sql;
-				$total = $db->GetOne($count_sql);
+				$total = $db->GetOneSlave($count_sql);
 			}
 		}
 		
@@ -1742,7 +1742,7 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 	
 	static function delete($worker_id, $key) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute(sprintf("DELETE FROM worker_pref WHERE worker_id = %d AND setting = %s",
+		$db->ExecuteMaster(sprintf("DELETE FROM worker_pref WHERE worker_id = %d AND setting = %s",
 			$worker_id,
 			$db->qstr($key)
 		));
@@ -1763,7 +1763,7 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 
-		$results = $db->GetArray(sprintf("SELECT worker_id FROM worker_pref WHERE setting = %s AND value IN (%s)",
+		$results = $db->GetArrayMaster(sprintf("SELECT worker_id FROM worker_pref WHERE setting = %s AND value IN (%s)",
 			$db->qstr($key),
 			implode(',', $values)
 		));
@@ -1779,7 +1779,7 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 		// Persist long-term
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute(sprintf("REPLACE INTO worker_pref (worker_id, setting, value) ".
+		$db->ExecuteMaster(sprintf("REPLACE INTO worker_pref (worker_id, setting, value) ".
 			"VALUES (%d, %s, %s)",
 			$worker_id,
 			$db->qstr($key),
@@ -1813,7 +1813,7 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 		if(null === ($objects = $cache->load(self::CACHE_PREFIX.$worker_id))) {
 			$db = DevblocksPlatform::getDatabaseService();
 			$sql = sprintf("SELECT setting, value FROM worker_pref WHERE worker_id = %d", $worker_id);
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			
 			$objects = array();
 			

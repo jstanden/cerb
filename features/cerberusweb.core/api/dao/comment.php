@@ -27,7 +27,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 	static function create($fields, $also_notify_worker_ids=array(), $file_ids=array()) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute("INSERT INTO comment () VALUES ()");
+		$db->ExecuteMaster("INSERT INTO comment () VALUES ()");
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
@@ -129,7 +129,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -148,7 +148,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 			$db->qstr($context),
 			implode(',', $ids)
 		);
-		$rows = $db->GetArray($sql);
+		$rows = $db->GetArraySlave($sql);
 		
 		$ids = array();
 		
@@ -215,7 +215,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 	
 	static public function count($from_context, $from_context_id) {
 		$db = DevblocksPlatform::getDatabaseService();
-		return $db->GetOne(sprintf("SELECT count(*) FROM comment ".
+		return $db->GetOneSlave(sprintf("SELECT count(*) FROM comment ".
 			"WHERE context = %s AND context_id = %d",
 			$db->qstr($from_context),
 			$from_context_id
@@ -231,7 +231,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 			
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute(sprintf("DELETE FROM comment WHERE context = %s AND context_id IN (%s) ",
+		$db->ExecuteMaster(sprintf("DELETE FROM comment WHERE context = %s AND context_id IN (%s) ",
 			$db->qstr($context),
 			implode(',', $context_ids)
 		));
@@ -249,7 +249,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		// Comments
-		$db->Execute(sprintf("DELETE FROM comment WHERE id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM comment WHERE id IN (%s)", $ids_list));
 		
 		// Search index
 		$search = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID, true);
@@ -371,7 +371,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 					$db = DevblocksPlatform::getDatabaseService();
 					$temp_table = sprintf("_tmp_%s", uniqid());
 					
-					$db->Execute(sprintf("CREATE TEMPORARY TABLE %s SELECT DISTINCT id FROM comment INNER JOIN %s ON (%s.id=%s)",
+					$db->ExecuteSlave(sprintf("CREATE TEMPORARY TABLE %s (PRIMARY KEY (id)) SELECT DISTINCT id FROM comment INNER JOIN %s ON (%s.id=%s)",
 						$temp_table,
 						$ids,
 						$ids,
@@ -482,9 +482,9 @@ class DAO_Comment extends Cerb_ORMHelper {
 			$sort_sql;
 			
 		if($limit > 0) {
-			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs mysqli_result */
 		} else {
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs mysqli_result */
 			$total = mysqli_num_rows($rs);
 		}
 		
@@ -504,7 +504,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 					($has_multiple_values ? "SELECT COUNT(DISTINCT comment.id) " : "SELECT COUNT(comment.id) ").
 					$join_sql.
 					$where_sql;
-				$total = $db->GetOne($count_sql);
+				$total = $db->GetOneSlave($count_sql);
 			}
 		}
 		
@@ -520,7 +520,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 
 		// Search indexes
 		if(isset($tables['fulltext_comment_content'])) {
-			$db->Execute("DELETE FROM fulltext_comment_content WHERE id NOT IN (SELECT id FROM comment)");
+			$db->ExecuteMaster("DELETE FROM fulltext_comment_content WHERE id NOT IN (SELECT id FROM comment)");
 			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_comment_content records.');
 		}
 		

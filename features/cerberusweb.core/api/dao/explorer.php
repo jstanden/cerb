@@ -43,7 +43,7 @@ class DAO_ExplorerSet {
 		if(empty($values))
 			return;
 		
-		$db->Execute(sprintf("INSERT INTO explorer_set (hash, pos, params_json) ".
+		$db->ExecuteMaster(sprintf("INSERT INTO explorer_set (hash, pos, params_json) ".
 			"VALUES %s",
 			implode(',', $values)
 		));
@@ -61,7 +61,7 @@ class DAO_ExplorerSet {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$rs = $db->Execute(sprintf("SELECT hash, pos, params_json ".
+		$rs = $db->ExecuteSlave(sprintf("SELECT hash, pos, params_json ".
 			"FROM explorer_set ".
 			"WHERE hash = %s ".
 			"AND pos IN (%s) ",
@@ -75,7 +75,7 @@ class DAO_ExplorerSet {
 	static function set($hash, $params, $pos) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute(sprintf("REPLACE INTO explorer_set (params_json, hash, pos) VALUES (%s,%s,%d)",
+		$db->ExecuteMaster(sprintf("REPLACE INTO explorer_set (params_json, hash, pos) VALUES (%s,%s,%d)",
 			$db->qstr(json_encode($params)),
 			$db->qstr($hash),
 			$pos
@@ -105,7 +105,7 @@ class DAO_ExplorerSet {
 	static function update($hash, $params) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute(sprintf("UPDATE explorer_set SET params_json = %s WHERE hash = %s AND pos = 0",
+		$db->ExecuteMaster(sprintf("UPDATE explorer_set SET params_json = %s WHERE hash = %s AND pos = 0",
 			$db->qstr(json_encode($params)),
 			$db->qstr($hash)
 		));
@@ -115,13 +115,13 @@ class DAO_ExplorerSet {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$rs = $db->Execute("SELECT hash, params_json FROM explorer_set WHERE pos = 0");
+		$rs = $db->ExecuteMaster("SELECT hash, params_json FROM explorer_set WHERE pos = 0");
 		
 		if(false !== $rs)
 		while($row = mysqli_fetch_assoc($rs)) {
 			if(false !== ($params = @json_decode($row['params_json'], true))) {
 				if(!isset($params['last_accessed']) || $params['last_accessed'] < time()-86400) { // idle for 24 hours
-					$db->Execute(sprintf("DELETE FROM explorer_set WHERE hash = %s",
+					$db->ExecuteMaster(sprintf("DELETE FROM explorer_set WHERE hash = %s",
 						$db->qstr($row['hash'])
 					));
 				}

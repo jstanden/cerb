@@ -32,7 +32,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = "INSERT INTO trigger_event () VALUES ()";
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
@@ -212,7 +212,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -261,7 +261,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			$runtime_ms
 		);
 		
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 	
 	static function delete($ids) {
@@ -274,11 +274,11 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		// [TODO] Use DAO_DecisionNode::deleteByTrigger() to cascade
-		$db->Execute(sprintf("DELETE FROM decision_node WHERE trigger_id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM decision_node WHERE trigger_id IN (%s)", $ids_list));
 		
-		$db->Execute(sprintf("DELETE FROM trigger_event WHERE id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM trigger_event WHERE id IN (%s)", $ids_list));
 		
-		$db->Execute(sprintf("DELETE FROM trigger_event_history WHERE trigger_id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM trigger_event_history WHERE trigger_id IN (%s)", $ids_list));
 		
 		DAO_ContextScheduledBehavior::deleteByBehavior($ids);
 		
@@ -383,9 +383,9 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			$sort_sql;
 			
 		if($limit > 0) {
-			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs mysqli_result */
 		} else {
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs mysqli_result */
 			$total = mysqli_num_rows($rs);
 		}
 		
@@ -405,7 +405,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 					($has_multiple_values ? "SELECT COUNT(DISTINCT trigger_event.id) " : "SELECT COUNT(trigger_event.id) ").
 					$join_sql.
 					$where_sql;
-				$total = $db->GetOne($count_sql);
+				$total = $db->GetOneSlave($count_sql);
 			}
 		}
 		
@@ -430,7 +430,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			if(empty($trigger_id))
 				continue;
 			
-			$db->Execute(sprintf("UPDATE trigger_event SET pos = %d WHERE id = %d",
+			$db->ExecuteMaster(sprintf("UPDATE trigger_event SET pos = %d WHERE id = %d",
 				$pos,
 				$trigger_id
 			));
@@ -442,7 +442,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	static public function getNextPosByVirtualAttendantAndEvent($va_id, $event_point) {
 		$db = DevblocksPlatform::getDatabaseService();
 
-		$count = $db->GetOne(sprintf("SELECT MAX(pos) FROM trigger_event ".
+		$count = $db->GetOneMaster(sprintf("SELECT MAX(pos) FROM trigger_event ".
 			"WHERE virtual_attendant_id = %d AND event_point = %s",
 			$va_id,
 			$db->qstr($event_point)

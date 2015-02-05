@@ -977,7 +977,7 @@ class DevblocksEventHelper {
 						$sql = sprintf("SELECT COUNT(id) AS hits, owner_id FROM ticket WHERE is_closed = 0 AND is_deleted = 0 AND is_waiting = 0 AND owner_id != 0 AND owner_id IN (%s) GROUP BY owner_id",
 							implode(',', array_keys($possible_workers))
 						);
-						$results = $db->GetArray($sql);
+						$results = $db->GetArraySlave($sql);
 						
 						if(!empty($results))
 						foreach($results as $row) {

@@ -206,7 +206,7 @@ class MaintCron extends CerberusCronPageExtension {
 			"AND updated_date < %d ",
 			$purge_waitsecs
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		
 		$logger->info("[Maint] Purged " . $db->Affected_Rows() . " ticket records.");
 
@@ -222,7 +222,7 @@ class MaintCron extends CerberusCronPageExtension {
 		// Nuke orphaned words from the Bayes index
 		// [TODO] Make this configurable from job
 		$sql = "DELETE FROM bayes_words WHERE nonspam + spam < 2"; // only 1 occurrence
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' obscure spam words.');
 		

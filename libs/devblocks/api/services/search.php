@@ -755,7 +755,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(!isset($tables['fulltext_' . $ns]))
 			return false;
 		
-		return intval($db->GetOne(sprintf("SELECT MAX(id) FROM fulltext_%s", $db->escape($ns))));
+		return intval($db->GetOneMaster(sprintf("SELECT MAX(id) FROM fulltext_%s", $db->escape($ns))));
 	}
 	
 	private function _getCount(Extension_DevblocksSearchSchema $schema) {
@@ -766,7 +766,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(!isset($tables['fulltext_' . $ns]))
 			return false;
 		
-		return intval($db->GetOne(sprintf("SELECT COUNT(id) FROM fulltext_%s", $db->escape($ns))));
+		return intval($db->GetOneSlave(sprintf("SELECT COUNT(id) FROM fulltext_%s", $db->escape($ns))));
 	}
 	
 	public function getQuickSearchExamples(Extension_DevblocksSearchSchema $schema) {
@@ -845,7 +845,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : ''
 		);
 		
-		$db->Execute($sql);
+		$db->ExecuteSlave($sql);
 		
 		return $temp_table;
 	}
@@ -1137,7 +1137,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			implode(',', $fields)
 		);
 		
-		$result = $db->Execute($sql);
+		$result = $db->ExecuteMaster($sql);
 		
 		$return = (false !== $result) ? true : false;
 		
@@ -1198,7 +1198,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			);
 		}
 		
-		$rs = $db->Execute("SHOW TABLES");
+		$rs = $db->ExecuteMaster("SHOW TABLES");
 
 		$tables = array();
 		
@@ -1227,7 +1227,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			(!empty($attributes_sql) ? implode(",\n", $attributes_sql) : '')
 		);
 		
-		$result = $db->Execute($sql);
+		$result = $db->ExecuteMaster($sql);
 		
 		$return = (false !== $result) ? true : false;
 		
@@ -1249,7 +1249,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(empty($ns) || empty($ids))
 			return;
 			
-		$result = $db->Execute(sprintf("DELETE FROM fulltext_%s WHERE id IN (%s) ",
+		$result = $db->ExecuteMaster(sprintf("DELETE FROM fulltext_%s WHERE id IN (%s) ",
 			$this->escapeNamespace($ns),
 			implode(',', $ids)
 		));

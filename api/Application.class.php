@@ -2134,7 +2134,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		// [TODO] Allow Cerb to enable user-agent comparisons as setting
 		// [TODO] Limit the IPs a worker can log in from (per-worker?)
 		
-		if(null != ($session = $db->GetRow(sprintf("SELECT session_data, refreshed_at, user_ip, user_agent FROM devblocks_session WHERE session_key = %s", $db->qstr($id))))) {
+		if(null != ($session = $db->GetRowSlave(sprintf("SELECT session_data, refreshed_at, user_ip, user_agent FROM devblocks_session WHERE session_key = %s", $db->qstr($id))))) {
 			$maxlifetime = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
 			$is_ajax = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest');
 			
@@ -2144,7 +2144,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 				
 				setcookie('Devblocks', $id, time()+$maxlifetime, '/', NULL, $url_writer->isSSL(), true);
 				
-				$db->Execute(sprintf("UPDATE devblocks_session SET refreshed_at=%d WHERE session_key = %s",
+				$db->ExecuteMaster(sprintf("UPDATE devblocks_session SET refreshed_at=%d WHERE session_key = %s",
 					time(),
 					$db->qstr($id)
 				));
@@ -2181,7 +2181,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 			$db->qstr($user_agent),
 			$db->qstr($id)
 		);
-		$result = $db->Execute($sql);
+		$result = $db->ExecuteMaster($sql);
 		
 		if(0==$db->Affected_Rows()) {
 			// Insert
@@ -2196,7 +2196,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 				$db->qstr($user_agent),
 				$db->qstr($session_data)
 			);
-			$db->Execute($sql);
+			$db->ExecuteMaster($sql);
 		}
 		
 		return true;
@@ -2208,7 +2208,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		if(!self::isReady())
 			return false;
 		
-		$db->Execute(sprintf("DELETE FROM devblocks_session WHERE session_key = %s", $db->qstr($id)));
+		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_session WHERE session_key = %s", $db->qstr($id)));
 		return true;
 	}
 	
@@ -2224,7 +2224,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 			$maxlifetime = 86400;
 		
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute(sprintf("DELETE FROM devblocks_session WHERE updated + %d < %d", $maxlifetime, time()));
+		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_session WHERE updated + %d < %d", $maxlifetime, time()));
 		return true;
 	}
 	
@@ -2234,7 +2234,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		if(!self::isReady())
 			return false;
 		
-		return $db->GetArray("SELECT session_key, created, updated, user_id, user_ip, user_agent, session_data FROM devblocks_session");
+		return $db->GetArraySlave("SELECT session_key, created, updated, user_id, user_ip, user_agent, session_data FROM devblocks_session");
 	}
 	
 	static function destroyAll() {
@@ -2243,7 +2243,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		if(!self::isReady())
 			return false;
 		
-		$db->Execute("DELETE FROM devblocks_session");
+		$db->ExecuteMaster("DELETE FROM devblocks_session");
 	}
 	
 	static function destroyByWorkerIds($ids) {
@@ -2258,7 +2258,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 			return;
 		
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute(sprintf("DELETE FROM devblocks_session WHERE user_id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_session WHERE user_id IN (%s)", $ids_list));
 	}
 };
 
@@ -2454,8 +2454,8 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 	
 	static protected function _getRandom($table, $pkey='id') {
 		$db = DevblocksPlatform::getDatabaseService();
-		$offset = $db->GetOne(sprintf("SELECT ROUND(RAND()*(SELECT COUNT(*)-1 FROM %s))", $table));
-		return $db->GetOne(sprintf("SELECT %s FROM %s LIMIT %d,1", $pkey, $table, $offset));
+		$offset = $db->GetOneSlave(sprintf("SELECT ROUND(RAND()*(SELECT COUNT(*)-1 FROM %s))", $table));
+		return $db->GetOneSlave(sprintf("SELECT %s FROM %s LIMIT %d,1", $pkey, $table, $offset));
 	}
 	
 	static protected function _appendSelectJoinSqlForCustomFieldTables($tables, $params, $key, $select_sql, $join_sql) {

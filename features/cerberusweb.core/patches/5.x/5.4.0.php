@@ -7,7 +7,7 @@ $tables = $db->metaTables();
 // Drop contact_list
 
 if(isset($tables['trigger_event'])) {
-	$db->Execute("DROP TABLE contact_list");
+	$db->ExecuteMaster("DROP TABLE contact_list");
 	unset($tables['trigger_event']);
 }
 
@@ -27,7 +27,7 @@ if(!isset($tables['trigger_event'])) {
 		INDEX event_point (event_point)
 	) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['trigger_event'] = 'trigger_event';
 }
@@ -50,7 +50,7 @@ if(!isset($tables['decision_node'])) {
 		INDEX trigger_id (trigger_id)
 	) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['decision_node'] = 'decision_node';
 }
@@ -59,8 +59,8 @@ if(!isset($tables['decision_node'])) {
 // Rename 'worker_event' to 'notification'
 
 if(isset($tables['worker_event']) && !isset($tables['notification'])) {
-	$db->Execute('ALTER TABLE worker_event RENAME notification');
-	$db->Execute("DELETE FROM worker_view_model WHERE view_id = 'home_myevents'");
+	$db->ExecuteMaster('ALTER TABLE worker_event RENAME notification');
+	$db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id = 'home_myevents'");
 }
 
 // ===========================================================================
@@ -76,7 +76,7 @@ if(!isset($tables['context_merge_history'])) {
 			PRIMARY KEY (context, from_context_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 }
 
 // ===========================================================================
@@ -93,7 +93,7 @@ if(!isset($tables['community_tool'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 	
 } else { // update community_tool
 	if($tables['community_tool']) {
@@ -102,14 +102,14 @@ if(!isset($tables['community_tool'])) {
 		if(isset($columns['id'])
 			&& ('int(10) unsigned' != $columns['id']['type']
 			|| 'auto_increment' != $columns['id']['extra']))
-				$db->Execute("ALTER TABLE community_tool MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT");
+				$db->ExecuteMaster("ALTER TABLE community_tool MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT");
 		
 		if(isset($columns['community_id']))
-			$db->Execute("ALTER TABLE community_tool DROP COLUMN community_id");
+			$db->ExecuteMaster("ALTER TABLE community_tool DROP COLUMN community_id");
 			
 		if(!isset($columns['name'])) {
-		    $db->Execute("ALTER TABLE community_tool ADD COLUMN name VARCHAR(128) DEFAULT '' NOT NULL");
-			$db->Execute("UPDATE community_tool SET name = 'Support Center' WHERE name = '' AND extension_id = 'sc.tool'");
+		    $db->ExecuteMaster("ALTER TABLE community_tool ADD COLUMN name VARCHAR(128) DEFAULT '' NOT NULL");
+			$db->ExecuteMaster("UPDATE community_tool SET name = 'Support Center' WHERE name = '' AND extension_id = 'sc.tool'");
 		}
 	}
 }
@@ -124,14 +124,14 @@ if(!isset($tables['community_tool_property'])) {
 			PRIMARY KEY (tool_code, property_key)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 	
 } else { // update community_tool_property
 	list($columns, $indexes) = $db->metaTable('community_tool_property');
 	
 	if(isset($columns['property_value'])
 		&& 0 != strcasecmp('text',$columns['property_value']['type'])) {
-			$db->Execute("ALTER TABLE community_tool_property MODIFY COLUMN property_value TEXT");
+			$db->ExecuteMaster("ALTER TABLE community_tool_property MODIFY COLUMN property_value TEXT");
 	}
 }
 
@@ -146,20 +146,20 @@ if(!isset($tables['community_session'])) {
 			PRIMARY KEY (session_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 	
 } else { // update community_session
 	list($columns, $indexes) = $db->metaTable('community_session');
 
 	if(isset($columns['properties'])
 		&& 0 != strcasecmp('mediumtext',$columns['properties']['type'])) {
-			$db->Execute('ALTER TABLE community_session MODIFY COLUMN properties MEDIUMTEXT');
+			$db->ExecuteMaster('ALTER TABLE community_session MODIFY COLUMN properties MEDIUMTEXT');
 	}
 }
 
 // community
 if(isset($tables['community']))
-	$db->Execute("DROP TABLE community");
+	$db->ExecuteMaster("DROP TABLE community");
 
 // ===========================================================================
 // Add reply_address_id/reply_personal/reply_signature fields to groups
@@ -167,34 +167,34 @@ if(isset($tables['community']))
 list($columns, $indexes) = $db->metaTable('team');
 
 if(!isset($columns['reply_address_id']))
-	$db->Execute("ALTER TABLE team ADD COLUMN reply_address_id INT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE team ADD COLUMN reply_address_id INT UNSIGNED DEFAULT 0 NOT NULL");
 if(!isset($columns['reply_personal']))
-	$db->Execute("ALTER TABLE team ADD COLUMN reply_personal VARCHAR(128) DEFAULT '' NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE team ADD COLUMN reply_personal VARCHAR(128) DEFAULT '' NOT NULL");
 if(isset($columns['signature']) && !isset($columns['reply_signature']))
-	$db->Execute("ALTER TABLE team CHANGE COLUMN signature reply_signature TEXT");
+	$db->ExecuteMaster("ALTER TABLE team CHANGE COLUMN signature reply_signature TEXT");
 	
 if(!isset($column['reply_address_id'])) {
 	// Migrate from group settings (and in code)
-	$results = $db->GetArray(sprintf("SELECT group_id, setting, value FROM group_setting WHERE setting IN ('reply_from','reply_personal')"));
+	$results = $db->GetArrayMaster(sprintf("SELECT group_id, setting, value FROM group_setting WHERE setting IN ('reply_from','reply_personal')"));
 	foreach($results as $row) {
 		if(empty($row['value']))
 			continue;
 		
 		switch($row['setting']) {
 			case 'reply_from':
-				$address_id = $db->GetOne(sprintf("SELECT id FROM address WHERE email = %s", $db->qstr($row['value'])));
+				$address_id = $db->GetOneMaster(sprintf("SELECT id FROM address WHERE email = %s", $db->qstr($row['value'])));
 				
 				if(empty($address_id))
 					continue;
 				
-				$db->Execute(sprintf("UPDATE team SET reply_address_id = %d WHERE id = %d",
+				$db->ExecuteMaster(sprintf("UPDATE team SET reply_address_id = %d WHERE id = %d",
 					$address_id,
 					$row['group_id']
 				));
 				break;
 				
 			case 'reply_personal':
-				$db->Execute(sprintf("UPDATE team SET reply_personal = %s WHERE id = %d",
+				$db->ExecuteMaster(sprintf("UPDATE team SET reply_personal = %s WHERE id = %d",
 					$db->qstr($row['value']),
 					$row['group_id']
 				));
@@ -203,10 +203,10 @@ if(!isset($column['reply_address_id'])) {
 	}
 	
 	// Remove redundant settings from DB
-	$db->Execute("DELETE FROM group_setting WHERE setting IN ('reply_from','reply_personal')");;
+	$db->ExecuteMaster("DELETE FROM group_setting WHERE setting IN ('reply_from','reply_personal')");;
 }
 
-$db->Execute("DELETE FROM group_setting WHERE setting IN ('reply_personal_with_worker')");
+$db->ExecuteMaster("DELETE FROM group_setting WHERE setting IN ('reply_personal_with_worker')");
 
 // ===========================================================================
 // Add reply_address_id/reply_personal/reply_signature fields to buckets
@@ -214,11 +214,11 @@ $db->Execute("DELETE FROM group_setting WHERE setting IN ('reply_personal_with_w
 list($columns, $indexes) = $db->metaTable('category');
 
 if(!isset($columns['reply_address_id']))
-	$db->Execute("ALTER TABLE category ADD COLUMN reply_address_id INT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE category ADD COLUMN reply_address_id INT UNSIGNED DEFAULT 0 NOT NULL");
 if(!isset($columns['reply_personal']))
-	$db->Execute("ALTER TABLE category ADD COLUMN reply_personal VARCHAR(128) DEFAULT '' NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE category ADD COLUMN reply_personal VARCHAR(128) DEFAULT '' NOT NULL");
 if(!isset($columns['reply_signature']))
-	$db->Execute("ALTER TABLE category ADD COLUMN reply_signature TEXT");
+	$db->ExecuteMaster("ALTER TABLE category ADD COLUMN reply_signature TEXT");
 
 // ===========================================================================
 // Add address_outgoing
@@ -233,22 +233,22 @@ if(!isset($tables['address_outgoing'])) {
 			PRIMARY KEY (address_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 	
 	$tables['address_outgoing'] = 'address_outgoing';
 	
 	// Migrate the default sender address
 	
-	$default_reply_from = $db->GetOne("SELECT value FROM devblocks_setting WHERE setting = 'default_reply_from' AND plugin_id='cerberusweb.core'");
-	$default_reply_personal = $db->GetOne("SELECT value FROM devblocks_setting WHERE setting = 'default_reply_personal' AND plugin_id='cerberusweb.core'");
-	$default_reply_signature = $db->GetOne("SELECT value FROM devblocks_setting WHERE setting = 'default_signature' AND plugin_id='cerberusweb.core'");
+	$default_reply_from = $db->GetOneMaster("SELECT value FROM devblocks_setting WHERE setting = 'default_reply_from' AND plugin_id='cerberusweb.core'");
+	$default_reply_personal = $db->GetOneMaster("SELECT value FROM devblocks_setting WHERE setting = 'default_reply_personal' AND plugin_id='cerberusweb.core'");
+	$default_reply_signature = $db->GetOneMaster("SELECT value FROM devblocks_setting WHERE setting = 'default_signature' AND plugin_id='cerberusweb.core'");
 	
 	if(!empty($default_reply_from)) {
-		$address_id = $db->GetOne(sprintf("SELECT id FROM address WHERE email = %s", $db->qstr($default_reply_from)));
+		$address_id = $db->GetOneMaster(sprintf("SELECT id FROM address WHERE email = %s", $db->qstr($default_reply_from)));
 		
 		if(!empty($address_id)) {
-			$db->Execute("UPDATE address_outgoing SET is_default = 0");
-			$db->Execute(sprintf("INSERT IGNORE INTO address_outgoing (address_id, is_default, reply_personal, reply_signature) ".
+			$db->ExecuteMaster("UPDATE address_outgoing SET is_default = 0");
+			$db->ExecuteMaster(sprintf("INSERT IGNORE INTO address_outgoing (address_id, is_default, reply_personal, reply_signature) ".
 				"VALUES (%d, %d, %s, %s)",
 				$address_id,
 				1,
@@ -258,26 +258,26 @@ if(!isset($tables['address_outgoing'])) {
 		}
 	}
 	
-	$db->Execute("DELETE FROM devblocks_setting WHERE plugin_id = 'cerberusweb.core' AND setting IN ('default_reply_from','default_reply_personal','default_signature','default_signature_pos')");
+	$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'cerberusweb.core' AND setting IN ('default_reply_from','default_reply_personal','default_signature','default_signature_pos')");
 	
 	// Import from group addresses
-	$db->Execute("INSERT IGNORE INTO address_outgoing (address_id,is_default) SELECT DISTINCT reply_address_id, 0 FROM team WHERE reply_address_id != 0");
+	$db->ExecuteMaster("INSERT IGNORE INTO address_outgoing (address_id,is_default) SELECT DISTINCT reply_address_id, 0 FROM team WHERE reply_address_id != 0");
 	
 }
 
 // ===========================================================================
 // Migrate group settings to Virtual Attendants
 
-$todo = $db->GetOne("SELECT count(*) FROM group_setting WHERE setting IN ('auto_reply_enabled', 'auto_reply', 'close_reply_enabled', 'close_reply', 'group_spam_threshold', 'group_spam_action', 'group_spam_action_param')");
+$todo = $db->GetOneMaster("SELECT count(*) FROM group_setting WHERE setting IN ('auto_reply_enabled', 'auto_reply', 'close_reply_enabled', 'close_reply', 'group_spam_threshold', 'group_spam_action', 'group_spam_action_param')");
 
 if(!empty($todo)) {
-	$group_ids = $db->GetArray("SELECT id FROM team");
+	$group_ids = $db->GetArrayMaster("SELECT id FROM team");
 	
 	foreach($group_ids as $row) {
 		$group_id = $row['id'];
 		$settings = array();
 		
-		$rows = $db->GetArray(sprintf("SELECT setting, value FROM group_setting WHERE group_id = %d", $group_id));
+		$rows = $db->GetArrayMaster(sprintf("SELECT setting, value FROM group_setting WHERE group_id = %d", $group_id));
 		foreach($rows as $row)
 			$settings[$row['setting']] = $row['value'];
 		
@@ -319,7 +319,7 @@ if(!empty($todo)) {
 				);
 	
 				// Insert trigger_event
-				$db->Execute(sprintf("INSERT INTO trigger_event (owner_context, owner_context_id, event_point, title) ".
+				$db->ExecuteMaster(sprintf("INSERT INTO trigger_event (owner_context, owner_context_id, event_point, title) ".
 					"VALUES (%s, %d, %s, %s)",
 					$db->qstr('cerberusweb.contexts.group'),
 					$group_id,
@@ -329,7 +329,7 @@ if(!empty($todo)) {
 				$trigger_id = $db->LastInsertId();
 				
 				// Decision: Is New Ticket?
-				$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+				$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
 					"VALUES (%d, %d, %s, %s, %s, %d)",
 					0,
 					$trigger_id,
@@ -341,7 +341,7 @@ if(!empty($todo)) {
 				$parent_id = $db->LastInsertId();
 				
 				// Outcome: Yes
-				$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+				$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
 					"VALUES (%d, %d, %s, %s, %s, %d)",
 					$parent_id,
 					$trigger_id,
@@ -354,7 +354,7 @@ if(!empty($todo)) {
 				
 				// Action: Send auto-reply
 				
-				$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+				$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
 					"VALUES (%d, %d, %s, %s, %s, %d)",
 					$parent_id,
 					$trigger_id,
@@ -404,7 +404,7 @@ if(!empty($todo)) {
 				);
 	
 				// Insert trigger_event
-				$db->Execute(sprintf("INSERT INTO trigger_event (owner_context, owner_context_id, event_point, title) ".
+				$db->ExecuteMaster(sprintf("INSERT INTO trigger_event (owner_context, owner_context_id, event_point, title) ".
 					"VALUES (%s, %d, %s, %s)",
 					$db->qstr('cerberusweb.contexts.group'),
 					$group_id,
@@ -415,7 +415,7 @@ if(!empty($todo)) {
 				
 				// Action: Send auto-reply
 				
-				$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+				$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
 					"VALUES (%d, %d, %s, %s, %s, %d)",
 					0,
 					$trigger_id,
@@ -436,7 +436,7 @@ if(!empty($todo)) {
 			if(!empty($spam_threshold) && !empty($spam_action)) {
 			
 				// Insert trigger_event
-				$db->Execute(sprintf("INSERT INTO trigger_event (owner_context, owner_context_id, event_point, title) ".
+				$db->ExecuteMaster(sprintf("INSERT INTO trigger_event (owner_context, owner_context_id, event_point, title) ".
 					"VALUES (%s, %d, %s, %s)",
 					$db->qstr('cerberusweb.contexts.group'),
 					$group_id,
@@ -446,7 +446,7 @@ if(!empty($todo)) {
 				$trigger_id = $db->LastInsertId();
 				
 				// Decision: Is it a new ticket with a high spam probability?
-				$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+				$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
 					"VALUES (%d, %d, %s, %s, %s, %d)",
 					0,
 					$trigger_id,
@@ -458,7 +458,7 @@ if(!empty($todo)) {
 				$parent_id = $db->LastInsertId();
 				
 				// Outcome: Yes
-				$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+				$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
 					"VALUES (%d, %d, %s, %s, %s, %d)",
 					$parent_id,
 					$trigger_id,
@@ -474,7 +474,7 @@ if(!empty($todo)) {
 				switch($spam_action) {
 					// Delete
 					case 1:
-						$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+						$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
 							"VALUES (%d, %d, %s, %s, %s, %d)",
 							$parent_id,
 							$trigger_id,
@@ -488,7 +488,7 @@ if(!empty($todo)) {
 						
 					// Move
 					case 2:
-						$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+						$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
 							"VALUES (%d, %d, %s, %s, %s, %d)",
 							$parent_id,
 							$trigger_id,
@@ -505,7 +505,7 @@ if(!empty($todo)) {
 	}
 	
 	// Delete
-	$db->Execute("DELETE FROM group_setting WHERE setting IN ('auto_reply_enabled', 'auto_reply', 'close_reply_enabled', 'close_reply', 'group_spam_threshold', 'group_spam_action', 'group_spam_action_param')");
+	$db->ExecuteMaster("DELETE FROM group_setting WHERE setting IN ('auto_reply_enabled', 'auto_reply', 'close_reply_enabled', 'close_reply', 'group_spam_threshold', 'group_spam_action', 'group_spam_action_param')");
 }
 
 // ===========================================================================
@@ -514,22 +514,22 @@ if(!empty($todo)) {
 list($columns, $indexes) = $db->metaTable('worker_view_model');
 
 if(!isset($columns['render_filters'])) {
-	$db->Execute("ALTER TABLE worker_view_model ADD COLUMN render_filters TINYINT(1) NOT NULL DEFAULT 0");
-	$db->Execute("UPDATE worker_view_model SET render_filters = 1 WHERE view_id = 'mail_search'");
+	$db->ExecuteMaster("ALTER TABLE worker_view_model ADD COLUMN render_filters TINYINT(1) NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("UPDATE worker_view_model SET render_filters = 1 WHERE view_id = 'mail_search'");
 }
 
 if(isset($columns['render_subtotals_clickable'])) {
-	$db->Execute("ALTER TABLE worker_view_model DROP COLUMN render_subtotals_clickable");
+	$db->ExecuteMaster("ALTER TABLE worker_view_model DROP COLUMN render_subtotals_clickable");
 }
 
 // ===========================================================================
 // Clean up custom field values
 
 // Find checkboxes with dupe values set (nuke dupe NO's first)
-$results = $db->GetArray("select field_id, count(context_id) as hits, context_id from custom_field_numbervalue where field_id IN (select id from custom_field where type = 'C') group by context_id having hits > 1 order by hits desc");
+$results = $db->GetArrayMaster("select field_id, count(context_id) as hits, context_id from custom_field_numbervalue where field_id IN (select id from custom_field where type = 'C') group by context_id having hits > 1 order by hits desc");
 if(is_array($results))
 foreach($results as $row) {
-	$db->Execute(sprintf("DELETE FROM custom_field_numbervalue WHERE field_id=%d AND context_id=%d AND field_value=0 LIMIT %d",
+	$db->ExecuteMaster(sprintf("DELETE FROM custom_field_numbervalue WHERE field_id=%d AND context_id=%d AND field_value=0 LIMIT %d",
 		$row['field_id'],
 		$row['context_id'],
 		abs(1-intval($row['hits']))
@@ -537,10 +537,10 @@ foreach($results as $row) {
 }
 
 // Find checkboxes with dupe values set (nuke any dupes)
-$results = $db->GetArray("select field_id, count(context_id) as hits, context_id from custom_field_numbervalue where field_id IN (select id from custom_field where type = 'C') and field_value=0 group by context_id having hits > 1 order by hits desc");
+$results = $db->GetArrayMaster("select field_id, count(context_id) as hits, context_id from custom_field_numbervalue where field_id IN (select id from custom_field where type = 'C') and field_value=0 group by context_id having hits > 1 order by hits desc");
 if(is_array($results))
 foreach($results as $row) {
-	$db->Execute(sprintf("DELETE FROM custom_field_numbervalue WHERE field_id=%d AND context_id=%d LIMIT %d",
+	$db->ExecuteMaster(sprintf("DELETE FROM custom_field_numbervalue WHERE field_id=%d AND context_id=%d LIMIT %d",
 		$row['field_id'],
 		$row['context_id'],
 		abs(1-intval($row['hits']))
@@ -550,7 +550,7 @@ foreach($results as $row) {
 // ===========================================================================
 // Convert multi-picklist to multi-checkbox
 
-$db->Execute("UPDATE custom_field SET type = 'X' where type = 'M'");
+$db->ExecuteMaster("UPDATE custom_field SET type = 'X' where type = 'M'");
 
 // ===========================================================================
 // Migrate group inbox filters to Virtual Attendants
@@ -560,7 +560,7 @@ if(isset($tables['group_inbox_filter'])) {
 	// Look up group labels
 	$group_labels = array();
 	$sql = "SELECT id, name FROM team";
-	$results = $db->GetArray($sql);
+	$results = $db->GetArrayMaster($sql);
 	
 	if(!empty($results))
 	foreach($results as $result)
@@ -569,7 +569,7 @@ if(isset($tables['group_inbox_filter'])) {
 	// Look up bucket labels
 	$bucket_labels = array();
 	$sql = "SELECT id, name FROM category";
-	$results = $db->GetArray($sql);
+	$results = $db->GetArrayMaster($sql);
 	
 	if(!empty($results))
 	foreach($results as $result)
@@ -577,7 +577,7 @@ if(isset($tables['group_inbox_filter'])) {
 	
 	// Look up custom fields for types
 	$sql = "SELECT id, name, context, type FROM custom_field";
-	$results = $db->GetArray($sql);
+	$results = $db->GetArrayMaster($sql);
 	$custom_fields = array();
 	
 	if(!empty($results))
@@ -591,14 +591,14 @@ if(isset($tables['group_inbox_filter'])) {
 
 	// Find groups with filters
 	$sql = "SELECT DISTINCT group_id FROM group_inbox_filter";
-	$results = $db->GetArray($sql);
+	$results = $db->GetArrayMaster($sql);
 	
 	if(!empty($results))
 	foreach($results as $result) {
 		$group_id = $result['group_id'];
 		
 		// Insert trigger_event
-		$db->Execute(sprintf("INSERT INTO trigger_event (owner_context, owner_context_id, event_point, title) ".
+		$db->ExecuteMaster(sprintf("INSERT INTO trigger_event (owner_context, owner_context_id, event_point, title) ".
 			"VALUES (%s, %d, %s, %s)",
 			$db->qstr('cerberusweb.contexts.group'),
 			$group_id,
@@ -608,7 +608,7 @@ if(isset($tables['group_inbox_filter'])) {
 		$trigger_id = $db->LastInsertId();
 		
 		// Decision: Delivered to inbox?
-		$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+		$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
 			"VALUES (%d, %d, %s, %s, %s, %d)",
 			0,
 			$trigger_id,
@@ -620,7 +620,7 @@ if(isset($tables['group_inbox_filter'])) {
 		$parent_id = $db->LastInsertId();
 		
 		// Outcome: Yes
-		$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+		$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
 			"VALUES (%d, %d, %s, %s, %s, %d)",
 			$parent_id,
 			$trigger_id,
@@ -632,7 +632,7 @@ if(isset($tables['group_inbox_filter'])) {
 		$parent_id = $db->LastInsertId();
 
 		// Decision: Delivered to inbox?
-		$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+		$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
 			"VALUES (%d, %d, %s, %s, %s, %d)",
 			$parent_id,
 			$trigger_id,
@@ -653,7 +653,7 @@ if(isset($tables['group_inbox_filter'])) {
 			"ORDER BY is_sticky DESC, sticky_order ASC, pos DESC ",
 			$group_id
 		);
-		$results = $db->GetArray($sql);
+		$results = $db->GetArrayMaster($sql);
 
 		$pos = 0;
 		
@@ -947,7 +947,7 @@ if(isset($tables['group_inbox_filter'])) {
 			// If we have conditions as groups, add them as outcomes
 			if(!empty($groups)) {
 				// Outcome: Rule
-				$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+				$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
 					"VALUES (%d, %d, %s, %s, %s, %d)",
 					$parent_id,
 					$trigger_id,
@@ -1149,7 +1149,7 @@ if(isset($tables['group_inbox_filter'])) {
 					$label = ucfirst(implode(', ', $action_labels));
 				
 				// Actions: Perform these actions
-				$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+				$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
 					"VALUES (%d, %d, %s, %s, %s, %d)",
 					$parent_id,
 					$trigger_id,
@@ -1174,7 +1174,7 @@ if(isset($tables['group_inbox_filter'])) {
 // Drop group inbox filters (replaced by Virtual Attendants)
 
 if(isset($tables['group_inbox_filter'])) {
-	$db->Execute('DROP TABLE IF EXISTS group_inbox_filter');
+	$db->ExecuteMaster('DROP TABLE IF EXISTS group_inbox_filter');
 }
 
 // ===========================================================================
@@ -1198,7 +1198,7 @@ if(!isset($tables['context_activity_log'])) {
 		INDEX created (created)
 	) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['context_activity_log'] = 'context_activity_log';
 }
@@ -1206,8 +1206,8 @@ if(!isset($tables['context_activity_log'])) {
 // ===========================================================================
 // clean up worklists
 
-$db->Execute("DELETE FROM worker_view_model WHERE view_id LIKE 'cerberusweb_contexts_%%'");
-$db->Execute("UPDATE worker_view_model SET render_subtotals='t_team_id' WHERE view_id IN ('mail_workflow','search')");
-$db->Execute("UPDATE worker_view_model SET params_editable_json='{\"we_is_read\":{\"field\":\"we_is_read\",\"operator\":\"=\",\"value\":0}}', render_subtotals='we_url' WHERE view_id IN ('my_notifications')");
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id LIKE 'cerberusweb_contexts_%%'");
+$db->ExecuteMaster("UPDATE worker_view_model SET render_subtotals='t_team_id' WHERE view_id IN ('mail_workflow','search')");
+$db->ExecuteMaster("UPDATE worker_view_model SET params_editable_json='{\"we_is_read\":{\"field\":\"we_is_read\",\"operator\":\"=\",\"value\":0}}', render_subtotals='we_url' WHERE view_id IN ('my_notifications')");
 
 return TRUE;

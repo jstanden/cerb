@@ -11,7 +11,7 @@ if(isset($tables['crm_opportunity'])) {
 		// Load the campaign hash
 		$campaigns = array();
 		$sql = "SELECT id, name FROM crm_campaign ORDER BY name";
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteMaster($sql);
 		while($row = mysqli_fetch_assoc($rs)) {
 			$campaigns[$row['id']] = $row['name'];
 		}
@@ -25,7 +25,7 @@ if(isset($tables['crm_opportunity'])) {
 				$db->qstr(implode("\n",$campaigns)),
 				$db->qstr('crm.fields.source.opportunity')
 			);
-			$db->Execute($sql);
+			$db->ExecuteMaster($sql);
 			$field_id = $db->LastInsertId();
 			
 			// Populate the custom field from opp records
@@ -34,7 +34,7 @@ if(isset($tables['crm_opportunity'])) {
 				$field_id,
 				$db->qstr('crm.fields.source.opportunity')
 			);
-			$db->Execute($sql);
+			$db->ExecuteMaster($sql);
 		}
 	}
 }
@@ -44,7 +44,7 @@ if(isset($tables['crm_opportunity'])) {
 if(isset($tables['crm_opportunity'])) {
 	list($columns, $indexes) = $db->metaTable('crm_opportunity');
 	
-	$count = $db->Execute("SELECT count(id) FROM crm_opportunity WHERE source != ''");
+	$count = $db->ExecuteMaster("SELECT count(id) FROM crm_opportunity WHERE source != ''");
 	
 	if(isset($columns['source']) && $count) {
 		// Create the new custom field
@@ -52,7 +52,7 @@ if(isset($tables['crm_opportunity'])) {
 			"VALUES ('Lead Source','S',0,0,'',%s)",
 			$db->qstr('crm.fields.source.opportunity')
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		$field_id = $db->LastInsertId();
 		
 		// Populate the custom field from opp records
@@ -61,7 +61,7 @@ if(isset($tables['crm_opportunity'])) {
 			$field_id,
 			$db->qstr('crm.fields.source.opportunity')
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 }
 
@@ -70,7 +70,7 @@ if(isset($tables['crm_opportunity'])) {
 if(isset($tables['crm_opportunity'])) {
 	list($columns, $indexes) = $db->metaTable('crm_opportunity');
 
-	$count = $db->Execute("SELECT count(id) FROM crm_opportunity WHERE next_action != ''");
+	$count = $db->ExecuteMaster("SELECT count(id) FROM crm_opportunity WHERE next_action != ''");
 	
 	if(isset($columns['next_action']) && $count) {
 		// Create the new custom field
@@ -78,7 +78,7 @@ if(isset($tables['crm_opportunity'])) {
 			"VALUES ('Next Action','S',0,0,'',%s)",
 			$db->qstr('crm.fields.source.opportunity')
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		$field_id = $db->LastInsertId();
 		
 		// Populate the custom field from opp records
@@ -87,7 +87,7 @@ if(isset($tables['crm_opportunity'])) {
 			$field_id,
 			$db->qstr('crm.fields.source.opportunity')
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 }
 
@@ -95,7 +95,7 @@ if(isset($tables['crm_opportunity'])) {
 // Migrate the opportunity comments to platform 'notes' service
 if(isset($tables['crm_opp_comment'])) {
 	$sql = "SELECT id, opportunity_id, created_date, worker_id, content FROM crm_opp_comment";
-	$rs = $db->Execute($sql);
+	$rs = $db->ExecuteMaster($sql);
 	while($row = mysqli_fetch_assoc($rs)) {
 		$sql = sprintf("INSERT INTO note (source_extension_id, source_id, created, worker_id, content) ".
 			"VALUES ('%s',%d,%d,%d,%s)",
@@ -105,7 +105,7 @@ if(isset($tables['crm_opp_comment'])) {
 			$row['worker_id'],
 			$db->qstr($row['content'])
 		);
-		$db->Execute($sql); // insert
+		$db->ExecuteMaster($sql); // insert
 	}
 	
 	mysqli_free_result($rs);
@@ -117,19 +117,19 @@ if(isset($tables['crm_opportunity'])) {
 	list($columns, $indexes) = $db->metaTable('crm_opportunity');
 	
 	if(isset($columns['campaign_id'])) {
-		$db->Execute('ALTER TABLE crm_opportunity DROP COLUMN campaign_id');
+		$db->ExecuteMaster('ALTER TABLE crm_opportunity DROP COLUMN campaign_id');
 	}
 
 	if(isset($columns['campaign_bucket_id'])) {
-		$db->Execute('ALTER TABLE crm_opportunity DROP COLUMN campaign_bucket_id');
+		$db->ExecuteMaster('ALTER TABLE crm_opportunity DROP COLUMN campaign_bucket_id');
 	}
 
 	if(isset($columns['source'])) {
-		$db->Execute('ALTER TABLE crm_opportunity DROP COLUMN source');
+		$db->ExecuteMaster('ALTER TABLE crm_opportunity DROP COLUMN source');
 	}
 	
 	if(isset($columns['next_action'])) {
-		$db->Execute('ALTER TABLE crm_opportunity DROP COLUMN next_action');
+		$db->ExecuteMaster('ALTER TABLE crm_opportunity DROP COLUMN next_action');
 	}
 	
 }
@@ -137,19 +137,19 @@ if(isset($tables['crm_opportunity'])) {
 // ===========================================================================
 // Drop the campaign table (optimized out by custom fields)
 if(isset($tables['crm_campaign'])) {
-	$db->Execute('DROP TABLE crm_campaign');
+	$db->ExecuteMaster('DROP TABLE crm_campaign');
 }
 
 // ===========================================================================
 // Drop the campaign buckets (optimized out by custom fields)
 if(isset($tables['crm_campaign_bucket'])) {
-	$db->Execute('DROP TABLE crm_campaign_bucket');
+	$db->ExecuteMaster('DROP TABLE crm_campaign_bucket');
 }
 
 // ===========================================================================
 // Drop the old CRM comments table in favor of the new notes functionality
 if(isset($tables['crm_opp_comment'])) {
-	$db->Execute('DROP TABLE crm_opp_comment');
+	$db->ExecuteMaster('DROP TABLE crm_opp_comment');
 }
 
 // ===========================================================================
@@ -157,21 +157,21 @@ if(isset($tables['crm_opp_comment'])) {
 list($columns, $indexes) = $db->metaTable('crm_opportunity');
 
 if(!isset($columns['amount'])) {
-	$db->Execute('ALTER TABLE crm_opportunity ADD COLUMN amount DECIMAL(8,2) DEFAULT 0 NOT NULL');
+	$db->ExecuteMaster('ALTER TABLE crm_opportunity ADD COLUMN amount DECIMAL(8,2) DEFAULT 0 NOT NULL');
 }
 
 if(!isset($indexes['amount'])) {
-	$db->Execute('ALTER TABLE crm_opportunity ADD INDEX amount (amount)');
+	$db->ExecuteMaster('ALTER TABLE crm_opportunity ADD INDEX amount (amount)');
 }
 
 // ===========================================================================
 // Ophaned opportunity notes
-$db->Execute("DELETE note FROM note LEFT JOIN crm_opportunity ON (crm_opportunity.id=note.source_id) WHERE note.source_extension_id = 'crm.notes.source.opportunity' AND crm_opportunity.id IS NULL");
+$db->ExecuteMaster("DELETE note FROM note LEFT JOIN crm_opportunity ON (crm_opportunity.id=note.source_id) WHERE note.source_extension_id = 'crm.notes.source.opportunity' AND crm_opportunity.id IS NULL");
 
 // ===========================================================================
 // Ophaned opportunity custom fields
-$db->Execute("DELETE custom_field_stringvalue FROM custom_field_stringvalue LEFT JOIN crm_opportunity ON (crm_opportunity.id=custom_field_stringvalue.source_id) WHERE custom_field_stringvalue.source_extension = 'crm.fields.source.opportunity' AND crm_opportunity.id IS NULL");
-$db->Execute("DELETE custom_field_numbervalue FROM custom_field_numbervalue LEFT JOIN crm_opportunity ON (crm_opportunity.id=custom_field_numbervalue.source_id) WHERE custom_field_numbervalue.source_extension = 'crm.fields.source.opportunity' AND crm_opportunity.id IS NULL");
-$db->Execute("DELETE custom_field_clobvalue FROM custom_field_clobvalue LEFT JOIN crm_opportunity ON (crm_opportunity.id=custom_field_clobvalue.source_id) WHERE custom_field_clobvalue.source_extension = 'crm.fields.source.opportunity' AND crm_opportunity.id IS NULL");
+$db->ExecuteMaster("DELETE custom_field_stringvalue FROM custom_field_stringvalue LEFT JOIN crm_opportunity ON (crm_opportunity.id=custom_field_stringvalue.source_id) WHERE custom_field_stringvalue.source_extension = 'crm.fields.source.opportunity' AND crm_opportunity.id IS NULL");
+$db->ExecuteMaster("DELETE custom_field_numbervalue FROM custom_field_numbervalue LEFT JOIN crm_opportunity ON (crm_opportunity.id=custom_field_numbervalue.source_id) WHERE custom_field_numbervalue.source_extension = 'crm.fields.source.opportunity' AND crm_opportunity.id IS NULL");
+$db->ExecuteMaster("DELETE custom_field_clobvalue FROM custom_field_clobvalue LEFT JOIN crm_opportunity ON (crm_opportunity.id=custom_field_clobvalue.source_id) WHERE custom_field_clobvalue.source_extension = 'crm.fields.source.opportunity' AND crm_opportunity.id IS NULL");
 
 return TRUE;

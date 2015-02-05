@@ -18,7 +18,7 @@ if(!isset($tables['contact_person'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['contact_person'] = 'contact_person';
 }
@@ -37,7 +37,7 @@ if(!isset($tables['openid_to_contact_person'])) {
 			INDEX hash_key (hash_key(4))
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['openid_to_contact_person'] = 'openid_to_contact_person';
 }
@@ -53,12 +53,12 @@ list($columns, $indexes) = $db->metaTable('address');
 // Add address.contact_id
 if(!isset($columns['contact_person_id'])) {
 	$sql = "ALTER TABLE address ADD COLUMN contact_person_id INT UNSIGNED DEFAULT 0 NOT NULL, ADD INDEX contact_person_id (contact_person_id)";
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 }
 
 if(isset($columns['is_registered']) && isset($columns['pass'])) {
 	$sql = "SELECT id,pass FROM address WHERE is_registered=1";
-	$rs = $db->Execute($sql);
+	$rs = $db->ExecuteMaster($sql);
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		$salt = CerberusApplication::generatePassword(8);
@@ -70,25 +70,25 @@ if(isset($columns['is_registered']) && isset($columns['pass'])) {
 			$db->qstr($salt),
 			$db->qstr(md5($salt.$row['pass']))
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 	
 	mysqli_free_result($rs);
 	
 	// Link created dates from ticket table
 	$sql = "UPDATE contact_person SET contact_person.created = (SELECT min(ticket.created_date) FROM ticket WHERE ticket.first_wrote_address_id = contact_person.email_id) WHERE contact_person.created = 0";
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 	
 	// And set anybody we can't identify by ticket to having been created today
 	$sql = sprintf("UPDATE contact_person SET contact_person.created = %d WHERE contact_person.created = 0", time());
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 	
 	// Associate the email addresses to the new contacts
 	$sql = "UPDATE address INNER JOIN contact_person ON (contact_person.email_id=address.id) SET address.contact_person_id = contact_person.id";
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 	
 	// Drop address.is_registered and pass columns
-	$db->Execute("ALTER TABLE address DROP COLUMN is_registered, DROP COLUMN pass");
+	$db->ExecuteMaster("ALTER TABLE address DROP COLUMN is_registered, DROP COLUMN pass");
 }
 
 // ===========================================================================
@@ -122,76 +122,76 @@ $mapping = array(
 list($columns, $indexes) = $db->metaTable('custom_field');
 
 if(isset($columns['source_extension'])) {
-	$db->Execute("ALTER TABLE custom_field ADD COLUMN context VARCHAR(255) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("ALTER TABLE custom_field ADD COLUMN context VARCHAR(255) NOT NULL DEFAULT ''");
 	
 	foreach($mapping as $map_from => $map_to) {
-		$db->Execute(sprintf("UPDATE custom_field SET context = %s WHERE source_extension = %s",
+		$db->ExecuteMaster(sprintf("UPDATE custom_field SET context = %s WHERE source_extension = %s",
 			$db->qstr($map_to),
 			$db->qstr($map_from)
 		));
 	}
 	
-	$db->Execute("ALTER TABLE custom_field DROP COLUMN source_extension, ADD INDEX context (context)");
+	$db->ExecuteMaster("ALTER TABLE custom_field DROP COLUMN source_extension, ADD INDEX context (context)");
 }
 
 // custom_field_stringvalue
 list($columns, $indexes) = $db->metaTable('custom_field_stringvalue');
 
 if(isset($columns['source_id'])) {
-	$db->Execute("ALTER TABLE custom_field_stringvalue CHANGE COLUMN source_id context_id INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("ALTER TABLE custom_field_stringvalue CHANGE COLUMN source_id context_id INT UNSIGNED NOT NULL DEFAULT 0");
 }
 
 if(isset($columns['source_extension'])) {
-	$db->Execute("ALTER TABLE custom_field_stringvalue ADD COLUMN context VARCHAR(255) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("ALTER TABLE custom_field_stringvalue ADD COLUMN context VARCHAR(255) NOT NULL DEFAULT ''");
 	
 	foreach($mapping as $map_from => $map_to) {
-		$db->Execute(sprintf("UPDATE custom_field_stringvalue SET context = %s WHERE source_extension = %s",
+		$db->ExecuteMaster(sprintf("UPDATE custom_field_stringvalue SET context = %s WHERE source_extension = %s",
 			$db->qstr($map_to),
 			$db->qstr($map_from)
 		));
 	}
 	
-	$db->Execute("ALTER TABLE custom_field_stringvalue DROP COLUMN source_extension, ADD INDEX context (context)");
+	$db->ExecuteMaster("ALTER TABLE custom_field_stringvalue DROP COLUMN source_extension, ADD INDEX context (context)");
 }
 
 // custom_field_numbervalue
 list($columns, $indexes) = $db->metaTable('custom_field_numbervalue');
 
 if(isset($columns['source_id'])) {
-	$db->Execute("ALTER TABLE custom_field_numbervalue CHANGE COLUMN source_id context_id INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("ALTER TABLE custom_field_numbervalue CHANGE COLUMN source_id context_id INT UNSIGNED NOT NULL DEFAULT 0");
 }
 
 if(isset($columns['source_extension'])) {
-	$db->Execute("ALTER TABLE custom_field_numbervalue ADD COLUMN context VARCHAR(255) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("ALTER TABLE custom_field_numbervalue ADD COLUMN context VARCHAR(255) NOT NULL DEFAULT ''");
 	
 	foreach($mapping as $map_from => $map_to) {
-		$db->Execute(sprintf("UPDATE custom_field_numbervalue SET context = %s WHERE source_extension = %s",
+		$db->ExecuteMaster(sprintf("UPDATE custom_field_numbervalue SET context = %s WHERE source_extension = %s",
 			$db->qstr($map_to),
 			$db->qstr($map_from)
 		));
 	}
 	
-	$db->Execute("ALTER TABLE custom_field_numbervalue DROP COLUMN source_extension, ADD INDEX context (context)");
+	$db->ExecuteMaster("ALTER TABLE custom_field_numbervalue DROP COLUMN source_extension, ADD INDEX context (context)");
 }
 
 // custom_field_clobvalue
 list($columns, $indexes) = $db->metaTable('custom_field_clobvalue');
 
 if(isset($columns['source_id'])) {
-	$db->Execute("ALTER TABLE custom_field_clobvalue CHANGE COLUMN source_id context_id INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("ALTER TABLE custom_field_clobvalue CHANGE COLUMN source_id context_id INT UNSIGNED NOT NULL DEFAULT 0");
 }
 
 if(isset($columns['source_extension'])) {
-	$db->Execute("ALTER TABLE custom_field_clobvalue ADD COLUMN context VARCHAR(255) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("ALTER TABLE custom_field_clobvalue ADD COLUMN context VARCHAR(255) NOT NULL DEFAULT ''");
 	
 	foreach($mapping as $map_from => $map_to) {
-		$db->Execute(sprintf("UPDATE custom_field_clobvalue SET context = %s WHERE source_extension = %s",
+		$db->ExecuteMaster(sprintf("UPDATE custom_field_clobvalue SET context = %s WHERE source_extension = %s",
 			$db->qstr($map_to),
 			$db->qstr($map_from)
 		));
 	}
 	
-	$db->Execute("ALTER TABLE custom_field_clobvalue DROP COLUMN source_extension, ADD INDEX context (context)");
+	$db->ExecuteMaster("ALTER TABLE custom_field_clobvalue DROP COLUMN source_extension, ADD INDEX context (context)");
 }
 
 // ===========================================================================
@@ -211,7 +211,7 @@ if(!isset($tables['confirmation_code'])) {
 			INDEX confirmation_code (confirmation_code)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['confirmation_code'] = 'confirmation_code';
 }

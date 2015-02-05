@@ -21,16 +21,16 @@ if(!isset($tables['virtual_attendant'])) {
 			INDEX owner (owner_context, owner_context_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['virtual_attendant'] = 'virtual_attendant';
 
 	// Fieldsets can be owned by VAs, so we need to purge old search worklists
-	$db->Execute("DELETE FROM worker_view_model WHERE view_id = 'search_cerberusweb_contexts_custom_fieldset'");
+	$db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id = 'search_cerberusweb_contexts_custom_fieldset'");
 	
 	// Migrate itemized schedule/unschedule behavior events to globals
-	$db->Execute("UPDATE decision_node SET params_json = REPLACE(params_json,'\"action\":\"schedule_behavior\"','\"action\":\"_schedule_behavior\"') WHERE params_json LIKE '%\"action\":\"schedule_behavior\"%'");
-	$db->Execute("UPDATE decision_node SET params_json = REPLACE(params_json,'\"action\":\"unschedule_behavior\"','\"action\":\"_unschedule_behavior\"') WHERE params_json LIKE '%\"action\":\"unschedule_behavior\"%'");
+	$db->ExecuteMaster("UPDATE decision_node SET params_json = REPLACE(params_json,'\"action\":\"schedule_behavior\"','\"action\":\"_schedule_behavior\"') WHERE params_json LIKE '%\"action\":\"schedule_behavior\"%'");
+	$db->ExecuteMaster("UPDATE decision_node SET params_json = REPLACE(params_json,'\"action\":\"unschedule_behavior\"','\"action\":\"_unschedule_behavior\"') WHERE params_json LIKE '%\"action\":\"unschedule_behavior\"%'");
 }
 
 // ===========================================================================
@@ -44,7 +44,7 @@ if(!isset($tables['virtual_attendant'])) {
 list($columns, $indexes) = $db->metaTable('virtual_attendant');
 
 if(!isset($columns['is_disabled'])) {
-	$db->Execute("ALTER TABLE virtual_attendant ADD COLUMN is_disabled TINYINT UNSIGNED DEFAULT 0 NOT NULL AFTER owner_context_id");
+	$db->ExecuteMaster("ALTER TABLE virtual_attendant ADD COLUMN is_disabled TINYINT UNSIGNED DEFAULT 0 NOT NULL AFTER owner_context_id");
 }
 
 // ===========================================================================
@@ -58,11 +58,11 @@ if(!isset($tables['trigger_event'])) {
 list($columns, $indexes) = $db->metaTable('trigger_event');
 
 if(!isset($columns['virtual_attendant_id'])) {
-	$db->Execute("ALTER TABLE trigger_event ADD COLUMN virtual_attendant_id INT UNSIGNED DEFAULT 0 NOT NULL AFTER event_point, ADD INDEX virtual_attendant_id (virtual_attendant_id)");
+	$db->ExecuteMaster("ALTER TABLE trigger_event ADD COLUMN virtual_attendant_id INT UNSIGNED DEFAULT 0 NOT NULL AFTER event_point, ADD INDEX virtual_attendant_id (virtual_attendant_id)");
 }
 
 if(!isset($columns['is_private'])) {
-	$db->Execute("ALTER TABLE trigger_event ADD COLUMN is_private TINYINT UNSIGNED DEFAULT 0 NOT NULL AFTER is_disabled, ADD INDEX is_private (is_private)");
+	$db->ExecuteMaster("ALTER TABLE trigger_event ADD COLUMN is_private TINYINT UNSIGNED DEFAULT 0 NOT NULL AFTER is_disabled, ADD INDEX is_private (is_private)");
 }
 
 if(isset($columns['owner_context'])) {
@@ -74,7 +74,7 @@ if(isset($columns['owner_context'])) {
 		"UNION ".
 		"SELECT DISTINCT trigger_event.owner_context, trigger_event.owner_context_id, TRIM(CONCAT(worker.first_name,' ',worker.last_name)) AS owner_label FROM trigger_event INNER JOIN worker ON (trigger_event.owner_context_id=worker.id) WHERE trigger_event.owner_context = 'cerberusweb.contexts.worker' ".
 		'';
-	$owner_contexts = $db->GetArray($sql);
+	$owner_contexts = $db->GetArrayMaster($sql);
 	
 	if(is_array($owner_contexts))
 	foreach($owner_contexts as $row) {
@@ -87,7 +87,7 @@ if(isset($columns['owner_context'])) {
 			time(),
 			time()
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		$va_id = $db->LastInsertId();
 		
 		// If successfully added a new VA record, reassign the trigger_event rows
@@ -97,7 +97,7 @@ if(isset($columns['owner_context'])) {
 				$db->qstr($row['owner_context']),
 				$row['owner_context_id']
 			);
-			$db->Execute($sql);
+			$db->ExecuteMaster($sql);
 			
 		} else {
 			$logger->error("Failed to create new `virtual_attendant` record.");
@@ -108,31 +108,31 @@ if(isset($columns['owner_context'])) {
 	// Verify that all rows transitioned
 	$sql = "SELECT COUNT(*) FROM trigger_event WHERE virtual_attendant_id = 0";
 	
-	$count = $db->GetOne($sql);
+	$count = $db->GetOneMaster($sql);
 	if(!empty($count)) {
 		$logger->error("Failed to transition all `trigger_event` records to `virtual_attendant` ownership.");
 		return FALSE;
 	}
 	
-	$db->Execute("ALTER TABLE trigger_event DROP COLUMN owner_context, DROP COLUMN owner_context_id");
+	$db->ExecuteMaster("ALTER TABLE trigger_event DROP COLUMN owner_context, DROP COLUMN owner_context_id");
 }
 
 // ===========================================================================
 // Convert workspace_list keys for t_team_id and t_category_id
 
-$db->Execute("UPDATE workspace_list SET list_view=REPLACE(list_view,';s:9:\"t_team_id\"',';s:10:\"t_group_id\"') WHERE context = 'cerberusweb.contexts.ticket'");
-$db->Execute("UPDATE workspace_list SET list_view=REPLACE(list_view,';s:13:\"t_category_id\"',';s:11:\"t_bucket_id\"') WHERE context = 'cerberusweb.contexts.ticket'");
+$db->ExecuteMaster("UPDATE workspace_list SET list_view=REPLACE(list_view,';s:9:\"t_team_id\"',';s:10:\"t_group_id\"') WHERE context = 'cerberusweb.contexts.ticket'");
+$db->ExecuteMaster("UPDATE workspace_list SET list_view=REPLACE(list_view,';s:13:\"t_category_id\"',';s:11:\"t_bucket_id\"') WHERE context = 'cerberusweb.contexts.ticket'");
 
 // ===========================================================================
 // Convert worker_view_model keys for t_team_id and t_category_id
 
-$db->Execute("UPDATE worker_view_model SET columns_json=REPLACE(columns_json,'\"t_team_id\"','\"t_group_id\"'), columns_hidden_json=REPLACE(columns_hidden_json,'\"t_team_id\"','\"t_group_id\"'), params_editable_json=REPLACE(params_editable_json,'\"t_team_id\"','\"t_group_id\"'), params_default_json=REPLACE(params_default_json,'\"t_team_id\"','\"t_group_id\"'), params_required_json=REPLACE(params_required_json,'\"t_team_id\"','\"t_group_id\"'), params_hidden_json=REPLACE(params_hidden_json,'\"t_team_id\"','\"t_group_id\"') WHERE class_name IN ('View_Ticket','View_Message')");
-$db->Execute("UPDATE worker_view_model SET columns_json=REPLACE(columns_json,'\"t_category_id\"','\"t_bucket_id\"'), columns_hidden_json=REPLACE(columns_hidden_json,'\"t_category_id\"','\"t_bucket_id\"'), params_editable_json=REPLACE(params_editable_json,'\"t_category_id\"','\"t_bucket_id\"'), params_default_json=REPLACE(params_default_json,'\"t_category_id\"','\"t_bucket_id\"'), params_required_json=REPLACE(params_required_json,'\"t_category_id\"','\"t_bucket_id\"'), params_hidden_json=REPLACE(params_hidden_json,'\"t_category_id\"','\"t_bucket_id\"') WHERE class_name IN ('View_Ticket','View_Message')");
+$db->ExecuteMaster("UPDATE worker_view_model SET columns_json=REPLACE(columns_json,'\"t_team_id\"','\"t_group_id\"'), columns_hidden_json=REPLACE(columns_hidden_json,'\"t_team_id\"','\"t_group_id\"'), params_editable_json=REPLACE(params_editable_json,'\"t_team_id\"','\"t_group_id\"'), params_default_json=REPLACE(params_default_json,'\"t_team_id\"','\"t_group_id\"'), params_required_json=REPLACE(params_required_json,'\"t_team_id\"','\"t_group_id\"'), params_hidden_json=REPLACE(params_hidden_json,'\"t_team_id\"','\"t_group_id\"') WHERE class_name IN ('View_Ticket','View_Message')");
+$db->ExecuteMaster("UPDATE worker_view_model SET columns_json=REPLACE(columns_json,'\"t_category_id\"','\"t_bucket_id\"'), columns_hidden_json=REPLACE(columns_hidden_json,'\"t_category_id\"','\"t_bucket_id\"'), params_editable_json=REPLACE(params_editable_json,'\"t_category_id\"','\"t_bucket_id\"'), params_default_json=REPLACE(params_default_json,'\"t_category_id\"','\"t_bucket_id\"'), params_required_json=REPLACE(params_required_json,'\"t_category_id\"','\"t_bucket_id\"'), params_hidden_json=REPLACE(params_hidden_json,'\"t_category_id\"','\"t_bucket_id\"') WHERE class_name IN ('View_Ticket','View_Message')");
 
 // ===========================================================================
 // Clean up missing scheduled behaviors
 
-$db->Execute("DELETE context_scheduled_behavior FROM context_scheduled_behavior LEFT JOIN trigger_event ON (trigger_event.id=context_scheduled_behavior.behavior_id) WHERE trigger_event.id IS NULL");
+$db->ExecuteMaster("DELETE context_scheduled_behavior FROM context_scheduled_behavior LEFT JOIN trigger_event ON (trigger_event.id=context_scheduled_behavior.behavior_id) WHERE trigger_event.id IS NULL");
 
 // ===========================================================================
 // Finish up

@@ -20,7 +20,7 @@ if(!isset($tables['context_link'])) {
 			UNIQUE from_and_to (from_context, from_context_id, to_context, to_context_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['context_link'] = 'context_link';
 }
@@ -42,7 +42,7 @@ if(isset($columns['source_extension']) && isset($columns['source_id'])) {
 	
 	if(is_array($source_to_context))
 	foreach($source_to_context as $source => $context) {
-		$db->Execute(sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+		$db->ExecuteMaster(sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
 			"SELECT 'cerberusweb.contexts.task', id, %s, source_id FROM task WHERE source_extension = %s ",
 			$db->qstr($context),
 			$db->qstr($source)
@@ -50,13 +50,13 @@ if(isset($columns['source_extension']) && isset($columns['source_id'])) {
 	}
 	
 	// Insert reciprocals
-	$db->Execute(sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+	$db->ExecuteMaster(sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
 		"SELECT to_context, to_context_id, from_context, from_context_id ".
 		"FROM context_link"
 	));
 	
-	$db->Execute('ALTER TABLE task DROP COLUMN source_extension');
-	$db->Execute('ALTER TABLE task DROP COLUMN source_id');
+	$db->ExecuteMaster('ALTER TABLE task DROP COLUMN source_extension');
+	$db->ExecuteMaster('ALTER TABLE task DROP COLUMN source_id');
 }
 
 // ===========================================================================
@@ -75,7 +75,7 @@ if(!isset($tables['view_filters_preset'])) {
 			INDEX worker_id (worker_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['view_filters_preset'] = 'view_filters_preset';
 }
@@ -97,7 +97,7 @@ if(!isset($indexes['last_name'])) {
 }
 
 if(!empty($changes))
-	$db->Execute("ALTER TABLE address " . implode(', ', $changes));
+	$db->ExecuteMaster("ALTER TABLE address " . implode(', ', $changes));
 
 // ===========================================================================
 // Comment
@@ -118,19 +118,19 @@ if(!isset($tables['comment'])) {
 			INDEX created (created)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	// ===========================================================================
 	// Migrate 'ticket_comment' to 'comment'
 	
 	if(isset($tables['ticket_comment'])) {
-		$db->Execute("INSERT INTO comment (context, context_id, created, address_id, comment) ".
+		$db->ExecuteMaster("INSERT INTO comment (context, context_id, created, address_id, comment) ".
 			"SELECT 'cerberusweb.contexts.ticket', ticket_id, created, address_id, comment ".
 			"FROM ticket_comment ORDER BY id"
 		) or die($db->ErrorMsg());
 		
-		$db->Execute("DROP TABLE IF EXISTS ticket_comment");
-		$db->Execute("DROP TABLE IF EXISTS ticket_comment_seq");
+		$db->ExecuteMaster("DROP TABLE IF EXISTS ticket_comment");
+		$db->ExecuteMaster("DROP TABLE IF EXISTS ticket_comment_seq");
 		unset($tables['ticket_comment']);
 		unset($tables['ticket_comment_seq']);
 	}
@@ -140,7 +140,7 @@ if(!isset($tables['comment'])) {
 
 	// cerberusweb.notes.source.org
 	if(isset($tables['note'])) {
-		$db->Execute("INSERT INTO comment (context, context_id, created, address_id, comment) ".
+		$db->ExecuteMaster("INSERT INTO comment (context, context_id, created, address_id, comment) ".
 			"SELECT 'cerberusweb.contexts.org', note.source_id, note.created, address.id, note.content ".
 			"FROM note ".
 			"INNER JOIN worker ON (worker.id=note.worker_id) ".
@@ -152,7 +152,7 @@ if(!isset($tables['comment'])) {
 	
 	// cerberusweb.notes.source.task
 	if(isset($tables['note'])) {
-		$db->Execute("INSERT INTO comment (context, context_id, created, address_id, comment) ".
+		$db->ExecuteMaster("INSERT INTO comment (context, context_id, created, address_id, comment) ".
 			"SELECT 'cerberusweb.contexts.task', note.source_id, note.created, address.id, note.content ".
 			"FROM note ".
 			"INNER JOIN worker ON (worker.id=note.worker_id) ".
@@ -164,7 +164,7 @@ if(!isset($tables['comment'])) {
 	
 	// crm.notes.source.opportunity
 	if(isset($tables['note'])) {
-		$db->Execute("INSERT INTO comment (context, context_id, created, address_id, comment) ".
+		$db->ExecuteMaster("INSERT INTO comment (context, context_id, created, address_id, comment) ".
 			"SELECT 'cerberusweb.contexts.opportunity', note.source_id, note.created, address.id, note.content ".
 			"FROM note ".
 			"INNER JOIN worker ON (worker.id=note.worker_id) ".
@@ -174,8 +174,8 @@ if(!isset($tables['comment'])) {
 		) or die($db->ErrorMsg());
 	}
 	
-	$db->Execute("DROP TABLE IF EXISTS note");
-	$db->Execute("DROP TABLE IF EXISTS note_seq");
+	$db->ExecuteMaster("DROP TABLE IF EXISTS note");
+	$db->ExecuteMaster("DROP TABLE IF EXISTS note_seq");
 	unset($tables['note']);
 	unset($tables['note_seq']);
 	
@@ -183,7 +183,7 @@ if(!isset($tables['comment'])) {
 	// Migrate 'message_note' to 'comment'
 
 	if(isset($tables['message_note'])) {
-		$db->Execute("INSERT INTO comment (context, context_id, created, address_id, comment) ".
+		$db->ExecuteMaster("INSERT INTO comment (context, context_id, created, address_id, comment) ".
 			"SELECT 'cerberusweb.contexts.message', message_note.message_id, message_note.created, address.id, message_note.content ".
 			"FROM message_note ".
 			"INNER JOIN worker ON (worker.id=message_note.worker_id) ".
@@ -192,8 +192,8 @@ if(!isset($tables['comment'])) {
 		) or die($db->ErrorMsg());
 	}
 	
-	$db->Execute("DROP TABLE IF EXISTS message_note");
-	$db->Execute("DROP TABLE IF EXISTS message_note_seq");
+	$db->ExecuteMaster("DROP TABLE IF EXISTS message_note");
+	$db->ExecuteMaster("DROP TABLE IF EXISTS message_note_seq");
 	unset($tables['message_note']);
 	unset($tables['message_note_seq']);
 
@@ -209,18 +209,18 @@ if(!isset($tables['worker_event']))
 list($columns, $indexes) = $db->metaTable('worker_event');
 
 if(isset($columns['content'])) {
-	$db->Execute('ALTER TABLE worker_event DROP COLUMN content');
+	$db->ExecuteMaster('ALTER TABLE worker_event DROP COLUMN content');
 }
 
 if(isset($columns['title']) && !isset($columns['message'])) {
-	$db->Execute('ALTER TABLE worker_event CHANGE COLUMN title message VARCHAR(255)');
+	$db->ExecuteMaster('ALTER TABLE worker_event CHANGE COLUMN title message VARCHAR(255)');
 	
 	// Clear view customizations since fields changed significantly
-	$db->Execute("DELETE FROM worker_pref WHERE setting = 'viewhome_myevents'");
+	$db->ExecuteMaster("DELETE FROM worker_pref WHERE setting = 'viewhome_myevents'");
 }
 
 if(isset($columns['message']) && 0 != strcasecmp('varchar(255)',$columns['message']['type'])) {
-	$db->Execute("ALTER TABLE worker_event MODIFY COLUMN message VARCHAR(255) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("ALTER TABLE worker_event MODIFY COLUMN message VARCHAR(255) NOT NULL DEFAULT ''");
 }
 
 // ===========================================================================
@@ -232,14 +232,14 @@ if(!isset($tables['task']))
 list($columns, $indexes) = $db->metaTable('task');
 
 if(isset($columns['worker_id'])) {
-	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+	$db->ExecuteMaster("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
 		"SELECT 'cerberusweb.contexts.task', id, 'cerberusweb.contexts.worker', worker_id FROM task WHERE worker_id > 0"
 	);
-	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+	$db->ExecuteMaster("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
 		"SELECT 'cerberusweb.contexts.worker', worker_id, 'cerberusweb.contexts.task', id FROM task WHERE worker_id > 0"
 	);
 	
-	$db->Execute('ALTER TABLE task DROP COLUMN worker_id');
+	$db->ExecuteMaster('ALTER TABLE task DROP COLUMN worker_id');
 }
 
 // ===========================================================================
@@ -270,11 +270,11 @@ if(!isset($tables['worker_view_model'])) {
 			UNIQUE worker_to_view_id (worker_id, view_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['worker_view_model'] = 'worker_view_model';
 	
-	$rs = $db->Execute("SELECT worker_id, SUBSTRING(setting,5) AS view_id, value AS model FROM worker_pref WHERE setting LIKE 'view%%'");
+	$rs = $db->ExecuteMaster("SELECT worker_id, SUBSTRING(setting,5) AS view_id, value AS model FROM worker_pref WHERE setting LIKE 'view%%'");
 	
 	if(false !== $rs)
 	while($row = mysqli_fetch_assoc($rs)) {
@@ -304,7 +304,7 @@ if(!isset($tables['worker_view_model'])) {
 				'render_template' => $db->qstr($model->renderTemplate),
 			);
 			
-			$db->Execute(sprintf("REPLACE INTO worker_view_model (%s)".
+			$db->ExecuteMaster(sprintf("REPLACE INTO worker_view_model (%s)".
 				"VALUES (%s)",
 				implode(',', array_keys($fields)),
 				implode(',', $fields)
@@ -314,19 +314,19 @@ if(!isset($tables['worker_view_model'])) {
 	
 	mysqli_free_result($rs);
 	
-	$db->Execute("DELETE FROM worker_pref WHERE setting LIKE 'view%'");
+	$db->ExecuteMaster("DELETE FROM worker_pref WHERE setting LIKE 'view%'");
 }
 
 // Add render_subtotals
 list($columns, $indexes) = $db->metaTable('worker_view_model');
 
 if(!isset($columns['render_subtotals'])) {
-	$db->Execute("ALTER TABLE worker_view_model ADD COLUMN render_subtotals VARCHAR(255) NOT NULL DEFAULT ''");
-	$db->Execute("UPDATE worker_view_model SET render_subtotals = 'group' WHERE view_id = 'mail_workflow'");
+	$db->ExecuteMaster("ALTER TABLE worker_view_model ADD COLUMN render_subtotals VARCHAR(255) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("UPDATE worker_view_model SET render_subtotals = 'group' WHERE view_id = 'mail_workflow'");
 }
 
 if(!isset($columns['render_subtotals_clickable'])) {
-	$db->Execute("ALTER TABLE worker_view_model ADD COLUMN render_subtotals_clickable TINYINT(1) NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("ALTER TABLE worker_view_model ADD COLUMN render_subtotals_clickable TINYINT(1) NOT NULL DEFAULT 0");
 }
 
 // ===========================================================================
@@ -335,7 +335,7 @@ if(!isset($columns['render_subtotals_clickable'])) {
 list($columns, $indexes) = $db->metaTable('contact_org');
 
 if(isset($columns['parent_org_id']))
-	$db->Execute("ALTER TABLE contact_org DROP COLUMN parent_org_id");
+	$db->ExecuteMaster("ALTER TABLE contact_org DROP COLUMN parent_org_id");
 
 // ===========================================================================
 // Convert ticket 'next_worker' assignments to contexts, drop unlock_date, drop last_worker_id
@@ -346,24 +346,24 @@ if(!isset($tables['ticket']))
 list($columns, $indexes) = $db->metaTable('ticket');
 
 if(isset($columns['unlock_date'])) {
-	$db->Execute("ALTER TABLE ticket DROP COLUMN unlock_date");
+	$db->ExecuteMaster("ALTER TABLE ticket DROP COLUMN unlock_date");
 }
 
 if(isset($columns['last_worker_id'])) {
-	$db->Execute("ALTER TABLE ticket DROP COLUMN last_worker_id");
+	$db->ExecuteMaster("ALTER TABLE ticket DROP COLUMN last_worker_id");
 }
 
 if(isset($columns['next_worker_id'])) {
 	// ~23s
-	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+	$db->ExecuteMaster("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
 		"SELECT 'cerberusweb.contexts.ticket', id, 'cerberusweb.contexts.worker', next_worker_id FROM ticket WHERE next_worker_id > 0 AND is_deleted = 0"
 	);
 	// ~30s
-	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+	$db->ExecuteMaster("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
 		"SELECT 'cerberusweb.contexts.worker', next_worker_id, 'cerberusweb.contexts.ticket', id FROM ticket WHERE next_worker_id > 0 AND is_deleted = 0"
 	);
 	
-	$db->Execute('ALTER TABLE ticket DROP COLUMN next_worker_id');
+	$db->ExecuteMaster('ALTER TABLE ticket DROP COLUMN next_worker_id');
 }
 
 // ===========================================================================
@@ -373,7 +373,7 @@ if(!isset($tables['group_inbox_filter']))
 	return FALSE;
 
 $sql = "SELECT id, actions_ser FROM group_inbox_filter";
-$rs = $db->Execute($sql);
+$rs = $db->ExecuteMaster($sql);
 
 if(false !== $rs)
 while($row = mysqli_fetch_assoc($rs)) {
@@ -396,7 +396,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 				
 			unset($filter_actions['assign']);
 			
-			$db->Execute(sprintf("UPDATE group_inbox_filter SET actions_ser = %s WHERE id = %d",
+			$db->ExecuteMaster(sprintf("UPDATE group_inbox_filter SET actions_ser = %s WHERE id = %d",
 				$db->qstr(serialize($filter_actions)),
 				$filter_id
 			));
@@ -409,11 +409,11 @@ mysqli_free_result($rs);
 
 // ===========================================================================
 // Nuke the 'inbox_is_assignable' preference since they always are now
-$db->Execute("DELETE FROM group_setting WHERE setting = 'inbox_is_assignable'");
+$db->ExecuteMaster("DELETE FROM group_setting WHERE setting = 'inbox_is_assignable'");
 
 // ===========================================================================
 // Nuke the 'mail_inline_comments' pref from workers
-$db->Execute("DELETE FROM worker_pref WHERE setting = 'mail_inline_comments'");
+$db->ExecuteMaster("DELETE FROM worker_pref WHERE setting = 'mail_inline_comments'");
 
 // ===========================================================================
 // Collapse redundant worker tokens
@@ -421,13 +421,13 @@ $db->Execute("DELETE FROM worker_pref WHERE setting = 'mail_inline_comments'");
 if(!isset($tables['snippet']))
 	return FALSE;
 	
-$db->Execute("UPDATE snippet SET content=REPLACE(content,'{{worker_','{{') WHERE context='cerberusweb.snippets.worker'");
+$db->ExecuteMaster("UPDATE snippet SET content=REPLACE(content,'{{worker_','{{') WHERE context='cerberusweb.snippets.worker'");
 
 // ===========================================================================
 // Fix orphaned ticket.last_message_id
 
-$db->Execute("UPDATE ticket SET last_message_id=(SELECT max(id) FROM message WHERE message.ticket_id=ticket.id) WHERE last_message_id=0 AND is_deleted=0");
-$db->Execute("UPDATE ticket SET is_closed=1, is_deleted=1 WHERE last_message_id=0 AND is_deleted=0");
+$db->ExecuteMaster("UPDATE ticket SET last_message_id=(SELECT max(id) FROM message WHERE message.ticket_id=ticket.id) WHERE last_message_id=0 AND is_deleted=0");
+$db->ExecuteMaster("UPDATE ticket SET is_closed=1, is_deleted=1 WHERE last_message_id=0 AND is_deleted=0");
 
 // ===========================================================================
 // Convert sequences to MySQL AUTO_INCREMENT, make UNSIGNED
@@ -450,7 +450,7 @@ $tables_seq = array(
 );
 foreach($tables_seq as $table) {
 	if(isset($tables[$table])) {
-		$db->Execute(sprintf("DROP TABLE IF EXISTS %s", $table));
+		$db->ExecuteMaster(sprintf("DROP TABLE IF EXISTS %s", $table));
 		unset($tables[$table]);
 	}
 }
@@ -492,7 +492,7 @@ foreach($tables_autoinc as $table) {
 		&& ('int(10) unsigned' != $columns['id']['type'] 
 		|| 'auto_increment' != $columns['id']['extra'])
 	) {
-		$db->Execute(sprintf("ALTER TABLE %s MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT", $table));
+		$db->ExecuteMaster(sprintf("ALTER TABLE %s MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT", $table));
 	}
 }
 

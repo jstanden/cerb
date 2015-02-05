@@ -35,7 +35,7 @@ class ExReport extends Extension_Report {
 				$sql .= sprintf("AND created_date >= %d and created_date <= %d ", $date_from, $date_to);
 		}
 		
-		$ticket_stats = $db->GetRow($sql);
+		$ticket_stats = $db->GetRowSlave($sql);
 		
 		$num_total = intval($ticket_stats['num_total']);
 		$num_closed = intval($ticket_stats['num_closed']);

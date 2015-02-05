@@ -53,7 +53,7 @@ class ChReportVirtualAttendantUsage extends Extension_Report {
 			$end_time
 		);
 		
-		$stats = $db->GetArray(sprintf($sql, 'DESC'));
+		$stats = $db->GetArraySlave(sprintf($sql, 'DESC'));
 		
 		$vas = DAO_VirtualAttendant::getAll();
 		

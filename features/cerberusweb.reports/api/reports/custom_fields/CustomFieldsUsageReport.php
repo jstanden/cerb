@@ -77,7 +77,7 @@ class ChReportCustomFieldUsage extends Extension_Report {
 			$db->qstr($field->context),
 			$field->id
 		);
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 	
 		$value_counts = array();
 		

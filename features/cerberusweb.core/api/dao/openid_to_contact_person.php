@@ -31,7 +31,7 @@ class DAO_OpenIdToContactPerson {
 			$contact_person_id,
 			$db->qstr(md5($openid_claimed_id))
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		
 		return TRUE;
 	}
@@ -46,7 +46,7 @@ class DAO_OpenIdToContactPerson {
 			self::HASH_KEY,
 			$db->qstr($hash)
 		);
-		$row = $db->GetRow($sql);
+		$row = $db->GetRowSlave($sql);
 		
 		if(!empty($row)) {
 			$object = new Model_OpenIdToContactPerson();
@@ -68,7 +68,7 @@ class DAO_OpenIdToContactPerson {
 			self::CONTACT_PERSON_ID,
 			$contact_person_id
 		);
-		$rs = $db->GetArray($sql);
+		$rs = $db->GetArraySlave($sql);
 		
 		foreach($rs as $row) {
 			$results[$row['openid_claimed_id']] = $row['openid_claimed_id'];
@@ -85,7 +85,7 @@ class DAO_OpenIdToContactPerson {
 			self::OPENID_CLAIMED_ID,
 			$db->qstr($openid_claimed_id)
 		);
-		return $db->GetOne($sql);
+		return $db->GetOneSlave($sql);
 	}
 	
 	public static function deleteByContactPerson($contact_person_id) {
@@ -95,7 +95,7 @@ class DAO_OpenIdToContactPerson {
 			self::CONTACT_PERSON_ID,
 			$contact_person_id
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		
 		// Release associated email addresses
 		$fields = array(
@@ -111,14 +111,14 @@ class DAO_OpenIdToContactPerson {
 			self::OPENID_CLAIMED_ID,
 			$db->qstr($openid_claimed_id)
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 	
 	public static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		// Delete where orphaned contact_person
-		$db->Execute("DELETE FROM openid_to_contact_person WHERE contact_person_id NOT IN (SELECT id FROM contact_person)");
+		$db->ExecuteMaster("DELETE FROM openid_to_contact_person WHERE contact_person_id NOT IN (SELECT id FROM contact_person)");
 	}
 };
 

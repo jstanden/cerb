@@ -14,7 +14,7 @@ if(!isset($tables['trigger_event'])) {
 list($columns, $indexes) = $db->metaTable('trigger_event');
 
 if(!isset($columns['pos'])) {
-	$db->Execute("ALTER TABLE trigger_event ADD COLUMN pos SMALLINT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("ALTER TABLE trigger_event ADD COLUMN pos SMALLINT UNSIGNED NOT NULL DEFAULT 0");
 }
 
 return TRUE;

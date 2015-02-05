@@ -7,26 +7,26 @@ $tables = $db->metaTables();
 
 if(isset($tables['community_tool_property'])) {
 	// Drop deprecated
-	$db->Execute("DELETE FROM community_tool_property WHERE property_key = 'base_url'");
-	$db->Execute("DELETE FROM community_tool_property WHERE property_key = 'theme'");
-	$db->Execute("DELETE FROM community_tool_property WHERE property_key = 'kb_enabled'");
-	$db->Execute("DELETE FROM community_tool_property WHERE property_key = 'fnr_sources'");
+	$db->ExecuteMaster("DELETE FROM community_tool_property WHERE property_key = 'base_url'");
+	$db->ExecuteMaster("DELETE FROM community_tool_property WHERE property_key = 'theme'");
+	$db->ExecuteMaster("DELETE FROM community_tool_property WHERE property_key = 'kb_enabled'");
+	$db->ExecuteMaster("DELETE FROM community_tool_property WHERE property_key = 'fnr_sources'");
 	
 	// Update to new style property keys w/ namespaces
-	$db->Execute("UPDATE community_tool_property SET property_key = 'common.logo_url' WHERE property_key = 'logo_url'");
-	$db->Execute("UPDATE community_tool_property SET property_key = 'common.page_title' WHERE property_key = 'page_title'");
-	$db->Execute("UPDATE community_tool_property SET property_key = 'common.style_css' WHERE property_key = 'style_css'");
-	$db->Execute("UPDATE community_tool_property SET property_key = 'common.footer_html' WHERE property_key = 'footer_html'");
-	$db->Execute("UPDATE community_tool_property SET property_key = 'common.allow_logins' WHERE property_key = 'allow_logins'");
-	$db->Execute("UPDATE community_tool_property SET property_key = 'common.enabled_modules' WHERE property_key = 'enabled_modules'");
+	$db->ExecuteMaster("UPDATE community_tool_property SET property_key = 'common.logo_url' WHERE property_key = 'logo_url'");
+	$db->ExecuteMaster("UPDATE community_tool_property SET property_key = 'common.page_title' WHERE property_key = 'page_title'");
+	$db->ExecuteMaster("UPDATE community_tool_property SET property_key = 'common.style_css' WHERE property_key = 'style_css'");
+	$db->ExecuteMaster("UPDATE community_tool_property SET property_key = 'common.footer_html' WHERE property_key = 'footer_html'");
+	$db->ExecuteMaster("UPDATE community_tool_property SET property_key = 'common.allow_logins' WHERE property_key = 'allow_logins'");
+	$db->ExecuteMaster("UPDATE community_tool_property SET property_key = 'common.enabled_modules' WHERE property_key = 'enabled_modules'");
 
-	$db->Execute("UPDATE community_tool_property SET property_key = 'announcements.rss' WHERE property_key = 'home_rss'");
+	$db->ExecuteMaster("UPDATE community_tool_property SET property_key = 'announcements.rss' WHERE property_key = 'home_rss'");
 	
-	$db->Execute("UPDATE community_tool_property SET property_key = 'contact.captcha_enabled' WHERE property_key = 'captcha_enabled'");
-	$db->Execute("UPDATE community_tool_property SET property_key = 'contact.allow_subjects' WHERE property_key = 'allow_subjects'");
-	$db->Execute("UPDATE community_tool_property SET property_key = 'contact.situations' WHERE property_key = 'dispatch'");
+	$db->ExecuteMaster("UPDATE community_tool_property SET property_key = 'contact.captcha_enabled' WHERE property_key = 'captcha_enabled'");
+	$db->ExecuteMaster("UPDATE community_tool_property SET property_key = 'contact.allow_subjects' WHERE property_key = 'allow_subjects'");
+	$db->ExecuteMaster("UPDATE community_tool_property SET property_key = 'contact.situations' WHERE property_key = 'dispatch'");
 	
-	$db->Execute("UPDATE community_tool_property SET property_key = 'kb.roots' WHERE property_key = 'kb_roots'");
+	$db->ExecuteMaster("UPDATE community_tool_property SET property_key = 'kb.roots' WHERE property_key = 'kb_roots'");
 }
 
 // ===========================================================================
@@ -35,7 +35,7 @@ if(isset($tables['community_tool_property'])) {
 if(isset($tables['community_tool'])) {
 	// Load KB + CFB profiles
 	$sql = "SELECT id,code,extension_id FROM community_tool WHERE extension_id IN ('support.tool','kb.tool')";
-	$rs = $db->Execute($sql);
+	$rs = $db->ExecuteMaster($sql);
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		$code = $row['code'];
@@ -43,7 +43,7 @@ if(isset($tables['community_tool'])) {
 		
 		// Look up the existing properties for this tool
 		$sql = sprintf("SELECT property_key, property_value FROM community_tool_property WHERE tool_code = '%s'",$code);
-		$rs2 = $db->Execute($sql);
+		$rs2 = $db->ExecuteMaster($sql);
 		
 		$name = '';
 		$props = array();
@@ -58,7 +58,7 @@ if(isset($tables['community_tool'])) {
 		mysqli_free_result($rs2);
 		
 		// Drop existing properies to replace
-		$db->Execute(sprintf("DELETE FROM community_tool_property WHERE tool_code = '%s'",$code));
+		$db->ExecuteMaster(sprintf("DELETE FROM community_tool_property WHERE tool_code = '%s'",$code));
 		
 		// Override a few community tool properties to fine tune the migration
 		switch($tool_extension_id) {
@@ -85,11 +85,11 @@ if(isset($tables['community_tool'])) {
 				$db->qstr($k),
 				$db->qstr($v)
 			);
-			$db->Execute($sql);
+			$db->ExecuteMaster($sql);
 		}
 		
 		// Update extension_id to 'sc.tool' in old community_tool
-		$db->Execute(sprintf("UPDATE community_tool SET name = %s, extension_id = 'sc.tool' WHERE code = %s",
+		$db->ExecuteMaster(sprintf("UPDATE community_tool SET name = %s, extension_id = 'sc.tool' WHERE code = %s",
 			$db->qstr($name),
 			$db->qstr($code)
 		));
@@ -105,11 +105,11 @@ if(isset($tables['community_tool'])) {
 
 if(isset($tables['community_tool'])) {
 	$sql = "SELECT c.code, p.property_key FROM community_tool c LEFT JOIN community_tool_property p ON (c.code=p.tool_code AND p.property_key = 'common.enabled_modules') WHERE c.extension_id='sc.tool' AND p.property_key IS NULL";
-	$rs = $db->Execute($sql);
+	$rs = $db->ExecuteMaster($sql);
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		$code = $row['code'];
-		$db->Execute(sprintf("INSERT INTO community_tool_property (tool_code, property_key, property_value) ".
+		$db->ExecuteMaster(sprintf("INSERT INTO community_tool_property (tool_code, property_key, property_value) ".
 			"VALUES (%s,%s,%s)",
 			$db->qstr($code),
 			$db->qstr('common.enabled_modules'),

@@ -14,7 +14,7 @@ if(!isset($tables['snippet'])) {
 list($columns, $indexes) = $db->metaTable('snippet');
 
 if(!isset($columns['owner_context']) && !isset($columns['owner_context_id'])) {
-	$db->Execute(sprintf(
+	$db->ExecuteMaster(sprintf(
 		"ALTER TABLE snippet ".
 		"ADD COLUMN owner_context VARCHAR(128) NOT NULL DEFAULT '', ".
 		"ADD COLUMN owner_context_id INT NOT NULL DEFAULT 0, ".
@@ -24,20 +24,20 @@ if(!isset($columns['owner_context']) && !isset($columns['owner_context_id'])) {
 }
 
 if(isset($columns['created_by'])) {
-	$db->Execute(sprintf("UPDATE snippet SET owner_context='cerberusweb.contexts.worker', owner_context_id=created_by WHERE created_by > 0"));
-	$db->Execute("ALTER TABLE snippet DROP COLUMN created_by");
+	$db->ExecuteMaster(sprintf("UPDATE snippet SET owner_context='cerberusweb.contexts.worker', owner_context_id=created_by WHERE created_by > 0"));
+	$db->ExecuteMaster("ALTER TABLE snippet DROP COLUMN created_by");
 }
 
 if(isset($columns['last_updated'])) {
-	$db->Execute("ALTER TABLE snippet DROP COLUMN last_updated");
+	$db->ExecuteMaster("ALTER TABLE snippet DROP COLUMN last_updated");
 }
 
 if(isset($columns['last_updated_by'])) {
-	$db->Execute("ALTER TABLE snippet DROP COLUMN last_updated_by");
+	$db->ExecuteMaster("ALTER TABLE snippet DROP COLUMN last_updated_by");
 }
  
 if(isset($columns['is_private'])) {
-	$db->Execute("ALTER TABLE snippet DROP COLUMN is_private");
+	$db->ExecuteMaster("ALTER TABLE snippet DROP COLUMN is_private");
 }
 
 // ===========================================================================
@@ -51,11 +51,11 @@ if(!isset($tables['worker_role'])) {
 list($columns, $indexes) = $db->metaTable('worker_role');
 
 if(!isset($columns['params_json'])) {
-	$db->Execute("ALTER TABLE worker_role ADD COLUMN params_json TEXT");
+	$db->ExecuteMaster("ALTER TABLE worker_role ADD COLUMN params_json TEXT");
 	
 	// Map workers to roles
 	$role_to_workers = array();
-	$results = $db->GetArray("SELECT worker_id, role_id FROM worker_to_role");
+	$results = $db->GetArrayMaster("SELECT worker_id, role_id FROM worker_to_role");
 	foreach($results as $row) {
 		$role_id = $row['role_id'];
 		$worker_id = $row['worker_id'];
@@ -66,14 +66,14 @@ if(!isset($columns['params_json'])) {
 		$role_to_workers[$role_id][] = intval($worker_id);
 	}
 	
-	$results = $db->GetArray("SELECT id FROM worker_role");
+	$results = $db->GetArrayMaster("SELECT id FROM worker_role");
 
 	foreach($results as $row) {
 		$role_id = $row['id'];
 		
 		$who_list = isset($role_to_workers[$role_id]) ? $role_to_workers[$role_id] : array();
 		
-		$db->Execute(sprintf("UPDATE worker_role SET params_json = %s WHERE id = %d",
+		$db->ExecuteMaster(sprintf("UPDATE worker_role SET params_json = %s WHERE id = %d",
 			$db->qstr(json_encode(array(
 				'who' => 'workers',
 				'who_list' => $who_list,
@@ -86,15 +86,15 @@ if(!isset($columns['params_json'])) {
 	unset($results);
 	unset($role_to_workers);
 	
-	$db->Execute("DROP TABLE worker_to_role");
+	$db->ExecuteMaster("DROP TABLE worker_to_role");
 }
 
-$acl_enabled = $db->GetOne("SELECT value FROM devblocks_setting WHERE setting = 'acl_enabled'");
+$acl_enabled = $db->GetOneMaster("SELECT value FROM devblocks_setting WHERE setting = 'acl_enabled'");
 
 if(!is_null($acl_enabled)) {
 	// If ACL was disabled, add a default role for everyone that can do everything
 	if(!$acl_enabled) {
-		$db->Execute(sprintf("INSERT INTO worker_role (name,params_json) ".
+		$db->ExecuteMaster(sprintf("INSERT INTO worker_role (name,params_json) ".
 			"VALUES ('Default',%s)",
 			$db->qstr(json_encode(array(
 				'who' => 'all',
@@ -103,21 +103,21 @@ if(!is_null($acl_enabled)) {
 		));
 	} else {
 		// Otherwise, if ACL was enabled, add default privs for mail + activity
-		$results = $db->GetArray("SELECT id FROM worker_role");
+		$results = $db->GetArrayMaster("SELECT id FROM worker_role");
 		
 		foreach($results as $row) {
-			$db->Execute(sprintf("INSERT INTO worker_role_acl (role_id, priv_id) VALUES (%d, %s)",
+			$db->ExecuteMaster(sprintf("INSERT INTO worker_role_acl (role_id, priv_id) VALUES (%d, %s)",
 				$row['id'],
 				$db->qstr('core.mail')
 			));
-			$db->Execute(sprintf("INSERT INTO worker_role_acl (role_id, priv_id) VALUES (%d, %s)",
+			$db->ExecuteMaster(sprintf("INSERT INTO worker_role_acl (role_id, priv_id) VALUES (%d, %s)",
 				$row['id'],
 				$db->qstr('core.activity')
 			));
 		}
 	}
 	
-	$db->Execute("DELETE FROM devblocks_setting WHERE setting = 'acl_enabled'");
+	$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE setting = 'acl_enabled'");
 }
 
 // ===========================================================================
@@ -131,7 +131,7 @@ if(!isset($tables['worker_role_acl'])) {
 list($columns, $indexes) = $db->metaTable('worker_role_acl');
 
 if(isset($columns['has_priv'])) {
-	$db->Execute("ALTER TABLE worker_role_acl DROP COLUMN has_priv");
+	$db->ExecuteMaster("ALTER TABLE worker_role_acl DROP COLUMN has_priv");
 }
 
 // ===========================================================================
@@ -145,16 +145,16 @@ if(!isset($tables['workspace'])) {
 list($columns, $indexes) = $db->metaTable('workspace');
 
 if(!isset($columns['owner_context'])) {
-	$db->Execute("ALTER TABLE workspace ADD COLUMN owner_context VARCHAR(255) DEFAULT '' NOT NULL, ADD INDEX owner_context (owner_context)");
+	$db->ExecuteMaster("ALTER TABLE workspace ADD COLUMN owner_context VARCHAR(255) DEFAULT '' NOT NULL, ADD INDEX owner_context (owner_context)");
 }
 
 if(!isset($columns['owner_context_id'])) {
-	$db->Execute("ALTER TABLE workspace ADD COLUMN owner_context_id INT UNSIGNED DEFAULT 0 NOT NULL, ADD INDEX owner_context_id (owner_context_id)");
+	$db->ExecuteMaster("ALTER TABLE workspace ADD COLUMN owner_context_id INT UNSIGNED DEFAULT 0 NOT NULL, ADD INDEX owner_context_id (owner_context_id)");
 }
 
 if(isset($columns['worker_id'])) {
-	$db->Execute("UPDATE workspace SET owner_context = 'cerberusweb.contexts.worker', owner_context_id = worker_id WHERE owner_context = '' AND owner_context_id = 0");
-	$db->Execute("ALTER TABLE workspace DROP COLUMN worker_id");
+	$db->ExecuteMaster("UPDATE workspace SET owner_context = 'cerberusweb.contexts.worker', owner_context_id = worker_id WHERE owner_context = '' AND owner_context_id = 0");
+	$db->ExecuteMaster("ALTER TABLE workspace DROP COLUMN worker_id");
 }
 
 // ===========================================================================
@@ -168,16 +168,16 @@ if(!isset($tables['workspace_to_endpoint'])) {
 list($columns, $indexes) = $db->metaTable('workspace_to_endpoint');
 
 if(!isset($columns['worker_id'])) {
-	$db->Execute("ALTER TABLE workspace_to_endpoint ADD COLUMN worker_id INT UNSIGNED DEFAULT 0 NOT NULL, ADD INDEX worker_id (worker_id)");
-	$db->Execute("UPDATE workspace_to_endpoint INNER JOIN workspace ON (workspace_to_endpoint.workspace_id=workspace.id) SET workspace_to_endpoint.worker_id=workspace.owner_context_id WHERE workspace.owner_context = 'cerberusweb.contexts.worker' AND workspace_to_endpoint.worker_id=0");
-	$db->Execute("DELETE FROM workspace_to_endpoint WHERE worker_id = 0");
+	$db->ExecuteMaster("ALTER TABLE workspace_to_endpoint ADD COLUMN worker_id INT UNSIGNED DEFAULT 0 NOT NULL, ADD INDEX worker_id (worker_id)");
+	$db->ExecuteMaster("UPDATE workspace_to_endpoint INNER JOIN workspace ON (workspace_to_endpoint.workspace_id=workspace.id) SET workspace_to_endpoint.worker_id=workspace.owner_context_id WHERE workspace.owner_context = 'cerberusweb.contexts.worker' AND workspace_to_endpoint.worker_id=0");
+	$db->ExecuteMaster("DELETE FROM workspace_to_endpoint WHERE worker_id = 0");
 }
 
 // If the primary key is compounding 2 fields instead of 3
 $diff = array_diff(array('workspace_id','endpoint'), array_keys($indexes['PRIMARY']['columns']));
 if(empty($diff)) {
-	$db->Execute('ALTER TABLE workspace_to_endpoint DROP PRIMARY KEY');
-	$db->Execute('ALTER TABLE workspace_to_endpoint ADD PRIMARY KEY (workspace_id, worker_id, endpoint)');
+	$db->ExecuteMaster('ALTER TABLE workspace_to_endpoint DROP PRIMARY KEY');
+	$db->ExecuteMaster('ALTER TABLE workspace_to_endpoint ADD PRIMARY KEY (workspace_id, worker_id, endpoint)');
 }
 
 // ===========================================================================
@@ -191,7 +191,7 @@ if(!isset($tables['workspace_list'])) {
 list($columns, $indexes) = $db->metaTable('workspace_list');
 
 if(isset($columns['worker_id'])) {
-	$db->Execute("ALTER TABLE workspace_list DROP COLUMN worker_id");
+	$db->ExecuteMaster("ALTER TABLE workspace_list DROP COLUMN worker_id");
 }
 
 // ===========================================================================
@@ -220,12 +220,12 @@ if(!isset($columns['org_id'])) {
 }
 
 if(!empty($diffs)) {
-	$db->Execute(sprintf("ALTER TABLE ticket %s",
+	$db->ExecuteMaster(sprintf("ALTER TABLE ticket %s",
 		implode(',', $diffs)
 	));
 	
 	if($do_migrate_orgs) {
-		$db->Execute("UPDATE ticket INNER JOIN address ON (ticket.first_wrote_address_id=address.id AND address.contact_org_id > 0) SET ticket.org_id=address.contact_org_id");
+		$db->ExecuteMaster("UPDATE ticket INNER JOIN address ON (ticket.first_wrote_address_id=address.id AND address.contact_org_id > 0) SET ticket.org_id=address.contact_org_id");
 	}
 }
 
@@ -233,7 +233,7 @@ if(!empty($diffs)) {
 // team -> worker_group table refactor
 
 if(isset($tables['team']) && !isset($tables['worker_group'])) {
-	$db->Execute("RENAME TABLE team TO worker_group");
+	$db->ExecuteMaster("RENAME TABLE team TO worker_group");
 	unset($tables['team']);
 	$tables['worker_group'] = 'worker_group';
 }
@@ -242,7 +242,7 @@ if(isset($tables['team']) && !isset($tables['worker_group'])) {
 // category -> bucket table refactor
 
 if(isset($tables['category']) && !isset($tables['bucket'])) {
-	$db->Execute("RENAME TABLE category TO bucket");
+	$db->ExecuteMaster("RENAME TABLE category TO bucket");
 	unset($tables['category']);
 	$tables['bucket'] = 'bucket';
 }
@@ -250,14 +250,14 @@ if(isset($tables['category']) && !isset($tables['bucket'])) {
 list($columns, $indexes) = $db->metaTable('bucket');
 
 if(isset($columns['team_id'])) {
-	$db->Execute("ALTER TABLE bucket CHANGE COLUMN team_id group_id int unsigned not null default 0");
+	$db->ExecuteMaster("ALTER TABLE bucket CHANGE COLUMN team_id group_id int unsigned not null default 0");
 }
 
 // ===========================================================================
 // worker_to_team -> worker_to_group table refactor
 
 if(isset($tables['worker_to_team']) && !isset($tables['worker_to_group'])) {
-	$db->Execute("RENAME TABLE worker_to_team TO worker_to_group");
+	$db->ExecuteMaster("RENAME TABLE worker_to_team TO worker_to_group");
 	unset($tables['worker_to_team']);
 	$tables['worker_to_group'] = 'worker_to_group';
 }
@@ -265,10 +265,10 @@ if(isset($tables['worker_to_team']) && !isset($tables['worker_to_group'])) {
 list($columns, $indexes) = $db->metaTable('worker_to_group');
 
 if(isset($columns['agent_id']))
-	$db->Execute("ALTER TABLE worker_to_group CHANGE COLUMN agent_id worker_id int unsigned not null default 0");
+	$db->ExecuteMaster("ALTER TABLE worker_to_group CHANGE COLUMN agent_id worker_id int unsigned not null default 0");
 
 if(isset($columns['team_id']))
-	$db->Execute("ALTER TABLE worker_to_group CHANGE COLUMN team_id group_id int unsigned not null default 0");
+	$db->ExecuteMaster("ALTER TABLE worker_to_group CHANGE COLUMN team_id group_id int unsigned not null default 0");
 
 // ===========================================================================
 // Update references in worker_view_model
@@ -279,7 +279,7 @@ $replacements = array(
 );
 
 foreach($replacements as $replace_from => $replace_to) {
-	$db->Execute(sprintf("UPDATE worker_view_model ".
+	$db->ExecuteMaster(sprintf("UPDATE worker_view_model ".
 		"SET columns_json=REPLACE(columns_json,'\"%1\$s\"','\"%2\$s\"'), columns_hidden_json=REPLACE(columns_hidden_json,'\"%1\$s\"','\"%2\$s\"'), params_editable_json=REPLACE(params_editable_json,'\"%1\$s\"','\"%2\$s\"'), params_default_json=REPLACE(params_default_json,'\"%1\$s\"','\"%2\$s\"'), params_required_json=REPLACE(params_required_json,'\"%1\$s\"','\"%2\$s\"'), params_hidden_json=REPLACE(params_hidden_json,'\"%1\$s\"','\"%2\$s\"') ".
 		"WHERE class_name IN ('View_Ticket','View_Message')",
 		$replace_from,
@@ -290,18 +290,18 @@ foreach($replacements as $replace_from => $replace_to) {
 // ===========================================================================
 // Update references in workspace_list
 
-$db->Execute("UPDATE workspace_list SET list_view=REPLACE(list_view,';s:9:\"t_team_id\"',';s:10:\"t_group_id\"') WHERE context = 'cerberusweb.contexts.ticket'");
-$db->Execute("UPDATE workspace_list SET list_view=REPLACE(list_view,';s:13:\"t_category_id\"',';s:11:\"t_bucket_id\"') WHERE context = 'cerberusweb.contexts.ticket'");
+$db->ExecuteMaster("UPDATE workspace_list SET list_view=REPLACE(list_view,';s:9:\"t_team_id\"',';s:10:\"t_group_id\"') WHERE context = 'cerberusweb.contexts.ticket'");
+$db->ExecuteMaster("UPDATE workspace_list SET list_view=REPLACE(list_view,';s:13:\"t_category_id\"',';s:11:\"t_bucket_id\"') WHERE context = 'cerberusweb.contexts.ticket'");
 
 // ===========================================================================
 // Pref cleanup
 
-$db->Execute("DELETE FROM worker_pref WHERE setting = 'mail_status_create'");
+$db->ExecuteMaster("DELETE FROM worker_pref WHERE setting = 'mail_status_create'");
 
 // ===========================================================================
 // Modify VA actions to combine move_to_group and move_to_bucket into a single move_to action
 
-$results = $db->GetArray("SELECT decision_node.id, decision_node.params_json, trigger_event.owner_context, trigger_event.owner_context_id ".
+$results = $db->GetArrayMaster("SELECT decision_node.id, decision_node.params_json, trigger_event.owner_context, trigger_event.owner_context_id ".
 	"FROM decision_node ".
 	"INNER JOIN trigger_event ON (decision_node.trigger_id=trigger_event.id) ".
 	"WHERE node_type = 'action' AND params_json LIKE '%move\\_to\\_%'"
@@ -369,7 +369,7 @@ if(is_array($results) && !empty($results)) {
 							break;
 						default:
 							if(!empty($bucket_id)) {
-								$group_id = intval($db->GetOne(sprintf("SELECT group_id FROM bucket WHERE id = %d", $bucket_id)));
+								$group_id = intval($db->GetOneMaster(sprintf("SELECT group_id FROM bucket WHERE id = %d", $bucket_id)));
 							}
 							break;
 					}
@@ -388,7 +388,7 @@ if(is_array($results) && !empty($results)) {
 			}
 		}
 		
-		$db->Execute(sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
+		$db->ExecuteMaster(sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
 			$db->qstr(json_encode($params)),
 			$id
 		));
@@ -400,7 +400,7 @@ unset($results);
 // ===========================================================================
 // Nuke abandoned worker_view_model rows
 
-$results = $db->GetArray("SELECT DISTINCT worker_view_model.view_id, workspace_list.id ".
+$results = $db->GetArrayMaster("SELECT DISTINCT worker_view_model.view_id, workspace_list.id ".
 	"FROM worker_view_model ".
 	"LEFT JOIN workspace_list ON (worker_view_model.view_id=concat('cust_',workspace_list.id)) ".
 	"HAVING worker_view_model.view_id LIKE 'cust_%' ".
@@ -409,7 +409,7 @@ $results = $db->GetArray("SELECT DISTINCT worker_view_model.view_id, workspace_l
 
 if(is_array($results))
 foreach($results as $row) {
-	$db->Execute(sprintf("DELETE FROM worker_view_model WHERE view_id = %s",
+	$db->ExecuteMaster(sprintf("DELETE FROM worker_view_model WHERE view_id = %s",
 		$db->qstr($row['view_id'])
 	));
 }

@@ -177,8 +177,8 @@ abstract class DevblocksEngine {
 			return $manifest;
 		
 		// Persist manifest
-		if($db->GetOne(sprintf("SELECT id FROM ${prefix}plugin WHERE id = %s", $db->qstr($manifest->id)))) { // update
-			$db->Execute(sprintf(
+		if($db->GetOneMaster(sprintf("SELECT id FROM ${prefix}plugin WHERE id = %s", $db->qstr($manifest->id)))) { // update
+			$db->ExecuteMaster(sprintf(
 				"UPDATE ${prefix}plugin ".
 				"SET name=%s,description=%s,author=%s,version=%s,link=%s,dir=%s,manifest_cache_json=%s ".
 				"WHERE id=%s",
@@ -194,7 +194,7 @@ abstract class DevblocksEngine {
 			
 		} else { // insert
 			$enabled = (in_array($manifest->id, array('devblocks.core', 'cerberusweb.core')) ? 1 : 0);
-			$db->Execute(sprintf(
+			$db->ExecuteMaster(sprintf(
 				"INSERT INTO ${prefix}plugin (id,enabled,name,description,author,version,link,dir,manifest_cache_json) ".
 				"VALUES (%s,%d,%s,%s,%s,%s,%s,%s,%s)",
 				$db->qstr($manifest->id),
@@ -341,7 +341,7 @@ abstract class DevblocksEngine {
 		$new_extensions = array();
 		if(is_array($manifest->extensions))
 		foreach($manifest->extensions as $pos => $extension) { /* @var $extension DevblocksExtensionManifest */
-			$db->Execute(sprintf(
+			$db->ExecuteMaster(sprintf(
 				"REPLACE INTO ${prefix}extension (id,plugin_id,point,pos,name,file,class,params) ".
 				"VALUES (%s,%s,%s,%d,%s,%s,%s,%s)",
 				$db->qstr($extension->id),
@@ -365,7 +365,7 @@ abstract class DevblocksEngine {
 			$prefix,
 			$db->qstr($plugin->id)
 		);
-		$results = $db->GetArray($sql);
+		$results = $db->GetArrayMaster($sql);
 
 		foreach($results as $row) {
 			$plugin_ext_id = $row['id'];
@@ -374,12 +374,12 @@ abstract class DevblocksEngine {
 		}
 		
 		// Class loader cache
-		$db->Execute(sprintf("DELETE FROM %sclass_loader WHERE plugin_id = %s",$prefix,$db->qstr($plugin->id)));
+		$db->ExecuteMaster(sprintf("DELETE FROM %sclass_loader WHERE plugin_id = %s",$prefix,$db->qstr($plugin->id)));
 		if(is_array($manifest->class_loader))
 		foreach($manifest->class_loader as $file_path => $classes) {
 			if(is_array($classes) && !empty($classes))
 			foreach($classes as $class)
-			$db->Execute(sprintf(
+			$db->ExecuteMaster(sprintf(
 				"REPLACE INTO ${prefix}class_loader (class,plugin_id,rel_path) ".
 				"VALUES (%s,%s,%s)",
 				$db->qstr($class),
@@ -389,10 +389,10 @@ abstract class DevblocksEngine {
 		}
 		
 		// URI routing cache
-		$db->Execute(sprintf("DELETE FROM %suri_routing WHERE plugin_id = %s",$prefix,$db->qstr($plugin->id)));
+		$db->ExecuteMaster(sprintf("DELETE FROM %suri_routing WHERE plugin_id = %s",$prefix,$db->qstr($plugin->id)));
 		if(is_array($manifest->uri_routing))
 		foreach($manifest->uri_routing as $uri => $controller_id) {
-			$db->Execute(sprintf(
+			$db->ExecuteMaster(sprintf(
 				"REPLACE INTO ${prefix}uri_routing (uri,plugin_id,controller_id) ".
 				"VALUES (%s,%s,%s)",
 				$db->qstr($uri),
@@ -402,10 +402,10 @@ abstract class DevblocksEngine {
 		}
 
 		// ACL caching
-		$db->Execute(sprintf("DELETE FROM %sacl WHERE plugin_id = %s",$prefix,$db->qstr($plugin->id)));
+		$db->ExecuteMaster(sprintf("DELETE FROM %sacl WHERE plugin_id = %s",$prefix,$db->qstr($plugin->id)));
 		if(is_array($manifest->acl_privs))
 		foreach($manifest->acl_privs as $priv) { /* @var $priv DevblocksAclPrivilege */
-			$db->Execute(sprintf(
+			$db->ExecuteMaster(sprintf(
 				"REPLACE INTO ${prefix}acl (id,plugin_id,label) ".
 				"VALUES (%s,%s,%s)",
 				$db->qstr($priv->id),
@@ -417,7 +417,7 @@ abstract class DevblocksEngine {
 		// [JAS]: Event point caching
 		if(is_array($manifest->event_points))
 		foreach($manifest->event_points as $event) { /* @var $event DevblocksEventPoint */
-			$db->Execute(sprintf(
+			$db->ExecuteMaster(sprintf(
 				"REPLACE INTO ${prefix}event_point (id,plugin_id,name,params) ".
 				"VALUES (%s,%s,%s,%s)",
 				$db->qstr($event->id),

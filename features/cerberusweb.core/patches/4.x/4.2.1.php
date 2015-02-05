@@ -7,7 +7,7 @@ $tables = $db->metaTables();
 
 if(isset($tables['worker_workspace_list'])) {
 	$sql = "SELECT id, list_view FROM worker_workspace_list WHERE source_extension = 'core.workspace.source.ticket'";
-	$rs = $db->Execute($sql);
+	$rs = $db->ExecuteMaster($sql);
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		if(!empty($row['list_view'])) {
@@ -32,7 +32,7 @@ if(isset($tables['worker_workspace_list'])) {
 					$db->qstr($updated_list_view),
 					$row['id']
 				);
-				$db->Execute($sql);
+				$db->ExecuteMaster($sql);
 			}
 		}
 	}
@@ -48,7 +48,7 @@ if(isset($tables['ticket'])) {
 	
 	if(isset($columns['mask'])) {
 		$sql = sprintf("ALTER TABLE ticket CHANGE COLUMN mask mask varchar(32) DEFAULT '' NOT NULL");
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 }
 

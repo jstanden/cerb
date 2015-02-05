@@ -186,7 +186,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 		// Use the existing local connection by default
 		if(empty($this->_options['host'])) {
 			$db = DevblocksPlatform::getDatabaseService();
-			$this->_db = $db->getConnection();
+			$this->_db = $db->getMasterConnection();
 			
 		// Use the provided connection details
 		} else {

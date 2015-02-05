@@ -10,7 +10,7 @@ $prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 list($columns, $indexes) = $db->metaTable($prefix.'acl');
 
 if(isset($columns['is_default'])) {
-	$db->Execute("ALTER TABLE ${prefix}acl DROP COLUMN is_default");
+	$db->ExecuteMaster("ALTER TABLE ${prefix}acl DROP COLUMN is_default");
 }
 
 // ============================================================================
@@ -25,7 +25,7 @@ if(!isset($tables[$prefix.'class_loader'])) {
 			PRIMARY KEY (class)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // ============================================================================
@@ -40,7 +40,7 @@ if(!isset($tables[$prefix.'uri_routing'])) {
 			PRIMARY KEY (uri)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 }
 
 return TRUE;

@@ -7,17 +7,17 @@ $tables = $db->metaTables();
 
 if(isset($tables['community_tool_property'])) {
 	$sql = "SELECT tool_code, property_value FROM community_tool_property WHERE property_key = 'common.enabled_modules'";
-	$rs = $db->Execute($sql);
+	$rs = $db->ExecuteMaster($sql);
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		$tool_code = $row['tool_code'];
 		$property_value = $row['property_value'];
 		
 		// Check the deprecated login bits
-		$login_contact = $db->GetOne(sprintf("SELECT property_value FROM community_tool_property WHERE property_key = 'contact.require_login' AND tool_code = %s AND property_value='1'",
+		$login_contact = $db->GetOneMaster(sprintf("SELECT property_value FROM community_tool_property WHERE property_key = 'contact.require_login' AND tool_code = %s AND property_value='1'",
 			$db->qstr($tool_code)
 		));
-		$login_kb = $db->GetOne(sprintf("SELECT property_value FROM community_tool_property WHERE property_key = 'contact.require_kb' AND tool_code = %s AND property_value='1'",
+		$login_kb = $db->GetOneMaster(sprintf("SELECT property_value FROM community_tool_property WHERE property_key = 'contact.require_kb' AND tool_code = %s AND property_value='1'",
 			$db->qstr($tool_code)
 		));
 		
@@ -50,16 +50,16 @@ if(isset($tables['community_tool_property'])) {
 			$db->qstr('common.visible_modules'),
 			$db->qstr(serialize($modules))
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		
 		// Remove the old property
-		$db->Execute(sprintf("DELETE FROM community_tool_property WHERE tool_code = %s AND property_key = %s",
+		$db->ExecuteMaster(sprintf("DELETE FROM community_tool_property WHERE tool_code = %s AND property_key = %s",
 			$db->qstr($tool_code),
 			$db->qstr('common.enabled_modules')
 		));
 		
 		// Drop deprecated options
-		$db->Execute(sprintf("DELETE FROM community_tool_property WHERE tool_code = %s AND (property_key = 'contact.require_login' OR property_key = 'kb.require_login')",
+		$db->ExecuteMaster(sprintf("DELETE FROM community_tool_property WHERE tool_code = %s AND (property_key = 'contact.require_login' OR property_key = 'kb.require_login')",
 			$db->qstr($tool_code)
 		));
 	}

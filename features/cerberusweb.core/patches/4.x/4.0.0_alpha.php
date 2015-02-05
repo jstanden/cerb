@@ -26,7 +26,7 @@ if(!isset($tables['ticket'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `message` =============================
@@ -44,7 +44,7 @@ if(!isset($tables['message'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `attachment` =============================
@@ -60,7 +60,7 @@ if(!isset($tables['attachment'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `team` =============================
@@ -73,7 +73,7 @@ if(!isset($tables['team'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `category` =============================
@@ -86,7 +86,7 @@ if(!isset($tables['category'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `dashboard` =============================
@@ -99,7 +99,7 @@ if(!isset($tables['dashboard'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `dashboard_view` =============================
@@ -119,7 +119,7 @@ if(!isset($tables['dashboard_view'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `dashboard_view_action` =============================
@@ -134,7 +134,7 @@ if(!isset($tables['dashboard_view_action'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `address` =============================
@@ -147,7 +147,7 @@ if(!isset($tables['address'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `mail_routing` =============================
@@ -161,7 +161,7 @@ if(!isset($tables['mail_routing'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `requester` =============================
@@ -173,7 +173,7 @@ if(!isset($tables['requester'])) {
 			PRIMARY KEY (address_id, ticket_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `worker_to_team` =============================
@@ -186,7 +186,7 @@ if(!isset($tables['worker_to_team'])) {
 			PRIMARY KEY (agent_id, team_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `pop3_account` =============================
@@ -204,7 +204,7 @@ if(!isset($tables['pop3_account'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `worker` =============================
@@ -224,7 +224,7 @@ if(!isset($tables['worker'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `bayes_words` =============================
@@ -239,7 +239,7 @@ if(!isset($tables['bayes_words'])) {
 			INDEX word (word)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `bayes_stats` =============================
@@ -250,7 +250,7 @@ if(!isset($tables['bayes_stats'])) {
 			nonspam INT UNSIGNED DEFAULT 0
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `community` =============================
@@ -263,7 +263,7 @@ if(!isset($tables['community'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `worker_pref` =============================
@@ -276,7 +276,7 @@ if(!isset($tables['worker_pref'])) {
 			PRIMARY KEY (worker_id, setting)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `team_routing_rule` =============================
@@ -295,7 +295,7 @@ if(!isset($tables['team_routing_rule'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 // `setting` =============================
@@ -307,7 +307,7 @@ if(!isset($tables['setting'])) {
 			PRIMARY KEY (setting)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);	
+	$db->ExecuteMaster($sql);	
 }
 
 return TRUE;

@@ -30,7 +30,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = "INSERT INTO attachment () VALUES ()";
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
@@ -73,7 +73,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$sql = "SELECT id,display_name,mime_type,storage_size,storage_extension,storage_key,storage_profile_id,storage_sha1hash,updated ".
 			"FROM attachment ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "");
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -117,7 +117,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 			$db->qstr($context),
 			implode(',', $context_ids)
 		);
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -137,7 +137,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 			(!empty($file_size) ? (sprintf("AND storage_size=%d", $file_size)) : '')
 		);
 		
-		return $db->GetOne($sql);
+		return $db->GetOneSlave($sql);
 	}
 	
 	static function maint() {
@@ -146,11 +146,11 @@ class DAO_Attachment extends DevblocksORMHelper {
 		
 		// Delete attachments where links=0 and created > 1h
 		// This also cleans up temporary attachment uploads from the file chooser.
-		$db->Execute("CREATE TEMPORARY TABLE _tmp_maint_attachment SELECT id, updated FROM attachment");
-		$db->Execute("DELETE FROM _tmp_maint_attachment WHERE id IN (SELECT attachment_id FROM attachment_link)");
-		$db->Execute("DELETE FROM _tmp_maint_attachment WHERE updated >= UNIX_TIMESTAMP() - 86400 AND updated != 2147483647");
-		$rs = $db->Execute("SELECT SQL_CALC_FOUND_ROWS id FROM _tmp_maint_attachment");
-		$count = $db->GetOne("SELECT FOUND_ROWS();");
+		$db->ExecuteMaster("CREATE TEMPORARY TABLE _tmp_maint_attachment (PRIMARY KEY (id)) SELECT id, updated FROM attachment");
+		$db->ExecuteMaster("DELETE FROM _tmp_maint_attachment WHERE id IN (SELECT attachment_id FROM attachment_link)");
+		$db->ExecuteMaster("DELETE FROM _tmp_maint_attachment WHERE updated >= UNIX_TIMESTAMP() - 86400 AND updated != 2147483647");
+		$rs = $db->ExecuteMaster("SELECT SQL_CALC_FOUND_ROWS id FROM _tmp_maint_attachment");
+		$count = $db->GetOneMaster("SELECT FOUND_ROWS();");
 
 		if(!empty($count)) {
 			while($row = mysqli_fetch_row($rs)) {
@@ -159,7 +159,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 			mysqli_free_result($rs);
 		}
 
-		$db->Execute("DROP TABLE _tmp_maint_attachment");
+		$db->ExecuteMaster("DROP TABLE _tmp_maint_attachment");
 		
 		$logger->info('[Maint] Purged ' . $count . ' attachment records.');
 	}
@@ -180,7 +180,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		// Delete DB manifests
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("DELETE attachment FROM attachment WHERE id IN (%s)", implode(',', $ids));
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
@@ -282,7 +282,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 					"SELECT COUNT(a.id) ".
 					$join_sql.
 					$where_sql;
-				$total = $db->GetOne($count_sql);
+				$total = $db->GetOneSlave($count_sql);
 			}
 		}
 		
@@ -466,7 +466,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT storage_extension, storage_key, storage_profile_id FROM attachment WHERE id IN (%s)", implode(',',$ids));
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		// Delete the physical files
 		
@@ -511,7 +511,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 				$db->qstr($src_profile->extension_id),
 				$src_profile->id
 		);
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			self::_migrate($dst_profile, $row);
@@ -543,7 +543,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 				$db->qstr($dst_profile->extension_id),
 				$dst_profile->id
 		);
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			self::_migrate($dst_profile, $row, true);
@@ -1071,7 +1071,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 		$sql = "SELECT guid, attachment_id, context, context_id ".
 			"FROM attachment_link ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "");
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -1135,9 +1135,10 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		// We do this in a separate query for binary logging consistency
-		$uuid = $db->GetOne("SELECT UUID()");
+		// [TODO] Can't this be done in PHP?
+		$uuid = $db->GetOneMaster("SELECT UUID()");
 		
-		$db->Execute(sprintf("INSERT IGNORE INTO attachment_link (attachment_id, context, context_id, guid) ".
+		$db->ExecuteMaster(sprintf("INSERT IGNORE INTO attachment_link (attachment_id, context, context_id, guid) ".
 			"VALUES (%d, %s, %d, %s)",
 			$attachment_id,
 			$db->qstr($context),
@@ -1205,7 +1206,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 			$db->qstr($context),
 			$context_id
 		);
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		$links = self::_getObjectsFromResult($rs);
 		
@@ -1245,7 +1246,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 			$db->qstr($context),
 			implode(',', $context_ids)
 		);
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 
 		return self::_getObjectsFromResult($rs);
 	}
@@ -1258,7 +1259,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 			return array();
 			
 		$db = DevblocksPlatform::getDatabaseService();
-		$rows = $db->GetArray(sprintf("SELECT attachment_id, context, context_id ".
+		$rows = $db->GetArraySlave(sprintf("SELECT attachment_id, context, context_id ".
 			"FROM attachment_link ".
 			"WHERE attachment_id IN (%s) ".
 			((!empty($context)) ? sprintf("AND context = %s ", $db->qstr($context)) : ""),
@@ -1282,7 +1283,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 	
 	static function removeAllByAttachment($attachment_id) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute(sprintf("DELETE FROM attachment_link WHERE attachment_id = %d",
+		$db->ExecuteMaster(sprintf("DELETE FROM attachment_link WHERE attachment_id = %d",
 			$attachment_id
 		));
 	}
@@ -1295,7 +1296,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 			return;
 		
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute(sprintf("DELETE FROM attachment_link WHERE context = %s AND context_id IN (%s)",
+		$db->ExecuteMaster(sprintf("DELETE FROM attachment_link WHERE context = %s AND context_id IN (%s)",
 			$db->qstr($context),
 			implode(',', $context_ids)
 		));
@@ -1303,7 +1304,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 	
 	static function deleteByAttachmentAndContext($attachment_id, $context, $context_id) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute(sprintf("DELETE FROM attachment_link WHERE attachment_id = %d AND context = %s AND context_id = %d",
+		$db->ExecuteMaster(sprintf("DELETE FROM attachment_link WHERE attachment_id = %d AND context = %s AND context_id = %d",
 			$attachment_id,
 			$db->qstr($context),
 			$context_id
@@ -1312,14 +1313,14 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 	
 	static function deleteByAttachment($attachment_id) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute(sprintf("DELETE FROM attachment_link WHERE attachment_id = %d",
+		$db->ExecuteMaster(sprintf("DELETE FROM attachment_link WHERE attachment_id = %d",
 			$attachment_id
 		));
 	}
 	
 	static function deleteByGUID($guid) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute(sprintf("DELETE FROM attachment_link WHERE guid = %s",
+		$db->ExecuteMaster(sprintf("DELETE FROM attachment_link WHERE guid = %s",
 			$db->qstr($guid)
 		));
 	}
@@ -1447,7 +1448,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 					"SELECT COUNT(al.attachment_id) ".
 					$join_sql.
 					$where_sql;
-				$total = $db->GetOne($count_sql);
+				$total = $db->GetOneSlave($count_sql);
 			}
 		}
 		

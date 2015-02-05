@@ -14,51 +14,51 @@ if(!isset($tables['worker'])) {
 list($columns, $indexes) = $db->metaTable('worker');
 
 if(!isset($columns['timezone'])) {
-	$db->Execute("ALTER TABLE worker ADD COLUMN timezone VARCHAR(255) NOT NULL DEFAULT ''");
-	$db->Execute("UPDATE worker SET timezone = 'UTC'");
+	$db->ExecuteMaster("ALTER TABLE worker ADD COLUMN timezone VARCHAR(255) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("UPDATE worker SET timezone = 'UTC'");
 
 	// Move the worker preference to the worker record
-	$db->Execute("UPDATE worker INNER JOIN worker_pref ON (worker_pref.worker_id=worker.id AND worker_pref.setting = 'timezone') SET worker.timezone = worker_pref.value");
+	$db->ExecuteMaster("UPDATE worker INNER JOIN worker_pref ON (worker_pref.worker_id=worker.id AND worker_pref.setting = 'timezone') SET worker.timezone = worker_pref.value");
 	
 	// Remove the old worker pref
-	$db->Execute("DELETE FROM worker_pref WHERE setting = 'timezone'");
+	$db->ExecuteMaster("DELETE FROM worker_pref WHERE setting = 'timezone'");
 }
 
 if(!isset($columns['time_format'])) {
-	$db->Execute("ALTER TABLE worker ADD COLUMN time_format VARCHAR(64) NOT NULL DEFAULT ''");
-	$db->Execute("UPDATE worker SET time_format = 'D, d M Y h:i a'");
+	$db->ExecuteMaster("ALTER TABLE worker ADD COLUMN time_format VARCHAR(64) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("UPDATE worker SET time_format = 'D, d M Y h:i a'");
 
 	// Move the worker preference to the worker record
-	$db->Execute("UPDATE worker INNER JOIN worker_pref ON (worker_pref.worker_id=worker.id AND worker_pref.setting = 'time_format') SET worker.time_format = worker_pref.value");
+	$db->ExecuteMaster("UPDATE worker INNER JOIN worker_pref ON (worker_pref.worker_id=worker.id AND worker_pref.setting = 'time_format') SET worker.time_format = worker_pref.value");
 	
 	// Remove the old worker pref
-	$db->Execute("DELETE FROM worker_pref WHERE setting = 'time_format'");
+	$db->ExecuteMaster("DELETE FROM worker_pref WHERE setting = 'time_format'");
 }
 
 if(!isset($columns['language'])) {
-	$db->Execute("ALTER TABLE worker ADD COLUMN language VARCHAR(16) NOT NULL DEFAULT ''");
-	$db->Execute("UPDATE worker SET language = 'en_US'");
+	$db->ExecuteMaster("ALTER TABLE worker ADD COLUMN language VARCHAR(16) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("UPDATE worker SET language = 'en_US'");
 
 	// Move the worker preference to the worker record
-	$db->Execute("UPDATE worker INNER JOIN worker_pref ON (worker_pref.worker_id=worker.id AND worker_pref.setting = 'locale') SET worker.language = worker_pref.value");
+	$db->ExecuteMaster("UPDATE worker INNER JOIN worker_pref ON (worker_pref.worker_id=worker.id AND worker_pref.setting = 'locale') SET worker.language = worker_pref.value");
 	
 	// Remove the old worker pref
-	$db->Execute("DELETE FROM worker_pref WHERE setting = 'locale'");
+	$db->ExecuteMaster("DELETE FROM worker_pref WHERE setting = 'locale'");
 }
 
 if(!isset($columns['calendar_id'])) {
-	$db->Execute("ALTER TABLE worker ADD COLUMN calendar_id INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("ALTER TABLE worker ADD COLUMN calendar_id INT UNSIGNED NOT NULL DEFAULT 0");
 
 	// Move the worker preference to the worker record
-	$db->Execute("UPDATE worker INNER JOIN worker_pref ON (worker_pref.worker_id=worker.id AND worker_pref.setting = 'availability_calendar_id') SET worker.calendar_id = worker_pref.value");
+	$db->ExecuteMaster("UPDATE worker INNER JOIN worker_pref ON (worker_pref.worker_id=worker.id AND worker_pref.setting = 'availability_calendar_id') SET worker.calendar_id = worker_pref.value");
 	
 	// Remove the old worker pref
-	$db->Execute("DELETE FROM worker_pref WHERE setting = 'availability_calendar_id'");
+	$db->ExecuteMaster("DELETE FROM worker_pref WHERE setting = 'availability_calendar_id'");
 }
 
 if(!isset($columns['updated'])) {
-	$db->Execute("ALTER TABLE worker ADD COLUMN updated INT UNSIGNED NOT NULL DEFAULT 0");
-	$db->Execute(sprintf("UPDATE worker SET updated = %d", time()));
+	$db->ExecuteMaster("ALTER TABLE worker ADD COLUMN updated INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster(sprintf("UPDATE worker SET updated = %d", time()));
 }
 
 // ===========================================================================
@@ -74,7 +74,7 @@ if(!isset($tables['contact_org'])) {
 }
 
 if(!isset($columns['updated'])) {
-	$db->Execute("ALTER TABLE contact_org ADD COLUMN updated INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("ALTER TABLE contact_org ADD COLUMN updated INT UNSIGNED NOT NULL DEFAULT 0");
 }
 
 // Contacts
@@ -87,7 +87,7 @@ if(!isset($tables['contact_person'])) {
 }
 
 if(!isset($columns['updated'])) {
-	$db->Execute("ALTER TABLE contact_person ADD COLUMN updated INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("ALTER TABLE contact_person ADD COLUMN updated INT UNSIGNED NOT NULL DEFAULT 0");
 }
 
 // Groups
@@ -100,23 +100,23 @@ if(!isset($tables['worker_group'])) {
 }
 
 if(!isset($columns['created'])) {
-	$db->Execute("ALTER TABLE worker_group ADD COLUMN created INT UNSIGNED NOT NULL DEFAULT 0");
-	$db->Execute(sprintf("UPDATE worker_group SET created = %d", time()));
+	$db->ExecuteMaster("ALTER TABLE worker_group ADD COLUMN created INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster(sprintf("UPDATE worker_group SET created = %d", time()));
 }
 
 if(!isset($columns['updated'])) {
-	$db->Execute("ALTER TABLE worker_group ADD COLUMN updated INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("ALTER TABLE worker_group ADD COLUMN updated INT UNSIGNED NOT NULL DEFAULT 0");
 }
 
 // ===========================================================================
 // Clean up unused worker prefs
 
-$db->Execute("DELETE FROM worker_pref WHERE setting LIKE 'quicksearch_%'");
+$db->ExecuteMaster("DELETE FROM worker_pref WHERE setting LIKE 'quicksearch_%'");
 
 // ===========================================================================
 // Clean up API searches
 
-$db->Execute("DELETE FROM worker_view_model WHERE view_id LIKE 'api_search%'");
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id LIKE 'api_search%'");
 
 // ===========================================================================
 // Finish up

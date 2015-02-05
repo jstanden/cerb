@@ -36,7 +36,7 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 			"VALUES (%d)",
 			$id
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		self::update($id, $fields);
 		
@@ -48,6 +48,12 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 		self::clearCache();
 	}
 	
+	/**
+	 * Cache from master
+	 * 
+	 * @param boolean $nocache
+	 * @return Model_AddressOutgoing[]
+	 */
 	static function getAll($nocache=false) {
 		$cache = DevblocksPlatform::getCacheService();
 
@@ -60,7 +66,7 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 				"INNER JOIN address ON (address.id=address_outgoing.address_id) ".
 				"ORDER BY address.email ASC "
 				;
-			$rs = $db->Execute($sql);
+			$rs = $db->ExecuteMaster($sql);
 			
 			$froms = self::_getObjectsFromResultSet($rs);
 			
@@ -102,8 +108,8 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 	
 	static public function setDefault($address_id) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute("UPDATE address_outgoing SET is_default = 0");
-		$db->Execute(sprintf("UPDATE address_outgoing SET is_default = 1 WHERE address_id = %d", $address_id));
+		$db->ExecuteMaster("UPDATE address_outgoing SET is_default = 0");
+		$db->ExecuteMaster(sprintf("UPDATE address_outgoing SET is_default = 1 WHERE address_id = %d", $address_id));
 		
 		self::clearCache();
 	}
@@ -173,13 +179,13 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		// Delete this address_outgoing row
-		$db->Execute(sprintf("DELETE FROM address_outgoing WHERE address_id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM address_outgoing WHERE address_id IN (%s)", $ids_list));
 		
 		// Reset groups
-		$db->Execute(sprintf("UPDATE worker_group SET reply_address_id=0 WHERE reply_address_id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("UPDATE worker_group SET reply_address_id=0 WHERE reply_address_id IN (%s)", $ids_list));
 		
 		// Reset buckets
-		$db->Execute(sprintf("UPDATE bucket SET reply_address_id=0 WHERE reply_address_id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("UPDATE bucket SET reply_address_id=0 WHERE reply_address_id IN (%s)", $ids_list));
 		
 		self::clearCache();
 		

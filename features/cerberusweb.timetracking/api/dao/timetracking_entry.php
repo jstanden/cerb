@@ -57,7 +57,7 @@ class DAO_TimeTrackingActivity extends DevblocksORMHelper {
 		$sql = sprintf("INSERT INTO timetracking_activity () ".
 			"VALUES ()"
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
@@ -80,7 +80,7 @@ class DAO_TimeTrackingActivity extends DevblocksORMHelper {
 			"FROM timetracking_activity ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY name ASC";
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -128,7 +128,7 @@ class DAO_TimeTrackingActivity extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM timetracking_activity WHERE id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM timetracking_activity WHERE id IN (%s)", $ids_list));
 		
 		return true;
 	}
@@ -153,7 +153,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		$sql = sprintf("INSERT INTO timetracking_entry () ".
 			"VALUES ()"
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
@@ -290,7 +290,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 			"FROM timetracking_entry ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -335,7 +335,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 	
 	static function getItemCount() {
 		$db = DevblocksPlatform::getDatabaseService();
-		return $db->GetOne("SELECT count(id) FROM timetracking_entry");
+		return $db->GetOneSlave("SELECT count(id) FROM timetracking_entry");
 	}
 	
 	static function delete($ids) {
@@ -348,7 +348,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		// Entries
-		$db->Execute(sprintf("DELETE FROM timetracking_entry WHERE id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM timetracking_entry WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -485,7 +485,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 					$db = DevblocksPlatform::getDatabaseService();
 					$temp_table = sprintf("_tmp_%s", uniqid());
 					
-					$db->Execute(sprintf("CREATE TEMPORARY TABLE %s SELECT DISTINCT context_id AS id FROM comment INNER JOIN %s ON (%s.id=comment.id)",
+					$db->ExecuteSlave(sprintf("CREATE TEMPORARY TABLE %s (PRIMARY KEY (id)) SELECT DISTINCT context_id AS id FROM comment INNER JOIN %s ON (%s.id=comment.id)",
 						$temp_table,
 						$ids,
 						$ids
@@ -563,7 +563,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 					($has_multiple_values ? "SELECT COUNT(DISTINCT tt.id) " : "SELECT COUNT(tt.id) ").
 					$join_sql.
 					$where_sql;
-				$total = $db->GetOne($count_sql);
+				$total = $db->GetOneSlave($count_sql);
 			}
 		}
 		

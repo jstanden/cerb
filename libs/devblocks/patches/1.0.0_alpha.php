@@ -13,7 +13,7 @@ $sql = sprintf("
 		PRIMARY KEY (id)
 	) ENGINE=%s;
 ", APP_DB_ENGINE);
-$db->Execute($sql);
+$db->ExecuteMaster($sql);
 
 $sql = sprintf("
 	CREATE TABLE IF NOT EXISTS ${prefix}extension_point (
@@ -22,7 +22,7 @@ $sql = sprintf("
 		PRIMARY KEY (id)
 	) ENGINE=%s;
 ", APP_DB_ENGINE);
-$db->Execute($sql);
+$db->ExecuteMaster($sql);
 
 $sql = sprintf("
 	CREATE TABLE IF NOT EXISTS ${prefix}extension (
@@ -37,7 +37,7 @@ $sql = sprintf("
 		PRIMARY KEY (id)
 	) ENGINE=%s;
 ", APP_DB_ENGINE);
-$db->Execute($sql);
+$db->ExecuteMaster($sql);
 
 $sql = sprintf("
 	CREATE TABLE IF NOT EXISTS ${prefix}patch_history (
@@ -47,7 +47,7 @@ $sql = sprintf("
 		PRIMARY KEY (plugin_id)
 	) ENGINE=%s;
 ", APP_DB_ENGINE);
-$db->Execute($sql);
+$db->ExecuteMaster($sql);
 
 $sql = sprintf("
 	CREATE TABLE IF NOT EXISTS ${prefix}plugin (
@@ -61,7 +61,7 @@ $sql = sprintf("
 		PRIMARY KEY (id)
 	) ENGINE=%s;
 ", APP_DB_ENGINE);
-$db->Execute($sql);
+$db->ExecuteMaster($sql);
 
 $sql = sprintf("
 	CREATE TABLE IF NOT EXISTS ${prefix}property_store (
@@ -72,7 +72,7 @@ $sql = sprintf("
 		PRIMARY KEY (extension_id, instance_id, property)
 	) ENGINE=%s;
 ", APP_DB_ENGINE);
-$db->Execute($sql);
+$db->ExecuteMaster($sql);
 
 $sql = sprintf("
 	CREATE TABLE IF NOT EXISTS ${prefix}session (
@@ -85,6 +85,6 @@ $sql = sprintf("
 		PRIMARY KEY (sesskey)
 	) ENGINE=%s;
 ", APP_DB_ENGINE);
-$db->Execute($sql);
+$db->ExecuteMaster($sql);
 
 return TRUE;

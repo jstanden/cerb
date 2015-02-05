@@ -84,7 +84,7 @@ class DAO_Address extends Cerb_ORMHelper {
 				"VALUES (%s,'','',0,0,0,0,0,0,0)",
 				$db->qstr($full_address)
 			);
-			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			$id = $db->LastInsertId();
 
 		} else { // update
@@ -149,12 +149,12 @@ class DAO_Address extends Cerb_ORMHelper {
 		$tables = DevblocksPlatform::getDatabaseTables();
 		
 		$sql = "DELETE FROM address_to_worker WHERE worker_id NOT IN (SELECT id FROM worker)";
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' address_to_worker records.');
 
 		// Search indexes
 		if(isset($tables['fulltext_address'])) {
-			$db->Execute("DELETE FROM fulltext_address WHERE id NOT IN (SELECT id FROM address)");
+			$db->ExecuteMaster("DELETE FROM fulltext_address WHERE id NOT IN (SELECT id FROM address)");
 			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_address records.');
 		}
 		
@@ -184,7 +184,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		
 		// Addresses
 		$sql = sprintf("DELETE FROM address WHERE id IN (%s)", $address_ids);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -211,7 +211,7 @@ class DAO_Address extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 
 		$objects = self::_getObjectsFromResult($rs);
 
@@ -269,7 +269,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(id) FROM address WHERE contact_org_id = %d",
 			$org_id
 		);
-		return intval($db->GetOne($sql));
+		return intval($db->GetOneSlave($sql));
 	}
 	
 	/**
@@ -331,13 +331,13 @@ class DAO_Address extends Cerb_ORMHelper {
 	static function addOneToSpamTotal($address_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("UPDATE address SET num_spam = num_spam + 1 WHERE id = %d",$address_id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
 	static function addOneToNonSpamTotal($address_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("UPDATE address SET num_nonspam = num_nonspam + 1 WHERE id = %d",$address_id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
 	public static function random() {
@@ -466,7 +466,7 @@ class DAO_Address extends Cerb_ORMHelper {
 					$db = DevblocksPlatform::getDatabaseService();
 					$temp_table = sprintf("_tmp_%s", uniqid());
 					
-					$db->Execute(sprintf("CREATE TEMPORARY TABLE %s SELECT DISTINCT context_id AS id FROM comment INNER JOIN %s ON (%s.id=comment.id)",
+					$db->ExecuteSlave(sprintf("CREATE TEMPORARY TABLE %s (PRIMARY KEY (id)) SELECT DISTINCT context_id AS id FROM comment INNER JOIN %s ON (%s.id=comment.id)",
 						$temp_table,
 						$ids,
 						$ids
@@ -567,7 +567,7 @@ class DAO_Address extends Cerb_ORMHelper {
 					($has_multiple_values ? "SELECT COUNT(DISTINCT a.id) " : "SELECT COUNT(*) ").
 					$join_sql.
 					$where_sql;
-				$total = $db->GetOne($count_sql);
+				$total = $db->GetOneSlave($count_sql);
 			}
 		}
 		

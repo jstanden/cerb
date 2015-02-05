@@ -12,9 +12,9 @@ if(!isset($columns['string_default']) || !isset($columns['string_override']))
 	return FALSE;
 
 if(strtolower($columns['string_default']['type']) == 'longtext')
-	$db->Execute("ALTER TABLE translation MODIFY COLUMN string_default TEXT NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE translation MODIFY COLUMN string_default TEXT NOT NULL");
 
 if(strtolower($columns['string_override']['type']) == 'longtext')
-	$db->Execute("ALTER TABLE translation MODIFY COLUMN string_override TEXT NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE translation MODIFY COLUMN string_override TEXT NOT NULL");
 
 return TRUE;

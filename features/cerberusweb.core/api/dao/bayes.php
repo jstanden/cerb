@@ -41,7 +41,7 @@ class DAO_Bayes {
 		$sql = sprintf("SELECT id,word,spam,nonspam FROM bayes_words WHERE word IN ('%s')",
 			implode("','", $tmp)
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		// [JAS]: Keep a list of words we can check off as we index them with IDs
 		$tmp = array_flip($words); // words are now keys
@@ -67,7 +67,7 @@ class DAO_Bayes {
 			$sql = sprintf("INSERT INTO bayes_words (word) VALUES (%s)",
 				$db->qstr($new_word)
 			);
-			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			$id = $db->LastInsertId();
 			
 			$w = new Model_BayesWord();
@@ -87,7 +87,7 @@ class DAO_Bayes {
 		
 		// [JAS]: [TODO] Change this into a 'replace' index?
 		$sql = "SELECT spam, nonspam FROM bayes_stats";
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		if($row = mysqli_fetch_assoc($rs)) {
 			$spam = intval($row['spam']);
@@ -96,7 +96,7 @@ class DAO_Bayes {
 			$spam = 0;
 			$nonspam = 0;
 			$sql = "INSERT INTO bayes_stats (spam, nonspam) VALUES (0,0)";
-			$db->Execute($sql);
+			$db->ExecuteMaster($sql);
 		}
 		
 		return array('spam' => $spam,'nonspam' => $nonspam);
@@ -105,13 +105,13 @@ class DAO_Bayes {
 	static function addOneToSpamTotal() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = "UPDATE bayes_stats SET spam = spam + 1";
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
 	static function addOneToNonSpamTotal() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = "UPDATE bayes_stats SET nonspam = nonspam + 1";
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
 	static function addOneToSpamWord($word_ids=array()) {
@@ -119,7 +119,7 @@ class DAO_Bayes {
 		if(empty($word_ids)) return;
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("UPDATE bayes_words SET spam = spam + 1 WHERE id IN(%s)", implode(',',$word_ids));
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
 	static function addOneToNonSpamWord($word_ids=array()) {
@@ -127,7 +127,7 @@ class DAO_Bayes {
 		if(empty($word_ids)) return;
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("UPDATE bayes_words SET nonspam = nonspam + 1 WHERE id IN(%s)", implode(',',$word_ids));
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 };
 

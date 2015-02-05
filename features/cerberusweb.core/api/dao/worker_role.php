@@ -30,7 +30,7 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 		$sql = sprintf("INSERT INTO worker_role () ".
 			"VALUES ()"
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
@@ -165,7 +165,7 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 			"FROM worker_role ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY name asc";
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -217,8 +217,8 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM worker_role WHERE id IN (%s)", $ids_list));
-		$db->Execute(sprintf("DELETE FROM worker_role_acl WHERE role_id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM worker_role WHERE id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM worker_role_acl WHERE role_id IN (%s)", $ids_list));
 
 		self::clearCache();
 		self::clearWorkerCache();
@@ -246,7 +246,7 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 		
 		$privs = array();
 		
-		$results = $db->GetArray(sprintf("SELECT priv_id FROM worker_role_acl WHERE role_id = %d", $role_id));
+		$results = $db->GetArraySlave(sprintf("SELECT priv_id FROM worker_role_acl WHERE role_id = %d", $role_id));
 
 		foreach($results as $row) {
 			@$priv = $row['priv_id'];
@@ -270,7 +270,7 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 		
 		// Wipe all privileges on blank replace
 		$sql = sprintf("DELETE FROM worker_role_acl WHERE role_id = %d", $role_id);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 
 		// Set ACLs according to the new list
 		if(!empty($privileges)) {
@@ -280,7 +280,7 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 					$role_id,
 					$db->qstr($priv)
 				);
-				$db->Execute($sql);
+				$db->ExecuteMaster($sql);
 			}
 		}
 	}

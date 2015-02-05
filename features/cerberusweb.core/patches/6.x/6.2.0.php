@@ -12,7 +12,7 @@ if(!isset($tables['workspace_widget'])) {
 }
 
 $sql = "SELECT id, extension_id, params_json FROM workspace_widget";
-$rs = $db->Execute($sql);
+$rs = $db->ExecuteMaster($sql);
 
 while($row = mysqli_fetch_assoc($rs)) {
 	$changes = 0;
@@ -27,7 +27,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 		case 'core.workspace.widget.chart':
 			if(isset($params['chart_type']) && $params['chart_type'] == 'scatterplot') {
 				// Move scatterplots out of charts and into their own extension
-				$db->Execute(sprintf("UPDATE workspace_widget SET extension_id = %s WHERE id = %d",
+				$db->ExecuteMaster(sprintf("UPDATE workspace_widget SET extension_id = %s WHERE id = %d",
 					$db->qstr('core.workspace.widget.scatterplot'),
 					$row['id']
 				));
@@ -233,7 +233,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 	}
 	
 	if($changes) {
-		$db->Execute(sprintf("UPDATE workspace_widget SET params_json = %s WHERE id = %d",
+		$db->ExecuteMaster(sprintf("UPDATE workspace_widget SET params_json = %s WHERE id = %d",
 			$db->qstr(json_encode($params)),
 			$row['id']
 		));
@@ -251,8 +251,8 @@ if(!isset($tables['worker'])) {
 list($columns, $indexes) = $db->metaTable('worker');
 
 if(!isset($columns['auth_extension_id'])) {
-	$db->Execute("ALTER TABLE worker ADD COLUMN auth_extension_id VARCHAR(255) NOT NULL DEFAULT ''");
-	$db->Execute("UPDATE worker SET auth_extension_id='login.password'");
+	$db->ExecuteMaster("ALTER TABLE worker ADD COLUMN auth_extension_id VARCHAR(255) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("UPDATE worker SET auth_extension_id='login.password'");
 }
 
 // ===========================================================================
@@ -264,7 +264,7 @@ $sql = "SELECT trigger_event.event_point, decision_node.id, decision_node.params
 	"WHERE decision_node.node_type = 'action' ".
 	"AND decision_node.params_json LIKE '%links%'"
 	;
-$results = $db->GetArray($sql);
+$results = $db->GetArrayMaster($sql);
 
 foreach($results as $result) {
 	$original_json = $result['params_json'];
@@ -494,7 +494,7 @@ foreach($results as $result) {
 			$db->qstr($json),
 			$result['id']
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 }
 
@@ -503,7 +503,7 @@ unset($results);
 // ===========================================================================
 // Fix redundant '{actor} tracked 5 mins mins' strings in time tracking entries
 
-$db->Execute("UPDATE context_activity_log set entry_json=replace(entry_json,'mins mins','mins') where (actor_context='cerberusweb.contexts.timetracking' OR target_context='cerberusweb.contexts.timetracking')");
+$db->ExecuteMaster("UPDATE context_activity_log set entry_json=replace(entry_json,'mins mins','mins') where (actor_context='cerberusweb.contexts.timetracking' OR target_context='cerberusweb.contexts.timetracking')");
 
 // ===========================================================================
 // Remove address.last_autoreply
@@ -528,7 +528,7 @@ if(!isset($indexes['updated']))
 
 // Alter the table
 if(!empty($change_columns))
-	$db->Execute("ALTER TABLE address " . implode(', ', $change_columns));
+	$db->ExecuteMaster("ALTER TABLE address " . implode(', ', $change_columns));
 
 // ===========================================================================
 // Clean up context_activity_log
@@ -540,7 +540,7 @@ if(!isset($tables['context_activity_log'])) {
 
 list($columns, $indexes) = $db->metaTable('context_activity_log');
 
-$db->Execute("DELETE FROM context_activity_log WHERE activity_point = '' OR activity_point IS NULL;");
+$db->ExecuteMaster("DELETE FROM context_activity_log WHERE activity_point = '' OR activity_point IS NULL;");
 
 // ===========================================================================
 // Finish

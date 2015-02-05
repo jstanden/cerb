@@ -11,7 +11,7 @@ $tables_seq = array(
 );
 foreach($tables_seq as $table) {
 	if(isset($tables[$table])) {
-		$db->Execute(sprintf("DROP TABLE IF EXISTS %s", $table));
+		$db->ExecuteMaster(sprintf("DROP TABLE IF EXISTS %s", $table));
 		unset($tables[$table]);
 	}
 }
@@ -29,7 +29,7 @@ foreach($tables_autoinc as $table) {
 		&& ('int(10) unsigned' != $columns['id']['type']
 		|| 'auto_increment' != $columns['id']['extra'])
 	) {
-		$db->Execute(sprintf("ALTER TABLE %s MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT", $table));
+		$db->ExecuteMaster(sprintf("ALTER TABLE %s MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT", $table));
 	}
 }
 

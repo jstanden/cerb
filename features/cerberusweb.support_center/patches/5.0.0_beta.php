@@ -8,7 +8,7 @@ $portals = array();
 
 if(isset($tables['community_tool_property']) && isset($tables['community_tool'])) {
 	$sql = "SELECT ctp.tool_code, ctp.property_key, ctp.property_value FROM community_tool_property ctp INNER JOIN community_tool ct ON (ct.code=ctp.tool_code) WHERE ct.extension_id='sc.tool'";
-	$rs = $db->Execute($sql);
+	$rs = $db->ExecuteMaster($sql);
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		$code = $row['tool_code'];
@@ -43,7 +43,7 @@ foreach($portals as $portal_code => $props) {
 			time(),
 			$db->qstr('<div id="header">'.$props['common.header_html'].'</div>')
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 	
 	// Footer
@@ -54,7 +54,7 @@ foreach($portals as $portal_code => $props) {
 			time(),
 			$db->qstr('<div id="footer">'.$props['common.footer_html'].'</div>')
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 	
 	// Style
@@ -73,7 +73,7 @@ foreach($portals as $portal_code => $props) {
 			time(),
 			$db->qstr($css)
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 	
 	// Welcome
@@ -84,13 +84,13 @@ foreach($portals as $portal_code => $props) {
 			time(),
 			$db->qstr('<div id="home">'.$props['home.html'].'</div>')
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 }
 
-$db->Execute("DELETE FROM community_tool_property WHERE property_key = 'common.header_html'");
-$db->Execute("DELETE FROM community_tool_property WHERE property_key = 'common.footer_html'");
-$db->Execute("DELETE FROM community_tool_property WHERE property_key = 'common.style_css'");
-$db->Execute("DELETE FROM community_tool_property WHERE property_key = 'home.html'");
+$db->ExecuteMaster("DELETE FROM community_tool_property WHERE property_key = 'common.header_html'");
+$db->ExecuteMaster("DELETE FROM community_tool_property WHERE property_key = 'common.footer_html'");
+$db->ExecuteMaster("DELETE FROM community_tool_property WHERE property_key = 'common.style_css'");
+$db->ExecuteMaster("DELETE FROM community_tool_property WHERE property_key = 'home.html'");
 
 return TRUE;

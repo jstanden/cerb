@@ -12,7 +12,7 @@ if(!isset($columns['description']))
 	return FALSE;
 
 if(substr(strtolower($columns['description']['type']),0,7) == 'varchar') {
-	$db->Execute("ALTER TABLE ${prefix}plugin MODIFY COLUMN description TEXT");
+	$db->ExecuteMaster("ALTER TABLE ${prefix}plugin MODIFY COLUMN description TEXT");
 }
 
 // ===========================================================================
@@ -28,7 +28,7 @@ if(!isset($tables['devblocks_storage_queue_delete'])) {
 			INDEX ns_ext_profile (storage_namespace, storage_extension, storage_profile_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['devblocks_storage_queue_delete'] = 'devblocks_storage_queue_delete';
 }

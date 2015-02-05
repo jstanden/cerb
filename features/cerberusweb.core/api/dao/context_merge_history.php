@@ -35,13 +35,13 @@ class DAO_ContextMergeHistory {
 		 * Make sure to handle situations where A merges with B, then B merges with C.
 		 * A should point to C (B can no longer be a destination)
 		 */
-		$db->Execute(sprintf("UPDATE context_merge_history SET to_context_id = %d, updated = %d WHERE to_context_id = %d",
+		$db->ExecuteMaster(sprintf("UPDATE context_merge_history SET to_context_id = %d, updated = %d WHERE to_context_id = %d",
 			$to_id,
 			time(),
 			$from_id
 		));
 			
-		$db->Execute(sprintf("INSERT IGNORE INTO context_merge_history (context, from_context_id, to_context_id, updated) ".
+		$db->ExecuteMaster(sprintf("INSERT IGNORE INTO context_merge_history (context, from_context_id, to_context_id, updated) ".
 			"VALUES(%s, %d, %d, %d)",
 			$db->qstr($context),
 			$from_id,

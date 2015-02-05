@@ -26,7 +26,7 @@ class DAO_ConfirmationCode extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = "INSERT INTO confirmation_code () VALUES ()";
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
 		if(!isset($fields[self::CREATED]))
@@ -64,7 +64,7 @@ class DAO_ConfirmationCode extends DevblocksORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -135,7 +135,7 @@ class DAO_ConfirmationCode extends DevblocksORMHelper {
 		
 		// Delete confirmation codes older than 12 hours
 		$sql = sprintf("DELETE FROM confirmation_code WHERE created < %d", time() + 43200); // 60s*60m*12h
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' confirmation_code records.');
 	}
 	
@@ -148,7 +148,7 @@ class DAO_ConfirmationCode extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM confirmation_code WHERE id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM confirmation_code WHERE id IN (%s)", $ids_list));
 		
 		return true;
 	}
@@ -233,9 +233,9 @@ class DAO_ConfirmationCode extends DevblocksORMHelper {
 			$sort_sql;
 			
 		if($limit > 0) {
-			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs mysqli_result */
 		} else {
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs mysqli_result */
 			$total = mysqli_num_rows($rs);
 		}
 		
@@ -255,7 +255,7 @@ class DAO_ConfirmationCode extends DevblocksORMHelper {
 					($has_multiple_values ? "SELECT COUNT(DISTINCT confirmation_code.id) " : "SELECT COUNT(confirmation_code.id) ").
 					$join_sql.
 					$where_sql;
-				$total = $db->GetOne($count_sql);
+				$total = $db->GetOneSlave($count_sql);
 			}
 		}
 		

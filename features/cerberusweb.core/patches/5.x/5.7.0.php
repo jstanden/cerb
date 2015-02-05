@@ -24,7 +24,7 @@ if(!isset($tables['plugin_library'])) {
 		INDEX (updated)
 	) ENGINE=%s", APP_DB_ENGINE);
 	
-	if(false === $db->Execute($sql))
+	if(false === $db->ExecuteMaster($sql))
 		return FALSE;
 		
 	$tables['plugin_library'] = 'plugin_library';
@@ -41,7 +41,7 @@ if(!isset($tables['trigger_event'])) {
 list($columns, $indexes) = $db->metaTable('trigger_event');
 
 if(!isset($columns['variables_json'])) {
-	$db->Execute("ALTER TABLE trigger_event ADD COLUMN variables_json TEXT");
+	$db->ExecuteMaster("ALTER TABLE trigger_event ADD COLUMN variables_json TEXT");
 }
 
 // ===========================================================================
@@ -55,13 +55,13 @@ if(!isset($tables['context_scheduled_behavior'])) {
 list($columns, $indexes) = $db->metaTable('context_scheduled_behavior');
 
 if(!isset($columns['variables_json'])) {
-	$db->Execute("ALTER TABLE context_scheduled_behavior ADD COLUMN variables_json TEXT");
+	$db->ExecuteMaster("ALTER TABLE context_scheduled_behavior ADD COLUMN variables_json TEXT");
 }
 
 // ===========================================================================
 // Fix worker preference change
 
-$db->Execute("UPDATE worker_pref SET setting='compose.status' WHERE setting = 'mail_status_compose'");
-$db->Execute("DELETE FROM worker_pref WHERE setting = 'compose.defaults.from'");
+$db->ExecuteMaster("UPDATE worker_pref SET setting='compose.status' WHERE setting = 'mail_status_compose'");
+$db->ExecuteMaster("DELETE FROM worker_pref WHERE setting = 'compose.defaults.from'");
 
 return TRUE;

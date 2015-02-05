@@ -161,7 +161,7 @@ class DAO_DevblocksRegistry {
 	public static function get($key) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$row = $db->GetRow(sprintf("SELECT entry_key, entry_type, entry_value FROM devblocks_registry WHERE entry_key = %s",
+		$row = $db->GetRowMaster(sprintf("SELECT entry_key, entry_type, entry_value FROM devblocks_registry WHERE entry_key = %s",
 			$db->qstr($key)
 		));
 		
@@ -181,7 +181,7 @@ class DAO_DevblocksRegistry {
 		
 		if($delta && $as == DevblocksRegistryEntry::TYPE_NUMBER) {
 			// Delta update if the row exists
-			$db->Execute(sprintf("UPDATE devblocks_registry SET entry_value = entry_value + %d WHERE entry_key = %s",
+			$db->ExecuteMaster(sprintf("UPDATE devblocks_registry SET entry_value = entry_value + %d WHERE entry_key = %s",
 				$value,
 				$db->qstr($key)
 			));
@@ -190,7 +190,7 @@ class DAO_DevblocksRegistry {
 			
 			// Othewise, create it
 			if(empty($result)) {
-				$db->Execute(sprintf("INSERT INTO devblocks_registry (entry_key, entry_type, entry_value) VALUES (%s, %s, %s)",
+				$db->ExecuteMaster(sprintf("INSERT INTO devblocks_registry (entry_key, entry_type, entry_value) VALUES (%s, %s, %s)",
 					$db->qstr($key),
 					$db->qstr($as),
 					$db->qstr($value)
@@ -198,7 +198,7 @@ class DAO_DevblocksRegistry {
 			}
 			
 		} else {
-			$db->Execute(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value) VALUES (%s, %s, %s)",
+			$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value) VALUES (%s, %s, %s)",
 				$db->qstr($key),
 				$db->qstr($as),
 				$db->qstr($value)

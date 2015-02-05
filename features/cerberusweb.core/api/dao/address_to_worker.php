@@ -39,7 +39,7 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 			$worker_id,
 			($is_confirmed ? 1 : 0)
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 
 		self::clearCache();
 		
@@ -57,7 +57,7 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 		$sql = sprintf("DELETE FROM address_to_worker WHERE address = %s",
 			$db->qstr($address)
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		
 		self::clearCache();
 	}
@@ -71,7 +71,7 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 		$sql = sprintf("DELETE FROM address_to_worker WHERE worker_id = %d",
 			$worker_id
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		
 		self::clearCache();
 	}
@@ -103,7 +103,7 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 			self::ADDRESS,
 			implode("','", $addresses)
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		
 		self::clearCache();
 	}

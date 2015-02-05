@@ -133,7 +133,7 @@ abstract class C4_AbstractView {
 			($has_multiple_values ? sprintf("GROUP BY %s.id ", $query_parts['primary_table']) : '').
 			$sort_sql;
 
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		$objects = array();
 		while($row = mysqli_fetch_row($rs)) {
@@ -1456,9 +1456,9 @@ abstract class C4_AbstractView {
 			"LIMIT 0,20 "
 		;
 		
-		$results = $db->GetArray($sql);
+		$results = $db->GetArraySlave($sql);
 //		$total = count($results);
-//		$total = ($total < 20) ? $total : $db->GetOne("SELECT FOUND_ROWS()");
+//		$total = ($total < 20) ? $total : $db->GetOneSlave("SELECT FOUND_ROWS()");
 
 		return $results;
 	}
@@ -1649,7 +1649,7 @@ abstract class C4_AbstractView {
 			"LIMIT 0,20 "
 		;
 		
-		$results = $db->GetArray($sql);
+		$results = $db->GetArraySlave($sql);
 
 		return $results;
 	}
@@ -1779,7 +1779,7 @@ abstract class C4_AbstractView {
 			
 		}
 
-		$results = $db->GetArray($sql);
+		$results = $db->GetArraySlave($sql);
 
 		return $results;
 	}
@@ -1925,7 +1925,7 @@ abstract class C4_AbstractView {
 			);
 		}
 
-		$results = $db->GetArray($sql);
+		$results = $db->GetArraySlave($sql);
 
 		return $results;
 	}
@@ -2064,7 +2064,7 @@ abstract class C4_AbstractView {
 			$db->qstr(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 		);
 		
-		$results = $db->GetArray($sql);
+		$results = $db->GetArraySlave($sql);
 
 		return $results;
 		
@@ -2148,7 +2148,7 @@ abstract class C4_AbstractView {
 					"ORDER BY hits DESC "
 				;
 		
-				$results = $db->GetArray($sql);
+				$results = $db->GetArraySlave($sql);
 		
 				foreach($results as $result) {
 					$label = '';
@@ -2206,9 +2206,9 @@ abstract class C4_AbstractView {
 					"LIMIT 20 "
 				;
 				
-				$results = $db->GetArray($sql);
+				$results = $db->GetArraySlave($sql);
 //				$total = count($results);
-//				$total = ($total < 20) ? $total : $db->GetOne("SELECT FOUND_ROWS()");
+//				$total = ($total < 20) ? $total : $db->GetOneSlave("SELECT FOUND_ROWS()");
 				
 				foreach($results as $result) {
 					$label = '';
@@ -2269,9 +2269,9 @@ abstract class C4_AbstractView {
 					"LIMIT 20 "
 				;
 				
-				$results = $db->GetArray($sql);
+				$results = $db->GetArraySlave($sql);
 //				$total = count($results);
-//				$total = ($total < 20) ? $total : $db->GetOne("SELECT FOUND_ROWS()");
+//				$total = ($total < 20) ? $total : $db->GetOneSlave("SELECT FOUND_ROWS()");
 		
 				foreach($results as $result) {
 					$label = '';
@@ -2681,7 +2681,7 @@ class DAO_WorkerViewModel {
 			'placeholder_values_json',
 		);
 		
-		$rs = $db->Execute(sprintf("SELECT %s FROM worker_view_model %s",
+		$rs = $db->ExecuteSlave(sprintf("SELECT %s FROM worker_view_model %s",
 			implode(',', $fields),
 			(!empty($where) ? ('WHERE ' . $where) : '')
 		));
@@ -2810,7 +2810,7 @@ class DAO_WorkerViewModel {
 			'placeholder_values_json' => $db->qstr(json_encode($model->placeholderValues)),
 		);
 		
-		$db->Execute(sprintf("REPLACE INTO worker_view_model (%s)".
+		$db->ExecuteMaster(sprintf("REPLACE INTO worker_view_model (%s)".
 			"VALUES (%s)",
 			implode(',', array_keys($fields)),
 			implode(',', $fields)
@@ -2820,7 +2820,7 @@ class DAO_WorkerViewModel {
 	static public function deleteView($worker_id, $view_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute(sprintf("DELETE FROM worker_view_model WHERE worker_id = %d AND view_id = %s",
+		$db->ExecuteMaster(sprintf("DELETE FROM worker_view_model WHERE worker_id = %d AND view_id = %s",
 			$worker_id,
 			$db->qstr($view_id)
 		));
@@ -2834,10 +2834,10 @@ class DAO_WorkerViewModel {
 	 */
 	static public function flush($worker_id) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->Execute(sprintf("DELETE FROM worker_view_model WHERE worker_id = %d and is_ephemeral = 1",
+		$db->ExecuteMaster(sprintf("DELETE FROM worker_view_model WHERE worker_id = %d and is_ephemeral = 1",
 			$worker_id
 		));
-		$db->Execute(sprintf("UPDATE worker_view_model SET render_page = 0 WHERE worker_id = %d",
+		$db->ExecuteMaster(sprintf("UPDATE worker_view_model SET render_page = 0 WHERE worker_id = %d",
 			$worker_id
 		));
 	}

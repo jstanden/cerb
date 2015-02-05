@@ -60,7 +60,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
   			"VALUES (%d)",
 			time()
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
@@ -130,53 +130,53 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			DAO_ContextMergeHistory::logMerge(CerberusContexts::CONTEXT_ORG, $from_id, $to_id);
 			
 		// Merge comments
-		$db->Execute(sprintf("UPDATE comment SET context_id = %d WHERE context = %s AND context_id IN (%s)",
+		$db->ExecuteMaster(sprintf("UPDATE comment SET context_id = %d WHERE context = %s AND context_id IN (%s)",
 			$to_id,
 			$db->qstr(CerberusContexts::CONTEXT_ORG),
 			implode(',', $from_ids)
 		));
 		 
 		// Merge people
-		$db->Execute(sprintf("UPDATE address SET contact_org_id = %d WHERE contact_org_id IN (%s)",
+		$db->ExecuteMaster(sprintf("UPDATE address SET contact_org_id = %d WHERE contact_org_id IN (%s)",
 			$to_id,
 			implode(',', $from_ids)
 		));
 		
 		// Merge context_link
-		$db->Execute(sprintf("UPDATE IGNORE context_link SET from_context_id = %d WHERE from_context = %s AND from_context_id IN (%s)",
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE context_link SET from_context_id = %d WHERE from_context = %s AND from_context_id IN (%s)",
 			$to_id,
 			$db->qstr(CerberusContexts::CONTEXT_ORG),
 			implode(',', $from_ids)
 		));
-		$db->Execute(sprintf("UPDATE IGNORE context_link SET to_context_id = %d WHERE to_context = %s AND to_context_id IN (%s)",
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE context_link SET to_context_id = %d WHERE to_context = %s AND to_context_id IN (%s)",
 			$to_id,
 			$db->qstr(CerberusContexts::CONTEXT_ORG),
 			implode(',', $from_ids)
 		));
 
 		// Merge notifications
-		$db->Execute(sprintf("UPDATE IGNORE notification SET context_id = %d WHERE context = %s AND context_id IN (%s)",
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE notification SET context_id = %d WHERE context = %s AND context_id IN (%s)",
 			$to_id,
 			$db->qstr(CerberusContexts::CONTEXT_ORG),
 			implode(',', $from_ids)
 		));
 		
 		// Merge context_activity_log
-		$db->Execute(sprintf("UPDATE IGNORE context_activity_log SET target_context_id = %d WHERE target_context = %s AND target_context_id IN (%s)",
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE context_activity_log SET target_context_id = %d WHERE target_context = %s AND target_context_id IN (%s)",
 			$to_id,
 			$db->qstr(CerberusContexts::CONTEXT_ORG),
 			implode(',', $from_ids)
 		));
 		
 		// Merge context_scheduled_behavior
-		$db->Execute(sprintf("UPDATE IGNORE context_scheduled_behavior SET context_id = %d WHERE context = %s AND context_id IN (%s)",
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE context_scheduled_behavior SET context_id = %d WHERE context = %s AND context_id IN (%s)",
 			$to_id,
 			$db->qstr(CerberusContexts::CONTEXT_ORG),
 			implode(',', $from_ids)
 		));
 		
 		// Merge tickets
-		$db->Execute(sprintf("UPDATE ticket SET org_id = %d WHERE org_id IN (%s)",
+		$db->ExecuteMaster(sprintf("UPDATE ticket SET org_id = %d WHERE org_id IN (%s)",
 			$to_id,
 			implode(',', $from_ids)
 		));
@@ -200,13 +200,13 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		$sql = sprintf("DELETE FROM contact_org WHERE id IN (%s)",
 			$id_list
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		// Clear any associated addresses
 		$sql = sprintf("UPDATE address SET contact_org_id = 0 WHERE contact_org_id IN (%s)",
 			$id_list
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -228,7 +228,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		
 		// Search indexes
 		if(isset($tables['fulltext_org'])) {
-			$db->Execute("DELETE FROM fulltext_org WHERE id NOT IN (SELECT id FROM contact_org)");
+			$db->ExecuteMaster("DELETE FROM fulltext_org WHERE id NOT IN (SELECT id FROM contact_org)");
 			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_org records.');
 		}
 		
@@ -265,7 +265,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 
 		$objects = self::_getObjectsFromResultSet($rs);
 
@@ -459,7 +459,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 					$db = DevblocksPlatform::getDatabaseService();
 					$temp_table = sprintf("_tmp_%s", uniqid());
 					
-					$db->Execute(sprintf("CREATE TEMPORARY TABLE %s SELECT DISTINCT context_id AS id FROM comment INNER JOIN %s ON (%s.id=comment.id)",
+					$db->ExecuteSlave(sprintf("CREATE TEMPORARY TABLE %s (PRIMARY KEY (id)) SELECT DISTINCT context_id AS id FROM comment INNER JOIN %s ON (%s.id=comment.id)",
 						$temp_table,
 						$ids,
 						$ids
@@ -544,7 +544,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		if($limit > 0) {
 			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		} else {
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			$total = mysqli_num_rows($rs);
 		}
 		
@@ -564,7 +564,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 					($has_multiple_values ? "SELECT COUNT(DISTINCT c.id) " : "SELECT COUNT(c.id) ").
 					$join_sql.
 					$where_sql;
-				$total = $db->GetOne($count_sql);
+				$total = $db->GetOneSlave($count_sql);
 			}
 		}
 		

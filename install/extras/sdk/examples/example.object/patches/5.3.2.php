@@ -16,7 +16,7 @@ if(!isset($tables['example_object'])) {
 			INDEX created (created)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['example_object'] = 'example_object';
 }

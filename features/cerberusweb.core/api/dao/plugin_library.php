@@ -31,7 +31,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = "INSERT INTO plugin_library () VALUES ()";
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
@@ -66,7 +66,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -124,10 +124,10 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$tables = DevblocksPlatform::getDatabaseTables();
 		
-		$db->Execute("DELETE FROM plugin_library");
+		$db->ExecuteMaster("DELETE FROM plugin_library");
 		
 		if(isset($tables['fulltext_plugin_library']))
-			$db->Execute("DELETE FROM fulltext_plugin_library");
+			$db->ExecuteMaster("DELETE FROM fulltext_plugin_library");
 		
 		return true;
 	}
@@ -141,7 +141,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM plugin_library WHERE id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM plugin_library WHERE id IN (%s)", $ids_list));
 		
 		return true;
 	}
@@ -279,9 +279,9 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 			$sort_sql;
 			
 		if($limit > 0) {
-			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs mysqli_result */
 		} else {
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs mysqli_result */
 			$total = mysqli_num_rows($rs);
 		}
 		
@@ -301,7 +301,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 					($has_multiple_values ? "SELECT COUNT(DISTINCT plugin_library.id) " : "SELECT COUNT(plugin_library.id) ").
 					$join_sql.
 					$where_sql;
-				$total = $db->GetOne($count_sql);
+				$total = $db->GetOneSlave($count_sql);
 			}
 		}
 		

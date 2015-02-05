@@ -30,7 +30,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 		$sql = sprintf("INSERT INTO view_rss () ".
 			"VALUES ()"
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
@@ -53,7 +53,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 			"FROM view_rss ".
 			(!empty($ids) ? sprintf("WHERE id IN (%s)",implode(',',$ids)) : " ").
 		"";
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		return self::_getObjectsFromResults($rs);
 	}
@@ -73,7 +73,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 			"WHERE hash = %s",
 				$db->qstr($hash)
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$objects = self::_getObjectsFromResults($rs);
 		
@@ -98,7 +98,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 			"WHERE worker_id = %d",
 				$worker_id
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$objects = self::_getObjectsFromResults($rs);
 		
@@ -168,7 +168,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 		$sql = sprintf("DELETE FROM view_rss WHERE id = %d",
 			$id
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 };
 

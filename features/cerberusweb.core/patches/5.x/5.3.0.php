@@ -20,7 +20,7 @@ if(!isset($tables['attachment_link'])) {
 			INDEX context_id (context_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['attachment_link'] = 'attachment_link';
 }
@@ -28,7 +28,7 @@ if(!isset($tables['attachment_link'])) {
 list($columns, $indexes) = $db->metaTable('attachment_link');
 
 if(!isset($indexes['guid']))
-	$db->Execute("ALTER TABLE attachment_link ADD INDEX guid(guid(8))");
+	$db->ExecuteMaster("ALTER TABLE attachment_link ADD INDEX guid(guid(8))");
 
 // ===========================================================================
 // attachment
@@ -40,8 +40,8 @@ list($columns, $indexes) = $db->metaTable('attachment');
 
 // Add updated timestamp
 if(!isset($columns['updated'])) {
-	$db->Execute("ALTER TABLE attachment ADD COLUMN updated INT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX updated (updated)");
-	$db->Execute("UPDATE attachment LEFT JOIN message ON (attachment.message_id=message.id) SET attachment.updated=message.created_date WHERE attachment.updated = 0");
+	$db->ExecuteMaster("ALTER TABLE attachment ADD COLUMN updated INT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX updated (updated)");
+	$db->ExecuteMaster("UPDATE attachment LEFT JOIN message ON (attachment.message_id=message.id) SET attachment.updated=message.created_date WHERE attachment.updated = 0");
 }
 
 // Migrate attachment -> attachment_link (message) 
@@ -49,9 +49,9 @@ if(isset($columns['message_id'])) { // ~2.56s
 	$sql = "INSERT IGNORE INTO attachment_link (attachment_id, context, context_id, guid) ".
 		"SELECT id AS attachment_id, 'cerberusweb.contexts.message' AS context, message_id AS context_id, UUID() as guid ".
 		"FROM attachment ";
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 	
-	$db->Execute("ALTER TABLE attachment DROP COLUMN message_id");
+	$db->ExecuteMaster("ALTER TABLE attachment DROP COLUMN message_id");
 }
 
 // ===========================================================================
@@ -63,7 +63,7 @@ if(!isset($tables['view_filters_preset']))
 list($columns, $indexes) = $db->metaTable('view_filters_preset');
 
 if(!isset($columns['sort_json'])) {
-	$db->Execute("ALTER TABLE view_filters_preset ADD COLUMN sort_json TEXT");
+	$db->ExecuteMaster("ALTER TABLE view_filters_preset ADD COLUMN sort_json TEXT");
 }
 
 // ===========================================================================
@@ -80,7 +80,7 @@ if(!isset($tables['workspace'])) {
 			INDEX worker_id (worker_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['workspace'] = 'workspace';
 }
@@ -97,38 +97,38 @@ if(!isset($tables['workspace_to_endpoint'])) {
 			INDEX endpoint (endpoint)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['workspace_to_endpoint'] = 'workspace_to_endpoint';
 }
 
 // Rename worker_workspace_list -> workspace_list
 if(!isset($tables['workspace_list']) && isset($tables['worker_workspace_list'])) {
-	$db->Execute("ALTER TABLE worker_workspace_list RENAME workspace_list");
+	$db->ExecuteMaster("ALTER TABLE worker_workspace_list RENAME workspace_list");
 	unset($tables['worker_workspace_list']);
 	$tables['workspace_list'] = 'workspace_list';
 	
-	$db->Execute("UPDATE workspace_list SET list_view = REPLACE(list_view, \"O:29:\\\"Model_WorkerWorkspaceListView\\\"\", \"O:23:\\\"Model_WorkspaceListView\\\"\")");
+	$db->ExecuteMaster("UPDATE workspace_list SET list_view = REPLACE(list_view, \"O:29:\\\"Model_WorkerWorkspaceListView\\\"\", \"O:23:\\\"Model_WorkspaceListView\\\"\")");
 }
 
 list($columns, $indexes) = $db->metaTable('workspace_list');
 
 // Migrate workspace -> workspace_id
 if(!isset($columns['workspace_id']) && isset($columns['workspace'])) {
-	$db->Execute("ALTER TABLE workspace_list ADD COLUMN workspace_id INT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX workspace_id (workspace_id)");
+	$db->ExecuteMaster("ALTER TABLE workspace_list ADD COLUMN workspace_id INT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX workspace_id (workspace_id)");
 	
 	// Create workspaces and migrate worklist links
 	$sql = "SELECT workspace, worker_id FROM workspace_list GROUP BY workspace, worker_id";
-	$rows = $db->GetArray($sql);
+	$rows = $db->GetArrayMaster($sql);
 	
 	foreach($rows as $row) {
-		$db->Execute(sprintf("INSERT INTO workspace (name, worker_id) VALUES (%s, %d)", 
+		$db->ExecuteMaster(sprintf("INSERT INTO workspace (name, worker_id) VALUES (%s, %d)", 
 			$db->qstr($row['workspace']),
 			$row['worker_id']
 		));
 		$id = $db->LastInsertId();
 		
-		$db->Execute(sprintf("UPDATE workspace_list SET workspace_id = %d WHERE workspace = %s AND worker_id = %d",
+		$db->ExecuteMaster(sprintf("UPDATE workspace_list SET workspace_id = %d WHERE workspace = %s AND worker_id = %d",
 			$id,
 			$db->qstr($row['workspace']),
 			$row['worker_id']
@@ -136,12 +136,12 @@ if(!isset($columns['workspace_id']) && isset($columns['workspace'])) {
 	}
 	unset($rows);
 	
-	$db->Execute("ALTER TABLE workspace_list DROP COLUMN workspace");
+	$db->ExecuteMaster("ALTER TABLE workspace_list DROP COLUMN workspace");
 }
 
 // Migrate source_extension -> context
 if(!isset($columns['context']) && isset($columns['source_extension'])) {
-	$db->Execute("ALTER TABLE workspace_list ADD COLUMN context VARCHAR(255) NOT NULL DEFAULT '', ADD INDEX context (context)");
+	$db->ExecuteMaster("ALTER TABLE workspace_list ADD COLUMN context VARCHAR(255) NOT NULL DEFAULT '', ADD INDEX context (context)");
 
 	$map = array(
 		'core.workspace.source.address' => 'cerberusweb.contexts.address',
@@ -157,24 +157,24 @@ if(!isset($columns['context']) && isset($columns['source_extension'])) {
 	);
 	
 	foreach($map as $source_ext => $context) {
-		$db->Execute(sprintf("UPDATE workspace_list SET context = %s WHERE source_extension = %s",
+		$db->ExecuteMaster(sprintf("UPDATE workspace_list SET context = %s WHERE source_extension = %s",
 			$db->qstr($context),
 			$db->qstr($source_ext)
 		));
 	}
 	
-	$db->Execute("DELETE FROM workspace_list WHERE context = ''");
-	$db->Execute("ALTER TABLE workspace_list DROP COLUMN source_extension");
+	$db->ExecuteMaster("DELETE FROM workspace_list WHERE context = ''");
+	$db->ExecuteMaster("ALTER TABLE workspace_list DROP COLUMN source_extension");
 }
 
 // ===========================================================================
 // Maintenance
 
-$db->Execute("DELETE FROM worker_pref WHERE setting LIKE 'team_move_counts%'");
+$db->ExecuteMaster("DELETE FROM worker_pref WHERE setting LIKE 'team_move_counts%'");
 
 // ===========================================================================
 // Snippets plaintext
 
-$db->Execute("UPDATE snippet SET context='' WHERE context='cerberusweb.contexts.plaintext'");
+$db->ExecuteMaster("UPDATE snippet SET context='' WHERE context='cerberusweb.contexts.plaintext'");
 
 return TRUE;

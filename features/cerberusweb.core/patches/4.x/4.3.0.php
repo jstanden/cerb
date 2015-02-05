@@ -8,7 +8,7 @@ $tables = $db->metaTables();
 list($columns, $indexes) = $db->metaTable('message_header');
 
 if(isset($columns['ticket_id'])) {
-	$db->Execute('ALTER TABLE message_header DROP COLUMN ticket_id');
+	$db->ExecuteMaster('ALTER TABLE message_header DROP COLUMN ticket_id');
 }
 
 // ===========================================================================
@@ -17,12 +17,12 @@ if(isset($columns['ticket_id'])) {
 list($columns, $indexes) = $db->metaTable('address');
 
 if(!isset($columns['is_registered'])) {
-	$db->Execute('ALTER TABLE address ADD COLUMN is_registered TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
-	$db->Execute('ALTER TABLE address ADD INDEX is_registered (is_registered)');
+	$db->ExecuteMaster('ALTER TABLE address ADD COLUMN is_registered TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
+	$db->ExecuteMaster('ALTER TABLE address ADD INDEX is_registered (is_registered)');
 }
 
 if(!isset($columns['pass'])) {
-	$db->Execute("ALTER TABLE address ADD COLUMN pass VARCHAR(32) DEFAULT '' NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE address ADD COLUMN pass VARCHAR(32) DEFAULT '' NOT NULL");
 }
 
 // ===========================================================================
@@ -30,14 +30,14 @@ if(!isset($columns['pass'])) {
 
 if(isset($tables['address_auth'])) {
 	$sql = "SELECT address_id, pass FROM address_auth WHERE pass != ''";
-	$rs = $db->Execute($sql);
+	$rs = $db->ExecuteMaster($sql);
 	
 	// Loop through 'address_auth' records and inject them into 'address'
 	while($row = mysqli_fetch_assoc($rs)) {
 		$address_id = $row['address_id'];
 		$pass = $row['pass'];
 		
-		$db->Execute(sprintf("UPDATE address SET is_registered=1, pass=%s WHERE id = %d",
+		$db->ExecuteMaster(sprintf("UPDATE address SET is_registered=1, pass=%s WHERE id = %d",
 			$db->qstr($pass),
 			$address_id
 		));
@@ -46,7 +46,7 @@ if(isset($tables['address_auth'])) {
 	mysqli_free_result($rs);
 	
 	// Drop 'address_auth'
-	$db->Execute('DROP TABLE address_auth');
+	$db->ExecuteMaster('DROP TABLE address_auth');
 }
 
 return TRUE;

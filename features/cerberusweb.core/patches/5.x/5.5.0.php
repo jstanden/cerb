@@ -10,7 +10,7 @@ if(isset($tables['preparse_rule'])) {
 
 	// Look up custom fields for types
 	$sql = "SELECT id, name, context, type FROM custom_field";
-	$results = $db->GetArray($sql);
+	$results = $db->GetArrayMaster($sql);
 	$custom_fields = array();
 	
 	if(!empty($results))
@@ -23,7 +23,7 @@ if(isset($tables['preparse_rule'])) {
 	}
 
 	// Insert trigger_event
-	$db->Execute(sprintf("INSERT INTO trigger_event (owner_context, owner_context_id, event_point, title) ".
+	$db->ExecuteMaster(sprintf("INSERT INTO trigger_event (owner_context, owner_context_id, event_point, title) ".
 		"VALUES (%s, %d, %s, %s)",
 		$db->qstr('cerberusweb.contexts.app'),
 		0,
@@ -33,7 +33,7 @@ if(isset($tables['preparse_rule'])) {
 	$trigger_id = $db->LastInsertId();
 	
 	// Decision: Delivered to inbox?
-	$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+	$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
 		"VALUES (%d, %d, %s, %s, %s, %d)",
 		0,
 		$trigger_id,
@@ -52,7 +52,7 @@ if(isset($tables['preparse_rule'])) {
 		"FROM preparse_rule ".
 		"ORDER BY is_sticky DESC, sticky_order ASC, pos DESC "
 	);
-	$results = $db->GetArray($sql);
+	$results = $db->GetArrayMaster($sql);
 
 	$outcome_pos = 0;
 	
@@ -369,7 +369,7 @@ if(isset($tables['preparse_rule'])) {
 
 		if(!empty($groups)) {
 			// Outcome: Rule
-			$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+			$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
 				"VALUES (%d, %d, %s, %s, %s, %d)",
 				$parent_id,
 				$trigger_id,
@@ -450,7 +450,7 @@ if(isset($tables['preparse_rule'])) {
 				$label = ucfirst(implode(', ', $action_labels));
 			
 			// Actions: Perform these actions
-			$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+			$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
 				"VALUES (%d, %d, %s, %s, %s, %d)",
 				$parent_id,
 				$trigger_id,
@@ -473,7 +473,7 @@ if(isset($tables['preparse_rule'])) {
 // Drop mail filters (replaced by Virtual Attendants)
 
 if(isset($tables['preparse_rule'])) {
-	$db->Execute('DROP TABLE IF EXISTS preparse_rule');
+	$db->ExecuteMaster('DROP TABLE IF EXISTS preparse_rule');
 }
 
 // ===========================================================================
@@ -487,11 +487,11 @@ if(!isset($tables['mail_queue'])) {
 list($columns, $indexes) = $db->metaTable('mail_queue');
 
 if(!isset($columns['queue_delivery_date'])) {
-	$db->Execute("ALTER TABLE mail_queue ADD COLUMN queue_delivery_date INT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX queue_delivery_date (queue_delivery_date)");
+	$db->ExecuteMaster("ALTER TABLE mail_queue ADD COLUMN queue_delivery_date INT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX queue_delivery_date (queue_delivery_date)");
 }
 
 if(isset($columns['queue_priority'])) {
-	$db->Execute("ALTER TABLE mail_queue DROP COLUMN queue_priority");
+	$db->ExecuteMaster("ALTER TABLE mail_queue DROP COLUMN queue_priority");
 	unset($columns['queue_priority']);
 }
 
@@ -512,7 +512,7 @@ if(!isset($tables['context_scheduled_behavior'])) {
 			INDEX run_date (run_date)
 		) ENGINE=%s;
 		", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 	
 	$tables['context_scheduled_behavior'] = 'context_scheduled_behavior';
 }
@@ -538,11 +538,11 @@ if(!isset($tables['notification'])) {
 list($columns, $indexes) = $db->metaTable('notification');
 
 if(!isset($columns['context'])) {
-	$db->Execute("ALTER TABLE notification ADD COLUMN context VARCHAR(255) NOT NULL DEFAULT '', ADD INDEX context (context)");
+	$db->ExecuteMaster("ALTER TABLE notification ADD COLUMN context VARCHAR(255) NOT NULL DEFAULT '', ADD INDEX context (context)");
 }
 
 if(!isset($columns['context_id'])) {
-	$db->Execute("ALTER TABLE notification ADD COLUMN context_id INT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX context_id (context_id)");
+	$db->ExecuteMaster("ALTER TABLE notification ADD COLUMN context_id INT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX context_id (context_id)");
 	
 	// Base URL
 	$url_writer = DevblocksPlatform::getUrlService();
@@ -550,7 +550,7 @@ if(!isset($columns['context_id'])) {
 	$base_url_noprotocol = preg_replace('#^(http|https)://#','',$base_url);
 	
 	// Convert existing notifications to contexts
-	$rs = $db->Execute(sprintf("SELECT id, url FROM notification WHERE url REGEXP '^(http|https)://%s';",
+	$rs = $db->ExecuteMaster(sprintf("SELECT id, url FROM notification WHERE url REGEXP '^(http|https)://%s';",
 		$base_url_noprotocol
 	));
 	
@@ -571,16 +571,16 @@ if(!isset($columns['context_id'])) {
 				} else {
 					$mask = $id;
 					// Lookup mask
-					if(null != ($id = $db->GetOne(sprintf("SELECT id FROM ticket WHERE mask=%s", $db->qstr($mask))))) {
+					if(null != ($id = $db->GetOneMaster(sprintf("SELECT id FROM ticket WHERE mask=%s", $db->qstr($mask))))) {
 						$context = 'cerberusweb.contexts.ticket';
 						$context_id = $id;
 					} else {
-						if(null != ($id = $db->GetOne(sprintf("SELECT new_ticket_id FROM ticket_mask_forward WHERE old_mask=%s", $db->qstr($mask))))) {
+						if(null != ($id = $db->GetOneMaster(sprintf("SELECT new_ticket_id FROM ticket_mask_forward WHERE old_mask=%s", $db->qstr($mask))))) {
 							$context = 'cerberusweb.contexts.ticket';
 							$context_id = $id;
 						} else {
 							// Delete if we can't find it (points to something that moved or was deleted)
-							$db->Execute(sprintf("DELETE FROM notification WHERE id = %d", $row['id']));
+							$db->ExecuteMaster(sprintf("DELETE FROM notification WHERE id = %d", $row['id']));
 						}
 					}
 				}
@@ -600,7 +600,7 @@ if(!isset($columns['context_id'])) {
 		}
 		
 		if(!empty($context) || !empty($context_id)) {
-			$db->Execute(sprintf("UPDATE notification SET context=%s, context_id=%d, url='' WHERE id=%d",
+			$db->ExecuteMaster(sprintf("UPDATE notification SET context=%s, context_id=%d, url='' WHERE id=%d",
 				$db->qstr($context),
 				$context_id,
 				$row['id']

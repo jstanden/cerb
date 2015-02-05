@@ -22,7 +22,7 @@ class ChReportSpamWords extends Extension_Report {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = "SELECT spam, nonspam FROM bayes_stats";
-		if(null != ($row = $db->GetRow($sql))) {
+		if(null != ($row = $db->GetRowSlave($sql))) {
 			$num_spam = $row['spam'];
 			$num_nonspam = $row['nonspam'];
 		}
@@ -34,7 +34,7 @@ class ChReportSpamWords extends Extension_Report {
 		$top_nonspam_words = array();
 		
 		$sql = "SELECT word,spam,nonspam FROM bayes_words ORDER BY spam desc LIMIT 0,100";
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$top_spam_words[$row['word']] = array($row['spam'], $row['nonspam']);
@@ -44,7 +44,7 @@ class ChReportSpamWords extends Extension_Report {
 		mysqli_free_result($rs);
 		
 		$sql = "SELECT word,spam,nonspam FROM bayes_words ORDER BY nonspam desc LIMIT 0,100";
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$top_nonspam_words[$row['word']] = array($row['spam'], $row['nonspam']);

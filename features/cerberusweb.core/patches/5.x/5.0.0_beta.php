@@ -9,16 +9,16 @@ $tables = $db->metaTables();
 list($columns, $indexes) = $db->metaTable('attachment');
 
 if(isset($columns['filepath'])) {
-	$db->Execute("ALTER TABLE attachment CHANGE COLUMN filepath storage_key VARCHAR(255) DEFAULT '' NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE attachment CHANGE COLUMN filepath storage_key VARCHAR(255) DEFAULT '' NOT NULL");
 }
 
 if(isset($columns['file_size'])) {
-	$db->Execute("ALTER TABLE attachment CHANGE COLUMN file_size storage_size INT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE attachment CHANGE COLUMN file_size storage_size INT UNSIGNED DEFAULT 0 NOT NULL");
 }
 
 if(!isset($columns['storage_extension'])) {
-	$db->Execute("ALTER TABLE attachment ADD COLUMN storage_extension VARCHAR(255) DEFAULT '' NOT NULL");
-	$db->Execute("UPDATE attachment SET storage_extension='devblocks.storage.engine.disk' WHERE storage_extension=''");
+	$db->ExecuteMaster("ALTER TABLE attachment ADD COLUMN storage_extension VARCHAR(255) DEFAULT '' NOT NULL");
+	$db->ExecuteMaster("UPDATE attachment SET storage_extension='devblocks.storage.engine.disk' WHERE storage_extension=''");
 }
 
 // ===========================================================================
@@ -27,15 +27,15 @@ if(!isset($columns['storage_extension'])) {
 if(isset($tables['message_content'])) {
 	list($columns, $indexes) = $db->metaTable('message_content');
 	
-	$db->Execute("RENAME TABLE message_content TO storage_message_content");
-	$db->Execute("ALTER TABLE storage_message_content CHANGE COLUMN message_id id int unsigned default '0' not null");
+	$db->ExecuteMaster("RENAME TABLE message_content TO storage_message_content");
+	$db->ExecuteMaster("ALTER TABLE storage_message_content CHANGE COLUMN message_id id int unsigned default '0' not null");
 	
 	if(isset($indexes['content']))
-		$db->Execute("ALTER TABLE storage_message_content DROP INDEX content");
+		$db->ExecuteMaster("ALTER TABLE storage_message_content DROP INDEX content");
 	/**
 	 * [TODO] Slow (27.31s)
 	 */
-	$db->Execute("ALTER TABLE storage_message_content CHANGE COLUMN content data blob");
+	$db->ExecuteMaster("ALTER TABLE storage_message_content CHANGE COLUMN content data blob");
 
 	unset($tables['message_content']);
 	$tables['storage_message_content'] = 'storage_message_content'; 
@@ -48,20 +48,20 @@ if(isset($tables['storage_attachments'])) {
 	
 	if(isset($columns['data'])
 		&& 0 != strcasecmp('blob',$columns['data']['type'])) {
-			$db->Execute('ALTER TABLE storage_attachments MODIFY COLUMN data BLOB');
+			$db->ExecuteMaster('ALTER TABLE storage_attachments MODIFY COLUMN data BLOB');
 	}
 	
 	if(!isset($columns['chunk'])) {
-		$db->Execute("ALTER TABLE storage_attachments ADD COLUMN chunk smallint unsigned default 1");
-		$db->Execute("ALTER TABLE storage_attachments ADD INDEX chunk (chunk)");
+		$db->ExecuteMaster("ALTER TABLE storage_attachments ADD COLUMN chunk smallint unsigned default 1");
+		$db->ExecuteMaster("ALTER TABLE storage_attachments ADD INDEX chunk (chunk)");
 	}
 	
 	if(isset($indexes['PRIMARY'])) {
-		$db->Execute("ALTER TABLE storage_attachments DROP PRIMARY KEY");
+		$db->ExecuteMaster("ALTER TABLE storage_attachments DROP PRIMARY KEY");
 	}
 	
 	if(!isset($indexes['id'])) {
-		$db->Execute("ALTER TABLE storage_attachments ADD INDEX id (id)");
+		$db->ExecuteMaster("ALTER TABLE storage_attachments ADD INDEX id (id)");
 	}
 }
 
@@ -72,20 +72,20 @@ if(isset($tables['storage_message_content'])) {
 	
 	if(isset($columns['data'])
 		&& 0 != strcasecmp('blob',$columns['data']['type'])) {
-			$db->Execute('ALTER TABLE storage_message_content MODIFY COLUMN data BLOB');
+			$db->ExecuteMaster('ALTER TABLE storage_message_content MODIFY COLUMN data BLOB');
 	}
 	
 	if(!isset($columns['chunk'])) {
-		$db->Execute("ALTER TABLE storage_message_content ADD COLUMN chunk smallint unsigned default 1");
-		$db->Execute("ALTER TABLE storage_message_content ADD INDEX chunk (chunk)");
+		$db->ExecuteMaster("ALTER TABLE storage_message_content ADD COLUMN chunk smallint unsigned default 1");
+		$db->ExecuteMaster("ALTER TABLE storage_message_content ADD INDEX chunk (chunk)");
 	}
 	
 	if(isset($indexes['PRIMARY'])) {
-		$db->Execute("ALTER TABLE storage_message_content DROP PRIMARY KEY");
+		$db->ExecuteMaster("ALTER TABLE storage_message_content DROP PRIMARY KEY");
 	}
 	
 	if(!isset($indexes['id'])) {
-		$db->Execute("ALTER TABLE storage_message_content ADD INDEX id (id)");
+		$db->ExecuteMaster("ALTER TABLE storage_message_content ADD INDEX id (id)");
 	}
 }
 
@@ -94,28 +94,28 @@ if(isset($tables['storage_message_content'])) {
 list($columns, $indexes) = $db->metaTable('message');
 
 if(!isset($columns['storage_extension'])) {
-	$db->Execute("ALTER TABLE message ADD COLUMN storage_extension VARCHAR(255) DEFAULT '' NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE message ADD COLUMN storage_extension VARCHAR(255) DEFAULT '' NOT NULL");
 }
 
-$db->Execute("UPDATE message SET storage_extension='devblocks.storage.engine.database' WHERE storage_extension=''");
+$db->ExecuteMaster("UPDATE message SET storage_extension='devblocks.storage.engine.database' WHERE storage_extension=''");
 
 if(!isset($indexes['storage_extension'])) {
-	$db->Execute("ALTER TABLE message ADD INDEX storage_extension (storage_extension)");
+	$db->ExecuteMaster("ALTER TABLE message ADD INDEX storage_extension (storage_extension)");
 }
 
 if(!isset($columns['storage_key'])) {
-	$db->Execute("ALTER TABLE message ADD COLUMN storage_key VARCHAR(255) DEFAULT '' NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE message ADD COLUMN storage_key VARCHAR(255) DEFAULT '' NOT NULL");
 }
 
 if(!isset($columns['storage_size'])) {
-	$db->Execute("ALTER TABLE message ADD COLUMN storage_size INT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE message ADD COLUMN storage_size INT UNSIGNED DEFAULT 0 NOT NULL");
 	/*
 	 * [SLOW] (41.27s)
 	 */
-	$db->Execute("UPDATE message, storage_message_content SET message.storage_size = LENGTH(storage_message_content.data) WHERE message.id=storage_message_content.id");
+	$db->ExecuteMaster("UPDATE message, storage_message_content SET message.storage_size = LENGTH(storage_message_content.data) WHERE message.id=storage_message_content.id");
 }
 
-$db->Execute("UPDATE message SET storage_key=id WHERE storage_key = '' AND storage_extension='devblocks.storage.engine.database'");
+$db->ExecuteMaster("UPDATE message SET storage_key=id WHERE storage_key = '' AND storage_extension='devblocks.storage.engine.database'");
 
 // ===========================================================================
 // Enable storage manager scheduled task and give defaults
@@ -134,16 +134,16 @@ if(null != ($cron = DevblocksPlatform::getExtension('cron.storage', true, true))
 list($columns, $indexes) = $db->metaTable('attachment');
 
 if(!isset($columns['storage_profile_id'])) {
-	$db->Execute("ALTER TABLE attachment ADD COLUMN storage_profile_id INT UNSIGNED DEFAULT 0 NOT NULL");
-	$db->Execute("ALTER TABLE attachment ADD INDEX storage_profile_id (storage_profile_id)");
+	$db->ExecuteMaster("ALTER TABLE attachment ADD COLUMN storage_profile_id INT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE attachment ADD INDEX storage_profile_id (storage_profile_id)");
 }
 
 // Message Content
 list($columns, $indexes) = $db->metaTable('message');
 
 if(!isset($columns['storage_profile_id'])) {
-	$db->Execute("ALTER TABLE message ADD COLUMN storage_profile_id INT UNSIGNED DEFAULT 0 NOT NULL");
-	$db->Execute("ALTER TABLE message ADD INDEX storage_profile_id (storage_profile_id)");
+	$db->ExecuteMaster("ALTER TABLE message ADD COLUMN storage_profile_id INT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE message ADD INDEX storage_profile_id (storage_profile_id)");
 }
 
 // ===========================================================================
@@ -162,44 +162,44 @@ if(null != ($cron = DevblocksPlatform::getExtension('cron.search', true, true)))
 list($columns, $indexes) = $db->metaTable('worker');
 
 if(!isset($columns['last_activity_ip'])) {
-	$db->Execute("ALTER TABLE worker ADD COLUMN last_activity_ip BIGINT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE worker ADD COLUMN last_activity_ip BIGINT UNSIGNED DEFAULT 0 NOT NULL");
 }
 
 // ===========================================================================
 // Migrate user template tokens from Smarty to Twig
 
 // Default signature
-$db->Execute("UPDATE devblocks_setting SET value=REPLACE(value,'#first_name#','{{first_name}}') WHERE setting='default_signature'");
-$db->Execute("UPDATE devblocks_setting SET value=REPLACE(value,'#last_name#','{{last_name}}') WHERE setting='default_signature'");
-$db->Execute("UPDATE devblocks_setting SET value=REPLACE(value,'#title#','{{title}}') WHERE setting='default_signature'");
+$db->ExecuteMaster("UPDATE devblocks_setting SET value=REPLACE(value,'#first_name#','{{first_name}}') WHERE setting='default_signature'");
+$db->ExecuteMaster("UPDATE devblocks_setting SET value=REPLACE(value,'#last_name#','{{last_name}}') WHERE setting='default_signature'");
+$db->ExecuteMaster("UPDATE devblocks_setting SET value=REPLACE(value,'#title#','{{title}}') WHERE setting='default_signature'");
 
-$db->Execute("UPDATE devblocks_setting SET value=REPLACE(value,'{{worker_first_name}}','{{first_name}}') WHERE setting='default_signature'");
-$db->Execute("UPDATE devblocks_setting SET value=REPLACE(value,'{{worker_last_name}}','{{last_name}}') WHERE setting='default_signature'");
-$db->Execute("UPDATE devblocks_setting SET value=REPLACE(value,'{{worker_title}}','{{title}}') WHERE setting='default_signature'");
+$db->ExecuteMaster("UPDATE devblocks_setting SET value=REPLACE(value,'{{worker_first_name}}','{{first_name}}') WHERE setting='default_signature'");
+$db->ExecuteMaster("UPDATE devblocks_setting SET value=REPLACE(value,'{{worker_last_name}}','{{last_name}}') WHERE setting='default_signature'");
+$db->ExecuteMaster("UPDATE devblocks_setting SET value=REPLACE(value,'{{worker_title}}','{{title}}') WHERE setting='default_signature'");
 
 // Group signatures
-$db->Execute("UPDATE team SET signature=REPLACE(signature,'#first_name#','{{first_name}}')");
-$db->Execute("UPDATE team SET signature=REPLACE(signature,'#last_name#','{{last_name}}')");
-$db->Execute("UPDATE team SET signature=REPLACE(signature,'#title#','{{title}}')");
+$db->ExecuteMaster("UPDATE team SET signature=REPLACE(signature,'#first_name#','{{first_name}}')");
+$db->ExecuteMaster("UPDATE team SET signature=REPLACE(signature,'#last_name#','{{last_name}}')");
+$db->ExecuteMaster("UPDATE team SET signature=REPLACE(signature,'#title#','{{title}}')");
 
-$db->Execute("UPDATE team SET signature=REPLACE(signature,'{{worker_first_name}}','{{first_name}}')");
-$db->Execute("UPDATE team SET signature=REPLACE(signature,'{{worker_last_name}}','{{last_name}}')");
-$db->Execute("UPDATE team SET signature=REPLACE(signature,'{{worker_title}}','{{title}}')");
+$db->ExecuteMaster("UPDATE team SET signature=REPLACE(signature,'{{worker_first_name}}','{{first_name}}')");
+$db->ExecuteMaster("UPDATE team SET signature=REPLACE(signature,'{{worker_last_name}}','{{last_name}}')");
+$db->ExecuteMaster("UPDATE team SET signature=REPLACE(signature,'{{worker_title}}','{{title}}')");
 
 // ===========================================================================
 // Rename 'mail_draft' to 'mail_queue'
 
 if(isset($tables['mail_draft'])) {
-	if($db->Execute("RENAME TABLE mail_draft TO mail_queue")) {
+	if($db->ExecuteMaster("RENAME TABLE mail_draft TO mail_queue")) {
 		$tables['mail_queue'] = 'mail_queue';
 		unset($tables['mail_draft']);
 	}
 	
-	$db->Execute("DELETE FROM worker_pref WHERE setting='viewmail_drafts'");
+	$db->ExecuteMaster("DELETE FROM worker_pref WHERE setting='viewmail_drafts'");
 }
 
 if(isset($tables['mail_draft_seq'])) {
-	if($db->Execute("RENAME TABLE mail_draft_seq TO mail_queue_seq")) {
+	if($db->ExecuteMaster("RENAME TABLE mail_draft_seq TO mail_queue_seq")) {
 		$tables['mail_queue_seq'] = 'mail_queue_seq';
 		unset($tables['mail_draft_seq']);
 	}
@@ -226,7 +226,7 @@ if(!isset($tables['mail_queue'])) {
 			INDEX updated (updated)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['mail_queue'] = 'mail_queue';
 }
@@ -247,13 +247,13 @@ if(null != ($cron = DevblocksPlatform::getExtension('cron.mail_queue', true, tru
 list($columns, $indexes) = $db->metaTable('mail_queue');
 
 if(!isset($columns['is_queued'])) {
-	$db->Execute("ALTER TABLE mail_queue ADD COLUMN is_queued TINYINT UNSIGNED DEFAULT 0 NOT NULL");
-	$db->Execute("ALTER TABLE mail_queue ADD INDEX is_queued (is_queued)");
+	$db->ExecuteMaster("ALTER TABLE mail_queue ADD COLUMN is_queued TINYINT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE mail_queue ADD INDEX is_queued (is_queued)");
 }
 
 if(!isset($columns['priority'])) {
-	$db->Execute("ALTER TABLE mail_queue ADD COLUMN priority TINYINT UNSIGNED DEFAULT 0 NOT NULL");
-	$db->Execute("ALTER TABLE mail_queue ADD INDEX priority (priority)");
+	$db->ExecuteMaster("ALTER TABLE mail_queue ADD COLUMN priority TINYINT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE mail_queue ADD INDEX priority (priority)");
 }
 
 // ===========================================================================
@@ -269,7 +269,7 @@ if(!isset($tables['explorer_set'])) {
 			INDEX pos (pos)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['explorer_set'] = 'explorer_set';
 }
@@ -277,7 +277,7 @@ if(!isset($tables['explorer_set'])) {
 // ===========================================================================
 // Nuke Cerb4 licenses
 
-$db->Execute("DELETE FROM devblocks_setting WHERE plugin_id='cerberusweb.core' AND setting='license'");
+$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id='cerberusweb.core' AND setting='license'");
 
 // ===========================================================================
 // Add the 'snippet' table
@@ -297,7 +297,7 @@ if(!isset($tables['snippet'])) {
 			INDEX is_private (is_private)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['snippet'] = 'snippet';
 }
@@ -308,7 +308,7 @@ if(isset($columns['id'])
 	&& ('int(10) unsigned' != $columns['id']['type'] 
 	|| 'auto_increment' != $columns['id']['extra'])
 ) {
-	$db->Execute("ALTER TABLE snippet MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT");
+	$db->ExecuteMaster("ALTER TABLE snippet MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT");
 }
 
 // ===========================================================================
@@ -316,7 +316,7 @@ if(isset($columns['id'])
 
 if(isset($tables['mail_template'])) {
 	$sql = "SELECT title, description, folder, template_type, owner_id, content FROM mail_template";
-	$result = $db->GetArray($sql);
+	$result = $db->GetArrayMaster($sql);
 	
 	$ticket_replaces = array(
 		'#timestamp#' => '{{global_timestamp|date}}',
@@ -366,11 +366,11 @@ if(isset($tables['mail_template'])) {
 			0,
 			$db->qstr($content)
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 	
 	// Drop 'mail_template'
-	$db->Execute("DROP TABLE mail_template");
+	$db->ExecuteMaster("DROP TABLE mail_template");
 }
 
 return TRUE;

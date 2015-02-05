@@ -60,10 +60,10 @@ class ChReportSnippetPopularity extends Extension_Report {
 			(!empty($limit) ? sprintf("LIMIT %d", $limit) : '')
 		);
 		
-		$most_popular = $db->GetArray(sprintf($sql, 'DESC'));
+		$most_popular = $db->GetArraySlave(sprintf($sql, 'DESC'));
 		$tpl->assign('most_popular', $most_popular);
 		
-		$least_popular = $db->GetArray(sprintf($sql, 'ASC'));
+		$least_popular = $db->GetArraySlave(sprintf($sql, 'ASC'));
 		$tpl->assign('least_popular', $least_popular);
 		
 		$tpl->display('devblocks:cerberusweb.reports::reports/snippets/snippet_popularity/index.tpl');

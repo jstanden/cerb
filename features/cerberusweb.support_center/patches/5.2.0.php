@@ -8,7 +8,7 @@ $tables = $db->metaTables();
 if(!isset($tables['devblocks_template']))
 	return FALSE;
 
-$db->Execute("UPDATE devblocks_template SET plugin_id = 'cerberusweb.support_center' WHERE plugin_id = 'usermeet.core'");
+$db->ExecuteMaster("UPDATE devblocks_template SET plugin_id = 'cerberusweb.support_center' WHERE plugin_id = 'usermeet.core'");
 
 // ===========================================================================
 // Migrate login handlers to multiple login extensions
@@ -16,13 +16,13 @@ $db->Execute("UPDATE devblocks_template SET plugin_id = 'cerberusweb.support_cen
 if(!isset($tables['community_tool_property']))
 	return FALSE;
 
-$db->Execute("INSERT INTO community_tool_property (tool_code, property_key, property_value) ".
+$db->ExecuteMaster("INSERT INTO community_tool_property (tool_code, property_key, property_value) ".
 	"SELECT tool_code, 'common.login_extensions', property_value ".
 	"FROM community_tool_property ".
 	"WHERE property_key = 'common.login_handler' ".
 	"AND property_value <> ''"
 );
-$db->Execute("DELETE FROM community_tool_property WHERE property_key = 'common.login_handler'");
+$db->ExecuteMaster("DELETE FROM community_tool_property WHERE property_key = 'common.login_handler'");
 
 // ===========================================================================
 // contact_person_address_share
@@ -39,7 +39,7 @@ if(!isset($tables['supportcenter_address_share'])) {
 			INDEX is_enabled (is_enabled)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['supportcenter_address_share'] = 'supportcenter_address_share';
 }

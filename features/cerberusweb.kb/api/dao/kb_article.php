@@ -30,7 +30,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			"VALUES (%d)",
 			time()
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
@@ -61,7 +61,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 			;
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_createObjectsFromResultSet($rs);
 	}
@@ -140,10 +140,10 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		$id_string = implode(',', $ids);
 		
 		// Articles
-		$db->Execute(sprintf("DELETE FROM kb_article WHERE id IN (%s)", $id_string));
+		$db->ExecuteMaster(sprintf("DELETE FROM kb_article WHERE id IN (%s)", $id_string));
 		
 		// Categories
-		$db->Execute(sprintf("DELETE FROM kb_article_to_category WHERE kb_article_id IN (%s)", $id_string));
+		$db->ExecuteMaster(sprintf("DELETE FROM kb_article_to_category WHERE kb_article_id IN (%s)", $id_string));
 		
 		// Search indexes
 		$search = Extension_DevblocksSearchSchema::get(Search_KbArticle::ID, true);
@@ -185,7 +185,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		
 		$categories = array();
 		
-		$rs = $db->Execute(sprintf("SELECT kb_category_id ".
+		$rs = $db->ExecuteSlave(sprintf("SELECT kb_category_id ".
 			"FROM kb_article_to_category ".
 			"WHERE kb_article_id = %d",
 			$article_id
@@ -211,7 +211,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			$category_ids = array($category_ids);
 		
 		if($replace) {
-			$db->Execute(sprintf("DELETE FROM kb_article_to_category WHERE kb_article_id IN (%s)",
+			$db->ExecuteMaster(sprintf("DELETE FROM kb_article_to_category WHERE kb_article_id IN (%s)",
 				implode(',', $article_ids)
 			));
 		}
@@ -233,7 +233,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 					
 					if(is_array($article_ids))
 					foreach($article_ids as $article_id) {
-						$db->Execute(sprintf("REPLACE INTO kb_article_to_category (kb_article_id, kb_category_id, kb_top_category_id) ".
+						$db->ExecuteMaster(sprintf("REPLACE INTO kb_article_to_category (kb_article_id, kb_category_id, kb_top_category_id) ".
 							"VALUES (%d, %d, %d)",
 							$article_id,
 							$category_id,
@@ -245,7 +245,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 				} else {
 					if(is_array($article_ids))
 					foreach($article_ids as $article_id) {
-						$db->Execute(
+						$db->ExecuteMaster(
 							sprintf("DELETE FROM kb_article_to_category WHERE kb_article_id = %d AND kb_category_id = %d",
 								$article_id,
 								$category_id
@@ -433,7 +433,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 					($has_multiple_values ? "SELECT COUNT(DISTINCT kb.id) " : "SELECT COUNT(kb.id) ").
 					$join_sql.
 					$where_sql;
-				$total = $db->GetOne($count_sql);
+				$total = $db->GetOneSlave($count_sql);
 			}
 		}
 		

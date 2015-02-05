@@ -1500,7 +1500,7 @@ class ChContactsPage extends CerberusPageExtension {
 			);
 		}
 		
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		$list = array();
 		
@@ -1553,7 +1553,7 @@ class ChContactsPage extends CerberusPageExtension {
 			"LIMIT 0,25",
 			$db->qstr($starts_with.'%')
 		);
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		$list = array();
 		

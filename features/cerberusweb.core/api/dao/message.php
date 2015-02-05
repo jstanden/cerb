@@ -34,7 +34,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = "INSERT INTO message () VALUES ()";
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		$id = $db->LastInsertId();
 
 		self::update($id, $fields);
@@ -66,7 +66,7 @@ class DAO_Message extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -164,7 +164,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		$sql = sprintf("DELETE FROM message WHERE id IN (%s)",
 			$ids_list
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		
 		// Remap first/last on ticket
 		foreach($messages as $message_id => $message) {
@@ -190,10 +190,10 @@ class DAO_Message extends Cerb_ORMHelper {
 		$tables = DevblocksPlatform::getDatabaseTables();
 		
 		// Purge message content (storage)
-		$db->Execute("CREATE TEMPORARY TABLE _tmp_maint_message SELECT id FROM message WHERE ticket_id NOT IN (SELECT id FROM ticket)");
+		$db->ExecuteMaster("CREATE TEMPORARY TABLE _tmp_maint_message (PRIMARY KEY (id)) SELECT id FROM message WHERE ticket_id NOT IN (SELECT id FROM ticket)");
 		
 		$sql = "SELECT id FROM _tmp_maint_message";
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		$ids_buffer = array();
 		$count = 0;
@@ -218,24 +218,24 @@ class DAO_Message extends Cerb_ORMHelper {
 		}
 
 		// Purge messages without linked tickets
-		$db->Execute("DELETE message FROM message INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=message.id)");
+		$db->ExecuteMaster("DELETE message FROM message INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=message.id)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message records.');
 		
 		// Headers
-		$db->Execute("DELETE message_header FROM message_header INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=message_header.message_id)");
+		$db->ExecuteMaster("DELETE message_header FROM message_header INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=message_header.message_id)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message_header records.');
 
 		// Attachments
-		$db->Execute("DELETE attachment_link FROM attachment_link INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=attachment_link.context_id AND attachment_link.context = 'cerberusweb.contexts.message')");
+		$db->ExecuteMaster("DELETE attachment_link FROM attachment_link INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=attachment_link.context_id AND attachment_link.context = 'cerberusweb.contexts.message')");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message attachment_links.');
 		
 		// Search indexes
 		if(isset($tables['fulltext_message_content'])) {
-			$db->Execute("DELETE fulltext_message_content FROM fulltext_message_content INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=fulltext_message_content.id)");
+			$db->ExecuteMaster("DELETE fulltext_message_content FROM fulltext_message_content INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=fulltext_message_content.id)");
 			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_message_content records.');
 		}
 		
-		$db->Execute("DROP TABLE _tmp_maint_message");
+		$db->ExecuteMaster("DROP TABLE _tmp_maint_message");
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -402,7 +402,7 @@ class DAO_Message extends Cerb_ORMHelper {
 					$db = DevblocksPlatform::getDatabaseService();
 					$temp_table = sprintf("_tmp_%s", uniqid());
 					
-					$db->Execute(sprintf("CREATE TEMPORARY TABLE %s SELECT DISTINCT context_id AS id FROM comment INNER JOIN %s ON (%s.id=comment.id)",
+					$db->ExecuteSlave(sprintf("CREATE TEMPORARY TABLE %s (PRIMARY KEY (id)) SELECT DISTINCT context_id AS id FROM comment INNER JOIN %s ON (%s.id=comment.id)",
 						$temp_table,
 						$ids,
 						$ids
@@ -646,7 +646,7 @@ class DAO_Message extends Cerb_ORMHelper {
 					($has_multiple_values ? "SELECT COUNT(DISTINCT m.id) " : "SELECT COUNT(m.id) ").
 					$join_sql.
 					$where_sql;
-				$total = $db->GetOne($count_sql);
+				$total = $db->GetOneSlave($count_sql);
 			}
 		}
 
@@ -1073,7 +1073,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT storage_extension, storage_key, storage_profile_id FROM message WHERE id IN (%s)", implode(',',$ids));
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		// Delete the physical files
 		
@@ -1118,7 +1118,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 				$db->qstr($src_profile->extension_id),
 				$src_profile->id
 		);
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			self::_migrate($dst_profile, $row);
@@ -1152,7 +1152,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 				$db->qstr($dst_profile->extension_id),
 				$dst_profile->id
 		);
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			self::_migrate($dst_profile, $row, true);
@@ -1294,7 +1294,7 @@ class DAO_MessageHeader {
 			$value = implode("\r\n",$value);
 		}
 
-		$db->Execute(sprintf("INSERT INTO message_header (message_id, header_name, header_value) ".
+		$db->ExecuteMaster(sprintf("INSERT INTO message_header (message_id, header_name, header_value) ".
 				"VALUES (%d, %s, %s)",
 				$message_id,
 				$db->qstr(strtolower($header)),
@@ -1336,7 +1336,7 @@ class DAO_MessageHeader {
 		
 		unset($headers);
 		
-		$db->Execute(sprintf("INSERT INTO message_header (message_id, header_name, header_value) VALUES %s",
+		$db->ExecuteMaster(sprintf("INSERT INTO message_header (message_id, header_name, header_value) VALUES %s",
 			implode(',', $values)
 		));
 	}
@@ -1350,7 +1350,7 @@ class DAO_MessageHeader {
 			$message_id
 		);
 
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		$headers = array();
 
@@ -1373,7 +1373,7 @@ class DAO_MessageHeader {
 			$message_id,
 			$db->qstr($header_name)
 		);
-		return $db->GetOne($sql);
+		return $db->GetOneSlave($sql);
 	}
 
 	static function getUnique() {
@@ -1381,7 +1381,7 @@ class DAO_MessageHeader {
 		$headers = array();
 
 		$sql = "SELECT header_name FROM message_header GROUP BY header_name";
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		while($row = mysqli_fetch_assoc($rs)) {
 			$headers[] = $row['header_name'];
@@ -1406,7 +1406,7 @@ class DAO_MessageHeader {
 		$sql = sprintf("DELETE FROM message_header WHERE message_id IN (%s)",
 			implode(',', $ids)
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 };
 
@@ -1593,7 +1593,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			$where_sql
 		;
 		
-		$results = $db->GetArray($sql);
+		$results = $db->GetArraySlave($sql);
 
 		return $results;
 	}

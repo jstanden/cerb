@@ -73,7 +73,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 			return 0;
 		
 		$db = DevblocksPlatform::getDatabaseService();
-		if(null != ($next_pos = $db->GetOne(sprintf("SELECT MAX(pos)+1 FROM bucket WHERE group_id = %d", $group_id))))
+		if(null != ($next_pos = $db->GetOneMaster(sprintf("SELECT MAX(pos)+1 FROM bucket WHERE group_id = %d", $group_id))))
 			return $next_pos;
 			
 		return 0;
@@ -166,7 +166,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 			$db->qstr($name),
 			$group_id
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		$id = $db->LastInsertId();
 
 		self::clearCache();
@@ -205,11 +205,11 @@ class DAO_Bucket extends DevblocksORMHelper {
 		);
 		
 		$sql = sprintf("DELETE FROM bucket WHERE id IN (%s)", implode(',',$ids));
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		// Reset any tickets using this bucket
 		$sql = sprintf("UPDATE ticket SET bucket_id = 0 WHERE bucket_id IN (%s)", implode(',',$ids));
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		self::clearCache();
 	}

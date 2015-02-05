@@ -36,7 +36,7 @@ class DAO_Pop3Account {
 		$sql = sprintf("INSERT INTO pop3_account () ".
 			"VALUES ()"
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		$id = $db->LastInsertId();
 		
 		self::updatePop3Account($id, $fields);
@@ -54,7 +54,7 @@ class DAO_Pop3Account {
 			((!empty($ids) ? sprintf("WHERE id IN (%s)", implode(',', $ids)) : " ").
 			"ORDER BY nickname "
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$pop3 = new Model_Pop3Account();
@@ -112,7 +112,7 @@ class DAO_Pop3Account {
 			implode(', ', $sets),
 			$id
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
 	static function deletePop3Account($id) {
@@ -125,7 +125,7 @@ class DAO_Pop3Account {
 			$id
 		);
 		
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 };
 

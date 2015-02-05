@@ -938,16 +938,16 @@ class DevblocksPluginManifest {
 		$db = DevblocksPlatform::getDatabaseService();
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 		
-		$db->Execute(sprintf("DELETE FROM %splugin WHERE id = %s",
+		$db->ExecuteMaster(sprintf("DELETE FROM %splugin WHERE id = %s",
 			$prefix,
 			$db->qstr($this->id)
 		));
-		$db->Execute(sprintf("DELETE FROM %sextension WHERE plugin_id = %s",
+		$db->ExecuteMaster(sprintf("DELETE FROM %sextension WHERE plugin_id = %s",
 			$prefix,
 			$db->qstr($this->id)
 		));
 		
-		$db->Execute(sprintf("DELETE FROM %1\$sproperty_store WHERE extension_id NOT IN (SELECT id FROM %1\$sextension)", $prefix));
+		$db->ExecuteMaster(sprintf("DELETE FROM %1\$sproperty_store WHERE extension_id NOT IN (SELECT id FROM %1\$sextension)", $prefix));
 	}
 	
 	function uninstall() {

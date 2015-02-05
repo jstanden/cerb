@@ -24,7 +24,7 @@ class ChReportSpamAddys extends Extension_Report {
 		$top_nonspam_addys = array();
 		
 		$sql = "SELECT email,num_spam,num_nonspam,is_banned FROM address WHERE num_spam+num_nonspam > 0 ORDER BY num_spam desc LIMIT 0,100";
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$top_spam_addys[$row['email']] = array($row['num_spam'], $row['num_nonspam'], $row['is_banned']);
@@ -34,7 +34,7 @@ class ChReportSpamAddys extends Extension_Report {
 		mysqli_free_result($rs);
 		
 		$sql = "SELECT email,num_spam,num_nonspam,is_banned FROM address WHERE num_spam+num_nonspam > 0 ORDER BY num_nonspam desc LIMIT 0,100";
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$top_nonspam_addys[$row['email']] = array($row['num_spam'], $row['num_nonspam'], $row['is_banned']);

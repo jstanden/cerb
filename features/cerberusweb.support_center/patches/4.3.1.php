@@ -7,7 +7,7 @@ $tables = $db->metaTables();
 
 if(isset($tables['community_tool_property'])) {
 	$sql = "SELECT tool_code, property_value FROM community_tool_property WHERE property_key = 'common.allow_logins'";
-	$rs = $db->Execute($sql);
+	$rs = $db->ExecuteMaster($sql);
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		$tool_code = $row['tool_code'];
@@ -22,10 +22,10 @@ if(isset($tables['community_tool_property'])) {
 			$db->qstr('common.login_handler'),
 			$db->qstr($login_handler)
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		
 		// Drop allow_logins property
-		$db->Execute(sprintf("DELETE FROM community_tool_property WHERE tool_code = %s AND property_key = %s",
+		$db->ExecuteMaster(sprintf("DELETE FROM community_tool_property WHERE tool_code = %s AND property_key = %s",
 			$db->qstr($tool_code),
 			$db->qstr('common.allow_logins')
 		));

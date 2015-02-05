@@ -22,7 +22,7 @@ class ChReportGroupReplies extends Extension_Report {
 		$date = DevblocksPlatform::getDateService();
 		
 		// Use the worker's timezone for MySQL date functions
-		$db->Execute(sprintf("SET time_zone = %s", $db->qstr($date->formatTime('P', time()))));
+		$db->ExecuteSlave(sprintf("SET time_zone = %s", $db->qstr($date->formatTime('P', time()))));
 		
 		// Filters
 		
@@ -35,7 +35,7 @@ class ChReportGroupReplies extends Extension_Report {
 		// Years
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM message WHERE created_date > 0 AND is_outgoing = 1 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$years[] = intval($row['year']);
@@ -193,7 +193,7 @@ class ChReportGroupReplies extends Extension_Report {
 			$query_parts['where']
 		);
 		
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		$data = array();
 		while($row = mysqli_fetch_assoc($rs)) {

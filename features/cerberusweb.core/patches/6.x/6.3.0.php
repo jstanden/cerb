@@ -14,7 +14,7 @@ if(!isset($tables['workspace_tab'])) {
 list($columns, $indexes) = $db->metaTable('workspace_tab');
 
 if(!isset($columns['params_json'])) {
-	$db->Execute("ALTER TABLE workspace_tab ADD COLUMN params_json TEXT");
+	$db->ExecuteMaster("ALTER TABLE workspace_tab ADD COLUMN params_json TEXT");
 }
 
 // ===========================================================================
@@ -28,8 +28,8 @@ if(!isset($tables['task'])) {
 list($columns, $indexes) = $db->metaTable('task');
 
 if(!isset($columns['created_at'])) {
-	$db->Execute("ALTER TABLE task ADD COLUMN created_at INT UNSIGNED NOT NULL DEFAULT 0");
-	$db->Execute("UPDATE task SET created_at = updated_date WHERE created_at = 0");
+	$db->ExecuteMaster("ALTER TABLE task ADD COLUMN created_at INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("UPDATE task SET created_at = updated_date WHERE created_at = 0");
 }
 
 // ===========================================================================
@@ -43,10 +43,10 @@ if(!isset($tables['snippet'])) {
 list($columns, $indexes) = $db->metaTable('snippet');
 
 if(!isset($columns['total_uses'])) {
-	$db->Execute("ALTER TABLE snippet ADD COLUMN total_uses INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("ALTER TABLE snippet ADD COLUMN total_uses INT UNSIGNED NOT NULL DEFAULT 0");
 	
 	if(isset($tables['snippet_usage'])) {
-		$db->Execute("UPDATE snippet SET total_uses = (SELECT IFNULL(SUM(hits),0) FROM snippet_usage WHERE snippet_id=snippet.id)");
+		$db->ExecuteMaster("UPDATE snippet SET total_uses = (SELECT IFNULL(SUM(hits),0) FROM snippet_usage WHERE snippet_id=snippet.id)");
 	}
 }
 
@@ -63,18 +63,18 @@ if(!isset($tables['snippet_use_history'])) {
 			PRIMARY KEY (snippet_id, worker_id, ts_day)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['snippet_use_history'] = 'snippet_use_history';
 	
 	// Copy over the previous per-worker stats
 	if(isset($tables['snippet_usage'])) {
-		$db->Execute("INSERT INTO snippet_use_history SELECT snippet_id, worker_id, 0 AS ts_day, hits FROM snippet_usage");
+		$db->ExecuteMaster("INSERT INTO snippet_use_history SELECT snippet_id, worker_id, 0 AS ts_day, hits FROM snippet_usage");
 	}
 }
 
 if(isset($tables['snippet_usage'])) {
-	$db->Execute("DROP TABLE snippet_usage");
+	$db->ExecuteMaster("DROP TABLE snippet_usage");
 	unset($tables['snippet_usage']);
 }
 
@@ -91,7 +91,7 @@ if(!isset($tables['trigger_event_history'])) {
 			PRIMARY KEY (trigger_id, ts_day)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['trigger_event_history'] = 'trigger_event_history';
 }
@@ -112,7 +112,7 @@ if(!isset($columns['guid'])) {
 }
 
 if($columns['guid']['type'] == 'varchar(64)') {
-	$db->Execute("ALTER TABLE attachment_link DROP INDEX guid, MODIFY COLUMN guid char(36) NOT NULL DEFAULT '', ADD INDEX guid (guid(3))");;
+	$db->ExecuteMaster("ALTER TABLE attachment_link DROP INDEX guid, MODIFY COLUMN guid char(36) NOT NULL DEFAULT '', ADD INDEX guid (guid(3))");;
 }
 
 // ===========================================================================
@@ -123,7 +123,7 @@ if(!isset($tables['decision_node'])) {
 	return FALSE;
 }
 
-$rs = $db->Execute("SELECT decision_node.id, decision_node.params_json, trigger_event.event_point FROM decision_node INNER JOIN trigger_event ON (trigger_event.id=decision_node.trigger_id) WHERE decision_node.node_type = 'action'");
+$rs = $db->ExecuteMaster("SELECT decision_node.id, decision_node.params_json, trigger_event.event_point FROM decision_node INNER JOIN trigger_event ON (trigger_event.id=decision_node.trigger_id) WHERE decision_node.node_type = 'action'");
 
 while($row = mysqli_fetch_assoc($rs)) {
 	$event_point = $row['event_point'];
@@ -258,7 +258,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 	}
 	
 	if($is_changed) {
-		$db->Execute(sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
+		$db->ExecuteMaster(sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
 			$db->qstr(json_encode($params)),
 			$row['id']
 		));
@@ -276,15 +276,15 @@ if(!isset($tables['devblocks_session'])) {
 list($columns, $indexes) = $db->metaTable('devblocks_session');
 
 if(!isset($columns['user_id'])) {
-	$db->Execute("ALTER TABLE devblocks_session ADD COLUMN user_id INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("ALTER TABLE devblocks_session ADD COLUMN user_id INT UNSIGNED NOT NULL DEFAULT 0");
 }
 
 if(!isset($columns['user_ip'])) {
-	$db->Execute("ALTER TABLE devblocks_session ADD COLUMN user_ip VARCHAR(32) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("ALTER TABLE devblocks_session ADD COLUMN user_ip VARCHAR(32) NOT NULL DEFAULT ''");
 }
 
 if(!isset($columns['user_agent'])) {
-	$db->Execute("ALTER TABLE devblocks_session ADD COLUMN user_agent VARCHAR(255) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("ALTER TABLE devblocks_session ADD COLUMN user_agent VARCHAR(255) NOT NULL DEFAULT ''");
 }
 
 // ===========================================================================
@@ -298,47 +298,47 @@ if(!isset($tables['comment'])) {
 list($columns, $indexes) = $db->metaTable('comment');
 
 if(!isset($columns['owner_context']) && !isset($columns['owner_context_id'])) {
-	$db->Execute("ALTER TABLE comment ADD COLUMN owner_context VARCHAR(255) NOT NULL DEFAULT '', ".
+	$db->ExecuteMaster("ALTER TABLE comment ADD COLUMN owner_context VARCHAR(255) NOT NULL DEFAULT '', ".
 		"ADD COLUMN owner_context_id INT UNSIGNED NOT NULL DEFAULT 0"
 	);
 }
 
 if(isset($columns['address_id'])) {
 	// Set workers where possible
-	$db->Execute("UPDATE comment INNER JOIN address ON (comment.address_id=address.id) ".
+	$db->ExecuteMaster("UPDATE comment INNER JOIN address ON (comment.address_id=address.id) ".
 		"INNER JOIN worker ON (worker.email=address.email) ".
 		"SET owner_context = 'cerberusweb.contexts.worker', owner_context_id=worker.id ".
 		"WHERE owner_context = ''"
 	);
 	
 	// Catch everything that falls through the cracks
-	$db->Execute("UPDATE comment SET owner_context = 'cerberusweb.contexts.address', owner_context_id = address_id ".
+	$db->ExecuteMaster("UPDATE comment SET owner_context = 'cerberusweb.contexts.address', owner_context_id = address_id ".
 		"WHERE owner_context = '' AND address_id != 0"
 	);
 	
 	// Catch everything that falls through the cracks
-	$db->Execute("UPDATE comment SET owner_context = 'cerberusweb.contexts.app', owner_context_id = address_id ".
+	$db->ExecuteMaster("UPDATE comment SET owner_context = 'cerberusweb.contexts.app', owner_context_id = address_id ".
 		"WHERE owner_context = ''"
 	);
 	
-	$db->Execute("ALTER TABLE comment DROP COLUMN address_id");
+	$db->ExecuteMaster("ALTER TABLE comment DROP COLUMN address_id");
 }
 
 // ===========================================================================
 // Refactor C4_* to View_*
 
-$db->Execute("UPDATE worker_view_model SET class_name = 'View_FeedbackEntry' WHERE class_name = 'C4_FeedbackEntryView'");
-$db->Execute("UPDATE view_filters_preset SET view_class = 'View_FeedbackEntry' WHERE view_class = 'C4_FeedbackEntryView'");
+$db->ExecuteMaster("UPDATE worker_view_model SET class_name = 'View_FeedbackEntry' WHERE class_name = 'C4_FeedbackEntryView'");
+$db->ExecuteMaster("UPDATE view_filters_preset SET view_class = 'View_FeedbackEntry' WHERE view_class = 'C4_FeedbackEntryView'");
 
-$db->Execute("UPDATE worker_view_model SET class_name = 'View_Translation' WHERE class_name = 'C4_TranslationView'");
-$db->Execute("UPDATE view_filters_preset SET view_class = 'View_Translation' WHERE view_class = 'C4_TranslationView'");
+$db->ExecuteMaster("UPDATE worker_view_model SET class_name = 'View_Translation' WHERE class_name = 'C4_TranslationView'");
+$db->ExecuteMaster("UPDATE view_filters_preset SET view_class = 'View_Translation' WHERE view_class = 'C4_TranslationView'");
 
-$db->Execute("DELETE FROM worker_view_model WHERE class_name = ''");
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE class_name = ''");
 
 // ===========================================================================
 // Clear old message worklist searches
 
-$db->Execute("DELETE FROM worker_view_model WHERE view_id = 'search_cerberusweb_contexts_message'");
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id = 'search_cerberusweb_contexts_message'");
 
 // ===========================================================================
 // Increase the max bucket name length
@@ -355,7 +355,7 @@ if(!isset($columns['name'])) {
 	return FALSE;
 }
 
-$db->Execute("ALTER TABLE bucket MODIFY COLUMN name VARCHAR(64)");
+$db->ExecuteMaster("ALTER TABLE bucket MODIFY COLUMN name VARCHAR(64)");
 
 // ===========================================================================
 // Finish

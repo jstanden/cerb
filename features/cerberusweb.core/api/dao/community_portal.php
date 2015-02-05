@@ -30,7 +30,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		$sql = sprintf("INSERT INTO community_tool () ".
 			"VALUES ()"
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
@@ -45,7 +45,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		// [JAS]: [TODO] Inf loop check
 		do {
 			$code = substr(md5(mt_rand(0,1000) * microtime()),0,$length);
-			$exists = $db->GetOne(sprintf("SELECT id FROM community_tool WHERE code = %s",$db->qstr($code)));
+			$exists = $db->GetOneMaster(sprintf("SELECT id FROM community_tool WHERE code = %s",$db->qstr($code)));
 			
 		} while(!empty($exists));
 		
@@ -84,7 +84,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT id FROM community_tool WHERE code = %s",
 			$db->qstr($code)
 		);
-		$id = $db->GetOne($sql);
+		$id = $db->GetOneSlave($sql);
 		
 		if(!empty($id)) {
 			return self::get($id);
@@ -108,7 +108,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 			(!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
 			"ORDER BY name"
 		;
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
 		return self::_createObjectsFromResultSet($rs);
 	}
@@ -121,7 +121,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 			(!empty($where)?sprintf("WHERE %s ",$where):" ").
 			"ORDER BY name "
 			;
-		$rs = $db->Execute($sql);
+		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_createObjectsFromResultSet($rs);
 	}
@@ -162,10 +162,10 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 			 */
 			
 			$sql = sprintf("DELETE FROM community_tool WHERE id = %d", $id);
-			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			
 			$sql = sprintf("DELETE FROM community_tool_property WHERE tool_code = '%s'", $tool->code);
-			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		}
 	}
 
@@ -252,7 +252,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		if($limit > 0) {
 			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		} else {
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			$total = mysqli_num_rows($rs);
 		}
 		
@@ -272,7 +272,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 					($has_multiple_values ? "SELECT COUNT(DISTINCT ct.id) " : "SELECT COUNT(ct.id) ").
 					$join_sql.
 					$where_sql;
-				$total = $db->GetOne($count_sql);
+				$total = $db->GetOneSlave($count_sql);
 			}
 		}
 		
@@ -338,7 +338,7 @@ class DAO_CommunityToolProperty {
 				"WHERE tool_code = %s ",
 				$db->qstr($tool_code)
 			);
-			$rs = $db->Execute($sql);
+			$rs = $db->ExecuteSlave($sql);
 			
 			$props = array();
 			
@@ -377,7 +377,7 @@ class DAO_CommunityToolProperty {
 		if($json_encode)
 			$value = json_encode($value);
 		
-		$db->Execute(sprintf("REPLACE INTO community_tool_property (tool_code, property_key, property_value) ".
+		$db->ExecuteMaster(sprintf("REPLACE INTO community_tool_property (tool_code, property_key, property_value) ".
 			"VALUES (%s, %s, %s)",
 			$db->qstr($tool_code),
 			$db->qstr($key),
@@ -404,7 +404,7 @@ class DAO_CommunitySession {
 			$db->qstr(serialize($session->getProperties())),
 			$db->qstr($session->session_id)
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 	
 	/**
@@ -419,7 +419,7 @@ class DAO_CommunitySession {
 			"WHERE session_id = %s",
 			$db->qstr($session_id)
 		);
-		$row = $db->GetRow($sql);
+		$row = $db->GetRowSlave($sql);
 		
 		if(empty($row)) {
 			$session = self::create($session_id);
@@ -442,7 +442,7 @@ class DAO_CommunitySession {
 		$sql = sprintf("DELETE FROM community_session WHERE session_id = %s",
 			$db->qstr($session_id)
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		
 		return TRUE;
 	}
@@ -465,7 +465,7 @@ class DAO_CommunitySession {
 			$session->created,
 			$session->updated
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		
 		self::gc(); // garbage collection
 		
@@ -477,7 +477,7 @@ class DAO_CommunitySession {
 		$sql = sprintf("DELETE FROM community_session WHERE updated < %d",
 			(time()-(60*60)) // 1 hr
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 };
 

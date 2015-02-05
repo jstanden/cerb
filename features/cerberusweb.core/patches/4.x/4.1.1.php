@@ -8,7 +8,7 @@ $tables = $db->metaTables();
 list($columns, $indexes) = $db->metaTable('address_to_worker');
 
 if(isset($columns['address'])) {
-	$db->Execute("UPDATE IGNORE address_to_worker SET address=LOWER(address)");
+	$db->ExecuteMaster("UPDATE IGNORE address_to_worker SET address=LOWER(address)");
 }
 
 return TRUE;

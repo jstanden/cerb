@@ -10,7 +10,7 @@ $tables = $db->metaTables();
 // ===========================================================================
 // Convert worklist-based workspace widgets to a simplified JSON format
 
-$rs = $db->Execute("SELECT id, extension_id, params_json FROM workspace_widget");
+$rs = $db->ExecuteMaster("SELECT id, extension_id, params_json FROM workspace_widget");
 
 while($row = mysqli_fetch_assoc($rs)) {
 	$changed = false;
@@ -124,14 +124,14 @@ while($row = mysqli_fetch_assoc($rs)) {
 			$db->qstr(json_encode($json)),
 			$widget_id
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 }
 
 // ===========================================================================
 // Convert worklist-based calendar tabs to a simplified JSON format
 
-$rs = $db->Execute("SELECT id, params_json FROM workspace_tab WHERE extension_id = 'core.workspace.tab.calendar'");
+$rs = $db->ExecuteMaster("SELECT id, params_json FROM workspace_tab WHERE extension_id = 'core.workspace.tab.calendar'");
 
 while($row = mysqli_fetch_assoc($rs)) {
 	$tab_id = $row['id'];
@@ -169,13 +169,13 @@ while($row = mysqli_fetch_assoc($rs)) {
 		$db->qstr(json_encode($json)),
 		$tab_id
 	);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 }
 
 // ===========================================================================
 // Convert worklist-based VA actions to a simplified JSON format
 
-$rs = $db->Execute("SELECT decision_node.id, decision_node.params_json, trigger_event.variables_json FROM decision_node INNER JOIN trigger_event ON (trigger_event.id = decision_node.trigger_id) WHERE decision_node.node_type = 'action'");
+$rs = $db->ExecuteMaster("SELECT decision_node.id, decision_node.params_json, trigger_event.variables_json FROM decision_node INNER JOIN trigger_event ON (trigger_event.id = decision_node.trigger_id) WHERE decision_node.node_type = 'action'");
 
 while($row = mysqli_fetch_assoc($rs)) {
 	$changed = false;
@@ -229,7 +229,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 			$db->qstr(json_encode($json)),
 			$node_id
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 }
 
@@ -244,7 +244,7 @@ if(!isset($tables['pop3_account'])) {
 list($columns, $indexes) = $db->metaTable('pop3_account');
 
 if(!isset($columns['delay_until'])) {
-	$db->Execute("ALTER TABLE pop3_account ADD COLUMN delay_until INT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE pop3_account ADD COLUMN delay_until INT UNSIGNED DEFAULT 0 NOT NULL");
 }
 
 // ===========================================================================
@@ -262,7 +262,7 @@ if(!isset($tables['custom_fieldset'])) {
 			INDEX owner (owner_context, owner_context_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['custom_fieldset'] = 'custom_fieldset';
 }
@@ -279,12 +279,12 @@ list($columns, $indexes) = $db->metaTable('custom_field');
 
 // If the foreign key column for groups doesn't exist, add it.
 if(!isset($columns['custom_fieldset_id'])) {
-	$db->Execute("ALTER TABLE custom_field ADD COLUMN custom_fieldset_id INT UNSIGNED DEFAULT 0 NOT NULL, ADD INDEX (custom_fieldset_id)");
+	$db->ExecuteMaster("ALTER TABLE custom_field ADD COLUMN custom_fieldset_id INT UNSIGNED DEFAULT 0 NOT NULL, ADD INDEX (custom_fieldset_id)");
 }
 
 // If the old style custom_field.group_id field exists, migrate it to custom_fieldset rows.
 if(isset($columns['group_id'])) {
-	$rs = $db->Execute("SELECT DISTINCT custom_field.group_id, worker_group.name AS group_name, custom_field.context FROM custom_field INNER JOIN worker_group ON (custom_field.group_id=worker_group.id) WHERE custom_field.group_id > 0");
+	$rs = $db->ExecuteMaster("SELECT DISTINCT custom_field.group_id, worker_group.name AS group_name, custom_field.context FROM custom_field INNER JOIN worker_group ON (custom_field.group_id=worker_group.id) WHERE custom_field.group_id > 0");
 	
 	// Migrate group-based custom fields to custom fieldset records
 	while($row = mysqli_fetch_assoc($rs)) {
@@ -298,11 +298,11 @@ if(isset($columns['group_id'])) {
 			$db->qstr('cerberusweb.contexts.group'),
 			$group_id
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		
 		$custom_fieldset_id = $db->LastInsertId();
 		
-		$db->Execute(sprintf("UPDATE custom_field SET custom_fieldset_id = %d WHERE group_id = %d",
+		$db->ExecuteMaster(sprintf("UPDATE custom_field SET custom_fieldset_id = %d WHERE group_id = %d",
 			$custom_fieldset_id,
 			$group_id
 		));
@@ -311,25 +311,25 @@ if(isset($columns['group_id'])) {
 	// Set up context_link records between custom_fieldset records and tickets
 	
 	// String values
-	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT cfv.context, cfv.context_id, 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id from custom_field_stringvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
-	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id, cfv.context, cfv.context_id from custom_field_stringvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
+	$db->ExecuteMaster("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT cfv.context, cfv.context_id, 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id from custom_field_stringvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
+	$db->ExecuteMaster("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id, cfv.context, cfv.context_id from custom_field_stringvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
 	
 	// Number values
-	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT cfv.context, cfv.context_id, 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id from custom_field_numbervalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
-	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id, cfv.context, cfv.context_id from custom_field_numbervalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
+	$db->ExecuteMaster("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT cfv.context, cfv.context_id, 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id from custom_field_numbervalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
+	$db->ExecuteMaster("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id, cfv.context, cfv.context_id from custom_field_numbervalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
 	
 	// Clob values
-	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT cfv.context, cfv.context_id, 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id from custom_field_clobvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
-	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id, cfv.context, cfv.context_id from custom_field_clobvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
+	$db->ExecuteMaster("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT cfv.context, cfv.context_id, 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id from custom_field_clobvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
+	$db->ExecuteMaster("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.custom_fieldset', cf.custom_fieldset_id, cfv.context, cfv.context_id from custom_field_clobvalue AS cfv INNER JOIN custom_field AS cf ON (cf.id=cfv.field_id) WHERE cf.custom_fieldset_id > 0 AND cfv.context != 'cerberusweb.contexts.custom_fieldset'");
 
 	// Drop the old column
-	$db->Execute("ALTER TABLE custom_field DROP COLUMN group_id");
+	$db->ExecuteMaster("ALTER TABLE custom_field DROP COLUMN group_id");
 }
 
 // ===========================================================================
 // Clean up some `worker_view_model` rows
 
-$db->Execute("DELETE FROM worker_view_model WHERE view_id IN ('_snippets', 'snippets', 'mail_drafts', 'mail_snippets','cerberuswebaddresstab','cerberuswebcrmopportunitytab','cerberusweborgtab','cerberuswebprofilesaddress','cerberuswebprofilesopportunity','cerberuswebprofilesorg')");
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id IN ('_snippets', 'snippets', 'mail_drafts', 'mail_snippets','cerberuswebaddresstab','cerberuswebcrmopportunitytab','cerberusweborgtab','cerberuswebprofilesaddress','cerberuswebprofilesopportunity','cerberuswebprofilesorg')");
 
 // ===========================================================================
 // Add the `calendar` database table
@@ -348,7 +348,7 @@ if(!isset($tables['calendar'])) {
 			INDEX owner (owner_context, owner_context_id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['calendar'] = 'calendar';
 }
@@ -364,7 +364,7 @@ if(!isset($tables['calendar_recurring_profile'])) {
 list($columns, $indexes) = $db->metaTable('calendar_recurring_profile');
 
 if(!isset($columns['calendar_id'])) {
-	$db->Execute("ALTER TABLE calendar_recurring_profile ADD COLUMN calendar_id INT UNSIGNED DEFAULT 0 NOT NULL, ADD INDEX calendar_id (calendar_id)");
+	$db->ExecuteMaster("ALTER TABLE calendar_recurring_profile ADD COLUMN calendar_id INT UNSIGNED DEFAULT 0 NOT NULL, ADD INDEX calendar_id (calendar_id)");
 }
 
 // ===========================================================================
@@ -378,11 +378,11 @@ if(!isset($tables['calendar_event'])) {
 list($columns, $indexes) = $db->metaTable('calendar_event');
 
 if(!isset($columns['calendar_id'])) {
-	$db->Execute("ALTER TABLE calendar_event ADD COLUMN calendar_id INT UNSIGNED DEFAULT 0 NOT NULL, ADD INDEX calendar_id (calendar_id)");
+	$db->ExecuteMaster("ALTER TABLE calendar_event ADD COLUMN calendar_id INT UNSIGNED DEFAULT 0 NOT NULL, ADD INDEX calendar_id (calendar_id)");
 }
 
 if(isset($columns['owner_context'])) {
-	$rs = $db->Execute("SELECT DISTINCT calendar_event.owner_context, calendar_event.owner_context_id, CONCAT(worker.first_name,' ',worker.last_name) as worker_name FROM calendar_event INNER JOIN worker ON (worker.id=owner_context_id) WHERE calendar_event.calendar_id = 0");
+	$rs = $db->ExecuteMaster("SELECT DISTINCT calendar_event.owner_context, calendar_event.owner_context_id, CONCAT(worker.first_name,' ',worker.last_name) as worker_name FROM calendar_event INNER JOIN worker ON (worker.id=owner_context_id) WHERE calendar_event.calendar_id = 0");
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		// Create calendar
@@ -398,7 +398,7 @@ if(isset($columns['owner_context'])) {
 			$db->qstr(''),
 			time()
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	
 		$new_calendar_id = $db->LastInsertId();
 		
@@ -409,7 +409,7 @@ if(isset($columns['owner_context'])) {
 			$db->qstr($owner_context),
 			$owner_context_id
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		
 		// Update recurring profiles
 		
@@ -418,7 +418,7 @@ if(isset($columns['owner_context'])) {
 			$db->qstr($owner_context),
 			$owner_context_id
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 		
 		// Elect the new calendar as the worker's availability
 		
@@ -427,11 +427,11 @@ if(isset($columns['owner_context'])) {
 			$db->qstr('availability_calendar_id'),
 			$new_calendar_id
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 	
 	// Drop owner_context_* columns from calendar
-	$db->Execute("ALTER TABLE calendar_event DROP COLUMN owner_context, DROP COLUMN owner_context_id");
+	$db->ExecuteMaster("ALTER TABLE calendar_event DROP COLUMN owner_context, DROP COLUMN owner_context_id");
 }
 
 // ===========================================================================
@@ -445,7 +445,7 @@ if(!isset($tables['calendar_recurring_profile'])) {
 list($columns, $indexes) = $db->metaTable('calendar_recurring_profile');
 
 if(isset($columns['owner_context'])) {
-	$db->Execute("ALTER TABLE calendar_recurring_profile DROP COLUMN owner_context, DROP COLUMN owner_context_id");
+	$db->ExecuteMaster("ALTER TABLE calendar_recurring_profile DROP COLUMN owner_context, DROP COLUMN owner_context_id");
 }
 
 // ===========================================================================
@@ -461,7 +461,7 @@ $sql = "SELECT workspace_tab.id, workspace_tab.name, workspace_tab.params_json, 
 	"INNER JOIN workspace_page ON (workspace_tab.workspace_page_id=workspace_page.id) ".
 	"WHERE workspace_tab.extension_id = 'core.workspace.tab.calendar'"
 	;
-$rs = $db->Execute($sql);
+$rs = $db->ExecuteMaster($sql);
 
 while($row = mysqli_fetch_assoc($rs)) {
 	$calendar_name = $row['name'];
@@ -490,7 +490,7 @@ while($row = mysqli_fetch_assoc($rs)) {
 		$db->qstr(json_encode($params)),
 		time()
 	);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$new_calendar_id = $db->LastInsertId();
 	
@@ -498,14 +498,14 @@ while($row = mysqli_fetch_assoc($rs)) {
 		$db->qstr(json_encode(array('calendar_id' => $new_calendar_id))),
 		$row['id']
 	);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 }
 
 // ===========================================================================
 // Clear cached calendar models
 
 $sql = "DELETE FROM worker_view_model WHERE class_name = 'View_CalendarEvent'";
-$db->Execute($sql);
+$db->ExecuteMaster($sql);
 
 // ===========================================================================
 // Convert recurring events to a more flexible text-based format (because this isn't Windows)
@@ -520,13 +520,13 @@ list($columns, $indexes) = $db->metaTable('calendar_recurring_profile');
 // Add a timezone to each recurring profile (based on the owner)
 
 if(!isset($columns['tz'])) {
-	$db->Execute("ALTER TABLE calendar_recurring_profile ADD COLUMN tz VARCHAR(128) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("ALTER TABLE calendar_recurring_profile ADD COLUMN tz VARCHAR(128) NOT NULL DEFAULT ''");
 
-	$db->Execute(sprintf("UPDATE calendar_recurring_profile SET tz = %s",
+	$db->ExecuteMaster(sprintf("UPDATE calendar_recurring_profile SET tz = %s",
 		$db->qstr(date_default_timezone_get())
 	));
 	
-	$worker_timezones = $db->GetArray("SELECT worker_id, value FROM worker_pref WHERE setting = 'timezone'");
+	$worker_timezones = $db->GetArrayMaster("SELECT worker_id, value FROM worker_pref WHERE setting = 'timezone'");
 	
 	foreach($worker_timezones as $wtz) {
 		$sql = sprintf("UPDATE calendar_recurring_profile INNER JOIN calendar ON (calendar.id=calendar_recurring_profile.calendar_id) SET tz = %s WHERE calendar.owner_context = %s AND calendar.owner_context_id = %d",
@@ -534,35 +534,35 @@ if(!isset($columns['tz'])) {
 			$db->qstr('cerberusweb.contexts.worker'),
 			$wtz['worker_id']
 		);
-		$db->Execute($sql);
+		$db->ExecuteMaster($sql);
 	}
 	
 	unset($worker_timezones);
 }
 
 if(!isset($columns['event_start'])) {
-	$db->Execute("ALTER TABLE calendar_recurring_profile ADD COLUMN event_start VARCHAR(128) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("ALTER TABLE calendar_recurring_profile ADD COLUMN event_start VARCHAR(128) NOT NULL DEFAULT ''");
 }
 
 if(!isset($columns['event_end'])) {
-	$db->Execute("ALTER TABLE calendar_recurring_profile ADD COLUMN event_end VARCHAR(128) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("ALTER TABLE calendar_recurring_profile ADD COLUMN event_end VARCHAR(128) NOT NULL DEFAULT ''");
 }
 
 if(!isset($columns['recur_start'])) {
-	$db->Execute("ALTER TABLE calendar_recurring_profile ADD COLUMN recur_start INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("ALTER TABLE calendar_recurring_profile ADD COLUMN recur_start INT UNSIGNED NOT NULL DEFAULT 0");
 }
 
 if(!isset($columns['recur_end'])) {
-	$db->Execute("ALTER TABLE calendar_recurring_profile ADD COLUMN recur_end INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("ALTER TABLE calendar_recurring_profile ADD COLUMN recur_end INT UNSIGNED NOT NULL DEFAULT 0");
 }
 
 if(!isset($columns['patterns'])) {
-	$db->Execute("ALTER TABLE calendar_recurring_profile ADD COLUMN patterns TEXT");
+	$db->ExecuteMaster("ALTER TABLE calendar_recurring_profile ADD COLUMN patterns TEXT");
 }
 
 if(isset($columns['params_json'])) {
 	$sql = "SELECT r.id, r.date_start, r.date_end, r.tz, r.params_json, c.owner_context, c.owner_context_id FROM calendar_recurring_profile AS r INNER JOIN calendar AS c ON (c.id=r.calendar_id)";
-	$rs = $db->Execute($sql);
+	$rs = $db->ExecuteMaster($sql);
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		$event_start = 0;
@@ -577,7 +577,7 @@ if(isset($columns['params_json'])) {
 			$patterns = '';
 			
 			// Pull an example event
-			$event = $db->GetRow(sprintf("SELECT e.date_start, e.date_end FROM calendar_event AS e WHERE e.recurring_id = %d ORDER BY e.date_start desc LIMIT 1", $row['id']));
+			$event = $db->GetRowMaster(sprintf("SELECT e.date_start, e.date_end FROM calendar_event AS e WHERE e.recurring_id = %d ORDER BY e.date_start desc LIMIT 1", $row['id']));
 			
 			// If there wasn't an event in the system, use the recurring profile itself.
 			if(empty($event)) {
@@ -714,11 +714,11 @@ if(isset($columns['params_json'])) {
 				$recur_end,
 				$row['id']
 			);
-			$db->Execute($sql);
+			$db->ExecuteMaster($sql);
 		}
 	}
 	
-	$db->Execute("ALTER TABLE calendar_recurring_profile DROP COLUMN params_json, DROP COLUMN date_start, DROP COLUMN date_end");
+	$db->ExecuteMaster("ALTER TABLE calendar_recurring_profile DROP COLUMN params_json, DROP COLUMN date_start, DROP COLUMN date_end");
 }
 
 // ===========================================================================
@@ -732,28 +732,28 @@ if(!isset($tables['calendar_event'])) {
 list($columns, $indexes) = $db->metaTable('calendar_event');
 
 if(isset($columns['recurring_id'])) {
-	$db->Execute("DELETE FROM calendar_event WHERE recurring_id != 0");
-	$db->Execute("ALTER TABLE calendar_event DROP COLUMN recurring_id");
+	$db->ExecuteMaster("DELETE FROM calendar_event WHERE recurring_id != 0");
+	$db->ExecuteMaster("ALTER TABLE calendar_event DROP COLUMN recurring_id");
 }
 
 // ===========================================================================
 // All workspace pages and tabs should have an extension
 
-$db->Execute(sprintf("UPDATE workspace_page SET extension_id = %s WHERE extension_id = ''",
+$db->ExecuteMaster(sprintf("UPDATE workspace_page SET extension_id = %s WHERE extension_id = ''",
 	$db->qstr('core.workspace.page.workspace')
 ));
 
-$db->Execute(sprintf("UPDATE workspace_tab SET extension_id = %s WHERE extension_id = ''",
+$db->ExecuteMaster(sprintf("UPDATE workspace_tab SET extension_id = %s WHERE extension_id = ''",
 	$db->qstr('core.workspace.tab.worklists')
 ));
 
 // ===========================================================================
 // Clean up custom fields from deleted custom fieldsets
 
-$db->Execute("DELETE FROM custom_field WHERE custom_fieldset_id > 0 AND custom_fieldset_id NOT IN (SELECT id FROM custom_fieldset)");
-$db->Execute("DELETE FROM custom_field_stringvalue WHERE field_id NOT IN (SELECT id FROM custom_field)");
-$db->Execute("DELETE FROM custom_field_numbervalue WHERE field_id NOT IN (SELECT id FROM custom_field)");
-$db->Execute("DELETE FROM custom_field_clobvalue WHERE field_id NOT IN (SELECT id FROM custom_field)");
+$db->ExecuteMaster("DELETE FROM custom_field WHERE custom_fieldset_id > 0 AND custom_fieldset_id NOT IN (SELECT id FROM custom_fieldset)");
+$db->ExecuteMaster("DELETE FROM custom_field_stringvalue WHERE field_id NOT IN (SELECT id FROM custom_field)");
+$db->ExecuteMaster("DELETE FROM custom_field_numbervalue WHERE field_id NOT IN (SELECT id FROM custom_field)");
+$db->ExecuteMaster("DELETE FROM custom_field_clobvalue WHERE field_id NOT IN (SELECT id FROM custom_field)");
 
 // ===========================================================================
 // Finish up
