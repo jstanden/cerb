@@ -1,7 +1,9 @@
 <?php
 class _DevblocksDatabaseManager {
-	private $_connections = array();
 	static $instance = null;
+	
+	private $_connections = array();
+	private $_last_used_db = null;
 	
 	private function __construct() {
 		// We lazy load the connections
@@ -208,6 +210,8 @@ class _DevblocksDatabaseManager {
 	}
 	
 	private function _Execute($sql, $db) {
+		$this->_last_used_db = $db;
+		
 		if(false === ($rs = mysqli_query($db, $sql))) {
 			$error_msg = sprintf("[%d] %s ::SQL:: %s",
 				mysqli_errno($db),
@@ -345,8 +349,9 @@ class _DevblocksDatabaseManager {
 		return mysqli_affected_rows($this->_master_db);
 	}
 	
+	// By default, this reports on the last used DB connection
 	function ErrorMsg() {
-		return $this->ErrorMsgMaster();
+		return $this->_ErrorMsg($this->_last_used_db);
 	}
 	
 	function ErrorMsgMaster() {
@@ -358,6 +363,9 @@ class _DevblocksDatabaseManager {
 	}
 	
 	private function _ErrorMsg($db) {
+		if(!($db instanceof mysqli))
+			return null;
+		
 		return mysqli_error($db);
 	}
 };
