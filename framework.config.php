@@ -1,12 +1,16 @@
 <?php
 define('APP_DB_ENGINE','MyISAM');
-define('APP_DB_HOST','');
 define('APP_DB_DATABASE','');
-define('APP_DB_USER','');
-define('APP_DB_PASS','');
 define('APP_DB_PCONNECT',false);
 
+define('APP_DB_HOST','');
+define('APP_DB_USER','');
+define('APP_DB_PASS','');
+
 define('DB_CHARSET_CODE','latin1'); // latin1, utf8
+define('APP_DB_SLAVE_HOST','');
+define('APP_DB_SLAVE_USER','');
+define('APP_DB_SLAVE_PASS','');
 
 define('LANG_CHARSET_CODE','utf-8'); // utf-8, iso-8859-1
 
