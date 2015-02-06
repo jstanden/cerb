@@ -176,7 +176,6 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 				// Save the view in the session
 				$view = C4_AbstractViewLoader::getView('cust_'.$id);
 				$view->name = $list_view->title;
-				C4_AbstractViewLoader::setView('cust_'.$id, $view);
 			}
 
 			DAO_WorkspaceList::update($id,array(

@@ -196,13 +196,6 @@ class ChPreferencesPage extends CerberusPageExtension {
 			SearchFields_Notification::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Notification::WORKER_ID,'=',$active_worker->id),
 		), true);
 
-		/*
-		 * [TODO] This doesn't need to save every display, but it was possible to
-		 * lose the params in the saved version of the view in the DB w/o recovery.
-		 * This should be moved back into the if(null==...) check in a later build.
-		 */
-		C4_AbstractViewLoader::setView($myNotificationsView->id, $myNotificationsView);
-
 		$tpl->assign('view', $myNotificationsView);
 		$tpl->display('devblocks:cerberusweb.core::preferences/tabs/notifications/index.tpl');
 	}
@@ -585,8 +578,6 @@ class ChPreferencesPage extends CerberusPageExtension {
 		));
 		
 		$view->addParamsHidden(array(SearchFields_DevblocksSession::USER_ID));
-		
-		C4_AbstractViewLoader::setView($view->id, $view);
 		
 		$tpl->assign('view', $view);
 		

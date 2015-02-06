@@ -46,6 +46,26 @@ abstract class C4_AbstractView {
 	private $_placeholderLabels = array();
 	private $_placeholderValues = array();
 	
+	public function __destruct() {
+		if(isset($this->__auto_persist) && !$this->__auto_persist) {
+			return;
+		}
+		
+		$this->persist();
+	}
+	
+	public function persist() {
+		C4_AbstractViewLoader::setView($this->id, $this);
+	}
+	
+	public function setAutoPersist(boolean $auto_persist) {
+		if($auto_persist) {
+			unset($this->__auto_persist);
+		} else {
+			$this->__auto_persist = false;
+		}
+	}
+	
 	protected function _getDataAsObjects($dao_class, $ids=null) {
 		if(is_null($ids)) {
 			if(!method_exists($dao_class,'search'))
@@ -1158,7 +1178,6 @@ abstract class C4_AbstractView {
 	protected function _sanitize() {
 		$fields = $this->getColumnsAvailable();
 		$custom_fields = DAO_CustomField::getAll();
-		$needs_save = false;
 		
 		$params = $this->getParams();
 		
@@ -1172,7 +1191,6 @@ abstract class C4_AbstractView {
 				// Make sure our custom fields still exist
 				if(!isset($custom_fields[$cf_id])) {
 					$this->removeParam($pidx);
-					$needs_save = true;
 				}
 			}
 		}
@@ -1187,14 +1205,12 @@ abstract class C4_AbstractView {
 					// Make sure our custom fields still exist
 					if(!isset($custom_fields[$cf_id])) {
 						unset($this->view_columns[$cidx]);
-						$needs_save = true;
 					}
 				}
 			} else {
 				// If the column no longer exists (rare but worth checking)
 				if(!isset($fields[$c])) {
 					unset($this->view_columns[$cidx]);
-					$needs_save = true;
 				}
 			}
 		}
@@ -1204,13 +1220,8 @@ abstract class C4_AbstractView {
 			if(0 != ($cf_id = intval(substr($this->renderSortBy,3)))) {
 				if(!isset($custom_fields[$cf_id])) {
 					$this->renderSortBy = null;
-					$needs_save = true;
 				}
 			}
-		}
-		
-		if($needs_save) {
-			C4_AbstractViewLoader::setView($this->id, $this);
 		}
 	}
 	
@@ -2442,7 +2453,6 @@ class C4_AbstractViewLoader {
 		} elseif(!empty($defaults) && $defaults instanceof C4_AbstractViewModel) {
 			// Load defaults if they were provided
 			if(null != ($view = self::unserializeAbstractView($defaults)))  {
-				self::setView($view_id, $view);
 				return $view;
 			}
 		}
@@ -2530,7 +2540,7 @@ class C4_AbstractViewLoader {
 		
 		if(null == ($inst = new $model->class_name))
 			return null;
-
+		
 		/* @var $inst C4_AbstractView */
 		
 		if(!empty($model->id))
@@ -2577,9 +2587,11 @@ class C4_AbstractViewLoader {
 		
 		// Enforce class restrictions
 		$parent = new $model->class_name;
+		$parent->__auto_persist = false;
 		$inst->addColumnsHidden($parent->getColumnsHidden());
 		$inst->addParamsHidden($parent->getParamsHidden());
 		$inst->addParamsRequired($parent->getParamsRequired());
+		unset($parent);
 		
 		$inst->_init_checksum = sha1(serialize($inst));
 		
@@ -2654,6 +2666,8 @@ class C4_AbstractViewLoader {
 		// [TODO] This needs a bit more logic
 		$active_worker = CerberusApplication::getActiveWorker();
 		$view->setPlaceholderValues(array('current_worker_id' => !empty($active_worker) ? $active_worker->id : 0));
+		
+		$view->_init_checksum = sha1(serialize($view));
 		
 		return $view;
 	}

@@ -41,8 +41,7 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 		@$worklist_view_id = sprintf("calendar%d_worklist%d", $calendar->id, $series_idx);
 		@$worklist_model = $params['worklist_model'];
 		
-		if(null != ($worklist_view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($worklist_model, $worklist_view_id)))
-			C4_AbstractViewLoader::setView($worklist_view_id, $worklist_view);
+		$worklist_view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($worklist_model, $worklist_view_id);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar/datasources/worklist/config.tpl');
 	}

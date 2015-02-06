@@ -275,7 +275,6 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 			), true);
 		}
 		
-		C4_AbstractViewLoader::setView($view->id,$view);
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');

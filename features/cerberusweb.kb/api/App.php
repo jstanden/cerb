@@ -235,8 +235,6 @@ class WorkspaceTab_KbBrowse extends Extension_WorkspaceTab {
 
 		$view->renderPage = 0;
 
-		C4_AbstractViewLoader::setView($view->id, $view);
-		
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.kb::kb/tabs/articles/index.tpl');
@@ -1085,7 +1083,6 @@ class Context_KbCategory extends Extension_DevblocksContext {
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
-		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}
 	
@@ -1110,7 +1107,6 @@ class Context_KbCategory extends Extension_DevblocksContext {
 		$view->addParamsRequired($params_req, true);
 		
 		$view->renderTemplate = 'context';
-		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}
 };

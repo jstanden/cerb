@@ -39,7 +39,6 @@ class PageSection_SetupAttendants extends Extension_PageSection {
 			$view = $ctx->getChooserView($view_id);
 		}
 		
-		C4_AbstractViewLoader::setView($view->id,$view);
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/attendants/index.tpl');

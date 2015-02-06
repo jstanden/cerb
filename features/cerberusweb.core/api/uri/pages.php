@@ -129,8 +129,6 @@ class Page_Custom extends CerberusPageExtension {
 			
 			$view->addParamsRequired($params, true);
 			
-			C4_AbstractViewLoader::setView($view->id, $view);
-			
 			$tpl->assign('view', $view);
 		}
 		
@@ -812,8 +810,6 @@ class Page_Custom extends CerberusPageExtension {
 	
 			$view->setPlaceholderLabels($labels);
 			$view->setPlaceholderValues($values);
-				
-			C4_AbstractViewLoader::setView($view_id, $view);
 				
 			$tpl->assign('view', $view);
 			$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');

@@ -324,8 +324,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		$view->renderFilters = false;
 		$view->is_ephemeral = false;
 		
-		C4_AbstractViewLoader::setView($view_id, $view);
-		
 		return $view;
 	}
 	

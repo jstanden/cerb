@@ -1452,8 +1452,6 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 		if(null == ($view = self::getViewFromParams($widget, $widget->params, $view_id)))
 			return;
 		
-		C4_AbstractViewLoader::setView($view->id, $view);
-		
 		if(!($view instanceof IAbstractView_Subtotals))
 			return;
 		
@@ -1690,8 +1688,6 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		if(null == ($view = Extension_WorkspaceWidget::getViewFromParams($widget, $widget->params, $view_id)))
 			return false;
 		
-		C4_AbstractViewLoader::setView($view->id, $view);
-		
 		return $view;
 	}
 	
@@ -1726,7 +1722,6 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		if(false !== ($view = $this->getView($widget))) {
 			$view->id .= '_config';
 			$view->is_ephemeral = true;
-			C4_AbstractViewLoader::setView($view->id, $view);
 		}
 		
 		// Template

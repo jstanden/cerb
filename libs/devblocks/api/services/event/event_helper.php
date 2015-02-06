@@ -673,8 +673,6 @@ class DevblocksEventHelper {
 		if(null == ($view = DevblocksEventHelper::getViewFromAbstractJson($token, $params, $trigger, $context)))
 			return;
 		
-		C4_AbstractViewLoader::setView($view->id, $view);
-		
 		$tpl->assign('context', $context);
 		$tpl->assign('params', $params);
 		$tpl->assign('view', $view);
@@ -4285,7 +4283,9 @@ class DevblocksEventHelper {
 		
 		// Load values and ignore _labels and _types
 		$view->setPlaceholderValues($dict->getDictionary(null, false));
-		C4_AbstractViewLoader::setView($view->id, $view);
+
+		$view->persist();
+		$view->setAutoPersist(false);
 		
 		// Save the generated view_id in the dictionary for reuse (paging, etc)
 		$var_view_id_key = sprintf("%s_view_id", $token);

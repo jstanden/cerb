@@ -1440,7 +1440,6 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
-		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}
 	
@@ -1467,7 +1466,6 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 		$view->addParamsRequired($params_req, true);
 		
 		$view->renderTemplate = 'context';
-		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}
 	

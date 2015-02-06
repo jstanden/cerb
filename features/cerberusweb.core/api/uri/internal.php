@@ -655,8 +655,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				}
 			}
 			
-			C4_AbstractViewLoader::setView($view->id, $view);
-			
 			$tpl->assign('view', $view);
 			$tpl->assign('single', $single);
 			
@@ -730,8 +728,6 @@ class ChInternalController extends DevblocksControllerExtension {
 			$view->setPlaceholderLabels($labels);
 			$view->setPlaceholderValues($values);
 		}
-		
-		C4_AbstractViewLoader::setView($view->id, $view);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('context', $context);
@@ -961,8 +957,6 @@ class ChInternalController extends DevblocksControllerExtension {
 			), true);
 			
 			$view->addParamsRequired($params, true);
-			
-			C4_AbstractViewLoader::setView($view->id, $view);
 			
 			$tpl->assign('view', $view);
 		}
@@ -1323,7 +1317,6 @@ class ChInternalController extends DevblocksControllerExtension {
 			), true);
 		}
 		
-		C4_AbstractViewLoader::setView($view->id,$view);
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
@@ -1825,7 +1818,6 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
 			$view->doSortBy($sortBy);
-			C4_AbstractViewLoader::setView($id, $view);
 			$view->render();
 		}
 	}
@@ -1836,7 +1828,6 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
 			$view->doPage($page);
-			C4_AbstractViewLoader::setView($id, $view);
 			$view->render();
 		}
 	}
@@ -1882,7 +1873,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
 			$view->renderFilters = !empty($show) ? 1 : 0;
-			C4_AbstractViewLoader::setView($view->id, $view);
 		}
 	}
 	
@@ -1928,8 +1918,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		// Reset the paging when adding a filter
 		$view->renderPage = 0;
 		
-		C4_AbstractViewLoader::setView($view->id, $view);
-
 		$this->_viewRenderInlineFilters($view, $is_custom);
 	}
 
@@ -1940,8 +1928,6 @@ class ChInternalController extends DevblocksControllerExtension {
 			return;
 
 		$view->doResetCriteria();
-
-		C4_AbstractViewLoader::setView($view->id, $view);
 
 		$this->_viewRenderInlineFilters($view);
 	}
@@ -1962,8 +1948,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				$view->renderSortAsc = !empty($preset->sort_asc);
 			}
 		}
-
-		C4_AbstractViewLoader::setView($view->id, $view);
 
 		$this->_viewRenderInlineFilters($view);
 	}
@@ -2671,8 +2655,6 @@ class ChInternalController extends DevblocksControllerExtension {
 			}
 		}
 
-		C4_AbstractViewLoader::setView($id, $view);
-
 		$view->render();
 	}
 
@@ -2730,8 +2712,6 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 		}
 		
-		C4_AbstractViewLoader::setView($view->id, $view);
-
 		// If hidden, no need to draw template
 		if(empty($view->renderSubtotals) || '__'==substr($view->renderSubtotals,0,2))
 			return;
@@ -3066,7 +3046,6 @@ class ChInternalController extends DevblocksControllerExtension {
 			), true);
 		}
 		
-		C4_AbstractViewLoader::setView($view->id,$view);
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');

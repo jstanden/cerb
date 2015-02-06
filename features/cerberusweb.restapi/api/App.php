@@ -119,8 +119,6 @@ class Ch_RestPreferencesTab extends Extension_PreferenceTab {
 		
 		$view->addParamsRequired($params, true);
 		
-		C4_AbstractViewLoader::setView($view->id, $view);
-		
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
@@ -842,7 +840,6 @@ abstract class Extension_RestController extends DevblocksExtension {
 		}
 		
 		// [TODO] Cursors? (ephemeral view id, paging, sort, etc)
-		C4_AbstractViewLoader::setView($view->id, $view);
 		
 		return $view;
 	}

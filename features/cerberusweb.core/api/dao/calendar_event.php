@@ -1094,7 +1094,6 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		$view->renderLimit = 10;
 		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
-		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}
 	
@@ -1119,7 +1118,6 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		$view->addParamsRequired($params_req, true);
 		
 		$view->renderTemplate = 'context';
-		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}
 

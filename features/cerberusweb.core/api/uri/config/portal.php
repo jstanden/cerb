@@ -127,8 +127,6 @@ class PageSection_SetupPortal extends Extension_PageSection {
 			$view->addParamsRequired(array(
 				new DevblocksSearchCriteria(SearchFields_DevblocksTemplate::TAG,'=','portal_'.$tool->code),
 			), true);
-			
-			C4_AbstractViewLoader::setView($view->id, $view);
 		}
 		
 		$tpl->assign('view', $view);

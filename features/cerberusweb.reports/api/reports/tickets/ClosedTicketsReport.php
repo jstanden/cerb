@@ -160,8 +160,6 @@ class ChReportClosedTickets extends Extension_Report {
 			$view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 			$view->renderSortAsc = false;
 			
-			C4_AbstractViewLoader::setView($view->id, $view);
-			
 			$tpl->assign('view', $view);
 		}
 		

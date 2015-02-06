@@ -184,8 +184,6 @@ class ChReportWorkerHistory extends Extension_Report {
 			$view->renderSortBy = SearchFields_Message::CREATED_DATE;
 			$view->renderSortAsc = false;
 			
-			C4_AbstractViewLoader::setView($view->id, $view);
-			
 			$tpl->assign('view', $view);
 		}
 		

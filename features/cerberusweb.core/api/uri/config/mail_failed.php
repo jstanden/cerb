@@ -30,7 +30,6 @@ class PageSection_SetupMailFailed extends Extension_PageSection {
 		$defaults->renderLimit = 15;
 		
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
-		C4_AbstractViewLoader::setView($view->id, $view);
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_failed/index.tpl');

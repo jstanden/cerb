@@ -57,8 +57,6 @@ class Subcontroller_Internal_VirtualAttendants {
 		
 		$tpl->assign('view', $view);
 		
-		C4_AbstractViewLoader::setView($view->id, $view);
-
 		// Template
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/va/scheduled_behavior/tab.tpl');

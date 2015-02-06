@@ -1474,10 +1474,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('scope', $scope);
 
 		$view = DAO_Ticket::getViewForRequesterHistory('contact_history', $ticket, $scope);
-		$view->renderPage = 0;
 		$tpl->assign('view', $view);
-		
-		C4_AbstractViewLoader::setView($view->id,$view);
 		
 		$tpl->display('devblocks:cerberusweb.core::display/modules/history/index.tpl');
 	}

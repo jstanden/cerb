@@ -141,8 +141,6 @@ class ChReportTimeSpentActivity extends Extension_Report {
 			$view->renderSortBy = SearchFields_TimeTrackingEntry::LOG_DATE;
 			$view->renderSortAsc = true;
 			
-			C4_AbstractViewLoader::setView($view->id, $view);
-			
 			$tpl->assign('view', $view);
 		}
 		

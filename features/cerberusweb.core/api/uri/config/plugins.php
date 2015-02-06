@@ -63,8 +63,6 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 			SearchFields_CerbPlugin::ID => new DevblocksSearchCriteria(SearchFields_CerbPlugin::ID, DevblocksSearchCriteria::OPER_NIN, array('devblocks.core','cerberusweb.core')),
 		));
 		
-		C4_AbstractViewLoader::setView($view->id, $view);
-
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugins/tab.tpl');

@@ -42,7 +42,6 @@ class Page_ExampleObjects extends CerberusPageExtension {
 				
 				if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_ID, $defaults))) {
 					$view->name = $translate->_('example.object.common.objects');
-					C4_AbstractViewLoader::setView($view->id, $view);
 				}
 		
 				$tpl->assign('view', $view);

@@ -87,8 +87,6 @@ class Page_Search extends CerberusPageExtension {
 		
 		// Template
 		
-		C4_AbstractViewLoader::setView($view->id, $view);
-		
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::search/index.tpl');
@@ -106,8 +104,6 @@ class Page_Search extends CerberusPageExtension {
 		}
 		
 		$view->addParamsWithQuickSearch($query);
-		
-		C4_AbstractViewLoader::setView($view->id, $view);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view', $view);

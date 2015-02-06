@@ -250,9 +250,11 @@ class ChRest_Workspaces extends Extension_RestController { // implements IExtens
 	
 			$view->setPlaceholderLabels($labels);
 			$view->setPlaceholderValues($values);
-				
-			C4_AbstractViewLoader::setView($view_id, $view);
+			
+			$view->persist();
 		}
+		
+		$view->setAutoPersist(false);
 		
 		$view->renderPage = $param_page - 1;
 		$view->renderLimit = $param_limit;

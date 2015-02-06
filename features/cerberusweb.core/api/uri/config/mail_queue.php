@@ -49,8 +49,6 @@ class PageSection_SetupMailQueue extends Extension_PageSection {
 				SearchFields_MailQueue::TICKET_ID,
 			), true);
 			
-			C4_AbstractViewLoader::setView($view->id, $view);
-			
 			$tpl->assign('view', $view);
 		}
 		

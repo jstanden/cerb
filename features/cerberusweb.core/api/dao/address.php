@@ -1719,7 +1719,6 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
-		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}
 	
@@ -1744,7 +1743,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		$view->addParamsRequired($params_req, true);
 		
 		$view->renderTemplate = 'context';
-		C4_AbstractViewLoader::setView($view_id, $view);
+		
 		return $view;
 	}
 	

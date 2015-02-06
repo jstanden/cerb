@@ -1106,7 +1106,7 @@ class UmScAbstractViewLoader {
 	/**
 	 * Enter description here...
 	 *
-	 * @param string $class C4_AbstractView
+	 * @param string $class UmScAbstractView
 	 * @param string $view_label ID
 	 * @return C4_AbstractView instance
 	 */
@@ -1133,7 +1133,7 @@ class UmScAbstractViewLoader {
 	/**
 	 * Enter description here...
 	 *
-	 * @param string $class C4_AbstractView
+	 * @param string $class UmScAbstractView
 	 * @param string $view_label ID
 	 * @param C4_AbstractView $view
 	 */

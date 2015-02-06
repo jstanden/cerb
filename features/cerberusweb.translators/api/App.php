@@ -144,7 +144,6 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 			SearchFields_Translation::STRING_OVERRIDE => new DevblocksSearchCriteria(SearchFields_Translation::STRING_OVERRIDE,DevblocksSearchCriteria::OPER_EQ,''),
 			SearchFields_Translation::LANG_CODE => new DevblocksSearchCriteria(SearchFields_Translation::LANG_CODE,DevblocksSearchCriteria::OPER_NEQ,'en_US'),
 		), true);
-		C4_AbstractViewLoader::setView($view->id, $view);
 
 		self::_clearCache();
 		
@@ -250,8 +249,6 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 			if(empty($copy_lang_code)) {
 				$view->addParam(new DevblocksSearchCriteria(SearchFields_Translation::STRING_OVERRIDE,DevblocksSearchCriteria::OPER_EQ,''));
 			}
-			
-			C4_AbstractViewLoader::setView($view->id, $view);
 			
 		}
 

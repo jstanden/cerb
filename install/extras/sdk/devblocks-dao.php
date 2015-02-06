@@ -1099,7 +1099,6 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
-		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}
 	
@@ -1124,7 +1123,6 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		$view->addParamsRequired($params_req, true);
 		
 		$view->renderTemplate = 'context';
-		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}
 	

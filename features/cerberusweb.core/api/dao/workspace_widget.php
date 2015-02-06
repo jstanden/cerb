@@ -552,7 +552,6 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
-		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}
 	
@@ -579,7 +578,6 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 		*/
 		
 		$view->renderTemplate = 'context';
-		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}
 };

@@ -33,7 +33,6 @@ class PageSection_SetupMailHtml extends Extension_PageSection {
 		);
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
-			C4_AbstractViewLoader::setView($view->id, $view);
 			$tpl->assign('view', $view);
 		}
 		

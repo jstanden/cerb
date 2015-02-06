@@ -41,8 +41,6 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 		$view = C4_AbstractViewLoader::getView(self::VIEW_PLUGIN_LIBRARY, $defaults);
 		$view->name = "Compatible Plugins";
 		
-		C4_AbstractViewLoader::setView($view->id, $view);
-
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugin_library/tab.tpl');

@@ -1554,7 +1554,6 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
-		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}
 	
@@ -1579,7 +1578,6 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		$view->addParamsRequired($params_req, true);
 		
 		$view->renderTemplate = 'context';
-		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}
 	

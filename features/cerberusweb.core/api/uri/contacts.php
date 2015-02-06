@@ -376,8 +376,6 @@ class ChContactsPage extends CerberusPageExtension {
 		), true);
 		$tpl->assign('view', $view);
 		
-		C4_AbstractViewLoader::setView($view->id, $view);
-
 		$tpl->assign('org_id', $org);
 		$tpl->assign('search_columns', SearchFields_Address::getFields());
 		
@@ -442,8 +440,6 @@ class ChContactsPage extends CerberusPageExtension {
 			SearchFields_Address::ID => new DevblocksSearchCriteria(SearchFields_Address::ID,'in',array_keys($contact_addresses)),
 		), true);
 		$tpl->assign('view', $view);
-		
-		C4_AbstractViewLoader::setView($view->id, $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 		exit;
@@ -511,9 +507,7 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$view->addParamsRequired($params_required, true);
 		$tpl->assign('view', $view);
-	
-		C4_AbstractViewLoader::setView($view->id, $view);
-	
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 		exit;
 	}
@@ -541,8 +535,6 @@ class ChContactsPage extends CerberusPageExtension {
 			
 		$search_view->renderPage = 0;
 		
-		C4_AbstractViewLoader::setView($search_view->id, $search_view);
-		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('search','ticket')));
 	}
 	
@@ -560,8 +552,6 @@ class ChContactsPage extends CerberusPageExtension {
 		$search_view->addParam(new DevblocksSearchCriteria(SearchFields_Address::EMAIL,DevblocksSearchCriteria::OPER_LIKE,$email));
 
 		$search_view->renderPage = 0;
-		
-		C4_AbstractViewLoader::setView($search_view->id, $search_view);
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('search','address')));
 	}
