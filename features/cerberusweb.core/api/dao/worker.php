@@ -127,7 +127,13 @@ class DAO_Worker extends Cerb_ORMHelper {
 	static function getAll($nocache=false, $with_disabled=true) {
 		$cache = DevblocksPlatform::getCacheService();
 		if($nocache || null === ($workers = $cache->load(self::CACHE_ALL))) {
-			$workers = self::getWhere(null,array(DAO_Worker::FIRST_NAME,DAO_Worker::LAST_NAME),array(true,true));
+			$workers = self::getWhere(
+				null,
+				array(DAO_Worker::FIRST_NAME, DAO_Worker::LAST_NAME),
+				array(true,true),
+				null,
+				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
+			);
 			$cache->save($workers, self::CACHE_ALL);
 		}
 		
@@ -145,7 +151,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		return $workers;
 	}
 	
-	static function getWhere($where=null, $sortBy='first_name', $sortAsc=true, $limit=null) {
+	static function getWhere($where=null, $sortBy=array(DAO_Worker::FIRST_NAME, DAO_Worker::LAST_NAME), $sortAsc=array(true, true), $limit=null, $options=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
@@ -156,7 +162,12 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 			;
-		$rs = $db->ExecuteSlave($sql);
+			
+		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
+			$rs = $db->ExecuteMaster($sql);
+		} else {
+			$rs = $db->ExecuteSlave($sql);
+		}
 		
 		return self::_createObjectsFromResultSet($rs);
 	}

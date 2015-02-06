@@ -68,7 +68,7 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 	 * @param integer $limit
 	 * @return Model_MailHtmlTemplate[]
 	 */
-	static function getWhere($where=null, $sortBy='name', $sortAsc=true, $limit=null) {
+	static function getWhere($where=null, $sortBy=DAO_MailHtmlTemplate::NAME, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
@@ -80,8 +80,13 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->ExecuteSlave($sql);
-		
+
+		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
+			$rs = $db->ExecuteMaster($sql);
+		} else {
+			$rs = $db->ExecuteSlave($sql);
+		}
+
 		return self::_getObjectsFromResult($rs);
 	}
 
@@ -109,7 +114,13 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 	static function getAll($nocache=false) {
 		$cache = DevblocksPlatform::getCacheService();
 		if($nocache || null === ($html_templates = $cache->load(self::_CACHE_ALL))) {
-			$html_templates = self::getWhere(null, 'name', true);
+			$html_templates = self::getWhere(
+				null,
+				DAO_MailHtmlTemplate::NAME,
+				true,
+				null,
+				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
+			);
 			$cache->save($html_templates, self::_CACHE_ALL);
 		}
 		

@@ -73,7 +73,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	 * @param integer $limit
 	 * @return Model_Calendar[]
 	 */
-	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
+	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
@@ -86,7 +86,11 @@ class DAO_Calendar extends Cerb_ORMHelper {
 			$limit_sql
 		;
 		
+		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
+			$rs = $db->ExecuteMaster($sql);
+		} else {
 			$rs = $db->ExecuteSlave($sql);
+		}
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -102,7 +106,9 @@ class DAO_Calendar extends Cerb_ORMHelper {
 			$calendars = DAO_Calendar::getWhere(
 				array(),
 				DAO_Calendar::NAME,
-				true
+				true,
+				null,
+				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
 			$cache->save($calendars, self::CACHE_ALL);
 		}

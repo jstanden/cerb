@@ -53,7 +53,9 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 			$pages = self::getWhere(
 				null,
 				DAO_WorkspacePage::NAME,
-				true
+				true,
+				null,
+				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
 			
 			$cache->save($pages, self::_CACHE_ALL);
@@ -69,7 +71,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	 * @param integer $limit
 	 * @return Model_WorkspacePage[]
 	 */
-	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
+	static function getWhere($where=null, $sortBy=DAO_WorkspacePage::NAME, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
@@ -81,8 +83,13 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 			;
-			$rs = $db->ExecuteSlave($sql);
 
+		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
+			$rs = $db->ExecuteMaster($sql);
+		} else {
+			$rs = $db->ExecuteSlave($sql);
+		}
+			
 		return self::_getObjectsFromResult($rs);
 	}
 
@@ -410,7 +417,9 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 			$tabs = self::getWhere(
 				null,
 				DAO_WorkspaceTab::POS,
-				true
+				true,
+				null,
+				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
 			$cache->save($tabs, self::_CACHE_ALL);
 		}
@@ -425,7 +434,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	 * @param integer $limit
 	 * @return Model_WorkspaceTab[]
 	 */
-	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
+	static function getWhere($where=null, $sortBy=DAO_WorkspaceTab::POS, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
@@ -437,7 +446,12 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->ExecuteSlave($sql);
+
+		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
+			$rs = $db->ExecuteMaster($sql);
+		} else {
+			$rs = $db->ExecuteSlave($sql);
+		}
 		
 		return self::_getObjectsFromResult($rs);
 	}

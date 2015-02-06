@@ -147,7 +147,13 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 	static function getAll($nocache=false) {
 		$cache = DevblocksPlatform::getCacheService();
 		if($nocache || null === ($roles = $cache->load(self::_CACHE_ROLES_ALL))) {
-			$roles = DAO_WorkerRole::getWhere();
+			$roles = DAO_WorkerRole::getWhere(
+				null,
+				DAO_WorkerRole::NAME,
+				true,
+				null,
+				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
+			);
 			$cache->save($roles, self::_CACHE_ROLES_ALL);
 		}
 		
@@ -158,14 +164,24 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 	 * @param string $where
 	 * @return Model_WorkerRole[]
 	 */
-	static function getWhere($where=null) {
+	static function getWhere($where=null, $sortBy=DAO_WorkerRole::NAME, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::getDatabaseService();
+
+		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
+		// SQL
 		$sql = "SELECT id, name, params_json ".
 			"FROM worker_role ".
-			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
-			"ORDER BY name asc";
-		$rs = $db->ExecuteSlave($sql);
+			$where_sql.
+			$sort_sql.
+			$limit_sql
+		;
+		
+		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
+			$rs = $db->ExecuteMaster($sql);
+		} else {
+			$rs = $db->ExecuteSlave($sql);
+		}
 		
 		return self::_getObjectsFromResult($rs);
 	}

@@ -52,7 +52,13 @@ class DAO_MailToGroupRule extends DevblocksORMHelper {
 		$cache = DevblocksPlatform::getCacheService();
 		
 		if($nocache || null === ($results = $cache->load(self::_CACHE_ALL))) {
-			$results = self::getWhere();
+			$results = self::getWhere(
+				null,
+				array(DAO_MailToGroupRule::IS_STICKY, DAO_MailToGroupRule::STICKY_ORDER, DAO_MailToGroupRule::POS),
+				array(false, true, false),
+				null,
+				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
+			);
 			$cache->save($results, self::_CACHE_ALL, array(), 1200); // 20 mins
 		}
 		
@@ -63,14 +69,24 @@ class DAO_MailToGroupRule extends DevblocksORMHelper {
 	 * @param string $where
 	 * @return Model_MailToGroupRule[]
 	 */
-	static function getWhere($where=null) {
+	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
+		
+		// SQL
 		$sql = "SELECT id, pos, created, name, criteria_ser, actions_ser, is_sticky, sticky_order ".
 			"FROM mail_to_group_rule ".
-			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
-			"ORDER BY is_sticky DESC, sticky_order ASC, pos DESC";
-		$rs = $db->ExecuteSlave($sql);
+			$where_sql .
+			$sort_sql .
+			$limit_sql 
+			;
+			
+		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
+			$rs = $db->ExecuteMaster($sql);
+		} else {
+			$rs = $db->ExecuteSlave($sql);
+		}
 		
 		return self::_getObjectsFromResult($rs);
 	}

@@ -71,7 +71,9 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 			$nodes = self::getWhere(
 				array(),
 				DAO_DecisionNode::POS,
-				true
+				true,
+				null,
+				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
 			$cache->save($nodes, self::CACHE_ALL);
 		}
@@ -119,7 +121,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 	 * @param integer $limit
 	 * @return Model_DecisionNode[]
 	 */
-	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
+	static function getWhere($where=null, $sortBy=DAO_DecisionNode::POS, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		if(empty($sortBy)) {
@@ -136,7 +138,12 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->ExecuteSlave($sql);
+		
+		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
+			$rs = $db->ExecuteMaster($sql);
+		} else {
+			$rs = $db->ExecuteSlave($sql);
+		}
 		
 		return self::_getObjectsFromResult($rs);
 	}

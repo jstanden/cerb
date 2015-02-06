@@ -678,7 +678,13 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	static function getAll($nocache=false) {
 		$cache = DevblocksPlatform::getCacheService();
 		if($nocache || null === ($categories = $cache->load(self::CACHE_ALL))) {
-			$categories = self::getWhere();
+			$categories = self::getWhere(
+				null,
+				DAO_KbCategory::NAME,
+				true,
+				null,
+				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
+			);
 			$cache->save($categories, self::CACHE_ALL);
 		}
 		
@@ -730,14 +736,24 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	 * @param string $where
 	 * @return Model_KbCategory[]
 	 */
-	static function getWhere($where=null) {
+	static function getWhere($where=null, $sortBy=DAO_KbCategory::NAME, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
+		
+		// SQL
 		$sql = "SELECT id, parent_id, name ".
 			"FROM kb_category ".
-			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
-			"ORDER BY name asc";
-		$rs = $db->ExecuteSlave($sql);
+			$where_sql.
+			$sort_sql.
+			$limit_sql
+		;
+
+		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
+			$rs = $db->ExecuteMaster($sql);
+		} else {
+			$rs = $db->ExecuteSlave($sql);
+		}
 		
 		return self::_getObjectsFromResult($rs);
 	}

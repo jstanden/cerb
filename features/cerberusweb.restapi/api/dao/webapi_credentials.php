@@ -34,7 +34,7 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 	 * @param integer $limit
 	 * @return Model_WebApiCredentials[]
 	 */
-	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
+	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
@@ -46,7 +46,12 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->ExecuteSlave($sql);
+
+		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
+			$rs = $db->ExecuteMaster($sql);
+		} else {
+			$rs = $db->ExecuteSlave($sql);
+		}
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -75,7 +80,13 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 		$cache = DevblocksPlatform::getCacheService();
 
 		if($nocache || null === ($credentials = $cache->load(self::_CACHE_ALL))) {
-			$credentials = self::getWhere();
+			$credentials = self::getWhere(
+				null,
+				null,
+				true,
+				null,
+				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
+			);
 			$cache->save($credentials, self::_CACHE_ALL);
 		}
 		
