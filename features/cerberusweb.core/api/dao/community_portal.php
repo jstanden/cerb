@@ -641,10 +641,6 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 		$tools = DevblocksPlatform::getExtensions('usermeet.tool', false, true);
 		$tpl->assign('tool_extensions', $tools);
 		
-		// Pull the results so we can do some row introspection
-		$results = $this->getData();
-		$tpl->assign('results', $results);
-
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_PORTAL);
 		$tpl->assign('custom_fields', $custom_fields);

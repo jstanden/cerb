@@ -791,10 +791,6 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 
 		$tpl->assign('timestamp_now', time());
 
-		// Pull the results so we can do some row introspection
-		$results = $this->getData();
-		$tpl->assign('results', $results);
-
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
 		$tpl->assign('custom_fields', $custom_fields);
@@ -809,7 +805,6 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 		
 		$tpl->clearAssign('custom_fields');
 		$tpl->clearAssign('id');
-		$tpl->clearAssign('results');
 	}
 
 	function renderCriteria($field) {
