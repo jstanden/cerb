@@ -302,7 +302,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 				continue;
 			
 			// Send events
-			if($check_deltas) {
+			if(!($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_EVENTS) && $check_deltas) {
 				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_WORKER, $batch_ids);
 			}
 			
@@ -310,25 +310,23 @@ class DAO_Worker extends Cerb_ORMHelper {
 			parent::_update($batch_ids, 'worker', $fields);
 			
 			// Send events
-			if(0 == ($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_EVENTS)) {
-				if($check_deltas) {
-					// Local events
-					self::_processUpdateEvents($batch_ids, $fields);
-					
-					// Trigger an event about the changes
-					$eventMgr = DevblocksPlatform::getEventService();
-					$eventMgr->trigger(
-						new Model_DevblocksEvent(
-							'dao.worker.update',
-							array(
-								'fields' => $fields,
-							)
+			if(!($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_EVENTS) && $check_deltas) {
+				// Local events
+				self::_processUpdateEvents($batch_ids, $fields);
+				
+				// Trigger an event about the changes
+				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr->trigger(
+					new Model_DevblocksEvent(
+						'dao.worker.update',
+						array(
+							'fields' => $fields,
 						)
-					);
-					
-					// Log the context update
-					DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_WORKER, $batch_ids);
-				}
+					)
+				);
+				
+				// Log the context update
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_WORKER, $batch_ids);
 			}
 		}
 		
