@@ -7,8 +7,10 @@ class _DevblocksClassLoadManager {
 	
 	private function __construct() {
 		$cache = _DevblocksCacheManager::getInstance();
+		
 		if(null !== ($map = $cache->load(self::CACHE_CLASS_MAP))) {
 			$this->classMap = $map;
+			
 		} else {
 			$this->_initLibs();
 			$this->_initServices();
@@ -96,9 +98,6 @@ class _DevblocksClassLoadManager {
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/event/event_helper.php', array(
 			'DevblocksEventHelper',
-		));
-		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/logging.php', array(
-			'_DevblocksLogManager',
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/nlp.php', array(
 			'_DevblocksNaturalLanguageManager',

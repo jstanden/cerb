@@ -63,7 +63,13 @@ class _DevblocksLogManager {
 	public function __call($name, $args) {
 		if(empty($args))
 			$args = array('');
-			
+
+		$out = sprintf("[%s] %s%s<BR>\n",
+			strtoupper($name),
+			(!empty($this->_prefix) ? ('['.$this->_prefix.'] ') : ''),
+			$args[0]
+		);
+		
 		if(isset(self::$_log_levels[$name])) {
 			if(self::$_log_levels[$name] <= $this->_log_level) {
 				$out = sprintf("[%s] %s%s<BR>\n",

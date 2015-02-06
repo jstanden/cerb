@@ -1,6 +1,7 @@
 <?php
 include_once(DEVBLOCKS_PATH . "api/Engine.php");
 
+include_once(DEVBLOCKS_PATH . "api/services/bootstrap/logging.php");
 include_once(DEVBLOCKS_PATH . "api/services/bootstrap/cache.php");
 include_once(DEVBLOCKS_PATH . "api/services/bootstrap/database.php");
 include_once(DEVBLOCKS_PATH . "api/services/bootstrap/classloader.php");
