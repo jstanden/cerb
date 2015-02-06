@@ -1374,7 +1374,8 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(false == ($db = DevblocksPlatform::getDatabaseService()))
 			return true;
 		
-		return $db->isEmpty();
+		$tables = self::getDatabaseTables();
+		return empty($tables);
 	}
 	
 	static function getDatabaseTables($nocache=false) {
@@ -1685,12 +1686,13 @@ class DevblocksPlatform extends DevblocksEngine {
 	 */
 	static function getPluginRegistry() {
 		$cache = self::getCacheService();
+		
 		if(null !== ($plugins = $cache->load(self::CACHE_PLUGINS)))
 			return $plugins;
-
-		if(false == ($db = DevblocksPlatform::getDatabaseService()) || $db->isEmpty());
+		
+		if(false == ($db = DevblocksPlatform::getDatabaseService()) || DevblocksPlatform::isDatabaseEmpty())
 			return;
-
+			
 		$plugins = array();
 			
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup

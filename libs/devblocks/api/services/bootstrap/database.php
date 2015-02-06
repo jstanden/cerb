@@ -93,15 +93,6 @@ class _DevblocksDatabaseManager {
 		return $this->_slave_db;
 	}
 	
-	function isEmpty() {
-		$tables = DevblocksPlatform::getDatabaseTables();
-		
-		if(empty($tables))
-			return true;
-		
-		return false;
-	}
-	
 	function isConnected() {
 		if(empty($this->_connections))
 			return false;

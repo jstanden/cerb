@@ -365,19 +365,18 @@ class DAO_Platform {
 	static function getClassLoaderMap() {
 		if(null == ($db = DevblocksPlatform::getDatabaseService()))
 			return array();
-			
-		$tables = DevblocksPlatform::getDatabaseTables();
-		if(empty($tables))
-			return array();
 
+		if(DevblocksPlatform::isDatabaseEmpty())
+			return array();
+		
 		$plugins = DevblocksPlatform::getPluginRegistry();
-			
+		
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 		$class_loader_map = array();
 		
 		$sql = sprintf("SELECT class, plugin_id, rel_path FROM %sclass_loader ORDER BY plugin_id", $prefix);
 		$results = $db->GetArrayMaster($sql);
-
+		
 		foreach($results as $row) {
 			@$class = $row['class'];
 			@$plugin_id = $row['plugin_id'];

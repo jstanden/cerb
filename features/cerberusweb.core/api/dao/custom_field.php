@@ -113,7 +113,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 				"FROM custom_field ".
 				"ORDER BY custom_fieldset_id ASC, pos ASC "
 			;
-			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$rs = $db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			
 			$objects = self::_createObjectsFromResultSet($rs);
 			

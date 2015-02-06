@@ -755,7 +755,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(!isset($tables['fulltext_' . $ns]))
 			return false;
 		
-		return intval($db->GetOneMaster(sprintf("SELECT MAX(id) FROM fulltext_%s", $db->escape($ns))));
+		return intval($db->GetOneSlave(sprintf("SELECT MAX(id) FROM fulltext_%s", $db->escape($ns))));
 	}
 	
 	private function _getCount(Extension_DevblocksSearchSchema $schema) {
