@@ -2452,7 +2452,7 @@ class C4_AbstractViewLoader {
 			
 		} elseif(!empty($defaults) && $defaults instanceof C4_AbstractViewModel) {
 			// Load defaults if they were provided
-			if(null != ($view = self::unserializeAbstractView($defaults)))  {
+			if(null != ($view = self::unserializeAbstractView($defaults, false)))  {
 				return $view;
 			}
 		}
@@ -2506,7 +2506,7 @@ class C4_AbstractViewLoader {
 		$model->class_name = get_class($view);
 
 		$model->id = $view->id;
-		$model->is_ephemeral = $view->is_ephemeral;
+		$model->is_ephemeral = $view->is_ephemeral ? true : false;
 		$model->name = $view->name;
 		
 		$model->view_columns = $view->view_columns;
@@ -2517,13 +2517,13 @@ class C4_AbstractViewLoader {
 		$model->paramsRequired = $view->getParamsRequired();
 		$model->paramsHidden = $view->getParamsHidden();
 		
-		$model->renderPage = $view->renderPage;
-		$model->renderLimit = $view->renderLimit;
-		$model->renderTotal = $view->renderTotal;
+		$model->renderPage = intval($view->renderPage);
+		$model->renderLimit = intval($view->renderLimit);
+		$model->renderTotal = intval($view->renderTotal);
 		$model->renderSortBy = $view->renderSortBy;
-		$model->renderSortAsc = $view->renderSortAsc;
+		$model->renderSortAsc = $view->renderSortAsc ? true : false;
 
-		$model->renderFilters = $view->renderFilters;
+		$model->renderFilters = $view->renderFilters ? true : false;
 		$model->renderSubtotals = $view->renderSubtotals;
 		
 		$model->renderTemplate = $view->renderTemplate;
@@ -2534,7 +2534,7 @@ class C4_AbstractViewLoader {
 		return $model;
 	}
 
-	static function unserializeAbstractView(C4_AbstractViewModel $model) {
+	static function unserializeAbstractView(C4_AbstractViewModel $model, $checksum=true) {
 		if(!class_exists($model->class_name, true))
 			return null;
 		
@@ -2546,7 +2546,7 @@ class C4_AbstractViewLoader {
 		if(!empty($model->id))
 			$inst->id = $model->id;
 		if(null !== $model->is_ephemeral)
-			$inst->is_ephemeral = $model->is_ephemeral;
+			$inst->is_ephemeral = $model->is_ephemeral ? true : false;
 		if(!empty($model->name))
 			$inst->name = $model->name;
 		
@@ -2565,17 +2565,17 @@ class C4_AbstractViewLoader {
 			$inst->addParamsHidden($model->paramsHidden, true);
 
 		if(null !== $model->renderPage)
-			$inst->renderPage = $model->renderPage;
+			$inst->renderPage = intval($model->renderPage);
 		if(null !== $model->renderLimit)
-			$inst->renderLimit = $model->renderLimit;
+			$inst->renderLimit = intval($model->renderLimit);
 		if(null !== $model->renderTotal)
-			$inst->renderTotal = $model->renderTotal;
+			$inst->renderTotal = intval($model->renderTotal);
 		if(!empty($model->renderSortBy))
 			$inst->renderSortBy = $model->renderSortBy;
 		if(null !== $model->renderSortBy)
-			$inst->renderSortAsc = $model->renderSortAsc;
+			$inst->renderSortAsc = $model->renderSortAsc ? true : false;
 
-		$inst->renderFilters = $model->renderFilters;
+		$inst->renderFilters = $model->renderFilters ? true : false;
 		$inst->renderSubtotals = $model->renderSubtotals;
 			
 		$inst->renderTemplate = $model->renderTemplate;
@@ -2593,7 +2593,8 @@ class C4_AbstractViewLoader {
 		$inst->addParamsRequired($parent->getParamsRequired());
 		unset($parent);
 		
-		$inst->_init_checksum = sha1(serialize($inst));
+		if($checksum)
+			$inst->_init_checksum = sha1(serialize($inst));
 		
 		return $inst;
 	}
@@ -2602,7 +2603,7 @@ class C4_AbstractViewLoader {
 		$model = array(
 			'columns' => $view->view_columns,
 			'params' => json_decode(json_encode($view->getEditableParams()), true),
-			'limit' => $view->renderLimit,
+			'limit' => intval($view->renderLimit),
 			'sort_by' => $view->renderSortBy,
 			'sort_asc' => !empty($view->renderSortAsc),
 			'subtotals' => $view->renderSubtotals,
@@ -2627,9 +2628,9 @@ class C4_AbstractViewLoader {
 			return false;
 		
 		$view->view_columns = $view_model['columns'];
-		$view->renderLimit = $view_model['limit'];
+		$view->renderLimit = intval($view_model['limit']);
 		$view->renderSortBy = $view_model['sort_by'];
-		$view->renderSortAsc = $view_model['sort_asc'];
+		$view->renderSortAsc = $view_model['sort_asc'] ? true : false;
 		$view->renderSubtotals = $view_model['subtotals'];
 		
 		// Convert JSON params back to objects
@@ -2837,7 +2838,7 @@ class DAO_WorkerViewModel {
 			'placeholder_values_json' => $db->qstr(json_encode($model->placeholderValues)),
 		);
 		
-		$db->ExecuteMaster(sprintf("REPLACE INTO worker_view_model (%s)".
+		$db->ExecuteMaster(sprintf("REPLACE INTO worker_view_model (%s) ".
 			"VALUES (%s)",
 			implode(',', array_keys($fields)),
 			implode(',', $fields)
