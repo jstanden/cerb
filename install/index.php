@@ -518,9 +518,7 @@ switch($step) {
 			}
 			
 			// Read in plugin information from the filesystem to the database
-			DevblocksPlatform::readPlugins();
-			
-			$plugins = DevblocksPlatform::getPluginRegistry();
+			$plugins = DevblocksPlatform::readPlugins();
 			
 			// Tailor which plugins are enabled by default
 			if(is_array($plugins))
@@ -547,6 +545,8 @@ switch($step) {
 			
 			// Platform + App
 			try {
+				DevblocksPlatform::clearCache();
+				
 				CerberusApplication::update();
 				
 				// Reload plugin translations
