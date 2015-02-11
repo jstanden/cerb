@@ -538,7 +538,7 @@
 					'comment',
 					'comment @',
 					'cut\n',
-					'delete quote from here\n',
+					'delete_quote_from_here\n',
 					'signature\n',
 					'unwatch\n',
 					'watch\n'
@@ -574,7 +574,7 @@
 			for(idx in lines) {
 				var line = $.trim(lines[idx]);
 				
-				if(line == "#delete quote from here") {
+				if(line == "#delete_quote_from_here") {
 					is_removing = true;
 					continue;
 				}
@@ -593,7 +593,8 @@
 		});
 		
 		$content.on('inserted.atwho', function(event, $li) {
-			if($li.text() == 'delete quote from here\n')
+			var txt = $.trim($li.text());
+			if(txt == 'delete_quote_from_here')
 				$(this).trigger('delete_quote_from_cursor');
 		});
 		
