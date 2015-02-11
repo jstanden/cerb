@@ -619,8 +619,13 @@ var cAjaxCalls = function() {
 		for(x in contexts)
 			ctx.push(x + ":" + contexts[x]);
 		
-		var $chooser=genericAjaxPopup(layer,'c=internal&a=chooserOpenSnippet&context=cerberusweb.contexts.snippet&contexts=' + ctx.join(','),null,false,'600');
-		$chooser.bind('snippet_select', function(event) {
+		var $chooser = genericAjaxPopup(layer,'c=internal&a=chooserOpenSnippet&context=cerberusweb.contexts.snippet&contexts=' + ctx.join(','),null,false,'600');
+		
+		$chooser.on('dialogclose', function() {
+			$textarea.focus();
+		});
+		
+		$chooser.on('snippet_select', function(event) {
 			event.stopPropagation();
 			
 			var snippet_id = event.snippet_id;
