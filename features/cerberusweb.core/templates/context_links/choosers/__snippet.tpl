@@ -4,7 +4,9 @@
 
 <div style="clear:both;"></div>
 
+<div class="cerb-popup-scrollable">
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
+</div>
 
 <form action="#" method="POST" id="chooser{$view->id}">
 </form>
@@ -17,6 +19,10 @@ $(function() {
 		event.stopPropagation();
 		$(this).dialog('option','title','{$context->manifest->name|escape:'javascript' nofilter} Chooser');
 		
+		// Max height
+		var max_height = Math.round($(window).height() * 0.80);
+		$popup.find('.cerb-popup-scrollable').css('max-height', max_height + 'px').css('overflow','auto');
+
 		// Quick search
 		
 		$popup.find('input:text:first').focus().select();
@@ -106,7 +112,7 @@ $(function() {
 					
 					$popup=genericAjaxPopupFind('#chooser{$view->id}');
 
-					event=jQuery.Event('snippet_select');
+					var event = jQuery.Event('snippet_select');
 					event.snippet_id = attr_id
 					event.context = attr_context;
 					event.context_id = attr_context_id;
@@ -133,9 +139,13 @@ $(function() {
 		}
 		
 		on_refresh();
-
-		$(this).delegate('DIV[id^=view]','view_refresh', on_refresh);
 		
+		$popup.closest('.ui-dialog')
+			.css('top', '')
+			.css('position', 'fixed')
+			;
+		
+		$(this).delegate('DIV[id^=view]','view_refresh', on_refresh);
 	});
 	
 	$popup.one('dialogclose', function(event) {

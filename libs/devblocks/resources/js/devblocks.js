@@ -360,10 +360,10 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			// Set the content
 			$popup.html(html);
 			
-			$popup.trigger('popup_open');
-			
 			if(null == options.position)
 				$popup.dialog('option', 'position', { my: 'top', at: 'top+20px' } ); // { my: 'top center', at: 'center' }
+			
+			$popup.trigger('popup_open');
 			
 			// Callback
 			try { cb(html); } catch(e) { }
