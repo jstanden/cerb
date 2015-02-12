@@ -431,6 +431,7 @@ class CerberusApplication extends DevblocksApplication {
 	 * 
 	 * @param integer $length
 	 * @return string
+	 * @test CerberusApplicationTest
 	 */
 	static function generatePassword($length=8) {
 		$chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789';
@@ -568,6 +569,7 @@ class CerberusApplication extends DevblocksApplication {
 	 * Generate an RFC-compliant Message-ID
 	 * 
 	 * @return string
+	 * @test CerberusApplicationTest
 	 */
 	static function generateMessageId() {
 		$message_id = sprintf('<%s.%s@%s>', base_convert(time(), 10, 36), base_convert(mt_rand(), 10, 36), !empty($_SERVER['HTTP_HOST']) ?  $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME']);

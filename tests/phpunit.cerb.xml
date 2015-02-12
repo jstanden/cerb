@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="bootstrap.php" colors="true">
+	<testsuites>
+		<testsuite>
+			<file>devblocks/DevblocksEngineTest.php</file>
+		</testsuite>
+		<testsuite>
+			<file>devblocks/DevblocksPlatformTest.php</file>
+		</testsuite>
+		<testsuite>
+			<file>devblocks/services/DevblocksCacheTest.php</file>
+		</testsuite>
+		<testsuite>
+			<file>cerb/CerberusApplicationUtilsTest.php</file>
+		</testsuite>
+	</testsuites>
+</phpunit>

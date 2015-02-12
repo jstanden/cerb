@@ -74,6 +74,7 @@ class _DevblocksCacheManager {
 	 * @param integer $ttl
 	 * @param boolean $local_only
 	 * @return boolean
+	 * @test DevblocksCacheTest
 	 */
 	public function save($data, $key, $tags=array(), $ttl=0, $local_only=false) {
 		// Monitor short-term cache memory usage
@@ -93,6 +94,14 @@ class _DevblocksCacheManager {
 		return $engine->save($data, $key, $tags, $ttl);
 	}
 	
+	/**
+	 * 
+	 * @param string $key
+	 * @param boolean $nocache
+	 * @param boolean $local_only
+	 * @return mixed
+	 * @test DevblocksCacheTest
+	 */
 	public function load($key, $nocache=false, $local_only=false) {
 		// If this is a local request, only try the registry, not cache
 		if($local_only) {
@@ -130,6 +139,13 @@ class _DevblocksCacheManager {
 		return NULL;
 	}
 	
+	/**
+	 * 
+	 * @param string $key
+	 * @param boolean $local_only
+	 * @return boolean
+	 * @test DevblocksCacheTest
+	 */
 	public function remove($key, $local_only=false) {
 		if(empty($key))
 			return;

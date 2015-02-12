@@ -109,6 +109,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param string $type
 	 * @param mixed $default
 	 * @return mixed
+	 * @test DevblocksPlatformTest
 	 */
 	static function importVar($value, $type=null, $default=null) {
 		if(is_null($value) && !is_null($default))
@@ -186,6 +187,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param string $cast
 	 * @param mixed $default
 	 * @return mixed
+	 * @test DevblocksPlatformTest
 	 */
 	static function importGPC($var, $cast=null, $default=null) {
 		@$magic_quotes = (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) ? true : false;
@@ -219,6 +221,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param integer $min Inclusive lower bounds
 	 * @param integer $max Inclusive upper bounds
 	 * @return integer
+	 * @test DevblocksPlatformTest
 	 */
 	static function intClamp($n, $min, $max) {
 		return min(max((integer)$n, $min), $max);
@@ -229,6 +232,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * "*bob" returns "/(.*?)bob/".
 	 * @param string $string
 	 * @return string
+	 * @test DevblocksPlatformTest
 	 */
 	static function parseStringAsRegExp($string) {
 		$pattern = str_replace(array('*'),'__any__', $string);
@@ -241,6 +245,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 *
 	 * @param string $string
 	 * @return integer|FALSE
+	 * @test DevblocksPlatformTest
 	 */
 	static function parseBytesString($string) {
 		if(is_numeric($string)) {
@@ -276,6 +281,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param boolean $keep_blanks
 	 * @param boolean $trim_lines
 	 * @return array
+	 * @test DevblocksPlatformTest
 	 */
 	static function parseCrlfString($string, $keep_blanks=false, $trim_lines=true) {
 		$string = str_replace("\r\n","\n",$string);
@@ -295,6 +301,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * 
 	 * @param unknown $string
 	 * @return array
+	 * @test DevblocksPlatformTest
 	 */
 	static function parseAtMentionString($string) {
 		//$string = "@Hildy Do you have time for this today?  If not, ask @Jeff, or @Darren.";
@@ -312,6 +319,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param integer $version
 	 * @param integer $sections
 	 * @return string A dot-delimited version string
+	 * @test DevblocksPlatformTest
 	 */
 	static function intVersionToStr($version, $sections=3) {
 		// If it's not an even number length, pad with one 0 on the left (e.g. 709 -> 0709)
@@ -339,6 +347,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param string $version
 	 * @param integer $sections
 	 * @return integer
+	 * @test DevblocksPlatformTest
 	 */
 	static function strVersionToInt($version, $sections=3) {
 		$parts = explode('.', $version);
@@ -367,6 +376,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param string $b
 	 * @param string $oper
 	 * @return bool
+	 * @test DevblocksPlatformTest
 	 */
 	public static function compareStrings($a, $b, $oper) {
 		@$not = (substr($oper, 0, 1) == '!');
@@ -401,6 +411,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param string $arg
 	 * @param boolean $is_partial
 	 * @return string
+	 * @test DevblocksPlatformTest
 	 */
 	static function strToRegExp($arg, $is_partial=false) {
 		$arg = str_replace(array('*'),array('__WILD__'),$arg);
@@ -419,6 +430,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param string $also
 	 * @param string $replace
 	 * @return string
+	 * @test DevblocksPlatformTest
 	 */
 	static function strAlphaNum($arg, $also=null, $replace="") {
 		return preg_replace("/[^A-Z0-9" . $also . "]/i", $replace, $arg);
@@ -429,6 +441,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param string $string
 	 * @param string $from_encoding
 	 * @return string
+	 * @test DevblocksPlatformTest
 	 */
 	static function strUnidecode($string, $from_encoding = 'utf-8') {
 		if(empty($string))
@@ -461,6 +474,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * 
 	 * @param string $str
 	 * @return string
+	 * @test DevblocksPlatformTest
 	 */
 	static function strBase32Encode($str) {
 		// RFC-4648
@@ -506,6 +520,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param string $str
 	 * @param boolean $as_string
 	 * @return string
+	 * @test DevblocksPlatformTest
 	 */
 	static function strBase32Decode($str, $as_string=false) {
 		// RFC-4648
@@ -550,6 +565,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param boolean $strip_whitespace
 	 * @param boolean $skip_blockquotes
 	 * @return string
+	 * @test DevblocksPlatformTest
 	 */
 	static function stripHTML($str, $strip_whitespace=true, $skip_blockquotes=false) {
 		
@@ -812,6 +828,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param boolean $inline_css
 	 * @param array $options
 	 * @return string
+	 * @test DevblocksPlatformTest
 	 */
 	static function purifyHTML($dirty_html, $inline_css=false, $options=array()) {
 		require_once(DEVBLOCKS_PATH . 'libs/htmlpurifier/HTMLPurifier.standalone.php');
@@ -870,6 +887,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * 
 	 * @param string $text
 	 * @return string
+	 * @test DevblocksPlatformTest
 	 */
 	static function parseMarkdown($text) {
 		$parser = new Parsedown();
@@ -1034,6 +1052,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 *
 	 * @param string $str
 	 * @return string
+	 * @test DevblocksPlatformTest
 	 */
 	static function strToPermalink($string) {
 		if(empty($string))
@@ -1058,6 +1077,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * 
 	 * @param string $string
 	 * @return string
+	 * @test DevblocksPlatformTest
 	 */
 	static function strToHyperlinks($string) {
 		// Bail out if we're asked to auto-hyperlink a huge block of text
@@ -1093,6 +1113,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param string $string
 	 * @param integer $length
 	 * @return string
+	 * @test DevblocksPlatformTest
 	 */
 	static function strSecsToString($string, $length=0) {
 		if(empty($string) || !is_numeric($string))
@@ -1134,6 +1155,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param string $string
 	 * @param boolean $is_delta
 	 * return string
+	 * @test DevblocksPlatformTest
 	 */
 	static function strPrettyTime($string, $is_delta=false) {
 		if(empty($string) || !is_numeric($string))
@@ -1204,6 +1226,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param string $string
 	 * @param integer $precision
 	 * @return string
+	 * @test DevblocksPlatformTest
 	 */
 	static function strPrettyBytes($string, $precision='0') {
 		if(!is_numeric($string))
@@ -1237,6 +1260,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param boolean $keep_blanks
 	 * @param mixed $typecast
 	 * @return array
+	 * @test DevblocksPlatformTest
 	 */
 	static function parseCsvString($string, $keep_blanks=false, $typecast=null) {
 		if(empty($string))
@@ -1268,6 +1292,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param integer $number
 	 * @param string $as
 	 * @return string
+	 * @test DevblocksPlatformTest
 	 */
 	static function formatNumberAs($number, $as) {
 		$label = $number;
@@ -1314,6 +1339,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 *
 	 * @param string $json The original JSON string to process.
 	 * @return string Indented version of the original JSON string.
+	 * @test DevblocksPlatformTest
 	 */
 	static function strFormatJson($json) {
 		$result = '';
@@ -1372,6 +1398,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param array|string $json
 	 * @param string $path
 	 * @return mixed Pointer to the value at $path, or FALSE on error
+	 * @test DevblocksPlatformTest
 	 */
 	static function &jsonGetPointerFromPath(array &$array, $path) {
 		if(empty($path))
@@ -1472,6 +1499,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	/**
 	 * @return resource $fp
+	 * @test DevblocksPlatformTest
 	 */
 	public static function getTempFile() {
 		// Generate a new temporary file
@@ -1487,6 +1515,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	/**
 	 * @return string $filename
+	 * @test DevblocksPlatformTest
 	 */
 	public static function getTempFileInfo($fp) {
 		// If we're asking about a specific temporary file
@@ -2115,6 +2144,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param string $type
 	 * @param array $options
 	 * @return mixed
+	 * @test DevblocksPlatformTest
 	 */
 	static function sanitizeArray($array, $type, $options=array()) {
 		if(!is_array($array))
@@ -2162,6 +2192,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param array $array
 	 * @param string $on
 	 * @param boolean $ascending
+	 * @test DevblocksPlatformTest
 	 */
 	static function sortObjects(&$array, $on, $ascending=true) {
 		_DevblocksSortHelper::sortObjects($array, $on, $ascending);
@@ -2254,12 +2285,16 @@ class DevblocksPlatform extends DevblocksEngine {
 	/**
 	 * 
 	 * @param string $locale
+	 * @test DevblocksPlatformTest
 	 */
 	static function setLocale($locale) {
 		@setlocale(LC_ALL, $locale);
 		self::$locale = $locale;
 	}
 	
+	/**
+	 * @test DevblocksPlatformTest
+	 */
 	static function getLocale() {
 		if(!empty(self::$locale))
 			return self::$locale;
@@ -2269,6 +2304,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	/**
 	 * @return string
+	 * @test DevblocksPlatformTest
 	 */
 	static function getDateTimeFormat() {
 		return self::$dateTimeFormat;
@@ -2277,6 +2313,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	/**
 	 * 
 	 * @param string $time_format
+	 * @test DevblocksPlatformTest
 	 */
 	static function setDateTimeFormat($time_format) {
 		self::$dateTimeFormat = $time_format;
