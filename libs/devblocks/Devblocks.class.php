@@ -136,7 +136,14 @@ class DevblocksPlatform extends DevblocksEngine {
 				$value = !empty($value) ? 1 : 0;
 				break;
 				
+			case 'bool':
 			case 'boolean':
+				if(is_string($value) && in_array(strtolower($value), array('true', 'false')))
+					return (0 == strcasecmp($value, 'true')) ? true : false;
+					
+				if(is_string($value) && in_array(strtolower($value), array('yes', 'no')))
+					return (0 == strcasecmp($value, 'yes')) ? true : false;
+				
 				$value = !empty($value) ? true : false;
 				break;
 				
@@ -150,6 +157,9 @@ class DevblocksPlatform extends DevblocksEngine {
 				break;
 				
 			case 'string':
+				if(is_bool($value))
+					return $value ? 'true' : 'false';
+				
 				$value = (string) $value;
 				break;
 				
@@ -203,6 +213,13 @@ class DevblocksPlatform extends DevblocksEngine {
 			$item = stripslashes($item);
 	}
 
+	/**
+	 * 
+	 * @param integer $n The number to test
+	 * @param integer $min Inclusive lower bounds
+	 * @param integer $max Inclusive upper bounds
+	 * @return integer
+	 */
 	static function intClamp($n, $min, $max) {
 		return min(max((integer)$n, $min), $max);
 	}
@@ -210,6 +227,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	/**
 	 * Returns a string as a regexp.
 	 * "*bob" returns "/(.*?)bob/".
+	 * @param string $string
+	 * @return string
 	 */
 	static function parseStringAsRegExp($string) {
 		$pattern = str_replace(array('*'),'__any__', $string);
@@ -233,14 +252,17 @@ class DevblocksPlatform extends DevblocksEngine {
 			 
 			switch($unit) {
 				default:
+				case 'b':
+					return $value;
+					break;
+				case 'k':
+					return $value * 1024; // 1024^1
+					break;
 				case 'm':
 					return $value * 1048576; // 1024^2
 					break;
 				case 'g':
 					return $value * 1073741824; // 1024^3
-					break;
-				case 'k':
-					return $value * 1024; // 1024^1
 					break;
 			}
 		}
@@ -248,6 +270,13 @@ class DevblocksPlatform extends DevblocksEngine {
 		return FALSE;
 	}
 	
+	/**
+	 * 
+	 * @param string $string
+	 * @param boolean $keep_blanks
+	 * @param boolean $trim_lines
+	 * @return array
+	 */
 	static function parseCrlfString($string, $keep_blanks=false, $trim_lines=true) {
 		$string = str_replace("\r\n","\n",$string);
 		$parts = preg_split("/[\r\n]/", $string);
@@ -262,26 +291,55 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $parts;
 	}
 	
+	/**
+	 * 
+	 * @param unknown $string
+	 * @return array
+	 */
 	static function parseAtMentionString($string) {
 		//$string = "@Hildy Do you have time for this today?  If not, ask @Jeff, or @Darren.";
 		preg_match_all('#(\@[A-Za-z0-9_]+)([^A-Za-z0-9_]|$)#', $string, $matches);
 		
-		if(is_array($matches) && isset($matches[1]))
-			return $matches[1];
+		if(is_array($matches) && isset($matches[1])) {
+			return array_unique($matches[1]);
+		}
 		
 		return false;
 	}
 	
+	/**
+	 * 
+	 * @param integer $version
+	 * @param integer $sections
+	 * @return string A dot-delimited version string
+	 */
 	static function intVersionToStr($version, $sections=3) {
-		$version = str_pad($version, $sections*2, '0', STR_PAD_LEFT);
+		// If it's not an even number length, pad with one 0 on the left (e.g. 709 -> 0709)
+		if(strlen($version))
+			$version = '0' . $version;
+		
+		// If we don't have enough requested sections, pad the right.
+		// We assume the given digits are always the most significant part of the version.
+		$version = str_pad($version, $sections * 2, '0', STR_PAD_RIGHT);
 		$parts = str_split($version, 2);
 		
+		// Trim padded zeroes in a version section
 		foreach($parts as $k => $v)
 			$parts[$k] = intval($v);
 		
+		// Slice the version to the requested length
+		$parts = array_slice($parts, 0, $sections);
+		
+		// Return as a dot-delimited string
 		return implode('.', $parts);
 	}
 	
+	/**
+	 * 
+	 * @param string $version
+	 * @param integer $sections
+	 * @return integer
+	 */
 	static function strVersionToInt($version, $sections=3) {
 		$parts = explode('.', $version);
 		
@@ -317,6 +375,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		$pass = false;
 		
 		switch($oper) {
+			case '=':
 			case 'is':
 				$pass = (0==strcasecmp($a, $b));
 				break;
@@ -340,6 +399,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * wildcard, etc.
 	 *
 	 * @param string $arg
+	 * @param boolean $is_partial
 	 * @return string
 	 */
 	static function strToRegExp($arg, $is_partial=false) {
@@ -356,12 +416,20 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * Return a string with only its alphanumeric characters
 	 *
 	 * @param string $arg
+	 * @param string $also
+	 * @param string $replace
 	 * @return string
 	 */
 	static function strAlphaNum($arg, $also=null, $replace="") {
 		return preg_replace("/[^A-Z0-9" . $also . "]/i", $replace, $arg);
 	}
 	
+	/**
+	 * 
+	 * @param string $string
+	 * @param string $from_encoding
+	 * @return string
+	 */
 	static function strUnidecode($string, $from_encoding = 'utf-8') {
 		if(empty($string))
 			return $string;
@@ -389,6 +457,11 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $out;
 	}
 	
+	/**
+	 * 
+	 * @param string $str
+	 * @return string
+	 */
 	static function strBase32Encode($str) {
 		// RFC-4648
 		$alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -428,7 +501,13 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $output;
 	}
 	
-	static function strBase32Decode($str) {
+	/**
+	 * 
+	 * @param string $str
+	 * @param boolean $as_string
+	 * @return string
+	 */
+	static function strBase32Decode($str, $as_string=false) {
 		// RFC-4648
 		$alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 		$binary = '';
@@ -459,9 +538,19 @@ class DevblocksPlatform extends DevblocksEngine {
 			$output .= chr(bindec($byte));
 		}
 		
+		if($as_string)
+			$output = trim($output);
+		
 		return $output;
 	}
 	
+	/**
+	 * 
+	 * @param string $str
+	 * @param boolean $strip_whitespace
+	 * @param boolean $skip_blockquotes
+	 * @return string
+	 */
 	static function stripHTML($str, $strip_whitespace=true, $skip_blockquotes=false) {
 		
 		// Pre-process some HTML entities that confuse UTF-8
@@ -717,6 +806,13 @@ class DevblocksPlatform extends DevblocksEngine {
 		return ltrim($str);
 	}
 	
+	/**
+	 * 
+	 * @param string $dirty_html
+	 * @param boolean $inline_css
+	 * @param array $options
+	 * @return string
+	 */
 	static function purifyHTML($dirty_html, $inline_css=false, $options=array()) {
 		require_once(DEVBLOCKS_PATH . 'libs/htmlpurifier/HTMLPurifier.standalone.php');
 		
@@ -770,6 +866,11 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $purifier->purify($dirty_html);
 	}
 	
+	/**
+	 * 
+	 * @param string $text
+	 * @return string
+	 */
 	static function parseMarkdown($text) {
 		$parser = new Parsedown();
 		$parser->setBreaksEnabled(true);
@@ -953,6 +1054,11 @@ class DevblocksPlatform extends DevblocksEngine {
 		return rtrim($string,'_');
 	}
 	
+	/**
+	 * 
+	 * @param string $string
+	 * @return string
+	 */
 	static function strToHyperlinks($string) {
 		// Bail out if we're asked to auto-hyperlink a huge block of text
 		if(strlen($string) > 512000)
@@ -982,6 +1088,12 @@ class DevblocksPlatform extends DevblocksEngine {
 		}, $string);
 	}
 	
+	/**
+	 * 
+	 * @param string $string
+	 * @param integer $length
+	 * @return string
+	 */
 	static function strSecsToString($string, $length=0) {
 		if(empty($string) || !is_numeric($string))
 			return '0 secs';
@@ -1017,6 +1129,12 @@ class DevblocksPlatform extends DevblocksEngine {
 		return implode(', ', $output);
 	}
 	
+	/**
+	 * 
+	 * @param string $string
+	 * @param boolean $is_delta
+	 * return string
+	 */
 	static function strPrettyTime($string, $is_delta=false) {
 		if(empty($string) || !is_numeric($string))
 			return '';
@@ -1081,6 +1199,12 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $whole;
 	}
 	
+	/**
+	 * 
+	 * @param string $string
+	 * @param integer $precision
+	 * @return string
+	 */
 	static function strPrettyBytes($string, $precision='0') {
 		if(!is_numeric($string))
 			return '';
@@ -1110,6 +1234,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * [TODO] Move to a FormHelper service?
 	 *
 	 * @param string $string
+	 * @param boolean $keep_blanks
+	 * @param mixed $typecast
 	 * @return array
 	 */
 	static function parseCsvString($string, $keep_blanks=false, $typecast=null) {
@@ -1122,19 +1248,27 @@ class DevblocksPlatform extends DevblocksEngine {
 			return array();
 		
 		foreach($tokens as $k => $v) {
+			if(!$keep_blanks && 0==strlen($tokens[$k])) {
+				unset($tokens[$k]);
+				continue;
+			}
+			
 			if(!is_null($typecast)) {
 				settype($v, $typecast);
 			}
 			
 			$tokens[$k] = trim($v);
-			
-			if(!$keep_blanks && 0==strlen($tokens[$k]))
-				unset($tokens[$k]);
 		}
 		
 		return $tokens;
 	}
 	
+	/**
+	 * 
+	 * @param integer $number
+	 * @param string $as
+	 * @return string
+	 */
 	static function formatNumberAs($number, $as) {
 		$label = $number;
 		
@@ -1179,7 +1313,6 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @todo This won't be needed when we require PHP 5.4+ with JSON_PRETTY_PRINT
 	 *
 	 * @param string $json The original JSON string to process.
-	 *
 	 * @return string Indented version of the original JSON string.
 	 */
 	static function strFormatJson($json) {
@@ -1238,7 +1371,6 @@ class DevblocksPlatform extends DevblocksEngine {
 	 *
 	 * @param array|string $json
 	 * @param string $path
-	 *
 	 * @return mixed Pointer to the value at $path, or FALSE on error
 	 */
 	static function &jsonGetPointerFromPath(array &$array, $path) {
@@ -1977,6 +2109,13 @@ class DevblocksPlatform extends DevblocksEngine {
 		return _DevblocksOpenIDManager::getInstance();
 	}
 	
+	/**
+	 * 
+	 * @param array $array
+	 * @param string $type
+	 * @param array $options
+	 * @return mixed
+	 */
 	static function sanitizeArray($array, $type, $options=array()) {
 		if(!is_array($array))
 			return array();
@@ -2018,6 +2157,12 @@ class DevblocksPlatform extends DevblocksEngine {
 		return false;
 	}
 	
+	/**
+	 * 
+	 * @param array $array
+	 * @param string $on
+	 * @param boolean $ascending
+	 */
 	static function sortObjects(&$array, $on, $ascending=true) {
 		_DevblocksSortHelper::sortObjects($array, $on, $ascending);
 	}
@@ -2106,6 +2251,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		return _DevblocksDateManager::getInstance();
 	}
 
+	/**
+	 * 
+	 * @param string $locale
+	 */
 	static function setLocale($locale) {
 		@setlocale(LC_ALL, $locale);
 		self::$locale = $locale;
@@ -2118,10 +2267,17 @@ class DevblocksPlatform extends DevblocksEngine {
 		return 'en_US';
 	}
 	
+	/**
+	 * @return string
+	 */
 	static function getDateTimeFormat() {
 		return self::$dateTimeFormat;
 	}
 	
+	/**
+	 * 
+	 * @param string $time_format
+	 */
 	static function setDateTimeFormat($time_format) {
 		self::$dateTimeFormat = $time_format;
 	}
