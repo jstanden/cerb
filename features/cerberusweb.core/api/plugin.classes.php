@@ -249,15 +249,18 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 			return "[ERROR] No result placeholder given.";
 		
 		// Output
-		$out = sprintf(">>> Sending HTTP request:\n%s %s\n%s\n%s\n",
+		$out = sprintf(">>> Sending HTTP request:\n%s %s\n%s%s\n",
 			mb_convert_case($http_verb, MB_CASE_UPPER),
 			$http_url,
-			!empty($http_headers) ? (implode("\n", $http_headers)) : '',
+			!empty($http_headers) ? (implode("\n", $http_headers)."\n") : '',
 			(in_array($http_verb, array('post','put')) ? ("\n" . $http_body. "\n") : "")
 		);
 		
-		$out .= sprintf(">>> Saving response to {{%s}}\n",
-			$response_placeholder
+		$out .= sprintf(">>> Saving response to {{%1\$s}}\n".
+				" * {{%1\$s.content_type}}\n".
+				" * {{%1\$s.body}}\n".
+				"\n",
+				$response_placeholder
 		);
 
 		// If set to run in simulator as well
