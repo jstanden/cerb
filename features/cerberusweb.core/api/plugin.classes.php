@@ -270,6 +270,10 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		if($run_in_simulator) {
 			$response = $this->_execute($http_verb, $http_url, array(), $http_body, $http_headers);
 			$dict->$response_placeholder = $response;
+			
+			if(isset($response['error']) && !empty($response['error'])) {
+				$out .= sprintf(">>> Error in response:\n%s\n", $response['error']);
+			}
 		}
 		
 		return $out;
