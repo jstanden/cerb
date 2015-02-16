@@ -1824,7 +1824,7 @@ For example: http://www.cerbweb.com/support/</seg>
 			</tuv>
 		</tu>
 
-		<!-- ConfirmationCode -->
+		<!-- Confirmation Code -->
 		
 		<tu tuid="dao.confirmation_code.namespace_key">
 			<tuv xml:lang="en_US">
@@ -1837,7 +1837,7 @@ For example: http://www.cerbweb.com/support/</seg>
 			</tuv>
 		</tu>
 
-		<!-- Contact orgs -->
+		<!-- Contact Orgs -->
 		
 		<tu tuid="contact_org.city">
 			<tuv xml:lang="en_US">
