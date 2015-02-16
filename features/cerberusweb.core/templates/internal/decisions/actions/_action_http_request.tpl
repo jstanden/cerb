@@ -28,6 +28,9 @@
 <b>Options:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
 	<label><input type="checkbox" name="{$namePrefix}[options][ignore_ssl_validation]" value="1" {if $params.options.ignore_ssl_validation}checked="checked"{/if}> Ignore SSL certificate validation (e.g. self-signed)</label>
+	<br>
+	<label><input type="checkbox" name="{$namePrefix}[options][raw_response_body]" value="1" {if $params.options.raw_response_body}checked="checked"{/if}> Don't attempt to auto-convert the response body (e.g. JSON decode)</label>
+	<br>
 </div>
 
 <b>Also execute HTTP request in simulator mode:</b>

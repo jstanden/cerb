@@ -344,17 +344,20 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		if(curl_errno($ch)) {
 			
 		} else {
-			switch(@$info['content_type']) {
-				case 'application/json':
-					@$out = json_decode($out, true);
-					break;
-					
-				case 'image/gif':
-				case 'image/jpeg':
-				case 'image/jpg':
-				case 'image/png':
-					@$out = base64_encode($out);
-					break;
+			// Auto-convert the response body based on the type
+			if(!(isset($options['raw_response_body']) && $options['raw_response_body'])) {
+				switch(@$info['content_type']) {
+					case 'application/json':
+						@$out = json_decode($out, true);
+						break;
+						
+					case 'image/gif':
+					case 'image/jpeg':
+					case 'image/jpg':
+					case 'image/png':
+						@$out = base64_encode($out);
+						break;
+				}
 			}
 		}
 		
