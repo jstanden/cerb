@@ -79,6 +79,7 @@
 			<class name="ChRssSource_Ticket" />
 			<class name="ChTaskSource_Org" />
 			<class name="ChTaskSource_Ticket" />
+			<class name="CerbMailTransport_Null" />
 			<class name="CerbMailTransport_Smtp" />
 		</file>
 		
@@ -2400,6 +2401,17 @@
 		</extension>
 		
 		<!-- Mail Transports -->
+		
+		<extension point="cerberusweb.mail.transport">
+			<id>core.mail.transport.null</id>
+			<name>Null</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>CerbMailTransport_Null</name>
+			</class>
+			<params>
+			</params>
+		</extension>
 		
 		<extension point="cerberusweb.mail.transport">
 			<id>core.mail.transport.smtp</id>

@@ -703,3 +703,40 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 	}
 }
 endif;
+
+if(class_exists('Extension_MailTransport')):
+class CerbMailTransport_Null extends Extension_MailTransport {
+	const ID = 'core.mail.transport.null';
+	
+	function renderConfig(Model_MailTransport $model) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('model', $model);
+		$tpl->assign('extension', $this);
+		$tpl->display('devblocks:cerberusweb.core::internal/mail_transport/null/config.tpl');
+	}
+	
+	function testConfig(array $params, &$error=null) {
+		return true;
+	}
+	
+	/**
+	 * @param Swift_Message $message
+	 * @return boolean
+	 */
+	function send(Swift_Message $message, Model_MailTransport $model) {
+		$null = Swift_NullTransport::newInstance();
+
+		$mailer = Swift_Mailer::newInstance($null);
+		
+		//$logger = new Swift_Plugins_Loggers_ArrayLogger(50);
+		//$mailer->registerPlugin(new Swift_Plugins_LoggerPlugin($logger));
+		
+		$mailer->send($message);
+		
+		//var_dump($logger->dump());
+		//$logger->clear();
+		
+		return true;
+	}
+}
+endif;
