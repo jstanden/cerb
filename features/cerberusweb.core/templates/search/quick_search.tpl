@@ -1,5 +1,6 @@
 {$uniqid = uniqid()}
-{if $view instanceof IAbstractView_QuickSearch}{$search_fields = $view->getQuickSearchFields()}{/if}
+{if $view instanceof IAbstractView_QuickSearch}
+{$search_fields = $view->getQuickSearchFields()}
 
 <form action="javascript:;" method="post" id="{$uniqid}" class="quick-search">
 	<input type="hidden" name="c" value="search">
@@ -156,3 +157,4 @@ var $frm = $('#{$uniqid}').each(function(e) {
 });
 });
 </script>
+{/if}
