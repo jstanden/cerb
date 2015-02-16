@@ -236,6 +236,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		@$http_url = $tpl_builder->build($params['http_url'], $dict);
 		@$http_headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['http_headers'], $dict));
 		@$http_body = $tpl_builder->build($params['http_body'], $dict);
+		@$options = $params['options'] ?: array();
 		@$run_in_simulator = $params['run_in_simulator'];
 		@$response_placeholder = $params['response_placeholder'];
 		
@@ -268,7 +269,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 
 		// If set to run in simulator as well
 		if($run_in_simulator) {
-			$response = $this->_execute($http_verb, $http_url, array(), $http_body, $http_headers);
+			$response = $this->_execute($http_verb, $http_url, array(), $http_body, $http_headers, $options);
 			$dict->$response_placeholder = $response;
 			
 			if(isset($response['error']) && !empty($response['error'])) {
@@ -286,6 +287,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		@$http_url = $tpl_builder->build($params['http_url'], $dict);
 		@$http_headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['http_headers'], $dict));
 		@$http_body = $tpl_builder->build($params['http_body'], $dict);
+		@$options = $params['options'] ?: array();
 		@$response_placeholder = $params['response_placeholder'];
 		
 		if(empty($http_verb) || empty($http_url))
@@ -294,17 +296,22 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		if(empty($response_placeholder))
 			return false;
 		
-		$response = $this->_execute($http_verb, $http_url, array(), $http_body, $http_headers);
+		$response = $this->_execute($http_verb, $http_url, array(), $http_body, $http_headers, $options);
 		$dict->$response_placeholder = $response;
 	}
 	
-	private function _execute($verb='get', $url, $params=array(), $body=null, $headers=array()) {
+	private function _execute($verb='get', $url, $params=array(), $body=null, $headers=array(), $options=array()) {
 		if(!empty($params) && is_array($params))
 			$url .= '?' . http_build_query($params);
 		
 		$ch = curl_init($url);
 		
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		
+		if(isset($options['ignore_ssl_validation']) && $options['ignore_ssl_validation']) {
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		}
 
 		switch($verb) {
 			case 'get':
