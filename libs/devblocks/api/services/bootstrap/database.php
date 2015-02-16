@@ -193,14 +193,23 @@ class _DevblocksDatabaseManager {
 	}
 	
 	function ExecuteMaster($sql) {
+		if(DEVELOPMENT_MODE_QUERIES)
+			$console = DevblocksPlatform::getConsoleLog('MASTER');
 		return $this->_Execute($sql, $this->_master_db);
 	}
 	
 	function ExecuteSlave($sql) {
+		if(DEVELOPMENT_MODE_QUERIES)
+			$console = DevblocksPlatform::getConsoleLog('SLAVE');
 		return $this->_Execute($sql, $this->_slave_db);
 	}
 	
 	private function _Execute($sql, $db) {
+		if(DEVELOPMENT_MODE_QUERIES) {
+			if($console = DevblocksPlatform::getConsoleLog(null))
+				$console->debug($sql);
+		}
+		
 		$this->_last_used_db = $db;
 		
 		if(false === ($rs = mysqli_query($db, $sql))) {
@@ -253,10 +262,14 @@ class _DevblocksDatabaseManager {
 	}
 	
 	function GetArrayMaster($sql) {
+		if(DEVELOPMENT_MODE_QUERIES)
+			$console = DevblocksPlatform::getConsoleLog('MASTER');
 		return $this->_GetArray($sql, $this->_master_db);
 	}
 	
 	function GetArraySlave($sql) {
+		if(DEVELOPMENT_MODE_QUERIES)
+			$console = DevblocksPlatform::getConsoleLog('SLAVE');
 		return $this->_GetArray($sql, $this->_slave_db);
 	}
 	
@@ -285,10 +298,14 @@ class _DevblocksDatabaseManager {
 	}
 	
 	public function GetRowMaster($sql) {
+		if(DEVELOPMENT_MODE_QUERIES)
+			$console = DevblocksPlatform::getConsoleLog('MASTER');
 		return $this->_GetRow($sql, $this->_master_db);
 	}
 	
 	public function GetRowSlave($sql) {
+		if(DEVELOPMENT_MODE_QUERIES)
+			$console = DevblocksPlatform::getConsoleLog('SLAVE');
 		return $this->_GetRow($sql, $this->_slave_db);
 	}
 	
@@ -313,10 +330,14 @@ class _DevblocksDatabaseManager {
 	}
 	
 	function GetOneMaster($sql) {
+		if(DEVELOPMENT_MODE_QUERIES)
+			$console = DevblocksPlatform::getConsoleLog('MASTER');
 		return $this->_GetOne($sql, $this->_master_db);
 	}
 	
 	function GetOneSlave($sql) {
+		if(DEVELOPMENT_MODE_QUERIES)
+			$console = DevblocksPlatform::getConsoleLog('SLAVE');
 		return $this->_GetOne($sql, $this->_slave_db);
 	}
 

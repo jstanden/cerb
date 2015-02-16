@@ -22,6 +22,8 @@ class _DevblocksLogManager {
 	private $_log_level = 0;
 	private $_fp = null;
 	
+	private $_logs = array();
+	
 	static function getConsoleLog($prefix='') {
 		if(null == self::$_instance) {
 			self::$_instance = new _DevblocksLogManager();
@@ -42,6 +44,13 @@ class _DevblocksLogManager {
 		$this->_fp = fopen('php://output', 'w+');
 	}
 
+	public function __destruct() {
+		if(DEVELOPMENT_MODE_QUERIES)
+			var_dump($this->_logs);
+		
+		@fclose($this->_fp);
+	}
+	
 	public function getLogLevel() {
 		return $this->_log_level;
 	}
@@ -56,10 +65,6 @@ class _DevblocksLogManager {
 		$this->_prefix = $prefix;
 	}
 	
-	public function __destruct() {
-		@fclose($this->_fp);
-	}
-	
 	public function __call($name, $args) {
 		if(empty($args))
 			$args = array('');
@@ -69,6 +74,9 @@ class _DevblocksLogManager {
 			(!empty($this->_prefix) ? ('['.$this->_prefix.'] ') : ''),
 			$args[0]
 		);
+		
+		if(DEVELOPMENT_MODE_QUERIES)
+			$this->_logs[] = $out;
 		
 		if(isset(self::$_log_levels[$name])) {
 			if(self::$_log_levels[$name] <= $this->_log_level) {

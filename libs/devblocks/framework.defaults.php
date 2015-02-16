@@ -65,6 +65,9 @@ if(!defined('APP_SESSION_NAME'))
 if(!defined('DEVELOPMENT_MODE'))
 	define('DEVELOPMENT_MODE', false);
 
+if(!defined('DEVELOPMENT_MODE_QUERIES'))
+	define('DEVELOPMENT_MODE_QUERIES', false);
+
 // ----
 
 @ini_set('session.gc_maxlifetime','86400');
