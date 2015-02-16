@@ -298,81 +298,33 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		$dict->$response_placeholder = $response;
 	}
 	
-	private function _execute($verb, $url, $params=array(), $body=null, $headers=array()) {
-		switch($verb) {
-			case 'get':
-				return $this->_get($url, $params, $headers);
-				break;
-				
-			case 'post':
-			case 'put':
-				return $this->_post($url, $params, $body, $verb, $headers);
-				break;
-				
-			case 'delete':
-				// [TODO]
-				break;
-		}
-		
-	}
-	
-	private function _post($url, $params=array(), $body=null, $verb='post', $headers=array()) {
+	private function _execute($verb='get', $url, $params=array(), $body=null, $headers=array()) {
 		if(!empty($params) && is_array($params))
 			$url .= '?' . http_build_query($params);
 		
 		$ch = curl_init($url);
-
+		
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 		switch($verb) {
+			case 'get':
+				break;
+				
 			case 'post':
 				curl_setopt($ch, CURLOPT_POST, 1);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
 				break;
 				
 			case 'put':
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
 				curl_setopt($ch, CURLOPT_POST, 1);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+				break;
+				
+			case 'delete':
+				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
 				break;
 		}
-
-		if(!empty($headers))
-			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-		
-		$out = curl_exec($ch);
-		
-		$info = curl_getinfo($ch);
-		$error = curl_error($ch);
-
-		// [TODO] This can fail without HTTPS
-		
-		if(curl_errno($ch)) {
-			
-		} else {
-			switch(@$info['content_type']) {
-				case 'application/json':
-					@$out = json_decode($out, true);
-					break;
-			}
-		}
-		
-		curl_close($ch);
-		return array(
-			'content_type' => $info['content_type'],
-			'body' => $out,
-			'info' => $info,
-			'error' => $error,
-		);
-	}
-	
-	private function _get($url, $params=array(), $headers=array()) {
-		if(!empty($params) && is_array($params))
-			$url .= '?' . http_build_query($params);
-		
-		$ch = curl_init($url);
-		
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		
 		if(!empty($headers))
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -381,7 +333,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		
 		$info = curl_getinfo($ch);
 		$error = curl_error($ch);
-		
+
 		if(curl_errno($ch)) {
 			
 		} else {
