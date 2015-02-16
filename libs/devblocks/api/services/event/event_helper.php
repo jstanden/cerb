@@ -4003,7 +4003,6 @@ class DevblocksEventHelper {
 		$logger = DevblocksPlatform::getConsoleLog('Attendant');
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$mail_service = DevblocksPlatform::getMailService();
-		$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		
 		$relay_spoof_from = $settings->get('cerberusweb.core', CerberusSettings::RELAY_SPOOF_FROM, CerberusSettingsDefaults::RELAY_SPOOF_FROM);
@@ -4097,7 +4096,7 @@ class DevblocksEventHelper {
 					
 				}
 				
-				$result = $mailer->send($mail);
+				$result = $mail_service->send($mail);
 				unset($mail);
 				
 				/*

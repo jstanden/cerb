@@ -219,6 +219,45 @@ abstract class Extension_MessageBadge extends DevblocksExtension {
 	function render(Model_Message $message) {}
 };
 
+abstract class Extension_MailTransport extends DevblocksExtension {
+	const POINT = 'cerberusweb.mail.transport';
+	
+	static $_registry = array();
+	
+	/**
+	 * @return DevblocksExtensionManifest[]|Extension_MailTransport[]
+	 */
+	static function getAll($as_instances=true) {
+		$exts = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
+
+		// Sorting
+		if($as_instances)
+			DevblocksPlatform::sortObjects($exts, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($exts, 'name');
+	
+		return $exts;
+	}
+	
+	static function get($extension_id) {
+		if(isset(self::$_registry[$extension_id]))
+			return self::$_registry[$extension_id];
+		
+		if(null != ($extension = DevblocksPlatform::getExtension($extension_id, true))
+			&& $extension instanceof Extension_MailTransport) {
+
+			self::$_registry[$extension->id] = $extension;
+			return $extension;
+		}
+		
+		return null;
+	}
+	
+	abstract function renderConfig(Model_MailTransport $model);
+	abstract function testConfig(array $params, &$error=null);
+	abstract function send(Swift_Message $message, Model_MailTransport $model);
+};
+
 abstract class Extension_ContextProfileTab extends DevblocksExtension {
 	const POINT = 'cerberusweb.ui.context.profile.tab';
 	

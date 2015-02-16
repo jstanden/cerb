@@ -575,3 +575,131 @@ XML;
 		return $xml->asXML();
 	}
 };
+
+if(class_exists('Extension_MailTransport')):
+class CerbMailTransport_Smtp extends Extension_MailTransport {
+	const ID = 'core.mail.transport.smtp';
+	
+	function renderConfig(Model_MailTransport $model) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('model', $model);
+		$tpl->assign('extension', $this);
+		$tpl->display('devblocks:cerberusweb.core::internal/mail_transport/smtp/config.tpl');
+	}
+	
+	function testConfig(array $params, &$error=null) {
+		@$host = $params['host'];
+		@$port = $params['port'];
+		@$encryption = $params['encryption'];
+		@$auth_enabled = $params['auth_enabled'];
+		@$auth_user = $params['auth_user'];
+		@$auth_pass = $params['auth_pass'];
+		@$timeout = $params['timeout'];
+		
+		if(empty($host)) {
+			$error = 'The SMTP "host" parameter is required.';
+			return false;
+		}
+		
+		if(empty($port)) {
+			$error = 'The SMTP "port" parameter is required.';
+			return false;
+		}
+		
+		// Try connecting
+		
+		$mail_service = DevblocksPlatform::getMailService();
+		
+		$options = array(
+			'host' => $host,
+			'port' => $port,
+			'enc' => $encryption,
+			'auth_user' => $auth_user,
+			'auth_pass' => $auth_pass,
+			'timeout' => $timeout,
+		);
+		
+		try {
+			$mailer = $this->_getMailer($options);
+			
+			@$transport = $mailer->getTransport();
+			@$transport->start();
+			@$transport->stop();
+			return true;
+			
+		} catch(Exception $e) {
+			$error = $e->getMessage();
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * @param Swift_Message $message
+	 * @return boolean
+	 */
+	function send(Swift_Message $message, Model_MailTransport $model) {
+		$options = array(
+			'host' => @$model->params['host'],
+			'port' => @$model->params['port'],
+			'auth_user' => @$model->params['auth_user'],
+			'auth_pass' => @$model->params['auth_pass'],
+			'enc' => @$model->params['encryption'],
+			'max_sends' => @$model->params['max_sends'],
+			'timeout' => @$model->params['timeout'],
+		);
+		
+		$mailer = $this->_getMailer($options);
+		
+		$failed_recipients = array();
+		
+		return $mailer->send($message, $failed_recipients);
+	}
+	
+	/**
+	 * @return Swift_Mailer
+	 */
+	private function _getMailer(array $options) {
+
+		// Options
+		$smtp_host = isset($options['host']) ? $options['host'] : '127.0.0.1';
+		$smtp_port = isset($options['port']) ? $options['port'] : '25';
+		$smtp_user = isset($options['auth_user']) ? $options['auth_user'] : null;
+		$smtp_pass = isset($options['auth_pass']) ? $options['auth_pass'] : null;
+		$smtp_enc = isset($options['enc']) ? $options['enc'] : 'None';
+		$smtp_max_sends = isset($options['max_sends']) ? intval($options['max_sends']) : 20;
+		$smtp_timeout = isset($options['timeout']) ? intval($options['timeout']) : 30;
+		
+			// Encryption
+			switch($smtp_enc) {
+				case 'TLS':
+					$smtp_enc = 'tls';
+					break;
+					
+				case 'SSL':
+					$smtp_enc = 'ssl';
+					break;
+					
+				default:
+					$smtp_enc = null;
+					break;
+			}
+			
+			$smtp = Swift_SmtpTransport::newInstance($smtp_host, $smtp_port, $smtp_enc);
+			$smtp->setTimeout($smtp_timeout);
+			
+			if(!empty($smtp_user)) {
+				$smtp->setUsername($smtp_user);
+				$smtp->setPassword($smtp_pass);
+			}
+			
+			$mailer = Swift_Mailer::newInstance($smtp);
+			
+			$mailer->registerPlugin(new Swift_Plugins_AntiFloodPlugin($smtp_max_sends, 1));
+			
+
+		return $mailer;
+	}
+}
+endif;

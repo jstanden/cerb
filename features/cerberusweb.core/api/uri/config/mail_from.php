@@ -43,6 +43,10 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $worker_token_labels, $worker_token_values);
 		$tpl->assign('worker_token_labels', $worker_token_labels);
 		
+		// Mail transports
+		$mail_transports = DAO_MailTransport::getAll();
+		$tpl->assign('mail_transports', $mail_transports);
+		
 		// HTML templates
 		$html_templates = DAO_MailHtmlTemplate::getAll();
 		$tpl->assign('html_templates', $html_templates);
@@ -58,6 +62,7 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 		@$reply_personal = DevblocksPlatform::importGPC($_REQUEST['reply_personal'], 'string', '');
 		@$reply_signature = DevblocksPlatform::importGPC($_REQUEST['reply_signature'], 'string', '');
 		@$reply_html_template_id = DevblocksPlatform::importGPC($_REQUEST['reply_html_template_id'], 'integer', 0);
+		@$reply_mail_transport_id = DevblocksPlatform::importGPC($_REQUEST['reply_mail_transport_id'], 'integer', 0);
 
 		$worker = CerberusApplication::getActiveWorker();
 	
@@ -81,6 +86,7 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 						DAO_AddressOutgoing::REPLY_PERSONAL => $reply_personal,
 						DAO_AddressOutgoing::REPLY_SIGNATURE => $reply_signature,
 						DAO_AddressOutgoing::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
+						DAO_AddressOutgoing::REPLY_MAIL_TRANSPORT_ID => $reply_mail_transport_id,
 					);
 					DAO_AddressOutgoing::create($fields);
 					
@@ -89,6 +95,7 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 						DAO_AddressOutgoing::REPLY_PERSONAL => $reply_personal,
 						DAO_AddressOutgoing::REPLY_SIGNATURE => $reply_signature,
 						DAO_AddressOutgoing::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
+						DAO_AddressOutgoing::REPLY_MAIL_TRANSPORT_ID => $reply_mail_transport_id,
 					);
 					DAO_AddressOutgoing::update($id, $fields);
 					

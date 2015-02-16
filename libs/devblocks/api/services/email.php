@@ -8,8 +8,6 @@
 class _DevblocksEmailManager {
 	private static $instance = null;
 	
-	private $mailers = array();
-	
 	/**
 	 * @private
 	 */
@@ -38,66 +36,23 @@ class _DevblocksEmailManager {
 		return Swift_Message::newInstance();
 	}
 	
-	/**
-	 * @return Swift_Mailer
-	 */
-	function getMailer($options) {
-
-		// Options
-		$smtp_host = isset($options['host']) ? $options['host'] : '127.0.0.1';
-		$smtp_port = isset($options['port']) ? $options['port'] : '25';
-		$smtp_user = isset($options['auth_user']) ? $options['auth_user'] : null;
-		$smtp_pass = isset($options['auth_pass']) ? $options['auth_pass'] : null;
-		$smtp_enc = isset($options['enc']) ? $options['enc'] : 'None';
-		$smtp_max_sends = isset($options['max_sends']) ? intval($options['max_sends']) : 20;
-		$smtp_timeout = isset($options['timeout']) ? intval($options['timeout']) : 30;
+	function send(Swift_Message $message) {
+		$from = array_keys($message->getFrom());
+		$sender = reset($from);
 		
-		/*
-		 * [JAS]: We'll cache connection info hashed by params and hold a persistent
-		 * connection for the request cycle.  If we ask for the same params again
-		 * we'll get the existing connection if it exists.
-		 */
-		$hash = md5(sprintf("%s %s %s %s %s %d %d",
-			$smtp_host,
-			$smtp_user,
-			$smtp_pass,
-			$smtp_port,
-			$smtp_enc,
-			$smtp_max_sends,
-			$smtp_timeout
-		));
+		if(empty($sender))
+			return false;
 		
-		if(!isset($this->mailers[$hash])) {
-			// Encryption
-			switch($smtp_enc) {
-				case 'TLS':
-					$smtp_enc = 'tls';
-					break;
-					
-				case 'SSL':
-					$smtp_enc = 'ssl';
-					break;
-					
-				default:
-					$smtp_enc = null;
-					break;
-			}
-			
-			$smtp = Swift_SmtpTransport::newInstance($smtp_host, $smtp_port, $smtp_enc);
-			$smtp->setTimeout($smtp_timeout);
-			
-			if(!empty($smtp_user)) {
-				$smtp->setUsername($smtp_user);
-				$smtp->setPassword($smtp_pass);
-			}
-			
-			$mailer = Swift_Mailer::newInstance($smtp);
-			$mailer->registerPlugin(new Swift_Plugins_AntiFloodPlugin($smtp_max_sends,1));
-			
-			$this->mailers[$hash] =& $mailer;
-		}
-
-		return $this->mailers[$hash];
+		if(false == ($replyto = DAO_AddressOutgoing::getByEmail($sender)))
+			return false;
+		
+		if(false == ($model = $replyto->getReplyMailTransport()))
+			return false;
+		
+		if(false == ($transport = $model->getExtension()))
+			return false;
+		
+		return $transport->send($message, $model);
 	}
 	
 	function testMailbox($server, $port, $service, $username, $password, $ssl_ignore_validation=false, $timeout_secs=30, $max_msg_size_kb=0) {
@@ -170,5 +125,4 @@ class _DevblocksEmailManager {
 	function getErrors() {
 		return imap_errors();
 	}
-	
 };

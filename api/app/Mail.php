@@ -49,20 +49,6 @@
 class CerberusMail {
 	private function __construct() {}
 	
-	static function getMailerDefaults() {
-		$settings = DevblocksPlatform::getPluginSettingsService();
-
-		return array(
-			'host' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_HOST,CerberusSettingsDefaults::SMTP_HOST),
-			'port' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_PORT,CerberusSettingsDefaults::SMTP_PORT),
-			'auth_user' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_AUTH_USER,null),
-			'auth_pass' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_AUTH_PASS,null),
-			'enc' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_ENCRYPTION_TYPE,CerberusSettingsDefaults::SMTP_ENCRYPTION_TYPE),
-			'max_sends' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_MAX_SENDS,CerberusSettingsDefaults::SMTP_MAX_SENDS),
-			'timeout' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_TIMEOUT,CerberusSettingsDefaults::SMTP_TIMEOUT),
-		);
-	}
-	
 	static function parseRfcAddresses($string) {
 		$results = array();
 		$string = rtrim(str_replace(';',',',$string),' ,');
@@ -100,7 +86,6 @@ class CerberusMail {
 	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null, $custom_headers=array(), $format=null, $html_template_id=null) {
 		try {
 			$mail_service = DevblocksPlatform::getMailService();
-			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 			$mail = $mail_service->createMessage();
 	
 			$settings = DevblocksPlatform::getPluginSettingsService();
@@ -153,7 +138,7 @@ class CerberusMail {
 			}
 		
 			// [TODO] Report when the message wasn't sent.
-			if(!$mailer->send($mail)) {
+			if(!$mail_service->send($mail)) {
 				return false;
 			}
 			
@@ -250,7 +235,6 @@ class CerberusMail {
 		
 		try {
 			$mail_service = DevblocksPlatform::getMailService();
-			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 			$email = $mail_service->createMessage();
 
 			// To
@@ -360,7 +344,7 @@ class CerberusMail {
 			}
 			
 			if(!empty($toList) && (!isset($properties['dont_send']) || empty($properties['dont_send']))) {
-				if(!@$mailer->send($email)) {
+				if(!$mail_service->send($email)) {
 					throw new Exception('Mail failed to send: unknown reason');
 				}
 			}
@@ -586,7 +570,6 @@ class CerberusMail {
 		try {
 			// objects
 			$mail_service = DevblocksPlatform::getMailService();
-			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 			$mail = $mail_service->createMessage();
 			
 			@$reply_message_id = $properties['message_id'];
@@ -831,7 +814,7 @@ class CerberusMail {
 			if(empty($recipients) || (isset($properties['dont_send']) && $properties['dont_send'])) {
 				// ...do nothing
 			} else { // otherwise send
-				if(!@$mailer->send($mail)) {
+				if(!$mail_service->send($mail)) {
 					throw new Exception('Mail not sent.');
 				}
 			}
@@ -1101,7 +1084,6 @@ class CerberusMail {
 	
 	static function relay($message_id, $emails, $include_attachments = false, $content = null, $actor_context = null, $actor_context_id = null) {
 		$mail_service = DevblocksPlatform::getMailService();
-		$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 		$settings = DevblocksPlatform::getPluginSettingsService();
 
 		$workers = DAO_Worker::getAll();
@@ -1215,7 +1197,7 @@ class CerberusMail {
 					}
 				}
 				
-				$result = $mailer->send($mail);
+				$result = $mail_service->send($mail);
 				unset($mail);
 				
 				/*
@@ -1253,7 +1235,6 @@ class CerberusMail {
 			$message = $model->getMessage(); /* @var $message CerberusParserMessage */
 			
 			$mail_service = DevblocksPlatform::getMailService();
-			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults()); /* @var $mailer Swift_Mailer */
 			$mail = $mail_service->createMessage();
 	
 			$mail->setTo(array($to));
@@ -1298,7 +1279,7 @@ class CerberusMail {
 				$mail->attach(Swift_Attachment::fromPath($file->tmpname)->setFilename($file_name));
 			}
 		
-			$result = $mailer->send($mail);
+			$result = $mail_service->send($mail);
 			
 			if(!$result) {
 				return false;

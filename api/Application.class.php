@@ -2067,14 +2067,6 @@ class CerberusSettings {
 	const HELPDESK_TITLE = 'helpdesk_title';
 	const HELPDESK_FAVICON_URL = 'helpdesk_favicon_url';
 	const HELPDESK_LOGO_URL = 'helpdesk_logo_url';
-	const SMTP_HOST = 'smtp_host';
-	const SMTP_AUTH_ENABLED = 'smtp_auth_enabled';
-	const SMTP_AUTH_USER = 'smtp_auth_user';
-	const SMTP_AUTH_PASS = 'smtp_auth_pass';
-	const SMTP_PORT = 'smtp_port';
-	const SMTP_ENCRYPTION_TYPE = 'smtp_enc';
-	const SMTP_MAX_SENDS = 'smtp_max_sends';
-	const SMTP_TIMEOUT = 'smtp_timeout';
 	const ATTACHMENTS_ENABLED = 'attachments_enabled';
 	const ATTACHMENTS_MAX_SIZE = 'attachments_max_size';
 	const PARSER_AUTO_REQ = 'parser_autoreq';
@@ -2090,14 +2082,6 @@ class CerberusSettings {
 
 class CerberusSettingsDefaults {
 	const HELPDESK_TITLE = 'Cerb - a fast and flexible web-based platform for business collaboration and automation.';
-	const SMTP_HOST = 'localhost';
-	const SMTP_AUTH_ENABLED = 0;
-	const SMTP_AUTH_USER = '';
-	const SMTP_AUTH_PASS = '';
-	const SMTP_PORT = 25;
-	const SMTP_ENCRYPTION_TYPE = 'None';
-	const SMTP_MAX_SENDS = 20;
-	const SMTP_TIMEOUT = 30;
 	const ATTACHMENTS_ENABLED = 1;
 	const ATTACHMENTS_MAX_SIZE = 10;
 	const PARSER_AUTO_REQ = 0;

@@ -55,6 +55,8 @@
 		<patch version="6.7.0" revision="1097" file="patches/6.x/6.7.0.php" />
 		<patch version="6.8.0" revision="1108" file="patches/6.x/6.8.0.php" />
 		<patch version="6.9.0" revision="1114" file="patches/6.x/6.9.0.php" />
+		
+		<patch version="7.0.0" revision="1120" file="patches/7.x/7.0.0.php" />
 	</patches>
 
 	<!-- Controller Routing -->
@@ -77,6 +79,7 @@
 			<class name="ChRssSource_Ticket" />
 			<class name="ChTaskSource_Org" />
 			<class name="ChTaskSource_Ticket" />
+			<class name="CerbMailTransport_Smtp" />
 		</file>
 		
 		<file path="api/dao/abstract_view.php">
@@ -296,6 +299,14 @@
 			<class name="Model_MailToGroupRule" />
 		</file>
 		
+		<file path="api/dao/mail_transport.php">
+			<class name="Context_MailTransport" />
+			<class name="DAO_MailTransport" />
+			<class name="Model_MailTransport" />
+			<class name="SearchFields_MailTransport" />
+			<class name="View_MailTransport" />
+		</file>
+
 		<file path="api/dao/message.php">
 			<class name="DAO_Message" />
 			<class name="DAO_MessageHeader" />
@@ -1290,6 +1301,32 @@
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.mail.transport</id>
+			<name>Mail Transport</name>
+			<class>
+				<file>api/dao/mail_transport.php</file>
+				<name>Context_MailTransport</name>
+			</class>
+			<params>
+				<param key="alias" value="mail_transport" />
+				<param key="dao_class" value="DAO_MailTransport" />
+				<param key="view_class" value="View_MailTransport" />
+				<param key="options">
+					<value>
+						<!--
+						<data key="create" />
+						<data key="custom_fields" />
+						<data key="find" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="workspace" />
+						-->
 					</value>
 				</param>
 			</params>
@@ -2361,6 +2398,19 @@
 			<params>
 			</params>
 		</extension>
+		
+		<!-- Mail Transports -->
+		
+		<extension point="cerberusweb.mail.transport">
+			<id>core.mail.transport.smtp</id>
+			<name>SMTP</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>CerbMailTransport_Smtp</name>
+			</class>
+			<params>
+			</params>
+		</extension>
 	
 		<!-- Storage Schemas -->
 		
@@ -3216,6 +3266,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="html_template" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.mail_transport</id>
+				<name>Mail Transport Section</name>
+				<class>
+					<file>api/uri/profiles/mail_transport.php</file>
+					<name>PageSection_ProfilesMailTransport</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="mail_transport" />
 				</params>
 			</extension>
 

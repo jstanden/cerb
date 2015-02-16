@@ -21,6 +21,7 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 	const REPLY_PERSONAL = 'reply_personal';
 	const REPLY_SIGNATURE = 'reply_signature';
 	const REPLY_HTML_TEMPLATE_ID = 'reply_html_template_id';
+	const REPLY_MAIL_TRANSPORT_ID = 'reply_mail_transport_id';
 	
 	const _CACHE_ALL = 'dao_address_outgoing_all';
 	
@@ -61,10 +62,10 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 			$db = DevblocksPlatform::getDatabaseService();
 			$froms = array();
 			
-			$sql = "SELECT address_outgoing.address_id, address.email, address_outgoing.is_default, address_outgoing.reply_personal, address_outgoing.reply_signature, address_outgoing.reply_html_template_id ".
-				"FROM address_outgoing ".
-				"INNER JOIN address ON (address.id=address_outgoing.address_id) ".
-				"ORDER BY address.email ASC "
+			$sql = "SELECT ao.address_id, a.email, ao.is_default, ao.reply_personal, ao.reply_signature, ao.reply_html_template_id, ao.reply_mail_transport_id ".
+				"FROM address_outgoing AS ao ".
+				"INNER JOIN address AS a ON (a.id=ao.address_id) ".
+				"ORDER BY a.email ASC "
 				;
 			$rs = $db->ExecuteMaster($sql);
 			
@@ -128,6 +129,26 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 		return null;
 	}
 	
+	/**
+	 * 
+	 * @param string $email
+	 * @return Model_AddressOutgoing|false
+	 */
+	static public function getByEmail($email, $with_default=true) {
+		$addresses = DAO_AddressOutgoing::getAll();
+		
+		foreach($addresses as $address) {
+			if(0 == strcasecmp($address->email, $email))
+				return $address;
+		}
+		
+		if($with_default) {
+			return DAO_AddressOutgoing::getDefault();
+		} else {
+			return false;
+		}
+	}
+	
 	static private function _getObjectsFromResultSet($rs) {
 		$objects = array();
 		
@@ -138,7 +159,8 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 			$object->is_default = intval($row['is_default']);
 			$object->reply_personal = $row['reply_personal'];
 			$object->reply_signature = $row['reply_signature'];
-			$object->reply_html_template_id = $row['reply_html_template_id'];
+			$object->reply_html_template_id = intval($row['reply_html_template_id']);
+			$object->reply_mail_transport_id = intval($row['reply_mail_transport_id']);
 			$objects[$object->address_id] = $object;
 		}
 		
@@ -208,7 +230,13 @@ class Model_AddressOutgoing {
 	public $reply_personal = '';
 	public $reply_signature = '';
 	public $reply_html_template_id = 0;
+	public $reply_mail_transport_id = 0;
 	
+	/**
+	 * 
+	 * @param Model_Worker|NULL $worker_model
+	 * @return string
+	 */
 	function getReplyPersonal($worker_model=null) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$token_labels = array();
@@ -217,6 +245,10 @@ class Model_AddressOutgoing {
 		return $tpl_builder->build($this->reply_personal, $token_values);
 	}
 	
+	/**
+	 * 
+	 * @return Model_MailHtmlTemplate|NULL
+	 */
 	function getReplyHtmlTemplate() {
 		if($this->reply_html_template_id && false != ($html_template = DAO_MailHtmlTemplate::get($this->reply_html_template_id)))
 			return $html_template;
@@ -229,6 +261,11 @@ class Model_AddressOutgoing {
 		return null;
 	}
 	
+	/**
+	 * 
+	 * @param Model_Worker|NULL $worker_model
+	 * @return string
+	 */
 	function getReplySignature($worker_model=null) {
 		$sig = '';
 		
@@ -253,5 +290,21 @@ class Model_AddressOutgoing {
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);
 			return $tpl_builder->build($sig, $token_values);
 		}
+	}
+	
+	/**
+	 * 
+	 * @return Model_MailTransport|NULL
+	 */
+	function getReplyMailTransport() {
+		if($this->reply_mail_transport_id && false != ($mail_transport = DAO_MailTransport::get($this->reply_mail_transport_id)))
+			return $mail_transport;
+
+		if(empty($this->is_default) && false != ($replyto_default = DAO_AddressOutgoing::getDefault())) {
+			if($replyto_default->reply_mail_transport_id && false != ($mail_transport = DAO_MailTransport::get($replyto_default->reply_mail_transport_id)))
+				return $mail_transport;
+		}
+		
+		return null;
 	}
 };

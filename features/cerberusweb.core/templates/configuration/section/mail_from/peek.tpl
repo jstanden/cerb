@@ -58,7 +58,18 @@
 </fieldset>
 
 <fieldset class="peek">
-	<legend>Send HTML replies using template:</legend>
+	<legend>Send mail using this transport:</legend>
+	
+	<select name="reply_mail_transport_id">
+		<option value="0"> - {'common.default'|devblocks_translate|lower} -</option>
+		{foreach from=$mail_transports item=mail_transport}
+		<option value="{$mail_transport->id}" {if $mail_transport->id==$address->reply_mail_transport_id}selected="selected"{/if}>{$mail_transport->name}</option>
+		{/foreach}
+	</select>
+</fieldset>
+
+<fieldset class="peek">
+	<legend>Send HTML replies using this template:</legend>
 	
 	<select name="reply_html_template_id">
 		<option value="0"> - {'common.default'|devblocks_translate|lower} -</option>

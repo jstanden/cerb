@@ -19,99 +19,124 @@ class PageSection_SetupMailSmtp extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
-		$settings = DevblocksPlatform::getPluginSettingsService();
 		
 		$visit->set(ChConfigurationPage::ID, 'mail_smtp');
 		
-		$smtp_host = $settings->get('cerberusweb.core',CerberusSettings::SMTP_HOST,CerberusSettingsDefaults::SMTP_HOST);
-		$smtp_port = $settings->get('cerberusweb.core',CerberusSettings::SMTP_PORT,CerberusSettingsDefaults::SMTP_PORT);
-		$smtp_auth_enabled = $settings->get('cerberusweb.core',CerberusSettings::SMTP_AUTH_ENABLED,CerberusSettingsDefaults::SMTP_AUTH_ENABLED);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'View_MailTransport';
+		$defaults->id = 'setup_mail_transports';
 		
-		if ($smtp_auth_enabled) {
-			$smtp_auth_user = $settings->get('cerberusweb.core',CerberusSettings::SMTP_AUTH_USER,CerberusSettingsDefaults::SMTP_AUTH_USER);
-			$smtp_auth_pass = $settings->get('cerberusweb.core',CerberusSettings::SMTP_AUTH_PASS,CerberusSettingsDefaults::SMTP_AUTH_PASS);
-		} else {
-			$smtp_auth_user = '';
-			$smtp_auth_pass = '';
-		}
-		
-		$smtp_enc = $settings->get('cerberusweb.core',CerberusSettings::SMTP_ENCRYPTION_TYPE,CerberusSettingsDefaults::SMTP_ENCRYPTION_TYPE);
-		$smtp_max_sends = $settings->get('cerberusweb.core',CerberusSettings::SMTP_MAX_SENDS,CerberusSettingsDefaults::SMTP_MAX_SENDS);
+		if(false != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
+			$tpl->assign('view', $view);
+		} 
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_smtp/index.tpl');
 	}
 	
-	function saveSmtpJsonAction() {
-		try {
-			$worker = CerberusApplication::getActiveWorker();
+	function getTransportParamsAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'],'string',null);
 		
-			if(!$worker || !$worker->is_superuser)
-				throw new Exception("You are not an administrator.");
-				
-			@$smtp_host = DevblocksPlatform::importGPC($_REQUEST['smtp_host'],'string','localhost');
-			@$smtp_port = DevblocksPlatform::importGPC($_REQUEST['smtp_port'],'integer',25);
-			@$smtp_enc = DevblocksPlatform::importGPC($_REQUEST['smtp_enc'],'string','None');
-			@$smtp_timeout = DevblocksPlatform::importGPC($_REQUEST['smtp_timeout'],'integer',30);
-			@$smtp_max_sends = DevblocksPlatform::importGPC($_REQUEST['smtp_max_sends'],'integer',20);
-	
-			@$smtp_auth_enabled = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_enabled'],'integer', 0);
-			if($smtp_auth_enabled) {
-				@$smtp_auth_user = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_user'],'string');
-				@$smtp_auth_pass = DevblocksPlatform::importGPC($_REQUEST['smtp_auth_pass'],'string');
-				
-			} else { // need to clear auth info when smtp auth is disabled
-				@$smtp_auth_user = '';
-				@$smtp_auth_pass = '';
-			}
-			
-			if(empty($smtp_host))
-				throw new Exception("SMTP server is blank.");
-				
-			$this->_testSmtp($smtp_host, $smtp_port, $smtp_enc, $smtp_auth_enabled, $smtp_auth_user, $smtp_auth_pass);
-			
-			$settings = DevblocksPlatform::getPluginSettingsService();
-			$settings->set('cerberusweb.core',CerberusSettings::SMTP_HOST, $smtp_host);
-			$settings->set('cerberusweb.core',CerberusSettings::SMTP_PORT, $smtp_port);
-			$settings->set('cerberusweb.core',CerberusSettings::SMTP_AUTH_ENABLED, $smtp_auth_enabled);
-			$settings->set('cerberusweb.core',CerberusSettings::SMTP_AUTH_USER, $smtp_auth_user);
-			$settings->set('cerberusweb.core',CerberusSettings::SMTP_AUTH_PASS, $smtp_auth_pass);
-			$settings->set('cerberusweb.core',CerberusSettings::SMTP_ENCRYPTION_TYPE, $smtp_enc);
-			$settings->set('cerberusweb.core',CerberusSettings::SMTP_TIMEOUT, !empty($smtp_timeout) ? $smtp_timeout : 30);
-			$settings->set('cerberusweb.core',CerberusSettings::SMTP_MAX_SENDS, !empty($smtp_max_sends) ? $smtp_max_sends : 20);
-			
-			echo json_encode(array('status'=>true));
+		if(false == ($mail_transport_ext = Extension_MailTransport::get($extension_id)))
 			return;
-			
-		} catch(Exception $e) {
-			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
-			return;
-			
+		
+		if(empty($id) || false == ($model = DAO_MailTransport::get($id))) {
+			$model = new Model_MailTransport();
+			$model->extension_id = $mail_transport_ext->id;
 		}
+		
+		$mail_transport_ext->renderConfig($model);
+		
+		exit;
 	}
 	
-	private function _testSmtp($host, $port=25, $smtp_enc=null, $smtp_auth=null, $smtp_user=null, $smtp_pass=null) {
-		if(empty($host))
-			throw new Exception("SMTP server is blank.");
+	function testTransportParamsAction() {
+		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string',null);
+		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'],'string',null);
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'][$extension_id],'array',array());
+		
+		$worker = CerberusApplication::getActiveWorker();
 		
 		try {
-			$mail_service = DevblocksPlatform::getMailService();
-			$mailer = $mail_service->getMailer(array(
-				'host' => $host,
-				'port' => $port,
-				'auth_user' => $smtp_user,
-				'auth_pass' => $smtp_pass,
-				'enc' => $smtp_enc,
-			));
+			if(!($worker instanceof Model_Worker) || !$worker->is_superuser)
+				throw new Exception_DevblocksAjaxError("You are not an administrator.");
 			
-			@$transport = $mailer->getTransport();
-			@$transport->start();
-			@$transport->stop();
-			return true;
+			if(empty($name))
+				throw new Exception_DevblocksAjaxError('The "name" field is required.');
+			
+			if(empty($extension_id) || false == ($mail_transport_ext = Extension_MailTransport::get($extension_id)))
+				throw new Exception_DevblocksAjaxError('The "transport" field is required.');
+			
+			// Test the transport specfic parameters
+			$error = null;
+			if(false == $mail_transport_ext->testConfig($params, $error))
+				throw new Exception_DevblocksAjaxError($error);
+			
+		} catch(Exception_DevblocksAjaxError $e) {
+			header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
+			echo json_encode(array('status'=>false, 'error'=>$e->getMessage()));
+			return;
 			
 		} catch(Exception $e) {
-			throw new Exception($e->getMessage());
-			return false;
-			
+			header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
+			echo json_encode(array('status'=>false, 'error'=>'A problem occurred. Please check your settings and try again.'));
+			return;
 		}
+		
+		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
+		echo json_encode(array('status'=>true));
+	}
+	
+	function saveTransportPeekAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!empty($id) && !empty($do_delete)) { // Delete
+			DAO_MailTransport::delete($id);
+			
+		} else {
+			@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string',null);
+			@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'],'string',null);
+			@$is_default = DevblocksPlatform::importGPC($_REQUEST['is_default'],'integer',0);
+			@$params = DevblocksPlatform::importGPC($_REQUEST['params'][$extension_id],'array',array());
+			@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string',null);
+			
+			if(!is_array($params))
+				$params = array();
+			
+			$fields = array(
+				DAO_MailTransport::NAME => $name,
+				DAO_MailTransport::EXTENSION_ID => $extension_id,
+				DAO_MailTransport::PARAMS_JSON => json_encode($params),
+			);
+			
+			if(empty($id)) { // New
+				$id = DAO_MailTransport::create($fields);
+				
+				// Context Link (if given)
+				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+				@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+				if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
+					DAO_ContextLink::setLink('cerberusweb.contexts.mail.transport', $id, $link_context, $link_context_id);
+				}
+				
+				if(!empty($view_id) && !empty($id))
+					C4_AbstractView::setMarqueeContextCreated($view_id, 'cerberusweb.contexts.mail.transport', $id);
+				
+			} else { // Edit
+				DAO_MailTransport::update($id, $fields);
+				
+			}
+			
+			if($is_default) {
+				DAO_MailTransport::setDefault($id);
+			}
+
+			// Custom fields
+			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+			DAO_CustomFieldValue::handleFormPost('cerberusweb.contexts.mail.transport', $id, $field_ids);
+		}		
 	}
 }

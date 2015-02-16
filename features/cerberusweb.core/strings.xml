@@ -2557,6 +2557,16 @@ For example: http://www.cerbweb.com/support/</seg>
 				<seg>Sent</seg>
 			</tuv>
 		</tu>
+		<tu tuid="mail.transport">
+			<tuv xml:lang="en_US">
+				<seg>Transport</seg>
+			</tuv>
+		</tu>
+		<tu tuid="mail.transports">
+			<tuv xml:lang="en_US">
+				<seg>Transports</seg>
+			</tuv>
+		</tu>
 		<tu tuid="mail.view.add_filter">
 			<tuv xml:lang="en_US">
 				<seg>-add filter-</seg>

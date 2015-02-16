@@ -32,6 +32,20 @@
 		
 		<tr>
 			<td valign="top" style="min-width:75px;">
+				<b>{'mail.transport'|devblocks_translate|capitalize}:</b>
+			</td>
+			<td>
+				{$transport = $address->getReplyMailTransport()}
+				{if $transport}
+					<a href="{devblocks_url}c=profiles&a=mail_transport&id={$transport->id}-{$transport->name|devblocks_permalink}{/devblocks_url}">{$transport->name}</a>
+				{else}
+					({'common.default'|devblocks_translate|lower})
+				{/if}  
+			</td>
+		</tr>
+		
+		<tr>
+			<td valign="top" style="min-width:75px;">
 				<b>HTML Template:</b>
 			</td>
 			<td>

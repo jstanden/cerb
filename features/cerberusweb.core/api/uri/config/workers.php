@@ -145,7 +145,6 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 					
 					try {
 						$mail_service = DevblocksPlatform::getMailService();
-						$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 						$mail = $mail_service->createMessage();
 						
 						$mail->setTo(array($email => $first_name . ' ' . $last_name));
@@ -174,7 +173,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 						
 						$mail->setBody($body);
 	
-						if(!$mailer->send($mail)) {
+						if(!$mail_service->send($mail)) {
 							throw new Exception('Password notification email failed to send.');
 						}
 						
