@@ -259,6 +259,9 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		$out .= sprintf(">>> Saving response to {{%1\$s}}\n".
 				" * {{%1\$s.content_type}}\n".
 				" * {{%1\$s.body}}\n".
+				" * {{%1\$s.info}}\n".
+				" * {{%1\$s.info.http_code}}\n".
+				" * {{%1\$s.error}}\n".
 				"\n",
 				$response_placeholder
 		);
@@ -336,6 +339,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		$out = curl_exec($ch);
 		
 		$info = curl_getinfo($ch);
+		$error = curl_error($ch);
 
 		// [TODO] This can fail without HTTPS
 		
@@ -353,6 +357,8 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		return array(
 			'content_type' => $info['content_type'],
 			'body' => $out,
+			'info' => $info,
+			'error' => $error,
 		);
 	}
 	
@@ -368,8 +374,9 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		
 		$out = curl_exec($ch);
-
+		
 		$info = curl_getinfo($ch);
+		$error = curl_error($ch);
 		
 		if(curl_errno($ch)) {
 			
@@ -389,9 +396,12 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		}
 		
 		curl_close($ch);
+		
 		return array(
 			'content_type' => $info['content_type'],
 			'body' => $out,
+			'info' => $info,
+			'error' => $error,
 		);
 	}
 };
