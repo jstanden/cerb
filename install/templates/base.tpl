@@ -1,10 +1,14 @@
 <html>
 <head>
-<title>Cerb - Browser-based Installation</title>
-<link rel="stylesheet" href="install.css" type="text/css">
+	<title>Cerb - Browser-based Installation</title>
+	<link rel="stylesheet" href="install.css" type="text/css">
+	<script type="text/javascript" src="jquery-1.11.2.min.js"></script>
 </head>
 
 <body>
+<div>
+	<img src="cerb_logo.png">
+</div>
 <H1>Installing Cerb {$smarty.const.APP_VERSION}</H1>
 <table cellpadding="2" cellspacing="2">
 	<tr>

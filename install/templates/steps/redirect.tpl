@@ -6,6 +6,9 @@
 </head>
 
 <body>
+<div>
+	<img src="cerb_logo.png">
+</div>
 
 <H1>Installing Cerb {$smarty.const.APP_VERSION}</H1>
 Please wait...

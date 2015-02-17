@@ -48,6 +48,8 @@
  */
 require_once(DEVBLOCKS_PATH . 'Devblocks.class.php');
 
+class Exception_CerbInstaller extends Exception {}
+
 /**
  * @author Jeff Standen <jeff@webgroupmedia.com> [JAS]
  */

@@ -4,19 +4,16 @@
 <input type="hidden" name="step" value="{$smarty.const.STEP_DEFAULTS}">
 <input type="hidden" name="form_submit" value="1">
 
-{if $failed}
-	<div class="error">
-		Oops! Some required information was not provided, or your passwords do not match.
-	</div>
-{/if}
+<h3>Your Account</h3>
 
-<H3>Your Account</H3>
+Next, we'll create your administrator account.<br>
+<br>
 
 Next we need to create an account for you.<br>
 <br>
 
 <b>What is your personal email address?</b> (this will be your login)<br>
-<input type="text" name="worker_email" value="{$worker_email}" size="64"><br>
+<input type="text" name="worker_email" value="{$worker_email}" size="64" placeholder="me@company"><br>
 <br>
 
 <b>Choose a password:</b><br>
@@ -24,8 +21,14 @@ Next we need to create an account for you.<br>
 <br>
 
 <b>Confirm your password:</b><br>
-<input type="password" name="worker_pass2" value="{$worker_pass2}" size="16" autocomplete="off"><br>
+<input type="password" name="worker_pass2" value="" size="16" autocomplete="off"><br>
 <br>
+
+{if $failed}
+<div class="error">
+	Oops! Some required information was not provided, or your passwords do not match.
+</div>
+{/if}
 
 <input type="submit" value="Continue &gt;&gt;">
 </form>

@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>Cerb6 - Server Environment Checker</title>
+	<title>Cerb - Server Requirements Checker</title>
 	
 	<style>
 	BODY {font-family: Arial, Helvetica, sans-serif; font-size: 12px;}
@@ -10,7 +10,7 @@
 </head>
 
 <body>
-<h1>Cerb6 - Server Environment Checker</h1>
+<h1>Cerb - Server Environment Checker</h1>
 
 <?php
 function parse_bytes_string($string) {
@@ -197,10 +197,10 @@ if(extension_loaded("ctype")) {
 }
 
 if($fails) {
-	echo "The following problems prevent you from running Cerb6:<span class='fail'><ul>";
+	echo "The following problems prevent you from running Cerb:<span class='fail'><ul>";
 	
 	if(!$results['php_version'])
-		echo '<li>Cerb6 requires PHP 5.3 or later. Your server PHP version is '.PHP_VERSION.'.</li>';
+		echo '<li>Cerb requires PHP 5.3 or later. Your server PHP version is '.PHP_VERSION.'.</li>';
 
 	if(!$results['file_uploads'])
 		echo '<li>file_uploads is disabled in your php.ini file. Please enable it.</li>';
@@ -256,7 +256,7 @@ if($fails) {
 	echo "</ul></span><br>Please correct these issues and try again.<br>";
 	
 } else {
-	echo "<span class='pass'>Your server is Cerb6 compatible!</span><br>";
+	echo "<span class='pass'>Your server is Cerb compatible!</span><br>";
 	
 }
 

@@ -1,25 +1,26 @@
-<h2>Congratulations!  Setup Complete.</h2>
+<h2>Congratulations!  Setup has been successfully completed.</h2>
 
 <form action="index.php" method="POST">
 <input type="hidden" name="step" value="{$smarty.const.STEP_FINISHED}">
 <input type="hidden" name="form_submit" value="1">
 
-<H3>Your new copy of Cerb is ready for business!</H3>
-<a href="{devblocks_url}c=login{/devblocks_url}">Take me there!</a><br>
-<br>
-
-<H3>Welcome to the community!</H3>
-
-Cerb is the culmination of over 13 years of research &amp; development.  As with any innovation, there may be some 
-concepts introduced that are completely new to you and your team.<br>
-<br>
-The best places to become familiar with Cerb concepts are the <a href="https://vimeo.com/channels/cerb" target="_blank">training videos</a> and the <a href="http://www.cerberusweb.com/book/" target="_blank">online documentation</a>.<br>
-<br>
-
 <div class="error">
 	You should delete the 'install' directory now.
 </div>
 
+<h3>Welcome to the community!</h3>
+
+<div style="margin-left:20px;">
+	<b>Cerb</b> is the culmination of over 13 years of research &amp; development.  
+	The software will likely introduce some concepts that are completely new to you and your team.  
+	<br>
+	The best places to become familiar with Cerb are the <a href="https://vimeo.com/channels/cerb" target="_blank"><b>training videos</b></a> and the <a href="http://www.cerberusweb.com/book/" target="_blank"><b>online documentation</b></a>.<br>
+</div>
+
+<h3>Your new copy of Cerb is ready for business!</h3>
+<div style="margin-left:20px;">
+	<a href="{devblocks_url}c=login{/devblocks_url}" style="font-size:120%;"><b>Log in and get started</b></a>
+</div>
 <br>
 
 </form>

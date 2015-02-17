@@ -807,7 +807,7 @@ Welcome to Cerb!
 
 We automatically set up a few things for you during the installation process.
 
-You'll notice you have three groups:
+You'll notice that you have three groups:
 * Dispatch: All your mail will be delivered to this group by default.
 * Support: This is a group for holding tickets related to customer service.
 * Sales: This is a group for holding tickets relates to sales.
@@ -817,14 +817,14 @@ If these default groups don't meet your needs, feel free to change them by click
 Simply reply to this message if you have any questions.  Our response will show up on this page as a new message.
 
 For project news, training resources, sneak peeks of development progress, tips & tricks, and more:
-http://www.facebook.com/cerbapp
-http://twitter.com/cerb6
-https://vimeo.com/channels/cerb
-http://cerbweb.com/book/latest/worker_guide/
+ * http://www.facebook.com/cerbapp
+ * http://twitter.com/cerb6
+ * https://vimeo.com/channels/cerb
+ * http://cerbweb.com/book/latest/worker_guide/
 
-Thanks!
----
-The Cerb Team
+Enjoy!
+-- 
+the Cerb team
 Webgroup Media, LLC.
 http://www.cerbweb.com/
 EOF;

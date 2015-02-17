@@ -4,30 +4,29 @@
 <input type="hidden" name="step" value="{$smarty.const.STEP_LICENSE}">
 <input type="hidden" name="form_submit" value="1">
 
-<H3>Plain English License</H3>
+<h3>Plain English License</h3>
 
 <ul style="line-height:175%;margin:20px;">
-	<li>This software is the exclusive property and copyright of <b>Webgroup Media LLC ("WGM")</b></li>
-	<li>You may not resell, rebrand, or sub-license this software without written permission from WGM.</li>
+	<li>This software is the exclusive property and copyright of <b>Webgroup Media LLC ("WGM")</b>.</li>
+	<li>You may not resell, rebrand, or sub-license this software without written permission from the copyright holders.</li>
 	<li>You may not remove or alter any copyright notices found in the source code.</li>
-	<li>This software is provided to you "as is".</li>
-	<li>Under no condition may you hold WGM liable for more than the total payments received from you.</li>
+	<li>This software is provided to you "as is". You agree that under no condition shall you hold Webgroup Media LLC liable for more than the total amount paid by you directly to WGM for licensing, subscriptions, and services.</li>
 	<li>
-		You may create, adapt, sell and distribute improvements to this software pursuant to these conditions:
+		You may create, adapt, sell, and distribute improvements to this software pursuant to the following conditions:
 		<ul>
-			<li>WGM retains full ownership rights to this software.</li>
-			<li>The use of this licensed source code is only permitted within the scope of this license.</li>
-			<li>Your source code may not be obfuscated, encoded, or otherwise not human-readable.</li>
-			<li>WGM disclaims all liability for third-party modifications.</li>
+			<li>You retain the copyright to any plugins you create, and you may sell or distribute them under any license you choose.</li>
+			<li>By publicly sharing your code improvements and fixes ("patches") for inclusion into the core project (including, but not limited to, GitHub pull requests), you agree to disclaim all your copyright interests in such code.</li>
+			<li>Your source code may not be obfuscated, encoded, or otherwise unreadable by humans with a standard text editor.</li>
+			<li>You agree that WGM is not liable for the effects of any third-party plugins that you produce or install.</li>
 		</ul> 
 	</li>
 </ul>
 
-<H3>Legal</H3>
+<h3>Legal</h3>
 
 <div style="width:90%;height:200px;border:1px solid rgb(160,160,160);overflow:auto;margin:5px;padding:5px;">
 	<p
-	>Cerb - Copyright &copy; 2002-2014 Webgroup Media LLC.</p
+	>Cerb - Copyright &copy; 2002-2015 Webgroup Media LLC.</p
 	><h1 id="devblocks-public-license-1.0-dpl"
 	>Devblocks Public License 1.0 (DPL)</h1
 	><p
