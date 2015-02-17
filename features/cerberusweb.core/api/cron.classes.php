@@ -1447,20 +1447,24 @@ class MailQueueCron extends CerberusCronPageExtension {
 			);
 	
 			if(!empty($messages)) {
+				$message_ids = array_keys($messages);
+				
 				foreach($messages as $message) { /* @var $message Model_MailQueue */
-					$last_id = $message->id;
-					
 					if(!$message->send()) {
 						$logger->error(sprintf("[Mail Queue] Failed sending message %d", $message->id));
 						DAO_MailQueue::update($message->id, array(
 							DAO_MailQueue::QUEUE_FAILS => min($message->queue_fails+1,255),
 							DAO_MailQueue::QUEUE_DELIVERY_DATE => time() + 900, // retry in 15 min
 						));
+						
 					} else {
 						$logger->info(sprintf("[Mail Queue] Sent message %d", $message->id));
 					}
 				}
+				
+				$last_id = end($message_ids);
 			}
+			
 		} while(!empty($messages) && $stop_time > time());
 		
 		$logger->info("[Mail Queue] Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");

@@ -123,16 +123,13 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 	 * @return Model_MailTransport
 	 */
 	static function get($id) {
+		$transports = DAO_MailTransport::getAll();
+		
 		if(empty($id))
 			return null;
-		
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
-		
-		if(isset($objects[$id]))
-			return $objects[$id];
+
+		if(isset($transports[$id]))
+			return $transports[$id];
 		
 		return null;
 	}
@@ -141,6 +138,18 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$db->ExecuteMaster(sprintf("UPDATE mail_transport SET is_default = IF(id=%d,1,0)", $id));
 		self::clearCache();
+	}
+	
+	static function getDefault() {
+		$transports = DAO_MailTransport::getAll();
+
+		if(is_array($transports))
+		foreach($transports as $transport) {
+			if($transport->is_default)
+				return $transport;
+		}
+		
+		return null;
 	}
 	
 	/**

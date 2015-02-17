@@ -813,6 +813,7 @@ class CerberusMail {
 			// If blank recipients or we're not supposed to send
 			if(empty($recipients) || (isset($properties['dont_send']) && $properties['dont_send'])) {
 				// ...do nothing
+				
 			} else { // otherwise send
 				if(!$mail_service->send($mail)) {
 					throw new Exception('Mail not sent.');

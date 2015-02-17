@@ -297,12 +297,21 @@ class Model_AddressOutgoing {
 	 * @return Model_MailTransport|NULL
 	 */
 	function getReplyMailTransport() {
-		if($this->reply_mail_transport_id && false != ($mail_transport = DAO_MailTransport::get($this->reply_mail_transport_id)))
+		// If this reply-to has an explicit mail transport set
+		if($this->reply_mail_transport_id && false != ($mail_transport = DAO_MailTransport::get($this->reply_mail_transport_id))) {
 			return $mail_transport;
-
-		if(empty($this->is_default) && false != ($replyto_default = DAO_AddressOutgoing::getDefault())) {
-			if($replyto_default->reply_mail_transport_id && false != ($mail_transport = DAO_MailTransport::get($replyto_default->reply_mail_transport_id)))
+		}
+		
+		// Otherwise, if this isn't the default reply-to then check the default
+		if(!$this->is_default 
+			&& false != ($replyto_default = DAO_AddressOutgoing::getDefault())
+			&& false != ($mail_transport = $replyto_default->getReplyMailTransport())) {
 				return $mail_transport;
+		}
+
+		// Lastly, just use the default reply-to
+		if(false !== ($mail_transport = DAO_MailTransport::getDefault())) {
+			return $mail_transport;
 		}
 		
 		return null;
