@@ -655,6 +655,8 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		
 		$failed_recipients = array();
 		
+		// [TODO] Actually use failed recipients
+		
 		return $mailer->send($message, $failed_recipients);
 	}
 	

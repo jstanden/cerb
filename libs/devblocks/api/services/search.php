@@ -1154,6 +1154,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	
 	private function _createTable(Extension_DevblocksSearchSchema $schema) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$tables = DevblocksPlatform::getDatabaseTables();
 		$namespace = $schema->getNamespace();
 		$attributes = $schema->getAttributes();
 		
@@ -1197,18 +1198,6 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 				$db->escape($attr),
 				$db->escape($field_type)
 			);
-		}
-		
-		$rs = $db->ExecuteMaster("SHOW TABLES");
-
-		$tables = array();
-		
-		if($rs instanceof mysqli_result) {
-			while($row = mysqli_fetch_row($rs)) {
-				$tables[$row[0]] = true;
-			}
-			
-			mysqli_free_result($rs);
 		}
 		
 		$namespace = $this->escapeNamespace($namespace);

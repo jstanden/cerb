@@ -50,9 +50,6 @@ if(!defined('APP_TEMP_PATH'))
 if(!defined('DEVBLOCKS_PATH'))
 	define('DEVBLOCKS_PATH',APP_PATH . '/libs/devblocks/');
 
-if(!defined('LANG_CHARSET_MAIL_CONTENT_TYPE'))
-	define('LANG_CHARSET_MAIL_CONTENT_TYPE','text/plain');
-
 if(!defined('LANG_CHARSET_CODE'))
 	define('LANG_CHARSET_CODE','utf-8');
 
@@ -61,6 +58,9 @@ if(!defined('DB_CHARSET_CODE'))
 
 if(!defined('APP_SESSION_NAME'))
 	define('APP_SESSION_NAME', 'Devblocks');
+
+if(!defined('ONDEMAND_MODE'))
+	define('ONDEMAND_MODE', false);
 
 if(!defined('DEVELOPMENT_MODE'))
 	define('DEVELOPMENT_MODE', false);

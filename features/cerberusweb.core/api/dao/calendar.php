@@ -1438,6 +1438,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 				break;
 			
 			case 'scope':
+				// [TODO] Handle 'Start on Monday'
 				$month = null;
 				$year = null;
 				

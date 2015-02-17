@@ -138,6 +138,7 @@ class CerberusMail {
 			}
 		
 			// [TODO] Report when the message wasn't sent.
+			// [TODO] We can use '$failedRecipients' for this
 			if(!$mail_service->send($mail)) {
 				return false;
 			}
