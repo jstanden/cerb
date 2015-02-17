@@ -836,6 +836,38 @@ switch($step) {
 						DAO_Group::setGroupMember($support_gid,$worker_id,true);
 					if(!empty($sales_gid))
 						DAO_Group::setGroupMember($sales_gid,$worker_id,true);
+					
+					// Create a default calendar
+					
+					if(!empty($worker_firstname))
+						$label = sprintf("%s%s's Calendar", $worker_firstname, $worker_lastname ? (' ' . $worker_lastname) : '');
+					else
+						$label = 'My Calendar';
+					
+					$fields = array(
+						DAO_Calendar::NAME => $label,
+						DAO_Calendar::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+						DAO_Calendar::OWNER_CONTEXT_ID => $worker_id,
+						DAO_Calendar::PARAMS_JSON => json_encode(array(
+							"manual_disabled" => "0",
+							"sync_enabled" => "0",
+							"start_on_mon" => "1",
+							"hide_start_time" => "0",
+							"color_available" => "#A0D95B",
+							"color_busy" => "#C8C8C8",
+							"series" => array(
+								array("datasource"=>""),
+								array("datasource"=>""),
+								array("datasource"=>""),
+							)
+						)),
+						DAO_Calendar::UPDATED_AT => time(),
+					);
+					$calendar_id = DAO_Calendar::create($fields);
+					
+					DAO_Worker::update($worker_id, array(
+						DAO_Worker::CALENDAR_ID => $calendar_id,
+					));
 				}
 				
 				// Send a first ticket which allows people to reply for support
