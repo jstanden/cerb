@@ -9,22 +9,22 @@
 	
 	You only need to understand a few concepts to get started:
 	<ul style="list-style:square;">
-		<li><p>A <b>ticket</b> is a specific e-mail conversation and all the related data about a question or issue.  Each ticket has a unique identifier for future reference by anyone involved.</p></li>
-		<li><p>The people on the originating end of tickets are called <b>recipients</b>.  A ticket can have multiple recipients.</p></li>
+		<li><p>A <b>ticket</b> is a specific email conversation and all of its related messages and content.  Every ticket has a unique identifier so they can be quickly referenced by anyone involved.</p></li>
+		<li><p>The people on the originating end of tickets are called <b>recipients</b>.  There can be multiple recipients on a single ticket.</p></li>
 		<li><p>The people on the answering end of tickets are called <b>workers</b>.</p></li>
-		<li><p>A <b>watcher</b> is a worker who receives copies of messages.  For example, a supervisor may be a watcher to monitor the quality of the messages workers are writing back to recipients.</p></li>
-		<li><p>The <b>helpdesk</b> is a software hub for centrally managing and archiving tickets, and routing messages between workers and recipients.  This allows several workers to receive and share e-mail without recipients writing to any of them individually.</p></li>
-		<li><p>A <b>bucket</b> is a container for storing similar tickets.  Common buckets are: Leads, Receipts, Newsletters, Refunds and Spam.</p></li>
-		<li><p>A <b>group</b> is several workers who share responsibility for the same tickets and buckets.  Common groups are: Sales, Support, Development, Billing and Corporate.  These examples are departments, but groups can be related by anything.</p></li>
-		<li><p>A worker in a group is called a <b>member</b>.  A member with the authority to modify the group is called a <b>manager</b>.  Groups can have any number of managers.</p></li>
-		<li><p>Each group has an <b>inbox</b> where new tickets are delivered by default.  These tickets are then moved into buckets either automatically by the helpdesk or by workers.</p></li>
+		<li><p>A <b>watcher</b> is a worker who is notified about all new activity on a record.  For example, a supervisor may be a watcher on all new tickets to monitor the quality of the messages that workers are writing back to recipients.</p></li>
+		<li><p>Several workers who share responsibility for the same kinds of tickets can form a <b>group</b>.  Common groups are: Sales, Support, Development, Billing, and Corporate.  Groups can be based on anything.</p></li>
+		<li><p>A <b>bucket</b> is a container for storing similar tickets within a group.  Common buckets are: Leads, Receipts, Newsletters, Refunds, and Spam.</p></li>
+		<li><p>Each worker in a group is called a <b>member</b>.  A member with the authority to administer the group is called a <b>manager</b>.  Groups can have any number of managers.</p></li>
+		<li><p>Every group has an <b>inbox</b> bucket where new tickets are delivered by default.  These tickets are then organized into other buckets by workers or Virtual Attendants.</p></li>
+		<li><p><b>Virtual Attendants</b> are software agents that are capable of performing most of the same actions as workers.  They provide an efficient way to automate common workflows.  Any number of Virtual Attendants can be managed by workers, groups, or roles, and their behaviors can be completely built within the browser -- even by workers with little or no computer programming experience.</p></li>
 	</ul>
 </fieldset>
 
 <fieldset>
 	<legend>Become a Cerb master</legend>
 	
-	Cerb is an incredibly flexible tool that you can use every day for several years and still find yourself coming across 
+	<b>Cerb</b> is an incredibly flexible tool that you can use every day for several years and still discover 
 	new tricks to make you more efficient.  For a regular dose of project news, sneak peeks at new development, 
 	handy tips &amp; tricks, best practices, and highlights from community discussion: 
 
@@ -49,10 +49,12 @@
 			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/delicious_32.png{/devblocks_url}" align="middle">
 			<a href="http://www.delicious.com/url/87392aa502c3ca59cff488666c63bc12" target="_blank">Bookmark our website</a>
 		</li>
+		{*
 		<li>
 			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/rss_32.png{/devblocks_url}" align="middle">
 			<a href="http://blog.cerberusweb.com/" target="_blank">Subscribe to the Cerb blog</a>
 		</li>
+		*}
 	</ul>
 </fieldset>
 
