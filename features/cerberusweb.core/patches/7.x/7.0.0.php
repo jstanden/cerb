@@ -70,22 +70,24 @@ if(!isset($tables['mail_transport'])) {
 	
 	// Insert the existing settings as the default mail transport record
 	
-	$sql = sprintf("INSERT INTO mail_transport (name, extension_id, is_default, created_at, updated_at, params_json) ".
-		"VALUES (%s, %s, %d, %d, %d, %s)",
-		$db->qstr('Default SMTP'),
-		$db->qstr('core.mail.transport.smtp'),
-		1,
-		time(),
-		time(),
-		$db->qstr(json_encode($smtp_params))
-	);
-	$db->ExecuteMaster($sql);
-	$id = $db->LastInsertId();
-	
-	// Add this mail transport to the default reply-to
-	$db->ExecuteMaster(sprintf("UPDATE address_outgoing SET reply_mail_transport_id = %d WHERE is_default = 1",
-		$id
-	));
+	if(!empty($previous_params)) {
+		$sql = sprintf("INSERT INTO mail_transport (name, extension_id, is_default, created_at, updated_at, params_json) ".
+			"VALUES (%s, %s, %d, %d, %d, %s)",
+			$db->qstr('Default SMTP'),
+			$db->qstr('core.mail.transport.smtp'),
+			1,
+			time(),
+			time(),
+			$db->qstr(json_encode($smtp_params))
+		);
+		$db->ExecuteMaster($sql);
+		$id = $db->LastInsertId();
+		
+		// Add this mail transport to the default reply-to
+		$db->ExecuteMaster(sprintf("UPDATE address_outgoing SET reply_mail_transport_id = %d WHERE is_default = 1",
+			$id
+		));
+	}
 	
 	// Drop the old settings
 	$sql = "DELETE FROM devblocks_setting WHERE plugin_id = 'cerberusweb.core' AND setting LIKE 'smtp_%'";
