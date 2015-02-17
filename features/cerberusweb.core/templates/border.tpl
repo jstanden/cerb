@@ -12,9 +12,9 @@
 		<td align="left" valign="bottom">
 			{assign var=logo_url value=$settings->get('cerberusweb.core','helpdesk_logo_url','')}
 			{if empty($logo_url)}
-			<a href="{devblocks_url}{/devblocks_url}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/cerb_logo.png{/devblocks_url}?v={$smarty.const.APP_BUILD}" border="0"></a>
+			<a href="{devblocks_url}{/devblocks_url}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/cerb_logo.png{/devblocks_url}?v={$smarty.const.APP_BUILD}" border="0" id="logo"></a>
 			{else}
-			<a href="{devblocks_url}{/devblocks_url}"><img src="{$logo_url}" border="0"></a>
+			<a href="{devblocks_url}{/devblocks_url}"><img src="{$logo_url}" border="0" id="logo"></a>
 			{/if}
 		</td>
 		<td align="right" valign="bottom" style="line-height:150%;">

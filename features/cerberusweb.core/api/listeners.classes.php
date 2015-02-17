@@ -28,20 +28,29 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 							new DevblocksTourCallout(
 								'#tourHeaderMenu',
 								'Navigation Bar',
-								'The navigation bar is located at the top of your browser window. It displays a list of shortcuts to pages.',
+								'The navigation bar is located at the top of your browser window. It displays a list of shortcuts to pages. You can add and remove shortcuts here, and drag them to rearrange their order.',
 								'bottomLeft',
 								'topLeft',
 								10,
 								5
 							),
 							new DevblocksTourCallout(
+								'#logo',
+								'Logo',
+								'Click the logo as a shortcut to your default page.',
+								'topLeft',
+								'bottomLeft',
+								50,
+								-10
+							),
+							new DevblocksTourCallout(
 								'body > table:first td:nth(1) b',
 								'Worker Menu',
 								'Clicking your name provides a menu with useful shortcuts.',
-								'topRight',
-								'bottomLeft',
-								0,
-								0
+								'bottomRight',
+								'topLeft',
+								10,
+								5
 							),
 							new DevblocksTourCallout(
 								'UL.navmenu:first LI.tour-navmenu-search',
