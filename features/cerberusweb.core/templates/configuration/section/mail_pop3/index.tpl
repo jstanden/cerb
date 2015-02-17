@@ -1,4 +1,4 @@
-<h2>POP3 Accounts</h2>
+<h2>Mailbox Accounts</h2>
 
 <form onsubmit="return false;" style="margin-bottom:5px;">
 <button type="button" onclick="genericAjaxGet('configMailbox','c=config&a=handleSectionAction&section=mail_pop3&action=getMailbox&id=0');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.add'|devblocks_translate|capitalize}</button>

@@ -7,10 +7,10 @@
 <fieldset>
 	<legend>
 		{if empty($pop3_account->id)}
-		Add New Mail Server
+		New Mailbox Account
 		<input type="hidden" name="account_id" value="0">
 		{else}
-		Mail Server '{$pop3_account->nickname}'
+		Mail Account: {$pop3_account->nickname}
 		<input type="hidden" name="account_id" value="{$pop3_account->id}">
 		{/if}
 	</legend>
