@@ -131,6 +131,10 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_Ticket::IS_CLOSED => intval($closed),
 			DAO_Ticket::IS_DELETED => intval($deleted),
 		);
+		
+		if($closed) {
+			$properties[DAO_Ticket::REOPEN_AT] = 0;
+		}
 
 		// Undeleting?
 		if(empty($spam) && empty($closed) && empty($deleted)
