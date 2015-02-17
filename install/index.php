@@ -737,14 +737,19 @@ switch($step) {
 		@$worker_lastname = DevblocksPlatform::importGPC($_POST['worker_lastname'],'string');
 		@$worker_pass = DevblocksPlatform::importGPC($_POST['worker_pass'],'string');
 		@$worker_pass2 = DevblocksPlatform::importGPC($_POST['worker_pass2'],'string');
+		@$timezone = DevblocksPlatform::importGPC($_POST['timezone'],'string');
 
-		$settings = DevblocksPlatform::getPluginSettingsService();
+		$date = DevblocksPlatform::getDateService();
+		
+		$timezones = $date->getTimezones();
+		$tpl->assign('timezones', $timezones);
 		
 		if(!empty($form_submit)) {
 			// Persist form scope
 			$tpl->assign('worker_email', $worker_email);
 			$tpl->assign('worker_pass', $worker_pass);
 			$tpl->assign('worker_pass2', $worker_pass2);
+			$tpl->assign('timezone', $timezone);
 			
 			// Sanity/Error checking
 			if(!empty($worker_email) && !empty($worker_pass) && $worker_pass == $worker_pass2) {
@@ -795,6 +800,8 @@ switch($step) {
 						DAO_Worker::TITLE => 'Administrator',
 						DAO_Worker::IS_SUPERUSER => 1,
 						DAO_Worker::AUTH_EXTENSION_ID => 'login.password',
+						DAO_Worker::TIME_FORMAT => 'D, d M Y h:i a',
+						DAO_Worker::LANGUAGE => 'en_US',
 					);
 					
 					if(!empty($worker_firstname)) {
@@ -804,6 +811,10 @@ switch($step) {
 					
 					if(!empty($worker_lastname))
 						$fields[DAO_Worker::LAST_NAME] = $worker_lastname;
+					
+					if(!empty($timezone))
+						$fields[DAO_Worker::TIMEZONE] = $timezone;
+					
 					$worker_id = DAO_Worker::create($fields);
 					
 					DAO_Worker::setAuth($worker_id, $worker_pass);

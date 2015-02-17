@@ -1,5 +1,7 @@
 <h2>Creating Your Account</h2>
 
+<script type="text/javascript" src="jstz.min.js"></script>
+
 <form action="index.php" method="POST">
 <input type="hidden" name="step" value="{$smarty.const.STEP_DEFAULTS}">
 <input type="hidden" name="form_submit" value="1">
@@ -27,6 +29,16 @@ Next, we'll create your administrator account.<br>
 <input type="password" name="worker_pass2" value="" size="16" autocomplete="off"><br>
 <br>
 
+<b>Timezone:</b><br>
+<select name="timezone">
+<option value=""></option>
+{foreach from=$timezones item=tz}
+	<option value="{$tz}" {if $timezone==$tz}selected="selected"{/if}>{$tz}</option>
+{/foreach}
+</select>
+<br>
+<br>
+
 {if $failed}
 <div class="error">
 	Oops! Some required information was not provided, or your passwords do not match.
@@ -35,3 +47,14 @@ Next, we'll create your administrator account.<br>
 
 <input type="submit" value="Continue &gt;&gt;">
 </form>
+
+<script type="text/javascript">
+$(function() {
+	var $select_tz = $('FORM SELECT[name=timezone]');
+	
+	if($select_tz.val() == '') {
+		var tz = jstz.determine();
+		$select_tz.val(tz.name());
+	}
+});
+</script>
