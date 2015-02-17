@@ -29,7 +29,7 @@
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="top"><b>{'portal.sc.public.my_account.profile_picture'|devblocks_translate}:</b></td>
 		<td width="99%">
-			<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$address->email|trim|lower|md5}?s=64&d=http://cerbweb.com/gravatar/gravatar_nouser.jpg" border="0" style="margin:0px 5px 5px 0px;" align="bottom">
+			<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$address->email|trim|lower|md5}?s=64&d=http://cerbweb.com/gravatar/gravatar_nouser.jpg" border="0" style="margin:0px 5px 5px 0px;border-radius:40px;" align="bottom">
 			<div>
 				[<a href="http://en.gravatar.com/" target="_blank">change</a>]
 			</div>
