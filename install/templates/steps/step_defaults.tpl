@@ -9,7 +9,10 @@
 Next, we'll create your administrator account.<br>
 <br>
 
-Next we need to create an account for you.<br>
+<b>What is your name?</b><br>
+<input type="text" name="worker_firstname" value="{$worker_firstname}" size="16" placeholder="First name"><!--
+--><input type="text" name="worker_lastname" value="{$worker_lastname}" size="32" placeholder="Last name">
+<br>
 <br>
 
 <b>What is your personal email address?</b> (this will be your login)<br>

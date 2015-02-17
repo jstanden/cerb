@@ -733,6 +733,8 @@ switch($step) {
 	case STEP_DEFAULTS:
 		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
 		@$worker_email = DevblocksPlatform::importGPC($_POST['worker_email'],'string');
+		@$worker_firstname = DevblocksPlatform::importGPC($_POST['worker_firstname'],'string');
+		@$worker_lastname = DevblocksPlatform::importGPC($_POST['worker_lastname'],'string');
 		@$worker_pass = DevblocksPlatform::importGPC($_POST['worker_pass'],'string');
 		@$worker_pass2 = DevblocksPlatform::importGPC($_POST['worker_pass2'],'string');
 
@@ -795,18 +797,28 @@ switch($step) {
 						DAO_Worker::AUTH_EXTENSION_ID => 'login.password',
 					);
 					
+					if(!empty($worker_firstname)) {
+						$fields[DAO_Worker::FIRST_NAME] = $worker_firstname;
+						$fields[DAO_Worker::AT_MENTION_NAME] = $worker_firstname;
+					}
+					
+					if(!empty($worker_lastname))
+						$fields[DAO_Worker::LAST_NAME] = $worker_lastname;
 					$worker_id = DAO_Worker::create($fields);
 					
 					DAO_Worker::setAuth($worker_id, $worker_pass);
 	
 					// Add the worker e-mail to the addresses table
+					
 					if(!empty($worker_email))
 						DAO_Address::lookupAddress($worker_email, true);
 					
 					// Authorize this e-mail address (watchers, etc.)
+					
 					DAO_AddressToWorker::assign($worker_email, $worker_id, true);
 					
 					// Default group memberships
+					
 					if(!empty($dispatch_gid))
 						DAO_Group::setGroupMember($dispatch_gid,$worker_id,true);
 					if(!empty($support_gid))
