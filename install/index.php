@@ -639,70 +639,93 @@ switch($step) {
 	
 	// Set up and test the outgoing SMTP
 	case STEP_OUTGOING_MAIL:
-		$settings = DevblocksPlatform::getPluginSettingsService();
-		
-		@$smtp_host = DevblocksPlatform::importGPC($_POST['smtp_host'],'string',$settings->get('cerberusweb.core',CerberusSettings::SMTP_HOST,CerberusSettingsDefaults::SMTP_HOST));
-		@$smtp_port = DevblocksPlatform::importGPC($_POST['smtp_port'],'integer',$settings->get('cerberusweb.core',CerberusSettings::SMTP_PORT,CerberusSettingsDefaults::SMTP_PORT));
-		@$smtp_enc = DevblocksPlatform::importGPC($_POST['smtp_enc'],'string',$settings->get('cerberusweb.core',CerberusSettings::SMTP_ENCRYPTION_TYPE,CerberusSettingsDefaults::SMTP_ENCRYPTION_TYPE));
+		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string');
+		@$smtp_host = DevblocksPlatform::importGPC($_POST['smtp_host'],'string');
+		@$smtp_port = DevblocksPlatform::importGPC($_POST['smtp_port'],'integer');
+		@$smtp_enc = DevblocksPlatform::importGPC($_POST['smtp_enc'],'string');
 		@$smtp_auth_user = DevblocksPlatform::importGPC($_POST['smtp_auth_user'],'string');
 		@$smtp_auth_pass = DevblocksPlatform::importGPC($_POST['smtp_auth_pass'],'string');
+		
 		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
 		@$passed = DevblocksPlatform::importGPC($_POST['passed'],'integer');
 		
 		if(!empty($form_submit)) {
-			$mail_service = DevblocksPlatform::getMailService();
-			
-			$mailer = null;
+
+			// Test the given mail transport details
 			try {
-				$mailer = $mail_service->getMailer(array(
-					'host' => $smtp_host,
-					'port' => $smtp_port,
-					'auth_user' => $smtp_auth_user,
-					'auth_pass' => $smtp_auth_pass,
-					'enc' => $smtp_enc,
-				));
+				if(false == ($mail_transport = Extension_MailTransport::get($extension_id)))
+					throw new Exception_CerbInstaller("Invalid mail transport extension.");
 				
-				$transport = $mailer->getTransport();
-				$transport->start();
-				$transport->stop();
+				$error = null;
 				
-				if(!empty($smtp_host))
-					$settings->set('cerberusweb.core',CerberusSettings::SMTP_HOST, $smtp_host);
-				if(!empty($smtp_port))
-					$settings->set('cerberusweb.core',CerberusSettings::SMTP_PORT, $smtp_port);
-				if(!empty($smtp_auth_user)) {
-					$settings->set('cerberusweb.core',CerberusSettings::SMTP_AUTH_ENABLED, 1);
-					$settings->set('cerberusweb.core',CerberusSettings::SMTP_AUTH_USER, $smtp_auth_user);
-					$settings->set('cerberusweb.core',CerberusSettings::SMTP_AUTH_PASS, $smtp_auth_pass);
-				} else {
-					$settings->set('cerberusweb.core',CerberusSettings::SMTP_AUTH_ENABLED, 0);
+				if($mail_transport->id == CerbMailTransport_Smtp::ID) {
+					$options = array(
+						'host' => $smtp_host,
+						'port' => $smtp_port,
+						'auth_user' => $smtp_auth_user,
+						'auth_pass' => $smtp_auth_pass,
+						'enc' => $smtp_enc,
+					);
+				
+					if(false == ($mail_transport->testConfig($options, $error)))
+						throw new Exception_CerbInstaller($error);
+					
+					$fields = array(
+						DAO_MailTransport::NAME => $smtp_host . ' SMTP',
+						DAO_MailTransport::EXTENSION_ID => CerbMailTransport_Smtp::ID,
+						DAO_MailTransport::IS_DEFAULT => 1,
+						DAO_MailTransport::PARAMS_JSON => json_encode($options),
+					);
+					$transport_id = DAO_MailTransport::create($fields);
+					
+				} elseif($mail_transport->id == CerbMailTransport_Null::ID) {
+					// This is always valid
+					$fields = array(
+						DAO_MailTransport::NAME => 'Null Mailer',
+						DAO_MailTransport::EXTENSION_ID => CerbMailTransport_Null::ID,
+						DAO_MailTransport::IS_DEFAULT => 1,
+						DAO_MailTransport::PARAMS_JSON => json_encode(array()),
+					);
+					$transport_id = DAO_MailTransport::create($fields);
+					
 				}
-				if(!empty($smtp_enc))
-					$settings->set('cerberusweb.core',CerberusSettings::SMTP_ENCRYPTION_TYPE, $smtp_enc);
+				
+				if($transport_id) {
+					// Set this as the default transport id
+					DAO_MailTransport::setDefault($transport_id);
+					
+					// Set it as the transport on the default reply-to
+					if(false != ($default_replyto = DAO_AddressOutgoing::getDefault())) {
+						DAO_AddressOutgoing::update($default_replyto->address_id, array(
+							DAO_AddressOutgoing::REPLY_MAIL_TRANSPORT_ID => $transport_id,
+						));
+					}
+				}
+				
+				// If we made it this far then we succeeded
 				
 				$tpl->assign('step', STEP_DEFAULTS);
 				$tpl->display('steps/redirect.tpl');
 				exit;
 				
+			} catch (Exception_CerbInstaller $e) {
+				$error = $e->getMessage();
+				
+				$tpl->assign('extension_id', $extension_id);
+				$tpl->assign('smtp_host', $smtp_host);
+				$tpl->assign('smtp_port', $smtp_port);
+				$tpl->assign('smtp_auth_user', $smtp_auth_user);
+				$tpl->assign('smtp_auth_pass', $smtp_auth_pass);
+				$tpl->assign('smtp_enc', $smtp_enc);
+				$tpl->assign('form_submit', true);
+				
+				$tpl->assign('error_display', 'SMTP Connection Failed! ' . $e->getMessage());
+				$tpl->assign('template', 'steps/step_outgoing_mail.tpl');
 			}
-			catch(Exception $e) {
-				$form_submit = 0;
-				$tpl->assign('smtp_error_display', 'SMTP Connection Failed! ' . $e->getMessage());
-			}
-			$tpl->assign('smtp_host', $smtp_host);
-			$tpl->assign('smtp_port', $smtp_port);
-			$tpl->assign('smtp_auth_user', $smtp_auth_user);
-			$tpl->assign('smtp_auth_pass', $smtp_auth_pass);
-			$tpl->assign('smtp_enc', $smtp_enc);
-			$tpl->assign('form_submit', $form_submit);
+			
 		} else {
-			$tpl->assign('smtp_host', 'localhost');
-			$tpl->assign('smtp_port', '25');
-			$tpl->assign('smtp_enc', 'None');
+			$tpl->assign('template', 'steps/step_outgoing_mail.tpl');
 		}
-		
-		// First time, or retry
-		$tpl->assign('template', 'steps/step_outgoing_mail.tpl');
 		
 		break;
 
