@@ -118,7 +118,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 							'body' =>"Pages give you the freedom to build a completely personalized interface based on how you use the software. You can add as many new pages as you want, and your favorites can be added to the navigation menu for quick access.",
 							'callouts' => array(
 								new DevblocksTourCallout(
-									'#pageTabs LI[role=tab]:last',
+									'DIV[id^=pageTabs]:first LI[role=tab]:last',
 									'Add a workspace tab',
 									'Click this tab to add new tabs to this workspace.',
 									'bottomLeft',
@@ -531,7 +531,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 									0
 									),
 								new DevblocksTourCallout(
-									'#displayTabs',
+									'#profileTicketTabs',
 									'Conversation Timeline',
 									'This is where all email replies will be displayed for this ticket. Your responses will be sent to all recipients.',
 									'bottomLeft',
@@ -549,7 +549,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 									0
 									),
 								new DevblocksTourCallout(
-									'#displayTabs > UL > li:nth(1)',
+									'#profileTicketTabs > UL > li:nth(1)',
 									'Activity Log',
 									'This tab displays everything that has happened to this conversation: worker replies, customer replies, status changes, merges, and more.',
 									'topLeft',
@@ -558,7 +558,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 									-10
 									),
 								new DevblocksTourCallout(
-									'#displayTabs > UL > li:nth(2)',
+									'#profileTicketTabs > UL > li:nth(2)',
 									'Links',
 									'You can connect this conversation to any other record in the system: tasks, organizations, opportunities, time tracking, servers, domains, etc.',
 									'bottomLeft',
@@ -567,7 +567,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 									10
 									),
 								new DevblocksTourCallout(
-									'#displayTabs > UL > li:nth(3)',
+									'#profileTicketTabs > UL > li:nth(3)',
 									'Recipient History',
 									'This tab displays prior conversations involving any of these recipients.',
 									'bottomLeft',

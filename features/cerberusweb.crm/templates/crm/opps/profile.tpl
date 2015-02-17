@@ -92,7 +92,7 @@
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
 
-<div id="oppTabs">
+<div id="profileOppTabs">
 	<ul>
 		{$tabs = [activity,comments,links,mail]}
 		
@@ -106,32 +106,26 @@
 			<li><a href="{devblocks_url}ajax.php?c=profiles&a=showTab&ext_id={$tab_manifest->id}&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>
 		{/foreach}
 	</ul>
-</div> 
+</div>
 <br>
 
-{$selected_tab_idx=0}
-{foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$selected_tab}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
-{/foreach}
-
 <script type="text/javascript">
-	$(function() {
-		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-		tabOptions.active = {$selected_tab_idx};
-		
-		var tabs = $("#oppTabs").tabs(tabOptions);
-		
-		$('#btnDisplayOppEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_OPPORTUNITY}&context_id={$page_context_id}',null,false,'550');
-			$popup.one('opp_save', function(event) {
-				event.stopPropagation();
-				document.location.href = '{devblocks_url}c=profiles&a=opportunity&id={$page_context_id}-{$opp->name|devblocks_permalink}{/devblocks_url}';
-			});
-		})
-	});
-
-	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
+$(function() {
+	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+	tabOptions.active = Devblocks.getjQueryUiTabSelected('profileOppTabs');
 	
+	var tabs = $("#profileOppTabs").tabs(tabOptions);
+	
+	$('#btnDisplayOppEdit').bind('click', function() {
+		var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_OPPORTUNITY}&context_id={$page_context_id}',null,false,'550');
+		$popup.one('opp_save', function(event) {
+			event.stopPropagation();
+			document.location.href = '{devblocks_url}c=profiles&a=opportunity&id={$page_context_id}-{$opp->name|devblocks_permalink}{/devblocks_url}';
+		});
+	})
+});
+
+{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 </script>
 
 <script type="text/javascript">
@@ -158,7 +152,7 @@ $(document).keypress(function(event) {
 		case 58:  // (0) tab cycle
 			try {
 				idx = event.which-49;
-				$tabs = $("#oppTabs").tabs();
+				$tabs = $("#profileOppTabs").tabs();
 				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { } 
 			break;

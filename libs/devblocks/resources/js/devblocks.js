@@ -1,4 +1,4 @@
-var DevblocksClass = function() {
+function DevblocksClass() {
 	/* Source: http://bytes.com/forum/thread90068.html */
 	// [TODO] Does this matter with caret.js anymore?
 	this.getSelectedText = function() {
@@ -72,12 +72,36 @@ var DevblocksClass = function() {
 	
 	this.getDefaultjQueryUiTabOptions = function() {
 		return {
+			activate: function(event, ui) {
+				var tabsId = ui.newPanel.closest('.ui-tabs').attr('id');
+				var index = ui.newTab.index();
+				
+				var selectedTabs = {};
+				
+				if(undefined != localStorage.selectedTabs)
+					selectedTabs = JSON.parse(localStorage.selectedTabs);
+				
+				selectedTabs[tabsId] = index;
+				localStorage.selectedTabs = JSON.stringify(selectedTabs);
+			},
 			beforeLoad: function(event, ui) {
 				var tab_title = ui.tab.find('> a').first().clone();
 				tab_title.find('div.tab-badge').remove();
 				ui.panel.html('<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;">Loading: ' + $.trim(tab_title.text()) + '<br><span class="cerb-ajax-spinner"></span></div>');
-			}
+			},
 		};
+	}
+	
+	this.getjQueryUiTabSelected = function(tabsId) {
+		if(undefined == localStorage.selectedTabs)
+			return 0;
+		
+		var selectedTabs = JSON.parse(localStorage.selectedTabs);
+		
+		if(typeof selectedTabs != "object" || undefined == selectedTabs[tabsId])
+			return 0;
+		
+		return selectedTabs[tabsId];
 	}
 };
 var Devblocks = new DevblocksClass();

@@ -77,7 +77,7 @@
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
 
-<div style="clear:both;" id="contactTabs">
+<div style="clear:both;" id="profileAddressTabs">
 	<ul>
 		{$tabs = [activity,comments,links,mail]}
 		
@@ -94,28 +94,23 @@
 </div> 
 <br>
 
-{$selected_tab_idx=0}
-{foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$selected_tab}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
-{/foreach}
-
 <script type="text/javascript">
-	$(function() {
-		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-		tabOptions.active = {$selected_tab_idx};
-		
-		var tabs = $("#contactTabs").tabs(tabOptions);
+$(function() {
+	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+	tabOptions.active = Devblocks.getjQueryUiTabSelected('profileAddressTabs');
 	
-		$('#btnDisplayAddyEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$page_context_id}',null,false,'550');
-			$popup.one('address_save', function(event) {
-				event.stopPropagation();
-				document.location.href = '{devblocks_url}c=profiles&type=address&id={$page_context_id}-{$address->email|devblocks_permalink}{/devblocks_url}';
-			});
+	var tabs = $("#profileAddressTabs").tabs(tabOptions);
+
+	$('#btnDisplayAddyEdit').bind('click', function() {
+		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$page_context_id}',null,false,'550');
+		$popup.one('address_save', function(event) {
+			event.stopPropagation();
+			document.location.href = '{devblocks_url}c=profiles&type=address&id={$page_context_id}-{$address->email|devblocks_permalink}{/devblocks_url}';
 		});
-		
-		{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 	});
+	
+	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
+});
 </script>
 
 <script type="text/javascript">
@@ -142,7 +137,7 @@ $(document).keypress(function(event) {
 		case 58:  // (0) tab cycle
 			try {
 				var idx = event.which-49;
-				var $tabs = $("#contactTabs").tabs();
+				var $tabs = $("#profileAddressTabs").tabs();
 				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { } 
 			break;

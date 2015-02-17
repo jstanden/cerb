@@ -34,15 +34,8 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		}
 		$tpl->assign('article', $article);	/* @var $article Model_KbArticle */
 		
-		// Default the last tab
-		
-		@$selected_tab = array_shift($stack);
-		
 		$point = 'cerberusweb.profiles.kb';
 		$tpl->assign('point', $point);
-		
-		$selected_tab = 'article';
-		$tpl->assign('selected_tab', $selected_tab);
 		
 		// Categories
 		

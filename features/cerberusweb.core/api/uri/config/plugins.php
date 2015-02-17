@@ -37,16 +37,11 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		
 		$visit->set(ChConfigurationPage::ID, 'plugins');
 		
-		if(isset($path[2])) {
-			$tpl->assign('selected_tab', $path[2]);
-		}
-		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugins/index.tpl');
 	}
 
 	function showTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->class_name = 'View_CerbPlugin';

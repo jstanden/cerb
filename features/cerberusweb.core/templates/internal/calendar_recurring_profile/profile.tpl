@@ -86,15 +86,10 @@
 </div>
 <br>
 
-{$selected_tab_idx=0}
-{foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$tab_selected}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
-{/foreach}
-
 <script type="text/javascript">
 $(function() {
 	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-	tabOptions.active = {$selected_tab_idx};
+	tabOptions.active = Devblocks.getjQueryUiTabSelected('calendar_recurring_profileTabs');
 	
 	var tabs = $("#calendar_recurring_profileTabs").tabs(tabOptions);
 	

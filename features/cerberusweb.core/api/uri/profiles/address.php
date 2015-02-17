@@ -19,7 +19,6 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$translate = DevblocksPlatform::getTranslationService();
-		$visit = CerberusApplication::getVisit();
 		$response = DevblocksPlatform::getHttpResponse();
 		$active_worker = CerberusApplication::getActiveWorker();
 
@@ -31,17 +30,8 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		$address = DAO_Address::get($id);
 		$tpl->assign('address', $address);
 		
-		// Remember the last tab/URL
-		
-		@$selected_tab = array_shift($stack);
-		
 		$point = 'cerberusweb.profiles.address';
 		$tpl->assign('point', $point);
-		
-		if(null == $selected_tab) {
-			$selected_tab = $visit->get($point, '');
-		}
-		$tpl->assign('selected_tab', $selected_tab);
 		
 		// Properties
 		

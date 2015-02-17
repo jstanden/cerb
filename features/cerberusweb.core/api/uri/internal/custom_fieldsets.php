@@ -247,15 +247,11 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',null);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$visit = CerberusApplication::getVisit();
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		$tpl->assign('owner_context', $context);
 		$tpl->assign('owner_context_id', $context_id);
 		
-		// Remember the tab
-		$visit->set($point, 'custom_fieldsets');
-
 		$view_id = str_replace('.','_',$point) . '_cfield_sets';
 		
 		$view = C4_AbstractViewLoader::getView($view_id);

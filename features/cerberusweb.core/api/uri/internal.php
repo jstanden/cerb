@@ -136,9 +136,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
 
-		if(!empty($point))
-			$visit->set($point, 'links');
-
 		// Context Links
 
 		$contexts = DAO_ContextLink::getDistinctContexts($context, $context_id);
@@ -887,16 +884,11 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer');
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string');
 		
-		$visit = CerberusApplication::getVisit();
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		if(empty($context) || empty($context_id))
 			return;
 		
-		// Remember tab
-		if(!empty($point))
-			$visit->set($point, 'activity');
-
 		switch($scope) {
 			case 'target':
 				$params = array(
@@ -1289,15 +1281,11 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',null);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$visit = CerberusApplication::getVisit();
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		$tpl->assign('owner_context', $context);
 		$tpl->assign('owner_context_id', $context_id);
 		
-		// Remember the tab
-		$visit->set($point, 'snippets');
-
 		$view_id = str_replace('.','_',$point) . '_snippets';
 		
 		$view = C4_AbstractViewLoader::getView($view_id);
@@ -3014,16 +3002,11 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
-		$visit = CerberusApplication::getVisit();
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		if(empty($context))
 			return;
 
-		// Remember tab
-		if(!empty($point))
-			$visit->set($point, 'attendants');
-		
 		$tpl->assign('owner_context', $context);
 		$tpl->assign('owner_context_id', $context_id);
 		
@@ -3057,15 +3040,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
-		$visit = CerberusApplication::getVisit();
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		if(empty($id))
 			return;
-		
-		// Remember tab
-		if(!empty($point))
-			$visit->set($point, 'behaviors');
 		
 		if(null == ($va = DAO_VirtualAttendant::get($id)))
 			return;
@@ -4364,10 +4342,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
-
-		if(!empty($point))
-			$visit->set($point, 'comments');
 
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);

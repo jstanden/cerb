@@ -93,7 +93,7 @@
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
 
-<div id="profileTabs">
+<div id="profileWorkerTabs">
 	<ul>
 		{$tabs = []}
 		{$point = "cerberusweb.profiles.worker.{$worker->id}"}
@@ -133,35 +133,30 @@
 </div> 
 <br>
 
-{$selected_tab_idx=0}
-{foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$selected_tab}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
-{/foreach}
-
 <script type="text/javascript">
-	$(function() {
-		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-		tabOptions.active = {$selected_tab_idx};
-		
-		var tabs = $("#profileTabs").tabs(tabOptions);
-		
-		{if $active_worker->is_superuser}
-		$('#btnProfileWorkerEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=config&a=handleSectionAction&section=workers&action=showWorkerPeek&id={$worker->id}',null,false,'550');
-			$popup.one('worker_save', function(event) {
-				event.stopPropagation();
-				window.location.reload();
-			});
-		});
-		$('#btnProfileWorkerPossess').bind('click', function() {
-			genericAjaxGet('','c=internal&a=su&worker_id={$worker->id}',function(o) {
-				window.location.reload();
-			});
-		});
-		{/if}
-	});
+$(function() {
+	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+	tabOptions.active = Devblocks.getjQueryUiTabSelected('profileWorkerTabs');
 	
-	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
+	var tabs = $("#profileWorkerTabs").tabs(tabOptions);
+	
+	{if $active_worker->is_superuser}
+	$('#btnProfileWorkerEdit').bind('click', function() {
+		$popup = genericAjaxPopup('peek','c=config&a=handleSectionAction&section=workers&action=showWorkerPeek&id={$worker->id}',null,false,'550');
+		$popup.one('worker_save', function(event) {
+			event.stopPropagation();
+			window.location.reload();
+		});
+	});
+	$('#btnProfileWorkerPossess').bind('click', function() {
+		genericAjaxGet('','c=internal&a=su&worker_id={$worker->id}',function(o) {
+			window.location.reload();
+		});
+	});
+	{/if}
+});
+
+{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 </script>
 
 {$profile_scripts = Extension_ContextProfileScript::getExtensions(true, $page_context)}

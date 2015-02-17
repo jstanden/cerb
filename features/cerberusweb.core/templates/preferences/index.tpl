@@ -43,16 +43,11 @@
 </div>
 <br>
 
-{$selected_tab_idx=0}
-{foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$selected_tab}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
-{/foreach}
-
 <script type="text/javascript">
-	$(function() {
-		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-		tabOptions.active = {$selected_tab_idx};
-		
-		var tabs = $("#prefTabs").tabs(tabOptions);
-	});
+$(function() {
+	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+	tabOptions.active = Devblocks.getjQueryUiTabSelected('prefTabs');
+	
+	var tabs = $("#prefTabs").tabs(tabOptions);
+});
 </script>

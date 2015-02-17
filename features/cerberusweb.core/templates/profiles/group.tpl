@@ -88,7 +88,7 @@
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
 
-<div id="profileTabs">
+<div id="profileGroupTabs">
 	<ul>
 		{$tabs = []}
 		{$point = "cerberusweb.profiles.group.{$group->id}"}
@@ -150,21 +150,15 @@
 		{/if}
 		{/foreach}
 	</div>
-</div> 
-
+</div>
 <br>
-
-{$selected_tab_idx=0}
-{foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$selected_tab}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
-{/foreach}
 
 <script type="text/javascript">
 $(function() {
 	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-	tabOptions.active = {$selected_tab_idx};
+	tabOptions.active = Devblocks.getjQueryUiTabSelected('profileGroupTabs');
 	
-	var tabs = $("#profileTabs").tabs(tabOptions);
+	var tabs = $("#profileGroupTabs").tabs(tabOptions);
 
 	{if $active_worker->is_superuser}
 	$('#btnProfileGroupEdit').bind('click', function() {

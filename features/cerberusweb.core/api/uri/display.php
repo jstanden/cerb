@@ -1143,13 +1143,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
 
 		@$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!empty($point))
-			$visit->set($point, 'conversation');
-				
 		$tpl->assign('expand_all', $expand_all);
 		$tpl->assign('focus_ctx', $focus_ctx);
 		$tpl->assign('focus_ctx_id', $focus_ctx_id);
@@ -1460,9 +1456,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
 				
-		if(!empty($point))
-			$visit->set($point, 'history');
-
 		// Scope
 		$scope = $visit->get('display.history.scope', '');
 		

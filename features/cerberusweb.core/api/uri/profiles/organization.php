@@ -19,7 +19,6 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$translate = DevblocksPlatform::getTranslationService();
-		$visit = CerberusApplication::getVisit();
 		$response = DevblocksPlatform::getHttpResponse();
 		$active_worker = CerberusApplication::getActiveWorker();
 
@@ -28,17 +27,9 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		@array_shift($stack); // org
 		@$id = intval(array_shift($stack));
 		
-		@$selected_tab = array_shift($stack);
-		
 		// Remember the last tab/URL
 		$point = 'cerberusweb.profiles.org';
 		$tpl->assign('point', $point);
-		
-		$visit = CerberusApplication::getVisit();
-		if(null == $selected_tab) {
-			$selected_tab = $visit->get($point, '');
-		}
-		$tpl->assign('selected_tab', $selected_tab);
 		
 		$contact = DAO_ContactOrg::get($id);
 		$tpl->assign('contact', $contact);

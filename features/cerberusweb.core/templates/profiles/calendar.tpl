@@ -72,7 +72,7 @@
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
 
-<div id="calendarTabs">
+<div id="profileCalendarTabs">
 	<ul>
 		{$tabs = [calendar,activity,comments,links]}
 
@@ -89,17 +89,12 @@
 </div>
 <br>
 
-{$selected_tab_idx=0}
-{foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$tab_selected}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
-{/foreach}
-
 <script type="text/javascript">
 	$(function() {
 		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-		tabOptions.active = {$selected_tab_idx};
+		tabOptions.active = Devblocks.getjQueryUiTabSelected('profileCalendarTabs');
 		
-		var tabs = $("#calendarTabs").tabs(tabOptions);
+		var tabs = $("#profileCalendarTabs").tabs(tabOptions);
 		
 		$('#btnDisplayCalendarEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');
@@ -137,7 +132,7 @@ $(document).keypress(function(event) {
 		case 58:  // (0) tab cycle
 			try {
 				idx = event.which-49;
-				$tabs = $("#calendarTabs").tabs();
+				$tabs = $("#profileCalendarTabs").tabs();
 				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { }
 			break;

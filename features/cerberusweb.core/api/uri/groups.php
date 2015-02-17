@@ -30,7 +30,6 @@ class ChGroupsPage extends CerberusPageExtension  {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
-		$visit = CerberusApplication::getVisit();
 		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
@@ -48,12 +47,6 @@ class ChGroupsPage extends CerberusPageExtension  {
 		} else {
 			$group =& $groups[$group_id];
 			$tpl->assign('group', $group);
-			
-			// Remember the last tab/URL
-			if(null == ($selected_tab = @$response->path[2])) {
-				$selected_tab = $visit->get('cerberusweb.groups.tab', '');
-			}
-			$tpl->assign('selected_tab', $selected_tab);
 		}
 		
 		$tpl->display('devblocks:cerberusweb.core::groups/index.tpl');
@@ -64,9 +57,6 @@ class ChGroupsPage extends CerberusPageExtension  {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
-		$visit = CerberusApplication::getVisit();
-		
-		$visit->set('cerberusweb.groups.tab', 'mail');
 		
 		if(!$active_worker->isGroupManager($group_id) && !$active_worker->is_superuser) {
 			return;
@@ -105,9 +95,6 @@ class ChGroupsPage extends CerberusPageExtension  {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
-		$visit = CerberusApplication::getVisit();
-		
-		$visit->set('cerberusweb.groups.tab', 'members');
 		
 		if(!$active_worker->isGroupManager($group_id) && !$active_worker->is_superuser) {
 			return;
@@ -160,10 +147,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
 		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$visit->set('cerberusweb.groups.tab', 'buckets');
 
 		if(!$active_worker->isGroupManager($group_id) && !$active_worker->is_superuser) {
 			return;

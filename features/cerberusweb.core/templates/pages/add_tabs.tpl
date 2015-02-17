@@ -108,7 +108,7 @@ $frm.find('input:radio[name=mode]').change(function() {
 $frm.find('button.add').click(function(e) {
 	var $this = $(this);
 	var $frm = $this.closest('form');
-	var $tabs = $('#pageTabs');
+	var $tabs = $('#pageTabs{$page->id}');
 	
 	var len = $tabs.find('.ui-tabs-nav > li').length;
 	

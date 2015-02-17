@@ -18,7 +18,6 @@
 class PageSection_ProfilesContactPerson extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
 		$request = DevblocksPlatform::getHttpRequest();
 		$translate = DevblocksPlatform::getTranslationService();
 		
@@ -38,13 +37,6 @@ class PageSection_ProfilesContactPerson extends Extension_PageSection {
 		
 		$point = 'cerberusweb.contact_person.tab';
 		$tpl->assign('point', $point);
-
-		@$selected_tab = array_shift($stack);
-		
-		if(null == $selected_tab) {
-			$selected_tab = $visit->get($point, '');
-		}
-		$tpl->assign('selected_tab', $selected_tab);
 
 		// Properties
 			

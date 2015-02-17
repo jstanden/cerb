@@ -78,7 +78,7 @@
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
 
-<div id="virtual_attendantTabs">
+<div id="profileVaTabs">
 	<ul>
 		{$tabs = [behaviors,behavior]}
 
@@ -112,28 +112,23 @@
 </div>
 <br>
 
-{$selected_tab_idx=0}
-{foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$tab_selected}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
-{/foreach}
-
 <script type="text/javascript">
-	$(function() {
-		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-		tabOptions.active = {$selected_tab_idx};
-		
-		var tabs = $("#virtual_attendantTabs").tabs(tabOptions);
-		
-		$('#btnDisplayVirtualAttendantEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');
-			$popup.one('virtual_attendant_save', function(event) {
-				event.stopPropagation();
-				document.location.reload();
-			});
+$(function() {
+	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+	tabOptions.active = Devblocks.getjQueryUiTabSelected('profileVaTabs');
+	
+	var tabs = $("#profileVaTabs").tabs(tabOptions);
+	
+	$('#btnDisplayVirtualAttendantEdit').bind('click', function() {
+		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');
+		$popup.one('virtual_attendant_save', function(event) {
+			event.stopPropagation();
+			document.location.reload();
 		});
-
-		{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 	});
+
+	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
+});
 </script>
 
 <script type="text/javascript">
@@ -160,7 +155,7 @@ $(document).keypress(function(event) {
 		case 58:  // (0) tab cycle
 			try {
 				idx = event.which-49;
-				$tabs = $("#virtual_attendantTabs").tabs();
+				$tabs = $("#profileVaTabs").tabs();
 				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { }
 			break;

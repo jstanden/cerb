@@ -94,7 +94,7 @@
 			$workspace.find('a.edit-tab').click(function(e) {
 				e.stopPropagation();
 				
-				$tabs = $("#pageTabs");
+				$tabs = $("#pageTabs{$page->id}");
 				$selected_tab = $tabs.find('li.ui-tabs-active').first();
 				
 				if(0 == $selected_tab.length)
@@ -108,7 +108,7 @@
 				$popup = genericAjaxPopup('peek','c=pages&a=showEditWorkspaceTab&id=' + tab_id,null,true,'600');
 				
 				$popup.one('workspace_save',function(json) {
-					$tabs = $("#pageTabs");
+					$tabs = $("#pageTabs{$page->id}");
 					if(0 != $tabs) {
 						selected_idx = $tabs.tabs('option','active');
 						$tabs.tabs('load', selected_idx);
@@ -121,7 +121,7 @@
 				});
 				
 				$popup.one('workspace_delete',function(e) {
-					$tabs = $("#pageTabs");
+					$tabs = $("#pageTabs{$page->id}");
 					if(0 != $tabs.length) {
 						var tab = $tabs.find('.ui-tabs-nav li:eq(' + $tabs.tabs('option','active') + ')').remove();
 						var panelId = tab.attr('aria-controls');
@@ -142,7 +142,7 @@
 		$workspace.find('a.export-tab').click(function(e) {
 			e.stopPropagation();
 			
-			$tabs = $("#pageTabs");
+			$tabs = $("#pageTabs{$page->id}");
 			$selected_tab = $tabs.find('li.ui-tabs-active').first();
 			
 			if(0 == $selected_tab.length)

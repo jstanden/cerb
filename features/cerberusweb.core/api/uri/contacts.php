@@ -409,13 +409,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$person = DAO_ContactPerson::get($contact_id);
 		$tpl->assign('person', $person);
 		
-		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-
 		$view = C4_AbstractViewLoader::getView('contact_person_addresses');
-		
-		// Point
-		if(!empty($point))
-			$visit->set($point, 'addresses');
 		
 		// All contact addresses
 		$contact_addresses = $person->getAddresses();
@@ -446,7 +440,6 @@ class ChContactsPage extends CerberusPageExtension {
 	}
 	
 	function showTabMailHistoryAction() {
-		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 		$translate = DevblocksPlatform::getTranslationService();
 	
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','contact.history');
@@ -459,11 +452,6 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$ids = array();
-		
-		// Set the active tab
-		
-		if(!empty($point))
-			$visit->set($point, 'mail');
 		
 		// Determine the address scope
 		

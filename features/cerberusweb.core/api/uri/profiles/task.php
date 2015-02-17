@@ -19,7 +19,6 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$translate = DevblocksPlatform::getTranslationService();
-		$visit = CerberusApplication::getVisit();
 		$response = DevblocksPlatform::getHttpResponse();
 		$active_worker = CerberusApplication::getActiveWorker();
 
@@ -32,16 +31,8 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 			$tpl->assign('task', $task);
 		}
 		
-		// Remember the last tab/URL
-		@$selected_tab = array_shift($stack);
-		
 		$point = 'core.page.tasks';
 		$tpl->assign('point', $point);
-		
-		if(null == $selected_tab) {
-			$selected_tab = $visit->get($point, '');
-		}
-		$tpl->assign('selected_tab', $selected_tab);
 		
 		// Properties
 		

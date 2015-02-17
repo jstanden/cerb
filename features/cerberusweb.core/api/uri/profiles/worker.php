@@ -27,7 +27,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 	
 	private function _renderWorkerPage() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
 		$request = DevblocksPlatform::getHttpRequest();
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -61,12 +60,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 			return;
 			
 		$tpl->assign('worker', $worker);
-		
-		// Remember the last tab/URL
-		if(null == ($selected_tab = @$request->path[3])) {
-			$selected_tab = $visit->get($point, '');
-		}
-		$tpl->assign('selected_tab', $selected_tab);
 		
 		// Properties
 		

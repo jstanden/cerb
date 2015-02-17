@@ -23,12 +23,7 @@ class Subcontroller_Internal_VirtualAttendants {
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
-		$visit = CerberusApplication::getVisit();
 		$tpl = DevblocksPlatform::getTemplateService();
-
-		// Remember tab
-		if(!empty($point))
-			$visit->set($point, 'behavior');
 
 		// Admins can see all owners at once
 		if(empty($va_id) && !$active_worker->is_superuser)

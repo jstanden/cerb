@@ -177,7 +177,7 @@
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
 
-<div id="displayTabs">
+<div id="profileTicketTabs">
 	<ul>
 		{$tabs = [conversation,activity,links,history]}
 
@@ -191,38 +191,33 @@
 			<li><a href="{devblocks_url}ajax.php?c=profiles&a=showTab&ext_id={$tab_manifest->id}&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>
 		{/foreach}
 	</ul>
-</div> 
+</div>
 <br>
 
-{$selected_tab_idx=0}
-{foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$selected_tab}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
-{/foreach}
-
 <script type="text/javascript">
-	$(function() {
-		// Tabs
-		
-		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-		tabOptions.active = {$selected_tab_idx};
-		
-		var tabs = $("#displayTabs").tabs(tabOptions);
-		
-		$('#btnDisplayTicketEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}&edit=1',null,false,'650');
-			$popup.one('ticket_save', function(event) {
-				event.stopPropagation();
-				document.location.href = '{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}';
-			});
-		})
-	});
+$(function() {
+	// Tabs
 	
-	// Page title
-	document.title = "[#{$ticket->mask|escape:'javascript' nofilter}] {$ticket->subject|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
+	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+	tabOptions.active = Devblocks.getjQueryUiTabSelected('profileTicketTabs');
 	
-	// Menu
+	var tabs = $("#profileTicketTabs").tabs(tabOptions);
+	
+	$('#btnDisplayTicketEdit').bind('click', function() {
+		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}&edit=1',null,false,'650');
+		$popup.one('ticket_save', function(event) {
+			event.stopPropagation();
+			document.location.href = '{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}';
+		});
+	})
+});
 
-	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
+// Page title
+document.title = "[#{$ticket->mask|escape:'javascript' nofilter}] {$ticket->subject|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
+
+// Menu
+
+{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 </script>
 
 {$profile_scripts = Extension_ContextProfileScript::getExtensions(true, $page_context)}
@@ -262,7 +257,7 @@ $(document).keypress(function(event) {
 		case 58:  // (0) tab cycle
 			try {
 				idx = event.which-49;
-				$tabs = $("#displayTabs").tabs();
+				$tabs = $("#profileTicketTabs").tabs();
 				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { } 
 			break;

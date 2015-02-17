@@ -77,7 +77,7 @@
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
 
-<div id="kbTabs">
+<div id="profileKbArticleTabs">
 	<ul>
 		{$tabs = [article,activity,comments,links]}
 
@@ -102,19 +102,14 @@
 </div> 
 <br>
 
-{$selected_tab_idx=0}
-{foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$selected_tab}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
-{/foreach}
-
 <script type="text/javascript">
 $(function() {
 	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-	tabOptions.active = {$selected_tab_idx};
+	tabOptions.active = Devblocks.getjQueryUiTabSelected('profileKbArticleTabs');
 	
 	// Tabs
 	
-	var tabs = $("#kbTabs").tabs(tabOptions);
+	var tabs = $("#profileKbArticleTabs").tabs(tabOptions);
 	
 	// Page title
 	
@@ -155,7 +150,7 @@ $(document).keypress(function(event) {
 		case 58:  // (0) tab cycle
 			try {
 				idx = event.which-49;
-				$tabs = $("#kbTabs").tabs();
+				$tabs = $("#profileKbArticleTabs").tabs();
 				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { } 
 			break;

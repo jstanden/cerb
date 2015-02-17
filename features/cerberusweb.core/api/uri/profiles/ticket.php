@@ -19,7 +19,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$translate = DevblocksPlatform::getTranslationService();
-		$visit = CerberusApplication::getVisit();
 		$response = DevblocksPlatform::getHttpResponse();
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url = DevblocksPlatform::getUrlService();
@@ -28,6 +27,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		@array_shift($stack); // profiles
 		@array_shift($stack); // ticket
 		@$id_string = array_shift($stack);
+		@$section = array_shift($stack);
 		
 		// Translate masks to IDs
 		if(null == ($ticket_id = DAO_Ticket::getTicketIdByMask($id_string))) {
@@ -55,18 +55,12 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			exit;
 		}
 		
-		// Remember the last tab/URL
-		@$selected_tab = array_shift($stack);
-		
 		$point = 'cerberusweb.profiles.ticket';
 		$tpl->assign('point', $point);
 		
-		if(empty($selected_tab))
-			$selected_tab = 'conversation';
-		
 		@$mail_always_show_all = DAO_WorkerPref::get($active_worker->id,'mail_always_show_all',0);
 		
-		switch($selected_tab) {
+		switch($section) {
 			case 'conversation':
 				@$tab_option = array_shift($stack);
 		
@@ -77,7 +71,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 				
 			case 'comment':
 				@$focus_id = intval(array_shift($stack));
-				$selected_tab = 'conversation';
 				
 				if(!empty($focus_id)) {
 					$tpl->assign('convo_focus_ctx', CerberusContexts::CONTEXT_COMMENT);
@@ -91,7 +84,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 				
 			case 'message':
 				@$focus_id = intval(array_shift($stack));
-				$selected_tab = 'conversation';
 				
 				if(!empty($focus_id)) {
 					$tpl->assign('convo_focus_ctx', CerberusContexts::CONTEXT_MESSAGE);
@@ -103,8 +95,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 				
 				break;
 		}
-		
-		$tpl->assign('selected_tab', $selected_tab);
 		
 		// Properties
 		

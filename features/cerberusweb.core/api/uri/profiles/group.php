@@ -18,7 +18,6 @@
 class PageSection_ProfilesGroup extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
 		$request = DevblocksPlatform::getHttpRequest();
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -40,12 +39,6 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 			throw new Exception();
 		
 		$tpl->assign('group', $group);
-		
-		// Remember the last tab/URL
-		if(null == ($selected_tab = @$request->path[3])) {
-			$selected_tab = $visit->get($point, '');
-		}
-		$tpl->assign('selected_tab', $selected_tab);
 		
 		// Properties
 		
