@@ -956,6 +956,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$fields = array(
 			DAO_Ticket::IS_CLOSED => CerberusTicketStatus::CLOSED,
+			DAO_Ticket::REOPEN_AT => 0,
 		);
 		
 		//====================================
