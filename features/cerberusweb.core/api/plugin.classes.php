@@ -650,7 +650,8 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 			'timeout' => @$model->params['timeout'],
 		);
 		
-		$mailer = $this->_getMailer($options);
+		if(false == ($mailer = $this->_getMailer($options)))
+			return false;
 		
 		$failed_recipients = array();
 		
@@ -661,7 +662,8 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 	 * @return Swift_Mailer
 	 */
 	private function _getMailer(array $options) {
-
+		static $connections = array();
+		
 		// Options
 		$smtp_host = isset($options['host']) ? $options['host'] : '127.0.0.1';
 		$smtp_port = isset($options['port']) ? $options['port'] : '25';
@@ -671,6 +673,23 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		$smtp_max_sends = isset($options['max_sends']) ? intval($options['max_sends']) : 20;
 		$smtp_timeout = isset($options['timeout']) ? intval($options['timeout']) : 30;
 		
+		/*
+		 * [JAS]: We'll cache connection info hashed by params and hold a persistent
+		 * connection for the request cycle.  If we ask for the same params again
+		 * we'll get the existing connection if it exists.
+		 */
+
+		$hash = md5(json_encode(array(
+			$smtp_host,
+			$smtp_user,
+			$smtp_pass,
+			$smtp_port,
+			$smtp_enc,
+			$smtp_max_sends,
+			$smtp_timeout
+		)));
+		
+		if(!isset($connections[$hash])) {
 			// Encryption
 			switch($smtp_enc) {
 				case 'TLS':
@@ -695,11 +714,15 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 			}
 			
 			$mailer = Swift_Mailer::newInstance($smtp);
-			
 			$mailer->registerPlugin(new Swift_Plugins_AntiFloodPlugin($smtp_max_sends, 1));
 			
-
-		return $mailer;
+			$connections[$hash] = $mailer;
+		}
+		
+		if($connections[$hash])
+			return $connections[$hash];
+		
+		return null;
 	}
 }
 endif;
@@ -724,19 +747,21 @@ class CerbMailTransport_Null extends Extension_MailTransport {
 	 * @return boolean
 	 */
 	function send(Swift_Message $message, Model_MailTransport $model) {
-		$null = Swift_NullTransport::newInstance();
-
-		$mailer = Swift_Mailer::newInstance($null);
+		if(false == ($mailer = $this->_getMailer()))
+			return false;
 		
-		//$logger = new Swift_Plugins_Loggers_ArrayLogger(50);
-		//$mailer->registerPlugin(new Swift_Plugins_LoggerPlugin($logger));
+		return $mailer->send($message);
+	}
+	
+	private function _getMailer() {
+		static $mailer = null;
 		
-		$mailer->send($message);
+		if(is_null($mailer)) {
+			$null = Swift_NullTransport::newInstance();
+			$mailer = Swift_Mailer::newInstance($null);
+		}
 		
-		//var_dump($logger->dump());
-		//$logger->clear();
-		
-		return true;
+		return $mailer;
 	}
 }
 endif;
