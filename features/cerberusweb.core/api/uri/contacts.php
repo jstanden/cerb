@@ -492,21 +492,18 @@ class ChContactsPage extends CerberusPageExtension {
 			$view->renderSortAsc = false;
 		}
 	
-		@$view->name = $translate->_('ticket.requesters') . ": " . intval(count($ids)) . ' contact(s)';
 
 		$params_required = array(
 			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
 		);
 		
 		if(empty($ids)) {
+			@$view->name = $translate->_('ticket.requesters') . ": " . $translate->_('contact_org.name');
 			$params_required[SearchFields_Ticket::VIRTUAL_ORG_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ORG_ID,'=',$org_id);
 			
 		} else {
-			$params_required['req_addys'] = array(
-				DevblocksSearchCriteria::GROUP_OR,
-				SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$ids),
-				SearchFields_Ticket::TICKET_FIRST_WROTE_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'in',$ids),
-			);
+			@$view->name = $translate->_('ticket.requesters') . ": " . intval(count($ids)) . ' contact(s)';
+			$params_required[SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,'in', $ids);
 		}
 		
 		$view->addParamsRequired($params_required, true);
