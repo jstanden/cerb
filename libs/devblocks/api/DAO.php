@@ -127,7 +127,7 @@ abstract class DevblocksORMHelper {
 		$db->Execute($sql);
 	}
 	
-	static protected function _parseSearchParams($params,$columns=array(),$fields,$sortBy='') {
+	static protected function _parseSearchParams($params,$columns=array(),$fields,$sortBy='',$ignore_params=array()) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$tables = array();
@@ -158,24 +158,30 @@ abstract class DevblocksORMHelper {
 		// Params
 		if(is_array($params))
 		foreach($params as $param_key => $param) {
-			// Skip virtuals
+			// If malformed
 			if(!is_array($param) && !is_object($param))
 				continue;
 			
+			// Skip virtuals
 			if(!is_array($param) && '*_' == substr($param->field,0,2))
 				continue;
 			
 			// Is this a criteria group (OR, AND)?
 			if(is_array($param)) {
-				$where = self::_parseNestedSearchParams($param, $tables, $fields);
+				$where = self::_parseNestedSearchParams($param, $tables, $fields, $ignore_params);
 				
 			// Is this a single parameter?
 			} elseif($param instanceOf DevblocksSearchCriteria) { /* @var $param DevblocksSearchCriteria */
-				// [JAS]: Filter allowed columns (ignore invalid/deprecated)
+				
+				// If ignored
+				if(true === in_array($param->field, $ignore_params))
+					continue;
+				
+				// Filter allowed columns (ignore invalid/deprecated)
 				if(!isset($fields[$param->field]))
 					continue;
 				
-				// [JAS]: Indexes for optimization
+				// Indexes for optimization
 				$tables[$fields[$param->field]->db_table] = $fields[$param->field]->db_table;
 				$where = $param->getWhereSQL($fields);
 			}
@@ -188,7 +194,7 @@ abstract class DevblocksORMHelper {
 		return array($tables, $wheres, $selects);
 	}
 	
-	static private function _parseNestedSearchParams($param, &$tables, $fields) {
+	static private function _parseNestedSearchParams($param, &$tables, $fields, $ignore_params=array()) {
 		$outer_wheres = array();
 		$group_wheres = array();
 		@$group_oper = strtoupper(array_shift($param));
@@ -199,14 +205,18 @@ abstract class DevblocksORMHelper {
 			case DevblocksSearchCriteria::GROUP_AND:
 				foreach($param as $p) { /* @var $$p DevblocksSearchCriteria */
 					if(is_array($p)) {
-						$outer_wheres[] = self::_parseNestedSearchParams($p, $tables, $fields);
+						$outer_wheres[] = self::_parseNestedSearchParams($p, $tables, $fields, $ignore_params);
 						
 					} else {
 						// Skip virtuals
 						if('*_' == substr($p->field,0,2))
 							continue;
 						
-						// [JAS]: Filter allowed columns (ignore invalid/deprecated)
+						// Skip ignored
+						if(true === in_array($p->field, $ignore_params))
+							continue;
+						
+						// Filter allowed columns (ignore invalid/deprecated)
 						if(!isset($fields[$p->field]))
 							continue;
 						
