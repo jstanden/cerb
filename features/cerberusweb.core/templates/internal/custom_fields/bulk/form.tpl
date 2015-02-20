@@ -11,7 +11,7 @@
 		<tr>
 			<td width="1%" nowrap="nowrap" valign="top">
 				{if $bulk}
-				<label><input type="checkbox" onclick="toggleDiv('bulkOpts{$f_id}');" name="field_ids[]" value="{$f_id}">{$f->name}:</label>
+				<label><input type="checkbox" name="field_ids[]" value="{$f_id}">{$f->name}:</label>
 				{else}
 					<input type="hidden" name="field_ids[]" value="{$f_id}">
 					{if $f->type=='U'}
@@ -115,9 +115,20 @@
 </table>
 
 <script type="text/javascript">
+$(function() {
 var $cfields = $('#cfields{$uniqid}');
 
 $cfields.find('input.input_date').cerbDateInputHelper();
+
+$cfields.find('input:checkbox[name="field_ids[]"]').change(function() {
+	var $div = $('#bulkOpts' + $(this).val());
+	
+	if($(this).is(':checked')) {
+		$div.show();
+	} else {
+		$div.hide();
+	}
+});
 
 $cfields.find('button.chooser-cfield-file').each(function() {
 	var options = {
@@ -160,6 +171,7 @@ $cfields.find('button.chooser-abstract').each(function() {
 			}
 		});
 	});
+});
 });
 </script>
 {/if}
