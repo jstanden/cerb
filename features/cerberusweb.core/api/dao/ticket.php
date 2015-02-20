@@ -1334,7 +1334,12 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
 			$sortBy=null;
 		
-		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		$ignore_params = array(
+			SearchFields_Ticket::REQUESTER_ID,
+			SearchFields_Ticket::REQUESTER_ADDRESS,
+		);
+		
+		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, $ignore_params);
 		
 		$select_sql = sprintf("SELECT ".
 			"t.id as %s, ".
@@ -1411,9 +1416,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			"FROM ticket t ".
 			"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
 			"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) ".
-			// [JAS]: Dynamic table joins
-			((isset($tables['r']) || isset($tables['ra'])) ? "INNER JOIN requester r ON (r.ticket_id=t.id) " : " ").
-			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
+			// Dynamic table joins
 			(isset($tables['msg']) || isset($tables['ftmc']) || isset($tables['ftnc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 			(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
 			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.ticket' AND context_link.to_context_id = t.id) " : " ")
@@ -1440,13 +1443,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$select_sql,
 			$join_sql
 		);
-		
-		// If we're filtering by requesters, we can have dupe rows
-		if(
-			parent::paramExistsInSet(SearchFields_Ticket::REQUESTER_ADDRESS, $params)
-			|| parent::paramExistsInSet(SearchFields_Ticket::REQUESTER_ID, $params)
-			)
-			$has_multiple_values = true;
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -1488,6 +1484,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(!is_a($param, 'DevblocksSearchCriteria'))
 			return;
 		
+		/* @var $param DevblocksSearchCriteria */
+		
 		$from_context = 'cerberusweb.contexts.ticket';
 		$from_index = 't.id';
 		
@@ -1495,6 +1493,33 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		settype($param_key, 'string');
 		
 		switch($param_key) {
+			case SearchFields_Ticket::REQUESTER_ID:
+				$fields = SearchFields_Ticket::getFields();
+				$where_sql = $param->getWhereSQL($fields);
+				
+				$args['join_sql'] .= sprintf("INNER JOIN (".
+					"SELECT DISTINCT r.ticket_id ".
+					"FROM requester r ".
+					"WHERE %s ".
+					") virt_requester_ids ON (virt_requester_ids.ticket_id = t.id) ",
+					$where_sql
+				);
+				break;
+				
+			case SearchFields_Ticket::REQUESTER_ADDRESS:
+				$fields = SearchFields_Ticket::getFields();
+				$where_sql = $param->getWhereSQL($fields);
+				
+				$args['join_sql'] .= sprintf("INNER JOIN (".
+					"SELECT DISTINCT r.ticket_id ".
+					"FROM requester r ".
+					"INNER JOIN address ra ON (ra.id = r.address_id) ".
+					"WHERE %s ".
+					") virt_requester_emails ON (virt_requester_emails.ticket_id = t.id) ",
+					$where_sql
+				);
+				break;
+				
 			case SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT:
 				$search = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID);
 				$query = $search->getQueryFromParam($param);
@@ -1776,6 +1801,22 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				);
 				break;
 				
+			case SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID:
+				$participant_ids = is_array($param->value) ? $param->value : array($param->value);
+				$participant_ids = DevblocksPlatform::sanitizeArray($participant_ids, 'int');
+				
+				$participant_ids_string = implode(',', $participant_ids);
+				
+				if(empty($participant_ids_string))
+					$participant_ids_string = '-1';
+				
+				$args['where_sql'] .= sprintf("AND (t.first_wrote_address_id IN (%s) OR t.id IN (SELECT DISTINCT r.ticket_id FROM requester r WHERE r.address_id IN (%s))) ",
+					$participant_ids_string,
+					$participant_ids_string
+				);
+				
+				break;
+				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
 				$values = $param->value;
 				if(!is_array($values))
@@ -1973,6 +2014,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_MESSAGE_HEADER = '*_message_header';
 	const VIRTUAL_ORG_ID = '*_org_id';
+	const VIRTUAL_PARTICIPANT_ID = '*_participant_id';
 	const VIRTUAL_STATUS = '*_status';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
@@ -2043,8 +2085,9 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '*', 'groups_of_worker', $translate->_('ticket.groups_of_worker')),
 			SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS, '*', 'has_attachments', $translate->_('message.search.has_attachments'), Model_CustomField::TYPE_CHECKBOX),
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
-			SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER => new DevblocksSearchField(SearchFields_Message::VIRTUAL_MESSAGE_HEADER, '*', 'message_header', $translate->_('message.header')),				
+			SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER => new DevblocksSearchField(SearchFields_Message::VIRTUAL_MESSAGE_HEADER, '*', 'message_header', $translate->_('message.header')),
 			SearchFields_Ticket::VIRTUAL_ORG_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ORG_ID, '*', 'org_id', null, null), // org ID
+			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID, '*', 'participant_id', null, null), // participant ID
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_STATUS, '*', 'status', $translate->_('ticket.status')),
 			SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
 				
@@ -2190,6 +2233,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER,
 			SearchFields_Ticket::VIRTUAL_ORG_ID,
+			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,
 			SearchFields_Ticket::VIRTUAL_STATUS,
 			SearchFields_Ticket::VIRTUAL_WATCHERS,
 		));
@@ -2204,6 +2248,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::TICKET_ORG_ID,
 			SearchFields_Ticket::TICKET_WAITING,
 			SearchFields_Ticket::VIRTUAL_ORG_ID,
+			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,
 		));
 		
 		$this->doResetCriteria();
@@ -3364,6 +3409,9 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_ORG_ID:
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID:
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
