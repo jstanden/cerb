@@ -186,7 +186,7 @@
 		
 		var $textarea = $(this).find('textarea[name=comment]');
 		
-		$textarea.elastic();
+		$textarea.autosize();
 		
 		// Form hints
 		

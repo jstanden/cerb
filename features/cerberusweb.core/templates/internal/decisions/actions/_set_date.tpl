@@ -34,7 +34,7 @@
 <script type="text/javascript">
 var $action = $('fieldset#{$namePrefix}');
 
-$action.elastic();
+$action.autosize();
 
 $action.find('div.set-date-mode input:radio').change(function() {
 	var $radio = $(this);

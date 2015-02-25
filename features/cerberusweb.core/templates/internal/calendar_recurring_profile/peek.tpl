@@ -156,7 +156,7 @@ $(function() {
 			;
 		
 		$this.find('textarea[name=patterns]')
-			.elastic();
+			.autosize();
 		
 		$this.find('input:text:first').focus();
 		

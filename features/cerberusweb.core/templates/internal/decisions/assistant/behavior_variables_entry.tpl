@@ -57,7 +57,7 @@
 
 <script type="text/javascript">
 // Elastic textareas
-$('#{$vars_uniqid} textarea').elastic();
+$('#{$vars_uniqid} textarea').autosize();
 
 // Choosers
 $('#{$vars_uniqid} button.chooser').each(function() {

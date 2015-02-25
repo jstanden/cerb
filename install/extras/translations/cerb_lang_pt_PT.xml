@@ -4048,7 +4048,7 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="preferences.account.mail.reply_textbox_size.inelastic">
+		<tu tuid="preferences.account.mail.reply_textbox_size.auto">
 			<tuv xml:lang="pt_PT">
 				<seg/>
 			</tuv>

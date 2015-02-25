@@ -43,7 +43,7 @@ $(function() {
 		
 		$popup.find('input:text,textarea').first().focus();
 
-		$popup.find('textarea').elastic();
+		$popup.find('textarea').autosize();
 		
 		$popup.find('div.buttons button.preview').click(function() {
 			genericAjaxPost('formSnippetsPaste', '', null, function(html) {

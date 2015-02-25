@@ -4,5 +4,5 @@
 
 <script type="text/javascript">
 $condition = $('fieldset#{$namePrefix}');
-$condition.find('textarea').elastic();
+$condition.find('textarea').autosize();
 </script>

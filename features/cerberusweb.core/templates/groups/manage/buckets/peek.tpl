@@ -158,7 +158,7 @@ $(function() {
 			$select.val('');
 		});
 		
-		$this.find('textarea[name=reply_signature]').elastic();
+		$this.find('textarea[name=reply_signature]').autosize();
 		
 		$this.find('.placeholders')
 			.atwho({

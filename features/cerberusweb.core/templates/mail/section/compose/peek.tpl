@@ -257,8 +257,8 @@
 		var markitupReplyFunctions = {
 			switchToMarkdown: function(markItUp) { 
 				$content.markItUpRemove().markItUp(markitupParsedownSettings);
-				{if empty($mail_reply_textbox_size_inelastic)}
-				$content.elastic();
+				{if !empty($mail_reply_textbox_size_auto)}
+				$content.autosize();
 				{/if}
 				$content.closest('form').find('input:hidden[name=format]').val('parsedown');
 
@@ -284,8 +284,8 @@
 			
 			switchToPlaintext: function(markItUp) { 
 				$content.markItUpRemove().markItUp(markitupPlaintextSettings);
-				{if empty($mail_reply_textbox_size_inelastic)}
-				$content.elastic();
+				{if !empty($mail_reply_textbox_size_auto)}
+				$content.autosize();
 				{/if}
 				$content.closest('form').find('input:hidden[name=format]').val('');
 			}
@@ -364,7 +364,7 @@
 			markitupReplyFunctions.switchToMarkdown();
 			{/if}
 			
-			$content.elastic();
+			$content.autosize();
 			
 		} catch(e) {
 			if(window.console)

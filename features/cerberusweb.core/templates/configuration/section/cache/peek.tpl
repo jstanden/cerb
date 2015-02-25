@@ -44,7 +44,7 @@ $(function() {
 			$(this).closest('fieldset').find('> div').fadeIn();
 		});
 		
-		$frm.find('textarea').elastic();
+		$frm.find('textarea').autosize();
 		
 		$frm.find('button.submit').on('click', function() {
 			$status.html('').hide();

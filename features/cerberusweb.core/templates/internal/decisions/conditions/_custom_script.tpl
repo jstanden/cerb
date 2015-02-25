@@ -18,7 +18,7 @@
 $(function() {
 	var $condition = $('li#{$namePrefix}');
 	var $textarea = $condition.find('textarea');
-	$textarea.elastic();
+	$textarea.autosize();
 	
 	// Snippet syntax
 	$textarea

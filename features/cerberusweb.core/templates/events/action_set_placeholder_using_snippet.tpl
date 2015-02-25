@@ -37,7 +37,7 @@ $(function(e) {
 	var $on = $action.find('select:first');
 	var $snippet_preview = $action.find('div.snippet-preview');
 	
-	$action.find('textarea').elastic();
+	$action.find('textarea').autosize();
 	
 	$action.find('button.chooser-snippet').on('click', function(e) {
 		var context = $action.find('select:first option:selected').attr('context');

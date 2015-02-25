@@ -61,7 +61,7 @@ $(function() {
 		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
 		
 		$textarea
-			.elastic()
+			.autosize()
 			.focus()
 			.atwho({
 				at: '@',

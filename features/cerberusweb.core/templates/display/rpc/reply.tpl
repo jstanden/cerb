@@ -146,7 +146,7 @@
 
 {$message_content = $message->getContent()}
 {$mail_reply_html = DAO_WorkerPref::get($active_worker->id, 'mail_reply_html', 0)}
-{$mail_reply_textbox_size_inelastic = DAO_WorkerPref::get($active_worker->id, 'mail_reply_textbox_size_inelastic', 0)}
+{$mail_reply_textbox_size_auto = DAO_WorkerPref::get($active_worker->id, 'mail_reply_textbox_size_auto', 0)}
 {$mail_reply_textbox_size_px = DAO_WorkerPref::get($active_worker->id, 'mail_reply_textbox_size_px', 300)}
 
 <form id="reply{$message->id}_part2" action="{devblocks_url}{/devblocks_url}" method="POST" enctype="multipart/form-data">
@@ -410,8 +410,8 @@
 		var markitupReplyFunctions = {
 			switchToMarkdown: function(markItUp) { 
 				$content.markItUpRemove().markItUp(markitupParsedownSettings);
-				{if empty($mail_reply_textbox_size_inelastic)}
-				$content.elastic();
+				{if !empty($mail_reply_textbox_size_auto)}
+				$content.autosize();
 				{/if}
 				$content.closest('form').find('input:hidden[name=format]').val('parsedown');
 
@@ -437,8 +437,8 @@
 			
 			switchToPlaintext: function(markItUp) { 
 				$content.markItUpRemove().markItUp(markitupPlaintextSettings);
-				{if empty($mail_reply_textbox_size_inelastic)}
-				$content.elastic();
+				{if !empty($mail_reply_textbox_size_auto)}
+				$content.autosize();
 				{/if}
 				$content.closest('form').find('input:hidden[name=format]').val('');
 			}
@@ -604,8 +604,8 @@
 		
 		// Elastic
 
-		{if empty($mail_reply_textbox_size_inelastic)}
-		$content.elastic();
+		{if !empty($mail_reply_textbox_size_auto)}
+		$content.autosize();
 		{/if}
 		
 		$frm2.find('input[name=ticket_reopen]')

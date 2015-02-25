@@ -6,5 +6,5 @@
 
 <script type="text/javascript">
 $action = $('fieldset#{$namePrefix}');
-$action.find('textarea').elastic();
+$action.find('textarea').autosize();
 </script>

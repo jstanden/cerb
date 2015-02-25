@@ -122,7 +122,7 @@ $(function() {
 		
 		$(this).find('input:text:first').focus();
 		
-		$textarea.elastic();
+		$textarea.autosize();
 		
 		// Form hints
 		

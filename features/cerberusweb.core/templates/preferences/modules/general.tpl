@@ -76,7 +76,7 @@
 		
 		{'preferences.account.mail.reply_textbox_size.pixels'|devblocks_translate} <input type="text" name="mail_reply_textbox_size_px" size="4" maxlength=4" value="{$prefs.mail_reply_textbox_size_px|default:'500'}" onfocus="$(this).prev().find('input:radio').click();"> pixels<br>
 		<div style="margin:0px 0px 10px 10px;">
-			<label><input type="checkbox" name="mail_reply_textbox_size_inelastic" value="1" {if !empty($prefs.mail_reply_textbox_size_inelastic)}checked{/if}> {'preferences.account.mail.reply_textbox_size.inelastic'|devblocks_translate}</label><br>
+			<label><input type="checkbox" name="mail_reply_textbox_size_auto" value="1" {if !empty($prefs.mail_reply_textbox_size_auto)}checked{/if}> {'preferences.account.mail.reply_textbox_size.auto'|devblocks_translate}</label><br>
 		</div>
 	</div>
 

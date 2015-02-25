@@ -3416,9 +3416,9 @@ For example: *receipt*</seg>
 				<seg>While replying:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="preferences.account.mail.reply_textbox_size.inelastic">
+		<tu tuid="preferences.account.mail.reply_textbox_size.auto">
 			<tuv xml:lang="en_US">
-				<seg>Don't automatically grow the text box as I type</seg>
+				<seg>Automatically grow the text box as I type</seg>
 			</tuv>
 		</tu>
 		<tu tuid="preferences.account.mail.reply_textbox_size.pixels">

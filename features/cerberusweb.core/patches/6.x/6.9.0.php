@@ -113,6 +113,8 @@ if(!isset($columns['updated'])) {
 
 $db->ExecuteMaster("DELETE FROM worker_pref WHERE setting LIKE 'quicksearch_%'");
 
+$db->ExecuteMaster("DELETE FROM worker_pref WHERE setting = 'mail_reply_textbox_size_inelastic'");
+
 // ===========================================================================
 // Clean up API searches
 

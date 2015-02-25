@@ -46,6 +46,6 @@
 <script type="text/javascript">
 $(function() {
 	var $action = $('fieldset#{$namePrefix}');
-	$action.find('textarea').elastic();
+	$action.find('textarea').autosize();
 });
 </script>

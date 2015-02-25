@@ -98,7 +98,7 @@ $(function() {
  	
  	$frm.validate();
  	
- 	$frm.find('textarea').elastic();
+ 	$frm.find('textarea').autosize();
  	
 	$popup.one('popup_open',function(event,ui) {
 		event.stopPropagation();
