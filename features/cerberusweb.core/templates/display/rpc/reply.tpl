@@ -369,8 +369,12 @@
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=bcc]', { multiple: true } );
 		
 		$frm.find('input:text').blur(function(event) {
-			name = event.target.name;
-			$('#reply{$message->id}_part2 input:hidden[name='+name+']').val(event.target.value);
+			var name = event.target.name;
+			
+			if(0 == name.length)
+				return;
+			
+			$('#reply{$message->id}_part2 input:hidden[name="'+name+'"]').val(event.target.value);
 		} );
 		
 		$frm.find('input:text[name=to], input:text[name=cc], input:text[name=bcc]').focus(function(event) {

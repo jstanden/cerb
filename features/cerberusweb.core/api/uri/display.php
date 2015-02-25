@@ -1202,7 +1202,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		foreach($messages as $message_id => $message) { /* @var $message Model_Message */
 			$key = $message->created_date . '_m' . $message_id;
 			// build a chrono index of messages
-			$convo_timeline[$key] = array('m',$message_id);
+			$convo_timeline[$key] = array('m', $message_id);
 			
 			// If we haven't cached this sender address yet
 			if(!isset($message_senders[$message->address_id])) {

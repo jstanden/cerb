@@ -572,7 +572,9 @@ class CerberusApplication extends DevblocksApplication {
 	 * @test CerberusApplicationTest
 	 */
 	static function generateMessageId() {
-		$message_id = sprintf('<%s.%s@%s>', base_convert(time(), 10, 36), base_convert(mt_rand(), 10, 36), !empty($_SERVER['HTTP_HOST']) ?  $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME']);
+		$host = @$_SERVER['HTTP_HOST'];
+		$server_name = @$_SERVER['SERVER_NAME'] ?: 'localhost'; 
+		$message_id = sprintf('<%s.%s@%s>', base_convert(time(), 10, 36), base_convert(mt_rand(), 10, 36), $host ?: $server_name);
 		return $message_id;
 	}
 	

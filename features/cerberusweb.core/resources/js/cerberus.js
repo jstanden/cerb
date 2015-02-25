@@ -642,7 +642,7 @@ var cAjaxCalls = function() {
 				url += "&context_id=" + encodeURIComponent(contexts[context]);
 			
 			// Ajax the content (synchronously)
-			genericAjaxGet('',url,function(json) {
+			genericAjaxGet('', url, function(json) {
 				if(json.has_custom_placeholders) {
 					var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id),null,false,'600');
 					
