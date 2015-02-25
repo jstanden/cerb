@@ -619,11 +619,9 @@ var cAjaxCalls = function() {
 		for(x in contexts)
 			ctx.push(x + ":" + contexts[x]);
 		
-		var $chooser = genericAjaxPopup(layer,'c=internal&a=chooserOpenSnippet&context=cerberusweb.contexts.snippet&contexts=' + ctx.join(','),null,false,'600');
+		$textarea.focus();
 		
-		$chooser.on('dialogclose', function() {
-			$textarea.focus();
-		});
+		var $chooser = genericAjaxPopup(layer,'c=internal&a=chooserOpenSnippet&context=cerberusweb.contexts.snippet&contexts=' + ctx.join(','),null,false,'600');
 		
 		$chooser.on('snippet_select', function(event) {
 			event.stopPropagation();
@@ -644,17 +642,19 @@ var cAjaxCalls = function() {
 			// Ajax the content (synchronously)
 			genericAjaxGet('', url, function(json) {
 				if(json.has_custom_placeholders) {
+					$textarea.focus();
+					
 					var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id),null,false,'600');
 					
 					$popup_paste.bind('snippet_paste', function(event) {
 						if(null == event.text)
 							return;
 						
-						$textarea.insertAtCursor(event.text).focus();
+						$textarea.insertAtCursor(event.text);
 					});
 					
 				} else {
-					$textarea.insertAtCursor(json.text).focus();
+					$textarea.insertAtCursor(json.text);
 				}
 				
 			}, { async: false });

@@ -1,28 +1,33 @@
-// Reference: http://stackoverflow.com/questions/946534/insert-text-into-textarea-with-jquery/2819568#2819568
 $.fn.extend({
 	insertAtCursor : function(myValue) {
 		this.each(function(i) {
-			if (document.selection) {
-				this.focus();
-				sel = document.selection.createRange();
-				sel.text = myValue;
-				this.focus();
-			} else if (this.selectionStart || this.selectionStart == '0') {
-				var startPos = this.selectionStart;
-				var endPos = this.selectionEnd;
-				var scrollTop = this.scrollTop;
-				this.value = this.value.substring(0, startPos) + myValue
-					+ this.value.substring(endPos, this.value.length);
-				this.focus();
-				this.selectionStart = startPos + myValue.length;
-				this.selectionEnd = startPos + myValue.length;
-				this.scrollTop = scrollTop;
-			} else {
-				this.value += myValue;
-				this.focus();
-			}
+			var $this = $(this).focus();
+			var txt = $this.val();
+			var pos = $this.caret('pos');
+			var newTxt = '';
+			var cursorPos = pos;
 			
-			$(this).trigger('change');
+			newTxt = txt.substring(0, pos);
+			newTxt += myValue;
+			
+			$this.val(newTxt);
+
+			// Move the cursor to the end
+			cursorPos = $this.val().length;
+			
+			// Scroll down all the way
+			this.scrollTop = this.scrollHeight;
+			
+			// Append the rest of the content
+			newTxt += txt.substring(pos);
+			$this.val(newTxt);
+			
+			// Trigger a resize (if used)
+			$this.trigger('autosize.resize');
+			
+			$this.caret('pos', cursorPos);
+			
+			$this.focus();
 		});
 		
 		return this;
