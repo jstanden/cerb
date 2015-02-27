@@ -384,6 +384,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		}
 		
 		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
 		$view->render();
 		
 		exit;
@@ -400,6 +401,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		
 		// Loop through view and get IDs
 		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
 
 		// Page start
 		@$explore_from = DevblocksPlatform::importGPC($_REQUEST['explore_from'],'integer',0);
@@ -506,6 +508,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
 		
 		// Time Tracking fields
 		@$activity = DevblocksPlatform::importGPC($_POST['activity_id'],'string','');

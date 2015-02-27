@@ -1756,6 +1756,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
 		
 		// Snippet fields
 		@$owner = trim(DevblocksPlatform::importGPC($_POST['owner'],'string',''));

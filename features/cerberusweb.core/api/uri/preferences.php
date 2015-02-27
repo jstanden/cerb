@@ -210,6 +210,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
 
 		// Task fields
 		$is_read = trim(DevblocksPlatform::importGPC($_POST['is_read'],'string',''));
@@ -291,6 +292,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 		// Loop through view and get IDs
 		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
 
 		// Page start
 		@$explore_from = DevblocksPlatform::importGPC($_REQUEST['explore_from'],'integer',0);

@@ -332,6 +332,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
 		
 		// Worker fields
 		@$is_disabled = trim(DevblocksPlatform::importGPC($_POST['is_disabled'],'string',''));

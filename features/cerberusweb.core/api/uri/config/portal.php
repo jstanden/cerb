@@ -170,6 +170,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
 		
 		// Templates fields
 		@$deleted = trim(DevblocksPlatform::importGPC($_POST['deleted'],'integer',0));

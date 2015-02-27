@@ -54,6 +54,7 @@ class ChContactsPage extends CerberusPageExtension {
 		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
 		
 		// Fields
 		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
@@ -113,6 +114,7 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		// Loop through view and get IDs
 		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
 
 		// Page start
 		@$explore_from = DevblocksPlatform::importGPC($_REQUEST['explore_from'],'integer',0);
@@ -223,6 +225,7 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		// Loop through view and get IDs
 		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
 
 		// Page start
 		@$explore_from = DevblocksPlatform::importGPC($_REQUEST['explore_from'],'integer',0);
@@ -293,7 +296,8 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		// Loop through view and get IDs
 		$view = C4_AbstractViewLoader::getView($view_id);
-
+		$view->setAutoPersist(false);
+		
 		// Page start
 		@$explore_from = DevblocksPlatform::importGPC($_REQUEST['explore_from'],'integer',0);
 		if(empty($explore_from)) {
@@ -1142,6 +1146,7 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
 
 		@$org_name = trim(DevblocksPlatform::importGPC($_POST['contact_org'],'string',''));
 		@$sla = DevblocksPlatform::importGPC($_POST['sla'],'string','');
@@ -1238,7 +1243,9 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
 		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		
@@ -1342,6 +1349,7 @@ class ChContactsPage extends CerberusPageExtension {
 		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
 		
 		// Org fields
 		@$country = trim(DevblocksPlatform::importGPC($_POST['country'],'string',''));

@@ -181,6 +181,7 @@ class PageSection_MailDrafts extends Extension_PageSection {
 		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
 		
 		// Draft fields
 		@$status = trim(DevblocksPlatform::importGPC($_POST['status'],'string'));

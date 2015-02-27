@@ -57,6 +57,7 @@ class PageSection_SetupSessions extends Extension_PageSection {
 		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
 		
 		// Attachment fields
 		@$deleted = DevblocksPlatform::importGPC($_POST['deleted'],'string');

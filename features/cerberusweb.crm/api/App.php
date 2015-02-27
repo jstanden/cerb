@@ -205,7 +205,9 @@ class CrmPage extends CerberusPageExtension {
 		
 		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		
 		$view = C4_AbstractViewLoader::getView($view_id); /* @var $view View_CrmOpportunity */
+		$view->setAutoPersist(false);
 		
 		// Opp fields
 		@$status = trim(DevblocksPlatform::importGPC($_POST['status'],'string',''));
@@ -308,7 +310,9 @@ class CrmPage extends CerberusPageExtension {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
 		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		
@@ -415,6 +419,7 @@ class CrmPage extends CerberusPageExtension {
 		
 		// Loop through view and get IDs
 		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
 
 		// Page start
 		@$explore_from = DevblocksPlatform::importGPC($_REQUEST['explore_from'],'integer',0);

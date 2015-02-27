@@ -58,7 +58,7 @@ abstract class C4_AbstractView {
 		C4_AbstractViewLoader::setView($this->id, $this);
 	}
 	
-	public function setAutoPersist(boolean $auto_persist) {
+	public function setAutoPersist($auto_persist) {
 		if($auto_persist) {
 			unset($this->__auto_persist);
 		} else {
