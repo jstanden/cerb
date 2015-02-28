@@ -2697,6 +2697,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_WORKER,
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_OWNER_ID),
 				),
+			'participant.id' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID),
+				),
 			'recipient' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -3415,6 +3420,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID:
+				echo sprintf("Participant is %d", $param->value);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
