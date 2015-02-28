@@ -3,6 +3,8 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset={$smarty.const.LANG_CHARSET_CODE}">
 	<meta http-equiv="Cache-Control" content="no-cache">
+	<meta name="robots" content="noindex">
+	<meta name="googlebot" content="noindex">
 	<!--[if gte IE 9]>
 	<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
 	<![endif]-->
