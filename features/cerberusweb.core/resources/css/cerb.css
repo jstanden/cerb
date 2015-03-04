@@ -65,7 +65,6 @@ FORM {
 }
 FORM INPUT[type=text], FORM INPUT[type=password] {
   border: 1px solid #969696;
-  padding: 2px;
 }
 FORM INPUT[type=text]:focus, FORM INPUT[type=password]:focus {
   border: 1px solid #79b7e7;
@@ -140,67 +139,67 @@ a.no-underline:hover {
 }
 
 INPUT[type=text].input_add {
-  padding-left: 25px;
+  padding: 2px 2px 2px 25px;
   background: url(input_icons/add.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
 INPUT[type=text].input_color {
-  padding-left: 25px;
+  padding: 2px 2px 2px 25px;
   background: url(input_icons/colors.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
 INPUT[type=text].input_date {
-  padding-left: 25px;
+  padding: 2px 2px 2px 25px;
   background: url(input_icons/date.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
 INPUT[type=text].input_email {
-  padding-left: 25px;
+  padding: 2px 2px 2px 25px;
   background: url(input_icons/mail.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
 INPUT[type=text].input_location {
-  padding-left: 25px;
+  padding: 2px 2px 2px 25px;
   background: url(input_icons/location.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
 INPUT[type=text].input_money {
-  padding-left: 25px;
+  padding: 2px 2px 2px 25px;
   background: url(input_icons/money.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
 INPUT[type=text].input_number {
-  padding-left: 25px;
+  padding: 2px 2px 2px 25px;
   background: url(input_icons/number.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
 INPUT[type=text].input_openid {
-  padding-left: 25px;
+  padding: 2px 2px 2px 25px;
   background: url(input_icons/openid.gif?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
 INPUT[type=text].input_password {
-  padding-left: 25px;
+  padding: 2px 2px 2px 25px;
   background: url(input_icons/lock.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
 INPUT[type=text].input_percent {
-  padding-left: 25px;
+  padding: 2px 2px 2px 25px;
   background: url(input_icons/percent.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
 INPUT[type=text].input_phone {
-  padding-left: 25px;
+  padding: 2px 2px 2px 25px;
   background: url(input_icons/phone.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
 INPUT[type=text].input_remove {
-  padding-left: 25px;
+  padding: 2px 2px 2px 25px;
   background: url(input_icons/forbidden.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
 INPUT[type=text].input_rss {
-  padding-left: 25px;
+  padding: 2px 2px 2px 25px;
   background: url(input_icons/rss.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
 INPUT[type=text].input_search {
-  padding-left: 25px;
+  padding: 2px 2px 2px 25px;
   background: url(input_icons/view.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
 INPUT[type=text].input_tags {
-  padding-left: 25px;
+  padding: 2px 2px 2px 25px;
   background: url(input_icons/tag.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
 INPUT[type=text].input_url {
-  padding-left: 25px;
+  padding: 2px 2px 2px 25px;
   background: url(input_icons/link.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
 INPUT[type=text].cerb-input-quicksearch {
@@ -211,7 +210,7 @@ INPUT[type=text].cerb-input-quicksearch {
 }
 
 INPUT[type=password] {
-  padding-left: 25px;
+  padding: 2px 2px 2px 25px;
   background: url(input_icons/lock.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
 

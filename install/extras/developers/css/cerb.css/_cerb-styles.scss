@@ -34,7 +34,7 @@ a.no-underline {
 // Text input icons
 
 @mixin form-input-icon($icon) {
-	padding-left: 25px;
+	padding: 2px 2px 2px 25px;
 	background: url(#{$icon}?v=#{$timestamp}) no-repeat scroll 5px 50% #ffffff;
 }
 
