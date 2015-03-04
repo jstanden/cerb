@@ -10,7 +10,8 @@
 {if !$edit_mode && !empty($message)}
 <div id="ticketPeekMessage" style="margin-bottom:10px;">
 		{assign var=headers value=$message->getHeaders()}
-		{if !empty($headers.to)}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$headers.to}<br>{/if}
+		{if !empty($headers.to)}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$headers.to|truncate:255}<br>{/if}
+		{if !empty($headers.cc)}<b>{'message.header.cc'|devblocks_translate|capitalize}:</b> {$headers.cc|truncate:255}<br>{/if}
 		{if !empty($headers.from)}<b>{'message.header.from'|devblocks_translate|capitalize}:</b> {$headers.from}<br>{/if}
 		<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$message->created_date|devblocks_date} ({$message->created_date|devblocks_prettytime})
 		<div id="ticketPeekContent" style="width:400;height:200px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);">
