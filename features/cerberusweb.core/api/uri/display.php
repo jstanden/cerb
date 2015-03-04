@@ -52,10 +52,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		$message_senders = array();
 		$message_sender_orgs = array();
 		
-		if(null != ($sender_addy = DAO_Address::get($message->address_id))) {
+		if(null != ($sender_addy = CerberusApplication::hashLookupAddress($message->address_id))) {
 			$message_senders[$sender_addy->id] = $sender_addy;
 			
-			if(null != $sender_org = DAO_ContactOrg::get($sender_addy->contact_org_id)) {
+			if(null != $sender_org = CerberusApplication::hashLookupOrg($sender_addy->contact_org_id)) {
 				$message_sender_orgs[$sender_org->id] = $sender_org;
 			}
 		}
@@ -1205,22 +1205,24 @@ class ChDisplayPage extends CerberusPageExtension {
 			$convo_timeline[$key] = array('m', $message_id);
 			
 			// If we haven't cached this sender address yet
-			if(!isset($message_senders[$message->address_id])) {
-				if(null != ($sender_addy = DAO_Address::get($message->address_id))) {
-					$message_senders[$sender_addy->id] = $sender_addy;
-
-					// If we haven't cached this sender org yet
-					if(!isset($message_sender_orgs[$sender_addy->contact_org_id])) {
-						if(null != ($sender_org = DAO_ContactOrg::get($sender_addy->contact_org_id))) {
-							$message_sender_orgs[$sender_org->id] = $sender_org;
-						}
-					}
-				}
-			}
+			if($message->address_id)
+				$message_senders[$message->address_id] = null;
 		}
 		
+		// Bulk load sender address records
+		$message_senders = CerberusApplication::hashLookupAddresses(array_keys($message_senders));
+		
+		// Bulk load org records
+		array_walk($message_senders, function($sender) use (&$message_sender_orgs) { /* @var $sender Model_Address */
+			if($sender->contact_org_id)
+				$message_sender_orgs[$sender->contact_org_id] = null;
+		});
+		$message_sender_orgs = CerberusApplication::hashLookupOrgs(array_keys($message_sender_orgs));
+
 		$tpl->assign('message_senders', $message_senders);
 		$tpl->assign('message_sender_orgs', $message_sender_orgs);
+
+		// Comments
 		
 		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $id);
 		arsort($comments);

@@ -606,40 +606,118 @@ class CerberusApplication extends DevblocksApplication {
 	 * times (reports, audit log, views) and you don't want to waste code
 	 * filtering out dupes.
 	 *
-	 * @param string $address The e-mail address to look up
-	 * @param bool $create Should the address be created if not found?
+	 * @param string $email_or_id The email address or ID to lookup
+	 * @param bool $create Should the address be created if not found? (only with address lookups, not ID)
 	 * @return Model_Address The address object or NULL
 	 *
 	 * @todo [JAS]: Move this to a global cache/hash registry
 	 */
-	static public function hashLookupAddress($email, $create=false) {
-		static $hash_address_to_id = array();
+	static public function hashLookupAddress($email_or_id, $create=false) {
+		static $hash_to_address = array();
 		static $hash_hits = array();
 		static $hash_size = 0;
-		
-		if(isset($hash_address_to_id[$email])) {
-			$return = $hash_address_to_id[$email];
-			
-			@$hash_hits[$email] = intval($hash_hits[$email]) + 1;
-			$hash_size++;
-			
+
+		if(isset($hash_to_address[$email_or_id])) {
+			$return = $hash_to_address[$email_or_id];
+
+			@$hash_hits[$email_or_id] = intval($hash_hits[$email_or_id]) + 1;
+
 			// [JAS]: if our hash grows past our limit, crop hits array + intersect keys
-			if($hash_size > 250) {
+			if($hash_size > 100) {
 				arsort($hash_hits);
-				$hash_hits = array_slice($hash_hits,0,100,true);
-				$hash_address_to_id = array_intersect_key($hash_address_to_id,$hash_hits);
-				$hash_size = count($hash_address_to_id);
+				$hash_hits = array_slice($hash_hits,0,25,true);
+				$hash_to_address = array_intersect_key($hash_to_address, $hash_hits);
+				$hash_size = count($hash_to_address);
 			}
 
 			return $return;
 		}
-		
-		$address = DAO_Address::lookupAddress($email, $create);
+
+		// Find the address record by email or ID
+		$address = is_numeric($email_or_id)
+			? DAO_Address::get($email_or_id)
+			: DAO_Address::lookupAddress($email_or_id, $create)
+			;
+
 		if(!empty($address)) {
-			$hash_address_to_id[$email] = $address;
+			$hash_to_address[$email_or_id] = $address;
+			$hash_size++;
 		}
 
 		return $address;
+	}
+
+	static public function hashLookupAddresses($emails_or_ids, $create=false) {
+		$results = array();
+
+		foreach($emails_or_ids as $email_or_id) {
+			if(false == ($address = self::hashLookupAddress($email_or_id)))
+				continue;
+
+			$results[$address->id] = $address;
+		}
+
+		return $results;
+	}
+
+	/**
+	 * Looks up an org using a revolving cache.  This is helpful
+	 * in situations where you may look up the same org multiple
+	 * times (reports, audit log, views) and you don't want to waste code
+	 * filtering out dupes.
+	 *
+	 * @param string $name_or_id The org name or ID to lookup
+	 * @param bool $create Should the org be created if not found? (only with namelookups, not ID)
+	 * @return Model_ContactOrg The org record or NULL
+	 *
+	 * @todo [JAS]: Move this to a global cache/hash registry
+	 */
+	static public function hashLookupOrg($name_or_id, $create=false) {
+		static $hash_to_org = array();
+		static $hash_hits = array();
+		static $hash_size = 0;
+
+		if(isset($hash_to_org[$name_or_id])) {
+			$return = $hash_to_org[$name_or_id];
+
+			@$hash_hits[$name_or_id] = intval($hash_hits[$name_or_id]) + 1;
+
+			// [JAS]: if our hash grows past our limit, crop hits array + intersect keys
+			if($hash_size > 100) {
+				arsort($hash_hits);
+				$hash_hits = array_slice($hash_hits,0,25,true);
+				$hash_to_org = array_intersect_key($hash_to_org, $hash_hits);
+				$hash_size = count($hash_to_org);
+			}
+
+			return $return;
+		}
+
+		// Find the record by name or ID
+		$org = is_numeric($name_or_id)
+			? DAO_ContactOrg::get($name_or_id)
+			: DAO_ContactOrg::lookup($name_or_id, $create)
+			;
+
+		if(!empty($org)) {
+			$hash_to_org[$name_or_id] = $org;
+			$hash_size++;
+		}
+
+		return $org;
+	}
+
+	static public function hashLookupOrgs($names_or_ids, $create=false) {
+		$results = array();
+
+		foreach($names_or_ids as $name_or_ids) {
+			if(false == ($org = self::hashLookupOrg($name_or_ids)))
+				continue;
+
+			$results[$org->id] = $org;
+		}
+
+		return $results;
 	}
 
 	/**
@@ -665,7 +743,7 @@ class CerberusApplication extends DevblocksApplication {
 			$hash_size++;
 
 			// [JAS]: if our hash grows past our limit, crop hits array + intersect keys
-			if($hash_size > 250) {
+			if($hash_size > 200) {
 				arsort($hash_hits);
 				$hash_hits = array_slice($hash_hits,0,100,true);
 				$hash_mask_to_id = array_intersect_key($hash_mask_to_id,$hash_hits);
