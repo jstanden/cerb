@@ -1363,13 +1363,21 @@ class CerberusParser {
 					DAO_Attachment::MIME_TYPE => 'text/html',
 					DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
 				);
-				$file_id = DAO_Attachment::create($fields);
 				
-				Storage_Attachments::put($file_id, $message->htmlbody);
+				if(false != ($file_id = DAO_Attachment::create($fields))) {
+					Storage_Attachments::put($file_id, $message->htmlbody);
+				}
 			}
 			
-			if(!empty($file_id))
+			// Link the HTML part to the message
+			if(!empty($file_id)) {
 				DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId());
+				
+				// This built-in field is faster than searching for the HTML part again in the attachments
+				DAO_Message::update($message_id, array(
+					DAO_Message::HTML_ATTACHMENT_ID => $file_id,
+				));
+			}
 		}
 		
 		// Pre-load custom fields

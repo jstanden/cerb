@@ -95,6 +95,25 @@ if(!isset($tables['mail_transport'])) {
 }
 
 // ===========================================================================
+// Add the `html_attachment_id` field to `message`
+
+if(!isset($tables['message'])) {
+	$logger->error("The 'message' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('message');
+
+if(!isset($columns['html_attachment_id'])) {
+	$db->ExecuteMaster("ALTER TABLE message ADD COLUMN html_attachment_id INT UNSIGNED NOT NULL DEFAULT 0");
+	
+	$db->ExecuteMaster("CREATE TEMPORARY TABLE _tmp_message_to_html SELECT al.attachment_id AS html_id, al.context_id AS message_id FROM attachment_link al INNER JOIN attachment a ON (a.id=al.attachment_id) WHERE al.context = 'cerberusweb.contexts.message' AND a.display_name = 'original_message.html'");
+	$db->ExecuteMaster("ALTER TABLE _tmp_message_to_html ADD INDEX (message_id), ADD INDEX (html_id)");
+	$db->ExecuteMaster("UPDATE message AS m INNER JOIN _tmp_message_to_html AS tmp ON (tmp.message_id=m.id) SET m.html_attachment_id = tmp.html_id");
+	$db->ExecuteMaster("DROP TABLE _tmp_message_to_html");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

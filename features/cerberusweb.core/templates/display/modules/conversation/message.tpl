@@ -95,7 +95,15 @@
 	  
   	{if $expanded}
 	  <div style="clear:both;display:block;padding-top:10px;">
-		  	<pre class="emailbody">{$message->getContent()|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</pre>
+	  		{$html_body = $message->getContentAsHtml()}
+	  
+	  		{if !empty($html_body)}
+		  		<div class="emailBodyHtml">
+			  		{$html_body nofilter}
+		  		</div>
+	  		{else}
+			  	<pre class="emailbody">{$message->getContent()|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</pre>
+		  	{/if}
 		  	<br>
 		  	<table width="100%" cellpadding="0" cellspacing="0" border="0">
 		  		<tr>

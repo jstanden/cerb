@@ -840,7 +840,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			while(!feof($fp))
 				$dirty_html .= fread($fp, 4096);
 		}
-
+		
 		// Handle inlining CSS
 		
 		if($inline_css) {
@@ -849,12 +849,22 @@ class DevblocksPlatform extends DevblocksEngine {
 			$css_converter->setHTML(sprintf('<?xml encoding="%s">', LANG_CHARSET_CODE) . $dirty_html);
 			$css_converter->setUseInlineStylesBlock(true);
 			$dirty_html = $css_converter->convert();
+			unset($css_converter);
 		}
 		
 		// Purify
 		
 		$config = HTMLPurifier_Config::createDefault();
+		$config->set('Core.ConvertDocumentToFragment', true);
 		$config->set('HTML.Doctype', 'HTML 4.01 Transitional');
+		$config->set('CSS.AllowTricky', true);
+		
+		// Remove class attributes if we inlined CSS styles
+		if($inline_css) {
+			$config->set('HTML.ForbiddenAttributes', array(
+				'class',
+			));
+		}
 		
 		$config->set('URI.AllowedSchemes', array(
 			'http' => true,
@@ -876,8 +886,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Set any config overrides
 		if(is_array($options) && !empty($options))
-		foreach($options as $k => $v)
+		foreach($options as $k => $v) {
 			$config->set($k, $v);
+		}
 		
 		$purifier = new HTMLPurifier($config);
 		return $purifier->purify($dirty_html);
