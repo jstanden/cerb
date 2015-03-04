@@ -14,7 +14,7 @@
 		<tr>
 			<td nowrap="nowrap" rowspan="2" valign="top" style="padding-left:10px;">
 				{if $gravatar_enabled}
-				<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$worker->email|trim|lower|md5}?s=64&d=http://cerbweb.com/gravatar/gravatar_nouser.jpg" height="64" width="64" border="0" style="margin:0px 5px 5px 0px;border-radius:40px;">
+				<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$worker->email|trim|lower|md5}?s=64&d={CerberusApplication::getGravatarDefaultIcon()}" height="64" width="64" border="0" style="margin:0px 5px 5px 0px;border-radius:40px;">
 				{/if}
 			</td>
 			<td valign="top">
