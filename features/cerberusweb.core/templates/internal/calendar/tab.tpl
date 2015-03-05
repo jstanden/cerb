@@ -99,7 +99,7 @@ $(function() {
 	var $frm = $('#frm{$guid}');
 	var $tab = $frm.closest('div.ui-tabs-panel');
 	
-	$openEvtPopupEvent = function(e) {
+	var $openEvtPopupEvent = function(e) {
 		e.stopPropagation();
 		
 		var $this = $(this);

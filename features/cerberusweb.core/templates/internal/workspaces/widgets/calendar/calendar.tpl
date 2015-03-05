@@ -72,109 +72,109 @@
 
 <script type="text/javascript">
 $(function() {
-var $widget = $('#widget{$widget->id}');
-var $calendar = $widget.find('TABLE.calendar');
-var $calendar_cell = $calendar.find('TR.week:first TD:first');
-
-// Size all calendar cells to be square
-$calendar.find('TR.week').css('min-height', $calendar_cell.width() + 'px');
-
-$calendar.find('TR.week TD').hoverIntent({
-	sensitivity:10,
-	interval:100,
-	timeout:0,
-	over:function() {
-		var $this = $(this);
-		$this.addClass('hover');
-		
-		var $window = $(window);
-		
-		var $tooltip = $this.find('DIV.bubble-popup');
-		
-		if($tooltip.length == 0)
-			return;
-		
-		$tooltip.show();
-
-		if($tooltip.offset().left + 16 + $tooltip.width() > $window.width()) {
-			var left_offset = $tooltip.offset().left + 16 + $tooltip.width() - $window.width() + 10;
-			$tooltip.css('margin-left', '-' + left_offset + 'px');
+	var $widget = $('#widget{$widget->id}');
+	var $calendar = $widget.find('TABLE.calendar');
+	var $calendar_cell = $calendar.find('TR.week:first TD:first');
+	
+	// Size all calendar cells to be square
+	$calendar.find('TR.week').css('min-height', $calendar_cell.width() + 'px');
+	
+	$calendar.find('TR.week TD').hoverIntent({
+		sensitivity:10,
+		interval:100,
+		timeout:0,
+		over:function() {
+			var $this = $(this);
+			$this.addClass('hover');
+			
+			var $window = $(window);
+			
+			var $tooltip = $this.find('DIV.bubble-popup');
+			
+			if($tooltip.length == 0)
+				return;
+			
+			$tooltip.show();
+	
+			if($tooltip.offset().left + 16 + $tooltip.width() > $window.width()) {
+				var left_offset = $tooltip.offset().left + 16 + $tooltip.width() - $window.width() + 10;
+				$tooltip.css('margin-left', '-' + left_offset + 'px');
+			}
+			
+			$tooltip.show();
+		},
+		out:function() {
+			var $this = $(this);
+			$this.removeClass('hover');
+			var $tooltip = $this.find('DIV.bubble-popup');
+			
+			if($tooltip.length == 0)
+				return;
+			
+			$tooltip.css('margin-left', 0);
+			$tooltip.hide();
 		}
-		
-		$tooltip.show();
-	},
-	out:function() {
-		var $this = $(this);
-		$this.removeClass('hover');
-		var $tooltip = $this.find('DIV.bubble-popup');
-		
-		if($tooltip.length == 0)
-			return;
-		
-		$tooltip.css('margin-left', 0);
-		$tooltip.hide();
-	}
-});
-
-$frm = $('#frm{$guid}');
-
-$frm.find('button.calendar-edit').click(function() {
-	$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CALENDAR}&context_id={$calendar->id}',null,false,'550');
-	$popup.one('calendar_save', function(event) {
-		event.stopPropagation();
-
-		var month = (event.month) ? event.month : '{$calendar_properties.month}';
-		var year = (event.year) ? event.year : '{$calendar_properties.year}';
-		
-		genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1&month=' + month + '&year=' + year);
 	});
-});
-
-$openEvtPopupEvent = function(e) {
-	e.stopPropagation();
 	
-	var $this = $(this);
-	var link = '';
+	var $frm = $('#frm{$guid}');
 	
-	if($this.is('.create-event')) {
-		$this.closest('div').find('ul.cerb-popupmenu').hide();
-		context = $this.attr('context');
-		link = 'ctx://' + context + ':0';
+	$frm.find('button.calendar-edit').click(function() {
+		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CALENDAR}&context_id={$calendar->id}',null,false,'550');
+		$popup.one('calendar_save', function(event) {
+			event.stopPropagation();
 	
-	} else if($this.is('DIV.bubble-popup-event')) {
-		link = $this.attr('link');
-	}
-	
-	if(link.substring(0,6) == 'ctx://') {
-		var context_parts = link.substring(6).split(':');
-		var context = context_parts[0];
-		var context_id = context_parts[1];
-		
-		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context=' + context + '&context_id=' + context_id  + '&calendar_id={$calendar->id}',null,false,'600');
-		
-		$popup.one('popup_saved calendar_event_save calendar_event_delete', function(event) {
 			var month = (event.month) ? event.month : '{$calendar_properties.month}';
 			var year = (event.year) ? event.year : '{$calendar_properties.year}';
 			
 			genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1&month=' + month + '&year=' + year);
-		
-			event.stopPropagation();
 		});
+	});
+	
+	var $openEvtPopupEvent = function(e) {
+		e.stopPropagation();
 		
-	} else {
-		// [TODO] Regular link
+		var $this = $(this);
+		var link = '';
+		
+		if($this.is('.create-event')) {
+			$this.closest('div').find('ul.cerb-popupmenu').hide();
+			context = $this.attr('context');
+			link = 'ctx://' + context + ':0';
+		
+		} else if($this.is('DIV.bubble-popup-event')) {
+			link = $this.attr('link');
+		}
+		
+		if(link.substring(0,6) == 'ctx://') {
+			var context_parts = link.substring(6).split(':');
+			var context = context_parts[0];
+			var context_id = context_parts[1];
+			
+			var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context=' + context + '&context_id=' + context_id  + '&calendar_id={$calendar->id}',null,false,'600');
+			
+			$popup.one('popup_saved calendar_event_save calendar_event_delete', function(event) {
+				var month = (event.month) ? event.month : '{$calendar_properties.month}';
+				var year = (event.year) ? event.year : '{$calendar_properties.year}';
+				
+				genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1&month=' + month + '&year=' + year);
+			
+				event.stopPropagation();
+			});
+			
+		} else {
+			// [TODO] Regular link
+		}
 	}
-}
-
-{if !empty($create_contexts)}
-$frm.find('ul.cerb-popupmenu > li').click(function(e) {
-	e.stopPropagation();
-	$(this).find('a.create-event').click();
-});
-
-$frm.find('button.create-event, a.create-event').click($openEvtPopupEvent);
-{/if}
-
-$calendar.find('TR.week DIV.bubble-popup-event').click($openEvtPopupEvent);
+	
+	{if !empty($create_contexts)}
+	$frm.find('ul.cerb-popupmenu > li').click(function(e) {
+		e.stopPropagation();
+		$(this).find('a.create-event').click();
+	});
+	
+	$frm.find('button.create-event, a.create-event').click($openEvtPopupEvent);
+	{/if}
+	
+	$calendar.find('TR.week DIV.bubble-popup-event').click($openEvtPopupEvent);
 });
 </script>
