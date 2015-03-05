@@ -3139,13 +3139,30 @@ class DevblocksEventHelper {
 					if(!empty($val) && !is_numeric($val)) {
 						if(isset($dict->$val)) {
 							$val = $dict->$val;
+							
+							// If it's an array, pick a random key
+							if(is_array($val)) {
+								$key = array_rand($val, 1);
+								
+								if(is_numeric($key)) {
+									$val = $key;
+									
+								} else {
+									$val = array_shift($val);
+									
+									if($val instanceof DevblocksDictionaryDelegate) {
+										@$val = intval($val->id);
+									}
+								}
+							}
+							
 						}
 					}
-						
+					
 					if(isset($workers[$val])) {
 						$set_worker = $workers[$val];
 						$val = $set_worker->getName();
-					}						
+					}
 					break;
 					
 				default:

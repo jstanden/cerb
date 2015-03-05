@@ -950,6 +950,26 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 					$id
 				));
 				
+				$doc = array();
+				
+				// Add sender fields
+				if(false != ($sender = $message->getSender())) {
+					$doc['sender_first_name'] = $sender->first_name;
+					$doc['sender_last_name'] = $sender->last_name;
+					$doc['sender_email'] = $sender->email;
+				}
+				
+				// Add ticket fields
+				if(false != ($ticket = DAO_Ticket::get($message->ticket_id))) {
+					$doc['mask'] = $ticket->mask;
+					$doc['subject'] = $ticket->subject;
+					
+					// Org
+					if(null != ($org = $ticket->getOrg()) && $org instanceof Model_ContactOrg) {
+						$doc['org_name'] = $org->name;
+					}
+				}
+				
 				if(false !== ($content = Storage_MessageContent::get($message))) {
 					// Strip reply quotes
 					$content = preg_replace("/(^\>(.*)\$)/m", "", $content);
@@ -958,18 +978,11 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 					// Truncate to 10KB
 					$content = $engine->truncateOnWhitespace($content, 10000);
 					
-					// Prepend subject
-					if(false !== ($ticket = DAO_Ticket::get($message->ticket_id))) {
-						$doc = array(
-							'mask' => $ticket->mask,
-							'subject' => $ticket->subject,
-							'content' => $content,
-						);
-						
-						if(false === ($engine->index($this, $id, $doc)))
-							return false;
-					}
+					$doc['content'] = $content;
 				}
+				
+				if(false === ($engine->index($this, $id, $doc)))
+					return false;
 
 				// Record our progress every 25th index
 				if(++$count % 25 == 0) {

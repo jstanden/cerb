@@ -143,6 +143,7 @@ $(function() {
 	
 	$popup.one('popup_open', function(event,ui) {
 		var $this = $(this);
+		var $frm = $this.find('form');
 		
 		$this.dialog('option','title',"{'Calendar Recurring Event'}");
 		

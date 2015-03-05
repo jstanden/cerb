@@ -25,7 +25,7 @@
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
+	var $popup = genericAjaxPopupFind('#internalCommentPopup');
 	
 	$popup.one('popup_open',function(event,ui) {
 		var $frm = $('#internalCommentPopup');
