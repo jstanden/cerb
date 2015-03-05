@@ -22,7 +22,7 @@
 		<script type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/devblocks.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 
 		<!-- Application -->
-		<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/cerberus.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
+		<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/cerb.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
 		<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerberus.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 
 		<style type="text/css">
@@ -39,7 +39,7 @@
 					<table cellpadding="0" cellspacing="0" border="0" width="100%">
 						<tr>
 							<td width="1%" nowrap="nowrap" align="left" style="padding-right:10px;padding-bottom:5px;">
-								<a href="{if !empty($return_url)}{$return_url}{else}{devblocks_url}{/devblocks_url}{/if}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/powered_by_cerb6.png{/devblocks_url}?v={$smarty.const.APP_BUILD}" border="0"></span></a>
+								<a href="{if !empty($return_url)}{$return_url}{else}{devblocks_url}{/devblocks_url}{/if}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/cerb_logo.png{/devblocks_url}?v={$smarty.const.APP_BUILD}" border="0" width="140" height="40"></span></a>
 							</td>
 							<td align="left" width="98%;" valign="top">
 								<h2>{$title}</h2> &nbsp;
