@@ -33,10 +33,10 @@ $(function() {
 		$(this).dialog('option','title','Comment');
 		
 		$frm.find('button.submit').click(function() {
-			var $popup = genericAjaxPopupFetch('peek');
+			var $popup = genericAjaxPopupFind('#internalCommentPopup');
 			genericAjaxPost('internalCommentPopup','','', null, { async: false } );
 			$popup.trigger('comment_save');
-			genericAjaxPopupClose('peek');
+			genericAjaxPopupClose('comment');
 		});
 	
 		$frm.find('button.chooser_file').each(function() {
