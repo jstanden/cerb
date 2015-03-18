@@ -2388,6 +2388,7 @@ interface IAbstractView_Subtotals {
  * classloading issues (out of the session) from plugins that might have
  * concrete AbstractView implementations.
  */
+if(!class_exists('C4_AbstractViewModel')):
 class C4_AbstractViewModel {
 	public $class_name = '';
 
@@ -2417,6 +2418,7 @@ class C4_AbstractViewModel {
 	public $placeholderLabels = array();
 	public $placeholderValues = array();
 };
+endif;
 
 /**
  * This is essentially an AbstractView Factory
