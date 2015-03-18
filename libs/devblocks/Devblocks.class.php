@@ -161,7 +161,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				if(is_bool($value))
 					return $value ? 'true' : 'false';
 				
-				$value = (string) $value;
+				@$value = (string) $value;
 				break;
 				
 			case 'timestamp':
@@ -1564,6 +1564,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			if(!$nocache)
 				$cache->save($tables, self::CACHE_TABLES);
 		}
+		
 		return $tables;
 	}
 
