@@ -533,7 +533,6 @@ switch($step) {
 					case 'cerberusweb.support_center':
 					case 'cerberusweb.simulator':
 					case 'cerberusweb.timetracking':
-					case 'cerberusweb.watchers':
 						$plugin->setEnabled(true);
 						break;
 					

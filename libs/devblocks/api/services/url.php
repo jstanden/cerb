@@ -121,9 +121,12 @@ class _DevblocksUrlManager {
 		// Devblocks App
 		} else {
 			if($full) {
+				$host = @$_SERVER['HTTP_HOST'];
+				$server_name = @$_SERVER['SERVER_NAME'] ?: 'localhost';
+				
 				$prefix = sprintf("%s://%s%s",
 					($this->isSSL() ? 'https' : 'http'),
-					$_SERVER['HTTP_HOST'],
+					$host ?: $server_name,
 					DEVBLOCKS_APP_WEBPATH
 				);
 			} else {

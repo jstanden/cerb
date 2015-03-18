@@ -1,6 +1,34 @@
 <?php
-if(!class_exists('C4_AbstractViewModel')) {
-class C4_AbstractViewModel {};
+if(!class_exists('C4_AbstractViewModel', true)) {
+	class C4_AbstractViewModel {
+		public $class_name = '';
+	
+		public $id = '';
+		public $name = "";
+		public $is_ephemeral = 0;
+		
+		public $view_columns = array();
+		public $columnsHidden = array();
+		
+		public $paramsEditable = array();
+		public $paramsDefault = array();
+		public $paramsRequired = array();
+		public $paramsHidden = array();
+	
+		public $renderPage = 0;
+		public $renderLimit = 10;
+		public $renderTotal = true;
+		public $renderSortBy = '';
+		public $renderSortAsc = 1;
+		
+		public $renderFilters = null;
+		public $renderSubtotals = null;
+		
+		public $renderTemplate = null;
+		
+		public $placeholderLabels = array();
+		public $placeholderValues = array();
+	};
 }
 
 $db = DevblocksPlatform::getDatabaseService();
