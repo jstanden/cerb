@@ -19,9 +19,7 @@
 	-moz-box-shadow: 0 0 6px rgba(0, 0, 0, .25);
 	-webkit-box-shadow: 0 0 6px rgba(0, 0, 0, .25);
 	box-shadow: 0 0 6px rgba(0, 0, 0, .25);
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border-radius: 5px;
+	@include border-radius(5px);
 	padding: 5px;
 	z-index: 999999;
 }
@@ -72,9 +70,7 @@
 	width: 9px;
 	height: 9px;
 	border: 1px solid #fff;
-	-moz-border-radius: 11px;
-	-webkit-border-radius: 11px;
-	border-radius: 11px;
+	@include border-radius(11px);
 }
 .miniColors-colorPicker-inner {
 	position: absolute;
@@ -83,9 +79,7 @@
 	width: 7px;
 	height: 7px;
 	border: 1px solid #000;
-	-moz-border-radius: 9px;
-	-webkit-border-radius: 9px;
-	border-radius: 9px;
+	@include border-radius(9px);
 }
 
 .miniColors-huePicker {
@@ -94,6 +88,6 @@
 	width: 24px;
 	height: 1px;
 	border: 1px solid #fff;
-	border-radius: 2px;
+	@include border-radius(2px);
 	background: #000;
 }

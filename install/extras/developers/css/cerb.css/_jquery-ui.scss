@@ -70,17 +70,10 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 	background: #ffffff none;
 	border: none;
 	border-bottom: 1px solid rgb(200,200,200);
-	-moz-border-radius:0;
-	-webkit-border-radius:0;
-	border-radius:0;
+	@include border-radius(0);
 }
 .ui-tabs .ui-tabs-nav li {
-	background: rgb(245,245,245) none;
-	background: linear-gradient(top, rgb(255,255,255), rgb(240,240,240));
-	background: -webkit-gradient(linear, left top, left bottom, from(rgb(255,255,255)), to(rgb(240,240,240)));
-	background: -moz-linear-gradient(top, rgb(255,255,255), rgb(240,240,240));
-	background: -o-linear-gradient(top, rgb(255,255,255), rgb(240,240,240));
-	background: -ms-linear-gradient(top, rgb(255,255,255), rgb(240,240,240));
+	@include linear-gradient(rgb(255,255,255), rgb(240,240,240));
 	border-color:rgb(200,200,200);
 	margin: 0.5px -0.5px 0px -0.5px;
 }
@@ -89,12 +82,7 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 	outline:none;
 }
 .ui-tabs .ui-tabs-nav li.ui-state-hover {
-	background: rgb(255,255,255) none;
-	background: linear-gradient(top, rgb(255,255,255), rgb(200,200,200));
-	background: -webkit-gradient(linear, left top, left bottom, from(rgb(255,255,255)), to(rgb(200,200,200)));
-	background: -moz-linear-gradient(top, rgb(255,255,255), rgb(200,200,200));
-	background: -o-linear-gradient(top, rgb(255,255,255), rgb(200,200,200));
-	background: -ms-linear-gradient(top, rgb(255,255,255), rgb(200,200,200));
+	@include linear-gradient(rgb(255,255,255), rgb(200,200,200));
 	border-bottom:none;
 	z-index:2;
 }
@@ -106,12 +94,7 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 }
 .ui-tabs .ui-tabs-nav li.ui-tabs-active {
 	padding-bottom: 0px;
-	background: rgb(255,255,255) none;
-	background: linear-gradient(top, rgb(239,249,255), rgb(255,255,255));
-	background: -webkit-gradient(linear, left top, left bottom, from(rgb(239,249,255)), to(rgb(255,255,255)));
-	background: -moz-linear-gradient(top, rgb(239,249,255), rgb(255,255,255));
-	background: -o-linear-gradient(top, rgb(239,249,255), rgb(255,255,255));
-	background: -ms-linear-gradient(top, rgb(239,249,255), rgb(255,255,255));
+	@include linear-gradient(rgb(239,249,255), rgb(255,255,255));
 	border-color:rgb(121,183,231);
 	border-bottom:none;
 	z-index:2;
@@ -130,9 +113,7 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 	font-weight:500;
 	display:inline;
 
-	border-radius: 10px;
-	-moz-border-radius: 10px;
-	-webkit-border-radius: 10px;
+	@include border-radius(10px);
 
 	background-color:rgb(110,110,110);
 	color:rgb(255,255,255);
