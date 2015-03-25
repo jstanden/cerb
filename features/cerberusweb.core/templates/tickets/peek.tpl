@@ -162,8 +162,7 @@
 	
 	<fieldset class="peek">
 		<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-		<div class="cerb-form-hint">{'comment.notify.at_mention'|devblocks_translate}</div>
-		<textarea name="comment" rows="5" cols="60" style="width:98%;"></textarea>
+		<textarea name="comment" rows="5" cols="60" style="width:98%;" placeholder="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
 	</fieldset>
 	
 	<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmTicketPeek','{$view_id}',false,'ticket_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
