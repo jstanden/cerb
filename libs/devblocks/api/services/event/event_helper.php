@@ -943,9 +943,7 @@ class DevblocksEventHelper {
 					// Random
 					default:
 					case 'random':
-						$ids = array_keys($possible_workers);
-						shuffle($ids);
-						$chosen_worker_id = reset($ids);
+						$chosen_worker_id = array_rand($possible_workers, 1);
 						break;
 						
 					// Sequential
@@ -982,10 +980,20 @@ class DevblocksEventHelper {
 							$worker_loads[$row['owner_id']] = intval($row['hits']);
 						}
 						
-						asort($worker_loads);
-						reset($worker_loads);
+						// Find the lowest load value
+						$lowest_load = min($worker_loads);
 						
-						$chosen_worker_id = key($worker_loads);
+						// Only keep workers with the lowest load
+						$worker_loads = array_filter($worker_loads, function($e) use ($lowest_load) {
+							if($e == $lowest_load)
+								return true;
+							
+							return false;
+						});
+						
+						// Pick a random worker if multiple have the same lowest load
+						$chosen_worker_id = array_rand($worker_loads, 1);
+						
 						break;
 				}
 				
