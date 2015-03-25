@@ -1328,7 +1328,8 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 
 		$textarea.atwho({
 			at: '@',
-			{literal}tpl: '<li data-value="@${at_mention}">${name} <small style="margin-left:10px;">${title}</small></li>',{/literal}
+			{literal}displayTpl: '<li>${name} <small style="margin-left:10px;">${title}</small></li>',{/literal}
+			{literal}insertTpl: '@${at_mention}',{/literal}
 			data: atwho_workers,
 			limit: 10
 		});
