@@ -530,7 +530,8 @@
 		$content
 			.atwho({
 				at: '#attach ',
-				{literal}tpl: '<li data-value="#attach ${tag}\n">${name} <small style="margin-left:10px;">${tag}</small></li>',{/literal}
+				{literal}displayTpl: '<li>${name} <small style="margin-left:10px;">${tag}</small></li>',{/literal}
+				{literal}insertTpl: '#attach ${tag}\n',{/literal}
 				suffix: '',
 				data: atwho_file_bundles,
 				limit: 10
@@ -538,7 +539,7 @@
 			.atwho({
 				at: '#',
 				data: [
-					'attach',
+					'attach ',
 					'comment',
 					'comment @',
 					'cut\n',

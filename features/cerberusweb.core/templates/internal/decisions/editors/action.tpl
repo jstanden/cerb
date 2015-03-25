@@ -148,16 +148,18 @@ $(function() {
 			.atwho({
 				{literal}at: '{%',{/literal}
 				limit: 20,
-				{literal}tpl: '<li data-value="${name}">${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+				{literal}displayTpl: '<li>${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+				{literal}insertTpl: '${name}',{/literal}
 				data: atwho_twig_commands,
 				suffix: ''
 			})
 			.atwho({
 				{literal}at: '|',{/literal}
 				limit: 20,
-				start_with_space: false,
-				search_key: "content",
-				{literal}tpl: '<li data-value="|${name}">${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+				startWithSpace: false,
+				searchKey: "content",
+				{literal}displayTpl: '<li>${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+				{literal}insertTpl: '|${name}',{/literal}
 				data: atwho_twig_modifiers,
 				suffix: ''
 			})
@@ -377,16 +379,18 @@ $(function() {
 					.atwho({
 						{literal}at: '{%',{/literal}
 						limit: 20,
-						{literal}tpl: '<li data-value="${name}">${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+						{literal}displayTpl: '<li>${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+						{literal}insertTpl: '${name}',{/literal}
 						data: atwho_twig_commands,
 						suffix: ''
 					})
 					.atwho({
 						{literal}at: '|',{/literal}
 						limit: 20,
-						start_with_space: false,
-						search_key: "content",
-						{literal}tpl: '<li data-value="|${name}">${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+						startWithSpace: false,
+						searchKey: "content",
+						{literal}displayTpl: '<li>${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+						{literal}insertTpl: '|${name}',{/literal}
 						data: atwho_twig_modifiers,
 						suffix: ''
 					})
