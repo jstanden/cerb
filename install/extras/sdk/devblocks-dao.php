@@ -1261,8 +1261,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-	<div class="cerb-form-hint">{'comment.notify.at_mention'|devblocks_translate}</div>
-	&lt;textarea name="comment" rows="5" cols="45" style="width:98%; title="{'comment.notify.at_mention'|devblocks_translate}"&gt;&lt;/textarea&gt;
+	&lt;textarea name="comment" rows="5" cols="45" style="width:98%;" placeholder="{'comment.notify.at_mention'|devblocks_translate}"&gt;&lt;/textarea&gt;
 </fieldset>
 
 {if !empty($model->id)}
