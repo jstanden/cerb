@@ -719,6 +719,58 @@ class DevblocksPlatform extends DevblocksEngine {
 			$str
 		);
 		
+		// Unordered and ordered lists
+		
+		$dom = new DOMDocument('1.0', LANG_CHARSET_CODE);
+		$dom->strictErrorChecking = false;
+		$dom->recover = true;
+		$dom->validateOnParse = false;
+		
+		libxml_use_internal_errors(true);
+		
+		$dom->loadHTML(sprintf('<?xml version="1.0" encoding="%s">', LANG_CHARSET_CODE) . $str);
+		
+		$errors = libxml_get_errors();
+		libxml_clear_errors();
+		
+		$xpath = new DOMXPath($dom);
+		
+		// Ordered lists
+		
+		$lists = $xpath->query('//ol');
+		
+		foreach($lists as $list) { /* @var $list DOMElement */
+			$items = $xpath->query('./li/text()', $list);
+			
+			$counter = 1;
+			foreach($items as $item) { /* @var $item DOMText */
+				$txt = $dom->createTextNode('');
+				$txt->nodeValue = $counter++ . '. ' . $item->nodeValue;
+				$item->parentNode->replaceChild($txt, $item);
+			}
+		}
+
+		// Unordered lists
+		
+		$lists = $xpath->query('//ul');
+		
+		foreach($lists as $list) { /* @var $list DOMElement */
+			$items = $xpath->query('./li/text()', $list);
+			
+			foreach($items as $idx => $item) { /* @var $item DOMText */
+				$txt = $dom->createTextNode('- ' . $item->nodeValue);
+				$item->parentNode->replaceChild($txt, $item);
+			}
+		}
+		
+		$html = $dom->saveXML();
+		
+		// Make sure it's not blank before trusting it.
+		if(!empty($html)) {
+			$str = $html;
+			unset($html);
+		}
+		
 		// Strip all CRLF and tabs, spacify </TD>
 		if($strip_whitespace) {
 			$str = str_ireplace(
@@ -778,14 +830,6 @@ class DevblocksPlatform extends DevblocksEngine {
 			$str
 		);
 
-		$str = str_ireplace(
-			array(
-				'<LI>',
-			),
-			"<LI>* ",
-			$str
-		);
-		
 		// Strip non-content tags
 		$search = array(
 			'@<head[^>]*?>.*?</head>@si',
