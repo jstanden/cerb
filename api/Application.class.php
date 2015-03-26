@@ -153,6 +153,7 @@ class CerberusApplication extends DevblocksApplication {
 				'email' => $worker->email,
 				'title' => $worker->title,
 				'at_mention' => $worker->at_mention_name,
+				'_index' => $worker->getName() . ' ' . $worker->at_mention_name,
 			);
 		}
 
