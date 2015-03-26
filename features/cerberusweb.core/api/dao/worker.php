@@ -725,7 +725,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 				$results = array();
 				
 				foreach($workers as $worker_id => $worker) {
-					@$calendar_id = DAO_WorkerPref::get($worker->id, 'calendar_id', 0);
+					@$calendar_id = $worker->calendar_id;
 					
 					if(empty($calendar_id)) {
 						if(!$is_available)
@@ -757,7 +757,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 				if(empty($results))
 					$results[] = '-1';
 				
-				$args['where_sql'] .= sprintf("AND w.id IN (%s) ", implode($results));
+				$args['where_sql'] .= sprintf("AND w.id IN (%s) ", implode(', ', $results));
 				
 				break;
 		}
@@ -1347,7 +1347,6 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Worker::FULLTEXT_WORKER),
-					'options' => array('param_key' => SearchFields_Worker::FULLTEXT_WORKER, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 			'email' => 
 				array(
