@@ -418,6 +418,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		if(empty($base_url) || empty($index) || empty($type))
 			return false;
 		
+		// [TODO] Paging
 		
 		$url = sprintf("%s/%s/%s/_search?q=%s&_source=false&size=%d&default_operator=AND",
 			$base_url,

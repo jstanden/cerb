@@ -840,6 +840,8 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		return $counts;
 	}
 	
+	// [TODO] activity, timeElapsed
+	
 	function getQuickSearchFields() {
 		$fields = array(
 			'_fulltext' => 
@@ -932,6 +934,8 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 						$v = trim($matches[2]);
 					}
 					
+					// [TODO] This could be a placeholder
+					// [TODO] This should be unit tested
 					$elapsed = DevblocksPlatform::strTimeToSecs($v);
 					
 					$value = $oper_hint . $elapsed;

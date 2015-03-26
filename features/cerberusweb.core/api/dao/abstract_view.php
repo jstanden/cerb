@@ -2590,6 +2590,7 @@ class C4_AbstractViewLoader {
 		// Enforce class restrictions
 		$parent = new $model->class_name;
 		$parent->__auto_persist = false;
+		// [TODO] This is a rather heavy way to accomplish this, these could be static
 		$inst->addColumnsHidden($parent->getColumnsHidden());
 		$inst->addParamsHidden($parent->getParamsHidden());
 		$inst->addParamsRequired($parent->getParamsRequired());
