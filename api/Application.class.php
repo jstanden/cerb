@@ -1802,12 +1802,16 @@ class CerberusContexts {
 			}
 
 			// Remove dupe watchers
+
 			$watcher_ids = array_unique($watchers);
+
+			// Fire off notifications
 
 			$url_writer = DevblocksPlatform::getUrlService();
 
-			// Fire off notifications
 			if(is_array($watcher_ids)) {
+				$workers = DAO_Worker::getAllActive();
+				
 				$message = CerberusContexts::formatActivityLogEntry($entry_array, 'plaintext');
 				@$url = reset($entry_array['urls']);
 
@@ -1818,6 +1822,10 @@ class CerberusContexts {
 				}
 
 				foreach($watcher_ids as $watcher_id) {
+					// Skip inactive workers
+					if(!isset($workers[$watcher_id]))
+						continue;
+					
 					// If not inside a VA
 					if(0 == EventListener_Triggers::getDepth()) {
 						// Skip a watcher if they are the actor

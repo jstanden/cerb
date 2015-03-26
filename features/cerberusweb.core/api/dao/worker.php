@@ -726,7 +726,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			case SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY:
 				if(!is_array($param->value) || count($param->value) != 3)
 					break;
-
+					
 				$from = $param->value[0];
 				$to = $param->value[1];
 				$is_available = !empty($param->value[2]);
@@ -737,7 +737,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 				$results = array();
 				
 				foreach($workers as $worker_id => $worker) {
-					@$calendar_id = DAO_WorkerPref::get($worker->id, 'calendar_id', 0);
+					@$calendar_id = $worker->calendar_id;
 					
 					if(empty($calendar_id)) {
 						if(!$is_available)
@@ -769,7 +769,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 				if(empty($results))
 					$results[] = '-1';
 				
-				$args['where_sql'] .= sprintf("AND w.id IN (%s) ", implode($results));
+				$args['where_sql'] .= sprintf("AND w.id IN (%s) ", implode(', ', $results));
 				
 				break;
 		}
@@ -1359,7 +1359,6 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Worker::FULLTEXT_WORKER),
-					'options' => array('param_key' => SearchFields_Worker::FULLTEXT_WORKER, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 			'email' => 
 				array(
@@ -1375,6 +1374,24 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_Worker::IS_SUPERUSER),
+				),
+			'isAvailable' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY),
+					'examples' => array(
+						'(noon to 1pm)',
+						'(now to +15 mins)',
+					),
+				),
+			'isBusy' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY),
+					'examples' => array(
+						'noon to 1pm',
+						'now to +15 mins',
+					),
 				),
 			'isDisabled' => 
 				array(
@@ -1450,7 +1467,17 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		if(is_array($fields))
 		foreach($fields as $k => $v) {
 			switch($k) {
-				// ...
+				case 'isAvailable':
+					$param = DevblocksSearchCriteria::getDateParamFromQuery(SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY, $v);
+					$param->value[] = '1';
+					$params[] = $param;
+					break;
+					
+				case 'isBusy':
+					$param = DevblocksSearchCriteria::getDateParamFromQuery(SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY, $v);
+					$param->value[] = '0';
+					$params[] = $param;
+					break;
 			}
 		}
 		
