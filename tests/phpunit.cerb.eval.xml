@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="bootstrap.eval.php" colors="true" stopOnFailure="true">
+	<testsuites>
+		<testsuite name="eval_init">
+			<file>eval/CerbEval_Init.php</file>
+		</testsuite>
+	</testsuites>
+</phpunit>
