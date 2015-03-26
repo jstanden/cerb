@@ -562,9 +562,10 @@
 			})
 			.atwho({
 				at: '@',
-				{literal}displayTpl: '<li>${name} <small style="margin-left:10px;">${title}</small></li>',{/literal}
+				{literal}displayTpl: '<li>${name} <small style="margin-left:10px;">${title}</small> <small style="margin-left:10px;">@${at_mention}</small></li>',{/literal}
 				{literal}insertTpl: '@${at_mention}',{/literal}
 				data: atwho_workers,
+				searchKey: '_index',
 				limit: 10
 			})
 			;
