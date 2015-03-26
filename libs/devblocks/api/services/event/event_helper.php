@@ -4254,7 +4254,9 @@ class DevblocksEventHelper {
 			return $result;
 	}
 	
-	static function mergeWorkerVars($worker_ids, DevblocksDictionaryDelegate $dict) {
+	static function mergeWorkerVars($worker_ids, DevblocksDictionaryDelegate $dict, $include_inactive=false) {
+		$workers = DAO_Worker::getAll();
+		
 		if(is_array($worker_ids))
 		foreach($worker_ids as $k => $worker_id) {
 			if(!is_numeric($worker_id)) {
@@ -4275,6 +4277,21 @@ class DevblocksEventHelper {
 				}
 			}
 		}
+		
+		// Filter the worker IDs we're returning
+		$worker_ids = array_filter($worker_ids, function($worker_id) use ($workers, $include_inactive) {
+			@$worker = $workers[$worker_id];
+			
+			// Skip any invalid worker IDs
+			if(empty($worker))
+				return false;
+			
+			// Are we excluding inactive workers?
+			if(!$include_inactive && $worker->is_disabled)
+				return false;
+			
+			return true;
+		});
 		
 		return array_unique($worker_ids);
 	}
