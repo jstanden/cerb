@@ -4,5 +4,8 @@
 		<testsuite name="eval_init">
 			<file>eval/CerbEval_Init.php</file>
 		</testsuite>
+		<testsuite name="eval_ui_setup">
+			<file>eval/CerbEval_UI_Setup.php</file>
+		</testsuite>
 	</testsuites>
 </phpunit>
