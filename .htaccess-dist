@@ -10,6 +10,7 @@ RewriteRule ^(.*/)?api(/|$) - [F,L]
 RewriteRule ^(.*/)?features(/|$) - [F,L]
 RewriteRule ^(.*/)?libs(/|$) - [F,L]
 RewriteRule ^(.*/)?storage(/|$) - [F,L]
+RewriteRule ^(.*/)?tests(/|$) - [F,L]
 </IfModule>
 
 Options -Indexes
