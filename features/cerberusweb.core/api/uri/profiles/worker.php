@@ -54,6 +54,9 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				break;
 		}
 
+		if(false != (@$tab = array_shift($stack)))
+			$tpl->assign('tab', $tab);
+		
 		$point = 'cerberusweb.profiles.worker.' . $worker_id;
 
 		if(empty($worker_id) || null == ($worker = DAO_Worker::get($worker_id)))

@@ -19,9 +19,18 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 	const VIEW_PLUGINS = 'plugins_installed';
 	
 	function render() {
+		$visit = CerberusApplication::getVisit();
+		$tpl = DevblocksPlatform::getTemplateService();
 		$response = DevblocksPlatform::getHttpResponse();
-		$path = $response->path;
-
+		
+		$stack = $response->path;
+		
+		@array_shift($stack); // config
+		@array_shift($stack); // plugins
+		
+		if(false != (@$tab = array_shift($stack)))
+			$tpl->assign('tab', $tab);
+		
 		// When someone loads the plugin page, check for new or updated
 		//	 user-installed plugins on disk
 		if(DEVELOPMENT_MODE) {
@@ -31,9 +40,6 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		} else {
 			DevblocksPlatform::readPlugins(false, array('plugins'));
 		}
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
 		
 		$visit->set(ChConfigurationPage::ID, 'plugins');
 		

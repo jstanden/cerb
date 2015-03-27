@@ -92,7 +92,16 @@ function DevblocksClass() {
 		};
 	}
 	
-	this.getjQueryUiTabSelected = function(tabsId) {
+	this.getjQueryUiTabSelected = function(tabsId, activeTab) {
+		if(undefined != activeTab) {
+			var $tabs = $('#' + tabsId);
+			var $activeTab = $tabs.find('li[data-alias="' + activeTab + '"]');
+			
+			if($activeTab.length > 0) {
+				return $activeTab.index();
+			}
+		}
+		
 		if(undefined == localStorage.selectedTabs)
 			return 0;
 		
