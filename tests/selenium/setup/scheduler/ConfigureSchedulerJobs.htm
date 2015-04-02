@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://cerb.dev/" />
+<title>Configure Scheduler Jobs</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">Configure Scheduler Jobs</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/config/scheduler</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Inbound Email Message Processor</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=#frmJobcron_parser &gt; label &gt; input[name=&quot;enabled&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>css=#frmJobcron_parser &gt; input[name=&quot;max_messages&quot;]</td>
+	<td>25</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=#frmJobcron_parser &gt; button.submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Maintenance</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=#frmJobcron_maint &gt; label &gt; input[name=&quot;enabled&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>css=#frmJobcron_maint &gt; input[name=&quot;duration&quot;]</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>css=#frmJobcron_maint &gt; select[name=&quot;term&quot;]</td>
+	<td>label=day(s)</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>css=#frmJobcron_maint &gt; input[name=&quot;starting&quot;]</td>
+	<td>midnight</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=#frmJobcron_maint &gt; button.submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>500</td>
+	<td></td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

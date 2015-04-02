@@ -101,6 +101,11 @@ class CerbEval_UI_Setup extends PHPUnit_Extensions_SeleniumTestCase {
 		$this->_runTestCase('setup/mail_routing/SetDefaultRouting.htm');
 	}
 	
+	public function testSetupScheduler() {
+		$this->_runTestCase('setup/SetupScheduler.htm');
+		$this->_runTestCase('setup/scheduler/ConfigureSchedulerJobs.htm');
+	}
+	
 	public function testSetupCustomFields() {
 		$this->_runTestCase('setup/SetupCustomFields.htm');
 		$this->_runTestCase('setup/custom_fields/AddTaskOwnerCustomField.htm');
