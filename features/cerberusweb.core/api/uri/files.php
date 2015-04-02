@@ -53,7 +53,7 @@ class ChFilesController extends DevblocksControllerExtension {
 			$link = DAO_AttachmentLink::getByGUID($file_guid);
 			
 			if(empty($link))
-				die("Error reading link.");
+				die($translate->_('files.error_link_read'));
 			
 			if(null == ($context = $link->getContext()))
 				die($translate->_('common.access_denied'));
@@ -66,11 +66,11 @@ class ChFilesController extends DevblocksControllerExtension {
 		}
 		
 		if(empty($file))
-			die("File not found.");
+			die($translate->_('files.not_found'));
 		if(false === ($fp = DevblocksPlatform::getTempFile()))
-			die("Could not open a temporary file.");
+			die($translate->_('files.error_temp_open'));
 		if(false === $file->getFileContents($fp))
-			die("Error reading resource.");
+			die($translate->_('files.error_resource_read'));
 			
 		$file_stats = fstat($fp);
 		
