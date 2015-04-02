@@ -2027,6 +2027,21 @@ For example: http://www.cerbweb.com/support/</seg>
 
 		<!-- Files -->
 		
+		<tu tuid="files.error_link_read">
+			<tuv xml:lang="en_US">
+				<seg>Error reading link.</seg>
+			</tuv>
+		</tu>
+		<tu tuid="files.error_resource_read">
+			<tuv xml:lang="en_US">
+				<seg>Error reading resource.</seg>
+			</tuv>
+		</tu>
+		<tu tuid="files.error_temp_open">
+			<tuv xml:lang="en_US">
+				<seg>Could not open a temporary file.</seg>
+			</tuv>
+		</tu>
 		<tu tuid="files.not_found">
 			<tuv xml:lang="en_US">
 				<seg>File not found.</seg>
