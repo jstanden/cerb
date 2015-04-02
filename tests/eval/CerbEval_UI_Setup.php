@@ -92,10 +92,12 @@ class CerbEval_UI_Setup extends PHPUnit_Extensions_SeleniumTestCase {
 	public function testSetupGroups() {
 		$this->_runTestCase('setup/SetupGroups.htm');
 		$this->_runTestCase('setup/groups/CreateSupport.htm');
+		$this->_runTestCase('setup/groups/CreateSales.htm');
+		$this->_runTestCase('setup/groups/CreateDevelopment.htm');
 	}
 	
 	public function testSetupMailRouting() {
-		$this->_runTestCase('setup/setupMailRouting.htm');
+		$this->_runTestCase('setup/SetupMailRouting.htm');
 		$this->_runTestCase('setup/mail_routing/SetDefaultRouting.htm');
 	}
 	
