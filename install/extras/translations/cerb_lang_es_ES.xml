@@ -1178,6 +1178,11 @@
 				<seg/>
 			</tuv>
 		</tu>
+		<tu tuid="common.history">
+			<tuv xml:lang="es_ES">
+				<seg>historía</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.hours">
 			<tuv xml:lang="es_ES">
 				<seg>horas</seg>
@@ -2996,11 +3001,6 @@
 		<tu tuid="header.config">
 			<tuv xml:lang="es_ES">
 				<seg>configuración</seg>
-			</tuv>
-		</tu>
-		<tu tuid="header.history">
-			<tuv xml:lang="es_ES">
-				<seg>historía</seg>
 			</tuv>
 		</tu>
 		<tu tuid="header.last_viewed">

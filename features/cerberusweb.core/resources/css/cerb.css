@@ -126,10 +126,10 @@ FIELDSET.delete LEGEND {
   color: #960000;
 }
 
-a.no-underline {
+A.no-underline {
   text-decoration: none;
 }
-a.no-underline:hover {
+A.no-underline:hover {
   text-decoration: underline;
 }
 

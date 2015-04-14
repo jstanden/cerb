@@ -552,6 +552,11 @@
 				<seg>fetch &amp; retrieve</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.for">
+			<tuv xml:lang="en_US">
+				<seg>for</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.group">
 			<tuv xml:lang="en_US">
 				<seg>Group</seg>
@@ -565,6 +570,11 @@
 		<tu tuid="common.guid">
 			<tuv xml:lang="en_US">
 				<seg>GUID</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.history">
+			<tuv xml:lang="en_US">
+				<seg>history</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.hours">
@@ -2053,11 +2063,6 @@ For example: http://www.cerbweb.com/support/</seg>
 		<tu tuid="header.config">
 			<tuv xml:lang="en_US">
 				<seg>setup</seg>
-			</tuv>
-		</tu>
-		<tu tuid="header.history">
-			<tuv xml:lang="en_US">
-				<seg>history</seg>
 			</tuv>
 		</tu>
 		<tu tuid="header.last_viewed">

@@ -75,7 +75,7 @@ $('#{$btn_cfield_group_domid}')
 					
 					$menu.find('li.item').each(function() {
 						if($(this).attr('cf_group_id') == e.fieldset_id) {
-							$(this).show()
+							$(this).show();
 						}
 					});
 					

@@ -10,7 +10,7 @@
 	{else}
 	<link type="image/x-icon" rel="shortcut icon" href="{$favicon_url}">
 	{/if}
-	<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/cerberus.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
+	<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/cerb.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
 </head>
 
 <body>

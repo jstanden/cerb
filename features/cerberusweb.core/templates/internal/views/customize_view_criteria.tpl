@@ -123,7 +123,7 @@
 		<fieldset>
 			<legend>Add Filter</legend>
 			
-			<b>{'common.field'|devblocks_translate|capitalize}:</b><br>
+			<b>{'common.filter'|devblocks_translate|capitalize}:</b><br>
 			<blockquote style="margin:5px;">
 				{$searchable_fields = $view->getParamsAvailable(true)}
 				{$has_custom = false}

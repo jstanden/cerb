@@ -1178,6 +1178,11 @@
 				<seg>GUID</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.history">
+			<tuv xml:lang="ru_RU">
+				<seg>история</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.hours">
 			<tuv xml:lang="ru_RU">
 				<seg>часов</seg>
@@ -2996,11 +3001,6 @@
 		<tu tuid="header.config">
 			<tuv xml:lang="ru_RU">
 				<seg>Настройка хелпдеска</seg>
-			</tuv>
-		</tu>
-		<tu tuid="header.history">
-			<tuv xml:lang="ru_RU">
-				<seg>история</seg>
 			</tuv>
 		</tu>
 		<tu tuid="header.last_viewed">

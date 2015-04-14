@@ -1178,6 +1178,11 @@
 				<seg>GUID</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.history">
+			<tuv xml:lang="nl_NL">
+				<seg>historie</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.hours">
 			<tuv xml:lang="nl_NL">
 				<seg>uren</seg>
@@ -2996,11 +3001,6 @@
 		<tu tuid="header.config">
 			<tuv xml:lang="nl_NL">
 				<seg>setup</seg>
-			</tuv>
-		</tu>
-		<tu tuid="header.history">
-			<tuv xml:lang="nl_NL">
-				<seg>historie</seg>
 			</tuv>
 		</tu>
 		<tu tuid="header.last_viewed">
