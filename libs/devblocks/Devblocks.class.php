@@ -316,6 +316,23 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	/**
 	 * 
+	 * @param array $objects
+	 * @return string[]
+	 * @test DevblocksPlatformTest
+	 */
+	static function objectsToStrings($objects) {
+		$strings = array();
+		
+		if(is_array($objects))
+		foreach($objects as $k => $o) {
+			$strings[$k] = (string) $o;
+		}
+		
+		return $strings;
+	}
+	
+	/**
+	 * 
 	 * @param integer $version
 	 * @param integer $sections
 	 * @return string A dot-delimited version string

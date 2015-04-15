@@ -1,4 +1,18 @@
 <?php
+class MockObject {
+	public $id = 0;
+	public $name = '';
+	
+	public function __construct($id, $name) {
+		$this->id = $id;
+		$this->name = $name;
+	}
+	
+	public function __toString() {
+		return $this->name;
+	}
+}
+
 class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 	final function __construct($name = null, array $data = array(), $dataName = '') {
 		parent::__construct($name, $data, $dataName);
@@ -268,6 +282,30 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		// Exceeds upper bounds
 		$actual = DevblocksPlatform::intClamp(20, 1, 10);
 		$this->assertEquals(10, $actual);
+	}
+	
+	public function testObjectsToStrings() {
+		// Objects (__toString)
+		$objects = array(
+			10 => new MockObject(10, 'Jeff'),
+			20 => new MockObject(20, 'Dan'),
+			30 => new MockObject(30, 'Darren'),
+		);
+		$expected = array(10 => 'Jeff', 20 => 'Dan', 30 => 'Darren');
+		$actual = DevblocksPlatform::objectsToStrings($objects);
+		$this->assertEquals($expected, $actual);
+		
+		// Normal strings
+		$objects = array('a', 'b', 'c');
+		$expected = array('a', 'b', 'c');
+		$actual = DevblocksPlatform::objectsToStrings($objects);
+		$this->assertEquals($expected, $actual);
+		
+		// Integers
+		$objects = array(1, 2, 3);
+		$expected = array('1', '2', '3');
+		$actual = DevblocksPlatform::objectsToStrings($objects);
+		$this->assertEquals($expected, $actual);
 	}
 	
 	public function testIntVersionToStr() {
