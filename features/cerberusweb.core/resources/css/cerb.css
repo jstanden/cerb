@@ -126,6 +126,27 @@ FIELDSET.delete LEGEND {
   color: #960000;
 }
 
+FIELDSET.cerb-skillset {
+  margin-bottom: 0;
+}
+FIELDSET.cerb-skillset LABEL {
+  font-weight: bold;
+  padding: 0px 0px 5px 0px;
+  display: block;
+}
+FIELDSET.cerb-skillset LABEL > SMALL {
+  font-weight: normal;
+  font-size: 100%;
+}
+FIELDSET.cerb-skillset DIV.cerb-skill {
+  margin: 0px 10px 10px 5px;
+  width: 250px;
+  display: inline-block;
+}
+FIELDSET.cerb-skillset DIV.cerb-skill INPUT {
+  display: none;
+}
+
 A.no-underline {
   text-decoration: none;
 }

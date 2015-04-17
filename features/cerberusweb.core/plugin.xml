@@ -344,6 +344,14 @@
 			<class name="View_Skill" />
 		</file>
 		
+		<file path="api/dao/skillset.php">
+			<class name="Context_Skillset" />
+			<class name="DAO_Skillset" />
+			<class name="Model_Skillset" />
+			<class name="SearchFields_Skillset" />
+			<class name="View_Skillset" />
+		</file>
+		
 		<file path="api/dao/snippet.php">
 			<class name="DAO_Snippet" />
 			<class name="Model_Snippet" />
@@ -1419,6 +1427,30 @@
 				<param key="alias" value="skill" />
 				<param key="dao_class" value="DAO_Skill" />
 				<param key="view_class" value="View_Skill" />
+				<param key="options">
+					<value>
+						<data key="create" />
+						<data key="custom_fields" />
+						<data key="find" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.skillset</id>
+			<name>Skillset</name>
+			<class>
+				<file>api/dao/skillset.php</file>
+				<name>Context_Skillset</name>
+			</class>
+			<params>
+				<param key="alias" value="skillset" />
+				<param key="dao_class" value="DAO_Skillset" />
+				<param key="view_class" value="View_Skillset" />
 				<param key="options">
 					<value>
 						<data key="create" />
@@ -3362,6 +3394,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="skill" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.skillset</id>
+				<name>Skillset Section</name>
+				<class>
+					<file>api/uri/profiles/skillset.php</file>
+					<name>PageSection_ProfilesSkillset</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="skillset" />
 				</params>
 			</extension>
 			

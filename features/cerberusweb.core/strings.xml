@@ -1013,6 +1013,16 @@
 				<seg>skills</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.skillset">
+			<tuv xml:lang="en_US">
+				<seg>skillset</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.skillsets">
+			<tuv xml:lang="en_US">
+				<seg>skillsets</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.snippets">
 			<tuv xml:lang="en_US">
 				<seg>snippets</seg>

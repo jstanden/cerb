@@ -1,0 +1,1 @@
+{include file="devblocks:cerberusweb.core::internal/skillsets/fieldsets_and_menu.tpl" skill_labels=$skill_labels skillsets_linked=$skillsets}
