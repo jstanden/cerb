@@ -187,7 +187,7 @@ abstract class C4_AbstractView {
 	}
 
 	private function _filterParamsByFieldset($params) {
-		$results = $this->findParam('*_has_fieldset', $this->getParams());
+		$results = $this->findParam('*_has_fieldset', $this->getParams(false));
 		
 		if(!empty($results)) {
 			$fieldset_ids = array();
@@ -1160,7 +1160,7 @@ abstract class C4_AbstractView {
 		$custom_fields = DAO_CustomField::getAll();
 		$needs_save = false;
 		
-		$params = $this->getParams();
+		$params = $this->getParams(false);
 		
 		// Parameter sanity check
 		if(is_array($params))
