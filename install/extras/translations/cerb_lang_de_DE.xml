@@ -523,11 +523,6 @@
 				<seg>% durchsucht Tickets</seg>
 			</tuv>
 		</tu>
-		<tu tuid="activity.mail.workflow">
-			<tuv xml:lang="de_DE">
-				<seg>%s schaut sich %s im Arbeitsablauf an</seg>
-			</tuv>
-		</tu>
 		<tu tuid="activity.mail.workspaces">
 			<tuv xml:lang="de_DE">
 				<seg>%s schaut sich %s im Arbeitsbereich an</seg>
@@ -3293,11 +3288,6 @@
 				<seg></seg>
 			</tuv>
 		</tu>
-		<tu tuid="mail.workflow">
-			<tuv xml:lang="de_DE">
-				<seg>Arbeitsablauf</seg>
-			</tuv>
-		</tu>
 		<tu tuid="mail.workspaces.create">
 			<tuv xml:lang="de_DE">
 				<seg>Klicken Sie hier, um Ihren ersten Arbeitsbereich zu erstellen</seg>
@@ -4757,11 +4747,6 @@ login</seg>
 		<tu tuid="tasks.ticket.tab.view">
 			<tuv xml:lang="de_DE">
 				<seg>Ticket-Aufgaben</seg>
-			</tuv>
-		</tu>
-		<tu tuid="ticket.assignable">
-			<tuv xml:lang="de_DE">
-				<seg>zuweisbar</seg>
 			</tuv>
 		</tu>
 		<tu tuid="ticket.closed_at">

@@ -92,19 +92,6 @@
 		</tr>
 		
 		<tr>
-			<td>
-				<b>{'mail.workflow'|devblocks_translate|capitalize}:</b>
-			</td>
-			<td>
-			{if $bucket->is_assignable}
-				Show
-			{else}
-				Hide
-			{/if}
-			</td>
-		</tr>
-		
-		<tr>
 			<td valign="top">
 				<b>Signature:</b>
 			</td>

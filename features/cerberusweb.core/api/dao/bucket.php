@@ -25,7 +25,6 @@ class DAO_Bucket extends DevblocksORMHelper {
 	const REPLY_ADDRESS_ID = 'reply_address_id';
 	const REPLY_PERSONAL = 'reply_personal';
 	const REPLY_SIGNATURE = 'reply_signature';
-	const IS_ASSIGNABLE = 'is_assignable';
 	const REPLY_HTML_TEMPLATE_ID = 'reply_html_template_id';
 	
 	static function getGroups() {
@@ -88,7 +87,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT bucket.id, bucket.pos, bucket.name, bucket.group_id, bucket.is_assignable, bucket.reply_address_id, bucket.reply_personal, bucket.reply_signature, bucket.reply_html_template_id ".
+		$sql = "SELECT bucket.id, bucket.pos, bucket.name, bucket.group_id, bucket.reply_address_id, bucket.reply_personal, bucket.reply_signature, bucket.reply_html_template_id ".
 			"FROM bucket ".
 			$where_sql.
 			$sort_sql.
@@ -119,26 +118,6 @@ class DAO_Bucket extends DevblocksORMHelper {
 		return $group_buckets;
 	}
 	
-	static function getAssignableBuckets($group_ids=null) {
-		if(!is_null($group_ids) && !is_array($group_ids))
-			$group_ids = array($group_ids);
-		
-		if(empty($group_ids)) {
-			$buckets = self::getAll();
-		} else {
-			$buckets = self::getByGroup($group_ids);
-		}
-		
-		// Remove buckets that aren't assignable
-		if(is_array($buckets))
-		foreach($buckets as $id => $bucket) {
-			if(!$bucket->is_assignable)
-				unset($buckets[$id]);
-		}
-		
-		return $buckets;
-	}
-	
 	static function create($name, $group_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -153,7 +132,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 
 		$next_pos = self::getNextPos($group_id);
 		
-		$sql = sprintf("INSERT INTO bucket (pos,name,group_id,is_assignable,reply_html_template_id) ".
+		$sql = sprintf("INSERT INTO bucket (pos,name,group_id,reply_html_template_id) ".
 			"VALUES (%d,%s,%d,1,0)",
 			$next_pos,
 			$db->qstr($name),
@@ -231,7 +210,6 @@ class DAO_Bucket extends DevblocksORMHelper {
 			$bucket->pos = intval($row['pos']);
 			$bucket->name = $row['name'];
 			$bucket->group_id = intval($row['group_id']);
-			$bucket->is_assignable = intval($row['is_assignable']);
 			$bucket->reply_address_id = $row['reply_address_id'];
 			$bucket->reply_personal = $row['reply_personal'];
 			$bucket->reply_signature = $row['reply_signature'];
@@ -256,7 +234,6 @@ class Model_Bucket {
 	public $pos=0;
 	public $name = '';
 	public $group_id = 0;
-	public $is_assignable = 1;
 	public $reply_address_id = 0;
 	public $reply_personal;
 	public $reply_signature;

@@ -164,6 +164,20 @@ if(!isset($columns['importance'])) {
 	$db->ExecuteMaster("ALTER TABLE ticket ADD COLUMN importance TINYINT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX (importance)");
 }
 
+// ===========================================================================
+// Remove `is_assignable` field from `bucket`
+
+if(!isset($tables['bucket'])) {
+	$logger->error("The 'bucket' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('bucket');
+
+if(isset($columns['is_assignable'])) {
+	$db->ExecuteMaster("ALTER TABLE bucket DROP COLUMN is_assignable");
+}
+
 // Finish up
 
 return TRUE;

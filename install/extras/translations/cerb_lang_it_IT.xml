@@ -523,11 +523,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="activity.mail.workflow">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="activity.mail.workspaces">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -3293,11 +3288,6 @@
 				<seg></seg>
 			</tuv>
 		</tu>
-		<tu tuid="mail.workflow">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="mail.workspaces.create">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -4729,11 +4719,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="tasks.ticket.tab.view">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="ticket.assignable">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>

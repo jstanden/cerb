@@ -523,11 +523,6 @@
 				<seg>%s ищет заявки</seg>
 			</tuv>
 		</tu>
-		<tu tuid="activity.mail.workflow">
-			<tuv xml:lang="ru_RU">
-				<seg>%s просматриват Поток:%s </seg>
-			</tuv>
-		</tu>
 		<tu tuid="activity.mail.workspaces">
 			<tuv xml:lang="ru_RU">
 				<seg>%s просматривает %s в рабочей области</seg>
@@ -3293,11 +3288,6 @@
 				<seg></seg>
 			</tuv>
 		</tu>
-		<tu tuid="mail.workflow">
-			<tuv xml:lang="ru_RU">
-				<seg>Поток</seg>
-			</tuv>
-		</tu>
 		<tu tuid="mail.workspaces.create">
 			<tuv xml:lang="ru_RU">
 				<seg>Нажмите для создание вашей первой рабочей области.</seg>
@@ -4760,11 +4750,6 @@ login &lt;ftp&#13;
 		<tu tuid="tasks.ticket.tab.view">
 			<tuv xml:lang="ru_RU">
 				<seg>Задачи заявки</seg>
-			</tuv>
-		</tu>
-		<tu tuid="ticket.assignable">
-			<tuv xml:lang="ru_RU">
-				<seg/>
 			</tuv>
 		</tu>
 		<tu tuid="ticket.closed_at">

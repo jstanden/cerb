@@ -1766,15 +1766,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql'], $args['tables']);
 				break;
 				
-			case SearchFields_Ticket::VIRTUAL_ASSIGNABLE:
-				$assignable_buckets = DAO_Bucket::getAssignableBuckets();
-				$assignable_bucket_ids = array_keys($assignable_buckets);
-				array_unshift($assignable_bucket_ids, 0);
-				if($param->value) { // true
-					$args['where_sql'] .= sprintf("AND t.bucket_id IN (%s) ", implode(',', $assignable_bucket_ids));
-				} else { // false
-					$args['where_sql'] .= sprintf("AND t.bucket_id NOT IN (%s) ", implode(',', $assignable_bucket_ids));
-				}
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
@@ -2012,7 +2003,6 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
 	// Virtuals
-	const VIRTUAL_ASSIGNABLE = '*_assignable';
 	const VIRTUAL_ATTACHMENT_NAME = '*_attachment_name';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_GROUPS_OF_WORKER = '*_groups_of_worker';
@@ -2086,7 +2076,6 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::CONTEXT_LINK => new DevblocksSearchField(SearchFields_Ticket::CONTEXT_LINK, 'context_link', 'from_context', null),
 			SearchFields_Ticket::CONTEXT_LINK_ID => new DevblocksSearchField(SearchFields_Ticket::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 			
-			SearchFields_Ticket::VIRTUAL_ASSIGNABLE => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ASSIGNABLE, '*', 'assignable', $translate->_('ticket.assignable')),
 			SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME, '*', 'attachment_name', $translate->_('message.search.attachment_name'), null),				
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '*', 'groups_of_worker', $translate->_('ticket.groups_of_worker')),
@@ -2234,7 +2223,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS,
 			SearchFields_Ticket::TICKET_ORG_ID,
 			SearchFields_Ticket::TICKET_WAITING,
-			SearchFields_Ticket::VIRTUAL_ASSIGNABLE,
 			SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME,
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,
@@ -3191,7 +3179,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_WAITING:
 			case SearchFields_Ticket::TICKET_DELETED:
 			case SearchFields_Ticket::TICKET_CLOSED:
-			case SearchFields_Ticket::VIRTUAL_ASSIGNABLE:
 			case SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
@@ -3345,14 +3332,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				);
 				break;
 			
-			case SearchFields_Ticket::VIRTUAL_ASSIGNABLE:
-				if(empty($param->value)) {
-					echo "Tickets <b>are not assignable</b>";
-				} else {
-					echo "Tickets <b>are assignable</b>";
-				}
-				break;
-				
 			case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
 				break;
@@ -3493,7 +3472,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_WAITING:
 			case SearchFields_Ticket::TICKET_DELETED:
 			case SearchFields_Ticket::TICKET_CLOSED:
-			case SearchFields_Ticket::VIRTUAL_ASSIGNABLE:
 				$this->_renderCriteriaParamBoolean($param);
 				break;
 			
@@ -3605,7 +3583,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_WAITING:
 			case SearchFields_Ticket::TICKET_DELETED:
 			case SearchFields_Ticket::TICKET_CLOSED:
-			case SearchFields_Ticket::VIRTUAL_ASSIGNABLE:
 			case SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);

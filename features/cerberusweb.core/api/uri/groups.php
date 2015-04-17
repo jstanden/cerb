@@ -226,7 +226,6 @@ class ChGroupsPage extends CerberusPageExtension  {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
 		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string',''); // Keep as string
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
-		@$is_hidden = DevblocksPlatform::importGPC($_REQUEST['is_hidden'],'integer',0);
 		@$reply_address_id = DevblocksPlatform::importGPC($_REQUEST['reply_address_id'],'integer',0);
 		@$reply_personal = DevblocksPlatform::importGPC($_REQUEST['reply_personal'],'string','');
 		@$reply_signature = DevblocksPlatform::importGPC($_REQUEST['reply_signature'],'string','');
@@ -265,7 +264,6 @@ class ChGroupsPage extends CerberusPageExtension  {
 				} else { // Bucket
 					$fields = array(
 						DAO_Bucket::NAME => (empty($name) ? 'New Bucket' : $name),
-						DAO_Bucket::IS_ASSIGNABLE => ($is_hidden ? 0 : 1),
 						DAO_Bucket::REPLY_ADDRESS_ID => $reply_address_id,
 						DAO_Bucket::REPLY_PERSONAL => $reply_personal,
 						DAO_Bucket::REPLY_SIGNATURE => $reply_signature,

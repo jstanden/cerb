@@ -88,13 +88,6 @@
 	</select>
 </fieldset>
 
-{if '0' != $bucket_id}
-<fieldset class="peek">
-	<legend>Workflow</legend>
-	<label><input type="checkbox" name="is_hidden" value="1" {if !empty($bucket) && empty($bucket->is_assignable)}checked="checked"{/if}> This bucket <b>does not</b> contain assignable work.</label>
-</fieldset>
-{/if}
-
 {if !empty($bucket_id)}
 <fieldset style="display:none;" class="delete">
 	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>

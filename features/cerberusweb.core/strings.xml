@@ -2040,11 +2040,6 @@ For example: http://www.cerbweb.com/support/</seg>
 				<seg>%s is searching tickets</seg>
 			</tuv>
 		</tu>
-		<tu tuid="activity.mail.workflow">
-			<tuv xml:lang="en_US">
-				<seg>%s is browsing %s in Workflow</seg>
-			</tuv>
-		</tu>
 		<tu tuid="activity.mail.workspaces">
 			<tuv xml:lang="en_US">
 				<seg>%s is browsing %s in Workspaces</seg>
@@ -2628,11 +2623,6 @@ For example: http://www.cerbweb.com/support/</seg>
 				<seg>%s is currently responding to this ticket</seg>
 			</tuv>
 		</tu>
-		<tu tuid="mail.workflow">
-			<tuv xml:lang="en_US">
-				<seg>Workflow</seg>
-			</tuv>
-		</tu>
 		<tu tuid="mail.workspaces.create">
 			<tuv xml:lang="en_US">
 				<seg>Click here to create your first workspace.</seg>
@@ -3063,11 +3053,6 @@ For example: *receipt*</seg>
 
 		<!-- Tickets -->
 		
-		<tu tuid="ticket.assignable">
-			<tuv xml:lang="en_US">
-				<seg>Assignable</seg>
-			</tuv>
-		</tu>
 		<tu tuid="ticket.closed_at">
 			<tuv xml:lang="en_US">
 				<seg>Closed</seg>

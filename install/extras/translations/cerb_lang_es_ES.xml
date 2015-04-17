@@ -523,11 +523,6 @@
 				<seg>%s esta buscanco tickets</seg>
 			</tuv>
 		</tu>
-		<tu tuid="activity.mail.workflow">
-			<tuv xml:lang="es_ES">
-				<seg>%s está viendo %s en Flujo de trabajo</seg>
-			</tuv>
-		</tu>
 		<tu tuid="activity.mail.workspaces">
 			<tuv xml:lang="es_ES">
 				<seg>%s está viendo %s en Área de trabajo</seg>
@@ -3293,11 +3288,6 @@
 				<seg></seg>
 			</tuv>
 		</tu>
-		<tu tuid="mail.workflow">
-			<tuv xml:lang="es_ES">
-				<seg>Pendientes</seg>
-			</tuv>
-		</tu>
 		<tu tuid="mail.workspaces.create">
 			<tuv xml:lang="es_ES">
 				<seg>Pulse aquí para crear su primer área de trabajo.</seg>
@@ -4761,11 +4751,6 @@ Por ejemplo: *recibo*</seg>
 		<tu tuid="tasks.ticket.tab.view">
 			<tuv xml:lang="es_ES">
 				<seg>Tareas del Ticket</seg>
-			</tuv>
-		</tu>
-		<tu tuid="ticket.assignable">
-			<tuv xml:lang="es_ES">
-				<seg/>
 			</tuv>
 		</tu>
 		<tu tuid="ticket.closed_at">
