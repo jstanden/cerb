@@ -1208,6 +1208,11 @@
 				<seg>(willekeurige kolom volgorde; de volgende stap laat u kiezen waar de data naartoe gaat)</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.importance">
+			<tuv xml:lang="nl_NL">
+				<seg></seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.inactive">
 			<tuv xml:lang="nl_NL">
 				<seg/>

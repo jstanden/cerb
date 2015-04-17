@@ -150,6 +150,20 @@ if(!isset($tables['skill'])) {
 	$tables['skill'] = 'skill';
 }
 
+// ===========================================================================
+// Add `importance` field to `ticket`
+
+if(!isset($tables['ticket'])) {
+	$logger->error("The 'ticket' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('ticket');
+
+if(!isset($columns['importance'])) {
+	$db->ExecuteMaster("ALTER TABLE ticket ADD COLUMN importance TINYINT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX (importance)");
+}
+
 // Finish up
 
 return TRUE;

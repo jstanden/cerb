@@ -1208,6 +1208,11 @@
 				<seg>(jede Spaltenreihenfolge; im nächsten Schritt wird das Ziel der Daten festgelegt)</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.importance">
+			<tuv xml:lang="de_DE">
+				<seg></seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.inactive">
 			<tuv xml:lang="de_DE">
 				<seg/>

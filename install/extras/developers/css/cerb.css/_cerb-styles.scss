@@ -47,6 +47,28 @@ FIELDSET.cerb-skillset {
 	}
 }
 
+DIV.cerb-importance-slider {
+	margin:5px 10px 5px 5px;
+	width:250px;
+	display:inline-block;
+	
+	//&.ui-widget-content {
+	//	border-color: rgb(150,150,150);
+	//}
+	
+	INPUT {
+		display: none;
+	}
+	
+	//.ui-slider-handle {
+	//	background: #fff;
+	//}
+
+	//.ui-slider-range {
+	//	background-color: #FEC400;
+	//}
+}
+
 // Special links
 
 A.no-underline {

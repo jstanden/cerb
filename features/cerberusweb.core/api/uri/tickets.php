@@ -263,6 +263,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
 		@$org_name = DevblocksPlatform::importGPC($_REQUEST['org_name'],'string','');
 		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
+		@$importance = DevblocksPlatform::importGPC($_REQUEST['importance'],'integer',0);
 		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'integer',0);
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
 		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
@@ -331,6 +332,10 @@ class ChTicketsPage extends CerberusPageExtension {
 				$fields[DAO_Ticket::ORG_ID] = $org_lookup_id;
 			}
 		}
+		
+		// Importance
+		$importance = DevblocksPlatform::intClamp($importance, 0, 100);
+		$fields[DAO_Ticket::IMPORTANCE] = $importance;
 		
 		// Spam Training
 		if(!empty($spam_training)) {

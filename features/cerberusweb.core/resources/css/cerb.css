@@ -147,6 +147,15 @@ FIELDSET.cerb-skillset DIV.cerb-skill INPUT {
   display: none;
 }
 
+DIV.cerb-importance-slider {
+  margin: 5px 10px 5px 5px;
+  width: 250px;
+  display: inline-block;
+}
+DIV.cerb-importance-slider INPUT {
+  display: none;
+}
+
 A.no-underline {
   text-decoration: none;
 }

@@ -42,6 +42,23 @@
 		
 		<table cellpadding="0" cellspacing="2" border="0" width="100%">
 			<tr>
+				<td width="0%" nowrap="nowrap" align="right">{'contact_org.name'|devblocks_translate|capitalize}: </td>
+				<td width="100%">
+					<input type="hidden" name="org_id" value="{$ticket->org_id}">
+					{$ticket_org = $ticket->getOrg()}
+					{if !empty($ticket_org)}
+					<div>
+						<b>{$ticket_org->name}</b>
+						(<a href="javascript:;" onclick="$p=$(this).closest('div');$p.next('div').show();$p.remove();">change</a>)
+					</div>
+					{/if}
+					<div style="display:{if !empty($ticket_org)}none{else}block{/if};">
+						<input type="text" name="org_name" size="45" maxlength="255" style="width:98%;" value="{if !empty($ticket)}{$ticket_org->name}{/if}">
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
 				<td width="0%" nowrap="nowrap" align="right">Subject: </td>
 				<td width="100%">
 					<input type="text" name="subject" size="45" maxlength="255" style="width:98%;" autofocus="true" value="{$ticket->subject}">
@@ -66,19 +83,10 @@
 			</tr>
 			
 			<tr>
-				<td width="0%" nowrap="nowrap" align="right">{'contact_org.name'|devblocks_translate|capitalize}: </td>
+				<td width="0%" nowrap="nowrap" valign="middle" align="right">{'common.importance'|devblocks_translate|capitalize}: </td>
 				<td width="100%">
-					<input type="hidden" name="org_id" value="{$ticket->org_id}">
-					{$ticket_org = $ticket->getOrg()}
-					{if !empty($ticket_org)}
-					<div>
-						<b>{$ticket_org->name}</b>
-						(<a href="javascript:;" onclick="$p=$(this).closest('div');$p.next('div').show();$p.remove();">change</a>)
-					</div>
-					{/if}
-					<div style="display:{if !empty($ticket_org)}none{else}block{/if};">
-						<input type="text" name="org_name" size="45" maxlength="255" style="width:98%;" value="{if !empty($ticket)}{$ticket_org->name}{/if}">
-					</div>
+					<input type="hidden" name="importance" value="{$ticket->importance|default:0}">
+					<div class="cerb-importance-slider"></div>
 				</td>
 			</tr>
 			
@@ -187,6 +195,26 @@
 		var $textarea = $(this).find('textarea[name=comment]');
 		
 		$textarea.autosize();
+		
+		// Slider
+		
+		$frm.find('div.cerb-importance-slider').each(function() {
+			var $this = $(this);
+			var $input = $this.siblings('input:hidden');
+			
+			$this.slider({
+				disabled: false,
+				value: $input.val(),
+				min: 0,
+				max: 100,
+				step: 10,
+				range: 'min',
+				//slide: function(event, ui) {},
+				stop: function(event, ui) {
+					$input.val(ui.value);
+				}
+			});
+		});
 		
 		// Form hints
 		

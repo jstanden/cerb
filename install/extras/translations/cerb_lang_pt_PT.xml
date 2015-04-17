@@ -1208,6 +1208,11 @@
 				<seg>(qualquer ordem da coluna; o próximo passo permitrá escolher onde será colocados os dados)</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.importance">
+			<tuv xml:lang="pt_PT">
+				<seg></seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.inactive">
 			<tuv xml:lang="pt_PT">
 				<seg/>

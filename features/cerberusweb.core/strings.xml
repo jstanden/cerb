@@ -602,6 +602,11 @@
 				<seg>(any column order; the next step will let you choose where the data goes)</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.importance">
+			<tuv xml:lang="en_US">
+				<seg>importance</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.inactive">
 			<tuv xml:lang="en_US">
 				<seg>inactive</seg>

@@ -26,6 +26,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	const BUCKET_ID = 'bucket_id';
 	const ORG_ID = 'org_id';
 	const OWNER_ID = 'owner_id';
+	const IMPORTANCE = 'importance';
 	const FIRST_MESSAGE_ID = 'first_message_id';
 	const FIRST_OUTGOING_MESSAGE_ID = 'first_outgoing_message_id';
 	const LAST_MESSAGE_ID = 'last_message_id';
@@ -58,6 +59,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			'group_id' => $translate->_('ticket.group'),
 			'bucket_id' => $translate->_('ticket.bucket'),
 			'owner_id' => $translate->_('common.owner'),
+			'importance' => $translate->_('common.importance'),
 			'updated_date' => $translate->_('common.updated'),
 			'closed_at' => $translate->_('ticket.closed_at'),
 			'spam_training' => $translate->_('ticket.spam_training'),
@@ -621,7 +623,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
-		$sql = "SELECT id , mask, subject, is_waiting, is_closed, is_deleted, group_id, bucket_id, org_id, owner_id, first_message_id, first_outgoing_message_id, last_message_id, ".
+		$sql = "SELECT id , mask, subject, is_waiting, is_closed, is_deleted, group_id, bucket_id, org_id, owner_id, importance, first_message_id, first_outgoing_message_id, last_message_id, ".
 			"first_wrote_address_id, last_wrote_address_id, created_date, updated_date, closed_at, reopen_at, spam_training, ".
 			"spam_score, interesting_words, num_messages, elapsed_response_first, elapsed_resolution_first ".
 			"FROM ticket ".
@@ -654,6 +656,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$object->bucket_id = intval($row['bucket_id']);
 			$object->org_id = intval($row['org_id']);
 			$object->owner_id = intval($row['owner_id']);
+			$object->importance = intval($row['importance']);
 			$object->is_waiting = intval($row['is_waiting']);
 			$object->is_closed = intval($row['is_closed']);
 			$object->is_deleted = intval($row['is_deleted']);
@@ -1373,6 +1376,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			"t.elapsed_response_first as %s, ".
 			"t.elapsed_resolution_first as %s, ".
 			"t.owner_id as %s, ".
+			"t.importance as %s, ".
 			"t.group_id as %s, ".
 			"t.bucket_id as %s, ".
 			"t.org_id as %s ",
@@ -1407,6 +1411,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST,
 				SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST,
 				SearchFields_Ticket::TICKET_OWNER_ID,
+				SearchFields_Ticket::TICKET_IMPORTANCE,
 				SearchFields_Ticket::TICKET_GROUP_ID,
 				SearchFields_Ticket::TICKET_BUCKET_ID,
 				SearchFields_Ticket::TICKET_ORG_ID
@@ -1978,6 +1983,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_BUCKET_ID = 't_bucket_id';
 	const TICKET_ORG_ID = 't_org_id';
 	const TICKET_OWNER_ID = 't_owner_id';
+	const TICKET_IMPORTANCE = 't_importance';
 	
 	const TICKET_MESSAGE_HEADER = 'mh_header_name';
 	const TICKET_MESSAGE_HEADER_VALUE = 'mh_header_value';
@@ -2050,6 +2056,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			
 			SearchFields_Ticket::TICKET_ORG_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_ORG_ID, 't','org_id',$translate->_('common.id')),
 			SearchFields_Ticket::TICKET_OWNER_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_OWNER_ID,'t','owner_id',$translate->_('common.owner'), Model_CustomField::TYPE_WORKER),
+			SearchFields_Ticket::TICKET_IMPORTANCE => new DevblocksSearchField(SearchFields_Ticket::TICKET_IMPORTANCE,'t','importance',$translate->_('common.importance'), Model_CustomField::TYPE_NUMBER),
 			SearchFields_Ticket::TICKET_GROUP_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_GROUP_ID,'t','group_id',$translate->_('common.group')),
 			SearchFields_Ticket::TICKET_BUCKET_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_BUCKET_ID, 't', 'bucket_id',$translate->_('common.bucket')),
 			SearchFields_Ticket::TICKET_CREATED_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_CREATED_DATE, 't', 'created_date',$translate->_('common.created'), Model_CustomField::TYPE_DATE),
@@ -2130,6 +2137,7 @@ class Model_Ticket {
 	public $bucket_id;
 	public $org_id;
 	public $owner_id = 0;
+	public $importance = 0;
 	public $first_message_id;
 	public $first_outgoing_message_id;
 	public $last_message_id;
@@ -2208,6 +2216,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
 			SearchFields_Ticket::TICKET_GROUP_ID,
 			SearchFields_Ticket::TICKET_BUCKET_ID,
+			SearchFields_Ticket::TICKET_IMPORTANCE,
 			SearchFields_Ticket::TICKET_SPAM_SCORE,
 			SearchFields_Ticket::TICKET_OWNER_ID,
 		);
@@ -2650,6 +2659,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_ID),
+				),
+			'importance' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Ticket::TICKET_IMPORTANCE),
 				),
 			'mask' =>
 				array(
@@ -3164,6 +3178,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM:
 			case SearchFields_Ticket::TICKET_ID:
+			case SearchFields_Ticket::TICKET_IMPORTANCE:
 			case SearchFields_Ticket::TICKET_NUM_MESSAGES:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
@@ -3599,6 +3614,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM:
 			case SearchFields_Ticket::TICKET_ID:
+			case SearchFields_Ticket::TICKET_IMPORTANCE:
 			case SearchFields_Ticket::TICKET_NUM_MESSAGES:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
@@ -3738,6 +3754,9 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				case 'move':
 					$change_fields[DAO_Ticket::GROUP_ID] = $v['group_id'];
 					$change_fields[DAO_Ticket::BUCKET_ID] = $v['bucket_id'];
+					break;
+				case 'importance':
+					$change_fields[DAO_Ticket::IMPORTANCE] = $v['importance'];
 					break;
 				case 'owner':
 					$change_fields[DAO_Ticket::OWNER_ID] = $v['worker_id'];
@@ -4137,6 +4156,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'elapsed_response_first' => $prefix.$translate->_('ticket.elapsed_response_first'),
 			'elapsed_resolution_first' => $prefix.$translate->_('ticket.elapsed_resolution_first'),
 			'id' => $prefix.$translate->_('common.id'),
+			'importance' => $prefix.$translate->_('common.importance'),
 			'mask' => $prefix.$translate->_('ticket.mask'),
 			'num_messages' => $prefix.$translate->_('ticket.num_messages'),
 			'reopen_date' => $prefix.$translate->_('ticket.reopen_at'),
@@ -4155,6 +4175,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'elapsed_response_first' => 'time_secs',
 			'elapsed_resolution_first' => 'time_secs',
 			'id' => 'id',
+			'importance' => Model_CustomField::TYPE_NUMBER,
 			'mask' => Model_CustomField::TYPE_SINGLE_LINE,
 			'num_messages' => Model_CustomField::TYPE_NUMBER,
 			'reopen_date' => Model_CustomField::TYPE_DATE,
@@ -4189,6 +4210,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values['elapsed_response_first'] = $ticket->elapsed_response_first;
 			$token_values['elapsed_resolution_first'] = $ticket->elapsed_resolution_first;
 			$token_values['id'] = $ticket->id;
+			$token_values['importance'] = $ticket->importance;
 			$token_values['mask'] = $ticket->mask;
 			$token_values['num_messages'] = $ticket->num_messages;
 			$token_values['org_id'] = $ticket->org_id;
@@ -4807,6 +4829,11 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				'label' => 'Owner',
 				'type' => 'ctx_' . CerberusContexts::CONTEXT_WORKER,
 				'param' => SearchFields_Ticket::TICKET_OWNER_ID,
+			),
+			'importance' => array(
+				'label' => 'Importance',
+				'type' => Model_CustomField::TYPE_NUMBER,
+				'param' => SearchFields_Ticket::TICKET_IMPORTANCE,
 			),
 			'_watchers' => array(
 				'label' => 'Watchers',
