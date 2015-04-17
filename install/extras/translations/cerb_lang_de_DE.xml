@@ -4864,11 +4864,6 @@ login</seg>
 				<seg>Spam-Training</seg>
 			</tuv>
 		</tu>
-		<tu tuid="ticket.status">
-			<tuv xml:lang="de_DE">
-				<seg>Status</seg>
-			</tuv>
-		</tu>
 		<tu tuid="ticket.subject">
 			<tuv xml:lang="de_DE">
 				<seg>Betreff</seg>

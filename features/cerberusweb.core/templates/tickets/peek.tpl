@@ -49,7 +49,7 @@
 			</tr>
 			
 			<tr>
-				<td width="0%" nowrap="nowrap" valign="top" align="right">{'ticket.status'|devblocks_translate|capitalize}: </td>
+				<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.status'|devblocks_translate|capitalize}: </td>
 				<td width="100%">
 					<label><input type="radio" name="closed" value="0" onclick="toggleDiv('ticketClosed','none');" {if !$ticket->is_closed && !$ticket->is_waiting}checked{/if}>{'status.open'|devblocks_translate|capitalize}</label>
 					<label><input type="radio" name="closed" value="2" onclick="toggleDiv('ticketClosed','block');" {if !$ticket->is_closed && $ticket->is_waiting}checked{/if}>{'status.waiting'|devblocks_translate|capitalize}</label>

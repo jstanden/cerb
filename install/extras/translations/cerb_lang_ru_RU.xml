@@ -4867,11 +4867,6 @@ login &lt;ftp&#13;
 				<seg>Обучение спаму</seg>
 			</tuv>
 		</tu>
-		<tu tuid="ticket.status">
-			<tuv xml:lang="ru_RU">
-				<seg>Состояние</seg>
-			</tuv>
-		</tu>
 		<tu tuid="ticket.subject">
 			<tuv xml:lang="ru_RU">
 				<seg>Тема</seg>

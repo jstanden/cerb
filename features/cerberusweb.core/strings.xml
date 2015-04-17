@@ -992,6 +992,7 @@
 				<seg>settings</seg>
 			</tuv>
 		</tu>
+		
 		<tu tuid="common.signature">
 			<tuv xml:lang="en_US">
 				<seg>signature</seg>
@@ -3145,11 +3146,6 @@ For example: *receipt*</seg>
 		<tu tuid="ticket.spam_training">
 			<tuv xml:lang="en_US">
 				<seg>Spam Training</seg>
-			</tuv>
-		</tu>
-		<tu tuid="ticket.status">
-			<tuv xml:lang="en_US">
-				<seg>Status</seg>
 			</tuv>
 		</tu>
 		<tu tuid="ticket.subject">

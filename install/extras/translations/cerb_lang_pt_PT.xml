@@ -4867,11 +4867,6 @@ Por exemplo: *recipiente*</seg>
 				<seg>Treino Spam</seg>
 			</tuv>
 		</tu>
-		<tu tuid="ticket.status">
-			<tuv xml:lang="pt_PT">
-				<seg>Estado</seg>
-			</tuv>
-		</tu>
 		<tu tuid="ticket.subject">
 			<tuv xml:lang="pt_PT">
 				<seg>Assunto</seg>

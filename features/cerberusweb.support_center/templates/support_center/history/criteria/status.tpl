@@ -1,4 +1,4 @@
-<b>{'ticket.status'|devblocks_translate|capitalize}:</b><br>
+<b>{'common.status'|devblocks_translate|capitalize}:</b><br>
 
 <input type="hidden" name="oper" value="in">
 

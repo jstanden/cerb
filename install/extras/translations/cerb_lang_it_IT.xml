@@ -1610,7 +1610,7 @@
 		</tu>
 		<tu tuid="common.status">
 			<tuv xml:lang="it_IT">
-				<seg/>
+				<seg>Stato</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.subtotals">
@@ -4836,11 +4836,6 @@
 		<tu tuid="ticket.spam_training">
 			<tuv xml:lang="it_IT">
 				<seg>Spam Training </seg>
-			</tuv>
-		</tu>
-		<tu tuid="ticket.status">
-			<tuv xml:lang="it_IT">
-				<seg>Stato</seg>
 			</tuv>
 		</tu>
 		<tu tuid="ticket.subject">

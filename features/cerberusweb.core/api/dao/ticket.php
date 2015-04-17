@@ -2085,10 +2085,10 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '*', 'groups_of_worker', $translate->_('ticket.groups_of_worker')),
 			SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS, '*', 'has_attachments', $translate->_('message.search.has_attachments'), Model_CustomField::TYPE_CHECKBOX),
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
-			SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER => new DevblocksSearchField(SearchFields_Message::VIRTUAL_MESSAGE_HEADER, '*', 'message_header', $translate->_('message.header')),
+			SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER, '*', 'message_header', $translate->_('message.header')),
 			SearchFields_Ticket::VIRTUAL_ORG_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ORG_ID, '*', 'org_id', null, null), // org ID
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID, '*', 'participant_id', null, null), // participant ID
-			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_STATUS, '*', 'status', $translate->_('ticket.status')),
+			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_STATUS, '*', 'status', $translate->_('common.status')),
 			SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
 				
 			SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT'),
@@ -2962,7 +2962,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 								$values[] = array($header_name, $oper, null);
 								break;
 						}
-					}					
+					}
 					
 					$params[$field_key] = new DevblocksSearchCriteria(
 						$field_key,
@@ -3681,7 +3681,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
-			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:
+			case SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER:
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
 				@$value = DevblocksPlatform::importGPC($_REQUEST['value'],'string','');
 				$criteria = new DevblocksSearchCriteria($field, $oper, array(array($name,$oper,$value)));
@@ -4134,11 +4134,11 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$token_labels = array(
 			'_label' => $prefix,
 			'created' => $prefix.$translate->_('common.created'),
+			'elapsed_response_first' => $prefix.$translate->_('ticket.elapsed_response_first'),
+			'elapsed_resolution_first' => $prefix.$translate->_('ticket.elapsed_resolution_first'),
 			'id' => $prefix.$translate->_('common.id'),
 			'mask' => $prefix.$translate->_('ticket.mask'),
 			'num_messages' => $prefix.$translate->_('ticket.num_messages'),
-			'elapsed_response_first' => $prefix.$translate->_('ticket.elapsed_response_first'),
-			'elapsed_resolution_first' => $prefix.$translate->_('ticket.elapsed_resolution_first'),
 			'reopen_date' => $prefix.$translate->_('ticket.reopen_at'),
 			'spam_score' => $prefix.$translate->_('ticket.spam_score'),
 			'spam_training' => $prefix.$translate->_('ticket.spam_training'),
@@ -4152,11 +4152,11 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$token_types = array(
 			'_label' => 'context_url',
 			'created' => Model_CustomField::TYPE_DATE,
+			'elapsed_response_first' => 'time_secs',
+			'elapsed_resolution_first' => 'time_secs',
 			'id' => 'id',
 			'mask' => Model_CustomField::TYPE_SINGLE_LINE,
 			'num_messages' => Model_CustomField::TYPE_NUMBER,
-			'elapsed_response_first' => 'time_secs',
-			'elapsed_resolution_first' => 'time_secs',
 			'reopen_date' => Model_CustomField::TYPE_DATE,
 			'spam_score' => 'percent',
 			'spam_training' => null,
@@ -4184,19 +4184,19 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		if(null != $ticket) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = sprintf("[#%s] %s", $ticket->mask, $ticket->subject);
+			$token_values['closed_at'] = $ticket->closed_at;
 			$token_values['created'] = $ticket->created_date;
+			$token_values['elapsed_response_first'] = $ticket->elapsed_response_first;
+			$token_values['elapsed_resolution_first'] = $ticket->elapsed_resolution_first;
 			$token_values['id'] = $ticket->id;
 			$token_values['mask'] = $ticket->mask;
 			$token_values['num_messages'] = $ticket->num_messages;
-			$token_values['elapsed_response_first'] = $ticket->elapsed_response_first;
-			$token_values['elapsed_resolution_first'] = $ticket->elapsed_resolution_first;
+			$token_values['org_id'] = $ticket->org_id;
 			$token_values['reopen_date'] = $ticket->reopen_at;
 			$token_values['spam_score'] = $ticket->spam_score;
 			$token_values['spam_training'] = $ticket->spam_training;
 			$token_values['subject'] = $ticket->subject;
 			$token_values['updated'] = $ticket->updated_date;
-			$token_values['closed_at'] = $ticket->closed_at;
-			$token_values['org_id'] = $ticket->org_id;
 			
 			// Status
 			@$is_closed = intval($ticket->is_closed);
