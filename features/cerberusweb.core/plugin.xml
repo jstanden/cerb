@@ -56,7 +56,7 @@
 		<patch version="6.8.0" revision="1108" file="patches/6.x/6.8.0.php" />
 		<patch version="6.9.0" revision="1115" file="patches/6.x/6.9.0.php" />
 		
-		<patch version="7.0.0" revision="1121" file="patches/7.x/7.0.0.php" />
+		<patch version="7.0.0" revision="1122" file="patches/7.x/7.0.0.php" />
 	</patches>
 
 	<!-- Controller Routing -->
@@ -334,6 +334,14 @@
 		<file path="api/dao/pop3_account.php">
 			<class name="DAO_Pop3Account" />
 			<class name="Model_Pop3Account" />
+		</file>
+		
+		<file path="api/dao/skill.php">
+			<class name="Context_Skill" />
+			<class name="DAO_Skill" />
+			<class name="Model_Skill" />
+			<class name="SearchFields_Skill" />
+			<class name="View_Skill" />
 		</file>
 		
 		<file path="api/dao/snippet.php">
@@ -1401,6 +1409,30 @@
 		</extension>
 		
 		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.skill</id>
+			<name>Skill</name>
+			<class>
+				<file>api/dao/skill.php</file>
+				<name>Context_Skill</name>
+			</class>
+			<params>
+				<param key="alias" value="skill" />
+				<param key="dao_class" value="DAO_Skill" />
+				<param key="view_class" value="View_Skill" />
+				<param key="options">
+					<value>
+						<data key="create" />
+						<data key="custom_fields" />
+						<data key="find" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.snippet</id>
 			<name>Snippet</name>
 			<class>
@@ -2288,6 +2320,19 @@
 				<params>
 					<param key="page_id" value="core.controller.internal" />
 					<param key="uri" value="dashboards" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.internal.section.skills</id>
+				<name>Internal Section Skills</name>
+				<class>
+					<file>api/uri/internal/skills.php</file>
+					<name>PageSection_InternalSkills</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.controller.internal" />
+					<param key="uri" value="skills" />
 				</params>
 			</extension>
 			
@@ -3304,6 +3349,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="org" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.skill</id>
+				<name>Skill Section</name>
+				<class>
+					<file>api/uri/profiles/skill.php</file>
+					<name>PageSection_ProfilesSkill</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="skill" />
 				</params>
 			</extension>
 			

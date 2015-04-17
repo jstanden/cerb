@@ -895,6 +895,7 @@ class CerberusContexts {
 	const CONTEXT_ROLE = 'cerberusweb.contexts.role';
 	const CONTEXT_SENSOR = 'cerberusweb.contexts.datacenter.sensor';
 	const CONTEXT_SERVER = 'cerberusweb.contexts.datacenter.server';
+	const CONTEXT_SKILL = 'cerberusweb.contexts.skill';
 	const CONTEXT_SNIPPET = 'cerberusweb.contexts.snippet';
 	const CONTEXT_TASK = 'cerberusweb.contexts.task';
 	const CONTEXT_TICKET = 'cerberusweb.contexts.ticket';

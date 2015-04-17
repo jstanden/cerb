@@ -14,6 +14,39 @@ FIELDSET.delete {
 	}
 }
 
+FIELDSET.cerb-skillset {
+	margin-bottom: 0;
+	
+	LABEL {
+		font-weight: bold;
+		padding: 0px 0px 5px 0px;
+		display: block;
+		
+		&> SMALL {
+			font-weight: normal;
+			font-size: 100%;
+		}
+	}
+	
+	DIV.cerb-skill {
+		margin:0px 10px 10px 5px;
+		width:250px;
+		display:inline-block;
+		
+		INPUT {
+			display: none;
+		}
+		
+		//.ui-slider-handle {
+		//	background: #fff;
+		//}
+
+		//.ui-slider-range {
+		//	background-color: #FEC400;
+		//}
+	}
+}
+
 // Special links
 
 A.no-underline {

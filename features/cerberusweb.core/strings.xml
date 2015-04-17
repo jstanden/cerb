@@ -1003,6 +1003,16 @@
 				<seg>size</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.skill">
+			<tuv xml:lang="en_US">
+				<seg>skill</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.skills">
+			<tuv xml:lang="en_US">
+				<seg>skills</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.snippets">
 			<tuv xml:lang="en_US">
 				<seg>snippets</seg>

@@ -114,6 +114,25 @@ if(!isset($columns['html_attachment_id'])) {
 }
 
 // ===========================================================================
+// ===========================================================================
+// Add the `skill` table
+
+if(!isset($tables['skill'])) {
+	$sql = sprintf("
+		CREATE TABLE IF NOT EXISTS skill (
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+			name VARCHAR(255) DEFAULT '',
+			skillset_id INT UNSIGNED NOT NULL DEFAULT 0,
+			created_at INT UNSIGNED NOT NULL DEFAULT 0,
+			updated_at INT UNSIGNED NOT NULL DEFAULT 0,
+			PRIMARY KEY (id)
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql);
+
+	$tables['skill'] = 'skill';
+}
+
 // Finish up
 
 return TRUE;
