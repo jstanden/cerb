@@ -2481,8 +2481,9 @@ class C4_AbstractViewLoader {
 			$_exit_checksum = sha1(serialize($view));
 			
 			// If the view model is not dirty (we wouldn't end up changing anything in the database)
-			if($_init_checksum == $_exit_checksum)
+			if($_init_checksum == $_exit_checksum) {
 				return;
+			}
 		}
 		
 		$model = self::serializeAbstractView($view);
@@ -2502,7 +2503,7 @@ class C4_AbstractViewLoader {
 	static function serializeAbstractView($view) {
 		if(!$view instanceof C4_AbstractView)
 			return NULL;
-
+		
 		$model = new C4_AbstractViewModel();
 			
 		$model->class_name = get_class($view);

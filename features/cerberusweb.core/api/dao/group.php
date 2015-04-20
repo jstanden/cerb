@@ -229,7 +229,7 @@ class DAO_Group extends Cerb_ORMHelper {
 			}
 		}
 		
-		// Clear cache
+		// Clear caches
 		self::clearCache();
 	}
 	

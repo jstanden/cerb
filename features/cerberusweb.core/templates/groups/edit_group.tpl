@@ -1,10 +1,15 @@
 <div id="groupTabs">
 	<ul>
-		{$tabs = [settings,buckets,members]}
+		{$tabs = []}
 		{$point = 'cerberusweb.groups.tab'}
 		
+		{$tabs[] = 'settings'}
 		<li><a href="{devblocks_url}ajax.php?c=groups&a=showTabMail&id={$group->id}{/devblocks_url}">{'common.mail'|devblocks_translate|capitalize}</a></li>
+		
+		{$tabs[] = 'buckets'}
 		<li><a href="{devblocks_url}ajax.php?c=groups&a=showTabBuckets&id={$group->id}{/devblocks_url}">{'common.buckets'|devblocks_translate|capitalize}</a></li>
+		
+		{$tabs[] = 'members'}
 		<li><a href="{devblocks_url}ajax.php?c=groups&a=showTabMembers&id={$group->id}{/devblocks_url}">{'common.members'|devblocks_translate|capitalize}</a></li>
 		
 		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}

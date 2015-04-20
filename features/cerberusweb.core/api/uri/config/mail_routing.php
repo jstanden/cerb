@@ -80,9 +80,9 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail_routing')));
 	}
 	
-   	function showMailRoutingRulePanelAction() {
-   		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-   		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+	function showMailRoutingRulePanelAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
 
 		$active_worker = CerberusApplication::getActiveWorker();
 
@@ -117,13 +117,13 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_routing/peek.tpl');
-   	}
-   	
-   	function saveMailRoutingRuleAddAction() {
-   		$translate = DevblocksPlatform::getTranslationService();
-   		
-   		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-   		
+	}
+
+	function saveMailRoutingRuleAddAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		
 		@$active_worker = CerberusApplication::getActiveWorker();
 		if(!$active_worker->is_superuser)
 			return;
@@ -131,7 +131,6 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 		/*****************************/
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
 		@$is_sticky = DevblocksPlatform::importGPC($_POST['is_sticky'],'integer',0);
-//		@$is_stackable = DevblocksPlatform::importGPC($_POST['is_stackable'],'integer',0);
 		@$rules = DevblocksPlatform::importGPC($_POST['rules'],'array',array());
 		@$do = DevblocksPlatform::importGPC($_POST['do'],'array',array());
 		
@@ -170,6 +169,7 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 					if(in_array(6,$days)) $criteria['sat'] = 'Saturday';
 					unset($criteria['value']);
 					break;
+					
 				case 'timeofday':
 					$from = DevblocksPlatform::importGPC($_REQUEST['timeofday_from'],'string','');
 					$to = DevblocksPlatform::importGPC($_REQUEST['timeofday_to'],'string','');
@@ -177,12 +177,16 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 					$criteria['to'] = $to;
 					unset($criteria['value']);
 					break;
+					
 				case 'subject':
 					break;
+					
 				case 'from':
 					break;
+					
 				case 'tocc':
 					break;
+					
 				case 'header1':
 				case 'header2':
 				case 'header3':
@@ -191,10 +195,10 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 					if(null != (@$header = DevblocksPlatform::importGPC($_POST[$rule],'string',null)))
 						$criteria['header'] = strtolower($header);
 					break;
+					
 				case 'body':
 					break;
-//				case 'attachment':
-//					break;
+					
 				default: // ignore invalids // [TODO] Very redundant
 					// Custom fields
 					if("cf_" == substr($rule,0,3)) {
@@ -210,6 +214,7 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','regexp');
 								$criteria['oper'] = $oper;
 								break;
+								
 							case 'D': // dropdown
 							case 'X': // multi-checkbox
 							case 'W': // worker
@@ -224,6 +229,7 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 								
 								$criteria['value'] = $out_array;
 								break;
+								
 							case 'E': // date
 								$from = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_from'],'string','0');
 								$to = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_to'],'string','now');
@@ -231,11 +237,13 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 								$criteria['to'] = $to;
 								unset($criteria['value']);
 								break;
+								
 							case 'N': // number
 								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','=');
 								$criteria['oper'] = $oper;
 								$criteria['value'] = intval($value);
 								break;
+								
 							case 'C': // checkbox
 								$criteria['value'] = intval($value);
 								break;
@@ -268,6 +276,7 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 						);
 					}
 					break;
+					
 				default: // ignore invalids
 					// Custom fields
 					if("cf_" == substr($act,0,3)) {
@@ -287,6 +296,7 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 								$value = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'string','');
 								$action['value'] = $value;
 								break;
+								
 							case 'X': // multi-checkbox
 								$in_array = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'array',array());
 								$out_array = array();
@@ -299,10 +309,12 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 								
 								$action['value'] = $out_array;
 								break;
+								
 							case 'E': // date
 								$value = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'string','');
 								$action['value'] = $value;
 								break;
+								
 							case 'N': // number
 							case 'C': // checkbox
 								$value = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'string','');

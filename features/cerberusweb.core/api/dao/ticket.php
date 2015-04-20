@@ -1457,6 +1457,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		// Translate virtual fields
 		
 		$args = array(
+			'select_sql' => &$select_sql,
 			'join_sql' => &$join_sql,
 			'where_sql' => &$where_sql,
 			'tables' => &$tables,
@@ -1907,7 +1908,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY t.id ' : '').
 			$sort_sql;
-
+		
 		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		$results = array();
@@ -3103,13 +3104,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
-
+		
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
-
+		
 		$buckets = DAO_Bucket::getAll();
 		$tpl->assign('buckets', $buckets);
-
+		
 		$group_buckets = DAO_Bucket::getGroups();
 		$tpl->assign('group_buckets', $group_buckets);
 

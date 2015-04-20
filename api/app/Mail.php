@@ -182,9 +182,11 @@ class CerberusMail {
 		if(empty($worker_id) && null != ($worker = CerberusApplication::getActiveWorker()))
 			$worker_id = $worker->id;
 
+		// Worker
 		if(!empty($worker_id))
 			$worker = DAO_Worker::get($worker_id);
 		
+		// Group
 		if(null == ($group = DAO_Group::get($group_id)))
 			return;
 		
@@ -580,9 +582,11 @@ class CerberusMail {
 				
 			$ticket_id = $message->ticket_id;
 			
+			// Ticket
 			if(null == ($ticket = DAO_Ticket::get($ticket_id)))
 				return;
 				
+			// Group
 			if(null == ($group = DAO_Group::get($ticket->group_id)))
 				return;
 			

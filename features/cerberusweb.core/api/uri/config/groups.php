@@ -89,8 +89,10 @@ class PageSection_SetupGroups extends Extension_PageSection {
 		@$delete = DevblocksPlatform::importGPC($_POST['delete_box']);
 		@$delete_move_id = DevblocksPlatform::importGPC($_POST['delete_move_id'],'integer',0);
 		
-		if(empty($name)) $name = "No Name";
+		if(empty($name))
+			$name = "No Name";
 		
+		// If we're deleting the group
 		if(!empty($id) && !empty($delete)) {
 			if(!empty($delete_move_id)) {
 				if(null != ($group = DAO_Group::get($id))) {

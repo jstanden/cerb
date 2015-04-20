@@ -194,7 +194,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		$last_action->ticket_ids[$id] = array(
 			DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
-			DAO_Ticket::SPAM_SCORE => 0.5000, // [TODO] Fix
+			DAO_Ticket::SPAM_SCORE => 0.5000,
 			DAO_Ticket::IS_CLOSED => 0,
 			DAO_Ticket::IS_DELETED => 0
 		);
@@ -236,6 +236,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	// [TODO] Refactor for group-based signatures
+	
 	function getLogTicketSignatureAction() {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		

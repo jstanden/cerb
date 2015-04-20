@@ -102,7 +102,12 @@ class DAO_Bucket extends DevblocksORMHelper {
 		
 		return self::_getObjectsFromResult($rs);
 	}
-		
+	
+	/**
+	 * 
+	 * @param array $group_ids
+	 * @return Model_Bucket[]
+	 */
 	static function getByGroup($group_ids) {
 		if(!is_array($group_ids))
 			$group_ids = array($group_ids);

@@ -240,6 +240,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 			case 'delete':
 				@$delete_moveto = DevblocksPlatform::importGPC($_REQUEST['delete_moveto'],'integer',0);
 				$buckets = DAO_Bucket::getAll();
+				
 				// Bucket must exist
 				if(empty($bucket_id) || !isset($buckets[$bucket_id]))
 					break;
