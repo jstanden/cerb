@@ -9,7 +9,7 @@
 </div>
 </form>
 
-<div id="view{$view->id}">{$view->render()}</div>
+<div id="view{$view->id}" style="overflow-x: auto;">{$view->render()}</div>
 
 <script type="text/javascript">
 	$('#viewCustomFilters{$view->id}').bind('view_refresh', function(event) {

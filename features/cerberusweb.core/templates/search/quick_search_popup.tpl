@@ -13,6 +13,8 @@ $(function() {
 		$popup.dialog('option', 'width', 450);
 		$popup.dialog('option', 'closeOnEscape', false);
 		$input.select().focus();
+		
+		$popup.css('overflow', 'inherit');
 	});
 });
 </script>
