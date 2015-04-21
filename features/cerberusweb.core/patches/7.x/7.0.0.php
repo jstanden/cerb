@@ -188,6 +188,71 @@ if(!isset($columns['updated_at'])) {
 // ===========================================================================
 // Add `is_default` field to `bucket`
 
+function _700_migrate_inbox_buckets(&$params, $group_inboxes) {
+	$filtered_group_ids = array();
+	$replace_inboxes = array();
+	$changed = false;
+	
+	// Find the referenced group IDs
+	foreach($params as $param_key => &$param) {
+		if($param instanceof DevblocksSearchCriteria) {
+			switch($param->field) {
+				case 't_group_id':
+					if(is_array($param->value)) {
+						$filtered_group_ids = array_merge($filtered_group_ids, $param->value);
+					}
+					break;
+			}
+			
+		} elseif (is_array($param) && isset($param['field'])) {
+			switch($param['field']) {
+				case 't_group_id':
+					if(is_array($param['value'])) {
+						$filtered_group_ids = array_merge($filtered_group_ids, $param['value']);
+					}
+					break;
+			}
+		}
+	}
+	
+	foreach($filtered_group_ids as $group_id)
+		if(!isset($replace_inboxes[$group_id]) && isset($group_inboxes[$group_id]))
+			$replace_inboxes[$group_id] = $group_inboxes[$group_id];
+	
+	foreach($params as $param_key => &$param) {
+		if($param instanceof DevblocksSearchCriteria) {
+			switch($param->field) {
+				case 't_bucket_id':
+					if(is_array($param->value))
+					foreach($param->value as $idx => $bucket_id) {
+						if(0 == $bucket_id) {
+							unset($param->value[$idx]);
+							$param->value = array_merge($param->value, $replace_inboxes);
+							$changed = true;
+						}
+					}
+					break;
+			}
+			
+		} elseif(is_array($param) && isset($param['field'])) {
+			switch($param['field']) {
+				case 't_bucket_id':
+					if(is_array($param['value']))
+					foreach($param['value'] as $idx => $bucket_id) {
+						if(0 == $bucket_id) {
+							unset($param['value'][$idx]);
+							$param['value'] = array_merge($param['value'], $replace_inboxes);
+							$changed = true;
+						}
+					}
+					break;
+			}
+		}
+	}
+	
+	return $changed;
+}
+
 list($columns, $indexes) = $db->metaTable('bucket');
 
 if(!isset($columns['is_default'])) {
@@ -291,6 +356,66 @@ if(!isset($columns['is_default'])) {
 			$db->ExecuteMaster(sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
 				$db->qstr(json_encode($json)),
 				$row['id']
+			));
+		}
+	}
+	
+	// Migrate worker_view_model filters
+	
+	$db_>ExecuteMaster("DELETE FROM worker_view_model WHERE view_id LIKE 'search%' OR is_ephemeral = 1");
+	
+	$results = $db->GetArrayMaster("SELECT worker_id, view_id, params_editable_json, params_default_json, params_required_json ".
+		"FROM worker_view_model ".
+		"WHERE class_name = 'View_Ticket' ".
+		"AND (".
+			"params_editable_json LIKE '%bucket_id%' ".
+			"OR params_default_json LIKE '%bucket_id%' OR ".
+			"params_required_json LIKE '%bucket_id%' ".
+		")"
+	);
+	
+	foreach($results as $row) {
+		$worker_id = $row['worker_id'];
+		$view_id = $row['view_id'];
+		$params_editable = json_decode($row['params_editable_json'], true);
+		$params_default = json_decode($row['params_default_json'], true);
+		$params_required = json_decode($row['params_required_json'], true);
+		
+		// If we found bucket filters in at least one of these
+		if(
+			_700_migrate_inbox_buckets($params_editable, $group_inboxes)
+			|| _700_migrate_inbox_buckets($params_default, $group_inboxes)
+			|| _700_migrate_inbox_buckets($params_required, $group_inboxes))
+		{
+			$sql = sprintf("UPDATE worker_view_model SET params_editable_json = %s, params_default_json = %s, params_required_json = %s WHERE view_id = %s AND worker_id = %d",
+				$db->qstr(json_encode($params_editable)),
+				$db->qstr(json_encode($params_default)),
+				$db->qstr(json_encode($params_required)),
+				$db->qstr($view_id),
+				$worker_id
+			);
+			
+			$db->ExecuteMaster($sql);
+		}
+	}	
+	
+	// Migrate workspace_list filters
+	
+	require_once(APP_PATH . '/features/cerberusweb.core/api/dao/workspace.php');
+	
+	$lists = $db->GetArrayMaster("SELECT id, list_view FROM workspace_list WHERE context = 'cerberusweb.contexts.ticket' and list_view like '%t_bucket_id%'");
+	
+	foreach($lists as $list) {
+		$list_id = $list['id'];
+		$list_view = unserialize($list['list_view']);
+		
+		if(
+			_700_migrate_inbox_buckets($list_view->params, $group_inboxes)
+			|| _700_migrate_inbox_buckets($list_view->params_required, $group_inboxes)
+		) {
+			$db->ExecuteMaster(sprintf("UPDATE workspace_list SET list_view = %s WHERE id = %d",
+				$db->qstr(serialize($list_view)),
+				$list_id
 			));
 		}
 	}
