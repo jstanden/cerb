@@ -1368,6 +1368,11 @@ abstract class C4_AbstractView {
 		$tpl->assign('subtotal_fields', $fields);
 		
 		$counts = $this->getSubtotalCounts($this->renderSubtotals);
+		
+		// Unless we're subtotalling by group, limit the results to top 20
+		if($this->renderSubtotals != 't_group_id')
+			$counts = array_slice($counts, 0, 20);
+		
 		$tpl->assign('subtotal_counts', $counts);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/views/sidebar.tpl');
@@ -1453,7 +1458,7 @@ abstract class C4_AbstractView {
 			$where_sql.
 			"GROUP BY label ".
 			"ORDER BY hits DESC ".
-			"LIMIT 0,20 "
+			"LIMIT 0,250 "
 		;
 		
 		$results = $db->GetArray($sql);
@@ -1646,7 +1651,7 @@ abstract class C4_AbstractView {
 			$where_sql.
 			"GROUP BY watcher_id ".
 			"ORDER BY hits DESC ".
-			"LIMIT 0,20 "
+			"LIMIT 0,250 "
 		;
 		
 		$results = $db->GetArray($sql);
@@ -1767,7 +1772,7 @@ abstract class C4_AbstractView {
 			);
 			
 		} else {
-			$sql = sprintf("SELECT from_context AS link_from_context, from_context_id AS link_from_context_id, count(*) AS hits FROM context_link WHERE to_context = %s AND to_context_id IN (%s) AND from_context = %s GROUP BY from_context_id ORDER BY hits DESC LIMIT 0,20 ",
+			$sql = sprintf("SELECT from_context AS link_from_context, from_context_id AS link_from_context_id, count(*) AS hits FROM context_link WHERE to_context = %s AND to_context_id IN (%s) AND from_context = %s GROUP BY from_context_id ORDER BY hits DESC LIMIT 0,250 ",
 				$db->qstr($context),
 				(
 					sprintf("SELECT %s.id ", $query_parts['primary_table']).
