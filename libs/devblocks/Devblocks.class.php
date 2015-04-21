@@ -2156,6 +2156,13 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
+	 * @return DevblocksNeuralNetwork
+	 */
+	static function getNeuralNetwork($inputs, $hiddens, $outputs, $learning_rate) {
+		return _DevblocksNeuralNetworkService::createNeuralNetwork($inputs, $hiddens, $outputs, $learning_rate);
+	}
+	
+	/**
 	 * @return _DevblocksUrlManager
 	 */
 	static function getUrlService() {

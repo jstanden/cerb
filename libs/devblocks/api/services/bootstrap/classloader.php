@@ -105,6 +105,11 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/nlp.php', array(
 			'_DevblocksNaturalLanguageManager',
 		));
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/nn.php', array(
+			'_DevblocksNeuralNetworkService',
+			'DevblocksNeuralNetwork',
+			'DevblocksNeuralNetworkNode',
+		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/openid.php', array(
 			'_DevblocksOpenIDManager',
 		));
