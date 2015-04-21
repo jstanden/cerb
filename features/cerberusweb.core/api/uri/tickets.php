@@ -746,18 +746,8 @@ class ChTicketsPage extends CerberusPageExtension {
 			$doActions = array();
 			
 			switch(strtolower(substr($moveto,0,1))) {
-				// Group/Bucket Move
-				case 't':
-					$g_id = intval(substr($moveto,1));
-					$doActions = array(
-						'move' => array(
-							'group_id' => $g_id,
-							'bucket_id' => 0,
-						)
-					);
-					break;
-					
-				case 'c':
+				// Group/bucket
+				case 'm':
 					$b_id = intval(substr($moveto,1));
 					@$g_id = intval($buckets[$b_id]->group_id);
 					

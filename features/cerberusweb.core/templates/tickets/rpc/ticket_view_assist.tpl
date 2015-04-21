@@ -27,21 +27,16 @@ Sort biggest piles by:
 	<td width="1%" nowrap="nowrap">
 		<select name="piles_moveto[]" id="select{$hash}">
 			<option value=""></option>
-			<optgroup label="Move to Group" style="color:rgb(0,150,0);font-weight:bold;">
-				{foreach from=$groups item=group}
-					<option value="t{$group->id}">{$group->name}</option>
+			<optgroup label="Move to..." style="color:rgb(0,150,0);font-weight:bold;">
+				{foreach from=$group_buckets item=group_bucket_list key=groupId}
+					{$group = $groups.$groupId}
+					{if isset($active_worker_memberships.$groupId)}
+						{foreach from=$group_bucket_list item=bucket}
+							<option value="m{$bucket->id}">{$group->name}: {$bucket->name}</option>
+						{/foreach}
+					{/if}
 				{/foreach}
 			</optgroup>
-			{foreach from=$group_buckets item=group_bucket_list key=groupId}
-				{assign var=group value=$groups.$groupId}
-				{if isset($active_worker_memberships.$groupId)}
-					<optgroup label="-- {$group->name} --">
-					{foreach from=$group_bucket_list item=bucket}
-						<option value="c{$bucket->id}">{$bucket->name}</option>
-					{/foreach}
-					</optgroup>
-				{/if}
-			{/foreach}
 			<optgroup label="Set Status" style="font-weight:bold;">
 				{if $active_worker->hasPriv('core.ticket.actions.close')}<option value="ac">Close</option>{/if}
 				{if $active_worker->hasPriv('core.ticket.actions.spam')}<option value="as">Report Spam</option>{/if}
@@ -81,21 +76,16 @@ Sort biggest piles by:
 		<td width="1%" nowrap="nowrap">
 			<select name="piles_moveto[]" id="select{$sender_hash}">
 				<option value=""></option>
-				<optgroup label="Move to Group" style="color:rgb(0,150,0);font-weight:bold;">
-					{foreach from=$groups item=group}
-						<option value="t{$group->id}">{$group->name}</option>
+				<optgroup label="Move to..." style="color:rgb(0,150,0);font-weight:bold;">
+					{foreach from=$group_buckets item=group_bucket_list key=groupId}
+						{$group = $groups.$groupId}
+						{if isset($active_worker_memberships.$groupId)}
+							{foreach from=$group_bucket_list item=bucket}
+								<option value="m{$bucket->id}">{$group->name}: {$bucket->name}</option>
+							{/foreach}
+						{/if}
 					{/foreach}
 				</optgroup>
-				{foreach from=$group_buckets item=group_bucket_list key=groupId}
-					{assign var=group value=$groups.$groupId}
-					{if isset($active_worker_memberships.$groupId)}
-						<optgroup label="-- {$group->name} --">
-						{foreach from=$group_bucket_list item=bucket}
-							<option value="c{$bucket->id}">{$bucket->name}</option>
-						{/foreach}
-						</optgroup>
-					{/if}
-				{/foreach}
 				<optgroup label="Set Status" style="font-weight:bold;">
 					{if $active_worker->hasPriv('core.ticket.actions.close')}<option value="ac">Close</option>{/if}
 					{if $active_worker->hasPriv('core.ticket.actions.spam')}<option value="as">Report Spam</option>{/if}

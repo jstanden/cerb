@@ -76,6 +76,11 @@ class DAO_Group extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
+	/**
+	 * 
+	 * @param unknown $nocache
+	 * @return Model_Group[]
+	 */
 	static function getAll($nocache=false) {
 		$cache = DevblocksPlatform::getCacheService();
 		if($nocache || null === ($groups = $cache->load(self::CACHE_ALL))) {

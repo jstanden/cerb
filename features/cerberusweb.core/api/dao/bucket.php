@@ -42,11 +42,16 @@ class DAO_Bucket extends DevblocksORMHelper {
 	}
 	
 	static function getGroups() {
-		$buckets = self::getAll();
+		$groups = DAO_Group::getAll();
 		$group_buckets = array();
 		
-		foreach($buckets as $bucket) {
-			$group_buckets[$bucket->group_id][$bucket->id] = $bucket;
+		foreach($groups as $group_id => $group) {
+			if(false == ($buckets = $group->getBuckets()))
+				continue;
+			
+			foreach($buckets as $bucket_id => $bucket) {
+				$group_buckets[$group_id][$bucket_id] = $bucket;
+			}
 		}
 		
 		return $group_buckets;
