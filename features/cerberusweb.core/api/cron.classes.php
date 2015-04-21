@@ -626,10 +626,20 @@ class ImportCron extends CerberusCronPageExtension {
 		}
 		
 		if(empty($sBucket)) {
-			$iDestBucketId = 0; // Inbox
+			// Get the default bucket id for this group
+			$destGroup = DAO_Group::get($iDestGroupId);
+			$iDestBucket = $destGroup->getDefaultBucket();
+			$iDestBucketId = $iDestBucket->id;
 			
 		} elseif(null == ($iDestBucketId = @$bucket_name_to_id[md5($iDestGroupId.strtolower($sBucket))])) {
-			$iDestBucketId = DAO_Bucket::create($sBucket, $iDestGroupId);
+			$fields = array(
+				DAO_Bucket::NAME => $sBucket,
+				DAO_Bucket::GROUP_ID => $iDestGroupId,
+				DAO_Bucket::IS_DEFAULT => 0,
+				DAO_Bucket::POS => DAO_Bucket::getNextPos($iDestGroup),
+				DAO_Bucket::UPDATED_AT => time(),
+			);
+			$iDestBucketId = DAO_Bucket::create($fields);
 			
 			// Rehash
 			DAO_Bucket::getAll(true);

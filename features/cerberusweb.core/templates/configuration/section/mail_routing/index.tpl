@@ -13,7 +13,7 @@
 	<input type="hidden" name="section" value="mail_routing">
 	<input type="hidden" name="action" value="saveRouting">
 
-	<b>Which group inbox should receive any unrouted new mail?</b><br> 
+	<b>Which group should receive any unrouted new mail?</b><br> 
 	<select name="default_group_id">
 		<option value="0">-- None (Bounce) --
 	{if !empty($groups)}
@@ -82,11 +82,9 @@
 						{foreach from=$rule->actions item=action key=action_key}
 							{if $action_key=="move"}
 								{assign var=g_id value=$action.group_id}
-								{assign var=b_id value=$action.bucket_id}
-								{if isset($groups.$g_id) && (0==$b_id || isset($buckets.$b_id))}
+								{if isset($groups.$g_id)}
 									Move to 
-									<b>{$groups.$g_id->name}</b>:
-									<b>{if 0==$b_id}Inbox{else}{$buckets.$b_id->name}{/if}</b>
+									<b>{$groups.$g_id->name}</b>
 								{/if}
 								<br>
 							{elseif 0==strcasecmp('cf_',substr($action_key,0,3))}

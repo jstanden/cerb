@@ -186,14 +186,6 @@ var plot1 = $.jqplot('reportChart', chartData, chartOptions);
 					<td colspan="3" style="padding-left:10px;padding-right:20px;"><h3 style="margin:0px;">{$groups.$group_id->name}</h3></td>
 				</tr>
 				
-				{if !empty($count_group_buckets.0)}
-				<tr>
-					<td style="padding-left:20px;padding-right:20px;">{'common.inbox'|devblocks_translate|capitalize}</td>
-					<td align="right">{$count_group_buckets.0}</td>
-					<td></td>
-				</tr>
-				{/if}
-				
 				{foreach from=$group_buckets.$group_id key=bucket_id item=b}
 					{if !empty($count_group_buckets.$bucket_id)}
 					<tr>

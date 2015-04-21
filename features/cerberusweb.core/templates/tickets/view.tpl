@@ -157,11 +157,7 @@
 		{elseif $column=="t_bucket_id"}
 			{assign var=ticket_bucket_id value=$result.t_bucket_id}
 			<td>
-				{if 0 == $ticket_bucket_id}
-					{'common.inbox'|devblocks_translate|capitalize}
-				{else}
-					{$buckets.$ticket_bucket_id->name}
-				{/if}
+				{$buckets.$ticket_bucket_id->name}
 			</td>
 		{elseif $column=="t_last_action_code"}
 		<td>

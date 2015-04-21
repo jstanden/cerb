@@ -601,28 +601,6 @@ class CerberusApplication extends DevblocksApplication {
 	}
 
 	/**
-	 * Translates the string version of a group/bucket combo into their
-	 * respective IDs.
-	 *
-	 * @todo This needs a better name and home
-	 */
-	static function translateGroupBucketCode($code) {
-		$t_or_c = substr($code,0,1);
-		$t_or_c_id = intval(substr($code,1));
-
-		if($t_or_c=='c') {
-			$buckets = DAO_Bucket::getAll();
-			$group_id = $buckets[$t_or_c_id]->group_id;
-			$bucket_id = $t_or_c_id;
-		} else {
-			$group_id = $t_or_c_id;
-			$bucket_id = 0;
-		}
-
-		return array($group_id, $bucket_id);
-	}
-
-	/**
 	 * Looks up an e-mail address using a revolving cache.  This is helpful
 	 * in situations where you may look up the same e-mail address multiple
 	 * times (reports, audit log, views) and you don't want to waste code

@@ -30,13 +30,11 @@
 					{/foreach}
 				</select>
 				<select class="ticket-peek-bucket-options" style="display:none;">
-					<option value="0" group_id="*">{'common.inbox'|devblocks_translate|capitalize}</option>
 					{foreach from=$buckets item=bucket key=bucket_id}
 					<option value="{$bucket_id}" group_id="{$bucket->group_id}">{$bucket->name}</option>
 					{/foreach}
 				</select>
 				<select name="bucket_id">
-					<option value="0">{'common.inbox'|devblocks_translate|capitalize}</option>
 					{foreach from=$buckets item=bucket key=bucket_id}
 						{if $bucket->group_id == $defaults.group_id}
 						<option value="{$bucket_id}" {if $defaults.bucket_id == $bucket_id}selected="selected"{/if}>{$bucket->name}</option>

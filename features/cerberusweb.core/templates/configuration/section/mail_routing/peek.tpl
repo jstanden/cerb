@@ -153,23 +153,17 @@
 
 <br>
 <h2>Then perform these actions:</h2>
-<table width="500">
-	<tr>
-		{assign var=act_move value=$rule->actions.move}
-		<td valign="top">
-			<label><input id="chkDoMove" type="checkbox" name="do[]" value="move" {if isset($act_move)}checked="checked"{/if}> Move to Inbox:</label>
-		</td>
-		<td valign="top">
-			<select name="do_move" onchange="document.getElementById('chkDoMove').checked=((''==selectValue(this))?false:true);">
-				<option value="">&nbsp;</option>
-	      		{foreach from=$groups item=tm}
-	      			{assign var=k value='t'|cat:$tm->id}
-	      			<option value="{$k}" {if $tm->id==$act_move.group_id}selected="selected"{/if}>{$tm->name}</option>
-	      		{/foreach}
-			</select>
-		</td>
-	</tr>
-</table>
+
+<div>
+	{assign var=act_move value=$rule->actions.move}
+	<label><input id="chkDoMove" type="checkbox" name="do[]" value="move" {if isset($act_move)}checked="checked"{/if}> Move to group:</label>
+	<select name="do_move" onchange="document.getElementById('chkDoMove').checked=((''==selectValue(this))?false:true);">
+		<option value="">&nbsp;</option>
+		{foreach from=$groups item=grp}
+			<option value="{$grp->id}" {if $grp->id==$act_move.group_id}selected="selected"{/if}>{$grp->name}</option>
+		{/foreach}
+	</select>
+</div>
 
 {* Set Ticket Fields *}
 {include file="devblocks:cerberusweb.core::internal/custom_fields/filters/peek_set_custom_fields.tpl" fields=$ticket_fields filter=$rule divName="divSetTicketFields" label="Set ticket custom fields"}

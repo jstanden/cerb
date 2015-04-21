@@ -21,11 +21,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	
 	const ID = 'id';
 	const NAME = 'name';
-	const REPLY_ADDRESS_ID = 'reply_address_id';
-	const REPLY_PERSONAL = 'reply_personal';
-	const REPLY_SIGNATURE = 'reply_signature';
 	const IS_DEFAULT = 'is_default';
-	const REPLY_HTML_TEMPLATE_ID = 'reply_html_template_id';
 	const CREATED = 'created';
 	const UPDATED = 'updated';
 	
@@ -62,7 +58,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, is_default, reply_address_id, reply_personal, reply_signature, reply_html_template_id, created, updated ".
+		$sql = "SELECT id, name, is_default, created, updated ".
 			"FROM worker_group ".
 			$where_sql.
 			$sort_sql.
@@ -120,10 +116,6 @@ class DAO_Group extends Cerb_ORMHelper {
 			$object->id = intval($row['id']);
 			$object->name = $row['name'];
 			$object->is_default = intval($row['is_default']);
-			$object->reply_address_id = $row['reply_address_id'];
-			$object->reply_personal = $row['reply_personal'];
-			$object->reply_signature = $row['reply_signature'];
-			$object->reply_html_template_id = $row['reply_html_template_id'];
 			$object->created = intval($row['created']);
 			$object->updated = intval($row['updated']);
 			$objects[$object->id] = $object;
@@ -176,8 +168,22 @@ class DAO_Group extends Cerb_ORMHelper {
 			$fields[self::CREATED] = time();
 		
 		self::update($id, $fields);
+		
+		// Create the default inbox bucket for the new group
+		
+		$bucket_fields = array(
+			DAO_Bucket::NAME => 'Inbox',
+			DAO_Bucket::GROUP_ID => $id,
+			DAO_Bucket::IS_DEFAULT => 1,
+			DAO_Bucket::POS => 0,
+			DAO_Bucket::UPDATED_AT => time(),
+		);
+		$bucket_id = DAO_Bucket::create($bucket_fields);
 
+		// Kill the group and bucket cache
+		
 		self::clearCache();
+		DAO_Bucket::clearCache();
 		
 		return $id;
 	}
@@ -231,6 +237,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		
 		// Clear caches
 		self::clearCache();
+		DAO_Bucket::clearCache();
 	}
 	
 	/**
@@ -587,10 +594,6 @@ class Model_Group {
 	public $name;
 	public $count;
 	public $is_default = 0;
-	public $reply_address_id = 0;
-	public $reply_personal;
-	public $reply_signature;
-	public $reply_html_template_id = 0;
 	public $created;
 	public $updated;
 	
@@ -599,169 +602,82 @@ class Model_Group {
 	}
 	
 	/**
+	 * @return Model_Bucket
+	 */
+	public function getDefaultBucket() {
+		$buckets = $this->getBuckets();
+		
+		foreach($buckets as $bucket)
+			if($bucket->is_default)
+				return $bucket;
+			
+		return null;
+	}
+	
+	public function getBuckets() {
+		return DAO_Bucket::getByGroup($this->id);
+	}
+	
+	/**
 	 *
 	 * @param integer $bucket_id
 	 * @return Model_AddressOutgoing
 	 */
 	public function getReplyTo($bucket_id=0) {
-		$from_id = 0;
-		$froms = DAO_AddressOutgoing::getAll();
-		
-		// Cascade to bucket
-		if(!empty($bucket_id)
-			&& null != ($bucket = DAO_Bucket::get($bucket_id))) {
+		if($bucket_id && $bucket = DAO_Bucket::get($bucket_id)) {
+			return $bucket->getReplyTo();
 			
-			$from_id = $bucket->reply_address_id;
-		}
-
-		// Cascade to group
-		if(empty($from_id))
-			$from_id = $this->reply_address_id;
-		
-		// Cascade to global
-		if(empty($from_id) || !isset($froms[$from_id])) {
-			$from = DAO_AddressOutgoing::getDefault();
-			$from_id = $from->address_id;
-		}
+		} else {
 			
-		// Last check
-		if(!isset($froms[$from_id]))
-			return null;
-		
-		return $froms[$from_id];
+			$default_bucket = DAO_Bucket::getDefaultForGroup($this->id);
+			return $default_bucket->getReplyTo();
+		}
 	}
 	
 	public function getReplyFrom($bucket_id=0) {
-		$from_id = 0;
-		$froms = DAO_AddressOutgoing::getAll();
-		
-		// Cascade to bucket
-		if(!empty($bucket_id)
-			&& null != ($bucket = DAO_Bucket::get($bucket_id))) {
+		if($bucket_id && $bucket = DAO_Bucket::get($bucket_id)) {
+			return $bucket->getReplyFrom();
 			
-			$from_id = $bucket->reply_address_id;
-		}
-
-		// Cascade to group
-		if(empty($from_id))
-			$from_id = $this->reply_address_id;
-		
-		// Cascade to global
-		if(empty($from_id) || !isset($froms[$from_id])) {
-			$from = DAO_AddressOutgoing::getDefault();
-			$from_id = $from->address_id;
-		}
+		} else {
 			
-		return $from_id;
+			$default_bucket = DAO_Bucket::getDefaultForGroup($this->id);
+			return $default_bucket->getReplyFrom();
+		}
+		
 	}
 	
 	public function getReplyPersonal($bucket_id=0, $worker_model=null) {
-		$froms = DAO_AddressOutgoing::getAll();
-		$personal = null;
-		
-		// Cascade to bucket
-		if(!empty($bucket_id)
-			&& null != ($bucket = DAO_Bucket::get($bucket_id))) {
+		if($bucket_id && $bucket = DAO_Bucket::get($bucket_id)) {
+			return $bucket->getReplyPersonal($worker_model);
 			
-			$personal = $bucket->reply_personal;
+		} else {
 			
-			// Cascade to bucket address
-			if(empty($personal) && !empty($bucket->reply_address_id) && isset($froms[$bucket->reply_address_id])) {
-				$from = $froms[$bucket->reply_address_id];
-				$personal = $from->reply_personal;
-			}
+			$default_bucket = DAO_Bucket::getDefaultForGroup($this->id);
+			return $default_bucket->getReplyPersonal($worker_model);
 		}
-
-		// Cascade to group
-		if(empty($personal))
-			$personal = $this->reply_personal;
-			
-		// Cascade to group address
-		if(empty($personal) && !empty($this->reply_address_id) && isset($froms[$this->reply_address_id])) {
-			$from = $froms[$this->reply_address_id];
-			$personal = $from->reply_personal;
-		}
-		
-		// Cascade to global
-		if(empty($personal)) {
-			$from = DAO_AddressOutgoing::getDefault();
-			$personal = $from->reply_personal;
-		}
-		
-		// If we have a worker model, convert template tokens
-		if(empty($worker_model))
-			$worker_model = new Model_Worker();
-		
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		$token_labels = array();
-		$token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);
-		$personal = $tpl_builder->build($personal, $token_values);
-		
-		return $personal;
 	}
 	
 	public function getReplySignature($bucket_id=0, $worker_model=null) {
-		$froms = DAO_AddressOutgoing::getAll();
-		$signature = null;
-		
-		// Cascade to bucket
-		if(!empty($bucket_id)
-			&& null != ($bucket = DAO_Bucket::get($bucket_id))) {
+		if($bucket_id && $bucket = DAO_Bucket::get($bucket_id)) {
+			return $bucket->getReplySignature($worker_model);
 			
-			$signature = $bucket->reply_signature;
+		} else {
 			
-			// Cascade to bucket address
-			if(empty($signature) && !empty($bucket->reply_address_id) && isset($froms[$bucket->reply_address_id])) {
-				$from = $froms[$bucket->reply_address_id];
-				$signature = $from->reply_signature;
-			}
+			$default_bucket = DAO_Bucket::getDefaultForGroup($this->id);
+			return $default_bucket->getReplySignature($worker_model);
 		}
-
-		// Cascade to group
-		if(empty($signature))
-			$signature = $this->reply_signature;
-			
-		// Cascade to group address
-		if(empty($signature) && !empty($this->reply_address_id) && isset($froms[$this->reply_address_id])) {
-			$from = $froms[$this->reply_address_id];
-			$signature = $from->reply_signature;
-		}
-		
-		// Cascade to global
-		if(empty($signature)) {
-			$from = DAO_AddressOutgoing::getDefault();
-			$signature = $from->reply_signature;
-		}
-		
-		// If we have a worker model, convert template tokens
-		if(!empty($worker_model)) {
-			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-			$token_labels = array();
-			$token_values = array();
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);
-			$signature = $tpl_builder->build($signature, $token_values);
-		}
-		
-		return $signature;
 	}
 	
 	public function getReplyHtmlTemplate($bucket_id=0) {
-		// Cascade to bucket
-		if($bucket_id && null != ($bucket = DAO_Bucket::get($bucket_id)))
+		if($bucket_id && $bucket = DAO_Bucket::get($bucket_id)) {
 			return $bucket->getReplyHtmlTemplate();
-		
-		// Cascade to group
-		if($this->reply_html_template_id && false != ($html_template = DAO_MailHtmlTemplate::get($this->reply_html_template_id)))
-			return $html_template;
-		
-		// Finally, cascade to reply-to
-		if(false != ($replyto = $this->getReplyTo())) {
-			if(false != ($html_template = $replyto->getReplyHtmlTemplate()))
-				return $html_template;
+			
+		} else {
+			
+			$default_bucket = DAO_Bucket::getDefaultForGroup($this->id);
+			return $default_bucket->getReplyHtmlTemplate();
 		}
 		
-		return null;
 	}
 };
 
@@ -1338,7 +1254,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values['created'] = $group->created;
 			$token_values['name'] = $group->name;
 			$token_values['updated'] = $group->updated;
-			$token_values['reply_address_id'] = $group->reply_address_id;
+			$token_values['reply_address_id'] = $group->getReplyFrom();
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($group, $token_values);

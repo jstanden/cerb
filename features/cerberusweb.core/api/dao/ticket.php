@@ -847,7 +847,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					'variables' => array(
 						'target' => sprintf("[%s] %s", $model->mask, $model->subject),
 						'group' => $to_group->name,
-						'bucket' => (empty($to_bucket) ? 'Inbox' : $to_bucket->name),
+						'bucket' => $to_bucket->name,
 						),
 					'urls' => array(
 						'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_TICKET, $model->id, $model->mask),
@@ -2481,8 +2481,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			}
 				
 			@$label = $buckets[$bucket_id]->name;
-			if(empty($label))
-				$label = mb_convert_case($translate->_('common.inbox'), MB_CASE_TITLE);
 				
 			$child = array(
 				'hits' => $hits,
@@ -3083,8 +3081,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	
 	private function _sortByBucketPos($a, $b) {
 		$buckets = DAO_Bucket::getAll();
-		if(0==$a) return -1; // inbox
-		if(0==$b) return 1;
 		return (intval($buckets[$a]->pos) < intval($buckets[$b]->pos)) ? -1 : 1;
 	}
 	
@@ -3498,9 +3494,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$strings = array();
 
 				foreach($values as $val) {
-					if(0==$val) {
-						$strings[] = mb_convert_case($translate->_('common.inbox'), MB_CASE_TITLE);
-					} elseif(!isset($buckets[$val])) {
+					if(!isset($buckets[$val])) {
 						continue;
 					} else {
 						$strings[] = $buckets[$val]->name;

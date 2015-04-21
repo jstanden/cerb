@@ -1421,6 +1421,9 @@ class CerberusParser {
 		// Finalize our new ticket details (post-message creation)
 		/* @var $model CerberusParserModel */
 		if($model->getIsNew()) {
+			$deliver_to_group = DAO_Group::get($model->getGroupId());
+			$deliver_to_bucket = $deliver_to_group->getDefaultBucket();
+			
 			$change_fields = array(
 				DAO_Ticket::MASK => CerberusApplication::generateTicketMask(),
 				DAO_Ticket::SUBJECT => $model->getSubject(),
@@ -1433,7 +1436,8 @@ class CerberusParser {
 				DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
 				DAO_Ticket::FIRST_MESSAGE_ID => $model->getMessageId(),
 				DAO_Ticket::LAST_MESSAGE_ID => $model->getMessageId(),
-				DAO_Ticket::GROUP_ID => $model->getGroupId(), // this triggers move rules
+				DAO_Ticket::GROUP_ID => $deliver_to_group->id, // this triggers move rules
+				DAO_Ticket::BUCKET_ID => $deliver_to_bucket->id, // this triggers move rules
 			);
 			
 			// Spam probabilities

@@ -480,13 +480,8 @@ class Model_MailToGroupRule {
 		foreach($this->actions as $action => $params) {
 			switch($action) {
 				case 'move':
-					if(isset($params['group_id']) && isset($params['bucket_id'])) {
-						$g_id = intval($params['group_id']);
-						$b_id = intval($params['bucket_id']);
-						
-						if(isset($groups[$g_id]) && (0==$b_id || isset($buckets[$b_id]))) {
-							$model->setGroupId($g_id);
-						}
+					if(isset($params['group_id']) && isset($groups[$params['group_id']])) {
+						$model->setGroupId($params['group_id']);
 					}
 					
 				default:

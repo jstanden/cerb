@@ -94,24 +94,28 @@ class PageSection_SetupGroups extends Extension_PageSection {
 		
 		// If we're deleting the group
 		if(!empty($id) && !empty($delete)) {
-			if(!empty($delete_move_id)) {
-				if(null != ($group = DAO_Group::get($id))) {
-					$fields = array(
-						DAO_Ticket::GROUP_ID => $delete_move_id
-					);
-					$where = sprintf("%s=%d",
-						DAO_Ticket::GROUP_ID,
-						$id
-					);
-					DAO_Ticket::updateWhere($fields, $where);
-					
-					// If this was the default group, move it.
-					if($group->is_default)
-						DAO_Group::setDefaultGroup($delete_move_id);
-					
-					DAO_Group::delete($group->id);
-				}
+			// Verify our destination exists
+			if(
+				!empty($delete_move_id)
+				&& false != ($move_to_group = DAO_Group::get($delete_move_id))
+				&& false != ($move_to_bucket = $move_to_group->getDefaultBucket())
+				) {
+			
+				$fields = array(
+					DAO_Ticket::GROUP_ID => $move_to_group->id,
+					DAO_Ticket::BUCKET_ID => $move_to_bucket->id,
+				);
+				$where = sprintf("%s=%d",
+					DAO_Ticket::GROUP_ID,
+					$id
+				);
+				DAO_Ticket::updateWhere($fields, $where);
 				
+				// If this was the default group, move it.
+				if($group->is_default)
+					DAO_Group::setDefaultGroup($move_to_group->id);
+				
+				DAO_Group::delete($group->id);
 			}
 			
 		} elseif(!empty($id)) {

@@ -244,40 +244,34 @@ class ChGroupsPage extends CerberusPageExtension  {
 				// Bucket must exist
 				if(empty($bucket_id) || !isset($buckets[$bucket_id]))
 					break;
-				// Destination must be inbox or exist
-				if(!empty($delete_moveto) && !isset($buckets[$delete_moveto]))
+				
+				// Destination must exist
+				if(!isset($buckets[$delete_moveto]))
 					break;
+				
 				$where = sprintf("%s = %d",DAO_Ticket::BUCKET_ID, $bucket_id);
 				DAO_Ticket::updateWhere(array(DAO_Ticket::BUCKET_ID => $delete_moveto), $where);
 				DAO_Bucket::delete($bucket_id);
 				break;
 				
 			case 'save':
-				if('0' == $bucket_id) { // Inbox
-					$fields = array(
-						DAO_Group::REPLY_ADDRESS_ID => $reply_address_id,
-						DAO_Group::REPLY_PERSONAL => $reply_personal,
-						DAO_Group::REPLY_SIGNATURE => $reply_signature,
-						DAO_Group::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
-					);
-					DAO_Group::update($group_id, $fields);
-					
-				} else { // Bucket
-					$fields = array(
-						DAO_Bucket::NAME => (empty($name) ? 'New Bucket' : $name),
-						DAO_Bucket::REPLY_ADDRESS_ID => $reply_address_id,
-						DAO_Bucket::REPLY_PERSONAL => $reply_personal,
-						DAO_Bucket::REPLY_SIGNATURE => $reply_signature,
-						DAO_Bucket::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
-					);
-		
-					// Create?
-					if(empty($bucket_id)) {
-						$bucket_id = DAO_Bucket::create($name, $group_id);
-					}
-						
+				$fields = array(
+					DAO_Bucket::NAME => (empty($name) ? 'New Bucket' : $name),
+					DAO_Bucket::REPLY_ADDRESS_ID => $reply_address_id,
+					DAO_Bucket::REPLY_PERSONAL => $reply_personal,
+					DAO_Bucket::REPLY_SIGNATURE => $reply_signature,
+					DAO_Bucket::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
+				);
+	
+				// Create?
+				if(empty($bucket_id)) {
+					$fields[DAO_Bucket::GROUP_ID] = $group_id;
+					$fields[DAO_Bucket::POS] = DAO_Bucket::getNextPos($group_id);
+					$bucket_id = DAO_Bucket::create($fields);
+				} else {
 					DAO_Bucket::update($bucket_id, $fields);
 				}
+					
 				break;
 		}
 		

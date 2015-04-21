@@ -178,6 +178,144 @@ if(isset($columns['is_assignable'])) {
 	$db->ExecuteMaster("ALTER TABLE bucket DROP COLUMN is_assignable");
 }
 
+// Add `updated_at` field to `bucket`
+
+if(!isset($columns['updated_at'])) {
+	$db->ExecuteMaster("ALTER TABLE bucket ADD COLUMN updated_at INT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("UPDATE bucket SET updated_at=UNIX_TIMESTAMP()");
+}
+
+// ===========================================================================
+// Add `is_default` field to `bucket`
+
+list($columns, $indexes) = $db->metaTable('bucket');
+
+if(!isset($columns['is_default'])) {
+	$db->ExecuteMaster("ALTER TABLE bucket ADD COLUMN is_default TINYINT UNSIGNED NOT NULL DEFAULT 0");
+	
+	// Convert virtual inbox buckets to actual records
+	list($columns, $indexes) = $db->metaTable('worker_group');
+	
+	$group_inboxes = array();
+	
+	$results = $db->ExecuteMaster("SELECT id, reply_address_id, reply_personal, reply_signature, reply_html_template_id FROM worker_group");
+	
+	foreach($results as $row) {
+		$db->ExecuteMaster(sprintf("UPDATE bucket SET pos = pos + 1 WHERE group_id = %d", $row['id']));
+		
+		$db->ExecuteMaster(sprintf("INSERT INTO bucket (group_id, name, pos, reply_address_id, reply_personal, reply_signature, reply_html_template_id, updated_at, is_default) ".
+			"VALUES (%d, %s, %d, %d, %s, %s, %d, %d, %d)",
+			$row['id'],
+			$db->qstr('Inbox'),
+			0,
+			$row['reply_address_id'],
+			$db->qstr($row['reply_personal']),
+			$db->qstr($row['reply_signature']),
+			$row['reply_html_template_id'],
+			time(),
+			1
+		));
+		
+		$bucket_id = $db->LastInsertId();
+		
+		$group_inboxes[$row['id']] = $bucket_id;
+		
+		// Move all tickets into the new inbox buckets
+		
+		$db->ExecuteMaster(sprintf("UPDATE ticket SET bucket_id = %d WHERE group_id = %d AND bucket_id = 0",
+			$bucket_id,
+			$row['id']
+		));
+		
+		$db->ExecuteMaster("ALTER TABLE worker_group DROP COLUMN reply_address_id, DROP COLUMN reply_personal, DROP COLUMN reply_signature, DROP COLUMN reply_html_template_id");
+	}
+	
+	// Migrate VA outcomes
+	
+	$results = $db->GetArrayMaster("SELECT id, params_json FROM decision_node WHERE node_type = 'outcome'");
+	
+	foreach($results as $row) {
+		$json = json_decode($row['params_json'], true);
+		
+		if(isset($json['groups']))
+		foreach($json['groups'] as &$group) {
+			
+			if(isset($group['conditions']))
+			foreach($group['conditions'] as &$condition) {
+				switch($condition['condition']) {
+					
+					case 'group_and_bucket':
+						if(is_array($condition['bucket_id']))
+						foreach($condition['bucket_id'] as &$bucket_id) {
+							$move_to_group_id = $condition['group_id'];
+							
+							// If this referenced a legacy group inbox, update it
+							if(0 == $bucket_id && $move_to_group_id && isset($group_inboxes[$move_to_group_id]))
+								$bucket_id = $group_inboxes[$move_to_group_id];
+						}
+						break;
+						
+				}
+			}
+			
+			$db->ExecuteMaster(sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
+				$db->qstr(json_encode($json)),
+				$row['id']
+			));
+		}
+	}
+	
+	// Migrate VA actions
+	
+	$results = $db->GetArrayMaster("SELECT id, params_json FROM decision_node WHERE node_type = 'action'");
+	
+	foreach($results as $row) {
+		$json = json_decode($row['params_json'], true);
+		
+		if(isset($json['actions']))
+		foreach($json['actions'] as &$action) {
+			switch($action['action']) {
+				
+				case 'move_to':
+					// If the bucket is empty (legacy inbox)
+					if(isset($action['bucket_id']) && empty($bucket_id)) {
+						
+						if(isset($action['group_id']) && $move_to_group_id = $action['group_id'] && isset($group_inboxes[$action['group_id']])) {
+							$action['bucket_id'] = $group_inboxes[$action['group_id']];
+						}
+					}
+					break;
+					
+			}
+				
+			$db->ExecuteMaster(sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
+				$db->qstr(json_encode($json)),
+				$row['id']
+			));
+		}
+	}
+	
+	// Migrate mail rules
+	
+	$mail_to_group_rules = $db->GetArrayMaster("SELECT id, actions_ser FROM mail_to_group_rule");
+	
+	foreach($mail_to_group_rules as $rule) {
+		$actions = unserialize($rule['actions_ser']);
+		
+		// If this mail routing rule moves tickets
+		if(isset($actions['move']) && isset($actions['move']['bucket_id'])) {
+			// We don't care about the bucket (it was always zero)
+			unset($actions['move']['bucket_id']);
+			
+			// Update the database row
+			$db->ExecuteMaster(sprintf("UPDATE mail_to_group_rule SET actions_ser = %s WHERE id = %d",
+					$db->qstr(serialize($actions)),
+					$rule['id']
+			));
+		}
+	}
+}
+
 // Finish up
 
 return TRUE;

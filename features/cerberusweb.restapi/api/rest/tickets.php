@@ -170,15 +170,19 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			if(false == ($group = DAO_Group::get($group_id)))
 				$this->error(self::ERRNO_ACL, "The given 'group_id' is invalid.");
 
-			if(!empty($bucket_id) && false == ($bucket = DAO_Bucket::get($bucket_id)))
+			if(empty($bucket_id)) {
+				$bucket = $group->getDefaultBucket();
+				$bucket_id = $bucket->id;
+				
+			} else if(false == ($bucket = DAO_Bucket::get($bucket_id))) {
 				$this->error(self::ERRNO_ACL, "The given 'bucket_id' is invalid.");
+			}
 			
 			if(isset($bucket) && $bucket->group_id != $group_id)
 				$group_id = $bucket->group_id;
-				//$this->error(self::ERRNO_ACL, "The group of given 'bucket_id' does not match given 'group_id'.");
 				
-			$fields[DAO_Ticket::GROUP_ID] = intval($group_id);
-			$fields[DAO_Ticket::BUCKET_ID] = intval($bucket_id);
+			$fields[DAO_Ticket::GROUP_ID] = intval($group->id);
+			$fields[DAO_Ticket::BUCKET_ID] = intval($bucket->id);
 		}
 		
 		// Owner

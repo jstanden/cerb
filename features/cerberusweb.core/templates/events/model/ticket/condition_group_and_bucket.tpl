@@ -19,7 +19,6 @@
 	<br>
 	
 	<div class="buckets">
-		<label><input type="checkbox" name="{$namePrefix}[bucket_id][]" value="0" {if in_array(0,$params.bucket_id)}checked="checked"{/if}> {'common.inbox'|devblocks_translate|capitalize}</label><br>
 		{foreach from=$buckets_by_group.{$selected_group_id} item=bucket key=bucket_id}
 		<label><input type="checkbox" name="{$namePrefix}[bucket_id][]" value="{$bucket_id}" {if in_array($bucket_id,$params.bucket_id)}checked="checked"{/if}> {$bucket->name}</label><br>
 		{/foreach}
@@ -39,7 +38,6 @@ $move_to.find('select:nth(0)').change(function(e) {
 		"group_{$group_id}":{
 			"id":"{$group_id}",
 			"buckets":[
-			{ "id":0,"name":"{'common.inbox'|devblocks_translate|capitalize}" }{if $buckets_by_group.$group_id},{/if}
 			{foreach from=$buckets_by_group.$group_id item=bucket key=bucket_id name=buckets}
 				{ "id":{$bucket_id},"name":"{$bucket->name}" }{if !$smarty.foreach.buckets.last},{/if}
 			{/foreach}

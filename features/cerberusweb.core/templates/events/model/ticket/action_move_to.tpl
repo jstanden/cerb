@@ -11,7 +11,6 @@
 	{/foreach}
 </select><!-- 
 --><select name="{$namePrefix}[bucket_id]">
-<option value="0">{'common.inbox'|devblocks_translate|capitalize}</option>
 {foreach from=$group_buckets.{$selected_group_id} item=bucket key=bucket_id name=buckets}
 	<option value="{$bucket_id}" {if $params.bucket_id==$bucket_id}selected="selected"{/if}>{$bucket->name}</option>
 {/foreach}
@@ -31,7 +30,6 @@ $move_to.find('select:nth(0)').change(function(e) {
 		"group_{$group_id}":{
 			"id":"{$group_id}",
 			"buckets":[
-			{ "id":0,"name":"{'common.inbox'|devblocks_translate|capitalize}" }{if $group_buckets.$group_id},{/if}
 			{foreach from=$group_buckets.$group_id item=bucket key=bucket_id name=buckets}
 				{ "id":{$bucket_id},"name":"{$bucket->name}" }{if !$smarty.foreach.buckets.last},{/if}
 			{/foreach}

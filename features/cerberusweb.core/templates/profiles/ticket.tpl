@@ -135,8 +135,6 @@
 				[{$groups.$ticket_group_id->name}]  
 				{if !empty($ticket_bucket_id)}
 					{$ticket_bucket->name}
-				{else}
-					{'common.inbox'|devblocks_translate|capitalize}
 				{/if}
 			{elseif $k == 'owner'}
 				{if !empty($ticket->owner_id) && isset($workers.{$ticket->owner_id})}

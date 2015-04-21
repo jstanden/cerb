@@ -864,7 +864,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				
 				$out = sprintf(">>> Moving to:\n%s: %s\n",
 					$groups[$group_id]->name,
-					($bucket_id ? $buckets[$bucket_id]->name : $translate->_('common.inbox'))
+					$buckets[$bucket_id]->name
 				);
 				
 				$dict->group_id = $to_group_id;
@@ -1095,9 +1095,12 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				if(empty($to_group_id) || !isset($groups[$to_group_id]))
 					break;
 				
-				// ... or non-existent buckets
-				if(!empty($to_bucket_id) && !isset($buckets[$to_bucket_id]))
-					break;
+				// If the bucket doesn't exist, use the group's default bucket.
+				if(empty($to_bucket_id) || !isset($buckets[$to_bucket_id])) {
+					$to_group = $groups[$to_group_id]; /* @var $to_group Model_Group */
+					$to_bucket = $to_group->getDefaultBucket();
+					$to_bucket_id = $to_bucket->id;
+				}
 				
 				// Move
 				DAO_Ticket::update($ticket_id, array(
@@ -1107,41 +1110,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				
 				$dict->group_id = $to_group_id;
 				$dict->ticket_bucket_id = $to_bucket_id;
-				
-				/* // [TODO]
-				// Pull group context + merge
-				if($to_group_id != $current_group_id) {
-					$merge_token_labels = array();
-					$merge_token_values = array();
-					$labels = $this->getLabels($trigger);
-					CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $to_group_id, $merge_token_labels, $merge_token_values, '', true);
-			
-					CerberusContexts::merge(
-						'group_',
-						'Group:',
-						$merge_token_labels,
-						$merge_token_values,
-						$labels,
-						$values
-					);
-				}
-				
-				if(!empty($to_bucket_id)) {
-					$merge_token_labels = array();
-					$merge_token_values = array();
-					$labels = $this->getLabels($trigger);
-					CerberusContexts::getContext(CerberusContexts::CONTEXT_BUCKET, $to_bucket_id, $merge_token_labels, $merge_token_values, '', true);
-			
-					CerberusContexts::merge(
-						'ticket_bucket_',
-						'Bucket:',
-						$merge_token_labels,
-						$merge_token_values,
-						$labels,
-						$values
-					);
-				}
-				*/
 				break;
 			
 			case 'set_links':

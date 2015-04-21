@@ -267,12 +267,10 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 			switch($act) {
 				// Move group/bucket
 				case 'move':
-					@$move_code = DevblocksPlatform::importGPC($_REQUEST['do_move'],'string',null);
-					if(0 != strlen($move_code)) {
-						list($g_id, $b_id) = CerberusApplication::translateGroupBucketCode($move_code);
+					@$group_id = DevblocksPlatform::importGPC($_REQUEST['do_move'],'string',null);
+					if(0 != strlen($group_id) && false != ($group = DAO_Group::get($group_id))) {
 						$action = array(
-							'group_id' => intval($g_id),
-							'bucket_id' => intval($b_id),
+							'group_id' => $group->id,
 						);
 					}
 					break;

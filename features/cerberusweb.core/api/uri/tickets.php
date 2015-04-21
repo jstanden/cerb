@@ -1378,13 +1378,11 @@ class ChTicketsPage extends CerberusPageExtension {
 		$do = array();
 		
 		// Move to Group/Bucket
-		// [TODO] This logic is repeated in several places -- try to condense (like custom field form handlers)
-		@$move_code = DevblocksPlatform::importGPC($_REQUEST['do_move'],'string',null);
-		if(0 != strlen($move_code)) {
-			list($g_id, $b_id) = CerberusApplication::translateGroupBucketCode($move_code);
+		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['do_move'],'string',null);
+		if(0 != strlen($bucket_id) && false != ($bucket = DAO_Bucket::get($bucket_id))) {
 			$do['move'] = array(
-				'group_id' => intval($g_id),
-				'bucket_id' => intval($b_id),
+				'group_id' => $bucket->group_id,
+				'bucket_id' => $bucket->id,
 			);
 		}
 		

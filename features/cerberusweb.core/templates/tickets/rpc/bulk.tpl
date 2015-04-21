@@ -35,21 +35,13 @@
 			<td width="0%" nowrap="nowrap">Move to:</td>
 			<td width="100%"><select name="do_move">
 				<option value=""></option>
-				<optgroup label="Move to Group">
-				{foreach from=$groups item=group}
-					<option value="t{$group->id}">{$group->name}</option>
-				{/foreach}
-				</optgroup>
-				
 				{foreach from=$group_buckets item=buckets key=groupId}
-					{assign var=group value=$groups.$groupId}
-					{if !empty($active_worker_memberships.$groupId)}
-						<optgroup label="{$group->name}">
-						{foreach from=$buckets item=bucket}
-							<option value="c{$bucket->id}">{$bucket->name}</option>
-						{/foreach}
-						</optgroup>
+					{$group = $groups.$groupId}
+					{foreach from=$buckets item=bucket}
+					{if $bucket->is_default || !empty($active_worker_memberships.$groupId)}
+						<option value="{$bucket->id}">{$group->name}: {$bucket->name}</option>
 					{/if}
+					{/foreach}
 				{/foreach}
 			</select></td>
 		</tr>

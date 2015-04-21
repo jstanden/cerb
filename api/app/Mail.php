@@ -190,6 +190,10 @@ class CerberusMail {
 		if(null == ($group = DAO_Group::get($group_id)))
 			return;
 		
+		// Bucket
+		if(!$bucket_id || false == ($bucket = DAO_Bucket::get($bucket_id)) || $bucket->group_id != $group->id)
+			$bucket = $group->getDefaultBucket();
+		
 		// Changing the outgoing message through a VA (global)
 		Event_MailBeforeSent::trigger($properties, null, null, $group_id);
 		
@@ -211,8 +215,8 @@ class CerberusMail {
 		@$closed = $properties['closed'];
 		@$ticket_reopen = $properties['ticket_reopen'];
 		
-		$from_replyto = $group->getReplyTo($bucket_id);
-		$personal = $group->getReplyPersonal($bucket_id, $worker);
+		$from_replyto = $group->getReplyTo($bucket->id);
+		$personal = $group->getReplyPersonal($bucket->id, $worker);
 		
 		$mask = CerberusApplication::generateTicketMask();
 
@@ -304,7 +308,7 @@ class CerberusMail {
 			
 			switch($content_format) {
 				case 'parsedown':
-					$embedded_files = self::_generateBodyMarkdown($email, $content, $group_id, $bucket_id, $html_template_id);
+					$embedded_files = self::_generateBodyMarkdown($email, $content, $group_id, $bucket->id, $html_template_id);
 					break;
 					
 				default:
@@ -358,8 +362,8 @@ class CerberusMail {
 			if(empty($draft_id)) {
 				$params = array(
 					'to' => $toStr,
-					'group_id' => $group_id,
-					'bucket_id' => $bucket_id,
+					'group_id' => $group->id,
+					'bucket_id' => $bucket->id,
 				);
 				
 				if(!empty($cc))
@@ -504,8 +508,8 @@ class CerberusMail {
 			$fields[DAO_Ticket::IS_WAITING] = 1;
 		
 		// Move last, so the event triggers properly
-		$fields[DAO_Ticket::GROUP_ID] = $group_id;
-		$fields[DAO_Ticket::BUCKET_ID] = $bucket_id;
+		$fields[DAO_Ticket::GROUP_ID] = $group->id;
+		$fields[DAO_Ticket::BUCKET_ID] = $bucket->id;
 		
 		DAO_Ticket::update($ticket_id, $fields);
 		
@@ -1021,15 +1025,22 @@ class CerberusMail {
 			if($move_to_group_id && false != ($move_to_group = DAO_Group::get($move_to_group_id)))
 				$change_fields[DAO_Ticket::GROUP_ID] = $move_to_group_id;
 			
+			// Validate the given bucket id
+			if($move_to_bucket_id 
+				&& (false == ($move_to_bucket = DAO_Bucket::get($move_to_bucket_id)) 
+					|| $move_to_bucket->group_id != $move_to_group->id)) {
+					$move_to_bucket_id = 0;
+			}
+			
 			// Move to the new bucket if it is an inbox, or it belongs to the group
-			if(
-				empty($move_to_bucket_id)
-				|| (
-					false != ($move_to_bucket = DAO_Bucket::get($move_to_bucket_id))
-					&& $move_to_bucket->group_id == $move_to_group_id
-					)
-				)
-				$change_fields[DAO_Ticket::BUCKET_ID] = $move_to_bucket_id;
+			if(empty($move_to_bucket_id)) {
+				$move_to_bucket = $move_to_group->getDefaultBucket();
+				$move_to_bucket_id = $move_to_bucket->id;
+			}
+			
+			if($move_to_bucket) {
+				$change_fields[DAO_Ticket::BUCKET_ID] = $move_to_bucket->id;
+			}
 		}
 			
 		if(!empty($ticket_id) && !empty($change_fields)) {

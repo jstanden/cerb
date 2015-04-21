@@ -118,11 +118,7 @@
 				
 			{elseif $column=="t_bucket_id"}
 				<td>
-				{if $result.$column == 0}
-					{'common.inbox'|devblocks_translate|capitalize}
-					{elseif $buckets.{$result.$column}}
 					{$buckets.{$result.$column}->name}
-				{/if}
 				</td>
 				
 			{else}
