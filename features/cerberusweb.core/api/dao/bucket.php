@@ -279,13 +279,25 @@ class DAO_Bucket extends DevblocksORMHelper {
 			)
 		);
 		
-		$sql = sprintf("DELETE FROM bucket WHERE id IN (%s)", implode(',',$ids));
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$buckets = DAO_Bucket::getIds($ids);
 		
-		// Reset any tickets using this bucket
-		$sql = sprintf("UPDATE ticket SET bucket_id = 0 WHERE bucket_id IN (%s)", implode(',',$ids));
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		foreach($buckets as $bucket_id => $bucket) {
+			if(false == ($group = $bucket->getGroup()))
+				continue;
+			
+			if(false == ($new_bucket = $group->getDefaultBucket()))
+				continue;
+			
+			// Reset any tickets using this bucket
+			$db->ExecuteMaster(sprintf("UPDATE ticket SET bucket_id = %d WHERE bucket_id = %d",
+				$new_bucket->id,
+				$bucket_id
+			));
+		}
 
+		$sql = sprintf("DELETE FROM bucket WHERE id IN (%s)", implode(',',$ids));
+		$db->ExecuteMaster($sql);
+		
 		self::clearCache();
 	}
 	
