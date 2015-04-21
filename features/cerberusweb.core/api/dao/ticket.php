@@ -2240,7 +2240,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::CONTEXT_LINK,
 			SearchFields_Ticket::CONTEXT_LINK_ID,
 			SearchFields_Ticket::REQUESTER_ID,
-			SearchFields_Ticket::TICKET_BUCKET_ID,
 			SearchFields_Ticket::TICKET_CLOSED,
 			SearchFields_Ticket::TICKET_DELETED,
 			SearchFields_Ticket::TICKET_ORG_ID,
@@ -2474,7 +2473,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						array(
 							'field' => SearchFields_Ticket::TICKET_GROUP_ID,
 							'oper' => DevblocksSearchCriteria::OPER_IN,
-							'values' => array('group_id[]' => $result['group_id']),
+							'values' => array('options[]' => $result['group_id']),
 						),
 					'children' => array()
 				);
@@ -2487,9 +2486,9 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				'label' => $label,
 				'filter' =>
 					array(
-						'field' => SearchFields_Ticket::TICKET_GROUP_ID,
+						'field' => SearchFields_Ticket::TICKET_BUCKET_ID,
 						'oper' => DevblocksSearchCriteria::OPER_IN,
-						'values' => array('group_id[]' => $result['group_id'], 'bucket_id[]' => $result['bucket_id']),
+						'values' => array('options[]' => $result['bucket_id']),
 					),
 			);
 			
@@ -3215,12 +3214,19 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 			case SearchFields_Ticket::TICKET_GROUP_ID:
 				$groups = DAO_Group::getAll();
+				$tpl->assign('options', $groups);
+				
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
+				break;
+				
+			case SearchFields_Ticket::TICKET_BUCKET_ID:
+				$groups = DAO_Group::getAll();
 				$tpl->assign('groups', $groups);
 
 				$group_buckets = DAO_Bucket::getGroups();
 				$tpl->assign('group_buckets', $group_buckets);
 
-				$tpl->display('devblocks:cerberusweb.core::tickets/search/criteria/ticket_group.tpl');
+				$tpl->display('devblocks:cerberusweb.core::tickets/search/criteria/ticket_bucket.tpl');
 				break;
 
 			case SearchFields_Ticket::TICKET_OWNER_ID:
@@ -3501,8 +3507,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				foreach($values as $val) {
 					if(!isset($buckets[$val])) {
 						continue;
+						
 					} else {
-						$strings[] = $buckets[$val]->name;
+						if(false != ($group = $buckets[$val]->getGroup()))
+							$strings[] = $group->name . ': ' . $buckets[$val]->name;
 					}
 				}
 				echo implode(", ", $strings);
@@ -3627,21 +3635,25 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 
 			case SearchFields_Ticket::TICKET_GROUP_ID:
-				@$group_ids = DevblocksPlatform::importGPC($_REQUEST['group_id'],'array');
-				@$bucket_ids = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'array');
+				@$group_ids = DevblocksPlatform::importGPC($_REQUEST['options'],'array');
 
 				// Groups
 				if(!empty($group_ids)) {
 					$this->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID,$oper,$group_ids));
+				} else {
+					$this->removeParam(SearchFields_Ticket::TICKET_GROUP_ID);
 				}
-					
+				break;
+				
+			case SearchFields_Ticket::TICKET_BUCKET_ID:
+				@$bucket_ids = DevblocksPlatform::importGPC($_REQUEST['options'],'array');
+
 				// Buckets
 				if(!empty($bucket_ids)) {
 					$this->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_BUCKET_ID,$oper,$bucket_ids));
 				} else { // clear if no buckets provided
 					$this->removeParam(SearchFields_Ticket::TICKET_BUCKET_ID);
 				}
-
 				break;
 				
 			case SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT:

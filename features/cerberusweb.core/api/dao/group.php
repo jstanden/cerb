@@ -597,6 +597,10 @@ class Model_Group {
 	public $created;
 	public $updated;
 	
+	public function __toString() {
+		return $this->name;
+	}
+	
 	public function getMembers() {
 		return DAO_Group::getGroupMembers($this->id);
 	}

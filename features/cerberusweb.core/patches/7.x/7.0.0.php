@@ -360,44 +360,9 @@ if(!isset($columns['is_default'])) {
 		}
 	}
 	
-	// Migrate worker_view_model filters
+	// Reset worker_view_model filters
 	
-	$db_>ExecuteMaster("DELETE FROM worker_view_model WHERE view_id LIKE 'search%' OR is_ephemeral = 1");
-	
-	$results = $db->GetArrayMaster("SELECT worker_id, view_id, params_editable_json, params_default_json, params_required_json ".
-		"FROM worker_view_model ".
-		"WHERE class_name = 'View_Ticket' ".
-		"AND (".
-			"params_editable_json LIKE '%bucket_id%' ".
-			"OR params_default_json LIKE '%bucket_id%' OR ".
-			"params_required_json LIKE '%bucket_id%' ".
-		")"
-	);
-	
-	foreach($results as $row) {
-		$worker_id = $row['worker_id'];
-		$view_id = $row['view_id'];
-		$params_editable = json_decode($row['params_editable_json'], true);
-		$params_default = json_decode($row['params_default_json'], true);
-		$params_required = json_decode($row['params_required_json'], true);
-		
-		// If we found bucket filters in at least one of these
-		if(
-			_700_migrate_inbox_buckets($params_editable, $group_inboxes)
-			|| _700_migrate_inbox_buckets($params_default, $group_inboxes)
-			|| _700_migrate_inbox_buckets($params_required, $group_inboxes))
-		{
-			$sql = sprintf("UPDATE worker_view_model SET params_editable_json = %s, params_default_json = %s, params_required_json = %s WHERE view_id = %s AND worker_id = %d",
-				$db->qstr(json_encode($params_editable)),
-				$db->qstr(json_encode($params_default)),
-				$db->qstr(json_encode($params_required)),
-				$db->qstr($view_id),
-				$worker_id
-			);
-			
-			$db->ExecuteMaster($sql);
-		}
-	}	
+	$db_>ExecuteMaster("DELETE FROM worker_view_model");
 	
 	// Migrate workspace_list filters
 	

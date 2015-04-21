@@ -359,6 +359,14 @@ class Model_Bucket {
 	public $updated_at = 0;
 	
 	/**
+	 * 
+	 * @return Model_Group
+	 */
+	public function getGroup() {
+		return DAO_Group::get($this->group_id);
+	}
+	
+	/**
 	 *
 	 * @param integer $bucket_id
 	 * @return Model_AddressOutgoing
