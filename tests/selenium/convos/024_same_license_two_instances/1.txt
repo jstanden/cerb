@@ -1,0 +1,14 @@
+From: "Inès Lacroix" <i.lacroix@baston.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: one license, multiple installs
+Message-Id: <convo24.msg1@cerb.example>
+
+Does Cerb's license permit us to use the same license in multiple installs?
+
+-- 
+Inès Lacroix
+Support Integration Officer
+
+Baston Defence
+.: Faites confiance, mais vérifiez :.

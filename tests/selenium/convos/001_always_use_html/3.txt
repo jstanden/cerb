@@ -1,0 +1,22 @@
+To: support@cerb.example
+From: Alessio Costa <a.costa@fiaflux.example>
+Subject: Re: Always use HTML mode on replies
+X-Mailer: Gmail
+Content-Type: text/plain; charset=utf-8
+Message-Id: <convo1.msg3@cerb.example>
+In-Reply-To: <convo1.msg1@cerb.example>
+
+Kina wrote:
+> Each worker can configure that preference with these instructions:
+
+Thanks... That will be better than switching to HTML on every reply.
+
+> We don't have a global preference for this yet where admins can set 
+> the default for everyone. I'll check with the developers to see 
+> if that's something we can do in the next update.
+
+That would be ideal. We have 22 workers and it will be tedious to have everyone change their own settings.
+
+-- 
+Alessio Costa, Developer
+Fiaflux Software

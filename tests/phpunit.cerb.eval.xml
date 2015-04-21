@@ -7,5 +7,20 @@
 		<testsuite name="eval_ui_setup">
 			<file>eval/CerbEval_UI_Setup.php</file>
 		</testsuite>
+		<testsuite name="eval_ui_simulate_day1">
+			<file>eval/CerbEval_UI_SimulateDay1.php</file>
+		</testsuite>
+		<testsuite name="eval_ui_simulate_day2">
+			<file>eval/CerbEval_UI_SimulateDay2.php</file>
+		</testsuite>
+		<testsuite name="eval_ui_simulate_day3">
+			<file>eval/CerbEval_UI_SimulateDay3.php</file>
+		</testsuite>
+		<testsuite name="eval_ui_simulate_day4">
+			<file>eval/CerbEval_UI_SimulateDay4.php</file>
+		</testsuite>
+		<testsuite name="eval_ui_simulate_day5">
+			<file>eval/CerbEval_UI_SimulateDay5.php</file>
+		</testsuite>
 	</testsuites>
 </phpunit>

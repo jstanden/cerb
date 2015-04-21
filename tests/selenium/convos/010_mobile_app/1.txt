@@ -1,0 +1,17 @@
+From: Grace Chen <g.chen@franchir.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: mobile interface for field reps
+Message-Id: <convo10.msg1@cerb.example>
+
+Hello,
+
+Our organization has hundreds of representatives out in the field. They are equipped with tablets and mobile phones.
+
+Does Cerb have a mobile interface, or are responsive web design principles used?
+
+- Grace
+
+Grace Chen
+Technology Coordinator
+Franchir Pharmaceuticals, Inc.

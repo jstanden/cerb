@@ -1,0 +1,14 @@
+From: Ghan Xu <x.guan@zhang.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: Thai language support (TIS-620)
+Message-Id: <convo21.msg1@cerb.example>
+
+We need to support Thai language (TIS-620). Can Cerb do this?
+
+นี่คือการทดสอบ.
+
+-- 
+Guan Xu
+Supply Chain Manager
+Zhang Logistics

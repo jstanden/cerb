@@ -1,0 +1,13 @@
+From: Giada Rossi <g.rossi@fiaflux.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: Incremental quick search
+Message-Id: <convo19.msg1@cerb.example>
+
+The new quick search feature is much improved. However, one thing is worse. It is no longer possible to add a single new filter to an existing worklist, as a quick search much replace all filters at the same time.
+
+Can this incremental fitler ability be added back?
+
+-- 
+GIADA ROSSI, Developer Liaison
+Fiaflux Software

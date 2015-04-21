@@ -1,0 +1,18 @@
+From: Sergey Polzin <s.polzin@nechist.example>
+To: support@cerb.example
+Subject: Server requirements for Cerb
+X-Mailer: Yahoo Mail
+Content-Type: text/plain; charset=utf-8
+Message-Id: <convo2.msg1@cerb.example>
+
+Hello,
+
+I have seen the server software requirements:
+http://cerbweb.com/book/latest/installation/requirements/index.html#server
+
+However, I would like to know about the hardware requirements for Cerb. Should this be a dedicated machine? 
+Should the database and web server be separate?
+
+-- 
+Sergey Polzin, CTO
+Nechist Financial

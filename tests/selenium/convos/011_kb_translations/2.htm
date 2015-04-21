@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://cerb.dev/" />
+<title>Convo 11 #2 Outbound</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">Convo 11 #2 Outbound</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/profiles/ticket/11</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=button.reply</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=button.reply</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=textarea.reply</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>css=textarea.reply</td>
+	<td>&gt; Can we provide alternate translations of our existing knowledgebase
+&gt; articles in these languages with the ability for visitors on our web sites
+&gt; to switch between them?
+
+Hi Mathias,
+
+Currently we recommend that alternate languages are different knowledgebase topics, but we realize that this is not ideal for many reasons.
+
+There's an open feature request to allow alternate translations on each article:
+https://wgmdev.atlassian.net/browse/CHD-3721
+
+I've linked your interest to it, and you'll receive a notification with any progress.
+
+Thanks for the report!
+
+#signature
+#cut
+</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>250</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=label[title=&quot;(Ctrl+Shift+W)&quot;] &gt; input[name=&quot;closed&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>css=button.send.split-left</td>
+	<td></td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

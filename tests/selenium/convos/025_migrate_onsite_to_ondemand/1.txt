@@ -1,0 +1,16 @@
+From: Charlotte Bailey <c.bailey@twinton.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: Migration from On-Site to On-Demand
+Message-Id: <convo25.msg1@cerb.example>
+
+We currently host the Cerb system on our own network and are considering moving to your managed On-Demand service.
+
+Is it possible to import our existing data?
+
+-- 
+Charlotte Bailey
+Director, Department of Computer Science
+
+Twinton Univerity
+:: Unus est, verum, quod falsum ::

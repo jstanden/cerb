@@ -1,0 +1,23 @@
+From: Sergey Polzin <s.polzin@nechist.example>
+To: support@cerb.example
+Subject: Re: Server requirements for Cerb
+X-Mailer: Yahoo Mail
+Content-Type: text/plain; charset=utf-8
+Message-Id: <convo2.msg3@cerb.example>
+In-Reply-To: <convo2.msg1@cerb.example>
+
+Milo wrote:
+> As you scale, the main bottleneck will usually be write traffic to the database.
+> I'd also recommend using SSD drives for the database I/O if at all possible.
+
+That helps. thanks
+
+We planned to use ssd drives. Should we use RAID? Is 128gb drives sufficient?
+
+> How many simultaneous workers do you expect to use the system at peak times?
+
+We have 31, but only up to 17 staff on the same shift.
+
+-- 
+Sergey Polzin, CTO
+Nechist Financial

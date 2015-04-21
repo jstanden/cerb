@@ -1,0 +1,16 @@
+From: Kayla Engelbrecht <k.engelbrecht@ghoux.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: Cerb API library for Swift?
+Message-Id: <convo5.msg1@cerb.example>
+
+We're looking to integrate Cerb in our iOS games for providing in-game customer support.
+
+Is there a Cerb API library for Swift?
+
+-- 
+Kayla Engelbrecht
+iOS Developer
+
+Ghoux Games
+- Kiss your free time ghoux-bye(tm)

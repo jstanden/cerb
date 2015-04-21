@@ -1,0 +1,14 @@
+From: "Zöe De Vos" <z.de.vos@donter.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: No mail received after installation
+Message-Id: <convo4.msg1@cerb.example>
+
+I installed Cerb an hour ago and haven't received new email in the system.
+
+I sent a test message, so something should definitely be there.
+
+Please advise on what I may have missed.
+
+Zöe De Vos - Technology Advisor
+Donter Institute

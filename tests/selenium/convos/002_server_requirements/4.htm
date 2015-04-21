@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://cerb.dev/" />
+<title>Convo 2 Outbound</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">Convo 2 Outbound</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/profiles/ticket/2</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=button.reply</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=button.reply</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=textarea.reply</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>css=textarea.reply</td>
+	<td>&gt; We planned to use ssd drives. Should we use RAID? Is 128gb drives
+&gt; sufficient?
+
+We recommend at least RAID-1 for mirroring so you always have a live replica of your data.  If possible, RAID-10 (mirror+stripe) will give you some added write performance as well as doubling the storage capacity (4x 128GB in RAID-10 is 256GB in the two-drive stripe with a mirror drive for each).
+
+As far as capacity, 128GB should be fine with plenty of room for growth.  You just want to make sure you have enough space for binary logs, backups, attachments, etc.
+
+Our own Cerb instance has history back to January 2002, and it's only a few GB.
+
+> We have 31, but only up to 17 staff on the same shift.
+
+That shouldn't be a problem.  There are plenty of Cerb installs with 50+ concurrent workers on a single machine.
+
+#signature
+#cut
+</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>250</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=label[title=&quot;(Ctrl+Shift+W)&quot;] &gt; input[name=&quot;closed&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>css=button.send.split-left</td>
+	<td></td>
+</tr>
+</tbody></table>
+</body>
+</html>

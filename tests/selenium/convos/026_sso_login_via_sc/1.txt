@@ -1,0 +1,16 @@
+From: Jeandré Theron <j.theron@ghoux.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: custom Support Center authentication
+Message-Id: <convo26.msg1@cerb.example>
+
+Our players already have an account (email and password) on our end.
+
+How can we allow players to log into the Support Center using their existing credentials instead of registering for a separate new account?
+
+-- 
+Jeandré Theron
+Director of Engineering
+
+Ghoux Games
+- Kiss your free time ghoux-bye(tm)

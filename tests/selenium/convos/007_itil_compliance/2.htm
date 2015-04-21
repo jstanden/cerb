@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://cerb.dev/" />
+<title>Convo 7 #2 Outbound</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">Convo 7 #2 Outbound</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/profiles/ticket/7</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=button.reply</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=button.reply</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=textarea.reply</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>css=textarea.reply</td>
+	<td>&gt; is Cerb ITIL compliant?
+
+Hi Zhang,
+
+Since Cerb is a toolkit for building and automating your own workflows, it's not intended to be ITIL compliant out of the box.
+
+However, you can use Cerb's tools (workspaces, dashboards, Virtual Attendants) to build ITIL compatible processes. Over time, we'll likely provide pre-built bundles like this to make implementation easier.
+
+What aspects of ITIL are most important to you to start with? We'd be happy to help point you in the right direction.
+
+#signature
+#cut
+</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>250</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=label[title=&quot;(Ctrl+Shift+W)&quot;] &gt; input[name=&quot;closed&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>css=button.send.split-left</td>
+	<td></td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

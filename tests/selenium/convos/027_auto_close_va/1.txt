@@ -1,0 +1,17 @@
+From: Esmee de Graaf <e.de.graaf@helderster.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: Automatically closing waiting tickets after some time
+Message-Id: <convo27.msg1@cerb.example>
+
+Our agents currently set tickets to the 'waiting' status after replying. Many of these tickets never receive another client reply.
+
+How can we automatically close tickets that are waiting and do not receive a client reply after some duration (e.g. 7 days)?
+
+Can we send a warning a few days before the tickets are automatically closed?
+
+-- 
+Esmee de Graaf
+Support Manager
+
+Helderster Aerospace B.V.

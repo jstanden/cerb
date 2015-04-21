@@ -1,0 +1,16 @@
+From: "Sveta Krupin" <s.krupin@nechist.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: Submit license renewal payment by bank transfer
+Message-Id: <convo16.msg1@cerb.example>
+
+Hello,
+
+We have created purchase order #PO78082AH in response to invoice #95412.
+
+Can we make payment by bank transfer?
+
+-- 
+Sveta Krupin
+Accounts Payable
+Nechist Financial

@@ -1,0 +1,13 @@
+From: Giada Rossi <g.rossi@fiaflux.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: More than 20 subtotals in a worklist
+Message-Id: <convo13.msg1@cerb.example>
+
+We use the subtotal feature on worklists a lot, but we would really like to be able to display more than the top 20 results.
+
+is there a way to increase this limit?
+
+-- 
+GIADA ROSSI, Developer Liaison
+Fiaflux Software

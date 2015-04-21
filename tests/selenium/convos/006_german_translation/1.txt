@@ -1,0 +1,17 @@
+From: Teun Vos <t.vos@helderster.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: German translations for Cerb
+Message-Id: <convo6.msg1@cerb.example>
+
+Out of interest, do you have a German language version of Cerb?
+
+-- 
+Teun Vos
+
+IT Project Manager
+Helderster Aerospace B.V.
+
+Web: http://helderster.example
+Twitter: http://twitter.com/helderster_example
+Facebook: http://www.facebook.com/helderster_example

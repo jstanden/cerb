@@ -1,0 +1,12 @@
+From: Zhang Wei <w.zhang@zhang.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: ITIL compliance
+Message-Id: <convo7.msg1@cerb.example>
+
+Hi,
+is Cerb ITIL compliant?
+
+Zhang Wei
+Founder/CEO
+Zhang Logistics

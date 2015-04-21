@@ -1,0 +1,15 @@
+From: James Nelson <j.nelson@dobbus.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: Volume discount?
+Message-Id: <convo22.msg1@cerb.example>
+
+Do you provide a volume discount on licenses?
+
+We have 95 worker accounts. We're currently using 30 seats, but are considering expanding Cerb's use to other departments.
+
+-- 
+James Nelson, CTO
+
+Dobbus Airways
+ >>> Every ticket is a window seat on Dobbus!

@@ -1,0 +1,12 @@
+From: Lisa Dubois <l.dubois@donter.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: Not-for-profit licensing?
+Message-Id: <convo8.msg1@cerb.example>
+
+We use the Cerb system at Donter Institute and we're very happy with it. We work with several non-profit entities that would benefit from the software, but they have relatively small budgets for licensing.
+
+Do you provide any discounts for non-profits?
+
+Regards,
+- Lisa

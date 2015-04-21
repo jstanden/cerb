@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://cerb.dev/" />
+<title>Convo 6 #2 Outbound</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">Convo 6 #2 Outbound</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/profiles/ticket/6</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=button.reply</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=button.reply</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=textarea.reply</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>css=textarea.reply</td>
+	<td>&gt; Out of interest, do you have a German language version of Cerb?
+
+Hi Teun,
+
+Yeah, German is our second most complete translation.&nbsp;&nbsp;Out of about 1,080 fragments of text, only 300 need to be updated in German, and that can be done from the browser with our built-in Translation Editor plugin.&nbsp;&nbsp;The translation coverage is better than 75% because the most common phrases (e.g. new, close, from/to, status, etc) are repeated pretty often.
+
+The 6.9 release also includes some subtle changes to make translations easier using external TMX editors.&nbsp;&nbsp;Heartsome is a pretty efficient one: http://translation-blog.com/heartsome-tm-editor/
+
+We also offer a $0.50 credit toward On-Site or On-Demand subscriptions per translation entry.&nbsp;&nbsp;So if you had someone translate those last 300 entries (mostly for new additions to the Plugin Library that were created after the original translations), then you'd get a $150 credit.
+
+Let me know if there's anything I can do to help with that.
+
+#signature
+#cut
+</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>250</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=label[title=&quot;(Ctrl+Shift+W)&quot;] &gt; input[name=&quot;closed&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>css=button.send.split-left</td>
+	<td></td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

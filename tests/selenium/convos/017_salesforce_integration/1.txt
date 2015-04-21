@@ -1,0 +1,13 @@
+From: Zhong Hui <h.zhong@zhang.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: Integration with Salesforce
+Message-Id: <convo17.msg1@cerb.example>
+
+Our support staff uses Cerb and our sales staff uses Salesforce. Does Cerb have integration with Salesforce?
+
+Our sales agents want to see open tickets in SF without having to log in to Cerb.
+
+-- 
+Zhong Hui, IT Manager
+Zhang Logistics

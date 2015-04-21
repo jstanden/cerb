@@ -1,0 +1,16 @@
+From: Mathias Dumont <m.dumont@donter.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: Translations for knowledgebase articles
+Message-Id: <convo11.msg1@cerb.example>
+
+Good day,
+
+In Belgium, we converse primarily in Dutch, English, and French.
+
+Can we provide alternate translations of our existing knowledgebase articles in these languages with the ability for visitors on our web sites to switch between them?
+
+-- 
+Mathias Dumont, PhD
+Senior Fellow
+Donter Institute

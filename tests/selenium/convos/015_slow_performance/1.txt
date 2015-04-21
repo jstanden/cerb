@@ -1,0 +1,16 @@
+From: "Inès Lacroix" <i.lacroix@baston.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: Slow performance after update
+Message-Id: <convo15.msg1@cerb.example>
+
+After an upgrade to the latest version we have been experiencing performance problems throughout the day.
+
+I'm not sure where to start diagnosing this. What are your suggestions?
+
+-- 
+Inès Lacroix
+Support Integration Officer
+
+Baston Defence
+.: Faites confiance, mais vérifiez :.

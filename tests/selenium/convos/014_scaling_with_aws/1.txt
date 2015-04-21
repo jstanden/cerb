@@ -1,0 +1,16 @@
+From: Sarah Adams <s.adams@dobbus.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: Recommendations for scaling Cerb with Amazon Web Services (AWS)
+Message-Id: <convo14.msg1@cerb.example>
+
+We've recently deployed Cerb on Amazon Web Services.
+
+What are the best recommendations for taking advantage of auto-scaling based on usage patterns?
+
+-- 
+Sarah Adams
+IT Specialist
+
+Dobbus Airways
+ >>> Every ticket is a window seat on Dobbus!

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://cerb.dev/" />
+<title>Convo 1 Outbound</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">Convo 1 Outbound</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/profiles/ticket/1</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=button.reply</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=button.reply</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=textarea.reply</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>css=textarea.reply</td>
+	<td>&gt; I'd like to require our workers to always use HTML mode for replies in
+&gt; Cerb. Right now we have to select 'Switch to Markdown' on every reply. Is
+&gt; there an option to make this the default for everyone?
+
+Hi Alessio,
+
+Each worker can configure that preference with these instructions:
+
+1. Click your name in the top right
+2. Select 'settings'
+3. Under 'While replying:' check the box for 'Always switch to HTML mode'
+4. Save changes
+
+We don't have a global preference for this yet where admins can set the default for everyone. I'll check with the developers to see if that's something we can do in the next update.
+
+#signature
+#cut
+#comment @Milo How difficult would it be to create a global preference for HTML mode on replies? Fiaflux wants workers to reply in HTML by default without each worker having to configure the preference.
+</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>250</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=label[title=&quot;(Ctrl+Shift+W)&quot;] &gt; input[name=&quot;closed&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>css=select[name=&quot;group_id&quot;]</td>
+	<td>label=Development</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>css=button.send.split-left</td>
+	<td></td>
+</tr>
+</tbody></table>
+</body>
+</html>

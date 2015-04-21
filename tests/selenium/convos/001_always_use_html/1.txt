@@ -1,0 +1,12 @@
+To: support@cerb.example
+From: Alessio Costa <a.costa@fiaflux.example>
+Subject: Always use HTML mode on replies
+X-Mailer: Gmail
+Content-Type: text/plain; charset=utf-8
+Message-Id: <convo1.msg1@cerb.example>
+
+I'd like to require our workers to always use HTML mode for replies in Cerb. Right now we have to select 'Switch to Markdown' on every reply. Is there an option to make this the default for everyone?
+
+-- 
+Alessio Costa, Developer
+Fiaflux Software

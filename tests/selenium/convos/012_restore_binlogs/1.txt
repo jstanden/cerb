@@ -1,0 +1,16 @@
+From: Jack Allen <j.allen@twinton.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: Restore deleted tasks from MySQL binlogs
+Message-Id: <convo12.msg1@cerb.example>
+
+One of our student helpdesk assistants accidentally deleted several pages of tasks.
+
+We do have the MySQL binary logs. How would you recommend restoring these tasks and identifying the ones that are missing?
+
+-- 
+Jack Allen
+Helpdesk Administrator
+
+Twinton Univerity
+:: Unus est, verum, quod falsum ::

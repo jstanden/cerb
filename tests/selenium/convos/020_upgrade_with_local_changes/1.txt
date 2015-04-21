@@ -1,0 +1,16 @@
+From: Marie Reynaud <m.reynaud@baston.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: upgrading when local code changes exist in the filesystem
+Message-Id: <convo20.msg1@cerb.example>
+
+We would like to upgrade to the latest version, but we have made minor code changes to some templates and the stylesheet.
+
+How can we retain our changes during the upgrade?
+
+-- 
+Marie Reynaud
+IT Engineer
+
+Baston Defence
+.: Faites confiance, mais vérifiez :.

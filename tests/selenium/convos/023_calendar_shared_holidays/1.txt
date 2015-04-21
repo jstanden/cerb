@@ -1,0 +1,15 @@
+From: Ryder Brown <r.brown@franchir.example>
+To: support@cerb.example
+Content-Type: text/plain; charset=utf-8
+Subject: Shared calendars for holidays
+Message-Id: <convo23.msg1@cerb.example>
+
+Is it possible to share a single office holiday calendar between multiple workers?
+
+Right now everyone has to redundantly input office holidays on their personal calendars.
+
+-- 
+Ryder Brown
+IT Engineer
+
+Franchir Pharmaceuticals, Inc.
