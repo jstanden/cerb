@@ -4655,6 +4655,10 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			}
 		}
 		
+		// If we still don't have a default group, use the first group
+		if(empty($defaults['group_id']))
+			$defaults['group_id'] = key($groups);
+		
 		$tpl->assign('defaults', $defaults);
 		
 		// Custom fields
