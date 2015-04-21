@@ -227,32 +227,21 @@
 		
 		{if $active_worker->hasPriv('core.ticket.actions.move')}
 		<button type="button" class="action-move"><span class="cerb-sprite2 sprite"></span> {'common.move'|devblocks_translate|lower} &#x25be;</button>
-		<ul class="cerb-popupmenu cerb-float">
-			<li style="background:none;">
-				<input type="text" size="16" class="input_search filter">
-			</li>
-			
-			{foreach from=$groups item=group name=groups}
-			<li group_id="{$group->id}" bucket_id="0">
-				<div class="item">
-					<b>{$group->name}</b><br>
-					<div style="margin-left:10px;"><a href="javascript:;" style="font-weight:normal;">{'common.inbox'|devblocks_translate|capitalize}</a></div>
-				</div>
-			</li>
-			
-			{if isset($active_worker_memberships.{$group->id})}
-			{foreach from=$group_buckets.{$group->id} item=bucket}
-				<li group_id="{$group->id}" bucket_id="{$bucket->id}">
-					<div class="item">
-						<b>{$group->name}</b><br>
-						<div style="margin-left:10px;"><a href="javascript:;" style="font-weight:normal;">{$bucket->name}</a></div>
-					</div>
-				</li>
-			{/foreach}
-			{/if}
-			
-			{/foreach}
-		</ul>
+		<div class="cerb-popupmenu cerb-float">
+			<select class="cerb-moveto-group">
+				<option></option>
+				{foreach from=$groups item=group}
+				<option value="{$group->id}">{$group->name}</option>
+				{/foreach}
+			</select>
+			<select class="cerb-moveto-bucket-options" style="display:none;">
+				{foreach from=$buckets item=bucket}
+				<option value="{$bucket->id}" data-group-id="{$bucket->group_id}">{$bucket->name}</option>
+				{/foreach}
+			</select>
+			<select class="cerb-moveto-bucket" style="display:none;">
+			</select>
+		</div>
 		{/if}
 		
 		{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge_popup');">{'mail.merge'|devblocks_translate|lower}</button>{/if}
@@ -288,168 +277,159 @@
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
 <script type="text/javascript">
-$view = $('#view{$view->id}');
-$view.data('total', {$total|default:0});
-
-$frm = $('#viewForm{$view->id}');
-
-{if $pref_keyboard_shortcuts}
-$frm.bind('keyboard_shortcut',function(event) {
-	//console.log("{$view->id} received " + (indirect ? 'indirect' : 'direct') + " keyboard event for: " + event.keypress_event.which);
+$(function() {
+	var $view = $('#view{$view->id}');
+	$view.data('total', {$total|default:0});
 	
+	var $frm = $('#viewForm{$view->id}');
+	
+	{if $pref_keyboard_shortcuts}
+	$frm.bind('keyboard_shortcut',function(event) {
+		//console.log("{$view->id} received " + (indirect ? 'indirect' : 'direct') + " keyboard event for: " + event.keypress_event.which);
+		
+		var $view_actions = $('#{$view->id}_actions');
+		
+		var hotkey_activated = true;
+	
+		switch(event.keypress_event.which) {
+			case 43: // (+) bulk update
+				break;
+				
+			case 98: // (b) bulk update
+				$btn = $view_actions.find('button.action-bulkupdate');
+			
+				if(event.indirect) {
+					$btn.select().focus();
+					
+				} else {
+					$btn.click();
+				}
+				break;
+			
+			case 99: // (c) close
+				$btn = $view_actions.find('button.action-close');
+			
+				if(!event.indirect) {
+					$btn.click();
+				}
+				break;
+			
+			case 101: // (e) explore
+				$btn = $view_actions.find('button.action-explore');
+			
+				if(event.indirect) {
+					$btn.select().focus();
+					
+				} else {
+					$btn.click();
+				}
+				break;
+				
+			case 109: // (m) move
+				event.keypress_event.preventDefault();
+			
+				if(!event.indirect) {
+					$btn = $view_actions.find('button.action-move');
+					$btn.click();
+				}
+				break;
+			
+			case 115: // (s) spam
+				$btn = $view_actions.find('button.action-spam');
+			
+				if(!event.indirect) {
+					$btn.click();
+				}
+				break;
+				
+	// 		case 116: // (t) take
+	// 			break;
+				
+	// 		case 117: // (u) surrender
+	// 			break;
+			
+			case 120: // (x) delete
+				var $btn = $view_actions.find('button.action-delete');
+			
+				if(!event.indirect) {
+					$btn.click();
+				}
+				break;	
+			
+			default:
+				hotkey_activated = false;
+				break;
+		}
+	
+		if(hotkey_activated)
+			event.preventDefault();
+	});
+	{/if}
+	
+	// Quick move menu
 	var $view_actions = $('#{$view->id}_actions');
+	var $menu_trigger = $view_actions.find('button.action-move');
+	var $menu = $menu_trigger.next('div.cerb-popupmenu');
+	$menu_trigger.data('menu', $menu);
 	
-	var hotkey_activated = true;
-
-	switch(event.keypress_event.which) {
-		case 43: // (+) bulk update
-			break;
-			
-		case 98: // (b) bulk update
-			$btn = $view_actions.find('button.action-bulkupdate');
-		
-			if(event.indirect) {
-				$btn.select().focus();
-				
-			} else {
-				$btn.click();
-			}
-			break;
-		
-		case 99: // (c) close
-			$btn = $view_actions.find('button.action-close');
-		
-			if(!event.indirect) {
-				$btn.click();
-			}
-			break;
-		
-		case 101: // (e) explore
-			$btn = $view_actions.find('button.action-explore');
-		
-			if(event.indirect) {
-				$btn.select().focus();
-				
-			} else {
-				$btn.click();
-			}
-			break;
-			
-		case 109: // (m) move
-			event.keypress_event.preventDefault();
-		
-			if(!event.indirect) {
-				$btn = $view_actions.find('button.action-move');
-				$btn.click();
-			}
-			break;
-		
-		case 115: // (s) spam
-			$btn = $view_actions.find('button.action-spam');
-		
-			if(!event.indirect) {
-				$btn.click();
-			}
-			break;
-			
-// 		case 116: // (t) take
-// 			break;
-			
-// 		case 117: // (u) surrender
-// 			break;
-		
-		case 120: // (x) delete
-			var $btn = $view_actions.find('button.action-delete');
-		
-			if(!event.indirect) {
-				$btn.click();
-			}
-			break;	
-		
-		default:
-			hotkey_activated = false;
-			break;
-	}
-
-	if(hotkey_activated)
-		event.preventDefault();
-});
-{/if}
-
-// Quick move menu
-$view_actions = $('#{$view->id}_actions');
-$menu_trigger = $view_actions.find('button.action-move');
-$menu = $menu_trigger.next('ul.cerb-popupmenu');
-$menu_trigger.data('menu', $menu);
-
-$menu_trigger
-	.click(
-		function(e) {
-			$menu = $(this).data('menu');
-
-			if($menu.is(':visible')) {
-				$menu.hide();
-				return;
-			}
-
-			$menu
-				.css('position','absolute')
-				//.css('top',($(this).offset().top+20)+'px')
-				.css('left',$(this).offset().left+'px')
-				.show()
-				.find('> li input:text')
-				.focus()
-				.select()
-				;
-		}
-	)
-;
-
-$menu.find('> li > input.filter').keypress(
-	function(e) {
-		code = (e.keyCode ? e.keyCode : e.which);
-		if(code == 13) {
-			e.preventDefault();
-			e.stopPropagation();
-			$(this).select().focus();
-			return false;
-		}
-	}
-);
+	var $select_moveto_group = $menu.find('select.cerb-moveto-group');
+	var $select_moveto_bucket = $menu.find('select.cerb-moveto-bucket');
+	var $select_moveto_bucket_options = $menu.find('select.cerb-moveto-bucket-options');
 	
-$menu.find('> li > input.filter').keyup(
-	function(e) {
-		term = $(this).val().toLowerCase();
-		$menu = $(this).closest('ul.cerb-popupmenu');
-		$menu.find('> li > div.item').each(function(e) {
-			if(-1 != $(this).html().toLowerCase().indexOf(term)) {
-				$(this).parent().show();
-			} else {
-				$(this).parent().hide();
+	$menu_trigger
+		.click(
+			function(e) {
+				var $menu = $(this).data('menu');
+	
+				if($menu.is(':visible')) {
+					$menu.hide();
+					return;
+				}
+	
+				$menu
+					.css('position','absolute')
+					.css('left',$(this).offset().left+'px')
+					.show()
+					;
 			}
+		)
+	;
+	
+	$select_moveto_group.change(function() {
+		var group_id = $(this).val();
+		
+		if(0 == group_id.length) {
+			$select_moveto_bucket.fadeOut();
+			return;
+		}
+		
+		$select_moveto_bucket.find('> option').remove();
+		
+		$('<option value=""></option>').appendTo($select_moveto_bucket);
+			
+		$select_moveto_bucket_options.find('option').each(function() {
+			var $opt = $(this);
+			if($opt.attr('data-group-id') == group_id)
+				$opt.clone().appendTo($select_moveto_bucket);
 		});
-	}
-);
-
-$menu.find('> li').click(function(e) {
-	e.stopPropagation();
-	if($(e.target).is('a'))
-		return;
-
-	$(this).find('a').trigger('click');
-});
-
-$menu.find('> li > div.item a').click(function() {
-	$li = $(this).closest('li');
-	$frm = $(this).closest('form');
+		
+		$select_moveto_bucket.fadeIn();
+	});
 	
-	group_id = $li.attr('group_id');
-	bucket_id = $li.attr('bucket_id');
-
-	if(group_id.length > 0) {
+	$select_moveto_bucket.change(function() {
+		var bucket_id = $(this).val();
+		
+		if(0 == bucket_id.length)
+			return;
+		
+		var $opt = $(this).find('option:selected');
+		var group_id = $opt.attr('data-group-id');
+		
+		if(0 == group_id.length)
+			return;
+		
 		genericAjaxPost('viewForm{$view->id}', 'view{$view->id}', 'c=tickets&a=viewMoveTickets&view_id={$view->id}&group_id=' + group_id + '&bucket_id=' + bucket_id);
-	}
+	});
 	
-	$menu.hide();
-});	
+});
 </script>
