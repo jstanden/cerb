@@ -2673,7 +2673,6 @@ class C4_AbstractViewLoader {
 			$view->addParamsRequired($view_model['params_required'], true);
 		}
 
-		// [TODO] This needs a bit more logic
 		$active_worker = CerberusApplication::getActiveWorker();
 		$view->setPlaceholderValues(array('current_worker_id' => !empty($active_worker) ? $active_worker->id : 0));
 		

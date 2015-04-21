@@ -43,6 +43,7 @@
 		<th style="text-align:center;width:75px;">
 			<a href="javascript:;">{'common.watchers'|devblocks_translate|capitalize}</a>
 		</th>
+
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th>
@@ -62,6 +63,7 @@
 			{/if}
 			</th>
 		{/foreach}
+		
 	</tr>
 	</thead>
 

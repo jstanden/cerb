@@ -84,6 +84,47 @@ class DAO_Bucket extends DevblocksORMHelper {
 		return null;
 	}
 	
+	/**
+	 * 
+	 * @param array $ids
+	 * @return Model_Bucket[]
+	 */
+	static function getIds($ids) {
+		if(!is_array($ids))
+			$ids = array($ids);
+
+		if(empty($ids))
+			return array();
+
+		if(!method_exists(get_called_class(), 'getWhere'))
+			return array();
+
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
+
+		$models = array();
+
+		$results = static::getWhere(sprintf("id IN (%s)",
+			implode(',', $ids)
+		));
+
+		// Sort $models in the same order as $ids
+		foreach($ids as $id) {
+			if(isset($results[$id]))
+				$models[$id] = $results[$id];
+		}
+
+		unset($results);
+
+		return $models;
+	}	
+	
+	/**
+	 * 
+	 * @param integer $group_id
+	 * @return integer
+	 */
 	static function getNextPos($group_id) {
 		if(empty($group_id))
 			return 0;
@@ -95,6 +136,15 @@ class DAO_Bucket extends DevblocksORMHelper {
 		return 0;
 	}
 	
+	/**
+	 * 
+	 * @param string $where
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param integer $limit
+	 * @param array $options
+	 * @return Model_Bucket[]
+	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=null, $limit=null, $options=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 
@@ -137,6 +187,11 @@ class DAO_Bucket extends DevblocksORMHelper {
 		return $group_buckets;
 	}
 	
+	/**
+	 * 
+	 * @param integer $group_id
+	 * @return Model_Bucket|NULL
+	 */
 	static function getDefaultForGroup($group_id) {
 		$buckets = DAO_Bucket::getByGroup($group_id);
 		
@@ -203,7 +258,9 @@ class DAO_Bucket extends DevblocksORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids))
+			$ids = array($ids);
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(empty($ids))
@@ -479,6 +536,10 @@ class Context_Bucket extends Extension_DevblocksContext {
 		return FALSE;
 	}
 	
+	/**
+	 * @return Model_Bucket
+	 * @see Extension_DevblocksContext::getRandom()
+	 */
 	function getRandom() {
 		return DAO_Bucket::random();
 	}

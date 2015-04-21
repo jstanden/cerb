@@ -3399,8 +3399,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
 				$worker_name = $param->value;
 				
-				if(is_numeric($param->value)) {
-					if(null == ($worker = DAO_Worker::get($param->value)))
+				if(!is_numeric($worker_name)) {
+					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+					$worker_name = $tpl_builder->build($worker_name, $this->getPlaceholderValues());
+				}
+				
+				if(is_numeric($worker_name)) {
+					if(null == ($worker = DAO_Worker::get($worker_name)))
 						break;
 					
 					$worker_name = $worker->getName();
