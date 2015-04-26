@@ -159,9 +159,12 @@
 			{/if}
 		</td>
 		{elseif $column=="t_bucket_id"}
-			{assign var=ticket_bucket_id value=$result.t_bucket_id}
+			{$ticket_bucket_id = $result.t_bucket_id}
+			{$ticket_bucket = $buckets.$ticket_bucket_id}
 			<td>
-				{$buckets.$ticket_bucket_id->name}
+				{if $ticket_bucket instanceof Model_Bucket}
+				<a href="{devblocks_url}c=profiles&what=bucket&id={$ticket_bucket->id}{/devblocks_url}-{$ticket_bucket->name|devblocks_permalink}">{$ticket_bucket->name}</a>
+				{/if}
 			</td>
 		{elseif $column=="t_last_action_code"}
 		<td>
