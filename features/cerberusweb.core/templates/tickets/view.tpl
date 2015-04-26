@@ -143,9 +143,9 @@
 			</td>
 		{elseif $column=="t_owner_id"}
 		<td>
-			{if isset($workers.{$result.t_owner_id})}
-				{$workers.{$result.t_owner_id}->getName()}
-			{else}
+			{$owner = $workers.{$result.t_owner_id}}
+			{if $owner instanceof Model_Worker}
+				<a href="{devblocks_url}c=profiles&what=worker&id={$owner->id}{/devblocks_url}-{$owner->getName()|devblocks_permalink}">{$owner->getName()}</a>
 			{/if}
 		</td>
 		{elseif $column=="o_name"}
