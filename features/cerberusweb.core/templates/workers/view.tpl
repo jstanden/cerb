@@ -24,11 +24,14 @@
 
 <div id="{$view->id}_tips" class="block" style="display:none;margin:10px;padding:5px;">Loading...</div>
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
-<form id="viewForm{$view->id}" name="viewForm{$view->id}" action="#">
+<form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="context_id" value="{$view_context}">
-<input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="worker">
+<input type="hidden" name="action" value="">
+<input type="hidden" name="explore_from" value="0">
 <table cellpadding="0" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
@@ -135,6 +138,7 @@
 	
 	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
+		<button type="button" class="action-always-show action-explore"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
 		{if $active_worker && $active_worker->is_superuser}
 			<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=workers&action=showWorkersBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> bulk update</button>
 		{/if}
@@ -149,7 +153,16 @@
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
 <script type="text/javascript">
-$frm = $('#viewForm{$view->id}');
+var $frm = $('#viewForm{$view->id}');
+var $frm_actions = $('#{$view->id}_actions');
+
+$frm_actions.find('button.action-explore').click(function() {
+	var checkedId = $frm.find('tbody input:checkbox:checked:first').val();
+	$frm.find('input:hidden[name=explore_from]').val(checkedId);
+	
+	$frm.find('input:hidden[name=action]').val('viewExplore');
+	$frm.submit();
+});
 
 {if $pref_keyboard_shortcuts}
 $frm.bind('keyboard_shortcut',function(event) {
