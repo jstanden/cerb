@@ -87,12 +87,13 @@
 		<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.t_id}&view_id={$view->id}', null, false, '650');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{'views.peek'|devblocks_translate}"></span></button>
 	{/capture}
 	
-	{assign var=ticket_group_id value=$result.t_group_id}
 	{if !isset($active_worker_memberships.$ticket_group_id)}{*censor*}
+	{$ticket_group_id = $result.t_group_id}
+	{$ticket_group = $groups.$ticket_group_id}
 	<tbody>
 	<tr class="{$tableRowClass}">
 		<td>&nbsp;</td>
-		<td rowspan="2" colspan="{$smarty.foreach.headers.total}" style="color:rgb(140,140,140);font-size:10px;text-align:left;vertical-align:middle;">[Access Denied: {$groups.$ticket_group_id->name} #{$result.t_mask}]</td>
+		<td rowspan="2" colspan="{$smarty.foreach.headers.total}" style="color:rgb(140,140,140);font-size:10px;text-align:left;vertical-align:middle;">[Access Denied: {$ticket_group->name} #{$result.t_mask}]</td>
 	</tr>
 	<tr class="{$tableRowClass}">
 		<td>&nbsp;</td>
@@ -153,8 +154,9 @@
 		</td>
 		{elseif $column=="t_group_id"}
 		<td>
-			{assign var=ticket_group_id value=$result.t_group_id}
-			{$groups.$ticket_group_id->name}
+			{if $ticket_group instanceof Model_Group}
+				<a href="{devblocks_url}c=profiles&what=group&id={$ticket_group->id}{/devblocks_url}-{$ticket_group->name|devblocks_permalink}">{$ticket_group->name}</a>
+			{/if}
 		</td>
 		{elseif $column=="t_bucket_id"}
 			{assign var=ticket_bucket_id value=$result.t_bucket_id}
