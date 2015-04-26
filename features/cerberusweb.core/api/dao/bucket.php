@@ -19,7 +19,6 @@ class DAO_Bucket extends DevblocksORMHelper {
 	const CACHE_ALL = 'cerberus_cache_buckets_all';
 	
 	const ID = 'id';
-	const POS = 'pos';
 	const NAME = 'name';
 	const GROUP_ID = 'group_id';
 	const IS_DEFAULT = 'is_default';
@@ -65,7 +64,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 	static function getAll($nocache=false) {
 		$cache = DevblocksPlatform::getCacheService();
 		if($nocache || null === ($buckets = $cache->load(self::CACHE_ALL))) {
-			$buckets = self::getWhere(null, DAO_Bucket::POS, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
+			$buckets = self::getWhere(null, DAO_Bucket::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			$cache->save($buckets, self::CACHE_ALL);
 		}
 		
@@ -127,22 +126,6 @@ class DAO_Bucket extends DevblocksORMHelper {
 	
 	/**
 	 * 
-	 * @param integer $group_id
-	 * @return integer
-	 */
-	static function getNextPos($group_id) {
-		if(empty($group_id))
-			return 0;
-		
-		$db = DevblocksPlatform::getDatabaseService();
-		if(null != ($next_pos = $db->GetOneMaster(sprintf("SELECT MAX(pos)+1 FROM bucket WHERE group_id = %d", $group_id))))
-			return $next_pos;
-			
-		return 0;
-	}
-	
-	/**
-	 * 
 	 * @param string $where
 	 * @param string $sortBy
 	 * @param boolean $sortAsc
@@ -156,7 +139,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, pos, name, group_id, reply_address_id, reply_personal, reply_signature, reply_html_template_id, is_default, updated_at ".
+		$sql = "SELECT id, name, group_id, reply_address_id, reply_personal, reply_signature, reply_html_template_id, is_default, updated_at ".
 			"FROM bucket ".
 			$where_sql.
 			$sort_sql.
@@ -327,7 +310,6 @@ class DAO_Bucket extends DevblocksORMHelper {
 		while($row = mysqli_fetch_assoc($rs)) {
 			$bucket = new Model_Bucket();
 			$bucket->id = intval($row['id']);
-			$bucket->pos = intval($row['pos']);
 			$bucket->name = $row['name'];
 			$bucket->group_id = intval($row['group_id']);
 			$bucket->reply_address_id = $row['reply_address_id'];
@@ -353,7 +335,6 @@ class DAO_Bucket extends DevblocksORMHelper {
 
 class Model_Bucket {
 	public $id;
-	public $pos=0;
 	public $name = '';
 	public $group_id = 0;
 	public $reply_address_id = 0;

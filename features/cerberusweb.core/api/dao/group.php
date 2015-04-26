@@ -180,7 +180,6 @@ class DAO_Group extends Cerb_ORMHelper {
 			DAO_Bucket::NAME => 'Inbox',
 			DAO_Bucket::GROUP_ID => $id,
 			DAO_Bucket::IS_DEFAULT => 1,
-			DAO_Bucket::POS => 0,
 			DAO_Bucket::UPDATED_AT => time(),
 		);
 		$bucket_id = DAO_Bucket::create($bucket_fields);

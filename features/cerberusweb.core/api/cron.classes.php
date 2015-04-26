@@ -636,7 +636,6 @@ class ImportCron extends CerberusCronPageExtension {
 				DAO_Bucket::NAME => $sBucket,
 				DAO_Bucket::GROUP_ID => $iDestGroupId,
 				DAO_Bucket::IS_DEFAULT => 0,
-				DAO_Bucket::POS => DAO_Bucket::getNextPos($iDestGroup),
 				DAO_Bucket::UPDATED_AT => time(),
 			);
 			$iDestBucketId = DAO_Bucket::create($fields);

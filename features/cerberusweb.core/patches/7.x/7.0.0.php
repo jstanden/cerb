@@ -178,6 +178,12 @@ if(isset($columns['is_assignable'])) {
 	$db->ExecuteMaster("ALTER TABLE bucket DROP COLUMN is_assignable");
 }
 
+// Remove `pos` field from `bucket`
+
+if(isset($columns['pos'])) {
+	$db->ExecuteMaster("ALTER TABLE bucket DROP COLUMN pos");
+}
+
 // Add `updated_at` field to `bucket`
 
 if(!isset($columns['updated_at'])) {
@@ -266,13 +272,10 @@ if(!isset($columns['is_default'])) {
 	$results = $db->ExecuteMaster("SELECT id, reply_address_id, reply_personal, reply_signature, reply_html_template_id FROM worker_group");
 	
 	foreach($results as $row) {
-		$db->ExecuteMaster(sprintf("UPDATE bucket SET pos = pos + 1 WHERE group_id = %d", $row['id']));
-		
-		$db->ExecuteMaster(sprintf("INSERT INTO bucket (group_id, name, pos, reply_address_id, reply_personal, reply_signature, reply_html_template_id, updated_at, is_default) ".
+		$db->ExecuteMaster(sprintf("INSERT INTO bucket (group_id, name, reply_address_id, reply_personal, reply_signature, reply_html_template_id, updated_at, is_default) ".
 			"VALUES (%d, %s, %d, %d, %s, %s, %d, %d, %d)",
 			$row['id'],
 			$db->qstr('Inbox'),
-			0,
 			$row['reply_address_id'],
 			$db->qstr($row['reply_personal']),
 			$db->qstr($row['reply_signature']),

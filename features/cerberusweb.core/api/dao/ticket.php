@@ -2501,7 +2501,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		// Sort buckets by group preference
 		foreach($counts as $group_id => $data) {
-			uksort($counts[$group_id]['children'], array($this, '_sortByBucketPos'));
+			uksort($counts[$group_id]['children'], array($this, '_sortByBucketOrder'));
 		}
 		
 		return $counts;
@@ -3078,9 +3078,16 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		return strcmp($a['label'], $b['label']);
 	}
 	
-	private function _sortByBucketPos($a, $b) {
+	private function _sortByBucketOrder($a, $b) {
 		$buckets = DAO_Bucket::getAll();
-		return (intval($buckets[$a]->pos) < intval($buckets[$b]->pos)) ? -1 : 1;
+		
+		if($buckets[$a]->is_default)
+			return -1;
+		
+		if($buckets[$b]->is_default)
+			return 1;
+		
+		return strcasecmp($buckets[$a]->name, $buckets[$b]->name);
 	}
 	
 	function render() {
