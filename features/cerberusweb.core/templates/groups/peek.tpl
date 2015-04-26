@@ -26,6 +26,12 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_GROUP context_id=$group->id}
 
+{if !empty($group->id)}
+<div style="float:right;">
+	<a href="{devblocks_url}&c=profiles&type=group&id={$group->id}{/devblocks_url}-{$group->name|devblocks_permalink}">{'addy_book.peek.view_full'|devblocks_translate}</a>
+</div>
+{/if}
+
 <button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'formGroupsPeek','{$view_id}',false,'group_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
 
 </form>
