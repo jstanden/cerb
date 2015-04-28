@@ -47,10 +47,11 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		// Permissions
 		
-		$active_worker_memberships = $active_worker->getMemberships();
+		if(false == ($group = $ticket->getGroup()))
+			return;
 		
 		// Check group membership ACL
-		if(!isset($active_worker_memberships[$ticket->group_id])) {
+		if(!$group->isReadableByWorker($active_worker)) {
 			DevblocksPlatform::redirect(new DevblocksHttpRequest());
 			exit;
 		}

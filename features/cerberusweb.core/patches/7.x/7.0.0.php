@@ -165,6 +165,21 @@ if(!isset($columns['importance'])) {
 }
 
 // ===========================================================================
+// Add `is_private` field to `group`
+
+if(!isset($tables['worker_group'])) {
+	$logger->error("The 'worker_group' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('worker_group');
+
+if(!isset($columns['is_private'])) {
+	$db->ExecuteMaster("ALTER TABLE worker_group ADD COLUMN is_private TINYINT UNSIGNED NOT NULL DEFAULT 0");
+	$db->ExecuteMaster("UPDATE worker_group SET is_private=1");
+}
+
+// ===========================================================================
 // Remove `is_assignable` field from `bucket`
 
 if(!isset($tables['bucket'])) {

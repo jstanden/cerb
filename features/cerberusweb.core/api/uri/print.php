@@ -46,17 +46,15 @@ class ChPrintController extends DevblocksControllerExtension {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		// Security
-		$active_worker = CerberusApplication::getActiveWorker();
-		$active_worker_memberships = $active_worker->getMemberships();
-		
-		// [TODO] Make this pluggable
 		// Subcontroller
 		switch($object) {
 			case 'ticket':
 				@$id = array_shift($stack);
 				@$ticket = is_numeric($id) ? DAO_Ticket::get($id) : DAO_Ticket::getTicketByMask($id);
 
+				if(false == ($group = $ticket->getGroup()))
+					break;
+				
 				$convo_timeline = array();
 				$messages = $ticket->getMessages();
 				foreach($messages as $message_id => $message) { /* @var $message Model_Message */
@@ -91,9 +89,8 @@ class ChPrintController extends DevblocksControllerExtension {
 				}
 				$tpl->assign('message_notes', $message_notes);
 				
-				
 				// Make sure we're allowed to view this ticket or message
-				if(!isset($active_worker_memberships[$ticket->group_id])) {
+				if(!$group->isReadableByWorker($active_worker)) {
 					echo "<H1>" . $translate->_('common.access_denied') . "</H1>";
 					return;
 				}
@@ -112,8 +109,11 @@ class ChPrintController extends DevblocksControllerExtension {
 				@$message = DAO_Message::get($id);
 				@$ticket = DAO_Ticket::get($message->ticket_id);
 				
+				if(false == ($group = $ticket->getGroup()))
+					break;
+				
 				// Make sure we're allowed to view this ticket or message
-				if(!isset($active_worker_memberships[$ticket->group_id])) {
+				if(!$group->isReadableByWorker($active_worker)) {
 					echo "<H1>" . $translate->_('common.access_denied') . "</H1>";
 					return;
 				}

@@ -87,9 +87,9 @@
 		<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.t_id}&view_id={$view->id}', null, false, '650');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{'views.peek'|devblocks_translate}"></span></button>
 	{/capture}
 	
-	{if !isset($active_worker_memberships.$ticket_group_id)}{*censor*}
 	{$ticket_group_id = $result.t_group_id}
 	{$ticket_group = $groups.$ticket_group_id}
+	{if $ticket_group->is_private && !$active_worker->isGroupMember($ticket_group_id)}
 	<tbody>
 	<tr class="{$tableRowClass}">
 		<td>&nbsp;</td>

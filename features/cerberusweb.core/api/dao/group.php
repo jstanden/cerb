@@ -22,6 +22,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
 	const IS_DEFAULT = 'is_default';
+	const IS_PRIVATE = 'is_private';
 	const CREATED = 'created';
 	const UPDATED = 'updated';
 	
@@ -58,7 +59,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, is_default, created, updated ".
+		$sql = "SELECT id, name, is_default, is_private, created, updated ".
 			"FROM worker_group ".
 			$where_sql.
 			$sort_sql.
@@ -121,6 +122,7 @@ class DAO_Group extends Cerb_ORMHelper {
 			$object->id = intval($row['id']);
 			$object->name = $row['name'];
 			$object->is_default = intval($row['is_default']);
+			$object->is_private = intval($row['is_private']);
 			$object->created = intval($row['created']);
 			$object->updated = intval($row['updated']);
 			$objects[$object->id] = $object;
@@ -349,6 +351,20 @@ class DAO_Group extends Cerb_ORMHelper {
 		self::clearCache();
 	}
 	
+	static function clearGroupMembers($group_id) {
+		if(empty($group_id))
+			return FALSE;
+			
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("DELETE FROM worker_to_group WHERE group_id = %d",
+			$group_id
+		);
+		$db->ExecuteMaster($sql);
+
+		self::clearCache();
+	}
+	
 	static function getRosters() {
 		$cache = DevblocksPlatform::getCacheService();
 		
@@ -511,7 +527,7 @@ class DAO_Group extends Cerb_ORMHelper {
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY g.id ' : '').
 			$sort_sql;
-			
+		
 		if($limit > 0) {
 			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		} else {
@@ -551,6 +567,7 @@ class SearchFields_Group implements IDevblocksSearchFields {
 	const NAME = 'g_name';
 	const CREATED = 'g_created';
 	const IS_DEFAULT = 'g_is_default';
+	const IS_PRIVATE = 'g_is_private';
 	const UPDATED = 'g_updated';
 	
 	const CONTEXT_LINK = 'cl_context_from';
@@ -570,6 +587,7 @@ class SearchFields_Group implements IDevblocksSearchFields {
 			self::NAME => new DevblocksSearchField(self::NAME, 'g', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'g', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE),
 			self::IS_DEFAULT => new DevblocksSearchField(self::IS_DEFAULT, 'g', 'is_default', $translate->_('common.default'), Model_CustomField::TYPE_CHECKBOX),
+			self::IS_PRIVATE => new DevblocksSearchField(self::IS_PRIVATE, 'g', 'is_private', $translate->_('common.private'), Model_CustomField::TYPE_CHECKBOX),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'g', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
@@ -600,11 +618,24 @@ class Model_Group {
 	public $name;
 	public $count;
 	public $is_default = 0;
+	public $is_private = 0;
 	public $created;
 	public $updated;
 	
 	public function __toString() {
 		return $this->name;
+	}
+	
+	public function isReadableByWorker(Model_Worker $worker) {
+		// If the group is public
+		if(!$this->is_private)
+			return true;
+		
+		// If the worker is an admin or a group member
+		if($worker->is_superuser || $worker->isGroupMember($this->id))
+			return true;
+		
+		return false;
 	}
 	
 	public function getMembers() {
@@ -779,6 +810,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 
 		$this->view_columns = array(
 			SearchFields_Group::NAME,
+			SearchFields_Group::IS_PRIVATE,
 			SearchFields_Group::IS_DEFAULT,
 			SearchFields_Group::UPDATED,
 		);
@@ -898,6 +930,11 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Group::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'private' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_Group::IS_PRIVATE),
+				),
 			'updated' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -963,6 +1000,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				break;
 				
 			case SearchFields_Group::IS_DEFAULT:
+			case SearchFields_Group::IS_PRIVATE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
@@ -1035,6 +1073,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				break;
 				
 			case SearchFields_Group::IS_DEFAULT:
+			case SearchFields_Group::IS_PRIVATE:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
@@ -1231,6 +1270,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'created' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
 			'is_default' => $prefix.$translate->_('common.default'),
+			'is_private' => $prefix.$translate->_('common.private'),
 			'name' => $prefix.$translate->_('common.name'),
 			'updated' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
@@ -1242,6 +1282,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'created' => Model_CustomField::TYPE_DATE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'is_default' => Model_CustomField::TYPE_CHECKBOX,
+			'is_private' => Model_CustomField::TYPE_CHECKBOX,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
@@ -1269,6 +1310,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values['created'] = $group->created;
 			$token_values['id'] = $group->id;
 			$token_values['is_default'] = $group->is_default;
+			$token_values['is_private'] = $group->is_private;
 			$token_values['name'] = $group->name;
 			$token_values['updated'] = $group->updated;
 			$token_values['reply_address_id'] = $group->getReplyFrom();
@@ -1460,6 +1502,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$view->view_columns = array(
 			SearchFields_Group::NAME,
 			SearchFields_Group::IS_DEFAULT,
+			SearchFields_Group::IS_PRIVATE,
 			SearchFields_Group::UPDATED,
 		);
 		$view->addParams(array(
@@ -1505,6 +1548,14 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		if(!empty($context_id) && null != ($group = DAO_Group::get($context_id))) {
 			$tpl->assign('group', $group);
 		}
+		
+		// Members
+		
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		if(isset($group) && $group instanceof Model_Group && false != ($members = $group->getMembers()))
+			$tpl->assign('members', $members);
 		
 		// Custom fields
 		

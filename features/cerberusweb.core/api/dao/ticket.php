@@ -4715,14 +4715,16 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$messages = $ticket->getMessages();
 		}
 		
-		// Permissions
+		if(false == ($group = $ticket->getGroup()))
+			return;
 
+		// Permissions
+		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$active_worker_memberships = $active_worker->getMemberships();
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		// Check group membership ACL
-		if(!isset($active_worker_memberships[$ticket->group_id])) {
+		if(!$group->isReadableByWorker($active_worker)) {
 			echo $translate->_('common.access_denied');
 			return;
 		}
