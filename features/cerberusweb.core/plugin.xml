@@ -2719,19 +2719,6 @@
 		</extension>
 
 		<extension point="cerberusweb.page">
-			<id>core.page.groups</id>
-			<name>Groups Page</name>
-			<class>
-				<file>api/uri/groups.php</file>
-				<name>ChGroupsPage</name>
-			</class>
-			<params>
-				<param key="uri" value="groups" />
-				<param key="menutitle" value="" />
-			</params>
-		</extension>
-
-		<extension point="cerberusweb.page">
 			<id>core.page.contacts</id>
 			<name>Contacts Page</name>
 			<class>

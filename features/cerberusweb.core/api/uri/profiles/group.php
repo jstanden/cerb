@@ -45,6 +45,26 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$properties = array();
+		
+		$reply_to = $group->getReplyTo();
+		
+		$properties['reply_to'] = array(
+			'label' => ucfirst($translate->_('common.email')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $reply_to->email,
+		);
+		
+		$properties['is_default'] = array(
+			'label' => ucfirst($translate->_('common.default')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $group->is_default,
+		);
+		
+		$properties['is_private'] = array(
+			'label' => ucfirst($translate->_('common.private')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $group->is_private,
+		);
 				
 		// Custom Fields
 
@@ -111,6 +131,124 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/group.tpl');
 	}
+	
+	function savePeekAction() {
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+
+		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
+		@$is_private = DevblocksPlatform::importGPC($_REQUEST['is_private'],'integer',0);
+
+		$fields = array(
+			DAO_Group::NAME => $name,
+			DAO_Group::IS_PRIVATE => $is_private,
+		);
+		
+		if(empty($group_id)) { // new
+			$group_id = DAO_Group::create($fields);
+			
+			// View marquee
+			if(!empty($group_id) && !empty($view_id)) {
+				C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_GROUP, $group_id);
+			}
+			
+		} else { // update
+			DAO_Group::update($group_id, $fields);
+		}
+		
+		// Members
+		
+		@$member_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['member_ids'], 'array', array()), 'int');
+		@$member_levels = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['member_levels'], 'array', array()), 'int');
+		
+		DAO_Group::clearGroupMembers($group_id);
+		
+		foreach($member_ids as $idx => $member_id) {
+			if(!isset($member_levels[$idx]))
+				continue;
+			
+			$is_member = 0 != $member_levels[$idx];
+			$is_manager = 2 == $member_levels[$idx];
+			
+			if(!$is_member)
+				continue;
+			
+			DAO_Group::setGroupMember($group_id, $member_id, $is_manager);
+		}
+
+		// Settings
+		
+		@$subject_has_mask = DevblocksPlatform::importGPC($_REQUEST['subject_has_mask'],'integer',0);
+		@$subject_prefix = DevblocksPlatform::importGPC($_REQUEST['subject_prefix'],'string','');
+
+		DAO_GroupSettings::set($group_id, DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK, $subject_has_mask);
+		DAO_GroupSettings::set($group_id, DAO_GroupSettings::SETTING_SUBJECT_PREFIX, $subject_prefix);
+		
+		// Custom field saves
+		
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+		DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_GROUP, $group_id, $field_ids);
+		
+		exit;
+	}
+	
+	function showMembersTabAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		
+		if(!$id || false == ($group = DAO_Group::get($id)))
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = 'group_members';
+		$defaults->name = 'Members';
+		$defaults->class_name = 'View_Worker';
+		$defaults->renderSubtotals = '';
+		
+		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
+		
+		$view->addParamsRequired(array(
+			new DevblocksSearchCriteria(SearchFields_Worker::VIRTUAL_GROUPS, DevblocksSearchCriteria::OPER_IN, array($group->id)),
+		), true);
+		
+		$tpl->assign('view', $view);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
+	}
+	
+	function showBucketsTabAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		
+		if(!$id || false == ($group = DAO_Group::get($id)))
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = 'group_buckets';
+		$defaults->name = 'Buckets';
+		$defaults->class_name = 'View_Bucket';
+		$defaults->view_columns = array(
+			SearchFields_Bucket::NAME,
+			SearchFields_Bucket::IS_DEFAULT,
+			SearchFields_Bucket::UPDATED_AT,
+		);
+		$defaults->renderSortBy = SearchFields_Bucket::NAME;
+		$defaults->renderSortAsc = true;
+		$defaults->renderSubtotals = '';
+
+		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
+		
+		$view->addParamsRequired(array(
+			new DevblocksSearchCriteria(SearchFields_Bucket::GROUP_ID, '=', $group->id),
+		), true);
+		
+		$tpl->assign('view', $view);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
+	}
+	
 
 	function viewExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');

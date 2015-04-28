@@ -1569,6 +1569,11 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
 		
+		// Settings
+		
+		if(false != ($group_settings = DAO_GroupSettings::getSettings($context_id)))
+			$tpl->assign('group_settings', $group_settings);
+		
 		// Template
 		
 		$tpl->display('devblocks:cerberusweb.core::groups/peek.tpl');

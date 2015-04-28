@@ -2,43 +2,22 @@
 {$page_context_id = $group->id}
 
 {$members = $group->getMembers()}
-{$reply_to = $group->getReplyTo()}
+{$buckets = $group->getBuckets()}
 
-{$gravatar_plugin = DevblocksPlatform::getPlugin('cerberusweb.gravatar')}
-{$gravatar_enabled = $gravatar_plugin && $gravatar_plugin->enabled}
+<div style="float:left;">
+	<h1>{$group->name}</h1>
+</div>
 
-<table cellpadding="0" cellspacing="0" border="0" width="100%">
-	<tr>
-		<td width="1%" nowrap="nowrap" rowspan="2" valign="top" style="padding-left:10px;">
-			{if $gravatar_enabled}
-			<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$reply_to->email|trim|lower|md5}?s=64&d={CerberusApplication::getGravatarDefaultIcon()}" height="64" width="64" border="0" style="margin:0px 5px 5px 0px;border-radius:40px;">
-			{/if}
-		</td>
-		<td width="98%" valign="top">
-			<h1 style="color:rgb(0,120,0);font-weight:bold;font-size:150%;margin:0px;">{$group->name}</h1>
-			{$reply_to->email}<br>
-		</td>
-		<td width="1%" nowrap="nowrap" align="right">
-			{$ctx = Extension_DevblocksContext::get($page_context)}
-			{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
-		</td>
-	</tr>
-	<tr>
-		<td colspan="2">
-			{if !empty($members)}
-			<ul class="bubbles">
-				{$member_count = $members|count}
-				<li><span style="font-weight:bold;">{$member_count} {if $member_count==1}member{else}members{/if}</span></li>
-			</ul>
-			{/if}
-		</td>
-	</tr>
-</table>
+<div style="float:right;">
+	{$ctx = Extension_DevblocksContext::get($page_context)}
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
+</div>
 
 <div style="clear:both;"></div>
 
 <div class="cerb-profile-toolbar">
-	<form class="toolbar" action="javascript:;" method="POST" style="margin-top:5px;" onsubmit="return false;">
+	<form class="toolbar" action="javascript:;" method="POST" onsubmit="return false;">
+	
 		<!-- Macros -->
 		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}
 			{if !empty($page_context) && !empty($page_context_id) && !empty($macros)}
@@ -93,6 +72,12 @@
 		{$tabs = []}
 		{$point = "cerberusweb.profiles.group.{$group->id}"}
 		
+		{$tabs[] = 'members'}
+		<li><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=group&action=showMembersTab&point={$point}&id={$page_context_id}{/devblocks_url}">{'common.members'|devblocks_translate|capitalize} <div class="tab-badge">{$members|count}</div></a></li>
+
+		{$tabs[] = 'buckets'}
+		<li><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=group&action=showBucketsTab&point={$point}&id={$page_context_id}{/devblocks_url}">{'common.buckets'|devblocks_translate|capitalize} <div class="tab-badge">{$buckets|count}</div></a></li>
+		
 		{$tabs[] = 'activity'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=both&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
 		
@@ -102,9 +87,6 @@
 		{$tabs[] = 'links'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&point={$point}&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.links'|devblocks_translate|capitalize} <div class="tab-badge">{DAO_ContextLink::count($page_context, $page_context_id)|default:0}</div></a></li>
 		
-		{$tabs[] = 'members'}
-		<li><a href="#members">Members</a></li>
-
 		{if $active_worker->is_superuser || $active_worker->isGroupManager($group->id)}
 		{$tabs[] = 'attendants'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAttendantsTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">Virtual Attendants</a></li>
@@ -126,30 +108,6 @@
 		{/foreach}
 	</ul>
 	
-	<div id="members">
-		{foreach from=$members item=member}
-		{if isset($workers.{$member->id})}
-			{$worker = $workers.{$member->id}}
-			<fieldset>
-				<div style="float:left;">
-					{if $gravatar_enabled}
-					<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$worker->email|trim|lower|md5}?s=64&d={CerberusApplication::getGravatarDefaultIcon()}" height="64" width="64" border="0" style="margin:0px 5px 5px 0px;border-radius:40px;">
-					{/if}
-				</div>
-				<div style="float:left;">
-					<a href="{devblocks_url}c=profiles&k=worker&id={$worker->id}-{$worker->getName()|devblocks_permalink}{/devblocks_url}" style="color:rgb(0,120,0);font-weight:bold;font-size:150%;margin:0px;">{$worker->getName()}</a><br>
-					{if !empty($worker->title)}{$worker->title}<br>{/if}
-
-					{if $member->is_manager}
-					<ul class="bubbles">
-						<li style="font-weight:bold;">Manager</li>
-					</ul>
-					{/if}
-				</div>
-			</fieldset>
-		{/if}
-		{/foreach}
-	</div>
 </div>
 <br>
 

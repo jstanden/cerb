@@ -39,21 +39,6 @@
 		</ul>
 	</li>
 
-	{$is_manager = false}
-
-	{if !empty($active_worker_memberships)}
-	{foreach from=$active_worker_memberships item=member}
-		{if $member->is_manager}
-			{$is_manager = true}
-		{/if}
-	{/foreach}
-	{/if}
-
-	{if $active_worker->is_superuser || $is_manager}
-	<li class="{if $page->id=='core.page.groups'}selected{/if}" style="float:right;">
-		<a href="{devblocks_url}c=groups{/devblocks_url}">{'common.groups'|devblocks_translate|lower}</a>
-	</li>
-	{/if}
 </ul>
 <div style="clear:both;background-color:rgb(100,135,225);height:5px;"></div>
 
