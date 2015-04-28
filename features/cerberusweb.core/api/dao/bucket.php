@@ -15,7 +15,7 @@
 |	http://www.cerbweb.com	    http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_Bucket extends DevblocksORMHelper {
+class DAO_Bucket extends Cerb_ORMHelper {
 	const CACHE_ALL = 'cerberus_cache_buckets_all';
 	
 	const ID = 'id';
@@ -331,6 +331,227 @@ class DAO_Bucket extends DevblocksORMHelper {
 		$cache->remove(self::CACHE_ALL);
 	}
 	
+	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
+		$fields = SearchFields_Bucket::getFields();
+		
+		// Sanitize
+		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]))
+			$sortBy=null;
+
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		
+		$select_sql = sprintf("SELECT ".
+			"bucket.id as %s, ".
+			"bucket.group_id as %s, ".
+			"bucket.name as %s, ".
+			"bucket.reply_address_id as %s, ".
+			"bucket.reply_personal as %s, ".
+			"bucket.reply_signature as %s, ".
+			"bucket.reply_html_template_id as %s, ".
+			"bucket.updated_at as %s, ".
+			"bucket.is_default as %s ",
+				SearchFields_Bucket::ID,
+				SearchFields_Bucket::GROUP_ID,
+				SearchFields_Bucket::NAME,
+				SearchFields_Bucket::REPLY_ADDRESS_ID,
+				SearchFields_Bucket::REPLY_PERSONAL,
+				SearchFields_Bucket::REPLY_SIGNATURE,
+				SearchFields_Bucket::REPLY_HTML_TEMPLATE_ID,
+				SearchFields_Bucket::UPDATED_AT,
+				SearchFields_Bucket::IS_DEFAULT
+			);
+			
+		$join_sql = "FROM bucket ".
+			(isset($tables['context_link']) ? sprintf("INNER JOIN context_link ON (context_link.to_context = %s AND context_link.to_context_id = bucket.id) ", Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_BUCKET)) : " ").
+			'';
+		
+		// Custom field joins
+		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
+			$tables,
+			$params,
+			'bucket.id',
+			$select_sql,
+			$join_sql
+		);
+				
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
+			
+		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
+	
+		// Virtuals
+		
+		$args = array(
+			'join_sql' => &$join_sql,
+			'where_sql' => &$where_sql,
+			'tables' => &$tables,
+			'has_multiple_values' => &$has_multiple_values
+		);
+	
+		array_walk_recursive(
+			$params,
+			array('DAO_Bucket', '_translateVirtualParameters'),
+			$args
+		);
+		
+		return array(
+			'primary_table' => 'bucket',
+			'select' => $select_sql,
+			'join' => $join_sql,
+			'where' => $where_sql,
+			'has_multiple_values' => $has_multiple_values,
+			'sort' => $sort_sql,
+		);
+	}
+	
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+			
+		$from_context = CerberusContexts::CONTEXT_BUCKET;
+		$from_index = 'bucket.id';
+		
+		$param_key = $param->field;
+		settype($param_key, 'string');
+		
+		switch($param_key) {
+			case SearchFields_Bucket::VIRTUAL_CONTEXT_LINK:
+				$args['has_multiple_values'] = true;
+				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
+		
+			case SearchFields_Bucket::VIRTUAL_HAS_FIELDSET:
+				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
+		
+			case SearchFields_Bucket::VIRTUAL_WATCHERS:
+				$args['has_multiple_values'] = true;
+				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql'], $args['tables']);
+				break;
+		}
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param array $columns
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Build search queries
+		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
+
+		$select_sql = $query_parts['select'];
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+		$has_multiple_values = $query_parts['has_multiple_values'];
+		$sort_sql = $query_parts['sort'];
+		
+		$sql =
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			($has_multiple_values ? 'GROUP BY bucket.id ' : '').
+			$sort_sql;
+			
+		if($limit > 0) {
+			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs mysqli_result */
+		} else {
+			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs mysqli_result */
+			$total = mysqli_num_rows($rs);
+		}
+		
+		$results = array();
+		
+		while($row = mysqli_fetch_assoc($rs)) {
+			$object_id = intval($row[SearchFields_Bucket::ID]);
+			$results[$object_id] = $row;
+		}
+
+		$total = count($results);
+		
+		if($withCounts) {
+			// We can skip counting if we have a less-than-full single page
+			if(!(0 == $page && $total < $limit)) {
+				$count_sql =
+					($has_multiple_values ? "SELECT COUNT(DISTINCT bucket.id) " : "SELECT COUNT(bucket.id) ").
+					$join_sql.
+					$where_sql;
+				$total = $db->GetOneSlave($count_sql);
+			}
+		}
+		
+		mysqli_free_result($rs);
+		
+		return array($results,$total);
+	}
+	
+};
+
+class SearchFields_Bucket implements IDevblocksSearchFields {
+	const ID = 'b_id';
+	const GROUP_ID = 'b_group_id';
+	const NAME = 'b_name';
+	const REPLY_ADDRESS_ID = 'b_reply_address_id';
+	const REPLY_PERSONAL = 'b_reply_personal';
+	const REPLY_SIGNATURE = 'b_reply_signature';
+	const REPLY_HTML_TEMPLATE_ID = 'b_reply_html_template_id';
+	const UPDATED_AT = 'b_updated_at';
+	const IS_DEFAULT = 'b_is_default';
+
+	const VIRTUAL_CONTEXT_LINK = '*_context_link';
+	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
+	const VIRTUAL_WATCHERS = '*_workers';
+	
+	const CONTEXT_LINK = 'cl_context_from';
+	const CONTEXT_LINK_ID = 'cl_context_from_id';
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function getFields() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$columns = array(
+			self::ID => new DevblocksSearchField(self::ID, 'bucket', 'id', $translate->_('common.id')),
+			self::GROUP_ID => new DevblocksSearchField(self::GROUP_ID, 'bucket', 'group_id', $translate->_('common.group')),
+			self::NAME => new DevblocksSearchField(self::NAME, 'bucket', 'name', $translate->_('common.name')),
+			self::REPLY_ADDRESS_ID => new DevblocksSearchField(self::REPLY_ADDRESS_ID, 'bucket', 'reply_address_id', $translate->_('dao.bucket.reply_address_id')),
+			self::REPLY_PERSONAL => new DevblocksSearchField(self::REPLY_PERSONAL, 'bucket', 'reply_personal', $translate->_('dao.bucket.reply_personal')),
+			self::REPLY_SIGNATURE => new DevblocksSearchField(self::REPLY_SIGNATURE, 'bucket', 'reply_signature', $translate->_('dao.bucket.reply_signature')),
+			self::REPLY_HTML_TEMPLATE_ID => new DevblocksSearchField(self::REPLY_HTML_TEMPLATE_ID, 'bucket', 'reply_html_template_id', $translate->_('dao.bucket.reply_html_template_id')),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'bucket', 'updated_at', $translate->_('common.updated')),
+			self::IS_DEFAULT => new DevblocksSearchField(self::IS_DEFAULT, 'bucket', 'is_default', $translate->_('common.default')),
+				
+			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
+			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
+			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
+			
+			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
+			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
+		);
+		
+		// Custom Fields
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
+			CerberusContexts::CONTEXT_BUCKET,
+		));
+		
+		if(!empty($custom_columns))
+			$columns = array_merge($columns, $custom_columns);
+
+		// Sort by label (translation-conscious)
+		DevblocksPlatform::sortObjects($columns, 'db_label');
+
+		return $columns;
+	}
 };
 
 class Model_Bucket {
@@ -521,8 +742,40 @@ class Model_Bucket {
 	}
 };
 
-class Context_Bucket extends Extension_DevblocksContext {
-	const ID = 'cerberusweb.contexts.bucket';
+class Context_Bucket extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+	const ID = CerberusContexts::CONTEXT_BUCKET;
+	
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::getUrlService();
+		$url = $url_writer->writeNoProxy('c=profiles&type=bucket&id='.$context_id, true);
+		return $url;
+	}
+	
+	function getMeta($context_id) {
+		$bucket = DAO_Bucket::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		$url = $this->profileGetUrl($context_id);
+		$friendly = DevblocksPlatform::strToPermalink($bucket->name);
+		
+		if(!empty($friendly))
+			$url .= '-' . $friendly;
+		
+		return array(
+			'id' => $bucket->id,
+			'name' => $bucket->name,
+			'permalink' => $url,
+		);
+	}
+	
+	function getDefaultProperties() {
+		return array(
+			'updated_at',
+		);
+	}
 	
 	function authorize($context_id, Model_Worker $worker) {
 		// Security
@@ -550,30 +803,11 @@ class Context_Bucket extends Extension_DevblocksContext {
 		return DAO_Bucket::random();
 	}
 	
-	function getMeta($context_id) {
-		$url = '';
-		
-		if(null == ($bucket = DAO_Bucket::get($context_id)))
-			return false;
-		
-		//$who = DevblocksPlatform::strToPermalink($bucket->name);
-		
-		//if(!empty($who))
-		//	$url .= '-' . $who;
-		
-		return array(
-			'id' => $bucket->id,
-			'name' => $bucket->name,
-			'permalink' => $url,
-		);
-	}
-	
 	function getContext($bucket, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Bucket:';
 			
 		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_BUCKET);
 		
 		// Polymorph
 		if(is_numeric($bucket)) {
@@ -596,7 +830,7 @@ class Context_Bucket extends Extension_DevblocksContext {
 			'is_default' => $prefix.$translate->_('common.default'),
 			'name' => $prefix.$translate->_('common.name'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
-			//'record_url' => $prefix.$translate->_('common.url.record'),
+			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		// Token types
@@ -606,16 +840,21 @@ class Context_Bucket extends Extension_DevblocksContext {
 			'is_default' => Model_CustomField::TYPE_CHECKBOX,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
-			//'record_url' => Model_CustomField::TYPE_URL,
+			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom fields
 		
-		if(is_array($fields))
-		foreach($fields as $cf_id => $field) {
-			$token_labels['worker_custom_'.$cf_id] = $prefix.$field->name;
-		}
-
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_BUCKET);
+		
+		// Custom field/fieldset token labels
+		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+			$token_labels = array_merge($token_labels, $custom_field_labels);
+		
+		// Custom field/fieldset token types
+		if(false !== ($custom_field_types = $this->_getTokenTypesFromCustomFields($fields, $prefix)) && is_array($custom_field_types))
+			$token_types = array_merge($token_types, $custom_field_types);
+		
 		// Token values
 		$token_values = array();
 
@@ -636,8 +875,8 @@ class Context_Bucket extends Extension_DevblocksContext {
 			$token_values = $this->_importModelCustomFieldsAsValues($bucket, $token_values);
 			
 			// URL
-			//$url_writer = DevblocksPlatform::getUrlService();
-			//$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=group&id=%d-%s",$group->id, DevblocksPlatform::strToPermalink($group->name)), true);
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=bucket&id=%d-%s",$bucket->id, DevblocksPlatform::strToPermalink($bucket->name)), true);
 		}
 		
 		return true;
@@ -688,14 +927,16 @@ class Context_Bucket extends Extension_DevblocksContext {
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Buckets';
-		//$view->view_columns = array(
-			//SearchFields_Bucket::NAME,
-		//);
+		$view->view_columns = array(
+			SearchFields_Bucket::NAME,
+			SearchFields_Bucket::GROUP_ID,
+			SearchFields_Bucket::UPDATED_AT,
+		);
 		$view->addParams(array(
 //			SearchFields_Bucket::IS_DISABLED => new DevblocksSearchCriteria(SearchFields_Bucket::IS_DISABLED,'=',0),
 		), true);
-//		$view->renderSortBy = SearchFields_Group::NAME;
-//		$view->renderSortAsc = true;
+		$view->renderSortBy = SearchFields_Bucket::NAME;
+		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
 		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
@@ -709,6 +950,12 @@ class Context_Bucket extends Extension_DevblocksContext {
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id;
 		$defaults->class_name = $this->getViewClass();
+		$defaults->view_columns = array(
+			SearchFields_Bucket::GROUP_ID,
+			SearchFields_Bucket::NAME,
+			SearchFields_Bucket::UPDATED_AT,
+		);
+		
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Buckets';
 		
@@ -725,5 +972,482 @@ class Context_Bucket extends Extension_DevblocksContext {
 		
 		$view->renderTemplate = 'context';
 		return $view;
+	}
+	
+	function renderPeekPopup($context_id=0, $view_id='') {
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view_id);
+		
+		if($context_id && null != ($bucket = DAO_Bucket::get($context_id))) {
+			$tpl->assign('bucket', $bucket);
+		
+			if(false != ($group = $bucket->getGroup())) {
+				$tpl->assign('group', $group);
+				$tpl->assign('members', $group->getMembers());
+			}
+		}
+		
+		// Groups
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
+
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+
+		// Reply-to Addresses
+		
+		$tpl->assign('replyto_addresses', DAO_AddressOutgoing::getAll());
+		
+		// Custom fields
+		
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_BUCKET, false);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		if(!empty($context_id)) {
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_BUCKET, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+		}
+		
+		// Signature
+		
+		$worker_token_labels = array();
+		$worker_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $worker_token_labels, $worker_token_values);
+		$tpl->assign('worker_token_labels', $worker_token_labels);
+
+		// HTML templates
+		
+		$html_templates = DAO_MailHtmlTemplate::getAll();
+		$tpl->assign('html_templates', $html_templates);
+
+		// Template
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/bucket/peek.tpl');
+	}
+};
+
+class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
+	const DEFAULT_ID = 'buckets';
+
+	function __construct() {
+		$translate = DevblocksPlatform::getTranslationService();
+	
+		$this->id = self::DEFAULT_ID;
+		$this->name = mb_convert_case($translate->_('common.buckets'), MB_CASE_TITLE);
+		$this->renderLimit = 25;
+		$this->renderSortBy = SearchFields_Bucket::NAME;
+		$this->renderSortAsc = true;
+
+		$this->view_columns = array(
+			SearchFields_Bucket::GROUP_ID,
+			SearchFields_Bucket::NAME,
+			SearchFields_Bucket::UPDATED_AT,
+		);
+		
+		$this->addColumnsHidden(array(
+			SearchFields_Bucket::REPLY_ADDRESS_ID,
+			SearchFields_Bucket::REPLY_PERSONAL,
+			SearchFields_Bucket::REPLY_SIGNATURE,
+			SearchFields_Bucket::REPLY_HTML_TEMPLATE_ID,
+			SearchFields_Bucket::VIRTUAL_CONTEXT_LINK,
+			SearchFields_Bucket::VIRTUAL_HAS_FIELDSET,
+			SearchFields_Bucket::VIRTUAL_WATCHERS,
+		));
+		
+		$this->addParamsHidden(array(
+		));
+		
+		$this->doResetCriteria();
+	}
+
+	function getData() {
+		$objects = DAO_Bucket::search(
+			$this->view_columns,
+			$this->getParams(),
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc,
+			$this->renderTotal
+		);
+		return $objects;
+	}
+	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_Bucket', $ids);
+	}
+	
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_Bucket', $size);
+	}
+
+	function getSubtotalFields() {
+		$all_fields = $this->getParamsAvailable(true);
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// Fields
+//				case SearchFields_Bucket::EXAMPLE:
+//					$pass = true;
+//					break;
+					
+				// Virtuals
+				case SearchFields_Bucket::VIRTUAL_CONTEXT_LINK:
+				case SearchFields_Bucket::VIRTUAL_HAS_FIELDSET:
+				case SearchFields_Bucket::VIRTUAL_WATCHERS:
+					$pass = true;
+					break;
+					
+				// Valid custom fields
+				default:
+					if('cf_' == substr($field_key,0,3))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column) {
+		$counts = array();
+		$fields = $this->getFields();
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+//			case SearchFields_Bucket::EXAMPLE_BOOL:
+//				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Bucket', $column);
+//				break;
+
+//			case SearchFields_Bucket::EXAMPLE_STRING:
+//				$counts = $this->_getSubtotalCountForStringColumn('DAO_Bucket', $column);
+//				break;
+				
+			case SearchFields_Bucket::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Bucket', CerberusContexts::CONTEXT_BUCKET, $column);
+				break;
+
+			case SearchFields_Bucket::VIRTUAL_HAS_FIELDSET:
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_Bucket', CerberusContexts::CONTEXT_BUCKET, $column);
+				break;
+				
+			case SearchFields_Bucket::VIRTUAL_WATCHERS:
+				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_Bucket', $column);
+				break;
+			
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn('DAO_Bucket', $column, 'bucket.id');
+				}
+				
+				break;
+		}
+		
+		return $counts;
+	}
+	
+	function getQuickSearchFields() {
+		// [TODO] Group
+	
+		$fields = array(
+			'_fulltext' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Bucket::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'name' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Bucket::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'updated' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_Bucket::UPDATED_AT),
+				),
+			/*
+			'watchers' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'options' => array('param_key' => SearchFields_Bucket::VIRTUAL_WATCHERS),
+				),
+			*/
+		);
+		
+		// Add searchable custom fields
+		
+		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_BUCKET, $fields, null);
+		
+		// Sort by keys
+		ksort($fields);
+		
+		return $fields;
+	}	
+	
+	function getParamsFromQuickSearchFields($fields) {
+		$search_fields = $this->getQuickSearchFields();
+		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
+
+		// Handle virtual fields and overrides
+		if(is_array($fields))
+		foreach($fields as $k => $v) {
+			switch($k) {
+				// ...
+			}
+		}
+		
+		$this->renderPage = 0;
+		$this->addParams($params, true);
+		
+		return $params;
+	}
+	
+	function render() {
+		$this->_sanitize();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
+
+		// Groups
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		// Custom fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_BUCKET);
+		$tpl->assign('custom_fields', $custom_fields);
+
+		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/bucket/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
+	}
+
+	function renderCriteria($field) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+
+		switch($field) {
+			case SearchFields_Bucket::NAME:
+			case SearchFields_Bucket::REPLY_PERSONAL:
+			case SearchFields_Bucket::REPLY_SIGNATURE:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
+				break;
+				
+			case SearchFields_Bucket::ID:
+			case SearchFields_Bucket::REPLY_ADDRESS_ID:
+			case SearchFields_Bucket::REPLY_HTML_TEMPLATE_ID:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
+				break;
+				
+			case SearchFields_Bucket::IS_DEFAULT:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
+				break;
+				
+			case SearchFields_Bucket::UPDATED_AT:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
+				break;
+				
+			case SearchFields_Bucket::GROUP_ID:
+				// [TODO]
+				break;
+				
+			case SearchFields_Bucket::VIRTUAL_CONTEXT_LINK:
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
+				break;
+				
+			case SearchFields_Bucket::VIRTUAL_HAS_FIELDSET:
+				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_BUCKET);
+				break;
+				
+			case SearchFields_Bucket::VIRTUAL_WATCHERS:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
+				break;
+				
+			default:
+				// Custom Fields
+				if('cf_' == substr($field,0,3)) {
+					$this->_renderCriteriaCustomField($tpl, substr($field,3));
+				} else {
+					echo ' ';
+				}
+				break;
+		}
+	}
+
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
+
+		switch($field) {
+			default:
+				parent::renderCriteriaParam($param);
+				break;
+		}
+	}
+
+	function renderVirtualCriteria($param) {
+		$key = $param->field;
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		switch($key) {
+			case SearchFields_Bucket::VIRTUAL_CONTEXT_LINK:
+				$this->_renderVirtualContextLinks($param);
+				break;
+				
+			case SearchFields_Bucket::VIRTUAL_HAS_FIELDSET:
+				$this->_renderVirtualHasFieldset($param);
+				break;
+			
+			case SearchFields_Bucket::VIRTUAL_WATCHERS:
+				$this->_renderVirtualWatchers($param);
+				break;
+		}
+	}
+
+	function getFields() {
+		return SearchFields_Bucket::getFields();
+	}
+
+	function doSetCriteria($field, $oper, $value) {
+		$criteria = null;
+
+		switch($field) {
+			case SearchFields_Bucket::NAME:
+			case SearchFields_Bucket::REPLY_PERSONAL:
+			case SearchFields_Bucket::REPLY_SIGNATURE:
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
+				break;
+				
+			case SearchFields_Bucket::ID:
+			case SearchFields_Bucket::REPLY_ADDRESS_ID:
+			case SearchFields_Bucket::REPLY_HTML_TEMPLATE_ID:
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				break;
+				
+			case SearchFields_Bucket::UPDATED_AT:
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
+				break;
+				
+			case SearchFields_Bucket::IS_DEFAULT:
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_Bucket::GROUP_ID:
+				break;
+				
+			case SearchFields_Bucket::VIRTUAL_CONTEXT_LINK:
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
+				break;
+				
+			case SearchFields_Bucket::VIRTUAL_HAS_FIELDSET:
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
+				break;
+				
+			case SearchFields_Bucket::VIRTUAL_WATCHERS:
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
+				break;
+				
+			default:
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				}
+				break;
+		}
+
+		if(!empty($criteria)) {
+			$this->addParam($criteria, $field);
+			$this->renderPage = 0;
+		}
+	}
+		
+	function doBulkUpdate($filter, $do, $ids=array()) {
+		@set_time_limit(600); // 10m
+	
+		$change_fields = array();
+		$custom_fields = array();
+
+		// Make sure we have actions
+		if(empty($do))
+			return;
+
+		// Make sure we have checked items if we want a checked list
+		if(0 == strcasecmp($filter,"checks") && empty($ids))
+			return;
+			
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				// [TODO] Implement actions
+				case 'example':
+					//$change_fields[DAO_Bucket::EXAMPLE] = 'some value';
+					break;
+					
+				default:
+					// Custom fields
+					if(substr($k,0,3)=="cf_") {
+						$custom_fields[substr($k,3)] = $v;
+					}
+					break;
+			}
+		}
+
+		$pg = 0;
+
+		if(empty($ids))
+		do {
+			list($objects,$null) = DAO_Bucket::search(
+				array(),
+				$this->getParams(),
+				100,
+				$pg++,
+				SearchFields_Bucket::ID,
+				true,
+				false
+			);
+			$ids = array_merge($ids, array_keys($objects));
+			 
+		} while(!empty($objects));
+
+		$batch_total = count($ids);
+		for($x=0;$x<=$batch_total;$x+=100) {
+			$batch_ids = array_slice($ids,$x,100);
+			
+			if(!empty($change_fields)) {
+				DAO_Bucket::update($batch_ids, $change_fields);
+			}
+
+			// Custom Fields
+			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_BUCKET, $custom_fields, $batch_ids);
+			
+			unset($batch_ids);
+		}
+
+		unset($ids);
 	}
 };

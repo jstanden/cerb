@@ -127,8 +127,11 @@
 		</file>
 		
 		<file path="api/dao/bucket.php">
+			<class name="Context_Bucket" />
 			<class name="DAO_Bucket" />
 			<class name="Model_Bucket" />
+			<class name="SearchFields_Bucket" />
+			<class name="View_Bucket" />
 		</file>
 		
 		<file path="api/dao/calendar.php">
@@ -1074,16 +1077,15 @@
 				<param key="alias" value="bucket" />
 				<param key="dao_class" value="DAO_Bucket" />
 				<param key="view_class" value="View_Bucket" />
-				<!--
 				<param key="options">
 					<value>
+						<data key="custom_fields" />
 						<data key="find" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
 				</param>
-				-->
 			</params>
 		</extension>
 		
@@ -3264,6 +3266,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="address" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.bucket</id>
+				<name>Bucket Section</name>
+				<class>
+					<file>api/uri/profiles/bucket.php</file>
+					<name>PageSection_ProfilesBucket</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="bucket" />
 				</params>
 			</extension>
 			
