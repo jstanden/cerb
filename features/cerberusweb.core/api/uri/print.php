@@ -22,8 +22,8 @@ class ChPrintController extends DevblocksControllerExtension {
 	 * Request Overload
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
-		$worker = CerberusApplication::getActiveWorker();
-		if(empty($worker)) return;
+		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+			return;
 		
 		$stack = $request->path;
 		array_shift($stack); // print

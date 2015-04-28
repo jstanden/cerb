@@ -550,6 +550,7 @@ class SearchFields_Group implements IDevblocksSearchFields {
 	const ID = 'g_id';
 	const NAME = 'g_name';
 	const CREATED = 'g_created';
+	const IS_DEFAULT = 'g_is_default';
 	const UPDATED = 'g_updated';
 	
 	const CONTEXT_LINK = 'cl_context_from';
@@ -568,6 +569,7 @@ class SearchFields_Group implements IDevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'g', 'id', $translate->_('common.id')),
 			self::NAME => new DevblocksSearchField(self::NAME, 'g', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'g', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE),
+			self::IS_DEFAULT => new DevblocksSearchField(self::IS_DEFAULT, 'g', 'is_default', $translate->_('common.default'), Model_CustomField::TYPE_CHECKBOX),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'g', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
@@ -777,17 +779,16 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 
 		$this->view_columns = array(
 			SearchFields_Group::NAME,
+			SearchFields_Group::IS_DEFAULT,
 			SearchFields_Group::UPDATED,
 		);
 		
 		$this->addColumnsHidden(array(
-			SearchFields_Group::ID,
 			SearchFields_Group::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Group::VIRTUAL_CONTEXT_LINK,
 		));
 		
 		$this->addParamsHidden(array(
-			SearchFields_Group::ID,
 		));
 		
 		$this->doResetCriteria();
@@ -882,6 +883,11 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Group::CREATED),
 				),
+			'default' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_Group::IS_DEFAULT),
+				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
@@ -956,7 +962,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
-			case 'placeholder_bool':
+			case SearchFields_Group::IS_DEFAULT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
@@ -1028,7 +1034,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case 'placeholder_bool':
+			case SearchFields_Group::IS_DEFAULT:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
@@ -1222,8 +1228,9 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
-			'id' => $prefix.$translate->_('common.id'),
 			'created' => $prefix.$translate->_('common.created'),
+			'id' => $prefix.$translate->_('common.id'),
+			'is_default' => $prefix.$translate->_('common.default'),
 			'name' => $prefix.$translate->_('common.name'),
 			'updated' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
@@ -1232,8 +1239,9 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
-			'id' => Model_CustomField::TYPE_NUMBER,
 			'created' => Model_CustomField::TYPE_DATE,
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'is_default' => Model_CustomField::TYPE_CHECKBOX,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
@@ -1258,8 +1266,9 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		if(null != $group) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $group->name;
-			$token_values['id'] = $group->id;
 			$token_values['created'] = $group->created;
+			$token_values['id'] = $group->id;
+			$token_values['is_default'] = $group->is_default;
 			$token_values['name'] = $group->name;
 			$token_values['updated'] = $group->updated;
 			$token_values['reply_address_id'] = $group->getReplyFrom();
@@ -1450,6 +1459,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$view->name = 'Groups';
 		$view->view_columns = array(
 			SearchFields_Group::NAME,
+			SearchFields_Group::IS_DEFAULT,
 			SearchFields_Group::UPDATED,
 		);
 		$view->addParams(array(

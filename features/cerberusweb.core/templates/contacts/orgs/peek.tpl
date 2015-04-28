@@ -98,8 +98,8 @@
 	{else}
 		<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>
 	{/if}
-	 
-	 {if !empty($contact->id)}
+
+	{if !empty($contact->id)}
 	<div style="float:right;">
 		<a href="{devblocks_url}&c=profiles&type=org&id={$contact->id}-{$contact->name|devblocks_permalink}{/devblocks_url}">{'addy_book.peek.view_full'|devblocks_translate}</a>
 	</div>
