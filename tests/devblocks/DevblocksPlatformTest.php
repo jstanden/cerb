@@ -284,6 +284,20 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(10, $actual);
 	}
 	
+	public function testFloatClamp() {
+		// Inside bounds
+		$actual = DevblocksPlatform::floatClamp(0.5, 0.0, 1.0);
+		$this->assertEquals(0.5, $actual);
+		
+		// Below lower bounds
+		$actual = DevblocksPlatform::floatClamp(-5, 0.0, 1.0);
+		$this->assertEquals(0.0, $actual);
+		
+		// Exceeds upper bounds
+		$actual = DevblocksPlatform::floatClamp(20, 0.0, 1.0);
+		$this->assertEquals(1.0, $actual);
+	}
+	
 	public function testObjectsToStrings() {
 		// Objects (__toString)
 		$objects = array(

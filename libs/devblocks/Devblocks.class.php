@@ -228,6 +228,18 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
+	 * 
+	 * @param float $n The number to test
+	 * @param float $min Inclusive lower bounds
+	 * @param float $max Inclusive upper bounds
+	 * @return float
+	 * @test DevblocksPlatformTest
+	 */
+	static function floatClamp($n, $min, $max) {
+		return min(max((float)$n, $min), $max);
+	}
+	
+	/**
 	 * Returns a string as a regexp.
 	 * "*bob" returns "/(.*?)bob/".
 	 * @param string $string
