@@ -255,6 +255,22 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		return $view;
 	}
 	
+	static function getParticipants($ticket_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT %s AS context, address_id AS context_id, count(id) AS hits FROM message WHERE is_outgoing = 0 AND ticket_id = %d GROUP BY address_id ". 
+			"UNION ".
+			"SELECT %s AS context, worker_id AS context_id, count(id) FROM message WHERE is_outgoing = 1 AND worker_id > 0 AND ticket_id = %d GROUP BY worker_id",
+			$db->qstr(CerberusContexts::CONTEXT_ADDRESS),
+			$ticket_id,
+			$db->qstr(CerberusContexts::CONTEXT_WORKER),
+			$ticket_id
+		);
+		$results = $db->GetArraySlave($sql);
+		
+		return $results;
+	}
+	
 	/**
 	 * creates a new ticket object in the database
 	 *
@@ -2169,6 +2185,20 @@ class Model_Ticket {
 	function getRequesters() {
 		$requesters = DAO_Ticket::getRequestersByTicket($this->id);
 		return $requesters;
+	}
+	
+	function getParticipants() {
+		$results = DAO_Ticket::getParticipants($this->id);
+		$participants = array();
+		
+		foreach($results as $row) {
+			if(!isset($participants[$row['context']]))
+				$participants[$row['context']] = array();
+
+			$participants[$row['context']][$row['context_id']] = $row['hits'];
+		}
+		
+		return $participants;
 	}
 	
 	// Lazy load
