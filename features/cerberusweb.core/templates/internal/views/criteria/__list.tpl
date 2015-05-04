@@ -11,6 +11,6 @@
 <b>{'common.options'|devblocks_translate|capitalize}:</b><br>
 <blockquote style="margin:5px;">
 	{foreach from=$options item=opt key=k}
-		<label><input type="checkbox" name="options[]" value="{$k}"  {if is_array($param->value) && in_array($k,$param->value)}checked="checked"{/if}>{$opt}</label><br>
+		<label><input type="checkbox" name="options[]" value="{$k}"  {if is_array($param->value) && in_array($k,$param->value)}checked="checked"{/if}> {$opt}</label><br>
 	{/foreach}
 </blockquote>

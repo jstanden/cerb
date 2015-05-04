@@ -1,5 +1,5 @@
 {if !empty($macros)}
-<button type="button" class="split-left" onclick="$(this).next('button').click();"><span class="cerb-sprite2 sprite-robot"></span> Virtual Attendants</button><!--  
+<button type="button" class="split-left" onclick="$(this).next('button').click();" title="Virtual Attendants{if $pref_keyboard_shortcuts} (M){/if}"><span class="cerb-sprite2 sprite-robot"></span></button><!--  
 --><button type="button" class="split-right" id="btnDisplayMacros"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
 <ul class="cerb-popupmenu cerb-float" id="menuDisplayMacros">
 	<li style="background:none;">

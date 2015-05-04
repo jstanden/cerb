@@ -1378,6 +1378,11 @@
 				<seg>no</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.no_thanks">
+			<tuv xml:lang="es_ES">
+				<seg>no gracias!</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.nobody">
 			<tuv xml:lang="es_ES">
 				<seg>nadie</seg>
@@ -2771,11 +2776,6 @@
 		<tu tuid="display.reply.next.move.current">
 			<tuv xml:lang="es_ES">
 				<seg>(bandeja actual)</seg>
-			</tuv>
-		</tu>
-		<tu tuid="display.reply.next.move.no_thanks">
-			<tuv xml:lang="es_ES">
-				<seg>no gracias!</seg>
 			</tuv>
 		</tu>
 		<tu tuid="display.reply.next.owner">

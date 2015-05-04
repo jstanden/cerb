@@ -1378,6 +1378,11 @@
 				<seg>não</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.no_thanks">
+			<tuv xml:lang="pt_PT">
+				<seg>não obrigado!</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.nobody">
 			<tuv xml:lang="pt_PT">
 				<seg>ninguém</seg>
@@ -2771,11 +2776,6 @@
 		<tu tuid="display.reply.next.move.current">
 			<tuv xml:lang="pt_PT">
 				<seg>(pasta actual)</seg>
-			</tuv>
-		</tu>
-		<tu tuid="display.reply.next.move.no_thanks">
-			<tuv xml:lang="pt_PT">
-				<seg>não obrigado!</seg>
 			</tuv>
 		</tu>
 		<tu tuid="display.reply.next.owner">

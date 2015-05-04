@@ -19,11 +19,12 @@
 {/if}
 </ul>
 
-<div id="{$menu_button}" class="badge badge-lightgray" style="cursor:pointer;"><a href="javascript:;" style="text-decoration:none;color:rgb(50,50,50);">Add &#x25be;</a></div>
+<div id="{$menu_button}" class="badge badge-lightgray" style="cursor:pointer;"><a href="javascript:;" style="text-decoration:none;color:rgb(50,50,50);">{'common.add'|devblocks_translate|capitalize} &#x25be;</a></div>
 
 <ul class="cerb-popupmenu" style="max-height:200px;overflow-y:auto;border:0;">
 	<li class="filter"><input type="text" class="input_search" size="45"></li>
 
+	{if !empty($values_to_contexts)}
 	<li><b>Placeholders</b></li>
 
 	{foreach from=$values_to_contexts item=var_data key=var_key}
@@ -35,6 +36,7 @@
 	{/foreach}
 
 	<li><b>Workers</b></li>
+	{/if}
 		
 	{$active_workers = DAO_Worker::getAllActive()}
 	{foreach from=$active_workers item=worker key=worker_id}
@@ -45,15 +47,16 @@
 </ul>
 
 <script type="text/javascript">
+$(function() {
 // Menu
-$menu_trigger = $('#{$menu_button}');
-$menu = $menu_trigger.nextAll('ul.cerb-popupmenu');
+var $menu_trigger = $('#{$menu_button}');
+var $menu = $menu_trigger.nextAll('ul.cerb-popupmenu');
 $menu_trigger.data('menu', $menu);
 
 $menu_trigger
 	.click(
 		function(e) {
-			$menu = $(this).data('menu');
+			var $menu = $(this).data('menu');
 
 			if($menu.is(':visible')) {
 				$menu.hide();
@@ -72,7 +75,7 @@ $menu_trigger
 
 $menu.find('> li.filter > input.input_search').keypress(
 	function(e) {
-		code = (e.keyCode ? e.keyCode : e.which);
+		var code = (e.keyCode ? e.keyCode : e.which);
 		if(code == 13) {
 			e.preventDefault();
 			e.stopPropagation();
@@ -84,8 +87,8 @@ $menu.find('> li.filter > input.input_search').keypress(
 	
 $menu.find('> li > input.input_search').keyup(
 	function(e) {
-		term = $(this).val().toLowerCase();
-		$menu = $(this).closest('ul.cerb-popupmenu');
+		var term = $(this).val().toLowerCase();
+		var $menu = $(this).closest('ul.cerb-popupmenu');
 		$menu.find('> li.item').each(function(e) {
 			if(-1 != $(this).html().toLowerCase().indexOf(term)) {
 				$(this).show();
@@ -105,16 +108,16 @@ $menu.find('> li.item').click(function(e) {
 });
 
 $menu.find('> li.item > a').click(function() {
-	$li = $(this).closest('li');
-	$menu = $(this).closest('ul.cerb-popupmenu')
-	$bubbles = $menu.prevAll('ul.chooser-container.bubbles');
+	var $li = $(this).closest('li');
+	var $menu = $(this).closest('ul.cerb-popupmenu')
+	var $bubbles = $menu.prevAll('ul.chooser-container.bubbles');
 	
-	$key = $li.attr('key');
+	var $key = $li.attr('key');
 	
 	if($bubbles.find('li input:hidden[value="' + $key + '"]').length > 0)
 		return;
 	
-	$bubble = $('<li></li>');
+	var $bubble = $('<li></li>');
 	$bubble.append($li.find('a').text());
 	$bubble.append($('<input type="hidden" name="{$namePrefix}[{$param_name}][]" value="' + $key + '">'));
 	$bubble.append($('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>'));
@@ -122,4 +125,5 @@ $menu.find('> li.item > a').click(function() {
 	$bubbles.append($bubble);
 });
 
+});
 </script>

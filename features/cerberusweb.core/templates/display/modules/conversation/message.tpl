@@ -1,16 +1,16 @@
-{assign var=headers value=$message->getHeaders()}
+{$headers = $message->getHeaders()}
 <div class="block" style="margin-bottom:10px;">
 <table style="text-align: left; width: 98%;table-layout: fixed;" border="0" cellpadding="2" cellspacing="0">
   <tbody>
 	<tr>
 	  <td>
-		{assign var=sender_id value=$message->address_id}
+		{$sender_id = $message->address_id}
 		{if isset($message_senders.$sender_id)}
-			{assign var=sender value=$message_senders.$sender_id}
-			{assign var=sender_org_id value=$sender->contact_org_id}
-			{assign var=sender_org value=$message_sender_orgs.$sender_org_id}
-			{assign var=is_outgoing value=$message->is_outgoing}
-			{assign var=is_not_sent value=$message->is_not_sent}
+			{$sender = $message_senders.$sender_id}
+			{$sender_org_id = $sender->contact_org_id}
+			{$sender_org = $message_sender_orgs.$sender_org_id}
+			{$is_outgoing = $message->is_outgoing}
+			{$is_not_sent = $message->is_not_sent}
 
 			<div class="toolbar-minmax" style="display:none;float:right;">
 				<button id="btnMsgMax{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}');"></button>
@@ -127,7 +127,7 @@
 					  	{if $active_worker->hasPriv('core.display.actions.note')}<button type="button" onclick="displayAddNote('{$message->id}');"><span class="cerb-sprite sprite-document_plain_yellow"></span> {'display.ui.sticky_note'|devblocks_translate|capitalize}</button>{/if}
 					  	
 					  	 &nbsp; 
-				  		<button type="button" onclick="toggleDiv('{$message->id}options');">{'common.more'|devblocks_translate|lower} &raquo;</button>
+				  		<button type="button" onclick="$('#{$message->id}options').toggle();">{'common.more'|devblocks_translate|lower} &raquo;</button>
 		  			</td>
 		  		</tr>
 		  	</table>
@@ -184,7 +184,9 @@ $('#{$message->id}t').hover(
 
 {if $active_worker->hasPriv('core.display.actions.reply')}
 <script type="text/javascript">
-$('#{$message->id}act')
+var $actions = $('#{$message->id}act');
+
+$actions
 	.find('ul.cerb-popupmenu')
 	.hover(
 		function(e) { }, 
@@ -202,10 +204,10 @@ $('#{$message->id}act')
 	})
 ;
 
-$('#{$message->id}act')
+$actions
 	.find('li a.relay')
 	.click(function() {
-		genericAjaxPopup('relay', 'c=display&a=showRelayMessagePopup&id={$message->id}', null, false, '500');
+		genericAjaxPopup('relay', 'c=display&a=showRelayMessagePopup&id={$message->id}', null, false, '650');
 	})
 	;
 

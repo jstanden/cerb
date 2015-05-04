@@ -747,6 +747,11 @@
 				<seg>no</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.no_thanks">
+			<tuv xml:lang="en_US">
+				<seg>no thanks!</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.no_title">
 			<tuv xml:lang="en_US">
 				<seg>(no title)</seg>
@@ -840,6 +845,16 @@
 		<tu tuid="common.ok">
 			<tuv xml:lang="en_US">
 				<seg>OK</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.participant">
+			<tuv xml:lang="en_US">
+				<seg>participant</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.participants">
+			<tuv xml:lang="en_US">
+				<seg>participants</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.password">
@@ -2352,17 +2367,12 @@ For example: http://www.cerbweb.com/support/</seg>
 		</tu>
 		<tu tuid="display.reply.next.move">
 			<tuv xml:lang="en_US">
-				<seg>Would you like to move this conversation?</seg>
+				<seg>Where does this conversation belong?</seg>
 			</tuv>
 		</tu>
 		<tu tuid="display.reply.next.move.current">
 			<tuv xml:lang="en_US">
 				<seg>(current bucket)</seg>
-			</tuv>
-		</tu>
-		<tu tuid="display.reply.next.move.no_thanks">
-			<tuv xml:lang="en_US">
-				<seg>no thanks!</seg>
 			</tuv>
 		</tu>
 		<tu tuid="display.reply.next.owner">

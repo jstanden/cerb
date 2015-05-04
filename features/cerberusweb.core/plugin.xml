@@ -649,6 +649,10 @@
 			<class name="ChPortalHelper" />
 		</file>
 		
+		<file path="api/uri/profiles.php">
+			<class name="Page_Profiles" />
+		</file>
+		
 	</class_loader>
 	
 	<!-- Activity Points -->

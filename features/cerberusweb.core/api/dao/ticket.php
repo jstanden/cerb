@@ -2232,12 +2232,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$this->renderSortAsc = false;
 
 		$this->view_columns = array(
+			SearchFields_Ticket::TICKET_IMPORTANCE,
 			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
 			SearchFields_Ticket::TICKET_GROUP_ID,
 			SearchFields_Ticket::TICKET_BUCKET_ID,
-			SearchFields_Ticket::TICKET_IMPORTANCE,
-			SearchFields_Ticket::TICKET_SPAM_SCORE,
 			SearchFields_Ticket::TICKET_OWNER_ID,
 		);
 		

@@ -141,6 +141,8 @@ class DevblocksNeuralNetwork {
 	public function setInputs($values) {
 		foreach(array_values($values) as $idx => $v)
 			$this->_inputs[$idx]->value = $v;
+		
+		return true;
 	}
 	
 	public function getOutputs() {

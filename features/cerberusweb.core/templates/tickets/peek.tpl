@@ -18,10 +18,6 @@
 			<pre class="emailbody">{$content|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</pre>
 		</div>
 		
-		<div style="float:left;">
-			<b>{'common.url'|devblocks_translate}:</b> <a href="{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}">{devblocks_url full=true}c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}</a>
-		</div>
-		
 		{if !is_null($p) && !is_null($p_count)}
 		<div style="float:right;">
 			{if 0 != $p}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id={$ticket->id}&view_id={$view_id}&msgid={$ticket->first_message_id}', null, false, '650');">&lt;&lt;</a>{/if}
@@ -170,6 +166,12 @@
 		<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
 		<textarea name="comment" rows="2" cols="60" style="width:98%;" placeholder="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
 	</fieldset>
+	
+	{if !empty($ticket->id)}
+	<div style="float:right;">
+		<a href="{devblocks_url}&c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}">{'addy_book.peek.view_full'|devblocks_translate}</a>
+	</div>
+	{/if}
 	
 	<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmTicketPeek','{$view_id}',false,'ticket_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
 </div>

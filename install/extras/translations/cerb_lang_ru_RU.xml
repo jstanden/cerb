@@ -1378,6 +1378,11 @@
 				<seg>нет</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.no_thanks">
+			<tuv xml:lang="ru_RU">
+				<seg>Нет</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.nobody">
 			<tuv xml:lang="ru_RU">
 				<seg>никто</seg>
@@ -2771,11 +2776,6 @@
 		<tu tuid="display.reply.next.move.current">
 			<tuv xml:lang="ru_RU">
 				<seg>(текущий бакет)</seg>
-			</tuv>
-		</tu>
-		<tu tuid="display.reply.next.move.no_thanks">
-			<tuv xml:lang="ru_RU">
-				<seg>Нет</seg>
 			</tuv>
 		</tu>
 		<tu tuid="display.reply.next.owner">

@@ -1378,6 +1378,11 @@
 				<seg>nein</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.no_thanks">
+			<tuv xml:lang="de_DE">
+				<seg>nein danke!</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.nobody">
 			<tuv xml:lang="de_DE">
 				<seg>niemand</seg>
@@ -2771,11 +2776,6 @@
 		<tu tuid="display.reply.next.move.current">
 			<tuv xml:lang="de_DE">
 				<seg>(-&gt; aktueller Ordner)</seg>
-			</tuv>
-		</tu>
-		<tu tuid="display.reply.next.move.no_thanks">
-			<tuv xml:lang="de_DE">
-				<seg>nein danke!</seg>
 			</tuv>
 		</tu>
 		<tu tuid="display.reply.next.owner">

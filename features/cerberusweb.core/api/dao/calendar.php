@@ -709,6 +709,10 @@ class Model_CalendarAvailability {
 		$this->_mins = $mins;
 	}
 	
+	function getMinutes() {
+		return $this->_mins;
+	}
+	
 	function isAvailableAtFor($at, $for_mins) {
 		$from_pos = ceil(($at - $this->_start)/60);
 		

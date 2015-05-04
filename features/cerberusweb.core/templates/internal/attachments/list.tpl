@@ -6,7 +6,7 @@
 {$uniq_id = uniqid()}
 
 {if !empty($links) && !empty($attachments)}
-<div id="attachments{$uniq_id}">
+<div id="attachments{$uniq_id}" style="margin-bottom:15px;">
 <b>{'common.attachments'|devblocks_translate|capitalize}:</b><br>
 <ul style="margin-top:0px;margin-bottom:5px;">
 	{foreach from=$links item=link name=links}

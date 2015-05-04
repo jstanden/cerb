@@ -3,5 +3,5 @@
 .settings/*
 .externalToolBuilders
 
-phpunit.phar
-tags
+/phpunit.phar
+/tags
