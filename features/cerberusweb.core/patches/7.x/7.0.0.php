@@ -162,6 +162,7 @@ list($columns, $indexes) = $db->metaTable('ticket');
 
 if(!isset($columns['importance'])) {
 	$db->ExecuteMaster("ALTER TABLE ticket ADD COLUMN importance TINYINT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX (importance)");
+	$db->ExecuteMaster("UPDATE ticket SET importance = 50");
 }
 
 // ===========================================================================

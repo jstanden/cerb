@@ -726,6 +726,7 @@ class ImportCron extends CerberusCronPageExtension {
 			DAO_Ticket::GROUP_ID => intval($iDestGroupId),
 			DAO_Ticket::BUCKET_ID => intval($iDestBucketId),
 			DAO_Ticket::LAST_ACTION_CODE => $sLastActionCode,
+			DAO_Ticket::IMPORTANCE => 50,
 		);
 		$ticket_id = DAO_Ticket::create($fields);
 

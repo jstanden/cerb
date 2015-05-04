@@ -412,6 +412,7 @@ class CerberusMail {
 			DAO_Ticket::LAST_WROTE_ID => $fromAddressId,
 			DAO_Ticket::ORG_ID => intval($org_id),
 			DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_WORKER_REPLY,
+			DAO_Ticket::IMPORTANCE => 50,
 		);
 		
 		// "Next:" [TODO] This is highly redundant with CerberusMail::reply

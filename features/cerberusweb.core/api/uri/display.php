@@ -1371,6 +1371,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_Ticket::GROUP_ID => $orig_ticket->group_id,
 			DAO_Ticket::BUCKET_ID => $orig_ticket->bucket_id,
 			DAO_Ticket::ORG_ID => $orig_ticket->org_id,
+			DAO_Ticket::IMPORTANCE => $orig_ticket->importance,
 		);
 
 		$new_ticket_id = DAO_Ticket::create($fields);
