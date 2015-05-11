@@ -3,7 +3,7 @@
 {$random = uniqid()}
 <div id="container_{$random}">
 
-<button type="button" class="chooser"><span class="cerb-sprite sprite-view"></span></button>
+<button type="button" class="chooser"><span class="glyphicons glyphicons-search"></span></button>
 
 <ul class="chooser-container bubbles" style="display:block;">
 {if $field->params.context && $param->value}

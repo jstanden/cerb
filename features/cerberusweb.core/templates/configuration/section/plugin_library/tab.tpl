@@ -3,7 +3,7 @@
 </div>
 
 <form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
-	<button type="button" id="btnPluginLibrarySync"><span class="cerb-sprite sprite-refresh"></span> Download updates</button>
+	<button type="button" id="btnPluginLibrarySync"><span class="glyphicons glyphicons-refresh"></span></a> Download updates</button>
 </form>
 
 <div id="divPluginLibrarySync" style="clear:both;display:none;font-size:18pt;text-align:center;padding:20px;margin:20px;background-color:rgb(232,242,255);"></div>

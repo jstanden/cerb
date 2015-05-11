@@ -56,7 +56,7 @@
 <fieldset class="peek">
 	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
 	
-	<button type="button" class="chooser_file"><span class="cerb-sprite sprite-view"></span></button>
+	<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
 	<ul class="chooser-container bubbles" style="display:inline-block;">
 		{foreach from=$attachments item=attachment}
 		<li>
@@ -92,14 +92,14 @@
 		Are you sure you want to delete this file bundle?
 	</div>
 	
-	<button type="button" class="delete" onclick="var $frm=$(this).closest('form');$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('button.submit').click();"><span class="cerb-sprite2 sprite-tick-circle"></span> Confirm</button>
-	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="cerb-sprite2 sprite-minus-circle"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+	<button type="button" class="delete" onclick="var $frm=$(this).closest('form');$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('button.submit').click();"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Confirm</button>
+	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 </fieldset>
 {/if}
 
 <div class="buttons">
-	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmFileBundlePeek','{$view_id}', false, 'file_bundle_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
-	{if !empty($model->id)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmFileBundlePeek','{$view_id}', false, 'file_bundle_save');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	{if !empty($model->id)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 {if !empty($model->id)}

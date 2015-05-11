@@ -11,7 +11,7 @@
 	{$random = uniqid()}
 	<div id="container_{$random}" style="margin-bottom:5px;">
 	
-	<button type="button" class="chooser"><span class="cerb-sprite sprite-view"></span></button>
+	<button type="button" class="chooser"><span class="glyphicons glyphicons-search"></span></button>
 	<ul class="chooser-container bubbles" style="display:block;">
 	{foreach from=$param->value item=context_id}
 		<li>

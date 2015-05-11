@@ -44,7 +44,7 @@
 		{/if}
 	
 		{if $active_worker->is_superuser}
-			<button type="button" id="btnProfileEventEdit">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
+			<button type="button" id="btnProfileEventEdit"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
 	

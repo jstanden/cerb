@@ -8,13 +8,12 @@
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
-		<td nowrap="nowrap" align="right">
-			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('peek','c=pages&a=showEditWorkspacePage&id=0&view_id={$view->id}',null,true,'500');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></a>
-			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="cerb-sprite2 sprite-document-search-result"></span></a>
-			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="cerb-sprite2 sprite-gear"></span></a>
-			{*<a href="javascript:;" title="Subtotals" class="subtotals minimal"><span class="cerb-sprite2 sprite-application-sidebar-list"></span></a>*}
-			<a href="javascript:;" title="{'common.copy'|devblocks_translate|capitalize}" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="cerb-sprite2 sprite-applications"></span></a>
-			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="cerb-sprite2 sprite-arrow-circle-135-left"></span></a>
+		<td nowrap="nowrap" align="right" class="title-toolbar">
+			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('peek','c=pages&a=showEditWorkspacePage&id=0&view_id={$view->id}',null,true,'500');"><span class="glyphicons glyphicons-circle-plus"></span></a>
+			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
+			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
+			<a href="javascript:;" title="{'common.copy'|devblocks_translate|capitalize}" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-duplicate"></span></a>
+			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="glyphicons glyphicons-refresh"></span></a>
 			<input type="checkbox" class="select-all">
 		</td>
 	</tr>
@@ -44,9 +43,9 @@
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
 				{if $view->renderSortAsc}
-					<span class="cerb-sprite sprite-sort_ascending"></span>
+					<span class="glyphicons glyphicons-sort-by-attributes" style="font-size:14px;color:rgb(39,123,213);"></span>
 				{else}
-					<span class="cerb-sprite sprite-sort_descending"></span>
+					<span class="glyphicons glyphicons-sort-by-attributes-alt" style="font-size:14px;color:rgb(39,123,213);"></span>
 				{/if}
 			{/if}
 			</th>
@@ -70,7 +69,7 @@
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
 			<td align="center" nowrap="nowrap" style="padding:5px;">
-				<button class="add" type="button" page_id="{$result.w_id}" page_label="{$result.w_name|lower}" page_url="{devblocks_url}c=pages&page={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="cerb-sprite2 sprite-minus-circle"></span>{else}<span class="cerb-sprite2 sprite-plus-circle"></span>{/if}</button>				
+				<button class="add" type="button" page_id="{$result.w_id}" page_label="{$result.w_name|lower}" page_url="{devblocks_url}c=pages&page={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span>{else}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(150,150,150);">{/if}</button>
 				<input type="checkbox" name="row_id[]" value="{$result.w_id}" style="display:none;">
 			</td>
 		{foreach from=$view->view_columns item=column name=columns}
@@ -80,7 +79,7 @@
 			<td>
 				<a href="{devblocks_url}c=pages&page={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}" class="subject">{if !empty($result.w_name)}{$result.w_name}{else}New Page{/if}</a>
 				{if CerberusContexts::isWriteableByActor($result.w_owner_context, $result.w_owner_context_id, $active_worker)}
-				<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=pages&a=showEditWorkspacePage&id={$result.w_id}&view_id={$view->id}',null,true,'550');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{'views.peek'|devblocks_translate}"></span></button>
+				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=pages&a=showEditWorkspacePage&id={$result.w_id}&view_id={$view->id}',null,true,'550');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 				{/if}
 			</td>
 			{elseif $column=="*_owner"}
@@ -155,7 +154,7 @@ $('#viewForm{$view->id}').find('button.add').click(function(e) {
 				$(this).remove();
 			});
 			
-			$this.html('<span class="cerb-sprite2 sprite-plus-circle"></span>');
+			$this.html('<span class="glyphicons glyphicons-circle-ok" style="color:rgb(150,150,150);">');
 		}
 		
 		genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=0');
@@ -180,7 +179,7 @@ $('#viewForm{$view->id}').find('button.add').click(function(e) {
 			$li.css('visibility','visible');
 		});
 		
-		$this.html('<span class="cerb-sprite2 sprite-minus-circle"></span>');
+		$this.html('<span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);">');
 
 		genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=1');
 	}

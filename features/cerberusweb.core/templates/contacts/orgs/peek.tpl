@@ -64,7 +64,7 @@
 				<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.watchers'|devblocks_translate|capitalize}: </td>
 				<td width="100%">
 					{if empty($contact->id)}
-						<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
+						<button type="button" class="chooser_watcher"><span class="glyphicons glyphicons-search"></span></button>
 						<ul class="chooser-container bubbles" style="display:block;"></ul>
 					{else}
 						{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_ORG, array($contact->id), CerberusContexts::CONTEXT_WORKER)}
@@ -93,8 +93,8 @@
 	</fieldset>
 	
 	{if $active_worker->hasPriv('core.addybook.org.actions.update')}
-		<button type="button" onclick="if($('#formOrgPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formOrgPeek', '{$view_id}', false, 'org_save'); } "><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-		{if $active_worker->hasPriv('core.addybook.org.actions.delete') && !empty($contact->id)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this organization?')) { $('#formOrgPeek input[name=do_delete]').val('1'); genericAjaxPopupPostCloseReloadView(null,'formOrgPeek','{$view_id}',false,'org_delete'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+		<button type="button" onclick="if($('#formOrgPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formOrgPeek', '{$view_id}', false, 'org_save'); } "><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		{if $active_worker->hasPriv('core.addybook.org.actions.delete') && !empty($contact->id)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this organization?')) { $('#formOrgPeek input[name=do_delete]').val('1'); genericAjaxPopupPostCloseReloadView(null,'formOrgPeek','{$view_id}',false,'org_delete'); } "><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 	{else}
 		<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>
 	{/if}

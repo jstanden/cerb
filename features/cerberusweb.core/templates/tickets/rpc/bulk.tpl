@@ -123,12 +123,12 @@
 			<td width="0%" nowrap="nowrap" valign="top">{'common.watchers'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
 				{if $active_worker->hasPriv('core.watchers.assign')}
-				<button type="button" class="chooser-worker add"><span class="cerb-sprite sprite-view"></span></button>
+				<button type="button" class="chooser-worker add"><span class="glyphicons glyphicons-search"></span></button>
 				<ul class="bubbles chooser-container" style="display:block;"></ul>
 				{/if}
 
 				{if $active_worker->hasPriv('core.watchers.unassign')}
-				<button type="button" class="chooser-worker remove"><span class="cerb-sprite sprite-view"></span></button>
+				<button type="button" class="chooser-worker remove"><span class="glyphicons glyphicons-search"></span></button>
 				<ul class="bubbles chooser-container" style="display:block;"></ul>
 				{/if}
 			</td>
@@ -173,7 +173,7 @@
 		<b>{'common.attachments'|devblocks_translate|capitalize}:</b><br>
 	
 		<div style="margin:0px 0px 5px 10px;">
-			<button type="button" class="chooser_file"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+			<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
 			<ul class="bubbles chooser-container">
 		</div>
 		
@@ -186,7 +186,7 @@
 </fieldset>
 {/if}
 	
-<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 <br>
 </form>
 

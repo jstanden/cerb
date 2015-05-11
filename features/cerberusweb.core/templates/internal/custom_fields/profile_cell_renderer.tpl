@@ -7,14 +7,20 @@
 {elseif $v.type == Model_CustomField::TYPE_SINGLE_LINE}
 	{$v.value|escape|devblocks_hyperlinks nofilter}
 {elseif $v.type == Model_CustomField::TYPE_MULTI_LINE}
-	<span>
-		{$v.value|truncate:128} [<a href="javascript:;" onclick="$(this).parent().next('div').fadeIn().end().hide();">expand</a>]
-	</span>
-	<div style="display:none;">
-		{$v.value|escape|devblocks_hyperlinks|nl2br nofilter}
-		<br>
-		[<a href="javascript:;" onclick="$(this).parent().hide().prev('span').fadeIn();">collapse</a>]
-	</div>
+	{if $v.value}
+		{if count($v.value) > 128 || false != strpos($v.value,"\n")}
+		<span>
+			{$v.value|truncate:128} [<a href="javascript:;" onclick="$(this).parent().next('div').fadeIn().end().hide();">expand</a>]
+		</span>
+		<div style="display:none;">
+			{$v.value|escape|devblocks_hyperlinks|nl2br nofilter}
+			<br>
+			[<a href="javascript:;" onclick="$(this).parent().hide().prev('span').fadeIn();">collapse</a>]
+		</div>
+		{else}
+			{$v.value}
+		{/if}
+	{/if}
 {elseif $v.type == Model_CustomField::TYPE_URL}
 	<a href="{$v.value}" target="_blank">{$v.value}</a>
 {elseif $v.type == Model_CustomField::TYPE_WORKER}

@@ -5,10 +5,10 @@
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
-		<td nowrap="nowrap" align="right">
-			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="cerb-sprite2 sprite-gear"></span></a>
-			<a href="javascript:;" title="{'common.import'|devblocks_translate|capitalize}" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=showImportTemplatesPeek&portal={$tool->code}&view_id={$view->id|escape:'url'}',null,false,'500');"><span class="cerb-sprite2 sprite-application-import"></span></a>
-			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="cerb-sprite2 sprite-arrow-circle-135-left"></span></a>
+		<td nowrap="nowrap" align="right" class="title-toolbar">
+			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
+			<a href="javascript:;" title="{'common.import'|devblocks_translate|capitalize}" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=showImportTemplatesPeek&portal={$tool->code}&view_id={$view->id|escape:'url'}',null,false,'500');"><span class="glyphicons glyphicons-file-import"></span></a>
+			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="glyphicons glyphicons-refresh"></span></a>
 			<input type="checkbox" class="select-all">
 		</td>
 	</tr>
@@ -34,9 +34,9 @@
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
 				{if $view->renderSortAsc}
-					<span class="cerb-sprite sprite-sort_ascending"></span>
+					<span class="glyphicons glyphicons-sort-by-attributes" style="font-size:14px;color:rgb(39,123,213);"></span>
 				{else}
-					<span class="cerb-sprite sprite-sort_descending"></span>
+					<span class="glyphicons glyphicons-sort-by-attributes-alt" style="font-size:14px;color:rgb(39,123,213);"></span>
 				{/if}
 			{/if}
 			</th>
@@ -104,8 +104,8 @@
 	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
 		{if $active_worker && $active_worker->is_superuser}
-			<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=showTemplatesBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> bulk update</button>
-			<button type="button" class="action-always-show" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=showExportTemplatesPeek&portal={$tool->code}&view_id={$view->id|escape:'url'}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-export"></span> {'common.export'|devblocks_translate|lower}</button>
+			<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=showTemplatesBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="glyphicons glyphicons-folder-closed"></span></a> bulk update</button>
+			<button type="button" class="action-always-show" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=showExportTemplatesPeek&portal={$tool->code}&view_id={$view->id|escape:'url'}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="glyphicons glyphicons-file-export"></span></a> {'common.export'|devblocks_translate|lower}</button>
 		{/if}
 	</div>
 	{/if}

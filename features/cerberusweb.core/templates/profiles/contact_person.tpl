@@ -23,7 +23,7 @@
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$person->id full=true}
 		</span>
 		
-		<button type="button" id="btnDisplayContactEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
+		<button type="button" id="btnDisplayContactEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 	</form>
 	
 	{if $pref_keyboard_shortcuts}

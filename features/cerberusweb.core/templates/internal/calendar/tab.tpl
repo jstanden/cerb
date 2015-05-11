@@ -6,8 +6,8 @@
 		{if !empty($create_contexts)}
 		<div style="display:inline-block;margin-left:10px;">
 			{if count($create_contexts) > 1}
-			<button type="button" class="reply split-left" onclick="$(this).next('button.split-right').click();"><span class="cerb-sprite2 sprite-plus-circle"></span> </button><!--
-			--><button type="button" class="split-right" onclick="$ul=$(this).next('ul');$ul.toggle();"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
+			<button type="button" class="reply split-left" onclick="$(this).next('button.split-right').click();"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> </button><!--
+			--><button type="button" class="split-right" onclick="$ul=$(this).next('ul');$ul.toggle();"><span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span></button>
 			<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
 				{foreach from=$create_contexts item=create_context}
 				<li><a href="javascript:;" class="create-event" context="{$create_context->id}">{$create_context->name}</a></li>
@@ -15,16 +15,16 @@
 			</ul>
 			{else}
 			{$create_context = reset($create_contexts)}
-			<button type="button" class="create-event" context="{$create_context->id}"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+			<button type="button" class="create-event" context="{$create_context->id}"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span></button>
 			{/if}
 		</div>
 		{/if}
 	</div>
 
 	<div style="float:right;">
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.prev_month}&year={$calendar_properties.prev_year}');">&lt;</button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.prev_month}&year={$calendar_properties.prev_year}');"><span class="glyphicons glyphicons-chevron-left"></span></button>
 		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month=&year=');">Today</button>
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.next_month}&year={$calendar_properties.next_year}');">&gt;</button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.next_month}&year={$calendar_properties.next_year}');"><span class="glyphicons glyphicons-chevron-right"></span></button>
 	</div>
 	
 	<br clear="all">

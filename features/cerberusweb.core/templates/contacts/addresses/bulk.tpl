@@ -100,7 +100,7 @@
 		<b>{'common.attachments'|devblocks_translate|capitalize}:</b>
 		
 		<div style="margin:0px 0px 5px 10px;">
-			<button type="button" class="chooser_file"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+			<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
 			<ul class="bubbles chooser-container">
 		</div>
 		
@@ -122,7 +122,7 @@
 {/if}
 
 {if $active_worker->hasPriv('core.addybook.addy.actions.update')}
-	<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 {/if}
 <br>
 </form>

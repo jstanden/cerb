@@ -2,8 +2,8 @@
 <legend>{'reports.ui.worker.worker_history'|devblocks_translate}</legend>
 
 <form action="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}&report=report.workers.worker_history{/devblocks_url}" method="POST" id="frmRange" name="frmRange">
-<b>{'reports.ui.date_from'|devblocks_translate}</b> <input type="text" name="start" id="start" size="24" value="{$start}"><button type="button" onclick="devblocksAjaxDateChooser('#start','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
-<b>{'reports.ui.date_to'|devblocks_translate}</b> <input type="text" name="end" id="end" size="24" value="{$end}"><button type="button" onclick="devblocksAjaxDateChooser('#end','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
+<b>{'reports.ui.date_from'|devblocks_translate}</b> <input type="text" name="start" id="start" size="24" value="{$start}"><button type="button" onclick="devblocksAjaxDateChooser('#start','#divCal');"><span class="glyphicons glyphicons-calendar"></span></button>
+<b>{'reports.ui.date_to'|devblocks_translate}</b> <input type="text" name="end" id="end" size="24" value="{$end}"><button type="button" onclick="devblocksAjaxDateChooser('#end','#divCal');"><span class="glyphicons glyphicons-calendar"></span></button>
 <b>Grouping:</b> <select name="report_date_grouping">
 	<option value="">-auto-</option>
 	<option value="year" {if 'year'==$report_date_grouping}selected="selected"{/if}>Years</option>
@@ -30,7 +30,7 @@
 {/if}
 
 <b>{'reports.ui.filters.worker'|devblocks_translate}</b> 
-<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
+<button type="button" class="chooser_worker"><span class="glyphicons glyphicons-search"></span></button>
 <ul class="chooser-container bubbles">
 {if is_array($filter_worker_ids) && !empty($filter_worker_ids)}
 	{foreach from=$filter_worker_ids item=filter_worker_id}
@@ -44,7 +44,7 @@
 <br>
 
 <b>{'reports.ui.filters.group'|devblocks_translate}</b> 
-<button type="button" class="chooser_group"><span class="cerb-sprite sprite-view"></span></button>
+<button type="button" class="chooser_group"><span class="glyphicons glyphicons-search"></span></button>
 {if is_array($filter_group_ids) && !empty($filter_group_ids)}
 <ul class="chooser-container bubbles">
 	{foreach from=$filter_group_ids item=filter_group_id}

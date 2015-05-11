@@ -55,7 +55,7 @@
 </div>
 
 <div style="margin-top:15px;">
-	<button type="button" onclick="genericAjaxPost('frmBehaviorSimulator{$trigger->id}','divBehaviorSimulatorResults{$trigger->id}','');"><span class="cerb-sprite2 sprite-gear"></span> Simulate</button>
+	<button type="button" onclick="genericAjaxPost('frmBehaviorSimulator{$trigger->id}','divBehaviorSimulatorResults{$trigger->id}','');"><span class="glyphicons glyphicons-cogwheel"></span> Simulate</button>
 </div>
 
 <div id="divBehaviorSimulatorResults{$trigger->id}" style="padding:5px;"></div>

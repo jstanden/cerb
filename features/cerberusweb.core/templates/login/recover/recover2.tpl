@@ -24,7 +24,7 @@
 {/foreach}
 {/if}
 
-<button type="submit" name="do_submit" value="1"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.continue'|devblocks_translate|capitalize}</button>
+<button type="submit" name="do_submit" value="1"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.continue'|devblocks_translate|capitalize}</button>
 
 </form>
 

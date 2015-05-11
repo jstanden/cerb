@@ -87,8 +87,8 @@
 					<fieldset style="display:inline-block;">
 						<legend>Actions</legend>
 						
-						<button id="btnComposeSaveDraft{$random}" class="toolbar-item" type="button"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
-						<button id="btnComposeInsertSig{$random}" class="toolbar-item" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if}"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
+						<button id="btnComposeSaveDraft{$random}" class="toolbar-item" type="button"><span class="glyphicons glyphicons-circle-ok"></span> Save Draft</button>
+						<button id="btnComposeInsertSig{$random}" class="toolbar-item" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if}"><span class="glyphicons glyphicons-edit"></span> Insert Signature</button>
 					</fieldset>
 				
 					<fieldset style="display:inline-block;">
@@ -96,8 +96,8 @@
 						<div>
 							Insert: 
 							<input type="text" size="25" class="context-snippet autocomplete" {if $pref_keyboard_shortcuts}placeholder="(Ctrl+Shift+I)"{/if}>
-							<button type="button" onclick="ajax.chooserSnippet('snippets',$('#divComposeContent{$random}'), { '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });"><span class="cerb-sprite sprite-view"></span></button>
-							<button type="button" onclick="genericAjaxPopup('add_snippet','c=internal&a=showSnippetsPeek&id=0&owner_context={CerberusContexts::CONTEXT_WORKER}&owner_context_id={$active_worker->id}&context=',null,false,'550');"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+							<button type="button" onclick="ajax.chooserSnippet('snippets',$('#divComposeContent{$random}'), { '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });"><span class="glyphicons glyphicons-search"></span></button>
+							<button type="button" onclick="genericAjaxPopup('add_snippet','c=internal&a=showSnippetsPeek&id=0&owner_context={CerberusContexts::CONTEXT_WORKER}&owner_context_id={$active_worker->id}&context=',null,false,'550');"><span class="glyphicons glyphicons-circle-plus"></span></button>
 						</div>
 					</fieldset>
 				</div>
@@ -165,7 +165,7 @@
 				{'common.watchers'|devblocks_translate|capitalize}:
 			</td>
 			<td width="99%">
-				<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
+				<button type="button" class="chooser_watcher"><span class="glyphicons glyphicons-search"></span></button>
 				<ul class="chooser-container bubbles" style="display:block;">
 					{if $draft->params.add_watcher_ids && is_array($draft->params.add_watcher_ids)}
 					{foreach from=$draft->params.add_watcher_ids item=watcher_id}
@@ -199,7 +199,7 @@
 
 <fieldset class="peek">
 	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
-	<button type="button" class="chooser_file"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+	<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
 	<ul class="bubbles chooser-container">
 	{if $draft->params.file_ids}
 	{foreach from=$draft->params.file_ids item=file_id}
@@ -214,7 +214,7 @@
 
 <div class="status"></div>
 
-<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'display.ui.send_message'|devblocks_translate}</button>
+<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'display.ui.send_message'|devblocks_translate}</button>
 </form>
 
 <script type="text/javascript">

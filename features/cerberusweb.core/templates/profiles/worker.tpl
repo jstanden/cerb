@@ -51,9 +51,9 @@
 		{/if}
 	
 		{if $active_worker->is_superuser}
-			{if $worker->id != $active_worker->id}<button type="button" id="btnProfileWorkerPossess"><span class="cerb-sprite2 sprite-user-silhouette"></span> Impersonate</button>{/if}
-			<button type="button" id="btnProfileWorkerEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
-			<button type="button" title="{'common.refresh'|devblocks_translate|capitalize}" onclick="document.location='{devblocks_url}c=profiles&type=worker&id={$worker->id}{/devblocks_url}-{$worker->getName()|devblocks_permalink}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
+			{if $worker->id != $active_worker->id}<button type="button" id="btnProfileWorkerPossess"><span class="glyphicons glyphicons-user"></span> Impersonate</button>{/if}
+			<button type="button" id="btnProfileWorkerEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+			<button type="button" title="{'common.refresh'|devblocks_translate|capitalize}" onclick="document.location='{devblocks_url}c=profiles&type=worker&id={$worker->id}{/devblocks_url}-{$worker->getName()|devblocks_permalink}';"><span class="glyphicons glyphicons-refresh"></span></button>
 		{/if}
 	</form>
 </div>

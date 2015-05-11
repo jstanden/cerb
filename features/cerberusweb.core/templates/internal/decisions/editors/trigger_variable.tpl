@@ -17,7 +17,7 @@
 {/if}
 	
 <fieldset class="peek" style="margin-bottom:5px;">
-	<legend style="cursor:move;"><a href="javascript:;" onclick="$(this).closest('fieldset').remove();"><span class="cerb-sprite2 sprite-minus-circle" style="vertical-align:middle;"></span></a> {$var_type_label}</legend>
+	<legend style="cursor:move;"><a href="javascript:;" onclick="$(this).closest('fieldset').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);vertical-align:middle;"></span></a> {$var_type_label}</legend>
 	<input type="hidden" name="var[]" value="{$seq}">
 	<input type="hidden" name="var_key[]" value="{$var.key}">
 	<input type="hidden" name="var_type[]" value="{$var.type}">

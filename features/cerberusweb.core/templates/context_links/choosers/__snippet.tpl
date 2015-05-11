@@ -94,7 +94,7 @@ $(function() {
 				var attr_context_id = $td.attr('context_id');
 				var attr_has_custom_placeholders = $td.attr('has_custom_placeholders');
 				
-				var $btn = $('<button type="button"><span class="cerb-sprite2 sprite-plus-circle"></span></button>');
+				var $btn = $('<button type="button"><span class="glyphicons glyphicons-circle-ok"></span></button>');
 				$btn.attr('id', attr_id);
 				$btn.attr('context', attr_context);
 				$btn.attr('context_id', attr_context_id);
@@ -105,9 +105,8 @@ $(function() {
 					
 					var $btn = $(this);
 
-					$btn.find('span.cerb-sprite2')
-						.removeClass('sprite-plus-circle')
-						.addClass('sprite-tick-circle-gray')
+					$btn.find('span.glyphicons')
+						.css('color', 'rgb(0,180,0)')
 						;
 					
 					$popup=genericAjaxPopupFind('#chooser{$view->id}');

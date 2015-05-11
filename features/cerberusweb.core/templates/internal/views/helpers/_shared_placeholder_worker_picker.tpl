@@ -3,7 +3,7 @@
 
 {if $show_chooser}
 {$chooser_button = "btnChooser{uniqid()}"}
-<button type="button" class="chooser_worker" id="{$chooser_button}"><span class="cerb-sprite sprite-view"></span></button>
+<button type="button" class="chooser_worker" id="{$chooser_button}"><span class="glyphicons glyphicons-search"></span></button>
 {/if}
 
 <ul class="chooser-container bubbles">

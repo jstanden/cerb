@@ -5,7 +5,7 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 
 <b>Select organizations to merge:</b><br>
-<button type="button" class="chooser_orgs"><span class="cerb-sprite sprite-view"></span></button>
+<button type="button" class="chooser_orgs"><span class="glyphicons glyphicons-search"></span></button>
 <ul class="chooser-container bubbles" style="display:block;">
 {if !empty($orgs)}
 {foreach from=$orgs item=merge_org key=merge_org_id}
@@ -20,7 +20,7 @@
 <br>
 
 {if $active_worker->hasPriv('core.addybook.org.actions.update')}
-	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.continue'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.continue'|devblocks_translate|capitalize}</button>
 {/if}
 </form>
 

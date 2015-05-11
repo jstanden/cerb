@@ -32,7 +32,7 @@
 	
 	<div class="status"></div>
 	
-	<button type="button" class="submit"><span class="cerb-sprite2 sprite-gear"></span> {'simulator.ui.cfg.generate'|devblocks_translate}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-cogwheel"></span> {'simulator.ui.cfg.generate'|devblocks_translate}</button>
 	</form>
 </fieldset>
 
@@ -87,7 +87,7 @@
 	
 	<div class="status"></div>
 	
-	<button type="button" class="submit"><span class="cerb-sprite2 sprite-gear"></span> {'simulator.ui.cfg.generate'|devblocks_translate}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-cogwheel"></span> {'simulator.ui.cfg.generate'|devblocks_translate}</button>
 	</form>
 </fieldset>
 
@@ -142,7 +142,7 @@
 	
 	<div class="status"></div>
 	
-	<button type="button" class="submit"><span class="cerb-sprite2 sprite-gear"></span> {'simulator.ui.cfg.generate'|devblocks_translate}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-cogwheel"></span> {'simulator.ui.cfg.generate'|devblocks_translate}</button>
 	</form>
 </fieldset>
 

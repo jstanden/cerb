@@ -11,8 +11,8 @@
 	<b>This action cannot be undone.</b>
 	
 	<div style="padding:5px;">
-		<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'mail.merge'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cancel"><span class="cerb-sprite2 sprite-minus-circle"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+		<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'mail.merge'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cancel"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 	</div>
 </fieldset>
 

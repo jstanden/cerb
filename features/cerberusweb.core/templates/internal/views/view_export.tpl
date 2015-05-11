@@ -44,8 +44,8 @@
 	</div>
 </div>
 
-<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.export'|devblocks_translate|capitalize}</button>
-<button type="button" onclick="$('#{$view_id}_tips').html('').hide();" style="cancel"><span class="cerb-sprite2 sprite-cross-circle"></span> Cancel</button>
+<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.export'|devblocks_translate|capitalize}</button>
+<button type="button" onclick="$('#{$view_id}_tips').html('').hide();" style="cancel"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> Cancel</button>
 
 </div>
 
@@ -76,7 +76,7 @@ $(function() {
 			if(json.completed) {
 				$frm.find('input:hidden[name=cursor_key]').val('');
 				
-				$status.html('<a href="javascript:;" class="close"><span class="cerb-sprite2 sprite-cross-circle" style="position:relative;float:right;"></span></a><div style="font-size:18px;font-weight:bold;text-align:center;">Download: <a href="' + json.attachment_url + '" target="_blank">' + json.attachment_name + '</a></div>').fadeIn();
+				$status.html('<a href="javascript:;" class="close"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);font-size:16px;position:relative;float:right;"></span></a><div style="font-size:18px;font-weight:bold;text-align:center;">Download: <a href="' + json.attachment_url + '" target="_blank">' + json.attachment_name + '</a></div>').fadeIn();
 				$status.find('a.close').click(function() {
 					$('#{$view_id}_tips').html('').hide();
 				});

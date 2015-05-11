@@ -1,6 +1,6 @@
 <fieldset style="margin-bottom:10px;border-radius:5px;padding-left:7px;{if $trigger->is_disabled}opacity:0.5;{/if}">
 	<legend style="font-size:120%;color:rgb(60,60,60);cursor:move;">
-		{if $trigger->is_private}<span class="cerb-sprite sprite-lock"></span> {/if}{$trigger->title}{if $trigger->is_disabled}<span title="{'common.disabled'|devblocks_translate|capitalize}">*</span>{/if}
+		{if $trigger->is_private}<span class="glyphicons glyphicons-lock"></span> {/if}{$trigger->title}{if $trigger->is_disabled}<span title="{'common.disabled'|devblocks_translate|capitalize}">*</span>{/if}
 	</legend>
 	
 	{* [TODO] Use cache!! *}

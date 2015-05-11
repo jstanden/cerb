@@ -60,7 +60,7 @@
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.watchers'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				{if empty($model->id)}
-					<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
+					<button type="button" class="chooser_watcher"><span class="glyphicons glyphicons-search"></span></button>
 					<ul class="chooser-container bubbles" style="display:block;"></ul>
 				{else}
 					{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TIMETRACKING, array($model->id), CerberusContexts::CONTEXT_WORKER)}
@@ -97,12 +97,12 @@
 {if ($active_worker->hasPriv('timetracking.actions.create') && (empty($model->id) || $active_worker->id==$model->worker_id))
 	|| $active_worker->hasPriv('timetracking.actions.update_all')}
 	{if empty($model->id)}
-		<button type="button" onclick="timeTrackingTimer.finish();genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'timetracking.ui.entry_panel.save_finish'|devblocks_translate}</button>
-		<button type="button" onclick="timeTrackingTimer.play();genericAjaxPopupClose('peek');"><span class="cerb-sprite sprite-media_play_green"></span> {'timetracking.ui.entry_panel.resume'|devblocks_translate}</button>
-		<button type="button" onclick="timeTrackingTimer.finish();genericAjaxPopupClose('peek');"><span class="cerb-sprite sprite-media_stop_red"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="timeTrackingTimer.finish();genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_save');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'timetracking.ui.entry_panel.save_finish'|devblocks_translate}</button>
+		<button type="button" onclick="timeTrackingTimer.play();genericAjaxPopupClose('peek');"><span class="glyphicons glyphicons-play" style="color:rgb(0,180,0);"></span> {'timetracking.ui.entry_panel.resume'|devblocks_translate}</button>
+		<button type="button" onclick="timeTrackingTimer.finish();genericAjaxPopupClose('peek');"><span class="glyphicons glyphicons-stop" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 	{else}
-		<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-		<button type="button" onclick="if(confirm('Permanently delete this time tracking entry?')) { this.form.do_delete.value='1'; genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_delete'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_save');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="if(confirm('Permanently delete this time tracking entry?')) { this.form.do_delete.value='1'; genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_delete'); } "><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 	{/if}
 {else}
 	<div class="error">You do not have permission to modify this record.</div>

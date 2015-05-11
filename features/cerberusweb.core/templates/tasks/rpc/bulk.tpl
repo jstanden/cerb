@@ -20,7 +20,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'task.due_date'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
-				<input type="text" name="due" size="35" value=""><button type="button" onclick="devblocksAjaxDateChooser(this.form.due,'#dateBulkTaskDue');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
+				<input type="text" name="due" size="35" value=""><button type="button" onclick="devblocksAjaxDateChooser(this.form.due,'#dateBulkTaskDue');"><span class="glyphicons glyphicons-calendar"></span></button>
 				<div id="dateBulkTaskDue"></div>
 			</td>
 		</tr>
@@ -48,12 +48,12 @@
 			<td width="0%" nowrap="nowrap" valign="top">{'common.watchers'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
 				{if $active_worker->hasPriv('core.watchers.assign')}
-				<button type="button" class="chooser-worker add"><span class="cerb-sprite sprite-view"></span></button>
+				<button type="button" class="chooser-worker add"><span class="glyphicons glyphicons-search"></span></button>
 				<br>
 				{/if}
 				
 				{if $active_worker->hasPriv('core.watchers.unassign')}
-				<button type="button" class="chooser-worker remove"><span class="cerb-sprite sprite-view"></span></button>
+				<button type="button" class="chooser-worker remove"><span class="glyphicons glyphicons-search"></span></button>
 				{/if}
 			</td>
 		</tr>
@@ -72,7 +72,7 @@
 
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
 
-<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 <br>
 </form>
 

@@ -12,12 +12,12 @@
 
 	<div style="float:right;">
 		{if $page->isReadableByWorker($active_worker)}
-			<button class="add" type="button" page_id="{$page->id}" page_label="{$page->name|lower}" page_url="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="cerb-sprite2 sprite-minus-circle"></span>{else}<span class="cerb-sprite2 sprite-plus-circle"></span>{/if} Menu</button>
+			<button class="add" type="button" page_id="{$page->id}" page_label="{$page->name|lower}" page_url="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span>{else}<span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span>{/if} Menu</button>
 		{/if}
 	
 		<div style="display:inline-block;">
-			<button class="config-page split-left" type="button"><span class="cerb-sprite2 sprite-gear"></span></button><!--
-			--><button class="config-page split-right" type="button"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
+			<button class="config-page split-left" type="button"><span class="glyphicons glyphicons-cogwheel"></span></button><!--
+			--><button class="config-page split-right" type="button"><span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span></button>
 			<ul class="cerb-popupmenu cerb-float">
 				{if $page->isWriteableByWorker($active_worker)}
 					<li><a href="javascript:;" class="edit-page">Edit Page</a></li>
@@ -174,7 +174,7 @@
 						$(this).remove();
 					});
 					
-					$this.html('<span class="cerb-sprite2 sprite-plus-circle"></span> Menu');
+					$this.html('<span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> Menu');
 				}
 				
 				genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=0');
@@ -199,7 +199,7 @@
 					$li.css('visibility','visible');
 				});
 				
-				$this.html('<span class="cerb-sprite2 sprite-minus-circle"></span> Menu');
+				$this.html('<span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> Menu');
 		
 				genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=1');
 			}

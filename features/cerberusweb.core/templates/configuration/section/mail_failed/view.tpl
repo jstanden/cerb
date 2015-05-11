@@ -11,8 +11,8 @@
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
-		<td nowrap="nowrap" align="right">
-			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="cerb-sprite2 sprite-arrow-circle-135-left"></span></a>
+		<td nowrap="nowrap" align="right" class="title-toolbar">
+			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="glyphicons glyphicons-refresh"></span></a>
 			<input type="checkbox" class="select-all">
 		</td>
 	</tr>
@@ -41,9 +41,9 @@
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
 				{if $view->renderSortAsc}
-					<span class="cerb-sprite sprite-sort_ascending"></span>
+					<span class="glyphicons glyphicons-sort-by-attributes" style="font-size:14px;color:rgb(39,123,213);"></span>
 				{else}
-					<span class="cerb-sprite sprite-sort_descending"></span>
+					<span class="glyphicons glyphicons-sort-by-attributes-alt" style="font-size:14px;color:rgb(39,123,213);"></span>
 				{/if}
 			{/if}
 			</th>
@@ -68,7 +68,7 @@
 			<td>
 				<input type="checkbox" name="row_id[]" value="{$result.mf_name}" style="display:none;">
 				<b class="subject">{$result.mf_name}</b>
-				<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_failed&action=showPeekPopup&file={$result.mf_name}&view_id={$view->id}',null,false,'550');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{'views.peek'|devblocks_translate}"></span></button>
+				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_failed&action=showPeekPopup&file={$result.mf_name}&view_id={$view->id}',null,false,'550');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
 			{elseif $column == SearchFields_MailParseFail::CTIME || $column == SearchFields_MailParseFail::MTIME}
 				<td title="{$result.$column|devblocks_date}">
@@ -115,8 +115,8 @@
 	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
 		{*
-		<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.action.value='viewExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
-		{if $active_worker->hasPriv('calls.actions.update_all')}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction�ion=calendar&action=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
+		<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.action.value='viewExplore';this.form.submit();"><span class="glyphicons glyphicons-play-button"></span> {'common.explore'|devblocks_translate|lower}</button>
+		{if $active_worker->hasPriv('calls.actions.update_all')}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction�ion=calendar&action=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
 		*}
 	</div>
 	{/if}

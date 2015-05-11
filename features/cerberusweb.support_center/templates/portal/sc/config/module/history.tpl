@@ -16,7 +16,7 @@
 		{/foreach}
 		</select>
 		
-		<button type="button" onclick="$(this).closest('div').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></button>
+		<button type="button" onclick="$(this).closest('div').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></button>
 	</div>
 	{/foreach}
 	
@@ -30,10 +30,10 @@
 		{/foreach}
 		</select>
 		
-		<button type="button" onclick="$(this).closest('div').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></button>
+		<button type="button" onclick="$(this).closest('div').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></button>
 	</div>
 	
-	<button type="button" class="add-column"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+	<button type="button" class="add-column"><span class="glyphicons glyphicons-circle-plus"></span></button>
 	
 </div>
 

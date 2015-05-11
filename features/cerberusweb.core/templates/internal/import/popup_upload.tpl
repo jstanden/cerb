@@ -10,7 +10,7 @@
 	<input type="file" name="csv_file">
 </fieldset>
 
-<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.upload'|devblocks_translate|capitalize}</button>
+<button type="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.upload'|devblocks_translate|capitalize}</button>
 </form>
 
 <iframe id="iframe_file_post" name="iframe_file_post" style="visibility:hidden;display:none;width:0px;height:0px;background-color:#ffffff;"></iframe>

@@ -26,7 +26,7 @@
 		
 		<!-- Edit -->
 		{if $active_worker->hasPriv('crm.opp.actions.update_all')}	
-		<button type="button" id="btnDisplayOppEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
+		<button type="button" id="btnDisplayOppEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
 	

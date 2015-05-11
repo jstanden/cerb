@@ -1,10 +1,10 @@
 <div style="margin-left:10px;">
 	{'portal.sc.cfg.choose_kb_topics'|devblocks_translate}<br>
 
-	<div style="margin-left:10px;">
+	<div style="margin-left:10px;font-weight:bold;">
 		{assign var=root_id value="0"}
 		{foreach from=$tree_map.$root_id item=category key=category_id}
-			<label><input type="checkbox" name="category_ids[]" value="{$category_id}" {if isset($kb_roots.$category_id)}checked="checked"{/if}> <span class="cerb-sprite sprite-folder"></span> {$categories.$category_id->name}</label><br>
+			<label><input type="checkbox" name="category_ids[]" value="{$category_id}" {if isset($kb_roots.$category_id)}checked="checked"{/if}> {$categories.$category_id->name}</label><br>
 		{/foreach}
 	</div>
 </div>
@@ -42,7 +42,7 @@
 		{/foreach}
 		</select>
 		
-		<button type="button" onclick="$(this).closest('div').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></button>
+		<button type="button" onclick="$(this).closest('div').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></button>
 	</div>
 	{/foreach}
 	
@@ -56,10 +56,10 @@
 		{/foreach}
 		</select>
 		
-		<button type="button" onclick="$(this).closest('div').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></button>
+		<button type="button" onclick="$(this).closest('div').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></button>
 	</div>
 	
-	<button type="button" class="add-column"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+	<button type="button" class="add-column"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span></button>
 	
 </div>
 

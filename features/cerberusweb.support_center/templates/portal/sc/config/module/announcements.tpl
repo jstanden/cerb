@@ -22,7 +22,7 @@
 			<input type="text" name="news_rss_url[]" value="{$news_rss_url}" size="45">
 		</td>
 		<td>
-			<button type="button" class="remove" onclick="$(this).closest('tbody').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></button>			
+			<button type="button" class="remove" onclick="$(this).closest('tbody').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></button>			
 		</td>
 	</tr>
 	</tbody>
@@ -38,14 +38,14 @@
 			<input type="text" name="news_rss_url[]" value="{$news_rss_url}" size="45">
 		</td>
 		<td>
-			<button type="button" class="remove" onclick="$(this).closest('tbody').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></button>			
+			<button type="button" class="remove" onclick="$(this).closest('tbody').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></button>			
 		</td>
 	</tr>
 	</tbody>
 	{/foreach}	
 </table>
 
-<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+<button type="button" class="add"><span class="glyphicons glyphicons-circle-plus"></span></button>
 
 <script type="text/javascript">
 $container = $('#setupScAnnouncements.container'); 

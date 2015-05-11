@@ -10,11 +10,11 @@
 {if !$single}
 <fieldset class="peek">
 	<legend>Include files from these bundles</legend>
-	<button type="button" class="chooser-file-bundle"><span class="cerb-sprite sprite-view"></span></button>
+	<button type="button" class="chooser-file-bundle"><span class="glyphicons glyphicons-search"></span></button>
 </fieldset>
 {/if}
 
-<button type="submit"><span class="cerb-sprite2 sprite-tick-circle" style="vertical-align:middle;"></span> {'common.ok'|devblocks_translate|upper}</button>
+<button type="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);vertical-align:middle;"></span> {'common.ok'|devblocks_translate|upper}</button>
 </form>
 
 <iframe name="iframe_file_post" style="visibility:hidden;display:none;width:0px;height:0px;background-color:#ffffff;"></iframe>

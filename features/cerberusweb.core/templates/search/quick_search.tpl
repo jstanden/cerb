@@ -9,7 +9,7 @@
 
 	<div style="border:1px solid rgb(200,200,200);border-radius:10px;display:inline-block;">
 		<input type="text" name="query" class="input_search cerb-input-quicksearch" style="border:0;" size="50" value="{$quick_search_query}" autocomplete="off" spellcheck="false">
-		<a href="javascript:;" class="cerb-quick-search-menu-trigger" style="position:relative;top:5px;padding:0px 10px;"><span class="cerb-sprite sprite-arrow-down-black" style="height:12px;width:12px;"></span></a>
+		<a href="javascript:;" class="cerb-quick-search-menu-trigger" style="position:relative;top:5px;padding:0px 10px;"><span class="glyphicons glyphicons-chevron-down" style="margin:2px 0px 0px 2px;"></span></a>
 	</div>
 	
 	<ul class="cerb-quick-search-menu" style="position:absolute;float:right;margin-right:10px;z-index:5;display:none;">

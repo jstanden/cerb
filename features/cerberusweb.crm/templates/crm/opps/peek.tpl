@@ -60,7 +60,7 @@
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.watchers'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				{if empty($opp->id)}
-					<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
+					<button type="button" class="chooser_watcher"><span class="glyphicons glyphicons-search"></span></button>
 					<ul class="chooser-container bubbles" style="display:block;"></ul>
 				{else}
 					{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_OPPORTUNITY, array($opp->id), CerberusContexts::CONTEXT_WORKER)}
@@ -90,8 +90,8 @@
 </fieldset>
 
 {if (empty($opp) && $active_worker->hasPriv('crm.opp.actions.create')) || (!empty($opp) && $active_worker->hasPriv('crm.opp.actions.update_all'))}
-	<button type="button" onclick="if($('#formOppPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formOppPeek','{$view_id}',false,'opp_save'); } "><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
-	{if $active_worker->hasPriv('crm.opp.actions.delete') && !empty($opp)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this opportunity?')) { $('#formOppPeek input[name=do_delete]').val('1'); genericAjaxPopupPostCloseReloadView(null,'formOppPeek','{$view_id}',false,'opp_delete'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" onclick="if($('#formOppPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formOppPeek','{$view_id}',false,'opp_save'); } "><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
+	{if $active_worker->hasPriv('crm.opp.actions.delete') && !empty($opp)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this opportunity?')) { $('#formOppPeek input[name=do_delete]').val('1'); genericAjaxPopupPostCloseReloadView(null,'formOppPeek','{$view_id}',false,'opp_delete'); } "><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 {else}
 	<fieldset class="delete">
 		You do not have permission to modify this record.

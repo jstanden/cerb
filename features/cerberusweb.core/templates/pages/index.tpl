@@ -7,11 +7,11 @@
 	<p>
 		Pages allow you to build a completely personalized interface based on your needs.
 		
-		Your most frequently used pages can be added to the menu above by clicking on the <button type="button"><span class="cerb-sprite2 sprite-plus-circle"></span></button> button.
+		Your most frequently used pages can be added to the menu above by clicking on the <button type="button"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span></button> button.
 	</p>
 	
 	<p>
-		New pages can be added by clicking on the <span class="cerb-sprite2 sprite-plus-circle-frame" style="vertical-align:middle;"></span> icon in the <span class="help callout-worklist">Pages</span> list below.
+		New pages can be added by clicking on the <span class="glyphicons glyphicons-circle-plus"></span> icon in the <span class="help callout-worklist">Pages</span> list below.
 	</p>
 	
 	<p style="margin-top:10px;">

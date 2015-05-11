@@ -91,7 +91,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 									5
 									),
 								new DevblocksTourCallout(
-									'#viewpages TABLE.worklist A > SPAN.sprite-plus-circle-frame',
+									'#viewpages TABLE.worklist A > SPAN.glyphicons-circle-plus',
 									'Add Pages',
 									'You can add a page by clicking on the (+) icon in the pages worklist.',
 									'bottomRight',
@@ -319,7 +319,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 							'body' => 'This setup page provides a place to globally manage Virtual Attendants.',
 							'callouts' => array(
 								new DevblocksTourCallout(
-									'#viewsetup_virtual_attendants TABLE.worklist A > SPAN.sprite-plus-circle-frame',
+									'#viewsetup_virtual_attendants TABLE.worklist A > SPAN.glyphicons-circle-plus',
 									'Add Virtual Attendant',
 									'You can add a Virtual Attendant by clicking on the (+) icon in this worklist.',
 									'bottomRight',

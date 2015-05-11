@@ -14,7 +14,7 @@
 <b>Load this snippet:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
 	<div>
-		<button type="button" class="chooser-snippet"><span class="cerb-sprite sprite-view"></span></button>
+		<button type="button" class="chooser-snippet"><span class="glyphicons glyphicons-search"></span></button>
 	</div>
 	<div class="snippet-preview">
 		{if $snippet && $snippet->id}

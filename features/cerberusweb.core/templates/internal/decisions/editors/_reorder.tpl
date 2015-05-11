@@ -22,7 +22,7 @@
 	
 </fieldset>
 {if !empty($node)}{$trigger_id = $node->trigger_id}{elseif !empty($trigger)}{$trigger_id = $trigger->id}{/if}
-<button type="button" onclick="genericAjaxPost('frmDecisionNodeReorder','','',function() { genericAjaxPopupDestroy('peek');genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" onclick="genericAjaxPost('frmDecisionNodeReorder','','',function() { genericAjaxPopupDestroy('peek');genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
 <script type="text/javascript">

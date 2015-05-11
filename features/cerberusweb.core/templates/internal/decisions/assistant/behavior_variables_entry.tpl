@@ -39,7 +39,7 @@
 		</select>
 		{elseif substr($var.type,0,4) == 'ctx_'}
 			{$context = substr($var.type,4)}
-			<button type="button" class="chooser" context="{$context}" node_name="{$field_name}[{$var.key}]"><span class="cerb-sprite sprite-view"></span></button>
+			<button type="button" class="chooser" context="{$context}" node_name="{$field_name}[{$var.key}]"><span class="glyphicons glyphicons-search"></span></button>
 			<ul class="bubbles chooser-container" style="display:inline-block;">
 				{if is_array($variable_values.$var_key)}
 				{foreach from=$variable_values.$var_key item=context_id}

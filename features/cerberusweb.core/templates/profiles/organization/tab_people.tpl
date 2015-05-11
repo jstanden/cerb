@@ -3,7 +3,7 @@
 	<input type="hidden" name="c" value="contacts">
 	<input type="hidden" name="a" value="saveOrgAddPeoplePopup">
 	<input type="hidden" name="org_id" value="{$org_id}">
-	<button type="button" id="{$btnProfileOrgAddPeople}"><span class="cerb-sprite2 sprite-plus-circle"></span> Add People</button>
+	<button type="button" id="{$btnProfileOrgAddPeople}"><span class="glyphicons glyphicons-circle-plus"></span> Add People</button>
 </form>
 
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl"}

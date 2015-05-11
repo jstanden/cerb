@@ -25,8 +25,8 @@
 </fieldset>
 
 <div style="margin:10px 0px;" class="toolbar">
-	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.retry'|devblocks_translate|capitalize}</button>
-	<button type="button" onclick="$(this).closest('div.toolbar').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.retry'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="$(this).closest('div.toolbar').hide().prev('fieldset.delete').show();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 </div>
 
 </form>

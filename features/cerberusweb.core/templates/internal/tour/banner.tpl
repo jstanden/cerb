@@ -24,7 +24,8 @@
 				<b>Points of Interest:</b>
 				<div style="margin:5px;">
 				{foreach from=$tour.callouts item=callout key=callout_id name=callouts}
-					<span class="cerb-sprite sprite-help"></span> <a href="javascript:;" id="callout{$callout_id}">{$callout->title}</a>
+					<span class="glyphicons glyphicons-pushpin"></span> <a href="javascript:;" id="callout{$callout_id}">{$callout->title}</a>
+					 &nbsp; 
 				{/foreach}
 				</div>
 			{/if}

@@ -59,8 +59,8 @@
 {/if}
 
 <div class="toolbar">
-	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.ok'|devblocks_translate}</button>
-	<button type="button" onclick="genericAjaxPopup('simulate_behavior','c=internal&a=showBehaviorSimulatorPopup&trigger_id={$macro->id}&context={$context}&context_id={$context_id}','reuse',false,'500');"> <span class="cerb-sprite2 sprite-gear"></span> Simulator</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.ok'|devblocks_translate}</button>
+	<button type="button" onclick="genericAjaxPopup('simulate_behavior','c=internal&a=showBehaviorSimulatorPopup&trigger_id={$macro->id}&context={$context}&context_id={$context_id}','reuse',false,'500');"> <span class="glyphicons glyphicons-cogwheel"></span> Simulator</button>
 </div>
 
 </form>

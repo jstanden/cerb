@@ -17,7 +17,7 @@
 		<br>
 		
 		{if $active_worker->is_superuser}
-			<button type="button" onclick="genericAjaxPost('frmPortalAddTemplatePeek', 'divPortalAddTemplate', '');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
+			<button type="button" onclick="genericAjaxPost('frmPortalAddTemplatePeek', 'divPortalAddTemplate', '');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 		{else}
 			<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>	
 		{/if}

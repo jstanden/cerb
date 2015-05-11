@@ -36,7 +36,7 @@
 			<td width="0%" nowrap="nowrap" valign="middle" align="right">{'common.watchers'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				{if empty($contact->id)}
-					<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
+					<button type="button" class="chooser_watcher"><span class="glyphicons glyphicons-search"></span></button>
 					<ul class="chooser-container bubbles" style="display:block;"></ul>
 				{else}
 					{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_CONTACT_PERSON, array($contact->id), CerberusContexts::CONTEXT_WORKER)}
@@ -66,8 +66,8 @@
 </fieldset>
 
 {if $active_worker->hasPriv('core.addybook.person.actions.update')}
-	<button type="button" onclick="if($('#formContactPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formContactPeek', '{$view_id}', false, 'contact_save'); }"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
-	{if $active_worker->hasPriv('core.addybook.person.actions.delete') && !empty($contact)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this contact person?')) { $('#formContactPeek input[name=do_delete]').val('1'); genericAjaxPopupPostCloseReloadView(null,'formContactPeek','{$view_id}',false,'contact_delete'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" onclick="if($('#formContactPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formContactPeek', '{$view_id}', false, 'contact_save'); }"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
+	{if $active_worker->hasPriv('core.addybook.person.actions.delete') && !empty($contact)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this contact person?')) { $('#formContactPeek input[name=do_delete]').val('1'); genericAjaxPopupPostCloseReloadView(null,'formContactPeek','{$view_id}',false,'contact_delete'); } "><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>
 {/if}

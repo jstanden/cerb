@@ -18,7 +18,7 @@
 <input type="text" name="email" size="45" value=""><br>
 <br>
 
-<button type="button" onclick="genericAjaxPopupClose('peek');this.form.submit();"><span class="cerb-sprite sprite-export"></span> {'common.export'|devblocks_translate|capitalize}</button>
+<button type="button" onclick="genericAjaxPopupClose('peek');this.form.submit();"><span class="glyphicons glyphicons-file-export"></span></a> {'common.export'|devblocks_translate|capitalize}</button>
 
 </form>
 

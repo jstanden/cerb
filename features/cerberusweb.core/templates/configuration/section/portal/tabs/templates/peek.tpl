@@ -12,9 +12,9 @@
 <br>
 
 {if $active_worker->is_superuser}
-	<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formPortalTemplatePeek', 'view{$view_id}', '');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
+	<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formPortalTemplatePeek', 'view{$view_id}', '');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 	{if !$disabled}
-		{if $active_worker->is_superuser}<button type="button" onclick="if(confirm('Are you sure you want to revert this template to the default?')){literal}{{/literal}this.form.do_delete.value='1';genericAjaxPopupClose('peek');genericAjaxPost('formPortalTemplatePeek', 'view{$view_id}', '');{literal}}{/literal}"><span class="cerb-sprite sprite-refresh"></span> {'Revert'|devblocks_translate|capitalize}</button>{/if}
+		{if $active_worker->is_superuser}<button type="button" onclick="if(confirm('Are you sure you want to revert this template to the default?')){literal}{{/literal}this.form.do_delete.value='1';genericAjaxPopupClose('peek');genericAjaxPost('formPortalTemplatePeek', 'view{$view_id}', '');{literal}}{/literal}"><span class="glyphicons glyphicons-refresh"></span></a> {'Revert'|devblocks_translate|capitalize}</button>{/if}
 	{/if}
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>	

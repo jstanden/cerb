@@ -2,7 +2,7 @@
 <fieldset id="{$target_divid}" class="peek">
 	<legend>Target: {$context_ext->manifest->name}</legend>
 	
-	<button class="chooser"><span class="cerb-sprite sprite-view"></span></button>
+	<button class="chooser"><span class="glyphicons glyphicons-search"></span></button>
 	<b>{$values._label}</b>
 </fieldset>
 

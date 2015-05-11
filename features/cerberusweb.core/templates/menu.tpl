@@ -19,7 +19,7 @@
 	{/if}
 	
 	<li style="border-right:0;" class="add {if $page->id=='core.page.pages' && count($response_path)==1}selected{/if}">
-		<a href="{devblocks_url}c=pages{/devblocks_url}" style="font-weight:normal;text-decoration:none;">{if $page->id=='core.page.pages' && count($response_path)==1}<span class="cerb-sprite sprite-arrow-down-white" style="height:12px;width:12px;"></span>{else}<span class="cerb-sprite sprite-arrow-down-black" style="height:12px;width:12px;"></span>{/if}</a>
+		<a href="{devblocks_url}c=pages{/devblocks_url}" style="font-weight:normal;text-decoration:none;">{if $page->id=='core.page.pages' && count($response_path)==1}<span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span>{else}<span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:rgb(50,50,50);"></span>{/if}</a>
 	</li>
 	
 	{if $active_worker->is_superuser}
@@ -29,7 +29,7 @@
 	{/if}
 
 	<li class="tour-navmenu-search{if $page->id=='core.page.search'} selected{/if}" style="float:right;">
-		<a href="javascript:;" class="submenu">{'common.search'|devblocks_translate|lower} <span class="cerb-sprite {if $page->id=='core.page.search'}sprite-arrow-down-white{else}sprite-arrow-down-black{/if}" style="height:12px;width:12px;"></span></a>
+		<a href="javascript:;" class="submenu">{'common.search'|devblocks_translate|lower} <span class="glyphicons glyphicons-chevron-down" style="{if $page->id=='core.page.search'}color:white;{else}{/if}"></span></a>
 		<ul class="cerb-popupmenu cerb-float">
 			{foreach from=$contexts item=context key=context_id}
 			{if isset($context->params.options.0.workspace)}

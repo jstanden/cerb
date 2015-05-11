@@ -4,12 +4,12 @@
 {assign var=lastrun value=$job->getParam('lastrun',0)}
 
 {if $locked}
-	<span class="cerb-sprite sprite-lock" title="Locked"></span>
+	<span class="glyphicons glyphicons-lock" title="Locked" style="font-size:16px;color:rgb(246,203,13);"></span>
 {else}
 	{if $enabled}
-		<span class="cerb-sprite2 sprite-tick-circle" title="Enabled"></span>
+		<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(0,180,0);"></span>
 	{else}
-		<span class="cerb-sprite2 sprite-minus-circle" title="Disabled"></span>
+		<span class="glyphicons glyphicons-circle-remove" style="font-size:16px;color:rgb(185,185,185);"></span>
 	{/if}
 {/if}
 

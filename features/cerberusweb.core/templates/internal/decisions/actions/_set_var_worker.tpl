@@ -1,6 +1,6 @@
 <b>From these workers:</b>
 <div style="margin-left:10px;">
-	<button type="button" class="chooser_worker unbound"><span class="cerb-sprite sprite-view"></span></button>
+	<button type="button" class="chooser_worker unbound"><span class="glyphicons glyphicons-search"></span></button>
 	<ul class="chooser-container bubbles" style="display:block;">
 	{if isset($params.worker_id)}
 	{foreach from=$params.worker_id item=worker_id}
@@ -15,7 +15,7 @@
 
 <b>And the workers from these groups:</b>
 <div style="margin-left:10px;">
-	<button type="button" class="chooser_group unbound"><span class="cerb-sprite sprite-view"></span></button>
+	<button type="button" class="chooser_group unbound"><span class="glyphicons glyphicons-search"></span></button>
 	<ul class="chooser-container bubbles" style="display:block;">
 	{if isset($params.group_id)}
 	{foreach from=$params.group_id item=group_id}

@@ -10,10 +10,10 @@
 			{assign var=parent_id value=$categories.$root_id->parent_id}
 		{/if}
 			
-		{if !empty($root_id)}<button type="button" class="category_edit"><span class="cerb-sprite2 sprite-folder-gear"></span> Edit {if $parent_id}Category{else}Topic{/if}</button>{/if}
-		<button type="button" class="category_add"><span class="cerb-sprite sprite-folder_add"></span> Add {if empty($root_id)}Topic{else}Subcategory{/if}</button>
+		{if !empty($root_id)}<button type="button" class="category_edit"><span class="glyphicons glyphicons-folder-closed"></span></a> Edit {if $parent_id}Category{else}Topic{/if}</button>{/if}
+		<button type="button" class="category_add"><span class="glyphicons glyphicons-folder-plus"></span> Add {if empty($root_id)}Topic{else}Subcategory{/if}</button>
 			
-		<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&view_id={$view->id}',null,false,'700');"><span class="cerb-sprite2 sprite-plus-circle"></span> Add Article</button>
+		<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&view_id={$view->id}',null,false,'700');"><span class="glyphicons glyphicons-circle-plus"></span> Add Article</button>
 	{/if}
 </form>
 
@@ -41,7 +41,7 @@
 		<tr>
 		<td width="50%" valign="top">
 		{foreach from=$tree.$root_id item=count key=cat_id name=kbcats}
-			<span class="cerb-sprite sprite-folder"></span>
+			<span class="glyphicons glyphicons-folder-closed" style="color:rgb(80,80,80);"></span> 
 			<a href="javascript:;" onclick="genericAjaxGet('divKbTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab->extension_id}&tab_id={$tab->id}&action=changeCategory&category_id={$cat_id}');" style="font-weight:bold;">{$categories.$cat_id->name}</a> ({$count|string_format:"%d"})<br>
 		
 			{if !empty($tree.$cat_id)}

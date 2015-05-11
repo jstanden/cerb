@@ -14,5 +14,5 @@
 		{/foreach}
 	</optgroup>
 </select>
-<button type="button" onclick="$(this).closest('div.drag').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></button>
+<button type="button" onclick="$(this).closest('div.drag').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></button>
 </div>

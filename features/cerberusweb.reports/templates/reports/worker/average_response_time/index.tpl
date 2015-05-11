@@ -5,8 +5,8 @@
 {if $invalidDate}<font color="red"><b>{'reports.ui.invalid_date'|devblocks_translate}</b></font>{/if}
 
 <form action="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}&report=report.workers.averageresponsetime{/devblocks_url}" method="POST" id="frmRange" name="frmRange">
-<input type="text" name="start" id="start" size="24" value="{$start}"><button type="button" onclick="devblocksAjaxDateChooser('#start','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
-<input type="text" name="end" id="end" size="24" value="{$end}"><button type="button" onclick="devblocksAjaxDateChooser('#end','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
+<input type="text" name="start" id="start" size="24" value="{$start}"><button type="button" onclick="devblocksAjaxDateChooser('#start','#divCal');"><span class="glyphicons glyphicons-calendar"></span></button>
+<input type="text" name="end" id="end" size="24" value="{$end}"><button type="button" onclick="devblocksAjaxDateChooser('#end','#divCal');"><span class="glyphicons glyphicons-calendar"></span></button>
 
 <div id="divCal"></div>
 

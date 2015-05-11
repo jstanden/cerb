@@ -79,7 +79,7 @@
 					<button type="button" onclick="$(this).siblings('select').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
 					<button type="button" onclick="$(this).siblings('select').val('');">{'common.nobody'|devblocks_translate|lower}</button>
 				{elseif $f->type==Model_CustomField::TYPE_LINK}
-					<button type="button" field_name="{$field_name}" class="chooser-abstract" context="{$f->params.context}"><span class="cerb-sprite sprite-view"></span></button>
+					<button type="button" field_name="{$field_name}" class="chooser-abstract" context="{$f->params.context}"><span class="glyphicons glyphicons-search"></span></button>
 					
 					<ul class="bubbles chooser-container">
 						{if $custom_field_values.$f_id}

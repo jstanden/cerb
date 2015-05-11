@@ -15,8 +15,8 @@
 
 <br>
 
-<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> Continue replying</button>
-<button type="button" class="cancel"><span class="cerb-sprite2 sprite-cross-circle"></span> Cancel</button>
+<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Continue replying</button>
+<button type="button" class="cancel"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> Cancel</button>
 
 </form>
 </div>

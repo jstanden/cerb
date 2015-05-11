@@ -53,8 +53,8 @@
 </fieldset>
 
 <div style="margin-top:10px;" id="divCerb6PluginPopupToolbar">
-	<button type="button" id="btnPluginSave"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $is_uninstallable}<button type="button" onclick="$('#divCerb6PluginPopupToolbar').fadeOut();$(this).closest('form').find('#fsCerb6PluginUninstall').fadeIn();"><span class="cerb-sprite2 sprite-cross-circle"></span> Uninstall</button>{/if}
+	<button type="button" id="btnPluginSave"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if $is_uninstallable}<button type="button" onclick="$('#divCerb6PluginPopupToolbar').fadeOut();$(this).closest('form').find('#fsCerb6PluginUninstall').fadeIn();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> Uninstall</button>{/if}
 </div>
 </form>
 

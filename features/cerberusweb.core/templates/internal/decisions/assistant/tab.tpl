@@ -6,7 +6,7 @@
 	<form action="javascript:;" id="frmTrigger{$tab_uniqid}" onsubmit="return false;">
 	
 	<div style="float:left;">
-		<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle"></span> Create Behavior</button>
+		<button type="button" class="add"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> Create Behavior</button>
 	</div>
 	
 	</form>

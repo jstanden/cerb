@@ -6,10 +6,10 @@
 $(function() {
 	
 var on_refresh = function() {
-	$worklist = $('#view{$view->id}').find('TABLE.worklist');
+	var $worklist = $('#view{$view->id}').find('TABLE.worklist');
 	$worklist.hide();
 	
-	$widget = $worklist.closest('div.dashboard-widget');
+	var $widget = $worklist.closest('div.dashboard-widget');
 	
 	var $worklist_links = $('<div style="margin-bottom:5px;float:right;visibility:hidden;"></div>');
 
@@ -21,13 +21,13 @@ var on_refresh = function() {
 		}
 	});
 	
-	$header_links = $worklist.find('> tbody > tr:first td:nth(1)');
+	var $header_links = $worklist.find('> tbody > tr:first td:nth(1)');
 	$header_links.children().each(function(e) {
-		if($(this).is('a.minimal') && 0 != $(this).find('span.sprite-plus-circle-frame').length) //, span.sprite-gear
+		if($(this).is('a.minimal'))
 			$(this).css('margin-right','5px').appendTo($worklist_links);
 	});
 
-	$worklist_body = $('#view{$view->id}').find('TABLE.worklistBody');
+	var $worklist_body = $('#view{$view->id}').find('TABLE.worklistBody');
 
 	$worklist_body
 		.attr('cellpadding', '1')
@@ -35,11 +35,9 @@ var on_refresh = function() {
 		;
 	
 	// Hide watchers column (if exists)
-	
 	var $th_watchers = $worklist_body.find('tr:first th:contains(Watchers)').first();
 	if($th_watchers.length > 0) {
 		$th_watchers.hide();
-		$worklist_body.find('tbody').find('> tr > td:first').hide();
 	}
 	
 	$worklist_body.find('tr:first th').each(function(e) {
@@ -61,7 +59,7 @@ var on_refresh = function() {
 			if($td.is(':hidden'))
 				return;
 			
-			if($td.find('button.split-right').length > 0) {
+			if($td.find('button > div.badge-count').length > 0) {
 				$td.hide();
 				return;
 			}
@@ -115,7 +113,7 @@ var on_refresh = function() {
 		})
 		;
 	
-	$sort_links = $('<div style="margin-bottom:5px;"></div>');
+	var $sort_links = $('<div style="margin-bottom:5px;"></div>');
 	
 	$worklist_body.find('tr:first th:not(:hidden)')
 		.each(function(e) {
@@ -142,8 +140,8 @@ var on_refresh = function() {
 
 on_refresh();
 
-$view = $('#view{$view_id}');
-$widget = $view.closest('div.dashboard-widget');
+var $view = $('#view{$view_id}');
+var $widget = $view.closest('div.dashboard-widget');
 
 $widget.undelegate('DIV[id^=view]','view_refresh');
 $widget.delegate('DIV[id^=view]','view_refresh', on_refresh);

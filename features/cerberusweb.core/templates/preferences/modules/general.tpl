@@ -114,9 +114,9 @@
 			<input type="hidden" name="worker_emails[]" value="{$address->address}">
 
 			{if 0 == strcasecmp($address->address, $active_worker->email)}
-			<button type="button"><span class="cerb-sprite2 sprite-tick-circle-gray"></span></button>
+			<button type="button"><span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);"></span></button>
 			{else}
-			<button type="button" onclick="if(confirm('Are you sure you want to delete this email address?')) { $(this).closest('li').remove(); }" class="delete"><span class="cerb-sprite2 sprite-minus-circle"></span></button>
+			<button type="button" onclick="if(confirm('Are you sure you want to delete this email address?')) { $(this).closest('li').remove(); }" class="delete"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></button>
 			{/if}
 
 			<b>{$address->address}</b>
@@ -139,7 +139,7 @@
 	</ul>
 </fieldset>
 
-<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
+<button type="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 </form>
 
 <form action="{devblocks_url}{/devblocks_url}" name="resendConfirmationForm" method="post">

@@ -97,15 +97,15 @@
 				{/foreach}
 			</select>
 		</p>
-		<button type="button" value="move" onclick="$(this).closest('form').find('input:hidden[name=submit]').val('move');genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.continue'|devblocks_translate|capitalize}</button>
-		<button type="button" onclick="$(this).closest('fieldset').fadeOut().siblings('div.toolbar').fadeIn();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+		<button type="button" value="move" onclick="$(this).closest('form').find('input:hidden[name=submit]').val('move');genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.continue'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="$(this).closest('fieldset').fadeOut().siblings('div.toolbar').fadeIn();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 	</fieldset>
 	{/if}
 	
 	<div class="toolbar">
-		<button id="frmConfigFieldSourceSubmit" type="button" onclick="$(this).closest('form').find('input:hidden[name=submit]').val('');genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-		{if !empty($fieldsets)}<button id="frmConfigFieldSourceMove" type="button"><span class="cerb-sprite2 sprite-arrow-merge-090-left"></span> Move selected to fieldset</button>{/if}
-		<button id="frmConfigFieldSourceDelete" type="button"><span class="cerb-sprite2 sprite-cross-circle"></span> Delete selected</button>
+		<button id="frmConfigFieldSourceSubmit" type="button" onclick="$(this).closest('form').find('input:hidden[name=submit]').val('');genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		{if !empty($fieldsets)}<button id="frmConfigFieldSourceMove" type="button"><span class="glyphicons glyphicons-chevron-right"></span> Move selected to fieldset</button>{/if}
+		<button id="frmConfigFieldSourceDelete" type="button"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> Delete selected</button>
 	</div>
 </fieldset>
 

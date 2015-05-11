@@ -11,7 +11,7 @@
 	<ul class="buffer bubbles"></ul>
 	<br>
 	<br>
-	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 </form>
 <br>
 

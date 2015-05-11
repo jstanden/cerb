@@ -46,7 +46,7 @@
 								{if !empty($content)}
 									<a href="{$url}" target="_blank">{$content}</a>
 								{else} 
-									<a href="{$url}" target="_blank">{$url}</a>
+									<a href="{$url}" target="_blank">{$url|truncate:100}</a>
 								{/if} 
 								<div style="margin-top:5px;">
 								{if !empty($toolbar_extension) && !empty($item) && method_exists($toolbar_extension, 'render')}
@@ -57,15 +57,15 @@
 							<td width="1%" nowrap="nowrap" align="right" valign="top" style="padding-right:10px;padding-top:10px;">
 								{if !empty($count)}
 								<form action="#" method="get">
-								{if $prev}<button id="btnExplorerPrev" type="button" onclick="this.form.action='{devblocks_url}c=explore&hash={$hashset}&p={$prev}{/devblocks_url}';this.form.submit();">&laquo;</button>{/if}
+								{if $prev}<button id="btnExplorerPrev" type="button" onclick="this.form.action='{devblocks_url}c=explore&hash={$hashset}&p={$prev}{/devblocks_url}';this.form.submit();"><span class="glyphicons glyphicons-chevron-left"></span></button>{/if}
 								<b>{$p}</b> of <b>{$count}</b> 
-								{if $next}<button id="btnExplorerNext" type="button" onclick="this.form.action='{devblocks_url}c=explore&hash={$hashset}&p={$next}{/devblocks_url}';this.form.submit();">&raquo;</button>{/if}
+								{if $next}<button id="btnExplorerNext" type="button" onclick="this.form.action='{devblocks_url}c=explore&hash={$hashset}&p={$next}{/devblocks_url}';this.form.submit();"><span class="glyphicons glyphicons-chevron-right"></span></button>{/if}
 								</form>
 								{/if}
 							</td>
 							<td style="padding-right:10px;padding-top:10px;" valign="top">
 								<form action="{if !empty($url)}{$url}{else}{$return_url}{/if}" method="get">
-								<button type="button" onclick="this.form.submit();"> X </button>
+								<button type="button" onclick="this.form.submit();"><span class="glyphicons glyphicons-circle-remove"></span></button>
 								</form>
 							</td>
 						</tr>

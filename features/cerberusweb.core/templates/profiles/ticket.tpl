@@ -47,30 +47,30 @@
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
 		
 		<!-- Edit -->		
-		<button type="button" id="btnDisplayTicketEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
+		<button type="button" id="btnDisplayTicketEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		
 		{if !$ticket->is_deleted}
 			{if $ticket->is_closed}
-				<button type="button" title="{'common.reopen'|devblocks_translate|capitalize}" onclick="this.form.closed.value='0';this.form.submit();">&nbsp;<span class="cerb-sprite sprite-folder_out">&nbsp;</span></button>
+				<button type="button" title="{'common.reopen'|devblocks_translate|capitalize}" onclick="this.form.closed.value='0';this.form.submit();"><span class="glyphicons glyphicons-upload"></span></button>
 			{else}
-				{if $active_worker->hasPriv('core.ticket.actions.close')}<button title="{'display.shortcut.close'|devblocks_translate|capitalize}" id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();">&nbsp;<span class="cerb-sprite2 sprite-tick-circle"></span>&nbsp;</button>{/if}
+				{if $active_worker->hasPriv('core.ticket.actions.close')}<button title="{'display.shortcut.close'|devblocks_translate|capitalize}" id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();"><span class="glyphicons glyphicons-circle-ok"></span></button>{/if}
 			{/if}
 			
 			{if empty($ticket->spam_training)}
-				{if $active_worker->hasPriv('core.ticket.actions.spam')}<button title="{'display.shortcut.spam'|devblocks_translate|capitalize}" id="btnSpam" type="button" onclick="this.form.spam.value='1';this.form.submit();">&nbsp;<span class="cerb-sprite sprite-spam"></span>&nbsp;</button>{/if}
+				{if $active_worker->hasPriv('core.ticket.actions.spam')}<button title="{'display.shortcut.spam'|devblocks_translate|capitalize}" id="btnSpam" type="button" onclick="this.form.spam.value='1';this.form.submit();"><span class="glyphicons glyphicons-ban"></span></button>{/if}
 			{/if}
 		{/if}
 		
 		{if $ticket->is_deleted}
-			<button type="button" title="{'common.undelete'|devblocks_translate|capitalize}" onclick="this.form.deleted.value='0';this.form.closed.value=0;this.form.submit();">&nbsp;<span class="cerb-sprite2 sprite-cross-circle-gray"></span>&nbsp;</button>
+			<button type="button" title="{'common.undelete'|devblocks_translate|capitalize}" onclick="this.form.deleted.value='0';this.form.closed.value=0;this.form.submit();"><span class="glyphicons glyphicons-upload"></span></button>
 		{else}
-			{if $active_worker->hasPriv('core.ticket.actions.delete')}<button title="{'display.shortcut.delete'|devblocks_translate}" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();">&nbsp;<span class="cerb-sprite2 sprite-cross-circle"></span>&nbsp;</button>{/if}
+			{if $active_worker->hasPriv('core.ticket.actions.delete')}<button title="{'display.shortcut.delete'|devblocks_translate}" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();"><span class="glyphicons glyphicons-circle-remove"></span></button>{/if}
 		{/if}
 		
-		{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPopup('merge','c=display&a=showMergePanel&ticket_id={$ticket->id}',null,false,'500');" title="{'mail.merge'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-arrow-merge-090-left"></span>&nbsp;</button>{/if}
+		{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPopup('merge','c=display&a=showMergePanel&ticket_id={$ticket->id}',null,false,'500');" title="{'mail.merge'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-git-merge"></span></button>{/if}
 		
-		<button id="btnPrint" title="{'display.shortcut.print'|devblocks_translate}" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();">&nbsp;<span class="cerb-sprite sprite-printer"></span>&nbsp;</button>
-		<button type="button" title="{'common.refresh'|devblocks_translate|capitalize}" onclick="document.location='{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
+		<button id="btnPrint" title="{'display.shortcut.print'|devblocks_translate}" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();"><span class="glyphicons glyphicons-print"></span></button>
+		<button type="button" title="{'common.refresh'|devblocks_translate|capitalize}" onclick="document.location='{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}';"><span class="glyphicons glyphicons-refresh"></span></button>
 	</form>
 	
 	<form action="{devblocks_url}{/devblocks_url}" method="post" name="frmPrint" id="frmPrint" target="_blank" style="display:none;"></form>

@@ -27,7 +27,7 @@
 		
 		<!-- Edit -->
 		{if $file_bundle->isWriteableByActor($active_worker)}
-		<button type="button" id="btnDisplayFileBundleEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
+		<button type="button" id="btnDisplayFileBundleEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
 	

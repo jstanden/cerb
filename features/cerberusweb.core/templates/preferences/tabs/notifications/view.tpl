@@ -6,14 +6,14 @@
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
-		<td nowrap="nowrap" align="right">
-			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="cerb-sprite2 sprite-document-search-result"></span></a>
-			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="cerb-sprite2 sprite-gear"></span></a>
-			<a href="javascript:;" title="Subtotals" class="subtotals minimal"><span class="cerb-sprite2 sprite-application-sidebar-list"></span></a>
-			<a href="javascript:;" title="{'common.export'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="cerb-sprite2 sprite-application-export"></span></a>
-			<a href="javascript:;" title="{'common.copy'|devblocks_translate|capitalize}" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="cerb-sprite2 sprite-applications"></span></a>
-			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="cerb-sprite2 sprite-arrow-circle-135-left"></span></a>
-			{if $active_worker->hasPriv('core.rss')}<a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewRss&view_id={$view->id}&source=core.rss.source.notification');toggleDiv('{$view->id}_tips','block');"><span class="cerb-sprite sprite-rss"></span></a>{/if}
+		<td nowrap="nowrap" align="right" class="title-toolbar">
+			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
+			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
+			<a href="javascript:;" title="Subtotals" class="subtotals minimal"><span class="glyphicons glyphicons-signal"></span></a>
+			<a href="javascript:;" title="{'common.export'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-file-export"></span></a>
+			<a href="javascript:;" title="{'common.copy'|devblocks_translate|capitalize}" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-duplicate"></span></a>
+			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="glyphicons glyphicons-refresh"></span></a>
+			{if $active_worker->hasPriv('core.rss')}<a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewRss&view_id={$view->id}&source=core.rss.source.notification');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-wifi"></span></a>{/if}
 			<input type="checkbox" class="select-all">
 		</td>
 	</tr>
@@ -35,17 +35,18 @@
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
 			{if $header=="x"}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy=we_id');">{'common.id'|devblocks_translate|capitalize}</a>
-			{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy={$header}');">{$view_fields.$header->db_label}</a>
+			{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy={$header}');">{$view_fields.$header->db_label|capitalize}</a>
 			{/if}
 			
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
 				{if $view->renderSortAsc}
-					<span class="cerb-sprite sprite-sort_ascending"></span>
+					<span class="glyphicons glyphicons-sort-by-attributes" style="font-size:14px;color:rgb(39,123,213);"></span>
 				{else}
-					<span class="cerb-sprite sprite-sort_descending"></span>
+					<span class="glyphicons glyphicons-sort-by-attributes-alt" style="font-size:14px;color:rgb(39,123,213);"></span>
 				{/if}
 			{/if}
+			
 			</th>
 		{/foreach}
 	</tr>
@@ -66,7 +67,7 @@
 				{* If we're looking at the target context, hide the text in the entry *}
 				{$entry = json_decode($result.we_entry_json, true)}
 				{$params_req = $view->getParamsRequired()}
-				{if $result.we_is_read}<span class="cerb-sprite2 sprite-tick-circle-gray"></span> {/if}
+				{if $result.we_is_read}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);"></span> {/if}
 				{CerberusContexts::formatActivityLogEntry($entry,'html') nofilter}
 			</td>
 		</tr>
@@ -88,7 +89,7 @@
 					&nbsp;
 				</td>
 			{elseif $column=="we_is_read"}
-				<td valign="top">{if $result.$column}<span class="cerb-sprite2 sprite-tick-circle-gray"></span>{/if}&nbsp;</td>
+				<td valign="top">{if $result.$column}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);"></span>{/if}&nbsp;</td>
 			{else}
 				<td valign="top">{$result.$column}&nbsp;</td>
 			{/if}
@@ -123,9 +124,9 @@
 	
 	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
-		<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewNotificationsExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
-		<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=preferences&a=showNotificationsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>
-		<button type="button" class="action-markread" onclick="genericAjaxPost($(this).closest('form'),'view{$view->id}','c=preferences&a=viewNotificationsMarkRead');"><span class="cerb-sprite2 sprite-folder-tick-circle"></span> {'home.my_notifications.button.mark_read'|devblocks_translate|lower}</button>
+		<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewNotificationsExplore';this.form.submit();"><span class="glyphicons glyphicons-play-button"></span> {'common.explore'|devblocks_translate|lower}</button>
+		<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=preferences&a=showNotificationsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>
+		<button type="button" class="action-markread" onclick="genericAjaxPost($(this).closest('form'),'view{$view->id}','c=preferences&a=viewNotificationsMarkRead');"><span class="glyphicons glyphicons-ok"></span> {'home.my_notifications.button.mark_read'|devblocks_translate|lower}</button>
 	</div>
 	{/if}
 </div>

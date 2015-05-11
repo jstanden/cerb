@@ -21,7 +21,7 @@
 			<td colspan="2">
 				<div class="ui-widget">
 					<div class="ui-state-error ui-corner-all" style="padding: 0.7em; margin: 0.2em; "> 
-						<span class="cerb-sprite2 sprite-exclamation-red"></span>
+						<span class="glyphicons glyphicons-circle-exclamation-mark" style="font-size:16px;color:rgb(200,0,0);"></span>
 						<strong>Error!</strong>
 						This mailbox has failed to check mail for {$pop3_account->num_fails} consecutive attempt{if $pop3_account->num_fails > 1}s{/if}.
 					</div>
@@ -116,9 +116,9 @@
 
 	
 	<div class="toolbar">
-		<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-		<button type="button" class="tester"><span class="cerb-sprite2 sprite-gear"></span> Test Mailbox</button>
-		<button type="button" class="delete" onclick="$(this).closest('div.toolbar').hide().prev('fieldset.delete').fadeIn();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+		<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		<button type="button" class="tester"><span class="glyphicons glyphicons-cogwheel"></span> Test Mailbox</button>
+		<button type="button" class="delete" onclick="$(this).closest('div.toolbar').hide().prev('fieldset.delete').fadeIn();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 	</div>
 </fieldset>
 

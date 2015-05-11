@@ -92,10 +92,12 @@ FORM {
 }
 
 BUTTON {
+	height: 26px;
 	color: $cerb-base-button-text-color;
 	padding: 5px;
+	font-weight: bold;
 	margin: 0px 1px 0px 0px;
-	border: 0px;
+	border: 0;
 	vertical-align: middle;
 	cursor: pointer;
 
@@ -104,12 +106,23 @@ BUTTON {
 
 	&:hover {
 		@include linear-gradient(rgb(238,242,245), rgb(160,198,254));
+		color: rgb(39,123,213);
 		cursor:pointer;
+		
+		SPAN.glyphicons {
+			color:rgb(39,123,213);
+		}
 	}
 
 	&::-moz-focus-inner {
 		border: 0;
 		padding: 0;
+	}
+	
+	SPAN.glyphicons {
+		color:rgb(80,80,80);
+		font-size: 16px;
+		//text-shadow:0 1px 0 rgba(200,200,200,0.5);
 	}
 
 	SPAN {

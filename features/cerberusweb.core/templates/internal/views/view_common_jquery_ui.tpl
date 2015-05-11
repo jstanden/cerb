@@ -17,7 +17,7 @@ $(function() {
 			
 			if (false == $target instanceof jQuery) {
 				// Not a jQuery object
-			} else if($target.is(':input,:button,a,img,span.cerb-sprite,span.cerb-sprite2,span.cerb-label')) {
+			} else if($target.is(':input,:button,a,img,span.glyphicons,span.cerb-label')) {
 				// Ignore form elements and links
 			} else {
 				e.stopPropagation();
@@ -138,7 +138,7 @@ $(function() {
 		var $th = $(this);
 		var $a = $th.find('a');
 		
-		$th.find('span.cerb-sprite').prependTo($th);
+		$th.find('span.glyphicons').prependTo($th);
 		
 		$a.attr('title', $a.text());
 		$a.html('&nbsp;&nbsp;&nbsp;');
@@ -201,7 +201,7 @@ $(function() {
 		} catch(e) { }
 		{/foreach}
 
-		var $va_button = $('<a href="javascript:;" title="This worklist was modified by Virtual Attendants"><span class="cerb-sprite2 sprite-robot" style="vertical-align:bottom;"></span></a>');
+		var $va_button = $('<a href="javascript:;" title="This worklist was modified by Virtual Attendants"><span class="glyphicons glyphicons-remote-control"></span></a>');
 		$va_button.click(function() {
 			var $va_action_log = $('#view{$view->id}_va_actions');
 			if($va_action_log.is(':hidden')) {

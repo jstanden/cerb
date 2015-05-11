@@ -11,17 +11,17 @@
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
-		<td nowrap="nowrap" align="right">
-			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('compose' + new Date().getTime(),'c=internal&a=showPeekPopup&context={$view_context}&context_id=0&view_id={$view->id}',null,false,'650');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></a>
-			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="cerb-sprite2 sprite-document-search-result"></span></a>
-			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="cerb-sprite2 sprite-gear"></span></a>
-			<a href="javascript:;" title="Subtotals" class="subtotals minimal"><span class="cerb-sprite2 sprite-application-sidebar-list"></span></a>
-			{if $active_worker->hasPriv('core.ticket.view.actions.pile_sort')}<a href="javascript:;" title="{'mail.piles'|devblocks_translate|capitalize}" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="cerb-sprite2 sprite-sort-price"></span></a>{/if}
-			<a href="javascript:;" title="{'common.import'|devblocks_translate|capitalize}" onclick="genericAjaxPopup('import','c=internal&a=showImportPopup&context={$view_context}&view_id={$view->id}',null,false,'500');"><span class="cerb-sprite2 sprite-application-import"></span></a>
-			<a href="javascript:;" title="{'common.export'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="cerb-sprite2 sprite-application-export"></span></a>
-			<a href="javascript:;" title="{'common.copy'|devblocks_translate|capitalize}" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="cerb-sprite2 sprite-applications"></span></a>
-			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="cerb-sprite2 sprite-arrow-circle-135-left"></span></a>
-			{if $active_worker->hasPriv('core.rss')}<a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewRss&view_id={$view->id}&source=core.rss.source.ticket');toggleDiv('{$view->id}_tips','block');"><span class="cerb-sprite sprite-rss"></span></a>{/if}
+		<td nowrap="nowrap" align="right" class="title-toolbar">
+			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('compose' + new Date().getTime(),'c=internal&a=showPeekPopup&context={$view_context}&context_id=0&view_id={$view->id}',null,false,'650');"><span class="glyphicons glyphicons-circle-plus"></span></a>
+			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
+			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
+			<a href="javascript:;" title="Subtotals" class="subtotals minimal"><span class="glyphicons glyphicons-signal"></span></a>
+			{if $active_worker->hasPriv('core.ticket.view.actions.pile_sort')}<a href="javascript:;" title="{'mail.piles'|devblocks_translate|capitalize}" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-cargo"></span></a>{/if}
+			<a href="javascript:;" title="{'common.import'|devblocks_translate|capitalize}" onclick="genericAjaxPopup('import','c=internal&a=showImportPopup&context={$view_context}&view_id={$view->id}',null,false,'500');"><span class="glyphicons glyphicons-file-import"></span></a>
+			<a href="javascript:;" title="{'common.export'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-file-export"></span></a>
+			<a href="javascript:;" title="{'common.copy'|devblocks_translate|capitalize}" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-duplicate"></span></a>
+			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="glyphicons glyphicons-refresh"></span></a>
+			{if $active_worker->hasPriv('core.rss')}<a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewRss&view_id={$view->id}&source=core.rss.source.ticket');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-wifi"></span></a>{/if}
 			<input type="checkbox" class="select-all">
 		</td>
 	</tr>
@@ -56,9 +56,9 @@
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
 				{if $view->renderSortAsc}
-					<span class="cerb-sprite sprite-sort_ascending"></span>
+					<span class="glyphicons glyphicons-sort-by-attributes" style="font-size:14px;color:rgb(39,123,213);"></span>
 				{else}
-					<span class="cerb-sprite sprite-sort_descending"></span>
+					<span class="glyphicons glyphicons-sort-by-attributes-alt" style="font-size:14px;color:rgb(39,123,213);"></span>
 				{/if}
 			{/if}
 			</th>
@@ -81,10 +81,10 @@
 	
 	{* This is used in two places depending on if the row is one or two lines *}
 	{capture name="ticket_subject_content"}
-		{if isset($ticket_drafts.{$result.t_id})}{$ticket_draft = $ticket_drafts.{$result.t_id}}<span class="cerb-sprite2 sprite-mail--pencil" title="({$ticket_draft->updated|devblocks_prettytime}) {'mail.worklist.draft_in_progress'|devblocks_translate:{$workers.{$ticket_draft->worker_id}->getName()}}"></span>{/if}
-		{if $result.t_is_deleted}<span class="cerb-sprite2 sprite-cross-circle-gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite2 sprite-tick-circle-gray" title="{'status.closed'|devblocks_translate}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span>{/if}
+		{if isset($ticket_drafts.{$result.t_id})}{$ticket_draft = $ticket_drafts.{$result.t_id}}<span class="glyphicons glyphicons-user" style="color:rgb(39,123,213);font-size:14px;" title="({$ticket_draft->updated|devblocks_prettytime}) {'mail.worklist.draft_in_progress'|devblocks_translate:{$workers.{$ticket_draft->worker_id}->getName()}}"></span>{/if}
+		{if $result.t_is_deleted}<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_is_closed}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_is_waiting}<span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span>{/if}
 		<a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_mask}{/devblocks_url}" class="subject">{$result.t_subject|default:'(no subject)'}</a> 
-		<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.t_id}&view_id={$view->id}', null, false, '650');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{'views.peek'|devblocks_translate}"></span></button>
+		<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.t_id}&view_id={$view->id}', null, false, '650');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 	{/capture}
 	
 	{$ticket_group_id = $result.t_group_id}
@@ -126,11 +126,11 @@
 			{$smarty.capture.ticket_subject_content nofilter}
 		</td>
 		{elseif $column=="t_is_waiting"}
-		<td>{if $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span>{else}{/if}</td>
+		<td>{if $result.t_is_waiting}<span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span>{else}{/if}</td>
 		{elseif $column=="t_is_closed"}
-		<td>{if $result.t_is_closed}<span class="cerb-sprite2 sprite-tick-circle-gray" title="{'status.closed'|devblocks_translate}"></span>{else}{/if}</td>
+		<td>{if $result.t_is_closed}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span>{else}{/if}</td>
 		{elseif $column=="t_is_deleted"}
-		<td>{if $result.t_is_deleted}<span class="cerb-sprite2 sprite-cross-circle-gray"></span>{else}{/if}</td>
+		<td>{if $result.t_is_deleted}<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span>{else}{/if}</td>
 		{elseif $column=="t_last_wrote"}
 		<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
 		{elseif $column=="t_first_wrote"}
@@ -185,7 +185,11 @@
 			{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}
 			{if empty($result.t_spam_training)}
 			{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" onclick="$(this).closest('tbody').remove();genericAjaxGet('{$view->id}_output_container','c=tickets&a=reportSpam&id={$result.t_id}&view_id={$view->id}');">{/if}
-			<span class="cerb-sprite sprite-{if $result.t_spam_score >= 0.90}warning{else}warning_gray{/if}" title="Report Spam ({$score})"></span>
+			{if $result.t_spam_score >= 0.90}
+			<span class="glyphicons glyphicons-ban" style="color:rgb(200,0,0);" title="Report Spam ({$score})"></span>
+			{else}
+			<span class="glyphicons glyphicons-ban" style="color:rgb(100,100,100);" title="Report Spam ({$score})"></span>
+			{/if}
 			{if $active_worker->hasPriv('core.ticket.actions.spam')}</a>{/if}
 			{/if}
 		</td>
@@ -224,14 +228,14 @@
 	
 	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
-		<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewTicketsExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
-		{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=tickets&a=showBatchPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','ticket_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
-		{if $active_worker->hasPriv('core.ticket.actions.close')}<button type="button" class="action-close" onclick="ajax.viewCloseTickets('{$view->id}',0);"><span class="cerb-sprite2 sprite-folder-tick-circle"></span> {'common.close'|devblocks_translate|lower}</button>{/if}
-		{if $active_worker->hasPriv('core.ticket.actions.spam')}<button type="button" class="action-spam" onclick="ajax.viewCloseTickets('{$view->id}',1);"><span class="cerb-sprite sprite-spam"></span> {'common.spam'|devblocks_translate|lower}</button>{/if}
-		{if $active_worker->hasPriv('core.ticket.actions.delete')}<button type="button" class="action-delete" onclick="ajax.viewCloseTickets('{$view->id}',2);"><span class="cerb-sprite2 sprite-folder-cross-circle"></span> {'common.delete'|devblocks_translate|lower}</button>{/if}
+		<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewTicketsExplore';this.form.submit();"><span class="glyphicons glyphicons-compass"></span> {'common.explore'|devblocks_translate|lower}</button>
+		{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=tickets&a=showBatchPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','ticket_id[]'),null,false,'500');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv('core.ticket.actions.close')}<button type="button" class="action-close" onclick="ajax.viewCloseTickets('{$view->id}',0);"><span class="glyphicons glyphicons-ok"></span> {'common.close'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv('core.ticket.actions.spam')}<button type="button" class="action-spam" onclick="ajax.viewCloseTickets('{$view->id}',1);"><span class="glyphicons glyphicons-ban"></span> {'common.spam'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv('core.ticket.actions.delete')}<button type="button" class="action-delete" onclick="ajax.viewCloseTickets('{$view->id}',2);"><span class="glyphicons glyphicons-remove"></span> {'common.delete'|devblocks_translate|lower}</button>{/if}
 		
 		{if $active_worker->hasPriv('core.ticket.actions.move')}
-		<button type="button" class="action-move"><span class="cerb-sprite2 sprite"></span> {'common.move'|devblocks_translate|lower} &#x25be;</button>
+		<button type="button" class="action-move">{'common.move'|devblocks_translate|lower} <span class="glyphicons glyphicons-chevron-down"></span></button>
 		<div class="cerb-popupmenu cerb-float">
 			<select class="cerb-moveto-group">
 				<option></option>

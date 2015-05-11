@@ -23,7 +23,7 @@
 </fieldset>
 
 <div class="buttons">
-	<button type="button" class="paste"><span class="cerb-sprite2 sprite-tick-circle"></span> Insert</button>
+	<button type="button" class="paste"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Insert</button>
 	<button type="button" class="preview">{'common.preview'|devblocks_translate|capitalize}</button>
 </div>
 

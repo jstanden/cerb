@@ -91,13 +91,13 @@
 <fieldset class="delete" style="display:none;">
 	<legend>Are you sure you want to delete this reply-to address?</legend>
 	<p>Any groups or buckets using this reply-to address will be reverted to defaults.</p>
-	<button name="form_action" type="submit" value="delete" class="green"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.yes'|devblocks_translate|capitalize}</button>
-	<button name="form_action" type="button" class="red" onclick="$(this).closest('fieldset').nextAll('.toolbar').show();$(this).closest('fieldset').hide();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.no'|devblocks_translate|capitalize}</button>
+	<button name="form_action" type="submit" value="delete" class="green"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.yes'|devblocks_translate|capitalize}</button>
+	<button name="form_action" type="button" class="red" onclick="$(this).closest('fieldset').nextAll('.toolbar').show();$(this).closest('fieldset').hide();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.no'|devblocks_translate|capitalize}</button>
 </fieldset>
 
 <div class="toolbar">
-<button type="submit" value="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
-{if $address->address_id && !$address->is_default}<button type="button" onclick="$(this).closest('.toolbar').hide();$(this).closest('form').find('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+<button type="submit" value="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
+{if $address->address_id && !$address->is_default}<button type="button" onclick="$(this).closest('.toolbar').hide();$(this).closest('form').find('fieldset.delete').show();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>

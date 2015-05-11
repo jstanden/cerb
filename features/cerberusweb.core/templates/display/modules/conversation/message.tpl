@@ -110,12 +110,12 @@
 		  			<td align="left" id="{$message->id}act">
 						{* If not requester *}
 						{if !$message->is_outgoing && !isset($requesters.{$sender_id})}
-						<button type="button" onclick="$(this).remove(); genericAjaxGet('','c=display&a=requesterAdd&ticket_id={$ticket->id}&email='+encodeURIComponent('{$sender->email}'),function(o) { genericAjaxGet('displayTicketRequesterBubbles','c=display&a=requestersRefresh&ticket_id={$ticket->id}'); } );"><span class="cerb-sprite2 sprite-plus-circle"></span> {'display.ui.add_to_recipients'|devblocks_translate}</button>
+						<button type="button" onclick="$(this).remove(); genericAjaxGet('','c=display&a=requesterAdd&ticket_id={$ticket->id}&email='+encodeURIComponent('{$sender->email}'),function(o) { genericAjaxGet('displayTicketRequesterBubbles','c=display&a=requestersRefresh&ticket_id={$ticket->id}'); } );"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> {'display.ui.add_to_recipients'|devblocks_translate}</button>
 						{/if}
 						
 					  	{if $active_worker->hasPriv('core.display.actions.reply')}
-					  		<button type="button" class="reply split-left" onclick="displayReply('{$message->id}',0,0,{if empty($mail_reply_button)}1{else}0{/if});" title="{if empty($mail_reply_button)}{'display.reply.quote'|devblocks_translate}{else}{'display.reply.no_quote'|devblocks_translate}{/if}"><span class="cerb-sprite sprite-export"></span> {'display.ui.reply'|devblocks_translate|capitalize}</button><!--
-					  		--><button type="button" class="split-right" onclick="$ul=$(this).next('ul');$ul.toggle();if($ul.is(':hidden')) { $ul.blur(); } else { $ul.find('a:first').focus(); }"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
+					  		<button type="button" class="reply split-left" onclick="displayReply('{$message->id}',0,0,{if empty($mail_reply_button)}1{else}0{/if});" title="{if empty($mail_reply_button)}{'display.reply.quote'|devblocks_translate}{else}{'display.reply.no_quote'|devblocks_translate}{/if}"><span class="glyphicons glyphicons-share" style="color:rgb(0,180,0);"></span> {'display.ui.reply'|devblocks_translate|capitalize}</button><!--
+					  		--><button type="button" class="split-right" onclick="$ul=$(this).next('ul');$ul.toggle();if($ul.is(':hidden')) { $ul.blur(); } else { $ul.find('a:first').focus(); }"><span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span></button>
 					  		<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
 					  			<li><a href="javascript:;" onclick="displayReply('{$message->id}',0,0,1);">{'display.reply.quote'|devblocks_translate}</a></li>
 					  			<li><a href="javascript:;" onclick="displayReply('{$message->id}',0,0,0);">{'display.reply.no_quote'|devblocks_translate}</a></li>
@@ -124,10 +124,9 @@
 					  		</ul>
 					  	{/if}
 					  	
-					  	{if $active_worker->hasPriv('core.display.actions.note')}<button type="button" onclick="displayAddNote('{$message->id}');"><span class="cerb-sprite sprite-document_plain_yellow"></span> {'display.ui.sticky_note'|devblocks_translate|capitalize}</button>{/if}
+					  	{if $active_worker->hasPriv('core.display.actions.note')}<button type="button" onclick="displayAddNote('{$message->id}');"><span class="glyphicons glyphicons-edit"></span> {'display.ui.sticky_note'|devblocks_translate|capitalize}</button>{/if}
 					  	
-					  	 &nbsp; 
-				  		<button type="button" onclick="$('#{$message->id}options').toggle();">{'common.more'|devblocks_translate|lower} &raquo;</button>
+				  		<button type="button" onclick="$('#{$message->id}options').toggle();"><span class="glyphicons glyphicons-more"></span></button>
 		  			</td>
 		  		</tr>
 		  	</table>
@@ -137,14 +136,14 @@
 		  		<input type="hidden" name="a" value="">
 		  		<input type="hidden" name="id" value="{$message->id}">
 		  		
-		  		<button type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=message&id={$message->id}{/devblocks_url}';document.frmPrint.submit();"><span class="cerb-sprite sprite-printer"></span> {'common.print'|devblocks_translate|capitalize}</button>
+		  		<button type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=message&id={$message->id}{/devblocks_url}';document.frmPrint.submit();"><span class="glyphicons glyphicons-print"></span> {'common.print'|devblocks_translate|capitalize}</button>
 		  		
 		  		{if $ticket->first_message_id != $message->id && $active_worker->hasPriv('core.display.actions.split')} {* Don't allow splitting of a single message *}
-		  		<button type="button" onclick="$frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doSplitMessage');$frm.submit();" title="Split message into new ticket"><span class="cerb-sprite sprite-documents"></span> {'display.button.split_ticket'|devblocks_translate|capitalize}</button>
+		  		<button type="button" onclick="$frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doSplitMessage');$frm.submit();" title="Split message into new ticket"><span class="glyphicons glyphicons-duplicate"></span> {'display.button.split_ticket'|devblocks_translate|capitalize}</button>
 		  		{/if}
 		  		
 				{if $active_worker->hasPriv('core.display.message.actions.delete')}
-				<button type="button" onclick="if(!confirm('Are you sure you want to delete this message?'))return; $frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doDeleteMessage');$frm.submit();" title="Delete this message"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+				<button type="button" onclick="if(!confirm('Are you sure you want to delete this message?'))return; $frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doDeleteMessage');$frm.submit();" title="Delete this message"><span class="glyphicons glyphicons-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 				{/if}
 				
 				{* Plugin Toolbar *}

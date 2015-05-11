@@ -148,7 +148,7 @@
 				{/if}
 			</td>
 			<td width="1%" valign="top" nowrap="nowrap">
-				{if $is_writeable}<span class="cerb-sprite2 sprite-minus-circle delete" style="margin-left:5px;cursor:pointer;"></span>{/if}
+				{if $is_writeable}<span class="glyphicons glyphicons-circle-minus delete" style="color:rgb(200,0,0);margin-left:5px;cursor:pointer;"></span>{/if}
 			</td>
 		</tr>
 	{/foreach}
@@ -182,13 +182,13 @@
 			</div>
 		</td>
 		<td width="1%" valign="top" nowrap="nowrap">
-			<span class="cerb-sprite2 sprite-minus-circle delete" style="margin-left:5px;cursor:pointer;"></span>
+			<span class="glyphicons glyphicons-circle-minus delete" style="color:rgb(200,0,0);margin-left:5px;cursor:pointer;">
 		</td>
 	</tr>
 	
 	<tr>
 		<td colspan="4">
-			{if $is_writeable}<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle"></span></button>{/if}
+			{if $is_writeable}<button type="button" class="add"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span></button>{/if}
 		</td>
 	</tr>
 	</table>
@@ -206,10 +206,10 @@
 
 <div class="buttons">
 {if empty($custom_fieldset->id) || $is_writeable}
-	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView('{$layer}','frmCustomFieldsetPeek','{$view_id}',false,'custom_fieldset_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>
+	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView('{$layer}','frmCustomFieldsetPeek','{$view_id}',false,'custom_fieldset_save');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 {/if}
 {if !empty($custom_fieldset->id) && $is_writeable}
-	<button type="button" onclick="$(this).closest('div.buttons').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="$(this).closest('div.buttons').hide().prev('fieldset.delete').show();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 {/if}
 </div>
 

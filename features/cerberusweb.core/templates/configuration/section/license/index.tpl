@@ -17,7 +17,7 @@
 		<b>Software Updates Expire:</b> {$we_trust_you->upgrades|devblocks_date:'F d, Y':true}<br>
 		
 		<div style="margin-top:5px;">
-			<button type="button" onclick="$(this).parent().fadeOut();$('#frmLicense').fadeIn().find('input:text:first').focus();"><span class="cerb-sprite2 sprite-plus-circle"></span> Update License</button>
+			<button type="button" onclick="$(this).parent().fadeOut();$('#frmLicense').fadeIn().find('input:text:first').focus();"><span class="glyphicons glyphicons-cogwheel"></span> Update License</button>
 		</div>
 	{/if}
 </fieldset>
@@ -48,14 +48,14 @@
 		<div class="ui-widget">
 			<div class="ui-state-highlight ui-corner-all" style="margin:10px;padding:5px;display:inline-block;">
 				Are you sure you want to remove your license?<br>
-				<button type="button" onclick="$frm=$(this.form);$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('BUTTON.submit').click();"><span class="cerb-sprite2 sprite-tick-circle"></span> Yes</button>
-				<button type="button" onclick="$(this).closest('div.delete_confirm').hide();"><span class="cerb-sprite2 sprite-minus-circle"></span> No</button>
+				<button type="button" onclick="$frm=$(this.form);$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('BUTTON.submit').click();"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Yes</button>
+				<button type="button" onclick="$(this).closest('div.delete_confirm').hide();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> No</button>
 			</div>
 		</div>
 	</div>
 	
-	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $we_trust_you->key}<button type="button" class="delete"><span class="cerb-sprite2 sprite-minus-circle"></span> Remove License</button>{/if}
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if $we_trust_you->key}<button type="button" class="delete"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> Remove License</button>{/if}
 
 </fieldset>
 </form>

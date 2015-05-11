@@ -8,7 +8,7 @@
 	
 	{foreach from=$feeds item=feed name=feeds}
 		<div>
-		<span class="cerb-sprite sprite-rss"></span> 
+		<span class="glyphicons glyphicons-wifi"></span> 
 		<b>{$feed->title}</b>&nbsp; <a href="javascript:;" onclick="document.myFeedsForm.id.value='{$feed->id}';document.myFeedsForm.submit();">{'common.remove'|devblocks_translate|lower}</a><br> 
 		<a href="{devblocks_url full=true}c=rss&hash={$feed->hash}{/devblocks_url}" target="_blank">{devblocks_url full=true}c=rss&hash={$feed->hash}{/devblocks_url}</a><br>
 		</div>
@@ -18,6 +18,6 @@
 	{/foreach}
 </fieldset>
 
-<!-- <button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate}</button>  -->
+<!-- <button type="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>  -->
 </form>
 

@@ -26,7 +26,7 @@
 {else}
 	{if substr($import_field.type,0,4) == 'ctx_'}
 		{$context = substr($import_field.type, 4)}
-		<button type="button" class="chooser" context="{$context}" field="configure[{$import_seq}]"><span class="cerb-sprite sprite-view"></span></button>
+		<button type="button" class="chooser" context="{$context}" field="configure[{$import_seq}]"><span class="glyphicons glyphicons-search"></span></button>
 	{/if}
 {/if}
 

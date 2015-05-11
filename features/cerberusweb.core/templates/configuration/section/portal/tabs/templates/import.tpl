@@ -10,7 +10,7 @@
 <input type="file" name="import_file" size="45"><br>
 <br>
 
-<button type="button" onclick="genericAjaxPopupClose('peek');this.form.submit();"><span class="cerb-sprite sprite-import"></span> {'common.import'|devblocks_translate|capitalize}</button>
+<button type="button" onclick="genericAjaxPopupClose('peek');this.form.submit();"><span class="glyphicons glyphicons-file-import"></span></a> {'common.import'|devblocks_translate|capitalize}</button>
 
 </form>
 

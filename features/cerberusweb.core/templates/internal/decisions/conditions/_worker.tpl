@@ -4,7 +4,7 @@
 </select>
 <br>
 
-<button type="button" class="chooser_worker unbound"><span class="cerb-sprite sprite-view"></span></button>
+<button type="button" class="chooser_worker unbound"><span class="glyphicons glyphicons-search"></span></button>
 <ul class="chooser-container bubbles" style="display:block;">
 {if isset($params.worker_id)}
 {foreach from=$params.worker_id item=worker_id}

@@ -4,20 +4,25 @@
 <fieldset id="{$div_fieldset}" class="peek cerb-skillset">
 	<legend>{$skillset->name}</legend>
 	
+	<div style="padding-left:10px;">
+	
 	{foreach from=$skillset->skills item=skill}
 	<div class="cerb-skill">
 		<label>{$skill->name} <small>{$skill_labels.{$skill->level}}</small></label>
-		<input type="text" name="skill[{$skill->id}]" value="{$skill->level|default:0}" data-skill-id="{$skill->id}">
+		<input type="hidden" name="skill[{$skill->id}]" value="{$skill->level|default:0}" data-skill-id="{$skill->id}">
 		<div class="skill-slider"></div>
 	</div>
 	{/foreach}
+	
+	</div>
 </fieldset>
 
 <script type="text/javascript">
 $(function() {
 	$('#{$div_fieldset}').find('div.skill-slider').each(function() {
 		var $this = $(this);
-		var $input = $this.siblings('input:text');
+		var $fieldset = $(this).closest('fieldset');
+		var $input = $this.siblings('input:hidden');
 		var $label = $this.siblings('label');
 		var $skill_level = $label.find('small');
 		

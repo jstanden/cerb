@@ -13,7 +13,7 @@
 
 <div class="output" style="display:none;"></div>
 
-<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.import'|devblocks_translate|capitalize}</button>
+<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.import'|devblocks_translate|capitalize}</button>
 
 </form>
 

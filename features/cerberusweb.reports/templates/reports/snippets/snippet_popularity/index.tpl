@@ -3,8 +3,8 @@
 
 <form action="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}&report=report.snippets.popularity{/devblocks_url}" method="POST" id="frmRange">
 <input type="hidden" name="c" value="reports">
-<b>{'reports.ui.date_from'|devblocks_translate}</b> <input type="text" name="start" id="start" size="24" value="{$start}"><button type="button" onclick="devblocksAjaxDateChooser('#start','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
-<b>{'reports.ui.date_to'|devblocks_translate}</b> <input type="text" name="end" id="end" size="24" value="{$end}"><button type="button" onclick="devblocksAjaxDateChooser('#end','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
+<b>{'reports.ui.date_from'|devblocks_translate}</b> <input type="text" name="start" id="start" size="24" value="{$start}"><button type="button" onclick="devblocksAjaxDateChooser('#start','#divCal');"><span class="glyphicons glyphicons-calendar"></span></button>
+<b>{'reports.ui.date_to'|devblocks_translate}</b> <input type="text" name="end" id="end" size="24" value="{$end}"><button type="button" onclick="devblocksAjaxDateChooser('#end','#divCal');"><span class="glyphicons glyphicons-calendar"></span></button>
 
 {$limits = [25,50,100,250,500,1000]}
 <b>Limit:</b> 
@@ -30,7 +30,7 @@
 <br>
 
 <b>{'reports.ui.filters.worker'|devblocks_translate}</b> 
-<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
+<button type="button" class="chooser_worker"><span class="glyphicons glyphicons-search"></span></button>
 {if is_array($filter_worker_ids) && !empty($filter_worker_ids)}
 <ul class="chooser-container bubbles">
 	{foreach from=$filter_worker_ids item=filter_worker_id}

@@ -27,7 +27,7 @@
 		<b>Would you like Cerb to automatically create your first global Virtual Attendant now?</b>
 		
 		<div style="margin-left:15px;">
-			<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> Yes</button>
+			<button type="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Yes</button>
 		</div>
 	</p>
 </div>

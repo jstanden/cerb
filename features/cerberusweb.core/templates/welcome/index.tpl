@@ -28,36 +28,25 @@
 	new tricks to make you more efficient.  For a regular dose of project news, sneak peeks at new development, 
 	handy tips &amp; tricks, best practices, and highlights from community discussion: 
 
-	<ul style="list-style:none;margin:10px;">
+	<ul style="list-style:none;margin:5px;padding-left:10px;line-height:2em;font-weight:bold;">
 		<li>
-			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/_development/information.png{/devblocks_url}" align="middle">
 			<a href="http://www.cerberusweb.com/book" target="_blank">Read the user's guide</a>
 		</li>
 		<li>
-			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/facebook_32.png{/devblocks_url}" align="middle">
 			<a href="http://www.facebook.com/cerbapp" target="_blank">Become a fan on Facebook</a>
 		</li>
 		<li>
-			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/twitter_32.png{/devblocks_url}" align="middle">
 			<a href="http://twitter.com/cerb6" target="_blank">Follow our Twitter feed</a>
 		</li>
 		<li>
-			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/linkedin_32.png{/devblocks_url}" align="middle">
 			<a href="http://www.linkedin.com/groups/Cerberus-Helpdesk-3317589?mostPopular=&gid=3317589" target="_blank">Join our group on LinkedIn</a>
 		</li>
 		<li>
-			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/delicious_32.png{/devblocks_url}" align="middle">
 			<a href="http://www.delicious.com/url/87392aa502c3ca59cff488666c63bc12" target="_blank">Bookmark our website</a>
 		</li>
-		{*
-		<li>
-			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/rss_32.png{/devblocks_url}" align="middle">
-			<a href="http://blog.cerberusweb.com/" target="_blank">Subscribe to the Cerb blog</a>
-		</li>
-		*}
 	</ul>
 </fieldset>
 
 <form>
-	<button type="button" onclick="document.location.href='{devblocks_url}c=preferences{/devblocks_url}';"><span class="cerb-sprite2 sprite-tick-circle"></span> Let's set up your account!</button>
+	<button type="button" onclick="document.location.href='{devblocks_url}c=preferences{/devblocks_url}';"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Let's set up your account!</button>
 </form>

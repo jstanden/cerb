@@ -15,8 +15,8 @@
 {/if}
 
 <div>
-	<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($instance)}<button type="button" class="red" onclick="if(confirm('{'portal.cfg.confirm_delete'|devblocks_translate}')){literal}{this.form.do_delete.value='1';this.form.submit();}{/literal}"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($instance)}<button type="button" onclick="if(confirm('{'portal.cfg.confirm_delete'|devblocks_translate}')){literal}{this.form.do_delete.value='1';this.form.submit();}{/literal}"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>

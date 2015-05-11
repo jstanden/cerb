@@ -1,6 +1,6 @@
 {if !empty($macros)}
-<button type="button" class="split-left" onclick="$(this).next('button').click();" title="Virtual Attendants{if $pref_keyboard_shortcuts} (M){/if}"><span class="cerb-sprite2 sprite-robot"></span></button><!--  
---><button type="button" class="split-right" id="btnDisplayMacros"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
+<button type="button" class="split-left" onclick="$(this).next('button').click();" title="{'common.virtual_attendants'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (M){/if}"><span class="glyphicons glyphicons-remote-control"></span></button><!--  
+--><button type="button" class="split-right" id="btnDisplayMacros"><span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span></button>
 <ul class="cerb-popupmenu cerb-float" id="menuDisplayMacros">
 	<li style="background:none;">
 		<input type="text" size="32" class="input_search filter">

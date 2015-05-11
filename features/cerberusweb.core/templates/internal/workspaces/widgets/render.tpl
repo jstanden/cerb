@@ -3,7 +3,7 @@
 <div class="dashboard-widget-title" style="margin-bottom:5px;">
 	{$widget->label}
 	<div style="float:right;display:none;" class="toolbar">
-		<a href="javascript:;" class="dashboard-widget-menu"><span class="cerb-sprite2 sprite-gear"></span><span class="cerb-sprite sprite-arrow-down-black"></span></a>
+		<a href="javascript:;" class="dashboard-widget-menu"><span class="glyphicons glyphicons-cogwheel"></span></a>
 		
 		<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;margin-left:-180px;">
 			{if $widget->isWriteableByWorker($active_worker)}

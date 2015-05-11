@@ -29,7 +29,7 @@
 		
 		<!-- Edit -->
 		{if $active_worker->is_superuser}
-		<button type="button" id="btnDisplayMailHtmlTemplateEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
+		<button type="button" id="btnDisplayMailHtmlTemplateEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
 	

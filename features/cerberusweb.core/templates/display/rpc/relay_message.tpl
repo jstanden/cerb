@@ -51,8 +51,8 @@
 	
 </fieldset>
 
-<button type="button" class="ok"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.ok'|devblocks_translate|capitalize}</button>
-<button type="button" class="cancel"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+<button type="button" class="ok"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.ok'|devblocks_translate|capitalize}</button>
+<button type="button" class="cancel"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 <br>
 </form>
 

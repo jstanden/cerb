@@ -15,11 +15,11 @@
 
 <b>Attachments:</b><br>
 <div style="margin-left:20px;margin-bottom:1em;">
-	<button type="button" class="chooser_file"><span class="cerb-sprite sprite-view"></span></button>
+	<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
 	<ul class="chooser-container bubbles" style="display:block;"></ul>
 </div>
 
-<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
 <script type="text/javascript">

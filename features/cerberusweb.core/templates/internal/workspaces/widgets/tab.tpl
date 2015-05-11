@@ -6,8 +6,8 @@
 		
 		<p>
 			You now have a new dashboard tab. You can click the 
-			<button type="button" onclick="$btn=$('#frmWorkspacePage{$page->id} button.config-page.split-left'); $(this).effect('transfer', { to:$btn, className:'effects-transfer' }, 500, function() { $btn.effect('pulsate', {  times: 3 }, function(e) { $(this).click(); } ); } );"><span class="cerb-sprite2 sprite-gear"></span></button> 
-			button in the top right and select <b>Edit Tab</b> from the menu to configure how many columns of widgets this tab can display. Click the <button type="button" onclick="var $btn = $('#frmAddWidget{$workspace_tab->id} BUTTON.add_widget'); $(this).effect('transfer', { to:$btn, className:'effects-transfer' }, 500, function() { $btn.effect('pulsate', {  times: 3 }, function(e) { $(this).click(); } ); } );"><span class="cerb-sprite2 sprite-plus-circle"></span> Add Widget</button> button to add new widgets to the dashboard.
+			<button type="button" onclick="$btn=$('#frmWorkspacePage{$page->id} button.config-page.split-left'); $(this).effect('transfer', { to:$btn, className:'effects-transfer' }, 500, function() { $btn.effect('pulsate', {  times: 3 }, function(e) { $(this).click(); } ); } );"><span class="glyphicons glyphicons-cogwheel"></span></button> 
+			button in the top right and select <b>Edit Tab</b> from the menu to configure how many columns of widgets this tab can display. Click the <button type="button" onclick="var $btn = $('#frmAddWidget{$workspace_tab->id} BUTTON.add_widget'); $(this).effect('transfer', { to:$btn, className:'effects-transfer' }, 500, function() { $btn.effect('pulsate', {  times: 3 }, function(e) { $(this).click(); } ); } );"><span class="glyphicons glyphicons-circle-plus"></span> Add Widget</button> button to add new widgets to the dashboard.
 		</p>
 	</div>
 	</form>
@@ -24,7 +24,7 @@
 
 {if $page->isWriteableByWorker($active_worker)}
 <form id="frmAddWidget{$workspace_tab->id}" action="#">
-<button type="button" class="add_widget"><span class="cerb-sprite2 sprite-plus-circle"></span> Add Widget</button>
+<button type="button" class="add_widget"><span class="glyphicons glyphicons-circle-plus"></span> Add Widget</button>
 </form>
 {/if}
 

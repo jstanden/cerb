@@ -1,7 +1,7 @@
 <h2>Mailbox Accounts</h2>
 
 <form onsubmit="return false;" style="margin-bottom:5px;">
-<button type="button" onclick="genericAjaxGet('configMailbox','c=config&a=handleSectionAction&section=mail_pop3&action=getMailbox&id=0');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.add'|devblocks_translate|capitalize}</button>
+<button type="button" onclick="genericAjaxGet('configMailbox','c=config&a=handleSectionAction&section=mail_pop3&action=getMailbox&id=0');"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> {'common.add'|devblocks_translate|capitalize}</button>
 </form>
 
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
@@ -15,11 +15,11 @@
 					{foreach from=$pop3_accounts item=pop3}
 						<li style="line-height:150%;">
 							{if !$pop3->enabled}
-							<span class="cerb-sprite2 sprite-cross-circle-gray"></span>
+							<span class="glyphicons glyphicons-circle-remove" style="font-size:16px;color:rgb(150,150,150);"></span>
 							{elseif $pop3->num_fails}
-							<span class="cerb-sprite2 sprite-exclamation-red"></span>
+							<span class="glyphicons glyphicons-circle-exclamation-mark" style="font-size:16px;color:rgb(200,0,0);"></span>
 							{else}
-							<span class="cerb-sprite2 sprite-tick-circle"></span>
+							<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(0,180,0);"></span>
 							{/if}
 							<a href="javascript:;" onclick="genericAjaxGet('configMailbox','c=config&a=handleSectionAction&section=mail_pop3&action=getMailbox&id={$pop3->id}');" style="{if !$pop3->enabled}font-style:italic;{/if}">{$pop3->nickname}</a>
 						</li>

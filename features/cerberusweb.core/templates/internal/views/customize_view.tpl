@@ -56,8 +56,8 @@
 <br>
 {/if}
 
-<button type="button" onclick="genericAjaxPost('customize{$view->id}','view{$view->id}','c=internal&a=viewSaveCustomize');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-<button type="button" onclick="toggleDiv('customize{$view->id}','none');"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+<button type="button" onclick="genericAjaxPost('customize{$view->id}','view{$view->id}','c=internal&a=viewSaveCustomize');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" onclick="toggleDiv('customize{$view->id}','none');"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 
 <br>
 <br>
