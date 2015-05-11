@@ -1,3 +1,4 @@
+{$view_context = CerberusContexts::CONTEXT_NOTIFICATION}
 {$view_fields = $view->getColumnsAvailable()}
 {assign var=results value=$view->getData()}
 {assign var=total value=$results[1]}
@@ -60,15 +61,20 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
+			<td colspan="{$smarty.foreach.headers.total}" style="font-size:12px;color:rgb(80,80,80);padding:2px 0px 2px 5px;">
+				<input type="checkbox" name="row_id[]" value="{$result.we_id}" style="display:none;">
+				{* If we're looking at the target context, hide the text in the entry *}
+				{$entry = json_decode($result.we_entry_json, true)}
+				{$params_req = $view->getParamsRequired()}
+				{if $result.we_is_read}<span class="cerb-sprite2 sprite-tick-circle-gray"></span> {/if}
+				{CerberusContexts::formatActivityLogEntry($entry,'html') nofilter}
+			</td>
+		</tr>
+	
+		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="we_id"}
 				<td valign="top">{$result.we_id}&nbsp;</td>
-			{elseif $column=="we_message"}
-				<td valign="top">
-					<input type="checkbox" name="row_id[]" value="{$result.we_id}" style="display:none;">
-					{if $result.we_is_read}<span class="cerb-sprite2 sprite-tick-circle-gray"></span> {/if}
-					<a href="{devblocks_url}c=preferences&a=redirectRead&id={$result.we_id}{/devblocks_url}" class="subject">{$result.we_message}</a>
-				</td>
 			{elseif $column=="we_created_date"}
 				<td valign="top" nowrap="nowrap"><abbr title="{$result.we_created_date|devblocks_date}">{$result.we_created_date|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="we_worker_id"}
@@ -80,16 +86,6 @@
 						(auto)
 					{/if}
 					&nbsp;
-				</td>
-			{elseif $column=="we_url"}
-				<td valign="top">
-					<a href="{devblocks_url}c=preferences&a=redirectRead&id={$result.we_id}{/devblocks_url}">
-						{if substr($result.$column,0,6) == 'ctx://'}
-							{CerberusContexts::parseContextUrl($result.$column)}
-						{else}
-							{$result.$column}
-						{/if}
-					</a>
 				</td>
 			{elseif $column=="we_is_read"}
 				<td valign="top">{if $result.$column}<span class="cerb-sprite2 sprite-tick-circle-gray"></span>{/if}&nbsp;</td>

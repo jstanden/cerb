@@ -2900,44 +2900,48 @@ class DevblocksEventHelper {
 
 			if(is_array($on_objects))
 			foreach($on_objects as $on_object) {
-					$notify_contexts[] = array($on_object->_context, $on_object->id);
+					$notify_contexts[] = array($on_object->_context, $on_object->id, $on_object->_label);
 			}
 		}
 		
 		// Send notifications
 		
-		if(is_array($notify_worker_ids))
-		foreach($notify_worker_ids as $notify_worker_id) {
-			if(!empty($notify_contexts)) {
-				if(is_array($notify_contexts))
-				foreach($notify_contexts as $notify_context_data) {
+		if(!empty($notify_contexts)) {
+			if(is_array($notify_contexts))
+			foreach($notify_contexts as $notify_context_data) {
+				$entry = array(
+					//{{message}}
+					'message' => 'activities.custom.other',
+					'variables' => array(
+						'message' => $content,
+						),
+					'urls' => array(
+						'message' => sprintf("ctx://%s:%d", $notify_context_data[0], $notify_context_data[1]),
+						)
+				);
+				
+				if(is_array($notify_worker_ids))
+				foreach($notify_worker_ids as $notify_worker_id) {
 					$fields = array(
 						DAO_Notification::CONTEXT => $notify_context_data[0],
 						DAO_Notification::CONTEXT_ID => $notify_context_data[1],
 						DAO_Notification::WORKER_ID => $notify_worker_id,
 						DAO_Notification::CREATED_DATE => time(),
-						DAO_Notification::MESSAGE => $content,
-						DAO_Notification::URL => '',
+						DAO_Notification::ACTIVITY_POINT => 'custom.other',
+						DAO_Notification::ENTRY_JSON => json_encode($entry),
 					);
 					$notification_id = DAO_Notification::create($fields);
 				}
-				
-			} else {
-				$fields = array(
-					DAO_Notification::CONTEXT => null,
-					DAO_Notification::CONTEXT_ID => null,
-					DAO_Notification::WORKER_ID => $notify_worker_id,
-					DAO_Notification::CREATED_DATE => time(),
-					DAO_Notification::MESSAGE => $content,
-					DAO_Notification::URL => $url,
-				);
-				$notification_id = DAO_Notification::create($fields);
 			}
-			
-			DAO_Notification::clearCountCache($notify_worker_id);
 		}
 		
+		// Clear notification cache
+		if(is_array($notify_worker_ids))
+		foreach($notify_worker_ids as $notify_worker_id) {
+			DAO_Notification::clearCountCache($notify_worker_id);
+		
 		return isset($notification_id) ? $notification_id : false;
+		}
 	}
 	
 	/*

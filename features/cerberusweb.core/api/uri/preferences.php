@@ -319,37 +319,19 @@ class ChPreferencesPage extends CerberusPageExtension {
 				if($event_id==$explore_from)
 					$orig_pos = $pos;
 
-				$content = $row[SearchFields_Notification::MESSAGE];
+				$entry = json_decode($row[SearchFields_Notification::ENTRY_JSON], true);
+				
+				$content = CerberusContexts::formatActivityLogEntry($entry, 'text');
 				$context = $row[SearchFields_Notification::CONTEXT];
 				$context_id = $row[SearchFields_Notification::CONTEXT_ID];
-				$url = $row[SearchFields_Notification::URL];
 				
 				// Composite key
 				$key = $row[SearchFields_Notification::WORKER_ID]
 					. '_' . $context
 					. '_' . $context_id
 					;
-
-				if(empty($url) && !empty($context)) {
-					if(!isset($contexts[$context])) {
-						if(null != ($ctx = DevblocksPlatform::getExtension($context, true, false))) {
-						 	$contexts[$context] = $ctx;
-						}
-					}
 					
-					@$ctx = $contexts[$context]; /* @var $ctx Extension_DevblocksContext */
-					
-					if(!empty($ctx) && null != ($meta = $ctx->getMeta($context_id))) {
-						if(isset($meta['name']) && !empty($meta['name']))
-							$content = $meta['name'];
-						if(isset($meta['permalink']))
-							$url = $meta['permalink'];
-					}
-					
-				} else {
-					$url = $url_writer->write(sprintf("c=preferences&a=redirectRead&id=%d", $row[SearchFields_Notification::ID]));
-					
-				}
+				$url = $url_writer->write(sprintf("c=preferences&a=redirectRead&id=%d", $row[SearchFields_Notification::ID]));
 				
 				if(empty($url))
 					continue;

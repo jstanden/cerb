@@ -1194,6 +1194,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 						if(!$worker->is_superuser)
 							continue;
 						
+						/*
 						$notify_fields = array(
 							DAO_Notification::CONTEXT => '',
 							DAO_Notification::CONTEXT_ID => 0,
@@ -1207,6 +1208,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 							DAO_Notification::WORKER_ID => $worker->id,
 						);
 						DAO_Notification::create($notify_fields);
+						*/
 					}
 				}
 				

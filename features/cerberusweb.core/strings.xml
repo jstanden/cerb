@@ -832,6 +832,16 @@
 				<seg>next</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.notification">
+			<tuv xml:lang="en_US">
+				<seg>notification</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.notifications">
+			<tuv xml:lang="en_US">
+				<seg>notifications</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.notify_watchers_and">
 			<tuv xml:lang="en_US">
 				<seg>Notify watchers and</seg>

@@ -425,6 +425,39 @@ if(!isset($columns['is_default'])) {
 	}
 }
 
+
+// ===========================================================================
+// Add `activity_point` and `entry_json` to `notification`
+
+if(!isset($tables['notification'])) {
+	$logger->error("The 'notification' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('notification');
+
+if(!isset($columns['entry_json'])) {
+	$db->ExecuteMaster("ALTER TABLE notification ADD COLUMN entry_json TEXT");
+}
+
+if(!isset($columns['activity_point'])) {
+	$db->ExecuteMaster("ALTER TABLE notification ADD COLUMN activity_point VARCHAR(255) NOT NULL DEFAULT '', ADD INDEX (activity_point)");
+	
+	// Convert existing notifications to being activity-based using the activity log
+	$db->ExecuteMaster("INSERT INTO notification (created_date, worker_id, is_read, context, context_id, activity_point, entry_json) SELECT n.created_date, n.worker_id, 0, n.context, n.context_id, al.activity_point, al.entry_json FROM notification n INNER JOIN context_activity_log al ON (n.context=al.target_context AND n.context_id=al.target_context_id) WHERE n.is_read = 0 AND al.created BETWEEN CAST(n.created_date-1 AS unsigned) AND CAST(n.created_date+1 AS unsigned)");
+	
+	// Delete the old notifications
+	$db->ExecuteMaster("DELETE FROM notification WHERE activity_point = ''");
+}
+
+if(isset($columns['message'])) {
+	$db->ExecuteMaster("ALTER TABLE notification DROP COLUMN message");
+}
+
+if(isset($columns['url'])) {
+	$db->ExecuteMaster("ALTER TABLE notification DROP COLUMN url");
+}
+
 // Finish up
 
 return TRUE;

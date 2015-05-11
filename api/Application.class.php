@@ -1788,20 +1788,9 @@ class CerberusContexts {
 
 			// Fire off notifications
 
-			$url_writer = DevblocksPlatform::getUrlService();
-
 			if(is_array($watcher_ids)) {
 				$workers = DAO_Worker::getAllActive();
 				
-				$message = CerberusContexts::formatActivityLogEntry($entry_array, 'plaintext');
-				@$url = reset($entry_array['urls']);
-
-				if(0 == strcasecmp('ctx://',substr($url,0,6))) {
-					$url = self::parseContextUrl($url);
-				} elseif(0 != strcasecmp('http',substr($url,0,4))) {
-					$url = $url_writer->writeNoProxy($url, true);
-				}
-
 				foreach($watcher_ids as $watcher_id) {
 					// Skip inactive workers
 					if(!isset($workers[$watcher_id]))
@@ -1831,8 +1820,8 @@ class CerberusContexts {
 						DAO_Notification::CREATED_DATE => time(),
 						DAO_Notification::IS_READ => 0,
 						DAO_Notification::WORKER_ID => $watcher_id,
-						DAO_Notification::MESSAGE => $message,
-						DAO_Notification::URL => $url,
+						DAO_Notification::ACTIVITY_POINT => $activity_point,
+						DAO_Notification::ENTRY_JSON => json_encode($entry_array),
 					));
 				}
 			}

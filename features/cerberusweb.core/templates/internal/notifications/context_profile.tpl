@@ -11,7 +11,8 @@
 				<div class="badge badge-lightgray" title="{$v->created_date|devblocks_date}">{$v->created_date|devblocks_prettytime}</div>
 			</td>
 			<td width="99%">
-				{$v->message}
+				{$entry = json_decode($v->entry_json, true)}
+				{CerberusContexts::formatActivityLogEntry($entry,'html',['target']) nofilter}
 			</td>
 		</tr>
 	{/foreach}
@@ -25,7 +26,6 @@
 		</tr>
 	{/if}
 	</table>
-	
 	
 </fieldset>
 {/if}

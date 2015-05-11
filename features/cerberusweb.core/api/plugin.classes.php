@@ -413,14 +413,9 @@ XML;
 
 			$eItem = $channel->addChild('item');
 			
-
-			if(isset($event[SearchFields_Notification::URL])) {
-				$link = $url->write('c=preferences&a=redirectRead&id='.$event[SearchFields_Notification::ID], true);
-			} else {
-				$link = $url->write('c=profiles&type=worker&who=me', true);
-			}
+			$link = $url->write('c=preferences&a=redirectRead&id='.$event[SearchFields_Notification::ID], true);
 			
-			$escapedSubject = htmlspecialchars($event[SearchFields_Notification::MESSAGE],null,LANG_CHARSET_CODE);
+			$escapedSubject = htmlspecialchars(CerberusContexts::formatActivityLogEntry(json_decode($event[SearchFields_Notification::ENTRY_JSON], true), 'html'), null, LANG_CHARSET_CODE);
 			$eTitle = $eItem->addChild('title', $escapedSubject);
 			$eDesc = $eItem->addChild('description', '');
 			$eLink = $eItem->addChild('link', $link);

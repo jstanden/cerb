@@ -63,17 +63,18 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		
 		if('dao'==$type) {
 			$tokens = array(
-				'assignee_id' => DAO_Notification::WORKER_ID,
+				'activity_point' => DAO_Notification::ACTIVITY_POINT,
+				'worker_id' => DAO_Notification::WORKER_ID,
+				'context' => DAO_Notification::CONTEXT,
+				'context_id' => DAO_Notification::CONTEXT_ID,
 				'created' => DAO_Notification::CREATED_DATE,
 				'is_read' => DAO_Notification::IS_READ,
-				'message' => DAO_Notification::MESSAGE,
-				'url' => DAO_Notification::URL,
 			);
 			
 		} elseif ('subtotal'==$type) {
 			$tokens = array(
+				'activity_point' => SearchFields_Notification::ACTIVITY_POINT,
 				'is_read' => SearchFields_Notification::IS_READ,
-				'url' => SearchFields_Notification::URL,
 			);
 			
 			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_NOTIFICATION);
@@ -83,11 +84,12 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 			
 		} else {
 			$tokens = array(
+				'context' => SearchFields_Notification::CONTEXT,
+				'context_id' => SearchFields_Notification::CONTEXT_ID,
 				'created' => SearchFields_Notification::CREATED_DATE,
 				'id' => SearchFields_Notification::ID,
 				'is_read' => SearchFields_Notification::IS_READ,
-				'message' => SearchFields_Notification::MESSAGE,
-				'url' => SearchFields_Notification::URL,
+				'activity_point' => SearchFields_Notification::ACTIVITY_POINT,
 				'worker_id' => SearchFields_Notification::WORKER_ID,
 			);
 		}
@@ -255,12 +257,9 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 			$this->error(self::ERRNO_ACL);
 			
 		$putfields = array(
-			'assignee_id' => 'integer',
-			'content' => 'string',
+			'worker_id' => 'integer',
 			'created' => 'timestamp',
 			'is_read' => 'bit',
-			'title' => 'string',
-			'url' => 'string',
 		);
 
 		$fields = array();
@@ -294,50 +293,73 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 //			$this->error(self::ERRNO_ACL);
 		
 		$postfields = array(
-			'assignee_id' => 'integer',
-			'content' => 'string',
+			'worker_id' => 'integer',
+			'context' => 'string',
+			'context_id' => 'integer',
 			'created' => 'timestamp',
 			'is_read' => 'bit',
-			'title' => 'string',
-			'url' => 'string',
+			'message' => 'string',
 		);
-
-		$fields = array();
+		
+		$fields = array(
+			DAO_Notification::ACTIVITY_POINT => 'custom.other',
+		);
 		
 		foreach($postfields as $postfield => $type) {
 			if(!isset($_POST[$postfield]))
 				continue;
 				
 			@$value = DevblocksPlatform::importGPC($_POST[$postfield], 'string', '');
-				
-			if(null == ($field = self::translateToken($postfield, 'dao'))) {
-				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $postfield));
-			}
-
-			// Sanitize
-			$value = DevblocksPlatform::importVar($value, $type);
 			
-			$fields[$field] = $value;
+			switch($postfield) {
+				case 'message':
+					$value = DevblocksPlatform::importVar($value, $type);
+					$fields['_message'] = $value;
+					break;
+					
+				default:
+					if(null == ($field = self::translateToken($postfield, 'dao')))
+						$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $postfield));
+						
+					// Sanitize
+					$value = DevblocksPlatform::importVar($value, $type);
+						
+					$fields[$field] = $value;
+					break;
+			}
 		}
+		
+		// Check required fields
+		$reqfields = array(
+			DAO_Notification::ACTIVITY_POINT,
+			DAO_Notification::CONTEXT,
+			DAO_Notification::CONTEXT_ID,
+			DAO_Notification::WORKER_ID,
+			'_message',
+		);
+		$this->_handleRequiredFields($reqfields, $fields);
+		
+		// [TODO] Verify context+id
+		
+		$entry = array(
+			//{{message}}
+			'message' => 'activities.custom.other',
+			'variables' => array(
+				'message' => $fields['_message'],
+				),
+			'urls' => array(
+				'message' => sprintf("ctx://%s:%d", $fields['context'], $fields['context_id']),
+				)
+		);
+		$fields[DAO_Notification::ENTRY_JSON] = json_encode($entry);
+		
+		unset($fields['_message']);
 		
 		if(!isset($fields[DAO_Notification::CREATED_DATE]))
 			$fields[DAO_Notification::CREATED_DATE] = time();
 		
-		// Check required fields
-		$reqfields = array(
-			DAO_Notification::MESSAGE,
-			DAO_Notification::URL,
-			DAO_Notification::WORKER_ID,
-		);
-		$this->_handleRequiredFields($reqfields, $fields);
-		
 		// Create
 		if(false != ($id = DAO_Notification::create($fields))) {
-			// Handle custom fields
-//			$customfields = $this->_handleCustomFields($_POST);
-//			if(is_array($customfields))
-//				DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_WORKER, $id, $customfields, true, true, true);
-			
 			$this->getId($id);
 		}
 	}
