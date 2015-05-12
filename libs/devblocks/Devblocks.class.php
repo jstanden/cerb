@@ -2230,6 +2230,25 @@ class DevblocksPlatform extends DevblocksEngine {
 		return _DevblocksOpenIDManager::getInstance();
 	}
 	
+	static private function _deepCloneArray(&$array) {
+		if(is_array($array))
+		foreach($array as &$element) {
+			// Recurse if needed
+			if(is_array($element)) {
+				self::_deepCloneArray($element);
+				
+			} else if(is_object($element)) {
+				$element = clone $element;
+			}
+		}
+	}
+	
+	static function deepCloneArray($array) {
+		$copy = $array;
+		self::_deepCloneArray($copy);
+		return $copy;
+	}
+	
 	/**
 	 * 
 	 * @param array $array

@@ -241,9 +241,14 @@ abstract class C4_AbstractView {
 		$params = $this->_paramsEditable;
 		
 		// Required should supersede editable
-		if(is_array($this->_paramsRequired))
-		foreach($this->_paramsRequired as $key => $param)
-			$params['req_'.$key] = $param;
+		
+		if(is_array($this->_paramsRequired)) {
+			$params_required = DevblocksPlatform::deepCloneArray($this->_paramsRequired);
+			
+			foreach($params_required as $key => $param) {
+				$params['req_'.$key] = $param;
+			}
+		}
 		
 		if($parse_placeholders) {
 			// Translate snippets in filters
