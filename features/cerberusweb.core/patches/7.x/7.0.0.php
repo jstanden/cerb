@@ -151,6 +151,31 @@ if(!isset($tables['skill'])) {
 }
 
 // ===========================================================================
+// Add the `worker_to_bucket` table
+
+if(!isset($tables['worker_to_bucket'])) {
+	$sql = sprintf("
+		CREATE TABLE IF NOT EXISTS worker_to_bucket (
+			worker_id INT UNSIGNED NOT NULL DEFAULT 0,
+			bucket_id INT UNSIGNED NOT NULL DEFAULT 0,
+			responsibility_level TINYINT UNSIGNED NOT NULL DEFAULT 0,
+			PRIMARY KEY (worker_id, bucket_id)
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql);
+
+	$tables['worker_to_bucket'] = 'worker_to_bucket';
+	
+	// Default all current group members to 50% responsibility
+	
+	$sql = $db->ExecuteMaster("INSERT INTO worker_to_bucket (worker_id, bucket_id, responsibility_level) ".
+		"SELECT wtg.worker_id, b.id AS bucket_id, 50 AS responsibility_level ".
+		"FROM worker_to_group wtg ".
+		"INNER JOIN bucket b ON (b.group_id=wtg.group_id)"
+	);
+}
+
+// ===========================================================================
 // Add `importance` field to `ticket`
 
 if(!isset($tables['ticket'])) {

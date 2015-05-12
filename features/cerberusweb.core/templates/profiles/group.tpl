@@ -78,6 +78,9 @@
 		{$tabs[] = 'buckets'}
 		<li><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=group&action=showBucketsTab&point={$point}&id={$page_context_id}{/devblocks_url}">{'common.buckets'|devblocks_translate|capitalize} <div class="tab-badge">{$buckets|count}</div></a></li>
 		
+		{$tabs[] = 'responsibilities'}
+		<li data-alias="responsibilities"><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=responsibilities&action=showResponsibilitiesTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.responsibilities'|devblocks_translate|capitalize}</a></li>
+
 		{$tabs[] = 'activity'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=both&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
 		

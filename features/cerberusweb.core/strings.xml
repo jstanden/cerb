@@ -962,6 +962,16 @@
 				<seg>reset</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.responsibility">
+			<tuv xml:lang="en_US">
+				<seg>responsibility</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.responsibilities">
+			<tuv xml:lang="en_US">
+				<seg>responsibilities</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.retry">
 			<tuv xml:lang="en_US">
 				<seg>retry</seg>

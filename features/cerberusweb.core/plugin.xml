@@ -2362,6 +2362,19 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.internal.section.responsibilities</id>
+				<name>Internal Section Responsibilities</name>
+				<class>
+					<file>api/uri/internal/responsibilities.php</file>
+					<name>PageSection_InternalResponsibilities</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.controller.internal" />
+					<param key="uri" value="responsibilities" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.internal.section.skills</id>
 				<name>Internal Section Skills</name>
 				<class>

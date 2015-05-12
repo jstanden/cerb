@@ -110,6 +110,55 @@ class DAO_Group extends Cerb_ORMHelper {
 		return $names;
 	}
 	
+	static function getResponsibilities($group_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$responsibilities = array();
+		
+		$results = $db->GetArray(sprintf("SELECT worker_id, bucket_id, responsibility_level FROM worker_to_bucket WHERE bucket_id IN (SELECT id FROM bucket WHERE group_id = %d)",
+			$group_id
+		));
+		
+		foreach($results as $row) {
+			if(!isset($responsibilities[$row['bucket_id']]))
+				$responsibilities[$row['bucket_id']] = array();
+			
+			$responsibilities[$row['bucket_id']][$row['worker_id']] = $row['responsibility_level'];
+		}
+		
+		return $responsibilities;
+	}
+	
+	static function setResponsibilities($group_id, $responsibilities) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(!is_array($responsibilities))
+			return false;
+		
+		$values = array();
+		
+		foreach($responsibilities as $bucket_id => $workers) {
+			if(!is_array($workers))
+				continue;
+			
+			foreach($workers as $worker_id => $level) {
+				$values[] = sprintf("(%d,%d,%d)", $bucket_id, $worker_id, $level);
+			}
+		}
+		
+		// Wipe current bucket responsibilities
+		$results = $db->ExecuteMaster(sprintf("DELETE FROM worker_to_bucket WHERE bucket_id IN (SELECT id FROM bucket WHERE group_id = %d)",
+			$group_id
+		));
+		
+		if(!empty($values)) {
+			$db->ExecuteMaster(sprintf("REPLACE INTO worker_to_bucket (bucket_id, worker_id, responsibility_level) VALUES %s",
+				implode(',', $values)
+			));
+		}
+		
+		return true;
+	}
+	
 	/**
 	 * @param resource $rs
 	 * @return Model_Notification[]
@@ -640,6 +689,14 @@ class Model_Group {
 	
 	public function getMembers() {
 		return DAO_Group::getGroupMembers($this->id);
+	}
+	
+	public function getResponsibilities() {
+		return DAO_Group::getResponsibilities($this->id);
+	}
+	
+	public function setResponsibilities($responsibilities) {
+		return DAO_Group::setResponsibilities($this->id, $responsibilities);
 	}
 	
 	/**

@@ -190,6 +190,21 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		return null;
 	}
 	
+	static function getResponsibilities($bucket_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$responsibilities = array();
+		
+		$results = $db->GetArray(sprintf("SELECT worker_id, responsibility_level FROM worker_to_bucket WHERE bucket_id = %d",
+			$bucket_id
+		));
+		
+		foreach($results as $row) {
+			$responsibilities[$row['worker_id']] = $row['responsibility_level'];
+		}
+		
+		return $responsibilities;
+	}
+	
 	/**
 	 * Enter description here...
 	 *
@@ -571,6 +586,10 @@ class Model_Bucket {
 	 */
 	public function getGroup() {
 		return DAO_Group::get($this->group_id);
+	}
+	
+	public function getResponsibilities() {
+		return DAO_Bucket::getResponsibilities($this->id);
 	}
 	
 	/**

@@ -184,6 +184,24 @@ class DAO_Worker extends Cerb_ORMHelper {
 		return $workers;
 	}
 	
+	static function getResponsibilities($worker_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$responsibilities = array();
+		
+		$results = $db->GetArray(sprintf("SELECT worker_id, bucket_id, responsibility_level FROM worker_to_bucket WHERE worker_id = %d",
+			$worker_id
+		));
+		
+		foreach($results as $row) {
+			if(!isset($responsibilities[$row['bucket_id']]))
+				$responsibilities[$row['bucket_id']] = array();
+			
+			$responsibilities[$row['bucket_id']] = $row['responsibility_level'];
+		}
+		
+		return $responsibilities;
+	}
+	
 	/**
 	 * Enter description here...
 	 *
@@ -1115,6 +1133,10 @@ class Model_Worker {
 	 */
 	function getAddress() {
 		return DAO_Address::getByEmail($this->email);
+	}
+	
+	function getResponsibilities() {
+		return DAO_Worker::getResponsibilities($this->id);
 	}
 	
 	function hasPriv($priv_id) {
