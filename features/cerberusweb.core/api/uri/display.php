@@ -157,6 +157,54 @@ class ChDisplayPage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket->mask)));
 		exit;
 	}
+	
+	function showMessagePeekPopupAction() {
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		if(false == ($message = DAO_Message::get($context_id)))
+			return;
+		
+		$tpl->assign('model', $message);
+		
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_MESSAGE, false);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		if(!empty($context_id)) {
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_MESSAGE, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+		}
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/messages/peek.tpl');
+	}
+	
+	function saveMessagePeekPopupAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_MESSAGE);
+		
+		// ACL
+		if(!$context_ext->authorize($id, $active_worker))
+			return;
+		
+		if(!empty($id) && !empty($do_delete)) { // Delete
+			if($active_worker->hasPriv('core.display.message.actions.delete'))
+				DAO_Message::delete($id);
+			
+		} else {
+			
+			// Custom fields
+			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_MESSAGE, $id, $field_ids);
+		}
+	}
 
 	function showMergePanelAction() {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);

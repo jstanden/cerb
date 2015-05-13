@@ -1368,6 +1368,7 @@
 				<param key="view_class" value="View_Message" />
 				<param key="options">
 					<value>
+						<data key="custom_fields" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />

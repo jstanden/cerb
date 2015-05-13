@@ -105,6 +105,10 @@
 		  	{/if}
 		  	<br>
 		  	
+				{if $active_worker->hasPriv('core.display.actions.attachments.download')}
+				{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_MESSAGE}" context_id=$message->id}
+				{/if}
+		  	
 		  	<table width="100%" cellpadding="0" cellspacing="0" border="0">
 		  		<tr>
 		  			<td align="left" id="{$message->id}act">
@@ -126,6 +130,10 @@
 					  	
 					  	{if $active_worker->hasPriv('core.display.actions.note')}<button type="button" onclick="displayAddNote('{$message->id}');"><span class="glyphicons glyphicons-edit"></span> {'display.ui.sticky_note'|devblocks_translate|capitalize}</button>{/if}
 					  	
+					  	{if $active_worker->hasPriv('core.display.actions.reply')}
+					  	<button type="button" class="edit"><span class="glyphicons glyphicons-cogwheel"></span></button>
+					  	{/if}
+					  	
 				  		<button type="button" onclick="$('#{$message->id}options').toggle();"><span class="glyphicons glyphicons-more"></span></button>
 		  			</td>
 		  		</tr>
@@ -142,21 +150,19 @@
 		  		<button type="button" onclick="$frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doSplitMessage');$frm.submit();" title="Split message into new ticket"><span class="glyphicons glyphicons-duplicate"></span> {'display.button.split_ticket'|devblocks_translate|capitalize}</button>
 		  		{/if}
 		  		
-				{if $active_worker->hasPriv('core.display.message.actions.delete')}
-				<button type="button" onclick="if(!confirm('Are you sure you want to delete this message?'))return; $frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doDeleteMessage');$frm.submit();" title="Delete this message"><span class="glyphicons glyphicons-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>
-				{/if}
-				
-				{* Plugin Toolbar *}
-				{if !empty($message_toolbaritems)}
-					{foreach from=$message_toolbaritems item=renderer}
-						{if !empty($renderer)}{$renderer->render($message)}{/if}
-					{/foreach}
-				{/if}
+					{* Plugin Toolbar *}
+					{if !empty($message_toolbaritems)}
+						{foreach from=$message_toolbaritems item=renderer}
+							{if !empty($renderer)}{$renderer->render($message)}{/if}
+						{/foreach}
+					{/if}
 		  	</form>
 		  	
-		  	{if $active_worker->hasPriv('core.display.actions.attachments.download')}
-			{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_MESSAGE}" context_id=$message->id}
-			{/if}
+			{$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_MESSAGE, $message->id))|default:[]}
+			{$message_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_MESSAGE, $message->id, $values)}
+			<div style="margin-top:10px;">
+				{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$message_custom_fieldsets}
+			</div>
 		</div> <!-- end visible -->
 	  	{/if}
 	  </td>
@@ -202,6 +208,23 @@ $actions
 		$(this).find('a').trigger('click');
 	})
 ;
+
+$actions
+	.find('button.edit')
+	.click(function() {
+		var $popup = genericAjaxPopup('peek_message','c=display&a=showMessagePeekPopup&id={$message->id}', null, false, '650');
+		
+		// Reload when done
+		$popup.one('message_save', function() {
+			$('#btnMsgMax{$message->id}').click();
+		});
+		
+		// Clear if deleted
+		$popup.one('message_delete', function() {
+			$('#{$message->id}t').remove();
+		});
+	})
+	;
 
 $actions
 	.find('li a.relay')
