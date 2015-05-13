@@ -193,6 +193,12 @@
 			{if $active_worker->hasPriv('core.ticket.actions.spam')}</a>{/if}
 			{/if}
 		</td>
+		{elseif $column=="t_importance"}
+		<td>
+			<div style="margin-left:5px;width:40px;height:8px;background-color:rgb(220,220,220);border-radius:8px;">
+				<div style="position:relative;margin-left:-5px;top:-1px;left:{$result.$column}%;width:10px;height:10px;border-radius:10px;background-color:{if $result.$column < 50}rgb(0,200,0);{elseif $result.$column > 50}rgb(230,70,70);{else}rgb(175,175,175);{/if}"></div>
+			</div>
+		</td>
 		{else}
 		<td>{if $result.$column}{$result.$column}{/if}</td>
 		{/if}
