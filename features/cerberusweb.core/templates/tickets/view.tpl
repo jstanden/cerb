@@ -40,7 +40,7 @@
 	{* Column Headers *}
 	<thead>
 	<tr>
-		<th style="text-align:center;width:75px;">
+		<th style="text-align:center;width:60px;">
 			<a href="javascript:;">{'common.watchers'|devblocks_translate|capitalize}</a>
 		</th>
 

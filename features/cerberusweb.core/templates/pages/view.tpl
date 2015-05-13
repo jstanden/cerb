@@ -31,7 +31,7 @@
 	{* Column Headers *}
 	<thead>
 	<tr>
-		<th style="text-align:center;width:75px;">
+		<th style="text-align:center;width:60px;">
 			<a href="javascript:;">Menu</a>
 		</th>
 		
