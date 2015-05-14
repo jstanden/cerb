@@ -62,14 +62,34 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$cache->remove(self::CACHE_ALL);
 	}
 	
+	/**
+	 * @return Model_Worker[]
+	 */
 	static function getAllActive() {
 		return self::getAll(false, false);
 	}
 	
+	/**
+	 * @return Model_Worker[]
+	 */
 	static function getAllWithDisabled() {
 		return self::getAll(false, true);
 	}
 	
+	/**
+	 * @return Model_Worker[]
+	 */
+	static function getAllAdmins() {
+		$workers = self::getAllActive();
+		
+		return array_filter($workers, function($worker) {
+			return $worker->is_superuser;
+		});
+	}
+	
+	/**
+	 * @return Model_Worker[]
+	 */
 	static function getAllOnline($idle_limit=600, $idle_kick_limit=0) {
 		$session = DevblocksPlatform::getSessionService();
 
@@ -124,6 +144,12 @@ class DAO_Worker extends Cerb_ORMHelper {
 		return $active_workers;
 	}
 	
+	/**
+	 * 
+	 * @param bool $nocache
+	 * @param bool $with_disabled
+	 * @return Model_Worker[]
+	 */
 	static function getAll($nocache=false, $with_disabled=true) {
 		$cache = DevblocksPlatform::getCacheService();
 		if($nocache || null === ($workers = $cache->load(self::CACHE_ALL))) {
