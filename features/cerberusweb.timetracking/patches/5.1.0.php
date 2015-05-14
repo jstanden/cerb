@@ -57,21 +57,39 @@ if(isset($columns['debit_org_id'])) {
 // ===========================================================================
 // Convert notes to comments
 
-if(!isset($tables['timetracking_entry']))
+if(!isset($tables['timetracking_entry']) || !isset($tables['comment']))
 	return FALSE;
 
 list($columns, $indexes) = $db->metaTable('timetracking_entry');
 
-// [TODO] This no longer works on upgrades from 5.x -> 6.x
+list($comment_columns, $comment_indexes) = $db->metaTable('comment');
+
+
 if(isset($columns['notes'])) {
-	$db->ExecuteMaster("INSERT INTO comment (context, context_id, created, address_id, comment) ".
-		"SELECT 'cerberusweb.contexts.timetracking', timetracking_entry.id, timetracking_entry.log_date, address.id, timetracking_entry.notes ".
-		"FROM timetracking_entry ".
-		"INNER JOIN worker ON (worker.id=timetracking_entry.worker_id) ".
-		"INNER JOIN address ON (address.email=worker.email) ".
-		"WHERE timetracking_entry.notes !='' ".
-		"ORDER BY timetracking_entry.id "
-		) or die($db->ErrorMsg());
+	$count = $db->GetOneMaster("SELECT count(id) from timetracking_entry");
+	
+	if($count) {
+		if(isset($comment_columns['address_id'])) {
+			$db->ExecuteMaster("INSERT INTO comment (context, context_id, created, address_id, comment) ".
+				"SELECT 'cerberusweb.contexts.timetracking', timetracking_entry.id, timetracking_entry.log_date, address.id, timetracking_entry.notes ".
+				"FROM timetracking_entry ".
+				"INNER JOIN worker ON (worker.id=timetracking_entry.worker_id) ".
+				"INNER JOIN address ON (address.email=worker.email) ".
+				"WHERE timetracking_entry.notes !='' ".
+				"ORDER BY timetracking_entry.id "
+				) or die($db->ErrorMsg());
+			
+		} elseif($comment_columns['owner_context']) {
+			$db->ExecuteMaster("INSERT INTO comment (context, context_id, created, owner_context, owner_context_id, comment) ".
+				"SELECT 'cerberusweb.contexts.timetracking', timetracking_entry.id, timetracking_entry.log_date, 'cerberusweb.contexts.worker', worker.id AS context_id, timetracking_entry.notes ".
+				"FROM timetracking_entry ".
+				"INNER JOIN worker ON (worker.id=timetracking_entry.worker_id) ".
+				"INNER JOIN address ON (address.email=worker.email) ".
+				"WHERE timetracking_entry.notes !='' ".
+				"ORDER BY timetracking_entry.id "
+				) or die($db->ErrorMsg());
+		}
+	}
 
 	// Drop column
 	$db->ExecuteMaster('ALTER TABLE timetracking_entry DROP COLUMN notes');
