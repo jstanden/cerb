@@ -25,8 +25,9 @@ class Page_Custom extends CerberusPageExtension {
 	}
 	
 	function handleSectionActionAction() {
-		@$section_uri = DevblocksPlatform::importGPC($_REQUEST['section'],'string','');
-		@$action = DevblocksPlatform::importGPC($_REQUEST['action'],'string','');
+		// GET has precedence over POST
+		@$section_uri = DevblocksPlatform::importGPC(isset($_GET['section']) ? $_GET['section'] : $_REQUEST['section'],'string','');
+		@$action = DevblocksPlatform::importGPC(isset($_GET['action']) ? $_GET['action'] : $_REQUEST['action'],'string','');
 
 		$inst = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true);
 		
