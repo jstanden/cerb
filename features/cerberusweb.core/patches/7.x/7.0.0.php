@@ -483,6 +483,33 @@ if(isset($columns['url'])) {
 	$db->ExecuteMaster("ALTER TABLE notification DROP COLUMN url");
 }
 
+// ===========================================================================
+// Rename `pop3_account` to `mailbox`
+
+if(isset($tables['pop3_account'])) {
+	$sql = "RENAME TABLE pop3_account TO mailbox";
+	$db->ExecuteMaster($sql);
+
+	unset($tables['pop3_account']);
+	$tables['mailbox'] = 'mailbox';
+	
+	$sql = "ALTER TABLE mailbox CHANGE COLUMN nickname name VARCHAR(255) NOT NULL DEFAULT ''";
+	$db->ExecuteMaster($sql);
+	
+	$sql = "ALTER TABLE mailbox ADD COLUMN updated_at INT UNSIGNED NOT NULL DEFAULT 0";
+	$db->ExecuteMaster($sql);
+	
+	// Re-insert the mailbox cronjob
+	$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cron.pop3'");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store VALUES ('cron.mailbox', 'enabled', '1')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store VALUES ('cron.mailbox', 'duration', '5')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store VALUES ('cron.mailbox', 'term', 'm')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store VALUES ('cron.mailbox', 'lastrun', '0')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store VALUES ('cron.mailbox', 'locked', '0')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store VALUES ('cron.mailbox', 'max_messages', '50')");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

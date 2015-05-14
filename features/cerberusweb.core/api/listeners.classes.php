@@ -366,9 +366,9 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 						);
 						break;
 						
-					case 'mail_pop3':
+					case 'mailboxes':
 						$tour = array(
-							'title' => 'POP3 Accounts',
+							'title' => 'Mailboxes',
 							'body' => "Here is where you specify the mailboxes that should be checked for new mail to import into Cerb.",
 						);
 						break;

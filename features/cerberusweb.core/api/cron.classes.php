@@ -1096,14 +1096,14 @@ class ImportCron extends CerberusCronPageExtension {
 
 /*
  * PARAMS (overloads):
- * pop3_max=n (max messages to download at once)
+ * mailbox_max=n (max messages to download at once)
  *
  */
-class Pop3Cron extends CerberusCronPageExtension {
+class MailboxCron extends CerberusCronPageExtension {
 	function run() {
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$logger->info("[POP3] Started POP3 job");
+		$logger->info("[Mailboxes] Started Mailbox Checker job");
 		
 		if (!extension_loaded("imap")) {
 			$logger->err("[Parser] The 'IMAP' extension is not loaded.  Aborting!");
@@ -1117,18 +1117,18 @@ class Pop3Cron extends CerberusCronPageExtension {
 		
 		@set_time_limit(600); // 10m
 
-		$accounts = DAO_Pop3Account::getPop3Accounts(); /* @var $accounts Model_Pop3Account[] */
+		$accounts = DAO_Mailbox::getAll();
 
 		$timeout = ini_get('max_execution_time');
 		
 		// Allow runtime overloads (by host, etc.)
-		@$gpc_pop3_max = DevblocksPlatform::importGPC($_REQUEST['pop3_max'],'integer');
+		@$gpc_mailbox_max = DevblocksPlatform::importGPC($_REQUEST['mailbox_max'],'integer');
 		
-		$max_downloads = !empty($gpc_pop3_max) ? $gpc_pop3_max : $this->getParam('max_messages', (($timeout) ? 20 : 50));
+		$max_downloads = !empty($gpc_mailbox_max) ? $gpc_mailbox_max : $this->getParam('max_messages', (($timeout) ? 20 : 50));
 		
 		// [JAS]: Make sure our output directory is writeable
 		if(!is_writable(APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR)) {
-			$logger->error("[POP3] The mail storage directory is not writeable.  Skipping POP3 download.");
+			$logger->error("[Mailboxes] The mail storage directory is not writeable.  Skipping mailbox download.");
 			return;
 		}
 
@@ -1136,12 +1136,12 @@ class Pop3Cron extends CerberusCronPageExtension {
 		$mailboxes_checked = 0;
 		
 		if(is_array($accounts))
-		foreach ($accounts as $account) { /* @var $account Model_Pop3Account */
+		foreach ($accounts as $account) { /* @var $account Model_Mailbox */
 			if(!$account->enabled)
 				continue;
 			
 			if($account->delay_until > time()) {
-				$logger->info(sprintf("[POP3] Delaying failing mailbox '%s' check for %d more seconds (%s)", $account->nickname, $account->delay_until - time(), date("h:i a", $account->delay_until)));
+				$logger->info(sprintf("[Mailboxes] Delaying failing mailbox '%s' check for %d more seconds (%s)", $account->name, $account->delay_until - time(), date("h:i a", $account->delay_until)));
 				continue;
 			}
 			
@@ -1156,7 +1156,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 			
 			$mailboxes_checked++;
 
-			$logger->info('[POP3] Account being parsed is '. $account->nickname);
+			$logger->info('[Mailboxes] Account being parsed is '. $account->name);
 			 
 			$imap_connect = $account->getImapConnectString();
 
@@ -1169,50 +1169,45 @@ class Pop3Cron extends CerberusCronPageExtension {
 				0
 				))) {
 				
-				$logger->error("[POP3] Failed with error: ".imap_last_error());
+				$logger->error("[Mailboxes] Failed with error: ".imap_last_error());
 				
 				// Increment fails
 				$num_fails = $account->num_fails + 1;
 				$delay_until = time() + (min($num_fails, 15) * 120);
 				
 				$fields = array(
-					DAO_Pop3Account::NUM_FAILS => $num_fails,
-					DAO_Pop3Account::DELAY_UNTIL => $delay_until, // Delay 2 mins per consecutive failure
+					DAO_Mailbox::NUM_FAILS => $num_fails,
+					DAO_Mailbox::DELAY_UNTIL => $delay_until, // Delay 2 mins per consecutive failure
 				);
 				
-				$logger->error("[POP3] Delaying next mailbox check until ".date('h:i a', $delay_until));
+				$logger->error("[Mailboxes] Delaying next mailbox check until ".date('h:i a', $delay_until));
 				
-				// Notify admins about consecutive POP3 failures at an interval
-				if(in_array($num_fails, array(5,10,20,30))) {
-					$logger->info(sprintf("[POP3] Sending notification about %d consecutive failures on this mailbox", $num_fails));
+				// Notify admins about consecutive mailbox failures at an interval
+				if(in_array($num_fails, array(2,5,10,20))) {
+					$logger->info(sprintf("[Mailboxes] Sending notification about %d consecutive failures on this mailbox", $num_fails));
 					
 					$url_writer = DevblocksPlatform::getUrlService();
-					$workers = DAO_Worker::getAll();
+					$admin_workers = DAO_Worker::getAllAdmins();
 					
-					foreach($workers as $worker) {
-						// Only admins
-						if(!$worker->is_superuser)
-							continue;
-						
-						/*
-						$notify_fields = array(
-							DAO_Notification::CONTEXT => '',
-							DAO_Notification::CONTEXT_ID => 0,
-							DAO_Notification::CREATED_DATE => time(),
-							DAO_Notification::MESSAGE => sprintf("Mailbox '%s' has failed %d consecutive times: %s",
-								$account->nickname,
-								$num_fails,
-								imap_last_error()
+					/*
+					 * Log activity (mailbox.check.error)
+					 */
+					$entry = array(
+						//Mailbox {{target}} has failed to download mail on {{count}} consecutive attempts: {{error}}
+						'message' => 'activities.mailbox.check.error',
+						'variables' => array(
+							'target' => $account->name,
+							'count' => $num_fails,
+							'error' => imap_last_error(),
 							),
-							DAO_Notification::URL => $url_writer->write('c=config&a=mail_pop3', true),
-							DAO_Notification::WORKER_ID => $worker->id,
-						);
-						DAO_Notification::create($notify_fields);
-						*/
-					}
+						'urls' => array(
+							'target' => sprintf("ctx://%s:%s/%s", CerberusContexts::CONTEXT_MAILBOX, $account->id, DevblocksPlatform::strToPermalink($account->name)),
+							)
+					);
+					CerberusContexts::logActivity('mailbox.check.error', CerberusContexts::CONTEXT_MAILBOX, $account->id, $entry, null, null, array_keys($admin_workers));
 				}
 				
-				DAO_Pop3Account::updatePop3Account($account->id, $fields);
+				DAO_Mailbox::update($account->id, $fields);
 				continue;
 			}
 			 
@@ -1222,7 +1217,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 			// [TODO] Make this an account setting?
 			$total = min($max_downloads, $mailbox_stats->Nmsgs);
 			 
-			$logger->info("[POP3] Connected to mailbox '".$account->nickname."' (".number_format((microtime(true)-$mailbox_runtime)*1000,2)." ms)");
+			$logger->info("[Mailboxes] Connected to mailbox '".$account->name."' (".number_format((microtime(true)-$mailbox_runtime)*1000,2)." ms)");
 
 			$mailbox_runtime = microtime(true);
 			
@@ -1242,12 +1237,12 @@ class Pop3Cron extends CerberusCronPageExtension {
 				$fp = fopen($filename,'w+');
 
 				if($fp) {
-					$mailbox_xheader = "X-Cerberus-Mailbox: " . $account->nickname . "\r\n";
+					$mailbox_xheader = "X-Cerberus-Mailbox: " . $account->name . "\r\n";
 					fwrite($fp, $mailbox_xheader);
 
 					// If the message is too big, save a message stating as much
 					if($account->max_msg_size_kb && $msg_stats->size >= $account->max_msg_size_kb * 1000) {
-						$logger->warn(sprintf("[POP3] This message is %s which exceeds the mailbox limit of %s",
+						$logger->warn(sprintf("[Mailboxes] This message is %s which exceeds the mailbox limit of %s",
 							DevblocksPlatform::strPrettyBytes($msg_stats->size),
 							DevblocksPlatform::strPrettyBytes($account->max_msg_size_kb*1000)
 						));
@@ -1291,7 +1286,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 				// If this message took a really long time to download, skip it and retry later
 				// [TODO] We may want to keep track if the same message does this repeatedly
 				if(($time*1000) > (0.95 * $imap_timeout_read_ms)) {
-					$logger->warn("[POP3] This message took more than 95% of the IMAP_READTIMEOUT value to download. We probably timed out. Aborting to retry later...");
+					$logger->warn("[Mailboxes] This message took more than 95% of the IMAP_READTIMEOUT value to download. We probably timed out. Aborting to retry later...");
 					unlink($filename);
 					break;
 				}
@@ -1303,30 +1298,33 @@ class Pop3Cron extends CerberusCronPageExtension {
 				 */
 				rename($filename, dirname($filename) . DIRECTORY_SEPARATOR . basename($filename) . '.msg');
 
-				$logger->info("[POP3] Downloaded message ".$msg_stats->msgno." (".sprintf("%d",($time*1000))." ms)");
+				$logger->info("[Mailboxes] Downloaded message ".$msg_stats->msgno." (".sprintf("%d",($time*1000))." ms)");
 				
 				imap_delete($mailbox, $msg_stats->msgno);
 			}
 			
 			// Clear the fail count if we had past fails
 			if($account->num_fails) {
-				DAO_Pop3Account::updatePop3Account($account->id, array(
-					DAO_Pop3Account::NUM_FAILS => 0,
-					DAO_Pop3Account::DELAY_UNTIL => 0,
-				));
+				DAO_Mailbox::update(
+					$account->id,
+					array(
+						DAO_Mailbox::NUM_FAILS => 0,
+						DAO_Mailbox::DELAY_UNTIL => 0,
+					)
+				);
 			}
 			
 			imap_expunge($mailbox);
 			imap_close($mailbox);
 			@imap_errors();
 			 
-			$logger->info("[POP3] Closed mailbox (".number_format((microtime(true)-$mailbox_runtime)*1000,2)." ms)");
+			$logger->info("[Mailboxes] Closed mailbox (".number_format((microtime(true)-$mailbox_runtime)*1000,2)." ms)");
 		}
 		
 		if(empty($mailboxes_checked))
-			$logger->info('[POP3] There are no mailboxes ready to be checked.');
+			$logger->info('[Mailboxes] There are no mailboxes ready to be checked.');
 		
-		$logger->info("[POP3] Finished POP3 job (".number_format((microtime(true)-$runtime)*1000,2)." ms)");
+		$logger->info("[Mailboxes] Finished Mailbox Checker job (".number_format((microtime(true)-$runtime)*1000,2)." ms)");
 	}
 
 	function configure($instance) {
@@ -1335,7 +1333,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 		$timeout = ini_get('max_execution_time');
 		$tpl->assign('max_messages', $this->getParam('max_messages', (($timeout) ? 20 : 50)));
 
-		$tpl->display('devblocks:cerberusweb.core::cron/pop3/config.tpl');
+		$tpl->display('devblocks:cerberusweb.core::cron/mailbox/config.tpl');
 	}
 
 	function saveConfigurationAction() {

@@ -1813,12 +1813,12 @@
 				<seg>ID do perfil:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="config.mail.pop3.error_hostname">
+		<tu tuid="config.mailboxes.error_hostname">
 			<tuv xml:lang="pt_PT">
 				<seg>Erro: Hostname não indicado.</seg>
 			</tuv>
 		</tu>
-		<tu tuid="config.mail.pop3.failed">
+		<tu tuid="config.mailboxes.failed">
 			<tuv xml:lang="pt_PT">
 				<seg>Falhou ligação  caixa de correio.</seg>
 			</tuv>

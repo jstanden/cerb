@@ -1813,12 +1813,12 @@
 				<seg>Profiel ID</seg>
 			</tuv>
 		</tu>
-		<tu tuid="config.mail.pop3.error_hostname">
+		<tu tuid="config.mailboxes.error_hostname">
 			<tuv xml:lang="nl_NL">
 				<seg>Error: Geen hostname opgegeven.</seg>
 			</tuv>
 		</tu>
-		<tu tuid="config.mail.pop3.failed">
+		<tu tuid="config.mailboxes.failed">
 			<tuv xml:lang="nl_NL">
 				<seg>Mailbox connectie mislukt.</seg>
 			</tuv>

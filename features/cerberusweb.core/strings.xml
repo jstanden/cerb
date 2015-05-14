@@ -79,6 +79,11 @@
 				<seg>{{actor}} disconnected {{target_object}} {{target}} from {{link_object}} {{link}}</seg>
 			</tuv>
 		</tu>
+		<tu tuid="activities.mailbox.check.error">
+			<tuv xml:lang="en_US">
+				<seg>Mailbox {{target}} has failed to download mail on {{count}} consecutive attempts: {{error}}</seg>
+			</tuv>
+		</tu>
 		<tu tuid="activities.org.merge">
 			<tuv xml:lang="en_US">
 				<seg>{{actor}} merged organization {{source}} with organization {{target}}</seg>
@@ -577,6 +582,11 @@
 				<seg>history</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.host">
+			<tuv xml:lang="en_US">
+				<seg>host</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.hours">
 			<tuv xml:lang="en_US">
 				<seg>hours</seg>
@@ -650,6 +660,11 @@
 		<tu tuid="common.mail">
 			<tuv xml:lang="en_US">
 				<seg>Mail</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.mailbox">
+			<tuv xml:lang="en_US">
+				<seg>Mailbox</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.manager">
@@ -1198,6 +1213,11 @@
 				<seg>URL</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.user">
+			<tuv xml:lang="en_US">
+				<seg>User</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.url.record">
 			<tuv xml:lang="en_US">
 				<seg>Record URL</seg>
@@ -1412,6 +1432,30 @@
 			<tuv xml:lang="en_US">
 				<seg>Requirements</seg>
 			</tuv>
+		</tu>
+		
+		<!-- Mailbox -->
+		
+		<tu tuid='dao.mailbox.protocol'>
+			<tuv xml:lang="en_US"><seg>Protocol</seg></tuv>
+		</tu>
+		<tu tuid='dao.mailbox.port'>
+			<tuv xml:lang="en_US"><seg>Port</seg></tuv>
+		</tu>
+		<tu tuid='dao.mailbox.num_fails'>
+			<tuv xml:lang="en_US"><seg>Num Fails</seg></tuv>
+		</tu>
+		<tu tuid='dao.mailbox.delay_until'>
+			<tuv xml:lang="en_US"><seg>Delay Until</seg></tuv>
+		</tu>
+		<tu tuid='dao.mailbox.timeout_secs'>
+			<tuv xml:lang="en_US"><seg>Timeout Secs</seg></tuv>
+		</tu>
+		<tu tuid='dao.mailbox.max_msg_size_kb'>
+			<tuv xml:lang="en_US"><seg>Max Msg Size Kb</seg></tuv>
+		</tu>
+		<tu tuid='dao.mailbox.ssl_ignore_validation'>
+			<tuv xml:lang="en_US"><seg>Ssl Ignore Validation</seg></tuv>
 		</tu>
 
 		<!-- Snippets -->
@@ -1879,12 +1923,12 @@ For example: http://www.cerbweb.com/support/</seg>
 
 		<!-- Configuration -->
 		
-		<tu tuid="config.mail.pop3.error_hostname">
+		<tu tuid="config.mailboxes.error_hostname">
 			<tuv xml:lang="en_US">
 				<seg>Error: No hostname provided.</seg>
 			</tuv>
 		</tu>
-		<tu tuid="config.mail.pop3.failed">
+		<tu tuid="config.mailboxes.failed">
 			<tuv xml:lang="en_US">
 				<seg>Mailbox Connection Failed.</seg>
 			</tuv>

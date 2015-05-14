@@ -1813,12 +1813,12 @@
 				<seg>Идентификатор профайла</seg>
 			</tuv>
 		</tu>
-		<tu tuid="config.mail.pop3.error_hostname">
+		<tu tuid="config.mailboxes.error_hostname">
 			<tuv xml:lang="ru_RU">
 				<seg>Ошибка: Не указано имя хоста.</seg>
 			</tuv>
 		</tu>
-		<tu tuid="config.mail.pop3.failed">
+		<tu tuid="config.mailboxes.failed">
 			<tuv xml:lang="ru_RU">
 				<seg>Соединение с почтовым ящиком не удалось.</seg>
 			</tuv>
