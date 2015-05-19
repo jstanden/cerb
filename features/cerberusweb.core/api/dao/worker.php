@@ -326,6 +326,39 @@ class DAO_Worker extends Cerb_ORMHelper {
 		return $results;
 	}
 	
+	static function getWorkloads() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$workloads = array();
+		
+		$sql = "SELECT 'cerberusweb.contexts.ticket' AS context, owner_id AS worker_id, COUNT(id) AS hits FROM ticket WHERE is_closed = 0 AND is_waiting = 0 GROUP BY owner_id ".
+			"UNION ALL ".
+			"SELECT 'cerberusweb.contexts.recommendation' AS context, worker_id, COUNT(*) AS hits FROM context_recommendation GROUP BY worker_id ".
+			"UNION ALL ".
+			"SELECT 'cerberusweb.contexts.notification' AS context, worker_id, COUNT(id) AS hits FROM notification WHERE is_read = 0 GROUP BY worker_id ".
+			"UNION ALL ".
+			"SELECT 'cerberusweb.contexts.task' AS context, owner_id AS worker_id, COUNT(id) AS hits FROM task WHERE is_completed = 0 GROUP BY worker_id ".
+			""
+			;
+		$results = $db->GetArraySlave($sql);
+		
+		foreach($results as $result) {
+			$context = $result['context'];
+			$worker_id = $result['worker_id'];
+			$hits = $result['hits'];
+			
+			if(!isset($workloads[$worker_id]))
+				$workloads[$worker_id] = array(
+					'total' => 0,
+					'records' => array(),
+				);
+				
+			$workloads[$worker_id]['records'][$context] = $hits;
+			$workloads[$worker_id]['total'] += $hits;
+		}
+		
+		return $workloads;
+	}
+	
 	static function updateWhere($fields, $where) {
 		self::_updateWhere('worker', $fields, $where);
 		self::clearCache();
