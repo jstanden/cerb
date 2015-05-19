@@ -661,6 +661,11 @@
 	<!-- Activity Points -->
 	
 	<activity_points>
+		<activity point="custom.other">
+			<param key="label_key" value="(Other)" />
+			<param key="string_key" value="activities.custom.other" />
+			<param key="options" value="" />
+		</activity>
 		<activity point="calendar_event.created">
 			<param key="label_key" value="Calendar Event Created" />
 			<param key="string_key" value="activities.calendar_event.created" />
