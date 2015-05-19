@@ -139,6 +139,21 @@ foreach($fields as $field_name => $field_type) {
 		
 		return self::_getObjectsFromResult($rs);
 	}
+	
+	/**
+	 *
+	 * @param bool $nocache
+	 * @return Model_<?php echo $class_name,"\n"; ?>[]
+	 */
+	static function getAll($nocache=false) {
+		//$cache = DevblocksPlatform::getCacheService();
+		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
+			$objects = self::getWhere(null, DAO_<?php echo $class_name,"\n"; ?>::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
+			//$cache->save($buckets, self::_CACHE_ALL);
+		//}
+		
+		return $objects;
+	}
 
 	/**
 	 * @param integer $id
@@ -158,6 +173,42 @@ foreach($fields as $field_name => $field_type) {
 		
 		return null;
 	}
+	
+	/**
+	 * 
+	 * @param array $ids
+	 * @return Model_<?php echo $class_name,"\n"; ?>[]
+	 */
+	static function getIds($ids) {
+		if(!is_array($ids))
+			$ids = array($ids);
+
+		if(empty($ids))
+			return array();
+
+		if(!method_exists(get_called_class(), 'getWhere'))
+			return array();
+
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
+
+		$models = array();
+
+		$results = static::getWhere(sprintf("id IN (%s)",
+			implode(',', $ids)
+		));
+
+		// Sort $models in the same order as $ids
+		foreach($ids as $id) {
+			if(isset($results[$id]))
+				$models[$id] = $results[$id];
+		}
+
+		unset($results);
+
+		return $models;
+	}	
 	
 	/**
 	 * @param resource $rs
