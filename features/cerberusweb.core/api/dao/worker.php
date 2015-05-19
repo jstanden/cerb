@@ -1198,6 +1198,59 @@ class Model_Worker {
 		return DAO_Worker::getResponsibilities($this->id);
 	}
 	
+	function getAvailability($date_from, $date_to) {
+		$calendar = DAO_Calendar::get($this->calendar_id);
+		
+		// In full (00:00:00 - 23:59:59) days
+		$day_from = strtotime('midnight', $date_from);
+		$day_to = strtotime('23:59:59', $date_to);
+		
+		$calendar_events = $calendar->getEvents($day_from, $day_to);
+		$availability = $calendar->computeAvailability($date_from, $date_to, $calendar_events);
+		
+		return $availability;
+	}
+	
+	function getAvailabilityAsBlocks() {
+		$date_from = time() - (time() % 60);
+		$date_to = strtotime('+24 hours', $date_from);
+		
+		$blocks = array();
+		
+		$availability = $this->getAvailability($date_from, $date_to);
+		$mins = $availability->getMinutes();
+		$ticks = strlen($mins);
+
+		while(0 != strlen($mins)) {
+			$from = 0;
+			$is_available = $mins{$from} == 1;
+			
+			if(false === ($to = strpos($mins, $is_available ? '0' : '1'))) {
+				$to = strlen($mins);
+				$mins = '';
+				
+			} else {
+				$mins = substr($mins, $to);
+			}
+			
+			$pos = $ticks - strlen($mins);
+			
+			$blocks[] = array(
+				'available' => $is_available,
+				'length' => $to,
+				'start' => $date_from + (($pos - $to) * 60),
+				'end' => $date_from + ($pos * 60 - 1),
+			);
+		}
+		
+		return array(
+			'start' => $date_from,
+			'end' => $date_to,
+			'ticks' => $ticks,
+			'blocks' => $blocks,
+		);
+	}
+	
 	function hasPriv($priv_id) {
 		// We don't need to do much work if we're a superuser
 		if($this->is_superuser)
