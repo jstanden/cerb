@@ -962,6 +962,26 @@
 				<seg>recipients</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.recommend">
+			<tuv xml:lang="en_US">
+				<seg>recommend</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.recommendation">
+			<tuv xml:lang="en_US">
+				<seg>recommendation</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.recommendations">
+			<tuv xml:lang="en_US">
+				<seg>recommendations</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.recommended">
+			<tuv xml:lang="en_US">
+				<seg>recommended</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.refresh">
 			<tuv xml:lang="en_US">
 				<seg>refresh</seg>

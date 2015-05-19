@@ -1783,6 +1783,23 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql'], $args['tables']);
 				break;
 				
+			case SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS:
+				$worker_id = $param->value;
+				
+				if(0 == $worker_id) {
+					$args['where_sql'] .= "AND t.id NOT IN (SELECT context_id FROM context_recommendation WHERE context = 'cerberusweb.contexts.ticket') ";
+					
+				} else {
+					$args['join_sql'] .= sprintf("INNER JOIN (".
+						"SELECT reco.context_id ".
+						"FROM context_recommendation reco ".
+						"WHERE reco.context = 'cerberusweb.contexts.ticket' ".
+						"AND reco.worker_id = %d ".
+						") AS virt_recommendations ON (virt_recommendations.context_id = t.id) ",
+						$worker_id
+					);
+				}
+				
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
@@ -2031,6 +2048,8 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const VIRTUAL_STATUS = '*_status';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
+	const VIRTUAL_RECOMMENDATIONS = '*_recommendations';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -2101,6 +2120,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER, '*', 'message_header', $translate->_('message.header')),
 			SearchFields_Ticket::VIRTUAL_ORG_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ORG_ID, '*', 'org_id', null, null), // org ID
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID, '*', 'participant_id', null, null), // participant ID
+			SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS, '*', 'recommendations', $translate->_('common.recommendations')),
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_STATUS, '*', 'status', $translate->_('common.status')),
 			SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
 				
@@ -2261,6 +2281,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER,
 			SearchFields_Ticket::VIRTUAL_ORG_ID,
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,
+			SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS,
 			SearchFields_Ticket::VIRTUAL_STATUS,
 			SearchFields_Ticket::VIRTUAL_WATCHERS,
 		));
@@ -2632,6 +2653,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	
 	function getQuickSearchFields() {
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$workers = DAO_Worker::getAllActive();
+		$worker_names = array('me');
+		array_walk($workers, function($worker) use (&$worker_names) {
+			$worker_names[] = sprintf("(%s)", $worker->getName());
+		});
+		
 		$group_names = DAO_Group::getNames($active_worker);
 		
 		$fields = array(
@@ -2738,6 +2766,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Ticket::REQUESTER_ADDRESS, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+				),
+			'recommended' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS),
+					'examples' => array_slice($worker_names, 0, 15),
 				),
 			'resolution.first' =>
 				array(
@@ -3000,6 +3034,54 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					);
 					break;
 
+				case 'recommended':
+					$field_key = SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS;
+					$oper = DevblocksSearchCriteria::OPER_EQ;
+					
+					$active_worker = CerberusApplication::getActiveWorker();
+					$workers = DAO_Worker::getAllActive();
+					$patterns = DevblocksPlatform::parseCsvString($v);
+					
+					if(!is_array($patterns))
+						break;
+					
+					$worker_id = null;
+					
+					foreach($patterns as $pattern) {
+						if(!is_null($worker_id))
+							break;
+						
+						if($active_worker && 0 == strcasecmp($pattern, 'me')) {
+							$worker_id = $active_worker->id;
+							continue;
+						}
+						
+						if(in_array($pattern, array('none','noone','nobody','no','false'))) {
+							$worker_id = 0;
+							continue;
+						}
+							
+						if(is_array($workers))
+						foreach($workers as $worker) {
+							if(!is_null($worker_id))
+								break;
+							
+							if(false !== stristr(sprintf("%s %s", $worker->getName(), $worker->at_mention_name), $pattern)) {
+								$worker_id = $worker->id;
+								break;
+							}
+						}
+					}
+					
+					if(!is_null($worker_id)) {
+						$params[$field_key] = new DevblocksSearchCriteria(
+							$field_key,
+							$oper,
+							$worker_id
+						);
+					}
+					break;
+					
 				case 'spam.training':
 					$field_key = SearchFields_Ticket::TICKET_SPAM_TRAINING;
 					
@@ -3300,6 +3382,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$tpl->display('devblocks:cerberusweb.core::messages/criteria_message_header.tpl');
 				break;
 				
+			case SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS:
+				$workers = DAO_Worker::getAllActive();
+				$tpl->assign('workers', $workers);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__recommendations.tpl');
+				break;
+				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
@@ -3441,11 +3529,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
 				$worker_name = $param->value;
 				
-				if(!is_numeric($worker_name)) {
-					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-					$worker_name = $tpl_builder->build($worker_name, $this->getPlaceholderValues());
-				}
-				
 				if(is_numeric($worker_name)) {
 					if(null == ($worker = DAO_Worker::get($worker_name)))
 						break;
@@ -3462,6 +3545,25 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID:
 				echo sprintf("Participant is %d", $param->value);
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS:
+				$worker_name = $param->value;
+				
+				if(is_numeric($worker_name) && 0 == $worker_name) {
+					echo sprintf("<b>Not</b> recommended to anybody");
+					
+				} else if(is_numeric($worker_name)) {
+					if(null == ($worker = DAO_Worker::get($worker_name)))
+						break;
+					
+					$worker_name = $worker->getName();
+					echo sprintf("Recommended for <b>%s</b>", $worker_name);
+					
+				} else {
+					echo sprintf("Recommended for <b>%s</b>", $worker_name);
+				}
+				
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
@@ -3726,6 +3828,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
 				@$value = DevblocksPlatform::importGPC($_REQUEST['value'],'string','');
 				$criteria = new DevblocksSearchCriteria($field, $oper, array(array($name,$oper,$value)));
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS:
+				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'string','');
+				$oper = DevblocksSearchCriteria::OPER_EQ;
+				$criteria = new DevblocksSearchCriteria($field, $oper, $worker_id);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
@@ -4817,7 +4925,26 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$comments = array_reverse($comments, true);
 		$tpl->assign('comments', $comments);
 		
-		// Display
+		// Recommendations
+
+		$recommendations = DAO_ContextRecommendation::get(CerberusContexts::CONTEXT_TICKET, $ticket->id);
+		
+		// Always include the ticket owner as a recommendation
+		if($ticket->owner_id && !in_array($ticket->owner_id, $recommendations))
+			$recommendations[] = $ticket->owner_id;
+		
+		$tpl->assign('recommended_workers', $recommendations);
+		
+		$recommendation_scores = DAO_ContextRecommendation::prioritize($ticket);
+		$tpl->assign('recommendation_scores', $recommendation_scores);
+		
+		// Workloads
+		
+		$workloads = DAO_Worker::getWorkloads();
+		$tpl->assign('workloads', $workloads);
+		
+		// Template
+		
 		$tpl->display('devblocks:cerberusweb.core::tickets/peek.tpl');
 	}
 	

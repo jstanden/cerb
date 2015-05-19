@@ -151,6 +151,24 @@ if(!isset($tables['skill'])) {
 }
 
 // ===========================================================================
+// Add the `context_recommendation` table
+
+if(!isset($tables['context_recommendation'])) {
+	$sql = sprintf("
+		CREATE TABLE IF NOT EXISTS context_recommendation (
+			context VARCHAR(255) DEFAULT '',
+			context_id INT UNSIGNED NOT NULL DEFAULT 0,
+			worker_id INT UNSIGNED NOT NULL DEFAULT 0,
+			PRIMARY KEY (context, context_id, worker_id),
+			INDEX context_and_id (context, context_id)
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql);
+
+	$tables['context_recommendation'] = 'context_recommendation';
+}
+
+// ===========================================================================
 // Add the `worker_to_bucket` table
 
 if(!isset($tables['worker_to_bucket'])) {

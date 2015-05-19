@@ -224,6 +224,10 @@
 			<class name="DAO_ContextMergeHistory" />
 		</file>
 		
+		<file path="api/dao/context_recommendation.php">
+			<class name="DAO_ContextRecommendation" />
+		</file>
+		
 		<file path="api/dao/context_scheduled_behavior.php">
 			<class name="DAO_ContextScheduledBehavior" />
 			<class name="Model_ContextScheduledBehavior" />
@@ -2401,6 +2405,19 @@
 				</params>
 			</extension>
 			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.internal.section.recommendations</id>
+				<name>Internal Section Recommendations</name>
+				<class>
+					<file>api/uri/internal/recommendations.php</file>
+					<name>PageSection_InternalRecommendations</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.controller.internal" />
+					<param key="uri" value="recommendations" />
+				</params>
+			</extension>
+
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.internal.section.responsibilities</id>
 				<name>Internal Section Responsibilities</name>
