@@ -117,21 +117,20 @@
 				<label><input type="radio" name="spam_training" value="" checked="checked"> Unknown</label>
 				<label><input type="radio" name="spam_training" value="S"> Spam</label>
 				<label><input type="radio" name="spam_training" value="N"> Not Spam</label> 
+			</td>
+		</tr>
+		{/if}
+		
+		{* Importance *}
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="middle" align="right">{'common.importance'|devblocks_translate|capitalize}: </td>
+			<td width="100%">
+				<div class="cerb-delta-slider-container">
+				<input type="hidden" name="importance" value="{$ticket->importance|default:0}">
+					<div class="cerb-delta-slider {if $ticket->importance < 50}cerb-slider-green{elseif $ticket->importance > 50}cerb-slider-red{else}cerb-slider-gray{/if}">
+						<span class="cerb-delta-slider-midpoint"></span>
 					</div>
-				</td>
-			</tr>
-			
-			<tr>
-				<td width="0%" nowrap="nowrap" valign="middle" align="right">{'common.importance'|devblocks_translate|capitalize}: </td>
-				<td width="100%">
-					<input type="hidden" name="importance" value="{$ticket->importance|default:0}">
-					<div class="cerb-importance-slider"></div>
-				</td>
-			</tr>
-			
-			<tr>
-				<td width="0%" nowrap="nowrap" valign="middle" align="right">{'common.owner'|devblocks_translate|capitalize}: </td>
-				<td width="100%">
+				</div>
 			</td>
 		</tr>
 		
@@ -153,6 +152,18 @@
 				</div>
 			</td>
 		</tr>
+		
+		{* Owner *}
+		{*
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="middle" align="right">{'common.owner'|devblocks_translate|capitalize}: </td>
+			<td width="100%">
+				<ul class="bubbles">
+					<li class="bubble-gray"><b>Jeff Standen</b> <a href="javascript:;" onclick="$(this).closest('li').remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+				</ul>
+			</td>
+		</tr>
+		*}
 	</table>
 	
 </fieldset>
@@ -213,7 +224,7 @@
 		
 		// Slider
 		
-		$frm.find('div.cerb-importance-slider').each(function() {
+		$frm.find('div.cerb-delta-slider').each(function() {
 			var $this = $(this);
 			var $input = $this.siblings('input:hidden');
 			
@@ -222,9 +233,22 @@
 				value: $input.val(),
 				min: 0,
 				max: 100,
-				step: 10,
+				step: 1,
 				range: 'min',
-				//slide: function(event, ui) {},
+				slide: function(event, ui) {
+					$this.removeClass('cerb-slider-gray cerb-slider-red cerb-slider-green');
+					
+					if(ui.value < 50) {
+						$this.addClass('cerb-slider-green');
+						$this.slider('option', 'range', 'min');
+					} else if(ui.value > 50) {
+						$this.addClass('cerb-slider-red');
+						$this.slider('option', 'range', 'max');
+					} else {
+						$this.addClass('cerb-slider-gray');
+						$this.slider('option', 'range', false);
+					}
+				},
 				stop: function(event, ui) {
 					$input.val(ui.value);
 				}
@@ -270,7 +294,12 @@
 					$(this).clone().appendTo($bucket);
 			});
 			
+			$frm.trigger('cerb-form-update');
 			$bucket.focus();
+		});
+		
+		$frm.find('select[name=bucket_id]').on('change', function(e) {
+			$frm.trigger('cerb-form-update');
 		});
 		
 		// Dates
