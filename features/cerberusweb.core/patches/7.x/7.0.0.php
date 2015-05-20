@@ -351,7 +351,7 @@ if(!isset($columns['is_default'])) {
 	
 	foreach($results as $row) {
 		$db->ExecuteMaster(sprintf("INSERT INTO bucket (group_id, name, reply_address_id, reply_personal, reply_signature, reply_html_template_id, updated_at, is_default) ".
-			"VALUES (%d, %s, %d, %d, %s, %s, %d, %d, %d)",
+			"VALUES (%d, %s, %d, %s, %s, %d, %d, %d)",
 			$row['id'],
 			$db->qstr('Inbox'),
 			$row['reply_address_id'],
