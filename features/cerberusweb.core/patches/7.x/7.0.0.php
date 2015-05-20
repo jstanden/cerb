@@ -4,6 +4,20 @@ $logger = DevblocksPlatform::getConsoleLog();
 $tables = $db->metaTables();
 
 // ===========================================================================
+// Fix the `plugin_library` latest_version field
+
+if(!isset($tables['plugin_library'])) {
+	$logger->error("The 'plugin_library' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('plugin_library');
+
+if(isset($columns['latest_version']) && 0 != strcasecmp('int',substr($columns['latest_version']['type'], 0, 3))) {
+	$db->ExecuteMaster("ALTER TABLE plugin_library MODIFY COLUMN latest_version INT UNSIGNED NOT NULL DEFAULT 0");
+}
+
+// ===========================================================================
 // Add the `reply_mail_transport_id` field to `address_outgoing`
 
 if(!isset($tables['address_outgoing'])) {
@@ -188,31 +202,6 @@ if(!isset($tables['context_recommendation'])) {
 }
 
 // ===========================================================================
-// Add the `worker_to_bucket` table
-
-if(!isset($tables['worker_to_bucket'])) {
-	$sql = sprintf("
-		CREATE TABLE IF NOT EXISTS worker_to_bucket (
-			worker_id INT UNSIGNED NOT NULL DEFAULT 0,
-			bucket_id INT UNSIGNED NOT NULL DEFAULT 0,
-			responsibility_level TINYINT UNSIGNED NOT NULL DEFAULT 0,
-			PRIMARY KEY (worker_id, bucket_id)
-		) ENGINE=%s;
-	", APP_DB_ENGINE);
-	$db->ExecuteMaster($sql);
-
-	$tables['worker_to_bucket'] = 'worker_to_bucket';
-	
-	// Default all current group members to 50% responsibility
-	
-	$sql = $db->ExecuteMaster("INSERT INTO worker_to_bucket (worker_id, bucket_id, responsibility_level) ".
-		"SELECT wtg.worker_id, b.id AS bucket_id, 50 AS responsibility_level ".
-		"FROM worker_to_group wtg ".
-		"INNER JOIN bucket b ON (b.group_id=wtg.group_id)"
-	);
-}
-
-// ===========================================================================
 // Add `importance` field to `ticket`
 
 if(!isset($tables['ticket'])) {
@@ -372,9 +361,9 @@ if(!isset($columns['is_default'])) {
 			$bucket_id,
 			$row['id']
 		));
-		
-		$db->ExecuteMaster("ALTER TABLE worker_group DROP COLUMN reply_address_id, DROP COLUMN reply_personal, DROP COLUMN reply_signature, DROP COLUMN reply_html_template_id");
 	}
+
+	$db->ExecuteMaster("ALTER TABLE worker_group DROP COLUMN reply_address_id, DROP COLUMN reply_personal, DROP COLUMN reply_signature, DROP COLUMN reply_html_template_id");
 	
 	// Migrate VA outcomes
 	
@@ -443,7 +432,7 @@ if(!isset($columns['is_default'])) {
 	
 	// Reset worker_view_model filters
 	
-	$db_>ExecuteMaster("DELETE FROM worker_view_model");
+	$db->ExecuteMaster("DELETE FROM worker_view_model");
 	
 	// Migrate workspace_list filters
 	
@@ -487,6 +476,30 @@ if(!isset($columns['is_default'])) {
 	}
 }
 
+// ===========================================================================
+// Add the `worker_to_bucket` table
+
+if(!isset($tables['worker_to_bucket'])) {
+	$sql = sprintf("
+		CREATE TABLE IF NOT EXISTS worker_to_bucket (
+			worker_id INT UNSIGNED NOT NULL DEFAULT 0,
+			bucket_id INT UNSIGNED NOT NULL DEFAULT 0,
+			responsibility_level TINYINT UNSIGNED NOT NULL DEFAULT 0,
+			PRIMARY KEY (worker_id, bucket_id)
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql);
+
+	$tables['worker_to_bucket'] = 'worker_to_bucket';
+	
+	// Default all current group members to 50% responsibility
+	
+	$sql = $db->ExecuteMaster("INSERT INTO worker_to_bucket (worker_id, bucket_id, responsibility_level) ".
+		"SELECT wtg.worker_id, b.id AS bucket_id, 50 AS responsibility_level ".
+		"FROM worker_to_group wtg ".
+		"INNER JOIN bucket b ON (b.group_id=wtg.group_id)"
+	);
+}
 
 // ===========================================================================
 // Add `activity_point` and `entry_json` to `notification`
