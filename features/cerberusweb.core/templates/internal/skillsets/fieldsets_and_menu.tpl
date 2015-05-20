@@ -1,6 +1,10 @@
 {$skillsets_all = DAO_Skillset::getAll()}
 {$skillsets_available = $skillsets_all}
 
+{$fieldsets_dom_id = uniqid()}
+
+<div id="{$fieldsets_dom_id}">
+
 {if !empty($skillsets_linked)}
 	{$skillsets_available = array_diff_key($skillsets_available, $skillsets_linked)}
 	
@@ -30,73 +34,78 @@
 	</ul>
 </div>
 
+</div>
+
 <script type="text/javascript">
-$('#{$btn_skillset_add}')
-	.each(function() {
-		var $menu = $(this).siblings('ul.cerb-popupmenu');
-
-		$menu
-		.find('> li')
-		.click(function(e) {
-			e.stopPropagation();
-			if(!$(e.target).is('li') && !$(e.target).is('div'))
-				return;
-
-			$(this).find('a').trigger('click');
-		})
-		.find('a')
-		.click(function() {
-			var $li = $(this).closest('li');
-			var $ul = $li.closest('ul.cerb-popupmenu');
-			var skillset_id = $li.attr('skillset_id');
-			
-			genericAjaxGet('', 'c=internal&a=handleSectionAction&section=skills&action=getSkillset&context={$context}&context_id={$context_id}&id=' + skillset_id, function(html) {
-				if(undefined == html || null == html)
+	var $btn = $('#{$btn_skillset_add}');
+	var $container = $('#{$fieldsets_dom_id}');
+	
+	$btn
+		.each(function() {
+			var $menu = $(this).siblings('ul.cerb-popupmenu');
+	
+			$menu
+			.find('> li')
+			.click(function(e) {
+				e.stopPropagation();
+				if(!$(e.target).is('li') && !$(e.target).is('div'))
 					return;
-
-				var $at = $('#{$btn_skillset_add}')
-					.closest('div')
-					.siblings('div.skillset-insertion')
-					;
+	
+				$(this).find('a').trigger('click');
+			})
+			.find('a')
+			.click(function() {
+				var $li = $(this).closest('li');
+				var $ul = $li.closest('ul.cerb-popupmenu');
+				var skillset_id = $li.attr('skillset_id');
 				
-				var $fieldset = $(html);
+				genericAjaxGet('', 'c=internal&a=handleSectionAction&section=skills&action=getSkillset&context={$context}&context_id={$context_id}&id=' + skillset_id, function(html) {
+					if(undefined == html || null == html)
+						return;
+	
+					var $at = $('#{$btn_skillset_add}')
+						.closest('div')
+						.siblings('div.skillset-insertion')
+						;
+					
+					var $fieldset = $(html);
+					
+					$fieldset.insertBefore($at);
+				});
 				
-				$fieldset.insertBefore($at);
-			});
+				$li.hide();
+				
+				if($ul.find('> li.item:visible').length == 0)
+					$ul.closest('div').hide();
+			})
+			;
 			
-			$li.hide();
+			$menu.find('> li > input.filter').keyup(
+				function(e) {
+					var term = $(this).val().toLowerCase();
+					var $fs_menu = $(this).closest('ul.cerb-popupmenu');
+					$fs_menu.find('> li.item').each(function(e) {
+						if(-1 != $(this).text().toLowerCase().indexOf(term)) {
+							$(this).show();
+						} else {
+							$(this).hide();
+						}
+					});
+				}
+			);
 			
-			if($ul.find('> li.item:visible').length == 0)
-				$ul.closest('div').hide();
+			$(this).data('menu', $menu);
+		})
+		.click(function() {
+			var $ul = $(this).data('menu');
+	
+			$ul.toggle();
+			
+			if($ul.is(':hidden')) {
+				$ul.blur();
+			} else {
+				$ul.find('input:text').first().focus();
+			}
 		})
 		;
-		
-		$menu.find('> li > input.filter').keyup(
-			function(e) {
-				var term = $(this).val().toLowerCase();
-				var $fs_menu = $(this).closest('ul.cerb-popupmenu');
-				$fs_menu.find('> li.item').each(function(e) {
-					if(-1 != $(this).text().toLowerCase().indexOf(term)) {
-						$(this).show();
-					} else {
-						$(this).hide();
-					}
-				});
-			}
-		);
-		
-		$(this).data('menu', $menu);
-	})
-	.click(function() {
-		var $ul = $(this).data('menu');
-
-		$ul.toggle();
-		
-		if($ul.is(':hidden')) {
-			$ul.blur();
-		} else {
-			$ul.find('input:text').first().focus();
-		}
-	})
-	;
 </script>

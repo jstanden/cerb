@@ -1479,12 +1479,14 @@
 				<param key="view_class" value="View_Skill" />
 				<param key="options">
 					<value>
-						<data key="create" />
 						<data key="custom_fields" />
+						<!--
+						<data key="create" />
 						<data key="find" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
+						-->
 					</value>
 				</param>
 			</params>
@@ -1503,12 +1505,14 @@
 				<param key="view_class" value="View_Skillset" />
 				<param key="options">
 					<value>
-						<data key="create" />
 						<data key="custom_fields" />
+						<!--
+						<data key="create" />
 						<data key="find" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
+						-->
 					</value>
 				</param>
 			</params>
@@ -2922,6 +2926,19 @@
 				<params>
 					<param key="page_id" value="core.page.configuration" />
 					<param key="uri" value="fields" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.skills</id>
+				<name>Skills Section</name>
+				<class>
+					<file>api/uri/config/skills.php</file>
+					<name>PageSection_SetupSkills</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="skills" />
 				</params>
 			</extension>
 			

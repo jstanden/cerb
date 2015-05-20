@@ -27,8 +27,6 @@ $(function() {
 		var $skill_level = $label.find('small');
 		
 		$this.slider({
-			disabled: false,
-			value: $input.val(),
 			min: 0,
 			max: 100,
 			step: 25,
@@ -56,9 +54,13 @@ $(function() {
 				$input.val(ui.value);
 				var skill_id = $input.attr('data-skill-id');
 				
-				// Save the changes via Ajax
-				genericAjaxGet('', 'c=internal&a=handleSectionAction&section=skills&action=setContextSkill&context={$context}&context_id={$context_id}&skill_id=' + skill_id + '&level=' + ui.value);
-			}
+				// Trigger event
+				var event = jQuery.Event('skill_updated');
+				event.skill = { id: skill_id, level: ui.value }; 
+				$fieldset.trigger(event);
+			},
+			disabled: false,
+			value: $input.val()
 		});
 	});
 });

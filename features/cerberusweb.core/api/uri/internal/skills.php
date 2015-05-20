@@ -23,16 +23,18 @@ class PageSection_InternalSkills extends Extension_PageSection {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer');
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
-
+		
 		$tpl = DevblocksPlatform::getTemplateService();
+
+		$active_worker = CerberusApplication::getActiveWorker();
 
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
-
+		
 		$skillsets = DAO_Skillset::getWithSkillsForContext($context, $context_id);
 		$tpl->assign('skillsets', $skillsets);
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/skillsets/tab.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/skillsets/tab_readonly.tpl');
 	}
 	
 	function getSkillsetAction() {
@@ -51,40 +53,37 @@ class PageSection_InternalSkills extends Extension_PageSection {
 		}
 	}
 	
-	function setContextSkillAction() {
+	function showSkillsChooserPopupAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer');
-		@$skill_id = DevblocksPlatform::importGPC($_REQUEST['skill_id'],'integer');
-		@$level = DevblocksPlatform::importGPC($_REQUEST['level'],'integer');
 		
-		if(empty($context))
-			return;
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+
+		$skillsets = DAO_Skillset::getWithSkillsForContext($context, $context_id);
+		$tpl->assign('skillsets', $skillsets);
 		
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		if($level) {
-			$db->Execute(sprintf("REPLACE INTO context_to_skill (context, context_id, skill_id, skill_level) ".
-					"VALUES (%s, %d, %d, %d)",
-					$db->qstr($context),
-					$context_id,
-					$skill_id,
-					$level
-			));
-		} else {
-			$db->Execute(sprintf("DELETE FROM context_to_skill WHERE context = %s AND context_id = %d AND skill_id = %d",
-					$db->qstr($context),
-					$context_id,
-					$skill_id
-			));
-		}
+		$tpl->display('devblocks:cerberusweb.core::internal/skillsets/chooser_popup.tpl');
 	}
 	
 	function saveSkillsForContextAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer');
-		@$skills = DevblocksPlatform::importGPC($_REQUEST['skill'],'array');
+		@$skills = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['skill'],'array',array()), 'int');
 		
-		if(empty($context))
+		if(empty($context) || !is_array($skills))
+			return;
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// Check permissions on active worker
+		
+		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_TICKET)))
+			return;
+		
+		if(!$context_ext->authorize($context_id, $active_worker))
 			return;
 		
 		$db = DevblocksPlatform::getDatabaseService();

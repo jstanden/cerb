@@ -151,6 +151,25 @@ if(!isset($tables['skill'])) {
 }
 
 // ===========================================================================
+// Add the `context_to_skill` table
+
+if(!isset($tables['context_to_skill'])) {
+	$sql = sprintf("
+		CREATE TABLE IF NOT EXISTS context_to_skill (
+			context VARCHAR(255) DEFAULT '',
+			context_id INT UNSIGNED NOT NULL DEFAULT 0,
+			skill_id INT UNSIGNED NOT NULL DEFAULT 0,
+			skill_level TINYINT UNSIGNED NOT NULL DEFAULT 0,
+			PRIMARY KEY (context, context_id, skill_id),
+			INDEX skill_id (skill_id)
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql);
+
+	$tables['context_to_skill'] = 'context_to_skill';
+}
+
+// ===========================================================================
 // Add the `context_recommendation` table
 
 if(!isset($tables['context_recommendation'])) {
