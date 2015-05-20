@@ -366,7 +366,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 	}
 	
 	static function downloadUpdatedPluginsFromRepository() {
-		if(!extension_loaded("curl") || false == ($count = DAO_PluginLibrary::syncManifestsWithRepository()))
+		if(!extension_loaded("curl") || false === ($count = DAO_PluginLibrary::syncManifestsWithRepository()))
 			return false;
 		
 		$tables = DevblocksPlatform::getDatabaseTables(true);
@@ -374,7 +374,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 		if(!isset($tables['plugin_library']))
 			return false;
 		
-		if(false == ($plugin_library = DAO_PluginLibrary::getWhere()))
+		if(false === ($plugin_library = DAO_PluginLibrary::getWhere()))
 			return false;
 		
 		$plugins = DevblocksPlatform::getPluginRegistry();
