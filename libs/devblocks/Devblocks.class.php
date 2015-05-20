@@ -357,7 +357,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// If we don't have enough requested sections, pad the right.
 		// We assume the given digits are always the most significant part of the version.
-		$version = str_pad($version, $sections * 2, '0', STR_PAD_RIGHT);
+		$version = str_pad($version, $sections * 2, '0', STR_PAD_LEFT);
 		$parts = str_split($version, 2);
 		
 		// Trim padded zeroes in a version section
@@ -387,7 +387,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Pad versions with too few significant places
 		for($ctr=count($parts); $ctr < $sections; $ctr++)
-			$parts[] = '0';
+			array_unshift($parts, '0');
 		
 		$v = 0;
 		$multiplier = 1;

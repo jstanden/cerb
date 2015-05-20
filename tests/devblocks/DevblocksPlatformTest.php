@@ -329,11 +329,15 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		
 		// x -> x.y
 		$actual = DevblocksPlatform::intVersionToStr(7, 2);
-		$this->assertEquals('7.0', $actual);
+		$this->assertEquals('0.7', $actual);
 		
 		// x -> x.y.z
 		$actual = DevblocksPlatform::intVersionToStr(7, 3);
-		$this->assertEquals('7.0.0', $actual);
+		$this->assertEquals('0.0.7', $actual);
+		
+		// x -> x.y.z
+		$actual = DevblocksPlatform::intVersionToStr(48, 3);
+		$this->assertEquals('0.0.48', $actual);
 		
 		// xyy -> x
 		$actual = DevblocksPlatform::intVersionToStr(701, 1);
@@ -345,7 +349,7 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		
 		// xyy -> x.y.z
 		$actual = DevblocksPlatform::intVersionToStr(701, 3);
-		$this->assertEquals('7.1.0', $actual);
+		$this->assertEquals('0.7.1', $actual);
 		
 		// xyyzz -> x
 		$actual = DevblocksPlatform::intVersionToStr(70109, 1);
@@ -366,6 +370,14 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		// vxxyyzz -> v.x.y.z
 		$actual = DevblocksPlatform::intVersionToStr(7010900, 4);
 		$this->assertEquals('7.1.9.0', $actual);
+		
+		// xxyyz -> 0.0.z
+		$actual = DevblocksPlatform::intVersionToStr(8, 3);
+		$this->assertEquals('0.0.8', $actual);
+		
+		// xyyzz -> x.0.0
+		$actual = DevblocksPlatform::intVersionToStr(80000, 3);
+		$this->assertEquals('8.0.0', $actual);
 	}
 	
 	public function testStrVersionToInt() {
@@ -374,16 +386,20 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(7, $actual);
 		
 		// x.y -> x
-		$actual = DevblocksPlatform::strVersionToInt('7', 1);
+		$actual = DevblocksPlatform::strVersionToInt('7.1', 1);
 		$this->assertEquals(7, $actual);
 		
 		// x.y.z -> x
-		$actual = DevblocksPlatform::strVersionToInt('7', 1);
+		$actual = DevblocksPlatform::strVersionToInt('7.1.2', 1);
 		$this->assertEquals(7, $actual);
 		
 		// x -> xyy
-		$actual = DevblocksPlatform::strVersionToInt('7.1', 2);
-		$this->assertEquals(701, $actual);
+		$actual = DevblocksPlatform::strVersionToInt('7', 2);
+		$this->assertEquals(7, $actual);
+		
+		// x -> xyyzz
+		$actual = DevblocksPlatform::strVersionToInt('7', 3);
+		$this->assertEquals(7, $actual);
 
 		// x.y -> xyy
 		$actual = DevblocksPlatform::strVersionToInt('7.1', 2);
@@ -399,11 +415,11 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		
 		// x -> xyyzz
 		$actual = DevblocksPlatform::strVersionToInt('7.1', 3);
-		$this->assertEquals(70100, $actual);
+		$this->assertEquals(701, $actual);
 
 		// x.y -> xyyzz
 		$actual = DevblocksPlatform::strVersionToInt('7.1', 3);
-		$this->assertEquals(70100, $actual);
+		$this->assertEquals(701, $actual);
 		
 		// x.y.z -> xyyzz
 		$actual = DevblocksPlatform::strVersionToInt('7.1.9', 3);
@@ -420,6 +436,14 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		// v.x.yy.z -> vxxyyzz
 		$actual = DevblocksPlatform::strVersionToInt('7.10.9.0', 4);
 		$this->assertEquals(7100900, $actual);
+		
+		// 0.0.z -> xxyyz
+		$actual = DevblocksPlatform::strVersionToInt('0.0.8', 3);
+		$this->assertEquals(8, $actual);
+		
+		// x.0.0 -> xyyzz
+		$actual = DevblocksPlatform::strVersionToInt('8.0.0', 3);
+		$this->assertEquals(80000, $actual);
 	}
 	
 	public function testJsonGetPointerFromPath() {
