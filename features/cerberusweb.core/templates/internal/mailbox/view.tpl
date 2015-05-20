@@ -71,7 +71,6 @@
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
-				<input type="checkbox" name="row_id[]" value="{$result.p_id}" style="display:none;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.p_id}
 			</td>
 		</tr>
@@ -81,6 +80,7 @@
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column == "p_name"}
 			<td>
+				<input type="checkbox" name="row_id[]" value="{$result.p_id}" style="display:none;">
 				{if !$result.p_enabled}
 					<span class="glyphicons glyphicons-circle-remove" style="font-size:16px;color:rgb(80,80,80);"></span>
 				{elseif $result.p_num_fails}

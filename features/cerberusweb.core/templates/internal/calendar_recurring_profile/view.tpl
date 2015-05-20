@@ -71,10 +71,10 @@
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
-				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.c_id}
 			</td>
 			<td colspan="{$smarty.foreach.headers.total}">
+				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
 				<a href="{devblocks_url}c=profiles&type=calendar_recurring_profile&id={$result.c_id}-{$result.c_event_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.c_event_name}</a>
 				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.c_id}&view_id={$view->id}',null,false,'550');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>

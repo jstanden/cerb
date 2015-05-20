@@ -69,7 +69,6 @@
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
 			<td align="center">
-				<input type="checkbox" name="row_id[]" value="{$result.kb_id}" style="display:none;">	
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.kb_id}
 			</td>
 			{foreach from=$view->view_columns item=column name=columns}
@@ -77,6 +76,7 @@
 				<td>{$result.kb_id}&nbsp;</td>
 				{elseif $column=="kb_title"}
 				<td>
+					<input type="checkbox" name="row_id[]" value="{$result.kb_id}" style="display:none;">	
 					<a href="{devblocks_url}c=profiles&type=kb&id={$result.kb_id}-{$result.kb_title|devblocks_permalink}{/devblocks_url}" class="subject">{if !empty($result.kb_title)}{$result.kb_title}{else}(no title){/if}</a>
 					<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.kb_id}&view_id={$view->id}',null,false,'725');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 				</td>
