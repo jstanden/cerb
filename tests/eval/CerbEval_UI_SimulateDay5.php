@@ -1,5 +1,5 @@
 <?php
-class CerbEval_UI_SimulateDay4 extends PHPUnit_Extensions_SeleniumTestCase {
+class CerbEval_UI_SimulateDay5 extends PHPUnit_Extensions_SeleniumTestCase {
 	private $path;
 	
 	protected function setUp() {

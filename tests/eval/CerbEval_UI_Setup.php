@@ -79,6 +79,7 @@ class CerbEval_UI_Setup extends PHPUnit_Extensions_SeleniumTestCase {
 		$this->_runTestCase('setup/workers/CreateKarl.htm');
 		$this->_runTestCase('setup/workers/CreateMara.htm');
 		$this->_runTestCase('setup/workers/CreateJaney.htm');
+		$this->_runTestCase('setup/workers/CreateNed.htm');
 	}
 	
 	public function testImportOrgs() {
@@ -106,10 +107,12 @@ class CerbEval_UI_Setup extends PHPUnit_Extensions_SeleniumTestCase {
 		$this->_runTestCase('setup/scheduler/ConfigureSchedulerJobs.htm');
 	}
 	
+	/*
 	public function testSetupCustomFields() {
 		$this->_runTestCase('setup/SetupCustomFields.htm');
 		$this->_runTestCase('setup/custom_fields/AddTaskOwnerCustomField.htm');
 	}
+	*/
 	
 	public function testSetupPlugins() {
 		$this->_runTestCase('setup/SetupPlugins.htm');

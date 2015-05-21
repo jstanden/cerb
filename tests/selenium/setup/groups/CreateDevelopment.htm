@@ -13,7 +13,7 @@
 </thead><tbody>
 <tr>
 	<td>click</td>
-	<td>css=button[type=&quot;button&quot;]</td>
+	<td>css=a.minimal &gt; span.glyphicons.glyphicons-circle-plus</td>
 	<td></td>
 </tr>
 <tr>
@@ -28,35 +28,34 @@
 </tr>
 <tr>
 	<td>select</td>
-	<td>name=worker_levels[]</td>
+	<td>document.formGroupsPeek.elements['member_levels[]'][2]</td>
 	<td>label=Member</td>
 </tr>
 <tr>
 	<td>select</td>
-	<td>xpath=(//select[@name='worker_levels[]'])[2]</td>
+	<td>document.formGroupsPeek.elements['member_levels[]'][3]</td>
 	<td>label=Member</td>
 </tr>
 <tr>
 	<td>select</td>
-	<td>xpath=(//select[@name='worker_levels[]'])[3]</td>
+	<td>document.formGroupsPeek.elements['member_levels[]'][4]</td>
 	<td>label=Member</td>
 </tr>
 <tr>
 	<td>select</td>
-	<td>xpath=(//select[@name='worker_levels[]'])[4]</td>
-	<td>label=Member</td>
-</tr>
-<tr>
-	<td>select</td>
-	<td>xpath=(//select[@name='worker_levels[]'])[5]</td>
+	<td>document.formGroupsPeek.elements['member_levels[]'][5]</td>
 	<td>label=Manager</td>
 </tr>
 <tr>
-	<td>clickAndWait</td>
-	<td>css=button[type=&quot;submit&quot;]</td>
+	<td>click</td>
+	<td>css=#formGroupsPeek button.submit</td>
 	<td></td>
 </tr>
-
+<tr>
+	<td>waitForNotVisible</td>
+	<td>css=#formGroupsPeek</td>
+	<td></td>
+</tr>
 </tbody></table>
 </body>
 </html>
