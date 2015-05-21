@@ -183,9 +183,11 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 			
 			@$member_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['member_ids'], 'array', array()), 'int');
 			@$member_levels = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['member_levels'], 'array', array()), 'int');
+
+			// Load the current group members
+			$group_members = DAO_Group::getGroupMembers($group_id);
 			
-			DAO_Group::clearGroupMembers($group_id);
-			
+			if(is_array($member_ids))
 			foreach($member_ids as $idx => $member_id) {
 				if(!isset($member_levels[$idx]))
 					continue;
@@ -193,10 +195,22 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 				$is_member = 0 != $member_levels[$idx];
 				$is_manager = 2 == $member_levels[$idx];
 				
-				if(!$is_member)
-					continue;
-				
-				DAO_Group::setGroupMember($group_id, $member_id, $is_manager);
+				// If this worker shoudl not be a member
+				if(!$is_member) {
+					// If they were previously a member, remove them
+					if(isset($group_members[$member_id])) {
+						DAO_Group::unsetGroupMember($group_id, $member_id);
+					}
+					
+				// If this worker should be a member/manager
+				} else {
+					DAO_Group::setGroupMember($group_id, $member_id, $is_manager);
+					
+					// If the worker wasn't previously a member/manager
+					if(!isset($group_members[$member_id])) {
+						DAO_Group::addGroupMemberDefaultResponsibilities($group_id, $member_id);
+					}
+				}
 			}
 	
 			// Settings

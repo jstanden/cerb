@@ -398,9 +398,54 @@ class DAO_Group extends Cerb_ORMHelper {
 			$worker_id,
 			$group_id,
 			($is_manager?1:0)
-	   	));
+		));
 		
 		self::clearCache();
+	}
+	
+	static function addGroupMemberDefaultResponsibilities($group_id, $worker_id) {
+		if(empty($worker_id) || empty($group_id))
+			return FALSE;
+		
+		if(false == ($group = DAO_Group::get($group_id)))
+			return FALSE;
+		
+		$buckets = $group->getBuckets();
+		$responsibilities = array();
+		
+		if(is_array($buckets))
+		foreach($buckets as $bucket_id => $bucket) {
+			$responsibilities[$bucket_id] = 50;
+		}
+		
+		self::addGroupMemberResponsibilities($group_id, $worker_id, $responsibilities);
+	}
+	
+	static function addGroupMemberResponsibilities($group_id, $worker_id, $responsibilities) {
+		if(empty($worker_id) || empty($group_id) || empty($responsibilities) || !is_array($responsibilities))
+			return FALSE;
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$values = array();
+		
+		foreach($responsibilities as $bucket_id => $level) {
+			$values[] = sprintf("(%d,%d,%d)",
+				$worker_id,
+				$bucket_id,
+				$level
+			);
+		}
+		
+		if(empty($values))
+			return;
+		
+		$sql = sprintf("REPLACE INTO worker_to_bucket (worker_id, bucket_id, responsibility_level) VALUES %s",
+			implode(',', $values)
+		);
+		$db->ExecuteMaster($sql);
+		
+		// [TODO] Clear responsibility cache
 	}
 	
 	static function unsetGroupMember($group_id, $worker_id) {
@@ -409,27 +454,30 @@ class DAO_Group extends Cerb_ORMHelper {
 			
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE FROM worker_to_group WHERE group_id = %d AND worker_id IN (%d)",
+		$sql = sprintf("DELETE FROM worker_to_group WHERE group_id = %d AND worker_id = %d",
 			$group_id,
 			$worker_id
 		);
 		$db->ExecuteMaster($sql);
-
+		
+		self::unsetGroupMemberResponsibilities($group_id, $worker_id);
+		
 		self::clearCache();
 	}
 	
-	static function clearGroupMembers($group_id) {
-		if(empty($group_id))
+	static function unsetGroupMemberResponsibilities($group_id, $worker_id) {
+		if(empty($worker_id) || empty($group_id))
 			return FALSE;
 			
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("DELETE FROM worker_to_group WHERE group_id = %d",
+		$sql = sprintf("DELETE FROM worker_to_bucket WHERE worker_id = %d AND bucket_id IN (SELECT id FROM bucket WHERE group_id = %d)",
+			$worker_id,
 			$group_id
 		);
 		$db->ExecuteMaster($sql);
-
-		self::clearCache();
+		
+		// [TODO] Clear responsibility cache
 	}
 	
 	static function getRosters() {
