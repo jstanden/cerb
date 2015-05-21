@@ -3,7 +3,7 @@
 {if !empty($params)}
 {foreach from=$params item=param key=param_key name=params}
 	{if !$nested && !$readonly}<label><input type="checkbox" name="field_deletes[]" value="{$param_key}"> {/if}
-	{if !$nested && $readonly}<li>{/if}
+	{if !$nested && $readonly}<li style="position:relative;">{/if}
 		
 	{if '*_' == substr($param_key,0,2)}
 		{$view->renderVirtualCriteria($param)}
@@ -57,7 +57,7 @@
 	{/if}
 		
 	{if !$nested && !$readonly}</label><br>{/if}
-	{if !$nested && $readonly}<a href="javascript:;" class="delete" onclick="ajax.viewRemoveFilter('{$view->id}', ['{$param_key}']);" style="margin-left:-18px;display:none;"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span></a></li>{/if}
+	{if !$nested && $readonly}<a href="javascript:;" class="delete" onclick="ajax.viewRemoveFilter('{$view->id}', ['{$param_key}']);" style="position:absolute;top:-7px;right:-6px;display:none;"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span></a></li>{/if}
 {/foreach}
 {if $readonly}</ul>{/if}
 {else}{*empty*}
