@@ -1100,9 +1100,18 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 		}
 
 		// Comments
+		
 		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_SKILL, $context_id);
 		$comments = array_reverse($comments, true);
 		$tpl->assign('comments', $comments);
+		
+		// Template
+		
+		if(empty($skillsets)) {
+			$tpl->assign('error_message', "You can't add new skills until you add at least one skillset first.");
+			$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+			return;
+		}
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/skills/peek.tpl');
 	}

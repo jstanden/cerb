@@ -472,6 +472,11 @@
 				<seg>due</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.edit">
+			<tuv xml:lang="en_US">
+				<seg>edit</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.email">
 			<tuv xml:lang="en_US">
 				<seg>Email</seg>
@@ -482,9 +487,9 @@
 				<seg>Enabled</seg>
 			</tuv>
 		</tu>
-		<tu tuid="common.edit">
+		<tu tuid="common.error">
 			<tuv xml:lang="en_US">
-				<seg>edit</seg>
+				<seg>error</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.event">
