@@ -72,9 +72,12 @@
 			{elseif $column=="g_name"}
 			<td>
 				<input type="checkbox" name="row_id[]" value="{$result.g_id}" style="display:none;">
+				{if $result.g_is_default}<span class="glyphicons glyphicons-star" style="font-size:16px;color:rgb(75,75,75);"></span>{/if}
 				<a href="{devblocks_url}c=profiles&g=group&id={$result.g_id}-{$result.g_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.$column}</a>
 				{if $active_worker->is_superuser}<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.g_id}&view_id={$view->id}',null,false,'550');"><span class="glyphicons glyphicons-new-window-alt"></span></button>{/if}
 			</td>
+			{elseif in_array($column, ["g_is_private", "g_is_default"])}
+				<td>{if $result.$column}{'common.yes'|devblocks_translate|lower}{else}{'common.no'|devblocks_translate|lower}{/if}</td>
 			{elseif in_array($column, ["g_created", "g_updated"])}
 				<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
 			{else}

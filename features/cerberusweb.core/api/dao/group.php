@@ -549,10 +549,14 @@ class DAO_Group extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"g.id as %s, ".
 			"g.name as %s, ".
+			"g.is_default as %s, ".
+			"g.is_private as %s, ".
 			"g.created as %s, ".
 			"g.updated as %s ",
 				SearchFields_Group::ID,
 				SearchFields_Group::NAME,
+				SearchFields_Group::IS_DEFAULT,
+				SearchFields_Group::IS_PRIVATE,
 				SearchFields_Group::CREATED,
 				SearchFields_Group::UPDATED
 			);
