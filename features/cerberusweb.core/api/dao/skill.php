@@ -190,6 +190,13 @@ class DAO_Skill extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
+	static function count() {
+		if(false == ($skills = DAO_Skill::getAll()) || !is_array($skills))
+			return 0;
+		
+		return count($skills);
+	}
+	
 	static function random() {
 		return self::_getRandom('skill');
 	}
