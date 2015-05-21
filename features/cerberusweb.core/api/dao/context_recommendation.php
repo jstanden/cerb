@@ -155,13 +155,15 @@ class DAO_ContextRecommendation {
 		$total_interactions = 0;
 		
 		// We only care about worker participants
-		foreach($worker_participants as $worker_id => $hits) {
-			$total_interactions += $hits;
-		}
-		
-		foreach($worker_participants as $worker_id => $hits) {
-			// Create a score from -1 to 1, with 0 as median
-			$involvements[$worker_id] = ($hits / ($total_interactions/2)) - 1;
+		if(is_array($worker_participants)) {
+			foreach($worker_participants as $worker_id => $hits) {
+				$total_interactions += $hits;
+			}
+			
+			foreach($worker_participants as $worker_id => $hits) {
+				// Create a score from -1 to 1, with 0 as median
+				$involvements[$worker_id] = ($hits / ($total_interactions/2)) - 1;
+			}
 		}
 		
 		return $involvements;
@@ -183,6 +185,10 @@ class DAO_ContextRecommendation {
 
 		$group_responsibilities = DAO_Group::getResponsibilities($ticket->group_id);
 		
+		if(empty($group_responsibilities) || !is_array($group_responsibilities))
+			return $ranked;
+		
+		if(isset($group_responsibilities[$ticket->bucket_id]))
 		foreach($group_responsibilities[$ticket->bucket_id] as $worker_id => $responsibility_level) {
 			$ranked[$worker_id] = array(
 				'score' => $responsibility_level,
