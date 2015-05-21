@@ -336,7 +336,7 @@ if(!isset($columns['is_default'])) {
 	
 	$group_inboxes = array();
 	
-	$results = $db->ExecuteMaster("SELECT id, reply_address_id, reply_personal, reply_signature, reply_html_template_id FROM worker_group");
+	$results = $db->GetArrayMaster("SELECT id, reply_address_id, reply_personal, reply_signature, reply_html_template_id FROM worker_group");
 	
 	foreach($results as $row) {
 		$db->ExecuteMaster(sprintf("INSERT INTO bucket (group_id, name, reply_address_id, reply_personal, reply_signature, reply_html_template_id, updated_at, is_default) ".
