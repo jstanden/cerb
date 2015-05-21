@@ -19,13 +19,15 @@
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
 		
 		<!-- Edit -->
+		{if $active_worker->isGroupManager($page_context_id)}
 		<button type="button" id="btnDisplayBucketEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		{/if}
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
 		<small>
 		{$translate->_('common.keyboard')|lower}:
-		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+		{if $active_worker->isGroupManager($page_context_id)}(<b>e</b>) {'common.edit'|devblocks_translate|lower}{/if}
 		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
 		(<b>1-9</b>) change tab
 		</small>
