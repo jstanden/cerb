@@ -29,7 +29,17 @@
 		{if $active_worker->is_superuser}
 			<button type="button" id="btnProfileGroupEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
+		
 	</form>
+	
+	{if $pref_keyboard_shortcuts}
+		<small>
+		{$translate->_('common.keyboard')|lower}:
+		{if $active_worker->is_superuser}(<b>e</b>) {'common.edit'|devblocks_translate|lower}{/if}
+		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
+		(<b>1-9</b>) change tab
+		</small>
+	{/if}
 </div>
 
 <fieldset class="properties">
@@ -133,6 +143,58 @@ $(function() {
 	
 	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 });
+</script>
+
+<script type="text/javascript">
+{if $pref_keyboard_shortcuts}
+$(function() {
+	$(document).keypress(function(event) {
+		if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
+			return;
+		
+		if($(event.target).is(':input'))
+			return;
+	
+		var hotkey_activated = true;
+		
+		switch(event.which) {
+			case 49:  // (1) tab cycle
+			case 50:  // (2) tab cycle
+			case 51:  // (3) tab cycle
+			case 52:  // (4) tab cycle
+			case 53:  // (5) tab cycle
+			case 54:  // (6) tab cycle
+			case 55:  // (7) tab cycle
+			case 56:  // (8) tab cycle
+			case 57:  // (9) tab cycle
+			case 58:  // (0) tab cycle
+				try {
+					var idx = event.which-49;
+					var $tabs = $("#profileGroupTabs").tabs();
+					$tabs.tabs('option', 'active', idx);
+				} catch(ex) { }
+				break;
+			case 101:  // (E) edit
+				try {
+					$('#btnProfileGroupEdit').click();
+				} catch(ex) { }
+				break;
+			case 109:  // (M) macros
+				try {
+					$('#btnDisplayMacros').click();
+				} catch(ex) { }
+				break;
+			default:
+				// We didn't find any obvious keys, try other codes
+				hotkey_activated = false;
+				break;
+		}
+		
+		if(hotkey_activated)
+			event.preventDefault();
+	});
+});
+{/if}
 </script>
 
 {$profile_scripts = Extension_ContextProfileScript::getExtensions(true, $page_context)}
