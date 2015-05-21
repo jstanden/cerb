@@ -214,7 +214,7 @@
 		$(this).dialog('option','title',"{$ticket->subject|escape:'javascript' nofilter}");
 		$("#ticketPeekContent").css('width','100%');
 		
-		ajax.orgAutoComplete('#ticketPeekProps input:text[name=org_name]');
+		ajax.orgAutoComplete('#frmTicketPeek input:text[name=org_name]');
 		
 		// Comments
 		
@@ -303,6 +303,6 @@
 		});
 		
 		// Dates
-		$frm.find('div#ticketPeekProps > fieldset:first input.input_date').cerbDateInputHelper();
+		$frm.find('div#frmTicketPeek > fieldset:first input.input_date').cerbDateInputHelper();
 	});
 </script>

@@ -184,6 +184,22 @@ class CerbEval_UI_SimulateDay1 extends PHPUnit_Extensions_SeleniumTestCase {
 		$this->_runTestCase('sessions/LogOut.htm');
 		
 		/**
+		 * Ned
+		 */
+
+		// Ned logs in for the first time
+		$this->_runTestCase('sessions/LogInNed.htm');
+		
+		// Ned closes the tour
+		$this->_runTestCase('sessions/CloseTour.htm');
+		
+		// Ned adds a default mail page
+		$this->_runTestCase('workspaces/AddMailPage.htm');
+
+		// Ned logs out
+		$this->_runTestCase('sessions/LogOut.htm');
+		
+		/**
 		 * Incoming mail
 		 */
 		
