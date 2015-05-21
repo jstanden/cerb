@@ -1,3 +1,5 @@
+{$is_editable = $active_worker->is_superuser || ($context == CerberusContexts::CONTEXT_WORKER && $active_worker->id == $context_id)} 
+
 {$skillsets_all = DAO_Skillset::getAll()}
 {$skillsets_available = $skillsets_all}
 {$skillsets_linked = $skillsets}
@@ -5,9 +7,11 @@
 
 {$fieldsets_dom_id = uniqid()}
 
+{if $is_editable}
 <form id="frm{$fieldsets_dom_id}" style="margin-bottom:10px;">
 	<button type="button" class="add"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 </form>
+{/if}
 
 <div id="{$fieldsets_dom_id}">
 
@@ -34,12 +38,19 @@
 			
 			</div>
 		</fieldset>
-	
+		
 	{/foreach}
+{else}
+
+<p>
+	<b>There are no skills associated with this record.</b>
+</p>
+
 {/if}
 
 </div>
 
+{if $is_editable}
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#frm{$fieldsets_dom_id}');
@@ -53,7 +64,7 @@ $(function() {
 			var tabId = $tabs.tabs("option", "active");
 			$tabs.tabs("load", tabId);
 		});
-		
 	});
 });
 </script>
+{/if}
