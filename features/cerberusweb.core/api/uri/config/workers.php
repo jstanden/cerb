@@ -47,6 +47,11 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		if(!$active_worker->is_superuser) {
+			$tpl->assign('error_message', "Only administrators can edit worker records.");
+			$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+		}
+		
 		$tpl->assign('view_id', $view_id);
 		
 		if(false == ($worker = DAO_Worker::get($id))) {

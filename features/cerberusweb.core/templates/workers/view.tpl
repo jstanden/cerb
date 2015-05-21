@@ -10,7 +10,7 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-			{*{if $active_worker->is_superuser}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id=0&view_id={$view->id}',null,false,'500');"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}*}
+			{if $active_worker->is_superuser}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id=0&view_id={$view->id}',null,false,'500');"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
 			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
 			<a href="javascript:;" title="Subtotals" class="subtotals minimal"><span class="glyphicons glyphicons-signal"></span></a>
@@ -32,7 +32,7 @@
 <input type="hidden" name="section" value="worker">
 <input type="hidden" name="action" value="">
 <input type="hidden" name="explore_from" value="0">
-<table cellpadding="0" cellspacing="0" border="0" width="100%" class="worklistBody">
+<table cellpadding="2" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
 	<thead>
@@ -69,7 +69,7 @@
 				{$worker_name = "{$result.w_first_name}{if !empty($result.w_last_name)} {$result.w_last_name}{/if}"}
 				<input type="checkbox" name="row_id[]" value="{$result.w_id}" style="display:none;">
 				<a href="{devblocks_url}c=profiles&a=worker&id={$result.w_id}-{$worker_name|devblocks_permalink}{/devblocks_url}" class="subject" style="{if $result.w_is_disabled}color:rgb(120,0,0);font-style:italic;{/if}">{$worker_name}</a>
-				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=workers&action=showWorkerPeek&id={$result.w_id}&view_id={$view->id|escape:'url'}',null,false,'550');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+				{if $active_worker->is_superuser}<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=workers&action=showWorkerPeek&id={$result.w_id}&view_id={$view->id|escape:'url'}',null,false,'550');"><span class="glyphicons glyphicons-new-window-alt"></span></button>{/if}
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
