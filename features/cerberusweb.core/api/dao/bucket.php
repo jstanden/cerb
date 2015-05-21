@@ -99,27 +99,18 @@ class DAO_Bucket extends Cerb_ORMHelper {
 
 		if(empty($ids))
 			return array();
-
-		if(!method_exists(get_called_class(), 'getWhere'))
-			return array();
-
-		$db = DevblocksPlatform::getDatabaseService();
+		
+		$buckets = self::getAll();
 
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = array();
 
-		$results = static::getWhere(sprintf("id IN (%s)",
-			implode(',', $ids)
-		));
-
-		// Sort $models in the same order as $ids
+		if(is_array($ids) && is_array($buckets))
 		foreach($ids as $id) {
-			if(isset($results[$id]))
-				$models[$id] = $results[$id];
+			if(isset($buckets[$id]))
+				$models[$id] = $buckets[$id];
 		}
-
-		unset($results);
 
 		return $models;
 	}	
@@ -282,8 +273,11 @@ class DAO_Bucket extends Cerb_ORMHelper {
 			)
 		);
 		
+		$default_group = DAO_Group::getDefaultGroup();
+			
 		$buckets = DAO_Bucket::getIds($ids);
 		
+		if(is_array($buckets))
 		foreach($buckets as $bucket_id => $bucket) {
 			if(false == ($group = $bucket->getGroup()))
 				continue;
@@ -292,12 +286,29 @@ class DAO_Bucket extends Cerb_ORMHelper {
 				continue;
 			
 			// Reset any tickets using this bucket
-			$db->ExecuteMaster(sprintf("UPDATE ticket SET bucket_id = %d WHERE bucket_id = %d",
-				$new_bucket->id,
-				$bucket_id
-			));
+			if($new_bucket->id != $bucket_id) {
+				$db->ExecuteMaster(sprintf("UPDATE ticket SET bucket_id = %d WHERE bucket_id = %d",
+					$new_bucket->id,
+					$bucket_id
+				));
+				
+			// If this was the default bucket for the group, use the global default
+			} else {
+				
+				if($default_group && false != ($default_bucket = $default_group->getDefaultBucket())) {
+					$db->ExecuteMaster(sprintf("UPDATE ticket SET group_id = %d, bucket_id = %d WHERE bucket_id = %d",
+						$default_group->id,
+						$default_bucket->id,
+						$bucket_id
+					));
+				}
+				
+			}
 		}
 
+		$sql = sprintf("DELETE FROM worker_to_bucket WHERE bucket_id IN (%s)", implode(',',$ids));
+		$db->ExecuteMaster($sql);
+		
 		$sql = sprintf("DELETE FROM bucket WHERE id IN (%s)", implode(',',$ids));
 		$db->ExecuteMaster($sql);
 		

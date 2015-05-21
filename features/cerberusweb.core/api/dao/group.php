@@ -301,7 +301,12 @@ class DAO_Group extends Cerb_ORMHelper {
 	 * @param integer $id
 	 */
 	static function delete($id) {
-		if(empty($id)) return;
+		if(empty($id))
+			return;
+		
+		if(false == ($deleted_group = DAO_Group::get($id)))
+			return;
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		/*
@@ -317,17 +322,30 @@ class DAO_Group extends Cerb_ORMHelper {
 			)
 		);
 		
-		$sql = sprintf("DELETE FROM worker_group WHERE id = %d", $id);
+		// Move any records in these buckets to the default group/bucket
+		if(false != ($default_group = DAO_Group::getDefaultGroup()) && $default_group->id != $deleted_group->id) {
+			if(false != ($default_bucket = $default_group->getDefaultBucket())) {
+				DAO_Ticket::updateWhere(array(DAO_Ticket::GROUP_ID => $default_group->id, DAO_Ticket::BUCKET_ID => $default_bucket->id), sprintf("%s = %d", DAO_Ticket::GROUP_ID, $deleted_group->id));		
+			}
+		}
+		
+		$sql = sprintf("DELETE FROM worker_group WHERE id = %d", $deleted_group->id);
 		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
-		$sql = sprintf("DELETE FROM bucket WHERE group_id = %d", $id);
+		$sql = sprintf("DELETE FROM group_setting WHERE group_id = %d", $deleted_group->id);
 		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
-		$sql = sprintf("DELETE FROM group_setting WHERE group_id = %d", $id);
+		$sql = sprintf("DELETE FROM worker_to_group WHERE group_id = %d", $deleted_group->id);
 		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+
+		// Delete associated buckets
 		
-		$sql = sprintf("DELETE FROM worker_to_group WHERE group_id = %d", $id);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$deleted_buckets = $deleted_group->getBuckets();
+		
+		if(is_array($deleted_buckets))
+		foreach($deleted_buckets as $deleted_bucket) {
+			DAO_Bucket::delete($deleted_bucket->id);
+		}
 
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -336,7 +354,7 @@ class DAO_Group extends Cerb_ORMHelper {
 				'context.delete',
 				array(
 					'context' => CerberusContexts::CONTEXT_GROUP,
-					'context_ids' => array($id)
+					'context_ids' => array($deleted_group->id)
 				)
 			)
 		);
@@ -1625,6 +1643,15 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
+		
+		// Delete destinations
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$destination_buckets = DAO_Bucket::getGroups();
+		unset($destination_buckets[$context_id]);
+		$tpl->assign('destination_buckets', $destination_buckets);
 		
 		// Settings
 		

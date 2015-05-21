@@ -72,12 +72,64 @@
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_GROUP context_id=$group->id}
 
 {if !empty($group->id)}
+<fieldset style="display:none;" class="delete">
+	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
+	
+	<div>
+		Are you sure you want to delete this group?
+		
+		{if !empty($destination_buckets)}
+		<div style="color:rgb(50,50,50);margin:10px;">
+		
+		<b>Move records from this group's buckets to:</b>
+		
+		<table cellpadding="2" cellspacing="0" border="0">
+		
+		{$buckets = $group->getBuckets()}
+		{foreach from=$buckets item=bucket}
+		<tr>
+			<td>
+				{$bucket->name}
+			</td>
+			<td>
+				<span class="glyphicons glyphicons-right-arrow"></span> 
+			</td>
+			<td>
+				<select name="move_deleted_buckets[{$bucket->id}]">
+					{foreach from=$destination_buckets item=dest_buckets key=dest_group_id}
+					{$dest_group = $groups.$dest_group_id}
+						{foreach from=$dest_buckets item=dest_bucket}
+						<option value="{$dest_bucket->id}">{$dest_group->name}: {$dest_bucket->name}</option>
+						{/foreach}
+					{/foreach}
+				</select>
+			</td> 
+		</tr>
+		{/foreach}
+		
+		</table>
+		
+		</div>
+		{/if}
+		
+
+	</div>
+	
+	<button type="button" class="delete" onclick="var $frm=$(this).closest('form');$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('button.submit').click();"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Confirm</button>
+	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+</fieldset>
+{/if}
+
+<div class="buttons">
+	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'formGroupsPeek','{$view_id}',false,'group_save');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
+	{if !empty($group->id)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+</div>
+
+{if !empty($group->id)}
 <div style="float:right;">
 	<a href="{devblocks_url}&c=profiles&type=group&id={$group->id}{/devblocks_url}-{$group->name|devblocks_permalink}">{'addy_book.peek.view_full'|devblocks_translate}</a>
 </div>
 {/if}
-
-<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'formGroupsPeek','{$view_id}',false,'group_save');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 
 </form>
 
