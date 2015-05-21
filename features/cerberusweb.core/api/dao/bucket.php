@@ -1008,6 +1008,8 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		
@@ -1018,6 +1020,20 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 				$tpl->assign('group', $group);
 				$tpl->assign('members', $group->getMembers());
 			}
+		}
+		
+		// Permissions
+		
+		if(empty($context_id) && !$active_worker->isGroupManager()) {
+			$tpl->assign('error_message', "You can only create new buckets if you're the manager of at least one group.");
+			$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+			return;
+		}
+		
+		if(!empty($context_id) && !$active_worker->isGroupManager($context_id)) {
+			$tpl->assign('error_message', "Only group managers can modify this bucket.");
+			$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+			return;
 		}
 		
 		// Groups

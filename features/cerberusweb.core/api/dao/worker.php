@@ -1269,12 +1269,25 @@ class Model_Worker {
 		return false;
 	}
 	
-	function isGroupManager($group_id) {
+	function isGroupManager($group_id=null) {
 		@$memberships = $this->getMemberships();
 		$groups = DAO_Group::getAll();
+		
+		if($this->is_superuser)
+			return true;
+		
+		if(empty($group_id)) {
+			foreach($groups as $group) {
+				// Is the worker a manager of this group?
+				if(isset($memberships[$group_id]) && $memberships[$group_id]->is_manager)
+					return true;
+			}
+			
+			return false;
+		}
+		
 		if(
-			empty($group_id) // null
-			|| !isset($groups[$group_id]) // doesn't exist
+			!isset($groups[$group_id]) // doesn't exist
 			|| !isset($memberships[$group_id])  // not a member
 			|| (!$memberships[$group_id]->is_manager && !$this->is_superuser) // not a manager or superuser
 		){
