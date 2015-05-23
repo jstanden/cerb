@@ -1193,13 +1193,20 @@ class Model_Worker {
 	}
 	
 	function getAvailability($date_from, $date_to) {
-		$calendar = DAO_Calendar::get($this->calendar_id);
-		
 		// In full (00:00:00 - 23:59:59) days
 		$day_from = strtotime('midnight', $date_from);
 		$day_to = strtotime('23:59:59', $date_to);
 		
-		$calendar_events = $calendar->getEvents($day_from, $day_to);
+		$calendar = DAO_Calendar::get($this->calendar_id);
+		
+		if(false == ($calendar = DAO_Calendar::get($this->calendar_id))) {
+			$calendar = new Model_Calendar();
+			$calendar_events = array();
+			
+		} else {
+			$calendar_events = $calendar->getEvents($day_from, $day_to);
+		}
+		
 		$availability = $calendar->computeAvailability($date_from, $date_to, $calendar_events);
 		
 		return $availability;
