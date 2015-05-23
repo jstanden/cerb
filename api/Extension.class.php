@@ -585,11 +585,16 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 
 	public static function getViewFromParams($widget, $params, $view_id) {
 		if(!isset($params['worklist_model']))
-			return;
+			return false;
 		
 		$view_model = $params['worklist_model'];
 		
-		return C4_AbstractViewLoader::unserializeViewFromAbstractJson($view_model, $view_id);
+		if(false != ($view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($view_model, $view_id))) {
+			$view->persist();
+			return $view;
+		}
+		
+		return false;
 	}
 };
 

@@ -134,7 +134,7 @@ var on_refresh = function() {
 	$sort_links.insertBefore($worklist_body);
 	$worklist_links.insertBefore($sort_links);
 	
-	$actions = $('#{$view->id}_actions');
+	var $actions = $('#{$view->id}_actions');
 	$actions.find('.action-always-show').hide();
 }
 
