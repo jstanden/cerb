@@ -64,7 +64,19 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	static function getAll($nocache=false) {
 		$cache = DevblocksPlatform::getCacheService();
 		if($nocache || null === ($buckets = $cache->load(self::CACHE_ALL))) {
-			$buckets = self::getWhere(null, DAO_Bucket::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
+			$buckets = self::getWhere(null, null, false, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
+			
+			uasort($buckets, function($a, $b) {
+				/* @var $a Model_Bucket */
+				/* @var $b Model_Bucket */
+				if($a->is_default)
+					return -1;
+				if($b->is_default)
+					return 1;
+				
+				return strcasecmp($a->name, $b->name);
+			});
+			
 			$cache->save($buckets, self::CACHE_ALL);
 		}
 		
