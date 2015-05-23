@@ -136,8 +136,17 @@ abstract class DevblocksORMHelper {
 		$wheres = array();
 		
 		// Sort By
-		if(!empty($sortBy) && isset($fields[$sortBy]))
-			$tables[$fields[$sortBy]->db_table] = $fields[$sortBy]->db_table;
+		if(!empty($sortBy)) {
+			if(is_string($sortBy) && isset($fields[$sortBy])) {
+				$tables[$fields[$sortBy]->db_table] = $fields[$sortBy]->db_table;
+				
+			} elseif(is_array($sortBy)) {
+				foreach($sortBy as $sort_field) {
+					if(isset($fields[$sort_field]))
+						$tables[$fields[$sort_field]->db_table] = $fields[$sort_field]->db_table;
+				}
+			}
+		}
 		
 		// Columns
 		if(is_array($columns))
