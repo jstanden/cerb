@@ -1072,6 +1072,26 @@
 				<seg>go!</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.security">
+			<tuv xml:lang="en_US">
+				<seg>security</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.session">
+			<tuv xml:lang="en_US">
+				<seg>session</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.sessions">
+			<tuv xml:lang="en_US">
+				<seg>sessions</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.setting">
+			<tuv xml:lang="en_US">
+				<seg>setting</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.settings">
 			<tuv xml:lang="en_US">
 				<seg>settings</seg>

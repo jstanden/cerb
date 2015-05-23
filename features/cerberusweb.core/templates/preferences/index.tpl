@@ -30,10 +30,9 @@
 		{$point = Extension_PreferenceTab::POINT}
 
 		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showGeneralTab{/devblocks_url}">{'common.settings'|devblocks_translate|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showSecurityTab{/devblocks_url}">Security</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showSessionsTab{/devblocks_url}">Sessions</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showWatcherTab{/devblocks_url}">Watcher Notifications</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showRssTab{/devblocks_url}">RSS</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showSecurityTab{/devblocks_url}">{'common.security'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showSessionsTab{/devblocks_url}">{'common.sessions'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showWatcherTab{/devblocks_url}">{'common.notifications'|devblocks_translate|capitalize}</a></li>
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
