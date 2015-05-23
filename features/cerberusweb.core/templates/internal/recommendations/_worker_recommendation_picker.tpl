@@ -24,6 +24,8 @@
 	<tbody>
 		{foreach from=$recommended_workers item=worker_id}
 		{$worker = $active_workers.$worker_id}
+		
+		{if $worker instanceof Model_Worker}
 		{$availability = $worker->getAvailabilityAsBlocks()}
 		{if isset($recommendation_scores.$worker_id)}
 			{$recommendation = $recommendation_scores.$worker_id}
@@ -68,6 +70,7 @@
 				<a href="javascript:;" class="delete"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>
 			</td>
 		</tr>
+		{/if}
 		{/foreach}
 	</tbody>
 	
@@ -103,6 +106,7 @@
 			{foreach from=$recommendation_scores item=recommendation key=worker_id}
 			{if !in_array($worker_id, $recommended_workers)}
 			{$worker = $active_workers.$worker_id}
+			{if $worker instanceof Model_Worker}
 			{$availability = $worker->getAvailabilityAsBlocks()}
 				<tr data-worker-id="{$worker_id}" data-score="{$recommendation.score}">
 					<td>
@@ -142,6 +146,7 @@
 						<a href="javascript:;" class="delete" style="display:none;"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>
 					</td>
 				</tr>
+			{/if}
 			{/if}
 			{/foreach}
 		</tbody>

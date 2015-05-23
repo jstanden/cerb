@@ -68,7 +68,8 @@
 			<td colspan="{$smarty.foreach.headers.total}">
 				{$worker_name = "{$result.w_first_name}{if !empty($result.w_last_name)} {$result.w_last_name}{/if}"}
 				<input type="checkbox" name="row_id[]" value="{$result.w_id}" style="display:none;">
-				<a href="{devblocks_url}c=profiles&a=worker&id={$result.w_id}-{$worker_name|devblocks_permalink}{/devblocks_url}" class="subject" style="{if $result.w_is_disabled}color:rgb(120,0,0);font-style:italic;{/if}">{$worker_name}</a>
+				{if $result.w_is_disabled}<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:16px;"></span>{/if}
+				<a href="{devblocks_url}c=profiles&a=worker&id={$result.w_id}-{$worker_name|devblocks_permalink}{/devblocks_url}" class="subject">{$worker_name}</a>
 				{if $active_worker->is_superuser}<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=workers&action=showWorkerPeek&id={$result.w_id}&view_id={$view->id|escape:'url'}',null,false,'550');"><span class="glyphicons glyphicons-new-window-alt"></span></button>{/if}
 			</td>
 		</tr>

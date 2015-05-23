@@ -485,7 +485,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		
 		if(null === ($objects = $cache->load(self::CACHE_ROSTERS))) {
 			$db = DevblocksPlatform::getDatabaseService();
-			$sql = sprintf("SELECT wt.worker_id, wt.group_id, wt.is_manager ".
+			$sql = sprintf("SELECT wt.worker_id, wt.group_id, wt.is_manager, w.is_disabled ".
 				"FROM worker_to_group wt ".
 				"INNER JOIN worker_group g ON (wt.group_id=g.id) ".
 				"INNER JOIN worker w ON (w.id=wt.worker_id) ".
@@ -499,6 +499,10 @@ class DAO_Group extends Cerb_ORMHelper {
 				$worker_id = intval($row['worker_id']);
 				$group_id = intval($row['group_id']);
 				$is_manager = intval($row['is_manager']);
+				$is_disabled = intval($row['is_disabled']);
+				
+				if($is_disabled)
+					continue;
 				
 				if(!isset($objects[$group_id]))
 					$objects[$group_id] = array();
@@ -1686,7 +1690,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		
 		// Members
 		
-		$workers = DAO_Worker::getAll();
+		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
 		if(isset($group) && $group instanceof Model_Group && false != ($members = $group->getMembers()))
