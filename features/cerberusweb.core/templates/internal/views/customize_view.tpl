@@ -28,23 +28,15 @@
  &nbsp; 
 <a href="javascript:;" onclick="Devblocks.resetSelectElements('customize{$view->id}','columns[]');">{'common.clear'|devblocks_translate|lower}</a>
 <br>
-{$columnsAvailable = $view->getColumnsAvailable()}
-{section start=0 step=1 loop=15 name=columns}
-{assign var=index value=$smarty.section.columns.index}
+
+{foreach from=$columns item=column}
 <div class="column"> 
 <span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span>
-<select name="columns[]">
-	<option value=""></option>
-	
-	{foreach from=$columnsAvailable item=colAvail}
-		{if !empty($colAvail->db_label) && !empty($colAvail->token)}
-			<option value="{$colAvail->token}" {if $view->view_columns.$index==$colAvail->token}selected{/if}>{$colAvail->db_label|capitalize}</option>
-		{/if}
-	{/foreach}
-</select>
+<label><input type="checkbox" name="columns[]" value="{$column->token}" {if in_array($column->token, $view->view_columns)}checked="checked"{/if}> {$column->db_label|capitalize}</label>
 </div>
-{/section}
+{/foreach}
 <br>
+
 <b>{'dashboard.num_rows'|devblocks_translate|capitalize}:</b> <input type="text" name="num_rows" size="3" maxlength="3" value="{$view->renderLimit}"><br>
 <br>
 

@@ -1940,7 +1940,29 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null == ($view = C4_AbstractViewLoader::getView($id)))
 			return;
 		
+		// Columns
+		
+		$columns = array();
+		$columns_available = $view->getColumnsAvailable();
+		
+		// Start with the currently selected columns
+		if(is_array($view->view_columns))
+		foreach($view->view_columns as $token) {
+			if(isset($columns_available[$token]) && !isset($columns[$token]))
+				$columns[$token] = $columns_available[$token];
+		}
+		
+		// Finally, append the remaining columns
+		foreach($columns_available as $token => $col) {
+			if(!isset($columns[$token]))
+				if($token && $col->db_label)
+					$columns[$token] = $col;
+		}
+		
+		$tpl->assign('columns', $columns);
+		
 		// Custom worklists
+		
 		if('cust_' == substr($view->id,0,5)) {
 			try {
 				$worklist_id = substr($view->id,5);
