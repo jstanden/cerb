@@ -133,11 +133,6 @@
 				<seg>[Correo] Puede redactar nuevos mensajes desde el Helpdesk</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.rss">
-			<tuv xml:lang="es_ES">
-				<seg>[RSS] Puede exportar listas como archivos RSS</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.snippets.actions.create">
 			<tuv xml:lang="es_ES">
 				<seg/>
@@ -4467,11 +4462,6 @@ Si no pidió esto, no pinche en el enlace de arriba.  La petición expirará en 
 		<tu tuid="reports.ui.worker.worker_history">
 			<tuv xml:lang="es_ES">
 				<seg>Historial del Usuario</seg>
-			</tuv>
-		</tu>
-		<tu tuid="rss.bad_feed">
-			<tuv xml:lang="es_ES">
-				<seg>Datos de fuente incorrectos.</seg>
 			</tuv>
 		</tu>
 		<tu tuid="search.date.between">

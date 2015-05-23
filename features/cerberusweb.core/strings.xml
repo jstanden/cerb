@@ -1658,14 +1658,6 @@
 			</tuv>
 		</tu>
 
-		<!-- RSS -->
-		
-		<tu tuid="acl.core.rss">
-			<tuv xml:lang="en_US">
-				<seg>[RSS] Can export lists as RSS feeds</seg>
-			</tuv>
-		</tu>
-
 		<!-- Snippets -->
 		
 		<tu tuid="acl.core.snippets.actions.create">
@@ -2955,14 +2947,6 @@ If you did not request this, do not click the link above.  The request will expi
 		<tu tuid="prefs.address.invalid">
 			<tuv xml:lang="en_US">
 				<seg>%s is not a valid email address.</seg>
-			</tuv>
-		</tu>
-
-		<!-- RSS -->
-		
-		<tu tuid="rss.bad_feed">
-			<tuv xml:lang="en_US">
-				<seg>Bad feed data.</seg>
 			</tuv>
 		</tu>
 

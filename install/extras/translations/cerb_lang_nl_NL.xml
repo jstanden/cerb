@@ -133,11 +133,6 @@
 				<seg>[Mail] Kan nieuwe berichten opstellen vanuit de helpdesk</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.rss">
-			<tuv xml:lang="nl_NL">
-				<seg>[RSS] Kan lijsten als een RSS feed exporteren </seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.snippets.actions.create">
 			<tuv xml:lang="nl_NL">
 				<seg/>
@@ -4462,11 +4457,6 @@
 		<tu tuid="reports.ui.worker.worker_history">
 			<tuv xml:lang="nl_NL">
 				<seg>Werknemer geschiedenis tussen bepaalde datums</seg>
-			</tuv>
-		</tu>
-		<tu tuid="rss.bad_feed">
-			<tuv xml:lang="nl_NL">
-				<seg>Foutieve Data Feed.</seg>
 			</tuv>
 		</tu>
 		<tu tuid="search.date.between">

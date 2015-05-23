@@ -542,16 +542,6 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
-	function showRssTabAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		$feeds = DAO_ViewRss::getByWorker($active_worker->id);
-		$tpl->assign('feeds', $feeds);
-
-		$tpl->display('devblocks:cerberusweb.core::preferences/modules/rss.tpl');
-	}
-
 	function saveDefaultsAction() {
 		@$timezone = DevblocksPlatform::importGPC($_REQUEST['timezone'],'string');
 		@$lang_code = DevblocksPlatform::importGPC($_REQUEST['lang_code'],'string','en_US');
@@ -700,15 +690,4 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl->assign('pref_success', $output);
 	}
 
-	// Post [TODO] This should probably turn into Extension_PreferenceTab
-	function saveRssAction() {
-		@$id = DevblocksPlatform::importGPC($_POST['id']);
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		if(null != ($feed = DAO_ViewRss::getId($id)) && $feed->worker_id == $active_worker->id) {
-			DAO_ViewRss::delete($id);
-		}
-
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('preferences','rss')));
-	}
 };

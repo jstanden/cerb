@@ -453,9 +453,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$logger = DevblocksPlatform::getConsoleLog();
 		$tables = DevblocksPlatform::getDatabaseTables();
 		
-		$db->ExecuteMaster("DELETE FROM view_rss WHERE worker_id NOT IN (SELECT id FROM worker)");
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' view_rss records.');
-		
 		$db->ExecuteMaster("DELETE FROM worker_pref WHERE worker_id NOT IN (SELECT id FROM worker)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_pref records.');
 		
@@ -515,9 +512,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$sql = sprintf("DELETE FROM worker_to_group WHERE worker_id = %d", $id);
 		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
-		$sql = sprintf("DELETE FROM view_rss WHERE worker_id = %d", $id);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-		
 		$sql = sprintf("DELETE FROM snippet_use_history WHERE worker_id = %d", $id);
 		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		

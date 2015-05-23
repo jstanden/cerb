@@ -358,10 +358,6 @@ INPUT[type=text].input_remove {
   padding: 2px 2px 2px 25px;
   background: url(input_icons/forbidden.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
-INPUT[type=text].input_rss {
-  padding: 2px 2px 2px 25px;
-  background: url(input_icons/rss.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
-}
 INPUT[type=text].input_search {
   padding: 2px 2px 2px 25px;
   background: url(input_icons/view.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;

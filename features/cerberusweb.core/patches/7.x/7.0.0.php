@@ -566,6 +566,14 @@ if(isset($tables['pop3_account'])) {
 }
 
 // ===========================================================================
+// Drop RSS table
+
+if(isset($tables['view_rss'])) {
+	$db->Execute("DROP TABLE view_rss");
+	unset($tables['view_rss']);
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

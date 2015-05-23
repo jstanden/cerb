@@ -133,11 +133,6 @@
 				<seg>[Mail] Pode criar novas mensagens a partir do helpdesk</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.rss">
-			<tuv xml:lang="pt_PT">
-				<seg>[RSS] Pode exportar listas de RSS</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.snippets.actions.create">
 			<tuv xml:lang="pt_PT">
 				<seg>[Snippets] Pode criar snippets</seg>
@@ -4466,11 +4461,6 @@ Se não solicitou esta operação, não clique no link em cima. O pedido expira 
 		<tu tuid="reports.ui.worker.worker_history">
 			<tuv xml:lang="pt_PT">
 				<seg>Histórico do Colaborador num Intervalo de Tempo</seg>
-			</tuv>
-		</tu>
-		<tu tuid="rss.bad_feed">
-			<tuv xml:lang="pt_PT">
-				<seg>Dados da feed errados.</seg>
 			</tuv>
 		</tu>
 		<tu tuid="search.date.between">

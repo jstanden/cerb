@@ -133,11 +133,6 @@
 				<seg>[Email] Kann neue Nachrichten aus dem Helpdesk verfassen</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.rss">
-			<tuv xml:lang="de_DE">
-				<seg>[RSS] Kann Listen als RSS Feeds exportieren</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.snippets.actions.create">
 			<tuv xml:lang="de_DE">
 				<seg/>
@@ -4466,11 +4461,6 @@ Wenn Sie dies nich angefordert haben, klicken Sie den o.g. Link nicht. Die Anfor
 		<tu tuid="reports.ui.worker.worker_history">
 			<tuv xml:lang="de_DE">
 				<seg>Mitarbeiter-Historie</seg>
-			</tuv>
-		</tu>
-		<tu tuid="rss.bad_feed">
-			<tuv xml:lang="de_DE">
-				<seg>Unzulässige Eingabe-Daten</seg>
 			</tuv>
 		</tu>
 		<tu tuid="search.date.between">

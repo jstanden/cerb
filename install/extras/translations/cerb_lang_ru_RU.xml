@@ -133,11 +133,6 @@
 				<seg>[Почта] Может создавать новые сообщение из хелпдеска</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.rss">
-			<tuv xml:lang="ru_RU">
-				<seg>[RSS] Может экспортировать списки как фиды RSS</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.snippets.actions.create">
 			<tuv xml:lang="ru_RU">
 				<seg/>
@@ -4466,11 +4461,6 @@
 		<tu tuid="reports.ui.worker.worker_history">
 			<tuv xml:lang="ru_RU">
 				<seg>История сотрудника</seg>
-			</tuv>
-		</tu>
-		<tu tuid="rss.bad_feed">
-			<tuv xml:lang="ru_RU">
-				<seg>Bad feed data.</seg>
 			</tuv>
 		</tu>
 		<tu tuid="search.date.between">

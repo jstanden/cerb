@@ -286,10 +286,6 @@ INPUT[type=text] {
 		@include form-input-icon('input_icons/forbidden.png');
 	}
 
-	&.input_rss {
-		@include form-input-icon('input_icons/rss.png');
-	}
-
 	&.input_search {
 		@include form-input-icon('input_icons/view.png');
 	}

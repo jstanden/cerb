@@ -133,11 +133,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.rss">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.snippets.actions.create">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -4459,11 +4454,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="reports.ui.worker.worker_history">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="rss.bad_feed">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>

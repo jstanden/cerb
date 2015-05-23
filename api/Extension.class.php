@@ -593,12 +593,6 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 	}
 };
 
-abstract class Extension_RssSource extends DevblocksExtension {
-	const EXTENSION_POINT = 'cerberusweb.rss.source';
-	
-	function getFeedAsRss($feed) {}
-};
-
 abstract class Extension_LoginAuthenticator extends DevblocksExtension {
 
 	static function getAll($as_instances=false) {
