@@ -314,7 +314,7 @@ class Page_Custom extends CerberusPageExtension {
 			$view->name = 'Needs attention';
 			$view->renderLimit = 10;
 			$view->view_columns = array(
-				SearchFields_Ticket::TICKET_IMPORTANCE,
+				SearchFields_Ticket::BUCKET_RESPONSIBILITY,
 				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 				SearchFields_Ticket::TICKET_UPDATED_DATE,
 				SearchFields_Ticket::TICKET_GROUP_ID,
@@ -323,7 +323,6 @@ class Page_Custom extends CerberusPageExtension {
 			);
 			$view->renderSubtotals = SearchFields_Ticket::TICKET_GROUP_ID;
 			$view->addParams(array(
-				//new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS, 'in', array('open')),
 			), true);
 			$view->addParamsRequired(array(
 				new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '=', '{{current_worker_id}}'),
@@ -373,7 +372,6 @@ class Page_Custom extends CerberusPageExtension {
 				SearchFields_Message::WORKER_ID,
 			);
 			$view->addParams(array(
-				//new DevblocksSearchCriteria(SearchFields_Message::VIRTUAL_STATUS, 'in', array('open')),
 			), true);
 			$view->addParamsRequired(array(
 				new DevblocksSearchCriteria(SearchFields_Message::WORKER_ID, 'in', array('{{current_worker_id}}')),
