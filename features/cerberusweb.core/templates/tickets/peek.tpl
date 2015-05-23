@@ -209,7 +209,7 @@
 	var $popup = genericAjaxPopupFetch('peek');
 	
 	$popup.one('popup_open',function(event,ui) {
-		var $frm = $('form#frmTicketPeek');
+		var $frm = $('#frmTicketPeek');
 		
 		$(this).dialog('option','title',"{$ticket->subject|escape:'javascript' nofilter}");
 		$("#ticketPeekContent").css('width','100%');
@@ -255,17 +255,6 @@
 			});
 		});
 		
-		// Form hints
-		
-		$textarea
-			.focusin(function() {
-				$(this).siblings('div.cerb-form-hint').fadeIn();
-			})
-			.focusout(function() {
-				$(this).siblings('div.cerb-form-hint').fadeOut();
-			})
-			;
-		
 		// @mentions
 		
 		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
@@ -303,6 +292,6 @@
 		});
 		
 		// Dates
-		$frm.find('div#frmTicketPeek > fieldset:first input.input_date').cerbDateInputHelper();
+		$frm.find('input.input_date').cerbDateInputHelper();
 	});
 </script>
