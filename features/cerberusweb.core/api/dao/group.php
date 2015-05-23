@@ -797,9 +797,11 @@ class Model_Group {
 			
 		} else {
 			
-			$default_bucket = DAO_Bucket::getDefaultForGroup($this->id);
-			return $default_bucket->getReplyTo();
+			if(false != ($default_bucket = DAO_Bucket::getDefaultForGroup($this->id)))
+				return $default_bucket->getReplyTo();
 		}
+		
+		return null;
 	}
 	
 	public function getReplyFrom($bucket_id=0) {
@@ -808,10 +810,11 @@ class Model_Group {
 			
 		} else {
 			
-			$default_bucket = DAO_Bucket::getDefaultForGroup($this->id);
-			return $default_bucket->getReplyFrom();
+			if(false == ($default_bucket = DAO_Bucket::getDefaultForGroup($this->id)))
+				return $default_bucket->getReplyFrom();
 		}
 		
+		return null;
 	}
 	
 	public function getReplyPersonal($bucket_id=0, $worker_model=null) {
@@ -820,9 +823,11 @@ class Model_Group {
 			
 		} else {
 			
-			$default_bucket = DAO_Bucket::getDefaultForGroup($this->id);
-			return $default_bucket->getReplyPersonal($worker_model);
+			if(false != ($default_bucket = DAO_Bucket::getDefaultForGroup($this->id)))
+				return $default_bucket->getReplyPersonal($worker_model);
 		}
+		
+		return null;
 	}
 	
 	public function getReplySignature($bucket_id=0, $worker_model=null) {
@@ -831,9 +836,11 @@ class Model_Group {
 			
 		} else {
 			
-			$default_bucket = DAO_Bucket::getDefaultForGroup($this->id);
-			return $default_bucket->getReplySignature($worker_model);
+			if(false != ($default_bucket = DAO_Bucket::getDefaultForGroup($this->id)))
+				return $default_bucket->getReplySignature($worker_model);
 		}
+		
+		return null;
 	}
 	
 	public function getReplyHtmlTemplate($bucket_id=0) {
@@ -842,10 +849,11 @@ class Model_Group {
 			
 		} else {
 			
-			$default_bucket = DAO_Bucket::getDefaultForGroup($this->id);
-			return $default_bucket->getReplyHtmlTemplate();
+			if(false != ($default_bucket = DAO_Bucket::getDefaultForGroup($this->id)))
+				return $default_bucket->getReplyHtmlTemplate();
 		}
 		
+		return null;
 	}
 };
 
