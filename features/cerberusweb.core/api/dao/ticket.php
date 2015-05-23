@@ -1353,6 +1353,22 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
 			$sortBy=null;
 		
+		if(is_string($sortBy))
+		switch($sortBy) {
+			case SearchFields_Ticket::TICKET_IMPORTANCE:
+				$sortBy = array(
+					SearchFields_Ticket::TICKET_IMPORTANCE,
+					SearchFields_Ticket::TICKET_UPDATED_DATE,
+				);
+				
+				$sortAsc = array(
+					$sortAsc,
+					!$sortAsc,
+				);
+				break;
+				
+		}
+		
 		$ignore_params = array(
 			SearchFields_Ticket::REQUESTER_ID,
 			SearchFields_Ticket::REQUESTER_ADDRESS,
@@ -1468,7 +1484,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc);
 
 		// Translate virtual fields
 		
