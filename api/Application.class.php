@@ -119,6 +119,55 @@ class CerberusApplication extends DevblocksApplication {
 		return $workers;
 	}
 	
+	static function getWorkerPickerData($population, $sample, $group_id=0, $bucket_id=0) {
+		// Shared objects
+		
+		$online_workers = DAO_Worker::getAllOnline();
+		$group_responsibilities = DAO_Group::getResponsibilities($group_id);
+		$bucket_responsibilities = @$group_responsibilities[$bucket_id] ?: array();
+		$workloads = DAO_Worker::getWorkloads();
+		
+		// Workers
+		
+		$picker_workers = array(
+			'sample' => array(),
+			'population' => array(),
+		);
+		
+		// Bulk load population statistics
+		foreach($population as $worker) {
+			$worker->__is_selected = isset($sample[$worker->id]);
+			$worker->__is_online = isset($online_workers[$worker->id]);
+			$worker->__availability = $worker->getAvailabilityAsBlocks();
+			$worker->__workload = isset($workloads[$worker->id]) ? $workloads[$worker->id] : array();
+			$worker->__responsibility = isset($bucket_responsibilities[$worker->id]) ? $bucket_responsibilities[$worker->id] : 0;
+		}
+		
+		// Sort population by score
+		uasort($population, function($a, $b) {
+			if($a->__responsibility == $b->__responsibility)
+				return 0;
+			
+			return ($a->__responsibility < $b->__responsibility) ? 1 : -1;
+		});
+		
+		// Set sample
+		foreach($sample as &$worker) {
+			if(!isset($population[$worker->id]))
+				conntinue;
+			
+			$picker_workers['sample'][$worker->id] = $worker;
+			unset($population[$worker->id]);
+		}
+		
+		// Set remaining population
+		foreach($population as &$worker) {
+			$picker_workers['population'][$worker->id] = $worker;
+		}
+		
+		return $picker_workers;
+	}
+	
 	static function getFileBundleDictionaryJson() {
 		$file_bundles = DAO_FileBundle::getAll();
 		$active_worker = CerberusApplication::getActiveWorker();

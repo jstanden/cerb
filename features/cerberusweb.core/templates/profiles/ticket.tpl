@@ -42,6 +42,11 @@
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
 		</span>
 		
+		<span id="spanRecommendToolbar">
+		{$object_recommendations = DAO_ContextRecommendation::getByContexts($page_context, array($page_context_id))}
+		{include file="devblocks:cerberusweb.core::internal/recommendations/context_recommend_button.tpl" context=$page_context context_id=$page_context_id full=true}
+		</span>
+		
 		<!-- Macros -->
 		{devblocks_url assign=return_url full=true}c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}

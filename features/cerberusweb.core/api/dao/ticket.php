@@ -4965,24 +4965,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$comments = array_reverse($comments, true);
 		$tpl->assign('comments', $comments);
 		
-		// Recommendations
-
-		$recommendations = DAO_ContextRecommendation::get(CerberusContexts::CONTEXT_TICKET, $ticket->id);
-		
-		// Always include the ticket owner as a recommendation
-		if($ticket->owner_id && !in_array($ticket->owner_id, $recommendations))
-			$recommendations[] = $ticket->owner_id;
-		
-		$tpl->assign('recommended_workers', $recommendations);
-		
-		$recommendation_scores = DAO_ContextRecommendation::prioritize($ticket);
-		$tpl->assign('recommendation_scores', $recommendation_scores);
-		
-		// Workloads
-		
-		$workloads = DAO_Worker::getWorkloads();
-		$tpl->assign('workloads', $workloads);
-		
 		// Template
 		
 		$tpl->display('devblocks:cerberusweb.core::tickets/peek.tpl');

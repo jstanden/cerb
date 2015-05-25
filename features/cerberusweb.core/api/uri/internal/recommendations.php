@@ -19,72 +19,73 @@ if(class_exists('Extension_PageSection')):
 class PageSection_InternalRecommendations extends Extension_PageSection {
 	function render() {}
 	
-	function addRecommendationAction() {
-		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'], 'integer', 0);
+	function showContextRecommendationsPopupAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
-		
-		DAO_ContextRecommendation::add($context, $context_id, $worker_id);
-	}
-	
-	function removeRecommendationAction() {
-		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'], 'integer', 0);
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
-		
-		DAO_ContextRecommendation::remove($context, $context_id, $worker_id);
-	}
-	
-	function renderPickerAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
-		@$recommendations_expanded = DevblocksPlatform::importGPC($_REQUEST['recommendations_expanded'], 'integer', 0);
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'], 'integer', 0);
+		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'], 'integer', 0);
+		@$full = DevblocksPlatform::importGPC($_REQUEST['full'], 'integer', 0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		$recommendations = array();
-		
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
+		$tpl->assign('group_id', $group_id);
+		$tpl->assign('bucket_id', $bucket_id);
 		
-		$tpl->assign('recommendations_expanded', $recommendations_expanded ? true : false);
-		
-		if(false == ($ticket = DAO_Ticket::get($context_id)))
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
 		
-		// Owner
-		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'], 'integer', 0);
-		$ticket->owner_id = $owner_id;
-		$tpl->assign('owner_id', $ticket->owner_id);
+		$tpl->assign('context_ext', $context_ext);
 		
-		// Importance
-		@$importance = DevblocksPlatform::importGPC($_REQUEST['importance'], 'integer', 0);
-		$ticket->importance = $importance;
+		$context_labels = array();
+		$context_values = array();
+		CerberusContexts::getContext($context, $context_id, $context_labels, $context_values);
+		$tpl->assign('context_values', $context_values);
 		
-		// Group+Bucket
-		$group_id = $_REQUEST['group_id'];
-		$bucket_id = $_REQUEST['bucket_id'];
-		$ticket->group_id = $group_id;
-		$ticket->bucket_id = $bucket_id;
+		// Workers
 		
-		$recommendations = DAO_ContextRecommendation::get($context, $context_id);
+		$sample = DAO_ContextRecommendation::get($context, $context_id);
+		$population = DAO_Worker::getAllActive();
 		
-		if($ticket->owner_id && !in_array($ticket->owner_id, $recommendations))
-			$recommendations[] = $ticket->owner_id;
-		
-		$tpl->assign('recommended_workers', $recommendations);
-		
-		$recommendation_scores = DAO_ContextRecommendation::nominate($ticket);
-		$tpl->assign('recommendation_scores', $recommendation_scores);
-		
-		// Workloads
-		
-		$workloads = DAO_Worker::getWorkloads();
-		$tpl->assign('workloads', $workloads);
+		$picker_workers = CerberusApplication::getWorkerPickerData($population, $sample, $group_id, $bucket_id);
+		$tpl->assign('picker_workers', $picker_workers);
 		
 		// Template
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/recommendations/_worker_recommendation_picker.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/recommendations/context_recommend_peek.tpl');
 	}
+	
+	function saveContextRecommendationsPopupJsonAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
+		@$initial_sample = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['initial_sample'], 'array', array()), 'int');
+		@$current_sample = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['current_sample'], 'array', array()), 'int');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// Added
+		$additions = array_diff($current_sample, $initial_sample);
+		
+		foreach($additions as $worker_id)
+			DAO_ContextRecommendation::add($context, $context_id, $worker_id);
+		
+		// Removed
+		$removals = array_diff($initial_sample, $current_sample);
+		
+		foreach($removals as $worker_id)
+			DAO_ContextRecommendation::remove($context, $context_id, $worker_id);
+		
+		// Return JSON data
+		header("Content-Type: application/json; charset=". LANG_CHARSET_CODE);
+		
+		echo json_encode(array(
+			'context' => $context,
+			'context_id' => $context_id,
+			'count' => count($current_sample),
+			'has_active_worker' => in_array($active_worker->id, $current_sample),
+		));
+	}
+
 }
 endif;

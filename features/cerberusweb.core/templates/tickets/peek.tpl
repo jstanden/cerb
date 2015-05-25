@@ -34,6 +34,14 @@
 
 <fieldset class="peek" style="margin-bottom:0;">
 	<legend>{'common.ticket'|devblocks_translate|capitalize}</legend>
+	
+	<div style="margin:0px 0px 10px 0px;">
+		<span>
+			{$recommend_btn_domid = uniqid()}
+			{$object_recommendations = DAO_ContextRecommendation::getByContexts($peek_context, array($peek_context_id))}
+			{include file="devblocks:cerberusweb.core::internal/recommendations/context_recommend_button.tpl" context=$peek_context context_id=$peek_context_id full=true recommend_btn_domid=$recommend_btn_domid recommend_group_id=$ticket->group_id recommend_bucket_id=$ticket->bucket_id}
+		</span>
+	</div>
 
 	<table cellpadding="2" cellspacing="0" border="0" width="100%" style="margin-bottom:10px;">
 	
@@ -153,17 +161,6 @@
 			</td>
 		</tr>
 		
-		{* Owner *}
-		{*
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="middle" align="right">{'common.owner'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
-				<ul class="bubbles">
-					<li class="bubble-gray"><b>Jeff Standen</b> <a href="javascript:;" onclick="$(this).closest('li').remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
-				</ul>
-			</td>
-		</tr>
-		*}
 	</table>
 	
 </fieldset>
@@ -176,14 +173,6 @@
 {/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id}
-
-<fieldset class="peek cerb-fieldset-recommended">
-	<legend>Recommended Workers</legend>
-	
-	<div>
-	{include file="devblocks:cerberusweb.core::internal/recommendations/_worker_recommendation_picker.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id owner_id=$ticket->owner_id}
-	</div>
-</fieldset>
 
 {* Comments *}
 {include file="devblocks:cerberusweb.core::internal/peek/peek_comments_pager.tpl" comments=$comments}
@@ -210,6 +199,7 @@
 	
 	$popup.one('popup_open',function(event,ui) {
 		var $frm = $('#frmTicketPeek');
+		var $btn_recommend = $('#{$recommend_btn_domid}');
 		
 		$(this).dialog('option','title',"{$ticket->subject|escape:'javascript' nofilter}");
 		$("#ticketPeekContent").css('width','100%');
@@ -293,5 +283,11 @@
 		
 		// Dates
 		$frm.find('input.input_date').cerbDateInputHelper();
+		
+		$frm.on('cerb-form-update', function() {
+			$btn_recommend.attr('group_id', $frm.find('select[name=group_id]').val());
+			$btn_recommend.attr('bucket_id', $frm.find('select[name=bucket_id]').val());
+			$btn_recommend.trigger('refresh');
+		});
 	});
 </script>

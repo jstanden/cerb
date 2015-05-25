@@ -39,9 +39,11 @@
 	{* Column Headers *}
 	<thead>
 	<tr>
-		<th style="text-align:center;width:60px;">
-			<a href="javascript:;">{'common.watchers'|devblocks_translate|capitalize}</a>
+		{if !$view->options.disable_recommendations}
+		<th class="no-sort" style="text-align:center;width:40px;padding-left:0;padding-right:0;" title="{'common.recommended'|devblocks_translate|capitalize}">
+			<span class="glyphicons glyphicons-flag" style="color:rgb(80,80,80);"></span>
 		</th>
+		{/if}
 
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
@@ -68,6 +70,7 @@
 
 	{* Column Data *}
 	{$object_watchers = DAO_ContextLink::getContextLinks($view_context, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
+	{if !$view->options.disable_recommendations}{$object_recommendations = DAO_ContextRecommendation::getByContexts($view_context, array_keys($data))}{/if}
 	{$ticket_drafts = DAO_MailQueue::getDraftsByTicketIds(array_keys($data))} 
 	
 	{foreach from=$data item=result key=idx name=results}
@@ -102,16 +105,22 @@
 	
 	{else}
 	<tbody style="cursor:pointer;">
+	
+	{if !$view->options.disable_recommendations || !$view->options.disable_watchers || !in_array('t_subject',$view->view_columns)}
 	<tr class="{$tableRowClass}">
-		<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
-			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.t_id}
+		{if !$view->options.disable_recommendations}
+		<td align="center" rowspan="2" nowrap="nowrap" style="padding-right:0;">
+			{include file="devblocks:cerberusweb.core::internal/recommendations/context_recommend_button.tpl" context=$view_context context_id=$result.t_id recommend_group_id=$result.t_group_id recommend_bucket_id=$result.t_bucket_id}
 		</td>
+		{/if}
 		{if !in_array('t_subject',$view->view_columns)}
 		<td colspan="{$smarty.foreach.headers.total}">
 			{$smarty.capture.ticket_subject_content nofilter}
 		</td>
 		{/if}
 	</tr>
+	{/if}
+	
 	<tr class="{$tableRowClass}">
 	{foreach from=$view->view_columns item=column name=columns}
 		{if substr($column,0,3)=="cf_"}

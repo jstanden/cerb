@@ -52,6 +52,7 @@ class DAO_ContextRecommendation {
 	static function get($context, $context_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		$workers = DAO_Worker::getAll();
 		$recommendations = array();
 		
 		$results = $db->GetArray(sprintf("SELECT worker_id FROM context_recommendation WHERE context = %s AND context_id = %d",
@@ -60,10 +61,43 @@ class DAO_ContextRecommendation {
 		));
 		
 		foreach($results as $row) {
-			$recommendations[$row['worker_id']] = true;
+			$worker_id = $row['worker_id'];
+			
+			if(!isset($workers[$worker_id]))
+				continue;
+			
+			$recommendations[$worker_id] = $workers[$worker_id];
 		}
 		
-		return array_keys($recommendations);
+		return $recommendations;
+	}
+	
+	static function getByContexts($context, $context_ids) {
+		if(!is_array($context_ids))
+			$context_ids = array($context_ids);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$recommendations = array();
+		
+		$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'int', array('nonzero', 'unique'));
+		
+		if(!empty($context_ids)) {
+			$results = $db->GetArray(sprintf("SELECT context_id, worker_id FROM context_recommendation WHERE context = %s AND context_id IN (%s)",
+				$db->qstr($context),
+				implode(',', $context_ids)
+			));
+			
+			if(is_array($results))
+			foreach($results as $row) {
+				if(!isset($recommendations[$row['context_id']]))
+					$recommendations[$row['context_id']] = array();
+				
+				$recommendations[$row['context_id']][] = $row['worker_id'];
+			}
+		}
+		
+		return $recommendations;
 	}
 	
 	private static function _computeSkillQualification($required_competencies, $competencies) {
@@ -169,27 +203,29 @@ class DAO_ContextRecommendation {
 		return $involvements;
 	}
 	
-	static function nominate(Model_Ticket $ticket, $workers=null) {
-		return self::_generateRecommendations($ticket, $workers);
+	// [TODO] This could be implemented per context later, with NN
+	static function nominate($group_id, $bucket_id, $workers=null) {
+		return self::_generateRecommendations($group_id, $bucket_id, $workers);
 	}
 	
-	static function prioritize(Model_Ticket $ticket, $workers=null) {
-		return self::_generateRecommendations($ticket, $workers);
+	// [TODO] This could be implemented per context later, with NN
+	static function prioritize($group_id, $bucket_id, $workers=null) {
+		return self::_generateRecommendations($group_id, $bucket_id, $workers);
 	}
 	
-	private static function _generateRecommendations(Model_Ticket $ticket, $workers=null) {
+	private static function _generateRecommendations($group_id, $bucket_id, $workers=null) {
 		if(!is_array($workers))
 			$workers = DAO_Worker::getAllActive();
 		
 		$ranked = array();
 
-		$group_responsibilities = DAO_Group::getResponsibilities($ticket->group_id);
+		$group_responsibilities = DAO_Group::getResponsibilities($group_id);
 		
 		if(empty($group_responsibilities) || !is_array($group_responsibilities))
 			return $ranked;
 		
-		if(isset($group_responsibilities[$ticket->bucket_id]))
-		foreach($group_responsibilities[$ticket->bucket_id] as $worker_id => $responsibility_level) {
+		if(isset($group_responsibilities[$bucket_id]))
+		foreach($group_responsibilities[$bucket_id] as $worker_id => $responsibility_level) {
 			$ranked[$worker_id] = array(
 				'score' => $responsibility_level,
 				'bits' => array(),
