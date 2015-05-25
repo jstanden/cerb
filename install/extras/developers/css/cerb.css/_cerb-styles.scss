@@ -600,9 +600,16 @@ TABLE.worklistBody {
 		text-align: left;
 		cursor:pointer;
 
+		A {
+			font-size: 12px;
+			vertical-align:middle;
+			font-weight: bold;
+			text-decoration:none;
+			color: rgb(80,80,80);
+		}
+		
 		&:hover {
 			@include linear-gradient(rgb(200,200,200), rgb(150,150,150));
-			border-right:1px solid rgb(175,175,175);
 
 			A {
 				text-decoration:none;
@@ -610,12 +617,14 @@ TABLE.worklistBody {
 			}
 		}
 
-		A {
-			font-size: 12px;
-			vertical-align:middle;
-			font-weight: bold;
-			text-decoration:none;
-			color: rgb(80,80,80);
+		&.no-sort:hover {
+			@include linear-gradient(rgb(240,240,240), rgb(200,200,200));
+			cursor:default;
+			
+			A {
+				color: rgb(80,80,80);
+				cursor:default;
+			}
 		}
 	}
 

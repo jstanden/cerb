@@ -579,6 +579,20 @@ if(isset($tables['view_rss'])) {
 }
 
 // ===========================================================================
+// Add 'options_json' to worker_view_model
+
+if(!isset($tables['worker_view_model'])) {
+	$logger->error("The 'worker_view_model' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('worker_view_model');
+
+if(!isset($columns['options_json'])) {
+	$db->ExecuteMaster("ALTER TABLE worker_view_model ADD COLUMN options_json TEXT AFTER title");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

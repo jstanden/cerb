@@ -19,6 +19,7 @@ abstract class C4_AbstractView {
 	public $id = 0;
 	public $is_ephemeral = 0;
 	public $name = "";
+	public $options = array();
 	
 	public $view_columns = array();
 	private $_columnsHidden = array();
@@ -500,7 +501,11 @@ abstract class C4_AbstractView {
 	function render() {
 		echo ' '; // Expect Override
 	}
-
+	
+	function renderCustomizeOptions() {
+		echo ' '; // Expect Override
+	}
+	
 	function renderCriteria($field) {
 		echo ' '; // Expect Override
 	}
@@ -1315,7 +1320,7 @@ abstract class C4_AbstractView {
 		return array();
 	}
 
-	function doCustomize($columns, $num_rows=10) {
+	function doCustomize($columns, $num_rows=10, $options=array()) {
 		$this->renderLimit = $num_rows;
 
 		$viewColumns = array();
@@ -1326,6 +1331,8 @@ abstract class C4_AbstractView {
 		}
 
 		$this->view_columns = $viewColumns;
+		
+		$this->options = $options;
 	}
 
 	function doSortBy($sortBy) {
@@ -2415,6 +2422,7 @@ class C4_AbstractViewModel {
 
 	public $id = '';
 	public $name = "";
+	public $options = array();
 	public $is_ephemeral = 0;
 	
 	public $view_columns = array();
@@ -2525,6 +2533,7 @@ class C4_AbstractViewLoader {
 		$model->id = $view->id;
 		$model->is_ephemeral = $view->is_ephemeral ? true : false;
 		$model->name = $view->name;
+		$model->options = $view->options;
 		
 		$model->view_columns = $view->view_columns;
 		
@@ -2569,6 +2578,9 @@ class C4_AbstractViewLoader {
 			$inst->is_ephemeral = $model->is_ephemeral ? true : false;
 		if(!empty($model->name))
 			$inst->name = $model->name;
+		
+		if(is_array($model->options) && !empty($model->options))
+			$inst->options = $model->options;
 		
 		if(is_array($model->view_columns) && !empty($model->view_columns))
 			$inst->view_columns = $model->view_columns;
@@ -2622,6 +2634,7 @@ class C4_AbstractViewLoader {
 	
 	static function serializeViewToAbstractJson(C4_AbstractView $view, $context=null) {
 		$model = array(
+			'options' => $view->options,
 			'columns' => $view->view_columns,
 			'params' => json_decode(json_encode($view->getEditableParams()), true),
 			'limit' => intval($view->renderLimit),
@@ -2648,6 +2661,7 @@ class C4_AbstractViewLoader {
 		if(null == ($view = $ctx->getChooserView($view_id))) /* @var $view C4_AbstractView */
 			return false;
 		
+		$view->options = $view_model['options'];
 		$view->view_columns = $view_model['columns'];
 		$view->renderLimit = intval($view_model['limit']);
 		$view->renderSortBy = $view_model['sort_by'];
@@ -2711,6 +2725,7 @@ class DAO_WorkerViewModel {
 			'is_ephemeral',
 			'class_name',
 			'title',
+			'options_json',
 			'columns_json',
 			'columns_hidden_json',
 			'params_editable_json',
@@ -2752,6 +2767,7 @@ class DAO_WorkerViewModel {
 			$model->renderTemplate = $row['render_template'];
 			
 			// JSON blocks
+			$model->options = json_decode($row['options_json'], true);
 			$model->view_columns = json_decode($row['columns_json'], true);
 			$model->columnsHidden = json_decode($row['columns_hidden_json'], true);
 			$model->paramsEditable = self::decodeParamsJson($row['params_editable_json']);
@@ -2840,6 +2856,7 @@ class DAO_WorkerViewModel {
 			'is_ephemeral' => !empty($model->is_ephemeral) ? 1 : 0,
 			'class_name' => $db->qstr($model->class_name),
 			'title' => $db->qstr($model->name),
+			'options_json' => $db->qstr(json_encode($model->options)),
 			'columns_json' => $db->qstr(json_encode($model->view_columns)),
 			'columns_hidden_json' => $db->qstr(json_encode($model->columnsHidden)),
 			'params_editable_json' => $db->qstr(json_encode($model->paramsEditable)),

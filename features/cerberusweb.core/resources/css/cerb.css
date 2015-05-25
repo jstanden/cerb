@@ -665,6 +665,13 @@ TABLE.worklistBody th {
   text-align: left;
   cursor: pointer;
 }
+TABLE.worklistBody th A {
+  font-size: 12px;
+  vertical-align: middle;
+  font-weight: bold;
+  text-decoration: none;
+  color: #505050;
+}
 TABLE.worklistBody th:hover {
   background-color: #c8c8c8;
   background: -webkit-gradient(linear, left top, left bottom, from(#c8c8c8), to(#969696));
@@ -672,18 +679,23 @@ TABLE.worklistBody th:hover {
   background: -o-linear-gradient(top, #c8c8c8, #969696);
   background: -ms-linear-gradient(top, #c8c8c8, #969696);
   background: linear-gradient(top, #c8c8c8, #969696);
-  border-right: 1px solid #afafaf;
 }
 TABLE.worklistBody th:hover A {
   text-decoration: none;
   color: white;
 }
-TABLE.worklistBody th A {
-  font-size: 12px;
-  vertical-align: middle;
-  font-weight: bold;
-  text-decoration: none;
+TABLE.worklistBody th.no-sort:hover {
+  background-color: #f0f0f0;
+  background: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#c8c8c8));
+  background: -moz-linear-gradient(270deg, #f0f0f0, #c8c8c8);
+  background: -o-linear-gradient(top, #f0f0f0, #c8c8c8);
+  background: -ms-linear-gradient(top, #f0f0f0, #c8c8c8);
+  background: linear-gradient(top, #f0f0f0, #c8c8c8);
+  cursor: default;
+}
+TABLE.worklistBody th.no-sort:hover A {
   color: #505050;
+  cursor: default;
 }
 TABLE.worklistBody TD {
   overflow: hidden;

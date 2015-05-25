@@ -2053,6 +2053,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		// View params inside the list for quick render overload
 		$list_view = new Model_WorkspaceListView();
 		$list_view->title = $list_title;
+		$list_view->options = $view->options;
 		$list_view->num_rows = $view->renderLimit;
 		$list_view->columns = $view->view_columns;
 		$list_view->params = $view->getEditableParams();
@@ -2504,7 +2505,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'int', 0);
 		@$columns = DevblocksPlatform::importGPC($_REQUEST['columns'],'array', array());
 		@$num_rows = DevblocksPlatform::importGPC($_REQUEST['num_rows'],'integer',10);
-
+		@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array', array());
+		
 		// Sanitize
 		$num_rows = DevblocksPlatform::intClamp($num_rows, 1, 500);
 
@@ -2533,7 +2535,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null == ($view = C4_AbstractViewLoader::getView($id)))
 			return;
 		
-		$view->doCustomize($columns, $num_rows);
+		$view->doCustomize($columns, $num_rows, $options);
 
 		$is_custom = substr($id,0,5)=='cust_';
 		$is_trigger = substr($id,0,9)=='_trigger_';
@@ -2578,6 +2580,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			// Persist Object
 			$list_view = new Model_WorkspaceListView();
 			$list_view->title = $title;
+			$list_view->options = $options;
 			$list_view->columns = $view->view_columns;
 			$list_view->num_rows = $view->renderLimit;
 			$list_view->params = array();
@@ -2596,6 +2599,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			// Update any instances of this view with the new required columns + params
 			foreach($worker_views as $worker_view) { /* @var $worker_view C4_AbstractViewModel */
 				$worker_view->name = $view->name;
+				$worker_view->options = $view->options;
 				$worker_view->view_columns = $view->view_columns;
 				$worker_view->paramsRequired = $view->getParamsRequired();
 				$worker_view->renderLimit = $view->renderLimit;

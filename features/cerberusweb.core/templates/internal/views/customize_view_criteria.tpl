@@ -62,7 +62,7 @@
 <tbody class="full" style="width:100%;display:{if $is_custom || $view->renderFilters};{else}none;{/if}">
 <tr>
 	<td width="60%" valign="top">
-		<fieldset>
+		<fieldset class="black">
 			<legend>{'common.filters'|devblocks_translate|capitalize}</legend>
 			
 			{include file="devblocks:cerberusweb.core::internal/views/criteria_list_params.tpl" params=$view_params}
@@ -120,7 +120,7 @@
 	</td>
 	
 	<td valign="top" width="40%">
-		<fieldset>
+		<fieldset class="black">
 			<legend>Add Filter</legend>
 			
 			<b>{'common.filter'|devblocks_translate|capitalize}:</b><br>

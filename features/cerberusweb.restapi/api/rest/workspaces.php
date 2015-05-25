@@ -225,6 +225,7 @@ class ChRest_Workspaces extends Extension_RestController { // implements IExtens
 				return;
 				
 			$view->name = $list_view->title;
+			$view->options = $list_view->options;
 			$view->renderLimit = $list_view->num_rows;
 			$view->renderPage = 0;
 			$view->is_ephemeral = 0;

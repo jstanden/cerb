@@ -1025,6 +1025,7 @@ class Model_WorkspaceList {
 
 class Model_WorkspaceListView {
 	public $title = 'New List';
+	public $options = array();
 	public $columns = array();
 	public $num_rows = 10;
 	public $params = array();

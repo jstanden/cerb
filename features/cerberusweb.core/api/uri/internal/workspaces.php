@@ -135,6 +135,7 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 				// Build the list model
 				$list = new Model_WorkspaceListView();
 				$list->title = $names[$idx];
+				$list->options = $view->options;
 				$list->columns = $view->view_columns;
 				$list->params = $view->getEditableParams();
 				$list->params_required = $view->getParamsRequired();
@@ -221,9 +222,11 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 					$view->addParamsRequired($list_view->params_required, true);
 				$view->renderSortBy = $list_view->sort_by;
 				$view->renderSortAsc = $list_view->sort_asc;
+				$view->options = $list_view->options;
 			}
 			
 			$model = array(
+				'options' => json_decode(json_encode($view->options), true),
 				'columns' => $view->view_columns,
 				'params' => json_decode(json_encode($view->getEditableParams()), true),
 				'params_required' => json_decode(json_encode($view->getParamsRequired()), true),
@@ -263,6 +266,7 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 			
 			$list_view = new Model_WorkspaceListView();
 			$list_view->title = $worklist['worklist']['title'];
+			$list_view->options = $view_model->options;
 			$list_view->columns = $view_model->view_columns;
 			$list_view->num_rows = $view_model->renderLimit;
 			$list_view->params = $view_model->paramsEditable;
