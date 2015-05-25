@@ -3296,6 +3296,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$tpl->clearAssign('group_buckets');
 		$tpl->clearAssign('timestamp_now');
 	}
+	
+	function renderCustomizeOptions() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->display('devblocks:cerberusweb.core::internal/views/options/ticket.tpl');
+	}
 
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
