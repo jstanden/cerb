@@ -292,7 +292,7 @@
 		<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_spam');">{'common.notspam'|devblocks_translate|lower}</button>
 	
 		{if $pref_keyboard_shortcuts}
-		{if substr($view->id,0,5)=='cust_' || substr($view->id,0,6)=='search'}
+		{if $view->isCustom() || substr($view->id,0,6)=='search'}
 			<div class="action-on-select">
 			{'common.keyboard'|devblocks_translate|lower}: 
 				(<b>a</b>) {'common.all'|devblocks_translate|lower} 

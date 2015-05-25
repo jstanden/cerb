@@ -1927,7 +1927,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		// Custom worklists
 		
-		if('cust_' == substr($view->id,0,5)) {
+		if($view->isCustom()) {
 			try {
 				$worklist_id = substr($view->id,5);
 				
@@ -2466,7 +2466,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'int', 0);
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'string');
 		@$columns = DevblocksPlatform::importGPC($_REQUEST['columns'],'array', array());
 		@$num_rows = DevblocksPlatform::importGPC($_REQUEST['num_rows'],'integer',10);
 		@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array', array());
@@ -2501,7 +2501,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$view->doCustomize($columns, $num_rows, $options);
 
-		$is_custom = substr($id,0,5)=='cust_';
+		$is_custom = $view->isCustom();
 		$is_trigger = substr($id,0,9)=='_trigger_';
 		
 		if($is_custom || $is_trigger) {

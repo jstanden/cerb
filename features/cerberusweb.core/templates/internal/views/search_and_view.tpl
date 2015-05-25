@@ -12,9 +12,11 @@
 <div id="view{$view->id}" style="overflow-x: auto;">{$view->render()}</div>
 
 <script type="text/javascript">
+$(function() {
 	$('#viewCustomFilters{$view->id}').bind('view_refresh', function(event) {
 		if(event.target == event.currentTarget)
 			genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');
 	});
+});
 </script>
 {/if}

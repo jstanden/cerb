@@ -163,6 +163,10 @@ abstract class C4_AbstractView {
 		
 		return $objects;
 	}
+	
+	function isCustom() {
+		return 'cust_' == substr($this->id, 0, 5);
+	}
 
 	function getColumnsAvailable() {
 		$columns = $this->getFields();
