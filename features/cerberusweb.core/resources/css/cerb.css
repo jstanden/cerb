@@ -38,7 +38,7 @@ FIELDSET {
   background-image: url(bg_block.jpg?v=2015030101);
   background-repeat: repeat-x;
   border: 1px double #e6e6e6;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 FIELDSET H1 {
   font-weight: normal;
@@ -1141,6 +1141,23 @@ FIELDSET.peek {
 }
 FIELDSET.peek LEGEND {
   color: #007800;
+}
+
+FIELDSET.peek-noborder {
+  background: none;
+  border-width: 0;
+}
+FIELDSET.peek-noborder LEGEND {
+  margin-left: 0;
+  padding-left: 0;
+  color: #007800;
+}
+
+FIELDSET.black LEGEND {
+  color: #323232;
+}
+FIELDSET.black LEGEND A {
+  color: #323232;
 }
 
 DIV.cerb-profile-toolbar {

@@ -2160,7 +2160,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_MESSAGE_HEADER, '*', 'message_header', $translate->_('message.header')),
 			SearchFields_Ticket::VIRTUAL_ORG_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ORG_ID, '*', 'org_id', null, null), // org ID
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID, '*', 'participant_id', null, null), // participant ID
-			SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS, '*', 'recommendations', $translate->_('common.recommendations')),
+			SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS, '*', 'recommendations', $translate->_('common.recommended')),
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_STATUS, '*', 'status', $translate->_('common.status')),
 			SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
 				

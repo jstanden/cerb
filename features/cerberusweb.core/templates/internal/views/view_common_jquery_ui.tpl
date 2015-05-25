@@ -17,8 +17,9 @@ $(function() {
 			
 			if (false == $target instanceof jQuery) {
 				// Not a jQuery object
-			} else if($target.is(':input,:button,a,img,span.glyphicons,div.badge-count,span.cerb-label')) {
+			} else if($target.is(':input,:button,a,img,div.badge-count,span.glyphicons,span.cerb-label')) {
 				// Ignore form elements and links
+				e.stopPropagation();
 			} else {
 				e.stopPropagation();
 				

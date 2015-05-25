@@ -1114,6 +1114,27 @@ FIELDSET.peek {
 	}
 }
 
+FIELDSET.peek-noborder {
+	background:none;
+	border-width:0;
+	
+	LEGEND {
+		margin-left: 0;
+		padding-left: 0;
+		color:$green;
+	}
+}
+
+FIELDSET.black {
+	LEGEND {
+		color:rgb(50,50,50);
+		
+		A {
+			color:rgb(50,50,50);
+		}
+	}
+}
+
 // Profiles
 
 DIV.cerb-profile-toolbar {

@@ -2501,11 +2501,12 @@ class ChInternalController extends DevblocksControllerExtension {
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'int', 0);
 		@$columns = DevblocksPlatform::importGPC($_REQUEST['columns'],'array', array());
 		@$num_rows = DevblocksPlatform::importGPC($_REQUEST['num_rows'],'integer',10);
 
-		$num_rows = max($num_rows, 1); // make 1 the minimum
+		// Sanitize
+		$num_rows = DevblocksPlatform::intClamp($num_rows, 1, 500);
 
 		// [Security] Filter custom fields
 		$custom_fields = DAO_CustomField::getAll();

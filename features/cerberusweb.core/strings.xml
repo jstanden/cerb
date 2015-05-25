@@ -2332,7 +2332,7 @@ For example: http://www.cerbweb.com/support/</seg>
 		</tu>
 		<tu tuid="dashboard.num_rows">
 			<tuv xml:lang="en_US">
-				<seg>Rows per page</seg>
+				<seg>Records per page</seg>
 			</tuv>
 		</tu>
 		<tu tuid="dashboard.remove_view">

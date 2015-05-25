@@ -35,7 +35,7 @@
 				{if isset($online_workers.$worker_id)}
 				<div style="display:inline-block;border-radius:10px;width:10px;height:10px;background-color:rgb(0,180,0);margin-right:5px;line-height:10px;"></div>
 				{else}
-				<div style="display:inline-block;border-radius:10px;width:10px;height:10px;background-color:rgb(220,220,220);margin-right:5px;line-height:10px;"></div>
+				<div style="display:inline-block;border-radius:10px;width:10px;height:10px;background-color:rgb(230,230,230);margin-right:5px;line-height:10px;"></div>
 				{/if}
 				{if $owner_id == $worker_id}{/if}
 				<a href="javascript:;" class="item no-underline"><b>{$worker->getName()}</b></a>
@@ -46,7 +46,7 @@
 				<div>
 					<!--
 					{foreach from=$availability.blocks item=block name=blocks}
-					--><div style="width:{{$block.length/$availability.ticks*100}|round}px;height:10px;{if $block.available}background-color:rgb(0,200,0);{else}background-color:rgb(220,220,220);{/if}display:inline-block;{if $smarty.foreach.blocks.first && $smarty.foreach.blocks.last}border-radius:10px;{elseif $smarty.foreach.blocks.first}border-radius:10px 0px 0px 10px;{elseif $smarty.foreach.blocks.last}border-radius:0px 10px 10px 0px;{/if}" title="{$block.start|devblocks_date} - {$block.end|devblocks_date}"></div><!--
+					--><div style="width:{{$block.length/$availability.ticks*100}|round}px;height:10px;{if $block.available}background-color:rgb(0,200,0);{else}background-color:rgb(230,230,230);{/if}display:inline-block;{if $smarty.foreach.blocks.first && $smarty.foreach.blocks.last}border-radius:10px;{elseif $smarty.foreach.blocks.first}border-radius:10px 0px 0px 10px;{elseif $smarty.foreach.blocks.last}border-radius:0px 10px 10px 0px;{/if}" title="{$block.start|devblocks_date} - {$block.end|devblocks_date}"></div><!--
 					{/foreach}-->
 				</div>
 			</td>
@@ -67,7 +67,7 @@
 					<div style="position:relative;margin-left:-6px;top:-2px;left:{$recommendation.score}%;width:14px;height:14px;border-radius:14px;background-color:{if $recommendation.score < 50}rgb(230,70,70);{elseif $recommendation.score > 50}rgb(0,200,0);{else}rgb(175,175,175);{/if}"></div>
 				</div>
 			
-				<a href="javascript:;" class="delete"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>
+				<a href="javascript:;" class="delete"><span class="glyphicons glyphicons-circle-remove" style="font-size:14px;color:rgb(200,0,0);"></span></a>
 			</td>
 		</tr>
 		{/if}
@@ -76,12 +76,12 @@
 	
 </table>
 
-<div id="{$menu_button}" class="badge badge-lightgray" style="margin-top:10px;cursor:pointer;"><a href="javascript:;" style="text-decoration:none;color:rgb(50,50,50);">{'common.add'|devblocks_translate|capitalize} &#x25be;</a><input type="hidden" name="recommendations_expanded" value="{if $recommendations_expanded}1{else}0{/if}"></div>
+<div id="{$menu_button}" class="badge badge-lightgray" style="margin-top:10px;font-weight:bold;cursor:pointer;"><a href="javascript:;" style="text-decoration:none;color:rgb(50,50,50);">{'common.add'|devblocks_translate|capitalize} &#x25be;</a><input type="hidden" name="recommendations_expanded" value="{if $recommendations_expanded}1{else}0{/if}"></div>
 
 <div class="cerb-popupmenu" style="{if $recommendations_expanded}display:block;{/if}max-height:200px;overflow-y:auto;border:0;-moz-box-shadow: 0px 5px 15px 0px #afafaf;-webkit-box-shadow: 0px 5px 15px 0px #afafaf;box-shadow: 0px 5px 15px 0px #afafaf;">
 	<div>
 		<input type="text" class="input_search" size="45" style="width:80%;">
-		<button type="button" class="refresh" style="display:none;"><span class="glyphicons glyphicons-refresh"></span></button>
+		{*<button type="button" class="refresh" style="display:none;"><span class="glyphicons glyphicons-refresh"></span></button>*}
 	</div>
 
 	<table cellpadding="2" cellspacing="0" border="0" width="100%" class="recommendations-picker">
@@ -113,7 +113,7 @@
 						{if isset($online_workers.$worker_id)}
 						<div style="display:inline-block;border-radius:10px;width:10px;height:10px;background-color:rgb(0,180,0);margin-right:5px;line-height:10px;"></div>
 						{else}
-						<div style="display:inline-block;border-radius:10px;width:10px;height:10px;background-color:rgb(220,220,220);margin-right:5px;line-height:10px;"></div>
+						<div style="display:inline-block;border-radius:10px;width:10px;height:10px;background-color:rgb(230,230,230);margin-right:5px;line-height:10px;"></div>
 						{/if}
 						<a href="javascript:;" class="item no-underline"><b>{$worker->getName()}</b></a>
 						<small>{$worker->title}</small>
@@ -122,7 +122,7 @@
 						<div>
 						<!--
 						{foreach from=$availability.blocks item=block name=blocks}
-						--><div style="width:{{$block.length/$availability.ticks*100}|round}px;height:10px;{if $block.available}background-color:rgb(0,200,0);{else}background-color:rgb(220,220,220);{/if}display:inline-block;{if $smarty.foreach.blocks.first && $smarty.foreach.blocks.last}border-radius:10px;{elseif $smarty.foreach.blocks.first}border-radius:10px 0px 0px 10px;{elseif $smarty.foreach.blocks.last}border-radius:0px 10px 10px 0px;{/if}" title="{$block.start|devblocks_date} - {$block.end|devblocks_date}"></div><!--
+						--><div style="width:{{$block.length/$availability.ticks*100}|round}px;height:10px;{if $block.available}background-color:rgb(0,200,0);{else}background-color:rgb(230,230,230);{/if}display:inline-block;{if $smarty.foreach.blocks.first && $smarty.foreach.blocks.last}border-radius:10px;{elseif $smarty.foreach.blocks.first}border-radius:10px 0px 0px 10px;{elseif $smarty.foreach.blocks.last}border-radius:0px 10px 10px 0px;{/if}" title="{$block.start|devblocks_date} - {$block.end|devblocks_date}"></div><!--
 						{/foreach}-->
 						</div>
 					</td>
@@ -143,7 +143,7 @@
 							<div style="position:relative;margin-left:-6px;top:-2px;left:{$recommendation.score}%;width:14px;height:14px;border-radius:14px;background-color:{if $recommendation.score < 50}rgb(230,70,70);{elseif $recommendation.score > 50}rgb(0,200,0);{else}rgb(175,175,175);{/if}"></div>
 						</div>
 						
-						<a href="javascript:;" class="delete" style="display:none;"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>
+						<a href="javascript:;" class="delete" style="display:none;"><span class="glyphicons glyphicons-circle-remove" style="font-size:14px;color:rgb(200,0,0);"></span></a>
 					</td>
 				</tr>
 			{/if}
