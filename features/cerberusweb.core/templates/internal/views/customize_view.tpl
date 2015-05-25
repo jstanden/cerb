@@ -41,7 +41,13 @@
 	<div>
 		{'dashboard.num_rows'|devblocks_translate}: <input type="text" name="num_rows" size="3" maxlength="3" value="{$view->renderLimit}">
 	</div>
-		
+	
+	{if $view->isCustom()}
+	<div>
+		<label><input type="checkbox" name="options[disable_sorting]" value="1" {if $view->options.disable_sorting}checked="checked"{/if}> Prevent workers from changing the sort column</label>
+	</div>
+	{/if}
+	
 	<div>
 		{$view->renderCustomizeOptions($is_custom)}
 	</div>
