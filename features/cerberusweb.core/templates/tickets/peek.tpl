@@ -1,3 +1,6 @@
+{$peek_context = CerberusContexts::CONTEXT_TICKET}
+{$peek_context_id = $ticket->id}
+
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmTicketPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="savePeek">
@@ -40,6 +43,12 @@
 			{$recommend_btn_domid = uniqid()}
 			{$object_recommendations = DAO_ContextRecommendation::getByContexts($peek_context, array($peek_context_id))}
 			{include file="devblocks:cerberusweb.core::internal/recommendations/context_recommend_button.tpl" context=$peek_context context_id=$peek_context_id full=true recommend_btn_domid=$recommend_btn_domid recommend_group_id=$ticket->group_id recommend_bucket_id=$ticket->bucket_id}
+		</span>
+
+		<span>
+			{$watchers_btn_domid = uniqid()}
+			{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($peek_context_id), CerberusContexts::CONTEXT_WORKER)}
+			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$peek_context_id full=true}
 		</span>
 	</div>
 
@@ -200,6 +209,7 @@
 	$popup.one('popup_open',function(event,ui) {
 		var $frm = $('#frmTicketPeek');
 		var $btn_recommend = $('#{$recommend_btn_domid}');
+		var $btn_watchers = $('#{$watchers_btn_domid}');
 		
 		$(this).dialog('option','title',"{$ticket->subject|escape:'javascript' nofilter}");
 		$("#ticketPeekContent").css('width','100%');

@@ -45,6 +45,12 @@
 		</th>
 		{/if}
 
+		{if !$view->options.disable_watchers}
+		<th class="no-sort" style="text-align:center;width:40px;padding-left:0;padding-right:0;" title="{'common.watchers'|devblocks_translate|capitalize}">
+			<span class="glyphicons glyphicons-eye-open" style="color:rgb(80,80,80);"></span>
+		</th>
+		{/if}
+		
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th>
@@ -69,8 +75,8 @@
 	</thead>
 
 	{* Column Data *}
-	{$object_watchers = DAO_ContextLink::getContextLinks($view_context, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
 	{if !$view->options.disable_recommendations}{$object_recommendations = DAO_ContextRecommendation::getByContexts($view_context, array_keys($data))}{/if}
+	{if !$view->options.disable_watchers}{$object_watchers = DAO_ContextLink::getContextLinks($view_context, array_keys($data), CerberusContexts::CONTEXT_WORKER)}{/if}
 	{$ticket_drafts = DAO_MailQueue::getDraftsByTicketIds(array_keys($data))} 
 	
 	{foreach from=$data item=result key=idx name=results}
@@ -113,6 +119,13 @@
 			{include file="devblocks:cerberusweb.core::internal/recommendations/context_recommend_button.tpl" context=$view_context context_id=$result.t_id recommend_group_id=$result.t_group_id recommend_bucket_id=$result.t_bucket_id}
 		</td>
 		{/if}
+		
+		{if !$view->options.disable_watchers}
+		<td align="center" rowspan="2" nowrap="nowrap" style="padding-right:0;">
+			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.t_id watcher_group_id=$result.t_group_id watcher_bucket_id=$result.t_bucket_id}
+		</td>
+		{/if}
+		
 		{if !in_array('t_subject',$view->view_columns)}
 		<td colspan="{$smarty.foreach.headers.total}">
 			{$smarty.capture.ticket_subject_content nofilter}
