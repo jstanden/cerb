@@ -321,6 +321,9 @@ class Page_Custom extends CerberusPageExtension {
 				SearchFields_Ticket::TICKET_BUCKET_ID,
 				SearchFields_Ticket::TICKET_OWNER_ID,
 			);
+			$view->options = array('disable_watchers' => true);
+			$view->renderSortBy = SearchFields_Ticket::BUCKET_RESPONSIBILITY;
+			$view->renderSortAsc = 0;
 			$view->renderSubtotals = SearchFields_Ticket::TICKET_GROUP_ID;
 			$view->addParams(array(
 			), true);
