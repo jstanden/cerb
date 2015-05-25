@@ -2515,20 +2515,27 @@ class C4_AbstractViewLoader {
 			return NULL;
 		
 		$model = new C4_AbstractViewModel();
-			
-		$model->class_name = get_class($view);
+		
+		$class_name = get_class($view);
+		$model->class_name = $class_name;
+		
+		$parent = new $class_name(); /* @var $parent C4_AbstractView */
+		$parent->setAutoPersist(false);
 
 		$model->id = $view->id;
 		$model->is_ephemeral = $view->is_ephemeral ? true : false;
 		$model->name = $view->name;
 		
 		$model->view_columns = $view->view_columns;
-		$model->columnsHidden = $view->getColumnsHidden();
+		
+		// Only persist hidden columns that are distinct from the parent (so we can inherit parent changes)
+		$model->columnsHidden = array_diff($view->getColumnsHidden(), $parent->getColumnsHidden());
 		
 		$model->paramsEditable = $view->getEditableParams();
 		$model->paramsDefault = $view->getParamsDefault();
 		$model->paramsRequired = $view->getParamsRequired();
-		$model->paramsHidden = $view->getParamsHidden();
+		// Only persist hidden params that are distinct from the parent (so we can inherit parent changes)
+		$model->paramsHidden = array_diff($view->getParamsHidden(), $parent->getParamsHidden());
 		
 		$model->renderPage = intval($view->renderPage);
 		$model->renderLimit = intval($view->renderLimit);
@@ -2566,7 +2573,7 @@ class C4_AbstractViewLoader {
 		if(is_array($model->view_columns) && !empty($model->view_columns))
 			$inst->view_columns = $model->view_columns;
 		if(is_array($model->columnsHidden))
-			$inst->addColumnsHidden($model->columnsHidden, true);
+			$inst->addColumnsHidden($model->columnsHidden, false);
 		
 		if(is_array($model->paramsEditable))
 			$inst->addParams($model->paramsEditable, true);
@@ -2575,7 +2582,7 @@ class C4_AbstractViewLoader {
 		if(is_array($model->paramsRequired))
 			$inst->addParamsRequired($model->paramsRequired, true);
 		if(is_array($model->paramsHidden))
-			$inst->addParamsHidden($model->paramsHidden, true);
+			$inst->addParamsHidden($model->paramsHidden, false);
 
 		if(null !== $model->renderPage)
 			$inst->renderPage = intval($model->renderPage);
