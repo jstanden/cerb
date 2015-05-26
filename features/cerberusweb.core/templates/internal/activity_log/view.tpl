@@ -67,9 +67,9 @@
 				{$params_req = $view->getParamsRequired()}
 				{if isset($params_req.{SearchFields_ContextActivityLog::TARGET_CONTEXT})}
 					{$scrub = ['target']}
-					{CerberusContexts::formatActivityLogEntry($entry,'html',$scrub) nofilter}
+					{CerberusContexts::formatActivityLogEntry($entry,'html',$scrub,true) nofilter}
 				{else}
-					{CerberusContexts::formatActivityLogEntry($entry,'html') nofilter}
+					{CerberusContexts::formatActivityLogEntry($entry,'html',[],true) nofilter}
 				{/if}
 			</td>
 		</tr>

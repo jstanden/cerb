@@ -1531,7 +1531,7 @@ class CerberusContexts {
 			DAO_ContextLink::deleteLink($context, $context_id, CerberusContexts::CONTEXT_WORKER, $worker_id);
 	}
 
-	static public function formatActivityLogEntry($entry, $format=null, $scrub_tokens=array()) {
+	static public function formatActivityLogEntry($entry, $format=null, $scrub_tokens=array(), $personalize=false) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$url_writer = DevblocksPlatform::getUrlService();
 		$translate = DevblocksPlatform::getTranslationService();
@@ -1548,10 +1548,41 @@ class CerberusContexts {
 				$entry['message'] = preg_replace('#\s*\{\{'.$token.'\}\}(\s*)#', '\1', $entry['message']);
 			}
 		}
-
+		
 		// Variables
 
 		$vars = $entry['variables'];
+		
+		// Personalize variables
+		if($personalize && is_array($vars)) {
+			if(isset($vars['actor'])) {
+				$active_worker = CerberusApplication::getActiveWorker();
+				$actor_name = $vars['actor'];
+				$actor_self_target = 'themselves';
+				
+				// Replace actor with 'You'
+				if($active_worker) {
+					if($vars['actor'] == $active_worker->getName()) {
+						$actor_name = 'You';
+						$actor_self_target = 'yourself';
+					}
+				}
+				
+				// Handle the actor doing things to 'themselves'
+				foreach($vars as $k => $v) {
+					if($k == 'actor')
+						continue;
+					
+					if($v == $vars['actor'])
+						$vars[$k] = $actor_self_target;
+					elseif($active_worker && $v == $active_worker->getName())
+						$vars[$k] = 'you';
+				}
+				
+				$vars['actor'] = $actor_name;
+			}
+			
+		}
 
 		switch($format) {
 			case 'html':
