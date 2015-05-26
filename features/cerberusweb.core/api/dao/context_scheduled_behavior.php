@@ -195,6 +195,25 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 		return true;
 	}
 	
+	static function deleteByContext($context, $context_ids) {
+		if(!is_array($context_ids))
+			$context_ids = array($context_ids);
+		
+		if(empty($context_ids))
+			return;
+		
+		$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'int');
+			
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$db->ExecuteMaster(sprintf("DELETE FROM context_scheduled_behavior WHERE context = %s AND context_id IN (%s) ",
+			$db->qstr($context),
+			implode(',', $context_ids)
+		));
+		
+		return true;
+	}
+	
 	static function deleteByBehavior($behavior_ids, $only_context=null, $only_context_id=null) {
 		if(!is_array($behavior_ids)) $behavior_ids = array($behavior_ids);
 		$db = DevblocksPlatform::getDatabaseService();
