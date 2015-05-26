@@ -249,7 +249,12 @@
 					<tr>
 						<td nowrap="nowrap" valign="top">
 							<div style="margin-bottom:10px;">
-								{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" object_watchers=$object_watchers context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
+								<span>
+									{include file="devblocks:cerberusweb.core::internal/recommendations/context_recommend_button.tpl" object_recommendations=$object_recommendations context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
+								</span>
+								<span>
+									{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" object_watchers=$object_watchers context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
+								</span>
 							</div>
 							
 							<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="closed" value="0" class="status_open" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if (empty($draft) && 'open'==$mail_status_reply) || $draft->params.closed==0}checked="checked"{/if}>{'status.open'|devblocks_translate|capitalize}</label>
