@@ -697,6 +697,16 @@
 			<param key="string_key" value="activities.org.merge" />
 			<param key="options" value="" />
 		</activity>
+		<activity point="record.recommendation.added">
+			<param key="label_key" value="Record Recommendation Added" />
+			<param key="string_key" value="activities.record.recommendation.added" />
+			<param key="options" value="" />
+		</activity>
+		<activity point="record.recommendation.removed">
+			<param key="label_key" value="Record Recommendation Removed" />
+			<param key="string_key" value="activities.record.recommendation.removed" />
+			<param key="options" value="" />
+		</activity>
 		<activity point="task.created">
 			<param key="label_key" value="Task Created" />
 			<param key="string_key" value="activities.task.created" />

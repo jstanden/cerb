@@ -1667,7 +1667,7 @@ class CerberusContexts {
 		}
 	}
 
-	static public function logActivity($activity_point, $target_context, $target_context_id, &$entry_array, $actor_context=null, $actor_context_id=null, $also_notify_worker_ids=array()) {
+	static public function logActivity($activity_point, $target_context, $target_context_id, &$entry_array, $actor_context=null, $actor_context_id=null, $also_notify_worker_ids=array(), $also_notify_ignore_self=false) {
 		// Target meta
 		if(!isset($target_meta)) {
 			if(null != ($target_ctx = DevblocksPlatform::getExtension($target_context, true))
@@ -1807,7 +1807,8 @@ class CerberusContexts {
 			// Include the 'also notify' list
 			if(!is_array($also_notify_worker_ids))
 				$also_notify_worker_ids = array();
-
+			
+			// Merge watchers and the notification list
 			$watchers = array_merge(
 				$watchers,
 				$also_notify_worker_ids
@@ -1854,7 +1855,7 @@ class CerberusContexts {
 							&& $actor_context_id == $watcher_id) {
 								// If they explicitly added themselves to the notify, allow it.
 								// Otherwise, don't tell them what they just did.
-								if(!in_array($watcher_id, $also_notify_worker_ids))
+								if($also_notify_ignore_self || !in_array($watcher_id, $also_notify_worker_ids))
 									continue;
 						}
 					}
