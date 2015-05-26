@@ -39,12 +39,12 @@
 		
 		<span id="spanWatcherToolbar">
 		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
-		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true watchers_group_id=$ticket->group_id watchers_bucket_id=$ticket->bucket_id}
 		</span>
 		
 		<span id="spanRecommendToolbar">
 		{$object_recommendations = DAO_ContextRecommendation::getByContexts($page_context, array($page_context_id))}
-		{include file="devblocks:cerberusweb.core::internal/recommendations/context_recommend_button.tpl" context=$page_context context_id=$page_context_id full=true}
+		{include file="devblocks:cerberusweb.core::internal/recommendations/context_recommend_button.tpl" context=$page_context context_id=$page_context_id full=true recommend_group_id=$ticket->group_id recommend_bucket_id=$ticket->bucket_id}
 		</span>
 		
 		<!-- Macros -->

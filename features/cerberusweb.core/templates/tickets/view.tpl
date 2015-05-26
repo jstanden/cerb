@@ -118,7 +118,7 @@
 		
 		{if !$view->options.disable_watchers}
 		<td align="center" rowspan="2" nowrap="nowrap" style="padding-right:0;">
-			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.t_id watcher_group_id=$result.t_group_id watcher_bucket_id=$result.t_bucket_id}
+			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.t_id watchers_group_id=$result.t_group_id watchers_bucket_id=$result.t_bucket_id}
 		</td>
 		{/if}
 		

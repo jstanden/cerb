@@ -48,7 +48,7 @@
 		<span>
 			{$watchers_btn_domid = uniqid()}
 			{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($peek_context_id), CerberusContexts::CONTEXT_WORKER)}
-			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$peek_context_id full=true}
+			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$peek_context_id full=true watchers_btn_domid=$watchers_btn_domid watchers_group_id=$ticket->group_id watchers_bucket_id=$ticket->bucket_id}
 		</span>
 	</div>
 
@@ -298,6 +298,10 @@
 			$btn_recommend.attr('group_id', $frm.find('select[name=group_id]').val());
 			$btn_recommend.attr('bucket_id', $frm.find('select[name=bucket_id]').val());
 			$btn_recommend.trigger('refresh');
+			
+			$btn_watchers.attr('group_id', $frm.find('select[name=group_id]').val());
+			$btn_watchers.attr('bucket_id', $frm.find('select[name=bucket_id]').val());
+			$btn_watchers.trigger('refresh');
 		});
 	});
 </script>

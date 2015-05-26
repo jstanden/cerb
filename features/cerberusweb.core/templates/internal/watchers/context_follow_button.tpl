@@ -1,7 +1,7 @@
-{if empty($watcher_btn_domid)}{$watcher_btn_domid = uniqid()}{/if}
+{if empty($watchers_btn_domid)}{$watchers_btn_domid = uniqid()}{/if}
 {$num_watchers = $object_watchers.{$context_id}|count}
 {$is_current_worker = isset($object_watchers.{$context_id}.{$active_worker->id})}
-<button type="button" id="{$watcher_btn_domid}" class="{if $is_current_worker}green{/if}" title="{'common.watchers'|devblocks_translate|capitalize}" group_id="{$watcher_group_id}" bucket_id="{$watcher_bucket_id}">
+<button type="button" id="{$watchers_btn_domid}" class="{if $is_current_worker}green{/if}" title="{'common.watchers'|devblocks_translate|capitalize}" group_id="{$watchers_group_id}" bucket_id="{$watchers_bucket_id}">
 	{if $full}
 		<div class="badge-count">{$num_watchers}</div>
 		Watching
@@ -12,7 +12,7 @@
 
 <script type="text/javascript">
 $(function() {
-	var $btn = $('#{$watcher_btn_domid}');
+	var $btn = $('#{$watchers_btn_domid}');
 	
 	$btn.click(function() {
 		var group_id = $btn.attr('group_id');
