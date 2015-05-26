@@ -11,7 +11,7 @@
 {/if}
 
 {foreach from=$buckets item=bucket key=bucket_id}
-<fieldset class="peek" style="margin-bottom:0;">
+<fieldset class="peek" style="margin-bottom:0;display:inline-block;">
 	<legend>{$bucket->name}</legend>
 	
 	<div style="padding-left:10px;">
@@ -22,7 +22,7 @@
 		{$responsibility_level = $responsibilities.$bucket_id.$worker_id}
 		
 		{if $worker}
-		<div style="width:250px;display:inline-block;margin:0 10px 10px 5px;">
+		<div style="width:250px;display:block;margin:0 10px 10px 5px;">
 			<label><b>{$worker->getName()}</b> {if $worker->title}({$worker->title}){/if}</label>
 			
 			<div style="margin-top:5px;position:relative;margin-left:5px;width:250px;height:10px;background-color:rgb(230,230,230);border-radius:10px;">
