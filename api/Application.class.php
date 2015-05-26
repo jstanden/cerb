@@ -165,7 +165,11 @@ class CerberusApplication extends DevblocksApplication {
 			$picker_workers['population'][$worker->id] = $worker;
 		}
 		
-		return $picker_workers;
+		// Return a result object
+		return array(
+			'show_responsibilities' => !empty($group_id),
+			'workers' => $picker_workers,
+		);
 	}
 	
 	static function getFileBundleDictionaryJson() {

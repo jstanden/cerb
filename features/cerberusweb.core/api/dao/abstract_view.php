@@ -2665,7 +2665,9 @@ class C4_AbstractViewLoader {
 		if(null == ($view = $ctx->getChooserView($view_id))) /* @var $view C4_AbstractView */
 			return false;
 		
-		$view->options = $view_model['options'];
+		if(isset($view_model['options']))
+			$view->options = $view_model['options'];
+		
 		$view->view_columns = $view_model['columns'];
 		$view->renderLimit = intval($view_model['limit']);
 		$view->renderSortBy = $view_model['sort_by'];
