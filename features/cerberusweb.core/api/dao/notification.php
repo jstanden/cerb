@@ -213,12 +213,15 @@ class DAO_Notification extends DevblocksORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids))
+			$ids = array($ids);
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(empty($ids))
 			return;
 		
+		$ids = DevblocksPlatform::sanitizeArray($ids, array('nonzero', 'unique'));
 		$ids_list = implode(',', $ids);
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM notification WHERE id IN (%s)", $ids_list));
@@ -235,6 +238,10 @@ class DAO_Notification extends DevblocksORMHelper {
 			)
 		);
 		
+		// Clear cache
+		
+		self::clearCountCache();
+		
 		return true;
 	}
 	
@@ -244,6 +251,8 @@ class DAO_Notification extends DevblocksORMHelper {
 		
 		if(empty($context_ids))
 			return;
+		
+		$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'int');
 			
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -251,6 +260,61 @@ class DAO_Notification extends DevblocksORMHelper {
 			$db->qstr($context),
 			implode(',', $context_ids)
 		));
+		
+		// Clear cache
+		
+		self::clearCountCache();
+		
+		return true;
+	}
+	
+	static function deleteByContextActivityAndWorker($context, $context_ids, $activity_point=null, $worker_ids=array()) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(!is_array($context_ids))
+			$context_ids = array($context_ids);
+
+		if(!is_array($worker_ids))
+			$worker_ids = array($worker_ids);
+		
+		if(empty($context_ids))
+			return;
+		
+		// Sanitize inputs
+
+		$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'int');
+		$worker_ids = DevblocksPlatform::sanitizeArray($worker_ids, 'int');
+
+		// Build where clause
+		
+		$wheres = array();
+		
+		if(!empty($activity_point)) {
+			$wheres[] = sprintf("AND activity_point = %s",
+				$db->qstr($activity_point)
+			);
+		}
+		
+		if(!empty($worker_ids)) {
+			
+			$wheres[] = sprintf("AND worker_id IN (%s)",
+				implode(',', $worker_ids)
+			);
+		}
+		
+		// Delete notifications
+		
+		$sql = sprintf("DELETE FROM notification WHERE context = %s AND context_id IN (%s) %s",
+			$db->qstr($context),
+			implode(',', $context_ids),
+			implode(' ', $wheres)
+		);
+		
+		$db->ExecuteMaster($sql);
+		
+		// Clear cache
+		
+		self::clearCountCache();
 		
 		return true;
 	}
@@ -276,9 +340,24 @@ class DAO_Notification extends DevblocksORMHelper {
 		);
 	}
 	
-	static function clearCountCache($worker_id) {
+	static function clearCountCache($worker_id=null) {
 		$cache = DevblocksPlatform::getCacheService();
-		$cache->remove(self::CACHE_COUNT_PREFIX.$worker_id);
+		
+		$workers = array();
+		
+		// If we weren't given a worker, use all active workers
+		if(is_null($worker_id)) {
+			$workers = DAO_Worker::getAllActive();
+			
+		// Otherwise, if we were given a specific worker, just use them
+		} else {
+			
+			if(false != ($worker = DAO_Worker::get($worker_id)))
+				$workers = array($worker->id => $worker);
+		}
+		
+		foreach($workers as $worker_id => $worker)
+			$cache->remove(self::CACHE_COUNT_PREFIX.$worker_id);
 	}
 
 	public static function random() {
