@@ -48,8 +48,8 @@ class PageSection_InternalRecommendations extends Extension_PageSection {
 		$sample = DAO_ContextRecommendation::get($context, $context_id);
 		$population = DAO_Worker::getAllActive();
 		
-		$picker_workers = CerberusApplication::getWorkerPickerData($population, $sample, $group_id, $bucket_id);
-		$tpl->assign('picker_workers', $picker_workers);
+		$worker_picker_data = CerberusApplication::getWorkerPickerData($population, $sample, $group_id, $bucket_id);
+		$tpl->assign('worker_picker_data', $worker_picker_data);
 		
 		// Template
 		

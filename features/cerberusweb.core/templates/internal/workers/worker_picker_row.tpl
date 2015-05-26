@@ -33,6 +33,7 @@
 		<span style="color:rgb(200,200,200);"> / </span>
 		{if $num_unread_notifications}<span style="color:red;font-weight:bold;">{$num_unread_notifications}</span>{else}0{/if}
 	</td>
+	{if $show_responsibilities}
 	<td nowrap="nowrap">
 		<div style="position:relative;margin:0px 5px;width:70px;height:10px;background-color:rgb(230,230,230);border-radius:10px;display:inline-block;">
 			<span style="display:inline-block;background-color:rgb(200,200,200);height:14px;width:1px;position:absolute;top:-2px;margin-left:1px;left:50%;"></span>
@@ -41,4 +42,5 @@
 	
 		<a href="javascript:;" class="delete" {if !$worker->__is_selected}style="display:none;"{/if}><span class="glyphicons glyphicons-circle-remove" style="font-size:14px;color:rgb(200,0,0);"></span></a>
 	</td>
+	{/if}
 </tr>

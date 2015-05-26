@@ -1,4 +1,5 @@
 {$picker_table_domid = uniqid()}
+{$picker_workers = $worker_picker_data.workers}
 
 <div id="{$picker_table_domid}">
 
@@ -14,15 +15,17 @@
 		<td>
 			<abbr title="Open assignments / Recommendations / Unread notifications" style="font-weight:bold;">Workload</abbr>
 		</td>
+		{if $worker_picker_data.show_responsibilities}
 		<td>
 			<b>{'common.responsibility'|devblocks_translate|capitalize}</b>
 		</td>
+		{/if}
 	</tr>
 	</thead>
 		
 	<tbody>
 		{foreach from=$picker_workers.sample item=worker key=worker_id}
-		{include file="devblocks:cerberusweb.core::internal/workers/worker_picker_row.tpl"}
+		{include file="devblocks:cerberusweb.core::internal/workers/worker_picker_row.tpl" show_responsibilities=$worker_picker_data.show_responsibilities}
 		{/foreach}
 	</tbody>
 	
@@ -36,10 +39,28 @@
 	
 	<div style="max-height:350px;overflow-y:auto;-webkit-appearance:none;padding:5px 5px 0px 5px;">
 	<table cellpadding="2" cellspacing="0" border="0" width="100%" class="picker-available">
+		<thead>
+		<tr>
+			<td>
+				<b>{'common.worker'|devblocks_translate|capitalize}</b>
+			</td>
+			<td>
+				<b>{'common.availability'|devblocks_translate|capitalize} (24h)</b>
+			</td>
+			<td>
+				<abbr title="Open assignments / Recommendations / Unread notifications" style="font-weight:bold;">Workload</abbr>
+			</td>
+			{if $worker_picker_data.show_responsibilities}
+			<td>
+				<b>{'common.responsibility'|devblocks_translate|capitalize}</b>
+			</td>
+			{/if}
+		</tr>
+		</thead>
 		
 		<tbody>
 			{foreach from=$picker_workers.population item=worker key=worker_id}
-			{include file="devblocks:cerberusweb.core::internal/workers/worker_picker_row.tpl"}
+			{include file="devblocks:cerberusweb.core::internal/workers/worker_picker_row.tpl" show_responsibilities=$worker_picker_data.show_responsibilities}
 			{/foreach}
 		</tbody>
 		
