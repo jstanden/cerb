@@ -34,17 +34,10 @@ var on_refresh = function() {
 		.attr('cellspacing', '0')
 		;
 	
-	// Hide watchers column (if exists)
-	var $th_watchers = $worklist_body.find('tr:first th:contains(Watchers)').first();
-	if($th_watchers.length > 0) {
-		$th_watchers.hide();
-	}
+	// Hide button columns (if exist)
 	
-	$worklist_body.find('tr:first th').each(function(e) {
-		var $th = $(this);
-		if($th.text().length == 0)
-			$th.hide();
-	});
+	var $th_buttons = $worklist_body.find('tr:first').find('th span.glyphicons-eye-open, th span.glyphicons-flag');
+		$th_buttons.closest('th').hide();
 	
 	// Prepend header labels to column cells
 	
@@ -74,7 +67,7 @@ var on_refresh = function() {
 			var $ths = $td.closest('table.worklistBody').find('th:not(:hidden)');
 			var $siblings = $td.closest('tr').find('td:not(:hidden)');
 			var idx = $siblings.index($td);
-
+			
 			var $th = $ths.filter(':nth(' + (idx) + ')');
 			
 			// If the column header is hidden or contentless, hide this cell
@@ -92,7 +85,7 @@ var on_refresh = function() {
 		})
 		;
 
-	$worklist_body.find('a.subject')
+	$worklist_body.find('a.subject, b.subject')
 		.addClass('no-underline')
 		;
 	
