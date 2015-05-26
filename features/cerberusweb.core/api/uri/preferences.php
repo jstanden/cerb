@@ -436,6 +436,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$prefs['assist_mode'] = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
 		$prefs['keyboard_shortcuts'] = intval(DAO_WorkerPref::get($worker->id, 'keyboard_shortcuts', 1));
 		$prefs['availability_calendar_id'] = intval($worker->calendar_id);
+		$prefs['mail_disable_html_display'] = DAO_WorkerPref::get($worker->id,'mail_disable_html_display',0);
 		$prefs['mail_always_show_all'] = DAO_WorkerPref::get($worker->id,'mail_always_show_all',0);
 		$prefs['mail_display_inline_log'] = DAO_WorkerPref::get($worker->id,'mail_display_inline_log',0);
 		$prefs['mail_reply_html'] = DAO_WorkerPref::get($worker->id,'mail_reply_html',0);
@@ -586,6 +587,9 @@ class ChPreferencesPage extends CerberusPageExtension {
 		@$keyboard_shortcuts = DevblocksPlatform::importGPC($_REQUEST['keyboard_shortcuts'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'keyboard_shortcuts', $keyboard_shortcuts);
 
+		@$mail_disable_html_display = DevblocksPlatform::importGPC($_REQUEST['mail_disable_html_display'],'integer',0);
+		DAO_WorkerPref::set($worker->id, 'mail_disable_html_display', $mail_disable_html_display);
+		
 		@$mail_always_show_all = DevblocksPlatform::importGPC($_REQUEST['mail_always_show_all'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'mail_always_show_all', $mail_always_show_all);
 		

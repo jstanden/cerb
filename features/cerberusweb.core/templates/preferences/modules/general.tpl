@@ -58,8 +58,9 @@
 <fieldset class="peek">
 	<legend>{'common.mail'|devblocks_translate|capitalize}</legend>
 	
-	<b>{'preferences.account.mail.display'|devblocks_translate}:</b>
+	<b>{'preferences.account.mail.display'|devblocks_translate}</b>
 	<div style="margin:0px 0px 10px 10px;">
+		<label><input type="checkbox" name="mail_disable_html_display" value="1" {if $prefs.mail_disable_html_display}checked{/if}> {'preferences.account.mail.display.disable_html'|devblocks_translate}</label><br>
 		<label><input type="checkbox" name="mail_always_show_all" value="1" {if $prefs.mail_always_show_all}checked{/if}> {'preferences.account.mail.readall'|devblocks_translate}</label><br>
 		<label><input type="checkbox" name="mail_display_inline_log" value="1" {if $prefs.mail_display_inline_log}checked{/if}> {'preferences.account.mail.display.inline_log'|devblocks_translate}</label><br>
 	</div>

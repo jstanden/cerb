@@ -92,10 +92,14 @@
 	  </div>
 	  {/if}
 	  
-  	{if $expanded}
-	  <div style="clear:both;display:block;padding-top:10px;">
-	  		{$html_body = $message->getContentAsHtml()}
-	  
+		{if $expanded}
+		<div style="clear:both;display:block;padding-top:10px;">
+				{if DAO_WorkerPref::get($active_worker->id, 'mail_disable_html_display', 0)}
+					{$html_body = null}
+				{else}
+					{$html_body = $message->getContentAsHtml()}
+				{/if}
+		
 	  		{if !empty($html_body)}
 		  		<div class="emailBodyHtml">
 			  		{$html_body nofilter}
