@@ -2416,6 +2416,61 @@ class DevblocksEventHelper {
 	}
 
 	/*
+	 * Action: Set Ticket Importance
+	 */
+	
+	static function renderActionSetTicketImportance($trigger) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_number.tpl');
+	}
+	
+	static function simulateActionSetTicketImportance($params, DevblocksDictionaryDelegate $dict, $default_on, $key) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		@$ticket_id = $dict->$default_on;
+		
+		// Importance
+		
+		@$importance = intval(
+			$tpl_builder->build(
+				DevblocksPlatform::importVar($params['value'], 'string', ''),
+				$dict
+			)
+		);
+		
+		$importance = DevblocksPlatform::intClamp($importance, 0, 100);
+		
+		$out = sprintf(">>> Setting importance to %d\n", $importance);
+
+		// Update dictionary
+		$dict->$key = $importance;
+		
+		return $out;
+	}
+	
+	static function runActionSetTicketImportance($params, DevblocksDictionaryDelegate $dict, $default_on, $key) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		@$ticket_id = $dict->$default_on;
+		
+		// Importance
+		
+		@$importance = intval(
+			$tpl_builder->build(
+				DevblocksPlatform::importVar($params['value'], 'string', ''),
+				$dict
+			)
+		);
+		
+		$importance = DevblocksPlatform::intClamp($importance, 0, 100);
+
+		DAO_Ticket::update($ticket_id, array(
+			DAO_Ticket::IMPORTANCE => $importance,
+		));
+		
+		// Update dictionary
+		$dict->$key = $importance;
+	}
+	
+	/*
 	 * Action: Set Ticket Org
 	 */
 	

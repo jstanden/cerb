@@ -604,7 +604,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				'schedule_email_recipients' => array('label' => 'Schedule email to recipients'),
 				'send_email' => array('label' => 'Send email'),
 				'send_email_recipients' => array('label' => 'Send email to recipients'),
-				'set_org' => array('label' =>'Set ticket organization'),
+				'set_importance' => array('label' =>'Set ticket importance'),
+				'set_org' => array('label' =>'Set organization'),
 				'set_owner' => array('label' =>'Set ticket owner'),
 				'set_reopen_date' => array('label' => 'Set ticket reopen date'),
 				'set_spam_training' => array('label' => 'Set ticket spam training'),
@@ -695,6 +696,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 			case 'schedule_email_recipients':
 				DevblocksEventHelper::renderActionScheduleTicketReply();
+				break;
+				
+			case 'set_importance':
+				DevblocksEventHelper::renderActionSetTicketImportance($trigger);
 				break;
 				
 			case 'set_org':
@@ -819,6 +824,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			case 'schedule_email_recipients':
 				break;
 				
+				
+			case 'set_importance':
+				return DevblocksEventHelper::simulateActionSetTicketImportance($params, $dict, 'ticket_id', 'ticket_importance');
+				break;
 				
 			case 'set_org':
 				return DevblocksEventHelper::simulateActionSetTicketOrg($params, $dict, 'ticket_id');
@@ -958,6 +967,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 			case 'schedule_email_recipients':
 				DevblocksEventHelper::runActionScheduleTicketReply($params, $dict, $ticket_id, $message_id);
+				break;
+				
+			case 'set_importance':
+				DevblocksEventHelper::runActionSetTicketImportance($params, $dict, 'ticket_id', 'ticket_importance');
 				break;
 				
 			case 'set_org':
