@@ -129,6 +129,11 @@
 				{else}
 					{'status.open'|devblocks_translate}
 				{/if} 
+			{elseif $k == 'importance'}
+				<b>{'common.importance'|devblocks_translate|capitalize}:</b>
+				<div style="display:inline-block;margin-left:5px;width:40px;height:8px;background-color:rgb(220,220,220);border-radius:8px;">
+					<div style="position:relative;margin-left:-5px;top:-1px;left:{$ticket->importance}%;width:10px;height:10px;border-radius:10px;background-color:{if $ticket->importance < 50}rgb(0,200,0);{elseif $ticket->importance > 50}rgb(230,70,70);{else}rgb(175,175,175);{/if}"></div>
+				</div>
 			{elseif $k == 'org'}
 				{$ticket_org = $ticket->getOrg()}
 				<b>{'contact_org.name'|devblocks_translate|capitalize}:</b>

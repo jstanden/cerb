@@ -105,6 +105,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			'mask' => null,
 			'bucket' => null,
 			'org' => null,
+			'importance' => null,
 			'created' => array(
 				'label' => ucfirst($translate->_('common.created')),
 				'type' => Model_CustomField::TYPE_DATE,
