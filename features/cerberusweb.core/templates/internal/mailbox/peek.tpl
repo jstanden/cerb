@@ -165,7 +165,9 @@
 					if(false == json || false == json.status) {
 						Devblocks.showError($status, json.error);
 					} else {
-						genericAjaxPopupPostCloseReloadView('peek', $frm, '{$view_id}', false, 'mailbox_save');
+						var $event = jQuery.Event('mailbox_save');
+						genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
+						genericAjaxPopupClose('peek', $event);
 					}
 				});
 			})
