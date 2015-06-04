@@ -33,7 +33,7 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 		if(empty($address) || empty($worker_id))
 			return NULL;
 
-		$sql = sprintf("INSERT INTO address_to_worker (address, worker_id, is_confirmed, code, code_expire) ".
+		$sql = sprintf("REPLACE INTO address_to_worker (address, worker_id, is_confirmed, code, code_expire) ".
 			"VALUES (%s, %d, %d, '', 0)",
 			$db->qstr($address),
 			$worker_id,
