@@ -1832,9 +1832,14 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		if(null != ($preset = DAO_ViewFiltersPreset::get($preset_id))) {
 			$view->addParams($preset->params);
+			
 			if(!is_null($preset->sort_by)) {
-				$view->renderSortBy = $preset->sort_by;
-				$view->renderSortAsc = !empty($preset->sort_asc);
+				$disable_sorting = $view->isCustom() && @$view->options['disable_sorting'];
+				
+				if(!$disable_sorting) {
+					$view->renderSortBy = $preset->sort_by;
+					$view->renderSortAsc = !empty($preset->sort_asc);
+				}
 			}
 		}
 
