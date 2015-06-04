@@ -119,6 +119,7 @@ class CerberusApplication extends DevblocksApplication {
 		return $workers;
 	}
 	
+	// [TODO] Cache by worker? (esp responsibility + availability + workloads)
 	static function getWorkerPickerData($population, $sample, $group_id=0, $bucket_id=0) {
 		// Shared objects
 		
@@ -126,6 +127,7 @@ class CerberusApplication extends DevblocksApplication {
 		$group_responsibilities = DAO_Group::getResponsibilities($group_id);
 		$bucket_responsibilities = @$group_responsibilities[$bucket_id] ?: array();
 		$workloads = DAO_Worker::getWorkloads();
+		// [TODO] Do availability efficiently 
 		
 		// Workers
 		
@@ -2252,7 +2254,7 @@ class CerberusSettings {
 };
 
 class CerberusSettingsDefaults {
-	const HELPDESK_TITLE = 'Cerb - a fast and flexible web-based platform for business collaboration and automation.';
+	const HELPDESK_TITLE = 'Cerb - a fast and flexible web-based platform for enterprise collaboration, productivity, and automation.';
 	const ATTACHMENTS_ENABLED = 1;
 	const ATTACHMENTS_MAX_SIZE = 10;
 	const PARSER_AUTO_REQ = 0;
