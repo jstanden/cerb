@@ -36,12 +36,14 @@ class PageSection_SetupMailRelay extends Extension_PageSection {
 			if(!$worker || !$worker->is_superuser)
 				throw new Exception("You are not an administrator.");
 			
+			@$relay_disable = DevblocksPlatform::importGPC($_POST['relay_disable'],'integer',0);
 			@$relay_disable_auth = DevblocksPlatform::importGPC($_POST['relay_disable_auth'],'integer',0);
 			@$relay_spoof_from = DevblocksPlatform::importGPC($_POST['relay_spoof_from'],'integer',0);
 			
 			// Save
 			
 			$settings = DevblocksPlatform::getPluginSettingsService();
+			$settings->set('cerberusweb.core',CerberusSettings::RELAY_DISABLE, $relay_disable);
 			$settings->set('cerberusweb.core',CerberusSettings::RELAY_DISABLE_AUTH, $relay_disable_auth);
 			$settings->set('cerberusweb.core',CerberusSettings::RELAY_SPOOF_FROM, $relay_spoof_from);
 			

@@ -37,6 +37,16 @@ This process protects the privacy of personal worker email addresses, while stil
 	</p>
 	<br>
 	
+	<b>Relay functionality:</b>
+	{$relay_disable = $settings->get('cerberusweb.core','relay_disable',CerberusSettingsDefaults::RELAY_DISABLE)}
+	<p>
+		<label><input type="radio" name="relay_disable" value="0" {if empty($relay_disable)}checked="checked"{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
+		<label><input type="radio" name="relay_disable" value="1" {if $relay_disable}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label>
+	</p>
+	<br>
+	
+	<div id="configMailRelayOptions" style="{if $relay_disable}display:none;{/if}">
+	
 	<b>Built-in relay authentication:</b>
 	{$relay_disable_auth = $settings->get('cerberusweb.core','relay_disable_auth',CerberusSettingsDefaults::RELAY_DISABLE_AUTH)}
 	<p>
@@ -63,6 +73,8 @@ This process protects the privacy of personal worker email addresses, while stil
 		</div>
 	</div>
 	
+	</div>
+	
 	<div style="margin-top:10px;">
 		<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 	</div>
@@ -74,7 +86,20 @@ This process protects the privacy of personal worker email addresses, while stil
 </form>
 
 <script type="text/javascript">
-	$('#frmSetupMailRelay button.submit')
+$(function() {
+	var $frm = $('#frmSetupMailRelay');
+	
+	$frm.find('input:radio[name=relay_disable]').change(function() {
+		var $options = $('#configMailRelayOptions');
+
+		if($(this).val() == '0') {
+			$options.fadeIn();
+		} else {
+			$options.fadeOut();
+		}
+	});
+	
+	$frm.find('button.submit')
 		.click(function(e) {
 			genericAjaxPost('frmSetupMailRelay','',null,function(json) {
 				$o = $.parseJSON(json);
@@ -86,5 +111,5 @@ This process protects the privacy of personal worker email addresses, while stil
 			});
 		})
 	;
-	;	
+});
 </script>

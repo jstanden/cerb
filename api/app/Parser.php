@@ -982,7 +982,10 @@ class CerberusParser {
 
 		// Is it a worker reply from an external client?  If so, proxy
 		
-		if($model->isWorkerRelayReply()
+		$relay_disabled = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::RELAY_DISABLE, CerberusSettingsDefaults::RELAY_DISABLE);
+		
+		if(!$relay_disabled
+			&& $model->isWorkerRelayReply()
 			&& $model->isSenderWorker()
 			&& null != ($proxy_ticket = $model->getTicketModel())
 			&& null != ($proxy_worker = $model->getSenderWorkerModel())
