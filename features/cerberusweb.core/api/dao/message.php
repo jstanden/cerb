@@ -801,6 +801,12 @@ class Model_Message {
 		
 		$attachment->getFileContents($fp);
 		
+		$stats = fstat($fp);
+		
+		// If the file is missing or empty
+		if(isset($stats) && empty($stats['size']))
+			return null;
+		
 		// If the 'tidy' extension exists
 		if(extension_loaded('tidy')) {
 			$tidy = new tidy();

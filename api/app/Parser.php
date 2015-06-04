@@ -723,7 +723,8 @@ class CerberusParser {
 							$text = self::convertEncoding($text, $info['charset']);
 						}
 						
-						$message->htmlbody .= $text;
+						if(!empty(trim($text)))
+							$message->htmlbody .= $text;
 						
 						unset($text);
 						$handled = true;
