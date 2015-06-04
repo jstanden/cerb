@@ -87,5 +87,38 @@ class PageSection_InternalRecommendations extends Extension_PageSection {
 		));
 	}
 
+	function toggleCurrentWorkerAsRecommendationAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(empty($context) || empty($context_id) || empty($active_worker))
+			return;
+		
+		$worker_id = $active_worker->id;
+		
+		$recommendations = DAO_ContextRecommendation::get($context, $context_id);
+		
+		if(!isset($recommendations[$worker_id])) {
+			DAO_ContextRecommendation::add($context, $context_id, $worker_id);
+			$recommendations[$worker_id] = $active_worker;
+		
+		} else {
+			DAO_ContextRecommendation::remove($context, $context_id, $worker_id);
+			unset($recommendations[$worker_id]);
+		}
+		
+		// Return JSON data
+		header("Content-Type: application/json; charset=". LANG_CHARSET_CODE);
+		
+		echo json_encode(array(
+			'context' => $context,
+			'context_id' => $context_id,
+			'count' => count($recommendations),
+			'has_active_worker' => isset($recommendations[$worker_id]),
+		));
+	}
+	
 }
 endif;

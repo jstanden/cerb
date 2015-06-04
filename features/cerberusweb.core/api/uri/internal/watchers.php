@@ -82,5 +82,38 @@ class PageSection_InternalWatchers extends Extension_PageSection {
 			'has_active_worker' => in_array($active_worker->id, $current_sample),
 		));
 	}
+	
+	function toggleCurrentWorkerAsWatcherAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(empty($context) || empty($context_id) || empty($active_worker))
+			return;
+		
+		$worker_id = $active_worker->id;
+		
+		$watchers = CerberusContexts::getWatchers($context, $context_id);
+		
+		if(!isset($watchers[$worker_id])) {
+			CerberusContexts::addWatchers($context, $context_id, array($worker_id));
+			$watchers[$worker_id] = $active_worker;
+		
+		} else {
+			CerberusContexts::removeWatchers($context, $context_id, array($worker_id));
+			unset($watchers[$worker_id]);
+		}
+		
+		// Return JSON data
+		header("Content-Type: application/json; charset=". LANG_CHARSET_CODE);
+		
+		echo json_encode(array(
+			'context' => $context,
+			'context_id' => $context_id,
+			'count' => count($watchers),
+			'has_active_worker' => isset($watchers[$worker_id]),
+		));
+	}
 }
 endif;

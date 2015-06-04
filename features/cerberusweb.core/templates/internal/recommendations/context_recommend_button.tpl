@@ -14,25 +14,45 @@
 $(function() {
 	var $btn = $('#{$recommend_btn_domid}');
 	
-	$btn.click(function() {
+	$btn.click(function(e) {
 		var group_id = $btn.attr('group_id');
 		var bucket_id = $btn.attr('bucket_id');
-		var $popup = genericAjaxPopup('recommend','c=internal&a=handleSectionAction&section=recommendations&action=showContextRecommendationsPopup&context={$context}&context_id={$context_id}&full={if empty($full)}0{else}1{/if}&group_id=' + group_id + '&bucket_id=' + bucket_id);
 		
-		$popup.one('recommendations_save', function(e) {
-			if(undefined != e.recommendations_count && undefined != e.recommendations_include_worker) {
-				$btn.fadeTo('fast', 0.5);
-				$btn.find('div.badge-count').html(e.recommendations_count);
-				
-				if(e.recommendations_include_worker) {
-					$btn.addClass('green');
-				} else {
-					$btn.removeClass('green');
+		// Left-click shortcut for toggling current worker
+		if(e.shiftKey) {
+			genericAjaxGet('', 'c=internal&a=handleSectionAction&section=recommendations&action=toggleCurrentWorkerAsRecommendation&context={$context}&context_id={$context_id}&full={if empty($full)}0{else}1{/if}', function(json) {
+				if(undefined != json.count && undefined != json.has_active_worker) {
+					$btn.fadeTo('fast', 0.5);
+					$btn.find('div.badge-count').html(json.count);
+					
+					if(json.has_active_worker) {
+						$btn.addClass('green');
+					} else {
+						$btn.removeClass('green');
+					}
+					
+					$btn.fadeTo('fast', 1.0);
 				}
-				
-				$btn.fadeTo('fast', 1.0);
-			}
-		});
+			});
+			
+		} else {
+			var $popup = genericAjaxPopup('recommend','c=internal&a=handleSectionAction&section=recommendations&action=showContextRecommendationsPopup&context={$context}&context_id={$context_id}&full={if empty($full)}0{else}1{/if}&group_id=' + group_id + '&bucket_id=' + bucket_id);
+			
+			$popup.one('recommendations_save', function(e) {
+				if(undefined != e.recommendations_count && undefined != e.recommendations_include_worker) {
+					$btn.fadeTo('fast', 0.5);
+					$btn.find('div.badge-count').html(e.recommendations_count);
+					
+					if(e.recommendations_include_worker) {
+						$btn.addClass('green');
+					} else {
+						$btn.removeClass('green');
+					}
+					
+					$btn.fadeTo('fast', 1.0);
+				}
+			});
+		}
 		
 	});
 });

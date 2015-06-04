@@ -29,13 +29,13 @@ class DAO_ContextRecommendation {
 		
 		if($db->Affected_Rows()) {
 			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
-				continue;
+				return false;
 			
 			if(false == ($meta = $context_ext->getMeta($context_id)))
-				continue;
+				return false;
 			
 			if(false == ($worker = DAO_Worker::get($worker_id)) || $worker->is_disabled)
-				continue;
+				return false;
 			
 			$entry = array(
 				//{{actor}} recommended {{worker}} on {{target_object}} {{target}}
@@ -66,13 +66,13 @@ class DAO_ContextRecommendation {
 		
 		if($db->Affected_Rows()) {
 			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
-				continue;
+				return false;
 			
 			if(false == ($meta = $context_ext->getMeta($context_id)))
-				continue;
+				return false;
 			
 			if(false == ($worker = DAO_Worker::get($worker_id)) || $worker->is_disabled)
-				continue;
+				return false;
 			
 			$entry = array(
 				//{{actor}} removed the recommendation for {{worker}} on {{target_object}} {{target}}
