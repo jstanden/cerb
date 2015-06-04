@@ -208,7 +208,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 					
 					// If the worker wasn't previously a member/manager
 					if(!isset($group_members[$member_id])) {
-						DAO_Group::addGroupMemberDefaultResponsibilities($group_id, $member_id);
+						DAO_Group::setMemberDefaultResponsibilities($group_id, $member_id);
 					}
 				}
 			}

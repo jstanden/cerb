@@ -169,6 +169,9 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 				);
 				$id = DAO_Bucket::create($fields);
 				
+				// Default bucket responsibilities
+				DAO_Group::setBucketDefaultResponsibilities($id);
+				
 				// Context Link (if given)
 				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
 				@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
