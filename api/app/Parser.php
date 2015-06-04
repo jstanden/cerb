@@ -751,23 +751,27 @@ class CerberusParser {
 						$ignore_mime_prefixes[] = $st . '.';
 						break;
 
+					case 'message/feedback-report':
+						$content_filename = 'feedback_report.txt';
+						break;
+						
 					case 'message/rfc822':
 						@$message_content = mailparse_msg_extract_part_file($section, $full_filename, NULL);
 						$message_counter_attached++;
 
 						$tmpname = ParserFile::makeTempFilename();
 						$rfc_attach = new ParserFile();
-						$rfc_attach->setTempFile($tmpname,'message/rfc822');
-						@file_put_contents($tmpname,$message_content);
+						$rfc_attach->setTempFile($tmpname, $content_type);
+						@file_put_contents($tmpname, $message_content);
 						$rfc_attach->file_size = filesize($tmpname);
-						$rfc_attach->mime_type = 'text/plain';
+						$rfc_attach->mime_type = $content_type;
 						$rfc_attach_filename = sprintf("attached_message_%03d.txt",
 							$message_counter_attached
 						);
 						$message->files[$rfc_attach_filename] = $rfc_attach;
 						unset($rfc_attach);
 						$handled = true;
-
+						
 						// Skip any nested parts in this message/rfc822 parent
 						$ignore_mime_prefixes[] = $st . '.';
 						break;
@@ -813,6 +817,9 @@ class CerberusParser {
 						@unlink($attach->tmpname);
 						break;
 					}
+					
+					if(empty($content_filename))
+						$content_filename = 'unnamed_attachment';
 					
 					// content-name is not necessarily unique...
 					if(isset($message->files[$content_filename])) {
@@ -1322,7 +1329,7 @@ class CerberusParser {
 			
 			if(!$handled) {
 				$sha1_hash = sha1_file($file->getTempFile(), false);
-
+				
 				// Dupe detection
 				if(null == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $filename))) {
 					$fields = array(
