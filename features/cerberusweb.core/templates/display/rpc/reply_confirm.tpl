@@ -26,7 +26,7 @@ $div = $('#replyConfirm{$id}');
 
 $div.find('button.submit')
 	.click(function(e) {
-		displayReply('{$id}',0,0,{$is_quoted},1);
+		displayReply('{$id}',0,0,{$reply_mode},1);
 	})
 	.focus()
 	;

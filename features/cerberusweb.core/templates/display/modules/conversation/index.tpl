@@ -123,7 +123,7 @@
 		});
 	});
 	
-	var displayReply = function(msgid, is_forward, draft_id, is_quoted, is_confirmed) {
+	var displayReply = function(msgid, is_forward, draft_id, reply_mode, is_confirmed) {
 		var msgid = parseInt(msgid);
 		var $div = $('#reply' + msgid);
 		
@@ -132,7 +132,7 @@
 		
 		var is_forward = (null == is_forward || 0 == is_forward) ? 0 : 1;
 		var draft_id = (null == draft_id) ? 0 : parseInt(draft_id);
-		var is_quoted = (null == is_quoted) ? 1 : parseInt(is_quoted);
+		var reply_mode = (null == reply_mode) ? 0 : parseInt(reply_mode);
 		var is_confirmed = (null == is_confirmed) ? 0 : parseInt(is_confirmed);
 
 		// If the reply window is already open, just focus it
@@ -143,7 +143,7 @@
 		
 		showLoadingPanel();
 		
-		genericAjaxGet('', 'c=display&a=reply&forward='+is_forward+'&draft_id='+draft_id+'&is_quoted='+is_quoted+'&is_confirmed='+is_confirmed+'&timestamp={time()}&id=' + msgid,
+		genericAjaxGet('', 'c=display&a=reply&forward='+is_forward+'&draft_id='+draft_id+'&reply_mode='+reply_mode+'&is_confirmed='+is_confirmed+'&timestamp={time()}&id=' + msgid,
 			function(html) {
 				var $div = $('#reply' + msgid);
 				

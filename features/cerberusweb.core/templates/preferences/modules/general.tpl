@@ -68,6 +68,7 @@
 	<b>{'preferences.account.mail.reply_button'|devblocks_translate}</b>
 	<div style="margin:0px 0px 10px 10px;">
 		<label><input type="radio" name="mail_reply_button" value="0" {if empty($prefs.mail_reply_button)}checked="checked"{/if}> {'display.reply.quote'|devblocks_translate}</label><br>
+		<label><input type="radio" name="mail_reply_button" value="2" {if 2==$prefs.mail_reply_button}checked="checked"{/if}> {'display.reply.only_these_recipients'|devblocks_translate}</label><br>
 		<label><input type="radio" name="mail_reply_button" value="1" {if 1==$prefs.mail_reply_button}checked="checked"{/if}> {'display.reply.no_quote'|devblocks_translate}</label><br>
 	</div>
 

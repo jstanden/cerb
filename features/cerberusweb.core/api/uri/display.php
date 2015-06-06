@@ -533,7 +533,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['forward'],'integer',0);
 		@$is_confirmed = DevblocksPlatform::importGPC($_REQUEST['is_confirmed'],'integer',0);
-		@$is_quoted = DevblocksPlatform::importGPC($_REQUEST['is_quoted'],'integer',1);
+		@$reply_mode = DevblocksPlatform::importGPC($_REQUEST['reply_mode'],'integer',0);
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
 
 		$settings = DevblocksPlatform::getPluginSettingsService();
@@ -542,11 +542,14 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id',$id);
 		$tpl->assign('is_forward',$is_forward);
-		$tpl->assign('is_quoted',$is_quoted);
+		$tpl->assign('reply_mode',$reply_mode);
 		
 		$message = DAO_Message::get($id);
 		$tpl->assign('message',$message);
 
+		$message_headers = $message->getHeaders();
+		$tpl->assign('message_headers', $message_headers);
+		
 		// Check to see if other activity has happened on this ticket since the worker started looking
 		
 		if(!$draft_id && !$is_forward && !$is_confirmed) {
@@ -565,6 +568,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		$ticket = DAO_Ticket::get($message->ticket_id);
 		$tpl->assign('ticket',$ticket);
 		
+		$requesters = $ticket->getRequesters();
+		
 		// Workers
 		
 		$object_recommendations = DAO_ContextRecommendation::getByContexts(CerberusContexts::CONTEXT_TICKET, $ticket->id);
@@ -572,7 +577,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($ticket->id), CerberusContexts::CONTEXT_WORKER);
 		$tpl->assign('object_watchers', $object_watchers);
-		
+
 		// Are we continuing a draft?
 		if(!empty($draft_id)) {
 			// Drafts
@@ -590,21 +595,81 @@ class ChDisplayPage extends CerberusPageExtension {
 			));
 			
 			if(isset($drafts[$draft_id])) {
-				$tpl->assign('draft', $drafts[$draft_id]);
+				$draft = $drafts[$draft_id];
+				$tpl->assign('draft', $draft);
+				
+				$tpl->assign('to', $draft->params['to']);
+				$tpl->assign('cc', $draft->params['cc']);
+				$tpl->assign('bcc', $draft->params['bcc']);
+				$tpl->assign('subject', $draft->params['subject']);
 			}
+			
+		// Or are we replying without a draft?
+		} else {
+			$to = '';
+			$cc = '';
+			$bcc = '';
+			$subject = $ticket->subject;
+			
+			// Reply to only these recipients
+			if(2 == $reply_mode) {
+				if(isset($message_headers['to'])) {
+					$addys = CerberusMail::parseRfcAddresses($message_headers['from'] . ', ' . $message_headers['to'], true);
+					$recipients = array();
+					
+					if(is_array($addys))
+					foreach($addys as $addy) {
+						$recipients[] = $addy['full_email'];
+					}
+					
+					$to = implode(', ', $recipients);
+				}
+				
+				if(isset($message_headers['cc'])) {
+					$addys = CerberusMail::parseRfcAddresses($message_headers['cc'], true);
+					$recipients = array();
+					
+					if(is_array($addys))
+					foreach($addys as $addy) {
+						$recipients[] = $addy['full_email'];
+					}
+					
+					$cc = implode(', ', $recipients);
+				}
+				
+			// Forward
+			} else if($is_forward) {
+				$subject = sprintf("Fwd: %s",
+					$ticket->subject
+				);
+				
+			// Normal reply quoted or not
+			} else {
+				$recipients = array();
+				
+				if(is_array($requesters))
+				foreach($requesters as $requester) {
+					$requester_personal = $requester->getName();
+					$requester_addy = $requester->email;
+					@list($requester_mailbox, $requester_host) = explode('@', $requester_addy); 
+					
+					if(false !== ($recipient = imap_rfc822_write_address($requester_mailbox, $requester_host, $requester_personal)))
+						$recipients[] = $recipient;
+				}
+				
+				$to = implode(', ', $recipients);
+				
+				// Suggested recipients
+				$suggested_recipients = DAO_Ticket::findMissingRequestersInHeaders($message_headers, $requesters);
+				$tpl->assign('suggested_recipients', $suggested_recipients);
+			}
+			
+			$tpl->assign('to', $to);
+			$tpl->assign('cc', $cc);
+			$tpl->assign('bcc', $bcc);
+			$tpl->assign('subject', $subject);
 		}
 
-		// Suggested recipients
-		
-		if(!$is_forward) {
-			$requesters = $ticket->getRequesters();
-			$tpl->assign('requesters', $requesters);
-			
-			$message_headers = $message->getHeaders();
-			$suggested_recipients = DAO_Ticket::findMissingRequestersInHeaders($message_headers, $requesters);
-			$tpl->assign('suggested_recipients', $suggested_recipients);
-		}
-		
 		// ReplyToolbarItem Extensions
 		$replyToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.reply.toolbaritem', true);
 		if(!empty($replyToolbarItems))

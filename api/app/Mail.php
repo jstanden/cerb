@@ -49,10 +49,13 @@
 class CerberusMail {
 	private function __construct() {}
 	
-	static function parseRfcAddresses($string) {
+	static function parseRfcAddresses($string, $exclude_controlled_addresses=false) {
 		$results = array();
 		$string = rtrim(str_replace(';',',',$string),' ,');
 		@$parsed = imap_rfc822_parse_adrlist($string, 'localhost');
+		
+		$exclude_list = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ_EXCLUDE, CerberusSettingsDefaults::PARSER_AUTO_REQ_EXCLUDE);
+		@$excludes = DevblocksPlatform::parseCrlfString($exclude_list);
 		
 		if(is_array($parsed))
 		foreach($parsed as $parsed_addy) {
@@ -68,6 +71,27 @@ class CerberusMail {
 			
 			if(0 == strcasecmp($host, '.syntax-error.'))
 				continue;
+			
+			// Are we excluding Cerb controlled addresses?
+			if($exclude_controlled_addresses) {
+				$check_address = $mailbox.'@'.$host;
+				
+				// If this is a local address and we're excluding them, skip it
+				if(DAO_AddressOutgoing::isLocalAddress($check_address))
+					continue;
+				
+				$skip = false;
+				
+				// Filter explicit excludes
+				if(is_array($excludes) && !empty($excludes))
+				foreach($excludes as $excl_pattern) {
+					if(@preg_match(DevblocksPlatform::parseStringAsRegExp($excl_pattern), $check_address))
+						$skip = true;
+				}
+				
+				if($skip)
+					continue;
+			}
 			
 			$results[$mailbox . '@' . $host] = array(
 				'full_email' => !empty($personal) ? imap_rfc822_write_address($mailbox, $host, $personal) : imap_rfc822_write_address($mailbox, $host, null),
