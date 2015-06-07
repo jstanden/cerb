@@ -122,7 +122,7 @@
 						{/if}
 						
 					  	{if $active_worker->hasPriv('core.display.actions.reply')}
-					  		<button type="button" class="reply split-left" onclick="displayReply('{$message->id}',0,0,{$mail_reply_button});" title="{if empty($mail_reply_button)}{'display.reply.quote'|devblocks_translate}{else}{'display.reply.no_quote'|devblocks_translate}{/if}"><span class="glyphicons glyphicons-share" style="color:rgb(0,180,0);"></span> {'display.ui.reply'|devblocks_translate|capitalize}</button><!--
+					  		<button type="button" class="reply split-left" onclick="displayReply('{$message->id}',0,0,{$mail_reply_button});" title="{if 2 == $mail_reply_button}{'display.reply.only_these_recipients'|devblocks_translate}{elseif 1 == $mail_reply_button}{'display.reply.no_quote'|devblocks_translate}{else}{'display.reply.quote'|devblocks_translate}{/if}"><span class="glyphicons glyphicons-share" style="color:rgb(0,180,0);"></span> {'display.ui.reply'|devblocks_translate|capitalize}</button><!--
 					  		--><button type="button" class="split-right" onclick="$ul=$(this).next('ul');$ul.toggle();if($ul.is(':hidden')) { $ul.blur(); } else { $ul.find('a:first').focus(); }"><span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span></button>
 					  		<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
 					  			<li><a href="javascript:;" onclick="displayReply('{$message->id}',0,0,0);">{'display.reply.quote'|devblocks_translate}</a></li>
