@@ -1259,8 +1259,8 @@ class ChDisplayPage extends CerberusPageExtension {
 	function showConversationAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 		@$focus_ctx = DevblocksPlatform::importGPC($_REQUEST['focus_ctx'],'string','');
-		@$focus_ctx_id = DevblocksPlatform::importGPC($_REQUEST['focus_ctx_id'],'integer','0');
-		@$expand_all = DevblocksPlatform::importGPC($_REQUEST['expand_all'],'integer','0');
+		@$focus_ctx_id = DevblocksPlatform::importGPC($_REQUEST['focus_ctx_id'],'integer',0);
+		@$expand_all = DevblocksPlatform::importGPC($_REQUEST['expand_all'],'integer',0);
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
 
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1316,6 +1316,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$message_sender_orgs = array();
 
 		// Loop messages
+		if(is_array($messages))
 		foreach($messages as $message_id => $message) { /* @var $message Model_Message */
 			$key = $message->created_date . '_m' . $message_id;
 			// build a chrono index of messages

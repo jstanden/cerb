@@ -60,6 +60,9 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$tpl->assign('point', $point);
 		
 		@$mail_always_show_all = DAO_WorkerPref::get($active_worker->id,'mail_always_show_all',0);
+
+		if($mail_always_show_all)
+			$tpl->assign('expand_all', true);
 		
 		switch($section) {
 			case 'conversation':
@@ -78,9 +81,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 					$tpl->assign('convo_focus_ctx_id', $focus_id);
 				}
 				
-				if($mail_always_show_all)
-					$tpl->assign('expand_all', true);
-				
 				break;
 				
 			case 'message':
@@ -90,9 +90,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 					$tpl->assign('convo_focus_ctx', CerberusContexts::CONTEXT_MESSAGE);
 					$tpl->assign('convo_focus_ctx_id', $focus_id);
 				}
-				
-				if($mail_always_show_all)
-					$tpl->assign('expand_all', true);
 				
 				break;
 		}
