@@ -1040,6 +1040,7 @@ class Context_Notification extends Extension_DevblocksContext {
 			'activity_point' => $prefix.$translate->_('dao.context_activity_log.activity_point'),
 			'message' => $prefix.$translate->_('common.message'),
 			'message_html' => $prefix.'Message (HTML)',
+			'url' => $prefix.$translate->_('common.url'),
 		);
 		
 		// Token types
@@ -1052,6 +1053,7 @@ class Context_Notification extends Extension_DevblocksContext {
 			'activity_point' => Model_CustomField::TYPE_SINGLE_LINE,
 			'message' => Model_CustomField::TYPE_SINGLE_LINE,
 			'message_html' => Model_CustomField::TYPE_SINGLE_LINE,
+			'url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1079,6 +1081,7 @@ class Context_Notification extends Extension_DevblocksContext {
 			$token_values['is_read'] = $notification->is_read;
 			$token_values['message'] = CerberusContexts::formatActivityLogEntry($entry,'text');
 			$token_values['message_html'] = CerberusContexts::formatActivityLogEntry($entry,'html');
+			$token_values['url'] = $notification->getURL();
 			
 			$token_values['target__context'] = $notification->context;
 			$token_values['target_id'] = $notification->context_id;
