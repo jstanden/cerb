@@ -549,8 +549,8 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				break;
 				
 			case 'send_email_recipients':
+				return DevblocksEventHelper::simulateActionSendEmailRecipients($params, $dict);
 				break;
-				
 				
 		}
 	}
@@ -631,7 +631,23 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 					if(!empty($header) && !empty($value))
 						$properties['headers'][trim($header)] = trim($value);
 				}
-				
+
+				// Attachments
+
+				if(isset($params['bundle_ids']) && is_array($params['bundle_ids'])) {
+					$properties['forward_files'] = array();
+					$properties['link_forward_files'] = true;
+
+					$bundles = DAO_FileBundle::getIds($params['bundle_ids']);
+					foreach($bundles as $bundle) {
+						$attachments = $bundle->getAttachments();
+
+						foreach($attachments as $attachment) {
+							$properties['forward_files'][] = $attachment->id;
+						}
+					}
+				}
+
 				// Send
 				
 				CerberusMail::sendTicketMessage($properties);

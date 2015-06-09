@@ -3810,6 +3810,19 @@ class DevblocksEventHelper {
 			$content
 		);
 		
+		if(isset($params['bundle_ids']) && is_array($params['bundle_ids'])) {
+			$out = rtrim($out,"\n") . "\n\n>>> Attaching files:\n";
+			
+			$bundles = DAO_FileBundle::getIds($params['bundle_ids']);
+			foreach($bundles as $bundle) {
+				$attachments = $bundle->getAttachments();
+				
+				foreach($attachments as $attachment) {
+					$out .= " * " . $attachment->display_name . "\n";
+				}
+			}
+		}
+		
 		return $out;
 	}
 	
@@ -3913,6 +3926,21 @@ class DevblocksEventHelper {
 				break;
 		}
 		
+		// Attachments
+		
+		$file_ids = array();
+		
+		if(isset($params['bundle_ids']) && is_array($params['bundle_ids'])) {
+			$bundles = DAO_FileBundle::getIds($params['bundle_ids']);
+			foreach($bundles as $bundle) {
+				$attachments = $bundle->getAttachments();
+				
+				foreach($attachments as $attachment) {
+					$file_ids[] = $attachment->id;
+				}
+			}
+		}
+		
 		// Send
 		
 		CerberusMail::quickSend(
@@ -3923,7 +3951,8 @@ class DevblocksEventHelper {
 			$replyto_addresses[$from_address_id]->reply_personal,
 			$headers,
 			$format,
-			$html_template_id
+			$html_template_id,
+			$file_ids
 		);
 	}
 	
@@ -3953,7 +3982,22 @@ class DevblocksEventHelper {
 			(!empty($headers) ? (implode("\n", $headers) . "\n\n") : ''),
 			$content
 		);
+		
+		// Attachments
 
+		if(isset($params['bundle_ids']) && is_array($params['bundle_ids'])) {
+			$out = rtrim($out,"\n") . "\n\n>>> Attaching files:\n";
+			
+			$bundles = DAO_FileBundle::getIds($params['bundle_ids']);
+			foreach($bundles as $bundle) {
+				$attachments = $bundle->getAttachments();
+				
+				foreach($attachments as $attachment) {
+					$out .= " * " . $attachment->display_name . "\n";
+				}
+			}
+		}
+		
 		return $out;
 	}
 

@@ -107,7 +107,7 @@ class CerberusMail {
 		return $results;
 	}
 	
-	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null, $custom_headers=array(), $format=null, $html_template_id=null) {
+	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null, $custom_headers=array(), $format=null, $html_template_id=null, $file_ids=array()) {
 		try {
 			$mail_service = DevblocksPlatform::getMailService();
 			$mail = $mail_service->createMessage();
@@ -160,7 +160,25 @@ class CerberusMail {
 					$mail->setBody($body);
 					break;
 			}
-		
+			
+			// Attachments
+			
+			if(!empty($file_ids) && is_array($file_ids)) {
+				foreach($file_ids as $file_id) {
+					// Attach the file
+					if(false != ($attachment = DAO_Attachment::get($file_id))) {
+						if(false !== ($fp = DevblocksPlatform::getTempFile())) {
+							if(false !== $attachment->getFileContents($fp)) {
+								$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
+								$attach->setFilename($attachment->display_name);
+								$mail->attach($attach);
+								fclose($fp);
+							}
+						}
+					}
+				}
+			}
+			
 			// [TODO] Report when the message wasn't sent.
 			// [TODO] We can use '$failedRecipients' for this
 			if(!$mail_service->send($mail)) {

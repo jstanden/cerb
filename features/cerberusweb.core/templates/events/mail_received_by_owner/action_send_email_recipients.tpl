@@ -13,7 +13,7 @@
 <b>{'common.content'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<input type="hidden" name="{$namePrefix}[format]" value="{$params.format}">
-	<textarea name="{$namePrefix}[content]" rows="3" cols="45" style="width:100%;height:200px;" class="placeholders editor">{$params.content}</textarea>
+	<textarea name="{$namePrefix}[content]" rows="3" cols="45" style="width:100%;height:150px;" class="placeholders editor">{$params.content}</textarea>
 </div>
 
 <b>{'message.headers.custom'|devblocks_translate|capitalize}:</b> (one per line, e.g. "X-Precedence: Bulk")
@@ -21,16 +21,37 @@
 	<textarea name="{$namePrefix}[headers]" rows="3" cols="45" style="width:100%;" class="placeholders">{$params.headers}</textarea>
 </div>
 
-<label><input type="checkbox" name="{$namePrefix}[is_autoreply]" value="1" {if $params.is_autoreply}checked="checked"{/if}> Don't save a copy of this message in the conversation history.</label>
-<br>
+<b>{'common.attachments'|devblocks_translate|capitalize}:</b>
+<div style="margin-left:10px;margin-bottom:0.5em;">
+	<button type="button" class="chooser-file-bundle"><span class="glyphicons glyphicons-paperclip"></span></button>
+	<ul class="bubbles chooser-container">
+	{foreach from=$params.bundle_ids item=bundle_id}
+		{$bundle = DAO_FileBundle::get($bundle_id)}
+		{if !empty($bundle)}
+		<li><input type="hidden" name="{$namePrefix}[bundle_ids][]" value="{$bundle_id}">{$bundle->name} <a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+		{/if} 
+	{/foreach}
+	</ul>
+</div>
+
+<b>{'common.options'|devblocks_translate|capitalize}:</b>
+<div style="margin-left:10px;margin-bottom:0.5em;">
+	<label><input type="checkbox" name="{$namePrefix}[is_autoreply]" value="1" {if $params.is_autoreply}checked="checked"{/if}> Don't save a copy of this message in the conversation history.</label>
+</div>
 
 <script type="text/javascript">
 $(function() {
-	$action = $('fieldset#{$namePrefix}');
+	var $action = $('fieldset#{$namePrefix}');
 	
 	var $content = $action.find('textarea.editor');
 	var $format = $action.find('input:hidden[name="{$namePrefix}[format]"]');
 	var $html_template = $action.find('select[name="{$namePrefix}[html_template_id]"]');
+	
+	// Attachments
+	
+	$action.find('button.chooser-file-bundle').each(function() {
+		ajax.chooser(this,'{CerberusContexts::CONTEXT_FILE_BUNDLE}','{$namePrefix}[bundle_ids]', { autocomplete:false });
+	});
 	
 	// Text editor
 	

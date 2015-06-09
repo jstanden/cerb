@@ -2463,7 +2463,7 @@ For example: http://www.cerbweb.com/support/</seg>
 		</tu>
 		<tu tuid="display.reply.attachments_limit">
 			<tuv xml:lang="en_US">
-				<seg>(The maximum attachment size is %s)</seg>
+				<seg>(The maximum size of combined attachments is %s)</seg>
 			</tuv>
 		</tu>
 		<tu tuid="display.reply.email_templates">
