@@ -203,9 +203,6 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 		// Delete this address_outgoing row
 		$db->ExecuteMaster(sprintf("DELETE FROM address_outgoing WHERE address_id IN (%s)", $ids_list));
 		
-		// Reset groups
-		$db->ExecuteMaster(sprintf("UPDATE worker_group SET reply_address_id=0 WHERE reply_address_id IN (%s)", $ids_list));
-		
 		// Reset buckets
 		$db->ExecuteMaster(sprintf("UPDATE bucket SET reply_address_id=0 WHERE reply_address_id IN (%s)", $ids_list));
 		
