@@ -42,6 +42,12 @@ abstract class DevblocksEngine {
 	 * @return DevblocksPluginManifest
 	 */
 	static protected function _readPluginManifest($plugin_path, $is_update=true) {
+		/*
+		 * Translate all paths to Unix-style slashes. Newer builds in Windows seem to 
+		 * use Unix-slashes too, while DIRECTORY_SEPARATOR still returns '\'.
+		 */
+		$plugin_path = str_replace('\\', '/', $plugin_path);
+		
 		$manifest_file = rtrim($plugin_path, '/') . '/plugin.xml';
 		$persist = true;
 
@@ -51,8 +57,8 @@ abstract class DevblocksEngine {
 		$plugin = simplexml_load_file($manifest_file);
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 
-		$rel_dir = trim(substr($plugin_path, strlen(APP_PATH)), DIRECTORY_SEPARATOR);
-
+		$rel_dir = trim(substr($plugin_path, strlen(APP_PATH)), '/');
+		
 		if($rel_dir == 'libs/devblocks') {
 			// It's what we want
 		} elseif(substr($rel_dir, 0, 9) == 'features/') {
