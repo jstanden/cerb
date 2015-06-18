@@ -77,7 +77,7 @@ if(isset($add_columns['response_time'])) {
 	$db->ExecuteMaster("SET @ticket_id=NULL, @is_outgoing=NULL, @created_date=NULL;");
 
 	// create a list of all incoming/outgoing messages (0.50s)
-	$db->ExecuteMaster("CREATE TEMPORARY TABLE _tmp_message_pairs (PRIMARY KEY (ticket_id)) SELECT ticket_id, id, is_outgoing, created_date, worker_id FROM message ORDER BY ticket_id, created_date;");
+	$db->ExecuteMaster("CREATE TEMPORARY TABLE _tmp_message_pairs (PRIMARY KEY (ticket_id, id)) SELECT ticket_id, id, is_outgoing, created_date, worker_id FROM message ORDER BY ticket_id, created_date;");
 	
 	// remove tickets with a single message (3.18s)
 	$db->ExecuteMaster("DELETE FROM _tmp_message_pairs WHERE ticket_id IN (SELECT id FROM ticket WHERE num_messages = 1);");
