@@ -501,6 +501,7 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 		// Custom fields with fieldsets
 		
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
+			CerberusContexts::CONTEXT_KB_ARTICLE,
 			CerberusContexts::CONTEXT_KB_CATEGORY,
 		));
 		
