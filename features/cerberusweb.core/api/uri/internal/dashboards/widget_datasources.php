@@ -679,6 +679,9 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 						if(isset($object['value']))
 							$result['metric_value'] = floatval($object['value']);
 		
+						if(isset($object['label']))
+							$result['metric_label'] = $object['label'];
+						
 						/*
 						if(isset($object['type']))
 							$result['metric_type'] = $object['type'];
@@ -709,6 +712,9 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 						
 						if(isset($object->value))
 							$result['metric_value'] = floatval($object->value);
+		
+						if(isset($object->label))
+							$result['metric_label'] = (string)$object->label;
 						
 						/*
 						if(isset($object->type))
@@ -792,6 +798,9 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 				if(false != (@$json = json_decode($raw_data, true))) {
 					if(isset($json['value']))
 						$params['metric_value'] = floatval($json['value']);
+
+					if(isset($json['label']))
+						$params['metric_label'] = $json['label'];
 	
 					if((isset($params['metric_type']) && !empty($params['metric_type'])) && isset($json['type']))
 						$params['metric_type'] = $json['type'];
