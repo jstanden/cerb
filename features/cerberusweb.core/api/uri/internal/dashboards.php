@@ -1927,6 +1927,22 @@ class WorkspaceWidget_PieChart extends Extension_WorkspaceWidget implements ICer
 		
 		$data = $datasource_ext->getData($widget, $widget->params);
 
+		// Convert raw data
+		if(isset($data['data'])) {
+			foreach($data['data'] as $wedge) {
+				$label = @$wedge['metric_label'] ?: '';
+				$value = @$wedge['metric_value'] ?: 0;
+				
+				if(empty($value))
+					continue;
+				
+				$data['wedge_labels'][] = $label;
+				$data['wedge_values'][] = $value;
+			}
+			
+			unset($data['data']);
+		}
+		
 		if(!empty($data))
 			$widget->params = $data;
 		
