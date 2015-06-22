@@ -25,13 +25,16 @@ class PageSection_InternalResponsibilities extends Extension_PageSection {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		switch($context) {
 			case CerberusContexts::CONTEXT_WORKER:
-				$responsibilities = $active_worker->getResponsibilities();
+				if(false == ($worker = DAO_Worker::get($context_id)))
+					return;
+					
+				$tpl->assign('worker', $worker);
+				
+				$responsibilities = $worker->getResponsibilities();
 				$tpl->assign('responsibilities', $responsibilities);
-
+				
 				$groups = DAO_Group::getAll();
 				$tpl->assign('groups', $groups);
 				
@@ -66,8 +69,6 @@ class PageSection_InternalResponsibilities extends Extension_PageSection {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'string', '');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		switch($context) {
 			case CerberusContexts::CONTEXT_GROUP:

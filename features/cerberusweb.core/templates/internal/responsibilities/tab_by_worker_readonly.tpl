@@ -1,5 +1,5 @@
 {foreach from=$groups item=group key=group_id}
-{if $active_worker->isGroupMember($group_id)}
+{if $worker->isGroupMember($group_id)}
 <fieldset class="peek" style="margin-bottom:0;">
 	<legend>{$group->name}</legend>
 	
