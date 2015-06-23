@@ -512,6 +512,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$sql = sprintf("DELETE FROM worker_to_group WHERE worker_id = %d", $id);
 		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
+		$sql = sprintf("DELETE FROM worker_to_bucket WHERE worker_id = %d", $id);
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+
 		$sql = sprintf("DELETE FROM snippet_use_history WHERE worker_id = %d", $id);
 		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		

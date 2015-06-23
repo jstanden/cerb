@@ -400,6 +400,10 @@ class DAO_Group extends Cerb_ORMHelper {
 			($is_manager?1:0)
 		));
 		
+		if(1 == $db->Affected_Rows()) { // insert but no delete
+			DAO_Group::setMemberDefaultResponsibilities($group_id, $worker_id);
+		}
+		
 		self::clearCache();
 	}
 	
@@ -507,7 +511,9 @@ class DAO_Group extends Cerb_ORMHelper {
 		);
 		$db->ExecuteMaster($sql);
 		
-		self::unsetGroupMemberResponsibilities($group_id, $worker_id);
+		if(1 == $db->Affected_Rows()) {
+			self::unsetGroupMemberResponsibilities($group_id, $worker_id);
+		}
 		
 		self::clearCache();
 	}
