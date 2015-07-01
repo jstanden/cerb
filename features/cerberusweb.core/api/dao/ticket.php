@@ -2384,6 +2384,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				case SearchFields_Ticket::TICKET_SPAM_TRAINING:
 				case SearchFields_Ticket::TICKET_SUBJECT:
 				case SearchFields_Ticket::TICKET_GROUP_ID:
+				case SearchFields_Ticket::TICKET_BUCKET_ID:
 				case SearchFields_Ticket::TICKET_OWNER_ID:
 					$pass = true;
 					break;
@@ -2461,6 +2462,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Ticket::TICKET_GROUP_ID:
+				$counts = $this->_getSubtotalCountForBucketsByGroup();
+				break;
+				
+			case SearchFields_Ticket::TICKET_BUCKET_ID:
 				$counts = $this->_getSubtotalCountForBuckets();
 				break;
 				
@@ -2531,7 +2536,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			).
 			$join_sql.
 			$where_sql.
-			"GROUP BY group_id, bucket_id "
+			"GROUP BY group_id, bucket_id ".
+			"ORDER BY hits DESC "
 		;
 		
 		$results = $db->GetArraySlave($sql);
@@ -2548,6 +2554,42 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$groups = DAO_Group::getAll();
 		$buckets = DAO_Bucket::getAll();
 		
+		if(is_array($results))
+		foreach($results as $result) {
+			$group_id = $result['group_id'];
+			$bucket_id = $result['bucket_id'];
+			$hits = $result['hits'];
+
+			if(!isset($counts[$bucket_id])) {
+				$label = sprintf("%s (%s)", $buckets[$bucket_id]->name, $groups[$group_id]->name);
+				
+				$counts[$bucket_id] = array(
+					'hits' => $hits,
+					'label' => $label,
+					'filter' =>
+						array(
+							'field' => SearchFields_Ticket::TICKET_BUCKET_ID,
+							'oper' => DevblocksSearchCriteria::OPER_IN,
+							'values' => array('options[]' => $result['bucket_id']),
+						),
+					'children' => array()
+				);
+			}
+		}
+		
+		return $counts;
+	}
+	
+	private function _getSubtotalCountForBucketsByGroup() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$counts = array();
+		$results = $this->_getSubtotalDataForBuckets();
+		
+		$groups = DAO_Group::getAll();
+		$buckets = DAO_Bucket::getAll();
+		
+		if(is_array($results))
 		foreach($results as $result) {
 			$group_id = $result['group_id'];
 			$bucket_id = $result['bucket_id'];
