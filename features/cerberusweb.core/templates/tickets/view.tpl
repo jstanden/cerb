@@ -88,7 +88,7 @@
 		<input type="checkbox" name="ticket_id[]" value="{$result.t_id}" style="display:none;">
 		{if isset($ticket_drafts.{$result.t_id})}{$ticket_draft = $ticket_drafts.{$result.t_id}}<span class="glyphicons glyphicons-user" style="color:rgb(39,123,213);font-size:14px;" title="({$ticket_draft->updated|devblocks_prettytime}) {'mail.worklist.draft_in_progress'|devblocks_translate:{$workers.{$ticket_draft->worker_id}->getName()}}"></span>{/if}
 		{if $result.t_is_deleted}<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_is_closed}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_is_waiting}<span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span>{/if}
-		<a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_mask}{/devblocks_url}" class="subject">{$result.t_subject|default:'(no subject)'}</a> 
+		<a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_mask}&tab=conversation{/devblocks_url}" class="subject">{$result.t_subject|default:'(no subject)'}</a> 
 		<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.t_id}&view_id={$view->id}', null, false, '650');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 	{/capture}
 	

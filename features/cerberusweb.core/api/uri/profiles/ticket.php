@@ -64,34 +64,38 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		if($mail_always_show_all)
 			$tpl->assign('expand_all', true);
 		
-		switch($section) {
-			case 'conversation':
-				@$tab_option = array_shift($stack);
+		if(!empty($section)) {
+			$tpl->assign('tab', $section);
 		
-				if($mail_always_show_all || 0==strcasecmp("read_all",$tab_option)) {
-					$tpl->assign('expand_all', true);
-				}
-				break;
-				
-			case 'comment':
-				@$focus_id = intval(array_shift($stack));
-				
-				if(!empty($focus_id)) {
-					$tpl->assign('convo_focus_ctx', CerberusContexts::CONTEXT_COMMENT);
-					$tpl->assign('convo_focus_ctx_id', $focus_id);
-				}
-				
-				break;
-				
-			case 'message':
-				@$focus_id = intval(array_shift($stack));
-				
-				if(!empty($focus_id)) {
-					$tpl->assign('convo_focus_ctx', CerberusContexts::CONTEXT_MESSAGE);
-					$tpl->assign('convo_focus_ctx_id', $focus_id);
-				}
-				
-				break;
+			switch($section) {
+				case 'conversation':
+					@$tab_option = array_shift($stack);
+			
+					if($mail_always_show_all || 0==strcasecmp("read_all",$tab_option)) {
+						$tpl->assign('expand_all', true);
+					}
+					break;
+					
+				case 'comment':
+					@$focus_id = intval(array_shift($stack));
+					
+					if(!empty($focus_id)) {
+						$tpl->assign('convo_focus_ctx', CerberusContexts::CONTEXT_COMMENT);
+						$tpl->assign('convo_focus_ctx_id', $focus_id);
+					}
+					
+					break;
+					
+				case 'message':
+					@$focus_id = intval(array_shift($stack));
+					
+					if(!empty($focus_id)) {
+						$tpl->assign('convo_focus_ctx', CerberusContexts::CONTEXT_MESSAGE);
+						$tpl->assign('convo_focus_ctx_id', $focus_id);
+					}
+					
+					break;
+			}
 		}
 		
 		// Properties

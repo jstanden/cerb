@@ -214,7 +214,7 @@ $(function() {
 	// Tabs
 	
 	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-	tabOptions.active = Devblocks.getjQueryUiTabSelected('profileTicketTabs');
+	tabOptions.active = Devblocks.getjQueryUiTabSelected('profileTicketTabs', '{$tab}');
 	
 	var tabs = $("#profileTicketTabs").tabs(tabOptions);
 	
