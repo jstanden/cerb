@@ -2586,7 +2586,7 @@ class C4_AbstractViewLoader {
 		if(is_array($model->options) && !empty($model->options))
 			$inst->options = $model->options;
 		
-		if(is_array($model->view_columns) && !empty($model->view_columns))
+		if(is_array($model->view_columns)) 
 			$inst->view_columns = $model->view_columns;
 		if(is_array($model->columnsHidden))
 			$inst->addColumnsHidden($model->columnsHidden, false);
