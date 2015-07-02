@@ -69,7 +69,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 	*
 	* @param string $context The context of the custom field
 	* @param boolean $with_fieldsets Include fieldsets
-	* @return array
+	* @return Model_CustomField[]
 	*/
 	
 	static function getByContext($context, $with_fieldsets=true, $with_fieldset_names=false) {
@@ -809,12 +809,15 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			return in_array($item->id, $only_field_ids);
 		});
 		
-		$results = array();
 		$tables = array();
 		$sqls = array();
 		
-		if(empty($fields))
+		if(empty($fields) || !is_array($fields))
 			return array();
+
+		// Default $results to all null values
+		$null_values = array_combine(array_keys($fields), array_fill(0, count($fields), null));
+		$results = array_combine($context_ids, array_fill(0, count($context_ids), $null_values));
 		
 		/*
 		 * Only scan the tables where this context has custom fields.  For example,
@@ -866,7 +869,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				continue;
 			
 			if(!isset($results[$context_id]))
-				$results[$context_id] = array();
+				$results[$context_id] = $null_values;
 				
 			$ptr =& $results[$context_id];
 			

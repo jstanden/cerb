@@ -1146,10 +1146,12 @@ class CerberusContexts {
 	 * @return void
 	 */
 	public static function merge($token_prefix, $label_prefix, $src_labels, $src_values, &$dst_labels, &$dst_values) {
+		if(is_array($src_labels))
 		foreach($src_labels as $token => $label) {
 			$dst_labels[$token_prefix.$token] = $label_prefix.$label;
 		}
 
+		if(is_array($src_values))
 		foreach($src_values as $token => $value) {
 			if(in_array($token, array('_labels', '_types'))) {
 
@@ -1956,15 +1958,16 @@ class CerberusContexts {
 
 		$load_ids = array_diff($ids, array_keys(self::$_context_checkpoints[$context]));
 
-		$models = CerberusContexts::getModels($context, $load_ids);
-
-		$values = DAO_CustomFieldValue::getValuesByContextIds($context, $load_ids);
-
-		foreach($models as $model_id => $model) {
-			$model->custom_fields = @$values[$model_id] ?: array();
-
-			self::$_context_checkpoints[$context][$model_id] =
-				json_decode(json_encode($model), true);
+		if(!empty($load_ids)) {
+			$models = CerberusContexts::getModels($context, $load_ids);
+			$values = DAO_CustomFieldValue::getValuesByContextIds($context, $load_ids);
+			
+			foreach($models as $model_id => $model) {
+				$model->custom_fields = @$values[$model_id] ?: array();
+				
+				self::$_context_checkpoints[$context][$model_id] =
+					json_decode(json_encode($model), true);
+			}
 		}
 	}
 
