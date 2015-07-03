@@ -4774,6 +4774,9 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;
+		$defaults->options = array(
+			'disable_recommendations' => '1',
+		);
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Tickets';
