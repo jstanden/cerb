@@ -925,10 +925,9 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 		}
 		
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_ContextActivityLog');
 		$defaults->id = 'context_activity_log_'.str_replace('.','_',$context.'_'.$context_id);
 		$defaults->is_ephemeral = true;
-		$defaults->class_name = 'View_ContextActivityLog';
 		$defaults->view_columns = array(
 			SearchFields_ContextActivityLog::CREATED
 		);

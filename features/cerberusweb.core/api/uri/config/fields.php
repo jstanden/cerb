@@ -36,9 +36,8 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 	function showFieldsetsTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_CustomFieldset');
 		$defaults->id = 'cfg_fieldsets';
-		$defaults->class_name = 'View_CustomFieldset';
 		$defaults->renderSubtotals = SearchFields_CustomFieldset::CONTEXT;
 		
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);

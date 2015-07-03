@@ -22,8 +22,7 @@ class PageSection_SetupStorageAttachments extends Extension_PageSection {
 		
 		$visit->set(ChConfigurationPage::ID, 'storage_attachments');
 		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_AttachmentLink';
+		$defaults = C4_AbstractViewModel::loadFromClass('View_AttachmentLink');
 		$defaults->id = View_AttachmentLink::DEFAULT_ID;
 		$defaults->name = 'Stored Objects';
 

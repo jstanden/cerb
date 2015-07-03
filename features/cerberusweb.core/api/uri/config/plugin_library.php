@@ -32,8 +32,7 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_PluginLibrary';
+		$defaults = C4_AbstractViewModel::loadFromClass('View_PluginLibrary');
 		$defaults->id = self::VIEW_PLUGIN_LIBRARY;
 		$defaults->renderSortBy = SearchFields_PluginLibrary::UPDATED;
 		$defaults->renderSortAsc = 0;

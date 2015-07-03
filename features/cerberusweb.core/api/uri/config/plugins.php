@@ -49,8 +49,7 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 	function showTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_CerbPlugin';
+		$defaults = C4_AbstractViewModel::loadFromClass('View_CerbPlugin');
 		$defaults->id = self::VIEW_PLUGINS;
 		$defaults->renderLimit = 10;
 		$defaults->renderSortBy = SearchFields_CerbPlugin::NAME;

@@ -963,17 +963,12 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 
 		// View
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;
-		$defaults->class_name = $this->getViewClass();
+		
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Buckets';
-		$view->view_columns = array(
-			SearchFields_Bucket::NAME,
-			SearchFields_Bucket::GROUP_ID,
-			SearchFields_Bucket::UPDATED_AT,
-		);
 		$view->addParams(array(
 //			SearchFields_Bucket::IS_DISABLED => new DevblocksSearchCriteria(SearchFields_Bucket::IS_DISABLED,'=',0),
 		), true);
@@ -989,14 +984,8 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
-		$defaults->class_name = $this->getViewClass();
-		$defaults->view_columns = array(
-			SearchFields_Bucket::GROUP_ID,
-			SearchFields_Bucket::NAME,
-			SearchFields_Bucket::UPDATED_AT,
-		);
 		
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Buckets';
@@ -1105,8 +1094,8 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_Bucket::GROUP_ID,
 			SearchFields_Bucket::NAME,
+			SearchFields_Bucket::GROUP_ID,
 			SearchFields_Bucket::UPDATED_AT,
 		);
 		

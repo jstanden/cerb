@@ -1376,10 +1376,10 @@ class Context_Comment extends Extension_DevblocksContext {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// View
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;
-		$defaults->class_name = $this->getViewClass();
+		
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Comments';
 //		$view->view_columns = array(
@@ -1398,9 +1398,9 @@ class Context_Comment extends Extension_DevblocksContext {
 	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
-		$defaults->class_name = $this->getViewClass();
+		
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Comments';
 		

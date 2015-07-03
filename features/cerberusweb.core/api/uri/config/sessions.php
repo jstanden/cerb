@@ -24,9 +24,8 @@ class PageSection_SetupSessions extends Extension_PageSection {
 
 		// View
 		
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_DevblocksSession');
 		$defaults->id = 'devblocks_sessions';
-		$defaults->class_name = 'View_DevblocksSession';
 		
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
 		$tpl->assign('view', $view);

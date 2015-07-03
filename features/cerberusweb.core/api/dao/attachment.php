@@ -1683,18 +1683,12 @@ class Context_Attachment extends Extension_DevblocksContext {
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 		
 		// View
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;
-		$defaults->class_name = $this->getViewClass();
+		
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Attachment Links';
-		$view->view_columns = array(
-			SearchFields_AttachmentLink::ATTACHMENT_MIME_TYPE,
-			SearchFields_AttachmentLink::ATTACHMENT_STORAGE_SIZE,
-			SearchFields_AttachmentLink::LINK_CONTEXT,
-			SearchFields_AttachmentLink::ATTACHMENT_UPDATED,
-		);
 		$view->addParams(array(), true);
 		$view->renderSortBy = SearchFields_AttachmentLink::ATTACHMENT_UPDATED;
 		$view->renderSortAsc = false;
@@ -1707,9 +1701,9 @@ class Context_Attachment extends Extension_DevblocksContext {
 	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
-		$defaults->class_name = $this->getViewClass();
+
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Attachment Links';
 		
@@ -1871,18 +1865,12 @@ class Context_AttachmentLink extends Extension_DevblocksContext {
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 		
 		// View
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;
-		$defaults->class_name = $this->getViewClass();
+		
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Attachment Links';
-		$view->view_columns = array(
-			SearchFields_AttachmentLink::ATTACHMENT_MIME_TYPE,
-			SearchFields_AttachmentLink::ATTACHMENT_STORAGE_SIZE,
-			SearchFields_AttachmentLink::LINK_CONTEXT,
-			SearchFields_AttachmentLink::ATTACHMENT_UPDATED,
-		);
 		$view->addParams(array(), true);
 		$view->renderSortBy = SearchFields_AttachmentLink::ATTACHMENT_UPDATED;
 		$view->renderSortAsc = false;
@@ -1895,9 +1883,9 @@ class Context_AttachmentLink extends Extension_DevblocksContext {
 	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
-		$defaults->class_name = $this->getViewClass();
+
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Attachment Links';
 		

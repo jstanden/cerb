@@ -22,9 +22,8 @@ class PageSection_SetupMailFailed extends Extension_PageSection {
 
 		$visit->set(ChConfigurationPage::ID, 'mail_failed');
 		
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_MailParseFail');
 		$defaults->id = 'setup_mail_failed';
-		$defaults->class_name = 'View_MailParseFail';
 		$defaults->name = 'Failed Messages';
 		$defaults->is_ephemeral = true;
 		$defaults->renderLimit = 15;

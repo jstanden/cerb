@@ -22,9 +22,8 @@ class PageSection_SetupGroups extends Extension_PageSection {
 		
 		$visit->set(ChConfigurationPage::ID, 'groups');
 
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_Group');
 		$defaults->id = 'setup_groups';
-		$defaults->class_name = 'View_Group';
 		
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
 		$tpl->assign('view', $view);

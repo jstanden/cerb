@@ -189,19 +189,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		// Defaults
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_Ticket';
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
 		$defaults->name = $translate->_('addy_book.history.view.title');
-		$defaults->view_columns = array(
-			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
-			SearchFields_Ticket::TICKET_CREATED_DATE,
-			SearchFields_Ticket::TICKET_GROUP_ID,
-			SearchFields_Ticket::TICKET_BUCKET_ID,
-		);
-		$defaults->renderLimit = 10;
-		$defaults->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
-		$defaults->renderSortAsc = false;
 		
 		// View
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
@@ -4781,10 +4771,10 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	
 		// View
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;
-		$defaults->class_name = $this->getViewClass();
+
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Tickets';
 		$view->view_columns = array(
@@ -4816,9 +4806,9 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
-		$defaults->class_name = $this->getViewClass();
+
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Tickets';
 		

@@ -117,9 +117,8 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		if(null != ($tool = DAO_CommunityTool::get($tool_id)))
 			$tpl->assign('tool', $tool);
 		
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_DevblocksTemplate');
 		$defaults->id = 'portal_templates';
-		$defaults->class_name = 'View_DevblocksTemplate';
 		
 		if(false != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
 			$view->name = 'Custom Templates';

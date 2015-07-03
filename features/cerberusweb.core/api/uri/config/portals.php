@@ -24,9 +24,8 @@ class PageSection_SetupPortals extends Extension_PageSection {
 		
 		// View
 		
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_CommunityPortal');
 		$defaults->id = 'portals_cfg';
-		$defaults->class_name = 'View_CommunityPortal';
 		
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
 		$tpl->assign('view', $view);

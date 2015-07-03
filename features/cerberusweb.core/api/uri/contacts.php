@@ -364,8 +364,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$contact = DAO_ContactOrg::get($org);
 		$tpl->assign('contact', $contact);
 		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_Address';
+		$defaults = C4_AbstractViewModel::loadFromClass('View_Address');
 		$defaults->id = 'org_contacts';
 		$defaults->view_columns = array(
 			SearchFields_Address::FIRST_NAME,

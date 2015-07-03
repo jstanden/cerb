@@ -2450,6 +2450,19 @@ class C4_AbstractViewModel {
 	
 	public $placeholderLabels = array();
 	public $placeholderValues = array();
+	
+	static function loadFromClass($class_name) {
+		if(empty($class_name))
+			return false;
+		
+		if(false == ($class = new $class_name))
+			return false;
+		
+		if(false == ($inst = C4_AbstractViewLoader::serializeAbstractView($class)))
+			return false;
+		
+		return $inst;
+	}
 };
 endif;
 

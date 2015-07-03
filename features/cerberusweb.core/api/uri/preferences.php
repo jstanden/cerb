@@ -151,9 +151,8 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		// My Events
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_Notification');
 		$defaults->id = 'my_notifications';
-		$defaults->class_name = 'View_Notification';
 		$defaults->renderLimit = 25;
 		$defaults->renderPage = 0;
 		$defaults->renderSortBy = SearchFields_Notification::CREATED_DATE;
@@ -524,9 +523,8 @@ class ChPreferencesPage extends CerberusPageExtension {
 		
 		// View
 		
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_DevblocksSession');
 		$defaults->id = 'workerprefs_sessions';
-		$defaults->class_name = 'View_DevblocksSession';
 		
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
 		

@@ -23,9 +23,8 @@ class PageSection_SetupMailboxes extends Extension_PageSection {
 		$visit->set(ChConfigurationPage::ID, 'mailboxes');
 		
 		// View
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_Mailbox');
 		$defaults->id = 'setup_mailboxes';
-		$defaults->class_name = 'View_Mailbox';
 		
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
 		$tpl->assign('view', $view);

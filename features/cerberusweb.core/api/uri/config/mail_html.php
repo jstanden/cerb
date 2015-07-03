@@ -22,10 +22,9 @@ class PageSection_SetupMailHtml extends Extension_PageSection {
 		
 		$visit->set(ChConfigurationPage::ID, 'mail_html');
 
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_MailHtmlTemplate');
 		$defaults->id = 'config_mail_html_templates';
 		$defaults->name = 'Search Results';
-		$defaults->class_name = 'View_MailHtmlTemplate';
 		$defaults->view_columns = array(
 			SearchFields_MailHtmlTemplate::NAME,
 			SearchFields_MailHtmlTemplate::UPDATED_AT,

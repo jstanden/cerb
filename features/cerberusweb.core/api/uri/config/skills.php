@@ -37,8 +37,7 @@ class PageSection_SetupSkills extends Extension_PageSection {
 	function showSkillsetsTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_Skillset';
+		$defaults = C4_AbstractViewModel::loadFromClass('View_Skillset');
 		$defaults->id = 'setup_skillsets';
 		$defaults->renderLimit = 10;
 		$defaults->renderSortBy = SearchFields_Skillset::NAME;
@@ -54,8 +53,7 @@ class PageSection_SetupSkills extends Extension_PageSection {
 	function showSkillsTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_Skill';
+		$defaults = C4_AbstractViewModel::loadFromClass('View_Skill');
 		$defaults->id = 'setup_skills';
 		$defaults->renderLimit = 10;
 		$defaults->renderSortBy = SearchFields_Skill::NAME;

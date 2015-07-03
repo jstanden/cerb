@@ -22,10 +22,9 @@ class PageSection_SetupMailQueue extends Extension_PageSection {
 		
 		$visit->set(ChConfigurationPage::ID, 'mail_queue');
 		
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_MailQueue');
 		$defaults->id = 'config_mail_queue';
 		$defaults->name = 'Mail Queue';
-		$defaults->class_name = 'View_MailQueue';
 		$defaults->view_columns = array(
 			SearchFields_MailQueue::HINT_TO,
 			SearchFields_MailQueue::UPDATED,

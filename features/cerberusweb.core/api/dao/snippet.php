@@ -758,6 +758,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Snippet::TITLE,
 			SearchFields_Snippet::CONTEXT,
 			SearchFields_Snippet::VIRTUAL_OWNER,
+			SearchFields_Snippet::USE_HISTORY_MINE,
 			SearchFields_Snippet::TOTAL_USES,
 			SearchFields_Snippet::UPDATED_AT,
 		);
@@ -1436,20 +1437,12 @@ class Context_Snippet extends Extension_DevblocksContext {
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 		
 		// View
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;
-		$defaults->class_name = $this->getViewClass();
+
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Snippets';
-		$view->view_columns = array(
-			SearchFields_Snippet::TITLE,
-			SearchFields_Snippet::CONTEXT,
-			SearchFields_Snippet::VIRTUAL_OWNER,
-			SearchFields_Snippet::USE_HISTORY_MINE,
-			SearchFields_Snippet::TOTAL_USES,
-			SearchFields_Snippet::UPDATED_AT,
-		);
 		
 		$params_required = array();
 		
@@ -1491,9 +1484,9 @@ class Context_Snippet extends Extension_DevblocksContext {
 	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
-		$defaults->class_name = $this->getViewClass();
+
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Snippets';
 

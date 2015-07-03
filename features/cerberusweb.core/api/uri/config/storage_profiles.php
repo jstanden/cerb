@@ -22,8 +22,7 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		
 		$visit->set(ChConfigurationPage::ID, 'storage_profiles');
 		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_DevblocksStorageProfile';
+		$defaults = C4_AbstractViewModel::loadFromClass('View_DevblocksStorageProfile');
 		$defaults->id = View_DevblocksStorageProfile::DEFAULT_ID;
 
 		$view = C4_AbstractViewLoader::getView(View_DevblocksStorageProfile::DEFAULT_ID, $defaults);

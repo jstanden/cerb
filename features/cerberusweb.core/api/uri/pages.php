@@ -99,8 +99,7 @@ class Page_Custom extends CerberusPageExtension {
 		
 		// View
 		$view_id = 'pages';
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_WorkspacePage';
+		$defaults = C4_AbstractViewModel::loadFromClass('View_WorkspacePage');
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($view_id, $defaults))) {
 			$worker_group_ids = array_keys($active_worker->getMemberships());

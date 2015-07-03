@@ -22,8 +22,7 @@ class PageSection_SetupMailSmtp extends Extension_PageSection {
 		
 		$visit->set(ChConfigurationPage::ID, 'mail_smtp');
 		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_MailTransport';
+		$defaults = C4_AbstractViewModel::loadFromClass('View_MailTransport');
 		$defaults->id = 'setup_mail_transports';
 		
 		if(false != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {

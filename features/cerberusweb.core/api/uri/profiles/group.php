@@ -238,10 +238,9 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_Worker');
 		$defaults->id = 'group_members';
 		$defaults->name = 'Members';
-		$defaults->class_name = 'View_Worker';
 		$defaults->renderSubtotals = '';
 		
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
@@ -263,10 +262,9 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_Bucket');
 		$defaults->id = 'group_buckets';
 		$defaults->name = 'Buckets';
-		$defaults->class_name = 'View_Bucket';
 		$defaults->view_columns = array(
 			SearchFields_Bucket::NAME,
 			SearchFields_Bucket::IS_DEFAULT,

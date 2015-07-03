@@ -31,9 +31,8 @@ class Subcontroller_Internal_VirtualAttendants {
 
 		// [TODO] ACL
 
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_ContextScheduledBehavior');
 		$defaults->id = 'va_schedbeh_' . $va_id;
-		$defaults->class_name = 'View_ContextScheduledBehavior';
 		$defaults->is_ephemeral = true;
 		
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
