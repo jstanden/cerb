@@ -508,15 +508,8 @@ class CrmOrgOppTab extends Extension_ContextProfileTab {
 			
 		$tpl->assign('org_id', $org_id);
 		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_CrmOpportunity';
+		$defaults = C4_AbstractViewModel::loadFromClass('View_CrmOpportunity');
 		$defaults->id = 'org_opps';
-		$defaults->view_columns = array(
-			SearchFields_CrmOpportunity::EMAIL_ADDRESS,
-			SearchFields_CrmOpportunity::ORG_NAME,
-			SearchFields_CrmOpportunity::AMOUNT,
-			SearchFields_CrmOpportunity::UPDATED_DATE,
-		);
 		
 		$view = C4_AbstractViewLoader::getView('org_opps', $defaults);
 		

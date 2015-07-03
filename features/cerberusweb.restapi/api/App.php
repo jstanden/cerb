@@ -105,9 +105,8 @@ class Ch_RestPreferencesTab extends Extension_PreferenceTab {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_WebApiCredentials');
 		$defaults->id = 'webapi_credentials';
-		$defaults->class_name = 'View_WebApiCredentials';
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults)))
 			return;

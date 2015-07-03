@@ -193,9 +193,8 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		
 		// Table
 		
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_TimeTracking');
 		$defaults->id = 'report_timetracking_org';
-		$defaults->class_name = 'View_TimeTracking';
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
 			$view->is_ephemeral = true;

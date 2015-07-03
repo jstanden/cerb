@@ -125,9 +125,8 @@ class ChReportNewTickets extends Extension_Report {
 		
 		// Table
 		
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_Ticket');
 		$defaults->id = 'report_tickets_created';
-		$defaults->class_name = 'View_Ticket';
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
 			$view->is_ephemeral = true;

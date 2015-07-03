@@ -54,8 +54,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 	
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_Translation';
+		$defaults = C4_AbstractViewModel::loadFromClass('View_Translation');
 		$defaults->id = View_Translation::DEFAULT_ID;
 		
 		$view = C4_AbstractViewLoader::getView(View_Translation::DEFAULT_ID, $defaults);
@@ -129,8 +128,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 			}
 		}
 		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_Translation';
+		$defaults = C4_AbstractViewModel::loadFromClass('View_Translation');
 		$defaults->id = View_Translation::DEFAULT_ID;
 			
 		// Clear the existing view
@@ -227,8 +225,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		
 		// If we added a new language then change the view to display it
 		if(!empty($add_lang_code)) {
-			$defaults = new C4_AbstractViewModel();
-			$defaults->class_name = 'View_Translation';
+			$defaults = C4_AbstractViewModel::loadFromClass('View_Translation');
 			$defaults->id = View_Translation::DEFAULT_ID;
 			
 			// Clear the existing view
@@ -271,8 +268,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 	}
 	
 	function exportTmxAction() {
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_Translation';
+		$defaults = C4_AbstractViewModel::loadFromClass('View_Translation');
 		$defaults->id = View_Translation::DEFAULT_ID;
 		
 		$view = C4_AbstractViewLoader::getView(View_Translation::DEFAULT_ID, $defaults);

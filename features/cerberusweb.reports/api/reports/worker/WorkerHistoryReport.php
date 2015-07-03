@@ -144,9 +144,8 @@ class ChReportWorkerHistory extends Extension_Report {
 		
 		// Table
 		
-		$defaults = new C4_AbstractViewModel();
+		$defaults = C4_AbstractViewModel::loadFromClass('View_Message');
 		$defaults->id = 'report_worker_history';
-		$defaults->class_name = 'View_Message';
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
 			$view->is_ephemeral = true;

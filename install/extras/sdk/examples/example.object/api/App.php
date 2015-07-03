@@ -32,8 +32,7 @@ class Page_ExampleObjects extends CerberusPageExtension {
 				break;
 			
 			default:
-				$defaults = new C4_AbstractViewModel();
-				$defaults->class_name = 'View_ExampleObject';
+				$defaults = C4_AbstractViewModel::loadFromClass('View_ExampleObject');
 				$defaults->id = self::VIEW_ID;
 				$defaults->renderSortBy = SearchFields_ExampleObject::CREATED;
 				$defaults->renderSortAsc = 0;
