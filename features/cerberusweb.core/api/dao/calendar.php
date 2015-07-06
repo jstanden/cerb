@@ -66,6 +66,20 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		self::clearCache();
 	}
 	
+	static function getByContext($context, $context_ids) {
+		if(!is_array($context_ids))
+			$context_ids = array($context_ids);
+		
+		$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'int');
+		
+		return self::getWhere(sprintf("%s = %s AND %s IN (%s)",
+			self::OWNER_CONTEXT,
+			Cerb_ORMHelper::qstr($context),
+			self::OWNER_CONTEXT_ID,
+			implode(',', $context_ids)
+		));
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -204,6 +218,15 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	
 	static function random() {
 		return self::_getRandom('calendar');
+	}
+	
+	static function deleteByContext($context, $context_ids) {
+		$calendars = DAO_Calendar::getByContext($context, $context_ids);
+		
+		if(is_array($calendars) && !empty($calendars))
+			return self::delete(array_keys($calendars));
+		
+		return;
 	}
 	
 	static function delete($ids) {
