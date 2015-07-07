@@ -562,12 +562,24 @@ if(isset($tables['pop3_account'])) {
 	
 	// Re-insert the mailbox cronjob
 	$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cron.pop3'");
-	$db->ExecuteMaster("REPLACE INTO cerb_property_store VALUES ('cron.mailbox', 'enabled', '1')");
-	$db->ExecuteMaster("REPLACE INTO cerb_property_store VALUES ('cron.mailbox', 'duration', '5')");
-	$db->ExecuteMaster("REPLACE INTO cerb_property_store VALUES ('cron.mailbox', 'term', 'm')");
-	$db->ExecuteMaster("REPLACE INTO cerb_property_store VALUES ('cron.mailbox', 'lastrun', '0')");
-	$db->ExecuteMaster("REPLACE INTO cerb_property_store VALUES ('cron.mailbox', 'locked', '0')");
-	$db->ExecuteMaster("REPLACE INTO cerb_property_store VALUES ('cron.mailbox', 'max_messages', '50')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.mailbox', 'enabled', '1')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.mailbox', 'duration', '5')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.mailbox', 'term', 'm')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.mailbox', 'lastrun', '0')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.mailbox', 'locked', '0')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.mailbox', 'max_messages', '50')");
+}
+
+// ===========================================================================
+// Check that cron.mailbox is configured in the scheduler (a bug prevented this on some installs)
+
+if(0 == $db->GetOneMaster("SELECT COUNT(*) FROM cerb_property_store WHERE extension_id = 'cron.mailbox'")) {
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.mailbox', 'enabled', '1')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.mailbox', 'duration', '5')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.mailbox', 'term', 'm')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.mailbox', 'lastrun', '0')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.mailbox', 'locked', '0')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.mailbox', 'max_messages', '50')");
 }
 
 // ===========================================================================

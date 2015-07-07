@@ -19,6 +19,7 @@ if(isset($columns['value'])) {
 
 // Drop instance ID
 if(isset($columns['instance_id'])) {
+	$db->ExecuteMaster("DELETE FROM ${prefix}property_store WHERE instance_id > 0");
 	$db->ExecuteMaster("ALTER TABLE ${prefix}property_store DROP COLUMN instance_id");
 }
 

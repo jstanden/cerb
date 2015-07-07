@@ -1023,14 +1023,12 @@ class DevblocksExtensionManifest {
 	
 	/**
 	 * Creates and loads a usable extension from a manifest record.  The object returned
-	 * will be of type $class defined by the manifest.  $instance_id is passed as an
-	 * argument to uniquely identify multiple instances of an extension.
+	 * will be of type $class defined by the manifest.
 	 *
-	 * @param integer $instance_id
 	 * @return object
 	 */
 	function createInstance() {
-		if(empty($this->id) || empty($this->plugin_id)) // empty($instance_id) ||
+		if(empty($this->id) || empty($this->plugin_id))
 			return null;
 
 		if(null == ($plugin = DevblocksPlatform::getPlugin($this->plugin_id)))
