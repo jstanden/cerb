@@ -66,6 +66,13 @@ if(!isset($columns['is_private'])) {
 }
 
 if(isset($columns['owner_context'])) {
+	// Sanitize
+	$db->ExecuteMaster("DELETE FROM trigger_event WHERE owner_context = 'cerberusweb.contexts.group' AND owner_context_id NOT IN (SELECT id FROM worker_group)");
+	$db->ExecuteMaster("DELETE FROM trigger_event WHERE owner_context = 'cerberusweb.contexts.role' AND owner_context_id NOT IN (SELECT id FROM worker_role)");
+	$db->ExecuteMaster("DELETE FROM trigger_event WHERE owner_context = 'cerberusweb.contexts.worker' AND owner_context_id NOT IN (SELECT id FROM worker)");
+	$db->ExecuteMaster("DELETE FROM decision_node WHERE trigger_id NOT IN (SELECT id FROM trigger_event)");
+	
+	// Look up behavior owners and link them to formal Virtual Attendant records
 	$sql = "SELECT DISTINCT trigger_event.owner_context, trigger_event.owner_context_id, 'Cerb' AS owner_label FROM trigger_event WHERE trigger_event.owner_context = 'cerberusweb.contexts.app' ".
 		"UNION ".
 		"SELECT DISTINCT trigger_event.owner_context, trigger_event.owner_context_id, worker_role.name AS owner_label FROM trigger_event INNER JOIN worker_role ON (trigger_event.owner_context_id=worker_role.id) WHERE trigger_event.owner_context = 'cerberusweb.contexts.role' ".
