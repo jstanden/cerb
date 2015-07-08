@@ -189,7 +189,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		// Defaults
-		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
+		$defaults = C4_AbstractViewModel::loadFromClass('View_Ticket');
 		$defaults->id = $view_id;
 		$defaults->name = $translate->_('addy_book.history.view.title');
 		
