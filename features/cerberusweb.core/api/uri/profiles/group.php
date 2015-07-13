@@ -36,7 +36,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		$point = 'cerberusweb.profiles.group.' . $group_id;
 
 		if(empty($group_id) || null == ($group = DAO_Group::get($group_id)))
-			throw new Exception();
+			return;
 		
 		$tpl->assign('group', $group);
 		
