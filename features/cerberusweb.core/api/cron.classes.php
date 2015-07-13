@@ -584,7 +584,7 @@ class ImportCron extends CerberusCronPageExtension {
 			foreach($buckets as $bucket) { /* @var $bucket Model_Bucket */
 				// Hash by group ID and bucket name
 				$hash = md5($bucket->group_id . strtolower($bucket->name));
-				$bucket_to_id[$hash] = intval($bucket->id);
+				$bucket_name_to_id[$hash] = intval($bucket->id);
 			}
 		}
 		
@@ -621,8 +621,14 @@ class ImportCron extends CerberusCronPageExtension {
 			}
 			
 			// Rehash
-			DAO_Group::getAll(true);
+			$groups = DAO_Group::getAll(true);
+			$group = $groups[$iDestGroupId];
 			$group_name_to_id[strtolower($sGroup)] = $iDestGroupId;
+			
+			foreach($group->getBuckets() as $bucket_id => $bucket) {
+				$hash = md5($bucket->group_id . strtolower($bucket->name));
+				$bucket_name_to_id[$hash] = $bucket_id;
+			}
 		}
 		
 		if(empty($sBucket)) {
@@ -642,7 +648,8 @@ class ImportCron extends CerberusCronPageExtension {
 			
 			// Rehash
 			DAO_Bucket::getAll(true);
-			$bucket_name_to_id[strtolower($sBucket)] = $iDestBucketId;
+			$hash = md5($iDestGroupId . strtolower($sBucket));
+			$bucket_name_to_id[$hash] = $iDestBucketId;
 		}
 			
 		// Xpath the first and last "from" out of "/ticket/messages/message/headers/from"
