@@ -36,17 +36,34 @@ class _DevblocksClassLoadManager {
 	public function loadClass($className) {
 		if(class_exists($className))
 			return;
-			
+		
 		@$file = $this->classMap[$className];
-
+		
 		if(!is_null($file) && file_exists($file)) {
 			require_once($file);
+			return true;
+			
 		} else {
 			// Not found
 		}
 	}
 	
-	public function registerClasses($file,$classes=array()) {
+	public function registerAutoloadPath($path, $ns_prefix) {
+		if(!file_exists($path))
+			return;
+		
+		$dir = new RecursiveDirectoryIterator($path);
+		$iter = new RecursiveIteratorIterator($dir);
+		$regex = new RegexIterator($iter, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
+		
+		foreach($regex as $class_file => $o) {
+			$class_name = substr($class_file, strlen($path), strlen($class_file)-strlen($path)-4);
+			$class_name = $ns_prefix . str_replace(DIRECTORY_SEPARATOR, '\\', $class_name);
+			$this->classMap[$class_name] = $class_file;
+		}
+	}
+	
+	public function registerClasses($file, $classes=array()) {
 		if(is_array($classes))
 		foreach($classes as $class) {
 			$this->classMap[$class] = $file;
@@ -54,9 +71,14 @@ class _DevblocksClassLoadManager {
 	}
 	
 	private function _initLibs() {
-		$this->registerClasses(DEVBLOCKS_PATH . 'libs/csstoinlinestyles/CssToInlineStyles.php', array(
-			'CssToInlineStyles'
-		));
+		$this->registerAutoloadPath(DEVBLOCKS_PATH . 'libs/CssSelector/', 
+			"Symfony\\Component\\CssSelector\\"
+		);
+		
+		$this->registerAutoloadPath(DEVBLOCKS_PATH . 'libs/CssToInlineStyles/',
+			"TijsVerkoyen\\CssToInlineStyles\\"
+		);
+		
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/parsedown/Parsedown.php', array(
 			'Parsedown'
 		));
