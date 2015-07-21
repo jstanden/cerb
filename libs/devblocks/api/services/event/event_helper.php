@@ -673,6 +673,8 @@ class DevblocksEventHelper {
 		if(null == ($view = DevblocksEventHelper::getViewFromAbstractJson($token, $params, $trigger, $context)))
 			return;
 		
+		$view->persist();
+		
 		$tpl->assign('context', $context);
 		$tpl->assign('params', $params);
 		$tpl->assign('view', $view);
