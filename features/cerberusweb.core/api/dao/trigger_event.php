@@ -294,6 +294,9 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM trigger_event_history WHERE trigger_id IN (%s)", $ids_list));
 		
+		foreach($ids as $id)
+			$db->ExecuteMaster(sprintf("DELETE FROM devblocks_registry WHERE entry_key LIKE 'trigger.%d.%%", $id));
+		
 		DAO_ContextScheduledBehavior::deleteByBehavior($ids);
 		
 		self::clearCache();
@@ -700,7 +703,7 @@ class Model_TriggerEvent {
 		$pass = true;
 		
 		// If these conditions match...
-		if(!empty($node_id)) {
+		if(!empty($node_id) && isset($nodes[$node_id])) {
 			$logger->info($nodes[$node_id]->node_type . ' :: ' . $nodes[$node_id]->title . ' (' . $node_id . ')');
 			
 			// Handle the node type

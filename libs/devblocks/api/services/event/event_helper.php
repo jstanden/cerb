@@ -948,10 +948,16 @@ class DevblocksEventHelper {
 						
 					// Sequential
 					case 'seq':
-						$key = sprintf("trigger.%d.counter", $trigger->id);
-						
+						$log = EventListener_Triggers::getNodeLog();
+						$node_id = end($log);
+
 						$registry = DevblocksPlatform::getRegistryService();
+
+						$key = sprintf("trigger.%d.action.%d.counter", $trigger->id, $node_id);
+						
 						$count = intval($registry->get($key));
+						
+						$registry->increment($key, 1);
 						
 						$idx = $count % count($possible_workers);
 						
