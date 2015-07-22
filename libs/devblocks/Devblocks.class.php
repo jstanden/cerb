@@ -964,7 +964,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		}
 		
 		$purifier = new HTMLPurifier($config);
-		return $purifier->purify($dirty_html);
+		
+		$dirty_html = $purifier->purify($dirty_html);
+		
+		return $dirty_html;
 	}
 	
 	/**

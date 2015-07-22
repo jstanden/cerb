@@ -797,15 +797,7 @@ class Model_Message {
 				return false;
 		}
 		
-		$fp = DevblocksPlatform::getTempFile();
-		
-		$attachment->getFileContents($fp);
-		
-		$stats = fstat($fp);
-		
-		// If the file is missing or empty
-		if(isset($stats) && empty($stats['size']))
-			return null;
+		$dirty_html = $attachment->getFileContents();
 		
 		// If the 'tidy' extension exists
 		if(extension_loaded('tidy')) {
@@ -818,15 +810,11 @@ class Model_Message {
 				'wrap' => '0',
 			);
 			
-			if(null != ($fp_filename = DevblocksPlatform::getTempFileInfo($fp))) {
-				file_put_contents($fp_filename, $tidy->repairFile($fp_filename, $config, DB_CHARSET_CODE));
-				fseek($fp, 0);
-			}
+			$dirty_html = $tidy->repairString($dirty_html, $config, DB_CHARSET_CODE);
 		}
 		
-		$clean_html = DevblocksPlatform::purifyHTML($fp, true);
-		
-		return $clean_html;
+		$dirty_html = DevblocksPlatform::purifyHTML($dirty_html, true);
+		return $dirty_html;
 	}
 
 	function getHeaders() {

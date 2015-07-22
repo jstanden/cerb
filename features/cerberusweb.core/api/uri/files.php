@@ -109,7 +109,7 @@ class ChFilesController extends DevblocksControllerExtension {
 				// If we're displaying the HTML inline, tidy and purify it first
 				} else {
 					// If the 'tidy' extension exists, and the file size is less than 5MB
-					if(extension_loaded('tidy') && $file_stats['size'] < 1024000 * 5) {
+					if(extension_loaded('tidy') && $file_stats['size'] < 5120000) {
 						$tidy = new tidy();
 						
 						$config = array (

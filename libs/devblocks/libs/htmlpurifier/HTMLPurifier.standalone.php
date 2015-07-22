@@ -19390,7 +19390,7 @@ class HTMLPurifier_Strategy_Core extends HTMLPurifier_Strategy_Composite
     {
         $this->strategies[] = new HTMLPurifier_Strategy_RemoveForeignElements();
         $this->strategies[] = new HTMLPurifier_Strategy_MakeWellFormed();
-        $this->strategies[] = new HTMLPurifier_Strategy_FixNesting();
+        //$this->strategies[] = new HTMLPurifier_Strategy_FixNesting();
         $this->strategies[] = new HTMLPurifier_Strategy_ValidateAttributes();
     }
 }
