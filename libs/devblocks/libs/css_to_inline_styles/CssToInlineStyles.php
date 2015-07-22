@@ -454,7 +454,8 @@ class CssToInlineStyles
         $css = preg_replace('/\s\s+/', ' ', $css);
 
         if ($this->excludeMediaQueries) {
-            $css = preg_replace('/@media [^{]*{([^{}]|{[^{}]*})*}/', '', $css);
+            //$css = preg_replace('/@media[^{]*{([^{}]|{[^{}]*})*}/', '', $css); // [WGM]
+            $css = preg_replace('/@media[^{]+\{([\s\S]+?})\s*}/', '', $css);
         }
 
         // rules are splitted by }
