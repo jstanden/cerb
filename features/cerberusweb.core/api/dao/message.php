@@ -807,6 +807,7 @@ class Model_Message {
 				'clean' => true,
 				'indent' => false,
 				'output-xhtml' => true,
+				'word-2000' => true,
 				'wrap' => '0',
 			);
 			
