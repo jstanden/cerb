@@ -36,6 +36,8 @@
 		</div>
 		
 		{foreach from=$dictionary item=v key=k}
+			{if $has_public_vars && isset($trigger->variables[$k]) && !$trigger->variables[$k]['is_private']}
+			{else}
 			<b>{$v.label}</b>
 			<div style="margin:0px 0px 2px 10px;">
 				{if $v.type == 'T'}
@@ -49,6 +51,7 @@
 				<input type="text" name="values[{$k}]" value="{$v.value}" size="45" style="width:98%;">
 				{/if}
 			</div>
+			{/if}
 		{/foreach}
 		</div>
 	</div>
