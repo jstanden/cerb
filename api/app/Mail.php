@@ -107,6 +107,24 @@ class CerberusMail {
 		return $results;
 	}
 	
+	static private function _parseCustomHeaders(array $headers) {
+		if(!is_array($headers))
+			return array();
+		
+		$results = array();
+		
+		foreach($headers as $header) {
+			@list($name, $value) = explode(':', $header);
+			
+			$name = trim(strtolower($name));
+			$value = trim($value);
+			
+			$results[$name] = $value;
+		}
+		
+		return $results;
+	}
+	
 	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null, $custom_headers=array(), $format=null, $html_template_id=null, $file_ids=array()) {
 		try {
 			$mail_service = DevblocksPlatform::getMailService();
@@ -125,6 +143,18 @@ class CerberusMail {
 			}
 			
 			$mail->setTo(DevblocksPlatform::parseCsvString($to));
+
+			$custom_headers = self::_parseCustomHeaders($custom_headers);
+
+			// If we have a custom from, override the sender info
+			if(isset($custom_headers['from'])) {
+				if(false != ($custom_froms = mailparse_rfc822_parse_addresses($custom_headers['from']))) {
+					$from_addy = $custom_froms[0]['address'];
+					$from_personal = ($custom_froms[0]['display'] != $custom_froms[0]['address']) ? $custom_froms[0]['display'] : null;
+				}
+				
+				unset($custom_headers['from']);
+			}
 			
 			if(!empty($from_personal)) {
 				$mail->setFrom($from_addy, $from_personal);
@@ -132,21 +162,32 @@ class CerberusMail {
 				$mail->setFrom($from_addy);
 			}
 			
-			$mail->setSubject($subject);
-			$mail->generateId();
+			// If we have a custom subject, use it instead
+			if(isset($custom_headers['subject'])) {
+				$mail->setSubject($custom_headers['subject']);
+				unset($custom_headers['subject']);
+				
+			} else {
+				$mail->setSubject($subject);
+			}
 			
-			// Headers
+			// Generate a message-id
+			$mail->generateId();
 			
 			$headers = $mail->getHeaders();
 			
 			$headers->addTextHeader('X-Mailer','Cerb ' . APP_VERSION . ' (Build '.APP_BUILD.')');
 			
+			// Add custom headers
+			
 			if(is_array($custom_headers) && !empty($custom_headers))
-			foreach($custom_headers as $custom_header) {
-				@list($header_key, $header_val) = explode(':', $custom_header);
-				
-				if(!empty($header_key) && !empty($header_val))
-					$headers->addTextHeader(trim($header_key), trim($header_val));
+			foreach($custom_headers as $header_key => $header_val) {
+				if(!empty($header_key) && !empty($header_val)) {
+					if($headers->has($header_key))
+						$headers->removeAll($header_key);
+					
+					$headers->addTextHeader(mb_convert_case($header_key, MB_CASE_TITLE), $header_val);
+				}
 			}
 			
 			// Body
