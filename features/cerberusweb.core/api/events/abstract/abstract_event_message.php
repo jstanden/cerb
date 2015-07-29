@@ -435,7 +435,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			case 'ticket_latest_message_headers':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
-				@$header = strtolower($params['header']);
+				@$header = rtrim(strtolower($params['header']), ':');
 				@$param_value = $params['value'];
 				
 				// Lazy load
