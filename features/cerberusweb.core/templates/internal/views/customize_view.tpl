@@ -44,7 +44,7 @@
 	
 	{if $view->isCustom()}
 	<div>
-		<label><input type="checkbox" name="options[disable_sorting]" value="1" {if $view->options.disable_sorting}checked="checked"{/if}> Prevent workers from changing the sort column</label>
+		<label><input type="checkbox" name="view_options[disable_sorting]" value="1" {if $view->options.disable_sorting}checked="checked"{/if}> Prevent workers from changing the sort column</label>
 	</div>
 	{/if}
 	

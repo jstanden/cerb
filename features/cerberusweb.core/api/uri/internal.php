@@ -2473,7 +2473,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'string');
 		@$columns = DevblocksPlatform::importGPC($_REQUEST['columns'],'array', array());
 		@$num_rows = DevblocksPlatform::importGPC($_REQUEST['num_rows'],'integer',10);
-		@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array', array());
+		@$options = DevblocksPlatform::importGPC($_REQUEST['view_options'],'array', array());
 		
 		// Sanitize
 		$num_rows = DevblocksPlatform::intClamp($num_rows, 1, 500);
