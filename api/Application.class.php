@@ -156,7 +156,7 @@ class CerberusApplication extends DevblocksApplication {
 		// Set sample
 		foreach($sample as &$worker) {
 			if(!isset($population[$worker->id]))
-				conntinue;
+				continue;
 			
 			$picker_workers['sample'][$worker->id] = $worker;
 			unset($population[$worker->id]);
