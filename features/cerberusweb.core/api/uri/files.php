@@ -127,6 +127,7 @@ class ChFilesController extends DevblocksControllerExtension {
 					}
 					
 					$purify_config = array(
+						'HTML.TargetBlank' => true,
 						'Attr.EnableID' => true,
 					);
 					
