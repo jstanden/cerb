@@ -1716,7 +1716,7 @@ class CerberusContexts {
 		}
 
 		// Forced actor
-		if(!empty($actor_context) && !empty($actor_context_id)) {
+		if(!empty($actor_context)) {
 			if(null != ($ctx = DevblocksPlatform::getExtension($actor_context, true))
 				&& $ctx instanceof Extension_DevblocksContext) {
 				$meta = $ctx->getMeta($actor_context_id);
