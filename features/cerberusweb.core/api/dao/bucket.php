@@ -687,12 +687,13 @@ class Model_Bucket {
 				&& isset($froms[$this->reply_address_id])
 				&& $from = $froms[$this->reply_address_id])
 					$personal = $from->reply_personal;
-		
+				
 		// Cascade to group default bucket
-		if(empty($personal) 
+		if(empty($personal)
 				&& $default_bucket
-				&& $default_bucket->id != $this->id)
-					$personal = $default_bucket->reply_personal;
+				&& $default_bucket->id != $this->id) {
+					$personal = $default_bucket->getReplyPersonal($worker_model);
+		}
 		
 		// Cascade to global
 		if(empty($personal) 
