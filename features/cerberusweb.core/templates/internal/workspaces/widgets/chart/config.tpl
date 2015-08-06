@@ -1,6 +1,15 @@
-<b>Type: </b>
-<label><input type="radio" name="params[chart_type]" value="line" {if empty($widget->params.chart_type) || $widget->params.chart_type == 'line'}checked="checked"{/if}> Line Chart</label>
-<label><input type="radio" name="params[chart_type]" value="bar" {if $widget->params.chart_type == 'bar'}checked="checked"{/if}> Bar Chart</label>
+<div>
+	<b>Type: </b>
+	<label><input type="radio" name="params[chart_type]" value="line" {if empty($widget->params.chart_type) || $widget->params.chart_type == 'line'}checked="checked"{/if}> Line Chart</label>
+	<label><input type="radio" name="params[chart_type]" value="bar" {if $widget->params.chart_type == 'bar'}checked="checked"{/if}> Stacked Bar Chart</label>
+</div>
+
+<div>
+	<b>Display:</b>
+	<label><input type="radio" name="params[chart_display]" value="" {if empty($widget->params.chart_display)}checked="checked"{/if}> Image &amp; Table</label>
+	<label><input type="radio" name="params[chart_display]" value="image" {if 'image' == $widget->params.chart_display}checked="checked"{/if}> Image</label>
+	<label><input type="radio" name="params[chart_display]" value="table" {if 'table' == $widget->params.chart_display}checked="checked"{/if}> Table</label>
+</div>
 
 <div id="widget{$widget->id}ConfigTabs">
 	<ul style="display:none;">
