@@ -8,6 +8,7 @@
 <input type="hidden" name="link_context_id" value="{$link_context_id}">
 {/if}
 <input type="hidden" name="do_delete" value="0">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset class="peek">
 	<legend>{'common.properties'|devblocks_translate}</legend>

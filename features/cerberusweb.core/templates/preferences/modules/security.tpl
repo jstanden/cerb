@@ -1,6 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" autocomplete="off">
 <input type="hidden" name="c" value="preferences">
 <input type="hidden" name="a" value="saveSecurityTab">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <div class="help-box">
 	<h1>Set up your secret questions</h1>

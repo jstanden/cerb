@@ -23,6 +23,7 @@
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="translations">
 <input type="hidden" name="action" value="">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
 

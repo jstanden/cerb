@@ -3,6 +3,7 @@
 <input type="hidden" name="a" value="doOrgBulkUpdate">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="org_ids" value="{$org_ids}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset class="peek">
 	<legend>{'common.bulk_update.with'|devblocks_translate|capitalize}</legend>

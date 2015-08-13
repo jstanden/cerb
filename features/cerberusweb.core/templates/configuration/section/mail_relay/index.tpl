@@ -5,6 +5,7 @@
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="mail_relay">
 <input type="hidden" name="action" value="saveJson">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <p>
 The email relay enables workers to respond to messages from external mail applications (e.g. Gmail, mobile phones, Outlook, etc) instead of always requiring them to use Cerb in the web browser.  

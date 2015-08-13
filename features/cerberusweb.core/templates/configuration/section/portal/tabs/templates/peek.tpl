@@ -6,6 +6,7 @@
 <input type="hidden" name="id" value="{$template->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>{$template->path}:</b><br>
 <textarea name="content" wrap="off" style="height:300px;width:98%;">{$template->content}</textarea><br>

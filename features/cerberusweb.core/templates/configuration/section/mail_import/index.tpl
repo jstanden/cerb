@@ -5,6 +5,7 @@
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="mail_import">
 <input type="hidden" name="action" value="parseMessageJson">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>Paste a message source:</b>
 <div>

@@ -2,6 +2,7 @@
 <legend>{'reports.ui.custom_fields.usage'|devblocks_translate}</legend>
 
 <form action="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}&report=report.custom_fields.usage{/devblocks_url}" method="POST" id="frmRange" name="frmRange">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>Custom Field:</b>
 

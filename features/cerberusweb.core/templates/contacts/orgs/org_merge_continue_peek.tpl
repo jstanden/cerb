@@ -6,6 +6,7 @@
 {foreach from=$orgs item=org key=org_id}
 <input type="hidden" name="org_id[]" value="{$org->id}">
 {/foreach}
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <table cellpadding="3" cellspacing="0" border="0">
 	{foreach from=$combinations item=combo key=property}

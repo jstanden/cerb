@@ -5,6 +5,7 @@
 <input type="hidden" name="action" value="saveImportTemplatesPeek">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="portal" value="{$portal}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>Import File:</b> (.xml)<br>
 <input type="file" name="import_file" size="45"><br>

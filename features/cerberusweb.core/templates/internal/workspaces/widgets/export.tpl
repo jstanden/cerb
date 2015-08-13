@@ -1,4 +1,5 @@
 <form action="javascript:;" method="post" id="frmWidgetExport" onsubmit="return false;">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>Widget:</b>
 

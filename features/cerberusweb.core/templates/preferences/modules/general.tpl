@@ -1,6 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="preferences">
 <input type="hidden" name="a" value="saveDefaults">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset class="peek">
 	<legend>{'preferences.account.settings'|devblocks_translate|capitalize}</legend>
@@ -148,4 +149,5 @@
 <input type="hidden" name="c" value="preferences">
 <input type="hidden" name="a" value="resendConfirmation">
 <input type="hidden" name="email" value="">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 </form>

@@ -5,6 +5,7 @@
 {if isset($parent_id)}<input type="hidden" name="parent_id" value="{$parent_id}">{/if}
 {if isset($type)}<input type="hidden" name="type" value="{$type}">{/if}
 {if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>{'common.title'|devblocks_translate|capitalize}:</b><br>
 <input type="text" name="title" value="{$model->title}" style="width:100%;"><br>

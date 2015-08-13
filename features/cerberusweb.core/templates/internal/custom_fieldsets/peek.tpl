@@ -14,6 +14,7 @@
 <input type="hidden" name="id" value="{$custom_fieldset->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset class="peek cfield-props">
 	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>

@@ -11,6 +11,7 @@
 		<input type="hidden" name="section" value="dashboards">
 		<input type="hidden" name="action" value="addWidgetPopupJson">
 		<input type="hidden" name="workspace_tab_id" value="{$workspace_tab_id}">
+		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
 		<b>Type:</b>
 		<select name="extension_id">
@@ -32,6 +33,7 @@
 		<input type="hidden" name="section" value="dashboards">
 		<input type="hidden" name="action" value="addWidgetImportJson">
 		<input type="hidden" name="workspace_tab_id" value="{$workspace_tab_id}">
+		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 		<div class="import">
 			<b>Import:</b> (.json format)

@@ -6,6 +6,7 @@
 	<input type="hidden" name="c" value="search">
 	<input type="hidden" name="a" value="ajaxQuickSearch">
 	<input type="hidden" name="view_id" value="{$view->id}">
+	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 	<div style="border:1px solid rgb(200,200,200);border-radius:10px;display:inline-block;">
 		<input type="text" name="query" class="input_search cerb-input-quicksearch" style="border:0;" size="50" value="{$quick_search_query}" autocomplete="off" spellcheck="false">

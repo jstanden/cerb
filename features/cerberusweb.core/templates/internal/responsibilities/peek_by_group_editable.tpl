@@ -5,6 +5,7 @@
 <input type="hidden" name="action" value="saveResponsibilitiesPopup">
 <input type="hidden" name="context" value="{CerberusContexts::CONTEXT_GROUP}">
 <input type="hidden" name="context_id" value="{$group->id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 {foreach from=$buckets item=bucket}
 	<fieldset class="peek cerb-delta-slider-container" style="display:inline-block;">

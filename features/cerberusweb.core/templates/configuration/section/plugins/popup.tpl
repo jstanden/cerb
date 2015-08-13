@@ -6,6 +6,7 @@
 <input type="hidden" name="plugin_id" value="{$plugin->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
 {if $is_uninstallable}<input type="hidden" name="uninstall" value="0">{/if}
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <div>
 	<b>{'common.status'|devblocks_translate|capitalize}:</b> 

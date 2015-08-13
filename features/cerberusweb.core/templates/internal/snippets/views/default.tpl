@@ -29,6 +29,8 @@
 <input type="hidden" name="context_id" value="cerberusweb.contexts.snippet">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+
 <table cellpadding="5" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}

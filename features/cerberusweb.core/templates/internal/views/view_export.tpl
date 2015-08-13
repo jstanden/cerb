@@ -3,6 +3,7 @@
 <input type="hidden" name="a" value="viewDoExport">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="cursor_key" value="">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <div class="export-settings">
 

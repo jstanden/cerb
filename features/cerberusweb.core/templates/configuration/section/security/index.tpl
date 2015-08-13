@@ -5,6 +5,7 @@
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="security">
 <input type="hidden" name="action" value="saveJson">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset>
 	<legend>Remote Administration</legend>

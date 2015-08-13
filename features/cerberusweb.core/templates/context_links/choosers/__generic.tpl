@@ -7,6 +7,7 @@
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
 
 <form action="#" method="POST" id="chooser{$view->id}" style="{if $single}display:none;{/if}}">
+	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 	<b>Selected:</b>
 	<ul class="buffer bubbles"></ul>
 	<br>

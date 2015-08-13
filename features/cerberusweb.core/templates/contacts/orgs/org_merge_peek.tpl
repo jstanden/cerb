@@ -3,6 +3,7 @@
 <input type="hidden" name="c" value="contacts">
 <input type="hidden" name="a" value="showOrgMergeContinuePeek">
 <input type="hidden" name="view_id" value="{$view_id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>Select organizations to merge:</b><br>
 <button type="button" class="chooser_orgs"><span class="glyphicons glyphicons-search"></span></button>

@@ -3,6 +3,7 @@
 <form id="frmKbBrowseTab{$tab->id}" enctype="multipart/form-data" method="post" action="{devblocks_url}{/devblocks_url}">
 	<input type="hidden" name="c" value="kb.ajax">
 	<input type="hidden" name="a" value="">
+	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 	{if $active_worker->hasPriv('core.kb.categories.modify')}
 		{$parent_id = 0}

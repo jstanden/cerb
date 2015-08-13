@@ -28,6 +28,8 @@
 <input type="hidden" name="a" value="doAddCustomTabJson">
 <input type="hidden" name="page_id" value="{$page->id}">
 <input type="hidden" name="len" value="99">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+
 <fieldset class="peek">
 	<legend>Add a new tab:</legend>
 

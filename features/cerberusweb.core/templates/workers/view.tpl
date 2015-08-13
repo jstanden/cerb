@@ -32,6 +32,8 @@
 <input type="hidden" name="section" value="worker">
 <input type="hidden" name="action" value="">
 <input type="hidden" name="explore_from" value="0">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+
 <table cellpadding="2" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}

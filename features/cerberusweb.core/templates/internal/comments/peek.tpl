@@ -3,6 +3,7 @@
 <input type="hidden" name="a" value="commentSavePopup">
 <input type="hidden" name="context" value="{$context}">
 <input type="hidden" name="context_id" value="{$context_id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>Author:</b> {$active_worker->getName()}
 <div>

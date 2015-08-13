@@ -2034,11 +2034,15 @@ interface DevblocksHttpRequestHandler {
 };
 
 class DevblocksHttpRequest extends DevblocksHttpIO {
+	public $method = null;
+	public $csrf_token = null;
+	
 	/**
 	 * @param array $path
 	 */
-	function __construct($path, $query=array()) {
+	function __construct($path, $query=array(), $method=null) {
 		parent::__construct($path, $query);
+		$this->method = $method;
 	}
 };
 

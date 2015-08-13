@@ -1,6 +1,7 @@
 <div class="block reply_frame" style="width:98%;margin:10px;">
 
 <form id="reply{$message->id}_part1" onsubmit="return false;">
+
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
 		<td><h2 style="color:rgb(50,50,50);">{if $is_forward}{'display.ui.forward'|devblocks_translate|capitalize}{else}{'display.ui.reply'|devblocks_translate|capitalize}{/if}</h2></td>
@@ -171,6 +172,7 @@
 <input type="hidden" name="cc" value="{$cc}">
 <input type="hidden" name="bcc" value="{$bcc}">
 <input type="hidden" name="subject" value="{$subject}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 {if $is_forward}
 <textarea name="content" id="reply_{$message->id}" class="reply" style="width:98%;height:{$mail_reply_textbox_size_px|default:300}px;border:1px solid rgb(180,180,180);padding:5px;">

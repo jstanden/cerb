@@ -21,6 +21,8 @@
 <input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}

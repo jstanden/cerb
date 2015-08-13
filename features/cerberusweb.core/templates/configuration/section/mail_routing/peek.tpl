@@ -4,6 +4,7 @@
 <input type="hidden" name="section" value="mail_routing">
 <input type="hidden" name="action" value="saveMailRoutingRuleAdd">
 <input type="hidden" name="id" value="{$rule->id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>Rule Name:</b> (e.g. ProductX Support)<br>
 <input type="text" name="name" value="{$rule->name}" size="45" style="width:95%;"><br>

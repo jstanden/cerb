@@ -4,6 +4,7 @@
 <input type="hidden" name="macro" value="{$macro->id}">
 <input type="hidden" name="ticket_id" value="{$ticket_id}">
 <input type="hidden" name="message_id" value="{$message_id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>Behavior:</b><br>
 {if !empty($macro->title)}

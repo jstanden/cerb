@@ -13,6 +13,7 @@
 	<input type="hidden" name="context_id" value="{$context_id}">
 	<input type="hidden" name="group_id" value="{$group_id}">
 	<input type="hidden" name="bucket_id" value="{$bucket_id}">
+	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 	
 	<div style="margin-bottom:10px;">
 	{include file="devblocks:cerberusweb.core::internal/workers/worker_picker_container.tpl" context=$context context_id=$context_id}

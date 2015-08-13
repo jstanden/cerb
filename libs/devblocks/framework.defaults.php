@@ -68,6 +68,9 @@ if(!defined('DEVELOPMENT_MODE'))
 if(!defined('DEVELOPMENT_MODE_QUERIES'))
 	define('DEVELOPMENT_MODE_QUERIES', false);
 
+if(!defined('DEVELOPMENT_MODE_ALLOW_CSRF'))
+	define('DEVELOPMENT_MODE_ALLOW_CSRF', false);
+
 // ----
 
 @ini_set('session.gc_maxlifetime','86400');

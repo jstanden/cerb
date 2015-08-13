@@ -6,6 +6,7 @@
 <input type="hidden" name="id" value="{$draft->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <table cellpadding="0" cellspacing="2" border="0" width="98%">
 	{if is_null($workers)}{$workers = DAO_Worker::getAll()}{/if}

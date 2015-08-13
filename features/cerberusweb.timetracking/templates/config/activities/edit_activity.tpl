@@ -4,6 +4,7 @@
 <input type="hidden" name="action" value="save">
 <input type="hidden" name="id" value="{if !empty($activity->id)}{$activity->id}{else}0{/if}">
 <input type="hidden" name="do_delete" value="0">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset>
 	<legend>

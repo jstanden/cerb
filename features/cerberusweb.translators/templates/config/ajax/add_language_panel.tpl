@@ -3,6 +3,7 @@
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="translations">
 <input type="hidden" name="action" value="saveAddLanguagePanel">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 {if is_array($codes) && count($codes) > 1}
 <table cellspacing="0" cellpadding="2" border="0">

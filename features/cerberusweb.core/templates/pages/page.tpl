@@ -1,6 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" id="frmWorkspacePage{$page->id}" method="POST" style="margin-top:5px;">
 	<input type="hidden" name="c" value="internal">
 	<input type="hidden" name="a" value="">
+	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 	{$menu_json = DAO_WorkerPref::get($active_worker->id, 'menu_json', json_encode(array()))}
 	{$menu = json_decode($menu_json, true)}

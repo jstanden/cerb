@@ -4,6 +4,7 @@
 <input type="hidden" name="section" value="mail_from">
 <input type="hidden" name="action" value="savePeek">
 <input type="hidden" name="id" value="{$address->address_id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset class="peek">
 	<legend>Send worker replies as:</legend>

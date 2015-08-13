@@ -7,6 +7,7 @@
 		<input type="hidden" name="action" value="saveAddTemplatePeek">
 		<input type="hidden" name="view_id" value="{$view_id}">
 		<input type="hidden" name="portal" value="{$portal}">
+		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
 		<b>Template:</b><br>
 		<select name="template">

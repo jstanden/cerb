@@ -2,6 +2,7 @@
 <input type="hidden" name="c" value="pages">
 <input type="hidden" name="a" value="savePageWizardPopup">
 <input type="hidden" name="view_id" value="{$view_id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset class="peek">
 	<legend style="color:rgb(80,80,80);">What kind of page would you like to create?</legend>

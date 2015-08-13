@@ -2,6 +2,7 @@
 <legend>{'reports.ui.ticket.top_contacts'|devblocks_translate}</legend>
 
 <form action="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}&report=report.tickets.top_contacts{/devblocks_url}" method="POST" id="frmRange" name="frmRange">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 {'reports.ui.date_from'|devblocks_translate} <input type="text" name="start" id="start" size="24" value="{$start}"><button type="button" onclick="devblocksAjaxDateChooser('#start','#divCal');"><span class="glyphicons glyphicons-calendar"></span></button>
 {'reports.ui.date_to'|devblocks_translate} <input type="text" name="end" id="end" size="24" value="{$end}"><button type="button" onclick="devblocksAjaxDateChooser('#end','#divCal');"><span class="glyphicons glyphicons-calendar"></span></button>
 <div id="divCal"></div>

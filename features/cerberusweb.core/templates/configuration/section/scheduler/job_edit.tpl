@@ -14,6 +14,7 @@
 	<input type="hidden" name="section" value="scheduler">
 	<input type="hidden" name="action" value="saveJobJson">
 	<input type="hidden" name="id" value="{$job->manifest->id}">
+	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 	
 	<label><input type="checkbox" name="enabled" value="1" {if $enabled}checked{/if}> <b>Enabled</b></label>
 	

@@ -1,5 +1,6 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmCopy{$view->id}" onsubmit="return false;">
 <input type="hidden" name="view_id" value="{$view_id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <H2>Copy Worklist</H2>
 

@@ -574,7 +574,11 @@ abstract class DevblocksEngine {
 				break;
 		}
 
-		$request = new DevblocksHttpRequest($parts,$queryArgs);
+		$method = strtoupper(@$_SERVER['REQUEST_METHOD']);
+		
+		$request = new DevblocksHttpRequest($parts,$queryArgs,$method);
+		$request->csrf_token = isset($_SERVER['HTTP_X_CSRF_TOKEN']) ? $_SERVER['HTTP_X_CSRF_TOKEN'] : @$_REQUEST['_csrf_token'];
+		
 		DevblocksPlatform::setHttpRequest($request);
 
 		return $request;
@@ -588,6 +592,28 @@ abstract class DevblocksEngine {
 	 */
 	static function processRequest(DevblocksHttpRequest $request, $is_ajax=false) {
 		$path = $request->path;
+		
+		// Security: CSRF
+		
+		// If we are running a controller action...
+		if(isset($_REQUEST['c']) || isset($_REQUEST['a'])) {
+			
+			// ...and we're not in DEVELOPMENT_MODE
+			if(!DEVELOPMENT_MODE_ALLOW_CSRF) {
+			
+				// ...and the CSRF token is invalid for this session, freak out
+				if(!isset($_SESSION['csrf_token']) || $_SESSION['csrf_token'] != $request->csrf_token) {
+					header("Status: 403");
+					@$referer = $_SERVER['HTTP_REFERER'];
+					@$remote_addr = $_SERVER['REMOTE_ADDR'];
+					
+					error_log(sprintf("[Cerb/Security] Possible CSRF attack from IP %s using referrer %s", $remote_addr, $referer), E_USER_WARNING);
+					die("Access denied");
+				}
+			}
+		}
+
+		// Controllers
 
 		$controller_uri = array_shift($path);
 

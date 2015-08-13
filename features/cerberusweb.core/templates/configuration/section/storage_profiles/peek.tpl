@@ -14,6 +14,7 @@
 <input type="hidden" name="id" value="{$profile->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>{'common.name'|devblocks_translate|capitalize}:</b><br>
 <input type="text" name="name" value="{$profile->name}" style="width:98%;" autofocus="true"><br>

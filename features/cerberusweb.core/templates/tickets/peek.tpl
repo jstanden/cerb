@@ -9,6 +9,7 @@
 <input type="hidden" name="link_context" value="{$link_context}">
 <input type="hidden" name="link_context_id" value="{$link_context_id}">
 {/if}
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 {if !$edit_mode && !empty($message)}
 <div id="ticketPeekMessage" style="margin-bottom:10px;">

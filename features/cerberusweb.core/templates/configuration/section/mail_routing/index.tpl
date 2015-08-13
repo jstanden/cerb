@@ -12,6 +12,7 @@
 	<input type="hidden" name="a" value="handleSectionAction">
 	<input type="hidden" name="section" value="mail_routing">
 	<input type="hidden" name="action" value="saveRouting">
+	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 	<b>Which group should receive any unrouted new mail?</b><br> 
 	<select name="default_group_id">

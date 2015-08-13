@@ -3,6 +3,7 @@
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="translations">
 <input type="hidden" name="action" value="saveFindStringsPanel">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 This will find text defined in U.S. English and not yet translated to other languages.  
 Leaving new text blank allows you to easily find translation work with a search.

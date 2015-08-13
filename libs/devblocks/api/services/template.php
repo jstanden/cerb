@@ -87,6 +87,11 @@ class _DevblocksTemplateManager {
 		
 		$contents = $url->write($content, !empty($params['full']) ? true : false);
 		
+		$is_ajax = substr($content, 0, 9) == 'ajax.php?';
+		
+		if($is_ajax)
+			$contents .= '&_csrf_token=' . $_SESSION['csrf_token'];
+		
 		if (!empty($params['assign'])) {
 			$smarty->assign($params['assign'], $contents);
 		} else {

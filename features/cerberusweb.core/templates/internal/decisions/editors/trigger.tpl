@@ -7,6 +7,7 @@
 {if empty($trigger->id)}
 <input type="hidden" name="va_id" value="{$va->id}">
 {/if}
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <div>
 	<b>{'common.title'|devblocks_translate|capitalize}:</b><br>
@@ -116,6 +117,7 @@
 		<input type="hidden" name="c" value="internal">
 		<input type="hidden" name="a" value="">
 		<input type="hidden" name="va_id" value="{$va->id}">
+		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 		<div class="import">
 			<b>Import:</b> (.json format)

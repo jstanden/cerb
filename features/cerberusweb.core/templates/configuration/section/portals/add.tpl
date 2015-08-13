@@ -4,6 +4,7 @@
 	<input type="hidden" name="a" value="handleSectionAction">
 	<input type="hidden" name="section" value="portals">
 	<input type="hidden" name="action" value="saveAddPortalPeek">
+	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 	
 	<b>Portal Name:</b> ("Support Portal", "Contact Form", "ProductX FAQ")<br>
 	<input type="text" name="name" value="" style="width:98%;" autofocus="true"><br>

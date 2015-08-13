@@ -5,6 +5,7 @@
 <input type="hidden" name="action" value="saveExportTemplatesPeek">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="portal" value="{$portal}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>Filename:</b> (.xml)<br>
 <input type="text" name="filename" size="45" value="cerb_portal_templates_{$smarty.const.APP_BUILD}.xml"><br>

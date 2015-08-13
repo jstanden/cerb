@@ -6,6 +6,7 @@
 <input type="hidden" name="id" value="{$workspace_page->id|default:0}">
 <input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($workspace_page)}<input type="hidden" name="do_delete" value="0">{/if}
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%" style="margin-bottom:5px;">
 	<tr>
@@ -118,6 +119,7 @@
 		<input type="hidden" name="c" value="pages">
 		<input type="hidden" name="a" value="importWorkspacePageJson">
 		<input type="hidden" name="view_id" value="{$view_id}">
+		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 		<div class="import">
 			<b>Import:</b> (.json format)

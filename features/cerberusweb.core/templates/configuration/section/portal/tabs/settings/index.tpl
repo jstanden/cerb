@@ -5,6 +5,7 @@
 <input type="hidden" name="action" value="saveTabSettings">
 <input type="hidden" name="portal" value="{$instance->code}">
 <input type="hidden" name="do_delete" value="0">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>Portal Name:</b> ("Support Portal", "Contact Form", "ProductX FAQ")<br>
 <input type="text" name="portal_name" value="{if !empty($instance->name)}{$instance->name}{else}{$instance->manifest->name}{/if}" size="65"><br>

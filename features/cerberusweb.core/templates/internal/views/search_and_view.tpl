@@ -3,6 +3,7 @@
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="">
 <input type="hidden" name="id" value="{$view->id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <div id="viewCustomFilters{$view->id}">
 {include file="devblocks:cerberusweb.core::internal/views/customize_view_criteria.tpl"}

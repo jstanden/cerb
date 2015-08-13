@@ -3,6 +3,7 @@
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="cache">
 <input type="hidden" name="action" value="saveCachePeek">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 {foreach from=$engines item=engine key=engine_id}
 <fieldset class="peek" style="margin-bottom:0;">

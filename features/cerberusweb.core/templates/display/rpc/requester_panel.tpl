@@ -2,6 +2,7 @@
 <input type="hidden" name="c" value="display">
 <input type="hidden" name="a" value="saveRequestersPanel">
 <input type="hidden" name="ticket_id" value="{$ticket_id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>{'display.ui.add_to_recipients'|devblocks_translate}:</b><br>
 <button type="button" class="chooser_address"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span></button>

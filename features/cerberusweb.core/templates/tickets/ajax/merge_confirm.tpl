@@ -2,6 +2,7 @@
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="viewMergeTickets">
 <input type="hidden" name="view_id" value="{$view_id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset>
 	<legend>Are you sure you want to merge these tickets?</legend>

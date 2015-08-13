@@ -2,6 +2,7 @@
 	<legend>{'example.report'|devblocks_translate|capitalize}</legend>
 
 	<form id="frmExampleReport" action="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}&report=example.report{/devblocks_url}" method="POST">
+		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		&nbsp; 
 		Tickets created between: 
 		<input type="text" name="date_from" size="24" value="{$date_from}">

@@ -5,6 +5,7 @@
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="mail_from">
 <input type="hidden" name="action" value="saveJson">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <div style="margin-bottom:10px;">
 	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_from&action=peek&id=0',null,false,'550');"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> {'common.add'|devblocks_translate|capitalize}</button>

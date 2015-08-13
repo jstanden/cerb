@@ -3,6 +3,7 @@
 <input type="hidden" name="a" value="snippetPlaceholdersPreview">
 <input type="hidden" name="id" value="{$snippet->id}">
 <input type="hidden" name="context_id" value="{$context_id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset class="peek" style="margin-bottom:5px;">
 	<legend>Fill in the blanks:</legend>

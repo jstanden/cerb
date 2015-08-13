@@ -11,6 +11,7 @@
 			<form action="{devblocks_url}{/devblocks_url}" method="post" name="tourForm">
 				<input type="hidden" name="c" value="internal">
 				<input type="hidden" name="a" value="doStopTour">
+				<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 				<a href="javascript:;" onclick="$('#tourDiv').fadeOut();genericAjaxGet('','c=internal&a=doStopTour');">hide this</a>
 				&nbsp;
 			</form>

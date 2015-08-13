@@ -4,6 +4,7 @@
 <input type="hidden" name="c" value="display">
 <input type="hidden" name="a" value="saveRelayMessagePopup">
 <input type="hidden" name="id" value="{$message->id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset class="peek">
 	<legend>Message contents</legend>

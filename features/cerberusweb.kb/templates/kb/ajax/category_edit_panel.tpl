@@ -3,6 +3,7 @@
 <input type="hidden" name="a" value="saveKbCategoryEditPanelJson">
 <input type="hidden" name="id" value="{$category->id}">
 <input type="hidden" name="delete_box" value="0">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>Name:</b><br>
 <input type="text" name="name" value="{$category->name}" style="width:99%;border:solid 1px rgb(180,180,180);"><br>

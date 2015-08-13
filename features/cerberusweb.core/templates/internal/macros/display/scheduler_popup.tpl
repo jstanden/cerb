@@ -12,6 +12,7 @@
 <input type="hidden" name="a" value="saveMacroSchedulerPopup">
 <input type="hidden" name="job_id" value="{$job->id}">
 {/if}
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>Behavior:</b><br>
 {if !empty($macro->title)}

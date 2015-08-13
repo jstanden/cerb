@@ -4,6 +4,7 @@
 {if isset($node)}<input type="hidden" name="id" value="{$node->id}">{/if}
 {if isset($trigger)}<input type="hidden" name="trigger_id" value="{$trigger->id}">{/if}
 <input type="hidden" name="event_params_json" value="{$event_params_json}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 {* Target *}
 

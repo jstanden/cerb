@@ -5,6 +5,7 @@
 <input type="hidden" name="action" value="saveWidgetPopup">
 {if !empty($widget) && !empty($widget->id)}<input type="hidden" name="id" value="{$widget->id}">{/if}
 <input type="hidden" name="do_delete" value="0">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <table width="100%" cellpadding="0" cellspacing="2">
 	{if $extension instanceof Extension_WorkspaceWidget}

@@ -5,6 +5,7 @@
 <input type="hidden" name="action" value="savePeekPopup">
 <input type="hidden" name="id" value="{$model->id|default:'0'}">
 <input type="hidden" name="do_delete" value="0">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset class="peek">
 	<legend>{'common.properties'|devblocks_translate}</legend>

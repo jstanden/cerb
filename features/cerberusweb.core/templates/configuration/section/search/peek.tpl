@@ -4,6 +4,7 @@
 <input type="hidden" name="section" value="search">
 <input type="hidden" name="action" value="saveSearchSchemaPeek">
 <input type="hidden" name="schema_extension_id" value="{$schema->id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 {foreach from=$search_engines item=engine key=engine_id}
 <fieldset class="peek">

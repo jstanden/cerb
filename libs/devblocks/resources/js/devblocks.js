@@ -240,9 +240,9 @@ function hideLoadingPanel() {
 }
 
 function genericAjaxPopupFind($sel) {
-	$devblocksPopups = $('#devblocksPopups');
-	$data = $devblocksPopups.data();
-	$element = $($sel).closest('DIV.devblocks-popup');
+	var $devblocksPopups = $('#devblocksPopups');
+	var $data = $devblocksPopups.data();
+	var $element = $($sel).closest('DIV.devblocks-popup');
 	for($key in $data) {
 		if($element.attr('id') == $data[$key].attr('id'))
 			return $data[$key];
@@ -256,7 +256,7 @@ function genericAjaxPopupFetch($layer) {
 }
 
 function genericAjaxPopupClose($layer, $event) {
-	$popup = genericAjaxPopupFetch($layer);
+	var $popup = genericAjaxPopupFetch($layer);
 	if(null != $popup) {
 		try {
 			if(null != $event)
@@ -273,7 +273,7 @@ function genericAjaxPopupClose($layer, $event) {
 }
 
 function genericAjaxPopupDestroy($layer) {
-	$popup = genericAjaxPopupFetch($layer);
+	var $popup = genericAjaxPopupFetch($layer);
 	if(null != $popup) {
 		genericAjaxPopupClose($layer);
 		try {
@@ -476,6 +476,11 @@ function genericAjaxGet(divRef,args,cb,options) {
 	options.cache = false;
 	options.success = cb;
 	
+	if(null == options.headers)
+		options.headers = {};
+		
+	options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
+	
 	$.ajax(options);
 }
 
@@ -522,6 +527,11 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 	options.url = DevblocksAppPath+'ajax.php'+(null!=args?('?'+args):''),
 	options.cache = false;
 	options.success = cb;
+	
+	if(null == options.headers)
+		options.headers = {};
+		
+	options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
 	
 	$.ajax(options);
 }

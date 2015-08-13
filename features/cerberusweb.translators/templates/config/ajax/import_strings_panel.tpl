@@ -3,6 +3,7 @@
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="translations">
 <input type="hidden" name="action" value="saveImportStringsPanel">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>Language File:</b> (.xml; TMX)<br>
 <input type="file" name="import_file" size="45"><br>

@@ -3,6 +3,7 @@
 <input type="hidden" name="a" value="saveBulkUpdatePopup">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="ids" value="{$ids}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset>
 	<legend>{'common.bulk_update.with'|devblocks_translate|capitalize}</legend>

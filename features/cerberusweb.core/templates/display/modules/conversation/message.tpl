@@ -148,6 +148,7 @@
 		  		<input type="hidden" name="c" value="display">
 		  		<input type="hidden" name="a" value="">
 		  		<input type="hidden" name="id" value="{$message->id}">
+		  		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		  		
 		  		<button type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=message&id={$message->id}{/devblocks_url}';document.frmPrint.submit();"><span class="glyphicons glyphicons-print"></span> {'common.print'|devblocks_translate|capitalize}</button>
 		  		

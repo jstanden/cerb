@@ -14,6 +14,7 @@
 <input type="hidden" name="link_context_id" value="{$draft->params.link_context_id}">
 {/if}
 <input type="hidden" name="format" value="{if ($draft && $draft->params.format == 'parsedown') || $mail_reply_html}parsedown{/if}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset class="peek">
 	<legend>{'common.message'|devblocks_translate|capitalize}</legend>

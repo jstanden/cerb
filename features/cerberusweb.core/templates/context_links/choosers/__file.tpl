@@ -1,6 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" enctype="multipart/form-data" target="iframe_file_post" id="chooserFileUploadForm">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="chooserOpenFileUpload">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset class="peek">
 	<legend>{if $single}{'common.upload.file'|devblocks_translate|capitalize}{else}{'common.upload.files'|devblocks_translate|capitalize}{/if}</legend>

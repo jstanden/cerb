@@ -11,11 +11,13 @@
 {/foreach}
 
 {if !$has_atleast_one}
-<form action="{devblocks_url}{/devblocks_url}">
+<form action="{devblocks_url}{/devblocks_url}" method="POST">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="mail_filtering">
 <input type="hidden" name="action" value="createDefaultVa">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+
 <div class="help-box" style="padding:5px;border:0;">
 	<h1 style="margin-bottom:5px;text-align:left;">Create a global Virtual Attendant</h1>
 	

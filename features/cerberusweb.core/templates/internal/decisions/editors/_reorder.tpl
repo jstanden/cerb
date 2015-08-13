@@ -3,6 +3,7 @@
 <input type="hidden" name="a" value="saveDecisionReorderPopup">
 {if isset($node)}<input type="hidden" name="id" value="{$node->id}">{/if}
 {if isset($trigger)}<input type="hidden" name="trigger_id" value="{$trigger->id}">{/if}
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset>
 	<legend>{if !empty($node)}{$node->title}{elseif !empty($trigger)}{$trigger->event_point}{/if}</legend>

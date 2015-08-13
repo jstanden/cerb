@@ -1,6 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmWatcherPrefs">
 <input type="hidden" name="c" value="preferences">
 <input type="hidden" name="a" value="saveWatcherTab">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset class="peek">
 <legend>If I'm watching something, send me a notification when these events happen:</legend>

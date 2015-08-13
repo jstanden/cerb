@@ -4,6 +4,7 @@
 <input type="hidden" name="section" value="storage_content">
 <input type="hidden" name="action" value="saveStorageSchemaPeek">
 <input type="hidden" name="ext_id" value="{$schema->manifest->id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 {$schema->renderConfig()}
 

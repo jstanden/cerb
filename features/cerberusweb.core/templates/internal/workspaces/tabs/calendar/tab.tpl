@@ -13,6 +13,8 @@
 {$guid = uniqid()}
 
 <form id="frm{$guid}" action="#" style="margin-bottom:5px;width:98%;">
+	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+	
 	<div style="float:left;">
 		<span style="font-weight:bold;font-size:150%;">{$calendar_properties.calendar_date|devblocks_date:'F Y'}</span>
 		<span style="margin-left:10px;">

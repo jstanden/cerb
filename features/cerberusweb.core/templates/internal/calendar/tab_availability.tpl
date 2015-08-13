@@ -1,11 +1,13 @@
 {$guid = uniqid()}
 
 {if empty($calendar) && $context == CerberusContexts::CONTEXT_WORKER && $context_id == $active_worker->id}
-<form action="{devblocks_url}{/devblocks_url}">
+<form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="worker">
 <input type="hidden" name="action" value="setAvailabilityCalendar">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+
 <div class="help-box" style="padding:5px;border:0;">
 	<h1 style="margin-bottom:5px;text-align:left;">Configure your availability calendar</h1>
 	

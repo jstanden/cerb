@@ -1275,6 +1275,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 <input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
 <input type="hidden" name="do_delete" value="0">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset class="peek">
 	<legend>{'common.properties'|devblocks_translate}</legend>
@@ -1428,6 +1429,8 @@ $field_prefix = strtolower(substr($table_name,0,1));
 <input type="hidden" name="section" value="<?php echo $table_name; ?>">
 <input type="hidden" name="action" value="">
 <input type="hidden" name="explore_from" value="0">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}

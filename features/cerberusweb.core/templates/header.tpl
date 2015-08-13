@@ -5,6 +5,7 @@
 	<meta http-equiv="Cache-Control" content="no-cache">
 	<meta name="robots" content="noindex">
 	<meta name="googlebot" content="noindex">
+	<meta name="_csrf_token" content="{$session.csrf_token}">
 	<!--[if gte IE 9]>
 	<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
 	<![endif]-->

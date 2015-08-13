@@ -3,6 +3,7 @@
 <input type="hidden" name="a" value="parseImportFile">
 <input type="hidden" name="context" value="{$context}">
 <input type="hidden" name="view_id" value="{$view_id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset>
 	<legend>Upload File</legend>

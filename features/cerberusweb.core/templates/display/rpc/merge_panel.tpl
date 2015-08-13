@@ -2,6 +2,7 @@
 <input type="hidden" name="c" value="display">
 <input type="hidden" name="a" value="saveMergePanel">
 <input type="hidden" name="src_ticket_id" value="{$ticket_id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>Merge with tickets:</b><br>
 <button type="button" class="chooser_ticket"><span class="glyphicons glyphicons-search"></span></button>

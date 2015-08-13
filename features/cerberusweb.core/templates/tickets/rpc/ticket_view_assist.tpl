@@ -2,6 +2,7 @@
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="viewAutoAssist">
 <input type="hidden" name="view_id" value="{$view_id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 Sort biggest piles by: 
 <label><input type="radio" name="mode" value="subjects" {if $mode!="subjects"}onclick="genericAjaxGet('{$view_id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view_id}&mode=subjects');"{/if} {if $mode=="subjects"}checked{/if}>Subject Similarity</label>

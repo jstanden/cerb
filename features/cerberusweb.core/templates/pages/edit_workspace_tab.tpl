@@ -4,6 +4,7 @@
 <input type="hidden" name="id" value="{$workspace_tab->id}">
 <input type="hidden" name="workspace_page_id" value="{$workspace_tab->workspace_page_id}">
 {if !empty($workspace_tab)}<input type="hidden" name="do_delete" value="0">{/if}
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%" style="margin-bottom:5px;">
 	<tr>

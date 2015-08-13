@@ -3,6 +3,7 @@
 <input type="hidden" name="a" value="doAddNote">
 <input type="hidden" name="id" value="{$message->id}">
 <input type="hidden" name="ticket_id" value="{$message->ticket_id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <div class="block" style="width:98%;margin:10px;">
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
