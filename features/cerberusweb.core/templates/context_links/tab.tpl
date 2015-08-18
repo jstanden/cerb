@@ -95,6 +95,12 @@ function chooserOpen(ref) {
 				$tab.find('> a > div.tab-badge').html(json.links_count);
 			}
 		};
+		
+		if(null == options.headers)
+			options.headers = {};
+
+		options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
+		
 		$.ajax(options);
 
 		if(0==$view.length) {
@@ -147,6 +153,12 @@ function removeSelectedContextLinks(ref) {
 			$tab.find('> a > div.tab-badge').html(json.links_count);
 		}
 	};
+	
+	if(null == options.headers)
+		options.headers = {};
+
+	options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
+	
 	$.ajax(options);
 	
 	genericAjaxGet($view.attr('id'), 'c=internal&a=viewRefresh&id=' + view_id);

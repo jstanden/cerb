@@ -391,6 +391,11 @@ var cAjaxCalls = function() {
 		options.cache = false;
 		options.success = cb;
 		
+		if(null == options.headers)
+			options.headers = {};
+		
+		options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
+		
 		$.ajax(options);
 	}
 	
@@ -421,6 +426,11 @@ var cAjaxCalls = function() {
 		options.url = DevblocksAppPath+'ajax.php';//+(null!=args?('?'+args):''),
 		options.cache = false;
 		options.success = cb;
+		
+		if(null == options.headers)
+			options.headers = {};
+		
+		options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
 		
 		$.ajax(options);
 	}	
