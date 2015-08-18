@@ -3,6 +3,7 @@
 	<input type="hidden" name="c" value="contacts">
 	<input type="hidden" name="a" value="saveOrgAddPeoplePopup">
 	<input type="hidden" name="org_id" value="{$org_id}">
+	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 	<button type="button" id="{$btnProfileOrgAddPeople}"><span class="glyphicons glyphicons-circle-plus"></span> Add People</button>
 </form>
 

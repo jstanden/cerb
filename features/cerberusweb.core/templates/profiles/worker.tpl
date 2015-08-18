@@ -19,6 +19,8 @@
 
 <div class="cerb-profile-toolbar">
 	<form class="toolbar" action="javascript:;" method="POST" style="margin:0px 0px 5px 5px;" onsubmit="return false;">
+		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+		
 		<!-- Macros -->
 		{if $worker->id == $active_worker->id || $active_worker->is_superuser}
 			{if !empty($page_context) && !empty($page_context_id) && !empty($macros)}

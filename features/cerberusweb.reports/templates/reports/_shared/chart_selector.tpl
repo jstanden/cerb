@@ -1,4 +1,5 @@
 <form id="frmChartSelector" action="#" style="margin:10px 0px 0px 5px;">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 <b>Chart options:</b> 
 <button type="button" class="line">Line</button>
 <button type="button" class="line filled">Line (Filled)</button>
@@ -8,7 +9,7 @@
 </form>
 
 <script type="text/javascript">
-	frm = $('#frmChartSelector').find('button').bind('click', function(event) {
+	var frm = $('#frmChartSelector').find('button').bind('click', function(event) {
 		$choice = $(event.target);
 		
 		is_bar = $choice.hasClass('bar');

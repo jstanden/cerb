@@ -17,6 +17,7 @@
 		<input type="hidden" name="c" value="tasks">
 		<input type="hidden" name="a" value="">
 		<input type="hidden" name="id" value="{$page_context_id}">
+		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
 		<!-- Toolbar -->
 		<span>

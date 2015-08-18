@@ -14,6 +14,8 @@
 
 <div class="cerb-profile-toolbar">
 	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
+		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+		
 		<!-- Toolbar -->
 		
 		<span>

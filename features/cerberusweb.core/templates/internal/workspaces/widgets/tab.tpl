@@ -1,6 +1,7 @@
 {if empty($columns)}
 	{if $page->isWriteableByWorker($active_worker)}
 	<form action="#" onsubmit="return false;">
+	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 	<div class="help-box" style="padding:5px;border:0;">
 		<h1 style="margin-bottom:5px;text-align:left;">Let's put this dashboard to good use</h1>
 		
@@ -24,6 +25,7 @@
 
 {if $page->isWriteableByWorker($active_worker)}
 <form id="frmAddWidget{$workspace_tab->id}" action="#">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 <button type="button" class="add_widget"><span class="glyphicons glyphicons-circle-plus"></span> Add Widget</button>
 </form>
 {/if}

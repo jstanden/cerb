@@ -1,6 +1,7 @@
 <h2>{'timetracking.activity.tab'|devblocks_translate}</h2>
 
 <form>
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 <button type="button" onclick="genericAjaxGet('configActivity','c=config&a=handleSectionAction&section=timetracking&action=getActivity&id=0');"><span class="glyphicons glyphicons-circle-plus"></span> {'timetracking.ui.cfg.add_new_activity'|devblocks_translate|capitalize}</button>
 </form>
 

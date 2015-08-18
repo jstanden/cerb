@@ -16,6 +16,7 @@
 		
 		<td width="100%" valign="top">
 			<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmConfigFieldSource" onsubmit="return false;">
+				<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 				{if !empty($ext_id)}
 					{assign var=context_manifest value=$context_manifests.$ext_id}
 					{include file="devblocks:cerberusweb.core::configuration/section/fields/edit_source.tpl" object=$context_manifest}

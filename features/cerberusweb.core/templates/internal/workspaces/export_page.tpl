@@ -1,4 +1,5 @@
 <form action="javascript:;" method="post" id="frmWorkspacePageExport" onsubmit="return false;">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <div>
 	<textarea style="width:100%;height:250px;white-space:pre;word-wrap:normal;" rows="10" cols="45" spellcheck="false">{$json}</textarea>

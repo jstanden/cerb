@@ -35,6 +35,8 @@
 	{/if}
 	
 	<form class="toolbar" action="javascript:;" method="POST" style="margin-top:5px;" onsubmit="return false;">
+		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+		
 		<!-- Macros -->
 		{if $active_worker->is_superuser}
 			{if !empty($page_context) && !empty($page_context_id) && !empty($macros)}

@@ -17,6 +17,7 @@
 
 <div class="cerb-profile-toolbar">
 	<form class="toolbar" action="javascript:;" method="POST" onsubmit="return false;">
+		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 	
 		<!-- Macros -->
 		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}

@@ -20,6 +20,7 @@
 		{foreach from=$triggers_by_event.$event_point key=trigger_id item=trigger}
 		<form id="decisionTree{$trigger_id}" action="javascript:;" onsubmit="return false;">
 			<input type="hidden" name="trigger_id[]" value="{$trigger_id}">
+			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 			{include file="devblocks:cerberusweb.core::internal/decisions/tree.tpl" trigger=$trigger event=$event is_writeable=$is_writeable}
 		</form>
 		{/foreach}

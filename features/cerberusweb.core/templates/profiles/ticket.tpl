@@ -36,6 +36,7 @@
 		<input type="hidden" name="closed" value="{if $ticket->is_closed}1{else}0{/if}">
 		<input type="hidden" name="deleted" value="{if $ticket->is_deleted}1{else}0{/if}">
 		<input type="hidden" name="spam" value="0">
+		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
 		<span id="spanRecommendToolbar">
 		{$object_recommendations = DAO_ContextRecommendation::getByContexts($page_context, array($page_context_id))}
