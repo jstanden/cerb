@@ -191,15 +191,21 @@ $.fn.cerbDateInputHelper = function(options) {
 					
 					var url = DevblocksAppPath+'ajax.php?c=internal&a=handleSectionAction&section=calendars&action=getDateInputAutoCompleteOptionsJson';
 					
-					$.ajax({
+					var ajax_options = {
 						url: url,
 						dataType: "json",
 						data: request,
 						success: function(data) {
 							response(data);
 						}
-					});
+					};
 					
+					if(null == ajax_options.headers)
+						ajax_options.headers = {};
+
+					ajax_options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
+					
+					$.ajax(ajax_options);
 				},
 				focus: function() {
 					return false;
@@ -479,14 +485,21 @@ var cAjaxCalls = function() {
 				if(0==request.term.length)
 					return;
 				
-				$.ajax({
+				var ajax_options = {
 					url: url,
 					dataType: "json",
 					data: request,
 					success: function(data) {
 						response(data);
 					}
-				});
+				};
+				
+				if(null == ajax_options.headers)
+					ajax_options.headers = {};
+
+				ajax_options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
+				
+				$.ajax(ajax_options);
 			}
 			options.select = function(event, ui) {
 				var value = $(this).val();
@@ -517,7 +530,7 @@ var cAjaxCalls = function() {
 	this.orgAutoComplete = function(sel, options) {
 		if(null == options) options = { };
 		
-		options.source = DevblocksAppPath+'ajax.php?c=contacts&a=getOrgsAutoCompletions';
+		options.source = DevblocksAppPath+'ajax.php?c=contacts&a=getOrgsAutoCompletions&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
 		
 		if(null == options.minLength)
 			options.minLength = 1;
@@ -534,7 +547,7 @@ var cAjaxCalls = function() {
 	this.countryAutoComplete = function(sel, options) {
 		if(null == options) options = { };
 		
-		options.source = DevblocksAppPath+'ajax.php?c=contacts&a=getCountryAutoCompletions';
+		options.source = DevblocksAppPath+'ajax.php?c=contacts&a=getCountryAutoCompletions&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
 		
 		if(null == options.minLength)
 			options.minLength = 1;
@@ -595,7 +608,7 @@ var cAjaxCalls = function() {
 			$autocomplete.insertBefore($button);
 			
 			$autocomplete.autocomplete({
-				source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=' + context,
+				source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=' + context + '_csrf_token=' + $('meta[name="_csrf_token"]').attr('content'),
 				minLength: 1,
 				focus:function(event, ui) {
 					return false;
