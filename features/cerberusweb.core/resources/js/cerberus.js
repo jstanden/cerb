@@ -464,7 +464,7 @@ var cAjaxCalls = function() {
 	}
 
 	this.emailAutoComplete = function(sel, options) {
-		var url = DevblocksAppPath+'ajax.php?c=contacts&a=getEmailAutoCompletions';
+		var url = DevblocksAppPath+'ajax.php?c=contacts&a=getEmailAutoCompletions&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
 		if(null == options) options = { };
 
 		if(null == options.minLength)
@@ -493,11 +493,6 @@ var cAjaxCalls = function() {
 						response(data);
 					}
 				};
-				
-				if(null == ajax_options.headers)
-					ajax_options.headers = {};
-
-				ajax_options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
 				
 				$.ajax(ajax_options);
 			}
