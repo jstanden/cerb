@@ -593,10 +593,14 @@ abstract class DevblocksEngine {
 	static function processRequest(DevblocksHttpRequest $request, $is_ajax=false) {
 		$path = $request->path;
 		
+		// Controllers
+
+		$controller_uri = array_shift($path);
+		
 		// Security: CSRF
 		
-		// If we are running a controller action...
-		if(isset($_REQUEST['c']) || isset($_REQUEST['a'])) {
+		// If we are running a controller action with an active session...
+		if(!in_array($controller_uri, array('portal')) && (isset($_REQUEST['c']) || isset($_REQUEST['a']))) {
 			
 			// ...and we're not in DEVELOPMENT_MODE
 			if(!DEVELOPMENT_MODE_ALLOW_CSRF) {
@@ -612,10 +616,6 @@ abstract class DevblocksEngine {
 				}
 			}
 		}
-
-		// Controllers
-
-		$controller_uri = array_shift($path);
 
 		// [JAS]: Offer the platform a chance to intercept.
 		switch($controller_uri) {
