@@ -26,6 +26,7 @@ class Controller_Portal extends DevblocksControllerExtension {
 		$stack = $request->path;
 
 		$tpl = DevblocksPlatform::getTemplateService();
+		$umsession = ChPortalHelper::getSession();
 
 		// Globals for Community Tool template scope
 		$translate = DevblocksPlatform::getTranslationService();
@@ -35,12 +36,16 @@ class Controller_Portal extends DevblocksControllerExtension {
 		$code = array_shift($stack); // xxxxxxxx
 
 		ChPortalHelper::setCode($code);
+		
+		// Routing
 
 		if(null != (@$tool = DAO_CommunityTool::getByCode($code))) {
 			// [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
 			$manifest = DevblocksPlatform::getExtension($tool->extension_id,false,true);
 			if(null != (@$tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
-				return $tool->handleRequest(new DevblocksHttpRequest($stack));
+				$delegate_request = new DevblocksHttpRequest($stack);
+				$delegate_request->csrf_token = $request->csrf_token;
+				return $tool->handleRequest($delegate_request);
 			}
 		} else {
 			die("Tool not found.");
@@ -52,7 +57,7 @@ class Controller_Portal extends DevblocksControllerExtension {
 	 */
 	function writeResponse(DevblocksHttpResponse $response) {
 		$stack = $response->path;
-
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		// Globals for Community Tool template scope
@@ -109,16 +114,17 @@ class ChPortalHelper {
 		if(empty(self::$_fingerprint)) {
 			@$sFingerPrint = DevblocksPlatform::importGPC($_COOKIE['GroupLoginPassport'],'string','');
 			
-			if(!empty($sFingerPrint)) {
+			if(!empty($sFingerPrint))
 				self::$_fingerprint = unserialize($sFingerPrint);
+			
+			if(empty(self::$_fingerprint)) {
 				
-			} else {
 				// [TODO] We don't need to be storing this in the cookie
 				self::$_fingerprint = array(
-					'browser' => $_SERVER['HTTP_USER_AGENT'],
-					'ip' => $_SERVER['REMOTE_ADDR'],
+					'browser' => @$_SERVER['HTTP_USER_AGENT'],
+					'ip' => @$_SERVER['REMOTE_ADDR'],
 					'local_sessid' => session_id(),
-					'started' => time()
+					'started' => time(),
 				);
 				
 				setcookie(

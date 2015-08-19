@@ -7,6 +7,7 @@
 <form action="{devblocks_url}c=account{/devblocks_url}" method="post" id="frmMyOpenID">
 <input type="hidden" name="a" value="doOpenIdUpdate">
 <input type="hidden" name="hash_key" value="{$openid->hash_key}">
+<input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
 
 <fieldset>
 	<legend>OpenID</legend>

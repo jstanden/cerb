@@ -4,6 +4,7 @@
 
 <form action="{devblocks_url}c=login&a=register{/devblocks_url}" method="post" id="frmRegister">
 <input type="hidden" name="a" value="doRegister">
+<input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
 
 <fieldset>
 	<legend>Register</legend>

@@ -17,6 +17,7 @@
 	
 	<form action="{devblocks_url}c=account&a=openid{/devblocks_url}" method="POST" style="margin-top:5px;" id="myAcctOpenId">
 		<input type="hidden" name="a" value="doOpenIdAdd">
+		<input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
 		<b>Link a new OpenID to my account:</b><br> 
 		<input type="text" name="openid_url" class="input_openid" style="background:url('{devblocks_url}c=resource&p=cerberusweb.core&f=css/input_icons/openid.gif{/devblocks_url}') no-repeat scroll 5px 50% #ffffff;padding-left:25px;" size="45" value="">
 		<button type="submit">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/add.png{/devblocks_url}" align="top">&nbsp;</button>

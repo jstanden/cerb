@@ -6,6 +6,7 @@
 
 <form action="{devblocks_url}c=account&a=password{/devblocks_url}" method="post" id="frmAcctPasswd">
 <input type="hidden" name="a" value="doPasswordUpdate">
+<input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
 
 <fieldset>
 	<legend>Change Password</legend>

@@ -6,6 +6,7 @@
 		<td>
 			<form action="{devblocks_url}c=kb&a=search{/devblocks_url}" method="POST" style="padding-bottom:5px;">
 				<input type="text" name="q" value="{$q}" style="width:100%;"><br>
+				<input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
 				<button type="submit">{'common.search'|devblocks_translate|lower}</button>
 			</form>
 		</td>

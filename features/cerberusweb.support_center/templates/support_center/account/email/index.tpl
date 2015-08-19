@@ -21,6 +21,8 @@
 	
 	<form action="{devblocks_url}c=account{/devblocks_url}" method="POST" style="margin-top:5px;">
 		<input type="hidden" name="a" value="doEmailAdd">
+		<input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
+		
 		<b>Link a new email address to my account:</b><br> 
 		<input type="text" name="add_email" class="input_email" style="background:url('{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/mail.png{/devblocks_url}') no-repeat scroll 5px 50% #ffffff;padding-left:25px;" size="45" value="">
 		<button type="submit">&nbsp;<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/add.png{/devblocks_url}" align="top">&nbsp;</button>

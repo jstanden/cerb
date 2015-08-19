@@ -605,6 +605,21 @@ if(!isset($columns['options_json'])) {
 }
 
 // ===========================================================================
+// Add the `csrf_token` field to `community_session`
+
+if(!isset($tables['community_session'])) {
+	$logger->error("The 'community_session' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('community_session');
+
+if(!isset($columns['csrf_token'])) {
+	$db->ExecuteMaster("ALTER TABLE community_session ADD COLUMN csrf_token VARCHAR(255) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("DELETE FROM community_session");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

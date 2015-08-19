@@ -181,6 +181,28 @@ class UmScApp extends Extension_UsermeetTool {
 		$stack = $request->path;
 		$module_uri = array_shift($stack);
 		
+		$umsession = ChPortalHelper::getSession();
+		
+		// CSRF checking
+		
+		// If we are running a controller action with an active session...
+		if(isset($_REQUEST['c']) || isset($_REQUEST['a'])) {
+			
+			// ...and we're not in DEVELOPMENT_MODE
+			if(!DEVELOPMENT_MODE_ALLOW_CSRF) {
+			
+				// ...and the CSRF token is invalid for this session, freak out
+				if(!$umsession->csrf_token || $umsession->csrf_token != $request->csrf_token) {
+					header("Status: 403");
+					@$referer = $_SERVER['HTTP_REFERER'];
+					@$remote_addr = $_SERVER['REMOTE_ADDR'];
+					
+					error_log(sprintf("[Cerb/Security] Possible CSRF attack from IP %s using referrer %s", $remote_addr, $referer), E_USER_WARNING);
+					die("Access denied");
+				}
+			}
+		}
+		
 		// Set locale in scope
 		$default_locale = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_DEFAULT_LOCALE, 'en_US');
 		DevblocksPlatform::setLocale($default_locale);
@@ -210,10 +232,13 @@ class UmScApp extends Extension_UsermeetTool {
 	}
 	
 	public function writeResponse(DevblocksHttpResponse $response) {
-		$umsession = ChPortalHelper::getSession();
 		$stack = $response->path;
 		
 		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$umsession = ChPortalHelper::getSession();
+		$tpl->assign('session', $umsession);
+		
 		$tpl->assign('portal_code', ChPortalHelper::getCode());
 		
 		$page_title = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_PAGE_TITLE, 'Support Center');

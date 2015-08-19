@@ -3,6 +3,7 @@
 {/if}
 
 <form action="{devblocks_url}c=login&a=authenticate{/devblocks_url}" method="post" id="loginForm">
+<input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
 <fieldset>
 	<legend>{'header.signon'|devblocks_translate}</legend>
 	

@@ -12,6 +12,7 @@
 <input type="hidden" name="id" value="{$view->id}">
 <input type="hidden" name="c" value="kb">
 <input type="hidden" name="a" value="">
+<input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
 
 {if !empty($total)}
 <table cellpadding="3" cellspacing="0" border="0" width="100%" class="worklistBody">

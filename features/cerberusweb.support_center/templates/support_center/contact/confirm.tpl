@@ -1,5 +1,6 @@
 <form action="{devblocks_url}c=contact{/devblocks_url}" method="post">
 <input type="hidden" name="a" value="">
+<input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
 <table border="0" cellpadding="0" cellspacing="0">
   <tbody>
 	<tr>
@@ -14,7 +15,6 @@
 		  	{/if}
 	  	</fieldset>
 	  	<h1></h1>
-	  	
 	  	
 		<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top" border="0"> {'common.ok'|devblocks_translate|upper}</button>
 		

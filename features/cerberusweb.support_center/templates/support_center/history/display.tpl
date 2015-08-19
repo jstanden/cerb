@@ -6,6 +6,7 @@
 <input type="hidden" name="a" value="saveTicketProperties">
 <input type="hidden" name="mask" value="{$ticket.t_mask}">
 <input type="hidden" name="closed" value="{if $ticket.t_is_closed}1{else}0{/if}">
+<input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
 	<b>{'portal.sc.public.history.reference'|devblocks_translate}</b> {$ticket.t_mask}
 	 &nbsp; 
 	<b>{'common.updated'|devblocks_translate|capitalize}:</b> <abbr title="{$ticket.t_updated_date|devblocks_date}">{$ticket.t_updated_date|devblocks_prettytime}</abbr>
@@ -76,6 +77,7 @@
 		<form action="{devblocks_url}c=history{/devblocks_url}" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="a" value="doReply">
 		<input type="hidden" name="mask" value="{$ticket.t_mask}">
+		<input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
 		
 		<b>{'message.header.from'|devblocks_translate|capitalize}:</b> 
 		<select name="from">

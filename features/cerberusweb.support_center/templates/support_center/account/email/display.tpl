@@ -10,6 +10,7 @@
 <form action="{devblocks_url}c=account{/devblocks_url}" method="post" id="myAccountForm">
 <input type="hidden" name="a" value="doEmailUpdate">
 <input type="hidden" name="id" value="{$address->id}">
+<input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
 
 <fieldset>
 	<legend>{$address->email}</legend>

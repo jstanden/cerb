@@ -7,6 +7,7 @@
 {if !empty($dispatch)}
 <form action="{devblocks_url}c=contact{/devblocks_url}" method="post">
 	<input type="hidden" name="a" value="doContactStep2">
+	<input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
 	<fieldset>
 		<legend>{'portal.sc.public.contact.how_can_we_help'|devblocks_translate}</legend>
 		

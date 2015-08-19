@@ -4,6 +4,7 @@
 
 <form action="{devblocks_url}c=account&a=delete{/devblocks_url}" method="post" id="frmAccountDelete">
 <input type="hidden" name="a" value="doDelete">
+<input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
 
 <fieldset>
 	<legend>Are you sure you want to delete your account?</legend>

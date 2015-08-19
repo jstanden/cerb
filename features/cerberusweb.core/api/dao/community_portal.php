@@ -397,6 +397,7 @@ class DAO_CommunitySession {
 	const SESSION_ID = 'session_id';
 	const CREATED = 'created';
 	const UPDATED = 'updated';
+	const CSRF_TOKEN = 'csrf_token';
 	const PROPERTIES = 'properties';
 	
 	static public function save(Model_CommunitySession $session) {
@@ -417,7 +418,7 @@ class DAO_CommunitySession {
 	static public function get($session_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT session_id, created, updated, properties ".
+		$sql = sprintf("SELECT session_id, created, updated, csrf_token, properties ".
 			"FROM community_session ".
 			"WHERE session_id = %s",
 			$db->qstr($session_id)
@@ -431,6 +432,7 @@ class DAO_CommunitySession {
 			$session->session_id = $row['session_id'];
 			$session->created = $row['created'];
 			$session->updated = $row['updated'];
+			$session->csrf_token = $row['csrf_token'];
 			
 			if(!empty($row['properties']))
 				@$session->setProperties(unserialize($row['properties']));
@@ -461,12 +463,14 @@ class DAO_CommunitySession {
 		$session->session_id = $session_id;
 		$session->created = time();
 		$session->updated = time();
+		$session->csrf_token = CerberusApplication::generatePassword(128);
 		
-		$sql = sprintf("INSERT INTO community_session (session_id, created, updated, properties) ".
-			"VALUES (%s, %d, %d, '')",
+		$sql = sprintf("INSERT INTO community_session (session_id, created, updated, csrf_token, properties) ".
+			"VALUES (%s, %d, %d, %s, '')",
 			$db->qstr($session->session_id),
 			$session->created,
-			$session->updated
+			$session->updated,
+			$db->qstr($session->csrf_token)
 		);
 		$db->ExecuteMaster($sql);
 		
@@ -495,6 +499,7 @@ class Model_CommunitySession {
 	public $session_id = '';
 	public $created = 0;
 	public $updated = 0;
+	public $csrf_token = '';
 	private $_properties = array();
 
 	function login(Model_ContactPerson $contact) {
