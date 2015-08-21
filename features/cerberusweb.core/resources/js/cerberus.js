@@ -603,7 +603,7 @@ var cAjaxCalls = function() {
 			$autocomplete.insertBefore($button);
 			
 			$autocomplete.autocomplete({
-				source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=' + context + '_csrf_token=' + $('meta[name="_csrf_token"]').attr('content'),
+				source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=' + context + '&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content'),
 				minLength: 1,
 				focus:function(event, ui) {
 					return false;
