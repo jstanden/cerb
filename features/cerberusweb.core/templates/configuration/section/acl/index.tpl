@@ -24,7 +24,6 @@
 		
 		<td width="100%" valign="top">
 			<form action="{devblocks_url}{/devblocks_url}" method="post" id="configRole">
-				<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 				{include file="devblocks:cerberusweb.core::configuration/section/acl/edit_role.tpl" role=$role}
 			</form>
 		</td>

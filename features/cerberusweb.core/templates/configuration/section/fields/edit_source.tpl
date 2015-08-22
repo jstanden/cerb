@@ -3,6 +3,7 @@
 <input type="hidden" name="section" value="fields">
 <input type="hidden" name="action" value="saveRecordType">
 <input type="hidden" name="ext_id" value="{$context_manifest->id}">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 <input type="hidden" name="submit" value="">
 
 <fieldset>
