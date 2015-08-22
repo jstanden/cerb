@@ -663,7 +663,7 @@ class Page_Custom extends CerberusPageExtension {
 				'page_id' => $page->id,
 				'tab_name' => $title,
 				'tab_id' => $tab_id,
-				'tab_url' => $url_writer->write('ajax.php?c=pages&a=showWorkspaceTab&id=' . $tab_id),
+				'tab_url' => $url_writer->write(sprintf('ajax.php?c=pages&a=showWorkspaceTab&id=%d&_csrf_token=%s', $tab_id, $_SESSION['csrf_token'])),
 			));
 			
 		} catch(Exception $e) {
