@@ -8,7 +8,7 @@ var markitupPlaintextDefaults = {
 
 var markitupMarkdownDefaults = {
 	resizeHandle: false,
-	previewParserPath:	DevblocksAppPath + 'ajax.php?c=internal&a=transformMarkupToHTML&format=markdown',
+	previewParserPath:	DevblocksAppPath + 'ajax.php?c=internal&a=transformMarkupToHTML&format=markdown&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content'),
 	onShiftEnter:		{keepDefault:false, openWith:'\n\n'},
 	markupSet: [
 		{name:'Heading 1', key:'1', openWith:'# ', placeHolder:'Your title here...', className:'h1' },
@@ -50,7 +50,7 @@ var markitupMarkdownDefaults = {
 var markitupParsedownDefaults = {
 	nameSpace:'markItUpParsedown',
 	resizeHandle: false,
-	previewParserPath:	DevblocksAppPath + 'ajax.php?c=internal&a=transformMarkupToHTML&format=parsedown',
+	previewParserPath:	DevblocksAppPath + 'ajax.php?c=internal&a=transformMarkupToHTML&format=parsedown&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content'),
 	previewAutoRefresh: true,
 	previewInWindow: 'width=800, height=600, titlebar=no, location=no, menubar=no, status=no, toolbar=no, resizable=yes, scrollbars=yes',
 	onShiftEnter:		{keepDefault:false, openWith:'\n\n'},
@@ -86,7 +86,7 @@ var markitupParsedownDefaults = {
 
 var markitupHTMLDefaults = {
 	resizeHandle: false,
-	previewParserPath:	DevblocksAppPath + 'ajax.php?c=internal&a=transformMarkupToHTML&format=html',
+	previewParserPath:	DevblocksAppPath + 'ajax.php?c=internal&a=transformMarkupToHTML&format=html&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content'),
 	onShiftEnter:	{keepDefault:false, replaceWith:'<br />\n'},
 	onCtrlEnter:	{keepDefault:false, openWith:'\n<p>', closeWith:'</p>\n'},
 	onTab:			{keepDefault:false, openWith:'	 '},

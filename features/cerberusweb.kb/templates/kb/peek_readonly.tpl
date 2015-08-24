@@ -1,7 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<iframe src="{$smarty.const.DEVBLOCKS_WEBPATH}ajax.php?c=kb.ajax&a=getArticleContent&id={$article->id}" style="margin:5px 0px 5px 5px;height:400px;width:98%;border:1px solid rgb(200,200,200);" frameborder="0"></iframe>
+<iframe src="{devblocks_url full=true}ajax.php?c=kb.ajax&a=getArticleContent&id={$article->id}&_csrf_token={$session.csrf_token}{/devblocks_url}" style="margin:5px 0px 5px 5px;height:400px;width:98%;border:1px solid rgb(200,200,200);" frameborder="0"></iframe>
 <br>
 {include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context={CerberusContexts::CONTEXT_KB_ARTICLE} context_id={$article->id}}
 

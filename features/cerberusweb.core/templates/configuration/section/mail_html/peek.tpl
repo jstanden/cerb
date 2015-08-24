@@ -282,7 +282,7 @@ $(function() {
 			delete markitupParsedownSettings.previewTemplatePath;
 			delete markitupParsedownSettings.previewInWindow;
 			
-			markitupParsedownSettings.previewParserPath = DevblocksAppPath + 'ajax.php?c=profiles&a=handleSectionAction&section=html_template&action=getSignatureParsedownPreview';
+			markitupParsedownSettings.previewParserPath = DevblocksAppPath + 'ajax.php?c=profiles&a=handleSectionAction&section=html_template&action=getSignatureParsedownPreview&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
 			
 			$content.markItUp(markitupHTMLSettings);
 			$signature.markItUp(markitupParsedownSettings);
