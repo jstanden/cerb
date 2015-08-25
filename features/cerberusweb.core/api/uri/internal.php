@@ -2174,6 +2174,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null == ($context_mft = Extension_DevblocksContext::getByViewClass(get_class($view))))
 			return;
 		
+		$view->setAutoPersist(false);
+		
 		$global_labels = array();
 		$global_values = array();
 		CerberusContexts::getContext($context_mft->id, null, $global_labels, $global_values, null, true);
@@ -2265,6 +2267,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		if(null == ($context_mft = Extension_DevblocksContext::getByViewClass(get_class($view))))
 			return;
+		
+		$view->setAutoPersist(false);
 		
 		$global_labels = array();
 		$global_values = array();
@@ -2368,6 +2372,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		if(null == ($context_mft = Extension_DevblocksContext::getByViewClass(get_class($view))))
 			return;
+		
+		$view->setAutoPersist(false);
 		
 		$global_labels = array();
 		$global_values = array();
