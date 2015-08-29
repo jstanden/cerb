@@ -49,7 +49,7 @@ $(function() {
 
 			$worklist_body = $('#view{$view->id}').find('TABLE.worklistBody');
 			$worklist_body.find('a.subject').each(function() {
-				$txt = $('<b class="subject">' + $(this).text() + '</b>');
+				$txt = $('<b class="subject"></b>').text($(this).text());
 				$txt.insertBefore($(this));
 				$(this).remove();
 			});
@@ -63,20 +63,30 @@ $(function() {
 		$(this).delegate('DIV[id^=view]','view_refresh', on_refresh);
 		
 		$('#view{$view->id}').delegate('TABLE.worklistBody input:checkbox', 'check', function(event) {
-			checked = $(this).is(':checked');
+			var checked = $(this).is(':checked');
 
-			$view = $('#viewForm{$view->id}');
-			$buffer = $('form#chooser{$view->id} UL.buffer');
+			var $view = $('#viewForm{$view->id}');
+			var $buffer = $('form#chooser{$view->id} UL.buffer');
 
-			$tbody = $(this).closest('tbody');
+			var $tbody = $(this).closest('tbody');
 
-			$label = $tbody.find('b.subject').text();
-			$value = $(this).val();
+			var $label = $tbody.find('b.subject').text();
+			var $value = $(this).val();
 		
 			if(checked) {
 				if($label.length > 0 && $value.length > 0) {
 					if(0==$buffer.find('input:hidden[value="'+$value+'"]').length) {
-						$li = $('<li>'+$label+'<input type="hidden" name="to_context_id[]" title="'+$label+'" value="'+$value+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
+						var $li = $('<li></li>').text($label);
+
+						var $hidden = $('<input type="hidden">');
+						$hidden.attr('name', 'to_context_id[]');
+						$hidden.attr('title', $label);
+						$hidden.attr('value', $value);
+						$hidden.appendTo($li);
+						
+						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>');
+						$a.appendTo($li);
+						
 						$buffer.append($li);
 					}
 					
@@ -94,9 +104,9 @@ $(function() {
 		$("form#chooser{$view->id} button.submit").click(function(event) {
 			event.stopPropagation();
 			var $popup = genericAjaxPopupFetch('{$layer}');
-			$buffer = $($popup).find('UL.buffer input:hidden');
-			$labels = [];
-			$values = [];
+			var $buffer = $($popup).find('UL.buffer input:hidden');
+			var $labels = [];
+			var $values = [];
 			
 			$buffer.each(function() {
 				$labels.push($(this).attr('title'));
@@ -104,7 +114,7 @@ $(function() {
 			});
 		
 			// Trigger event
-			event = jQuery.Event('chooser_save');
+			var event = jQuery.Event('chooser_save');
 			event.labels = $labels;
 			event.values = $values;
 			$popup.trigger(event);
