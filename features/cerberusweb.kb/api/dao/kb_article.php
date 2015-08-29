@@ -670,6 +670,7 @@ class Model_KbArticle {
 
 		$trails = array();
 		
+		if(is_array($cats))
 		foreach($cats as $cat_id) {
 			$pid = $cat_id;
 			$trail = array();
@@ -899,14 +900,17 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		switch($token) {
 			case 'categories':
 				// Categories
-				if(null != ($categories = $article->getCategories()) && is_array($categories)) {
-					$dict->categories = array();
+				if(null != ($article = DAO_KbArticle::get($context_id))
+					&& null != ($categories = $article->getCategories()) 
+					&& is_array($categories)
+					) {
+					$values['categories'] = array();
 					
 					foreach($categories as $category_id => $trail) {
 						foreach($trail as $step_id => $step) {
-							if(!isset($token_values['categories'][$category_id]))
-								$dict->categories[$category_id] = array();
-							$dict->categories[$category_id][$step_id] = $step->name;
+							if(!isset($values['categories'][$category_id]))
+								$values['categories'][$category_id] = array();
+							$values['categories'][$category_id][$step_id] = $step->name;
 						}
 					}
 				}
