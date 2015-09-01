@@ -745,6 +745,8 @@ switch($step) {
 		
 		if(!empty($form_submit)) {
 			// Persist form scope
+			$tpl->assign('worker_firstname', $worker_firstname);
+			$tpl->assign('worker_lastname', $worker_lastname);
 			$tpl->assign('worker_email', $worker_email);
 			$tpl->assign('worker_pass', $worker_pass);
 			$tpl->assign('worker_pass2', $worker_pass2);
