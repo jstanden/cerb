@@ -2305,12 +2305,12 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		// [TODO] Allow Cerb to enable user-agent comparisons as setting
 		// [TODO] Limit the IPs a worker can log in from (per-worker?)
 
-		if(null != ($session = $db->GetRowSlave(sprintf("SELECT session_data, refreshed_at, user_ip, user_agent FROM devblocks_session WHERE session_key = %s", $db->qstr($id))))) {
+		if(null != ($session = $db->GetRowSlave(sprintf("SELECT * FROM devblocks_session WHERE session_key = %s", $db->qstr($id))))) {
 			$maxlifetime = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
 			$is_ajax = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest');
 
-			// Refresh the session cookie (move expiraiton forward) after 5 minutes have elapsed
-			if($maxlifetime && !$is_ajax && (time() - $session['refreshed_at'] >= 300)) {
+			// Refresh the session cookie (move expiration forward) after 5 minutes have elapsed
+			if(isset($session['refreshed_at']) && $maxlifetime && !$is_ajax && (time() - $session['refreshed_at'] >= 300)) {
 				$url_writer = DevblocksPlatform::getUrlService();
 
 				setcookie('Devblocks', $id, time()+$maxlifetime, '/', NULL, $url_writer->isSSL(), true);
