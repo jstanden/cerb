@@ -335,6 +335,7 @@ class UmScKbController extends Extension_UmScController {
 		$tpl->assign('kb_params', $params);
 		
 		$view = new View_KbArticle();
+		$view->id = View_KbArticle::DEFAULT_ID;
 		
 		$columns = array_filter(
 			$view->getColumnsAvailable(),

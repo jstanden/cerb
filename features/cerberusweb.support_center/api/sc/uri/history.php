@@ -136,6 +136,7 @@ class UmScHistoryController extends Extension_UmScController {
 		$tpl->assign('history_params', $params);
 		
 		$view = new View_Ticket();
+		$view->id = View_Ticket::DEFAULT_ID;
 		
 		$columns = array_filter(
 			$view->getColumnsAvailable(),

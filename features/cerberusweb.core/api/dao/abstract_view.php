@@ -16,7 +16,7 @@
  ***********************************************************************/
 
 abstract class C4_AbstractView {
-	public $id = 0;
+	public $id = null;
 	public $is_ephemeral = 0;
 	public $name = "";
 	public $options = array();
@@ -48,9 +48,11 @@ abstract class C4_AbstractView {
 	private $_placeholderValues = array();
 	
 	public function __destruct() {
-		if(isset($this->__auto_persist) && !$this->__auto_persist) {
+		if(isset($this->__auto_persist) && !$this->__auto_persist)
 			return;
-		}
+		
+		if(empty($this->id))
+			return;
 		
 		$this->persist();
 	}
@@ -2458,6 +2460,8 @@ class C4_AbstractViewModel {
 		if(false == ($class = new $class_name))
 			return false;
 		
+		$class->setAutoPersist(false);
+		
 		if(false == ($inst = C4_AbstractViewLoader::serializeAbstractView($class)))
 			return false;
 		
@@ -2763,10 +2767,12 @@ class DAO_WorkerViewModel {
 			'placeholder_values_json',
 		);
 		
-		$rs = $db->ExecuteSlave(sprintf("SELECT %s FROM worker_view_model %s",
+		$sql = sprintf("SELECT %s FROM worker_view_model %s",
 			implode(',', $fields),
 			(!empty($where) ? ('WHERE ' . $where) : '')
-		));
+		);
+		
+		$rs = $db->ExecuteSlave($sql);
 		
 		if($rs instanceof mysqli_result)
 		while($row = mysqli_fetch_array($rs)) {
