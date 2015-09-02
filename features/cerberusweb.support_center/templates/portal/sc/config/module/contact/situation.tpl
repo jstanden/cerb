@@ -44,8 +44,8 @@ $('FIELDSET#{$uniq_id} DIV.container')
 
 $('FIELDSET#{$uniq_id} BUTTON.add')
 	.click(function() {
-		$fieldset = $('FIELDSET#{$uniq_id}');
-		$clone = $fieldset.find('DIV.template DIV.drag').clone();
+		var $fieldset = $('FIELDSET#{$uniq_id}');
+		var $clone = $fieldset.find('DIV.template DIV.drag').clone();
 		$fieldset.find('DIV.container').append($clone);
 	})
 	;

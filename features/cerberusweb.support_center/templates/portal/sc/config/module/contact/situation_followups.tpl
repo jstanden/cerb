@@ -5,10 +5,9 @@
 	<option value="">-- {'portal.sc.cfg.append_to_message'|devblocks_translate} --</option>
 	<optgroup label="{'common.custom_fields'|devblocks_translate}">	
 		{foreach from=$ticket_fields item=f key=f_id}
-		{assign var=field_group_id value=$f->group_id}
+		{$field_type = $f->type}
 		<option value="{$f_id}" {if $f_id==$field_id}selected{/if}>
-			{if isset($groups.$field_group_id)}{$groups.$field_group_id->name}: {/if}{$f->name}
-			{assign var=field_type value=$f->type}
+			{$f->name}
 			{if isset($field_types.$field_type)}({$field_types.$field_type}){/if}
 		</option>
 		{/foreach}

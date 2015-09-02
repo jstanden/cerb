@@ -50,7 +50,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		$tpl->assign('groups', $groups);
 		
 		// Contact: Fields
-		$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
+		$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, true, true);
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
 		// Custom field types
