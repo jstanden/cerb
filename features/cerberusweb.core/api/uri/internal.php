@@ -2167,6 +2167,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	private function _viewIncrementExportAsCsv(array &$cursor) {
 		$view_id = $cursor['view_id'];
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
 			return;
@@ -2210,7 +2211,13 @@ class ChInternalController extends DevblocksControllerExtension {
 		$count = count($results);
 		$dicts = array();
 		
+		if(is_array($results))
 		foreach($results as $row_id => $result) {
+			// Secure the exported rows
+			if(method_exists($result, 'isReadableByWorker'))
+				if(!$result->isReadableByWorker($active_worker))
+					continue;
+			
 			$labels = array(); // ignore
 			$values = array();
 			CerberusContexts::getContext($context_mft->id, $result, $labels, $values, null, true, true);
@@ -2261,6 +2268,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	private function _viewIncrementExportAsJson(array &$cursor) {
 		$view_id = $cursor['view_id'];
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
 			return;
@@ -2316,6 +2324,11 @@ class ChInternalController extends DevblocksControllerExtension {
 			fputs($fp, ",\n");
 		
 		foreach($results as $row_id => $result) {
+			// Secure the exported rows
+			if(method_exists($result, 'isReadableByWorker'))
+				if(!$result->isReadableByWorker($active_worker))
+					continue;
+			
 			$labels = array(); // ignore
 			$values = array();
 			CerberusContexts::getContext($context_mft->id, $result, $labels, $values, null, true, true);
@@ -2366,6 +2379,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	private function _viewIncrementExportAsXml(array &$cursor) {
 		$view_id = $cursor['view_id'];
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
 			return;
@@ -2420,6 +2434,11 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		if(is_array($results))
 		foreach($results as $row_id => $result) {
+			// Secure the exported rows
+			if(method_exists($result, 'isReadableByWorker'))
+				if(!$result->isReadableByWorker($active_worker))
+					continue;
+			
 			$labels = array(); // ignore
 			$values = array();
 			CerberusContexts::getContext($context_mft->id, $result, $labels, $values, null, true, true);

@@ -2216,6 +2216,13 @@ class Model_Ticket {
 	private $_org = null;
 
 	function Model_Ticket() {}
+	
+	function isReadableByWorker(Model_Worker $worker) {
+		if(false == ($group = DAO_Group::get($this->group_id)))
+			return false;
+		
+		return $group->isReadableByWorker($worker);
+	}
 
 	function getMessages() {
 		$messages = DAO_Message::getMessagesByTicket($this->id);
