@@ -515,7 +515,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_id'],'array',array());
 		
 		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
-		@$reopen_at = DevblocksPlatform::importGPC($_REQUEST['reopen_at'],'integer',0);
+		@$reopen_at = DevblocksPlatform::importGPC($_REQUEST['reopen_at'],'string','');
 		
 		$properties = array();
 		
@@ -566,7 +566,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			$properties['closed'] = $status;
 		
 		if(!empty($reopen_at))
-			$properties['reopen_at'] = $reopen_at;
+			$properties['ticket_reopen'] = $reopen_at;
 		
 		if(!empty($file_ids)) {
 			$properties['link_forward_files'] = true;
@@ -627,7 +627,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		@$is_broadcast = DevblocksPlatform::importGPC($_REQUEST['is_broadcast'],'integer',0);
 		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
 		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'string',null);
-		@$reopen_at = DevblocksPlatform::importGPC($_REQUEST['reopen_at'],'integer',0);
+		@$reopen_at = DevblocksPlatform::importGPC($_REQUEST['reopen_at'],'string','');
 		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
 		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
@@ -717,7 +717,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			$properties['closed'] = $status;
 		
 		if(!empty($reopen_at))
-			$properties['reopen_at'] = $reopen_at;
+			$properties['ticket_reopen'] = $reopen_at;
 		
 		//Files
 		

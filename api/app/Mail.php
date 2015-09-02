@@ -505,9 +505,13 @@ class CerberusMail {
 		}
 		
 		if(isset($ticket_reopen) && !empty($ticket_reopen)) {
-			if(false !== (@$reopen_at = strtotime($ticket_reopen)))
+			if(is_numeric($ticket_reopen) && false != (@$reopen_at = strtotime('now', $ticket_reopen))) {
 				$fields[DAO_Ticket::REOPEN_AT] = $reopen_at;
+			} else if(false !== (@$reopen_at = strtotime($ticket_reopen))) {
+				$fields[DAO_Ticket::REOPEN_AT] = $reopen_at;
+			}
 		}
+
 		// End "Next:"
 		
 		$ticket_id = DAO_Ticket::create($fields);
@@ -1070,6 +1074,15 @@ class CerberusMail {
 		// Post-Reply Change Properties
 
 		if(isset($properties['closed'])) {
+			$reopen_at = 0;
+			
+			// Handle reopen date
+			if(isset($properties['ticket_reopen']) && !empty($properties['ticket_reopen'])) {
+				if(is_numeric($properties['ticket_reopen']) && false != (@$reopen_at = strtotime('now', $properties['ticket_reopen']))) {
+				} else if(false !== (@$reopen_at = strtotime($properties['ticket_reopen']))) {
+				}
+			}
+			
 			switch($properties['closed']) {
 				case 0: // open
 					$change_fields[DAO_Ticket::IS_WAITING] = 0;
@@ -1082,20 +1095,16 @@ class CerberusMail {
 					$change_fields[DAO_Ticket::IS_CLOSED] = 1;
 					$change_fields[DAO_Ticket::IS_DELETED] = 0;
 					
-					if(isset($properties['ticket_reopen'])) {
-						@$time = intval(strtotime($properties['ticket_reopen']));
-						$change_fields[DAO_Ticket::REOPEN_AT] = $time;
-					}
+					if(!empty($reopen_at))
+						$change_fields[DAO_Ticket::REOPEN_AT] = $reopen_at;
 					break;
 				case 2: // waiting
 					$change_fields[DAO_Ticket::IS_WAITING] = 1;
 					$change_fields[DAO_Ticket::IS_CLOSED] = 0;
 					$change_fields[DAO_Ticket::IS_DELETED] = 0;
 					
-					if(isset($properties['ticket_reopen'])) {
-						@$time = intval(strtotime($properties['ticket_reopen']));
-						$change_fields[DAO_Ticket::REOPEN_AT] = $time;
-					}
+					if(!empty($reopen_at))
+						$change_fields[DAO_Ticket::REOPEN_AT] = $reopen_at;
 					break;
 			}
 		}

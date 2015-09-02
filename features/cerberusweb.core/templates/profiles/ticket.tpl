@@ -120,12 +120,12 @@
 				{elseif $ticket->is_closed}
 					<span style="font-weight:bold;color:rgb(50,115,185);">{'status.closed'|devblocks_translate}</span>
 					{if !empty($ticket->reopen_at)}
-						(opens in <abbr title="{$ticket->reopen_at|devblocks_date}">{$ticket->reopen_at|devblocks_prettytime}</abbr>)
+						(opens {if $ticket->reopen_at > time()}in {/if}<abbr title="{$ticket->reopen_at|devblocks_date}">{$ticket->reopen_at|devblocks_prettytime}</abbr>)
 					{/if}
 				{elseif $ticket->is_waiting}
 					<span style="font-weight:bold;color:rgb(50,115,185);">{'status.waiting'|devblocks_translate}</span>
 					{if !empty($ticket->reopen_at)}
-						(opens in <abbr title="{$ticket->reopen_at|devblocks_date}">{$ticket->reopen_at|devblocks_prettytime}</abbr>)
+						(opens {if $ticket->reopen_at > time()}in {/if}<abbr title="{$ticket->reopen_at|devblocks_date}">{$ticket->reopen_at|devblocks_prettytime}</abbr>)
 					{/if}
 				{else}
 					{'status.open'|devblocks_translate}
