@@ -250,7 +250,7 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 				}
 				
 				if(!empty($wheres))
-					$args['where_sql'] .= ' AND ' . implode(' OR ', $wheres);
+					$args['where_sql'] .= ' AND (' . implode(' OR ', $wheres) . ') ';
 				break;
 		}
 	}
@@ -285,7 +285,7 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY context_activity_log.id ' : '').
 			$sort_sql;
-			
+		
 		if($limit > 0) {
 			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs mysqli_result */
 		} else {
