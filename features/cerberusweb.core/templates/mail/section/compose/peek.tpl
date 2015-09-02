@@ -127,9 +127,9 @@
 	</div>
 	
 	<div style="margin-top:10px;">
-		<label><input type="radio" name="closed" value="0" {if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.closed==0)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$random}','none');">{'status.open'|devblocks_translate}</label>
-		<label><input type="radio" name="closed" value="2" {if (empty($draft) && 'waiting'==$defaults.status) || (!empty($draft) && $draft->params.closed==2)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$random}','block');">{'status.waiting'|devblocks_translate}</label>
-		{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1" {if (empty($draft) && 'closed'==$defaults.status) || (!empty($draft) && $draft->params.closed==1)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$random}','block');">{'status.closed'|devblocks_translate}</label>{/if}
+		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="closed" value="0" class="status_open" {if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.closed==0)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$random}','none');">{'status.open'|devblocks_translate}</label>
+		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="closed" value="2" class="status_waiting" {if (empty($draft) && 'waiting'==$defaults.status) || (!empty($draft) && $draft->params.closed==2)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$random}','block');">{'status.waiting'|devblocks_translate}</label>
+		{if $active_worker->hasPriv('core.ticket.actions.close')}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="closed" value="1" class="status_closed" {if (empty($draft) && 'closed'==$defaults.status) || (!empty($draft) && $draft->params.closed==1)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$random}','block');">{'status.closed'|devblocks_translate}</label>{/if}
 		
 		<div id="divComposeClosed{$random}" style="display:{if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.closed==0)}none{else}block{/if};margin-top:5px;margin-left:10px;">
 			<b>{'display.reply.next.resume'|devblocks_translate}</b><br>
@@ -215,7 +215,7 @@
 
 <div class="status"></div>
 
-<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'display.ui.send_message'|devblocks_translate}</button>
+<button type="button" class="submit" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'display.ui.send_message'|devblocks_translate}</button>
 </form>
 
 <script type="text/javascript">
@@ -617,6 +617,44 @@
 				return;
 
 			switch(event.which) {
+				case 13: // (RETURN) Send message
+					try {
+						event.preventDefault();
+						$frm.find('button.submit').focus();
+					} catch(ex) { } 
+					break;
+				case 67: // (C) Set closed + focus reopen
+				case 79: // (O) Set open
+				case 87: // (W) Set waiting + focus reopen
+					try {
+						event.preventDefault();
+						
+						var $radio = $frm.find('input:radio[name=closed]');
+						
+						switch(event.which) {
+							case 67: // closed
+								$radio.filter('.status_closed').click();
+								$frm
+									.find('input:text[name=ticket_reopen]')
+										.select()
+										.focus()
+									;
+								break;
+							case 79: // open
+								$radio.filter('.status_open').click().focus();
+								break;
+							case 87: // waiting
+								$radio.filter('.status_waiting').click();
+								$frm
+									.find('input:text[name=ticket_reopen]')
+										.select()
+										.focus()
+									;
+								break;
+						}
+						
+					} catch(ex) {}
+					break;
 				case 71: // (G) Insert Signature
 					try {
 						event.preventDefault();
