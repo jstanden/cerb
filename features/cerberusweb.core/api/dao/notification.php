@@ -134,7 +134,7 @@ class DAO_Notification extends DevblocksORMHelper {
 		return null;
 	}
 	
-	static function getUnreadByContextAndWorker($context, $context_id, $worker_id=0, $mark_read=false) {
+	static function getUnreadByContextsAndWorker($context_tuples, $worker_id=0, $mark_read=false) {
 		$count = self::getUnreadCountByWorker($worker_id);
 		
 		if(empty($count))
@@ -142,12 +142,46 @@ class DAO_Notification extends DevblocksORMHelper {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$notifications = self::getWhere(
-			sprintf("%s = %s AND %s = %d AND %s = %d %s",
+		$contexts = array();
+		
+		if(is_array($context_tuples))
+		foreach($context_tuples as $context_tuple) {
+			@list($context, $context_id) = $context_tuple;
+			
+			if(empty($context))
+				continue;
+			
+			$contexts[] = sprintf("(%s = %s AND %s = %d)",
 				self::CONTEXT,
 				$db->qstr($context),
 				self::CONTEXT_ID,
-				$context_id,
+				$context_id
+			);
+			
+			switch($context) {
+				// Include messages on tickets
+				case CerberusContexts::CONTEXT_TICKET:
+					$messages = DAO_Message::getMessagesByTicket($context_id);
+					
+					if(empty($messages))
+						break;
+					
+					$contexts[] = sprintf("(%s = %s AND %s IN (%s))",
+						self::CONTEXT,
+						$db->qstr(CerberusContexts::CONTEXT_MESSAGE),
+						self::CONTEXT_ID,
+						implode(',', DevblocksPlatform::sanitizeArray(array_keys($messages), 'int'))
+					);
+					break;
+			}
+		}
+		
+		if(empty($contexts))
+			return array();
+		
+		$notifications = self::getWhere(
+			sprintf("(%s) AND %s = %d %s",
+				implode(' OR ', $contexts),
 				DAO_Notification::IS_READ,
 				0,
 				($worker_id ? sprintf(" AND %s = %d", DAO_Notification::WORKER_ID, $worker_id) : '')
@@ -164,6 +198,14 @@ class DAO_Notification extends DevblocksORMHelper {
 		}
 		
 		return $notifications;
+	}
+	
+	static function getUnreadByContextAndWorker($context, $context_id, $worker_id=0, $mark_read=false) {
+		$context_tuples = array(
+			array($context, $context_id),
+		);
+		
+		return self::getUnreadByContextsAndWorker($context_tuples, $worker_id, $mark_read);
 	}
 	
 	static function getUnreadCountByWorker($worker_id) {
