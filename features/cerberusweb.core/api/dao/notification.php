@@ -185,7 +185,9 @@ class DAO_Notification extends DevblocksORMHelper {
 				DAO_Notification::IS_READ,
 				0,
 				($worker_id ? sprintf(" AND %s = %d", DAO_Notification::WORKER_ID, $worker_id) : '')
-			)
+			),
+			self::CREATED_DATE,
+			false
 		);
 		
 		// Auto mark-read?
