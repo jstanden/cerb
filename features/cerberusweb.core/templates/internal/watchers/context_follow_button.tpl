@@ -23,7 +23,7 @@ $(function() {
 			genericAjaxGet('', 'c=internal&a=handleSectionAction&section=watchers&action=toggleCurrentWorkerAsWatcher&context={$context}&context_id={$context_id}&full={if empty($full)}0{else}1{/if}', function(json) {
 				if(undefined != json.count && undefined != json.has_active_worker) {
 					$btn.fadeTo('fast', 0.5);
-					$btn.find('div.badge-count').html(json.count);
+					$btn.find('div.badge-count').text(json.count);
 					
 					if(json.has_active_worker) {
 						$btn.addClass('green');
@@ -41,7 +41,7 @@ $(function() {
 			$popup.one('watchers_save', function(e) {
 				if(undefined != e.watchers_count && undefined != e.watchers_include_worker) {
 					$btn.fadeTo('fast', 0.5);
-					$btn.find('div.badge-count').html(e.watchers_count);
+					$btn.find('div.badge-count').text(e.watchers_count);
 					
 					if(e.watchers_include_worker) {
 						$btn.addClass('green');
