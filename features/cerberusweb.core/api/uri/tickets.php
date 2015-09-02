@@ -1532,7 +1532,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			
 			// Filter to checked
 			if('checks' == $filter && !empty($ids)) {
-				$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::ID,'in',explode(',', $ids)));
+				$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ID,'in',explode(',', $ids)));
 			}
 			
 			$results = $view->getDataSample(1);
