@@ -161,6 +161,7 @@ class ChReportWorkerHistory extends Extension_Report {
 			$params = array(
 				new DevblocksSearchCriteria(SearchFields_Message::CREATED_DATE,DevblocksSearchCriteria::OPER_BETWEEN, array($start_time, $end_time)),
 				new DevblocksSearchCriteria(SearchFields_Message::IS_OUTGOING,DevblocksSearchCriteria::OPER_EQ, 1),
+				new DevblocksSearchCriteria(SearchFields_Message::IS_BROADCAST,DevblocksSearchCriteria::OPER_EQ, 0),
 			);
 			
 			if(!empty($filter_worker_ids)) {
