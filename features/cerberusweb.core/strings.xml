@@ -1517,7 +1517,7 @@
 			<tuv xml:lang="en_US"><seg>Timeout Secs</seg></tuv>
 		</tu>
 		<tu tuid='dao.mailbox.max_msg_size_kb'>
-			<tuv xml:lang="en_US"><seg>Max Msg Size Kb</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Max Msg Size</seg></tuv>
 		</tu>
 		<tu tuid='dao.mailbox.ssl_ignore_validation'>
 			<tuv xml:lang="en_US"><seg>Ssl Ignore Validation</seg></tuv>
