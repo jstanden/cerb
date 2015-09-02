@@ -427,7 +427,7 @@ BUTTON DIV.badge-count {
   -moz-border-radius: 10px;
   -ms-border-radius: 10px;
   border-radius: 10px;
-  background-color: #878787;
+  background-color: #787878;
   color: white;
 }
 BUTTON:hover DIV.badge-count {
