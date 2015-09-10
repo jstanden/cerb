@@ -96,7 +96,8 @@ class ChRest_Workspaces extends Extension_RestController { // implements IExtens
 		$results = array();
 
 		foreach($workspace_pages as $workspace_page) {
-			if(!empty($workspace_page->extension_id))
+			// We only show workspace pages at the moment
+			if(!in_array($workspace_page->extension_id, array('core.workspace.page.workspace')))
 				continue;
 			
 			$labels = array();
@@ -107,7 +108,7 @@ class ChRest_Workspaces extends Extension_RestController { // implements IExtens
 		}
 		
 		$container = array(
-			'total' => count($results), // [TODO] $total
+			'total' => count($results),
 			'count' => count($results),
 			'page' => 0,
 			'results' => $results,

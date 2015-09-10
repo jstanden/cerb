@@ -797,7 +797,9 @@ class Model_Message {
 				return false;
 		}
 		
-		$dirty_html = $attachment->getFileContents();
+		// If the attachment is inaccessible, fallback to plaintext 
+		if(false == ($dirty_html = $attachment->getFileContents()))
+			return false;
 		
 		// If the 'tidy' extension exists
 		if(extension_loaded('tidy')) {
