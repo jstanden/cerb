@@ -93,6 +93,33 @@ class Page_Search extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::search/index.tpl');
 	}
 	
+	function openSearchPopupAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$query = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return;
+		
+		// Verify that this context is publicly searchable
+		@$context_options = $context_ext->manifest->params['options'][0];
+		
+		if(!is_array($context_options) || !isset($context_options['workspace']))
+			return;
+		
+		if(false == ($view = $context_ext->getSearchView()) || !($view instanceof IAbstractView_QuickSearch))
+			return;
+		
+		if(isset($_REQUEST['q']))
+			$view->addParamsWithQuickSearch($query, true);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('context_ext', $context_ext);
+		$tpl->assign('quick_search_query', $query);
+		$tpl->assign('view', $view);
+		
+		$tpl->display('devblocks:cerberusweb.core::search/popup.tpl');
+	}
+	
 	function ajaxQuickSearchAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$query = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');

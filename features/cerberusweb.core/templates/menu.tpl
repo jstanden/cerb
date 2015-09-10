@@ -33,7 +33,7 @@
 		<ul class="cerb-popupmenu cerb-float">
 			{foreach from=$contexts item=context key=context_id}
 			{if isset($context->params.options.0.workspace)}
-			<li><a href="{devblocks_url}c=search&context={if isset($context->params.alias)}{$context->params.alias}{else}{$context_id}{/if}{/devblocks_url}">{$context->name}</a></li>
+			<li><a href="javascript:;" data-context="{$context_id}">{$context->name}</a></li>
 			{/if}
 			{/foreach}
 		</ul>
@@ -120,15 +120,23 @@ $(function() {
 		.find('.cerb-popupmenu > li')
 			.click(function(e) {
 				e.stopPropagation();
-				if(!$(e.target).is('li'))
-					return;
 
-				$link = $(this).find('a');
-
-				if($link.length > 0)
-					window.location.href = $link.attr('href');
+				var $this = $(this);
+				var $search_menu = $this.closest('.cerb-popupmenu');
+				var $link = $this.find('> a');
 				
-				$(this).closest('.cerb-popupmenu').hide();
+				if($link.length == 0)
+					return;
+				
+				var search_context = $link.attr('data-context');
+				
+				if(search_context.length == 0)
+					return;
+				
+				var $width = $(window).width()-100;
+				var $window = genericAjaxPopup('search_results','c=search&a=openSearchPopup&context=' + encodeURIComponent(search_context), null, false, $width);
+				
+				$search_menu.hide();
 			})
 		;
 });
