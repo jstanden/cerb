@@ -634,7 +634,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		self::clearCache();
 	}
 	
-	static function getTreeMap() {
+	static function getTreeMap($prune_empty=false) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$categories = self::getWhere();
@@ -666,9 +666,16 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 			}
 		}
 		
-		// [TODO] Filter out empty categories on public
-		
 		mysqli_free_result($rs);
+		
+		// Filter out empty categories on public
+		if($prune_empty) {
+			foreach($tree as $parent_id => $nodes) {
+				$tree[$parent_id] = array_filter($nodes, function($count) {
+					return !empty($count);
+				});
+			}
+		}
 		
 		return $tree;
 	}
