@@ -711,7 +711,7 @@ class Model_Calendar {
 				
 				for($x = $start_mins; $x <= $end_mins; $x++) {
 					// Only set mins as available that aren't marked as busy already.
-					if($mins_bits[$x] != '0')
+					if(isset($mins_bits[$x]) && $mins_bits[$x] != '0')
 						$mins_bits[$x] = $event['is_available'];
 				}
 			}
