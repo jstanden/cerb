@@ -560,6 +560,27 @@ class DAO_Message extends Cerb_ORMHelper {
 				
 				break;
 				
+			case SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER:
+				if(null == ($member = DAO_Worker::get($param->value)))
+					break;
+					
+				$all_groups = DAO_Group::getAll();
+				$roster = $member->getMemberships();
+				
+				if(empty($roster))
+					$roster = array(0 => 0);
+				
+				$restricted_groups = array_diff(array_keys($all_groups), array_keys($roster));
+				
+				// If the worker is in every group, ignore this filter entirely
+				if(empty($restricted_groups))
+					break;
+				
+				// [TODO] If the worker is in most of the groups, possibly try a NOT IN instead
+				
+				$args['where_sql'] .= sprintf("AND t.group_id IN (%s) ", implode(',', array_keys($roster)));
+				break;
+				
 			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
 				$values = $param->value;
 				if(!is_array($values))
@@ -706,6 +727,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	const VIRTUAL_HAS_ATTACHMENTS = '*_has_attachments';
 	const VIRTUAL_MESSAGE_HEADER = '*_message_header';
 	const VIRTUAL_TICKET_STATUS = '*_ticket_status';
+	const VIRTUAL_TICKET_IN_GROUPS_OF_WORKER = '*_in_groups_of_worker';
 
 	/**
 	 * @return DevblocksSearchField[]
@@ -745,6 +767,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::VIRTUAL_ATTACHMENT_NAME => new DevblocksSearchField(SearchFields_Message::VIRTUAL_ATTACHMENT_NAME, '*', 'attachment_name', $translate->_('message.search.attachment_name'), null),
 			SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS, '*', 'has_attachments', $translate->_('message.search.has_attachments'), Model_CustomField::TYPE_CHECKBOX),
 			SearchFields_Message::VIRTUAL_MESSAGE_HEADER => new DevblocksSearchField(SearchFields_Message::VIRTUAL_MESSAGE_HEADER, '*', 'message_header', $translate->_('message.header')),
+			SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER, '*', 'in_groups_of_worker', $translate->_('ticket.groups_of_worker')),
 			SearchFields_Message::VIRTUAL_TICKET_STATUS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_STATUS, '*', 'ticket_status', $translate->_('ticket.status')),
 				
 			SearchFields_Message::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('common.content'), 'FT'),
@@ -1501,6 +1524,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::VIRTUAL_ATTACHMENT_NAME,
 			SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS,
 			SearchFields_Message::VIRTUAL_MESSAGE_HEADER,
+			SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER,
 		));
 		
 		$this->addParamsHidden(array(
@@ -1713,6 +1737,9 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 	function getQuickSearchFields() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$group_names = DAO_Group::getNames($active_worker);
+		$worker_names = array_map(function(&$name) {
+			return '('.$name.')';
+		}, DAO_Worker::getNames());
 		
 		$fields = array(
 			'_fulltext' => 
@@ -1764,6 +1791,12 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 						"(message-id = <...>)",
 						"(x-mailer like cerb* OR x-mailer like salesforce*)",
 					),
+				),
+			'inGroupsOfWorker' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER),
+					'examples' => array_merge(array('me','current'),array_slice($worker_names, 0, 13)),
 				),
 			'isBroadcast' => 
 				array(
@@ -2007,6 +2040,56 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					);
 					break;
 
+				case 'inGroupsOfWorker':
+					$field_key = SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER;
+					
+					$oper = DevblocksSearchCriteria::OPER_EQ;
+					
+					if(preg_match('#^([\!\=]+)(.*)#', $v, $matches)) {
+						$oper_hint = trim($matches[1]);
+						$v = trim($matches[2]);
+						
+						switch($oper_hint) {
+							case '!':
+							case '!=':
+								$oper = DevblocksSearchCriteria::OPER_NEQ;
+								break;
+								
+							default:
+								$oper = DevblocksSearchCriteria::OPER_EQ;
+								break;
+						}
+					}
+					
+					$worker_id = 0;
+					
+					switch(strtolower($v)) {
+						case 'current':
+							$worker_id = '{{current_worker_id}}';
+							break;
+							
+						case 'me':
+						case 'mine':
+						case 'my':
+							if(false != ($active_worker = CerberusApplication::getActiveWorker()))
+								$worker_id = $active_worker->id;
+							break;
+						
+						default:
+							if(false != ($matches = DAO_Worker::getByString($v)) && !empty($matches))
+								$worker_id = key($matches);
+							break;
+					}
+					
+					if($worker_id) {
+						$params[$field_key] = new DevblocksSearchCriteria(
+							$field_key,
+							$oper,
+							$worker_id
+						);
+					}
+					break;
+					
 				case 'responseTime':
 					$field_key = SearchFields_Message::RESPONSE_TIME;
 					
@@ -2048,7 +2131,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 						$oper,
 						$v
 					);
-					break;					
+					break;
 				
 				case 'ticket.status':
 					$field_key = SearchFields_Message::VIRTUAL_TICKET_STATUS;
@@ -2218,6 +2301,19 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				);
 				break;
 				
+			case SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER:
+				$worker_name = $param->value;
+				
+				if(is_numeric($worker_name)) {
+					if(null == ($worker = DAO_Worker::get($worker_name)))
+						break;
+					
+					$worker_name = $worker->getName();
+				}
+					
+				echo sprintf("In <b>%s</b>'s groups", $worker_name);
+				break;
+				
 			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
 				if(!is_array($param->value))
 					$param->value = array($param->value);
@@ -2308,6 +2404,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				
 			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:
 				$tpl->display('devblocks:cerberusweb.core::messages/criteria_message_header.tpl');
+				break;
+				
+			case SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER:
+				$tpl->assign('workers', DAO_Worker::getAllActive());
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__worker.tpl');
 				break;
 				
 			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
@@ -2434,6 +2535,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
 				@$value = DevblocksPlatform::importGPC($_REQUEST['value'],'string','');
 				$criteria = new DevblocksSearchCriteria($field, $oper, array(array($name,$oper,$value)));
+				break;
+				
+			case SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER:
+				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'string','');
+				$criteria = new DevblocksSearchCriteria($field, '=', $worker_id);
 				break;
 				
 			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
@@ -2786,7 +2892,7 @@ class Context_Message extends Extension_DevblocksContext {
 		
 		return $values;
 	}
-
+	
 	function getChooserView($view_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
 
@@ -2805,7 +2911,7 @@ class Context_Message extends Extension_DevblocksContext {
 		$params_required = array();
 		
 		if(!empty($active_worker)) {
-			$params_required[SearchFields_Message::TICKET_GROUP_ID] = new DevblocksSearchCriteria(SearchFields_Message::TICKET_GROUP_ID,'in',array_keys($active_worker->getMemberships()));
+			$params[SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER] = new DevblocksSearchCriteria(SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER,'=',$active_worker->id);
 		}
 		
 		$view->addParamsRequired($params_required, true);
