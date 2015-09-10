@@ -306,7 +306,15 @@ abstract class DevblocksEngine {
 				if(isset($eParam->value)) {
 					// [JSJ]: If there is a child of the param tag named value, then this
 					//		param has multiple values and thus we need to grab them all.
+					$value_idx = 0;
 					foreach($eParam->value as $eValue) {
+						// Determine the key of this value
+						if(isset($eValue['key']) && !empty($eValue['key'])) {
+							$value_key = (string) $eValue['key'];
+						} else {
+							$value_key = $value_idx++;
+						}
+
 						// [JSJ]: If there is a child named data, then this is a complex structure
 						if(isset($eValue->data)) {
 							$value = array();
@@ -326,7 +334,7 @@ abstract class DevblocksEngine {
 						}
 
 						if(!empty($value))
-							$extension->params[$key][] = $value;
+							$extension->params[$key][$value_key] = $value;
 
 						unset($value); // Just to be extra safe
 					}
