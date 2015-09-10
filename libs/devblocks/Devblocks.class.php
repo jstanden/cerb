@@ -1152,12 +1152,12 @@ class DevblocksPlatform extends DevblocksEngine {
 		$string = preg_replace('#[\'\"]#', '', $string);
 		
 		// Strip all punctuation to underscores
-		$string = preg_replace('#[^a-zA-Z0-9\+\.\-_\(\)]#', '_', $string);
+		$string = preg_replace('#[^a-zA-Z0-9\+\.\-_\(\)]#', '-', $string);
 			
 		// Collapse all underscores to singles
-		$string = preg_replace('#__+#', '_', $string);
+		$string = preg_replace('#--+#', '-', $string);
 		
-		return rtrim($string,'_');
+		return rtrim($string,'-');
 	}
 	
 	/**
