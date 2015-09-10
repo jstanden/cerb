@@ -736,6 +736,25 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		}
 	}
 	
+	static public function getAncestors($root_id, $categories=null) {
+		if(empty($categories))
+			$categories = DAO_KbCategory::getAll();
+		
+		$breadcrumb = array();
+		
+		$pid = $root_id;
+		while(0 != $pid) {
+			$breadcrumb[] = $pid;
+			if(isset($categories[$pid])) {
+				$pid = $categories[$pid]->parent_id;
+			} else {
+				$pid = 0;
+			}
+		}
+			
+		return array_reverse($breadcrumb);
+	}
+	
 	static public function getDescendents($root_id) {
 		$tree = self::getTree($root_id);
 		@$ids = array_merge(array($root_id),array_keys($tree));
