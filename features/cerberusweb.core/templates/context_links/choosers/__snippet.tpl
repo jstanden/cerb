@@ -127,8 +127,10 @@ $(function() {
 				
 				$td_first.prepend($btn);
 				
-				var $txt = $('<span class="ui-icon ui-icon-triangle-1-e" style="display:inline-block;vertical-align:middle;"></span> <b class="subject">' + $(this).text() + '</b>');
-				$txt.insertBefore($(this));
+				var $span = $('<span class="ui-icon ui-icon-triangle-1-e" style="display:inline-block;vertical-align:middle;"></span>');
+				var $b = $('<b class="subject"></b>').text($(this).text());
+				$b.insertBefore($(this));
+				$span.insertBefore($b);
 				
 				$(this).remove();
 			});
