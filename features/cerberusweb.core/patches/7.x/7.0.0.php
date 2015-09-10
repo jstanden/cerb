@@ -586,7 +586,7 @@ if(0 == $db->GetOneMaster("SELECT COUNT(*) FROM cerb_property_store WHERE extens
 // Drop RSS table
 
 if(isset($tables['view_rss'])) {
-	$db->Execute("DROP TABLE view_rss");
+	$db->ExecuteMaster("DROP TABLE view_rss");
 	unset($tables['view_rss']);
 }
 
@@ -617,6 +617,45 @@ list($columns, $indexes) = $db->metaTable('community_session');
 if(!isset($columns['csrf_token'])) {
 	$db->ExecuteMaster("ALTER TABLE community_session ADD COLUMN csrf_token VARCHAR(255) NOT NULL DEFAULT ''");
 	$db->ExecuteMaster("DELETE FROM community_session");
+}
+
+// ===========================================================================
+// Clear unused view models
+
+$db->Execute("DELETE FROM worker_view_model WHERE view_id = 'messages'");
+
+// ===========================================================================
+// Fix stale group filtering on messages worklists
+
+$sql = "SELECT worker_id, view_id, params_required_json FROM worker_view_model WHERE class_name = 'View_Message'";
+$results = $db->GetArrayMaster($sql);
+
+if(is_array($results))
+foreach($results as $result) {
+	if(false == ($params_required = json_decode($result['params_required_json'], true)))
+		continue;
+	
+	if(isset($params_required['t_group_id']) && !isset($params_required['*_in_groups_of_worker'])) {
+		$worker_id = intval($result['worker_id']);
+		$view_id = $result['view_id'];
+		
+		// Add a new dynamic filter based on the worker
+		$params_required['*_in_groups_of_worker'] = array(
+			'field' => '*_in_groups_of_worker',
+			'operator' => '=',
+			'value' => $worker_id,
+		);
+		
+		// Nuke the old static filter
+		unset($params_required['t_group_id']);
+		
+		// Update the model
+		$db->ExecuteMaster(sprintf("UPDATE worker_view_model SET params_required_json = %s WHERE view_id = %s AND worker_id = %d",
+			$db->qstr(json_encode($params_required)),
+			$db->qstr($view_id),
+			$worker_id
+		));
+	}
 }
 
 // ===========================================================================

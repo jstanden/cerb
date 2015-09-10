@@ -320,6 +320,17 @@ class DAO_Worker extends Cerb_ORMHelper {
 		return null;
 	}
 	
+	static function getNames() {
+		$workers = DAO_Worker::getAllActive();
+		$names = array();
+		
+		foreach($workers as $worker) {
+			$names[$worker->id] = !empty($worker->at_mention_name) ? $worker->at_mention_name : $worker->getName();
+		}
+		
+		return $names;
+	}
+	
 	static function getByString($string) {
 		$workers = DAO_Worker::getAllActive();
 		$patterns = DevblocksPlatform::parseCsvString($string);
@@ -332,9 +343,17 @@ class DAO_Worker extends Cerb_ORMHelper {
 			
 				if(isset($results[$worker_id]))
 					continue;
+
+				// Check @mention
+				if(false !== strcasecmp($worker->at_mention_name, $pattern)) {
+					$results[$worker_id] = $worker;
+					continue;
+				}
 				
+				// Check full name
 				if(false !== stristr($worker_name, $pattern)) {
 					$results[$worker_id] = $worker;
+					continue;
 				}
 			}
 		}
