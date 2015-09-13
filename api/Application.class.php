@@ -1705,16 +1705,9 @@ class CerberusContexts {
 			$context_id = $context_pair['context_id'];
 		}
 	}
-
-	static public function logActivity($activity_point, $target_context, $target_context_id, &$entry_array, $actor_context=null, $actor_context_id=null, $also_notify_worker_ids=array(), $also_notify_ignore_self=false) {
-		// Target meta
-		if(!isset($target_meta)) {
-			if(null != ($target_ctx = DevblocksPlatform::getExtension($target_context, true))
-				&& $target_ctx instanceof Extension_DevblocksContext) {
-					$target_meta = $target_ctx->getMeta($target_context_id);
-			}
-		}
-
+	
+	static public function getCurrentActor($actor_context=null, $actor_context_id=null) {
+		
 		// Forced actor
 		if(!empty($actor_context)) {
 			if(null != ($ctx = DevblocksPlatform::getExtension($actor_context, true))
@@ -1722,6 +1715,10 @@ class CerberusContexts {
 				$meta = $ctx->getMeta($actor_context_id);
 				$actor_name = $meta['name'];
 				$actor_url = sprintf("ctx://%s:%d", $actor_context, $actor_context_id);
+				
+			} else {
+				$actor_context = null;
+				$actor_context_id = null;
 			}
 		}
 
@@ -1777,20 +1774,41 @@ class CerberusContexts {
 
 		if(empty($actor_context)) {
 			$actor_context = CerberusContexts::CONTEXT_APPLICATION;
+			$actor_context_id = 0;
 			$actor_name = 'Cerb';
+			$actor_url = null;
+		}
+		
+		return array(
+			'context' => $actor_context,
+			'context_id' => $actor_context_id,
+			'name' => $actor_name,
+			'url' => $actor_url,
+		);
+	}
+
+	static public function logActivity($activity_point, $target_context, $target_context_id, &$entry_array, $actor_context=null, $actor_context_id=null, $also_notify_worker_ids=array(), $also_notify_ignore_self=false) {
+		// Target meta
+		if(!isset($target_meta)) {
+			if(null != ($target_ctx = DevblocksPlatform::getExtension($target_context, true))
+				&& $target_ctx instanceof Extension_DevblocksContext) {
+					$target_meta = $target_ctx->getMeta($target_context_id);
+			}
 		}
 
-		$entry_array['variables']['actor'] = $actor_name;
+		$actor = self::getCurrentActor($actor_context, $actor_context_id);
 
-		if(!empty($actor_url))
-			$entry_array['urls']['actor'] = $actor_url;
+		$entry_array['variables']['actor'] = $actor['name'];
+
+		if(isset($actor['url']) && !empty($actor['url']))
+			$entry_array['urls']['actor'] = $actor['url'];
 
 		// Activity Log
 		$activity_entry_id = DAO_ContextActivityLog::create(array(
 			DAO_ContextActivityLog::ACTIVITY_POINT => $activity_point,
 			DAO_ContextActivityLog::CREATED => time(),
-			DAO_ContextActivityLog::ACTOR_CONTEXT => $actor_context,
-			DAO_ContextActivityLog::ACTOR_CONTEXT_ID =>$actor_context_id,
+			DAO_ContextActivityLog::ACTOR_CONTEXT => $actor['context'],
+			DAO_ContextActivityLog::ACTOR_CONTEXT_ID => $actor['context_id'],
 			DAO_ContextActivityLog::TARGET_CONTEXT => $target_context,
 			DAO_ContextActivityLog::TARGET_CONTEXT_ID => $target_context_id,
 			DAO_ContextActivityLog::ENTRY_JSON => json_encode($entry_array),
@@ -1828,10 +1846,10 @@ class CerberusContexts {
 			}
 
 			// Merge in watchers of the actor (if not a worker)
-			if(CerberusContexts::CONTEXT_WORKER != $actor_context) {
+			if(CerberusContexts::CONTEXT_WORKER != $actor['context']) {
 				$watchers = array_merge(
 					$watchers,
-					array_keys(CerberusContexts::getWatchers($actor_context, $actor_context_id))
+					array_keys(CerberusContexts::getWatchers($actor['context'], $actor['context_id']))
 				);
 			}
 
@@ -1890,8 +1908,8 @@ class CerberusContexts {
 					// If not inside a VA
 					if(0 == EventListener_Triggers::getDepth()) {
 						// Skip a watcher if they are the actor
-						if($actor_context == CerberusContexts::CONTEXT_WORKER
-							&& $actor_context_id == $watcher_id) {
+						if($actor['context'] == CerberusContexts::CONTEXT_WORKER
+							&& $actor['context_id'] == $watcher_id) {
 								// If they explicitly added themselves to the notify, allow it.
 								// Otherwise, don't tell them what they just did.
 								if($also_notify_ignore_self || !in_array($watcher_id, $also_notify_worker_ids))
