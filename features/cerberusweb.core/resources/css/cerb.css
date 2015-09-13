@@ -874,11 +874,12 @@ DIV.help-box SPAN.help.callout-worklist {
 
 DIV.message_note {
   padding: 5px;
-  background-image: url(bg_yellow.jpg?v=2015030101);
-  background-position: left top;
-  background-repeat: repeat-x;
-  background-color: #fcf2bf;
+  background-color: #fcf2ad;
   border: 0;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  border-radius: 5px;
 }
 DIV.message_note H3 {
   font-weight: bold;

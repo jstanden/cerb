@@ -839,12 +839,11 @@ DIV.help-box {
 
 DIV.message_note {
 	padding: 5px;
-	background-image: url(bg_yellow.jpg?v=#{$timestamp});
-	background-position: left top;
-	background-repeat: repeat-x;
-	background-color: rgb(252,242,191);
+	background-color: rgb(252,242,173);
 	border: 0;
 
+	@include border-radius(5px);
+	
 	H3 {
 		font-weight: bold;
 		font-size: 18px;
