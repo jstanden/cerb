@@ -2346,6 +2346,23 @@
 				</param>
 			</params>
 		</extension>
+		
+		<extension point="devblocks.event.action">
+			<id>core.va.action.create_attachment</id>
+			<name>Create Attachment</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>VaAction_CreateAttachment</name>
+			</class>
+			<params>
+				<param key="label" value="Create an attachment" />
+				<param key="events">
+					<value>
+						<data key="*" />
+					</value>
+				</param>
+			</params>
+		</extension>
 
 		<!-- Controllers -->
 		
