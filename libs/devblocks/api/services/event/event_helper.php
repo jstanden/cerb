@@ -3818,8 +3818,24 @@ class DevblocksEventHelper {
 			$content
 		);
 		
+		// Attachment list variables
+		
+		if(isset($params['attachment_vars']) && is_array($params['attachment_vars'])) {
+			$out = rtrim($out,"\n") . "\n\n>>> Attaching files from variables:\n";
+			
+			foreach($params['attachment_vars'] as $attachment_var) {
+				if(false != ($attachments = $dict->$attachment_var) && is_array($attachments)) {
+					foreach($attachments as $attachment_id => $attachment) {
+						$out .= " * " . $attachment->name . ' (' . DevblocksPlatform::strPrettyBytes($attachment->size) . ')' . "\n";
+					}
+				}
+			}
+		}
+		
+		// Attachment bundles
+		
 		if(isset($params['bundle_ids']) && is_array($params['bundle_ids'])) {
-			$out = rtrim($out,"\n") . "\n\n>>> Attaching files:\n";
+			$out = rtrim($out,"\n") . "\n\n>>> Attaching files from bundles:\n";
 			
 			$bundles = DAO_FileBundle::getIds($params['bundle_ids']);
 			foreach($bundles as $bundle) {
@@ -3938,6 +3954,20 @@ class DevblocksEventHelper {
 		
 		$file_ids = array();
 		
+		// Attachment list variables
+		
+		if(isset($params['attachment_vars']) && is_array($params['attachment_vars'])) {
+			foreach($params['attachment_vars'] as $attachment_var) {
+				if(false != ($attachments = $dict->$attachment_var) && is_array($attachments)) {
+					foreach($attachments as $attachment) {
+						$file_ids[] = $attachment->id;
+					}
+				}
+			}
+		}
+		
+		// File bundles
+		
 		if(isset($params['bundle_ids']) && is_array($params['bundle_ids'])) {
 			$bundles = DAO_FileBundle::getIds($params['bundle_ids']);
 			foreach($bundles as $bundle) {
@@ -3991,7 +4021,21 @@ class DevblocksEventHelper {
 			$content
 		);
 		
-		// Attachments
+		// Attachment list variables
+		
+		if(isset($params['attachment_vars']) && is_array($params['attachment_vars'])) {
+			$out = rtrim($out,"\n") . "\n\n>>> Attaching files from variables:\n";
+			
+			foreach($params['attachment_vars'] as $attachment_var) {
+				if(false != ($attachments = $dict->$attachment_var) && is_array($attachments)) {
+					foreach($attachments as $attachment_id => $attachment) {
+						$out .= " * " . $attachment->name . ' (' . DevblocksPlatform::strPrettyBytes($attachment->size) . ')' . "\n";
+					}
+				}
+			}
+		}
+		
+		// Attachment bundles
 
 		if(isset($params['bundle_ids']) && is_array($params['bundle_ids'])) {
 			$out = rtrim($out,"\n") . "\n\n>>> Attaching files:\n";
