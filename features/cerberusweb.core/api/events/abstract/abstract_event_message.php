@@ -1000,6 +1000,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 					'content_format' => $format,
 					'html_template_id' => $html_template_id,
 					'worker_id' => 0,
+					'forward_files' => array(),
+					'link_forward_files' => true,
 				);
 				
 				// Headers
@@ -1017,11 +1019,22 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				@$headers = $tpl_builder->build($params['headers'], $dict);
 
 				// Attachments
+				
+				// Attachment list variables
+		
+				if(isset($params['attachment_vars']) && is_array($params['attachment_vars'])) {
+					foreach($params['attachment_vars'] as $attachment_var) {
+						if(false != ($attachments = $dict->$attachment_var) && is_array($attachments)) {
+							foreach($attachments as $attachment) {
+								$properties['forward_files'][] = $attachment->id;
+							}
+						}
+					}
+				}
+				
+				// File bundles
 
 				if(isset($params['bundle_ids']) && is_array($params['bundle_ids'])) {
-					$properties['forward_files'] = array();
-					$properties['link_forward_files'] = true;
-
 					$bundles = DAO_FileBundle::getIds($params['bundle_ids']);
 					foreach($bundles as $bundle) {
 						$attachments = $bundle->getAttachments();
