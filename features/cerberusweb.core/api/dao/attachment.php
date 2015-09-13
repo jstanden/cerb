@@ -1682,6 +1682,9 @@ class Context_Attachment extends Extension_DevblocksContext {
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 		
+		if(empty($this->getViewClass()))
+			return;
+		
 		// View
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
@@ -1700,6 +1703,9 @@ class Context_Attachment extends Extension_DevblocksContext {
 	
 	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
+		
+		if(empty($this->getViewClass()))
+			return;
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;

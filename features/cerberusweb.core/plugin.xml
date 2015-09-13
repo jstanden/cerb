@@ -981,14 +981,15 @@
 				<param key="dao_class" value="DAO_Attachment" />
 				<param key="view_class" value="" />
 				<param key="options">
-					<!--
 					<value>
+						<!--
 						<data key="create" />
 						<data key="find" />
 						<data key="snippets" />
 						<data key="workspace" />
+						-->
+						<data key="va_variable" />
 					</value>
-					-->
 				</param>
 			</params>
 		</extension>
