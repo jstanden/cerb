@@ -1967,7 +1967,8 @@ class CerberusContexts {
 
 	static function checkpointChanges($context, $ids) {
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
-
+		$actor = CerberusContexts::getCurrentActor();
+		
 		if(!isset(self::$_context_checkpoints[$context]))
 			self::$_context_checkpoints[$context] = array();
 
@@ -1982,6 +1983,7 @@ class CerberusContexts {
 			
 			foreach($models as $model_id => $model) {
 				$model->custom_fields = @$values[$model_id] ?: array();
+				$model->_actor = $actor;
 				
 				self::$_context_checkpoints[$context][$model_id] =
 					json_decode(json_encode($model), true);
@@ -2008,9 +2010,8 @@ class CerberusContexts {
 		foreach(self::$_context_checkpoints as $context => &$old_models) {
 
 			// Do this in batches of 100 in order to save memory
-
 			$ids = array_keys($old_models);
-
+			
 			foreach(array_chunk($ids, 100) as $context_ids) {
 				$new_models = CerberusContexts::getModels($context, $context_ids);
 
@@ -2019,8 +2020,14 @@ class CerberusContexts {
 				foreach($new_models as $context_id => $new_model) {
 					$old_model = $old_models[$context_id];
 					$new_model->custom_fields = @$values[$context_id] ?: array();
+					$actor = null;
+					
+					if(isset($old_model['_actor'])) {
+						$actor = $old_model['_actor'];
+						unset($old_model['_actor']);
+					}
 
-					Event_RecordChanged::trigger($context, $new_model, $old_model);
+					Event_RecordChanged::trigger($context, $new_model, $old_model, $actor);
 				}
 			}
 		}

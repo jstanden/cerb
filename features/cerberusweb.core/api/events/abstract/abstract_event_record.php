@@ -52,6 +52,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 				'context_id' => $context_id,
 				'old_model' => $old_model,
 				'new_model' => $new_model,
+				'actor' => CerberusContexts::getCurrentActor(),
 				'_trigger' => $trigger,
 			)
 		);
@@ -106,9 +107,32 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		@$context = $trigger->event_params['context'];
 		@$new_model = $event_model->params['new_model'];
 		@$old_model = $event_model->params['old_model'];
+		@$actor = $event_model->params['actor'];
 		
 		if(is_null($this->_model) && !empty($new_model))
 			$this->_model = $new_model;
+		
+		if(empty($actor))
+			$actor = CerberusContexts::getCurrentActor();
+		
+		if(!empty($actor) && is_array($actor)) {
+			$labels['actor__context'] = 'Actor type';
+			$labels['actor__label'] = 'Actor name';
+			$labels['actor_id'] = 'Actor id';
+			$labels['actor_url'] = 'Actor record url';
+			
+			$values['actor__context'] = $actor['context'];
+			$values['actor__label'] = $actor['name'];
+			$values['actor_id'] = $actor['context_id'];
+			$values['actor_url'] = $actor['url'];
+			
+			$values['_types'] = array(
+				'actor__context' => null,
+				'actor__label' => Model_CustomField::TYPE_SINGLE_LINE,
+				'actor_id' => Model_CustomField::TYPE_SINGLE_LINE,
+				'actor_url' => Model_CustomField::TYPE_SINGLE_LINE,
+			);
+		}
 		
 		/*
 		 * Delegate to the custom behavior for this context type
@@ -190,9 +214,10 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		
 		// [TODO] This needs to still work with linked vars
 		
+		// [TODO] Actor context
 		/*
 		$vals = array(
-			'record_id' => array(
+			'actor_id' => array(
 				'label' => 'Record',
 				'context' => @$trigger->event_params['context'],
 			),
@@ -249,7 +274,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 	function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
-
+		
 		// 'old_' prefixed tokens should use the standard conditions in the delegate
 		if(substr($token,0,4) == 'old_')
 			$as_token = substr($token, 4);
@@ -258,6 +283,27 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($as_token) {
+			case 'actor__context':
+				$context_exts = Extension_DevblocksContext::getAll(false);
+				$options = array();
+				
+				// Only some contexts can be actors
+				foreach($context_exts as $context_id => $context_mft) {
+					switch($context_id) {
+						case CerberusContexts::CONTEXT_APPLICATION:
+						case CerberusContexts::CONTEXT_ROLE:
+						case CerberusContexts::CONTEXT_GROUP:
+						case CerberusContexts::CONTEXT_WORKER:
+						case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+							$options[$context_id] = $context_mft->name;
+							break;
+					}
+				}
+				
+				$tpl->assign('options', $options);
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_list.tpl');
+				break;
+				
 			default:
 				if(false == ($delegate = $this->_getCustomContextBehavior($trigger->event_params['context'], $this->_model)))
 					break;
@@ -279,6 +325,14 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		}
 		
 		switch($as_token) {
+			case 'actor__context':
+				if(isset($dict->$as_token) && isset($params['values']) && is_array($params['values'])) {
+					$pass = in_array($dict->$as_token, $params['values']);
+				} else {
+					$pass = false;
+				}
+				break;
+				
 			default:
 				if(false == ($delegate = $this->_getCustomContextBehavior($trigger->event_params['context'], $this->_model)))
 					break;
