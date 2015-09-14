@@ -7,6 +7,7 @@
  */
 class _DevblocksEmailManager {
 	private static $instance = null;
+	private $_lastErrorMessage = null;
 	
 	/**
 	 * @private
@@ -52,7 +53,15 @@ class _DevblocksEmailManager {
 		if(false == ($transport = $model->getExtension()))
 			return false;
 		
-		return $transport->send($message, $model);
+		if(false == ($result = $transport->send($message, $model, $this->_lastErrorMessage))) {
+			$this->_lastErrorMessage = $transport->getLastError();
+		}
+		
+		return $result;
+	}
+	
+	function getLastErrorMessage() {
+		return $this->_lastErrorMessage;
 	}
 	
 	function testMailbox($server, $port, $service, $username, $password, $ssl_ignore_validation=false, $timeout_secs=30, $max_msg_size_kb=0) {

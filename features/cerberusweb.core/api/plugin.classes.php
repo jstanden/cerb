@@ -525,9 +525,29 @@ class VaAction_CreateAttachment extends Extension_DevblocksEventAction {
 };
 endif;
 
+class Cerb_SwiftPlugin_TransportExceptionLogger implements Swift_Events_TransportExceptionListener {
+	private $_lastError = null;
+	
+	function exceptionThrown(Swift_Events_TransportExceptionEvent $evt) {
+		$exception = $evt->getException();
+		$this->_lastError = str_replace(array("\r","\n"),array('',' '), $exception->getMessage());
+	}
+	
+	function getLastError() {
+		return $this->_lastError;
+	}
+	
+	function clear() {
+		$this->_lastError = null;
+	}
+}
+
 if(class_exists('Extension_MailTransport')):
 class CerbMailTransport_Smtp extends Extension_MailTransport {
 	const ID = 'core.mail.transport.smtp';
+	
+	private $_lastErrorMessage = null;
+	private $_logger = null;
 	
 	function renderConfig(Model_MailTransport $model) {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -604,9 +624,19 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		
 		$failed_recipients = array();
 		
-		// [TODO] Actually use failed recipients
+		$result = $mailer->send($message, $failed_recipients);
 		
-		return $mailer->send($message, $failed_recipients);
+		if(!$result) {
+			$this->_lastErrorMessage = $this->_logger->getLastError();
+		}
+		
+		$this->_logger->clear();
+		
+		return $result;
+	}
+	
+	function getLastError() {
+		return $this->_lastErrorMessage;
 	}
 	
 	/**
@@ -667,6 +697,9 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 			$mailer = Swift_Mailer::newInstance($smtp);
 			$mailer->registerPlugin(new Swift_Plugins_AntiFloodPlugin($smtp_max_sends, 1));
 			
+			$this->_logger = new Cerb_SwiftPlugin_TransportExceptionLogger();
+			$mailer->registerPlugin($this->_logger);
+			
 			$connections[$hash] = $mailer;
 		}
 		
@@ -702,6 +735,10 @@ class CerbMailTransport_Null extends Extension_MailTransport {
 			return false;
 		
 		return $mailer->send($message);
+	}
+	
+	function getLastError() {
+		return null;
 	}
 	
 	private function _getMailer() {

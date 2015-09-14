@@ -94,6 +94,7 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/swift/swift_required.php', array(
 			'Swift',
 			'Swift_Attachment',
+			'Swift_Events_TransportExceptionListener',
 			'Swift_InputByteStream',
 			'Swift_Mailer',
 			'Swift_Message',
