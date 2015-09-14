@@ -860,6 +860,8 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 };
 
 class Context_MailTransport extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+	const ID = 'cerberusweb.contexts.mail.transport';
+	
 	function getRandom() {
 		return DAO_MailTransport::random();
 	}

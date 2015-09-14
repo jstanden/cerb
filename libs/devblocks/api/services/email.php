@@ -55,6 +55,22 @@ class _DevblocksEmailManager {
 		
 		if(false == ($result = $transport->send($message, $model, $this->_lastErrorMessage))) {
 			$this->_lastErrorMessage = $transport->getLastError();
+			
+			if(!empty($this->_lastErrorMessage)) {
+				/*
+				 * Log activity (transport.delivery.error)
+				 */
+				$entry = array(
+					// {{actor}} failed to deliver message: {{error}}
+					'message' => 'activities.transport.delivery.error',
+					'variables' => array(
+						'error' => sprintf("%s", $this->_lastErrorMessage),
+						),
+					'urls' => array(
+						)
+				);
+				CerberusContexts::logActivity('transport.delivery.error', CerberusContexts::CONTEXT_MAIL_TRANSPORT, $model->id, $entry, CerberusContexts::CONTEXT_MAIL_TRANSPORT, $model->id);
+			}
 		}
 		
 		return $result;

@@ -159,6 +159,11 @@
 				<seg>{{actor}} changed ticket {{target}} to status {{status}}</seg>
 			</tuv>
 		</tu>
+		<tu tuid="activities.transport.delivery.error">
+			<tuv xml:lang="en_US">
+				<seg>{{actor}} failed to deliver message: {{error}}</seg>
+			</tuv>
+		</tu>
 		<tu tuid="activities.ticket.unassigned">
 			<tuv xml:lang="en_US">
 				<seg>{{actor}} unassigned ticket {{target}}</seg>

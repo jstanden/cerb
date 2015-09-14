@@ -914,6 +914,7 @@ class CerberusContexts {
 	const CONTEXT_GROUP = 'cerberusweb.contexts.group';
 	const CONTEXT_KB_ARTICLE = 'cerberusweb.contexts.kb_article';
 	const CONTEXT_KB_CATEGORY = 'cerberusweb.contexts.kb_category';
+	const CONTEXT_MAIL_TRANSPORT = 'cerberusweb.contexts.mail.transport';
 	const CONTEXT_MAILBOX = 'cerberusweb.contexts.mailbox';
 	const CONTEXT_MAIL_HTML_TEMPLATE = 'cerberusweb.contexts.mail.html_template';
 	const CONTEXT_MAILING_LIST = 'cerberusweb.contexts.mailing_list';
