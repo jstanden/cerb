@@ -33,6 +33,12 @@
 		{/if}
 		<pre class="emailbody" style="padding-top:10px;">{$draft->body|trim|escape|devblocks_hyperlinks nofilter}</pre>
 	</div>
-	<br>
+	
+	{if is_array($draft_notes) && isset($draft_notes.{$draft->id})}
+	{$draft_readonly = !($draft->worker_id==$active_worker->id || $active_worker->hasPriv('core.mail.draft.delete_all'))}
+	<div id="draft{$draft->id}_notes" style="background-color:rgb(255,255,255);">
+		{include file="devblocks:cerberusweb.core::display/modules/conversation/notes.tpl" message_notes=$draft_notes message_id=$draft->id readonly=false}
+	</div>
+	{/if}
 </div>
 

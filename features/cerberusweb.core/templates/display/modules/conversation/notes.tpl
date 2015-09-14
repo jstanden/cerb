@@ -39,7 +39,7 @@
 {/if}
 
 <script type="text/javascript">
-$('#{$message_id}t div.message_note').hover(
+$('#comment{$note->id}').hover(
 	function() {
 		$(this).find('div.toolbar').show();
 	},
