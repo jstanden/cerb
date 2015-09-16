@@ -1,7 +1,21 @@
 {if $active_worker_notify_count}
 <script type="text/javascript">
 $().ready(function() {
-	$('#badgeNotifications a').html("<span class='glyphicons glyphicons-bell' style='font-size:14px;'></span> {'header.notifications.unread'|devblocks_translate:$active_worker_notify_count}").parent().fadeIn('slow');
+	var $badge = $('#badgeNotifications');
+	var $a = $badge.find('> a');
+	var $count = $('<span></span>').text("{$active_worker_notify_count} ");
+	{if $active_worker_notify_count == 1}
+	var $txt = $('<span></span>').text("{'common.notification'|devblocks_translate|lower}");
+	{else}
+	var $txt = $('<span></span>').text("{'common.notifications'|devblocks_translate|lower}");
+	{/if}
+	$a.html('').append($count).append($txt);
+	$badge.fadeIn('slow');
+	
+	$a.click(function() {
+		var $width = $(window).width()-100;
+		var $window = genericAjaxPopup('notifications','c=internal&a=openNotificationsPopup', null, false, $width);
+	});
 });
 </script>
 {/if}

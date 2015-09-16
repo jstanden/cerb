@@ -21,17 +21,18 @@
 		{if empty($visit)}
 			{'header.not_signed_in'|devblocks_translate} <a href="{devblocks_url}c=login{/devblocks_url}">{'header.signon'|devblocks_translate|lower}</a>
 		{elseif !empty($active_worker)}
-			<span id="badgeNotifications"><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=notifications{/devblocks_url}"></a></span>
-			
-			{$worker_name =''|cat:'<b><a href="javascript:;" id="lnkSignedIn">'|cat:$active_worker->getName()|cat:'</a></b><span class="glyphicons glyphicons-chevron-down" style="margin:2px 0px 0px 2px;"></span>'}
-			{'header.signed_in'|devblocks_translate:$worker_name nofilter}
+			<b><a href="javascript:;" id="lnkSignedIn">{$active_worker->getName()}</a></b><span class="glyphicons glyphicons-chevron-down" style="margin:2px 0px 0px 2px;"></span>
+			{*{'header.signed_in'|devblocks_translate:$worker_name nofilter}*}
 			{if $visit->isImposter()}
 				[ <a href="javascript:;" id="aImposter">{$visit->getImposter()->getName()}</a> ]
 			{/if}
+			
+			<span id="badgeNotifications"><a href="javascript:;"></a></span>
+			
 			<ul id="menuSignedIn" class="cerb-popupmenu cerb-float">
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me{/devblocks_url}">{'header.my_profile'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=preferences{/devblocks_url}">{'common.settings'|devblocks_translate|lower}</a></li>
-				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=notifications{/devblocks_url}">{'home.tab.my_notifications'|devblocks_translate|lower}</a></li>
+				<li><a href="{devblocks_url}c=search&w=notification{/devblocks_url}?q=worker:me%20isRead:n">{'home.tab.my_notifications'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=calendar{/devblocks_url}">{'common.calendar'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=availability{/devblocks_url}">{'common.availability'|devblocks_translate|lower}</a></li>
 				{if DAO_Skill::count()}<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=skills{/devblocks_url}">{'common.skills'|devblocks_translate|lower}</a></li>{/if}

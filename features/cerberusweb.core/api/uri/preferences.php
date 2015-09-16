@@ -145,43 +145,6 @@ class ChPreferencesPage extends CerberusPageExtension {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('preferences','watcher')));
 	}
 
-	function showMyNotificationsTabAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
-		$tpl = DevblocksPlatform::getTemplateService();
-
-		// My Events
-		$defaults = C4_AbstractViewModel::loadFromClass('View_Notification');
-		$defaults->id = 'my_notifications';
-		$defaults->renderLimit = 25;
-		$defaults->renderPage = 0;
-		$defaults->renderSortBy = SearchFields_Notification::CREATED_DATE;
-		$defaults->renderSortAsc = false;
-
-		$myNotificationsView = C4_AbstractViewLoader::getView('my_notifications', $defaults);
-
-		$myNotificationsView->name = vsprintf($translate->_('home.my_notifications.view.title'), $active_worker->getName());
-
-		$myNotificationsView->addColumnsHidden(array(
-			SearchFields_Notification::ID,
-			SearchFields_Notification::WORKER_ID,
-		));
-
-		$myNotificationsView->addParamsHidden(array(
-			SearchFields_Notification::ID,
-			SearchFields_Notification::WORKER_ID,
-		), true);
-		$myNotificationsView->addParamsDefault(array(
-			SearchFields_Notification::IS_READ => new DevblocksSearchCriteria(SearchFields_Notification::IS_READ,'=',0),
-		), true);
-		$myNotificationsView->addParamsRequired(array(
-			SearchFields_Notification::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Notification::WORKER_ID,'=',$active_worker->id),
-		), true);
-
-		$tpl->assign('view', $myNotificationsView);
-		$tpl->display('devblocks:cerberusweb.core::preferences/tabs/notifications/index.tpl');
-	}
-
 	function showNotificationsBulkPanelAction() {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);

@@ -14,7 +14,7 @@ $(function() {
 	var $popup = genericAjaxPopupFind('#{$search_popup_uniqid}');
 	
 	$popup.one('popup_open',function(event,ui) {
-		$popup.dialog('option','title', '{$context_ext->manifest->name} Search');
+		$popup.dialog('option','title', '{$popup_title|escape:'javascript'}');
 		
 		var on_refresh = function() {
 			var $worklist = $popup.find('TABLE.worklist');

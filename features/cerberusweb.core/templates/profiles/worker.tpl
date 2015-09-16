@@ -86,11 +86,6 @@
 		{$tabs = []}
 		{$point = "cerberusweb.profiles.worker.{$worker->id}"}
 		
-		{if $worker->id == $active_worker->id}
-		{$tabs[] = 'notifications'}
-		<li data-alias="notifications"><a href="{devblocks_url}ajax.php?c=preferences&a=showMyNotificationsTab{/devblocks_url}">{'home.tab.my_notifications'|devblocks_translate}</a></li>
-		{/if}
-		
 		{$tabs[] = 'responsibilities'}
 		<li data-alias="responsibilities"><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=responsibilities&action=showResponsibilitiesTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.responsibilities'|devblocks_translate|capitalize}</a></li>
 		

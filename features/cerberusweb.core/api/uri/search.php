@@ -114,6 +114,7 @@ class Page_Search extends CerberusPageExtension {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('context_ext', $context_ext);
+		$tpl->assign('popup_title', $context_ext->manifest->name . ' Search');
 		$tpl->assign('quick_search_query', $query);
 		$tpl->assign('view', $view);
 		

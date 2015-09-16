@@ -876,6 +876,42 @@ class ChInternalController extends DevblocksControllerExtension {
 			'links_count' => DAO_ContextLink::count($from_context, $from_context_id),
 		));
 	}
+	
+	// Notifications
+	
+	function openNotificationsPopupAction() {
+		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+			return;
+		
+		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_NOTIFICATION)))
+			return;
+		
+		if(false == ($view = $context_ext->getSearchView('my_notifications')) || !($view instanceof IAbstractView_QuickSearch))
+			return;
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$view->name = vsprintf($translate->_('home.my_notifications.view.title'), $active_worker->getName());
+		
+		$view->addParamsRequired(array(
+			SearchFields_Notification::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Notification::WORKER_ID, DevblocksSearchCriteria::OPER_EQ, $active_worker->id),
+		), true);
+		
+		$view->addParams(array(
+			SearchFields_Notification::IS_READ => new DevblocksSearchCriteria(SearchFields_Notification::IS_READ, DevblocksSearchCriteria::OPER_EQ, 0),
+		), true);
+		
+		$view->renderSubtotals = SearchFields_Notification::ACTIVITY_POINT;
+		$view->renderSortBy = SearchFields_Notification::CREATED_DATE;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('popup_title', mb_convert_case($translate->_('common.notifications'), MB_CASE_TITLE));
+		$tpl->assign('view', $view);
+		
+		$tpl->display('devblocks:cerberusweb.core::search/popup.tpl');
+	}
 
 	// Context Activity Log
 	
