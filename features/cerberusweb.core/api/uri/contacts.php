@@ -1116,22 +1116,29 @@ class ChContactsPage extends CerberusPageExtension {
 					DAO_ContactOrg::update($id, $fields);
 				}
 				
-				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_ORG, $id, $field_ids);
-				
-				if(!empty($comment)) {
-					$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
+				if($id) {
+					// Custom field saves
+					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_ORG, $id, $field_ids);
 					
-					$fields = array(
-						DAO_Comment::CREATED => time(),
-						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_ORG,
-						DAO_Comment::CONTEXT_ID => $id,
-						DAO_Comment::COMMENT => $comment,
-						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-						DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
-					);
-					$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+					// Avatar image
+					@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
+					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_ORG, $id, $avatar_image);
+					
+					// Comments
+					if(!empty($comment)) {
+						$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
+						
+						$fields = array(
+							DAO_Comment::CREATED => time(),
+							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_ORG,
+							DAO_Comment::CONTEXT_ID => $id,
+							DAO_Comment::COMMENT => $comment,
+							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+							DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
+						);
+						$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+					}
 				}
 			}
 		}

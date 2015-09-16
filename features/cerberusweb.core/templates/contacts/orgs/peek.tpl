@@ -21,6 +21,13 @@
 	<input type="hidden" name="do_delete" value="0">
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 	
+	{if !empty($contact->id)}
+	<div style="margin:0px 0px 10px 0px;">
+		{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_ORG, array($contact->id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_ORG context_id=$contact->id full=true}
+	</div>
+	{/if}
+	
 	<fieldset class="peek">
 		<legend>{'common.properties'|devblocks_translate}</legend>
 		
@@ -61,18 +68,29 @@
 			</tr>
 			
 			{* Watchers *}
+			{if empty($contact->id)}
 			<tr>
 				<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.watchers'|devblocks_translate|capitalize}: </td>
 				<td width="100%">
-					{if empty($contact->id)}
 						<button type="button" class="chooser_watcher"><span class="glyphicons glyphicons-search"></span></button>
 						<ul class="chooser-container bubbles" style="display:block;"></ul>
-					{else}
-						{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_ORG, array($contact->id), CerberusContexts::CONTEXT_WORKER)}
-						{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_ORG context_id=$contact->id full=true}
-					{/if}
 				</td>
 			</tr>
+			{/if}
+			
+			<tr>
+				<td width="1%" nowrap="nowrap" valign="top" align="right">{'common.image'|devblocks_translate|capitalize}:</td>
+				<td width="99%" valign="top">
+					<div style="float:left;margin-right:5px;">
+						<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=org&context_id={$contact->id}{/devblocks_url}?v={$contact->updated}" style="height:48px;width:48px;border-radius:5px;border:1px solid rgb(235,235,235);">
+					</div>
+					<div style="float:left;">
+						<button type="button" class="cerb-avatar-chooser">{'common.edit'|devblocks_translate|capitalize}</button>
+						<input type="hidden" name="avatar_image">
+					</div>
+				</td>
+			</tr>
+			
 		</table>
 	</fieldset>
 	
@@ -158,6 +176,12 @@ $(function() {
 		// Country autocomplete
 		
 		ajax.countryAutoComplete('#org_country_input');
+		
+		// Avatar
+		
+		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
+		var $avatar_image = $popup.find('img.cerb-avatar');
+		ajax.chooserAvatar($avatar_chooser, $avatar_image);
 		
 		// Form validation
 		
