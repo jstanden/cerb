@@ -4,8 +4,40 @@
 {$members = $group->getMembers()}
 {$buckets = $group->getBuckets()}
 
+<div style="float:left;margin-right:10px;">
+	<img src="{devblocks_url}c=avatars&context=group&context_id={$group->id}{/devblocks_url}?v={$group->updated}" style="height:75px;width:75px;border-radius:5px;border:1px solid rgb(235,235,235);">
+</div>
+
 <div style="float:left;">
 	<h1>{$group->name}</h1>
+	
+	<div class="cerb-profile-toolbar">
+		<form class="toolbar" action="javascript:;" method="POST" onsubmit="return false;">
+			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+		
+			<!-- Macros -->
+			{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}
+				{if !empty($page_context) && !empty($page_context_id) && !empty($macros)}
+					{devblocks_url assign=return_url full=true}c=profiles&tab=group&id={$page_context_id}-{$group->name|devblocks_permalink}{/devblocks_url}
+					{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
+				{/if}
+			{/if}
+		
+			{if $active_worker->is_superuser}
+				<button type="button" id="btnProfileGroupEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+			{/if}
+			
+		</form>
+		
+		{if $pref_keyboard_shortcuts}
+			<small>
+			{$translate->_('common.keyboard')|lower}:
+			{if $active_worker->is_superuser}(<b>e</b>) {'common.edit'|devblocks_translate|lower}{/if}
+			{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
+			(<b>1-9</b>) change tab
+			</small>
+		{/if}
+	</div>
 </div>
 
 <div style="float:right;">
@@ -15,35 +47,7 @@
 
 <div style="clear:both;"></div>
 
-<div class="cerb-profile-toolbar">
-	<form class="toolbar" action="javascript:;" method="POST" onsubmit="return false;">
-		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-	
-		<!-- Macros -->
-		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}
-			{if !empty($page_context) && !empty($page_context_id) && !empty($macros)}
-				{devblocks_url assign=return_url full=true}c=profiles&tab=group&id={$page_context_id}-{$group->name|devblocks_permalink}{/devblocks_url}
-				{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
-			{/if}
-		{/if}
-	
-		{if $active_worker->is_superuser}
-			<button type="button" id="btnProfileGroupEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
-		{/if}
-		
-	</form>
-	
-	{if $pref_keyboard_shortcuts}
-		<small>
-		{$translate->_('common.keyboard')|lower}:
-		{if $active_worker->is_superuser}(<b>e</b>) {'common.edit'|devblocks_translate|lower}{/if}
-		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
-		(<b>1-9</b>) change tab
-		</small>
-	{/if}
-</div>
-
-<fieldset class="properties">
+<fieldset class="properties" style="margin-top:5px;">
 	<legend>Group</legend>
 	
 	<div style="margin-left:15px;">
