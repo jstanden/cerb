@@ -1,5 +1,6 @@
 _version
 attachments
+context_avatar
 message_content
 tmp/cache
 tmp/templates_c

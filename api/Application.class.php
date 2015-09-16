@@ -903,6 +903,7 @@ class CerberusContexts {
 	const CONTEXT_CALL = 'cerberusweb.contexts.call';
 	const CONTEXT_COMMENT = 'cerberusweb.contexts.comment';
 	const CONTEXT_CONTACT_PERSON = 'cerberusweb.contexts.contact_person';
+	const CONTEXT_CONTEXT_AVATAR = 'cerberusweb.contexts.context.avatar';
 	const CONTEXT_CUSTOM_FIELD = 'cerberusweb.contexts.custom_field';
 	const CONTEXT_CUSTOM_FIELDSET = 'cerberusweb.contexts.custom_fieldset';
 	const CONTEXT_DOMAIN = 'cerberusweb.contexts.datacenter.domain';

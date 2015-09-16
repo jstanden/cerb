@@ -724,6 +724,36 @@ var cAjaxCalls = function() {
 			});
 		});
 	}
+	
+	this.chooserAvatar = function($avatar_chooser, $avatar_image) {
+		$avatar_chooser.click(function() {
+			var $editor_button = $(this);
+			var $editor_popup = genericAjaxPopup('avatar_editor', 'c=internal&a=chooserOpenAvatar', null, false, '650');
+			
+			// Set the default image/url in the chooser
+			var evt = new jQuery.Event('cerb-avatar-set-defaults');
+			evt.avatar = {
+				'imagedata': $avatar_image.attr('src')
+			};
+			$editor_popup.trigger(evt);
+			
+			$editor_popup.one('avatar-editor-save', function(e) {
+				genericAjaxPopupClose('avatar_editor');
+				
+				if(undefined == e.avatar || undefined == e.avatar.imagedata)
+					return;
+				
+				if(e.avatar.empty) {
+					$avatar_image.attr('src', e.avatar.imagedata);
+					$avatar_chooser.siblings('input:hidden[name=avatar_image]').val('data:null');
+				} else {
+					$avatar_image.attr('src', e.avatar.imagedata);
+					$avatar_chooser.siblings('input:hidden[name=avatar_image]').val(e.avatar.imagedata);
+				}
+				
+			});
+		});
+	}
 }
 
 var ajax = new cAjaxCalls();

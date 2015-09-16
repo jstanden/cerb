@@ -627,6 +627,16 @@
 				<seg>ID</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.image">
+			<tuv xml:lang="en_US">
+				<seg>image</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.images">
+			<tuv xml:lang="en_US">
+				<seg>images</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.import">
 			<tuv xml:lang="en_US">
 				<seg>import</seg>
@@ -920,6 +930,16 @@
 		<tu tuid="common.permalink">
 			<tuv xml:lang="en_US">
 				<seg>permalink</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.photo">
+			<tuv xml:lang="en_US">
+				<seg>photo</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.photos">
+			<tuv xml:lang="en_US">
+				<seg>photo</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.preview">

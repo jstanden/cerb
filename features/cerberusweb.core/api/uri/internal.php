@@ -842,6 +842,23 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		echo json_encode($results);
 	}
+	
+	function chooserOpenAvatarAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+		
+		if(false != ($avatar = DAO_ContextAvatar::getByContext($context, $context_id))) {
+			$contents = 'data:' . $avatar->content_type . ';base64,' . base64_encode(Storage_ContextAvatar::get($avatar));
+			$tpl->assign('imagedata', $contents);
+		}
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/choosers/avatar_chooser_popup.tpl');
+	}
 
 	function contextAddLinksJsonAction() {
 		header('Content-type: application/json');

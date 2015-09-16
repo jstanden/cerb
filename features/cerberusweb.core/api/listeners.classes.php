@@ -883,11 +883,18 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		@$context = $event->params['context'];
 		@$context_ids = $event->params['context_ids'];
 		
+		if(empty($context))
+			return;
+		
+		if(!is_array($context_ids) || empty($context_ids))
+			return;
+		
 		// Core
 		DAO_AttachmentLink::removeAllByContext($context, $context_ids);
 		DAO_Calendar::deleteByContext($context, $context_ids);
 		DAO_Comment::deleteByContext($context, $context_ids);
 		DAO_ContextActivityLog::deleteByContext($context, $context_ids);
+		DAO_ContextAvatar::deleteByContext($context, $context_ids);
 		DAO_ContextRecommendation::deleteByContext($context, $context_ids);
 		DAO_ContextLink::delete($context, $context_ids);
 		DAO_CustomFieldset::deleteByOwner($context, $context_ids);

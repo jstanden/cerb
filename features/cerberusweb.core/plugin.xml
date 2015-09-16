@@ -57,6 +57,7 @@
 		<patch version="6.9.0" revision="1115" file="patches/6.x/6.9.0.php" />
 		
 		<patch version="7.0.0" revision="1127" file="patches/7.x/7.0.0.php" />
+		<patch version="7.1.0" revision="1137" file="patches/7.x/7.1.0.php" />
 	</patches>
 
 	<!-- Controller Routing -->
@@ -210,6 +211,13 @@
 			<class name="Model_ContextActivityLog" />
 			<class name="SearchFields_ContextActivityLog" />
 			<class name="View_ContextActivityLog" />
+		</file>
+		
+		<file path="api/dao/context_avatar.php">
+			<class name="DAO_ContextAvatar" />
+			<class name="Model_ContextAvatar" />
+			<class name="Search_ContextAvatar" />
+			<class name="SearchFields_ContextAvatar" />
 		</file>
 		
 		<file path="api/dao/context_link.php">
@@ -2500,6 +2508,18 @@
 				<param key="uri" value="print" />
 			</params>
 		</extension>
+		
+		<extension point="devblocks.controller">
+			<id>core.controller.avatars</id>
+			<name>Avatars Controller</name>
+			<class>
+				<file>api/uri/avatars.php</file>
+				<name>Controller_Avatars</name>
+			</class>
+			<params>
+				<param key="uri" value="avatars" />
+			</params>
+		</extension>
 
 		<extension point="devblocks.controller">
 			<id>core.controller.debug</id>
@@ -2622,6 +2642,20 @@
 				<param key="active_storage_profile" value="devblocks.storage.engine.disk" />
 				<param key="archive_storage_profile" value="devblocks.storage.engine.disk" />
 				<param key="archive_after_days" value="7" />
+			</params>
+		</extension>
+		
+		<extension point="devblocks.storage.schema">
+			<id>cerberusweb.storage.schema.context_avatar</id>
+			<name>Avatars</name>
+			<class>
+				<file>api/dao/context_avatar.php</file>
+				<name>Storage_ContextAvatar</name>
+			</class>
+			<params>
+				<param key="active_storage_profile" value="devblocks.storage.engine.disk" />
+				<param key="archive_storage_profile" value="devblocks.storage.engine.disk" />
+				<param key="archive_after_days" value="0" />
 			</params>
 		</extension>
 	
