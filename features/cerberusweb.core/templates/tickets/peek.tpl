@@ -36,23 +36,23 @@
 </div>
 {/if}
 
+<div style="margin:0px 0px 10px 0px;">
+	<span>
+		{$recommend_btn_domid = uniqid()}
+		{$object_recommendations = DAO_ContextRecommendation::getByContexts($peek_context, array($peek_context_id))}
+		{include file="devblocks:cerberusweb.core::internal/recommendations/context_recommend_button.tpl" context=$peek_context context_id=$peek_context_id full=true recommend_btn_domid=$recommend_btn_domid recommend_group_id=$ticket->group_id recommend_bucket_id=$ticket->bucket_id}
+	</span>
+
+	<span>
+		{$watchers_btn_domid = uniqid()}
+		{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($peek_context_id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$peek_context_id full=true watchers_btn_domid=$watchers_btn_domid watchers_group_id=$ticket->group_id watchers_bucket_id=$ticket->bucket_id}
+	</span>
+</div>
+
 <fieldset class="peek" style="margin-bottom:0;">
 	<legend>{'common.ticket'|devblocks_translate|capitalize}</legend>
 	
-	<div style="margin:0px 0px 10px 0px;">
-		<span>
-			{$recommend_btn_domid = uniqid()}
-			{$object_recommendations = DAO_ContextRecommendation::getByContexts($peek_context, array($peek_context_id))}
-			{include file="devblocks:cerberusweb.core::internal/recommendations/context_recommend_button.tpl" context=$peek_context context_id=$peek_context_id full=true recommend_btn_domid=$recommend_btn_domid recommend_group_id=$ticket->group_id recommend_bucket_id=$ticket->bucket_id}
-		</span>
-
-		<span>
-			{$watchers_btn_domid = uniqid()}
-			{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($peek_context_id), CerberusContexts::CONTEXT_WORKER)}
-			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$peek_context_id full=true watchers_btn_domid=$watchers_btn_domid watchers_group_id=$ticket->group_id watchers_bucket_id=$ticket->bucket_id}
-		</span>
-	</div>
-
 	<table cellpadding="2" cellspacing="0" border="0" width="100%" style="margin-bottom:10px;">
 	
 		{* Subject *}

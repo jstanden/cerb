@@ -139,18 +139,22 @@
 				{$ticket_org = $ticket->getOrg()}
 				<b>{'contact_org.name'|devblocks_translate|capitalize}:</b>
 				{if !empty($ticket_org)}
+				<img src="{devblocks_url}c=avatars&context=org&context_id={$ticket_org->id}{/devblocks_url}?v={$ticket_org->updated}" style="height:16px;width:16px;;vertical-align:middle;">
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$ticket->org_id}',null,false,'500');">{$ticket_org->name}</a>
 				{/if}
 			{elseif $k == 'bucket'}
+				{$ticket_group = $groups.$ticket_group_id}
 				<b>{'common.bucket'|devblocks_translate|capitalize}:</b>
-				[{$groups.$ticket_group_id->name}]  
+				{*<img src="{devblocks_url}c=avatars&context=group&context_id={$ticket_group->id}{/devblocks_url}?v={$ticket_group->updated}" style="height:16px;width:16px;border-radius:8px;vertical-align:middle;">*}
+				[<a href="{devblocks_url}c=profiles&what=group&id={$ticket_group->id}{/devblocks_url}-{$ticket_group->name|devblocks_permalink}">{$ticket_group->name}</a>] 
 				{if !empty($ticket_bucket_id)}
-					{$ticket_bucket->name}
+					<a href="{devblocks_url}c=profiles&what=bucket&id={$ticket_bucket->id}{/devblocks_url}-{$ticket_bucket->name|devblocks_permalink}">{$ticket_bucket->name}</a>
 				{/if}
 			{elseif $k == 'owner'}
 				{if !empty($ticket->owner_id) && isset($workers.{$ticket->owner_id})}
 					{$owner = $workers.{$ticket->owner_id}}
 					<b>{'common.owner'|devblocks_translate|capitalize}:</b>
+					<img src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}" style="height:16px;width:16px;border-radius:8px;vertical-align:middle;">
 					<a href="{devblocks_url}c=profiles&p=worker&id={$owner->id}-{$owner->getName()|devblocks_permalink}{/devblocks_url}" target="_blank">{$owner->getName()}</a>
 				{else}
 					<b>{'common.owner'|devblocks_translate|capitalize}:</b>

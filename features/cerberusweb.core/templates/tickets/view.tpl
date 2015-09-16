@@ -164,6 +164,7 @@
 		<td>
 			{$owner = $workers.{$result.t_owner_id}}
 			{if $owner instanceof Model_Worker}
+				<img src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;">
 				<a href="{devblocks_url}c=profiles&what=worker&id={$owner->id}{/devblocks_url}-{$owner->getName()|devblocks_permalink}">{$owner->getName()}</a>
 			{/if}
 		</td>
