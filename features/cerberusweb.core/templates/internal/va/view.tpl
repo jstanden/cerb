@@ -74,11 +74,15 @@
 		{assign var=tableRowClass value="odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
+	
+		{if !$view->options.disable_watchers}
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.v_id}
 			</td>
 		</tr>
+		{/if}
+		
 		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}

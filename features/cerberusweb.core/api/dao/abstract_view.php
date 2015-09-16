@@ -2843,7 +2843,7 @@ class DAO_WorkerViewModel {
 		
 		if(is_array($params_data))
 		foreach($params_data as $key => $data) {
-			if(is_numeric(key($data))) {
+			if(is_array($data) && is_numeric(key($data))) {
 				$params[$key] = self::_recurseParam($data);
 			} else {
 				$params[$key] = new DevblocksSearchCriteria($data['field'], $data['operator'], $data['value']);
