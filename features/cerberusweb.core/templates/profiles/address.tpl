@@ -1,15 +1,46 @@
 {$page_context = CerberusContexts::CONTEXT_ADDRESS}
 {$page_context_id = $address->id}
 
+<div style="float:left;margin-right:10px;">
+	<img src="{devblocks_url}c=avatars&context=address&context_id={$address->id}{/devblocks_url}?v={$address->updated}" style="height:75px;width:75px;border-radius:5px;border:1px solid rgb(235,235,235);">
+</div>
+
 <div style="float:left;">
-<h1>
-{$addy_name = $address->getName()} 
-{if !empty($addy_name)}
-	{$addy_name} &lt;{$address->email}&gt;
-{else}
-	{$address->email}
-{/if}
-</h1>
+	<h1>
+	{$addy_name = $address->getName()} 
+	{if !empty($addy_name)}
+		{$addy_name} &lt;{$address->email}&gt;
+	{else}
+		{$address->email}
+	{/if}
+	</h1>
+	
+	<div class="cerb-profile-toolbar">
+		<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
+			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+			
+			<span>
+			{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
+			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
+			</span>
+		
+			<!-- Macros -->
+			{devblocks_url assign=return_url full=true}c=profiles&type=address&id={$page_context_id}-{$address->email|devblocks_permalink}{/devblocks_url}
+			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
+		
+			<!-- Toolbar -->
+			<button type="button" id="btnDisplayAddyEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		</form>
+		
+		{if $pref_keyboard_shortcuts}
+		<small>
+			{'common.keyboard'|devblocks_translate|lower}:
+			(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+			{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
+			(<b>1-9</b>) change tab
+		</small> 
+		{/if}
+	</div>
 </div>
 
 <div style="float:right;">
@@ -19,34 +50,7 @@
 
 <br clear="all">
 
-<div class="cerb-profile-toolbar">
-	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
-		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-		
-		<span>
-		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
-		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
-		</span>		
-	
-		<!-- Macros -->
-		{devblocks_url assign=return_url full=true}c=profiles&type=address&id={$page_context_id}-{$address->email|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
-	
-		<!-- Toolbar -->
-		<button type="button" id="btnDisplayAddyEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
-	</form>
-	
-	{if $pref_keyboard_shortcuts}
-	<small>
-		{'common.keyboard'|devblocks_translate|lower}:
-		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
-		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
-		(<b>1-9</b>) change tab
-	</small> 
-	{/if}
-</div>
-
-<fieldset class="properties">
+<fieldset class="properties" style="margin-top:5px;">
 	<legend>{'addy_book.peek.title'|devblocks_translate|capitalize}</legend>
 	
 	<div style="margin-left:15px;">

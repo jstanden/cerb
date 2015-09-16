@@ -1019,9 +1019,15 @@ class ChContactsPage extends CerberusPageExtension {
 				DAO_Address::update($id, $fields);
 			}
 	
-			// Custom field saves
-			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_ADDRESS, $id, $field_ids);
+			if($id) {
+				// Custom field saves
+				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_ADDRESS, $id, $field_ids);
+				
+				// Avatar image
+				@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
+				DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_ADDRESS, $id, $avatar_image);
+			}
 			
 			// Comment
 			
