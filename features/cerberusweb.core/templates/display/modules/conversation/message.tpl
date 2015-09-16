@@ -52,10 +52,14 @@
 				{if $active_worker->hasPriv('core.addybook.addy.actions.update')}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$sender_id}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );"><span style="background-color:rgb(255,255,194);">{'display.convo.set_org'|devblocks_translate|lower}</span></a>{/if}
 			{/if}
 			
-			{$extensions = DevblocksPlatform::getExtensions('cerberusweb.message.badge', true)}
-			{foreach from=$extensions item=extension}
-				{$extension->render($message)}
-			{/foreach}
+			<div style="float:left;margin:0px 5px 5px 0px;">
+				{if $message->worker_id}
+					{$msg_worker = $workers.{$message->worker_id}}
+					<img src="{devblocks_url}c=avatars&context=worker&context_id={$msg_worker->id}{/devblocks_url}?v={$msg_worker->updated}" style="height:64px;width:64px;border-radius:64px;">
+				{else}
+					<img src="{devblocks_url}c=avatars&context=address&context_id={$sender->id}{/devblocks_url}?v={$sender->updated}" style="height:64px;width:64px;border-radius:64px;">
+				{/if}
+			</div>
 			
 			<br>
 		{/if}

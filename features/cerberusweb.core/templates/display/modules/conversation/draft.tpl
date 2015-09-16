@@ -20,6 +20,11 @@
 			{if $draft->worker_id==$active_worker->id && isset($draft->params.in_reply_message_id)}<a href="javascript:;" onclick="displayReply('{$draft->params.in_reply_message_id}',{if $draft->type=='ticket.forward'}1{else}0{/if},{$draft_id});">{'Resume'|devblocks_translate|lower}</a>&nbsp;{/if}
 		{/if}
 		{if $draft->worker_id==$active_worker->id || $active_worker->hasPriv('core.mail.draft.delete_all')}<a href="javascript:;" onclick="if(confirm('Are you sure you want to permanently delete this draft?')) { genericAjaxGet('', 'c=mail&a=handleSectionAction&section=drafts&action=deleteDraft&draft_id={$draft_id}', function(o) { $('#draft{$draft_id}').remove(); } ); } ">{'common.delete'|devblocks_translate|lower}</a>&nbsp;{/if}		
+		
+		<div style="float:left;margin:0px 5px 5px 0px;">
+			<img src="{devblocks_url}c=avatars&context=worker&context_id={$draft->worker_id}{/devblocks_url}?v=" style="height:64px;width:64px;border-radius:64px;">
+		</div>
+
 		<br>
 		
 		{if isset($draft->hint_to)}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$draft->hint_to}<br>{/if}

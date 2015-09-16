@@ -29,10 +29,12 @@
 			{/if}
 		</div>
 		
-		{$extensions = DevblocksPlatform::getExtensions('cerberusweb.comment.badge', true)}
-		{foreach from=$extensions item=extension}
-			{$extension->render($comment)}
-		{/foreach}
+		{if isset($owner_meta.context_ext->manifest->params.alias)}
+		<div style="float:left;margin:0px 5px 5px 0px;">
+			<img src="{devblocks_url}c=avatars&context={$owner_meta.context_ext->manifest->params.alias}&context_id={$owner_meta.id}{/devblocks_url}?v=" style="height:64px;width:64px;border-radius:64px;">
+		</div>
+		{/if}
+		
 		<br>
 		
 		{if isset($comment->created)}<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$comment->created|devblocks_date} ({$comment->created|devblocks_prettytime})<br>{/if}

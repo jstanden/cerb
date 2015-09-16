@@ -20,6 +20,12 @@
 			({$owner_meta.context_ext->manifest->name|lower})
 			{/if}
 			
+			{if isset($owner_meta.context_ext->manifest->params.alias)}
+			<div style="float:left;margin:0px 5px 5px 0px;">
+				<img src="{devblocks_url}c=avatars&context={$owner_meta.context_ext->manifest->params.alias}&context_id={$owner_meta.id}{/devblocks_url}?v=" style="height:45px;width:45px;border-radius:45px;">
+			</div>
+			{/if}
+			
 			<div class="toolbar" style="display:none;float:right;margin-right:20px;">
 				{if $note->context == CerberusContexts::CONTEXT_MESSAGE}
 					<a href="{devblocks_url}c=profiles&type=ticket&mask={$ticket->mask}&focus=comment&focus_id={$note->id}{/devblocks_url}">{'common.permalink'|devblocks_translate|lower}</a>
