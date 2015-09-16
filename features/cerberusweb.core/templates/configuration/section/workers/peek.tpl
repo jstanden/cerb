@@ -56,6 +56,20 @@
 				{/if}
 			</td>
 		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap" valign="top" align="right">{'common.photo'|devblocks_translate|capitalize}:</td>
+			<td width="99%" valign="top">
+				<div style="float:left;margin-right:5px;">
+					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}" style="height:48px;width:48px;border-radius:5px;border:1px solid rgb(235,235,235);">
+				</div>
+				<div style="float:left;">
+					<button type="button" class="cerb-avatar-chooser">{'common.edit'|devblocks_translate|capitalize}</button>
+					<input type="hidden" name="avatar_image">
+				</div>
+			</td>
+		</tr>
+		
 	</table>
 </fieldset>
 
@@ -199,6 +213,14 @@ $(function() {
 				}
 			}		
 		});
+		
+		// Avatar chooser
+		
+		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
+		var $avatar_image = $popup.find('img.cerb-avatar');
+		ajax.chooserAvatar($avatar_chooser, $avatar_image);
+		
+		// Focus
 		
 		$(this).find('input:text:first').select().focus();
 	});

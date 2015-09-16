@@ -6,8 +6,41 @@
 
 {$memberships = $worker->getMemberships()}
 
+<div style="float:left;margin-right:10px;">
+	<img src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}" style="height:75px;width:75px;border-radius:5px;border:1px solid rgb(235,235,235);">
+</div>
+
 <div style="float:left;">
 	<h1>{$worker->getName()}</h1>
+	
+	<div class="cerb-profile-toolbar">
+		<form class="toolbar" action="javascript:;" method="POST" style="margin:0px 0px 5px 0px;" onsubmit="return false;">
+			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+			
+			<!-- Macros -->
+			{if $worker->id == $active_worker->id || $active_worker->is_superuser}
+				{if !empty($page_context) && !empty($page_context_id) && !empty($macros)}
+					{devblocks_url assign=return_url full=true}c=profiles&tab=worker&id={$page_context_id}-{$worker->getName()|devblocks_permalink}{/devblocks_url}
+					{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
+				{/if}
+			{/if}
+		
+			{if $active_worker->is_superuser}
+				{if $worker->id != $active_worker->id}<button type="button" id="btnProfileWorkerPossess"><span class="glyphicons glyphicons-user"></span> Impersonate</button>{/if}
+				<button type="button" id="btnProfileWorkerEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+				<button type="button" title="{'common.refresh'|devblocks_translate|capitalize}" onclick="document.location='{devblocks_url}c=profiles&type=worker&id={$worker->id}{/devblocks_url}-{$worker->getName()|devblocks_permalink}';"><span class="glyphicons glyphicons-refresh"></span></button>
+			{/if}
+		</form>
+		
+		{if $pref_keyboard_shortcuts}
+			<small>
+			{$translate->_('common.keyboard')|lower}:
+			{if $active_worker->is_superuser}(<b>e</b>) {'common.edit'|devblocks_translate|lower}{/if}
+			{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
+			(<b>1-9</b>) change tab
+			</small>
+		{/if}
+	</div>
 </div>
 
 <div style="float:right;">
@@ -15,36 +48,7 @@
 	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
 </div>
 
-<div style="clear:both;"></div>
-
-<div class="cerb-profile-toolbar">
-	<form class="toolbar" action="javascript:;" method="POST" style="margin:0px 0px 5px 5px;" onsubmit="return false;">
-		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-		
-		<!-- Macros -->
-		{if $worker->id == $active_worker->id || $active_worker->is_superuser}
-			{if !empty($page_context) && !empty($page_context_id) && !empty($macros)}
-				{devblocks_url assign=return_url full=true}c=profiles&tab=worker&id={$page_context_id}-{$worker->getName()|devblocks_permalink}{/devblocks_url}
-				{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
-			{/if}
-		{/if}
-	
-		{if $active_worker->is_superuser}
-			{if $worker->id != $active_worker->id}<button type="button" id="btnProfileWorkerPossess"><span class="glyphicons glyphicons-user"></span> Impersonate</button>{/if}
-			<button type="button" id="btnProfileWorkerEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
-			<button type="button" title="{'common.refresh'|devblocks_translate|capitalize}" onclick="document.location='{devblocks_url}c=profiles&type=worker&id={$worker->id}{/devblocks_url}-{$worker->getName()|devblocks_permalink}';"><span class="glyphicons glyphicons-refresh"></span></button>
-		{/if}
-	</form>
-	
-	{if $pref_keyboard_shortcuts}
-		<small>
-		{$translate->_('common.keyboard')|lower}:
-		{if $active_worker->is_superuser}(<b>e</b>) {'common.edit'|devblocks_translate|lower}{/if}
-		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
-		(<b>1-9</b>) change tab
-		</small>
-	{/if}
-</div>
+<div style="clear:both;padding-top:5px;"></div>
 
 <fieldset class="properties">
 	<legend>Worker</legend>
