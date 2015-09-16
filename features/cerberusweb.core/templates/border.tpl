@@ -21,6 +21,7 @@
 		{if empty($visit)}
 			{'header.not_signed_in'|devblocks_translate} <a href="{devblocks_url}c=login{/devblocks_url}">{'header.signon'|devblocks_translate|lower}</a>
 		{elseif !empty($active_worker)}
+			<img src="{devblocks_url}c=avatars&context=worker&context_id={$active_worker->id}{/devblocks_url}?v={$active_worker->updated}" style="height:1.75em;width:1.75em;border-radius:0.875em;vertical-align:middle;">
 			<b><a href="javascript:;" id="lnkSignedIn">{$active_worker->getName()}</a></b><span class="glyphicons glyphicons-chevron-down" style="margin:2px 0px 0px 2px;"></span>
 			{*{'header.signed_in'|devblocks_translate:$worker_name nofilter}*}
 			{if $visit->isImposter()}
