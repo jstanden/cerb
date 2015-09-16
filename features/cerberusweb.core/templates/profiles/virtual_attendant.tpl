@@ -1,8 +1,41 @@
 {$page_context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}
 {$page_context_id = $virtual_attendant->id}
 
+<div style="float:left;margin-right:10px;">
+	<img src="{devblocks_url}c=avatars&context=virtual_attendant&context_id={$virtual_attendant->id}{/devblocks_url}?v={$virtual_attendant->updated_at}" style="height:75px;width:75px;border-radius:5px;border:1px solid rgb(235,235,235);">
+</div>
+
 <div style="float:left">
 	<h1>{$virtual_attendant->name}</h1>
+	
+	<div class="cerb-profile-toolbar">
+		<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
+			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+		
+			<!-- Toolbar -->
+			
+			<span>
+			{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
+			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
+			</span>
+			
+			<!-- Macros -->
+			{devblocks_url assign=return_url full=true}c=profiles&type=virtual_attendant&id={$page_context_id}-{$virtual_attendant->name|devblocks_permalink}{/devblocks_url}
+			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
+			
+			<!-- Edit -->
+			{if $active_worker->is_superuser}<button type="button" id="btnDisplayVirtualAttendantEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>{/if}
+		</form>
+		
+		{if $pref_keyboard_shortcuts}
+			<small>
+			{'common.keyboard'|devblocks_translate|lower}:
+			(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+			{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
+			(<b>1-9</b>) change tab
+			</small>
+		{/if}
+	</div>
 </div>
 
 <div style="float:right;">
@@ -12,36 +45,7 @@
 
 <div style="clear:both;"></div>
 
-<div class="cerb-profile-toolbar">
-	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
-		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-	
-		<!-- Toolbar -->
-		
-		<span>
-		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
-		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
-		</span>
-		
-		<!-- Macros -->
-		{devblocks_url assign=return_url full=true}c=profiles&type=virtual_attendant&id={$page_context_id}-{$virtual_attendant->name|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
-		
-		<!-- Edit -->
-		{if $active_worker->is_superuser}<button type="button" id="btnDisplayVirtualAttendantEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>{/if}
-	</form>
-	
-	{if $pref_keyboard_shortcuts}
-		<small>
-		{'common.keyboard'|devblocks_translate|lower}:
-		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
-		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
-		(<b>1-9</b>) change tab
-		</small>
-	{/if}
-</div>
-
-<fieldset class="properties">
+<fieldset class="properties" style="margin-top:5px;">
 	<legend>{'Virtual Attendant'|devblocks_translate|capitalize}</legend>
 
 	<div style="margin-left:15px;">

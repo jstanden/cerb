@@ -233,9 +233,15 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 				
 			}
 
-			// Custom fields
-			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $id, $field_ids);
+			if($id) {
+				// Custom fields
+				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $id, $field_ids);
+				
+				// Avatar image
+				@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
+				DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $id, $avatar_image);
+			}
 		}
 	}
 	

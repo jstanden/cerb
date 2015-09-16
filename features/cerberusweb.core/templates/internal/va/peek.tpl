@@ -53,6 +53,19 @@
 			</td>
 		</tr>
 		
+		<tr>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.image'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%" valign="top">
+				<div style="float:left;margin-right:5px;">
+					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=virtual_attendant&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:48px;width:48px;border-radius:5px;border:1px solid rgb(235,235,235);">
+				</div>
+				<div style="float:left;">
+					<button type="button" class="cerb-avatar-chooser">{'common.edit'|devblocks_translate|capitalize}</button>
+					<input type="hidden" name="avatar_image">
+				</div>
+			</td>
+		</tr>
+		
 	</table>
 	
 </fieldset>
@@ -125,7 +138,8 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+	var $popup = genericAjaxPopupFetch('peek');
+	
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{'Virtual Attendant'}");
 		
@@ -171,22 +185,14 @@
 				$actions_container.show();
 		});
 		
-		$(this).find('button.chooser_watcher').each(function() {
-			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
-		});
+		// Avatar
 		
-		$(this).find('textarea[name=comment]').keyup(function() {
-			if($(this).val().length > 0) {
-				$(this).next('DIV.notify').show();
-			} else {
-				$(this).next('DIV.notify').hide();
-			}
-		});
+		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
+		var $avatar_image = $popup.find('img.cerb-avatar');
+		ajax.chooserAvatar($avatar_chooser, $avatar_image);
 		
-		$('#frmVirtualAttendantPeek button.chooser_notify_worker').each(function() {
-			ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
-		});
+		// Focus
 		
-		$(this).find('input:text:first').focus();
+		$popup.find('input:text:first').focus();
 	} );
 </script>
