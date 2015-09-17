@@ -204,6 +204,36 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		return $categories;
 	}
 	
+	static function getTopArticlesForCategories(array $category_ids, $limit=5) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$tree = DAO_KbCategory::getTree(0);
+		
+		$articles_by_category = array();
+		
+		// [TODO] Cache by category?
+		
+		if(is_array($category_ids))
+		foreach($category_ids as $category_id) {
+			$sql = sprintf("SELECT DISTINCT a.id, a.title, a.views, a.updated, %d as parent_id FROM kb_article a INNER JOIN kb_article_to_category kbc ON (kbc.kb_article_id=a.id) WHERE kbc.kb_category_id IN (%s) ORDER BY a.views DESC LIMIT %d",
+				$category_id,
+				implode(',', DAO_KbCategory::getDescendents($category_id, $tree)),
+				$limit
+			);
+			$results = $db->GetArray($sql);
+			
+			if(is_array($results))
+			foreach($results as $result) {
+				if(!isset($articles_by_category[$result['parent_id']]))
+					$articles_by_category[$result['parent_id']] = array();
+				
+				$articles_by_category[$result['parent_id']][] = $result;
+			}
+		}
+		
+		return $articles_by_category;
+	}
+	
 	static function setCategories($article_ids,$category_ids,$replace=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
