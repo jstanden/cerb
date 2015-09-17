@@ -815,10 +815,13 @@ class DAO_Worker extends Cerb_ORMHelper {
 				break;
 			
 			case SearchFields_Worker::VIRTUAL_GROUPS:
-				if(is_array($param->value))
-					$param->value = array_filter($param->value, function($v) {
-						return !empty($v);
-					});
+				if(!is_array($param->value))
+					break;
+					
+				// Sanitize array
+				$param->value = array_filter($param->value, function($v) {
+					return !empty($v);
+				});
 				
 				$args['has_multiple_values'] = true;
 				if(empty($param->value)) { // empty
@@ -1540,6 +1543,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 	
 	function getQuickSearchFields() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$group_names = DAO_Group::getNames();
+		
 		$fields = array(
 			'_fulltext' => 
 				array(
@@ -1560,6 +1567,12 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_Worker::IS_SUPERUSER),
+				),
+			'inGroups' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Worker::VIRTUAL_GROUPS),
+					'examples' => array_slice($group_names, 0, 15),
 				),
 			'isAvailable' => 
 				array(
@@ -1653,6 +1666,61 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		if(is_array($fields))
 		foreach($fields as $k => $v) {
 			switch($k) {
+				case 'inGroups':
+					$field_key = SearchFields_Worker::VIRTUAL_GROUPS;
+					$oper = DevblocksSearchCriteria::OPER_IN;
+					
+					if(preg_match('#^([\!\=]+)(.*)#', $v, $matches)) {
+						$oper_hint = trim($matches[1]);
+						$v = trim($matches[2]);
+						
+						switch($oper_hint) {
+							case '!':
+							case '!=':
+								$oper = DevblocksSearchCriteria::OPER_NIN;
+								break;
+								
+							default:
+								$oper = DevblocksSearchCriteria::OPER_IN;
+								break;
+						}
+					}
+					
+					$groups = DAO_Group::getAll();
+					
+					$patterns = DevblocksPlatform::parseCsvString($v);
+					
+					if(!is_array($patterns))
+						break;
+					
+					$group_ids = array();
+					
+					foreach($patterns as $pattern) {
+						// Allow raw IDs
+						if(is_numeric($pattern) && isset($groups[$pattern])) {
+							$group_ids[intval($pattern)] = true;
+							
+						} else {
+							foreach($groups as $group_id => $group) {
+								if(isset($group_ids[$group_id]))
+									continue;
+								
+								if(false !== stristr($group->name, $pattern)) {
+									$group_ids[$group_id] = true;
+								}
+							}
+						}
+					}
+					
+					if(!empty($group_ids)) {
+						$params[$field_key] = new DevblocksSearchCriteria(
+							$field_key,
+							$oper,
+							array_keys($group_ids)
+						);
+					}
+					break;
+					
 				case 'isAvailable':
 					$param = DevblocksSearchCriteria::getDateParamFromQuery(SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY, $v);
 					$param->value[] = '1';
@@ -1708,21 +1776,14 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 			
 			case SearchFields_Worker::VIRTUAL_GROUPS:
+				$groups = DAO_Group::getAll();
+				
 				// Empty
 				if(empty($param->value)) {
 					echo "<b>Not</b> a member of any groups";
 					
-				// Placeholders
-				} elseif(false !== (strpos($param->value, '{{'))) {
-					$strings = array();
-					foreach($param->value as $k) {
-						$strings[] = sprintf("<b>%s</b>", $k);
-					}
-					echo sprintf("Group member of %s", implode(' or ', $strings));
-					
 				// Group IDs array
 				} elseif(is_array($param->value)) {
-					$groups = DAO_Group::getAll();
 					$strings = array();
 					
 					foreach($param->value as $group_id) {
