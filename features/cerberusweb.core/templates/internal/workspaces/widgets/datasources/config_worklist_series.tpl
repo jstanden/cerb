@@ -109,13 +109,14 @@
 </select>
 
 <script type="text/javascript">
+$(function() {
 	// [TODO] Limit to the series we're adding now
-	$fieldset = $('fieldset#widget{$widget->id}Datasource{$series_idx}');
+	var $fieldset = $('fieldset#widget{$widget->id}Datasource{$series_idx}');
 	
 	$fieldset.find('select.xaxis_field').change(function(e) {
-		$this = $(this);
+		var $this = $(this);
 		
-		$xaxis_tick = $this.siblings('select.xaxis_tick');
+		var $xaxis_tick = $this.siblings('select.xaxis_tick');
 		
 		if($(this).find('option:selected').is('.date')) {
 			$xaxis_tick.show();
@@ -125,7 +126,7 @@
 	});
 	
 	$fieldset.find('select.yaxis_func').change(function(e) {
-		val = $(this).val();
+		var val = $(this).val();
 		
 		var $select_yaxis = $(this).siblings('select.yaxis_field');
 		
@@ -140,7 +141,7 @@
 	});
 	
 	$fieldset.find('select.context').change(function(e) {
-		ctx = $(this).val();
+		var ctx = $(this).val();
 		
 		// [TODO] Hide options until we know the context
 		var $select = $(this);
@@ -150,17 +151,17 @@
 		
 		genericAjaxGet('','c=internal&a=handleSectionAction&section=dashboards&action=getContextFieldsJson&context=' + ctx, function(json) {
 			if('object' == typeof(json) && json.length > 0) {
-				$select_xaxis = $select.siblings('select.xaxis_field').html('');
-				$select_yaxis = $select.siblings('select.yaxis_field').html('');
+				var $select_xaxis = $select.siblings('select.xaxis_field').html('');
+				var $select_yaxis = $select.siblings('select.yaxis_field').html('');
 				
-				$option = $('<option value="_id">(each record)</option>');
+				var $option = $('<option value="_id">(each record)</option>');
 				$select_xaxis.append($option);
 				
 				for(idx in json) {
-					field = json[idx];
-					field_type = (field.type=='E') ? 'date' : ((field.type=='N') ? 'number' : '');
+					var field = json[idx];
+					var field_type = (field.type=='E') ? 'date' : ((field.type=='N') ? 'number' : '');
 					
-					$option = $('<option value="'+field.key+'" class="'+field_type+'">'+field.label+'</option>');
+					var $option = $('<option value="'+field.key+'" class="'+field_type+'">'+field.label+'</option>');
 
 					// X-Axis
 					// Number or date
@@ -190,9 +191,9 @@
 		$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist{$series_idx}"}',null,true,'750');
 		$chooser.bind('chooser_save',function(event) {
 			if(null != event.worklist_model) {
-				$('#popup{$div_popup_worklist}').parent().find('input:hidden.model').val(event.worklist_model);
+				$fieldset.find('input:hidden.model').val(event.worklist_model);
 			}
 		});
 	});
-</script>
-			
+});
+</script>	

@@ -41,10 +41,10 @@
 		});
 	});
 	
-	$select = $('#select{$uniq_id}');
+	var $select = $('#select{$uniq_id}');
 	
 	$select.change(function(e) {
-		val=$(this).val();
+		var val = $(this).val();
 		
 		if(val.length > 0)
 			$(this).next('span').show();

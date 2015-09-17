@@ -28,7 +28,7 @@
 			<br>
 
 			<script type="text/javascript">
-				$fieldset = $('fieldset#widget{$widget->id}Datasource');
+				var $fieldset = $('fieldset#widget{$widget->id}Datasource');
 				
 				$('#popup{$div_popup_worklist}').click(function(e) {
 					var $select = $(this).siblings('select.context');

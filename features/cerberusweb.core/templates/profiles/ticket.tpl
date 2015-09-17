@@ -139,7 +139,6 @@
 				{$ticket_org = $ticket->getOrg()}
 				<b>{'contact_org.name'|devblocks_translate|capitalize}:</b>
 				{if !empty($ticket_org)}
-				<img src="{devblocks_url}c=avatars&context=org&context_id={$ticket_org->id}{/devblocks_url}?v={$ticket_org->updated}" style="height:16px;width:16px;;vertical-align:middle;">
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$ticket->org_id}',null,false,'500');">{$ticket_org->name}</a>
 				{/if}
 			{elseif $k == 'bucket'}
