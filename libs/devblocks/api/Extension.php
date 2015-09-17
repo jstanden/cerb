@@ -134,21 +134,94 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 
 		return $contexts;
 	}
-
-	public static function getByAlias($alias, $as_instance=false) {
+	
+	public static function getAliasesForAllContexts() {
+		$cache = DevblocksPlatform::getCacheService();
+		
+		if(null !== ($results = $cache->load(DevblocksPlatform::CACHE_CONTEXT_ALIASES)))
+			return $results;
+		
 		$contexts = self::getAll(false);
-
+		$results = array();
+		
 		if(is_array($contexts))
 		foreach($contexts as $ctx_id => $ctx) { /* @var $ctx DevblocksExtensionManifest */
-			if(isset($ctx->params['alias']) && 0 == strcasecmp($ctx->params['alias'], $alias)) {
-				if($as_instance) {
-					return $ctx->createInstance();
-				} else {
-					return $ctx;
-				}
+			$ctx_aliases = self::getAliasesForContext($ctx);
+			
+			@$uri = $ctx_aliases['uri'];
+			
+			if(isset($ctx_aliases['aliases']) && is_array($ctx_aliases['aliases']))
+			foreach($ctx_aliases['aliases'] as $alias => $meta) {
+				// If this alias is already defined and it's not the priority URI for this context, skip
+				if(isset($results[$alias]) && $alias != $uri)
+					continue;
+				
+				$results[$alias] = $ctx_id;
 			}
 		}
+		
+		$cache->save($results, DevblocksPlatform::CACHE_CONTEXT_ALIASES);
+		return $results;
+	}
 
+	public static function getAliasesForContext(DevblocksExtensionManifest $ctx_manifest) {
+		@$names = $ctx_manifest->params['names'][0];
+		@$uri = $ctx_manifest->params['alias'];
+		
+		$results = array(
+			'singular' => '',
+			'plural' => '',
+			'singular_short' => '',
+			'plural_short' => '',
+			'uri' => $uri,
+			'aliases' => array(),
+		);
+		
+		if(!empty($uri))
+			$results['aliases'][$uri] = array('uri');
+		
+		if(is_array($names) && !empty($names))
+		foreach($names as $name => $meta) {
+			$name = mb_convert_case($name, MB_CASE_LOWER);
+			@$meta = explode(' ', $meta) ?: array();
+			
+			$is_plural = in_array('plural', $meta);
+			$is_short = in_array('short', $meta);
+			
+			if(!$is_plural && !$is_short && empty($results['singular']))
+				$results['singular'] = $name;
+			else if($is_plural && !$is_short && empty($results['plural']))
+				$results['plural'] = $name;
+			else if(!$is_plural && $is_short && empty($results['singular_short']))
+				$results['singular_short'] = $name;
+			else if($is_plural && $is_short && empty($results['plural_short']))
+				$results['plural_short'] = $name;
+			
+			$results['aliases'][$name] = $meta;
+		}
+		
+		if(empty($results['singular']))
+			$results['singular'] = mb_convert_case($ctx_manifest->name, MB_CASE_LOWER);
+		
+		return $results;
+	}
+	
+	/**
+	 * 
+	 * @param string $alias
+	 * @param bool $as_instance
+	 * @return Extension_DevblocksContext|DevblocksExtensionManifest
+	 */
+	public static function getByAlias($alias, $as_instance=false) {
+		$aliases = self::getAliasesForAllContexts();
+		
+		@$ctx_id = $aliases[$alias];
+		
+		// If this is a valid context, return it
+		if($ctx_id && false != ($ctx = DevblocksPlatform::getExtension($ctx_id, $as_instance))) {
+			return $ctx;
+		}
+		
 		return null;
 	}
 
