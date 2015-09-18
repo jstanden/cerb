@@ -26,23 +26,37 @@
 			<input type="hidden" name="params[worklist_model_json]" value="{$widget->params.worklist_model|json_encode}" class="model">
 			
 			<br>
-
+			
+			<label><input type="checkbox" name="params[search_mode]" value="quick_search" class="mode" {if $widget->params.search_mode == "quick_search"}checked="checked"{/if}> Filter using quick search:</label>
+			
+			<div style="margin-left:20px;">
+				<input type="text" name="params[quick_search]" value="{$widget->params.quick_search}" class="quicksearch" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
+			</div>
+			
 			<script type="text/javascript">
 				var $fieldset = $('fieldset#widget{$widget->id}Datasource');
 				
 				$('#popup{$div_popup_worklist}').click(function(e) {
 					var $select = $(this).siblings('select.context');
-					context = $select.val();
+					var context = $select.val();
+					var $mode = $popup.find('input.mode');
+					var q = '';
+					
+					if($mode.is(':checked')) {
+						q = $fieldset.find('input.quicksearch').val();
+					}
 					
 					if(context.length == 0) {
 						$select.effect('highlight','slow');
 						return;
 					}
 					
-					$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist_config"}',null,true,'750');
-					$chooser.bind('chooser_save',function(event) {
+					var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist_config"}&q=' + encodeURIComponent(q),null,true,'750');
+					
+					$chooser.on('chooser_save',function(event) {
 						if(null != event.worklist_model) {
-							$('#popup{$div_popup_worklist}').parent().find('input:hidden.model').val(event.worklist_model);
+							$fieldset.find('input:hidden.model').val(event.worklist_model);
+							$fieldset.find('input.quicksearch').val(event.worklist_quicksearch);
 						}
 					});
 				});
