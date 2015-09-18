@@ -1233,6 +1233,26 @@ class Model_Worker {
 		return DAO_Worker::getResponsibilities($this->id);
 	}
 	
+	function getPlaceholderLabelsValues(&$labels, &$values, $label_prefix='Current worker ', $values_prefix='current_worker_') {
+		$labels = array();
+		$values = array();
+		
+		$placeholder_labels = array();
+			
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $this, $worker_labels, $worker_values, $label_prefix, true, false);
+		CerberusContexts::merge($values_prefix, null, $worker_labels, $worker_values, $labels, $values);
+		
+		@$types = $values['_types'];
+		
+		foreach($labels as $k => $v) {
+			@$label = $labels[$k];
+			@$type = $types[$k];
+			$placeholder_labels[$k] = array('label' => $label, 'type' => $type);
+		}
+		
+		$labels = $placeholder_labels;
+	}
+	
 	function getAvailability($date_from, $date_to) {
 		// In full (00:00:00 - 23:59:59) days
 		$day_from = strtotime('midnight', $date_from);

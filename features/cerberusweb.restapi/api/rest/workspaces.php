@@ -240,18 +240,14 @@ class ChRest_Workspaces extends Extension_RestController { // implements IExtens
 		}
 	
 		if(!empty($view)) {
-			$labels = array();
-			$values = array();
+			if($worker) {
+				$labels = array();
+				$values = array();
+				$worker->getPlaceholderLabelsValues($labels, $values);
 				
-			$labels['current_worker_id'] = array(
-				'label' => 'Current Worker',
-				'context' => CerberusContexts::CONTEXT_WORKER,
-			);
-				
-			$values['current_worker_id'] = $worker->id;
-	
-			$view->setPlaceholderLabels($labels);
-			$view->setPlaceholderValues($values);
+				$view->setPlaceholderLabels($labels);
+				$view->setPlaceholderValues($values);
+			}
 			
 			$view->persist();
 		}

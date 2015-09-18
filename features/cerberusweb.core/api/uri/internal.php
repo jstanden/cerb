@@ -715,13 +715,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		} elseif(null != $active_worker = CerberusApplication::getActiveWorker()) {
 			$labels = array();
 			$values = array();
-			
-			$labels['current_worker_id'] = array(
-				'label' => 'Current Worker',
-				'context' => CerberusContexts::CONTEXT_WORKER,
-			);
-			
-			$values['current_worker_id'] = $active_worker->id;
+			$active_worker->getPlaceholderLabelsValues($labels, $values);
 			
 			$view->setPlaceholderLabels($labels);
 			$view->setPlaceholderValues($values);

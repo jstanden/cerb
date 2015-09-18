@@ -73,18 +73,14 @@ class Page_Search extends CerberusPageExtension {
 		
 		// Placeholders
 		
-		$labels = array();
-		$values = array();
-		
-		$labels['current_worker_id'] = array(
-			'label' => 'Current Worker',
-			'context' => CerberusContexts::CONTEXT_WORKER,
-		);
-		
-		$values['current_worker_id'] = $active_worker->id;
-		
-		$view->setPlaceholderLabels($labels);
-		$view->setPlaceholderValues($values);
+		if($active_worker) {
+			$labels = array();
+			$values = array();
+			$active_worker->getPlaceholderLabelsValues($labels, $values);
+			
+			$view->setPlaceholderLabels($labels);
+			$view->setPlaceholderValues($values);
+		}
 		
 		// Template
 		

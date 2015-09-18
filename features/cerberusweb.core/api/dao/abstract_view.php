@@ -294,6 +294,14 @@ abstract class C4_AbstractView {
 	}
 	
 	function addParamsWithQuickSearch($query, $replace=true) {
+		// Replace placeholders
+
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$dict = new DevblocksDictionaryDelegate($this->getPlaceholderValues());
+		$query = $tpl_builder->build($query, $dict);
+		
+		// Get fields
+		
 		$fields = $this->_getFieldsFromQuickSearchQuery($query);
 
 		$params = array();
@@ -2723,7 +2731,14 @@ class C4_AbstractViewLoader {
 		}
 
 		$active_worker = CerberusApplication::getActiveWorker();
-		$view->setPlaceholderValues(array('current_worker_id' => !empty($active_worker) ? $active_worker->id : 0));
+		
+		$labels = array();
+		$values = array();
+		
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $worker_labels, $worker_values, null, true, true);
+		CerberusContexts::merge('current_worker_', null, $worker_labels, $worker_values, $labels, $values);
+		
+		$view->setPlaceholderValues(new DevblocksDictionaryDelegate($values));
 		
 		$view->_init_checksum = sha1(serialize($view));
 		

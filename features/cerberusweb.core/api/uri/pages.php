@@ -754,18 +754,14 @@ class Page_Custom extends CerberusPageExtension {
 		}
 	
 		if(!empty($view)) {
-			$labels = array();
-			$values = array();
+			if($active_worker) {
+				$labels = array();
+				$values = array();
+				$active_worker->getPlaceholderLabelsValues($labels, $values);
 				
-			$labels['current_worker_id'] = array(
-				'label' => 'Current Worker',
-				'context' => CerberusContexts::CONTEXT_WORKER,
-			);
-				
-			$values['current_worker_id'] = $active_worker->id;
-	
-			$view->setPlaceholderLabels($labels);
-			$view->setPlaceholderValues($values);
+				$view->setPlaceholderLabels($labels);
+				$view->setPlaceholderValues($values);
+			}
 				
 			$tpl->assign('view', $view);
 			$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
