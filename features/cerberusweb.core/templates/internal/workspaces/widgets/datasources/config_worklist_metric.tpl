@@ -29,7 +29,13 @@
 
 <input type="hidden" name="params[worklist_model_json]" value="{$widget->params.worklist_model|json_encode}" class="model">
 
-<br>
+<div style="margin-left:10px;">
+	<label><input type="checkbox" name="params{$params_prefix}[search_mode]" value="quick_search" class="mode" {if $params.search_mode == "quick_search"}checked="checked"{/if}> Filter using quick search:</label>
+	
+	<div>
+		<input type="text" name="params{$params_prefix}[quick_search]" value="{$params.quick_search}" class="quicksearch" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
+	</div>
+</div>
 
 <b>Value</b> is 
  
@@ -60,57 +66,65 @@
 </div>
 
 <script type="text/javascript">
-
-$div = $('#{$div_id}');
-
-$div.find('select.context').change(function(e) {
-	ctx = $(this).val();
+$(function() {
+	var $div = $('#{$div_id}');
 	
-	// Hide options until we know the context
-	var $select = $(this);
-	
-	if(0 == ctx.length)
-		return;
-	
-	genericAjaxGet('','c=internal&a=handleSectionAction&section=dashboards&action=getContextFieldsJson&context=' + ctx, function(json) {
-		if('object' == typeof(json) && json.length > 0) {
-			$select_metric_field = $select.siblings('select.metric_field').html('');
-			
-			for(idx in json) {
-				field = json[idx];
-				field_type = (field.type=='E') ? 'date' : ((field.type=='N') ? 'number' : '');
+	$div.find('select.context').change(function(e) {
+		var ctx = $(this).val();
+		
+		// Hide options until we know the context
+		var $select = $(this);
+		
+		if(0 == ctx.length)
+			return;
+		
+		genericAjaxGet('','c=internal&a=handleSectionAction&section=dashboards&action=getContextFieldsJson&context=' + ctx, function(json) {
+			if('object' == typeof(json) && json.length > 0) {
+				var $select_metric_field = $select.siblings('select.metric_field').html('');
 				
-				$option = $('<option value="'+field.key+'" class="'+field_type+'">'+field.label+'</option>');
-
-				// Number
-				if(field_type == 'number')
-					$select_metric_field.append($option.clone());
-				
-				delete $option;
+				for(idx in json) {
+					var field = json[idx];
+					var field_type = (field.type=='E') ? 'date' : ((field.type=='N') ? 'number' : '');
+					
+					var $option = $('<option value="'+field.key+'" class="'+field_type+'">'+field.label+'</option>');
+	
+					// Number
+					if(field_type == 'number')
+						$select_metric_field.append($option.clone());
+					
+					delete $option;
+				}
 			}
-		}
-	});
-});	
-
-$div.find('select.metric_func').change(function(e) {
-	val = $(this).val();
+		});
+	});	
 	
-	var $select_metric_field = $(this).siblings('select.metric_field');
+	$div.find('select.metric_func').change(function(e) {
+		var val = $(this).val();
+		
+		var $select_metric_field = $(this).siblings('select.metric_field');
+		
+		if(val == 'count')
+			$select_metric_field.hide();
+		else
+			$select_metric_field.show();
+	});
 	
-	if(val == 'count')
-		$select_metric_field.hide();
-	else
-		$select_metric_field.show();
-});
-
-$('#popup{$div_popup_worklist}').click(function(e) {
-	context = $(this).siblings('select.context').val();
-	$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist"}',null,true,'750');
-	$chooser.bind('chooser_save',function(event) {
-		if(null != event.worklist_model) {
-			$('#popup{$div_popup_worklist}').parent().find('input:hidden.model').val(event.worklist_model);
+	$('#popup{$div_popup_worklist}').click(function(e) {
+		var context = $(this).siblings('select.context').val();
+		var $mode = $div.find('input.mode');
+		var q = '';
+		
+		if($mode.is(':checked')) {
+			q = $div.find('input.quicksearch').val();
 		}
+		var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist"}&q=' + encodeURIComponent(q),null,true,'750');
+		
+		$chooser.bind('chooser_save',function(event) {
+			if(null != event.worklist_model) {
+				$div.find('input:hidden.model').val(event.worklist_model);
+				$div.find('input:text.quicksearch').val(event.worklist_quicksearch);
+			}
+		});
 	});
 });
-
 </script>

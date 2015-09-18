@@ -27,7 +27,13 @@
 
 <input type="hidden" name="params{$params_prefix}[worklist_model_json]" value="{$params.worklist_model|json_encode}" class="model">
 
-<br>
+<div style="margin-left:10px;">
+	<label><input type="checkbox" name="params{$params_prefix}[search_mode]" value="quick_search" class="mode" {if $params.search_mode == "quick_search"}checked="checked"{/if}> Filter using quick search:</label>
+	
+	<div>
+		<input type="text" name="params{$params_prefix}[quick_search]" value="{$params.quick_search}" class="quicksearch" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
+	</div>
+</div>
 
 <abbr title="horizontal axis" style="font-weight:bold;">X-axis</abbr> is 
 
@@ -182,16 +188,24 @@ $(function() {
 	$('#popup{$div_popup_worklist}').click(function(e) {
 		var $select = $(this).siblings('select.context');
 		var context = $select.val();
+		var $mode = $fieldset.find('input.mode');
+		var q = '';
 		
 		if(context.length == 0) {
 			$select.effect('highlight','slow');
 			return;
 		}
 		
-		$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist{$series_idx}"}',null,true,'750');
+		if($mode.is(':checked')) {
+			q = $fieldset.find('input.quicksearch').val();
+		}
+		
+		var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist{$series_idx}"}&q=' + encodeURIComponent(q),null,true,'750');
+		
 		$chooser.bind('chooser_save',function(event) {
 			if(null != event.worklist_model) {
 				$fieldset.find('input:hidden.model').val(event.worklist_model);
+				$fieldset.find('input:text.quicksearch').val(event.worklist_quicksearch);
 			}
 		});
 	});
