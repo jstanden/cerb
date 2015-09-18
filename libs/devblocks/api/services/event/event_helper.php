@@ -4494,6 +4494,12 @@ class DevblocksEventHelper {
 		$view->renderPage = 0;
 		$view->renderTotal = false;
 		
+		if(isset($params['search_mode']) 
+				&& $params['search_mode'] == 'quick_search'
+				&& isset($params['quick_search'])) {
+			$view->addParamsWithQuickSearch($params['quick_search']);
+		}
+		
 		list($results) = $view->getData();
 		
 		if(!isset($dict->$token) || !is_array($dict->$token))

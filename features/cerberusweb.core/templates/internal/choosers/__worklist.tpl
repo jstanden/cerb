@@ -20,6 +20,8 @@ $(function() {
 		
 		$popup.find('input:text:first').focus();
 		
+		$popup.css('overflow', 'inherit');
+		
 		var on_refresh = function() {
 			var $worklist = $('#view{$view->id}').find('TABLE.worklist');
 			$worklist.css('background','none');
@@ -51,13 +53,13 @@ $(function() {
 		
 		$("form#chooser{$view->id} button.submit").click(function(event) {
 			event.stopPropagation();
-			var $popup = genericAjaxPopupFetch('{$layer}');
 			
 			genericAjaxGet('', 'c=internal&a=serializeView&view_id={$view->id}&context={$context}', function(json) {
 				// Trigger event
 				var event = jQuery.Event('chooser_save');
 				event.view_name = json.view_name;
 				event.worklist_model = json.worklist_model;
+				event.worklist_quicksearch = $popup.find('input.cerb-input-quicksearch').val();
 				$popup.trigger(event);
 				
 				genericAjaxPopupDestroy('{$layer}');

@@ -591,6 +591,13 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 		$view_model = $params['worklist_model'];
 		
 		if(false != ($view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($view_model, $view_id))) {
+			// Check for quick search
+			@$mode = $params['search_mode'];
+			@$q = $params['quick_search'];
+			
+			if($mode == 'quick_search' && $q)
+				$view->addParamsWithQuickSearch($q, true);
+			
 			$view->persist();
 			return $view;
 		}

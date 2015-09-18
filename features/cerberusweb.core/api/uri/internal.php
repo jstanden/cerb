@@ -665,6 +665,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer',0);
+		@$q = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
 		
 		// [TODO] This should be able to take a simplified JSON view model
 		
@@ -721,10 +722,15 @@ class ChInternalController extends DevblocksControllerExtension {
 			$view->setPlaceholderValues($values);
 		}
 		
+		if(!empty($q)) {
+			$view->addParamsWithQuickSearch($q, true);
+		}
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('context', $context);
 		$tpl->assign('layer', $layer);
 		$tpl->assign('view', $view);
+		$tpl->assign('quick_search_query', $q);
 		$tpl->display('devblocks:cerberusweb.core::internal/choosers/__worklist.tpl');
 	}
 	
