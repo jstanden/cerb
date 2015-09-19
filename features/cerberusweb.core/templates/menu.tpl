@@ -133,8 +133,7 @@ $(function() {
 				if(search_context.length == 0)
 					return;
 				
-				var $width = $(window).width()-100;
-				var $window = genericAjaxPopup('search_results','c=search&a=openSearchPopup&context=' + encodeURIComponent(search_context), null, false, $width);
+				var $window = genericAjaxPopup('search_results','c=search&a=openSearchPopup&context=' + encodeURIComponent(search_context), null, false, '90%');
 				
 				$search_menu.hide();
 			})

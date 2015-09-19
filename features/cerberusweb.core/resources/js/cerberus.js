@@ -579,7 +579,7 @@ var cAjaxCalls = function() {
 			var $button = $(this);
 			var $ul = $(this).siblings('ul.chooser-container:first');
 			
-			var $chooser=genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=chooserOpen&context=' + context,null,true,'750');
+			var $chooser=genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=chooserOpen&context=' + context,null,true,'90%');
 			$chooser.one('chooser_save', function(event) {
 				// Add the labels
 				for(var idx in event.labels)

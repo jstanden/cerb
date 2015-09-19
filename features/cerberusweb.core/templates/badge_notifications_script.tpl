@@ -13,8 +13,7 @@ $().ready(function() {
 	$badge.fadeIn('slow');
 	
 	$a.click(function() {
-		var $width = $(window).width()-100;
-		var $window = genericAjaxPopup('notifications','c=internal&a=openNotificationsPopup', null, false, $width);
+		var $window = genericAjaxPopup('notifications','c=internal&a=openNotificationsPopup', null, false, '90%');
 	});
 });
 </script>

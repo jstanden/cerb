@@ -307,7 +307,7 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 		draggable : true,
 		modal : false,
 		resizable : true,
-		width : '600px',
+		width : Math.max(Math.floor($(window).width()/2), 500) + 'px', // Larger of 50% of browser width or 500px
 		close: function(event, ui) {
 			$(this).unbind().find(':focus').blur();
 		}
@@ -353,8 +353,16 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 	// Reset (if exists)
 	genericAjaxPopupDestroy($layer);
 	
-	if(null != width) options.width = width + 'px'; // [TODO] Fixed the forced 'px' later
-	if(null != modal) options.modal = modal;
+	if(undefined != width && null != width) {
+		if(typeof width == 'string' && width.substr(-1) == '%') {
+			width = Math.floor($(window).width() * parseInt(width)/100);
+		}
+		
+		options.width = Math.max(parseInt(width), 500) + 'px';
+	}
+	
+	if(null != modal)
+		options.modal = modal;
 	
 	// Load the popup content
 	var $options = { async: false }
@@ -378,11 +386,6 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 					of: target
 				};
 			}
-			
-			// Max height
-			//var max_height = Math.round($(window).height() * 0.85);
-			//$popup.css('max-height', max_height + 'px');
-			//options.maxHeight = max_height + 75;
 			
 			// Render
 			$popup.dialog(options);
