@@ -47,8 +47,17 @@ function DevblocksClass() {
 	}
 	
 	this.showError = function(target, message, animate) {
-		$html = $('<div class="ui-widget"><div class="ui-state-error ui-corner-all" style="padding:0 0.5em;margin:0.5em;"><p><span class="ui-icon ui-icon-alert" style="margin-right:.3em;float:left;"></span>'+message+'</p></div></div>');
-		$status = $(target).html($html).show();
+		$html = $('<div class="ui-widget"/>')
+			.append(
+				$('<div class="ui-state-error ui-corner-all" style="padding:0 0.5em;margin:0.5em;"/>')
+				.append(
+					$('<p/>').text(message)
+						.prepend($('<span class="glyphicons glyphicons-circle-exclamation-mark" style="margin-right:5px;"></span>'))
+				)
+			)
+		;
+		
+		var $status = $(target).html($html).show();
 		
 		animate = (null == animate || false != animate) ? true: false;
 		if(animate)
@@ -58,8 +67,17 @@ function DevblocksClass() {
 	}
 	
 	this.showSuccess = function(target, message, autohide, animate) {
-		$html = $('<div class="ui-widget"><div class="ui-state-highlight ui-corner-all" style="padding:0 0.5em;margin:0.5em;"><p><span class="ui-icon ui-icon-info" style="margin-right:.3em;float:left;"></span>'+message+'</p></div></div>');
-		$status = $(target).html($html).show();
+		$html = $('<div class="ui-widget"/>')
+			.append(
+				$('<div class="ui-state-highlight ui-corner-all" style="padding:0 0.5em;margin:0.5em;"/>')
+				.append(
+					$('<p/>').text(message)
+						.prepend($('<span class="glyphicons glyphicons-circle-ok" style="margin-right:5px;"></span>'))
+				)
+			)
+		;
+		
+		var $status = $(target).html($html).show();
 		
 		animate = (null == animate || false != animate) ? true: false; 
 		if(animate)
@@ -87,7 +105,12 @@ function DevblocksClass() {
 			beforeLoad: function(event, ui) {
 				var tab_title = ui.tab.find('> a').first().clone();
 				tab_title.find('div.tab-badge').remove();
-				ui.panel.html('<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;">Loading: ' + $.trim(tab_title.text()) + '<br><span class="cerb-ajax-spinner"></span></div>');
+				var $div = $('<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;"/>')
+					.text('Loading: ' + $.trim(tab_title.text()))
+					.append($('<br>'))
+					.append($('<span class="cerb-ajax-spinner"/>'))
+					;
+				ui.panel.html($div);
 			},
 		};
 	}

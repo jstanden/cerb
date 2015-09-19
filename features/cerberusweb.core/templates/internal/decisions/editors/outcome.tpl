@@ -338,13 +338,15 @@ $(function() {
 				if(null == seq)
 					seq = 0;
 
-				var $html = $('<div style="margin-left:20px;">' + html + '</div>');
+				var $html = $('<div style="margin-left:20px;"/>').html(html);
 				
-				var $container = $('<li style="padding-bottom:5px;" id="condition'+seq+'"></li>');
-				$container.append('<input type="hidden" name="nodes[]" value="' + seq + '">');
-				$container.append('<input type="hidden" name="condition'+seq+'[condition]" value="' + token + '">');
-				$container.append('<a href="javascript:;" onclick="$(this).closest(\'li\').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a> ');
-				$container.append('<b style="cursor:move;">' + $this.text() + '</b>&nbsp;');
+				var $container = $('<li style="padding-bottom:5px;"/>').attr('id','condition'+seq);
+				$container.append($('<input type="hidden" name="nodes[]">').attr('value', 'condition'+seq));
+				$container.append($('<input type="hidden">').attr('name', 'condition'+seq+'[condition]').attr('value',token));
+				$container.append($('<a href="javascript:;" onclick="$(this).closest(\'li\').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>'));
+				$container.append('&nbsp;');
+				$container.append($('<b style="cursor:move;"/>').text($this.text()));
+				$container.append('&nbsp;');
 
 				$ul.append($container);
 				$container.append($html);

@@ -81,7 +81,7 @@ var timeTrackingTimerClass = function() {
 		if(iMins > 0) strTime = strTime + iMins + "m ";
 		if(iSecs > 0) strTime = strTime + iSecs + "s ";
 		
-		$counterDiv.html(strTime);
+		$counterDiv.text(strTime);
 	}
 
 	this.show = function() {

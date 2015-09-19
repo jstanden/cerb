@@ -446,7 +446,7 @@ $(function() {
 		
 		$select_moveto_bucket.find('> option').remove();
 		
-		$('<option value=""></option>').appendTo($select_moveto_bucket);
+		$('<option/>').appendTo($select_moveto_bucket);
 			
 		$select_moveto_bucket_options.find('option').each(function() {
 			var $opt = $(this);

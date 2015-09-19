@@ -163,8 +163,8 @@ $('#viewForm{$view->id}').find('button.add').click(function(e) {
 		
 	// Add
 	} else {
-		var $li = $('<li class="drag" page_id="'+$this.attr('page_id')+'"></li>');
-		$li.append($('<a href="'+$this.attr('page_url')+'">'+$this.attr('page_label')+'</a>'));
+		var $li = $('<li class="drag"/>').attr('page_id',$this.attr('page_id'));
+		$li.append($('<a/>').attr('href',$this.attr('page_url')).text($this.attr('page_label')));
 		$li.css('visibility','hidden');
 		
 		var $marker = $menu.find('li.add');

@@ -31,7 +31,7 @@ $(function() {
 		var $comment_selected = $comments.filter(':visible');
 		var comment_index = $comments.index($comment_selected);
 		var comment_pos = comment_index + 1;
-		$comments_status.html('(' + (comment_pos) + ' of ' + $comments.length + ')');
+		$comments_status.text('(' + (comment_pos) + ' of ' + $comments.length + ')');
 
 		if(comment_pos == 1) {
 			$comments_prev.hide();

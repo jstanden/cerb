@@ -75,7 +75,7 @@ class Plugin_RestAPI {
 			
 		} else {
 			header("Content-type: text/plain; charset=utf-8");
-			echo "'" . $format . "' is not implemented.";
+			echo sprintf("'%s' is not implemented.", DevblocksPlatform::strEscapeHtml($format));
 		}
 		
 		exit;

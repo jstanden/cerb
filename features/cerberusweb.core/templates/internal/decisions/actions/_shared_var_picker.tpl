@@ -99,7 +99,7 @@ $menu.find('> li.item > a').click(function() {
 	
 	$bubble = $('<li></li>');
 	$bubble.append($li.find('a').text());
-	$bubble.append($('<input type="hidden" name="{$namePrefix}[{$param_name}][]" value="' + $key + '">'));
+	$bubble.append($('<input type="hidden">').attr('name', '{$namePrefix}[{$param_name}][]').attr('value', $key));
 	$bubble.append($('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>'));
 	
 	$bubbles.append($bubble);

@@ -41,8 +41,8 @@ try {
 		var time_string = h + ':' + m;
 		{/if}
 		
-		$clock_date.html(d.toDateString());
-		$clock_time.html(time_string);
+		$clock_date.text(d.toDateString());
+		$clock_time.text(time_string);
 	};
 	
 	tick();

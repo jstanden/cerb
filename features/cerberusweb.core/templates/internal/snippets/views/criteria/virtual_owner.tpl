@@ -104,7 +104,7 @@ $menu.find('> li > div.item a').click(function() {
 		return;
 	
 	$bubble = $('<li></li>');
-	$bubble.append($('<input type="hidden" name="owner_context[]" value="'+context_pair+'">'));
+	$bubble.append($('<input type="hidden" name="owner_context[]">').attr('value',context_pair));
 	$bubble.append(label);
 	$bubble.append('<a href="javascript:;" onclick="$li=$(this).closest(\'li\');$li.remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>');
 	

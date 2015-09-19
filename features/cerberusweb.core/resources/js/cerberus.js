@@ -224,9 +224,9 @@ $.fn.cerbDateInputHelper = function(options) {
 			})
 			.data('uiAutocomplete')
 				._renderItem = function(ul, item) {
-					var $li = $('<li></li>')
+					var $li = $('<li/>')
 						.data('ui-autocomplete-item', item)
-						.append($('<a></a>').html(item.label))
+						.append($('<a></a>').text(item.label))
 						.appendTo(ul);
 					
 					item.value = $li.text();
@@ -584,7 +584,10 @@ var cAjaxCalls = function() {
 				// Add the labels
 				for(var idx in event.labels)
 					if(0==$ul.find('input:hidden[value="'+event.values[idx]+'"]').length) {
-						var $li = $('<li>'+event.labels[idx]+'<input type="hidden" name="' + field_name + '[]" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
+						var $li = $('<li/>').text(event.labels[idx]);
+						var $hidden = $('<input type="hidden">').attr('name', field_name).attr('value',event.values[idx]).appendTo($li);
+						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>').appendTo($li);; 
+						
 						if(null != options.style)
 							$li.addClass(options.style);
 						$ul.append($li);
@@ -599,7 +602,7 @@ var cAjaxCalls = function() {
 				options.autocomplete_class = ''; //'input_search';
 			}
 			
-			var $autocomplete = $('<input type="text" class="'+options.autocomplete_class+'" size="45">');
+			var $autocomplete = $('<input type="text" size="45">').addClass(options.autocomplete_class);
 			$autocomplete.insertBefore($button);
 			
 			$autocomplete.autocomplete({
@@ -612,13 +615,14 @@ var cAjaxCalls = function() {
 				select:function(event, ui) {
 					var $this = $(this);
 					var $label = ui.item.label;
-					var $labelEscaped = $label.replace("<","&lt;").replace(">","&gt;");
 					var $value = ui.item.value;
 					var $ul = $this.siblings('button:first').siblings('ul.chooser-container:first');
 					
-					if(undefined != $labelEscaped && undefined != $value) {
+					if(undefined != $label && undefined != $value) {
 						if(0 == $ul.find('input:hidden[value="'+$value+'"]').length) {
-							var $li = $('<li>'+$labelEscaped+'<input type="hidden" name="' + field_name + '[]" title="'+$labelEscaped+'" value="'+$value+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
+							var $li = $('<li/>').text($label);
+							var $hidden = $('<input type="hidden">').attr('name', field_name).attr('title', $label).attr('value', $value).appendTo($li);
+							var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>').appendTo($li);
 							$ul.append($li);
 						}
 					}
@@ -714,7 +718,10 @@ var cAjaxCalls = function() {
 				// Add the labels
 				for(var idx in event.labels)
 					if(0==$ul.find('input:hidden[value="'+event.values[idx]+'"]').length) {
-						var $li = $('<li>'+event.labels[idx]+'<input type="hidden" name="' + field_name + (options.single ? '' : '[]') + '" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
+						var $li = $('<li/>').text(event.labels[idx]);
+						var $hidden = $('<input type="hidden">').attr('name', field_name + (options.single ? '' : '[]')).attr('value', event.values[idx]).appendTo($li);
+						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>').appendTo($li);
+						
 						if(null != options.style)
 							$li.addClass(options.style);
 						$ul.append($li);

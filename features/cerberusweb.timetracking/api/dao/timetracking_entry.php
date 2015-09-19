@@ -1078,11 +1078,11 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				} else {
 					foreach($values as $val) {
 						if(empty($val)) {
-							$strings[] = "(none)";
+							$strings[] = DevblocksPlatform::strEscapeHtml("(none)");
 						} else {
 							if(!isset($activities[$val]))
 								continue;
-							$strings[] = $activities[$val]->name;
+							$strings[] = DevblocksPlatform::strEscapeHtml($activities[$val]->name);
 						}
 					}
 					echo implode(", ", $strings);

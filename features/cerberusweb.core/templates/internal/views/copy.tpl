@@ -34,20 +34,21 @@ You can copy this worklist to other pages in order to build your ideal workspace
 <br>
 
 <button type="button" onclick="genericAjaxPost('frmCopy{$view->id}','view{$view->id}','c=internal&a=viewDoCopy');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
-<button type="button" onclick="toggleDiv('{$view_id}_tips','none');$('#{$view_id}_tips').html('');" style=""><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> Do nothing</button><br>
+<button type="button" onclick="$('#{$view_id}_tips').hide().html('');" style=""><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> Do nothing</button><br>
 </form>
 
 <script type="text/javascript">
-	$frm = $('#frmCopy{$view->id}');
+$(function() {
+	var $frm = $('#frmCopy{$view->id}');
 	$frm.find('SELECT[name=workspace_page_id]').change(function() {
-		$frm = $('#frmCopy{$view->id}');
-		$options = $frm.find('select[name=_workspace_tabs]');
+		var $options = $frm.find('select[name=_workspace_tabs]');
 		
-		$dest = $frm.find('select[name=workspace_tab_id]');
+		var $dest = $frm.find('select[name=workspace_tab_id]');
 		$dest.find('option').remove();
 		
-		page_id = $(this).val();
+		var page_id = $(this).val();
 		
 		$options.find('[page_id="' + page_id + '"]').clone().appendTo($dest);
 	});
+});
 </script>

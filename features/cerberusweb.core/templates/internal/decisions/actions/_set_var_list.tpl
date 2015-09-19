@@ -53,7 +53,7 @@ $(function() {
 		
 		$chooser.on('chooser_save',function(event) {
 			if(null != event.worklist_model) {
-				$div.find('span.name').html(event.view_name);
+				$div.find('span.name').text(event.view_name);
 				$popup.find('input:hidden.model').val(event.worklist_model);
 				$popup.find('input.quicksearch').val(event.worklist_quicksearch);
 			}

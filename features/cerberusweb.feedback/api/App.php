@@ -767,7 +767,7 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 				
 				foreach($values as $val) {
 					if(isset($options[$val]))
-						$strings[] = $options[$val];
+						$strings[] = DevblocksPlatform::strEscapeHtml($options[$val]);
 				}
 				echo implode(" or ", $strings);
 				break;

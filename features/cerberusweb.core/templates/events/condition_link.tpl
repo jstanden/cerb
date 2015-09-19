@@ -61,8 +61,8 @@ $(function() {
 				for(i in event.labels) {
 					// Look for dupes
 					if(0 == $ul.find('input:hidden[value="' + $context + ':' + event.values[i] + '"]').length) {
-						var $li = $('<li>' + event.labels[i] + ' (' + $context_name + ')</li>');
-						$li.append($('<input type="hidden" name="{$namePrefix}[context_objects][]" value="' + $context + ':' + event.values[i] + '">'));
+						var $li = $('<li/>').text(event.labels[i] + ' (' + $context_name + ')');
+						$li.append($('<input type="hidden" name="{$namePrefix}[context_objects][]">').attr('value',$context + ':' + event.values[i]));
 						$li.append($('<span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;" onclick="$(this).closest(\'li\').remove();"></span>'));
 						
 						$ul.append($li);

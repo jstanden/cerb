@@ -1123,6 +1123,8 @@ class ChDisplayPage extends CerberusPageExtension {
 			$tpl->assign('timestamp', time());
 			$html = $tpl->fetch('devblocks:cerberusweb.core::mail/queue/saved.tpl');
 			
+			header('Content-Type: application/json;');
+			
 			// Response
 			echo json_encode(array('draft_id'=>$draft_id, 'html'=>$html));
 			

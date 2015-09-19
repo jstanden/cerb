@@ -1181,8 +1181,8 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 		switch($key) {
 			case SearchFields_WorkspacePage::VIRTUAL_OWNER:
 				echo sprintf("%s %s ",
-					mb_convert_case($translate->_('common.owner'), MB_CASE_TITLE),
-					$param->operator
+					DevblocksPlatform::strEscapeHtml(mb_convert_case($translate->_('common.owner'), MB_CASE_TITLE)),
+					DevblocksPlatform::strEscapeHtml($param->operator)
 				);
 				
 				$objects = array();
@@ -1203,8 +1203,8 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 						return;
 					
 					$objects[] = sprintf("<b>%s (%s)</b>",
-						$meta['name'],
-						$ext->manifest->name
+						DevblocksPlatform::strEscapeHtml($meta['name']),
+						DevblocksPlatform::strEscapeHtml($ext->manifest->name)
 					);
 				}
 				

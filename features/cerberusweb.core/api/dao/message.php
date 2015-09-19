@@ -2236,12 +2236,12 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				if(is_array($param->value))
 				foreach($param->value as $param_value) {
 					$strings_or[] = sprintf("<b>%s</b>",
-						$param_value 
+						DevblocksPlatform::strEscapeHtml($param_value)
 					);
 				}
 				
 				echo sprintf("Attachment name %s %s",
-					$oper,
+					DevblocksPlatform::strEscapeHtml($oper),
 					implode(' OR ', $strings_or)
 				);
 				break;
@@ -2290,9 +2290,9 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					}
 					
 					$strings[] = sprintf("(<b>%s</b> %s <b>%s</b>)",
-						$header_name,
-						$header_oper,
-						$header_value 
+						DevblocksPlatform::strEscapeHtml($header_name),
+						DevblocksPlatform::strEscapeHtml($header_oper),
+						DevblocksPlatform::strEscapeHtml($header_value)
 					);
 				}
 				
@@ -2311,7 +2311,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					$worker_name = $worker->getName();
 				}
 					
-				echo sprintf("In <b>%s</b>'s groups", $worker_name);
+				echo sprintf("In <b>%s</b>'s groups", DevblocksPlatform::strEscapeHtml($worker_name));
 				break;
 				
 			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
@@ -2323,16 +2323,16 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				foreach($param->value as $value) {
 					switch($value) {
 						case 'open':
-							$strings[] = '<b>' . $translate->_('status.open') . '</b>';
+							$strings[] = '<b>' . DevblocksPlatform::strEscapeHtml($translate->_('status.open')) . '</b>';
 							break;
 						case 'waiting':
-							$strings[] = '<b>' . $translate->_('status.waiting') . '</b>';
+							$strings[] = '<b>' . DevblocksPlatform::strEscapeHtml($translate->_('status.waiting')) . '</b>';
 							break;
 						case 'closed':
-							$strings[] = '<b>' . $translate->_('status.closed') . '</b>';
+							$strings[] = '<b>' . DevblocksPlatform::strEscapeHtml($translate->_('status.closed')) . '</b>';
 							break;
 						case 'deleted':
-							$strings[] = '<b>' . $translate->_('status.deleted') . '</b>';
+							$strings[] = '<b>' . DevblocksPlatform::strEscapeHtml($translate->_('status.deleted')) . '</b>';
 							break;
 					}
 				}
@@ -2351,7 +2351,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 						$oper = 'is blank or not';
 						break;
 				}
-				echo sprintf("Status %s %s", $oper, implode(' or ', $strings));
+				echo sprintf("Status %s %s",
+					DevblocksPlatform::strEscapeHtml($oper),
+					implode(' or ', $strings)
+				);
 				break;
 		}
 	}
@@ -2450,7 +2453,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					if(!isset($groups[$val]))
 					continue;
 
-					$strings[] = $groups[$val]->name;
+					$strings[] = DevblocksPlatform::strEscapeHtml($groups[$val]->name);
 				}
 				echo implode(" or ", $strings);
 				break;
@@ -2461,7 +2464,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				
 			case SearchFields_Message::RESPONSE_TIME:
 				$value = array_shift($values);
-				echo DevblocksPlatform::strSecsToString($value);
+				echo DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strSecsToString($value));
 				break;
 				
 			default:

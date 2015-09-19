@@ -18,38 +18,39 @@
 </div>
 
 <script type="text/javascript">
-$move_to = $('#{$random}_moveto');
-$move_to.find('select:nth(0)').change(function(e) {
-	$move_to = $('#{$random}_moveto');
-
-	$select_bucket = $move_to.find('select:nth(1)');
-	$select_bucket.html('');
-	
-	buckets = {
-		{foreach from=$groups item=group key=group_id name=groups}
-		"group_{$group_id}":{
-			"id":"{$group_id}",
-			"buckets":[
-			{foreach from=$group_buckets.$group_id item=bucket key=bucket_id name=buckets}
-				{ "id":{$bucket_id},"name":"{$bucket->name}" }{if !$smarty.foreach.buckets.last},{/if}
+$(function() {
+	var $move_to = $('#{$random}_moveto');
+	$move_to.find('select:nth(0)').change(function(e) {
+		var $select_bucket = $move_to.find('select:nth(1)');
+		$select_bucket.html('');
+		
+		var buckets = {
+			{foreach from=$groups item=group key=group_id name=groups}
+			"group_{$group_id}":{
+				"id":"{$group_id}",
+				"buckets":[
+				{foreach from=$group_buckets.$group_id item=bucket key=bucket_id name=buckets}
+					{ "id":{$bucket_id},"name":"{$bucket->name}" }{if !$smarty.foreach.buckets.last},{/if}
+				{/foreach}
+				]
+			}{if !$smarty.foreach.groups.last},{/if}
 			{/foreach}
-			]
-		}{if !$smarty.foreach.groups.last},{/if}
-		{/foreach}
-	};
-	
-	group_id = $(this).val();
-	group_key = 'group_' + group_id;
-	
-	if(null == buckets[group_key])
-		return;
-	
-	group_buckets = buckets[group_key];
-	
-	for(i in group_buckets.buckets) {
-		$select_bucket.append($('<option value="'+group_buckets.buckets[i].id+'">'+group_buckets.buckets[i].name+'</option>'));
-	}
-	
-	$select_bucket.focus();
+		};
+		
+		var group_id = $(this).val();
+		var group_key = 'group_' + group_id;
+		
+		if(null == buckets[group_key])
+			return;
+		
+		var group_buckets = buckets[group_key];
+		
+		for(i in group_buckets.buckets) {
+			var $option = $('<option/>').attr('value',group_buckets.buckets[i].id).html(group_buckets.buckets[i].name);
+			$select_bucket.append($option);
+		}
+		
+		$select_bucket.focus();
+	});
 });
 </script>

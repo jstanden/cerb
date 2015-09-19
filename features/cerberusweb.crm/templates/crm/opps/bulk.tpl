@@ -195,10 +195,10 @@
 				var $li = $('<li style="margin-left:10px;"></li>');
 				
 				var $select = $('<select name="broadcast_html_template_id"></select>');
-				$select.append($('<option value="0"> - {'common.default'|devblocks_translate|lower|escape:'javascript'} -</option>'));
+				$select.append($('<option value="0"/>').text(' - {'common.default'|devblocks_translate|lower|escape:'javascript'} -'));
 				
 				{foreach from=$html_templates item=html_template}
-				var $option = $('<option value="{$html_template->id}">{$html_template->name|escape:'javascript'}</option>');
+				var $option = $('<option/>').attr('value','{$html_template->id}').text('{$html_template->name|escape:'javascript'}');
 				$select.append($option);
 				{/foreach}
 				

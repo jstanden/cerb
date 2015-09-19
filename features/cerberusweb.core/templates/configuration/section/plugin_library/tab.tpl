@@ -15,13 +15,13 @@ $('#btnPluginLibrarySync').click(function() {
 	$out = $('#divPluginLibrarySync');
 	$btn = $(this);
 	$btn.hide();
-	$out.html("Synchronizing... please wait").fadeIn();
+	$out.text("Synchronizing... please wait").fadeIn();
 	genericAjaxGet('','c=config&a=handleSectionAction&section=plugin_library&action=sync', function(json) {
 		if(json.status == true) {
 			if(json.updated == 0) {
-				$out.html("Success! All plugins are up to date.");
+				$out.text("Success! All plugins are up to date.");
 			} else {
-				$out.html("Success! Downloaded updates for " + json.updated + " plugin" + (json.updated != 1 ? "s" : "") + ".");
+				$out.text("Success! Downloaded updates for " + json.updated + " plugin" + (json.updated != 1 ? "s" : "") + ".");
 			}
 			
 			genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');
@@ -30,7 +30,7 @@ $('#btnPluginLibrarySync').click(function() {
 				$btn.fadeIn();
 			}, 2500);
 		} else {
-			$out.html("Error! " + json.message);
+			$out.text("Error! " + json.message);
 			$btn.fadeIn();
 		}
 	});

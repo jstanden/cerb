@@ -1134,7 +1134,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 					if(empty($context_id)) {
 						$strings[] = '<b>Plaintext</b>';
 					} elseif(isset($contexts[$context_id])) {
-						$strings[] = '<b>'.$contexts[$context_id]->name.'</b>';
+						$strings[] = '<b>'.DevblocksPlatform::strEscapeHtml($contexts[$context_id]->name).'</b>';
 					}
 				}
 				

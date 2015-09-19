@@ -34,19 +34,19 @@ $(function() {
 			slide: function(event, ui) {
 				switch(ui.value) {
 					case 0:
-						$skill_level.html('');
+						$skill_level.text('');
 						break;
 					case 25:
-						$skill_level.html('{$skill_labels.25}');
+						$skill_level.text('{$skill_labels.25}');
 						break;
 					case 50:
-						$skill_level.html('{$skill_labels.50}');
+						$skill_level.text('{$skill_labels.50}');
 						break;
 					case 75:
-						$skill_level.html('{$skill_labels.75}');
+						$skill_level.text('{$skill_labels.75}');
 						break;
 					case 100:
-						$skill_level.html('{$skill_labels.100}');
+						$skill_level.text('{$skill_labels.100}');
 						break;
 				}
 			},

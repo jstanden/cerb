@@ -60,8 +60,9 @@ $("#container_{$random}").find('select.chooser').change(function(e) {
 			for(i in event.labels) {
 				// Look for dupes
 				if(0 == $ul.find('input:hidden[value="' + $context + ':' + event.values[i] + '"]').length) {
-					$li = $('<li><b>' + event.labels[i] + '</b> (' + $context_name + ')</li>');
-					$li.append($('<input type="hidden" name="context_link[]" value="' + $context + ':' + event.values[i] + '">'));
+					var $li = $('<li/>').append($('<b/>').text(event.labels[i]));
+					$li.append($('<span>').text('(' + $context_name + ')').prepend('&nbsp;'));
+					$li.append($('<input type="hidden" name="context_link[]">').attr('value',$context + ':' + event.values[i]));
 					$li.append($('<span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;" onclick="$(this).closest(\'li\').remove();"></span>'));
 					
 					$ul.append($li);

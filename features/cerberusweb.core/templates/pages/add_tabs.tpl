@@ -121,7 +121,9 @@ $frm.find('button.add').click(function(e) {
 		if(!json || !json.success)
 			return;
 		
-		var $new_tab = $('<li class="drag" tab_id="' + json.tab_id + '"><a href="' + json.tab_url + '"><span>' + json.tab_name + '</span></a></li>');
+		var $new_tab = $('<li class="drag"/>').attr('tab_id',json.tab_id);
+		$new_tab.append($('<a/>').attr('href',json.tab_url).append($('<span/>').text(json.tab_name)));
+		
 		$new_tab.insertBefore($tabs.find('.ui-tabs-nav > li:last'));
 		
 		$tabs.tabs('refresh');

@@ -93,7 +93,9 @@ try {
 		context.arc(closest.chart_x, closest.chart_y, 5, 0, 2 * Math.PI, false);
 		context.fill();
 
-		var $label = $('<span style="padding:2px;font-weight:bold;background-color:rgb(240,240,240);">' +closest.data.x_label +': <span style="color:'+series.options.color+'">'+closest.data.y_label+'</span>');
+		var $label = $('<span style="padding:2px;font-weight:bold;background-color:rgb(240,240,240);"/>');
+		$label.append($('<span/>').text(closest.data.x_label + ': '));
+		$label.append($('<span/>').css('color',series.options.color).text(closest.data.y_label));
 
 		var $tooltip = $(this).siblings('DIV.chart-tooltip');
 		$tooltip.html('').append($label);

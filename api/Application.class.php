@@ -1600,7 +1600,7 @@ class CerberusContexts {
 				// HTML formatting and incorporating URLs
 				if(is_array($vars))
 				foreach($vars as $k => $v) {
-					$vars[$k] = htmlentities($v, ENT_QUOTES, LANG_CHARSET_CODE);
+					$vars[$k] = DevblocksPlatform::strEscapeHtml($v);
 				}
 
 				if(isset($entry['urls']))

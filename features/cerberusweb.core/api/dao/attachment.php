@@ -929,7 +929,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 				$strings = array();
 				foreach($values as $v) {
 					if(isset($manifests[$v]))
-						$strings[] = $manifests[$v]->name;
+						$strings[] = DevblocksPlatform::strEscapeHtml($manifests[$v]->name);
 				}
 				if(!empty($strings))
 					echo implode(', ', $strings);
@@ -941,7 +941,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 				$strings = array();
 				foreach($values as $v) {
 					if(isset($contexts[$v]))
-						$strings[] = $contexts[$v]->name;
+						$strings[] = DevblocksPlatform::strEscapeHtml($contexts[$v]->name);
 				}
 				if(!empty($strings))
 					echo implode(', ', $strings);

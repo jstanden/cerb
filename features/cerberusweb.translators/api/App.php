@@ -626,7 +626,7 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 				foreach($values as $val) {
 					if(!isset($langs[$val]))
 						continue;
-					$strings[] = $langs[$val];
+					$strings[] = DevblocksPlatform::strEscapeHtml($langs[$val]);
 				}
 				echo implode(", ", $strings);
 				

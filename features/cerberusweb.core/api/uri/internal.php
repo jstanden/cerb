@@ -4292,7 +4292,7 @@ class ChInternalController extends DevblocksControllerExtension {
 							
 						default:
 							// [TODO] Default stylesheet for previews?
-							$output = nl2br(htmlentities($output, ENT_COMPAT, LANG_CHARSET_CODE));
+							$output = nl2br(DevblocksPlatform::strEscapeHtml($output));
 							break;
 					}
 					

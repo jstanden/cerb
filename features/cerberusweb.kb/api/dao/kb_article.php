@@ -683,7 +683,7 @@ class Model_KbArticle {
 				$html = $this->content;
 				break;
 			case self::FORMAT_PLAINTEXT:
-				$html = nl2br(htmlentities($this->content, ENT_QUOTES, LANG_CHARSET_CODE));
+				$html = nl2br(DevblocksPlatform::strEscapeHtml($this->content));
 				break;
 			case self::FORMAT_MARKDOWN:
 				$html = DevblocksPlatform::parseMarkdown($this->content);
@@ -1364,11 +1364,11 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 
 				foreach($values as $val) {
 					if(0==$val) {
-						$strings[] = "(none)";
+						$strings[] = DevblocksPlatform::strEscapeHtml("(none)");
 					} else {
 						if(!isset($topics[$val]))
 						continue;
-						$strings[] = $topics[$val]->name;
+						$strings[] = DevblocksPlatform::strEscapeHtml($topics[$val]->name);
 					}
 				}
 				echo implode(" or ", $strings);
@@ -1380,13 +1380,13 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 				foreach($values as $val) {
 					switch($val) {
 						case 0:
-							$strings[] = "Plaintext";
+							$strings[] = DevblocksPlatform::strEscapeHtml("Plaintext");
 							break;
 						case 1:
-							$strings[] = "HTML";
+							$strings[] = DevblocksPlatform::strEscapeHtml("HTML");
 							break;
 						case 2:
-							$strings[] = "Markdown";
+							$strings[] = DevblocksPlatform::strEscapeHtml("Markdown");
 							break;
 					}
 				}

@@ -116,12 +116,13 @@ $(function() {
 						// Add an attachment link
 						
 						if(0 == $attachments_container.find('input:hidden[value=' + event.response[0].id + ']').length) {
-							var $li = $('<li></li>');
-							$li.html(event.response[0].name + ' ( ' + event.response[0].size + ' bytes - ' + event.response[0].type + ' )');
+							var $li = $('<li/>');
+							$li.text(event.response[0].name + ' ( ' + event.response[0].size + ' bytes - ' + event.response[0].type + ' )');
 							
-							var $hidden = $('<input type="hidden" name="file_ids[]" value="">');
-							$hidden.val(event.response[0].id);
-							$hidden.appendTo($li);
+							var $hidden = $('<input type="hidden" name="file_ids[]">')
+								.val(event.response[0].id)
+								.appendTo($li)
+								;
 							
 							var $a = $('<a href="javascript:;"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>');
 							$a.click(function() {
@@ -154,12 +155,13 @@ $(function() {
 						// Add an attachment link
 						
 						if(0 == $attachments_container.find('input:hidden[value=' + event.response[0].id + ']').length) {
-							var $li = $('<li></li>');
-							$li.html(event.response[0].name + ' ( ' + event.response[0].size + ' bytes - ' + event.response[0].type + ' )');
+							var $li = $('<li/>');
+							$li.text(event.response[0].name + ' ( ' + event.response[0].size + ' bytes - ' + event.response[0].type + ' )');
 							
-							var $hidden = $('<input type="hidden" name="file_ids[]" value="">');
-							$hidden.val(event.response[0].id);
-							$hidden.appendTo($li);
+							var $hidden = $('<input type="hidden" name="file_ids[]" value="">')
+								.val(event.response[0].id)
+								.appendTo($li)
+								;
 							
 							var $a = $('<a href="javascript:;"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>');
 							$a.click(function() {
@@ -182,7 +184,7 @@ $(function() {
 		$content.markItUp(markitupMarkdownSettings);
 		{/if}
 
-		$frm = $('#frmKbEditPanel');	
+		$frm = $('#frmKbEditPanel');
 
 		$frm.find('input[name=format]').bind('click', function(event) {
 			$content.markItUpRemove();

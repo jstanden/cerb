@@ -38,7 +38,7 @@ $(function() {
 
 			var $worklist_body = $('#view{$view->id}').find('TABLE.worklistBody');
 			$worklist_body.find('a.subject').each(function() {
-				$txt = $('<b class="subject">' + $(this).text() + '</b>');
+				var $txt = $('<b class="subject"/>').text($(this).text());
 				$txt.insertBefore($(this));
 				$(this).remove();
 			});

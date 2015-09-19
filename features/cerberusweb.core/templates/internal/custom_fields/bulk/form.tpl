@@ -162,8 +162,8 @@ $cfields.find('button.chooser-abstract').each(function() {
 				
 				// Add new bubble
 				for(i in event.labels) {
-					$li = $('<li>' + event.labels[i] + '</li>'); // + ' (' + $context_name + ')
-					$li.append($('<input type="hidden" name="' + field_name + '" value="' + event.values[i] + '">'));
+					$li = $('<li/>').text(event.labels[i]);
+					$li.append($('<input type="hidden">').attr('name',field_name).attr('value',event.values[i]));
 					$li.append($('<span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;pointer:middle;" onclick="$(this).closest(\'li\').remove();"></span>'));
 					
 					$ul.append($li);

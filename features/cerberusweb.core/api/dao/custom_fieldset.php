@@ -858,7 +858,7 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 				
 				foreach($param->value as $context_id) {
 					if(isset($contexts[$context_id])) {
-						$strings[] = '<b>'.$contexts[$context_id]->name.'</b>';
+						$strings[] = sprintf('<b>%s</b>',DevblocksPlatform::strEscapeHtml($contexts[$context_id]->name));
 					}
 				}
 				

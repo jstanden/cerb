@@ -267,10 +267,10 @@
 				var $li = $('<li style="margin-left:10px;"></li>');
 				
 				var $select = $('<select name="html_template_id"></select>');
-				$select.append($('<option value="0"> - {'common.default'|devblocks_translate|lower|escape:'javascript'} -</option>'));
+				$select.append($('<option value="0"/>').text(' - {'common.default'|devblocks_translate|lower|escape:'javascript'} -'));
 				
 				{foreach from=$html_templates item=html_template}
-				var $option = $('<option value="{$html_template->id}">{$html_template->name|escape:'javascript'}</option>');
+				var $option = $('<option/>').attr('value','{$html_template->id}').text('{$html_template->name|escape:'javascript'}');
 				{if $draft && $draft->params.html_template_id == $html_template->id}
 				$option.attr('selected', 'selected');
 				{/if}
@@ -769,7 +769,7 @@
 			
 			// If we have a Cc:/Bcc: but no To:
 			if($to.val().length == 0 && ($cc.val().length > 0 || $bcc.val().length > 0)) {
-				$status.html("A 'To:' address is required when using 'Cc:' and 'Bcc:'.").addClass('error').fadeIn();
+				$status.text("A 'To:' address is required when using 'Cc:' and 'Bcc:'.").addClass('error').fadeIn();
 				return false;
 			}
 			

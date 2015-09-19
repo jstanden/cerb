@@ -1130,6 +1130,13 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		return $feed;
 	}
+	
+	static function strEscapeHtml($string) {
+		if(empty($string))
+			return '';
+		
+		return htmlentities($string, ENT_QUOTES, LANG_CHARSET_CODE);
+	}
 
 	/**
 	 * Returns a string as alphanumerics delimited by underscores.

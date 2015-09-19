@@ -3535,12 +3535,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				if(is_array($param->value))
 				foreach($param->value as $param_value) {
 					$strings_or[] = sprintf("<b>%s</b>",
-						$param_value 
+						DevblocksPlatform::strEscapeHtml($param_value)
 					);
 				}
 				
 				echo sprintf("Attachment name %s %s",
-					$oper,
+					DevblocksPlatform::strEscapeHtml($oper),
 					implode(' OR ', $strings_or)
 				);
 				break;
@@ -3597,14 +3597,14 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					}
 					
 					$strings[] = sprintf("(<b>%s</b> %s <b>%s</b>)",
-						$header_name,
-						$header_oper,
-						$header_value 
+						DevblocksPlatform::strEscapeHtml($header_name),
+						DevblocksPlatform::strEscapeHtml($header_oper),
+						DevblocksPlatform::strEscapeHtml($header_value)
 					);
 				}
 				
 				echo sprintf("Header %s",
-					implode(' OR ', $strings) 
+					implode(' OR ', $strings)
 				);
 				break;
 				
@@ -3622,7 +3622,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					$worker_name = $worker->getName();
 				}
 					
-				echo sprintf("In <b>%s</b>'s groups", $worker_name);
+				echo sprintf("In <b>%s</b>'s groups", DevblocksPlatform::strEscapeHtml($worker_name));
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_ORG_ID:
@@ -3644,10 +3644,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						break;
 					
 					$worker_name = $worker->getName();
-					echo sprintf("Recommended for <b>%s</b>", $worker_name);
+					echo sprintf("Recommended for <b>%s</b>", DevblocksPlatform::strEscapeHtml($worker_name));
 					
 				} else {
-					echo sprintf("Recommended for <b>%s</b>", $worker_name);
+					echo sprintf("Recommended for <b>%s</b>", DevblocksPlatform::strEscapeHtml($worker_name));
 				}
 				
 				break;
@@ -3661,16 +3661,16 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				foreach($param->value as $value) {
 					switch($value) {
 						case 'open':
-							$strings[] = '<b>' . $translate->_('status.open') . '</b>';
+							$strings[] = '<b>' . DevblocksPlatform::strEscapeHtml($translate->_('status.open')) . '</b>';
 							break;
 						case 'waiting':
-							$strings[] = '<b>' . $translate->_('status.waiting') . '</b>';
+							$strings[] = '<b>' . DevblocksPlatform::strEscapeHtml($translate->_('status.waiting')) . '</b>';
 							break;
 						case 'closed':
-							$strings[] = '<b>' . $translate->_('status.closed') . '</b>';
+							$strings[] = '<b>' . DevblocksPlatform::strEscapeHtml($translate->_('status.closed')) . '</b>';
 							break;
 						case 'deleted':
-							$strings[] = '<b>' . $translate->_('status.deleted') . '</b>';
+							$strings[] = '<b>' . DevblocksPlatform::strEscapeHtml($translate->_('status.deleted')) . '</b>';
 							break;
 					}
 				}
@@ -3719,7 +3719,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					if(!isset($groups[$val]))
 						continue;
 
-					$strings[] = $groups[$val]->name;
+					$strings[] = DevblocksPlatform::strEscapeHtml($groups[$val]->name);
 				}
 				echo implode(", ", $strings);
 				break;
@@ -3734,7 +3734,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						
 					} else {
 						if(false != ($group = $buckets[$val]->getGroup()))
-							$strings[] = $group->name . ': ' . $buckets[$val]->name;
+							$strings[] = DevblocksPlatform::strEscapeHtml($group->name . ': ' . $buckets[$val]->name);
 					}
 				}
 				echo implode(", ", $strings);
@@ -3746,13 +3746,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				foreach($values as $val) {
 					switch($val) {
 						case 'O':
-							$strings[] = "New Ticket";
+							$strings[] = DevblocksPlatform::strEscapeHtml("New Ticket");
 							break;
 						case 'R':
-							$strings[] = "Recipient Replied";
+							$strings[] = DevblocksPlatform::strEscapeHtml("Recipient Replied");
 							break;
 						case 'W':
-							$strings[] = "Worker Replied";
+							$strings[] = DevblocksPlatform::strEscapeHtml("Worker Replied");
 							break;
 					}
 				}
@@ -3765,13 +3765,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				foreach($values as $val) {
 					switch($val) {
 						case 'S':
-							$strings[] = "Spam";
+							$strings[] = DevblocksPlatform::strEscapeHtml("Spam");
 							break;
 						case 'N':
-							$strings[] = "Not Spam";
+							$strings[] = DevblocksPlatform::strEscapeHtml("Not Spam");
 							break;
 						default:
-							$strings[] = "Not Trained";
+							$strings[] = DevblocksPlatform::strEscapeHtml("Not Trained");
 							break;
 					}
 				}
@@ -3781,7 +3781,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST:
 			case SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST:
 				$value = array_shift($values);
-				echo DevblocksPlatform::strSecsToString($value);
+				echo DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strSecsToString($value));
 				break;
 				
 			default:

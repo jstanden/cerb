@@ -173,7 +173,7 @@
 				$select.append($('<option value="0"> - {'common.default'|devblocks_translate|lower|escape:'javascript'} -</option>'));
 				
 				{foreach from=$html_templates item=html_template}
-				var $option = $('<option value="{$html_template->id}">{$html_template->name|escape:'javascript'}</option>');
+				var $option = $('<option/>').attr('value','{$html_template->id}').text('{$html_template->name|escape:'javascript'}');
 				$select.append($option);
 				{/foreach}
 				

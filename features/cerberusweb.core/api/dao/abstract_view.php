@@ -564,7 +564,7 @@ abstract class C4_AbstractView {
 		
 		foreach($values as $v) {
 			$strings[] = sprintf("<b>%s</b>",
-				(isset($label_map[$v]) ? $label_map[$v] : $v)
+				DevblocksPlatform::strEscapeHtml((isset($label_map[$v]) ? $label_map[$v] : $v))
 			);
 		}
 		
@@ -580,7 +580,7 @@ abstract class C4_AbstractView {
 		
 		foreach($values as $v) {
 			$strings[] = sprintf("<b>%s</b>",
-				(!empty($v) ? $translate->_('common.yes') : $translate->_('common.no'))
+				DevblocksPlatform::strEscapeHtml((!empty($v) ? $translate->_('common.yes') : $translate->_('common.no')))
 			);
 		}
 		
@@ -598,9 +598,9 @@ abstract class C4_AbstractView {
 		
 		foreach($values as $worker_id) {
 			if(isset($workers[$worker_id])) {
-				$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
+				$strings[] = sprintf('<b>%s</b>',DevblocksPlatform::strEscapeHtml($workers[$worker_id]->getName()));
 			} elseif (!empty($worker_id)) {
-				$strings[] = '<b>'.$worker_id.'</b>';
+				$strings[] = sprintf('<b>%d</b>',$worker_id);
 			} elseif (0 == strlen($worker_id)) {
 				$strings[] = '<b>blank</b>';
 			} elseif (empty($worker_id)) {
@@ -612,12 +612,12 @@ abstract class C4_AbstractView {
 		
 		if(count($strings) > 2) {
 			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d people)</abbr>",
-				htmlentities(strip_tags($list_of_strings), ENT_QUOTES, LANG_CHARSET_CODE),
+				strip_tags($list_of_strings),
 				count($strings)
 			);
 		}
 		
-		echo sprintf("%s", $list_of_strings);
+		echo $list_of_strings;
 	}
 	
 	protected function _renderCriteriaHasFieldset($tpl, $context) {
@@ -646,9 +646,9 @@ abstract class C4_AbstractView {
 			
 			if(!empty($context_id)) {
 				$meta = $context_ext->getMeta($context_id);
-				$strings[] = sprintf("<b>%s</b> (%s)", htmlentities($meta['name'], ENT_QUOTES, LANG_CHARSET_CODE), htmlentities($context_ext->manifest->name, ENT_QUOTES, LANG_CHARSET_CODE));
+				$strings[] = sprintf("<b>%s</b> (%s)", DevblocksPlatform::strEscapeHtml($meta['name']),DevblocksPlatform::strEscapeHtml($context_ext->manifest->name));
 			} else {
-				$strings[] = sprintf("(<b>%s</b>)", htmlentities($context_ext->manifest->name, ENT_QUOTES, LANG_CHARSET_CODE));
+				$strings[] = sprintf("(<b>%s</b>)", DevblocksPlatform::strEscapeHtml($context_ext->manifest->name));
 			}
 		}
 		
@@ -671,7 +671,7 @@ abstract class C4_AbstractView {
 		
 		if(count($strings) > 2) {
 			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d %s)</abbr>",
-				htmlentities(strip_tags($list_of_strings), ENT_QUOTES, LANG_CHARSET_CODE),
+				strip_tags($list_of_strings),
 				count($strings),
 				strtolower($label_plural)
 			);
@@ -680,25 +680,25 @@ abstract class C4_AbstractView {
 		switch($param->operator) {
 			case DevblocksSearchCriteria::OPER_IS_NULL:
 				echo sprintf("There are no <b>%s</b>",
-					strtolower($label_plural)
+					DevblocksPlatform::strEscapeHtml(strtolower($label_plural))
 				);
 				break;
 			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
 				echo sprintf("There are <b>%s</b>",
-					strtolower($label_plural)
+					DevblocksPlatform::strEscapeHtml(strtolower($label_plural))
 				);
 				break;
 			case DevblocksSearchCriteria::OPER_IN:
-				echo sprintf("%s is %s", $label_singular, $list_of_strings);
+				echo sprintf("%s is %s", DevblocksPlatform::strEscapeHtml($label_singular), $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-				echo sprintf("%s is blank or %s", $label_singular, $list_of_strings);
+				echo sprintf("%s is blank or %s", DevblocksPlatform::strEscapeHtml($label_singular), $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_NIN:
-				echo sprintf("%s is not %s", $label_singular, $list_of_strings);
+				echo sprintf("%s is not %s", DevblocksPlatform::strEscapeHtml($label_singular), $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
-				echo sprintf("%s is blank or not %s", $label_singular, $list_of_strings);
+				echo sprintf("%s is blank or not %s", DevblocksPlatform::strEscapeHtml($label_singular), $list_of_strings);
 				break;
 		}
 	}
@@ -709,7 +709,7 @@ abstract class C4_AbstractView {
 		
 		foreach($param->value as $param_data) {
 			if(isset($custom_fieldsets[$param_data]))
-				$strings[] = '<b>' . $custom_fieldsets[$param_data]->name . '</b>';
+				$strings[] = sprintf('<b>%s</b>', DevblocksPlatform::strEscapeHtml($custom_fieldsets[$param_data]->name));
 		}
 		
 		$label_singular = 'Fieldset';
@@ -719,7 +719,7 @@ abstract class C4_AbstractView {
 		
 		if(count($strings) > 2) {
 			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d %s)</abbr>",
-				htmlentities(strip_tags($list_of_strings), ENT_QUOTES, LANG_CHARSET_CODE),
+				strip_tags($list_of_strings),
 				count($strings),
 				strtolower($label_plural)
 			);
@@ -728,25 +728,25 @@ abstract class C4_AbstractView {
 		switch($param->operator) {
 			case DevblocksSearchCriteria::OPER_IS_NULL:
 				echo sprintf("There are no <b>%s</b>",
-					strtolower($label_plural)
+					DevblocksPlatform::strEscapeHtml(strtolower($label_plural))
 				);
 				break;
 			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
 				echo sprintf("There are <b>%s</b>",
-					strtolower($label_plural)
+					DevblocksPlatform::strEscapeHtml(strtolower($label_plural))
 				);
 				break;
 			case DevblocksSearchCriteria::OPER_IN:
-				echo sprintf("%s is %s", $label_singular, $list_of_strings);
+				echo sprintf("%s is %s", DevblocksPlatform::strEscapeHtml($label_singular), $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-				echo sprintf("%s is blank or %s", $label_singular, $list_of_strings);
+				echo sprintf("%s is blank or %s", DevblocksPlatform::strEscapeHtml($label_singular), $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_NIN:
-				echo sprintf("%s is not %s", $label_singular, $list_of_strings);
+				echo sprintf("%s is not %s", DevblocksPlatform::strEscapeHtml($label_singular), $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
-				echo sprintf("%s is blank or not %s", $label_singular, $list_of_strings);
+				echo sprintf("%s is blank or not %s", DevblocksPlatform::strEscapeHtml($label_singular), $list_of_strings);
 				break;
 		}
 	}
@@ -761,11 +761,11 @@ abstract class C4_AbstractView {
 		
 		foreach($param->value as $worker_id) {
 			if(isset($workers[$worker_id]))
-				$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
+				$strings[] = sprintf("<b>%s</b>",DevblocksPlatform::strEscapeHtml($workers[$worker_id]->getName()));
 			elseif(empty($worker_id)) {
 				$strings[] = '<b>nobody</b>';
 			} else {
-				$strings[] = '<b>'.$worker_id.'</b>';
+				$strings[] = sprintf("<b>%d</b>",$worker_id);
 			}
 		}
 		
@@ -788,7 +788,7 @@ abstract class C4_AbstractView {
 		
 		if(count($strings) > 2) {
 			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d people)</abbr>",
-				htmlentities(strip_tags($list_of_strings), ENT_QUOTES, LANG_CHARSET_CODE),
+				strip_tags($list_of_strings),
 				count($strings)
 			);
 		}
@@ -796,25 +796,25 @@ abstract class C4_AbstractView {
 		switch($param->operator) {
 			case DevblocksSearchCriteria::OPER_IS_NULL:
 				echo sprintf("There are no <b>%s</b>",
-					$label_plural
+					DevblocksPlatform::strEscapeHtml($label_plural)
 				);
 				break;
 			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
 				echo sprintf("There are <b>%s</b>",
-					$label_plural
+					DevblocksPlatform::strEscapeHtml($label_plural)
 				);
 				break;
 			case DevblocksSearchCriteria::OPER_IN:
-				echo sprintf("%s is %s", $label_singular, $list_of_strings);
+				echo sprintf("%s is %s", DevblocksPlatform::strEscapeHtml($label_singular), $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-				echo sprintf("%s is blank or %s", $label_singular, $list_of_strings);
+				echo sprintf("%s is blank or %s", DevblocksPlatform::strEscapeHtml($label_singular), $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_NIN:
-				echo sprintf("%s is not %s", $label_singular, $list_of_strings);
+				echo sprintf("%s is not %s", DevblocksPlatform::strEscapeHtml($label_singular), $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
-				echo sprintf("%s is blank or not %s", $label_singular, $list_of_strings);
+				echo sprintf("%s is blank or not %s", DevblocksPlatform::strEscapeHtml($label_singular), $list_of_strings);
 				break;
 		}
 	}
@@ -1318,7 +1318,7 @@ abstract class C4_AbstractView {
 		// HTML escape
 		if(is_array($vals))
 		foreach($vals as $k => $v) {
-			$vals[$k] = htmlspecialchars($v, ENT_QUOTES, LANG_CHARSET_CODE);
+			$vals[$k] = DevblocksPlatform::strEscapeHtml($v);
 		}
 		
 		echo implode($implode_token, $vals);

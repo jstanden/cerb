@@ -83,7 +83,7 @@ $(function() {
 				if(false == json.status) {
 					if(null != json.errors)
 					for(idx in json.errors) {
-						$out.find('ul').append($('<li>' + json.errors[idx] + '</li>'));
+						$out.find('ul').append($('<li/>').text(json.errors[idx]));
 					}
 					
 					$out.fadeIn();

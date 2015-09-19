@@ -353,13 +353,13 @@ $(function() {
 				if(null == seq)
 					seq = 0;
 	
-				var $container = $('<fieldset id="action' + seq + '"></fieldset>');
+				var $container = $('<fieldset/>').attr('id','action' + seq);
 				$container.prepend('<legend style="cursor:move;"><a href="javascript:;" onclick="$(this).closest(\'fieldset\').find(\'#divDecisionActionToolbar{$id}\').hide().appendTo($(\'#frmDecisionAction{$id}Action\'));$(this).closest(\'fieldset\').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a> ' + $this.text() + '</legend>');
 				$container.append('<input type="hidden" name="actions[]" value="' + seq + '">');
 				$container.append('<input type="hidden" name="action'+seq+'[action]" value="' + token + '">');
 				$ul.append($container);
 	
-				var $html = $('<div>' + html + '</div>');
+				var $html = $('<div/>').html(html);
 				$container.append($html);
 				
 				$html.find('BUTTON.chooser_group.unbound').each(function() {

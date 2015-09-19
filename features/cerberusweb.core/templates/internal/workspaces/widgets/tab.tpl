@@ -149,7 +149,7 @@
 			var widget_id = e.widget_id;
 			
 			// Create the widget DOM
-			$new_widget = $('<div class="dashboard-widget" id="widget' + widget_id + '"></div>');
+			$new_widget = $('<div class="dashboard-widget"></div>').attr('id','widget' + widget_id);
 			
 			// Append it to the first column
 			$dashboard = $('#dashboard{$workspace_tab->id}');

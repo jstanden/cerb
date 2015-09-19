@@ -91,7 +91,7 @@ $(function() {
 				return;
 			
 			var $event = $('#event_' + event.event_point.replace(/\./g,'_') + '_{$tab_uniqid}');
-			var $tree = $('<form id="decisionTree'+event.trigger_id+'"></form>');
+			var $tree = $('<form></form>').attr('id', 'decisionTree'+event.trigger_id);
 			$event.show().append($tree);
 			
 			setTimeout(function($tree) {

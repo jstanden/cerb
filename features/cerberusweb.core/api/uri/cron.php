@@ -45,7 +45,7 @@ class ChCronController extends DevblocksControllerExtension {
 		 	{ $pass=true; break; }
 		}
 		if(!$pass) {
-			echo vsprintf($translate->_('cron.ip_unauthorized'), $_SERVER['REMOTE_ADDR']);
+			echo vsprintf($translate->_('cron.ip_unauthorized'), DevblocksPlatform::strEscapeHtml($_SERVER['REMOTE_ADDR']));
 			return;
 		}
 		

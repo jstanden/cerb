@@ -1,6 +1,6 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" target="_blank" id="frm{$view_id}_export">
 <input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="viewDoExport">
+<input type="hidden" name="a" value="doViewExport">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="cursor_key" value="">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -77,7 +77,14 @@ $(function() {
 			if(json.completed) {
 				$frm.find('input:hidden[name=cursor_key]').val('');
 				
-				$status.html('<a href="javascript:;" class="close"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);font-size:16px;position:relative;float:right;"></span></a><div style="font-size:18px;font-weight:bold;text-align:center;">Download: <a href="' + json.attachment_url + '" target="_blank">' + json.attachment_name + '</a></div>').fadeIn();
+				var $html = $('<div><a href="javascript:;" class="close"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);font-size:16px;position:relative;float:right;"></span></a></div>')
+					.append(
+						$('<div style="font-size:18px;font-weight:bold;text-align:center;"/>')
+							.append($('<a target="_blank"/>').attr('href',json.attachment_url).text(json.attachment_name).prepend('Download: '))
+					);
+					
+				$status.html($html).fadeIn();
+					
 				$status.find('a.close').click(function() {
 					$('#{$view_id}_tips').html('').hide();
 				});
@@ -87,7 +94,12 @@ $(function() {
 			$frm.find('input:hidden[name=cursor_key]').val(json.key);
 			
 			// If in progress, continue looping pages
-			$status.html('<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;">Exported ' + json.rows_exported + ' records<br><span class="cerb-ajax-spinner"></span></div>').fadeIn();
+			var $html = $('<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;"/>')
+				.text('Exported ' + json.rows_exported + ' records')
+				.append('<br><span class="cerb-ajax-spinner"></span>')
+				;
+			
+			$status.html($html).fadeIn();
 			$frm.trigger('export_increment');
 			
 		});

@@ -179,7 +179,7 @@ $(function() {
 	// Replace the truncated heading labels
 	$view_thead.find('TH A').each(function(idx) {
 		var $a = $(this);
-		$a.html($a.attr('title'));
+		$a.text($a.attr('title'));
 	});
 		
 	// View actions

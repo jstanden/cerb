@@ -37,6 +37,6 @@ class ExampleController extends DevblocksControllerExtension {
 	}
 	
 	function testAction() {
-		echo "Test Response!";
+		echo DevblocksPlatform::strEscapeHtml("Test Response!");
 	}
 };

@@ -492,7 +492,7 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 				break;
 				
 			case SearchFields_CerbPlugin::VERSION:
-				echo DevblocksPlatform::intVersionToStr($param->value);
+				echo DevblocksPlatform::strEscapeHtml(DevblocksPlatform::intVersionToStr($param->value));
 				break;
 			
 			default:

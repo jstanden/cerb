@@ -703,7 +703,7 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 					if(!isset($portals[$val]))
 						continue;
 					else
-						$strings[] = $portals[$val]->name;
+						$strings[] = DevblocksPlatform::strEscapeHtml($portals[$val]->name);
 				}
 				echo implode(", ", $strings);
 				break;

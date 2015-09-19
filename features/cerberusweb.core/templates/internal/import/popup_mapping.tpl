@@ -69,7 +69,7 @@ $(function() {
  		if(!$frm.validate().form())
  			return;
 
- 		$('#divImportPreview').html('Importing... please wait');
+ 		$('#divImportPreview').text('Importing... please wait');
 
  		var $div = $(this).closest('div');
  		$div.fadeOut();
@@ -86,7 +86,7 @@ $(function() {
  		if(!$frm.validate().form())
 			return;
  		
- 		$('#divImportPreview').html('Loading...');
+ 		$('#divImportPreview').text('Loading...');
  		genericAjaxPost('frmImport', '', 'c=internal&a=doImport&context={$context}&is_preview=1', function(o) {
  			$('#divImportPreview').html(o).fadeIn();
  		});

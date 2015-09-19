@@ -428,10 +428,10 @@
 				var $li = $('<li style="margin-left:10px;"></li>');
 				
 				var $select = $('<select name="html_template_id"></select>');
-				$select.append($('<option value="0"> - {'common.default'|devblocks_translate|lower|escape:'javascript'} -</option>'));
+				$select.append($('<option value="0"/>').text(' - {'common.default'|devblocks_translate|lower|escape:'javascript'} -'));
 				
 				{foreach from=$html_templates item=html_template}
-				var $option = $('<option value="{$html_template->id}">{$html_template->name|escape:'javascript'}</option>');
+				var $option = $('<option/>').attr('value','{$html_template->id}').text('{$html_template->name|escape:'javascript'}');
 				{if $draft && $draft->params.html_template_id == $html_template->id}
 				$option.attr('selected', 'selected');
 				{/if}
@@ -722,13 +722,8 @@
 				
 				$(this).attr('disabled','disabled');
 				
-				genericAjaxPost(
-					'reply{$message->id}_part2',
-					null,
-					'c=display&a=saveDraftReply&is_ajax=1',
-					function(json, ui) {
-						var obj = $.parseJSON(json);
-						
+				genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',
+					function(obj, ui) {
 						if(null != obj.html && null != obj.draft_id) {
 							$('#divDraftStatus{$message->id}').html(obj.html);
 							$('#reply{$message->id}_part2 input[name=draft_id]').val(obj.draft_id);

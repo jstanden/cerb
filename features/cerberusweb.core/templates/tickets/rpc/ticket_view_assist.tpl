@@ -129,13 +129,13 @@ Sort biggest piles by:
 </div>
 
 <button type="button" onclick="genericAjaxPost('viewAssist{$view_id}','view{$view_id}',null);" style="">Perform selected actions</button>
-<button type="button" onclick="toggleDiv('{$view_id}_tips','none');$('#{$view_id}_tips').html('');" style="">Do nothing</button>
+<button type="button" onclick="$('#{$view_id}_tips').hide().html('');" style="">Do nothing</button>
 
 {else}
 
 There aren't enough tickets in this list for auto-assist to find patterns.<br>
 <br>
-<button type="button" onclick="toggleDiv('{$view_id}_tips','none');$('#{$view_id}_tips').html('');" style="">Do nothing</button><br>
+<button type="button" onclick="$('#{$view_id}_tips').hide().html('');" style="">Do nothing</button><br>
 
 {/if}
 

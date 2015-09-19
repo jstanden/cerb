@@ -67,7 +67,7 @@ try {
 		
 		var label = outs.join(', ');
 		
-		$counter.html(label);
+		$counter.text(label);
 		
 		// Auto-scale text
 

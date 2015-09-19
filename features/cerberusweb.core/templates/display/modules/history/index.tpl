@@ -27,7 +27,7 @@ $('#view{$view->id}').bind('view_refresh', function() {
 		if(0 == $badge.length)
 			return;
 		
-		$badge.html(total);
+		$badge.text(total);
 	}
 });
 </script>

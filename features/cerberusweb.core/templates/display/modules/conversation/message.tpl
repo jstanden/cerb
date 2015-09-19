@@ -90,7 +90,7 @@
 	  
 	  {if $expanded}
 	  <div style="margin:2px;margin-left:10px;">
-	  	 <a href="javascript:;" class="brief" onclick="if($(this).hasClass('brief')) { $('#{$message->id}sh').hide();$('#{$message->id}h').show();$(this).html('{'display.convo.brief_headers'|devblocks_translate|lower}').removeClass('brief'); } else { $('#{$message->id}sh').show();$('#{$message->id}h').hide();$(this).html('{'display.convo.full_headers'|devblocks_translate|lower}').addClass('brief'); } ">{'display.convo.full_headers'|devblocks_translate|lower}</a>
+	  	 <a href="javascript:;" class="brief" onclick="if($(this).hasClass('brief')) { $('#{$message->id}sh').hide();$('#{$message->id}h').show();$(this).text('{'display.convo.brief_headers'|devblocks_translate|lower}').removeClass('brief'); } else { $('#{$message->id}sh').show();$('#{$message->id}h').hide();$(this).text('{'display.convo.full_headers'|devblocks_translate|lower}').addClass('brief'); } ">{'display.convo.full_headers'|devblocks_translate|lower}</a>
 	  	 | <a href="#{$message->id}act">{'display.convo.skip_to_bottom'|devblocks_translate|lower}</a>
 	  	 | <a href="{devblocks_url}c=profiles&type=ticket&mask={$ticket->mask}&jump=message&jump_id={$message->id}{/devblocks_url}">{'common.permalink'|devblocks_translate|lower}</a>
 	  </div>

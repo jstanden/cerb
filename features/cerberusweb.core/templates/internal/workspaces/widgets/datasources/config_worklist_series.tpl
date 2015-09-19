@@ -167,7 +167,7 @@ $(function() {
 					var field = json[idx];
 					var field_type = (field.type=='E') ? 'date' : ((field.type=='N') ? 'number' : '');
 					
-					var $option = $('<option value="'+field.key+'" class="'+field_type+'">'+field.label+'</option>');
+					var $option = $('<option/>').attr('value',field.key).addClass(field_type).text(field.label);
 
 					// X-Axis
 					// Number or date

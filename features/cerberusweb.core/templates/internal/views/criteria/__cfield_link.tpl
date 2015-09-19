@@ -36,8 +36,8 @@ $("#container_{$random}").find('button.chooser').click(function(e) {
 			// One link at a time
 			$ul.find('li').remove();
 			
-			$li = $('<li><b>' + event.labels[i] + '</b></li>');
-			$li.append($('<input type="hidden" name="context_id" value="' + event.values[i] + '">'));
+			$li = $('<li/>').append($('<b/>').text(event.labels[i]));
+			$li.append($('<input type="hidden" name="context_id">').attr('value',event.values[i]));
 			$li.append($('<span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;" onclick="$(this).closest(\'li\').remove();"></span>'));
 				
 			$ul.append($li);

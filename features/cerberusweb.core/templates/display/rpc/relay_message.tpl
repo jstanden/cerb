@@ -135,9 +135,8 @@ $(function() {
 			if($bubbles.find('li input:hidden[value="'+email+'"]').length > 0)
 				return;
 			
-			var $bubble = $('<li></li>');
-			$bubble.append($('<input type="hidden" name="emails[]" value="'+email+'">'));
-			$bubble.append(label);
+			var $bubble = $('<li/>').text(label);
+			$bubble.append($('<input type="hidden">').attr('name','emails[]').attr('value',email));
 			$bubble.append('<a href="javascript:;" onclick="$li=$(this).closest(\'li\');$li.remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>');
 			
 			$bubbles.append($bubble);

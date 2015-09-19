@@ -1808,7 +1808,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					
 					foreach($param->value as $group_id) {
 						if(isset($groups[$group_id]))
-							$strings[] = '<b>'.$groups[$group_id]->name.'</b>';
+							$strings[] = '<b>'.DevblocksPlatform::strEscapeHtml($groups[$group_id]->name).'</b>';
 					}
 					
 					echo sprintf("Group member of %s", implode(' or ', $strings));
@@ -1825,9 +1825,9 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					break;
 				
 				echo sprintf("Calendar is <b>%s</b> between <b>%s</b> and <b>%s</b>",
-					(!empty($param->value[2]) ? 'available' : 'busy'),
-					$param->value[0],
-					$param->value[1]
+					DevblocksPlatform::strEscapeHtml((!empty($param->value[2]) ? 'available' : 'busy')),
+					DevblocksPlatform::strEscapeHtml($param->value[0]),
+					DevblocksPlatform::strEscapeHtml($param->value[1])
 				);
 				break;
 		}

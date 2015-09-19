@@ -39,9 +39,9 @@ $fieldset.find('select[name=add_context]').change(function() {
 	
 	$('<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span>').appendTo($new_column);
 	$('<a href="javascript:;" onclick="if(confirm(\'Are you sure you want to delete this worklist?\')) { $(this).closest(\'div\').remove(); }"><span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;"></span></a>').appendTo($new_column);
-	$('<input type="hidden" name="ids[]" value="'+$select.val()+'">').appendTo($new_column);
-	$('<input type="text" name="names[]" value="'+$select.find(':selected').text()+'" size="45">').appendTo($new_column);
-	$('<span>'+$select.find(':selected').text()+'</span>').appendTo($new_column);
+	$('<input type="hidden" name="ids[]">').attr('value',$select.val()).appendTo($new_column);
+	$('<input type="text" name="names[]" size="45">').attr('value',$select.find(':selected').text()).appendTo($new_column);
+	$('<span/>').text($select.find(':selected').text()).appendTo($new_column);
 	
 	$select.val('');
 

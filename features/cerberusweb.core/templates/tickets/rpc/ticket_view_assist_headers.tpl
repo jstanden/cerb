@@ -25,6 +25,6 @@ Sort biggest piles by:
 <br>
 <br>
 
-<button type="button" onclick="toggleDiv('{$view_id}_tips','none');$('#{$view_id}_tips').html('');" style="">Do nothing</button>
+<button type="button" onclick="$('#{$view_id}_tips').hide().html('');" style="">Do nothing</button>
 
 </form>

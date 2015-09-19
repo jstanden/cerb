@@ -26,38 +26,41 @@
 </div>
 
 <script type="text/javascript">
-$move_to = $('#{$random}_groupbucket');
-$move_to.find('select:nth(0)').change(function(e) {
-	$move_to = $('#{$random}_groupbucket');
-
-	$select_bucket = $move_to.find('div.buckets');
-	$select_bucket.html('');
+$(function() {
+	var $move_to = $('#{$random}_groupbucket');
 	
-	buckets = {
-		{foreach from=$groups item=group key=group_id name=groups}
-		"group_{$group_id}":{
-			"id":"{$group_id}",
-			"buckets":[
-			{foreach from=$buckets_by_group.$group_id item=bucket key=bucket_id name=buckets}
-				{ "id":{$bucket_id},"name":"{$bucket->name}" }{if !$smarty.foreach.buckets.last},{/if}
+	$move_to.find('select:nth(0)').change(function(e) {
+		var $select_bucket = $move_to.find('div.buckets');
+		$select_bucket.html('');
+		
+		var buckets = {
+			{foreach from=$groups item=group key=group_id name=groups}
+			"group_{$group_id}":{
+				"id":"{$group_id}",
+				"buckets":[
+				{foreach from=$buckets_by_group.$group_id item=bucket key=bucket_id name=buckets}
+					{ "id":{$bucket_id},"name":"{$bucket->name}" }{if !$smarty.foreach.buckets.last},{/if}
+				{/foreach}
+				]
+			}{if !$smarty.foreach.groups.last},{/if}
 			{/foreach}
-			]
-		}{if !$smarty.foreach.groups.last},{/if}
-		{/foreach}
-	};
-	
-	group_id = $(this).val();
-	group_key = 'group_' + group_id;
-	
-	if(null == buckets[group_key])
-		return;
-	
-	group_buckets = buckets[group_key];
-	
-	for(i in group_buckets.buckets) {
-		$select_bucket.append($('<label><input type="checkbox" name="{$namePrefix}[bucket_id][]" value="'+group_buckets.buckets[i].id+'"> '+group_buckets.buckets[i].name+'</label><br>'));
-	}
-	
-	$select_bucket.focus();
+		};
+		
+		var group_id = $(this).val();
+		var group_key = 'group_' + group_id;
+		
+		if(null == buckets[group_key])
+			return;
+		
+		var group_buckets = buckets[group_key];
+		
+		for(i in group_buckets.buckets) {
+			var $checkbox = $('<input type="checkbox">').attr('name','{$namePrefix}[bucket_id][]').attr('value',group_buckets.buckets[i].id);
+			var $label = $('<label/>').html('&nbsp;' + group_buckets.buckets[i].name).prepend($checkbox);
+			$select_bucket.append($label).append($('<br>'));
+		}
+		
+		$select_bucket.focus();
+	});
 });
 </script>

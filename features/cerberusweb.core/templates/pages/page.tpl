@@ -95,34 +95,32 @@
 			$workspace.find('a.edit-tab').click(function(e) {
 				e.stopPropagation();
 				
-				$tabs = $("#pageTabs{$page->id}");
-				$selected_tab = $tabs.find('li.ui-tabs-active').first();
+				var $tabs = $("#pageTabs{$page->id}");
+				var $selected_tab = $tabs.find('li.ui-tabs-active').first();
 				
 				if(0 == $selected_tab.length)
 					return;
 				
-				tab_id = $selected_tab.attr('tab_id');
+				var tab_id = $selected_tab.attr('tab_id');
 				
 				if(null == tab_id)
 					return;
 				
-				$popup = genericAjaxPopup('peek','c=pages&a=showEditWorkspaceTab&id=' + tab_id,null,true,'600');
+				var $popup = genericAjaxPopup('peek','c=pages&a=showEditWorkspaceTab&id=' + tab_id,null,true,'600');
 				
 				$popup.one('workspace_save',function(json) {
-					$tabs = $("#pageTabs{$page->id}");
 					if(0 != $tabs) {
-						selected_idx = $tabs.tabs('option','active');
+						var selected_idx = $tabs.tabs('option','active');
 						$tabs.tabs('load', selected_idx);
 						
 						if(null != json.name) {
-							$selected_tab = $tabs.find('> ul > li.ui-tabs-active');
-							$selected_tab.find('a').html(json.name);
+							var $selected_tab = $tabs.find('> ul > li.ui-tabs-active');
+							$selected_tab.find('a').text(json.name);
 						}
 					}
 				});
 				
 				$popup.one('workspace_delete',function(e) {
-					$tabs = $("#pageTabs{$page->id}");
 					if(0 != $tabs.length) {
 						var tab = $tabs.find('.ui-tabs-nav li:eq(' + $tabs.tabs('option','active') + ')').remove();
 						var panelId = tab.attr('aria-controls');
@@ -136,34 +134,34 @@
 		// Export page
 		$workspace.find('a.export-page').click(function(e) {
 			e.stopPropagation();
-			$popup = genericAjaxPopup('peek','c=pages&a=showExportWorkspacePage&id={$page->id}',null,true,'600');
+			genericAjaxPopup('peek','c=pages&a=showExportWorkspacePage&id={$page->id}',null,true,'600');
 		});
 		
 		// Export tab
 		$workspace.find('a.export-tab').click(function(e) {
 			e.stopPropagation();
 			
-			$tabs = $("#pageTabs{$page->id}");
-			$selected_tab = $tabs.find('li.ui-tabs-active').first();
+			var $tabs = $("#pageTabs{$page->id}");
+			var $selected_tab = $tabs.find('li.ui-tabs-active').first();
 			
 			if(0 == $selected_tab.length)
 				return;
 			
-			tab_id = $selected_tab.attr('tab_id');
+			var tab_id = $selected_tab.attr('tab_id');
 			
 			if(null == tab_id)
 				return;
 			
-			$popup = genericAjaxPopup('peek','c=pages&a=showExportWorkspaceTab&id=' + encodeURIComponent(tab_id),null,true,'600');
+			genericAjaxPopup('peek','c=pages&a=showExportWorkspaceTab&id=' + encodeURIComponent(tab_id),null,true,'600');
 		});
 		
 		// Add/Remove in menu
 		{if $page->isReadableByWorker($active_worker)}
 		$workspace.find('button.add').click(function(e) {
-			$this = $(this);
+			var $this = $(this);
 		
-			$menu = $('BODY UL.navmenu:first');
-			$item = $menu.find('li.drag[page_id="'+$this.attr('page_id')+'"]');
+			var $menu = $('BODY UL.navmenu:first');
+			var $item = $menu.find('li.drag[page_id="'+$this.attr('page_id')+'"]');
 			
 			// Remove
 			if($item.length > 0) {
@@ -182,11 +180,11 @@
 				
 			// Add
 			} else {
-				var $li = $('<li class="drag" page_id="'+$this.attr('page_id')+'"></li>');
-				$li.append($('<a href="'+$this.attr('page_url')+'">'+$this.attr('page_label')+'</a>'));
+				var $li = $('<li class="drag"/>').attr('page_id',$this.attr('page_id'));
+				$li.append($('<a/>').attr('href',$this.attr('page_url')).text($this.attr('page_label')));
 				$li.css('visibility','hidden');
 				
-				$marker = $menu.find('li.add');
+				var $marker = $menu.find('li.add');
 		
 				if(0 == $marker.length) {
 					$li.prependTo($menu);

@@ -413,7 +413,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 				
 				foreach($values as $val) {
 					if(isset($addresses[$val]))
-						$strings[] = $addresses[$val]->email;
+						$strings[] = DevblocksPlatform::strEscapeHtml($addresses[$val]->email);
 				}
 				echo implode('</b> or <b>', $strings);
 				break;
@@ -425,13 +425,13 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 				foreach($values as $val) {
 					switch($val) {
 						case 'open':
-							$strings[] = $translate->_('status.waiting');
+							$strings[] = DevblocksPlatform::strEscapeHtml($translate->_('status.waiting'));
 							break;
 						case 'waiting':
-							$strings[] = $translate->_('status.open');
+							$strings[] = DevblocksPlatform::strEscapeHtml($translate->_('status.open'));
 							break;
 						case 'closed':
-							$strings[] = $translate->_('status.closed');
+							$strings[] = DevblocksPlatform::strEscapeHtml($translate->_('status.closed'));
 							break;
 					}
 				}

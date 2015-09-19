@@ -118,7 +118,8 @@ try {
 		context.lineTo(chart_x, chart_height);
 		context.fill();
 		
-		var $label = $('<span style="background-color:rgb(240,240,240);padding:2px 2px 2px 7px;font-weight:bold;"><span style="margin-right:5px;">'+options.series[0].data[closest.data.index].x_label+':</span></span>');
+		var $label = $('<span style="background-color:rgb(240,240,240);padding:2px 2px 2px 7px;font-weight:bold;"/>');
+		$label.append($('<span style="margin-right:5px;"/>').text(options.series[0].data[closest.data.index].x_label+':'));
 		
 		for(series_idx in options.series) {
 			var series = options.series[series_idx];
@@ -127,7 +128,7 @@ try {
 			if(null == series || null == series.data)
 				continue;
 
-			var $metric_label = $('<span style="color:'+series.options.color+';margin-right:5px;">'+series.data[index].y_label+'</span>');
+			var $metric_label = $('<span/>').css('color',series.options.color).css('margin-right','5px').text(series.data[index].y_label);
 			$label.append($metric_label);
 		}
 		

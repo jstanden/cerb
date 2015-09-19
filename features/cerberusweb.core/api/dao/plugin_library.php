@@ -959,7 +959,7 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 
 		switch($field) {
 			case SearchFields_PluginLibrary::LATEST_VERSION:
-				echo DevblocksPlatform::intVersionToStr($param->value);
+				echo DevblocksPlatform::strEscapeHtml(DevblocksPlatform::intVersionToStr($param->value));
 				break;
 			default:
 				parent::renderCriteriaParam($param);
