@@ -20,7 +20,6 @@ if(!isset($tables['context_avatar'])) {
 		  storage_size int(10) unsigned NOT NULL DEFAULT '0',
 		  storage_profile_id int(10) unsigned NOT NULL DEFAULT '0',
 		  PRIMARY KEY (id),
-		  UNIQUE guid (guid),
 		  UNIQUE context_and_id (context, context_id),
 		  KEY storage_extension (storage_extension)
 		) ENGINE=%s;
