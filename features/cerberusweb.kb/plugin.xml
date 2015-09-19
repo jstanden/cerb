@@ -4,14 +4,14 @@
 	<name>Knowledgebase</name>
 	<description>Create and categorize articles to share knowledge between workers or your community.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>7.0.5</version>
+	<version>7.1.0</version>
 	<link>http://wiki.cerbweb.com/Features:Knowledgebase</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="7.0" max="7.0.99" />
+		<app_version min="7.1" max="7.1.99" />
 	</requires>
 	
 	<!-- Plugin Dependencies -->
