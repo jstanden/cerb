@@ -75,6 +75,34 @@ if(isset($columns['email']) && 0 != strcasecmp('varchar(255)', $columns['email']
 }
 
 // ===========================================================================
+// Fix the arbitrary name length restrictions on the `worker_group` table
+
+if(!isset($tables['worker_group'])) {
+	$logger->error("The 'worker_group' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('worker_group');
+
+if(isset($columns['name']) && 0 != strcasecmp('varchar(255)', $columns['name']['type'])) {
+	$db->ExecuteMaster("ALTER TABLE worker_group MODIFY COLUMN name varchar(255) not null default ''");
+}
+
+// ===========================================================================
+// Fix the arbitrary name length restrictions on the `bucket` table
+
+if(!isset($tables['bucket'])) {
+	$logger->error("The 'bucket' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('bucket');
+
+if(isset($columns['name']) && 0 != strcasecmp('varchar(255)', $columns['name']['type'])) {
+	$db->ExecuteMaster("ALTER TABLE bucket MODIFY COLUMN name varchar(255) not null default ''");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
