@@ -31,6 +31,41 @@ if(!isset($tables['context_avatar'])) {
 }
 
 // ===========================================================================
+// Fix the arbitrary name length restrictions on the `address` table
+
+if(!isset($tables['address'])) {
+	$logger->error("The 'address' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('address');
+
+if(isset($columns['first_name']) && 0 != strcasecmp('varchar(128)', $columns['first_name']['type'])) {
+	$db->ExecuteMaster("ALTER TABLE address MODIFY COLUMN first_name varchar(128) not null default ''");
+}
+
+if(isset($columns['last_name']) && 0 != strcasecmp('varchar(128)', $columns['last_name']['type'])) {
+	$db->ExecuteMaster("ALTER TABLE address MODIFY COLUMN last_name varchar(128) not null default ''");
+}
+
+// ===========================================================================
+// Fix the arbitrary name length restrictions on the `worker` table
+
+if(!isset($tables['worker'])) {
+	$logger->error("The 'worker' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('worker');
+
+if(isset($columns['first_name']) && 0 != strcasecmp('varchar(128)', $columns['first_name']['type'])) {
+	$db->ExecuteMaster("ALTER TABLE worker MODIFY COLUMN first_name varchar(128) not null default ''");
+}
+
+if(isset($columns['last_name']) && 0 != strcasecmp('varchar(128)', $columns['last_name']['type'])) {
+	$db->ExecuteMaster("ALTER TABLE worker MODIFY COLUMN last_name varchar(128) not null default ''");
+}
+// ===========================================================================
 // Finish up
 
 return TRUE;
