@@ -89,8 +89,7 @@ class PageSection_SetupMailFailed extends Extension_PageSection {
 
 				header('Content-Type: text/plain; charset=' . $message_encoding);
 
-				$message_source = file_get_contents($full_path);
-				echo $message_source;
+				echo file_get_contents($full_path);
 			}
 			
 		} catch (Exception $e) {

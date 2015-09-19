@@ -2426,12 +2426,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			default:
-				// Custom Fields
-//				if('cf_' == substr($field,0,3)) {
-//					$this->_renderCriteriaCustomField($tpl, substr($field,3));
-//				} else {
-//					echo ' ';
-//				}
 				break;
 		}
 	}

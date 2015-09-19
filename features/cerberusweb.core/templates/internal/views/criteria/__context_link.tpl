@@ -35,25 +35,27 @@
 
 <script type="text/javascript">
 $("#container_{$random}").find('select.chooser').change(function(e) {
-	$this = $(this);
-	$val = $this.val();
+	var $this = $(this);
+	var $val = $this.val();
 	
 	if($val.length > 0) {
-		$popup = genericAjaxPopup("chooser{$random}",'c=internal&a=chooserOpen&context='+encodeURIComponent($val),null,true,'750');
+		var $popup = genericAjaxPopup("chooser{$random}",'c=internal&a=chooserOpen&context='+encodeURIComponent($val),null,true,'750');
+		
 		$popup.one('popup_close',function(event) {
 			event.stopPropagation();
-			$container = $('#container_{$random}');
-			$chooser = $container.find('select.chooser');
+			var $container = $('#container_{$random}');
+			var $chooser = $container.find('select.chooser');
 			$chooser.val('');
 		});
+		
 		$popup.one('chooser_save',function(event) {
 			event.stopPropagation();
 			
-			$container = $("#container_{$random}");
-			$chooser = $container.find('select.chooser');
-			$ul = $container.find('ul.chooser-container');
-			$context_name = $chooser.find(':selected').text();
-			$context = $chooser.val();
+			var $container = $("#container_{$random}");
+			var $chooser = $container.find('select.chooser');
+			var $ul = $container.find('ul.chooser-container');
+			var $context_name = $chooser.find(':selected').text();
+			var $context = $chooser.val();
 			
 			for(i in event.labels) {
 				// Look for dupes

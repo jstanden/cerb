@@ -520,8 +520,6 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 					$results = $db->GetArraySlave($sql);
 					$data = array();
 
-					// echo $sql,"<br>\n";
-						
 					$counter = 0;
 						
 					foreach($results as $result) {

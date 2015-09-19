@@ -115,6 +115,7 @@ function DevblocksClass() {
 };
 var Devblocks = new DevblocksClass();
 
+// [TODO] Remove this in favor of jQuery $(select).val()
 function selectValue(e) {
 	return e.options[e.selectedIndex].value;
 }

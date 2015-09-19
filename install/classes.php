@@ -103,7 +103,6 @@ class CerberusInstaller {
 				}
 			}
 			
-//			echo "LINE: ",$line,"<BR>";
 			$buffer[] = str_replace(array("\r","\n"),'',$line); // strip CRLF
 		}
 		

@@ -235,28 +235,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::tickets/rpc/ticket_view_output.tpl');
 	}
 	
-	// [TODO] Refactor for group-based signatures
-	
-	function getLogTicketSignatureAction() {
-		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		$replyto_default = DAO_AddressOutgoing::getDefault();
-		
-		if(false !== ($address = DAO_Address::lookupAddress($email, false)))
-			$replyto = DAO_AddressOutgoing::get($address->id);
-			
-		if(!empty($replyto->reply_signature)) {
-			$sig = $replyto->reply_signature;
-		} else {
-			$sig = $replyto_default->reply_signature;
-		}
-		
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
-		echo $tpl_builder->build($sig, $token_values);
-	}
-	
 	// Ajax
 	function savePeekAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);

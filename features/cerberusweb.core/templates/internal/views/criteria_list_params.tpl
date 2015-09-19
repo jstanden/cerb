@@ -24,7 +24,7 @@
 			{/if}
 		{/foreach}
 	{else}
-		{assign var=field value=$param->field} 
+		{$field = $param->field} 
 		{$view_filters.$field->db_label|capitalize}
 		{* [TODO] Add operator labels to platform *}
 		{if $param->operator=='='}

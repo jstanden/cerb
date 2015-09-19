@@ -10,8 +10,8 @@
 
 <div>
 	<b>{'common.status'|devblocks_translate|capitalize}:</b> 
-	<label><input type="radio" name="enabled" value="1" onclick="$('#pluginConfigTabs').fadeIn();$('#divCerb6PluginOutput').show();" {if $plugin->enabled}checked="checked"{/if}>{'common.enabled'|devblocks_translate|capitalize}</label> 
-	<label><input type="radio" name="enabled" value="0" onclick="$('#pluginConfigTabs').fadeOut();$('#divCerb6PluginOutput').hide();" {if !$plugin->enabled}checked="checked"{/if}>{'common.disabled'|devblocks_translate|capitalize}</label> 
+	<label><input type="radio" name="enabled" value="1" onclick="$('#pluginConfigTabs').fadeIn();$('#divCerbPluginOutput').show();" {if $plugin->enabled}checked="checked"{/if}>{'common.enabled'|devblocks_translate|capitalize}</label> 
+	<label><input type="radio" name="enabled" value="0" onclick="$('#pluginConfigTabs').fadeOut();$('#divCerbPluginOutput').hide();" {if !$plugin->enabled}checked="checked"{/if}>{'common.disabled'|devblocks_translate|capitalize}</label> 
 </div>
 
 {if !empty($config_exts)}
@@ -36,7 +36,7 @@
 </div>
 {/if}
 
-<div style="{if empty($requirements)}display:none;{/if}" id="divCerb6PluginOutput">
+<div style="{if empty($requirements)}display:none;{/if}" id="divCerbPluginOutput">
 	<ul style="margin-top:0px;color:rgb(200,0,0);">
 	{if !empty($requirements)}
 	{foreach from=$requirements item=req}
@@ -50,12 +50,12 @@
 	<legend>Are you sure you want to uninstall this plugin?</legend>
 	
 	<button type="button" class="red" onclick="$(this).closest('form').find('input:hidden[name=uninstall]').val('1');$('#btnPluginSave').click();">Yes, uninstall it</button>
-	<button type="button" onclick="$(this).closest('fieldset').hide();$('#divCerb6PluginPopupToolbar').fadeIn();">{'common.cancel'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="$(this).closest('fieldset').hide();$('#divCerbPluginPopupToolbar').fadeIn();">{'common.cancel'|devblocks_translate|capitalize}</button>
 </fieldset>
 
-<div style="margin-top:10px;" id="divCerb6PluginPopupToolbar">
+<div style="margin-top:10px;" id="divCerbPluginPopupToolbar">
 	<button type="button" id="btnPluginSave"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $is_uninstallable}<button type="button" onclick="$('#divCerb6PluginPopupToolbar').fadeOut();$(this).closest('form').find('#fsCerb6PluginUninstall').fadeIn();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> Uninstall</button>{/if}
+	{if $is_uninstallable}<button type="button" onclick="$('#divCerbPluginPopupToolbar').fadeOut();$(this).closest('form').find('#fsCerb6PluginUninstall').fadeIn();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> Uninstall</button>{/if}
 </div>
 </form>
 
@@ -73,11 +73,11 @@ $(function() {
 		$frm = $('#frmCerbPluginPeek');
 		
 		$('#btnPluginSave').click(function() {
-			$out = $('#divCerb6PluginOutput');
+			$out = $('#divCerbPluginOutput');
 			$out.find('ul').html('');
 			$out.hide();
 			
-			$('#divCerb6PluginPopupToolbar').fadeOut();
+			$('#divCerbPluginPopupToolbar').fadeOut();
 			genericAjaxPost('frmCerbPluginPeek','','',function(json) {
 				// Errors? or success
 				if(false == json.status) {
@@ -87,7 +87,7 @@ $(function() {
 					}
 					
 					$out.fadeIn();
-					$('#divCerb6PluginPopupToolbar').fadeIn();
+					$('#divCerbPluginPopupToolbar').fadeIn();
 					
 				} else {
 					genericAjaxPopupClose('peek');

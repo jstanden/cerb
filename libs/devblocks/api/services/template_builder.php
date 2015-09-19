@@ -284,6 +284,9 @@ class DevblocksDictionaryDelegate {
 	}
 	
 	public static function bulkLazyLoad(array $dicts, $token) {
+		if(empty($dicts))
+			return;
+		
 		// Examine contexts on the first dictionary
 		$first_dict = reset($dicts);
 

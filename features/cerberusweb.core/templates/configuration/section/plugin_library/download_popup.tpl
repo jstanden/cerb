@@ -12,7 +12,7 @@
 </ul>
 {/if}
 
-<div style="display:none;" id="divCerb6PluginOutput">
+<div style="display:none;" id="divCerbPluginOutput">
 </div>
 
 <div style="margin-top:10px;">
@@ -36,7 +36,7 @@ $(function() {
 		$('#btnPluginDownload').click(function() {
 			$(this).hide();
 			genericAjaxGet('', 'c=config&a=handleSectionAction&section=plugin_library&action=saveDownloadPopup&plugin_id={$plugin->id}', function(json) {
-				$('#divCerb6PluginOutput').show();
+				$('#divCerbPluginOutput').show();
 				
 				// [TODO] Errors, or success?
 				

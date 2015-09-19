@@ -392,14 +392,8 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 			case SearchFields_Ticket::VIRTUAL_STATUS:
 				$tpl->display('devblocks:cerberusweb.support_center::support_center/history/criteria/status.tpl');
 				break;
-//			default:
-//				// Custom Fields
-//				if('cf_' == substr($field,0,3)) {
-//					$this->_renderCriteriaCustomField($tpl, substr($field,3));
-//				} else {
-//					echo ' ';
-//				}
-//				break;
+			default:
+				break;
 		}
 	}
 	

@@ -28,19 +28,19 @@
 
 <script type="text/javascript">
 $("#container_{$random}").find('button.chooser').click(function(e) {
-	$this = $(this);
+	var $this = $(this);
 	
-	$popup = genericAjaxPopup("chooser{$random}",'c=internal&a=chooserOpen&context={$context}',null,true,'750');
+	var $popup = genericAjaxPopup("chooser{$random}",'c=internal&a=chooserOpen&context={$context}',null,true,'750');
 	$popup.one('popup_close',function(event) {
 		event.stopPropagation();
-		$container = $('#container_{$random}');
+		var $container = $('#container_{$random}');
 	});
 	$popup.one('chooser_save',function(event) {
 		event.stopPropagation();
 		
-		$container = $("#container_{$random}");
-		$chooser = $container.find('button.chooser');
-		$ul = $container.find('ul.chooser-container');
+		var $container = $("#container_{$random}");
+		var $chooser = $container.find('button.chooser');
+		var $ul = $container.find('ul.chooser-container');
 		
 		for(i in event.labels) {
 			// Look for dupes

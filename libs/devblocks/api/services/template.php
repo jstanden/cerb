@@ -350,7 +350,6 @@ class _DevblocksSmartyTemplateResource {
 			
 					if(!empty($matches)) {
 						$match = array_shift($matches); /* @var $match Model_DevblocksTemplate */
-						//echo time(),"==(DB)",$match->last_updated,"<BR>";
 						$tpl_timestamp = $match->last_updated;
 						return true;
 					}
@@ -366,7 +365,6 @@ class _DevblocksSmartyTemplateResource {
 		
 		$stat = stat($path);
 		$tpl_timestamp = $stat['mtime'];
-//		echo time(),"==(DISK)",$stat['mtime'],"<BR>";
 		return true;
 	}
 	

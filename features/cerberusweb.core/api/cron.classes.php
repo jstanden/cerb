@@ -136,13 +136,6 @@ class ParseCron extends CerberusCronPageExtension {
 		$time = microtime(true) - $time;
 		$logger->info("Decoded! (".sprintf("%d",($time*1000))." ms)");
 
-		//		echo "<b>Plaintext:</b> ", $message->body,"<BR>";
-		//		echo "<BR>";
-		//		echo "<b>HTML:</b> ", htmlspecialchars($message->htmlbody), "<BR>";
-		//		echo "<BR>";
-		//		echo "<b>Files:</b> "; print_r($message->files); echo "<BR>";
-		//		echo "<HR>";
-
 		$time = microtime(true);
 		$ticket_id = CerberusParser::parseMessage($message);
 		$time = microtime(true) - $time;
@@ -162,8 +155,6 @@ class ParseCron extends CerberusCronPageExtension {
 		}
 		
 		mailparse_msg_free($mime);
-
-		//		flush();
 	}
 
 	function configure($instance) {
@@ -493,15 +484,12 @@ class ImportCron extends CerberusCronPageExtension {
 			foreach($eCategories->category as $eCategory) {
 				$catName = (string) $eCategory;
 				
-	//			echo "Looking for '", $catName, "' under $pid ...<br>";
-				
 				if(NULL == ($categoryId = $this->_getCategoryChildByName($categoryList, $ptr, $catName))) {
 					$fields = array(
 						DAO_KbCategory::NAME => $catName,
 						DAO_KbCategory::PARENT_ID => $pid,
 					);
 					$categoryId = DAO_KbCategory::create($fields);
-	//				echo " - Not found, inserted as $categoryId<br>";
 					
 					$categoryList[$categoryId] = DAO_KbCategory::get($categoryId);
 					
@@ -514,7 +502,6 @@ class ImportCron extends CerberusCronPageExtension {
 					
 				} else {
 					$categoryIds[] = $categoryId;
-	//				echo " - Found at $categoryId !<br>";
 					
 				}
 				
@@ -737,9 +724,6 @@ class ImportCron extends CerberusCronPageExtension {
 		);
 		$ticket_id = DAO_Ticket::create($fields);
 
-//		echo "Ticket: ",$ticket_id,"<BR>";
-//		print_r($fields);
-		
 		// Create requesters
 		if(!is_null($xml->requesters))
 		foreach($xml->requesters->address as $eAddress) { /* @var $eAddress SimpleXMLElement */
@@ -1066,10 +1050,6 @@ class ImportCron extends CerberusCronPageExtension {
 		if(empty($note) || empty($author_address) || empty($mask)) {
 			return false;
 		}
-
-//		echo "MASK: ",$mask,"<BR>";
-//		echo " -- Author: ",$author_address->email,"<BR>";
-//		echo " -- Note: ",$note,"<BR>";
 
 		if(null !== ($ticket = DAO_Ticket::getTicketByMask($mask))) {
 			$fields = array(
