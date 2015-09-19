@@ -69,6 +69,11 @@ if(isset($columns['last_name']) && 0 != strcasecmp('varchar(128)', $columns['las
 if(isset($columns['title']) && 0 != strcasecmp('varchar(255)', $columns['title']['type'])) {
 	$db->ExecuteMaster("ALTER TABLE worker MODIFY COLUMN title varchar(255) not null default ''");
 }
+
+if(isset($columns['email']) && 0 != strcasecmp('varchar(255)', $columns['email']['type'])) {
+	$db->ExecuteMaster("ALTER TABLE worker MODIFY COLUMN email varchar(255) not null default ''");
+}
+
 // ===========================================================================
 // Finish up
 
