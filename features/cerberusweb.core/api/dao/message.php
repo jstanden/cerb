@@ -848,7 +848,9 @@ class Model_Message {
 	}
 
 	function getHeaders() {
-		return DAO_MessageHeader::getAll($this->id);
+		$headers = DAO_MessageHeader::getAll($this->id);
+		ksort($headers);
+		return $headers;
 	}
 
 	/**
