@@ -4299,6 +4299,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'name' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
 			'permalink' => $url,
 			'owner_id' => $ticket->owner_id,
+			'updated' => $ticket->updated_date,
 		);
 	}
 

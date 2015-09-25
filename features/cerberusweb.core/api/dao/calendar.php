@@ -1335,6 +1335,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			'id' => $calendar->id,
 			'name' => $calendar->name,
 			'permalink' => $url,
+			'updated' => $calendar->updated_at,
 		);
 	}
 	

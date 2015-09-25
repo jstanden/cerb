@@ -889,6 +889,7 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 			'id' => $mail_transport->id,
 			'name' => $mail_transport->name,
 			'permalink' => $url,
+			'updated' => $mail_transport->updated_at,
 		);
 	}
 	

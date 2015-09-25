@@ -2071,6 +2071,7 @@ class Context_Application extends Extension_DevblocksContext {
 			'id' => 0,
 			'name' => 'Cerb',
 			'permalink' => null, //$url_writer->writeNoProxy('', true),
+			'updated' => APP_BUILD,
 		);
 	}
 

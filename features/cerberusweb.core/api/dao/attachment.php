@@ -1533,6 +1533,7 @@ class Context_Attachment extends Extension_DevblocksContext {
 			'id' => $attachment->id,
 			'name' => $attachment->display_name,
 			'permalink' => null,
+			'updated' => $attachment->updated,
 		);
 	}
 	
@@ -1737,6 +1738,7 @@ class Context_AttachmentLink extends Extension_DevblocksContext {
 			'id' => $link->guid,
 			'name' => $link->guid,
 			'permalink' => null,
+			'updated' => 0,
 		);
 	}
 	

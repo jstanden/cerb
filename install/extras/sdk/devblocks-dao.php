@@ -1019,6 +1019,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 			'id' => $<?php echo $ctx_var_model; ?>->id,
 			'name' => $<?php echo $ctx_var_model; ?>->name,
 			'permalink' => $url,
+			//'updated' => $<?php echo $ctx_var_model; ?>->updated_at, // [TODO]
 		);
 	}
 	

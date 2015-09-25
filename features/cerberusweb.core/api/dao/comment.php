@@ -1200,6 +1200,7 @@ class Context_Comment extends Extension_DevblocksContext {
 			'id' => $context_id,
 			'name' => '',
 			'permalink' => '',
+			'updated' => 0,
 		);
 	}
 

@@ -1088,6 +1088,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			'id' => $task->id,
 			'name' => $task->title,
 			'permalink' => $url,
+			'updated' => $task->updated_date,
 		);
 	}
 	

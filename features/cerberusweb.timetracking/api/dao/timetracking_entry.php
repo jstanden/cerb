@@ -1283,6 +1283,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			'id' => $time_entry->id,
 			'name' => $summary,
 			'permalink' => $url,
+			'updated' => $time_entry->log_date, // [TODO]
 		);
 	}
 

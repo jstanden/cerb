@@ -804,6 +804,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 			'id' => $article->id,
 			'name' => $article->title,
 			'permalink' => $url,
+			'updated' => $article->updated,
 		);
 	}
 	

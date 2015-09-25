@@ -1496,6 +1496,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'id' => $address->id,
 			'name' => $addy_name,
 			'permalink' => $url,
+			'updated' => $address->updated,
 		);
 	}
 	

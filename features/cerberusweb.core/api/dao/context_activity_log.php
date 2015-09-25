@@ -738,6 +738,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 			'id' => $entry->id,
 			'name' => CerberusContexts::formatActivityLogEntry(json_decode($entry->entry_json, true), 'text'),
 			'permalink' => null,
+			'updated' => $entry->created,
 		);
 	}
 	

@@ -1009,6 +1009,7 @@ class Context_CustomField extends Extension_DevblocksContext {
 			'id' => $field->id,
 			'name' => $field->name,
 			'permalink' => null, //$url_writer->writeNoProxy('', true),
+			'updated' => 0,
 		);
 	}
 	

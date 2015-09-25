@@ -1146,6 +1146,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			'id' => $calendar_recurring_profile->id,
 			'name' => $calendar_recurring_profile->event_name,
 			'permalink' => $url,
+			'updated' => 0, // [TODO]
 		);
 	}
 	

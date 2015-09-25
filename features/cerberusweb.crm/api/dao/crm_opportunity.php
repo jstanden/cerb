@@ -1314,6 +1314,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			'id' => $opp->id,
 			'name' => $opp->name,
 			'permalink' => $url,
+			'updated' => $opp->updated_date,
 		);
 	}
 	

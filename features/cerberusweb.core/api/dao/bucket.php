@@ -811,6 +811,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			'id' => $bucket->id,
 			'name' => $bucket->name,
 			'permalink' => $url,
+			'updated' => $bucket->updated_at,
 		);
 	}
 	

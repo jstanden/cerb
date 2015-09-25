@@ -1247,6 +1247,7 @@ class Context_ContactPerson extends Extension_DevblocksContext implements IDevbl
 			'id' => $contact->id,
 			'name' => $name,
 			'permalink' => $url,
+			'updated' => $contact->updated,
 		);
 	}
 	

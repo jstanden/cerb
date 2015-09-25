@@ -924,6 +924,7 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 			'id' => $skill->id,
 			'name' => $skill->name,
 			'permalink' => $url,
+			'updated' => $skill->updated_at,
 		);
 	}
 	

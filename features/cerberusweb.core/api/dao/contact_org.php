@@ -1357,7 +1357,8 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		return array(
 			'id' => $context_id,
 			'name' => $org->name,
-			'permalink' => $url
+			'permalink' => $url,
+			'updated' => $org->updated,
 		);
 	}
 	

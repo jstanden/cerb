@@ -1097,6 +1097,7 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 			'id' => $virtual_attendant->id,
 			'name' => $virtual_attendant->name,
 			'permalink' => $url,
+			'updated' => $virtual_attendant->updated_at,
 		);
 	}
 	

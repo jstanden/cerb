@@ -1287,6 +1287,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 			'id' => $workspace_page->id,
 			'name' => $workspace_page->name,
 			'permalink' => $url,
+			'updated' => 0, // [TODO]
 		);
 	}
 	
@@ -1520,6 +1521,7 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 			'id' => $workspace_tab->id,
 			'name' => $workspace_tab->name,
 			'permalink' => $url,
+			'updated' => 0, // [TODO]
 		);
 	}
 	

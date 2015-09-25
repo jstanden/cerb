@@ -418,6 +418,7 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 			'id' => $workspace_widget->id,
 			'name' => $workspace_widget->label,
 			'permalink' => null,
+			'updated' => $workspace_widget->updated_at,
 		);
 	}
 	

@@ -864,6 +864,7 @@ class Context_Skillset extends Extension_DevblocksContext implements IDevblocksC
 			'id' => $skillset->id,
 			'name' => $skillset->name,
 			'permalink' => $url,
+			'updated' => $skillset->updated_at,
 		);
 	}
 	

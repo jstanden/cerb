@@ -367,6 +367,7 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 			'id' => $worker_role->id,
 			'name' => $worker_role->name,
 			'permalink' => $url_writer->writeNoProxy('c=profiles&type=role&who='.$who, true),
+			'updated' => 0, // [TODO]
 		);
 	}
 	

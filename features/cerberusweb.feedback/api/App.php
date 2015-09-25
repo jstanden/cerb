@@ -1130,6 +1130,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 			'id' => $feedback->id,
 			'name' => '', //$feedback->title, // [TODO]
 			'permalink' => '', //$url_writer->writeNoProxy('c=tasks&action=display&id='.$task->id, true),
+			'updated' => $feedback->log_date,
 		);
 	}
 	

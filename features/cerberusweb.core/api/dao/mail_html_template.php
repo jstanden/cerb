@@ -957,6 +957,7 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 			'id' => $mail_html_template->id,
 			'name' => $mail_html_template->name,
 			'permalink' => $url,
+			'updated' => $mail_html_template->updated_at,
 		);
 	}
 	

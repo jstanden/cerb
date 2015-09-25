@@ -2663,6 +2663,7 @@ class Context_Message extends Extension_DevblocksContext {
 			'id' => $context_id,
 			'name' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
 			'permalink' => $url_writer->writeNoProxy(sprintf('c=profiles&type=ticket&mask=%s&focus=message&focusid=%d', $ticket->mask, $message->id), true),
+			'updated' => $ticket->updated_date,
 		);
 	}
 	

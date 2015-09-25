@@ -1003,6 +1003,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 			'id' => $mailbox->id,
 			'name' => $mailbox->name,
 			'permalink' => $url,
+			'updated' => $mailbox->updated_at,
 		);
 	}
 	

@@ -2170,6 +2170,7 @@ class Context_Worker extends Extension_DevblocksContext {
 			'id' => $worker->id,
 			'name' => $worker_name,
 			'permalink' => $url_writer->writeNoProxy('c=profiles&type=worker&who='.$who, true),
+			'updated' => $worker->updated,
 		);
 	}
 	
