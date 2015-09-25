@@ -69,7 +69,7 @@ abstract class C4_AbstractView {
 		}
 	}
 	
-	protected function _getDataAsObjects($dao_class, $ids=null) {
+	protected function _getDataAsObjects($dao_class, $ids=null, &$total=null) {
 		if(is_null($ids)) {
 			if(!method_exists($dao_class,'search'))
 				return array();
@@ -83,15 +83,18 @@ abstract class C4_AbstractView {
 					$this->renderPage,
 					$this->renderSortBy,
 					$this->renderSortAsc,
-					false
+					true
 				)
 			);
 			
-			list($results, $count) = $data;
+			list($results, $total) = $data;
 			
 			$ids = array_keys($results);
+			
+		} else {
+			$total = count($ids);
 		}
-
+		
 		if(!is_array($ids) || empty($ids))
 			return array();
 
