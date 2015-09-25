@@ -198,6 +198,7 @@
 		</file>
 		
 		<file path="api/dao/contact_org.php">
+			<class name="Context_Org" />
 			<class name="DAO_ContactOrg" />
 			<class name="Model_ContactOrg" />
 			<class name="Search_Org" />

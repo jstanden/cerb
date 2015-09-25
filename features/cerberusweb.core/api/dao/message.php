@@ -867,6 +867,13 @@ class Model_Message {
 		return $this->_sender_object;
 	}
 	
+	function getWorker() {
+		if(empty($this->worker_id))
+			return null;
+		
+		return DAO_Worker::get($this->worker_id);
+	}
+	
 	/**
 	 * returns an array of the message's attachments
 	 *

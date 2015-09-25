@@ -826,6 +826,10 @@ class Model_Address {
 		
 		return $name;
 	}
+	
+	function getOrg() {
+		return DAO_ContactOrg::get($this->contact_org_id);
+	}
 };
 
 class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {

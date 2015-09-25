@@ -4,8 +4,8 @@
   <tbody>
 	<tr>
 	  <td>
-		{$sender_id = $message->address_id}
-		{if isset($message_senders.$sender_id)}
+			{$sender_id = $message->address_id}
+			{if isset($message_senders.$sender_id)}
 			{$sender = $message_senders.$sender_id}
 			{$sender_org_id = $sender->contact_org_id}
 			{$sender_org = $message_sender_orgs.$sender_org_id}
@@ -199,6 +199,7 @@ $('#{$message->id}t').hover(
 
 {if $active_worker->hasPriv('core.display.actions.reply')}
 <script type="text/javascript">
+$(function() {
 var $actions = $('#{$message->id}act');
 
 $actions
@@ -243,6 +244,7 @@ $actions
 	})
 	;
 
+});
 </script>
 {/if}
 

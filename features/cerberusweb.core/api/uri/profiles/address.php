@@ -38,12 +38,14 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		$properties = array();
 		
 		if(!empty($address->contact_org_id)) {
-			if(null != ($org = DAO_ContactOrg::get($address->contact_org_id))) {
+			if(null != ($org = $address->getOrg())) {
 				$properties['org'] = array(
-					'label' => ucfirst($translate->_('contact_org.name')),
-					'type' => null,
-					'org_id' => $address->contact_org_id,
-					'org' => $org,
+					'label' => ucfirst($translate->_('common.organization')),
+					'type' => Model_CustomField::TYPE_LINK,
+					'value' => $address->contact_org_id,
+					'params' => array(
+						'context' => CerberusContexts::CONTEXT_ORG,
+					),
 				);
 			}
 		}

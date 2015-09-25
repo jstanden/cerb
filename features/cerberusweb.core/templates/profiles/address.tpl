@@ -56,9 +56,9 @@
 	<div style="margin-left:15px;">
 	{foreach from=$properties item=v key=k name=props}
 		<div class="property">
-			{if $k == 'org'}
-				<b>{$v.label|capitalize}:</b>
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$v.org_id}',null,false,'600');">{$v.org->name}</a>
+			{if $k == '_'}
+				<b>Key</b>
+				Value
 			{else}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
 			{/if}
@@ -120,6 +120,7 @@ $(function() {
 </script>
 
 <script type="text/javascript">
+$(function() {
 {if $pref_keyboard_shortcuts}
 $(document).keypress(function(event) {
 	if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
@@ -167,6 +168,7 @@ $(document).keypress(function(event) {
 		event.preventDefault();
 });
 {/if}
+});
 </script>
 
 {$profile_scripts = Extension_ContextProfileScript::getExtensions(true, $page_context)}

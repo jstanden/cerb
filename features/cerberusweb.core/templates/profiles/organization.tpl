@@ -81,13 +81,13 @@
 
 <div style="clear:both;" id="profileOrgTabs">
 	<ul>
-		{$tabs = [activity,comments,links,history,people]}
+		{$tabs = [activity,people,comments,links,history]}
 		
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeople&point={$point}&org={$page_context_id}{/devblocks_url}">{'common.members'|devblocks_translate} <div class="tab-badge">{$people_total}</div></a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context=cerberusweb.contexts.org&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize} <div class="tab-badge">{DAO_Comment::count($page_context, $page_context_id)|default:0}</div></a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&point={$point}&context=cerberusweb.contexts.org&id={$page_context_id}{/devblocks_url}">{'common.links'|devblocks_translate} <div class="tab-badge">{DAO_ContextLink::count($page_context, $page_context_id)|default:0}</div></a></li>
 		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabMailHistory&point={$point}&org_id={$page_context_id}{/devblocks_url}">{'addy_book.org.tabs.mail_history'|devblocks_translate}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeople&point={$point}&org={$page_context_id}{/devblocks_url}">{'addy_book.org.tabs.people'|devblocks_translate} <div class="tab-badge">{$people_total}</div></a></li>
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}

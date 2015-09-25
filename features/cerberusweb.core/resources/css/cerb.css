@@ -299,6 +299,7 @@ DIV.cerb-delta-slider-container DIV.cerb-delta-slider.cerb-slider-red .ui-slider
 }
 
 A.no-underline {
+  cursor: pointer;
   text-decoration: none;
 }
 A.no-underline:hover {

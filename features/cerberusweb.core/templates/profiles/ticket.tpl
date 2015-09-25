@@ -135,12 +135,6 @@
 				<div style="display:inline-block;margin-left:5px;width:40px;height:8px;background-color:rgb(220,220,220);border-radius:8px;">
 					<div style="position:relative;margin-left:-5px;top:-1px;left:{$ticket->importance}%;width:10px;height:10px;border-radius:10px;background-color:{if $ticket->importance < 50}rgb(0,200,0);{elseif $ticket->importance > 50}rgb(230,70,70);{else}rgb(175,175,175);{/if}"></div>
 				</div>
-			{elseif $k == 'org'}
-				{$ticket_org = $ticket->getOrg()}
-				<b>{'contact_org.name'|devblocks_translate|capitalize}:</b>
-				{if !empty($ticket_org)}
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$ticket->org_id}',null,false,'500');">{$ticket_org->name}</a>
-				{/if}
 			{elseif $k == 'bucket'}
 				{$ticket_group = $groups.$ticket_group_id}
 				<b>{'common.bucket'|devblocks_translate|capitalize}:</b>
@@ -148,16 +142,6 @@
 				[<a href="{devblocks_url}c=profiles&what=group&id={$ticket_group->id}{/devblocks_url}-{$ticket_group->name|devblocks_permalink}">{$ticket_group->name}</a>] 
 				{if !empty($ticket_bucket_id)}
 					<a href="{devblocks_url}c=profiles&what=bucket&id={$ticket_bucket->id}{/devblocks_url}-{$ticket_bucket->name|devblocks_permalink}">{$ticket_bucket->name}</a>
-				{/if}
-			{elseif $k == 'owner'}
-				{if !empty($ticket->owner_id) && isset($workers.{$ticket->owner_id})}
-					{$owner = $workers.{$ticket->owner_id}}
-					<b>{'common.owner'|devblocks_translate|capitalize}:</b>
-					<img src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}" style="height:16px;width:16px;border-radius:8px;vertical-align:middle;">
-					<a href="{devblocks_url}c=profiles&p=worker&id={$owner->id}-{$owner->getName()|devblocks_permalink}{/devblocks_url}" target="_blank">{$owner->getName()}</a>
-				{else}
-					<b>{'common.owner'|devblocks_translate|capitalize}:</b>
-					{'common.nobody'|devblocks_translate|lower}
 				{/if}
 			{else}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
