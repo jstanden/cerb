@@ -34,17 +34,6 @@ $(function() {
 	var $frm = $('#reply{$message->id}_form');
 	var $textarea = $frm.find('textarea[name=content]');
 	
-	// Form hints
-	
-	$textarea
-		.focusin(function() {
-			$(this).siblings('div.cerb-form-hint').fadeIn();
-		})
-		.focusout(function() {
-			$(this).siblings('div.cerb-form-hint').fadeOut();
-		})
-		;
-	
 	// @mentions
 	
 	var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};

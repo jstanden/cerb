@@ -1113,12 +1113,6 @@ SPAN.tag.tag-orange {
   color: white;
 }
 
-DIV.cerb-form-hint {
-  margin: 0px 0px 5px 0px;
-  display: none;
-  font-weight: bold;
-}
-
 DIV.cerb-properties {
   margin: 0px;
 }

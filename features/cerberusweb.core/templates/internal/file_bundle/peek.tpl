@@ -124,17 +124,6 @@ $(function() {
 		
 		$textarea.autosize();
 		
-		// Form hints
-		
-		$textarea
-			.focusin(function() {
-				$(this).siblings('div.cerb-form-hint').fadeIn();
-			})
-			.focusout(function() {
-				$(this).siblings('div.cerb-form-hint').fadeOut();
-			})
-			;
-		
 		// Attachments
 		
 		$popup.find('button.chooser_file').each(function() {

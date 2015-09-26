@@ -1363,17 +1363,6 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		
 		$(this).find('input:text:first').focus();
 		
-		// Form hints
-		
-		$textarea
-			.focusin(function() {
-				$(this).siblings('div.cerb-form-hint').fadeIn();
-			})
-			.focusout(function() {
-				$(this).siblings('div.cerb-form-hint').fadeOut();
-			})
-			;
-		
 		// @mentions
 		
 		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};

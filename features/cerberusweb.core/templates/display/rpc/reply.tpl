@@ -215,7 +215,7 @@
 </textarea>
 {/if}
 
-			<div class="cerb-form-hint" style="display:block;">(Use #commands to perform additional actions)</div>
+			<b>(Use #commands to perform additional actions)</b>
 		</td>
 	</tr>
 	<tr>

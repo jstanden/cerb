@@ -143,17 +143,6 @@ $(function() {
 		// Title
 		$this.dialog('option','title', '{'addy_book.peek.title'|devblocks_translate|escape:'javascript' nofilter}');
 		
-		// Form hints
-		
-		$textarea
-			.focusin(function() {
-				$(this).siblings('div.cerb-form-hint').fadeIn();
-			})
-			.focusout(function() {
-				$(this).siblings('div.cerb-form-hint').fadeOut();
-			})
-			;
-		
 		// @mentions
 		
 		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
