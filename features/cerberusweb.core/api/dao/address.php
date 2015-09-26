@@ -1745,7 +1745,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		return $view;
 	}
 	
-	function renderPeekPopup($context_id=0 , $view_id='') {
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'string','');
 		

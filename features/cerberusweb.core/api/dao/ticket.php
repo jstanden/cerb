@@ -4840,7 +4840,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		return $view;
 	}
 	
-	function renderPeekPopup($context_id=0, $view_id='') {
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		if(empty($context_id)) {
 			$this->_renderPeekComposePopup($view_id);
 		} else {

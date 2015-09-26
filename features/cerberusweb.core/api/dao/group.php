@@ -1732,7 +1732,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		return $view;
 	}
 	
-	function renderPeekPopup($context_id=0, $view_id='') {
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$tpl->assign('view_id', $view_id);

@@ -184,6 +184,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$edit = DevblocksPlatform::importGPC($_REQUEST['edit'], 'integer', 0);
 		
 		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
@@ -202,7 +203,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		// Template
 		
-		$context_ext->renderPeekPopup($context_id, $view_id);
+		$context_ext->renderPeekPopup($context_id, $view_id, $edit);
 	}
 
 	/*

@@ -1356,7 +1356,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		return $view;
 	}
 	
-	function renderPeekPopup($context_id=0, $view_id='') {
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$id = $context_id; // [TODO] Rename below and remove
 		
 		@$active_worker = CerberusApplication::getActiveWorker();

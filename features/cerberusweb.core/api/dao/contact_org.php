@@ -1582,7 +1582,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		return $view;
 	}
 	
-	function renderPeekPopup($context_id=0, $view_id='') {
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$contact = DAO_ContactOrg::get($context_id);

@@ -57,7 +57,7 @@ interface IDevblocksHandler_Session {
 };
 
 interface IDevblocksContextPeek {
-	function renderPeekPopup($context_id=0, $view_id='');
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false);
 }
 
 interface IDevblocksContextImport {

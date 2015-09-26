@@ -1012,7 +1012,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		return $view;
 	}
 	
-	function renderPeekPopup($context_id=0, $view_id='') {
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		if(!empty($context_id)) {

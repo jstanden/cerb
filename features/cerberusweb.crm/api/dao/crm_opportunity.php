@@ -1546,7 +1546,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		return $view;
 	}
 	
-	function renderPeekPopup($context_id=0, $view_id='') {
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
