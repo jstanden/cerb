@@ -1,15 +1,15 @@
 <div id="draft{$draft->id}">
-	<div class="block">
+	<div class="block" style="margin-bottom:10px;">
 		{$draft_worker = $workers.{$draft->worker_id}}
 		
 		{if $draft->is_queued}
 			{if !empty($draft->queue_delivery_date) && $draft->queue_delivery_date > time()}
-				<span class="tag" style="color:rgb(120,120,120);">{'message.queued.deliver_in'|devblocks_translate:{$draft->queue_delivery_date|devblocks_prettytime}|lower}</span>
+				<span class="tag" style="background-color:rgb(120,120,120);color:white;margin-right:5px;">{'message.queued.deliver_in'|devblocks_translate:{$draft->queue_delivery_date|devblocks_prettytime}|lower}</span>
 			{else}
-				<span class="tag" style="color:rgb(120,120,120);">{'message.queued.delivery_immediate'|devblocks_translate|lower}</span>
+				<span class="tag" style="background-color:rgb(120,120,120);color:white;margin-right:5px;">{'message.queued.delivery_immediate'|devblocks_translate|lower}</span>
 			{/if}
 		{else}
-			<span class="tag" style="color:rgb(120,120,120);">{'draft'|devblocks_translate|lower}</span>
+			<span class="tag" style="background-color:rgb(120,120,120);color:white;margin-right:5px;">{'draft'|devblocks_translate|lower}</span>
 		{/if}
 		
 		<h3 style="display:inline;">

@@ -1,7 +1,7 @@
 {$owner_meta = $comment->getOwnerMeta()}
 <div id="comment{$comment->id}">
 	<div class="block" style="overflow:auto;margin-bottom:10px;">
-		<span class="tag" style="color:rgb(71,133,210);">{'common.comment'|devblocks_translate|lower}</span>
+		<span class="tag" style="background-color:rgb(71,133,210);color:white;margin-right:5px;">{'common.comment'|devblocks_translate|lower}</span>
 		
 		<b style="font-size:1.3em;">
 			{if empty($owner_meta)}

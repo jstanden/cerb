@@ -64,7 +64,7 @@
 			<br>
 		{/if}
 	  
-	  <div id="{$message->id}sh" style="display:block;">
+	  <div id="{$message->id}sh" style="display:block;margin-top:2px;">
 	  {if isset($headers.from)}<b>{'message.header.from'|devblocks_translate|capitalize}:</b> {$headers.from|escape|nl2br nofilter}<br>{/if}
 	  {if isset($headers.to)}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$headers.to|truncate:255|escape|nl2br nofilter}<br>{/if}
 	  {if isset($headers.cc)}<b>{'message.header.cc'|devblocks_translate|capitalize}:</b> {$headers.cc|truncate:255|escape|nl2br nofilter}<br>{/if}

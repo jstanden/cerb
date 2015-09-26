@@ -2,7 +2,7 @@
 	{foreach from=$message_notes.$message_id item=note name=notes key=note_id}
 		{$owner_meta = $note->getOwnerMeta()}
 		<div id="comment{$note->id}" class="message_note" style="margin:10px;margin-left:20px;">
-			<span class="tag" style="color:rgb(238,88,31);">{'display.ui.sticky_note'|devblocks_translate|lower}</span>
+			<span class="tag" style="background-color:rgb(238,88,31);color:white;margin-right:5px;">{'display.ui.sticky_note'|devblocks_translate|lower}</span>
 			
 			<b style="font-size:1.3em;">
 			{if empty($owner_meta)}

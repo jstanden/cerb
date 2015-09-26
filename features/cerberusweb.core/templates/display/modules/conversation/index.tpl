@@ -22,7 +22,7 @@
 	<b>{'display.convo.order_newest'|devblocks_translate}</b>
 {/if}
 
-<div id="conversation">
+<div id="conversation" style="margin-top:10px;">
 {if !empty($ticket)}
 	{if !empty($convo_timeline)}
 		{$state = ''}
