@@ -90,7 +90,7 @@
 	<table cellpadding="2" cellspacing="2" border="0">
 		{if $show_fields.org_name}
 		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{'contact_org.name'|devblocks_translate|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.organization'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				{if 1==$show_fields.org_name}
 				{$org->name}
@@ -181,7 +181,7 @@
 		
 		{if $show_fields.org_website}
 		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{'contact_org.website'|devblocks_translate|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.website'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				{if 1==$show_fields.org_website}
 				{$org->website}

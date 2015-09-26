@@ -107,7 +107,7 @@
 </fieldset>
 
 <fieldset class="peek">
-	<legend>{'preferences.account.email'|devblocks_translate|capitalize}</legend>
+	<legend>{'common.email_addresses'|devblocks_translate|capitalize}</legend>
 
 	{'preferences.account.email.associated'|devblocks_translate}<br>
 

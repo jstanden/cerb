@@ -58,7 +58,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 				
 			if(!empty($address->contact_org_id) && null != ($org = DAO_ContactOrg::get($address->contact_org_id))) {
 				$properties['org'] = array(
-					'label' => ucfirst($translate->_('contact_org.name')),
+					'label' => ucfirst($translate->_('common.organization')),
 					'type' => null,
 					'org' => $org,
 				);

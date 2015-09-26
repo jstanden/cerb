@@ -485,7 +485,7 @@ class ChContactsPage extends CerberusPageExtension {
 		);
 		
 		if(empty($ids)) {
-			@$view->name = $translate->_('ticket.requesters') . ": " . $translate->_('contact_org.name');
+			@$view->name = $translate->_('ticket.requesters') . ": " . $translate->_('common.organization');
 			$params_required[SearchFields_Ticket::VIRTUAL_ORG_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ORG_ID,'=',$org_id);
 			
 		} else {
@@ -676,7 +676,7 @@ class ChContactsPage extends CerberusPageExtension {
 			'postal' => 'contact_org.postal',
 			'country' => 'contact_org.country',
 			'phone' => 'contact_org.phone',
-			'website' => 'contact_org.website',
+			'website' => 'common.website',
 		);
 		
 		// Custom fields

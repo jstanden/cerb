@@ -528,11 +528,6 @@
 				<seg>%s создает тестовые заявки</seg>
 			</tuv>
 		</tu>
-		<tu tuid="activity.tab.tasks">
-			<tuv xml:lang="ru_RU">
-				<seg>Задачи</seg>
-			</tuv>
-		</tu>
 		<tu tuid="activity.tickets">
 			<tuv xml:lang="ru_RU">
 				<seg>%s просматривает %s заявки</seg>
@@ -548,16 +543,6 @@
 				<seg>Идентификатор компании</seg>
 			</tuv>
 		</tu>
-		<tu tuid="address.first_name">
-			<tuv xml:lang="ru_RU">
-				<seg>Имя</seg>
-			</tuv>
-		</tu>
-		<tu tuid="address.full_name">
-			<tuv xml:lang="ru_RU">
-				<seg>Полное имя</seg>
-			</tuv>
-		</tu>
 		<tu tuid="address.is_banned">
 			<tuv xml:lang="ru_RU">
 				<seg>заблокирован</seg>
@@ -571,11 +556,6 @@
 		<tu tuid="address.is_defunct">
 			<tuv xml:lang="ru_RU">
 				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="address.last_name">
-			<tuv xml:lang="ru_RU">
-				<seg>Фамилия</seg>
 			</tuv>
 		</tu>
 		<tu tuid="address.num_nonspam">
@@ -1083,6 +1063,11 @@
 				<seg>Электронная почта</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.email_addresses">
+			<tuv xml:lang="ru_RU">
+				<seg>Адреса электронной почты</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.enabled">
 			<tuv xml:lang="ru_RU">
 				<seg>Включено</seg>
@@ -1243,6 +1228,11 @@
 				<seg>Языки</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.last_login">
+			<tuv xml:lang="ru_RU">
+				<seg/>
+			</tuv>
+		</tu>
 		<tu tuid="common.links">
 			<tuv xml:lang="ru_RU">
 				<seg>Ссылки</seg>
@@ -1358,6 +1348,21 @@
 				<seg>Имя</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.name.first">
+			<tuv xml:lang="ru_RU">
+				<seg>Имя</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.name.full">
+			<tuv xml:lang="ru_RU">
+				<seg>Полное имя</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.name.last">
+			<tuv xml:lang="ru_RU">
+				<seg>Фамилия</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.never">
 			<tuv xml:lang="ru_RU">
 				<seg>Никогда</seg>
@@ -1433,6 +1438,11 @@
 				<seg>порядок</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.organization">
+			<tuv xml:lang="ru_RU">
+				<seg>Компания</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.owner">
 			<tuv xml:lang="ru_RU">
 				<seg>владелец</seg>
@@ -1441,6 +1451,11 @@
 		<tu tuid="common.password">
 			<tuv xml:lang="ru_RU">
 				<seg>пароль</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.password.salt">
+			<tuv xml:lang="ru_RU">
+				<seg/>
 			</tuv>
 		</tu>
 		<tu tuid="common.permalink">
@@ -1763,6 +1778,11 @@
 				<seg>наблюдатели</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.website">
+			<tuv xml:lang="ru_RU">
+				<seg>Веб-сайт</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.week">
 			<tuv xml:lang="ru_RU">
 				<seg>неделя</seg>
@@ -1833,11 +1853,6 @@
 				<seg>Страна</seg>
 			</tuv>
 		</tu>
-		<tu tuid="contact_org.name">
-			<tuv xml:lang="ru_RU">
-				<seg>Компания</seg>
-			</tuv>
-		</tu>
 		<tu tuid="contact_org.phone">
 			<tuv xml:lang="ru_RU">
 				<seg>Телефон</seg>
@@ -1858,19 +1873,9 @@
 				<seg>Улица</seg>
 			</tuv>
 		</tu>
-		<tu tuid="contact_org.website">
-			<tuv xml:lang="ru_RU">
-				<seg>Веб-сайт</seg>
-			</tuv>
-		</tu>
 		<tu tuid="core.menu.activity">
 			<tuv xml:lang="ru_RU">
 				<seg>Активность</seg>
-			</tuv>
-		</tu>
-		<tu tuid="core.menu.address_book">
-			<tuv xml:lang="ru_RU">
-				<seg>Адресная книга</seg>
 			</tuv>
 		</tu>
 		<tu tuid="crm.common.opportunity">
@@ -2059,21 +2064,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="dao.confirmation_code.namespace_key">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.contact_person.auth_password">
-			<tuv xml:lang="ru_RU">
-				<seg>Пароль</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.contact_person.auth_salt">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.contact_person.last_login">
 			<tuv xml:lang="ru_RU">
 				<seg/>
 			</tuv>
@@ -3951,11 +3941,6 @@
 		<tu tuid="preferences.account.current">
 			<tuv xml:lang="ru_RU">
 				<seg>Текущий:</seg>
-			</tuv>
-		</tu>
-		<tu tuid="preferences.account.email">
-			<tuv xml:lang="ru_RU">
-				<seg>Адреса электронной почты</seg>
 			</tuv>
 		</tu>
 		<tu tuid="preferences.account.email.address">

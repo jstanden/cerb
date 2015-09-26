@@ -41,7 +41,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			'postal' => $translate->_('contact_org.postal'),
 			'country' => $translate->_('contact_org.country'),
 			'phone' => $translate->_('contact_org.phone'),
-			'website' => $translate->_('contact_org.website'),
+			'website' => $translate->_('common.website'),
 			'created' => $translate->_('common.created'),
 			'updated' => $translate->_('common.updated'),
 		);
@@ -618,7 +618,7 @@ class SearchFields_ContactOrg {
 			self::POSTAL => new DevblocksSearchField(self::POSTAL, 'c', 'postal', $translate->_('contact_org.postal'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::COUNTRY => new DevblocksSearchField(self::COUNTRY, 'c', 'country', $translate->_('contact_org.country'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::PHONE => new DevblocksSearchField(self::PHONE, 'c', 'phone', $translate->_('contact_org.phone'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::WEBSITE => new DevblocksSearchField(self::WEBSITE, 'c', 'website', $translate->_('contact_org.website'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::WEBSITE => new DevblocksSearchField(self::WEBSITE, 'c', 'website', $translate->_('common.website'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'c', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'c', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 
@@ -1432,7 +1432,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			'province' => $prefix.$translate->_('contact_org.province'),
 			'street' => $prefix.$translate->_('contact_org.street'),
 			'updated' => $prefix.$translate->_('common.updated'),
-			'website' => $prefix.$translate->_('contact_org.website'),
+			'website' => $prefix.$translate->_('common.website'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		

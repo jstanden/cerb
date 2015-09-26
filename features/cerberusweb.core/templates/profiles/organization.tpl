@@ -45,7 +45,7 @@
 <div style="clear:both;padding-top:5px;"></div>
 
 <fieldset class="properties">
-	<legend>{'contact_org.name'|devblocks_translate|capitalize}</legend>
+	<legend>{'common.organization'|devblocks_translate|capitalize}</legend>
 	
 	<div style="margin-left:15px;">
 

@@ -112,7 +112,7 @@
 		
 		{if 1}
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top">{'contact_org.name'|devblocks_translate|capitalize}:</td>
+			<td width="0%" nowrap="nowrap" valign="top">{'common.organization'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
 				<input type="text" name="do_org" value="" style="width:98%;">
 			</td>

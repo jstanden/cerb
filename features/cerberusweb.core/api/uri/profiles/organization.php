@@ -82,7 +82,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		if(!empty($contact->website))
 			$properties['website'] = array(
-				'label' => ucfirst($translate->_('contact_org.website')),
+				'label' => ucfirst($translate->_('common.website')),
 				'type' => Model_CustomField::TYPE_URL,
 				'value' => $contact->website,
 			);
