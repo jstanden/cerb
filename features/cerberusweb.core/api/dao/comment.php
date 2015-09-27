@@ -1325,7 +1325,7 @@ class Context_Comment extends Extension_DevblocksContext {
 				
 			case 'record_watchers':
 			case 'record_watchers_emails':
-				$watchers = CerberusContexts::getWatchers($dictionary['context'], $dictionary['context_id']);;
+				$watchers = CerberusContexts::getWatchers($dictionary['context'], $dictionary['context_id']);
 				
 				$watchers_list = array();
 				

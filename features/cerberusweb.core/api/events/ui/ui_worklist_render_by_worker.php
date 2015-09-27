@@ -36,7 +36,7 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 		
 		if(is_array($macros))
 		foreach($macros as $macro) {
-			$new_actions = array();;
+			$new_actions = array();
 			Event_UiWorklistRenderByWorker::trigger($macro->id, $context, $view_id, $new_actions);
 			
 			if(!empty($new_actions)) {

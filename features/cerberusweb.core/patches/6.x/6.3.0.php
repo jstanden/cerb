@@ -112,7 +112,7 @@ if(!isset($columns['guid'])) {
 }
 
 if($columns['guid']['type'] == 'varchar(64)') {
-	$db->ExecuteMaster("ALTER TABLE attachment_link DROP INDEX guid, MODIFY COLUMN guid char(36) NOT NULL DEFAULT '', ADD INDEX guid (guid(3))");;
+	$db->ExecuteMaster("ALTER TABLE attachment_link DROP INDEX guid, MODIFY COLUMN guid char(36) NOT NULL DEFAULT '', ADD INDEX guid (guid(3))");
 }
 
 // ===========================================================================

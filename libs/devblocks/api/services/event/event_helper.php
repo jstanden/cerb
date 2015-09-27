@@ -3265,7 +3265,7 @@ class DevblocksEventHelper {
 				$out .= ">>> On:\n";
 				
 				foreach($on_objects as $on_object) {
-					$on_object_context = Extension_DevblocksContext::get($on_object->_context);;
+					$on_object_context = Extension_DevblocksContext::get($on_object->_context);
 					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";
 				}
 				$out .= "\n";

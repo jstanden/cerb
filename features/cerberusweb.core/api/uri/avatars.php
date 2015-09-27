@@ -56,6 +56,8 @@ class Controller_Avatars extends DevblocksControllerExtension {
 			// [TODO] If enabled
 			if(false == ($this->_fetchGravatarImage($avatar_context_mft->id, $avatar_context_id)))
 				$this->_renderDefaultAvatar($avatar_context_mft->id, $avatar_context_id);
+			
+			return;
 		}
 		
 		$this->_renderAvatar($avatar);

@@ -994,7 +994,7 @@ class ChContactsPage extends CerberusPageExtension {
 			);
 			
 			if($id==0) {
-				$fields = $fields + array(DAO_Address::EMAIL => $email);
+				$fields[DAO_Address::EMAIL] = $email;
 				
 				if(false == ($id = DAO_Address::create($fields)))
 					return false;

@@ -430,7 +430,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				break;
 		}
 		
-		return ($not) ? !$pass : $pass;;
+		return ($not) ? !$pass : $pass;
 	}
 	
 	/**
