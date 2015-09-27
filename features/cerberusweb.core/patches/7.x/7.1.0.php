@@ -30,24 +30,6 @@ if(!isset($tables['context_avatar'])) {
 }
 
 // ===========================================================================
-// Fix the arbitrary name length restrictions on the `address` table
-
-if(!isset($tables['address'])) {
-	$logger->error("The 'address' table does not exist.");
-	return FALSE;
-}
-
-list($columns, $indexes) = $db->metaTable('address');
-
-if(isset($columns['first_name']) && 0 != strcasecmp('varchar(128)', $columns['first_name']['type'])) {
-	$db->ExecuteMaster("ALTER TABLE address MODIFY COLUMN first_name varchar(128) not null default ''");
-}
-
-if(isset($columns['last_name']) && 0 != strcasecmp('varchar(128)', $columns['last_name']['type'])) {
-	$db->ExecuteMaster("ALTER TABLE address MODIFY COLUMN last_name varchar(128) not null default ''");
-}
-
-// ===========================================================================
 // Fix the arbitrary name length restrictions on the `worker` table
 
 if(!isset($tables['worker'])) {
@@ -99,6 +81,51 @@ list($columns, $indexes) = $db->metaTable('bucket');
 
 if(isset($columns['name']) && 0 != strcasecmp('varchar(255)', $columns['name']['type'])) {
 	$db->ExecuteMaster("ALTER TABLE bucket MODIFY COLUMN name varchar(255) not null default ''");
+}
+
+// ===========================================================================
+// ===========================================================================
+// Alter `address` (drop first_name, last_name, contact_person)
+
+if(!isset($tables['address'])) {
+	$logger->error("The 'address' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('address');
+
+$changes = array();
+
+if(isset($columns['first_name']))
+	$changes[] = "DROP COLUMN first_name";
+if(isset($columns['last_name']))
+	$changes[] = "DROP COLUMN last_name";
+if(isset($columns['contact_person_id']))
+	$changes[] = "DROP COLUMN contact_person_id";
+
+if(!empty($changes)) {
+	$sql = "ALTER TABLE address " . implode(', ', $changes);
+	$db->ExecuteMaster($sql);
+}
+
+// ===========================================================================
+// Drop 'contact_person'
+
+if(isset($tables['contact_person'])) {
+	$sql = "DROP TABLE contact_person";
+	$db->Execute($sql);
+	
+	unset($tables['contact_person']);
+}
+
+// ===========================================================================
+// Drop 'openid_to_contact_person'
+
+if(isset($tables['openid_to_contact_person'])) {
+	$sql = "DROP TABLE openid_to_contact_person";
+	$db->Execute($sql);
+	
+	unset($tables['openid_to_contact_person']);
 }
 
 // ===========================================================================

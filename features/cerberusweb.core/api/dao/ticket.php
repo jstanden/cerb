@@ -972,7 +972,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$addresses = array();
 		
-		$sql = sprintf("SELECT a.id , a.email, a.first_name, a.last_name, a.is_banned, a.is_defunct ".
+		$sql = sprintf("SELECT a.id , a.email, a.is_banned, a.is_defunct ".
 			"FROM address a ".
 			"INNER JOIN requester r ON (r.ticket_id = %d AND a.id=r.address_id) ".
 			"ORDER BY a.email ASC ",
@@ -984,8 +984,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$address = new Model_Address();
 			$address->id = intval($row['id']);
 			$address->email = $row['email'];
-			$address->first_name = $row['first_name'];
-			$address->last_name = $row['last_name'];
 			$address->is_banned = intval($row['is_banned']);
 			$address->is_defunct = intval($row['is_defunct']);
 			$addresses[$address->id] = $address;
@@ -1392,13 +1390,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			"t.first_outgoing_message_id as %s, ".
 			"t.last_message_id as %s, ".
 			"a1.email as %s, ".
-			"a1.first_name as %s, ".
-			"a1.last_name as %s, ".
 			"a1.num_spam as %s, ".
 			"a1.num_nonspam as %s, ".
 			"a2.email as %s, ".
-			"a2.first_name as %s, ".
-			"a2.last_name as %s, ".
 			"a1.contact_org_id as %s, ".
 			"t.created_date as %s, ".
 			"t.updated_date as %s, ".
@@ -1427,13 +1421,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				SearchFields_Ticket::TICKET_FIRST_OUTGOING_MESSAGE_ID,
 				SearchFields_Ticket::TICKET_LAST_MESSAGE_ID,
 				SearchFields_Ticket::TICKET_FIRST_WROTE,
-				SearchFields_Ticket::TICKET_FIRST_WROTE_FIRST_NAME,
-				SearchFields_Ticket::TICKET_FIRST_WROTE_LAST_NAME,
 				SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM,
 				SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM,
 				SearchFields_Ticket::TICKET_LAST_WROTE,
-				SearchFields_Ticket::TICKET_LAST_WROTE_FIRST_NAME,
-				SearchFields_Ticket::TICKET_LAST_WROTE_LAST_NAME,
 				SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,
 				SearchFields_Ticket::TICKET_CREATED_DATE,
 				SearchFields_Ticket::TICKET_UPDATED_DATE,
@@ -2011,15 +2001,11 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_LAST_MESSAGE_ID = 't_last_message_id';
 	const TICKET_FIRST_WROTE_ID = 't_first_wrote_address_id';
 	const TICKET_FIRST_WROTE = 't_first_wrote';
-	const TICKET_FIRST_WROTE_FIRST_NAME = 'a1_first_name';
-	const TICKET_FIRST_WROTE_LAST_NAME = 'a1_last_name';
 	const TICKET_FIRST_WROTE_SPAM = 't_first_wrote_spam';
 	const TICKET_FIRST_WROTE_NONSPAM = 't_first_wrote_nonspam';
 	const TICKET_FIRST_CONTACT_ORG_ID = 't_first_contact_org_id';
 	const TICKET_LAST_WROTE_ID = 't_last_wrote_address_id';
 	const TICKET_LAST_WROTE = 't_last_wrote';
-	const TICKET_LAST_WROTE_FIRST_NAME = 'a2_first_name';
-	const TICKET_LAST_WROTE_LAST_NAME = 'a2_last_name';
 	const TICKET_CREATED_DATE = 't_created_date';
 	const TICKET_UPDATED_DATE = 't_updated_date';
 	const TICKET_CLOSED_AT = 't_closed_at';
@@ -2097,15 +2083,11 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			
 			SearchFields_Ticket::TICKET_FIRST_WROTE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE_ID, 't', 'first_wrote_address_id'),
 			SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE, 'a1', 'email',$translate->_('ticket.first_wrote'), Model_CustomField::TYPE_SINGLE_LINE),
-			SearchFields_Ticket::TICKET_FIRST_WROTE_FIRST_NAME => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE_FIRST_NAME, 'a1', 'first_name', $translate->_('ticket.first_wrote') . ' First Name'),
-			SearchFields_Ticket::TICKET_FIRST_WROTE_LAST_NAME => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE_LAST_NAME, 'a1', 'last_name', $translate->_('ticket.first_wrote') . ' Last Name'),
 			SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM, 'a1', 'num_spam',$translate->_('address.num_spam'), Model_CustomField::TYPE_NUMBER),
 			SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM, 'a1', 'num_nonspam',$translate->_('address.num_nonspam'), Model_CustomField::TYPE_NUMBER),
 				
 			SearchFields_Ticket::TICKET_LAST_WROTE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WROTE_ID, 't', 'last_wrote_address_id'),
 			SearchFields_Ticket::TICKET_LAST_WROTE => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WROTE, 'a2', 'email',$translate->_('ticket.last_wrote'), Model_CustomField::TYPE_SINGLE_LINE),
-			SearchFields_Ticket::TICKET_LAST_WROTE_FIRST_NAME => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WROTE_FIRST_NAME, 'a2', 'first_name', $translate->_('ticket.last_wrote') . ' First Name'),
-			SearchFields_Ticket::TICKET_LAST_WROTE_LAST_NAME => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WROTE_LAST_NAME, 'a2', 'last_name', $translate->_('ticket.last_wrote') . ' Last Name'),
 				
 			SearchFields_Ticket::ORG_NAME => new DevblocksSearchField(SearchFields_Ticket::ORG_NAME, 'o', 'name', $translate->_('common.organization'), Model_CustomField::TYPE_SINGLE_LINE),
 			SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchField(SearchFields_Ticket::REQUESTER_ADDRESS, 'ra', 'email',$translate->_('ticket.requester'), Model_CustomField::TYPE_SINGLE_LINE),
@@ -2374,12 +2356,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				// DAO
 				case SearchFields_Ticket::ORG_NAME:
 				case SearchFields_Ticket::TICKET_FIRST_WROTE:
-				case SearchFields_Ticket::TICKET_FIRST_WROTE_FIRST_NAME:
-				case SearchFields_Ticket::TICKET_FIRST_WROTE_LAST_NAME:
 				case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
 				case SearchFields_Ticket::TICKET_LAST_WROTE:
-				case SearchFields_Ticket::TICKET_LAST_WROTE_FIRST_NAME:
-				case SearchFields_Ticket::TICKET_LAST_WROTE_LAST_NAME:
 				case SearchFields_Ticket::TICKET_SPAM_TRAINING:
 				case SearchFields_Ticket::TICKET_SUBJECT:
 				case SearchFields_Ticket::TICKET_GROUP_ID:
@@ -2423,11 +2401,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		switch($column) {
 			case SearchFields_Ticket::ORG_NAME:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE:
-			case SearchFields_Ticket::TICKET_FIRST_WROTE_FIRST_NAME:
-			case SearchFields_Ticket::TICKET_FIRST_WROTE_LAST_NAME:
 			case SearchFields_Ticket::TICKET_LAST_WROTE:
-			case SearchFields_Ticket::TICKET_LAST_WROTE_FIRST_NAME:
-			case SearchFields_Ticket::TICKET_LAST_WROTE_LAST_NAME:
 			case SearchFields_Ticket::TICKET_SUBJECT:
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_Ticket', $column);
 				break;
@@ -2870,16 +2844,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_FIRST_WROTE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
-				),
-			'sender.firstName' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Ticket::TICKET_FIRST_WROTE_FIRST_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
-				),
-			'sender.lastName' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Ticket::TICKET_FIRST_WROTE_LAST_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
 			'sender.nonspam' =>
 				array(
@@ -3351,11 +3315,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_MASK:
 			case SearchFields_Ticket::TICKET_SUBJECT:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE:
-			case SearchFields_Ticket::TICKET_FIRST_WROTE_FIRST_NAME:
-			case SearchFields_Ticket::TICKET_FIRST_WROTE_LAST_NAME:
 			case SearchFields_Ticket::TICKET_LAST_WROTE:
-			case SearchFields_Ticket::TICKET_LAST_WROTE_FIRST_NAME:
-			case SearchFields_Ticket::TICKET_LAST_WROTE_LAST_NAME:
 			case SearchFields_Ticket::REQUESTER_ADDRESS:
 			case SearchFields_Ticket::TICKET_INTERESTING_WORDS:
 			case SearchFields_Ticket::ORG_NAME:
@@ -3801,11 +3761,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_MASK:
 			case SearchFields_Ticket::TICKET_SUBJECT:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE:
-			case SearchFields_Ticket::TICKET_FIRST_WROTE_FIRST_NAME:
-			case SearchFields_Ticket::TICKET_FIRST_WROTE_LAST_NAME:
 			case SearchFields_Ticket::TICKET_LAST_WROTE:
-			case SearchFields_Ticket::TICKET_LAST_WROTE_FIRST_NAME:
-			case SearchFields_Ticket::TICKET_LAST_WROTE_LAST_NAME:
 			case SearchFields_Ticket::REQUESTER_ADDRESS:
 			case SearchFields_Ticket::TICKET_INTERESTING_WORDS:
 			case SearchFields_Ticket::ORG_NAME:
@@ -4565,9 +4521,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				$merge_token_labels,
 				$merge_token_values,
 				array(
-					"#^address_first_name$#",
-					"#^address_full_name$#",
-					"#^address_last_name$#",
 					"#^address_org_#",
 				)
 			);
@@ -4665,9 +4618,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				foreach($reqs as $req) { /* @var $req Model_Address */
 					$values['requesters'][$req->id] = array(
 						'email' => $req->email,
-						'first_name' => $req->first_name,
-						'last_name' => $req->last_name,
-						'full_name' => $req->getName(),
 						'org_id' => $req->contact_org_id,
 					);
 				}

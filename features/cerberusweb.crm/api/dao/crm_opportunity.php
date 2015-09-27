@@ -304,8 +304,6 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			"org.name as %s, ".
 			"o.primary_email_id as %s, ".
 			"a.email as %s, ".
-			"a.first_name as %s, ".
-			"a.last_name as %s, ".
 			"a.num_spam as %s, ".
 			"a.num_nonspam as %s, ".
 			"o.created_date as %s, ".
@@ -320,8 +318,6 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 				SearchFields_CrmOpportunity::ORG_NAME,
 				SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
 				SearchFields_CrmOpportunity::EMAIL_ADDRESS,
-				SearchFields_CrmOpportunity::EMAIL_FIRST_NAME,
-				SearchFields_CrmOpportunity::EMAIL_LAST_NAME,
 				SearchFields_CrmOpportunity::EMAIL_NUM_SPAM,
 				SearchFields_CrmOpportunity::EMAIL_NUM_NONSPAM,
 				SearchFields_CrmOpportunity::CREATED_DATE,
@@ -521,9 +517,7 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 	const ORG_NAME = 'org_name';
 
 	const EMAIL_ADDRESS = 'a_email';
-	const EMAIL_FIRST_NAME = 'a_first_name';
 	const EMAIL_IS_DEFUNCT = 'a_is_defunct';
-	const EMAIL_LAST_NAME = 'a_last_name';
 	const EMAIL_NUM_SPAM = 'a_num_spam';
 	const EMAIL_NUM_NONSPAM = 'a_num_nonspam';
 
@@ -551,8 +545,6 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 			self::PRIMARY_EMAIL_ID => new DevblocksSearchField(self::PRIMARY_EMAIL_ID, 'o', 'primary_email_id', $translate->_('crm.opportunity.primary_email_id')),
 			self::EMAIL_ADDRESS => new DevblocksSearchField(self::EMAIL_ADDRESS, 'a', 'email', $translate->_('crm.opportunity.email_address'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::EMAIL_IS_DEFUNCT => new DevblocksSearchField(self::EMAIL_IS_DEFUNCT, 'a', 'is_defunct', $translate->_('address.is_defunct'), Model_CustomField::TYPE_CHECKBOX),
-			self::EMAIL_FIRST_NAME => new DevblocksSearchField(self::EMAIL_FIRST_NAME, 'a', 'first_name', $translate->_('address.first_name'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::EMAIL_LAST_NAME => new DevblocksSearchField(self::EMAIL_LAST_NAME, 'a', 'last_name', $translate->_('address.last_name'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::EMAIL_NUM_SPAM => new DevblocksSearchField(self::EMAIL_NUM_SPAM, 'a', 'num_spam', $translate->_('address.num_spam'), Model_CustomField::TYPE_NUMBER),
 			self::EMAIL_NUM_NONSPAM => new DevblocksSearchField(self::EMAIL_NUM_NONSPAM, 'a', 'num_nonspam', $translate->_('address.num_nonspam'), Model_CustomField::TYPE_NUMBER),
 			
@@ -688,8 +680,6 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				// Strings
 				case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
 				case SearchFields_CrmOpportunity::EMAIL_IS_DEFUNCT:
-				case SearchFields_CrmOpportunity::EMAIL_FIRST_NAME:
-				case SearchFields_CrmOpportunity::EMAIL_LAST_NAME:
 				case SearchFields_CrmOpportunity::IS_CLOSED:
 				case SearchFields_CrmOpportunity::IS_WON:
 				case SearchFields_CrmOpportunity::ORG_NAME:
@@ -725,8 +715,6 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		
 		switch($column) {
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
-			case SearchFields_CrmOpportunity::EMAIL_FIRST_NAME:
-			case SearchFields_CrmOpportunity::EMAIL_LAST_NAME:
 			case SearchFields_CrmOpportunity::ORG_NAME:
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_CrmOpportunity', $column);
 				break;
@@ -793,20 +781,10 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CrmOpportunity::EMAIL_ADDRESS, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
-			'email.firstName' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_CrmOpportunity::EMAIL_FIRST_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
-				),
 			'email.isDefunct' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_CrmOpportunity::EMAIL_IS_DEFUNCT),
-				),
-			'email.lastName' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_CrmOpportunity::EMAIL_LAST_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
 			'email.nonspam' => 
 				array(
@@ -950,8 +928,6 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			case SearchFields_CrmOpportunity::NAME:
 			case SearchFields_CrmOpportunity::ORG_NAME:
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
-			case SearchFields_CrmOpportunity::EMAIL_FIRST_NAME:
-			case SearchFields_CrmOpportunity::EMAIL_LAST_NAME:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
@@ -1030,8 +1006,6 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			case SearchFields_CrmOpportunity::NAME:
 			case SearchFields_CrmOpportunity::ORG_NAME:
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
-			case SearchFields_CrmOpportunity::EMAIL_FIRST_NAME:
-			case SearchFields_CrmOpportunity::EMAIL_LAST_NAME:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				

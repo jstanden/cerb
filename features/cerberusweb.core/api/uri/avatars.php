@@ -151,7 +151,6 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
 				break;
 				
-			case CerberusContexts::CONTEXT_CONTACT_PERSON:
 			case CerberusContexts::CONTEXT_WORKER:
 				$n = mt_rand(1, 4);
 				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));

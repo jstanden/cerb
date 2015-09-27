@@ -18,9 +18,6 @@
 class DAO_Address extends Cerb_ORMHelper {
 	const ID = 'id';
 	const EMAIL = 'email';
-	const FIRST_NAME = 'first_name';
-	const LAST_NAME = 'last_name';
-	const CONTACT_PERSON_ID = 'contact_person_id';
 	const CONTACT_ORG_ID = 'contact_org_id';
 	const NUM_SPAM = 'num_spam';
 	const NUM_NONSPAM = 'num_nonspam';
@@ -36,9 +33,6 @@ class DAO_Address extends Cerb_ORMHelper {
 		return array(
 			'id' => $translate->_('common.id'),
 			'email' => $translate->_('common.email'),
-			'first_name' => $translate->_('address.first_name'),
-			'last_name' => $translate->_('address.last_name'),
-			'contact_person_id' => $translate->_('address.contact_person_id'),
 			'contact_org_id' => $translate->_('address.contact_org_id'),
 			'num_spam' => $translate->_('address.num_spam'),
 			'num_nonspam' => $translate->_('address.num_nonspam'),
@@ -80,8 +74,6 @@ class DAO_Address extends Cerb_ORMHelper {
 			
 		// Make sure the address doesn't exist already
 		if(null == ($check = self::getByEmail($full_address))) {
-			$sql = sprintf("INSERT INTO address (email,first_name,last_name,contact_person_id,contact_org_id,num_spam,num_nonspam,is_banned,is_defunct,updated) ".
-				"VALUES (%s,'','',0,0,0,0,0,0,0)",
 				$db->qstr($full_address)
 			);
 			$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
@@ -205,7 +197,6 @@ class DAO_Address extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, email, first_name, last_name, contact_person_id, contact_org_id, num_spam, num_nonspam, is_banned, is_defunct, updated ".
 			"FROM address ".
 			$where_sql.
 			$sort_sql.
@@ -229,9 +220,6 @@ class DAO_Address extends Cerb_ORMHelper {
 			$object = new Model_Address();
 			$object->id = intval($row['id']);
 			$object->email = $row['email'];
-			$object->first_name = $row['first_name'];
-			$object->last_name = $row['last_name'];
-			$object->contact_person_id = intval($row['contact_person_id']);
 			$object->contact_org_id = intval($row['contact_org_id']);
 			$object->num_spam = intval($row['num_spam']);
 			$object->num_nonspam = intval($row['num_nonspam']);
@@ -359,9 +347,6 @@ class DAO_Address extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"a.id as %s, ".
 			"a.email as %s, ".
-			"a.first_name as %s, ".
-			"a.last_name as %s, ".
-			"a.contact_person_id as %s, ".
 			"a.contact_org_id as %s, ".
 			"o.name as %s, ".
 			"a.num_spam as %s, ".
@@ -371,9 +356,6 @@ class DAO_Address extends Cerb_ORMHelper {
 			"a.updated as %s ",
 				SearchFields_Address::ID,
 				SearchFields_Address::EMAIL,
-				SearchFields_Address::FIRST_NAME,
-				SearchFields_Address::LAST_NAME,
-				SearchFields_Address::CONTACT_PERSON_ID,
 				SearchFields_Address::CONTACT_ORG_ID,
 				SearchFields_Address::ORG_NAME,
 				SearchFields_Address::NUM_SPAM,
@@ -582,9 +564,6 @@ class SearchFields_Address implements IDevblocksSearchFields {
 	// Address
 	const ID = 'a_id';
 	const EMAIL = 'a_email';
-	const FIRST_NAME = 'a_first_name';
-	const LAST_NAME = 'a_last_name';
-	const CONTACT_PERSON_ID = 'a_contact_person_id';
 	const CONTACT_ORG_ID = 'a_contact_org_id';
 	const NUM_SPAM = 'a_num_spam';
 	const NUM_NONSPAM = 'a_num_nonspam';
@@ -616,9 +595,6 @@ class SearchFields_Address implements IDevblocksSearchFields {
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'a', 'id', $translate->_('common.id'), null),
 			self::EMAIL => new DevblocksSearchField(self::EMAIL, 'a', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'a', 'first_name', $translate->_('address.first_name'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'a', 'last_name', $translate->_('address.last_name'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::CONTACT_PERSON_ID => new DevblocksSearchField(self::NUM_SPAM, 'a', 'contact_person_id', $translate->_('address.contact_person_id'), null),
 			self::NUM_SPAM => new DevblocksSearchField(self::NUM_SPAM, 'a', 'num_spam', $translate->_('address.num_spam'), Model_CustomField::TYPE_NUMBER),
 			self::NUM_NONSPAM => new DevblocksSearchField(self::NUM_NONSPAM, 'a', 'num_nonspam', $translate->_('address.num_nonspam'), Model_CustomField::TYPE_NUMBER),
 			self::IS_BANNED => new DevblocksSearchField(self::IS_BANNED, 'a', 'is_banned', $translate->_('address.is_banned'), Model_CustomField::TYPE_CHECKBOX),
@@ -763,8 +739,6 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 				
 				$doc = array(
 					'email' => $dict->address,
-					'firstName' => $dict->first_name,
-					'lastName' => $dict->last_name,
 					'org' => $dict->org_name,
 				);
 				
@@ -796,9 +770,6 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 class Model_Address {
 	public $id;
 	public $email = '';
-	public $first_name = '';
-	public $last_name = '';
-	public $contact_person_id = 0;
 	public $contact_org_id = 0;
 	public $num_spam = 0;
 	public $num_nonspam = 0;
@@ -809,11 +780,6 @@ class Model_Address {
 	function Model_Address() {}
 	
 	function getName() {
-		return sprintf("%s%s%s",
-			$this->first_name,
-			(!empty($this->first_name) && !empty($this->last_name)) ? " " : "",
-			$this->last_name
-		);
 	}
 	
 	function getNameWithEmail() {
@@ -845,15 +811,12 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_Address::FIRST_NAME,
-			SearchFields_Address::LAST_NAME,
 			SearchFields_Address::ORG_NAME,
 			SearchFields_Address::NUM_NONSPAM,
 			SearchFields_Address::NUM_SPAM,
 		);
 		
 		$this->addColumnsHidden(array(
-			SearchFields_Address::CONTACT_PERSON_ID,
 			SearchFields_Address::CONTACT_ORG_ID,
 			SearchFields_Address::CONTEXT_LINK,
 			SearchFields_Address::CONTEXT_LINK_ID,
@@ -865,7 +828,6 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		));
 		
 		$this->addParamsHidden(array(
-			SearchFields_Address::CONTACT_PERSON_ID,
 			SearchFields_Address::CONTACT_ORG_ID,
 			SearchFields_Address::ID,
 			SearchFields_Address::CONTEXT_LINK,
@@ -904,10 +866,8 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 			$pass = false;
 			
 			switch($field_key) {
-				case SearchFields_Address::FIRST_NAME:
 				case SearchFields_Address::IS_BANNED:
 				case SearchFields_Address::IS_DEFUNCT:
-				case SearchFields_Address::LAST_NAME:
 				case SearchFields_Address::ORG_NAME:
 					$pass = true;
 					break;
@@ -947,8 +907,6 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Address::ORG_NAME:
-			case SearchFields_Address::FIRST_NAME:
-			case SearchFields_Address::LAST_NAME:
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_Address', $column);
 				break;
 				
@@ -995,10 +953,8 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Address::EMAIL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
-			'firstName' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Address::FIRST_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
 			'id' =>
 				array(
@@ -1014,11 +970,6 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_Address::IS_DEFUNCT),
-				),
-			'lastName' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Address::LAST_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
 			'nonspam' =>
 				array(
@@ -1140,8 +1091,6 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 		switch($field) {
 			case SearchFields_Address::EMAIL:
-			case SearchFields_Address::FIRST_NAME:
-			case SearchFields_Address::LAST_NAME:
 			case SearchFields_Address::ORG_NAME:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
@@ -1233,8 +1182,6 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 		switch($field) {
 			case SearchFields_Address::EMAIL:
-			case SearchFields_Address::FIRST_NAME:
-			case SearchFields_Address::LAST_NAME:
 			case SearchFields_Address::ORG_NAME:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
@@ -1626,7 +1573,6 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['num_spam'] = $address->num_spam;
 			$token_values['num_nonspam'] = $address->num_nonspam;
 			$token_values['is_banned'] = $address->is_banned;
-			$token_values['is_contact'] = !empty($address->contact_person_id);
 			$token_values['is_defunct'] = $address->is_defunct;
 			$token_values['updated'] = $address->updated;
 
@@ -1845,11 +1791,6 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 				'required' => true,
 				'force_match' => true,
 			),
-			'first_name' => array(
-				'label' => 'First Name',
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'param' => SearchFields_Address::FIRST_NAME,
-			),
 			'is_banned' => array(
 				'label' => 'Is Banned',
 				'type' => Model_CustomField::TYPE_CHECKBOX,
@@ -1859,11 +1800,6 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 				'label' => 'Is Defunct',
 				'type' => Model_CustomField::TYPE_CHECKBOX,
 				'param' => SearchFields_Address::IS_DEFUNCT,
-			),
-			'last_name' => array(
-				'label' => 'Last Name',
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'param' => SearchFields_Address::LAST_NAME,
 			),
 			'num_nonspam' => array(
 				'label' => '# Nonspam',

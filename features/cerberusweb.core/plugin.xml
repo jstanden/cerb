@@ -331,11 +331,6 @@
 			<class name="View_Message" />
 		</file>
 		
-		<file path="api/dao/openid_to_contact_person.php">
-			<class name="DAO_OpenIdToContactPerson" />
-			<class name="Model_OpenIdToContactPerson" />
-		</file>
-		
 		<file path="api/dao/plugin_library.php">
 			<class name="DAO_PluginLibrary" />
 			<class name="Model_PluginLibrary" />
