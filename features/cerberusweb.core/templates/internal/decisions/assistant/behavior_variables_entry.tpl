@@ -44,7 +44,7 @@
 				{if is_array($variable_values.$var_key)}
 				{foreach from=$variable_values.$var_key item=context_id}
 					{CerberusContexts::getContext($context, $context_id, $null, $var_values, true)}
-					<li>{$var_values._label}<input type="hidden" name="{$field_name}[{$var.key}][]" title="{$var_values._label}" value="{$context_id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+					<li>{$var_values._label}<input type="hidden" name="{$field_name}[{$var.key}][]" title="{$var_values._label}" value="{$context_id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 				{/foreach}
 				{/if}
 			</ul>

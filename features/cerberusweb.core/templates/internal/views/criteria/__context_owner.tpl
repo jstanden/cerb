@@ -61,7 +61,7 @@
 		{$meta = $context_ext->getMeta($context_id)}
 		<b>{$meta.name}</b> ({$context_ext->manifest->name})<!--
 		--><input type="hidden" name="owner_context[]" value="{$context}:{$context_id}"><!--
-		--><span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;" onclick="$(this).closest('li').remove();"></span>
+		--><span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest('li').remove();"></span>
 	</li>
 	{/if}
 {/foreach}
@@ -128,7 +128,7 @@ $menu.find('> li > div.item a').click(function() {
 	$bubble = $('<li></li>');
 	$bubble.append($('<input type="hidden" name="owner_context[]">').attr('value',context_pair));
 	$bubble.append(label);
-	$bubble.append('<a href="javascript:;" onclick="$li=$(this).closest(\'li\');$li.remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>');
+	$bubble.append('<a href="javascript:;" onclick="$li=$(this).closest(\'li\');$li.remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
 	
 	$bubbles.append($bubble);
 });	

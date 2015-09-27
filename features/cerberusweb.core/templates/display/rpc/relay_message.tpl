@@ -137,7 +137,7 @@ $(function() {
 			
 			var $bubble = $('<li/>').text(label);
 			$bubble.append($('<input type="hidden">').attr('name','emails[]').attr('value',email));
-			$bubble.append('<a href="javascript:;" onclick="$li=$(this).closest(\'li\');$li.remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>');
+			$bubble.append('<a href="javascript:;" onclick="$li=$(this).closest(\'li\');$li.remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
 			
 			$bubbles.append($bubble);
 		});

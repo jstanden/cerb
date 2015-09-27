@@ -6,13 +6,13 @@
 	{if !is_numeric($worker_id) && isset($values_to_contexts.$worker_id)}
 		{$var_data = $values_to_contexts.$worker_id}
 		{if !empty($var_data)}
-		<li>{$var_data.label}<input type="hidden" name="{$namePrefix}[{$param_name}][]" value="{$worker_id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+		<li>{$var_data.label}<input type="hidden" name="{$namePrefix}[{$param_name}][]" value="{$worker_id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 		{/if}
 	
 	{elseif is_numeric($worker_id) && isset($workers.$worker_id)}
 		{$context_worker = $workers.$worker_id}
 		{if !empty($context_worker)}
-		<li>{$context_worker->getName()}<input type="hidden" name="{$namePrefix}[{$param_name}][]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+		<li>{$context_worker->getName()}<input type="hidden" name="{$namePrefix}[{$param_name}][]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 		{/if}
 	{/if}
 {/foreach}
@@ -120,7 +120,7 @@ $menu.find('> li.item > a').click(function() {
 	var $bubble = $('<li></li>');
 	$bubble.append($li.find('a').text());
 	$bubble.append($('<input type="hidden">').attr('name', '{$namePrefix}[{$param_name}][]').attr('value', $key));
-	$bubble.append($('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>'));
+	$bubble.append($('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>'));
 	
 	$bubbles.append($bubble);
 });

@@ -586,7 +586,7 @@ var cAjaxCalls = function() {
 					if(0==$ul.find('input:hidden[value="'+event.values[idx]+'"]').length) {
 						var $li = $('<li/>').text(event.labels[idx]);
 						var $hidden = $('<input type="hidden">').attr('name', field_name).attr('value',event.values[idx]).appendTo($li);
-						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>').appendTo($li);; 
+						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li); 
 						
 						if(null != options.style)
 							$li.addClass(options.style);
@@ -622,7 +622,7 @@ var cAjaxCalls = function() {
 						if(0 == $ul.find('input:hidden[value="'+$value+'"]').length) {
 							var $li = $('<li/>').text($label);
 							var $hidden = $('<input type="hidden">').attr('name', field_name).attr('title', $label).attr('value', $value).appendTo($li);
-							var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>').appendTo($li);
+							var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>').appendTo($li);
 							$ul.append($li);
 						}
 					}
@@ -720,7 +720,7 @@ var cAjaxCalls = function() {
 					if(0==$ul.find('input:hidden[value="'+event.values[idx]+'"]').length) {
 						var $li = $('<li/>').text(event.labels[idx]);
 						var $hidden = $('<input type="hidden">').attr('name', field_name + (options.single ? '' : '[]')).attr('value', event.values[idx]).appendTo($li);
-						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>').appendTo($li);
+						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
 						
 						if(null != options.style)
 							$li.addClass(options.style);

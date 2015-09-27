@@ -38,7 +38,7 @@
 	{foreach from=$filter_group_ids item=filter_group_id}
 	{$filter_group = $groups.{$filter_group_id}}
 	{if !empty($filter_group)}
-	<li>{$filter_group->name}<input type="hidden" name="group_id[]" value="{$filter_group->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+	<li>{$filter_group->name}<input type="hidden" name="group_id[]" value="{$filter_group->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 	{/if}
 	{/foreach}
 </ul>

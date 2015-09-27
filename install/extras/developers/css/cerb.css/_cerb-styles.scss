@@ -947,11 +947,12 @@ UL.bubbles {
 
 	LI {
 		display:inline-block;
+		position: relative;
 		list-style-type:none;
 		list-style:none;
 		line-height:1.9em;
 		white-space:nowrap;
-		padding:0 0.2em 0 0.2em;
+		padding:0 0.5em;
 		margin:2px;
 		color:rgb(50,115,185);
 		border:1px solid rgb(197,219,236);
@@ -977,6 +978,40 @@ UL.bubbles {
 			
 			A {
 				color:rgb(0,0,0);
+			}
+		}
+	}
+	
+	&.chooser-container {
+		LI {
+			color: rgb(100,100,100);
+			border-color: rgb(215,215,215);
+			background: none;
+		
+			A {
+				color: rgb(100,100,100);
+			}
+			
+			IMG.cerb-avatar {
+				height:16px;
+				width:16px;
+				margin-right:3px;
+				border-radius:2px;
+				vertical-align:middle;
+			}
+			
+			.glyphicons-circle-remove {
+				cursor: pointer;
+				position: absolute;
+				top: -0.5em;
+				right: -0.5em;
+				visibility: hidden;
+			}
+			
+			&:hover {
+				.glyphicons-circle-remove {
+					visibility: visible;
+				}
 			}
 		}
 	}

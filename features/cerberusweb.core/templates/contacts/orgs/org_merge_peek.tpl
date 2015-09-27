@@ -13,7 +13,7 @@
 <li>
 	<input type="hidden" name="org_id[]" value="{$merge_org_id}">
 	{$merge_org->name}
-	<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>
+	<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
 </li>
 {/foreach}
 {/if}

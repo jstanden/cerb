@@ -983,11 +983,12 @@ UL.bubbles {
 }
 UL.bubbles LI {
   display: inline-block;
+  position: relative;
   list-style-type: none;
   list-style: none;
   line-height: 1.9em;
   white-space: nowrap;
-  padding: 0 0.2em 0 0.2em;
+  padding: 0 0.5em;
   margin: 2px;
   color: #3273b9;
   border: 1px solid #c5dbec;
@@ -1021,6 +1022,31 @@ UL.bubbles LI.bubble-gray {
 }
 UL.bubbles LI.bubble-gray A {
   color: black;
+}
+UL.bubbles.chooser-container LI {
+  color: #646464;
+  border-color: #d7d7d7;
+  background: none;
+}
+UL.bubbles.chooser-container LI A {
+  color: #646464;
+}
+UL.bubbles.chooser-container LI IMG.cerb-avatar {
+  height: 16px;
+  width: 16px;
+  margin-right: 3px;
+  border-radius: 2px;
+  vertical-align: middle;
+}
+UL.bubbles.chooser-container LI .glyphicons-circle-remove {
+  cursor: pointer;
+  position: absolute;
+  top: -0.5em;
+  right: -0.5em;
+  visibility: hidden;
+}
+UL.bubbles.chooser-container LI:hover .glyphicons-circle-remove {
+  visibility: visible;
 }
 
 DIV.badge {
