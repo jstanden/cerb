@@ -188,13 +188,13 @@
 			<class name="SearchFields_ConfirmationCode" />
 		</file>
 		
-		<file path="api/dao/contact_person.php">
-			<class name="Context_ContactPerson" />
-			<class name="DAO_ContactPerson" />
-			<class name="Model_ContactPerson" />
+		<file path="api/dao/contact.php">
+			<class name="Context_Contact" />
+			<class name="DAO_Contact" />
+			<class name="Model_Contact" />
 			<class name="Search_Contact" />
-			<class name="SearchFields_ContactPerson" />
-			<class name="View_ContactPerson" />
+			<class name="SearchFields_Contact" />
+			<class name="View_Contact" />
 		</file>
 		
 		<file path="api/dao/contact_org.php">
@@ -1028,27 +1028,26 @@
 		</extension>
 		
 		<extension point="devblocks.context">
-			<id>cerberusweb.contexts.contact_person</id>
-			<name>Contact Person</name>
+			<id>cerberusweb.contexts.contact</id>
+			<name>Contact</name>
 			<class>
-				<file>api/dao/contact_person.php</file>
-				<name>Context_ContactPerson</name>
+				<file>api/dao/contact.php</file>
+				<name>Context_Contact</name>
 			</class>
 			<params>
-				<param key="alias" value="person" />
-				<param key="dao_class" value="DAO_ContactPerson" />
-				<param key="view_class" value="View_ContactPerson" />
+				<param key="alias" value="contact" />
+				<param key="dao_class" value="DAO_Contact" />
+				<param key="view_class" value="View_Contact" />
 				<param key="options">
 					<value>
-						<data key="custom_fields" />
 						<data key="create" />
+						<data key="custom_fields" />
 						<data key="find" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
 				</param>
-				<param key="context_expand_export" value="email_" />
 			</params>
 		</extension>
 		
@@ -2697,7 +2696,7 @@
 			<id>cerb.search.schema.contact</id>
 			<name>Contacts</name>
 			<class>
-				<file>api/dao/contact_person.php</file>
+				<file>api/dao/contact.php</file>
 				<name>Search_Contact</name>
 			</class>
 			<params>
@@ -3458,18 +3457,18 @@
 			</extension>
 
 			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.profiles.contact_person</id>
-				<name>Contact Person Section</name>
+				<id>core.page.profiles.contact</id>
+				<name>Contact Section</name>
 				<class>
-					<file>api/uri/profiles/contact_person.php</file>
-					<name>PageSection_ProfilesContactPerson</name>
+					<file>api/uri/profiles/contact.php</file>
+					<name>PageSection_ProfilesContact</name>
 				</class>
 				<params>
 					<param key="page_id" value="core.page.profiles" />
-					<param key="uri" value="contact_person" />
+					<param key="uri" value="contact" />
 				</params>
 			</extension>
-			
+
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.file_bundle</id>
 				<name>File Bundle Section</name>

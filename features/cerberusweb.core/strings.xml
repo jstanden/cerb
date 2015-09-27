@@ -372,6 +372,16 @@
 				<seg>comments</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.contact">
+			<tuv xml:lang="en_US">
+				<seg>contact</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.contacts">
+			<tuv xml:lang="en_US">
+				<seg>contacts</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.content">
 			<tuv xml:lang="en_US">
 				<seg>Content</seg>
@@ -470,6 +480,16 @@
 		<tu tuid="common.discussion">
 			<tuv xml:lang="en_US">
 				<seg>discussion</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.dob">
+			<tuv xml:lang="en_US">
+				<seg>date of birth</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.dob.abbr">
+			<tuv xml:lang="en_US">
+				<seg>D.O.B.</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.download">
@@ -580,6 +600,21 @@
 		<tu tuid="common.for">
 			<tuv xml:lang="en_US">
 				<seg>for</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.gender">
+			<tuv xml:lang="en_US">
+				<seg>gender</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.gender.female">
+			<tuv xml:lang="en_US">
+				<seg>female</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.gender.male">
+			<tuv xml:lang="en_US">
+				<seg>male</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.group">
@@ -900,6 +935,11 @@
 		<tu tuid="common.localization">
 			<tuv xml:lang="en_US">
 				<seg>Localization</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.location">
+			<tuv xml:lang="en_US">
+				<seg>location</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.next">
@@ -1303,6 +1343,11 @@
 				<seg>Undelete</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.unknown">
+			<tuv xml:lang="en_US">
+				<seg>unknown</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.update">
 			<tuv xml:lang="en_US">
 				<seg>update</seg>
@@ -1336,6 +1381,11 @@
 		<tu tuid="common.user">
 			<tuv xml:lang="en_US">
 				<seg>User</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.username">
+			<tuv xml:lang="en_US">
+				<seg>Username</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.url.record">

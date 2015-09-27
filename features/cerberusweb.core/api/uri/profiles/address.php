@@ -37,6 +37,19 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		
 		$properties = array();
 		
+		if(!empty($address->contact_id)) {
+			if(null != ($contact = $address->getContact())) {
+				$properties['contact'] = array(
+					'label' => ucfirst($translate->_('common.contact')),
+					'type' => Model_CustomField::TYPE_LINK,
+					'value' => $address->contact_id,
+					'params' => array(
+						'context' => CerberusContexts::CONTEXT_CONTACT,
+					),
+				);
+			}
+		}
+		
 		if(!empty($address->contact_org_id)) {
 			if(null != ($org = $address->getOrg())) {
 				$properties['org'] = array(

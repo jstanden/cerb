@@ -1,4 +1,4 @@
-{$view_context = CerberusContexts::CONTEXT_CONTACT_PERSON}
+{$view_context = 'cerberusweb.contexts.contact'}
 {$view_fields = $view->getColumnsAvailable()}
 {assign var=results value=$view->getData()}
 {assign var=total value=$results[1]}
@@ -10,27 +10,28 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id=0&view_id={$view->id}',null,false,'600');"><span class="glyphicons glyphicons-circle-plus"></span></a>
+			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id=0&view_id={$view->id}',null,false,'500');"><span class="glyphicons glyphicons-circle-plus"></span></a>
 			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
 			<a href="javascript:;" title="{'common.subtotals'|devblocks_translate|capitalize}" class="subtotals minimal"><span class="glyphicons glyphicons-signal"></span></a>
-			<a href="javascript:;" title="{'common.import'|devblocks_translate|capitalize}" onclick="genericAjaxPopup('import','c=internal&a=showImportPopup&context={$view_context}&view_id={$view->id}',null,false,'500');"><span class="glyphicons glyphicons-file-import"></span></a>
-			<a href="javascript:;" title="{'common.export'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-file-export"></span></a>
-			<a href="javascript:;" title="{'common.copy'|devblocks_translate|capitalize}" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-duplicate"></span></a>
+			{*<a href="javascript:;" title="{$translate->_('common.import')|capitalize}" onclick="genericAjaxPopup('import','c=internal&a=showImportPopup&context={$view_context}&view_id={$view->id}',null,false,'500');"><span class="glyphicons glyphicons-file-import"></span></a>*}
+			<a href="javascript:;" title="{$translate->_('common.export')|capitalize}" class="minimal" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-file-export"></span></a>
+			<a href="javascript:;" title="{$translate->_('common.copy')|capitalize}" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-duplicate"></span></a>
 			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="glyphicons glyphicons-refresh"></span></a>
 			<input type="checkbox" class="select-all">
 		</td>
 	</tr>
 </table>
 
-<div id="{$view->id}_tips" class="block" style="display:none;margin:10px;padding:5px;">Analyzing...</div>
+<div id="{$view->id}_tips" class="block" style="display:none;margin:10px;padding:5px;">Loading...</div>
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="context_id" value="{$view_context}">
-<input type="hidden" name="id" value="{$view->id}">
-<input type="hidden" name="c" value="contacts">
-<input type="hidden" name="a" value="">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="contact">
+<input type="hidden" name="action" value="">
 <input type="hidden" name="explore_from" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
@@ -64,7 +65,15 @@
 	</thead>
 
 	{* Column Data *}
-	{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_CONTACT_PERSON, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
+	{$object_watchers = DAO_ContextLink::getContextLinks($view_context, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
+	
+	{* Bulk lazy load orgs for this page *}
+	{$object_orgs = []}
+	{if in_array(SearchFields_CONTACT::ORG_ID, $view->view_columns)}
+		{$org_ids = DevblocksPlatform::extractArrayValues($results, 'c_org_id')}
+		{$object_orgs = DAO_ContactOrg::getIds($org_ids)}
+	{/if}
+	
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
@@ -75,40 +84,45 @@
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
-				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_CONTACT_PERSON context_id=$result.c_id}
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.c_id}
 			</td>
 			<td colspan="{$smarty.foreach.headers.total}">
+				{$full_name = "{$result.c_first_name}{if $result.c_first_name && $result.c_last_name} {/if}{$result.c_last_name}"}
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
-				
-				{if !empty($result.a_first_name) || !empty($result.a_last_name)}
-					{$display_name = ''}
-					{if !empty($result.a_first_name)}
-						{$display_name = $display_name|cat:$result.a_first_name}
-					{/if}
-					{if !empty($result.a_last_name)}
-						{if !empty($display_name)}
-							{$display_name = $display_name|cat:' '}
-						{/if}
-						{$display_name = $display_name|cat:$result.a_last_name}
-					{/if}
-				{elseif !empty($result.a_email)}
-					{$display_name = $result.a_email}
-				{else}
-					{$display_name = "Contact"}
-				{/if}
-				<a href="{devblocks_url}c=profiles&type=contact_person&id={$result.c_id}{/devblocks_url}" class="subject">{$display_name}</a>
-				
-				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.c_id}&view_id={$view->id}',null,false,'600');"><span class="glyphicons glyphicons-new-window-alt"></span></button>				
+				<a href="{devblocks_url}c=profiles&type=contact&id={$result.c_id}-{$full_name|devblocks_permalink}{/devblocks_url}" class="subject">{$full_name}</a>
+				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.c_id}"><span class="glyphicons glyphicons-new-window-alt" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
-			{elseif $column=='a_email'}
-				<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$result.a_email|escape:'url'}&view_id={$view->id}',null,false,'550');">{$result.$column}</a></td>
-			{elseif in_array($column, ["c_created", "c_last_login", "c_updated"])}
-				<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
+			{elseif $column == SearchFields_Contact::GENDER}
+			<td>
+				{if $result.$column == 'M'}
+				<span class="glyphicons glyphicons-male"></span>
+				{elseif $result.$column == 'F'}
+				<span class="glyphicons glyphicons-female"></span>
+				{else}
+				{/if}
+			</td>
+			{elseif $column == SearchFields_Contact::PRIMARY_EMAIL_ADDRESS}
+			<td>
+				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.c_primary_email_id}">{$result.$column}</a>
+			</td>
+			{elseif $column == SearchFields_Contact::ORG_ID}
+			<td>
+				{if isset($object_orgs.{$result.$column})}
+				{$org = $object_orgs.{$result.$column}}
+				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name}</a>
+				{/if}
+			</td>
+			{elseif in_array($column, ["c_created_at","c_updated_at","c_last_login_at"])}
+				<td title="{$result.$column|devblocks_date}">
+					{if !empty($result.$column)}
+						{$result.$column|devblocks_prettytime}&nbsp;
+					{/if}
+				</td>
 			{else}
 				<td>{$result.$column}</td>
 			{/if}
@@ -116,7 +130,6 @@
 		</tr>
 	</tbody>
 	{/foreach}
-	
 </table>
 
 <div style="padding-top:5px;">
@@ -133,19 +146,21 @@
 		
 		{if $view->renderPage > 0}
 			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page=0');">&lt;&lt;</a>
-			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{'common.previous_short'|devblocks_translate|capitalize}</a>
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{$translate->_('common.previous_short')|capitalize}</a>
 		{/if}
 		({'views.showing_from_to'|devblocks_translate:$fromRow:$toRow:$total})
 		{if $toRow < $total}
-			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$nextPage}');">{'common.next'|devblocks_translate|capitalize}&gt;</a>
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$nextPage}');">{$translate->_('common.next')|capitalize}&gt;</a>
 			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$lastPage}');">&gt;&gt;</a>
 		{/if}
 	</div>
 	
 	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
-		<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewPeopleExplore';this.form.submit();"><span class="glyphicons glyphicons-play-button"></span> {'common.explore'|devblocks_translate|lower}</button>
-		{if $active_worker->hasPriv('core.addybook.person.actions.update')}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=contacts&a=showPeopleBulkUpdate&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
+		<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.action.value='viewExplore';this.form.submit();"><span class="glyphicons glyphicons-play-button"></span> {'common.explore'|devblocks_translate|lower}</button>
+		{*
+		{if $active_worker->hasPriv('calls.actions.update_all')}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction§ion=contact&action=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
+		*}
 	</div>
 	{/if}
 </div>
@@ -157,17 +172,30 @@
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
 <script type="text/javascript">
-$frm = $('#viewForm{$view->id}');
+$(function() {
+var $frm = $('#viewForm{$view->id}');
+var $view = $('#view{$view->id}');
 
 {if $pref_keyboard_shortcuts}
 $frm.bind('keyboard_shortcut',function(event) {
-	//console.log("{$view->id} received " + (indirect ? 'indirect' : 'direct') + " keyboard event for: " + event.keypress_event.which);
-	
 	$view_actions = $('#{$view->id}_actions');
 	
 	hotkey_activated = true;
 
 	switch(event.keypress_event.which) {
+		{*
+		case 98: // (b) bulk update
+			$btn = $view_actions.find('button.action-bulkupdate');
+		
+			if(event.indirect) {
+				$btn.select().focus();
+				
+			} else {
+				$btn.click();
+			}
+			break;
+		*}
+		
 		case 101: // (e) explore
 			$btn = $view_actions.find('button.action-explore');
 		
@@ -188,4 +216,5 @@ $frm.bind('keyboard_shortcut',function(event) {
 		event.preventDefault();
 });
 {/if}
+});
 </script>

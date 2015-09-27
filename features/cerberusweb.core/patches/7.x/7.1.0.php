@@ -84,6 +84,77 @@ if(isset($columns['name']) && 0 != strcasecmp('varchar(255)', $columns['name']['
 }
 
 // ===========================================================================
+// Add contact_id to `address` records
+
+if(!isset($tables['address'])) {
+	$logger->error("The 'address' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('address');
+
+if(!isset($columns['contact_id'])) {
+	$db->ExecuteMaster("ALTER TABLE address ADD COLUMN contact_id int unsigned not null default 0, ADD INDEX (contact_id)");
+}
+
+// ===========================================================================
+// Add the `contact` table
+
+if(!isset($tables['contact'])) {
+	$sql = sprintf("
+		CREATE TABLE contact (
+		  id int(10) unsigned NOT NULL AUTO_INCREMENT,
+		  first_name varchar(128) NOT NULL DEFAULT '',
+		  last_name varchar(128) NOT NULL DEFAULT '',
+		  title varchar(255) NOT NULL DEFAULT '',
+		  org_id int unsigned NOT NULL DEFAULT 0,
+			username varchar(64) NOT NULL DEFAULT '',
+			gender char(1) NOT NULL DEFAULT '',
+			dob int(10) unsigned NOT NULL DEFAULT 0,
+			location varchar(255) NOT NULL DEFAULT '',
+		  primary_email_id int unsigned NOT NULL DEFAULT 0,
+		  phone varchar(64) NOT NULL DEFAULT '',
+		  mobile varchar(64) NOT NULL DEFAULT '',
+		  auth_salt varchar(64) NOT NULL DEFAULT '',
+		  auth_password varchar(64) NOT NULL DEFAULT '',
+		  created_at int unsigned NOT NULL DEFAULT 0,
+		  updated_at int unsigned NOT NULL DEFAULT 0,
+		  last_login_at int(10) unsigned NOT NULL DEFAULT 0,
+		  PRIMARY KEY (id),
+			INDEX username(username(8)),
+			INDEX (primary_email_id),
+			INDEX (org_id)
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql);
+
+	$tables['contact'] = 'contact';
+	
+	// Auto-create contacts from contact_person records
+	$sql = "INSERT INTO contact(first_name,last_name,primary_email_id,org_id,created_at,updated_at,last_login_at,auth_salt,auth_password) ".
+		"SELECT address.first_name, address.last_name, address.id, address.contact_org_id, contact_person.created, contact_person.updated, contact_person.last_login, contact_person.auth_salt, contact_person.auth_password FROM contact_person INNER JOIN address ON (address.id=contact_person.email_id)";
+	$db->ExecuteMaster($sql);
+	
+	// Auto-create contacts from address records
+	$sql = "INSERT INTO contact(first_name,last_name,primary_email_id,org_id,created_at,updated_at,last_login_at,auth_salt,auth_password) ".
+		"SELECT first_name,last_name,id,contact_org_id,updated,updated,0,'','' FROM address WHERE contact_person_id = 0 AND (first_name != '' OR last_name != '')";
+	$db->ExecuteMaster($sql);
+	
+	// Link addresses to contact records
+	$sql = "UPDATE address INNER JOIN contact ON (address.id=contact.primary_email_id) SET address.contact_id=contact.id";
+	$db->ExecuteMaster($sql);
+	
+	// Truncate fulltext_contact
+	if(isset($tables['fulltext_contact'])) {
+		$sql = "TRUNCATE fulltext_contact";
+		$db->ExecuteMaster($sql);
+		
+		// Reset index cerb.search.schema.contact (cron.search needs to reindex the new 'contact' records)
+		$sql = "DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.contact'";
+		$db->ExecuteMaster($sql);
+	}
+}
+
 // ===========================================================================
 // Alter `address` (drop first_name, last_name, contact_person)
 

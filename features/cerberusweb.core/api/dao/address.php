@@ -18,6 +18,7 @@
 class DAO_Address extends Cerb_ORMHelper {
 	const ID = 'id';
 	const EMAIL = 'email';
+	const CONTACT_ID = 'contact_id';
 	const CONTACT_ORG_ID = 'contact_org_id';
 	const NUM_SPAM = 'num_spam';
 	const NUM_NONSPAM = 'num_nonspam';
@@ -33,6 +34,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		return array(
 			'id' => $translate->_('common.id'),
 			'email' => $translate->_('common.email'),
+			'contact_id' => $translate->_('common.contact'),
 			'contact_org_id' => $translate->_('address.contact_org_id'),
 			'num_spam' => $translate->_('address.num_spam'),
 			'num_nonspam' => $translate->_('address.num_nonspam'),
@@ -74,6 +76,8 @@ class DAO_Address extends Cerb_ORMHelper {
 			
 		// Make sure the address doesn't exist already
 		if(null == ($check = self::getByEmail($full_address))) {
+			$sql = sprintf("INSERT INTO address (email,contact_id,contact_org_id,num_spam,num_nonspam,is_banned,is_defunct,updated) ".
+				"VALUES (%s,0,0,0,0,0,0,0)",
 				$db->qstr($full_address)
 			);
 			$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
@@ -197,6 +201,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
+		$sql = "SELECT id, email, contact_id, contact_org_id, num_spam, num_nonspam, is_banned, is_defunct, updated ".
 			"FROM address ".
 			$where_sql.
 			$sort_sql.
@@ -220,6 +225,7 @@ class DAO_Address extends Cerb_ORMHelper {
 			$object = new Model_Address();
 			$object->id = intval($row['id']);
 			$object->email = $row['email'];
+			$object->contact_id = intval($row['contact_id']);
 			$object->contact_org_id = intval($row['contact_org_id']);
 			$object->num_spam = intval($row['num_spam']);
 			$object->num_nonspam = intval($row['num_nonspam']);
@@ -347,6 +353,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"a.id as %s, ".
 			"a.email as %s, ".
+			"a.contact_id as %s, ".
 			"a.contact_org_id as %s, ".
 			"o.name as %s, ".
 			"a.num_spam as %s, ".
@@ -356,6 +363,7 @@ class DAO_Address extends Cerb_ORMHelper {
 			"a.updated as %s ",
 				SearchFields_Address::ID,
 				SearchFields_Address::EMAIL,
+				SearchFields_Address::CONTACT_ID,
 				SearchFields_Address::CONTACT_ORG_ID,
 				SearchFields_Address::ORG_NAME,
 				SearchFields_Address::NUM_SPAM,
@@ -564,6 +572,7 @@ class SearchFields_Address implements IDevblocksSearchFields {
 	// Address
 	const ID = 'a_id';
 	const EMAIL = 'a_email';
+	const CONTACT_ID = 'a_contact_id';
 	const CONTACT_ORG_ID = 'a_contact_org_id';
 	const NUM_SPAM = 'a_num_spam';
 	const NUM_NONSPAM = 'a_num_nonspam';
@@ -595,6 +604,7 @@ class SearchFields_Address implements IDevblocksSearchFields {
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'a', 'id', $translate->_('common.id'), null),
 			self::EMAIL => new DevblocksSearchField(self::EMAIL, 'a', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::CONTACT_ID => new DevblocksSearchField(self::CONTACT_ID, 'a', 'contact_id', $translate->_('common.contact'), null),
 			self::NUM_SPAM => new DevblocksSearchField(self::NUM_SPAM, 'a', 'num_spam', $translate->_('address.num_spam'), Model_CustomField::TYPE_NUMBER),
 			self::NUM_NONSPAM => new DevblocksSearchField(self::NUM_NONSPAM, 'a', 'num_nonspam', $translate->_('address.num_nonspam'), Model_CustomField::TYPE_NUMBER),
 			self::IS_BANNED => new DevblocksSearchField(self::IS_BANNED, 'a', 'is_banned', $translate->_('address.is_banned'), Model_CustomField::TYPE_CHECKBOX),
@@ -770,6 +780,7 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 class Model_Address {
 	public $id;
 	public $email = '';
+	public $contact_id = 0;
 	public $contact_org_id = 0;
 	public $num_spam = 0;
 	public $num_nonspam = 0;
@@ -780,6 +791,10 @@ class Model_Address {
 	function Model_Address() {}
 	
 	function getName() {
+		if(empty($this->contact_id) || false == ($contact = DAO_Contact::get($this->contact_id)))
+			return '';
+		
+		return $contact->getName();
 	}
 	
 	function getNameWithEmail() {
@@ -791,6 +806,10 @@ class Model_Address {
 			$name = $this->email;
 		
 		return $name;
+	}
+	
+	function getContact() {
+		return DAO_Contact::get($this->contact_id);
 	}
 	
 	function getOrg() {
@@ -811,6 +830,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
+			SearchFields_Address::CONTACT_ID,
 			SearchFields_Address::ORG_NAME,
 			SearchFields_Address::NUM_NONSPAM,
 			SearchFields_Address::NUM_SPAM,
@@ -948,13 +968,15 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Address::FULLTEXT_COMMENT_CONTENT),
 				),
+			'contact.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Address::CONTACT_ID),
+				),
 			'email' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Address::EMAIL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
-				),
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 				),
 			'id' =>
 				array(
@@ -1165,6 +1187,27 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Address::IS_BANNED:
 			case SearchFields_Address::IS_DEFUNCT:
 				$this->_renderCriteriaParamBoolean($param);
+				break;
+				
+			case SearchFields_Address::CONTACT_ID:
+				$contact_name = null;
+				
+				if(empty($param->value)) {
+					$contact_name = '(empty)';
+				} else if(false != ($contact = DAO_Contact::get($param->value))) {
+					$contact_name = $contact->getName();
+				}
+				
+				echo sprintf("<b>%s</b>", DevblocksPlatform::strEscapeHtml($contact_name));
+				break;
+				
+			case SearchFields_Address::CONTACT_ORG_ID:
+				$org_name = null;
+				
+				if(false != ($org = DAO_ContactOrg::get($param->value)))
+					$org_name = $org->name;
+				
+				echo sprintf("<b>%s</b>", DevblocksPlatform::strEscapeHtml($org_name));
 				break;
 			
 			default:
@@ -1573,6 +1616,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['num_spam'] = $address->num_spam;
 			$token_values['num_nonspam'] = $address->num_nonspam;
 			$token_values['is_banned'] = $address->is_banned;
+			$token_values['is_contact'] = !empty($address->contact_id);
 			$token_values['is_defunct'] = $address->is_defunct;
 			$token_values['updated'] = $address->updated;
 
