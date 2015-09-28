@@ -136,13 +136,22 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				
 			// Check if the addy's org has an avatar
 			case CerberusContexts::CONTEXT_ADDRESS:
-				if(
-						$context_id
-						&& false != ($addy = DAO_Address::get($context_id))
-						&& $addy->contact_org_id 
-						&& false != ($org_avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_ORG, $addy->contact_org_id))
-					) {
-					$this->_renderAvatar($org_avatar, $context);
+				if($context_id && false != ($addy = DAO_Address::get($context_id))) {
+					
+					// Use contact if an avatar exists
+					if($addy->contact_id) {
+						if(false != ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_CONTACT, $addy->contact_id))) {
+							$this->_renderAvatar($avatar, CerberusContexts::CONTEXT_CONTACT);
+						} else {
+							$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT, $addy->contact_id);
+						}
+					}
+					
+					// Use org if an avatar exists
+					if($addy->contact_org_id && false != ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_ORG, $addy->contact_org_id)))
+						$this->_renderAvatar($avatar, CerberusContexts::CONTEXT_CONTACT);
+					
+					$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT);
 					return;
 					break;
 				}
