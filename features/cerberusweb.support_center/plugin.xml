@@ -37,7 +37,6 @@
 	<class_loader>
 		<file path="api/Extension.php">
 			<class name="Extension_ScLoginAuthenticator" />
-			<class name="Extension_SupportCenterMessageBadge" />
 			<class name="Extension_UmScController" />
 			<class name="Extension_UmScRssController" />
 		</file>

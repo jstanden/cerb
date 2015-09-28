@@ -211,14 +211,6 @@ abstract class Extension_ExplorerToolbar extends DevblocksExtension {
 	function render(Model_ExplorerSet $item) { }
 };
 
-abstract class Extension_CommentBadge extends DevblocksExtension {
-	function render(Model_Comment $comment) {}
-};
-
-abstract class Extension_MessageBadge extends DevblocksExtension {
-	function render(Model_Message $message) {}
-};
-
 abstract class Extension_MailTransport extends DevblocksExtension {
 	const POINT = 'cerberusweb.mail.transport';
 	

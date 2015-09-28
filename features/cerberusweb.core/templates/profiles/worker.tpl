@@ -1,9 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_WORKER}
 {$page_context_id = $worker->id}
 
-{$gravatar_plugin = DevblocksPlatform::getPlugin('cerberusweb.gravatar')}
-{$gravatar_enabled = $gravatar_plugin && $gravatar_plugin->enabled}
-
 {$memberships = $worker->getMemberships()}
 
 <div style="float:left;margin-right:10px;">

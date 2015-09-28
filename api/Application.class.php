@@ -215,27 +215,6 @@ class CerberusApplication extends DevblocksApplication {
 		return json_encode($list);
 	}
 
-	static function getGravatarDefaultIcon() {
-		// Cache the result for the request
-		static $url = null;
-		
-		if(!is_null($url))
-			return $url;
-		
-		// First, check the Gravatar plugin's settings, if defined
-		if(DevblocksPlatform::isPluginEnabled('cerberusweb.gravatar')) {
-			$url = DevblocksPlatform::getPluginSetting('cerberusweb.gravatar', 'default_icon_url');
-			
-			if(!empty($url))
-				return $url;
-		}
-		
-		// Otherwise, default to the built-in icon
-		$url_writer = DevblocksPlatform::getUrlService();
-		$url = $url_writer->write('c=resource&p=cerberusweb.core&f=images/wgm/cerb_convo_bubbles_bw.png', true);
-		return $url;
-	}
-
 	/**
 	 *
 	 * @param string $uri

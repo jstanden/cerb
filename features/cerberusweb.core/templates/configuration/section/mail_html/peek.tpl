@@ -276,7 +276,7 @@ $(function() {
 			
 			markitupHTMLSettings.previewParser = function(content) {
 				// Replace 'message_body' with sample text
-				content = content.replace('{literal}{{message_body}}{/literal}', '<blockquote>This text is quoted.</blockquote><p>This text contains <b>bold</b>, <i>italics</i>, <a href="javascript:;">links</a>, and <code>code formatting</code>.</p><p><ul><li>These are unordered</li><li>list items</li></ul></p><p>This is an inline image:</p><p><img src="{CerberusApplication::getGravatarDefaultIcon()}"></p>');
+				content = content.replace('{literal}{{message_body}}{/literal}', '<blockquote>This text is quoted.</blockquote><p>This text contains <b>bold</b>, <i>italics</i>, <a href="javascript:;">links</a>, and <code>code formatting</code>.</p><p><ul><li>These are unordered</li><li>list items</li></ul></p><p>This is an inline image:</p><p><img src="{devblocks_url}c=avatars&w=address&id=0{/devblocks_url}"></p>');
 				return content;
 			};
 			
