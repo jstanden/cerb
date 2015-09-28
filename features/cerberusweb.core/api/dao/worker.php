@@ -1025,8 +1025,8 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'w', 'id', $translate->_('common.id')),
-			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'w', 'first_name', $translate->_('worker.first_name'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'w', 'last_name', $translate->_('worker.last_name'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'w', 'first_name', $translate->_('common.name.first'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'w', 'last_name', $translate->_('common.name.last'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 'w', 'title', $translate->_('worker.title'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::EMAIL => new DevblocksSearchField(self::EMAIL, 'w', 'email', ucwords($translate->_('common.email')), Model_CustomField::TYPE_SINGLE_LINE),
 			self::IS_SUPERUSER => new DevblocksSearchField(self::IS_SUPERUSER, 'w', 'is_superuser', $translate->_('worker.is_superuser'), Model_CustomField::TYPE_CHECKBOX),
@@ -2233,13 +2233,13 @@ class Context_Worker extends Extension_DevblocksContext {
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
-			'first_name' => $prefix.$translate->_('worker.first_name'),
-			'full_name' => $prefix.$translate->_('worker.full_name'),
+			'first_name' => $prefix.$translate->_('common.name.first'),
+			'full_name' => $prefix.$translate->_('common.name.full'),
 			'id' => $prefix.$translate->_('common.id'),
 			'is_disabled' => $prefix.$translate->_('common.disabled'),
 			'is_superuser' => $prefix.$translate->_('worker.is_superuser'),
 			'language' => $prefix.$translate->_('worker.language'),
-			'last_name' => $prefix.$translate->_('worker.last_name'),
+			'last_name' => $prefix.$translate->_('common.name.last'),
 			'last_activity_date' => $prefix.$translate->_('worker.last_activity_date'),
 			'time_format' => $prefix.$translate->_('worker.time_format'),
 			'timezone' => $prefix.$translate->_('worker.timezone'),

@@ -703,11 +703,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="call_entry.model.phone">
-			<tuv xml:lang="ru_RU">
-				<seg>Телефон контакта</seg>
-			</tuv>
-		</tu>
 		<tu tuid="cerb.mailing_lists.common.mailing_list">
 			<tuv xml:lang="ru_RU">
 				<seg/>
@@ -1463,6 +1458,11 @@
 				<seg>постоянная ссылка</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.phone">
+			<tuv xml:lang="ru_RU">
+				<seg>Телефон</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.preview">
 			<tuv xml:lang="ru_RU">
 				<seg/>
@@ -1851,11 +1851,6 @@
 		<tu tuid="contact_org.country">
 			<tuv xml:lang="ru_RU">
 				<seg>Страна</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.phone">
-			<tuv xml:lang="ru_RU">
-				<seg>Телефон</seg>
 			</tuv>
 		</tu>
 		<tu tuid="contact_org.postal">
@@ -5312,16 +5307,6 @@ login &lt;ftp&#13;
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="worker.first_name">
-			<tuv xml:lang="ru_RU">
-				<seg>Имя</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.full_name">
-			<tuv xml:lang="ru_RU">
-				<seg>ФИО</seg>
-			</tuv>
-		</tu>
 		<tu tuid="worker.is_superuser">
 			<tuv xml:lang="ru_RU">
 				<seg>Администратор</seg>
@@ -5335,11 +5320,6 @@ login &lt;ftp&#13;
 		<tu tuid="worker.last_activity_date">
 			<tuv xml:lang="ru_RU">
 				<seg>Последняя дата активности</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.last_name">
-			<tuv xml:lang="ru_RU">
-				<seg>Фамилия</seg>
 			</tuv>
 		</tu>
 		<tu tuid="worker.title">

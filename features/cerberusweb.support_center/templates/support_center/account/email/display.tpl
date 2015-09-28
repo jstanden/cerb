@@ -40,7 +40,7 @@
 	
 	{if $show_fields.addy_first_name}
 	<tr>
-		<td width="1%" nowrap="nowrap" valign="top"><b>{'address.first_name'|devblocks_translate|capitalize}:</b></td>
+		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.name.first'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
 			{if 1==$show_fields.addy_first_name}
 			{$address->first_name}
@@ -53,7 +53,7 @@
 	
 	{if $show_fields.addy_last_name}
 	<tr>
-		<td width="1%" nowrap="nowrap" valign="top"><b>{'address.last_name'|devblocks_translate|capitalize}:</b></td>
+		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.name.last'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
 			{if 1==$show_fields.addy_last_name}
 			{$address->last_name}
@@ -168,7 +168,7 @@
 		
 		{if $show_fields.org_phone}
 		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{'contact_org.phone'|devblocks_translate|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.phone'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				{if 1==$show_fields.org_phone}
 				{$org->phone}

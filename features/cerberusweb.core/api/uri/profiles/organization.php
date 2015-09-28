@@ -75,7 +75,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		if(!empty($contact->phone))
 			$properties['phone'] = array(
-				'label' => ucfirst($translate->_('contact_org.phone')),
+				'label' => ucfirst($translate->_('common.phone')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'value' => $contact->phone,
 			);

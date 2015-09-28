@@ -703,11 +703,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="call_entry.model.phone">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="cerb.mailing_lists.common.mailing_list">
 			<tuv xml:lang="es_ES">
 				<seg/>
@@ -1463,6 +1458,11 @@
 				<seg/>
 			</tuv>
 		</tu>
+		<tu tuid="common.phone">
+			<tuv xml:lang="es_ES">
+				<seg>Teléfono</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.preview">
 			<tuv xml:lang="es_ES">
 				<seg/>
@@ -1851,11 +1851,6 @@
 		<tu tuid="contact_org.country">
 			<tuv xml:lang="es_ES">
 				<seg>País</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.phone">
-			<tuv xml:lang="es_ES">
-				<seg>Teléfono</seg>
 			</tuv>
 		</tu>
 		<tu tuid="contact_org.postal">
@@ -5313,16 +5308,6 @@ Por ejemplo: *recibo*</seg>
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="worker.first_name">
-			<tuv xml:lang="es_ES">
-				<seg>Nombre</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.full_name">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="worker.is_superuser">
 			<tuv xml:lang="es_ES">
 				<seg>Administrador</seg>
@@ -5336,11 +5321,6 @@ Por ejemplo: *recibo*</seg>
 		<tu tuid="worker.last_activity_date">
 			<tuv xml:lang="es_ES">
 				<seg>Fecha Última Actividad</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.last_name">
-			<tuv xml:lang="es_ES">
-				<seg>Apellidos</seg>
 			</tuv>
 		</tu>
 		<tu tuid="worker.title">

@@ -512,6 +512,11 @@
 				<seg>Email</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.email_addresses">
+			<tuv xml:lang="en_US">
+				<seg>Email Addresses</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.enabled">
 			<tuv xml:lang="en_US">
 				<seg>Enabled</seg>
@@ -2116,11 +2121,6 @@ For example: http://www.cerbweb.com/support/</seg>
 				<seg>Country</seg>
 			</tuv>
 		</tu>
-		<tu tuid="contact_org.phone">
-			<tuv xml:lang="en_US">
-				<seg>Phone</seg>
-			</tuv>
-		</tu>
 		<tu tuid="contact_org.postal">
 			<tuv xml:lang="en_US">
 				<seg>Postal</seg>
@@ -3446,16 +3446,6 @@ For example: *receipt*</seg>
 				<seg>Authentication</seg>
 			</tuv>
 		</tu>
-		<tu tuid="worker.first_name">
-			<tuv xml:lang="en_US">
-				<seg>First Name</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.full_name">
-			<tuv xml:lang="en_US">
-				<seg>Full Name</seg>
-			</tuv>
-		</tu>
 		<tu tuid="worker.is_superuser">
 			<tuv xml:lang="en_US">
 				<seg>Administrator</seg>
@@ -3474,11 +3464,6 @@ For example: *receipt*</seg>
 		<tu tuid="worker.last_activity_date">
 			<tuv xml:lang="en_US">
 				<seg>Last Activity Date</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.last_name">
-			<tuv xml:lang="en_US">
-				<seg>Last Name</seg>
 			</tuv>
 		</tu>
 		<tu tuid="worker.time_format">
@@ -3560,11 +3545,6 @@ For example: *receipt*</seg>
 		<tu tuid="preferences.account.language">
 			<tuv xml:lang="en_US">
 				<seg>Language:</seg>
-			</tuv>
-		</tu>
-		<tu tuid="preferences.account.email">
-			<tuv xml:lang="en_US">
-				<seg>Email Addresses</seg>
 			</tuv>
 		</tu>
 		<tu tuid="preferences.account.email.associated">

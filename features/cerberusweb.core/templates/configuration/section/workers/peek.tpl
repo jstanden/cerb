@@ -13,11 +13,11 @@
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="middle"><b>{'worker.first_name'|devblocks_translate|capitalize}:</b> </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="middle"><b>{'common.name.first'|devblocks_translate|capitalize}:</b> </td>
 			<td width="100%"><input type="text" name="first_name" value="{$worker->first_name}" class="required" style="width:98%;"></td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'worker.last_name'|devblocks_translate|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'common.name.last'|devblocks_translate|capitalize}: </td>
 			<td width="100%"><input type="text" name="last_name" value="{$worker->last_name}" style="width:98%;"></td>
 		</tr>
 		<tr>

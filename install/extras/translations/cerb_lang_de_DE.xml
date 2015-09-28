@@ -1463,6 +1463,11 @@
 				<seg/>
 			</tuv>
 		</tu>
+		<tu tuid="common.phone">
+			<tuv xml:lang="de_DE">
+				<seg>Telefon</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.preview">
 			<tuv xml:lang="de_DE">
 				<seg/>
@@ -1851,11 +1856,6 @@
 		<tu tuid="contact_org.country">
 			<tuv xml:lang="de_DE">
 				<seg>Land</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.phone">
-			<tuv xml:lang="de_DE">
-				<seg>Telefon</seg>
 			</tuv>
 		</tu>
 		<tu tuid="contact_org.postal">
@@ -5309,16 +5309,6 @@ login</seg>
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="worker.first_name">
-			<tuv xml:lang="de_DE">
-				<seg>Vorname</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.full_name">
-			<tuv xml:lang="de_DE">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="worker.is_superuser">
 			<tuv xml:lang="de_DE">
 				<seg>Administrator</seg>
@@ -5332,11 +5322,6 @@ login</seg>
 		<tu tuid="worker.last_activity_date">
 			<tuv xml:lang="de_DE">
 				<seg>Letztes Aktivitätsdatum</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.last_name">
-			<tuv xml:lang="de_DE">
-				<seg>Nachname</seg>
 			</tuv>
 		</tu>
 		<tu tuid="worker.title">

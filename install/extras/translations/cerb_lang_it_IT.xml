@@ -703,11 +703,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="call_entry.model.phone">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="cerb.mailing_lists.common.mailing_list">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -1463,6 +1458,11 @@
 				<seg/>
 			</tuv>
 		</tu>
+		<tu tuid="common.phone">
+			<tuv xml:lang="it_IT">
+				<seg>telefono</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.preview">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -1851,11 +1851,6 @@
 		<tu tuid="contact_org.country">
 			<tuv xml:lang="it_IT">
 				<seg>paese</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.phone">
-			<tuv xml:lang="it_IT">
-				<seg>telefono</seg>
 			</tuv>
 		</tu>
 		<tu tuid="contact_org.postal">
@@ -5283,16 +5278,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="worker.first_name">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="worker.full_name">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="worker.is_superuser">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -5304,11 +5289,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="worker.last_activity_date">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="worker.last_name">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>

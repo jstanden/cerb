@@ -532,7 +532,7 @@ class ChContactsPage extends CerberusPageExtension {
 			'province' => 'contact_org.province',
 			'postal' => 'contact_org.postal',
 			'country' => 'contact_org.country',
-			'phone' => 'contact_org.phone',
+			'phone' => 'common.phone',
 			'website' => 'common.website',
 		);
 		

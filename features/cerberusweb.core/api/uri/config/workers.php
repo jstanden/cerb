@@ -275,21 +275,6 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				}
 			}
 
-			// Set the name on the worker email address
-			
-			if($worker_address instanceof Model_Address) {
-				$addy_fields = array();
-				
-				if(empty($worker_address->first_name) && !empty($first_name))
-					$addy_fields[DAO_Address::FIRST_NAME] = $first_name;
-				
-				if(empty($worker_address->last_name) && !empty($last_name))
-					$addy_fields[DAO_Address::LAST_NAME] = $last_name;
-				
-				if(!empty($addy_fields))
-					DAO_Address::update($worker_address->id, $addy_fields);
-			}
-			
 			// Addresses
 			if(null == DAO_AddressToWorker::getByAddress($email)) {
 				DAO_AddressToWorker::assign($email, $id, true);

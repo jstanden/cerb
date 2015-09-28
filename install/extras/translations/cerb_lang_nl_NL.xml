@@ -703,11 +703,6 @@
 				<seg>Is uitgaand</seg>
 			</tuv>
 		</tu>
-		<tu tuid="call_entry.model.phone">
-			<tuv xml:lang="nl_NL">
-				<seg>Telefoonnummer</seg>
-			</tuv>
-		</tu>
 		<tu tuid="cerb.mailing_lists.common.mailing_list">
 			<tuv xml:lang="nl_NL">
 				<seg/>
@@ -1463,6 +1458,11 @@
 				<seg>permalink</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.phone">
+			<tuv xml:lang="nl_NL">
+				<seg>Telefoonnummer</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.preview">
 			<tuv xml:lang="nl_NL">
 				<seg/>
@@ -1851,11 +1851,6 @@
 		<tu tuid="contact_org.country">
 			<tuv xml:lang="nl_NL">
 				<seg>Land</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.phone">
-			<tuv xml:lang="nl_NL">
-				<seg>Telefoonnummer</seg>
 			</tuv>
 		</tu>
 		<tu tuid="contact_org.postal">
@@ -5284,16 +5279,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="worker.first_name">
-			<tuv xml:lang="nl_NL">
-				<seg>Voornaam</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.full_name">
-			<tuv xml:lang="nl_NL">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="worker.is_superuser">
 			<tuv xml:lang="nl_NL">
 				<seg>Administrator</seg>
@@ -5307,11 +5292,6 @@
 		<tu tuid="worker.last_activity_date">
 			<tuv xml:lang="nl_NL">
 				<seg>Datum laatste activiteit</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.last_name">
-			<tuv xml:lang="nl_NL">
-				<seg>Achternaam</seg>
 			</tuv>
 		</tu>
 		<tu tuid="worker.title">

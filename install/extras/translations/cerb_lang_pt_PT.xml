@@ -703,11 +703,6 @@
 				<seg>É de Envio</seg>
 			</tuv>
 		</tu>
-		<tu tuid="call_entry.model.phone">
-			<tuv xml:lang="pt_PT">
-				<seg>Telefone</seg>
-			</tuv>
-		</tu>
 		<tu tuid="cerb.mailing_lists.common.mailing_list">
 			<tuv xml:lang="pt_PT">
 				<seg/>
@@ -1350,7 +1345,7 @@
 		</tu>
 		<tu tuid="common.name.first">
 			<tuv xml:lang="pt_PT">
-				<seg>Nome</seg>
+				<seg>Primeiro Nome</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.name.full">
@@ -1461,6 +1456,11 @@
 		<tu tuid="common.permalink">
 			<tuv xml:lang="pt_PT">
 				<seg>link permanente</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.phone">
+			<tuv xml:lang="pt_PT">
+				<seg>Telefone</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.preview">
@@ -1851,11 +1851,6 @@
 		<tu tuid="contact_org.country">
 			<tuv xml:lang="pt_PT">
 				<seg>País</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.phone">
-			<tuv xml:lang="pt_PT">
-				<seg>Telefone</seg>
 			</tuv>
 		</tu>
 		<tu tuid="contact_org.postal">
@@ -5317,16 +5312,6 @@ Por exemplo: *recipiente*</seg>
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="worker.first_name">
-			<tuv xml:lang="pt_PT">
-				<seg>Primeiro Nome</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.full_name">
-			<tuv xml:lang="pt_PT">
-				<seg>Nome Completo</seg>
-			</tuv>
-		</tu>
 		<tu tuid="worker.is_superuser">
 			<tuv xml:lang="pt_PT">
 				<seg>Administrador</seg>
@@ -5340,11 +5325,6 @@ Por exemplo: *recipiente*</seg>
 		<tu tuid="worker.last_activity_date">
 			<tuv xml:lang="pt_PT">
 				<seg>Data da Última Actividade</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.last_name">
-			<tuv xml:lang="pt_PT">
-				<seg>Apelido</seg>
 			</tuv>
 		</tu>
 		<tu tuid="worker.title">
