@@ -2260,6 +2260,23 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $copy;
 	}
 	
+	static function extractArrayValues($array, $key, $only_unique=true) {
+		if(!is_array($array) || empty($key))
+			return array();
+		
+		$results = array();
+		
+		array_walk_recursive($array, function($v, $k) use ($key, &$results) {
+			if(0 == strcasecmp($key, $k))
+				$results[] = $v;
+		});
+		
+		if($only_unique)
+			$results = array_unique($results);
+		
+		return $results;
+	}
+	
 	/**
 	 * 
 	 * @param array $array
