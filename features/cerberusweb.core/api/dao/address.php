@@ -731,6 +731,7 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 			}
 			
 			// Batch load org names
+			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'contact_');
 			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'org_name');
 			
 			$last_time = $ptr_time;
@@ -749,6 +750,8 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 				
 				$doc = array(
 					'email' => $dict->address,
+					'firstName' => $dict->contact_first_name,
+					'lastName' => $dict->contact_last_name,
 					'org' => $dict->org_name,
 				);
 				
@@ -779,19 +782,44 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 
 class Model_Address {
 	public $id;
-	public $email = '';
 	public $contact_id = 0;
 	public $contact_org_id = 0;
-	public $num_spam = 0;
-	public $num_nonspam = 0;
+	public $email = '';
 	public $is_banned = 0;
 	public $is_defunct = 0;
+	public $num_nonspam = 0;
+	public $num_spam = 0;
 	public $updated = 0;
+	
+	private $_contact_model = null;
+	private $_org_model = null;
 
-	function Model_Address() {}
+	function __get($name) {
+		switch($name) {
+			// [DEPRECATED] Added in 7.1
+			case 'first_name':
+				if(false == ($contact = $this->getContact()))
+					return '';
+					
+				error_log("The 'first_name' field on address records is deprecated. Use contacts instead.", E_USER_DEPRECATED);
+					
+				return $contact->first_name;
+				break;
+				
+			// [DEPRECATED] Added in 7.1
+			case 'last_name':
+				if(false == ($contact = $this->getContact()))
+					return '';
+					
+				error_log("The 'last_name' field on address records is deprecated. Use contacts instead.", E_USER_DEPRECATED);
+					
+				return $contact->last_name;
+				break;
+		}
+	}
 	
 	function getName() {
-		if(empty($this->contact_id) || false == ($contact = DAO_Contact::get($this->contact_id)))
+		if(false == ($contact = $this->getContact()))
 			return '';
 		
 		return $contact->getName();
@@ -809,11 +837,17 @@ class Model_Address {
 	}
 	
 	function getContact() {
-		return DAO_Contact::get($this->contact_id);
+		if(is_null($this->_contact_model))
+			$this->_contact_model = DAO_Contact::get($this->contact_id);
+		
+		return $this->_contact_model;
 	}
 	
 	function getOrg() {
-		return DAO_ContactOrg::get($this->contact_org_id);
+		if(is_null($this->_org_model))
+			$this->_org_model = DAO_ContactOrg::get($this->contact_org_id);
+		
+		return $this->_org_model;
 	}
 };
 
@@ -1473,12 +1507,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		if(null == ($address = DAO_Address::get($context_id)))
 			return array();
 		
-		$addy_name = $address->getName();
-		if(!empty($addy_name)) {
-			$addy_name = sprintf("%s <%s>", $addy_name, $address->email);
-		} else {
-			$addy_name = $address->email;
-		}
+		$addy_name = $address->getNameWithEmail();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($address->email);
@@ -1519,7 +1548,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
-			'full_name',
+			'contact_full_name',
 			'org__label',
 			'is_banned',
 			'is_defunct',
@@ -1558,9 +1587,6 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'address' => $prefix.$translate->_('address.address'),
-			'first_name' => $prefix.$translate->_('address.first_name'),
-			'full_name' => $prefix.$translate->_('address.full_name'),
-			'last_name' => $prefix.$translate->_('address.last_name'),
 			'num_spam' => $prefix.$translate->_('address.num_spam'),
 			'num_nonspam' => $prefix.$translate->_('address.num_nonspam'),
 			'is_banned' => $prefix.$translate->_('address.is_banned'),
@@ -1575,9 +1601,6 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'address' => Model_CustomField::TYPE_SINGLE_LINE,
-			'first_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'full_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'num_spam' => Model_CustomField::TYPE_NUMBER,
 			'num_nonspam' => Model_CustomField::TYPE_NUMBER,
 			'is_banned' => Model_CustomField::TYPE_CHECKBOX,
@@ -1603,16 +1626,11 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 
 		// Address token values
 		if(null != $address) {
-			$full_name = $address->getName();
-			
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = !empty($full_name) ? sprintf("%s <%s>", $full_name, $address->email) : sprintf("%s", $address->email);
+			$token_values['_label'] = $address->getNameWithEmail();
 			$token_values['id'] = $address->id;
-			$token_values['full_name'] = $address->getName();
-			if(!empty($address->email))
-				$token_values['address'] = $address->email;
-			$token_values['first_name'] = $address->first_name;
-			$token_values['last_name'] = $address->last_name;
+			$token_values['address'] = $address->email;
+			$token_values['email'] = $address->email;
 			$token_values['num_spam'] = $address->num_spam;
 			$token_values['num_nonspam'] = $address->num_nonspam;
 			$token_values['is_banned'] = $address->is_banned;
@@ -1627,12 +1645,31 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=address&id=%d-%s",$address->id, DevblocksPlatform::strToPermalink($address->email)), true);
 			
+			// Contact
+			$token_values['contact_id'] = $address->contact_id;
+			
 			// Org
 			$org_id = (null != $address && !empty($address->contact_org_id)) ? $address->contact_org_id : null;
 			$token_values['org_id'] = $org_id;
 		}
 		
+		// Email Contact
+		
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_CONTACT, null, $merge_token_labels, $merge_token_values, null, true);
+
+		CerberusContexts::merge(
+			'contact_',
+			$prefix,
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
 		// Email Org
+		
 		$merge_token_labels = array();
 		$merge_token_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, null, $merge_token_labels, $merge_token_values, null, true);
@@ -1665,6 +1702,24 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		}
 		
 		switch($token) {
+			// Deprecated
+			case 'first_name':
+				$dict = DevblocksDictionaryDelegate::instance($dictionary);
+				$values['first_name'] = $dict->contact_first_name;
+				break;
+				
+			// Deprecated
+			case 'full_name':
+				$dict = DevblocksDictionaryDelegate::instance($dictionary);
+				$values['full_name'] = $dict->contact_name;
+				break;
+				
+			// Deprecated
+			case 'last_name':
+				$dict = DevblocksDictionaryDelegate::instance($dictionary);
+				$values['last_name'] = $dict->contact_last_name;
+				break;
+			
 			case 'watchers':
 				$watchers = array(
 					$token => CerberusContexts::getWatchers($context, $context_id, true),

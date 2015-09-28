@@ -987,8 +987,7 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 				
 				// Add sender fields
 				if(false != ($sender = $message->getSender())) {
-					$doc['sender_first_name'] = $sender->first_name;
-					$doc['sender_last_name'] = $sender->last_name;
+					$doc['sender_name'] = $sender->getName();
 					$doc['sender_email'] = $sender->email;
 				}
 				

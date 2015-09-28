@@ -224,8 +224,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$defaults = C4_AbstractViewModel::loadFromClass('View_Address');
 		$defaults->id = 'org_contacts';
 		$defaults->view_columns = array(
-			SearchFields_Address::FIRST_NAME,
-			SearchFields_Address::LAST_NAME,
+			SearchFields_Address::CONTACT_ID,
 			SearchFields_Address::NUM_NONSPAM,
 		);
 		

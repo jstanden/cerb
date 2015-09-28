@@ -113,8 +113,6 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 					
 				'email_address' => SearchFields_CrmOpportunity::EMAIL_ADDRESS,
 				'email_is_defunct' => SearchFields_CrmOpportunity::EMAIL_IS_DEFUNCT,
-				'email_first_name' => SearchFields_CrmOpportunity::EMAIL_FIRST_NAME,
-				'email_last_name' => SearchFields_CrmOpportunity::EMAIL_LAST_NAME,
 				'is_closed' => SearchFields_CrmOpportunity::IS_CLOSED,
 				'is_won' => SearchFields_CrmOpportunity::IS_WON,
 				'org' => SearchFields_CrmOpportunity::ORG_NAME,

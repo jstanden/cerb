@@ -1408,9 +1408,9 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 				$merge_token_labels,
 				$blank, // ignore
 				array(
-					"#^address_first_name$#",
-					"#^address_full_name$#",
-					"#^address_last_name$#",
+					"#^address_contact_first_name$#",
+					"#^address_contact_full_name$#",
+					"#^address_contact_last_name$#",
 				)
 			);
 		

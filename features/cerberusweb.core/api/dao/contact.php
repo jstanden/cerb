@@ -1336,6 +1336,8 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		$token_labels = array(
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
+			'first_name' => $prefix.$translate->_('common.name.first'),
+			'last_name' => $prefix.$translate->_('common.name.last'),
 			'name' => $prefix.$translate->_('common.name'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
@@ -1345,6 +1347,8 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		$token_types = array(
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
+			'first_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
@@ -1368,6 +1372,8 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $contact->getName();
 			$token_values['id'] = $contact->id;
+			$token_values['first_name'] = $contact->first_name;
+			$token_values['last_name'] = $contact->last_name;
 			$token_values['name'] = $contact->getName();
 			$token_values['updated_at'] = $contact->updated_at;
 			
