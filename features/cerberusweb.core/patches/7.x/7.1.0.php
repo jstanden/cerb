@@ -63,6 +63,33 @@ if(!isset($columns['email_id']) && isset($columns['email'])) {
 	$db->ExecuteMaster("ALTER TABLE worker DROP COLUMN email");
 }
 
+// ===========================================================================
+// Add new social worker fields
+
+$changes = array();
+
+if(!isset($columns['gender'])) {
+	$changes[] = "ADD COLUMN gender char(1) not null default ''";
+}
+
+if(!isset($columns['dob'])) {
+	$changes[] = "ADD COLUMN dob int unsigned not null default 0";
+}
+
+if(!isset($columns['location'])) {
+	$changes[] = "ADD COLUMN location varchar(255) not null default ''";
+}
+
+if(!isset($columns['phone'])) {
+	$changes[] = "ADD COLUMN phone varchar(64) not null default ''";
+}
+
+if(!isset($columns['mobile'])) {
+	$changes[] = "ADD COLUMN mobile varchar(64) not null default ''";
+}
+
+if(!empty($changes)) {
+	$db->ExecuteMaster(sprintf("ALTER TABLE worker %s", implode(', ', $changes)));
 }
 
 // ===========================================================================

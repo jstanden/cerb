@@ -23,8 +23,10 @@ class DAO_Worker extends Cerb_ORMHelper {
 	const AT_MENTION_NAME = 'at_mention_name';
 	const AUTH_EXTENSION_ID = 'auth_extension_id';
 	const CALENDAR_ID = 'calendar_id';
+	const DOB = 'dob';
 	const EMAIL_ID = 'email_id';
 	const FIRST_NAME = 'first_name';
+	const GENDER = 'gender';
 	const ID = 'id';
 	const IS_DISABLED = 'is_disabled';
 	const IS_SUPERUSER = 'is_superuser';
@@ -33,6 +35,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 	const LAST_ACTIVITY_DATE = 'last_activity_date';
 	const LAST_ACTIVITY_IP = 'last_activity_ip';
 	const LAST_NAME = 'last_name';
+	const LOCATION = 'location';
+	const MOBILE = 'mobile';
+	const PHONE = 'phone';
 	const TIME_FORMAT = 'time_format';
 	const TIMEZONE = 'timezone';
 	const TITLE = 'title';
@@ -199,7 +204,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
-		$sql = "SELECT id, first_name, last_name, email, title, is_superuser, is_disabled, last_activity_date, last_activity, last_activity_ip, auth_extension_id, at_mention_name, timezone, time_format, language, calendar_id, updated ".
+		$sql = "SELECT id, first_name, last_name, email_id, title, is_superuser, is_disabled, last_activity_date, last_activity, last_activity_ip, auth_extension_id, at_mention_name, timezone, time_format, language, calendar_id, gender, dob, location, phone, mobile, updated ".
 			"FROM worker ".
 			$where_sql.
 			$sort_sql.
@@ -258,14 +263,19 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$object->at_mention_name = $row['at_mention_name'];
 			$object->auth_extension_id = $row['auth_extension_id'];
 			$object->calendar_id = intval($row['calendar_id']);
+			$object->dob = intval($row['dob']);
 			$object->email_id = intval($row['email_id']);
 			$object->first_name = $row['first_name'];
+			$object->gender = $row['gender'];
 			$object->id = intval($row['id']);
 			$object->is_disabled = intval($row['is_disabled']);
 			$object->is_superuser = intval($row['is_superuser']);
 			$object->language = $row['language'];
 			$object->last_name = $row['last_name'];
 			$object->last_activity_date = intval($row['last_activity_date']);
+			$object->location = $row['location'];
+			$object->mobile = $row['mobile'];
+			$object->phone = $row['phone'];
 			$object->time_format = $row['time_format'];
 			$object->timezone = $row['timezone'];
 			$object->title = $row['title'];
@@ -740,6 +750,11 @@ class DAO_Worker extends Cerb_ORMHelper {
 			"w.time_format as %s, ".
 			"w.language as %s, ".
 			"w.calendar_id as %s, ".
+			"w.gender as %s, ".
+			"w.dob as %s, ".
+			"w.location as %s, ".
+			"w.mobile as %s, ".
+			"w.phone as %s, ".
 			"w.updated as %s, ".
 			"w.is_disabled as %s ",
 				SearchFields_Worker::ID,
@@ -755,6 +770,11 @@ class DAO_Worker extends Cerb_ORMHelper {
 				SearchFields_Worker::TIME_FORMAT,
 				SearchFields_Worker::LANGUAGE,
 				SearchFields_Worker::CALENDAR_ID,
+				SearchFields_Worker::GENDER,
+				SearchFields_Worker::DOB,
+				SearchFields_Worker::LOCATION,
+				SearchFields_Worker::MOBILE,
+				SearchFields_Worker::PHONE,
 				SearchFields_Worker::UPDATED,
 				SearchFields_Worker::IS_DISABLED
 			);
@@ -1024,21 +1044,26 @@ class DAO_Worker extends Cerb_ORMHelper {
 class SearchFields_Worker implements IDevblocksSearchFields {
 	// Worker
 	const ID = 'w_id';
-	const EMAIL_ID = 'w_email_id';
-	const FIRST_NAME = 'w_first_name';
-	const LAST_NAME = 'w_last_name';
-	const TITLE = 'w_title';
-	const IS_SUPERUSER = 'w_is_superuser';
-	const LAST_ACTIVITY = 'w_last_activity';
-	const LAST_ACTIVITY_DATE = 'w_last_activity_date';
 	const AUTH_EXTENSION_ID = 'w_auth_extension_id';
 	const AT_MENTION_NAME = 'w_at_mention_name';
+	const CALENDAR_ID = 'w_calendar_id';
+	const DOB = 'w_dob';
+	const EMAIL_ID = 'w_email_id';
+	const FIRST_NAME = 'w_first_name';
+	const GENDER = 'w_gender';
+	const IS_DISABLED = 'w_is_disabled';
+	const IS_SUPERUSER = 'w_is_superuser';
+	const LANGUAGE = 'w_language';
+	const LAST_ACTIVITY = 'w_last_activity';
+	const LAST_ACTIVITY_DATE = 'w_last_activity_date';
+	const LAST_NAME = 'w_last_name';
+	const LOCATION = 'w_location';
+	const MOBILE = 'w_mobile';
+	const PHONE = 'w_phone';
 	const TIMEZONE = 'w_timezone';
 	const TIME_FORMAT = 'w_time_format';
-	const LANGUAGE = 'w_language';
-	const CALENDAR_ID = 'w_calendar_id';
+	const TITLE = 'w_title';
 	const UPDATED = 'w_updated';
-	const IS_DISABLED = 'w_is_disabled';
 	
 	const FULLTEXT_WORKER = 'ft_worker';
 	
@@ -1058,21 +1083,26 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'w', 'id', $translate->_('common.id')),
+			self::AT_MENTION_NAME => new DevblocksSearchField(self::AT_MENTION_NAME, 'w', 'at_mention_name', $translate->_('worker.at_mention_name'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::AUTH_EXTENSION_ID => new DevblocksSearchField(self::AUTH_EXTENSION_ID, 'w', 'auth_extension_id', $translate->_('worker.auth_extension_id'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::CALENDAR_ID => new DevblocksSearchField(self::CALENDAR_ID, 'w', 'calendar_id', $translate->_('common.calendar'), null),
+			self::DOB => new DevblocksSearchField(self::DOB, 'w', 'dob', $translate->_('common.dob.abbr'), Model_CustomField::TYPE_DATE),
 			self::EMAIL_ID => new DevblocksSearchField(self::EMAIL_ID, 'w', 'email_id', ucwords($translate->_('common.email')), null),
 			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'w', 'first_name', $translate->_('common.name.first'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'w', 'last_name', $translate->_('common.name.last'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::TITLE => new DevblocksSearchField(self::TITLE, 'w', 'title', $translate->_('worker.title'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::GENDER => new DevblocksSearchField(self::GENDER, 'w', 'gender', $translate->_('common.gender'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'w', 'is_disabled', ucwords($translate->_('common.disabled')), Model_CustomField::TYPE_CHECKBOX),
 			self::IS_SUPERUSER => new DevblocksSearchField(self::IS_SUPERUSER, 'w', 'is_superuser', $translate->_('worker.is_superuser'), Model_CustomField::TYPE_CHECKBOX),
+			self::LANGUAGE => new DevblocksSearchField(self::LANGUAGE, 'w', 'language', $translate->_('worker.language'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::LAST_ACTIVITY => new DevblocksSearchField(self::LAST_ACTIVITY, 'w', 'last_activity', $translate->_('worker.last_activity')),
 			self::LAST_ACTIVITY_DATE => new DevblocksSearchField(self::LAST_ACTIVITY_DATE, 'w', 'last_activity_date', $translate->_('worker.last_activity_date'), Model_CustomField::TYPE_DATE),
-			self::AUTH_EXTENSION_ID => new DevblocksSearchField(self::AUTH_EXTENSION_ID, 'w', 'auth_extension_id', $translate->_('worker.auth_extension_id'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::AT_MENTION_NAME => new DevblocksSearchField(self::AT_MENTION_NAME, 'w', 'at_mention_name', $translate->_('worker.at_mention_name'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::TIMEZONE => new DevblocksSearchField(self::TIMEZONE, 'w', 'timezone', $translate->_('worker.timezone'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'w', 'last_name', $translate->_('common.name.last'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::LOCATION => new DevblocksSearchField(self::LOCATION, 'w', 'location', $translate->_('common.location'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::MOBILE => new DevblocksSearchField(self::MOBILE, 'w', 'mobile', $translate->_('common.mobile'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::PHONE => new DevblocksSearchField(self::PHONE, 'w', 'phone', $translate->_('common.phone'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::TIME_FORMAT => new DevblocksSearchField(self::TIME_FORMAT, 'w', 'time_format', $translate->_('worker.time_format'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::LANGUAGE => new DevblocksSearchField(self::LANGUAGE, 'w', 'language', $translate->_('worker.language'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::CALENDAR_ID => new DevblocksSearchField(self::CALENDAR_ID, 'w', 'calendar_id', $translate->_('common.calendar'), null),
+			self::TIMEZONE => new DevblocksSearchField(self::TIMEZONE, 'w', 'timezone', $translate->_('worker.timezone'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::TITLE => new DevblocksSearchField(self::TITLE, 'w', 'title', $translate->_('worker.title'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'w', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
-			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'w', 'is_disabled', ucwords($translate->_('common.disabled')), Model_CustomField::TYPE_CHECKBOX),
 			
 			self::FULLTEXT_WORKER => new DevblocksSearchField(self::FULLTEXT_WORKER, 'ft', 'content', $translate->_('common.content'), 'FT'),
 				
@@ -1229,16 +1259,21 @@ class Model_Worker {
 	public $at_mention_name;
 	public $auth_extension_id;
 	public $calendar_id = 0;
+	public $dob;
 	public $email_id = 0;
 	public $first_name;
+	public $gender;
 	public $id;
-	public $is_superuser=0;
-	public $is_disabled=0;
+	public $is_superuser = 0;
+	public $is_disabled = 0;
 	public $language;
 	public $last_activity;
 	public $last_activity_date;
 	public $last_activity_ip;
 	public $last_name;
+	public $location;
+	public $mobile;
+	public $phone;
 	public $time_format;
 	public $timezone;
 	public $title;
@@ -1653,6 +1688,11 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Worker::FIRST_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
+			'gender' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Worker::GENDER, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+				),
 			'isAdmin' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
@@ -1702,10 +1742,25 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Worker::LAST_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
+			'location' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Worker::LOCATION, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
 			'mentionName' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Worker::AT_MENTION_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+				),
+			'mobile' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Worker::MOBILE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'phone' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Worker::PHONE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 			'timezone' => 
 				array(
@@ -1910,8 +1965,12 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		switch($field) {
 			case SearchFields_Worker::AT_MENTION_NAME:
 			case SearchFields_Worker::FIRST_NAME:
+			case SearchFields_Worker::GENDER:
 			case SearchFields_Worker::LANGUAGE:
 			case SearchFields_Worker::LAST_NAME:
+			case SearchFields_Worker::LOCATION:
+			case SearchFields_Worker::MOBILE:
+			case SearchFields_Worker::PHONE:
 			case SearchFields_Worker::TIME_FORMAT:
 			case SearchFields_Worker::TIMEZONE:
 			case SearchFields_Worker::TITLE:
@@ -1927,6 +1986,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
+			case SearchFields_Worker::DOB:
 			case SearchFields_Worker::LAST_ACTIVITY_DATE:
 			case SearchFields_Worker::UPDATED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
@@ -1990,14 +2050,19 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		switch($field) {
 			case SearchFields_Worker::AT_MENTION_NAME:
 			case SearchFields_Worker::FIRST_NAME:
+			case SearchFields_Worker::GENDER:
 			case SearchFields_Worker::LANGUAGE:
 			case SearchFields_Worker::LAST_NAME:
+			case SearchFields_Worker::LOCATION:
+			case SearchFields_Worker::MOBILE:
+			case SearchFields_Worker::PHONE:
 			case SearchFields_Worker::TIME_FORMAT:
 			case SearchFields_Worker::TIMEZONE:
 			case SearchFields_Worker::TITLE:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
+			case SearchFields_Worker::DOB:
 			case SearchFields_Worker::LAST_ACTIVITY_DATE:
 			case SearchFields_Worker::UPDATED:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
@@ -2306,14 +2371,19 @@ class Context_Worker extends Extension_DevblocksContext {
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'dob' => $prefix.$translate->_('common.dob'),
 			'first_name' => $prefix.$translate->_('common.name.first'),
 			'full_name' => $prefix.$translate->_('common.name.full'),
+			'gender' => $prefix.$translate->_('common.gender'),
 			'id' => $prefix.$translate->_('common.id'),
 			'is_disabled' => $prefix.$translate->_('common.disabled'),
 			'is_superuser' => $prefix.$translate->_('worker.is_superuser'),
 			'language' => $prefix.$translate->_('worker.language'),
 			'last_name' => $prefix.$translate->_('common.name.last'),
 			'last_activity_date' => $prefix.$translate->_('worker.last_activity_date'),
+			'location' => $prefix.$translate->_('common.location'),
+			'mobile' => $prefix.$translate->_('common.mobile'),
+			'phone' => $prefix.$translate->_('common.phone'),
 			'time_format' => $prefix.$translate->_('worker.time_format'),
 			'timezone' => $prefix.$translate->_('worker.timezone'),
 			'title' => $prefix.$translate->_('worker.title'),
@@ -2324,14 +2394,19 @@ class Context_Worker extends Extension_DevblocksContext {
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'dob' => Model_CustomField::TYPE_DATE,
 			'first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'full_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'gender' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'is_disabled' => Model_CustomField::TYPE_CHECKBOX,
 			'is_superuser' => Model_CustomField::TYPE_CHECKBOX,
 			'language' => Model_CustomField::TYPE_SINGLE_LINE,
-			'last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'last_activity_date' => Model_CustomField::TYPE_DATE,
+			'last_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'location' => Model_CustomField::TYPE_SINGLE_LINE,
+			'mobile' => Model_CustomField::TYPE_SINGLE_LINE,
+			'phone' => Model_CustomField::TYPE_SINGLE_LINE,
 			'time_format' => Model_CustomField::TYPE_SINGLE_LINE,
 			'timezone' => Model_CustomField::TYPE_SINGLE_LINE,
 			'title' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -2359,14 +2434,19 @@ class Context_Worker extends Extension_DevblocksContext {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $worker->getName();
 			$token_values['calendar_id'] = $worker->calendar_id;
+			$token_values['dob'] = $worker->dob;
 			$token_values['id'] = $worker->id;
 			$token_values['first_name'] = $worker->first_name;
 			$token_values['full_name'] = $worker->getName();
+			$token_values['gender'] = $worker->gender;
 			$token_values['is_disabled'] = $worker->is_disabled;
 			$token_values['is_superuser'] = $worker->is_superuser;
 			$token_values['language'] = $worker->language;
-			$token_values['last_name'] = $worker->last_name;
 			$token_values['last_activity_date'] = $worker->last_activity_date;
+			$token_values['last_name'] = $worker->last_name;
+			$token_values['location'] = $worker->location;
+			$token_values['mobile'] = $worker->mobile;
+			$token_values['phone'] = $worker->phone;
 			$token_values['time_format'] = $worker->time_format;
 			$token_values['timezone'] = $worker->timezone;
 			$token_values['title'] = $worker->title;
