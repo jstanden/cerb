@@ -43,6 +43,7 @@ class DevblocksExtension {
 };
 
 class Exception_Devblocks extends Exception {};
+
 class Exception_DevblocksAjaxError extends Exception_Devblocks {};
 
 interface IDevblocksHandler_Session {

@@ -1450,22 +1450,6 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Pages';
 		
-		/*
-		$view->view_columns = array(
-			SearchFields_Address::FIRST_NAME,
-			SearchFields_Address::LAST_NAME,
-			SearchFields_Address::ORG_NAME,
-		);
-		*/
-		
-		/*
-		$view->addParamsDefault(array(
-			SearchFields_Address::IS_BANNED => new DevblocksSearchCriteria(SearchFields_Address::IS_BANNED,'=',0),
-			SearchFields_Address::IS_DEFUNCT => new DevblocksSearchCriteria(SearchFields_Address::IS_DEFUNCT,'=',0),
-		), true);
-		$view->addParams($view->getParamsDefault(), true);
-		*/
-		
 		$view->renderSortBy = SearchFields_WorkspacePage::ID;
 		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
@@ -1698,22 +1682,6 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 		
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Tabs';
-		
-		/*
-		$view->view_columns = array(
-			SearchFields_Address::FIRST_NAME,
-			SearchFields_Address::LAST_NAME,
-			SearchFields_Address::ORG_NAME,
-		);
-		*/
-		
-		/*
-		$view->addParamsDefault(array(
-			SearchFields_Address::IS_BANNED => new DevblocksSearchCriteria(SearchFields_Address::IS_BANNED,'=',0),
-			SearchFields_Address::IS_DEFUNCT => new DevblocksSearchCriteria(SearchFields_Address::IS_DEFUNCT,'=',0),
-		), true);
-		$view->addParams($view->getParamsDefault(), true);
-		*/
 		
 		$view->renderSortBy = SearchFields_WorkspaceTab::ID;
 		$view->renderSortAsc = true;

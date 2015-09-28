@@ -589,8 +589,8 @@ class ChInternalController extends DevblocksControllerExtension {
 	 */
 	
 	function chooserOpenAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
-		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string', '');
+		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string', '');
 		@$single = DevblocksPlatform::importGPC($_REQUEST['single'],'integer',0);
 
 		if(null != ($context_extension = DevblocksPlatform::getExtension($context, true))) {

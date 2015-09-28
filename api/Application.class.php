@@ -2608,6 +2608,11 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 		return $fields;
 	}
 
+	/**
+	 * 
+	 * @param array $ids
+	 * @return Model_Address[]
+	 */
 	static function getIds($ids) {
 		if(!is_array($ids))
 			$ids = array($ids);

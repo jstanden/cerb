@@ -1023,14 +1023,6 @@ UL.bubbles LI.bubble-gray {
 UL.bubbles LI.bubble-gray A {
   color: black;
 }
-UL.bubbles.chooser-container LI {
-  color: #646464;
-  border-color: #d7d7d7;
-  background: none;
-}
-UL.bubbles.chooser-container LI A {
-  color: #646464;
-}
 UL.bubbles.chooser-container LI IMG.cerb-avatar {
   height: 16px;
   width: 16px;

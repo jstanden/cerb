@@ -184,7 +184,7 @@ if(!empty($changes)) {
 
 if(isset($tables['contact_person'])) {
 	$sql = "DROP TABLE contact_person";
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 	
 	unset($tables['contact_person']);
 }
@@ -194,7 +194,7 @@ if(isset($tables['contact_person'])) {
 
 if(isset($tables['openid_to_contact_person'])) {
 	$sql = "DROP TABLE openid_to_contact_person";
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 	
 	unset($tables['openid_to_contact_person']);
 }

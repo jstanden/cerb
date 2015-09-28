@@ -257,47 +257,6 @@ class ChContactsPage extends CerberusPageExtension {
 		));
 	}
 	
-	function showTabPeopleAddressesAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		@$contact_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-				
-		$person = DAO_ContactPerson::get($contact_id);
-		$tpl->assign('person', $person);
-		
-		$view = C4_AbstractViewLoader::getView('contact_person_addresses');
-		
-		// All contact addresses
-		$contact_addresses = $person->getAddresses();
-		
-		if(null == $view) {
-			$view = new View_Address();
-			$view->id = 'contact_person_addresses';
-			$view->name = '';
-			$view->view_columns = array(
-				SearchFields_Address::FIRST_NAME,
-				SearchFields_Address::LAST_NAME,
-				SearchFields_Address::ORG_NAME,
-			);
-			$view->renderLimit = 10;
-			$view->renderPage = 0;
-			$view->renderSortBy = SearchFields_Address::EMAIL;
-			$view->renderSortAsc = true;
-		}
-
-		@$view->name = 'Verified Email Addresses';
-		$view->addParamsRequired(array(
-			SearchFields_Address::ID => new DevblocksSearchCriteria(SearchFields_Address::ID,'in',array_keys($contact_addresses)),
-		), true);
-		$tpl->assign('view', $view);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
-		exit;
-	}
-	
 	function showTabMailHistoryAction() {
 		$translate = DevblocksPlatform::getTranslationService();
 	
