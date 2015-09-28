@@ -1,4 +1,9 @@
 function DevblocksClass() {
+	// Source: http://stackoverflow.com/a/16693578
+	this.uniqueId = function() {
+		return (Math.random().toString(16)+"000000000").substr(2,8);
+	}
+	
 	/* Source: http://bytes.com/forum/thread90068.html */
 	// [TODO] Does this matter with caret.js anymore?
 	this.getSelectedText = function() {
