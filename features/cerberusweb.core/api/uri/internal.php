@@ -1020,33 +1020,52 @@ class ChInternalController extends DevblocksControllerExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$list = array();
-
+		
 		// [TODO] This should be handled by the context extension
 		switch($context) {
 			case CerberusContexts::CONTEXT_ADDRESS:
+				// If we have a special email character then switch to literal email matching
+				if(preg_match('/[\.\@\_]/', $term)) {
+					// If a leading '@', then prefix/trailing wildcard
+					if(substr($term,0,1) == '@') {
+						$query = '*' . $term . '*';
+					// Otherwise, only suffix wildcard
+					} else {
+						$query = $term . '*';
+					}
+					
+					$params = array(
+						SearchFields_Address::EMAIL => new DevblocksSearchCriteria(SearchFields_Address::EMAIL, DevblocksSearchCriteria::OPER_LIKE, $query),
+					);
+					
+				// Otherwise, use fulltext
+				} else {
+					$params = array(
+						SearchFields_Address::FULLTEXT_ADDRESS => new DevblocksSearchCriteria(SearchFields_Address::FULLTEXT_ADDRESS, DevblocksSearchCriteria::OPER_FULLTEXT, $term.'*'),
+					);
+				}
+				
 				list($results, $null) = DAO_Address::search(
 					array(),
-					array(
-						array(
-							DevblocksSearchCriteria::GROUP_OR,
-							new DevblocksSearchCriteria(SearchFields_Address::LAST_NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
-							new DevblocksSearchCriteria(SearchFields_Address::FIRST_NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
-							new DevblocksSearchCriteria(SearchFields_Address::EMAIL,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
-						),
-					),
+					$params,
 					25,
 					0,
 					SearchFields_Address::NUM_NONSPAM,
 					false,
 					false
 				);
+				
+				$models = DAO_Address::getIds(array_keys($results));
 
-				foreach($results AS $row){
+				if(is_array($models))
+				foreach($models as $model) {
 					$entry = new stdClass();
-					$entry->label = trim($row[SearchFields_Address::FIRST_NAME] . ' ' . $row[SearchFields_Address::LAST_NAME] . ' <' .$row[SearchFields_Address::EMAIL] . '>');
-					$entry->value = $row[SearchFields_Address::ID];
+					$entry->label = $model->getNameWithEmail();
+					$entry->value = $model->id;
 					$list[] = $entry;
 				}
+				
+				unset($models);
 				break;
 				
 			case CerberusContexts::CONTEXT_FILE_BUNDLE:

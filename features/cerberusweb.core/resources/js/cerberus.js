@@ -464,7 +464,7 @@ var cAjaxCalls = function() {
 	}
 
 	this.emailAutoComplete = function(sel, options) {
-		var url = DevblocksAppPath+'ajax.php?c=contacts&a=getEmailAutoCompletions&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
+		var url = DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=cerberusweb.contexts.address&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
 		if(null == options) options = { };
 
 		if(null == options.minLength)
@@ -500,9 +500,9 @@ var cAjaxCalls = function() {
 				var value = $(this).val();
 				var pos = value.lastIndexOf(',');
 				if(-1 != pos) {
-					$(this).val(value.substring(0,pos)+', '+ui.item.value+', ');
+					$(this).val(value.substring(0,pos)+', '+ui.item.label+', ');
 				} else {
-					$(this).val(ui.item.value+', ');
+					$(this).val(ui.item.label+', ');
 				}
 				return false;
 			}
