@@ -228,7 +228,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				if(false == ($worker = DAO_Worker::get($context_id)))
 					return false;
 					
-				return $worker->email;
+				return $worker->getEmailString();
 				break;
 		}
 		

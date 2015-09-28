@@ -15,7 +15,7 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top"><b>From:</b> </td>
 		<td width="100%">
-			{$worker->getName()} &lt;{$worker->email}&gt;
+			{$worker->getName()} &lt;{$worker->getEmailString()}&gt;
 		</td>
 	</tr>
 	{/if}

@@ -51,8 +51,18 @@ if(isset($columns['title']) && 0 != strcasecmp('varchar(255)', $columns['title']
 	$db->ExecuteMaster("ALTER TABLE worker MODIFY COLUMN title varchar(255) not null default ''");
 }
 
-if(isset($columns['email']) && 0 != strcasecmp('varchar(255)', $columns['email']['type'])) {
-	$db->ExecuteMaster("ALTER TABLE worker MODIFY COLUMN email varchar(255) not null default ''");
+// ===========================================================================
+// Migrate worker.email to worker.email_id
+
+if(!isset($columns['email_id']) && isset($columns['email'])) {
+	$db->ExecuteMaster("ALTER TABLE worker ADD COLUMN email_id int unsigned not null default 0");
+	
+	$sql = "UPDATE worker INNER JOIN address ON (worker.email=address.email) SET worker.email_id = address.id";
+	$db->ExecuteMaster($sql);
+	
+	$db->ExecuteMaster("ALTER TABLE worker DROP COLUMN email");
+}
+
 }
 
 // ===========================================================================

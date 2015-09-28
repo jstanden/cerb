@@ -205,7 +205,7 @@ class CerberusApplication extends DevblocksApplication {
 			$list[] = array(
 				'id' => $worker->id,
 				'name' => $worker->getName(),
-				'email' => $worker->email,
+				'email' => $worker->getEmailString(),
 				'title' => $worker->title,
 				'at_mention' => $worker->at_mention_name,
 				'_index' => $worker->getName() . ' ' . $worker->at_mention_name,

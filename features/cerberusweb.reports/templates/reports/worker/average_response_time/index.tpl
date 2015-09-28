@@ -31,7 +31,7 @@
 			{else}{assign var=response_time value=0}{/if}
 			<tr>
 				<td style="padding-right:20px;">
-					<b>{$workers.$worker_id->first_name}&nbsp;{$workers.$worker_id->last_name}</b>&nbsp;&nbsp;({$workers.$worker_id->email})</b>
+					<b>{$workers.$worker_id->first_name}&nbsp;{$workers.$worker_id->last_name}</b>&nbsp;&nbsp;({$workers.$worker_id->getEmailString()})</b>
 				</td>
 				{if $response_time==0}<td valign="top"></td>
 				{elseif $response_time>1440}<td valign="top">{math equation="x/1440" x=$response_time format="%0.1f"} {'common.days'|devblocks_translate|lower}</td>

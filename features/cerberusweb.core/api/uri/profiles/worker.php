@@ -30,7 +30,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$request = DevblocksPlatform::getHttpRequest();
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		
+
 		$stack = $request->path;
 		
 		@array_shift($stack); // profiles
@@ -74,7 +74,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 			'label' => ucfirst($translate->_('common.email')),
 			'type' => Model_CustomField::TYPE_LINK,
 			'params' => array('context' => CerberusContexts::CONTEXT_ADDRESS),
-			'value' => $worker->getAddress()->id,
+			'value' => $worker->email_id,
 		);
 		
 		$properties['title'] = array(

@@ -45,7 +45,7 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 			default:
 				if($worker instanceof Model_Worker && !DAO_Worker::hasAuth($worker->id)) {
 					$query = array(
-						'email' => $worker->email,
+						'email' => $worker->getEmailString(),
 					);
 					
 					@$code = DevblocksPlatform::importGPC($_REQUEST['code'], 'string', '');
@@ -81,7 +81,7 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 			if(!$visit->isImposter()) {
 				$session->clear();
 				$query = array(
-					'email' => $worker->email,
+					'email' => $worker->getEmailString(),
 				);
 				DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login'), $query));
 			}
@@ -95,7 +95,7 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 		$tpl->assign('error', $error);
 		
 		if(!empty($worker)) {
-			$email = $worker->email;
+			$email = $worker->getEmailString();
 		} else {
 			$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		}
@@ -119,10 +119,10 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 		if(!isset($_SESSION['recovery_code'])) {
 			$recovery_code = CerberusApplication::generatePassword(8);
 			
-			$_SESSION['recovery_code'] = $worker->email . ':' . $recovery_code;
+			$_SESSION['recovery_code'] = $worker->getEmailString() . ':' . $recovery_code;
 			
 			// [TODO] Email or SMS it through the new recovery platform service
-			CerberusMail::quickSend($worker->email, 'Your confirmation code', $recovery_code);
+			CerberusMail::quickSend($worker->getEmailString(), 'Your confirmation code', $recovery_code);
 		}
 		$tpl->display('devblocks:cerberusweb.core::login/auth/setup.tpl');
 	}
@@ -141,7 +141,7 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 				throw new CerbException("Invalid confirmation code.");
 			}
 			
-			if($session_confirm_code != $worker->email.':'.$confirm_code) {
+			if($session_confirm_code != $worker->getEmailString().':'.$confirm_code) {
 				unset($_SESSION['recovery_code']);
 				throw new CerbException("The given confirmation code doesn't match the one on file.");
 			}
@@ -167,12 +167,12 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 			unset($_SESSION['recovery_code']);
 			
 			// Redirect to log in form
-			$query = array('email' => $worker->email);
+			$query = array('email' => $worker->getEmailString());
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login','password'), $query));
 			
 		} catch(CerbException $e) {
 			$query = array(
-				'email' => $worker->email,
+				'email' => $worker->getEmailString(),
 				'error' => $e->getMessage(),
 			);
 			

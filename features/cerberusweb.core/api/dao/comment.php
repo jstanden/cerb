@@ -1331,7 +1331,7 @@ class Context_Comment extends Extension_DevblocksContext {
 				
 				if(is_array($watchers))
 				foreach($watchers as $watcher) {
-					$watchers_list[] = $watcher->email;
+					$watchers_list[] = $watcher->getEmailString();
 				}
 				
 				$values['record_watchers'] = $watchers;

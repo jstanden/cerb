@@ -547,7 +547,7 @@ class ImportCron extends CerberusCronPageExtension {
 			
 			if(is_array($workers))
 			foreach($workers as $worker) { /* @var $worker Model_Worker */
-				$email_to_worker_id[strtolower($worker->email)] = intval($worker->id);
+				$email_to_worker_id[strtolower($worker->getEmailString())] = intval($worker->id);
 			}
 		}
 		
@@ -916,8 +916,11 @@ class ImportCron extends CerberusCronPageExtension {
 			return true;
 		}
 		
+		if(false == ($addy_model = DAO_Address::getByEmail($sEmail)))
+			return false;
+		
 		$fields = array(
-			DAO_Worker::EMAIL => $sEmail,
+			DAO_Worker::EMAIL_ID => $addy_model->id,
 			DAO_Worker::FIRST_NAME => $sFirstName,
 			DAO_Worker::LAST_NAME => $sLastName,
 			DAO_Worker::IS_SUPERUSER => intval($isSuperuser),

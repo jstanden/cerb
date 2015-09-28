@@ -779,7 +779,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			$this->error(self::ERRNO_ACL, 'Access denied to delete tickets in this group.');
 		
 		// Worker address exists
-		if(null === ($address = CerberusApplication::hashLookupAddress($worker->email,true)))
+		if(null === ($address = $worker->getEmailModel()))
 			$this->error(self::ERRNO_CUSTOM, 'Your worker does not have a valid e-mail address.');
 		
 		// Required fields

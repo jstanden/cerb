@@ -15,11 +15,11 @@
 	<tr>
 		<td align="right" valign="middle">{'common.email'|devblocks_translate|capitalize}:</td>
 		{if empty($worker)}
-		<td><input type="text" name="email" size="45" class="input_email" value="{$worker->email}"></td>
+		<td><input type="text" name="email" size="45" class="input_email" value="{$worker->getEmailString()}"></td>
 		{else}
 		<td>
-			<b>{$worker->email}</b>
-			<input type="hidden" name="email" value="{$worker->email}">
+			<b>{$worker->getEmailString()}</b>
+			<input type="hidden" name="email" value="{$worker->getEmailString()}">
 		</td>
 		{/if}
 		<td>
@@ -34,7 +34,7 @@
 			<input type="password" name="password" size="16">
 		</td>
 		<td>
-			<a href="{devblocks_url}c=login&a=recover{/devblocks_url}?email={$worker->email}" tabindex="-1">can't log in?</a>
+			<a href="{devblocks_url}c=login&a=recover{/devblocks_url}?email={$worker->getEmailString()}" tabindex="-1">can't log in?</a>
 		</td>
 	</tr>
 	<tr>
@@ -53,7 +53,7 @@
 
 <script type="text/javascript">
 	$(function() {
-		{if !empty($worker->email)}
+		{if !empty($worker->getEmailString())}
 			$('#loginForm input[name=password]').focus().select();
 		{else}
 			$('#loginForm input[name=email]').focus().select();

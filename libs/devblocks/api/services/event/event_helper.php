@@ -4138,7 +4138,7 @@ class DevblocksEventHelper {
 						if(null == ($worker = DAO_Worker::get($dict->$to)))
 							continue;
 						
-						$to_list[$worker->email] = $worker;
+						$to_list[$worker->getEmailString()] = $worker;
 						break;
 				}
 				
