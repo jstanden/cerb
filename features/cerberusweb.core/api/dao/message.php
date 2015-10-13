@@ -820,6 +820,10 @@ class Model_Message {
 				return false;
 		}
 		
+		// If attachment size is more than 1MB, fall back to plaintext
+		if($attachment->storage_size > 1000000)
+			return false;
+		
 		// If the attachment is inaccessible, fallback to plaintext 
 		if(false == ($dirty_html = $attachment->getFileContents()))
 			return false;
