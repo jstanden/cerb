@@ -245,7 +245,7 @@ abstract class C4_AbstractView {
 	}
 	
 	function getParams($parse_placeholders=true) {
-		$params = $this->_paramsEditable;
+		$params = DevblocksPlatform::deepCloneArray($this->_paramsEditable);
 		
 		// Required should supersede editable
 		
