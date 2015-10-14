@@ -613,7 +613,7 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="addy_book.peek.title">
+		<tu tuid="common.email_address">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>

@@ -613,7 +613,7 @@
 				<seg>%s open ticket(s)</seg>
 			</tuv>
 		</tu>
-		<tu tuid="addy_book.peek.title">
+		<tu tuid="common.email_address">
 			<tuv xml:lang="nl_NL">
 				<seg>E-mail contactpersoon</seg>
 			</tuv>

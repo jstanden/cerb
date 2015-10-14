@@ -69,7 +69,7 @@
 	
 	{* Bulk lazy load orgs for this page *}
 	{$object_orgs = []}
-	{if in_array(SearchFields_CONTACT::ORG_ID, $view->view_columns)}
+	{if in_array(SearchFields_Contact::ORG_ID, $view->view_columns)}
 		{$org_ids = DevblocksPlatform::extractArrayValues($results, 'c_org_id')}
 		{$object_orgs = DAO_ContactOrg::getIds($org_ids)}
 	{/if}

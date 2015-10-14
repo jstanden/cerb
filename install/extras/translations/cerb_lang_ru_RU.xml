@@ -613,7 +613,7 @@
 				<seg>% открыл заявку</seg>
 			</tuv>
 		</tu>
-		<tu tuid="addy_book.peek.title">
+		<tu tuid="common.email_address">
 			<tuv xml:lang="ru_RU">
 				<seg>Контакт электронной почты</seg>
 			</tuv>

@@ -1186,13 +1186,13 @@ DIV.cerb-profile-toolbar {
 
 DIV.cerb-popupmenu {
 	min-width:200px;
-	margin:0px;
+	margin:5px 0px 20px 0px;
 	padding:5px;
 	display:none;
 	background-color:$white;
 	border:1px solid rgb(100,135,225);
 	
-	@include box-shadow-trbl(0px, 5px, 15px, 0px, rgb(175,175,175));
+	@include box-shadow-trbl(0px, 0px, 15px, 0px, rgb(175,175,175));
 	
 	&.cerb-float {
 		position: absolute;
@@ -1205,13 +1205,13 @@ DIV.cerb-popupmenu {
 UL.cerb-popupmenu {
 	min-width:200px;
 	list-style:none;
-	margin:0px;
+	margin:5px 0px 20px 0px;
 	padding:5px;
 	display:none;
 	background-color:$white;
-	border:1px solid rgb(100,135,225);
+	border:1px solid rgb(204,204,204);
 
-	@include box-shadow-trbl(0px, 5px, 15px, 0px, rgb(175,175,175));
+	@include box-shadow-trbl(0px, 0px, 15px, 0px, rgb(175,175,175));
 
 	&.cerb-float {
 		position: absolute;

@@ -61,7 +61,6 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		}
 		
 		$this->_renderAvatar($avatar);
-		exit;
 	}
 	
 	private function _renderAvatar(Model_ContextAvatar $avatar, $default_context=null, $default_context_id=null) {
@@ -88,6 +87,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		header("Content-Length: " . $avatar->storage_size);
 		
 		echo $contents;
+		exit;
 	}
 	
 	private function _fetchImageFromUrl($url) {

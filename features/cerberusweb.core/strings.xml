@@ -512,6 +512,11 @@
 				<seg>Email</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.email_address">
+			<tuv xml:lang="en_US">
+				<seg>Email Address</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.email_addresses">
 			<tuv xml:lang="en_US">
 				<seg>Email Addresses</seg>
@@ -1965,11 +1970,6 @@
 		<tu tuid="addy_book.peek.count.closed_tickets">
 			<tuv xml:lang="en_US">
 				<seg>%s closed ticket(s)</seg>
-			</tuv>
-		</tu>
-		<tu tuid="addy_book.peek.title">
-			<tuv xml:lang="en_US">
-				<seg>Email Address</seg>
 			</tuv>
 		</tu>
 		<tu tuid="addy_book.peek.view_full">

@@ -2741,7 +2741,7 @@ class C4_AbstractViewLoader {
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $worker_labels, $worker_values, null, true, true);
 		CerberusContexts::merge('current_worker_', null, $worker_labels, $worker_values, $labels, $values);
 		
-		$view->setPlaceholderValues(new DevblocksDictionaryDelegate($values));
+		$view->setPlaceholderValues($values);
 		
 		$view->_init_checksum = sha1(serialize($view));
 		

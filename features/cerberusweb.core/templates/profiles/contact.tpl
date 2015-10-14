@@ -8,7 +8,7 @@
 <div style="float:left">
 	<h1>{$contact->getName()}</h1>
 	
-	<div class="cerb-profile-toolbar">
+	<div class="cerb-profile-toolbar" style="margin-top:5px;">
 		<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
 			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 			
@@ -108,20 +108,16 @@ $(function() {
 	$('#btnDisplayContactEdit')
 		.cerbPeekTrigger()
 		.on('cerb-peek-opened', function(e) {
-			console.log('Event: open');
 		})
 		.on('cerb-peek-saved', function(e) {
-			console.log('Event: save');
 			e.stopPropagation();
 			document.location.reload();
 		})
 		.on('cerb-peek-deleted', function(e) {
-			console.log('Event: delete');
 			document.location.href = '{devblocks_url}{/devblocks_url}';
 			
 		})
 		.on('cerb-peek-closed', function(e) {
-			console.log('Event: close');
 		})
 		;
 	

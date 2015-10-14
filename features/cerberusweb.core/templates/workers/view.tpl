@@ -112,7 +112,7 @@
 				{if !empty($result.$column)}
 				<td title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</td>
 				{else}
-				<td>never</td>
+				<td>{'common.never'|devblocks_translate|lower}</td>
 				{/if}
 			{elseif $column=="w_auth_extension_id"}
 				<td>

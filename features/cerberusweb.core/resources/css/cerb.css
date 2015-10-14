@@ -1196,14 +1196,14 @@ DIV.cerb-profile-toolbar SMALL {
 
 DIV.cerb-popupmenu {
   min-width: 200px;
-  margin: 0px;
+  margin: 5px 0px 20px 0px;
   padding: 5px;
   display: none;
   background-color: white;
   border: 1px solid #6487e1;
-  -moz-box-shadow: 0px 5px 15px 0px #afafaf;
-  -webkit-box-shadow: 0px 5px 15px 0px #afafaf;
-  box-shadow: 0px 5px 15px 0px #afafaf;
+  -moz-box-shadow: 0px 0px 15px 0px #afafaf;
+  -webkit-box-shadow: 0px 0px 15px 0px #afafaf;
+  box-shadow: 0px 0px 15px 0px #afafaf;
 }
 DIV.cerb-popupmenu.cerb-float {
   position: absolute;
@@ -1215,14 +1215,14 @@ DIV.cerb-popupmenu.cerb-float {
 UL.cerb-popupmenu {
   min-width: 200px;
   list-style: none;
-  margin: 0px;
+  margin: 5px 0px 20px 0px;
   padding: 5px;
   display: none;
   background-color: white;
-  border: 1px solid #6487e1;
-  -moz-box-shadow: 0px 5px 15px 0px #afafaf;
-  -webkit-box-shadow: 0px 5px 15px 0px #afafaf;
-  box-shadow: 0px 5px 15px 0px #afafaf;
+  border: 1px solid #cccccc;
+  -moz-box-shadow: 0px 0px 15px 0px #afafaf;
+  -webkit-box-shadow: 0px 0px 15px 0px #afafaf;
+  box-shadow: 0px 0px 15px 0px #afafaf;
 }
 UL.cerb-popupmenu.cerb-float {
   position: absolute;

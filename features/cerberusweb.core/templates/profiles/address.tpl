@@ -51,7 +51,7 @@
 <br clear="all">
 
 <fieldset class="properties" style="margin-top:5px;">
-	<legend>{'addy_book.peek.title'|devblocks_translate|capitalize}</legend>
+	<legend>{'common.email_address'|devblocks_translate|capitalize}</legend>
 	
 	<div style="margin-left:15px;">
 	{foreach from=$properties item=v key=k name=props}

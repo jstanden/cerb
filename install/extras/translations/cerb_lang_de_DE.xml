@@ -613,7 +613,7 @@
 				<seg>%s offene Ticket(s)</seg>
 			</tuv>
 		</tu>
-		<tu tuid="addy_book.peek.title">
+		<tu tuid="common.email_address">
 			<tuv xml:lang="de_DE">
 				<seg>E-Mail-Kontakt</seg>
 			</tuv>
