@@ -17,7 +17,7 @@
 		<patch version="2.1.0" revision="306" file="patches/2.1.0.php" />
 		<patch version="2.1.1" revision="308" file="patches/2.1.1.php" />
 		<patch version="2.1.2" revision="311" file="patches/2.1.2.php" />
-		<patch version="2.3.0" revision="321" file="patches/2.3.0.php" />
+		<patch version="2.3.0" revision="322" file="patches/2.3.0.php" />
 	</patches>
 	
 	<!-- Exported Classes -->

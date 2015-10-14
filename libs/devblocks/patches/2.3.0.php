@@ -31,4 +31,25 @@ if(isset($columns['version']) && 0 != strcasecmp('int',substr($columns['version'
 	$db->ExecuteMaster(sprintf("ALTER TABLE %splugin MODIFY COLUMN version INT UNSIGNED NOT NULL DEFAULT 0", $prefix));
 }
 
+// ===========================================================================
+// Fix strict mode incompatibility in the `translation` table
+
+if(!isset($tables['translation'])) {
+	$logger->error("The 'translation' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('translation');
+
+if(isset($columns['string_default']) && 'NO' == $columns['string_default']['null']) {
+	$db->ExecuteMaster("ALTER TABLE translation MODIFY COLUMN string_default TEXT");
+}
+
+if(isset($columns['string_override']) && 'NO' == $columns['string_override']['null']) {
+	$db->ExecuteMaster("ALTER TABLE translation MODIFY COLUMN string_override TEXT");
+}
+
+// ===========================================================================
+// Finish
+
 return TRUE;
