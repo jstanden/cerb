@@ -611,7 +611,9 @@ abstract class C4_AbstractView {
 			$values = array($values);
 		
 		foreach($values as $worker_id) {
-			if(isset($workers[$worker_id])) {
+			if(!is_numeric($worker_id)) {
+				$strings[] = sprintf('<b>%s</b>', $worker_id);
+			} elseif(isset($workers[$worker_id])) {
 				$strings[] = sprintf('<b>%s</b>',DevblocksPlatform::strEscapeHtml($workers[$worker_id]->getName()));
 			} elseif (!empty($worker_id)) {
 				$strings[] = sprintf('<b>%d</b>',$worker_id);
