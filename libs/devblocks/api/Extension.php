@@ -46,6 +46,23 @@ class Exception_Devblocks extends Exception {};
 
 class Exception_DevblocksAjaxError extends Exception_Devblocks {};
 
+class Exception_DevblocksAjaxValidationError extends Exception_Devblocks {
+	private $_field_name = null;
+	
+	function __construct($message=null, $field_name=null) {
+		parent::__construct($message);
+		$this->_field_name = $field_name;
+	}
+	
+	/**
+	 * 
+	 * @return string
+	 */
+	function getFieldName() {
+		return $this->_field_name;
+	}
+};
+
 interface IDevblocksHandler_Session {
 	static function open($save_path, $session_name);
 	static function close();

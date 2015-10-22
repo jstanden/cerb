@@ -140,6 +140,69 @@ function DevblocksClass() {
 		
 		return selectedTabs[tabsId];
 	}
+	
+	this.callbackPeekEditSave = function(e) {
+		if(!(typeof e == 'object'))
+			return false;
+		
+		var $button = $(this);
+		var $popup = genericAjaxPopupFind($button);
+		var $frm = $popup.find('form').first();
+		var $status = $popup.find('div.status');
+		var layer = $popup.attr('data-layer');
+		var is_delete = (e.data && e.data.mode == 'delete');
+		
+		if(!($popup instanceof jQuery))
+			return false;
+		
+		if(!($frm instanceof jQuery))
+			return false;
+		
+		// Clear the status div
+		if($status instanceof jQuery)
+			$status.html('').hide();
+		
+		// Are we deleting the record?
+		if(is_delete) {
+			$frm.find('input:hidden[name=do_delete]').val('1');
+		} else {
+			$frm.find('input:hidden[name=do_delete]').val('0');
+		}
+		
+		genericAjaxPost($frm, '', '', function(e) {
+			if(!(typeof e == 'object'))
+				return;
+			
+			if(e.status) {
+				var event;
+				
+				if(is_delete) {
+					event = new jQuery.Event('peek_deleted');
+				} else {
+					event = new jQuery.Event('peek_saved');
+				}
+				
+				if(e.id)
+					event.context_id = e.id;
+				
+				// Reload the associated view (underlying helper)
+				if(e.view_id)
+					genericAjaxGet('view'+e.view_id, 'c=internal&a=viewRefresh&id=' + e.view_id);
+				
+				genericAjaxPopupClose(layer, event);
+				
+			} else {
+				// Output errors
+				if(e.error && ($status instanceof jQuery))
+					Devblocks.showError($status, e.error);
+				
+				// Highlight the failing field
+				if(e.field)
+					$frm.find('[name=' + e.field + ']').focus();
+			}
+		});
+	}
+	
 };
 var Devblocks = new DevblocksClass();
 
