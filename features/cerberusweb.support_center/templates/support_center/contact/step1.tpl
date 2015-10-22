@@ -16,7 +16,7 @@
 			<label><input type="radio" name="nature" value="{$dispatchKey}" onclick="this.form.submit();"> {$reason}</label><br>
 		{/foreach}
 		<br>
-		<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top" border="0"> {'common.ok'|devblocks_translate|upper}</button>
+		<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.ok'|devblocks_translate|upper}</button>
 	</fieldset>
 </form>
 {elseif !empty($default_from)}

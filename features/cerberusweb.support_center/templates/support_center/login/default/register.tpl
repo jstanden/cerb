@@ -13,7 +13,7 @@
 	<input type="text" name="email" size="64" value="{$email}"><br>
 	<br>
 	
-	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top"> {'portal.sc.public.register.send_confirmation'|devblocks_translate}</button><br> 
+	<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'portal.sc.public.register.send_confirmation'|devblocks_translate}</button><br> 
 </fieldset>
 
 </form> 

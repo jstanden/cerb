@@ -14,7 +14,7 @@
 	<div style="padding-top:10px;padding-left:10px;"><img src="{devblocks_url}c=captcha{/devblocks_url}?color=0,0,0&bgcolor=235,235,235"></div>
 	<br>
 	
-	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/forbidden.png{/devblocks_url}" align="top"> Delete Account</button><br>
+	<button type="submit"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> Delete Account</button><br>
 </fieldset>
 
 </form>
