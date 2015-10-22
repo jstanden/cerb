@@ -452,17 +452,28 @@ abstract class C4_AbstractView {
 				if(!isset($meta['name']) || !isset($meta['permalink']))
 					return;
 				
-				if(!empty($meta['permalink'])) {
-					$string = sprintf("New %s created: <a href='%s'><b>%s</b></a>",
-						strtolower($ctx->manifest->name),
-						htmlspecialchars($meta['permalink'], ENT_QUOTES, LANG_CHARSET_CODE),
-						htmlspecialchars($meta['name'], ENT_QUOTES, LANG_CHARSET_CODE)
+				// Use abstract popups if we can
+				if($ctx instanceof IDevblocksContextPeek) {
+					$string = sprintf("New %s created: <a href='javascript:;' class='cerb-peek-trigger' data-context='%s' data-context-id='%d'><b>%s</b></a>",
+						DevblocksPlatform::strEscapeHtml(strtolower($ctx->manifest->name)),
+						DevblocksPlatform::strEscapeHtml($context),
+						DevblocksPlatform::strEscapeHtml($context_id),
+						DevblocksPlatform::strEscapeHtml($meta['name'])
 					);
 					
+				// Otherwise, try linking to profile pages
+				} elseif(!empty($meta['permalink'])) {
+					$string = sprintf("New %s created: <a href='%s'><b>%s</b></a>",
+						DevblocksPlatform::strEscapeHtml(strtolower($ctx->manifest->name)),
+						DevblocksPlatform::strEscapeHtml($meta['permalink']),
+						DevblocksPlatform::strEscapeHtml($meta['name'])
+					);
+					
+				// Lastly, just output some text
 				} else {
 					$string = sprintf("New %s created: <b>%s</b>",
-						strtolower($ctx->manifest->name),
-						htmlspecialchars($meta['name'], ENT_QUOTES, LANG_CHARSET_CODE)
+						DevblocksPlatform::strEscapeHtml(strtolower($ctx->manifest->name)),
+						DevblocksPlatform::strEscapeHtml($meta['name'])
 					);
 				}
 			}
