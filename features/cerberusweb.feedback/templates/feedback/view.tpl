@@ -93,11 +93,11 @@
 				{elseif $column=="f_quote_mood"}
 					<td>
 						{if 1==$result.$column}
-							<span style="background-color:rgb(235, 255, 235);color:rgb(0, 180, 0);font-weight:bold;">{'feedback.mood.praise'|devblocks_translate}</span>
+						<span class="tag tag-green" style="vertical-align:middle;">{'feedback.mood.praise'|devblocks_translate|lower}</span>
 						{elseif 2==$result.$column}
-							<span style="background-color: rgb(255, 235, 235);color: rgb(180, 0, 0);font-weight:bold;">{'feedback.mood.criticism'|devblocks_translate}</span>
+						<span class="tag tag-red" style="vertical-align:middle;">{'feedback.mood.criticism'|devblocks_translate|lower}</span>
 						{else}
-							{'feedback.mood.neutral'|devblocks_translate}
+						<span class="tag tag-gray" style="vertical-align:middle;">{'feedback.mood.neutral'|devblocks_translate|lower}</span>
 						{/if}
 					</td>
 				{elseif $column=="f_source_url"}
@@ -111,7 +111,6 @@
 			<td colspan="{$smarty.foreach.headers.total}">
 				<div id="subject_{$result.f_id}_{$view->id}" style="margin:5px;margin-left:10px;font-size:12px;">
 					<input type="checkbox" name="row_id[]" value="{$result.f_id}" style="display:none;">
-					<img src="{devblocks_url}c=resource&p=cerberusweb.feedback&f=images/{if 1==$mood}bullet_ball_glass_green.png{elseif 2==$mood}bullet_ball_glass_red.png{else}bullet_ball_glass_grey.png{/if}{/devblocks_url}" align="top" title="{if 1==$mood}Praise{elseif 2==$mood}Criticism{else}Neutral{/if}"> 
 					{$result.f_quote_text} 
 					{if ($active_worker->hasPriv('feedback.actions.create') && $result.f_worker_id==$active_worker->id) || $active_worker->hasPriv('feedback.actions.update_all')}
 						<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_FEEDBACK}&context_id={$result.f_id}&view_id={$view->id}',null,false,'550');"><span class="glyphicons glyphicons-new-window-alt"></span></button>

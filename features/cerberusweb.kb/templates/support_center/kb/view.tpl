@@ -27,9 +27,9 @@
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
 				{if $view->renderSortAsc}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/sort_ascending.png{/devblocks_url}" align="absmiddle">
+					<span class="glyphicons glyphicons-sort-by-attributes" style="color:rgb(30,143,234);"></span>
 				{else}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/sort_descending.png{/devblocks_url}" align="absmiddle">
+					<span class="glyphicons glyphicons-sort-by-attributes-alt" style="color:rgb(30,143,234);"></span>
 				{/if}
 			{/if}
 			</th>
@@ -42,7 +42,6 @@
 
 	{capture name=kb_title_block}
 		{if !empty($result.kb_title)}
-		<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/document.gif{/devblocks_url}" align="absmiddle">
 		<a href="{devblocks_url}c=kb&a=article&id={$result.kb_id}-{$result.kb_title|devblocks_permalink}{/devblocks_url}" class="record-link"><span id="subject_{$result.kb_id}_{$view->id}">{$result.kb_title}</span></a>				
 		{/if}
 	{/capture}

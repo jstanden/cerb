@@ -54,9 +54,9 @@
 				<b>{$v.label|capitalize}:</b>
 				{if $v.is_closed}
 					{if $v.is_won}
-						<img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/up_plus_gray.gif{/devblocks_url}" align="top" title="Won"> {'crm.opp.status.closed.won'|devblocks_translate}
+						<span style="color:rgb(0,120,0);font-weight:bold;"><span class="glyphicons glyphicons-circle-arrow-top" title="Won"></span> {'crm.opp.status.closed.won'|devblocks_translate}</span>
 					{else}
-						<img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/down_minus_gray.gif{/devblocks_url}" align="top" title="Won"> {'crm.opp.status.closed.lost'|devblocks_translate}
+						<span style="color:rgb(150,0,0);font-weight:bold;"><span class="glyphicons glyphicons-circle-arrow-down" title="Lost"></span> {'crm.opp.status.closed.lost'|devblocks_translate}</span>
 					{/if}
 				{else}
 					{'crm.opp.status.open'|devblocks_translate}
