@@ -13,43 +13,6 @@
 	<legend>{$address->email}</legend>
 
 	<table cellpadding="2" cellspacing="2" border="0">
-	<tr>
-		<td colspan="2">
-			{if $active_contact->email_id != $address->id}
-				<label><input type="checkbox" name="is_primary" value="1" {if $active_contact->email_id == $address->id}checked="checked"{/if}> This is my primary email address.</label>
-			{else}
-				<input type="hidden" name="is_primary" value="1">
-			{/if}
-		</td>
-	</tr>
-	
-	
-	{if $show_fields.addy_first_name}
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.name.first'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			{if 1==$show_fields.addy_first_name}
-			{$address->first_name}
-			{else}
-			<input type="text" name="addy_first_name" size="35" value="{$address->first_name}">
-			{/if}
-		</td>
-	</tr>
-	{/if}
-	
-	{if $show_fields.addy_last_name}
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.name.last'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			{if 1==$show_fields.addy_last_name}
-			{$address->last_name}
-			{else}
-			<input type="text" name="addy_last_name" size="35" value="{$address->last_name}">
-			{/if}
-		</td>
-	</tr>
-	{/if}
-	
 	{foreach from=$address_custom_fields item=field key=field_id}
 	{if $show_fields.{"addy_custom_"|cat:$field_id}}
 	<tr>

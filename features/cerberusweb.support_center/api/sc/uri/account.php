@@ -49,6 +49,15 @@ class UmScAccountController extends Extension_UmScController {
 				break;
 				
 			default:
+			case 'profile':
+				// Show fields
+				if(null != ($show_fields = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'account.fields', null))) {
+					$tpl->assign('show_fields', @json_decode($show_fields, true));
+				}
+				
+				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/account/profile/index.tpl");
+				break;
+				
 			case 'email':
 				@$id = array_shift($path);
 				
@@ -108,6 +117,62 @@ class UmScAccountController extends Extension_UmScController {
 				}
 				
 				break;
+		}
+	}
+	
+	function doProfileUpdateAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$umsession = ChPortalHelper::getSession();
+		$active_contact = $umsession->getProperty('sc_login', null);
+		
+		if(null == $active_contact)
+			return;
+		
+		$show_fields = array();
+		if(null != ($show_fields = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'account.fields', null)))
+			@$show_fields = json_decode($show_fields, true);
+			
+		@$primary_email_id = DevblocksPlatform::importGPC($_POST['primary_email_id'],'integer',0);
+		@$first_name = DevblocksPlatform::importGPC($_POST['first_name'],'string','');
+		@$last_name = DevblocksPlatform::importGPC($_POST['last_name'],'string','');
+		@$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
+		@$username = DevblocksPlatform::importGPC($_POST['username'],'string','');
+		@$gender = DevblocksPlatform::importGPC($_POST['gender'],'string','');
+		@$location = DevblocksPlatform::importGPC($_POST['location'],'string','');
+		@$dob = DevblocksPlatform::importGPC($_POST['dob'],'string','');
+		@$phone = DevblocksPlatform::importGPC($_POST['phone'],'string','');
+		@$mobile = DevblocksPlatform::importGPC($_POST['mobile'],'string','');
+		
+		// Update the record
+		
+		$fields = array(
+			DAO_Contact::UPDATED_AT => time(),
+		);
+		
+		$fields[DAO_Contact::FIRST_NAME] = $first_name;
+		$fields[DAO_Contact::LAST_NAME] = $last_name;
+		$fields[DAO_Contact::TITLE] = $title;
+		$fields[DAO_Contact::USERNAME] = $username;
+		$fields[DAO_Contact::LOCATION] = $location;
+		$fields[DAO_Contact::DOB] = intval(@strtotime($dob));
+		$fields[DAO_Contact::PHONE] = $phone;
+		$fields[DAO_Contact::MOBILE] = $mobile;
+		
+		if(in_array($gender, array('', 'M', 'F'))) {
+			$fields[DAO_Contact::GENDER] = $gender;
+		}
+		
+		// Change the primary email if requested, but verify ownership
+		if($primary_email_id && $primary_email_id != $active_contact->primary_email_id)
+			if(false != ($address = DAO_Address::get($primary_email_id)) && $address->contact_id == $active_contact->id) {
+				$fields[DAO_Contact::PRIMARY_EMAIL_ID] = $primary_email_id;
+			}
+		
+		if(!empty($fields)) {
+			DAO_Contact::update($active_contact->id, $fields);
+			
+			// Update session
+			$umsession->login(DAO_Contact::get($active_contact->id));
 		}
 	}
 
