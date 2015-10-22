@@ -338,7 +338,10 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 		resizable : true,
 		width : Math.max(Math.floor($(window).width()/2), 500) + 'px', // Larger of 50% of browser width or 500px
 		close: function(event, ui) {
-			$(this).unbind().find(':focus').blur();
+			var $this = $(this);
+			$('#devblocksPopups').removeData($layer);
+			$this.unbind().find(':focus').blur();
+			$this.closest('.ui-dialog').remove();
 		}
 	};
 	
@@ -403,7 +406,7 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 				$("body").append("<div id='popup"+$layer+"' class='devblocks-popup' style='display:none;'></div>");
 				$popup = $('#popup'+$layer);
 			}
-
+			
 			// Persist
 			genericAjaxPopupRegister($layer, $popup);
 			
@@ -418,6 +421,9 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			
 			// Render
 			$popup.dialog(options);
+			
+			// Layer
+			$popup.attr('data-layer', $layer);
 			
 			// Open
 			$popup.dialog('open');
