@@ -592,15 +592,24 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string', '');
 		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string', '');
 		@$single = DevblocksPlatform::importGPC($_REQUEST['single'],'integer',0);
+		@$query = DevblocksPlatform::importGPC($_REQUEST['q'],'string', '');
 
-		if(null != ($context_extension = DevblocksPlatform::getExtension($context, true))) {
-			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl->assign('context', $context_extension);
-			$tpl->assign('layer', $layer);
-			$tpl->assign('view', $context_extension->getChooserView());
-			$tpl->assign('single', $single);
-			$tpl->display('devblocks:cerberusweb.core::context_links/choosers/__generic.tpl');
-		}
+		if(null == ($context_extension = DevblocksPlatform::getExtension($context, true)))
+			return;
+		
+		if(false == ($view = $context_extension->getChooserView()))
+			return;
+		
+		if(!empty($query))
+			$view->addParamsWithQuickSearch($query);
+			
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('context', $context_extension);
+		$tpl->assign('layer', $layer);
+		$tpl->assign('view', $view);
+		$tpl->assign('quick_search_query', $query);
+		$tpl->assign('single', $single);
+		$tpl->display('devblocks:cerberusweb.core::context_links/choosers/__generic.tpl');
 	}
 	
 	function chooserOpenSnippetAction() {
