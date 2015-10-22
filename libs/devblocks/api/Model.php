@@ -288,12 +288,14 @@ class DevblocksSearchCriteria {
 					$worker_ids = array();
 					
 					foreach($patterns as $pattern) {
-						if($active_worker && 0 == strcasecmp($pattern, 'me')) {
+						if(is_numeric($pattern) && isset($workers[$pattern])) {
+							$worker_ids[intval($pattern)] = true;
+						
+						} elseif($active_worker && 0 == strcasecmp($pattern, 'me')) {
 							$worker_ids[$active_worker->id] = true;
 							continue;
-						}
-						
-						if(in_array(strtolower($pattern), array('none','noone','nobody'))) {
+							
+						} elseif(in_array(strtolower($pattern), array('none','noone','nobody'))) {
 							$oper = self::OPER_IN_OR_NULL;
 							$worker_ids[0] = true;
 						}
