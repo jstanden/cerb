@@ -19,9 +19,9 @@
 			
 			{if !empty($active_contact)}
 				<select name="from">
-					{$contact_addresses = $active_contact->getAddresses()}
+					{$contact_addresses = $active_contact->getEmails()}
 					{foreach from=$contact_addresses item=address}
-					<option value="{$address->email}" {if 0==strcasecmp($address->id,$active_contact->email_id)}selected="selected"{/if}>{$address->email}</option>
+					<option value="{$address->email}" {if 0==strcasecmp($address->id,$active_contact->primary_email_id)}selected="selected"{/if}>{$address->email}</option>
 					{/foreach}
 				</select>
 				<br>

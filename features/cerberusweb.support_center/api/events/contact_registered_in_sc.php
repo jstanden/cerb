@@ -15,7 +15,7 @@
 |	http://www.cerbweb.com	    http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class Event_ContactRegisteredInSupportCenter extends AbstractEvent_ContactPerson {
+class Event_ContactRegisteredInSupportCenter extends AbstractEvent_Contact {
 	const ID = 'event.contact.registered.sc';
 	
 	function __construct($manifest) {

@@ -998,28 +998,28 @@ class ImportCron extends CerberusCronPageExtension {
 		
 		if(!$addy_exists) {
 			$fields = array(
-				DAO_Address::FIRST_NAME => $sFirstName,
-				DAO_Address::LAST_NAME => $sLastName,
 				DAO_Address::EMAIL => $sEmail,
 			);
 			$address_id = DAO_Address::create($fields);
 		}
 		
 		if(!empty($sPassword)) {
-			if(null == ($contact = DAO_ContactPerson::getWhere(sprintf("%s = %d", DAO_ContactPerson::EMAIL_ID, $address_id)))) {
+			if(null == ($contact = DAO_Contact::getWhere(sprintf("%s = %d", DAO_Contact::PRIMARY_EMAIL_ID, $address_id)))) {
 				$salt = CerberusApplication::generatePassword(8);
 				$fields = array(
-					DAO_ContactPerson::EMAIL_ID => $address_id,
-					DAO_ContactPerson::LAST_LOGIN => time(),
-					DAO_ContactPerson::CREATED => time(),
-					DAO_ContactPerson::AUTH_SALT => $salt,
-					DAO_ContactPerson::AUTH_PASSWORD => md5($salt.$sPassword)
+					DAO_Contact::PRIMARY_EMAIL_ID => $address_id,
+					DAO_Contact::FIRST_NAME => $sFirstName,
+					DAO_Contact::LAST_NAME => $sLastName,
+					DAO_Contact::LAST_LOGIN_AT => time(),
+					DAO_Contact::CREATED_AT => time(),
+					DAO_Contact::AUTH_SALT => $salt,
+					DAO_Contact::AUTH_PASSWORD => md5($salt.$sPassword)
 				);
 				
-				$contact_person_id = DAO_ContactPerson::create($fields);
+				$contact_id = DAO_Contact::create($fields);
 				
 				DAO_Address::update($address_id, array(
-					DAO_Address::CONTACT_PERSON_ID => $contact_person_id
+					DAO_Address::CONTACT_ID => $contact_id
 				));
 				$logger->info('[Importer] Imported contact '. $sEmail);
 			}

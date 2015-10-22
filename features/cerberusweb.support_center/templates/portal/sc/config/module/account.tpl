@@ -11,7 +11,7 @@
 {/if}
 
 <tr>
-	<td colspan="2"><b>Person</b></td>
+	<td colspan="2"><b>{'common.contact'|devblocks_translate|capitalize}</b></td>
 </tr>
 {foreach from=$account_fields item=field name=fields}
 <tr>

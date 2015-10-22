@@ -167,7 +167,7 @@ class UmScAjaxController extends Extension_UmScController {
 				$addresses = array();
 				if(!empty($active_contact) && !empty($active_contact->id)) {
 					$addresses = DAO_Address::getWhere(sprintf("%s = %d",
-						DAO_Address::CONTACT_PERSON_ID,
+						DAO_Address::CONTACT_ID,
 						$active_contact->id
 					));
 				}

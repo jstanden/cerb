@@ -1052,8 +1052,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		DAO_Notification::maint();
 		DAO_Snippet::maint();
 		DAO_ContactOrg::maint();
-		DAO_ContactPerson::maint();
-		DAO_OpenIdToContactPerson::maint();
+		DAO_Contact::maint();
 		DAO_Attachment::maint();
 		DAO_WorkspacePage::maint();
 		DAO_WorkspaceTab::maint();

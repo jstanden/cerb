@@ -502,7 +502,7 @@ class Model_CommunitySession {
 	public $csrf_token = '';
 	private $_properties = array();
 
-	function login(Model_ContactPerson $contact) {
+	function login(Model_Contact $contact) {
 		if(empty($contact) || empty($contact->id)) {
 			$this->logout();
 			return;
@@ -510,8 +510,8 @@ class Model_CommunitySession {
 		
 		$this->setProperty('sc_login', $contact);
 		
-		DAO_ContactPerson::update($contact->id, array(
-			DAO_ContactPerson::LAST_LOGIN => time(),
+		DAO_Contact::update($contact->id, array(
+			DAO_Contact::LAST_LOGIN_AT => time(),
 		));
 	}
 	
