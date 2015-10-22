@@ -480,7 +480,7 @@
 		</file>
 		
 		<file path="api/events/abstract/abstract_event_contact.php">
-			<class name="AbstractEvent_ContactPerson" />
+			<class name="AbstractEvent_Contact" />
 		</file>
 
 		<file path="api/events/abstract/abstract_event_group.php">
@@ -589,6 +589,10 @@
 		
 		<file path="api/events/macro/calendar_event_macro.php">
 			<class name="Event_CalendarEventMacro" />
+		</file>
+		
+		<file path="api/events/macro/contact_macro.php">
+			<class name="Event_ContactMacro" />
 		</file>
 		
 		<file path="api/events/macro/group_macro.php">
@@ -2040,6 +2044,26 @@
 			</class>
 			<params>
 				<param key="macro_context" value="cerberusweb.contexts.calendar_event" />
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.macro.contact</id>
+			<name>Custom contact behavior</name>
+			<class>
+				<file>api/events/macro/contact_macro.php</file>
+				<name>Event_ContactMacro</name>
+			</class>
+			<params>
+				<param key="macro_context" value="cerberusweb.contexts.contact" />
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.app" />
