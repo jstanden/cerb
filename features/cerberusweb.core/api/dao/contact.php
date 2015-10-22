@@ -299,8 +299,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 			"contact.auth_password as %s, ".
 			"contact.created_at as %s, ".
 			"contact.updated_at as %s, ".
-			"contact.last_login_at as %s, ".
-			"address.email as %s ",
+			"contact.last_login_at as %s ",
 				SearchFields_Contact::ID,
 				SearchFields_Contact::PRIMARY_EMAIL_ID,
 				SearchFields_Contact::FIRST_NAME,
@@ -317,12 +316,11 @@ class DAO_Contact extends Cerb_ORMHelper {
 				SearchFields_Contact::AUTH_PASSWORD,
 				SearchFields_Contact::CREATED_AT,
 				SearchFields_Contact::UPDATED_AT,
-				SearchFields_Contact::LAST_LOGIN_AT,
-				SearchFields_Contact::PRIMARY_EMAIL_ADDRESS
+				SearchFields_Contact::LAST_LOGIN_AT
 			);
 			
 		$join_sql = "FROM contact ".
-			"INNER JOIN address ON (address.id=contact.primary_email_id) ".
+			(isset($tables['address']) ? "INNER JOIN address ON (address.id=contact.primary_email_id) " : '').
 			(isset($tables['contact_org']) ? sprintf("INNER JOIN contact_org ON (contact_org.id = contact.org_id) ") : " ").
 			(isset($tables['context_link']) ? sprintf("INNER JOIN context_link ON (context_link.to_context = %s AND context_link.to_context_id = contact.id) ", Cerb_ORMHelper::qstr('cerberusweb.contexts.contact')) : " ").
 			'';
@@ -785,14 +783,12 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$this->renderSortAsc = false;
 
 		$this->view_columns = array(
+			SearchFields_Contact::PRIMARY_EMAIL_ID,
 			SearchFields_Contact::TITLE,
 			SearchFields_Contact::ORG_ID,
-			SearchFields_Contact::PRIMARY_EMAIL_ADDRESS,
 			SearchFields_Contact::USERNAME,
 			SearchFields_Contact::GENDER,
 			SearchFields_Contact::LOCATION,
-			SearchFields_Contact::PHONE,
-			SearchFields_Contact::MOBILE,
 			SearchFields_Contact::UPDATED_AT,
 			SearchFields_Contact::LAST_LOGIN_AT,
 		);
@@ -801,7 +797,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Contact::ORG_NAME,
 			SearchFields_Contact::AUTH_SALT,
 			SearchFields_Contact::AUTH_PASSWORD,
-			SearchFields_Contact::PRIMARY_EMAIL_ID,
+			SearchFields_Contact::PRIMARY_EMAIL_ADDRESS,
 			SearchFields_Contact::FULLTEXT_CONTACT,
 			SearchFields_Contact::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Contact::VIRTUAL_HAS_FIELDSET,
