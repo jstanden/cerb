@@ -441,8 +441,9 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 		$this->renderSortAsc = false;
 
 		$this->view_columns = array(
-			SearchFields_FeedbackEntry::LOG_DATE,
+			SearchFields_FeedbackEntry::QUOTE_MOOD,
 			SearchFields_FeedbackEntry::ADDRESS_EMAIL,
+			SearchFields_FeedbackEntry::LOG_DATE,
 			SearchFields_FeedbackEntry::SOURCE_URL,
 		);
 		
@@ -934,7 +935,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 			
-		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
+		@$quote_address_id = DevblocksPlatform::importGPC($_POST['quote_address_id'],'integer',0);
 		@$mood = DevblocksPlatform::importGPC($_POST['mood'],'integer',0);
 		@$quote = DevblocksPlatform::importGPC($_POST['quote'],'string','');
 		@$url = DevblocksPlatform::importGPC($_POST['url'],'string','');
@@ -942,12 +943,13 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		@$source_id = DevblocksPlatform::importGPC($_POST['source_id'],'integer',0);
 		
 		// Translate email string into addy id, if exists
-		$address_id = 0;
-		if(!empty($email)) {
-			if(null != ($author_address = DAO_Address::lookupAddress($email, true)))
-				$address_id = $author_address->id;
-		}
+		if($quote_address_id && null != ($author_address = DAO_Address::get($quote_address_id)))
+			$address_id = $author_address->id;
 
+		// Sanitize mood
+		if(!in_array($mood, array(0,1,2)))
+			$mood = 0;
+		
 		// Delete entries
 		if(!empty($id) && !empty($do_delete)) {
 			if(null != ($entry = DAO_FeedbackEntry::get($id))) {

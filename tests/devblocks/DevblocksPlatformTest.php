@@ -1037,7 +1037,7 @@ END;
 	}
 	
 	public function testStrToPermalink() {
-		$expected = 'devs_1000_ways_to_improve_sales';
+		$expected = 'devs-1000-ways-to-improve-sales';
 		$actual = strtolower(DevblocksPlatform::strToPermalink('Devs: 1000 Ways to Improve Sales'));
 		$this->assertEquals($expected, $actual);
 	}

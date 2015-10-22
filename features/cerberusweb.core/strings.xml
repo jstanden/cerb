@@ -1052,6 +1052,11 @@
 				<seg>privileges</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.profile">
+			<tuv xml:lang="en_US">
+				<seg>Profile</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.profiles">
 			<tuv xml:lang="en_US">
 				<seg>Profiles</seg>

@@ -21,6 +21,9 @@ class DAO_Contact extends Cerb_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		if(!isset($fields[self::CREATED_AT]))
+			$fields[self::CREATED_AT] = time();
+		
 		$sql = "INSERT INTO contact () VALUES ()";
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
@@ -33,6 +36,9 @@ class DAO_Contact extends Cerb_ORMHelper {
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		if(!isset($fields[self::UPDATED_AT]))
+			$fields[self::UPDATED_AT] = time();
 		
 		// Make a diff for the requested objects in batches
 		
