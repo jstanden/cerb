@@ -2716,6 +2716,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		});
 		
 		$group_names = DAO_Group::getNames($active_worker);
+		$bucket_names = DAO_Bucket::getNames($active_worker);
 		
 		$fields = array(
 			'_fulltext' => 
@@ -2736,6 +2737,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						'*.html',
 						'(*.png OR *.jpg)',
 					),
+			),
+			'bucket' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Ticket::TICKET_BUCKET_ID),
+					'examples' => array_slice($bucket_names, 0, 15),
 			),
 			'comments' => 
 				array(
@@ -2968,6 +2975,65 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						$oper,
 						$value
 					);
+					break;
+					
+				case 'bucket':
+					$field_key = SearchFields_Ticket::TICKET_BUCKET_ID;
+					
+					$oper = DevblocksSearchCriteria::OPER_IN;
+					
+					if(preg_match('#^([\!\=]+)(.*)#', $v, $matches)) {
+						$oper_hint = trim($matches[1]);
+						$v = trim($matches[2]);
+						
+						switch($oper_hint) {
+							case '!':
+							case '!=':
+								$oper = DevblocksSearchCriteria::OPER_NIN;
+								break;
+								
+							default:
+								$oper = DevblocksSearchCriteria::OPER_IN;
+								break;
+						}
+					}
+					
+					$groups = DAO_Group::getAll();
+					$buckets = DAO_Bucket::getAll();
+					$patterns = DevblocksPlatform::parseCsvString($v);
+					
+					if(!is_array($patterns))
+						break;
+					
+					$bucket_ids = array();
+					
+					foreach($patterns as $pattern) {
+						// Match IDs
+						if(is_numeric($pattern) && isset($buckets[$pattern])) {
+							$bucket_id = intval($pattern);
+							$bucket_ids[$bucket_id] = true;
+							continue;
+						}
+						
+						// [TODO] If the pattern has a :, compare as group and bucket
+							
+						foreach($buckets as $bucket_id => $bucket) {
+							if(isset($bucket_ids[$bucket_id]))
+								continue;
+							
+							if(false !== stristr($bucket->name, $pattern)) {
+								$bucket_ids[$bucket_id] = true;
+							}
+						}
+					}
+					
+					if(!empty($bucket_ids)) {
+						$params[$field_key] = new DevblocksSearchCriteria(
+							$field_key,
+							$oper,
+							array_keys($bucket_ids)
+						);
+					}
 					break;
 					
 				case 'group':

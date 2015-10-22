@@ -56,6 +56,25 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		return $group_buckets;
 	}
 	
+	static function getNames(Model_Worker $for_worker=null) {
+		$groups = DAO_Group::getAll();
+		$names = array();
+		
+		foreach($groups as $group) {
+			$buckets = $group->getBuckets();
+			
+			if(is_null($for_worker) || $for_worker->isGroupMember($group->id)) {
+				foreach($buckets as $bucket) {
+					$names[$bucket->id] = $bucket->name;
+				}
+			}
+		}
+		
+		$names = array_unique($names);
+		
+		return $names;
+	}
+	
 	/**
 	 *
 	 * @param bool $nocache
