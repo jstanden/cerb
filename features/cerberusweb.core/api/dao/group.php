@@ -295,6 +295,15 @@ class DAO_Group extends Cerb_ORMHelper {
 		DAO_Bucket::clearCache();
 	}
 	
+	static function countByMemberId($worker_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT count(group_id) FROM worker_to_group WHERE worker_id = %d",
+			$worker_id
+		);
+		return intval($db->GetOneSlave($sql));
+	}
+	
 	/**
 	 * Enter description here...
 	 *
@@ -1777,7 +1786,21 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		
 		// Template
 		
-		$tpl->display('devblocks:cerberusweb.core::groups/peek.tpl');
+		if($edit) {
+			$tpl->display('devblocks:cerberusweb.core::groups/peek_edit.tpl');
+			
+		} else {
+			$activity_counts = array(
+				'members' => DAO_Worker::countByGroupId($context_id),
+				'buckets' => DAO_Bucket::countByGroupId($context_id),
+				'tickets' => DAO_Ticket::countsByGroupId($context_id),
+				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_GROUP, $context_id),
+				'links' => DAO_ContextLink::count(CerberusContexts::CONTEXT_GROUP, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			$tpl->display('devblocks:cerberusweb.core::groups/peek.tpl');
+		}
 	}
 };
 

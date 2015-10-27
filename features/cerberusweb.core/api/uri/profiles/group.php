@@ -132,108 +132,147 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::profiles/group.tpl');
 	}
 	
-	function savePeekAction() {
+	function savePeekJsonAction() {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-
-		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
-		@$is_private = DevblocksPlatform::importGPC($_REQUEST['is_private'],'integer',0);
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 
-		if($do_delete) {
-			@$move_deleted_buckets = DevblocksPlatform::importGPC($_REQUEST['move_deleted_buckets'],'array',array());
-			$buckets = DAO_Bucket::getAll();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
+		
+		try {
+		
+			if($do_delete) {
+				@$move_deleted_buckets = DevblocksPlatform::importGPC($_REQUEST['move_deleted_buckets'],'array',array());
+				$buckets = DAO_Bucket::getAll();
+				
+				if(false == ($deleted_group = DAO_Group::get($group_id)))
+					throw new Exception_DevblocksAjaxValidationError("The group you are attempting to delete doesn't exist.");
+				
+				// Handle preferred bucket relocation
+				
+				if(is_array($move_deleted_buckets))
+				foreach($move_deleted_buckets as $from_bucket_id => $to_bucket_id) {
+					if(!isset($buckets[$from_bucket_id]) || !isset($buckets[$to_bucket_id]))
+						continue;
+					
+					DAO_Ticket::updateWhere(array(DAO_Ticket::GROUP_ID => $buckets[$to_bucket_id]->group_id, DAO_Ticket::BUCKET_ID => $to_bucket_id), sprintf("%s = %d", DAO_Ticket::BUCKET_ID, $from_bucket_id));
+				}
+				
+				DAO_Group::delete($deleted_group->id);
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $group_id,
+					'view_id' => $view_id,
+				));
+				return;
+				
+			} else {
+				@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
+				@$is_private = DevblocksPlatform::importGPC($_REQUEST['is_private'],'bit',0);
 			
-			if(false == ($deleted_group = DAO_Group::get($group_id)))
+				if(empty($name))
+					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.");
+				
+				$fields = array(
+					DAO_Group::NAME => $name,
+					DAO_Group::IS_PRIVATE => $is_private,
+				);
+				
+				if(empty($group_id)) { // new
+					$group_id = DAO_Group::create($fields);
+					
+					// View marquee
+					if(!empty($group_id) && !empty($view_id)) {
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_GROUP, $group_id);
+					}
+					
+				} else { // update
+					DAO_Group::update($group_id, $fields);
+				}
+				
+				// Members
+				
+				@$member_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['member_ids'], 'array', array()), 'int');
+				@$member_levels = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['member_levels'], 'array', array()), 'int');
+	
+				// Load the current group members
+				$group_members = DAO_Group::getGroupMembers($group_id);
+				
+				if(is_array($member_ids))
+				foreach($member_ids as $idx => $member_id) {
+					if(!isset($member_levels[$idx]))
+						continue;
+					
+					$is_member = 0 != $member_levels[$idx];
+					$is_manager = 2 == $member_levels[$idx];
+					
+					// If this worker shoudl not be a member
+					if(!$is_member) {
+						// If they were previously a member, remove them
+						if(isset($group_members[$member_id])) {
+							DAO_Group::unsetGroupMember($group_id, $member_id);
+						}
+						
+					// If this worker should be a member/manager
+					} else {
+						DAO_Group::setGroupMember($group_id, $member_id, $is_manager);
+						
+						// If the worker wasn't previously a member/manager
+						if(!isset($group_members[$member_id])) {
+							DAO_Group::setMemberDefaultResponsibilities($group_id, $member_id);
+						}
+					}
+				}
+		
+				if($group_id) {
+					// Settings
+					
+					@$subject_has_mask = DevblocksPlatform::importGPC($_REQUEST['subject_has_mask'],'integer',0);
+					@$subject_prefix = DevblocksPlatform::importGPC($_REQUEST['subject_prefix'],'string','');
+			
+					DAO_GroupSettings::set($group_id, DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK, $subject_has_mask);
+					DAO_GroupSettings::set($group_id, DAO_GroupSettings::SETTING_SUBJECT_PREFIX, $subject_prefix);
+					
+					// Custom field saves
+					
+					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_GROUP, $group_id, $field_ids);
+					
+					// Avatar image
+					@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
+					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_GROUP, $group_id, $avatar_image);
+				}
+			} // end new/edit
+			
+			echo json_encode(array(
+				'status' => true,
+				'id' => $group_id,
+				'view_id' => $view_id,
+			));
+			return;
+			
+		} catch (Exception_DevblocksAjaxValidationError $e) {
+				echo json_encode(array(
+					'status' => false,
+					'id' => $group_id,
+					'error' => $e->getMessage(),
+					'field' => $e->getFieldName(),
+				));
 				return;
 			
-			// Handle preferred bucket relocation
+		} catch (Exception $e) {
+				echo json_encode(array(
+					'status' => false,
+					'id' => $group_id,
+					'error' => 'An error occurred.',
+				));
+				return;
 			
-			if(is_array($move_deleted_buckets))
-			foreach($move_deleted_buckets as $from_bucket_id => $to_bucket_id) {
-				if(!isset($buckets[$from_bucket_id]) || !isset($buckets[$to_bucket_id]))
-					continue;
-				
-				DAO_Ticket::updateWhere(array(DAO_Ticket::GROUP_ID => $buckets[$to_bucket_id]->group_id, DAO_Ticket::BUCKET_ID => $to_bucket_id), sprintf("%s = %d", DAO_Ticket::BUCKET_ID, $from_bucket_id));
-				//DAO_Task::updateWhere(array(DAO_Task::GROUP_ID => $buckets[$to_bucket_id]->group_id, DAO_Task::BUCKET_ID => $to_bucket_id), sprintf("%s = %d", DAO_Task::BUCKET_ID, $from_bucket_id));
-			}
-			
-			DAO_Group::delete($deleted_group->id);
-			
-		} else {
+		}
 		
-			$fields = array(
-				DAO_Group::NAME => $name,
-				DAO_Group::IS_PRIVATE => $is_private,
-			);
-			
-			if(empty($group_id)) { // new
-				$group_id = DAO_Group::create($fields);
-				
-				// View marquee
-				if(!empty($group_id) && !empty($view_id)) {
-					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_GROUP, $group_id);
-				}
-				
-			} else { // update
-				DAO_Group::update($group_id, $fields);
-			}
-			
-			// Members
-			
-			@$member_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['member_ids'], 'array', array()), 'int');
-			@$member_levels = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['member_levels'], 'array', array()), 'int');
-
-			// Load the current group members
-			$group_members = DAO_Group::getGroupMembers($group_id);
-			
-			if(is_array($member_ids))
-			foreach($member_ids as $idx => $member_id) {
-				if(!isset($member_levels[$idx]))
-					continue;
-				
-				$is_member = 0 != $member_levels[$idx];
-				$is_manager = 2 == $member_levels[$idx];
-				
-				// If this worker shoudl not be a member
-				if(!$is_member) {
-					// If they were previously a member, remove them
-					if(isset($group_members[$member_id])) {
-						DAO_Group::unsetGroupMember($group_id, $member_id);
-					}
-					
-				// If this worker should be a member/manager
-				} else {
-					DAO_Group::setGroupMember($group_id, $member_id, $is_manager);
-					
-					// If the worker wasn't previously a member/manager
-					if(!isset($group_members[$member_id])) {
-						DAO_Group::setMemberDefaultResponsibilities($group_id, $member_id);
-					}
-				}
-			}
-	
-			if($group_id) {
-				// Settings
-				
-				@$subject_has_mask = DevblocksPlatform::importGPC($_REQUEST['subject_has_mask'],'integer',0);
-				@$subject_prefix = DevblocksPlatform::importGPC($_REQUEST['subject_prefix'],'string','');
-		
-				DAO_GroupSettings::set($group_id, DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK, $subject_has_mask);
-				DAO_GroupSettings::set($group_id, DAO_GroupSettings::SETTING_SUBJECT_PREFIX, $subject_prefix);
-				
-				// Custom field saves
-				
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_GROUP, $group_id, $field_ids);
-				
-				// Avatar image
-				@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
-				DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_GROUP, $group_id, $avatar_image);
-			}
-		} // end new/edit
-		
-		exit;
 	}
 	
 	function showMembersTabAction() {
