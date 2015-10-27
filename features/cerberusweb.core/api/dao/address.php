@@ -257,7 +257,16 @@ class DAO_Address extends Cerb_ORMHelper {
 		return NULL;
 	}
 	
-	static function getCountByOrgId($org_id) {
+	static function countByContactId($org_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT count(id) FROM address WHERE contact_id = %d",
+			$org_id
+		);
+		return intval($db->GetOneSlave($sql));
+	}
+	
+	static function countByOrgId($org_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT count(id) FROM address WHERE contact_org_id = %d",
@@ -1871,7 +1880,31 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		// Display
 		$tpl->assign('id', $context_id);
 		$tpl->assign('view_id', $view_id);
-		$tpl->display('devblocks:cerberusweb.core::contacts/addresses/peek.tpl');
+		
+		if(empty($context_id) || $edit) {
+			$tpl->display('devblocks:cerberusweb.core::contacts/addresses/peek_edit.tpl');
+			
+		} else {
+			$activity_counts = array(
+				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_ADDRESS, $context_id),
+				'tickets' => DAO_Ticket::countsByAddressId($context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			$links = array(
+				CerberusContexts::CONTEXT_ADDRESS => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							CerberusContexts::CONTEXT_ADDRESS,
+							$context_id,
+							array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			$tpl->display('devblocks:cerberusweb.core::contacts/addresses/peek.tpl');
+		}
 	}
 	
 	function importGetKeys() {

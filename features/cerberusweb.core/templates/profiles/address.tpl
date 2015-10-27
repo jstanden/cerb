@@ -2,7 +2,7 @@
 {$page_context_id = $address->id}
 
 <div style="float:left;margin-right:10px;">
-	<img src="{devblocks_url}c=avatars&context=address&context_id={$address->id}{/devblocks_url}?v={$address->updated}" style="height:75px;width:75px;border-radius:5px;border:1px solid rgb(235,235,235);">
+	<img src="{devblocks_url}c=avatars&context=address&context_id={$address->id}{/devblocks_url}?v={$address->updated}" style="height:75px;width:75px;border-radius:5px;">
 </div>
 
 <div style="float:left;">
@@ -15,7 +15,7 @@
 	{/if}
 	</h1>
 	
-	<div class="cerb-profile-toolbar">
+	<div class="cerb-profile-toolbar" style="margin-top:5px;">
 		<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 			

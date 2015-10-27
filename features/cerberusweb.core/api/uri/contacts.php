@@ -341,24 +341,6 @@ class ChContactsPage extends CerberusPageExtension {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('search','ticket')));
 	}
 	
-	function findAddressesAction() {
-		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
-		
-		if(null == ($address_context = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ADDRESS)))
-			return;
-		
-		if(null == ($search_view = $address_context->getSearchView()))
-			return;
-		
-		$search_view->removeAllParams();
-		
-		$search_view->addParam(new DevblocksSearchCriteria(SearchFields_Address::EMAIL,DevblocksSearchCriteria::OPER_LIKE,$email));
-
-		$search_view->renderPage = 0;
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('search','address')));
-	}
-	
 	function showAddressBatchPanelAction() {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
@@ -776,106 +758,6 @@ class ChContactsPage extends CerberusPageExtension {
 		}
 		
 		exit;
-	}
-	
-	function saveAddressAction() {
-		$active_worker = CerberusApplication::getActiveWorker();
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
-		@$email = trim(DevblocksPlatform::importGPC($_REQUEST['email'],'string',''));
-		@$first_name = trim(DevblocksPlatform::importGPC($_REQUEST['first_name'],'string',''));
-		@$last_name = trim(DevblocksPlatform::importGPC($_REQUEST['last_name'],'string',''));
-		@$contact_org = trim(DevblocksPlatform::importGPC($_REQUEST['contact_org'],'string',''));
-		@$is_banned = DevblocksPlatform::importGPC($_REQUEST['is_banned'],'integer',0);
-		@$is_defunct = DevblocksPlatform::importGPC($_REQUEST['is_defunct'],'integer',0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
-		
-		if($active_worker->hasPriv('core.addybook.addy.actions.update')) {
-			$contact_org_id = 0;
-			
-			if(!empty($contact_org)) {
-				$contact_org_id = DAO_ContactOrg::lookup($contact_org, true);
-				$contact_org = DAO_ContactOrg::get($contact_org_id);
-			}
-			
-			// Common fields
-			$fields = array(
-				DAO_Address::FIRST_NAME => $first_name,
-				DAO_Address::LAST_NAME => $last_name,
-				DAO_Address::CONTACT_ORG_ID => $contact_org_id,
-				DAO_Address::IS_BANNED => $is_banned,
-				DAO_Address::IS_DEFUNCT => $is_defunct,
-			);
-			
-			if($id==0) {
-				$fields[DAO_Address::EMAIL] = $email;
-				
-				if(false == ($id = DAO_Address::create($fields)))
-					return false;
-				
-				@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
-				if(!empty($add_watcher_ids))
-					CerberusContexts::addWatchers(CerberusContexts::CONTEXT_ADDRESS, $id, $add_watcher_ids);
-				
-				// Context Link (if given)
-				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
-				@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
-				if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
-					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_ADDRESS, $id, $link_context, $link_context_id);
-				}
-				
-				// View marquee
-				if(!empty($id) && !empty($view_id)) {
-					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_ADDRESS, $id);
-				}
-				
-			} else {
-				DAO_Address::update($id, $fields);
-			}
-	
-			if($id) {
-				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_ADDRESS, $id, $field_ids);
-				
-				// Avatar image
-				@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
-				DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_ADDRESS, $id, $avatar_image);
-			}
-			
-			// Comment
-			
-			@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
-			
-			if(!empty($comment) && !empty($id)) {
-				$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
-			
-				$fields = array(
-						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_ADDRESS,
-						DAO_Comment::CONTEXT_ID => $id,
-						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-						DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
-						DAO_Comment::CREATED => time(),
-						DAO_Comment::COMMENT => $comment,
-				);
-				$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
-			}
-			
-			/*
-			 * Notify anything that wants to know when Address Peek saves.
-			 */
-			$eventMgr = DevblocksPlatform::getEventService();
-			$eventMgr->trigger(
-				new Model_DevblocksEvent(
-					'address.peek.saved',
-					array(
-						'address_id' => $id,
-						'changed_fields' => $fields,
-					)
-				)
-			);
-		}
 	}
 	
 	function saveOrgPeekAction() {

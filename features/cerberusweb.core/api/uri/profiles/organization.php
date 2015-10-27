@@ -128,7 +128,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 		
 		// Tabs
-		$people_count = DAO_Address::getCountByOrgId($contact->id);
+		$people_count = DAO_Address::countByOrgId($contact->id);
 		$tpl->assign('people_total', $people_count);
 		
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_ORG);
