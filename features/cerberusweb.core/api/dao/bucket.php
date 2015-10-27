@@ -282,6 +282,15 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		return self::_getRandom('bucket');
 	}
 	
+	static function countByGroupId($group_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT count(id) FROM bucket WHERE group_id = %d",
+			$group_id
+		);
+		return intval($db->GetOneSlave($sql));
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids))
 			$ids = array($ids);
@@ -1098,7 +1107,33 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 
 		// Template
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/bucket/peek.tpl');
+		if($edit) {
+			$tpl->display('devblocks:cerberusweb.core::internal/bucket/peek_edit.tpl');
+			
+		} else {
+			$activity_counts = array(
+				'tickets' => DAO_Ticket::countsByBucketId($context_id),
+				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_BUCKET, $context_id),
+				'links' => DAO_ContextLink::count(CerberusContexts::CONTEXT_BUCKET, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			$links = array(
+				CerberusContexts::CONTEXT_BUCKET => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							CerberusContexts::CONTEXT_BUCKET,
+							$context_id,
+							array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/bucket/peek.tpl');
+			
+		}
+		
 	}
 };
 
