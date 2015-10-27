@@ -1503,6 +1503,19 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			
+			$links = array(
+				CerberusContexts::CONTEXT_CONTACT => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							CerberusContexts::CONTEXT_CONTACT,
+							$context_id,
+							array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			
+			$tpl->assign('links', $links);
+			
 			$tpl->display('devblocks:cerberusweb.core::internal/contact/peek.tpl');
 		}
 	}

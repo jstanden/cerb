@@ -30,13 +30,14 @@
 			{/if}
 			
 			<button type="button" class="cerb-peek-edit" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$model->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
-			{if $model}<button type="button" onclick="document.location='{devblocks_url}c=profiles&type=contact&id={$model->id}-{$model->getName()|devblocks_permalink}{/devblocks_url}';"><span class="glyphicons glyphicons-nameplate"></span> View Profile</button>{/if}
+			{if $model}<button type="button" onclick="document.location='{devblocks_url}c=profiles&type=contact&id={$model->id}-{$model->getName()|devblocks_permalink}{/devblocks_url}';"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
 		</div>
 	</div>
 </div>
 
 <div style="clear:both;padding-top:10px;"></div>
 
+{if $addy || $model->phone || $model->mobile || $model->location}
 <fieldset class="peek">
 	<legend>Contact Info</legend>
 	{if $addy}
@@ -67,21 +68,34 @@
 	</div>
 	{/if}
 	
+	<br clear="all">
+	
+	<div>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="contact.id:{$model->id}"><div class="badge-count">{$activity_counts.emails|default:0}</div> {'common.email_addresses'|devblocks_translate|capitalize}</button>
+	</div>
+</fieldset>
+{/if}
+
+<fieldset class="peek">
+	<legend>{'common.activity'|devblocks_translate|capitalize}</legend>
+	
+	<div>
+		<div style="display:inline-block;border-radius:10px;width:10px;height:10px;background-color:rgb(230,230,230);margin-right:5px;line-height:10px;"></div><b>{$model->getName()}</b>{if $model->username} ({$model->username}){/if} {if $model->last_login_at}last logged in <abbr title="{$model->last_login_at|devblocks_date}">{$model->last_login_at|devblocks_prettytime}</abbr>{else}has never logged in{/if}
+	</div>
 </fieldset>
 
 <fieldset class="peek">
-	<legend>Activity</legend>
-	
-	<div style="margin-bottom:5px;">
-		<div style="display:inline-block;border-radius:10px;width:10px;height:10px;background-color:rgb(230,230,230);margin-right:5px;line-height:10px;"></div><b>{$model->getName()}</b>{if $model->username} ({$model->username}){/if} {if $model->last_login_at}last logged in <abbr title="{$model->last_login_at|devblocks_date}">{$model->last_login_at|devblocks_prettytime}</abbr>{else}has never logged in{/if}
-	</div>
-	
-	<div style="margin-bottom:5px;">
-		<button type="button" style="margin-bottom:5px;" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="contact.id:{$model->id}"><div class="badge-count">{$activity_counts.emails|default:0}</div> {'common.email_addresses'|devblocks_translate|capitalize}</button>
-		<button type="button" style="margin-bottom:5px;" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="contact.id:{$model->id}"><div class="badge-count">{$activity_counts.tickets.total|default:0}</div> {'common.tickets'|devblocks_translate|capitalize}</button>
-		<button type="button" style="margin-bottom:5px;"><div class="badge-count">{$activity_counts.comments|default:0}</div> {'common.comments'|devblocks_translate|capitalize}</button>
+	<legend>{'common.tickets'|devblocks_translate|capitalize}</legend>
+
+	<div>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="contact.id:{$model->id} status:o,w,c"><div class="badge-count">{$activity_counts.tickets.total|default:0}</div> {'common.all'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="contact.id:{$model->id} status:o"><div class="badge-count">{$activity_counts.tickets.open|default:0}</div> {'status.open'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="contact.id:{$model->id} status:w"><div class="badge-count">{$activity_counts.tickets.waiting|default:0}</div> {'status.waiting'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="contact.id:{$model->id} status:c"><div class="badge-count">{$activity_counts.tickets.closed|default:0}</div> {'status.closed'|devblocks_translate|capitalize}</button>
 	</div>
 </fieldset>
+
+{include file="devblocks:cerberusweb.core::internal/peek/peek_links.tpl" links=$links}
 
 </form>
 
@@ -97,13 +111,11 @@ $(function() {
 		// Peek edit
 
 		$popup.find('button.cerb-peek-edit')
-			.cerbPeekTrigger()
+			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
 			.on('cerb-peek-saved', function(e) {
-				{if $view_id}genericAjaxGet($('#view{$view_id}'), 'c=internal&a=viewRefresh&id={$view_id}');{/if}
 				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CONTACT}&context_id={$model->id}&view_id={$view_id}','reuse',false,'50%');
 			})
 			.on('cerb-peek-deleted', function(e) {
-				{if $view_id}genericAjaxGet($('#view{$view_id}'), 'c=internal&a=viewRefresh&id={$view_id}');{/if}
 				genericAjaxPopupClose($layer);
 			})
 			;
