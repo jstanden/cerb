@@ -1586,7 +1586,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$contact = DAO_ContactOrg::get($context_id);
-		$tpl->assign('contact', $contact);
+		$tpl->assign('org', $contact);
 		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG, false);
@@ -1599,22 +1599,34 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
 		
-		// Comments
-		
-		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_ORG, $context_id);
-		$comments = array_reverse($comments, true);
-		$tpl->assign('comments', $comments);
-		
-		// Counts
-		$counts = array(
-			'people' => DAO_Address::getCountByOrgId($context_id),
-		);
-		$tpl->assign('counts', $counts);
-		
 		// View
 		$tpl->assign('view_id', $view_id);
 		
-		$tpl->display('devblocks:cerberusweb.core::contacts/orgs/peek.tpl');
+		if(empty($context_id) || $edit) {
+			$tpl->display('devblocks:cerberusweb.core::contacts/orgs/peek_edit.tpl');
+		} else {
+			$activity_counts = array(
+				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_ORG, $context_id),
+				'contacts' => DAO_Contact::countByOrgId($context_id),
+				'emails' => DAO_Address::countByOrgId($context_id),
+				'tickets' => DAO_Ticket::countsByOrgId($context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			$links = array(
+				CerberusContexts::CONTEXT_ORG => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							CerberusContexts::CONTEXT_ORG,
+							$context_id,
+							array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			$tpl->display('devblocks:cerberusweb.core::contacts/orgs/peek.tpl');
+		}
 	}
 	
 	function importGetKeys() {
