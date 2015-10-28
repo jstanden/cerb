@@ -351,22 +351,6 @@ DIV.emailbody SPAN.placeholder {
 // Buttons
 
 BUTTON {
-	DIV.badge-count {
-		font-size: 12px;
-
-		padding: 0px 5px;
-		font-weight: 500;
-		display: inline-block;
-		vertical-align: middle;
-
-		margin-top: -1px;
-
-		@include border-radius(10px);
-
-		background-color: rgb(120,120,120);
-		color: $white;
-	}
-
 	&:hover DIV.badge-count {
 		background-color: rgb(71,133,210);
 		color: $white;
@@ -1019,6 +1003,22 @@ UL.bubbles {
 
 // Badges
 
+DIV.badge-count {
+	font-size: 12px;
+
+	padding: 0px 5px;
+	font-weight: 500;
+	display: inline-block;
+	vertical-align: middle;
+
+	margin-top: -1px;
+
+	@include border-radius(10px);
+
+	background-color: rgb(120,120,120);
+	color: $white;
+}
+
 DIV.badge {
 	display:inline-block;
 
@@ -1190,7 +1190,7 @@ DIV.cerb-popupmenu {
 	padding:5px;
 	display:none;
 	background-color:$white;
-	border:1px solid rgb(100,135,225);
+	border:1px solid rgb(204,204,204);
 	
 	@include box-shadow-trbl(0px, 0px, 15px, 0px, rgb(175,175,175));
 	
@@ -1199,6 +1199,35 @@ DIV.cerb-popupmenu {
 		z-index: 2500;
 		float: left;
 		border: 0;
+	}
+	
+	> div.cerb-popupmenu-item {
+		padding:2px;
+		font-weight:normal;
+		cursor:pointer;
+
+		A {
+			text-decoration:none;
+			color:rgb(74,110,158);
+			font-weight:bold;
+		}
+
+		HR {
+			height:1px;
+			padding:0px;
+			margin:5px 5px;
+			border:0px;
+			border-top:1px dashed rgb(200,200,200);
+		}
+
+		&:hover {
+			background-color:rgb(105,140,221);
+			color:$white;
+
+			A {
+				color:$white;
+			}
+		}
 	}
 }
 

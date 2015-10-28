@@ -417,20 +417,6 @@ DIV.emailbody SPAN.placeholder DIV.bubble {
   line-height: 1.4em;
 }
 
-BUTTON DIV.badge-count {
-  font-size: 12px;
-  padding: 0px 5px;
-  font-weight: 500;
-  display: inline-block;
-  vertical-align: middle;
-  margin-top: -1px;
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  -ms-border-radius: 10px;
-  border-radius: 10px;
-  background-color: #787878;
-  color: white;
-}
 BUTTON:hover DIV.badge-count {
   background-color: #4785d2;
   color: white;
@@ -1041,6 +1027,21 @@ UL.bubbles.chooser-container LI:hover .glyphicons-circle-remove {
   visibility: visible;
 }
 
+DIV.badge-count {
+  font-size: 12px;
+  padding: 0px 5px;
+  font-weight: 500;
+  display: inline-block;
+  vertical-align: middle;
+  margin-top: -1px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  border-radius: 10px;
+  background-color: #787878;
+  color: white;
+}
+
 DIV.badge {
   display: inline-block;
   font-weight: normal;
@@ -1200,7 +1201,7 @@ DIV.cerb-popupmenu {
   padding: 5px;
   display: none;
   background-color: white;
-  border: 1px solid #6487e1;
+  border: 1px solid #cccccc;
   -moz-box-shadow: 0px 0px 15px 0px #afafaf;
   -webkit-box-shadow: 0px 0px 15px 0px #afafaf;
   box-shadow: 0px 0px 15px 0px #afafaf;
@@ -1210,6 +1211,30 @@ DIV.cerb-popupmenu.cerb-float {
   z-index: 2500;
   float: left;
   border: 0;
+}
+DIV.cerb-popupmenu > div.cerb-popupmenu-item {
+  padding: 2px;
+  font-weight: normal;
+  cursor: pointer;
+}
+DIV.cerb-popupmenu > div.cerb-popupmenu-item A {
+  text-decoration: none;
+  color: #4a6e9e;
+  font-weight: bold;
+}
+DIV.cerb-popupmenu > div.cerb-popupmenu-item HR {
+  height: 1px;
+  padding: 0px;
+  margin: 5px 5px;
+  border: 0px;
+  border-top: 1px dashed #c8c8c8;
+}
+DIV.cerb-popupmenu > div.cerb-popupmenu-item:hover {
+  background-color: #698cdd;
+  color: white;
+}
+DIV.cerb-popupmenu > div.cerb-popupmenu-item:hover A {
+  color: white;
 }
 
 UL.cerb-popupmenu {
