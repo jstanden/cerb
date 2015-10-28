@@ -261,6 +261,213 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		return $results;
 	}
 	
+	static function countsByContactId($contact_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$counts = array(
+			'total' => 0,
+			'open' => 0,
+			'waiting' => 0,
+			'closed' => 0,
+		);
+		
+		$sql = sprintf("SELECT COUNT(ticket.id) AS count, ticket.is_waiting, ticket.is_closed ".
+				"FROM ticket ".
+				"INNER JOIN requester ON (requester.ticket_id=ticket.id) ".
+				"INNER JOIN address ON (requester.address_id=address.id) ".
+				"WHERE address.contact_id = %d AND ticket.is_deleted = 0 ".
+				"GROUP BY ticket.is_waiting, ticket.is_closed",
+			$contact_id
+		);
+		$results = $db->GetArraySlave($sql);
+		
+		if(is_array($results))
+		foreach($results as $result) {
+			if($result['is_closed']) {
+				$counts['closed'] = $result['count'];
+			} else if($result['is_waiting']) {
+				$counts['waiting'] = $result['count'];
+			} else {
+				$counts['open'] = $result['count'];
+			}
+			
+			$counts['total'] += $result['count'];
+		}
+		
+		return $counts;
+	}
+	
+	static function countsByBucketId($bucket_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$counts = array(
+			'total' => 0,
+			'open' => 0,
+			'waiting' => 0,
+			'closed' => 0,
+		);
+		
+		$sql = sprintf("SELECT COUNT(ticket.id) AS count, ticket.is_waiting, ticket.is_closed ".
+				"FROM ticket ".
+				"WHERE ticket.bucket_id = %d AND ticket.is_deleted = 0 ".
+				"GROUP BY ticket.is_waiting, ticket.is_closed",
+			$bucket_id
+		);
+		$results = $db->GetArraySlave($sql);
+		
+		if(is_array($results))
+		foreach($results as $result) {
+			if($result['is_closed']) {
+				$counts['closed'] = $result['count'];
+			} else if($result['is_waiting']) {
+				$counts['waiting'] = $result['count'];
+			} else {
+				$counts['open'] = $result['count'];
+			}
+			
+			$counts['total'] += $result['count'];
+		}
+		
+		return $counts;
+	}
+	
+	static function countsByGroupId($group_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$counts = array(
+			'total' => 0,
+			'open' => 0,
+			'waiting' => 0,
+			'closed' => 0,
+		);
+		
+		$sql = sprintf("SELECT COUNT(ticket.id) AS count, ticket.is_waiting, ticket.is_closed ".
+				"FROM ticket ".
+				"WHERE ticket.group_id = %d AND ticket.is_deleted = 0 " .
+				"GROUP BY ticket.is_waiting, ticket.is_closed",
+			$group_id
+		);
+		$results = $db->GetArraySlave($sql);
+		
+		if(is_array($results))
+		foreach($results as $result) {
+			if($result['is_closed']) {
+				$counts['closed'] = $result['count'];
+			} else if($result['is_waiting']) {
+				$counts['waiting'] = $result['count'];
+			} else {
+				$counts['open'] = $result['count'];
+			}
+			
+			$counts['total'] += $result['count'];
+		}
+		
+		return $counts;
+	}
+	
+	static function countsByOwnerId($worker_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$counts = array(
+			'total' => 0,
+			'open' => 0,
+			'waiting' => 0,
+			'closed' => 0,
+		);
+		
+		$sql = sprintf("SELECT COUNT(ticket.id) AS count, ticket.is_waiting, ticket.is_closed ".
+				"FROM ticket ".
+				"WHERE ticket.owner_id = %d AND ticket.is_deleted = 0 ".
+				"GROUP BY ticket.is_waiting, ticket.is_closed",
+			$worker_id
+		);
+		$results = $db->GetArraySlave($sql);
+		
+		if(is_array($results))
+		foreach($results as $result) {
+			if($result['is_closed']) {
+				$counts['closed'] = $result['count'];
+			} else if($result['is_waiting']) {
+				$counts['waiting'] = $result['count'];
+			} else {
+				$counts['open'] = $result['count'];
+			}
+			
+			$counts['total'] += $result['count'];
+		}
+		
+		return $counts;
+	}
+	
+	static function countsByAddressId($address_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$counts = array(
+			'total' => 0,
+			'open' => 0,
+			'waiting' => 0,
+			'closed' => 0,
+		);
+		
+		$sql = sprintf("SELECT COUNT(ticket.id) AS count, ticket.is_waiting, ticket.is_closed ".
+				"FROM ticket ".
+				"INNER JOIN requester ON (requester.ticket_id=ticket.id) ".
+				"WHERE requester.address_id = %d AND ticket.is_deleted = 0 ".
+				"GROUP BY ticket.is_waiting, ticket.is_closed",
+			$address_id
+		);
+		$results = $db->GetArraySlave($sql);
+		
+		if(is_array($results))
+		foreach($results as $result) {
+			if($result['is_closed']) {
+				$counts['closed'] = $result['count'];
+			} else if($result['is_waiting']) {
+				$counts['waiting'] = $result['count'];
+			} else {
+				$counts['open'] = $result['count'];
+			}
+			
+			$counts['total'] += $result['count'];
+		}
+		
+		return $counts;
+	}
+	
+	static function countsByOrgId($org_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$counts = array(
+			'total' => 0,
+			'open' => 0,
+			'waiting' => 0,
+			'closed' => 0,
+		);
+		
+		$sql = sprintf("SELECT COUNT(id) AS count, is_waiting, is_closed ".
+				"FROM ticket ".
+				"WHERE org_id = %d AND is_deleted = 0 ".
+				"GROUP BY is_waiting, is_closed",
+			$org_id
+		);
+		$results = $db->GetArraySlave($sql);
+		
+		if(is_array($results))
+		foreach($results as $result) {
+			if($result['is_closed']) {
+				$counts['closed'] = $result['count'];
+			} else if($result['is_waiting']) {
+				$counts['waiting'] = $result['count'];
+			} else {
+				$counts['open'] = $result['count'];
+			}
+			
+			$counts['total'] += $result['count'];
+		}
+		
+		return $counts;
+	}
+	
 	/**
 	 * creates a new ticket object in the database
 	 *
