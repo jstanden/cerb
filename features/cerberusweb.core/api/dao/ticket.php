@@ -2055,6 +2055,22 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				);
 				break;
 				
+			case SearchFields_Ticket::VIRTUAL_CONTACT_ID:
+				$contact_ids = is_array($param->value) ? $param->value : array($param->value);
+				$contact_ids = DevblocksPlatform::sanitizeArray($contact_ids, 'int');
+				
+				$contact_ids_string = implode(',', $contact_ids);
+				
+				if(empty($contact_ids_string))
+					$contact_ids_string = '-1';
+				
+				$args['where_sql'] .= sprintf("AND (t.id IN (SELECT DISTINCT r.ticket_id FROM requester r INNER JOIN address a ON (r.address_id=a.id) WHERE a.contact_id IN (%s))) ",
+					$contact_ids_string,
+					$contact_ids_string
+				);
+				
+				break;
+				
 			case SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID:
 				$participant_ids = is_array($param->value) ? $param->value : array($param->value);
 				$participant_ids = DevblocksPlatform::sanitizeArray($participant_ids, 'int');
@@ -2261,6 +2277,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	
 	// Virtuals
 	const VIRTUAL_ATTACHMENT_NAME = '*_attachment_name';
+	const VIRTUAL_CONTACT_ID = '*_contact_id';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_GROUPS_OF_WORKER = '*_groups_of_worker';
 	const VIRTUAL_HAS_ATTACHMENTS = '*_has_attachments';
@@ -2334,6 +2351,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::CONTEXT_LINK_ID => new DevblocksSearchField(SearchFields_Ticket::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 			
 			SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME, '*', 'attachment_name', $translate->_('message.search.attachment_name'), null),				
+			SearchFields_Ticket::VIRTUAL_CONTACT_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_CONTACT_ID, '*', 'contact_id', null, null), // contact ID
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '*', 'groups_of_worker', $translate->_('ticket.groups_of_worker')),
 			SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS, '*', 'has_attachments', $translate->_('message.search.has_attachments'), Model_CustomField::TYPE_CHECKBOX),
@@ -2502,6 +2520,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::TICKET_ORG_ID,
 			SearchFields_Ticket::TICKET_WAITING,
 			SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME,
+			SearchFields_Ticket::VIRTUAL_CONTACT_ID,
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,
 			SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS,
@@ -2522,6 +2541,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::TICKET_DELETED,
 			SearchFields_Ticket::TICKET_ORG_ID,
 			SearchFields_Ticket::TICKET_WAITING,
+			SearchFields_Ticket::VIRTUAL_CONTACT_ID,
 			SearchFields_Ticket::VIRTUAL_ORG_ID,
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,
 		));
@@ -2955,6 +2975,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT),
+				),
+			'contact.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_CONTACT_ID),
 				),
 			'created' =>
 				array(
@@ -3860,6 +3885,14 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Ticket::VIRTUAL_ORG_ID:
 				echo sprintf("Organization is %d", $param->value);
+			case SearchFields_Ticket::VIRTUAL_CONTACT_ID:
+				$param_value = intval($param->value);
+				$contact_name = null;
+				
+				if($param_value && false != ($contact = DAO_Contact::get($param_value)))
+					$contact_name = $contact->getName();
+				
+				echo sprintf("Contact is <b>%s</b>", $contact_name ? DevblocksPlatform::strEscapeHtml($contact_name) : $param_value);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID:
