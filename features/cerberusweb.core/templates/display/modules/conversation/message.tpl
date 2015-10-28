@@ -16,9 +16,9 @@
 				<button id="btnMsgMax{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}');"></button>
 				<button id="btnMsgMin{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}&hide=1');"></button>
 			{if !$expanded}
-				<a href="javascript:;" onclick="$('#btnMsgMax{$message->id}').click();">{'common.maximize'|devblocks_translate|lower}</a>
+				<button type="button" onclick="$('#btnMsgMax{$message->id}').click();" title="{'common.maximize'|devblocks_translate|lower}"><span class="glyphicons glyphicons-resize-full"></span></button>
 			{else}
-				<a href="javascript:;" onclick="$('#btnMsgMin{$message->id}').click();">{'common.minimize'|devblocks_translate|lower}</a>
+				<button type="button" onclick="$('#btnMsgMin{$message->id}').click();" title="{'common.minimize'|devblocks_translate|lower}"><span class="glyphicons glyphicons-resize-small"></span></button>
 			{/if}
 			</div>
 		
