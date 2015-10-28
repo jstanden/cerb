@@ -212,6 +212,11 @@
 				<seg>active</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.activity">
+			<tuv xml:lang="en_US">
+				<seg>activity</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.activity_log">
 			<tuv xml:lang="en_US">
 				<seg>Activity Log</seg>
@@ -1343,6 +1348,11 @@
 				<seg>today</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.total">
+			<tuv xml:lang="en_US">
+				<seg>total</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.type">
 			<tuv xml:lang="en_US">
 				<seg>Type</seg>
@@ -1431,6 +1441,11 @@
 		<tu tuid="common.watchers">
 			<tuv xml:lang="en_US">
 				<seg>watchers</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.watching">
+			<tuv xml:lang="en_US">
+				<seg>watching</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.website">
