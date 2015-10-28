@@ -1,7 +1,13 @@
 {if !empty($requesters)}
-<ul class="bubbles">
+{$container_id = "bubbles{uniqid()}"}
+
+<ul class="bubbles" id="{$container_id}">
 	{foreach from=$requesters item=req_addy name=reqs}
-	<li><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$req_addy->id}',null,false,'500');">{$req_name=$req_addy->getName()}{if !empty($req_name)}{$req_name} {/if}&lt;{$req_addy->email}&gt;</a>{if $req_addy->is_defunct} <span class="tag tag-blue">defunct</span>{/if}{if $req_addy->is_banned} <span class="tag tag-red">banned</span>{/if}</li>
+	<li>
+		<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$req_addy->id}">{$req_addy->getNameWithEmail()}</a>
+		{if $req_addy->is_defunct} <span class="tag tag-blue">defunct</span>{/if}
+		{if $req_addy->is_banned} <span class="tag tag-red">banned</span>{/if}
+	</li>
 	{/foreach}
 </ul>
 

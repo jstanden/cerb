@@ -14,7 +14,7 @@
 	<label><input type="checkbox" name="parser_autoreq" value="1" {if $settings->get('cerberusweb.core','parser_autoreq')}checked{/if}> Send helpdesk replies to every recipient (To:/Cc:) on the original message.</label><br>
 	<br>
 
-	<b>Always exclude these addresses as recipients:</b><br>
+	<b>Always exclude these addresses as participants:</b><br>
 	<textarea name="parser_autoreq_exclude" rows="4" cols="76">{$settings->get('cerberusweb.core','parser_autoreq_exclude')}</textarea><br>
 	<i>(one address per line)</i> &nbsp;  
 	<i>use * for wildcards, like: *@do-not-reply.com</i><br>

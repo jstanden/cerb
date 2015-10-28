@@ -85,7 +85,7 @@
 	<small>
 		{'common.keyboard'|devblocks_translate|lower}:
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower} 
-		(<b>i</b>) {'ticket.requesters'|devblocks_translate|lower} 
+		(<b>i</b>) {'common.participants'|devblocks_translate|lower} 
 		(<b>w</b>) {'common.watch'|devblocks_translate|lower}  
 		{if $active_worker->hasPriv('core.display.actions.comment')}(<b>o</b>) {'common.comment'|devblocks_translate} {/if}
 		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
@@ -153,7 +153,7 @@
 	{/foreach}
 	<br clear="all">
 	
-	<a style="color:black;font-weight:bold;" href="javascript:;" id="aRecipients" onclick="genericAjaxPopup('peek','c=display&a=showRequestersPanel&ticket_id={$ticket->id}',null,true,'500');">{'ticket.requesters'|devblocks_translate|capitalize}</a>:
+	<a style="color:black;font-weight:bold;" href="javascript:;" id="aRecipients" onclick="genericAjaxPopup('peek','c=display&a=showRequestersPanel&ticket_id={$ticket->id}',null,false,'50%');">{'common.participants'|devblocks_translate|capitalize}</a>:
 	<span id="displayTicketRequesterBubbles">
 		{include file="devblocks:cerberusweb.core::display/rpc/requester_list.tpl" ticket_id=$ticket->id}
 	</span>

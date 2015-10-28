@@ -18,7 +18,7 @@
 		</tu>
 		<tu tuid="display.tab.history">
 			<tuv xml:lang="en_US">
-				<seg>Recipient History</seg>
+				<seg>Participant History</seg>
 			</tuv>
 		</tu>
 		<tu tuid="display.tab.tasks">
@@ -1944,7 +1944,7 @@
 		</tu>
 		<tu tuid="addy_book.history.view.requester">
 			<tuv xml:lang="en_US">
-				<seg>Recipient History: %s contact(s)</seg>
+				<seg>Participant History: %s contact(s)</seg>
 			</tuv>
 		</tu>
 		<tu tuid="addy_book.org.add">
@@ -2645,7 +2645,7 @@ For example: http://www.cerbweb.com/support/</seg>
 		</tu>
 		<tu tuid="display.ui.add_to_recipients">
 			<tuv xml:lang="en_US">
-				<seg>Add to Recipients</seg>
+				<seg>Add to participants</seg>
 			</tuv>
 		</tu>
 		<tu tuid="display.ui.continue_later">
@@ -2708,12 +2708,12 @@ For example: http://www.cerbweb.com/support/</seg>
 		</tu>
 		<tu tuid="mail.log_message.requesters">
 			<tuv xml:lang="en_US">
-				<seg>Recipient(s)</seg>
+				<seg>Participants</seg>
 			</tuv>
 		</tu>
 		<tu tuid="mail.log_message.send_to_requesters">
 			<tuv xml:lang="en_US">
-				<seg>Send a copy of this message to the recipients.</seg>
+				<seg>Send a copy of this message to the participants.</seg>
 			</tuv>
 		</tu>
 		<tu tuid="mail.merge">
@@ -3330,7 +3330,7 @@ For example: *receipt*</seg>
 		</tu>
 		<tu tuid="ticket.recipients.empty">
 			<tuv xml:lang="en_US">
-				<seg>This ticket has no recipients.</seg>
+				<seg>This conversation has no participants.</seg>
 			</tuv>
 		</tu>
 		<tu tuid="ticket.reopen_at">

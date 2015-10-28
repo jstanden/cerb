@@ -213,6 +213,7 @@ class ChContactsPage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
 	
+	// [TODO] This should show members (contacts) and email addresses
 	function showTabPeopleAction() {
 		@$org = DevblocksPlatform::importGPC($_REQUEST['org']);
 		
@@ -300,11 +301,11 @@ class ChContactsPage extends CerberusPageExtension {
 		);
 		
 		if(empty($ids)) {
-			@$view->name = $translate->_('ticket.requesters') . ": " . $translate->_('common.organization');
+			@$view->name = $translate->_('common.participants') . ": " . $translate->_('common.organization');
 			$params_required[SearchFields_Ticket::VIRTUAL_ORG_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ORG_ID,'=',$org_id);
 			
 		} else {
-			@$view->name = $translate->_('ticket.requesters') . ": " . intval(count($ids)) . ' contact(s)';
+			@$view->name = $translate->_('common.participants') . ": " . intval(count($ids)) . ' contact(s)';
 			$params_required[SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,'in', $ids);
 		}
 		

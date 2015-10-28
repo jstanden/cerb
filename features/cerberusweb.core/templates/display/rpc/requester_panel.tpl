@@ -5,7 +5,7 @@
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>{'display.ui.add_to_recipients'|devblocks_translate}:</b><br>
-<button type="button" class="chooser_address"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span></button>
+<button type="button" class="chooser_address"><span class="glyphicons glyphicons-circle-plus"></span></button>
 <ul class="chooser-container bubbles">
 {if !empty($requesters)}
 {foreach from=$requesters item=requester}
@@ -16,7 +16,7 @@
 <br>
 <br>
 
-<b>Add new e-mail addresses:</b> (comma-separated)<br>
+<b>Add new email addresses:</b> (comma-separated)<br>
 <input type="text" name="lookup" style="width:100%;">
 <br>
 <br>
@@ -30,7 +30,7 @@ $(function() {
 	var $popup = genericAjaxPopupFetch('peek');
 	
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title','Recipients');
+		$(this).dialog('option','title','{'common.participants'|devblocks_translate|capitalize|escape:'javascript'}');
 		
 		// Add an autocomplete for single address entry (including new IDs)
 		ajax.emailAutoComplete('#formDisplayReq input:text[name=lookup]', { multiple: true } );

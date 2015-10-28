@@ -532,8 +532,8 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 									),
 								new DevblocksTourCallout(
 									'FIELDSET.properties SPAN#displayTicketRequesterBubbles',
-									'Recipients',
-									'Your replies to this conversation will automatically be sent to all these recipients.',
+									'Participants',
+									'Your replies to this conversation will automatically be sent to all these participants.',
 									'bottomLeft',
 									'topLeft',
 									10,
@@ -542,7 +542,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 								new DevblocksTourCallout(
 									'#profileTicketTabs',
 									'Conversation Timeline',
-									'This is where all email replies will be displayed for this ticket. Your responses will be sent to all recipients.',
+									'This is where all email replies will be displayed for this ticket. Your responses will be sent to all participants.',
 									'bottomLeft',
 									'topLeft',
 									30,
@@ -551,7 +551,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 								new DevblocksTourCallout(
 									'BUTTON#btnComment:first',
 									'Comments',
-									'Comments are a private way to leave messages for other workers regarding this conversation.  They are not visible to recipients.',
+									'Comments are a private way to leave messages for other workers regarding this conversation.  They are not visible to participants.',
 									'topLeft',
 									'bottomMiddle',
 									0,
@@ -577,8 +577,8 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 									),
 								new DevblocksTourCallout(
 									'#profileTicketTabs > UL > li:nth(3)',
-									'Recipient History',
-									'This tab displays prior conversations involving any of these recipients.',
+									'Participant History',
+									'This tab displays prior conversations involving any of these participants.',
 									'bottomLeft',
 									'topMiddle',
 									0,

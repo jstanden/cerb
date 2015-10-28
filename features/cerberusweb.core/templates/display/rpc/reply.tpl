@@ -21,7 +21,7 @@
 				<tr>
 					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{'message.header.to'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="to" value="{$to}" placeholder="{if $is_forward}These recipients will receive this forwarded message{else}These recipients will automatically be included in all future correspondence{/if}" class="required" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
+						<input type="text" size="45" name="to" value="{$to}" placeholder="{if $is_forward}These recipients will receive this forwarded message{else}These recipients will automatically be included in all future correspondence as participants{/if}" class="required" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
 						{if !$is_forward}
 							{if !empty($suggested_recipients)}
 								<div id="reply{$message->id}_suggested">
