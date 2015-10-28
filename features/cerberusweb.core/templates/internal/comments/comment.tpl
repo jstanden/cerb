@@ -21,11 +21,11 @@
 		
 		<div class="toolbar" style="display:none;float:right;margin-right:20px;">
 			{if $comment->context == CerberusContexts::CONTEXT_TICKET}
-				<a href="{devblocks_url}c=profiles&type=ticket&mask={$ticket->mask}&focus=comment&focus_id={$comment->id}{/devblocks_url}">{'common.permalink'|devblocks_translate|lower}</a>
+				<button type="button" onclick="document.location='{devblocks_url}c=profiles&type=ticket&mask={$ticket->mask}&focus=comment&focus_id={$comment->id}{/devblocks_url}';"><span class="glyphicons glyphicons-link" title="{'common.permalink'|devblocks_translate|lower}"></span></button>
 			{/if}
 			
 			{if !$readonly && ($active_worker->is_superuser || ($comment->owner_context == CerberusContexts::CONTEXT_WORKER && $comment->owner_context_id == $active_worker->id))}
-				 <a href="javascript:;" style="margin-left:10px;" onclick="if(confirm('Are you sure you want to permanently delete this comment?')) { genericAjaxGet('', 'c=internal&a=commentDelete&id={$comment->id}', function(o) { $('#comment{$comment->id}').remove(); } ); } ">{'common.delete'|devblocks_translate|lower}</a>
+				 <button type="button" onclick="if(confirm('Are you sure you want to permanently delete this comment?')) { genericAjaxGet('', 'c=internal&a=commentDelete&id={$comment->id}', function(o) { $('#comment{$comment->id}').remove(); } ); } "><span class="glyphicons glyphicons-circle-remove" title="{'common.delete'|devblocks_translate|lower}"></span></button>
 			{/if}
 		</div>
 		
