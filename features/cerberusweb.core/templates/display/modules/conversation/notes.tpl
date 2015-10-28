@@ -8,7 +8,9 @@
 			{if empty($owner_meta)}
 				(system)
 			{else}
-				{if !empty($owner_meta.permalink)} 
+				{if $owner_meta.context && $owner_meta.context_ext instanceof IDevblocksContextPeek}
+				<a href="javascript:;" class="cerb-peek-trigger" data-context="{$owner_meta.context}" data-context-id="{$owner_meta.id}">{$owner_meta.name}</a>
+				{elseif !empty($owner_meta.permalink)} 
 				<a href="{$owner_meta.permalink}" target="_blank">{$owner_meta.name}</a>
 				{else}
 				{$owner_meta.name}
@@ -28,11 +30,11 @@
 			
 			<div class="toolbar" style="display:none;float:right;margin-right:20px;">
 				{if $note->context == CerberusContexts::CONTEXT_MESSAGE}
-					<a href="{devblocks_url}c=profiles&type=ticket&mask={$ticket->mask}&focus=comment&focus_id={$note->id}{/devblocks_url}">{'common.permalink'|devblocks_translate|lower}</a>
+					<button type="button" onclick="document.location='{devblocks_url}c=profiles&type=ticket&mask={$ticket->mask}&focus=comment&focus_id={$note->id}{/devblocks_url}';"><span class="glyphicons glyphicons-link" title="{'common.permalink'|devblocks_translate|lower}"></span></button>
 				{/if}
 				
 				{if !$readonly}
-					<a href="javascript:;" style="margin-left:10px;" onclick="if(confirm('Are you sure you want to permanently delete this note?')) { genericAjaxGet('','c=internal&a=commentDelete&id={$note->id}');$(this).closest('div.message_note').remove(); } ">{'common.delete'|devblocks_translate|lower}</a><br>
+					<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this note?')) { genericAjaxGet('','c=internal&a=commentDelete&id={$note->id}');$(this).closest('div.message_note').remove(); } "><span class="glyphicons glyphicons-circle-remove" title="{'common.delete'|devblocks_translate|lower}"></span></button><br>
 				{/if}
 			</div>
 			
@@ -45,12 +47,18 @@
 {/if}
 
 <script type="text/javascript">
-$('#comment{$note->id}').hover(
-	function() {
-		$(this).find('div.toolbar').show();
-	},
-	function() {
-		$(this).find('div.toolbar').hide();
-	}
-);
+$(function() {
+	var $note = $('#comment{$note->id}');
+	
+	$note.find('.cerb-peek-trigger').cerbPeekTrigger();
+	
+	$note.hover(
+		function() {
+			$(this).find('div.toolbar').show();
+		},
+		function() {
+			$(this).find('div.toolbar').hide();
+		}
+	);
+});
 </script>
