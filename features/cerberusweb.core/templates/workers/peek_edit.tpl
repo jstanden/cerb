@@ -1,4 +1,6 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formWorkerPeek" name="formWorkerPeek" onsubmit="return false;">
+{$form_id = "frmWorkerEdit{uniqid()}"}
+
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="workers">
@@ -14,7 +16,7 @@
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="middle"><b>{'common.name.first'|devblocks_translate|capitalize}:</b> </td>
-			<td width="100%"><input type="text" name="first_name" value="{$worker->first_name}" class="required" style="width:98%;"></td>
+			<td width="100%"><input type="text" name="first_name" value="{$worker->first_name}" style="width:98%;"></td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'common.name.last'|devblocks_translate|capitalize}: </td>
@@ -26,8 +28,59 @@
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="middle"><b>{'common.email'|devblocks_translate}</b>: </td>
-			<td width="100%"><input type="text" name="email" value="{$worker->email}" class="required email" style="width:98%;"></td>
+			<td width="100%">
+				<button type="button" class="chooser-abstract" data-field-name="email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query=""><span class="glyphicons glyphicons-search"></span></button>
+				
+				<ul class="bubbles chooser-container">
+					{$addy = $worker->getEmailModel()}
+					{if $addy}
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$addy->id}{/devblocks_url}?v={$addy->updated}"><input type="hidden" name="email_id" value="{$addy->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a> <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+					{/if}
+				</ul>
+			</td>
 		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap" align="right"><b>{'common.phone'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="phone" value="{$worker->phone}" style="width:98%;" autocomplete="off" spellcheck="false">
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap" align="right"><b>{'common.mobile'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="mobile" value="{$worker->mobile}" style="width:98%;" autocomplete="off" spellcheck="false">
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap" align="right"><b>{'common.location'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="location" value="{$worker->location}" style="width:98%;" autocomplete="off" spellcheck="false">
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap" valign="top" align="right"><b>{'common.gender'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<label><input type="radio" name="gender" value="M" {if $worker->gender == 'M'}checked="checked"{/if}> <span class="glyphicons glyphicons-male" style="color:rgb(2,139,212);"></span> {'common.gender.male'|devblocks_translate|capitalize}</label>
+				 &nbsp; 
+				 &nbsp; 
+				<label><input type="radio" name="gender" value="F" {if $worker->gender == 'F'}checked="checked"{/if}> <span class="glyphicons glyphicons-female" style="color:rgb(243,80,157);"></span> {'common.gender.female'|devblocks_translate|capitalize}</label>
+				 &nbsp; 
+				 &nbsp; 
+				<label><input type="radio" name="gender" value="" {if empty($worker->gender)}checked="checked"{/if}> {'common.unknown'|devblocks_translate|capitalize}</label>
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap" align="right"><b>{'common.dob'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="dob" value="{if $worker->dob}{$worker->dob|devblocks_date}{/if}" style="width:98%;" autocomplete="off" spellcheck="false">
+			</td>
+		</tr>
+		
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'worker.at_mention_name'|devblocks_translate}: </td>
 			<td width="100%"><input type="text" name="at_mention_name" value="{$worker->at_mention_name}" style="width:98%;" placeholder="UserNickname"></td>
@@ -182,10 +235,12 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_WORKER context_id=$worker->id}
 
+<div class="status"></div>
+
 {if $active_worker->is_superuser}
-	<button type="button" onclick="if($('#formWorkerPeek').validate().form()) { genericAjaxPopupPostCloseReloadView(null,'formWorkerPeek', '{$view_id}', false, 'worker_save'); } "><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 	{if !$disabled}
-		{if !empty($worker->id)}{if $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" onclick="if(confirm('Are you sure you want to delete this worker and their history?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView(null,'formWorkerPeek', '{$view_id}'); } "><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}{/if}
+		{if !empty($worker->id)}{if $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" onclick="if(confirm('Are you sure you want to delete this worker and their history?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView(null,'{$form_id}', '{$view_id}'); } "><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}{/if}
 	{/if}
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>	
@@ -196,23 +251,25 @@
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
+	var $frm = $('#{$form_id}');
+	var $popup = genericAjaxPopupFind($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"Worker");
+		$popup.dialog('option','title',"Edit: {'common.worker'|devblocks_translate|capitalize}");
 		
-		$("#formWorkerPeek").validate( {
-			rules: {
-				password2: {
-					equalTo: "#password"
-				}
-			},
-			messages: {
-				password2: {
-					equalTo: "The passwords don't match."
-				}
-			}		
-		});
+		// Buttons
+		
+		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		
+		//$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
+		
+		// Abstract choosers
+		
+		$popup.find('button.chooser-abstract').cerbChooserTrigger();
+		
+		// Peeks
+		
+		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 		
 		// Avatar chooser
 		
@@ -222,7 +279,7 @@ $(function() {
 		
 		// Focus
 		
-		$(this).find('input:text:first').select().focus();
+		$frm.find('input:text:first').select().focus();
 	});
 });
 </script>

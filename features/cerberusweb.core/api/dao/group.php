@@ -691,6 +691,21 @@ class DAO_Group extends Cerb_ORMHelper {
 			case SearchFields_Group::VIRTUAL_HAS_FIELDSET:
 				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
+				
+			case SearchFields_Group::VIRTUAL_MEMBER_ID:
+				$member_ids = is_array($param->value) ? $param->value : array($param->value);
+				$member_Ids = DevblocksPlatform::sanitizeArray($member_ids, 'int');
+				
+				$member_ids_string = implode(',', $member_ids);
+				
+				if(empty($member_ids_string))
+					$member_ids_string = '-1';
+				
+				$args['where_sql'] .= sprintf("AND (g.id IN (SELECT DISTINCT wtg.group_id FROM worker_to_group wtg WHERE wtg.worker_id IN (%s))) ",
+					$member_ids_string,
+					$member_ids_string
+				);
+				break;
 		}
 	}
 	
@@ -760,6 +775,7 @@ class SearchFields_Group implements IDevblocksSearchFields {
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
+	const VIRTUAL_MEMBER_ID = '*_member_id';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -780,6 +796,7 @@ class SearchFields_Group implements IDevblocksSearchFields {
 				
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
+			self::VIRTUAL_MEMBER_ID => new DevblocksSearchField(self::VIRTUAL_MEMBER_ID, '*', 'member_id', $translate->_('common.member'), null),
 		);
 		
 		// Custom fields with fieldsets
@@ -1019,9 +1036,11 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		$this->addColumnsHidden(array(
 			SearchFields_Group::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Group::VIRTUAL_CONTEXT_LINK,
+			SearchFields_Group::VIRTUAL_MEMBER_ID,
 		));
 		
 		$this->addParamsHidden(array(
+			SearchFields_Group::VIRTUAL_MEMBER_ID,
 		));
 		
 		$this->doResetCriteria();
@@ -1126,6 +1145,11 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Group::ID),
 				),
+			'member' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'options' => array('param_key' => SearchFields_Group::VIRTUAL_MEMBER_ID),
+				),
 			'name' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -1162,7 +1186,6 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		if(is_array($fields))
 		foreach($fields as $k => $v) {
 			switch($k) {
-				// ...
 			}
 		}
 		
@@ -1215,7 +1238,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
 				break;
-
+				
 			case SearchFields_Group::VIRTUAL_HAS_FIELDSET:
 				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_GROUP);
 				break;
@@ -1241,6 +1264,10 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				
 			case SearchFields_Group::VIRTUAL_HAS_FIELDSET:
 				$this->_renderVirtualHasFieldset($param);
+				break;
+				
+			case SearchFields_Group::VIRTUAL_MEMBER_ID:
+				$this->_renderVirtualWorkers($param, 'Member', 'Members');
 				break;
 		}
 	}

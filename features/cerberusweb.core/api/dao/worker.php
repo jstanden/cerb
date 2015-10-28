@@ -560,6 +560,15 @@ class DAO_Worker extends Cerb_ORMHelper {
 		);
 	}
 	
+	static function countByGroupId($group_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT count(worker_id) FROM worker_to_group WHERE group_id = %d",
+			$group_id
+		);
+		return intval($db->GetOneSlave($sql));
+	}
+	
 	static function delete($id) {
 		if(empty($id)) return;
 		
@@ -2267,7 +2276,7 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 	}
 };
 
-class Context_Worker extends Extension_DevblocksContext {
+class Context_Worker extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	function authorize($context_id, Model_Worker $worker) {
 		// Security
 		try {
@@ -2285,6 +2294,15 @@ class Context_Worker extends Extension_DevblocksContext {
 		}
 		
 		return FALSE;
+	}
+	
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::getUrlService();
+		$url = $url_writer->writeNoProxy('c=profiles&type=worker&id='.$context_id, true);
+		return $url;
 	}
 	
 	function getRandom() {
@@ -2398,7 +2416,7 @@ class Context_Worker extends Extension_DevblocksContext {
 			'first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'gender' => Model_CustomField::TYPE_SINGLE_LINE,
-			'id' => Model_CustomField::TYPE_NUMBER,
+			'id' => Model_CustomField::TYPE_WORKER,
 			'is_disabled' => Model_CustomField::TYPE_CHECKBOX,
 			'is_superuser' => Model_CustomField::TYPE_CHECKBOX,
 			'language' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -2567,4 +2585,86 @@ class Context_Worker extends Extension_DevblocksContext {
 		$view->renderTemplate = 'context';
 		return $view;
 	}
-}
+	
+	
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$date = DevblocksPlatform::getDateService();
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->is_superuser) {
+			$tpl->assign('error_message', "Only administrators can edit worker records.");
+			$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+		}
+		
+		$tpl->assign('view_id', $view_id);
+		
+		if(false == ($worker = DAO_Worker::get($context_id))) {
+			$worker = new Model_Worker();
+			$worker->id = 0;
+			$worker->timezone = $active_worker->timezone;
+			$worker->time_format = $active_worker->time_format;
+			$worker->language = $active_worker->language;
+		}
+		
+		$tpl->assign('worker', $worker);
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		// Custom Fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER, false);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_WORKER, $context_id);
+		if(isset($custom_field_values[$context_id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+		
+		// Authenticators
+		$auth_extensions = Extension_LoginAuthenticator::getAll(false);
+		$tpl->assign('auth_extensions', $auth_extensions);
+		
+		// Calendars
+		$calendars = DAO_Calendar::getOwnedByWorker($worker);
+		$tpl->assign('calendars', $calendars);
+		
+		// Languages
+		$languages = DAO_Translation::getDefinedLangCodes();
+		$tpl->assign('languages', $languages);
+		
+		// Timezones
+		$timezones = $date->getTimezones();
+		$tpl->assign('timezones', $timezones);
+		
+		// Time Format
+		$tpl->assign('time_format', DevblocksPlatform::getDateTimeFormat());
+		
+		if(empty($context_id) || $edit) {
+			$tpl->display('devblocks:cerberusweb.core::workers/peek_edit.tpl');
+		} else {
+			$activity_counts = array(
+				'groups' => DAO_Group::countByMemberId($context_id),
+				'tickets' => DAO_Ticket::countsByOwnerId($context_id),
+				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_WORKER, $context_id),
+				//'emails' => DAO_Address::countByContactId($context_id),
+				'links' => DAO_ContextLink::count(CerberusContexts::CONTEXT_WORKER, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			$links = array(
+				CerberusContexts::CONTEXT_WORKER => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							CerberusContexts::CONTEXT_WORKER,
+							$context_id,
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			$tpl->display('devblocks:cerberusweb.core::workers/peek.tpl');
+		}
+	}
+};
