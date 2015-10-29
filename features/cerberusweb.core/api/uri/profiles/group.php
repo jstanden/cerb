@@ -142,6 +142,8 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
 		
 		try {
+			if(!($active_worker->is_superuser || $active_worker->isGroupManager($group_id)))
+				throw new Exception_DevblocksAjaxValidationError("You do not have access to modify this group.");
 		
 			if($do_delete) {
 				@$move_deleted_buckets = DevblocksPlatform::importGPC($_REQUEST['move_deleted_buckets'],'array',array());
@@ -209,7 +211,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 					$is_member = 0 != $member_levels[$idx];
 					$is_manager = 2 == $member_levels[$idx];
 					
-					// If this worker shoudl not be a member
+					// If this worker shouldn't be a member
 					if(!$is_member) {
 						// If they were previously a member, remove them
 						if(isset($group_members[$member_id])) {

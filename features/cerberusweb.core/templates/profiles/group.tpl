@@ -23,8 +23,8 @@
 				{/if}
 			{/if}
 		
-			{if $active_worker->is_superuser}
-				<button type="button" id="btnProfileGroupEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+			{if $active_worker->is_superuser || $active_worker->isGroupManager($group->id)}
+				<button type="button" id="btnProfileGroupEdit" title="{'common.edit'|devblocks_translate|capitalize}" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 			{/if}
 			
 		</form>

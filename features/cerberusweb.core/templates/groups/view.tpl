@@ -76,7 +76,7 @@
 				<input type="checkbox" name="row_id[]" value="{$result.g_id}" style="display:none;">
 				<img src="{devblocks_url}c=avatars&context=group&context_id={$result.g_id}{/devblocks_url}?v={$result.g_updated}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;margin-right:3px;">
 				<a href="{devblocks_url}c=profiles&g=group&id={$result.g_id}-{$result.g_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.$column}</a>
-				{if $active_worker->is_superuser}<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$result.g_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>{/if}
+				<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$result.g_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
 			{elseif in_array($column, ["g_is_private", "g_is_default"])}
 				<td>{if $result.$column}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(75,75,75);"></span{else}{/if}</td>

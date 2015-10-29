@@ -1770,6 +1770,8 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		$tpl->assign('view_id', $view_id);
 		
@@ -1814,6 +1816,13 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		// Template
 		
 		if($edit) {
+			// ACL check
+			if(!($active_worker->is_superuser || $active_worker->isGroupManager($context_id))) {
+				$tpl->assign('error_message', $translate->_('common.access_denied'));
+				$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+				return;
+			}
+			
 			$tpl->display('devblocks:cerberusweb.core::groups/peek_edit.tpl');
 			
 		} else {

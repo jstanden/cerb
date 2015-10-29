@@ -75,7 +75,7 @@
 			<td>
 				<input type="checkbox" name="row_id[]" value="{$result.b_id}" style="display:none;">
 				<a href="{devblocks_url}c=profiles&type=bucket&id={$result.b_id}-{$result.b_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.b_name}</a>
-				{if $active_worker->isGroupManager($result.b_group_id)}<button type="button" class="cerb-peek-trigger peek" data-context="{$view_context}" data-context-id="{$result.b_id}"><span class="glyphicons glyphicons-new-window-alt" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>{/if}
+				<button type="button" class="cerb-peek-trigger peek" data-context="{$view_context}" data-context-id="{$result.b_id}"><span class="glyphicons glyphicons-new-window-alt" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 			</td>
 			{elseif $column == "b_group_id"}
 				<td>

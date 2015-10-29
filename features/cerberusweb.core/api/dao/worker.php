@@ -2593,11 +2593,6 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!$active_worker->is_superuser) {
-			$tpl->assign('error_message', "Only administrators can edit worker records.");
-			$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
-		}
-		
 		$tpl->assign('view_id', $view_id);
 		
 		if(false == ($worker = DAO_Worker::get($context_id))) {
@@ -2641,7 +2636,14 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		$tpl->assign('time_format', DevblocksPlatform::getDateTimeFormat());
 		
 		if(empty($context_id) || $edit) {
+			// ACL
+			if(!$active_worker->is_superuser) {
+				$tpl->assign('error_message', "Only administrators can edit worker records.");
+				$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+			}
+			
 			$tpl->display('devblocks:cerberusweb.core::workers/peek_edit.tpl');
+			
 		} else {
 			$activity_counts = array(
 				'groups' => DAO_Group::countByMemberId($context_id),
