@@ -16,9 +16,8 @@
 		</h1>
 		
 		<div style="margin-top:5px;">
-			{* [TODO] Handle this onclick action better *}
 			{if $active_worker->is_superuser || $active_worker->isGroupManager($group->id)}<button type="button" class="cerb-peek-edit" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$bucket->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>{/if}
-			{if $bucket}<button type="button" onclick="document.location='{devblocks_url}c=profiles&type=bucket&id={$bucket->id}-{$bucket->name|devblocks_permalink}{/devblocks_url}';"><span class="glyphicons glyphicons-nameplate"></span> View Profile</button>{/if}
+			{if $bucket}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
 		</div>
 	</div>
 </div>
@@ -67,6 +66,17 @@ $(function() {
 		$popup.find('button.cerb-search-trigger')
 			.cerbSearchTrigger()
 			;
+		
+		// View profile
+		$popup.find('.cerb-peek-profile').click(function(e) {
+			if(e.metaKey) {
+				window.open('{devblocks_url}c=profiles&type=bucket&id={$bucket->id}-{$bucket->name|devblocks_permalink}{/devblocks_url}', '_blank');
+				
+			} else {
+				document.location='{devblocks_url}c=profiles&type=bucket&id={$bucket->id}-{$bucket->name|devblocks_permalink}{/devblocks_url}';
+			}
+		});
+		
 	});
 });
 </script>

@@ -30,7 +30,7 @@
 			{/if}
 			
 			<button type="button" class="cerb-peek-edit" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$model->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
-			{if $model}<button type="button" onclick="document.location='{devblocks_url}c=profiles&type=contact&id={$model->id}-{$model->getName()|devblocks_permalink}{/devblocks_url}';"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
+			{if $model}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
 		</div>
 	</div>
 </div>
@@ -127,6 +127,17 @@ $(function() {
 		$popup.find('button.cerb-search-trigger')
 			.cerbSearchTrigger()
 			;
+		
+		// View profile
+		$popup.find('.cerb-peek-profile').click(function(e) {
+			if(e.metaKey) {
+				window.open('{devblocks_url}c=profiles&type=contact&id={$model->id}-{$model->getName()|devblocks_permalink}{/devblocks_url}', '_blank');
+				
+			} else {
+				document.location='{devblocks_url}c=profiles&type=contact&id={$model->id}-{$model->getName()|devblocks_permalink}{/devblocks_url}';
+			}
+		});
+		
 	});
 });
 </script>
