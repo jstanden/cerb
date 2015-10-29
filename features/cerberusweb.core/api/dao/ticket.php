@@ -3297,6 +3297,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					$group_ids = array();
 					
 					foreach($patterns as $pattern) {
+						// Match IDs
+						if(is_numeric($pattern) && isset($groups[$pattern])) {
+							$group_id = intval($pattern);
+							$group_ids[$group_id] = true;
+							continue;
+						}
+							
 						foreach($groups as $group_id => $group) {
 							if(isset($group_ids[$group_id]))
 								continue;
