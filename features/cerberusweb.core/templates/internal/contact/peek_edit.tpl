@@ -175,6 +175,8 @@
 $(function() {
 	var $frm = $('#{$form_id}');
 	var $popup = genericAjaxPopupFind($frm);
+	var $chooser_org = $popup.find('button.chooser-abstract[data-field-name="org_id"]');
+	var $chooser_email = $popup.find('button.chooser-abstract[data-field-name="primary_email_id"]');
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"Edit: Contact");
@@ -194,7 +196,20 @@ $(function() {
 		
 		// Abstract choosers
 		
-		$popup.find('button.chooser-abstract').cerbChooserTrigger();
+		$popup.find('button.chooser-abstract')
+			.cerbChooserTrigger()
+			.on('cerb-chooser-saved', function(e) {
+				// When the org changes, default the contact chooser filter
+				if($(e.target).attr('data-field-name') == 'org_id') {
+					var $bubble = $chooser_org.siblings('ul.chooser-container').find('> li:first input:hidden');
+					
+					if($bubble.length > 0) {
+						var org_id = $bubble.val();
+						$chooser_email.attr('data-query', 'org.id:' + org_id);
+					}
+				}
+			})
+			;
 		
 		// Peeks
 		
