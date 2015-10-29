@@ -157,6 +157,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 				echo json_encode(array(
 					'status' => true,
 					'id' => $id,
+					'view_id' => $view_id,
 				));
 				return;
 				
@@ -183,13 +184,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 				if(empty($first_name))
 					throw new Exception_DevblocksAjaxValidationError("The 'First Name' field is required.", 'first_name');
 				
-				//if(empty($org_id))
-				//	throw new Exception_DevblocksAjaxValidationError("The 'Organization' field is required.", 'org_id');
-				
-				if(empty($primary_email_id))
-					throw new Exception_DevblocksAjaxValidationError("The 'Email' field is required.", 'primary_email_id');
-				
-				if(false == (DAO_Address::get($primary_email_id)))
+				if(!empty($primary_email_id) && false == (DAO_Address::get($primary_email_id)))
 					throw new Exception_DevblocksAjaxValidationError("The given email address is invalid.", 'primary_email_id');
 
 				// Insert/Update
@@ -260,6 +255,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 			echo json_encode(array(
 				'status' => true,
 				'id' => $id,
+				'view_id' => $view_id,
 			));
 			return;
 			

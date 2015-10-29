@@ -67,6 +67,13 @@
 	{* Column Data *}
 	{$object_watchers = DAO_ContextLink::getContextLinks($view_context, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
 	
+	{* Bulk lazy load contacts for this page *}
+	{$object_addys = []}
+	{if in_array(SearchFields_Contact::PRIMARY_EMAIL_ID, $view->view_columns)}
+		{$addy_ids = DevblocksPlatform::extractArrayValues($results, 'c_primary_email_id')}
+		{$object_addys = DAO_Address::getIds($addy_ids)}
+	{/if}
+	
 	{* Bulk lazy load orgs for this page *}
 	{$object_orgs = []}
 	{if in_array(SearchFields_Contact::ORG_ID, $view->view_columns)}
@@ -106,9 +113,12 @@
 				{else}
 				{/if}
 			</td>
-			{elseif $column == SearchFields_Contact::PRIMARY_EMAIL_ADDRESS}
+			{elseif $column == SearchFields_Contact::PRIMARY_EMAIL_ID}
 			<td>
-				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.c_primary_email_id}">{$result.$column}</a>
+				{if isset($object_addys.{$result.$column})}
+				{$addy = $object_addys.{$result.$column}}
+				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a>
+				{/if}
 			</td>
 			{elseif $column == SearchFields_Contact::ORG_ID}
 			<td>
