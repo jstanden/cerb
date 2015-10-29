@@ -9,6 +9,8 @@
 			{$sender = $message_senders.$sender_id}
 			{$sender_org_id = $sender->contact_org_id}
 			{$sender_org = $message_sender_orgs.$sender_org_id}
+			{$sender_contact = $sender->getContact()}
+			{$sender_worker = $message->getWorker()}
 			{$is_outgoing = $message->is_outgoing}
 			{$is_not_sent = $message->is_not_sent}
 
@@ -24,40 +26,34 @@
 		
 			<span class="tag" style="{if !$is_outgoing}color:rgb(185,50,40);{else}color:rgb(100,140,25);{/if}">{if $is_outgoing}{if $is_not_sent}{'mail.saved'|devblocks_translate|lower}{else}{'mail.sent'|devblocks_translate|lower}{/if}{else}{'mail.received'|devblocks_translate|lower}{/if}</span>
 			
-			{if $expanded}
-			<b style="font-size:1.3em;">
-			{if $message->worker_id && isset($workers.{$message->worker_id})}
-				{$msg_worker = $workers.{$message->worker_id}}
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$msg_worker->email|escape:'url'}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );" title="{$sender->email}">{if 0 != strlen($msg_worker->getName())}{$msg_worker->getName()}{else}&lt;{$msg_worker->email}&gt;{/if}</a>
+			{if $sender_worker}
+				<a href="javascript:;" class="cerb-peek-trigger" style="font-weight:bold;{if $expanded}font-size:1.3em;{/if}" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$sender_worker->id}">{if 0 != strlen($sender_worker->getName())}{$sender_worker->getName()}{else}&lt;{$sender_worker->getEmailString()}&gt;{/if}</a>
 			{else}
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$sender_id}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );" title="{$sender->email}">{if 0 != strlen($sender->getName())}{$sender->getName()}{else}&lt;{$sender->email}&gt;{/if}</a>
-			{/if}
-			</b>
-			{else}
-			<b>
-			{if $message->worker_id && isset($workers.{$message->worker_id})}
-				{$msg_worker = $workers.{$message->worker_id}}
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$msg_worker->email|escape:'url'}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );">{if 0 != strlen($msg_worker->getName())}{$msg_worker->getName()}{else}&lt;{$msg_worker->email}&gt;{/if}</a>
-			{else}
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$sender_id}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );">{if 0 != strlen($sender->getName())}{$sender->getName()}{else}&lt;{$sender->email}&gt;{/if}</a>
-			{/if}
-			</b>
-			{/if}
-			
-			&nbsp;
-			
-			{if $sender_org_id}
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$sender_org_id}', null, false, '600', function() { C4_ReloadMessageOnSave('{$message->id}',{if $expanded}true{else}false{/if}); } );">{$sender_org->name}</a>
-			{else}{* No org *}
-				{if $active_worker->hasPriv('core.addybook.addy.actions.update')}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$sender_id}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );"><span style="background-color:rgb(255,255,194);">{'display.convo.set_org'|devblocks_translate|lower}</span></a>{/if}
+				{if $sender_contact}
+					{$sender_org = $sender_contact->getOrg()}
+					<a href="javascript:;" class="cerb-peek-trigger" style="font-weight:bold;{if $expanded}font-size:1.3em;{/if}" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$sender_contact->id}">{$sender_contact->getName()}</a>
+					&nbsp;
+					{if $sender_contact->title}
+						{$sender_contact->title}
+					{/if}
+					{if $sender_contact->title && $sender_org} at {/if}
+					{if $sender_org}
+						<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$sender_org->id}"><b>{$sender_org->name}</b></a>
+					{/if}
+				{else}
+				<a href="javascript:;" class="cerb-peek-trigger" style="font-weight:bold;{if $expanded}font-size:1.3em;{/if}" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context_id="{$sender_id}">&lt;{$sender->email}&gt;</a>
+				{/if}
 			{/if}
 			
 			<div style="float:left;margin:0px 5px 5px 0px;">
-				{if $message->worker_id}
-					{$msg_worker = $workers.{$message->worker_id}}
-					<img src="{devblocks_url}c=avatars&context=worker&context_id={$msg_worker->id}{/devblocks_url}?v={$msg_worker->updated}" style="height:64px;width:64px;border-radius:64px;">
+				{if $sender_worker}
+					<img src="{devblocks_url}c=avatars&context=worker&context_id={$sender_worker->id}{/devblocks_url}?v={$sender_worker->updated}" style="height:64px;width:64px;border-radius:64px;">
 				{else}
-					<img src="{devblocks_url}c=avatars&context=address&context_id={$sender->id}{/devblocks_url}?v={$sender->updated}" style="height:64px;width:64px;border-radius:64px;">
+					{if $sender_contact}
+					<img src="{devblocks_url}c=avatars&context=contact&context_id={$sender_contact->id}{/devblocks_url}?v={$sender_contact->updated_at}" style="height:64px;width:64px;border-radius:64px;">
+					{else}
+					<img src="{devblocks_url}c=avatars&context=address&context_id=0{/devblocks_url}?v={$smarty.const.APP_BUILD}" style="height:64px;width:64px;border-radius:64px;">
+					{/if}
 				{/if}
 			</div>
 			
@@ -199,7 +195,10 @@ $('#{$message->id}t').hover(
 {if $active_worker->hasPriv('core.display.actions.reply')}
 <script type="text/javascript">
 $(function() {
+var $msg = $('#{$message->id}t');
 var $actions = $('#{$message->id}act');
+
+$msg.find('.cerb-peek-trigger').cerbPeekTrigger();
 
 $actions
 	.find('ul.cerb-popupmenu')
