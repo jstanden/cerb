@@ -184,6 +184,9 @@ $(function() {
 		
 	// View actions
 	$view_actions.find('button,.action-on-select').not('.action-always-show').hide();
+	
+	// Peeks
+	$view.find('.cerb-peek-trigger').cerbPeekTrigger({ view_id: '{$view->id}' });
 });
 </script>
 
