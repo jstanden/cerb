@@ -1,21 +1,24 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmMailHtmlTemplatePeek">
+{$form_id = "frmMailHtmlTemplatePeek{uniqid()}"}
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="html_template">
-<input type="hidden" name="action" value="savePeek">
+<input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<div id="mailTemplateTabs">
+{$tabs_id = "tabs{uniqid()}"}
+
+<div class="cerb-tabs-panel">
 	<ul>
-		<li><a href="#htmlTemplateEditor">Editor</a></li>
-		<li><a href="#htmlTemplateCustomFields">{'common.custom_fields'|devblocks_translate|capitalize}</a></li>
-		<li><a href="#htmlTemplateAttachments">{'common.attachments'|devblocks_translate|capitalize}</a></li>
+		<li><a href="#htmlTemplateEditor{$tabs_id}">Editor</a></li>
+		<li><a href="#htmlTemplateCustomFields{$tabs_id}">{'common.custom_fields'|devblocks_translate|capitalize}</a></li>
+		<li><a href="#htmlTemplateAttachments{$tabs_id}">{'common.attachments'|devblocks_translate|capitalize}</a></li>
 	</ul>
 	
-	<div id="htmlTemplateEditor">
+	<div id="htmlTemplateEditor{$tabs_id}">
 		<fieldset class="peek">
 			<legend>Mail Template</legend>
 			
@@ -26,35 +29,6 @@
 						<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="true">
 					</td>
 				</tr>
-				
-				{*
-				<tr>
-					<td width="1%" nowrap="nowrap" valign="top">
-						<b>{'common.owner'|devblocks_translate|capitalize}:</b>
-					</td>
-					<td width="99%">
-						<select name="owner">
-							<option value="{CerberusContexts::CONTEXT_APPLICATION}:0"  context="{CerberusContexts::CONTEXT_APPLICATION}" {if $model->owner_context==CerberusContexts::CONTEXT_APPLICATION}selected="selected"{/if}>Application: Cerb</option>
-		
-							{foreach from=$roles item=role key=role_id}
-								<option value="{CerberusContexts::CONTEXT_ROLE}:{$role_id}"  context="{CerberusContexts::CONTEXT_ROLE}" {if $model->owner_context==CerberusContexts::CONTEXT_ROLE && $role_id==$model->owner_context_id}selected="selected"{/if}>Role: {$role->name}</option>
-							{/foreach}
-							
-							{foreach from=$groups item=group key=group_id}
-								<option value="{CerberusContexts::CONTEXT_GROUP}:{$group_id}"  context="{CerberusContexts::CONTEXT_GROUP}" {if $model->owner_context==CerberusContexts::CONTEXT_GROUP && $group_id==$model->owner_context_id}selected="selected"{/if}>Group: {$group->name}</option>
-							{/foreach}
-							
-							{foreach from=$workers item=worker key=worker_id}
-								{$is_selected = $model->owner_context==CerberusContexts::CONTEXT_WORKER && $worker_id==$model->owner_context_id}
-								{if $is_selected || !$worker->is_disabled}
-								<option value="{CerberusContexts::CONTEXT_WORKER}:{$worker_id}"  context="{CerberusContexts::CONTEXT_WORKER}" {if $is_selected}selected="selected"{/if}>Worker: {$worker->getName()}</option>
-								{/if}
-							{/foreach}
-						</select>
-					</td>
-				</tr>
-				*}
-				
 			</table>
 			
 		<textarea name="content" style="width:98%;height:200px;border:1px solid rgb(180,180,180);padding:2px;" spellcheck="false">
@@ -102,7 +76,7 @@ blockquote a {
 		</fieldset>		
 	</div>
 	
-	<div id="htmlTemplateCustomFields">
+	<div id="htmlTemplateCustomFields{$tabs_id}">
 		{if !empty($custom_fields)}
 		<fieldset class="peek">
 			<legend>{'common.custom_fields'|devblocks_translate}</legend>
@@ -113,7 +87,7 @@ blockquote a {
 		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE context_id=$model->id}
 	</div>
 	
-	<div id="htmlTemplateAttachments">
+	<div id="htmlTemplateAttachments{$tabs_id}">
 		{$a_map = DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $model->id)}
 		{$links = $a_map.links}
 		{$attachments = $a_map.attachments}
@@ -140,6 +114,8 @@ blockquote a {
 	</div>
 </div>
 
+<div class="status"></div>
+
 {if !empty($model->id)}
 <fieldset style="display:none;" class="delete">
 	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
@@ -148,13 +124,13 @@ blockquote a {
 		Are you sure you want to delete this HTML template?
 	</div>
 	
-	<button type="button" class="delete" onclick="var $frm=$(this).closest('form');$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('button.submit').click();"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Confirm</button>
+	<button type="button" class="delete"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.yes'|devblocks_translate|capitalize}</button>
 	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 </fieldset>
 {/if}
 
 <div class="buttons" style="margin-top:20px;">
-	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmMailHtmlTemplatePeek','{$view_id}', false, 'mail_html_template_save');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	{if !empty($model->id)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
@@ -168,22 +144,25 @@ blockquote a {
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
+	var $popup = genericAjaxPopupFind('#{$form_id}');
 	
 	$popup.one('popup_open', function(event,ui) {
-		var $this = $(this);
-		
-		$this.dialog('option','title',"{'HTML Template'}");
+		$popup.dialog('option','title',"{'HTML Template'}");
 
-		$('#mailTemplateTabs').tabs();
+		$popup.find('.cerb-tabs-panel').tabs();
 		
-		var $content = $this.find('textarea[name=content]');
-		var $signature = $this.find('textarea[name=signature]');
-		var $attachments_container = $this.find('UL.cerb-attachments-container');
+		var $content = $popup.find('textarea[name=content]');
+		var $signature = $popup.find('textarea[name=signature]');
+		var $attachments_container = $popup.find('UL.cerb-attachments-container');
+		
+		// Buttons
+		
+		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		
 		// Attachments
 		
-		$this.find('button.chooser_file').each(function() {
+		$popup.find('button.chooser_file').each(function() {
 			ajax.chooserFile(this,'file_ids');
 		});
 		
@@ -289,7 +268,7 @@ $(function() {
 			$content.markItUp(markitupHTMLSettings);
 			$signature.markItUp(markitupParsedownSettings);
 			
-			var $preview = $this.find('.markItUpHeader a[title="Preview"]');
+			var $preview = $popup.find('.markItUpHeader a[title="Preview"]');
 
 			// Default with the preview panel open
 			$preview.trigger('mouseup');

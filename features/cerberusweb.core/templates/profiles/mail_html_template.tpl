@@ -31,7 +31,7 @@
 		
 		<!-- Edit -->
 		{if $active_worker->is_superuser}
-		<button type="button" id="btnDisplayMailHtmlTemplateEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		<button type="button" id="btnDisplayMailHtmlTemplateEdit" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="{$page_context_id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
 	
@@ -101,14 +101,24 @@
 		
 		var tabs = $("#profileMailHtmlTemplateTabs").tabs(tabOptions);
 		
-		$('#btnDisplayMailHtmlTemplateEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');
-			$popup.one('mail_html_template_save', function(event) {
-				event.stopPropagation();
+		// Edit
+		
+		$('#btnDisplayMailHtmlTemplateEdit')
+			.cerbPeekTrigger()
+			.on('cerb-peek-opened', function(e) {
+			})
+			.on('cerb-peek-saved', function(e) {
+				e.stopPropagation();
 				document.location.reload();
-			});
-		});
-
+			})
+			.on('cerb-peek-deleted', function(e) {
+				document.location.href = '{devblocks_url}{/devblocks_url}';
+				
+			})
+			.on('cerb-peek-closed', function(e) {
+			})
+			;
+		
 		{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 	});
 </script>
