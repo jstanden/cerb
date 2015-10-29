@@ -49,18 +49,14 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		// Look up the context extension
 		if(empty($alias) || false == ($avatar_context_mft = Extension_DevblocksContext::getByAlias($alias, false)))
 			$this->_renderDefaultAvatar();
-		
+
 		// Look up the avatar record
-		if(false == ($avatar = DAO_ContextAvatar::getByContext($avatar_context_mft->id, $avatar_context_id))) {
-			// If we don't have an avatar record, check Gravatar
-			// [TODO] If enabled
-			if(false == ($this->_fetchGravatarImage($avatar_context_mft->id, $avatar_context_id)))
-				$this->_renderDefaultAvatar($avatar_context_mft->id, $avatar_context_id);
-			
+		if(false != ($avatar = DAO_ContextAvatar::getByContext($avatar_context_mft->id, $avatar_context_id))) {
+			$this->_renderAvatar($avatar);
 			return;
 		}
 		
-		$this->_renderAvatar($avatar);
+		$this->_renderDefaultAvatar($avatar_context_mft->id, $avatar_context_id);
 	}
 	
 	private function _renderAvatar(Model_ContextAvatar $avatar, $default_context=null, $default_context_id=null) {
@@ -139,17 +135,20 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				if($context_id && false != ($addy = DAO_Address::get($context_id))) {
 					
 					// Use contact if an avatar exists
-					if($addy->contact_id) {
-						if(false != ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_CONTACT, $addy->contact_id))) {
-							$this->_renderAvatar($avatar, CerberusContexts::CONTEXT_CONTACT);
-						} else {
-							$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT, $addy->contact_id);
-						}
+					if($addy->contact_id && false != ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_CONTACT, $addy->contact_id))) {
+						$this->_renderAvatar($avatar, CerberusContexts::CONTEXT_CONTACT);
+						return;
 					}
 					
 					// Use org if an avatar exists
-					if($addy->contact_org_id && false != ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_ORG, $addy->contact_org_id)))
+					if($addy->contact_org_id && false != ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_ORG, $addy->contact_org_id))) {
 						$this->_renderAvatar($avatar, CerberusContexts::CONTEXT_CONTACT);
+						return;
+					}
+					
+					// Use a default contact picture
+					if($addy->contact_id)
+						$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT, $addy->contact_id);
 					
 					$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT);
 					return;
