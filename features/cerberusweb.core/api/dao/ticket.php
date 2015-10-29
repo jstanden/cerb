@@ -2045,12 +2045,11 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				$args['where_sql'] .= sprintf("AND t.group_id IN (%s) ", implode(',', array_keys($roster)));
 				break;
 				
+			// [TODO] This doesn't need to be virtual now
 			case SearchFields_Ticket::VIRTUAL_ORG_ID:
 				$org_id = $param->value;
 				
-				$args['where_sql'] .= sprintf("AND (t.org_id = %d OR a1.contact_org_id = %d OR t.id IN (SELECT requester.ticket_id FROM requester WHERE requester.address_id IN (SELECT id FROM address WHERE contact_org_id = %d))) ",
-					$org_id,
-					$org_id,
+				$args['where_sql'] .= sprintf("AND (t.org_id = %d) ",
 					$org_id
 				);
 				break;
@@ -3884,7 +3883,15 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_ORG_ID:
-				echo sprintf("Organization is %d", $param->value);
+				$param_value = intval($param->value);
+				$org_name = null;
+				
+				if($param_value && false != ($org = DAO_ContactOrg::get($param_value)))
+					$org_name = $org->name;
+				
+				echo sprintf("Organization is <b>%s</b>", $org_name ? DevblocksPlatform::strEscapeHtml($org_name) : $param_value);
+				break;
+				
 			case SearchFields_Ticket::VIRTUAL_CONTACT_ID:
 				$param_value = intval($param->value);
 				$contact_name = null;
