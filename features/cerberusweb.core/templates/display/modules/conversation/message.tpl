@@ -223,7 +223,7 @@ $actions
 $actions
 	.find('button.edit')
 	.click(function() {
-		var $popup = genericAjaxPopup('peek_message','c=display&a=showMessagePeekPopup&id={$message->id}', null, false, '650');
+		var $popup = genericAjaxPopup('peek_message','c=display&a=showMessagePeekPopup&id={$message->id}', null, false, '50%');
 		
 		// Reload when done
 		$popup.one('message_save', function() {

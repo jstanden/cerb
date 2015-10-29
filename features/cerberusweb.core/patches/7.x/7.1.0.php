@@ -237,6 +237,33 @@ if(isset($tables['openid_to_contact_person'])) {
 }
 
 // ===========================================================================
+// Clear view models that have changed
+
+$sql = "DELETE FROM worker_view_model WHERE view_id IN ('org_contacts')";
+$db->ExecuteMaster($sql);
+
+
+// ===========================================================================
+// Drop 'fnr_topic'
+
+if(isset($tables['fnr_topic'])) {
+	$sql = "DROP TABLE fnr_topic";
+	$db->ExecuteMaster($sql);
+	
+	unset($tables['fnr_topic']);
+}
+
+// ===========================================================================
+// Drop 'fnr_external_resource'
+
+if(isset($tables['fnr_external_resource'])) {
+	$sql = "DROP TABLE fnr_external_resource";
+	$db->ExecuteMaster($sql);
+	
+	unset($tables['fnr_external_resource']);
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

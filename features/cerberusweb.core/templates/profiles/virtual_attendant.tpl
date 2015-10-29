@@ -2,7 +2,7 @@
 {$page_context_id = $virtual_attendant->id}
 
 <div style="float:left;margin-right:10px;">
-	<img src="{devblocks_url}c=avatars&context=virtual_attendant&context_id={$virtual_attendant->id}{/devblocks_url}?v={$virtual_attendant->updated_at}" style="height:75px;width:75px;border-radius:5px;border:1px solid rgb(235,235,235);">
+	<img src="{devblocks_url}c=avatars&context=virtual_attendant&context_id={$virtual_attendant->id}{/devblocks_url}?v={$virtual_attendant->updated_at}" style="height:75px;width:75px;border-radius:5px;">
 </div>
 
 <div style="float:left">

@@ -109,7 +109,7 @@
 		<tr>
 			<td width="1%" nowrap="nowrap"><b>{'common.dob'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
-				<input type="text" name="dob" value="{if $model->dob}{$model->dob}{/if}" style="width:98%;" autocomplete="off" spellcheck="false">
+				<input type="text" name="dob" value="{if $model->dob}{$model->dob|devblocks_date}{/if}" style="width:98%;" autocomplete="off" spellcheck="false">
 			</td>
 		</tr>
 		
@@ -182,8 +182,9 @@ $(function() {
 		$popup.dialog('option','title',"Edit: Contact");
 		$popup.find('input:text:first').focus();
 		
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		// Buttons
 		
+		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 			
 		{if empty($model->id)}
