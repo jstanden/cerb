@@ -28,7 +28,7 @@
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
 		
 		<!-- Edit -->
-		<button type="button" id="btnDisplayCalendarEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		<button type="button" id="btnDisplayCalendarEdit" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$page_context_id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
@@ -98,14 +98,24 @@
 		
 		var tabs = $("#profileCalendarTabs").tabs(tabOptions);
 		
-		$('#btnDisplayCalendarEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');
-			$popup.one('calendar_save', function(event) {
-				event.stopPropagation();
+		// Edit
+		
+		$('#btnDisplayCalendarEdit')
+			.cerbPeekTrigger()
+			.on('cerb-peek-opened', function(e) {
+			})
+			.on('cerb-peek-saved', function(e) {
+				e.stopPropagation();
 				document.location.reload();
-			});
-		});
-
+			})
+			.on('cerb-peek-deleted', function(e) {
+				document.location.href = '{devblocks_url}{/devblocks_url}';
+				
+			})
+			.on('cerb-peek-closed', function(e) {
+			})
+			;
+		
 		{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 	});
 </script>
