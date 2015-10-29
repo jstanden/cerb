@@ -138,10 +138,9 @@
 			{elseif $k == 'bucket'}
 				{$ticket_group = $groups.$ticket_group_id}
 				<b>{'common.bucket'|devblocks_translate|capitalize}:</b>
-				{*<img src="{devblocks_url}c=avatars&context=group&context_id={$ticket_group->id}{/devblocks_url}?v={$ticket_group->updated}" style="height:16px;width:16px;border-radius:8px;vertical-align:middle;">*}
-				[<a href="{devblocks_url}c=profiles&what=group&id={$ticket_group->id}{/devblocks_url}-{$ticket_group->name|devblocks_permalink}">{$ticket_group->name}</a>] 
+				[<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket_group->id}">{$ticket_group->name}</a>] 
 				{if !empty($ticket_bucket_id)}
-					<a href="{devblocks_url}c=profiles&what=bucket&id={$ticket_bucket->id}{/devblocks_url}-{$ticket_bucket->name|devblocks_permalink}">{$ticket_bucket->name}</a>
+					<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket_bucket->id}">{$ticket_bucket->name}</a>
 				{/if}
 			{else}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
