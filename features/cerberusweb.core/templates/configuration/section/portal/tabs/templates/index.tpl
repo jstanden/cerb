@@ -1,5 +1,5 @@
 <form action="#" style="margin-bottom:5px;float:left;">
-	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=showAddTemplatePeek&portal={$tool->code}&view_id={$view->id|escape:'url'}',null,false,'600');"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> {'common.add'|devblocks_translate|capitalize}</button></a>
+	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=showAddTemplatePeek&portal={$tool->code}&view_id={$view->id|escape:'url'}',null,false,'50%');"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> {'common.add'|devblocks_translate|capitalize}</button></a>
 </form>
 
 <div style="float:right;">

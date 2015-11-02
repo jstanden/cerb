@@ -1,6 +1,6 @@
 <div id="divPortalAddTemplate">
 	{if !empty($templates)}
-		<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmPortalAddTemplatePeek" name="frmPortalAddTemplatePeek" onsubmit="return false;">
+		<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmPortalAddTemplatePeek" onsubmit="return false;">
 		<input type="hidden" name="c" value="config">
 		<input type="hidden" name="a" value="handleSectionAction">
 		<input type="hidden" name="section" value="portal">
@@ -35,7 +35,7 @@ $(function() {
 	var $popup = genericAjaxPopupFetch('peek');
 	
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"Add Custom Template");
+		$popup.dialog('option','title',"Add Custom Template");
 	});
 });
 </script>
