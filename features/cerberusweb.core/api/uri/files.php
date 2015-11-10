@@ -118,7 +118,6 @@ class ChFilesController extends DevblocksControllerExtension {
 							'drop-proprietary-attributes' => true,
 							'indent' => false,
 							'output-xhtml' => true,
-							'word-2000' => true,
 							'wrap' => 0,
 						);
 						

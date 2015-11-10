@@ -592,7 +592,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				'create_task' => array('label' =>'Create a task'),
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'move_to' => array('label' => 'Move to'),
-				'relay_email' => array('label' => 'Relay to worker email'),
+				'relay_email' => array('label' => 'Relay to external email'),
 				'schedule_email_recipients' => array('label' => 'Schedule email to recipients'),
 				'send_email' => array('label' => 'Send email'),
 				'send_email_recipients' => array('label' => 'Send email to recipients'),
@@ -662,6 +662,14 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 					break;
 				
 				switch($va->owner_context) {
+					case CerberusContexts::CONTEXT_APPLICATION:
+						DevblocksEventHelper::renderActionRelayEmail(
+							array_keys(DAO_Worker::getAllActive()),
+							array('owner', 'watchers', 'workers'),
+							'ticket_latest_message_content'
+						);
+						break;
+						
 					case CerberusContexts::CONTEXT_GROUP:
 						// Filter to group members
 						$group = DAO_Group::get($va->owner_context_id);

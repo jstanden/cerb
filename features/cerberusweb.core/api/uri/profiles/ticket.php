@@ -134,7 +134,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		);
 		
 		if(!empty($ticket->closed_at)) {
-			$properties['updated'] = array(
+			$properties['closed'] = array(
 				'label' => ucfirst($translate->_('ticket.closed_at')),
 				'type' => Model_CustomField::TYPE_DATE,
 				'value' => $ticket->closed_at,

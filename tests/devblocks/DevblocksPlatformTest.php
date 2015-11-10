@@ -395,11 +395,11 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		
 		// x -> xyy
 		$actual = DevblocksPlatform::strVersionToInt('7', 2);
-		$this->assertEquals(7, $actual);
+		$this->assertEquals(700, $actual);
 		
 		// x -> xyyzz
 		$actual = DevblocksPlatform::strVersionToInt('7', 3);
-		$this->assertEquals(7, $actual);
+		$this->assertEquals(70000, $actual);
 
 		// x.y -> xyy
 		$actual = DevblocksPlatform::strVersionToInt('7.1', 2);
@@ -415,12 +415,8 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		
 		// x -> xyyzz
 		$actual = DevblocksPlatform::strVersionToInt('7.1', 3);
-		$this->assertEquals(701, $actual);
+		$this->assertEquals(70100, $actual);
 
-		// x.y -> xyyzz
-		$actual = DevblocksPlatform::strVersionToInt('7.1', 3);
-		$this->assertEquals(701, $actual);
-		
 		// x.y.z -> xyyzz
 		$actual = DevblocksPlatform::strVersionToInt('7.1.9', 3);
 		$this->assertEquals(70109, $actual);
