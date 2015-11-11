@@ -348,7 +348,14 @@ function genericAjaxPopupFetch($layer) {
 }
 
 function genericAjaxPopupClose($layer, $event) {
-	var $popup = genericAjaxPopupFetch($layer);
+	var $popup = null;
+	
+	if($layer instanceof jQuery) {
+		$popup = $layer;
+	} else if(typeof $layer == 'string') {
+		$popup = genericAjaxPopupFetch($layer);
+	}
+	
 	if(null != $popup) {
 		try {
 			if(null != $event)
@@ -365,7 +372,14 @@ function genericAjaxPopupClose($layer, $event) {
 }
 
 function genericAjaxPopupDestroy($layer) {
-	var $popup = genericAjaxPopupFetch($layer);
+	var $popup = null;
+	
+	if($layer instanceof jQuery) {
+		$popup = $layer;
+	} else if(typeof $layer == 'string') {
+		$popup = genericAjaxPopupFetch($layer);
+	}
+
 	if(null != $popup) {
 		genericAjaxPopupClose($layer);
 		try {
