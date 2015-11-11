@@ -4494,6 +4494,16 @@ class DevblocksEventHelper {
 				break;
 		}
 		
+		// Remove any existing IDs in the token that aren't in the $new_ids (subtract/replace)
+		
+		@$array =& $dict->$token;
+		
+		if(is_array($array))
+		foreach($array as $id => $object) {
+			if(!in_array($id, $new_ids))
+				unset($array[$id]);
+		}
+		
 		$objects = array();
 		
 		// Preload these from DAO
