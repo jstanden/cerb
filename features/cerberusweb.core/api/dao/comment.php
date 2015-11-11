@@ -201,12 +201,12 @@ class DAO_Comment extends Cerb_ORMHelper {
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Comment();
-			$object->id = $row['id'];
+			$object->id = intval($row['id']);
 			$object->context = $row['context'];
-			$object->context_id = $row['context_id'];
-			$object->created = $row['created'];
+			$object->context_id = intval($row['context_id']);
+			$object->created = intval($row['created']);
 			$object->owner_context = $row['owner_context'];
-			$object->owner_context_id = $row['owner_context_id'];
+			$object->owner_context_id = intval($row['owner_context_id']);
 			$object->comment = $row['comment'];
 			$objects[$object->id] = $object;
 		}
