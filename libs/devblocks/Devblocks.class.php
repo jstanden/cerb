@@ -1141,14 +1141,14 @@ class DevblocksPlatform extends DevblocksEngine {
 	/**
 	 * Returns a string as alphanumerics delimited by underscores.
 	 * For example: "Devs: 1000 Ways to Improve Sales" becomes
-	 * "devs_1000_ways_to_improve_sales", which is suitable for
+	 * "devs-1000-ways-to-improve-sales", which is suitable for
 	 * displaying in a URL of a blog, faq, etc.
 	 *
 	 * @param string $str
 	 * @return string
 	 * @test DevblocksPlatformTest
 	 */
-	static function strToPermalink($string) {
+	static function strToPermalink($string, $spaces_as='-') {
 		if(empty($string))
 			return '';
 		
@@ -1159,12 +1159,12 @@ class DevblocksPlatform extends DevblocksEngine {
 		$string = preg_replace('#[\'\"]#', '', $string);
 		
 		// Strip all punctuation to underscores
-		$string = preg_replace('#[^a-zA-Z0-9\+\.\-_\(\)]#', '-', $string);
+		$string = preg_replace('#[^a-zA-Z0-9\+\.\-_\(\)]#', $spaces_as, $string);
 			
 		// Collapse all underscores to singles
-		$string = preg_replace('#--+#', '-', $string);
+		$string = preg_replace(('#' . $spaces_as . $spaces_as . '+#'), $spaces_as, $string);
 		
-		return rtrim($string,'-');
+		return rtrim($string, $spaces_as);
 	}
 	
 	/**
