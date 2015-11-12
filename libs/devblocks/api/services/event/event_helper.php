@@ -2802,6 +2802,97 @@ class DevblocksEventHelper {
 	}
 	
 	/*
+	 * Action: Remove Recipients
+	 */
+	
+	static function renderActionRemoveRecipients($trigger) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_picker_email_addresses.tpl');
+	}
+
+	static function simulateActionRemoveRecipients($params, DevblocksDictionaryDelegate $dict, $default_on) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		@$recipients = DevblocksPlatform::parseCsvString(
+			$tpl_builder->build(
+				DevblocksPlatform::importVar($params['recipients'],'string',''),
+				$dict
+			)
+		);
+		
+		// Include addys from variables
+		
+		@$from_vars = DevblocksPlatform::importVar($params['from_vars'],'array',array());
+
+		if(false != ($objects = self::_getObjectsFromDictVars($dict, $from_vars, CerberusContexts::CONTEXT_ADDRESS)))
+			foreach($objects as $object)
+				$recipients[] = $object->address;
+		
+		// Event
+		
+		$trigger = $dict->_trigger;
+		$event = $trigger->getEvent();
+		
+		// Recipients
+		
+		$out = ">>> Removing recipients:\n";
+		
+		if(!is_array($recipients) || empty($recipients)) {
+			$out .= " * No recipients are being set. Skipping...";
+			return $out;
+		}
+		
+		// Iterate addys
+			
+		foreach($recipients as $addy) {
+			if(null != ($addy_model = DAO_Address::lookupAddress($addy, true))) {
+				$out .= " * " . $addy_model->getNameWithEmail() . "\n";
+			}
+		}
+		
+		return $out;
+	}
+	
+	static function runActionRemoveRecipients($params, DevblocksDictionaryDelegate $dict, $default_on) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		@$recipients = DevblocksPlatform::parseCsvString(
+			$tpl_builder->build(
+				DevblocksPlatform::importVar($params['recipients'],'string',''),
+				$dict
+			)
+		);
+
+		// Include addys from variables
+		
+		@$from_vars = DevblocksPlatform::importVar($params['from_vars'],'array',array());
+
+		if(false != ($objects = self::_getObjectsFromDictVars($dict, $from_vars, CerberusContexts::CONTEXT_ADDRESS)))
+			foreach($objects as $object)
+				$recipients[] = $object->address;
+		
+		if(!is_array($recipients) || empty($recipients))
+			return;
+		
+		// Event
+		
+		$trigger = $dict->_trigger;
+		$event = $trigger->getEvent();
+		
+		// Action
+		
+		$ticket_id = $dict->$default_on;
+		
+		if(is_array($recipients))
+		foreach($recipients as $addy) {
+			// [TODO] This could be more efficient
+			if(false != ($addy_model = DAO_Address::lookupAddress($addy, true))) {
+				DAO_Ticket::deleteRequester($ticket_id, $addy_model->id);
+			}
+		}
+	}
+	
+	/*
 	 * Action: Add Watchers
 	 */
 	
