@@ -1360,6 +1360,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(empty($string))
 			return array();
 		
+		if(!$keep_blanks)
+			$string = rtrim($string, ', ');
+		
 		$tokens = explode(',', $string);
 
 		if(!is_array($tokens))
