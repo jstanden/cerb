@@ -2698,9 +2698,28 @@ class DevblocksEventHelper {
 	
 	static function renderActionAddRecipients($trigger) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('workers', DAO_Worker::getAllActive());
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_picker_email_addresses.tpl');
+	}
+	
+	static function _getObjectsFromDictVars($dict, $from_vars, $context) {
+		$objects = array();
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_add_emails.tpl');
+		// Include addys from variables
+		if(isset($from_vars) && is_array($from_vars)) {
+			foreach($from_vars as $from_var) {
+				if(isset($dict->$from_var) && is_array($dict->$from_var)) {
+					foreach($dict->$from_var as $key => $object) {
+						if($object instanceof DevblocksDictionaryDelegate) {
+							if(!$context || $object->_context == $context) {
+								$objects[] = $object;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return $objects;
 	}
 
 	static function simulateActionAddRecipients($params, DevblocksDictionaryDelegate $dict, $default_on) {
@@ -2712,6 +2731,14 @@ class DevblocksEventHelper {
 				$dict
 			)
 		);
+		
+		// Include addys from variables
+		
+		@$from_vars = DevblocksPlatform::importVar($params['from_vars'],'array',array());
+
+		if(false != ($objects = self::_getObjectsFromDictVars($dict, $from_vars, CerberusContexts::CONTEXT_ADDRESS)))
+			foreach($objects as $object)
+				$recipients[] = $object->address;
 		
 		// Event
 		
@@ -2731,7 +2758,7 @@ class DevblocksEventHelper {
 			
 		foreach($recipients as $addy) {
 			if(null != ($addy_model = DAO_Address::lookupAddress($addy, true))) {
-				$out .= " * " . $addy_model->email . "\n";
+				$out .= " * " . $addy_model->getNameWithEmail() . "\n";
 			}
 		}
 		
@@ -2747,7 +2774,15 @@ class DevblocksEventHelper {
 				$dict
 			)
 		);
+		
+		// Include addys from variables
+		
+		@$from_vars = DevblocksPlatform::importVar($params['from_vars'],'array',array());
 
+		if(false != ($objects = self::_getObjectsFromDictVars($dict, $from_vars, CerberusContexts::CONTEXT_ADDRESS)))
+			foreach($objects as $object)
+				$recipients[] = $object->address;
+		
 		if(!is_array($recipients) || empty($recipients))
 			return;
 		
