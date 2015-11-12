@@ -304,23 +304,24 @@ class DAO_Address extends Cerb_ORMHelper {
 	 * @param unknown_type $create_if_null
 	 * @return Model_Address
 	 */
-	static function lookupAddress($email,$create_if_null=false) {
+	static function lookupAddress($email, $create_if_null=false) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$address = null;
 		
 		$email = trim(mb_convert_case($email, MB_CASE_LOWER));
 		
-		$addresses = self::getWhere(sprintf("email = %s",
-			$db->qstr($email)
-		));
+		// Make sure this a valid, normalized, and properly formatted email address
 		
-		if(is_array($addresses) && !empty($addresses)) {
-			$address = array_shift($addresses);
+		if(false == (@$email_data = array_shift(CerberusMail::parseRfcAddresses($email))) || !is_array($email_data))
+			return false;
+		
+		if($address = DAO_Address::getByEmail($email_data['email'])) {
+			// This is what we want
 			
 		} elseif($create_if_null) {
 			$fields = array(
-				self::EMAIL => $email
+				self::EMAIL => $email_data['email']
 			);
 			
 			if(false == ($id = DAO_Address::create($fields)))
