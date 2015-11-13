@@ -14,19 +14,20 @@
 </form>
 
 <script type="text/javascript">
-var $popup = genericAjaxPopupFind('#frmSkillsChooser');
-
-$popup.one('popup_open', function(event,ui) {
-	$popup.dialog('option','title',"{'common.skills'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+$(function() {
+	var $popup = genericAjaxPopupFind('#frmSkillsChooser');
 	
-	$popup.find('button.submit').click(function() {
-			genericAjaxPost('frmSkillsChooser', null, null, function() {
-				
-				// Trigger event
-				var $event = jQuery.Event('skills_save');
-				var $layer = $popup.attr('id').substring(5);
-				genericAjaxPopupClose($layer, $event);
-			});
+	$popup.one('popup_open', function(event,ui) {
+		$popup.dialog('option','title',"{'common.skills'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		
+		$popup.find('button.submit').click(function() {
+				genericAjaxPost('frmSkillsChooser', null, null, function() {
+					
+					// Trigger event
+					var $event = jQuery.Event('skills_save');
+					genericAjaxPopupClose($popup, $event);
+				});
+		});
 	});
 });
 </script>

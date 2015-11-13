@@ -37,7 +37,6 @@ $(function() {
 	var $popup = genericAjaxPopupFetch('snippet_paste');
 	
 	$popup.one('popup_open',function(event,ui) {
-		var $popup = $(this);
 		var $preview = $popup.find('div.preview');
 		
 		$popup.dialog('option','title', 'Insert Snippet');
@@ -81,7 +80,7 @@ $(function() {
 				
 				$popup.trigger(event);
 				
-				genericAjaxPopupClose('snippet_paste');
+				genericAjaxPopupClose($popup);
 			});
 			
 		});

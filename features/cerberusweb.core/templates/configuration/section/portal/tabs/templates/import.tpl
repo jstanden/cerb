@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post" enctype="multipart/form-data">
+<form action="{devblocks_url}{/devblocks_url}" method="post" enctype="multipart/form-data" onsubmit="genericAjaxPopupClose('peek');">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="portal">
@@ -11,7 +11,7 @@
 <input type="file" name="import_file" size="45"><br>
 <br>
 
-<button type="button" onclick="genericAjaxPopupClose('peek');this.form.submit();"><span class="glyphicons glyphicons-file-import"></span></a> {'common.import'|devblocks_translate|capitalize}</button>
+<button type="submit"><span class="glyphicons glyphicons-file-import"></span></a> {'common.import'|devblocks_translate|capitalize}</button>
 
 </form>
 
@@ -20,7 +20,7 @@ $(function() {
 	var $popup = genericAjaxPopupFetch('peek');
 	
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{'common.import'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.dialog('option','title',"{'common.import'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 	});
 });
 </script>

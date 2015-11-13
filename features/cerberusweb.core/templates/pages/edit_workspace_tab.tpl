@@ -51,24 +51,27 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $popup = genericAjaxPopupFind('#frmEditWorkspaceTab');
+	
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{if !empty($workspace_tab)}Edit Tab{else}Add Tab{/if}");
+		$popup.dialog('option','title',"{if !empty($workspace_tab)}Edit Tab{else}Add Tab{/if}");
 		$('#frmEditWorkspaceTab').sortable({ items: 'DIV.column', placeholder:'ui-state-highlight' });
 		
-		$frm = $('#frmEditWorkspaceTab');
+		var $frm = $('#frmEditWorkspaceTab');
 		
 		$frm.find('button.submit').click(function(e) {
 			genericAjaxPost('frmEditWorkspaceTab', '', null, function(json) {
-				event = jQuery.Event('workspace_save');
+				var event = jQuery.Event('workspace_save');
 						
 				if(null != json.name)
 					event.name = json.name;
 
-				genericAjaxPopupClose('peek', event);
+				genericAjaxPopupClose($popup, event);
 			});
 		});
 		
 		$frm.find('input:text:first').focus().select();
 	});
+});
 </script>

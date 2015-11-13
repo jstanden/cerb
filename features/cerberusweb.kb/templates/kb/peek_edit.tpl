@@ -197,7 +197,7 @@ $(function() {
 		
 		$('#btnKbArticleEditSave').bind('click', function() {
 			genericAjaxPost('frmKbEditPanel', '', '', function(json) {
-				genericAjaxPopupClose('peek', 'article_save');
+				genericAjaxPopupClose($popup, 'article_save');
 				{if !empty($view_id)}
 				genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');
 				{/if}

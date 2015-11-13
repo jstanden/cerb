@@ -30,7 +30,7 @@ $(function() {
 	var $popup = genericAjaxPopupFetch('peek');
 	
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title','{'common.participants'|devblocks_translate|capitalize|escape:'javascript'}');
+		$popup.dialog('option','title','{'common.participants'|devblocks_translate|capitalize|escape:'javascript'}');
 		
 		// Add an autocomplete for single address entry (including new IDs)
 		ajax.emailAutoComplete('#formDisplayReq input:text[name=lookup]', { multiple: true } );
@@ -39,13 +39,14 @@ $(function() {
 		$('#btnSaveRequestersPanel').bind('click', function() {
 			genericAjaxPost('formDisplayReq','','',
 				function(html) {
-					genericAjaxPopupClose('peek');
-					genericAjaxGet('displayTicketRequesterBubbles', 'c=display&a=requestersRefresh&ticket_id={$ticket_id}');
+					genericAjaxGet('displayTicketRequesterBubbles', 'c=display&a=requestersRefresh&ticket_id={$ticket_id}', function() {
+						genericAjaxPopupClose($popup);
+					});
 				}
 			);
 		});
 		
-		$(this).find('input:text:first').focus();
+		$popup.find('input:text:first').focus();
 		
 		$('#formDisplayReq button.chooser_address').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.address','address_id');

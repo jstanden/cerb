@@ -34,16 +34,16 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $popup = genericAjaxPopupFetch('peek');
 	
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"Knowledgebase Category");
+		$popup.dialog('option','title',"Knowledgebase Category");
 		
-		$frm = $('#frmKbCategoryEdit');
+		var $frm = $('#frmKbCategoryEdit');
 
 		// Delete
 		$frm.find('button.delete-confirm').click(function(e) {
-			$frm = $(this).closest('form');
 			$frm.find('input:hidden[name=delete_box]').val('1');
 			$frm.find('button.submit').click();
 		});
@@ -51,16 +51,16 @@
 		// Submit
 		$frm.find('button.submit').click(function(e) {
 			genericAjaxPost('frmKbCategoryEdit', '', null, function(json) {
-				$popup = genericAjaxPopupFetch('peek');
+				var event = jQuery.Event('kb_category_save');
 				
-				event = jQuery.Event('kb_category_save');
 				if(json && json.id)
 					event.id = json.id;
 				
-				genericAjaxPopupClose('peek', event);
+				genericAjaxPopupClose($popup, event);
 			});
 		});
 		
 		$frm.find('input:text:first').focus().select();
 	});
+});
 </script>

@@ -18,7 +18,7 @@
 		<br>
 		
 		{if $active_worker->is_superuser}
-			<button type="button" onclick="genericAjaxPost('frmPortalAddTemplatePeek', 'divPortalAddTemplate', '');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
+			<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 		{else}
 			<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>	
 		{/if}
@@ -32,10 +32,16 @@
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
+	var $popup = genericAjaxPopupFind('#divPortalAddTemplate');
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"Add Custom Template");
+		
+		$popup.find('button.submit').click(function() {
+			genericAjaxPost('frmPortalAddTemplatePeek', 'divPortalAddTemplate', '', function() {
+				$popup.trigger('popup_open');
+			});
+		});
 	});
 });
 </script>

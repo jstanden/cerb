@@ -209,14 +209,14 @@
 <fieldset class="delete" style="display:none;">
 	<legend>Delete this snippet?</legend>
 	<p>Are you sure you want to permanently delete this snippet?</p>
-	<button type="button" class="green" onclick="$(this).closest('form').find('input:hidden[name=do_delete]').val('1');genericAjaxPopupClose('{$layer}');genericAjaxPost('formSnippetsPeek', 'view{$view_id}')"> {'common.yes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="green delete"> {'common.yes'|devblocks_translate|capitalize}</button>
 	<button type="button" class="red" onclick="$(this).closest('fieldset').hide().next('div.buttons').show();"> {'common.no'|devblocks_translate|capitalize}</button>
 </fieldset>
 {/if}
 
 <div class="buttons">
 {if $active_worker->hasPriv('core.snippets.actions.create')}
-	<button type="button" onclick="genericAjaxPopupClose('{$layer}');genericAjaxPost('formSnippetsPeek', 'view{$view_id}');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 {else}
 	<fieldset class="delete" style="font-weight:bold;">
 		{'error.core.no_acl.edit'|devblocks_translate}
@@ -235,15 +235,28 @@
 	var $popup = genericAjaxPopupFetch('{$layer}');
 	
 	$popup.one('popup_open',function(event,ui) {
-		var $popup = $(this);
 		var $textarea = $popup.find('textarea[name=content]');
 		
 		{if empty($snippet->id)}
-		$(this).dialog('option','title', 'Create Snippet');
+		$popup.dialog('option','title', 'Create Snippet');
 		{else}
-		$(this).dialog('option','title', 'Modify Snippet');
+		$popup.dialog('option','title', 'Modify Snippet');
 		{/if}
 
+		$popup.find('button.submit').click(function() {
+			genericAjaxPost('formSnippetsPeek', 'view{$view_id}', null, function() {
+				genericAjaxPopupClose($popup);
+			});
+		});
+		
+		$popup.find('button.delete').click(function() {
+			$(this).closest('form').find('input:hidden[name=do_delete]').val('1');
+			
+			genericAjaxPost('formSnippetsPeek', 'view{$view_id}', null, function() {
+				genericAjaxPopupClose($popup);
+			});
+		});
+		
 		// Change
 		
 		var $change_dropdown = $popup.find("form select[name=context]");
@@ -323,5 +336,5 @@
 				}
 			}
 		});
-	} );
+	});
 </script>

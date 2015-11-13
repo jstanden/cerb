@@ -149,7 +149,6 @@ function DevblocksClass() {
 		var $popup = genericAjaxPopupFind($button);
 		var $frm = $popup.find('form').first();
 		var $status = $popup.find('div.status');
-		var layer = $popup.attr('data-layer');
 		var is_delete = (e.data && e.data.mode == 'delete');
 		
 		if(!($popup instanceof jQuery))
@@ -189,7 +188,7 @@ function DevblocksClass() {
 				if(e.view_id)
 					genericAjaxGet('view'+e.view_id, 'c=internal&a=viewRefresh&id=' + e.view_id);
 				
-				genericAjaxPopupClose(layer, event);
+				genericAjaxPopupClose($popup, event);
 				
 			} else {
 				// Output errors
@@ -381,7 +380,7 @@ function genericAjaxPopupDestroy($layer) {
 	}
 
 	if(null != $popup) {
-		genericAjaxPopupClose($layer);
+		genericAjaxPopupClose($popup);
 		try {
 			$popup.dialog('destroy');
 			$popup.unbind();
@@ -530,7 +529,7 @@ function genericAjaxPopupPostCloseReloadView($layer, frm, view_id, has_output, $
 	if(has_view)
 		$('#view'+view_id).fadeTo("fast", 0.2);
 	
-	genericAjaxPost(frm,view_id,'',
+	genericAjaxPost(frm,'','',
 		function(html) {
 			if(has_view && has_output) { // Reload from post content
 				if(html.length > 0)
@@ -544,15 +543,13 @@ function genericAjaxPopupPostCloseReloadView($layer, frm, view_id, has_output, $
 
 			if(null == $layer) {
 				$popup = genericAjaxPopupFind('#'+frm);
-				if(null != $popup)
-					$layer = $popup.attr('id').substring(5);
 			} else {
 				$popup = genericAjaxPopupFetch($layer);
 			}
 			
 			if(null != $popup) {
 				$popup.trigger('popup_saved');
-				genericAjaxPopupClose($layer, $event);
+				genericAjaxPopupClose($popup, $event);
 			}
 		}
 	);
@@ -562,7 +559,7 @@ function genericAjaxGet(divRef,args,cb,options) {
 	var div = null;
 
 	// Polymorph div
-	if(typeof divRef=="object")
+	if(divRef instanceof jQuery)
 		div = divRef;
 	else if(typeof divRef=="string" && divRef.length > 0)
 		div = $('#'+divRef);
@@ -604,13 +601,13 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 	var div = null;
 	
 	// Polymorph form
-	if(typeof formRef=="object")
+	if(formRef instanceof jQuery)
 		frm = formRef;
 	else if(typeof formRef=="string" && formRef.length > 0)
 		frm = $('#'+formRef);
 	
 	// Polymorph div
-	if(typeof divRef=="object")
+	if(divRef instanceof jQuery)
 		div = divRef;
 	else if(typeof divRef=="string" && divRef.length > 0)
 		div = $('#'+divRef);

@@ -187,19 +187,27 @@
 </fieldset>
 {/if}
 	
-<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 <br>
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $popup = genericAjaxPopupFetch('peek');
+	
 	$popup.one('popup_open', function(event,ui) {
 		var $this = $(this);
 		var $frm = $('#formBatchUpdate');
 		
-		$this.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
 		ajax.orgAutoComplete('#formBatchUpdate input:text[name=do_org]');
+		
+		$popup.find('button.submit').click(function() {
+			genericAjaxPost('formBatchUpdate', null, null, function() {
+				genericAjaxPopupClose($popup);
+			});
+		});
 		
 		$frm.find('button.chooser_file').each(function() {
 			ajax.chooserFile(this,'broadcast_file_ids');
@@ -326,4 +334,5 @@
 				console.log(e);
 		}
 	});
+});
 </script>
