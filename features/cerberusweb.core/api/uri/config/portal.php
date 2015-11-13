@@ -361,7 +361,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		); /* @var $xml SimpleXMLElement */
 		
 		// Author
-		$eAuthor =& $xml->templates->addChild('author'); /* @var $eAuthor SimpleXMLElement */
+		$eAuthor = $xml->templates->addChild('author'); /* @var $eAuthor SimpleXMLElement */
 		$eAuthor->addChild('name', htmlspecialchars($author));
 		$eAuthor->addChild('email', htmlspecialchars($email));
 		
@@ -381,7 +381,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 			if(null == ($template = DAO_DevblocksTemplate::get($result[SearchFields_DevblocksTemplate::ID])))
 				continue;
 
-			$eTemplate =& $xml->templates->addChild('template', htmlspecialchars($template->content)); /* @var $eTemplate SimpleXMLElement */
+			$eTemplate = $xml->templates->addChild('template', htmlspecialchars($template->content)); /* @var $eTemplate SimpleXMLElement */
 			$eTemplate->addAttribute('plugin_id', htmlspecialchars($template->plugin_id));
 			$eTemplate->addAttribute('path', htmlspecialchars($template->path));
 		}
