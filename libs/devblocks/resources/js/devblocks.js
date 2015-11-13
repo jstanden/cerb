@@ -564,21 +564,6 @@ function genericAjaxGet(divRef,args,cb,options) {
 	else if(typeof divRef=="string" && divRef.length > 0)
 		div = $('#'+divRef);
 	
-	if(null == cb) {
-		if(null != div)
-			div.fadeTo("fast", 0.2);
-		
-		var cb = function(html) {
-			if(null != div) {
-				div.html(html);
-				div.fadeTo("fast", 1.0);
-				
-				if(div.is('DIV[id^=view]'))
-					div.trigger('view_refresh');
-			}
-		}
-	}
-	
 	// Allow custom options
 	if(null == options)
 		options = { };
@@ -586,14 +571,31 @@ function genericAjaxGet(divRef,args,cb,options) {
 	options.type = 'GET';
 	options.url = DevblocksAppPath+'ajax.php?'+args;
 	options.cache = false;
-	options.success = cb;
+	
+	if(null != div) {
+		div.fadeTo("fast", 0.2);
+		
+		options.success = function(html) {
+			if(null != div) {
+				div.html(html);
+				div.fadeTo("fast", 1.0);
+				
+				if(div.is('DIV[id^=view]'))
+					div.trigger('view_refresh');
+			}
+		};
+	}
 	
 	if(null == options.headers)
 		options.headers = {};
 		
 	options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
 	
-	$.ajax(options);
+	var $ajax = $.ajax(options);
+	
+	if(typeof cb == 'function') {
+		$ajax.done(cb);
+	}
 }
 
 function genericAjaxPost(formRef,divRef,args,cb,options) {
@@ -615,11 +617,19 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 	if(null == frm)
 		return;
 	
-	if(null == cb) {
-		if(null != div)
-			div.fadeTo("fast", 0.2);
+	// Allow custom options
+	if(null == options)
+		options = { };
+	
+	options.type = 'POST';
+	options.data = $(frm).serialize();
+	options.url = DevblocksAppPath+'ajax.php'+(null!=args?('?'+args):''),
+	options.cache = false;
+	
+	if(null != div) {
+		div.fadeTo("fast", 0.2);
 		
-		var cb = function(html) {
+		options.success = function(html) {
 			if(null != div) {
 				div.html(html);
 				div.fadeTo("fast", 1.0);
@@ -629,23 +639,17 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 			}
 		};
 	}
-
-	// Allow custom options
-	if(null == options)
-		options = { };
-	
-	options.type = 'POST';
-	options.data = $(frm).serialize();
-	options.url = DevblocksAppPath+'ajax.php'+(null!=args?('?'+args):''),
-	options.cache = false;
-	options.success = cb;
 	
 	if(null == options.headers)
 		options.headers = {};
 		
 	options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
 	
-	$.ajax(options);
+	var $ajax = $.ajax(options);
+	
+	if(typeof cb == 'function') {
+		$ajax.done(cb);
+	}
 }
 
 function devblocksAjaxDateChooser(field, div, options) {
