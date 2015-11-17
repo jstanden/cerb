@@ -69,7 +69,7 @@ abstract class C4_AbstractView {
 		}
 	}
 	
-	protected function _getDataAsObjects($dao_class, $ids=null) {
+	protected function _getDataAsObjects($dao_class, $ids=null, &$total=null) {
 		if(is_null($ids)) {
 			if(!method_exists($dao_class,'search'))
 				return array();
@@ -83,15 +83,18 @@ abstract class C4_AbstractView {
 					$this->renderPage,
 					$this->renderSortBy,
 					$this->renderSortAsc,
-					false
+					true
 				)
 			);
 			
-			list($results, $count) = $data;
+			list($results, $total) = $data;
 			
 			$ids = array_keys($results);
+			
+		} else {
+			$total = count($ids);
 		}
-
+		
 		if(!is_array($ids) || empty($ids))
 			return array();
 
@@ -449,17 +452,28 @@ abstract class C4_AbstractView {
 				if(!isset($meta['name']) || !isset($meta['permalink']))
 					return;
 				
-				if(!empty($meta['permalink'])) {
-					$string = sprintf("New %s created: <a href='%s'><b>%s</b></a>",
-						strtolower($ctx->manifest->name),
-						htmlspecialchars($meta['permalink'], ENT_QUOTES, LANG_CHARSET_CODE),
-						htmlspecialchars($meta['name'], ENT_QUOTES, LANG_CHARSET_CODE)
+				// Use abstract popups if we can
+				if($ctx instanceof IDevblocksContextPeek) {
+					$string = sprintf("New %s created: <a href='javascript:;' class='cerb-peek-trigger' data-context='%s' data-context-id='%d'><b>%s</b></a>",
+						DevblocksPlatform::strEscapeHtml(strtolower($ctx->manifest->name)),
+						DevblocksPlatform::strEscapeHtml($context),
+						DevblocksPlatform::strEscapeHtml($context_id),
+						DevblocksPlatform::strEscapeHtml($meta['name'])
 					);
 					
+				// Otherwise, try linking to profile pages
+				} elseif(!empty($meta['permalink'])) {
+					$string = sprintf("New %s created: <a href='%s'><b>%s</b></a>",
+						DevblocksPlatform::strEscapeHtml(strtolower($ctx->manifest->name)),
+						DevblocksPlatform::strEscapeHtml($meta['permalink']),
+						DevblocksPlatform::strEscapeHtml($meta['name'])
+					);
+					
+				// Lastly, just output some text
 				} else {
 					$string = sprintf("New %s created: <b>%s</b>",
-						strtolower($ctx->manifest->name),
-						htmlspecialchars($meta['name'], ENT_QUOTES, LANG_CHARSET_CODE)
+						DevblocksPlatform::strEscapeHtml(strtolower($ctx->manifest->name)),
+						DevblocksPlatform::strEscapeHtml($meta['name'])
 					);
 				}
 			}
@@ -597,7 +611,9 @@ abstract class C4_AbstractView {
 			$values = array($values);
 		
 		foreach($values as $worker_id) {
-			if(isset($workers[$worker_id])) {
+			if(!is_numeric($worker_id)) {
+				$strings[] = sprintf('<b>%s</b>', $worker_id);
+			} elseif(isset($workers[$worker_id])) {
 				$strings[] = sprintf('<b>%s</b>',DevblocksPlatform::strEscapeHtml($workers[$worker_id]->getName()));
 			} elseif (!empty($worker_id)) {
 				$strings[] = sprintf('<b>%d</b>',$worker_id);
@@ -2738,7 +2754,7 @@ class C4_AbstractViewLoader {
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $worker_labels, $worker_values, null, true, true);
 		CerberusContexts::merge('current_worker_', null, $worker_labels, $worker_values, $labels, $values);
 		
-		$view->setPlaceholderValues(new DevblocksDictionaryDelegate($values));
+		$view->setPlaceholderValues($values);
 		
 		$view->_init_checksum = sha1(serialize($view));
 		

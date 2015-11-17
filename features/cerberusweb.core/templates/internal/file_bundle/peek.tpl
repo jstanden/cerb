@@ -62,7 +62,7 @@
 		{foreach from=$attachments item=attachment}
 		<li>
 		{$attachment->display_name} ({$attachment->storage_size|devblocks_prettybytes:1})
-		<input type="hidden" name="file_ids[]" value="{$attachment->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>
+		<input type="hidden" name="file_ids[]" value="{$attachment->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
 		</li>
 		{/foreach}
 	</ul>
@@ -123,17 +123,6 @@ $(function() {
 		$(this).find('input:text:first').focus();
 		
 		$textarea.autosize();
-		
-		// Form hints
-		
-		$textarea
-			.focusin(function() {
-				$(this).siblings('div.cerb-form-hint').fadeIn();
-			})
-			.focusout(function() {
-				$(this).siblings('div.cerb-form-hint').fadeOut();
-			})
-			;
 		
 		// Attachments
 		

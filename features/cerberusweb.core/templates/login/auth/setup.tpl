@@ -21,11 +21,11 @@
 {/if}
 
 <fieldset>
-	<legend>Step 1: Type the confirmation code that was sent to {$worker->email}</legend>
+	<legend>Step 1: Type the confirmation code that was sent to {$worker->getEmailString()}</legend>
 
 	<input type="text" name="confirm_code" value="{$code}" autocomplete="off">
 	
-	<a href="{devblocks_url}c=login&a=recover{/devblocks_url}?email={$worker->email}" tabindex="-1">can't find it?</a>
+	<a href="{devblocks_url}c=login&a=recover{/devblocks_url}?email={$worker->getEmailString()}" tabindex="-1">can't find it?</a>
 </fieldset>
 
 <fieldset>

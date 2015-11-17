@@ -75,14 +75,14 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		if(!empty($contact->phone))
 			$properties['phone'] = array(
-				'label' => ucfirst($translate->_('contact_org.phone')),
+				'label' => ucfirst($translate->_('common.phone')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'value' => $contact->phone,
 			);
 		
 		if(!empty($contact->website))
 			$properties['website'] = array(
-				'label' => ucfirst($translate->_('contact_org.website')),
+				'label' => ucfirst($translate->_('common.website')),
 				'type' => Model_CustomField::TYPE_URL,
 				'value' => $contact->website,
 			);
@@ -128,7 +128,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 		
 		// Tabs
-		$people_count = DAO_Address::getCountByOrgId($contact->id);
+		$people_count = DAO_Address::countByOrgId($contact->id);
 		$tpl->assign('people_total', $people_count);
 		
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_ORG);

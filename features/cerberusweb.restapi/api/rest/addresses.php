@@ -94,10 +94,8 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 		if('dao'==$type) {
 			$tokens = array(
 				'email' => DAO_Address::EMAIL,
-				'first_name' => DAO_Address::FIRST_NAME,
 				'is_banned' => DAO_Address::IS_BANNED,
 				'is_defunct' => DAO_Address::IS_DEFUNCT,
-				'last_name' => DAO_Address::LAST_NAME,
 				'org_id' => DAO_Address::CONTACT_ORG_ID,
 				'updated' => DAO_Address::UPDATED,
 			);
@@ -105,10 +103,8 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 		} elseif ('subtotal'==$type) {
 			$tokens = array(
 				'fieldsets' => SearchFields_Address::VIRTUAL_HAS_FIELDSET,
-				'first_name' => SearchFields_Address::FIRST_NAME,
 				'is_banned' => SearchFields_Address::IS_BANNED,
 				'is_defunct' => SearchFields_Address::IS_DEFUNCT,
-				'last_name' => SearchFields_Address::LAST_NAME,
 				'links' => SearchFields_Address::VIRTUAL_CONTEXT_LINK,
 				'org_name' => SearchFields_Address::ORG_NAME,
 				'watchers' => SearchFields_Address::VIRTUAL_WATCHERS,
@@ -123,10 +119,8 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 			$tokens = array(
 				'id' => SearchFields_Address::ID,
 				'email' => SearchFields_Address::EMAIL,
-				'first_name' => SearchFields_Address::FIRST_NAME,
 				'is_banned' => SearchFields_Address::IS_BANNED,
 				'is_defunct' => SearchFields_Address::IS_DEFUNCT,
-				'last_name' => SearchFields_Address::LAST_NAME,
 				'num_nonspam' => SearchFields_Address::NUM_NONSPAM,
 				'num_spam' => SearchFields_Address::NUM_SPAM,
 				'org_id' => SearchFields_Address::CONTACT_ORG_ID,
@@ -234,10 +228,8 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid address ID '%d'", $id));
 			
 		$putfields = array(
-			'first_name' => 'string',
 			'is_banned' => 'bit',
 			'is_defunct' => 'bit',
-			'last_name' => 'string',
 			'org_id' => 'integer',
 			'updated' => 'integer',
 		);
@@ -287,9 +279,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 		
 		$postfields = array(
 			'email' => 'string',
-			'first_name' => 'string',
 			'is_banned' => 'bit',
-			'last_name' => 'string',
 			'org_id' => 'integer',
 			'updated' => 'integer',
 		);

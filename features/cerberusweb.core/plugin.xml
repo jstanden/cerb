@@ -188,16 +188,17 @@
 			<class name="SearchFields_ConfirmationCode" />
 		</file>
 		
-		<file path="api/dao/contact_person.php">
-			<class name="Context_ContactPerson" />
-			<class name="DAO_ContactPerson" />
-			<class name="Model_ContactPerson" />
+		<file path="api/dao/contact.php">
+			<class name="Context_Contact" />
+			<class name="DAO_Contact" />
+			<class name="Model_Contact" />
 			<class name="Search_Contact" />
-			<class name="SearchFields_ContactPerson" />
-			<class name="View_ContactPerson" />
+			<class name="SearchFields_Contact" />
+			<class name="View_Contact" />
 		</file>
 		
 		<file path="api/dao/contact_org.php">
+			<class name="Context_Org" />
 			<class name="DAO_ContactOrg" />
 			<class name="Model_ContactOrg" />
 			<class name="Search_Org" />
@@ -328,11 +329,6 @@
 			<class name="SearchFields_Message" />
 			<class name="Storage_MessageContent" />
 			<class name="View_Message" />
-		</file>
-		
-		<file path="api/dao/openid_to_contact_person.php">
-			<class name="DAO_OpenIdToContactPerson" />
-			<class name="Model_OpenIdToContactPerson" />
 		</file>
 		
 		<file path="api/dao/plugin_library.php">
@@ -484,7 +480,7 @@
 		</file>
 		
 		<file path="api/events/abstract/abstract_event_contact.php">
-			<class name="AbstractEvent_ContactPerson" />
+			<class name="AbstractEvent_Contact" />
 		</file>
 
 		<file path="api/events/abstract/abstract_event_group.php">
@@ -593,6 +589,10 @@
 		
 		<file path="api/events/macro/calendar_event_macro.php">
 			<class name="Event_CalendarEventMacro" />
+		</file>
+		
+		<file path="api/events/macro/contact_macro.php">
+			<class name="Event_ContactMacro" />
 		</file>
 		
 		<file path="api/events/macro/group_macro.php">
@@ -1032,27 +1032,26 @@
 		</extension>
 		
 		<extension point="devblocks.context">
-			<id>cerberusweb.contexts.contact_person</id>
-			<name>Contact Person</name>
+			<id>cerberusweb.contexts.contact</id>
+			<name>Contact</name>
 			<class>
-				<file>api/dao/contact_person.php</file>
-				<name>Context_ContactPerson</name>
+				<file>api/dao/contact.php</file>
+				<name>Context_Contact</name>
 			</class>
 			<params>
-				<param key="alias" value="person" />
-				<param key="dao_class" value="DAO_ContactPerson" />
-				<param key="view_class" value="View_ContactPerson" />
+				<param key="alias" value="contact" />
+				<param key="dao_class" value="DAO_Contact" />
+				<param key="view_class" value="View_Contact" />
 				<param key="options">
 					<value>
-						<data key="custom_fields" />
 						<data key="create" />
+						<data key="custom_fields" />
 						<data key="find" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
 				</param>
-				<param key="context_expand_export" value="email_" />
 			</params>
 		</extension>
 		
@@ -2057,6 +2056,26 @@
 		</extension>
 		
 		<extension point="devblocks.event">
+			<id>event.macro.contact</id>
+			<name>Custom contact behavior</name>
+			<class>
+				<file>api/events/macro/contact_macro.php</file>
+				<name>Event_ContactMacro</name>
+			</class>
+			<params>
+				<param key="macro_context" value="cerberusweb.contexts.contact" />
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
 			<id>event.macro.group</id>
 			<name>Custom group behavior</name>
 			<class>
@@ -2701,7 +2720,7 @@
 			<id>cerb.search.schema.contact</id>
 			<name>Contacts</name>
 			<class>
-				<file>api/dao/contact_person.php</file>
+				<file>api/dao/contact.php</file>
 				<name>Search_Contact</name>
 			</class>
 			<params>
@@ -3462,18 +3481,18 @@
 			</extension>
 
 			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.profiles.contact_person</id>
-				<name>Contact Person Section</name>
+				<id>core.page.profiles.contact</id>
+				<name>Contact Section</name>
 				<class>
-					<file>api/uri/profiles/contact_person.php</file>
-					<name>PageSection_ProfilesContactPerson</name>
+					<file>api/uri/profiles/contact.php</file>
+					<name>PageSection_ProfilesContact</name>
 				</class>
 				<params>
 					<param key="page_id" value="core.page.profiles" />
-					<param key="uri" value="contact_person" />
+					<param key="uri" value="contact" />
 				</params>
 			</extension>
-			
+
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.file_bundle</id>
 				<name>File Bundle Section</name>

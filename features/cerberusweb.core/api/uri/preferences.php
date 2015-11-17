@@ -587,7 +587,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 		// Confirm deletions are assigned to the current worker
 		foreach($removed_addresses as $removed_address) {
-			if($removed_address == $worker->email)
+			if($removed_address == $worker->getEmailString())
 				continue;
 
 			DAO_AddressToWorker::unassign($removed_address);

@@ -12,7 +12,7 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('compose' + new Date().getTime(),'c=internal&a=showPeekPopup&context={$view_context}&context_id=0&view_id={$view->id}',null,false,'650');"><span class="glyphicons glyphicons-circle-plus"></span></a>
+			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('compose' + new Date().getTime(),'c=internal&a=showPeekPopup&context={$view_context}&context_id=0&view_id={$view->id}',null,false,'80%');"><span class="glyphicons glyphicons-circle-plus"></span></a>
 			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
 			<a href="javascript:;" title="{'common.subtotals'|devblocks_translate|capitalize}" class="subtotals minimal"><span class="glyphicons glyphicons-signal"></span></a>
@@ -91,7 +91,7 @@
 		{if isset($ticket_drafts.{$result.t_id})}{$ticket_draft = $ticket_drafts.{$result.t_id}}<span class="glyphicons glyphicons-user" style="color:rgb(39,123,213);font-size:14px;" title="({$ticket_draft->updated|devblocks_prettytime}) {'mail.worklist.draft_in_progress'|devblocks_translate:{$workers.{$ticket_draft->worker_id}->getName()}}"></span>{/if}
 		{if $result.t_is_deleted}<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_is_closed}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_is_waiting}<span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span>{/if}
 		<a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_mask}&tab=conversation{/devblocks_url}" class="subject">{$result.t_subject|default:'(no subject)'}</a> 
-		<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.t_id}&view_id={$view->id}', null, false, '650');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+		<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.t_id}" data-width="75%"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 	{/capture}
 	
 	{$ticket_group_id = $result.t_group_id}
@@ -151,9 +151,9 @@
 		{elseif $column=="t_is_deleted"}
 		<td>{if $result.t_is_deleted}<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span>{else}{/if}</td>
 		{elseif $column=="t_last_wrote"}
-		<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
+		<td><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_last_wrote_address_id}" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
 		{elseif $column=="t_first_wrote"}
-		<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$result.t_first_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$result.t_first_wrote}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></td>
+		<td><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_first_wrote_address_id}" title="{$result.t_first_wrote}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></td>
 		{elseif $column=="t_created_date" || $column=="t_updated_date" || $column=="t_reopen_at" || $column=="t_closed_at"}
 		<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
 		{elseif $column=="t_elapsed_response_first" || $column=="t_elapsed_resolution_first"}
@@ -165,17 +165,17 @@
 			{$owner = $workers.{$result.t_owner_id}}
 			{if $owner instanceof Model_Worker}
 				<img src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;">
-				<a href="{devblocks_url}c=profiles&what=worker&id={$owner->id}{/devblocks_url}-{$owner->getName()|devblocks_permalink}">{$owner->getName()}</a>
+				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a>
 			{/if}
 		</td>
 		{elseif $column=="o_name"}
 		<td>
-			<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$result.t_org_id}&view_id={$view->id}',null,false,'500');">{$result.o_name}</a>
+				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$result.t_org_id}">{$result.o_name}</a>
 		</td>
 		{elseif $column=="t_group_id"}
 		<td>
 			{if $ticket_group instanceof Model_Group}
-				<a href="{devblocks_url}c=profiles&what=group&id={$ticket_group->id}{/devblocks_url}-{$ticket_group->name|devblocks_permalink}">{$ticket_group->name}</a>
+				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket_group->id}">{$ticket_group->name}</a>
 			{/if}
 		</td>
 		{elseif $column=="t_bucket_id"}
@@ -183,17 +183,17 @@
 			{$ticket_bucket = $buckets.$ticket_bucket_id}
 			<td>
 				{if $ticket_bucket instanceof Model_Bucket}
-				<a href="{devblocks_url}c=profiles&what=bucket&id={$ticket_bucket->id}{/devblocks_url}-{$ticket_bucket->name|devblocks_permalink}">{$ticket_bucket->name}</a>
+				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket_bucket->id}">{$ticket_bucket->name}</a>
 				{/if}
 			</td>
 		{elseif $column=="t_last_action_code"}
 		<td>
 			{if $result.t_last_action_code=='O'}
-				<span title="{$result.t_first_wrote}">New from <a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
+				<span title="{$result.t_first_wrote}">New from <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_first_wrote_address_id}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></span>
 			{elseif $result.t_last_action_code=='R'}
-				<span title="{$result.t_last_wrote}">{'mail.received'|devblocks_translate} from <a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
+				<span title="{$result.t_last_wrote}">{'mail.received'|devblocks_translate} from <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_last_wrote_address_id}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
 			{elseif $result.t_last_action_code=='W'}
-				<span title="{$result.t_last_wrote}">{'mail.sent'|devblocks_translate} from <a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
+				<span title="{$result.t_last_wrote}">{'mail.sent'|devblocks_translate} from <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_last_wrote_address_id}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
 			{/if}
 		</td>
 		{elseif $column=="t_first_wrote_spam"}
@@ -301,7 +301,7 @@
 				{if $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {'common.spam'|devblocks_translate|lower}{/if} 
 				{if $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {'common.delete'|devblocks_translate|lower}{/if}
 				{if $active_worker->hasPriv('core.ticket.actions.move')}(<b>m</b>) {'common.move'|devblocks_translate|lower}{/if}
-				(<b>-</b>) undo last filter 
+				(<b>-</b>) undo last filter
 				(<b>*</b>) reset filters
 				(<b>~</b>) change subtotals
 				(<b>`</b>) focus subtotals

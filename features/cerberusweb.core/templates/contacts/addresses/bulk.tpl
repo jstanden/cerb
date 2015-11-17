@@ -22,7 +22,7 @@
 	
 	<table cellspacing="0" cellpadding="2" width="100%">
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'contact_org.name'|devblocks_translate|capitalize}:</td>
+			<td width="0%" nowrap="nowrap" align="right">{'common.organization'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
 				<input type="text" name="contact_org" id="orginput" value="" style="width:98%;">
 			</td>
@@ -123,16 +123,23 @@
 {/if}
 
 {if $active_worker->hasPriv('core.addybook.addy.actions.update')}
-	<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 {/if}
 <br>
 </form>
 
 <script type="text/javascript">
 	var $panel = genericAjaxPopupFind('#formBatchUpdate');
+	
 	$panel.one('popup_open',function(event,ui) {
 		var $this = $(this);
 		$panel.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		
+		$panel.find('button.submit').click(function() {
+			genericAjaxPost('formBatchUpdate','view{$view_id}',null,function() {
+				genericAjaxPopupClose($panel);
+			});
+		})
 		
 		ajax.orgAutoComplete('#orginput');
 		

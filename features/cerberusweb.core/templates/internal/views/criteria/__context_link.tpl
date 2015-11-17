@@ -25,7 +25,7 @@
 		{$meta = $context_ext->getMeta($context_id)}
 		<b>{$meta.name}</b> ({$context_ext->manifest->name})<!--
 		--><input type="hidden" name="context_link[]" value="{$context}:{$context_id}"><!--
-		--><span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;" onclick="$(this).closest('li').remove();"></span>
+		--><span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest('li').remove();"></span>
 	</li>
 	{/if}
 {/foreach}
@@ -63,7 +63,7 @@ $("#container_{$random}").find('select.chooser').change(function(e) {
 					var $li = $('<li/>').append($('<b/>').text(event.labels[i]));
 					$li.append($('<span>').text('(' + $context_name + ')').prepend('&nbsp;'));
 					$li.append($('<input type="hidden" name="context_link[]">').attr('value',$context + ':' + event.values[i]));
-					$li.append($('<span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;" onclick="$(this).closest(\'li\').remove();"></span>'));
+					$li.append($('<span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest(\'li\').remove();"></span>'));
 					
 					$ul.append($li);
 				}

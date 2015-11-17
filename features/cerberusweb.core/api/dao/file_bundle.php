@@ -1037,6 +1037,7 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 			'id' => $file_bundle->id,
 			'name' => $file_bundle->name,
 			'permalink' => $url,
+			'updated' => $file_bundle->updated_at,
 		);
 	}
 	
@@ -1228,7 +1229,7 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		return $view;
 	}
 	
-	function renderPeekPopup($context_id=0, $view_id='') {
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl = DevblocksPlatform::getTemplateService();

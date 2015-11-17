@@ -84,7 +84,7 @@ $(function() {
 						$hidden.attr('value', $value);
 						$hidden.appendTo($li);
 						
-						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>');
+						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
 						$a.appendTo($li);
 						
 						$buffer.append($li);

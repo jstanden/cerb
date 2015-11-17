@@ -107,7 +107,7 @@
 </fieldset>
 
 <fieldset class="peek">
-	<legend>{'preferences.account.email'|devblocks_translate|capitalize}</legend>
+	<legend>{'common.email_addresses'|devblocks_translate|capitalize}</legend>
 
 	{'preferences.account.email.associated'|devblocks_translate}<br>
 
@@ -116,7 +116,7 @@
 		<li style="padding-bottom:10px;">
 			<input type="hidden" name="worker_emails[]" value="{$address->address}">
 
-			{if 0 == strcasecmp($address->address, $active_worker->email)}
+			{if 0 == strcasecmp($address->address, $active_worker->getEmailString())}
 			<button type="button"><span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);"></span></button>
 			{else}
 			<button type="button" onclick="if(confirm('Are you sure you want to delete this email address?')) { $(this).closest('li').remove(); }" class="delete"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></button>
@@ -125,7 +125,7 @@
 			<b>{$address->address}</b>
 
 			{if $address->is_confirmed}
-				{if 0 == strcasecmp($address->address, $active_worker->email)}
+				{if 0 == strcasecmp($address->address, $active_worker->getEmailString())}
 				(Primary)
 				{/if}
 			{else}

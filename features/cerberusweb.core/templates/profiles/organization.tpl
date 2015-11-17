@@ -2,7 +2,7 @@
 {$page_context_id = $contact->id}
 
 <div style="float:left;margin-right:10px;">
-	<img src="{devblocks_url}c=avatars&context=org&context_id={$contact->id}{/devblocks_url}?v={$contact->updated}" style="height:75px;width:75px;border-radius:5px;border:1px solid rgb(235,235,235);">
+	<img src="{devblocks_url}c=avatars&context=org&context_id={$contact->id}{/devblocks_url}?v={$contact->updated}" style="height:75px;width:75px;border-radius:5px;">
 </div>
 
 <div style="float:left;">
@@ -45,7 +45,7 @@
 <div style="clear:both;padding-top:5px;"></div>
 
 <fieldset class="properties">
-	<legend>{'contact_org.name'|devblocks_translate|capitalize}</legend>
+	<legend>{'common.organization'|devblocks_translate|capitalize}</legend>
 	
 	<div style="margin-left:15px;">
 
@@ -81,13 +81,13 @@
 
 <div style="clear:both;" id="profileOrgTabs">
 	<ul>
-		{$tabs = [activity,comments,links,history,people]}
+		{$tabs = [activity,people,comments,links,history]}
 		
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeople&point={$point}&org={$page_context_id}{/devblocks_url}">{'common.members'|devblocks_translate} <div class="tab-badge">{$people_total}</div></a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context=cerberusweb.contexts.org&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize} <div class="tab-badge">{DAO_Comment::count($page_context, $page_context_id)|default:0}</div></a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&point={$point}&context=cerberusweb.contexts.org&id={$page_context_id}{/devblocks_url}">{'common.links'|devblocks_translate} <div class="tab-badge">{DAO_ContextLink::count($page_context, $page_context_id)|default:0}</div></a></li>
 		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabMailHistory&point={$point}&org_id={$page_context_id}{/devblocks_url}">{'addy_book.org.tabs.mail_history'|devblocks_translate}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeople&point={$point}&org={$page_context_id}{/devblocks_url}">{'addy_book.org.tabs.people'|devblocks_translate} <div class="tab-badge">{$people_total}</div></a></li>
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
@@ -166,11 +166,4 @@ $(document).keypress(function(event) {
 {/if}
 </script>
 
-{$profile_scripts = Extension_ContextProfileScript::getExtensions(true, $page_context)}
-{if !empty($profile_scripts)}
-{foreach from=$profile_scripts item=renderer}
-	{if method_exists($renderer,'renderScript')}
-		{$renderer->renderScript($page_context, $page_context_id)}
-	{/if}
-{/foreach}
-{/if}
+{include file="devblocks:cerberusweb.core::internal/profiles/profile_common_scripts.tpl"}

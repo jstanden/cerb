@@ -11,7 +11,7 @@
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
 			{if $view->id != 'org_contacts'}
-			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('peek_address','c=internal&a=showPeekPopup&context={$view_context}&context_id=0&view_id={$view->id}',null,false,'500');"><span class="glyphicons glyphicons-circle-plus"></span></a>
+			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal cerb-peek-trigger" data-context="{$view_context}" data-context-id="0"><span class="glyphicons glyphicons-circle-plus"></span></a>
 			{/if}
 			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
@@ -66,6 +66,14 @@
 
 	{* Column Data *}
 	{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_ADDRESS, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
+	
+	{* Bulk lazy load contacts for this page *}
+	{$object_contacts = []}
+	{if in_array(SearchFields_Address::CONTACT_ID, $view->view_columns)}
+		{$contact_ids = DevblocksPlatform::extractArrayValues($results, 'a_contact_id')}
+		{$object_contacts = DAO_Contact::getIds($contact_ids)}
+	{/if}
+	
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
@@ -83,7 +91,7 @@
 				<a href="{devblocks_url}c=profiles&type=address&id={$result.a_id}-{$result.a_email|devblocks_permalink}{/devblocks_url}" class="subject">{$result.a_email}</a>
 				{if $result.a_is_banned}<span class="tag tag-red">banned</span> {/if}
 				{if $result.a_is_defunct}<span class="tag tag-gray">defunct</span> {/if}
-				<button type="button" class="peek" onclick="genericAjaxPopup('peek_address','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$result.a_email|escape:'url'}&view_id={$view->id}',null,false,'550');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+				<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.a_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
@@ -92,10 +100,17 @@
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="a_id"}
 			<td>{$result.a_id}&nbsp;</td>
+			{elseif $column=="a_contact_id"}
+			<td>
+				{if isset($object_contacts.{$result.a_contact_id})}
+				{$contact = $object_contacts.{$result.a_contact_id}}
+				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$contact->id}">{$contact->getName()}</a>
+				{/if}
+			</td>
 			{elseif $column=="o_name"}
 			<td>
 				{if !empty($result.o_name)}
-				<a href="javascript:;" onclick="genericAjaxPopup('peek_org','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$result.a_contact_org_id}&view_id={$view->id}',null,false,'600');">{$result.o_name}</a>
+				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$result.a_contact_org_id}">{$result.o_name}</a>
 				{/if}
 			</td>
 			{elseif $column=="a_is_banned" || $column == "a_is_defunct"}
@@ -153,19 +168,21 @@
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
 <script type="text/javascript">
+$(function() {
 var $frm = $('#viewForm{$view->id}');
+var $view = $('#view{$view->id}');
 
 {if $pref_keyboard_shortcuts}
 $frm.bind('keyboard_shortcut',function(event) {
 	//console.log("{$view->id} received " + (indirect ? 'indirect' : 'direct') + " keyboard event for: " + event.keypress_event.which);
 	
-	$view_actions = $('#{$view->id}_actions');
+	var $view_actions = $('#{$view->id}_actions');
 	
-	hotkey_activated = true;
+	var hotkey_activated = true;
 
 	switch(event.keypress_event.which) {
 		case 98: // (b) bulk update
-			$btn = $view_actions.find('button.action-bulkupdate');
+			var $btn = $view_actions.find('button.action-bulkupdate');
 		
 			if(event.indirect) {
 				$btn.select().focus();
@@ -176,7 +193,7 @@ $frm.bind('keyboard_shortcut',function(event) {
 			break;
 		
 		case 101: // (e) explore
-			$btn = $view_actions.find('button.action-explore');
+			var $btn = $view_actions.find('button.action-explore');
 		
 			if(event.indirect) {
 				$btn.select().focus();
@@ -195,4 +212,5 @@ $frm.bind('keyboard_shortcut',function(event) {
 		event.preventDefault();
 });
 {/if}
+});
 </script>

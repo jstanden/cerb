@@ -28,9 +28,7 @@ $(function() {
 	var $popup = genericAjaxPopupFind('#{$div_uniqid}');
 	
 	$popup.one('popup_open', function(event,ui) {
-		$popup
-			.dialog('option','title',"{'common.watchers'|devblocks_translate|capitalize|escape:'javascript' nofilter}")
-			;
+		$popup.dialog('option','title',"{'common.watchers'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
 		var $btn = $popup.find('button.submit');
 		
@@ -46,8 +44,7 @@ $(function() {
 					$popup.trigger(event);
 				}
 				
-				var $layer = $popup.attr('id').substring(5);
-				genericAjaxPopupClose($layer);
+				genericAjaxPopupClose($popup);
 			});
 		});
 		

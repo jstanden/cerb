@@ -1,30 +1,25 @@
 <div id="draft{$draft->id}">
-	<div class="block">
+	<div class="block" style="margin-bottom:10px;">
 		{$draft_worker = $workers.{$draft->worker_id}}
 		
 		{if $draft->is_queued}
 			{if !empty($draft->queue_delivery_date) && $draft->queue_delivery_date > time()}
-				<span class="tag" style="color:rgb(120,120,120);">{'message.queued.deliver_in'|devblocks_translate:{$draft->queue_delivery_date|devblocks_prettytime}|lower}</span>
+				<span class="tag" style="background-color:rgb(120,120,120);color:white;margin-right:5px;">{'message.queued.deliver_in'|devblocks_translate:{$draft->queue_delivery_date|devblocks_prettytime}|lower}</span>
 			{else}
-				<span class="tag" style="color:rgb(120,120,120);">{'message.queued.delivery_immediate'|devblocks_translate|lower}</span>
+				<span class="tag" style="background-color:rgb(120,120,120);color:white;margin-right:5px;">{'message.queued.delivery_immediate'|devblocks_translate|lower}</span>
 			{/if}
 		{else}
-			<span class="tag" style="color:rgb(120,120,120);">{'draft'|devblocks_translate|lower}</span>
+			<span class="tag" style="background-color:rgb(120,120,120);color:white;margin-right:5px;">{'draft'|devblocks_translate|lower}</span>
 		{/if}
 		
 		<h3 style="display:inline;">
-			{if !empty($draft_worker)}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$draft_worker->email|escape:'url'}', null, false, '500');" title="{$worker->email}">{$draft_worker->getName()}</a>{else}{/if}
+			{if !empty($draft_worker)}<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$draft_worker->id}">{$draft_worker->getName()}</a>{else}{/if}
 		</h3> &nbsp;
-		
-		{if !$draft->is_queued}
-			{if $draft->worker_id==$active_worker->id && isset($draft->params.in_reply_message_id)}<a href="javascript:;" onclick="displayReply('{$draft->params.in_reply_message_id}',{if $draft->type=='ticket.forward'}1{else}0{/if},{$draft_id});">{'Resume'|devblocks_translate|lower}</a>&nbsp;{/if}
-		{/if}
-		{if $draft->worker_id==$active_worker->id || $active_worker->hasPriv('core.mail.draft.delete_all')}<a href="javascript:;" onclick="if(confirm('Are you sure you want to permanently delete this draft?')) { genericAjaxGet('', 'c=mail&a=handleSectionAction&section=drafts&action=deleteDraft&draft_id={$draft_id}', function(o) { $('#draft{$draft_id}').remove(); } ); } ">{'common.delete'|devblocks_translate|lower}</a>&nbsp;{/if}		
 		
 		<div style="float:left;margin:0px 5px 5px 0px;">
 			<img src="{devblocks_url}c=avatars&context=worker&context_id={$draft->worker_id}{/devblocks_url}?v=" style="height:64px;width:64px;border-radius:64px;">
 		</div>
-
+		
 		<br>
 		
 		{if isset($draft->hint_to)}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$draft->hint_to}<br>{/if}
@@ -37,6 +32,18 @@
 			<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$draft->updated|devblocks_date}<br>
 		{/if}
 		<pre class="emailbody" style="padding-top:10px;">{$draft->body|trim|escape|devblocks_hyperlinks nofilter}</pre>
+		
+		{if !$draft->is_queued}
+			<div style="margin-top:10px;">
+			{if $draft->worker_id==$active_worker->id && isset($draft->params.in_reply_message_id)}
+				<button type="button" onclick="displayReply('{$draft->params.in_reply_message_id}',{if $draft->type=='ticket.forward'}1{else}0{/if},{$draft_id});"><span class="glyphicons glyphicons-share"></span> {'Resume'|devblocks_translate|capitalize}</button>
+			{/if}
+			
+			{if $draft->worker_id==$active_worker->id || $active_worker->hasPriv('core.mail.draft.delete_all')}
+				<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this draft?')) { genericAjaxGet('', 'c=mail&a=handleSectionAction&section=drafts&action=deleteDraft&draft_id={$draft_id}', function(o) { $('#draft{$draft_id}').remove(); } ); } "><span class="glyphicons glyphicons-circle-remove" title="{'common.delete'|devblocks_translate|lower}"></span> {'common.delete'|devblocks_translate|capitalize}</button>&nbsp;
+			{/if}
+			</div>
+		{/if}
 	</div>
 	
 	{if is_array($draft_notes) && isset($draft_notes.{$draft->id})}
@@ -47,3 +54,10 @@
 	{/if}
 </div>
 
+<script type="text/javascript">
+$(function() {
+	var $draft = $('#draft{$draft->id}');
+	
+	$draft.find('.cerb-peek-trigger').cerbPeekTrigger();
+});
+</script>

@@ -1020,6 +1020,7 @@ class Context_Notification extends Extension_DevblocksContext {
 			'id' => $notification->id,
 			'name' => CerberusContexts::formatActivityLogEntry(json_decode($notification->entry_json, true),'html'),
 			'permalink' => $url,
+			'updated' => $notification->created_date,
 		);
 	}
 	

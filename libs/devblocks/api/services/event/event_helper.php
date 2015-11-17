@@ -725,7 +725,7 @@ class DevblocksEventHelper {
 				);
 			}
 
-			$obj_name = DevblocksPlatform::strToPermalink(strtolower($context_ext->name));
+			$obj_name = DevblocksPlatform::strToPermalink(strtolower($context_ext->name),'_');
 			
 			$out .= "\nTo use the list as placeholders:\n";
 			
@@ -2698,9 +2698,28 @@ class DevblocksEventHelper {
 	
 	static function renderActionAddRecipients($trigger) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('workers', DAO_Worker::getAllActive());
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_picker_email_addresses.tpl');
+	}
+	
+	static function _getObjectsFromDictVars($dict, $from_vars, $context) {
+		$objects = array();
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_add_emails.tpl');
+		// Include addys from variables
+		if(isset($from_vars) && is_array($from_vars)) {
+			foreach($from_vars as $from_var) {
+				if(isset($dict->$from_var) && is_array($dict->$from_var)) {
+					foreach($dict->$from_var as $key => $object) {
+						if($object instanceof DevblocksDictionaryDelegate) {
+							if(!$context || $object->_context == $context) {
+								$objects[] = $object;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return $objects;
 	}
 
 	static function simulateActionAddRecipients($params, DevblocksDictionaryDelegate $dict, $default_on) {
@@ -2712,6 +2731,14 @@ class DevblocksEventHelper {
 				$dict
 			)
 		);
+		
+		// Include addys from variables
+		
+		@$from_vars = DevblocksPlatform::importVar($params['from_vars'],'array',array());
+
+		if(false != ($objects = self::_getObjectsFromDictVars($dict, $from_vars, CerberusContexts::CONTEXT_ADDRESS)))
+			foreach($objects as $object)
+				$recipients[] = $object->address;
 		
 		// Event
 		
@@ -2731,7 +2758,7 @@ class DevblocksEventHelper {
 			
 		foreach($recipients as $addy) {
 			if(null != ($addy_model = DAO_Address::lookupAddress($addy, true))) {
-				$out .= " * " . $addy_model->email . "\n";
+				$out .= " * " . $addy_model->getNameWithEmail() . "\n";
 			}
 		}
 		
@@ -2747,7 +2774,15 @@ class DevblocksEventHelper {
 				$dict
 			)
 		);
+		
+		// Include addys from variables
+		
+		@$from_vars = DevblocksPlatform::importVar($params['from_vars'],'array',array());
 
+		if(false != ($objects = self::_getObjectsFromDictVars($dict, $from_vars, CerberusContexts::CONTEXT_ADDRESS)))
+			foreach($objects as $object)
+				$recipients[] = $object->address;
+		
 		if(!is_array($recipients) || empty($recipients))
 			return;
 		
@@ -2763,6 +2798,97 @@ class DevblocksEventHelper {
 		if(is_array($recipients))
 		foreach($recipients as $addy) {
 			DAO_Ticket::createRequester($addy, $ticket_id);
+		}
+	}
+	
+	/*
+	 * Action: Remove Recipients
+	 */
+	
+	static function renderActionRemoveRecipients($trigger) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_picker_email_addresses.tpl');
+	}
+
+	static function simulateActionRemoveRecipients($params, DevblocksDictionaryDelegate $dict, $default_on) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		@$recipients = DevblocksPlatform::parseCsvString(
+			$tpl_builder->build(
+				DevblocksPlatform::importVar($params['recipients'],'string',''),
+				$dict
+			)
+		);
+		
+		// Include addys from variables
+		
+		@$from_vars = DevblocksPlatform::importVar($params['from_vars'],'array',array());
+
+		if(false != ($objects = self::_getObjectsFromDictVars($dict, $from_vars, CerberusContexts::CONTEXT_ADDRESS)))
+			foreach($objects as $object)
+				$recipients[] = $object->address;
+		
+		// Event
+		
+		$trigger = $dict->_trigger;
+		$event = $trigger->getEvent();
+		
+		// Recipients
+		
+		$out = ">>> Removing recipients:\n";
+		
+		if(!is_array($recipients) || empty($recipients)) {
+			$out .= " * No recipients are being set. Skipping...";
+			return $out;
+		}
+		
+		// Iterate addys
+			
+		foreach($recipients as $addy) {
+			if(null != ($addy_model = DAO_Address::lookupAddress($addy, true))) {
+				$out .= " * " . $addy_model->getNameWithEmail() . "\n";
+			}
+		}
+		
+		return $out;
+	}
+	
+	static function runActionRemoveRecipients($params, DevblocksDictionaryDelegate $dict, $default_on) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		@$recipients = DevblocksPlatform::parseCsvString(
+			$tpl_builder->build(
+				DevblocksPlatform::importVar($params['recipients'],'string',''),
+				$dict
+			)
+		);
+
+		// Include addys from variables
+		
+		@$from_vars = DevblocksPlatform::importVar($params['from_vars'],'array',array());
+
+		if(false != ($objects = self::_getObjectsFromDictVars($dict, $from_vars, CerberusContexts::CONTEXT_ADDRESS)))
+			foreach($objects as $object)
+				$recipients[] = $object->address;
+		
+		if(!is_array($recipients) || empty($recipients))
+			return;
+		
+		// Event
+		
+		$trigger = $dict->_trigger;
+		$event = $trigger->getEvent();
+		
+		// Action
+		
+		$ticket_id = $dict->$default_on;
+		
+		if(is_array($recipients))
+		foreach($recipients as $addy) {
+			// [TODO] This could be more efficient
+			if(false != ($addy_model = DAO_Address::lookupAddress($addy, true))) {
+				DAO_Ticket::deleteRequester($ticket_id, $addy_model->id);
+			}
 		}
 	}
 	
@@ -3265,7 +3391,7 @@ class DevblocksEventHelper {
 				$out .= ">>> On:\n";
 				
 				foreach($on_objects as $on_object) {
-					$on_object_context = Extension_DevblocksContext::get($on_object->_context);;
+					$on_object_context = Extension_DevblocksContext::get($on_object->_context);
 					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";
 				}
 				$out .= "\n";
@@ -4138,7 +4264,7 @@ class DevblocksEventHelper {
 						if(null == ($worker = DAO_Worker::get($dict->$to)))
 							continue;
 						
-						$to_list[$worker->email] = $worker;
+						$to_list[$worker->getEmailString()] = $worker;
 						break;
 				}
 				

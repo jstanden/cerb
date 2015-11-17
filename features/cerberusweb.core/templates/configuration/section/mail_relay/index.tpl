@@ -9,7 +9,7 @@
 
 <p>
 The email relay enables workers to respond to messages from external mail applications (e.g. Gmail, mobile phones, Outlook, etc) instead of always requiring them to use Cerb in the web browser.  
-Relayed responses are received from a worker's personal email address and rewritten so they appear to be from Cerb before being sent to a conversation's recipients.  
+Relayed responses are received from a worker's personal email address and rewritten so they appear to be from Cerb before being sent to a conversation's participants.  
 This process protects the privacy of personal worker email addresses, while still providing the benefits of Cerb (e.g. shared history, assignments, etc).
 </p>
 

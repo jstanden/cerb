@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formDraftPeek" name="formDraftPeek" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formDraftPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="mail">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="drafts">
@@ -15,7 +15,7 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top"><b>From:</b> </td>
 		<td width="100%">
-			{$worker->getName()} &lt;{$worker->email}&gt;
+			{$worker->getName()} &lt;{$worker->getEmailString()}&gt;
 		</td>
 	</tr>
 	{/if}
@@ -43,13 +43,9 @@
 <pre class="emailbody">{$draft->body|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</pre>
 </div>
 
-{*include file="devblocks:cerberusweb.core::tasks/display/tabs/notes.tpl" readonly=true*}
-
 <br>
 
 {if $active_worker->id==$draft->worker_id || $active_worker->is_superuser}
-	{*<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formDraftPeek', 'view{$view_id}');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>*}
-	{*{if !empty($task)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this draft?')) { $('#formDraftPeek input[name=do_delete]').val('1'); genericAjaxPost('formDraftPeek', 'view{$view_id}'); genericAjaxPopupClose('peek'); } "><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}*}
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>
 {/if}
@@ -57,10 +53,13 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $popup = genericAjaxPopupFind('#formDraftPeek');
+	
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title','{if $draft->is_queued}Queued Message{else}Draft{/if}');
+		$popup.dialog('option','title','{if $draft->is_queued}Queued Message{else}Draft{/if}');
 		$('#formDraftPeek :input:text:first').focus().select();
 		$("#draftPeekContent").css('width','98%');
-	} );
+	});
+});
 </script>

@@ -68,23 +68,23 @@
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
+	var $popup = genericAjaxPopupFind('#frmRunBehaviorPopup');
+	
 	$popup.one('popup_open', function(event,ui) {
-		var $this = $(this);
-		var $frm = $this.find('form');
+		var $frm = $popup.find('form');
 		
-		$this.dialog('option','title',"Perform Behavior");
+		$popup.dialog('option','title',"Perform Behavior");
 		
 		{if $has_variables}
-		$this.find('input:text').first().select();
+		$popup.find('input:text').first().select();
 		{else}
-		$this.find('button').first().focus();
+		$popup.find('button').first().focus();
 		{/if}
 		
-		$this.find('button.submit').click(function() {
+		$popup.find('button.submit').click(function() {
 			genericAjaxPost('frmRunBehaviorPopup', '', null, function(js) {
 				$('<div></div>').html(js).appendTo($('body'));
-				genericAjaxPopupClose('peek');
+				genericAjaxPopupClose($popup);
 			});
 		});
 	});

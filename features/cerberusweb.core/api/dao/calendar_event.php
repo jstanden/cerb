@@ -903,7 +903,8 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		return array(
 			'id' => $calendar_event->id,
 			'name' => $calendar_event->name,
-			'permalink' => $url
+			'permalink' => $url,
+			'updated' => 0, // [TODO]
 		);
 	}
 	
@@ -1121,7 +1122,7 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		return $view;
 	}
 
-	function renderPeekPopup($context_id=0, $view_id='') {
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		

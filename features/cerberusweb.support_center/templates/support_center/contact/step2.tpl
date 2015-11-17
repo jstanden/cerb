@@ -19,9 +19,9 @@
 			
 			{if !empty($active_contact)}
 				<select name="from">
-					{$contact_addresses = $active_contact->getAddresses()}
+					{$contact_addresses = $active_contact->getEmails()}
 					{foreach from=$contact_addresses item=address}
-					<option value="{$address->email}" {if 0==strcasecmp($address->id,$active_contact->email_id)}selected="selected"{/if}>{$address->email}</option>
+					<option value="{$address->email}" {if 0==strcasecmp($address->id,$active_contact->primary_email_id)}selected="selected"{/if}>{$address->email}</option>
 					{/foreach}
 				</select>
 				<br>
@@ -132,8 +132,8 @@
 		<br>
 		
 		<div class="buttons">
-			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top" border="0"> {'portal.public.send_message'|devblocks_translate}</button>
-			<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/delete.gif{/devblocks_url}" align="top" border="0"> {'common.discard'|devblocks_translate|capitalize}</button>
+			<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'portal.public.send_message'|devblocks_translate}</button>
+			<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><span class="glyphicons glyphicons-circle-remove"></span> {'common.discard'|devblocks_translate|capitalize}</button>
 		</div>
 	</td>
 	</tr>

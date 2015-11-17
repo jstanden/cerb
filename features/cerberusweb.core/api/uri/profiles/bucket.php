@@ -118,90 +118,127 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::profiles/bucket.tpl');
 	}
 	
-	function savePeekAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
-		
+	function savePeekJsonAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-
-		if($id && false == ($bucket = DAO_Bucket::get($id)))
-			return;
 		
-		// ACL
-		if(!$active_worker->is_superuser && !$active_worker->isGroupManager($bucket->group_id))
-			return;
+		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
 		
-		if($id && !empty($do_delete)) { // Delete
-			@$delete_moveto = DevblocksPlatform::importGPC($_REQUEST['delete_moveto'],'integer',0);
-			$buckets = DAO_Bucket::getAll();
+		try {
 			
-			// Destination must exist
-			if(empty($delete_moveto) || false == ($bucket_moveto = DAO_Bucket::get($delete_moveto)))
+			if($id && false == ($bucket = DAO_Bucket::get($id)))
+				throw new Exception_DevblocksAjaxValidationError("The specified bucket record doesn't exist.");
+			
+			// ACL
+			if(!$active_worker->is_superuser && !$active_worker->isGroupManager($bucket->group_id))
+				throw new Exception_DevblocksAjaxValidationError("You do not have permission to delete this bucket.");
+			
+			if($id && !empty($do_delete)) { // Delete
+				@$delete_moveto = DevblocksPlatform::importGPC($_REQUEST['delete_moveto'],'integer',0);
+				$buckets = DAO_Bucket::getAll();
+				
+				// Destination must exist
+				if(empty($delete_moveto) || false == ($bucket_moveto = DAO_Bucket::get($delete_moveto)))
+					throw new Exception_DevblocksAjaxValidationError("The destination bucket doesn't exist.");
+				
+				$where = sprintf("%s = %d", DAO_Ticket::BUCKET_ID, $id);
+				DAO_Ticket::updateWhere(array(DAO_Ticket::BUCKET_ID => $bucket_moveto->id), $where);
+				DAO_Bucket::delete($id);
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'view_id' => $view_id,
+				));
+				return;
+				
+			} else {
+				@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
+				@$reply_address_id = DevblocksPlatform::importGPC($_REQUEST['reply_address_id'],'integer',0);
+				@$reply_personal = DevblocksPlatform::importGPC($_REQUEST['reply_personal'],'string','');
+				@$reply_signature = DevblocksPlatform::importGPC($_REQUEST['reply_signature'],'string','');
+				@$reply_html_template_id = DevblocksPlatform::importGPC($_REQUEST['reply_html_template_id'],'integer',0);
+				
+				if(empty($name))
+					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
+				
+				if(empty($id)) { // New
+					@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+					
+					if(!$group_id || false == ($group = DAO_Group::get($group_id)))
+						throw new Exception_DevblocksAjaxValidationError("The specified group doesn't exist.", 'group_id');
+					
+					$fields = array(
+						DAO_Bucket::NAME => $name,
+						DAO_Bucket::GROUP_ID => $group_id,
+						DAO_Bucket::REPLY_ADDRESS_ID => $reply_address_id,
+						DAO_Bucket::REPLY_PERSONAL => $reply_personal,
+						DAO_Bucket::REPLY_SIGNATURE => $reply_signature,
+						DAO_Bucket::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
+						DAO_Bucket::UPDATED_AT => time(),
+					);
+					$id = DAO_Bucket::create($fields);
+					
+					// Default bucket responsibilities
+					DAO_Group::setBucketDefaultResponsibilities($id);
+					
+					// Context Link (if given)
+					@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+					@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+					if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
+						DAO_ContextLink::setLink(CerberusContexts::CONTEXT_BUCKET, $id, $link_context, $link_context_id);
+					}
+					
+					if(!empty($view_id) && !empty($id))
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_BUCKET, $id);
+					
+				} else { // Edit
+					$fields = array(
+						DAO_Bucket::NAME => $name,
+						DAO_Bucket::REPLY_ADDRESS_ID => $reply_address_id,
+						DAO_Bucket::REPLY_PERSONAL => $reply_personal,
+						DAO_Bucket::REPLY_SIGNATURE => $reply_signature,
+						DAO_Bucket::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
+						DAO_Bucket::UPDATED_AT => time(),
+					);
+					DAO_Bucket::update($id, $fields);
+					
+				}
+	
+				// Custom fields
+				
+				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_BUCKET, $id, $field_ids);
+			}
+			
+			echo json_encode(array(
+				'status' => true,
+				'id' => $id,
+				'view_id' => $view_id,
+			));
+			return;
+			
+		} catch (Exception_DevblocksAjaxValidationError $e) {
+				echo json_encode(array(
+					'status' => false,
+					'id' => $id,
+					'error' => $e->getMessage(),
+					'field' => $e->getFieldName(),
+				));
 				return;
 			
-			$where = sprintf("%s = %d", DAO_Ticket::BUCKET_ID, $id);
-			DAO_Ticket::updateWhere(array(DAO_Ticket::BUCKET_ID => $bucket_moveto->id), $where);
-			DAO_Bucket::delete($id);
+		} catch (Exception $e) {
+				echo json_encode(array(
+					'status' => false,
+					'id' => $id,
+					'error' => 'An error occurred.',
+				));
+				return;
 			
-		} else {
-			@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
-			@$reply_address_id = DevblocksPlatform::importGPC($_REQUEST['reply_address_id'],'integer',0);
-			@$reply_personal = DevblocksPlatform::importGPC($_REQUEST['reply_personal'],'string','');
-			@$reply_signature = DevblocksPlatform::importGPC($_REQUEST['reply_signature'],'string','');
-			@$reply_html_template_id = DevblocksPlatform::importGPC($_REQUEST['reply_html_template_id'],'integer',0);
-			
-			if(empty($id)) { // New
-				@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
-				
-				if(!$group_id || false == ($group = DAO_Group::get($group_id)))
-					continue;
-				
-				$fields = array(
-					DAO_Bucket::NAME => $name,
-					DAO_Bucket::GROUP_ID => $group_id,
-					DAO_Bucket::REPLY_ADDRESS_ID => $reply_address_id,
-					DAO_Bucket::REPLY_PERSONAL => $reply_personal,
-					DAO_Bucket::REPLY_SIGNATURE => $reply_signature,
-					DAO_Bucket::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
-					DAO_Bucket::UPDATED_AT => time(),
-				);
-				$id = DAO_Bucket::create($fields);
-				
-				// Default bucket responsibilities
-				DAO_Group::setBucketDefaultResponsibilities($id);
-				
-				// Context Link (if given)
-				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
-				@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
-				if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
-					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_BUCKET, $id, $link_context, $link_context_id);
-				}
-				
-				if(!empty($view_id) && !empty($id))
-					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_BUCKET, $id);
-				
-			} else { // Edit
-				$fields = array(
-					DAO_Bucket::NAME => $name,
-					DAO_Bucket::REPLY_ADDRESS_ID => $reply_address_id,
-					DAO_Bucket::REPLY_PERSONAL => $reply_personal,
-					DAO_Bucket::REPLY_SIGNATURE => $reply_signature,
-					DAO_Bucket::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
-					DAO_Bucket::UPDATED_AT => time(),
-				);
-				DAO_Bucket::update($id, $fields);
-				
-			}
-
-			// Custom fields
-			
-			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_BUCKET, $id, $field_ids);
 		}
-		
-		exit;
 	}
 	
 	function viewExploreAction() {

@@ -19,7 +19,7 @@
 		{/if}
 		
 		<input type="hidden" name="{$param_name}[]" value="{$v}">
-		<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>
+		<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
 	</li>
 	{/if}
 {/foreach}
@@ -108,7 +108,7 @@ $(function() {
 		
 		var $bubble = $('<li/>').text($li.find('a').text());
 		$bubble.append($('<input type="hidden">').attr('name', '{$param_name}[]').attr('value', $key));
-		$bubble.append($('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>'));
+		$bubble.append($('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>'));
 		
 		$bubbles.append($bubble);
 	});

@@ -65,7 +65,7 @@
 		
 		{* Org *}
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'contact_org.name'|devblocks_translate|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right">{'common.organization'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				<input type="hidden" name="org_id" value="{$ticket->org_id}">
 				{$ticket_org = $ticket->getOrg()}

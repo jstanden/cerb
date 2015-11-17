@@ -54,7 +54,7 @@ class ChSignInPage extends CerberusPageExtension {
 					}
 					
 					if(!empty($confirm_code) && isset($_SESSION['recovery_code']) && !empty($_SESSION['recovery_code'])) {
-						if($worker->email.':'.$confirm_code == $_SESSION['recovery_code']) {
+						if($worker->getEmailString().':'.$confirm_code == $_SESSION['recovery_code']) {
 							$pass = true;
 							
 							// Compare secret questions
@@ -75,7 +75,7 @@ class ChSignInPage extends CerberusPageExtension {
 								$ext->resetCredentials($worker);
 								
 								$query = array(
-									'email' => $worker->email,
+									'email' => $worker->getEmailString(),
 									'code' => $confirm_code,
 								);
 								DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login',$ext->manifest->params['uri']), $query));
@@ -97,9 +97,9 @@ class ChSignInPage extends CerberusPageExtension {
 						// [TODO] Use the internal account recovery service to send the code by email or SMS
 						// [TODO] This needs to be limited to only recovering once per hour unless successful
 						
-						CerberusMail::quickSend($worker->email, 'Your account recovery confirmation code', $recovery_code);
+						CerberusMail::quickSend($worker->getEmailString(), 'Your account recovery confirmation code', $recovery_code);
 						
-						$_SESSION['recovery_code'] = $worker->email.':'.$recovery_code;
+						$_SESSION['recovery_code'] = $worker->getEmailString().':'.$recovery_code;
 						
 						$tpl->display('devblocks:cerberusweb.core::login/recover/recover2.tpl');
 					}
@@ -282,7 +282,7 @@ class ChSignInPage extends CerberusPageExtension {
 				$time = 600 - max(0,time()-$most_idle_worker->last_activity_date);
 				
 				$query = array(
-					'email' => $worker->email,
+					'email' => $worker->getEmailString(),
 					'error' => sprintf("The maximum number of simultaneous workers are currently signed on.  The next session expires in %s.", ltrim(_DevblocksTemplateManager::modifier_devblocks_prettytime($time,true),'+')),
 				);
 				

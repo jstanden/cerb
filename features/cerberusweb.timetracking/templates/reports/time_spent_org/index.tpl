@@ -31,7 +31,7 @@
 	{foreach from=$filter_worker_ids item=filter_worker_id}
 	{$filter_worker = $workers.{$filter_worker_id}}
 	{if !empty($filter_worker)}
-	<li>{$filter_worker->getName()}<input type="hidden" name="worker_id[]" value="{$filter_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+	<li>{$filter_worker->getName()}<input type="hidden" name="worker_id[]" value="{$filter_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 	{/if}
 	{/foreach}
 {/if}
@@ -45,7 +45,7 @@
 	{foreach from=$filter_org_ids item=filter_org_id}
 	{$filter_org = $orgs.{$filter_org_id}}
 	{if !empty($filter_org)}
-	<li>{$filter_org->name}<input type="hidden" name="org_id[]" value="{$filter_org_id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></ul>
+	<li>{$filter_org->name}<input type="hidden" name="org_id[]" value="{$filter_org_id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></ul>
 	{/if}
 	{/foreach}
 </ul>

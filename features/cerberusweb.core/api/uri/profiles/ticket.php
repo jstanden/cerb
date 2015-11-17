@@ -102,10 +102,24 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		$properties = array(
 			'status' => null,
-			'owner' => null,
+			'owner' => array(
+				'label' => ucfirst($translate->_('common.owner')),
+				'type' => Model_CustomField::TYPE_LINK,
+				'value' => $ticket->owner_id,
+				'params' => array(
+					'context' => CerberusContexts::CONTEXT_WORKER,
+				),
+			),
 			'mask' => null,
 			'bucket' => null,
-			'org' => null,
+			'org' => array(
+				'label' => ucfirst($translate->_('common.organization')),
+				'type' => Model_CustomField::TYPE_LINK,
+				'value' => $ticket->org_id,
+				'params' => array(
+					'context' => CerberusContexts::CONTEXT_ORG,
+				),
+			),
 			'importance' => null,
 			'created' => array(
 				'label' => ucfirst($translate->_('common.created')),

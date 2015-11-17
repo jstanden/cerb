@@ -5,7 +5,7 @@
 {$buckets = $group->getBuckets()}
 
 <div style="float:left;margin-right:10px;">
-	<img src="{devblocks_url}c=avatars&context=group&context_id={$group->id}{/devblocks_url}?v={$group->updated}" style="height:75px;width:75px;border-radius:5px;border:1px solid rgb(235,235,235);">
+	<img src="{devblocks_url}c=avatars&context=group&context_id={$group->id}{/devblocks_url}?v={$group->updated}" style="height:75px;width:75px;border-radius:5px;">
 </div>
 
 <div style="float:left;">
@@ -23,8 +23,8 @@
 				{/if}
 			{/if}
 		
-			{if $active_worker->is_superuser}
-				<button type="button" id="btnProfileGroupEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+			{if $active_worker->is_superuser || $active_worker->isGroupManager($group->id)}
+				<button type="button" id="btnProfileGroupEdit" title="{'common.edit'|devblocks_translate|capitalize}" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 			{/if}
 			
 		</form>
@@ -136,14 +136,22 @@ $(function() {
 	
 	var tabs = $("#profileGroupTabs").tabs(tabOptions);
 
-	{if $active_worker->is_superuser}
-	$('#btnProfileGroupEdit').bind('click', function() {
-		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');
-		$popup.one('group_save', function(event) {
-			event.stopPropagation();
-			document.location.href = '{devblocks_url}c=profiles&k=group&id={$group->id}-{$group->name|devblocks_permalink}{/devblocks_url}';
-		});
-	});
+	{if $active_worker->is_superuser || $active_worker->isGroupManager($group->id)}
+	$('#btnProfileGroupEdit')
+		.cerbPeekTrigger()
+		.on('cerb-peek-opened', function(e) {
+		})
+		.on('cerb-peek-saved', function(e) {
+			e.stopPropagation();
+			document.location.reload();
+		})
+		.on('cerb-peek-deleted', function(e) {
+			document.location.href = '{devblocks_url}{/devblocks_url}';
+			
+		})
+		.on('cerb-peek-closed', function(e) {
+		})
+		;
 	{/if}
 	
 	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
@@ -202,12 +210,4 @@ $(function() {
 {/if}
 </script>
 
-{$profile_scripts = Extension_ContextProfileScript::getExtensions(true, $page_context)}
-{if !empty($profile_scripts)}
-{foreach from=$profile_scripts item=renderer}
-	{if method_exists($renderer,'renderScript')}
-		{$renderer->renderScript($page_context, $page_context_id)}
-	{/if}
-{/foreach}
-{/if}
-
+{include file="devblocks:cerberusweb.core::internal/profiles/profile_common_scripts.tpl"}

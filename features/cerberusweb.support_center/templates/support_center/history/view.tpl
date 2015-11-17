@@ -28,9 +28,9 @@
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
 				{if $view->renderSortAsc}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/sort_ascending.png{/devblocks_url}" align="absmiddle">
+					<span class="glyphicons glyphicons-sort-by-attributes" style="color:rgb(30,143,234);"></span>
 				{else}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/sort_descending.png{/devblocks_url}" align="absmiddle">
+					<span class="glyphicons glyphicons-sort-by-attributes-alt" style="color:rgb(30,143,234);"></span>
 				{/if}
 			{/if}
 			</th>
@@ -44,12 +44,12 @@
 	{capture name=subject_block}
 		{if $result.t_is_closed == 0}{* Active *}
 			{if $result.t_is_waiting == 0}{* Open *}
-				<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/clock_gray.png{/devblocks_url}" border="0" align="top">
+				<span class="glyphicons glyphicons-clock"></span>
 			{else}{* Waiting *}
-				<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/information.png{/devblocks_url}" border="0" align="top">
+				<span class="glyphicons glyphicons-asterisk" style="color:rgb(200,0,0);"></span>
 			{/if}
 		{else}{* Closed *}
-			<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check_gray.png{/devblocks_url}" border="0" align="top">
+			<span class="glyphicons glyphicons-circle-ok" style="color:rgb(120,120,120);"></span>
 		{/if}
 		
 		{if !empty($result.t_subject)}

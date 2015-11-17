@@ -10,7 +10,7 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id=0&view_id={$view->id}',null,false,'650');"><span class="glyphicons glyphicons-circle-plus"></span></a>
+			<a href="javascript:;" class="cerb-peek-trigger" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="0"><span class="glyphicons glyphicons-circle-plus"></span></a>
 			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
 			<a href="javascript:;" title="{'common.subtotals'|devblocks_translate|capitalize}" class="subtotals minimal"><span class="glyphicons glyphicons-signal"></span></a>
@@ -74,7 +74,7 @@
 			{elseif $column == "m_name"}
 			<td>
 				<a href="{devblocks_url}c=profiles&type=html_template&id={$result.m_id}-{$result.m_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.m_name}</a>
-				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.m_id}&view_id={$view->id}',null,false,'650');"><span class="glyphicons glyphicons-new-window-alt" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
+				<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="{$result.m_id}"><span class="glyphicons glyphicons-new-window-alt" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 			</td>
 			{elseif $column == "m_updated_at"}
 				<td title="{$result.$column|devblocks_date}">

@@ -954,6 +954,7 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 			'id' => $mail_html_template->id,
 			'name' => $mail_html_template->name,
 			'permalink' => $url,
+			'updated' => $mail_html_template->updated_at,
 		);
 	}
 	
@@ -1123,7 +1124,7 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		return $view;
 	}
 	
-	function renderPeekPopup($context_id=0, $view_id='') {
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl = DevblocksPlatform::getTemplateService();

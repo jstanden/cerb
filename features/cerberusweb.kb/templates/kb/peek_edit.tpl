@@ -70,7 +70,7 @@
 					{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if}
 					 )
 					<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-					<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>
+					<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
 				</li>
 			{/if}
 			{/foreach}
@@ -124,7 +124,7 @@ $(function() {
 								.appendTo($li)
 								;
 							
-							var $a = $('<a href="javascript:;"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>');
+							var $a = $('<a href="javascript:;"><span class="glyphicons glyphicons-circle-remove"></span></a>');
 							$a.click(function() {
 								$(this).parent().remove();
 							});
@@ -163,7 +163,7 @@ $(function() {
 								.appendTo($li)
 								;
 							
-							var $a = $('<a href="javascript:;"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>');
+							var $a = $('<a href="javascript:;"><span class="glyphicons glyphicons-circle-remove"></span></a>');
 							$a.click(function() {
 								$(this).parent().remove();
 							});
@@ -197,7 +197,7 @@ $(function() {
 		
 		$('#btnKbArticleEditSave').bind('click', function() {
 			genericAjaxPost('frmKbEditPanel', '', '', function(json) {
-				genericAjaxPopupClose('peek', 'article_save');
+				genericAjaxPopupClose($popup, 'article_save');
 				{if !empty($view_id)}
 				genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');
 				{/if}

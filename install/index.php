@@ -794,8 +794,17 @@ switch($step) {
 				
 				// If this worker doesn't exist, create them
 				if(null == ($lookup = DAO_Worker::getByEmail($worker_email))) {
+					$email_id = 0;
+					
+					// Add the worker e-mail to the addresses table
+					if(!empty($worker_email))
+						if(false != ($address = DAO_Address::lookupAddress($worker_email, true)))
+							$email_id = $address->id;
+					
+					// [TODO] If the email address creation fails, report an error
+					
 					$fields = array(
-						DAO_Worker::EMAIL => $worker_email,
+						DAO_Worker::EMAIL_ID => $email_id,
 						DAO_Worker::FIRST_NAME => 'Super',
 						DAO_Worker::LAST_NAME => 'User',
 						DAO_Worker::TITLE => 'Administrator',
@@ -819,11 +828,6 @@ switch($step) {
 					$worker_id = DAO_Worker::create($fields);
 					
 					DAO_Worker::setAuth($worker_id, $worker_pass);
-	
-					// Add the worker e-mail to the addresses table
-					
-					if(!empty($worker_email))
-						DAO_Address::lookupAddress($worker_email, true);
 					
 					// Authorize this e-mail address (watchers, etc.)
 					

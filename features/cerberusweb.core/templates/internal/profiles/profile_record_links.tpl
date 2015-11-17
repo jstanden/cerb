@@ -22,7 +22,7 @@
 			{if $link_counts.$link_ctx_extid}
 				<div class="property" style="width:24%;">
 					{$popup_id = "links_{DevblocksPlatform::strAlphaNum($link_ctx_id,'_','_')}"}
-					<a href="javascript:;" onclick="genericAjaxPopup('{$popup_id}','c=internal&a=linksOpen&context={$from_ctx_extid}&context_id={$from_ctx_id}&to_context={$link_ctx_extid}',null,false,'650');"><b>{$link_ctx->name}:</b></a> {$link_counts.$link_ctx_extid|number_format}
+					<a href="javascript:;" onclick="genericAjaxPopup('{$popup_id}','c=internal&a=linksOpen&context={$from_ctx_extid}&context_id={$from_ctx_id}&to_context={$link_ctx_extid}',null,false,'90%');"><b>{$link_ctx->name}:</b></a> {$link_counts.$link_ctx_extid|number_format}
 				</div>
 				
 				{if $links_iter % 4 == 0 && !$smarty.foreach.links.last}

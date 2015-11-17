@@ -3,7 +3,7 @@
 <fieldset>
 	<legend>
 		{if !empty($feed.url)}
-			<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/feed-icon-16x16.gif{/devblocks_url}" alt="RSS" align="top" border="0"> <a href="{$feed.url}" target="_blank">{$feed.title}</a>
+			<span class="glyphicons glyphicons-wifi-alt" style="color:rgb(249,154,56);"></span> <a href="{$feed.url}" target="_blank">{$feed.title}</a>
 		{else}
 			{$feed.title}
 		{/if}
@@ -13,10 +13,10 @@
 	{foreach from=$feed.items item=item name=items}
 		{if $smarty.foreach.items.iteration > 5}
 		{else}
-			{assign var=item_guid value=''|cat:$item.title|cat:'_'|cat:$item.link|md5}
+			{$item_guid = ''|cat:$item.title|cat:'_'|cat:$item.link|md5}
 			
-			<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/document.gif{/devblocks_url}" align="absmiddle"> 
-			<a href="{$item.link}" target="_blank">{$item.title}</a> 
+			<span class="glyphicons glyphicons-file" style="color:rgb(100,100,100);"></span>
+			<a href="{$item.link}" target="_blank" style="font-weight:bold;text-decoration:none;">{$item.title}</a> 
 			<br>
 			{if !empty($item.content)}
 			<div style="margin:5px 0px 5px 25px;">

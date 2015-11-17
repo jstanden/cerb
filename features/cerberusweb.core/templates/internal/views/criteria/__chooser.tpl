@@ -19,7 +19,7 @@
 			{$meta = $context_ext->getMeta($context_id)}
 			<b>{$meta.name}</b><!--
 			--><input type="hidden" name="context_id[]" value="{$context_id}"><!--
-			--><span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;" onclick="$(this).closest('li').remove();"></span>
+			--><span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest('li').remove();"></span>
 		</li>
 	{/foreach}
 	</ul>
@@ -47,7 +47,7 @@ $("#container_{$random}").find('button.chooser').click(function(e) {
 			if(0 == $ul.find('input:hidden[value="' + event.values[i] + '"]').length) {
 				var $li = $('<li/>').append($('<b/>').text(event.labels[i]));
 				$li.append($('<input type="hidden" name="context_id[]">').attr('value',event.values[i]));
-				$li.append($('<span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;" onclick="$(this).closest(\'li\').remove();"></span>'));
+				$li.append($('<span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest(\'li\').remove();"></span>'));
 				
 				$ul.append($li);
 			}

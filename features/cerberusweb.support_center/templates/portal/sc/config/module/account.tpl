@@ -1,7 +1,7 @@
 <table cellspacing="2" cellpadding="2" border="0">
 
-{$account_fields = [addy_first_name,addy_last_name]}
-{$account_labels = ['First Name','Last Name']}
+{$account_fields = [contact_first_name,contact_last_name,contact_title,contact_username,contact_gender,contact_location,contact_dob,contact_phone,contact_mobile,contact_photo]}
+{$account_labels = ['First Name','Last Name','Title','Username','Gender','Location','Date of Birth','Phone','Mobile','Photo']}
 
 {if !empty($address_custom_fields)}
 {foreach from=$address_custom_fields item=field key=field_id}
@@ -11,7 +11,7 @@
 {/if}
 
 <tr>
-	<td colspan="2"><b>Person</b></td>
+	<td colspan="2"><b>{'common.contact'|devblocks_translate|capitalize}</b></td>
 </tr>
 {foreach from=$account_fields item=field name=fields}
 <tr>

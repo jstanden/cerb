@@ -1033,8 +1033,14 @@ END;
 	}
 	
 	public function testStrToPermalink() {
-		$expected = 'devs_1000_ways_to_improve_sales';
+		// With defaults
+		$expected = 'devs-1000-ways-to-improve-sales';
 		$actual = strtolower(DevblocksPlatform::strToPermalink('Devs: 1000 Ways to Improve Sales'));
+		$this->assertEquals($expected, $actual);
+		
+		// With underscores
+		$expected = 'devs_1000_ways_to_improve_sales';
+		$actual = strtolower(DevblocksPlatform::strToPermalink('Devs: 1000 Ways to Improve Sales!', '_'));
 		$this->assertEquals($expected, $actual);
 	}
 	

@@ -16,16 +16,16 @@
 			{foreach from=$shared_by_me item=share}
 				{if $share->share_address_id == $contact_address_id}
 				<li style="padding-top:5px;">
-					<input type="text" name="share_with_{$contact_address->id}[]" class="input_email" style="background:url('{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/mail.png{/devblocks_url}') no-repeat scroll 5px 50% #ffffff;padding-left:25px;" size="45" value="{$share->with_address}">
+					<input type="text" name="share_with_{$contact_address->id}[]" class="input_email" size="45" value="{$share->with_address}">
 					<button type="button" class="add" style="display:none;" onclick="$ul=$(this).closest('ul');$li=$(this).closest('li').clone();$li.appendTo($ul).find('input:text').val('').focus();$ul.find('button.del').show().last().hide();$(this).hide();">+</button>
 					<button type="button" class="del" onclick="$ul=$(this).closest('ul');$(this).closest('li').remove();$ul.find('button.add:last').show();">-</button>
 				</li>
 				{/if}
 			{/foreach}
 			<li style="padding-top:5px;">
-				<input type="text" name="share_with_{$contact_address->id}[]" class="input_email" style="background:url('{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/mail.png{/devblocks_url}') no-repeat scroll 5px 50% #ffffff;padding-left:25px;" size="45" value="">
-				<button type="button" class="add" onclick="$ul=$(this).closest('ul');$li=$(this).closest('li').clone();$li.appendTo($ul).find('input:text').val('').focus();$ul.find('button.del').show().last().hide();$(this).hide();">+</button>
-				<button type="button" class="del" onclick="$ul=$(this).closest('ul');$(this).closest('li').remove();$ul.find('button.add:last').show();" style="display:none;">-</button>
+				<input type="text" name="share_with_{$contact_address->id}[]" class="input_email" size="45" value="">
+				<button type="button" class="add" onclick="$ul=$(this).closest('ul');$li=$(this).closest('li').clone();$li.appendTo($ul).find('input:text').val('').focus();$ul.find('button.del').show().last().hide();$(this).hide();"><span class="glyphicons glyphicons-circle-plus"></span></button>
+				<button type="button" class="del" onclick="$ul=$(this).closest('ul');$(this).closest('li').remove();$ul.find('button.add:last').show();" style="display:none;"><span class="glyphicons glyphicons-circle-minus"></span></button>
 			</li>
 		</ul>
 		<br>
@@ -46,13 +46,12 @@
 				<option value="{$k}" {if $share->is_enabled==$k}selected="selected"{/if}>{$v}</option>
 				{/foreach}
 			</select>
-			<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/mail.png{/devblocks_url}" height="16" width="16" align="top">
-			{$share->share_address}
+			<b>{$share->share_address}</b>
 		</li>
 		{/foreach}
 	</ul>	
 </fieldset>
 
-<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top"> {'common.save_changes'|devblocks_translate}</button><br>
+<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button><br>
 
 </form>

@@ -184,6 +184,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$edit = DevblocksPlatform::importGPC($_REQUEST['edit'], 'integer', 0);
 		
 		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
@@ -202,7 +203,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		// Template
 		
-		$context_ext->renderPeekPopup($context_id, $view_id);
+		$context_ext->renderPeekPopup($context_id, $view_id, $edit);
 	}
 
 	/*
@@ -588,18 +589,27 @@ class ChInternalController extends DevblocksControllerExtension {
 	 */
 	
 	function chooserOpenAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
-		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string', '');
+		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string', '');
 		@$single = DevblocksPlatform::importGPC($_REQUEST['single'],'integer',0);
+		@$query = DevblocksPlatform::importGPC($_REQUEST['q'],'string', '');
 
-		if(null != ($context_extension = DevblocksPlatform::getExtension($context, true))) {
-			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl->assign('context', $context_extension);
-			$tpl->assign('layer', $layer);
-			$tpl->assign('view', $context_extension->getChooserView());
-			$tpl->assign('single', $single);
-			$tpl->display('devblocks:cerberusweb.core::context_links/choosers/__generic.tpl');
-		}
+		if(null == ($context_extension = DevblocksPlatform::getExtension($context, true)))
+			return;
+		
+		if(false == ($view = $context_extension->getChooserView()))
+			return;
+		
+		if(!empty($query))
+			$view->addParamsWithQuickSearch($query);
+			
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('context', $context_extension);
+		$tpl->assign('layer', $layer);
+		$tpl->assign('view', $view);
+		$tpl->assign('quick_search_query', $query);
+		$tpl->assign('single', $single);
+		$tpl->display('devblocks:cerberusweb.core::context_links/choosers/__generic.tpl');
 	}
 	
 	function chooserOpenSnippetAction() {
@@ -1019,33 +1029,52 @@ class ChInternalController extends DevblocksControllerExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$list = array();
-
+		
 		// [TODO] This should be handled by the context extension
 		switch($context) {
 			case CerberusContexts::CONTEXT_ADDRESS:
+				// If we have a special email character then switch to literal email matching
+				if(preg_match('/[\.\@\_]/', $term)) {
+					// If a leading '@', then prefix/trailing wildcard
+					if(substr($term,0,1) == '@') {
+						$query = '*' . $term . '*';
+					// Otherwise, only suffix wildcard
+					} else {
+						$query = $term . '*';
+					}
+					
+					$params = array(
+						SearchFields_Address::EMAIL => new DevblocksSearchCriteria(SearchFields_Address::EMAIL, DevblocksSearchCriteria::OPER_LIKE, $query),
+					);
+					
+				// Otherwise, use fulltext
+				} else {
+					$params = array(
+						SearchFields_Address::FULLTEXT_ADDRESS => new DevblocksSearchCriteria(SearchFields_Address::FULLTEXT_ADDRESS, DevblocksSearchCriteria::OPER_FULLTEXT, $term.'*'),
+					);
+				}
+				
 				list($results, $null) = DAO_Address::search(
 					array(),
-					array(
-						array(
-							DevblocksSearchCriteria::GROUP_OR,
-							new DevblocksSearchCriteria(SearchFields_Address::LAST_NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
-							new DevblocksSearchCriteria(SearchFields_Address::FIRST_NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
-							new DevblocksSearchCriteria(SearchFields_Address::EMAIL,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
-						),
-					),
+					$params,
 					25,
 					0,
 					SearchFields_Address::NUM_NONSPAM,
 					false,
 					false
 				);
+				
+				$models = DAO_Address::getIds(array_keys($results));
 
-				foreach($results AS $row){
+				if(is_array($models))
+				foreach($models as $model) {
 					$entry = new stdClass();
-					$entry->label = trim($row[SearchFields_Address::FIRST_NAME] . ' ' . $row[SearchFields_Address::LAST_NAME] . ' <' .$row[SearchFields_Address::EMAIL] . '>');
-					$entry->value = $row[SearchFields_Address::ID];
+					$entry->label = $model->getNameWithEmail();
+					$entry->value = $model->id;
 					$list[] = $entry;
 				}
+				
+				unset($models);
 				break;
 				
 			case CerberusContexts::CONTEXT_FILE_BUNDLE:
@@ -3938,7 +3967,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(empty($var_labels[$idx]))
 					continue;
 				
-				$var_name = 'var_' . DevblocksPlatform::strAlphaNum(DevblocksPlatform::strToPermalink($v),'_');
+				$var_name = 'var_' . DevblocksPlatform::strAlphaNum(DevblocksPlatform::strToPermalink($v,'_'),'_');
 				$key = strtolower(!empty($var_keys[$idx]) ? $var_keys[$idx] : $var_name);
 				
 				// Variable params

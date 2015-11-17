@@ -20,7 +20,9 @@
 </form>
 
 <script type="text/javascript">
+$(function() {
 	var $popup = genericAjaxPopupFetch('merge');
+	
 	$popup.one('popup_open', function(event,ui) {
 		var $this = $(this);
 		
@@ -29,13 +31,14 @@
 		$this.find('button.submit')
 			.click(function() {
 				ajax.viewTicketsAction('{$view_id}','merge');
-				genericAjaxPopupClose('merge');
+				genericAjaxPopupClose($popup);
 			})
 			.focus()
 			;
 		
 		$this.find('button.cancel').click(function() {
-			genericAjaxPopupClose('merge');
+			genericAjaxPopupClose($popup);
 		});
 	});
+});
 </script>

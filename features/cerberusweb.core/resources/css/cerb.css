@@ -299,6 +299,7 @@ DIV.cerb-delta-slider-container DIV.cerb-delta-slider.cerb-slider-red .ui-slider
 }
 
 A.no-underline {
+  cursor: pointer;
   text-decoration: none;
 }
 A.no-underline:hover {
@@ -416,20 +417,6 @@ DIV.emailbody SPAN.placeholder DIV.bubble {
   line-height: 1.4em;
 }
 
-BUTTON DIV.badge-count {
-  font-size: 12px;
-  padding: 0px 5px;
-  font-weight: 500;
-  display: inline-block;
-  vertical-align: middle;
-  margin-top: -1px;
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  -ms-border-radius: 10px;
-  border-radius: 10px;
-  background-color: #787878;
-  color: white;
-}
 BUTTON:hover DIV.badge-count {
   background-color: #4785d2;
   color: white;
@@ -982,11 +969,12 @@ UL.bubbles {
 }
 UL.bubbles LI {
   display: inline-block;
+  position: relative;
   list-style-type: none;
   list-style: none;
   line-height: 1.9em;
   white-space: nowrap;
-  padding: 0 0.2em 0 0.2em;
+  padding: 0 0.5em;
   margin: 2px;
   color: #3273b9;
   border: 1px solid #c5dbec;
@@ -1020,6 +1008,38 @@ UL.bubbles LI.bubble-gray {
 }
 UL.bubbles LI.bubble-gray A {
   color: black;
+}
+UL.bubbles.chooser-container LI IMG.cerb-avatar {
+  height: 16px;
+  width: 16px;
+  margin-right: 3px;
+  border-radius: 2px;
+  vertical-align: middle;
+}
+UL.bubbles.chooser-container LI .glyphicons-circle-remove {
+  cursor: pointer;
+  position: absolute;
+  top: -0.5em;
+  right: -0.5em;
+  visibility: hidden;
+}
+UL.bubbles.chooser-container LI:hover .glyphicons-circle-remove {
+  visibility: visible;
+}
+
+DIV.badge-count {
+  font-size: 12px;
+  padding: 0px 5px;
+  font-weight: 500;
+  display: inline-block;
+  vertical-align: middle;
+  margin-top: -1px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  border-radius: 10px;
+  background-color: #787878;
+  color: white;
 }
 
 DIV.badge {
@@ -1112,12 +1132,6 @@ SPAN.tag.tag-orange {
   color: white;
 }
 
-DIV.cerb-form-hint {
-  margin: 0px 0px 5px 0px;
-  display: none;
-  font-weight: bold;
-}
-
 DIV.cerb-properties {
   margin: 0px;
 }
@@ -1183,14 +1197,14 @@ DIV.cerb-profile-toolbar SMALL {
 
 DIV.cerb-popupmenu {
   min-width: 200px;
-  margin: 0px;
+  margin: 5px 0px 20px 0px;
   padding: 5px;
   display: none;
   background-color: white;
-  border: 1px solid #6487e1;
-  -moz-box-shadow: 0px 5px 15px 0px #afafaf;
-  -webkit-box-shadow: 0px 5px 15px 0px #afafaf;
-  box-shadow: 0px 5px 15px 0px #afafaf;
+  border: 1px solid #cccccc;
+  -moz-box-shadow: 0px 0px 15px 0px #afafaf;
+  -webkit-box-shadow: 0px 0px 15px 0px #afafaf;
+  box-shadow: 0px 0px 15px 0px #afafaf;
 }
 DIV.cerb-popupmenu.cerb-float {
   position: absolute;
@@ -1198,18 +1212,42 @@ DIV.cerb-popupmenu.cerb-float {
   float: left;
   border: 0;
 }
+DIV.cerb-popupmenu > div.cerb-popupmenu-item {
+  padding: 2px;
+  font-weight: normal;
+  cursor: pointer;
+}
+DIV.cerb-popupmenu > div.cerb-popupmenu-item A {
+  text-decoration: none;
+  color: #4a6e9e;
+  font-weight: bold;
+}
+DIV.cerb-popupmenu > div.cerb-popupmenu-item HR {
+  height: 1px;
+  padding: 0px;
+  margin: 5px 5px;
+  border: 0px;
+  border-top: 1px dashed #c8c8c8;
+}
+DIV.cerb-popupmenu > div.cerb-popupmenu-item:hover {
+  background-color: #698cdd;
+  color: white;
+}
+DIV.cerb-popupmenu > div.cerb-popupmenu-item:hover A {
+  color: white;
+}
 
 UL.cerb-popupmenu {
   min-width: 200px;
   list-style: none;
-  margin: 0px;
+  margin: 5px 0px 20px 0px;
   padding: 5px;
   display: none;
   background-color: white;
-  border: 1px solid #6487e1;
-  -moz-box-shadow: 0px 5px 15px 0px #afafaf;
-  -webkit-box-shadow: 0px 5px 15px 0px #afafaf;
-  box-shadow: 0px 5px 15px 0px #afafaf;
+  border: 1px solid #cccccc;
+  -moz-box-shadow: 0px 0px 15px 0px #afafaf;
+  -webkit-box-shadow: 0px 0px 15px 0px #afafaf;
+  box-shadow: 0px 0px 15px 0px #afafaf;
 }
 UL.cerb-popupmenu.cerb-float {
   position: absolute;

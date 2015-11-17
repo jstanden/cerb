@@ -37,7 +37,7 @@
 		
 		<div class="filter_fov"></div>
 		
-		<button type="button" onclick="ajaxHtmlPost('FORM#filters_{$view->id}','FORM#filters_{$view->id}','{devblocks_url}c=ajax&a=viewFilterAdd{/devblocks_url}');">Add Filter</button>
+		<button type="button" onclick="ajaxHtmlPost('FORM#filters_{$view->id}','FORM#filters_{$view->id}','{devblocks_url}c=ajax&a=viewFilterAdd{/devblocks_url}');"><span class="glyphicons glyphicons-circle-plus"></span> Add Filter</button>
 	</fieldset>
 </div>
 <br style="clear:both;">

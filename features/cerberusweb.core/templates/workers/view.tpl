@@ -1,8 +1,8 @@
 {$view_context = CerberusContexts::CONTEXT_WORKER}
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -10,7 +10,7 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-			{if $active_worker->is_superuser}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=workers&action=showWorkerPeek&id=0&view_id={$view->id|escape:'url'}',null,false,'500');"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
+			{if $active_worker->is_superuser}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="0"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
 			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
 			<a href="javascript:;" title="{'common.subtotals'|devblocks_translate|capitalize}" class="subtotals minimal"><span class="glyphicons glyphicons-signal"></span></a>
@@ -72,13 +72,16 @@
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
-				<img src="{devblocks_url}c=avatars&context=worker&context_id={$result.w_id}{/devblocks_url}?v={$result.w_updated}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;">
+				<div style="position:relative;">
+					<img src="{devblocks_url}c=avatars&context=worker&context_id={$result.w_id}{/devblocks_url}?v={$result.w_updated}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;">
+					{if $result.w_is_disabled}<span class="plugin_icon_overlay_disabled" style="background-size:32px 32px;"></span>{/if}
+				</div>
 			</td>
 			<td colspan="{$smarty.foreach.headers.total}">
 				{$worker_name = "{$result.w_first_name}{if !empty($result.w_last_name)} {$result.w_last_name}{/if}"}
 				<input type="checkbox" name="row_id[]" value="{$result.w_id}" style="display:none;">
-				<a href="{devblocks_url}c=profiles&a=worker&id={$result.w_id}-{$worker_name|devblocks_permalink}{/devblocks_url}" class="subject">{if $result.w_is_disabled}<strike>{$worker_name}</strike>{else}{$worker_name}{/if}</a>
-				{if $active_worker->is_superuser}<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=workers&action=showWorkerPeek&id={$result.w_id}&view_id={$view->id|escape:'url'}',null,false,'550');"><span class="glyphicons glyphicons-new-window-alt"></span></button>{/if}
+				<a href="{devblocks_url}c=profiles&a=worker&id={$result.w_id}-{$worker_name|devblocks_permalink}{/devblocks_url}" class="subject">{$worker_name}</a>
+				<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$result.w_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
@@ -90,13 +93,23 @@
 			{elseif $column=="w_is_superuser"}
 				<td>{if $result.w_is_superuser}{'common.yes'|devblocks_translate|capitalize}{else}{'common.no'|devblocks_translate|capitalize}{/if}</td>
 			{elseif $column=="w_email"}
-				<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$result.w_email|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$result.w_email}">{$result.w_email|truncate:64:'...':true:true}</a></td>
+				{$addy = DAO_Address::get($result.w_email_id)}
+				<td><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}" title="{$addy->email}">{$addy->email|truncate:64:'...':true:true}</a></td>
+			{elseif $column == SearchFields_Worker::GENDER}
+			<td>
+				{if $result.$column == 'M'}
+				<span class="glyphicons glyphicons-male"></span>
+				{elseif $result.$column == 'F'}
+				<span class="glyphicons glyphicons-female"></span>
+				{else}
+				{/if}
+			</td>
 			{elseif $column=="w_calendar_id"}
 				<td>
 				{if $result.$column}
 					{$calendar = DAO_Calendar::get($result.$column)}
 					{if $calendar}
-						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CALENDAR}&context_id={$calendar->id}&view_id={$view->id}',null,false,'500');" title="{$calendar->name}">{$calendar->name|truncate:64:'...':true:true}</a>
+						<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}" title="{$calendar->name}">{$calendar->name|truncate:64:'...':true:true}</a>
 					{/if}
 				{/if}
 				</td>
@@ -104,7 +117,7 @@
 				{if !empty($result.$column)}
 				<td title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</td>
 				{else}
-				<td>never</td>
+				<td>{'common.never'|devblocks_translate|lower}</td>
 				{/if}
 			{elseif $column=="w_auth_extension_id"}
 				<td>

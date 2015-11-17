@@ -37,13 +37,28 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		
 		$properties = array();
 		
+		if(!empty($address->contact_id)) {
+			if(null != ($contact = $address->getContact())) {
+				$properties['contact'] = array(
+					'label' => ucfirst($translate->_('common.contact')),
+					'type' => Model_CustomField::TYPE_LINK,
+					'value' => $address->contact_id,
+					'params' => array(
+						'context' => CerberusContexts::CONTEXT_CONTACT,
+					),
+				);
+			}
+		}
+		
 		if(!empty($address->contact_org_id)) {
-			if(null != ($org = DAO_ContactOrg::get($address->contact_org_id))) {
+			if(null != ($org = $address->getOrg())) {
 				$properties['org'] = array(
-					'label' => ucfirst($translate->_('contact_org.name')),
-					'type' => null,
-					'org_id' => $address->contact_org_id,
-					'org' => $org,
+					'label' => ucfirst($translate->_('common.organization')),
+					'type' => Model_CustomField::TYPE_LINK,
+					'value' => $address->contact_org_id,
+					'params' => array(
+						'context' => CerberusContexts::CONTEXT_ORG,
+					),
 				);
 			}
 		}
@@ -132,5 +147,126 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/address.tpl');
+	}
+	
+	function savePeekJsonAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
+		
+		try {
+			@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+			@$email = mb_convert_case(trim(DevblocksPlatform::importGPC($_REQUEST['email'],'string','')), MB_CASE_LOWER);
+			@$contact_id = DevblocksPlatform::importGPC($_REQUEST['contact_id'],'integer',0);
+			@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
+			@$is_banned = DevblocksPlatform::importGPC($_REQUEST['is_banned'],'bit',0);
+			@$is_defunct = DevblocksPlatform::importGPC($_REQUEST['is_defunct'],'bit',0);
+			@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
+			
+			if(!$active_worker->hasPriv('core.addybook.addy.actions.update'))
+				throw new Exception_DevblocksAjaxValidationError("You don't have permission to modify this record.");
+				
+			// Common fields
+			$fields = array(
+				DAO_Address::CONTACT_ORG_ID => $org_id,
+				DAO_Address::CONTACT_ID => $contact_id,
+				DAO_Address::IS_BANNED => $is_banned,
+				DAO_Address::IS_DEFUNCT => $is_defunct,
+			);
+			
+			if(empty($id)) {
+				if(empty($email))
+					throw new Exception_DevblocksAjaxValidationError("The 'Email' field is required.", 'email');
+				
+				$validated_emails = CerberusUtils::parseRfcAddressList($email);
+				
+				if(empty($validated_emails) || !is_array($validated_emails))
+					throw new Exception_DevblocksAjaxValidationError("The given email address is invalid.", 'email');
+				
+				$email = $validated_emails[0]->mailbox . '@' . $validated_emails[0]->host;
+				
+				if(false != DAO_Address::getByEmail($email))
+					throw new Exception_DevblocksAjaxValidationError('A record already exists for the given email address.', 'email');
+				
+				if($contact_id && false == DAO_Contact::get($contact_id))
+					throw new Exception_DevblocksAjaxValidationError('The given contact record is invalid.', 'contact_id');
+				
+				if($org_id && false == DAO_Contact::get($org_id))
+					throw new Exception_DevblocksAjaxValidationError('The given organization record is invalid.', 'org_id');
+				
+				$fields[DAO_Address::EMAIL] = $email;
+
+				if(false == ($id = DAO_Address::create($fields)))
+					throw new Exception_DevblocksAjaxValidationError('An unexpected error occurred while trying to save the record.');
+				
+				// Index immediately
+				$search = Extension_DevblocksSearchSchema::get(Search_Address::ID);
+				$search->indexIds(array($id));
+				
+				// Watchers
+				
+				@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
+				if(!empty($add_watcher_ids))
+					CerberusContexts::addWatchers(CerberusContexts::CONTEXT_ADDRESS, $id, $add_watcher_ids);
+				
+				// Context Link (if given)
+				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+				@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+				if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
+					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_ADDRESS, $id, $link_context, $link_context_id);
+				}
+				
+				// View marquee
+				if(!empty($id) && !empty($view_id)) {
+					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_ADDRESS, $id);
+				}
+				
+			} else {
+				DAO_Address::update($id, $fields);
+			}
+	
+			if($id) {
+				// Custom field saves
+				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_ADDRESS, $id, $field_ids);
+			}
+			
+			/*
+			 * Notify anything that wants to know when Address Peek saves.
+			 */
+			$eventMgr = DevblocksPlatform::getEventService();
+			$eventMgr->trigger(
+				new Model_DevblocksEvent(
+					'address.peek.saved',
+					array(
+						'address_id' => $id,
+						'changed_fields' => $fields,
+					)
+				)
+			);
+			
+			echo json_encode(array(
+				'status' => true,
+				'id' => $id,
+				'view_id' => $view_id,
+			));
+			
+		} catch (Exception_DevblocksAjaxValidationError $e) {
+				echo json_encode(array(
+					'status' => false,
+					'id' => $id,
+					'error' => $e->getMessage(),
+					'field' => $e->getFieldName(),
+				));
+			
+		} catch (Exception $e) {
+				echo json_encode(array(
+					'status' => false,
+					'id' => $id,
+					'error' => 'An unexpected error occurred.',
+				));
+			
+		}
 	}
 };

@@ -1,0 +1,226 @@
+{$form_id = "frmContactPeekEdit{uniqid()}"}
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="contact">
+<input type="hidden" name="action" value="savePeekJson">
+<input type="hidden" name="view_id" value="{$view_id}">
+{if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
+<input type="hidden" name="do_delete" value="0">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+
+{if $model}
+	{$org = $model->getOrg()}
+	{$addy = $model->getEmail()}
+{/if}
+
+<fieldset class="peek">
+	<legend>{'common.properties'|devblocks_translate}</legend>
+	
+	<table cellspacing="0" cellpadding="2" border="0" width="98%">
+		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.name.first'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="first_name" value="{$model->first_name}" style="width:98%;" autocomplete="off" spellcheck="false">
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.name.last'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="last_name" value="{$model->last_name}" style="width:98%;" autocomplete="off" spellcheck="false">
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.title'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="title" value="{$model->title}" style="width:98%;" autocomplete="off" spellcheck="true">
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap" valign="middle"><b>{'common.organization'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%" valign="top">
+					<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true"><span class="glyphicons glyphicons-search"></span></button>
+					
+					<ul class="bubbles chooser-container">
+						{if $org}
+							<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}"><input type="hidden" name="org_id" value="{$org->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name}</a> <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+						{/if}
+					</ul>
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap" valign="middle"><b>{'common.email'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%" valign="top">
+					<button type="button" class="chooser-abstract" data-field-name="primary_email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="org.id:{$org->id}"><span class="glyphicons glyphicons-search"></span></button>
+					
+					<ul class="bubbles chooser-container">
+						{if $addy}
+							<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$addy->id}{/devblocks_url}?v={$addy->updated}"><input type="hidden" name="primary_email_id" value="{$addy->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a> <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+						{/if}
+					</ul>
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.phone'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="phone" value="{$model->phone}" style="width:98%;" autocomplete="off" spellcheck="false">
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.mobile'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="mobile" value="{$model->mobile}" style="width:98%;" autocomplete="off" spellcheck="false">
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.location'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="location" value="{$model->location}" style="width:98%;" autocomplete="off" spellcheck="false">
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.username'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="username" value="{$model->username}" style="width:98%;" autocomplete="off" spellcheck="false">
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.gender'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<label><input type="radio" name="gender" value="M" {if $model->gender == 'M'}checked="checked"{/if}> <span class="glyphicons glyphicons-male" style="color:rgb(2,139,212);"></span> {'common.gender.male'|devblocks_translate|capitalize}</label>
+				 &nbsp; 
+				 &nbsp; 
+				<label><input type="radio" name="gender" value="F" {if $model->gender == 'F'}checked="checked"{/if}> <span class="glyphicons glyphicons-female" style="color:rgb(243,80,157);"></span> {'common.gender.female'|devblocks_translate|capitalize}</label>
+				 &nbsp; 
+				 &nbsp; 
+				<label><input type="radio" name="gender" value="" {if empty($model->gender)}checked="checked"{/if}> {'common.unknown'|devblocks_translate|capitalize}</label>
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.dob'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="dob" value="{if $model->dob}{$model->dob|devblocks_date}{/if}" style="width:98%;" autocomplete="off" spellcheck="false">
+			</td>
+		</tr>
+		
+		{if empty($model->id)}
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="top">{$translate->_('common.watchers')|capitalize}: </td>
+			<td width="100%">
+				<button type="button" class="chooser_watcher"><span class="glyphicons glyphicons-search"></span></button>
+				<ul class="chooser-container bubbles" style="display:block;"></ul>
+			</td>
+		</tr>
+		{/if}
+		
+		<tr>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.photo'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%" valign="top">
+				<div style="float:left;margin-right:5px;">
+					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=contact&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:48px;width:48px;border-radius:5px;border:1px solid rgb(235,235,235);">
+				</div>
+				<div style="float:left;">
+					<button type="button" class="cerb-avatar-chooser">{'common.edit'|devblocks_translate|capitalize}</button>
+					<input type="hidden" name="avatar_image">
+				</div>
+			</td>
+		</tr>
+		
+	</table>
+	
+</fieldset>
+
+{if !empty($custom_fields)}
+<fieldset class="peek">
+	<legend>{'common.custom_fields'|devblocks_translate}</legend>
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+</fieldset>
+{/if}
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context='cerberusweb.contexts.contact' context_id=$model->id}
+
+{if !empty($model->id)}
+<fieldset style="display:none;" class="delete">
+	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
+	
+	<div>
+		Are you sure you want to delete this contact?
+	</div>
+	
+	<button type="button" class="delete"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Confirm</button>
+	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+</fieldset>
+{/if}
+
+<div class="status"></div>
+
+<div class="buttons">
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	{if !empty($model->id)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+</div>
+
+</form>
+
+<script type="text/javascript">
+$(function() {
+	var $frm = $('#{$form_id}');
+	var $popup = genericAjaxPopupFind($frm);
+	var $chooser_org = $popup.find('button.chooser-abstract[data-field-name="org_id"]');
+	var $chooser_email = $popup.find('button.chooser-abstract[data-field-name="primary_email_id"]');
+	
+	$popup.one('popup_open', function(event,ui) {
+		$popup.dialog('option','title',"Edit: Contact");
+		$popup.find('input:text:first').focus();
+		
+		// Buttons
+		
+		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
+			
+		{if empty($model->id)}
+		// Watchers
+
+		$popup.find('button.chooser_watcher').each(function() {
+			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
+		});
+		{/if}
+		
+		// Abstract choosers
+		
+		$popup.find('button.chooser-abstract')
+			.cerbChooserTrigger()
+			.on('cerb-chooser-saved', function(e) {
+				// When the org changes, default the contact chooser filter
+				if($(e.target).attr('data-field-name') == 'org_id') {
+					var $bubble = $chooser_org.siblings('ul.chooser-container').find('> li:first input:hidden');
+					
+					if($bubble.length > 0) {
+						var org_id = $bubble.val();
+						$chooser_email.attr('data-query', 'org.id:' + org_id);
+					}
+				}
+			})
+			;
+		
+		// Peeks
+		
+		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
+		
+		// Avatar
+		
+		var $avatar_chooser = $popup.find('.cerb-avatar-chooser');
+		var $avatar_image = $popup.find('.cerb-avatar');
+		ajax.chooserAvatar($avatar_chooser, $avatar_image);
+	});
+});
+</script>

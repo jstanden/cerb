@@ -341,7 +341,7 @@ $(function() {
 				var $html = $('<div style="margin-left:20px;"/>').html(html);
 				
 				var $container = $('<li style="padding-bottom:5px;"/>').attr('id','condition'+seq);
-				$container.append($('<input type="hidden" name="nodes[]">').attr('value', 'condition'+seq));
+				$container.append($('<input type="hidden" name="nodes[]">').attr('value', seq));
 				$container.append($('<input type="hidden">').attr('name', 'condition'+seq+'[condition]').attr('value',token));
 				$container.append($('<a href="javascript:;" onclick="$(this).closest(\'li\').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>'));
 				$container.append('&nbsp;');

@@ -35,7 +35,7 @@
 	<input type="password" name="password2" size="35" value=""><br>
 	<br>
 
-	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top"> Register</button><br> 
+	<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> Register</button><br>
 </fieldset>
 
 </form> 

@@ -30,13 +30,21 @@ $(function() {
 	$popup.one('popup_open',function(event,ui) {
 		var $frm = $('#internalCommentPopup');
 		
-		$(this).dialog('option','title','Comment');
+		$popup.dialog('option','title','Comment');
 		
 		$frm.find('button.submit').click(function() {
-			var $popup = genericAjaxPopupFind('#internalCommentPopup');
-			genericAjaxPost('internalCommentPopup','','', null, { async: false } );
-			$popup.trigger('comment_save');
-			genericAjaxPopupClose('comment');
+			genericAjaxPost(
+				$frm,
+				null,
+				null,
+				function() {
+					$popup.trigger('comment_save');
+					genericAjaxPopupClose($popup);
+				},
+				{ 
+					async: false
+				}
+			);
 		});
 	
 		$frm.find('button.chooser_file').each(function() {
@@ -45,17 +53,6 @@ $(function() {
 		
 		var $textarea = $frm.find('textarea');
 
-		// Form hints
-		
-		$textarea
-			.focusin(function() {
-				$(this).siblings('div.cerb-form-hint').fadeIn();
-			})
-			.focusout(function() {
-				$(this).siblings('div.cerb-form-hint').fadeOut();
-			})
-			;
-		
 		// @ mentions
 		
 		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};

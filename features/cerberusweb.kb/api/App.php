@@ -1001,6 +1001,7 @@ class Context_KbCategory extends Extension_DevblocksContext {
 			'id' => $category->id,
 			'name' => $category->name,
 			'permalink' => $url_writer->writeNoProxy(sprintf("c=profiles&type=kb_category&id=%d-%s", $category->id, DevblocksPlatform::strToPermalink($category->name), true)),
+			'updated' => 0, // [TODO]
 		);
 	}
 	

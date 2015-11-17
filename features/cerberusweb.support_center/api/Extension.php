@@ -141,7 +141,3 @@ abstract class Extension_ScLoginAuthenticator extends DevblocksExtension {
 		$umsession->logout();
 	}
 };
-
-abstract class Extension_SupportCenterMessageBadge extends DevblocksExtension {
-	function render(Model_Message $message) {}
-};

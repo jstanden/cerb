@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post">
+<form action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="genericAjaxPopupClose('peek');">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="portal">
@@ -19,7 +19,7 @@
 <input type="text" name="email" size="45" value=""><br>
 <br>
 
-<button type="button" onclick="genericAjaxPopupClose('peek');this.form.submit();"><span class="glyphicons glyphicons-file-export"></span></a> {'common.export'|devblocks_translate|capitalize}</button>
+<button type="submit"><span class="glyphicons glyphicons-file-export"></span></a> {'common.export'|devblocks_translate|capitalize}</button>
 
 </form>
 
@@ -28,7 +28,7 @@ $(function() {
 	var $popup = genericAjaxPopupFetch('peek');
 	
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{'common.export'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.dialog('option','title',"{'common.export'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 	});
 });
 </script>

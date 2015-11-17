@@ -48,21 +48,30 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		
 		// Look up the context extension
 		if(empty($alias) || false == ($avatar_context_mft = Extension_DevblocksContext::getByAlias($alias, false)))
-			$this->_renderContextAvatar();
-		
+			$this->_renderDefaultAvatar();
+
 		// Look up the avatar record
-		if(false == ($avatar = DAO_ContextAvatar::getByContext($avatar_context_mft->id, $avatar_context_id))) {
-			// If we don't have an avatar record, check Gravatar
-			// [TODO] If enabled
-			if(false == ($this->_fetchGravatarImage($avatar_context_mft->id, $avatar_context_id)))
-				$this->_renderContextAvatar($avatar_context_mft->id);
+		if(false != ($avatar = DAO_ContextAvatar::getByContext($avatar_context_mft->id, $avatar_context_id))) {
+			$this->_renderAvatar($avatar);
+			return;
 		}
+		
+		$this->_renderDefaultAvatar($avatar_context_mft->id, $avatar_context_id);
+	}
+	
+	private function _renderAvatar(Model_ContextAvatar $avatar, $default_context=null, $default_context_id=null) {
+		if(empty($default_context))
+			$default_context = $avatar->context;
+		if(empty($default_context_id))
+			$default_context_id = $avatar->context_id;
 		
 		if(empty($avatar->content_type) 
 				|| empty($avatar->storage_size) 
 				|| empty($avatar->storage_key) 
-				|| false == ($contents = Storage_ContextAvatar::get($avatar)))
-			$this->_renderContextAvatar($avatar->context);
+				|| false == ($contents = Storage_ContextAvatar::get($avatar))) {
+			$this->_renderDefaultAvatar($default_context, $default_context_id);
+			return;
+		}
 		
 		// Set headers
 		header('Pragma: cache');
@@ -96,8 +105,8 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				throw new DevblocksException("Only image types may be fetched.");
 			
 			$response['status'] = true;
-			// [TODO] Can we be more memory efficient re the double copy of $output?
 			$response['imageData'] = sprintf("data:%s;base64,", $info['content_type']) . base64_encode($output);
+			unset($output);
 			
 		} catch(DevblocksException $e) {
 			$response['status'] = false;
@@ -115,14 +124,69 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		exit;
 	}
 	
-	private function _renderContextAvatar($context=null) {
+	private function _renderDefaultAvatar($context=null, $context_id=null) {
 		switch($context) {
 			case CerberusContexts::CONTEXT_APPLICATION:
 				$contents = file_get_contents(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/app.png');
 				break;
 				
+			// Check if the addy's org has an avatar
 			case CerberusContexts::CONTEXT_ADDRESS:
-			case CerberusContexts::CONTEXT_CONTACT_PERSON:
+				if($context_id && false != ($addy = DAO_Address::get($context_id))) {
+					
+					// Use contact if an avatar exists
+					if($addy->contact_id && false != ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_CONTACT, $addy->contact_id))) {
+						$this->_renderAvatar($avatar, CerberusContexts::CONTEXT_CONTACT);
+						return;
+					}
+					
+					// Use org if an avatar exists
+					if($addy->contact_org_id && false != ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_ORG, $addy->contact_org_id))) {
+						$this->_renderAvatar($avatar, CerberusContexts::CONTEXT_CONTACT);
+						return;
+					}
+					
+					// Use a default contact picture
+					if($addy->contact_id)
+						$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT, $addy->contact_id);
+					
+					$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT);
+					return;
+					break;
+				}
+				
+				$n = mt_rand(1, 4);
+				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
+				break;
+				
+			case CerberusContexts::CONTEXT_CONTACT:
+				$gender = '';
+				
+				if($context_id && false != ($contact = DAO_Contact::get($context_id))) {
+					$gender = $contact->gender;
+				}
+				
+				switch($gender) {
+					case 'M':
+						$male_keys = array(1,3,4);
+						$n = $male_keys[array_rand($male_keys)];
+						break;
+					case 'F':
+						$n = 2;
+						break;
+					default:
+						$n = mt_rand(1, 4);
+						break;
+				}
+				
+				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
+				break;
+				
+			case CerberusContexts::CONTEXT_ORG:
+				$n = mt_rand(1,3);
+				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/building%d.png', $n));
+				break;
+				
 			case CerberusContexts::CONTEXT_WORKER:
 				$n = mt_rand(1, 4);
 				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
@@ -163,7 +227,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				if(false == ($worker = DAO_Worker::get($context_id)))
 					return false;
 					
-				return $worker->email;
+				return $worker->getEmailString();
 				break;
 		}
 		

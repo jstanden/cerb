@@ -44,14 +44,14 @@ class PageSection_SetupMailImport extends Extension_PageSection {
 			if(is_object($dict) && !empty($dict->id)) {
 				$message = sprintf('<b>Ticket updated:</b> <a href="%s">%s</a>',
 					$dict->url,
-					$dict->_label
+					DevblocksPlatform::strEscapeHtml($dict->_label)
 				);
 				
 			} elseif(null === $dict) {
 				$log = ob_get_contents();
 				
 				$message = sprintf('<b>Rejected:</b> %s',
-					$log
+					DevblocksPlatform::strEscapeHtml($log)
 				);
 			}
 			

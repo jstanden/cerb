@@ -601,6 +601,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'move_to' => array('label' => 'Move to'),
 				'relay_email' => array('label' => 'Relay to external email'),
+				'remove_recipients' => array('label' =>'Remove recipients'),
 				'schedule_email_recipients' => array('label' => 'Schedule email to recipients'),
 				'send_email' => array('label' => 'Send email'),
 				'send_email_recipients' => array('label' => 'Send email to recipients'),
@@ -692,6 +693,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 						);
 						break;
 				}
+				break;
+				
+			case 'remove_recipients':
+				DevblocksEventHelper::renderActionRemoveRecipients($trigger);
 				break;
 				
 			case 'schedule_email_recipients':
@@ -821,9 +826,12 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				);
 				break;
 				
-			case 'schedule_email_recipients':
+			case 'removerecipients':
+				return DevblocksEventHelper::simulateActionRemoveRecipients($params, $dict, 'ticket_id');
 				break;
 				
+			case 'schedule_email_recipients':
+				break;
 				
 			case 'set_importance':
 				return DevblocksEventHelper::simulateActionSetTicketImportance($params, $dict, 'ticket_id', 'ticket_importance');
@@ -963,6 +971,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 					$dict->sender_full_name,
 					$dict->ticket_subject
 				);
+				break;
+				
+			case 'remove_recipients':
+				DevblocksEventHelper::runActionRemoveRecipients($params, $dict, 'ticket_id');
 				break;
 				
 			case 'schedule_email_recipients':

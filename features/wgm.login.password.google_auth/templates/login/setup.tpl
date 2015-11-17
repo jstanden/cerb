@@ -1,6 +1,6 @@
 <form action="{devblocks_url}c=login&ext=password-gauth&a=setup{/devblocks_url}" method="post" id="loginForm">
 <input type="hidden" name="do_submit" value="1">
-<input type="hidden" name="email" value="{$worker->email}">
+<input type="hidden" name="email" value="{$worker->getEmailString()}">
 
 <div class="help-box">
 	<h1>You need to finish setting up your account</h1>
@@ -27,11 +27,11 @@
 {/if}
 
 <fieldset>
-	<legend>Step 1: Type the confirmation code that was sent to {$worker->email}</legend>
+	<legend>Step 1: Type the confirmation code that was sent to {$worker->getEmailString()}</legend>
 
 	<input type="text" name="confirm_code" value="{$code}" autocomplete="off">
 	
-	<a href="{devblocks_url}c=login&a=recover{/devblocks_url}?email={$worker->email}" tabindex="-1">can't find it?</a>
+	<a href="{devblocks_url}c=login&a=recover{/devblocks_url}?email={$worker->getEmailString()}" tabindex="-1">can't find it?</a>
 </fieldset>
 
 <fieldset>
@@ -80,7 +80,7 @@
 </form>
 
 <script type="text/javascript">
-var options = { width:192, height:192, text:"otpauth://totp/Cerb:{$worker->email}?secret={$seed}" };
+var options = { width:192, height:192, text:"otpauth://totp/Cerb:{$worker->getEmailString()}?secret={$seed}" };
 var hasCanvasSupport = !!window.CanvasRenderingContext2D;
 
 // If no <canvas> tag, use <table> instead

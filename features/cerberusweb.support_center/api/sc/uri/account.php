@@ -20,7 +20,7 @@ class UmScAccountController extends Extension_UmScController {
 		
 		// Scope
 		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null);
+		$active_contact = $umsession->getProperty('sc_login', null); /* @var $active_contact Model_Contact */
 		
 		@$module = array_shift($path);
 		
@@ -30,7 +30,7 @@ class UmScAccountController extends Extension_UmScController {
 				break;
 				
 			case 'sharing':
-				$contact_addresses = $active_contact->getAddresses();
+				$contact_addresses = $active_contact->getEmails();
 				$tpl->assign('contact_addresses', $contact_addresses);
 				
 				if(is_array($contact_addresses)) {
@@ -49,6 +49,15 @@ class UmScAccountController extends Extension_UmScController {
 				break;
 				
 			default:
+			case 'profile':
+				// Show fields
+				if(null != ($show_fields = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'account.fields', null))) {
+					$tpl->assign('show_fields', @json_decode($show_fields, true));
+				}
+				
+				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/account/profile/index.tpl");
+				break;
+				
 			case 'email':
 				@$id = array_shift($path);
 				
@@ -65,8 +74,8 @@ class UmScAccountController extends Extension_UmScController {
 					$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/account/email/confirm.tpl");
 				
 				// Security check
-				} elseif(empty($id) || null == ($address = DAO_Address::lookupAddress(urldecode(str_replace(array('_at_','_dot_'),array('%40','.'),$id)), false)) || $address->contact_person_id != $active_contact->id) {
-					$addresses = $active_contact->getAddresses();
+				} elseif(empty($id) || null == ($address = DAO_Address::lookupAddress(urldecode(str_replace(array('_at_','_dot_'),array('%40','.'),$id)), false)) || $address->contact_id != $active_contact->id) {
+					$addresses = $active_contact->getEmails();
 					$tpl->assign('addresses', $addresses);
 					
 					$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/account/email/index.tpl");
@@ -108,47 +117,62 @@ class UmScAccountController extends Extension_UmScController {
 				}
 				
 				break;
-				
-			case 'openid':
-				@$id = array_shift($path);
-				
-				// If checking an authorization
-				if($id == 'authorize' && isset($_REQUEST['openid_mode']) && 'cancel' != DevblocksPlatform::importGPC($_REQUEST['openid_mode'],'string','')) {
-					$openid = DevblocksPlatform::getOpenIDService();
-					
-					try {
-						if($openid->validate($_REQUEST)) {
-							@$openid_claimed_id = DevblocksPlatform::importGPC($_REQUEST['openid_claimed_id'],'string','');
-
-							if(empty($openid_claimed_id))
-								throw new Exception("No OpenID identity was discovered.");
-							
-							if(null != ($contact_id = DAO_OpenIdToContactPerson::getContactIdByOpenId($openid_claimed_id)))
-								throw new Exception("This OpenID identity is already linked to an account.");
-							
-							// Link to contact
-							DAO_OpenIdToContactPerson::addOpenId($openid_claimed_id, $active_contact->id);
-							
-						} else {
-							throw new Exception("Authorization failed.");
-						}
-					
-					} catch (Exception $e) {
-						$tpl->assign('error', $e->getMessage());
-					}
-					
-				// Display (Securely)
-				} elseif(!empty($id) && null != ($openid = DAO_OpenIdToContactPerson::getOpenIdByHash($id)) && $openid->contact_person_id == $active_contact->id) {
-					$tpl->assign('openid', $openid);
-					$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/account/openid/display.tpl");
-					return;
-				}
-				
-				$openids = DAO_OpenIdToContactPerson::getOpenIdsByContact($active_contact->id);
-				$tpl->assign('openids', $openids);
-				
-				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/account/openid/index.tpl");
-				break;
+		}
+	}
+	
+	function doProfileUpdateAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$umsession = ChPortalHelper::getSession();
+		$active_contact = $umsession->getProperty('sc_login', null);
+		
+		if(null == $active_contact)
+			return;
+		
+		$show_fields = array();
+		if(null != ($show_fields = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'account.fields', null)))
+			@$show_fields = json_decode($show_fields, true);
+			
+		@$primary_email_id = DevblocksPlatform::importGPC($_POST['primary_email_id'],'integer',0);
+		@$first_name = DevblocksPlatform::importGPC($_POST['first_name'],'string','');
+		@$last_name = DevblocksPlatform::importGPC($_POST['last_name'],'string','');
+		@$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
+		@$username = DevblocksPlatform::importGPC($_POST['username'],'string','');
+		@$gender = DevblocksPlatform::importGPC($_POST['gender'],'string','');
+		@$location = DevblocksPlatform::importGPC($_POST['location'],'string','');
+		@$dob = DevblocksPlatform::importGPC($_POST['dob'],'string','');
+		@$phone = DevblocksPlatform::importGPC($_POST['phone'],'string','');
+		@$mobile = DevblocksPlatform::importGPC($_POST['mobile'],'string','');
+		
+		// Update the record
+		
+		$fields = array(
+			DAO_Contact::UPDATED_AT => time(),
+		);
+		
+		$fields[DAO_Contact::FIRST_NAME] = $first_name;
+		$fields[DAO_Contact::LAST_NAME] = $last_name;
+		$fields[DAO_Contact::TITLE] = $title;
+		$fields[DAO_Contact::USERNAME] = $username;
+		$fields[DAO_Contact::LOCATION] = $location;
+		$fields[DAO_Contact::DOB] = intval(@strtotime($dob));
+		$fields[DAO_Contact::PHONE] = $phone;
+		$fields[DAO_Contact::MOBILE] = $mobile;
+		
+		if(in_array($gender, array('', 'M', 'F'))) {
+			$fields[DAO_Contact::GENDER] = $gender;
+		}
+		
+		// Change the primary email if requested, but verify ownership
+		if($primary_email_id && $primary_email_id != $active_contact->primary_email_id)
+			if(false != ($address = DAO_Address::get($primary_email_id)) && $address->contact_id == $active_contact->id) {
+				$fields[DAO_Contact::PRIMARY_EMAIL_ID] = $primary_email_id;
+			}
+		
+		if(!empty($fields)) {
+			DAO_Contact::update($active_contact->id, $fields);
+			
+			// Update session
+			$umsession->login(DAO_Contact::get($active_contact->id));
 		}
 	}
 
@@ -157,22 +181,17 @@ class UmScAccountController extends Extension_UmScController {
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		
-		if(null == ($contact = DAO_ContactPerson::get($active_contact->id)))
+		if(null == $active_contact)
 			return;
 			
-		// Security
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
-		if(null == ($address = DAO_Address::get($id)) || $address->contact_person_id != $contact->id)
-			return;
-		
 		@$action = DevblocksPlatform::importGPC($_POST['action'],'string','');
 		
 		switch($action) {
 			case 'remove':
 				// Can't remove primary email
-				if($contact->email_id != $address->id)
+				if($active_contact->primary_email_id != $address->id)
 					DAO_Address::update($address->id,array(
-						DAO_Address::CONTACT_PERSON_ID => 0,
+						DAO_Address::CONTACT_ID => 0,
 					));
 				break;
 				
@@ -193,9 +212,9 @@ class UmScAccountController extends Extension_UmScController {
 					$org_customfields = array();
 					
 					if(isset($_POST['is_primary']) && !empty($_POST['is_primary'])) {
-						$contact_fields[DAO_ContactPerson::EMAIL_ID] = $address->id;
+						$contact_fields[DAO_Contact::PRIMARY_EMAIL_ID] = $address->id;
 						// [TODO] This could be done better
-						$active_contact->email_id = $address->id;
+						$active_contact->primary_email_id = $address->id;
 						$umsession->login($active_contact);
 					}
 					
@@ -208,14 +227,6 @@ class UmScAccountController extends Extension_UmScController {
 							
 						// Handle specific fields
 						switch($field_name) {
-							// Addys
-							case 'addy_first_name':
-								$addy_fields[DAO_Address::FIRST_NAME] = $val;
-								break;
-							case 'addy_last_name':
-								$addy_fields[DAO_Address::LAST_NAME] = $val;
-								break;
-								
 							// Orgs
 							case 'org_name':
 								if(!empty($val))
@@ -266,11 +277,11 @@ class UmScAccountController extends Extension_UmScController {
 						}
 					}
 					
-					// Contact Person
+					// Contact
 					if(!empty($contact_fields))
-						DAO_ContactPerson::update($contact->id, $contact_fields);
-		//			if(!empty($contact_customfields))
-		//				DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_CONTACT_PERSON, $contact->id, $contact_customfields, true, false, false);
+						DAO_Contact::update($active_contact->id, $contact_fields);
+					if(!empty($contact_customfields))
+						DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_CONTACT, $contact->id, $contact_customfields, true, false, false);
 						
 					// Addy
 					if(!empty($addy_fields))
@@ -296,7 +307,7 @@ class UmScAccountController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
-		$contact_addresses = $active_contact->getAddresses();
+		$contact_addresses = $active_contact->getEmails();
 
 		$errors = array();
 
@@ -323,7 +334,7 @@ class UmScAccountController extends Extension_UmScController {
 								continue;
 								
 							// Lookup
-							if(null !== ($lookup = DAO_Address::lookupAddress($email, false)) && $lookup->contact_person_id) {
+							if(null !== ($lookup = DAO_Address::lookupAddress($email, false)) && $lookup->contact_id) {
 								if(isset($contact_addresses[$lookup->id])) {
 									$errors[] = sprintf("%s is your own email address.", $email);
 								} else {
@@ -416,10 +427,10 @@ class UmScAccountController extends Extension_UmScController {
 			// Change password?
 			$salt = CerberusApplication::generatePassword(8);
 			$fields = array(
-				DAO_ContactPerson::AUTH_SALT => $salt,
-				DAO_ContactPerson::AUTH_PASSWORD => md5($salt.md5($change_password)),
+				DAO_Contact::AUTH_SALT => $salt,
+				DAO_Contact::AUTH_PASSWORD => md5($salt.md5($change_password)),
 			);
-			DAO_ContactPerson::update($active_contact->id, $fields);
+			DAO_Contact::update($active_contact->id, $fields);
 			
 			$tpl->assign('success', true);
 			
@@ -439,7 +450,7 @@ class UmScAccountController extends Extension_UmScController {
 		$url_writer = DevblocksPlatform::getUrlService();
 		
 		try {
-			if(null == ($contact = DAO_ContactPerson::get($active_contact->id)))
+			if(null == $active_contact)
 				return;
 	
 			@$add_email = strtolower(DevblocksPlatform::importGPC($_REQUEST['add_email'],'string',''));
@@ -451,7 +462,7 @@ class UmScAccountController extends Extension_UmScController {
 	
 			// Is this address already assigned
 			if(null != ($address = DAO_Address::lookupAddress($add_email, false))) {
-				if(!empty($address->contact_person_id))
+				if(!empty($address->contact_id))
 					throw new Exception("The email address you provided is already assigned to an account.");
 				
 				// [TODO] Or awaiting confirmation
@@ -465,7 +476,7 @@ class UmScAccountController extends Extension_UmScController {
 				DAO_ConfirmationCode::CONFIRMATION_CODE => CerberusApplication::generatePassword(8),
 				DAO_ConfirmationCode::NAMESPACE_KEY => 'support_center.email.confirm',
 				DAO_ConfirmationCode::META_JSON => json_encode(array(
-					'contact_id' => $contact->id,
+					'contact_id' => $active_contact->id,
 					'email' => $add_email,
 				)),
 				DAO_ConfirmationCode::CREATED => time(),
@@ -502,7 +513,7 @@ class UmScAccountController extends Extension_UmScController {
 		$active_contact = $umsession->getProperty('sc_login', null);
 
 		try {
-			if(null == ($contact = DAO_ContactPerson::get($active_contact->id)))
+			if(null == $active_contact)
 				throw new Exception("Your session has expired.");
 			
 			// Lookup code
@@ -510,7 +521,7 @@ class UmScAccountController extends Extension_UmScController {
 				throw new Exception("Your confirmation code is invalid.");
 				
 			// Compare session
-			if(!isset($code->meta['contact_id']) || $contact->id != $code->meta['contact_id'])
+			if(!isset($code->meta['contact_id']) || $active_contact->id != $code->meta['contact_id'])
 				throw new Exception("Your confirmation code is invalid.");
 				
 			// Compare email addy
@@ -524,7 +535,7 @@ class UmScAccountController extends Extension_UmScController {
 			// Pass + associate
 			DAO_ConfirmationCode::delete($code->id);
 			DAO_Address::update($address->id,array(
-				DAO_Address::CONTACT_PERSON_ID => $contact->id,
+				DAO_Address::CONTACT_ID => $active_contact->id,
 			));
 			
 			$address_uri = urlencode(str_replace(array('@','.'),array('_at_','_dot_'),$address->email));
@@ -543,70 +554,6 @@ class UmScAccountController extends Extension_UmScController {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','email')));
 	}
 	
-	function doOpenIdAddAction() {
-		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null);
-		
-		try {
-			if(null == ($contact = DAO_ContactPerson::get($active_contact->id)))
-				throw new Exception("Your session has expired.");
-	
-			$openid = DevblocksPlatform::getOpenIDService();
-			$url_writer = DevblocksPlatform::getUrlService();
-			
-			@$openid_url = DevblocksPlatform::importGPC($_REQUEST['openid_url'],'string','');
-			
-			if(false == ($auth_url = $openid->getAuthUrl($openid_url, $url_writer->write('c=account&o=openid&r=authorize',true))))
-				throw new Exception("You provided an invalid OpenID identity.");
-			
-			header("Location: " . $auth_url);
-			exit;
-
-			// [TODO] Check if the OpenID is already assigned
-			
-//			@$add_email = DevblocksPlatform::importGPC($_REQUEST['add_email'],'string','');
-//			if(empty($add_email) || null == ($address = DAO_Address::lookupAddress($add_email, true)))
-//				throw new Exception("The email address you provided is invalid.");
-	
-			// Is this address already assigned
-//			if(!empty($address->contact_person_id)) {
-//				// [TODO] Or awaiting confirmation
-//				throw new Exception("The email address you provided is already assigned to an account.");
-//			}
-			
-		} catch (Exception $e) {
-			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl->assign('error', $e->getMessage());
-
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','openid')));
-			return;
-		}
-	}
-	
-	function doOpenIdUpdateAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null);
-		
-		if(null == ($contact = DAO_ContactPerson::get($active_contact->id)))
-			return;
-			
-		// Security
-		@$hash_key = DevblocksPlatform::importGPC($_POST['hash_key'],'string','');
-		if(null == ($openid = DAO_OpenIdToContactPerson::getOpenIdByHash($hash_key)) || $openid->contact_person_id != $contact->id)
-			return;
-		
-		@$action = DevblocksPlatform::importGPC($_POST['action'],'string','');
-		
-		switch($action) {
-			case 'remove':
-				DAO_OpenIdToContactPerson::deleteByOpenId($openid->openid_claimed_id);
-				break;
-		}
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','openid')));
-	}
-	
 	function doDeleteAction() {
 		@$captcha = DevblocksPlatform::importGPC($_REQUEST['captcha'], 'string', '');
 		
@@ -617,7 +564,7 @@ class UmScAccountController extends Extension_UmScController {
 		
 		try {
 			// Load the contact account
-			if(null == ($contact = DAO_ContactPerson::get($active_contact->id)))
+			if(null == $active_contact)
 				throw new Exception("Your request could not be processed at this time.");
 				
 			// Compare the captcha
@@ -626,8 +573,8 @@ class UmScAccountController extends Extension_UmScController {
 				throw new Exception("Your text did not match the image.");
 				
 			// Delete the contact account
-			DAO_ContactPerson::delete($contact->id);
-			unset($contact);
+			DAO_Contact::delete($active_contact->id);
+			unset($active_contact);
 				
 			// Clear the session
 			$umsession->destroy();

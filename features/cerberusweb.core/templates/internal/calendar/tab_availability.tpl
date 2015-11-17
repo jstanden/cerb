@@ -164,7 +164,7 @@ $(function() {
 			var context = context_parts[0];
 			var context_id = context_parts[1];
 			
-			var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context=' + context + '&context_id=' + context_id  + '&calendar_id={$calendar->id}',null,false,'600');
+			var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context=' + context + '&context_id=' + context_id  + '&calendar_id={$calendar->id}',null,false,'50%');
 			
 			$popup.one('popup_saved calendar_event_save calendar_event_delete', function(event) {
 				var month = (event.month) ? event.month : '{$calendar_properties.month}';

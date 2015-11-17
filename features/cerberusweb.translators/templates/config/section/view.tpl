@@ -98,8 +98,7 @@
 					{else}{* String not set *}
 						{if 'en_US' != $result.tl_lang_code}
 						{if !empty($english_string)}
-						<img src="{devblocks_url}c=resource&p=cerberusweb.translators&f=images/16x16/warning.png{/devblocks_url}" align="top"> 
-						<b style="color:rgb(175,0,0);">{$langs.$lang_code}</b><br>
+						<b style="color:rgb(175,0,0);"><span class="glyphicons glyphicons-alert"></span> {$langs.$lang_code}</b><br>
 						<span style="color:rgb(50,50,50);">{'translators.config.translate_from'|devblocks_translate:$langs.en_US}</span><br>
 						<table cellpadding="0" cellspacing="0" style="margin-top:5px;margin-bottom:5px;border:1px dotted rgb(200,0,0);">
 						<tr>
@@ -166,8 +165,8 @@
 	
 	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
-		<button type="button" class="action-always-show" onclick="$frm=$(this.form);$frm.find('input:hidden[name=action]').val('saveView');$frm.submit();"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-		<button type="button" class="action-always-show" onclick="document.location.href = '{$smarty.const.DEVBLOCKS_WEBPATH}ajax.php?c=config&a=handleSectionAction&section=translations&action=exportTmx&_csrf_token={$session.csrf_token}';"><img src="{devblocks_url}c=resource&p=cerberusweb.translators&f=images/16x16/document_down.png{/devblocks_url}" align="top"> {'common.export'|devblocks_translate|capitalize}</button>
+		<button type="button" class="action-always-show" onclick="$frm=$(this.form);$frm.find('input:hidden[name=action]').val('saveView');$frm.submit();"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		<button type="button" class="action-always-show" onclick="document.location.href = '{$smarty.const.DEVBLOCKS_WEBPATH}ajax.php?c=config&a=handleSectionAction&section=translations&action=exportTmx&_csrf_token={$session.csrf_token}';"><span class="glyphicons glyphicons-file-export"></span> {'common.export'|devblocks_translate|capitalize}</button>
 	</div>
 	{/if}
 </div>

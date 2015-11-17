@@ -1283,6 +1283,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			'id' => $time_entry->id,
 			'name' => $summary,
 			'permalink' => $url,
+			'updated' => $time_entry->log_date, // [TODO]
 		);
 	}
 
@@ -1407,9 +1408,9 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 				$merge_token_labels,
 				$blank, // ignore
 				array(
-					"#^address_first_name$#",
-					"#^address_full_name$#",
-					"#^address_last_name$#",
+					"#^address_contact_first_name$#",
+					"#^address_contact_full_name$#",
+					"#^address_contact_last_name$#",
 				)
 			);
 		
@@ -1511,7 +1512,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		return $view;
 	}
 	
-	function renderPeekPopup($context_id=0, $view_id='') {
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$id = $context_id; // [TODO] Cleanup
 		
 		$tpl = DevblocksPlatform::getTemplateService();

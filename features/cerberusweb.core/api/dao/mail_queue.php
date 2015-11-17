@@ -922,6 +922,7 @@ class Context_Draft extends Extension_DevblocksContext {
 			'id' => $context_id,
 			'name' => $draft->subject,
 			'permalink' => '',
+			'updated' => $draft->updated,
 		);
 	}
 	

@@ -117,7 +117,7 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::profiles/mail_html_template.tpl');
 	}
 	
-	function savePeekAction() {
+	function savePeekJsonAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
@@ -125,80 +125,92 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!empty($id) && !empty($do_delete)) { // Delete
-			DAO_MailHtmlTemplate::delete($id);
-			
-		} else {
-			@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-			@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
-			@$content = DevblocksPlatform::importGPC($_REQUEST['content'], 'string', '');
-			@$signature = DevblocksPlatform::importGPC($_REQUEST['signature'], 'string', '');
-			
-			if(empty($name))
-				$name = 'New HTML Template';
-
-			/*
-			
-			// Owner
+		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
 		
-			@list($owner_ctx, $owner_ctx_id) = explode(':', $owner, 2);
+		try {
+			if(!$active_worker->is_superuser)
+				throw new Exception_DevblocksAjaxValidationError("You do not have permission to modify this record.");
 			
-			// Make sure we're given a valid ctx
-			
-			switch($owner_ctx) {
-				case CerberusContexts::CONTEXT_APPLICATION:
-				case CerberusContexts::CONTEXT_ROLE:
-				case CerberusContexts::CONTEXT_GROUP:
-				case CerberusContexts::CONTEXT_WORKER:
-					break;
+			if(!empty($id) && !empty($do_delete)) { // Delete
+				DAO_MailHtmlTemplate::delete($id);
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'view_id' => $view_id,
+				));
+				return;
+				
+			} else {
+				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+				@$content = DevblocksPlatform::importGPC($_REQUEST['content'], 'string', '');
+				@$signature = DevblocksPlatform::importGPC($_REQUEST['signature'], 'string', '');
+				
+				if(empty($name))
+					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
+	
+				$owner_ctx = CerberusContexts::CONTEXT_APPLICATION;
+				$owner_ctx_id = 0;
+				
+				$fields = array(
+					DAO_MailHtmlTemplate::UPDATED_AT => time(),
+					DAO_MailHtmlTemplate::NAME => $name,
+					DAO_MailHtmlTemplate::OWNER_CONTEXT => $owner_ctx,
+					DAO_MailHtmlTemplate::OWNER_CONTEXT_ID => $owner_ctx_id,
+					DAO_MailHtmlTemplate::CONTENT => $content,
+					DAO_MailHtmlTemplate::SIGNATURE => $signature,
+				);
+				
+				if(empty($id)) { // New
+					if(false == ($id = DAO_MailHtmlTemplate::create($fields)))
+						return false;
 					
-				default:
-					$owner_ctx = null;
-			}
-			
-			if(empty($owner_ctx))
-				return false;
-			*/
-			
-			$owner_ctx = CerberusContexts::CONTEXT_APPLICATION;
-			$owner_ctx_id = 0;
-			
-			$fields = array(
-				DAO_MailHtmlTemplate::UPDATED_AT => time(),
-				DAO_MailHtmlTemplate::NAME => $name,
-				DAO_MailHtmlTemplate::OWNER_CONTEXT => $owner_ctx,
-				DAO_MailHtmlTemplate::OWNER_CONTEXT_ID => $owner_ctx_id,
-				DAO_MailHtmlTemplate::CONTENT => $content,
-				DAO_MailHtmlTemplate::SIGNATURE => $signature,
-			);
-			
-			if(empty($id)) { // New
-				if(false == ($id = DAO_MailHtmlTemplate::create($fields)))
-					return false;
-				
-				// Context Link (if given)
-				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
-				@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
-				if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
-					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id, $link_context, $link_context_id);
+					// Context Link (if given)
+					@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+					@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+					if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
+						DAO_ContextLink::setLink(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id, $link_context, $link_context_id);
+					}
+					
+					if(!empty($view_id) && !empty($id))
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id);
+					
+				} else { // Edit
+					DAO_MailHtmlTemplate::update($id, $fields);
+					
 				}
+	
+				// Custom fields
+				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id, $field_ids);
 				
-				if(!empty($view_id) && !empty($id))
-					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id);
-				
-			} else { // Edit
-				DAO_MailHtmlTemplate::update($id, $fields);
-				
+				// Files
+				@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_ids'], 'array', array());
+				if(is_array($file_ids))
+					DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id, $file_ids);
 			}
-
-			// Custom fields
-			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id, $field_ids);
 			
-			// Files
-			@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_ids'], 'array', array());
-			if(is_array($file_ids))
-				DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id, $file_ids);
+			echo json_encode(array(
+				'status' => true,
+				'id' => $id,
+				'view_id' => $view_id,
+			));
+			return;
+			
+		} catch (Exception_DevblocksAjaxValidationError $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => $e->getMessage(),
+				'field' => $e->getFieldName(),
+			));
+			return;
+			
+		} catch (Exception $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => 'An error occurred.',
+			));
+			return;
 		}
 	}
 	

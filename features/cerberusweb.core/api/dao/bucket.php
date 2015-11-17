@@ -56,6 +56,25 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		return $group_buckets;
 	}
 	
+	static function getNames(Model_Worker $for_worker=null) {
+		$groups = DAO_Group::getAll();
+		$names = array();
+		
+		foreach($groups as $group) {
+			$buckets = $group->getBuckets();
+			
+			if(is_null($for_worker) || $for_worker->isGroupMember($group->id)) {
+				foreach($buckets as $bucket) {
+					$names[$bucket->id] = $bucket->name;
+				}
+			}
+		}
+		
+		$names = array_unique($names);
+		
+		return $names;
+	}
+	
 	/**
 	 *
 	 * @param bool $nocache
@@ -261,6 +280,15 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	
 	static function random() {
 		return self::_getRandom('bucket');
+	}
+	
+	static function countByGroupId($group_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT count(id) FROM bucket WHERE group_id = %d",
+			$group_id
+		);
+		return intval($db->GetOneSlave($sql));
 	}
 	
 	static function delete($ids) {
@@ -811,6 +839,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			'id' => $bucket->id,
 			'name' => $bucket->name,
 			'permalink' => $url,
+			'updated' => $bucket->updated_at,
 		);
 	}
 	
@@ -1006,7 +1035,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		return $view;
 	}
 	
-	function renderPeekPopup($context_id=0, $view_id='') {
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
@@ -1022,20 +1051,6 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 				$tpl->assign('group', $group);
 				$tpl->assign('members', $group->getMembers());
 			}
-		}
-		
-		// Permissions
-		
-		if(empty($bucket) && !$active_worker->isGroupManager()) {
-			$tpl->assign('error_message', "You can only create new buckets if you're the manager of at least one group.");
-			$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
-			return;
-		}
-		
-		if(!empty($bucket) && !$active_worker->isGroupManager($bucket->group_id)) {
-			$tpl->assign('error_message', "Only group managers can modify this bucket.");
-			$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
-			return;
 		}
 		
 		// Groups
@@ -1078,7 +1093,47 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 
 		// Template
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/bucket/peek.tpl');
+		if($edit) {
+			// ACL
+			
+			if(empty($bucket) && !$active_worker->isGroupManager()) {
+				$tpl->assign('error_message', "You can only create new buckets if you're the manager of at least one group.");
+				$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+				return;
+			}
+			
+			if(!empty($bucket) && !$active_worker->isGroupManager($bucket->group_id)) {
+				$tpl->assign('error_message', "Only group managers can modify this bucket.");
+				$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+				return;
+			}
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/bucket/peek_edit.tpl');
+			
+		} else {
+			$activity_counts = array(
+				'tickets' => DAO_Ticket::countsByBucketId($context_id),
+				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_BUCKET, $context_id),
+				'links' => DAO_ContextLink::count(CerberusContexts::CONTEXT_BUCKET, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			$links = array(
+				CerberusContexts::CONTEXT_BUCKET => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							CerberusContexts::CONTEXT_BUCKET,
+							$context_id,
+							array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/bucket/peek.tpl');
+			
+		}
+		
 	}
 };
 
@@ -1222,6 +1277,11 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Bucket::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'group' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Bucket::GROUP_ID),
+				),
 			'name' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -1259,7 +1319,61 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		if(is_array($fields))
 		foreach($fields as $k => $v) {
 			switch($k) {
-				// ...
+				case 'group':
+					$field_key = SearchFields_Bucket::GROUP_ID;
+					
+					$oper = DevblocksSearchCriteria::OPER_IN;
+					
+					if(preg_match('#^([\!\=]+)(.*)#', $v, $matches)) {
+						$oper_hint = trim($matches[1]);
+						$v = trim($matches[2]);
+						
+						switch($oper_hint) {
+							case '!':
+							case '!=':
+								$oper = DevblocksSearchCriteria::OPER_NIN;
+								break;
+								
+							default:
+								$oper = DevblocksSearchCriteria::OPER_IN;
+								break;
+						}
+					}
+					
+					$groups = DAO_Group::getAll();
+					$patterns = DevblocksPlatform::parseCsvString($v);
+					
+					if(!is_array($patterns))
+						break;
+					
+					$group_ids = array();
+					
+					foreach($patterns as $pattern) {
+						// Match IDs
+						if(is_numeric($pattern) && isset($groups[$pattern])) {
+							$group_id = intval($pattern);
+							$group_ids[$group_id] = true;
+							continue;
+						}
+							
+						foreach($groups as $group_id => $group) {
+							if(isset($group_ids[$group_id]))
+								continue;
+							
+							if(false !== stristr($group->name, $pattern)) {
+								$group_ids[$group_id] = true;
+							}
+						}
+					}
+					
+					if(!empty($group_ids)) {
+						$params[$field_key] = new DevblocksSearchCriteria(
+							$field_key,
+							$oper,
+							array_keys($group_ids)
+						);
+					}
+					break;
 			}
 		}
 		
@@ -1347,6 +1461,19 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_Bucket::GROUP_ID:
+				$groups = DAO_Group::getAll();
+				$strings = array();
+
+				foreach($values as $val) {
+					if(!isset($groups[$val]))
+						continue;
+
+					$strings[] = DevblocksPlatform::strEscapeHtml($groups[$val]->name);
+				}
+				echo implode(", ", $strings);
+				break;
+			
 			default:
 				parent::renderCriteriaParam($param);
 				break;

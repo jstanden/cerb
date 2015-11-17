@@ -46,8 +46,7 @@ $(function() {
 					$popup.trigger(event);
 				}
 				
-				var $layer = $popup.attr('id').substring(5);
-				genericAjaxPopupClose($layer);
+				genericAjaxPopupClose($popup);
 			});
 		});
 		

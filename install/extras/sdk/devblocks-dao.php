@@ -1019,6 +1019,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 			'id' => $<?php echo $ctx_var_model; ?>->id,
 			'name' => $<?php echo $ctx_var_model; ?>->name,
 			'permalink' => $url,
+			//'updated' => $<?php echo $ctx_var_model; ?>->updated_at, // [TODO]
 		);
 	}
 	
@@ -1182,7 +1183,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		return $view;
 	}
 	
-	function renderPeekPopup($context_id=0, $view_id='') {
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		
@@ -1361,17 +1362,6 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		});
 		
 		$(this).find('input:text:first').focus();
-		
-		// Form hints
-		
-		$textarea
-			.focusin(function() {
-				$(this).siblings('div.cerb-form-hint').fadeIn();
-			})
-			.focusout(function() {
-				$(this).siblings('div.cerb-form-hint').fadeOut();
-			})
-			;
 		
 		// @mentions
 		
@@ -2025,14 +2015,7 @@ $(document).keypress(function(event) {
 {/if}
 </script>
 
-{$profile_scripts = Extension_ContextProfileScript::getExtensions(true, $page_context)}
-{if !empty($profile_scripts)}
-{foreach from=$profile_scripts item=renderer}
-	{if method_exists($renderer,'renderScript')}
-		{$renderer->renderScript($page_context, $page_context_id)}
-	{/if}
-{/foreach}
-{/if}
+{include file="devblocks:cerberusweb.core::internal/profiles/profile_common_scripts.tpl"}
 </textarea>
 
 <?php } ?>

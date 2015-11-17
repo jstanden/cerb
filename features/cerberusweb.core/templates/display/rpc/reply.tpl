@@ -21,7 +21,7 @@
 				<tr>
 					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{'message.header.to'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="to" value="{$to}" placeholder="{if $is_forward}These recipients will receive this forwarded message{else}These recipients will automatically be included in all future correspondence{/if}" class="required" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
+						<input type="text" size="45" name="to" value="{$to}" placeholder="{if $is_forward}These recipients will receive this forwarded message{else}These recipients will automatically be included in all future correspondence as participants{/if}" class="required" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
 						{if !$is_forward}
 							{if !empty($suggested_recipients)}
 								<div id="reply{$message->id}_suggested">
@@ -215,7 +215,7 @@
 </textarea>
 {/if}
 
-			<div class="cerb-form-hint" style="display:block;">(Use #commands to perform additional actions)</div>
+			<b>(Use #commands to perform additional actions)</b>
 		</td>
 	</tr>
 	<tr>
@@ -229,12 +229,12 @@
 					{foreach from=$draft->params.file_ids item=file_id}
 						{$file = DAO_Attachment::get($file_id)}
 						{if !empty($file)}
-						<li><input type="hidden" name="file_ids[]" value="{$file_id}">{$file->display_name} ({$file->storage_size} bytes) <a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+						<li><input type="hidden" name="file_ids[]" value="{$file_id}">{$file->display_name} ({$file->storage_size} bytes) <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 						{/if} 
 					{/foreach}
 				{elseif $is_forward && !empty($forward_attachments)}
 					{foreach from=$forward_attachments item=attach}
-						<li><input type="hidden" name="file_ids[]" value="{$attach->id}">{$attach->display_name} ({$attach->storage_size} bytes) <a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+						<li><input type="hidden" name="file_ids[]" value="{$attach->id}">{$attach->display_name} ({$attach->storage_size} bytes) <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 					{/foreach}
 				{/if}
 				</ul>

@@ -6,7 +6,7 @@
 	{foreach from=$params.worker_id item=worker_id}
 		{$context_worker = $workers.$worker_id}
 		{if !empty($context_worker)}
-		<li>{$context_worker->getName()}<input type="hidden" name="{$namePrefix}[worker_id][]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+		<li>{$context_worker->getName()}<input type="hidden" name="{$namePrefix}[worker_id][]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 		{/if}
 	{/foreach}
 	{/if}
@@ -21,7 +21,7 @@
 	{foreach from=$params.group_id item=group_id}
 		{$context_group = $groups.$group_id}
 		{if !empty($context_group)}
-		<li>{$context_group->name}<input type="hidden" name="{$namePrefix}[group_id][]" value="{$context_group->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+		<li>{$context_group->name}<input type="hidden" name="{$namePrefix}[group_id][]" value="{$context_group->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 		{/if}
 	{/foreach}
 	{/if}

@@ -15,7 +15,7 @@
 |	http://www.cerbweb.com	    http://www.webgroupmedia.com/
 ***********************************************************************/
 
-abstract class AbstractEvent_ContactPerson extends Extension_DevblocksEvent {
+abstract class AbstractEvent_Contact extends Extension_DevblocksEvent {
 	protected $_event_id = null; // override
 
 	/**
@@ -26,7 +26,7 @@ abstract class AbstractEvent_ContactPerson extends Extension_DevblocksEvent {
 	function generateSampleEventModel(Model_TriggerEvent $trigger, $context_id=null) {
 		
 		if(empty($context_id)) {
-			$context_id = DAO_ContactPerson::random();
+			$context_id = DAO_Contact::random();
 		}
 		
 		return new Model_DevblocksEvent(
@@ -45,12 +45,12 @@ abstract class AbstractEvent_ContactPerson extends Extension_DevblocksEvent {
 		@$model = $event_model->params['context_model'] ?: $event_model->params['context_id'];
 		
 		/**
-		 * Contact Person
+		 * Contact
 		 */
 		
 		$contact_labels = array();
 		$contact_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_CONTACT_PERSON, $model, $contact_labels, $contact_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_CONTACT, $model, $contact_labels, $contact_values, null, true);
 
 			// Merge
 			CerberusContexts::merge(
@@ -71,7 +71,7 @@ abstract class AbstractEvent_ContactPerson extends Extension_DevblocksEvent {
 	}
 	
 	function renderSimulatorTarget($trigger, $event_model) {
-		$context = CerberusContexts::CONTEXT_CONTACT_PERSON;
+		$context = CerberusContexts::CONTEXT_CONTACT;
 		$context_id = $event_model->params['context_id'];
 		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
 	}
@@ -80,13 +80,13 @@ abstract class AbstractEvent_ContactPerson extends Extension_DevblocksEvent {
 		$vals = array(
 			'contact_id' => array(
 				'label' => 'Contact',
-				'context' => CerberusContexts::CONTEXT_CONTACT_PERSON,
+				'context' => CerberusContexts::CONTEXT_CONTACT,
 			),
 			'contact_email_id' => array(
 				'label' => 'Email',
 				'context' => CerberusContexts::CONTEXT_ADDRESS,
 			),
-			'contact_email_org_id' => array(
+			'contact_org_id' => array(
 				'label' => 'Org',
 				'context' => CerberusContexts::CONTEXT_ORG,
 			),
@@ -156,7 +156,7 @@ abstract class AbstractEvent_ContactPerson extends Extension_DevblocksEvent {
 				
 				switch($as_token) {
 					case 'contact_link':
-						$from_context = CerberusContexts::CONTEXT_CONTACT_PERSON;
+						$from_context = CerberusContexts::CONTEXT_CONTACT;
 						@$from_context_id = $dict->contact_id;
 						break;
 					default:

@@ -6,8 +6,8 @@
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 	
 		<b>History for:</b> 
-		<label><input type="radio" name="scope" value="email" onclick="this.form.a.value='doTicketHistoryScope';this.form.submit();" {if empty($scope) || 'email'==$scope}checked="checked"{/if}> {'ticket.requesters'|devblocks_translate|capitalize}</label>
-		{if !empty($ticket->org_id)}<label><input type="radio" name="scope" value="org" onclick="this.form.a.value='doTicketHistoryScope';this.form.submit();" {if 'org'==$scope}checked="checked"{/if}> {'contact_org.name'|devblocks_translate|capitalize}</label>{/if}
+		<label><input type="radio" name="scope" value="email" onclick="this.form.a.value='doTicketHistoryScope';this.form.submit();" {if empty($scope) || 'email'==$scope}checked="checked"{/if}> {'common.participants'|devblocks_translate|capitalize}</label>
+		{if !empty($ticket->org_id)}<label><input type="radio" name="scope" value="org" onclick="this.form.a.value='doTicketHistoryScope';this.form.submit();" {if 'org'==$scope}checked="checked"{/if}> {'common.organization'|devblocks_translate|capitalize}</label>{/if}
 		<label><input type="radio" name="scope" value="domain" onclick="this.form.a.value='doTicketHistoryScope';this.form.submit();" {if 'domain'==$scope}checked="checked"{/if}> Sender Domain</label>
 	</form>
 </div>

@@ -1,6 +1,6 @@
 <div id="divPortalAddTemplate">
 	{if !empty($templates)}
-		<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmPortalAddTemplatePeek" name="frmPortalAddTemplatePeek" onsubmit="return false;">
+		<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmPortalAddTemplatePeek" onsubmit="return false;">
 		<input type="hidden" name="c" value="config">
 		<input type="hidden" name="a" value="handleSectionAction">
 		<input type="hidden" name="section" value="portal">
@@ -18,7 +18,7 @@
 		<br>
 		
 		{if $active_worker->is_superuser}
-			<button type="button" onclick="genericAjaxPost('frmPortalAddTemplatePeek', 'divPortalAddTemplate', '');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
+			<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 		{else}
 			<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>	
 		{/if}
@@ -32,10 +32,16 @@
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
+	var $popup = genericAjaxPopupFind('#divPortalAddTemplate');
 	
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"Add Custom Template");
+		$popup.dialog('option','title',"Add Custom Template");
+		
+		$popup.find('button.submit').click(function() {
+			genericAjaxPost('frmPortalAddTemplatePeek', 'divPortalAddTemplate', '', function() {
+				$popup.trigger('popup_open');
+			});
+		});
 	});
 });
 </script>

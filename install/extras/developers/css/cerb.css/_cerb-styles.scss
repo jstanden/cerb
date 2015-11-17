@@ -216,6 +216,7 @@ DIV.cerb-delta-slider-container {
 // Special links
 
 A.no-underline {
+	cursor: pointer;
 	text-decoration: none;
 
 	&:hover {
@@ -350,22 +351,6 @@ DIV.emailbody SPAN.placeholder {
 // Buttons
 
 BUTTON {
-	DIV.badge-count {
-		font-size: 12px;
-
-		padding: 0px 5px;
-		font-weight: 500;
-		display: inline-block;
-		vertical-align: middle;
-
-		margin-top: -1px;
-
-		@include border-radius(10px);
-
-		background-color: rgb(120,120,120);
-		color: $white;
-	}
-
 	&:hover DIV.badge-count {
 		background-color: rgb(71,133,210);
 		color: $white;
@@ -946,11 +931,12 @@ UL.bubbles {
 
 	LI {
 		display:inline-block;
+		position: relative;
 		list-style-type:none;
 		list-style:none;
 		line-height:1.9em;
 		white-space:nowrap;
-		padding:0 0.2em 0 0.2em;
+		padding:0 0.5em;
 		margin:2px;
 		color:rgb(50,115,185);
 		border:1px solid rgb(197,219,236);
@@ -979,9 +965,59 @@ UL.bubbles {
 			}
 		}
 	}
+	
+	&.chooser-container {
+		LI {
+			//color: rgb(100,100,100);
+			//border-color: rgb(215,215,215);
+			//background: none;
+		
+			//A {
+			//	color: rgb(100,100,100);
+			//}
+			
+			IMG.cerb-avatar {
+				height:16px;
+				width:16px;
+				margin-right:3px;
+				border-radius:2px;
+				vertical-align:middle;
+			}
+			
+			.glyphicons-circle-remove {
+				cursor: pointer;
+				position: absolute;
+				top: -0.5em;
+				right: -0.5em;
+				visibility: hidden;
+			}
+			
+			&:hover {
+				.glyphicons-circle-remove {
+					visibility: visible;
+				}
+			}
+		}
+	}
 }
 
 // Badges
+
+DIV.badge-count {
+	font-size: 12px;
+
+	padding: 0px 5px;
+	font-weight: 500;
+	display: inline-block;
+	vertical-align: middle;
+
+	margin-top: -1px;
+
+	@include border-radius(10px);
+
+	background-color: rgb(120,120,120);
+	color: $white;
+}
 
 DIV.badge {
 	display:inline-block;
@@ -1062,14 +1098,6 @@ SPAN.tag {
 		background-color:rgb(255,138,0);
 		color:$white;
 	}
-}
-
-// Form hints
-
-DIV.cerb-form-hint {
-	margin: 0px 0px 5px 0px;
-	display: none;
-	font-weight: bold;
 }
 
 // Property List
@@ -1158,13 +1186,13 @@ DIV.cerb-profile-toolbar {
 
 DIV.cerb-popupmenu {
 	min-width:200px;
-	margin:0px;
+	margin:5px 0px 20px 0px;
 	padding:5px;
 	display:none;
 	background-color:$white;
-	border:1px solid rgb(100,135,225);
+	border:1px solid rgb(204,204,204);
 	
-	@include box-shadow-trbl(0px, 5px, 15px, 0px, rgb(175,175,175));
+	@include box-shadow-trbl(0px, 0px, 15px, 0px, rgb(175,175,175));
 	
 	&.cerb-float {
 		position: absolute;
@@ -1172,18 +1200,47 @@ DIV.cerb-popupmenu {
 		float: left;
 		border: 0;
 	}
+	
+	> div.cerb-popupmenu-item {
+		padding:2px;
+		font-weight:normal;
+		cursor:pointer;
+
+		A {
+			text-decoration:none;
+			color:rgb(74,110,158);
+			font-weight:bold;
+		}
+
+		HR {
+			height:1px;
+			padding:0px;
+			margin:5px 5px;
+			border:0px;
+			border-top:1px dashed rgb(200,200,200);
+		}
+
+		&:hover {
+			background-color:rgb(105,140,221);
+			color:$white;
+
+			A {
+				color:$white;
+			}
+		}
+	}
 }
 
 UL.cerb-popupmenu {
 	min-width:200px;
 	list-style:none;
-	margin:0px;
+	margin:5px 0px 20px 0px;
 	padding:5px;
 	display:none;
 	background-color:$white;
-	border:1px solid rgb(100,135,225);
+	border:1px solid rgb(204,204,204);
 
-	@include box-shadow-trbl(0px, 5px, 15px, 0px, rgb(175,175,175));
+	@include box-shadow-trbl(0px, 0px, 15px, 0px, rgb(175,175,175));
 
 	&.cerb-float {
 		position: absolute;

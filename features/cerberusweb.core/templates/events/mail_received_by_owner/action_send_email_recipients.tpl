@@ -46,7 +46,7 @@
 	{foreach from=$params.bundle_ids item=bundle_id}
 		{$bundle = DAO_FileBundle::get($bundle_id)}
 		{if !empty($bundle)}
-		<li><input type="hidden" name="{$namePrefix}[bundle_ids][]" value="{$bundle_id}">{$bundle->name} <a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+		<li><input type="hidden" name="{$namePrefix}[bundle_ids][]" value="{$bundle_id}">{$bundle->name} <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 		{/if} 
 	{/foreach}
 	</ul>

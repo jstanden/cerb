@@ -528,11 +528,6 @@
 				<seg>%s is generating simulated tickets </seg>
 			</tuv>
 		</tu>
-		<tu tuid="activity.tab.tasks">
-			<tuv xml:lang="it_IT">
-				<seg>Attività</seg>
-			</tuv>
-		</tu>
 		<tu tuid="activity.tickets">
 			<tuv xml:lang="it_IT">
 				<seg>%s sta navigando %s tickets</seg>
@@ -548,16 +543,6 @@
 				<seg>%s sta consultando %s tickets </seg>
 			</tuv>
 		</tu>
-		<tu tuid="address.first_name">
-			<tuv xml:lang="it_IT">
-				<seg>nome</seg>
-			</tuv>
-		</tu>
-		<tu tuid="address.full_name">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="address.is_banned">
 			<tuv xml:lang="it_IT">
 				<seg>Banned</seg>
@@ -571,11 +556,6 @@
 		<tu tuid="address.is_defunct">
 			<tuv xml:lang="it_IT">
 				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="address.last_name">
-			<tuv xml:lang="it_IT">
-				<seg>Cognome</seg>
 			</tuv>
 		</tu>
 		<tu tuid="address.num_nonspam">
@@ -633,7 +613,7 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="addy_book.peek.title">
+		<tu tuid="common.email_address">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>
@@ -719,11 +699,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="call_entry.model.is_outgoing">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="call_entry.model.phone">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>
@@ -1083,6 +1058,11 @@
 				<seg/>
 			</tuv>
 		</tu>
+		<tu tuid="common.email_addresses">
+			<tuv xml:lang="it_IT">
+				<seg/>
+			</tuv>
+		</tu>
 		<tu tuid="common.enabled">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -1243,6 +1223,11 @@
 				<seg/>
 			</tuv>
 		</tu>
+		<tu tuid="common.last_login">
+			<tuv xml:lang="it_IT">
+				<seg/>
+			</tuv>
+		</tu>
 		<tu tuid="common.links">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -1358,6 +1343,21 @@
 				<seg>Nome</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.name.first">
+			<tuv xml:lang="it_IT">
+				<seg>nome</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.name.full">
+			<tuv xml:lang="it_IT">
+				<seg/>
+			</tuv>
+		</tu>
+		<tu tuid="common.name.last">
+			<tuv xml:lang="it_IT">
+				<seg>Cognome</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.never">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -1433,6 +1433,11 @@
 				<seg/>
 			</tuv>
 		</tu>
+		<tu tuid="common.organization">
+			<tuv xml:lang="it_IT">
+				<seg>organizzazione</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.owner">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -1443,9 +1448,19 @@
 				<seg>password</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.password.salt">
+			<tuv xml:lang="it_IT">
+				<seg/>
+			</tuv>
+		</tu>
 		<tu tuid="common.permalink">
 			<tuv xml:lang="it_IT">
 				<seg/>
+			</tuv>
+		</tu>
+		<tu tuid="common.phone">
+			<tuv xml:lang="it_IT">
+				<seg>telefono</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.preview">
@@ -1763,6 +1778,11 @@
 				<seg/>
 			</tuv>
 		</tu>
+		<tu tuid="common.website">
+			<tuv xml:lang="it_IT">
+				<seg>website</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.week">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -1833,16 +1853,6 @@
 				<seg>paese</seg>
 			</tuv>
 		</tu>
-		<tu tuid="contact_org.name">
-			<tuv xml:lang="it_IT">
-				<seg>organizzazione</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.phone">
-			<tuv xml:lang="it_IT">
-				<seg>telefono</seg>
-			</tuv>
-		</tu>
 		<tu tuid="contact_org.postal">
 			<tuv xml:lang="it_IT">
 				<seg>posta!</seg>
@@ -1858,19 +1868,9 @@
 				<seg>via</seg>
 			</tuv>
 		</tu>
-		<tu tuid="contact_org.website">
-			<tuv xml:lang="it_IT">
-				<seg>website</seg>
-			</tuv>
-		</tu>
 		<tu tuid="core.menu.activity">
 			<tuv xml:lang="it_IT">
 				<seg>attività</seg>
-			</tuv>
-		</tu>
-		<tu tuid="core.menu.address_book">
-			<tuv xml:lang="it_IT">
-				<seg>rubrica</seg>
 			</tuv>
 		</tu>
 		<tu tuid="crm.common.opportunity">
@@ -2059,21 +2059,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="dao.confirmation_code.namespace_key">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.contact_person.auth_password">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.contact_person.auth_salt">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.contact_person.last_login">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>
@@ -3953,11 +3938,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="preferences.account.email">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="preferences.account.email.address">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -5298,16 +5278,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="worker.first_name">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="worker.full_name">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="worker.is_superuser">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -5319,11 +5289,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="worker.last_activity_date">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="worker.last_name">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>

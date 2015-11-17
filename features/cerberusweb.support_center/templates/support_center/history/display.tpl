@@ -15,9 +15,9 @@
 	
 	<div style="padding:5px;">
 		{if $ticket.t_is_closed}
-		<button type="button" onclick="this.form.closed.value='0';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/folder_out.gif{/devblocks_url}" align="top"> {'common.reopen'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="this.form.closed.value='0';this.form.submit();"><span class="glyphicons glyphicons-circle-ok"></span> {'common.reopen'|devblocks_translate|capitalize}</button>
 		{else}
-		<button type="button" onclick="this.form.closed.value='1';this.form.submit();"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/folder_ok.gif{/devblocks_url}" align="top"> {'common.close'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="this.form.closed.value='1';this.form.submit();"><span class="glyphicons glyphicons-circle-ok"></span> {'common.close'|devblocks_translate|capitalize}</button>
 		{/if}
 	</div>
 </form>
@@ -25,8 +25,8 @@
 {* Message History *}
 {$badge_extensions = DevblocksPlatform::getExtensions('cerberusweb.support_center.message.badge', true)}
 {foreach from=$messages item=message key=message_id}
-	{assign var=headers value=$message->getHeaders()}
-	{assign var=sender value=$message->getSender()}
+	{$headers = $message->getHeaders()}
+	{$sender = $message->getSender()}
 	<div class="message {if $message->is_outgoing}outbound_message{else}inbound_message{/if}" style="overflow:auto;">
 
 	{foreach from=$badge_extensions item=extension}
@@ -70,7 +70,7 @@
 		</div>
 	{/if}
 	
-	<button type="button" onclick="var $div = $(this).next('div.reply').toggle(); $div.find('textarea').focus();">Reply</button>
+	<button type="button" onclick="var $div = $(this).next('div.reply').toggle(); $div.find('textarea').focus();"><span class="glyphicons glyphicons-share"></span> Reply</button>
 	
 	<div class="reply" style="display:none;margin-left:15px;">
 		<div class="header"><h2>{'portal.sc.public.history.reply'|devblocks_translate}</h2></div>
@@ -81,9 +81,9 @@
 		
 		<b>{'message.header.from'|devblocks_translate|capitalize}:</b> 
 		<select name="from">
-			{$contact_addresses = $active_contact->getAddresses()}
+			{$contact_addresses = $active_contact->getEmails()}
 			{foreach from=$contact_addresses item=address}
-			<option value="{$address->email}" {if 0==strcasecmp($address->id,$active_contact->email_id)}selected="selected"{/if}>{$address->email}</option>
+			<option value="{$address->email}" {if 0==strcasecmp($address->id,$active_contact->primary_email_id)}selected="selected"{/if}>{$address->email}</option>
 			{/foreach}
 		</select>
 		<br>
@@ -95,8 +95,8 @@
 			<input type="file" name="attachments[]" class="multi"><br>
 		</fieldset>
 		
-		<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top"> {'portal.public.send_message'|devblocks_translate}</button>
-		<button type="button" onclick="$(this).closest('div.reply').fadeOut();"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/forbidden.png{/devblocks_url}" align="top"> {'common.cancel'|devblocks_translate|capitalize}</button>
+		<button type="submit"><span class="glyphicons glyphicons-send"></span> {'portal.public.send_message'|devblocks_translate}</button>
+		<button type="button" onclick="$(this).closest('div.reply').fadeOut();"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 		</form>
 	</div>
 	

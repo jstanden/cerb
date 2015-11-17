@@ -1,11 +1,11 @@
 <script type="text/javascript">
 $(function() {
 	var $view = $('div#view{$view->id}');
-	var $view_frm = $('form#viewForm{$view->id}');
-	var $view_actions = $view_frm.find('#{$view->id}_actions');
+	var $view_form = $('form#viewForm{$view->id}');
+	var $view_actions = $view_form.find('#{$view->id}_actions');
 	
 	// Row selection and hover effect
-	$view_frm.find('TABLE.worklistBody TBODY')
+	$view_form.find('TABLE.worklistBody TBODY')
 		.click(function(e) {
 			var $target = $(e.target);
 		
@@ -75,7 +75,7 @@ $(function() {
 		;
 	
 	// Header clicks
-	$view_frm.find('table.worklistBody thead th, table.worklistBody tbody th')
+	$view_form.find('table.worklistBody thead th, table.worklistBody tbody th')
 		.click(function(e) {
 			$target = $(e.target);
 			if(!$target.is('th'))
@@ -109,12 +109,12 @@ $(function() {
 	});
 	
 	$view.bind('select_all', function(e) {
-		$view = $('div#view' + e.view_id);
-		$view_form = $view.find('#viewForm' + e.view_id);
-		$checkbox = $view.find('table.worklist input:checkbox.select-all');
+		var $view = $('div#view' + e.view_id);
+		var $view_form = $view.find('#viewForm' + e.view_id);
+		var $checkbox = $view.find('table.worklist input:checkbox.select-all');
 		checkAll('viewForm' + e.view_id, e.checked);
-		$rows = $view_form.find('table.worklistBody').find('tbody > tr');
-		$view_actions = $('#' + e.view_id + '_actions');
+		var $rows = $view_form.find('table.worklistBody').find('tbody > tr');
+		var $view_actions = $('#' + e.view_id + '_actions');
 		
 		if(e.checked) {
 			$checkbox.prop('checked', e.checked);
@@ -132,7 +132,7 @@ $(function() {
 
 	//Condense the TH headers
 	
-	var $view_thead = $view_frm.find('TABLE.worklistBody THEAD');
+	var $view_thead = $view_form.find('TABLE.worklistBody THEAD');
 	
 	// Remove the heading labels to let the browser find the content-based widths
 	$view_thead.find('TH').each(function() {
@@ -184,6 +184,9 @@ $(function() {
 		
 	// View actions
 	$view_actions.find('button,.action-on-select').not('.action-always-show').hide();
+	
+	// Peeks
+	$view.find('.cerb-peek-trigger').cerbPeekTrigger({ view_id: '{$view->id}' });
 });
 </script>
 

@@ -248,7 +248,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 				case CerberusContexts::CONTEXT_OPPORTUNITY:
 				case CerberusContexts::CONTEXT_TICKET:
 				case CerberusContexts::CONTEXT_TASK:
-					if(null != ($worker_address = DAO_Address::lookupAddress($active_worker->email, false))) {
+					if(null != ($worker_address = $active_worker->getEmailModel())) {
 						if(!empty($activity_id)) {
 							$activity = DAO_TimeTrackingActivity::get($activity_id);
 						}

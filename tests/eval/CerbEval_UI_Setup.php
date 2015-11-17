@@ -116,7 +116,6 @@ class CerbEval_UI_Setup extends PHPUnit_Extensions_SeleniumTestCase {
 	
 	public function testSetupPlugins() {
 		$this->_runTestCase('setup/SetupPlugins.htm');
-		$this->_runTestCase('setup/plugins/InstallGravatar.htm');
 	}
 	
 	public function testCalendars() {

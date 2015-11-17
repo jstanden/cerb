@@ -768,7 +768,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS, '*', 'has_attachments', $translate->_('message.search.has_attachments'), Model_CustomField::TYPE_CHECKBOX),
 			SearchFields_Message::VIRTUAL_MESSAGE_HEADER => new DevblocksSearchField(SearchFields_Message::VIRTUAL_MESSAGE_HEADER, '*', 'message_header', $translate->_('message.header')),
 			SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER, '*', 'in_groups_of_worker', $translate->_('ticket.groups_of_worker')),
-			SearchFields_Message::VIRTUAL_TICKET_STATUS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_STATUS, '*', 'ticket_status', $translate->_('ticket.status')),
+			SearchFields_Message::VIRTUAL_TICKET_STATUS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_STATUS, '*', 'ticket_status', $translate->_('common.status')),
 				
 			SearchFields_Message::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('common.content'), 'FT'),
 			SearchFields_Message::FULLTEXT_NOTE_CONTENT => new DevblocksSearchField(self::FULLTEXT_NOTE_CONTENT, 'ftnc', 'content', $translate->_('message.note.content'), 'FT'),
@@ -853,7 +853,9 @@ class Model_Message {
 	}
 
 	function getHeaders() {
-		return DAO_MessageHeader::getAll($this->id);
+		$headers = DAO_MessageHeader::getAll($this->id);
+		ksort($headers);
+		return $headers;
 	}
 
 	/**
@@ -868,6 +870,13 @@ class Model_Message {
 		}
 		
 		return $this->_sender_object;
+	}
+	
+	function getWorker() {
+		if(empty($this->worker_id))
+			return null;
+		
+		return DAO_Worker::get($this->worker_id);
 	}
 	
 	/**
@@ -983,8 +992,7 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 				
 				// Add sender fields
 				if(false != ($sender = $message->getSender())) {
-					$doc['sender_first_name'] = $sender->first_name;
-					$doc['sender_last_name'] = $sender->last_name;
+					$doc['sender_name'] = $sender->getName();
 					$doc['sender_email'] = $sender->email;
 				}
 				
@@ -2666,6 +2674,7 @@ class Context_Message extends Extension_DevblocksContext {
 			'id' => $context_id,
 			'name' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
 			'permalink' => $url_writer->writeNoProxy(sprintf('c=profiles&type=ticket&mask=%s&focus=message&focusid=%d', $ticket->mask, $message->id), true),
+			'updated' => $ticket->updated_date,
 		);
 	}
 	

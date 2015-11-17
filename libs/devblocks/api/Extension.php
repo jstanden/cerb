@@ -43,7 +43,25 @@ class DevblocksExtension {
 };
 
 class Exception_Devblocks extends Exception {};
+
 class Exception_DevblocksAjaxError extends Exception_Devblocks {};
+
+class Exception_DevblocksAjaxValidationError extends Exception_Devblocks {
+	private $_field_name = null;
+	
+	function __construct($message=null, $field_name=null) {
+		parent::__construct($message);
+		$this->_field_name = $field_name;
+	}
+	
+	/**
+	 * 
+	 * @return string
+	 */
+	function getFieldName() {
+		return $this->_field_name;
+	}
+};
 
 interface IDevblocksHandler_Session {
 	static function open($save_path, $session_name);
@@ -57,7 +75,7 @@ interface IDevblocksHandler_Session {
 };
 
 interface IDevblocksContextPeek {
-	function renderPeekPopup($context_id=0, $view_id='');
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false);
 }
 
 interface IDevblocksContextImport {
@@ -385,7 +403,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	public function getSearchView($view_id=null) {
 		if(empty($view_id)) {
 			$view_id = sprintf("search_%s",
-				str_replace('.','_',DevblocksPlatform::strToPermalink($this->id))
+				str_replace('.','_',DevblocksPlatform::strToPermalink($this->id,'_'))
 			);
 		}
 

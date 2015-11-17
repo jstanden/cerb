@@ -464,7 +464,7 @@ var cAjaxCalls = function() {
 	}
 
 	this.emailAutoComplete = function(sel, options) {
-		var url = DevblocksAppPath+'ajax.php?c=contacts&a=getEmailAutoCompletions&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
+		var url = DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=cerberusweb.contexts.address&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
 		if(null == options) options = { };
 
 		if(null == options.minLength)
@@ -500,9 +500,9 @@ var cAjaxCalls = function() {
 				var value = $(this).val();
 				var pos = value.lastIndexOf(',');
 				if(-1 != pos) {
-					$(this).val(value.substring(0,pos)+', '+ui.item.value+', ');
+					$(this).val(value.substring(0,pos)+', '+ui.item.label+', ');
 				} else {
-					$(this).val(ui.item.value+', ');
+					$(this).val(ui.item.label+', ');
 				}
 				return false;
 			}
@@ -586,7 +586,7 @@ var cAjaxCalls = function() {
 					if(0==$ul.find('input:hidden[value="'+event.values[idx]+'"]').length) {
 						var $li = $('<li/>').text(event.labels[idx]);
 						var $hidden = $('<input type="hidden">').attr('name', field_name).attr('value',event.values[idx]).appendTo($li);
-						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>').appendTo($li);; 
+						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li); 
 						
 						if(null != options.style)
 							$li.addClass(options.style);
@@ -622,7 +622,7 @@ var cAjaxCalls = function() {
 						if(0 == $ul.find('input:hidden[value="'+$value+'"]').length) {
 							var $li = $('<li/>').text($label);
 							var $hidden = $('<input type="hidden">').attr('name', field_name).attr('title', $label).attr('value', $value).appendTo($li);
-							var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>').appendTo($li);
+							var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>').appendTo($li);
 							$ul.append($li);
 						}
 					}
@@ -720,7 +720,7 @@ var cAjaxCalls = function() {
 					if(0==$ul.find('input:hidden[value="'+event.values[idx]+'"]').length) {
 						var $li = $('<li/>').text(event.labels[idx]);
 						var $hidden = $('<input type="hidden">').attr('name', field_name + (options.single ? '' : '[]')).attr('value', event.values[idx]).appendTo($li);
-						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>').appendTo($li);
+						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
 						
 						if(null != options.style)
 							$li.addClass(options.style);

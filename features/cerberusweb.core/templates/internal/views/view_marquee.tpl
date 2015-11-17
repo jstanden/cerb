@@ -3,7 +3,7 @@
 <div class="ui-widget cerb-view-marquee">
 	<div class="ui-state-highlight ui-corner-all" style="margin: 0 0 .5em 0; padding: 0 .7em;"> 
 		<div style="float:right;margin-top:5px;margin-right:5px;">
-			(<a href="javascript:;" onclick="$(this).closest('div.cerb-view-marquee').html('');">dismiss</a>)
+			<a href="javascript:;" onclick="$(this).closest('div.cerb-view-marquee').html('');"><span class="glyphicons glyphicons-circle-remove"></span></a>
 		</div>
 		
 		<p>

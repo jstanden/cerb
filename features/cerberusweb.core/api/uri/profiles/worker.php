@@ -30,7 +30,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$request = DevblocksPlatform::getHttpRequest();
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		
+
 		$stack = $request->path;
 		
 		@array_shift($stack); // profiles
@@ -74,14 +74,16 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 			'label' => ucfirst($translate->_('common.email')),
 			'type' => Model_CustomField::TYPE_LINK,
 			'params' => array('context' => CerberusContexts::CONTEXT_ADDRESS),
-			'value' => $worker->getAddress()->id,
+			'value' => $worker->email_id,
 		);
 		
-		$properties['title'] = array(
-			'label' => ucfirst($translate->_('worker.title')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $worker->title,
-		);
+		if(!empty($worker->location)) {
+			$properties['location'] = array(
+				'label' => ucfirst($translate->_('common.location')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $worker->location,
+			);
+		}
 		
 		$properties['is_superuser'] = array(
 			'label' => ucfirst($translate->_('worker.is_superuser')),
@@ -89,11 +91,21 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 			'value' => $worker->is_superuser,
 		);
 		
-		$properties['is_disabled'] = array(
-			'label' => ucfirst($translate->_('common.disabled')),
-			'type' => Model_CustomField::TYPE_CHECKBOX,
-			'value' => $worker->is_disabled,
-		);
+		if(!empty($worker->mobile)) {
+			$properties['mobile'] = array(
+				'label' => ucfirst($translate->_('common.mobile')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $worker->mobile,
+			);
+		}
+		
+		if(!empty($worker->phone)) {
+			$properties['phone'] = array(
+				'label' => ucfirst($translate->_('common.phone')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $worker->phone,
+			);
+		}
 		
 		$properties['language'] = array(
 			'label' => ucfirst($translate->_('worker.language')),
@@ -107,12 +119,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 			'value' => $worker->timezone,
 		);
 		
-		$properties['at_mention_name'] = array(
-			'label' => ucfirst($translate->_('worker.at_mention_name')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $worker->at_mention_name,
-		);
-		
 		if(!empty($worker->calendar_id)) {
 			$properties['calendar_id'] = array(
 				'label' => ucfirst($translate->_('common.calendar')),
@@ -121,12 +127,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				'value' => $worker->calendar_id,
 			);
 		}
-		
-		$properties['auth_extension'] = array(
-			'label' => ucfirst($translate->_('worker.auth_extension_id')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $worker->auth_extension_id,
-		);
 		
 		// Custom Fields
 

@@ -1,8 +1,9 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmCalendarPeek">
+{$form_id = "frmCalendarPeek{uniqid()}"}
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="calendars">
-<input type="hidden" name="action" value="saveCalendarPeek">
+<input type="hidden" name="action" value="saveCalendarPeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
 <input type="hidden" name="do_delete" value="0">
@@ -180,16 +181,18 @@
 	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
 	
 	<div>
-		Are you sure you want to delete this calendar?
+		Are you sure you want to permanently delete this calendar?
 	</div>
 	
-	<button type="button" class="delete" onclick="var $frm=$(this).closest('form');$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('button.submit').click();"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Confirm</button>
+	<button type="button" class="delete"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.yes'|devblocks_translate|capitalize}</button>
 	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 </fieldset>
 {/if}
 
+<div class="status"></div>
+
 <div class="buttons">
-	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmCalendarPeek','{$view_id}', false, 'calendar_save');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	{if !empty($model->id)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
@@ -203,24 +206,29 @@
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
+	var $popup = genericAjaxPopupFind('#{$form_id}');
 	
 	$popup.one('popup_open', function(event,ui) {
-		var $this = $(this);
+		$popup.dialog('option','title',"{'common.calendar'|devblocks_translate|capitalize|escape:'javascript'}");
 		
-		$this.dialog('option','title',"{'Calendar'}");
+		// Buttons
 		
-		$this.find('fieldset.calendar-events input:hidden.color-picker').miniColors({
+		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
+		
+		// Options
+		
+		$popup.find('fieldset.calendar-events input:hidden.color-picker').miniColors({
 			color_favorites: ['#A0D95B','#FEAF03','#FCB3B3','#FF6666','#C5DCFA','#85BAFF','#E8F554','#F4A3FE','#C8C8C8']
 		});
 		
-		$this.find('select.datasource-selector').change(function(e) {
+		$popup.find('select.datasource-selector').change(function(e) {
 			var $select = $(this);
 			var params_prefix = $select.attr('params_prefix');
 			genericAjaxGet($select.siblings('div.calendar-datasource-params'), 'c=internal&a=handleSectionAction&section=calendars&action=getCalendarDatasourceParams&extension_id=' + $select.val() + '&params_prefix=' + params_prefix);
 		});
 		
-		$this.find('input:radio[name="params[manual_disabled]"]').change(function() {
+		$popup.find('input:radio[name="params[manual_disabled]"]').change(function() {
 			var $radio = $(this);
 			var $params = $(this).closest('form').find('fieldset.calendar-events');
 			
@@ -231,7 +239,7 @@ $(function() {
 			}
 		});
 		
-		$this.find('input:radio[name="params[sync_enabled]"]').change(function() {
+		$popup.find('input:radio[name="params[sync_enabled]"]').change(function() {
 			var $radio = $(this);
 			var $params = $(this).closest('form').find('fieldset.sync-events');
 			
@@ -242,11 +250,11 @@ $(function() {
 			}
 		});
 		
-		$this.find('button.chooser_watcher').each(function() {
+		$popup.find('button.chooser_watcher').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
 		});
 		
-		$this.find('textarea[name=comment]').keyup(function() {
+		$popup.find('textarea[name=comment]').keyup(function() {
 			var $this = $(this);
 			if($this.val().length > 0) {
 				$this.next('DIV.notify').show();
@@ -255,11 +263,11 @@ $(function() {
 			}
 		});
 		
-		$('#frmCalendarPeek button.chooser_notify_worker').each(function() {
+		$('#{$form_id} button.chooser_notify_worker').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
 		});
 		
-		$this.find('input:text:first').focus();
+		$popup.find('input:text:first').focus();
 	});
 });
 </script>

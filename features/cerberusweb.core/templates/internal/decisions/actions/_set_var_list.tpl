@@ -38,15 +38,16 @@
 <script type="text/javascript">
 $(function() {
 	var $div = $('#popup{$uniq_id}');
+	var $parent = $div.parent();
 	var $popup = $div.closest('.ui-dialog');
 	
 	$div.click(function(e) {
 		var width = $(window).width()-100;
-		var $mode = $popup.find('input.mode');
+		var $mode = $popup.parent().find('input.mode');
 		var q = '';
 		
 		if($mode.is(':checked')) {
-			q = $popup.find('input.quicksearch').val();
+			q = $parent.find('input.quicksearch').val();
 		}
 		
 		var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context={$context}&view_id={$view->id}&trigger_id={$trigger->id}&q=' + encodeURIComponent(q),null,true,width);
@@ -54,8 +55,8 @@ $(function() {
 		$chooser.on('chooser_save',function(event) {
 			if(null != event.worklist_model) {
 				$div.find('span.name').text(event.view_name);
-				$popup.find('input:hidden.model').val(event.worklist_model);
-				$popup.find('input.quicksearch').val(event.worklist_quicksearch);
+				$parent.find('input:hidden.model').val(event.worklist_model);
+				$parent.find('input.quicksearch').val(event.worklist_quicksearch);
 			}
 		});
 	});

@@ -37,7 +37,6 @@
 	<class_loader>
 		<file path="api/Extension.php">
 			<class name="Extension_ScLoginAuthenticator" />
-			<class name="Extension_SupportCenterMessageBadge" />
 			<class name="Extension_UmScController" />
 			<class name="Extension_UmScRssController" />
 		</file>
@@ -71,8 +70,6 @@
 		<template path="support_center/account/email/confirm.tpl" />
 		<template path="support_center/account/email/display.tpl" />
 		<template path="support_center/account/email/index.tpl" />
-		<template path="support_center/account/openid/display.tpl" />
-		<template path="support_center/account/openid/index.tpl" />
 		<template path="support_center/account/password/index.tpl" />
 		<template path="support_center/account/sharing/index.tpl" />
 		<template path="support_center/announcements/index.tpl" />
@@ -89,11 +86,6 @@
 		<template path="support_center/login/default/login.tpl" />
 		<template path="support_center/login/default/register_confirm.tpl" />
 		<template path="support_center/login/default/register.tpl" />
-		<template path="support_center/login/openid/forgot_confirm.tpl" />
-		<template path="support_center/login/openid/forgot.tpl" />
-		<template path="support_center/login/openid/login.tpl" />
-		<template path="support_center/login/openid/register_confirm.tpl" />
-		<template path="support_center/login/openid/register.tpl" />
 		<template path="support_center/login/switcher.tpl" />
 	</templates>
 	
@@ -137,7 +129,7 @@
 		
 		<extension point="usermeet.login.authenticator">
 			<id>sc.login.auth.default</id>
-			<name>Cerb6 (Default)</name>
+			<name>Cerb (Default)</name>
 			<class>
 				<file>api/UmScApp.php</file>
 				<name>UmScLoginAuthenticator</name>
@@ -145,19 +137,6 @@
 			<params>
 				<param key="switcher_icon" value="images/mail.png" />
 				<param key="switcher_label" value="Log in with email and password" />
-			</params>
-		</extension>
-		
-		<extension point="usermeet.login.authenticator">
-			<id>sc.login.auth.openid</id>
-			<name>OpenID (Recommended)</name>
-			<class>
-				<file>api/UmScApp.php</file>
-				<name>ScOpenIDLoginAuthenticator</name>
-			</class>
-			<params>
-				<param key="switcher_icon" value="images/openid.gif" />
-				<param key="switcher_label" value="Log in with OpenID" />
 			</params>
 		</extension>
 		

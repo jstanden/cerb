@@ -1335,6 +1335,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			'id' => $calendar->id,
 			'name' => $calendar->name,
 			'permalink' => $url,
+			'updated' => $calendar->updated_at,
 		);
 	}
 	
@@ -1644,7 +1645,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		return $view;
 	}
 	
-	function renderPeekPopup($context_id=0, $view_id='') {
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl = DevblocksPlatform::getTemplateService();

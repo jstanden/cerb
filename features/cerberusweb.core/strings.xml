@@ -11,11 +11,6 @@
 				<seg>activity</seg>
 			</tuv>
 		</tu>
-		<tu tuid="core.menu.address_book">
-			<tuv xml:lang="en_US">
-				<seg>address book</seg>
-			</tuv>
-		</tu>
 		<tu tuid="display.tab.comments">
 			<tuv xml:lang="en_US">
 				<seg>Comments (%s)</seg>
@@ -23,7 +18,7 @@
 		</tu>
 		<tu tuid="display.tab.history">
 			<tuv xml:lang="en_US">
-				<seg>Recipient History</seg>
+				<seg>Participant History</seg>
 			</tuv>
 		</tu>
 		<tu tuid="display.tab.tasks">
@@ -44,11 +39,6 @@
 		<tu tuid="home.tab.workspaces_intro">
 			<tuv xml:lang="en_US">
 				<seg>About Workspaces</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.tab.tasks">
-			<tuv xml:lang="en_US">
-				<seg>Tasks</seg>
 			</tuv>
 		</tu>
 
@@ -222,6 +212,11 @@
 				<seg>active</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.activity">
+			<tuv xml:lang="en_US">
+				<seg>activity</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.activity_log">
 			<tuv xml:lang="en_US">
 				<seg>Activity Log</seg>
@@ -382,6 +377,16 @@
 				<seg>comments</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.contact">
+			<tuv xml:lang="en_US">
+				<seg>contact</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.contacts">
+			<tuv xml:lang="en_US">
+				<seg>contacts</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.content">
 			<tuv xml:lang="en_US">
 				<seg>Content</seg>
@@ -482,6 +487,16 @@
 				<seg>discussion</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.dob">
+			<tuv xml:lang="en_US">
+				<seg>date of birth</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.dob.abbr">
+			<tuv xml:lang="en_US">
+				<seg>D.O.B.</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.download">
 			<tuv xml:lang="en_US">
 				<seg>download</seg>
@@ -500,6 +515,16 @@
 		<tu tuid="common.email">
 			<tuv xml:lang="en_US">
 				<seg>Email</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.email_address">
+			<tuv xml:lang="en_US">
+				<seg>Email Address</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.email_addresses">
+			<tuv xml:lang="en_US">
+				<seg>Email Addresses</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.enabled">
@@ -590,6 +615,21 @@
 		<tu tuid="common.for">
 			<tuv xml:lang="en_US">
 				<seg>for</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.gender">
+			<tuv xml:lang="en_US">
+				<seg>gender</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.gender.female">
+			<tuv xml:lang="en_US">
+				<seg>female</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.gender.male">
+			<tuv xml:lang="en_US">
+				<seg>male</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.group">
@@ -792,6 +832,21 @@
 				<seg>Name</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.name.first">
+			<tuv xml:lang="en_US">
+				<seg>First Name</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.name.full">
+			<tuv xml:lang="en_US">
+				<seg>Full Name</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.name.last">
+			<tuv xml:lang="en_US">
+				<seg>Last Name</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.never">
 			<tuv xml:lang="en_US">
 				<seg>Never</seg>
@@ -847,6 +902,16 @@
 				<seg>order</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.organization">
+			<tuv xml:lang="en_US">
+				<seg>organization</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.organizations">
+			<tuv xml:lang="en_US">
+				<seg>organizations</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.owner">
 			<tuv xml:lang="en_US">
 				<seg>owner</seg>
@@ -860,6 +925,11 @@
 		<tu tuid="common.languages">
 			<tuv xml:lang="en_US">
 				<seg>Languages</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.last_login">
+			<tuv xml:lang="en_US">
+				<seg>Last Login</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.links">
@@ -880,6 +950,11 @@
 		<tu tuid="common.localization">
 			<tuv xml:lang="en_US">
 				<seg>Localization</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.location">
+			<tuv xml:lang="en_US">
+				<seg>location</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.next">
@@ -927,9 +1002,19 @@
 				<seg>password</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.password.salt">
+			<tuv xml:lang="en_US">
+				<seg>Password Salt</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.permalink">
 			<tuv xml:lang="en_US">
 				<seg>permalink</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.phone">
+			<tuv xml:lang="en_US">
+				<seg>phone</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.photo">
@@ -970,6 +1055,11 @@
 		<tu tuid="common.privileges">
 			<tuv xml:lang="en_US">
 				<seg>privileges</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.profile">
+			<tuv xml:lang="en_US">
+				<seg>Profile</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.profiles">
@@ -1258,6 +1348,11 @@
 				<seg>today</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.total">
+			<tuv xml:lang="en_US">
+				<seg>total</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.type">
 			<tuv xml:lang="en_US">
 				<seg>Type</seg>
@@ -1271,6 +1366,11 @@
 		<tu tuid="common.undelete">
 			<tuv xml:lang="en_US">
 				<seg>Undelete</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.unknown">
+			<tuv xml:lang="en_US">
+				<seg>unknown</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.update">
@@ -1308,6 +1408,11 @@
 				<seg>User</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.username">
+			<tuv xml:lang="en_US">
+				<seg>Username</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.url.record">
 			<tuv xml:lang="en_US">
 				<seg>Record URL</seg>
@@ -1336,6 +1441,16 @@
 		<tu tuid="common.watchers">
 			<tuv xml:lang="en_US">
 				<seg>watchers</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.watching">
+			<tuv xml:lang="en_US">
+				<seg>watching</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.website">
+			<tuv xml:lang="en_US">
+				<seg>website</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.week">
@@ -1799,16 +1914,6 @@
 				<seg>Address</seg>
 			</tuv>
 		</tu>
-		<tu tuid="address.first_name">
-			<tuv xml:lang="en_US">
-				<seg>First Name</seg>
-			</tuv>
-		</tu>
-		<tu tuid="address.full_name">
-			<tuv xml:lang="en_US">
-				<seg>Full Name</seg>
-			</tuv>
-		</tu>
 		<tu tuid="address.num_spam">
 			<tuv xml:lang="en_US">
 				<seg># Spam</seg>
@@ -1834,11 +1939,6 @@
 				<seg>Is Defunct</seg>
 			</tuv>
 		</tu>
-		<tu tuid="address.last_name">
-			<tuv xml:lang="en_US">
-				<seg>Last Name</seg>
-			</tuv>
-		</tu>
 		<tu tuid="address.contact_org_id">
 			<tuv xml:lang="en_US">
 				<seg>Organization ID</seg>
@@ -1859,7 +1959,7 @@
 		</tu>
 		<tu tuid="addy_book.history.view.requester">
 			<tuv xml:lang="en_US">
-				<seg>Recipient History: %s contact(s)</seg>
+				<seg>Participant History: %s contact(s)</seg>
 			</tuv>
 		</tu>
 		<tu tuid="addy_book.org.add">
@@ -1890,11 +1990,6 @@
 		<tu tuid="addy_book.peek.count.closed_tickets">
 			<tuv xml:lang="en_US">
 				<seg>%s closed ticket(s)</seg>
-			</tuv>
-		</tu>
-		<tu tuid="addy_book.peek.title">
-			<tuv xml:lang="en_US">
-				<seg>Email Address</seg>
 			</tuv>
 		</tu>
 		<tu tuid="addy_book.peek.view_full">
@@ -2046,16 +2141,6 @@ For example: http://www.cerbweb.com/support/</seg>
 				<seg>Country</seg>
 			</tuv>
 		</tu>
-		<tu tuid="contact_org.name">
-			<tuv xml:lang="en_US">
-				<seg>Organization</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.phone">
-			<tuv xml:lang="en_US">
-				<seg>Phone</seg>
-			</tuv>
-		</tu>
 		<tu tuid="contact_org.postal">
 			<tuv xml:lang="en_US">
 				<seg>Postal</seg>
@@ -2071,11 +2156,6 @@ For example: http://www.cerbweb.com/support/</seg>
 				<seg>Street</seg>
 			</tuv>
 		</tu>
-		<tu tuid="contact_org.website">
-			<tuv xml:lang="en_US">
-				<seg>Website</seg>
-			</tuv>
-		</tu>
 
 		<!-- Comment -->
 		
@@ -2087,24 +2167,6 @@ For example: http://www.cerbweb.com/support/</seg>
 		<tu tuid="comment.filters.content">
 			<tuv xml:lang="en_US">
 				<seg>Comment Content</seg>
-			</tuv>
-		</tu>
-
-		<!-- Contact People -->
-		
-		<tu tuid="dao.contact_person.auth_salt">
-			<tuv xml:lang="en_US">
-				<seg>Password Salt</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.contact_person.auth_password">
-			<tuv xml:lang="en_US">
-				<seg>Password</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.contact_person.last_login">
-			<tuv xml:lang="en_US">
-				<seg>Last Login</seg>
 			</tuv>
 		</tu>
 
@@ -2598,7 +2660,7 @@ For example: http://www.cerbweb.com/support/</seg>
 		</tu>
 		<tu tuid="display.ui.add_to_recipients">
 			<tuv xml:lang="en_US">
-				<seg>Add to Recipients</seg>
+				<seg>Add to participants</seg>
 			</tuv>
 		</tu>
 		<tu tuid="display.ui.continue_later">
@@ -2661,12 +2723,12 @@ For example: http://www.cerbweb.com/support/</seg>
 		</tu>
 		<tu tuid="mail.log_message.requesters">
 			<tuv xml:lang="en_US">
-				<seg>Recipient(s)</seg>
+				<seg>Participants</seg>
 			</tuv>
 		</tu>
 		<tu tuid="mail.log_message.send_to_requesters">
 			<tuv xml:lang="en_US">
-				<seg>Send a copy of this message to the recipients.</seg>
+				<seg>Send a copy of this message to the participants.</seg>
 			</tuv>
 		</tu>
 		<tu tuid="mail.merge">
@@ -3283,7 +3345,7 @@ For example: *receipt*</seg>
 		</tu>
 		<tu tuid="ticket.recipients.empty">
 			<tuv xml:lang="en_US">
-				<seg>This ticket has no recipients.</seg>
+				<seg>This conversation has no participants.</seg>
 			</tuv>
 		</tu>
 		<tu tuid="ticket.reopen_at">
@@ -3404,16 +3466,6 @@ For example: *receipt*</seg>
 				<seg>Authentication</seg>
 			</tuv>
 		</tu>
-		<tu tuid="worker.first_name">
-			<tuv xml:lang="en_US">
-				<seg>First Name</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.full_name">
-			<tuv xml:lang="en_US">
-				<seg>Full Name</seg>
-			</tuv>
-		</tu>
 		<tu tuid="worker.is_superuser">
 			<tuv xml:lang="en_US">
 				<seg>Administrator</seg>
@@ -3432,11 +3484,6 @@ For example: *receipt*</seg>
 		<tu tuid="worker.last_activity_date">
 			<tuv xml:lang="en_US">
 				<seg>Last Activity Date</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.last_name">
-			<tuv xml:lang="en_US">
-				<seg>Last Name</seg>
 			</tuv>
 		</tu>
 		<tu tuid="worker.time_format">
@@ -3518,11 +3565,6 @@ For example: *receipt*</seg>
 		<tu tuid="preferences.account.language">
 			<tuv xml:lang="en_US">
 				<seg>Language:</seg>
-			</tuv>
-		</tu>
-		<tu tuid="preferences.account.email">
-			<tuv xml:lang="en_US">
-				<seg>Email Addresses</seg>
 			</tuv>
 		</tu>
 		<tu tuid="preferences.account.email.associated">

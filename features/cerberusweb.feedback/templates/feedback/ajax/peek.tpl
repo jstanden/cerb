@@ -13,7 +13,15 @@
 	<legend>Properties</legend>
 	
 	<b>{'feedback_entry.quote_address'|devblocks_translate|capitalize}:</b> ({'feedback.peek.quote.tooltip'|devblocks_translate})<br>
-	<input type="text" name="email" size="45" maxlength="255" style="width:98%;" value="{$address->email}"><br>
+	
+	<button type="button" class="chooser-abstract" data-field-name="quote_address_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true"><span class="glyphicons glyphicons-search"></span></button>
+	
+	<ul class="bubbles chooser-container">
+		{if $address}
+			<li><input type="hidden" name="quote_address_id" value="{$address->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$address->id}">{$address->email}</a> <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+		{/if}
+	</ul>
+	<br>
 	<br>
 	
 	<b>{'feedback_entry.quote_text'|devblocks_translate|capitalize}:</b><br>
@@ -50,9 +58,25 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $popup = genericAjaxPopupFetch('peek');
+	
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{'feedback.button.capture'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
-		ajax.emailAutoComplete('#frmFeedbackEntry input:text[name=email]', { multiple: false } );
+		$popup.dialog('option','title',"{'feedback.button.capture'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		
+		// Abstract choosers
+		
+		$popup.find('button.chooser-abstract')
+			.cerbChooserTrigger()
+			;
+		
+		// Peek triggers
+		$popup.find('a.cerb-peek-trigger').cerbPeekTrigger();
+		
+		// Searches
+		$popup.find('button.cerb-search-trigger')
+			.cerbSearchTrigger()
+			;
 	});
+});
 </script>

@@ -1146,6 +1146,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			'id' => $calendar_recurring_profile->id,
 			'name' => $calendar_recurring_profile->event_name,
 			'permalink' => $url,
+			'updated' => 0, // [TODO]
 		);
 	}
 	
@@ -1364,7 +1365,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		return $view;
 	}
 	
-	function renderPeekPopup($context_id=0, $view_id='') {
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		

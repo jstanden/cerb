@@ -28,7 +28,7 @@
 			<li>
 				{$values_to_contexts.$context_data.label}<!--
 				--><input type="hidden" name="{$namePrefix}[context_objects][]" value="{$context_data}"><!--
-				--><span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;cursor:pointer;" onclick="$(this).closest('li').remove();"></span>
+				--><span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest('li').remove();"></span>
 			</li>
 		{else}
 			{$context_pair = explode(':',$context_data)}
@@ -40,7 +40,7 @@
 				{$meta = $context_ext->getMeta($context_id)}
 				{$meta.name} ({$context_ext->manifest->name})<!--
 				--><input type="hidden" name="{$namePrefix}[context_objects][]" value="{$context}:{$context_id}"><!--
-				--><span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;cursor:pointer;" onclick="$(this).closest('li').remove();"></span>
+				--><span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest('li').remove();"></span>
 			</li>
 			{/if}
 		{/if}
@@ -101,7 +101,7 @@ $(function() {
 					if(0 == $ul.find('input:hidden[value="' + $context + ':' + event.values[i] + '"]').length) {
 						var $li = $('<li/>').text(event.labels[i] + ' (' + $context_name + ')');
 						$li.append($('<input type="hidden" name="{$namePrefix}[context_objects][]">').attr('value',$context + ':' + event.values[i]));
-						$li.append($('<span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;pointer:middle;" onclick="$(this).closest(\'li\').remove();"></span>'));
+						$li.append($('<span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest(\'li\').remove();"></span>'));
 						
 						$ul.append($li);
 					}
@@ -182,7 +182,7 @@ $(function() {
 		var $bubble = $('<li></li>');
 		$bubble.append($li.find('a').text());
 		$bubble.append($('<input type="hidden" name="{$namePrefix}[{$param_name}][]">').attr('value',$key));
-		$bubble.append($('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>'));
+		$bubble.append($('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>'));
 		
 		$bubbles.append($bubble);
 	});

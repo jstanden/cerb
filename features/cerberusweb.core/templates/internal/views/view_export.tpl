@@ -147,7 +147,7 @@ $(function() {
 		$hidden.attr('name', 'tokens[]');
 		$hidden.attr('value', token);
 		
-		var $a = $('<a href="javascript:;"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>');
+		var $a = $('<a href="javascript:;"><span class="glyphicons glyphicons-circle-remove"></span></a>');
 		$a.click(function(e) {
 			$(this).closest('li').remove();
 		})

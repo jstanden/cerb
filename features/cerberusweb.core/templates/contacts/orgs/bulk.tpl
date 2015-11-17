@@ -55,7 +55,7 @@
 
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
 
-{if $active_worker->hasPriv('core.addybook.org.actions.update')}<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>{/if}
+{if $active_worker->hasPriv('core.addybook.org.actions.update')}<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>{/if}
 <br>
 </form>
 
@@ -64,11 +64,17 @@ $(function() {
 	var $popup = genericAjaxPopupFetch('peek');
 	
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{'common.bulk_update'|devblocks_translate|escape:'javascript' nofilter}");
+		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|escape:'javascript' nofilter}");
+		
+		$popup.find('button.submit').click(function() {
+			genericAjaxPost('formBatchUpdate', 'view{$view_id}', null, function() {
+				genericAjaxPopupClose($popup);
+			});
+		})
 		
 		$('#formBatchUpdate button.chooser-worker').each(function() {
-			$button = $(this);
-			context = 'cerberusweb.contexts.worker';
+			var $button = $(this);
+			var context = 'cerberusweb.contexts.worker';
 			
 			if($button.hasClass('remove'))
 				ajax.chooser(this, context, 'do_watcher_remove_ids', { autocomplete: true, autocomplete_class:'input_remove' } );

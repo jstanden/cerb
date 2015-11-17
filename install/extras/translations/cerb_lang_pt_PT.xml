@@ -528,11 +528,6 @@
 				<seg>%s está a gerar tickets de simulação</seg>
 			</tuv>
 		</tu>
-		<tu tuid="activity.tab.tasks">
-			<tuv xml:lang="pt_PT">
-				<seg>Tarefas</seg>
-			</tuv>
-		</tu>
 		<tu tuid="activity.tickets">
 			<tuv xml:lang="pt_PT">
 				<seg>%s está a navegar %s tickets</seg>
@@ -548,16 +543,6 @@
 				<seg>Identificação da organização</seg>
 			</tuv>
 		</tu>
-		<tu tuid="address.first_name">
-			<tuv xml:lang="pt_PT">
-				<seg>Nome</seg>
-			</tuv>
-		</tu>
-		<tu tuid="address.full_name">
-			<tuv xml:lang="pt_PT">
-				<seg>Nome Completo</seg>
-			</tuv>
-		</tu>
 		<tu tuid="address.is_banned">
 			<tuv xml:lang="pt_PT">
 				<seg>Está Banido</seg>
@@ -571,11 +556,6 @@
 		<tu tuid="address.is_defunct">
 			<tuv xml:lang="pt_PT">
 				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="address.last_name">
-			<tuv xml:lang="pt_PT">
-				<seg>Apelido</seg>
 			</tuv>
 		</tu>
 		<tu tuid="address.num_nonspam">
@@ -633,7 +613,7 @@
 				<seg>%s ticket(s) abertos</seg>
 			</tuv>
 		</tu>
-		<tu tuid="addy_book.peek.title">
+		<tu tuid="common.email_address">
 			<tuv xml:lang="pt_PT">
 				<seg>Endereço de Email</seg>
 			</tuv>
@@ -721,11 +701,6 @@
 		<tu tuid="call_entry.model.is_outgoing">
 			<tuv xml:lang="pt_PT">
 				<seg>É de Envio</seg>
-			</tuv>
-		</tu>
-		<tu tuid="call_entry.model.phone">
-			<tuv xml:lang="pt_PT">
-				<seg>Telefone</seg>
 			</tuv>
 		</tu>
 		<tu tuid="cerb.mailing_lists.common.mailing_list">
@@ -1083,6 +1058,11 @@
 				<seg>Email</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.email_addresses">
+			<tuv xml:lang="pt_PT">
+				<seg>Endereço de Email</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.enabled">
 			<tuv xml:lang="pt_PT">
 				<seg>Activo</seg>
@@ -1243,6 +1223,11 @@
 				<seg>Idiomas</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.last_login">
+			<tuv xml:lang="pt_PT">
+				<seg>Último Login</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.links">
 			<tuv xml:lang="pt_PT">
 				<seg>Links</seg>
@@ -1358,6 +1343,21 @@
 				<seg>Nome</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.name.first">
+			<tuv xml:lang="pt_PT">
+				<seg>Primeiro Nome</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.name.full">
+			<tuv xml:lang="pt_PT">
+				<seg>Nome Completo</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.name.last">
+			<tuv xml:lang="pt_PT">
+				<seg>Apelido</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.never">
 			<tuv xml:lang="pt_PT">
 				<seg>Nunca</seg>
@@ -1433,6 +1433,11 @@
 				<seg>ordenar</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.organization">
+			<tuv xml:lang="pt_PT">
+				<seg>Organização</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.owner">
 			<tuv xml:lang="pt_PT">
 				<seg>dono</seg>
@@ -1443,9 +1448,19 @@
 				<seg>password</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.password.salt">
+			<tuv xml:lang="pt_PT">
+				<seg>Salt da Senha</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.permalink">
 			<tuv xml:lang="pt_PT">
 				<seg>link permanente</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.phone">
+			<tuv xml:lang="pt_PT">
+				<seg>Telefone</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.preview">
@@ -1763,6 +1778,11 @@
 				<seg>observadores</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.website">
+			<tuv xml:lang="pt_PT">
+				<seg>Website</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.week">
 			<tuv xml:lang="pt_PT">
 				<seg>semana</seg>
@@ -1833,16 +1853,6 @@
 				<seg>País</seg>
 			</tuv>
 		</tu>
-		<tu tuid="contact_org.name">
-			<tuv xml:lang="pt_PT">
-				<seg>Organização</seg>
-			</tuv>
-		</tu>
-		<tu tuid="contact_org.phone">
-			<tuv xml:lang="pt_PT">
-				<seg>Telefone</seg>
-			</tuv>
-		</tu>
 		<tu tuid="contact_org.postal">
 			<tuv xml:lang="pt_PT">
 				<seg>Código Postal</seg>
@@ -1858,19 +1868,9 @@
 				<seg>Morada</seg>
 			</tuv>
 		</tu>
-		<tu tuid="contact_org.website">
-			<tuv xml:lang="pt_PT">
-				<seg>Website</seg>
-			</tuv>
-		</tu>
 		<tu tuid="core.menu.activity">
 			<tuv xml:lang="pt_PT">
 				<seg>actividade</seg>
-			</tuv>
-		</tu>
-		<tu tuid="core.menu.address_book">
-			<tuv xml:lang="pt_PT">
-				<seg>contactos</seg>
 			</tuv>
 		</tu>
 		<tu tuid="crm.common.opportunity">
@@ -2061,21 +2061,6 @@
 		<tu tuid="dao.confirmation_code.namespace_key">
 			<tuv xml:lang="pt_PT">
 				<seg>Namespace</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.contact_person.auth_password">
-			<tuv xml:lang="pt_PT">
-				<seg>Password</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.contact_person.auth_salt">
-			<tuv xml:lang="pt_PT">
-				<seg>Salt da Senha</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.contact_person.last_login">
-			<tuv xml:lang="pt_PT">
-				<seg>Último Login</seg>
 			</tuv>
 		</tu>
 		<tu tuid="dao.context_activity_log.activity_point">
@@ -3953,11 +3938,6 @@
 				<seg>atual:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="preferences.account.email">
-			<tuv xml:lang="pt_PT">
-				<seg>Endereço de Email</seg>
-			</tuv>
-		</tu>
 		<tu tuid="preferences.account.email.address">
 			<tuv xml:lang="pt_PT">
 				<seg>Endereço</seg>
@@ -5332,16 +5312,6 @@ Por exemplo: *recipiente*</seg>
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="worker.first_name">
-			<tuv xml:lang="pt_PT">
-				<seg>Primeiro Nome</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.full_name">
-			<tuv xml:lang="pt_PT">
-				<seg>Nome Completo</seg>
-			</tuv>
-		</tu>
 		<tu tuid="worker.is_superuser">
 			<tuv xml:lang="pt_PT">
 				<seg>Administrador</seg>
@@ -5355,11 +5325,6 @@ Por exemplo: *recipiente*</seg>
 		<tu tuid="worker.last_activity_date">
 			<tuv xml:lang="pt_PT">
 				<seg>Data da Última Actividade</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.last_name">
-			<tuv xml:lang="pt_PT">
-				<seg>Apelido</seg>
 			</tuv>
 		</tu>
 		<tu tuid="worker.title">

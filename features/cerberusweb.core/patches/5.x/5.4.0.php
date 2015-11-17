@@ -203,7 +203,7 @@ if(!isset($column['reply_address_id'])) {
 	}
 	
 	// Remove redundant settings from DB
-	$db->ExecuteMaster("DELETE FROM group_setting WHERE setting IN ('reply_from','reply_personal')");;
+	$db->ExecuteMaster("DELETE FROM group_setting WHERE setting IN ('reply_from','reply_personal')");
 }
 
 $db->ExecuteMaster("DELETE FROM group_setting WHERE setting IN ('reply_personal_with_worker')");

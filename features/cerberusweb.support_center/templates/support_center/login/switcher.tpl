@@ -3,7 +3,7 @@
 <div>
 	{if $login_extension->params['switcher_icon']}
 		{$icon_url = $login_extension->params['switcher_icon']}
-		<img src="{devblocks_url}c=resource&p={$login_extension->plugin_id}&f={$icon_url}{/devblocks_url}" align="absmiddle"> 
+		<img src="{devblocks_url}c=resource&p={$login_extension->plugin_id}&f={$icon_url}{/devblocks_url}" align="absmiddle">
 	{/if}
 	{if $login_extension->params['switcher_label']}
 		{$label = $login_extension->params['switcher_label']}

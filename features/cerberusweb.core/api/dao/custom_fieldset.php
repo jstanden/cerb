@@ -1016,6 +1016,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 			'id' => $context_id,
 			'name' => $cfieldset->name,
 			'permalink' => '', //$url_writer->writeNoProxy('c=tasks&action=display&id='.$task->id, true),
+			'updated' => 0,
 		);
 	}
 	

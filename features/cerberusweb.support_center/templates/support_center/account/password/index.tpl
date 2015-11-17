@@ -18,7 +18,7 @@
 	<input type="password" name="change_password2" size="35" value=""><br>
 
 	<br>
-	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top"> {'common.save_changes'|devblocks_translate}</button><br>
+	<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button><br>
 </fieldset>
 
 </form>

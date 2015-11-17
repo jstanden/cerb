@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmStorageSchemaPeek" name="frmStorageSchemaPeek" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmStorageSchemaPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="storage_content">
@@ -8,16 +8,22 @@
 
 {$schema->renderConfig()}
 
-<button type="button" onclick="genericAjaxPost('frmStorageSchemaPeek','schema_{$schema->manifest->id|md5}');genericAjaxPopupClose('peek');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
+<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 
 </form>
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
+	var $popup = genericAjaxPopupFind('#frmStorageSchemaPeek');
 	
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{$schema->manifest->name|escape:'javascript' nofilter}");
+		$popup.dialog('option','title',"{$schema->manifest->name|escape:'javascript' nofilter}");
+		
+		$popup.find('button.submit').click(function() {
+			genericAjaxPost('frmStorageSchemaPeek','schema_{$schema->manifest->id|md5}',null,function() {
+				genericAjaxPopupClose($popup);
+			});
+		})
 	});
 });
 </script>

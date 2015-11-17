@@ -205,7 +205,7 @@ class CerberusApplication extends DevblocksApplication {
 			$list[] = array(
 				'id' => $worker->id,
 				'name' => $worker->getName(),
-				'email' => $worker->email,
+				'email' => $worker->getEmailString(),
 				'title' => $worker->title,
 				'at_mention' => $worker->at_mention_name,
 				'_index' => $worker->getName() . ' ' . $worker->at_mention_name,
@@ -213,27 +213,6 @@ class CerberusApplication extends DevblocksApplication {
 		}
 
 		return json_encode($list);
-	}
-
-	static function getGravatarDefaultIcon() {
-		// Cache the result for the request
-		static $url = null;
-		
-		if(!is_null($url))
-			return $url;
-		
-		// First, check the Gravatar plugin's settings, if defined
-		if(DevblocksPlatform::isPluginEnabled('cerberusweb.gravatar')) {
-			$url = DevblocksPlatform::getPluginSetting('cerberusweb.gravatar', 'default_icon_url');
-			
-			if(!empty($url))
-				return $url;
-		}
-		
-		// Otherwise, default to the built-in icon
-		$url_writer = DevblocksPlatform::getUrlService();
-		$url = $url_writer->write('c=resource&p=cerberusweb.core&f=images/wgm/cerb_convo_bubbles_bw.png', true);
-		return $url;
 	}
 
 	/**
@@ -903,7 +882,7 @@ class CerberusContexts {
 	const CONTEXT_CALENDAR_EVENT_RECURRING = 'cerberusweb.contexts.calendar_event.recurring';
 	const CONTEXT_CALL = 'cerberusweb.contexts.call';
 	const CONTEXT_COMMENT = 'cerberusweb.contexts.comment';
-	const CONTEXT_CONTACT_PERSON = 'cerberusweb.contexts.contact_person';
+	const CONTEXT_CONTACT = 'cerberusweb.contexts.contact';
 	const CONTEXT_CONTEXT_AVATAR = 'cerberusweb.contexts.context.avatar';
 	const CONTEXT_CUSTOM_FIELD = 'cerberusweb.contexts.custom_field';
 	const CONTEXT_CUSTOM_FIELDSET = 'cerberusweb.contexts.custom_fieldset';
@@ -2071,6 +2050,7 @@ class Context_Application extends Extension_DevblocksContext {
 			'id' => 0,
 			'name' => 'Cerb',
 			'permalink' => null, //$url_writer->writeNoProxy('', true),
+			'updated' => APP_BUILD,
 		);
 	}
 
@@ -2607,6 +2587,11 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 		return $fields;
 	}
 
+	/**
+	 * 
+	 * @param array $ids
+	 * @return Model_Address[]
+	 */
 	static function getIds($ids) {
 		if(!is_array($ids))
 			$ids = array($ids);

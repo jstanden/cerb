@@ -105,6 +105,8 @@ class CerberusUtils {
 			$results[] = $addy_row;
 		}
 		
+		@imap_errors();
+		
 		return $results;
 	}
 	

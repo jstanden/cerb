@@ -10,7 +10,7 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-			{if $active_worker->is_superuser}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id=0&view_id={$view->id}',null,false,'500');"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
+			{if $active_worker->is_superuser}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="0" data-edit="true"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
 			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
 			<a href="javascript:;" title="{'common.subtotals'|devblocks_translate|capitalize}" class="subtotals minimal"><span class="glyphicons glyphicons-signal"></span></a>
@@ -76,7 +76,7 @@
 				<input type="checkbox" name="row_id[]" value="{$result.g_id}" style="display:none;">
 				<img src="{devblocks_url}c=avatars&context=group&context_id={$result.g_id}{/devblocks_url}?v={$result.g_updated}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;margin-right:3px;">
 				<a href="{devblocks_url}c=profiles&g=group&id={$result.g_id}-{$result.g_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.$column}</a>
-				{if $active_worker->is_superuser}<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.g_id}&view_id={$view->id}',null,false,'550');"><span class="glyphicons glyphicons-new-window-alt"></span></button>{/if}
+				<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$result.g_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
 			{elseif in_array($column, ["g_is_private", "g_is_default"])}
 				<td>{if $result.$column}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(75,75,75);"></span{else}{/if}</td>

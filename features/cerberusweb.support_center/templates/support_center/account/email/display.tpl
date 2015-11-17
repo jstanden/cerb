@@ -1,6 +1,3 @@
-{$gravatar_plugin = DevblocksPlatform::getPlugin('cerberusweb.gravatar')}
-{$gravatar_enabled = $gravatar_plugin && $gravatar_plugin->enabled}
-
 {if !empty($account_error)}
 <div class="error">{$account_error}</div>
 {elseif !empty($account_success)}
@@ -16,54 +13,6 @@
 	<legend>{$address->email}</legend>
 
 	<table cellpadding="2" cellspacing="2" border="0">
-	<tr>
-		<td colspan="2">
-			{if $active_contact->email_id != $address->id}
-				<label><input type="checkbox" name="is_primary" value="1" {if $active_contact->email_id == $address->id}checked="checked"{/if}> This is my primary email address.</label>
-			{else}
-				<input type="hidden" name="is_primary" value="1">
-			{/if}
-		</td>
-	</tr>
-	
-	{if $gravatar_enabled}
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top"><b>{'portal.sc.public.my_account.profile_picture'|devblocks_translate}:</b></td>
-		<td width="99%">
-			<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$address->email|trim|lower|md5}?s=64&d={CerberusApplication::getGravatarDefaultIcon()}" border="0" style="margin:0px 5px 5px 0px;border-radius:40px;" align="bottom">
-			<div>
-				[<a href="http://en.gravatar.com/" target="_blank">change</a>]
-			</div>
-		</td>
-	</tr>
-	{/if}
-	
-	{if $show_fields.addy_first_name}
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top"><b>{'address.first_name'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			{if 1==$show_fields.addy_first_name}
-			{$address->first_name}
-			{else}
-			<input type="text" name="addy_first_name" size="35" value="{$address->first_name}">
-			{/if}
-		</td>
-	</tr>
-	{/if}
-	
-	{if $show_fields.addy_last_name}
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top"><b>{'address.last_name'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			{if 1==$show_fields.addy_last_name}
-			{$address->last_name}
-			{else}
-			<input type="text" name="addy_last_name" size="35" value="{$address->last_name}">
-			{/if}
-		</td>
-	</tr>
-	{/if}
-	
 	{foreach from=$address_custom_fields item=field key=field_id}
 	{if $show_fields.{"addy_custom_"|cat:$field_id}}
 	<tr>
@@ -90,7 +39,7 @@
 	<table cellpadding="2" cellspacing="2" border="0">
 		{if $show_fields.org_name}
 		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{'contact_org.name'|devblocks_translate|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.organization'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				{if 1==$show_fields.org_name}
 				{$org->name}
@@ -168,7 +117,7 @@
 		
 		{if $show_fields.org_phone}
 		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{'contact_org.phone'|devblocks_translate|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.phone'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				{if 1==$show_fields.org_phone}
 				{$org->phone}
@@ -181,7 +130,7 @@
 		
 		{if $show_fields.org_website}
 		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{'contact_org.website'|devblocks_translate|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.website'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				{if 1==$show_fields.org_website}
 				{$org->website}
@@ -210,8 +159,8 @@
 </fieldset>
 {/if}
 
-<button name="action" type="submit" value=""><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top"> {'common.save_changes'|devblocks_translate}</button>
-{if $active_contact->email_id != $address->id}
-<button name="action" type="submit" value="remove"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/forbidden.png{/devblocks_url}" align="top"> Remove from account</button><br>
+<button name="action" type="submit" value=""><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
+{if $active_contact->primary_email_id != $address->id}
+<button name="action" type="submit" value="remove"><span class="glyphicons glyphicons-circle-remove"></span> Remove from account</button><br>
 {/if}
 </form>
