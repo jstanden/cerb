@@ -205,7 +205,7 @@ $(function() {
 		} catch(e) { }
 		{/foreach}
 
-		var $va_button = $('<a href="javascript:;" title="This worklist was modified by Virtual Attendants"><span class="glyphicons glyphicons-remote-control"></span></a>');
+		var $va_button = $('<a href="javascript:;" title="This worklist was modified by Virtual Attendants"><div style="background-color:rgb(230,230,230);display:inline-block;margin-top:3px;border-radius:11px;padding:2px;"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:14px;height:14px;margin:0;"></div></a>');
 		$va_button.click(function() {
 			var $va_action_log = $('#view{$view->id}_va_actions');
 			if($va_action_log.is(':hidden')) {
