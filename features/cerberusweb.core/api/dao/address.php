@@ -732,9 +732,75 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 		}
 	}
 	
-	public function index($stop_time=null) {
+	private function _indexDictionary($dict, $engine) {
 		$logger = DevblocksPlatform::getConsoleLog();
+
+		$id = $dict->id;
 		
+		if(empty($id))
+			return false;
+		
+		$doc = array(
+			'email' => $dict->address,
+			'firstName' => $dict->contact_first_name,
+			'lastName' => $dict->contact_last_name,
+			'org' => $dict->org_name,
+		);
+		
+		$logger->info(sprintf("[Search] Indexing %s %d...",
+			$this->getNamespace(),
+			$id
+		));
+		
+		if(false === ($engine->index($this, $id, $doc)))
+			return false;
+		
+		return true;
+	}
+	
+	private function _getDictionariesFromModels(array $models) {
+		$dicts = array();
+		
+		if(empty($models)) {
+			return array();
+		}
+		
+		foreach($models as $address_id => $address) {
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $address, $labels, $values, null, true, true);
+			$dicts[$address_id] = DevblocksDictionaryDelegate::instance($values);
+		}
+		
+		// Batch load org names
+		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'contact_');
+		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'org_name');
+		
+		return $dicts;
+	}
+	
+	// [TODO] Add this to the interface?
+	public function indexIds(array $ids=array()) {
+		if(empty($ids))
+			return;
+		
+		if(false == ($engine = $this->getEngine()))
+			return false;
+		
+		if(false == ($addresses = DAO_Address::getIds($ids)))
+			return;
+		
+		$dicts = $this->_getDictionariesFromModels($addresses);
+		
+		if(empty($dicts))
+			return;
+		
+		foreach($dicts as $dict) {
+			$this->_indexDictionary($dict, $engine);
+		}
+	}
+	
+	public function index($stop_time=null) {
 		if(false == ($engine = $this->getEngine()))
 			return false;
 		
@@ -753,23 +819,12 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 			);
 			$addresses = DAO_Address::getWhere($where, array(DAO_Address::UPDATED, DAO_Address::ID), array(true, true), 100);
 
-			$dicts = array();
+			$dicts = $this->_getDictionariesFromModels($addresses);
 			
-			if(empty($addresses)) {
+			if(empty($dicts)) {
 				$done = true;
 				continue;
 			}
-			
-			foreach($addresses as $address_id => $address) {
-				$labels = array();
-				$values = array();
-				CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $address, $labels, $values, null, true, true);
-				$dicts[$address_id] = DevblocksDictionaryDelegate::instance($values);
-			}
-			
-			// Batch load org names
-			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'contact_');
-			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'org_name');
 			
 			$last_time = $ptr_time;
 			
@@ -780,19 +835,7 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 				
 				$ptr_id = ($last_time == $ptr_time) ? $id : 0;
 				
-				$logger->info(sprintf("[Search] Indexing %s %d...",
-					$ns,
-					$id
-				));
-				
-				$doc = array(
-					'email' => $dict->address,
-					'firstName' => $dict->contact_first_name,
-					'lastName' => $dict->contact_last_name,
-					'org' => $dict->org_name,
-				);
-				
-				if(false === ($engine->index($this, $id, $doc)))
+				if(false == $this->_indexDictionary($dict, $engine))
 					return false;
 				
 				flush();
