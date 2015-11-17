@@ -441,20 +441,6 @@ var cAjaxCalls = function() {
 		$.ajax(options);
 	}	
 	
-	this.postAndReloadView = function(frm,view_id) {
-		
-		$('#'+view_id).fadeTo("slow", 0.2);
-		
-		genericAjaxPost(frm,view_id,'',
-			function(html) {
-				$('#'+view_id).html(html);
-				$('#'+view_id).fadeTo("slow", 1.0);
-	
-				genericAjaxPopupClose('peek');
-			}
-		);
-	}
-	
 	this.viewUndo = function(view_id) {
 		genericAjaxGet('','c=tickets&a=viewUndo&view_id=' + view_id,
 			function(html) {

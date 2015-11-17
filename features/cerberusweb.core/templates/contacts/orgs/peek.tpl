@@ -39,7 +39,6 @@
 
 <div style="clear:both;padding-top:10px;"></div>
 
-{if $org->phone || $org->website}
 <fieldset class="peek">
 	<legend>Contact Info</legend>
 	
@@ -64,7 +63,6 @@
 		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="org.id:{$org->id}"><div class="badge-count">{$activity_counts.emails|default:0}</div> {'common.email_addresses'|devblocks_translate|capitalize}</button>
 	</div>
 </fieldset>
-{/if}
 
 <fieldset class="peek">
 	<legend>{'common.tickets'|devblocks_translate|capitalize}</legend>

@@ -65,19 +65,23 @@
 				<input type="checkbox" name="row_id[]" value="{$result.m_id}" style="display:none;">
 				{if $result.t_is_deleted}<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_is_closed}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_is_waiting}<span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span>{/if}
 				<a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_mask}&focus=message&focusid={$result.m_id}{/devblocks_url}" class="subject">{if !empty($result.t_subject)}{$result.t_subject}{else}(no subject){/if}</a>
-				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id={$result.m_ticket_id}&view_id={$view->id}&msgid={$result.m_id}', null, false, '550');"><span class="glyphicons glyphicons-new-window-alt"></span></button> 
+				<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-context-id="{$result.m_ticket_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button> 
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
+			{elseif $column=="a_email"}
+				<td>
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.m_address_id}">{$result.$column}</a>
+				</td>
 			{elseif $column=="t_group_id"}
 				<td>
 				{if empty($groups)}{$groups = DAO_Group::getAll()}{/if}
 				{$group_id = $result.$column}
 				{if isset($groups.$group_id)}
-					{$groups.{$group_id}->name}
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group_id}">{$groups.{$group_id}->name}</a>
 				{/if}
 				</td>
 			{elseif $column=="m_worker_id"}
@@ -85,7 +89,9 @@
 				{if empty($workers)}{$workers = DAO_Worker::getAll()}{/if}
 				{$worker_id = $result.$column}
 				{if isset($workers.$worker_id)}
-					{$workers.{$worker_id}->getName()}
+					{$worker = $workers.$worker_id}
+					<img src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;">
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker_id}">{$workers.{$worker_id}->getName()}</a>
 				{/if}
 				</td>
 			{elseif $column=="m_is_outgoing" || $column=="m_is_broadcast"}
@@ -154,7 +160,9 @@
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
 <script type="text/javascript">
-$frm = $('#viewForm{$view->id}');
+$(function() {
+var $frm = $('#viewForm{$view->id}');
+var $view = $('#view{$view->id}');
 
 {if $pref_keyboard_shortcuts}
 $frm.bind('keyboard_shortcut',function(event) {
@@ -185,4 +193,5 @@ $frm.bind('keyboard_shortcut',function(event) {
 		event.preventDefault();
 });
 {/if}
+});
 </script>
