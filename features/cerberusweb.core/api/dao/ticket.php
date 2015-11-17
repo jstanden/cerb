@@ -2420,6 +2420,9 @@ class Model_Ticket {
 	public $elapsed_resolution_first;
 	
 	private $_org = null;
+	private $_owner = null;
+	private $_group = null;
+	private $_bucket = null;
 
 	function Model_Ticket() {}
 	
@@ -2467,11 +2470,15 @@ class Model_Ticket {
 	}
 	
 	// Lazy load
+	
+	/**
+	 * @return Model_ContactOrg
+	 */
 	function getOrg() {
 		if(empty($this->org_id))
 			return null;
 		
-		if(is_null($this->_org)) {
+		if(is_null($this->_org) || $this->_org->id != $this->org_id) {
 			$this->_org = DAO_ContactOrg::get($this->org_id);
 		}
 		
@@ -2479,10 +2486,45 @@ class Model_Ticket {
 	}
 	
 	/**
+	 * @return Model_Worker
+	 */
+	function getOwner() {
+		if(empty($this->owner_id))
+			return null;
+		
+		if(is_null($this->_owner) || $this->_owner->id != $this->owner_id) {
+			$this->_owner = DAO_Worker::get($this->owner_id);
+		}
+		
+		return $this->_owner;
+	}
+	
+	/**
 	 * @return Model_Group
 	 */
 	function getGroup() {
-		return DAO_Group::get($this->group_id);
+		if(empty($this->group_id))
+			return null;
+		
+		if(is_null($this->_group) || $this->_group->id != $this->group_id) {
+			$this->_group = DAO_Group::get($this->group_id);
+		}
+		
+		return $this->_group;
+	}
+	
+	/**
+	 * @return Model_Bucket
+	 */
+	function getBucket() {
+		if(empty($this->bucket_id))
+			return null;
+		
+		if(is_null($this->_bucket) || $this->_bucket->id != $this->bucket_id) {
+			$this->_bucket = DAO_Bucket::get($this->bucket_id);
+		}
+		
+		return $this->_bucket;
 	}
 };
 
