@@ -73,7 +73,7 @@ if(!isset($columns['gender'])) {
 }
 
 if(!isset($columns['dob'])) {
-	$changes[] = "ADD COLUMN dob int unsigned not null default 0";
+	$changes[] = "ADD COLUMN dob date default NULL";
 }
 
 if(!isset($columns['location'])) {
@@ -179,7 +179,7 @@ if(!isset($tables['contact'])) {
 		  org_id int unsigned NOT NULL DEFAULT 0,
 			username varchar(64) NOT NULL DEFAULT '',
 			gender char(1) NOT NULL DEFAULT '',
-			dob int(10) unsigned NOT NULL DEFAULT 0,
+			dob date DEFAULT NULL,
 			location varchar(255) NOT NULL DEFAULT '',
 		  primary_email_id int unsigned NOT NULL DEFAULT 0,
 		  phone varchar(64) NOT NULL DEFAULT '',
@@ -221,6 +221,14 @@ if(!isset($tables['contact'])) {
 		// Reset index cerb.search.schema.contact (cron.search needs to reindex the new 'contact' records)
 		$sql = "DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.contact'";
 		$db->ExecuteMaster($sql);
+	}
+	
+} else {
+	list($columns, $indexes) = $db->metaTable('contact');
+	
+	if(isset($columns['dob']) && 0 == strcasecmp('int(10) unsigned', $columns['dob']['type'])) {
+		$db->ExecuteMaster("ALTER TABLE contact DROP COLUMN dob ");
+		$db->ExecuteMaster("ALTER TABLE contact ADD COLUMN dob date default null");
 	}
 }
 

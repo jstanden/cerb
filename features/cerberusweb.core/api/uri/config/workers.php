@@ -98,6 +98,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 					$gender = '';
 				
 				$disabled = $disabled ? true : false;
+				$dob_ts = null;
 				
 				$is_superuser = ($active_worker->is_superuser && $is_superuser) ? true : false;
 				
@@ -109,6 +110,9 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				
 				if(empty($email_id))
 					throw new Exception_DevblocksAjaxValidationError("The 'Email' field is required.", 'email_id');
+				
+				if(!empty($dob) && false == ($dob_ts = strtotime($dob . ' 00:00 GMT')))
+					throw new Exception_DevblocksAjaxValidationError("The specified date of birth is invalid.", 'dob');
 				
 				// Verify that the given email address exists
 				if(false == ($worker_address = DAO_Address::get($email_id)))
@@ -186,7 +190,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 						DAO_Worker::TIME_FORMAT => $time_format,
 						DAO_Worker::GENDER => $gender,
 						DAO_Worker::LOCATION => $location,
-						DAO_Worker::DOB => @strtotime($dob),
+						DAO_Worker::DOB => (null == $dob_ts) ? null : gmdate('Y-m-d', $dob_ts),
 						DAO_Worker::MOBILE => $mobile,
 						DAO_Worker::PHONE => $phone,
 					);
@@ -245,7 +249,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 					DAO_Worker::TIME_FORMAT => $time_format,
 					DAO_Worker::GENDER => $gender,
 					DAO_Worker::LOCATION => $location,
-					DAO_Worker::DOB => @strtotime($dob),
+					DAO_Worker::DOB => (null == $dob_ts) ? null : gmdate('Y-m-d', $dob_ts),
 					DAO_Worker::MOBILE => $mobile,
 					DAO_Worker::PHONE => $phone,
 					DAO_Worker::CALENDAR_ID => $calendar_id,

@@ -179,14 +179,19 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 				if(!in_array($gender, array('M','F','')))
 					$gender = '';
 				
+				$dob_ts = null;
+				
 				// Validation
 				
 				if(empty($first_name))
 					throw new Exception_DevblocksAjaxValidationError("The 'First Name' field is required.", 'first_name');
 				
 				if(!empty($primary_email_id) && false == (DAO_Address::get($primary_email_id)))
-					throw new Exception_DevblocksAjaxValidationError("The given email address is invalid.", 'primary_email_id');
+					throw new Exception_DevblocksAjaxValidationError("The specified email address is invalid.", 'primary_email_id');
 
+				if(!empty($dob) && false == ($dob_ts = strtotime($dob . ' 00:00 GMT')))
+					throw new Exception_DevblocksAjaxValidationError("The specified date of birth is invalid.", 'dob');
+				
 				// Insert/Update
 				
 				if(empty($id)) { // New
@@ -198,7 +203,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 						DAO_Contact::PRIMARY_EMAIL_ID => $primary_email_id,
 						DAO_Contact::USERNAME => $username,
 						DAO_Contact::GENDER => $gender,
-						DAO_Contact::DOB => $dob,
+						DAO_Contact::DOB => (null == $dob_ts) ? null : gmdate('Y-m-d', $dob_ts),
 						DAO_Contact::LOCATION => $location,
 						DAO_Contact::PHONE => $phone,
 						DAO_Contact::MOBILE => $mobile,
@@ -231,7 +236,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 						DAO_Contact::PRIMARY_EMAIL_ID => $primary_email_id,
 						DAO_Contact::USERNAME => $username,
 						DAO_Contact::GENDER => $gender,
-						DAO_Contact::DOB => $dob,
+						DAO_Contact::DOB => (null == $dob_ts) ? null : gmdate('Y-m-d', $dob_ts),
 						DAO_Contact::LOCATION => $location,
 						DAO_Contact::PHONE => $phone,
 						DAO_Contact::MOBILE => $mobile,

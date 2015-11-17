@@ -263,7 +263,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$object->at_mention_name = $row['at_mention_name'];
 			$object->auth_extension_id = $row['auth_extension_id'];
 			$object->calendar_id = intval($row['calendar_id']);
-			$object->dob = intval($row['dob']);
+			$object->dob = $row['dob'];
 			$object->email_id = intval($row['email_id']);
 			$object->first_name = $row['first_name'];
 			$object->gender = $row['gender'];
