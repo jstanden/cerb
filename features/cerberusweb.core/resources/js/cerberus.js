@@ -807,4 +807,37 @@ var ajax = new cAjaxCalls();
 		});
 	}
 	
+	// Abstract searches
+	
+	$.fn.cerbSearchTrigger = function(options) {
+		return this.each(function() {
+			var $trigger = $(this);
+			var context = $trigger.attr('data-context');
+			var layer = $trigger.attr('data-layer');
+			
+			// Context
+			if(!(typeof context == "string") || 0 == context.length)
+				return;
+			
+			// Layer
+			if(!(typeof layer == "string") || 0 == layer.length)
+				layer = "search" + Devblocks.uniqueId();
+			
+			$trigger.click(function() {
+				var query = $trigger.attr('data-query');
+				
+				var search_url = 'c=search&a=openSearchPopup&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(query);
+				
+				// Open search
+				var $peek = genericAjaxPopup(layer,search_url,null,false,'90%');
+				
+				$trigger.trigger('cerb-search-opened');
+				
+				$peek.on('dialogclose', function(e) {
+					$trigger.trigger('cerb-search-closed');
+				});
+			});
+		});
+	}
+	
 }(jQuery));
