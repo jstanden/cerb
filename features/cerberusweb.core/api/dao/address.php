@@ -513,6 +513,22 @@ class DAO_Address extends Cerb_ORMHelper {
 				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
 			
+			case SearchFields_Address::VIRTUAL_TICKET_ID:
+				$args['has_multiple_values'] = true;
+				
+				if(is_array($param->value)) {
+					$ids = DevblocksPlatform::sanitizeArray($param->value, 'integer');
+					
+					$args['join_sql'] .= sprintf("INNER JOIN (".
+						"SELECT DISTINCT r.address_id ".
+						"FROM requester r ".
+						"WHERE r.ticket_id IN (%s) ".
+						") virt_address_ids ON (virt_address_ids.address_id = a.id) ",
+						implode(',', $ids)
+					);
+				}
+				break;
+				
 			case SearchFields_Address::VIRTUAL_WATCHERS:
 				$args['has_multiple_values'] = true;
 				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql'], $args['tables']);
@@ -599,6 +615,7 @@ class SearchFields_Address implements IDevblocksSearchFields {
 	// Virtuals
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
+	const VIRTUAL_TICKET_ID = '*_ticket_id';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
 	// Context Links
@@ -629,6 +646,7 @@ class SearchFields_Address implements IDevblocksSearchFields {
 				
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
+			self::VIRTUAL_TICKET_ID => new DevblocksSearchField(self::VIRTUAL_TICKET_ID, '*', 'ticket_id', $translate->_('common.ticket'), null),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null, null),
@@ -888,6 +906,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Address::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Address::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Address::VIRTUAL_HAS_FIELDSET,
+			SearchFields_Address::VIRTUAL_TICKET_ID,
 			SearchFields_Address::VIRTUAL_WATCHERS,
 		));
 		
@@ -896,6 +915,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Address::ID,
 			SearchFields_Address::CONTEXT_LINK,
 			SearchFields_Address::CONTEXT_LINK_ID,
+			SearchFields_Address::VIRTUAL_TICKET_ID,
 		));
 	}
 
@@ -1057,6 +1077,11 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Address::NUM_SPAM),
 				),
+			'ticket.id' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Address::VIRTUAL_TICKET_ID),
+				),
 			'updated' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -1115,7 +1140,21 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		if(is_array($fields))
 		foreach($fields as $k => $v) {
 			switch($k) {
-				// ...
+				case 'ticket.id':
+					$field_key = SearchFields_Address::VIRTUAL_TICKET_ID;
+					$oper = DevblocksSearchCriteria::OPER_IN;
+					
+					if(empty($v))
+						return false;
+					
+					$ids = DevblocksPlatform::parseCsvString($v);
+					
+					$params[$field_key] = new DevblocksSearchCriteria(
+						$field_key,
+						$oper,
+						$ids
+					);
+					break;
 			}
 		}
 		
@@ -1215,6 +1254,13 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				
 			case SearchFields_Address::VIRTUAL_HAS_FIELDSET:
 				$this->_renderVirtualHasFieldset($param);
+				break;
+			
+			case SearchFields_Address::VIRTUAL_TICKET_ID:
+				echo sprintf("Participant on %s <b>%s</b>",
+					1 == count($param->value) ? 'ticket' : 'tickets',
+					DevblocksPlatform::stripHTML(implode(' or ', $param->value))
+				);
 				break;
 			
 			case SearchFields_Address::VIRTUAL_WATCHERS:
