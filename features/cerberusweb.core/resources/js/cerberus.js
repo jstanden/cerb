@@ -750,3 +750,61 @@ var cAjaxCalls = function() {
 }
 
 var ajax = new cAjaxCalls();
+
+(function ($) {
+	
+	// Abstract peeks
+	
+	$.fn.cerbPeekTrigger = function(options) {
+		return this.each(function() {
+			var $trigger = $(this);
+			var context = $trigger.attr('data-context');
+			var context_id = $trigger.attr('data-context-id');
+			var layer = $trigger.attr('data-layer');
+			var edit_mode = $trigger.attr('data-edit');
+			var width = $trigger.attr('data-width');
+			
+			// Context
+			if(!(typeof context == "string") || 0 == context.length)
+				return;
+			
+			// Layer
+			if(!(typeof layer == "string") || 0 == layer.length)
+				//layer = "peek" + Devblocks.uniqueId();
+				layer = $.md5(context + ':' + context_id + ':' + edit_mode);
+			
+			$trigger.click(function() {
+				var peek_url = 'c=internal&a=showPeekPopup&context=' + encodeURIComponent(context) + '&context_id=' + encodeURIComponent(context_id);
+
+				// View
+				if(typeof options == 'object' && options.view_id)
+					peek_url += '&view_id=' + encodeURIComponent(options.view_id);
+				
+				// Edit mode
+				if(edit_mode == 'true')
+					peek_url += '&edit=1';
+				
+				if(!width)
+					width = '50%';
+				
+				// Open peek
+				var $peek = genericAjaxPopup(layer,peek_url,null,false,width);
+				
+				$trigger.trigger('cerb-peek-opened');
+				
+				$peek.on('peek_saved', function(e) {
+					$trigger.trigger('cerb-peek-saved');
+				});
+				
+				$peek.on('peek_deleted', function(e) {
+					$trigger.trigger('cerb-peek-deleted');
+				});
+				
+				$peek.on('dialogclose', function(e) {
+					$trigger.trigger('cerb-peek-closed');
+				});
+			});
+		});
+	}
+	
+}(jQuery));
