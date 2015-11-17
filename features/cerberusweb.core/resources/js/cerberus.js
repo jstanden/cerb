@@ -840,4 +840,94 @@ var ajax = new cAjaxCalls();
 		});
 	}
 	
+	// Abstract choosers
+	
+	$.fn.cerbChooserTrigger = function() {
+		return this.each(function() {
+			var $trigger = $(this);
+			var $ul = $trigger.siblings('ul.chooser-container');
+			
+			var field_name = $trigger.attr('data-field-name');
+			var context = $trigger.attr('data-context');
+			
+			// [TODO] If $ul is null, create it
+			
+			$trigger.click(function() {
+				var query = $trigger.attr('data-query');
+				var chooser_url = 'c=internal&a=chooserOpen&context=' + encodeURIComponent(context) + '&single=1';
+				
+				if(typeof query == 'string' && query.length > 0) {
+					chooser_url += '&q=' + encodeURIComponent(query);
+				}
+				
+				var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
+				
+				// [TODO] Trigger open event (if defined)
+				
+				// [TODO] Bind close event (if defined)
+				
+				$chooser.one('chooser_save', function(event) {
+					// [TODO] Trigger choose event (if defined)
+					
+					if(typeof event.values == "object" && event.values.length > 0) {
+						// Clear previous selections
+						if($trigger.attr('data-single'))
+							$ul.find('li').remove();
+						
+						// [TODO] Check for dupes
+						
+						for(i in event.labels) {
+							if(0 == $ul.find('input:hidden[value="'+event.values[i]+'"]').length) {
+								var $li = $('<li/>').text(event.labels[i]);
+								$li.append($('<input type="hidden">').attr('name',field_name).attr('value',event.values[i]));
+								$li.append($('<span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest(\'li\').remove();"></span>'));
+								$ul.append($li);
+							}
+						}
+					}
+					
+					$trigger.trigger('cerb-chooser-saved');
+				});
+			});
+			
+			// Autocomplete
+			// [TODO] Check this with a data- attr
+			if($trigger.attr('data-autocomplete')) {
+				var $autocomplete = $('<input type="text" size="45">').addClass('input_search');
+				$autocomplete.insertBefore($trigger);
+				
+				$autocomplete.autocomplete({
+					source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=' + context + '&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content'),
+					minLength: 1,
+					focus:function(event, ui) {
+						return false;
+					},
+					autoFocus:true,
+					select:function(event, ui) {
+						var $this = $(this);
+						var $label = ui.item.label;
+						var $value = ui.item.value;
+						
+						if($trigger.attr('data-single'))
+							$ul.find('li').remove();
+						
+						if(undefined != $label && undefined != $value) {
+							if(0 == $ul.find('input:hidden[value="'+$value+'"]').length) {
+								var $li = $('<li/>').text($label);
+								var $hidden = $('<input type="hidden">').attr('name', field_name).attr('title', $label).attr('value', $value).appendTo($li);
+								var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>').appendTo($li);
+								$ul.append($li);
+							}
+						}
+						
+						$this.val('');
+						return false;
+					}
+				});
+				
+				$autocomplete.autocomplete('widget').css('max-width', $autocomplete.closest('form').width());
+			}
+		});
+	}
+	
 }(jQuery));
