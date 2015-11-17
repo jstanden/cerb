@@ -236,121 +236,163 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	// Ajax
-	function savePeekAction() {
+	function savePeekJsonAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
-		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
-		@$org_name = DevblocksPlatform::importGPC($_REQUEST['org_name'],'string','');
-		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
-		@$importance = DevblocksPlatform::importGPC($_REQUEST['importance'],'integer',0);
-		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'integer',0);
-		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
-		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
-		@$spam_training = DevblocksPlatform::importGPC($_REQUEST['spam_training'],'string','');
-		@$ticket_reopen = DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string','');
-		@$comment = DevblocksPlatform::importGPC(@$_REQUEST['comment'],'string','');
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		// Load the existing model so we can detect changes
-		if(false == ($ticket = DAO_Ticket::get($id)))
-			return;
+		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
 		
-		$fields = array(
-			DAO_Ticket::SUBJECT => $subject,
-			DAO_Ticket::OWNER_ID => $owner_id,
-		);
+		try {
+			@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
+			@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
+			@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
+			@$importance = DevblocksPlatform::importGPC($_REQUEST['importance'],'integer',0);
+			@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'integer',0);
+			@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+			@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
+			@$spam_training = DevblocksPlatform::importGPC($_REQUEST['spam_training'],'string','');
+			@$ticket_reopen = DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string','');
+			@$comment = DevblocksPlatform::importGPC(@$_REQUEST['comment'],'string','');
 		
-		// Status
-		if(isset($closed)) {
-			switch($closed) {
-				case 0: // open
-					$fields[DAO_Ticket::IS_WAITING] = 0;
-					$fields[DAO_Ticket::IS_CLOSED] = 0;
-					$fields[DAO_Ticket::IS_DELETED] = 0;
-					$fields[DAO_Ticket::REOPEN_AT] = 0;
-					break;
-				case 1: // closed
-					$fields[DAO_Ticket::IS_WAITING] = 0;
-					$fields[DAO_Ticket::IS_CLOSED] = 1;
-					$fields[DAO_Ticket::IS_DELETED] = 0;
-					break;
-				case 2: // waiting
-					$fields[DAO_Ticket::IS_WAITING] = 1;
-					$fields[DAO_Ticket::IS_CLOSED] = 0;
-					$fields[DAO_Ticket::IS_DELETED] = 0;
-					break;
-				case 3: // deleted
-					$fields[DAO_Ticket::IS_WAITING] = 0;
-					$fields[DAO_Ticket::IS_CLOSED] = 1;
-					$fields[DAO_Ticket::IS_DELETED] = 1;
-					$fields[DAO_Ticket::REOPEN_AT] = 0;
-					break;
-			}
+			// Load the existing model so we can detect changes
+			if(false == ($ticket = DAO_Ticket::get($id)))
+				throw new Exception_DevblocksAjaxValidationError("There was an unexpected error when loading this ticket.");
 			
-			if(1==$closed || 2==$closed) {
-				if(!empty($ticket_reopen) && false !== ($due = strtotime($ticket_reopen))) {
-					$fields[DAO_Ticket::REOPEN_AT] = $due;
-				} else {
-					$fields[DAO_Ticket::REOPEN_AT] = 0;
-				}
-			}
-		}
-		
-		// Group/Bucket
-		if(!empty($group_id)) {
-			$fields[DAO_Ticket::GROUP_ID] = $group_id;
-			$fields[DAO_Ticket::BUCKET_ID] = $bucket_id;
-		}
-		
-		// Org
-		if(!empty($org_id) && empty($org_name)) {
-			$fields[DAO_Ticket::ORG_ID] = 0;
-		} elseif(!empty($org_name)) {
-			if(null !== ($org_lookup_id = DAO_ContactOrg::lookup($org_name, true))) {
-				$fields[DAO_Ticket::ORG_ID] = $org_lookup_id;
-			}
-		}
-		
-		// Importance
-		$importance = DevblocksPlatform::intClamp($importance, 0, 100);
-		$fields[DAO_Ticket::IMPORTANCE] = $importance;
-		
-		// Spam Training
-		if(!empty($spam_training)) {
-			if('S'==$spam_training)
-				CerberusBayes::markTicketAsSpam($id);
-			elseif('N'==$spam_training)
-				CerberusBayes::markTicketAsNotSpam($id);
-		}
-		
-		// Only update fields that changed
-		$fields = Cerb_ORMHelper::uniqueFields($fields, $ticket);
-		
-		// Do it
-		DAO_Ticket::update($id, $fields);
-		
-		// Custom field saves
-		// [TODO] Log these to the context_changeset table
-		// [TODO] Bundle with the DAO::update() call?
-		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-		DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TICKET, $id, $field_ids);
-
-		// Comments
-		if(!empty($comment)) {
-			$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
+			// Validation
+			if(empty($subject))
+				throw new Exception_DevblocksAjaxValidationError("The 'Subject' field is required.", 'subject');
 			
 			$fields = array(
-				DAO_Comment::CREATED => time(),
-				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
-				DAO_Comment::CONTEXT_ID => $id,
-				DAO_Comment::COMMENT => $comment,
-				DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-				DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
+				DAO_Ticket::SUBJECT => $subject,
 			);
-			$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+			
+			// Group
+			if(!$group_id || false == ($group = DAO_Group::get($group_id)))
+				throw new Exception_DevblocksAjaxValidationError("The given 'Group' is invalid.", 'group_id');
+			
+			// Owner
+			if(!empty($owner_id)) {
+				if(false == ($owner = DAO_Worker::get($owner_id)))
+					throw new Exception_DevblocksAjaxValidationError("The given 'Owner' is invalid.", 'owner_id');
+				
+				if(!$owner->isGroupMember($group->id))
+					throw new Exception_DevblocksAjaxValidationError(
+						sprintf("%s can't own this ticket because they are not a member of the %s group.", $owner->getName(), $group->name),
+						'owner_id'
+					);
+					
+				$fields[DAO_Ticket::OWNER_ID] = $owner_id;
+			}
+			
+			// Status
+			if(isset($closed)) {
+				switch($closed) {
+					case 0: // open
+						$fields[DAO_Ticket::IS_WAITING] = 0;
+						$fields[DAO_Ticket::IS_CLOSED] = 0;
+						$fields[DAO_Ticket::IS_DELETED] = 0;
+						$fields[DAO_Ticket::REOPEN_AT] = 0;
+						break;
+					case 1: // closed
+						$fields[DAO_Ticket::IS_WAITING] = 0;
+						$fields[DAO_Ticket::IS_CLOSED] = 1;
+						$fields[DAO_Ticket::IS_DELETED] = 0;
+						break;
+					case 2: // waiting
+						$fields[DAO_Ticket::IS_WAITING] = 1;
+						$fields[DAO_Ticket::IS_CLOSED] = 0;
+						$fields[DAO_Ticket::IS_DELETED] = 0;
+						break;
+					case 3: // deleted
+						$fields[DAO_Ticket::IS_WAITING] = 0;
+						$fields[DAO_Ticket::IS_CLOSED] = 1;
+						$fields[DAO_Ticket::IS_DELETED] = 1;
+						$fields[DAO_Ticket::REOPEN_AT] = 0;
+						break;
+				}
+				
+				if(1==$closed || 2==$closed) {
+					if(!empty($ticket_reopen) && false !== ($due = strtotime($ticket_reopen))) {
+						$fields[DAO_Ticket::REOPEN_AT] = $due;
+					} else {
+						$fields[DAO_Ticket::REOPEN_AT] = 0;
+					}
+				}
+			}
+			
+			// Group/Bucket
+			if(!empty($group_id)) {
+				$fields[DAO_Ticket::GROUP_ID] = $group_id;
+				$fields[DAO_Ticket::BUCKET_ID] = $bucket_id;
+			}
+			
+			// Org
+			$fields[DAO_Ticket::ORG_ID] = $org_id;
+			
+			// Importance
+			$importance = DevblocksPlatform::intClamp($importance, 0, 100);
+			$fields[DAO_Ticket::IMPORTANCE] = $importance;
+			
+			// Spam Training
+			if(!empty($spam_training)) {
+				if('S'==$spam_training)
+					CerberusBayes::markTicketAsSpam($id);
+				elseif('N'==$spam_training)
+					CerberusBayes::markTicketAsNotSpam($id);
+			}
+			
+			// Only update fields that changed
+			$fields = Cerb_ORMHelper::uniqueFields($fields, $ticket);
+			
+			// Do it
+			DAO_Ticket::update($id, $fields);
+			
+			// Custom field saves
+			// [TODO] Log these to the context_changeset table
+			// [TODO] Bundle with the DAO::update() call?
+			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TICKET, $id, $field_ids);
+	
+			// Comments
+			if($id && !empty($comment)) {
+				$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
+				
+				$fields = array(
+					DAO_Comment::CREATED => time(),
+					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
+					DAO_Comment::CONTEXT_ID => $id,
+					DAO_Comment::COMMENT => $comment,
+					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+					DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
+				);
+				$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+			}
+			
+			echo json_encode(array(
+				'status' => true,
+				'id' => $id,
+				'view_id' => $view_id,
+			));
+			return;
+			
+		} catch (Exception_DevblocksAjaxValidationError $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => $e->getMessage(),
+				'field' => $e->getFieldName(),
+			));
+			return;
+			
+		} catch (Exception $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => 'An error occurred.',
+			));
+			return;
+			
 		}
-		exit;
 	}
 		
 	function saveComposePeekAction() {

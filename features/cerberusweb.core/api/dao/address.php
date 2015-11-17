@@ -257,6 +257,15 @@ class DAO_Address extends Cerb_ORMHelper {
 		return NULL;
 	}
 	
+	static function countByTicketId($ticket_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT count(address_id) FROM requester WHERE ticket_id = %d",
+			$ticket_id
+		);
+		return intval($db->GetOneSlave($sql));
+	}
+	
 	static function countByContactId($org_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
