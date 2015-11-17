@@ -121,6 +121,38 @@ if(isset($columns['name']) && 0 != strcasecmp('varchar(255)', $columns['name']['
 }
 
 // ===========================================================================
+// Fix the length restrictions on the `worker_view_model` table
+
+if(!isset($tables['worker_view_model'])) {
+	$logger->error("The 'worker_view_model' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('worker_view_model');
+
+if(isset($columns['placeholder_labels_json']) && 0 == strcasecmp('text', $columns['placeholder_labels_json']['type'])) {
+	$db->ExecuteMaster("ALTER TABLE worker_view_model MODIFY COLUMN placeholder_labels_json mediumtext");
+}
+
+if(isset($columns['placeholder_values_json']) && 0 == strcasecmp('text', $columns['placeholder_values_json']['type'])) {
+	$db->ExecuteMaster("ALTER TABLE worker_view_model MODIFY COLUMN placeholder_values_json mediumtext");
+}
+
+// ===========================================================================
+// Fix the length restrictions on the `workspace_list` table
+
+if(!isset($tables['workspace_list'])) {
+	$logger->error("The 'workspace_list' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('workspace_list');
+
+if(isset($columns['list_view']) && 0 == strcasecmp('text', $columns['list_view']['type'])) {
+	$db->ExecuteMaster("ALTER TABLE workspace_list MODIFY COLUMN list_view mediumtext");
+}
+
+// ===========================================================================
 // Add contact_id to `address` records
 
 if(!isset($tables['address'])) {
