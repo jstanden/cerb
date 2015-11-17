@@ -113,11 +113,12 @@ class ChFilesController extends DevblocksControllerExtension {
 						$tidy = new tidy();
 						
 						$config = array (
+							'bare' => true,
 							'clean' => true,
+							'drop-proprietary-attributes' => true,
 							'indent' => false,
 							'output-xhtml' => true,
-							'word-2000' => true,
-							'wrap' => '0',
+							'wrap' => 0,
 						);
 						
 						if(null != ($fp_filename = DevblocksPlatform::getTempFileInfo($fp))) {

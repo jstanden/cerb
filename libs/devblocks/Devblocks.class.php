@@ -6,7 +6,7 @@ include_once(DEVBLOCKS_PATH . "api/services/bootstrap/cache.php");
 include_once(DEVBLOCKS_PATH . "api/services/bootstrap/database.php");
 include_once(DEVBLOCKS_PATH . "api/services/bootstrap/classloader.php");
 
-define('PLATFORM_BUILD', 2014032901);
+define('PLATFORM_BUILD', 2015101601);
 
 /**
  * A platform container for plugin/extension registries.
@@ -386,9 +386,9 @@ class DevblocksPlatform extends DevblocksEngine {
 			$parts = array_slice($parts, 0, $sections);
 		
 		// Pad versions with too few significant places
-		for($ctr=count($parts); $ctr < $sections; $ctr++)
-			array_unshift($parts, '0');
-		
+		while(count($parts) < $sections)
+			array_push($parts, '0');
+			
 		$v = 0;
 		$multiplier = 1;
 		foreach(array_reverse($parts) as $part) {
