@@ -86,8 +86,8 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				@$calendar_id = DevblocksPlatform::importGPC($_POST['calendar_id'],'string');
 				@$password_new = DevblocksPlatform::importGPC($_POST['password_new'],'string');
 				@$password_verify = DevblocksPlatform::importGPC($_POST['password_verify'],'string');
-				@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'integer', 0);
-				@$disabled = DevblocksPlatform::importGPC($_POST['is_disabled'],'integer',0);
+				@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'bit', 0);
+				@$disabled = DevblocksPlatform::importGPC($_POST['is_disabled'],'bit',0);
 				@$group_ids = DevblocksPlatform::importGPC($_POST['group_ids'],'array');
 				@$group_roles = DevblocksPlatform::importGPC($_POST['group_roles'],'array');
 				
@@ -97,10 +97,9 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				if(!in_array($gender, array('M','F','')))
 					$gender = '';
 				
-				$disabled = $disabled ? true : false;
 				$dob_ts = null;
 				
-				$is_superuser = ($active_worker->is_superuser && $is_superuser) ? true : false;
+				$is_superuser = ($active_worker->is_superuser && $is_superuser) ? 1 : 0;
 				
 				// ============================================
 				// Validation

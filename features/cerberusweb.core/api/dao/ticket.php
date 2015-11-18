@@ -4731,6 +4731,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'closed' => $prefix.$translate->_('ticket.closed_at'),
 			'created' => $prefix.$translate->_('common.created'),
 			'elapsed_response_first' => $prefix.$translate->_('ticket.elapsed_response_first'),
 			'elapsed_resolution_first' => $prefix.$translate->_('ticket.elapsed_resolution_first'),
@@ -4750,6 +4751,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'closed' => Model_CustomField::TYPE_DATE,
 			'created' => Model_CustomField::TYPE_DATE,
 			'elapsed_response_first' => 'time_secs',
 			'elapsed_resolution_first' => 'time_secs',

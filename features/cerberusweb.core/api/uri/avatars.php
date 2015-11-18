@@ -150,6 +150,11 @@ class Controller_Avatars extends DevblocksControllerExtension {
 					if($addy->contact_id)
 						$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT, $addy->contact_id);
 					
+					// If we don't have an avatar record, check Gravatar
+					// [TODO] Use for contact primary email?
+					//if(false == ($this->_fetchGravatarImage($avatar_context_mft->id, $avatar_context_id)))
+					//$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT, $addy->contact_id);
+					
 					$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT);
 					return;
 					break;

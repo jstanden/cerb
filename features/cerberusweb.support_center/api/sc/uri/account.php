@@ -185,12 +185,16 @@ class UmScAccountController extends Extension_UmScController {
 			return;
 			
 		@$action = DevblocksPlatform::importGPC($_POST['action'],'string','');
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		
+		if(!$id || false == ($address = DAO_Address::get($id)))
+			return;
 		
 		switch($action) {
 			case 'remove':
 				// Can't remove primary email
 				if($active_contact->primary_email_id != $address->id)
-					DAO_Address::update($address->id,array(
+					DAO_Address::update($address->id, array(
 						DAO_Address::CONTACT_ID => 0,
 					));
 				break;
