@@ -20,6 +20,8 @@ class UmScAjaxController extends Extension_UmScController {
 		@$path = $request->path;
 		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string');
 		
+		@array_shift($path); // ajax
+		
 		if(empty($a)) {
 			@$action = array_shift($path) . 'Action';
 		} else {
@@ -34,6 +36,8 @@ class UmScAjaxController extends Extension_UmScController {
 				}
 				break;
 		}
+		
+		exit;
 	}
 	
 	function viewRefreshAction(DevblocksHttpRequest $request) {
