@@ -27,23 +27,61 @@
 {foreach from=$messages item=message key=message_id}
 	{$headers = $message->getHeaders()}
 	{$sender = $message->getSender()}
+	{$sender_contact = $sender->getContact()}
+	{$sender_worker = DAO_Worker::get($message->worker_id)}
+	
 	<div class="message {if $message->is_outgoing}outbound_message{else}inbound_message{/if}" style="overflow:auto;">
 
-	{foreach from=$badge_extensions item=extension}
-		{$extension->render($message)}
-	{/foreach}
+	<div style="float:left;margin:0px 10px 10px 0px;">
+		{if $message->is_outgoing && $message->worker_id}
+		<img class="cerb-avatar" src="{devblocks_url}c=avatar&context=worker&context_id={$sender_worker->id}{/devblocks_url}?v={$sender_worker->updated}" style="height:64px;width:64px;border-radius:32px;">
+		{elseif !$message->is_outgoing && $sender_contact}
+		<img class="cerb-avatar" src="{devblocks_url}c=avatar&context=contact&context_id={$sender_contact->id}{/devblocks_url}?v={$sender_contact->updated_at}" style="height:64px;width:64px;border-radius:32px;">
+		{else}
+		<img class="cerb-avatar" src="{devblocks_url}c=avatar&context=address&context_id={$sender->id}{/devblocks_url}?v={$sender->updated}" style="height:64px;width:64px;border-radius:32px;">
+		{/if}
+	</div>
+	
+	{if $message->is_outgoing}
+	<b style="color:rgb(180,0,0);line-height:18px;vertical-align:top;margin-right:5px;">received</b>
+	{else}
+	<b style="color:rgb(0,120,0);line-height:18px;vertical-align:top;margin-right:5px;">sent</b>
+	{/if}
+	
+	{if $sender_worker}
+		<span style="font-size:18px;font-weight:bold;">{$sender_worker->getName()}</span>
+	{elseif $sender_contact}
+		{$sender_contact_org = $sender_contact->getOrg()}
+		<span style="font-size:18px;font-weight:bold;margin-right:5px;">{$sender_contact->getName()}</span>
 		
-	<span class="header"><b>{'message.header.from'|devblocks_translate|capitalize}:</b>
-		{$sender_name = $sender->getName()}
-		{if !empty($sender_name)}&quot;{$sender_name}&quot; {/if}&lt;{$sender->email}&gt; 
-	</span><br>
+		{if $sender_contact_org}
+		<span>{$sender_contact_org->name}</span>
+		{/if}
+	{else}
+		{$sender_org = $sender->getOrg()}
+		{$name = $sender->getName()}
+		{if $name}
+		<span style="font-size:18px;font-weight:bold;margin-right:5px;">{$name}</span>
+		{else}
+		<span style="font-size:18px;font-weight:bold;margin-right:5px;">{$sender->email}</span>
+		{/if}
+		
+		{if $sender_org}
+		<span>{$sender_org->name}</span>
+		{/if}
+	{/if}
+	<br>
+	
+	<span class="header"><b>{'message.header.from'|devblocks_translate|capitalize}:</b> {$headers.from}</span><br>
 	<span class="header"><b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$headers.to}</span><br>
 	{if !empty($headers.cc)}<span class="header"><b>{'message.header.cc'|devblocks_translate|capitalize}:</b> {$headers.cc}</span><br>{/if}
 	{if !empty($headers.date)}<span class="header"><b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$headers.date}</span><br>{/if}
 	<br>
 	
 	<div style="clear:both;">
-	<pre class="email">{$message->getContent()|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</pre>
+	
+	<div class="email">{$message->getContent()|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</div>
+
 	</div>
 	
 	{if isset($attachments.$message_id)}
