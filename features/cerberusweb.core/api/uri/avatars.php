@@ -193,7 +193,25 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				break;
 				
 			case CerberusContexts::CONTEXT_WORKER:
-				$n = mt_rand(1, 4);
+				$gender = '';
+				
+				if($context_id && false != ($worker = DAO_Worker::get($context_id))) {
+					$gender = $worker->gender;
+				}
+				
+				switch($gender) {
+					case 'M':
+						$male_keys = array(1,3,4);
+						$n = $male_keys[array_rand($male_keys)];
+						break;
+					case 'F':
+						$n = 2;
+						break;
+					default:
+						$n = mt_rand(1, 4);
+						break;
+				}
+				
 				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
 				break;
 				
