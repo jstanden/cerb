@@ -152,6 +152,18 @@
 		</extension>
 		
 		<extension point="usermeet.sc.controller">
+			<id>sc.controller.avatar</id>
+			<name>Avatar</name>
+			<class>
+				<file>api/sc/uri/avatar.php</file>
+				<name>UmScAvatarController</name>
+			</class>
+			<params>
+				<param key="uri" value="avatar" />
+			</params>
+		</extension>
+		
+		<extension point="usermeet.sc.controller">
 			<id>sc.controller.home</id>
 			<name>Home</name>
 			<class>
