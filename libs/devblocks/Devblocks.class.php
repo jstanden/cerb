@@ -2264,8 +2264,14 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function extractArrayValues($array, $key, $only_unique=true) {
-		if(!is_array($array) || empty($key))
+		if(empty($key) || !is_array($array))
 			return array();
+		
+		// Convert any nested objects to arrays
+		foreach($array as $k => $v) {
+			if(is_object($v))
+				$array[$k] = json_decode(json_encode($v), true);
+		}
 		
 		$results = array();
 		
