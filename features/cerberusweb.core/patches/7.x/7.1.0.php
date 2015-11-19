@@ -10,8 +10,8 @@ if(!isset($tables['context_avatar'])) {
 	$sql = sprintf("
 		CREATE TABLE context_avatar (
 		  id int(10) unsigned NOT NULL AUTO_INCREMENT,
-		  context varchar(255) NOT NULL,
-		  context_id int unsigned NOT NULL,
+		  context varchar(255) DEFAULT '',
+		  context_id int unsigned DEFAULT 0,
 		  content_type varchar(255) NOT NULL DEFAULT '',
 		  is_approved tinyint(1) unsigned NOT NULL DEFAULT '0',
 		  updated_at int(10) unsigned NOT NULL DEFAULT '0',
@@ -282,7 +282,6 @@ if(isset($tables['openid_to_contact_person'])) {
 $sql = "DELETE FROM worker_view_model WHERE view_id IN ('org_contacts')";
 $db->ExecuteMaster($sql);
 
-
 // ===========================================================================
 // Drop 'fnr_topic'
 
@@ -301,6 +300,24 @@ if(isset($tables['fnr_external_resource'])) {
 	$db->ExecuteMaster($sql);
 	
 	unset($tables['fnr_external_resource']);
+}
+
+// ===========================================================================
+// Fix 'NOT NULL' inconsistencies with MySQL strict mode
+
+if(!isset($tables['context_avatar'])) {
+	$logger->error("The 'context_avatar' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('context_avatar');
+
+if(0 == strcasecmp($columns['context']['null'], 'NO')) {
+	$db->ExecuteMaster("ALTER TABLE context_avatar MODIFY COLUMN context VARCHAR(255) DEFAULT ''");
+}
+
+if(0 == strcasecmp($columns['context_id']['null'], 'NO')) {
+	$db->ExecuteMaster("ALTER TABLE context_avatar MODIFY COLUMN context_id INT UNSIGNED DEFAULT 0");
 }
 
 // ===========================================================================
