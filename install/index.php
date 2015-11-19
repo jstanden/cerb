@@ -829,10 +829,6 @@ switch($step) {
 					
 					DAO_Worker::setAuth($worker_id, $worker_pass);
 					
-					// Authorize this e-mail address (watchers, etc.)
-					
-					DAO_AddressToWorker::assign($worker_email, $worker_id, true);
-					
 					// Default group memberships
 					
 					if(!empty($dispatch_gid))

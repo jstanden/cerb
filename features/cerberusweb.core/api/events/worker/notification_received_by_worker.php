@@ -187,7 +187,6 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 				if(false == ($va = $trigger->getVirtualAttendant()))
 					break;
 				
-				// [TODO] Refactor this to a simple email 'To:' input box
 				$addresses = DAO_AddressToWorker::getByWorker($va->owner_context_id);
 				$tpl->assign('addresses', $addresses);
 				

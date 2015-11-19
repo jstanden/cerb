@@ -114,22 +114,22 @@
 	<ul id="listWorkerEmailAddresses" style="padding:0px;margin:5px 0px 0px 10px;list-style:none;">
 		{foreach from=$addresses item=address}
 		<li style="padding-bottom:10px;">
-			<input type="hidden" name="worker_emails[]" value="{$address->address}">
+			<input type="hidden" name="worker_email_ids[]" value="{$address->address_id}">
 
-			{if 0 == strcasecmp($address->address, $active_worker->getEmailString())}
+			{if $address->address_id == $active_worker->email_id}
 			<button type="button"><span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);"></span></button>
 			{else}
 			<button type="button" onclick="if(confirm('Are you sure you want to delete this email address?')) { $(this).closest('li').remove(); }" class="delete"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></button>
 			{/if}
 
-			<b>{$address->address}</b>
+			<b>{$address->getEmailAsString()}</b>
 
 			{if $address->is_confirmed}
-				{if 0 == strcasecmp($address->address, $active_worker->getEmailString())}
+				{if $address->address_id == $active_worker->email_id}
 				(Primary)
 				{/if}
 			{else}
-			<i>(Pending Verification:</i> <a href="javascript:;" style="font-style:italic;" onclick="document.resendConfirmationForm.email.value='{$address->address}';document.resendConfirmationForm.submit();">{'preferences.account.email.address.resend.confirm'|devblocks_translate}</a>)
+			<i>(Pending Verification:</i> <a href="javascript:;" style="font-style:italic;" onclick="document.resendConfirmationForm.email.value='{$address->getEmailAsString()}';document.resendConfirmationForm.submit();">{'preferences.account.email.address.resend.confirm'|devblocks_translate}</a>)
 			{/if}
 		</li>
 		{/foreach}

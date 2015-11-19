@@ -495,6 +495,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		// We only care about these fields, so abort if they aren't referenced
 
 		$observed_fields = array(
+			DAO_Worker::EMAIL_ID,
 			DAO_Worker::IS_DISABLED,
 		);
 		
@@ -510,6 +511,19 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		foreach($before_models as $id => $before_model) {
 			$before_model = (object) $before_model;
+			
+			/*
+			 * Worker email address changed
+			 */
+			
+			@$email_id = $change_fields[DAO_Worker::EMAIL_ID];
+			
+			if($email_id == $before_model->email_id)
+				unset($change_fields[DAO_Worker::EMAIL_ID]);
+			
+			if(isset($change_fields[DAO_Worker::EMAIL_ID]) && $email_id) {
+				DAO_AddressToWorker::assign($email_id, $id, true);
+			}
 			
 			/*
 			 * Worker deactivated
@@ -593,8 +607,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$sql = sprintf("DELETE FROM worker_auth_hash WHERE worker_id = %d", $id);
 		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
-		$sql = sprintf("DELETE FROM address_to_worker WHERE worker_id = %d", $id);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		DAO_AddressToWorker::unassignAll($id);
 		
 		$sql = sprintf("DELETE FROM worker_to_group WHERE worker_id = %d", $id);
 		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
@@ -791,7 +804,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$join_sql = "FROM worker w ".
 
 		// Dynamic joins
-		(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.worker' AND context_link.to_context_id = w.id) " : " ")
+		(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.worker' AND context_link.to_context_id = w.id) " : " ").
+		(isset($tables['address']) ? "INNER JOIN address ON (w.email_id = address.id) " : " ")
 		;
 		
 		// Custom field joins
@@ -1074,6 +1088,8 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 	const TITLE = 'w_title';
 	const UPDATED = 'w_updated';
 	
+	const EMAIL_ADDRESS = 'a_address_email';
+	
 	const FULLTEXT_WORKER = 'ft_worker';
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -1113,6 +1129,8 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 			self::TITLE => new DevblocksSearchField(self::TITLE, 'w', 'title', $translate->_('worker.title'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'w', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 			
+			self::EMAIL_ADDRESS => new DevblocksSearchField(self::EMAIL_ID, 'address', 'email', ucwords($translate->_('common.email_address')), Model_CustomField::TYPE_SINGLE_LINE),
+				
 			self::FULLTEXT_WORKER => new DevblocksSearchField(self::FULLTEXT_WORKER, 'ft', 'content', $translate->_('common.content'), 'FT'),
 				
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),

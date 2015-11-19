@@ -321,6 +321,22 @@ if(0 == strcasecmp($columns['context_id']['null'], 'NO')) {
 }
 
 // ===========================================================================
+// Fix address_to_worker from using varchar for address
+
+if(!isset($tables['address_to_worker'])) {
+	$logger->error("The 'address_to_worker' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('address_to_worker');
+
+if(isset($columns['address'])) {
+	$db->ExecuteMaster("ALTER TABLE address_to_worker ADD COLUMN address_id INT UNSIGNED NOT NULL");
+	$db->ExecuteMaster("UPDATE address_to_worker INNER JOIN address ON (address_to_worker.address=address.email) SET address_id=address.id");
+	$db->ExecuteMaster("ALTER TABLE address_to_worker DROP COLUMN address, ADD PRIMARY KEY (address_id)");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
