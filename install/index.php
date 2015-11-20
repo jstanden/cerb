@@ -897,7 +897,7 @@ Simply reply to this message if you have any questions.  Our response will show 
 
 For project news, training resources, sneak peeks of development progress, tips & tricks, and more:
  * http://www.facebook.com/cerbapp
- * http://twitter.com/cerb6
+ * http://twitter.com/cerb_app
  * https://vimeo.com/channels/cerb
  * http://cerbweb.com/book/latest/worker_guide/
 
