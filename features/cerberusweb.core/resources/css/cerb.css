@@ -1187,6 +1187,26 @@ FIELDSET.black LEGEND A {
   color: #323232;
 }
 
+DIV.cerb-profile-header H1 {
+	color:black;
+}
+
+DIV.cerb-profile-header H1 > SMALL {
+	color:rgb(100,100,100);
+	font-weight:normal;
+	margin-left:5px;
+}
+
+DIV.cerb-profile-header span.glyphicons-male {
+	color:rgb(2,139,212);
+	vertical-align:middle;
+}
+
+DIV.cerb-profile-header span.glyphicons-female {
+ 	color:rgb(243,80,157);
+	vertical-align:middle;
+}
+
 DIV.cerb-profile-toolbar {
   margin-bottom: 10px;
 }
