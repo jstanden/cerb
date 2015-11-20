@@ -158,6 +158,14 @@ $(function() {
 		})
 		;
 	{/if}
+	
+	// Impersonate
+	
+	$('#btnProfileWorkerPossess').bind('click', function() {
+		genericAjaxGet('','c=internal&a=su&worker_id={$worker->id}',function(o) {
+			window.location.reload();
+		});
+	});
 });
 
 {include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
