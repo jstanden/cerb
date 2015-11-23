@@ -167,7 +167,7 @@ class ChReportGroupReplies extends Extension_Report {
 				$params[] = new DevblocksSearchCriteria(SearchFields_Message::TICKET_GROUP_ID,DevblocksSearchCriteria::OPER_IN, $filter_group_ids);
 			}
 
-			$view->addParamsRequired($params);
+			$view->addParamsRequired($params, true);
 			
 			$view->renderPage = 0;
 			$view->renderSortBy = SearchFields_Message::CREATED_DATE;
