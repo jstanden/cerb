@@ -441,20 +441,6 @@ var cAjaxCalls = function() {
 		$.ajax(options);
 	}	
 	
-	this.postAndReloadView = function(frm,view_id) {
-		
-		$('#'+view_id).fadeTo("slow", 0.2);
-		
-		genericAjaxPost(frm,view_id,'',
-			function(html) {
-				$('#'+view_id).html(html);
-				$('#'+view_id).fadeTo("slow", 1.0);
-	
-				genericAjaxPopupClose('peek');
-			}
-		);
-	}
-	
 	this.viewUndo = function(view_id) {
 		genericAjaxGet('','c=tickets&a=viewUndo&view_id=' + view_id,
 			function(html) {
@@ -764,3 +750,184 @@ var cAjaxCalls = function() {
 }
 
 var ajax = new cAjaxCalls();
+
+(function ($) {
+	
+	// Abstract peeks
+	
+	$.fn.cerbPeekTrigger = function(options) {
+		return this.each(function() {
+			var $trigger = $(this);
+			var context = $trigger.attr('data-context');
+			var context_id = $trigger.attr('data-context-id');
+			var layer = $trigger.attr('data-layer');
+			var edit_mode = $trigger.attr('data-edit');
+			var width = $trigger.attr('data-width');
+			
+			// Context
+			if(!(typeof context == "string") || 0 == context.length)
+				return;
+			
+			// Layer
+			if(!(typeof layer == "string") || 0 == layer.length)
+				//layer = "peek" + Devblocks.uniqueId();
+				layer = $.md5(context + ':' + context_id + ':' + edit_mode);
+			
+			$trigger.click(function() {
+				var peek_url = 'c=internal&a=showPeekPopup&context=' + encodeURIComponent(context) + '&context_id=' + encodeURIComponent(context_id);
+
+				// View
+				if(typeof options == 'object' && options.view_id)
+					peek_url += '&view_id=' + encodeURIComponent(options.view_id);
+				
+				// Edit mode
+				if(edit_mode == 'true')
+					peek_url += '&edit=1';
+				
+				if(!width)
+					width = '50%';
+				
+				// Open peek
+				var $peek = genericAjaxPopup(layer,peek_url,null,false,width);
+				
+				$trigger.trigger('cerb-peek-opened');
+				
+				$peek.on('peek_saved', function(e) {
+					$trigger.trigger('cerb-peek-saved');
+				});
+				
+				$peek.on('peek_deleted', function(e) {
+					$trigger.trigger('cerb-peek-deleted');
+				});
+				
+				$peek.on('dialogclose', function(e) {
+					$trigger.trigger('cerb-peek-closed');
+				});
+			});
+		});
+	}
+	
+	// Abstract searches
+	
+	$.fn.cerbSearchTrigger = function(options) {
+		return this.each(function() {
+			var $trigger = $(this);
+			var context = $trigger.attr('data-context');
+			var layer = $trigger.attr('data-layer');
+			
+			// Context
+			if(!(typeof context == "string") || 0 == context.length)
+				return;
+			
+			// Layer
+			if(!(typeof layer == "string") || 0 == layer.length)
+				layer = "search" + Devblocks.uniqueId();
+			
+			$trigger.click(function() {
+				var query = $trigger.attr('data-query');
+				
+				var search_url = 'c=search&a=openSearchPopup&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(query);
+				
+				// Open search
+				var $peek = genericAjaxPopup(layer,search_url,null,false,'90%');
+				
+				$trigger.trigger('cerb-search-opened');
+				
+				$peek.on('dialogclose', function(e) {
+					$trigger.trigger('cerb-search-closed');
+				});
+			});
+		});
+	}
+	
+	// Abstract choosers
+	
+	$.fn.cerbChooserTrigger = function() {
+		return this.each(function() {
+			var $trigger = $(this);
+			var $ul = $trigger.siblings('ul.chooser-container');
+			
+			var field_name = $trigger.attr('data-field-name');
+			var context = $trigger.attr('data-context');
+			
+			// [TODO] If $ul is null, create it
+			
+			$trigger.click(function() {
+				var query = $trigger.attr('data-query');
+				var chooser_url = 'c=internal&a=chooserOpen&context=' + encodeURIComponent(context) + '&single=1';
+				
+				if(typeof query == 'string' && query.length > 0) {
+					chooser_url += '&q=' + encodeURIComponent(query);
+				}
+				
+				var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
+				
+				// [TODO] Trigger open event (if defined)
+				
+				// [TODO] Bind close event (if defined)
+				
+				$chooser.one('chooser_save', function(event) {
+					// [TODO] Trigger choose event (if defined)
+					
+					if(typeof event.values == "object" && event.values.length > 0) {
+						// Clear previous selections
+						if($trigger.attr('data-single'))
+							$ul.find('li').remove();
+						
+						// [TODO] Check for dupes
+						
+						for(i in event.labels) {
+							if(0 == $ul.find('input:hidden[value="'+event.values[i]+'"]').length) {
+								var $li = $('<li/>').text(event.labels[i]);
+								$li.append($('<input type="hidden">').attr('name',field_name).attr('value',event.values[i]));
+								$li.append($('<span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest(\'li\').remove();"></span>'));
+								$ul.append($li);
+							}
+						}
+					}
+					
+					$trigger.trigger('cerb-chooser-saved');
+				});
+			});
+			
+			// Autocomplete
+			// [TODO] Check this with a data- attr
+			if($trigger.attr('data-autocomplete')) {
+				var $autocomplete = $('<input type="text" size="45">').addClass('input_search');
+				$autocomplete.insertBefore($trigger);
+				
+				$autocomplete.autocomplete({
+					source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=' + context + '&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content'),
+					minLength: 1,
+					focus:function(event, ui) {
+						return false;
+					},
+					autoFocus:true,
+					select:function(event, ui) {
+						var $this = $(this);
+						var $label = ui.item.label;
+						var $value = ui.item.value;
+						
+						if($trigger.attr('data-single'))
+							$ul.find('li').remove();
+						
+						if(undefined != $label && undefined != $value) {
+							if(0 == $ul.find('input:hidden[value="'+$value+'"]').length) {
+								var $li = $('<li/>').text($label);
+								var $hidden = $('<input type="hidden">').attr('name', field_name).attr('title', $label).attr('value', $value).appendTo($li);
+								var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>').appendTo($li);
+								$ul.append($li);
+							}
+						}
+						
+						$this.val('');
+						return false;
+					}
+				});
+				
+				$autocomplete.autocomplete('widget').css('max-width', $autocomplete.closest('form').width());
+			}
+		});
+	}
+	
+}(jQuery));

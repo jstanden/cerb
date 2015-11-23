@@ -138,6 +138,15 @@ class DAO_Message extends Cerb_ORMHelper {
 			true
 		);
 	}
+	
+	static function countByTicketId($ticket_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT count(id) FROM message WHERE ticket_id = %d",
+			$ticket_id
+		);
+		return intval($db->GetOneSlave($sql));
+	}
 
 	static function delete($ids) {
 		$db = DevblocksPlatform::getDatabaseService();

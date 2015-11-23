@@ -47,9 +47,6 @@
 			<class name="DAO_SupportCenterAddressShare" />
 			<class name="Model_SupportCenterAddressShare" />
 		</file>
-		<file path="api/sc/uri/ajax.php">
-			<class name="UmScAjaxController" />
-		</file>
 		<file path="api/sc/uri/history.php">
 			<class name="UmSc_TicketHistoryView" />
 		</file>
@@ -142,6 +139,30 @@
 		
 		<!-- Support Center Modules -->
 
+		<extension point="usermeet.sc.controller">
+			<id>sc.controller.ajax</id>
+			<name>Ajax</name>
+			<class>
+				<file>api/sc/uri/ajax.php</file>
+				<name>UmScAjaxController</name>
+			</class>
+			<params>
+				<param key="uri" value="ajax" />
+			</params>
+		</extension>
+		
+		<extension point="usermeet.sc.controller">
+			<id>sc.controller.avatar</id>
+			<name>Avatar</name>
+			<class>
+				<file>api/sc/uri/avatar.php</file>
+				<name>UmScAvatarController</name>
+			</class>
+			<params>
+				<param key="uri" value="avatar" />
+			</params>
+		</extension>
+		
 		<extension point="usermeet.sc.controller">
 			<id>sc.controller.home</id>
 			<name>Home</name>

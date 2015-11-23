@@ -48,7 +48,7 @@ function linkAddContext(ref) {
 		}
 	}
 	
-	var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context=' + $context + '&context_id=0&link_context={$context}&link_context_id={$context_id}',null,false,'750');
+	var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context=' + $context + '&context_id=0&link_context={$context}&link_context_id={$context_id}',null,false,'50%');
 	$popup.one('dialogclose', reload_action);
 	
 	$select.val('');
@@ -63,7 +63,7 @@ function chooserOpen(ref) {
 		
 	var $context = $select.val();
 	
-	var $popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context='+encodeURIComponent($context) + '&link_context={$context}&link_context_id={$context_id}',null,true,'750');
+	var $popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context='+encodeURIComponent($context) + '&link_context={$context}&link_context_id={$context_id}',null,false,'90%');
 	$popup.one('chooser_save', function(event) {
 		event.stopPropagation();
 		$id = $context.replace(/\./g,'_');

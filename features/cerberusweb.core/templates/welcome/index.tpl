@@ -36,7 +36,7 @@
 			<a href="http://www.facebook.com/cerbapp" target="_blank">Become a fan on Facebook</a>
 		</li>
 		<li>
-			<a href="http://twitter.com/cerb6" target="_blank">Follow our Twitter feed</a>
+			<a href="http://twitter.com/cerb_app" target="_blank">Follow our Twitter feed</a>
 		</li>
 		<li>
 			<a href="http://www.linkedin.com/groups/Cerberus-Helpdesk-3317589?mostPopular=&gid=3317589" target="_blank">Join our group on LinkedIn</a>

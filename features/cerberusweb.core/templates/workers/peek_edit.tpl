@@ -77,7 +77,7 @@
 		<tr>
 			<td width="1%" nowrap="nowrap" align="right"><b>{'common.dob'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
-				<input type="text" name="dob" value="{if $worker->dob}{$worker->dob|devblocks_date}{/if}" style="width:98%;" autocomplete="off" spellcheck="false">
+				<input type="text" name="dob" value="{if $worker->dob}{$worker->dob}{/if}" style="width:98%;" autocomplete="off" spellcheck="false">
 			</td>
 		</tr>
 		

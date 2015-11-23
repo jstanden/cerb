@@ -16,10 +16,11 @@
 	
 	{if in_array('workers',$show)}
 	{foreach from=$addresses item=address key=address_key}
+	{$address_email = $address->getEmailAsString()}
 	<li>
 		<label>
-		<input type="checkbox" name="{$namePrefix}[to][]" value="{$address_key}" {if in_array($address_key,$params.to)}checked="checked"{/if}>
-		{$address->address} ({$workers.{$address->worker_id}->getName()})
+		<input type="checkbox" name="{$namePrefix}[to][]" value="{$address_email}" {if in_array($address_email,$params.to)}checked="checked"{/if}>
+		<b>{$address_email}</b> ({$workers.{$address->worker_id}->getName()})
 		</label>
 	</li>
 	{/foreach}
@@ -43,6 +44,8 @@ Lines that begin with <code>##</code> will be ignored on reply.
 <label><input type="checkbox" name="{$namePrefix}[include_attachments]" value="1" {if $params.include_attachments}checked="checked"{/if}> Include attachments</label><br>
 
 <script type="text/javascript">
-$action = $('fieldset#{$namePrefix}');
-$action.find('textarea').autosize();
+$(function() {
+	var $action = $('fieldset#{$namePrefix}');
+	$action.find('textarea').autosize();
+});
 </script>

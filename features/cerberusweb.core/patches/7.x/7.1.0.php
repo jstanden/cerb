@@ -10,8 +10,8 @@ if(!isset($tables['context_avatar'])) {
 	$sql = sprintf("
 		CREATE TABLE context_avatar (
 		  id int(10) unsigned NOT NULL AUTO_INCREMENT,
-		  context varchar(255) NOT NULL,
-		  context_id int unsigned NOT NULL,
+		  context varchar(255) DEFAULT '',
+		  context_id int unsigned DEFAULT 0,
 		  content_type varchar(255) NOT NULL DEFAULT '',
 		  is_approved tinyint(1) unsigned NOT NULL DEFAULT '0',
 		  updated_at int(10) unsigned NOT NULL DEFAULT '0',
@@ -73,7 +73,7 @@ if(!isset($columns['gender'])) {
 }
 
 if(!isset($columns['dob'])) {
-	$changes[] = "ADD COLUMN dob int unsigned not null default 0";
+	$changes[] = "ADD COLUMN dob date default NULL";
 }
 
 if(!isset($columns['location'])) {
@@ -121,6 +121,38 @@ if(isset($columns['name']) && 0 != strcasecmp('varchar(255)', $columns['name']['
 }
 
 // ===========================================================================
+// Fix the length restrictions on the `worker_view_model` table
+
+if(!isset($tables['worker_view_model'])) {
+	$logger->error("The 'worker_view_model' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('worker_view_model');
+
+if(isset($columns['placeholder_labels_json']) && 0 == strcasecmp('text', $columns['placeholder_labels_json']['type'])) {
+	$db->ExecuteMaster("ALTER TABLE worker_view_model MODIFY COLUMN placeholder_labels_json mediumtext");
+}
+
+if(isset($columns['placeholder_values_json']) && 0 == strcasecmp('text', $columns['placeholder_values_json']['type'])) {
+	$db->ExecuteMaster("ALTER TABLE worker_view_model MODIFY COLUMN placeholder_values_json mediumtext");
+}
+
+// ===========================================================================
+// Fix the length restrictions on the `workspace_list` table
+
+if(!isset($tables['workspace_list'])) {
+	$logger->error("The 'workspace_list' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('workspace_list');
+
+if(isset($columns['list_view']) && 0 == strcasecmp('text', $columns['list_view']['type'])) {
+	$db->ExecuteMaster("ALTER TABLE workspace_list MODIFY COLUMN list_view mediumtext");
+}
+
+// ===========================================================================
 // Add contact_id to `address` records
 
 if(!isset($tables['address'])) {
@@ -147,7 +179,7 @@ if(!isset($tables['contact'])) {
 		  org_id int unsigned NOT NULL DEFAULT 0,
 			username varchar(64) NOT NULL DEFAULT '',
 			gender char(1) NOT NULL DEFAULT '',
-			dob int(10) unsigned NOT NULL DEFAULT 0,
+			dob date DEFAULT NULL,
 			location varchar(255) NOT NULL DEFAULT '',
 		  primary_email_id int unsigned NOT NULL DEFAULT 0,
 		  phone varchar(64) NOT NULL DEFAULT '',
@@ -189,6 +221,14 @@ if(!isset($tables['contact'])) {
 		// Reset index cerb.search.schema.contact (cron.search needs to reindex the new 'contact' records)
 		$sql = "DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.contact'";
 		$db->ExecuteMaster($sql);
+	}
+	
+} else {
+	list($columns, $indexes) = $db->metaTable('contact');
+	
+	if(isset($columns['dob']) && 0 == strcasecmp('int(10) unsigned', $columns['dob']['type'])) {
+		$db->ExecuteMaster("ALTER TABLE contact DROP COLUMN dob ");
+		$db->ExecuteMaster("ALTER TABLE contact ADD COLUMN dob date default null");
 	}
 }
 
@@ -242,7 +282,6 @@ if(isset($tables['openid_to_contact_person'])) {
 $sql = "DELETE FROM worker_view_model WHERE view_id IN ('org_contacts')";
 $db->ExecuteMaster($sql);
 
-
 // ===========================================================================
 // Drop 'fnr_topic'
 
@@ -261,6 +300,40 @@ if(isset($tables['fnr_external_resource'])) {
 	$db->ExecuteMaster($sql);
 	
 	unset($tables['fnr_external_resource']);
+}
+
+// ===========================================================================
+// Fix 'NOT NULL' inconsistencies with MySQL strict mode
+
+if(!isset($tables['context_avatar'])) {
+	$logger->error("The 'context_avatar' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('context_avatar');
+
+if(0 == strcasecmp($columns['context']['null'], 'NO')) {
+	$db->ExecuteMaster("ALTER TABLE context_avatar MODIFY COLUMN context VARCHAR(255) DEFAULT ''");
+}
+
+if(0 == strcasecmp($columns['context_id']['null'], 'NO')) {
+	$db->ExecuteMaster("ALTER TABLE context_avatar MODIFY COLUMN context_id INT UNSIGNED DEFAULT 0");
+}
+
+// ===========================================================================
+// Fix address_to_worker from using varchar for address
+
+if(!isset($tables['address_to_worker'])) {
+	$logger->error("The 'address_to_worker' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('address_to_worker');
+
+if(isset($columns['address'])) {
+	$db->ExecuteMaster("ALTER TABLE address_to_worker ADD COLUMN address_id INT UNSIGNED NOT NULL");
+	$db->ExecuteMaster("UPDATE address_to_worker INNER JOIN address ON (address_to_worker.address=address.email) SET address_id=address.id");
+	$db->ExecuteMaster("ALTER TABLE address_to_worker DROP COLUMN address, ADD PRIMARY KEY (address_id)");
 }
 
 // ===========================================================================

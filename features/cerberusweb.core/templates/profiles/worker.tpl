@@ -3,12 +3,31 @@
 
 {$memberships = $worker->getMemberships()}
 
-<div style="float:left;margin-right:10px;">
-	<img src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}" style="height:75px;width:75px;border-radius:5px;border:1px solid rgb(235,235,235);">
+<div style="float:left;margin-right:10px;position:relative;">
+	<img src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}" style="height:75px;width:75px;border-radius:5px;">
+	{if $worker->is_disabled}<span class="plugin_icon_overlay_disabled" style="background-size:75px 75px;"></span>{/if}
 </div>
 
-<div style="float:left;">
-	<h1>{$worker->getName()}</h1>
+<div style="float:left;" class="cerb-profile-header">
+	<h1>
+	{$worker->getName()}
+	
+	{if $worker->gender == 'M'}
+	<span class="glyphicons glyphicons-male"></span>
+	{elseif $worker->gender == 'F'}
+	<span class="glyphicons glyphicons-female"></span>
+	{/if}
+	
+	{if $worker->at_mention_name}
+	<small>@{$worker->at_mention_name}</small>
+	{/if}
+	</h1>
+	
+	{if $worker->title}
+	<div>
+		{$worker->title}
+	</div>
+	{/if}
 	
 	<div class="cerb-profile-toolbar" style="margin:5px;">
 		<form class="toolbar" action="javascript:;" method="POST" style="margin:0px 0px 5px 0px;" onsubmit="return false;">
@@ -158,6 +177,14 @@ $(function() {
 		})
 		;
 	{/if}
+	
+	// Impersonate
+	
+	$('#btnProfileWorkerPossess').bind('click', function() {
+		genericAjaxGet('','c=internal&a=su&worker_id={$worker->id}',function(o) {
+			window.location.reload();
+		});
+	});
 });
 
 {include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}

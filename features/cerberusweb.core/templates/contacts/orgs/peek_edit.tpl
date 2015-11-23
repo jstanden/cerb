@@ -95,14 +95,29 @@
 	<textarea name="comment" rows="2" cols="45" style="width:98%;" placeholder="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
 </fieldset>
 
+{if !empty($org->id)}
+<fieldset style="display:none;" class="delete">
+	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
+	
+	<div>
+		Are you sure you want to permanently delete this organization?
+	</div>
+	
+	<button type="button" class="delete"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.yes'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+</fieldset>
+{/if}
+
 <div class="status"></div>
 
-{if $active_worker->hasPriv('core.addybook.org.actions.update')}
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $active_worker->hasPriv('core.addybook.org.actions.delete') && !empty($org->id)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this organization?')) { $('#{$form_id} input[name=do_delete]').val('1'); genericAjaxPopupPostCloseReloadView(null,'{$form_id}','{$view_id}',false,'org_delete'); } "><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
-{else}
-	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>
-{/if}
+<div class="buttons">
+	{if $active_worker->hasPriv('core.addybook.org.actions.update')}
+		<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		{if $active_worker->hasPriv('core.addybook.org.actions.delete') && !empty($org->id)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{else}
+		<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>
+	{/if}
+</div>
 
 {if !empty($org->id)}
 <div style="float:right;">
@@ -121,6 +136,7 @@ $(function() {
 		
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		
 		// Abstract choosers
 		$popup.find('button.chooser-abstract').cerbChooserTrigger();
@@ -148,10 +164,6 @@ $(function() {
 		});
 		
 		// Country autocomplete
-		
-		// [TODO] Fix
-		//$popup.find('form input[name=country]').cerbAutocompleteCountry();
-		//ajax.countryAutoComplete('#org_country_input');
 		ajax.countryAutoComplete($popup.find('form input[name=country]'));
 		
 		// Avatar

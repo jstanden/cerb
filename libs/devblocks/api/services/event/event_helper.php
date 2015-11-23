@@ -4270,13 +4270,13 @@ class DevblocksEventHelper {
 				
 			// Email address strings
 			} elseif (is_string($to)) {
-				if(null == ($worker_address = DAO_AddressToWorker::getByAddress($to)))
+				if(null == ($worker_address = DAO_AddressToWorker::getByEmail($to)))
 					continue;
 					
-				if(null == ($worker = DAO_Worker::get($worker_address->worker_id)))
+				if(null == ($worker = $worker_address->getWorker()))
 					continue;
 				
-				$to_list[$worker_address->address] = $worker;
+				$to_list[$worker_address->getEmailAsString()] = $worker;
 			}
 		}
 		

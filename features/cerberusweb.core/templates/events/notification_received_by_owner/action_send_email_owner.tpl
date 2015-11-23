@@ -1,12 +1,18 @@
+{$addy_ids = DevblocksPlatform::extractArrayValues($addresses, 'address_id')}
+{$object_addys = DAO_Address::getIds($addy_ids)}
+
 <b>{'message.header.to'|devblocks_translate|capitalize}:</b><br>
 <ul style="margin:0px 0px 10px 15px;padding:0;list-style:none;max-height:150px;overflow:auto;">
 {foreach from=$addresses item=address key=address_key}
+{$object_addy = $object_addys.{$address->address_id}}
+{if $object_addy}
 <li>
 	<label>
 	<input type="checkbox" name="{$namePrefix}[to][]" value="{$address_key}" {if in_array($address_key,$params.to)}checked="checked"{/if}>
-	{$address->address} ({$workers.{$address->worker_id}->getName()})
+	<b>{$object_addy->email}</b> ({$workers.{$address->worker_id}->getName()})
 	</label>
 </li>
+{/if}
 {/foreach}
 </ul>
 

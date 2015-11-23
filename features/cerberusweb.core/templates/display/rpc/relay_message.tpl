@@ -33,14 +33,16 @@
 	
 	<input type="text" size="64" class="input_search filter" style="width:90%;">
 
+
 	<ul class="cerb-popupmenu" id="{$menu_divid}" style="display:block;margin-bottom:5px;max-height:200px;overflow-x:hidden;overflow-y:auto;">
 		{foreach from=$workers_with_relays item=worker}
 			{if !empty($worker->relay_emails)}
+				{$object_addys = DAO_Address::getIds($worker->relay_emails)}
 			
-				{foreach from=$worker->relay_emails item=email}
-				<li email="{$email}" label="{$email}">
+				{foreach from=$object_addys item=addy}
+				<li email="{$addy->email}" label="{$addy->email}">
 					<div class="item">
-						<a href="javascript:;">{$email}</a><br>
+						<a href="javascript:;">{$addy->email}</a><br>
 						<div style="margin-left:10px;">{$worker->getName()}</div>
 					</div>
 				</li>

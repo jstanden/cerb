@@ -1,7 +1,7 @@
 {$div_id = "peek{uniqid()}"}
 
-{$contact = DAO_Contact::get($address.a_contact_id)}
-{$org = DAO_ContactOrg::get($address.a_contact_org_id)}
+{$contact = DAO_Contact::get($address->contact_id)}
+{$org = DAO_ContactOrg::get($address->contact_org_id)}
 
 <div id="{$div_id}">
 	{if $contact}
@@ -19,17 +19,17 @@
 	{/if}
 	
 	<div style="float:left;">
-		<h1 style="color:inherit;">{$address.a_email}</h1>
+		<h1 style="color:inherit;">{$address->email}</h1>
 
 		<div style="margin:5px 0px 10px 0px;">
-			{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_ADDRESS, array($address.a_id), CerberusContexts::CONTEXT_WORKER)}
-			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_ADDRESS context_id=$address.a_id full=true}
+			{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_ADDRESS, array($address->id), CerberusContexts::CONTEXT_WORKER)}
+			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_ADDRESS context_id=$address->id full=true}
 			
-			<button type="button" class="cerb-peek-edit" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$address.a_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cerb-peek-edit" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$address->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 			
 			{if $address}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
 			
-			{$email_parts = explode('@',$address.a_email)}
+			{$email_parts = explode('@',$address->email)}
 			{if is_array($email_parts) && 2==count($email_parts)}
 				{$domain = $email_parts.1}
 				<button type="button" onclick="window.open('http://www.{$domain|escape:'url'}');"><span class="glyphicons glyphicons-link"></span> {'common.website'|devblocks_translate|capitalize}</button>
@@ -69,10 +69,10 @@
 	<legend>{'common.tickets'|devblocks_translate|capitalize}</legend>
 	
 	<div>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="participant.id:{$address.a_id} status:o,w,c"><div class="badge-count">{$activity_counts.tickets.total|default:0}</div> {'common.all'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="participant.id:{$address.a_id} status:o"><div class="badge-count">{$activity_counts.tickets.open|default:0}</div> {'status.open'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="participant.id:{$address.a_id} status:w"><div class="badge-count">{$activity_counts.tickets.waiting|default:0}</div> {'status.waiting'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="participant.id:{$address.a_id} status:c"><div class="badge-count">{$activity_counts.tickets.closed|default:0}</div> {'status.closed'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="participant.id:{$address->id} status:o,w,c"><div class="badge-count">{$activity_counts.tickets.total|default:0}</div> {'common.all'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="participant.id:{$address->id} status:o"><div class="badge-count">{$activity_counts.tickets.open|default:0}</div> {'status.open'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="participant.id:{$address->id} status:w"><div class="badge-count">{$activity_counts.tickets.waiting|default:0}</div> {'status.waiting'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="participant.id:{$address->id} status:c"><div class="badge-count">{$activity_counts.tickets.closed|default:0}</div> {'status.closed'|devblocks_translate|capitalize}</button>
 	</div>
 
 {include file="devblocks:cerberusweb.core::internal/peek/peek_links.tpl" links=$links}
@@ -91,7 +91,7 @@ $(function() {
 		$popup.find('button.cerb-peek-edit')
 			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
 			.on('cerb-peek-saved', function(e) {
-				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$address.a_id}&view_id={$view_id}','reuse',false,'50%');
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$address->id}&view_id={$view_id}','reuse',false,'50%');
 			})
 			.on('cerb-peek-deleted', function(e) {
 				genericAjaxPopupClose($layer);
@@ -109,10 +109,10 @@ $(function() {
 		// View profile
 		$popup.find('.cerb-peek-profile').click(function(e) {
 			if(e.metaKey) {
-				window.open('{devblocks_url}c=profiles&type=address&id={$address.a_id}-{$address.a_email|devblocks_permalink}{/devblocks_url}', '_blank');
+				window.open('{devblocks_url}c=profiles&type=address&id={$address->id}-{$address->email|devblocks_permalink}{/devblocks_url}', '_blank');
 				
 			} else {
-				document.location='{devblocks_url}c=profiles&type=address&id={$address.a_id}-{$address.a_email|devblocks_permalink}{/devblocks_url}';
+				document.location='{devblocks_url}c=profiles&type=address&id={$address->id}-{$address->email|devblocks_permalink}{/devblocks_url}';
 			}
 		});
 	});

@@ -208,12 +208,6 @@ class UmScApp extends Extension_UsermeetTool {
 		DevblocksPlatform::setLocale($default_locale);
 		
 		switch($module_uri) {
-			case 'ajax':
-				$controller = new UmScAjaxController(null);
-				$controller->handleRequest(new DevblocksHttpRequest($stack));
-				exit;
-				break;
-			
 			default:
 				$modules = $this->_getModules();
 				$controller = null;
@@ -223,7 +217,7 @@ class UmScApp extends Extension_UsermeetTool {
 				}
 				
 				array_unshift($stack, $module_uri);
-		
+				
 				if(!is_null($controller))
 					$controller->handleRequest(new DevblocksHttpRequest($stack));
 					

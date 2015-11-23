@@ -50,7 +50,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		try {
 			if(!$active_worker || !$active_worker->is_superuser)
 				throw new Exception_DevblocksAjaxValidationError("You don't have permission to edit this record.");
-			
+	
 			if(empty($first_name)) $first_name = "Anonymous";
 			
 			if(!empty($id) && !empty($delete)) {
@@ -71,7 +71,6 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				@$first_name = DevblocksPlatform::importGPC($_POST['first_name'],'string');
 				@$last_name = DevblocksPlatform::importGPC($_POST['last_name'],'string');
 				@$title = DevblocksPlatform::importGPC($_POST['title'],'string');
-				@$email = trim(strtolower(DevblocksPlatform::importGPC($_POST['email'],'string')));
 				@$email_id = DevblocksPlatform::importGPC($_POST['email_id'],'integer', 0);
 				@$dob = DevblocksPlatform::importGPC($_POST['dob'],'string', '');
 				@$location = DevblocksPlatform::importGPC($_POST['location'],'string', '');
@@ -86,8 +85,8 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				@$calendar_id = DevblocksPlatform::importGPC($_POST['calendar_id'],'string');
 				@$password_new = DevblocksPlatform::importGPC($_POST['password_new'],'string');
 				@$password_verify = DevblocksPlatform::importGPC($_POST['password_verify'],'string');
-				@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'integer', 0);
-				@$disabled = DevblocksPlatform::importGPC($_POST['is_disabled'],'integer',0);
+				@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'bit', 0);
+				@$disabled = DevblocksPlatform::importGPC($_POST['is_disabled'],'bit',0);
 				@$group_ids = DevblocksPlatform::importGPC($_POST['group_ids'],'array');
 				@$group_roles = DevblocksPlatform::importGPC($_POST['group_roles'],'array');
 				
@@ -97,9 +96,9 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				if(!in_array($gender, array('M','F','')))
 					$gender = '';
 				
-				$disabled = $disabled ? true : false;
+				$dob_ts = null;
 				
-				$is_superuser = ($active_worker->is_superuser && $is_superuser) ? true : false;
+				$is_superuser = ($active_worker->is_superuser && $is_superuser) ? 1 : 0;
 				
 				// ============================================
 				// Validation
@@ -109,6 +108,9 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				
 				if(empty($email_id))
 					throw new Exception_DevblocksAjaxValidationError("The 'Email' field is required.", 'email_id');
+				
+				if(!empty($dob) && false == ($dob_ts = strtotime($dob . ' 00:00 GMT')))
+					throw new Exception_DevblocksAjaxValidationError("The specified date of birth is invalid.", 'dob');
 				
 				// Verify that the given email address exists
 				if(false == ($worker_address = DAO_Address::get($email_id)))
@@ -186,7 +188,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 						DAO_Worker::TIME_FORMAT => $time_format,
 						DAO_Worker::GENDER => $gender,
 						DAO_Worker::LOCATION => $location,
-						DAO_Worker::DOB => @strtotime($dob),
+						DAO_Worker::DOB => (null == $dob_ts) ? null : gmdate('Y-m-d', $dob_ts),
 						DAO_Worker::MOBILE => $mobile,
 						DAO_Worker::PHONE => $phone,
 					);
@@ -245,7 +247,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 					DAO_Worker::TIME_FORMAT => $time_format,
 					DAO_Worker::GENDER => $gender,
 					DAO_Worker::LOCATION => $location,
-					DAO_Worker::DOB => @strtotime($dob),
+					DAO_Worker::DOB => (null == $dob_ts) ? null : gmdate('Y-m-d', $dob_ts),
 					DAO_Worker::MOBILE => $mobile,
 					DAO_Worker::PHONE => $phone,
 					DAO_Worker::CALENDAR_ID => $calendar_id,
@@ -269,11 +271,6 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 					}
 				}
 	
-				// Addresses
-				if(null == DAO_AddressToWorker::getByAddress($worker_address->email)) {
-					DAO_AddressToWorker::assign($worker_address->email, $id, true);
-				}
-				
 				if($id) {
 					// Custom field saves
 					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());

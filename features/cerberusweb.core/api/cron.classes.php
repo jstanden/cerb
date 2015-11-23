@@ -932,9 +932,6 @@ class ImportCron extends CerberusCronPageExtension {
 		if(!empty($sPassword))
 			DAO_Worker::setAuth($worker_id, $sPassword, true);
 		
-		// Address to Worker
-		DAO_AddressToWorker::assign($sEmail, $worker_id, true);
-		
 		$logger->info('[Importer] Imported worker #'.$worker_id.' ('.$sEmail.')');
 		
 		DAO_Worker::clearCache();

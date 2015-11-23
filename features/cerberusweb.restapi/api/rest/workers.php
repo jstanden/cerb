@@ -76,8 +76,6 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		$values = array();
 		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $model, $labels, $values, null, true);
 
-//		unset($values['initial_message_content']);
-
 		return $values;
 	}
 	
@@ -90,7 +88,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		
 		if('dao'==$type) {
 			$tokens = array(
-				'email' => DAO_Worker::EMAIL,
+				'email_id' => DAO_Worker::EMAIL_ID,
 				'first_name' => DAO_Worker::FIRST_NAME,
 				'is_disabled' => DAO_Worker::IS_DISABLED,
 				'is_superuser' => DAO_Worker::IS_SUPERUSER,
@@ -120,7 +118,8 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		} else {
 			$tokens = array(
 				'id' => SearchFields_Worker::ID,
-				'email' => SearchFields_Worker::EMAIL,
+				'email_id' => SearchFields_Worker::EMAIL_ID,
+				'email' => SearchFields_Worker::EMAIL_ADDRESS,
 				'first_name' => SearchFields_Worker::FIRST_NAME,
 				'is_disabled' => SearchFields_Worker::IS_DISABLED,
 				'is_superuser' => SearchFields_Worker::IS_SUPERUSER,
@@ -256,6 +255,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid worker ID '%d'", $id));
 			
 		$putfields = array(
+			'email_id' => 'integer',
 			'first_name' => 'string',
 			'is_disabled' => 'bit',
 			'is_superuser' => 'bit',
@@ -291,9 +291,10 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		DAO_Worker::update($id, $fields);
 		
 		// Password change?
-		if(isset($putfields['password']) && !empty($putfields['password']))
-			DAO_Worker::setAuth($id, $putfields['password']);
-		
+		@$password = DevblocksPlatform::importGPC($_POST['password'], 'string', '');
+		if(!empty($password))
+			DAO_Worker::setAuth($id, $password);
+	
 		$this->getId($id);
 	}
 	
@@ -305,7 +306,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			$this->error(self::ERRNO_ACL);
 		
 		$postfields = array(
-			'email' => 'string',
+			'email_id' => 'integer',
 			'first_name' => 'string',
 			'is_disabled' => 'bit',
 			'is_superuser' => 'bit',
@@ -315,6 +316,17 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		);
 
 		$fields = array();
+		
+		// If we're given an email address as a string, convert it to email_id
+		if(isset($_POST['email'])) {
+			@$email = DevblocksPlatform::importGPC($_POST['email'], 'string', '');
+			
+			if(false == ($addy_model = DAO_Address::lookupAddress($email, true)))
+				$this->error(self::ERRNO_CUSTOM, "'email' is an invalid value.");
+			
+			$_POST['email_id'] = $addy_model->id;
+			unset($_POST['email']);
+		}
 		
 		foreach($postfields as $postfield => $type) {
 			if(!isset($_POST[$postfield]))
@@ -332,9 +344,13 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			$fields[$field] = $value;
 		}
 		
+		if(false == ($addy_model = DAO_Address::get($fields['email_id'])))
+			$this->error(self::ERRNO_CUSTOM, "'email_id' is an invalid value.");
+		
 		// Check required fields
 		$reqfields = array(
-			DAO_Worker::EMAIL,
+			'email_id',
+			'first_name',
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
 		
@@ -342,19 +358,10 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		
 		// Create
 		if(false != ($id = DAO_Worker::create($fields))) {
-			$email = $fields[DAO_Worker::EMAIL];
-			
-			// Add the worker e-mail to the addresses table
-			DAO_Address::lookupAddress($email, true);
-			
-			// Addresses
-			if(null == DAO_AddressToWorker::getByAddress($email)) {
-				DAO_AddressToWorker::assign($email, $id, true);
-			}
-			
 			// Password (optional)
-			if(isset($postfields['password']) && !empty($postfields['password']))
-				DAO_Worker::setAuth($id, $postfields['password']);
+			@$password = DevblocksPlatform::importGPC($_POST['password'], 'string', '');
+			if(!empty($password))
+				DAO_Worker::setAuth($id, $password);
 			
 			// Handle custom fields
 			$customfields = $this->_handleCustomFields($_POST);

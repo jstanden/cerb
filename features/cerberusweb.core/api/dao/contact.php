@@ -220,7 +220,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 			$object->org_id = intval($row['org_id']);
 			$object->username = $row['username'];
 			$object->gender = $row['gender'];
-			$object->dob = intval($row['dob']);
+			$object->dob = $row['dob'];
 			$object->location = $row['location'];
 			$object->phone = $row['phone'];
 			$object->mobile = $row['mobile'];

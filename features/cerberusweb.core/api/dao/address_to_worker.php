@@ -18,48 +18,43 @@
 class DAO_AddressToWorker extends Cerb_ORMHelper {
 	const _CACHE_ALL = 'cerb:dao:address_to_worker:all';
 	
-	const ADDRESS = 'address';
+	const ADDRESS_ID = 'address_id';
 	const WORKER_ID = 'worker_id';
 	const IS_CONFIRMED = 'is_confirmed';
 	const CODE = 'code';
 	const CODE_EXPIRE = 'code_expire';
 
-	static function assign($address, $worker_id, $is_confirmed=false) {
+	static function assign($address_id, $worker_id, $is_confirmed=false) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		// Force lowercase
-		$address = trim(strtolower($address));
+		if(empty($address_id) || empty($worker_id))
+			return false;
 
-		if(empty($address) || empty($worker_id))
-			return NULL;
-
-		$sql = sprintf("REPLACE INTO address_to_worker (address, worker_id, is_confirmed, code, code_expire) ".
-			"VALUES (%s, %d, %d, '', 0)",
-			$db->qstr($address),
+		$sql = sprintf("REPLACE INTO address_to_worker (address_id, worker_id, is_confirmed, code, code_expire) ".
+			"VALUES (%d, %d, %d, '', 0)",
+			$address_id,
 			$worker_id,
 			($is_confirmed ? 1 : 0)
 		);
 		$db->ExecuteMaster($sql);
 
 		self::clearCache();
-		
-		return $address;
+		return true;
 	}
 
-	static function unassign($address) {
+	static function unassign($address_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$address = trim(strtolower($address));
-		
-		if(empty($address))
-			return NULL;
+		if(empty($address_id))
+			return false;
 			
-		$sql = sprintf("DELETE FROM address_to_worker WHERE address = %s",
-			$db->qstr($address)
+		$sql = sprintf("DELETE FROM address_to_worker WHERE address_id = %d",
+			$address_id
 		);
 		$db->ExecuteMaster($sql);
 		
 		self::clearCache();
+		return true;
 	}
 	
 	static function unassignAll($worker_id) {
@@ -76,13 +71,16 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 		self::clearCache();
 	}
 	
-	static function update($addresses, $fields) {
-		if(!is_array($addresses)) $addresses = array($addresses);
+	static function update($address_ids, $fields) {
+		if(!is_array($address_ids))
+			$address_ids = array($address_ids);
+		
+		$address_ids = DevblocksPlatform::sanitizeArray($address_ids, 'int');
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		$sets = array();
 		
-		if(!is_array($fields) || empty($fields) || empty($addresses))
+		if(!is_array($fields) || empty($fields) || empty($address_ids))
 			return;
 		
 		foreach($fields as $k => $v) {
@@ -97,11 +95,11 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 			);
 		}
 		
-		$sql = sprintf("UPDATE %s SET %s WHERE %s IN ('%s')",
+		$sql = sprintf("UPDATE %s SET %s WHERE %s IN (%s)",
 			'address_to_worker',
 			implode(', ', $sets),
-			self::ADDRESS,
-			implode("','", $addresses)
+			$db->escape(self::ADDRESS_ID),
+			implode(',', $address_ids)
 		);
 		$db->ExecuteMaster($sql);
 		
@@ -138,7 +136,7 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 			if(!isset($workers[$addy->worker_id]->relay_emails))
 				$workers[$addy->worker_id]->relay_emails = array();
 				
-			$workers[$addy->worker_id]->relay_emails[] = $addy->address;
+			$workers[$addy->worker_id]->relay_emails[] = $addy->address_id;
 		});
 		
 		return $workers;
@@ -150,12 +148,31 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 	 * @param integer $address
 	 * @return Model_AddressToWorker
 	 */
-	static function getByAddress($address) {
-		$addresses = self::getAll(); // Use the cache
-		$address = strtolower($address);
+	static function getByEmail($email) {
+		if(false == ($model = DAO_Address::getByEmail($email)))
+			return false;
 		
-		if(isset($addresses[$address]))
-			return $addresses[$address];
+		$addresses = self::getAll(); // Use the cache
+		
+		foreach($addresses as $address) {
+			if($address->address_id == $model->id)
+				return $address; 
+		}
+		
+		return NULL;
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param integer $address_id
+	 * @return Model_AddressToWorker
+	 */
+	static function getByAddressId($address_id) {
+		$addresses = self::getAll(); // Use the cache
+		
+		if(isset($addresses[$address_id]))
+			return $addresses[$address_id];
 			
 		return NULL;
 	}
@@ -175,7 +192,7 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 			
 			if(is_array($addresses))
 			foreach($addresses as $address) {
-				$results[$address->address] = $address;
+				$results[$address->address_id] = $address;
 			}
 			
 			$cache->save($results, self::_CACHE_ALL);
@@ -199,7 +216,7 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT address, worker_id, is_confirmed, code, code_expire ".
+		$sql = "SELECT address_id, worker_id, is_confirmed, code, code_expire ".
 			"FROM address_to_worker ".
 			$where_sql.
 			$sort_sql.
@@ -227,11 +244,11 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_AddressToWorker();
 			$object->worker_id = intval($row['worker_id']);
-			$object->address = strtolower($row['address']);
+			$object->address_id = intval($row['address_id']);
 			$object->is_confirmed = intval($row['is_confirmed']);
 			$object->code = $row['code'];
 			$object->code_expire = intval($row['code_expire']);
-			$objects[$object->address] = $object;
+			$objects[$object->address_id] = $object;
 		}
 		
 		mysqli_free_result($rs);
@@ -246,9 +263,29 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 };
 
 class Model_AddressToWorker {
-	public $address;
-	public $worker_id;
-	public $is_confirmed;
-	public $code;
-	public $code_expire;
+	public $address_id = 0;
+	public $worker_id = 0;
+	public $is_confirmed = 0;
+	public $code = '';
+	public $code_expire = 0;
+	
+	private $_model = null;
+	
+	function getWorker() {
+		return DAO_Worker::get($this->worker_id);
+	}
+	
+	function getEmailModel() {
+		if(null == $this->_model)
+			$this->_model = DAO_Address::get($this->address_id);
+		
+		return $this->_model;
+	}
+	
+	function getEmailAsString() {
+		if(false == ($model = $this->getEmailModel()))
+			return '';
+	
+		return $model->email;
+	}
 };

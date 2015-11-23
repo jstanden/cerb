@@ -1110,7 +1110,7 @@ class CerberusMail {
 					$change_fields[DAO_Ticket::IS_CLOSED] = 1;
 					$change_fields[DAO_Ticket::IS_DELETED] = 0;
 					
-					if(!empty($reopen_at))
+					if(isset($properties['ticket_reopen']))
 						$change_fields[DAO_Ticket::REOPEN_AT] = $reopen_at;
 					break;
 				case 2: // waiting
@@ -1118,7 +1118,7 @@ class CerberusMail {
 					$change_fields[DAO_Ticket::IS_CLOSED] = 0;
 					$change_fields[DAO_Ticket::IS_DELETED] = 0;
 					
-					if(!empty($reopen_at))
+					if(isset($properties['ticket_reopen']))
 						$change_fields[DAO_Ticket::REOPEN_AT] = $reopen_at;
 					break;
 			}
@@ -1260,10 +1260,10 @@ class CerberusMail {
 		if(is_array($emails))
 		foreach($emails as $to) {
 			try {
-				if(false == ($to_model = DAO_AddressToWorker::getByAddress($to)))
+				if(false == ($to_model = DAO_AddressToWorker::getByEmail($to)))
 					continue;
 				
-				if(false == ($worker = $workers[$to_model->worker_id]))
+				if(false == ($worker = $to_model->getWorker()))
 					continue;
 				
 				$mail = $mail_service->createMessage();
@@ -1334,7 +1334,7 @@ class CerberusMail {
 					'variables' => array(
 						'target' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
 						'worker' => $worker->getName(),
-						'worker_email' => $to_model->address,
+						'worker_email' => $to,
 						),
 					'urls' => array(
 						'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_TICKET, $ticket->id),

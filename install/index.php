@@ -829,10 +829,6 @@ switch($step) {
 					
 					DAO_Worker::setAuth($worker_id, $worker_pass);
 					
-					// Authorize this e-mail address (watchers, etc.)
-					
-					DAO_AddressToWorker::assign($worker_email, $worker_id, true);
-					
 					// Default group memberships
 					
 					if(!empty($dispatch_gid))
@@ -901,7 +897,7 @@ Simply reply to this message if you have any questions.  Our response will show 
 
 For project news, training resources, sneak peeks of development progress, tips & tricks, and more:
  * http://www.facebook.com/cerbapp
- * http://twitter.com/cerb6
+ * http://twitter.com/cerb_app
  * https://vimeo.com/channels/cerb
  * http://cerbweb.com/book/latest/worker_guide/
 

@@ -4,7 +4,7 @@
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="address">
 <input type="hidden" name="action" value="savePeekJson">
-<input type="hidden" name="id" value="{$address.a_id}">
+<input type="hidden" name="id" value="{$address->id}">
 {if !empty($link_context)}
 <input type="hidden" name="link_context" value="{$link_context}">
 <input type="hidden" name="link_context_id" value="{$link_context_id}">
@@ -13,8 +13,8 @@
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 {if $address}
-	{$contact = DAO_Contact::get($address.a_contact_id)}
-	{$org = DAO_ContactOrg::get($address.a_contact_org_id)}
+	{$contact = DAO_Contact::get($address->contact_id)}
+	{$org = DAO_ContactOrg::get($address->contact_org_id)}
 {/if}
 
 <fieldset class="peek">
@@ -38,7 +38,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.email'|devblocks_translate|capitalize}:</b> </td>
 			<td width="100%">
-				{$address.a_email}
+				{$address->email}
 			</td>
 		</tr>
 		{/if}
@@ -83,8 +83,8 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.options'|devblocks_translate|capitalize}:</b> </td>
 			<td width="100%">
-				<label><input type="checkbox" name="is_banned" value="1" title="Check this box if new messages from this email address should be rejected." {if $address.a_is_banned}checked="checked"{/if}> {'address.is_banned'|devblocks_translate|capitalize}</label>
-				<label><input type="checkbox" name="is_defunct" value="1" title="Check this box if the email address is no longer active." {if $address.a_is_defunct}checked="checked"{/if}> {'address.is_defunct'|devblocks_translate|capitalize}</label>
+				<label><input type="checkbox" name="is_banned" value="1" title="Check this box if new messages from this email address should be rejected." {if $address->is_banned}checked="checked"{/if}> {'address.is_banned'|devblocks_translate|capitalize}</label>
+				<label><input type="checkbox" name="is_defunct" value="1" title="Check this box if the email address is no longer active." {if $address->is_defunct}checked="checked"{/if}> {'address.is_defunct'|devblocks_translate|capitalize}</label>
 			</td>
 		</tr>
 		
@@ -98,7 +98,7 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_ADDRESS context_id=$address.a_id}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_ADDRESS context_id=$address->id}
 
 <div class="status"></div>
 

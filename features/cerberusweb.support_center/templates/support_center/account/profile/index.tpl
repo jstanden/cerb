@@ -95,7 +95,7 @@
 			{if 2 == $show_fields.contact_gender}
 				<label><input type="radio" name="gender" value="M" {if 'M' == $active_contact->gender}checked="checked"{/if}> {'common.gender.male'|devblocks_translate|capitalize}</label>
 				<label><input type="radio" name="gender" value="F" {if 'F' == $active_contact->gender}checked="checked"{/if}> {'common.gender.female'|devblocks_translate|capitalize}</label>
-				<label><input type="radio" name="gender" value="" {if empty($active_contact->gender)}checked="checked"{/if}> I'd prefer to not say</label>
+				<label><input type="radio" name="gender" value="" {if empty($active_contact->gender)}checked="checked"{/if}> Not specified</label>
 			{else}
 				{if $active_contact->gender == 'M'}
 				{'common.gender.male'|devblocks_translate|capitalize}

@@ -150,6 +150,11 @@ class Controller_Avatars extends DevblocksControllerExtension {
 					if($addy->contact_id)
 						$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT, $addy->contact_id);
 					
+					// If we don't have an avatar record, check Gravatar
+					// [TODO] Use for contact primary email?
+					//if(false == ($this->_fetchGravatarImage($avatar_context_mft->id, $avatar_context_id)))
+					//$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT, $addy->contact_id);
+					
 					$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT);
 					return;
 					break;
@@ -188,7 +193,25 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				break;
 				
 			case CerberusContexts::CONTEXT_WORKER:
-				$n = mt_rand(1, 4);
+				$gender = '';
+				
+				if($context_id && false != ($worker = DAO_Worker::get($context_id))) {
+					$gender = $worker->gender;
+				}
+				
+				switch($gender) {
+					case 'M':
+						$male_keys = array(1,3,4);
+						$n = $male_keys[array_rand($male_keys)];
+						break;
+					case 'F':
+						$n = 2;
+						break;
+					default:
+						$n = mt_rand(1, 4);
+						break;
+				}
+				
 				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
 				break;
 				

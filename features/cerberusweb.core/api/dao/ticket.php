@@ -2420,6 +2420,9 @@ class Model_Ticket {
 	public $elapsed_resolution_first;
 	
 	private $_org = null;
+	private $_owner = null;
+	private $_group = null;
+	private $_bucket = null;
 
 	function Model_Ticket() {}
 	
@@ -2433,6 +2436,41 @@ class Model_Ticket {
 	function getMessages() {
 		$messages = DAO_Message::getMessagesByTicket($this->id);
 		return $messages;
+	}
+	
+	function getTimeline($is_ascending=true) {
+		$timeline = $this->getMessages();
+		
+		if(false != ($comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $this->id)))
+			$timeline = array_merge($timeline, $comments);
+		
+		usort($timeline, function($a, $b) use ($is_ascending) {
+			if($a instanceof Model_Message) {
+				$a_time = intval($a->created_date);
+			} else if($a instanceof Model_Comment) {
+				$a_time = intval($a->created);
+			} else {
+				$a_time = 0;
+			}
+			
+			if($b instanceof Model_Message) {
+				$b_time = intval($b->created_date);
+			} else if($b instanceof Model_Comment) {
+				$b_time = intval($b->created);
+			} else {
+				$b_time = 0;
+			}
+			
+			if($a_time > $b_time) {
+				return ($is_ascending) ? 1 : -1;
+			} else if ($a_time < $b_time) {
+				return ($is_ascending) ? -1 : 1;
+			} else {
+				return 0;
+			}
+		});
+		
+		return $timeline;
 	}
 	
 	function getFirstMessage() {
@@ -2467,11 +2505,15 @@ class Model_Ticket {
 	}
 	
 	// Lazy load
+	
+	/**
+	 * @return Model_ContactOrg
+	 */
 	function getOrg() {
 		if(empty($this->org_id))
 			return null;
 		
-		if(is_null($this->_org)) {
+		if(is_null($this->_org) || $this->_org->id != $this->org_id) {
 			$this->_org = DAO_ContactOrg::get($this->org_id);
 		}
 		
@@ -2479,10 +2521,45 @@ class Model_Ticket {
 	}
 	
 	/**
+	 * @return Model_Worker
+	 */
+	function getOwner() {
+		if(empty($this->owner_id))
+			return null;
+		
+		if(is_null($this->_owner) || $this->_owner->id != $this->owner_id) {
+			$this->_owner = DAO_Worker::get($this->owner_id);
+		}
+		
+		return $this->_owner;
+	}
+	
+	/**
 	 * @return Model_Group
 	 */
 	function getGroup() {
-		return DAO_Group::get($this->group_id);
+		if(empty($this->group_id))
+			return null;
+		
+		if(is_null($this->_group) || $this->_group->id != $this->group_id) {
+			$this->_group = DAO_Group::get($this->group_id);
+		}
+		
+		return $this->_group;
+	}
+	
+	/**
+	 * @return Model_Bucket
+	 */
+	function getBucket() {
+		if(empty($this->bucket_id))
+			return null;
+		
+		if(is_null($this->_bucket) || $this->_bucket->id != $this->bucket_id) {
+			$this->_bucket = DAO_Bucket::get($this->bucket_id);
+		}
+		
+		return $this->_bucket;
 	}
 };
 
@@ -4654,6 +4731,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'closed' => $prefix.$translate->_('ticket.closed_at'),
 			'created' => $prefix.$translate->_('common.created'),
 			'elapsed_response_first' => $prefix.$translate->_('ticket.elapsed_response_first'),
 			'elapsed_resolution_first' => $prefix.$translate->_('ticket.elapsed_resolution_first'),
@@ -4673,6 +4751,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'closed' => Model_CustomField::TYPE_DATE,
 			'created' => Model_CustomField::TYPE_DATE,
 			'elapsed_response_first' => 'time_secs',
 			'elapsed_resolution_first' => 'time_secs',
@@ -5234,68 +5313,55 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			return;
 		}
 		
-		// Do we have a specific message to look at?
-		if(!empty($msgid) && null != (@$message = $messages[$msgid])) {
-			 // Good
-		} else {
-			$message = null;
-			$msgid = null;
-			
-			if(is_array($messages)) {
-				if(null != ($message = end($messages)))
-					$msgid = $message->id;
-			}
-		}
-
-		if(!empty($message)) {
-			$tpl->assign('message', $message);
-			$tpl->assign('content', $message->getContent());
-		}
-		
-		// Paging
-		$message_ids = array_keys($messages);
-		$tpl->assign('p_count', count($message_ids));
-		if(false !== ($pos = array_search($msgid, $message_ids))) {
-			$tpl->assign('p', $pos);
-			// Prev
-			if($pos > 0)
-				$tpl->assign('p_prev', $message_ids[$pos-1]);
-			// Next
-			if($pos+1 < count($message_ids))
-				$tpl->assign('p_next', $message_ids[$pos+1]);
-		}
-		
-		// Props
-		$workers = DAO_Worker::getAllActive();
-		$tpl->assign('workers', $workers);
-		
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
-		
-		$buckets = DAO_Bucket::getAll();
-		$tpl->assign('buckets', $buckets);
-		
-		// Watchers
-		$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($ticket->id), CerberusContexts::CONTEXT_WORKER);
-		$tpl->assign('object_watchers', $object_watchers);
-		
-		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, false);
-		$tpl->assign('custom_fields', $custom_fields);
-		
-		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id);
-		if(isset($custom_field_values[$ticket->id]))
-			$tpl->assign('custom_field_values', $custom_field_values[$ticket->id]);
-		
-		// Comments
-		
-		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $ticket->id);
-		$comments = array_reverse($comments, true);
-		$tpl->assign('comments', $comments);
-		
 		// Template
 		
-		$tpl->display('devblocks:cerberusweb.core::tickets/peek.tpl');
+		if(empty($context_id) || $edit_mode) {
+			// Props
+			$workers = DAO_Worker::getAllActive();
+			$tpl->assign('workers', $workers);
+			
+			$groups = DAO_Group::getAll();
+			$tpl->assign('groups', $groups);
+			
+			$buckets = DAO_Bucket::getAll();
+			$tpl->assign('buckets', $buckets);
+			
+			// Watchers
+			$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($ticket->id), CerberusContexts::CONTEXT_WORKER);
+			$tpl->assign('object_watchers', $object_watchers);
+			
+			// Custom fields
+			$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, false);
+			$tpl->assign('custom_fields', $custom_fields);
+			
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id);
+			if(isset($custom_field_values[$ticket->id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$ticket->id]);
+			
+			$tpl->display('devblocks:cerberusweb.core::tickets/peek_edit.tpl');
+			
+		} else {
+			// Counts
+			
+			$activity_counts = array(
+				'participants' => DAO_Address::countByTicketId($context_id),
+				'messages' => DAO_Message::countByTicketId($context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Timeline
+			
+			$timeline = $ticket->getTimeline();
+			$tpl->assign('timeline', $timeline);
+			
+			$timeline_keys = array_keys($timeline);
+			$timeline_idx = array_pop($timeline_keys);
+			$tpl->assign('timeline_idx', $timeline_idx);
+			
+			// Template
+			
+			$tpl->display('devblocks:cerberusweb.core::tickets/peek.tpl');
+		}
 	}
 	
 	function importValidateSync($sync_fields) {

@@ -1,11 +1,8 @@
 {$uniq_id = uniqid()}
-<button id="btn{$uniq_id}" type="button"><span class="glyphicons glyphicons-book-open"></span> {'common.knowledgebase'|devblocks_translate|capitalize}</button>
+<button id="btn{$uniq_id}" type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_KB_ARTICLE}" data-query=""><span class="glyphicons glyphicons-book-open"></span> {'common.knowledgebase'|devblocks_translate|capitalize}</button>
 
 <script type="text/javascript">
-$('#btn{$uniq_id}').click(function(e) {
-	$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context={CerberusContexts::CONTEXT_KB_ARTICLE}',null,false,'750');
-	$chooser.one('chooser_save', function(event) {
-		// ...
-	});
+$(function() {
+	$('#btn{$uniq_id}').cerbSearchTrigger();
 });
 </script>
