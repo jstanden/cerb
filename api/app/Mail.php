@@ -1110,7 +1110,7 @@ class CerberusMail {
 					$change_fields[DAO_Ticket::IS_CLOSED] = 1;
 					$change_fields[DAO_Ticket::IS_DELETED] = 0;
 					
-					if(!empty($reopen_at))
+					if(isset($properties['ticket_reopen']))
 						$change_fields[DAO_Ticket::REOPEN_AT] = $reopen_at;
 					break;
 				case 2: // waiting
@@ -1118,7 +1118,7 @@ class CerberusMail {
 					$change_fields[DAO_Ticket::IS_CLOSED] = 0;
 					$change_fields[DAO_Ticket::IS_DELETED] = 0;
 					
-					if(!empty($reopen_at))
+					if(isset($properties['ticket_reopen']))
 						$change_fields[DAO_Ticket::REOPEN_AT] = $reopen_at;
 					break;
 			}
