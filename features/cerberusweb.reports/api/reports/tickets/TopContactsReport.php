@@ -64,8 +64,6 @@ class ChReportTopTicketsByContact extends Extension_Report {
 		$range_days = $range/86400;
 		$plots = $range/15;
 		
-		$ticks = array();
-		
 		if($range_days > 365) {
 			$date_group = '%Y';
 			$date_increment = 'year';
@@ -80,13 +78,9 @@ class ChReportTopTicketsByContact extends Extension_Report {
 			$date_increment = 'hour';
 		}
 		
-		// Find unique values
-		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
-		while($time < $end_time) {
-			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
-			if($time <= $end_time)
-				$ticks[strftime($date_group, $time)] = 0;
-		}
+		// Ticks
+		
+		$ticks = $date->getIntervals($date_increment, $start_time, $end_time);
 		
 		// Table
 		

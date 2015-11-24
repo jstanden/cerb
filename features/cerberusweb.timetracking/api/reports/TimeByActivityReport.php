@@ -55,8 +55,6 @@ class ChReportTimeSpentActivity extends Extension_Report {
 		$range_days = $range/86400;
 		$plots = $range/15;
 		
-		$ticks = array();
-		
 		@$report_date_grouping = DevblocksPlatform::importGPC($_REQUEST['report_date_grouping'],'string','');
 		$date_group = '';
 		$date_increment = '';
@@ -72,7 +70,7 @@ class ChReportTimeSpentActivity extends Extension_Report {
 				$date_increment = 'month';
 				break;
 			case 'week':
-				$date_group = '%Y-%V';
+				$date_group = '%x-%v';
 				$date_increment = 'week';
 				break;
 			case 'day':
@@ -94,7 +92,7 @@ class ChReportTimeSpentActivity extends Extension_Report {
 				$date_group = '%Y-%m';
 				$date_increment = 'month';
 			} elseif($range_dates > 8) {
-				$date_group = '%Y-%V';
+				$date_group = '%x-%v';
 				$date_increment = 'week';
 			} elseif($range_days > 1) {
 				$date_group = '%Y-%m-%d';
@@ -107,13 +105,9 @@ class ChReportTimeSpentActivity extends Extension_Report {
 		
 		$tpl->assign('report_date_grouping', $date_increment);
 		
-		// Find unique values
-		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
-		while($time < $end_time) {
-			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
-			if($time <= $end_time)
-				$ticks[strftime($date_group, $time)] = 0;
-		}
+		// Ticks
+		
+		$ticks = $date->getIntervals($date_increment, $start_time, $end_time);
 
 		// Table
 		
