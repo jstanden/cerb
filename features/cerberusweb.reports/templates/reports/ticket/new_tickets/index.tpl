@@ -196,7 +196,7 @@ $('#reportChart').bind('jqplotPostDraw',function(event, plot) {
 	len = plot.series.length;
 	for(series in plot.series) {
 		$cell = $('<span style="margin-right:5px;display:inline-block;"/>')
-			.text(plot.series[series].label)
+			.html(plot.series[series].label)
 			.prepend($('<span style="display:inline-block;padding:0px;margin:2px;width:16px;height:16px;"/>')
 				.css('background-color', plot.series[series].color)
 				.append('&nbsp;')
