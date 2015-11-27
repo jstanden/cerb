@@ -11,7 +11,6 @@
 	{/if}
 	
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/jquery.js{/devblocks_url}"></script>
-	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/jquery.validate.pack.js{/devblocks_url}"></script>
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/devblocks.common.js{/devblocks_url}"></script>
 	
 	<style type='text/css'>

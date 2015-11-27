@@ -56,7 +56,7 @@
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.title'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
-			{if 2 == $show_fields.contact_last_name}
+			{if 2 == $show_fields.contact_title}
 			<input type="text" name="title" size="35" value="{$active_contact->title}">
 			{else}
 			{$active_contact->title}
@@ -112,7 +112,7 @@
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.location'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
-			{if 2 == $show_fields.contact_last_name}
+			{if 2 == $show_fields.contact_location}
 			<input type="text" name="location" size="35" value="{$active_contact->location}">
 			{else}
 			{$active_contact->location}
@@ -126,9 +126,9 @@
 		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.dob.abbr'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
 			{if 2 == $show_fields.contact_dob}
-			<input type="text" name="dob" size="35" value="{$active_contact->dob|devblocks_date:'d M Y'}">
+			<input type="text" name="dob" size="35" value="{$active_contact->dob}" placeholder="YYYY-MM-DD">
 			{else}
-			{$active_contact->dob|devblocks_date:'d M Y'}
+			{$active_contact->dob}
 			{/if}
 		</td>
 	</tr>
@@ -160,10 +160,185 @@
 	</tr>
 	{/if}
 	
+	{if $show_fields.contact_photo}
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.photo'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			{if 2 == $show_fields.contact_photo}
+			<div>
+				<div style="float:left;">
+					<div style="margin:0;padding:0;border:1px solid rgb(230,230,230);display:inline-block;">
+						<canvas class="canvas-avatar" width="100" height="100" style="width:100px;height:100px;cursor:move;"></canvas>
+					</div>
+					<input type="hidden" name="imagedata" class="canvas-avatar-imagedata">
+				</div>
+				
+				<div style="float:left;">
+					<fieldset class="peek">
+						<legend>Upload new image:</legend>
+				  	<input type="file" class="cerb-avatar-img-upload" />
+			  	</fieldset>
+				</div>
+				
+				<div style="clear:both;"></div>
+				
+				<div>
+					<button type="button" class="canvas-avatar-zoomin"><span class="glyphicons glyphicons-zoom-in"></span></button>
+					<button type="button" class="canvas-avatar-zoomout"><span class="glyphicons glyphicons-zoom-out"></span></button>
+					<button type="button" class="canvas-avatar-remove"><span class="glyphicons glyphicons-erase"></span></button>
+				</div>
+				
+				<div class="cerb-avatar-error"></div>
+			</div>
+			
+			{else}
+			<img class="cerb-avatar" src="{devblocks_url}c=avatar&context=contact&context_id={$active_contact->id}{/devblocks_url}?v={$active_contact->updated_at}" style="height:64px;width:64px;border-radius:5px;border:1px solid rgb(235,235,235);">
+			{/if}
+		</td>
+	</tr>
+	{/if}
+	
 	</tbody>
 </table>
 </fieldset>
 
-<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
+<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
 
 </form>
+
+<script type="text/javascript">
+$(function() {
+	var $form = $('#profileForm');
+	
+	var $canvas = $form.find('canvas.canvas-avatar');
+	var canvas = $canvas.get(0);
+	var context = canvas.getContext('2d');
+	var $imagedata = $form.find('input.canvas-avatar-imagedata');
+	var $error = $form.find('div.cerb-avatar-error');
+	
+	var isMouseDown = false;
+	var x = 0, lastX = 0;
+	var y = 0, lastY = 0;
+
+	var scale = 1.0;
+	context.scale(scale,scale);
+	
+	$canvas.mousedown(function (event) {
+		isMouseDown = true;
+		lastX = event.offsetX;
+		lastY = event.offsetY;
+	});
+	
+	$canvas.mouseup(function(event) {
+		isMouseDown = false;
+	});
+	
+	$canvas.mouseout(function(event) {
+		isMouseDown = false;
+	});
+	
+	$canvas.mousemove(function(event) {
+		if(isMouseDown) {
+			x = x - (lastX - event.offsetX);
+			y = y - (lastY - event.offsetY);
+			
+			$canvas.trigger('avatar-redraw');
+			
+			lastX = event.offsetX;
+			lastY = event.offsetY;
+		}
+	});
+	
+	$canvas.on('avatar-redraw', function() {
+		context.save();
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		context.scale(scale, scale);
+		var aspect = img.height/img.width;
+		context.drawImage(img, x, y, canvas.width, canvas.width*aspect);
+		context.restore();
+	});
+
+	$form.find('button.canvas-avatar-zoomout').click(function() {
+		scale = Math.max(scale-0.25, 1.0);
+		$canvas.trigger('avatar-redraw');
+	});
+	
+	$form.find('button.canvas-avatar-zoomin').click(function() {
+		scale = Math.min(scale+0.25, 10.0);
+		$canvas.trigger('avatar-redraw');
+	});
+	
+	$form.find('button.canvas-avatar-remove').click(function() {
+		scale = 1.0;
+		x = 0;
+		y = 0;
+		$(img).attr('src', '');
+		$canvas.trigger('avatar-redraw');
+	});
+	
+	$form.find('input.cerb-avatar-img-upload').change(function(event) {
+		$error.html('').hide();
+		
+		if(undefined == event.target || undefined == event.target.files)
+			return;
+		
+		var f = event.target.files[0];
+		
+		if(undefined == f)
+			return;
+		
+		if(!f.type.match('image.*')) {
+			//Devblocks.showError($error, "You may only upload images.");
+			return;
+		}
+		
+		var reader = new FileReader();
+		
+		reader.onload = (function(file) {
+			return function(e) {
+				scale = 1.0;
+				x = 0;
+				y = 0;
+				$(img).one('load', function() {
+					$canvas.trigger('avatar-redraw');
+				});
+				$(img).attr('src', e.target.result);
+			};
+		})(f);
+		
+		reader.readAsDataURL(f);
+	});
+	
+	$form.on('cerb-avatar-set-defaults', function(e) {
+		if(undefined == e.avatar)
+			return;
+		
+		if(e.avatar.imagedata) {
+			scale = 1.0;
+			x = 0;
+			y = 0;
+			$(img).one('load', function() {
+				$canvas.trigger('avatar-redraw');
+			});
+			$(img).attr('src', e.avatar.imagedata);
+		}
+	});
+	
+	$form.find('button.submit').click(function() {
+		if(0 == $(img).attr('src').length) {
+			$imagedata.val('data:null');
+		} else {
+			$imagedata.val(canvas.toDataURL());
+		}
+		
+		// [TODO] JSON validation
+		$form.submit();
+	});
+	
+	var img = new Image();
+	{if $imagedata}
+		img.src = "{$imagedata}";
+		$canvas.trigger('avatar-redraw');
+	{/if}
+});
+</script>

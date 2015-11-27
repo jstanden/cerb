@@ -55,6 +55,12 @@ class UmScAccountController extends Extension_UmScController {
 					$tpl->assign('show_fields', @json_decode($show_fields, true));
 				}
 				
+				// Avatar
+				if(false != ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_CONTACT, $active_contact->id))) {
+					$imagedata = 'data:' . $avatar->content_type . ';base64,' . base64_encode(Storage_ContextAvatar::get($avatar));
+					$tpl->assign('imagedata', $imagedata);
+				}
+				
 				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/account/profile/index.tpl");
 				break;
 				
@@ -131,42 +137,85 @@ class UmScAccountController extends Extension_UmScController {
 		$show_fields = array();
 		if(null != ($show_fields = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'account.fields', null)))
 			@$show_fields = json_decode($show_fields, true);
+		
+		$fields = array();
+		
+		// First name
+		if(isset($show_fields['contact_first_name']) && $show_fields['contact_first_name'] == 2) {
+			@$first_name = DevblocksPlatform::importGPC($_POST['first_name'],'string','');
+			$fields[DAO_Contact::FIRST_NAME] = $first_name;
+		}
+		
+		// Last name
+		if(isset($show_fields['contact_last_name']) && $show_fields['contact_last_name'] == 2) {
+			@$last_name = DevblocksPlatform::importGPC($_POST['last_name'],'string','');
+			$fields[DAO_Contact::LAST_NAME] = $last_name;
+		}
+		
+		// Title
+		if(isset($show_fields['contact_title']) && $show_fields['contact_title'] == 2) {
+			@$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
+			$fields[DAO_Contact::TITLE] = $title;
+		}
+		
+		// Username
+		if(isset($show_fields['contact_username']) && $show_fields['contact_username'] == 2) {
+			@$username = DevblocksPlatform::importGPC($_POST['username'],'string','');
+			$fields[DAO_Contact::USERNAME] = $username;
+		}
+		
+		// Gender
+		if(isset($show_fields['contact_gender']) && $show_fields['contact_gender'] == 2) {
+			@$gender = DevblocksPlatform::importGPC($_POST['gender'],'string','');
+			if(!in_array($gender, array('M','F')))
+				$gender = '';
 			
-		@$primary_email_id = DevblocksPlatform::importGPC($_POST['primary_email_id'],'integer',0);
-		@$first_name = DevblocksPlatform::importGPC($_POST['first_name'],'string','');
-		@$last_name = DevblocksPlatform::importGPC($_POST['last_name'],'string','');
-		@$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
-		@$username = DevblocksPlatform::importGPC($_POST['username'],'string','');
-		@$gender = DevblocksPlatform::importGPC($_POST['gender'],'string','');
-		@$location = DevblocksPlatform::importGPC($_POST['location'],'string','');
-		@$dob = DevblocksPlatform::importGPC($_POST['dob'],'string','');
-		@$phone = DevblocksPlatform::importGPC($_POST['phone'],'string','');
-		@$mobile = DevblocksPlatform::importGPC($_POST['mobile'],'string','');
-		
-		// Update the record
-		
-		$fields = array(
-			DAO_Contact::UPDATED_AT => time(),
-		);
-		
-		$fields[DAO_Contact::FIRST_NAME] = $first_name;
-		$fields[DAO_Contact::LAST_NAME] = $last_name;
-		$fields[DAO_Contact::TITLE] = $title;
-		$fields[DAO_Contact::USERNAME] = $username;
-		$fields[DAO_Contact::LOCATION] = $location;
-		$fields[DAO_Contact::DOB] = intval(@strtotime($dob));
-		$fields[DAO_Contact::PHONE] = $phone;
-		$fields[DAO_Contact::MOBILE] = $mobile;
-		
-		if(in_array($gender, array('', 'M', 'F'))) {
 			$fields[DAO_Contact::GENDER] = $gender;
 		}
 		
+		// Location
+		if(isset($show_fields['contact_location']) && $show_fields['contact_location'] == 2) {
+			@$location = DevblocksPlatform::importGPC($_POST['location'],'string','');
+			$fields[DAO_Contact::LOCATION] = $location;
+		}
+		
+		// DOB
+		if(isset($show_fields['contact_dob']) && $show_fields['contact_dob'] == 2) {
+			@$dob = DevblocksPlatform::importGPC($_POST['dob'],'string','');
+			
+			$dob_ts = null;
+			
+			if(!empty($dob) && false == ($dob_ts = strtotime($dob . ' 00:00 GMT')))
+				$dob_ts = null;
+		
+			$fields[DAO_Contact::DOB] = (null == $dob_ts) ? null : gmdate('Y-m-d', $dob_ts);
+		}
+		
+		// Phone
+		if(isset($show_fields['contact_phone']) && $show_fields['contact_phone'] == 2) {
+			@$phone = DevblocksPlatform::importGPC($_POST['phone'],'string','');
+			$fields[DAO_Contact::PHONE] = $phone;
+		}
+		
+		// Mobile
+		if(isset($show_fields['contact_mobile']) && $show_fields['contact_mobile'] == 2) {
+			@$mobile = DevblocksPlatform::importGPC($_POST['mobile'],'string','');
+			$fields[DAO_Contact::MOBILE] = $mobile;
+		}
+		
 		// Change the primary email if requested, but verify ownership
-		if($primary_email_id && $primary_email_id != $active_contact->primary_email_id)
+		@$primary_email_id = DevblocksPlatform::importGPC($_POST['primary_email_id'],'integer',0);
+		if($primary_email_id && $primary_email_id != $active_contact->primary_email_id) {
 			if(false != ($address = DAO_Address::get($primary_email_id)) && $address->contact_id == $active_contact->id) {
 				$fields[DAO_Contact::PRIMARY_EMAIL_ID] = $primary_email_id;
 			}
+		}
+		
+		// Photo
+		if(isset($show_fields['contact_photo']) && $show_fields['contact_photo'] == 2) {
+			@$imagedata = DevblocksPlatform::importGPC($_POST['imagedata'],'string','');
+			DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_CONTACT, $active_contact->id, $imagedata);
+		}
 		
 		if(!empty($fields)) {
 			DAO_Contact::update($active_contact->id, $fields);

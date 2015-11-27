@@ -267,28 +267,33 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 						
 					switch($xaxis_tick) {
 						case 'hour':
-							$date_format = '%Y-%m-%d %H:00';
-							$date_label = $date_format;
+							$date_format_mysql = '%Y-%m-%d %H:00';
+							$date_format_php = '%Y-%m-%d %H:00';
+							$date_label = $date_format_php;
 							break;
 								
 						default:
 						case 'day':
-							$date_format = '%Y-%m-%d';
-							$date_label = $date_format;
+							$date_format_mysql = '%Y-%m-%d';
+							$date_format_php = '%Y-%m-%d';
+							$date_label = $date_format_php;
 							break;
 								
 						case 'week':
-							$date_format = '%YW%U';
-							$date_label = $date_format;
+							$date_format_mysql = '%xW%v';
+							$date_format_php = '%YW%W';
+							$date_label = $date_format_php;
 							break;
 								
 						case 'month':
-							$date_format = '%Y-%m';
+							$date_format_mysql = '%Y-%m';
+							$date_format_php = '%Y-%m';
 							$date_label = '%b %Y';
 							break;
 								
 						case 'year':
-							$date_format = '%Y-01-01';
+							$date_format_mysql = '%Y-01-01';
+							$date_format_php = '%Y-01-01';
 							$date_label = '%Y';
 							break;
 					}
@@ -339,14 +344,14 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 						$select_func,
 						$xaxis_field->db_table,
 						$xaxis_field->db_column,
-						$date_format
+						$date_format_mysql
 					).
 					str_replace('%','%%',$query_parts['join']).
 					str_replace('%','%%',$query_parts['where']).
 					sprintf("GROUP BY DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%s') ",
 						$xaxis_field->db_table,
 						$xaxis_field->db_column,
-						$date_format
+						$date_format_mysql
 					).
 					'ORDER BY histo ASC'
 					;
@@ -375,7 +380,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 						$current_tick = strtotime($first_result['histo']);
 						$last_tick = strtotime($last_result['histo']);
 					}
-						
+					
 					// Fill in time gaps from no data
 						
 					// var_dump($current_tick, $last_tick, $xaxis_tick);
@@ -397,16 +402,17 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 						case 'day':
 						case 'month':
 						case 'year':
-							$current_tick = strtotime(strftime($date_format, $current_tick));
+							$current_tick = strtotime(strftime($date_format_php, $current_tick));
 							break;
 							
+						// Always Monday
 						case 'week':
-							$current_tick = strtotime('Sunday', $current_tick);
+							$current_tick = strtotime('Monday this week', $current_tick);
 							break;
 					}
 						
 					do {
-						$histo = strftime($date_format, $current_tick);
+						$histo = strftime($date_format_php, $current_tick);
 						// var_dump($histo);
 
 						$value = (isset($results[$histo])) ? $results[$histo] : 0;

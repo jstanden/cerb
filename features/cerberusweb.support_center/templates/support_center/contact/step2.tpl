@@ -141,31 +141,3 @@
   </tbody>
 </table>
 </form>
-
-{literal}
-<script type="text/javascript">
-  $(document).ready(function(){
-	$frm = $("#openTicketForm");
-	$frm.validate({
-		submitHandler: function(form) {
-			$(form).find('div.buttons').hide();
-			form.submit();
-		},
-		rules: {
-			captcha: {
-				required: true,
-				minlength: 4,
-				remote: "{/literal}{devblocks_url}c=captcha.check{/devblocks_url}{literal}"
-			}
-		},
-		messages: {
-			captcha: {
-				required: "Enter the text from the image",
-				minlength: jQuery.format("Enter at least {0} characters"),
-				remote: jQuery.format("That is not correct. Try again!")
-			}
-		}
-	});
-  });
-</script>
-{/literal}
