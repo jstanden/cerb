@@ -56,7 +56,7 @@
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.title'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
-			{if 2 == $show_fields.contact_last_name}
+			{if 2 == $show_fields.contact_title}
 			<input type="text" name="title" size="35" value="{$active_contact->title}">
 			{else}
 			{$active_contact->title}
@@ -112,7 +112,7 @@
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.location'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
-			{if 2 == $show_fields.contact_last_name}
+			{if 2 == $show_fields.contact_location}
 			<input type="text" name="location" size="35" value="{$active_contact->location}">
 			{else}
 			{$active_contact->location}
@@ -126,9 +126,9 @@
 		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.dob.abbr'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
 			{if 2 == $show_fields.contact_dob}
-			<input type="text" name="dob" size="35" value="{$active_contact->dob|devblocks_date:'d M Y'}">
+			<input type="text" name="dob" size="35" value="{$active_contact->dob}" placeholder="YYYY-MM-DD">
 			{else}
-			{$active_contact->dob|devblocks_date:'d M Y'}
+			{$active_contact->dob}
 			{/if}
 		</td>
 	</tr>
