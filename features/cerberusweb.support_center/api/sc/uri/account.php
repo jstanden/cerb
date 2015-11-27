@@ -55,6 +55,12 @@ class UmScAccountController extends Extension_UmScController {
 					$tpl->assign('show_fields', @json_decode($show_fields, true));
 				}
 				
+				// Avatar
+				if(false != ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_CONTACT, $active_contact->id))) {
+					$imagedata = 'data:' . $avatar->content_type . ';base64,' . base64_encode(Storage_ContextAvatar::get($avatar));
+					$tpl->assign('imagedata', $imagedata);
+				}
+				
 				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/account/profile/index.tpl");
 				break;
 				
@@ -167,6 +173,13 @@ class UmScAccountController extends Extension_UmScController {
 			if(false != ($address = DAO_Address::get($primary_email_id)) && $address->contact_id == $active_contact->id) {
 				$fields[DAO_Contact::PRIMARY_EMAIL_ID] = $primary_email_id;
 			}
+		}
+		
+		// Photo
+		if(isset($show_fields['contact_photo']) && $show_fields['contact_photo'] == 2) {
+			@$imagedata = DevblocksPlatform::importGPC($_POST['imagedata'],'string','');
+			DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_CONTACT, $active_contact->id, $imagedata);
+		}
 		
 		if(!empty($fields)) {
 			DAO_Contact::update($active_contact->id, $fields);
