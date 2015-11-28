@@ -23,7 +23,7 @@
 		</td>
 		{/if}
 		<td>
-			{if !empty($worker)}
+			{if $worker}
 			<a href="{devblocks_url}c=login&a=reset{/devblocks_url}" tabindex="-1">use a different email</a>
 			{/if}
 		</td>
@@ -53,7 +53,7 @@
 
 <script type="text/javascript">
 	$(function() {
-		{if !empty($worker->getEmailString())}
+		{if $worker->getEmailString()}
 			$('#loginForm input[name=password]').focus().select();
 		{else}
 			$('#loginForm input[name=email]').focus().select();
