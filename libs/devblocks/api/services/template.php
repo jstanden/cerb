@@ -1,4 +1,7 @@
 <?php
+define('SMARTY_RESOURCE_CHAR_SET', strtoupper(LANG_CHARSET_CODE));
+require(DEVBLOCKS_PATH . 'libs/smarty/Smarty.class.php');
+
 /**
  * Smarty Template Manager Singleton
  *
@@ -20,9 +23,6 @@ class _DevblocksTemplateManager {
 	static function getInstance() {
 		static $instance = null;
 		if(null == $instance) {
-			define('SMARTY_RESOURCE_CHAR_SET', strtoupper(LANG_CHARSET_CODE));
-			require(DEVBLOCKS_PATH . 'libs/smarty/Smarty.class.php');
-
 			$instance = new Smarty();
 			
 			$instance->template_dir = APP_PATH . '/templates';
@@ -36,7 +36,7 @@ class _DevblocksTemplateManager {
 			$instance->compile_check = DEVELOPMENT_MODE ? true : false;
 			
 			$instance->error_unassigned = false;
-			$instance->error_reporting = E_ERROR & ~E_NOTICE;
+			$instance->error_reporting = DEVELOPMENT_MODE ? (E_ALL & ~E_NOTICE) : (E_ERROR & ~E_NOTICE);
 			
 			// Auto-escape HTML output
 			$instance->loadFilter('variable','htmlspecialchars');
@@ -54,12 +54,7 @@ class _DevblocksTemplateManager {
 			$instance->registerPlugin('modifier','devblocks_prettybytes', array('_DevblocksTemplateManager', 'modifier_devblocks_prettybytes'));
 			$instance->registerPlugin('modifier','devblocks_prettysecs', array('_DevblocksTemplateManager', 'modifier_devblocks_prettysecs'));
 			$instance->registerPlugin('modifier','devblocks_translate', array('_DevblocksTemplateManager', 'modifier_devblocks_translate'));
-			$instance->registerResource('devblocks', array(
-				array('_DevblocksSmartyTemplateResource', 'get_template'),
-				array('_DevblocksSmartyTemplateResource', 'get_timestamp'),
-				array('_DevblocksSmartyTemplateResource', 'get_secure'),
-				array('_DevblocksSmartyTemplateResource', 'get_trusted'),
-			));
+			$instance->registerResource('devblocks', new _DevblocksSmartyTemplateResource());
 		}
 		return $instance;
 	}
@@ -79,7 +74,7 @@ class _DevblocksTemplateManager {
 		return $translated;
 	}
 	
-	static function block_devblocks_url($params, $content, $smarty, &$repeat, $template) {
+	static function block_devblocks_url($params, $content, Smarty_Internal_Template $template, &$repeat) {
 		if($repeat)
 			return;
 		
@@ -93,7 +88,7 @@ class _DevblocksTemplateManager {
 			$contents .= '&_csrf_token=' . $_SESSION['csrf_token'];
 		
 		if (!empty($params['assign'])) {
-			$smarty->assign($params['assign'], $contents);
+			$template->assign($params['assign'], $contents);
 		} else {
 			return $contents;
 		}
@@ -281,9 +276,10 @@ class _DevblocksTemplateManager {
 	}
 };
 
-class _DevblocksSmartyTemplateResource {
-	static function get_template($tpl_name, &$tpl_source, $smarty_obj) {
-		list($plugin_id, $tag, $tpl_path) = explode(':',$tpl_name,3);
+class _DevblocksSmartyTemplateResource extends Smarty_Resource_Custom {
+
+	protected function fetch($name, &$source, &$mtime) {
+		list($plugin_id, $tag, $tpl_path) = explode(':',$name,3);
 		
 		if(empty($plugin_id) || empty($tpl_path))
 			return false;
@@ -308,49 +304,8 @@ class _DevblocksSmartyTemplateResource {
 						
 					if(!empty($matches)) {
 						$match = array_shift($matches); /* @var $match Model_DevblocksTemplate */
-						$tpl_source = $match->content;
-						return true;
-					}
-				}
-			}
-		}
-			
-		// If not in DB, check plugin's relative path on disk
-		$path = $plugin->getStoragePath() . '/templates/' . $tpl_path;
-		
-		if(!file_exists($path))
-			return false;
-		
-		$tpl_source = file_get_contents($path);
-		return true;
-	}
-	
-	static function get_timestamp($tpl_name, &$tpl_timestamp, $smarty_obj) { /* @var $smarty_obj Smarty */
-		list($plugin_id, $tag, $tpl_path) = explode(':',$tpl_name,3);
-		
-		if(empty($plugin_id) || empty($tpl_path))
-			return false;
-		
-		$plugins = DevblocksPlatform::getPluginRegistry();
-			
-		if(null == ($plugin = @$plugins[$plugin_id])) /* @var $plugin DevblocksPluginManifest */
-			return false;
-			
-		// Only check the DB if the template may be overridden
-		// [TODO] Alternatively, keep a cache of override paths
-		if(isset($plugin->manifest_cache['templates'])) {
-			foreach($plugin->manifest_cache['templates'] as $k => $v) {
-				if(0 == strcasecmp($v['path'], $tpl_path)) {
-					// Check if template is overloaded in DB/cache
-					$matches = DAO_DevblocksTemplate::getWhere(sprintf("plugin_id = %s AND path = %s %s",
-						Cerb_ORMHelper::qstr($plugin_id),
-						Cerb_ORMHelper::qstr($tpl_path),
-						(!empty($tag) ? sprintf("AND tag = %s ",Cerb_ORMHelper::qstr($tag)) : "")
-					));
-			
-					if(!empty($matches)) {
-						$match = array_shift($matches); /* @var $match Model_DevblocksTemplate */
-						$tpl_timestamp = $match->last_updated;
+						$source = $match->content;
+						$mtime = $match->last_updated;
 						return true;
 					}
 				}
@@ -364,15 +319,13 @@ class _DevblocksSmartyTemplateResource {
 			return false;
 		
 		$stat = stat($path);
-		$tpl_timestamp = $stat['mtime'];
+		
+		$source = file_get_contents($path);
+		$mtime = $stat['mtime'];
 		return true;
 	}
 	
-	static function get_secure($tpl_name, &$smarty_obj) {
-		return false;
-	}
-	
-	static function get_trusted($tpl_name, &$smarty_obj) {
-		// not used
+	protected function fetchTimestamp($name) {
+		return null;
 	}
 };
