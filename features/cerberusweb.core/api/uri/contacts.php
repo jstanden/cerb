@@ -862,6 +862,10 @@ class ChContactsPage extends CerberusPageExtension {
 							);
 							$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
 						}
+						
+						// Index immediately
+						$search = Extension_DevblocksSearchSchema::get(Search_Org::ID);
+						$search->indexIds(array($id));
 					}
 				}
 			}

@@ -200,10 +200,6 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 				if(false == ($id = DAO_Address::create($fields)))
 					throw new Exception_DevblocksAjaxValidationError('An unexpected error occurred while trying to save the record.');
 				
-				// Index immediately
-				$search = Extension_DevblocksSearchSchema::get(Search_Address::ID);
-				$search->indexIds(array($id));
-				
 				// Watchers
 				
 				@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
@@ -230,6 +226,10 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 				// Custom field saves
 				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
 				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_ADDRESS, $id, $field_ids);
+
+				// Index immediately
+				$search = Extension_DevblocksSearchSchema::get(Search_Address::ID);
+				$search->indexIds(array($id));
 			}
 			
 			/*
