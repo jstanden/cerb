@@ -87,13 +87,6 @@
 		</tr>
 		
 		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.username'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="username" value="{$model->username}" style="width:98%;" autocomplete="off" spellcheck="false">
-			</td>
-		</tr>
-		
-		<tr>
 			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.gender'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				<label><input type="radio" name="gender" value="M" {if $model->gender == 'M'}checked="checked"{/if}> <span class="glyphicons glyphicons-male" style="color:rgb(2,139,212);"></span> {'common.gender.male'|devblocks_translate|capitalize}</label>
@@ -137,7 +130,26 @@
 		</tr>
 		
 	</table>
+</fieldset>
 	
+<fieldset class="peek">
+	<legend>Authentication</legend>
+	
+	<table cellspacing="0" cellpadding="2" border="0" width="98%">
+		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.username'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="username" value="{$model->username}" style="width:98%;" autocomplete="off" spellcheck="false">
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.password'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="password" value="" style="width:98%;" autocomplete="off" spellcheck="false" placeholder="(leave blank to keep current password)">
+			</td>
+		</tr>
+	</table>
 </fieldset>
 
 {if !empty($custom_fields)}
