@@ -860,9 +860,9 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			
 			switch($field_key) {
 				// Fields
-//				case SearchFields_Contact::EXAMPLE:
-//					$pass = true;
-//					break;
+				case SearchFields_Contact::ORG_NAME:
+					$pass = true;
+					break;
 					
 				// Virtuals
 				case SearchFields_Contact::VIRTUAL_CONTEXT_LINK:
@@ -893,14 +893,10 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			return array();
 		
 		switch($column) {
-//			case SearchFields_Contact::EXAMPLE_BOOL:
-//				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Contact', $column);
-//				break;
+			case SearchFields_Contact::ORG_NAME:
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_Contact', $column);
+				break;
 
-//			case SearchFields_Contact::EXAMPLE_STRING:
-//				$counts = $this->_getSubtotalCountForStringColumn('DAO_Contact', $column);
-//				break;
-				
 			case SearchFields_Contact::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Contact', 'cerberusweb.contexts.contact', $column);
 				break;
