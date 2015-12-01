@@ -136,9 +136,27 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			implode(',', $from_ids)
 		));
 		 
-		// Merge people
+		// Merge email addresses
 		$db->ExecuteMaster(sprintf("UPDATE address SET contact_org_id = %d WHERE contact_org_id IN (%s)",
 			$to_id,
+			implode(',', $from_ids)
+		));
+		
+		// Merge contacts
+		$db->ExecuteMaster(sprintf("UPDATE contact SET org_id = %d WHERE org_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		));
+		
+		// Merge context_avatar
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE context_avatar SET from_context_id = %d WHERE from_context = %s AND from_context_id IN (%s)",
+			$to_id,
+			$db->qstr(CerberusContexts::CONTEXT_ORG),
+			implode(',', $from_ids)
+		));
+		// Remove any stragglers
+		$db->ExecuteMaster(sprintf("DELETE FROM context_avatar WHERE from_context = %s AND from_context_id IN (%s)",
+			$db->qstr(CerberusContexts::CONTEXT_ORG),
 			implode(',', $from_ids)
 		));
 		

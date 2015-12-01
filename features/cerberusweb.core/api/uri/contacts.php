@@ -753,6 +753,10 @@ class ChContactsPage extends CerberusPageExtension {
 		// Nuke the source orgs
 		DAO_ContactOrg::delete($org_ids);
 		
+		// Index immediately
+		$search = Extension_DevblocksSearchSchema::get(Search_Org::ID);
+		$search->indexIds(array($merge_to_id));
+		
 		if(!empty($view_id)) {
 			if(null != ($view = C4_AbstractViewLoader::getView($view_id)))
 				$view->render();
