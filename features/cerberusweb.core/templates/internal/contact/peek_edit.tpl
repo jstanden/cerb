@@ -218,8 +218,8 @@ $(function() {
 		
 		// Avatar
 		
-		var $avatar_chooser = $popup.find('.cerb-avatar-chooser');
-		var $avatar_image = $popup.find('.cerb-avatar');
+		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
+		var $avatar_image = $avatar_chooser.closest('td').find('img.cerb-avatar');
 		ajax.chooserAvatar($avatar_chooser, $avatar_image);
 	});
 });
