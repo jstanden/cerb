@@ -24,10 +24,10 @@
 	<div style="clear:both;"></div>
 	
 	<div>
-		<button type="button" class="canvas-avatar-zoomin"><span class="glyphicons glyphicons-zoom-in"></span></button>
-		<button type="button" class="canvas-avatar-zoomout"><span class="glyphicons glyphicons-zoom-out"></span></button>
-		<button type="button" class="canvas-avatar-remove"><span class="glyphicons glyphicons-erase"></span></button>
-		<button type="button" class="canvas-avatar-export"><span class="glyphicons glyphicons-circle-ok"></span></button>
+		<button type="button" class="canvas-avatar-zoomin" title="{'common.zoom.in'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-zoom-in"></span></button>
+		<button type="button" class="canvas-avatar-zoomout" title="{'common.zoom.out'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-zoom-out"></span></button>
+		<button type="button" class="canvas-avatar-remove" title="{'common.clear'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-erase"></span></button>
+		<button type="button" class="canvas-avatar-export" title="{'common.save_changes'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-ok"></span></button>
 	</div>
 	
 	<div class="cerb-avatar-error"></div>

@@ -1493,6 +1493,21 @@
 				<seg>yes</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.zoom">
+			<tuv xml:lang="en_US">
+				<seg>zoom</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.zoom.in">
+			<tuv xml:lang="en_US">
+				<seg>zoom in</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.zoom.out">
+			<tuv xml:lang="en_US">
+				<seg>zoom out</seg>
+			</tuv>
+		</tu>
 
 		<!-- DAO -->
 		
