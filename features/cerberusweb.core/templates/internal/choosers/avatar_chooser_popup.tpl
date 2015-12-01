@@ -11,8 +11,17 @@
 	<div style="float:left;">
 		<fieldset class="peek">
 			<legend>Get image from URL:</legend>
-		  <input type="text" class="cerb-avatar-img-url" size="64" />
-		  <button type="button" class="cerb-avatar-img-fetch">Fetch</button>
+			<div>
+			  <input type="text" class="cerb-avatar-img-url" size="64" />
+			  <button type="button" class="cerb-avatar-img-fetch">Fetch</button>
+			</div>
+			{if is_array($suggested_photos) && !empty($suggested_photos)}
+			<div class="cerb-avatar-suggested-photos">
+				{foreach from=$suggested_photos item=photo}
+				<img src="{$photo.url}" title="{$photo.title}" style="cursor:pointer;" width="48" height="48">
+				{/foreach}
+			</div>
+			{/if}
 		</fieldset>
 	
 		<fieldset class="peek">
@@ -24,10 +33,11 @@
 	<div style="clear:both;"></div>
 	
 	<div>
-		<button type="button" class="canvas-avatar-zoomin"><span class="glyphicons glyphicons-zoom-in"></span></button>
-		<button type="button" class="canvas-avatar-zoomout"><span class="glyphicons glyphicons-zoom-out"></span></button>
-		<button type="button" class="canvas-avatar-remove"><span class="glyphicons glyphicons-erase"></span></button>
-		<button type="button" class="canvas-avatar-export"><span class="glyphicons glyphicons-circle-ok"></span></button>
+		<div class="cerb-ajax-spinner" style="display:none;"></div>
+		<button type="button" class="canvas-avatar-zoomin" title="{'common.zoom.in'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-zoom-in"></span></button>
+		<button type="button" class="canvas-avatar-zoomout" title="{'common.zoom.out'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-zoom-out"></span></button>
+		<button type="button" class="canvas-avatar-remove" title="{'common.clear'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-erase"></span></button>
+		<button type="button" class="canvas-avatar-export" title="{'common.save_changes'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-ok"></span></button>
 	</div>
 	
 	<div class="cerb-avatar-error"></div>
@@ -47,6 +57,8 @@ $(function() {
 		var $export = $popup.find('button.canvas-avatar-export');
 		var $imagedata = $popup.find('input.canvas-avatar-imagedata');
 		var $error = $popup.find('div.cerb-avatar-error');
+		var $spinner = $popup.find('div.cerb-ajax-spinner');
+		var $suggested = $popup.find('div.cerb-avatar-suggested-photos');
 		
 		var isMouseDown = false;
 		var x = 0, lastX = 0;
@@ -95,6 +107,11 @@ $(function() {
 			context.drawImage(img, x, y, canvas.width, canvas.width*aspect);
 			context.restore();
 		});
+		
+		$suggested.find('img').click(function() {
+			$popup.find('input.cerb-avatar-img-url').val($(this).attr('src'));
+			$popup.find('button.cerb-avatar-img-fetch').click();
+		});
 	
 		$export.click(function() {
 			var evt = new jQuery.Event('avatar-editor-save');
@@ -134,16 +151,20 @@ $(function() {
 			
 			$error.html('').hide();
 			
+			$spinner.show();
+			
 			genericAjaxGet('', 'c=avatars&a=_fetch&url=' + url, function(json) {
 				if(undefined == json.status || !json.status) {
 					Devblocks.showError($error, json.error);
 					$url.select().focus();
+					$spinner.hide();
 					return;
 				}
 				
 				if(undefined == json.imageData) {
 					Devblocks.showError($error, "No image data was available at the given URL.");
 					$url.select().focus();
+					$spinner.hide();
 					return;
 				}
 				
@@ -154,6 +175,7 @@ $(function() {
 					$canvas.trigger('avatar-redraw');
 				});
 				$(img).attr('src', json.imageData);
+				$spinner.hide();
 			});
 		});
 	

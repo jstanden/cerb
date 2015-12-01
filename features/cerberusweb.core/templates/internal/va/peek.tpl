@@ -60,7 +60,7 @@
 					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=virtual_attendant&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:48px;width:48px;border-radius:5px;border:1px solid rgb(235,235,235);">
 				</div>
 				<div style="float:left;">
-					<button type="button" class="cerb-avatar-chooser">{'common.edit'|devblocks_translate|capitalize}</button>
+					<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}" data-context-id="{$model->id}">{'common.edit'|devblocks_translate|capitalize}</button>
 					<input type="hidden" name="avatar_image">
 				</div>
 			</td>
@@ -188,7 +188,7 @@
 		// Avatar
 		
 		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
-		var $avatar_image = $popup.find('img.cerb-avatar');
+		var $avatar_image = $avatar_chooser.closest('td').find('img.cerb-avatar');
 		ajax.chooserAvatar($avatar_chooser, $avatar_image);
 		
 		// Focus

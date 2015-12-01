@@ -173,6 +173,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 				@$location = DevblocksPlatform::importGPC($_REQUEST['location'], 'string', '');
 				@$phone = DevblocksPlatform::importGPC($_REQUEST['phone'], 'string', '');
 				@$mobile = DevblocksPlatform::importGPC($_REQUEST['mobile'], 'string', '');
+				@$password = DevblocksPlatform::importGPC($_REQUEST['password'], 'string', '');
 				
 				// Defaults
 				
@@ -210,6 +211,13 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 						DAO_Contact::CREATED_AT => time(),
 						DAO_Contact::UPDATED_AT => time(),
 					);
+
+					if(!empty($password)) {
+						$salt = CerberusApplication::generatePassword(8);
+						$fields[DAO_Contact::AUTH_SALT] = $salt;
+						$fields[DAO_Contact::AUTH_PASSWORD] = md5($salt.md5($password));
+					}
+					
 					$id = DAO_Contact::create($fields);
 					
 					// Watchers
@@ -242,8 +250,14 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 						DAO_Contact::MOBILE => $mobile,
 						DAO_Contact::UPDATED_AT => time(),
 					);
-					DAO_Contact::update($id, $fields);
 					
+					if(!empty($password)) {
+						$salt = CerberusApplication::generatePassword(8);
+						$fields[DAO_Contact::AUTH_SALT] = $salt;
+						$fields[DAO_Contact::AUTH_PASSWORD] = md5($salt.md5($password));
+					}
+					
+					DAO_Contact::update($id, $fields);
 				}
 				
 				if($id) {

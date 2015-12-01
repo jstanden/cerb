@@ -200,8 +200,6 @@ class Page_ExampleObjects extends CerberusPageExtension {
 		}
 		
 		$view->doBulkUpdate($filter, $do, $ids);
-		
-		$view->render();
 		return;
 	}
 	

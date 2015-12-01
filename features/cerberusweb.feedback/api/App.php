@@ -1080,8 +1080,6 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		}
 		
 		$view->doBulkUpdate($filter, $do, $ids);
-		
-		$view->render();
 		return;
 	}
 	

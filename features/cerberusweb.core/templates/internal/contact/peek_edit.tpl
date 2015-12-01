@@ -87,13 +87,6 @@
 		</tr>
 		
 		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.username'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="username" value="{$model->username}" style="width:98%;" autocomplete="off" spellcheck="false">
-			</td>
-		</tr>
-		
-		<tr>
 			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.gender'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				<label><input type="radio" name="gender" value="M" {if $model->gender == 'M'}checked="checked"{/if}> <span class="glyphicons glyphicons-male" style="color:rgb(2,139,212);"></span> {'common.gender.male'|devblocks_translate|capitalize}</label>
@@ -130,14 +123,33 @@
 					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=contact&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:48px;width:48px;border-radius:5px;border:1px solid rgb(235,235,235);">
 				</div>
 				<div style="float:left;">
-					<button type="button" class="cerb-avatar-chooser">{'common.edit'|devblocks_translate|capitalize}</button>
+					<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$model->id}">{'common.edit'|devblocks_translate|capitalize}</button>
 					<input type="hidden" name="avatar_image">
 				</div>
 			</td>
 		</tr>
 		
 	</table>
+</fieldset>
 	
+<fieldset class="peek">
+	<legend>Authentication</legend>
+	
+	<table cellspacing="0" cellpadding="2" border="0" width="98%">
+		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.username'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="username" value="{$model->username}" style="width:98%;" autocomplete="off" spellcheck="false">
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.password'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="password" value="" style="width:98%;" autocomplete="off" spellcheck="false" placeholder="(leave blank to keep current password)">
+			</td>
+		</tr>
+	</table>
 </fieldset>
 
 {if !empty($custom_fields)}
@@ -177,6 +189,8 @@ $(function() {
 	var $popup = genericAjaxPopupFind($frm);
 	var $chooser_org = $popup.find('button.chooser-abstract[data-field-name="org_id"]');
 	var $chooser_email = $popup.find('button.chooser-abstract[data-field-name="primary_email_id"]');
+	var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
+	var $avatar_image = $avatar_chooser.closest('td').find('img.cerb-avatar');
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"Edit: Contact");
@@ -208,6 +222,16 @@ $(function() {
 						var org_id = $bubble.val();
 						$chooser_email.attr('data-query', 'org.id:' + org_id);
 					}
+				} else if($(e.target).attr('data-field-name') == 'primary_email_id') {
+					var $bubble = $chooser_email.siblings('ul.chooser-container').find('> li:first input:hidden');
+					
+					if($bubble.length > 0) {
+						var email_id = $bubble.val();
+						if(email_id.length > 0) {
+							$avatar_chooser.attr('data-context','{CerberusContexts::CONTEXT_ADDRESS}');
+							$avatar_chooser.attr('data-context-id',email_id);
+						}
+					}
 				}
 			})
 			;
@@ -218,8 +242,6 @@ $(function() {
 		
 		// Avatar
 		
-		var $avatar_chooser = $popup.find('.cerb-avatar-chooser');
-		var $avatar_image = $popup.find('.cerb-avatar');
 		ajax.chooserAvatar($avatar_chooser, $avatar_image);
 	});
 });

@@ -884,11 +884,6 @@ class ChTicketsPage extends CerberusPageExtension {
 			if(!empty($doActions))
 				$view->doBulkUpdate($doType, $doTypeParam, $doData, $doActions, array());
 		}
-
-		$view->renderPage = 0; // Reset the paging since we may have reduced our list size
-		$view->removeParam('tmpMemberships'); // Remove our filter
-
-		$view->render();
 	}
 
 	function viewMoveTicketsAction() {
@@ -1523,11 +1518,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 		
 		$view->doBulkUpdate($filter, '', $data, $do, $ids);
-		
-		// Clear our temporary group restriction before re-rendering
-		$view->removeParam('tmp');
-		
-		$view->render();
 		return;
 	}
 

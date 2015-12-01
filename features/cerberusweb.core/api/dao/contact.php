@@ -761,6 +761,16 @@ class Model_Contact {
 		return DAO_Address::get($this->primary_email_id);
 	}
 	
+	function getEmailAsString() {
+		if(empty($this->primary_email_id))
+			return null;
+		
+		if(false == ($addy = DAO_Address::get($this->primary_email_id)))
+			return null;
+		
+		return $addy->email;
+	}
+	
 	/**
 	 * Primary plus alternates
 	 * 
