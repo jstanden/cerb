@@ -621,6 +621,10 @@ class DAO_Worker extends Cerb_ORMHelper {
 		// Sessions
 		DAO_DevblocksSession::deleteByUserIds($id);
 		
+		// Clear search records
+		$search = Extension_DevblocksSearchSchema::get(Search_Worker::ID);
+		$search->delete(array($id));
+		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
 		$eventMgr->trigger(

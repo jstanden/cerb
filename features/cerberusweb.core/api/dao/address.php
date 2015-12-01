@@ -182,6 +182,10 @@ class DAO_Address extends Cerb_ORMHelper {
 		$sql = sprintf("DELETE FROM address WHERE id IN (%s)", $address_ids);
 		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	
+		// Clear search records
+		$search = Extension_DevblocksSearchSchema::get(Search_Address::ID);
+		$search->delete($ids);
+		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
 		$eventMgr->trigger(

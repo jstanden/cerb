@@ -264,6 +264,10 @@ class DAO_Contact extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM contact WHERE id IN (%s)", $ids_list));
 		
+		// Clear search records
+		$search = Extension_DevblocksSearchSchema::get(Search_Contact::ID);
+		$search->delete($ids);
+		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
 		$eventMgr->trigger(

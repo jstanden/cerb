@@ -226,6 +226,10 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		);
 		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
+		// Clear search records
+		$search = Extension_DevblocksSearchSchema::get(Search_Org::ID);
+		$search->delete($ids);
+		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
 		$eventMgr->trigger(
