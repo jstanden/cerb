@@ -3883,6 +3883,17 @@
 		<!-- Calendar Datasources -->
 		
 		<extension point="cerberusweb.calendar.datasource">
+			<id>calendar.datasource.calendar</id>
+			<name>Calendar</name>
+			<class>
+				<file>api/uri/internal/calendars/calendar_datasources.php</file>
+				<name>CalendarDatasource_Calendar</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.calendar.datasource">
 			<id>calendar.datasource.worklist</id>
 			<name>Worklist</name>
 			<class>

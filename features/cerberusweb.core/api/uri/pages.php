@@ -788,6 +788,9 @@ class Page_Custom extends CerberusPageExtension {
 	
 			if(!$page->isWriteableByWorker($active_worker))
 				return;
+			
+			$page_users = $page->getUsers();
+			$tpl->assign('page_users', $page_users);
 				
 			$tpl->assign('workspace_page', $page);
 		}

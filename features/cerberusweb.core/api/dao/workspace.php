@@ -144,6 +144,23 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 
 		return $pages;
 	}
+	
+	static function getUsers($page_id) {
+		$results = array();
+		
+		if(false == ($instances = DAO_WorkerPref::getByKey('menu_json')) || !is_array($instances) || empty($instances))
+			return array();
+		
+		foreach($instances as $worker_id => $instance) {
+			if(false == ($menu = json_decode($instance)))
+				continue;
+			
+			if(in_array($page_id, $menu))
+				$results[] = $worker_id;
+		}
+		
+		return $results;
+	}
 
 	/**
 	 * @param integer $id
@@ -781,6 +798,10 @@ class Model_WorkspacePage {
 		}
 		
 		return $tabs;
+	}
+	
+	function getUsers() {
+		return DAO_WorkspacePage::getUsers($this->id);
 	}
 	
 	function isReadableByWorker($worker) {

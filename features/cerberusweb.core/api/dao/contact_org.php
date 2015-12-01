@@ -136,9 +136,27 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			implode(',', $from_ids)
 		));
 		 
-		// Merge people
+		// Merge email addresses
 		$db->ExecuteMaster(sprintf("UPDATE address SET contact_org_id = %d WHERE contact_org_id IN (%s)",
 			$to_id,
+			implode(',', $from_ids)
+		));
+		
+		// Merge contacts
+		$db->ExecuteMaster(sprintf("UPDATE contact SET org_id = %d WHERE org_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		));
+		
+		// Merge context_avatar
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE context_avatar SET from_context_id = %d WHERE from_context = %s AND from_context_id IN (%s)",
+			$to_id,
+			$db->qstr(CerberusContexts::CONTEXT_ORG),
+			implode(',', $from_ids)
+		));
+		// Remove any stragglers
+		$db->ExecuteMaster(sprintf("DELETE FROM context_avatar WHERE from_context = %s AND from_context_id IN (%s)",
+			$db->qstr(CerberusContexts::CONTEXT_ORG),
 			implode(',', $from_ids)
 		));
 		
@@ -207,6 +225,10 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			$id_list
 		);
 		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		
+		// Clear search records
+		$search = Extension_DevblocksSearchSchema::get(Search_Org::ID);
+		$search->delete($ids);
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -702,6 +724,56 @@ class Search_Org extends Extension_DevblocksSearchSchema {
 		}
 	}
 	
+	private function _indexDictionary($dict, $engine) {
+		$logger = DevblocksPlatform::getConsoleLog();
+
+		$id = $dict->id;
+		
+		if(empty($id))
+			return false;
+		
+		$doc = array(
+			'name' => $dict->name,
+			'street' => $dict->street,
+			'city' => $dict->city,
+			'state' => $dict->province,
+			'postal' => $dict->postal,
+			'country' => $dict->country,
+			'phone' => $dict->phone,
+			'website' => $dict->website,
+		);
+		
+		$logger->info(sprintf("[Search] Indexing %s %d...",
+			$this->getNamespace(),
+			$id
+		));
+		
+		if(false === ($engine->index($this, $id, $doc)))
+			return false;
+		
+		return true;
+	}
+	
+	public function indexIds(array $ids=array()) {
+		if(empty($ids))
+			return;
+		
+		if(false == ($engine = $this->getEngine()))
+			return false;
+		
+		if(false == ($models = DAO_ContactOrg::getIds($ids)))
+			return;
+		
+		$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_ORG, array());
+		
+		if(empty($dicts))
+			return;
+		
+		foreach($dicts as $dict) {
+			$this->_indexDictionary($dict, $engine);
+		}
+	}
+	
 	public function index($stop_time=null) {
 		$logger = DevblocksPlatform::getConsoleLog();
 		
@@ -721,38 +793,25 @@ class Search_Org extends Extension_DevblocksSearchSchema {
 				DAO_ContactOrg::ID,
 				$id
 			);
-			$orgs = DAO_ContactOrg::getWhere($where, array(DAO_ContactOrg::UPDATED, DAO_ContactOrg::ID), array(true, true), 100);
+			$models = DAO_ContactOrg::getWhere($where, array(DAO_ContactOrg::UPDATED, DAO_ContactOrg::ID), array(true, true), 100);
 
-			if(empty($orgs)) {
+			$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_ORG, array());
+			
+			if(empty($dicts)) {
 				$done = true;
 				continue;
 			}
 			
 			$last_time = $ptr_time;
 			
-			foreach($orgs as $org) { /* @var $org Model_ContactOrg */
-				$id = $org->id;
-				$ptr_time = $org->updated;
+			// Loop dictionaries
+			foreach($dicts as $dict) {
+				$id = $dict->id;
+				$ptr_time = $dict->updated;
 				
 				$ptr_id = ($last_time == $ptr_time) ? $id : 0;
 				
-				$logger->info(sprintf("[Search] Indexing %s %d...",
-					$ns,
-					$id
-				));
-				
-				$doc = array(
-					'name' => $org->name,
-					'street' => $org->street,
-					'city' => $org->city,
-					'state' => $org->province,
-					'postal' => $org->postal,
-					'country' => $org->country,
-					'phone' => $org->phone,
-					'website' => $org->website,
-				);
-				
-				if(false === ($engine->index($this, $id, $doc)))
+				if(false == $this->_indexDictionary($dict, $engine))
 					return false;
 				
 				flush();

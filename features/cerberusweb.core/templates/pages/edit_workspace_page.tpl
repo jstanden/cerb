@@ -45,13 +45,23 @@
 			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
 		</td>
 		<td width="99%">
+			<ul class="bubbles">
 			{if !empty($workspace_page)}
 				{$context = Extension_DevblocksContext::get($workspace_page->owner_context)}
 				{if !empty($context)}
 					{$meta = $context->getMeta({$workspace_page->owner_context_id})}
-					<div class="bubble"><b>{$meta.name}</b> ({$context->manifest->name})</div>
+					{if $context->id == CerberusContexts::CONTEXT_WORKER}
+					<li class="bubble-gray"><img src="{devblocks_url}c=avatars&context=worker&context_id={$workspace_page->owner_context_id}{/devblocks_url}?v={$meta.updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;"> <a href="javascript:;" class="cerb-peek-trigger" data-context="{$workspace_page->owner_context}" data-context-id="{$workspace_page->owner_context_id}" style="font-weight:bold;">{$meta.name}</a></li>
+					{elseif $context->id == CerberusContexts::CONTEXT_APPLICATION}
+					<li class="bubble-gray"><img src="{devblocks_url}c=avatars&context=app&context_id=0{/devblocks_url}?v={$meta.updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;"> <a href="javascript:;" class="cerb-peek-trigger" data-context="{$workspace_page->owner_context}" data-context-id="{$workspace_page->owner_context_id}" style="font-weight:bold;">{$meta.name}</a></li>
+					{elseif $context->id == CerberusContexts::CONTEXT_GROUP}
+					<li class="bubble-gray"><img src="{devblocks_url}c=avatars&context=group&context_id={$workspace_page->owner_context_id}{/devblocks_url}?v={$meta.updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;"> <a href="javascript:;" class="cerb-peek-trigger" data-context="{$workspace_page->owner_context}" data-context-id="{$workspace_page->owner_context_id}" style="font-weight:bold;">{$meta.name}</a></li>
+					{else}
+					<li class="bubble-gray"><a href="javascript:;" class="cerb-peek-trigger" data-context="{$workspace_page->owner_context}" data-context-id="{$meta.id}" style="font-weight:bold;">{$meta.name}</a></li>
+					{/if}
 				{/if}
 			{/if}
+			</ul>
 			
 			<select name="owner">
 				{if !empty($workspace_page)}<option value="">- change -</option>{/if}
@@ -83,6 +93,25 @@
 		</td>
 	</tr>
 </table>
+
+{if !empty($workspace_page->id)}
+<fieldset class="peek">
+	<legend>Who's using this?</legend>
+	
+	{if !empty($page_users)}
+	<ul class="bubbles">
+	{foreach from=$page_users item=page_user_id}
+	{$page_user = $workers.$page_user_id}
+		{if $page_user}
+		<li class="bubble-gray"><img src="{devblocks_url}c=avatars&context=worker&context_id={$page_user->id}{/devblocks_url}?v={$page_user->updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;"> <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$page_user_id}" style="font-weight:bold;">{$page_user->getName()}</a></li>
+		{/if}
+	{/foreach}
+	</ul>
+	{else}
+	{'common.nobody'|devblocks_translate|lower}
+	{/if}
+</fieldset>
+{/if}
 
 <fieldset class="delete" style="display:none;">
 	<legend>Are you sure you want to delete this workspace page?</legend>
@@ -182,6 +211,8 @@
 		$(this).find('div.tabs').tabs();
 		
 		var $frm_import = $('#frmWorkspacePageImport');
+		
+		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 		
 		$frm_import.find('button.submit').click(function() {
 			genericAjaxPost('frmWorkspacePageImport','','', function(json) {

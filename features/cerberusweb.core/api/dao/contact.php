@@ -264,6 +264,10 @@ class DAO_Contact extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM contact WHERE id IN (%s)", $ids_list));
 		
+		// Clear search records
+		$search = Extension_DevblocksSearchSchema::get(Search_Contact::ID);
+		$search->delete($ids);
+		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
 		$eventMgr->trigger(
@@ -860,9 +864,9 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			
 			switch($field_key) {
 				// Fields
-//				case SearchFields_Contact::EXAMPLE:
-//					$pass = true;
-//					break;
+				case SearchFields_Contact::ORG_NAME:
+					$pass = true;
+					break;
 					
 				// Virtuals
 				case SearchFields_Contact::VIRTUAL_CONTEXT_LINK:
@@ -893,14 +897,10 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			return array();
 		
 		switch($column) {
-//			case SearchFields_Contact::EXAMPLE_BOOL:
-//				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Contact', $column);
-//				break;
+			case SearchFields_Contact::ORG_NAME:
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_Contact', $column);
+				break;
 
-//			case SearchFields_Contact::EXAMPLE_STRING:
-//				$counts = $this->_getSubtotalCountForStringColumn('DAO_Contact', $column);
-//				break;
-				
 			case SearchFields_Contact::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Contact', 'cerberusweb.contexts.contact', $column);
 				break;
@@ -1243,6 +1243,23 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 		if(is_array($do))
 		foreach($do as $k => $v) {
 			switch($k) {
+				case 'title':
+					$change_fields[DAO_Contact::TITLE] = $v;
+					break;
+					
+				case 'location':
+					$change_fields[DAO_Contact::LOCATION] = $v;
+					break;
+					
+				case 'gender':
+					if(in_array($v, array('M','F','')))
+						$change_fields[DAO_Contact::GENDER] = $v;
+					break;
+					
+				case 'org_id':
+					$change_fields[DAO_Contact::ORG_ID] = intval($v);
+					break;
+					
 				default:
 					// Custom fields
 					if(substr($k,0,3)=="cf_") {

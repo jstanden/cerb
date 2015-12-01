@@ -753,6 +753,10 @@ class ChContactsPage extends CerberusPageExtension {
 		// Nuke the source orgs
 		DAO_ContactOrg::delete($org_ids);
 		
+		// Index immediately
+		$search = Extension_DevblocksSearchSchema::get(Search_Org::ID);
+		$search->indexIds(array($merge_to_id));
+		
 		if(!empty($view_id)) {
 			if(null != ($view = C4_AbstractViewLoader::getView($view_id)))
 				$view->render();
@@ -862,6 +866,10 @@ class ChContactsPage extends CerberusPageExtension {
 							);
 							$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
 						}
+						
+						// Index immediately
+						$search = Extension_DevblocksSearchSchema::get(Search_Org::ID);
+						$search->indexIds(array($id));
 					}
 				}
 			}
@@ -988,6 +996,7 @@ class ChContactsPage extends CerberusPageExtension {
 		}
 		
 		$view->doBulkUpdate($filter, $do, $ids);
+		$view->render();
 		return;
 	}
 
@@ -1160,6 +1169,7 @@ class ChContactsPage extends CerberusPageExtension {
 		}
 		
 		$view->doBulkUpdate($filter, $do, $ids);
+		$view->render();
 		return;
 	}
 	

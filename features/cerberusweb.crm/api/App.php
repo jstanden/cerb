@@ -300,6 +300,7 @@ class CrmPage extends CerberusPageExtension {
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 		
 		$view->doBulkUpdate($filter, $do, $ids);
+		$view->render();
 		return;
 	}
 	

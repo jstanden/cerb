@@ -164,18 +164,20 @@
 		<td>
 			{$owner = $workers.{$result.t_owner_id}}
 			{if $owner instanceof Model_Worker}
-				<img src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;">
-				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a>
+				<img src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;"> 
+				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a>
 			{/if}
 		</td>
 		{elseif $column=="o_name"}
 		<td>
-				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$result.t_org_id}">{$result.o_name}</a>
+			{if $result.t_org_id}
+				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$result.t_org_id}">{$result.o_name}</a>
+			{/if}
 		</td>
 		{elseif $column=="t_group_id"}
 		<td>
 			{if $ticket_group instanceof Model_Group}
-				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket_group->id}">{$ticket_group->name}</a>
+				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket_group->id}">{$ticket_group->name}</a>
 			{/if}
 		</td>
 		{elseif $column=="t_bucket_id"}
@@ -183,7 +185,7 @@
 			{$ticket_bucket = $buckets.$ticket_bucket_id}
 			<td>
 				{if $ticket_bucket instanceof Model_Bucket}
-				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket_bucket->id}">{$ticket_bucket->name}</a>
+				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket_bucket->id}">{$ticket_bucket->name}</a>
 				{/if}
 			</td>
 		{elseif $column=="t_last_action_code"}

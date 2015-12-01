@@ -69,16 +69,24 @@
 	{if $org}
 	<div style="float:left;width:200px;margin:0px 5px 5px 0px;">
 		<b>{'common.organization'|devblocks_translate|capitalize}:</b><br>
-		<img src="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}" style="height:16px;width:16px;border-radius:1px;vertical-align:middle;">
-		<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$ticket->org_id}">{$org->name}</a>
+		<ul class="bubbles">
+			<li class="bubble-gray">
+				<img src="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}" style="height:16px;width:16px;border-radius:16px;vertical-align:middle;">
+				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$ticket->org_id}">{$org->name}</a>
+			</li>
+		</ul>
 	</div>
 	{/if}
 	
 	{if $owner}
 	<div style="float:left;width:200px;margin:0px 5px 5px 0px;">
 		<b>{'common.owner'|devblocks_translate|capitalize}:</b><br>
-		<img src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}" style="height:16px;width:16px;border-radius:1px;vertical-align:middle;">
-		<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$ticket->owner_id}">{$owner->getName()}</a>
+		<ul class="bubbles">
+			<li class="bubble-gray">
+				<img src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}" style="height:16px;width:16px;border-radius:16px;vertical-align:middle;">
+				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$ticket->owner_id}">{$owner->getName()}</a>
+			</li>
+		</ul>
 	</div>
 	{/if}
 	

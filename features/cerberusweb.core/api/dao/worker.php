@@ -621,6 +621,10 @@ class DAO_Worker extends Cerb_ORMHelper {
 		// Sessions
 		DAO_DevblocksSession::deleteByUserIds($id);
 		
+		// Clear search records
+		$search = Extension_DevblocksSearchSchema::get(Search_Worker::ID);
+		$search->delete(array($id));
+		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
 		$eventMgr->trigger(
@@ -1210,6 +1214,53 @@ class Search_Worker extends Extension_DevblocksSearchSchema {
 		}
 	}
 	
+	private function _indexDictionary($dict, $engine) {
+		$logger = DevblocksPlatform::getConsoleLog();
+
+		$id = $dict->id;
+		
+		if(empty($id))
+			return false;
+		
+		$doc = array(
+			'firstName' => $dict->first_name,
+			'lastName' => $dict->last_name,
+			'email' => $dict->address_email,
+			'title' => $dict->title,
+			'atMentionName' => $dict->at_mention_name,
+		);
+
+		$logger->info(sprintf("[Search] Indexing %s %d...",
+			$this->getNamespace(),
+			$id
+		));
+		
+		if(false === ($engine->index($this, $id, $doc)))
+			return false;
+		
+		return true;
+	}
+	
+	public function indexIds(array $ids=array()) {
+		if(empty($ids))
+			return;
+		
+		if(false == ($engine = $this->getEngine()))
+			return false;
+		
+		if(false == ($models = DAO_Worker::getIds($ids)))
+			return;
+		
+		$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_WORKER, array('address_'));
+		
+		if(empty($dicts))
+			return;
+		
+		foreach($dicts as $dict) {
+			$this->_indexDictionary($dict, $engine);
+		}
+	}
+	
 	public function index($stop_time=null) {
 		$logger = DevblocksPlatform::getConsoleLog();
 		
@@ -1229,35 +1280,25 @@ class Search_Worker extends Extension_DevblocksSearchSchema {
 				DAO_Worker::ID,
 				$id
 			);
-			$workers = DAO_Worker::getWhere($where, array(DAO_Worker::UPDATED, DAO_Worker::ID), array(true, true), 100);
-
-			if(empty($workers)) {
+			$models = DAO_Worker::getWhere($where, array(DAO_Worker::UPDATED, DAO_Worker::ID), array(true, true), 100);
+			
+			$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_WORKER, array('address_'));
+			
+			if(empty($dicts)) {
 				$done = true;
 				continue;
 			}
 			
 			$last_time = $ptr_time;
 			
-			foreach($workers as $worker) { /* @var $worker Model_Worker */
-				$id = $worker->id;
-				$ptr_time = $worker->updated;
+			// Loop dictionaries
+			foreach($dicts as $dict) {
+				$id = $dict->id;
+				$ptr_time = $dict->updated;
 				
 				$ptr_id = ($last_time == $ptr_time) ? $id : 0;
 				
-				$logger->info(sprintf("[Search] Indexing %s %d...",
-					$ns,
-					$id
-				));
-				
-				$doc = array(
-					'firstName' => $worker->first_name,
-					'lastName' => $worker->last_name,
-					'email' => $worker->getEmailString(),
-					'title' => $worker->title,
-					'atMentionName' => $worker->at_mention_name,
-				);
-				
-				if(false === ($engine->index($this, $id, $doc)))
+				if(false == $this->_indexDictionary($dict, $engine))
 					return false;
 				
 				flush();
@@ -2407,6 +2448,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'at_mention_name' => $prefix.$translate->_('worker.at_mention_name'),
 			'dob' => $prefix.$translate->_('common.dob'),
 			'first_name' => $prefix.$translate->_('common.name.first'),
 			'full_name' => $prefix.$translate->_('common.name.full'),
@@ -2430,6 +2472,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'at_mention_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'dob' => Model_CustomField::TYPE_DATE,
 			'first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'full_name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -2469,6 +2512,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		if(null != $worker) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $worker->getName();
+			$token_values['at_mention_name'] = $worker->at_mention_name;
 			$token_values['calendar_id'] = $worker->calendar_id;
 			$token_values['dob'] = $worker->dob;
 			$token_values['id'] = $worker->id;

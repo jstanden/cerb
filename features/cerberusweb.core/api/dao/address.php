@@ -182,6 +182,10 @@ class DAO_Address extends Cerb_ORMHelper {
 		$sql = sprintf("DELETE FROM address WHERE id IN (%s)", $address_ids);
 		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	
+		// Clear search records
+		$search = Extension_DevblocksSearchSchema::get(Search_Address::ID);
+		$search->delete($ids);
+		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
 		$eventMgr->trigger(
@@ -758,28 +762,6 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 		return true;
 	}
 	
-	private function _getDictionariesFromModels(array $models) {
-		$dicts = array();
-		
-		if(empty($models)) {
-			return array();
-		}
-		
-		foreach($models as $address_id => $address) {
-			$labels = array();
-			$values = array();
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $address, $labels, $values, null, true, true);
-			$dicts[$address_id] = DevblocksDictionaryDelegate::instance($values);
-		}
-		
-		// Batch load org names
-		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'contact_');
-		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'org_name');
-		
-		return $dicts;
-	}
-	
-	// [TODO] Add this to the interface?
 	public function indexIds(array $ids=array()) {
 		if(empty($ids))
 			return;
@@ -787,10 +769,10 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 		if(false == ($engine = $this->getEngine()))
 			return false;
 		
-		if(false == ($addresses = DAO_Address::getIds($ids)))
+		if(false == ($models = DAO_Address::getIds($ids)))
 			return;
 		
-		$dicts = $this->_getDictionariesFromModels($addresses);
+		$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_ADDRESS, array('contact_','org_name'));
 		
 		if(empty($dicts))
 			return;
@@ -817,9 +799,9 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 				DAO_Address::ID,
 				$id
 			);
-			$addresses = DAO_Address::getWhere($where, array(DAO_Address::UPDATED, DAO_Address::ID), array(true, true), 100);
+			$models = DAO_Address::getWhere($where, array(DAO_Address::UPDATED, DAO_Address::ID), array(true, true), 100);
 
-			$dicts = $this->_getDictionariesFromModels($addresses);
+			$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_ADDRESS, array('contact_','org_name'));
 			
 			if(empty($dicts)) {
 				$done = true;

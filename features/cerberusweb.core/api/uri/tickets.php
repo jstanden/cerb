@@ -1518,6 +1518,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 		
 		$view->doBulkUpdate($filter, '', $data, $do, $ids);
+		$view->render();
 		return;
 	}
 

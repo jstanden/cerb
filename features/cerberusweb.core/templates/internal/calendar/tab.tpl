@@ -32,7 +32,6 @@
 
 <table cellspacing="0" cellpadding="0" border="0" class="calendar">
 <tr class="heading">
-{* [TODO] Localize *}
 {if $calendar->params.start_on_mon}
 	<th>Mon</th>
 	<th>Tue</th>
@@ -66,7 +65,11 @@
 				{if $calendar_events.{$day.timestamp}}
 					{foreach from=$calendar_events.{$day.timestamp} item=event}
 						<div class="event" style="background-color:{$event.color|default:'#C8C8C8'};" link="{$event.link}">
+							{if $event.link}
 							<a href="javascript:;" style="color:rgb(0,0,0);" title="{$event.label}">
+							{else}
+							<em>
+							{/if}
 							
 							{$worker_prefs = DAO_WorkerPref::getByWorker($active_worker->id)}
 							{$time_format = $worker_prefs.time_format|default:'D, d M Y h:i a'}
@@ -83,7 +86,11 @@
 							{/if}
 							
 							{$event.label}
+							{if $event.link}
 							</a>
+							{else}
+							</em>
+							{/if}
 						</div>
 					{/foreach}
 				{/if}

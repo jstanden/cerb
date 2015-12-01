@@ -282,6 +282,10 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 					
 					// Flush caches
 					DAO_WorkerRole::clearWorkerCache($id);
+					
+					// Index immediately
+					$search = Extension_DevblocksSearchSchema::get(Search_Worker::ID);
+					$search->indexIds(array($id));
 				}
 			}
 			
@@ -371,6 +375,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		}
 		
 		$view->doBulkUpdate($filter, $do, $ids);
+		$view->render();
 		return;
 	}
 }
