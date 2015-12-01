@@ -24,6 +24,7 @@
 	<div style="clear:both;"></div>
 	
 	<div>
+		<div class="cerb-ajax-spinner" style="display:none;"></div>
 		<button type="button" class="canvas-avatar-zoomin" title="{'common.zoom.in'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-zoom-in"></span></button>
 		<button type="button" class="canvas-avatar-zoomout" title="{'common.zoom.out'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-zoom-out"></span></button>
 		<button type="button" class="canvas-avatar-remove" title="{'common.clear'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-erase"></span></button>
@@ -47,6 +48,7 @@ $(function() {
 		var $export = $popup.find('button.canvas-avatar-export');
 		var $imagedata = $popup.find('input.canvas-avatar-imagedata');
 		var $error = $popup.find('div.cerb-avatar-error');
+		var $spinner = $popup.find('div.cerb-ajax-spinner');
 		
 		var isMouseDown = false;
 		var x = 0, lastX = 0;
@@ -134,16 +136,20 @@ $(function() {
 			
 			$error.html('').hide();
 			
+			$spinner.show();
+			
 			genericAjaxGet('', 'c=avatars&a=_fetch&url=' + url, function(json) {
 				if(undefined == json.status || !json.status) {
 					Devblocks.showError($error, json.error);
 					$url.select().focus();
+					$spinner.hide();
 					return;
 				}
 				
 				if(undefined == json.imageData) {
 					Devblocks.showError($error, "No image data was available at the given URL.");
 					$url.select().focus();
+					$spinner.hide();
 					return;
 				}
 				
@@ -154,6 +160,7 @@ $(function() {
 					$canvas.trigger('avatar-redraw');
 				});
 				$(img).attr('src', json.imageData);
+				$spinner.hide();
 			});
 		});
 	
