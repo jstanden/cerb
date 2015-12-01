@@ -348,7 +348,12 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 				if($opp_id==$explore_from)
 					$orig_pos = $pos;
 				
-				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=contact&id=%d-%s", $row[SearchFields_Contact::ID], DevblocksPlatform::strToPermalink($row[SearchFields_Contact::NAME])), true);
+				$name = $row[SearchFields_Contact::FIRST_NAME];
+
+				if(!empty($row[SearchFields_Contact::LAST_NAME]))
+					$name .= (!empty($name) ? ' ' : '') . $row[SearchFields_Contact::LAST_NAME];
+				
+				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=contact&id=%d-%s", $row[SearchFields_Contact::ID], DevblocksPlatform::strToPermalink($name)), true);
 				
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
