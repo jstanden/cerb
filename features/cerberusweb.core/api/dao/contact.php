@@ -626,6 +626,58 @@ class Search_Contact extends Extension_DevblocksSearchSchema {
 		}
 	}
 	
+	private function _indexDictionary($dict, $engine) {
+		$logger = DevblocksPlatform::getConsoleLog();
+
+		$id = $dict->id;
+		
+		if(empty($id))
+			return false;
+		
+		$doc = array(
+			'firstName' => $dict->first_name,
+			'lastName' => $dict->last_name,
+			'title' => $dict->title,
+			'location' => $dict->location,
+			'phone' => $dict->phone,
+			'mobile' => $dict->mobile,
+			'gender' => $dict->gender,
+			'email' => $dict->address_email,
+			'org' => $dict->org_name,
+			'emails' => $dict->emails,
+		);
+		
+		$logger->info(sprintf("[Search] Indexing %s %d...",
+			$this->getNamespace(),
+			$id
+		));
+		
+		if(false === ($engine->index($this, $id, $doc)))
+			return false;
+		
+		return true;
+	}
+	
+	public function indexIds(array $ids=array()) {
+		if(empty($ids))
+			return;
+		
+		if(false == ($engine = $this->getEngine()))
+			return false;
+		
+		if(false == ($models = DAO_Worker::getIds($ids)))
+			return;
+		
+		$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_CONTACT, array('address_'));
+		
+		if(empty($dicts))
+			return;
+		
+		foreach($dicts as $dict) {
+			$this->_indexDictionary($dict, $engine);
+		}
+	}
+	
 	public function index($stop_time=null) {
 		$logger = DevblocksPlatform::getConsoleLog();
 		
@@ -647,44 +699,25 @@ class Search_Contact extends Extension_DevblocksSearchSchema {
 				DAO_Contact::UPDATED_AT,
 				$ptr_time
 			);
-			$contacts = DAO_Contact::getWhere($where, array(DAO_Contact::UPDATED_AT, DAO_Contact::ID), array(true, true), 100);
+			$models = DAO_Contact::getWhere($where, array(DAO_Contact::UPDATED_AT, DAO_Contact::ID), array(true, true), 100);
 
-			if(empty($contacts)) {
+			$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_CONTACT, array('address_'));
+			
+			if(empty($dicts)) {
 				$done = true;
 				continue;
 			}
 			
 			$last_time = $ptr_time;
 			
-			foreach($contacts as $contact) { /* @var $contact Model_Contact */
-				$id = $contact->id;
-				$ptr_time = $contact->updated_at;
+			// Loop dictionaries
+			foreach($dicts as $dict) {
+				$id = $dict->id;
+				$ptr_time = $dict->updated_at;
 				
 				$ptr_id = ($last_time == $ptr_time) ? $id : 0;
 				
-				$logger->info(sprintf("[Search] Indexing %s %d...",
-					$ns,
-					$id
-				));
-				
-				$doc = array(
-					'firstName' => $contact->first_name,
-					'lastName' => $contact->last_name,
-					'location' => $contact->location,
-					'phone' => $contact->phone,
-					'mobile' => $contact->mobile,
-					'gender' => $contact->gender,
-					'emails' => array(),
-				);
-				
-				if(false != ($org = $contact->getOrg()))
-					$doc['org'] = $org->name;
-				
-				foreach($contact->getEmails() as $addy) {
-					$doc['emails'][] = $addy->email;
-				}
-				
-				if(false === ($engine->index($this, $id, $doc)))
+				if(false == $this->_indexDictionary($dict, $engine))
 					return false;
 				
 				flush();
@@ -1366,8 +1399,13 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'first_name' => $prefix.$translate->_('common.name.first'),
+			'gender' => $prefix.$translate->_('common.gender'),
 			'last_name' => $prefix.$translate->_('common.name.last'),
+			'location' => $prefix.$translate->_('common.location'),
+			'mobile' => $prefix.$translate->_('common.mobile'),
 			'name' => $prefix.$translate->_('common.name'),
+			'phone' => $prefix.$translate->_('common.phone'),
+			'title' => $prefix.$translate->_('common.title'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -1377,8 +1415,13 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'first_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'gender' => Model_CustomField::TYPE_SINGLE_LINE,
 			'last_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'location' => Model_CustomField::TYPE_SINGLE_LINE,
+			'mobile' => Model_CustomField::TYPE_SINGLE_LINE,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'phone' => Model_CustomField::TYPE_SINGLE_LINE,
+			'title' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
@@ -1402,9 +1445,20 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['_label'] = $contact->getName();
 			$token_values['id'] = $contact->id;
 			$token_values['first_name'] = $contact->first_name;
+			$token_values['gender'] = $contact->gender;
 			$token_values['last_name'] = $contact->last_name;
+			$token_values['location'] = $contact->location;
+			$token_values['mobile'] = $contact->mobile;
+			$token_values['phone'] = $contact->phone;
 			$token_values['name'] = $contact->getName();
+			$token_values['title'] = $contact->title;
 			$token_values['updated_at'] = $contact->updated_at;
+			
+			$token_values['address__context'] = CerberusContexts::CONTEXT_ADDRESS;
+			$token_values['address_id'] = $contact->primary_email_id;
+			
+			$token_values['org__context'] = CerberusContexts::CONTEXT_ORG;
+			$token_values['org_id'] = $contact->org_id;
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($contact, $token_values);
@@ -1433,6 +1487,20 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		}
 		
 		switch($token) {
+			case 'emails':
+				$values['emails'] = array();
+				
+				$addresses = DAO_Address::getWhere(sprintf("%s = %d",
+					Cerb_ORMHelper::escape(DAO_Address::CONTACT_ID),
+					$context_id
+				));
+				
+				foreach($addresses as $model_id => $model) {
+					$values['emails'][$model_id] = $model->email;
+				}
+				
+				break;
+			
 			case 'watchers':
 				$watchers = array(
 					$token => CerberusContexts::getWatchers($context, $context_id, true),
