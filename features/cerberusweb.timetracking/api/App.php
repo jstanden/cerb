@@ -570,6 +570,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		}
 		
 		$view->doBulkUpdate($filter, $do, $ids);
+		$view->render();
 		return;
 	}
 	
