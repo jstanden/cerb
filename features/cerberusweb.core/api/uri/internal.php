@@ -867,6 +867,43 @@ class ChInternalController extends DevblocksControllerExtension {
 			$tpl->assign('imagedata', $contents);
 		}
 		
+		$suggested_photos = array();
+		
+		switch($context) {
+			case CerberusContexts::CONTEXT_ADDRESS:
+				if(false != ($addy = DAO_Address::get($context_id))) {
+					$suggested_photos[] = array(
+						'url' => 'https://gravatar.com/avatar/' . md5($addy->email) . '?s=100',
+						'title' => 'Gravatar',
+					);
+				}
+				break;
+				
+			case CerberusContexts::CONTEXT_CONTACT:
+				if(false != ($contact = DAO_Contact::get($context_id))) {
+					if(false != ($email = $contact->getEmailAsString())) {
+						$suggested_photos[] = array(
+							'url' => 'https://gravatar.com/avatar/' . md5($email) . '?s=100',
+							'title' => 'Gravatar',
+						);
+					}
+				}
+				break;
+				
+			case CerberusContexts::CONTEXT_WORKER:
+				if(false != ($worker = DAO_Worker::get($context_id))) {
+					if(false != ($email = $worker->getEmailString())) {
+						$suggested_photos[] = array(
+							'url' => 'https://gravatar.com/avatar/' . md5($email) . '?s=100',
+							'title' => 'Gravatar',
+						);
+					}
+				}
+				break;
+		}
+		
+		$tpl->assign('suggested_photos', $suggested_photos);
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/choosers/avatar_chooser_popup.tpl');
 	}
 

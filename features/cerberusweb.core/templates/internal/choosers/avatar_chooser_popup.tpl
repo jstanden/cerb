@@ -11,8 +11,17 @@
 	<div style="float:left;">
 		<fieldset class="peek">
 			<legend>Get image from URL:</legend>
-		  <input type="text" class="cerb-avatar-img-url" size="64" />
-		  <button type="button" class="cerb-avatar-img-fetch">Fetch</button>
+			<div>
+			  <input type="text" class="cerb-avatar-img-url" size="64" />
+			  <button type="button" class="cerb-avatar-img-fetch">Fetch</button>
+			</div>
+			{if is_array($suggested_photos) && !empty($suggested_photos)}
+			<div class="cerb-avatar-suggested-photos">
+				{foreach from=$suggested_photos item=photo}
+				<img src="{$photo.url}" title="{$photo.title}" style="cursor:pointer;" width="48" height="48">
+				{/foreach}
+			</div>
+			{/if}
 		</fieldset>
 	
 		<fieldset class="peek">
@@ -49,6 +58,7 @@ $(function() {
 		var $imagedata = $popup.find('input.canvas-avatar-imagedata');
 		var $error = $popup.find('div.cerb-avatar-error');
 		var $spinner = $popup.find('div.cerb-ajax-spinner');
+		var $suggested = $popup.find('div.cerb-avatar-suggested-photos');
 		
 		var isMouseDown = false;
 		var x = 0, lastX = 0;
@@ -96,6 +106,11 @@ $(function() {
 			var aspect = img.height/img.width;
 			context.drawImage(img, x, y, canvas.width, canvas.width*aspect);
 			context.restore();
+		});
+		
+		$suggested.find('img').click(function() {
+			$popup.find('input.cerb-avatar-img-url').val($(this).attr('src'));
+			$popup.find('button.cerb-avatar-img-fetch').click();
 		});
 	
 		$export.click(function() {
