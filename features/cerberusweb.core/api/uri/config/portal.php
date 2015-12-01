@@ -199,8 +199,6 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		}
 			
 		$view->doBulkUpdate($filter, $do, $ids);
-		
-		$view->render();
 		return;
 	}
 

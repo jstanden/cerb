@@ -988,8 +988,6 @@ class ChContactsPage extends CerberusPageExtension {
 		}
 		
 		$view->doBulkUpdate($filter, $do, $ids);
-		
-		$view->render();
 		return;
 	}
 
@@ -1162,8 +1160,6 @@ class ChContactsPage extends CerberusPageExtension {
 		}
 		
 		$view->doBulkUpdate($filter, $do, $ids);
-		
-		$view->render();
 		return;
 	}
 	

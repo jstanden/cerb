@@ -193,7 +193,7 @@
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
+	var $popup = genericAjaxPopupFind('#formBatchUpdate');
 	
 	$popup.one('popup_open', function(event,ui) {
 		var $this = $(this);
@@ -204,7 +204,7 @@ $(function() {
 		ajax.orgAutoComplete('#formBatchUpdate input:text[name=do_org]');
 		
 		$popup.find('button.submit').click(function() {
-			genericAjaxPost('formBatchUpdate', null, null, function() {
+			genericAjaxPost('formBatchUpdate', 'view{$view_id}', null, function() {
 				genericAjaxPopupClose($popup);
 			});
 		});
