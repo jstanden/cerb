@@ -902,24 +902,35 @@ DIV.subtle2 {
 // Bubbles
 
 DIV.bubble {
-	line-height:1.9em;
+	line-height:1.5em;
 	white-space:nowrap;
 	padding:0 0.2em 0 0.2em;
-	margin:2px;
+	margin:0px;
 	display:inline-block;
-	color:rgb(50,115,185);
-	background-color:rgb(232,242,254);
-	border:1px solid rgb(197,219,236);
+	color:rgb(0,0,0);
+	background-color:rgb(220,220,220);
+	border:1px solid rgb(200,200,200);
 
 	@include border-radius(5px);
-	@include linear-gradient($white, rgb(232,242,254));
+	@include linear-gradient($white, rgb(220,220,220));
 
 	A {
-		color:rgb(50,115,185);
+		color:rgb(0,0,0);
 		text-decoration:none;
 
 		&:hover {
 			text-decoration:underline;
+		}
+	}
+	
+	&.bubble-blue {
+		@include linear-gradient($white, rgb(232,242,254));
+		color:rgb(50,115,185);
+		background-color:rgb(232,242,254);
+		border:1px solid rgb(197,219,236);
+		
+		A {
+			color:rgb(50,115,185);
 		}
 	}
 }
@@ -934,19 +945,19 @@ UL.bubbles {
 		position: relative;
 		list-style-type:none;
 		list-style:none;
-		line-height:1.9em;
+		line-height:1.5em;
 		white-space:nowrap;
 		padding:0 0.5em;
-		margin:2px;
-		color:rgb(50,115,185);
-		border:1px solid rgb(197,219,236);
+		margin:0;
+		color:rgb(0,0,0);
+		border:1px solid rgb(200,200,200);
 
 		@include border-radius(5px);
 
-		@include linear-gradient($white, rgb(232,242,254));
+		@include linear-gradient($white, rgb(220,220,220));
 
 		A {
-			color:rgb(49,116,165);
+			color:rgb(0,0,0);
 			text-decoration:none;
 
 			&:hover {
@@ -964,23 +975,33 @@ UL.bubbles {
 				color:rgb(0,0,0);
 			}
 		}
+		
+		&.bubble-blue {
+			@include linear-gradient($white, rgb(232,242,254));
+			border:1px solid rgb(197,219,236);
+			color:rgb(50,115,185);
+			
+			A {
+				color:rgb(49,116,165);
+			}
+		}
 	}
 	
 	&.chooser-container {
 		LI {
-			//color: rgb(100,100,100);
-			//border-color: rgb(215,215,215);
-			//background: none;
-		
-			//A {
-			//	color: rgb(100,100,100);
-			//}
+			@include linear-gradient($white, rgb(220,220,220));
 			
+			color:rgb(0,0,0);
+			
+			A {
+				color:rgb(0,0,0);
+			}
+		
 			IMG.cerb-avatar {
 				height:16px;
 				width:16px;
 				margin-right:3px;
-				border-radius:2px;
+				@include border-radius(16px);
 				vertical-align:middle;
 			}
 			
@@ -1132,6 +1153,7 @@ FIELDSET.properties {
 		margin-bottom: 0.25em;
 		display: inline;
 		float: left;
+		line-height: 1.5em;
 	}
 
 	SMALL {

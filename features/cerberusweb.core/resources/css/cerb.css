@@ -935,31 +935,45 @@ DIV.subtle2 {
 }
 
 DIV.bubble {
-  line-height: 1.9em;
+  line-height: 1.5em;
   white-space: nowrap;
   padding: 0 0.2em 0 0.2em;
-  margin: 2px;
+  margin: 0px;
   display: inline-block;
-  color: #3273b9;
-  background-color: #e8f2fe;
-  border: 1px solid #c5dbec;
+  color: black;
+  background-color: gainsboro;
+  border: 1px solid #c8c8c8;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   -ms-border-radius: 5px;
   border-radius: 5px;
+  background-color: white;
+  background: -webkit-gradient(linear, left top, left bottom, from(white), to(gainsboro));
+  background: -moz-linear-gradient(270deg, white, gainsboro);
+  background: -o-linear-gradient(top, white, gainsboro);
+  background: -ms-linear-gradient(top, white, gainsboro);
+  background: linear-gradient(top, white, gainsboro);
+}
+DIV.bubble A {
+  color: black;
+  text-decoration: none;
+}
+DIV.bubble A:hover {
+  text-decoration: underline;
+}
+DIV.bubble.bubble-blue {
   background-color: white;
   background: -webkit-gradient(linear, left top, left bottom, from(white), to(#e8f2fe));
   background: -moz-linear-gradient(270deg, white, #e8f2fe);
   background: -o-linear-gradient(top, white, #e8f2fe);
   background: -ms-linear-gradient(top, white, #e8f2fe);
   background: linear-gradient(top, white, #e8f2fe);
-}
-DIV.bubble A {
   color: #3273b9;
-  text-decoration: none;
+  background-color: #e8f2fe;
+  border: 1px solid #c5dbec;
 }
-DIV.bubble A:hover {
-  text-decoration: underline;
+DIV.bubble.bubble-blue A {
+  color: #3273b9;
 }
 
 UL.bubbles {
@@ -972,25 +986,25 @@ UL.bubbles LI {
   position: relative;
   list-style-type: none;
   list-style: none;
-  line-height: 1.9em;
+  line-height: 1.5em;
   white-space: nowrap;
   padding: 0 0.5em;
-  margin: 2px;
-  color: #3273b9;
-  border: 1px solid #c5dbec;
+  margin: 0;
+  color: black;
+  border: 1px solid #c8c8c8;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   -ms-border-radius: 5px;
   border-radius: 5px;
   background-color: white;
-  background: -webkit-gradient(linear, left top, left bottom, from(white), to(#e8f2fe));
-  background: -moz-linear-gradient(270deg, white, #e8f2fe);
-  background: -o-linear-gradient(top, white, #e8f2fe);
-  background: -ms-linear-gradient(top, white, #e8f2fe);
-  background: linear-gradient(top, white, #e8f2fe);
+  background: -webkit-gradient(linear, left top, left bottom, from(white), to(gainsboro));
+  background: -moz-linear-gradient(270deg, white, gainsboro);
+  background: -o-linear-gradient(top, white, gainsboro);
+  background: -ms-linear-gradient(top, white, gainsboro);
+  background: linear-gradient(top, white, gainsboro);
 }
 UL.bubbles LI A {
-  color: #3174a5;
+  color: black;
   text-decoration: none;
 }
 UL.bubbles LI A:hover {
@@ -1009,11 +1023,39 @@ UL.bubbles LI.bubble-gray {
 UL.bubbles LI.bubble-gray A {
   color: black;
 }
+UL.bubbles LI.bubble-blue {
+  background-color: white;
+  background: -webkit-gradient(linear, left top, left bottom, from(white), to(#e8f2fe));
+  background: -moz-linear-gradient(270deg, white, #e8f2fe);
+  background: -o-linear-gradient(top, white, #e8f2fe);
+  background: -ms-linear-gradient(top, white, #e8f2fe);
+  background: linear-gradient(top, white, #e8f2fe);
+  border: 1px solid #c5dbec;
+  color: #3273b9;
+}
+UL.bubbles LI.bubble-blue A {
+  color: #3174a5;
+}
+UL.bubbles.chooser-container LI {
+  background-color: white;
+  background: -webkit-gradient(linear, left top, left bottom, from(white), to(gainsboro));
+  background: -moz-linear-gradient(270deg, white, gainsboro);
+  background: -o-linear-gradient(top, white, gainsboro);
+  background: -ms-linear-gradient(top, white, gainsboro);
+  background: linear-gradient(top, white, gainsboro);
+  color: black;
+}
+UL.bubbles.chooser-container LI A {
+  color: black;
+}
 UL.bubbles.chooser-container LI IMG.cerb-avatar {
   height: 16px;
   width: 16px;
   margin-right: 3px;
-  border-radius: 2px;
+  -webkit-border-radius: 16px;
+  -moz-border-radius: 16px;
+  -ms-border-radius: 16px;
+  border-radius: 16px;
   vertical-align: middle;
 }
 UL.bubbles.chooser-container LI .glyphicons-circle-remove {
@@ -1157,6 +1199,7 @@ FIELDSET.properties DIV.property {
   margin-bottom: 0.25em;
   display: inline;
   float: left;
+  line-height: 1.5em;
 }
 FIELDSET.properties SMALL {
   font-size: 90%;
@@ -1188,23 +1231,23 @@ FIELDSET.black LEGEND A {
 }
 
 DIV.cerb-profile-header H1 {
-	color:black;
+  color: black;
 }
 
 DIV.cerb-profile-header H1 > SMALL {
-	color:rgb(100,100,100);
-	font-weight:normal;
-	margin-left:5px;
+  color: #646464;
+  font-weight: normal;
+  margin-left: 5px;
 }
 
 DIV.cerb-profile-header span.glyphicons-male {
-	color:rgb(2,139,212);
-	vertical-align:middle;
+  color: #028bd4;
+  vertical-align: middle;
 }
 
 DIV.cerb-profile-header span.glyphicons-female {
- 	color:rgb(243,80,157);
-	vertical-align:middle;
+  color: #f3509d;
+  vertical-align: middle;
 }
 
 DIV.cerb-profile-toolbar {

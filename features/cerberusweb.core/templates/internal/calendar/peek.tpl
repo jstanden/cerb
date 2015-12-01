@@ -22,6 +22,32 @@
 			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
 		</td>
 		<td width="99%">
+			{if !empty($model->id)}
+			<ul class="bubbles">
+				<li class="bubble-gray">
+				{if $model->owner_context==CerberusContexts::CONTEXT_ROLE && isset($roles.{$model->owner_context_id})}
+				<b>{$roles.{$model->owner_context_id}->name}</b> (Role)
+				{/if}
+				
+				{if $model->owner_context==CerberusContexts::CONTEXT_GROUP && isset($groups.{$model->owner_context_id})}
+				<b>{$groups.{$model->owner_context_id}->name}</b> (Group)
+				{/if}
+				
+				{if $model->owner_context==CerberusContexts::CONTEXT_WORKER && isset($workers.{$model->owner_context_id})}
+				<b>{$workers.{$model->owner_context_id}->getName()}</b> (Worker)
+				{/if}
+				
+				{if $model->owner_context==CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT && isset($virtual_attendants.{$model->owner_context_id})}
+				<b>{$virtual_attendants.{$model->owner_context_id}->name}</b> ({'common.virtual_attendant'|devblocks_translate|capitalize})
+				{/if}
+				
+				{if $model->owner_context==CerberusContexts::CONTEXT_APPLICATION}
+				<b>Application</b>
+				{/if}
+				</li>
+			</ul>
+			{/if}
+		
 			<select name="owner">
 				{if !empty($model->id)}
 					<option value=""> - transfer - </option>
@@ -58,31 +84,6 @@
 				{/foreach}
 			</select>
 			
-			{if !empty($model->id)}
-			<ul class="bubbles">
-				<li>
-				{if $model->owner_context==CerberusContexts::CONTEXT_ROLE && isset($roles.{$model->owner_context_id})}
-				<b>{$roles.{$model->owner_context_id}->name}</b> (Role)
-				{/if}
-				
-				{if $model->owner_context==CerberusContexts::CONTEXT_GROUP && isset($groups.{$model->owner_context_id})}
-				<b>{$groups.{$model->owner_context_id}->name}</b> (Group)
-				{/if}
-				
-				{if $model->owner_context==CerberusContexts::CONTEXT_WORKER && isset($workers.{$model->owner_context_id})}
-				<b>{$workers.{$model->owner_context_id}->getName()}</b> (Worker)
-				{/if}
-				
-				{if $model->owner_context==CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT && isset($virtual_attendants.{$model->owner_context_id})}
-				<b>{$virtual_attendants.{$model->owner_context_id}->name}</b> ({'common.virtual_attendant'|devblocks_translate|capitalize})
-				{/if}
-				
-				{if $model->owner_context==CerberusContexts::CONTEXT_APPLICATION}
-				<b>Application</b>
-				{/if}
-				</li>
-			</ul>
-			{/if}
 		</td>
 	</tr>
 	

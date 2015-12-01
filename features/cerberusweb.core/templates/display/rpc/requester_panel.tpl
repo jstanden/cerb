@@ -9,7 +9,7 @@
 <ul class="chooser-container bubbles">
 {if !empty($requesters)}
 {foreach from=$requesters item=requester}
-<li>{$requester->email}<input type="hidden" name="address_id[]" value="{$requester->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+<li class="bubble-gray"><img src="{devblocks_url}c=avatars&context=contact&context_id={$requester->contact_id}{/devblocks_url}?v={$requester->updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;"> {$requester->email}<input type="hidden" name="address_id[]" value="{$requester->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 {/foreach}
 {/if}	
 </ul>

@@ -80,7 +80,7 @@
 				<div id="ticketClosed" style="display:{if $ticket->is_closed || $ticket->is_waiting}block{else}none{/if};margin:5px 0px 5px 15px;">
 					<b>{'display.reply.next.resume'|devblocks_translate}:</b><br>
 					<i>{'display.reply.next.resume_eg'|devblocks_translate}</i><br>
-					<input type="text" name="ticket_reopen" size="64" class="input_date" value="{if !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}"><br>
+					<input type="text" name="ticket_reopen" size="32" class="input_date" value="{if !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}" style="width:75%;"><br>
 					{'display.reply.next.resume_blank'|devblocks_translate}<br>
 				</div>
 			</td>

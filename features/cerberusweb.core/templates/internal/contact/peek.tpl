@@ -43,7 +43,9 @@
 	{if $addy}
 	<div style="float:left;width:200px;margin:0px 5px 5px 0px;">
 		<b>Email:</b><br>
-		<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a>
+		<ul class="bubbles">
+			<li class="bubble-gray"><img src="{devblocks_url}c=avatars&context=contact&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;"> <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a></li>
+		</ul>
 	</div>
 	{/if}
 	
@@ -70,8 +72,8 @@
 	
 	<br clear="all">
 	
-	<div>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="contact.id:{$model->id}"><div class="badge-count">{$activity_counts.emails|default:0}</div> {'common.email_addresses'|devblocks_translate|capitalize}</button>
+	<div style="margin-top:5px;">
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="contact.id:{$model->id}"><div class="badge-count">{$activity_counts.emails|default:0}</div> {if $activity_counts.emails == 1}{'common.email_address'|devblocks_translate|capitalize}{else}{'common.email_addresses'|devblocks_translate|capitalize}{/if}</button>
 	</div>
 </fieldset>
 {/if}

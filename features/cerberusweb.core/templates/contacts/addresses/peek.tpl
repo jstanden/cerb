@@ -45,20 +45,28 @@
 	<legend>Contact Info</legend>
 	
 	<div style="float:left;width:200px;margin:0px 5px 5px 0px;">
-		<b>{'common.contact'|devblocks_translate|capitalize}:</b><br>
-		{if $contact}
-			<img src="{devblocks_url}c=avatars&context=contact&context_id={$contact->id}{/devblocks_url}?v={$contact->updated_at}" style="height:16px;width:16px;border-radius:1px;vertical-align:middle;">
-			<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$contact->id}">{$contact->getName()}</a>
+		<b>{'common.organization'|devblocks_translate|capitalize}:</b><br>
+		{if $org}
+		<ul class="bubbles">
+			<li class="bubble-gray">
+				<img src="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}" style="height:16px;width:16px;border-radius:16px;vertical-align:middle;"> 
+				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name}</a>
+			</li>
+		</ul>
 		{else}
 			({'common.none'|devblocks_translate|lower})
 		{/if}
 	</div>
 	
 	<div style="float:left;width:200px;margin:0px 5px 5px 0px;">
-		<b>{'common.organization'|devblocks_translate|capitalize}:</b><br>
-		{if $org}
-			<img src="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}" style="height:16px;width:16px;border-radius:1px;vertical-align:middle;">
-			<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name}</a>
+		<b>{'common.contact'|devblocks_translate|capitalize}:</b><br>
+		{if $contact}
+		<ul class="bubbles">
+			<li class="bubble-gray">
+				<img src="{devblocks_url}c=avatars&context=contact&context_id={$contact->id}{/devblocks_url}?v={$contact->updated_at}" style="height:16px;width:16px;border-radius:16px;vertical-align:middle;"> 
+				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$contact->id}">{$contact->getName()}</a>
+			</li>
+		</ul>
 		{else}
 			({'common.none'|devblocks_translate|lower})
 		{/if}

@@ -138,10 +138,12 @@
 			{elseif $k == 'bucket'}
 				{$ticket_group = $groups.$ticket_group_id}
 				<b>{'common.bucket'|devblocks_translate|capitalize}:</b>
-				[<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket_group->id}">{$ticket_group->name}</a>] 
+				<ul class="bubbles">
+					<li class="bubble-gray"><img src="{devblocks_url}c=avatars&context=group&context_id={$ticket_group->id}{/devblocks_url}?v={$ticket_group->updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;"> <a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket_group->id}">{$ticket_group->name}</a></li> 
 				{if !empty($ticket_bucket_id)}
-					<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket_bucket->id}">{$ticket_bucket->name}</a>
+					<li class="bubble-gray"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket_bucket->id}">{$ticket_bucket->name}</a></li>
 				{/if}
+				</ul>
 			{else}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
 			{/if}
@@ -152,11 +154,13 @@
 	{/foreach}
 	<br clear="all">
 	
-	<a style="color:black;font-weight:bold;" href="javascript:;" id="aRecipients" onclick="genericAjaxPopup('peek','c=display&a=showRequestersPanel&ticket_id={$ticket->id}',null,false,'50%');">{'common.participants'|devblocks_translate|capitalize}</a>:
-	<span id="displayTicketRequesterBubbles">
-		{include file="devblocks:cerberusweb.core::display/rpc/requester_list.tpl" ticket_id=$ticket->id}
-	</span>
-	<br clear="all">
+	<div style="line-height:1.5em;">
+		<a style="color:black;font-weight:bold;" href="javascript:;" id="aRecipients" onclick="genericAjaxPopup('peek','c=display&a=showRequestersPanel&ticket_id={$ticket->id}',null,false,'50%');">{'common.participants'|devblocks_translate|capitalize}</a>:
+		<span id="displayTicketRequesterBubbles">
+			{include file="devblocks:cerberusweb.core::display/rpc/requester_list.tpl" ticket_id=$ticket->id}
+		</span>
+	</div>
+	
 	</div>
 </fieldset>
 
