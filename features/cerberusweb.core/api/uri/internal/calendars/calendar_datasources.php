@@ -1,4 +1,61 @@
 <?php
+class CalendarDatasource_Calendar extends Extension_CalendarDatasource {
+	private function _getSeriesIdxFromPrefix($params_prefix) {
+		if(!empty($params_prefix) && preg_match("#\[series\]\[(\d+)\]#", $params_prefix, $matches) && count($matches) == 2) {
+			return $matches[1];
+		}
+		
+		return null;
+	}
+
+	function renderConfig(Model_Calendar $calendar, $params, $params_prefix) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('calendar', $calendar);
+		$tpl->assign('params', $params);
+		$tpl->assign('params_prefix', $params_prefix);
+		
+		$calendars = array();
+		
+		if($calendar instanceof Model_Calendar && $calendar->id) {
+			$calendars = DAO_Calendar::getReadableByActor(array($calendar->owner_context, $calendar->owner_context_id));
+		} else {
+			$calendars = DAO_Calendar::getReadableByActor(array(CerberusContexts::CONTEXT_WORKER, $active_worker->id));
+		}
+		
+		// We need to exclude the current calendar from being sync'd to itself
+		unset($calendars[$calendar->id]);
+		
+		$tpl->assign('calendars', $calendars);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/calendar/datasources/calendar/config.tpl');
+	}
+	
+	function getData(Model_Calendar $calendar, array $params=array(), $params_prefix=null, $date_range_from, $date_range_to) {
+		$calendar_events = array();
+
+		@$series_idx = $this->_getSeriesIdxFromPrefix($params_prefix);
+
+		if(false == ($sync_calendar = DAO_Calendar::get($params['sync_calendar_id'])))
+			return $calendar_events;
+		
+		$sync_data = $sync_calendar->getEvents($date_range_from, $date_range_to);
+		
+		if(is_array($sync_data))
+		foreach($sync_data as $epoch => $sync_events) {
+			if(is_array($sync_events))
+			foreach($sync_events as $sync_event) {
+				$sync_event['link'] = null;
+				$sync_event['calendar_id'] = $sync_calendar->id;
+				$calendar_events[$epoch][] = $sync_event;
+			}
+		}
+		
+		return $calendar_events;
+	}
+};
+
 class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 	private function _getSeriesIdxFromPrefix($params_prefix) {
 		if(!empty($params_prefix) && preg_match("#\[series\]\[(\d+)\]#", $params_prefix, $matches) && count($matches) == 2) {

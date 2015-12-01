@@ -74,8 +74,11 @@
 <label><input type="radio" name="params{$params_prefix}[is_available]" value="0" {if empty($params.is_available)}checked="checked"{/if}> busy</label>
 </div>
 
+<div>
 <b>Color</b> it 
 <input type="hidden" name="params{$params_prefix}[color]" value="{$params.color|default:'#A0D95B'}" style="width:100%;" class="color-picker">
+</div>
+
 </div>
 
 <script type="text/javascript">
