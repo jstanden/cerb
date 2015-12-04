@@ -130,11 +130,16 @@ $(function() {
 				// When the org changes, default the contact chooser filter
 				if($(e.target).attr('data-field-name') == 'org_id') {
 					var $bubble = $chooser_org.siblings('ul.chooser-container').find('> li:first input:hidden');
+					var $button_create_contact = $chooser_contact.siblings('button.chooser-create');
 					
 					if($bubble.length > 0) {
 						var org_id = $bubble.val();
 						$chooser_contact.attr('data-query', 'org.id:' + org_id);
+						
+						// If there's a contact create button, change its defaults to the form contents
+						$button_create_contact.attr('data-edit', '{if $address}email:{$address->id}{/if} org:' + org_id);
 					}
+					
 				}
 			})
 			;
