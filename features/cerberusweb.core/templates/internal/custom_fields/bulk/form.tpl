@@ -147,7 +147,7 @@ $cfields.find('button.chooser-abstract').each(function() {
 		var $button = $(this);
 		var ctx = $button.attr('context');
 		
-		$chooser = genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=chooserOpen&context=' + encodeURIComponent(ctx) + '&single=1',null,true,'750');
+		var $chooser = genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=chooserOpen&context=' + encodeURIComponent(ctx) + '&single=1',null,true,'750');
 		$chooser.one('chooser_save', function(event) {
 			if(typeof event.values == "object" && event.values.length > 0) {
 				var context_label = event.labels[0];

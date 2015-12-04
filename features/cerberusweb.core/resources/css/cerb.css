@@ -1206,6 +1206,13 @@ FIELDSET.properties SMALL {
   color: #646464;
 }
 
+DIV.cerb-properties-grid > DIV {
+  display: inline-block;
+  min-width: 150px;
+  margin: 0px 5px 5px 0px;
+  vertical-align: top;
+}
+
 FIELDSET.peek {
   border-width: 2px 0px 0px 0px;
 }

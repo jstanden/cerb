@@ -9,7 +9,7 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-{if $model}
+{if $model instanceof Model_Contact}
 	{$org = $model->getOrg()}
 	{$addy = $model->getEmail()}
 {/if}

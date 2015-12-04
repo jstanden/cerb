@@ -4761,8 +4761,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'num_messages' => Model_CustomField::TYPE_NUMBER,
 			'reopen_date' => Model_CustomField::TYPE_DATE,
 			'spam_score' => 'percent',
-			'spam_training' => null,
-			'status' => '',
+			'spam_training' => Model_CustomField::TYPE_SINGLE_LINE,
+			'status' => Model_CustomField::TYPE_SINGLE_LINE,
 			'subject' => Model_CustomField::TYPE_SINGLE_LINE, // [TODO] tag as _label
 			'updated' => Model_CustomField::TYPE_DATE,
 			'url' => Model_CustomField::TYPE_URL,

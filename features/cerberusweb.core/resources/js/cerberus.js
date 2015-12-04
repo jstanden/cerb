@@ -608,7 +608,7 @@ var cAjaxCalls = function() {
 						if(0 == $ul.find('input:hidden[value="'+$value+'"]').length) {
 							var $li = $('<li/>').text($label);
 							var $hidden = $('<input type="hidden">').attr('name', field_name).attr('title', $label).attr('value', $value).appendTo($li);
-							var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>').appendTo($li);
+							var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
 							$ul.append($li);
 						}
 					}
@@ -876,8 +876,7 @@ var ajax = new cAjaxCalls();
 						if($trigger.attr('data-single'))
 							$ul.find('li').remove();
 						
-						// [TODO] Check for dupes
-						
+						// Check for dupes
 						for(i in event.labels) {
 							if(0 == $ul.find('input:hidden[value="'+event.values[i]+'"]').length) {
 								var $li = $('<li/>').text(event.labels[i]);
