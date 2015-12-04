@@ -996,10 +996,11 @@ var ajax = new cAjaxCalls();
 			}
 			
 			// Autocomplete
-			// [TODO] Check this with a data- attr
 			if($trigger.attr('data-autocomplete')) {
-				var $autocomplete = $('<input type="text" size="45">').addClass('input_search');
-				$autocomplete.insertBefore($trigger);
+				var is_autocomplete_ifnull = $trigger.attr('data-autocomplete') == 'if-null';
+				
+				var $autocomplete = $('<input type="text" size="32">');
+				$autocomplete.insertAfter($trigger);
 				
 				$autocomplete.autocomplete({
 					source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=' + context + '&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content'),
@@ -1039,6 +1040,20 @@ var ajax = new cAjaxCalls();
 				};
 				
 				$autocomplete.autocomplete('widget').css('max-width', $autocomplete.closest('form').width());
+				
+				if(is_autocomplete_ifnull) {
+					if($ul.find('>li').length > 0)
+						$autocomplete.hide();
+					
+					$trigger.on('cerb-chooser-saved', function() {
+						// If we have zero bubbles, show autocomplete
+						if($ul.find('>li').length == 0) {
+							$autocomplete.show();
+						} else { // otherwise, hide it.
+							$autocomplete.hide();
+						}
+					});
+				}
 			}
 		});
 	}
