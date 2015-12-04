@@ -892,6 +892,12 @@ var ajax = new cAjaxCalls();
 				});
 			});
 			
+			// Add remove icons with events
+			$ul.find('li').each(function() {
+				var $li = $(this);
+				var $close = $('<span class="glyphicons glyphicons-circle-remove"></span>').appendTo($li);
+			});
+			
 			// Abstractly create new bubbles
 			$ul.on('bubble-create', function(e) {
 				e.stopPropagation();
@@ -939,6 +945,13 @@ var ajax = new cAjaxCalls();
 						$trigger.trigger('cerb-chooser-saved');
 					}
 				}
+			});
+			
+			// Catch bubble remove events at the container
+			$ul.on('click','> li span.glyphicons-circle-remove', function(e) {
+				e.stopPropagation();
+				$(this).closest('li').remove();
+				$trigger.trigger('cerb-chooser-saved');
 			});
 			
 			// Create
