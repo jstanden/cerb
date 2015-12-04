@@ -1161,6 +1161,18 @@ class ChInternalController extends DevblocksControllerExtension {
 				}
 				break;
 
+			case CerberusContexts::CONTEXT_CONTACT:
+				$results = DAO_Contact::autocomplete($term);
+
+				if(is_array($results))
+				foreach($results as $contact_id => $contact){
+					$entry = new stdClass();
+					$entry->label = $contact->getName();
+					$entry->value = sprintf("%d", $contact_id);
+					$list[] = $entry;
+				}
+				break;
+				
 			case CerberusContexts::CONTEXT_ORG:
 				list($results, $null) = DAO_ContactOrg::search(
 					array(),

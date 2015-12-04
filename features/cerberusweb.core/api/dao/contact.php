@@ -424,6 +424,33 @@ class DAO_Contact extends Cerb_ORMHelper {
 		}
 	}
 	
+	static function autocomplete($term) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$ids = array();
+		
+		$results = $db->GetArraySlave(sprintf("SELECT id ".
+			"FROM contact ".
+			"WHERE (".
+			"first_name LIKE %s ".
+			"OR last_name LIKE %s ".
+			"%s".
+			")",
+			$db->qstr($term.'%'),
+			$db->qstr($term.'%'),
+			(false != strpos($term,' ')
+				? sprintf("OR concat(first_name,' ',last_name) LIKE %s ", $db->qstr($term.'%'))
+				: '')
+		));
+		
+		
+		if(is_array($results))
+		foreach($results as $row) {
+			$ids[] = $row['id'];
+		}
+		
+		return DAO_Contact::getIds($ids);
+	}
+	
 	/**
 	 * Enter description here...
 	 *
