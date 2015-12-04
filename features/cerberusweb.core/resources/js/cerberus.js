@@ -1011,6 +1011,20 @@ var ajax = new cAjaxCalls();
 					}
 				});
 				
+				$autocomplete.autocomplete("instance")._renderItem = function(ul, item) {
+					var $li = $("<li/>").append($("<div/>").text(item.label));
+					
+					if(typeof item.meta == 'object') {
+						for(k in item.meta) {
+							var $div = $('<div/>').append($('<small/>').text(item.meta[k]));
+							$li.append($div);
+						}
+					}
+					
+					$li.appendTo(ul);
+					return $li;
+				};
+				
 				$autocomplete.autocomplete('widget').css('max-width', $autocomplete.closest('form').width());
 			}
 		});

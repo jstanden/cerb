@@ -1163,12 +1163,26 @@ class ChInternalController extends DevblocksControllerExtension {
 
 			case CerberusContexts::CONTEXT_CONTACT:
 				$results = DAO_Contact::autocomplete($term);
+				
+				// Efficiently load all of the referenced orgs in one query
+				$orgs = DAO_ContactOrg::getIds(DevblocksPlatform::extractArrayValues($results, 'org_id'));
 
 				if(is_array($results))
 				foreach($results as $contact_id => $contact){
 					$entry = new stdClass();
 					$entry->label = $contact->getName();
 					$entry->value = sprintf("%d", $contact_id);
+					$entry->icon = $url_writer->write('c=avatars&type=contact&id=' . $contact->id, true) . '?v=' . $contact->updated_at;
+					
+					$meta = array();
+					$meta['role'] = $contact->title;
+
+					if($contact->org_id && isset($orgs[$contact->org_id])) {
+						$org = $orgs[$contact->org_id];
+						$meta['role'] .= (!empty($meta['role']) ? ' at ' : '') . $org->name;
+					}
+					
+					$entry->meta = $meta;
 					$list[] = $entry;
 				}
 				break;
