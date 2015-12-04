@@ -373,6 +373,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			echo json_encode(array(
 				'status' => true,
 				'id' => $id,
+				'label' => $subject, // [TODO] Mask?
 				'view_id' => $view_id,
 			));
 			return;

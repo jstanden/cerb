@@ -5283,7 +5283,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	
 	function _renderPeekTicketPopup($context_id, $view_id) {
 		@$msgid = DevblocksPlatform::importGPC($_REQUEST['msgid'],'integer',0);
-		@$edit_mode = DevblocksPlatform::importGPC($_REQUEST['edit'],'integer',0);
+		@$edit_mode = DevblocksPlatform::importGPC($_REQUEST['edit'],'string',null);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 

@@ -877,6 +877,7 @@ class ChContactsPage extends CerberusPageExtension {
 			echo json_encode(array(
 				'status' => true,
 				'id' => $id,
+				'label' => $org_name,
 				'view_id' => $view_id,
 			));
 			return;

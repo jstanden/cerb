@@ -763,8 +763,8 @@ var ajax = new cAjaxCalls();
 			var context = $trigger.attr('data-context');
 			var context_id = $trigger.attr('data-context-id');
 			var layer = $trigger.attr('data-layer');
-			var edit_mode = $trigger.attr('data-edit');
 			var width = $trigger.attr('data-width');
+			var edit_mode = $trigger.attr('data-edit') ? true : false;
 			
 			// Context
 			if(!(typeof context == "string") || 0 == context.length)
@@ -773,7 +773,7 @@ var ajax = new cAjaxCalls();
 			// Layer
 			if(!(typeof layer == "string") || 0 == layer.length)
 				//layer = "peek" + Devblocks.uniqueId();
-				layer = $.md5(context + ':' + context_id + ':' + edit_mode);
+				layer = $.md5(context + ':' + context_id + ':' + (edit_mode ? 'true' : 'false'));
 			
 			$trigger.click(function() {
 				var peek_url = 'c=internal&a=showPeekPopup&context=' + encodeURIComponent(context) + '&context_id=' + encodeURIComponent(context_id);
@@ -783,8 +783,9 @@ var ajax = new cAjaxCalls();
 					peek_url += '&view_id=' + encodeURIComponent(options.view_id);
 				
 				// Edit mode
-				if(edit_mode == 'true')
-					peek_url += '&edit=1';
+				if(edit_mode) {
+					peek_url += '&edit=' + encodeURIComponent($trigger.attr('data-edit'));
+				}
 				
 				if(!width)
 					width = '50%';
@@ -795,11 +796,13 @@ var ajax = new cAjaxCalls();
 				$trigger.trigger('cerb-peek-opened');
 				
 				$peek.on('peek_saved', function(e) {
-					$trigger.trigger('cerb-peek-saved');
+					e.type = 'cerb-peek-saved';
+					$trigger.trigger(e);
 				});
 				
 				$peek.on('peek_deleted', function(e) {
-					$trigger.trigger('cerb-peek-deleted');
+					e.type = 'cerb-peek-deleted';
+					$trigger.trigger(e);
 				});
 				
 				$peek.on('dialogclose', function(e) {
@@ -938,6 +941,24 @@ var ajax = new cAjaxCalls();
 				}
 			});
 			
+			// Create
+			if($trigger.attr('data-create')) {
+				var is_create_ifnull = $trigger.attr('data-create') == 'if-null';
+				
+				var $button = $('<button type="button"/>')
+					.addClass('chooser-create')
+					.attr('data-context', context)
+					.attr('data-context-id', '0')
+					.append($('<span class="glyphicons glyphicons-circle-plus"/>'))
+					.insertAfter($trigger)
+					;
+				
+				if($trigger.attr('data-create-defaults')) {
+					$button.attr('data-edit', $trigger.attr('data-create-defaults'));
+				}
+				
+				$button.cerbPeekTrigger();
+				
 				// When the record is saved, retrieve the id+label and make a chooser bubble
 				$button.on('cerb-peek-saved', function(e) {
 					var evt = jQuery.Event('bubble-create');
@@ -946,6 +967,21 @@ var ajax = new cAjaxCalls();
 					$ul.trigger(evt);
 				});
 				
+				if(is_create_ifnull) {
+					if($ul.find('>li').length > 0)
+						$button.hide();
+					
+					$trigger.on('cerb-chooser-saved', function() {
+						// If we have zero bubbles, show autocomplete
+						if($ul.find('>li').length == 0) {
+							$button.show();
+						} else { // otherwise, hide it.
+							$button.hide();
+						}
+					});
+				}
+			}
+			
 			// Autocomplete
 			// [TODO] Check this with a data- attr
 			if($trigger.attr('data-autocomplete')) {

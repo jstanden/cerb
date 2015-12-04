@@ -217,6 +217,7 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 			echo json_encode(array(
 				'status' => true,
 				'id' => $id,
+				'label' => $name,
 				'view_id' => $view_id,
 			));
 			return;

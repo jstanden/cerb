@@ -274,6 +274,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 			echo json_encode(array(
 				'status' => true,
 				'id' => $id,
+				'label' => $name,
 				'view_id' => $view_id,
 			));
 			return;
