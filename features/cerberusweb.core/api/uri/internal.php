@@ -1064,6 +1064,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$term = DevblocksPlatform::importGPC($_REQUEST['term'],'string','');
 
 		$active_worker = CerberusApplication::getActiveWorker();
+		$url_writer = DevblocksPlatform::getUrlService();
 		
 		$list = array();
 		
@@ -1102,12 +1103,29 @@ class ChInternalController extends DevblocksControllerExtension {
 				);
 				
 				$models = DAO_Address::getIds(array_keys($results));
+				
+				// Efficiently load all of the referenced orgs in one query
+				$orgs = DAO_ContactOrg::getIds(DevblocksPlatform::extractArrayValues($models, 'contact_org_id'));
 
 				if(is_array($models))
 				foreach($models as $model) {
 					$entry = new stdClass();
-					$entry->label = $model->getNameWithEmail();
+					$entry->label = $model->email;
 					$entry->value = $model->id;
+					$entry->icon = $url_writer->write('c=avatars&type=address&id=' . $model->id, true) . '?v=' . $model->updated;
+					
+					$meta = array();
+					
+					if(false != ($full_name = $model->getName()))
+						$meta['full_name'] = $full_name;
+					
+					if($model->contact_org_id && isset($orgs[$model->contact_org_id])) {
+						$org = $orgs[$model->contact_org_id]; /* @var $org Model_ContactOrg */
+						$meta['org'] = $org->name;
+					}
+
+					$entry->meta = $meta;
+					
 					$list[] = $entry;
 				}
 				
