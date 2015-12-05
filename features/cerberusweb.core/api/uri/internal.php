@@ -1222,6 +1222,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					$entry = new stdClass();
 					$entry->label = $row[SearchFields_ContactOrg::NAME];
 					$entry->value = $row[SearchFields_ContactOrg::ID];
+					$entry->icon = $url_writer->write('c=avatars&type=org&id=' . $row[SearchFields_ContactOrg::ID], true) . '?v=' . $row[SearchFields_ContactOrg::UPDATED];
 					$list[] = $entry;
 				}
 				break;
