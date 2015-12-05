@@ -1318,6 +1318,15 @@ class ChInternalController extends DevblocksControllerExtension {
 					$entry = new stdClass();
 					$entry->label = $worker->getName();
 					$entry->value = sprintf("%d", $worker_id);
+					$entry->icon = $url_writer->write('c=avatars&type=worker&id=' . $worker->id, true) . '?v=' . $worker->updated;
+					
+					$meta = array();
+					
+					if($worker->title)
+						$meta['title'] = $worker->title;
+					
+					$entry->meta = $meta;
+					
 					$list[] = $entry;
 				}
 				break;
