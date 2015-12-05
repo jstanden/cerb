@@ -1182,6 +1182,14 @@ class ChInternalController extends DevblocksControllerExtension {
 			case CerberusContexts::CONTEXT_CONTACT:
 				$results = DAO_Contact::autocomplete($term);
 				
+				if(stristr('none',$term) || stristr('empty',$term) || stristr('no contact',$term)) {
+					$empty = new stdClass();
+					$empty->label = '(no contact)';
+					$empty->value = '0';
+					$empty->meta = array('desc' => 'Clear the contact');
+					$list[] = $empty;
+				}
+				
 				// Efficiently load all of the referenced orgs in one query
 				$orgs = DAO_ContactOrg::getIds(DevblocksPlatform::extractArrayValues($results, 'org_id'));
 
@@ -1206,6 +1214,14 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 				
 			case CerberusContexts::CONTEXT_ORG:
+				if(stristr('none',$term) || stristr('empty',$term) || stristr('no organization',$term)) {
+					$empty = new stdClass();
+					$empty->label = '(no organization)';
+					$empty->value = '0';
+					$empty->meta = array('desc' => 'Clear the organization');
+					$list[] = $empty;
+				}
+				
 				list($results, $null) = DAO_ContactOrg::search(
 					array(),
 					array(
@@ -1313,6 +1329,14 @@ class ChInternalController extends DevblocksControllerExtension {
 			case CerberusContexts::CONTEXT_WORKER:
 				$results = DAO_Worker::autocomplete($term);
 
+				if(stristr('unassigned',$term) || stristr('nobody',$term) || stristr('empty',$term) || stristr('no worker',$term)) {
+					$empty = new stdClass();
+					$empty->label = '(no worker)';
+					$empty->value = '0';
+					$empty->meta = array('desc' => 'Clear the worker');
+					$list[] = $empty;
+				}
+				
 				if(is_array($results))
 				foreach($results as $worker_id => $worker){
 					$entry = new stdClass();

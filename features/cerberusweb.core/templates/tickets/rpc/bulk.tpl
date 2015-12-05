@@ -97,15 +97,9 @@
 		{if 1}
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top">{'common.owner'|devblocks_translate|capitalize}:</td>
-			<td width="100%"><select name="do_owner">
-				<option value=""></option>
-				<option value="0">{'common.nobody'|devblocks_translate|lower}</option>
-				{foreach from=$workers item=owner key=owner_id}
-				<option value="{$owner_id}">{$owner->getName()}</option>
-				{/foreach}
-			</select>
-			<button type="button" onclick="$(this).prev('select[name=do_owner]').val('{$active_worker->id}');">me</button>
-			<button type="button" onclick="$(this).prevAll('select[name=do_owner]').val('0');">nobody</button>
+			<td width="100%">
+				<button type="button" class="chooser-abstract" data-field-name="do_owner" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				<ul class="bubbles chooser-container"></ul>
 			</td>
 		</tr>
 		{/if}
@@ -114,7 +108,8 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top">{'common.organization'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
-				<input type="text" name="do_org" value="" style="width:98%;">
+				<button type="button" class="chooser-abstract" data-field-name="do_org" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-query="" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				<ul class="bubbles chooser-container"></ul>
 			</td>
 		</tr>
 		{/if}
@@ -201,7 +196,7 @@ $(function() {
 		
 		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
-		ajax.orgAutoComplete('#formBatchUpdate input:text[name=do_org]');
+		$popup.find('button.chooser-abstract').cerbChooserTrigger();
 		
 		$popup.find('button.submit').click(function() {
 			genericAjaxPost('formBatchUpdate', 'view{$view_id}', null, function() {

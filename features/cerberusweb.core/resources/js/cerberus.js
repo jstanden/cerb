@@ -999,7 +999,7 @@ var ajax = new cAjaxCalls();
 			if($trigger.attr('data-autocomplete')) {
 				var is_autocomplete_ifnull = $trigger.attr('data-autocomplete') == 'if-null';
 				
-				var $autocomplete = $('<input type="text" size="32">');
+				var $autocomplete = $('<input type="search" size="32">');
 				$autocomplete.insertAfter($trigger);
 				
 				$autocomplete.autocomplete({

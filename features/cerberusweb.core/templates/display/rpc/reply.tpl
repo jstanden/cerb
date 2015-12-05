@@ -300,15 +300,16 @@
 							{/if}
 							
 							<b>{'display.reply.next.owner'|devblocks_translate}</b><br>
-							<select name="owner_id">
-								<option value="">-- {'common.nobody'|devblocks_translate|lower} --</option>
-								{foreach from=$workers item=owner key=owner_id}
-								<option value="{$owner_id}" {if !empty($draft) && $draft->params.owner_id==$owner_id}selected="selected"{elseif $ticket->owner_id==$owner_id}selected="selected"{/if}>{$owner->getName()}</option>
-								{/foreach}
-							</select>
-							<button type="button" onclick="$(this).prev('select[name=owner_id]').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
-							<button type="button" onclick="$(this).prevAll('select[name=owner_id]').first().val('');">{'common.nobody'|devblocks_translate|lower}</button>
-							<br>
+							<button type="button" class="chooser-abstract" data-field-name="owner_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="isDisabled:n" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
+							<ul class="bubbles chooser-container">
+									{if $draft && $draft->params.owner_id}
+										{$owner = $workers.{$draft->params.owner_id}}
+										<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}"><input type="hidden" name="owner_id" value="{$owner->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a></li>
+									{elseif $ticket->owner_id}
+										{$owner = $workers.{$ticket->owner_id}}
+										<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}"><input type="hidden" name="owner_id" value="{$owner->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a></li>
+									{/if}
+							</ul>
 						</td>
 					</tr>
 				</table>
@@ -369,6 +370,8 @@
 					e.preventDefault();
 			})
 			;
+		
+		$frm2.find('button.chooser-abstract').cerbChooserTrigger();
 		
 		// Autocompletes
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=to]', { multiple: true } );
