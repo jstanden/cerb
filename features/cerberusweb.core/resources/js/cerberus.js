@@ -1018,6 +1018,10 @@ var ajax = new cAjaxCalls();
 						var evt = jQuery.Event('bubble-create');
 						evt.label = ui.item.label;
 						evt.value = ui.item.value;
+						
+						if(ui.item.icon)
+							evt.icon = ui.item.icon;
+						
 						$ul.trigger(evt);
 						
 						$this.val('');
@@ -1026,7 +1030,13 @@ var ajax = new cAjaxCalls();
 				});
 				
 				$autocomplete.autocomplete("instance")._renderItem = function(ul, item) {
-					var $li = $("<li/>").append($("<div/>").text(item.label));
+					var $div = $("<div/>").text(item.label);
+					var $li = $("<li/>").append($div);
+					
+					if(item.icon) {
+						var $img = $('<img class="cerb-avatar" style="height:28px;width:28px;border-radius:28px;float:left;padding-right:5px;">').attr('src',item.icon).prependTo($div);
+						$li.css('min-height','32px');
+					}
 					
 					if(typeof item.meta == 'object') {
 						for(k in item.meta) {
